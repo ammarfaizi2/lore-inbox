@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268161AbUH3ShO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268292AbUH3ShK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268161AbUH3ShO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 14:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUH3Sab
+	id S268292AbUH3ShK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 14:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268161AbUH3Saz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 14:30:31 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:28573 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268711AbUH3SZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 14:25:11 -0400
-Date: Mon, 30 Aug 2004 14:24:40 -0400
-From: Jeff Kinz <jkinz@kinz.org>
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: Summarizing the PWC driver questions/answers
-Message-ID: <20040830142440.A25964@redline.comcast.net>
-References: <20040827162613.GB32244@kroah.com> <20040830173157.GA24392@top.worldcontrol.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040830173157.GA24392@top.worldcontrol.com>; from brian@worldcontrol.com on Mon, Aug 30, 2004 at 10:31:57AM -0700
+	Mon, 30 Aug 2004 14:30:55 -0400
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:64271 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id S268886AbUH3S03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 14:26:29 -0400
+Message-ID: <41337153.60505@superbug.demon.co.uk>
+Date: Mon, 30 Aug 2004 19:26:27 +0100
+From: James Courtier-Dutton <James@superbug.demon.co.uk>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040812)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Driver retries disk errors.
+References: <20040830163931.GA4295@bitwizard.nl> <20040830174632.GA21419@thunk.org>
+In-Reply-To: <20040830174632.GA21419@thunk.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 10:31:57AM -0700, Brian Litzinger wrote:
-> > Q: Why did you remove the hook from the pwc driver?
-> > A: It was there for the explicit purpose to support a binary only
-> >    module.  That goes against the kernel's documented procedures, so I
-> >    had to take it out.
+Theodore Ts'o wrote:
+> On Mon, Aug 30, 2004 at 06:39:31PM +0200, Rogier Wolff wrote:
+> 
+>>We encounter "bad" drives with quite a lot more regularity than other
+>>people (look at the Email address). We're however, wondering why the
+>>IDE code still retries a bad block 8 times? 
+> 
+> 
+> I could see retrying 2 or 3 times, but 8 times does seem to be a bit
+> much, agreed.
+> 
+> 
+>>In fact we regularly are able to recover data from drives: we have a
+>>userspace application that retries over and over again, and this
+>>sometimes recovers "marginal" blocks. This could be considered "good
+>>practise" if there is a filesystem requesting the block. On the other
+>>hand, when this happens, the drive is usually beyond being usable for
+>>a filesystem: if we recover one block this way, the next block will be
+>>errorred and the filesystem "crashes" anyway. In fact this behaviour
+>>may masquerade the first warnings that something is going wrong....
+> 
+> 
+> If the block gets successfully read after 2 or 3 tries, it might be a
+> good idea for the kernel to automatically do a forced rewrite of the
+> block, which should cause the disk to do its own disk block
+> sparing/reassignment.  
+> 
+> 						- Ted
 
-> I think Greg "chose" to take it out.
+It does the same retries with CD-ROM and DVDs, and if the retries fail, 
+it disables DMA! It even does the retries when reading CD-Audio.
+Maybe there should be a "retrys" setting that can be set by hdparm, then 
+we could set the retry counts, and what happens when a retry fails on a 
+per device basis.
 
-True, No one was holding a gun to his head.   :)
-
-> > it really didn't belong in there due to the kernel's policy of such
-> > hooks. So, once I became aware of it, I had no choice but to remove
-> > it.
-
-> I do not believe he "had no choice".  The guards at Auswitchs made the
-> same argument at Nuremberg.  
-
-[*** Nice "subtle" technique to call someone a Nazi. Real smooth!]
-
-I "choose" to stop at stop signs and red lights.   Yay me.
-
-> I disagree.  Binary drivers may take away from Linux and they may add to it.
-
-My experiences: Binary drivers make Linux harder to support, harder to
-distribute, harder to administrate and harder to maintain in production.
-
-While they provide short term benefits, their long term impact is
-negative. One example: What happens when company X goes out of business
-or stops supporting the device?
-
-A decision has been made: My understanding is that the Binary portion is 
-moving to user space and the devices in question will still function
-as a result.   
-
-Please move it off the kernel list.
-
--- 
-Idealism:  "Realism applied over a longer time period"
-
-Jeff Kinz

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318275AbSG3NhN>; Tue, 30 Jul 2002 09:37:13 -0400
+	id <S318265AbSG3N0d>; Tue, 30 Jul 2002 09:26:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318280AbSG3NhM>; Tue, 30 Jul 2002 09:37:12 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27410 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318275AbSG3NhM>; Tue, 30 Jul 2002 09:37:12 -0400
-Date: Tue, 30 Jul 2002 06:40:43 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Andrea Arcangeli <andrea@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <linux-aio@kvack.org>
+	id <S318266AbSG3N0d>; Tue, 30 Jul 2002 09:26:33 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:63670 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318265AbSG3N0c>; Tue, 30 Jul 2002 09:26:32 -0400
+Date: Tue, 30 Jul 2002 18:59:51 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, linux-aio@kvack.org
 Subject: Re: async-io API registration for 2.5.29
-In-Reply-To: <20020730091140.A6726@infradead.org>
-Message-ID: <Pine.LNX.4.44.0207300637230.2599-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020730185951.B2909@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20020730054111.GA1159@dualathlon.random> <20020730084939.A8978@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020730084939.A8978@redhat.com>; from bcrl@redhat.com on Tue, Jul 30, 2002 at 08:49:39AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 30, 2002 at 08:49:39AM -0400, Benjamin LaHaise wrote:
+> 
+>  Anyways, the core is pretty much ready, so 
 
+Hey Ben, That sounds great. Have been looking forward to it 
+to find out how much has changed and if you've left anything 
+for us to do :) (other than docs and driver fixes :( ) 
 
-On Tue, 30 Jul 2002, Christoph Hellwig wrote:
->
-> And even if there is a syscall reservation the way to do it is not to add
-> the real syscall names to entry.S and implement stubs but to use
-> sys_ni_syscall.
+I did have an updated version of the bio traversal patch 
+(for 2.5.29) that avoids modifications to the bv_offset/bv_len
+fields by the block layer, though I don't know if you 
+still need it. Besides, you probably wouldn't run into
+those cases often, as the partial request completions 
+are probably rare. But just as a fyi ... 
 
-Note that something needs to get moving on this rsn, I'm not interested in
-getting aio patches on Oct 30th. The feature freeze may be on Halloween,
-but if I get some big feature just days before I'm likely to just say
-"screw it".
+Regards
+Suparna
 
-I think we can still change the stuff in 2.5.x, but I really want to start
-seeing some code, so that I'm not taken by surprise by something that
-obviously sucks.
-
-Is there any activity on linux-aio? I haven't heard anything since Ottawa.
-
-		Linus
-
+> 

@@ -1,108 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbTHTW3T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 18:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbTHTW3T
+	id S262280AbTHTWg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 18:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbTHTWg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 18:29:19 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:6412 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id S262261AbTHTW3K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 18:29:10 -0400
-Date: Thu, 21 Aug 2003 00:27:10 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [RFC][2.4 PATCH] source address selection for ARP requests
-Message-ID: <20030820222710.GC734@alpha.home.local>
-References: <1061320363.3744.14.camel@athena.fprintf.net> <Pine.LNX.3.96.1030820123600.14414I-100000@gatekeeper.tmr.com> <20030820100044.3127d612.davem@redhat.com> <3F43B389.5060602@candelatech.com> <20030820104831.6235f3b9.davem@redhat.com> <20030820213443.GA23939@alpha.home.local> <20030820144711.13ea5f38.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030820144711.13ea5f38.davem@redhat.com>
-User-Agent: Mutt/1.4i
+	Wed, 20 Aug 2003 18:36:57 -0400
+Received: from rivmkt61.wintek.com ([206.230.0.61]:45993 "EHLO dust")
+	by vger.kernel.org with ESMTP id S262280AbTHTWgx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 18:36:53 -0400
+Date: Wed, 20 Aug 2003 17:40:10 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Emilio =?ISO-8859-1?Q?Jes=FAs?= Gallego Arias 
+	<egallego@telefonica.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Build Broken for 2.6.0-test3-bk8
+In-Reply-To: <1061410952.568.8.camel@ellugar>
+Message-ID: <Pine.LNX.4.56.0308201715150.4960@dust>
+References: <1061410952.568.8.camel@ellugar>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 20, 2003 at 02:47:11PM -0700, David S. Miller wrote:
-> On Wed, 20 Aug 2003 23:34:43 +0200
-> Willy Tarreau <willy@w.ods.org> wrote:
+On Wed, 20 Aug 2003, Emilio [ISO-8859-1] Jesús Gallego Arias wrote:
+
+> I got the same error, and applied this patch. Don't know if it's the way
+> to go:
 > 
-> > +	if (in_dev == NULL)
-> > +		return;
-> 
-> A NULL in_dev is what you'll see if no addresses are
-> assigned to the interface, therefore you must treat
-> this case similarly.
+> # This is a BitKeeper generated patch for the following project:
+> # Project Name: Linux kernel tree
+> # This patch format is intended for GNU patch command version 2.5 or
+> higher.
+> # This patch includes the following deltas:
+> #                  ChangeSet    1.1279  -> 1.1280
+> #       arch/i386/kernel/setup.c        1.92    -> 1.93
+> #       arch/i386/kernel/acpi/boot.c    1.27    -> 1.28
+> #
+> # The following is the BitKeeper ChangeSet Log
+> # --------------------------------------------
+> # 03/08/20      emilio@ellugar.(none)   1.1280
+> # - Fix build error due a missing include.
+> # --------------------------------------------
+> #
+> diff -Nru a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
+> --- a/arch/i386/kernel/acpi/boot.c      Wed Aug 20 22:18:04 2003
+> +++ b/arch/i386/kernel/acpi/boot.c      Wed Aug 20 22:18:04 2003
+> @@ -34,6 +34,7 @@
+>  #if defined (CONFIG_X86_LOCAL_APIC)
+>  #include <mach_apic.h>
+>  #include <mach_mpparse.h>
+> +#include <asm/io_apic.h>
+>  #endif
+>   
+>  #define PREFIX                 "ACPI: "
+> diff -Nru a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
+> --- a/arch/i386/kernel/setup.c  Wed Aug 20 22:18:04 2003
+> +++ b/arch/i386/kernel/setup.c  Wed Aug 20 22:18:04 2003
+> @@ -43,6 +43,7 @@
+>  #include <asm/setup.h>
+>  #include <asm/arch_hooks.h>
+>  #include <asm/sections.h>
+> +#include <asm/io_apic.h>
+>  #include "setup_arch_pre.h"
+>  #include "mach_resources.h"
 
-OK, that's fine. It is what I wanted to test with in_dev->ifa_list==NULL. I
-don't know if I must keep the test or not (anyway, it doesn't hurt, this isn't
-a fast path).
+I'd already tried this (see my second post to the other thread).  This
+only works if you've got APIC enabled.  I don't feel like mucking around
+in the library and moving the extern int skip_ioapic_setup out of the
+proper ifdef (which is I think what's going on.  That variable gets
+ifdef'd out without APIC enabled, I think).
 
-Better this way ?
-
-Cheers,
-Willy
-
---------
-
-patch 1 :
-
-diff -urN linux-2.4.22-rc2/net/ipv4/arp.c linux-2.4.22-rc2-arp/net/ipv4/arp.c
---- linux-2.4.22-rc2/net/ipv4/arp.c	Fri Aug  1 23:06:29 2003
-+++ linux-2.4.22-rc2-arp/net/ipv4/arp.c	Thu Aug 21 00:20:19 2003
-@@ -320,13 +320,20 @@
- 	u32 saddr;
- 	u8  *dst_ha = NULL;
- 	struct net_device *dev = neigh->dev;
-+	struct in_device *in_dev = in_dev_get(dev);
- 	u32 target = *(u32*)neigh->primary_key;
- 	int probes = atomic_read(&neigh->probes);
- 
--	if (skb && inet_addr_type(skb->nh.iph->saddr) == RTN_LOCAL)
-+	if (in_dev == NULL || in_dev->ifa_list == NULL ||
-+	    (skb && inet_addr_type(skb->nh.iph->saddr) == RTN_LOCAL &&
-+	    (IN_DEV_SHARED_MEDIA(in_dev) ||
-+	    inet_addr_onlink(in_dev, skb->nh.iph->saddr, 0))))
- 		saddr = skb->nh.iph->saddr;
- 	else
- 		saddr = inet_select_addr(dev, target, RT_SCOPE_LINK);
-+
-+	if (in_dev == NULL)
-+		in_dev_put(in_dev);
- 
- 	if ((probes -= neigh->parms->ucast_probes) < 0) {
- 		if (!(neigh->nud_state&NUD_VALID))
-
----------
-
-patch 2 :
-
-
-diff -urN linux-2.4.22-rc2/net/ipv4/arp.c linux-2.4.22-rc2-arp2/net/ipv4/arp.c
---- linux-2.4.22-rc2/net/ipv4/arp.c	Fri Aug  1 23:06:29 2003
-+++ linux-2.4.22-rc2-arp2/net/ipv4/arp.c	Thu Aug 21 00:24:25 2003
-@@ -320,13 +320,19 @@
- 	u32 saddr;
- 	u8  *dst_ha = NULL;
- 	struct net_device *dev = neigh->dev;
-+	struct in_device *in_dev = in_dev_get(dev);
- 	u32 target = *(u32*)neigh->primary_key;
- 	int probes = atomic_read(&neigh->probes);
- 
--	if (skb && inet_addr_type(skb->nh.iph->saddr) == RTN_LOCAL)
--		saddr = skb->nh.iph->saddr;
-+	if (skb && inet_addr_type(skb->nh.iph->saddr) == RTN_LOCAL &&
-+	    (in_dev == NULL || IN_DEV_SHARED_MEDIA(in_dev) ||
-+	     (saddr = inet_select_addr(dev, target, RT_SCOPE_LINK)) == 0))
-+			saddr = skb->nh.iph->saddr;
- 	else
- 		saddr = inet_select_addr(dev, target, RT_SCOPE_LINK);
-+
-+	if (in_dev == NULL)
-+		in_dev_put(in_dev);
- 
- 	if ((probes -= neigh->parms->ucast_probes) < 0) {
- 		if (!(neigh->nud_state&NUD_VALID))
-
-
+-- 
+Alex Goddard
+agoddard at purdue.edu

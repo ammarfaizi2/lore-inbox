@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264853AbRFZVS2>; Tue, 26 Jun 2001 17:18:28 -0400
+	id <S264901AbRFZVWi>; Tue, 26 Jun 2001 17:22:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264860AbRFZVSS>; Tue, 26 Jun 2001 17:18:18 -0400
-Received: from euclide.bretagne.ens-cachan.fr ([193.52.92.2]:14780 "EHLO
-	euclide.bretagne.ens-cachan.fr") by vger.kernel.org with ESMTP
-	id <S264853AbRFZVSO>; Tue, 26 Jun 2001 17:18:14 -0400
-To: jsimmons@transvirtual.com (James Simmons)
-Cc: Linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10106261324280.30394-100000@transvirtual.com>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbgen & multiple RGBA
-From: dolbeaur@club-internet.fr (Romain Dolbeau)
-Reply-To: dolbeau@irisa.fr
-Date: Tue, 26 Jun 2001 23:17:34 +0200
-Message-ID: <1evmtnt.1yhx1hb1pz56vyM%dolbeaur@club-internet.fr>
-Organization: IRISA
-User-Agent: MacSOUP/F-2.4.2
+	id <S265108AbRFZVW2>; Tue, 26 Jun 2001 17:22:28 -0400
+Received: from munchkin.spectacle-pond.org ([209.192.197.45]:10501 "EHLO
+	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
+	id <S264901AbRFZVWL>; Tue, 26 Jun 2001 17:22:11 -0400
+Date: Tue, 26 Jun 2001 17:21:48 -0400
+From: Michael Meissner <meissner@spectacle-pond.org>
+To: Rob Landley <landley@webofficenow.com>
+Cc: asmith@14inverleith.freeserve.co.uk,
+        Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org,
+        penguicon-comphist@lists.sourceforge.net
+Subject: Re: [comphist] Re: Microsoft and Xenix.
+Message-ID: <20010626172148.A588@munchkin.spectacle-pond.org>
+In-Reply-To: <Pine.LNX.4.33.0106252104530.18127-100000@vtrl22.vtrl.co.uk> <01062610445301.12583@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01062610445301.12583@localhost.localdomain>; from landley@webofficenow.com on Tue, Jun 26, 2001 at 10:44:53AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This happens every time you VC switch.
-[snip]
-> But because of the way the current console system
-> is designed the colormap will always be set on VC switches.
+On Tue, Jun 26, 2001 at 10:44:53AM -0400, Rob Landley wrote:
+> Okay, so they're 2.4 megabyte removable cartridges?  How big?  Are they tapes 
+> or disk packs?  (I.E. can you run off of them or are they just storage?)  I 
+> know lots of early copies of unix were sent out from Bell Labs on RK05 
+> cartidges signed "love, ken"...
 
-The fix wasn't intended for VC switch, but for any change of
-fb_var_screeninfo parameter. Those can happen without VC switching,
-that's exactly what 'fbset' is for.
-
-If on your console you do a 'fbset -depth 16 -rgba 5,6,5,0' followed by
-a 'fbset -depth 16 -rgba 5,5,5,1' [1], any driver using fbdev will end
-up with a crazy colormap because it hasn't been reinstalled after the
-RGBA change.
-
-Hence the need for the fix.
-
-[1] yes, in fbset, "-depth" really mean "-bpp" ...
+IIRC, rk05 was a removable disk drive, 1 platter to the assembly, about the
+size of a large pizza box.  They were the standard disk drives for small DEC
+machines of the era.  My memories from 30+ years ago, say they were maybe 10
+pounds each.  I would imagine you are confusing tapes with disks (ie, tk<num>
+instead of rk<num>) in terms of the release media Bell Labs sent out (at least
+I never saw a disk with the media, and I did have a job of trying to port the
+V7 compiler to a V6 system).  It could be the very early customers got disks,
+and the later ones got tapes.
 
 -- 
-DOLBEAU Romain               |
-ENS Cachan / Ker Lann        | l'histoire est entierement vraie, puisque
-Thesard IRISA / CAPS         |     je l'ai imaginee d'un bout a l'autre
-dolbeaur@club-internet.fr    |           -- Boris Vian
+Michael Meissner, Red Hat, Inc.  (GCC group)
+PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
+Work:	  meissner@redhat.com		phone: +1 978-486-9304
+Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482

@@ -1,143 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271672AbRH0I2O>; Mon, 27 Aug 2001 04:28:14 -0400
+	id <S271673AbRH0I7r>; Mon, 27 Aug 2001 04:59:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271673AbRH0I2E>; Mon, 27 Aug 2001 04:28:04 -0400
-Received: from www.heureka.co.at ([195.64.11.111]:48649 "EHLO
-	www.heureka.co.at") by vger.kernel.org with ESMTP
-	id <S271672AbRH0I1t>; Mon, 27 Aug 2001 04:27:49 -0400
-Date: Mon, 27 Aug 2001 10:27:40 +0200
-From: David Schmitt <david@heureka.co.at>
+	id <S271309AbRH0I7h>; Mon, 27 Aug 2001 04:59:37 -0400
+Received: from b73254.upc-b.chello.nl ([212.83.73.254]:36364 "EHLO
+	kleintje.nozone.nl") by vger.kernel.org with ESMTP
+	id <S271673AbRH0I7V>; Mon, 27 Aug 2001 04:59:21 -0400
+Date: Mon, 27 Aug 2001 10:59:36 +0200 (CEST)
+From: Tony den Haan <tony@chello.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: ISSUE: DFE530-TX REV-A3-1 times out on transmit
-Message-ID: <20010827102740.A9557@www.heureka.co.at>
-In-Reply-To: <20010824162425.D27794@www.heureka.co.at> <Pine.LNX.4.10.10108251801480.13314-100000@ada.teststation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10108251801480.13314-100000@ada.teststation.com>
-User-Agent: Mutt/1.3.20i
-Organization: Heureka - Der EDV-Dienstleister
+Subject: 2.4.8/9 panic on serial with MSI-694D MB
+Message-ID: <Pine.LNX.4.21.0108271052440.14250-100000@kleintje.nozone.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 25, 2001 at 07:05:26PM +0200, Urban Widmark wrote:
-> On Fri, 24 Aug 2001, David Schmitt wrote:
-> 
-> > Aug 24 11:15:07 cheesy kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> > Aug 24 11:15:07 cheesy kernel: eth0: Transmit timed out, status 0000, PHY status 782d, resetting...
-> > Aug 24 11:15:07 cheesy kernel: eth0: reset did not complete in 10 ms.
-> > Aug 24 11:15:07 cheesy kernel: eth0: reset finished after 10005 microseconds.
-> > Aug 24 11:15:07 cheesy kernel: eth0: Transmit frame #1 queued in slot 0.
-> [snip]
-> > Aug 24 11:15:07 cheesy kernel: eth0: Transmit frame #10 queued in slot 9.
-> > Aug 24 11:15:09 cheesy kernel: eth0: VIA Rhine monitor tick, status 0000.
-> > Aug 24 11:15:11 cheesy kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> > Aug 24 11:15:11 cheesy kernel: eth0: Transmit timed out, status 0000, PHY status 782d, resetting...
-> > Aug 24 11:15:11 cheesy kernel: eth0: reset did not complete in 10 ms.
-> > Aug 24 11:15:11 cheesy kernel: eth0: reset finished after 10005 microseconds.
-> > 
-> > 	Reloading the module doesn't help either. Only a reboot
-> > 	reenables network connectivity.
-> 
-> There is a patch in the 2.4.8-acX kernels that fixes a problem with
-> reseting the card when it is first used. I can't say that I know that it
-> fixes anything you are seeing, but it could be worth trying.
+hi,
 
-Ok, I will try that too and report back.
+i ran into strange problem with2.4.9 panics, first only sometimes, later
+on it just wouldn't boot at all.
 
-> Did this start with recent versions, or have you never run older kernels
-> on this hw?
+VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci00:07.1
+        ide0: BM-DMA at 0x9000-0x9007, BIOS settings hda:DMA, hdb:pio
+        ide1: BM-DMA at 0x9008-0x900f, BIOS settings hdc:pio, hdd:pio
+Unable to handle kernel NULL pointer dereference at virtual address
+00000018
+ printing eip:
+00000018
+*pde = 00000000
+Oops: 0000
+CPU:    1
+EIP:    0010:[<00000018>]
+EFLAGS: 00010246
+eax: 00000000 ebx: c01051d0 ecx: c15f6000 edx: c15f6000
+esi: c15f6000 edi: c01051d0 ebp: 00000000 esp: c15f7fb0
+ds: 0018  es: 0018  ss: 0018
+Process swapper (pid: 0, stackpage=c15f7000)
+Stack:  c0105262 00000002 00000000 00000000 c0247a4a c02a0e80 00000000
+        c0199b77 00000000 0000000d 00000000 00000000 c016956e c1443000
+        00000001 c02a0e0a 00000000 00000000
+Call Trace: [c0105262>] [<c0199b77>] [<c016966e>]
 
-I tried it now with 2.2.19 and killed it too. See below for details.
+Code: Bad EIP value
+Kernel panicL Attempted to kill the idle task!
+In idle task - not syncing
 
-> Reloading the module is to the hardware about the same as the watchdog
-> reset.
+all attempts came up with same 0018
 
-Good news: Under 2.2.19, reloading the module indeed reset the card,
-so that it worked again. 
+this is where serial gets initialized, removing serial support from kernel
+fixed the problem
 
-I will upload debugoutput from 2.2.19 too
-(http://www.heureka.co.at/~david/dfe530tx/)
+it's SMP PIII system with via82Cxx chipset, no special hardware added.
+2.4.5 did ok.
 
-> Rebooting obviously triggers something else too ... perhaps the BIOS talks
-> some sense to the card.
+any thoughts? hints what to look at?
 
-As mentioned above, it seems like the 2.2.19 version does the Right
-Thing (but doesn't recover autmatically).
-
-> > [6.] A small shell script or example program which triggers the
-> > 	problem (if possible)
-> > 
-> > 	Downloading amounts of data (>50MB) will eventually trigger
-> > 	the problem. Transmitting data at less than full speed will
-> > 	not trigger it (or at least I haven't waited long enough?)
-> 
-> What do you use to download? from a server on the LAN or something remote?
-> and how do you slow down the speed of your transmission? How fast is it
-> when it is fast, and how much do you slow it down?
-
-Ok, I could reproduce it kinda more systematically:
-
-# ssh other.machine cat /dev/zero
-
-Generates about 2Mbit incoming traffic. This doesn't trigger the
-problem.
-
-but doing one or two parallel ping -f other.machine locks the NIC for
-good.
+tony
 
 
-> > [X.] Other notes, patches, fixes, workarounds
-> > 
-> > Further information from lspci, via-diag and ifconfig output as well
-> > as well as complete kernel syslog from boot to network-lock can be
-> > found on http://www.heureka.co.at/~david/dfe530tx/
-> 
-> The syslog gives a few hints that something is wrong ...
-> 
-> eth0: Transmit error, Tx status 00008100.
-> 	8 - transmit error
-> 	1 - transmit aborted after excessive collisions
-> 
-> but at the same time the 00 part means that the "collision retry count" is
-> 0 and that it hasn't set a flag that it "experienced collisions in this
-> transmit event".
-
-The network where the DFE530TX (and the other.machine) are attached
-contains some 20-30 Windows PCs and some Novell Servers which all seem
-quite braodcast-happy. The network itself is (mostly) unswitched and
-10Mbit halfduplex, so I guess this really is connected to the
-collisions.
-
-
-> I think there were 3 of these, and from all but the last it recovers by
-> itself. Perhaps the collisions (or whatever it is that the card sees as
-> collisions) continued for a longer period.
-
-
-
-
-> It ends up in "eth0: transmit timed out" and the driver tries to reset the
-> card. That does not appear to work at all.
-
-Under 2.2.19 the card doesn't recover automatically (lacking the
-watchdog) but manually reloading the module works.
-
-> It's a nice report, I wish I had something more useful to reply with.
-
-Well, you pointed me in the right direction :-)
-
-> The driver source has links to some datasheets. They might be useful in
-> improving the reset code.
-> (Hmm, the tx_timeout code does: reset -> initialise ring -> wait for hw
->  but initialise ring talks to the hw, perhaps it should wait for hw first
->  ...)
-
-I'm not really into hacking C but, I will try to provide as much info
-as possible.
-
-
-Regards, David
--- 
-Sponsored by heureKA, Austria (http://www.heureka.co.at)

@@ -1,367 +1,424 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264212AbTDWShr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 14:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264215AbTDWShr
+	id S264197AbTDWSev (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 14:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264199AbTDWSeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 14:37:47 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:22054 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264212AbTDWShj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 14:37:39 -0400
-Date: Wed, 23 Apr 2003 14:49:47 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.20 - intel AGP update (rev 3)
-Message-ID: <20030423144947.A8931@devserv.devel.redhat.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Wed, 23 Apr 2003 14:34:50 -0400
+Received: from [195.205.16.117] ([195.205.16.117]:1284 "HELO
+	mother.fordon.pl.eu.org") by vger.kernel.org with SMTP
+	id S264197AbTDWSei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 14:34:38 -0400
+Date: Wed, 23 Apr 2003 20:48:47 +0200
+From: "Tomasz Torcz, BG" <zdzichu@irc.pl>
+To: LKML <linux-kernel@vger.redhat.com>
+Subject: [2.5.68] Failed to execute binary (UML); binary compatibility broken?
+Message-ID: <20030423184847.GA802@irc.pl>
+Mail-Followup-To: "Tomasz Torcz, BG" <zdzichu@irc.pl>,
+	LKML <linux-kernel@vger.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="r5Pyd7+fXNt84Ff3"
+Content-Type: multipart/mixed; boundary="OgqxwSJOaUobr8KG"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---r5Pyd7+fXNt84Ff3
+--OgqxwSJOaUobr8KG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Again, AGP support for i852GM/i855GM/i855PM/i865G. Mostly
-by David Dawes (<dawes@tungstengraphics.com>)
 
-Changes from previous:
-- remove any support for 'integrated graphics' on i855PM... there's
-  no such thing. (oops)
+Hi,
 
-Bill
+I've tried to run some specific executable in 2.5.67. This
+executable worked fine with earlier[1] 2.5.x and 2.4.x kernels,
+but it refuses to run with 2.5.67. I thought that it's temporary
+problem and waited to 2.5.68 in hope, that it will be fixed.
+But it won't work with 2.5.68 either.
 
---r5Pyd7+fXNt84Ff3
+[1] I did not test it on every earlier kernel. It have
+    stopped working somewhere in 2.5.6x series.
+
+This binary is old Linux version 2.4.18-19um as UML executable.
+It produces:
+
+zdzichu@mth $ ./linux-2.4.18 eth0=tuntap,,,192.168.2.2 umid=balance mem=32M
+
+tracing thread pid = 793
+Linux version 2.4.18-19um (zdzichu@mother) (gcc version 2.95.3 20010315 (release)) #20 sob kwi 27 23:20:06 CEST 2002
+On node 0 totalpages: 8192
+zone(0): 0 pages.
+zone(1): 8192 pages.
+zone(2): 0 pages.
+Kernel command line: eth0=tuntap,,,192.168.2.2 umid=balance mem=32M root=/dev/ubd0
+Calibrating delay loop... 362.52 BogoMIPS
+Memory: 32244k available
+Dentry-cache hash table entries: 4096 (order: 3, 32768 bytes)
+Inode-cache hash table entries: 2048 (order: 2, 16384 bytes)
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer-cache hash table entries: 1024 (order: 0, 4096 bytes)
+Page-cache hash table entries: 8192 (order: 3, 32768 bytes)
+Checking for host processor cmov support...Yes
+Checking for host processor xmm support...No
+Checking that ptrace can change system call numbers...OK
+Checking that host ptys support output SIGIO...Yes
+POSIX conformance testing by UNIFIX
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Kernel panic: outer trampoline didn't exit with SIGKILL
+ 
+------
+
+Details of my host system setup are here:
+http://fordon.pl.eu.org/~zdzichu/my_setup/
+
+If I understand correctly, UML binary is ordinary executable.
+So if it is unable to start, evidently something very important 
+is broken.
+
+UML's kernel config attached.
+
+Please CC me.
+-- 
+Tomasz Torcz               RIP is irrevelant. Spoofing is futile.
+zdzichu@irc.-nie.spam-.pl     Your routes will be aggreggated.
+
+--OgqxwSJOaUobr8KG
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.4.20-intel-agp.patch"
+Content-Disposition: attachment; filename=config-balance
 
-diff -ru linux-2.4.20/drivers/char/agp/agpgart_be.c /usr/src/linux-2.4.20-9/drivers/char/agp/agpgart_be.c
---- linux-2.4.20/drivers/char/agp/agpgart_be.c	2003-04-23 14:14:46.000000000 -0400
-+++ /usr/src/linux-2.4.20-9/drivers/char/agp/agpgart_be.c	2003-04-23 14:09:30.000000000 -0400
-@@ -23,6 +23,12 @@
-  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-  *
-  */
-+
-+/*
-+ * Intel(R) 855GM/852GM and 865G support, added by
-+ * David Dawes <dawes@tungstengraphics.com>.
-+ */
-+
- #include <linux/config.h>
- #include <linux/version.h>
- #include <linux/module.h>
-@@ -1112,34 +1118,64 @@
- 	u16 gmch_ctrl;
- 	int gtt_entries;
- 	u8 rdct;
-+	int local = 0;
- 	static const int ddt[4] = { 0, 16, 32, 64 };
- 
- 	pci_read_config_word(agp_bridge.dev,I830_GMCH_CTRL,&gmch_ctrl);
- 
--	switch (gmch_ctrl & I830_GMCH_GMS_MASK) {
--	case I830_GMCH_GMS_STOLEN_512:
--		gtt_entries = KB(512) - KB(132);
--		printk(KERN_INFO PFX "detected %dK stolen memory.\n",gtt_entries / KB(1));
--		break;
--	case I830_GMCH_GMS_STOLEN_1024:
--		gtt_entries = MB(1) - KB(132);
--		printk(KERN_INFO PFX "detected %dK stolen memory.\n",gtt_entries / KB(1));
--		break;
--	case I830_GMCH_GMS_STOLEN_8192:
--		gtt_entries = MB(8) - KB(132);
--		printk(KERN_INFO PFX "detected %dK stolen memory.\n",gtt_entries / KB(1));
--		break;
--	case I830_GMCH_GMS_LOCAL:
--		rdct = INREG8(intel_i830_private.registers,I830_RDRAM_CHANNEL_TYPE);
--		gtt_entries = (I830_RDRAM_ND(rdct) + 1) * MB(ddt[I830_RDRAM_DDT(rdct)]);
--		printk(KERN_INFO PFX "detected %dK local memory.\n",gtt_entries / KB(1));
--		break;
--	default:
--		printk(KERN_INFO PFX "no video memory detected.\n");
--		gtt_entries = 0;
--		break;
-+	if (agp_bridge.dev->device != PCI_DEVICE_ID_INTEL_830_M_0 &&
-+	    agp_bridge.dev->device != PCI_DEVICE_ID_INTEL_845_G_0) {
-+		switch (gmch_ctrl & I855_GMCH_GMS_MASK) {
-+		case I855_GMCH_GMS_STOLEN_1M:
-+			gtt_entries = MB(1) - KB(132);
-+			break;
-+		case I855_GMCH_GMS_STOLEN_4M:
-+			gtt_entries = MB(4) - KB(132);
-+			break;
-+		case I855_GMCH_GMS_STOLEN_8M:
-+			gtt_entries = MB(8) - KB(132);
-+			break;
-+		case I855_GMCH_GMS_STOLEN_16M:
-+			gtt_entries = MB(16) - KB(132);
-+			break;
-+		case I855_GMCH_GMS_STOLEN_32M:
-+			gtt_entries = MB(32) - KB(132);
-+			break;
-+		default:
-+			gtt_entries = 0;
-+			break;
-+		}
-+	} else
-+	{
-+		switch (gmch_ctrl & I830_GMCH_GMS_MASK) {
-+		case I830_GMCH_GMS_STOLEN_512:
-+			gtt_entries = KB(512) - KB(132);
-+			break;
-+		case I830_GMCH_GMS_STOLEN_1024:
-+			gtt_entries = MB(1) - KB(132);
-+			break;
-+		case I830_GMCH_GMS_STOLEN_8192:
-+			gtt_entries = MB(8) - KB(132);
-+			break;
-+		case I830_GMCH_GMS_LOCAL:
-+			rdct = INREG8(intel_i830_private.registers,
-+				      I830_RDRAM_CHANNEL_TYPE);
-+			gtt_entries = (I830_RDRAM_ND(rdct) + 1) *
-+				      MB(ddt[I830_RDRAM_DDT(rdct)]);
-+			local = 1;
-+			break;
-+		default:
-+			gtt_entries = 0;
-+			break;
-+		}
- 	}
- 
-+	if (gtt_entries > 0)
-+		printk(KERN_INFO PFX "Detected %dK %s memory.\n",
-+		       gtt_entries / KB(1), local ? "local" : "stolen");
-+	else
-+		printk(KERN_INFO PFX
-+		       "No pre-allocated video memory detected.\n");
- 	gtt_entries /= KB(4);
- 
- 	intel_i830_private.gtt_entries = gtt_entries;
-@@ -1192,9 +1228,16 @@
- 	u16 gmch_ctrl;
- 	aper_size_info_fixed *values;
- 
--	pci_read_config_word(agp_bridge.dev,I830_GMCH_CTRL,&gmch_ctrl);
- 	values = A_SIZE_FIX(agp_bridge.aperture_sizes);
- 
-+	if (agp_bridge.dev->device != PCI_DEVICE_ID_INTEL_830_M_0 &&
-+	    agp_bridge.dev->device != PCI_DEVICE_ID_INTEL_845_G_0) {
-+		agp_bridge.previous_size = agp_bridge.current_size = (void *) values;
-+		agp_bridge.aperture_size_idx = 0;
-+		return(values[0].size);
-+	}
-+		
-+	pci_read_config_word(agp_bridge.dev,I830_GMCH_CTRL,&gmch_ctrl);
- 	if ((gmch_ctrl & I830_GMCH_MEM_MASK) == I830_GMCH_MEM_128M) {
- 		agp_bridge.previous_size = agp_bridge.current_size = (void *) values;
- 		agp_bridge.aperture_size_idx = 0;
-@@ -4516,15 +4559,38 @@
- 	{ PCI_DEVICE_ID_INTEL_830_M_0,
- 		PCI_VENDOR_ID_INTEL,
- 		INTEL_I830_M,
--		"Intel",
--		"i830M",
-+		"Intel(R)",
-+		"830M",
- 		intel_830mp_setup },
--    { PCI_DEVICE_ID_INTEL_845_G_0,
-+	
-+	{ PCI_DEVICE_ID_INTEL_845_G_0,
- 		 PCI_VENDOR_ID_INTEL,
- 		 INTEL_I845_G,
--		 "Intel",
--		 "i845G",
-+		 "Intel(R)",
-+		 "845G",
- 		 intel_845_setup },
-+
-+	{ PCI_DEVICE_ID_INTEL_855_GM_0,
-+		 PCI_VENDOR_ID_INTEL,
-+		 INTEL_I855_GM,
-+		 "Intel(R)",
-+		 "855GM",
-+		 intel_845_setup },
-+
-+	{ PCI_DEVICE_ID_INTEL_855_PM_0,
-+		 PCI_VENDOR_ID_INTEL,
-+		 INTEL_I855_PM,
-+		 "Intel(R)",
-+		 "855PM",
-+		 intel_845_setup },
-+
-+	{ PCI_DEVICE_ID_INTEL_865_G_0,
-+		PCI_VENDOR_ID_INTEL,
-+		INTEL_I865_G,
-+		"Intel(R)",
-+		"865G",
-+		 intel_845_setup },
-+
- 	{ PCI_DEVICE_ID_INTEL_840_0,
- 		PCI_VENDOR_ID_INTEL,
- 		INTEL_I840,
-@@ -4888,10 +4960,14 @@
-                                  * with an external graphics
-                                  * card. It will be initialized later 
-                                  */
-+				printk(KERN_ERR PFX "Detected an "
-+				       "Intel(R) 845G, but could not find the"
-+				       " secondary device. Assuming a "
-+				       "non-integrated video card.\n");
- 				agp_bridge.type = INTEL_I845_G;
- 				break;
- 			}
--			printk(KERN_INFO PFX "Detected an Intel "
-+			printk(KERN_INFO PFX "Detected an Intel(R) "
- 				   "845G Chipset.\n");
- 			agp_bridge.type = INTEL_I810;
- 			return intel_i830_setup(i810_dev);
-@@ -4913,10 +4989,77 @@
- 				agp_bridge.type = INTEL_I830_M;
- 				break;
- 			}
--			printk(KERN_INFO PFX "Detected an Intel "
-+			printk(KERN_INFO PFX "Detected an Intel(R) "
- 				   "830M Chipset.\n");
- 			agp_bridge.type = INTEL_I810;
- 			return intel_i830_setup(i810_dev);
-+		case PCI_DEVICE_ID_INTEL_855_GM_0:
-+			i810_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
-+					PCI_DEVICE_ID_INTEL_855_GM_1, NULL);
-+			if(i810_dev && PCI_FUNC(i810_dev->devfn) != 0) {
-+				i810_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
-+					PCI_DEVICE_ID_INTEL_855_GM_1, i810_dev);
-+			}
-+			if (i810_dev == NULL) {
-+                                /* 
-+                                 * We probably have an 855GM chipset
-+                                 * with an external graphics
-+                                 * card. It will be initialized later.
-+                                 */
-+				agp_bridge.type = INTEL_I855_GM;
-+				break;
-+			}
-+			{
-+				u32 capval = 0;
-+				const char *name = "855GM/852GM";
-+
-+				pci_read_config_dword(dev, I85X_CAPID, &capval);
-+				switch ((capval >> I85X_VARIANT_SHIFT) &
-+					I85X_VARIANT_MASK) {
-+				case I855_GME:
-+					name = "855GME";
-+					break;
-+				case I855_GM:
-+					name = "855GM";
-+					break;
-+				case I852_GME:
-+					name = "852GME";
-+					break;
-+				case I852_GM:
-+					name = "852GM";
-+					break;
-+				}
-+				printk(KERN_INFO PFX "Detected an Intel(R) "
-+					"%s Chipset.\n", name);
-+			}
-+			agp_bridge.type = INTEL_I810;
-+			return intel_i830_setup(i810_dev);
-+		case PCI_DEVICE_ID_INTEL_865_G_0:
-+			i810_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
-+					PCI_DEVICE_ID_INTEL_865_G_1, NULL);
-+			if(i810_dev && PCI_FUNC(i810_dev->devfn) != 0) {
-+				i810_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
-+					PCI_DEVICE_ID_INTEL_865_G_1, i810_dev);
-+			}
-+
-+			if (i810_dev == NULL) {
-+                                /* 
-+                                 * We probably have a 865G chipset
-+                                 * with an external graphics
-+                                 * card. It will be initialized later 
-+                                 */
-+				printk(KERN_ERR PFX "Detected an "
-+				       "Intel(R) 865G, but could not"
-+				       " find the"
-+				       " secondary device. Assuming a "
-+				       "non-integrated video card.\n");
-+				agp_bridge.type = INTEL_I865_G;
-+				break;
-+			}
-+			printk(KERN_INFO PFX "Detected an Intel(R) "
-+				   "865G Chipset.\n");
-+			agp_bridge.type = INTEL_I810;
-+			return intel_i830_setup(i810_dev);
- 		default:
- 			break;
- 		}
-diff -ru linux-2.4.20/drivers/char/agp/agp.h /usr/src/linux-2.4.20-9/drivers/char/agp/agp.h
---- linux-2.4.20/drivers/char/agp/agp.h	2003-04-23 14:14:46.000000000 -0400
-+++ /usr/src/linux-2.4.20-9/drivers/char/agp/agp.h	2003-04-23 14:06:08.000000000 -0400
-@@ -184,6 +184,21 @@
- #ifndef PCI_DEVICE_ID_INTEL_830_M_1
- #define PCI_DEVICE_ID_INTEL_830_M_1     0x3577
- #endif
-+#ifndef PCI_DEVICE_ID_INTEL_855_GM_0
-+#define PCI_DEVICE_ID_INTEL_855_GM_0	0x3580
-+#endif
-+#ifndef PCI_DEVICE_ID_INTEL_855_GM_1
-+#define PCI_DEVICE_ID_INTEL_855_GM_1	0x3582
-+#endif
-+#ifndef PCI_DEVICE_ID_INTEL_855_PM_0
-+#define PCI_DEVICE_ID_INTEL_855_PM_0	0x3340
-+#endif
-+#ifndef PCI_DEVICE_ID_INTEL_865_G_0
-+#define PCI_DEVICE_ID_INTEL_865_G_0	0x2570
-+#endif
-+#ifndef PCI_DEVICE_ID_INTEL_865_G_1
-+#define PCI_DEVICE_ID_INTEL_865_G_1	0x2572
-+#endif
- #ifndef PCI_DEVICE_ID_INTEL_820_0
- #define PCI_DEVICE_ID_INTEL_820_0       0x2500
- #endif
-@@ -280,6 +295,24 @@
- #define INTEL_NBXCFG    0x50
- #define INTEL_ERRSTS    0x91
- 
-+/* Intel 855GM/852GM registers */
-+#define I855_GMCH_CTRL             0x52
-+#define I855_GMCH_ENABLED          0x4
-+#define I855_GMCH_GMS_MASK         (0x7 << 4)
-+#define I855_GMCH_GMS_STOLEN_0M    0x0
-+#define I855_GMCH_GMS_STOLEN_1M    (0x1 << 4)
-+#define I855_GMCH_GMS_STOLEN_4M    (0x2 << 4)
-+#define I855_GMCH_GMS_STOLEN_8M    (0x3 << 4)
-+#define I855_GMCH_GMS_STOLEN_16M   (0x4 << 4)
-+#define I855_GMCH_GMS_STOLEN_32M   (0x5 << 4)
-+#define I85X_CAPID                 0x44
-+#define I85X_VARIANT_MASK          0x7
-+#define I85X_VARIANT_SHIFT         5
-+#define I855_GME                   0x0
-+#define I855_GM                    0x4
-+#define I852_GME                   0x2
-+#define I852_GM                    0x5
-+
- /* intel i830 registers */
- #define I830_GMCH_CTRL             0x52
- #define I830_GMCH_ENABLED          0x4
-diff -ru linux-2.4.20/include/linux/agp_backend.h linux-2.4.20/include/linux/agp_backend.h
---- linux-2.4.20/include/linux/agp_backend.h	2003-04-23 14:14:58.000000000 -0400
-+++ linux-2.4.20/include/linux/agp_backend.h	2003-04-02 13:13:31.000000000 -0500
-@@ -49,6 +49,9 @@
- 	INTEL_I820,
- 	INTEL_I830_M,
- 	INTEL_I845_G,
-+	INTEL_I855_PM,
-+	INTEL_I855_GM,
-+	INTEL_I865_G,
- 	INTEL_I840,
- 	INTEL_I845,
- 	INTEL_I850,
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_USERMODE=y
+# CONFIG_ISA is not set
+# CONFIG_SBUS is not set
+# CONFIG_PCI is not set
+CONFIG_UID16=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
 
---r5Pyd7+fXNt84Ff3--
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# General Setup
+#
+CONFIG_STDIO_CONSOLE=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+# CONFIG_BINFMT_AOUT is not set
+CONFIG_BINFMT_ELF=y
+# CONFIG_BINFMT_MISC is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=128
+CONFIG_SSL=y
+# CONFIG_HOSTFS is not set
+CONFIG_MCONSOLE=y
+CONFIG_MAGIC_SYSRQ=y
+# CONFIG_HOST_2G_2G is not set
+CONFIG_UML_SMP=y
+CONFIG_SMP=y
+CONFIG_CON_ZERO_CHAN="fd:0,fd:1"
+CONFIG_CON_CHAN="xterm"
+CONFIG_SSL_CHAN="pty"
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+
+#
+# Devices
+#
+CONFIG_BLK_DEV_UBD=y
+CONFIG_BLK_DEV_UBD_SYNC=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_NBD=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+# CONFIG_MMAPPER is not set
+CONFIG_UML_SOUND=y
+CONFIG_SOUND=y
+CONFIG_HOSTAUDIO=y
+CONFIG_FD_CHAN=y
+CONFIG_NULL_CHAN=y
+CONFIG_PORT_CHAN=y
+CONFIG_PTY_CHAN=y
+CONFIG_TTY_CHAN=y
+CONFIG_XTERM_CHAN=y
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=y
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+# CONFIG_FILTER is not set
+CONFIG_UNIX=y
+CONFIG_INET=y
+# CONFIG_IP_MULTICAST is not set
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+CONFIG_NET_IPIP=y
+CONFIG_NET_IPGRE=m
+# CONFIG_ARPD is not set
+CONFIG_INET_ECN=y
+# CONFIG_SYN_COOKIES is not set
+
+#
+#   IP: Netfilter Configuration
+#
+# CONFIG_IP_NF_CONNTRACK is not set
+# CONFIG_IP_NF_QUEUE is not set
+# CONFIG_IP_NF_IPTABLES is not set
+# CONFIG_IP_NF_COMPAT_IPCHAINS is not set
+# CONFIG_IP_NF_COMPAT_IPFWADM is not set
+CONFIG_IPV6=y
+
+#
+#   IPv6: Netfilter Configuration
+#
+# CONFIG_IP6_NF_QUEUE is not set
+# CONFIG_IP6_NF_IPTABLES is not set
+# CONFIG_KHTTPD is not set
+# CONFIG_ATM is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+CONFIG_IPSEC=y
+CONFIG_IPSEC_IPIP=y
+CONFIG_IPSEC_AH=y
+CONFIG_IPSEC_AUTH_HMAC_MD5=y
+CONFIG_IPSEC_AUTH_HMAC_SHA1=y
+CONFIG_IPSEC_ESP=y
+CONFIG_IPSEC_ENC_3DES=y
+CONFIG_IPSEC_IPCOMP=y
+# CONFIG_IPSEC_DEBUG is not set
+
+#
+# Network device support
+#
+CONFIG_UML_NET=y
+CONFIG_UML_NET_ETHERTAP=y
+CONFIG_UML_NET_TUNTAP=y
+# CONFIG_UML_NET_SLIP is not set
+# CONFIG_UML_NET_DAEMON is not set
+# CONFIG_UML_NET_MCAST is not set
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+# CONFIG_DUMMY is not set
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+CONFIG_TUN=y
+# CONFIG_ETHERTAP is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_SUNLANCE is not set
+# CONFIG_SUNBMAC is not set
+# CONFIG_SUNQE is not set
+# CONFIG_SUNGEM is not set
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+# CONFIG_NET_ISA is not set
+# CONFIG_NET_PCI is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_MYRI_SBUS is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PLIP is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# PCMCIA network device support
+#
+CONFIG_NET_PCMCIA=y
+# CONFIG_PCMCIA_3C589 is not set
+# CONFIG_PCMCIA_3C574 is not set
+# CONFIG_PCMCIA_FMVJ18X is not set
+CONFIG_PCMCIA_PCNET=y
+# CONFIG_PCMCIA_AXNET is not set
+# CONFIG_PCMCIA_NMCLAN is not set
+# CONFIG_PCMCIA_SMC91C92 is not set
+# CONFIG_PCMCIA_XIRC2PS is not set
+# CONFIG_ARCNET_COM20020_CS is not set
+# CONFIG_PCMCIA_IBMTR is not set
+CONFIG_NET_PCMCIA_RADIO=y
+CONFIG_PCMCIA_RAYCS=y
+# CONFIG_PCMCIA_NETWAVE is not set
+# CONFIG_PCMCIA_WAVELAN is not set
+# CONFIG_AIRONET4500_CS is not set
+
+#
+# File systems
+#
+# CONFIG_QUOTA is not set
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AUTOFS4_FS is not set
+# CONFIG_REISERFS_FS is not set
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_REISERFS_PROC_INFO is not set
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EXT3_FS is not set
+# CONFIG_JBD is not set
+# CONFIG_JBD_DEBUG is not set
+# CONFIG_FAT_FS is not set
+# CONFIG_MSDOS_FS is not set
+# CONFIG_UMSDOS_FS is not set
+# CONFIG_VFAT_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+# CONFIG_JFFS2_FS is not set
+# CONFIG_CRAMFS is not set
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+# CONFIG_ISO9660_FS is not set
+# CONFIG_JOLIET is not set
+# CONFIG_ZISOFS is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_NTFS_FS is not set
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+# CONFIG_DEVFS_DEBUG is not set
+# CONFIG_DEVPTS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+# CONFIG_UDF_FS is not set
+# CONFIG_UDF_RW is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_UFS_FS_WRITE is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+# CONFIG_INTERMEZZO_FS is not set
+# CONFIG_NFS_FS is not set
+# CONFIG_NFS_V3 is not set
+# CONFIG_ROOT_NFS is not set
+# CONFIG_NFSD is not set
+# CONFIG_NFSD_V3 is not set
+# CONFIG_SUNRPC is not set
+# CONFIG_LOCKD is not set
+# CONFIG_SMB_FS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+# CONFIG_ZISOFS_FS is not set
+# CONFIG_ZLIB_FS_INFLATE is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+# CONFIG_SMB_NLS is not set
+# CONFIG_NLS is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+# CONFIG_MD_RAID1 is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_MD_MULTIPATH is not set
+# CONFIG_BLK_DEV_LVM is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_DEBUG_SLAB is not set
+# CONFIG_DEBUGSYM is not set
+# CONFIG_PT_PROXY is not set
+# CONFIG_GPROF is not set
+# CONFIG_GCOV is not set
+
+--OgqxwSJOaUobr8KG--

@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVCITgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVCITgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262225AbVCITgO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 14:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVCITgH
+	id S262172AbVCITgx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 14:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVCITgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 14:36:07 -0500
-Received: from colin2.muc.de ([193.149.48.15]:17677 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262225AbVCITez (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 14:34:55 -0500
-Date: 9 Mar 2005 20:34:54 +0100
-Date: Wed, 9 Mar 2005 20:34:54 +0100
-From: Andi Kleen <ak@muc.de>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [patch 1/1] x86-64: forgot asmlinkage on sys_mmap
-Message-ID: <20050309193454.GB17918@muc.de>
-References: <20050305190005.0943C4B47@zion> <m1br9swx54.fsf@muc.de> <200503091924.00518.blaisorblade@yahoo.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503091924.00518.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.1i
+	Wed, 9 Mar 2005 14:36:41 -0500
+Received: from minimail.digi.com ([66.77.174.15]:27324 "EHLO minimail.digi.com")
+	by vger.kernel.org with ESMTP id S262172AbVCITfv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 14:35:51 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [ patch 6/7] drivers/serial/jsm: new serial device driver
+Date: Wed, 9 Mar 2005 13:35:41 -0600
+Message-ID: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D9EB@minimail.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ patch 6/7] drivers/serial/jsm: new serial device driver
+Thread-Index: AcUk2/qhv6K5UgXeTeqPixMWt+65aQAAauPw
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: "Wen Xiong" <wendyx@us.ibm.com>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 07:24:00PM +0100, Blaisorblade wrote:
-> On Wednesday 09 March 2005 18:24, Andi Kleen wrote:
-> > blaisorblade@yahoo.it writes:
-> > > CC: Andi Kleen <ak@suse.de>
-> > >
-> > > I think it should be there, please check better.
-> >
-> > It doesn't matter. asmlinkage is a nop on x86-64.
+
+> > DPA support is a requirement for all Digi drivers, so it would
+> > not be possible for me to remove them from my "dgnc" version
+> > of the driver.
+
+> "requirement" from whom and to who?  The Linux kernel community?
+
+>From our customers who are moving from other OS's to Linux,
+and expect DPA support to be under Linux as well.
+
+> It's not a reservation issue, it's the fact that we don't want to
+allow
+> new ioctls, and if we do, they had better work properly (your
+> implementation does not.)
 > 
-> Yes, otherwise nothing would work on x86-64 with mmap broken, but for 
-> cleanness and for the case this change it should be there (otherwise why 
-> asmlinkage is used in the rest of the file).
+> thanks,
+>
+> greg k-h
 
-Only because it was cut'n'pasted from i386 originally.
+Which is fine and I accept the blame for.
 
-> 
-> And for i386 asmlinkage acquired significance only recently.
+This is something Wendy can change and fix.
+I am explaining why they exist today and my
+argument of why we need them to stay.
 
-Actually it doesn't neither on i386. That's because entry.S happens to put the 
-arguments both into registers and the stack in the right order, so both 
-register and stack argument calling conventions work.
+As it stands today, your requirement appears to be that she needs
+to yank all diags ioctls and sysfs files before the driver can make
+it into the kernel sources.
 
-But it is slightly safer to have it. When you use the stack arguments
-the C code is allowed to modify it, and when the system call is restarted
-later you could see garbage. In practice that's not a big issue because
-only very few system calls are restartable.
+This is also fine, but Wendy and IBM will need to decide whether
+all our diags utilties are needed for the JSM driver or not.
 
-ptrace also could see corrupted state, but that's in general a non issue.
-
--Andi
-
+Scott

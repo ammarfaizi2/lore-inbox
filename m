@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281679AbRKUOTq>; Wed, 21 Nov 2001 09:19:46 -0500
+	id <S281678AbRKUONg>; Wed, 21 Nov 2001 09:13:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281675AbRKUOT0>; Wed, 21 Nov 2001 09:19:26 -0500
-Received: from ns.suse.de ([213.95.15.193]:5132 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S281381AbRKUOTT> convert rfc822-to-8bit;
-	Wed, 21 Nov 2001 09:19:19 -0500
+	id <S281675AbRKUONZ>; Wed, 21 Nov 2001 09:13:25 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:52612 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S281381AbRKUONL>; Wed, 21 Nov 2001 09:13:11 -0500
+Date: Wed, 21 Nov 2001 09:12:56 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: Jan Hudec <bulb@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-In-Reply-To: <01112112401703.01961@nemo>
-	<20011121133115.A1451@ragnar-hojland.com>
-	<20011121144034.E2196@artax.karlin.mff.cuni.cz>
-X-Yow: YOW!!
-From: Andreas Schwab <schwab@suse.de>
-Date: 21 Nov 2001 15:19:13 +0100
-In-Reply-To: <20011121144034.E2196@artax.karlin.mff.cuni.cz> (Jan Hudec's message of "Wed, 21 Nov 2001 14:40:34 +0100")
-Message-ID: <jey9l09pge.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.1.30
+In-Reply-To: <20011121143738.D2196@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.3.95.1011121085737.21389A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Hudec <bulb@ucw.cz> writes:
+On Wed, 21 Nov 2001, Jan Hudec wrote:
 
-|> > On Wed, Nov 21, 2001 at 12:40:17PM +0000, vda wrote:
-|> > If you wanna do this type of cleanup, you can take it one step forward;
-|> > remember that the order of evaluation of foo and bar doesn't have to be
-|> > {foo => bar} so it can be {bar => foo}  I hope gcc's behaviour doesn't
-|> > change under our feet.
-|> > 
-|> > 	a = foo (i) + bar (j);
-|> > 
-|> > .. sprinkle some pointer arithmetic over there for fun ;)
-|> 
-|> AFAIK here the order *IS* defined. + operator is evaluated left to right
+> > >     *a++ = byte_rev[*a]
+> > It looks perferctly okay to me. Anyway, whenever would you listen to a
+> > C++ book talking about good C coding :p
+> 
 
-No.  It is undefined which of the operator's arguments is evaluated first,
-unless it is defined otherwise (only for ||, && and comma).
+It's simple. If any object is modified twice without an intervening
+sequence point, the results are undefined. The sequence-point in
 
-Andreas.
+	*a++ = byte_rev[*a];
 
--- 
-Andreas Schwab                                  "And now for something
-Andreas.Schwab@suse.de				completely different."
-SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+... is the ';'.
+
+So, we look at 'a' and see if it's modified twice. It isn't. It
+gets modified once with '++'. Now we look at the object to which
+'a' points. Is it modified twice? No, it's read once in [*a], and
+written once in "*a++ =".
+
+So, it's perfectly good code with a well defined behavior as far as
+'C' is concerned. I think it is ugly, however, the writer probably
+thought it was beautiful. If somebody went around and fixed all
+the ugly code, it would still be ugly in someone else's eyes.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

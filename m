@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315921AbSGLMsg>; Fri, 12 Jul 2002 08:48:36 -0400
+	id <S316204AbSGLMth>; Fri, 12 Jul 2002 08:49:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316167AbSGLMsf>; Fri, 12 Jul 2002 08:48:35 -0400
-Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:24195 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315921AbSGLMsf>; Fri, 12 Jul 2002 08:48:35 -0400
-Date: Fri, 12 Jul 2002 06:51:17 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>,
-       <torvalds@transmeta.com>
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <3D2EC778.7000203@evision-ventures.com>
-Message-ID: <Pine.LNX.4.44.0207120649180.3421-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
+	id <S316185AbSGLMtg>; Fri, 12 Jul 2002 08:49:36 -0400
+Received: from ns3.maptuit.com ([204.138.244.3]:18436 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S316167AbSGLMtc>;
+	Fri, 12 Jul 2002 08:49:32 -0400
+Message-ID: <3D2ED0FC.F0AEBEEB@torque.net>
+Date: Fri, 12 Jul 2002 08:52:12 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.25 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Benjamin LaHaise <bcrl@redhat.com>
+CC: angus <angus@mcm.net>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: 2.5.14 error: ini9100u.c
+References: <1020675649.20692.6.camel@localhost.localdomain> <3CD74E41.D39C1F23@torque.net> <20020711192119.G4315@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, 12 Jul 2002, Martin Dalecki wrote:
-> Against:
+Benjamin LaHaise wrote:
 > 
-> 1. Bartlomiej Zolnierkiewcz.
+> On Mon, May 06, 2002 at 11:47:13PM -0400, Douglas Gilbert wrote:
+> > -#error Please convert me to Documentation/DMA-mapping.txt
+> > +/* #error Please convert me to Documentation/DMA-mapping.txt */
+> 
+> Please read the document the comment points to, *then* rewrite the
+> patch.
 
-What's your reason to vote against him? Something personal?
+Ben,
+Be my guest.
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+Doug Gilbert

@@ -1,90 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267312AbUGVWZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267314AbUGVWaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267312AbUGVWZn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 18:25:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUGVWZn
+	id S267314AbUGVWaO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 18:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267315AbUGVWaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 18:25:43 -0400
-Received: from ns.indranet.co.nz ([210.54.239.210]:9687 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id S267312AbUGVWZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 18:25:40 -0400
-Date: Fri, 23 Jul 2004 10:25:07 +1200
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Florian Schmidt <mista.tapas@gmx.net>,
-       "The Linux Audio Developers' Mailing List" 
-	<linux-audio-dev@music.columbia.edu>
-cc: rlrevell@joe-job.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary	Kernel
- Preemption Patch
-Message-ID: <848056B606F178CF9FBDDAC2@[192.168.1.247]>
-In-Reply-To: <20040721125352.7e8e95a1@mango.fruits.de>
-References: <20040712163141.31ef1ad6.akpm@osdl.org>
- 	<1090306769.22521.32.camel@mindpipe>	<20040720071136.GA28696@elte.hu>
- 	<200407202011.20558.musical_snake@gmx.de>
- 	<1090353405.28175.21.camel@mindpipe>	<40FDAF86.10104@gardena.net>
- 	<1090369957.841.14.camel@mindpipe>
- <20040721125352.7e8e95a1@mango.fruits.de>
-X-Mailer: Mulberry/3.1.4 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 22 Jul 2004 18:30:14 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:4839 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267314AbUGVWaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 18:30:06 -0400
+Date: Thu, 22 Jul 2004 15:28:39 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: akpm@osdl.org, corbet@lwn.net, linux-kernel@vger.kernel.org
+Subject: Re: New dev model (was [PATCH] delete devfs)
+Message-Id: <20040722152839.019a0ca0.pj@sgi.com>
+In-Reply-To: <20040722193337.GE19329@fs.tum.de>
+References: <40FEEEBC.7080104@quark.didntduck.org>
+	<20040721231123.13423.qmail@lwn.net>
+	<20040721235228.GZ14733@fs.tum.de>
+	<20040722025539.5d35c4cb.akpm@osdl.org>
+	<20040722193337.GE19329@fs.tum.de>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> There's much worth in having a very stable kernel.
 
+There certainly is.  But the contribution that having a separate 2.7/2.8
+kernel at the head (Linus, et. al.) end has to a user having a stable kernel
+is not what you think it is.
 
---On Wednesday, 21 July 2004 12:53 p.m. +0200 Florian Schmidt 
-<mista.tapas@gmx.net> wrote:
+The direction presented to us now is having smaller, more continuous,
+steps in the head end, over having fewer larger, more disruptive steps. 
+Do we do all the incompatible changes in a big chunk, once every couple
+of years, or do we do them one a week, ongoing.
 
-> Hi,
->
-> interesting that you mention the Xserver. I use a dual graphics card
-> setup atm [Nvidia GF3 TI and some matrox pci card]. The nvidia card seems
-> to work flawlessly even with HW accelleration [i use nvidias evil binary
-> only drivers]. The matrox card OTH disturbs the soundcard severely.
-> Whenever i have activity on my second monitor i get sound artefacts in
-> jack's output [no cracklling, it's rather as if the volume is set to 0
-> for short moments and then back to normal]. There's a certain chance that
-> this artefact produces an xrun. I suppose it's because the card is on the
-> pci bus.
+Now, I repeat, this is at the head end.  End users who want stability
+aren't feeding directly off kernel.org anyway.
 
-<snip>
+The affect downstream on real users is this.  If the head end operates
+in big chunky style, then as this big change flows downstream, it makes
+transitions for distros, service providers and middlemen more costly and
+difficult, creating expenses that must be passed on to the end user.
 
-> Should i try a different 2nd gfx card? Should i avoid pci gfx cards at
-> all costs? Will i just have to live w/o second monitor?  How do i find
-> out which hw resources X is really using?
->
-> Florian Schmidt
+Yes - damming up the flow of changes creates stability.  But if you're a
+middleman, you don't need Linus to choose where to build the dam, and
+when to open the flood gates.  It's more efficient for you to choose for
+yourself when to do that damming, based on your particular resources and
+customer needs, rather than have to deal with hundred year floods and
+draughts imposed on you by Zeus.
 
+The end user always gets their stability, if only because they won't
+upgrade a system that is "working".
 
-It is a PCI bus issue.  You simply don't have enough PCI bus cycles 
-available to do what you want to do.  The resource you're running out of is 
-bus bandwidth, and there's nothing to be done about it, other than remove 
-the PCI gfx card from the system.
+And every change at the head end is disruptive for some poor slob.
+The only perfectly compatible change is no change at all.  We delude
+ourselves if we think we can separate the "safe" fixes and additions
+from the "unsafe" incompatible changes.  Better that we should expend
+some energy on smoothing out and minimizing the cost of change to those
+downstream from us.  This needs to be done the old-fashioned way, one
+change at a time.
 
-If you get another dualhead AGP graphics card (anything will do), the 
-problem should go away.  We have a developer who does lowlatency 
-multichannel sound stuff on a machine with a Matrox G450 dualhead card no 
-problem.  I expect my own system (Radeon 9800 Pro and M-Audio 1010LT audio) 
-would be fine dualhead too, although I only run it singlehead at the 
-moment.  The 1010LT is 10 channels in and out of 24-bit 96kHz audio and 
-works great down to 1.5ms buffers, so it is no small bus load itself.
+The question is whether we impose, on all those downstream from us,
+occasional hundred year floods, or do we provide a steady stream, and
+let them build their own little beaver dams, as suits their various and
+diverse needs and business cycles.
 
-Andrew
+The great lesson of capitalism over communism is that a thousand free
+workers and investors, each optimizing their own little plot or
+portfolio, beats a single centrally imposed five year plan, even if the
+man pulling the levers is a genius such as Linus or Lenin (sorry, Linus,
+couldn't resist ...).
 
-
----------
-Andrew McGregor
-Director, Scientific Advisor
-IndraNet Technologies Ltd
-http://www.indranet-technologies.com/
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GS/E/B/PA/SS d+(++) s+:+ a C++$ ULS++++ !P+++(---)$ L++++$ E++ W++ !N
-w(+++) !O() M++ V--() Y+$ PGP+ t- !5? X- !R !tv@ b++(++++) DI++ D+++@ G
-e+++ h(*)@ r%
-------END GEEK CODE BLOCK------
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

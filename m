@@ -1,81 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265878AbUANB0N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 20:26:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265915AbUANB0N
+	id S265642AbUANBdk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 20:33:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265649AbUANBdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 20:26:13 -0500
-Received: from gizmo13ps.bigpond.com ([144.140.71.23]:61871 "HELO
-	gizmo13ps.bigpond.com") by vger.kernel.org with SMTP
-	id S265878AbUANB0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 20:26:11 -0500
-Mail-Copies-To: never
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: modprobe failed: digest_null
-Keywords: module
-References: <20040113215355.GA3882@piper.madduck.net>
-	<20040113143053.1c44b97d.rddunlap@osdl.org>
-	<20040113223739.GA6268@piper.madduck.net>
-	<20040113144141.1d695c3d.rddunlap@osdl.org>
-	<20040113225047.GA6891@piper.madduck.net>
-	<20040113150319.1e309dcb.rddunlap@osdl.org>
-From: Steve Youngs <sryoungs@bigpond.net.au>
-X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
- N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
- K{^jU_{&
-Organization: Linux Users - Fanatics Dept.
-X-URL: <http://users.bigpond.net.au/sryoungs/>
-X-Request-PGP: <http://users.bigpond.net.au/sryoungs/pgp/sryoungs.asc>
-X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
-X-Now-Playing: I Don't Know You Anymore --- [Savage Garden]
-X-Attribution: SY
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Date: Wed, 14 Jan 2004 11:26:00 +1000
-In-Reply-To: <20040113150319.1e309dcb.rddunlap@osdl.org> (Randy Dunlap's
- message of "Tue, 13 Jan 2004 15:03:19 -0800")
-Message-ID: <microsoft-free.87isjffhhz.fsf@eicq.dnsalias.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Reasonable Discussion,
- linux)
+	Tue, 13 Jan 2004 20:33:40 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:20886 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S265642AbUANBdj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 20:33:39 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [ACPI] ACPI directories still exist with acpi off
+Date: Wed, 14 Jan 2004 09:33:32 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8401720CC8@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] ACPI directories still exist with acpi off
+Thread-Index: AcPaJBxkw0K7QeMIRAm/gfvjnyiZwgAGhthg
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>,
+       "ACPI mailing list" <acpi-devel@lists.sourceforge.net>,
+       "kernel list" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 14 Jan 2004 01:33:32.0732 (UTC) FILETIME=[6BC3AFC0:01C3DA3E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-
-* Randy Dunlap <Randy.Dunlap> writes:
-
-  > The message:
-  > kernel: request_module: failed /sbin/modprobe -- digest_null. error = 256
-  > is from modutils and not from module-init-tools according to my
-  > source files.
-
-Your correct about where this message _doesn't_ come from, but not
-about where it _does_ come from...
-
-,----[ ./kernel/kmod.c -- lines 113 - 115 ]
-| printk(KERN_DEBUG
-|        "request_module: failed %s -- %s. error = %d\n",
-|        modprobe_path, module_name, ret);
-`----
-
-
--- 
-|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
-|              Ashes to ashes, dust to dust.               |
-|      The proof of the pudding, is under the crust.       |
-|------------------------------<sryoungs@bigpond.net.au>---|
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Eicq - The XEmacs ICQ Client <http://eicq.sf.net/>
-
-iEYEABECAAYFAkAEmqoACgkQHSfbS6lLMAM2sgCgojh9cXvEPXp4mTde4foW+FFU
-hrwAoLEd16bwDCpdEhln6d3gywWms58r
-=EFcJ
------END PGP SIGNATURE-----
---=-=-=--
+> 
+> Include acpi support into the kernel, but pass acpi=off on the command
+> line. Somehow, acpi still manages to create its directories, but not
+> in /proc/acpi but in /proc directly. Ouch.
+How about this one:
+http://bugme.osdl.org/attachment.cgi?id=1696&action=view

@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261897AbTCQSfQ>; Mon, 17 Mar 2003 13:35:16 -0500
+	id <S261782AbTCQSgO>; Mon, 17 Mar 2003 13:36:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261898AbTCQSfQ>; Mon, 17 Mar 2003 13:35:16 -0500
-Received: from relay01.valueweb.net ([216.219.253.235]:13732 "EHLO
-	relay01.valueweb.net") by vger.kernel.org with ESMTP
-	id <S261897AbTCQSfN>; Mon, 17 Mar 2003 13:35:13 -0500
-From: "Scott Robert Ladd" <scott@coyotegulch.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: radeonfb and DFP problems (kernel 2.5.63)
-Date: Mon, 17 Mar 2003 13:46:13 -0500
-Message-ID: <FKEAJLBKJCGBDJJIPJLJCEEHFGAA.scott@coyotegulch.com>
+	id <S261776AbTCQSgO>; Mon, 17 Mar 2003 13:36:14 -0500
+Received: from brynhild.mtroyal.ab.ca ([142.109.10.24]:26822 "EHLO
+	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S261782AbTCQSfe>; Mon, 17 Mar 2003 13:35:34 -0500
+Date: Mon, 17 Mar 2003 11:46:25 -0700 (MST)
+From: James Bourne <jbourne@mtroyal.ab.ca>
+To: linux-kernel@vger.kernel.org
+cc: alan@redhat.com
+Subject: 2.4.20 ptrace patch
+Message-ID: <Pine.LNX.4.51.0303171141010.27605@skuld.mtroyal.ab.ca>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just installed an ATI Radeon 9000 Pro video card in my primary Linux
-system, along with a DFP (hp pavilion f70). Things are not working as I
-expected...
+Hi,
+As per a previously stated email the patch for ptrace to 2.4.20 can
+be found at http://www.hardrock.org/kernel/2.4.20/linux-2.4.20-ptrace.patch
 
-When I have the DFP connected to the Radeon's DVI port, I can not use the
-frambuffer in Xfree86 4.1 (it complains there is no /dev/fb0), and the log
-states:
+This really only fixes the failure for the sched.h patch
+to apply and removes the um tree from arch.
 
-Mar 17 13:02:03 Tycho kernel: radeonfb_pci_register BEGIN
-Mar 17 13:02:03 Tycho kernel: radeonfb: ref_clk=2700, ref_div=12, xclk=27500
-from BIOS
-Mar 17 13:02:03 Tycho kernel: radeonfb: probed DDR SGRAM 65536k videoram
-Mar 17 13:02:03 Tycho kernel: radeonfb: panel ID string: ªhé¬^E
-Mar 17 13:02:03 Tycho kernel: radeonfb: detected DFP panel size from BIOS:
-1x0
-Mar 17 13:02:03 Tycho kernel: radeonfb: Failed to detect DFP panel size
+There of course are other minor changes (offsets etc).
 
-When I have the DFP attached to the Radeon's VGA port, I can run the DFP
-(albeit in analog more), and the log states:
+It does compile on i386 and does boot.  YMMV...
 
-Mar 17 13:13:05 Tycho kernel: radeonfb_pci_register BEGIN
-Mar 17 13:13:05 Tycho kernel: radeonfb: ref_clk=2700, ref_div=12, xclk=27500
-from BIOS
-Mar 17 13:13:05 Tycho kernel: radeonfb: probed DDR SGRAM 65536k videoram
-Mar 17 13:13:05 Tycho kernel: radeonfb: ATI Radeon 9000 If DDR SGRAM 64 MB
-Mar 17 13:13:05 Tycho kernel: radeonfb: DVI port CRT monitor connected
-Mar 17 13:13:05 Tycho kernel: radeonfb: CRT port no monitor connected
-Mar 17 13:13:05 Tycho kernel: radeonfb_pci_register END
+Regards
+James Bourne
+-- 
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
 
-Before I start digging around in the drivers/video/radeonfb.c file, I'm
-wondering if this problem is known, and if a workaround is available.
+******************************************************************************
+This communication is intended for the use of the recipient to which it is
+addressed, and may contain confidential, personal, and or privileged
+information. Please contact the sender immediately if you are not the
+intended recipient of this communication, and do not copy, distribute, or
+take action relying on it. Any communication received in error, or
+subsequent reply, should be deleted or destroyed.
+******************************************************************************
 
-..Scott
 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
+"There are only 10 types of people in this world: those who
+understand binary and those who don't."
 

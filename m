@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbVCCRkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVCCRmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbVCCRkm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 12:40:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVCCRkk
+	id S261509AbVCCRmM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 12:42:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVCCRlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 12:40:40 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:36797 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262560AbVCCRja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 12:39:30 -0500
-Date: Thu, 3 Mar 2005 17:39:25 +0000 (GMT)
-From: James Simmons <jsimmons@www.infradead.org>
-X-X-Sender: jsimmons@pentafluge.infradead.org
-To: "Jeff V. Merkey" <jmerkey@utah-nac.org>
-cc: Bernd Petrovitsch <bernd@firmix.at>, gene.heskett@verizon.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: United States Patent: 6,862,609]
-In-Reply-To: <422731B0.6040007@utah-nac.org>
-Message-ID: <Pine.LNX.4.56.0503031733550.10844@pentafluge.infradead.org>
-References: <4226781B.7080302@utah-nac.org>  <200503022227.40614.gene.heskett@verizon.net>
-  <4226927A.6010107@utah-nac.org> <1109845583.28561.19.camel@tara.firmix.at>
- <422731B0.6040007@utah-nac.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: 0.0 (/)
+	Thu, 3 Mar 2005 12:41:09 -0500
+Received: from orb.pobox.com ([207.8.226.5]:37353 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S262584AbVCCRhk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 12:37:40 -0500
+Date: Thu, 3 Mar 2005 10:37:23 -0700
+From: Paul Dickson <dickson@permanentmail.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFD: Kernel release numbering
+Message-Id: <20050303103723.11cfdd07.dickson@permanentmail.com>
+In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+X-Mailer: Sylpheed version 1.9.3 (GTK+ 2.4.14; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2 Mar 2005 14:21:38 -0800 (PST), Linus Torvalds wrote:
 
-> Patent law in the US is based on section 113 of the United States 
-> Constitution, and patents
-> are not going away.  Live with guys.  The best way to win the patent 
-> wars is for people
-> who do Linux development to file their own patents and put some stakes 
-> in the ground.
+> The reason I put a shorter timeframe on the "all-even" kernel is because I
+> don't want developers to be too itchy and sitting on stuff for too long if
+> they did something slightly bigger. In theory, the longer the better
+> there, but in practice this release numbering is still nothing but a hint
+> of the _intent_ of the developers - it's still not a guarantee of "we
+> fixed all bugs", and anybody who expects that (and tries to avoid all odd 
+> release entirely) is just setting himself up for not testing - and thus 
+> bugs.
+> 
+> Comments?
 
-   I have to agree with you. We need to apply for our own patients. The 
-problem is it cost to lay down patents. Who is going to pay? 
-  As for the  US Patent laws based on the constitution. That is no longer 
-the case. The Patent laws where changed when NAFTA and GATT went into 
-effect. Now the patent laws are changing again to meet WTO standards. The 
-whole planet is moving over to one universal set of patent laws. Those are 
-the laws to watch for. In fact India last month changed there own patent 
-laws to match WTO requirements. The WTO is not going away and they have 
-billons of dollars and world goverments behind them.
+You still haven't solved the problem of only a small group using the
+development kernels.  Until a "stable" kernel is released, the majority
+of kernel compilers will avoid any development kernel (even on this
+mailing list!).
+
+Two suggestions (one or both could be implemented):
+
+How about appointing maintainers for 2.6.N kernels, whose responsibility
+is apply stability and security patches for 3 months AND until 2.6.N+3 is
+released.  So a series of 2.6.11.M kernels will appear until 2.6.14 and
+2.6.11 is at least 3 months old.  This would given kernel developers
+experience with such releases, but without the job being for the life of
+the developer.
+
+Also, add a list to the kernel.org web page about which kernels are
+considered stable.  Listed stable kernels are those who have been
+released for at least two weeks.
+
+	-Paul
+

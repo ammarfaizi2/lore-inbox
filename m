@@ -1,96 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263283AbTDCFsq>; Thu, 3 Apr 2003 00:48:46 -0500
+	id <S263284AbTDCFzC>; Thu, 3 Apr 2003 00:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263284AbTDCFsq>; Thu, 3 Apr 2003 00:48:46 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:3507 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263283AbTDCFso>;
-	Thu, 3 Apr 2003 00:48:44 -0500
-Message-ID: <3E8BCB96.6090908@us.ibm.com>
-Date: Wed, 02 Apr 2003 21:50:14 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Paolo Zeppegno <zeppegno.paolo@seat.it>, Andi Kleen <ak@muc.de>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: [rfc][patch] Memory Binding Take 2 (0/1)
-Content-Type: multipart/mixed;
- boundary="------------030405020403070806010806"
+	id <S263285AbTDCFzC>; Thu, 3 Apr 2003 00:55:02 -0500
+Received: from adsl-67-121-155-183.dsl.pltn13.pacbell.net ([67.121.155.183]:20448
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id <S263284AbTDCFzB>; Thu, 3 Apr 2003 00:55:01 -0500
+Date: Wed, 2 Apr 2003 22:06:18 -0800
+To: Brad Campbell <brad@seme.com.au>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Synaptics Touchpad loses sync 2.5.66
+Message-ID: <20030403060618.GA28432@triplehelix.org>
+References: <3E8BCB4F.5080900@seme.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Content-Disposition: inline
+In-Reply-To: <3E8BCB4F.5080900@seme.com.au>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030405020403070806010806
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Alrighty, let's give this another go...
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch hasn't changed much.  Just added bitmap_t, typedef'd to 
-unsigned long * for passing around bitmaps without breaking the 
-abstraction.  I think it's good if we can keep the underlying data type 
-hidden to partially future-proof (protect? ;) the code.
+On Thu, Apr 03, 2003 at 01:49:03PM +0800, Brad Campbell wrote:
+> Under X 4.2.0 (Happened under 4.1.x also) the Touchpad loses sync quite=
+=20
+> frequently causing the mouse to go haywire, jumping all over the screen=
+=20
+> and sending button presses that I have not made.
+> The exact same configuration works perfectly under 2.4.x
 
-Part 1/1 coming up...
+I talked about this problem on LKML around 2.5.59.
 
-Cheers!
+If you use an ACPI battery monitor (I notice you are on a laptop and
+you have ACPI enabled), there is a lot of Bad Mojo (TM) in psmouse.c
+at the moment. Just don't use it if you have a synaptics touchpad, and
+things should work out immediately.
 
--Matt
+Anyone who can comment on the status of this problem? I'd like to get
+it fixed too, personally, but I haven't been worrying much about it
+of late.
 
---------------030405020403070806010806
-Content-Type: text/plain;
- name="00-pre_membind.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="00-pre_membind.patch"
+Regards
+Josh
 
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-vanilla/include/linux/gfp.h linux-2.5.66-pre_membind/include/linux/gfp.h
---- linux-2.5.66-vanilla/include/linux/gfp.h	Mon Mar 24 14:00:10 2003
-+++ linux-2.5.66-pre_membind/include/linux/gfp.h	Mon Mar 31 17:38:47 2003
-@@ -52,7 +52,7 @@
- 	if (unlikely(order >= MAX_ORDER))
- 		return NULL;
- 
--	return __alloc_pages(gfp_mask, order, NODE_DATA(nid)->node_zonelists + (gfp_mask & GFP_ZONEMASK));
-+	return __alloc_pages(gfp_mask, order, get_node_zonelist(nid, gfp_mask));
- }
- 
- #define alloc_pages(gfp_mask, order) \
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-vanilla/include/linux/mmzone.h linux-2.5.66-pre_membind/include/linux/mmzone.h
---- linux-2.5.66-vanilla/include/linux/mmzone.h	Mon Mar 24 14:00:45 2003
-+++ linux-2.5.66-pre_membind/include/linux/mmzone.h	Mon Mar 31 17:38:47 2003
-@@ -326,6 +326,14 @@
- #define num_online_memblks()		1
- 
- #endif /* CONFIG_DISCONTIGMEM || CONFIG_NUMA */
-+
-+static inline struct zonelist *get_node_zonelist(int nid, int gfp_mask)
-+{
-+	return NODE_DATA(nid)->node_zonelists + (gfp_mask & GFP_ZONEMASK);
-+}
-+
-+#define get_zonelist(gfp_mask) get_node_zonelist(numa_node_id(), gfp_mask)
-+
- #endif /* !__ASSEMBLY__ */
- #endif /* __KERNEL__ */
- #endif /* _LINUX_MMZONE_H */
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-vanilla/include/linux/types.h linux-2.5.66-pre_membind/include/linux/types.h
---- linux-2.5.66-vanilla/include/linux/types.h	Mon Mar 24 14:01:24 2003
-+++ linux-2.5.66-pre_membind/include/linux/types.h	Wed Apr  2 18:13:27 2003
-@@ -10,6 +10,7 @@
- 	unsigned long name[BITS_TO_LONGS(bits)]
- #define CLEAR_BITMAP(name,bits) \
- 	memset(name, 0, BITS_TO_LONGS(bits)*sizeof(unsigned long))
-+typedef unsigned long * bitmap_t;
- #endif
- 
- #include <linux/posix_types.h>
+--
+New PGP public key: 0x27AFC3EE
 
---------------030405020403070806010806--
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+i89aT2bz5yevw+4RAvTJAKCMvNazeMyNnvBI7jS9DpxePubyCACg269y
+L23W1eYrE/hf19KZCTzCRnY=
+=nb2c
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--

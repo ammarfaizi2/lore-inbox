@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264358AbTLBUWf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:22:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbTLBUW0
+	id S264365AbTLBUbj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:31:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTLBU2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:22:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51432 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264358AbTLBUV2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:21:28 -0500
-Subject: Re: aacraid and large memory problem (2.6.0-test11)
-From: Mark Haverkamp <markh@osdl.org>
-To: Kevin Fenzi <kevin@tummy.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux aacraid devel <linux-aacraid-devel@dell.com>
-In-Reply-To: <20031202193520.74481F7CC8@voldemort.scrye.com>
-References: <20031202193520.74481F7CC8@voldemort.scrye.com>
-Content-Type: text/plain
-Message-Id: <1070396482.16903.11.camel@markh1.pdx.osdl.net>
+	Tue, 2 Dec 2003 15:28:37 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:55051 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S264369AbTLBUTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 15:19:39 -0500
+Date: Tue, 2 Dec 2003 18:24:35 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 future
+Message-ID: <20031202202435.GS15165@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312011226.04750.nbensa@gmx.net> <20031202115436.GA10288@physik.tu-cottbus.de> <20031202120315.GK13388@conectiva.com.br> <20031202210904.48706476.skraw@ithnet.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 02 Dec 2003 12:21:22 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031202210904.48706476.skraw@ithnet.com>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-02 at 11:35, Kevin Fenzi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+Em Tue, Dec 02, 2003 at 09:09:04PM +0100, Stephan von Krawczynski escreveu:
+> On Tue, 2 Dec 2003 10:03:15 -0200
+> Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
 > 
+> > Em Tue, Dec 02, 2003 at 12:54:36PM +0100, Ionut Georgescu escreveu:
+> > > I can only second that. We've been using XFS here since the days of
+> > > 2.4.0-testxx and the only problems we've had were sitting between the
+> > > chair and the keyboard.
+> > 
+> > So if there is no problems at all using it as a patch why add this to a
+> > kernel that is phasing out?
 > 
-> Greetings, 
-> 
-> Booting 2.6.0-test11 on a machine with 8GB memory and using the
-> aacraid driver results in a hang on boot. Passing mem=2048M causes it
-> to boot normally. 4GB also hangs. 2.6.0-test8 booted normally on this
-> same hardware. 
-> 
-> 8GB memory, dual xeon 3.06mhz with hyperthreading, RedHat 9 on it
-> currently. 
-> 
-> Happy to provide details on setup/software, etc. 
-> 
-> Perhaps this patch in 2.6.0-test9 is the culprit?
-> http://www.linuxhq.com/kernel/v2.6/0-test9/drivers/scsi/aacraid/comminit.c
+> Because it is _not_.
 
-This patch is what made aacraid work with over 4 gig of memory for me. 
-I have an 8 proc system with 16gig of memory and without this patch I
-get data corruption in high memory.
+So what? You disagree, what is the problem of keeping a patch out of the tree
+if the tree is getting in deep freeze?
+ 
+> I really wonder how many of you have read this list up to 2.4.11 release ...
+> 
+> Is there some human-memory-loss-virus flooding the area ?
+> 
+> Please stay serious.
 
-I don't boot on the aacraid though.
+I'm staying, please stay too.
 
+And I was on this list _way_ before 2.4.11, 2.6 has, IMHO, a different story.
 
--- 
-Mark Haverkamp <markh@osdl.org>
-
+- Arnaldo

@@ -1,57 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbVBCEJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262838AbVBCEoH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262654AbVBCEJH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 23:09:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbVBCEJH
+	id S262838AbVBCEoH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 23:44:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbVBCEoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 23:09:07 -0500
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:29644 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262958AbVBCEIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 23:08:35 -0500
-Message-ID: <4201A3B4.2040605@austin.rr.com>
-Date: Wed, 02 Feb 2005 22:08:20 -0600
-From: "Jonathan A. George" <jageorge@austin.rr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Wed, 2 Feb 2005 23:44:07 -0500
+Received: from 67.107.199.112.ptr.us.xo.net ([67.107.199.112]:62967 "EHLO
+	hathawaymix.org") by vger.kernel.org with ESMTP id S262838AbVBCEnr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 23:43:47 -0500
+From: Shane Hathaway <shane@hathawaymix.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Configure MTU via kernel DHCP
+Date: Wed, 2 Feb 2005 21:47:59 -0700
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Please open sysfs symbols to proprietary modules
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_A0aACW4YfLlU66g"
+Message-Id: <200502022148.00045.shane@hathawaymix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As an observation:
+--Boundary-00=_A0aACW4YfLlU66g
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The Linux kernel appears to contain the GPL copyright notice.  This 
-appears to explicitly releases the right to alter anything in a copy 
-written work which shares that copyright notice.  Therefore,  all 
-exported symbols would appear to carry equal weight; thus making the 
-GPL_ prefix a notation of dubious value.   Furthermore, it seems as if 
-that the copyright might allow changing the GPL_ prefix notation to 
-anything including BSD_HOOK_FOR_PORTING_DRIVERS_TO_THE_LINUX_KERNEL_ 
-instead.
+The attached patch enhances the kernel's DHCP client support (in 
+net/ipv4/ipconfig.c) to set the interface MTU if provided by the DHCP server.  
+Without this patch, it's difficult to netboot on a network that uses jumbo 
+frames.  The patch is based on 2.6.10, but I'll update it to the latest 
+testing kernel if that would expedite its inclusion in the kernel.
 
-It would seem just as surprising if the U.S. courts were to stop 
-considering history of enforcement in copyright law as it would if they 
-were to start considering in cases of patent law.
+More background: it's currently difficult to netboot on a jumbo frame network 
+because when clients try to mount the root partition, they are still 
+configured with a small MTU and therefore reject packets sent by the 
+jumbo-frame-enabled NFS server.  Linux needs to set the client MTU before 
+mounting any NFS shares.  Fortunately, the DHCP protocol already supports 
+setting the MTU; this patch just integrates that feature into the kernel.
 
-(I would love to see the opinion of an IP lawyer who has conclusively 
-tested these aspects of copyright law in court.)
+Incidentally, ipconfig.c doesn't appear to do enough bounds checking on byte 1 
+of DHCP/BOOTP extension fields (the length field).  It looks like a malicious 
+DHCP server could mess with kernel memory that way.  I could try to fix the 
+hole, but maybe someone more experienced with this code would like to verify 
+there's a problem first.
 
---------------------
+Shane
 
-A paranoid approach it to develop your driver targeted at FreeBSD, and 
-then develop a glue layer abstraction for porting to other OS's.  Then 
-you simply might GPL your glue layer code as a module using any symbols 
-you want for your GPL copy written code per the observations earlier in 
-this email.
+--Boundary-00=_A0aACW4YfLlU66g
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="ipconfig-mtu.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ipconfig-mtu.patch"
 
-In this way you will have created a work with no intrinsic dependencies 
-on the Linux kernel which avoids presenting your work as an obvious 
-target for those who prefer to spend their time looking for targets. :-)
+--- ipconfig.c.orig	2005-02-02 17:23:35.175853560 -0700
++++ ipconfig.c	2005-02-02 19:10:39.843155672 -0700
+@@ -126,6 +126,7 @@
+ 
+ int ic_host_name_set __initdata = 0;		/* Host name set by us? */
+ 
++u16 ic_mtu = 0;			/* Interface MTU */
+ u32 ic_myaddr = INADDR_NONE;		/* My IP address */
+ u32 ic_netmask = INADDR_NONE;	/* Netmask for local subnet */
+ u32 ic_gateway = INADDR_NONE;	/* Gateway IP address */
+@@ -322,6 +323,13 @@
+ 		printk(KERN_ERR "IP-Config: Unable to set interface broadcast address (%d).\n", err);
+ 		return -1;
+ 	}
++	rtnl_shlock();
++	err = dev_set_mtu(ic_dev, ic_mtu);
++	rtnl_shunlock();
++	if (err < 0) {
++		printk(KERN_ERR "IP-Config: Unable to set interface MTU (%d).\n", err);
++		return -1;
++	}
+ 	return 0;
+ }
+ 
+@@ -609,6 +617,7 @@
+ 			12,	/* Host name */
+ 			15,	/* Domain name */
+ 			17,	/* Boot path */
++			26,	/* MTU */
+ 			40,	/* NIS domain name */
+ 		};
+ 
+@@ -812,6 +821,9 @@
+ 			if (!root_server_path[0])
+ 				ic_bootp_string(root_server_path, ext+1, *ext, sizeof(root_server_path));
+ 			break;
++		case 26:	/* Interface MTU */
++			ic_mtu = (((u16) ext[1]) << 8) | ext[2];
++			break;
+ 		case 40:	/* NIS Domain name (_not_ DNS) */
+ 			ic_bootp_string(system_utsname.domainname, ext+1, *ext, __NEW_UTS_LEN);
+ 			break;
+@@ -1362,8 +1374,9 @@
+ 	 * Clue in the operator.
+ 	 */
+ 	printk("IP-Config: Complete:");
+-	printk("\n      device=%s", ic_dev->name);
+-	printk(", addr=%u.%u.%u.%u", NIPQUAD(ic_myaddr));
++	printk("\n     device=%s", ic_dev->name);
++	printk(", mtu=%u", (unsigned int)ic_mtu);
++	printk(",\n     addr=%u.%u.%u.%u", NIPQUAD(ic_myaddr));
+ 	printk(", mask=%u.%u.%u.%u", NIPQUAD(ic_netmask));
+ 	printk(", gw=%u.%u.%u.%u", NIPQUAD(ic_gateway));
+ 	printk(",\n     host=%s, domain=%s, nis-domain=%s",
 
---------------------
-
-P.S. Sorry about breaking mailer threading. :-(
+--Boundary-00=_A0aACW4YfLlU66g--

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbUDARKp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 12:10:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbUDARKo
+	id S262984AbUDARMU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 12:12:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbUDARMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 12:10:44 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:265 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262932AbUDARKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 12:10:35 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: disable-cap-mlock
-Date: Thu, 1 Apr 2004 19:11:15 +0200
-User-Agent: KMail/1.6.1
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@osdl.org>, kenneth.w.chen@intel.com
-References: <20040401135920.GF18585@dualathlon.random> <20040401164825.GD791@holomorphy.com> <20040401165952.GM18585@dualathlon.random>
-In-Reply-To: <20040401165952.GM18585@dualathlon.random>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+	Thu, 1 Apr 2004 12:12:20 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:40118 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262984AbUDARMO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 12:12:14 -0500
+Message-ID: <406C4D3F.4070600@colorfullife.com>
+Date: Thu, 01 Apr 2004 19:11:27 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200404011911.15953@WOLK>
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Olof Johansson <olof@austin.ibm.com>
+CC: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       anton@samba.org
+Subject: Re: Oops in get_boot_pages at reboot
+References: <Pine.A41.4.44.0403312015050.29064-100000@forte.austin.ibm.com>
+In-Reply-To: <Pine.A41.4.44.0403312015050.29064-100000@forte.austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 April 2004 18:59, Andrea Arcangeli wrote:
+Olof Johansson wrote:
 
-Hi Andrea, Bill,
+>So __pollwait() calls __get_free_page(), system_running is 0 so
+>get_boot_pages is called. Since get_boot_pages is labeled __init, badness
+>happens.
+>  
+>
+I didn't notice that the reboot code resets system_running to 0, sorry.
 
-> > Something like this would have the minor advantage of zero core impact.
-> > Testbooted only. vs. 2.6.5-rc3-mm4
+>How about checking against mem_init_done instead of system_running? It
+>helps against the oops, but there might be some good reason not to do
+>it.
+>
+mem_init_done is ppc specific. Is there an equivalent to system_running 
+that is not set to 0 during reboot?
 
-Cool!
+--
+    Manfred
 
-> I certainly like this too (despite it's more complicated but it might
-> avoid us to have to add further sysctl in the future), Andrew what do
-> you prefer to merge? I don't mind either ways.
-
-I'd vote for caps via sysctl.
-
-ciao, Marc

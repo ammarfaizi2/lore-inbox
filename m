@@ -1,28 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317366AbSGJEpn>; Wed, 10 Jul 2002 00:45:43 -0400
+	id <S317458AbSGJF2S>; Wed, 10 Jul 2002 01:28:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317377AbSGJEpm>; Wed, 10 Jul 2002 00:45:42 -0400
-Received: from mta11.srv.hcvlny.cv.net ([167.206.5.46]:61126 "EHLO
-	mta11.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S317366AbSGJEpm>; Wed, 10 Jul 2002 00:45:42 -0400
-Date: Tue, 09 Jul 2002 20:37:46 -0400
-From: Bill Darrow <bdarrow@optonline.net>
-Subject: SIS645DX/SIS5513
-To: linux-kernel@vger.kernel.org
-Message-id: <20020709203746.49198f6a.bdarrow@optonline.net>
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S317465AbSGJF2R>; Wed, 10 Jul 2002 01:28:17 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:181 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S317458AbSGJF2Q>;
+	Wed, 10 Jul 2002 01:28:16 -0400
+Date: Wed, 10 Jul 2002 01:30:59 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Robert Love <rml@mvista.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Rick Lindsley <ricklind@us.ibm.com>, Greg KH <greg@kroah.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BKL removal
+In-Reply-To: <3D2B4C42.4090404@us.ibm.com>
+Message-ID: <Pine.GSO.4.21.0207100050050.3293-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently aquired a motherboard with a SIS645DX northbridge and a SIS961B southbridge which has an IDE controller in the SIS5513 family...
 
-    IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev 208).
 
-There appears to be support for the SiS ide controllers in sis5513.c however there only appears to be support for the 645 and not the 645dx.  I can still use my IDE controller but device read timings on ATA133 harddrives show that they can only put out about 3M/sec which isn't acceptable.  Does anyone know of any support for the 645dx/5513 combo (961B)?  Or does anyone know a way I can make a quick hack on sis5513.c so that I can support my controller, even if its not to its fullest potential?  
+On Tue, 9 Jul 2002, Dave Hansen wrote:
 
-Thankyou in advance,
-Bill
+> I have the feeling that the filesystems' use of lots of function 
+> pointers will add a large amount of complexity to whatever programming 
+> any checker would require.  Bill Irwin and I were discussing it and we 
+> have ways of getting around most of them, but there are _lots_ of 
+> special cases.
+
+The real complexity is _not_ on compiler level.  Checker manages that
+quite fine.  The problem is in the coverage - making sure that code
+gets to compiler is much, much more painful.
+ 
+> > Normally it's not that bad, but "can this function block?" is very nasty
+> > in that respect - changes of configuration can and do affect that in
+> > non-trivial ways.
+> 
+> I also wonder how it handles things like kmalloc(), which can block 
+> depending on arguments.
+
+Not a big deal - checker can be taught how kmalloc() works (normally we
+either pass it explict constant or an argument of calling function -
+without any changes).
+
+Again, the real mess is due to the way we use cpp.  It would be wonderful if
+we had 4-6 options really affecting stuff (changing structure sizes, etc.)
+and everything else would be handled either on compiler (
+	if (CONFIG_FOO) {
+		...
+	}
+and let compiler eliminate dead branches) or on the linker (
+obj-$(CONFIG_BAR) += bar.o
+) level.  Then the life would be _way_ easier and we would really have
+a chance to do a meaningful coverage.
+
+As it is, we have way too many ifdefs to hope that any automated tool
+would be able to cope with the damn thing.  It used to be worse -
+these days several really nasty piles of ifdefs are gone.  However,
+we still have quite a few remaining.
+
+Quick-and-dirty search shows ~1.2e4 ifdefs on CONFIG_... in the tree.
+Most of them - patently ridiculous (random example: fs/ncpfs/symlink.c
+/*
+ <usual comments in the beginning>
+ */
+
+#include <linux/config.h>
+
+#ifdef CONFIG_NCPFS_EXTRAS
+<lots of stuff>
+#endif
+
+/* ----- EOF ----- */ 
+
+which should be
+
+ifneq ($(CONFIG_NCPFS_EXTRAS),n)
+ifneq ($(CONFIG_NCPFS_EXTRAS),)
+ncpfs-objs += symlink.o
+endif
+endif
+
+in Makefile and none of the crap in symlink.c).
+
+However, there's really bad stuff and it also has to be dealt with...
+

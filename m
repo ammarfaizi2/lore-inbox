@@ -1,112 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUFPPHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbUFPPPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264045AbUFPPHY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 11:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUFPPHY
+	id S262388AbUFPPPU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 11:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUFPPPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 11:07:24 -0400
-Received: from [213.13.117.218] ([213.13.117.218]:46027 "EHLO
-	mail.paradigma.co.pt") by vger.kernel.org with ESMTP
-	id S264048AbUFPPHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 11:07:07 -0400
-Date: Wed, 16 Jun 2004 16:07:03 +0100
-From: Nuno Monteiro <nuno@itsari.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, David Howells <dhowells@redhat.com>,
-       linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-Subject: Re: [2.4] build error with latest BK [fixed patch]
-Message-ID: <20040616150703.GC2969@hobbes.itsari.int>
-References: <40CFB2A1.8070104@yahoo.com.au> <20040615164848.GA8276@hobbes.itsari.int> <3473.1087374022@redhat.com> <40D00828.8020303@yahoo.com.au> <16592.3188.448186.438659@alkaid.it.uu.se> <40D00D1F.8070109@yahoo.com.au>
+	Wed, 16 Jun 2004 11:15:20 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:33200 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S262388AbUFPPPP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 11:15:15 -0400
+Date: Wed, 16 Jun 2004 17:15:44 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: Andi Kleen <ak@suse.de>
+Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: lost timer check in 2.6.7
+Message-ID: <20040616151544.GA14773@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
+	Andi Kleen <ak@suse.de>, johnstul@us.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <20040616131912.14b73b39.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <40D00D1F.8070109@yahoo.com.au> (from nickpiggin@yahoo.com.au on Wed, Jun 16, 2004 at 10:04:31 +0100)
-X-Mailer: Balsa 2.0.15
+In-Reply-To: <20040616131912.14b73b39.ak@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004.06.16 10:04, Nick Piggin wrote:
-> Just simply replace put_task_struct with free_task_struct.
+On Wed, Jun 16, 2004 at 01:19:12PM +0200, Andi Kleen wrote:
+> 
+> 2.6.7 has 
+> 
+> +               /* ... but give the TSC a fair chance */
+> +               if (lost_count > 25)
+> +                       cpufreq_delayed_get();
+> 
+> While looking at porting this code to x86-64 I noticed that this only runs for 
+> the first lost timer event.
 
-Sorry, only sent half of the patch the first time around. Here it is, 
-with the second hunk touching rwsem-spinlock.c.
+Not exactly: lost_count is increased for every "tick" where lost ticks are
+detected, but re-set anytime there is no lost tick.
 
-This applies on top of what's currently in BK, and fixes the problems for 
-me -- it is compiled and boot tested, running for the last 20 minutes. 
-Also, linux/mm.h is needed because of free_pages().
+> In case of dynamic frequency which varies shouldn't this
+> be more like
+> 
+> 		if ((lost_count % 25) == 0) 
+> 			cpufreq_delayed_get();
+> 
+> ? Otherwise this heuristic will only work once.
 
-I don't have any arch around here that actually needs rwsem-spinlock.c so 
-that part is untested, although it should be ok.
+So if this heuristic works, no more ticks will be lost (at least in the near
+future), so lost_count will be set to zero again. If, due to some new event,
+ticks are lost again, lost_count will start at zero, reach 25 after some
+time, and cpufreq_delayed_get() will be called again.
 
-Marcelo, please apply.
+However: inaccuracies are only detected in _one_ direction: ticks being
+missed, not "too many ticks" -- and only if it's a factor of two or
+higher... Probably a better run-time check of the sanity of a timesource is
+needed in future... on the other hand, frequencies shouldn't change behind
+the kernel's back. That's what my other patch sent to the ACPI list a few
+days ago (pstate_cnt) tries to address.
 
-
-
---- linux-2.4-BK/lib/rwsem.c~fix-rwsem-race-fix	2004-06-16 14:14:02.000000000 +0100
-+++ linux-2.4-BK/lib/rwsem.c	2004-06-16 14:14:28.000000000 +0100
-@@ -5,6 +5,7 @@
-  */
- #include <linux/rwsem.h>
- #include <linux/sched.h>
-+#include <linux/mm.h>
- #include <linux/module.h>
- 
- struct rwsem_waiter {
-@@ -64,7 +65,7 @@ static inline struct rw_semaphore *__rws
- 	mb();
- 	waiter->task = NULL;
- 	wake_up_process(tsk);
--	put_task_struct(tsk);
-+	free_task_struct(tsk);
- 	goto out;
- 
- 	/* grant an infinite number of read locks to the readers at the front of the queue
-@@ -96,7 +97,7 @@ static inline struct rw_semaphore *__rws
- 		mb();
- 		waiter->task = NULL;
- 		wake_up_process(tsk);
--		put_task_struct(tsk);
-+		free_task_struct(tsk);
- 	}
- 
- 	sem->wait_list.next = next;
---- linux-2.4-BK/lib/rwsem-spinlock.c~fix-rwsem-race-fix	2004-06-16 15:47:26.982774224 +0100
-+++ linux-2.4-BK/lib/rwsem-spinlock.c	2004-06-16 15:51:17.522726824 +0100
-@@ -9,6 +9,7 @@
-  */
- #include <linux/rwsem.h>
- #include <linux/sched.h>
-+#include <linux/mm.h>
- #include <linux/module.h>
- 
- struct rwsem_waiter {
-@@ -69,7 +70,7 @@ static inline struct rw_semaphore *__rws
- 		mb();
- 		waiter->task = NULL;
- 		wake_up_process(tsk);
--		put_task_struct(tsk);
-+		free_task_struct(tsk);
- 		goto out;
- 	}
- 
-@@ -81,7 +82,7 @@ static inline struct rw_semaphore *__rws
- 		mb();
- 		waiter->task = NULL;
- 		wake_up_process(tsk);
--		put_task_struct(tsk);
-+		free_task_struct(tsk);
- 		woken++;
- 		if (list_empty(&sem->wait_list))
- 			break;
-@@ -111,7 +112,7 @@ static inline struct rw_semaphore *__rws
- 	mb();
- 	waiter->task = NULL;
- 	wake_up_process(tsk);
--	put_task_struct(tsk);
-+	free_task_struct(tsk);
- 	return sem;
- }
- 
-
-
+	Dominik

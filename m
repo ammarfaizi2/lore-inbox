@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbVCBJBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVCBJDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbVCBJBb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 04:01:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbVCBJBb
+	id S262232AbVCBJDa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 04:03:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVCBJDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 04:01:31 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:35742 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S262231AbVCBJBZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 04:01:25 -0500
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.11-rc5-mm1 patch] reiser4 Kconfig help cleanup
-References: <20050301012741.1d791cd2.akpm@osdl.org>
-	<20050301234324.GJ4845@stusta.de>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 02 Mar 2005 04:01:24 -0500
-In-Reply-To: <20050301234324.GJ4845@stusta.de>
-Message-ID: <yq0is4afml7.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Wed, 2 Mar 2005 04:03:30 -0500
+Received: from gprs215-145.eurotel.cz ([160.218.215.145]:4028 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262232AbVCBJDP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 04:03:15 -0500
+Date: Wed, 2 Mar 2005 09:56:19 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Todd Poynor <tpoynor@mvista.com>
+Cc: linux-kernel@vger.kernel.org, linux-pm@osdl.org
+Subject: Re: [linux-pm] [PATCH] Custom power states for non-ACPI systems
+Message-ID: <20050302085619.GA1364@elf.ucw.cz>
+References: <20050302020306.GA5724@slurryseal.ddns.mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050302020306.GA5724@slurryseal.ddns.mvista.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Adrian" == Adrian Bunk <bunk@stusta.de> writes:
+Hi!
 
-Adrian> The current reiser4 help texts have two disadvantages: 1. they
-Adrian> are more marketing speech than technical speech with some
-Adrian> debatable statements 2. they are too long
+> Advertise custom sets of system power states for non-ACPI systems.
+> Currently, /sys/power/state shows and accepts a static set of choices
+> that are not necessarily meaningful on all platforms (for example,
+> suspend-to-disk is an option even on diskless embedded systems, and the
+> meaning of standby vs. suspend-to-mem is not well-defined on
+> non-ACPI-systems).  This patch allows the platform to register power
+> states with meaningful names that correspond to the platform's
+> conventions (for example, "big sleep" and "deep sleep" on TI OMAP), and
+> only those states that make sense for the platform.
 
-Excellent patch, that help description has been totally inappropriate
-since it was first introduced. I'm sure it will do fine on namesys'
-website, but not in the kernel.
+Maybe this is a bit overdone?
 
-Adrian> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Of course you can have suspend-to-disk on most embedded systems; CF
+flash card looks just like disk, and you should be able to suspend to
+it.
 
-Signed-off-by: Jes Sorensen <jes@wildopensource.com>
+If OMAP has "big sleep" and "deep sleep", why not simply map them to
+"standby" and "suspend-to-ram"?
 
-Speaking of inappropriate components in reiser4:
-
-[jes@tomahawk linux-2.6.11-rc5-mm1]$ grep PG_arch fs/reiser4/*.c
-fs/reiser4/page_cache.c:               page_flag_name(page, PG_arch_1),
-fs/reiser4/txnmgr.c:                    assert("vs-1448", test_and_clear_bit(PG_arch_1, &node->pg->flags));
-fs/reiser4/txnmgr.c:            ON_DEBUG(set_bit(PG_arch_1, &(copy->pg)->flags));
-
-Someone was obviously smoking something illegal, what part of 'arch'
-did she/he not understand? I assume we can request this is fixed by
-the patch owner asap.
-
-Cheers,
-Jes
+[OTOH patch is not that long; but strings in /sys filesystem are not
+for human consumption anyway.]
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

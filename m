@@ -1,24 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262620AbSLOVGW>; Sun, 15 Dec 2002 16:06:22 -0500
+	id <S262807AbSLOVUB>; Sun, 15 Dec 2002 16:20:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbSLOVGW>; Sun, 15 Dec 2002 16:06:22 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:28580 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S262620AbSLOVGW> convert rfc822-to-8bit; Sun, 15 Dec 2002 16:06:22 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Matt Young <wz6b@arrl.net>
-Reply-To: wz6b@arrl.net
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Replacing the SUSU ifcfg-{up/down}
-Date: Sun, 15 Dec 2002 13:13:37 -0800
-User-Agent: KMail/1.4.3
+	id <S262824AbSLOVUB>; Sun, 15 Dec 2002 16:20:01 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:65290 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S262807AbSLOVUB>;
+	Sun, 15 Dec 2002 16:20:01 -0500
+From: John Bradford <john@bradfords.org.uk>
+Message-Id: <200212152139.gBFLdI1p002059@darkstar.example.net>
+Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133 Promise ctrlr, or...
+To: marvin@synapse.net (D.A.M. Revok)
+Date: Sun, 15 Dec 2002 21:39:18 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200212151549.37661.marvin@synapse.net> from "D.A.M. Revok" at Dec 15, 2002 03:49:37 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212151313.37511.wz6b@arrl.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Suse method of bringing up the usb ethernet interface seems rather 
-complicated.  Is there a simpler set of initiasization scripts?
+> have to use the power-switch to get the machine back
+
+If you have another terminal accessible, you could try:
+
+hdparm -w /dev/hda
+
+to reset the interface.  I can't guarantee that it wouldn't loose
+data, though.
+
+John.

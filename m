@@ -1,59 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268203AbUIPWOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268268AbUIPWQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268203AbUIPWOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 18:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268005AbUIPWMl
+	id S268268AbUIPWQz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 18:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267974AbUIPWPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 18:12:41 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:5356 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268004AbUIPWKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 18:10:50 -0400
-Date: Thu, 16 Sep 2004 15:10:39 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Being more anal about iospace accesses..
-Message-ID: <20040916221039.GA12406@plexity.net>
-Reply-To: dsaxena@plexity.net
-References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org> <Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org> <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org> <20040915222157.GA17284@plexity.net> <Pine.LNX.4.58.0409151540260.2333@ppc970.osdl.org> <20040915230904.GA19450@plexity.net> <Pine.GSO.4.58.0409161410080.23693@waterleaf.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Sep 2004 18:15:00 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:19898 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S268004AbUIPWNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 18:13:50 -0400
+From: Michael Scondo <michael.scondo@arcor.de>
+Reply-To: michael.scondo@arcor.de
+To: linux-kernel@vger.kernel.org
+Subject: vfat bug
+Date: Fri, 17 Sep 2004 00:13:20 +0200
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0409161410080.23693@waterleaf.sonytel.be>
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200409170013.20712.michael.scondo@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 16 2004, at 14:51, Geert Uytterhoeven was caught saying:
-> While 16550 serial is a bad example since it does byte accesses only (and thus
-> doesn't suffer from endianness), I have no problem to imagine there exist
-> platforms where you have multiple instances of a `standard' (cfr. 16550 serial)
+Hello..
+I've just compiled a new kernel ( 2.6.8.1 ), and now I'm not able to mount my 
+fat32 partitions anymore.
 
-No longer true. We now have UPIO_IOMEM32 for some of the fscked up HW 
-that large silicon manufacturer has released with 32-bit wide registers
-that must be accessed as full 32-bits.
+mount /dev/hda7 /mnt
+mount: wrong fs type, bad option, bad superblock on /dev/hda7,
+       or too many mounted file systems
+:-(
 
-> device block, while each of them must be accessed differently:
->   - one of them is in PCI I/O space (little endian)
->   - one of them is in PCI MMIO space (little endian)
->   - one of them is on-chip MMIO (big endian)
->   - one of them is somewhere else, but sparsely addressed (some bytes of
->     padding between each register)
-> and we can for sure come up with a few more examples of weird addressing.
-> 
-> How to solve this, without cluttering each ioread*() with many if clauses?
+Every works still fine with 2.6.4, but I'm not sure, whether this occurs due 
+to a bug in the kernel or because a wrong build process.
+Therefore I'm posting this to the list.
 
-If clauses will still be needed, the only difference is that instead
-of basing them on hardcoded addresses we now base them on
-the devices coming in. 
+I've just googled about this problem and a few other people seem to have 
+problems with fat32, too, but I'm not sure what this means to me.
+So could someone tell me please, whether this problem is reproducable or 
+already known or if it occurs only at my system ?
 
-~Deepak
+Thanks, Micha
+( Please CC me, I'm not on the list )
 
--- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
 
-"Unlike me, many of you have accepted the situation of your imprisonment
-and will die here like rotten cabbages." - Number 6
+
+------------------------------------------------
+The system on which the kernel runs is Debian Sid:
+
+Linux betageuze.stars 2.6.8.1 #2 Thu Sep 16 16:24:09 CEST 2004 i686 GNU/Linux
+
+Gnu C                  3.3.3
+Gnu make               3.79.1
+binutils               2.14.90.0.7
+util-linux             2.12
+mount                  2.12
+module-init-tools      3.0-pre10
+e2fsprogs              1.35
+PPP                    2.4.2
+isdn4k-utils           3.3
+nfs-utils              1.0.6
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 3.2.1
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               5.0.91
+Modules Loaded         floppy snd_pcm_oss snd_mixer_oss sr_mod scsi_mod lp 
+parport binfmt_misc nls_cp850 smbfs dummy ext2 vfat fat psmouse snd_sb_common 
+snd_es1688 snd_opl3_lib snd_hwdep snd_es1688_lib snd_pcm snd_page_alloc 
+snd_timer snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore tulip 
+8139too mii crc32 nfs nfsd exportfs lockd sunrpc usblp ide_cd cdrom slhc 
+uhci_hcd usbcore
+
+CPU: Pentium 2, 400 Mhz
+
+However, I've build the kernel at another system ( Debian Woody ):
+
+Gnu C                  2.95.4
+Gnu make               3.79.1
+binutils               2.11.92.0.12.3
+util-linux             2.11n
+mount                  2.11n
+module-init-tools      implemented
+e2fsprogs              1.25
+nfs-utils              1.0
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+
+

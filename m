@@ -1,133 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263612AbTJWPvr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 11:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbTJWPvq
+	id S263625AbTJWP4i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 11:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263627AbTJWP4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 11:51:46 -0400
-Received: from eva.fit.vutbr.cz ([147.229.10.14]:33038 "EHLO eva.fit.vutbr.cz")
-	by vger.kernel.org with ESMTP id S263612AbTJWPvm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 11:51:42 -0400
-Date: Thu, 23 Oct 2003 17:51:38 +0200
-From: David Jez <dave.jez@seznam.cz>
-To: Hannu Mallat <hmallat@cc.hut.fi>
+	Thu, 23 Oct 2003 11:56:37 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:36738 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263625AbTJWP4g (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 11:56:36 -0400
+Message-Id: <200310231556.h9NFuGqm007878@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Flavio Bruno Leitner <fbl@conectiva.com.br>
 Cc: linux-kernel@vger.kernel.org
-Subject: TRIVIAL tdfxfb new IDs
-Message-ID: <20031023155138.GA1740@stud.fit.vutbr.cz>
+Subject: Re: kernel/initrd and rootfs over LVM 
+In-Reply-To: Your message of "Thu, 23 Oct 2003 13:44:25 -0300."
+             <20031023164425.GC21031@conectiva.com.br> 
+From: Valdis.Kletnieks@vt.edu
+References: <20031023164425.GC21031@conectiva.com.br>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="dDRMvlgZJXvWKvBx"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1409194144P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 23 Oct 2003 11:56:16 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1409194144P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <7860.1066924562.1@turing-police.cc.vt.edu>
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thu, 23 Oct 2003 13:44:25 -0300, Flavio Bruno Leitner <fbl@conectiva.com.br>  said:
+> 
+> I'm using kernel 2.6.0-test7 and as far I understand 
+> prepare_namespace() checks if saved_root_name[0] is
+> not null (I'm passing root=/dev/vg0/lvroot), then
+> name_to_dev_t() try to guess what MINOR and MAJOR 
+> are used by the root device. 
 
-  Hi Hannu,
+What I ended up doing to get that working back in the 2.5.4x days was to have
+my initrd's linuxrc do a 'lvm vgscan' to get the volume group online, and then
+an 'lvdisplay' - this of course wedged up after it since there wasn't a proper
+root=, but it revealed the numbers I needed.
 
-  I send you small trivial patch which supports some exotics voodoo cards.
-Please aply.
+As far as I can tell, if you're using the device-mapper in 2.6, you'll want
+MAJOR=, and then the MINOR= seems to be stable across 2.4/2.6/lvm1/lvm2 (So if
+you're building the system under 2.4 and have LVM running there, you can get
+the minor number from lvdisplay there, and use it with major=254 to get your
+2.6 up and running.  For lilo, I ended up using this:
 
-Regards,
--- 
--------------------------------------------------------
-  David "Dave" Jez                Brno, CZ, Europe
- E-mail: dave.jez@seznam.cz
-PGP key: finger xjezda00@eva.fit.vutbr.cz
----------=[ ~EOF ]=------------------------------------
+        root=65029
+# magic number is major=254 * 256 + minor=5
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="tdfxfb.diff"
+Grub you're on your own.  Yes, I should upgrade, but lilo *does* work for this machine, sooo.
 
---- tdfxfb.c.orig	Mon Dec  2 14:29:13 2002
-+++ tdfxfb.c	Fri Apr 18 21:55:58 2003
-@@ -94,6 +94,14 @@
- #define PCI_DEVICE_ID_3DFX_VOODOO5	0x0009
- #endif
- 
-+#ifndef PCI_DEVICE_ID_3DFX_BANSHEE_VELOCITY
-+#define PCI_DEVICE_ID_3DFX_BANSHEE_VELOCITY 0x0004
-+#endif
-+
-+#ifndef PCI_DEVICE_ID_3DFX_VOODOO3_AVENGER
-+#define PCI_DEVICE_ID_3DFX_VOODOO3_AVENGER 0x0057
-+#endif
-+
- /* membase0 register offsets */
- #define STATUS		0x00
- #define PCIINIT0	0x04
-@@ -482,12 +490,18 @@
- 	{ PCI_VENDOR_ID_3DFX, PCI_DEVICE_ID_3DFX_BANSHEE,
- 	  PCI_ANY_ID, PCI_ANY_ID, PCI_BASE_CLASS_DISPLAY << 16,
- 	  0xff0000, 0 },
-+	{ PCI_VENDOR_ID_3DFX, PCI_DEVICE_ID_3DFX_BANSHEE_VELOCITY,
-+	  PCI_ANY_ID, PCI_ANY_ID, PCI_BASE_CLASS_DISPLAY << 16,
-+	  0xff0000, 0 },
- 	{ PCI_VENDOR_ID_3DFX, PCI_DEVICE_ID_3DFX_VOODOO3,
- 	  PCI_ANY_ID, PCI_ANY_ID, PCI_BASE_CLASS_DISPLAY << 16,
- 	  0xff0000, 0 },
- 	{ PCI_VENDOR_ID_3DFX, PCI_DEVICE_ID_3DFX_VOODOO5,
- 	  PCI_ANY_ID, PCI_ANY_ID, PCI_BASE_CLASS_DISPLAY << 16,
- 	  0xff0000, 0 },
-+	{ PCI_VENDOR_ID_3DFX, PCI_DEVICE_ID_3DFX_VOODOO3_AVENGER,
-+	  PCI_ANY_ID, PCI_ANY_ID, PCI_BASE_CLASS_DISPLAY << 16,
-+	  0xff0000, 0 },
- 	{ 0, }
- };
- 
-@@ -978,6 +992,8 @@
-   draminit1 = tdfx_inl(DRAMINIT1);
- 
-   if ((fb_info.dev == PCI_DEVICE_ID_3DFX_BANSHEE) ||
-+      (fb_info.dev == PCI_DEVICE_ID_3DFX_BANSHEE_VELOCITY) ||
-+      (fb_info.dev == PCI_DEVICE_ID_3DFX_VOODOO3_AVENGER) ||
-       (fb_info.dev == PCI_DEVICE_ID_3DFX_VOODOO3)) {
-     sgram_p = (draminit1 & DRAMINIT1_MEM_SDRAM) ? 0 : 1;
-   
-@@ -1526,8 +1542,10 @@
- 
-   switch(i->dev) {
-   case PCI_DEVICE_ID_3DFX_BANSHEE:
-+  case PCI_DEVICE_ID_3DFX_BANSHEE_VELOCITY:
-   case PCI_DEVICE_ID_3DFX_VOODOO3:
-   case PCI_DEVICE_ID_3DFX_VOODOO5:
-+  case PCI_DEVICE_ID_3DFX_VOODOO3_AVENGER:
-     par->width       = (var->xres + 15) & ~15; /* could sometimes be 8 */
-     par->width_virt  = par->width;
-     par->height      = var->yres;
-@@ -1652,9 +1670,15 @@
-   case PCI_DEVICE_ID_3DFX_BANSHEE:
-     strcpy(fix->id, "3Dfx Banshee");
-     break;
-+  case PCI_DEVICE_ID_3DFX_BANSHEE_VELOCITY:
-+    strcpy(fix->id, "3Dfx Banshee [Velocity 100]");
-+    break;
-   case PCI_DEVICE_ID_3DFX_VOODOO3:
-     strcpy(fix->id, "3Dfx Voodoo3");
-     break;
-+  case PCI_DEVICE_ID_3DFX_VOODOO3_AVENGER:
-+    strcpy(fix->id, "3Dfx Voodoo3/3000 [Avenger]");
-+    break;
-   case PCI_DEVICE_ID_3DFX_VOODOO5:
-     strcpy(fix->id, "3Dfx Voodoo5");
-     break;
-@@ -1912,10 +1936,12 @@
- 	
- 	switch (pdev->device) {
- 		case PCI_DEVICE_ID_3DFX_BANSHEE:
-+		case PCI_DEVICE_ID_3DFX_BANSHEE_VELOCITY:
- 			fb_info.max_pixclock = BANSHEE_MAX_PIXCLOCK;
- 			name = "Banshee";
- 			break;
- 		case PCI_DEVICE_ID_3DFX_VOODOO3:
-+		case PCI_DEVICE_ID_3DFX_VOODOO3_AVENGER:
- 			fb_info.max_pixclock = VOODOO3_MAX_PIXCLOCK;
- 			name = "Voodoo3";
- 			break;
+--==_Exmh_1409194144P
+Content-Type: application/pgp-signature
 
---dDRMvlgZJXvWKvBx--
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/l/ogcC3lWbTT17ARArj0AJ42t9a7UjAP1k9kDGNpQFTXySUXiACg/Nyq
++0Fr7WQLEbbsXkqR21fPDDc=
+=SOhj
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1409194144P--

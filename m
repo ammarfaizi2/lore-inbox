@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVAYUmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVAYUnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbVAYUmU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 15:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVAYUmT
+	id S262133AbVAYUnP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 15:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVAYUmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 15:42:19 -0500
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:11921 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S262125AbVAYUlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:41:39 -0500
-Date: Tue, 25 Jan 2005 15:41:12 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: wait_for_completion API extension addition
-In-reply-to: <1106685023.4538.18.camel@tglx.tec.linutronix.de>
-To: tglx@linutronix.de
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <41F6AEE8.70908@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <41F6AA83.20306@sun.com>
- <1106685023.4538.18.camel@tglx.tec.linutronix.de>
+	Tue, 25 Jan 2005 15:42:47 -0500
+Received: from waste.org ([216.27.176.166]:35200 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262124AbVAYUlJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 15:41:09 -0500
+Date: Tue, 25 Jan 2005 12:40:56 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc2-mm1 Random related problems
+Message-ID: <20050125204056.GL12076@waste.org>
+References: <Pine.LNX.4.61.0501242134390.3010@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0501242134390.3010@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Thomas Gleixner wrote:
-> On Tue, 2005-01-25 at 15:22 -0500, Mike Waychison wrote:
+On Mon, Jan 24, 2005 at 09:36:37PM -0700, Zwane Mwaikambo wrote:
+> I'm having trouble booting here, were those random-* patches tested?
 > 
->>-----BEGIN PGP SIGNED MESSAGE-----
->>Hash: SHA1
->>
->>Hi Ingo,
->>
->>I noticed that the wait_for_completion API extensions made it into mainline.
->>
->>However, I posted that the patch in question is broken a while back:
->>
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=110131832828126&w=2
->>
->>Can we fix this?
-> 
-> 
-> We reposted a fixed version. It should not be the one from October which
-> made it upstream.
-> 
+> EIP is at __add_entropy_words+0xc5/0x1c0
+> eax: 0000002d   ebx: 0000000f   ecx: 0000007b   edx: f5e50000
+> esi: c0810980   edi: 0000000f   ebp: f5e4fea4   esp: f5e4fe5c
+> ds: 007b   es: 007b   ss: 0068
+> Process dd (pid: 2255, threadinfo=f5e4e000 task=ebdd7ac0)
+> Stack: 00000010 78000000 c07043e0 00000286 0000007b 0000001f 00000001 00000007
+>        0000000e 00000014 0000001a 00000000 0000002d f5e50000 c07043c0 00000080
+>        c0704340 c07043c0 f5e4ff40 c037a4e0 00000000 00000010 2cda69d0 f7b9f75e
+> Call Trace:
+>  [<c010403a>] show_stack+0x7a/0x90
+>  [<c01041c6>] show_registers+0x156/0x1c0
+>  [<c01043e0>] die+0x100/0x190
+>  [<c0116d59>] do_page_fault+0x349/0x63f
+>  [<c0103cc7>] error_code+0x2b/0x30
+>  [<c037a4e0>] xfer_secondary_pool+0xb0/0xe0
 
-Well, according to linux.bkbits.net/linux-2.5, it appears to have gotten
-the broken version :(
+This oops is add_entropy_words running off the top of the stack
+reading its input. The overrun is harmless until it causes a page
+fault. After much staring:
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
+This should fix Zwane's oops. Looks like I introduced this bug in Aug
+2003, but it was hard to trigger until the recent changes. But it
+ought to make it to mainline soonish.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-iD8DBQFB9q7odQs4kOxk3/MRAhUbAJ9jhpFbrpqi2K+lakwy9mpdwiq/3QCdHovv
-16kp8J0NENFAKS/QCq6B1x4=
-=NjNB
------END PGP SIGNATURE-----
+Index: rc2mm1/drivers/char/random.c
+===================================================================
+--- rc2mm1.orig/drivers/char/random.c	2005-01-25 12:27:00.000000000 -0800
++++ rc2mm1/drivers/char/random.c	2005-01-25 12:27:36.000000000 -0800
+@@ -701,7 +701,7 @@
+ 
+ 		bytes=extract_entropy(r->pull, tmp, bytes,
+ 				      random_read_wakeup_thresh / 8, rsvd);
+-		add_entropy_words(r, tmp, bytes);
++		add_entropy_words(r, tmp, (bytes + 3) / 4);
+ 		credit_entropy_store(r, bytes*8);
+ 	}
+ }
+
+
+-- 
+Mathematics is the supreme nostalgia of our time.

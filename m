@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289327AbSAKLb7>; Fri, 11 Jan 2002 06:31:59 -0500
+	id <S289588AbSAKLmu>; Fri, 11 Jan 2002 06:42:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289349AbSAKLbt>; Fri, 11 Jan 2002 06:31:49 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:11272 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289327AbSAKLbj>; Fri, 11 Jan 2002 06:31:39 -0500
-Date: Fri, 11 Jan 2002 11:31:31 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S289685AbSAKLma>; Fri, 11 Jan 2002 06:42:30 -0500
+Received: from ns.suse.de ([213.95.15.193]:44297 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289588AbSAKLmV>;
+	Fri, 11 Jan 2002 06:42:21 -0500
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [patch] O(1) scheduler, -H5
-Message-ID: <20020111113131.C30756@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0201110130290.11478-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201110130290.11478-100000@localhost.localdomain>; from mingo@elte.hu on Fri, Jan 11, 2002 at 01:38:51AM +0100
+In-Reply-To: <Pine.LNX.4.33.0201110130290.11478-100000@localhost.localdomain.suse.lists.linux.kernel> <20020111113131.C30756@flint.arm.linux.org.uk.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 11 Jan 2002 12:42:14 +0100
+In-Reply-To: Russell King's message of "11 Jan 2002 12:37:44 +0100"
+Message-ID: <p73zo3lnmg9.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 11, 2002 at 01:38:51AM +0100, Ingo Molnar wrote:
-> it adds code to catch places that call schedule() from global-cli()
-> sections. Right now release_kernel_lock() doesnt automatically release the
-> IRQ lock if there is no kernel lock held. A fair amount of code does this
-> still, and i think we should fix them in 2.5.
+Russell King <rmk@arm.linux.org.uk> writes:
+> 
+> The serial driver (old or new) open/close functions are one of the worst
+> offenders of the global-cli-and-hold-kernel-lock-and-schedule problem.
+> I'm currently working on fixing this in the new serial driver.
 
-The serial driver (old or new) open/close functions are one of the worst
-offenders of the global-cli-and-hold-kernel-lock-and-schedule problem.
-I'm currently working on fixing this in the new serial driver.
+When they hold the kernel lock in addition to the global cli() before
+schedule() it should be ok. Only the behaviour of code not holding
+kernel lock but global cli and calling schedule() has changed.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+-Andi

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129097AbQKQVgf>; Fri, 17 Nov 2000 16:36:35 -0500
+	id <S129199AbQKQVlq>; Fri, 17 Nov 2000 16:41:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129199AbQKQVgQ>; Fri, 17 Nov 2000 16:36:16 -0500
-Received: from smtp-fwd.valinux.com ([198.186.202.196]:21776 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S129097AbQKQVgI>;
-	Fri, 17 Nov 2000 16:36:08 -0500
-Date: Fri, 17 Nov 2000 13:07:03 -0800
-From: David Hinds <dhinds@valinux.com>
-To: barryn@pobox.com
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Russell King <rmk@arm.linux.org.uk>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        David Woodhouse <dwmw2@infradead.org>, tytso@valinux.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4's internal PCMCIA works for me (was Re: [PATCH] pcmcia event thread)
-Message-ID: <20001117130703.C8211@valinux.com>
-In-Reply-To: <Pine.LNX.4.10.10011170814440.2272-100000@penguin.transmeta.com> <200011172030.MAA01854@cx518206-b.irvn1.occa.home.com>
-Mime-Version: 1.0
+	id <S129806AbQKQVli>; Fri, 17 Nov 2000 16:41:38 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:46605 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129199AbQKQVlZ>;
+	Fri, 17 Nov 2000 16:41:25 -0500
+Message-ID: <3A159EF1.E08E5368@mandrakesoft.com>
+Date: Fri, 17 Nov 2000 16:11:13 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: becker@scyld.com, linux-kernel@vger.kernel.org, shangh@realtek.com.tw
+Subject: Re: duplicate entries in rtl8129 driver
+In-Reply-To: <200011172047.MAA03712@adam.yggdrasil.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.6i
-In-Reply-To: <200011172030.MAA01854@cx518206-b.irvn1.occa.home.com>; from Barry K. Nathan on Fri, Nov 17, 2000 at 12:30:38PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2000 at 12:30:38PM -0800, Barry K. Nathan wrote:
+"Adam J. Richter" wrote:
 > 
-> I do understand that the in-kernel support isn't as mature as the external
-> support yet. However, it isn't universally broken and useless either.
+>         Both linux-2.4.0-test12-pre6/drivers/net/rtl8129.c and
+> Don Becker's version at ftp.sycld.com appear to have identical
+> PCI device ID and vendor ID values for these two cards:
 
-That's certainly true; it should work fine for the large majority of
-configurations.  I think the non-platform-specific issues are mostly
-resolved.
+rtl8129 is going away as soon as humanly possible.  :)  RealTek sent me
+a RTL8130 so I can test the MII stuff finally.
 
--- Dave
+Note that those duplicate ids should be commented out of rtl8129.c,
+also.
+
+-- 
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

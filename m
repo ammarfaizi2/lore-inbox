@@ -1,108 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVBHUoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVBHUp4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVBHUoE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 15:44:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVBHUoD
+	id S261661AbVBHUp4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 15:45:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVBHUp4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 15:44:03 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:37519 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261540AbVBHUnw (ORCPT
+	Tue, 8 Feb 2005 15:45:56 -0500
+Received: from gprs215-154.eurotel.cz ([160.218.215.154]:45975 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261661AbVBHUpk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 15:43:52 -0500
-Date: Tue, 8 Feb 2005 12:42:34 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: dino@in.ibm.com, mbligh@aracnet.com, pwil3058@bigpond.net.au,
-       frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
-       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, Simon.Derr@bull.net, ak@suse.de,
-       sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20050208124234.6aed9e28.pj@sgi.com>
-In-Reply-To: <42090C42.7020700@us.ibm.com>
-References: <20041001164118.45b75e17.akpm@osdl.org>
-	<20041001230644.39b551af.pj@sgi.com>
-	<20041002145521.GA8868@in.ibm.com>
-	<415ED3E3.6050008@watson.ibm.com>
-	<415F37F9.6060002@bigpond.net.au>
-	<821020000.1096814205@[10.10.2.4]>
-	<20041003083936.7c844ec3.pj@sgi.com>
-	<834330000.1096847619@[10.10.2.4]>
-	<1097014749.4065.48.camel@arrakis>
-	<420800F5.9070504@us.ibm.com>
-	<20050208095440.GA3976@in.ibm.com>
-	<42090C42.7020700@us.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 8 Feb 2005 15:45:40 -0500
+Date: Tue, 8 Feb 2005 21:45:04 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Video recovery after S3 on arima / eMachines notebook (and if S3 works for you, please tell me)
+Message-ID: <20050208204504.GA1197@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew wrote:
->   The reason Paul and I decided that they weren't totally reconcilable is 
-> because of the memory binding side of the CPUSETs code.
+Hi!
 
-Speak for yourself, Matthew ;).
+I found out that vbetool is enough to get me back video after
+suspend/resume. Good and thanks! Here's my current version of
+video.txt file. If you have any comment, or have machine where S3
+works and it is not listed below, please let me know and I'll update
+video.txt file.
 
-I agree you that the scheduler experts (I'm not one, nor do I aspire to
-be one) may well find that it makes sense someday to better integrate
-scheduler domains and cpusets.  It seems a little inefficient on the
-surface for scheduler domain code to spend time trying to choose the
-best task to run on a CPU, only to find out that the chosen task is not
-allowed, because that tasks cpus_allowed does not allow execution on the
-intended CPU.  Since in some systems, cpusets will provide a better
-indication of the natural clustering of various cpus_allowed values than
-a simple boottime hierarchical partitioning of the system, it makes
-sense to me that there might be a way to improve the integration of
-cpusets and scheduler domains, at least as an option on systems that are
-making heavy use of cpusets.  This might have the downside of making
-sched domains more dynamic than they are now, which might cost more
-performance than it gained.  Others will have to evaluate those
-tradeoffs.
+							Pavel
 
-But when you write the phrase "they weren't totally reconcilable,"
-I presume you mean "cpusets and CKRM weren't totally reconcilable."
 
-I would come close to turning this phrasing around, and state that
-they were (nearly) totally unreconcilable <grin>.
+                Video issues with S3 resume
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                  2003-2005, Pavel Machek
 
-I found no useful and significant basis for integration of cpusets and
-CKRM either involving CPU or Memory Node management.
+During S3 resume, hardware needs to be reinitialized. For most
+devices, this is easy, and kernel driver knows how to do
+it. Unfortunately there's one exception: video card. Those are usually
+initialized by BIOS, and kernel does not have enough information to
+boot video card. (Kernel usually does not even contain video card
+driver -- vesafb and vgacon are widely used).
 
-As best as I can figure out, CKRM is a fair share scheduler with a
-gussied up more modular architecture, so that the components to track
-usage, control (throttle) tasks, and classify tasks are separate
-plugins.  I can find no significant and useful overlap on any of these
-fronts, either the existing plugins or their infrastructure, with what
-cpusets has and needs.
+This is not problem for swsusp, because during swsusp resume, BIOS is
+run normally so video card is normally initialized.
 
-There are claims that CKRM has some generalized resource management
-architecture that should be able to handle cpusets needs, but despite my
-repeated (albeit not entirely successful) efforts to find documentation
-and read source and my pleadings with Matthew and earlier on this
-thread, I was never able to figure out what this meant, or find anything
-that could profitably integrate with cpusets.
+There are few types of systems where video works after S3 resume:
 
-In sum -- I see a potential for useful integration of cpusets and
-scheduler domains, I'll have to leave it up to those with expertise in
-the scheduler to evaluate and perhaps accomplish this.  I do not see any
-useful integration of cpusets and CKRM.
+* systems where video state is preserved over S3. (Athlon HP Omnibook xe3s)
 
-I continue to be befuddled as to why, Matthew, you confound potential
-cpuset-scheddomain integration with potential cpuset-CKRM integration.
-Scheduler domains and CKRM are distinct beasts, in my book, and the
-contemplations of cpuset integration with these two beasts are also
-distinct efforts.
+* systems where it is possible to call video bios during S3
+  resume. Unfortunately, it is not correct to call video BIOS at that
+  point, but it happens to work on some machines. Use
+  acpi_sleep=s3_bios (Athlon64 desktop system, HP NC6000)
 
-And cpusets and CKRM are distinct beasts.
+* systems that initialize video card into vga text mode and where BIOS
+  works well enough to be able to set video mode. Use
+  acpi_sleep=s3_mode on these. (Toshiba 4030cdt)
 
-But I repeat myself ...
+* on some systems s3_bios kicks video into text mode, and
+  acpi_sleep=s3_bios,s3_mode is needed (Toshiba Satellite P10-554)
+
+* radeon systems, where X can soft-boot your video card. You'll need
+  patched X, and plain text console (no vesafb or radeonfb), see
+  http://www.doesi.gmxhome.de/linux/tm800s3/s3.html. (Acer TM 800)
+
+* other radeon systems, where vbetool is enough to bring system back
+  to life. Do vbetool vbestate save > /tmp/delme; echo 3 > /proc/acpi/sleep;
+  vbetool post; vbetool vbestate restore < /tmp/delme; setfont
+  <whatever>, and your video should work. (Athlon64 Arima W730a, eMachines XYZ)
+
+Now, if you pass acpi_sleep=something, and it does not work with your
+bios, you'll get hard crash during resume. Be carefull. Also it is
+safest to do your experiments with plain old VGA console. vesafb and
+radeonfb (etc) drivers have tendency to crash the machine during resume.
+
+You may have system where none of above works. At that point you
+either invent another ugly hack that works, or write proper driver for
+your video card (good luck getting docs :-(). Maybe suspending from X
+(proper X, knowing your hardware, not XF68_FBcon) might have better
+chance of working.
+
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

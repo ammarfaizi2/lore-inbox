@@ -1,34 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbUKBTe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbUKBThl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbUKBTe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 14:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbUKBTe6
+	id S261735AbUKBThl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 14:37:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbUKBThl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 14:34:58 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:4584 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261343AbUKBTet (ORCPT
+	Tue, 2 Nov 2004 14:37:41 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:48360 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261855AbUKBThD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 14:34:49 -0500
-Date: Tue, 2 Nov 2004 20:35:55 +0100
+	Tue, 2 Nov 2004 14:37:03 -0500
+Date: Tue, 2 Nov 2004 20:37:56 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
        Florian Schmidt <mista.tapas@gmx.net>,
        Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>, mark_h_johnson@raytheon.com,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
        Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
        Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
        Karsten Wiese <annabellesgarden@yahoo.de>,
        jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+       Rui Nuno Capela <rncbc@rncbc.org>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
-Message-ID: <20041102193555.GA2987@elte.hu>
-References: <1099227269.1459.45.camel@krustophenia.net> <1099324040.3337.32.camel@thomas> <20041102150634.GA24871@elte.hu> <200411021624.45378.norberto+linux-kernel@bensa.ath.cx>
+Message-ID: <20041102193756.GA3053@elte.hu>
+References: <20041031134016.GA24645@elte.hu> <20041031162059.1a3dd9eb@mango.fruits.de> <20041031165913.2d0ad21e@mango.fruits.de> <20041031200621.212ee044@mango.fruits.de> <20041101134235.GA18009@elte.hu> <20041101135358.GA19718@elte.hu> <20041101140630.GA20448@elte.hu> <1099324040.3337.32.camel@thomas> <20041102150634.GA24871@elte.hu> <4187C95F.5030808@cybsft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411021624.45378.norberto+linux-kernel@bensa.ath.cx>
+In-Reply-To: <4187C95F.5030808@cybsft.com>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -41,23 +42,15 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Norberto Bensa <norberto+linux-kernel@bensa.ath.cx> wrote:
+* K.R. Foley <kr@cybsft.com> wrote:
 
-> Ingo Molnar wrote:
-> > i've uploaded a fixed kernel (-V0.6.8) to:
-> >
-> >   http://redhat.com/~mingo/realtime-preempt/
-> 
-> Doesn't compile:
-> 
->   CC [M]  fs/lockd/svc.o
-> fs/lockd/svc.c:49: warning: type defaults to `int' in declaration of 
-> `DECLARE_MUTEX_NOCHECK'
+> This one initially booted fine on my SMP workstation at the office.
+> Ran for about 1 hr. 10 mins. then locked with no indications as to
+> why.  [...]
 
-ok - the reason was this:
-
-> # CONFIG_PREEMPT_REALTIME is not set
-
-i fixed these build problems in the -V0.6.9 patch i just uploaded.
+soft hang or hard hang? In any case, the freshly uploaded -V0.6.9 kernel
+both fixes one more deadlock and extends deadlock-detection to virtually
+every locking object in Linux so it would be nice to check whether you
+are getting a silent hang again, or perhaps something more verbose.
 
 	Ingo

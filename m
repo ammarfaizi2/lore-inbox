@@ -1,45 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266529AbSJUO2M>; Mon, 21 Oct 2002 10:28:12 -0400
+	id <S266829AbSJUO34>; Mon, 21 Oct 2002 10:29:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266532AbSJUO2M>; Mon, 21 Oct 2002 10:28:12 -0400
-Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:10975 "EHLO
-	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S266529AbSJUO2L>; Mon, 21 Oct 2002 10:28:11 -0400
-Date: Mon, 21 Oct 2002 12:33:54 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Rob Landley <landley@trommello.org>
-cc: Xavier Bestel <xavier.bestel@free.fr>, Robert Love <rml@tech9.net>,
-       Ben Collins <bcollins@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper outrage, old and new
-In-Reply-To: <200210201926.19757.landley@trommello.org>
-Message-ID: <Pine.LNX.4.44L.0210211233080.22993-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266826AbSJUO3y>; Mon, 21 Oct 2002 10:29:54 -0400
+Received: from ns.suse.de ([213.95.15.193]:3088 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S266808AbSJUO3r>;
+	Mon, 21 Oct 2002 10:29:47 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, rml@tech9.net, akpm@digeo.com
+Subject: Re: benchmarks of O_STREAMING in 2.5
+References: <1034823201.722.429.camel@phantasy.suse.lists.linux.kernel> <1035211132.27309.131.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 21 Oct 2002 16:35:50 +0200
+In-Reply-To: Alan Cox's message of "21 Oct 2002 16:26:54 +0200"
+Message-ID: <p73y98r7tbt.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Oct 2002, Rob Landley wrote:
-> On Sunday 20 October 2002 17:53, Rik van Riel wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> > Germany (and France, judging from your words) have laws that
-> > guarantee that the creator of a work keeps copyright on the
-> > work.  At least, part of the copyright cannot be signed over
-> > to other people or organisations.
+> All you now need to do is make it work with an API thats usable by the
+> other 99% of real world apps, is extensible and sensible ways and
+> therefore can be used.
 
-> 3) The creator of a work doesn't always get the copyright, at least in
-> the US.
+An streaming hint as chattr would be quite nice.
 
-Please see above.  It's possible the FSF copyright assignment
-just can't be legal in some countries.
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
-
+-Andi

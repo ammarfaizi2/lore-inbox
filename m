@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbUBGXLU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 18:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbUBGXLU
+	id S261411AbUBGXRD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 18:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbUBGXRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 18:11:20 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:24199 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261270AbUBGXLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 18:11:19 -0500
-Date: Sat, 7 Feb 2004 18:08:17 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Greg KH <greg@kroah.com>
-Cc: Robert Gadsdon <robert@gadsdon.giointernet.co.uk>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
-Message-ID: <20040207230817.GU1042@phunnypharm.org>
-References: <fa.h1qu7q8.n6mopi@ifi.uio.no> <402240F9.3050607@gadsdon.giointernet.co.uk> <20040205182614.GG13075@kroah.com> <20040206144729.GJ1042@phunnypharm.org> <20040206182200.GE32116@kroah.com> <20040207172757.GQ1042@phunnypharm.org> <20040207191315.GC2581@kroah.com>
+	Sat, 7 Feb 2004 18:17:03 -0500
+Received: from main.gmane.org ([80.91.224.249]:40580 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261411AbUBGXRB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 18:17:01 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: cpufreq - less possible freqs with 2.6.2 and P4M
+Date: Sun, 08 Feb 2004 00:16:58 +0100
+Message-ID: <yw1xd68q4h05.fsf@kth.se>
+References: <402562D4.7010706@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040207191315.GC2581@kroah.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ti200710a080-1862.bb.online.no
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:k0BMhsvzgQF1g10Wlt9ouKSPKQk=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > One thing I notice is that I am not checking the return value of
-> > device_register(), however if that fails, the device shouldn't be in the
-> > device list for the bus, correct?
-> 
-> That is correct.  I don't see the problem either in looking at your
-> code...
+Georg Müller <georgmueller@gmx.net> writes:
 
-Well, unless someone finds eveidence to the contrary, I'm going to
-assume this isn't a bug in ieee1394 :)
+> Hi,
+>
+> I have a Pentium 4M at 1.8GHz.
+> With 2.6.0 it was possible to slow down my CPU in several steps down
+> to 200MHz via cpufreq.
+> With 2.6.2 I can only switch between 1.2 and 1.8GHz (as it was with
+> 2.4 too).
+
+Which cpufreq module are you using?  With p4-clockmod I get lots of
+choices, with acpi only the two you mentioned.
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Måns Rullgård
+mru@kth.se
+

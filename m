@@ -1,88 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261343AbSIXTZq>; Tue, 24 Sep 2002 15:25:46 -0400
+	id <S261606AbSIXTZt>; Tue, 24 Sep 2002 15:25:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261606AbSIXTZq>; Tue, 24 Sep 2002 15:25:46 -0400
-Received: from petasus.ch.intel.com ([143.182.124.5]:39399 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S261343AbSIXTZp>; Tue, 24 Sep 2002 15:25:45 -0400
-Message-ID: <D9223EB959A5D511A98F00508B68C20C0A5389D3@orsmsx108.jf.intel.com>
-From: "Rhoads, Rob" <rob.rhoads@intel.com>
-To: "'Greg KH'" <greg@kroah.com>, "Rhoads, Rob" <rob.rhoads@intel.com>
-Cc: linux-kernel@vger.kernel.org,
-       hardeneddrivers-discuss@lists.sourceforge.net,
-       cgl_discussion@lists.osdl.org
-Subject: RE: [ANNOUNCE] Linux Hardened Device Drivers Project
-Date: Tue, 24 Sep 2002 12:30:28 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S261623AbSIXTZt>; Tue, 24 Sep 2002 15:25:49 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:34054 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261606AbSIXTZs>;
+	Tue, 24 Sep 2002 15:25:48 -0400
+Date: Tue, 24 Sep 2002 12:29:56 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
+Message-ID: <20020924192956.GA25963@kroah.com>
+References: <Pine.LNX.4.44.0209241118130.966-200000@cherise.pdx.osdl.net> <Pine.LNX.4.33.0209241146520.7652-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0209241146520.7652-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 24, 2002 at 11:55:00AM -0700, Linus Torvalds wrote:
 > 
-> On Mon, Sep 23, 2002 at 03:38:32PM -0700, Rhoads, Rob wrote:
-> > I appreciate all the feedback. Based on the wide variety 
-> > of ideas/comments, it looks like I need to go back and 
-> > incorporate these ideas into the document, potentially 
-> > changing areas in major ways where appropriate.    
+> So I'd suggest you just export a text-file that describes the thing. 
+> Something like
 > 
-> Not to be a pest, but I, and a lot of other people, posted some very
-> specific questions in response to both your original posting, and in
-> response to the published specification and published code.  
-> It would be
-> considered proper etiquette if you would at least try to respond to
-> _some_ of these questions, as you did ask for them, rather 
-> than stating
-> that you are going to go mull over everything and come back with a
-> modified document.
+>  - legacy name (the kernel knows about these anyway, see /proc/mounts and 
+>    friends)
 
-I've been overwhelmed with the hailstorm of posts hitting 
-my mailbox, since I made the project announcement.
+I would like to see all of the /proc/mounts and friends info that
+"knows" about the legacy name, to disappear if possible.  Yes, I know
+the root filesystem logic will have to stay, but I don't want to see
+this be used like the devfs name is used throughout the kernel.  That
+info should not be in the kernel, it's up to the user what to name their
+"USB mouse, connected to the EHCI host controller's 3 hub port".
 
-> 
-> If you don't, any expectations of people reviewing future specs, or
-> proposals from this project should be kept quite low.
-> 
+>  - major number, minor number) and char vs block
 
-The responses I have received have fallen into several buckets:
+Yes, this info is needed, and if presented in a file, that would be
+fine.  It was just that the device node was a nice compact version of
+this :)
+But I can see how the device node would be abused, and it's fine with me
+if it isn't present in driverfs.
 
-1. INTEL???? wtf?  You're evil.  Go away.
-2. Good goal; bad approach.
-3. Good goal, bad approach in places, here are areas for improvement.
-4. Good goal, here are my thoughts and questions on X.
+thanks,
 
-Keep in mind the original post was the announcement of a new project.
-Sure, there was a big document with lots of information--but the 
-project is STARTING.  Not ending; personally I didn't think that 
-there would be huge following on LKML.  I thought those interested
-in the topic would read the spec we have, see where they like it 
-and where they don't and then hopefully give me feedback to make 
-the spec and the results better.  This isn't something that 
-can be solved overnight.
-
-What I'm seeing from the messages is that a lot of people have 
-been thinking about this topic, and a lot of people have ideas 
-on how they think the problems best solved.
-
-Areas of common desire to be looked at:
-
-1. validate kernel interfaces (i.e.: kernel janitor)
-2. common logging mechanisms (i.e.: not POSIX logging)
-3. validation/testing tools capabilities
-4. driver-howto; best known methods by kernel driver 
-   developers for writing stable maintainable drivers
-
-I am trying to understand what people are looking for so that I 
-can provide meaningful posts.
-
-That said, I will go back and address the specific questions that
-you and others have asked.
-
-> thanks,
-> 
-> greg k-h
-> 
-
--RobR
+greg k-h

@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292383AbSB0MvB>; Wed, 27 Feb 2002 07:51:01 -0500
+	id <S292373AbSB0NCC>; Wed, 27 Feb 2002 08:02:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292402AbSB0Mum>; Wed, 27 Feb 2002 07:50:42 -0500
-Received: from ns.suse.de ([213.95.15.193]:38919 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S292339AbSB0Mub>;
-	Wed, 27 Feb 2002 07:50:31 -0500
-Date: Wed, 27 Feb 2002 13:50:01 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19pre1aa1
-Message-ID: <20020227135001.I1495@inspiron.school.suse.de>
+	id <S292407AbSB0NBn>; Wed, 27 Feb 2002 08:01:43 -0500
+Received: from noose.gt.owl.de ([62.52.19.4]:55823 "HELO noose.gt.owl.de")
+	by vger.kernel.org with SMTP id <S292373AbSB0NBk>;
+	Wed, 27 Feb 2002 08:01:40 -0500
+Date: Wed, 27 Feb 2002 10:36:43 +0100
+From: Florian Lohoff <flo@rfc822.org>
+To: "T. A." <tkhoadfdsaf@hotmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [CRASH] gdth / __block_prepare_write: zeroing uptodate buffer! / NMI Watchdog detected LOCKUP
+Message-ID: <20020227093643.GA7957@paradigm.rfc822.org>
+In-Reply-To: <20020226184043.GA10420@paradigm.rfc822.org> <3C7BDC57.A835D657@zip.com.au> <20020226191626.GA11283@paradigm.rfc822.org> <OE43IwMw8lODAStRc0J00021292@hotmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <OE43IwMw8lODAStRc0J00021292@hotmail.com>
+User-Agent: Mutt/1.3.27i
+Organization: rfc822 - pure communication
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to have feedback about this VM update, if nobody can find
-any serious issue I'd try to push vm-28 into mainline during 2.4.19pre.
-Please test oom conditions as well.
 
-Thanks!
+--3MwIy2ne0vdjdPXF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-URL:
+On Tue, Feb 26, 2002 at 10:27:50PM -0500, T. A. wrote:
+>     What motherboard are you using?  I recently installed a ICP RAID card
+> into a VP6 with dual processors and had similar problems.  I've also had
+> problems with the gdth driver under linux in that drives were disappearing
+> now and then destroying the integrity of the RAID drive, though in a
+> different setup.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre1aa1.gz
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre1aa1/
+Serverworks Chipsset - We dont have any other problems beside the=20
+real deadlocks.
 
-Only in 2.4.18rc4aa1: 00_block-highmem-all-18b-3.gz
-Only in 2.4.19pre1aa1: 00_block-highmem-all-18b-4.gz
+Flo
+--=20
+Florian Lohoff                  flo@rfc822.org             +49-5201-669912
+Nine nineth on september the 9th              Welcome to the new billenium
 
-	Fix leftover setting.
+--3MwIy2ne0vdjdPXF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Only in 2.4.18rc4aa1: 00_hpfs-oops-1
-Only in 2.4.18rc4aa1: 30_get_request-starvation-1
-Only in 2.4.18rc4aa1: 00_init-blk-freelist-1
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-	Now in mainline.
+iD8DBQE8fKirUaz2rXW+gJcRAvfjAJ0Y46qkdEhszAA0Tgq9cKqNWXyn2ACgxtAs
+VN8AmkSpLD9FtY/mpUwmK7k=
+=7Acj
+-----END PGP SIGNATURE-----
 
-Only in 2.4.19pre1aa1: 00_lcall_trace-1
-
-	call gate entry point speciality.
-
-Only in 2.4.18rc4aa1: 00_prepare-write-fixes-1
-Only in 2.4.19pre1aa1: 00_prepare-write-fixes-2
-
-	Avoid false positives (agreed Andrew?).
-
-Only in 2.4.18rc4aa1: 10_rawio-vary-io-2
-Only in 2.4.19pre1aa1: 10_rawio-vary-io-3
-
-	Rediffed.
-
-Only in 2.4.18rc4aa1: 10_vm-27
-Only in 2.4.19pre1aa1: 10_vm-28
-
-	Further updates. As soon as I get the confirm this goes well in all the
-	benchmarks I think it should go into mainline.
-
-Only in 2.4.18rc4aa1: 70_xfs-1.gz
-Only in 2.4.19pre1aa1: 70_xfs-2.gz
-
-	Drop PG_launder, never really existed in -aa, wait_IO does a
-	better job (not only for dirty bh submitted by the vm) and wait_IO is
-	just supported by xfs.
-
-Andrea
+--3MwIy2ne0vdjdPXF--

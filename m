@@ -1,109 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264946AbSKVPNh>; Fri, 22 Nov 2002 10:13:37 -0500
+	id <S264943AbSKVPMz>; Fri, 22 Nov 2002 10:12:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264950AbSKVPNg>; Fri, 22 Nov 2002 10:13:36 -0500
-Received: from redrock.inria.fr ([138.96.248.51]:53155 "HELO redrock.inria.fr")
-	by vger.kernel.org with SMTP id <S264946AbSKVPN0>;
-	Fri, 22 Nov 2002 10:13:26 -0500
-SCF: #mh/Mailbox/outboxDate: Fri, 22 Nov 2002 16:11:47 +0100
-From: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: Re: Fw: Troubles with Sony PCG-C1MHP (crusoe based and ALIM 1533 drivers)
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-Id: <20021122161147.6283c0ee.Manuel.Serrano@sophia.inria.fr>
-References: <20021120094121.7b6c7d34.Manuel.Serrano@sophia.inria.fr>
-	<1037800851.3241.10.camel@irongate.swansea.linux.org.uk>
-	<20021122113904.0052e208.Manuel.Serrano@sophia.inria.fr>
-	<8765up1wr6.fsf@devron.myhome.or.jp>
-Organization: Inria
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Date: 22 Nov 2002 16:14:06 +0100
+	id <S264946AbSKVPMz>; Fri, 22 Nov 2002 10:12:55 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:29704 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S264943AbSKVPMy> convert rfc822-to-8bit;
+	Fri, 22 Nov 2002 10:12:54 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5] pcnet_cs, uninitialized timer when removing
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Fri, 22 Nov 2002 15:11:15 +0100
+Message-ID: <87hee9u22k.fsf@gswi1164.jochen.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 22 Nov 2002 23:53:33 +0900
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+When I remove the card I get:
 
-> Manuel Serrano <Manuel.Serrano@sophia.inria.fr> writes:
-> 
-> > Stack: 000000ff 00000001 c029da4c c019ed05 000000ff 00000001 c1a13fa0 c029da4c
-> >        0000e000 00000286 c019f91c c029da4c c0275554 c0267fd8 00000000 00000001
-> >        00000001 00000001 00000001 00000001 00000001 00000001 00000001 00000001
-> > Call Trace:   [<c019ed05>] [<c019f91c>] [<c0105021>] [<c01054a9>]
-> > Code: 0b 40 10 ff d0 83 c4 04 56 9d 83 3d 84 dc 27 c0 00 75 0f 89
-> > 
-> > 
-> > >>EIP; c0107cab <disable_irq+2f/54>   <=====
-> > 
-> > >>edi; c029da4c <ide_hwifs+46c/2c38>
-> 
-> Looks like the same problem on my VAIO-U3. The following log is on
-> 2.5.47.
-> 
-> ACPI: PCI Interrupt Link [LNK6] enabled at IRQ 9
-> ACPI: PCI Interrupt Link [LNK7] enabled at IRQ 9
-> ACPI: No IRQ known for interrupt pin A of device 00:10.0 - using IRQ 255
-> PCI: Using ACPI for IRQ routing
-> 
-> [...]
-> 
-> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> ALI15X3: IDE controller at PCI slot 00:10.0
-> ACPI: No IRQ known for interrupt pin A of device 00:10.0 - using IRQ 255
-> ALI15X3: chipset revision 196
-> ALI15X3: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0x1400-0x1407, BIOS settings: hda:DMA, hdb:pio
-> ALI15X3: simplex device: DMA forced
->     ide1: BM-DMA at 0x1408-0x140f, BIOS settings: hdc:DMA, hdd:DMA
-> hda: TOSHIBA MK2003GAH, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hda: host protected area => 1
-> hda: 39062520 sectors (20000 MB), CHS=2431/255/63, UDMA(100)
->  hda: hda1 hda2 hda3
-> register interface 'mouse' with class 'input
-> 
-> It seems ACPI assigned 255 to IRQ, so disable_irq() did oops.
-> The following is my stupid patch. I hope this info helps.
-> 
-> --- linux-2.5.47/drivers/ide/ide-probe.c~ide-kludge	2002-11-14 02:41:40.000000000 +0900
-> +++ linux-2.5.47-hirofumi/drivers/ide/ide-probe.c	2002-11-14 02:41:40.000000000 +0900
-> @@ -654,6 +654,8 @@ void probe_hwif (ide_hwif_t *hwif)
->  	 * We must always disable IRQ, as probe_for_drive will assert IRQ, but
->  	 * we'll install our IRQ driver much later...
->  	 */
-> +	if (hwif->irq == 255)
-> +		hwif->irq = 0;
->  	irqd = hwif->irq;
->  	if (irqd)
->  		disable_irq(hwif->irq);
-> -- 
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-You patch helps a lot because the new kernel is now able to boot, with
-the DMA enabled. I have the impression that there is still one 
-problem because when I enable ATA66 (with hdparm -X66) I have the following
-error message:
+Linux version 2.5.47 (root@gswi1164) (gcc version 2.95.4 20011002 (Debian prerelease)) #1 Mon Nov 11 19:55:09 CET 2002
+[...]
+Uninitialised timer!
+This is just a warning.  Your computer is OK
+function=0xc6ab9e64, data=0xc4d1a560
+Call Trace: [<c0121660>]  [<c6ab9e64>]  [<c01218c0>]  [<c6ab9f81>]  [<c6aa2326>]  [<c6aaafc0>]  [<c6aa2353>]  [<c6aa23d6>]  [<c6aaaf80>]  [<c6aa9e2e>]  [<c6aaaf80>]  [<c01271c1>]  [<c6aaaf80>]  [<c0126fd8>]  [<c6aaaf80>]  [<c6aa9df0>]  [<c0117350>]  [<c0117350>]  [<c0106e79>] 
 
------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
-hda: dma_intr: status=0x5a { DriveReady SeekComplete DataRequest Index }
+ksymoops 2.4.6 on i686 2.5.47.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.47/ (default)
+     -m /boot/System.map-2.5.47 (default)
 
-hda: dma_timer_expiry: dma status == 0x21
-hda: timeout waiting for DMA
-hda: timeout waiting for DMA
-hda: (__ide_dma_test_irq) called while not waiting
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-hda: drive not ready for command
------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0800-0x08ff: clean.
+cs: IO port probe 0x0100-0x04ff: clean.
+cs: IO port probe 0x0a00-0x0aff: clean.
+cs: memory probe 0xa0000000-0xa0ffffff: clean.
+Call Trace: [<c0121660>]  [<c6ab9e64>]  [<c01218c0>]  [<c6ab9f81>]  [<c6aa2326>]  [<c6aaafc0>]  [<c6aa2353>]  [<c6aa23d6>]  [<c6aaaf80>]  [<c6aa9e2e>]  [<c6aaaf80>]  [<c01271c1>]  [<c6aaaf80>]  [<c0126fd8>]  [<c6aaaf80>]  [<c6aa9df0>]  [<c0117350>]  [<c0117350>]  [<c0106e79>] 
 
-Do you have an idea of the meaning of this message?
+Processed with ksymoops:
 
-Anyway, many thanks for your help.
+Warning (Oops_read): Code line not seen, dumping what data is available
+
+
+Trace; c0121660 <check_timer_failed+40/4c>
+Trace; c6ab9e64 <[pcnet_cs]pcnet_release+0/74>
+Trace; c01218c0 <mod_timer+34/1f0>
+Trace; c6ab9f81 <[pcnet_cs]pcnet_event+a9/1a0>
+Trace; c6aa2326 <[pcmcia_core]send_event+32/44>
+Trace; c6aaafc0 <[yenta_socket].bss.start+40/5bf>
+Trace; c6aa2353 <[pcmcia_core]do_shutdown+1b/64>
+Trace; c6aa23d6 <[pcmcia_core]parse_events+3a/d8>
+Trace; c6aaaf80 <[yenta_socket]pci_socket_array+0/0>
+Trace; c6aa9e2e <[yenta_socket]yenta_bh+3e/44>
+Trace; c6aaaf80 <[yenta_socket]pci_socket_array+0/0>
+Trace; c01271c1 <worker_thread+1e9/2cc>
+Trace; c6aaaf80 <[yenta_socket]pci_socket_array+0/0>
+Trace; c0126fd8 <worker_thread+0/2cc>
+Trace; c6aaaf80 <[yenta_socket]pci_socket_array+0/0>
+Trace; c6aa9df0 <[yenta_socket]yenta_bh+0/44>
+Trace; c0117350 <default_wake_function+0/34>
+Trace; c0117350 <default_wake_function+0/34>
+Trace; c0106e79 <kernel_thread_helper+5/c>
+
+
+2 warnings issued.  Results may not be reliable.
+
+Jochen
 
 -- 
-Manuel
+Wenn Du nicht weiﬂt was Du tust, tu's mit Eleganz.

@@ -1,84 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbUK3QFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbUK3QKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262137AbUK3QFt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 11:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbUK3QFt
+	id S262147AbUK3QKV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 11:10:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUK3QKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 11:05:49 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:57818 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262137AbUK3QEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 11:04:47 -0500
-Date: Tue, 30 Nov 2004 17:04:22 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Christian Mayrhuber <christian.mayrhuber@gmx.net>
-Cc: reiserfs-list@namesys.com, Hans Reiser <reiser@namesys.com>,
-       Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: file as a directory
-Message-ID: <20041130160422.GD19738@admingilde.org>
-Mail-Followup-To: Christian Mayrhuber <christian.mayrhuber@gmx.net>,
-	reiserfs-list@namesys.com, Hans Reiser <reiser@namesys.com>,
-	Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>,
-	Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <2c59f00304112205546349e88e@mail.gmail.com> <1101379820.2838.15.camel@grape.st-and.ac.uk> <41A773CD.6000802@namesys.com> <200411262213.58242.christian.mayrhuber@gmx.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YZa61AII3s1sGKYx"
-Content-Disposition: inline
-In-Reply-To: <200411262213.58242.christian.mayrhuber@gmx.net>
-User-Agent: Mutt/1.3.28i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+	Tue, 30 Nov 2004 11:10:21 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:39097 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id S262147AbUK3QJ2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 11:09:28 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Walking all the physical memory in an x86 system
+Date: Tue, 30 Nov 2004 09:09:22 -0700
+Message-ID: <C863B68032DED14E8EBA9F71EB8FE4C2057CA977@azsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Walking all the physical memory in an x86 system
+Thread-Index: AcTW9Q/gAduUgQtfRQSv9hIlzC44zwAAXi8w
+From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+To: <jengelh@linux01.gwdg.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Nov 2004 16:09:23.0591 (UTC) FILETIME=[F51E2970:01C4D6F6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---YZa61AII3s1sGKYx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-hoi :)
+-----Original Message-----
+From: Jan Engelhardt [mailto:jengelh@linux01.gwdg.de] 
+Sent: Tuesday, November 30, 2004 8:55 AM
+To: Hanson, Jonathan M
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Walking all the physical memory in an x86 system
 
-On Fri, Nov 26, 2004 at 10:13:57PM +0100, Christian Mayrhuber wrote:
-> Regarding namespace unification + XPath:
-> For files: cat /etc/passwd/[. =3D "joe"] should work like in XPath.
-> But what to do with directories?
-> Would 'cat /etc/[. =3D "passwd"]' output the contents of the passwd file
-> or does it mean to output the file '[. =3D "passwd"]'?
-> If the first is the case then you have to prohibit filenames looking=20
-> like '[foo bar]'.
+>	I've written a 2.4 kernel module where I'm trying to walk and
+>record all of the physical memory contents in an x86 system. I have the
+>following code fragment that does it but I suspect I'm missing a
+portion
+>of the memory:
+>
+>Is there a better way to record all of the contents of physical memory
+>since what I have above doesn't seem to get everything?
 
-perhaps we should create a XML/XPath shell and a replacement for the
-textutils package instead of implementing all these utilities inside the
-kernel.
+Maybe something userspace based?
 
-Then convert /etc/passwd to /etc/passwd.xml and all is well.
+dd_rescue /dev/mem copyofmem
 
---=20
-Martin Waitz
 
---YZa61AII3s1sGKYx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+[Jon M. Hanson] I'm not sure what dd_rescue is as I've never heard of
+it. However, I don't think such an operation can be done from userspace
+because I need the physical addresses of memory not the virtual ones.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBrJoFj/Eaxd/oD7IRAs31AJ4ynSBuVumNBZQrPn13EECm3Vj41gCeO9kX
-MsIXijRrPgphrX28LKWuuEE=
-=mo4r
------END PGP SIGNATURE-----
-
---YZa61AII3s1sGKYx--

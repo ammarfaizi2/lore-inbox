@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261368AbSLaIYN>; Tue, 31 Dec 2002 03:24:13 -0500
+	id <S262215AbSLaIaE>; Tue, 31 Dec 2002 03:30:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262528AbSLaIYN>; Tue, 31 Dec 2002 03:24:13 -0500
-Received: from softers.net ([213.139.168.106]:3712 "EHLO mail.softers.net")
-	by vger.kernel.org with ESMTP id <S261368AbSLaIYN>;
-	Tue, 31 Dec 2002 03:24:13 -0500
-Message-ID: <3E11562D.421CAE73@softers.net>
-Date: Tue, 31 Dec 2002 10:32:45 +0200
-From: Jarmo =?iso-8859-1?Q?J=E4rvenp=E4=E4?= 
-	<Jarmo.Jarvenpaa@softers.net>
-Organization: Softers Oy
-X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Ide problems
+	id <S262528AbSLaIaE>; Tue, 31 Dec 2002 03:30:04 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:40124 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S262215AbSLaIaD>; Tue, 31 Dec 2002 03:30:03 -0500
+Date: Tue, 31 Dec 2002 09:38:25 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix up UP in 2.5-bkcurrent
+Message-ID: <20021231083825.GS21097@louise.pinerecords.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Linus,
 
-I've been buggered with multiple lockups of an med/heavily loaded 2.4.19
-(also rc-series) and same server with 2.4.20. Machine is running
-normally for a week or two, then IDE light is lit and processes are
-stuck in D state (if any disk activity is required -> freezed process).
-I'm using (ide-) software raid 1 and 5, tested with raid 1 alone and
-same lockup-problem appears.
+The following bit is needed to build (and boot) current 2.5 bk on
+UP.  The fix just favors a "we may have to do this" comment. <g>
 
-So, IDE-light is continuously lit but the disks are not reading nor
-writing. Emergency sync nor the unmount is working. I'm guessing the
-IDE-code (eh, raid too) might be cause of this.
-- No OOM situation have been observed, there's been lots of free ram at
-the time of each lockup.
-- Processes with no disk activity are not affected (for examples vmstat
-1 runs ok if started before lockup)
-
-Currently I'm thinking of falling back to .18 with hopes of no more
-problems.
-
-Any similar experiences?
+-- 
+Tomas Szepe <szepe@pinerecords.com>
 
 
-Regards,
-Jarmo
-
-
-PS. An extremely useful feature would be a method to freeze raid resync
-until fsck is finished. Now, when both are running at the same time
-server's boot speed is miserable.
+diff -urN a/include/asm-i386/hw_irq.h b/include/asm-i386/hw_irq.h
+--- a/include/asm-i386/hw_irq.h	2002-12-31 09:33:21.000000000 +0100
++++ b/include/asm-i386/hw_irq.h	2002-12-31 09:26:18.000000000 +0100
+@@ -131,8 +131,9 @@
+ 
+ #endif /* CONFIG_PROFILING */
+  
+-#ifdef CONFIG_X86_IO_APIC /*more of this file should probably be ifdefed SMP */
+-static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i) {
++#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_SMP)
++static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i)
++{
+ 	if (IO_APIC_IRQ(i))
+ 		send_IPI_self(IO_APIC_VECTOR(i));
+ }

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266221AbTGDXpw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 19:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbTGDXpw
+	id S266225AbTGDXth (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 19:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266230AbTGDXth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 19:45:52 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:44481
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S266221AbTGDXpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 19:45:51 -0400
-Date: Sat, 5 Jul 2003 02:00:16 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: Status of the IO scheduler fixes for 2.4
-Message-ID: <20030705000016.GB23578@dualathlon.random>
-References: <Pine.LNX.4.55L.0307021923260.12077@freak.distro.conectiva> <Pine.LNX.4.55L.0307021927370.12077@freak.distro.conectiva> <1057197726.20903.1011.camel@tiny.suse.com> <Pine.LNX.4.55L.0307041639020.7389@freak.distro.conectiva>
+	Fri, 4 Jul 2003 19:49:37 -0400
+Received: from holomorphy.com ([66.224.33.161]:4995 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S266225AbTGDXtg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 19:49:36 -0400
+Date: Fri, 4 Jul 2003 17:05:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Rik van Riel <riel@redhat.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Mel Gorman <mel@csn.ul.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What to expect with the 2.6 VM
+Message-ID: <20030705000518.GJ955@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
+	Linux Memory Management List <linux-mm@kvack.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030703185341.GJ20413@holomorphy.com> <20030703192750.GM23578@dualathlon.random> <20030703201607.GK20413@holomorphy.com> <20030704004000.GQ23578@dualathlon.random> <20030704014624.GN20413@holomorphy.com> <20030704023414.GV23578@dualathlon.random> <20030704041048.GO20413@holomorphy.com> <20030704055426.GW23578@dualathlon.random> <20030704081522.GP20413@holomorphy.com> <20030704234432.GY23578@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0307041639020.7389@freak.distro.conectiva>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20030704234432.GY23578@dualathlon.random>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 04, 2003 at 05:01:54PM -0300, Marcelo Tosatti wrote:
-> release today), then fix pausing in -pre4. If the IO fairness still doesnt
+On Sat, Jul 05, 2003 at 01:44:32AM +0200, Andrea Arcangeli wrote:
+> I can't disagree more but I don't have any more time to argue with you.
+> Especially your paragraph where you mention pte-highmem wasn't worth an
+> answer. If you for istance could raise one single thing that make me
+> realize I'm missing something, you would have a chance to change my
+> mind. In the meantime it simply seems I fail to communicate with you and
+> the more posts, the less I find those posts informative and useful.
 
-fix pausing is a showstopper bugfix, the box will hang for days without
-it.
+The feeling on this thread is mutual. Best to cut it off. If I try to
+answer other points in here it'll just get worse.
 
-lowlatency elevator is for the desktop complains we get about
-interactivity compared to 2.5, so it's much lower prio than fix pausing.
-I would never merge fix pausing after lowlatency elevator. But that's
-just me.
+Sorry we couldn't come to a productive conclusion on this issue.
 
-Andrea
+
+-- wli

@@ -1,64 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263894AbRFYDBs>; Sun, 24 Jun 2001 23:01:48 -0400
+	id <S265850AbRFYDNt>; Sun, 24 Jun 2001 23:13:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265850AbRFYDBj>; Sun, 24 Jun 2001 23:01:39 -0400
-Received: from imo-m03.mx.aol.com ([64.12.136.6]:8147 "EHLO imo-m03.mx.aol.com")
-	by vger.kernel.org with ESMTP id <S263894AbRFYDBb>;
-	Sun, 24 Jun 2001 23:01:31 -0400
-Date: Sun, 24 Jun 2001 23:01:23 -0400
-From: hunghochak@netscape.net (Ho Chak Hung)
-To: linux-kernel@vger.kernel.org
-Subject: Re: How does ramfs actually fills the page cache with data?
+	id <S265858AbRFYDNj>; Sun, 24 Jun 2001 23:13:39 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:17412 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S265850AbRFYDNV>; Sun, 24 Jun 2001 23:13:21 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: landley@webofficenow.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <86256A76.0011A620.00@smtpnotes.altec.com>
+Date: Sun, 24 Jun 2001 21:51:03 -0500
+Subject: Re: Microsoft and Xenix.
 Mime-Version: 1.0
-Message-ID: <2E88A0D1.6C921C1E.0F76C228@netscape.net>
-X-Mailer: Franklin Webmailer 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thanks a lot for your reply
 
-But is it at all possible to put data into page cache without going through the inodes or files? I mean, for example, if you are given a string "abcde", and you want to allocate a page to store this "abcde" into that page and add that page to the page cache, what would you do? 
 
-2)The ramfs uses the generic file operation
-Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de> wrote:
+Sorry, but I'm hanging on to my old computer manuals.  The AIX manuals in
+particular have sentimemtal value for me.
+
+OTOH, I have quite a few old computer magazines (from the 80's) like Byte,
+Infoworld, etc.  I've been intending to get rid of them for some time now, but
+hated just to throw them away.  They're in storage in a neighboring state right
+now, but my wife probably will be driving there in the next couple of weeks to
+pick up a few things.  If you're interested, she could bring back the magazines
+and I can tell you exactly what I have.  You're welcome to them if you want
+them.
+
+Wayne
+
+
+
+
+Rob Landley <landley@webofficenow.com> on 06/24/2001 09:32:43 AM
+
+Please respond to landley@webofficenow.com
+
+To:   Wayne Brown/Corporate/Altec@Altec, John Adams <johna@onevista.com>
+cc:   linux-kernel@vger.kernel.org
+
+Subject:  Re: Microsoft and Xenix.
+
+
+
+On Saturday 23 June 2001 22:41, Wayne.Brown@altec.com wrote:
+> Ah, yes, the RT/PC.  That brings back some fond memories.  My first
+> exposure to Unix was with AIX on the RT.  I still have some of those
+> weird-sized RT AIX manuals around somewhere...
 >
-> On Fri, Jun 22, 2001 at 05:45:27PM -0400, Ho Chak Hung wrote:
-> > In fs/ramfs/inode.c, how does ramfs actually fills the page
-> > cache with data? In the readpage operation, it only zero-fill
-> > the page if it didn't already exist in the page cache. However,
-> > how do I actually fill the page with data?
-> 
-> The page cache does it itself. 
-> 
-> "readpage" is to move pages from the backing store into the page
-> cache. 
-> 
-> "writepage" and friends is for updating the backing store with
-> the contents of the page cache.
-> 
-> There is no real backing store of ramfs, since ramfs data lives
-> completly in page cache. 
-> 
-> But we cannot give the user random memory contents, so we zero it
-> out on readpage and prepare_write.
-> 
-> The data is copied with copy_{from,to}_user in the generic file
-> operations (look how ramfs_file_operations is defined and look at
-> the functions referenced), which read/write through page cache.
-> 
-> Regards
-> 
-> Ingo Oeser
-> -- 
-> Use ReiserFS to get a faster fsck and Ext2 to fsck slowly and gently.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-__________________________________________________________________
-__________________________________________________________________
-Get your own FREE, personal Netscape Webmail account today at http://webmail.netscape.com/
+> Wayne
+
+Ooh!  Old manuals!
+
+Would you be willing to part with them?
+
+I am collecting old manuals, and old computing magazines.  I even pay for
+postage, with a bit of warning that they're coming...
+
+Rob
+
+
+
+
+
+
+

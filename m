@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317558AbSFIFHq>; Sun, 9 Jun 2002 01:07:46 -0400
+	id <S317562AbSFIFcv>; Sun, 9 Jun 2002 01:32:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317559AbSFIFHp>; Sun, 9 Jun 2002 01:07:45 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:37899 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S317558AbSFIFHo>; Sun, 9 Jun 2002 01:07:44 -0400
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
-Subject: Re: [patch] fat/msdos/vfat crud removal
-In-Reply-To: <200206090446.g594k8u492544@saturn.cs.uml.edu>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 09 Jun 2002 14:07:32 +0900
-Message-ID: <87d6v1doq3.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317563AbSFIFcu>; Sun, 9 Jun 2002 01:32:50 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:38316 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317562AbSFIFcu>;
+	Sun, 9 Jun 2002 01:32:50 -0400
+Date: Sat, 08 Jun 2002 22:29:03 -0700 (PDT)
+Message-Id: <20020608.222903.122223122.davem@redhat.com>
+To: roland@topspin.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <52d6v19r9n.fsf@topspin.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
+   From: Roland Dreier <roland@topspin.com>
+   Date: 08 Jun 2002 18:26:12 -0700
 
-> OGAWA Hirofumi writes:
-> > "Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
-> 
-> >> - * Conversion from and to little-endian byte order. (no-op on i386/i486)
-> >> - *
-> >> - * Naming: Ca_b_c, where a: F = from, T = to, b: LE = little-endian,
-> >> - * BE = big-endian, c: W = word (16 bits), L = longword (32 bits)
-> >> - */
-> >> -
-> >> -#define CF_LE_W(v) le16_to_cpu(v)
-> >> -#define CF_LE_L(v) le32_to_cpu(v)
-> >> -#define CT_LE_W(v) cpu_to_le16(v)
-> >> -#define CT_LE_L(v) cpu_to_le32(v)
-> >
-> > Personally I think this patch makes code readable. But please don't
-> > remove Cx_LE_x macros. Cx_LE_x is used from dosfsck.
-> 
-> Then the macros should be put in dosfsck, which is not
-> part of the kernel.
+   Just to make sure I'm reading this correctly, you're saying that as
+   long as a buffer is OK for DMA, it should be OK to use a
+   sub-cache-line chunk as a DMA buffer via pci_map_single(), and
+   accessing the rest of the cache line should be OK at any time before,
+   during and after the DMA.
+   
+Yes.
 
-Why do we throw away backward compatible?
+       David> This means what MIPS is doing is wrong.  For partial
+       David> cacheline bits it can't do the invalidate thing.
+   
+   If I understand you, this means non-cache-coherent PPC is wrong as
+   well -- pci_map_single() goes through consistent_sync() and turns
+   into:
+   
+   	case PCI_DMA_FROMDEVICE:	/* invalidate only */
+   		invalidate_dcache_range(start, end);
+   		break;
+   
+   What alternate implementation are you proposing?
 
-> > -	logical_sector_size =
-> > -		le16_to_cpu(get_unaligned((unsigned short *) &b->sector_size));
-> > +	logical_sector_size = le16_to_cpu(get_unaligned((u16*)&b->sector_size));
-> 
-> I notice lots of casts in the code. It would be better to
-> use the correct types to begin with.
-
-No, this field is aliment problem.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+For non-cacheline aligned chunks in the range "start" to "end" you
+must perform a cache writeback and invalidate. To preserve the data
+outside of the DMA range.

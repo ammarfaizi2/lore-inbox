@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266033AbTFWNS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 09:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266031AbTFWNSe
+	id S266023AbTFWNZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 09:25:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266019AbTFWNZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 09:18:34 -0400
-Received: from nuit.ca ([66.11.160.83]:9134 "EHLO smtp.nuit.ca")
-	by vger.kernel.org with ESMTP id S266030AbTFWNR2 (ORCPT
+	Mon, 23 Jun 2003 09:25:04 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:27656 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S266039AbTFWNXl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 09:17:28 -0400
-Date: Mon, 23 Jun 2003 13:31:33 +0000
-From: simon@nuit.ca
+	Mon, 23 Jun 2003 09:23:41 -0400
+Date: Mon, 23 Jun 2003 15:37:46 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: problems patching XFS against current benh
-Message-ID: <20030623133133.GE2102@nuit.ca>
+Subject: Re: Problems with PCMCIA/Orinoco
+Message-ID: <20030623133746.GE6353@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0306171123540.1854-100000@blackstar.nl> <20030623103815.E23411@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="H7QJU8Gl1+/xsYtC"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-X-SA-Exim-Mail-From: simon@nuit.ca
+In-Reply-To: <20030623103815.E23411@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> mark_page_accessed is exported in both ksyms.c and filemap.c, both XFS
-> and benh add that export.  Remove one of the EXPORT_SYMBOL(mark_page_accessed).
->                                                                                                                                
 
-at first i didn't get what you meant, but then i realised, "oh, he means
-only in one file should the EXPORT_SYMBOL(foo) should be mentioned".
-someone on an IRC channel had mentioned that...
+--H7QJU8Gl1+/xsYtC
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> number 1 is from benh, and number 2 is from XFS. i need both - benh's for some drivers for my hardware, and XFS 
->> because most of my FSes are XFS. 
+On Mon, 2003-06-23 10:38:15 +0100, Russell King <rmk@arm.linux.org.uk>
+wrote in message <20030623103815.E23411@flint.arm.linux.org.uk>:
+> On Tue, Jun 17, 2003 at 11:29:00AM +0200, bvermeul@blackstar.nl wrote:
+> > I'm having some problems with 2.5.71 (latest bk yesterday I believe).
+> > All works well (pcmcia works as advertised, with one tiny blip on
+> > the horizon), except when I want to reboot, when I get the following
+> > message:
+> >=20
+> > unregister_netdevice: waiting for eth1 to become free. Usage count =3D 1
+>=20
+> Is this still an outstanding problem in 2.5.73?
 
-> The sysctl numbers have nothing to do with the compile error.  Pick
-> another number for one of the conflicting sysctls.
+I haven't shut down my laptop since I booted it with 2.5.73, but I can
+do so this evening.
 
-ok, cool, thanks. i wasn't sure if my changing the stsctl number was
-causing it, so i had left it at 14 the second ? third ? time around...
+MfG, JBG
 
-thanks all,
-eric
-(feeling really dumb ATM)
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
 
--- 
-UNIX is user friendly, it's just picky about who its friends are.          
--------------------------------------------------------------------
- ,''`.   http://www.debian.org/  | http://www.nuit.ca/           
- : :' :  Debian GNU/Linux        | http://simonraven.nuit.ca/    
- `. `'                           | PGP key ID: 6169 BE0C 0891 A038    
-  `-                             | 
+--H7QJU8Gl1+/xsYtC
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+9wKqHb1edYOZ4bsRAvBPAJ9uwsNTT2EXumWHcn34w4rcVgyYbwCfaUDd
+ZW9nOhqt09MctYswNzWtQw4=
+=OkKv
+-----END PGP SIGNATURE-----
+
+--H7QJU8Gl1+/xsYtC--

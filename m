@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271287AbTHRG5l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 02:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271295AbTHRG5k
+	id S271307AbTHRHEK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 03:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271298AbTHRHEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 02:57:40 -0400
-Received: from [209.195.52.120] ([209.195.52.120]:16552 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S271287AbTHRG5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 02:57:39 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       tytso@mit.edu, jmorris@intercode.com.au, jamie@shareable.org,
-       linux-kernel@vger.kernel.org, davem@redhat.com
-Date: Sun, 17 Aug 2003 23:55:24 -0700 (PDT)
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-In-Reply-To: <20030818004313.T3708@schatzie.adilger.int>
-Message-ID: <Pine.LNX.4.44.0308172352470.20433-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Aug 2003 03:04:10 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:45323 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S271295AbTHRHEG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 03:04:06 -0400
+Date: Mon, 18 Aug 2003 08:56:52 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Willy Tarreau <willy@w.ods.org>, alan@lxorguk.ukuu.org.uk,
+       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
+       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Message-ID: <20030818065652.GA15098@alpha.home.local>
+References: <200308171516090038.0043F977@192.168.128.16> <1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk> <200308171555280781.0067FB36@192.168.128.16> <1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk> <200308171759540391.00AA8CAB@192.168.128.16> <1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk> <200308171827130739.00C3905F@192.168.128.16> <1061141045.21885.74.camel@dhcp23.swansea.linux.org.uk> <20030817224849.GB734@alpha.home.local> <20030817222258.257694b9.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030817222258.257694b9.davem@redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003, Andreas Dilger wrote:
+Hello David,
 
-> Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
->
-> On Aug 15, 2003  23:38 -0500, Matt Mackall wrote:
-> > a) extract_entropy (pool->lock)
-> >
-> >  For nitpickers, there remains a vanishingly small possibility that
-> >  two readers could get identical results from the pool by hitting a
-> >  window immediately after reseeding, after accounting, _and_ after
-> >  feedback mixing.
->
-> It wasn't even vanishingly small...  We had a problem in our code where
-> two readers got the same 64-bit value calling get_random_bytes(), and
-> we were depending on this 64-bit value being unique.  This problem was
-> fixed by putting a spinlock around the call to get_random_bytes().
+On Sun, Aug 17, 2003 at 10:22:58PM -0700, David S. Miller wrote:
+> On Mon, 18 Aug 2003 00:48:49 +0200
+> Willy Tarreau <willy@w.ods.org> wrote:
+> 
+> > I have a case where this doesn't work
+> 
+> And that's exactly what arpfilter is for.
 
-if the number is truely random then there should be a (small but finite)
-chance that any two reads will return the same data. counting on a random
-number to be unique is not a good idea.
+That's indeed what I was supposing so.
 
-now if you can repeatably get the same number then you probably have a bug
-in the random number code, but if you need uniqueness you need something
-else.
+> There are zero performance implications from using
+> arpfilter too, if that is something people are worried
+> about.
 
-David Lang
+I'm not worried about performance, which I can easily imagine is not affected
+for such rare events as ARP requests.
+
+I'm more worried about how to set it up. I have already searched in
+Documentation/networking, on google, etc... but didn't find any useful
+information about how to set up an arpfilter configuration. I'd agree to test
+it, but don't know where to start from. I even don't know if it's related to
+'ip arp'. I guess that's what stops most people from using it. Others may even
+not be aware that this feature exists at all.
+
+Other than that, I don't know if the resulting configuration will still be
+straightforward or look completely tricky.
+
+Again, I don't know what we can break by applying the arp_prefsrc patch, which
+will do the Right Thing most of the time. And when it won't, the current code
+would also have required arpfilter anyway.
+
+But I'm willing to try arpfilter if you show me where to start from.
+
+Cheers,
+Willy
+

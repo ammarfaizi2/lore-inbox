@@ -1,71 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262505AbTCRQaU>; Tue, 18 Mar 2003 11:30:20 -0500
+	id <S262575AbTCRQn0>; Tue, 18 Mar 2003 11:43:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262507AbTCRQaU>; Tue, 18 Mar 2003 11:30:20 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:40459 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S262505AbTCRQaT>;
-	Tue, 18 Mar 2003 11:30:19 -0500
-Date: Tue, 18 Mar 2003 17:41:06 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: green@namesys.com, trond.myklebust@fys.uio.no,
-       linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
-Subject: Re: kernel nfsd
-Message-Id: <20030318174106.32065dcb.skraw@ithnet.com>
-In-Reply-To: <20030318172825.07b7b66b.skraw@ithnet.com>
-References: <20030318155731.1f60a55a.skraw@ithnet.com>
-	<15991.15327.29584.246688@charged.uio.no>
-	<20030318164204.03eb683f.skraw@ithnet.com>
-	<20030318190733.A29438@namesys.com>
-	<20030318172825.07b7b66b.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262576AbTCRQn0>; Tue, 18 Mar 2003 11:43:26 -0500
+Received: from lewis.CNS.CWRU.Edu ([129.22.104.62]:24300 "EHLO
+	lewis.CNS.cwru.edu") by vger.kernel.org with ESMTP
+	id <S262575AbTCRQnZ>; Tue, 18 Mar 2003 11:43:25 -0500
+Date: Tue, 18 Mar 2003 11:54:53 -0500
+From: Justin Hibbits <jrh29@po.cwru.edu>
+Subject: System.map doesn't match running kernel
+To: linux-kernel@vger.kernel.org
+Message-id: <20030318165453.GA522@lothlorien.cwru.edu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Mar 2003 17:28:25 +0100
-Stephan von Krawczynski <skraw@ithnet.com> wrote:
+Hi,
 
-> On Tue, 18 Mar 2003 19:07:33 +0300
-> Oleg Drokin <green@namesys.com> wrote:
-> 
-> > Hello!
-> > 
-> > On Tue, Mar 18, 2003 at 04:42:04PM +0100, Stephan von Krawczynski wrote:
-> > 
-> > > > The comment in the code just above the printk() reads
-> > > >                 /* Now that IS odd.  I wonder what it means... */
-> > > > Looks like you and Neil (and possibly the ReiserFS team) might want to
-> > > > have a chat...
-> > > I'm all for it. Who has a glue? I have in fact tons of these messages, it's
-> > > a pretty large nfs server.
-> > 
-> > What is the typical usage pattern for files whose names are printed?
-> > Are they created/deleted often by multiple clients/processes by any chance?
-> 
-> This is a nfs-server who serves web-servers (apache). I find a lot of these
-> messages, but they (upto now) only point to 3 different filenames. And these
-> are in fact all directories. The box never crashed and has currently 20 days
-> uptime. It is dual P-III and has 6 GB of RAM.
-> The questionable directories were created long before they first showed this
-> message and have never changed (regarding name-change). Their contents were
-> possible changed but surely not often meaning no more than once a day or once a
-> week.
-> It may well occur that multiple nfs-client systems _read_ them, as well as
-> multiple processes on one client.
-> The nfs-clients are 2.4.19 boxes and one 2.2.21.
+I'm trying to build the DRI modules for kernel 2.4.20(xfs patched) but ran into
+some problems.  Everything compiles fine, but it won't load, due to unresolved
+symbols.  All the symbols match in my System.map file, but not with the kernel,
+which were both created during the same build.  Not sure what's going on, as
+everything worked perfectly fine with 2.4.18 (xfs patched...) and the same
+driver package.  Any ideas?  Need more info (like the unresolved symbols,
+ksyms, System.map)?
 
-And one addition:
-They are all second level, meaning look like:
-
-kernel: nfsd-fh: found a name that I didn't expect: libyen2000/pics
-
-(where pics is a directory, too)
+Thanks,
+Justin Hibbits
 
 -- 
-Regards,
-Stephan
+Registered Linux user 260206
+
+

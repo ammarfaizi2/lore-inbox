@@ -1,76 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276622AbRJGTke>; Sun, 7 Oct 2001 15:40:34 -0400
+	id <S276639AbRJGTpq>; Sun, 7 Oct 2001 15:45:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276632AbRJGTkZ>; Sun, 7 Oct 2001 15:40:25 -0400
-Received: from peace.netnation.com ([204.174.223.2]:774 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP
-	id <S276622AbRJGTkJ>; Sun, 7 Oct 2001 15:40:09 -0400
-Date: Sun, 7 Oct 2001 12:40:38 -0700
-From: Simon Kirby <sim@netnation.com>
-To: Johannes Erdfelt <johannes@erdfelt.com>
-Cc: Greg KH <greg@kroah.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.11-pre5
-Message-ID: <20011007124038.A22923@netnation.com>
-In-Reply-To: <Pine.LNX.4.33.0110071148380.7382-100000@penguin.transmeta.com> <20011007121851.A1137@netnation.com> <20011007153433.G14479@sventech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <20011007153433.G14479@sventech.com>; from johannes@erdfelt.com on Sun, Oct 07, 2001 at 03:34:33PM -0400
+	id <S276632AbRJGTpg>; Sun, 7 Oct 2001 15:45:36 -0400
+Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:6931 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S276643AbRJGTpV>;
+	Sun, 7 Oct 2001 15:45:21 -0400
+Message-ID: <3BC0B12F.3010207@si.rr.com>
+Date: Sun, 07 Oct 2001 15:46:55 -0400
+From: Frank Davis <fdavis@si.rr.com>
+Reply-To: fdavis@si.rr.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] 2.4.10-ac7: more drivers/parport MODULE_LICENSE patches
+Content-Type: multipart/mixed;
+ boundary="------------080504010609070205060908"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 07, 2001 at 03:34:33PM -0400, Johannes Erdfelt wrote:
+This is a multi-part message in MIME format.
+--------------080504010609070205060908
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > hub.c: USB new device connect on bus1/2, assigned device number 2
-> > usb_control/bulk_msg: timeout
-> > usb.c: USB device not accepting new address=2 (error=-110)
-> 
-> Could you give me the output of /proc/interrupts?
+Hello,
+   I have attached 3 more drivers/parport MODULE_LICENSE patches. Please 
+review.
+Regards,
+Frank
 
-           CPU0       CPU1
-  0:      71555      64454    IO-APIC-edge  timer
-  1:       1355       1274    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  5:          0          0    IO-APIC-edge  NE2000
- 14:       4157       5136    IO-APIC-edge  ide0
- 15:          2         19    IO-APIC-edge  ide1
- 16:       2462       2381   IO-APIC-level  eth0
- 17:          0          0   IO-APIC-level  Trident 4DWave NX
- 18:          1          1   IO-APIC-level  bttv
- 19:       2330       2467   IO-APIC-level  aic7xxx, usb-uhci
-NMI:          0          0
-LOC:     135894     135912
-ERR:          0
-MIS:          0
+--------------080504010609070205060908
+Content-Type: text/plain;
+ name="PARPORT3"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="PARPORT3"
 
-> Do you see any other messages in dmesg?
+--- drivers/parport/parport_gsc.c.old	Tue May 22 22:54:04 2001
++++ drivers/parport/parport_gsc.c	Sun Oct  7 12:50:40 2001
+@@ -554,3 +554,4 @@
+ 
+ module_init(parport_gsc_init_module);
+ module_exit(parport_gsc_exit_module);
++MODULE_LICENSE("GPL");
 
-Here is an entire "insmod uhci" output:
+--------------080504010609070205060908
+Content-Type: text/plain;
+ name="PARPORT4"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="PARPORT4"
 
-uhci.c: USB Universal Host Controller Interface driver v1.1
-uhci.c: USB UHCI at I/O 0xb400, IRQ 19
-usb.c: new USB bus registered, assigned bus number 1
-hub.c: USB hub found
-hub.c: 2 ports detected
-hub.c: USB new device connect on bus1/2, assigned device number 2
-usb_control/bulk_msg: timeout
-usb.c: USB device not accepting new address=2 (error=-110)
-hub.c: USB new device connect on bus1/2, assigned device number 3
-usb_control/bulk_msg: timeout
-usb.c: USB device not accepting new address=3 (error=-110)
+--- drivers/parport/parport_sunbpp.c.old	Mon Jun 11 22:15:27 2001
++++ drivers/parport/parport_sunbpp.c	Sun Oct  7 12:32:35 2001
+@@ -367,6 +367,8 @@
+ EXPORT_NO_SYMBOLS;
+ 
+ #ifdef MODULE
++MODULE_LICENSE("GPL");
++
+ int init_module(void)
+ #else
+ int __init parport_sunbpp_init(void)
 
-> What UHCI controller is this? (lspci -v)
+--------------080504010609070205060908
+Content-Type: text/plain;
+ name="PARPORT5"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="PARPORT5"
 
-00:04.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
-        Flags: bus master, medium devsel, latency 32, IRQ 19
-        I/O ports at b400 [size=32]
+--- drivers/parport/parport_mfc3.c.old	Tue May 22 22:54:04 2001
++++ drivers/parport/parport_mfc3.c	Sun Oct  7 12:52:17 2001
+@@ -408,6 +408,7 @@
+ MODULE_AUTHOR("Joerg Dorchain <joerg@dorchain.net>");
+ MODULE_DESCRIPTION("Parport Driver for Multiface 3 expansion cards Paralllel Port");
+ MODULE_SUPPORTED_DEVICE("Multiface 3 Parallel Port");
++MODULE_LICENSE("GPL");
+ 
+ module_init(parport_mfc3_init)
+ module_exit(parport_mfc3_exit)
 
-It's on an ASUS P2B-DS (with broken USB resistor shorted).
+--------------080504010609070205060908--
 
-Simon-
-
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]

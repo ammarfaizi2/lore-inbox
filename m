@@ -1,48 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUF3UkU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbUF3UsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbUF3UkU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 16:40:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUF3UkU
+	id S262450AbUF3UsN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 16:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUF3UsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 16:40:20 -0400
-Received: from thumper2.emsphone.com ([199.67.51.102]:55508 "EHLO
-	thumper2.allantgroup.com") by vger.kernel.org with ESMTP
-	id S262476AbUF3UkP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 16:40:15 -0400
-Date: Wed, 30 Jun 2004 15:38:21 -0500
-From: Andy <genanr@emsphone.com>
-To: linux-kernel@vger.kernel.org
-Subject: NFS corruption in 2.4.x, not 2.6.7
-Message-ID: <20040630203821.GA12223@thumper2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Wed, 30 Jun 2004 16:48:13 -0400
+Received: from lakermmtao08.cox.net ([68.230.240.31]:35211 "EHLO
+	lakermmtao08.cox.net") by vger.kernel.org with ESMTP
+	id S262450AbUF3UsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 16:48:06 -0400
+Message-ID: <40E0205A.8020508@cox.net>
+Date: Mon, 28 Jun 2004 13:42:50 +0000
+From: "Will S." <willgs00@cox.net>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040627)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: SMP 2.6.7 with ECS P6LX2-A dual Pentium-II board -> TSC skew?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Repeated copy and compare operations from linux to novell or tru64 systems
-cause occasional corruption to the file copied.  This problem has occurred
-in all the 2.4.x kernels I've tried 2.4.20-2.4.27-rc2 (I did not try all of
-them, but several), however, I have yet to run into the problem on the
-2.6.7 kernel.
+I'm running Linux 2.6.7 on an ECS P6LX2-A motherboard, with a matched 
+pair of Pentium II-333MHz CPUs. It seems that with kernels 2.6.x that 
+the kernel detects a TSC skew of +- 6 usecs. Kernel 2.4.x shows the TSCs 
+as being matched. With a 2.6.x kernel running, all the timers go bonkers 
+every 15-60 seconds, and when they do, they count very fast or very slow 
+for around a second. This quickly leads to system clock skew, and causes 
+problems with many programs. With a 2.4.x kernel, the timers are perfect.
 
-I would like to stick with 2.4.x kernel, for now, since I would like to
-continue using the qlogic drivers with failover.  The new device-mapper
-multipath stuff (needed for failover now) in the 2.6+patches kernels, just
-is not ready yet (I need to test it more).
+Any ideas on why this skew is being (mis)detected?
 
-Sniffing packets going between the linux and novell server with tcpdump in
-the middle, the data going to the novell server appears correct. The data
-that was corrupted was retransmitted, both packets look correct.
+Some possibly relevant info:
 
-I noticed that the 2.4.x kernels send fragments backwards (i.e. offset 0, is
-the last fragment sent) while the 2.6.7 kernel sends fragments with
-increasing offsets.
+from dmesg, kernel 2.6.7:
+-------------------------------------------------------
+Calibrating delay loop... 657.40 BogoMIPS
+Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+CPU:     After generic identify, caps: 0183fbff 00000000 00000000 00000000
+CPU:     After vendor identify, caps: 0183fbff 00000000 00000000 00000000
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 512K
+CPU:     After all inits, caps: 0183fbff 00000000 00000000 00000040
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+Enabling fast FPU save and restore... done.
+Checking 'hlt' instruction... OK.
+CPU0: Intel Pentium II (Deschutes) stepping 01
+per-CPU timeslice cutoff: 1462.08 usecs.
+task migration cache decay timeout: 2 msecs.
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Booting processor 1/1 eip 2000
+Initializing CPU#1
+masked ExtINT on CPU#1
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Calibrating delay loop... 657.40 BogoMIPS
+CPU:     After generic identify, caps: 0183fbff 00000000 00000000 00000000
+CPU:     After vendor identify, caps: 0183fbff 00000000 00000000 00000000
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 512K
+CPU:     After all inits, caps: 0183fbff 00000000 00000000 00000040
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#1.
+CPU1: Intel Pentium II (Deschutes) stepping 01
+Total of 2 processors activated (1314.81 BogoMIPS).
 
-Initially this seems like a novell problem, but the fact that 2.6.7 seems to
-work and that the problem also occurs copying to tru64, points to a linux
-2.4 series problem.  Any ideas on what changed between 2.4 and 2.6 that
-could have fixed this?
+[snip]
 
-Andy
+calibrating APIC timer ...
+..... CPU clock speed is 334.0055 MHz.
+..... host bus clock speed is 66.0811 MHz.
+checking TSC synchronization across 2 CPUs:
+BIOS BUG: CPU#0 improperly initialized, has -6 usecs TSC skew! FIXED.
+BIOS BUG: CPU#1 improperly initialized, has 6 usecs TSC skew! FIXED.
+-------------------------------------------------------
+
+This board does have a buggy BIOS that doesn't seem to initialize the 
+second CPU, as the MTRR settings for CPU1 generate complaints. But if 
+2.4.x worked fine, why shouldn't 2.6.x also work fine? The CPUs are 
+perfectly matched - the steppings are identical. I see no reason for the 
+TSCs to be unsynced.
+
+If you need any other info (kernel .config maybe?), just ask :-)
+
+TIA.
+
+-- Will S.
+willgs00@cox.net

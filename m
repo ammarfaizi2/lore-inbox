@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263624AbTJOQxc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 12:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTJOQxc
+	id S263620AbTJOQwf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 12:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbTJOQwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 12:53:32 -0400
-Received: from tantale.fifi.org ([216.27.190.146]:27535 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id S263624AbTJOQx0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 12:53:26 -0400
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org,
-       Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
-Subject: Re: LVM Snapshots
-References: <20031015174017.606c6047.Christoph.Pleger@uni-dortmund.de>
-	<200310151751.23103.m.c.p@wolk-project.de>
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 15 Oct 2003 09:53:10 -0700
-In-Reply-To: <200310151751.23103.m.c.p@wolk-project.de>
-Message-ID: <87n0c2wih5.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Wed, 15 Oct 2003 12:52:34 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6674 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263620AbTJOQwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 12:52:32 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
+Date: 15 Oct 2003 09:52:01 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bmjtvh$1k5$1@cesium.transmeta.com>
+References: <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl> <200310141733.h9EHXnYg002262@81-2-122-30.bradfords.org.uk> <20031015124314.GD20846@lug-owl.de> <20031015130614.GI765@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen <m.c.p@wolk-project.de> writes:
-
-> On Wednesday 15 October 2003 17:40, Christoph Pleger wrote:
+Followup to:  <20031015130614.GI765@holomorphy.com>
+By author:    William Lee Irwin III <wli@holomorphy.com>
+In newsgroup: linux.dev.kernel
 > 
-> Hi Christoph,
+> Well, unless it's an interrupts-safe critical section that's hurting,
+> you could take profiles, provided you have enough RAM for the profile
+> buffer (which appears to be large). You could easily do a quick hack
+> to steal the profile buffer from e820 regions not otherwise used for
+> RAM (i.e. unused because you did mem=) to handle that for a slow cpu
+> with more RAM than 8MB.
 > 
-> > I am using a 2.4.22 kernel from www.kernel.org together with an XFS
-> > patch from SGI. I want to use LVM for creating snapshots for backups,
-> > but I found out that I cannot mount the snapshots of journalling
-> > filesystems (EXT3, XFS, Reiser). Only JFS snapshots can be mounted.
-> > My research on internet gave the result that a kernel-patch must be used
-> > to solve that problem, but I could not find such a patch for Linux
-> > 2.4.22, so where can I get it?
-> 
-> Marcelo decided not to apply that needed patch. Here it is for you to play 
-> with :) ... It'll apply with offsets to 2.4.23-pre7.
 
-What was the reason? I cannot find this thread in the archives...
+Or just reduce mem= by enough less that you gain the profile buffer
+back.
 
-Phil.
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+If you send me mail in HTML format I will assume it's spam.
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

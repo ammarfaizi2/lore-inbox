@@ -1,127 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282463AbRKZULo>; Mon, 26 Nov 2001 15:11:44 -0500
+	id <S282466AbRKZUTV>; Mon, 26 Nov 2001 15:19:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282472AbRKZUKk>; Mon, 26 Nov 2001 15:10:40 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16135 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S282479AbRKZUJZ>; Mon, 26 Nov 2001 15:09:25 -0500
-Date: Mon, 26 Nov 2001 21:09:26 +0100
-From: Jan Kara <jack@ucw.cz>
-To: marcelo@atrey.karlin.mff.cuni.cz
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Compile fix in network
-Message-ID: <20011126210926.B25797@atrey.karlin.mff.cuni.cz>
+	id <S282467AbRKZUTP>; Mon, 26 Nov 2001 15:19:15 -0500
+Received: from borg.org ([208.218.135.231]:47881 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S282466AbRKZUS7>;
+	Mon, 26 Nov 2001 15:18:59 -0500
+Date: Mon, 26 Nov 2001 15:18:56 -0500
+From: Kent Borg <kentborg@borg.org>
+To: war <war@starband.net>
+Cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Swap vs No Swap.
+Message-ID: <20011126151856.F20261@borg.org>
+In-Reply-To: <Pine.LNX.4.10.10111221006010.29736-100000@coffee.psychology.mcmaster.ca> <3BFD2915.D640C3CB@starband.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6TrnltStXW4iwmi0"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BFD2915.D640C3CB@starband.net>; from war@starband.net on Thu, Nov 22, 2001 at 11:34:29AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 22, 2001 at 11:34:29AM -0500, war wrote:
+> Unworkable?
+> How is it unworkable for my situation?
+> I have 1GB of memory, even when I launch every application I can, I still have
+> 350MB left over!
 
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Yes, even X can't easily use up 1 GB by just launching a bunch of
+applications.  
 
-  Hello,
+Times have changed.  It used to be that RAM was very dear and even
+slow and small disks of olden days were worth using to extend the RAM
+via a virtual memory scheme.  In many cases today it is quite workable
+to throw more RAM at a computer than one can easily use without
+"cheating" (say, letting Netscape leak for a few weeks).  But not all
+cases.  Some problems are bigger than yours (big databases love RAM,
+some video post production loves RAM), and some machines are smaller
+than yours (in physical size, power usage, cost).
 
-  I've found out that it's impossible to compile kernel without
-networking support (problem appeared in 2.4.15). Patch which
-fixes problem (just remove some includes which aren't really
-needed) is attached.
+If you use your computer in such a way that you keep hundreds of
+megabytes of RAM free and having swap slows you down, that is a bug
+about which people on this list will want hear details.
 
-							Honza
+If you start to use your computer more heavily so that you start to
+use swap, and swap slows you down, then there will be interest in how
+are doing that.  It might be a bug, it might be an unfortunate
+accident of not being able to have one VM for all occasions.
 
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="network-syms.diff"
+If you start to heavily use swap and it slows you down (when compared
+to having no swap), that is also a bug.  Tell the world the details.
 
-diff -ru -X /home/jack/.kerndiffexclude linux-2.4.15/net/core/datagram.c linux-2.4.15-pre7-newquota/net/core/datagram.c
---- linux-2.4.15/net/core/datagram.c	Thu Apr 12 21:11:39 2001
-+++ linux-2.4.15-pre7-newquota/net/core/datagram.c	Fri Nov 23 22:57:12 2001
-@@ -41,8 +41,7 @@
- #include <net/ip.h>
- #include <net/protocol.h>
- #include <net/route.h>
--#include <net/tcp.h>
--#include <net/udp.h>
-+#include <net/checksum.h>
- #include <linux/skbuff.h>
- #include <net/sock.h>
- 
-diff -ru -X /home/jack/.kerndiffexclude linux-2.4.15/net/core/scm.c linux-2.4.15-pre7-newquota/net/core/scm.c
---- linux-2.4.15/net/core/scm.c	Fri Nov 10 00:57:53 2000
-+++ linux-2.4.15-pre7-newquota/net/core/scm.c	Fri Nov 23 22:57:27 2001
-@@ -29,8 +29,6 @@
- #include <linux/inet.h>
- #include <net/ip.h>
- #include <net/protocol.h>
--#include <net/tcp.h>
--#include <net/udp.h>
- #include <linux/skbuff.h>
- #include <net/sock.h>
- #include <net/scm.h>
-diff -ru -X /home/jack/.kerndiffexclude linux-2.4.15/net/core/skbuff.c linux-2.4.15-pre7-newquota/net/core/skbuff.c
---- linux-2.4.15/net/core/skbuff.c	Tue Aug  7 17:30:50 2001
-+++ linux-2.4.15-pre7-newquota/net/core/skbuff.c	Fri Nov 23 22:54:27 2001
-@@ -55,8 +55,7 @@
- #include <net/ip.h>
- #include <net/protocol.h>
- #include <net/dst.h>
--#include <net/tcp.h>
--#include <net/udp.h>
-+#include <net/checksum.h>
- #include <net/sock.h>
- 
- #include <asm/uaccess.h>
-diff -ru -X /home/jack/.kerndiffexclude linux-2.4.15/net/core/sock.c linux-2.4.15-pre7-newquota/net/core/sock.c
---- linux-2.4.15/net/core/sock.c	Sat Jul 28 21:12:38 2001
-+++ linux-2.4.15-pre7-newquota/net/core/sock.c	Fri Nov 23 23:58:07 2001
-@@ -114,17 +114,13 @@
- #include <asm/system.h>
- 
- #include <linux/inet.h>
-+#include <linux/ip.h>
- #include <linux/netdevice.h>
--#include <net/ip.h>
- #include <net/protocol.h>
--#include <net/arp.h>
- #include <net/route.h>
--#include <net/tcp.h>
--#include <net/udp.h>
- #include <linux/skbuff.h>
- #include <net/sock.h>
- #include <net/raw.h>
--#include <net/icmp.h>
- #include <linux/ipsec.h>
- 
- #ifdef CONFIG_FILTER
-diff -ru -X /home/jack/.kerndiffexclude linux-2.4.15/net/ipv4/ipconfig.c linux-2.4.15-pre7-newquota/net/ipv4/ipconfig.c
---- linux-2.4.15/net/ipv4/ipconfig.c	Wed Nov 21 00:47:27 2001
-+++ linux-2.4.15-pre7-newquota/net/ipv4/ipconfig.c	Wed Nov 21 21:36:24 2001
-@@ -1144,9 +1144,7 @@
- 	 */
- 	if (ic_myaddr == INADDR_NONE ||
- #ifdef CONFIG_ROOT_NFS
--	    (MAJOR(ROOT_DEV) == UNNAMED_MAJOR
--	     && root_server_addr == INADDR_NONE
--	     && ic_servaddr == INADDR_NONE) ||
-+	    (root_server_addr == INADDR_NONE && ic_servaddr == INADDR_NONE) ||
- #endif
- 	    ic_first_dev->next) {
- #ifdef IPCONFIG_DYNAMIC
-diff -ru -X /home/jack/.kerndiffexclude linux-2.4.15/net/socket.c linux-2.4.15-pre7-newquota/net/socket.c
---- linux-2.4.15/net/socket.c	Wed Oct 17 23:38:28 2001
-+++ linux-2.4.15-pre7-newquota/net/socket.c	Fri Nov 23 23:57:40 2001
-@@ -82,8 +82,6 @@
- #include <linux/inet.h>
- #include <net/ip.h>
- #include <net/sock.h>
--#include <net/tcp.h>
--#include <net/udp.h>
- #include <net/scm.h>
- #include <linux/netfilter.h>
- 
 
---6TrnltStXW4iwmi0--
+-kb, the Kent whose basement server runs with only 64 MB RAM, and yet
+though it is always using some swap, the swap usage always seems to be
+a smaller number than the amount of RAM used for cache.

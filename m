@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319006AbSHMRyr>; Tue, 13 Aug 2002 13:54:47 -0400
+	id <S319098AbSHMSTp>; Tue, 13 Aug 2002 14:19:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319004AbSHMRyr>; Tue, 13 Aug 2002 13:54:47 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:29451 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S319005AbSHMRyq>;
-	Tue, 13 Aug 2002 13:54:46 -0400
-Date: Tue, 13 Aug 2002 10:55:25 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: klibc and logging
-In-Reply-To: <ajbgbf$7e7$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.33L2.0208131054020.5175-100000@dragon.pdx.osdl.net>
+	id <S319097AbSHMSSh>; Tue, 13 Aug 2002 14:18:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31246 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319096AbSHMSS3>; Tue, 13 Aug 2002 14:18:29 -0400
+Date: Tue, 13 Aug 2002 11:24:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] exit_free(), 2.5.31-A0
+In-Reply-To: <Pine.LNX.4.44.0208132009390.5990-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0208131123480.7411-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Aug 2002, H. Peter Anvin wrote:
 
-| > H. Peter Anvin <hpa@zytor.com> wrote:
-| > >However, I'm wondering what to do about logging.  Kernel log messages
-| > >get stored away until klogd gets started, but early userspace may need
-| > >some way to log messages -- and syslog is obviously not running.  The
-| > >easiest way to do this would probably be to be able to write to
-| > >/proc/kmsg (which probably really should be /dev/kmsg) and push messages
-| > >onto the kernel's message queue; but we could also have a dedicated
-| > >location in the initramfs for writing logs, and do it all in userspace.
-|
-| Andrew Morton sent me a proposed patch last night which adds a klogctl
-| (a.k.a. sys_syslog) which does a printk() from userspace.  It was less
-| than 10 lines; i.e. probably worth it.  I have hooked this up to
-| syslog(3) in klibc, although the code is not checked in yet.
+On Tue, 13 Aug 2002, Ingo Molnar wrote:
+> 
+> I was actually surprised to see how much effort it takes on the glibc side
+> to solve this (admittedly conceptually hard) problem without any kernel
+> help - it's ugly and slow, and still not completely tight. By providing
+> this 'exit and free stack' capability we can help tremendously.
 
-Hey, that's the same idea as my "how to add a syscall" example!!
-  http://www.xenotime.net/linux/syscall_ex/addasyscall-2418.patch
+Ingo, you're barking up the wrong tree.
 
--- 
-~Randy
+I'm not against fixing it, but I'm very much against fixing it wrong.
+
+I even told you how you can fix it right. You're arguing against the wrong 
+thing here.
+
+		Linus
 

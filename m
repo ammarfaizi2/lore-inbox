@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbTHSTeI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTHSTZT
+	id S261409AbTHSTko (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbTHSTiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:25:19 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:45709 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261305AbTHSTXy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:23:54 -0400
-Date: Tue, 19 Aug 2003 12:16:03 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "Bas Bloemsaat" <bloemsaa@xs4all.nl>
-Cc: alan@lxorguk.ukuu.org.uk, skraw@ithnet.com, willy@w.ods.org,
-       richard@aspectgroup.co.uk, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, davidsen@tmr.com, marcelo@conectiva.com.br,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819121603.1cc70937.davem@redhat.com>
-In-Reply-To: <091f01c36686$dade2bf0$c801a8c0@llewella>
-References: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>
-	<20030819145403.GA3407@alpha.home.local>
-	<20030819170751.2b92ba2e.skraw@ithnet.com>
-	<20030819085717.56046afd.davem@redhat.com>
-	<20030819185219.116fd259.skraw@ithnet.com>
-	<1061319864.30565.52.camel@dhcp23.swansea.linux.org.uk>
-	<20030819120131.1999b1ec.davem@redhat.com>
-	<091f01c36686$dade2bf0$c801a8c0@llewella>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
+	Tue, 19 Aug 2003 15:38:51 -0400
+Received: from imo-d02.mx.aol.com ([205.188.157.34]:51702 "EHLO
+	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP id S261388AbTHSTi0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:38:26 -0400
+Date: Tue, 19 Aug 2003 15:38:23 -0400
+From: jpo234@netscape.net
+To: linux-kernel@vger.kernel.org
+Subject: comment in malloc code from Lions' Commentary on UNIX(r) 6th Edition
+MIME-Version: 1.0
+Message-ID: <4531D9AF.0C5EC6A4.00065BAA@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+X-AOL-IP: 213.221.70.120
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003 21:19:44 +0200
-"Bas Bloemsaat" <bloemsaa@xs4all.nl> wrote:
+/*
+ * Allocate size units from the given
+ * map. Return the base of the allocated
+ * space.
+ * Algorithm is first fit.
+ */
 
-> > Indeed, would people stop quoting from RFC 985 and
-> > RFC 826.
-> 
-> RFC 826 is referenced from 1009 as describing ARP. So in effect it does
-> define a standard.
+The code is from unix/malloc.c, printed on May 24 12:30 1976.
 
-The RFC 826 document clearly says, at the top, "This is not
-an Internet Standard"
+That`s right: 1976
 
-It does not define a standard.  And given that it really isn't
-surprising it has errors in it as we've clearly shown in these
-threads.  The authors of said document didn't scuritinize it
-to the level it would need to be in order to truly be a standards
-document people must follow to have a conformant implementation.
+__________________________________________________________________
+McAfee VirusScan Online from the Netscape Network.
+Comprehensive protection for your entire computer. Get your free trial today!
+http://channels.netscape.com/ns/computing/mcafee/index.jsp?promo=393397
 
+Get AOL Instant Messenger 5.1 free of charge.  Download Now!
+http://aim.aol.com/aimnew/Aim/register.adp?promo=380455

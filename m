@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266442AbUG0Pjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266425AbUG0Pll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266442AbUG0Pjb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 11:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266436AbUG0Pja
+	id S266425AbUG0Pll (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 11:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266381AbUG0Pll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 11:39:30 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:18090 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266442AbUG0Pfw (ORCPT
+	Tue, 27 Jul 2004 11:41:41 -0400
+Received: from cantor.suse.de ([195.135.220.2]:8371 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266425AbUG0PhI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 11:35:52 -0400
-Subject: Re: [PATCH] fix readahead breakage for sequential after random
-	reads
-From: Ram Pai <linuxram@us.ibm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <E1BpMZQ-00016B-00@dorka.pomaz.szeredi.hu>
-References: <E1BmKAd-0001hz-00@dorka.pomaz.szeredi.hu>
-	 <20040726162950.7f4a3cf4.akpm@osdl.org>
-	 <1090886218.8416.3.camel@dyn319181.beaverton.ibm.com>
-	 <20040726170843.3fe5615c.akpm@osdl.org>
-	 <1090901926.8416.13.camel@dyn319181.beaverton.ibm.com>
-	 <E1BpMZQ-00016B-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1090942474.18635.6.camel@dyn319181.beaverton.ibm.com>
+	Tue, 27 Jul 2004 11:37:08 -0400
+Date: Tue, 27 Jul 2004 17:37:03 +0200
+From: Andi Kleen <ak@suse.de>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH][2.6] Allow x86_64 to reenable interrupts on contention
+Message-Id: <20040727173703.0174a76e.ak@suse.de>
+In-Reply-To: <Pine.LNX.4.58.0407271006290.23985@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0407270432470.23989@montezuma.fsmlabs.com>
+	<20040727132638.7d26e825.ak@suse.de>
+	<Pine.LNX.4.58.0407271006290.23985@montezuma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Jul 2004 08:34:34 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-27 at 00:40, Miklos Szeredi wrote:
-> Ram Pai <linuxram@us.ibm.com> wrote:
+On Tue, 27 Jul 2004 10:31:27 -0400 (EDT)
+Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+
+> On Tue, 27 Jul 2004, Andi Kleen wrote:
+> 
+> > On Tue, 27 Jul 2004 05:29:10 -0400 (EDT)
+> > Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
 > >
-> > Also I think the bug that Miklos, found is really hard to reproduce. Did
-> > he find this bug by code inspection? Its really really hard to get into
-> > a state where the current window is of size 1 page with zero pages in
-> > the readahead window, and then the sequential read pattern to just right
-> > then. 
+> > > This is a follow up to the previous patches for ia64 and i386, it will
+> > > allow x86_64 to reenable interrupts during contested locks depending on
+> > > previous interrupt enable status. It has been runtime and compile tested
+> > > on UP and 2x SMP Linux-tiny/x86_64.
+> >
+> > This will likely increase code size. Do you have numbers by how much? And is it
+> > really worth it?
 > 
-> I found it by accident. I did my testing with the following read
-> sequence:
+> Yes there is a growth;
 > 
-> page offset  num pages
-> 7            1
-> 0            1
-> 35           1
-> 23           1
-> 42           1
-> 33           1
-> 29           1
-> 100          200
-> 
-> I did not measure actual performance, but only looked at the length of
-> the page vector passed to my filesystem's readpages() method.
+>    text    data     bss     dec     hex filename
+> 3655358 1340511  486128 5481997  53a60d vmlinux-after
+> 3648445 1340511  486128 5475084  538b0c vmlinux-before
 
-right. this pattern is just about right to get into that bad state. Had
-you had some more random reads then readahead algorithm will go into the
-slow-read mode(readahead-off mode) and you will not bump into this bug.
-
-RP
+That's significant.
 
 > 
-> Miklos
+> And this was on i386;
 > 
+>    text    data     bss     dec     hex filename
+> 2628024  921731       0 3549755  362a3b vmlinux-after
+> 2621369  921731       0 3543100  36103c vmlinux-before
+> 
+> Keith Owens managed to get increased throughput as the original patch was
+> driven by poor performance from a workload. I think it's worth it just for
 
+What workload was that?
+
+I am not sure it is a good idea to "fix" workloads by making spinlocks better.
+It is likely better to just fix the locking for that workload, that would
+likely improve the workload a lot more.
+
+> the reduced interrupt latency, the code size issue can also be taken care
+> of, but that requires benchmarking as the change is a bit more drastic.
+
+Do you have numbers on that? Frankly if someone is spinning on irq disabled
+locks for a long time they should just fix their code.
+
+-Andi

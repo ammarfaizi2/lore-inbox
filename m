@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269140AbRHAAF7>; Tue, 31 Jul 2001 20:05:59 -0400
+	id <S269552AbRHAAET>; Tue, 31 Jul 2001 20:04:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269168AbRHAAFt>; Tue, 31 Jul 2001 20:05:49 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:58695 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S269140AbRHAAFe>;
-	Tue, 31 Jul 2001 20:05:34 -0400
-Message-ID: <20010801020539.A11083@win.tue.nl>
-Date: Wed, 1 Aug 2001 02:05:39 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: "Thomas Tanner" <tanner@ffii.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: harddisk suddenly locked?!
-In-Reply-To: <MABBKEJEMCFLBEDCGCDNGEABCAAA.tanner@ffii.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <MABBKEJEMCFLBEDCGCDNGEABCAAA.tanner@ffii.org>; from Thomas Tanner on Tue, Jul 31, 2001 at 01:00:07PM +0200
+	id <S269553AbRHAAEJ>; Tue, 31 Jul 2001 20:04:09 -0400
+Received: from srvr2.telecom.lt ([212.59.0.1]:23572 "EHLO mail.takas.lt")
+	by vger.kernel.org with ESMTP id <S269552AbRHAADz>;
+	Tue, 31 Jul 2001 20:03:55 -0400
+Message-Id: <200108010004.CAA1062359@mail.takas.lt>
+Date: Wed, 1 Aug 2001 02:03:36 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re[4]: cannot copy files larger than 40 MB from CD
+To: Chris Vandomelen <chrisv@b0rked.dhs.org>
+cc: Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+In-Reply-To: <Pine.LNX.4.31.0107311656420.10245-100000@linux.local>
+In-Reply-To: <Pine.LNX.4.31.0107311656420.10245-100000@linux.local>
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 31, 2001 at 01:00:07PM +0200, Thomas Tanner wrote:
+On Tue, 31 Jul 2001 16:58:06 -0700 (PDT) Chris Vandomelen <chrisv@b0rked.dhs.org> wrote:
 
->  I can't access the data on my harddrive any longer ;-((
-> 
->  The IBM Disk Fitness Test tool tells me:
->    Model                   : IBM-DJNA-372200
->    Microcode level         : J71OA30K
->    ATA Compliance          : ATA-4
->      Security feature      : Supported
->        Password            : Set
->        Password level      : High
->        Security mode       : Locked
-> 
->  However, I haven't set any password. I don't even know how to set it!!
->  My system is (was) Linux 2.4.7 with PIIX support and "SCSI over IDE"
-> enabled,
->  I wanted to start XWindows (4.01). However, it switched the video mode and
-> suddenly locked up for ~10 sec. I pressed Ctrl-Alt-Backspace/Del
->  After some seconds it responded and seemed to shut down as usual.
->  Since then the hd is locked and I don't know why.
+CV> > Tried vfat, ext2 and reiserfs.
+CV> >
+CV> > BTW, kernel is compiled with gcc-2.96-85, glibc-2.2.2-10 (RH 7.1) if
+CV>                                ^^^^^^^^^^^
+CV> > that matters.
+CV> 
+CV> Have you tried compiling your kernel using kgcc?
 
-Better shield your monitor?
+No.
 
->  According to the ATA-3 specification
+CV> gcc-2.96.* is known to compile code incorrectly AFAIK, and shouldn't be
+CV> used for compiling kernels. (kgcc is egcs-1.1.2, I think.)
 
-ATA-4 is also online.
+As I remember Alan said recent 2.4 kernels should be compiled with gcc 2.95
+or 2.96 (preferably?).
 
->  To unlock a drive one has to send the command SECURITY UNLOCK (0xBB)
->  and transfer a single sector to the drive:
+Regards,
+Nerijus
 
-Maybe someone has already done it. Otherwise you'll have to play a little
-with the code. It is easy. You could try to take setmax and hdparm as example
-and add an ioctl that combines HDIO_DRIVE_TASK and HDIO_DRIVE_CMD.
+

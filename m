@@ -1,77 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266781AbUGLK3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266784AbUGLKj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266781AbUGLK3M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 06:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266782AbUGLK3M
+	id S266784AbUGLKj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 06:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266785AbUGLKj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 06:29:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63143 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266781AbUGLK3F (ORCPT
+	Mon, 12 Jul 2004 06:39:58 -0400
+Received: from cobalt1.indo.net ([208.179.167.192]:780 "EHLO cobalt1.indo.net")
+	by vger.kernel.org with ESMTP id S266784AbUGLKju (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 06:29:05 -0400
-Date: Mon, 12 Jul 2004 12:28:19 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Daniel Phillips <phillips@istop.com>, sdake@mvista.com,
-       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-Message-ID: <20040712102818.GB31013@devserv.devel.redhat.com>
-References: <200407050209.29268.phillips@redhat.com> <200407101657.06314.phillips@redhat.com> <1089501890.19787.33.camel@persist.az.mvista.com> <200407111544.25590.phillips@istop.com> <20040711210624.GC3933@marowsky-bree.de> <1089615523.2806.5.camel@laptop.fenrus.com> <20040712100547.GF3933@marowsky-bree.de> <20040712101107.GA31013@devserv.devel.redhat.com> <20040712102124.GH3933@marowsky-bree.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
-Content-Disposition: inline
-In-Reply-To: <20040712102124.GH3933@marowsky-bree.de>
-User-Agent: Mutt/1.4.1i
+	Mon, 12 Jul 2004 06:39:50 -0400
+Message-ID: <005a01c467fc$cd8dac50$1002a8c0@3dijsrwin>
+From: "Rajput" <rajput@indo.net>
+To: "Con Kolivas" <kernel@kolivas.org>
+Cc: <linux-kernel@vger.kernel.org>, "Rajput" <rajput@indo.net>
+References: <cone.1089613755.742689.28499.502@pc.kolivas.org>
+Subject: Re: [PATCH] Instrumenting high latency
+Date: Mon, 12 Jul 2004 16:11:32 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+what is the difference in interrupt latency with and without your patch.
 
---neYutvxvOLaeuPCA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Regards,
 
-On Mon, Jul 12, 2004 at 12:21:24PM +0200, Lars Marowsky-Bree wrote:
-> On 2004-07-12T12:11:07,
->    Arjan van de Ven <arjanv@redhat.com> said:
-> 
-> > well the problem is that you cannot prevent a syscall from blocking really.
-> > O_NONBLOCK only impacts the waiting for IO/socket buffer space to not do so
-> > (in general), it doesn't impact the memory allocation strategies by
-> > syscalls. And there's a whopping lot of that in the non-boring syscalls...
-> > So while your heartbeat process won't block during getpid, it'll eventually
-> > need to do real work too .... and I'm quite certain that will lead down to
-> > GFP_KERNEL memory allocations.
-> 
-> Sure, but the network IO is isolated from the main process via a _very
-> careful_ non-blocking IO using sockets library, so that works out well.
+Rajput.
 
-... which of course never allocates skb's ? ;)
+----- Original Message ----- 
+From: "Con Kolivas" <kernel@kolivas.org>
+To: <linux-kernel@vger.kernel.org>
+Cc: <akpm@osdl.org>
+Sent: Monday, July 12, 2004 11:59 AM
+Subject: [PATCH] Instrumenting high latency
 
-> However, of course this is more difficult for the case where you are in
-> the write path needed to free some memory; alas, swapping to a GFS mount
-> is probably a realllllly silly idea, too.
 
-there is more than swap, there's dirty pagecache/mmaps as well
+> Because of the recent discussion about latency in the kernel I asked
+William
+> Lee Irwin III to help create some instrumentation to determine where in
+the
+> kernel there were still sustained periods of non-preemptible code. He
+hacked
+> together this simple patch which times periods according to the preempt
+> count. Hopefully we can use this patch in the advice of Linus to avoid the
+> "mental masturbation" at guessing where latency is and track down real
+> problem areas.
+>
+> It is enabled via a config option and by setting the threshold at boot by
+> passing the parameter:
+> preempt_thresh=2
+>
+> to set the threshold at 2ms for example.
+>
+> The output is a warning in syslog like so:
+>
+> 5ms non-preemptible critical section violated 2 ms preempt threshold
+> starting at add_wait_queue+0x21/0x82 and ending at add_wait
+_queue+0x4a/0x82
+>
+> I would not recommend using this patch for daily use but please try it out
+> on multiple setups/filesystems etc and help us track down the areas.
+> Unfortunately I am not personally capable of fixing the code paths in
+> question so I'll need the help of others in this.
+>
+> The patch appears to require CONFIG_PREEMPT enabled on uniprocessor and is
+> i386 only at the moment.
+>
+> Patch applies to 2.6.8-rc1
+>
+> Cheers,
+> Con Kolivas
+>
+>
 
-> But again, I'd rather like to see this solved (memory pools for
-> userland, PF_ etc), because it's relevant for many scenarios requiring
 
-PF_ is not enough really ;) 
-You need to force GFP_NOFS etc for several critical parts, and well, by
-being in kernel you can avoid a bunch of these allocations for real, and/or
-influence their GFP flags
+----------------------------------------------------------------------------
+----
 
---neYutvxvOLaeuPCA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+> Index: linux-2.6.8-rc1/arch/i386/Kconfig
+> ===================================================================
+> --- linux-2.6.8-rc1.orig/arch/i386/Kconfig 2004-07-12 16:11:43.531241636
++1000
+> +++ linux-2.6.8-rc1/arch/i386/Kconfig 2004-07-12 16:12:45.036678502 +1000
+> @@ -504,6 +504,13 @@
+>     Say Y here if you are building a kernel for a desktop, embedded
+>     or real-time system.  Say N if you are unsure.
+>
+> +config PREEMPT_TIMING
+> + bool "Non-preemptible critical section timing"
+> + help
+> +   This option measures the time spent in non-preemptible critical
+> +   sections and reports warnings when a boot-time configurable
+> +   latency threshold is exceeded.
+> +
+>  config X86_UP_APIC
+>   bool "Local APIC support on uniprocessors" if !SMP
+>   depends on !(X86_VISWS || X86_VOYAGER)
+> Index: linux-2.6.8-rc1/arch/i386/kernel/traps.c
+> ===================================================================
+> --- linux-2.6.8-rc1.orig/arch/i386/kernel/traps.c 2004-07-12
+16:11:43.601230753 +1000
+> +++ linux-2.6.8-rc1/arch/i386/kernel/traps.c 2004-07-12 16:12:45.037678346
++1000
+> @@ -947,3 +947,68 @@
+>
+>   trap_init_hook();
+>  }
+> +
+> +#ifdef CONFIG_PREEMPT_TIMING
+> +
+> +static int preempt_thresh;
+> +static DEFINE_PER_CPU(u64, preempt_timings);
+> +static DEFINE_PER_CPU(unsigned long, preempt_entry);
+> +static DEFINE_PER_CPU(unsigned long, preempt_exit);
+> +
+> +static int setup_preempt_thresh(char *s)
+> +{
+> + int thresh;
+> +
+> + get_option(&s, &thresh);
+> + if (thresh > 0) {
+> + preempt_thresh = thresh;
+> + printk("Preemption threshold = %dms\n", preempt_thresh);
+> + }
+> + return 1;
+> +}
+> +__setup("preempt_thresh=", setup_preempt_thresh);
+> +
+> +void __inc_preempt_count(void)
+> +{
+> + preempt_count()++;
+> + if (preempt_count() == 1 && system_state == SYSTEM_RUNNING) {
+> + rdtscll(__get_cpu_var(preempt_timings));
+> + __get_cpu_var(preempt_entry)
+> + = (unsigned long)__builtin_return_address(0);
+> + }
+> +}
+> +
+> +void __dec_preempt_count(void)
+> +{
+> + if (preempt_count() == 1 && system_state == SYSTEM_RUNNING &&
+> + __get_cpu_var(preempt_entry)) {
+> + u64 exit;
+> + __get_cpu_var(preempt_exit)
+> + = (unsigned long)__builtin_return_address(0);
+> + rdtscll(exit);
+> + if (cpu_khz) {
+> + __get_cpu_var(preempt_timings) =
+> + exit - __get_cpu_var(preempt_timings);
+> + do_div(__get_cpu_var(preempt_timings), cpu_khz);
+> + if (__get_cpu_var(preempt_timings) > preempt_thresh &&
+> + preempt_thresh) {
+> + printk("%lums non-preemptible critical "
+> + "section violated %d ms preempt "
+> + "threshold starting at ",
+> + (unsigned long)
+> + __get_cpu_var(preempt_timings),
+> + preempt_thresh);
+> + print_symbol("%s and ending at ",
+> + __get_cpu_var(preempt_entry));
+> + print_symbol("%s\n",
+> + __get_cpu_var(preempt_exit));
+> + dump_stack();
+> + }
+> + }
+> + __get_cpu_var(preempt_exit) = __get_cpu_var(preempt_entry) = 0;
+> + }
+> + preempt_count()--;
+> +}
+> +EXPORT_SYMBOL(__inc_preempt_count);
+> +EXPORT_SYMBOL(__dec_preempt_count);
+> +#endif
+> Index: linux-2.6.8-rc1/include/linux/preempt.h
+> ===================================================================
+> --- linux-2.6.8-rc1.orig/include/linux/preempt.h 2004-03-11
+21:29:26.000000000 +1100
+> +++ linux-2.6.8-rc1/include/linux/preempt.h 2004-07-12 16:12:45.055675548
++1000
+> @@ -9,17 +9,22 @@
+>  #include <linux/config.h>
+>  #include <linux/linkage.h>
+>
+> -#define preempt_count() (current_thread_info()->preempt_count)
+> -
+> -#define inc_preempt_count() \
+> -do { \
+> - preempt_count()++; \
+> -} while (0)
+> +#ifdef CONFIG_PREEMPT_TIMING
+> +void __inc_preempt_count(void);
+> +void __dec_preempt_count(void);
+> +#else
+> +#ifdef CONFIG_PREEMPT
+> +#define __inc_preempt_count() do { preempt_count()++; } while (0)
+> +#define __dec_preempt_count() do { preempt_count()--; } while (0)
+> +#else
+> +#define __inc_preempt_count() do { } while (0)
+> +#define __dec_preempt_count() do { } while (0)
+> +#endif
+> +#endif
+>
+> -#define dec_preempt_count() \
+> -do { \
+> - preempt_count()--; \
+> -} while (0)
+> +#define preempt_count() (current_thread_info()->preempt_count)
+> +#define inc_preempt_count() __inc_preempt_count()
+> +#define dec_preempt_count() __dec_preempt_count()
+>
+>  #ifdef CONFIG_PREEMPT
+>
+> @@ -51,9 +56,9 @@
+>
+>  #else
+>
+> -#define preempt_disable() do { } while (0)
+> -#define preempt_enable_no_resched() do { } while (0)
+> -#define preempt_enable() do { } while (0)
+> +#define preempt_disable() __inc_preempt_count()
+> +#define preempt_enable_no_resched() __dec_preempt_count()
+> +#define preempt_enable() __dec_preempt_count()
+>  #define preempt_check_resched() do { } while (0)
+>
+>  #endif
+>
 
-iD8DBQFA8mfBxULwo51rQBIRAmjFAJ9g3zgawrsBJy27dPq1m6/oMLZfBgCbBJ8I
-p4LXnv8PZfzCgNpEFC8Eo8U=
-=l+QV
------END PGP SIGNATURE-----
 
---neYutvxvOLaeuPCA--

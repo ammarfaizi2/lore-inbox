@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318275AbSHZUH0>; Mon, 26 Aug 2002 16:07:26 -0400
+	id <S318282AbSHZUHq>; Mon, 26 Aug 2002 16:07:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318277AbSHZUH0>; Mon, 26 Aug 2002 16:07:26 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:17297 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S318275AbSHZUHZ>;
-	Mon, 26 Aug 2002 16:07:25 -0400
-Date: Mon, 26 Aug 2002 22:11:42 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Interdiff of AC series?
-Message-ID: <20020826201142.GA4183@ulima.unil.ch>
-References: <20020826123340.GD25765@ulima.unil.ch> <20020826132511.GA11762@neon.hh59.org>
+	id <S318283AbSHZUHq>; Mon, 26 Aug 2002 16:07:46 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:34576 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318282AbSHZUHp>; Mon, 26 Aug 2002 16:07:45 -0400
+Date: Mon, 26 Aug 2002 21:11:59 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Robert Love <rml@tech9.net>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] per-arch load balancing
+Message-ID: <20020826211159.A6186@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Robert Love <rml@tech9.net>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <1030392283.1020.407.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020826132511.GA11762@neon.hh59.org>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1030392283.1020.407.camel@phantasy>; from rml@tech9.net on Mon, Aug 26, 2002 at 04:04:43PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 03:25:11PM +0200, axel@hh59.org wrote:
+On Mon, Aug 26, 2002 at 04:04:43PM -0400, Robert Love wrote:
+> Linus,
+> 
+> The attached patch implements (optional) per-architecture load balancing
+> so we can cleanly implement specialized load balancing behavior for
+> NUMA, hyperthreading, etc.
+> 
+> The new method is "arch_load_balance()" and is defined (if available) in
+> asm/smp_balance.h - otherwise it defines away.  Currently, we call it
+> from "find_busiest_queue()".
 
-> No. Unfortunately not but you can easily create one yourself using 
-> interdiff from GNU diffutils.
+Can we have a asm/sched.h instead?  especially if we might add additional
+per-arch scheduler bits.  Also I think a asm-generic version is better than
+linux/smp_balance.h + the ARCH_HAS_SMP_BALANCE hack.  I'd prefer if you
+would move the #include ontop ot sched.c, too - includes in the middle of
+a file are really messy.
 
-;-)
-I know how to make interdiff, what I would like is to fetch less bits
-with my modem connection...
-
-Thank you very much,
-
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

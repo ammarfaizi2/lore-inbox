@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUKIPVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbUKIPVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbUKIPVD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 10:21:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbUKIPVD
+	id S261544AbUKIPVU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 10:21:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbUKIPVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 10:21:03 -0500
-Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:24677 "HELO
-	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261551AbUKIPU5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 10:20:57 -0500
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: license-violation@fsf.org
+	Tue, 9 Nov 2004 10:21:20 -0500
+Received: from rt.gnu.org ([199.232.76.167]:15236 "EHLO rt.gnu.org")
+	by vger.kernel.org with ESMTP id S261544AbUKIPVQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 10:21:16 -0500
 Subject: Re: [gnu.org #214016] GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
-Date: Tue, 9 Nov 2004 10:20:52 -0500
-User-Agent: KMail/1.7
+From: "Shawn Starr via RT" <license-violation@fsf.org>
+Reply-To: license-violation@fsf.org
+In-Reply-To: <rt-214016@gnu.org>
+Message-ID: <rt-3.0.8-214016-682840.2.97900455292528@rt.gnu.org>
+X-RT-Loop-Prevention: gnu.org
+RT-Ticket: gnu.org #214016
+Managed-by: RT 3.0.8 (http://www.bestpractical.com/rt/)
+RT-Originator: shawn.starr@rogers.com
 Cc: license-violation@gnu.org, linux-kernel@vger.kernel.org
-References: <rt-3.0.8-214016-682805.9.72099995582191@rt.gnu.org>
-In-Reply-To: <rt-3.0.8-214016-682805.9.72099995582191@rt.gnu.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200411091020.52578.shawn.starr@rogers.com>
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+X-RT-Original-Encoding: utf-8
+Date: Tue, 09 Nov 2004 10:21:22 -0500
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -60,3 +60,5 @@ On November 9, 2004 07:07, Alan Cox via RT wrote:
 > policy is that while you may join their early access process and get
 > source if you redistribute that source then you get kicked off their
 > program, but you are still allowed to distribute that source.
+
+

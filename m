@@ -1,91 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVC3Nk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVC3NlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbVC3Nk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 08:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVC3Nk4
+	id S261892AbVC3NlH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 08:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVC3NlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 08:40:56 -0500
-Received: from apollo.nbase.co.il ([194.90.137.2]:2317 "EHLO
-	apollo.nbase.co.il") by vger.kernel.org with ESMTP id S261891AbVC3Nko
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 08:40:44 -0500
-Message-ID: <424AACB4.9040600@mrv.com>
-Date: Wed, 30 Mar 2005 15:42:12 +0200
-From: emann@mrv.com (Eran Mann)
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Netdev <netdev@oss.sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux.nics@intel.com, Ganesh Venkatesan <ganesh.venkatesan@intel.com>
-Subject: [PATCH 2.6.11.6-bk2] e100: Use EEPROM config for Auto MDI/MDI-X
-References: <4240E35C.2090203@pobox.com>
-In-Reply-To: <4240E35C.2090203@pobox.com>
-Content-Type: multipart/mixed;
- boundary="------------040907020301060902010002"
+	Wed, 30 Mar 2005 08:41:02 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6625 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261892AbVC3Nkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 08:40:55 -0500
+Date: Wed, 30 Mar 2005 14:40:49 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       linux-mm@kvack.org, shai@scalex86.org
+Subject: Re: [PATCH] Pageset Localization V2
+Message-ID: <20050330134049.GA21986@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0503292147200.32571@server.graphe.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503292147200.32571@server.graphe.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040907020301060902010002
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, Mar 29, 2005 at 09:51:08PM -0800, Christoph Lameter wrote:
+> +	BUG_ON(process_zones(smp_processor_id()));
 
-Current e100.c doesn't follow the EEPROM configuration regarding Auto 
-MDI/MDI-X switching, instead it is enabled unconditionally for the 
-relevant chips.
-This is especially bad since according to Intel's errata this feature is 
-no-longer supported.
+No.  Who told you this was a good idea?  This is the *worst* kind of
+assert, calling a function with side-effects.
 
-Signed-off-by: Eran Mann <emann@mrv.com>
-
---------------040907020301060902010002
-Content-Type: text/x-patch;
- name="e100-mdix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="e100-mdix.patch"
-
---- linux-2.6.11.6-bk2/drivers/net/e100.c	2005-03-29 19:57:10.000000000 +0200
-+++ linux-2.6.11.6-bk2-patched/drivers/net/e100.c	2005-03-29 19:28:52.000000000 +0200
-@@ -1072,13 +1072,17 @@
- 		mdio_write(netdev, nic->mii.phy_id, MII_NSC_CONG, cong);
- 	}
- 
--	if((nic->mac >= mac_82550_D102) || ((nic->flags & ich) && 
--		(mdio_read(netdev, nic->mii.phy_id, MII_TPISTATUS) & 0x8000) && 
--		(nic->eeprom[eeprom_cnfg_mdix] & eeprom_mdix_enabled)))
--		/* enable/disable MDI/MDI-X auto-switching */
--		mdio_write(netdev, nic->mii.phy_id, MII_NCONFIG,
--			nic->mii.force_media ? 0 : NCONFIG_AUTO_SWITCH);
--
-+	if(((nic->mac >= mac_82550_D102) || ((nic->flags & ich) &&
-+		(mdio_read(netdev, nic->mii.phy_id, MII_TPISTATUS) &
-+			0x8000)))) {
-+		/* Enable/Disable Auto MDI/MDI-X Switching */
-+		if ((nic->eeprom[eeprom_cnfg_mdix] & eeprom_mdix_enabled) &&
-+		    !nic->mii.force_media)
-+			mdio_write(netdev, nic->mii.phy_id, MII_NCONFIG,
-+			   		NCONFIG_AUTO_SWITCH);
-+		else
-+                	mdio_write(netdev, nic->mii.phy_id, MII_NCONFIG, 0);
-+		}
- 	return 0;
- }
- 
-@@ -2245,11 +2249,11 @@
- 		goto err_out_iounmap;
- 	}
- 
--	e100_phy_init(nic);
--
- 	if((err = e100_eeprom_load(nic)))
- 		goto err_out_free;
- 
-+	e100_phy_init(nic);
-+
- 	memcpy(netdev->dev_addr, nic->eeprom, ETH_ALEN);
- 	if(!is_valid_ether_addr(netdev->dev_addr)) {
- 		DPRINTK(PROBE, ERR, "Invalid MAC address from "
-
---------------040907020301060902010002--
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,63 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265139AbTAILfi>; Thu, 9 Jan 2003 06:35:38 -0500
+	id <S265815AbTAILrD>; Thu, 9 Jan 2003 06:47:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265236AbTAILfi>; Thu, 9 Jan 2003 06:35:38 -0500
-Received: from AVelizy-101-1-1-215.abo.wanadoo.fr ([193.251.75.215]:5504 "EHLO
-	manta.jerryweb.org") by vger.kernel.org with ESMTP
-	id <S265139AbTAILfh>; Thu, 9 Jan 2003 06:35:37 -0500
-Date: Thu, 9 Jan 2003 12:44:16 +0100
-From: Jeremy =?ISO-8859-1?B?TGFpbuk=?= <jeremy.laine@polytechnique.org>
-To: linux-kernel@vger.kernel.org
-Subject: hardsect for MP-F70 player driver?
-Message-Id: <20030109124416.08fd1298.jeremy.laine@polytechnique.org>
-X-Mailer: Sylpheed version 0.8.5claws56 (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="_1eFb+=.grjdaz)A"
+	id <S265886AbTAILrD>; Thu, 9 Jan 2003 06:47:03 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:59594 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S265815AbTAILrC>; Thu, 9 Jan 2003 06:47:02 -0500
+Date: Fri, 10 Jan 2003 00:55:22 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: ipv6 stack seems to forget to send ACKs
+Message-ID: <27430000.1042113322@localhost.localdomain>
+In-Reply-To: <20030109123857.A15625@bitwizard.nl>
+References: <20030108130850.GQ22951@wiggy.net>
+ <20030109123857.A15625@bitwizard.nl>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---_1eFb+=.grjdaz)A
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-I hope this message is not off topic, as after reading the kernel FAQ
-I could not figure out if it was or not!
 
-I am currently writing a kernel module to support the MP-F70 mp3
-player as a block device, as it does not work like 'standard'
-usb-storage devices. using a hardsector size of 512 bytes works just
-swell for reading works but I am running into problems when trying to
-implement writing.
+--On Thursday, January 09, 2003 12:38:58 +0100 Rogier Wolff 
+<R.E.Wolff@BitWizard.nl> wrote:
 
-Indeed for the writing to work, one first has to issue a sort of
-'erase' command but this wipes out a block of 16*512=8192 bytes.  I
-tried to bump up the hardsect size to 8192 bytes but this then causes
-problems with the FAT module which complains the hardsect size is over
-the logical sector size (and anyway I also get a complaint from
-buffer.c that the size is larger than PAGE_SIZE). I am developing on a
-2.4 series kernel.
+> On Wed, Jan 08, 2003 at 02:08:50PM +0100, Wichert Akkerman wrote:
+>>
 
-Does anyone have some pointers to a possible solution? 
+Looked normal and then:
 
-Thanks in advance and thanks for the great work on the kernel!
+>
+>> 13:57:40.282351 2001:968:1::2.8000 > tornado.wiggy.net.33035: .
+>> 9359225:9360433(1208) ack 1 win 5712 <nop,nop,timestamp 369670744 846103>
+>
+> But now: No ack! Funny.
 
-Jeremy
+Might be SACK deciding not to...
 
---  
-http://www.jerryweb.org/         : JerryWeb.org
-http://sailcut.sourceforge.net/  : Sailcut CAD
+>> 13:57:40.284307 2001:968:1::2.8000 > tornado.wiggy.net.33035: .
+>> 9360433:9360653(220) ack 1 win 5712 <nop,nop,timestamp 369670744 846103>
+>
+> Another packet, no ack!
+>
+>> 13:57:40.297307 2001:968:1::2.8000 > tornado.wiggy.net.33035: .
+>> 9360653:9361861(1208) ack 1 win 5712 <nop,nop,timestamp 369670745 846104>
+>> 13:57:40.297376 tornado.wiggy.net.33035 > 2001:968:1::2.8000: . ack
+>> 9359225 win 32616 <nop,nop,timestamp 846111 369670744,nop,nop,sack sack
+>> 1 {9360653:9361861} >
+>
+> Another packet, but this time it SACKs  the just-recieved packet. It looks
+> as if the two packets inbetween somehow were not recognized as belonging
+> with this connection.
 
---_1eFb+=.grjdaz)A
-Content-Type: application/pgp-signature
+or SACK forgot about them?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+> Two more packets, and still more hints towards the other machine that
+> we're missing 9359225-9360653
+>
+>> 13:57:40.568652 2001:968:1::2.8000 > tornado.wiggy.net.33035: .
+>> 9359225:9360433(1208) ack 1 win 5712 <nop,nop,timestamp 369670773 846113>
+>
+> So, it retransmits the first. but we don't see it as beloging to
+> this connection or something, so it gets ignored.
 
-iD8DBQE+HWCQ4mJJZqJp2ScRAjZ7AJwOAcksC9INCZF1cx+ejxe/V/JYuwCfZ4Ah
-eZV44fsxd7EHD1+pZhq7zJs=
-=JnRt
------END PGP SIGNATURE-----
+or we're waiting for the other one to ACK them both in one go?
 
---_1eFb+=.grjdaz)A--
+> It looks as if somehow those two packets 9359225:9360433 and
+> 9360433:9360653 get  mangled in a way as to invalidate the checksum. This
+> would cause "silent drop"  of these packets before they were acked....
+
+Could be data dependant, so there's a pattern in the packet contents that 
+causes this?
+
+> Can you check the stats counters, to see if they are indeed dropped?
+>
+> 				Roger.
+
+

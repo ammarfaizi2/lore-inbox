@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263760AbTAVWCt>; Wed, 22 Jan 2003 17:02:49 -0500
+	id <S264617AbTAVWFp>; Wed, 22 Jan 2003 17:05:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263794AbTAVWCt>; Wed, 22 Jan 2003 17:02:49 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:43270 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263760AbTAVWCs>; Wed, 22 Jan 2003 17:02:48 -0500
-Date: Wed, 22 Jan 2003 22:11:53 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Jesse Pollard <pollard@admin.navo.hpc.mil>
-cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Linux in the News! WooHoo!
-In-Reply-To: <200301211657.07531.pollard@admin.navo.hpc.mil>
-Message-ID: <Pine.LNX.4.44.0301222203480.4030-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264625AbTAVWFp>; Wed, 22 Jan 2003 17:05:45 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:7684 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264617AbTAVWFp>;
+	Wed, 22 Jan 2003 17:05:45 -0500
+Date: Wed, 22 Jan 2003 23:12:57 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: Andy Grover <agrover@groveronline.com>, linux-kernel@vger.kernel.org,
+       acpi-devel@sourceforge.net
+Subject: Re: [PATCH] SMP parsing rewrite, phase 1
+Message-ID: <20030122221256.GB14641@elf.ucw.cz>
+References: <Pine.LNX.4.44.0301201834310.26042-100000@dexter.groveronline.com> <3E2DAE2F.1070503@walrond.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E2DAE2F.1070503@walrond.org>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> The long development cycle has a lot to do with the lack of specifications for 
-> the hardware.
-
-True but also due to the fact that many of the people involved do this in 
-there spare time versus for a living. 5 hours a week versus 40 makes a big 
-difference in how fast something comes to completion.
-
-> > Now try a search in flipdog.com, CareerBuilder.com, or HotJobs.com for a
-> > GNOME or KDE jobs. Well what do you know. No jobs avaible. So no company
-> > is looking to either port there software to linux nor create new linux
-> > software.
+> Results from a an Asus PR-DLS Dual Xeon HT
 > 
-> not true:
-> 2 for "X Window"
-> 10 for "X Windows"
-> 13 for Motif
+> Don't know if this is useful, but I'll try anything that might bring 
+> back my e1000 ;) No joy though - doesn't find all the PCI buses (14 and 
+> 18 missing - see below)
+> 
+> +==============================================================================+
+> | CPU Type          : Intel(R) Xeon(TM) CPU 2.60GHz 
+>        |
+> | Cache Memory      : 512K,512K,512K,512K Memory Installed  : 4096M 
+>        |
+> +------------------------------------------------------------------------------+
 
-Unfoturnely the search engines are not that good. Because of the space in 
-X windows you end you getting M$ windows programming jobs. The motif jobs 
-are the most accurate. 
- 
-> The projects currently underway for doing the desktop haven't asked for R&D 
-> funds, to my knowlege.
+Wow, this looks nice. DOes this mean you actually have bios able to
+send messages over serial in PC-class machine? Wow!
+							Pavel
 
-And if they ask do you think they get it? I wonder. OpenOffice does have a 
-full time staff since Sun has a stake in things. Othewise it wouldn't get 
-where it is today.
-
-> HOWEVER - there were 15000+ workstations that converted to StarOffice last
-> year (DISA - a government agency). Since StarOffice works on both Linux and M$
-> I see that as a win. And there are a LOT of OpenOffice (the free version) 
-> installations.
-
-Note free versions. I guess if Sun can afford to lose 2 billions dollars 
-it can afford to give a office suite away. The question if Sun runs out of 
-money then what?
-
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

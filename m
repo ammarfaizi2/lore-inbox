@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266464AbSKZSGI>; Tue, 26 Nov 2002 13:06:08 -0500
+	id <S266586AbSKZSIF>; Tue, 26 Nov 2002 13:08:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266478AbSKZSEq>; Tue, 26 Nov 2002 13:04:46 -0500
-Received: from khms.westfalen.de ([62.153.201.243]:64731 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S266464AbSKZSEn>; Tue, 26 Nov 2002 13:04:43 -0500
-Date: 26 Nov 2002 19:01:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: trog@wincom.net
-cc: linux-kernel@vger.kernel.org
-Message-ID: <8aauFwvXw-B@khms.westfalen.de>
-In-Reply-To: <3de395e1.2c79.0@wincom.net>
+	id <S266585AbSKZSIF>; Tue, 26 Nov 2002 13:08:05 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:43154 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266586AbSKZSIE>; Tue, 26 Nov 2002 13:08:04 -0500
 Subject: Re: A Kernel Configuration Tale of Woe
-X-Mailer: CrossPoint v3.12d.kh10 R/C435
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: dpaun@rogers.com
+Cc: Rusty Lynch <rusty@linux.co.intel.com>, trog@wincom.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200211261304.32678.dpaun@rogers.com>
 References: <3de395e1.2c79.0@wincom.net>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+	<002001c29572$2ce2b2e0$94d40a0a@amr.corp.intel.com> 
+	<200211261304.32678.dpaun@rogers.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Nov 2002 18:46:22 +0000
+Message-Id: <1038336382.2594.67.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-trog@wincom.net (Dennis Grant)  wrote on 26.11.02 in <3de395e1.2c79.0@wincom.net>:
+On Tue, 2002-11-26 at 18:04, Dimitrie O. Paun wrote:
+> On November 26, 2002 12:35 pm, Rusty Lynch wrote:
+> > So how would you deal with somebody contributing bogus mappings?
+> > What if somebody was just wrong, or uploading a mapping in error?
+> 
+> The same applies to the kernel code, or any other open source project:
+> How do you deal with somebody contributing bogus code?
+> 
+> Somehow things work out, as we have already witnessed.
 
-> > I think he missed the solution rather than missing the
-> > problem
->
-> I think I may agree with you, to a point, in that (after further reflection)
-> I think there's an intermediate step between the current state and the
-> magical world of "make partsconfig" or even "make autoconfig"
+For boards its not that simple. Many vendors release multiple utterly
+different machines with the same box, bios and ident. The customer is
+told "IDE CD, 100mbit ethernet", the customer gets random cheapest going
+ethernet.
 
-Well ... it seems to me that the main difference is that (a significant  
-part of) "make autoconfig" *actually exists*.
+Alan
 
-MfG Kai

@@ -1,109 +1,128 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267303AbRGXJ4K>; Tue, 24 Jul 2001 05:56:10 -0400
+	id <S267135AbRGXKIA>; Tue, 24 Jul 2001 06:08:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267414AbRGXJ4A>; Tue, 24 Jul 2001 05:56:00 -0400
-Received: from cm.med.3284844210.kabelnet.net ([195.202.190.178]:5136 "EHLO
-	phobos.hvrlab.org") by vger.kernel.org with ESMTP
-	id <S267303AbRGXJzs>; Tue, 24 Jul 2001 05:55:48 -0400
-Date: Tue, 24 Jul 2001 11:56:02 +0200 (CEST)
-From: Herbert Valerio Riedel <hvr@hvrlab.org>
-X-X-Sender: <hvr@janus.txd.hvrlab.org>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
-Subject: Re: RFC: block/loop.c & crypto
-In-Reply-To: <20010723170038.G822@athlon.random>
-Message-ID: <Pine.LNX.4.33.0107241125000.1351-100000@janus.txd.hvrlab.org>
+	id <S267148AbRGXKHv>; Tue, 24 Jul 2001 06:07:51 -0400
+Received: from [213.82.86.194] ([213.82.86.194]:24328 "EHLO fatamorgana.net")
+	by vger.kernel.org with ESMTP id <S267135AbRGXKHn>;
+	Tue, 24 Jul 2001 06:07:43 -0400
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_6X2ZYB2XULLA3LNNXPI9"
+From: Roberto Arcomano <berto@fatamorgana.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Patch suggestion for proxy arp on shaper interface
+Date: Tue, 24 Jul 2001 12:10:18 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01072222314006.01071@berto.casa.it>
+In-Reply-To: <01072222314006.01071@berto.casa.it>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01072412101804.01562@berto.casa.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
-...moving it back to the kernel list...
+--------------Boundary-00=_6X2ZYB2XULLA3LNNXPI9
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-On Mon, 23 Jul 2001, Andrea Arcangeli wrote:
-> You don't read 1k. You only read 512bytes and you encrypt them using
-> the IV of such 512byte block.
+Il 22:31, domenica 22 luglio 2001, Roberto Arcomano ha scritto:
+> Hi all,
+> Recently I have had a problem with Linux proxy arp feature (using with
+> shaper interface): when I machine starts up it was receiving a "IP
+> conflits". The problem is that Linux proxy_arp routine doesn't make
+> difference between real interface (i.e. eth0) and shaper interface (i.e.
+> shaper0 which has been attached to eth0).
+> I attach a first beta solution to the problem, which could be far from
+> optimal! (I use a "strncmp", cause I didn't found another method to know if
+> the device is a "shaper" device).
 >
-> Then the next 512byte block will use again the same IV again. What's the
-> problem?
-ok, so I didn't understand you well in the first place :-)
+>
+> --- arp.c.orig  Wed May 16 19:21:45 2001
+> +++ arp.c       Sun Jul 22 19:31:20 2001
+> @@ -111,7 +111,7 @@
+>
+>  #include <asm/system.h>
+>  #include <asm/uaccess.h>
+> -
+> +#include <linux/if_shaper.h>
+>
+>
+>  /*
+> @@ -767,10 +767,17 @@
+>                         }
+>                         goto out;
+>                 } else if (IN_DEV_FORWARD(in_dev)) {
+> +                        char shflag=0;
+> +                        if ( (rt->u.dst.dev) &&
+> +                            (rt->u.dst.dev->priv) &&
+> +                            (((struct shaper *) rt->u.dst.dev->priv)->dev)
+> && +                           
+> (strncmp(rt->u.dst.dev->name,"shaper",6)==0) ) +                        
+> shflag=1;
+>                         if ((rt->rt_flags&RTCF_DNAT) ||
+> -                           (addr_type == RTN_UNICAST  && rt->u.dst.dev !=
+> dev &&
+> +                           (addr_type == RTN_UNICAST  &&
+> +                           ( ((shflag) && ( ((struct shaper *)
+> rt->u.dst.dev->priv)->dev != dev)) || ((!shflag) && (rt->u.dst.dev != dev))
+> ) &&
+>                              (IN_DEV_PROXY_ARP(in_dev) ||
+> pneigh_lookup(&arp_tbl, &tip, dev, 0)))) {
+> -                               n = neigh_event_ns(&arp_tbl, sha, &sip,
+> dev); +                               n = neigh_event_ns(&arp_tbl, sha,
+> &sip, dev); if (n)
+>
+>
+> The patch declare a variable (flag to know if the interface is
+> shaper-like), investigate on private data of shaper device (where we can
+> know what is the attached interface) and set the flag. After we consider
+> the "attached" interface if flag is set.
+>
+> I tested it under 2.4.6 on RedHat 7.1 with success (there is no more IP
+> conflit).
+> Hope it'll useful.
+>
+> Best Regards
+> Roberto Arcomano
 
-you actually want only to change the IV calculation to be based on a
-hardcoded 1024 IV-blocksize, but don't change anything else in the loop.c
-module, right? (if not, ignore the following text... :-)
+Please someone takes a look at it! This is a bug of proxy arp feature (when 
+talking with shaper interface) could be correct (for example using my patch).
+Thank you for your help
 
-if so, I really don't like it;
+Best Regards
+Roberto Arcomano
 
-1.) I really don't like to encode 2 512-blocks with the same IV, (I
-actually thought I could just switch to 1024-blocks and thus have it
-sensible again, but since you only change the IV calculation without
-changing the data-transfer granularity it won't work)
 
-2.) It will break filesystems using set_blocksize(lo_dev, 512)... why?
 
-say, we had a transfer request from the buffer cache requesting starting
-at byte 0 (initial IV=0) of the block device for length of 2048 bytes,
-this would lead to
 
-  transfer_filter (buf, bufsize=2048, IV=0);
+--------------Boundary-00=_6X2ZYB2XULLA3LNNXPI9
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="diff.c"
+Content-Transfer-Encoding: base64
+Content-Description: Diff file for arp.c
+Content-Disposition: attachment; filename="diff.c"
 
-   since the transfer_filter contains the logic to split the buffer into
-   chunks with the blocksize (e.g. 512 byte blocks) required*) for
-   encryption the loop may look like:
+LS0tIGFycC5jLm9yaWcJV2VkIE1heSAxNiAxOToyMTo0NSAyMDAxCisrKyBhcnAuYwlTdW4gSnVs
+IDIyIDE5OjMxOjIwIDIwMDEKQEAgLTExMSw3ICsxMTEsNyBAQAogCiAjaW5jbHVkZSA8YXNtL3N5
+c3RlbS5oPgogI2luY2x1ZGUgPGFzbS91YWNjZXNzLmg+Ci0KKyNpbmNsdWRlIDxsaW51eC9pZl9z
+aGFwZXIuaD4KIAogCiAvKgpAQCAtNzY3LDEwICs3NjcsMTcgQEAKIAkJCX0KIAkJCWdvdG8gb3V0
+OwogCQl9IGVsc2UgaWYgKElOX0RFVl9GT1JXQVJEKGluX2RldikpIHsKKyAgICAgICAgICAgICAg
+ICAgICAgICAgIGNoYXIgc2hmbGFnPTA7CisgICAgICAgICAgICAgICAgICAgICAgICBpZiAoIChy
+dC0+dS5kc3QuZGV2KSAmJgorCQkJICAgICAocnQtPnUuZHN0LmRldi0+cHJpdikgJiYKKwkJCSAg
+ICAgKCgoc3RydWN0IHNoYXBlciAqKSBydC0+dS5kc3QuZGV2LT5wcml2KS0+ZGV2KSAmJgorCQkJ
+ICAgICAoc3RybmNtcChydC0+dS5kc3QuZGV2LT5uYW1lLCJzaGFwZXIiLDYpPT0wKSApCisJCQkg
+IHNoZmxhZz0xOwogCQkJaWYgKChydC0+cnRfZmxhZ3MmUlRDRl9ETkFUKSB8fAotCQkJICAgIChh
+ZGRyX3R5cGUgPT0gUlROX1VOSUNBU1QgICYmIHJ0LT51LmRzdC5kZXYgIT0gZGV2ICYmCisJCQkg
+ICAgKGFkZHJfdHlwZSA9PSBSVE5fVU5JQ0FTVCAgJiYgCisJCQkgICAgKCAoKHNoZmxhZykgJiYg
+KCAoKHN0cnVjdCBzaGFwZXIgKikgcnQtPnUuZHN0LmRldi0+cHJpdiktPmRldiAhPSBkZXYpKSB8
+fCAoKCFzaGZsYWcpICYmIChydC0+dS5kc3QuZGV2ICE9IGRldikpICkgJiYKIAkJCSAgICAgKElO
+X0RFVl9QUk9YWV9BUlAoaW5fZGV2KSB8fCBwbmVpZ2hfbG9va3VwKCZhcnBfdGJsLCAmdGlwLCBk
+ZXYsIDApKSkpIHsKLQkJCQluID0gbmVpZ2hfZXZlbnRfbnMoJmFycF90YmwsIHNoYSwgJnNpcCwg
+ZGV2KTsKKwkJCSAgICAgICAgbiA9IG5laWdoX2V2ZW50X25zKCZhcnBfdGJsLCBzaGEsICZzaXAs
+IGRldik7CiAJCQkJaWYgKG4pCiAJCQkJCW5laWdoX3JlbGVhc2Uobik7CiAK
 
-    int IV2 = IV << 1;
-    while (bufsize > 0) {
-      encdecfunc (buf, 512, IV2 >> 1);
-      IV2++;
-      buf += 512;
-    }
-
-  which leads to the following calls for the mentioned example:
-
-  encdecfunc (buf, 512, 0);
-  encdecfunc (buf+512, 512, 0);
-  encdecfunc (buf+1024, 512, 1);
-  encdecfunc (buf+1536, 512, 1);
-
-  so far so good; but now imagine that the original request get's changed
-  a bit, to start at offset 512 (initial IV still 0!!) instead of offset 0;
-
-   transfer_filter (buf, bufsize=2048, IV=0); // the same values are
-                                              // passed for bufsize and IV!
-
-  encdecfunc (buf, 512, IV=0);       // OK
-  encdecfunc (buf+512, 512, IV=0);   // wrong, IV should be 1
-  encdecfunc (buf+1024, 512, IV=1);  // OK
-  encdecfunc (buf+1536, 512, IV=1);  // wrong, IV should be 2
-
-  ...so you see?
-
-  that's why it's better IMHO to stick to the same IV-granularity that is
-  used for transfers, otherwise you'd have to lose performance by
-  passing only single IV-blocksize length data-blocks to the filter
-  functions which need to be aligned...
-
-  *) actually only filters making use of the IV parameter would need to
-     split it up, other function may process bigger blocks at once, and
-     thus minimizing possible overhead...
-
->> and btw, at least one other popular crypto loop filter uses 512 byte
->> based IVs, namely loop-AES...
-> I guess it emulates it internally, so it should keep working if we do
-> the fixed 1k granularity for the IV (while it should break the on-disk
-> format if we do the 512byte granularity).
-
-no, you can't emulate it internally if the passed IV is calculated based
-on a bigger IV-blocksize than the needed one... that's the problem, and why
-it's IMHO better to calculate based on the smallest used IV-blocksize :-(
-(that way you can always convert it to a bigger IV-blocksize based one)
-
-regards,
--- 
-Herbert Valerio Riedel       /    Phone: (EUROPE) +43-1-58801-18840
-Email: hvr@hvrlab.org       /    Finger hvr@gnu.org for GnuPG Public Key
-GnuPG Key Fingerprint: 7BB9 2D6C D485 CE64 4748  5F65 4981 E064 883F 4142
-
+--------------Boundary-00=_6X2ZYB2XULLA3LNNXPI9--

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288774AbSADVSy>; Fri, 4 Jan 2002 16:18:54 -0500
+	id <S288770AbSADVSe>; Fri, 4 Jan 2002 16:18:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288769AbSADVSp>; Fri, 4 Jan 2002 16:18:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:22278 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288767AbSADVSe>;
-	Fri, 4 Jan 2002 16:18:34 -0500
-Date: Fri, 4 Jan 2002 22:18:32 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <20020104155912.A23345@thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0201042214410.20620-100000@Appserv.suse.de>
+	id <S288769AbSADVSY>; Fri, 4 Jan 2002 16:18:24 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:38040 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S288767AbSADVSK>; Fri, 4 Jan 2002 16:18:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: Re: hashed waitqueues
+Date: Fri, 4 Jan 2002 16:17:45 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: William Lee Irwin III <wli@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020104211746.CF5C6D722@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002, Eric S. Raymond wrote:
+Hi
 
-> OK.  So can I ask ACPI if the board has ISA slots?
+The following fixes a compile problem with agpgart:
 
-You can ask it what temperature your coffee pot is.
-It's an incredibly capable (some may say too capable).
-grab the spec and take a read (http://www.acpi.info iirc)
+-------------
+--- linux/drivers/char/agp/agpgart_be.c.orig	Fri Jan  4 15:01:50 2002
++++ linux/drivers/char/agp/agpgart_be.c	Fri Jan  4 15:22:46 2002
+@@ -30,6 +30,7 @@
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/mm.h>
++#include <linux/mm_inline.h>
+ #include <linux/string.h>
+ #include <linux/errno.h>
+ #include <linux/slab.h>
+@@ -830,7 +831,7 @@
+ 	page = virt_to_page(pt);
+ 	atomic_dec(&page->count);
+ 	clear_bit(PG_locked, &page->flags);
+-	wake_up(&page->wait);
++	wake_up(page_waitqueue(page));
+ 	free_page((unsigned long) pt);
+ 	atomic_dec(&agp_bridge.current_memory_agp);
+ }
+---------------
 
->  Does it answer reliably?
+As a quick test of a new kernel I copy dbench to a tmpfs fs and run "time dbench 32".
+This typically takes over 512M swap (with rmap 10c and mainline).  With hashed
+waitqueues it does not reach 512M.  The machine has 512M of memory.   I observe
+about the same runtimes and datarate with all three kernels.
 
-Brings us back to.. "Can I trust a BIOS writer not to fsck things up"
-
-That, and ACPI support under Linux is still not-quite-there
-(but getting there). Coupled with Pat Mochels work with driverfs,
-we should eventually be able to get a complete enumerated tree
-of devices mountable somewhere.
-
-The only problem then, is that some boxes may not be running ACPI
-aware kernels, requiring you to parse the ACPI tables in userspace.
-(Not as easy as DMI, ACPI is a turing complete language requiring
-a bytecode (AML) parser)
-
-(Or you could just say fsck it if a acpi/driverfs aware kernel isn't
- present, which any sane person would)
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+Ed Tomlinson

@@ -1,79 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268684AbUHZKz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268686AbUHZLE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268684AbUHZKz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 06:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268580AbUHZKzN
+	id S268686AbUHZLE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 07:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268420AbUHZK7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 06:55:13 -0400
-Received: from levante.wiggy.net ([195.85.225.139]:39837 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S268633AbUHZKyG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 06:54:06 -0400
-Date: Thu, 26 Aug 2004 12:54:05 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Spam <spam@tnonline.net>
-Cc: Andrew Morton <akpm@osdl.org>, jra@samba.org, torvalds@osdl.org,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
+	Thu, 26 Aug 2004 06:59:01 -0400
+Received: from mail.shareable.org ([81.29.64.88]:59589 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S267859AbUHZKxh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 06:53:37 -0400
+Date: Thu, 26 Aug 2004 11:53:30 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826105404.GH2612@wiggy.net>
-Mail-Followup-To: Spam <spam@tnonline.net>, Andrew Morton <akpm@osdl.org>,
-	jra@samba.org, torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	flx@namesys.com, reiserfs-list@namesys.com
-References: <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net> <20040826024956.08b66b46.akpm@osdl.org> <839984491.20040826122025@tnonline.net>
+Message-ID: <20040826105330.GB30449@mail.shareable.org>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <Pine.LNX.4.58.0408260204050.22259@artax.karlin.mff.cuni.cz> <Pine.LNX.4.58.0408251723540.17766@ppc970.osdl.org> <412DA11B.2070303@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <839984491.20040826122025@tnonline.net>
-User-Agent: Mutt/1.5.6+20040523i
-X-SA-Exim-Connect-IP: <locally generated>
+In-Reply-To: <412DA11B.2070303@namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Spam wrote:
->   Because  having user space tools and code will make it not work with
->   everything. Keeping stuff in the kernel should make the new features
->   transparent to the applications.
+Hans Reiser wrote:
+> being able to cat dirname/pseudos/cat and get a 
+> concatenation of all of the files is nice, and being able to cat 
+> dirname/pseudos/tar and get an archive of the directory is nice
 
-But having it in the kernel has the same problem. If you read the
-Solaris documentation you will see that a bunch of utilties had to
-get a new commandline option to be able to access the metadata and
-a special utility was added for other applications. If you look
-at windows you will see that you need to use a filename like
-<realfilename>:<streamname>:$DATA (which obviously does not work for
-single-character filenames).
+Yes.  Being able to cd into filename.tar.gz and filename.iso is also
+nice, but all of these features should be supported by the VFS
+generically, not in any specific filesystem, and there should be a
+hook to invoke the various fun filesystem-independent handlers by name.
 
-Ignoring samba for a bit which just needs streams to stay compatible
-with windows I see few reasons for using streams:
-
-* files are more complex these days and tend to include multiple
-  different things: images with thumbnails and exif data, 'office'
-  documents containing both text and images
-
-* standard way to add common metadata to a file which can be used for
-  searching tools (author, copyright, keywords, etc.)
-
-But both can already be done in userland (modern image formats can store
-thumbnails and exif data internally, applications use tar or zip-like
-files for documents, etc.). The metadata part is a lot more complicated
-as well since the behaviour of attributes might need to be complex:
-if I change an image using an application that is not stream-aware, what
-should happen to its thumbnail? 
-
-The only common benefits I can see are standardisation and optimization:
-instead of every file format or application defining a way to specify 
-metadata for a file you get a common API defined by the OS (but you'll
-still need to standardize on attribute names and formats, so plenty of
-room that will still not help), and instead of parsing different files
-or XML streams you can directly access a bit of metadata.
-
-So far I'm not convinced that streams are worth the effort. Not that my
-opinion is all that relevant here, but still :)
-
-Wichert.
-
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+-- Jamie

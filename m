@@ -1,36 +1,158 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310248AbSCAEWZ>; Thu, 28 Feb 2002 23:22:25 -0500
+	id <S310368AbSCAECl>; Thu, 28 Feb 2002 23:02:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310341AbSCAEUX>; Thu, 28 Feb 2002 23:20:23 -0500
-Received: from w007.z208177138.sjc-ca.dsl.cnc.net ([208.177.141.7]:51943 "HELO
-	mail.gurulabs.com") by vger.kernel.org with SMTP id <S310306AbSCAESb>;
-	Thu, 28 Feb 2002 23:18:31 -0500
-Date: Thu, 28 Feb 2002 21:18:30 -0700 (MST)
-From: Dax Kelson <dax@gurulabs.com>
-X-X-Sender: dkelson@mooru.gurulabs.com
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>, Ralf Baechle <ralf@oss.sgi.com>
-Subject: Linux 2.4.19-pre2 on Cobalt Qube 2?
-In-Reply-To: <Pine.LNX.4.21.0202281742250.2182-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.44.0202282112130.14732-100000@mooru.gurulabs.com>
+	id <S310351AbSCAEAy>; Thu, 28 Feb 2002 23:00:54 -0500
+Received: from penguin.linuxhardware.org ([63.173.68.170]:6579 "EHLO
+	penguin.linuxhardware.org") by vger.kernel.org with ESMTP
+	id <S310304AbSCAD7R>; Thu, 28 Feb 2002 22:59:17 -0500
+Date: Thu, 28 Feb 2002 22:49:49 -0500 (EST)
+From: Kristopher Kersey <augustus@linuxhardware.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Panics on IDE Initialization
+In-Reply-To: <E16gbl9-0001wj-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0202282248340.21789-200000@penguin.linuxhardware.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1388336572-2005264663-1014954589=:21789"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Feb 2002, Marcelo Tosatti wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> Here is 2.4.19-pre2: A very big patch (around 13MB uncompressed) due to
-> the architecture (MIPS and IA64 mainly) updates. 
+---1388336572-2005264663-1014954589=:21789
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Does this MIPS merge mean that the 2.4.19-pre2 kernel would work on a MIPS
-based Cobalt Qube 2? It that's the case, then I just need a working 
-userland.
+Still panics at initialization.  I have attached the /proc/pci and lspci
+output.  This is for the SOYO board.  I will see about getting the ABIT
+board information.
 
-The official Linux kernel from Cobalt is 2.0 vintage. I'm currently
-running NetBSD 1.5.2 to have something a little more modern, but I would 
-like to come back to Linux if possible.
+Kris
 
-Dax
+On Fri, 1 Mar 2002, Alan Cox wrote:
 
+> > On two seperate motherboards that I have been testing, the ABIT
+> > KR7A-RAID and the SOYO FIRE DRAGON, 2.4 kernels panic on boot up during
+> > IDE initialization.  I don't really know how to track down the problem but
+> > now that I've seen it on two boards I'm a bit worried.  This does not
+> > happen with 2.2 kernels so it is 2.4 specific.  I have tested with 2.4.17
+> > and 2.4.18 pre releases.  I will try to field any questions to solve the
+>
+> Try 2.4.18 proper and 2.4.18-ac2 - we fixed at least one oops caused by
+> controllers and mishandling of new revisions not in our tables. If it
+> still fails send me the pci data for them
+>
+
+---1388336572-2005264663-1014954589=:21789
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="firedragonpci.out"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0202282249490.21789@penguin.linuxhardware.org>
+Content-Description: 
+Content-Disposition: attachment; filename="firedragonpci.out"
+
+UENJIGRldmljZXMgZm91bmQ6DQogIEJ1cyAgMCwgZGV2aWNlICAgMCwgZnVu
+Y3Rpb24gIDA6DQogICAgSG9zdCBicmlkZ2U6IEludGVsIFVua25vd24gZGV2
+aWNlIChyZXYgNCkuDQogICAgICBWZW5kb3IgaWQ9ODA4Ni4gRGV2aWNlIGlk
+PTFhMzAuDQogICAgICBGYXN0IGRldnNlbC4gIEZhc3QgYmFjay10by1iYWNr
+IGNhcGFibGUuICBNYXN0ZXIgQ2FwYWJsZS4gIE5vIGJ1cnN0cy4gIA0KICAg
+ICAgUHJlZmV0Y2hhYmxlIDMyIGJpdCBtZW1vcnkgYXQgMHhlMDAwMDAwMCBb
+MHhlMDAwMDAwOF0uDQogIEJ1cyAgMCwgZGV2aWNlICAgMSwgZnVuY3Rpb24g
+IDA6DQogICAgUENJIGJyaWRnZTogSW50ZWwgVW5rbm93biBkZXZpY2UgKHJl
+diA0KS4NCiAgICAgIFZlbmRvciBpZD04MDg2LiBEZXZpY2UgaWQ9MWEzMS4N
+CiAgICAgIEZhc3QgZGV2c2VsLiAgRmFzdCBiYWNrLXRvLWJhY2sgY2FwYWJs
+ZS4gIE1hc3RlciBDYXBhYmxlLiAgTGF0ZW5jeT02NC4gIE1pbiBHbnQ9MTQu
+DQogIEJ1cyAgMCwgZGV2aWNlICAzMCwgZnVuY3Rpb24gIDA6DQogICAgUENJ
+IGJyaWRnZTogSW50ZWwgVW5rbm93biBkZXZpY2UgKHJldiA1KS4NCiAgICAg
+IFZlbmRvciBpZD04MDg2LiBEZXZpY2UgaWQ9MjQ0ZS4NCiAgICAgIEZhc3Qg
+ZGV2c2VsLiAgRmFzdCBiYWNrLXRvLWJhY2sgY2FwYWJsZS4gIE1hc3RlciBD
+YXBhYmxlLiAgTm8gYnVyc3RzLiAgTWluIEdudD02Lg0KICBCdXMgIDAsIGRl
+dmljZSAgMzEsIGZ1bmN0aW9uICAwOg0KICAgIElTQSBicmlkZ2U6IEludGVs
+IFVua25vd24gZGV2aWNlIChyZXYgNSkuDQogICAgICBWZW5kb3IgaWQ9ODA4
+Ni4gRGV2aWNlIGlkPTI0NDAuDQogICAgICBNZWRpdW0gZGV2c2VsLiAgRmFz
+dCBiYWNrLXRvLWJhY2sgY2FwYWJsZS4gIE1hc3RlciBDYXBhYmxlLiAgTm8g
+YnVyc3RzLiAgDQogIEJ1cyAgMCwgZGV2aWNlICAzMSwgZnVuY3Rpb24gIDE6
+DQogICAgSURFIGludGVyZmFjZTogSW50ZWwgVW5rbm93biBkZXZpY2UgKHJl
+diA1KS4NCiAgICAgIFZlbmRvciBpZD04MDg2LiBEZXZpY2UgaWQ9MjQ0Yi4N
+CiAgICAgIE1lZGl1bSBkZXZzZWwuICBGYXN0IGJhY2stdG8tYmFjayBjYXBh
+YmxlLiAgTWFzdGVyIENhcGFibGUuICBObyBidXJzdHMuICANCiAgICAgIEkv
+TyBhdCAweGYwMDAgWzB4ZjAwMV0uDQogIEJ1cyAgMCwgZGV2aWNlICAzMSwg
+ZnVuY3Rpb24gIDI6DQogICAgVVNCIENvbnRyb2xsZXI6IEludGVsIFVua25v
+d24gZGV2aWNlIChyZXYgNSkuDQogICAgICBWZW5kb3IgaWQ9ODA4Ni4gRGV2
+aWNlIGlkPTI0NDIuDQogICAgICBNZWRpdW0gZGV2c2VsLiAgRmFzdCBiYWNr
+LXRvLWJhY2sgY2FwYWJsZS4gIElSUSAxMS4gIE1hc3RlciBDYXBhYmxlLiAg
+Tm8gYnVyc3RzLiAgDQogICAgICBJL08gYXQgMHhiMDAwIFsweGIwMDFdLg0K
+ICBCdXMgIDAsIGRldmljZSAgMzEsIGZ1bmN0aW9uICAzOg0KICAgIFNNIEJ1
+czogSW50ZWwgVW5rbm93biBkZXZpY2UgKHJldiA1KS4NCiAgICAgIFZlbmRv
+ciBpZD04MDg2LiBEZXZpY2UgaWQ9MjQ0My4NCiAgICAgIE1lZGl1bSBkZXZz
+ZWwuICBGYXN0IGJhY2stdG8tYmFjayBjYXBhYmxlLiAgSVJRIDEwLiAgDQog
+ICAgICBJL08gYXQgMHg1MDAwIFsweDUwMDFdLg0KICBCdXMgIDAsIGRldmlj
+ZSAgMzEsIGZ1bmN0aW9uICA0Og0KICAgIFVTQiBDb250cm9sbGVyOiBJbnRl
+bCBVbmtub3duIGRldmljZSAocmV2IDUpLg0KICAgICAgVmVuZG9yIGlkPTgw
+ODYuIERldmljZSBpZD0yNDQ0Lg0KICAgICAgTWVkaXVtIGRldnNlbC4gIEZh
+c3QgYmFjay10by1iYWNrIGNhcGFibGUuICBJUlEgOS4gIE1hc3RlciBDYXBh
+YmxlLiAgTm8gYnVyc3RzLiAgDQogICAgICBJL08gYXQgMHhiODAwIFsweGI4
+MDFdLg0KICBCdXMgIDEsIGRldmljZSAgIDAsIGZ1bmN0aW9uICAwOg0KICAg
+IFZHQSBjb21wYXRpYmxlIGNvbnRyb2xsZXI6IE5WaWRpYSBVbmtub3duIGRl
+dmljZSAocmV2IDE2MykuDQogICAgICBWZW5kb3IgaWQ9MTBkZS4gRGV2aWNl
+IGlkPTIwMS4NCiAgICAgIE1lZGl1bSBkZXZzZWwuICBGYXN0IGJhY2stdG8t
+YmFjayBjYXBhYmxlLiAgSVJRIDEyLiAgTWFzdGVyIENhcGFibGUuICBMYXRl
+bmN5PTMyLiAgTWluIEdudD01Lk1heCBMYXQ9MS4NCiAgICAgIE5vbi1wcmVm
+ZXRjaGFibGUgMzIgYml0IG1lbW9yeSBhdCAweGVjMDAwMDAwIFsweGVjMDAw
+MDAwXS4NCiAgICAgIFByZWZldGNoYWJsZSAzMiBiaXQgbWVtb3J5IGF0IDB4
+ZTQwMDAwMDAgWzB4ZTQwMDAwMDhdLg0KICAgICAgUHJlZmV0Y2hhYmxlIDMy
+IGJpdCBtZW1vcnkgYXQgMHhlODAwMDAwMCBbMHhlODAwMDAwOF0uDQogIEJ1
+cyAgMiwgZGV2aWNlICAgNiwgZnVuY3Rpb24gIDA6DQogICAgUkFJRCBzdG9y
+YWdlIGNvbnRyb2xsZXI6IFRyaW9uZXMgVGVjaG5vbG9naWVzLCBJbmMuIFVu
+a25vd24gZGV2aWNlIChyZXYgNSkuDQogICAgICBWZW5kb3IgaWQ9MTEwMy4g
+RGV2aWNlIGlkPTQuDQogICAgICBNZWRpdW0gZGV2c2VsLiAgSVJRIDExLiAg
+TWFzdGVyIENhcGFibGUuICBMYXRlbmN5PTY0LiAgTWluIEdudD04Lk1heCBM
+YXQ9OC4NCiAgICAgIEkvTyBhdCAweDkwMDAgWzB4OTAwMV0uDQogICAgICBJ
+L08gYXQgMHg5NDAwIFsweDk0MDFdLg0KICAgICAgSS9PIGF0IDB4OTgwMCBb
+MHg5ODAxXS4NCiAgICAgIEkvTyBhdCAweDljMDAgWzB4OWMwMV0uDQogICAg
+ICBJL08gYXQgMHhhMDAwIFsweGEwMDFdLg0KICBCdXMgIDIsIGRldmljZSAg
+IDcsIGZ1bmN0aW9uICAwOg0KICAgIE11bHRpbWVkaWEgYXVkaW8gY29udHJv
+bGxlcjogVW5rbm93biB2ZW5kb3IgVW5rbm93biBkZXZpY2UgKHJldiAxNiku
+DQogICAgICBWZW5kb3IgaWQ9MTNmNi4gRGV2aWNlIGlkPTExMS4NCiAgICAg
+IE1lZGl1bSBkZXZzZWwuICBJUlEgNS4gIE1hc3RlciBDYXBhYmxlLiAgTGF0
+ZW5jeT0zMi4gIE1pbiBHbnQ9Mi5NYXggTGF0PTI0Lg0KICAgICAgSS9PIGF0
+IDB4YTQwMCBbMHhhNDAxXS4NCiAgQnVzICAyLCBkZXZpY2UgICA4LCBmdW5j
+dGlvbiAgMDoNCiAgICBFdGhlcm5ldCBjb250cm9sbGVyOiBJbnRlbCBVbmtu
+b3duIGRldmljZSAocmV2IDMpLg0KICAgICAgVmVuZG9yIGlkPTgwODYuIERl
+dmljZSBpZD0yNDQ5Lg0KICAgICAgTWVkaXVtIGRldnNlbC4gIEZhc3QgYmFj
+ay10by1iYWNrIGNhcGFibGUuICBJUlEgMTAuICBNYXN0ZXIgQ2FwYWJsZS4g
+IExhdGVuY3k9MzIuICBNaW4gR250PTguTWF4IExhdD01Ni4NCiAgICAgIE5v
+bi1wcmVmZXRjaGFibGUgMzIgYml0IG1lbW9yeSBhdCAweGVmMDA1MDAwIFsw
+eGVmMDA1MDAwXS4NCiAgICAgIEkvTyBhdCAweGE4MDAgWzB4YTgwMV0uDQog
+IEJ1cyAgMiwgZGV2aWNlICAgOSwgZnVuY3Rpb24gIDA6DQogICAgRmlyZVdp
+cmUgKElFRUUgMTM5NCk6IFRleGFzIEluc3RydW1lbnRzIFVua25vd24gZGV2
+aWNlIChyZXYgMCkuDQogICAgICBWZW5kb3IgaWQ9MTA0Yy4gRGV2aWNlIGlk
+PTgwMjMuDQogICAgICBNZWRpdW0gZGV2c2VsLiAgSVJRIDkuICBNYXN0ZXIg
+Q2FwYWJsZS4gIExhdGVuY3k9MzIuICBNaW4gR250PTIuTWF4IExhdD00Lg0K
+ICAgICAgTm9uLXByZWZldGNoYWJsZSAzMiBiaXQgbWVtb3J5IGF0IDB4ZWYw
+MDQwMDAgWzB4ZWYwMDQwMDBdLg0KICAgICAgTm9uLXByZWZldGNoYWJsZSAz
+MiBiaXQgbWVtb3J5IGF0IDB4ZWYwMDAwMDAgWzB4ZWYwMDAwMDBdLg0KDQoJ
+DQoJDQowMDowMC4wIEhvc3QgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbjog
+VW5rbm93biBkZXZpY2UgMWEzMCAocmV2IDA0KQ0KMDA6MDEuMCBQQ0kgYnJp
+ZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbjogVW5rbm93biBkZXZpY2UgMWEzMSAo
+cmV2IDA0KQ0KMDA6MWUuMCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlv
+bjogVW5rbm93biBkZXZpY2UgMjQ0ZSAocmV2IDA1KQ0KMDA6MWYuMCBJU0Eg
+YnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbjogVW5rbm93biBkZXZpY2UgMjQ0
+MCAocmV2IDA1KQ0KMDA6MWYuMSBJREUgaW50ZXJmYWNlOiBJbnRlbCBDb3Jw
+b3JhdGlvbjogVW5rbm93biBkZXZpY2UgMjQ0YiAocmV2IDA1KQ0KMDA6MWYu
+MiBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycG9yYXRpb246IFVua25vd24g
+ZGV2aWNlIDI0NDIgKHJldiAwNSkNCjAwOjFmLjMgU01CdXM6IEludGVsIENv
+cnBvcmF0aW9uOiBVbmtub3duIGRldmljZSAyNDQzIChyZXYgMDUpDQowMDox
+Zi40IFVTQiBDb250cm9sbGVyOiBJbnRlbCBDb3Jwb3JhdGlvbjogVW5rbm93
+biBkZXZpY2UgMjQ0NCAocmV2IDA1KQ0KMDE6MDAuMCBWR0EgY29tcGF0aWJs
+ZSBjb250cm9sbGVyOiBuVmlkaWEgQ29ycG9yYXRpb246IFVua25vd24gZGV2
+aWNlIDAyMDEgKHJldiBhMykNCjAyOjA2LjAgUkFJRCBidXMgY29udHJvbGxl
+cjogVHJpb25lcyBUZWNobm9sb2dpZXMsIEluYy4gSFBUMzY2IChyZXYgMDUp
+DQowMjowNy4wIE11bHRpbWVkaWEgYXVkaW8gY29udHJvbGxlcjogQy1NZWRp
+YSBFbGVjdHJvbmljcyBJbmMgQ004NzM4IChyZXYgMTApDQowMjowOC4wIEV0
+aGVybmV0IGNvbnRyb2xsZXI6IEludGVsIENvcnBvcmF0aW9uOiBVbmtub3du
+IGRldmljZSAyNDQ5IChyZXYgMDMpDQowMjowOS4wIEZpcmVXaXJlIChJRUVF
+IDEzOTQpOiBUZXhhcyBJbnN0cnVtZW50czogVW5rbm93biBkZXZpY2UgODAy
+Mw0K
+---1388336572-2005264663-1014954589=:21789--

@@ -1,82 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267301AbUIEWeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267304AbUIEWeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267301AbUIEWeL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 18:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267304AbUIEWeK
+	id S267304AbUIEWeu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 18:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267306AbUIEWet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 18:34:10 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:21483 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S267301AbUIEWdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 18:33:54 -0400
-Message-ID: <413B9441.9060404@grupopie.com>
-Date: Sun, 05 Sep 2004 23:33:37 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Sun, 5 Sep 2004 18:34:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35793 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267304AbUIEWen (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 18:34:43 -0400
+Date: Sun, 5 Sep 2004 15:32:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.9-rc1-mm3
-References: <20040903014811.6247d47d.akpm@osdl.org> <20040903172354.GR3106@holomorphy.com> <4138AF0C.4010703@grupopie.com> <20040903180200.GS3106@holomorphy.com>
-In-Reply-To: <20040903180200.GS3106@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20040905153238.393c76a0.akpm@osdl.org>
+In-Reply-To: <200409051659.10585.norberto+linux-kernel@bensa.ath.cx>
+References: <20040903014811.6247d47d.akpm@osdl.org>
+	<20040903092721.6e9ec255.akpm@osdl.org>
+	<200409031420.44018.norberto+linux-kernel@bensa.ath.cx>
+	<200409051659.10585.norberto+linux-kernel@bensa.ath.cx>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.46; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Fri, Sep 03, 2004 at 06:51:08PM +0100, Paulo Marques wrote:
+
+Plese do not edit To: or Cc: lines.  Just do reply-to-all when working with
+kernel developers.
+
+Norberto Bensa <norberto+linux-kernel@bensa.ath.cx> wrote:
+>
+>  Norberto Bensa wrote:
+>  > Ok, this is the output. I really hope it's usefull.
+>  >
+>  > 746>] default_wake_function+0x0/0x12
+>  >  [<c0111746>] default_wake_function+0x0/0x12
+>  >  [<c0111828>] complete+0x1a/0x24
 > 
->>Could you send me the .tmp_kallsyms2.S and System.map files from
->>this kernel build, please, please, please?
->>I really want to address this problem, but without hardware and
->>without more information I'm a little in the dark (although
->>looking at the resulting names already gives some clues).
->>Also, doing a "cat /proc/kallsyms" shows the same kind of behavior,
->>doesn't it? (just to be sure)
+>  [SNIPPED]
 > 
-> 
-> cat /proc/kallsyms also exhibits this problem.
-> 
-> The data will appear shortly at:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/wli/misc/kallsyms2.S-sparc64.gz
-> ftp://ftp.kernel.org/pub/linux/kernel/people/wli/misc/System.map-2.6.9-rc1-mm3-sparc64.gz
+>  No words has been said about this issue. Do you need more info to track this 
+>  problem? Attached my .config file in case it is needed.
 
-Thank for all the information!
-
-Looking at the data I found out that the "_up_up_up" is in fact the
-token with code "0", which means that the token "0" was being used a
-lot more than the others.
-
-This pointed me in the direction of the bug.
-
-My error was to assume the .word assembler directive meant a 16-bit
-unsigned integer, when in fact it depends on the architecture and is
-32 bits on sparc :(
-
-This one liner should solve the problem.
-
-Please verify that in fact it does solve it, and I'll send a proper
-"[PATCH]" message to be included in the next version.
-
--- 
-Paulo Marques - www.grupopie.com
-
-To err is human, but to really foul things up requires a computer.
-Farmers' Almanac, 1978
-
---- linux-2.6.9-rc1-mm3/scripts/kallsyms.c      2004-09-05 21:51:14.000000000 +0100
-+++ linux-2.6.9-rc1-kall/scripts/kallsyms.c     2004-09-05 21:52:38.000000000 +0100
-@@ -303,7 +303,7 @@ write_src(void)
-
-         output_label("kallsyms_token_index");
-         for (i = 0; i < 256; i++)
--               printf("\t.word\t%d\n", best_idx[i]);
-+               printf("\t.short\t%d\n", best_idx[i]);
-         printf("\n");
-  }
+It seems to be a bug related to O_SYNC writes on XFS.  Apparently an O_SYNC
+write deadlocks immediately.  I'll take a look later, see where the bug was
+introduced.
 

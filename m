@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266673AbRHGPI3>; Tue, 7 Aug 2001 11:08:29 -0400
+	id <S267579AbRHGPH3>; Tue, 7 Aug 2001 11:07:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267615AbRHGPIU>; Tue, 7 Aug 2001 11:08:20 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:48402 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S266673AbRHGPIO>;
-	Tue, 7 Aug 2001 11:08:14 -0400
-Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick_streefland@tasking.com
-Organization: Altium BV
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT
- 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D
- XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R"
- 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-In-Reply-To: <22369.996603164@ISI.EDU>
-In-Reply-To: <22369.996603164@ISI.EDU>
-From: dick.streefland@altium.nl (Dick Streefland)
-Subject: Re: OT: Virii on vger.kernel.org lists
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=us-ascii
-Message-Id: <20010807150741.4A69A38B27@kemi.tasking.nl>
-Date: Tue,  7 Aug 2001 17:07:41 +0200 (MEST)
+	id <S266914AbRHGPHT>; Tue, 7 Aug 2001 11:07:19 -0400
+Received: from paloma12.e0k.nbg-hannover.de ([62.159.219.12]:48324 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S266673AbRHGPHG>; Tue, 7 Aug 2001 11:07:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: DRM Linux kernel merge (update) needed, soon.
+Date: Tue, 7 Aug 2001 17:05:16 +0200
+X-Mailer: KMail [version 1.2.3]
+In-Reply-To: <E15U7xS-00030p-00@the-village.bc.nu>
+In-Reply-To: <E15U7xS-00030p-00@the-village.bc.nu>
+Cc: DRI-Devel <dri-devel@lists.sourceforge.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010807150711Z266673-28344+2406@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Craig Milo Rogers <rogers@ISI.EDU> wrote:
-| 	Better than that, simply strip all non-text MIME attachments,
-| or bounce the messages containing them.  End of story.
+Am Dienstag, 7. August 2001 16:35 schrieben Sie:
+> > the Linux kernel DRM stuff need a merge (update), soon.
+>
+> The XFree DRM needs fixing first. Try running the current XFree 4.1 DRI
+> with slab poisoning enabled and its not pretty.
 
-.... and don't forget to check for lines starting with "begin  ":
+Yes, that's why I asking for fixing the DRI CVS trunk stuff like your latest 
+Linux kernel stuff, first and after that merge it into (your) kernel tree.
 
-  http://support.microsoft.com/support/kb/articles/Q265/2/30.ASP
+Thanks,
+	Dieter
 
--- 
-Dick Streefland                      ////                      Altium BV
-dick.streefland@altium.nl           (@ @)          http://www.altium.com
---------------------------------oOO--(_)--OOo---------------------------
-.

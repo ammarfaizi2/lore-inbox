@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265728AbSKAUIB>; Fri, 1 Nov 2002 15:08:01 -0500
+	id <S265733AbSKAUP2>; Fri, 1 Nov 2002 15:15:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265729AbSKAUIB>; Fri, 1 Nov 2002 15:08:01 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:24502 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265728AbSKAUIA>;
-	Fri, 1 Nov 2002 15:08:00 -0500
-Date: Fri, 1 Nov 2002 20:14:14 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Charlie Krasic <krasic@acm.org>
-Cc: Dan Kegel <dank@kegel.com>, Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
-Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
-Message-ID: <20021101201414.GB1654@bjl1.asuk.net>
-References: <Pine.LNX.4.44.0210311043380.1562-100000@blue1.dev.mcafeelabs.com> <3DC2BCF5.5010607@kegel.com> <20021101191643.GA1471@bjl1.asuk.net> <xu43cqlys2r.fsf@turing.cse.ogi.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <xu43cqlys2r.fsf@turing.cse.ogi.edu>
-User-Agent: Mutt/1.4i
+	id <S265734AbSKAUP2>; Fri, 1 Nov 2002 15:15:28 -0500
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:60959 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S265733AbSKAUP1>; Fri, 1 Nov 2002 15:15:27 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jos Hulzink <josh@stack.nl>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       "Grover, Andrew" <andrew.grover@intel.com>
+Subject: Re: 2.5.45 build failed with ACPI turned on
+Date: Fri, 1 Nov 2002 22:21:56 +0100
+User-Agent: KMail/1.4.3
+Cc: Robert Varga <nite@hq.alert.sk>, linux-kernel@vger.kernel.org
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A498@orsmsx119.jf.intel.com> <20021101194711.GB714@suse.de>
+In-Reply-To: <20021101194711.GB714@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211012221.56346.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charlie Krasic wrote:
-> I would like to see a new kind of nonblocking flag that implies the
-> use of epoll.  So instead of giving O_NONBLOCK to fctnl(F_SETFL), you
-> give O_NONBLOCK_EPOLL.  In addition to becoming non-blocking, the
-> socket is added to epoll interest set.  Furthermore, if the socket is
-> a "listener" socket, all connections accepted on the socket inherit
-> the non-blocking status and are added automatically to the same epoll
-> interest set.  It's true that this can get silly though.  I'd like to
-> do the same with other flags, like TCP_CORK.
+On Friday 01 November 2002 20:47, Dave Jones wrote:
+> On Fri, Nov 01, 2002 at 11:37:26AM -0800, Grover, Andrew wrote:
+>  > ACPI implements PM but that's not all it implements. Is making CONFIG_PM
+>  > true if ACPI or APM are on a viable option? I think that would more
+>  > accurately reflect reality.
+>  >
+>  > Or can we get rid of CONFIG_PM?
+>
+> I'm not sure of places that do it off the top of my head, but
+> CONFIG_PM would save us having to do ugly CONFIG_APM || CONFIG_ACPI
+> tests.
 
-... and close-on-exec.
+This seems to be true from what I have seen of the source so far.
 
--- Jamie
+I'm thinking....
+
+ACPI is more than Power Management. The fact that a system supports ACPI does 
+not mean that the user wants to use power management. On the other hand, I 
+see no reason why a user does NOT want a system to auto poweroff, and sleep 
+and suspend are easy to configure in BIOS, or by linux tools. (Does Linux 
+take over the BIOS settings for suspend & sleep ? Don't use them, so 
+donnow....) What I wanna say: I think it is okay if CONFIG_PM is replaced by 
+CONFIG_APM || CONFIG_ACPI
+
+Other issue: Are ACPI and APM not mutually exclusive ? If so, I would propose 
+a selection box: <ACPI> <APM> <none> with related options shown below. Hmzz.. 
+there the issue of the fact that ACPI is more than power management shows up 
+again.
+
+And well... CONFIG_APM || CONFIG_ACPI might look ugly to you, I think it isn't 
+that bad, besides, you gain a lot from the configuration side. IMHO 
+configuring the kernel has become hard enough with the new input layer 
+already :( Maybe it is time for a "[ ] show expert options" in the 
+configuration tool... 
+
+Jos
+

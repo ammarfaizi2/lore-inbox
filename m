@@ -1,78 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266519AbUJLRjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267478AbUJLRjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266519AbUJLRjH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 13:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUJLRib
+	id S267478AbUJLRjF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 13:39:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266245AbUJLRit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 13:38:31 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:43913 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S266519AbUJLRdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 13:33:46 -0400
-Date: Tue, 12 Oct 2004 19:33:44 +0200
-To: linux-kernel@vger.kernel.org
-Cc: debian-alpha@lists.debian.org
-Subject: 2.4.27, alpha arch, make bootimage and make bootpfile fails
-Message-ID: <20041012173344.GA21846@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Tue, 12 Oct 2004 13:38:49 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22943 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266236AbUJLRec
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 13:34:32 -0400
+Message-ID: <416C159A.8040907@pobox.com>
+Date: Tue, 12 Oct 2004 13:34:18 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Lord <lkml@rtr.ca>
+CC: James Bottomley <James.Bottomley@SteelEye.com>,
+       Christoph Hellwig <hch@infradead.org>, Mark Lord <lsml@rtr.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
+References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@i		nfradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<4165A	4	5D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.ca>		<4	165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca>		<20041007221537.A17	712@infradead.org>	<1097241583.2412.15.camel@mulgrave>		<4166AF2F.6070904@rtr.ca> <1097249266.1678.40.camel@mulgrave>		<4166B48E.3020006@rtr.ca> <1097250465.2412.49.camel@mulgrave> 	<416C0D55.1020603@rtr.ca> <1097601478.2044.103.camel@mulgrave> <416C12CC.1050301@rtr.ca>
+In-Reply-To: <416C12CC.1050301@rtr.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello kernel Gurus!
+Mark Lord wrote:
+> James Bottomley wrote:
+>  >
+> 
+>> So, it's perfectly legal to call schedule_work from within the work
+>> queue function, because all you do is add the work to the list for the
+>> daemon thread to execute when it gets to it.  There's nothing
+>> synchronous about a workqueue.  If a work function sleeps, then its
+>> true, it takes the worker thread longer to get to the next work item,
+>> but as long as the work function awakes, it will get there.
+> 
+> 
+> Good.  That is exactly how I suspected it worked.
+> In which case, deadlock *will* happen in the scenario described,
+> and the qstor driver should therefore NOT use schedule_work()
+> as the means of invoking the scsi_add_device()/scsi_remove_device()
+> functions.  A separate thread appears needed.
 
-[debian/woody on alpha sx165/lx164, gcc-3.3.4]
+Did you read my message???
 
-We need to netboot our alphas (because booting from the SCSI controllers
-is not an option, they are not supported by the SRM console) and I try
-to make a bootp image of our kernel.
+QStor doesn't do domain validation, which is the only place where the 
+SCSI core also calls schedule_work().
 
-When doing this on our alpha the
-	make bootimage
-and the 
-	make bootpfile
-both bail out with:
-make[1]: Entering directory `/usr/src/linux-2.4.27/arch/alpha/boot'
-tools/objstrip -v /usr/src/linux-2.4.27/vmlinux vmlinux.nh
-tools/objstrip: extracting 0xfffffc0000310000-0xfffffc00005cfef8 (at
-2000)
-tools/objstrip: copying 2883320 byte from /usr/src/linux-2.4.27/vmlinux
-tools/objstrip: zero-filling bss and aligning to 0 with 393432 bytes
-echo "#define KERNEL_SIZE `ls -l vmlinux.nh | awk '{print $5}'`" >
-ksize.hT
-cmp -s ksize.hT ksize.h || mv -f ksize.hT ksize.h
-rm -f ksize.hT
-ld -static -T bootloader.lds  head.o main.o
-/usr/src/linux-2.4.27/arch/alpha/lib/lib.a
-/usr/src/linux-2.4.27/lib/lib.a
-/usr/src/linux-2.4.27/arch/alpha/lib/lib.a -o bootloader
-/usr/src/linux-2.4.27/lib/lib.a(vsprintf.o): In function `vsnprintf':
-vsprintf.o(.text+0xcd4): undefined reference to `printk'
-vsprintf.o(.text+0xcdc): undefined reference to `printk'
-/usr/src/linux-2.4.27/lib/lib.a(dump_stack.o): In function `dump_stack':
-dump_stack.o(.text+0x10): undefined reference to `printk'
-dump_stack.o(.text+0x1c): undefined reference to `printk'
-make[1]: *** [bootloader] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.27/arch/alpha/boot'
-make: *** [bootimage] Error 2
+Your conclusion is incorrect AFAICS.
 
-and similar with bootpfile
 
-Is there a way around this, we definitely need the bootp image.
+> As part of handling the command in the LLD, the qstor_intr() handler
+> may use a (schedule_work) function to perform bottom-half processing
+> for that very same command.  If the worker thread is stuck sleeping
+> in the mid-layer, then it will never get around to the qstor bottom-half
+> processing that is needed to complete the original activity.
+> 
+> Dead-lock.
+> 
+> Right?
 
-Thanks a lot and all the best
+If you are creating a deadlock within your own driver, that's a separate 
+issue.  There is no deadlock with the SCSI core.
 
-Norbert
+However...  tasklets are for bottom-half processing, not threads.
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-SCREEB (n.)
-To make the noise of a nylon anorak rubbing against a pair of corduroy
-trousers.
-			--- Douglas Adams, The Meaning of Liff
+	Jeff
+
+

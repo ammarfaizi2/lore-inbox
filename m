@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264362AbTDKN6N (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 09:58:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTDKN6N (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 09:58:13 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:62886
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264362AbTDKN6M (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 09:58:12 -0400
-Subject: Re: kernel support for non-English user messages
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: Riley Williams <Riley@Williams.Name>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200304111339.h3BDdcDR000919@81-2-122-30.bradfords.org.uk>
-References: <200304111339.h3BDdcDR000919@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050066695.14154.22.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Apr 2003 14:11:36 +0100
+	id S264363AbTDKOJt (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 10:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbTDKOJt (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 10:09:49 -0400
+Received: from modemcable169.130-200-24.mtl.mc.videotron.ca ([24.200.130.169]:56947
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264363AbTDKOJt (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 10:09:49 -0400
+Date: Fri, 11 Apr 2003 10:14:30 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH][2.4] smp_call_function needs mb()
+In-Reply-To: <Pine.LNX.4.50.0304110945240.540-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.50.0304111013480.540-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0304110945240.540-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-04-11 at 14:39, John Bradford wrote:
-> Wouldn't we be better off just more fully documenting the English
-> error messages, though, and possibly translating that explaination
-> document in to as many languages as possible?  A lot of people search
-> for error messages strings in the LKML archives, and variations of the
-> same string will hinder this.
+Oops i ended up including the 2.5 patch in the same email. This one should 
+be fine to pipe through patch.
 
-I don't think thats going to happen much. And to document them you have
-enumerate them so its still the same problem space strangely enough
+Index: linux-2.4.20/arch/i386/kernel/smp.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.4.20/arch/i386/kernel/smp.c,v
+retrieving revision 1.2
+diff -u -p -B -r1.2 smp.c
+--- linux-2.4.20/arch/i386/kernel/smp.c	11 Apr 2003 13:44:11 -0000	1.2
++++ linux-2.4.20/arch/i386/kernel/smp.c	11 Apr 2003 13:44:27 -0000
+@@ -563,7 +563,7 @@ int smp_call_function (void (*func) (voi
+ 
+ 	spin_lock(&call_lock);
+ 	call_data = &data;
+-	wmb();
++	mb();
+ 	/* Send a message to all other CPUs and wait for them to respond */
+ 	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
+ 
 
-
+-- 
+function.linuxpower.ca

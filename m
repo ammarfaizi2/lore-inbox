@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbULZLAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbULZLVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbULZLAF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 06:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbULZLAF
+	id S261632AbULZLVN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 06:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbULZLVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 06:00:05 -0500
-Received: from mail.linicks.net ([217.204.244.146]:2052 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261622AbULZLAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 06:00:01 -0500
-From: Nick Warne <nick@linicks.net>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: 2.6.10 typo in include/linux/netfilter.h
-Date: Sun, 26 Dec 2004 10:59:57 +0000
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <200412260917.38717.nick@linicks.net> <20041226023200.1bbf594d.davem@davemloft.net>
-In-Reply-To: <20041226023200.1bbf594d.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 26 Dec 2004 06:21:13 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:42217 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261632AbULZLVK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 06:21:10 -0500
+Subject: Re: [2.6 patch] net/bluetooth/: misc possible cleanups
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Max Krasnyansky <maxk@qualcomm.com>, bluez-devel@lists.sf.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Network Development Mailing List <netdev@oss.sgi.com>
+In-Reply-To: <20041219160758.GY21288@stusta.de>
+References: <20041214041352.GZ23151@stusta.de>
+	 <1103009649.2143.65.camel@pegasus>  <20041219160758.GY21288@stusta.de>
+Content-Type: text/plain
+Date: Sun, 26 Dec 2004 12:20:18 +0100
+Message-Id: <1104060018.8758.51.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412261059.57661.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 December 2004 10:32, David S. Miller wrote:
+Hi Adrian,
 
-> > Line 161
-> >
-> > /* Call setsockopt() */
-> > int nf_setsockopt(struct sock *sk, int pf, int optval, char __user *opt,
-> >                   int len(;  <-------
->
-> That doesn't exist in the 2.6.10 sources.  Something is
-> up with the source tree you have.  Lots of people would
-> be complaining if this simplistic error were actually
-> in the real 2.6.10 tree.
+> > > Please comment on which of these changes are correct and which conflict 
+> > > with pending patches.
+> > 
+> > Please send a separate patch for all the RFCOMM changes, because these
+> > conflicts with some pending patches and then it will make it easier for
+> > me to merge them.
+> > 
+> > The rest of the changes are fine with me, but I like to see also a
+> > separate patch for the CMTP stuff and cmtp_send_capimsg() don't need a
+> > forward declaration. Simply move the function to another place in the
+> > source code.
+> 
+> splitted patches follow as reply to this email.
 
-Yes, I thought strange, but this is the full tar.bz2 from kernel.org - I 
-downloaded this morning about 2 hours ago.
+all of them are applied to my tree now. Thanks.
 
-http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.10.tar.bz2
+Regards
 
-Nick
+Marcel
 
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+

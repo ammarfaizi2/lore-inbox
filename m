@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314069AbSDKOPy>; Thu, 11 Apr 2002 10:15:54 -0400
+	id <S314070AbSDKOQQ>; Thu, 11 Apr 2002 10:16:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314070AbSDKOPx>; Thu, 11 Apr 2002 10:15:53 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:17158 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S314069AbSDKOPx>; Thu, 11 Apr 2002 10:15:53 -0400
-Message-Id: <200204111413.g3BEDPX10672@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Subject: Re: New IDE code and DMA failures
-Date: Thu, 11 Apr 2002 17:17:50 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200204111236.g3BCaMX10247@Port.imtp.ilyichevsk.odessa.ua> <200204111341.g3BDfJX10546@Port.imtp.ilyichevsk.odessa.ua> <3CB5872B.9090708@evision-ventures.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S314071AbSDKOQP>; Thu, 11 Apr 2002 10:16:15 -0400
+Received: from sebula.traumatized.org ([193.121.72.130]:30085 "EHLO
+	sparkie.is.traumatized.org") by vger.kernel.org with ESMTP
+	id <S314070AbSDKOQO>; Thu, 11 Apr 2002 10:16:14 -0400
+Date: Thu, 11 Apr 2002 16:08:38 +0200
+From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
+To: linux-kernel@vger.kernel.org
+Subject: Re: arch/sparc64/kernel/traps.c
+Message-ID: <20020411140838.GE7545@sparkie.is.traumatized.org>
+In-Reply-To: <20020409212000.GK9996@sparkie.is.traumatized.org> <200204110547.g3B5l3X08802@Port.imtp.ilyichevsk.odessa.ua> <20020411103444.GA7280@sparkie.is.traumatized.org> <200204111249.g3BCnnX10316@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i (Linux 2.4.19-pre5 sparc64)
+X-Files: the truth is out there
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 April 2002 10:52, Martin Dalecki wrote:
-> >>3. Some timeout values got increased to more generally used values (in
-> >> esp. IBM microdrives advice about timeout values. Could you see whatever
-> >> the data doesn't eventually go to the disk after georgeous
-> >>    amounts of time.
-> >
-> > Erm.. my English comprehension fails here... do you say my disk
-> > does not like bigger timeouts?
->
-> Please just wait and look whatever the driver actually recovers (can be
-> minutes...)
+On Thu, Apr 11, 2002 at 03:00:14PM +0200, Denis Vlasenko wrote:
+> 
+> >it all looks like the new version to me
+> 
+> Double check that you built ksymoops against these libs, not older ones.
+> Even if you deleted them, you may still be using old ksymoops binary!
 
-I tried that just today. Continued to work despite kupdated hung
-in "D" state. After a long while box box froze. SysRq-B worked though.
+i don't have an old ksymoops binary :) it just did not want to
+compile until i removed the old binutils, and installed the new
+version.
 
-In my first report to lkml I told that live disconnect of hdc
-cured "D" state processes (yes I know I risk burning my southbridge...).
-Do you want me to mail it again (there is ksymoopsed SysRq-T)?
+just to be sure, i removed the source dir for ksymoops, unpacked it
+again, recompiled, and ran it from thre. same result.
 
-> >  unmaskirq    =  1 (on)
-> Could you try to disable this please? This can cause trouble
-> as well.
 
-Will try this, but I don't specifically seek to eliminate freezes,
-I want to help debug new IDE code so that it will be no worse
-than 2.4 in this failure mode. I don't want to eliminate DMA failures,
-I _want to have them_ to see what IDE code will do.
---
-vda
+i think i'll just let it rest, and give it another go next time i get
+an oops :) so far my box seems to be running as i expect it to run,
+so i won't worry too much about it.
+unless one of the developers really needs it :)
+
+best regards,
+Jurgen.

@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130409AbRCBLHz>; Fri, 2 Mar 2001 06:07:55 -0500
+	id <S130410AbRCBLI0>; Fri, 2 Mar 2001 06:08:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130410AbRCBLHq>; Fri, 2 Mar 2001 06:07:46 -0500
-Received: from jalon.able.es ([212.97.163.2]:5255 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S130409AbRCBLHZ>;
-	Fri, 2 Mar 2001 06:07:25 -0500
-Date: Fri, 2 Mar 2001 12:07:12 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [OT] style-curiosity
-Message-ID: <20010302120712.C4416@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.21.0103021010570.1338-100000@penguin.homenet> <Pine.LNX.4.21.0103021053290.1338-100000@penguin.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.21.0103021053290.1338-100000@penguin.homenet>; from tigran@veritas.com on Fri, Mar 02, 2001 at 11:55:39 +0100
-X-Mailer: Balsa 1.1.1
+	id <S130411AbRCBLIQ>; Fri, 2 Mar 2001 06:08:16 -0500
+Received: from inpbox.inp.nsk.su ([193.124.167.24]:5761 "EHLO
+	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP
+	id <S130410AbRCBLII>; Fri, 2 Mar 2001 06:08:08 -0500
+Date: Fri, 2 Mar 2001 16:56:37 +0600
+From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Reply-To: D.A.Fedorov@inp.nsk.su
+To: linux-kernel@vger.kernel.org
+Subject: Re: ftruncate not extending files?
+In-Reply-To: <20010302084544.A26070@home.ds9a.nl>
+Message-ID: <Pine.SGI.4.10.10103021611250.3250157-100000@Sky.inp.nsk.su>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2 Mar 2001, bert hubert wrote:
 
-On 03.02 Tigran Aivazian wrote:
-> +	c = misc_list.next;
-> +	while (c != &misc_list) {
-> +		if (c->minor == misc->minor) {
-> +			up(&misc_sem);
-> +			return -EBUSY;
-> +		}
->  		c = c->next;
-> -	if (c == &misc_list) {
-> -		up(&misc_sem);
-> -		return -EBUSY;
->  	}
+> > ftruncate() and truncate() may extend a file but they are not required to
+> > do so.
+> 
+> I would've sworn, based on the fact that I saw people do it, that ftruncate
+> was a legitimate way to extend a file - especially useful in combination
+> with mmap().
 
-Just a matter of style and curiosity.
+lseek and write does it already and need not to duplicate with truncate().
+Using truncate() to extend a file sounds very strange.
 
-Would you kernel programmers consider this 'bad C' (I usually see this
-much more clear...)
+About mmap() SUSv2 says:
 
-for (c = misc_list.next; c != &misc_list; c = c->next)
-{
-	if (c->minor == misc->minor) {
-		up(&misc_sem);
-		return -EBUSY;
-	}	
-}
+If the size of the mapped file changes after the call to mmap() as a
+result of some other operation on the mapped file, the effect of
+references to portions of the mapped region that correspond to added or
+removed portions of the file is unspecified.
+                                ^^^^^^^^^^^
+What do you mean about "useful in combination with mmap()" ?
 
-Has any effect on output assembly ?
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+> I don't really care where it is done, in glibc or in the kernel - but let's
+> honor this convention and not needlessly break code.
 
-Linux werewolf 2.4.2-ac7 #1 SMP Fri Mar 2 02:36:23 CET 2001 i686
+Let's don't connive to ill-formed programs.
+
+--
 

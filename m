@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129606AbQJ0SxR>; Fri, 27 Oct 2000 14:53:17 -0400
+	id <S129256AbQJ0Sx1>; Fri, 27 Oct 2000 14:53:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129392AbQJ0SxH>; Fri, 27 Oct 2000 14:53:07 -0400
-Received: from proxy.ovh.net ([213.244.20.42]:2567 "HELO proxy.ovh.net")
-	by vger.kernel.org with SMTP id <S129256AbQJ0Sws>;
-	Fri, 27 Oct 2000 14:52:48 -0400
-Message-ID: <39F9CEF3.2BE915D9@ovh.net>
-Date: Fri, 27 Oct 2000 20:52:35 +0200
-From: octave klaba <oles@ovh.net>
-X-Mailer: Mozilla 4.73 [en] (Win98; I)
-X-Accept-Language: fr,en
+	id <S129392AbQJ0SxR>; Fri, 27 Oct 2000 14:53:17 -0400
+Received: from shell.webmaster.com ([209.133.28.73]:40185 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S129256AbQJ0SxI>; Fri, 27 Oct 2000 14:53:08 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Jason Wohlgemuth" <jswkernel@triad.rr.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: GPL Question
+Date: Fri, 27 Oct 2000 11:53:06 -0700
+Message-ID: <NCBBLIEPOCNJOAEKBEAKMEJFLIAA.davids@webmaster.com>
 MIME-Version: 1.0
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-net@vger.kernel.org
-Subject: Re: VM-global-2.2.18pre17-7
-In-Reply-To: <Pine.LNX.4.05.10010271651240.14633-100000@marina.lowendale.com.au> <Pine.LNX.4.21.0010271124550.5338-100000@freak.distro.conectiva> <20001027181344.B1248@niksula.cs.hut.fi>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <39F9AF0E.70406@triad.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Now, if a module is loaded that registers a set of functions that have
+> increased functionality compared to the original functions, if that
+> modules is not based off GPL'd code, must the source code of that module
+> be released under the GPL?
 
-> The Becker's driver from ftp://ftp.scyld.com/pub/network/eepro100.c cures
-> the error messages, 
-yes. even is setup is not clean, it seems to work with 24-25Mbs since
-I have no errors.
+	If the answer to this is "yes", then Microsoft should own some rights to
+every piece of software that uses the Windows API.
 
-> but the network still stalls, and worse yet, seems to
-> stall forever (as opposed to few minutes with 2.2.18pre17 driver).
-after 2h it still works. maybe it will crash later. check it later.
+	DS
 
-octave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

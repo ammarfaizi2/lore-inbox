@@ -1,46 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130552AbQLEESG>; Mon, 4 Dec 2000 23:18:06 -0500
+	id <S131092AbQLEETg>; Mon, 4 Dec 2000 23:19:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130579AbQLEER4>; Mon, 4 Dec 2000 23:17:56 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:33994 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130552AbQLEERv>;
-	Mon, 4 Dec 2000 23:17:51 -0500
-Date: Mon, 4 Dec 2000 22:42:06 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Alan Cox <alan@redhat.com>,
-        Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
-        MOLNAR Ingo <mingo@chiara.elte.hu>
-Subject: Re: test12-pre5
-In-Reply-To: <Pine.LNX.4.10.10012041906510.2047-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0012042232220.7166-100000@weyl.math.psu.edu>
+	id <S131091AbQLEET0>; Mon, 4 Dec 2000 23:19:26 -0500
+Received: from SMTP3.ANDREW.CMU.EDU ([128.2.10.83]:27334 "EHLO
+	smtp3.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S130579AbQLEETQ>; Mon, 4 Dec 2000 23:19:16 -0500
+Date: Mon, 4 Dec 2000 22:48:48 -0500 (EST)
+From: Frank Davis <fdavis@andrew.cmu.edu>
+To: linux-kernel@vger.kernel.org
+cc: fdavis112@juno.com, torvalds@transmeta.com
+Subject: test12-pre5: drivers/net/dummy.c compile error
+Message-ID: <Pine.SOL.3.96L.1001204224708.1737A-100000@unix13.andrew.cmu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+    The drivers/net/dummy.c compile error still exists..Looks like the
+module.h patch wasn't included.
 
+Regards,
+Frank
+ 
 
-On Mon, 4 Dec 2000, Linus Torvalds wrote:
-
-> 
-> Ok, this contains one of the fixes for the dirty inode buffer list (the
-> other fix is pending, simply because I still want to understand why it
-> would be needed at all). Al?
-
-See previous posting. BTW, -pre5 doesn't do the right thing in clear_inode().
-
-Scenario: bh of indirect block is busy (whatever reason, flush_dirty_buffers(),
-anything that can bump ->b_count for a while). ext2_truncate() frees the
-thing and does bforget(). bh is left on the inode's list. Woops...
-
-The minimal fix would be to make clear_inode() empty the list. IMO it's
-worse than preventing the freed stuff from being on that list...
-
-Comments?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

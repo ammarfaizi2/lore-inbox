@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVB0T2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVB0T2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbVB0T2H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 14:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVB0T2G
+	id S261478AbVB0T2t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 14:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVB0T2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 14:28:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26002 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261476AbVB0T2C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 14:28:02 -0500
-Date: Sun, 27 Feb 2005 14:27:55 -0500
-From: Dave Jones <davej@redhat.com>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Jean-Marc Valin <Jean-Marc.Valin@usherbrooke.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 bug
-Message-ID: <20050227192755.GA844@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Parag Warudkar <kernel-stuff@comcast.net>,
-	Jean-Marc Valin <Jean-Marc.Valin@usherbrooke.ca>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1109487896.8360.16.camel@localhost> <200502271406.30690.kernel-stuff@comcast.net>
+	Sun, 27 Feb 2005 14:28:48 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:3210
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261478AbVB0T2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 14:28:45 -0500
+Date: Sun, 27 Feb 2005 11:27:12 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: kaigai@ak.jp.nec.com, akpm@osdl.org, davem@redhat.com, jlan@sgi.com,
+       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+Message-Id: <20050227112712.4ade67ac.davem@davemloft.net>
+In-Reply-To: <20050227140355.GA23055@logos.cnet>
+References: <42168D9E.1010900@sgi.com>
+	<20050218171610.757ba9c9.akpm@osdl.org>
+	<421993A2.4020308@ak.jp.nec.com>
+	<421B955A.9060000@sgi.com>
+	<421C2B99.2040600@ak.jp.nec.com>
+	<421CEC38.7010008@sgi.com>
+	<421EB299.4010906@ak.jp.nec.com>
+	<20050224212839.7953167c.akpm@osdl.org>
+	<20050227094949.GA22439@logos.cnet>
+	<4221E548.4000008@ak.jp.nec.com>
+	<20050227140355.GA23055@logos.cnet>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502271406.30690.kernel-stuff@comcast.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 27, 2005 at 02:06:30PM -0500, Parag Warudkar wrote:
- > On Sunday 27 February 2005 02:04 am, Jean-Marc Valin wrote:
- > > Hi,
- > >
- > > Looks like I ran into an ext3 bug (or at least the log says so). I got a
- > > bunch of messages like:
- > > ext3_free_blocks_sb: aborting transaction: Journal has aborted in
- > > __ext3_journal_get_undo_access<2>EXT3-fs error (device sda2) in
- > > ext3_free_blocks_sb: Journal has aborted
- > > EXT3-fs error (device sda2): ext3_free_blocks: Freeing blocks in system
- > > zones -Block = 228, count = 1
- > >
- > > It happened while I was doing an "rm -rf" on a directory. The "rm" gave
- > > a segfault and now I can't unmount the filesystem: unmount says "device
- > > is busy", even though lsof reports nothing. The filesystem is on a USB
- > > hard disk. The actual dump is in attachment. I'm running Debian unstable
- > > with a custom 2.6.10 kernel on a 1.6 GHz Pentium-M.
- > >
- > > 	Jean-Marc
- > 
- > Please try stock kernel. 2.6.11-rc3 onwards should be fine. - I saw a similar 
- > problem while running 2.6.10 kernel from Fedora Core 3. It doesn't happen 
- > with stock kernels.
+On Sun, 27 Feb 2005 11:03:55 -0300
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
 
-Which is very odd considering the only ext3 patches in the Fedora
-kernel are in 2.6.11rc.
+> Yep, the netlink people should be able to help - they known what would be
+> required for not sending messages in case there is no listener registered.
 
-		Dave
-
+Please CC: netdev@oss.sgi.com to get some netlink discussions
+going if wanted.

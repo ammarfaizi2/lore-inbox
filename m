@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262838AbSIPU2D>; Mon, 16 Sep 2002 16:28:03 -0400
+	id <S262856AbSIPUcT>; Mon, 16 Sep 2002 16:32:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262856AbSIPU2D>; Mon, 16 Sep 2002 16:28:03 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:63622 "EHLO
-	wookie-t23.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S262838AbSIPU2C>; Mon, 16 Sep 2002 16:28:02 -0400
-Subject: Re: Killing/balancing processes when overcommited
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L.0209161610370.1857-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44L.0209161610370.1857-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 16 Sep 2002 13:27:50 -0700
-Message-Id: <1032208070.2318.370.camel@wookie-t23.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S262891AbSIPUcT>; Mon, 16 Sep 2002 16:32:19 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:51394 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S262856AbSIPUcS>;
+	Mon, 16 Sep 2002 16:32:18 -0400
+Message-ID: <1032208634.3d8640fa2d8fd@kolivas.net>
+Date: Tue, 17 Sep 2002 06:37:14 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Possible addition to contest
+References: <Pine.LNX.3.96.1020916142511.6180C-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020916142511.6180C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-16 at 12:11, Rik van Riel wrote:
-> On 16 Sep 2002, Timothy D. Witham wrote:
-> > On Mon, 2002-09-16 at 07:03, Rik van Riel wrote:
-> 
-> > > > > 1) memory is exhausted
-> > > > > 2) the network driver can't allocate memory and
-> > > > >    spits out a message
-> > > > > 3) syslogd and/or klogd get killed
-> 
-> >   Not in what I had described.  Unless the page fault was for a new page
-> > (just malloc'ed) it wouldn't result in the killing of the process.
-> 
-> Unfortunately they do. Reality doesn't quite match your
-> description.
-> 
+Quoting Bill Davidsen <davidsen@tmr.com>:
 
-  I wasn't talking about the current situation I was talking about
-the pre-allocation method.
+> It would be nice to be able to add a short string to the kernel version
+> for identification, to differentiate between runs with the same kernel and
+> different tuning.
 
-Tim
+Easy fix. Will do. The original version you had to tell it which kernel you were
+running so I can add that as optional.
 
-> Rik
-> -- 
-> Bravely reimplemented by the knights who say "NIH".
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
-> Spamtraps of the month:  september@surriel.com trac@trac.org
--- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+> I've found that tuning often helps response, like reducing memory with
+> older rmap versions (ran for a while using mem=256m), or tuning bdflush
+> with -aa kernels, which I did after Andrea gave me some serious hints.
+> Just a short string added to the version would make this a bit easier to
+> follow after the fact.
+
+Perfectly reasonable. Be aware though that reducing mem will also change the
+write size of io loads in contest. Although this will test the VM's response to
+half and full size writes it will also decrease the size of IO load.
+
+Con.
 

@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263059AbUCXTKg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 14:10:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbUCXTKg
+	id S263803AbUCXTSM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 14:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbUCXTSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 14:10:36 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:15203 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S263059AbUCXTKc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 14:10:32 -0500
-Date: Wed, 24 Mar 2004 13:09:35 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: "Enhanced" MD code avaible for review
-Message-ID: <20040324190935.GA18057@lists.us.dell.com>
-References: <760890000.1079727553@aslan.btc.adaptec.com> <16479.50592.944904.708098@notabene.cse.unsw.edu.au> <2128160000.1080023015@aslan.btc.adaptec.com> <16480.61927.863086.637055@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
+	Wed, 24 Mar 2004 14:18:11 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:38112 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S263803AbUCXTSJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 14:18:09 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16480.61927.863086.637055@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16481.57068.392023.45359@napali.hpl.hp.com>
+Date: Wed, 24 Mar 2004 11:18:04 -0800
+To: John Reiser <jreiser@BitWagon.com>
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: Non-Exec stack patches
+In-Reply-To: <4061DB55.8070600@BitWagon.com>
+References: <20040323231256.GP4677@tpkurt.garloff.de>
+	<20040323154937.1f0dc500.akpm@osdl.org>
+	<20040324002149.GT4677@tpkurt.garloff.de>
+	<16480.55450.730214.175997@napali.hpl.hp.com>
+	<4060E24C.9000507@redhat.com>
+	<16480.59229.808025.231875@napali.hpl.hp.com>
+	<20040324070020.GI31589@devserv.devel.redhat.com>
+	<16481.13780.673796.20976@napali.hpl.hp.com>
+	<20040324072840.GK31589@devserv.devel.redhat.com>
+	<16481.15493.591464.867776@napali.hpl.hp.com>
+	<4061B764.5070008@BitWagon.com>
+	<16481.49534.124281.434663@napali.hpl.hp.com>
+	<4061DB55.8070600@BitWagon.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 24, 2004 at 01:26:47PM +1100, Neil Brown wrote:
-> On Monday March 22, gibbs@scsiguy.com wrote:
-> > One suggestion that was recently raised was to present these changes
-> > in the form of an alternate "EMD" driver to avoid any potential
-> > breakage of the existing MD.  Do you have any opinion on this?
-> 
-> I seriously think the best long-term approach for your emd work is to
-> get it integrated into md.  I do listen to reason and I am not
-> completely head-strong, but I do have opinions, and you would need to
-> put in the effort to convincing me.
+>>>>> On Wed, 24 Mar 2004 11:02:45 -0800, John Reiser <jreiser@BitWagon.com> said:
 
-I completely agree that long-term, md and emd need to be the same.
-However, watching the pain that the IDE changes took in early 2.5, I'd
-like to see emd be merged alongside md for the short-term while the
-kinks get worked out, keeping in mind the desire to merge them
-together again soon as that happens. 
+  >> Only one mprotect() call is needed to make the entire stack
+  >> executable.
 
-Thanks,
-Matt
+  John> mprotect() only works on the portion that is currently allocated.
+  John> If the stack grows, then another call is needed.
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+No, mprotect() on the entire stack will mark the vm_area with the
+desired protection and VM_GROWSDOWN/VM_GROWSUP will expand
+automatically with the new protection.  And if you want to expand the
+stack in user-level, e.g., by intercepting SIGSEGV, you'll either do
+an mmap() or mprotect() at any rate so there is zero extra cost there.
+
+	--david

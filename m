@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316039AbSFCNTS>; Mon, 3 Jun 2002 09:19:18 -0400
+	id <S316540AbSFCN3C>; Mon, 3 Jun 2002 09:29:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316355AbSFCNTS>; Mon, 3 Jun 2002 09:19:18 -0400
-Received: from watsol.cc.columbia.edu ([128.59.39.139]:55264 "EHLO
-	watsol.cc.columbia.edu") by vger.kernel.org with ESMTP
-	id <S316039AbSFCNTR>; Mon, 3 Jun 2002 09:19:17 -0400
-Date: Mon, 3 Jun 2002 09:19:15 -0400 (EDT)
-From: Adam Trilling <agt10@columbia.edu>
-To: bvermeul@devel.blackstar.nl
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.19/20] KDE panel (kicker) not starting up
-In-Reply-To: <Pine.LNX.4.33.0206031403190.24283-100000@devel.blackstar.nl>
-Message-ID: <Pine.GSO.4.44.0206030918120.21429-100000@watsol.cc.columbia.edu>
+	id <S316435AbSFCN3B>; Mon, 3 Jun 2002 09:29:01 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:36576 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S316434AbSFCN3A> convert rfc822-to-8bit;
+	Mon, 3 Jun 2002 09:29:00 -0400
+Message-Id: <200206031328.g53DSoQ00464@mail.pronto.tv>
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: Pronto TV AS
+To: Kasper Dupont <kasperd@daimi.au.dk>
+Subject: Re: SV: RAID-6 support in kernel?
+Date: Mon, 3 Jun 2002 15:28:49 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Christian Vik <cvik@vanadis.no>, linux-kernel@vger.kernel.org,
+        linux-raid@vger.kernel.org, dstephenson@snapserver.com
+In-Reply-To: <A2C65A3296DA4A4FB30DB57A9A464A16436851@exchange.lan.vanadis.no> <200206030959.g539xXb31139@mail.pronto.tv> <3CFB4E19.C916D938@daimi.au.dk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make sure you have read and write perms on your home directory.  I had
-that happen due to a misplaced chown -R once.
+> No problem for me I live in Europe.
 
-This is not a kernel question, however, and probably shouldn't be on this
-list.
-
-adam
-
-On Mon, 3 Jun 2002 bvermeul@devel.blackstar.nl wrote:
-
-> The KDE panel (kicker) from KDE 3.0 (RedHat 7.3 issue) refuses to start
-> up. I get a SIGPIPE in DCOP, and a SIGSEGV in kicker.
-> This looks like something changed in regards to permissions, 'cause when I
-> start KDE as root, it does work.
->
-> Does anyone know what's happening?
->
-> Regards,
->
-> Bas Vermeulen
->
-> --
-> "God, root, what is difference?"
-> 	-- Pitr, User Friendly
->
-> "God is more forgiving."
-> 	-- Dave Aronson
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+fine :-)
+Norge kaller :-)
 
 
-Adam Trilling
-agt10@columbia.edu
+There's some talk abuot different raid levels (including 6) here:
+http://www.pdl.cmu.edu/RAIDframe/raidframebook.pdf
 
+Hope this helps
 
-char m[9999],*n[99],*r=m,*p=m+5000,**s=n,d,c;main(){for(read(0,r,4000);c=*r;
-r++)c-']'||(d>1||(r=*p?*s:(--s,r)),!d||d--),c-'['||d++||(*++s=r),d||(*p+=c==
-'+',*p-=c=='-',p+=c=='>',p-=c=='<',c-'.'||write(2,p,1),c-','||read(2,p,1));}
+roy
 
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.

@@ -1,59 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281252AbRKMASi>; Mon, 12 Nov 2001 19:18:38 -0500
+	id <S281267AbRKMA06>; Mon, 12 Nov 2001 19:26:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281265AbRKMAS2>; Mon, 12 Nov 2001 19:18:28 -0500
-Received: from mail213.mail.bellsouth.net ([205.152.58.153]:11410 "EHLO
-	imf13bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281252AbRKMASL>; Mon, 12 Nov 2001 19:18:11 -0500
-Message-ID: <3BF066AE.C33EF2B0@mandrakesoft.com>
-Date: Mon, 12 Nov 2001 19:17:50 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@ns.caldera.de>
-CC: Matt_Domsch@Dell.com, linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] crc32 cleanups
-In-Reply-To: <200111122347.fACNl2I13494@ns.caldera.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281277AbRKMA0t>; Mon, 12 Nov 2001 19:26:49 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:51592 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281267AbRKMA0h>; Mon, 12 Nov 2001 19:26:37 -0500
+Date: Mon, 12 Nov 2001 17:26:31 -0700
+Message-Id: <200111130026.fAD0QVK13232@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Ben Israel <ben@genesis-one.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: File System Performance
+In-Reply-To: <20011112160822.E32099@mikef-linux.matchmail.com>
+In-Reply-To: <00b201c16b81$9d7aaba0$5101a8c0@pbc.adelphia.net>
+	<3BEFF9D1.3CC01AB3@zip.com.au>
+	<00da01c16ba2$96aeda00$5101a8c0@pbc.adelphia.net>
+	<3BF02702.34C21E75@zip.com.au>
+	<200111121959.fACJxsj08462@vindaloo.ras.ucalgary.ca>
+	<20011112150740.B32099@mikef-linux.matchmail.com>
+	<200111130004.fAD04v912703@vindaloo.ras.ucalgary.ca>
+	<20011112160822.E32099@mikef-linux.matchmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+Mike Fedyk writes:
+> On Mon, Nov 12, 2001 at 05:04:57PM -0700, Richard Gooch wrote:
+> > Mike Fedyk writes:
+> > > On Mon, Nov 12, 2001 at 12:59:54PM -0700, Richard Gooch wrote:
+> > > > Here's an idea: add a "--compact" option to tar, so that it creates
+> > > > *all* inodes (files and directories alike) in the base directory, and
+> > > > then renames newly created entries to shuffle them into their correct
+> > > > positions. That should limit the number of block groups that are used,
+> > > > right?
+> > > > 
+> > > > It would probably also be a good idea to do that for cp as well, so
+> > > > that when I do a "cp -al" of a virgin kernel tree, I can keep all the
+> > > > directory inodes together. It will make a cold diff even faster.
+> > > 
+> > > I don't think that would help at all... With the current file/dir
+> > > allocator it will choose a new block group for each directory no
+> > > matter what the parent is...
+> > 
+> > I thought the current implementation was that when creating a
+> > directory, ext2fs searches forward from the block group the parent
+> > directory is in, looking for a "relatively free" block group. So, a
+> > number of successive calls to mkdir(2) with the same parent directory
+> > will result in the child directories being in the same block group.
+> > 
+> > So, creating the directory tree by creating directories in the base
+> > directory and then shuffling should result in the directories be
+> > spread out over a modest number of block groups, rather than a large
+> > number.
+> > 
+> > Addendum to my scheme: leaf nodes should be created in their
+> > directories, not in the base directory. IOW, it's only directories
+> > that should use this trick.
+> > 
+> > Am I wrong in my understanding of the current algorithm?
 > 
-> In article <71714C04806CD5119352009027289217022C3F15@ausxmrr502.us.dell.com> you wrote:
-> > More crc32 cleanups.  I think this is pretty close to being finished, and
-> > would appreciate people taking a look at the drivers they use regularly.
-> > I've built all the drivers I can on x86, and have hand-verified the rest.
-> >
-> > Changes since last time:
-> > * remove all the request_module() calls I added last time.  If a driver
-> > needs crc32.o and it's a module, modprobe pulls it in automatically.
-> > * Create {fs,drivers/net,drivers/usb}/Makefile.lib.  In each, list modules
-> > as obj-$(CONFIG_FOO) += crc32.o.  In lib/Makefile, include each
-> > Makefile.lib.  This allows drivers to update the list local to themselves
-> > and not have to patch lib/Makefile.  This should satisfy Keith Owens'
-> > concern in this regard.
-> > * Added a whole new set of drivers, those based on 8390.o, to the list.
-> 
-> Do you really need that complicated conditional compilation?
-> IMHO it's a much better idea to always compile the crc routines in,
-> maybe a way to disable it explicitly could be added, though I'm
-> not sure about that one.
+> You are almost describing the new algo to a "T"...
 
-Feeping creaturism.  Sure we could compile it in unconditionally... 
-embedded people will grab matt's patch which allows conditional
-compilation and use that instead, as will people who aren't using
-crc32-related features.
+I assume you mean my scheme for tar. Which is an adaptation for
+user-space of a scheme that's been proposed for in-kernel ext2fs.
 
-The list of modules including crc32.o is definitely ugly but its just
-more kernel bloat for those who don't need it.
+> It deals very well with fast growth, but not so well with slow
+> growth, as mentioned in previous posts in this thread...
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+Yes, yes. I know that.
 
+> There is a lengthy thread in ext2-devel right now, if you read it
+> it'll answer many of your questions.
+
+Is this different from the long thread that's been on linux-kernel?
+
+Erm, I'm not really asking a bunch of questions. The only question I
+asked was whether I mis-read the current code, and that in turn is a
+response to your assertion that my scheme would not help, as part of
+an explanation of why it should work. Which you haven't responded to.
+If you claim my tar scheme wouldn't help, then you're also saying that
+the new algorithm for ext2fs won't help. Is that what you meant to
+say?
+
+In any case, my point (I think you missed it, although I guess I
+didn't make it explicit) was that, rather than tuning the in-kernel
+algorithm for this fast-growth scenario, we may be better off adding
+an option to tar so we can make the choice in user-space. From the
+posts that I've seen, it's not clear that we have an obvious choice
+for a scheme that works well for both slow and fast growth cases.
+
+Having an option for tar would allow the user to make the choice.
+Ultimately, the user knows best (or at least can, if they care enough
+to sit down and think about it) what the access patterns will be.
+
+However, I see that people are banging away at figuring out a generic
+in-kernel mechanism that will work with both slow and fast growth
+cases. We may see something good come out of that.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

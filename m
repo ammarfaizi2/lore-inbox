@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261717AbSI0OrE>; Fri, 27 Sep 2002 10:47:04 -0400
+	id <S261716AbSI0Oq6>; Fri, 27 Sep 2002 10:46:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261722AbSI0OrE>; Fri, 27 Sep 2002 10:47:04 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:1050 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261717AbSI0OrD>; Fri, 27 Sep 2002 10:47:03 -0400
-Date: Fri, 27 Sep 2002 09:52:11 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: george anzinger <george@mvista.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: [PATCH] High-res-timers part 1 (core)
-Message-ID: <34760000.1033138331@baldur.austin.ibm.com>
-In-Reply-To: <3D93CB59.85C315A0@mvista.com>
-References: <3D93A363.ACA56815@mvista.com> <3D93C093.464B158C@digeo.com>
- <3D93CB59.85C315A0@mvista.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S261717AbSI0Oq6>; Fri, 27 Sep 2002 10:46:58 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:19138 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S261716AbSI0Oq5>;
+	Fri, 27 Sep 2002 10:46:57 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200209271451.SAA21049@sex.inr.ac.ru>
+Subject: Re: Problems with tcp_retransmit_skb - Please omit the previous incomplete mail
+To: rpranesh@yahoo.com (Venkatesh Rao)
+Date: Fri, 27 Sep 2002 18:51:57 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020927144332.74044.qmail@web21406.mail.yahoo.com> from "Venkatesh Rao" at Sep 27, 2 07:43:32 am
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---On Thursday, September 26, 2002 20:07:05 -0700 george anzinger
-<george@mvista.com> wrote:
+> This is the only socket which *sends* relatively huge
 
-> A much bigger issue is that only two parts of the 4 seem to
-> have made it to the list.  Is there a size restriction some
-> where?
+... loses enough of date to overflow, all the rest leak a bit and
+silently, until all the memory exhausts and machine dies. :-)
 
-Yes, lkml discards all mail over 100k.  I spent a week awhile back
-discovering this the hard way.
 
-Dave McCracken
+> Can this still be a network driver problem?
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+No doubts, it is.
 
+Alexey

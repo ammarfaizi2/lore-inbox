@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262168AbRETTea>; Sun, 20 May 2001 15:34:30 -0400
+	id <S262185AbRETTjI>; Sun, 20 May 2001 15:39:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262172AbRETTeT>; Sun, 20 May 2001 15:34:19 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:64269 "EHLO
+	id <S262183AbRETTi6>; Sun, 20 May 2001 15:38:58 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:4366 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262168AbRETTeP>; Sun, 20 May 2001 15:34:15 -0400
-Date: Sun, 20 May 2001 12:34:02 -0700 (PDT)
+	id <S262178AbRETTin>; Sun, 20 May 2001 15:38:43 -0400
+Date: Sun, 20 May 2001 12:38:17 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
 To: Alexander Viro <viro@math.psu.edu>
-cc: Matthew Wilcox <matthew@wil.cx>, David Woodhouse <dwmw2@infradead.org>,
+cc: David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
         Richard Gooch <rgooch@ras.ucalgary.ca>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Clausen <clausen@gnu.org>,
         Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-In-Reply-To: <Pine.GSO.4.21.0105201523370.8940-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0105201228270.7759-100000@penguin.transmeta.com>
+        linux-fsdevel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code 
+In-Reply-To: <Pine.GSO.4.21.0105201530580.8940-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0105201235000.7759-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Davem, check the last thing, please.
+
 On Sun, 20 May 2001, Alexander Viro wrote:
 > 
-> On Sun, 20 May 2001, Matthew Wilcox wrote:
+> On Sun, 20 May 2001, Linus Torvalds wrote:
 > 
-> > On Sun, May 20, 2001 at 03:11:53PM -0400, Alexander Viro wrote:
-> > > Pheeew... Could you spell "about megabyte of stuff in ioctl.c"?
+> > > How about moratorium on new ioctls in the meanwhile? Whatever we do in
+> > > fs/ioctl.c, it _will_ take time.
 > > 
-> > No.
-> > 
-> > $ ls -l arch/*/kernel/ioctl32*.c
-> > -rw-r--r--    1 willy    willy       22479 Jan 24 16:59 arch/mips64/kernel/ioctl32.c
-> > -rw-r--r--    1 willy    willy      109475 May 18 16:39 arch/parisc/kernel/ioctl32.c
-> > -rw-r--r--    1 willy    willy      117605 Feb  1 20:35 arch/sparc64/kernel/ioctl32.c
-> > 
-> > only about 100k.
+> > Ehh.. Telling people "don't do that" simply doesn't work. Not if they can
+> > do it easily anyway. Things really don't get fixed unless people have a
+> > certain pain-level to induce it to get fixed.
 > 
-> You are missing all x86-only drivers.
+> Umm... How about the following:  you hit delete on patches that introduce
+> new ioctls, I help to provide required level of pain.  Deal?
 
-Now, the point is that it _is_ doable, and by doing it in one standard
-place (instead of letting each architecture fight it on its own) we'd
-expose the problem better, and maybe get rid of some of those
-architecture-specific ones.
+It still doesn't work.
 
-For example, right now the fact that part of the work _has_ been done by
-things like Sparc64 has not actually had any advantages: the sparc64 work
-has not allowed people to say "let's try to merge this work", because it
-has not been globally relevant, and a sparc64-only file has not been a
-single point of contact that could be used to clean up things.
+That only makes people complain about my fascist tendencies. See the
+thread about device numbers, where Alan just says "ok, I'll do it without
+Linus then". 
 
-In contrast, a generic file has the possibility of creating new VFS or
-device-level interfaces. You can catch block device ioctl's and turn them
-into proper block device requests - and send them down the right request
-queue. Suddenly a block device driver doesn't just get READ/WRITE
-requests, it gets EJECT/SERIALIZE requests too. Without having to add
-magic ioctl's that are specific to just one device driver. 
+The whole point of open source is that I don't have that kind of power. I
+can only guide, but the most powerful guide is by guiding the _design_,
+not micro-managing.
 
-So by having a common point of access, you can actually encourage _fixing_
-some of the problems. Historically, sparc64 etc have not been able to do
-that - they can only try to convert different ioctl's into another format
-and then re-submitting it..
+> BTW, -pre4 got new bunch of ioctls. On procfs, no less.
+
+I know. David has zero taste. 
+
+Davem, why didn't you just make new entries in /proc/bus/pci and let
+people do "mmap(/proc/bus/pci/xxxx/mem)" instead of having idiotic ioctl's
+to set "this is a IO handle" and "this is a MEM handle"? This particular
+braindamage is not too late to fix..
 
 		Linus
 

@@ -1,103 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318270AbSHDXUs>; Sun, 4 Aug 2002 19:20:48 -0400
+	id <S318266AbSHDXTx>; Sun, 4 Aug 2002 19:19:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318271AbSHDXUs>; Sun, 4 Aug 2002 19:20:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18958 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318270AbSHDXUo>;
-	Sun, 4 Aug 2002 19:20:44 -0400
-Message-ID: <3D4DB9E4.E785184E@zip.com.au>
-Date: Sun, 04 Aug 2002 16:33:56 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rmap speedup
-References: <E17aiJv-0007cr-00@starship>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318268AbSHDXTv>; Sun, 4 Aug 2002 19:19:51 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:32921 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S318266AbSHDXTp>; Sun, 4 Aug 2002 19:19:45 -0400
+Message-Id: <20020804231945Z318266-686+4139@vger.kernel.org>
+From: <m.c.p@gmx.net>
+To: unlisted-recipients:; (no To-header on input)
+Date: Sun, 4 Aug 2002 19:19:45 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I warmed the code up a bit and did some more measurement.
-Your locking patch has improved things significantly.  And
-we're now getting hurt by all the cache misses walking the
-pte chains.
+	
+	for <codeman@codeman.dyn.ee>; Sun, 4 Aug 2002 15:21:50 +0200
+	from codeman.dyn.ee with ESMTP id g74DLmkT021108; Sun, 4 Aug 2002 15:21:50 +0200
+Received: from fps.linux-systeme.org (fps [10.0.0.2])
+	by extern.linux-systeme.org (8.12.5/8.12.5/Debian-1) with ESMTP id g74DLisN020610
+	for <codeman@codeman.dyn.ee>; Sun, 4 Aug 2002 15:21:44 +0200
+Received: from localhost (extern.linux-systeme.org [10.0.90.1])
+	by fps.linux-systeme.org (8.10.0/8.10.0) with ESMTP id g74DLij05164
+	for <mcp@fps>; Sun, 4 Aug 2002 15:21:44 +0200
+X-Flags: 0000
+Delivered-To: GMX delivery to m.c.p@gmx.net
+Received: from pop.gmx.de [213.165.64.20]
+	by localhost with POP3 (fetchmail-5.9.11)
+	for mcp@fps (single-drop); Sun, 04 Aug 2002 15:21:44 +0200 (CEST)
+Received: (qmail 25364 invoked by uid 0); 4 Aug 2002 13:17:40 -0000
+Date: Mon, 5 Aug 2002 00:38:05 +0200
+From: Marc-Christian Petersen <m.c.p@gmx.net>
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: Booting 2.4.19xx with initrd
+X-PRIORITY: 2 (High)
+X-Authenticated-Sender: #0000401921@gmx.net
+X-Authenticated-IP: [80.144.49.208]
+Message-ID: <20984.1028467060@www58.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+X-Modified-Forwards: 2L.Remote address mcp@linux-systeme.de
+X-UIDL: Y4R"!(]E"!;7]"!e,X"!
+X-UID: 39
+Priority: urgent
+X-Sender: 520053043127-0001@t-dialin.net
 
-Here are some uniprocessor numbers:
+Hi Marc (same name as me :)
 
-up, 2.5.30+rmap-lock-speedup:
+> Normally, I am always making an initial ramdisk for better portability
+> to other computers. The initird is causing problems with these kernels.
+> When Lilo has loaded the initrd it prints out that it can't mount root
+> fs on 302 or 03:02..... Booting without an initrd is running smoothly.
+> There are no such problems with older kernels like 2.4.18 and earlier.
+Sure, that's one of the many issues for 2.4.19. I did send Marcello a pat=
+ch
+also for this issue, but ... Decide yourself what is "but" ;)
 
-./daniel.sh  28.32s user 42.59s system 90% cpu 1:18.20 total
-./daniel.sh  29.25s user 38.62s system 91% cpu 1:14.34 total
-./daniel.sh  29.13s user 38.70s system 91% cpu 1:14.50 total
+> Well... is there any solution?
+Sure. Try this one and it will work!
 
-c01cdc88 149      0.965276    strnlen_user            
-c01341f4 181      1.17258     __page_add_rmap         
-c012d364 195      1.26328     rmqueue                 
-c0147680 197      1.27624     __d_lookup              
-c010bb28 229      1.48354     timer_interrupt         
-c013f3b0 235      1.52242     link_path_walk          
-c01122cc 261      1.69085     do_page_fault           
-c0111fd0 291      1.8852      pte_alloc_one           
-c0124be4 292      1.89168     do_anonymous_page       
-c0123478 304      1.96942     clear_page_tables       
-c01236c8 369      2.39052     copy_page_range         
-c01078dc 520      3.36875     page_fault              
-c012b620 552      3.57606     kmem_cache_alloc        
-c0124d58 637      4.12672     do_no_page              
-c0123960 648      4.19798     zap_pte_range           
-c012b80c 686      4.44416     kmem_cache_free         
-c0134298 2077     13.4556     __page_remove_rmap      
-c0124540 2661     17.2389     do_wp_page              
+--- a/drivers/block/ll_rw_blk.c       Sun Jul  7 23:55:59 2002
++++ b/drivers/block/ll_rw_blk.c    Tue Jul  9 01:54:57 2002
+@@ -1411,6 +1411,9 @@
+ #ifdef CONFIG_STRAM_SWAP
+ =09stram_device_init();
+ #endif
++#ifdef CONFIG_BLK_DEV_RAM
++=09rd_init();
++#endif
+ #ifdef CONFIG_ISP16_CDI
+ =09isp16_init();
+ #endif
 
+--
+Kind regards
+        Marc-Christian Petersen
+=20
+http://sourceforge.net/projects/wolk
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at http://www.keyserver.net. Encrypted e-mail preferred.
 
-up, 2.5.26:
-
-./daniel.sh  27.90s user 31.28s system 90% cpu 1:05.25 total
-./daniel.sh  31.41s user 35.30s system 100% cpu 1:06.71 total
-./daniel.sh  28.54s user 32.01s system 91% cpu 1:06.41 total
-
-c0124f2c 167      1.21155     find_vma                
-c0131ea8 183      1.32763     do_page_cache_readahead 
-c012c07c 186      1.34939     rmqueue                 
-c01c7dc8 192      1.39292     strnlen_user            
-c010ba78 210      1.52351     timer_interrupt         
-c0144c50 222      1.61056     __d_lookup              
-c01120b8 250      1.8137      do_page_fault           
-c013cc40 260      1.88624     link_path_walk          
-c0122cd0 282      2.04585     clear_page_tables       
-c0124128 337      2.44486     do_anonymous_page       
-c0122e7c 347      2.51741     copy_page_range         
-c0111e50 363      2.63349     pte_alloc_one           
-c01c94ac 429      3.1123      radix_tree_lookup       
-c01077cc 571      4.14248     page_fault              
-c0123070 620      4.49797     zap_pte_range           
-c0124280 715      5.18717     do_no_page              
-c0123afc 2957     21.4524     do_wp_page              
+--=20
+GMX - Die Kommunikationsplattform im Internet.
+http://www.gmx.net
 
 
-So the pte_chain stuff seems to be costing 20% system time here.
-But note that I made the do_page_cache_readahead and radix_tree_lookup
-cost go away in 2.5.29.  So it's more like 30%.
-
-And it's all really in __page_remove_rmap, kmem_cache_alloc/free.
-
-If we convert the pte_chain structure to
-
-struct pte_chain {
-	struct pte_chain *next;
-	pte_t *ptes[L1_CACHE_BYTES - 4];
-};
-
-and take care to keep them compacted we shall reduce the overhead
-of both __page_remove_rmap and the slab functions by up to 7, 15
-or 31-fold, depending on the L1 size.  page_referenced() wins as well.
-
-Plus we almost halve the memory consumption of the pte_chains
-in the high sharing case.  And if we have to kmap these suckers
-we reduce the frequency of that by 7x,15x,31x,etc.
-
-I'll code it tomorrow.

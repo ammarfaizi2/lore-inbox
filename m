@@ -1,66 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbUKDT55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbUKDTuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262392AbUKDT55 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:57:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbUKDTzB
+	id S262391AbUKDTuF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUKDTkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:55:01 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:22505 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262381AbUKDTwR (ORCPT
+	Thu, 4 Nov 2004 14:40:04 -0500
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:41392 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S262427AbUKDTdw convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:52:17 -0500
-Date: Thu, 4 Nov 2004 20:52:06 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
-Message-ID: <20041104195206.GB11672@elte.hu>
-References: <OF88A40911.ECF57E25-ON86256F42.006C01DC-86256F42.006C0216@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Nov 2004 14:33:52 -0500
+X-OB-Received: from unknown (205.158.62.81)
+  by wfilter.us4.outblaze.com; 4 Nov 2004 19:33:49 -0000
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <OF88A40911.ECF57E25-ON86256F42.006C01DC-86256F42.006C0216@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
-	BAYES_00 -4.90, SORTED_RECIPS 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
+Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Clayton Weaver" <cgweav@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 04 Nov 2004 14:33:49 -0500
+Subject: Re: support of older compilers
+X-Originating-Ip: 172.159.84.227
+X-Originating-Server: ws1-2.us4.outblaze.com
+Message-Id: <20041104193349.9DE511F50B1@ws1-2.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>If people are willing to download and compile
+>a new kernel (and migrating from 2.4 to 2.6
+>is non-trivial for some systems, like RH9),
+>why aren't they willing to also download
+>and build a new compiler?
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+It is not necessarily that they are unwilling,
+it is a question of trust (in the output
+of the compiler) and of the inconvenience of
+multiple concurrent gcc version installations
+(paths; hint: this needs to be simpler).
 
-> 1) ksoftirqd/0/3 is trying to acquire this lock:
->  [dfb5c8a4] {r:0,a:-1,&n->lock}
-> .. held by:       ksoftirqd/1/    6 [dff886f0,   0]
-> ... acquired at:  arp_solicit+0x167/0x230
-> ... trying at:   neigh_update+0x2a/0x390
-> 
-> 2) ksoftirqd/1/6 is blocked on this lock:
->  [c03c8900] {r:1,a:-1,ptype_lock}
-> .. held by:       ksoftirqd/0/    3 [dffe8020,   0]
-> ... acquired at:  net_rx_action+0x8e/0x200
+Example:
 
-this is a weird one. Note how ptype_lock is not shown to be owned by
-ksoftirqd/0/3:
+I've been using gcc-2.95.3 with a security-patched
+glibc-2.2.5, and I wanted to upgrade to glibc-2.3.2
+(lots of bugs gone and more Posix/SUS compliance
+added in the years in between 2.2.5 and 2.3.2).
 
-> ------------------------------
-> | showing all locks held by: |  (ksoftirqd/0/3 [dffe8020,   0]):
-> ------------------------------
-> 
-> #001:             [d9044c30] {r:0,a:-1,&tp->rx_lock}
-> ... acquired at:  rtl8139_poll+0x48/0x180 [8139too]
+For that I needed gcc-3.x. So, in succession,
+I downloaded and compiled gcc-3.3.2, 3.4.0, and 3.4.1,
+against both glibc-2.2.5 and glibc-2.3.2, with the
+latest binutils at the time (which works with any
+of those compiler and glibc versions).
 
-neither does ptype_lock show up in the other logs you sent.
+I found that none of the gcc 3.x versions could
+correctly compile a construct like this
+(independent of runtime glibc version):
 
-	Ingo
+file1.h:
+
+/* header boilerplate to avoid multiple #includes of
+   the same file */
+
+#define STR1  "string 1"
+
+file2.c:
+
+#include "file1.h"
+
+const char * str2 = "whatever"STR1"stuff this\n\
+string has in it"STR1" and so on ad infinitum\n\
+"STR1"yada yada"; 
+
+/* this was actually about 40 lines, maybe more,
+   with maybe 10 instances of "../"STR1"..." */
+
+All of the gcc-3.x versions would bail with
+an error trying to compile that str2 definition
+in file2.c.
+
+They didn't always fail on literal string
+concatenation (IIRC some short ones compiled
+ok), but they consistently failed to concatenate
+literal strings correctly for some source
+files that gcc-2.95.3 would compile correctly
+every time.
+
+(The glibc trees had distributor patches, so I filed
+the bug report via their support, in order for
+them to see whether their patches were responsible
+for the error, assuming that they would forward
+it on if not.)
+
+In sum: for production code it doesn't matter
+what all a new C compiler version can do that
+the old one could not if it won't compile
+quite ordinary standard C correctly.
+
+"So what else is wrong with it that we
+aren't seeing?"
+
+It would be good to have bugs fixed in the
+new compilers, because they obviously have
+some advantages (I noticed that gcc-3.4.x
+seemed quite a bit faster than 2.95.3 when
+compiling glibc, and it would nice if as
+no longer randomly choked on the x86 code
+generated after using -fprofile-arcs and
+-fbranch-probabilities, something that
+occasionally happens with gcc-2.95.3).
+
+But one does occasionally need to get some
+other work done besides new compiler
+development.
+
+-- 
+___________________________________________________________
+Sign-up for Ads Free at Mail.com
+http://promo.mail.com/adsfreejump.htm
+

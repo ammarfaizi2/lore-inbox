@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288955AbSATTd7>; Sun, 20 Jan 2002 14:33:59 -0500
+	id <S288962AbSATT6F>; Sun, 20 Jan 2002 14:58:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288956AbSATTdt>; Sun, 20 Jan 2002 14:33:49 -0500
-Received: from mustard.heime.net ([194.234.65.222]:39145 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S288955AbSATTdi>; Sun, 20 Jan 2002 14:33:38 -0500
-Date: Sun, 20 Jan 2002 20:33:25 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Christian Hammers <ch@westend.com>, <ext2-devel@lists.sourceforge.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] ext3 fs corruption with 2.4.17
-In-Reply-To: <20020118104846.Q29178@lynx.adilger.int>
-Message-ID: <Pine.LNX.4.30.0201202031270.13442-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288959AbSATT5z>; Sun, 20 Jan 2002 14:57:55 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:16768 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S288957AbSATT5k>;
+	Sun, 20 Jan 2002 14:57:40 -0500
+Date: Sun, 20 Jan 2002 21:57:28 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: John Jasen <jjasen1@umbc.edu>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, Andrew Morton <akpm@zip.com.au>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>,
+        linux-raid@vger.kernel.org
+Subject: Re: 2.4.17 RAID-1 EXT3  reliable to hang....
+Message-ID: <20020120215728.B1112@mea-ext.zmailer.org>
+In-Reply-To: <20020120193141.A1112@mea-ext.zmailer.org> <Pine.SGI.4.31L.02.0201201422500.1767115-100000@irix2.gl.umbc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SGI.4.31L.02.0201201422500.1767115-100000@irix2.gl.umbc.edu>; from jjasen1@umbc.edu on Sun, Jan 20, 2002 at 02:24:40PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+On Sun, Jan 20, 2002 at 02:24:40PM -0500, John Jasen wrote:
+> Really?
+>   Software raid?
+> I have a quad ppro that is doing ext3/md just fine, and its running
+> 2.4.17.
 
-I keep getting the exact same error
+  Indeed. I didn't have problems with dual PPro200, but after I did
+  upgrade it to dual P-III-750, it does hang up.  Machines have
+  128 MB, and 750 MB memory, respectively.  (Disks and host controller
+  were moved over.)
 
-EXT3-fs error (device ide2(33,0)): ext3_new_block: Allocating block in system zone - block = 884763
-EXT3-fs error (device ide2(33,0)): ext3_new_block: Allocating block in system zone - block = 884764
-EXT3-fs error (device ide2(33,0)): ext3_new_block: Allocating block in system zone - block = 884765
-EXT3-fs error (device ide2(33,0)): ext3_new_block: Allocating block in system zone - block = 884766
-EXT3-fs error (device ide2(33,0)): ext3_new_block: Allocating block in system zone - block = 884767
-...
+  I recall having ran same earlier PPro optimized 2.4 kernel on PPro200,
+  and on P-III (2.4.6-ac1, or 2.4.10).  It hung up too, which prompted 
+  research on kernel versions.
 
-The fs is newly created, and the computer has been working fine all the time.
+  This all does point to some sort of deadlock window somewhere.
+  It appears to be practically untriggerable with PPro200, but
+  trivial to hit with P-III-750.
 
-Anyone know what this is ?
+  Now to have a reliable way to find where the CPUs are spinning
+  when the thing does not work...  (I have tested kdb: keyboard
+  dies at hangup -> kdb becomes non-functional...)
 
-I'm running 2.4.17-tux-ide-rmap11c
+> --
+> -- John E. Jasen (jjasen1@umbc.edu)
+> -- In theory, theory and practise are the same. In practise, they aren't.
 
-
-roy
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+/Matti Aarnio

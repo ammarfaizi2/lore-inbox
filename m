@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265567AbTIJTFY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 15:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265545AbTIJTE3
+	id S265498AbTIJTLV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 15:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbTIJTLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 15:04:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28385 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265530AbTIJTDG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 15:03:06 -0400
-Date: Wed, 10 Sep 2003 20:03:04 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Stephen Hemminger <shemminger@osdl.org>, jffs-dev@axis.com,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix type mismatch in jffs.
-Message-ID: <20030910190303.GP454@parcelfarce.linux.theplanet.co.uk>
-References: <20030910181847.GO454@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0309101152060.25211-100000@home.osdl.org>
+	Wed, 10 Sep 2003 15:11:20 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:52425 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265498AbTIJTKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 15:10:47 -0400
+Date: Wed, 10 Sep 2003 21:10:39 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, pavel@suse.cz
+Subject: Re: [patch] 2.6.0-test5: serio config broken?
+Message-ID: <20030910191038.GK27368@fs.tum.de>
+References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <3F5DBC1F.8DF1F07A@eyal.emu.id.au> <20030910110225.GC27368@fs.tum.de> <20030910155542.GD4559@ip68-0-152-218.tc.ph.cox.net> <20030910170610.GH27368@fs.tum.de> <20030910185902.GE4559@ip68-0-152-218.tc.ph.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309101152060.25211-100000@home.osdl.org>
+In-Reply-To: <20030910185902.GE4559@ip68-0-152-218.tc.ph.cox.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 11:54:13AM -0700, Linus Torvalds wrote:
-> 
-> On Wed, 10 Sep 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+On Wed, Sep 10, 2003 at 11:59:02AM -0700, Tom Rini wrote:
 > > 
-> > JFFS is host-endian.  If you want to make it swing both ways - feel free,
+> > That wouldn't be needed. AFAIK there are _no_ problems if SERIO=y, the 
+> > select you suggest is already implemented the other way round.
 > 
-> Please don't.
-> 
-> Dual-endianness is _evil_.
-> 
-> Admittedly host-endian is stupid too, but it's less stupid than being 
-> dual.
-> 
-> The only sane thing to do is fixed-endianness. I'm sure the m68k people 
-> remember being forced to fix their ext2 partitions back in the bad old 
-> days. It's painful once, but after that, fixed-endian is a lot more 
-> efficient and much simpler to handle.
+> The problem is that SERIO==y means that SERIO_I8042 must be Y, as you
+> ran into.  If you have SERIO only asked on EMBEDDED || !X86, and on
+> similar conditions you then select SERIO_I8042, it just works.
 
-	a) you've snipped the critical part ;-)
-	b) nobody sane uses that beast these days
-	c) if somebody wants to grow a private patch - it's their time,
-after all...
+No the problems occur when SERIO=m.
 
-Seriously, though, by now fs/jffs/* has only one real use - extracting
-data from old filesystem.  IIRC, there was even a talk about having it go
-the way of ext and xiafs.  He's dead, Jim...
+> > If SERIO is always y if !EMBEDDED || X86 my patch wouldn't be needed.
+> 
+> Correct.  I was suggesting that you do:
+> tristate "Serial i/o support (needed for keyboard and mouse)" if
+> !EMBEDDED || !X86  (or so)
+> select SERIO_I8042 if X86 && !EMBEDDED
+> 
+> and then remove the conditions on SERIO_I8042, which puts all of the
+> auto-select-this magic in one spot.
+
+I can't see how this should work in all cases.
+Could you send how you'd like to formulate this?
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

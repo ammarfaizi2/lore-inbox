@@ -1,47 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266271AbUJLRe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266519AbUJLRjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266271AbUJLRe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 13:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266308AbUJLRG2
+	id S266519AbUJLRjH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 13:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUJLRib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 13:06:28 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:29379 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S266236AbUJLRCq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 13:02:46 -0400
-Message-ID: <416C0DC5.2080206@rtr.ca>
-Date: Tue, 12 Oct 2004 13:00:53 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Mark Lord <lsml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
-References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@i	nfradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<4165A4	5D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.ca>	<4	165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca>		<20041007221537.A17712@infradead.org>	<1097241583.2412.15.camel@mulgrave> 	<4166AF2F.6070904@rtr.ca> <1097249266.1678.40.camel@mulgrave> 	<4166B37D.8030701@rtr.ca> <1097251299.1928.56.camel@mulgrave>
-In-Reply-To: <1097251299.1928.56.camel@mulgrave>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Oct 2004 13:38:31 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:43913 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S266519AbUJLRdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 13:33:46 -0400
+Date: Tue, 12 Oct 2004 19:33:44 +0200
+To: linux-kernel@vger.kernel.org
+Cc: debian-alpha@lists.debian.org
+Subject: 2.4.27, alpha arch, make bootimage and make bootpfile fails
+Message-ID: <20041012173344.GA21846@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Fri, 2004-10-08 at 10:34, Mark Lord wrote:
-> 
->>If those locks are not needed, the scsi.c maintainer really should
->>nuke'em.
-> 
-> I think you can safely assume he has more important things to do.
+Hello kernel Gurus!
 
-I was actually working on the assumption that the lock might be
-there because it is/was necessary for something, like perhaps protecting
-access to the add_timer()/del_timer() calls associated with the scmd?
+[debian/woody on alpha sx165/lx164, gcc-3.3.4]
 
-If not, no issue -- it can be removed from the driver.
+We need to netboot our alphas (because booting from the SCSI controllers
+is not an option, they are not supported by the SRM console) and I try
+to make a bootp image of our kernel.
 
-Cheers
---
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+When doing this on our alpha the
+	make bootimage
+and the 
+	make bootpfile
+both bail out with:
+make[1]: Entering directory `/usr/src/linux-2.4.27/arch/alpha/boot'
+tools/objstrip -v /usr/src/linux-2.4.27/vmlinux vmlinux.nh
+tools/objstrip: extracting 0xfffffc0000310000-0xfffffc00005cfef8 (at
+2000)
+tools/objstrip: copying 2883320 byte from /usr/src/linux-2.4.27/vmlinux
+tools/objstrip: zero-filling bss and aligning to 0 with 393432 bytes
+echo "#define KERNEL_SIZE `ls -l vmlinux.nh | awk '{print $5}'`" >
+ksize.hT
+cmp -s ksize.hT ksize.h || mv -f ksize.hT ksize.h
+rm -f ksize.hT
+ld -static -T bootloader.lds  head.o main.o
+/usr/src/linux-2.4.27/arch/alpha/lib/lib.a
+/usr/src/linux-2.4.27/lib/lib.a
+/usr/src/linux-2.4.27/arch/alpha/lib/lib.a -o bootloader
+/usr/src/linux-2.4.27/lib/lib.a(vsprintf.o): In function `vsnprintf':
+vsprintf.o(.text+0xcd4): undefined reference to `printk'
+vsprintf.o(.text+0xcdc): undefined reference to `printk'
+/usr/src/linux-2.4.27/lib/lib.a(dump_stack.o): In function `dump_stack':
+dump_stack.o(.text+0x10): undefined reference to `printk'
+dump_stack.o(.text+0x1c): undefined reference to `printk'
+make[1]: *** [bootloader] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4.27/arch/alpha/boot'
+make: *** [bootimage] Error 2
+
+and similar with bootpfile
+
+Is there a way around this, we definitely need the bootp image.
+
+Thanks a lot and all the best
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+SCREEB (n.)
+To make the noise of a nylon anorak rubbing against a pair of corduroy
+trousers.
+			--- Douglas Adams, The Meaning of Liff

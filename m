@@ -1,60 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279943AbRKBCYu>; Thu, 1 Nov 2001 21:24:50 -0500
+	id <S279944AbRKBCbK>; Thu, 1 Nov 2001 21:31:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279944AbRKBCYk>; Thu, 1 Nov 2001 21:24:40 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42256 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279943AbRKBCY2>; Thu, 1 Nov 2001 21:24:28 -0500
-Date: Thu, 1 Nov 2001 18:21:40 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: Lorenzo Allegrucci <lenstra@tiscalinet.it>, <linux-kernel@vger.kernel.org>,
+	id <S279945AbRKBCbB>; Thu, 1 Nov 2001 21:31:01 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:28691 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S279944AbRKBCau>;
+	Thu, 1 Nov 2001 21:30:50 -0500
+Message-Id: <200111020230.DAA30535@webserver.ithnet.com>
+Date: Fri, 02 Nov 2001 03:30:36 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Lorenzo Allegrucci <lenstra@tiscalinet.it>, <linux-kernel@vger.kernel.org>,
         Andrea Arcangeli <andrea@suse.de>
+Content-Transfer-Encoding: 7BIT
 Subject: Re: new OOM heuristic failure  (was: Re: VM: qsbench)
-In-Reply-To: <200111020217.DAA30459@webserver.ithnet.com>
-Message-ID: <Pine.LNX.4.33.0111011816160.12501-100000@penguin.transmeta.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0111011634340.12377-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: IMHO/0.97.1 (Webmail for Roxen)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 2 Nov 2001, Stephan von Krawczynski wrote:
->
-> Wait a minute: there is something illogical in this approach:
-> Basically you say by making max_mapped bigger that the "early exit"
-> from shrink_cache shouldn't be that early. But if you _know_ that
-> merely all pages are mapped, then why don't you just go to swap_out
-> right away without even walking through the list, because in the end,
-> you will go to swap_out anyway (simply because of the high percentage
-> of mapped pages). That makes scanning somehow superfluous.
-
-Well, no.
-
-There's two things: sure, we know we have tons of mapped pages, and we
-obviously will have done the "swap_out()" for th efirst iteration (and
-probably the second and third ones too).
-
-But at some point you have to say "Ok, _this_ process has done its due
-work to clean up the VM pressure, and now this process needs to get on
-with its life and stop caring about other peoples bad memory usage".
-
-Remember: everybody who calls "swap_out()" will free several pages from
-the pag tables. And everybody starts off with a low priority (ie 6). So if
-we're truly 99% mapped, then every single allocator will start off doing
-swap_out(), but at some point they obviously need to do other things too
-(ie they need to get to the point int he inactive queue where those
-swapped out pages are now, and try to write them out to disk).
-
-Imagine a inactive queue that is a million entries. That's 4GB worth of
-RAM, sure, but there are lots of machines like that. If we only allow
-shrink_cache() to look at 320 pages at a time, we'll never get a life of
-our own.
-
-(Yeah, sure, if you have all that 4GB on the inactive list, and it's all
-mapped, you're going to spend some time cleaning it up _regardless_ of
-what you do. That's life.)
-
-		Linus
-
+>                                                                     
+> On Fri, 2 Nov 2001, Stephan von Krawczynski wrote:                  
+> >                                                                   
+> > To clarify this one a bit:                                        
+> > shrink_cache is thought to do what it says, it is given a number  
+of                                                                    
+> > pages it should somehow manage to free by shrinking the cache.    
+What my                                                               
+> > patch does is go after the _whole_ list to fulfill that.          
+>                                                                     
+> I would suggest a slight modification: make "max_mapped" grow as the
+> priority goes up.                                                   
+>                                                                     
+> Right now max_mapped is fixed at "nr_pages*10".                     
+>                                                                     
+> You could have something like                                       
+>                                                                     
+> 	max_mapped = nr_pages * 60 / priority;                             
+>                                                                     
+> instead, which might also alleviate the problem with not even       
+bothering to                                                          
+> scan much of the inactive list simply because 99% of all pages are  
+mapped.                                                               
+>                                                                     
+> That way you don't waste time on looking at the rest of the inactive
+list                                                                  
+> until you _need_ to.                                                
+                                                                      
+Ok. I re-checked the code and found out this approach cannot stand.   
+the list scan _is_ already exited early when priority is low:         
+                                                                      
+        int max_scan = nr_inactive_pages / priority;                  
+                                                                      
+        while (--max_scan >= 0 && (entry = inactive_list.prev) !=     
+&inactive_list) {                                                     
+                                                                      
+It will not make big sense to do it again in max_mapped.              
+                                                                      
+On the other hand I am also very sure, that refining:                 
+                                                                      
+        if (max_mapped==0)                                            
+                swap_out(priority, gfp_mask, classzone);              
+                                                                      
+        return nr_pages;                                              
+                                                                      
+in the end to:                                                        
+                                                                      
+        if (max_mapped==0 && nr_pages>0)                              
+                swap_out(priority, gfp_mask, classzone);              
+                                                                      
+        return nr_pages;                                              
+                                                                      
+is a good thing. We don't need swap_out if we gained all the pages    
+requested, no matter if we _could_ do it or not.                      
+                                                                      
+Is there some performance difference in this approach, Lorenzo? I     
+guess it should.                                                      
+                                                                      
+Regards,                                                              
+Stephan                                                               
+                                                                      

@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVAMDpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVAMDoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbVAMDpd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 22:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVAMDou
+	id S261452AbVAMDoh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 22:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVAMDog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 22:44:50 -0500
-Received: from smtp819.mail.sc5.yahoo.com ([66.163.170.5]:8804 "HELO
-	smtp819.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261420AbVAMDmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 22:42:54 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-Date: Wed, 12 Jan 2005 22:42:51 -0500
-User-Agent: KMail/1.6.2
-Cc: Roey Katz <roey@sdf.lonestar.org>
-References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org> <200501110239.33260.dtor_core@ameritech.net> <Pine.NEB.4.61.0501130315500.11711@sdf.lonestar.org>
-In-Reply-To: <Pine.NEB.4.61.0501130315500.11711@sdf.lonestar.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 12 Jan 2005 22:44:36 -0500
+Received: from fw.osdl.org ([65.172.181.6]:50576 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261425AbVAMDng (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 22:43:36 -0500
+Date: Wed, 12 Jan 2005 19:42:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: torvalds@osdl.org, marcelo.tosatti@cyclades.com, greg@kroah.com,
+       chrisw@osdl.org, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-Id: <20050112194239.0a7b720b.akpm@osdl.org>
+In-Reply-To: <20050113033542.GC1212@redhat.com>
+References: <20050112094807.K24171@build.pdx.osdl.net>
+	<Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
+	<20050112185133.GA10687@kroah.com>
+	<Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
+	<20050112161227.GF32024@logos.cnet>
+	<Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
+	<20050112205350.GM24518@redhat.com>
+	<Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
+	<20050112182838.2aa7eec2.akpm@osdl.org>
+	<20050113033542.GC1212@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200501122242.51686.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 January 2005 10:19 pm, Roey Katz wrote:
-> Dmitry,
+Dave Jones <davej@redhat.com> wrote:
+>
+> On Wed, Jan 12, 2005 at 06:28:38PM -0800, Andrew Morton wrote:
+>  
+>  > IMO, local DoS holes are important mainly because buggy userspace
+>  > applications allow remote users to get in and exploit them, and for that
+>  > reason we of course need to fix them up.  Even though such an attacker
+>  > could cripple the machine without exploiting such a hole.
+>  > 
+>  > For the above reasons I see no need to delay publication of local DoS holes
+>  > at all.  The only thing for which we need to provide special processing is
+>  > privilege escalation bugs.
+>  > 
+>  > Or am I missing something?
 > 
-> I have placed the results of the patched 2.6.9-rc2-bk2 kernel at the 
-> following address:
+> The problem is it depends on who you are, and what you're doing with Linux
+> how much these things affect you.
 > 
->    http://roey.freeshell.org/mystuff/kernel/*-20050112
+> A local DoS doesn't both me one squat personally, as I'm the only
+> user of computers I use each day. An admin of a shell server or
+> the like however would likely see this in a different light.
+> (though it can be argued a mallet to the kneecaps of the user
+>  responsible is more effective than any software update)
+
+yup.  But there are so many ways to cripple a Linux box once you have local
+access.  Another means which happens to be bug-induced doesn't seem
+important.
+
+> An information leak from kernel space may be equally as mundane to some,
+> though terrifying to some admins. Would you want some process to be
+> leaking your root password, credit card #, etc to some other users process ?
 > 
-> As expected, the system was unresponsive to keyboard input.
+> priveledge escalation is clearly the number one threat. Whilst some
+> class 'remote root hole' higher risk than 'local root hole', far
+> too often, we've had instances where execution of shellcode by
+> overflowing some buffer in $crappyapp has led to a shell
+> turning a local root into a remote root.
 
-And what if you do not compile PS/2 mouse support in? Is keyboard still
-dead?
+I'd place information leaks and privilege escalations into their own class,
+way above "yet another local DoS".
 
-> Regarding your mouse question:
-> How do I test the mouse if they keyboard does not work (is there some 
-> way to output the contents of /dev/psaux on startup? I'm not sure anymore 
-> what file the mouse data appears in, too)
-> 
+A local privilege escalation hole should be viewed as seriously as a remote
+privilege escalation hole, given the bugginess of userspace servers, yes?
 
-Install GPM and try moving your mouse after booting into runlevel 3 -
-if cursor moves mouse works.
-
--- 
-Dmitry

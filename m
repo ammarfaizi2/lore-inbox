@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271672AbRIGKR0>; Fri, 7 Sep 2001 06:17:26 -0400
+	id <S271664AbRIGKNq>; Fri, 7 Sep 2001 06:13:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271673AbRIGKRR>; Fri, 7 Sep 2001 06:17:17 -0400
-Received: from COD-ETH-14.WYOMING.COM ([204.227.211.254]:41912 "HELO
-	noir.kain.org") by vger.kernel.org with SMTP id <S271672AbRIGKRD>;
-	Fri, 7 Sep 2001 06:17:03 -0400
-Date: Fri, 7 Sep 2001 04:17:23 -0600
-From: Kain <kain@kain.org>
-To: linux-kernel@vger.kernel.org
-Subject: what ever happened to fastpath routing?
-Message-ID: <20010907041723.A28390@noir.kain.org>
+	id <S271665AbRIGKNh>; Fri, 7 Sep 2001 06:13:37 -0400
+Received: from t2.redhat.com ([199.183.24.243]:59130 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S271664AbRIGKNT>; Fri, 7 Sep 2001 06:13:19 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.GSO.4.33.0109062315490.1190-100000@sweetums.bluetronic.net> 
+In-Reply-To: <Pine.GSO.4.33.0109062315490.1190-100000@sweetums.bluetronic.net> 
+To: Ricky Beam <jfbeam@bluetopia.net>
+Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: MTD and Adapter ROMs 
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 07 Sep 2001 11:13:32 +0100
+Message-ID: <7118.999857612@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+jfbeam@bluetopia.net said:
+> Has anyone tried adapting any of the MTD code to allow read/write
+> access to adapter EEPROMs like the netboot ROM on some network cards
+> -- or more to the point, HPT adapter cards? 
 
-Sorry if I posted this twice.. Email for me has been screwed for most of Se=
-p. 6 and some of Sep. 7.
+Should be relatively simple if you just provide the appropriate 'map' 
+driver to access the flash and set the Vpp line when asked.
 
-What ever happened to fastpath routing in the 2.4 Kernel?  I still see the =
-API
-there, but the only driver I see implementing it is dummy :(
+See drivers/mtd/maps/l440gx.c in my tree.
+
+There's also the code at http://www.freiburg.linux.de/~stepan/bios/
+which possibly ought to be merged with the MTD code.
+
+--
+dwmw2
 
 
---=20
-Dance is the vertical expression of a horizontal intention.
-**
-Sadistic Pacifist
-Bryon Roche, Kain <kain@imperativesoultions.com>
-<kain@kain.org>
-
---BOKacYhQ+x31HxR3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7mJ6zBK2G/mh4q9URAqGXAJwIf6OwzZpb8ltMGdJ66p1kldickQCfWxcD
-y8pRrZoqvZc2tSkDg/RK+8s=
-=ouru
------END PGP SIGNATURE-----
-
---BOKacYhQ+x31HxR3--

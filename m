@@ -1,100 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262273AbVAUGPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVAUGQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbVAUGPW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 01:15:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbVAUGPW
+	id S262274AbVAUGQf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 01:16:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262277AbVAUGQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 01:15:22 -0500
-Received: from chewbacca.hagos.de ([213.217.124.234]:17360 "EHLO mail.hagos.de")
-	by vger.kernel.org with ESMTP id S262273AbVAUGPF (ORCPT
+	Fri, 21 Jan 2005 01:16:35 -0500
+Received: from opersys.com ([64.40.108.71]:19728 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262274AbVAUGQG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 01:15:05 -0500
-From: Klaus Muth <muth@hagos.de>
-Organization: HAGOS eG
-To: linux-kernel@vger.kernel.org
-Subject: kernel panic with 2.4.26
-Date: Fri, 21 Jan 2005 07:15:03 +0100
-User-Agent: KMail/1.5.4
+	Fri, 21 Jan 2005 01:16:06 -0500
+Message-ID: <41F0A0A2.1010109@opersys.com>
+Date: Fri, 21 Jan 2005 01:26:42 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home> <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home> <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home> <41EADA11.70403@opersys.com> <Pine.LNX.4.61.0501171403490.30794@scrub.home> <41EC2DCA.50904@opersys.com> <Pine.LNX.4.61.0501172323310.30794@scrub.home> <41EC8AA2.1030000@opersys.com> <Pine.LNX.4.61.0501181359250.30794@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0501181359250.30794@scrub.home>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501210715.03716.muth@hagos.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-Every now and then (maybe twice a week) my server panics. This
-is a dual Xeon system with 5Gb memory. I did my best to get the
-full oops from the screen and doublechecked. Sorry, but I don't
-understand anything from the ksymoops output.
-Any help will be appreciated.
 
-ksymoops 2.4.5 on i686 2.4.26-msi1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.26-msi1/ (default)
-     -m System.map-2.4.26-msi1.nogood (specified)
+OK, I finally come around to answering this ...
 
-f893281d
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<f893281d>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010256
-eax: fffc43fc   ebx: 00000002   ecx: f703b000   edx: 0000000d
-esi: f187d000   edi: 00000000   ebp: f7005c1c   esp: c0353ed4
-ds: 0018   es: 0018   ss: 0018
-Process swapper (pid: 0, stackpage=c0353000)
-Stack: 00000000 f7040d00 00000000 f778a480 00000040 f7005c00 00000000 f703b000
-       00040d00 f7007e80 f8921982 f7040d00 f7030b08 f778a480 00000002 00000000
-       00000000 00000000 f703b200 00000000 f8921a9c f778a480 f7040d08 f77dc680
-Call Trace:    [<f8921982>] [<f8921a9c>] [<c010a041>] [<c010a236>] [<c0106d60>]
-  [<c0106d60>] [<c0106d60>] [<c0106d60>] [<c0106d89>] [<c0106df2>] [<c0105000>]
-  [<c010504f>]
-Code: 88 08 8b 86 58 01 00 00 ff 86 5c 01 00 00 88 10 ff 86 58 01
+Roman Zippel wrote:
+> Sorry, you missunderstood me. At the moment I'm only secondarily 
+> interested in the API details, primarily I want to work out the details of 
+> what exactly relayfs/ltt are supposed to do. One main question here I 
+> can't answer yet, why you insist on multiple relayfs modes.
 
+I should have avoided earlier confusing the use of a certain type of
+relayfs channel for a given purpose (i.e. LTT should not necessarily
+depend on the managed mode.) I believe that there is a need for
+more than one mode in relayfs independently of LTT. There are users
+who want to be able to manage the data in a buffer (by manage I mean:
+receive notification of important buffer events, be able to insert
+important data at boundaries, etc.), and there are users who just
+want to dump as much information as possible in as fast a way as
+possible without having to deal with non-essential codepaths.
 
->>EIP; f893281d <_end+3851dc61/385fa444>   <=====
+> This is what I basically have in mind for the relay_write function:
+> 
+> 	cpu = get_cpu();
+> 	buffer = relay_get_buffer(chan, cpu);
+> 	while(1) {
+> 		offset = local_add_return(buffer->offset, length);
+> 		if (likely(offset + length <= buffer->size))
+> 			break;
+> 		buffer = relay_switch_buffer(chan, buffer, offset);
+> 	}
+> 	memcpy(buffer->data + offset, data, length);
+> 	put_cpu();
 
->>eax; fffc43fc <END_OF_CODE+74ee74d/????>
->>ecx; f703b000 <_end+36c26444/385fa444>
->>esi; f187d000 <_end+31468444/385fa444>
->>ebp; f7005c1c <_end+36bf1060/385fa444>
->>esp; c0353ed4 <init_task_union+1ed4/2000>
+looking at this code:
 
-Trace; f8921982 <_end+3850cdc6/385fa444>
-Trace; f8921a9c <_end+3850cee0/385fa444>
-Trace; c010a041 <handle_IRQ_event+5d/88>
-Trace; c010a236 <do_IRQ+a6/ec>
-Trace; c0106d60 <default_idle+0/34>
-Trace; c0106d60 <default_idle+0/34>
-Trace; c0106d60 <default_idle+0/34>
-Trace; c0106d60 <default_idle+0/34>
-Trace; c0106d89 <default_idle+29/34>
-Trace; c0106df2 <cpu_idle+3e/54>
-Trace; c0105000 <_stext+0/0>
-Trace; c010504f <rest_init+4f/50>
+1) get_cpu() and put_cpu() won't do. You need to outright disable
+interrupts because you may be called from an interrupt handler.
 
-Code;  f893281d <_end+3851dc61/385fa444>
-00000000 <_EIP>:
-Code;  f893281d <_end+3851dc61/385fa444>   <=====
-   0:   88 08                     mov    %cl,(%eax)   <=====
-Code;  f893281f <_end+3851dc63/385fa444>
-   2:   8b 86 58 01 00 00         mov    0x158(%esi),%eax
-Code;  f8932825 <_end+3851dc69/385fa444>
-   8:   ff 86 5c 01 00 00         incl   0x15c(%esi)
-Code;  f893282b <_end+3851dc6f/385fa444>
-   e:   88 10                     mov    %dl,(%eax)
-Code;  f893282d <_end+3851dc71/385fa444>
-  10:   ff 86 58 01 00 00         incl   0x158(%esi)
+2) You assume that relayfs creates one buffer per cpu for each
+channel. We think this is wrong. Relayfs should not need to care
+about the number of CPUs, it's the clients' responsibility to
+create as many channels as they see fit, whether it be one channel
+per CPU or 10 channels per CPU or 1 channel per interrupt, etc.
 
- <0>Kernel panic: Aiee, killing interrupt handler!
+3) I'm unclear about the need for local_add_return(), why not
+just:
+	if (likely(buffer->offset + length <= buffer->size)
+In any case, here's what we do in relay_write():
+	write_pos = relay_reserve(rchan, count, &reserve_code, &interrupting);
+If there's any buffer switching required, that will be done in
+relay_reserve. This has the added advantage that clients that
+want to write directly to the buffer without using relay_write()
+can do so by calling relay_reserve() and not care about required
+buffer switching.
 
-Could you please help me out?
+4) After securing the area, you simply go ahead and do a memcpy()
+and leave. We think that this is insufficient. Here's what we
+do:
+	if (likely(write_pos != NULL)) {
+		relay_write_direct(write_pos, data_ptr, count);
+		relay_commit(rchan, write_pos, count, reserve_code, interrupting);
+		*wrote_pos = write_pos;
+the relay_write_direct() is basically an memcpy(). We also do
+a relay_commit(). This actually effects the delivery of the
+event. If, for example, there had been a buffer switch at the
+previous relay_reserve(), then this call to relay_commit() will
+generate a call to the client's deliver() callback function.
+In the case of LTT, for example, this is how it knows that it's
+got to notify the user-space daemon that there are buffers to
+consume (i.e. write to disk.)
 
-klaus
+> ltt_log_event should only be a few lines more (for writing header and 
+> event data).
 
+Actually no, you don't want ltt_log_event using relay_write(),
+for one thing because is can generate variable size events.
+Instead, ltt_log_event does (basically):
+	data_size = sizeof(event_id) + sizeof(time_delta) + sizeof(data_size);
+
+	relay_lock_channel();
+	relay_reserve();
+
+	relay_write_direct(&event_id, sizeof(event_id));
+	relay_write_direct(&time_delta, sizeof(event_id));
+	if (var_data) {
+		relay_write_direct(var_data, var_data_len);
+		data_size += var_data_len;
+	}
+	relay_write_direct(&data_size, sizeof(data_size));
+
+	relay_commit();
+	relay_unlock_channel();
+
+> What I'd like to know now are the reasons why you need more than this.
+
+I hope the above explanation clarifies things.
+
+> It's not the amount of data and any timing requirements have to be done by 
+> the caller. During processing you either take the events in the order they 
+> were recorded (often that's good enough) or you sort them which is not 
+> that difficult.
+
+Ordering is a non-issue to be honest. Unless you've got some hardware
+scope in there, it's almost impossible to pinpoint exactly when an
+event occurred. There is no single line of code where an event occurs,
+so it's all an educated guess anyway. You want things to resemble what
+really happened in as much as possible though.
+
+> I know you don't want to touch the topic of kernel debugging, but its 
+> requirements greatly overlap with what you want to do with ltt, e.g. one 
+> needs very often information about scheduling events as many kernel 
+> processes rely more and more on kernel threads. The only real requirement 
+> for kernel debugging is low runtime overhead, which you certainly like to 
+> have as well. So what exactly are these requirements and why can't there 
+> be no reasonable alternative?
+
+ok, ok, ok, ok, ok, ok, OK!
+
+You've hit it enough times on its head that I'll actually have to answer.
+
+In terms of low runtime overhead, you are correct, the requirements overlap,
+and I will agree to do my best to trim down LTT to make it useable for
+kernel tracing without jeopardizing its existing purpose.
+
+I'll start this separately in a "Ripping LTT apart" thread.
+
+In regards to relayfs, I think that LTT should run on both modes
+transparently. Unlike what I said before, no single mode should be tied
+to LTT. If you want tracing with the ad-hoc mode, then fine, you should
+be able to do that. There is merit in keeping both relayfs modes,
+irrespective of what modes LTT uses. A review of the managed and adhoc
+code should consider all clients, including LTT,  as potential users of
+both. Sure, we'll want to optimize the managed mode in as much as
+possible, but its functionality stands on its own and is different from
+that of the ad-hoc mode. The difference between these modes is akin the
+difference between GFP_KERNEL, GFP_ATOMIC, GFP_USER, etc.: same API,
+different underlying functionality.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

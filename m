@@ -1,55 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263415AbUE1PHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263419AbUE1PKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbUE1PHw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 11:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbUE1PHw
+	id S263419AbUE1PKc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 11:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUE1PKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 11:07:52 -0400
-Received: from thunk.org ([140.239.227.29]:51942 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S263415AbUE1PHv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 11:07:51 -0400
-Date: Fri, 28 May 2004 11:07:40 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Larry McVoy <lm@work.bitmover.com>,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>,
-       Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFD] Explicitly documenting patch submission
-Message-ID: <20040528150740.GF18449@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Larry McVoy <lm@work.bitmover.com>,
-	"La Monte H.P. Yarroll" <piggy@timesys.com>,
-	Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20040527062002.GA20872@work.bitmover.com> <20040527010409.66e76397.akpm@osdl.org> <40B6591C.80901@timesys.com> <20040527214638.GA18349@thunk.org> <20040528132436.GA11497@work.bitmover.com>
+	Fri, 28 May 2004 11:10:32 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:12929 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S263419AbUE1PKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 11:10:30 -0400
+Date: Fri, 28 May 2004 19:10:28 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6] don't put IDE disks in standby mode on halt on Alpha
+Message-ID: <20040528191028.A1117@jurassic.park.msu.ru>
+References: <20040527194920.A1709@jurassic.park.msu.ru> <200405271854.21499.bzolnier@elka.pw.edu.pl> <20040527210821.A2004@jurassic.park.msu.ru> <200405271940.49386.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040528132436.GA11497@work.bitmover.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200405271940.49386.bzolnier@elka.pw.edu.pl>; from B.Zolnierkiewicz@elka.pw.edu.pl on Thu, May 27, 2004 at 07:40:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 28, 2004 at 06:24:36AM -0700, Larry McVoy wrote:
-> Not in any useful way.  If I go look at the file history, which is what
-> I'm going to do when tracking down a bug, all I see on the files included
-> in this changeset is akpm@osdl.org.
+On Thu, May 27, 2004 at 07:40:49PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > Would #ifdef __alpha__ be better?
 > 
-> That means any annotated listing (BK or CVS blame) shows the wrong author.
+> actually CONFIG_ALPHA + comment why it is needed
 
-One of the ways that I often use for tracking down potential fixes is
-to simply do "bk changes > /tmp/foo" and then use emacs's incremental
-search to look for interesting potential changes.  (I know, you're
-probably throwing up all over your keyboard just about now.  :-)
+Ok, but now I'm thinking of probably better solution:
+consider sys_state == SYSTEM_HALT as another special case
+where we put the disk into standby mode *only* if it does
+have write cache but doesn't suppurt cache flush command
+(or cache flush fails for some reason).
 
-One "interesting" thing I've wished for is to be able to do "bk
-revtool drivers/net/wireless/airo.c", and then when I put my mouse
-over a particular line number, have it display in a little popup box 
-the changelog description of whatever line my mouse happened to 
-be over.  It would be a real pain to try to implement that in tcl/Tk, 
-though....  that would make it easier to solve the specific problem
-you've mentioned of "bk blame" showing the wrong author when looking 
-at a particular source file.
+Hopefully, most drives won't be spun down on halt.
+I think that it should be acceptable for x86 as well.
 
-						- Ted
+Ivan.
+
+--- 2.6/drivers/ide/ide-disk.c	Fri May 28 17:46:35 2004
++++ linux/drivers/ide/ide-disk.c	Fri May 28 18:42:47 2004
+@@ -1686,13 +1686,19 @@ static void idedisk_setup (ide_drive_t *
+ #endif
+ }
+ 
+-static void ide_cacheflush_p(ide_drive_t *drive)
++static int ide_cacheflush_p(ide_drive_t *drive)
+ {
+-	if (!drive->wcache || !ide_id_has_flush_cache(drive->id))
+-		return;
++	if (!drive->wcache)
++		return 0;
++
++	if (!ide_id_has_flush_cache(drive->id))
++		return 1;
+ 
+-	if (do_idedisk_flushcache(drive))
+-		printk(KERN_INFO "%s: wcache flush failed!\n", drive->name);
++	if (!do_idedisk_flushcache(drive))
++		return 0;
++
++	printk(KERN_INFO "%s: wcache flush failed!\n", drive->name);
++	return 1;
+ }
+ 
+ static int idedisk_cleanup (ide_drive_t *drive)
+@@ -1713,10 +1719,16 @@ static void ide_device_shutdown(struct d
+ {
+ 	ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
+ 
++	/* Never spin the disk down on reboot. */
+ 	if (system_state == SYSTEM_RESTART) {
+ 		ide_cacheflush_p(drive);
+ 		return;
+ 	}
++
++	/* Spin the disk down on halt only if attempt to flush the
++	   write cache fails. */
++	if (system_state == SYSTEM_HALT && !ide_cacheflush_p(drive))
++		return;
+ 
+ 	printk("Shutdown: %s\n", drive->name);
+ 	dev->bus->suspend(dev, PM_SUSPEND_STANDBY);

@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUGMMPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUGMMYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264914AbUGMMPV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 08:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264915AbUGMMPV
+	id S264915AbUGMMYT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 08:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbUGMMYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 08:15:21 -0400
-Received: from mail.gmx.de ([213.165.64.20]:27115 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264914AbUGMMPS (ORCPT
+	Tue, 13 Jul 2004 08:24:19 -0400
+Received: from smtp2.wanadoo.fr ([193.252.22.29]:6937 "EHLO
+	mwinf0201.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S264915AbUGMMYR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 08:15:18 -0400
-X-Authenticated: #19232476
-Subject: DriveReady SeekComplete Error...
-From: Dhruv Matani <dhruvbird@gmx.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1089721822.4215.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 13 Jul 2004 18:00:22 +0530
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jul 2004 08:24:17 -0400
+From: Waldo Bastian <bastian@kde.org>
+To: kde-core-devel@kde.org
+Subject: Re: kconfig's file handling (was: XFS: how to NOT null files on fsck?)
+Date: Tue, 13 Jul 2004 14:31:43 +0200
+User-Agent: KMail/1.6.52
+Cc: Tim Connors <tconnors@astro.swin.edu.au>, linux-kernel@vger.kernel.org
+References: <20040713110520.GB8930@ugly.local>
+In-Reply-To: <20040713110520.GB8930@ugly.local>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200407131431.43478.bastian@kde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	I've been getting this error for my brand new (2 months old) Samsung
-HDD. The model Number is: SV0411N, and it is a 40GB disk. I'm using the
-kernel version 2.4.20-8 provided by RedHat. When I used RH-7.2(before
-upgrading to RH-9), the same HDD worked fine. Also, when I re-installed
-RH-7.2, it worked fine?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Any suggestions?
+On Tue July 13 2004 13:05, Oswald Buddenhagen wrote:
+> heya,
+>
+> read the attachement first (put on your asbestos underwear first ;).
+> not exactly news to me, but somehow i never got to fixing it ...
 
-Please cc me the reply, sine I'm not subscribed.
-Thanks ;-)
+There is nothing to fix, we already use a tempfile + rename, it's in KSaveFile 
+since 1999. Or just look with strace if you don't believe me. This Tim 
+Connors guy shouldn't talk about things he obviously knows nothing about.
 
--- 
-        -Dhruv Matani.
-http://www.geocities.com/dhruvbird/
+As far as I can see the problem is that the filesystem writes out the meta 
+data before the actual file data hits the disk which creates a period of time 
+in which the on-disk state of the filesystem contains trashed files. I 
+believe ReiserFS actually has an option to do things in a sane order so that 
+it doesn't trash recently used files on an unclean shutdown.
 
-As a rule, man is a fool. When it's hot, he wants it cold. 
-When it's cold he wants it hot. He always wants what is not.
-	-Anon.
+The sentiment among filesystem developers seem to be that they don't care if 
+they trash files as long as the filesystem itself remains in a consistent 
+state. This kind of dataloss is the result of that attitude, either go 
+complain with them if it bothers you, or use a filesystem that does it right.
 
+Cheers,
+Waldo
+- -- 
+bastian@kde.org  |   KDE Community World Summit 2004  |  bastian@suse.com
+bastian@kde.org  | 21-29 August, Ludwigsburg, Germany |  bastian@suse.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
+iD8DBQFA89YvN4pvrENfboIRAptaAJ9YBv63UUL7Elcl3QsjYJPbGche7wCdEzKr
+Y+I4Kyi+p+r/gPixNdXQphE=
+=c3HD
+-----END PGP SIGNATURE-----

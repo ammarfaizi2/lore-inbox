@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285065AbSAGSw3>; Mon, 7 Jan 2002 13:52:29 -0500
+	id <S285073AbSAGSyT>; Mon, 7 Jan 2002 13:54:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285062AbSAGSwT>; Mon, 7 Jan 2002 13:52:19 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36368
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S285073AbSAGSwD>; Mon, 7 Jan 2002 13:52:03 -0500
-Date: Mon, 7 Jan 2002 10:48:14 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ricky Beam <jfbeam@bluetronic.net>
-cc: Thomas Molina <tmolina@home.com>, Stevie O <stevie@qrpff.net>,
-        Mark Hahn <hahn@physics.mcmaster.ca>,
-        Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: Two hdds on one channel - why so slow?
-In-Reply-To: <Pine.GSO.4.33.0201071112360.28783-100000@sweetums.bluetronic.net>
-Message-ID: <Pine.LNX.4.10.10201071035510.30039-100000@master.linux-ide.org>
+	id <S285153AbSAGSyL>; Mon, 7 Jan 2002 13:54:11 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:56582 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S285073AbSAGSx4>;
+	Mon, 7 Jan 2002 13:53:56 -0500
+Date: Mon, 7 Jan 2002 16:53:31 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] improving oom detection in rmap10c.
+In-Reply-To: <20020106154950.5B067693F@oscar.casa.dyndns.org>
+Message-ID: <Pine.LNX.4.33L.0201071635170.872-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jan 2002, Ricky Beam wrote:
+On Sun, 6 Jan 2002, Ed Tomlinson wrote:
 
-> --Ricky
-> 
-> PS: If we lived in Mr Hahn's world, we'd all still be using MFM/RLL drives.
->     (He seems to have forgotten what IDE stands for.)
+> This patch should prevent oom situations where the vm does not see
+> pages released from the slab caches.
 
-/KILLFILE
+> Comments?
 
-Andre Hedrick
-Linux ATA Development
+I have a feeling the OOM detection in rmap10c isn't working
+out because of another issue ... I think it has something to
+do with the swap allocation failure path indirectly triggering
+OOM, I think I'll go audit the code now ;)
+
+(oh the wonders of maintaining code ... auditing everybody's
+code and tracking down bugs instead of doing fun development ;))
+
+cheers,
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,85 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130656AbRCLUzE>; Mon, 12 Mar 2001 15:55:04 -0500
+	id <S130617AbRCLUte>; Mon, 12 Mar 2001 15:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130657AbRCLUyz>; Mon, 12 Mar 2001 15:54:55 -0500
-Received: from mx2.magma.ca ([206.191.0.250]:18427 "EHLO mx2.magma.ca")
-	by vger.kernel.org with ESMTP id <S130656AbRCLUyg>;
-	Mon, 12 Mar 2001 15:54:36 -0500
-Date: Mon, 12 Mar 2001 15:54:08 -0500
-From: Martin Hicks <mort@bork.org>
-To: mulix <mulix@actcom.co.il>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and PPPoE problem
-Message-ID: <20010312155408.A10163@plato.bork.org>
-In-Reply-To: <20010312145749.A8645@plato.bork.org> <Pine.LNX.4.10.10103122203230.2273-100000@alhambra.merseine.nu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.10.10103122203230.2273-100000@alhambra.merseine.nu>; from mulix@actcom.co.il on Mon, Mar 12, 2001 at 10:06:15PM +0200
+	id <S130621AbRCLUtY>; Mon, 12 Mar 2001 15:49:24 -0500
+Received: from pc30.tromso2.avidi.online.no ([148.122.16.30]:18446 "EHLO
+	shogun.thule.no") by vger.kernel.org with ESMTP id <S130617AbRCLUtH>;
+	Mon, 12 Mar 2001 15:49:07 -0500
+Message-ID: <3AAD35F4.61F47450@thule.no>
+Date: Mon, 12 Mar 2001 21:47:48 +0100
+From: Troels Walsted Hansen <troels@thule.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-10mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, davej@suse.de
+Subject: [PATCH] Fix MTRR support for AMD Athlon
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello world,
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Dave Jones' recent 2.4.2ac17 patch to mtrr.c to support the Cyrix III
+unfortunately broke the AMD Athlon support. Here's a patch to correct
+the problem (Dave must have overlooked the fall-through logic of the
+switch statement).
 
+Enjoy...
 
-Yes...my MTU on ppp0 was to high.  Thanks.
+-- 
+Troels Walsted Hansen
 
-mh
-
-On Mon, Mar 12, 2001 at 10:06:15PM +0200, mulix wrote:
-> hi,=20
->=20
-> you might want to check your mtu and mru values on both the external
-> interface (i assume you are using an ADSL modem, from your usage of
-> PPPoE, so that will be eth0) and the internal interface (ppp0). the mtu
-> and mru values on the internal interface should be a bit less than those
-> on the external interface, to work around modem bugs.=20
->=20
-> here in israel, an MTU value of 1500 for the external interface and 1452
-> for the internal (1452) seems to work fine and solve a problem which
-> sounds exactly like yours.=20
->=20
-> On Mon, 12 Mar 2001, Martin Hicks wrote:
->=20
-> > The machine connects fine and allows network traffic to pass
-> > through the link.
-> >=20
-> > However, certain websites seem to choke.
-> > (notable ones are www.chapters.ca and www.hp.com)
-> >=20
-> > Using Lynx or Netscape I get the same results, a few bytes of
-> > traffic are received and then nothing (eventually the connection
-> > times out). =20
->=20
-> --=20
-> mulix
-> http://www.advogato.com/person/mulix
->=20
-> linux/reboot.h: #define LINUX_REBOOT_MAGIC1 0xfee1dead
->=20
-
---=20
-Martin Hicks   || mort@bork.org   =20
-Use PGP/GnuPG  || DSS PGP Key: 0x4C7F2BEE =20
-Beer: So much more than just a breakfast drink.
-
---PEIAKu/WMn1b1Hv9
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6rTdw0ZUZrUx/K+4RAikBAKDJGpkWqE6EUvXWZb5B29/PtIH34gCfd1A+
-2LAR5Xhr6W0J4wjCB7jS5nc=
-=kTPJ
------END PGP SIGNATURE-----
-
---PEIAKu/WMn1b1Hv9--
+--- mtrr.c1.38  Sun Mar 11 13:42:30 2001
++++ mtrr.c      Mon Mar 12 21:02:15 2001
+@@ -235,6 +235,12 @@
+   v1.38
+     20010309   Dave Jones <davej@suse.de>
+               Add support for Cyrix III.
++
++  v1.39
++    20010312   Troels Walsted Hansen <troels@thule.no>
++              Fixed the AMD Athlon support that Dave Jones' patch
+broke.
++              Also updated the version number to match this changelog.
++
+ */
+ #include <linux/types.h>
+ #include <linux/errno.h>
+@@ -274,7 +280,7 @@
+ #include <asm/hardirq.h>
+ #include <linux/irq.h>
+ 
+-#define MTRR_VERSION            "1.37 (20001109)"
++#define MTRR_VERSION            "1.39 (20010312)"
+ 
+ #define TRUE  1
+ #define FALSE 0
+@@ -1964,6 +1970,14 @@
+        get_mtrr = intel_get_mtrr;
+        set_mtrr_up = intel_set_mtrr_up;
+        switch (boot_cpu_data.x86_vendor) {
++       case X86_VENDOR_CENTAUR:
++               /* Cyrix III has Intel style MTRRs, but doesn't support
+PAE */
++               if (boot_cpu_data.x86 == 6 && boot_cpu_data.x86_model ==
+6) {
++                       size_or_mask  = 0xfff00000; /* 32 bits */
++                       size_and_mask = 0;
++               }
++               break;
++
+        case X86_VENDOR_AMD:
+                /* The original Athlon docs said that
+                   total addressable memory is 44 bits wide.
+@@ -1982,13 +1996,7 @@
+                        size_and_mask = ~size_or_mask & 0xfff00000;
+                        break;
+                }
+-       case X86_VENDOR_CENTAUR:
+-               /* Cyrix III has Intel style MTRRs, but doesn't support
+PAE */
+-               if (boot_cpu_data.x86 == 6 && boot_cpu_data.x86_model ==
+6) {
+-                       size_or_mask  = 0xfff00000; /* 32 bits */
+-                       size_and_mask = 0;
+-               }
+-               break;
++               /* NOTE: fallthrough to default here! */
+ 
+        default:
+                /* Intel, etc. */

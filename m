@@ -1,76 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbTD3JIR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 05:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbTD3JIR
+	id S261710AbTD3JEA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 05:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbTD3JEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 05:08:17 -0400
-Received: from [218.4.63.7] ([218.4.63.7]:53520 "HELO FTP.mitac-mkl.com.cn")
-	by vger.kernel.org with SMTP id S261886AbTD3JIP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 05:08:15 -0400
-Date: Wed, 30 Apr 2003 17:19:52 +0800
-From: Roger.Ling@mitac-mkl.com.cn
+	Wed, 30 Apr 2003 05:04:00 -0400
+Received: from [203.116.36.98] ([203.116.36.98]:15525 "HELO
+	mail.bii.a-star.edu.sg") by vger.kernel.org with SMTP
+	id S261710AbTD3JD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 05:03:58 -0400
+Message-ID: <1188.192.168.122.46.1051694168.squirrel@web.bii.a-star.edu.sg>
+Date: Wed, 30 Apr 2003 17:16:08 +0800 (SGT)
+Subject: RHAS kernel upgrade?
+From: "Yang-Hwee TAN" <tanyh@bii.a-star.edu.sg>
 To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.11)
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="----=_NextPartTM-000-6fb28b76-ecce-46ef-86c9-ee81883ceed4"
-Subject: Mail delivery failure
-Message-Id: <S261886AbTD3JIP/20030430090815Z+920@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi,
 
-------=_NextPartTM-000-6fb28b76-ecce-46ef-86c9-ee81883ceed4
-Content-type: text/plain
-
-****** Message from InterScan E-Mail VirusWall NT ******
-
-Sent >>> RCPT TO: <Roger.Ling@mitac.com.cn>
-Received <<< 550 <Roger.Ling@mitac.com.cn>, Recipient unknown
-
-Could not deliver mail to this user.
-*****************     End of message     ***************
-
-------=_NextPartTM-000-6fb28b76-ecce-46ef-86c9-ee81883ceed4
-Content-type: message/rfc822
-
-Received: from 10.83.30.200 by FTP.mitac-mkl.com.cn (InterScan E-Mail VirusWall NT); Wed, 30 Apr 2003 17:19:51 +0800
-Message-ID: <001201c30ef9$45e1d720$c81e530a@anson>
-From: "LINUX-KERNEL@vger.kernel.org" <linux-kernel@vger.kernel.org>
-To: "=?gb2312?B?Um9nZXIuTGluZyBbwejydoTZXQ==?=" <Roger.Ling@mitac.com.cn>
-References: <71C00BF11D82D611883000306E002CCA01D84CFD@mrspdc.mrs.com.cn>
-Subject: =?gb2312?B?0tG2wTog?=
-Date: Wed, 30 Apr 2003 17:09:07 +0800
-MIME-Version: 1.0
-Content-Type: multipart/report;
-	report-type=disposition-notification;
-	boundary="----=_NextPart_000_000E_01C30F3B.35784F30"
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_000E_01C30F3B.35784F30
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
-
-1eLKx9PKvP672Na0o6zK1bz+yMs6DQogIkFkbWluTUtMIFvApd9fz7W9ebncwO2GVF0iIDxBZG1p
-bk1LTEBtaWMuY29tLnR3PiDT2iAyMDAzLTQtMzAgMTc6MDcNCg0KtMu72Na0se3D97jD08q8/tLR
-vq3P1Mq+1NrK1bz+yMu1xLzGy+O7+snPwcujrM/Uyr7KsbzkOiAyMDAzLTQtMzAgMTc6MDk=
-
-------=_NextPart_000_000E_01C30F3B.35784F30
-Content-Type: message/disposition-notification
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Final-Recipient: rfc822;Roger.Ling@mitac.com.cn
-Original-Message-ID: <71C00BF11D82D611883000306E002CCA01D84CFD@mrspdc.mrs.com.cn>
-Disposition: manual-action/MDN-sent-manually; displayed
+i'm wondering is it good build if i upgrade my
+RedHat Advance Server kernel via the use of the
+kernel tarball downloaded from kernel.org?
 
 
-------=_NextPart_000_000E_01C30F3B.35784F30--
+--
+Yang-Hwee TAN
+Systems Engineer (Cluster Computing)
+http://www.bii.a-star.edu.sg/~tanyh
+
+Bioinformatics Institute
+http://www.bii.a-star.edu.sg
+Tel: +65 6874-1271
 
 
-------=_NextPartTM-000-6fb28b76-ecce-46ef-86c9-ee81883ceed4--

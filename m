@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263246AbTECDqb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 23:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263249AbTECDqb
+	id S263249AbTECEJb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 00:09:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTECEJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 23:46:31 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:16337 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263246AbTECDqa (ORCPT
+	Sat, 3 May 2003 00:09:31 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:9718 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263249AbTECEJa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 23:46:30 -0400
-Date: Fri, 2 May 2003 21:00:03 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: dipankar@in.ibm.com
+	Sat, 3 May 2003 00:09:30 -0400
+Date: Sat, 3 May 2003 09:54:31 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
 Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] reducing overheads in fget/fput
-Message-Id: <20030502210003.7ab96802.akpm@digeo.com>
-In-Reply-To: <20030503035300.GA1407@in.ibm.com>
-References: <20030428165240.GA1105@in.ibm.com>
-	<20030428193228.GP10374@parcelfarce.linux.theplanet.co.uk>
-	<20030428195836.GD1105@in.ibm.com>
-	<20030502171726.GA1414@in.ibm.com>
-	<20030502135404.0ba2ca66.akpm@digeo.com>
-	<20030503035300.GA1407@in.ibm.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Message-ID: <20030503042431.GC1407@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20030428165240.GA1105@in.ibm.com> <20030428193228.GP10374@parcelfarce.linux.theplanet.co.uk> <20030428195836.GD1105@in.ibm.com> <20030502171726.GA1414@in.ibm.com> <20030502135404.0ba2ca66.akpm@digeo.com> <20030503035300.GA1407@in.ibm.com> <20030502210003.7ab96802.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 May 2003 03:58:51.0518 (UTC) FILETIME=[4ED0D9E0:01C31128]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030502210003.7ab96802.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar Sarma <dipankar@in.ibm.com> wrote:
->
-> On Fri, May 02, 2003 at 01:54:04PM -0700, Andrew Morton wrote:
-> > Dipankar Sarma <dipankar@in.ibm.com> wrote:
-> > > Here is a patch that fixes that.
-> > 
-> > This patch is fairly foul.
+On Fri, May 02, 2003 at 09:00:03PM -0700, Andrew Morton wrote:
+> Dipankar Sarma <dipankar@in.ibm.com> wrote:
+> > Not sure what your grouse is, but I don't like the fget_ligth()/fput_light
+> > semantics myself. They don't seem natural, but I can't think of
+> > better way to do this. 
 > 
-> Not sure what your grouse is, but I don't like the fget_ligth()/fput_light
-> semantics myself. They don't seem natural, but I can't think of
-> better way to do this. 
+> Precisely.
 
-Precisely.
+I thought of doing something like -
 
-> > 
-> > > kernel           sys time     std-dev
-> > > ------------     --------     -------
-> > > UP - vanilla     2.104        0.028
-> > > SMP - vanilla    2.976        0.023
-> > > UP - file        1.867        0.019
-> > > SMP - file       2.719        0.026
-> > 
-> > But it is localised, and makes a substantial difference.
-> 
-> If I haven't broken too many things, then I will try to get some
-> performance results from large machines.
+static inline is_fds_shared(void)
+{
+	struct files_struct *files = current->files;
+	return atomic_read(&files->count) != 1;
+}
 
-P4's will like it more.
- 
-> > 
-> > I inlined fput_light:
-> 
-> Looks good.
 
-I also renamed `flag' to `fput_needed' everywhere.
+sys_blah(..)
+{
 
+	int fds_shared = is_fds_shared();
+
+	file = fget_light(fd, fds_shared);
+	...
+	...
+	fput_light(file, fds_shared);
+}
+
+It still didn't look very natural. We leave open the possibility of
+users doing is_fds_shared() for both fget_light and fput_light.
+With fput_needed flag, atleast we force them to use what is returned
+by fget_light.
+
+Thanks
+Dipankar

@@ -1,85 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbUK2S4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbUK2TAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbUK2S4c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 13:56:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbUK2S4c
+	id S261514AbUK2TAA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 14:00:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbUK2TAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 13:56:32 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:47520 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261494AbUK2Syl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 13:54:41 -0500
+	Mon, 29 Nov 2004 14:00:00 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:26281 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261514AbUK2Syv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 13:54:51 -0500
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Rik van Riel <riel@redhat.com>,
        Chris Mason <mason@suse.com>,
        ckrm-tech <ckrm-tech@lists.sourceforge.net>
 Reply-To: Gerrit Huizenga <gh@us.ibm.com>
 From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: [PATCH] CKRM: 6/10 CKRM:  Resource controller for sockets
+Subject: [PATCH] CKRM: 4/10 CKRM:  Full rcfs support
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <19776.1101754195.1@us.ibm.com>
-Date: Mon, 29 Nov 2004 10:49:55 -0800
-Message-Id: <E1CYqax-000591-00@w-gerrit.beaverton.ibm.com>
+Content-ID: <19721.1101754104.1@us.ibm.com>
+Date: Mon, 29 Nov 2004 10:48:24 -0800
+Message-Id: <E1CYqZU-000588-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides the extensions for CKRM to track per socket classes.
-This is the base to enable socket based resource control for inbound
-connection control, bandwidth control etc.
+Updates CKRM Resource Control Filesystem (rcfs) to include full
+directory structure support.
 
+Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
+Signed-Off-By: Hubertus Franke <frankeh@us.ibm.com>
+Signed-Off-By: Shailabh Nagar <nagar@us.ibm.com>
 Signed-Off-By: Vivek Kashyap <vivk@us.ibm.com>
 Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
 
 
-Index: linux-2.6.10-rc2-ckrm1/fs/rcfs/Makefile
+Index: linux-2.6.10-rc2/fs/Makefile
 ===================================================================
---- linux-2.6.10-rc2-ckrm1.orig/fs/rcfs/Makefile	2004-11-22 14:51:22.000000000 -0800
-+++ linux-2.6.10-rc2-ckrm1/fs/rcfs/Makefile	2004-11-24 12:33:23.000000000 -0800
-@@ -3,6 +3,7 @@
- #
- 
- obj-$(CONFIG_RCFS_FS) += rcfs.o 
--rcfs-objs := super.o inode.o dir.o rootdir.o magic.o tc_magic.o
-+rcfs-objs := super.o inode.o dir.o rootdir.o magic.o tc_magic.o socket_fs.o
- 
- rcfs-objs-$(CONFIG_CKRM_TYPE_TASKCLASS) += tc_magic.o
-+rcfs-objs-$(CONFIG_CKRM_TYPE_SOCKETCLASS) += socket_fs.o
-Index: linux-2.6.10-rc2-ckrm1/fs/rcfs/rootdir.c
-===================================================================
---- linux-2.6.10-rc2-ckrm1.orig/fs/rcfs/rootdir.c	2004-11-22 14:51:22.000000000 -0800
-+++ linux-2.6.10-rc2-ckrm1/fs/rcfs/rootdir.c	2004-11-24 12:33:23.000000000 -0800
-@@ -198,6 +198,10 @@
- extern struct rcfs_mfdesc tc_mfdesc;
- #endif
- 
-+#ifdef CONFIG_CKRM_TYPE_SOCKETCLASS
-+extern struct rcfs_mfdesc sock_mfdesc;
-+#endif
-+
- /* Common root and magic file entries.
-  * root name, root permissions, magic file names and magic file permissions 
-  * are needed by all entities (classtypes and classification engines) existing 
-@@ -214,4 +218,10 @@
- #else
- 	NULL,
- #endif
-+#ifdef CONFIG_CKRM_TYPE_SOCKETCLASS
-+	&sock_mfdesc,
-+#else
-+	NULL,
-+#endif
-+
- };
-Index: linux-2.6.10-rc2-ckrm1/fs/rcfs/socket_fs.c
+--- linux-2.6.10-rc2.orig/fs/Makefile	2004-11-14 17:27:52.000000000 -0800
++++ linux-2.6.10-rc2/fs/Makefile	2004-11-19 20:44:18.255709415 -0800
+@@ -92,5 +92,6 @@
+ obj-$(CONFIG_XFS_FS)		+= xfs/
+ obj-$(CONFIG_AFS_FS)		+= afs/
+ obj-$(CONFIG_BEFS_FS)		+= befs/
++obj-$(CONFIG_RCFS_FS)		+= rcfs/
+ obj-$(CONFIG_HOSTFS)		+= hostfs/
+ obj-$(CONFIG_HPPFS)		+= hppfs/
+Index: linux-2.6.10-rc2/fs/rcfs/dir.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.10-rc2-ckrm1/fs/rcfs/socket_fs.c	2004-11-24 12:33:23.000000000 -0800
-@@ -0,0 +1,334 @@
-+/* ckrm_socketaq.c 
++++ linux-2.6.10-rc2/fs/rcfs/dir.c	2004-11-19 20:44:18.261708464 -0800
+@@ -0,0 +1,300 @@
++/* 
++ * fs/rcfs/dir.c 
 + *
-+ * Copyright (C) Vivek Kashyap,      IBM Corp. 2004
++ * Copyright (C) Shailabh Nagar,  IBM Corp. 2004
++ *               Vivek Kashyap,   IBM Corp. 2004
++ *           
 + * 
++ * Directory operations for rcfs
++ *
 + * Latest version, more details at http://ckrm.sf.net
 + * 
 + * This program is free software; you can redistribute it and/or modify
@@ -89,423 +68,301 @@ Index: linux-2.6.10-rc2-ckrm1/fs/rcfs/socket_fs.c
 + *
 + */
 +
-+/* Changes
-+ * Initial version
++/*
++ * Changes
++ *
++ * 08 Mar 2004
++ *        Created.
 + */
 +
-+/*******************************************************************************
-+ *  Socket class type
-+ *   
-+ * Defines the root structure for socket based classes. Currently only inbound
-+ * connection control is supported based on prioritized accept queues. 
-+ ******************************************************************************/
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/namei.h>
++#include <linux/namespace.h>
++#include <linux/dcache.h>
++#include <linux/seq_file.h>
++#include <linux/pagemap.h>
++#include <linux/highmem.h>
++#include <linux/init.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/backing-dev.h>
++#include <linux/parser.h>
++
++#include <asm/uaccess.h>
 +
 +#include <linux/rcfs.h>
-+#include <net/tcp.h>
 +
-+extern int rcfs_create(struct inode *, struct dentry *, int,
-+		       struct nameidata *);
-+extern int rcfs_unlink(struct inode *, struct dentry *);
-+extern int rcfs_symlink(struct inode *, struct dentry *, const char *);
-+extern int rcfs_mknod(struct inode *, struct dentry *, int mode, dev_t);
-+extern int rcfs_mkdir(struct inode *, struct dentry *, int);
-+extern int rcfs_rmdir(struct inode *, struct dentry *);
-+extern int rcfs_rename(struct inode *, struct dentry *, struct inode *,
-+		       struct dentry *);
++#define rcfs_positive(dentry)  ((dentry)->d_inode && !d_unhashed((dentry)))
 +
-+extern int rcfs_create_coredir(struct inode *, struct dentry *);
-+int sock_mkdir(struct inode *, struct dentry *, int mode);
-+int sock_rmdir(struct inode *, struct dentry *);
++int rcfs_empty(struct dentry *dentry)
++{
++	struct dentry *child;
++	int ret = 0;
 +
-+int sock_create_noperm(struct inode *, struct dentry *, int,
-+		       struct nameidata *);
-+int sock_unlink_noperm(struct inode *, struct dentry *);
-+int sock_mkdir_noperm(struct inode *, struct dentry *, int);
-+int sock_rmdir_noperm(struct inode *, struct dentry *);
-+int sock_mknod_noperm(struct inode *, struct dentry *, int, dev_t);
++	spin_lock(&dcache_lock);
++	list_for_each_entry(child, &dentry->d_subdirs, d_child)
++	    if (!rcfs_is_magic(child) && rcfs_positive(child))
++		goto out;
++	ret = 1;
++out:
++	spin_unlock(&dcache_lock);
++	return ret;
++}
 +
-+void sock_set_directory(void);
++/* Directory inode operations */
 +
-+extern struct file_operations config_fileops,
-+    members_fileops, shares_fileops, stats_fileops, target_fileops;
++int
++rcfs_create(struct inode *dir, struct dentry *dentry, int mode,
++	    struct nameidata *nd)
++{
++	return rcfs_mknod(dir, dentry, mode | S_IFREG, 0);
++}
 +
-+struct inode_operations my_iops = {
++EXPORT_SYMBOL_GPL(rcfs_create);
++
++/* Symlinks permitted ?? */
++int rcfs_symlink(struct inode *dir, struct dentry *dentry, const char *symname)
++{
++	struct inode *inode;
++	int error = -ENOSPC;
++
++	inode = rcfs_get_inode(dir->i_sb, S_IFLNK | S_IRWXUGO, 0);
++	if (inode) {
++		int l = strlen(symname) + 1;
++		error = page_symlink(inode, symname, l);
++		if (!error) {
++			if (dir->i_mode & S_ISGID)
++				inode->i_gid = dir->i_gid;
++			d_instantiate(dentry, inode);
++			dget(dentry);
++		} else
++			iput(inode);
++	}
++	return error;
++}
++
++EXPORT_SYMBOL_GPL(rcfs_symlink);
++
++int rcfs_create_coredir(struct inode *dir, struct dentry *dentry)
++{
++
++	struct rcfs_inode_info *ripar, *ridir;
++	int sz;
++
++	ripar = RCFS_I(dir);
++	ridir = RCFS_I(dentry->d_inode);
++	/* Inform resource controllers - do Core operations */
++	if (ckrm_is_core_valid(ripar->core)) {
++		sz = strlen(ripar->name) + strlen(dentry->d_name.name) + 2;
++		ridir->name = kmalloc(sz, GFP_KERNEL);
++		if (!ridir->name) {
++			return -ENOMEM;
++		}
++		snprintf(ridir->name, sz, "%s/%s", ripar->name,
++			 dentry->d_name.name);
++		ridir->core = (*(ripar->core->classtype->alloc))
++		    (ripar->core, ridir->name);
++	} else {
++		printk(KERN_ERR "rcfs_mkdir: Invalid parent core %p\n",
++		       ripar->core);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(rcfs_create_coredir);
++
++int rcfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
++{
++
++	int retval = 0;
++	ckrm_classtype_t *clstype;
++
++#if 0
++	struct dentry *pd = list_entry(dir->i_dentry.next, struct dentry,
++				       d_alias);
++	if ((!strcmp(pd->d_name.name, "/") &&
++	     !strcmp(dentry->d_name.name, "ce"))) {
++		/* Call CE's mkdir if it has registered, else fail. */
++		if (rcfs_eng_callbacks.mkdir) {
++			return (*rcfs_eng_callbacks.mkdir) (dir, dentry, mode);
++		} else {
++			return -EINVAL;
++		}
++	}
++#endif
++	if (_rcfs_mknod(dir, dentry, mode | S_IFDIR, 0)) {
++		printk(KERN_ERR "rcfs_mkdir: error in _rcfs_mknod\n");
++		return retval;
++	}
++	dir->i_nlink++;
++	/* Inherit parent's ops since _rcfs_mknod assigns noperm ops. */
++	dentry->d_inode->i_op = dir->i_op;
++	dentry->d_inode->i_fop = dir->i_fop;
++	retval = rcfs_create_coredir(dir, dentry);
++	if (retval) {
++		simple_rmdir(dir, dentry);
++		return retval;
++	}
++	/* create the default set of magic files */
++	clstype = (RCFS_I(dentry->d_inode))->core->classtype;
++	rcfs_create_magic(dentry, &(((struct rcfs_magf *)clstype->mfdesc)[1]),
++			  clstype->mfcount - 3);
++	return retval;
++}
++
++EXPORT_SYMBOL_GPL(rcfs_mkdir);
++
++int rcfs_rmdir(struct inode *dir, struct dentry *dentry)
++{
++	struct rcfs_inode_info *ri = RCFS_I(dentry->d_inode);
++
++#if 0
++	struct dentry *pd = list_entry(dir->i_dentry.next,
++				       struct dentry, d_alias);
++	if ((!strcmp(pd->d_name.name, "/") &&
++	     !strcmp(dentry->d_name.name, "ce"))) {
++		// Call CE's mkdir if it has registered, else fail.
++		if (rcfs_eng_callbacks.rmdir) {
++			return (*rcfs_eng_callbacks.rmdir) (dir, dentry);
++		} else {
++			return simple_rmdir(dir, dentry);
++		}
++	} else if ((!strcmp(pd->d_name.name, "/") &&
++		    !strcmp(dentry->d_name.name, "network"))) {
++		return -EPERM;
++	}
++#endif
++	if (!rcfs_empty(dentry)) {
++		printk(KERN_ERR "rcfs_rmdir: directory not empty\n");
++		return -ENOTEMPTY;
++	}
++	/* Core class removal  */
++
++	if (ri->core == NULL) {
++		printk(KERN_ERR "rcfs_rmdir: core==NULL\n");
++		// likely a race condition
++		return 0;
++	}
++
++	if ((*(ri->core->classtype->free)) (ri->core)) {
++		printk(KERN_ERR "rcfs_rmdir: ckrm_free_core_class failed\n");
++		goto out;
++	}
++	ri->core = NULL;	// just to be safe 
++
++	/* Clear magic files only after core successfully removed */
++	rcfs_clear_magic(dentry);
++
++	return simple_rmdir(dir, dentry);
++
++out:
++	return -EBUSY;
++}
++
++EXPORT_SYMBOL(rcfs_rmdir);
++
++int rcfs_unlink(struct inode *dir, struct dentry *dentry)
++{
++	// -ENOENT and not -ENOPERM to allow rm -rf to work despite 
++	// magic files being present
++	return -ENOENT;
++}
++
++EXPORT_SYMBOL_GPL(rcfs_unlink);
++
++/* rename is allowed on directories only */
++int
++rcfs_rename(struct inode *old_dir, struct dentry *old_dentry,
++	    struct inode *new_dir, struct dentry *new_dentry)
++{
++	if (S_ISDIR(old_dentry->d_inode->i_mode))
++		return simple_rename(old_dir, old_dentry, new_dir, new_dentry);
++	else
++		return -EINVAL;
++}
++
++EXPORT_SYMBOL_GPL(rcfs_rename);
++
++struct inode_operations rcfs_dir_inode_operations = {
 +	.create = rcfs_create,
 +	.lookup = simple_lookup,
 +	.link = simple_link,
 +	.unlink = rcfs_unlink,
 +	.symlink = rcfs_symlink,
-+	.mkdir = sock_mkdir,
-+	.rmdir = sock_rmdir,
++	.mkdir = rcfs_mkdir,
++	.rmdir = rcfs_rmdir,
 +	.mknod = rcfs_mknod,
 +	.rename = rcfs_rename,
 +};
 +
-+struct inode_operations class_iops = {
-+	.create = sock_create_noperm,
-+	.lookup = simple_lookup,
-+	.link = simple_link,
-+	.unlink = sock_unlink_noperm,
-+	.symlink = rcfs_symlink,
-+	.mkdir = sock_mkdir_noperm,
-+	.rmdir = sock_rmdir_noperm,
-+	.mknod = sock_mknod_noperm,
-+	.rename = rcfs_rename,
-+};
-+
-+struct inode_operations sub_iops = {
-+	.create = sock_create_noperm,
-+	.lookup = simple_lookup,
-+	.link = simple_link,
-+	.unlink = sock_unlink_noperm,
-+	.symlink = rcfs_symlink,
-+	.mkdir = sock_mkdir_noperm,
-+	.rmdir = sock_rmdir_noperm,
-+	.mknod = sock_mknod_noperm,
-+	.rename = rcfs_rename,
-+};
-+
-+struct rcfs_magf def_magf = {
-+	.mode = RCFS_DEFAULT_DIR_MODE,
-+	.i_op = &sub_iops,
-+	.i_fop = NULL,
-+};
-+
-+struct rcfs_magf sock_rootdesc[] = {
-+	{
-+	 //      .name = should not be set, copy from classtype name,
-+	 .mode = RCFS_DEFAULT_DIR_MODE,
-+	 .i_op = &my_iops,
-+	 //.i_fop   = &simple_dir_operations,
-+	 .i_fop = NULL,
-+	 },
-+	{
-+	 .name = "members",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &members_fileops,
-+	 },
-+	{
-+	 .name = "target",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &target_fileops,
-+	 },
-+	{
-+	 .name = "reclassify",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &reclassify_fileops,
-+	 },
-+};
-+
-+struct rcfs_magf sock_magf[] = {
-+	{
-+	 .name = "config",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &config_fileops,
-+	 },
-+	{
-+	 .name = "members",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &members_fileops,
-+	 },
-+	{
-+	 .name = "shares",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &shares_fileops,
-+	 },
-+	{
-+	 .name = "stats",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &stats_fileops,
-+	 },
-+	{
-+	 .name = "target",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &target_fileops,
-+	 },
-+};
-+
-+struct rcfs_magf sub_magf[] = {
-+	{
-+	 .name = "config",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &config_fileops,
-+	 },
-+	{
-+	 .name = "shares",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &shares_fileops,
-+	 },
-+	{
-+	 .name = "stats",
-+	 .mode = RCFS_DEFAULT_FILE_MODE,
-+	 .i_op = &my_iops,
-+	 .i_fop = &stats_fileops,
-+	 },
-+};
-+
-+struct rcfs_mfdesc sock_mfdesc = {
-+	.rootmf = sock_rootdesc,
-+	.rootmflen = (sizeof(sock_rootdesc) / sizeof(struct rcfs_magf)),
-+};
-+
-+#define SOCK_MAX_MAGF (sizeof(sock_magf)/sizeof(struct rcfs_magf))
-+#define LAQ_MAX_SUBMAGF (sizeof(sub_magf)/sizeof(struct rcfs_magf))
-+
-+int sock_rmdir(struct inode *p, struct dentry *me)
-+{
-+	struct dentry *mftmp, *mfdentry;
-+	int ret = 0;
-+
-+	// delete all magic sub directories
-+	list_for_each_entry_safe(mfdentry, mftmp, &me->d_subdirs, d_child) {
-+		if (S_ISDIR(mfdentry->d_inode->i_mode)) {
-+			ret = rcfs_rmdir(me->d_inode, mfdentry);
-+			if (ret)
-+				return ret;
-+		}
-+	}
-+	// delete ourselves
-+	ret = rcfs_rmdir(p, me);
-+
-+	return ret;
-+}
-+
-+#ifdef NUM_ACCEPT_QUEUES
-+#define LAQ_NUM_ACCEPT_QUEUES NUM_ACCEPT_QUEUES
-+#else
-+#define LAQ_NUM_ACCEPT_QUEUES 0
-+#endif
-+
-+int sock_mkdir(struct inode *dir, struct dentry *dentry, int mode)
-+{
-+	int retval = 0;
-+	int i, j;
-+	struct dentry *pentry, *mfdentry;
-+
-+	if (_rcfs_mknod(dir, dentry, mode | S_IFDIR, 0)) {
-+		printk(KERN_ERR "rcfs_mkdir: error reaching parent\n");
-+		return retval;
-+	}
-+	// Needed if only _rcfs_mknod is used instead of i_op->mkdir
-+	dir->i_nlink++;
-+
-+	retval = rcfs_create_coredir(dir, dentry);
-+	if (retval)
-+		goto mkdir_err;
-+
-+	/* create the default set of magic files */
-+	for (i = 0; i < SOCK_MAX_MAGF; i++) {
-+		mfdentry = rcfs_create_internal(dentry, &sock_magf[i], 0);
-+		mfdentry->d_fsdata = &RCFS_IS_MAGIC;
-+		RCFS_I(mfdentry->d_inode)->core = RCFS_I(dentry->d_inode)->core;
-+		if (sock_magf[i].i_fop)
-+			mfdentry->d_inode->i_fop = sock_magf[i].i_fop;
-+		if (sock_magf[i].i_op)
-+			mfdentry->d_inode->i_op = sock_magf[i].i_op;
-+	}
-+
-+	for (i = 1; i < LAQ_NUM_ACCEPT_QUEUES; i++) {
-+		j = sprintf(def_magf.name, "%d", i);
-+		def_magf.name[j] = '\0';
-+
-+		pentry = rcfs_create_internal(dentry, &def_magf, 0);
-+		retval = rcfs_create_coredir(dentry->d_inode, pentry);
-+		if (retval)
-+			goto mkdir_err;
-+		pentry->d_fsdata = &RCFS_IS_MAGIC;
-+		for (j = 0; j < LAQ_MAX_SUBMAGF; j++) {
-+			mfdentry =
-+			    rcfs_create_internal(pentry, &sub_magf[j], 0);
-+			mfdentry->d_fsdata = &RCFS_IS_MAGIC;
-+			RCFS_I(mfdentry->d_inode)->core =
-+			    RCFS_I(pentry->d_inode)->core;
-+			if (sub_magf[j].i_fop)
-+				mfdentry->d_inode->i_fop = sub_magf[j].i_fop;
-+			if (sub_magf[j].i_op)
-+				mfdentry->d_inode->i_op = sub_magf[j].i_op;
-+		}
-+		pentry->d_inode->i_op = &sub_iops;
-+	}
-+	dentry->d_inode->i_op = &class_iops;
-+	return 0;
-+
-+      mkdir_err:
-+	// Needed
-+	dir->i_nlink--;
-+	return retval;
-+}
-+
-+#ifndef NUM_ACCEPT_QUEUES
-+#define NUM_ACCEPT_QUEUES 0
-+#endif
-+
-+char *sock_get_name(struct ckrm_core_class *c)
-+{
-+	char *p = (char *)c->name;
-+
-+	while (*p)
-+		p++;
-+	while (*p != '/' && p != c->name)
-+		p--;
-+
-+	return ++p;
-+}
-+
 +int
-+sock_create_noperm(struct inode *dir, struct dentry *dentry, int mode,
-+		   struct nameidata *nd)
-+{
-+	return -EPERM;
-+}
-+
-+int sock_unlink_noperm(struct inode *dir, struct dentry *dentry)
-+{
-+	return -EPERM;
-+}
-+
-+int sock_mkdir_noperm(struct inode *dir, struct dentry *dentry, int mode)
-+{
-+	return -EPERM;
-+}
-+
-+int sock_rmdir_noperm(struct inode *dir, struct dentry *dentry)
++rcfs_root_create(struct inode *dir, struct dentry *dentry, int mode,
++		 struct nameidata *nd)
 +{
 +	return -EPERM;
 +}
 +
 +int
-+sock_mknod_noperm(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
++rcfs_root_symlink(struct inode *dir, struct dentry *dentry, const char *symname)
 +{
 +	return -EPERM;
 +}
 +
-+#if 0
-+void sock_set_directory()
++int rcfs_root_mkdir(struct inode *dir, struct dentry *dentry, int mode)
 +{
-+	struct dentry *pentry, *dentry;
-+
-+	pentry = rcfs_set_magf_byname("listen_aq", (void *)&my_dir_magf[0]);
-+	if (pentry) {
-+		dentry = rcfs_create_internal(pentry, &my_dir_magf[1], 0);
-+		if (my_dir_magf[1].i_fop)
-+			dentry->d_inode->i_fop = my_dir_magf[1].i_fop;
-+		RCFS_I(dentry->d_inode)->core = RCFS_I(pentry->d_inode)->core;
-+		dentry = rcfs_create_internal(pentry, &my_dir_magf[2], 0);
-+		if (my_dir_magf[2].i_fop)
-+			dentry->d_inode->i_fop = my_dir_magf[2].i_fop;
-+		RCFS_I(dentry->d_inode)->core = RCFS_I(pentry->d_inode)->core;
-+	} else {
-+		printk(KERN_ERR "Could not create /rcfs/listen_aq\n"
-+		       "Perhaps /rcfs needs to be mounted\n");
-+	}
++	return -EPERM;
 +}
-+#endif
-Index: linux-2.6.10-rc2-ckrm1/include/linux/ckrm_net.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.10-rc2-ckrm1/include/linux/ckrm_net.h	2004-11-24 12:33:23.000000000 -0800
-@@ -0,0 +1,42 @@
-+/* ckrm_rc.h - Header file to be used by Resource controllers of CKRM
-+ *
-+ * Copyright (C) Vivek Kashyap , IBM Corp. 2004
-+ * 
-+ * Provides data structures, macros and kernel API of CKRM for 
-+ * resource controllers.
-+ *
-+ * Latest version, more details at http://ckrm.sf.net
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
 +
-+#ifndef _LINUX_CKRM_NET_H
-+#define _LINUX_CKRM_NET_H
++int rcfs_root_rmdir(struct inode *dir, struct dentry *dentry)
++{
++	return -EPERM;
++}
 +
-+struct ckrm_sock_class;
++int rcfs_root_unlink(struct inode *dir, struct dentry *dentry)
++{
++	return -EPERM;
++}
 +
-+struct ckrm_net_struct {
-+	int ns_type;		// type of net class
-+	struct sock *ns_sk;	// pointer to socket
-+	pid_t ns_tgid;		// real process id
-+	pid_t ns_pid;		// calling thread's pid
-+	struct task_struct *ns_tsk;
-+	int ns_family;		// IPPROTO_IPV4 || IPPROTO_IPV6
-+	// Currently only IPV4 is supported
-+	union {
-+		__u32 ns_dipv4;	// V4 listener's address
-+	} ns_daddr;
-+	__u16 ns_dport;		// listener's port
-+	__u16 ns_sport;		// sender's port
-+	atomic_t ns_refcnt;
-+	struct ckrm_sock_class *core;
-+	struct list_head ckrm_link;
++int
++rcfs_root_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
++{
++	return -EPERM;
++}
++
++int
++rcfs_root_rename(struct inode *old_dir, struct dentry *old_dentry,
++		 struct inode *new_dir, struct dentry *new_dentry)
++{
++	return -EPERM;
++}
++
++struct inode_operations rcfs_rootdir_inode_operations = {
++	.create = rcfs_root_create,
++	.lookup = simple_lookup,
++	.link = simple_link,
++	.unlink = rcfs_root_unlink,
++	.symlink = rcfs_root_symlink,
++	.mkdir = rcfs_root_mkdir,
++	.rmdir = rcfs_root_rmdir,
++	.mknod = rcfs_root_mknod,
++	.rename = rcfs_root_rename,
 +};
-+
-+#define ns_daddrv4     ns_daddr.ns_dipv4
-+
-+#endif
-Index: linux-2.6.10-rc2-ckrm1/include/net/sock.h
-===================================================================
---- linux-2.6.10-rc2-ckrm1.orig/include/net/sock.h	2004-11-14 17:28:14.000000000 -0800
-+++ linux-2.6.10-rc2-ckrm1/include/net/sock.h	2004-11-24 12:33:23.000000000 -0800
-@@ -249,6 +249,7 @@
- 	struct timeval		sk_stamp;
- 	struct socket		*sk_socket;
- 	void			*sk_user_data;
-+	void			*sk_ns; // For use by CKRM
- 	struct module		*sk_owner;
- 	struct page		*sk_sndmsg_page;
- 	__u32			sk_sndmsg_off;
-Index: linux-2.6.10-rc2-ckrm1/init/Kconfig
-===================================================================
---- linux-2.6.10-rc2-ckrm1.orig/init/Kconfig	2004-11-22 14:51:22.000000000 -0800
-+++ linux-2.6.10-rc2-ckrm1/init/Kconfig	2004-11-24 12:33:23.000000000 -0800
-@@ -173,6 +173,16 @@
- 	
- 	  Say N if unsure 
- 
-+config CKRM_TYPE_SOCKETCLASS
-+	bool "Class Manager for socket groups"
-+	depends on CKRM && RCFS_FS
-+	help
-+	  SOCKET provides the extensions for CKRM to track per socket
-+	  classes.  This is the base to enable socket based resource 
-+	  control for inbound connection control, bandwidth control etc.
-+	
-+	  Say N if unsure.  
-+
- endmenu
- 
- config SYSCTL
-Index: linux-2.6.10-rc2-ckrm1/kernel/ckrm/ckrm_sockc.c
+Index: linux-2.6.10-rc2/fs/rcfs/inode.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.10-rc2-ckrm1/kernel/ckrm/ckrm_sockc.c	2004-11-24 12:33:23.000000000 -0800
-@@ -0,0 +1,576 @@
-+/* ckrm_sock.c - Class-based Kernel Resource Management (CKRM)
++++ linux-2.6.10-rc2/fs/rcfs/inode.c	2004-11-19 20:44:18.265707831 -0800
+@@ -0,0 +1,189 @@
++/* 
++ * fs/rcfs/inode.c 
 + *
-+ * Copyright (C) Hubertus Franke, IBM Corp. 2003,2004
-+ *           (C) Shailabh Nagar,  IBM Corp. 2003
-+ *           (C) Chandra Seetharaman,  IBM Corp. 2003
-+ *	     (C) Vivek Kashyap,	IBM Corp. 2004
-+ * 
-+ * 
-+ * Provides kernel API of CKRM for in-kernel,per-resource controllers 
-+ * (one each for cpu, memory, io, network) and callbacks for 
-+ * classification modules.
++ * Copyright (C) Shailabh Nagar,  IBM Corp. 2004
++ *               Vivek Kashyap,   IBM Corp. 2004
++ *           
++ * Resource class filesystem (rcfs) forming the 
++ * user interface to Class-based Kernel Resource Management (CKRM).
 + *
 + * Latest version, more details at http://ckrm.sf.net
 + * 
@@ -518,578 +375,1275 @@ Index: linux-2.6.10-rc2-ckrm1/kernel/ckrm/ckrm_sockc.c
 +
 +/* Changes
 + *
-+ * 28 Aug 2003
++ * 05 Mar 2004
 + *        Created.
-+ * 06 Nov 2003
-+ *        Made modifications to suit the new RBCE module.
-+ * 10 Nov 2003
-+ *        Fixed a bug in fork and exit callbacks. Added callbacks_active and
-+ *        surrounding logic. Added task paramter for all CE callbacks.
-+ * 23 Mar 2004
-+ *        moved to referenced counted class objects and correct locking
-+ * 12 Apr 2004
-+ *        introduced adopted to emerging classtype interface
++ * 06 Mar 2004
++ *        Parsing for shares added
 + */
 +
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/linkage.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <asm/uaccess.h>
-+#include <linux/mm.h>
-+#include <asm/errno.h>
-+#include <linux/string.h>
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
 +#include <linux/module.h>
-+#include <linux/ckrm_rc.h>
++#include <linux/list.h>
++#include <linux/fs.h>
++#include <linux/namei.h>
++#include <linux/namespace.h>
++#include <linux/dcache.h>
++#include <linux/seq_file.h>
++#include <linux/pagemap.h>
++#include <linux/highmem.h>
++#include <linux/init.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/backing-dev.h>
 +#include <linux/parser.h>
-+#include <net/tcp.h>
++#include <asm/uaccess.h>
 +
-+#include <linux/ckrm_net.h>
++#include <linux/rcfs.h>
 +
-+struct ckrm_sock_class {
-+	struct ckrm_core_class core;
-+};
++/*
++ * Address of variable used as flag to indicate a magic file, 
++ * value unimportant
++ */ 
++int RCFS_IS_MAGIC;
 +
-+static struct ckrm_sock_class sockclass_dflt_class = {
-+};
-+
-+#define SOCKET_CLASS_TYPE_NAME  "socketclass"
-+
-+const char *dflt_sockclass_name = SOCKET_CLASS_TYPE_NAME;
-+
-+static struct ckrm_core_class *sock_alloc_class(struct ckrm_core_class *parent,
-+						const char *name);
-+static int sock_free_class(struct ckrm_core_class *core);
-+
-+static int sock_forced_reclassify(ckrm_core_class_t * target,
-+				  const char *resname);
-+static int sock_show_members(struct ckrm_core_class *core,
-+			     struct seq_file *seq);
-+static void sock_add_resctrl(struct ckrm_core_class *core, int resid);
-+static void sock_reclassify_class(struct ckrm_sock_class *cls);
-+
-+struct ckrm_classtype CT_sockclass = {
-+	.mfidx = 1,
-+	.name = SOCKET_CLASS_TYPE_NAME,
-+	.typeID = CKRM_CLASSTYPE_SOCKET_CLASS,
-+	.maxdepth = 3,
-+	.resid_reserved = 0,
-+	.max_res_ctlrs = CKRM_MAX_RES_CTLRS,
-+	.max_resid = 0,
-+	.bit_res_ctlrs = 0L,
-+	.res_ctlrs_lock = SPIN_LOCK_UNLOCKED,
-+	.classes = LIST_HEAD_INIT(CT_sockclass.classes),
-+
-+	.default_class = &sockclass_dflt_class.core,
-+
-+	// private version of functions 
-+	.alloc = &sock_alloc_class,
-+	.free = &sock_free_class,
-+	.show_members = &sock_show_members,
-+	.forced_reclassify = &sock_forced_reclassify,
-+
-+	// use of default functions 
-+	.show_shares = &ckrm_class_show_shares,
-+	.show_stats = &ckrm_class_show_stats,
-+	.show_config = &ckrm_class_show_config,
-+	.set_config = &ckrm_class_set_config,
-+	.set_shares = &ckrm_class_set_shares,
-+	.reset_stats = &ckrm_class_reset_stats,
-+
-+	// mandatory private version .. no dflt available
-+	.add_resctrl = &sock_add_resctrl,
-+};
-+
-+/* helper functions */
-+
-+void ckrm_ns_hold(struct ckrm_net_struct *ns)
++struct inode *rcfs_get_inode(struct super_block *sb, int mode, dev_t dev)
 +{
-+	atomic_inc(&ns->ns_refcnt);
-+	return;
++	struct inode *inode = new_inode(sb);
++
++	if (inode) {
++		inode->i_mode = mode;
++		inode->i_uid = current->fsuid;
++		inode->i_gid = current->fsgid;
++		inode->i_blksize = PAGE_CACHE_SIZE;
++		inode->i_blocks = 0;
++		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
++		switch (mode & S_IFMT) {
++		default:
++			init_special_inode(inode, mode, dev);
++			break;
++		case S_IFREG:
++			/* Treat as default assignment */
++			inode->i_op = &rcfs_file_inode_operations;
++			/* inode->i_fop = &rcfs_file_operations; */
++			break;
++		case S_IFDIR:
++			/* inode->i_op = &rcfs_dir_inode_operations; */
++			inode->i_op = &rcfs_rootdir_inode_operations;
++			inode->i_fop = &simple_dir_operations;
++
++			/*
++			 * directory inodes start off with i_nlink == 2 
++			 *  (for "." entry)
++			 */
++			inode->i_nlink++;
++			break;
++		case S_IFLNK:
++			inode->i_op = &page_symlink_inode_operations;
++			break;
++		}
++	}
++	return inode;
 +}
 +
-+void ckrm_ns_put(struct ckrm_net_struct *ns)
++int _rcfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
 +{
-+	if (atomic_dec_and_test(&ns->ns_refcnt))
-+		kfree(ns);
-+	return;
++	struct inode *inode;
++	int error = -EPERM;
++
++	if (dentry->d_inode)
++		return -EEXIST;
++	inode = rcfs_get_inode(dir->i_sb, mode, dev);
++	if (inode) {
++		if (dir->i_mode & S_ISGID) {
++			inode->i_gid = dir->i_gid;
++			if (S_ISDIR(mode))
++				inode->i_mode |= S_ISGID;
++		}
++		d_instantiate(dentry, inode);
++		dget(dentry);
++		error = 0;
++	}
++	return error;
++}
++
++EXPORT_SYMBOL_GPL(_rcfs_mknod);
++
++int rcfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
++{
++	/* User can only create directories, not files */
++	if ((mode & S_IFMT) != S_IFDIR)
++		return -EINVAL;
++
++	return dir->i_op->mkdir(dir, dentry, mode);
++}
++
++EXPORT_SYMBOL_GPL(rcfs_mknod);
++
++struct dentry *rcfs_create_internal(struct dentry *parent,
++				    struct rcfs_magf *magf, int magic)
++{
++	struct qstr qstr;
++	struct dentry *mfdentry;
++
++	/* Get new dentry for name */
++	qstr.name = magf->name;
++	qstr.len = strlen(magf->name);
++	qstr.hash = full_name_hash(magf->name, qstr.len);
++	mfdentry = lookup_hash(&qstr, parent);
++
++	if (!IS_ERR(mfdentry)) {
++		int err;
++
++		down(&parent->d_inode->i_sem);
++		if (magic && (magf->mode & S_IFDIR))
++			err = parent->d_inode->i_op->mkdir(parent->d_inode,
++							   mfdentry,
++							   magf->mode);
++		else {
++			err = _rcfs_mknod(parent->d_inode, mfdentry,
++					  magf->mode, 0);
++			/*
++			 * _rcfs_mknod doesn't increment parent's link count, 
++			 * i_op->mkdir does.
++			 */
++			parent->d_inode->i_nlink++;
++		}
++		up(&parent->d_inode->i_sem);
++		if (err) {
++			dput(mfdentry);
++			return mfdentry;
++		}
++	}
++	return mfdentry;
++}
++
++EXPORT_SYMBOL_GPL(rcfs_create_internal);
++
++int rcfs_delete_internal(struct dentry *mfdentry)
++{
++	struct dentry *parent;
++
++	if (!mfdentry || !mfdentry->d_parent)
++		return -EINVAL;
++	parent = mfdentry->d_parent;
++	if (!mfdentry->d_inode) {
++		return 0;
++	}
++	down(&mfdentry->d_inode->i_sem);
++	if (S_ISDIR(mfdentry->d_inode->i_mode))
++		simple_rmdir(parent->d_inode, mfdentry);
++	else
++		simple_unlink(parent->d_inode, mfdentry);
++	up(&mfdentry->d_inode->i_sem);
++	d_delete(mfdentry);
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(rcfs_delete_internal);
++
++struct inode_operations rcfs_file_inode_operations = {
++	.getattr = simple_getattr,
++};
+Index: linux-2.6.10-rc2/fs/rcfs/magic.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.10-rc2/fs/rcfs/magic.c	2004-11-19 20:44:18.272706722 -0800
+@@ -0,0 +1,542 @@
++/* 
++ * fs/rcfs/magic.c 
++ *
++ * Copyright (C) Shailabh Nagar,      IBM Corp. 2004
++ *           (C) Vivek Kashyap,       IBM Corp. 2004
++ *           (C) Chandra Seetharaman, IBM Corp. 2004
++ *           (C) Hubertus Franke,     IBM Corp. 2004
++ * 
++ * File operations for common magic files in rcfs, 
++ * the user interface for CKRM. 
++ * 
++ * Latest version, more details at http://ckrm.sf.net
++ * 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++/*
++ * Changes
++ *
++ * 23 Apr 2004
++ *        Created from code kept earlier in fs/rcfs/magic_*.c
++ */
++
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/namei.h>
++#include <linux/namespace.h>
++#include <linux/dcache.h>
++#include <linux/seq_file.h>
++#include <linux/init.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/parser.h>
++#include <asm/uaccess.h>
++
++#include <linux/rcfs.h>
++
++/*
++ * Macros
++ *
++ * generic macros to assist in writing magic fileops
++ *
++ */
++
++#define MAGIC_SHOW(FUNC)                                               \
++static int                                                             \
++FUNC ## _show(struct seq_file *s, void *v)			       \
++{								       \
++	int rc=0;                                                      \
++        ssize_t precnt;                                                \
++	ckrm_core_class_t *core ;				       \
++								       \
++	core = (ckrm_core_class_t *)                                   \
++		(((struct rcfs_inode_info *)s->private)->core);	       \
++								       \
++	if (!ckrm_is_core_valid(core)) {			       \
++		return -EINVAL;					       \
++        }                                                              \
++        precnt = s->count ;                                            \
++	if (core->classtype->show_ ## FUNC)			       \
++		rc = (* core->classtype->show_ ## FUNC)(core, s);      \
++                                                                       \
++        if (s->count == precnt)                                        \
++		seq_printf(s, "No data to display\n");                 \
++	return rc;						       \
++};
++
++#define MAGIC_OPEN(FUNC)                                               \
++static int                                                             \
++FUNC ## _open(struct inode *inode, struct file *file)                  \
++{                                                                      \
++	struct rcfs_inode_info *ri;                                    \
++	int ret=-EINVAL;                                               \
++								       \
++	if (file->f_dentry && file->f_dentry->d_parent) {	       \
++								       \
++		ri = RCFS_I(file->f_dentry->d_parent->d_inode);	       \
++		ret = single_open(file,FUNC ## _show, (void *)ri);     \
++	}							       \
++	return ret;						       \
++}
++
++#define MAGIC_CLOSE(FUNC)                                              \
++static int                                                             \
++FUNC ## _close(struct inode *inode, struct file *file)		       \
++{								       \
++	return single_release(inode,file);			       \
++}
++
++#define MAGIC_PARSE(FUNC)                                              \
++static int                                                             \
++FUNC ## _parse(char *options, char **resstr, char **otherstr)	       \
++{								       \
++	char *p;						       \
++	*resstr = NULL;                                                \
++								       \
++	if (!options)						       \
++		return 0;					       \
++								       \
++	while ((p = strsep(&options, ",")) != NULL) {		       \
++		substring_t args[MAX_OPT_ARGS];			       \
++		int token;					       \
++								       \
++		if (!*p)					       \
++			continue;				       \
++								       \
++		token = match_token(p, FUNC##_tokens, args);           \
++		switch (token) {				       \
++		case FUNC ## _res_type:			               \
++			*resstr = match_strdup(args);		       \
++			if (!strcmp(#FUNC, "config")) {		       \
++				char *str = p + strlen(p) + 1;	       \
++				*otherstr = kmalloc(strlen(str) + 1,   \
++							 GFP_KERNEL);  \
++				if (*otherstr == NULL) {	       \
++					kfree(*resstr);		       \
++					*resstr = NULL;		       \
++					return 0;		       \
++				} else {			       \
++					strcpy(*otherstr, str);	       \
++					return 1;		       \
++				}				       \
++			}					       \
++			break;					       \
++		case FUNC ## _str:			               \
++			*otherstr = match_strdup(args);		       \
++			break;					       \
++		default:					       \
++			return 0;				       \
++		}                                                      \
++	}                                                              \
++	return (*resstr != NULL);				       \
++}
++
++#define MAGIC_WRITE(FUNC,CLSTYPEFUN)                                   \
++static ssize_t                                                         \
++FUNC ## _write(struct file *file, const char __user *buf,	       \
++			   size_t count, loff_t *ppos)		       \
++{								       \
++	struct rcfs_inode_info *ri = 				       \
++		RCFS_I(file->f_dentry->d_parent->d_inode);	       \
++	char *optbuf, *otherstr=NULL, *resname=NULL;		       \
++	int done, rc = 0;					       \
++	ckrm_core_class_t *core ;				       \
++								       \
++	core = ri->core;					       \
++	if (!ckrm_is_core_valid(core)) 				       \
++		return -EINVAL;					       \
++								       \
++	if ((ssize_t) count < 0 				       \
++	    || (ssize_t) count > FUNC ## _max_input_size)              \
++		return -EINVAL;					       \
++								       \
++	if (!access_ok(VERIFY_READ, buf, count))		       \
++		return -EFAULT;					       \
++								       \
++	down(&(ri->vfs_inode.i_sem));				       \
++								       \
++	optbuf = kmalloc(FUNC ## _max_input_size, GFP_KERNEL);         \
++	__copy_from_user(optbuf, buf, count);			       \
++	if (optbuf[count-1] == '\n')				       \
++		optbuf[count-1]='\0';				       \
++								       \
++	done = FUNC ## _parse(optbuf, &resname, &otherstr);            \
++								       \
++	if (!done) {						       \
++		printk(KERN_ERR "Error parsing FUNC \n");	       \
++		goto FUNC ## _write_out;			       \
++	}							       \
++								       \
++	if (core->classtype-> CLSTYPEFUN) {		               \
++		rc = (*core->classtype->CLSTYPEFUN)	               \
++			(core, resname, otherstr);		       \
++		if (rc) {					       \
++			printk(KERN_ERR "FUNC_write: CLSTYPEFUN error\n");   \
++			goto FUNC ## _write_out; 	               \
++		}						       \
++	}							       \
++								       \
++FUNC ## _write_out:						       \
++	up(&(ri->vfs_inode.i_sem));				       \
++	kfree(optbuf);						       \
++	kfree(otherstr);					       \
++	kfree(resname);						       \
++	return rc ? rc : count;					       \
++}
++
++#define MAGIC_RD_FILEOPS(FUNC)                                         \
++struct file_operations FUNC ## _fileops = {                            \
++	.open           = FUNC ## _open,			       \
++	.read           = seq_read,				       \
++	.llseek         = seq_lseek,				       \
++	.release        = FUNC ## _close,			       \
++};                                                                     \
++EXPORT_SYMBOL(FUNC ## _fileops);
++
++#define MAGIC_RDWR_FILEOPS(FUNC)                                       \
++struct file_operations FUNC ## _fileops = {                            \
++	.open           = FUNC ## _open,			       \
++	.read           = seq_read,				       \
++	.llseek         = seq_lseek,				       \
++	.release        = FUNC ## _close,			       \
++	.write          = FUNC ## _write,	                       \
++};                                                                     \
++EXPORT_SYMBOL(FUNC ## _fileops);
++
++/*
++ * Shared function used by Target / Reclassify
++ */
++
++#define TARGET_MAX_INPUT_SIZE 100
++
++static ssize_t
++target_reclassify_write(struct file *file, const char __user * buf,
++			size_t count, loff_t * ppos, int manual)
++{
++	struct rcfs_inode_info *ri = RCFS_I(file->f_dentry->d_inode);
++	char *optbuf;
++	int rc = -EINVAL;
++	ckrm_classtype_t *clstype;
++
++	if ((ssize_t) count < 0 || (ssize_t) count > TARGET_MAX_INPUT_SIZE)
++		return -EINVAL;
++	if (!access_ok(VERIFY_READ, buf, count))
++		return -EFAULT;
++	down(&(ri->vfs_inode.i_sem));
++	optbuf = kmalloc(TARGET_MAX_INPUT_SIZE, GFP_KERNEL);
++	__copy_from_user(optbuf, buf, count);
++	if (optbuf[count - 1] == '\n')
++		optbuf[count - 1] = '\0';
++	clstype = ri->core->classtype;
++	if (clstype->forced_reclassify)
++		rc = (*clstype->forced_reclassify) (manual ? ri->core: NULL, optbuf);
++	up(&(ri->vfs_inode.i_sem));
++	kfree(optbuf);
++	return (!rc ? count : rc);
++
 +}
 +
 +/*
-+ * Change the class of a netstruct 
++ * Target
 + *
-+ * Change the task's task class  to "newcls" if the task's current 
-+ * class (task->taskclass) is same as given "oldcls", if it is non-NULL.
-+ *
++ * pseudo file for manually reclassifying members to a class
 + */
 +
-+static void
-+sock_set_class(struct ckrm_net_struct *ns, struct ckrm_sock_class *newcls,
-+	       struct ckrm_sock_class *oldcls, enum ckrm_event event)
++static ssize_t
++target_write(struct file *file, const char __user * buf,
++	     size_t count, loff_t * ppos)
 +{
-+	int i;
-+	struct ckrm_res_ctlr *rcbs;
-+	struct ckrm_classtype *clstype;
-+	void *old_res_class, *new_res_class;
-+
-+	if ((newcls == oldcls) || (newcls == NULL)) {
-+		ns->core = (void *)oldcls;
-+		return;
-+	}
-+
-+	class_lock(class_core(newcls));
-+	ns->core = newcls;
-+	list_add(&ns->ckrm_link, &class_core(newcls)->objlist);
-+	class_unlock(class_core(newcls));
-+
-+	clstype = class_isa(newcls);
-+	for (i = 0; i < clstype->max_resid; i++) {
-+		atomic_inc(&clstype->nr_resusers[i]);
-+		old_res_class =
-+		    oldcls ? class_core(oldcls)->res_class[i] : NULL;
-+		new_res_class =
-+		    newcls ? class_core(newcls)->res_class[i] : NULL;
-+		rcbs = clstype->res_ctlrs[i];
-+		if (rcbs && rcbs->change_resclass
-+		    && (old_res_class != new_res_class))
-+			(*rcbs->change_resclass) (ns, old_res_class,
-+						  new_res_class);
-+		atomic_dec(&clstype->nr_resusers[i]);
-+	}
-+	return;
++	return target_reclassify_write(file,buf,count,ppos,1);
 +}
 +
-+static void sock_add_resctrl(struct ckrm_core_class *core, int resid)
-+{
-+	struct ckrm_net_struct *ns;
-+	struct ckrm_res_ctlr *rcbs;
-+
-+	if ((resid < 0) || (resid >= CKRM_MAX_RES_CTLRS)
-+	    || ((rcbs = core->classtype->res_ctlrs[resid]) == NULL))
-+		return;
-+
-+	class_lock(core);
-+	list_for_each_entry(ns, &core->objlist, ckrm_link) {
-+		if (rcbs->change_resclass)
-+			(*rcbs->change_resclass) (ns, NULL,
-+						  core->res_class[resid]);
-+	}
-+	class_unlock(core);
-+}
-+
-+/**************************************************************************
-+ *                   Functions called from classification points          *
-+ **************************************************************************/
-+
-+static void cb_sockclass_listen_start(struct sock *sk)
-+{
-+	struct ckrm_net_struct *ns = NULL;
-+	struct ckrm_sock_class *newcls = NULL;
-+	struct ckrm_res_ctlr *rcbs;
-+	struct ckrm_classtype *clstype;
-+	int i = 0;
-+
-+	// XXX - TBD ipv6
-+	if (sk->sk_family == AF_INET6)
-+		return;
-+
-+	// to store the socket address
-+	ns = (struct ckrm_net_struct *)
-+	    kmalloc(sizeof(struct ckrm_net_struct), GFP_ATOMIC);
-+	if (!ns)
-+		return;
-+
-+	memset(ns, 0, sizeof(*ns));
-+	INIT_LIST_HEAD(&ns->ckrm_link);
-+	ckrm_ns_hold(ns);
-+
-+	ns->ns_family = sk->sk_family;
-+	if (ns->ns_family == AF_INET6)	// IPv6 not supported yet.
-+		return;
-+
-+	ns->ns_daddrv4 = inet_sk(sk)->rcv_saddr;
-+	ns->ns_dport = inet_sk(sk)->num;
-+
-+	ns->ns_pid = current->pid;
-+	ns->ns_tgid = current->tgid;
-+	ns->ns_tsk = current;
-+	ce_protect(&CT_sockclass);
-+	CE_CLASSIFY_RET(newcls, &CT_sockclass, CKRM_EVENT_LISTEN_START, ns,
-+			current);
-+	ce_release(&CT_sockclass);
-+
-+	if (newcls == NULL) {
-+		newcls = &sockclass_dflt_class;
-+		ckrm_core_grab(class_core(newcls));
-+	}
-+
-+	class_lock(class_core(newcls));
-+	list_add(&ns->ckrm_link, &class_core(newcls)->objlist);
-+	ns->core = newcls;
-+	class_unlock(class_core(newcls));
-+
-+	// the socket is already locked
-+	// take a reference on socket on our behalf
-+	sock_hold(sk);
-+	sk->sk_ns = (void *)ns;
-+	ns->ns_sk = sk;
-+
-+	// modify its shares
-+	clstype = class_isa(newcls);
-+	for (i = 0; i < clstype->max_resid; i++) {
-+		atomic_inc(&clstype->nr_resusers[i]);
-+		rcbs = clstype->res_ctlrs[i];
-+		if (rcbs && rcbs->change_resclass) {
-+			(*rcbs->change_resclass) ((void *)ns,
-+						  NULL,
-+						  class_core(newcls)->
-+						  res_class[i]);
-+		}
-+		atomic_dec(&clstype->nr_resusers[i]);
-+	}
-+	return;
-+}
-+
-+static void cb_sockclass_listen_stop(struct sock *sk)
-+{
-+	struct ckrm_net_struct *ns = NULL;
-+	struct ckrm_sock_class *newcls = NULL;
-+
-+	// XXX - TBD ipv6
-+	if (sk->sk_family == AF_INET6)
-+		return;
-+
-+	ns = (struct ckrm_net_struct *)sk->sk_ns;
-+	if (!ns)     // listen_start called before socket_aq was loaded
-+		return;
-+
-+	newcls = ns->core;
-+	if (newcls) {
-+		class_lock(class_core(newcls));
-+		list_del(&ns->ckrm_link);
-+		INIT_LIST_HEAD(&ns->ckrm_link);
-+		class_unlock(class_core(newcls));
-+		ckrm_core_drop(class_core(newcls));
-+	}
-+	// the socket is already locked
-+	sk->sk_ns = NULL;
-+	sock_put(sk);
-+
-+	// Should be the last count and free it
-+	ckrm_ns_put(ns);
-+	return;
-+}
-+
-+static struct ckrm_event_spec sock_events_callbacks[] = {
-+	CKRM_EVENT_SPEC(LISTEN_START, cb_sockclass_listen_start),
-+	CKRM_EVENT_SPEC(LISTEN_STOP, cb_sockclass_listen_stop),
-+	{-1}
++struct file_operations target_fileops = {
++	.write = target_write,
 +};
 +
-+/**************************************************************************
-+ *                  Class Object Creation / Destruction
-+ **************************************************************************/
++EXPORT_SYMBOL_GPL(target_fileops);
 +
-+static struct ckrm_core_class *sock_alloc_class(struct ckrm_core_class *parent,
-+						const char *name)
++/*
++ * Reclassify
++ *
++ * pseudo file for reclassification of an object through CE
++ */
++
++static ssize_t
++reclassify_write(struct file *file, const char __user * buf,
++		 size_t count, loff_t * ppos)
 +{
-+	struct ckrm_sock_class *sockcls;
-+	sockcls = kmalloc(sizeof(struct ckrm_sock_class), GFP_KERNEL);
-+	if (sockcls == NULL)
-+		return NULL;
-+	memset(sockcls, 0, sizeof(struct ckrm_sock_class));
-+
-+	ckrm_init_core_class(&CT_sockclass, class_core(sockcls), parent, name);
-+
-+	ce_protect(&CT_sockclass);
-+	if (CT_sockclass.ce_cb_active && CT_sockclass.ce_callbacks.class_add)
-+		(*CT_sockclass.ce_callbacks.class_add) (name, sockcls,
-+							CT_sockclass.typeID);
-+	ce_release(&CT_sockclass);
-+
-+	return class_core(sockcls);
++	return target_reclassify_write(file,buf,count,ppos,0);
 +}
 +
-+static int sock_free_class(struct ckrm_core_class *core)
-+{
-+	struct ckrm_sock_class *sockcls;
++struct file_operations reclassify_fileops = {
++	.write = reclassify_write,
++};
 +
-+	if (!ckrm_is_core_valid(core)) {
-+		// Invalid core
-+		return (-EINVAL);
-+	}
-+	if (core == core->classtype->default_class) {
-+		// reset the name tag
-+		core->name = dflt_sockclass_name;
-+		return 0;
-+	}
++EXPORT_SYMBOL_GPL(reclassify_fileops);
 +
-+	sockcls = class_type(struct ckrm_sock_class, core);
++/*
++ * Config
++ *
++ * Set/get configuration parameters of a class. 
++ */
 +
-+	ce_protect(&CT_sockclass);
++/*
++ * Currently there are no per-class config parameters defined.
++ * Use existing code as a template
++ */
 +
-+	if (CT_sockclass.ce_cb_active && CT_sockclass.ce_callbacks.class_delete)
-+		(*CT_sockclass.ce_callbacks.class_delete) (core->name, sockcls,
-+							   CT_sockclass.typeID);
++#define config_max_input_size  300
 +
-+	sock_reclassify_class(sockcls);
++enum config_token_t {
++	config_str, config_res_type, config_err
++};
 +
-+	ce_release(&CT_sockclass);
++static match_table_t config_tokens = {
++	{config_res_type, "res=%s"},
++	{config_err, NULL},
++};
 +
-+	ckrm_release_core_class(core);	
-+	// Hubertus .... could just drop the class .. error message
++MAGIC_PARSE(config);
++MAGIC_WRITE(config, set_config);
++MAGIC_SHOW(config);
++MAGIC_OPEN(config);
++MAGIC_CLOSE(config);
 +
-+	return 0;
-+}
++MAGIC_RDWR_FILEOPS(config);
 +
-+static int sock_show_members(struct ckrm_core_class *core, struct seq_file *seq)
-+{
-+	struct list_head *lh;
-+	struct ckrm_net_struct *ns = NULL;
++/*
++ * Members
++ *
++ * List members of a class
++ */
 +
-+	class_lock(core);
-+	list_for_each(lh, &core->objlist) {
-+		ns = container_of(lh, struct ckrm_net_struct, ckrm_link);
-+		seq_printf(seq, "%d.%d.%d.%d\\%d\n",
-+			   NIPQUAD(ns->ns_daddrv4), ns->ns_dport);
-+	}
-+	class_unlock(core);
++MAGIC_SHOW(members);
++MAGIC_OPEN(members);
++MAGIC_CLOSE(members);
 +
-+	return 0;
-+}
++MAGIC_RD_FILEOPS(members);
++
++/*
++ * Stats
++ *
++ * Get/reset class statistics
++ * No standard set of stats defined. Each resource controller chooses
++ * its own set of statistics to maintain and export.
++ */
++
++#define stats_max_input_size  50
++
++enum stats_token_t {
++	stats_res_type, stats_str, stats_err
++};
++
++static match_table_t stats_tokens = {
++	{stats_res_type, "res=%s"},
++	{stats_str, NULL},
++	{stats_err, NULL},
++};
++
++MAGIC_PARSE(stats);
++MAGIC_WRITE(stats, reset_stats);
++MAGIC_SHOW(stats);
++MAGIC_OPEN(stats);
++MAGIC_CLOSE(stats);
++
++MAGIC_RDWR_FILEOPS(stats);
++
++/*
++ * Shares
++ *
++ * Set/get shares of a taskclass.
++ * Share types and semantics are defined by rcfs and ckrm core 
++ */
++
++#define SHARES_MAX_INPUT_SIZE  300
++
++/*
++ * The enums for the share types should match the indices expected by
++ * array parameter to ckrm_set_resshare
++ *
++ * Note only the first NUM_SHAREVAL enums correspond to share types,
++ * the remaining ones are for token matching purposes
++ */
++
++enum share_token_t {
++	MY_GUAR, MY_LIM, TOT_GUAR, MAX_LIM, SHARE_RES_TYPE, SHARE_ERR
++};
++
++/* Token matching for parsing input to this magic file */
++static match_table_t shares_tokens = {
++	{SHARE_RES_TYPE, "res=%s"},
++	{MY_GUAR, "guarantee=%d"},
++	{MY_LIM, "limit=%d"},
++	{TOT_GUAR, "total_guarantee=%d"},
++	{MAX_LIM, "max_limit=%d"},
++	{SHARE_ERR, NULL}
++};
 +
 +static int
-+sock_forced_reclassify_ns(struct ckrm_net_struct *tns,
-+			  struct ckrm_core_class *core)
++shares_parse(char *options, char **resstr, struct ckrm_shares *shares)
 +{
-+	struct ckrm_net_struct *ns = NULL;
-+	struct sock *sk = NULL;
-+	struct ckrm_sock_class *oldcls, *newcls;
-+	int rc = -EINVAL;
-+
-+	if (!ckrm_is_core_valid(core)) {
-+		return rc;
-+	}
-+
-+	newcls = class_type(struct ckrm_sock_class, core);
-+	// lookup the listening sockets
-+	// returns with a reference count set on socket
-+	if (tns->ns_family == AF_INET6)
-+		return -EOPNOTSUPP;
-+
-+	sk = tcp_v4_lookup_listener(tns->ns_daddrv4, tns->ns_dport, 0);
-+	if (!sk) {
-+		printk(KERN_INFO "No such listener 0x%x:%d\n",
-+		       tns->ns_daddrv4, tns->ns_dport);
-+		return rc;
-+	}
-+	lock_sock(sk);
-+	if (!sk->sk_ns) {
-+		goto out;
-+	}
-+	ns = sk->sk_ns;
-+	ckrm_ns_hold(ns);
-+	if (!capable(CAP_NET_ADMIN) && (ns->ns_tsk->user != current->user)) {
-+		ckrm_ns_put(ns);
-+		rc = -EPERM;
-+		goto out;
-+	}
-+
-+	oldcls = ns->core;
-+	if ((oldcls == NULL) || (oldcls == newcls)) {
-+		ckrm_ns_put(ns);
-+		goto out;
-+	}
-+	// remove the net_struct from the current class
-+	class_lock(class_core(oldcls));
-+	list_del(&ns->ckrm_link);
-+	INIT_LIST_HEAD(&ns->ckrm_link);
-+	ns->core = NULL;
-+	class_unlock(class_core(oldcls));
-+
-+	sock_set_class(ns, newcls, oldcls, CKRM_EVENT_MANUAL);
-+	ckrm_ns_put(ns);
-+	rc = 0;
-+      out:
-+	release_sock(sk);
-+	sock_put(sk);
-+
-+	return rc;
-+
-+}
-+
-+enum sock_target_token_t {
-+	IPV4, IPV6, SOCKC_TARGET_ERR
-+};
-+
-+static match_table_t sock_target_tokens = {
-+	{IPV4, "ipv4=%s"},
-+	{IPV6, "ipv6=%s"},
-+	{SOCKC_TARGET_ERR, NULL},
-+};
-+
-+char *v4toi(char *s, char c, __u32 * v)
-+{
-+	unsigned int k = 0, n = 0;
-+
-+	while (*s && (*s != c)) {
-+		if (*s == '.') {
-+			n <<= 8;
-+			n |= k;
-+			k = 0;
-+		} else
-+			k = k * 10 + *s - '0';
-+		s++;
-+	}
-+
-+	n <<= 8;
-+	*v = n | k;
-+
-+	return s;
-+}
-+
-+static int
-+sock_forced_reclassify(struct ckrm_core_class *target, const char *options)
-+{
-+	char *p, *p2;
-+	struct ckrm_net_struct ns;
-+	__u32 v4addr, tmp;
++	char *p;
++	int option;
 +
 +	if (!options)
-+		return -EINVAL;
-+
-+	if (target == NULL) {
-+		unsigned long id = simple_strtol(options,NULL,0);
-+		if (!capable(CAP_NET_ADMIN))
-+			return -EPERM;
-+		if (id != 0) 
-+			return -EINVAL;
-+		printk("sock_class: reclassify all not net implemented\n");
-+		return 0;
-+	}
-+
-+	while ((p = strsep((char **)&options, ",")) != NULL) {
++		return 1;
++	while ((p = strsep(&options, ",")) != NULL) {
 +		substring_t args[MAX_OPT_ARGS];
 +		int token;
 +
 +		if (!*p)
 +			continue;
-+		token = match_token(p, sock_target_tokens, args);
++		token = match_token(p, shares_tokens, args);
 +		switch (token) {
-+
-+		case IPV4:
-+
-+			p2 = p;
-+			while (*p2 && (*p2 != '='))
-+				++p2;
-+			p2++;
-+			p2 = v4toi(p2, '\\', &(v4addr));
-+			ns.ns_daddrv4 = htonl(v4addr);
-+			ns.ns_family = AF_INET;
-+			p2 = v4toi(++p2, ':', &tmp);
-+			ns.ns_dport = (__u16) tmp;
-+			if (*p2)
-+				p2 = v4toi(++p2, '\0', &ns.ns_pid);
-+			sock_forced_reclassify_ns(&ns, target);
++		case SHARE_RES_TYPE:
++			*resstr = match_strdup(args);
 +			break;
-+
-+		case IPV6:
-+			printk(KERN_INFO "rcfs: IPV6 not supported yet\n");
-+			return -ENOSYS;
++		case MY_GUAR:
++			if (match_int(args, &option))
++				return 0;
++			shares->my_guarantee = option;
++			break;
++		case MY_LIM:
++			if (match_int(args, &option))
++				return 0;
++			shares->my_limit = option;
++			break;
++		case TOT_GUAR:
++			if (match_int(args, &option))
++				return 0;
++			shares->total_guarantee = option;
++			break;
++		case MAX_LIM:
++			if (match_int(args, &option))
++				return 0;
++			shares->max_limit = option;
++			break;
 +		default:
-+			return -EINVAL;
++			return 0;
 +		}
 +	}
-+	return -EINVAL;
++	return 1;
 +}
++
++static ssize_t
++shares_write(struct file *file, const char __user * buf,
++	     size_t count, loff_t * ppos)
++{
++	struct inode *inode = file->f_dentry->d_inode;
++	struct rcfs_inode_info *ri;
++	char *optbuf;
++	int rc = 0;
++	struct ckrm_core_class *core;
++	int done;
++	char *resname = NULL;
++
++	struct ckrm_shares newshares = {
++		CKRM_SHARE_UNCHANGED,
++		CKRM_SHARE_UNCHANGED,
++		CKRM_SHARE_UNCHANGED,
++		CKRM_SHARE_UNCHANGED,
++		CKRM_SHARE_UNCHANGED,
++		CKRM_SHARE_UNCHANGED
++	};
++	if ((ssize_t) count < 0 || (ssize_t) count > SHARES_MAX_INPUT_SIZE)
++		return -EINVAL;
++	if (!access_ok(VERIFY_READ, buf, count))
++		return -EFAULT;
++	ri = RCFS_I(file->f_dentry->d_parent->d_inode);
++	if (!ri || !ckrm_is_core_valid((ckrm_core_class_t *) (ri->core))) {
++		printk(KERN_ERR "shares_write: Error accessing core class\n");
++		return -EFAULT;
++	}
++	down(&inode->i_sem);
++	core = ri->core;
++	optbuf = kmalloc(SHARES_MAX_INPUT_SIZE, GFP_KERNEL);
++	if (!optbuf) {
++		up(&inode->i_sem);
++		return -ENOMEM;
++	}
++	__copy_from_user(optbuf, buf, count);
++	if (optbuf[count - 1] == '\n')
++		optbuf[count - 1] = '\0';
++	done = shares_parse(optbuf, &resname, &newshares);
++	if (!done) {
++		printk(KERN_ERR "Error parsing shares\n");
++		rc = -EINVAL;
++		goto write_out;
++	}
++	if (core->classtype->set_shares) {
++		rc = (*core->classtype->set_shares) (core, resname, &newshares);
++		if (rc) {
++			printk(KERN_ERR
++			       "shares_write: resctlr share set error\n");
++			goto write_out;
++		}
++	}
++	printk(KERN_ERR "Set %s shares to %d %d %d %d\n",
++	       resname,
++	       newshares.my_guarantee,
++	       newshares.my_limit,
++	       newshares.total_guarantee, newshares.max_limit);
++	rc = count;
++
++write_out:
++	up(&inode->i_sem);
++	kfree(optbuf);
++	kfree(resname);
++	return rc;
++}
++
++MAGIC_SHOW(shares);
++MAGIC_OPEN(shares);
++MAGIC_CLOSE(shares);
++
++MAGIC_RDWR_FILEOPS(shares);
 +
 +/*
-+ * Listen_aq reclassification.
++ * magic file creation/deletion
 + */
-+static void sock_reclassify_class(struct ckrm_sock_class *cls)
++
++int rcfs_clear_magic(struct dentry *parent)
 +{
-+	struct ckrm_net_struct *ns, *tns;
-+	struct ckrm_core_class *core = class_core(cls);
-+	LIST_HEAD(local_list);
++	struct dentry *mftmp, *mfdentry;
 +
-+	if (!cls)
-+		return;
-+
-+	if (!ckrm_validate_and_grab_core(core))
-+		return;
-+
-+	class_lock(core);
-+	// we have the core refcnt
-+	if (list_empty(&core->objlist)) {
-+		class_unlock(core);
-+		ckrm_core_drop(core);
-+		return;
++	list_for_each_entry_safe(mfdentry, mftmp, &parent->d_subdirs, d_child) {
++		if (!rcfs_is_magic(mfdentry))
++			continue;
++		if (rcfs_delete_internal(mfdentry))
++			printk(KERN_ERR
++			       "rcfs_clear_magic: error deleting one\n");
 +	}
++	return 0;
++}
 +
-+	INIT_LIST_HEAD(&local_list);
-+	list_splice_init(&core->objlist, &local_list);
-+	class_unlock(core);
-+	ckrm_core_drop(core);
++EXPORT_SYMBOL_GPL(rcfs_clear_magic);
 +
-+	list_for_each_entry_safe(ns, tns, &local_list, ckrm_link) {
-+		ckrm_ns_hold(ns);
-+		list_del(&ns->ckrm_link);
-+		if (ns->ns_sk) {
-+			lock_sock(ns->ns_sk);
-+			sock_set_class(ns, &sockclass_dflt_class, NULL,
-+				       CKRM_EVENT_MANUAL);
-+			release_sock(ns->ns_sk);
++int rcfs_create_magic(struct dentry *parent, struct rcfs_magf magf[], int count)
++{
++	int i;
++	struct dentry *mfdentry;
++
++	for (i = 0; i < count; i++) {
++		mfdentry = rcfs_create_internal(parent, &magf[i], 0);
++		if (IS_ERR(mfdentry)) {
++			rcfs_clear_magic(parent);
++			return -ENOMEM;
 +		}
-+		ckrm_ns_put(ns);
++		RCFS_I(mfdentry->d_inode)->core = RCFS_I(parent->d_inode)->core;
++		mfdentry->d_fsdata = &RCFS_IS_MAGIC;
++		if (magf[i].i_fop)
++			mfdentry->d_inode->i_fop = magf[i].i_fop;
++		if (magf[i].i_op)
++			mfdentry->d_inode->i_op = magf[i].i_op;
 +	}
-+	return;
++	return 0;
 +}
 +
-+void __init ckrm_meta_init_sockclass(void)
++EXPORT_SYMBOL_GPL(rcfs_create_magic);
+Index: linux-2.6.10-rc2/fs/rcfs/Makefile
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.10-rc2/fs/rcfs/Makefile	2004-11-19 20:44:18.274706405 -0800
+@@ -0,0 +1,6 @@
++#
++# Makefile for rcfs routines.
++#
++
++obj-$(CONFIG_RCFS_FS) += rcfs.o 
++rcfs-objs := super.o inode.o dir.o rootdir.o magic.o
+Index: linux-2.6.10-rc2/fs/rcfs/rootdir.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.10-rc2/fs/rcfs/rootdir.c	2004-11-19 20:44:18.279705613 -0800
+@@ -0,0 +1,209 @@
++/* 
++ * fs/rcfs/rootdir.c 
++ *
++ * Copyright (C)   Vivek Kashyap,   IBM Corp. 2004
++ *           
++ * 
++ * Functions for creating root directories and magic files 
++ * for classtypes and classification engines under rcfs
++ *
++ * Latest version, more details at http://ckrm.sf.net
++ * 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++/*
++ * Changes
++ *
++ * 08 April 2004
++ *        Created.
++ */
++
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/namei.h>
++#include <linux/namespace.h>
++#include <linux/dcache.h>
++#include <linux/seq_file.h>
++#include <linux/pagemap.h>
++#include <linux/highmem.h>
++#include <linux/init.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/backing-dev.h>
++#include <linux/parser.h>
++
++#include <asm/uaccess.h>
++
++#include <linux/rcfs.h>
++
++rbce_eng_callback_t rcfs_eng_callbacks = {
++	NULL, NULL
++};
++
++int rcfs_register_engine(rbce_eng_callback_t * rcbs)
 +{
-+	printk("...... Initializing ClassType<%s> ........\n",
-+	       CT_sockclass.name);
-+	// intialize the default class
-+	ckrm_init_core_class(&CT_sockclass, class_core(&sockclass_dflt_class),
-+			     NULL, dflt_sockclass_name);
-+
-+	// register classtype and initialize default task class
-+	ckrm_register_classtype(&CT_sockclass);
-+	ckrm_register_event_set(sock_events_callbacks);
-+
-+	// note registeration of all resource controllers will be done 
-+	// later dynamically as these are specified as modules
++	if (!rcbs->mkdir || rcfs_eng_callbacks.mkdir) {
++		return -EINVAL;
++	}
++	rcfs_eng_callbacks = *rcbs;
++	rcfs_engine_regd++;
++	return 0;
 +}
 +
-+#if 1
++EXPORT_SYMBOL_GPL(rcfs_register_engine);
 +
-+/*****************************************************************************
-+ * Debugging Network Classes:  Utility functions
-+ *****************************************************************************/
++int rcfs_unregister_engine(rbce_eng_callback_t * rcbs)
++{
++	if (!rcbs->mkdir || !rcfs_eng_callbacks.mkdir ||
++	    (rcbs->mkdir != rcfs_eng_callbacks.mkdir)) {
++		return -EINVAL;
++	}
++	rcfs_eng_callbacks.mkdir = NULL;
++	rcfs_eng_callbacks.rmdir = NULL;
++	rcfs_engine_regd--;
++	return 0;
++}
 +
-+#endif
-Index: linux-2.6.10-rc2-ckrm1/kernel/ckrm/Makefile
++EXPORT_SYMBOL(rcfs_unregister_engine);
++
++/*
++ * rcfs_mkroot
++ * Create and return a "root" dentry under /rcfs. 
++ * Also create associated magic files 
++ *
++ * @mfdesc: array of rcfs_magf describing root dir and its magic files
++ * @count: number of entries in mfdesc
++ * @core:  core class to be associated with root
++ * @rootde: output parameter to return the newly created root dentry
++ */
++
++int rcfs_mkroot(struct rcfs_magf *mfdesc, int mfcount, struct dentry **rootde)
++{
++	int sz;
++	struct rcfs_magf *rootdesc = &mfdesc[0];
++	struct dentry *dentry;
++	struct rcfs_inode_info *rootri;
++
++	if ((mfcount < 0) || (!mfdesc))
++		return -EINVAL;
++
++	rootdesc = &mfdesc[0];
++	printk("allocating classtype root <%s>\n", rootdesc->name);
++	dentry = rcfs_create_internal(rcfs_rootde, rootdesc, 0);
++
++	if (!dentry) {
++		printk(KERN_ERR "Could not create %s\n", rootdesc->name);
++		return -ENOMEM;
++	}
++	rootri = RCFS_I(dentry->d_inode);
++	sz = strlen(rootdesc->name) + strlen(RCFS_ROOT) + 2;
++	rootri->name = kmalloc(sz, GFP_KERNEL);
++	if (!rootri->name) {
++		printk(KERN_ERR "Error allocating name for %s\n",
++		       rootdesc->name);
++		rcfs_delete_internal(dentry);
++		return -ENOMEM;
++	}
++	snprintf(rootri->name, sz, "%s/%s", RCFS_ROOT, rootdesc->name);
++	if (rootdesc->i_fop)
++		dentry->d_inode->i_fop = rootdesc->i_fop;
++	if (rootdesc->i_op)
++		dentry->d_inode->i_op = rootdesc->i_op;
++
++	/* set output parameters */
++	*rootde = dentry;
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(rcfs_mkroot);
++
++int rcfs_rmroot(struct dentry *rootde)
++{
++	struct rcfs_inode_info *ri;
++
++	if (!rootde)
++		return -EINVAL;
++
++	rcfs_clear_magic(rootde);
++	ri = RCFS_I(rootde->d_inode);
++	kfree(ri->name);
++	ri->name = NULL;
++	rcfs_delete_internal(rootde);
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(rcfs_rmroot);
++
++int rcfs_register_classtype(ckrm_classtype_t * clstype)
++{
++	int rc;
++	struct rcfs_inode_info *rootri;
++	struct rcfs_magf *mfdesc;
++
++	if (genmfdesc[clstype->mfidx] == NULL) {
++		return -ENOMEM;
++	}
++
++	clstype->mfdesc = (void *)genmfdesc[clstype->mfidx]->rootmf;
++	clstype->mfcount = genmfdesc[clstype->mfidx]->rootmflen;
++
++	mfdesc = (struct rcfs_magf *)clstype->mfdesc;
++
++	/* rcfs root entry has the same name as the classtype */
++	strncpy(mfdesc[0].name, clstype->name, RCFS_MAGF_NAMELEN);
++
++	rc = rcfs_mkroot(mfdesc, clstype->mfcount,
++			 (struct dentry **)&(clstype->rootde));
++	if (rc)
++		return rc;
++	rootri = RCFS_I(((struct dentry *)(clstype->rootde))->d_inode);
++	rootri->core = clstype->default_class;
++	clstype->default_class->name = rootri->name;
++	ckrm_core_grab(clstype->default_class);
++
++	/* Create magic files under root */
++	if ((rc = rcfs_create_magic(clstype->rootde, &mfdesc[1],
++				    clstype->mfcount - 1))) {
++		kfree(rootri->name);
++		rootri->name = NULL;
++		rcfs_delete_internal(clstype->rootde);
++		return rc;
++	}
++	return rc;
++}
++
++EXPORT_SYMBOL_GPL(rcfs_register_classtype);
++
++int rcfs_deregister_classtype(ckrm_classtype_t * clstype)
++{
++	int rc;
++
++	rc = rcfs_rmroot((struct dentry *)clstype->rootde);
++	if (!rc) {
++		clstype->default_class->name = NULL;
++		ckrm_core_drop(clstype->default_class);
++	}
++	return rc;
++}
++
++EXPORT_SYMBOL_GPL(rcfs_deregister_classtype);
++
++/* Common root and magic file entries.
++ * root name, root permissions, magic file names and magic file permissions 
++ * are needed by all entities (classtypes and classification engines) existing 
++ * under the rcfs mount point
++ *
++ * The common sets of these attributes are listed here as a table. Individual 
++ * classtypes and classification engines can simple specify the index into the 
++ * table to initialize their magf entries. 
++ */
++
++struct rcfs_mfdesc *genmfdesc[] = {
++	NULL,
++};
+Index: linux-2.6.10-rc2/fs/rcfs/super.c
 ===================================================================
---- linux-2.6.10-rc2-ckrm1.orig/kernel/ckrm/Makefile	2004-11-22 14:51:22.000000000 -0800
-+++ linux-2.6.10-rc2-ckrm1/kernel/ckrm/Makefile	2004-11-24 12:33:23.000000000 -0800
-@@ -6,3 +6,4 @@
-     obj-y = ckrm_events.o ckrm.o ckrmutils.o
- endif	
- obj-$(CONFIG_CKRM_TYPE_TASKCLASS)  += ckrm_tc.o
-+obj-$(CONFIG_CKRM_TYPE_SOCKETCLASS)  += ckrm_sockc.o
-Index: linux-2.6.10-rc2-ckrm1/net/ipv4/tcp_ipv4.c
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.10-rc2/fs/rcfs/super.c	2004-11-19 20:44:18.283704980 -0800
+@@ -0,0 +1,304 @@
++/* 
++ * fs/rcfs/super.c 
++ *
++ * Copyright (C) Shailabh Nagar,  IBM Corp. 2004
++ *		 Vivek Kashyap,   IBM Corp. 2004
++ *           
++ * Super block operations for rcfs
++ * 
++ *
++ * Latest version, more details at http://ckrm.sf.net
++ * 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++/*
++ * Changes
++ *
++ * 08 Mar 2004
++ *        Created.
++ */
++
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/namei.h>
++#include <linux/namespace.h>
++#include <linux/dcache.h>
++#include <linux/seq_file.h>
++#include <linux/pagemap.h>
++#include <linux/highmem.h>
++#include <linux/init.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/backing-dev.h>
++#include <linux/parser.h>
++
++#include <asm/uaccess.h>
++
++#include <linux/rcfs.h>
++#include <linux/ckrm_rc.h>
++#include <linux/ckrm_ce.h>
++
++static kmem_cache_t *rcfs_inode_cachep;
++
++inline struct rcfs_inode_info *RCFS_I(struct inode *inode)
++{
++	return container_of(inode, struct rcfs_inode_info, vfs_inode);
++}
++
++EXPORT_SYMBOL_GPL(RCFS_I);
++
++static struct inode *rcfs_alloc_inode(struct super_block *sb)
++{
++	struct rcfs_inode_info *ri;
++	ri = (struct rcfs_inode_info *)kmem_cache_alloc(rcfs_inode_cachep,
++							SLAB_KERNEL);
++	if (!ri)
++		return NULL;
++	ri->name = NULL;
++	return &ri->vfs_inode;
++}
++
++static void rcfs_destroy_inode(struct inode *inode)
++{
++	struct rcfs_inode_info *ri = RCFS_I(inode);
++
++	kfree(ri->name);
++	kmem_cache_free(rcfs_inode_cachep, ri);
++}
++
++static void
++rcfs_init_once(void *foo, kmem_cache_t * cachep, unsigned long flags)
++{
++	struct rcfs_inode_info *ri = (struct rcfs_inode_info *)foo;
++
++	if ((flags & (SLAB_CTOR_VERIFY | SLAB_CTOR_CONSTRUCTOR)) ==
++	    SLAB_CTOR_CONSTRUCTOR)
++		inode_init_once(&ri->vfs_inode);
++}
++
++int rcfs_init_inodecache(void)
++{
++	rcfs_inode_cachep = kmem_cache_create("rcfs_inode_cache",
++					      sizeof(struct rcfs_inode_info),
++					      0,
++					      SLAB_HWCACHE_ALIGN |
++					      SLAB_RECLAIM_ACCOUNT,
++					      rcfs_init_once, NULL);
++	if (rcfs_inode_cachep == NULL)
++		return -ENOMEM;
++	return 0;
++}
++
++void rcfs_destroy_inodecache(void)
++{
++	printk(KERN_WARNING "destroy inodecache was called\n");
++	if (kmem_cache_destroy(rcfs_inode_cachep))
++		printk(KERN_INFO
++		       "rcfs_inode_cache: not all structures were freed\n");
++}
++
++struct super_operations rcfs_super_ops = {
++	.alloc_inode = rcfs_alloc_inode,
++	.destroy_inode = rcfs_destroy_inode,
++	.statfs = simple_statfs,
++	.drop_inode = generic_delete_inode,
++};
++
++struct dentry *rcfs_rootde;	/* redundant; can also get it from sb */
++static struct inode *rcfs_root;
++static struct rcfs_inode_info *rcfs_rootri;
++
++static int rcfs_fill_super(struct super_block *sb, void *data, int silent)
++{
++	struct inode *inode;
++	struct dentry *root;
++	struct rcfs_inode_info *rootri;
++	struct ckrm_classtype *clstype;
++	int i, rc;
++
++	sb->s_fs_info = NULL;
++	if (rcfs_mounted) {
++		return -EPERM;
++	}
++	rcfs_mounted++;
++
++	sb->s_blocksize = PAGE_CACHE_SIZE;
++	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
++	sb->s_magic = RCFS_MAGIC;
++	sb->s_op = &rcfs_super_ops;
++	inode = rcfs_get_inode(sb, S_IFDIR | 0755, 0);
++	if (!inode)
++		return -ENOMEM;
++	inode->i_op = &rcfs_rootdir_inode_operations;
++
++	root = d_alloc_root(inode);
++	if (!root) {
++		iput(inode);
++		return -ENOMEM;
++	}
++	sb->s_root = root;
++
++	/* Link inode and core class */
++	rootri = RCFS_I(inode);
++	rootri->name = kmalloc(strlen(RCFS_ROOT) + 1, GFP_KERNEL);
++	if (!rootri->name) {
++		d_delete(root);
++		iput(inode);
++		return -ENOMEM;
++	}
++	strcpy(rootri->name, RCFS_ROOT);
++	rootri->core = NULL;
++
++	rcfs_root = inode;
++	sb->s_fs_info = rcfs_root = inode;
++	rcfs_rootde = root;
++	rcfs_rootri = rootri;
++
++	/* register metatypes */
++	for (i = 0; i < CKRM_MAX_CLASSTYPES; i++) {
++		clstype = ckrm_classtypes[i];
++		if (clstype == NULL)
++			continue;
++		printk("A non null classtype\n");
++
++		if ((rc = rcfs_register_classtype(clstype)))
++			continue;	/* could return with an error too */
++	}
++
++	/*
++	 * do post-mount initializations needed by CE
++	 * this is distinct from CE registration done on rcfs module load
++	 */
++	if (rcfs_engine_regd) {
++		if (rcfs_eng_callbacks.mnt)
++			if ((rc = (*rcfs_eng_callbacks.mnt) ())) {
++				printk(KERN_ERR "Error in CE mnt %d\n", rc);
++			}
++	}
++	/*
++	 * Following comment handled by code above; keep nonetheless if it
++	 * can be done better
++	 *
++	 * register CE's with rcfs 
++	 * check if CE loaded
++	 * call rcfs_register_engine for each classtype
++	 * AND rcfs_mkroot (preferably subsume latter in former)
++	 */
++	return 0;
++}
++
++static struct super_block *rcfs_get_sb(struct file_system_type *fs_type,
++				       int flags, const char *dev_name,
++				       void *data)
++{
++	return get_sb_nodev(fs_type, flags, data, rcfs_fill_super);
++}
++
++void rcfs_kill_sb(struct super_block *sb)
++{
++	int i, rc;
++	struct ckrm_classtype *clstype;
++
++	if (sb->s_fs_info != rcfs_root) {
++		generic_shutdown_super(sb);
++		return;
++	}
++	rcfs_mounted--;
++
++	for (i = 0; i < CKRM_MAX_CLASSTYPES; i++) {
++		clstype = ckrm_classtypes[i];
++		if (clstype == NULL || clstype->rootde == NULL)
++			continue;
++
++		if ((rc = rcfs_deregister_classtype(clstype))) {
++			printk(KERN_ERR "Error removing classtype %s\n",
++			       clstype->name);
++		}
++	}
++
++	/*
++	 * do pre-umount shutdown needed by CE
++	 * this is distinct from CE deregistration done on rcfs module unload
++	 */
++	if (rcfs_engine_regd) {
++		if (rcfs_eng_callbacks.umnt)
++			if ((rc = (*rcfs_eng_callbacks.umnt) ())) {
++				printk(KERN_ERR "Error in CE umnt %d\n", rc);
++				/* TODO: return ; until error handling improves */
++			}
++	}
++	/*
++	 * Following comment handled by code above; keep nonetheless if it 
++	 * can be done better
++	 *
++	 * deregister CE with rcfs
++	 * Check if loaded
++	 * if ce is in  one directory /rcfs/ce, 
++	 *       rcfs_deregister_engine for all classtypes within above 
++	 *             codebase 
++	 *       followed by
++	 *       rcfs_rmroot here
++	 * if ce in multiple (per-classtype) directories
++	 *       call rbce_deregister_engine within ckrm_deregister_classtype
++	 *
++	 * following will automatically clear rcfs root entry including its 
++	 *  rcfs_inode_info
++	 */
++
++	generic_shutdown_super(sb);
++}
++
++static struct file_system_type rcfs_fs_type = {
++	.name = "rcfs",
++	.get_sb = rcfs_get_sb,
++	.kill_sb = rcfs_kill_sb,
++};
++
++struct rcfs_functions my_rcfs_fn = {
++	.mkroot = rcfs_mkroot,
++	.rmroot = rcfs_rmroot,
++	.register_classtype = rcfs_register_classtype,
++	.deregister_classtype = rcfs_deregister_classtype,
++};
++
++extern struct rcfs_functions rcfs_fn;
++
++static int __init init_rcfs_fs(void)
++{
++	int ret;
++
++	ret = register_filesystem(&rcfs_fs_type);
++	if (ret)
++		goto init_register_err;
++	ret = rcfs_init_inodecache();
++	if (ret)
++		goto init_cache_err;
++	rcfs_fn = my_rcfs_fn;
++	/*
++	 * Due to tight coupling of this module with ckrm
++	 * do not allow this module to be removed.
++	 */
++	try_module_get(THIS_MODULE);
++	return ret;
++
++init_cache_err:
++	unregister_filesystem(&rcfs_fs_type);
++init_register_err:
++	return ret;
++}
++
++static void __exit exit_rcfs_fs(void)
++{
++	rcfs_destroy_inodecache();
++	unregister_filesystem(&rcfs_fs_type);
++}
++
++module_init(init_rcfs_fs)
++module_exit(exit_rcfs_fs)
++
++MODULE_LICENSE("GPL");
+Index: linux-2.6.10-rc2/init/Kconfig
 ===================================================================
---- linux-2.6.10-rc2-ckrm1.orig/net/ipv4/tcp_ipv4.c	2004-11-22 14:54:34.000000000 -0800
-+++ linux-2.6.10-rc2-ckrm1/net/ipv4/tcp_ipv4.c	2004-11-24 12:49:03.105005755 -0800
-@@ -448,7 +448,7 @@
- }
+--- linux-2.6.10-rc2.orig/init/Kconfig	2004-11-19 20:41:45.572898412 -0800
++++ linux-2.6.10-rc2/init/Kconfig	2004-11-19 20:44:18.288704188 -0800
+@@ -152,6 +152,17 @@
+ 	  If you say Y here, enable the Resource Class File System and atleast
+ 	  one of the resource controllers below. Say N if you are unsure. 
  
- /* Optimize the common listener case. */
--static inline struct sock *tcp_v4_lookup_listener(u32 daddr,
-+inline struct sock *tcp_v4_lookup_listener(u32 daddr,
- 		unsigned short hnum, int dif)
- {
- 	struct sock *sk = NULL;
++config RCFS_FS
++	tristate "Resource Class File System (User API)"
++	depends on CKRM
++	help
++	  RCFS is the filesystem API for CKRM. This separate configuration 
++	  option is provided only for debugging and will eventually disappear 
++	  since rcfs will be automounted whenever CKRM is configured. 
++
++	  Say N if unsure, Y if you've enabled CKRM, M to debug rcfs 
++	  initialization.
++
+ endmenu
+ 
+ config SYSCTL

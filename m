@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263453AbTLJCsw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 21:48:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTLJCsw
+	id S263364AbTLJCpB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 21:45:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbTLJCpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 21:48:52 -0500
-Received: from imap.gmx.net ([213.165.64.20]:40324 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263453AbTLJCsv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 21:48:51 -0500
-Date: Wed, 10 Dec 2003 03:48:50 +0100 (MET)
-From: "Svetoslav Slavtchev" <svetljo@gmx.de>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 9 Dec 2003 21:45:01 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:8324 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S263364AbTLJCo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 21:44:59 -0500
+Date: Tue, 09 Dec 2003 18:44:38 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Paul Jakma <paul@clubi.ie>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Joe Thornber <thornber@sistina.com>, linux-kernel@vger.kernel.org
+Subject: Re: Device-mapper submission for 2.4
+Message-ID: <1258280000.1071024272@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org>
+References: <Pine.LNX.4.44.0312092047450.1289-100000@logos.cnet> <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-References: <20031210004120.GB2196@kroah.com>
-Subject: Re: Badness in kobject_get at lib/kobject.c:439
-X-Priority: 3 (Normal)
-X-Authenticated: #20183004
-Message-ID: <4932.1071024530@www43.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Dec 10, 2003 at 01:36:25AM +0100, Svetoslav Slavtchev wrote:
-> > 
-> > the attached oops couldn't happen in vanilla kernel ?
-> > or should i try without the ruby patches ?
+> I'd really like to see one of:
 > 
-> Can you try it without the ruby patches?  I have no idea what is
-> contained in them.
-> 
+> - backwards compat: 2.6 have LVM1 support
+>
+> - the DM tools to support both LVM1 and LVMx in 2.6, on a *long-term* 
+>   basis
 
-may be i should stop seti@home, but the kernel is compiling without them :-)
-
-the ruby patch adds a multi-user console support,
-and changes a lot of stiff in the vt subsystem
-
-will report when i have results
-
-best,
-
-svetljo
-
--- 
-+++ GMX - die erste Adresse für Mail, Message, More +++
-Neu: Preissenkung für MMS und FreeMMS! http://www.gmx.net
-
-
+Some form of backward compatibility from 2.6 would seem a much more 
+sensible thing to fight for. Foisting forward comaptibility on an 
+older release seems like a bad road to go down.
+ 
+M.

@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265206AbUAAVss (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 16:48:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265394AbUAAVoy
+	id S265434AbUAAWBg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 17:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265421AbUAAWBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 16:44:54 -0500
-Received: from codepoet.org ([166.70.99.138]:42185 "EHLO codepoet.org")
-	by vger.kernel.org with ESMTP id S265059AbUAAVlS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 16:41:18 -0500
-Date: Thu, 1 Jan 2004 14:40:51 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Andrew Morton <akpm@osdl.org>, Neale Banks <neale@lowendale.com.au>,
-       paul@clubi.ie, linux-kernel@vger.kernel.org
-Subject: Re: chmod of active swap file blocks
-Message-ID: <20040101214051.GA19390@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@osdl.org>,
-	Neale Banks <neale@lowendale.com.au>, paul@clubi.ie,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.56.0312291719160.16956@fogarty.jakma.org> <Pine.LNX.4.05.10401011905310.31562-100000@marina.lowendale.com.au> <20040101021241.31830e30.akpm@osdl.org> <20040101151027.A2411@pclin040.win.tue.nl>
-Mime-Version: 1.0
+	Thu, 1 Jan 2004 17:01:25 -0500
+Received: from pD9526784.dip.t-dialin.net ([217.82.103.132]:33152 "EHLO
+	fred.muc.de") by vger.kernel.org with ESMTP id S265434AbUAAWBG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 17:01:06 -0500
+To: Srihari Vijayaraghavan <harisri@bigpond.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-rc1 compile error
+References: <18PmG-40b-9@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 01 Jan 2004 23:01:04 +0100
+In-Reply-To: <18PmG-40b-9@gated-at.bofh.it> (Srihari Vijayaraghavan's
+ message of "Wed, 31 Dec 2003 15:20:10 +0100")
+Message-ID: <m3znd7ib1b.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040101151027.A2411@pclin040.win.tue.nl>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Jan 01, 2004 at 03:10:27PM +0100, Andries Brouwer wrote:
-> On Thu, Jan 01, 2004 at 02:12:41AM -0800, Andrew Morton wrote:
-> > Neale Banks <neale@lowendale.com.au> wrote:
-> > >
-> > > How much of the original problem goes away if swapon(8) were to refuse to
-> > >  activate a file/device which has ownership/mode which it doesn't like?
-> > 
-> > I think swapon(8) should at least warn when the swapfile has inappropriate
-> > permissions.  It's an obvious and outright security hole.
-> 
-> swapon had this warning for a while, but that generated lots of complaints.
-> Now this message is printed only when the -v (verbose) flag is given.
+Srihari Vijayaraghavan <harisri@bigpond.com> writes:
 
-Perhaps swapon should automagically do a chmod and chown on all
-swapfiles, unless specifically asked to be wildly insecure
-(perhaps with a -W option -- wildly insecure swapfile permissions
-are considered acceptable)....
+> While "make bzImage", it showed these error messages:
+>   CC      arch/x86_64/kernel/io_apic.o
 
- -Erik
+I already submitted a patch to fix that and Linus merged it.
+Use current -bk*
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+The MSI code is unfortunately quite broken and will need more
+work to really work on anything except IA32.
+
+-Andi

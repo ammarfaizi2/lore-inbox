@@ -1,258 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271063AbRHZAZC>; Sat, 25 Aug 2001 20:25:02 -0400
+	id <S271186AbRHZAry>; Sat, 25 Aug 2001 20:47:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271185AbRHZAYx>; Sat, 25 Aug 2001 20:24:53 -0400
-Received: from astcc-127.astound.net ([24.219.123.215]:64004 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S271063AbRHZAYl>; Sat, 25 Aug 2001 20:24:41 -0400
-Date: Sat, 25 Aug 2001 17:24:07 -0700 (PDT)
-From: Andre Hedrick <andre@aslab.com>
-To: Ross Boylan <RossBoylan@stanfordalumni.org>
-cc: sfr@canb.auug.org.au, Andre Hedrick <andre@suse.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: IDE drive won't come back after power down
-In-Reply-To: <20010825154508.A949@wheat.boylan.org>
-Message-ID: <Pine.LNX.4.10.10108251714480.10127-100000@master.linux-ide.org>
+	id <S271200AbRHZAro>; Sat, 25 Aug 2001 20:47:44 -0400
+Received: from alpo.casc.com ([152.148.10.6]:57797 "EHLO alpo.casc.com")
+	by vger.kernel.org with ESMTP id <S271186AbRHZAra>;
+	Sat, 25 Aug 2001 20:47:30 -0400
+From: John Stoffel <stoffel@casc.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15240.18121.972361.669914@gargle.gargle.HOWL>
+Date: Sat, 25 Aug 2001 20:46:01 -0400
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "Marc A. Lehmann" <pcg@goof.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+In-Reply-To: <Pine.LNX.4.33L.0108251752010.5646-100000@imladris.rielhome.conectiva>
+In-Reply-To: <20010825213536.D18523@cerebro.laendle>
+	<Pine.LNX.4.33L.0108251752010.5646-100000@imladris.rielhome.conectiva>
+X-Mailer: VM 6.95 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Greetings Ross,
+Rik> On Sat, 25 Aug 2001, Marc A. Lehmann wrote:
+>> On Sat, Aug 25, 2001 at 08:15:44PM +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> > How much disk and bandwidth can you afford. With vsftpd its certainly over
+>> > 1000 parallal downloads on a decent PII box
 
-The problem is that the requirements of ACPI is to have a
-"taskfile register access", but that will not be accepted until 2.5.
-Therefore, the short nice answer is that you and everyone else with a
-laptop of system using ACPI are "HOSED".
+>> exactly this is a point: my disk can do 5mb/s with almost random
+>> seeks, and linux indeed reads 5mb/s from it. but the userpsace
+>> process doing read() only ever sees 2mb/s because the kernel throes
+>> away all the nice pages.
 
-I will be happy to provide you the TASKFILE code, however ACPI does not
-yet have a method to call the kernel direct access.
+Rik> The trick here is for the kernel to throw away the pages the
+Rik> processes have already used and keep in memory the data we have
+Rik> not yet used.
 
-Maybe when there are enough people screaming and raise general hell over
-the issue it may happen earlier.
+Ummm... is this really more of an agreement that Daniel's used-once
+patch is a good idea on a system.  Keep a page around if it's used
+once, but drop it quickly if only used once?  But you seem to be
+saying that in this one case (serving lots of files to multiple
+clients) that you should be reading in as fast as possible, but then
+dropping those read in pages right away.
 
-You can attempt the noisy reset additions to some versions of hdparm, and
-then issuing the the checkpower commands until staus is reported as ready,
-but that is very messy and you have to have that app in an accessible
-location and that is not usable.  The obvious reason is that the app is on
-the disk that is spundown.
+If so, shouldn't this be more of an application level type of
+optimization here, and not so much the VM's problem?  The VM needs to
+be general and fair over a large spread of loads, I can't imagine that
+we'll get it right for every single possible load out there.  
 
-This is not the answer you wanted, but it is the cold bloody truth.
+Maybe what would help here is having some type of VM simulator written
+where we could plug in the current Linux VM and instrument it and
+watch what it does under a variety of loads and make it react in a
+smooth fashion.  Right now it looks like people are just tweaking
+stuff left and right (though since I don't know the core code at all,
+it's just my impression) without having a good theoretical
+understanding of what's really happening.
 
-Regards,
+I've been following this VM discussion for a while now, and I'm not
+sure we're really closer to fixing the corner case where the load gets
+out of hand.  But I do think Daniel is on the right case in terms of
+trying to wake up and free as many pages as were allocated in a
+quanta.  Trying to wakeup once a wall clock second doesn't seem as
+realistic.  Under very light loads, you're just spending time doing
+work that isn't needed.  Under heavy loads, you may be reacting way
+too slowly.  
 
-Andre Hedrick
-CTO ASL, Inc.
-Linux ATA Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Tel: (510) 857-0055 x103
-38875 Cherry Street                           Fax: (510) 857-0010
-Newark, CA 94560                              Web: www.aslab.com
+As we get closer to being out of free pages, we should work harder,
+but also do less work as the percentage of free pages goes up and the
+system VM load goes down.  
 
+Enough of my rambling, and please realize I appreciate all the work
+and words that have been flowing around this topic, it's getting
+better all the time and we've got enough veiwpoints going to keep
+everyone honest and working to the same goal.
 
-On Sat, 25 Aug 2001, Ross Boylan wrote:
-
-> Most times when I go away from my system for an extended period and
-> come back, my hard disk hangs up and I must power down the system to
-> get it back (hardware reset is insufficient).  It seems the attempt to
-> power the disk back up doesn't quite work.  
-> 
-> I sent a note to Andre Hedrick awhile ago, but haven't heard anything
-> back.  Because of that, and because it seems the problem has something
-> to do with power management, and because it's getting worse, I'm
-> writing to you.  I'll also try a few other addresses for Andre!
-> 
-> The problem repeats often, but I can't quite get it at will.  I tried
-> going away for half an hour to see if the system would hang and it did
-> not.  I don't know if this is because half an hour is too little, or the
-> system needs more total uptime to misbehave (I did the test first
-> thing in the morning), or it needs to get hotter, or something else.
-> 
-> I do not see this problem when running other OS's on the same
-> hardware.
-> 
-> This problem is making it difficult to use the system, and disaster
-> recovery is taking an increasing amount of time, so I'd really like to
-> isolate it and fix it.
-> 
-> Here, with some possible transcription errors, is the console log from
-> a recent incident:
-> hda irq timeout: status 0xd0  { Busy }
-> ide 0: reset success
-> end_request: I/O error dev 03:06 (hda)
-> 		 sector 13976
-> hda: status timeout: status = 0xd0 { Busy }
-> hda: drive_not_ready for command
-> Ext-fs error: (device ?? 16772
->        device ide0(3,6))
->        ext: write_inode:
->        unable to read inode 3384 block 8369
->   [more like that]
-> remount fs read only
-> 
-> When I hit hardware reset the BIOS start sequence appears and then I
-> get Pri Master HDD Error.
-> 
-> Power off, wait, power on, all's well (except, of course, that it
-> fsck's the disks on restart).
-> 
-> 
-> Can anyone suggest a diagnosis or cure?  Could enabling the AMD Viper
-> chipset support be causing trouble?
-> 
-> Thanks.
-> 
-> Details:
-> 
-> Kernel 2.4.7 under Debian woody, built from source.  The problem has
-> been occuring for several generations of 2.4 kernels.
-> 
-> /hda6 is my root partition, on an ATA2 Maxtor drive.  /hdb is another
-> Maxtor drive, ATA4.  /hdc is a Sony ATA CD-Writer, CDU 928E.  I have
-> the ide-scsi driver loaded so I can write to it.  /hdd non-existent.
-> 
-> Gigabyte GA-71XE4 motherboard with an AMD 750 Chipset, including AMD
-> 756 ISA controller.  This is said to provide PIO and Bus Master
-> (Ultra DMA33/ATA 66) operations.  It has power management.
-> 
-> I experience the problem with the BIOS setting for power management on
-> or off.
-> 
-> AMD Athlon 800Mhz CPU.  384Mg Ram.
-> 
-> Here are excerpts of the kernel build options:
-> 
-> /bin/sh scripts/Configure -d arch/i386/config.in
-> #
-> # Using defaults found in .config
-> #
-> *
-> * Code maturity level options
-> *
-> Prompt for development and/or incomplete code/drivers (CONFIG_EXPERIMENTAL) [N/y/?] 
-> *
-> * Loadable module support
-> *
-> Enable loadable module support (CONFIG_MODULES) [Y/n/?] 
->   Set version information on all module symbols (CONFIG_MODVERSIONS) [Y/n/?] 
->   Kernel module loader (CONFIG_KMOD) [Y/n/?] 
-> *
-> * Processor type and features
-> *
-> Processor family (386, 486, 586/K5/5x86/6x86/6x86MX, Pentium-Classic, Pentium-MMX, Pentium-Pro/Celeron/Pentium-II, Pentium-III/Celeron(Coppermine), Pentium-4, K6/K6-II/K6-III, Athlon/Duron/K7, Crusoe, Winchip-C6, Winchip-2, Winchip-2A/Winchip-3, CyrixIII/C3) [Athlon/Duron/K7] 
->   defined CONFIG_MK7
-> Toshiba Laptop support (CONFIG_TOSHIBA) [N/y/m/?] 
-> /dev/cpu/microcode - Intel IA32 CPU microcode support (CONFIG_MICROCODE) [N/y/m/?] 
-> /dev/cpu/*/msr - Model-specific register support (CONFIG_X86_MSR) [N/y/m/?] 
-> /dev/cpu/*/cpuid - CPU information support (CONFIG_X86_CPUID) [N/y/m/?] 
-> High Memory Support (off, 4GB, 64GB) [off] 
->   defined CONFIG_NOHIGHMEM
-> Math emulation (CONFIG_MATH_EMULATION) [N/y/?] 
-> MTRR (Memory Type Range Register) support (CONFIG_MTRR) [N/y/?] 
-> Symmetric multi-processing support (CONFIG_SMP) [N/y/?] 
-> APIC and IO-APIC support on uniprocessors (CONFIG_X86_UP_IOAPIC) [N/y/?] 
-> *
-> * General setup
-> *
-> Networking support (CONFIG_NET) [Y/n/?] 
-> SGI Visual Workstation support (CONFIG_VISWS) [N/y/?] 
-> PCI support (CONFIG_PCI) [Y/n/?] 
->   PCI access mode (BIOS, Direct, Any) [Any] 
->   defined CONFIG_PCI_GOANY
-> PCI device name database (CONFIG_PCI_NAMES) [Y/n/?] 
-> EISA support (CONFIG_EISA) [Y/n/?] 
-> MCA support (CONFIG_MCA) [N/y/?] 
-> Support for hot-pluggable devices (CONFIG_HOTPLUG) [Y/n/?] 
-> *
-> * PCMCIA/CardBus support
-> *
-> PCMCIA/CardBus support (CONFIG_PCMCIA) [N/y/m/?] 
-> System V IPC (CONFIG_SYSVIPC) [Y/n/?] 
-> BSD Process Accounting (CONFIG_BSD_PROCESS_ACCT) [Y/n/?] 
-> Sysctl support (CONFIG_SYSCTL) [Y/n/?] 
-> Kernel core (/proc/kcore) format (ELF, A.OUT) [ELF] 
->   defined CONFIG_KCORE_ELF
-> Kernel support for a.out binaries (CONFIG_BINFMT_AOUT) [M/n/y/?] 
-> Kernel support for ELF binaries (CONFIG_BINFMT_ELF) [Y/m/n/?] 
-> Kernel support for MISC binaries (CONFIG_BINFMT_MISC) [M/n/y/?] 
-> Power Management support (CONFIG_PM) [Y/n/?] 
->   Advanced Power Management BIOS support (CONFIG_APM) [Y/m/n/?] 
->     Ignore USER SUSPEND (CONFIG_APM_IGNORE_USER_SUSPEND) [N/y/?] 
->     Enable PM at boot time (CONFIG_APM_DO_ENABLE) [Y/n/?] 
->     Make CPU Idle calls when idle (CONFIG_APM_CPU_IDLE) [Y/n/?] 
->     Enable console blanking using APM (CONFIG_APM_DISPLAY_BLANK) [N/y/?] 
->     RTC stores time in GMT (CONFIG_APM_RTC_IS_GMT) [N/y/?] 
->     Allow interrupts during APM BIOS calls (CONFIG_APM_ALLOW_INTS) [N/y/?] 
->     Use real mode APM BIOS call to power off (CONFIG_APM_REAL_MODE_POWER_OFF) [N/y/?] 
-> *
-> * Plug and Play configuration
-> *
-> Plug and Play support (CONFIG_PNP) [M/n/y/?] 
->   ISA Plug and Play support (CONFIG_ISAPNP) [M/n/?] 
-> *
-> * Block devices
-> *
-> Normal PC floppy disk support (CONFIG_BLK_DEV_FD) [M/n/y/?] 
-> XT hard disk support (CONFIG_BLK_DEV_XD) [N/y/m/?] 
-> Parallel port IDE device support (CONFIG_PARIDE) [N/m/?] 
-> Compaq SMART2 support (CONFIG_BLK_CPQ_DA) [N/y/m/?] 
-> Compaq Smart Array 5xxx support (CONFIG_BLK_CPQ_CISS_DA) [N/y/m/?] 
-> Mylex DAC960/DAC1100 PCI RAID Controller support (CONFIG_BLK_DEV_DAC960) [N/y/m/?] 
-> Loopback device support (CONFIG_BLK_DEV_LOOP) [M/n/y/?] 
-> Network block device support (CONFIG_BLK_DEV_NBD) [N/y/m/?] 
-> RAM disk support (CONFIG_BLK_DEV_RAM) [N/y/m/?] 
-> *
-> * Multi-device support (RAID and LVM)
-> *
-> Multiple devices driver support (RAID and LVM) (CONFIG_MD) [N/y/?] 
-> *
-> * ATA/IDE/MFM/RLL support
-> *
-> ATA/IDE/MFM/RLL support (CONFIG_IDE) [Y/m/n/?] 
-> *
-> * IDE, ATA and ATAPI Block devices
-> *
-> Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support (CONFIG_BLK_DEV_IDE) [Y/m/n/?] 
-> *
-> * Please see Documentation/ide.txt for help/info on IDE drives
-> *
->   Use old disk-only driver on primary interface (CONFIG_BLK_DEV_HD_IDE) [N/y/?] 
->   Include IDE/ATA-2 DISK support (CONFIG_BLK_DEV_IDEDISK) [Y/m/n/?] 
->     Use multi-mode by default (CONFIG_IDEDISK_MULTI_MODE) [N/y/?] 
->   Include IDE/ATAPI CDROM support (CONFIG_BLK_DEV_IDECD) [M/n/y/?] 
->   Include IDE/ATAPI TAPE support (CONFIG_BLK_DEV_IDETAPE) [N/y/m/?] 
->   Include IDE/ATAPI FLOPPY support (CONFIG_BLK_DEV_IDEFLOPPY) [N/y/m/?] 
->   SCSI emulation support (CONFIG_BLK_DEV_IDESCSI) [M/n/?] 
-> *
-> * IDE chipset support/bugfixes
-> *
->   CMD640 chipset bugfix/support (CONFIG_BLK_DEV_CMD640) [Y/n/?] 
->     CMD640 enhanced support (CONFIG_BLK_DEV_CMD640_ENHANCED) [N/y/?] 
->   RZ1000 chipset bugfix/support (CONFIG_BLK_DEV_RZ1000) [Y/n/?] 
->   Generic PCI IDE chipset support (CONFIG_BLK_DEV_IDEPCI) [Y/n/?] 
->     Sharing PCI IDE interrupts support (CONFIG_IDEPCI_SHARE_IRQ) [Y/n/?] 
->     Generic PCI bus-master DMA support (CONFIG_BLK_DEV_IDEDMA_PCI) [Y/n/?] 
->     Boot off-board chipsets first support (CONFIG_BLK_DEV_OFFBOARD) [N/y/?] 
->       Use PCI DMA by default when available (CONFIG_IDEDMA_PCI_AUTO) [Y/n/?] 
->     AEC62XX chipset support (CONFIG_BLK_DEV_AEC62XX) [N/y/?] 
->     ALI M15x3 chipset support (CONFIG_BLK_DEV_ALI15X3) [N/y/?] 
->     AMD Viper support (CONFIG_BLK_DEV_AMD7409) [Y/n/?] 
->     CMD64X chipset support (CONFIG_BLK_DEV_CMD64X) [N/y/?] 
->     CY82C693 chipset support (CONFIG_BLK_DEV_CY82C693) [N/y/?] 
->     Cyrix CS5530 MediaGX chipset support (CONFIG_BLK_DEV_CS5530) [N/y/?] 
->     HPT34X chipset support (CONFIG_BLK_DEV_HPT34X) [N/y/?] 
->     HPT366 chipset support (CONFIG_BLK_DEV_HPT366) [N/y/?] 
->     Intel PIIXn chipsets support (CONFIG_BLK_DEV_PIIX) [N/y/?] 
->     NS87415 chipset support (EXPERIMENTAL) (CONFIG_BLK_DEV_NS87415) [N/y/?] 
->     PROMISE PDC20246/PDC20262/PDC20267 support (CONFIG_BLK_DEV_PDC202XX) [N/y/?] 
->     ServerWorks OSB4 chipset support (CONFIG_BLK_DEV_OSB4) [N/y/?] 
->     SiS5513 chipset support (CONFIG_BLK_DEV_SIS5513) [N/y/?] 
->     SLC90E66 chipset support (CONFIG_BLK_DEV_SLC90E66) [N/y/?] 
->     Tekram TRM290 chipset support (EXPERIMENTAL) (CONFIG_BLK_DEV_TRM290) [N/y/?] 
->     VIA82CXXX chipset support (CONFIG_BLK_DEV_VIA82CXXX) [N/y/?] 
->   Other IDE chipset support (CONFIG_IDE_CHIPSETS) [N/y/?] 
->   IGNORE word93 Validation BITS (CONFIG_IDEDMA_IVB) [N/y/?] 
-
+John
 

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283481AbRL2PIK>; Sat, 29 Dec 2001 10:08:10 -0500
+	id <S283268AbRL2PVk>; Sat, 29 Dec 2001 10:21:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283244AbRL2PHu>; Sat, 29 Dec 2001 10:07:50 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:23559 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283268AbRL2PHn>;
-	Sat, 29 Dec 2001 10:07:43 -0500
-Date: Sat, 29 Dec 2001 16:07:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
-Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-Message-ID: <20011229160730.A1821@suse.de>
-In-Reply-To: <20011228115956.E2973@suse.de> <Pine.LNX.4.33L.0112281028070.24031-100000@imladris.surriel.com> <20011228133350.B834@suse.de> <m2666rta4t.fsf@pengo.localdomain>
+	id <S283588AbRL2PVa>; Sat, 29 Dec 2001 10:21:30 -0500
+Received: from moutng0.kundenserver.de ([212.227.126.170]:49141 "EHLO
+	moutng0.schlund.de") by vger.kernel.org with ESMTP
+	id <S283268AbRL2PVW>; Sat, 29 Dec 2001 10:21:22 -0500
+Date: Sat, 29 Dec 2001 16:16:55 +0100
+From: Heinz Diehl <hd@cavy.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.2-pre3] nfs build broken
+Message-ID: <20011229151655.GA6080@elfie.cavy.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m2666rta4t.fsf@pengo.localdomain>
+User-Agent: Mutt/1.3.24-current-20011226i (Linux 2.4.17-spc i586)
+Organization: private site in Mannheim/Germany
+X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 28 2001, Peter Osterlund wrote:
-> Jens Axboe <axboe@suse.de> writes:
-> 
-> > On Fri, Dec 28 2001, Rik van Riel wrote:
-> > > On Fri, 28 Dec 2001, Jens Axboe wrote:
-> > > >
-> > > > Tried reading the source?
-> > >
-> > > As usual, without documentation you only know what the code
-> > > does, not what it's supposed to do or why it does it.
-> >
-> > please look at the source before making such comments -- it's quite
-> > adequately commented.
-> 
-> I agree, but I have one specific question though. What are the
-> bi_end_io() functions supposed to return? The return value doesn't
-> ever seem to be used (yet?), so reading the source code can not answer
-> that question.
+Building of NFS filesystem support somehow got broken in 2.5.2-pre3:
 
-They were supposed to return 0 if the bio was completely done, or 1 if
-there was remaining I/O to be done. Right now it's unused, so just
-return 0 for success.
+[....]
+
+make[1]: Nothing to be done for modules_install'.
+make[1]: Leaving directory /usr/src/linux/arch/i386/lib'
+cd /lib/modules/2.5.2-pre3-xs2; \
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.2-pre3-xs2;
+fi
+depmod: *** Unresolved symbols in 
+/lib/modules/2.5.2-pre3-xs2/kernel/fs/nfs/nfs.o
+depmod:         seq_escape
+depmod:         seq_printf
+elfie:/usr/src/linux #
 
 -- 
-Jens Axboe
-
+# Heinz Diehl, 68259 Mannheim, Germany

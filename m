@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129468AbQJ0Uj3>; Fri, 27 Oct 2000 16:39:29 -0400
+	id <S129536AbQJ0Ul3>; Fri, 27 Oct 2000 16:41:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129536AbQJ0UjT>; Fri, 27 Oct 2000 16:39:19 -0400
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:33787 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S129468AbQJ0UjH>; Fri, 27 Oct 2000 16:39:07 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200010272037.e9RKbPj05203@webber.adilger.net>
-Subject: Re: Question: multiple major numbers - one driver
-In-Reply-To: <Pine.LNX.4.05.10010271201430.18801-100000@gemini.procom.com>
- "from chris parker at Oct 27, 2000 12:07:38 pm"
-To: chris parker <chrisp@procom.com>
-Date: Fri, 27 Oct 2000 14:37:24 -0600 (MDT)
-CC: linux-kernel@vger.kernel.org, chris_parker@procom.com, hnguyen@procom.com
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S129617AbQJ0UlT>; Fri, 27 Oct 2000 16:41:19 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:44037 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129536AbQJ0UlK>;
+	Fri, 27 Oct 2000 16:41:10 -0400
+Message-ID: <39F9E849.D799D4A5@mandrakesoft.com>
+Date: Fri, 27 Oct 2000 16:40:41 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-21mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] kernel/module.c (plus gratuitous rant)
+In-Reply-To: <39F5830E.7963A935@uow.edu.au> <Pine.LNX.4.10.10010241353590.1743-100000@penguin.transmeta.com> <20001027194513.A1060@bug.ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Parker writes:
-> I have a need for more than 256 minor numbers.  I could add some 
-> more major numbers, thus getting the number of majors * 256.
-> I would like to have only device driver loaded to handle the
-> multiple majors.
+Pavel Machek wrote:
+> Would it be possible to keep 2.7.2.3? You still need 2.7.2.3 to
+> reliably compile 2.0.X (and maybe even 2.2.all-but-latest?).
 
-Look at the SCSI/IDE/COMPAQ Smart RAID/etc drivers that have multiple
-major numbers registered (per Documentation/devices.txt).  Some of
-the storage drivers have been allocating blocks of 8 major numbers at
-a time.
+What fails, when you use egcs-1.1.2 to build 2.0.x or early 2.2.x?
 
-Cheers, Andreas
+Maybe they need -fno-strict-aliasing... is that what you are referring
+to?
+
+Regards,
+
+	Jeff
+
+
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Jeff Garzik                    | "Mind if I drive?"  -Sam
+Building 1024                  | "Not if you don't mind me clawing at
+the
+MandrakeSoft                   |  dash and screaming like a
+cheerleader."
+                               |      -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

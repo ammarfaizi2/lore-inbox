@@ -1,86 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266364AbUGBFRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266484AbUGBFiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266364AbUGBFRi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 01:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266484AbUGBFRh
+	id S266484AbUGBFiX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 01:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266489AbUGBFiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 01:17:37 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:13750 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S266459AbUGBFRe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 01:17:34 -0400
-Message-ID: <40E4EF82.9000803@blue-labs.org>
-Date: Fri, 02 Jul 2004 01:15:46 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040627
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [OOPS] 2.6.7 reiserfs superblock stuff
-Content-Type: multipart/mixed;
- boundary="------------090106060508010901050806"
+	Fri, 2 Jul 2004 01:38:23 -0400
+Received: from mail.kroah.org ([65.200.24.183]:6786 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266484AbUGBFiU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 01:38:20 -0400
+Date: Thu, 1 Jul 2004 22:36:25 -0700
+From: Greg KH <greg@kroah.com>
+To: linas@austin.ibm.com
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.6] PPC64: log firmware errors during boot.
+Message-ID: <20040702053625.GC30548@kroah.com>
+References: <20040629191046.Q21634@forte.austin.ibm.com> <16610.39955.554139.858593@cargo.ozlabs.ibm.com> <20040701160614.I21634@forte.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040701160614.I21634@forte.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090106060508010901050806
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Jul 01, 2004 at 04:06:14PM -0500, linas@austin.ibm.com wrote:
+> How else could we do this?  I have never had to architect a kernel-to-user
+> data communications interface, so I don't know what the alternatives
+> are.  We could queue them up to some file in /proc, which user-space
+> reads. 
 
-This is copied by hand, some translation errors may exist and some 
-content is missing.
+No.
 
-__find_get_block+227
-__getblk+31
-do_journal_end+600
-do_journal_begin_r+54
-pdflush+0
-reiserfs_sync_fs+273
-sync_supers+466
-wb_kupdate+53
-thread_return+41
-pdflush+0
-__pdflush+1175
-pdflush+28
-wb+kupdate+0
-kthread+136
-keventd_create_kthread+0
-child_rip+8
-keventd_create_kthread+0
-pdflush+0
-pdflush+0
-child_rip+0
+> Or maybe /sys instead ??
 
-Code: 4c 39 6b 20 75 08 49 89 df ff 43 08 eb 4e 8b 5b 10 48 39
+No.
 
-RIP: __find_get_block_slow+304
+> Maybe a stunt with sockets?
 
-fs/buffer.c:514 spin_lock (fs/inode.c: 000001003fef6800) already locked 
-by fs/buffer.c/514
+Yes, use netlink.
 
+> Some new device in /dev/ that can be opened, read, closed?
 
-Opteron 64bit, reiserfs / partition.
+No.
 
-David
+> How should the user space daemon indicate that its picked up the
+> message and doesn't need it any more?
 
+The kernel doesn't care.
 
---------------090106060508010901050806
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
+> Write a msg number to a /proc file?
 
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
+No way.
 
+> Maybe each individual message should go in its own file, and user
+> space just rm's that file after its fetched/saved the message.
 
---------------090106060508010901050806--
+Hm, that's a neat idea I don't think I've seen before.  But no :)
+
+> I dunno, I think any one of these could be whipped up in a jiffy.
+> Convincing the user-space to use the interface might be harder.
+
+In summary, use syslog or netlink like the whole rest of the kernel
+does.  Don't reinvent the wheel again, please.
+
+thanks,
+
+greg k-h

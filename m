@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292928AbSCELwo>; Tue, 5 Mar 2002 06:52:44 -0500
+	id <S292949AbSCELwy>; Tue, 5 Mar 2002 06:52:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292914AbSCELwf>; Tue, 5 Mar 2002 06:52:35 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:30666 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S292907AbSCELwV>; Tue, 5 Mar 2002 06:52:21 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 5 Mar 2002 03:52:14 -0800
-Message-Id: <200203051152.DAA05010@adam.yggdrasil.com>
-To: davem@redhat.com
-Subject: Re: Does kmalloc always return address below 4GB?
-Cc: linux-kernel@vger.kernel.org
+	id <S292914AbSCELwp>; Tue, 5 Mar 2002 06:52:45 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:30732 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292911AbSCELwa>; Tue, 5 Mar 2002 06:52:30 -0500
+Message-ID: <3C84B145.90201@evision-ventures.com>
+Date: Tue, 05 Mar 2002 12:51:33 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: arjanv@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
+In-Reply-To: <E16i9mc-00043p-00@wagner.rustcorp.com.au> <3C84A34E.6060708@evision-ventures.com> <3C84AE16.A7F1ECCA@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Just use pci_alloc_consistent, it never gives you
->anything larger than 32-bit addresses, please read the
->documentation :-)
+Arjan van de Ven wrote:
+> Martin Dalecki wrote:
+> 
+> 
+>>- Disable configuration of the task file stuff. It is going to go away
+>>   and will be replaced by a truly abstract interface based on
+>>   functionality and *not* direct mess-up of hardware.
+>>
+> 
+> Can we also expect a patch to remove the scb's from the scsi midlayer
+> from you ?
+> I mean, if a standard specifies a nice *common* command packet format
+> I'd expect the midlayer
+> to create such packets. Taskfile is exactly that... why removing it ?
 
-	I see the smiley, but let me point out that I have
-read Documentation/DMA-mapping.txt and I was misled by this
-sentence:
+Show me a usage of it! No please no abstract telling how usufull it
+*could* be. Look at the excessive implementation code.
+Look at the ATA standard and  compare this to SCSI.
 
-| If you acquired your memory via the page allocator
-| (i.e. __get_free_page*()) or the generic memory allocators
-| (i.e. kmalloc() or kmem_cache_alloc()) then you may DMA to/from
-| that memory using the addresses returned from those routines.
-
-	It might be a good idea to rephrase it.  If I knew what that
-sentence I would propose a patch to the DMA-mapping.txt file, but I
-honestly don't know what proposition that sentence is supposed
-to convey.  If there really is no guarantee that this sentence is
-conveying, then I guess the sentence should be deleted.
-
-	Anyhow, thanks for your quick clarification.  The driver
-breaking on 64-bit architectures was exactly what I was worried about.
-
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,175 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbTDKWgh (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 18:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbTDKWgg (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 18:36:36 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:13818 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261874AbTDKWg1 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 18:36:27 -0400
-Message-ID: <3E9745FE.207@mvista.com>
-Date: Fri, 11 Apr 2003 15:47:26 -0700
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: too much timer simplification...
-References: <200304110705.h3B75aQt026081@napali.hpl.hp.com> <20030411002816.786296e8.akpm@digeo.com>
-In-Reply-To: <20030411002816.786296e8.akpm@digeo.com>
-Content-Type: multipart/mixed;
- boundary="------------070804030804050307090008"
+	id S261866AbTDKWf3 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 18:35:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbTDKWf3 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 18:35:29 -0400
+Received: from [12.47.58.73] ([12.47.58.73]:38645 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S261866AbTDKWf2 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 18:35:28 -0400
+Date: Fri, 11 Apr 2003 15:47:09 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Tim Hockin <thockin@hockin.org>
+Cc: sdake@mvista.com, kpfleming@cox.net,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       message-bus-list@redhat.com, greg@kroah.com
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Message-Id: <20030411154709.379a139c.akpm@digeo.com>
+In-Reply-To: <200304112219.h3BMJMG11078@www.hockin.org>
+References: <20030411150933.43fd9a84.akpm@digeo.com>
+	<200304112219.h3BMJMG11078@www.hockin.org>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Apr 2003 22:47:07.0011 (UTC) FILETIME=[4762D530:01C3007C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This is a multi-part message in MIME format.
---------------070804030804050307090008
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Andrew Morton wrote:
-> David Mosberger <davidm@napali.hpl.hp.com> wrote:
+Tim Hockin <thockin@hockin.org> wrote:
+>
+> > > A much better solution could be had by select()ing on a filehandle 
+> > > indicating when a new hotswap event is ready to be processed.  No races, 
+> > > no security issues, no performance issues.
+> > 
+> > I must say that I've always felt this to be a better approach than the
+> > /sbin/hotplug callout.
 > 
->>It appears to me that this changeset:
->>
->>  http://linux.bkbits.net:8080/linux-2.5/diffs/kernel/timer.c@1.48
->>
->>may have gone a little too far.
->>
->>What I'm seeing is that if someone happens to arm a periodic timer at
->>exactly 256 jiffies (as ohci happens to do on platforms with HZ=1024),
->>then you end up getting an endless loop of timer activations, causing
->>a machine hang.
->>
->>The problem is that __run_timers updates base->timer_jiffies _before_
->>running the callback routines.  If a callback re-arms the timer at
->>exactly 256 jiffies, add_timers() will reinsert the timer into the
->>list that we're currently processing, which of course will cause the
->>timer to expire immediately again, etc., etc., ad naseum...
->>
+> I've always liked this approach, too - if you look at acpid, it is designed
+> to be gereically useful for this model of kernel->userland notification.
 > 
-> 
-> OK, well unless George can pull a rabbit out of the hat it may
-> be best to just revert it.
+> With minor mods, it could become 'eventd' and handle ACPI, hotplug, netlink,
+> and any other style kernel->user notice.
 
-Lets try the attached...  works for me.
+It also has the advantage that events are handled in reliable and repeatable
+order.
 
-> 
-> This gives us the same algorithm as 2.4, which I think is good.
-> 
-> 
-> --- 25/kernel/timer.c~timer-simplification-revert	2003-04-11 00:19:48.000000000 -0700
-> +++ 25-akpm/kernel/timer.c	2003-04-11 00:19:48.000000000 -0700
-> @@ -56,6 +56,7 @@ struct tvec_t_base_s {
->  	spinlock_t lock;
->  	unsigned long timer_jiffies;
->  	struct timer_list *running_timer;
-> +	struct list_head *run_timer_list_running;
->  	tvec_root_t tv1;
->  	tvec_t tv2;
->  	tvec_t tv3;
-> @@ -100,6 +101,12 @@ static inline void check_timer(struct ti
->  		check_timer_failed(timer);
->  }
->  
-> +/*
-> + * If a timer handler re-adds the timer with expires == jiffies, the timer
-> + * running code can lock up.  So here we detect that situation and park the
-> + * timer onto base->run_timer_list_running.  It will be added to the main timer
-> + * structures later, by __run_timers().
-> + */
->  
->  static void internal_add_timer(tvec_base_t *base, struct timer_list *timer)
->  {
-> @@ -107,7 +114,9 @@ static void internal_add_timer(tvec_base
->  	unsigned long idx = expires - base->timer_jiffies;
->  	struct list_head *vec;
->  
-> -	if (idx < TVR_SIZE) {
-> +	if (base->run_timer_list_running) {
-> +		vec = base->run_timer_list_running;
-> +	} else if (idx < TVR_SIZE) {
->  		int i = expires & TVR_MASK;
->  		vec = base->tv1.vec + i;
->  	} else if (idx < 1 << (TVR_BITS + TVN_BITS)) {
-> @@ -397,6 +406,7 @@ static inline void __run_timers(tvec_bas
->  
->  	spin_lock_irq(&base->lock);
->  	while (time_after_eq(jiffies, base->timer_jiffies)) {
-> +		LIST_HEAD(deferred_timers);
->  		struct list_head *head;
->   		int index = base->timer_jiffies & TVR_MASK;
->   
-> @@ -408,7 +418,7 @@ static inline void __run_timers(tvec_bas
->  				(!cascade(base, &base->tv3, INDEX(1))) &&
->  					!cascade(base, &base->tv4, INDEX(2)))
->  			cascade(base, &base->tv5, INDEX(3));
-> -		++base->timer_jiffies; 
-> +		base->run_timer_list_running = &deferred_timers;
->  repeat:
->  		head = base->tv1.vec + index;
->  		if (!list_empty(head)) {
-> @@ -427,6 +437,14 @@ repeat:
->  			spin_lock_irq(&base->lock);
->  			goto repeat;
->  		}
-> +		base->run_timer_list_running = NULL;
-> +		++base->timer_jiffies; 
-> +		while (!list_empty(&deferred_timers)) {
-> +			timer = list_entry(deferred_timers.prev,
-> +						struct timer_list, entry);
-> +			list_del(&timer->entry);
-> +			internal_add_timer(base, timer);
-> +		}
->  	}
->  	set_running_timer(base, NULL);
->  	spin_unlock_irq(&base->lock);
-> 
-> _
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Right now, if you plug and then quickly unplug a device, the unplug event can
+be handled first.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+It may not happen much in practice, but we have had problem with cardbus
+contact bounce causing an event storm in the past.  The daemon could just
+swallow the first 5 insert/remove pairs and process the final insert only.
 
---------------070804030804050307090008
-Content-Type: text/plain;
- name="run_timer_fix2-2.5.67-bk1-1.0.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="run_timer_fix2-2.5.67-bk1-1.0.patch"
-
---- linux-2.5.67-bk1-org/kernel/timer.c	2003-03-24 23:34:15.000000000 -0800
-+++ linux/kernel/timer.c	2003-04-11 15:29:11.000000000 -0700
-@@ -397,7 +397,8 @@
- 
- 	spin_lock_irq(&base->lock);
- 	while (time_after_eq(jiffies, base->timer_jiffies)) {
--		struct list_head *head;
-+		struct list_head work_list = LIST_HEAD_INIT(work_list);
-+		struct list_head *head = &work_list;
-  		int index = base->timer_jiffies & TVR_MASK;
-  
- 		/*
-@@ -409,8 +410,8 @@
- 					!cascade(base, &base->tv4, INDEX(2)))
- 			cascade(base, &base->tv5, INDEX(3));
- 		++base->timer_jiffies; 
-+		list_splice_init(base->tv1.vec + index, &work_list);
- repeat:
--		head = base->tv1.vec + index;
- 		if (!list_empty(head)) {
- 			void (*fn)(unsigned long);
- 			unsigned long data;
-
-
---------------070804030804050307090008--
-
+The kernel would have to drop messages on the floor at some point though.

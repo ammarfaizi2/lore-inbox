@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVCHKnX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVCHKq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261972AbVCHKnX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 05:43:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVCHKmh
+	id S261967AbVCHKq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 05:46:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVCHKpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 05:42:37 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:14219 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261967AbVCHKmc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 05:42:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=tHwSWvzCPXKkkpk9eXoJ8F78knygF1VgjpxzjFl5hsI7X9xrVyTgUnsirW/CE7tpo1lSklMSm9DjGMsNrN3ekoMM359tL0dI75b6CKyg/F21RFE9j26CXGluoD7FSD4WfXDRWl69rGiJ2YTQILbQ+esHpj796iZVfqIHxk/suQ0=
-Message-ID: <58cb370e050308024214400e1f@mail.gmail.com>
-Date: Tue, 8 Mar 2005 11:42:30 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] resync ATI PCI idents into base kernel
-Cc: Greg KH <greg@kroah.com>,
+	Tue, 8 Mar 2005 05:45:50 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:10731 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261967AbVCHKpP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 05:45:15 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Tue, 8 Mar 2005 11:44:37 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110276929.28860.93.camel@localhost.localdomain>
+Subject: [patch] v4l: video-buf update
+Message-ID: <20050308104437.GA30696@bytesex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200503072216.j27MGxtP024504@hera.kernel.org>
-	 <20050308053941.GA16450@kroah.com>
-	 <1110276929.28860.93.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Mar 2005 10:15:30 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > Was there a reason you did this without using tabs, like the rest of the
-> > file?
-> 
-> No but I'll send Linus an update to fix that now.
-> 
-> > Again, the maintainer chain is well documented...
-> 
-> Really - so does it go to the PCI maintainer, the IDE maintainer or the
-> DRI maintainer or someone else, or all of them, or in bits to different
-> ones remembering there are dependancies and I don't use bitcreeper ?
+Bugfix: catch pci_map_sg() failures.
 
-it should go to /dev/null because there are no users of these IDs ;-)
+Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
+---
+ drivers/media/video/video-buf.c |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
+
+diff -u linux-2.6.11/drivers/media/video/video-buf.c linux/drivers/media/video/video-buf.c
+--- linux-2.6.11/drivers/media/video/video-buf.c	2005-03-07 10:13:55.000000000 +0100
++++ linux/drivers/media/video/video-buf.c	2005-03-07 16:38:38.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: video-buf.c,v 1.17 2004/12/10 12:33:40 kraxel Exp $
++ * $Id: video-buf.c,v 1.18 2005/02/24 13:32:30 kraxel Exp $
+  *
+  * generic helper functions for video4linux capture buffers, to handle
+  * memory management and PCI DMA.  Right now bttv + saa7134 use it.
+@@ -217,9 +217,18 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	if (!dma->bus_addr)
++	if (!dma->bus_addr) {
+ 		dma->sglen = pci_map_sg(dev,dma->sglist,dma->nr_pages,
+ 					dma->direction);
++		if (0 == dma->sglen) {
++			printk(KERN_WARNING
++			       "%s: pci_map_sg failed\n",__FUNCTION__);
++			kfree(dma->sglist);
++			dma->sglist = NULL;
++			dma->sglen = 0;
++			return -EIO;
++		}
++	}
+ 	return 0;
+ }
+ 
+
+-- 
+#define printk(args...) fprintf(stderr, ## args)

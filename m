@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318641AbSHUSlS>; Wed, 21 Aug 2002 14:41:18 -0400
+	id <S318638AbSHUSki>; Wed, 21 Aug 2002 14:40:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318642AbSHUSlS>; Wed, 21 Aug 2002 14:41:18 -0400
-Received: from gremlin.ics.uci.edu ([128.195.1.70]:16778 "HELO
-	gremlin.ics.uci.edu") by vger.kernel.org with SMTP
-	id <S318641AbSHUSlL>; Wed, 21 Aug 2002 14:41:11 -0400
-Date: Wed, 21 Aug 2002 11:45:06 -0700 (PDT)
-From: Mukesh Rajan <mrajan@ics.uci.edu>
-To: Richard Zidlicky <rz@linux-m68k.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: detecting hard disk idleness
-In-Reply-To: <20020821153917.B1444@linux-m68k.org>
-Message-ID: <Pine.SOL.4.20.0208211141210.21898-100000@hobbit.ics.uci.edu>
+	id <S318642AbSHUSki>; Wed, 21 Aug 2002 14:40:38 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:19359 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318638AbSHUSkh>; Wed, 21 Aug 2002 14:40:37 -0400
+Message-ID: <1029955373.3d63df2d7d598@imap.linux.ibm.com>
+Date: Wed, 21 Aug 2002 11:42:53 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
+To: manand@us.ibm.com
+Subject: Re: (RFC): SKB Initialization
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.0
+X-Originating-IP: 9.65.17.188
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this again would mean that i would have to poll the /proc/interrupt file.
-i want to avoid polling because of very small poll interval causing
-overhead. i am still wondering if this could be implemented with some sort
-of interrupt mechanism in linux (kernel interrupting user program or user
-program waiting on some signal)
+> The patch reduces the numer of cylces by 25%
 
-- mukesh
+Er, I'm not getting that from just the numbers you show.
+
+The total ave number of cycles in alloc_skb before is approx 268.
+
+Total number of cycles in alloc_skb after is approx 468. 
+
+So in order to reduce the total ave number of cycles, you
+need __kfree_skb to reduce by more than approx 200. (Since
+thats where you moved the code to).
+
+So unless we see the total cycles in __kfree_skb, how
+do we know? Or what am I missing?
+
+thanks,
+Nivedita
 
 
-On Wed, 21 Aug 2002, Richard Zidlicky wrote:
+You said:
 
-> On Tue, Aug 20, 2002 at 11:25:11PM -0700, Mukesh Rajan wrote:
-> > hi,
-> > 
-> > i'm trying to implement an alogrithm that requires as input the idleness
-> > period of a hard disk (i.e. time between satisfying a request and arrival
-> > of new request).
-> > 
-> > so far implementation polls "proc/stat" periodically to detect idleness
-> > over the poll period. this implementation is not accurate and also i have
-> > very small poll interval (milli secs). with some measurements, conclusion
-> > is that implementation is consuming quite some power. this millisecond
-> > polling overhead could be avoided if i can come up with an interrupt
-> > driven implementation. in DOS, i would have manipulated the interrupt
-> > table and inserted my code for 13h (disk interrupt right?). this would
-> > help me do some preprocessing before the actual call to the hard disk
-> > (13h).
-> > 
-> > is this possible in any way in Linux? i.e. have the kernel inform a
-> > program when a hard disk interrupt occurs? either through interrupt
-> > manipulation or otherwise?
-> 
-> cat /proc/interrupts
-> 
-> Richard
-> 
+
+
+                                CPU 0                 CPU 1
+                               ------                 ------
+Avg cycles in alloc_skb:        64.05                 203.39
+Avg cycles in __kfree_skb:     127.54                 228.95
+                               ------                 -------
+Total Avg Cycles               191.59                 432.34
+                               ------                 -------
+
+# of times alloc_skb called:      235,478            2,060,422
+# of times __kfree_skb called:  2,063,276              232,359
+
+
+Linux 2.5.25+Skbinit Patch:
+--------------------------
+                              CPU 0                   CPU 1
+                              -----                   -----
+ Avg cycles in alloc skb:     237.21                  230.91
+
+ # of times alloc_skb called: 1,226,594             1,213,327
+
+
+
+
 

@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318177AbSGWRGW>; Tue, 23 Jul 2002 13:06:22 -0400
+	id <S318182AbSGWRFo>; Tue, 23 Jul 2002 13:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318189AbSGWRFx>; Tue, 23 Jul 2002 13:05:53 -0400
-Received: from ns.suse.de ([213.95.15.193]:56846 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318176AbSGWREr>;
-	Tue, 23 Jul 2002 13:04:47 -0400
-To: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with msync system call
-References: <EE83E551E08D1D43AD52D50B9F511092E1149F@ntserver2.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 23 Jul 2002 19:07:57 +0200
-In-Reply-To: Gregory Giguashvili's message of "23 Jul 2002 18:07:51 +0200"
-Message-ID: <p73fzyatlsi.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S318188AbSGWRFl>; Tue, 23 Jul 2002 13:05:41 -0400
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:33797 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S318182AbSGWRFV>; Tue, 23 Jul 2002 13:05:21 -0400
+Date: Tue, 23 Jul 2002 11:08:16 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: Francois Romieu <romieu@cogenit.fr>
+Cc: support <support@promise.com.tw>, Hank <hanky@promise.com.tw>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.19-rc2-ac2 pdc202xx.c update
+Message-ID: <20020723110816.A5009@mail.harddata.com>
+References: <01b801c22f0b$c02cc360$47cba8c0@promise.com.tw> <01ee01c2312e$22976900$47cba8c0@promise.com.tw> <20020722083548.A27973@fafner.intra.cogenit.fr> <000d01c231e5$10f8ae40$47cba8c0@promise.com.tw> <20020723091915.A29237@fafner.intra.cogenit.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020723091915.A29237@fafner.intra.cogenit.fr>; from romieu@cogenit.fr on Tue, Jul 23, 2002 at 09:19:15AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregory Giguashvili <Gregoryg@ParadigmGeo.com> writes:
+On Tue, Jul 23, 2002 at 09:19:15AM +0200, Francois Romieu wrote:
+> support <support@promise.com.tw> :
+> > We think there is no problems,
+> 
+> After the change, the code is:
+> 
+> if (speed == XFER_UDMA_2)
+>         OUT_BYTE((thold + adj), indexreg);              <- not executed
+>         OUT_BYTE((IN_BYTE(datareg) & 0x7f), datareg);   <- executed, damn it !
 
-> I'm sure that someone has come across this problem and I sure hope there is
-> some workaround/patch available. 
+I have one more question.  Is it really immaterial on the line above in
+which order 'datareg' occurences are used?  Regardless of what
+'OUT_BYTE' is now or may become in the future and how these macro are
+used?  It looks to me that we are trying to read some byte from
+'datareg', clear a bit in it and write it back but looks can be
+deceptive.  It may turn out that this does or does not work on a
+particular compiler whim.
 
-Do a F_SETFL lock/unlock on the file  That should act as a full NFS write
-barrier and flush all buffers. Best is if you synchronize between the various
-writers with the full lock.
+Maybe it is ok now but beeing explicit in a macro definition does
+not really cost anything and may save some future grief.
 
--Andi
+   Michal

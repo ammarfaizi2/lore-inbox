@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315413AbSFOORY>; Sat, 15 Jun 2002 10:17:24 -0400
+	id <S315414AbSFOOUO>; Sat, 15 Jun 2002 10:20:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315414AbSFOORX>; Sat, 15 Jun 2002 10:17:23 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:41397 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S315413AbSFOORW>;
-	Sat, 15 Jun 2002 10:17:22 -0400
-Date: Sat, 15 Jun 2002 16:13:33 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200206151413.QAA07923@harpo.it.uu.se>
-To: johnstul@us.ibm.com, kai@tp1.ruhr-uni-bochum.de
-Subject: Re: [Patch] tsc-disable_A5
-Cc: Martin.Bligh@us.ibm.com, davej@suse.de, linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br
+	id <S315416AbSFOOUN>; Sat, 15 Jun 2002 10:20:13 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:29066 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S315414AbSFOOUM>;
+	Sat, 15 Jun 2002 10:20:12 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 15 Jun 2002 16:20:11 +0200 (MEST)
+Message-Id: <UTC200206151420.g5FEKBF25783.aeb@smtp.cwi.nl>
+To: adilger@clusterfs.com, tomaz.susnik@hermes.si
+Subject: Re: 2.4.18 kernel lseek() bug
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Jun 2002 16:44:30 -0700, john stultz wrote:
->On Fri, 2002-06-14 at 16:29, Kai Germaschewski wrote:
->> I suppose you could it rewrite like
->> 
->> ...
->> CONFIG_X86_WANT_TSC=y (or whatever)
->> ...
->> 
->> if [ some_condition ]; then
->>   define_bool CONFIG_X86_TSC n
->> else
->>   define_bool CONFIG_X86_TSC $CONFIG_X86_WANT_TSC
->> fi
->> 
->> Not exactly elegant, but it should work ;)
->
->Yep, my first release was done in a similar fashion, but Alan suggested
->the patch take on its current form. There may be cases where we want to
->know if we have a TSC even if we don't want to use them. 
->
->Thread link:
->http://www.uwsg.iu.edu/hypermail/linux/kernel/0205.3/1188.html
+    >      a call to lseek() fails with EINVAL under the following conditions:
+    >         - it is called on a disk device file
+    >         - required offset is larger than the target disk device size
 
-I disagree with Alan's recommendation.
-The real problem is that the kernel confuses a CPU-level property
-(do the CPUs have TSCs?) with a system-level property (are the
-TSCs present and in sync?). CONFIG_X86_TSC really describes the
-latter property, for the former we have the cpu_has_tsc() macro.
+    Is this behaviour mandated in a standard, or is it just different from
+    previous behaviour?  I'm not saying it _isn't_ a bug, but I don't see
+    how seeking past the end of a block device is very useful.
 
-IMO, Kai is right and a nicer fix is to change arch/i386/config.in to:
-- s/CONFIG_X86_TSC=y/CONFIG_X86_CPU_HAS_TSC=y/
-  (this one can also be used as an optimisation to avoid runtime
-  cpu_has_tsc() checks)
-- append a rule which derives CONFIG_X86_TSC from CONFIG_X86_CPU_HAS_TSC
-  and !multiquad
+I know many programs that use this. They seek and do not expect
+an error, because the standard says no error is to be expected,
+and then try to read or write.
 
-The other patch which adds an anti-CONFIG_X86_TSC to cancel the
-first CONFIG_X86_TSC is so horribly hacky...
+Let me quote POSIX 1003.1-2001.
 
-/Mikael
+...
+The lseek() function shall allow the file offset to be set beyond the
+end of the existing data in the file.
+...
+
+[EINVAL] 
+          The whence argument is not a proper value, or the resulting
+          file offset would be negative for a regular file, block special
+          file, or directory. 
+
+
+Andries

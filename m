@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136208AbRDVQf6>; Sun, 22 Apr 2001 12:35:58 -0400
+	id <S136211AbRDVQli>; Sun, 22 Apr 2001 12:41:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136207AbRDVQfs>; Sun, 22 Apr 2001 12:35:48 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:52123 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S136209AbRDVQfh>;
-	Sun, 22 Apr 2001 12:35:37 -0400
-Date: Sun, 22 Apr 2001 12:35:32 -0400 (EDT)
+	id <S136212AbRDVQl2>; Sun, 22 Apr 2001 12:41:28 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:3236 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S136211AbRDVQlV>;
+	Sun, 22 Apr 2001 12:41:21 -0400
+Date: Sun, 22 Apr 2001 12:41:17 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Francois Romieu <romieu@cogenit.fr>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Request for comment -- a better attribution system
-In-Reply-To: <20010422114648.G28605@thyrsus.com>
-Message-ID: <Pine.GSO.4.21.0104221208390.28681-100000@weyl.math.psu.edu>
+To: "David L. Parsley" <parsley@linuxjedi.org>
+cc: linux-kernel@vger.kernel.org, ingo.oeser@informatik.tu-chemnitz.de
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <3AE307AD.821AB47C@linuxjedi.org>
+Message-ID: <Pine.GSO.4.21.0104221237320.28681-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,26 +20,19 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 22 Apr 2001, Eric S. Raymond wrote:
+On Sun, 22 Apr 2001, David L. Parsley wrote:
 
-> Alexander Viro <viro@math.psu.edu>:
-> > Eric, it would save everyone a lot of time if you actually cared to
-> > pull your head out of your... theoretical constructions and spent
-> > some efforts figuring out how the things really work.
+> Hi,
 > 
-> I've had my nose rubbed in how things really work.  That's why I want to
-> fix the things that are broken about how things really work.
+> I'm still working on a packaging system for diskless (quasi-embedded)
+> devices.  The root filesystem is all tmpfs, and I attach packages inside
+> it.  Since symlinks in a tmpfs filesystem cost 4k each (ouch!), I'm
+> considering using mount --bind for everything.  This appears to use very
+> little memory, but I'm wondering if I'll run into problems when I start
+> having many hundreds of bind mountings.  Any feel for this?
 
-Sigh... Would these broken things, by any chance, be "my grand ideas are
-not met with applause"?
-
-Take it from a guy who've done  quite a few global changes: they are pretty
-much doable, but spamming maintainers with requests to support your k3wl
-ideas is not a way to go. All you are getting that way is a bunch of procmail
-rules.
-
-Everyone who had been on l-k for more than a couple of months had seen
-$BIGNUM of "visionary" lusers with grand schemes of Changing The World(tm)
-and monumental lack of desire to learn. Until you demonstrate that you
-understand what you are "fixing" - don't expect special treatment.
+Memory use is sizeof(struct vfsmount) per binding. In principle, you can get
+in trouble when size of /proc/mount will get past 4Kb - you'll get only
+first 4 (actually 3, IIRC) kilobytes, so stuff that relies on the contents
+of said file may get unhappy. It's fixable, though.
 

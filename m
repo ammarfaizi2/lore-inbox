@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272992AbRIIReu>; Sun, 9 Sep 2001 13:34:50 -0400
+	id <S272996AbRIIRgJ>; Sun, 9 Sep 2001 13:36:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272995AbRIIRek>; Sun, 9 Sep 2001 13:34:40 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:23872 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S272992AbRIIReb>; Sun, 9 Sep 2001 13:34:31 -0400
-Date: Sun, 9 Sep 2001 19:35:13 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Purpose of the mm/slab.c changes
-Message-ID: <20010909193513.Y11329@athlon.random>
-In-Reply-To: <E15g7jk-0007Rb-00@the-village.bc.nu> <Pine.LNX.4.33.0109090952380.14365-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109090952380.14365-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Sep 09, 2001 at 10:01:32AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S272995AbRIIRf7>; Sun, 9 Sep 2001 13:35:59 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40713 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272996AbRIIRfp>; Sun, 9 Sep 2001 13:35:45 -0400
+Date: Sun, 9 Sep 2001 10:31:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Daniel Phillips <phillips@bonn-fries.net>
+Subject: Re: linux-2.4.10-pre5
+In-Reply-To: <20010909001715.B27237@turbolinux.com>
+Message-ID: <Pine.LNX.4.33.0109091019460.14365-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 09, 2001 at 10:01:32AM -0700, Linus Torvalds wrote:
-> (Doing per-CPU LIFO queues for the actual page allocator would potentially
-> make page alloc/de-alloc much faster due to lower locking requirements
-> too. So you might have a double performance win if anybody wants to try
-> this out).
 
-I recall I seen this one implemented during some auditing recently, I
-think it's in the tux patch but I may remeber wrong.
+On Sun, 9 Sep 2001, Andreas Dilger wrote:
+>
+> I think this fits in with your overall strategy as well - remove the buffer
+> as a "cache" object, and only use it as an I/O object, right?  With this
+> change, all of the cache functionality is in the page cache, and the buffers
+> are only used as handles for I/O.
 
-Andrea
+Absolutely. It would be wonderful to get rid of the buffer hashes, and
+just replace them with walking the page hash instead (plus walking the
+per-page bh list if we have non-page-sized buffers at non-zero offset). It
+would also clearly make the page cache be the allocation unit and VM
+entity.
+
+The interesting thing is that once you remove the buffer hash entries,
+there's not a lot inside "struct buffer_head" that isn't required for IO
+anyway. Maybe we could do without bh->b_count, but it is at least
+currently required for backwards compatibility with all the code that
+thinks buffer heads are autonomous entities. But I actually suspect it
+makes a lot of sense even for a stand-alone IO entity (I'm a firm believer
+in reference counting as a way to avoid memory management trouble).
+
+The LRU list and page list is needed for VM stuff, and could be cleanly
+separated out (nothing to do with actual IO). Same goes for b_inode and
+b_inode_buffers.
+
+And b_data could be removed, as the information is implied in b_page and
+the position there-in, but at the same time it's probably useful enough
+for low-level IO to leave.
+
+So I'd like to see this kind of cleanup, especially as it would apparently
+both clean up a higher-level memory management issue _and_ make it much
+easier to make the transition to a page-cache for the user accesses (which
+is just _required_ for mmap and friends to work on physical devices).
+
+Dan, how much of this do you have?
+
+		Linus
+

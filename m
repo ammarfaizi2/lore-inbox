@@ -1,61 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287321AbRL3DiV>; Sat, 29 Dec 2001 22:38:21 -0500
+	id <S287322AbRL3Dtv>; Sat, 29 Dec 2001 22:49:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287322AbRL3DiL>; Sat, 29 Dec 2001 22:38:11 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:29459 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287321AbRL3Dhx>;
-	Sat, 29 Dec 2001 22:37:53 -0500
-Date: Sun, 30 Dec 2001 01:30:33 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Kernel Janitor Project 
-	<kernel-janitor-discuss@lists.sourceforge.net>
-Subject: [ANNOUNCE] include dependency graph script
-Message-ID: <20011230013033.A2856@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Kernel Janitor Project <kernel-janitor-discuss@lists.sourceforge.net>
+	id <S287324AbRL3Dtm>; Sat, 29 Dec 2001 22:49:42 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:5128 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S287322AbRL3Dtd>;
+	Sat, 29 Dec 2001 22:49:33 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Ken Moffat <ken@kenmoffat.uklinux.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Oops in 2.4.12-ac3 with preemptible-kernel patch 
+In-Reply-To: Your message of "Sat, 29 Dec 2001 23:19:00 -0000."
+             <Pine.LNX.4.21.0112292301340.879-200000@pppg_penguin.linux.bogus> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+Date: Sun, 30 Dec 2001 14:49:16 +1100
+Message-ID: <23569.1009684156@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 29 Dec 2001 23:19:00 +0000 (GMT), 
+Ken Moffat <ken@kenmoffat.uklinux.net> wrote:
+>Output from ksymoops attached, although I'm a little worried
+>about the ksymoops warnings from the tulip and various audio modules - 
+>do I need to worry about these warnings ?
 
-	For the people that like me, Daniel Phillips and Manfred Spraul are
-working on pruning the include dependencies in the kernel sources I made a
-simple script to make a graphviz file to plot the dependencies in a nice
-graphic, its availabe at:
+Bug in handling exported bss symbols in modules.  Fixed in ksymoops 2.4.2.
 
-http://www.kernel.org/pub/linux/kernel/people/acme/hviz
-
-usage:
-
-hviz include/net/sock.h 2 | dotty -
-
-or
-
-hviz include/net/sock.h 2 > /tmp/sock.dot
-dot -Tps /tmp/sock.dot > /tmp/sock.ps
-gv /tmp/sock.ps
-
-Yes, one can do that with pipes and not with the temporary sock.dot file,
-but this is just so that you can see how the intermediate graphviz file
-look like.
-
-this example is also available at:
-
-http://www.kernel.org/pub/linux/kernel/people/acme/sock_include_deps.ps
-
-So that people can see how it looks :-)
-
-the graphviz package is available at:
-http://www.research.att.com/sw/tools/graphviz/
-
-Comments and patches for the script are welcome.
-
-- Arnaldo

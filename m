@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268238AbUHFSDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268222AbUHFRvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268238AbUHFSDS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 14:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268235AbUHFSC7
+	id S268222AbUHFRvu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 13:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268220AbUHFRtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 14:02:59 -0400
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:40204 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S268232AbUHFSA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 14:00:58 -0400
-Date: Thu, 5 Aug 2004 16:25:34 -0500
+	Fri, 6 Aug 2004 13:49:10 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:36612 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S268210AbUHFRoV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 13:44:21 -0400
+Date: Thu, 5 Aug 2004 16:32:20 -0500
 From: mikem <mikem@beardog.cca.cpqcorp.net>
 To: akpm@osdl.org, axboe@suse.de
 Cc: linux-kernel@vger.kernel.org
-Subject: cciss updates [3/6] /proc/fixes for 2.6.8-rc3
-Message-ID: <20040805212534.GB6578@beardog.americas.cpqcorp.net>
+Subject: cciss updates again [6/6] pdev->intr fix for 2.6.8-rc3
+Message-ID: <20040805213220.GE6578@beardog.americas.cpqcorp.net>
 Reply-To: mike.miller@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,81 +23,50 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patch 6 of 6
 
-Patch 3 of 6
+This patch fixes our usage of pdev->intr. We were truncating it to an
+unchar. We were also reading it before calling pci_enable_device. This
+patch fixes both of those. Thanks to Bjorn Helgaas for the patch.
+Please apply in order.
 
-This patch fixes our output in /proc to display the logical volume
-sizes and RAID levels correctly. Without this patch RAID level will
-always be 0 and size may be displayed as 0GB.
-Applies to 2.6.8-rc3. Please apply in order.
+Thanks,
+mikem
 -------------------------------------------------------------------------------
-diff -burpN lx268-rc3-p002/drivers/block/cciss.c lx268-rc3/drivers/block/cciss.c
---- lx268-rc3-p002/drivers/block/cciss.c	2004-08-05 10:28:36.993875000 -0500
-+++ lx268-rc3/drivers/block/cciss.c	2004-08-05 10:40:00.865910760 -0500
-@@ -192,10 +192,10 @@ static inline CommandList_struct *remove
- /*
-  * Report information about this controller.
-  */
--#define ENG_GIG 1048576000
-+#define ENG_GIG 1000000000
- #define ENG_GIG_FACTOR (ENG_GIG/512)
- #define RAID_UNKNOWN 6
--static const char *raid_label[] = {"0","4","1(0+1)","5","5+1","ADG",
-+static const char *raid_label[] = {"0","4","1(1+0)","5","5+1","ADG",
- 	                                   "UNKNOWN"};
+diff -burpN lx268-rc3-p005/drivers/block/cciss.c lx268-rc3/drivers/block/cciss.c
+--- lx268-rc3-p005/drivers/block/cciss.c	2004-08-05 11:21:05.069294000 -0500
++++ lx268-rc3/drivers/block/cciss.c	2004-08-05 11:30:40.761776344 -0500
+@@ -2300,7 +2300,6 @@ static int find_PCI_BAR_index(struct pci
+ static int cciss_pci_init(ctlr_info_t *c, struct pci_dev *pdev)
+ {
+ 	ushort subsystem_vendor_id, subsystem_device_id, command;
+-	unchar irq = pdev->irq;
+ 	__u32 board_id, scratchpad = 0;
+ 	__u64 cfg_offset;
+ 	__u32 cfg_base_addr;
+@@ -2359,11 +2358,11 @@ static int cciss_pci_init(ctlr_info_t *c
  
- static struct proc_dir_entry *proc_cciss;
-@@ -209,7 +209,7 @@ static int cciss_proc_get_info(char *buf
-         ctlr_info_t *h = (ctlr_info_t*)data;
-         drive_info_struct *drv;
- 	unsigned long flags;
--	unsigned int vol_sz, vol_sz_frac;
-+        sector_t vol_sz, vol_sz_frac;
+ #ifdef CCISS_DEBUG
+ 	printk("command = %x\n", command);
+-	printk("irq = %x\n", irq);
++	printk("irq = %x\n", pdev->irq);
+ 	printk("board_id = %x\n", board_id);
+ #endif /* CCISS_DEBUG */ 
  
-         ctlr = h->ctlr;
+-	c->intr = irq;
++	c->intr = pdev->irq;
  
-@@ -246,32 +246,21 @@ static int cciss_proc_get_info(char *buf
-         pos += size; len += size;
- 	cciss_proc_tape_report(ctlr, buffer, &pos, &len);
- 	for(i=0; i<=h->highest_lun; i++) {
--		sector_t tmp;
- 
-                 drv = &h->drv[i];
- 		if (drv->block_size == 0)
- 			continue;
--		vol_sz = drv->nr_blocks;
--		sector_div(vol_sz, ENG_GIG_FACTOR);
--
--		/*
--		 * Awkwardly do this:
--		 * vol_sz_frac =
--		 *     (drv->nr_blocks%ENG_GIG_FACTOR)*100/ENG_GIG_FACTOR;
--		 */
--		tmp = drv->nr_blocks;
--		vol_sz_frac = sector_div(tmp, ENG_GIG_FACTOR);
--
--		/* Now, vol_sz_frac = (drv->nr_blocks%ENG_GIG_FACTOR) */
- 
-+		vol_sz = drv->nr_blocks;
-+		vol_sz_frac = sector_div(vol_sz, ENG_GIG_FACTOR);
- 		vol_sz_frac *= 100;
- 		sector_div(vol_sz_frac, ENG_GIG_FACTOR);
- 
- 		if (drv->raid_level > 5)
- 			drv->raid_level = RAID_UNKNOWN;
- 		size = sprintf(buffer+len, "cciss/c%dd%d:"
--				"\t%4d.%02dGB\tRAID %s\n",
--				ctlr, i, vol_sz,vol_sz_frac,
-+				"\t%4u.%02uGB\tRAID %s\n",
-+				ctlr, i, (int)vol_sz, (int)vol_sz_frac,
- 				raid_label[drv->raid_level]);
-                 pos += size; len += size;
-         }
-@@ -1487,6 +1476,7 @@ static void cciss_geometry_inquiry(int c
- 			drv->sectors = inq_buff->data_byte[7];
- 			drv->cylinders = (inq_buff->data_byte[4] & 0xff) << 8;
- 			drv->cylinders += inq_buff->data_byte[5];
-+			drv->raid_level = inq_buff->data_byte[8];
- 		}
- 	} else { /* Get geometry failed */
- 		printk(KERN_WARNING "cciss: reading geometry failed, "
+ 	/*
+ 	 * Memory base addr is first addr , the second points to the config
+diff -burpN lx268-rc3-p005/drivers/block/cciss.h lx268-rc3/drivers/block/cciss.h
+--- lx268-rc3-p005/drivers/block/cciss.h	2004-06-16 00:18:37.000000000 -0500
++++ lx268-rc3/drivers/block/cciss.h	2004-08-05 11:30:40.762776192 -0500
+@@ -48,7 +48,7 @@ struct ctlr_info 
+ 	unsigned long io_mem_addr;
+ 	unsigned long io_mem_length;
+ 	CfgTable_struct *cfgtable;
+-	int	intr;
++	unsigned int intr;
+ 	int	interrupts_enabled;
+ 	int 	max_commands;
+ 	int	commands_outstanding;

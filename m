@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281620AbRKPWon>; Fri, 16 Nov 2001 17:44:43 -0500
+	id <S281638AbRKPWqn>; Fri, 16 Nov 2001 17:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281617AbRKPWoe>; Fri, 16 Nov 2001 17:44:34 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:29574 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S281623AbRKPWoO>;
-	Fri, 16 Nov 2001 17:44:14 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 16 Nov 2001 22:44:00 GMT
-Message-Id: <UTC200111162244.WAA2116191.aeb@cwi.nl>
-To: pavel@suse.cz, zwane@linux.realnet.co.sz
-Subject: Re: [PATCH] trivial patch to support for "ACPI" keys in pc_keyb.c
-Cc: linux-kernel@vger.kernel.org
+	id <S281633AbRKPWqY>; Fri, 16 Nov 2001 17:46:24 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:29969 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S281617AbRKPWqM>;
+	Fri, 16 Nov 2001 17:46:12 -0500
+Date: Fri, 16 Nov 2001 23:45:55 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: groudier@free.fr, linux-kernel@vger.kernel.org
+Subject: Re: [patch] block-highmem-all-18
+Message-ID: <20011116234555.C11826@suse.de>
+In-Reply-To: <20011116093927.E27010@suse.de> <20011116193057.O1825-100000@gerard> <20011116.135409.118971851.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20011116.135409.118971851.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 16 2001, David S. Miller wrote:
+>    From: Gérard Roudier <groudier@free.fr>
+>    Date: Fri, 16 Nov 2001 19:59:02 +0100 (CET)
+>    
+>    On Fri, 16 Nov 2001, Jens Axboe wrote:
+>    
+>    > - Add sym2 can_dma_32 flag (me)
+>                 ^^^^^^^^^^ Pooaaahhh!:) What's this utter oddity ?
+>    Only dma 32 ? :-)
+> 
+> It is workaround for buggy drivers, when set it means that single SG
+> list entry request will be handled correctly.  When clear it means
+> that single entry SG lists are to be avoided by the block layer.
+> 
+> Many devices would explode when given single entry scatterlist. :(
+> 
+> It's naming is questionable... that I agree with.  The name should be
+> more suggestive to what it really means.
 
-On Tue, 13 Nov 2001, Pavel Machek wrote:
+Heh, actually Dave the single_sg_ok flag used to specify just that, but
+Arjan noted that we never needed to trust that functionality when
+!can_dma_32. So now can_dma_32 being set implies that the HBA driver
+also gets the single sg entry correct.
 
-    > These keys are common on recent keyboards so I'd vote for adding this.
+To answer Gerard's question -- with can_dma_32 set, scsi_merge will set
+the correct bounce value based on the PCI device DMA mask set. So dma_32
+is indeed a misnomer, it was introduced before we supported full 64-bit
+dma, and should now just be called can_highmem_io or something similar.
 
-And Zwane Mwaikambo answered and asked:
+-- 
+Jens Axboe
 
-    Do these keys correspond to the correct ones on your keyboards? I still
-    have to come across a keyboard which has these keys but different
-    scancodes. But i think i'm beating a dead horse ;)
-
-My collection of scancode data can be found at
-	http://www.win.tue.nl/~aeb/linux/kbd/scancodes.html
-In particular you see at
-	http://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html#ss1.9
-that having power saving keys with scancodes e0 followed by 5e/5f/63
-is a Microsoft standard. Every modern keyboard that has power saving keys
-has them with these scancodes.
-
-So, I have no real objections against your patch.
-(On the other hand, this is an area that is perhaps best regarded as
-frozen. Changes just to avoid the trouble of a setkeycodes call
-should perhaps be postponed.)
-
-Andries

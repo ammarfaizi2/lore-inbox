@@ -1,43 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269631AbUJAAOd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269630AbUJAARZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269631AbUJAAOd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 20:14:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269630AbUJAAOd
+	id S269630AbUJAARZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 20:17:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269633AbUJAARY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 20:14:33 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7874 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269631AbUJAAOa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 20:14:30 -0400
-Date: Thu, 30 Sep 2004 17:14:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: CaT <cat@zip.com.au>, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Li, Shaohua" <shaohua.li@intel.com>
-Subject: Re: promise controller resource alloc problems with ~2.6.8
-Message-ID: <20041001001416.GA9555@kroah.com>
-References: <20040927084550.GA1134@zip.com.au> <Pine.LNX.4.58.0409301615110.2403@ppc970.osdl.org> <20040930233048.GC7162@zip.com.au> <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Sep 2004 20:17:24 -0400
+Received: from smtp09.auna.com ([62.81.186.19]:43486 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S269634AbUJAARQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 20:17:16 -0400
+Date: Fri, 01 Oct 2004 00:17:14 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.9-rc2-mm4
+To: linux-kernel@vger.kernel.org
+References: <20040926181021.2e1b3fe4.akpm@osdl.org>
+	<1096586774l.5206l.1l@werewolf.able.es>
+	<20040930170505.6536197c.akpm@osdl.org>
+In-Reply-To: <20040930170505.6536197c.akpm@osdl.org> (from akpm@osdl.org on
+	Fri Oct  1 02:05:05 2004)
+X-Mailer: Balsa 2.2.4
+Message-Id: <1096589834l.11697l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 30, 2004 at 04:56:21PM -0700, Linus Torvalds wrote:
+
+On 2004.10.01, Andrew Morton wrote:
+> "J.A. Magallon" <jamagallon@able.es> wrote:
+> >
+> > 
+> > On 2004.09.27, Andrew Morton wrote:
+> > > 
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm4/
+> > > 
+> > > - ppc64 builds are busted due to breakage in bk-pci.patch
+> > > 
+> > > - sparc64 builds are busted too.  Also due to pci problems.
+> > > 
+> > > - Various updates to various things.  In particular, a kswapd artifact which
+> > >   could cause too much swapout was fixed.
+> > > 
+> > > - I shall be offline for most of this week.
+> > > 
+> > 
+> > I have a 'little' problem. PS2 mouse is jerky as hell, an when you mismatch
+> > the protocol in X. Both in console and X.
 > 
-> Greg, we kind of left the ACPI resource management breakage pending, and 
-> clearly we need some resolution. Comments?
+> The above sentence is a bit hard to decrypt.  Want to try again?
+> 
 
-I added that patch to my bk trees, and it's sitting in the -mm tree now.
-I wanted some testing, which I guess has happened, and no one has
-complained yet, so if this proves to be another case where this patch
-fixes things, I have no problem with it being applied.
+Sorry, it is late and I try to type faster than I think...
 
-But let's see the result of testing on this box first :)
+Problem: my PS2 trackball is not working. When I move it, the cursor (both
+in console and in X) jumps, instead of smoothly following the ball. The
+behavior is similar as when (in old days) you tried to use a mouse in X and
+put the wrong 'Protocol' in XF86Config. Or as if the driver was only
+getting one interrupt out of each hundred. Now with /dev/input/mice you don't.
+have to explicitly say the protocol.
 
-thanks,
+The USB ball works fine, so I think it is not a problem of the input drivers,
+but of the PS2 one.
 
-greg k-h
+I can easily go back till -rc2-mm1 and check. I still have in my /boot
+-mm[123]. I will post the results.
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Community) for i586
+Linux 2.6.9-rc2-mm4 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #1
+
+

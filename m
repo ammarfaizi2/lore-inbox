@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbUB2QPq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 11:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUB2QPq
+	id S262063AbUB2QRW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 11:17:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbUB2QRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 11:15:46 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:30861 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262064AbUB2QPp (ORCPT
+	Sun, 29 Feb 2004 11:17:22 -0500
+Received: from hell.org.pl ([212.244.218.42]:57865 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S262063AbUB2QRT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 11:15:45 -0500
-Date: Sun, 29 Feb 2004 17:15:35 +0100 (MET)
-From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-To: Kai Germaschewski <kai.germaschewski@gmx.de>,
-       Paul Russell <rusty@rustcorp.com.au>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] scripts/modpost warning
-Message-ID: <Pine.GSO.4.58.0402291713230.7483@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 Feb 2004 11:17:19 -0500
+Date: Sun, 29 Feb 2004 17:17:21 +0100
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dropping CONFIG_PM_DISK?
+Message-ID: <20040229161721.GA16688@hell.org.pl>
+References: <1ulUA-33w-3@gated-at.bofh.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <1ulUA-33w-3@gated-at.bofh.it>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thus wrote Pavel Machek:
+> Would there be any major screaming if I tried to drop CONFIG_PM_DISK?
+> It seems noone is maintaining it, equivalent functionality is provided
+> by swsusp, and it is confusing users...
 
-I need the following patch to kill a warning (__endian() may be unused) when
-cross-compiling m68k kernels on an ia32 box.
+It may be ugly, it may be unmaintained, but I get the impression that it
+works for some people for whom swsusp doesn't. So unless swsusp works for
+everyone or Nigel's swsusp2 is merged, I'd suggest leaving that in.
+Best regards,
 
---- linux-2.6.4-rc1/scripts/modpost.h	2004-02-29 09:33:41.000000000 +0100
-+++ linux-m68k-2.6.4-rc1/scripts/modpost.h	2004-02-29 10:39:56.000000000 +0100
-@@ -31,7 +31,7 @@
-
- #if KERNEL_ELFDATA != HOST_ELFDATA
-
--static void __endian(const void *src, void *dest, unsigned int size)
-+static inline void __endian(const void *src, void *dest, unsigned int size)
- {
- 	unsigned int i;
- 	for (i = 0; i < size; i++)
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262827AbSI3SJB>; Mon, 30 Sep 2002 14:09:01 -0400
+	id <S262822AbSI3SCL>; Mon, 30 Sep 2002 14:02:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262825AbSI3SJB>; Mon, 30 Sep 2002 14:09:01 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:7688 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262818AbSI3SI5>;
-	Mon, 30 Sep 2002 14:08:57 -0400
-Date: Mon, 30 Sep 2002 11:14:03 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: John Levon <movement@marcelothewonderpenguin.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       <george@mvista.com>
-Subject: Re: [PATCH 6/6] High-res-timers part 6 (support-man) take 2
-In-Reply-To: <20020928182014.GA56265@compsoc.man.ac.uk>
-Message-ID: <Pine.LNX.4.33L2.0209301054310.4649-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262823AbSI3SCL>; Mon, 30 Sep 2002 14:02:11 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:30222 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S262822AbSI3SCK>; Mon, 30 Sep 2002 14:02:10 -0400
+Date: Mon, 30 Sep 2002 15:07:32 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Jochen Friedrich <jochen@scram.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.3.39 LLC on Alpha broken?
+Message-ID: <20020930180732.GG13478@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Jochen Friedrich <jochen@scram.de>, linux-kernel@vger.kernel.org
+References: <Pine.NEB.4.44.0209300934330.7633-100000@www2.scram.de> <Pine.LNX.4.44.0209301956320.1163-100000@alpha.bocc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209301956320.1163-100000@alpha.bocc.de>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Sep 2002, John Levon wrote:
+Em Mon, Sep 30, 2002 at 07:58:43PM +0200, Jochen Friedrich escreveu:
+> Hi,
+> 
+> > I'll try to reboot the remaining mess and report how far it gets...
+> 
+> It looks like LLC is the culprit for me:
 
-| On Sat, Sep 28, 2002 at 10:32:08AM -0700, george anzinger wrote:
-|
-| > The 4th, 5th, and 6th parts are support code and not really
-| > part of the kernel.
-|
-| So ...
-|
-| > This part contains man pages for the new system calls.
-|
-| ... why are they here ?
-|
-| http://freshmeat.net/projects/man-pages/
+Yes, it is, this is fixed in Linus bk tree, snap_init has to be called after
+llc_init, this is the patch:
 
-I agree, please let's not clutter the kernel tree.
-
--- 
-~Randy
-
+diff -Nru a/net/Makefile b/net/Makefile
+--- a/net/Makefile	Wed Sep 18 22:54:43 2002
++++ b/net/Makefile	Mon Sep 30 00:11:16 2002
+@@ -9,6 +9,8 @@
+ 
+ obj-y	:= socket.o core/
+ 
++# LLC has to be linked before the files in net/802/
++obj-$(CONFIG_LLC)		+= llc/
+ obj-$(CONFIG_NET)		+= ethernet/ 802/ sched/ netlink/
+ obj-$(CONFIG_INET)		+= ipv4/
+ obj-$(CONFIG_UNIX)		+= unix/
+@@ -31,7 +33,6 @@
+ obj-$(CONFIG_DECNET)		+= decnet/
+ obj-$(CONFIG_ECONET)		+= econet/
+ obj-$(CONFIG_VLAN_8021Q)	+= 8021q/
+-obj-$(CONFIG_LLC)		+= llc/
+ obj-$(CONFIG_IP_SCTP)		+= sctp/
+ 
+ ifeq ($(CONFIG_NET),y)

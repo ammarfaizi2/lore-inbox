@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265705AbSKFPeX>; Wed, 6 Nov 2002 10:34:23 -0500
+	id <S265708AbSKFPi2>; Wed, 6 Nov 2002 10:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265708AbSKFPeX>; Wed, 6 Nov 2002 10:34:23 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:60801 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S265705AbSKFPeW>; Wed, 6 Nov 2002 10:34:22 -0500
-Date: Wed, 6 Nov 2002 10:41:41 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, <sfr@canb.auug.org.au>
-Subject: Re: Linux 2.4.20-rc1
-In-Reply-To: <3DC43D86.5070608@gmx.net>
-Message-ID: <Pine.LNX.4.44L.0211061033410.27268-100000@freak.distro.conectiva>
+	id <S265715AbSKFPi2>; Wed, 6 Nov 2002 10:38:28 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3595 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265708AbSKFPi1>; Wed, 6 Nov 2002 10:38:27 -0500
+Date: Wed, 6 Nov 2002 07:45:20 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Voyager subarchitecture for 2.5.46 
+In-Reply-To: <200211061503.gA6F3DW02053@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0211060729210.2393-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Wed, 6 Nov 2002, J.E.J. Bottomley wrote:
+> 
+> There are certain architectures (voyager is the only one currently supported, 
+> but I suspect the Numa machines will have this too) where the TSC cannot be 
+> used for cross CPU timings because the processors are driven by separate 
+> clocks and may even have different clock speeds.
 
+I disagree.
 
-On Sat, 2 Nov 2002, Carl-Daniel Hailfinger wrote:
+We should use the TSC everywhere (if it exists, of course), and the fact
+that two CPU's don't run synchronized shouldn't matter.
 
-> Marcelo Tosatti wrote:
-> > Hi,
-> >
-> > Finally, rc1.
-> > [snipped]
-> >
-> > Please stress test it.
-> >
->
-> My system comes up with a blank console after hardware suspend and resume.
-> The cursor is still visible, but no text is there. Switching to another
-> console and back fixes it. Vesafb is enabled with vga=791.
-> Hardware is a Toshiba Satellite 4100XCDT notebook with Trident Cyber9525DVD
-> graphics chipset, but this also can be reproduced with Dell notebooks.
->
-> I just verified the problem exists still with 2.4.20-rc1.
-> A binary search turned up 2.4.18-pre7 as the kernel which broke,
-> specifically the changes made to apm.c back then.
+The solution is to make all the TSC calibration and offsets be per-CPU.  
+That should be fairly trivial, since we _already_ do the calibration
+per-CPU anyway for bogomips (for no good reason except the whole process
+is obviously just a funny thing to do, which is the point of bogomips).
 
-Have you tried to revert 2.4.18-pre7's changes to apm.c to make sure it is
-the cause?>
+The only even half-way "interesting" case I see is a udelay() getting
+preempted, and I suspect most of those already run non-preemptable, so in
+the short run we could just force that with preempt_off()/on() inside
+udelay().
 
-Stephen, can you please take a look at this for me?
+In the long run we probably do _not_ want to do that nonpreemptable
+udelay(), but even that is debatable (anybody who is willing to be
+preempted should not have been using udelay() in the first place, but
+actually sleeping - and people who use udelay() for things like IO port
+accesses etc almost certainly won't mind not being moved across CPU's).
+
+Let's face it, we don't have that many tsc-related data structures. What, 
+we have:
+
+ - loops_per_jiffy, which is already a per-CPU thing, used by udelay()
+ - fast_gettimeoffset_quotient - which is global right now and shouldn't 
+   be.
+ - delay_at_last_interrupt. See previous.
+ - possibly even all of xtime and all the NTP stuff
+
+It's clearly stupid in the long run to depend on the TSC synchronization.
+We should consider different CPU's to be different clock-domains, and just
+synchronize them using the primitives we already have (hey, people can use
+ntp to synchronize over networks quite well, and that's without the kind
+of synchronization primitives that we have within the same box).
+
+Anybody willin gto look into this? I suspect the numa people should be
+more motivated than most of us.. You still want fast gettimeofday() on
+NUMA too..
+
+		Linus
 

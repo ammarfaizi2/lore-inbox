@@ -1,34 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263764AbREYPWz>; Fri, 25 May 2001 11:22:55 -0400
+	id <S263768AbREYPYp>; Fri, 25 May 2001 11:24:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263765AbREYPWq>; Fri, 25 May 2001 11:22:46 -0400
-Received: from hypnos.cps.intel.com ([192.198.165.17]:12494 "EHLO
-	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S263764AbREYPWj>; Fri, 25 May 2001 11:22:39 -0400
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE2D0@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'sebastien person'" <sebastien.person@sycomore.fr>,
-        liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: RE: changes betwwen 2.2 | 2.4
-Date: Fri, 25 May 2001 08:22:20 -0700
+	id <S263766AbREYPYf>; Fri, 25 May 2001 11:24:35 -0400
+Received: from t111.niisi.ras.ru ([193.232.173.111]:59744 "EHLO
+	t111.niisi.ras.ru") by vger.kernel.org with ESMTP
+	id <S263765AbREYPYc>; Fri, 25 May 2001 11:24:32 -0400
+Message-ID: <3B0EE8CF.7040502@niisi.msk.ru>
+Date: Fri, 25 May 2001 19:20:47 -0400
+From: Alexandr Andreev <andreev@niisi.msk.ru>
+Organization: niisi
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; rv:0.9) Gecko/20010507
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Disabling interrupts before block device request call
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-See http://www.firstfloor.org/~andi/softnet/
-
-~Randy
------------------------------------------------
-
-> From: sebastien person [mailto:sebastien.person@sycomore.fr]
-> 
-> Is there any documents that explain how upgrade network 
-> driver from 2.2. to 2.4.? that gives details on changes ...
-> 
-> Or maybe best way is to compare same driver in the twice 
-> kernel version ?
+Hi, list
+In ll_rw_block.c, before calling block device specific request function 
+( i mean do_hd_request, do_ftl_request, ... ) the io_request_lock is 
+locking, and all interrupts are disabling. I know, that request handler 
+routine have to be atomic, but when we read data from a flash device ( 
+for example ) we use a timeouts. Where do we have to enable timer 
+interrupts, or should we disable all interrupts?
 

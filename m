@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbVCVFpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262420AbVCVFp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262387AbVCVFpa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 00:45:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbVCVFm3
+	id S262420AbVCVFp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 00:45:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262387AbVCVFnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 00:42:29 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:57527 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262387AbVCVFkY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 00:40:24 -0500
-Date: Mon, 21 Mar 2005 21:40:25 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: "Magnus Naeslund(t)" <mag@fbab.net>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-01
-Message-ID: <20050322054025.GA1296@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <423F5456.5010908@fbab.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <423F5456.5010908@fbab.net>
-User-Agent: Mutt/1.4.1i
+	Tue, 22 Mar 2005 00:43:04 -0500
+Received: from 1-1-10-11a.has.sth.bostream.se ([82.182.131.18]:64465 "EHLO
+	DeepSpaceNine.stesmi.com") by vger.kernel.org with ESMTP
+	id S262420AbVCVFiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 00:38:14 -0500
+Message-ID: <423FAF21.90108@stesmi.com>
+Date: Tue, 22 Mar 2005 06:37:37 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+CC: Pavel Machek <pavel@suse.cz>, Paulo Marques <pmarques@grupopie.com>,
+       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2/2] SquashFS
+References: <20050314170653.1ed105eb.akpm@osdl.org> <A572579D-94EF-11D9-8833-000A956F5A02@lougher.demon.co.uk> <20050314190140.5496221b.akpm@osdl.org> <423727BD.7080200@grupopie.com> <20050321101441.GA23456@elf.ucw.cz> <423EEEC2.9060102@lougher.demon.co.uk> <20050321190044.GD1390@elf.ucw.cz> <423F0C67.6000006@lougher.demon.co.uk> <20050321224937.GQ1390@elf.ucw.cz> <423F9256.10606@lougher.demon.co.uk>
+In-Reply-To: <423F9256.10606@lougher.demon.co.uk>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 22, 2005 at 12:10:14AM +0100, Magnus Naeslund(t) wrote:
-> Ingo Molnar wrote:
-> >
-> >i've uploaded my current tree (-V0.7.41-01) to:
-> >
-> >  http://redhat.com/~mingo/realtime-preempt/
-> >
-> >it includes the latest round of RCU fixes - but doesnt solve the SMP
-> >bootup crash.
-> >
-> >	Ingo
-> 
-> With this kernel I can run for some 20 minutes, then the ip_dst_cache 
-> overflows.
-> I gather it has something to do with RCU...
-> 
-> If I just let it run and grep ip_dst_cache /proc/slab it goes up to 4096 
-> (max) and then the printk's are starting, and the networks stops.
-> After i up the limit to the double (echo "8192" > 
-> /proc/sys/net/ipv4/route/max_size) network starts to work again.
-> But of course, after a while it overflows again:
-> 
-> # grep ip_dst_cache /proc/slabinfo
-> ip_dst_cache        8192   8205    256   15    1 : tunables   16    8 
->  0 : slabdata    547    547      0
-> 
-> I haven't tried the vanilla 2.6.12-rc2 kernel, and I don't have the time 
-> to do that right now, but i figured it would have something to do with 
-> your patch. Older 2.6.8 works just fine.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hello, Magnus,
+Hi.
 
-I believe that my earlier patch might take care of this (included again
-for convenience).
+> I have agreed to drop V1.0 support, and yes (as explained in another
+> emauil), breaking the 4GB limit does involve on-disk format change.
 
-						Thanx, Paul
+I've only also been reading this thread with half an eye but :
 
-Signed-off-by: <paulmck@us.ibm.com>
+Would it be possible (in some logical timeframe) to change the
+filesystem's on-disk format to support larger sizes without
+actually changing the rest of the code?
 
-diff -urpN -X dontdiff linux-2.6.11.fixes/kernel/rcupdate.c linux-2.6.11.fixes2/kernel/rcupdate.c
---- linux-2.6.11.fixes/kernel/rcupdate.c	Mon Mar 21 08:14:47 2005
-+++ linux-2.6.11.fixes2/kernel/rcupdate.c	Mon Mar 21 08:17:00 2005
-@@ -620,7 +620,7 @@ static void rcu_process_callbacks(void)
- 		return;
- 	}
- 	rdp->donelist = NULL;
--	rdp->donetail = &rdp->waitlist;
-+	rdp->donetail = &rdp->donelist;
- 	put_cpu_var(rcu_data);
- 	while (list) {
- 		next = list->next;
+I don't know where the 4GB limit comes from in this case but if you
+would change the on-disk format, the format itself, then I would
+think it would make it easier to swallow the filesystem and then
+when it's in the kernel you can actually make it support more
+than 4GB.
+
+Then there at least wouldn't need to be a switch in the format
+when it's in the kernel.
+
+Just my thought - just feels like it might make it included faster.
+
+And hell, if it's not possible, just ignore what I wrote.
+
+// Stefan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (MingW32)
+
+iD8DBQFCP68hBrn2kJu9P78RAoGVAJ9a2cjFAv6NW8qyd336wEK5VcJf7gCfV5Oc
+gswa6cSH7o3ND+lse64LLxI=
+=D8rp
+-----END PGP SIGNATURE-----

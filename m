@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbTKCQoe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 11:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTKCQoe
+	id S262156AbTKCREZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 12:04:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbTKCREZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 11:44:34 -0500
-Received: from b107150.adsl.hansenet.de ([62.109.107.150]:15233 "EHLO ds666")
-	by vger.kernel.org with ESMTP id S262098AbTKCQod (ORCPT
+	Mon, 3 Nov 2003 12:04:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34469 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262156AbTKCREU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 11:44:33 -0500
-Message-ID: <3FA685E8.8090706@portrix.net>
-Date: Mon, 03 Nov 2003 17:44:24 +0100
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us, en
+	Mon, 3 Nov 2003 12:04:20 -0500
+Date: Mon, 3 Nov 2003 09:04:09 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Charles Martin <martinc@ucar.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: interrupts across  PCI bridge(s) not handled
+In-Reply-To: <004201c3a224$bad501b0$c3507580@atdsputnik>
+Message-ID: <Pine.LNX.4.44.0311030859190.20373-100000@home.osdl.org>
 MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Clock skips (?) with 2.6 and games
-References: <3FA62DD4.1020202@portrix.net>	<20031103110129.GF1772@x30.random>	<3FA63A57.8070606@portrix.net>	<20031103143656.GA6785@x30.random>	<3FA677D7.1000100@portrix.net> <20031103171101.12b2cb59.skraw@ithnet.com>
-In-Reply-To: <20031103171101.12b2cb59.skraw@ithnet.com>
-X-Enigmail-Version: 0.81.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Stephan von Krawczynski wrote:
-| On Mon, 03 Nov 2003 16:44:23 +0100
-| Jan Dittmer <j.dittmer@portrix.net> wrote:
-|
-|>Strange, if I enable Highmem support and set CONFIG_NR_CPUS from 4 to 8,
-|>4 penguins are showing up...
-|>
-|>Jan
-|
-|
-| Have a look at /proc/cpuinfo. Possibly your processor numbers are not
-linear ...
-|
+On Mon, 3 Nov 2003, Charles Martin wrote:
+>
+> I have a pci backplane extender, with 4 cards 
+> (named piraq) in it. The cards are detected by 
+> the PCI system, and irqs 92-95 are assigned, 
+> as shown in /var/log/messages:
+> 
+> kernel: PCI->APIC IRQ transform: (B6,I4,P0) -> 93 
+> kernel: PCI->APIC IRQ transform: (B6,I6,P0) -> 95 
+> kernel: PCI->APIC IRQ transform: (B6,I7,P0) -> 92
+> kernel: PCI->APIC IRQ transform: (B6,I9,P0) -> 94
 
-$ cat /proc/cpuinfo | grep processor
-processor       : 0
-processor       : 1
-processor       : 2
-processor       : 3
+Can you enable APIC_DEBUG debugging in "include/asm-i386/apic.h", and make 
+sure that you build the kernel with a big printk buffer. Then, in case 
+your distribution comes with a broken "dmesg" binary that doesn't show 
+more than about 20kB of data, compile this trivial program and run it 
+after bootup, and send the whole log out..
 
-Quite linear it seems...
+It would be a pity to have to boot with "noapic", since this is exactly 
+the kind of situation where you _want_ the extra interrupts.
 
-Jan
+		Linus
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+- stupid-dmesg.c -
+#include <sys/klog.h>
 
-iD8DBQE/poXoLqMJRclVKIYRAl35AJ9dblZ5NdfxsKHC0PFnjrBaPRoQNwCdEeF+
-HB1xqERdkZDSohEGv6wyhyU=
-=NKVi
------END PGP SIGNATURE-----
+int main(int argc, char **argv)
+{
+	static char buffer[128*1024];
+	int i;
+
+	i = klogctl(3, buffer, sizeof(buffer));
+	if (i > 0)
+		write(1, buffer, i);
+}
+
 

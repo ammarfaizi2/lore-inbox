@@ -1,124 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266920AbUAXMPK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 07:15:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266924AbUAXMPK
+	id S266938AbUAXM0y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 07:26:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266940AbUAXM0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 07:15:10 -0500
-Received: from nibbel.kulnet.kuleuven.ac.be ([134.58.240.41]:25309 "EHLO
-	nibbel.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S266920AbUAXMPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 07:15:01 -0500
-Message-ID: <401261D6.9010405@mech.kuleuven.ac.be>
-Date: Sat, 24 Jan 2004 13:15:18 +0100
-From: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Sat, 24 Jan 2004 07:26:54 -0500
+Received: from post1.dk ([62.242.36.44]:13066 "EHLO post1.dk")
+	by vger.kernel.org with ESMTP id S266938AbUAXM0w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 07:26:52 -0500
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       akpm@zip.com.au
-Subject: Re: [patch] Graphire3 support
-References: <4011BFD7.7030308@mech.kuleuven.ac.be> <20040124082931.GD274@ucw.cz>
-In-Reply-To: <20040124082931.GD274@ucw.cz>
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------040003080701010600090102"
+To: Richard Chan <rspchan@starhub.net.sg>
+Subject: Re: [KBUILD] md/raid6 breaks separate source/object tree
+From: sam@ravnborg.org
+Reply-To: sam@ravnborg.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+X-Mailer: acmemail <URL:http://www.astray.com/acmemail/>
+Message-Id: <20040124122651.46D2915C24@post1.dk>
+Date: Sat, 24 Jan 2004 13:26:51 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040003080701010600090102
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Lør, 24 Jan 2004 20:10:25 +0800 skrev Richard Chan <rspchan@starhub.net.sg> : 
 
-Hi,
 
-Vojtech Pavlik wrote:
+>md/raid6 is using an in-tree perl script to generate a C file.
+>This breaks kbuild separate src/obj tree.
 
->On Sat, Jan 24, 2004 at 01:44:07AM +0100, Panagiotis Issaris wrote:
->
->  
->
->>Hi,
->>
->>I got a Wacom Graphire3 for my birthday and unfortunately it didn't 
->>work. After some playing around, I noticed the 2.6 kernel needs a few 
->>small modifications to make it work.
->>
->>This simple patch adds support for the Wacom Graphire 3.  It applies 
->>fine to both 2.6.2-rc1-mm2 and 2.6.2-rc1.
->>    
->>
->
->Thanks, applied to my tree. I suppose you'll be able to find it in
->2.6.3.
->  
->
-Thanks! Unfortunately, there still was a problem regarding the height 
-and width of the tablet.
-This patch fixes it. I've added both a new patch and an incremental one.
+>Somehow the src in $(PERL) $(src)/drivers/md/unroll.pl is not
+>getting substituted.
 
-With friendly regards,
-Takis
+Replace $(src)/unroll.pl with $(srctree)/$(src)/unroll.pl in
+drivers/md/Makefile and it works again.
 
---------------040003080701010600090102
-Content-Type: text/x-patch;
- name="pi-20040124_1305-linux_2.6.2_rc1_mm2-graphire3_support-inc.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pi-20040124_1305-linux_2.6.2_rc1_mm2-graphire3_support-inc.diff"
+Fix is already sent to hpa/akpm - but I do not have it available
+here (on WEB mail).
 
-diff -u /scratch/src/linux-2.6/drivers/usb/input/wacom.c /scratch/src/linux-2.6/drivers/usb/input/wacom.c
---- /scratch/src/linux-2.6/drivers/usb/input/wacom.c	2004-01-24 00:53:23.000000000 +0100
-+++ /scratch/src/linux-2.6/drivers/usb/input/wacom.c	2004-01-24 00:53:23.000000000 +0100
-@@ -428,7 +428,7 @@
-         { "Wacom Graphire",      8,  10206,  7422,  511, 32, 1, wacom_graphire_irq },
- 	{ "Wacom Graphire2 4x5", 8,  10206,  7422,  511, 32, 1, wacom_graphire_irq },
-  	{ "Wacom Graphire2 5x7", 8,  13918, 10206,  511, 32, 1, wacom_graphire_irq },
-- 	{ "Wacom Graphire3", 8,  13918, 10206,  511, 32, 1, wacom_graphire_irq },
-+ 	{ "Wacom Graphire3", 8,  10208, 7424,  511, 32, 1, wacom_graphire_irq },
-   	{ "Wacom Intuos 4x5",   10,  12700, 10360, 1023, 15, 2, wacom_intuos_irq },
-  	{ "Wacom Intuos 6x8",   10,  20600, 16450, 1023, 15, 2, wacom_intuos_irq },
-  	{ "Wacom Intuos 9x12",  10,  30670, 24130, 1023, 15, 2, wacom_intuos_irq },
-
---------------040003080701010600090102
-Content-Type: text/x-patch;
- name="pi-20040124_1305-linux_2.6.2_rc1_mm2-graphire3_support.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pi-20040124_1305-linux_2.6.2_rc1_mm2-graphire3_support.diff"
-
-diff -ur linux-2.6.1/drivers/usb/input/hid-core.c /scratch/src/linux-2.6/drivers/usb/input/hid-core.c
---- linux-2.6.1/drivers/usb/input/hid-core.c	2004-01-24 01:09:01.000000000 +0100
-+++ /scratch/src/linux-2.6/drivers/usb/input/hid-core.c	2004-01-24 00:27:24.000000000 +0100
-@@ -1369,6 +1369,7 @@
- 	{ USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_GRAPHIRE, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_GRAPHIRE + 1, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_GRAPHIRE + 2, HID_QUIRK_IGNORE },
-+	{ USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_GRAPHIRE + 3, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_INTUOS, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_INTUOS + 1, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_INTUOS + 2, HID_QUIRK_IGNORE },
-diff -ur linux-2.6.1/drivers/usb/input/wacom.c /scratch/src/linux-2.6/drivers/usb/input/wacom.c
---- linux-2.6.1/drivers/usb/input/wacom.c	2004-01-24 01:07:28.000000000 +0100
-+++ /scratch/src/linux-2.6/drivers/usb/input/wacom.c	2004-01-24 00:53:23.000000000 +0100
-@@ -428,6 +428,7 @@
-         { "Wacom Graphire",      8,  10206,  7422,  511, 32, 1, wacom_graphire_irq },
- 	{ "Wacom Graphire2 4x5", 8,  10206,  7422,  511, 32, 1, wacom_graphire_irq },
-  	{ "Wacom Graphire2 5x7", 8,  13918, 10206,  511, 32, 1, wacom_graphire_irq },
-+ 	{ "Wacom Graphire3", 8,  10208, 7424,  511, 32, 1, wacom_graphire_irq },
-   	{ "Wacom Intuos 4x5",   10,  12700, 10360, 1023, 15, 2, wacom_intuos_irq },
-  	{ "Wacom Intuos 6x8",   10,  20600, 16450, 1023, 15, 2, wacom_intuos_irq },
-  	{ "Wacom Intuos 9x12",  10,  30670, 24130, 1023, 15, 2, wacom_intuos_irq },
-@@ -452,6 +453,7 @@
- 	{ USB_DEVICE(USB_VENDOR_ID_WACOM, 0x10) },
- 	{ USB_DEVICE(USB_VENDOR_ID_WACOM, 0x11) },
- 	{ USB_DEVICE(USB_VENDOR_ID_WACOM, 0x12) },
-+	{ USB_DEVICE(USB_VENDOR_ID_WACOM, 0x13) },
- 	{ USB_DEVICE(USB_VENDOR_ID_WACOM, 0x20) },
- 	{ USB_DEVICE(USB_VENDOR_ID_WACOM, 0x21) },
- 	{ USB_DEVICE(USB_VENDOR_ID_WACOM, 0x22) },
-
---------------040003080701010600090102--
+   Sam

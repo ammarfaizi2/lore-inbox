@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263275AbTESXVH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 19:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263276AbTESXVH
+	id S263310AbTESXYw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 19:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTESXYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 19:21:07 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:45698 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263275AbTESXVF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 19:21:05 -0400
-Date: Tue, 20 May 2003 00:33:53 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [patch] futex API cleanups, futex-api-cleanup-2.5.69-A2
-Message-ID: <20030519233353.GD13706@mail.jlokier.co.uk>
-References: <Pine.LNX.4.44.0305190814300.16317-100000@home.transmeta.com> <Pine.LNX.4.44.0305191752130.13233-100000@localhost.localdomain>
+	Mon, 19 May 2003 19:24:52 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:43941 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263310AbTESXYv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 19:24:51 -0400
+Date: Mon, 19 May 2003 16:33:06 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, mason@suse.com
+Subject: Re: 2.6 must-fix, v4
+Message-Id: <20030519163306.4237dab5.rddunlap@osdl.org>
+In-Reply-To: <20030516161753.08470617.akpm@digeo.com>
+References: <20030516161717.1e629364.akpm@digeo.com>
+	<20030516161753.08470617.akpm@digeo.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305191752130.13233-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> > >  - start the phasing out of FUTEX_FD. This i believe is quite unclean and
-> > >    unrobust, [...]
-> 
-> FUTEX_FD is an instant DoS, it allows the pinning of one page per file
-> descriptor, per thread. With a default limit of 1024 open files per
-> thread, and 256 threads (on a sane/conservative setup), this means 1 GB of
-> RAM can be pinned down by a normal unprivileged user.
+On Fri, 16 May 2003 16:17:53 -0700 Andrew Morton <akpm@digeo.com> wrote:
 
-The correct solution [;)] is EP_FUTEX - allow a futex to be specified
-as the source of an epoll event.
+| fs/
+| ---
+| 
+| - Integrate Chris Mason's 2.4 reiserfs ordered data and data journaling
+|   patches.  They make reiserfs a lot safer.
 
--- Jamie
+What's the delay on this?  I used this code last June/July,
+and I understand that SuSE has been shipping it for awhile now.
+
+--
+~Randy

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314911AbSDVXGX>; Mon, 22 Apr 2002 19:06:23 -0400
+	id <S314923AbSDVXKw>; Mon, 22 Apr 2002 19:10:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314912AbSDVXGV>; Mon, 22 Apr 2002 19:06:21 -0400
-Received: from thorgal.et.tudelft.nl ([130.161.40.91]:20604 "EHLO
-	thorgal.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S314911AbSDVXGR>; Mon, 22 Apr 2002 19:06:17 -0400
-Mime-Version: 1.0
-Message-Id: <a05100307b8ea44c17d90@[130.161.115.44]>
-In-Reply-To: <3CC4861C.F21859A6@mvista.com>
-Date: Tue, 23 Apr 2002 01:06:42 +0200
-To: george anzinger <george@mvista.com>
-From: "J.D. Bakker" <bakker@thorgal.et.tudelft.nl>
-Subject: Re: Why HZ on i386 is 100 ?
-Cc: linux-kernel@vger.kernel.org, John Alvord <jalvo@mbay.net>,
-        Pavel Machek <pavel@suse.cz>, davidm@hpl.hp.com
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S314924AbSDVXKv>; Mon, 22 Apr 2002 19:10:51 -0400
+Received: from AGrenoble-101-1-3-34.abo.wanadoo.fr ([193.253.251.34]:4736 "EHLO
+	elessar.linux-site.net") by vger.kernel.org with ESMTP
+	id <S314923AbSDVXKu> convert rfc822-to-8bit; Mon, 22 Apr 2002 19:10:50 -0400
+Message-ID: <3CC49A91.9090006@wanadoo.fr>
+Date: Tue, 23 Apr 2002 01:19:45 +0200
+From: =?ISO-8859-15?Q?Fran=E7ois_Cami?= <stilgar2k@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, fr
+MIME-Version: 1.0
+To: tomas szepe <kala@pinerecords.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PromiseULTRA100 TX2 ATA66 trouble
+In-Reply-To: <Pine.LNX.4.44.0204222127100.2888-100000@louise.pinerecords.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 14:52 -0700 22-04-2002, george anzinger wrote:
->John Alvord wrote:
->  > On Sun, 21 Apr 2002, Pavel Machek wrote:
->  > > And think what it does with old 386sx.. Maybe time for those 
->"tick on demand"
->>  > patches?
->>
->  > Doesn't IBM have a tickless patch.. useful when demonstrating 10,000
->>  virtual linux machines on a single system.
->
->Please folks.  When can we put the "tick on demand" thing to bed?  If in
->doubt, get the patch from the high-res-timers sourceforge site (see
->signature for the URL) and try it.  Overhead becomes higher with system
->load passing the ticked system at relatively light loads.  Just what we
->want, very low overhead idle systems!
+tomas szepe wrote:
 
-During idle, the current monitors on our StrongARM-based low power 
-testbed show a distinct 100Hz beat. A significant portion of idle 
-power consumption can be attributed to the timer interrupt. IIRC the 
-IBM LinuxWatch people came to a similar conclusion.
+<snip>
 
-In some cases we definitely do want very low overhead idle systems. 
-And of course on ARM systems context switches are relatively 
-expensive anyway, due to the need to flush the (virtually 
-indexed/tagged) caches.
+> Furthermore, applying Andre Hedrick's ide-2.4.19-p7.all.convert.6.patch
+> causes the kernel to not even recognize the controller. BUUUURN! <g>
+> 
+> The card is detected as:
+> Unknown mass storage controller: Promise Technology, Inc.: Unknown device 4d68 (rev 02)
 
-JDB
-[not that I'm proposing to inflict this on the mainline kernel]
--- 
-LART. 250 MIPS under one Watt. Free hardware design files.
-http://www.lart.tudelft.nl/
+<snip>
+
+Try convert.5 not convert.6
+convert.6 doesn't recognize my Promise Ultra66 board either.
+
+François Cami
+

@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261499AbRERTvp>; Fri, 18 May 2001 15:51:45 -0400
+	id <S261503AbRERUCp>; Fri, 18 May 2001 16:02:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261501AbRERTvf>; Fri, 18 May 2001 15:51:35 -0400
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:523 "HELO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with SMTP
-	id <S261499AbRERTv2>; Fri, 18 May 2001 15:51:28 -0400
-Message-ID: <3B057C33.7874AF71@zk3.dec.com>
-Date: Fri, 18 May 2001 15:46:59 -0400
-From: Peter Rival <frival@zk3.dec.com>
-Organization: Tru64 QMG Performance Engineering
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-Cc: J Sloan <jjs@mirai.cx>, Ronald Bultje <rbultje@ronald.bitfreak.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Linux scalability?
-In-Reply-To: <Pine.LNX.4.33.0105180914560.29042-100000@iq.rulez.org>
-		<990173560.6346.0.camel@adslgw>
-		<990174686.12881.18.camel@tux.bitfreak.net>
-		<3B0577E0.A4CAF354@mirai.cx> <15109.31311.679701.484140@pizda.ninka.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261504AbRERUCf>; Fri, 18 May 2001 16:02:35 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:39430 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S261503AbRERUC2>;
+	Fri, 18 May 2001 16:02:28 -0400
+Date: Fri, 18 May 2001 22:02:23 +0200
+From: FAVRE Gregoire <greg@ulima.unil.ch>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac10: Oops -> 2.4.4
+Message-ID: <20010518220223.A23508@ulima.unil.ch>
+Mail-Followup-To: FAVRE Gregoire <greg@ulima.unil.ch>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010518200023.A22231@ulima.unil.ch> <E150pa7-0007XV-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <E150pa7-0007XV-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 18, 2001 at 08:06:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
 
-> J Sloan writes:
->  > Microsoft finally managed to get a better result using
->  > an all-out, "bet the farm", "benchmark buster" setup
->  > with a special web cache in front of iis.
->
-> I haven't heard anyone talk about the fact that their 8-cpu numbers
-> got disqualified and aren't even mentioned on the SPEC site on the
-> main tables anymore.
->
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Really?  I just checked and it's still there from what I see.  We're talking
-about the Dell 8450/700 w/ IIS & SWC 3.0 result, right?  I'm hoping that
-they're deemed NC, but I don't see it yet...
+Thus spake Alan Cox (alan@lxorguk.ukuu.org.uk):
 
- - Pete
+> Can you boot a kernel without fdomain.c compiled in next
 
+Yes, but I am too stupid: there were a faillure in my
+patch-2.4.4-ac10.bz2, which is 0 bits.... so I have bunzip -c
+patch-2.4.4-ac10.bz2|patch -p1 -s with an empty file :-((
+
+That mean I compiled a 2.4.4 kernel, and not a 2.4.4-ac10 one.
+
+I know that becauseause I reemoved my fdomain SCSI controller and put an
+Adaptec 2940 at the same place, and it booted very well...
+
+So the problem is ME: I am too stupid!!!
+
+Anyway, the bug is in 2.4.4, not in 2.4.4-ac10: I am really sorry for
+having loosing your time. With 2.4.4-ac9 with my fdomain, everything is
+also working great ;-)
+
+If I can do anything, just let me know ;-)
+
+Thanks you very much,
+
+	Greg
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7BX/PFDWhsRXSKa0RAiGCAKDJ5KTN6QY8gGAbyJyo84wosY74KwCdEtcz
+aCVtFgGb7qTdfSh0hwtoK5U=
+=dsTY
+-----END PGP SIGNATURE-----
+
+--azLHFNyN32YCQGCU--

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265262AbSKFBKm>; Tue, 5 Nov 2002 20:10:42 -0500
+	id <S265259AbSKFBG7>; Tue, 5 Nov 2002 20:06:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265263AbSKFBKm>; Tue, 5 Nov 2002 20:10:42 -0500
-Received: from [212.18.235.100] ([212.18.235.100]:40713 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id <S265262AbSKFBKl>; Tue, 5 Nov 2002 20:10:41 -0500
-Subject: Re: promise ide problem: missing disks
-From: Justin Cormack <justin@street-vision.com>
-To: Justin Cormack <justin@street-vision.com>
-Cc: Brian Jackson <brian-kernel-list@mdrx.com>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1036543602.2292.54.camel@lotte>
-References: <1036525756.2291.45.camel@lotte>
-	<1036539902.2291.48.camel@lotte> 
-	<20021106000052.21645.qmail@escalade.vistahp.com> 
-	<1036543602.2292.54.camel@lotte>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Nov 2002 01:17:11 +0000
-Message-Id: <1036545436.2291.61.camel@lotte>
-Mime-Version: 1.0
+	id <S265260AbSKFBG7>; Tue, 5 Nov 2002 20:06:59 -0500
+Received: from 1-064.ctame701-1.telepar.net.br ([200.181.137.64]:6323 "EHLO
+	1-064.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S265259AbSKFBG6>; Tue, 5 Nov 2002 20:06:58 -0500
+Date: Tue, 5 Nov 2002 23:13:18 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Eff Norwood <enorwood@effrem.com>
+cc: linux-kernel@vger.kernel.org, Kevin Corry <corryk@us.ibm.com>,
+       <evms-devel@lists.sourceforge.net>,
+       <evms-announce@lists.sourceforge.net>
+Subject: RE: [Evms-devel] EVMS announcement
+In-Reply-To: <CFEAJJEGMGECBCJFLGDBMEDHCHAA.enorwood@effrem.com>
+Message-ID: <Pine.LNX.4.44L.0211052312370.3411-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-06 at 00:46, Justin Cormack wrote:
-> On Wed, 2002-11-06 at 00:00, Brian Jackson wrote:
-> > I may be able to help you narrow it down a bit. I have used 2.4.19-vanilla 
-> > and it worked fine(all drives showed up). When I tried 
-> > fnk10(www.cipherfunk.org) the drive on the secondary channel doesn't show 
-> > up. I don't know exactly what changes fnk10 has with regards to ide, but I 
-> > know he has put a bunch of stuff from the 20-pre series in fnk10. Hope this 
-> > helps. 
-> 
-> Actually my previous mail wasnt accurate - it was the RH 7.3 kernel that
-> works not 8.0 - I forgot which distro I had on it. I think it is the
-> changes between 2.4.19 to 2.4.20-pre as you suggest (I have to change my
-> ethernet card to check this). Its the big ide change from -ac perhaps.
-> The diff is very big, so it is hard to narrow down quickly.
-> 
-> Andre, Alan any idea? does your second channel work?
+On Tue, 5 Nov 2002, Eff Norwood wrote:
 
-hmm, well 2.4.19 vanilla doesnt work for me, but RH 7.3 and 8.0 do.
-Guess lots of regression tests needed...
+> A clean and reasonable design now has to be reworked and the results
+> will be reduced functionality and costs to the user. Costs in
+> installation, functionality, usability, and manageability.
 
+So, you're volunteering to maintain the EVMS subsystem for 2.5 ?
 
+If not, I propose you let Kevin and the other EVMS developers
+make the decision.
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

@@ -1,39 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267279AbUHIVst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267293AbUHIVvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267279AbUHIVst (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 17:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267292AbUHIVst
+	id S267293AbUHIVvV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 17:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUHIVvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 17:48:49 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59360 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267279AbUHIVsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 17:48:20 -0400
-Date: Mon, 9 Aug 2004 23:48:10 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small drivers/ide/legacy/Makefile cleanup
-Message-ID: <20040809214809.GD26174@fs.tum.de>
+	Mon, 9 Aug 2004 17:51:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64689 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267293AbUHIVtB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 17:49:01 -0400
+Date: Mon, 9 Aug 2004 14:52:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: mochel@digitalimplant.org, linux-kernel@vger.kernel.org
+Subject: Re: -mm swsusp: fix highmem handling
+Message-Id: <20040809145226.366715e3.akpm@osdl.org>
+In-Reply-To: <20040809124825.GA602@elf.ucw.cz>
+References: <20040809124825.GA602@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> This fixes highmem handling, and adds some comments so that others do
+> not fall into the same trap I fallen in: code does not continue below
+> swsusp_arch_resume if things go okay.
 
-Let's kill the obsolete CONFIG_BLK_DEV_HD98 entry.
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.8-rc3-mm2-full/drivers/ide/legacy/Makefile.old	2004-08-09 23:47:02.000000000 +0200
-+++ linux-2.6.8-rc3-mm2-full/drivers/ide/legacy/Makefile	2004-08-09 23:47:12.000000000 +0200
-@@ -10,6 +10,5 @@
- 
- # Last of all
- obj-$(CONFIG_BLK_DEV_HD)		+= hd.o
--obj-$(CONFIG_BLK_DEV_HD98)		+= hd98.o
- 
- EXTRA_CFLAGS	:= -Idrivers/ide
+Actually these changes seem to be in Pat's tree already.  Please check next
+-mm, raise a patch against that.

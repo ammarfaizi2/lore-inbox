@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbSKYJwi>; Mon, 25 Nov 2002 04:52:38 -0500
+	id <S262808AbSKYKJM>; Mon, 25 Nov 2002 05:09:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262803AbSKYJwi>; Mon, 25 Nov 2002 04:52:38 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36618
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S262796AbSKYJwh>; Mon, 25 Nov 2002 04:52:37 -0500
-Date: Mon, 25 Nov 2002 01:58:31 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Robert Love <rml@tech9.net>
-cc: paul_wu@wnexus.com.tw, Tommy Reynolds <reynolds@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Which embedded linux is better for being a router? eCos? uclinux?
-In-Reply-To: <1038191030.776.67.camel@phantasy>
-Message-ID: <Pine.LNX.4.10.10211250156130.13936-100000@master.linux-ide.org>
+	id <S262812AbSKYKJM>; Mon, 25 Nov 2002 05:09:12 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:13323 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S262808AbSKYKJL>; Mon, 25 Nov 2002 05:09:11 -0500
+Message-Id: <200211251009.gAPA9np09476@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: David Zaffiro <davzaffiro@netscape.net>, willy@w.ods.org
+Subject: Re: Compiling x86 with and without frame pointer
+Date: Mon, 25 Nov 2002 13:00:27 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <19005.1037854033@kao2.melbourne.sgi.com> <20021121192045.GE3636@alpha.home.local> <3DE1E384.8000801@netscape.net>
+In-Reply-To: <3DE1E384.8000801@netscape.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 25 November 2002 06:47, David Zaffiro wrote:
+> I can understand why not omitting framepointers generates better
+> compressible code, since every function will start with:
+> 	push   %ebp
+> 	mov    %esp,%ebp
+> and end with:
+> 	leave
+> 	ret
+>
+> But it's harder to find a reason why -fomit-frame-pointer is better
+> compressible that -momit-leaf-frame-pointer (but it's probably
+> related to a lot of mov's with stackpointer involved), especially
+> since "-momit-leaf-frame-pointer" makes a trade-off between both
+> other options: it omits framepointers for leaf functions (callees
+> that aren't callers as well) and it doesn't for branch-functions.
 
-What do you have in the way for x86 environments and where is the legalise
-for indemnification?  The latter part can be negated if the offerings are
-not Linux based.
+Which does not sound quite right for me. FP should be omitted
+only if function contains less than half dozen stack references,
+otherwise not. It does not matter whether it is a leaf function or not.
 
-Andre Hedrick
-LAD Storage Consulting Group
-
-On 24 Nov 2002, Robert Love wrote:
-
-> On Sun, 2002-11-24 at 20:01, paul_wu@wnexus.com.tw wrote:
-> 
-> > CPU will be MIPS. Does uclinux support multi-processes? Or there
-> > is 3rd choice for such embedded Linux?
-> 
-> You do not need any special version of Linux.  Your chip has an MMU and
-> all the other normal bits.  Just compile up a stock kernel and
-> user-land.
-> 
-> If you want an already-done distribution, there are a few out there -
-> google around.  Commercial offerings are available from MontaVista, Red
-> Hat, etc, too.
-> 
-> 	Robert Love
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+OTOH, AFAIK frame pointers make debugging easier, development kernels
+are better to be compiled with fp in every func.
+--
+vda

@@ -1,144 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129208AbQJ0RPg>; Fri, 27 Oct 2000 13:15:36 -0400
+	id <S129215AbQJ0RQG>; Fri, 27 Oct 2000 13:16:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129215AbQJ0RP1>; Fri, 27 Oct 2000 13:15:27 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:38150 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129208AbQJ0RPU>; Fri, 27 Oct 2000 13:15:20 -0400
-Date: Fri, 27 Oct 2000 11:11:59 -0600
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NCPFS flags all files executable on NetWare Volumes wit
-Message-ID: <20001027111159.A5775@vger.timpanogas.org>
-In-Reply-To: <B24306C66FF@vcnet.vc.cvut.cz> <20001027105754.C5628@vger.timpanogas.org>
-Mime-Version: 1.0
+	id <S129736AbQJ0RPw>; Fri, 27 Oct 2000 13:15:52 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61295 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129215AbQJ0RPm>; Fri, 27 Oct 2000 13:15:42 -0400
+Subject: Re: VM-global-2.2.18pre17-7
+To: jeff@aslab.com (Jeff Nguyen)
+Date: Fri, 27 Oct 2000 18:16:46 +0100 (BST)
+Cc: vherva@mail.niksula.cs.hut.fi (Ville Herva), linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org
+In-Reply-To: <008e01c0402c$85369760$7818b7c0@aslab.com> from "Jeff Nguyen" at Oct 27, 2000 08:42:32 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <20001027105754.C5628@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Fri, Oct 27, 2000 at 10:57:54AM -0600
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13pD7X-0004fZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2000 at 10:57:54AM -0600, Jeff V. Merkey wrote:
-> On Fri, Oct 27, 2000 at 03:00:31PM +0000, Petr Vandrovec wrote:
-> > On 27 Oct 00 at 0:16, Jeff V. Merkey wrote:
-> > > I noticed NCPFS is flagging all the files on a native NetWare volume as
-> > > executable and chmod -x does not work, even if the NetWare server has 
-> > > the NFS namespace loaded.  I looked at you code in more detail, and I 
-> > > did not see support their for the NFS/Unix namespace.  
-> > 
-> > > Is this in a newer version, or has it not been implemented yet?  I was
-> > > testing with MARS and Native NetWare this evening and saw this.  If the 
-> > > NFS namespace is loaded, you should be able to get to it and access and 
-> > > set all these bits in the file system namespace directory records.
-> > > 
-> > > Do you need any info from me to get this working, or is there another
-> > > version where I can get this for Ute-Linux?
-> > 
-> > Hi Jeff,
-> >   ncpfs does not support NFS fields, as access through namespace functions
-> > is hopelessly broken (modify ns specific info has swapped some bits
-> > in mask which data update and which not), and it also adds some (100%)
-> > overhead on directory/inode lookups, as you must ask twice - first for
-> > non-NFS info, and second for NFS specific...
-> > 
-> >   There exists patch from Ben Harris <bjh21@cus.cam.ac.uk>, which adds
-> > this feature to 2.2.16 kernel and 2.2.0.17 ncpfs. You can download
-> > it from ftp://platan.vc.cvut.cz/pub/linux/ncpfs/ncp{1,2}.pat. ncp1.pat
-> > is kernel patch (including email headers; cut them if applying), ncp2.pat
-> > is patch for 2.2.0.17 ncpfs userspace - it adds mount option "nfsextras".
-> > (I apologize to Ben - I promised to integrate it into ncpfs, and into
-> > 2.4 kernel, but...)
-> > 
-> >   Except that, you can make all files non-executable by using
-> > "filemode=0644" mount option. Or you can use "extras,symlinks", in which
-> > case (NFS namespace incompatible) hidden/shareable/transactional attributes
-> > are used to signal executability of file...
-> > 
-> >   If you have some document which describes what each NFS specific field 
-> > does - currently ncpfs names them "name", "mode", "gid", "nlinks", "rdev",
-> > "link", "created", "uid", "acsflag" and "myflag" - if I remember correctly,
+> You should use the Intel e100 driver at
+> http://support.intel.com/support/network/adapter/pro100/100Linux.htm.
+> It works much better than eepro100.
 
-Oh, and:
-
-created is always set to 1 for the root entry.
-acsflag is whehter NetWare or the NFS client last accessed the file
-name is the name
-mode CANNOT contain NFS v3.0 style permissions it's on v2.0 -- pipe and 
-fifo will hang the NetWare server, so mask these off.
-nlinks is the number of hardlinks to a file.
-rdev is the same as rdev in Linux
-flags(myflag) contains the following values:
-
-#define NFS_HASSTREAM_HARD_LINK  1  // indicates this record has the FAT chain
-#define NFS_SYMBOLIC_LINK        2
-#define NFS_HARD_LINK            3
-
-There's also three linkage fields you have to fill out:
-
-LinkNextDirNo   // next record in the hardlink chain
-LinkEndDirNo    // always the dir record that holds the fat chain
-LinkPreDirNo    // previous record in the hardlink chain
-
-records are added at the HEAD and not the TAIL of the linkage.  The 
-root record is always at the END and not the HEAD of the list.
-
-:-)
-
-Jeff
-
-I'll go dig up the specific NCP extensions and get them to you.
-
-:-)
-
-Jeff
-
-> > it is how Unixware 2.0 nuc.h names them. And I did not found any information
-> > about layout of NFS huge info, which is used for hardlinks :-(
-> > 
-> >   Also, as NCP 87,8 kills almost every NW server I know, if used namespace
-> > is NFS, I'm a bit sceptic about usability of NCP 87,* on NFS namespace.
-> > 
-> >   In 1998 and 1999 I tried to ask Novell for documentation of NCP 95,*
-> > (Netware Unix Client), but it was refused and ignored, so... here we are.
-> >                                                 Best regards,
-> >                                                         Petr Vandrovec
-> >                                                         vandrove@vc.cvut.cz
-> 
-> 
-> Petr,
-> 
-> I've got the info you need including the layout of the NFS namspace 
-> records.  For a start, grab NWFS and look at the NFS structure in 
-> NWDIR.H.  The fields you have to provide are there.  There are some 
-> funky ones in this structure.  You are correct regarding the NCP 
-> extensions to support this.  They are about 12 years old, BTW and are 
-> not even supported any longer (no one has worked on this at Novell 
-> since about 1994).  
-> 
-> I will put together a complete description today (will take a couple 
-> of hours) and post to the list on the implementation of of the NFS
-> namespace over the wire.  Hardlinks use a root DirNo handle that 
-> must point back to the DOS namespace record that owns the FAT chain
-> and this is probably the only nasty thing to deal with here.
-> 
-> I'll get started immediately.
-> 
-> :-)
-> 
-> Jeff
-> 
-> 
-> 
-> 
-> >                                                         
-> > P.S.: Jeff, if you want, there is ncpfs/MaRS/LinWare specific list,
-> > linware@sh.cvut.cz. Subscribe: "subscribe linware" to "listserv@sh.cvut.cz".
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Thats not the general consensus, but its worth trying in case it works best
+for a given problem. In paticular it knows about bugs with combinations of
+transceivers which the eepro100 driver does not.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

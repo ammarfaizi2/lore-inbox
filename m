@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270797AbRIFQ60>; Thu, 6 Sep 2001 12:58:26 -0400
+	id <S271421AbRIFQ5q>; Thu, 6 Sep 2001 12:57:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270823AbRIFQ6L>; Thu, 6 Sep 2001 12:58:11 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:50949 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S270797AbRIFQ5k>;
-	Thu, 6 Sep 2001 12:57:40 -0400
-Date: Thu, 6 Sep 2001 13:57:42 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Kurt Garloff <garloff@suse.de>, Jan Harkes <jaharkes@cs.cmu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: page_launder() on 2.4.9/10 issue
-In-Reply-To: <20010906163937Z16125-26183+11@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33L.0109061356280.31200-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270823AbRIFQ5h>; Thu, 6 Sep 2001 12:57:37 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:14857 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S270797AbRIFQ5W>;
+	Thu, 6 Sep 2001 12:57:22 -0400
+Message-ID: <20010906210431.B23410@castle.nmd.msu.ru>
+Date: Thu, 6 Sep 2001 21:04:31 +0400
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Andi Kleen <ak@suse.de>
+Cc: Wietse Venema <wietse@porcupine.org>,
+        Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19]
+In-Reply-To: <20010906193750.B22187@castle.nmd.msu.ru> <20010906155811.BC78DBC06C@spike.porcupine.org> <20010906204423.B23109@castle.nmd.msu.ru> <20010906184742.A10228@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <20010906184742.A10228@gruyere.muc.suse.de>; from "Andi Kleen" on Thu, Sep 06, 2001 at 06:47:42PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Sep 2001, Daniel Phillips wrote:
+On Thu, Sep 06, 2001 at 06:47:42PM +0200, Andi Kleen wrote:
+> On Thu, Sep 06, 2001 at 08:44:23PM +0400, Andrey Savochkin wrote:
+> > The question was which ip.address in user@[ip.address] should be treated as
+> > local.
+> > My comment was that the only reasonable solution on Linux is to treat this
+> > way addresses explicitly specified in the configuration file.
+> > Postfix may show its guess at the installation time.
+> > 
+> > Now the question of recognizing user@[ip.address] as local is a question of a
+> > simple table lookup.
+> 
+> It would be at least possible to ask the routing engine via RTM_GETROUTE
+> and checking for RTN_LOCAL if it considers an address local.
+> It won't cover all cases with netfilter rules etc.; but probably be a good
+> enough approximation.
 
-> Err, not quite the whole story.  It is *never* right to leave the disk
-> sitting idle while there are dirty, writable IO buffers.
+Well, you need to enlist local addresses, not to verify, so I would suggest
+inspecting `local' routing table.
 
-Define "idle" ?
+But it doesn't help with the other example I provided a couple of messages
+earlier: several MTAs on one system listening on their own IP addresses.
+Some time ago, when I was engaged in system administration activity, almost
+all my mail relays had several MTAs, each in its own chroot environments...
 
-Is idle the time it takes between two readahead requests
-to be issued, delaying the second request because you
-just moved the disk arm away ?
+So, using routing in the post-install script to provide suggestion what
+should be written in the configuration file is very reasonable, probably,
+it's the best guess that the script can make.
 
-Is idle when we haven't had a request for, say, 3 disk
-seek time periods ?
-
-Is idle when we won't be getting any request soon for the
-area where the disk arm is hanging out ?  (and how do we
-know the future?)
-
-regards,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+	Andrey

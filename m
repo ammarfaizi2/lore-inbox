@@ -1,44 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278660AbRKNX7i>; Wed, 14 Nov 2001 18:59:38 -0500
+	id <S278701AbRKOAB2>; Wed, 14 Nov 2001 19:01:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278665AbRKNX72>; Wed, 14 Nov 2001 18:59:28 -0500
-Received: from [212.18.232.186] ([212.18.232.186]:19208 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S278660AbRKNX7V>; Wed, 14 Nov 2001 18:59:21 -0500
-Date: Wed, 14 Nov 2001 23:59:08 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Roman Kurakin <rik@cronyx.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Serial.c Bug
-Message-ID: <20011114235908.B19575@flint.arm.linux.org.uk>
-In-Reply-To: <3BF24147.9030508@cronyx.ru>
-Mime-Version: 1.0
+	id <S278685AbRKOABT>; Wed, 14 Nov 2001 19:01:19 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53768 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278665AbRKOABB>; Wed, 14 Nov 2001 19:01:01 -0500
+Subject: Re: generic_file_llseek() broken?
+To: adilger@turbolabs.com (Andreas Dilger)
+Date: Thu, 15 Nov 2001 00:08:15 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20011114165147.S5739@lynx.no> from "Andreas Dilger" at Nov 14, 2001 04:51:47 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BF24147.9030508@cronyx.ru>; from rik@cronyx.ru on Wed, Nov 14, 2001 at 01:02:47PM +0300
+Content-Transfer-Encoding: 7bit
+Message-Id: <E164A4l-0006SR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 14, 2001 at 01:02:47PM +0300, Roman Kurakin wrote:
->     I have found a bug. It is in support of serial cards which uses 
-> memory for I/O insted of ports. I made a patch for serial.c and fix
-> one place, but probably the problem like this one could be somewhere
-> else.
+> I was recently testing a bit with creating very large files on ext2/ext3
+> (just to see if limits were what they should be).  Now, I know that ext2/3
+> allows files just shy of 2TB right now, because of an issue with i_blocks
+> being in units of 512-byte sectors, instead of fs blocks.
 
-I've got this fish caught in the my serial driver rewrite - the driver
-always handles the requesting and freeing of the resources.  If it is
-unable to request the resources, then you will receive a suitable error
-when trying to configure two ports.
-
-Please note that I'm not about to take on maintainence of the current
-serial.c driver, except where I spot obvious bugs.
-
-I'd recommend that you pass this one to Marcelo to incorporate (only
-after he's got his feet on the ground again. 8))  It looks sensible.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Does 2.4.13-ac7 show the same. There were some off by one fixes and its
+possible I managed to forget to feed Linus one

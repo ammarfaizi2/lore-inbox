@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUIEPFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUIEPRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266758AbUIEPFe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 11:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266786AbUIEPFd
+	id S266802AbUIEPRR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 11:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266796AbUIEPRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 11:05:33 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:23851 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266758AbUIEPF3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 11:05:29 -0400
-Message-ID: <9e47339104090508052850b649@mail.gmail.com>
-Date: Sun, 5 Sep 2004 11:05:28 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: New proposed DRM interface design
-Cc: Keith Whitwell <keith@tungstengraphics.com>, Dave Jones <davej@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
-       Jon Smirl <jonsmirl@yahoo.com>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mharris@redhat.com
-In-Reply-To: <1094386050.1081.33.camel@localhost.localdomain>
+	Sun, 5 Sep 2004 11:17:17 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:64935 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266786AbUIEPRO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 11:17:14 -0400
+Date: Sun, 5 Sep 2004 17:12:49 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: James Bruce <bruce@andrew.cmu.edu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Hans Reiser <reiser@namesys.com>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+Message-ID: <20040905151249.GQ26560@thundrix.ch>
+References: <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org> <41371702.8030704@andrew.cmu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040904102914.B13149@infradead.org>
-	 <4139A9F4.4040702@tungstengraphics.com>
-	 <20040904115442.GD2785@redhat.com>
-	 <4139B03A.6040706@tungstengraphics.com>
-	 <20040904122057.GC26419@redhat.com>
-	 <4139C8A3.6010603@tungstengraphics.com>
-	 <9e47339104090408362a356799@mail.gmail.com>
-	 <4139FEB4.3080303@tungstengraphics.com>
-	 <9e473391040904110354ba2593@mail.gmail.com>
-	 <1094386050.1081.33.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dUqh8vgUBVXHzm9w"
+Content-Disposition: inline
+In-Reply-To: <41371702.8030704@andrew.cmu.edu>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 05 Sep 2004 13:07:37 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Sad, 2004-09-04 at 19:03, Jon Smirl wrote:
-> > This does add some work to the BSD developers but it would make all of
-> > the new code that doesn't copy preexisting GPL code fair game. I have
-> > no problem marking any new code I write as being BSD licensed, I just
-> > don't want to rewrite 80,000 lines of fbdev code.
-> 
-> If DRI stays the way it is currently licensed no problems arise anyway
-> (beyond proprietary people reusing DRI code, which given the license is
-> presumably the intent)
-> 
-If I copy GPL pieces of fbdev in to the DRM drivers it will pollute
-the BSD license and turn it into GPL.
 
+--dUqh8vgUBVXHzm9w
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Salut,
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+On Thu, Sep 02, 2004 at 08:50:10AM -0400, James Bruce wrote:
+> filesystem to implement the Berkely DB interface (libdb) for example. =20
+
+Problem is that BerkeleyDB changes its API all the time.
+
+			Tonnerre
+
+--dUqh8vgUBVXHzm9w
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
+
+iD8DBQFBOyzx/4bL7ovhw40RAv2fAJ0Xys51AcRxAKpXxZ0/nBu//D30uACgr3Af
+T8mZeNJ1kWscqRuauQjeHR4=
+=StgF
+-----END PGP SIGNATURE-----
+
+--dUqh8vgUBVXHzm9w--

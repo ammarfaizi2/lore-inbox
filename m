@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbUFBS3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263763AbUFBSeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbUFBS3H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 14:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263756AbUFBS3H
+	id S263763AbUFBSeo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 14:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUFBSeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 14:29:07 -0400
-Received: from outmx009.isp.belgacom.be ([195.238.3.4]:15266 "EHLO
-	outmx009.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S262766AbUFBS3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 14:29:04 -0400
-Subject: Re: why swap at all?
-From: FabF <fabian.frederick@skynet.be>
-To: Valdis.Kletnieks@vt.edu
-Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200406021759.i52Hx00N022255@turing-police.cc.vt.edu>
-References: <E1BVIVG-0003wL-00@calista.eckenfels.6bone.ka-ip.net>
-	 <1086154721.2275.2.camel@localhost.localdomain>
-	 <200406021759.i52Hx00N022255@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Message-Id: <1086201031.2047.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 02 Jun 2004 20:30:31 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Jun 2004 14:34:44 -0400
+Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:16266 "EHLO
+	linuxfarms.com") by vger.kernel.org with ESMTP id S263763AbUFBSem
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 14:34:42 -0400
+Date: Wed, 2 Jun 2004 14:35:33 -0400 (EDT)
+From: Arthur Perry <kernel@linuxfarms.com>
+X-X-Sender: kernel@tiamat.perryconsulting.net
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: GART Error 11
+In-Reply-To: <m3vfi96drx.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.4.58.0406021421490.14423@tiamat.perryconsulting.net>
+References: <22qyw-6e7-29@gated-at.bofh.it> <22ELe-oP-47@gated-at.bofh.it>
+ <m3vfi96drx.fsf@averell.firstfloor.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-02 at 19:59, Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 02 Jun 2004 07:38:41 +0200, FabF said:
-> 
-> > > Yes but: your wm is so  often used/activated it will not get swaped  out. 
-> > > But if your mouse passes over mozilla and tries to focus it, then you will
-> > > feel the pain of a swapped-out x program.
-> > > 
-> > Exactly !
-> > Does autoregulated VM swap. patch could help here ?
-> 
-> Con's auto-adjusting swappiness patch did in fact help that quite a bit,
-> especially for the case of heavy file I/O causing process images to be swapped
-> out.  I need to do some comparisons of that to Nick's MM work...
-It helps inactive applications to re-ermerge smoothly, heavy I/O and
-global tuning.I've got 20 swapping delta from start to high usage.
-That patch rock'n'roll my box until updatedb makes sw climbs up to 80
-and freezes my box :(
+Thanks Andi!
+I did not realize there were quirks associated with reading this right from pci config space.
 
-FabF
+Perhaps someone can tell me this:
+Does anybody know if there is any documented information about the differences between agp driver version 0.99 and 0.100?
+I know I can just read the source, but there must be list of known bugs and what has been addressed by the newer version, right?
 
+The reason why I ask is that both RedHat and SuSE are using 0.99 agp driver still..
+RedHat Enterprise 3.0 's 2.4.21-9.0.1EL kernel and SuSE's 2.4.19 kernel have this in common, and I am seeing such gart errors only with their kernels.
+The mainline kernel 2.4.27-pre4 using gart 0.100 does not produce this failure condition.
+
+Please let me know if I am going in the wrong direction, but I am going to patch RedHat's kernel with the agp 0.100 driver and see if the problem does indeed go away.
+I'll do the same with SuSE.
+If this is the case, then I have found root cause of this particular problem, and I can then address it to the specific distributors.
+
+Thanks!
+Best Regards,
+Arthur Perry
+
+
+On Wed, 2 Jun 2004, Andi Kleen wrote:
+
+> Arthur Perry <kernel@linuxfarms.com> writes:
+>
+> > Hello,
+> >
+> > Oops. Sorry I have made a mistake in all of my statements below.
+> > It was after 5pm yesterday, and it was a long day...
+> > It's not offset 0x44 that we are interested in.
+> > My listings were at offset 0x48, which is MCA NB Status Low Register.
+> > Sorry, did not mean to confuse anybody.
+>
+> I would recommend to just read the MC* MSRs via /dev/msr.
+> Accessing the northbridge directly for MCE information has various
+> quirks and i removed that completely in the 2.6 driver.
+> They contain the same information.
+>
+> -Andi
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

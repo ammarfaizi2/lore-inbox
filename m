@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274270AbRIYAHN>; Mon, 24 Sep 2001 20:07:13 -0400
+	id <S274271AbRIYAHX>; Mon, 24 Sep 2001 20:07:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274267AbRIYAGx>; Mon, 24 Sep 2001 20:06:53 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:29704 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S274263AbRIYAGs>; Mon, 24 Sep 2001 20:06:48 -0400
-Date: Mon, 24 Sep 2001 20:37:11 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: "Paul G. Allen" <pgallen@randomlogic.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
- in prison
-In-Reply-To: <3BAFC01D.20FA8240@randomlogic.com>
-Message-ID: <Pine.LNX.4.33L.0109242035540.1864-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
+	id <S274267AbRIYAHN>; Mon, 24 Sep 2001 20:07:13 -0400
+Received: from ns.suse.de ([213.95.15.193]:4624 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S274268AbRIYAG4>;
+	Mon, 24 Sep 2001 20:06:56 -0400
+Date: Tue, 25 Sep 2001 02:07:22 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] compilation fix for nand.c
+In-Reply-To: <3BAFC969.52B7FCDC@eyal.emu.id.au>
+Message-ID: <Pine.LNX.4.30.0109250205450.15679-100000@Appserv.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Sep 2001, Paul G. Allen wrote:
+On Tue, 25 Sep 2001, Eyal Lebedinsky wrote:
 
-> If this passes, everyone working in computer security can be
-> arrested and thrown in prison for life. In addition, people such
-> as Kevin Mitnick can be thrown back in prison even though they
-> have already paid for their crime (double jeopardy?).
->
-> http://www.securityfocus.com/news/257
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.10/kernel/drivers/mtd/nand/nand.o
+> depmod:         nand_calculate_ecc_R1f975137
+> depmod:         nand_correct_data_Re756919d
 
-So, would anybody have a nice piece of real estate in the
-free world where silicon valley could be evacuated to ?
+*shrug*, I just made it get past my 'make everything build as a module'
+test, but don't have hardware to test it.  Give dwmw2's patch a try
+(url somewhere earlier in this thread), as that has more chance of being
+complete.
 
-(time to find volunteers to maintain thefreeworld.net ?)
+regards,
 
-cheers,
+Dave.
 
-Rik
---
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

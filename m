@@ -1,100 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316678AbSGMINd>; Sat, 13 Jul 2002 04:13:33 -0400
+	id <S318121AbSGMIQ5>; Sat, 13 Jul 2002 04:16:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318121AbSGMINc>; Sat, 13 Jul 2002 04:13:32 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:55682 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S316678AbSGMINc>; Sat, 13 Jul 2002 04:13:32 -0400
-Date: Sat, 13 Jul 2002 10:15:19 +0200
-From: Kristian Peters <kristian.peters@korseby.net>
-To: Kristian Amlie <k_amlie@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Loading module "ide-cd.o" crashes during cd-r/rw burning
-Message-Id: <20020713101519.339f9f2a.kristian.peters@korseby.net>
-In-Reply-To: <20020713004815.53870.qmail@web10908.mail.yahoo.com>
-References: <20020713004815.53870.qmail@web10908.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; i386-redhat-linux)
-X-Operating-System: i686-redhat-linux 2.4.19-rc1
+	id <S318122AbSGMIQ4>; Sat, 13 Jul 2002 04:16:56 -0400
+Received: from mail.gmx.de ([213.165.64.20]:16758 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S318121AbSGMIQz>;
+	Sat, 13 Jul 2002 04:16:55 -0400
+Message-Id: <5.1.0.14.2.20020713093432.00b30a20@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 13 Jul 2002 10:17:20 +0200
+To: Muli Ben-Yehuda <mulix@actcom.co.il>,
+       Linus Torvalds <torvalds@transmeta.com>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: PATCH: compile the kernel with -Werror
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020713102615.H739@alhambra.actcom.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kristian.
+At 10:26 AM 7/13/2002 +0300, Muli Ben-Yehuda wrote:
+>A full kernel compilation, especially when using the -j switch to
+>make, can cause warnings to "fly off the screen" without the user
+>noticing them. For example, wli's patch lazy_buddy.2.5.25-1 of today
+>had a missing return statement in a function returning non void, which
+>the compiler probably complained about but the warning got lost in the
+>noise (a little birdie told me wli used -j64).
+>
+>The easiest safeguard agsinst this kind of problems is to compile with
+>-Werror, so that wherever there's a warning, compilation
+>stops. Compiling 2.5.25 with -Werror with my .config found only three
+>warnings (quite impressive, IMHO), and patches for those were sent to
+>trivial@rusty.
 
-I think the problem here is that ide-cd tries to access /dev/hdd which is already used by ide-scsi. That looks like a forgotten check in ide-cd.
+If you put -Werror in the stock flags, things like gcc warning that feature-foo
+will go away someday becomes deadly.. bad idea IMO.
 
-Could you first try 2.4.19-rc1 ? I couldn't reproduce a hang with it. A second "modprobe ide-cd" only stalls linux for 2 seconds and I'm getting:
+If people are building kernels (or anything else) and not making/checking
+logs, they're wrong.
 
-hdd: set_drive_speed_status: status=0xd0 { Busy }
+         -Mike 
 
-which means that modprobe is stucking in D state:
-
-root      1288  0.0  2.2  5740 5740 pts/1    SL   09:59   0:00 cdrecord blank=fa
-root      1290 14.9  0.2  1712  756 pts/1    D    09:59   0:10 modprobe ide-cd i
-
-After finished burning (hdc is accessible again) it comes back.
-
-Kristian Amlie <k_amlie@yahoo.com> wrote:
-> Hi!
-> 
-> [2.]
-> I have a configuration with two CD-ROM drives; they are:
-> 1. HL-DT-ST RW/DVD GCC-4120B (Goldstar)
-> 2. Pioneer CD-ROM ATAPI Model DR-A04S 0105
-> according to "/proc/ide/hdX/model".
-> 
-> I use drive number one to burn CDs using the scsi interface with
-> scsi_mod ide-scsi, sr_mod and sg. The program I use is cdrecord.
-> My "modules.conf" file is set up to load "ide-cd ignore=hdc" before the
-> sg interface is opened. This way, the ide interface takes care of my
-> second CD-ROM (hdd) and the scsi interface takes care of the first
-> (hdc).
-> This configuration works fine. However, a problem arises because the
-> ide-cd module is often autocleaned while a burning is in progress. If I
-> then try to access the second CD-ROM (hdd), the ide-cd module hangs on
-> initialization (at least that's what lsmod tells me).
-> The burning process also stops, and the programs that tried to access
-> the second drive are caught in their uninterruptable sleeps.
-> Shortly after this (about a minute or two) I get a message that loading
-> the module failed.
-> And that is almost immediately followed by a complete kernel crash. I
-> am afraid I cannot provide any screen output, as it starts printing hex
-> values at unlimited speed, and I am unable to read it.
-> The kernel doesn't react to any keypresses (like ScrollLock to stop the
-> output), not even the Magic SysRq key, which I have activated.
-
-If this still persists:
-
-It could be helpful for the developers to have the oops-output. Try to attach a serial console. First enable CONFIG_SERIAL_CONSOLE in your kernel-config. If done, append the following options to lilo. For example my lilo.conf:
-
-image=/boot/vmlinuz-2.4.19-rc1-kp1
- 	label=udmacda
- 	append="console=ttyS0,57600n8,vt102 console=tty0"
- 	read-only
- 	root=/dev/hda1
-
-Then you need a second computer to capture that output (with mingetty or anything similar). Maybe you could redirect the klog output via syslog to another machine. I hope you have the possibilities.
-
-*Kristian
-
-> #!/bin/bash
-> 
-> modprobe ide-cd ignore=hdc
-> modprobe sg
-> cdrecord dev=<insert scsi device>  <SomeBigIsoFile> &
-> # Give it some time to start the burning.
-> sleep 120
-> modprobe -r ide-cd
-> modprobe ide-cd
-> echo "Shouldn't get here! The problem obviously doesn't reveal itself
-> under this environment!"
-
-
-  :... [snd.science] ...:
- ::                             _o)
- :: http://www.korseby.net      /\\
- :: http://gsmp.sf.net         _\_V
-  :.........................:

@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264479AbUBIJxK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 04:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbUBIJxJ
+	id S264463AbUBIKKz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 05:10:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbUBIKKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 04:53:09 -0500
-Received: from [193.170.124.123] ([193.170.124.123]:56492 "EHLO 23.cms.ac")
-	by vger.kernel.org with ESMTP id S264479AbUBIJwj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 04:52:39 -0500
-Date: Mon, 9 Feb 2004 10:52:20 +0100
-From: JG <jg@cms.ac>
+	Mon, 9 Feb 2004 05:10:55 -0500
+Received: from prin.lo2.opole.pl ([213.77.100.98]:13063 "EHLO
+	prin.lo2.opole.pl") by vger.kernel.org with ESMTP id S264463AbUBIKKy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 05:10:54 -0500
+From: Mariusz Mazur <mmazur@kernel.pl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: could someone plz explain those ext3/hard disk errors
-In-Reply-To: <20040209014722.GA22683@stout.hampshire.edu>
-References: <20040208175346.767881A96E1@23.cms.ac>
-	<20040209014722.GA22683@stout.hampshire.edu>
-X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Gentoo 1.4 ;)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Mon__9_Feb_2004_10_52_20_+0100_.zO=+hutfso0zEKa"
-Message-Id: <20040209095227.AF4261A9ACF@23.cms.ac>
+Subject: Re: linux-libc-headers 2.6.1.3 released
+Date: Mon, 9 Feb 2004 11:07:52 +0100
+User-Agent: KMail/1.5
+References: <200402090025.55087.mmazur@kernel.pl>
+In-Reply-To: <200402090025.55087.mmazur@kernel.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200402091107.52707.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__9_Feb_2004_10_52_20_+0100_.zO=+hutfso0zEKa
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Monday 09 of February 2004 00:25, Mariusz Mazur wrote:
+> Available at http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
+> At http://ep09.pld-linux.org/~mmazur/linux-libc-headers/patches/ one can
+> find patches for things that don't compile (they remove workarounds for
+> bugs in original headers that break compilation when headers aren't broken
+> :). I hope to push them to application maintainers.
 
-hi,
+Oh. I forgot. Cvs is now at {cvs,http}://cvs.pld-linux.org/linux-libc-headers
 
-> I have had the same exact errors.. and i have RMA'ed two disks... already.
-> i just thought it was bad luck.. 
-> 
-> i power down properly and i dont think its power surges, since i am in school and it only happens to me. i would expect my neighbors to have
-> problems too.
-
-really strange, me too.
-now...hm, it all started when i upgraded from kernel 2.4.19 to 2.6.0 in late decemeber, the system worked very fine for a week or so (having great response times!) but then all of a sudden the problems started. 2 disks died. then my gigabit network card was only able to transmit 200kb/s (but this was really a hardware problem, a new card is working fine again, well...). a week later the next disks are having problems and i have yet to RMA three disks. and now the next two disks..., i'm getting insane ;) i can't see any EXT3 error anymore *g* the next disks will be reiserfs only to see other error messages ;) well, but that doesn't solve the problem of 6 disks within 2 months...this is so unlikely.
-
-JG
-
-
---Signature=_Mon__9_Feb_2004_10_52_20_+0100_.zO=+hutfso0zEKa
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAJ1hbU788cpz6t2kRAj95AJ0QrLtN89octMSNq2/IOaQsAcQgMgCgkykJ
-Ce7ZyzDi4uGNMSQOLibTfxQ=
-=Pnpy
------END PGP SIGNATURE-----
-
---Signature=_Mon__9_Feb_2004_10_52_20_+0100_.zO=+hutfso0zEKa--
+-- 
+Ka¿dy cz³owiek, który naprawdê ¿yje, nie ma charakteru, nie mo¿e go mieæ.
+Charakter jest zawsze martwy, otacza ciê zgni³a struktura przeniesiona z 
+przesz³o¶ci. Je¿eli dzia³asz zgodnie z charakterem wtedy nie dzia³asz w ogóle
+- jedynie mechanicznie reagujesz.                 { Osho }

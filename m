@@ -1,103 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291839AbSBNTlh>; Thu, 14 Feb 2002 14:41:37 -0500
+	id <S291846AbSBNToR>; Thu, 14 Feb 2002 14:44:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291846AbSBNTl1>; Thu, 14 Feb 2002 14:41:27 -0500
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:3800 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S291839AbSBNTlS>; Thu, 14 Feb 2002 14:41:18 -0500
-Message-ID: <3C6C12DC.7030406@linuxhq.com>
-Date: Thu, 14 Feb 2002 14:41:16 -0500
-From: John Weber <john.weber@linuxhq.com>
-Organization: Linux Headquarters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020206
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] YMFPCI Patches
-In-Reply-To: <3C6BDE9A.4070906@linuxhq.com> <20020214125904.A2591@devserv.devel.redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------010305000002050805070208"
+	id <S291851AbSBNToI>; Thu, 14 Feb 2002 14:44:08 -0500
+Received: from steam.colabnet.com ([198.165.224.35]:15877 "EHLO
+	torsus.hive.colabnet.com") by vger.kernel.org with ESMTP
+	id <S291846AbSBNTny>; Thu, 14 Feb 2002 14:43:54 -0500
+Subject: Re: Promise SuperTrak100 Oops/Kernel Panic
+From: Rob Lake <rlake@colabnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16bRV1-0000ro-00@the-village.bc.nu>
+In-Reply-To: <E16bRV1-0000ro-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 14 Feb 2002 16:17:21 -0330
+Message-Id: <1013716041.2048.0.camel@sphere878.hive.colabnet.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010305000002050805070208
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+No need to try any longer.  I upgraded the firmware and can mount device
+now.  Thanks for you help and time.
 
-Pete Zaitcev wrote:
->>Here's a patch (against 2.5.4) that makes a little change to 
->>sound/Config.in that makes my kernel link (and my YMF sound work :).
->>
+Rob
+
+On Thu, 2002-02-14 at 15:54, Alan Cox wrote:
+> > > > Feb 13 21:52:17 sphere878 kernel:  i2o/hda:r 3
+> > > > Feb 13 21:52:17 sphere878 kernel: I2O: Spurious reply to handler 3
+> > > > Feb 13 21:52:17 sphere878 last message repeated 454 times
+> > > 
+> > > Then things seem to go a little mad, and its getting bogus messages to
+> > > a drivert that has been unloaded
+> > 
+> > Is there a driver I should be loading pre i2o_block?
 > 
-> Your mailer corrupted both of them
+> i2o_block will load i2o_pci and i2o_core which is all that are needed.
+> So far I've not been able to duplicate your problem. 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I am using Mozilla, so I don't know what it did to the patches.
-I've sent them as attachments this time.
-
--- 
-(o- j o h n   e   w e b e r
-//\  http://www.linuxhq.com/people/weber/
-v_/_ john.weber@linuxhq.com
-
---------------010305000002050805070208
-Content-Type: text/plain;
- name="sound-2.5.4.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sound-2.5.4.patch"
-
---- linux-2.5.4/drivers/sound/Config.in	Sun Feb 10 20:50:10 2002
-+++ linux-2.5.5/drivers/sound/Config.in	Thu Feb 14 10:48:28 2002
-@@ -103,6 +103,9 @@
- dep_tristate '  VIA 82C686 Audio Codec' CONFIG_SOUND_VIA82CXXX $CONFIG_PCI
- dep_mbool    '  VIA 82C686 MIDI' CONFIG_MIDI_VIA82CXXX $CONFIG_SOUND_VIA82CXXX
- 
-+dep_tristate '  Yamaha YMF7xx PCI audio (native mode)' CONFIG_SOUND_YMFPCI $CONFIG_PCI
-+dep_mbool '      Yamaha PCI legacy ports support' CONFIG_SOUND_YMFPCI_LEGACY $CONFIG_SOUND_YMFPCI
-+
- dep_tristate '  OSS sound modules' CONFIG_SOUND_OSS $CONFIG_SOUND
- 
- if [ "$CONFIG_SOUND_OSS" = "y" -o "$CONFIG_SOUND_OSS" = "m" ]; then
-@@ -164,8 +167,6 @@
-    dep_tristate '    Yamaha FM synthesizer (YM3812/OPL-3) support' CONFIG_SOUND_YM3812 $CONFIG_SOUND_OSS
-    dep_tristate '    Yamaha OPL3-SA1 audio controller' CONFIG_SOUND_OPL3SA1 $CONFIG_SOUND_OSS
-    dep_tristate '    Yamaha OPL3-SA2 and SA3 based PnP cards' CONFIG_SOUND_OPL3SA2 $CONFIG_SOUND_OSS
--   dep_tristate '    Yamaha YMF7xx PCI audio (native mode)' CONFIG_SOUND_YMFPCI $CONFIG_SOUND_OSS $CONFIG_PCI
--   dep_mbool '      Yamaha PCI legacy ports support' CONFIG_SOUND_YMFPCI_LEGACY $CONFIG_SOUND_YMFPCI
-    dep_tristate '    6850 UART support' CONFIG_SOUND_UART6850 $CONFIG_SOUND_OSS
-   
-    dep_tristate '    Gallant Audio Cards (SC-6000 and SC-6600 based)' CONFIG_SOUND_AEDSP16 $CONFIG_SOUND_OSS
-
---------------010305000002050805070208
-Content-Type: text/plain;
- name="sound-2.5.5-pre1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sound-2.5.5-pre1.patch"
-
---- linux-2.5.4/sound/oss/Config.in	Thu Feb 14 11:00:32 2002
-+++ linux-2.5.5/sound/oss/Config.in	Thu Feb 14 11:01:46 2002
-@@ -103,6 +103,9 @@
- dep_tristate '  VIA 82C686 Audio Codec' CONFIG_SOUND_VIA82CXXX $CONFIG_PCI
- dep_mbool    '  VIA 82C686 MIDI' CONFIG_MIDI_VIA82CXXX $CONFIG_SOUND_VIA82CXXX
- 
-+dep_tristate '  Yamaha YMF7xx PCI audio (native mode)' CONFIG_SOUND_YMFPCI $CONFIG_PCI
-+dep_mbool '    Yamaha PCI legacy ports support' CONFIG_SOUND_YMFPCI_LEGACY $CONFIG_SOUND_YMFPCI
-+
- dep_tristate '  OSS sound modules' CONFIG_SOUND_OSS $CONFIG_SOUND
- 
- if [ "$CONFIG_SOUND_OSS" = "y" -o "$CONFIG_SOUND_OSS" = "m" ]; then
-@@ -164,8 +167,6 @@
-    dep_tristate '    Yamaha FM synthesizer (YM3812/OPL-3) support' CONFIG_SOUND_YM3812 $CONFIG_SOUND_OSS
-    dep_tristate '    Yamaha OPL3-SA1 audio controller' CONFIG_SOUND_OPL3SA1 $CONFIG_SOUND_OSS
-    dep_tristate '    Yamaha OPL3-SA2 and SA3 based PnP cards' CONFIG_SOUND_OPL3SA2 $CONFIG_SOUND_OSS
--   dep_tristate '    Yamaha YMF7xx PCI audio (native mode)' CONFIG_SOUND_YMFPCI $CONFIG_SOUND_OSS $CONFIG_PCI
--   dep_mbool '      Yamaha PCI legacy ports support' CONFIG_SOUND_YMFPCI_LEGACY $CONFIG_SOUND_YMFPCI
-    dep_tristate '    6850 UART support' CONFIG_SOUND_UART6850 $CONFIG_SOUND_OSS
-   
-    dep_tristate '    Gallant Audio Cards (SC-6000 and SC-6600 based)' CONFIG_SOUND_AEDSP16 $CONFIG_SOUND_OSS
-
---------------010305000002050805070208--
 

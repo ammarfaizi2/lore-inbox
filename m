@@ -1,75 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbUJZLKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbUJZLN2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262230AbUJZLKx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 07:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUJZLKx
+	id S262227AbUJZLN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 07:13:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbUJZLN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 07:10:53 -0400
-Received: from [213.188.213.77] ([213.188.213.77]:32959 "EHLO
-	server1.navynet.it") by vger.kernel.org with ESMTP id S262230AbUJZLKL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 07:10:11 -0400
-From: "Massimo Cetra" <mcetra@navynet.it>
-To: "'Ed Tomlinson'" <edt@aei.ca>,
-       "'Chuck Ebbert'" <76306.1226@compuserve.com>
-Cc: "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: My thoughts on the "new development model"
-Date: Tue, 26 Oct 2004 13:09:59 +0200
-Message-ID: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>
+	Tue, 26 Oct 2004 07:13:28 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:46286 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262227AbUJZLMn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 07:12:43 -0400
+Date: Tue, 26 Oct 2004 13:12:03 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: "H. Peter Anvin" <hpa@zytor.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Erik Andersen <andersen@codepoet.org>, uclibc@uclibc.org
+Subject: Re: The naming wars continue...
+In-Reply-To: <200410261032.34133.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.GSO.4.61.0410261311160.19019@waterleaf.sonytel.be>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
+ <20041025232654.GC30574@thundrix.ch> <clkrak$rtl$1@terminus.zytor.com>
+ <200410261032.34133.vda@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <200410260644.47307.edt@aei.ca>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tuesday 26 October 2004 01:40, Chuck Ebbert wrote:
-> > Bill Davidsen wrote:
+On Tue, 26 Oct 2004, Denis Vlasenko wrote:
+> On Tuesday 26 October 2004 09:37, H. Peter Anvin wrote:
+> > Followup to:  <20041025232654.GC30574@thundrix.ch>
+> > By author:    Tonnerre <tonnerre@thundrix.ch>
+> > In newsgroup: linux.dev.kernel
+> > > On Sun, Oct 24, 2004 at 03:33:33PM +0200, Helge Hafting wrote:
+> > > > Yes - lets stick to fewer numbers.  They can count faster, instead
+> > > > of having a long string of them.  I hope linux doesn't
+> > > > end up like X. "X11R6.8.1" The "X" itself is a counter, although
+> > > > it is understandable if it never increments to "Y".  But
+> > > > that "11" doesn't change much, and then there are three more numbers. :-/
+> > > X11  is the  name of  the  protocol: the  X Protocol,  version 11,  as
+> > > released by the MIT. There was an X10.
 > > 
-> > > I don't see the need for a development kernel, and it is 
-> desirable 
-> > > to be
-> > > able to run kernel.org kernels.
+> > There also were a W, and and X1, X2, ... X11.
 > > 
-> >   Problem is, kernel.org 'release' kernels are quite buggy.  For 
-> > example 2.6.9 has a long list of bugs:
-> >
-> >   Sure, the next release will (may?) fix these bugs, but it will 
-> > definitely add a whole set of new ones.
+> > However, there is a tendency for numbers to get stuck (witness Linux
+> > 2.x).  In particular, X11R6 got encoded in many places including
+> > pathnames for no good reason.  Under the pre-R6 naming schemes we'd
+> > had R7 a long time ago.
 > 
+> How true.
 
-> To my mind this just points out the need for a bug fix 
-> branch.   e.g. a
-> branch containing just bug/security fixes against the current 
-> stable kernel.  It might also be worth keeping the branch 
-> active for the n-1 stable kernel too.
+> This should be removed.
+> 
+> cd /usr/lib; ln -s /usr/X11R6/* .
+> 	or
+> echo /usr/X11R6/lib >>/etc/ld.so.conf
+> 
+> are the better ways to handle this
+> (I use first one)
 
-To my mind, we only need to make clear that a stable kernel is a stable
-kernel.
-Not a kernel for experiments.
+/usr/{bin,lib/X11 have been version-free symlinks since ages...
 
-To my mind, stock 2.6 kernels are nice for nerds trying patches and
-willing to recompile their kernel once a day. They are not suitable for
-servers. Several times on testing machines, switching from a 2.6 to the
-next one has caused bugs on PCI, acpi, networking and so on.
+Gr{oetje,eeting}s,
 
-The direction is lost. How many patchsets for vanilla kernel exist? 
+						Geert
 
-Someone has decided that linux must go on desktops as well and
-developing new magnificent features for desktop users is causing serious
-problems to the ones who use linux at work on production servers.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-2.4 tree is still the best solution for production.
-2.6 tree is great for gentoo users who like gcc consuming all CPU
-(maxumum respect to gentoo but I prefer debian)
-
-Massimo Cetra
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,74 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283862AbRLABRt>; Fri, 30 Nov 2001 20:17:49 -0500
+	id <S283863AbRLABRJ>; Fri, 30 Nov 2001 20:17:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283865AbRLABRp>; Fri, 30 Nov 2001 20:17:45 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:3334 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S283862AbRLABRS>;
-	Fri, 30 Nov 2001 20:17:18 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Henning Schmiedehausen <hps@intermeta.de>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Larry McVoy <lm@bitmover.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue 
-In-Reply-To: Your message of "30 Nov 2001 18:15:28 BST."
-             <1007140529.6655.37.camel@forge> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 01 Dec 2001 12:17:03 +1100
-Message-ID: <10605.1007169423@ocs3.intra.ocs.com.au>
+	id <S283862AbRLABRA>; Fri, 30 Nov 2001 20:17:00 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:45264 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S283866AbRLABQl>;
+	Fri, 30 Nov 2001 20:16:41 -0500
+Message-ID: <3C082F1D.60503@lnxw.com>
+Date: Fri, 30 Nov 2001 17:15:09 -0800
+From: Petko Manolov <pmanolov@Lnxw.COM>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011130
+X-Accept-Language: en, bg
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
+        Larry McVoy <lm@bitmover.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <Pine.LNX.4.33.0111301643170.1224-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Nov 2001 18:15:28 +0100, 
-Henning Schmiedehausen <hps@intermeta.de> wrote:
->Are you willing to judge "ugliness" of kernel drivers? What is ugly?
->... Is the aic7xxx driver ugly because it needs libdb ? ...
+:-)) This made my day..  May be my week. :-))
 
-Yes, and no, mainly yes.  Requiring libdb, lex and yacc to to generate
-the firmware is not ugly, user space programs can use any tools that
-the developer needs.  I have no opinion either way about the driver
-code, from what I can tell aic7xxx is a decent SCSI driver, once it is
-built.
+100% agree (better not play gods) and i think this is the end of
+the discussion.
 
-What is ugly in aic7xxx is :-
 
-* Kludging BSD makefile style into aix7ccc/aicasm/Makefile.  It is not
-  compatible with the linux kernel makefile style.
+		Petko
 
-* Using a manual flag (CONFIG_AIC7XXX_BUILD_FIRMWARE) instead of
-  automatically detecting when the firmware needs to be rebuilt.  Users
-  who set that flag by mistake but do not have libdb, lex and yacc
-  cannot compile a kernel.
 
-* Not checking that the db.h file it picked will actually compile and
-  link.
+Linus Torvalds wrote:
 
-* Butchering the modules_install rule to add a special case for aic7xxx
-  instead of using the same method that every other module uses.
+> On Fri, 30 Nov 2001, Rik van Riel wrote:
+> 
+>>I'm very interested too, though I'll have to agree with Larry
+>>that Linux really isn't going anywhere in particular and seems
+>>to be making progress through sheer luck.
+>>
+> 
+> Hey, that's not a bug, that's a FEATURE!
+> 
+> You know what the most complex piece of engineering known to man in the
+> whole solar system is?
+> 
+> Guess what - it's not Linux, it's not Solaris, and it's not your car.
+> 
+> It's you. And me.
+> 
+> And think about how you and me actually came about - not through any
+> complex design.
+> 
+> Right. "sheer luck".
+> 
+> Well, sheer luck, AND:
+>  - free availability and _crosspollination_ through sharing of "source
+>    code", although biologists call it DNA.
+>  - a rather unforgiving user environment, that happily replaces bad
+>    versions of us with better working versions and thus culls the herd
+>    (biologists often call this "survival of the fittest")
+>  - massive undirected parallel development ("trial and error")
+> 
+> I'm deadly serious: we humans have _never_ been able to replicate
+> something more complicated than what we ourselves are, yet natural
+> selection did it without even thinking.
+> 
+> Don't underestimate the power of survival of the fittest.
+> 
+> And don't EVER make the mistake that you can design something better than
+> what you get from ruthless massively parallel trial-and-error with a
+> feedback cycle. That's giving your intelligence _much_ too much credit.
+> 
+> Quite frankly, Sun is doomed. And it has nothing to do with their
+> engineering practices or their coding style.
+> 
+> 		Linus
 
-* Including endian.h in the aic7xxx driver, but endian.h is a user
-  space include.  Code that is linked into the kernel or a module
-  MUST NOT include user space headers.
 
-* Not correctly defining the dependencies between generated headers and
-  the code that includes those headers.  Generated headers require
-  explicit dependencies, the only reason it works is because aic7xxx ...
-
-* Ships generated files and overwrites them under the same name.
-  Shipping generated files is bad enough but is sometime necessary when
-  the end user might not have the tools to build the files (libdb, lex,
-  yacc).  Overwriting the shipped files under the same name is asking
-  for problem with source repositories and generating spurious diffs.
-
-All of the above problems are caused by a developer who insists on
-doing his own makefile style instead of following the kernel standards
-for makefiles.  Developers with their own standards are BAD!
-
-BTW, I have made repeated offers to rewrite the aic7xx makefiles for
-2.4 but the aic7xxx maintainer refuses to do so.  I _will_ rewrite them
-in 2.5, as part of the kernel build 2.5 redesign.
-
-Keith Owens, kernel build maintainer.
 

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267650AbTA3XVf>; Thu, 30 Jan 2003 18:21:35 -0500
+	id <S267633AbTA3XZv>; Thu, 30 Jan 2003 18:25:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267651AbTA3XVf>; Thu, 30 Jan 2003 18:21:35 -0500
-Received: from postal2.lbl.gov ([131.243.248.26]:62666 "EHLO postal2.lbl.gov")
-	by vger.kernel.org with ESMTP id <S267650AbTA3XVe>;
-	Thu, 30 Jan 2003 18:21:34 -0500
-Message-ID: <3E39B5AC.6090605@lbl.gov>
-Date: Thu, 30 Jan 2003 15:30:52 -0800
-From: Thomas Davis <tadavis@lbl.gov>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021017
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin K. Petersen" <mkp@mkp.net>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre4
-References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>	<3E384D41.9080605@lbl.gov>	<1043926998.28133.21.camel@irongate.swansea.linux.org.uk>	<3E395C30.6040903@lbl.gov>	<1043950661.31674.12.camel@irongate.swansea.linux.org.uk>	<3E396032.2000503@lbl.gov>	<1043951291.31674.17.camel@irongate.swansea.linux.org.uk>	<3E39669F.20302@lbl.gov>	<1043955332.31674.27.camel@irongate.swansea.linux.org.uk>	<3E39730D.3090009@lbl.gov> <yq1vg06qlhk.fsf@austin.mkp.net>
-In-Reply-To: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267651AbTA3XZv>; Thu, 30 Jan 2003 18:25:51 -0500
+Received: from [195.208.223.237] ([195.208.223.237]:5504 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S267633AbTA3XZu>; Thu, 30 Jan 2003 18:25:50 -0500
+Date: Fri, 31 Jan 2003 02:34:19 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: David Brownell <david-b@pacbell.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Anton Blanchard <anton@samba.org>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: pci_set_mwi() ... why isn't it used more?
+Message-ID: <20030131023419.A652@localhost.park.msu.ru>
+References: <3E2C42DF.1010006@pacbell.net> <20030120190055.GA4940@gtf.org> <3E2C4FFA.1050603@pacbell.net> <20030130135215.GF6028@krispykreme> <3E3951E3.7060806@pacbell.net> <20030130195944.A4966@jurassic.park.msu.ru> <3E39706D.6080400@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3E39706D.6080400@pacbell.net>; from david-b@pacbell.net on Thu, Jan 30, 2003 at 10:35:25AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin K. Petersen wrote:
+On Thu, Jan 30, 2003 at 10:35:25AM -0800, David Brownell wrote:
+> I think the first answer is better, but it looks like 2.5.59 will
+> set the pci cache line size to 16 bytes not 128 bytes in that case.
 
-> >>>>>"Thomas" == Thomas Davis  writes:
->
->
-> Thomas,
->
-> Alan is right.  I have yet to see an FM801 with the AC97 codec
-> on the chip.
->
-> Thomas> How do I get the name in there other than "Unknown"?
->
-> Thomas> It's a single chip card.
->
-> What kind of card is it?  Are you sure there isn't a tiny codec chip
-> hiding somewhere?
->
+Yes, and it looks dangerous as the device would transfer incomplete
+cache lines with MWI...
 
-We will find out in a few hours - it's at home, not here at work.
+> Another option would be to do like SPARC64 and set the cacheline
+> sizes as part of DMA enable (which is what I'd first thought of).
+> And have the breakage test in the ARCH_PCI_MWI code -- something
+> that sparc64 doesn't do, fwiw.
 
-thomas
+Actually I think there is nothing wrong if we'll try to be a bit
+more aggressive with MWI and move all of this into generic
+pci_set_master().
+To do it safely, we need
+- kind of "broken_mwi" field in the struct pci_dev for buggy devices,
+  it can be set either by PCI quirks or by driver before pci_set_master()
+  call;
+- arch-specific pci_cache_line_size() function/macro (instead of
+  SMP_CACHE_BYTES) that returns either actual CPU cache line size
+  or other safe value (including 0, which means "don't enable MWI");
+- check that the device does support desired cache line size, i.e.
+  read back the value that we've written into the PCI_CACHE_LINE_SIZE
+  register and if it's zero (or dev->broken_mwi == 1) don't enable MWI.
 
+Thoughts?
+
+Ivan.

@@ -1,113 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271277AbUJVMkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269105AbUJVMyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271277AbUJVMkV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 08:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271267AbUJVMdm
+	id S269105AbUJVMyw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 08:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270958AbUJVMyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 08:33:42 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:23985 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S271274AbUJVM0j
+	Fri, 22 Oct 2004 08:54:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38288 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S271260AbUJVMus
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 08:26:39 -0400
-Date: Fri, 22 Oct 2004 14:26:25 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 5/6] s390: qdio changes.
-Message-ID: <20041022122625.GF3720@mschwid3.boeblingen.de.ibm.com>
+	Fri, 22 Oct 2004 08:50:48 -0400
+Date: Thu, 21 Oct 2004 21:40:40 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Mark Lord <lkml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.28-pre4-bk6] delkin_cb: new driver for Cardbus IDE CF adaptor
+Message-ID: <20041021234040.GA23511@logos.cnet>
+References: <41780393.3000606@rtr.ca> <58cb370e041021121317083a3a@mail.gmail.com> <41781B13.3030803@rtr.ca> <58cb370e041021134269c05f17@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <58cb370e041021134269c05f17@mail.gmail.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 5/6] s390: qdio changes.
+On Thu, Oct 21, 2004 at 10:42:18PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> On Thu, 21 Oct 2004 16:24:51 -0400, Mark Lord <lkml@rtr.ca> wrote:
+> > Okay, patch withdrawn.
+> > 
+> > I'll just apply it to my own kernels for my own use.
+> 
+> Just port it to 2.6.x...
+> 
+> > Whatever happended to the days when Linux *wanted* more
+> > drivers and such?
+> 
+> New drivers are still welcomed... but days of applying
+> new drivers without any complaints are long gone... ;-)
+> 
+> Now speaking seriously:
+> * 2.4.x is deprecated (sorry, Marcelo ;)
 
-From: Utz Bacher <utz.bacher@de.ibm.com>
+Buaaaahhh...
 
-qdio changes:
- - Rename iqdio_is_inbound_q_done to tiqdio_is_inbound_q_done to
-   keep function naming consistent.
- - Allocate qdio structures below 2GB.
+Hehe.
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+People still use 2.4 because they are not prepared (for whatever reason) 
+to or do not want a v2.6 upgrade, but yes, I agree it is deprecated.
 
-diffstat:
- drivers/s390/cio/qdio.c |   16 ++++++++--------
- 1 files changed, 8 insertions(+), 8 deletions(-)
+> * this driver shouldn't require much work to port it to 2.6.x
 
-diff -urN linux-2.6/drivers/s390/cio/qdio.c linux-2.6-patched/drivers/s390/cio/qdio.c
---- linux-2.6/drivers/s390/cio/qdio.c	2004-10-18 23:54:37.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/cio/qdio.c	2004-10-22 13:51:45.000000000 +0200
-@@ -56,7 +56,7 @@
- #include "ioasm.h"
- #include "chsc.h"
- 
--#define VERSION_QDIO_C "$Revision: 1.86 $"
-+#define VERSION_QDIO_C "$Revision: 1.88 $"
- 
- /****************** MODULE PARAMETER VARIABLES ********************/
- MODULE_AUTHOR("Utz Bacher <utz.bacher@de.ibm.com>");
-@@ -808,7 +808,7 @@
- #endif /* QDIO_USE_PROCESSING_STATE */
- 		/* 
- 		 * not needed, as the inbound queue will be synced on the next
--		 * siga-r
-+		 * siga-r, resp. tiqdio_is_inbound_q_done will do the siga-s
- 		 */
- 		/*SYNC_MEMORY;*/
- 		f++;
-@@ -899,7 +899,7 @@
- 
- /* means, no more buffers to be filled */
- inline static int
--iqdio_is_inbound_q_done(struct qdio_q *q)
-+tiqdio_is_inbound_q_done(struct qdio_q *q)
- {
- 	int no_used;
- #ifdef CONFIG_QDIO_DEBUG
-@@ -1139,7 +1139,7 @@
- 		goto out;
- 
- 	qdio_kick_inbound_handler(q);
--	if (iqdio_is_inbound_q_done(q))
-+	if (tiqdio_is_inbound_q_done(q))
- 		if (!qdio_stop_polling(q)) {
- 			/* 
- 			 * we set the flags to get into the stuff next time,
-@@ -1401,7 +1401,7 @@
- 	int result=-ENOMEM;
- 
- 	for (i=0;i<no_input_qs;i++) {
--		q=kmalloc(sizeof(struct qdio_q),GFP_KERNEL);
-+		q=kmalloc(sizeof(struct qdio_q),GFP_KERNEL|GFP_DMA);
- 
- 		if (!q) {
- 			QDIO_PRINT_ERR("kmalloc of q failed!\n");
-@@ -1410,7 +1410,7 @@
- 
- 		memset(q,0,sizeof(struct qdio_q));
- 
--		q->slib=kmalloc(PAGE_SIZE,GFP_KERNEL);
-+		q->slib=kmalloc(PAGE_SIZE,GFP_KERNEL|GFP_DMA);
- 		if (!q->slib) {
- 			QDIO_PRINT_ERR("kmalloc of slib failed!\n");
- 			goto out;
-@@ -1420,7 +1420,7 @@
- 	}
- 
- 	for (i=0;i<no_output_qs;i++) {
--		q=kmalloc(sizeof(struct qdio_q),GFP_KERNEL);
-+		q=kmalloc(sizeof(struct qdio_q),GFP_KERNEL|GFP_DMA);
- 
- 		if (!q) {
- 			goto out;
-@@ -1428,7 +1428,7 @@
- 
- 		memset(q,0,sizeof(struct qdio_q));
- 
--		q->slib=kmalloc(PAGE_SIZE,GFP_KERNEL);
-+		q->slib=kmalloc(PAGE_SIZE,GFP_KERNEL|GFP_DMA);
- 		if (!q->slib) {
- 			QDIO_PRINT_ERR("kmalloc of slib failed!\n");
- 			goto out;
+As I said before in my opinion drivers in new v2.4.x releases for 
+new devices are OK as long as they meet a decent coding and quality 
+standard and are well tested.
+And, very importantly, benefit a substantial amount of users. 
+
+Having the driver in v2.6 first is pretty much required. 
+It has the chance of being put under test, as well as 
+passing Linus/Andrew "level of acceptance", plus reviewing 
+from other people which is always good.
+
+Mark, v2.4.28 is approaching -rc stage (-rc1 should be out tomorrow), 
+we can include the driver during v2.4.29-pre.
+
+In the meantime you can port it to v2.6 ?
+
+> * ide_unregister() is disallowed, unless IDE locking is fixed
+
+
+
+

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267326AbTACAG4>; Thu, 2 Jan 2003 19:06:56 -0500
+	id <S267331AbTACAFa>; Thu, 2 Jan 2003 19:05:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267333AbTACAG4>; Thu, 2 Jan 2003 19:06:56 -0500
-Received: from smtp09.iddeo.es ([62.81.186.19]:54701 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id <S267326AbTACAGz>;
-	Thu, 2 Jan 2003 19:06:55 -0500
-Date: Fri, 3 Jan 2003 01:15:22 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: __NR_exit_group for 2.4-O(1)
-Message-ID: <20030103001522.GA1539@werewolf.able.es>
+	id <S267333AbTACAF3>; Thu, 2 Jan 2003 19:05:29 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16266
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267331AbTACAF2>; Thu, 2 Jan 2003 19:05:28 -0500
+Subject: Re: [PATCH] TCP Zero Copy for mmapped files
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: lm@bitmover.com, tom@rhadamanthys.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030102.151600.129375771.davem@redhat.com>
+References: <20030102221210.GA7704@window.dhis.org>
+	<20030102222816.GF2461@work.bitmover.com>
+	<1041549644.24829.66.camel@irongate.swansea.linux.org.uk> 
+	<20030102.151600.129375771.davem@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Jan 2003 00:56:59 +0000
+Message-Id: <1041555419.24901.86.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+On Thu, 2003-01-02 at 23:16, David S. Miller wrote:    
+>    It depends how predictable your content is. With a 64bit box and a porn
+>    server its probably quite tidy
+>    
+> Let's say you have infinite VM (which is what 64-bit almost is :) then
+> the cost is setting up all of these useless VMAs for each and every
+> file (which is a 1 time cost, ok), and also the VMA lookup each
+> write() call.
+> 
+> With sendfile() all of this goes straight to the page cache directly
+> without a VMA lookup.
 
-I am running glibc-2.3.1 on top of a hacked 2.4.21-pre2+aa, and all programs
-show a curious message at exit when straced:
+With a nasty unpleasant splat the moment you do modification on the
+content at all. For static objects sendfile is certainly superior,
 
-strace ls:
-...
-SYS_252(0, 0x1000, 0x156ad360, 0x156ae824, 0) = -1 ENOSYS (Function not implemented)
-_exit(0)                                = ?
-
-252 is __NR_exit_group. I can not recover anything about this on MARC, is there
-any pointer to that for 2.4 ? Is it in -ac kernels ?
-
-BTW: I remember to see some posts about this, but _how_ can I make the search
-engine in MARC to do _not_ convert underscores to spaces ("exit_group" ->
-"exit group", and results not be half the posts in LKML) ???
-
-TIA
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.21-pre2-jam2 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-2mdk))

@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267972AbUGaQxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267975AbUGaQzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267972AbUGaQxU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 12:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267971AbUGaQxU
+	id S267975AbUGaQzR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 12:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267973AbUGaQzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 12:53:20 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:19460 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S267972AbUGaQxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 12:53:18 -0400
-Subject: Re: [Patch] Per kthread freezer flags (Version 2)
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: ncunningham@linuxmail.org
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091143537.2703.61.camel@desktop.cunninghams>
-References: <1090999301.8316.12.camel@laptop.cunninghams>
-	 <20040729190438.GA468@openzaurus.ucw.cz>
-	 <1091139864.2703.24.camel@desktop.cunninghams>
-	 <20040729224422.GG18623@elf.ucw.cz>
-	 <1091143537.2703.61.camel@desktop.cunninghams>
-Content-Type: text/plain
-Date: Sat, 31 Jul 2004 18:53:01 +0200
-Message-Id: <1091292781.1810.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 (1.5.91-1) 
-Content-Transfer-Encoding: 7bit
+	Sat, 31 Jul 2004 12:55:17 -0400
+Received: from zero.aec.at ([193.170.194.10]:49420 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S267971AbUGaQzK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 12:55:10 -0400
+To: "Walker, Bruce J" <bruce.walker@hp.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
+References: <2o4AV-18E-27@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 31 Jul 2004 18:54:53 +0200
+In-Reply-To: <2o4AV-18E-27@gated-at.bofh.it> (Bruce J. Walker's message of
+ "Sat, 31 Jul 2004 18:10:09 +0200")
+Message-ID: <m3zn5g2k2q.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-30 at 09:25 +1000, Nigel Cunningham wrote:
-> Okay.. how does this look?
-> 
-> I applied your changes and fixed a couple of typos I noticed. I also
-> added support for the hcvs thread, which is new since rc1-mm1. (This is
-> against rc2-mm1).
+"Walker, Bruce J" <bruce.walker@hp.com> writes:
+> leveraging devfs was quite economic, efficient and has been very stable.
+> I'm not sure who you mean by "that's what WE want".  If you mean the
+> current worldwide users of OpenSSI on 2.4, they are a very happy group
+> with a kick-ass clustering capability.
 
-I'm still suffering from the NIC-won't-come-out-from-S3 (I need to
-unplug my CardBus NIC, then plug it again after resuming from S3) when
-applying this patch against 2.6.8-rc2-mm1... I'll keep reverting every
-hunk of the patch till I find the culprit.
+[...]
+
+Do you have plans to contribute any pieces of it to the main kernel? 
+
+-Andi
 

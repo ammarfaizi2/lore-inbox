@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269398AbUI3UG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269481AbUI3UK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269398AbUI3UG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 16:06:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269474AbUI3UGr
+	id S269481AbUI3UK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 16:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269488AbUI3UK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 16:06:47 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:9583 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S269477AbUI3UGF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 16:06:05 -0400
-Subject: Re: Serial driver hangs
-From: Paul Fulghum <paulkf@microgate.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Roland =?ISO-8859-1?Q?Ca=DFebohm?= 
-	<roland.cassebohm@VisionSystems.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040930205922.F5892@flint.arm.linux.org.uk>
-References: <200409281734.38781.roland.cassebohm@visionsystems.de>
-	 <200409291607.07493.roland.cassebohm@visionsystems.de>
-	 <1096467951.1964.22.camel@deimos.microgate.com>
-	 <200409301816.44649.roland.cassebohm@visionsystems.de>
-	 <1096571398.1938.112.camel@deimos.microgate.com>
-	 <1096569273.19487.46.camel@localhost.localdomain>
-	 <1096573912.1938.136.camel@deimos.microgate.com>
-	 <20040930205922.F5892@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1096574739.1938.142.camel@deimos.microgate.com>
+	Thu, 30 Sep 2004 16:10:56 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60861 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269481AbUI3UJO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 16:09:14 -0400
+Date: Thu, 30 Sep 2004 13:09:02 -0700
+From: Greg KH <greg@kroah.com>
+To: Andi Kleen <ak@suse.de>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix improper use of pci_module_init() in drivers/char/agp/amd64-agp.c
+Message-ID: <20040930200902.GA18271@kroah.com>
+References: <20040930184248.GA17546@kroah.com> <20040930192008.GA28315@wotan.suse.de> <20040930195905.GA18162@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 30 Sep 2004 15:05:39 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040930195905.GA18162@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-30 at 14:59, Russell King wrote:
-> On Thu, Sep 30, 2004 at 02:51:52PM -0500, Paul Fulghum wrote:
-> > On Thu, 2004-09-30 at 13:34, Alan Cox wrote:
-> > > This is strictly forbidden and always has been. I've no
-> > > plan to touch that restriction merely to re-educate 
-> > > any offender
+On Thu, Sep 30, 2004 at 12:59:05PM -0700, Greg KH wrote:
+> > The idea is to run it as fallback when no devices are found. 
 > > 
-> > Any offender in this case is most serial drivers,
-> > including the 8520/serial driver in current 2.6
+> > How about this patch?
 > 
-> which in turn also means the bug exists in 2.4...
+> That does not work the way you are asking it to work.  pci_module_init()
+> is just a replacement for pci_register_driver these days.  It will
+> return either "0" if the driver is successfully registered, or a
+> negative value if something bad happened.  It will not return the number
+> of devices that this driver bound to.
+> 
+> So, if no devices are in the system, it will return 0, and again, the
+> code you are wanting to run, will not.
+> 
+> So, how about using the new pci_dev_present() call instead?  That should
+> be what you want, right?
 
-Yes, it is also in serial.c of 2.4
+Something like this perhaps?  (warning, not even compile tested...)
 
-My statement of 'most drivers' is wrong.
-I should have said 'some drivers'
-including 2.4 serial.c and the 8250/serial of 2.6
+greg k-h
 
--- 
-Paul Fulghum
-paulkf@microgate.com
-
+===== amd64-agp.c 1.33 vs edited =====
+--- 1.33/drivers/char/agp/amd64-agp.c	2004-09-30 13:00:52 -07:00
++++ edited/amd64-agp.c	2004-09-30 13:07:07 -07:00
+@@ -627,8 +627,15 @@
+ 	int err = 0;
+ 	if (agp_off)
+ 		return -EINVAL;
+-	if (pci_module_init(&agp_amd64_pci_driver) > 0) {
++	if (pci_dev_present(agp_amd_pci_table))
++		return pci_register_driver(&agp_amd64_pci_driver);
++	else {
+ 		struct pci_dev *dev;
++		static struct pci_device_id amd64NB[] = {
++			{ PCI_DEVICE(PCI_VENDOR_ID_AMD, 0x1103) },
++			{ },
++		};
++
+ 		if (!agp_try_unsupported && !agp_try_unsupported_boot) {
+ 			printk(KERN_INFO PFX "No supported AGP bridge found.\n");
+ #ifdef MODULE
+@@ -640,13 +647,13 @@
+ 		}
+ 
+ 		/* First check that we have at least one AMD64 NB */
+-		if (!pci_find_device(PCI_VENDOR_ID_AMD, 0x1103, NULL))
++		if (!pci_dev_present(amd64NB))
+ 			return -ENODEV;
+ 
+ 		/* Look for any AGP bridge */
+ 		dev = NULL;
+ 		err = -ENODEV;
+-		while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev))) {
++		while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev))) {
+ 			if (!pci_find_capability(dev, PCI_CAP_ID_AGP))
+ 				continue;
+ 			/* Only one bridge supported right now */

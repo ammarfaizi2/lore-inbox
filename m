@@ -1,985 +1,712 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVADTbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbVADTem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbVADTbR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 14:31:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVADTbQ
+	id S261850AbVADTem (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 14:34:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVADTel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 14:31:16 -0500
-Received: from mail16c2.megamailservers.com ([216.251.41.136]:49375 "EHLO
-	mail16c2") by vger.kernel.org with ESMTP id S261815AbVADTDP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 14:03:15 -0500
+	Tue, 4 Jan 2005 14:34:41 -0500
+Received: from mail262.megamailservers.com ([216.251.41.82]:10681 "EHLO
+	mail262.megamailservers.com") by vger.kernel.org with ESMTP
+	id S261812AbVADTDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 14:03:06 -0500
 X-Authenticated-User: jiri.gaisler.com
-Message-ID: <41DAE8A3.5050507@gaisler.com>
-Date: Tue, 04 Jan 2005 20:04:03 +0100
+Message-ID: <41DAE89A.6060009@gaisler.com>
+Date: Tue, 04 Jan 2005 20:03:54 +0100
 From: Jiri Gaisler <jiri@gaisler.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
 X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
 To: sparclinux@vger.kernel.org
 CC: linux-kernel@vger.kernel.org, wli@holomorphy.com
-Subject: [2/7] LEON SPARC V8 processor support for linux-2.6.10
+Subject: [1/7] LEON SPARC V8 processor support for linux-2.6.10
 Content-Type: multipart/mixed;
- boundary="------------050104090608080304020203"
+ boundary="------------070308010002030608040901"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------050104090608080304020203
+--------------070308010002030608040901
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 linux-2.6.10: Kernel patches:
 
-[2/7] diff2.6.10_arch_sparc.diff:         diff for arch/sparc
+[1/7] diff2.6.10_include_asm_sparc.diff:  diff for include/asm-sparc
 
---------------050104090608080304020203
+--------------070308010002030608040901
 Content-Type: text/plain;
- name="diff2.6.10_arch_sparc.diff"
+ name="diff2.6.10_include_asm_sparc.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="diff2.6.10_arch_sparc.diff"
+ filename="diff2.6.10_include_asm_sparc.diff"
 
-diff -Naur ../linux-2.6.10/arch/sparc/Kconfig linux-2.6.10/arch/sparc/Kconfig
---- ../linux-2.6.10/arch/sparc/Kconfig	2004-12-24 22:33:47.000000000 +0100
-+++ linux-2.6.10/arch/sparc/Kconfig	2005-01-03 17:58:06.000000000 +0100
-@@ -223,6 +223,25 @@
- 	  a kernel compiled with this option will run only on sun4.
- 	  (And the current version will probably work only on sun4/330.)
- 
-+config LEON
-+	bool "Running on SoC 'Leon', the open source sparc VHDL model"
-+	help
-+	  Say Y here if you want to run linux on the Leon System-on-a-Chip
-+	  platform. For information go to www.gaisler.com. Download the VHDL 
-+	  source and use the instruction level Leon sparc-simulator "tsim" which 
-+	  is free for private use. 
-+
-+if LEON
-+
-+config LEON_3
-+	bool "Running on grlib's Leon3 "
-+	help
-+	  Say Y here if you are running on a Leon3 from grlib
-+	  (download from www.gaisler.com). 
-+
-+endif
-+
-+          
- if !SUN4
- 
- config PCI
-diff -Naur ../linux-2.6.10/arch/sparc/kernel/Makefile linux-2.6.10/arch/sparc/kernel/Makefile
---- ../linux-2.6.10/arch/sparc/kernel/Makefile	2004-12-24 22:35:27.000000000 +0100
-+++ linux-2.6.10/arch/sparc/kernel/Makefile	2005-01-03 11:36:33.000000000 +0100
-@@ -6,7 +6,7 @@
- 
- EXTRA_AFLAGS	:= -ansi
- 
--IRQ_OBJS := irq.o sun4m_irq.o sun4c_irq.o sun4d_irq.o
-+IRQ_OBJS := irq.o sun4m_irq.o sun4c_irq.o sun4d_irq.o leon_irq.o
- obj-y    := entry.o wof.o wuf.o etrap.o rtrap.o traps.o $(IRQ_OBJS) \
- 	    process.o signal.o ioport.o setup.o idprom.o \
- 	    sys_sparc.o sunos_asm.o systbls.o \
-diff -Naur ../linux-2.6.10/arch/sparc/kernel/auxio.c linux-2.6.10/arch/sparc/kernel/auxio.c
---- ../linux-2.6.10/arch/sparc/kernel/auxio.c	2004-12-24 22:35:23.000000000 +0100
-+++ linux-2.6.10/arch/sparc/kernel/auxio.c	2005-01-03 11:36:33.000000000 +0100
-@@ -29,6 +29,7 @@
- 	switch (sparc_cpu_model) {
- 	case sun4d:
- 	case sun4:
-+	case sparc_leon:
- 		return;
- 	default:
- 		break;
-diff -Naur ../linux-2.6.10/arch/sparc/kernel/cpu.c linux-2.6.10/arch/sparc/kernel/cpu.c
---- ../linux-2.6.10/arch/sparc/kernel/cpu.c	2004-12-24 22:35:25.000000000 +0100
-+++ linux-2.6.10/arch/sparc/kernel/cpu.c	2005-01-03 11:36:33.000000000 +0100
-@@ -73,6 +73,9 @@
-   { 5, 6, "reserved"},
-   { 5, 7, "No FPU"},
-   { 9, 3, "Fujitsu or Weitek on-chip FPU"},
-+  /* Leon */
-+  { 0xf, 0, "Meiko FPU"},
-+  { 0xf, 1, "GRFPU"},
- };
- 
- #define NSPARCFPU  (sizeof(linux_sparc_fpu)/sizeof(struct cpu_fp_info))
-@@ -117,7 +120,9 @@
-   { 0xc, 0, "UNKNOWN CPU-VENDOR/TYPE"},
-   { 0xd, 0, "UNKNOWN CPU-VENDOR/TYPE"},
-   { 0xe, 0, "UNKNOWN CPU-VENDOR/TYPE"},
--  { 0xf, 0, "UNKNOWN CPU-VENDOR/TYPE"},
-+  /* Leon */
-+  { 0xf, 2, "Gaisler Research - Leon2 SoC"},
-+  { 0xf, 3, "Gaisler Research - Leon3 SoC"},
- };
- 
- #define NSPARCCHIPS  (sizeof(linux_sparc_chips)/sizeof(struct cpu_iu_info))
-@@ -134,10 +139,14 @@
- 
- 	psr_impl = ((get_psr()>>28)&0xf);
- 	psr_vers = ((get_psr()>>24)&0xf);
-+#ifdef CONFIG_LEON
-+	psr_impl = 0xf;	/* hardcoded ids for older models/simulators */
-+	psr_vers = 2;
-+#endif
- 
- 	psr = get_psr();
- 	put_psr(psr | PSR_EF);
--	fpu_vers = ((get_fsr()>>17)&0x7);
-+	fpu_vers = (get_psr() & PSR_EF) ? ((get_fsr()>>17)&0x7) : 7;
- 	put_psr(psr);
- 
- 	for(i = 0; i<NSPARCCHIPS; i++) {
-diff -Naur ../linux-2.6.10/arch/sparc/kernel/head.S linux-2.6.10/arch/sparc/kernel/head.S
---- ../linux-2.6.10/arch/sparc/kernel/head.S	2004-12-24 22:34:26.000000000 +0100
-+++ linux-2.6.10/arch/sparc/kernel/head.S	2005-01-03 11:36:33.000000000 +0100
-@@ -835,6 +835,8 @@
- 
- 		cmp	%l1, ' '
- 		be	1f
-+		 cmp	%l1, '2'		! leon2 or compatible
-+		be	1f
- 		 cmp	%l1, 'c'
- 		be	1f
- 		 cmp	%l1, 'm'
-@@ -857,6 +859,8 @@
- 		be	sun4m_init
- 		 cmp	%l1, 'd'		! Let us see how the beast will die
- 		be	sun4d_init
-+		 cmp	%l1, '2'		! leon2 or compatible
-+		be	sun4c_continue_boot
- 		 nop
- 
- 		/* Jump into mmu context zero. */
-diff -Naur ../linux-2.6.10/arch/sparc/kernel/idprom.c linux-2.6.10/arch/sparc/kernel/idprom.c
---- ../linux-2.6.10/arch/sparc/kernel/idprom.c	2004-12-24 22:34:26.000000000 +0100
-+++ linux-2.6.10/arch/sparc/kernel/idprom.c	2005-01-03 11:36:33.000000000 +0100
-@@ -31,6 +31,8 @@
- { "Sun 4/200 Series", (SM_SUN4 | SM_4_260) },
- { "Sun 4/300 Series", (SM_SUN4 | SM_4_330) },
- { "Sun 4/400 Series", (SM_SUN4 | SM_4_470) },
-+/* Now Leon */
-+{ "Leon2 System-on-a-Chip", (M_LEON2 | M_LEON2_SOC) },
- /* Now, Sun4c's */
- { "Sun4c SparcStation 1", (SM_SUN4C | SM_4C_SS1) },
- { "Sun4c SparcStation IPC", (SM_SUN4C | SM_4C_IPC) },
-diff -Naur ../linux-2.6.10/arch/sparc/kernel/irq.c linux-2.6.10/arch/sparc/kernel/irq.c
---- ../linux-2.6.10/arch/sparc/kernel/irq.c	2004-12-24 22:33:50.000000000 +0100
-+++ linux-2.6.10/arch/sparc/kernel/irq.c	2005-01-03 11:36:33.000000000 +0100
-@@ -579,6 +579,7 @@
- 	extern void sun4c_init_IRQ( void );
- 	extern void sun4m_init_IRQ( void );
- 	extern void sun4d_init_IRQ( void );
-+	extern void leon_init_IRQ(void);
- 
- 	switch(sparc_cpu_model) {
- 	case sun4c:
-@@ -586,6 +587,10 @@
- 		sun4c_init_IRQ();
- 		break;
- 
-+	case sparc_leon:
-+		leon_init_IRQ();
-+		break;
-+
- 	case sun4m:
- #ifdef CONFIG_PCI
- 		pcic_probe();
-diff -Naur ../linux-2.6.10/arch/sparc/kernel/leon_irq.c linux-2.6.10/arch/sparc/kernel/leon_irq.c
---- ../linux-2.6.10/arch/sparc/kernel/leon_irq.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.10/arch/sparc/kernel/leon_irq.c	2005-01-03 15:54:16.000000000 +0100
-@@ -0,0 +1,223 @@
+diff -Naur ../linux-2.6.10/include/asm-sparc/amba.h linux-2.6.10/include/asm-sparc/amba.h
+--- ../linux-2.6.10/include/asm-sparc/amba.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.10/include/asm-sparc/amba.h	2005-01-03 16:44:05.000000000 +0100
+@@ -0,0 +1,193 @@
 +/* 
-+ * irq handling for Leon2/3
++ * Copyright (C) 2004 Konrad Eisele (eiselekd@web.de), Gaisler Research
++ */
++
++#ifndef _LEON3_AMBA_H__
++#define _LEON3_AMBA_H__
++
++/*
++ *  AMBA Plag & Play Bus Driver Macros
++ *
++ *  Macros used for AMBA Plug & Play bus scanning
++ *
++ *  COPYRIGHT (c) 2004.
++ *  Gaisler Research
++ *
++ *  The license and distribution terms for this file may be
++ *  found in the file LICENSE in this distribution or at
++ *  http://www.rtems.com/license/LICENSE.
++ *
++ */
++
++
++#define LEON3_IO_AREA 0xfff00000
++#define LEON3_CONF_AREA 0xff000
++#define LEON3_AHB_SLAVE_CONF_AREA (1 << 11)
++
++#define LEON3_AHB_CONF_WORDS 8
++#define LEON3_APB_CONF_WORDS 2
++#define LEON3_AHB_MASTERS 8
++#define LEON3_AHB_SLAVES 8
++#define LEON3_APB_SLAVES 16
++#define LEON3_APBUARTS 8
++
++/* Vendor codes */ 
++#define VENDOR_GAISLER   1
++#define VENDOR_PENDER    2
++#define VENDOR_ESA       4 
++#define VENDOR_OPENCORES 8 
++
++/* Gaisler Research device id's */
++#define GAISLER_LEON3    0x003
++#define GAISLER_LEON3DSU 0x004
++#define GAISLER_ETHAHB   0x005
++#define GAISLER_APBMST   0x006
++#define GAISLER_AHBUART  0x007
++#define GAISLER_SRCTRL   0x008
++#define GAISLER_SDCTRL   0x009
++#define GAISLER_APBUART  0x00C
++#define GAISLER_IRQMP    0x00D
++#define GAISLER_AHBRAM   0x00E
++#define GAISLER_GPTIMER  0x011
++#define GAISLER_PCITRG   0x012
++#define GAISLER_PCISBRG  0x013
++#define GAISLER_PCIFBRG  0x014
++#define GAISLER_PCITRACE 0x015
++#define GAISLER_PCIDMA   0x016
++#define GAISLER_AHBTRACE 0x017
++#define GAISLER_ETHDSU   0x018
++   
++#define GAISLER_L2TIME   0xffd /* internal device: leon2 timer */
++#define GAISLER_L2C      0xffe /* internal device: leon2compat */
++#define GAISLER_PLUGPLAY 0xfff /* internal device: plug & play configarea */
++
++
++#ifndef __ASSEMBLER__
++
++extern inline char *gaisler_device_str(int id) {
++  switch(id) {
++  case GAISLER_LEON3:    return "GAISLER_LEON3";
++  case GAISLER_LEON3DSU: return "GAISLER_LEON3DSU";
++  case GAISLER_ETHAHB:   return "GAISLER_ETHAHB";
++  case GAISLER_APBMST:   return "GAISLER_APBMST";
++  case GAISLER_AHBUART:  return "GAISLER_AHBUART";
++  case GAISLER_SRCTRL:   return "GAISLER_SRCTRL";  
++  case GAISLER_SDCTRL:   return "GAISLER_SDCTRL"; 
++  case GAISLER_APBUART:  return "GAISLER_APBUART"; 
++  case GAISLER_IRQMP:    return "GAISLER_IRQMP"; 
++  case GAISLER_AHBRAM:   return "GAISLER_AHBRAM"; 
++  case GAISLER_GPTIMER:  return "GAISLER_GPTIMER";
++  case GAISLER_PCITRG:   return "GAISLER_PCITRG"; 
++  case GAISLER_PCISBRG:  return "GAISLER_PCISBRG"; 
++  case GAISLER_PCIFBRG:  return "GAISLER_PCIFBRG"; 
++  case GAISLER_PCITRACE: return "GAISLER_PCITRACE"; 
++  case GAISLER_AHBTRACE: return "GAISLER_AHBTRACE";
++  case GAISLER_ETHDSU:   return "GAISLER_ETHDSU";
++ 
++  case GAISLER_L2TIME:   return "GAISLER_L2TIME";
++  case GAISLER_L2C:      return "GAISLER_L2C";
++  case GAISLER_PLUGPLAY: return "GAISLER_PLUGPLAY";
++    
++  default: break;
++  }
++  return 0;
++}
++
++#endif
++
++/* European Space Agency device id's */
++#define ESA_LEON2        0x2 
++#define ESA_MCTRL        0xF 
++
++
++#ifndef __ASSEMBLER__
++
++extern inline char *esa_device_str(int id) {
++  switch(id) {
++  case ESA_LEON2:  return "ESA_LEON2";
++  case ESA_MCTRL:  return "ESA_MCTRL";
++  default: break;
++  }
++  return 0;
++}
++
++#endif
++
++/* Opencores device id's */
++#define OPENCORES_PCIBR  0x4  
++#define OPENCORES_ETHMAC 0x5
++
++
++#ifndef __ASSEMBLER__
++
++extern inline char *opencores_device_str(int id) {
++  switch(id) {
++  case OPENCORES_PCIBR:  return "OPENCORES_PCIBR";
++  case OPENCORES_ETHMAC:  return "OPENCORES_ETHMAC";
++  default: break;
++  }
++  return 0;
++}
++
++extern inline char *device_id2str(int vendor, int id) {
++  switch(vendor) {
++  case VENDOR_GAISLER:    return gaisler_device_str(id);
++  case VENDOR_ESA:        return esa_device_str(id);
++  case VENDOR_OPENCORES:  return opencores_device_str(id);
++  case VENDOR_PENDER:
++  default: break;
++  }
++  return 0;
++}
++
++extern inline char *vendor_id2str(int vendor) {
++  switch(vendor) {
++  case VENDOR_GAISLER:    return "VENDOR_GAISLER";
++  case VENDOR_ESA:        return "VENDOR_ESA";
++  case VENDOR_OPENCORES:  return "VENDOR_OPENCORES";
++  case VENDOR_PENDER:     return "VENDOR_PENDER";
++  default: break;
++  }
++  return 0;
++}
++
++#endif
++
++/* Vendor codes */ 
++
++
++
++/* 
++ *
++ * Macros for manipulating Configuration registers  
++ *
++ */
++
++#define LEON3_BYPASS_LOAD_PA(x)	(leon_load_reg ((unsigned long)(x)))
++#define LEON3_BYPASS_STORE_PA(x,v) (leon_store_reg ((unsigned long)(x),(unsigned long)(v)))
++
++#define amba_get_confword(tab, index, word) (LEON3_BYPASS_LOAD_PA((tab).addr[(index)]+(word)))
++
++#define amba_vendor(x) (((x) >> 24) & 0xff)
++
++#define amba_device(x) (((x) >> 12) & 0xfff)
++
++#define amba_ahb_get_membar(tab, index, nr) (LEON3_BYPASS_LOAD_PA((tab).addr[(index)]+4+(nr)))
++
++#define amba_apb_get_membar(tab, index) (LEON3_BYPASS_LOAD_PA((tab).addr[(index)]+1))
++
++#define amba_membar_start(mbar) (((mbar) & 0xfff00000) & (((mbar) & 0xfff0) << 16))
++
++#define amba_iobar_start(base, iobar) ((base) | ((((iobar) & 0xfff00000)>>12) & (((iobar) & 0xfff0)<<4)) )
++
++#define amba_irq(conf) ((conf) & 0xf)
++
++#define amba_membar_type(mbar) ((mbar) & 0xf)
++
++#define AMBA_TYPE_APBIO 0x1
++#define AMBA_TYPE_MEM   0x2
++#define AMBA_TYPE_AHBIO 0x3
++
++#define AMBA_TYPE_AHBIO_ADDR(addr) (LEON3_IO_AREA | ((addr) >> 12))
++#endif
++
+diff -Naur ../linux-2.6.10/include/asm-sparc/asi.h linux-2.6.10/include/asm-sparc/asi.h
+--- ../linux-2.6.10/include/asm-sparc/asi.h	2004-12-24 22:34:44.000000000 +0100
++++ linux-2.6.10/include/asm-sparc/asi.h	2005-01-03 11:36:34.000000000 +0100
+@@ -108,4 +108,10 @@
+ 
+ #define ASI_M_ACTION       0x4c   /* Breakpoint Action Register (GNU/Viking) */
+ 
++/* FIXME: non-standard Leon ASI definition */
++#ifdef CONFIG_LEON
++#undef ASI_M_MMUREGS
++#define ASI_M_MMUREGS		0x19
++#endif /* CONFIG_LEON */
++
+ #endif /* _SPARC_ASI_H */
+diff -Naur ../linux-2.6.10/include/asm-sparc/leon.h linux-2.6.10/include/asm-sparc/leon.h
+--- ../linux-2.6.10/include/asm-sparc/leon.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.10/include/asm-sparc/leon.h	2005-01-03 16:43:22.000000000 +0100
+@@ -0,0 +1,270 @@
++/* 
 + * Copyright (C) 2004 Konrad Eisele (eiselekd@web.de), Gaisler Research
 + * Copyright (C) 2004 Stefan Holst (mail@s-holst.de), Uni-Stuttgart
 + */
 +
++#ifndef LEON_H_INCLUDE
++#define LEON_H_INCLUDE
++
++#if defined(CONFIG_LEON) || defined(CONFIG_LEON_3)
++
 +#include <linux/config.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/interrupt.h>
-+#include <linux/signal.h>
-+#include <linux/sched.h>
-+#include <linux/init.h>
-+#include <linux/irq.h>
-+#include <asm/pgtsrmmu.h>
-+#include <asm/leon.h>
-+#include <asm/sbus.h> /* for struct sbus_bus, warning suppress */
-+#include <asm/timer.h>
++#include <asm/vaddrs.h>
 +
-+/* scaled down to timer to 1Mhz, used in sparc/kernel/leon_irq.c */
-+#define CLOCK_TIMER_SCALAR 25
++/* memory mapped leon control registers */
++#define LEON_PREGS	0x80000000
++#define LEON_MCFG1	0x00
++#define LEON_MCFG2	0x04
++#define LEON_ECTRL	0x08
++#define LEON_FADDR	0x0c
++#define LEON_MSTAT	0x10
++#define LEON_CCTRL	0x14
++#define LEON_PWDOWN	0x18
++#define LEON_WPROT1	0x1C
++#define LEON_WPROT2	0x20
++#define LEON_LCONF	0x24
++#define LEON_TCNT0	0x40
++#define LEON_TRLD0	0x44
++#define LEON_TCTRL0	0x48
++#define LEON_TCNT1	0x50
++#define LEON_TRLD1	0x54
++#define LEON_TCTRL1	0x58
++#define LEON_SCNT	0x60
++#define LEON_SRLD	0x64
++#define LEON_UART0	0x70
++#define LEON_UDATA0	0x70
++#define LEON_USTAT0	0x74
++#define LEON_UCTRL0	0x78
++#define LEON_USCAL0	0x7c
++#define LEON_UART1	0x80
++#define LEON_UDATA1	0x80
++#define LEON_USTAT1	0x84
++#define LEON_UCTRL1	0x88
++#define LEON_USCAL1	0x8c
++#define LEON_IMASK	0x90
++#define LEON_IPEND	0x94
++#define LEON_IFORCE	0x98
++#define LEON_ICLEAR	0x9c
++#define LEON_IOREG	0xA0
++#define LEON_IODIR	0xA4
++#define LEON_IOICONF	0xA8
++#define LEON_IPEND2	0xB0
++#define LEON_IMASK2	0xB4
++#define LEON_ISTAT2	0xB8
++#define LEON_ICLEAR2	0xBC
 +
-+#ifdef CONFIG_LEON_3
-+extern volatile LEON3_IrqCtrl_Regs_Map *LEON3_IrqCtrl_Regs; /* drivers/amba/amba.c:amba_init() */
-+extern volatile LEON3_GpTimer_Regs_Map *LEON3_GpTimer_Regs;
-+extern unsigned long LEON3_GpTimer_Irq; /* drivers/amba.c:amba_init() */
-+#undef LEON_IMASK
-+#define LEON_IMASK ((&LEON3_IrqCtrl_Regs ->mask[0]))
-+#endif
++#ifndef CONFIG_LEON_3 
 +
-+static inline unsigned long get_irqmask(unsigned int irq)
-+{
-+	unsigned long mask;
-+	if (!irq || irq > 0xf) {
-+		printk("leon_get_irqmask: false irq number\n");
-+		mask = 0;
-+	} else {
-+		mask = LEON_HARD_INT(irq);
-+	}
-+	return mask;
-+}
++/* ASI codes */
++#define ASI_LEON_PCI		0x04
++#define ASI_LEON_IFLUSH		0x05
++#define ASI_LEON_DFLUSH		0x06
++#define ASI_LEON_ITAG		0x0c
++#define ASI_LEON_IDATA		0x0d
++#define ASI_LEON_DTAG		0x0e
++#define ASI_LEON_DDATA		0x0f
++#define ASI_LEON_MMUFLUSH	0x18
++#define ASI_LEON_MMUREGS	0x19
++#define ASI_LEON_BYPASS		0x1c
++#define ASI_LEON_FLUSH_PAGE	0x10
++/*
++#define ASI_LEON_FLUSH_SEGMENT	0x11
++#define ASI_LEON_FLUSH_REGION	0x12
++*/
++#define ASI_LEON_FLUSH_CTX	0x13
++#define ASI_LEON_DCTX		0x14
++#define ASI_LEON_ICTX		0x15
++#define ASI_MMU_DIAG		0x1d
 +
-+void leon_disable_irq(unsigned int irq_nr)
-+{
-+	unsigned long mask, flags;
-+	mask = get_irqmask(irq_nr) & LEON_IRQMASK_R;
-+	save_and_cli(flags);
-+#ifdef CONFIG_LEON_3
-+	LEON3_BYPASS_STORE_PA(LEON_IMASK, (LEON3_BYPASS_LOAD_PA(LEON_IMASK) & ~(mask)));
 +#else
-+	LEON_REGSTORE_PA(LEON_IMASK, (LEON_REGLOAD_PA(LEON_IMASK) & ~(mask)));
-+#endif
-+	restore_flags(flags);
-+}
 +
-+void leon_enable_irq(unsigned int irq_nr)
-+{
-+	unsigned long mask, flags;
-+	mask = get_irqmask(irq_nr) & LEON_IRQMASK_R;
-+	save_and_cli(flags); 
-+#ifdef CONFIG_LEON_3
-+	LEON3_BYPASS_STORE_PA(LEON_IMASK, (LEON3_BYPASS_LOAD_PA(LEON_IMASK) | (mask)));
-+#else
-+	LEON_REGSTORE_PA(LEON_IMASK, (LEON_REGLOAD_PA(LEON_IMASK) | (mask)));
-+#endif
-+	restore_flags(flags);
-+}
++#define ASI_LEON_IFLUSH		0x10
++#define ASI_LEON_DFLUSH		0x11
 +
-+/* We assume the caller is local cli()'d when these are called, or else
-+ * very bizarre behavior will result. */
-+void leon_disable_pil_irq(unsigned int pil)
-+{
-+	unsigned long mask = get_irqmask(pil);
-+#ifdef CONFIG_LEON_3
-+	LEON3_BYPASS_STORE_PA(LEON_IMASK, LEON3_BYPASS_LOAD_PA(LEON_IMASK) & ~(mask));
-+#else
-+	LEON_REGSTORE_PA(LEON_IMASK, LEON_REGLOAD_PA(LEON_IMASK) & ~(mask));
-+#endif
-+}
++#define ASI_LEON_MMUFLUSH	0x18
++#define ASI_LEON_MMUREGS	0x19
++#define ASI_LEON_BYPASS		0x1c
++#define ASI_LEON_FLUSH_PAGE	0x10
 +
-+void leon_enable_pil_irq(unsigned int pil)
-+{
-+	unsigned long mask = get_irqmask(pil);
-+#ifdef CONFIG_LEON_3
-+	LEON3_BYPASS_STORE_PA(LEON_IMASK, LEON3_BYPASS_LOAD_PA(LEON_IMASK) | (mask));
-+#else
-+	LEON_REGSTORE_PA(LEON_IMASK, LEON_REGLOAD_PA(LEON_IMASK) | (mask));
-+#endif
-+}
++/*
++constant ASI_SYSR    : asi_type := "00010"; -- 0x02
++constant ASI_UINST   : asi_type := "01000"; -- 0x08
++constant ASI_SINST   : asi_type := "01001"; -- 0x09
++constant ASI_UDATA   : asi_type := "01010"; -- 0x0A
++constant ASI_SDATA   : asi_type := "01011"; -- 0x0B
++constant ASI_ITAG    : asi_type := "01100"; -- 0x0C
++constant ASI_IDATA   : asi_type := "01101"; -- 0x0D
++constant ASI_DTAG    : asi_type := "01110"; -- 0x0E
++constant ASI_DDATA   : asi_type := "01111"; -- 0x0F
++constant ASI_IFLUSH  : asi_type := "10000"; -- 0x10
++constant ASI_DFLUSH  : asi_type := "10001"; -- 0x11
 +
-+int leondebug_irq_disable;
-+int leon_debug_irqout;
-+static int dummy_master_l10_counter;
-+static int dummy_master_l10_limit;
++constant ASI_FLUSH_PAGE     : std_logic_vector(4 downto 0) := "10000";  -- 0x10 i/dcache flush page
++constant ASI_FLUSH_CTX      : std_logic_vector(4 downto 0) := "10011";  -- 0x13 i/dcache flush ctx
 +
++constant ASI_DCTX           : std_logic_vector(4 downto 0) := "10100";  -- 0x14 dcache ctx
++constant ASI_ICTX           : std_logic_vector(4 downto 0) := "10101";  -- 0x15 icache ctx
 +
-+
-+/* called by time_init():timer.c */
-+void __init leon_init_timers (irqreturn_t (*counter_fn)(int, void *, struct pt_regs *))
-+{
-+	int irq;
-+
-+	leondebug_irq_disable = 0;
-+	leon_debug_irqout = 0;
-+
-+#ifdef CONFIG_LEON_3
-+        if (LEON3_GpTimer_Regs && LEON3_IrqCtrl_Regs) {
-+          //regs -> timerctrl1 = 0;
-+          //regs -> timercnt1 = 0;
-+          //regs -> timerload1 = (((1000000/100) - 1));
-+          LEON3_BYPASS_STORE_PA(&LEON3_GpTimer_Regs ->e[0].val,0);
-+          LEON3_BYPASS_STORE_PA(&LEON3_GpTimer_Regs ->e[0].rld,(((1000000/100) - 1)));
-+          LEON3_BYPASS_STORE_PA(&LEON3_GpTimer_Regs ->e[0].ctrl,0);
-+        } else {
-+          while(1) printk("No Timer/irqctrl found\n");
-+        }
-+#else
-+	LEON_REGSTORE_PA(LEON_TCTRL0, 0);
-+	LEON_REGSTORE_PA(LEON_TCNT0, 0);
-+	LEON_REGSTORE_PA(LEON_TRLD0, (((1000000/HZ) - 1)));
++constant ASI_MMUFLUSHPROBE  : std_logic_vector(4 downto 0) := "11000";  -- 0x18 i/dtlb flush/(probe)
++constant ASI_MMUREGS        : std_logic_vector(4 downto 0) := "11001";  -- 0x19 mmu regs access
++constant ASI_MMU_BP         : std_logic_vector(4 downto 0) := "11100";  -- 0x1c mmu Bypass 
++constant ASI_MMU_DIAG       : std_logic_vector(4 downto 0) := "11101";  -- 0x1d mmu diagnostic 
++constant ASI_MMU_DSU        : std_logic_vector(4 downto 0) := "11111";  -- 0x1f mmu diagnostic 
++*/
 +#endif
 +
-+	printk("Todo: init master_l10_counter\r\n");
-+	master_l10_counter = &dummy_master_l10_counter;
-+	master_l10_limit = &dummy_master_l10_limit;
-+	dummy_master_l10_counter = 0;
-+	dummy_master_l10_limit = 0;
-+	
-+#ifdef CONFIG_LEON_3
-+	irq = request_irq(LEON3_GpTimer_Irq,
-+			  counter_fn,
-+			  (SA_INTERRUPT | SA_STATIC_ALLOC),
-+			  "timer", NULL);
-+#else
-+	irq = request_irq(LEON_INTERRUPT_TIMER1,
-+			  counter_fn,
-+			  (SA_INTERRUPT | SA_STATIC_ALLOC),
-+			  "timer", NULL);
-+#endif
++/* mmu register access, ASI_LEON_MMUREGS */
++#define LEON_CNR_CTRL		0x000
++#define LEON_CNR_CTXP		0x100
++#define LEON_CNR_CTX		0x200
++#define LEON_CNR_F		0x300
++#define LEON_CNR_FADDR		0x400
 +
-+	if (irq) {
-+		printk("leon_time_init: unable to attach IRQ%d\n",LEON_INTERRUPT_TIMER1);
-+		prom_halt();
-+	}	
++#define LEON_CNR_CTX_NCTX	256	/*number of MMU ctx*/
 +
-+#ifdef CONFIG_LEON_3
-+        LEON3_BYPASS_STORE_PA(&LEON3_GpTimer_Regs ->e[0].ctrl,
-+          LEON3_GPTIMER_EN |
-+          LEON3_GPTIMER_RL |
-+          LEON3_GPTIMER_LD |
-+          LEON3_GPTIMER_IRQEN);
-+#else
-+	/* enable, load reload into counter, set automatic reload */
-+	LEON_REGSTORE_PA(LEON_TCTRL0, 0x7);
-+#endif
-+}
++#define LEON_CNR_CTRL_TLBDIS	0x80000000
 +
-+void leon_clear_clock_irq(void)
-+{
-+}
++#define LEON_MMUTLB_ENT_MAX	64
 +
-+void leon_clear_profile_irq(int cpu)
-+{
-+	BUG();
-+}
++/*
++ * diagnostic access from mmutlb.vhd:
++ * 0: pte address
++ * 4: pte
++ * 8: additional flags
++ */
++#define LEON_DIAGF_LVL		0x3
++#define LEON_DIAGF_WR		0x8
++#define LEON_DIAGF_WR_SHIFT	3
++#define LEON_DIAGF_HIT		0x10
++#define LEON_DIAGF_HIT_SHIFT	4
++#define LEON_DIAGF_CTX		0x1fe0
++#define LEON_DIAGF_CTX_SHIFT	5
++#define LEON_DIAGF_VALID	0x2000
++#define LEON_DIAGF_VALID_SHIFT	13
 +
-+void leon_load_profile_irq(int cpu, unsigned int limit)
-+{
-+	BUG();
-+}
 +
-+unsigned int leon_sbint_to_irq(struct sbus_dev *sdev, unsigned int sbint)
-+{
-+	BUG();
-+	return 0;
-+}
++/*
++ *  Interrupt Sources
++ *
++ *  The interrupt source numbers directly map to the trap type and to 
++ *  the bits used in the Interrupt Clear, Interrupt Force, Interrupt Mask,
++ *  and the Interrupt Pending Registers.
++ */
++#define LEON_INTERRUPT_CORRECTABLE_MEMORY_ERROR	1
++#define LEON_INTERRUPT_UART_1_RX_TX		2
++#define LEON_INTERRUPT_UART_0_RX_TX		3
++#define LEON_INTERRUPT_EXTERNAL_0		4
++#define LEON_INTERRUPT_EXTERNAL_1		5
++#define LEON_INTERRUPT_EXTERNAL_2		6
++#define LEON_INTERRUPT_EXTERNAL_3		7
++#define LEON_INTERRUPT_TIMER1			8
++#define LEON_INTERRUPT_TIMER2			9
++#define LEON_INTERRUPT_EMPTY1			10
++#define LEON_INTERRUPT_EMPTY2			11
++#define LEON_INTERRUPT_OPEN_ETH			12
++#define LEON_INTERRUPT_EMPTY4			13
++#define LEON_INTERRUPT_EMPTY5			14
++#define LEON_INTERRUPT_EMPTY6			15
 +
-+static char *leon_irq_itoa(unsigned int irq)
-+{
-+	static char buff[16];
-+	sprintf(buff, "%d", irq);
-+	return buff;
-+}
++/* irq masks */
++#define LEON_HARD_INT(x)	(1 << (x)) /* irq 0-15 */
++#define LEON_IRQMASK_R		0x0000fffe /* bit 15- 1 of lregs.irqmask */
++#define LEON_IRQPRIO_R		0xfffe0000 /* bit 31-17 of lregs.irqmask */
 +
-+#ifdef CONFIG_SMP
-+static void leon_set_cpu_int(int cpu, int level)
-+{
-+	printk("Not implemented\n");
-+	BUG();
-+}
++/* leon uart register definitions */
++#define LEON_OFF_UDATA	0x0
++#define LEON_OFF_USTAT	0x4
++#define LEON_OFF_UCTRL	0x8
++#define LEON_OFF_USCAL	0xc
 +
-+static void leon_clear_ipi(int cpu, int level)
-+{
-+}
++#define LEON_UCTRL_RE	0x01
++#define LEON_UCTRL_TE	0x02
++#define LEON_UCTRL_RI	0x04
++#define LEON_UCTRL_TI	0x08
++#define LEON_UCTRL_PS	0x10
++#define LEON_UCTRL_PE	0x20
++#define LEON_UCTRL_FL	0x40
++#define LEON_UCTRL_LB	0x80
 +
-+static void leon_set_udt(int cpu)
-+{
-+}
-+#endif
++#define LEON_USTAT_DR	0x01
++#define LEON_USTAT_TS	0x02
++#define LEON_USTAT_TH	0x04
++#define LEON_USTAT_BR	0x08
++#define LEON_USTAT_OV	0x10
++#define LEON_USTAT_PE	0x20
++#define LEON_USTAT_FE	0x40
 +
-+void __init leon_init_IRQ(void)
-+{
-+	sparc_init_timers = leon_init_timers;
++#define LEON_MCFG2_SRAMDIS		0x00002000
++#define LEON_MCFG2_SDRAMEN		0x00004000
++#define LEON_MCFG2_SRAMBANKSZ		0x00001e00	/* [12-9] */
++#define LEON_MCFG2_SRAMBANKSZ_SHIFT	9
++#define LEON_MCFG2_SDRAMBANKSZ		0x03800000	/* [25-23] */
++#define LEON_MCFG2_SDRAMBANKSZ_SHIFT	23
 +
-+	BTFIXUPSET_CALL(sbint_to_irq, leon_sbint_to_irq, BTFIXUPCALL_NORM);
++#define LEON_TCNT0_MASK	0x7fffff
 +
-+	BTFIXUPSET_CALL(enable_irq, leon_enable_irq, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(disable_irq, leon_disable_irq, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(enable_pil_irq, leon_enable_irq, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(disable_pil_irq, leon_disable_irq, BTFIXUPCALL_NORM);
-+
-+	BTFIXUPSET_CALL(clear_clock_irq, leon_clear_clock_irq, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(clear_profile_irq, leon_clear_profile_irq, BTFIXUPCALL_NOP);
-+	BTFIXUPSET_CALL(load_profile_irq, leon_load_profile_irq, BTFIXUPCALL_NOP);
-+	BTFIXUPSET_CALL(__irq_itoa, leon_irq_itoa, BTFIXUPCALL_NORM);
-+
-+#ifdef CONFIG_SMP
-+	BTFIXUPSET_CALL(set_cpu_int, leon_set_cpu_int, BTFIXUPCALL_NOP);
-+	BTFIXUPSET_CALL(clear_cpu_int, leon_clear_ipi, BTFIXUPCALL_NOP);
-+	BTFIXUPSET_CALL(set_irq_udt, leon_set_udt, BTFIXUPCALL_NOP);
-+#endif
-+
-+}
-diff -Naur ../linux-2.6.10/arch/sparc/kernel/setup.c linux-2.6.10/arch/sparc/kernel/setup.c
---- ../linux-2.6.10/arch/sparc/kernel/setup.c	2004-12-24 22:33:49.000000000 +0100
-+++ linux-2.6.10/arch/sparc/kernel/setup.c	2005-01-03 16:33:28.000000000 +0100
-@@ -257,6 +257,13 @@
- 	int i;
- 	unsigned long highest_paddr;
- 
-+#ifdef CONFIG_LEON_3
-+	amba_init();
-+#ifdef CONFIG_GRLIB_GAISLER_APBUART
-+	console_print_LEON("Booting Linux\n");
-+#endif
-+#endif
-+
- 	sparc_ttable = (struct tt_entry *) &start;
- 
- 	/* Initialize PROM console and command line. */
-@@ -272,6 +279,7 @@
- 	if(!strcmp(&cputypval,"sun4d")) { sparc_cpu_model=sun4d; }
- 	if(!strcmp(&cputypval,"sun4e")) { sparc_cpu_model=sun4e; }
- 	if(!strcmp(&cputypval,"sun4u")) { sparc_cpu_model=sun4u; }
-+	if(!strcmp(&cputypval,"leon2")) { sparc_cpu_model=sparc_leon; }
- 
- #ifdef CONFIG_SUN4
- 	if (sparc_cpu_model != sun4) {
-@@ -279,6 +287,13 @@
- 		prom_halt();
- 	}
- #endif
-+#if defined(CONFIG_LEON) || defined(CONFIG_LEON_3)
-+	/* FIXME: psr ids, asi codes, min nocache pages */
-+	if (sparc_cpu_model != sparc_leon) {
-+		prom_printf("This kernel is for Leon architecture only.\n");
-+		prom_halt();
-+	}
-+#endif
- 	printk("ARCH: ");
- 	switch(sparc_cpu_model) {
- 	case sun4:
-@@ -299,6 +314,9 @@
- 	case sun4u:
- 		printk("SUN4U\n");
- 		break;
-+	case sparc_leon:
-+		printk("LEON\n");
-+		break;
- 	default:
- 		printk("UNKNOWN!\n");
- 		break;
-@@ -309,6 +327,10 @@
- #elif defined(CONFIG_PROM_CONSOLE)
- 	conswitchp = &prom_con;
- #endif
-+#ifdef CONFIG_LEON_3
-+        amba_prinf_config(); 
-+#endif
-+
- 	boot_flags_init(*cmdline_p);
- 
- 	idprom_init();
-diff -Naur ../linux-2.6.10/arch/sparc/kernel/time.c linux-2.6.10/arch/sparc/kernel/time.c
---- ../linux-2.6.10/arch/sparc/kernel/time.c	2004-12-24 22:35:50.000000000 +0100
-+++ linux-2.6.10/arch/sparc/kernel/time.c	2005-01-03 16:21:54.000000000 +0100
-@@ -43,6 +43,7 @@
- #include <asm/sun4paddr.h>
- #include <asm/page.h>
- #include <asm/pcic.h>
-+#include <asm/leon.h>
- 
- extern unsigned long wall_jiffies;
- 
-@@ -300,6 +301,9 @@
- 	case sun4d:
- 		node = prom_getchild(bootbus = prom_searchsiblings(prom_getchild(cpuunit = prom_searchsiblings(node, "cpu-unit")), "bootbus"));
- 		break;
-+	case sparc_leon:
-+		node = 0;
-+		return;
- 	default:
- 		prom_printf("CLOCK: Unsupported architecture!\n");
- 		prom_halt();
-@@ -384,6 +388,11 @@
- 		clock_probe();
- 
- 	sparc_init_timers(timer_interrupt);
-+
-+	if (sparc_cpu_model == sparc_leon) {
-+		local_irq_enable();
-+		return;
-+	}
- 	
- #ifdef CONFIG_SUN4
- 	if(idprom->id_machtype == (SM_SUN4 | SM_4_330)) {
-@@ -458,8 +467,25 @@
- 	sbus_time_init();
- }
- 
-+#ifdef CONFIG_LEON_3
-+extern volatile LEON3_IrqCtrl_Regs_Map *LEON3_IrqCtrl_Regs; /* drivers/amba/amba.c:amba_init() */
-+extern volatile LEON3_GpTimer_Regs_Map *LEON3_GpTimer_Regs;
-+extern unsigned long LEON3_GpTimer_Irq; /* drivers/amba.c:amba_init() */
-+#endif
-+
- extern __inline__ unsigned long do_gettimeoffset(void)
- {
-+	if (sparc_cpu_model == sparc_leon)
-+#if defined(CONFIG_LEON) || defined(CONFIG_LEON_3)
-+#ifdef CONFIG_LEON_3
-+		return ((LEON_REGLOAD_PA(&LEON3_GpTimer_Regs ->e[0].rld)&LEON_TCNT0_MASK) - 
-+			(LEON_REGLOAD_PA(&LEON3_GpTimer_Regs ->e[0].val)&LEON_TCNT0_MASK)) >> 2;
-+#else
-+		return ((LEON_REGLOAD_PA(LEON_TRLD0)&LEON_TCNT0_MASK) - 
-+			(LEON_REGLOAD_PA(LEON_TCNT0)&LEON_TCNT0_MASK)) >> 2;
-+#endif
-+#endif
-+
- 	return (*master_l10_counter >> 10) & 0x1fffff;
- }
- 
-diff -Naur ../linux-2.6.10/arch/sparc/kernel/traps.c linux-2.6.10/arch/sparc/kernel/traps.c
---- ../linux-2.6.10/arch/sparc/kernel/traps.c	2004-12-24 22:34:49.000000000 +0100
-+++ linux-2.6.10/arch/sparc/kernel/traps.c	2005-01-03 16:32:30.000000000 +0100
-@@ -26,6 +26,9 @@
- #include <asm/kdebug.h>
- #include <asm/unistd.h>
- #include <asm/traps.h>
-+#if defined(CONFIG_LEON) || defined(CONFIG_LEON_3)
-+#include <asm/leon.h>
-+#endif
- 
- /* #define TRAP_DEBUG */
- 
-diff -Naur ../linux-2.6.10/arch/sparc/mm/Makefile linux-2.6.10/arch/sparc/mm/Makefile
---- ../linux-2.6.10/arch/sparc/mm/Makefile	2004-12-24 22:35:01.000000000 +0100
-+++ linux-2.6.10/arch/sparc/mm/Makefile	2005-01-03 11:36:33.000000000 +0100
-@@ -21,3 +21,7 @@
- else
- obj-y   += sun4c.o
- endif
-+
-+ifdef CONFIG_LEON
-+obj-y   += leon.o
-+endif
-diff -Naur ../linux-2.6.10/arch/sparc/mm/init.c linux-2.6.10/arch/sparc/mm/init.c
---- ../linux-2.6.10/arch/sparc/mm/init.c	2004-12-24 22:34:32.000000000 +0100
-+++ linux-2.6.10/arch/sparc/mm/init.c	2005-01-03 16:04:37.000000000 +0100
-@@ -32,6 +32,7 @@
- #include <asm/vaddrs.h>
- #include <asm/pgalloc.h>	/* bug in asm-generic/tlb.h: check_pgt_cache */
- #include <asm/tlb.h>
-+#include <asm/leon.h>
- 
- DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
- 
-@@ -324,6 +325,7 @@
- 		break;
- 	case sun4m:
- 	case sun4d:
-+	case sparc_leon:
- 		srmmu_paging_init();
- 		sparc_unmapped_base = 0x50000000;
- 		BTFIXUPSET_SETHI(sparc_unmapped_base, 0x50000000);
-@@ -335,6 +337,19 @@
- 		prom_halt();
- 	};
- 
++#define LEON_USTAT_ERROR (LEON_USTAT_OV|LEON_USTAT_PE|LEON_USTAT_FE) /*no break yet*/
 +
 +#ifdef CONFIG_OPEN_ETH
-+	if (sparc_cpu_model == sparc_leon) {
-+		/* until driver/net/open_eth.c is rewritten to access ethermac core's
-+		* registers with asi BYPASS, using sun's DVMA_VADDR range */
-+		void srmmu_allocate_ptable_skeleton(unsigned long start, unsigned long end);
-+		
-+		srmmu_allocate_ptable_skeleton(DVMA_VADDR, DVMA_END);
-+		sparc_mapiorange (0,0xb0000000,LEON_VA_ETHERMAC, PAGE_SIZE);
-+
-+	}
++#define LEON_ETH_BASE_ADD ((unsigned long)LEON_VA_ETHERMAC)
++/* map leon on ethermac adress space at pa 0xb0000000 */
++#define LEON_VA_ETHERMAC     DVMA_VADDR 
 +#endif
 +
- 	/* Initialize the protection map with non-constant, MMU dependent values. */
- 	protection_map[0] = PAGE_NONE;
- 	protection_map[1] = PAGE_READONLY;
-diff -Naur ../linux-2.6.10/arch/sparc/mm/leon.c linux-2.6.10/arch/sparc/mm/leon.c
---- ../linux-2.6.10/arch/sparc/mm/leon.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.10/arch/sparc/mm/leon.c	2005-01-03 15:48:15.000000000 +0100
-@@ -0,0 +1,168 @@
-+/* 
-+ * do srmmu probe in software
-+ * Copyright (C) 2004 Konrad Eisele (eiselekd@web.de), Gaisler Research 
-+ */
++#ifndef __ASSEMBLY__
 + 
-+#include <linux/config.h>
-+#include <linux/mm.h>
-+#include <asm/asi.h>
-+#include <asm/leon.h>
-+
-+#define PFN(x) ((x) >> PAGE_SHIFT)
-+extern unsigned long last_valid_pfn;
-+
-+/* max_mapnr not initialized yet */
-+#define _pfn_valid(pfn)	((pfn < last_valid_pfn) && (pfn >= PFN(phys_base)))
-+
-+int srmmu_swprobe_trace = 0;
-+unsigned long srmmu_swprobe(unsigned long vaddr, unsigned long *paddr) {
-+      
-+  unsigned long ctxtbl;
-+  unsigned long pgd,pmd,ped;
-+  unsigned long ptr;
-+  unsigned long lvl, pte, paddrbase;
-+  unsigned long ctx;
-+  unsigned long paddr_calc;
-+  
-+  paddrbase = 0;
-+  
-+  if (srmmu_swprobe_trace) {
-+    printk("swprobe: trace on\n");
-+  }
-+    
-+  if (!(ctxtbl = srmmu_get_ctable_ptr())) {
-+    if (srmmu_swprobe_trace) {
-+      printk("swprobe: srmmu_get_ctable_ptr returned 0=>0\n");
-+    }
-+    return 0;
-+  }
-+  if (!_pfn_valid(PFN(ctxtbl))) {
-+    if (srmmu_swprobe_trace) {
-+      printk("swprobe: !_pfn_valid(%x)=>0\n",PFN(ctxtbl));
-+    }
-+    return 0;
-+  }
-+  
-+  ctx = srmmu_get_context();
-+  if (srmmu_swprobe_trace) {
-+    printk("swprobe:  --- ctx (%x) ---\n",ctx);
-+  }
-+      
-+  pgd = LEON_BYPASS_LOAD_PA(ctxtbl+(ctx*4));
-+  
-+  if (((pgd&SRMMU_ET_MASK) == SRMMU_ET_PTE)) {
-+    if (srmmu_swprobe_trace) {
-+      printk("swprobe: pgd is entry level 3\n",pgd);
-+    }
-+    lvl = 3;
-+    pte = pgd;
-+    paddrbase = pgd & SRMMU_PTE_PMASK;
-+    goto ready;
-+  }
-+  if (((pgd&SRMMU_ET_MASK) != SRMMU_ET_PTD)) {
-+    if (srmmu_swprobe_trace) {
-+      printk("swprobe: pgd is invalid => 0\n",pgd);
-+    }
-+    return 0;
-+  }
-+
-+  if (srmmu_swprobe_trace) {
-+    printk("swprobe:  --- pgd (%x) ---\n",pgd);
-+  }
-+  
-+  ptr = (pgd & SRMMU_PTD_PMASK) << 4;  
-+  ptr += (((vaddr & 0xff000000)>>24)*4);
-+  if (!_pfn_valid(PFN(ptr))) {
-+    return 0;
-+  }
-+  
-+  pmd = LEON_BYPASS_LOAD_PA(ptr);
-+  if (((pmd&SRMMU_ET_MASK) == SRMMU_ET_PTE)) {
-+    if (srmmu_swprobe_trace) {
-+      printk("swprobe: pmd is entry level 2\n",pgd);
-+    }
-+    lvl = 2;    
-+    pte = pmd;
-+    paddrbase = pmd & SRMMU_PTE_PMASK;
-+    goto ready;
-+  }
-+  if (((pmd&SRMMU_ET_MASK) != SRMMU_ET_PTD)) {
-+    if (srmmu_swprobe_trace) {
-+      printk("swprobe: pmd is invalid => 0\n",pgd);
-+    }
-+    return 0;
-+  }
-+
-+  if (srmmu_swprobe_trace) {
-+    printk("swprobe:  --- pmd (%x) ---\n",pmd);
-+  }
-+  
-+  ptr = (pmd & SRMMU_PTD_PMASK) << 4;  
-+  ptr += (((vaddr & 0x00fc0000)>>18)*4);
-+  if (!_pfn_valid(PFN(ptr))){
-+    if (srmmu_swprobe_trace) {
-+      printk("swprobe: !_pfn_valid(%x)=>0\n",PFN(ptr));
-+    }
-+    return 0;
-+  }
-+  
-+  ped = LEON_BYPASS_LOAD_PA(ptr);
-+  
-+  if (((ped&SRMMU_ET_MASK) == SRMMU_ET_PTE)) {
-+    if (srmmu_swprobe_trace) {
-+      printk("swprobe: ped is entry level 1\n",pgd);
-+    }
-+    lvl = 1;    
-+    pte = ped;
-+    paddrbase = ped & SRMMU_PTE_PMASK;
-+    goto ready;
-+  }
-+  if (((ped&SRMMU_ET_MASK) != SRMMU_ET_PTD)) {
-+    if (srmmu_swprobe_trace) {
-+      printk("swprobe: ped is invalid => 0\n",pgd);
-+    }
-+    return 0;
-+  }
-+
-+  if (srmmu_swprobe_trace) {
-+    printk("swprobe:  --- ped (%x) ---\n",ped);
-+  }
-+  
-+  ptr = (ped & SRMMU_PTD_PMASK) << 4;  
-+  ptr += (((vaddr & 0x0003f000)>>12)*4);
-+  if (!_pfn_valid(PFN(ptr)))
-+    return 0;
-+  
-+  ptr = LEON_BYPASS_LOAD_PA(ptr);
-+  if (((ptr&SRMMU_ET_MASK) == SRMMU_ET_PTE)) {
-+    if (srmmu_swprobe_trace) {
-+      printk("swprobe: ptr is entry level 0\n",pgd);
-+    }
-+    lvl = 0;
-+    pte = ptr;
-+    paddrbase = ptr & SRMMU_PTE_PMASK;
-+    goto ready;
-+  }
-+  if (srmmu_swprobe_trace) {
-+    printk("swprobe: ptr is invalid => 0\n",pgd);
-+  }
-+  return 0;      
-+  
-+ ready:
-+  switch (lvl) {
-+  case 0: paddr_calc = (vaddr & 0x00000fff) | ((pte&~0xff)<<4); break;
-+  case 1: paddr_calc = (vaddr & 0x0003ffff) | ((pte&~0xff)<<4); break;
-+  case 2: paddr_calc = (vaddr & 0x00ffffff) | ((pte&~0xff)<<4); break;
-+  default:
-+  case 3: paddr_calc =  vaddr; break;
-+  }
-+  if (srmmu_swprobe_trace) {
-+    printk("swprobe: padde %x\n",paddr_calc);
-+  }
-+  if (paddr) {
-+    *paddr = paddr_calc;
-+  }
-+  return paddrbase;
-+}
-+
-+
-diff -Naur ../linux-2.6.10/arch/sparc/mm/loadmmu.c linux-2.6.10/arch/sparc/mm/loadmmu.c
---- ../linux-2.6.10/arch/sparc/mm/loadmmu.c	2004-12-24 22:35:00.000000000 +0100
-+++ linux-2.6.10/arch/sparc/mm/loadmmu.c	2005-01-03 11:36:33.000000000 +0100
-@@ -36,6 +36,7 @@
- 		break;
- 	case sun4m:
- 	case sun4d:
-+	case sparc_leon:
- 		ld_mmu_srmmu();
- 		break;
- 	default:
-diff -Naur ../linux-2.6.10/arch/sparc/mm/srmmu.c linux-2.6.10/arch/sparc/mm/srmmu.c
---- ../linux-2.6.10/arch/sparc/mm/srmmu.c	2004-12-24 22:34:58.000000000 +0100
-+++ linux-2.6.10/arch/sparc/mm/srmmu.c	2005-01-03 16:26:56.000000000 +0100
-@@ -6,6 +6,7 @@
-  * Copyright (C) 1996 Eddie C. Dost    (ecd@skynet.be)
-  * Copyright (C) 1997,1998 Jakub Jelinek (jj@sunsite.mff.cuni.cz)
-  * Copyright (C) 1999,2000 Anton Blanchard (anton@samba.org)
-+ * Copyright (C) 2004 Konrad Eisele (eiselekd@web.de), Gaisler Research
-  */
- 
- #include <linux/config.h>
-@@ -48,6 +49,7 @@
- #include <asm/tsunami.h>
- #include <asm/swift.h>
- #include <asm/turbosparc.h>
-+#include <asm/leon.h>
- 
- #include <asm/btfixup.h>
- 
-@@ -568,6 +570,13 @@
- 	if (is_hypersparc)
- 		hyper_flush_whole_icache();
- 
-+#if (defined CONFIG_LEON || defined CONFIG_LEON_3)
-+
-+	flush_tlb_mm(0);
-+	leon_flush_cache_all();
-+	
-+#endif
-+
- 	srmmu_set_context(mm->context);
- }
- 
-@@ -1287,7 +1296,11 @@
- 
- 	srmmu_nocache_calcsize();
- 	srmmu_nocache_init();
--        srmmu_inherit_prom_mappings(0xfe400000,(LINUX_OPPROM_ENDVM-PAGE_SIZE));
-+	if (sparc_cpu_model == sparc_leon) {
-+        	leon_inherit_prom_mappings(0xfe400000,(LINUX_OPPROM_ENDVM-PAGE_SIZE));
-+	} else {
-+        	srmmu_inherit_prom_mappings(0xfe400000,(LINUX_OPPROM_ENDVM-PAGE_SIZE));
-+	}
- 	map_kernel();
- 
- 	/* ctx table has to be physically aligned to its size */
-@@ -1981,6 +1994,133 @@
- 	poke_srmmu = poke_viking;
- }
- 
-+void __init leon_inherit_prom_mappings(unsigned long start,unsigned long end)
++/* do a physical address bypass write, i.e. for 0x80000000 */
++static __inline__ void leon_store_reg(unsigned long paddr,unsigned long value)
 +{
-+	pgd_t *pgdp;
-+	pmd_t *pmdp;
-+	pte_t *ptep;
-+	int what = 0; /* 0 = normal-pte, 1 = pmd-level pte, 2 = pgd-level pte */
-+	unsigned long prompte;
-+
-+	while(start <= end) {
-+		if (start == 0)
-+			break; /* probably wrap around */
-+		if(start == 0xfef00000)
-+			start = KADB_DEBUGGER_BEGVM;
-+		if(!(prompte = srmmu_swprobe(start,0))) {
-+			start += PAGE_SIZE;
-+			continue;
-+		}
-+    
-+		/* A red snapper, see what it really is. */
-+		what = 0;
-+    
-+		if(!(start & ~(SRMMU_REAL_PMD_MASK))) {
-+			if(srmmu_swprobe((start-PAGE_SIZE) + SRMMU_REAL_PMD_SIZE, 0) == prompte)
-+				what = 1;
-+		}
-+    
-+		if(!(start & ~(SRMMU_PGDIR_MASK))) {
-+			if(srmmu_swprobe((start-PAGE_SIZE) + SRMMU_PGDIR_SIZE, 0) ==
-+			   prompte)
-+				what = 2;
-+		}
-+    
-+		pgdp = pgd_offset_k(start);
-+		if(what == 2) {
-+			*(pgd_t *)__nocache_fix(pgdp) = __pgd(prompte);
-+			start += SRMMU_PGDIR_SIZE;
-+			continue;
-+		}
-+		if(srmmu_pgd_none(*(pgd_t *)__nocache_fix(pgdp))) {
-+			pmdp = (pmd_t *)__srmmu_get_nocache(SRMMU_PMD_TABLE_SIZE, SRMMU_PMD_TABLE_SIZE);
-+			if (pmdp == NULL)
-+				early_pgtable_allocfail("pmd");
-+			memset(__nocache_fix(pmdp), 0, SRMMU_PMD_TABLE_SIZE);
-+			srmmu_pgd_set(__nocache_fix(pgdp), pmdp);
-+		}
-+		pmdp = srmmu_pmd_offset(__nocache_fix(pgdp), start);
-+		if(srmmu_pmd_none(*(pmd_t *)__nocache_fix(pmdp))) {
-+			ptep = (pte_t *) __srmmu_get_nocache(PTE_SIZE,
-+			    PTE_SIZE);
-+			if (ptep == NULL)
-+				early_pgtable_allocfail("pte");
-+			memset(__nocache_fix(ptep), 0, PTE_SIZE);
-+			srmmu_pmd_set(__nocache_fix(pmdp), ptep);
-+		}
-+		if(what == 1) {
-+			/*
-+			 * We bend the rule where all 16 PTPs in a pmd_t point
-+			 * inside the same PTE page, and we leak a perfectly
-+			 * good hardware PTE piece. Alternatives seem worse.
-+			 */
-+			unsigned int x;	/* Index of HW PMD in soft cluster */
-+			x = (start >> PMD_SHIFT) & 15;
-+			*(unsigned long *)__nocache_fix(&pmdp->pmdv[x]) = prompte;
-+			start += SRMMU_REAL_PMD_SIZE;
-+			continue;
-+		}
-+		ptep = srmmu_pte_offset(__nocache_fix(pmdp), start);
-+		*(pte_t *)__nocache_fix(ptep) = __pte(prompte);
-+		start += PAGE_SIZE;
-+	}
++	__asm__ __volatile__("sta %0, [%1] %2\n\t": :
++			     "r" (value), "r" (paddr),
++			     "i" (ASI_LEON_BYPASS) : "memory");
 +}
-+ 
-+void leon_flush_cache_all (void)
-+{ 
-+#if defined( CONFIG_LEON) || defined(CONFIG_LEON_3)
++
++/* do a physical address bypass load, i.e. for 0x80000000 */
++static __inline__ unsigned long leon_load_reg(unsigned long paddr)
++{
++	unsigned long retval;
++	__asm__ __volatile__("lda [%1] %2, %0\n\t" :
++			     "=r" (retval) :
++			     "r" (paddr), "i" (ASI_LEON_BYPASS));
++	return retval;
++}
++
++extern __inline__ void leon_srmmu_disabletlb(void)
++{
++	unsigned int retval;
++	__asm__ __volatile__("lda [%%g0] %2, %0\n\t" : "=r" (retval) : "r" (0), "i" (ASI_LEON_MMUREGS));
++	retval |= LEON_CNR_CTRL_TLBDIS;
++	__asm__ __volatile__("sta %0, [%%g0] %2\n\t" : : "r" (retval), "r" (0), "i" (ASI_LEON_MMUREGS) : "memory");
++}
++
++extern __inline__ void leon_srmmu_enabletlb(void)
++{
++	unsigned int retval;
++	__asm__ __volatile__("lda [%%g0] %2, %0\n\t" : "=r" (retval) : "r" (0), "i" (ASI_LEON_MMUREGS));
++	retval = retval & ~LEON_CNR_CTRL_TLBDIS;
++	__asm__ __volatile__("sta %0, [%%g0] %2\n\t" : : "r" (retval), "r" (0), "i" (ASI_LEON_MMUREGS) : "memory");
++}
++
++#define LEON_BYPASS_LOAD_PA(x)		leon_load_reg ((unsigned long)(x))
++#define LEON_BYPASS_STORE_PA(x,v)	leon_store_reg((unsigned long)(x),(unsigned long)(v))
++#define LEON_REGLOAD_PA(x)		leon_load_reg ((unsigned long)(x)+LEON_PREGS)
++#define LEON_REGSTORE_PA(x,v)		leon_store_reg((unsigned long)(x)+LEON_PREGS,(unsigned long)(v))
++#define LEON_REGSTORE_OR_PA(x,v)	LEON_REGSTORE_PA(x,LEON_REGLOAD_PA(x)|(unsigned long)(v))
++#define LEON_REGSTORE_AND_PA(x,v)	LEON_REGSTORE_PA(x,LEON_REGLOAD_PA(x)&(unsigned long)(v))
++
++extern unsigned long srmmu_swprobe(unsigned long vaddr,unsigned long *paddr);
++extern void leon_inherit_prom_mappings(unsigned long start,unsigned long end);
++
++#define LEONSETUP_MEM_BASEADDR 0x40000000
++
++#endif /* !ASM */
++
 +#ifdef CONFIG_LEON_3
-+        __asm__ __volatile__(" flush "); //iflush 
-+	__asm__ __volatile__("sta %%g0, [%%g0] %0\n\t": :
-+			     "i" (ASI_LEON_DFLUSH) : "memory");
-+#else 
-+	__asm__ __volatile__("sta %%g0, [%%g0] %0\n\t": :
-+			     "i" (ASI_LEON_IFLUSH) : "memory");
-+	__asm__ __volatile__("sta %%g0, [%%g0] %0\n\t": :
-+			     "i" (ASI_LEON_DFLUSH) : "memory");
++#include <asm/leon3.h>
 +#endif
++
++#endif //defined(CONFIG_LEON) || defined(CONFIG_LEON_3)
++
 +#endif
-+}
+diff -Naur ../linux-2.6.10/include/asm-sparc/leon3.h linux-2.6.10/include/asm-sparc/leon3.h
+--- ../linux-2.6.10/include/asm-sparc/leon3.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.10/include/asm-sparc/leon3.h	2005-01-03 16:44:11.000000000 +0100
+@@ -0,0 +1,123 @@
++/* 
++ * Copyright (C) 2004 Konrad Eisele (eiselekd@web.de), Gaisler Research
++ */
 +
-+void leon_flush_tlb_all (void)
-+{
-+#if defined( CONFIG_LEON) || defined(CONFIG_LEON_3)
-+	leon_flush_cache_all();
-+	__asm__ __volatile__("sta %%g0, [%0] %1\n\t": :
-+			     "r" (0x400),
-+			     "i" (ASI_LEON_MMUFLUSH) : "memory");
-+#endif
-+}
++#ifndef _INCLUDE_LEON_3_h_
++#define _INCLUDE_LEON_3_h_
 +
-+static void __init poke_leonsparc(void)
-+{
-+}
++#include <asm/amba.h>
 +
-+static void __init init_leon(void) {
++#ifndef __ASSEMBLER__
 +
-+	srmmu_name = "Leon2";
++/*
++ *  The following defines the bits in the LEON UART Status Registers.
++ */
 +
-+	BTFIXUPSET_CALL(flush_cache_all, leon_flush_cache_all, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(flush_cache_mm, leon_flush_cache_all, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(flush_cache_page, leon_flush_cache_all, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(flush_cache_range, leon_flush_cache_all, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(flush_page_for_dma, leon_flush_cache_all, BTFIXUPCALL_NORM);
-+  
-+	BTFIXUPSET_CALL(flush_tlb_all, leon_flush_tlb_all, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(flush_tlb_mm, leon_flush_tlb_all, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(flush_tlb_page, leon_flush_tlb_all, BTFIXUPCALL_NORM);
-+	BTFIXUPSET_CALL(flush_tlb_range, leon_flush_tlb_all, BTFIXUPCALL_NORM);
-+  
-+	BTFIXUPSET_CALL(__flush_page_to_ram, leon_flush_cache_all, BTFIXUPCALL_NOP);
-+	BTFIXUPSET_CALL(flush_sig_insns, leon_flush_cache_all, BTFIXUPCALL_NOP);
-+	
-+	poke_srmmu = poke_leonsparc;
-+	
-+	srmmu_cache_pagetables = 0;
-+}
++#define LEON_REG_UART_STATUS_DR   0x00000001 /* Data Ready */
++#define LEON_REG_UART_STATUS_TSE  0x00000002 /* TX Send Register Empty */
++#define LEON_REG_UART_STATUS_THE  0x00000004 /* TX Hold Register Empty */
++#define LEON_REG_UART_STATUS_BR   0x00000008 /* Break Error */
++#define LEON_REG_UART_STATUS_OE   0x00000010 /* RX Overrun Error */
++#define LEON_REG_UART_STATUS_PE   0x00000020 /* RX Parity Error */
++#define LEON_REG_UART_STATUS_FE   0x00000040 /* RX Framing Error */
++#define LEON_REG_UART_STATUS_ERR  0x00000078 /* Error Mask */
++
++ 
++/*
++ *  The following defines the bits in the LEON UART Ctrl Registers.
++ */
++
++#define LEON_REG_UART_CTRL_RE     0x00000001 /* Receiver enable */
++#define LEON_REG_UART_CTRL_TE     0x00000002 /* Transmitter enable */
++#define LEON_REG_UART_CTRL_RI     0x00000004 /* Receiver interrupt enable */
++#define LEON_REG_UART_CTRL_TI     0x00000008 /* Transmitter interrupt enable */
++#define LEON_REG_UART_CTRL_PS     0x00000010 /* Parity select */
++#define LEON_REG_UART_CTRL_PE     0x00000020 /* Parity enable */
++#define LEON_REG_UART_CTRL_FL     0x00000040 /* Flow control enable */
++#define LEON_REG_UART_CTRL_LB     0x00000080 /* Loop Back enable */
++
++#define LEON3_GPTIMER_EN 1
++#define LEON3_GPTIMER_RL 2
++#define LEON3_GPTIMER_LD 4
++#define LEON3_GPTIMER_IRQEN 8
 +
 +
++typedef struct {
++  volatile unsigned int ilevel;
++  volatile unsigned int ipend;
++  volatile unsigned int iforce;
++  volatile unsigned int iclear;
++  volatile unsigned int notused00;
++  volatile unsigned int notused01;
++  volatile unsigned int notused02;
++  volatile unsigned int notused03;
++  volatile unsigned int notused10;
++  volatile unsigned int notused11;
++  volatile unsigned int notused12;
++  volatile unsigned int notused13;
++  volatile unsigned int notused20;
++  volatile unsigned int notused21;
++  volatile unsigned int notused22;
++  volatile unsigned int notused23;
++  volatile unsigned int mask[16];
++} LEON3_IrqCtrl_Regs_Map; 
 +
- /* Probe for the srmmu chip version. */
- static void __init get_srmmu_type(void)
- {
-@@ -1990,11 +2130,20 @@
- 	srmmu_modtype = SRMMU_INVAL_MOD;
- 	hwbug_bitmask = 0;
++typedef struct {
++  volatile unsigned int data;
++  volatile unsigned int status;
++  volatile unsigned int ctrl;
++  volatile unsigned int scaler;
++} LEON3_APBUART_Regs_Map;
++
++
++typedef struct {
++  volatile unsigned int val;
++  volatile unsigned int rld;
++  volatile unsigned int ctrl;
++  volatile unsigned int unused;
++} LEON3_GpTimerElem_Regs_Map; 
++
++typedef struct {
++  volatile unsigned int scalar;
++  volatile unsigned int scalar_reload;
++  volatile unsigned int config;
++  volatile unsigned int unused;
++  volatile LEON3_GpTimerElem_Regs_Map e[8];
++} LEON3_GpTimer_Regs_Map; 
++
++/*
++ *  Types and structure used for AMBA Plug & Play bus scanning 
++ */
++
++typedef struct amba_device_table {
++  int            devnr;           /* numbrer of devices on AHB or APB bus */
++  unsigned int   *addr[16];       /* addresses to the devices configuration tables */
++  unsigned int   allocbits[1];       /* 0=unallocated, 1=allocated driver */
++} amba_device_table;
++
++typedef struct amba_confarea_type {
++  amba_device_table ahbmst;
++  amba_device_table ahbslv;
++  amba_device_table apbslv;
++  unsigned int      apbmst;
++} amba_confarea_type;
++
++extern unsigned long amba_find_apbslv_addr(unsigned long vendor, unsigned long device, unsigned long *irq);
++
++// collect apb slaves
++typedef struct amba_apb_device {
++  unsigned int   start, irq;
++} amba_apb_device;
++extern int amba_get_free_apbslv_devices (int vendor, int device, amba_apb_device *dev,int nr);
++
++// collect ahb slaves
++typedef struct amba_ahb_device {
++  unsigned int   start[4], irq;
++} amba_ahb_device;
++extern int amba_get_free_ahbslv_devices (int vendor, int device, amba_ahb_device *dev,int nr);
++
++#endif //!__ASSEMBLER__
++
++
++#endif 
++
+diff -Naur ../linux-2.6.10/include/asm-sparc/machines.h linux-2.6.10/include/asm-sparc/machines.h
+--- ../linux-2.6.10/include/asm-sparc/machines.h	2004-12-24 22:33:49.000000000 +0100
++++ linux-2.6.10/include/asm-sparc/machines.h	2005-01-03 11:36:34.000000000 +0100
+@@ -15,7 +15,7 @@
+ /* Current number of machines we know about that has an IDPROM
+  * machtype entry including one entry for the 0x80 OBP machines.
+  */
+-#define NUM_SUN_MACHINES   15
++#define NUM_SUN_MACHINES   16
  
--	mreg = srmmu_get_mmureg(); psr = get_psr();
-+	mreg = srmmu_get_mmureg();
-+	psr = get_psr();
- 	mod_typ = (mreg & 0xf0000000) >> 28;
- 	mod_rev = (mreg & 0x0f000000) >> 24;
- 	psr_typ = (psr >> 28) & 0xf;
- 	psr_vers = (psr >> 24) & 0xf;
-+#ifdef CONFIG_LEON
-+	psr_typ = 0xf;	/* hardcoded ids for older models/simulators */
-+	psr_vers = 2;
-+#endif
-+	if(psr_typ == 0xf) {
-+		init_leon();
-+		return;
-+	}
+ extern struct Sun_Machine_Models Sun_Machines[NUM_SUN_MACHINES];
  
- 	/* First, check for HyperSparc or Cypress. */
- 	if(mod_typ == 1) {
+@@ -32,6 +32,7 @@
+ 
+ #define SM_ARCH_MASK  0xf0
+ #define SM_SUN4       0x20
++#define  M_LEON2      0x30
+ #define SM_SUN4C      0x50
+ #define SM_SUN4M      0x70
+ #define SM_SUN4M_OBP  0x80
+@@ -43,6 +44,9 @@
+ #define SM_4_330      0x03    /* Sun 4/300 series */
+ #define SM_4_470      0x04    /* Sun 4/400 series */
+ 
++/* Leon machines */
++#define M_LEON2_SOC   0x01    /* Leon2 SoC */
++
+ /* Sun4c machines                Full Name              - PROM NAME */
+ #define SM_4C_SS1     0x01    /* Sun4c SparcStation 1   - Sun 4/60  */
+ #define SM_4C_IPC     0x02    /* Sun4c SparcStation IPC - Sun 4/40  */
+diff -Naur ../linux-2.6.10/include/asm-sparc/system.h linux-2.6.10/include/asm-sparc/system.h
+--- ../linux-2.6.10/include/asm-sparc/system.h	2004-12-24 22:35:23.000000000 +0100
++++ linux-2.6.10/include/asm-sparc/system.h	2005-01-03 11:36:34.000000000 +0100
+@@ -29,6 +29,7 @@
+   sun4u       = 0x05, /* V8 ploos ploos */
+   sun_unknown = 0x06,
+   ap1000      = 0x07, /* almost a sun4m */
++  sparc_leon  = 0x08, /* Leon2 SoC */
+ };
+ 
+ /* Really, userland should not be looking at any of this... */
+diff -Naur ../linux-2.6.10/include/asm-sparc/vaddrs.h linux-2.6.10/include/asm-sparc/vaddrs.h
+--- ../linux-2.6.10/include/asm-sparc/vaddrs.h	2004-12-24 22:33:49.000000000 +0100
++++ linux-2.6.10/include/asm-sparc/vaddrs.h	2005-01-03 16:38:41.000000000 +0100
+@@ -17,7 +17,11 @@
+ #define SRMMU_NOCACHE_VADDR	(KERNBASE + SRMMU_MAXMEM)
+ 				/* = 0x0fc000000 */
+ /* XXX Empiricals - this needs to go away - KMW */
++#if defined(CONFIG_LEON) || defined(CONFIG_LEON_3)
++#define SRMMU_MIN_NOCACHE_PAGES (128)
++#else
+ #define SRMMU_MIN_NOCACHE_PAGES (550)
++#endif
+ #define SRMMU_MAX_NOCACHE_PAGES	(1280)
+ 
+ /* The following constant is used in mm/srmmu.c::srmmu_nocache_calcsize()
 
---------------050104090608080304020203--
+--------------070308010002030608040901--

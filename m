@@ -1,80 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262260AbUCRA67 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 19:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbUCRA66
+	id S262272AbUCRBAv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 20:00:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUCRBAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 19:58:58 -0500
-Received: from mail.kroah.org ([65.200.24.183]:11147 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262257AbUCRA6u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 19:58:50 -0500
-Date: Wed, 17 Mar 2004 16:58:38 -0800
-From: Greg KH <greg@kroah.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: James.Bottomley@steeleye.com
-Subject: Re: [PATCH] Fix removable USB drive oops
-Message-ID: <20040318005838.GA25884@kroah.com>
-References: <200403141810.i2EIAtK9032222@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403141810.i2EIAtK9032222@hera.kernel.org>
-User-Agent: Mutt/1.5.6i
+	Wed, 17 Mar 2004 20:00:51 -0500
+Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:46935 "EHLO
+	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S262272AbUCRBAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 20:00:41 -0500
+Message-ID: <4058F4B8.5050304@blueyonder.co.uk>
+Date: Thu, 18 Mar 2004 01:00:40 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Need help about scanner (2.6.2-mm1)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Mar 2004 01:00:40.0720 (UTC) FILETIME=[6ECA8900:01C40C84]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 13, 2004 at 06:48:36PM +0000, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1623, 2004/03/13 13:48:36-05:00, James.Bottomley@steeleye.com
-> 
-> 	[PATCH] Fix removable USB drive oops
-> 	
-> 	The actual problem reported was because there wasn't a corresponding
-> 	check on transport_classdev.class in the unregister.
-> 	
-> 	However, on closer inspection I also turned up a nasty thinko in the
-> 	reference counting.  For reasons best known to the class code authors,
-> 	class devices have to obtain their own references to the devices they're
-> 	attached to which they release again in their .release routines, so you
-> 	have to remember to do a get_device() in the correct place after the
-> 	class_device_add().  I put comments in the code so that, hopefully, we
-> 	can avoid the problem in future.
+Azog wrote:
+ > Thank you so much for the tip! This seems to have solved my problem
+ > too.
 
-Bah, this was my fault, sorry.
+ > I changed my epson.conf file to just say
+ > "usb"
+ > instead of
+ > "usb /dev/usb/scanner0"
 
-Here's a patch that should fix this, and prevent you from needing this
-patch.  Can you verify this?
+ > and now, finally, it works. I do hope the SANE documentation writers
+ > get around to adding that little tidbit of info SOMEWHERE, I was
+ > tearing my hair out and rebooting back to 2.4 to use my scanner.
 
-thanks,
+I tried that in 2.6.5-rc1-mm1, restarted sane, but it still fails. 
+scanimage -L does not find the scanner, sane-find-scanner finds it, but 
+says I have scsi modules loaded, even though I've rmmod them. I'm using 
+a recent CVS libusb and sane.
+I found an article on linuxtoday.com that pointed me to vuescan where I 
+downloaded their initial linux release and the scanner (Epson USB 610) 
+works fine using it. It uses the libusb-0.1.so.4.4.1 I have installed, 
+so that points back to a problem with sane which I have added to their 
+bug list.
+Regards
+Sid.
 
-greg k-h
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
 
-
-# Driver class: remove possible oops
-#
-# This happens when the device associated with a class device goes away before
-# the class does.
-
-diff -Nru a/drivers/base/class.c b/drivers/base/class.c
---- a/drivers/base/class.c	Wed Mar 17 16:57:10 2004
-+++ b/drivers/base/class.c	Wed Mar 17 16:57:10 2004
-@@ -155,8 +155,7 @@
- 
- static void class_device_dev_unlink(struct class_device * class_dev)
- {
--	if (class_dev->dev)
--		sysfs_remove_link(&class_dev->kobj, "device");
-+	sysfs_remove_link(&class_dev->kobj, "device");
- }
- 
- static int class_device_driver_link(struct class_device * class_dev)
-@@ -169,8 +168,7 @@
- 
- static void class_device_driver_unlink(struct class_device * class_dev)
- {
--	if ((class_dev->dev) && (class_dev->dev->driver))
--		sysfs_remove_link(&class_dev->kobj, "driver");
-+	sysfs_remove_link(&class_dev->kobj, "driver");
- }
- 
- 

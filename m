@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264875AbTFLQMo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 12:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbTFLQMo
+	id S264806AbTFLQRD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 12:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTFLQRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 12:12:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17891 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264875AbTFLQMm
+	Thu, 12 Jun 2003 12:17:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21731 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264806AbTFLQRC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 12:12:42 -0400
-Date: Thu, 12 Jun 2003 17:26:27 +0100
+	Thu, 12 Jun 2003 12:17:02 -0400
+Date: Thu, 12 Jun 2003 17:30:45 +0100
 From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@transmeta.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
 Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] First casuality of hlist poisoning in 2.5.70
-Message-ID: <20030612162627.GJ6754@parcelfarce.linux.theplanet.co.uk>
-References: <16103.48257.400430.785367@charged.uio.no> <Pine.LNX.4.44.0306112206430.29133-100000@home.transmeta.com>
+       John M Flinchbaugh <glynis@butterfly.hjsoft.com>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       Maneesh Soni <maneesh@in.ibm.com>
+Subject: Re: 2.5.70-bk16: nfs crash
+Message-ID: <20030612163045.GK6754@parcelfarce.linux.theplanet.co.uk>
+References: <20030612125630.GA19842@butterfly.hjsoft.com> <20030612135254.GA2482@in.ibm.com> <16104.40370.828325.379995@charged.uio.no> <20030612155345.GB1438@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0306112206430.29133-100000@home.transmeta.com>
+In-Reply-To: <20030612155345.GB1438@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 10:22:25PM -0700, Linus Torvalds wrote:
+On Thu, Jun 12, 2003 at 09:23:45PM +0530, Dipankar Sarma wrote:
 
-> HOWEVER, I actually suspect that the target really _cannot_ be unhashed, 
-> and that the test makes no sense, and the sequence should just be
-> 
-> 	/* Rehash the dentry onto the same hash as the target */
-> 	hlist_del_rcu(&dentry->d_hash);
-> 	hlist_add_head_rcu(&dentry->d_hash, target->d_bucket);
-> 	dentry->d_vfs_flags &= ~DCACHE_UNHASHED;
- 
-> But I suspect that neither dentry nor target should really ever be
-> unhashed by the time we call d_move(). That's reinforced by the fact that
-> it looks like a unhashed dentry in d_move() would have been a silent bug
-> previously - staying unhashed if it just shared the bucket.
+> Lockfree d_lookup() gives us significant benefits in larger
+> SMP machines.
 
-> Al, I'll be really happy having you go over this code too. And whatever we 
-> decide is right (enforcing hashedness or whatever), we should assert it, 
-> because clearly d_move() has been a bit too subtle for us so far.
+I wonder if they outweight debugging time wasted after any change...
 
-Sigh...  The real problem is not in d_move(), but in the way NFS drops
-dentries.  That, and the fact that we are eating the consequences of
-RCU use in dcache - it had predictably made the entire thing _far_ too
-subtle.
-
-We probably should accept that both d_move() arguments can be unhashed.
-After the move hashed status of source should remain as it is and
-victim^Wtarget should get unhashed.
-
-We _do_ need to sort out the situation with unhashing stuff in NFS - in
-particular, the way it deals with mountpoints and with directories is
-a mess.  I'm looking through that code, but it's bloody slow analysis
-due to RCU.  Premature optimizations and all such...
+Note that for vfsmounts proposed RCU patch had been utterly useless -
+practically all improvements had been from separate lock for vfsmounts
+(see akpm tree).

@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264432AbTK0GHm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 01:07:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTK0GHm
+	id S264442AbTK0HaO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 02:30:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbTK0HaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 01:07:42 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:12307 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S264432AbTK0GHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 01:07:41 -0500
-Date: Thu, 27 Nov 2003 07:07:24 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: "Pravin Nanaware , Gurgaon" <pnanaware@ggn.hcltech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Copy protection of the floppies
-Message-ID: <20031127060724.GA31322@alpha.home.local>
-References: <5F0021EEA434D511BE7300D0B7B6AB530CA67677@mail2.ggn.hcltech.com>
+	Thu, 27 Nov 2003 02:30:13 -0500
+Received: from vega.digitel2002.hu ([213.163.0.181]:40392 "HELO lgb.hu")
+	by vger.kernel.org with SMTP id S264442AbTK0HaH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 02:30:07 -0500
+Date: Thu, 27 Nov 2003 08:30:04 +0100
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: bert hubert <ahu@ds9a.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 not cat proof
+Message-ID: <20031127073004.GB6275@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+References: <20031126201052.GA16106@outpost.ds9a.nl> <1069877780.7606.0.camel@laptop-linux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <5F0021EEA434D511BE7300D0B7B6AB530CA67677@mail2.ggn.hcltech.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1069877780.7606.0.camel@laptop-linux>
+X-Operating-System: vega Linux 2.6.0-test9 i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Nov 27, 2003 at 09:16:20AM +1300, Nigel Cunningham wrote:
+> The cat kills the keyboard instead of the mouse? That is sad!
 
-I don't believe in copy protection at all because what your program can read,
-other programs can read, and what your program can test, others can trick it
-into not testing it anymore.
+So, delete /bin/cat ;-)
 
-However, there was a solution that I found clever : the weak bit. Basically,
-a floppy was written with a special controller, and one sector had invalid
-states that could randomly be read either 0 or 1 by the drive. The software
-then tried to read the same sector 10 times and expected the contents to
-change due to the controller's inability to identify the data as clear 0 or 1.
-A copy of the floppy would definitely fix the contents to what was read at the
-copy time, so the software would not see any more changes during its read test
-and would conclude that it was a copy.
+> 
+> On Thu, 2003-11-27 at 09:10, bert hubert wrote:
+> > This bug has been seen here over eight years ago and it is back.. linux
+> > 2.6.0-test4 is still not cat proof :-)
+> > 
+> > I found my cat asleep on the warm laptop, it is winter here, and the
+> > keyboard was dead. Mouse still works, but I had to reboot before I could use
+> > the keyboard again. Restarting X, which I could do with the mouse, did not
+> > help.
+> > 
+> > But I'm willing to live with this problem :-) Not sure if I want to debug
+> > this, my previous laptop turned out to be filled with hair too. She never
+> > lies on the keyboard when I'm at home!
+> > 
+> > Thought you'd want to know,
+> > 
+> > 	bert.
+> -- 
+> Nigel Cunningham
+> 495 St Georges Road South, Hastings 4201, New Zealand
+> 
+> Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+> with alarming frequency, order arises from chaos, and no one is given credit.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I'm not certain that this was fully compatible with all drives and/or
-controllers, because there's always a risk of some hardware always reporting
-0's or 1's on this sector, but I found the concept original.
-
-Of course, it took the editor far more time to develop this solution than the
-crackers to "fix" the software. You know, launch debug, replace the offending
-JZ with a JMP or with a NOP/NOP...
-
-Sincerely, I don't think you want to spend so much time developping something
-which can be broken within a few minutes.
-
-Regards,
-Willy
-
+-- 
+- Gábor (larta'H)

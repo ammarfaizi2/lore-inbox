@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267709AbUBTHoo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 02:44:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267728AbUBTHoo
+	id S267723AbUBTHwl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 02:52:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267715AbUBTHwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 02:44:44 -0500
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:36841 "HELO
-	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S267709AbUBTHom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 02:44:42 -0500
-X-Analyze: Velop Mail Shield v0.0.3
-Date: Fri, 20 Feb 2004 04:44:40 -0300 (BRT)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-To: linux-kernel@vger.kernel.org
-cc: linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: HOWTO use udev to manage /dev
-In-Reply-To: <Pine.LNX.4.58.0402192306110.694@pervalidus.dyndns.org>
-Message-ID: <Pine.LNX.4.58.0402200435140.1167@pervalidus.dyndns.org>
-References: <20040219185932.GA10527@kroah.com> <20040219191636.GC10527@kroah.com>
- <Pine.LNX.4.58.0402191918440.688@pervalidus.dyndns.org> <20040219230749.GA15848@kroah.com>
- <Pine.LNX.4.58.0402192033490.694@pervalidus.dyndns.org> <20040219235602.GI15848@kroah.com>
- <Pine.LNX.4.58.0402192057590.694@pervalidus.dyndns.org> <20040220015433.GC3134@kroah.com>
- <Pine.LNX.4.58.0402192306110.694@pervalidus.dyndns.org>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Feb 2004 02:52:41 -0500
+Received: from gate.crashing.org ([63.228.1.57]:61865 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267723AbUBTHwg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 02:52:36 -0500
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB update for 2.6.3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: dsaxena@plexity.net
+Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040220074041.GA6680@plexity.net>
+References: <20040220012802.GA16523@kroah.com>
+	 <Pine.LNX.4.58.0402192156240.2244@ppc970.osdl.org>
+	 <1077256996.20789.1091.camel@gaston>  <20040220074041.GA6680@plexity.net>
+Content-Type: text/plain
+Message-Id: <1077263253.20789.1221.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 20 Feb 2004 18:47:34 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed I had a lot of devices created by udev in the disk
-(in /dev), including /dev/null, so I removed all, but it
-obviously didn't work anymore because without /dev/console init
-complains, doesn't start, and reboots.
 
-I guess it isn't that easy to use devfs without any devices in
-the disk ?
+> If you mean the USB target device itself, can't you walk the
+> tree until you find a device that is no longer on bus_type
+> usb to determine your root?
 
-I'll readd /dev/console.
+I don't feel like walking the tree on each pci_dma access
 
+> You could stuff that into platform_data on PCI devices on your platforms.
+
+I want automatic inheritance to child devices, shouldb't be _that_
+difficult to do ;)
+
+> I think we're not quite there yet, but once you have the device
+> struct, in theory, you can walk up the tree to grab the platform_data
+> for say the device's parent and do any tweaks based on platform-specific
+> bus parameters.  With PCI, you could even stuff this into pci_bus->sysdata.
+> 
+> I think having a function pointer table for things like dma mapping
+> and ioremap on all devices would be a very good thing, but not sure
+> if the powers that be would allow that in 2.6.
+> 
+> ~Deepak
 -- 
-http://www.pervalidus.net/contact.html
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
+

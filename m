@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314300AbSEIUfn>; Thu, 9 May 2002 16:35:43 -0400
+	id <S314329AbSEIUnL>; Thu, 9 May 2002 16:43:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314327AbSEIUfm>; Thu, 9 May 2002 16:35:42 -0400
-Received: from ua83d37hel.dial.kolumbus.fi ([62.248.234.83]:53354 "EHLO
-	rankki.uworld.dyndns.org") by vger.kernel.org with ESMTP
-	id <S314300AbSEIUfm>; Thu, 9 May 2002 16:35:42 -0400
-Message-ID: <3CDADD92.908001AB@kolumbus.fi>
-Date: Thu, 09 May 2002 23:35:30 +0300
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S314338AbSEIUnK>; Thu, 9 May 2002 16:43:10 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:17413 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314329AbSEIUnJ>; Thu, 9 May 2002 16:43:09 -0400
+Message-ID: <3CDAD08D.2090102@evision-ventures.com>
+Date: Thu, 09 May 2002 21:39:57 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: christian.burger@edb.ericsson.se
-CC: linux-kernel@vger.kernel.org
-Subject: Re: fonts corruption with 3dfx drm module
-In-Reply-To: <3CDA61CA.498991DF@edb.ericsson.se>
-Content-Type: text/plain; charset=us-ascii
+To: "David S. Miller" <davem@redhat.com>
+CC: akpm@zip.com.au, indigoid@higherplane.net, dank@kegel.com,
+        khttpd-users@alt.org, linux-kernel@vger.kernel.org
+Subject: Re: khttpd rotten?
+In-Reply-To: <20020509114009.GD3855@higherplane.net>	<20020509.042938.78984470.davem@redhat.com>	<3CDACE73.6692A31E@zip.com.au> <20020509.123540.85382726.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Burger wrote:
+Uz.ytkownik David S. Miller napisa?:
+>    From: Andrew Morton <akpm@zip.com.au>
+>    Date: Thu, 09 May 2002 12:30:59 -0700
 > 
-> I've seen a much more serious problem which seems to be related to this:
-> I have AMD Athlon K7 650MHz, Via chipset, Voodoo5 5500AGP, MTTR enabled.
-> What is happening here is that when switching back from init 5 to init 3 
-> for instance, the system hangs completely and a blinking character 
-> appears in a black screen. There's no other way other than to power cycle 
-> the system. It seems to be a kernel panic.
-> Kernel version is 2.4.18, and it happens with or without DRM support, 
-> with and without FB support. There's no way I can have this version of 
-> the kernel to work here.
+>    The concern with moving one (major) application into the
+>    kernel is that this will weaken the testing/motivation to get
+>    zerocopy, aio and sophisticated notifications working well
+>    for userspace.
+>    
+> Actually, to the contrary, TUX was in fact an impetus for the
+> userlevel zerocopy and AIO bits :-)
+> 
+> I personally don't see anything wrong with something like the
+> TUX engine being in there.  At the same time I want to reiterate what
+> Ingo said which is what we can do in userspace catches up to what
+> TUX can do then we pull it out and move on to the next thing :-)
 
-Same problem here, with AMD K6 and Voodoo3 2000 PCI. All kernels and all
-XFree86 4.x.x versions. Although it doesn't hang the machine. Usually just
-fonts in vc1 are messed up.
+It's far easiet to add then to remove. Trust me ;-).
 
-So, it's not MTRR nor AGP problem. It must be something in XFree86 tdfx
-driver. Accelerated-X doesn't show this problem.
-
-
-	- Jussi Laako
-
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+I vote against both of them: tux and khttpd are should have
+no place in the kernel of a General Pupose OS kernel.
 

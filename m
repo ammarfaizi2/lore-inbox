@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262489AbTFBPqH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 11:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTFBPqH
+	id S262493AbTFBPqx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 11:46:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbTFBPqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 11:46:07 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:54522 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S262489AbTFBPqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 11:46:05 -0400
-Subject: Re: [PATCH RFC] 1/2 central workspace for zlib
-From: David Woodhouse <dwmw2@infradead.org>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-mtd@lists.infradead.org, matsunaga <matsunaga_kazuhisa@yahoo.co.jp>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030602155353.GB679@wohnheim.fh-wedel.de>
-References: <20030530144959.GA4736@wohnheim.fh-wedel.de>
-	 <002901c32919$ddc37000$570486da@w0a3t0>
-	 <20030602153656.GA679@wohnheim.fh-wedel.de>
-	 <1054568407.20369.382.camel@passion.cambridge.redhat.com>
-	 <20030602155353.GB679@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=UTF-8
-Organization: 
-Message-Id: <1054569564.20369.385.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Mon, 02 Jun 2003 16:59:25 +0100
-Content-Transfer-Encoding: 8bit
+	Mon, 2 Jun 2003 11:46:53 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48644 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262493AbTFBPqt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 11:46:49 -0400
+Date: Mon, 2 Jun 2003 08:59:39 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Juan Quintela <quintela@mandrakesoft.com>
+cc: Russell King <rmk@arm.linux.org.uk>, Steven Cole <elenstev@mesatop.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
+In-Reply-To: <m2smqs7nth.fsf@neno.mitica>
+Message-ID: <Pine.LNX.4.44.0306020856450.19910-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-02 at 16:53, Jörn Engel wrote:
-> Maybe lazy allocation.  vmalloc() it with the first write(), which
-> should be never in production use.  So the extra overhead doesn't
-> really matter.
 
-Seems reasonable.
+On 2 Jun 2003, Juan Quintela wrote:
+> 
+> /**
+>  * foo - <put something there>
+>  * @bar: number of frobnicators
+>  * @baz: self-larting on or off
+>  * @userdata: pointer to arbitrary userdata to be registered
+>  *
+>  * Description: Please, fix me
+>  */
+> int foo(long bar, long baz)
+> {
+> ...
+> 
+> Looks like a better alternative to me.
 
-> Do you mind if I submit such a patch?
+Hey, if somebody were to send me a patch (hint hint), I'd happily apply 
+it.
 
-For the CVS code, which is what's in 2.5, please do. Don't bother with
-2.4; I rewrote all the block translation layer crap so the individual
-translation drivers doesn't have to be too involved with the horridness
-of the Linux block layer.
-
--- 
-dwmw2
+		Linus
 

@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131063AbRASUSh>; Fri, 19 Jan 2001 15:18:37 -0500
+	id <S130399AbRASUc6>; Fri, 19 Jan 2001 15:32:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130399AbRASUS1>; Fri, 19 Jan 2001 15:18:27 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:10001 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131063AbRASUSP>;
-	Fri, 19 Jan 2001 15:18:15 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101192018.XAA25263@ms2.inr.ac.ru>
-Subject: Re: Is sendfile all that sexy?
-To: zippel@fh-brandenburg.DE (Roman Zippel)
-Date: Fri, 19 Jan 2001 23:18:00 +0300 (MSK)
+	id <S131353AbRASUct>; Fri, 19 Jan 2001 15:32:49 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:31109 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S130399AbRASUcj>; Fri, 19 Jan 2001 15:32:39 -0500
+Date: Fri, 19 Jan 2001 12:32:30 -0800
+From: Mike Kravetz <mkravetz@sequent.com>
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.10.10101190951390.23899-100000@zeus.fh-brandenburg.de> from "Roman Zippel" at Jan 19, 1 01:45:01 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+Subject: Re: [Lse-tech] Re: multi-queue scheduler update
+Message-ID: <20010119123230.F26968@w-mikek.des.sequent.com>
+In-Reply-To: <20010119091104.A26968@w-mikek.des.sequent.com> <LYR76657-5332-2001.01.19-12.12.38--mikek#sequent.com@lyris.sequent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <LYR76657-5332-2001.01.19-12.12.38--mikek#sequent.com@lyris.sequent.com>; from hahn@coffee.psychology.mcmaster.ca on Fri, Jan 19, 2001 at 03:12:11PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, Jan 19, 2001 at 03:12:11PM -0500, Mark Hahn wrote:
+> > incurred in the current implementation.  To maintain existing
+> > scheduler behavior, we look at all CPU specific runqueues to find
+> > the highest priority (goodness) task in the system.  Therefore,
+> 
+> do you have cpu-affinity?  the mainstream scheduler at one time
+> actually tuned the decision to move a task based on its expected
+> timeslice and the worstcase cache-flush time.
 
-> It's about direct i/o from/to pages,
+We use the same same cpu-affinity mechanism as the current scheduler.
+This simply gives a 'priority boost' to tasks that last ran on the
+current CPU.  In our multi-queue scheduler, tasks on a remote queue
+must have high enough priority (to overcome this boost) before being
+moved to the local queue.
 
-Yes. Formally, there are no problems to send to tcp directly from io space.
-
-
-But could someone explain me one thing. Does bus-mastering
-from io really work? And if it does, is it enough fast?
-At least, looking at my book on pci, I do not understand
-how such transfers are able to use bursts. MRM is banned for them...
-
-Alexey
+-- 
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center
+15450 SW Koll Parkway
+Beaverton, OR 97006-6063                     (503)578-3494
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

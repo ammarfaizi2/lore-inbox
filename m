@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUHDObt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264307AbUHDOcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbUHDObt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 10:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbUHDObt
+	id S264307AbUHDOcU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 10:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbUHDOcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 10:31:49 -0400
-Received: from moutng.kundenserver.de ([212.227.126.189]:45810 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264299AbUHDObr convert rfc822-to-8bit (ORCPT
+	Wed, 4 Aug 2004 10:32:20 -0400
+Received: from smtp.nedstat.nl ([194.109.98.184]:45741 "HELO smtp.nedstat.nl")
+	by vger.kernel.org with SMTP id S264307AbUHDOcO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 10:31:47 -0400
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Add PCI-dependency for donauboe irda driver
-Date: Wed, 4 Aug 2004 16:31:44 +0200
-User-Agent: KMail/1.6.2
-Cc: irda-users@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>
+	Wed, 4 Aug 2004 10:32:14 -0400
+Message-ID: <4110F36C.9000009@chello.nl>
+Date: Wed, 04 Aug 2004 16:32:12 +0200
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200408041631.44396.linux-kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+To: Rudo Thomas <rudo@matfyz.cz>
+Cc: Ingo Molnar <mingo@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2
+References: <1091459297.2573.10.camel@mars> <Pine.LNX.4.58.0408031019090.20420@devserv.devel.redhat.com> <20040804112201.GA7842@ss1000.ms.mff.cuni.cz>
+In-Reply-To: <20040804112201.GA7842@ss1000.ms.mff.cuni.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The donauboe driver needs a PCI bus to work. This patch adds the dependency to 
-Kconfig.
+Rudo Thomas wrote:
 
-cheers Christian
+>>thx - i fixed this in -O3.
+>>    
+>>
+>
+>Hi, Ingo.
+>
+>I just wanted to report that O3 (+preempt-timing-O2) locks up hard at random
+>occasions, even with voluntary-preempt=2 preempt=1 set at boot time.
+>I never changed any of /proc/irq/*/threaded.
+>
+>I will provide any information needed to hunt this down.
+>
+>Rudo.
+>  
+>
+Hi Igno,
 
-Signed-off-by: Christian Bornträger <linux-kernel@borntraeger.net>
+I have the same troubles with O3 at home on my SMP machine, however
+since the same kernel (2.6.8-rc2-mm2-O3) works flawlessly here at work
+on a UP P4 I thought it to be SMP related.
 
-diff -u -r1.12 Kconfig
---- a/drivers/net/irda/Kconfig	11 Mar 2004 09:59:30 -0000	1.12
-+++ b/drivers/net/irda/Kconfig	4 Aug 2004 14:13:10 -0000
-@@ -333,7 +333,7 @@
- 
- config TOSHIBA_FIR
- 	tristate "Toshiba Type-O IR Port"
--	depends on IRDA
-+	depends on IRDA && PCI
- 	help
- 	  Say Y here if you want to build support for the Toshiba Type-O IR
- 	  and Donau oboe chipsets. These chipsets are used by the Toshiba
+I also tried booting my dual athlon with noapic but that did not solve
+the problem.
+
+I have not had enough time yet to file a proper bug report but seeing
+this message I wanted to second it.
+
+Are there any known SMP related problems with your patches?
+
+and would my dmesg and .config from home be enough ?
+
+kind regards,
+
+Peter Zijlstra

@@ -1,87 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVCYWYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVCYWYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVCYWYu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 17:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVCYWY3
+	id S261846AbVCYWYF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 17:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVCYWWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 17:24:29 -0500
-Received: from fire.osdl.org ([65.172.181.4]:1969 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261855AbVCYWXb (ORCPT
+	Fri, 25 Mar 2005 17:22:01 -0500
+Received: from mail.dif.dk ([193.138.115.101]:47288 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261846AbVCYWUe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 17:23:31 -0500
-Date: Fri, 25 Mar 2005 14:23:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: jason@stdbev.com, linux-kernel@vger.kernel.org, elenstev@mesatop.com
-Subject: Re: 2.6.12-rc1-mm3 (cannot read cd-rom, 2.6.12-rc1 is OK)
-Message-Id: <20050325142336.12687e09.akpm@osdl.org>
-In-Reply-To: <20050325140654.430714e2.akpm@osdl.org>
-References: <20050325002154.335c6b0b.akpm@osdl.org>
-	<42446B86.7080403@mesatop.com>
-	<424471CB.3060006@mesatop.com>
-	<20050325122433.12469909.akpm@osdl.org>
-	<4244812C.3070402@mesatop.com>
-	<761c884705af2ea412c083d849598ca7@stdbev.com>
-	<20050325140654.430714e2.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Mar 2005 17:20:34 -0500
+Date: Fri, 25 Mar 2005 23:22:29 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: nfs@lists.sourceforge.net, Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] remove redundant NULL pointer checks prior to calling kfree()
+ in fs/nfsd/
+Message-ID: <Pine.LNX.4.62.0503252319220.2498@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> It's the new rock-ridge bounds checking.
+(please keep me on CC)
 
-Try this, please?
 
-diff -puN fs/isofs/rock.c~rock-handle-directory-overflows-fix fs/isofs/rock.c
---- 25/fs/isofs/rock.c~rock-handle-directory-overflows-fix	Fri Mar 25 14:21:32 2005
-+++ 25-akpm/fs/isofs/rock.c	Fri Mar 25 14:22:01 2005
-@@ -218,12 +218,12 @@ repeat:
- 		if (rr->len < 3)
- 			goto out;	/* Something got screwed up here */
- 		sig = isonum_721(rs.chr);
-+		if (rock_check_overflow(&rs, sig))
-+			goto eio;
- 		rs.chr += rr->len;
- 		rs.len -= rr->len;
- 		if (rs.len < 0)
- 			goto eio;	/* corrupted isofs */
--		if (rock_check_overflow(&rs, sig))
--			goto eio;
+checking for NULL before calling kfree() is redundant and needlessly 
+enlarges the kernel image, let's get rid of those checks.
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+--- linux-2.6.12-rc1-mm3-orig/fs/nfsd/export.c	2005-03-21 23:12:41.000000000 +0100
++++ linux-2.6.12-rc1-mm3/fs/nfsd/export.c	2005-03-25 22:48:11.000000000 +0100
+@@ -189,8 +189,7 @@ static int expkey_parse(struct cache_det
+  out:
+ 	if (dom)
+ 		auth_domain_put(dom);
+-	if (buf)
+-		kfree(buf);
++	kfree(buf);
+ 	return err;
+ }
  
- 		switch (sig) {
- 		case SIG('R', 'R'):
-@@ -316,12 +316,12 @@ repeat:
- 		if (rr->len < 3)
- 			goto out;	/* Something got screwed up here */
- 		sig = isonum_721(rs.chr);
-+		if (rock_check_overflow(&rs, sig))
-+			goto eio;
- 		rs.chr += rr->len;
- 		rs.len -= rr->len;
- 		if (rs.len < 0)
- 			goto eio;	/* corrupted isofs */
--		if (rock_check_overflow(&rs, sig))
--			goto eio;
+@@ -426,8 +425,7 @@ static int svc_export_parse(struct cache
+ 		path_release(&nd);
+ 	if (dom)
+ 		auth_domain_put(dom);
+-	if (buf)
+-		kfree(buf);
++	kfree(buf);
+ 	return err;
+ }
  
- 		switch (sig) {
- #ifndef CONFIG_ZISOFS		/* No flag for SF or ZF */
-@@ -694,12 +694,12 @@ repeat:
- 		if (rr->len < 3)
- 			goto out;	/* Something got screwed up here */
- 		sig = isonum_721(rs.chr);
-+		if (rock_check_overflow(&rs, sig))
-+			goto out;
- 		rs.chr += rr->len;
- 		rs.len -= rr->len;
- 		if (rs.len < 0)
- 			goto out;	/* corrupted isofs */
--		if (rock_check_overflow(&rs, sig))
--			goto out;
+--- linux-2.6.12-rc1-mm3-orig/fs/nfsd/nfs4xdr.c	2005-03-25 15:28:59.000000000 +0100
++++ linux-2.6.12-rc1-mm3/fs/nfsd/nfs4xdr.c	2005-03-25 22:49:53.000000000 +0100
+@@ -151,8 +151,7 @@ u32 *read_buf(struct nfsd4_compoundargs 
+ 	if (nbytes <= sizeof(argp->tmp))
+ 		p = argp->tmp;
+ 	else {
+-		if (argp->tmpp)
+-			kfree(argp->tmpp);
++		kfree(argp->tmpp);
+ 		p = argp->tmpp = kmalloc(nbytes, GFP_KERNEL);
+ 		if (!p)
+ 			return NULL;
+@@ -2474,10 +2473,8 @@ void nfsd4_release_compoundargs(struct n
+ 		kfree(args->ops);
+ 		args->ops = args->iops;
+ 	}
+-	if (args->tmpp) {
+-		kfree(args->tmpp);
+-		args->tmpp = NULL;
+-	}
++	kfree(args->tmpp);
++	args->tmpp = NULL;
+ 	while (args->to_free) {
+ 		struct tmpbuf *tb = args->to_free;
+ 		args->to_free = tb->next;
+--- linux-2.6.12-rc1-mm3-orig/fs/nfsd/nfscache.c	2005-03-21 23:12:41.000000000 +0100
++++ linux-2.6.12-rc1-mm3/fs/nfsd/nfscache.c	2005-03-25 22:50:14.000000000 +0100
+@@ -93,8 +93,7 @@ nfsd_cache_shutdown(void)
  
- 		switch (sig) {
- 		case SIG('R', 'R'):
-_
+ 	cache_disabled = 1;
+ 
+-	if (hash_list)
+-		kfree (hash_list);
++	kfree(hash_list);
+ 	hash_list = NULL;
+ }
+ 
+
 

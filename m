@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbTIHOaY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 10:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbTIHOaY
+	id S262394AbTIHOVV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 10:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbTIHOVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 10:30:24 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:57730 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262436AbTIHOaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 10:30:20 -0400
-Subject: Re: [CFT][PATCH] new scheduler policy
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Haoqiang Zheng <hzheng@cs.columbia.edu>
-Cc: Pavel Machek <pavel@ucw.cz>, Nick Piggin <piggin@cyberone.com.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Mike Galbraith <efault@gmx.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F5C9010.1080607@cs.columbia.edu>
-References: <3F4182FD.3040900@cyberone.com.au>
-	 <5.2.1.1.2.20030819113225.019dae48@pop.gmx.net>
-	 <20030820021351.GE4306@holomorphy.com> <3F4A1386.9090505@cs.columbia.edu>
-	 <3F4A172F.8080303@cyberone.com.au> <3F4A272F.8000602@cs.columbia.edu>
-	 <20030902142552.GG1358@openzaurus.ucw.cz>
-	 <1063028436.21084.30.camel@dhcp23.swansea.linux.org.uk>
-	 <3F5C9010.1080607@cs.columbia.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063031334.21050.44.camel@dhcp23.swansea.linux.org.uk>
+	Mon, 8 Sep 2003 10:21:20 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42746 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262394AbTIHOVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 10:21:08 -0400
+Date: Mon, 8 Sep 2003 16:20:46 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, peter_daum@t-online.de
+Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
+Message-ID: <20030908142046.GA28062@fs.tum.de>
+References: <3F5B96C3.1060706@colorfullife.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Mon, 08 Sep 2003 15:28:54 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F5B96C3.1060706@colorfullife.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-09-08 at 15:20, Haoqiang Zheng wrote:
-> How do you define "priority inversion" if the app is remote?
+On Sun, Sep 07, 2003 at 10:36:19PM +0200, Manfred Spraul wrote:
+> Adrian wrote:
+> 
+> >With CONFIG_M686 CONFIG_X86_L1_CACHE_SHIFT was set to 5, but a Pentium 4 
+> >requires 7.
+> > 
+> >
+> Why requires? On x86, the cpu caches are fully coherent. A too small L1 
+> cache shift results in false sharing on SMP, but it shouldn't cause the 
+> described problems.
+>...
 
-You have to know the dependancies for the entire system, its nearly
-impossible to do. Once you have the apps also waiting for each other and
-for direct communications (eg via a database or a shared service) life
-gets fun. 
+Thanks for the correction, I falsely thought CONFIG_X86_L1_CACHE_SHIFT 
+does something different than it does.
 
-For local apps one thing that has been suggested and some microkernels
-have played with is a syscall that basically is "send this message and
-donate the rest of my timeslice to.."
+>    Manfred
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

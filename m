@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266767AbSKUPtE>; Thu, 21 Nov 2002 10:49:04 -0500
+	id <S266774AbSKUPpb>; Thu, 21 Nov 2002 10:45:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266792AbSKUPtE>; Thu, 21 Nov 2002 10:49:04 -0500
-Received: from gordo.y12.doe.gov ([134.167.141.46]:6569 "EHLO
-	gordo.y12.doe.gov") by vger.kernel.org with ESMTP
-	id <S266767AbSKUPtD>; Thu, 21 Nov 2002 10:49:03 -0500
-Message-ID: <3DDD020A.62F83EE5@y12.doe.gov>
-Date: Thu, 21 Nov 2002 10:55:54 -0500
-From: David Dillow <dillowd@y12.doe.gov>
-Organization: BWXT Y-12/TC/UT Subcon/What a mess!
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christian Axelsson <smiler@lanil.mine.nu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Status of 3Com 3CR990 driver
-References: <20021118153338.3e93f0b8.smiler@lanil.mine.nu>
+	id <S266767AbSKUPpb>; Thu, 21 Nov 2002 10:45:31 -0500
+Received: from mnh-1-06.mv.com ([207.22.10.38]:31492 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S266774AbSKUPpa>;
+	Thu, 21 Nov 2002 10:45:30 -0500
+Message-Id: <200211211556.KAA02120@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Get 2.5.48 UML to compile with CONFIG_NFSD=y 
+In-Reply-To: Your message of "20 Nov 2002 23:17:10 PST."
+             <1037863030.13803.5.camel@camp4.serpentine.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 21 Nov 2002 10:56:20 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Axelsson wrote:
-> 
-> I couple of weeks ago I read a post from David Dillow about drivers for the
-> 3CR990 NICs
-> (http://www.3com.com/products/en_US/detail.jsp?tab=features&pathtype=purchase&s
-> ku=3CR990-TX-95).
-> Now I wonder how work is progressing as I've got a hand of one of these cards
-> for free :)
+bos@serpentine.com said:
+> There's a typo in the user-mode-linux syscall table that causes a
+> compilation failure with the NFS server enabled.  The attached patch
+> applies to BK-current and fixes the problem. 
 
-Sorry, bit of an emergency on another project, but I'm back to cleaning
-this up and pushing it through channels. Ah, bureaucracy.... :/
+Thanks, I already had this fix in my pool.
 
-> If there will be a 2.4 backport of the driver David is writing, I'll be happy to
-> beta-test it for him :)
+				Jeff
 
-I'm mainly working against 2.4.current, but it won't change too much for
-2.4.older or 2.5.

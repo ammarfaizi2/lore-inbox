@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUHCGv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265091AbUHCGxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbUHCGv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 02:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265091AbUHCGv4
+	id S265091AbUHCGxg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 02:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbUHCGxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 02:51:56 -0400
-Received: from colin2.muc.de ([193.149.48.15]:1042 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S264231AbUHCGvz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 02:51:55 -0400
-Date: 3 Aug 2004 08:51:54 +0200
-Date: Tue, 3 Aug 2004 08:51:54 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Peter Williams <pwil3058@bigpond.net.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] V-3.0 Single Priority Array O(1) CPU Scheduler Evaluation
-Message-ID: <20040803065154.GA85840@muc.de>
-References: <2oEEn-197-9@gated-at.bofh.it> <m3isc1smag.fsf@averell.firstfloor.org> <410EDBF5.40205@bigpond.net.au> <20040802205332.3413cd6d.akpm@osdl.org>
+	Tue, 3 Aug 2004 02:53:35 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:58710 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S265091AbUHCGx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 02:53:28 -0400
+Subject: Re: USB troubles in rc2
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Michael Guterl <mguterl@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <944a03770408021908da573de@mail.gmail.com>
+References: <200408022100.54850.ktech@wanadoo.es>
+	 <20040803002634.GB26323@kroah.com>
+	 <944a03770408021908da573de@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 03 Aug 2004 00:49:58 -0600
+Message-Id: <1091515798.2240.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040802205332.3413cd6d.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But let me re-repeat again that CPU scheduler problems tend to take a
-> _long_ time to turn up - you make some change and two months later some
-> person with a weird workload on expensive hardware hits a nasty corner
-> case.  So I do think that we'd have to hit a nasty problem with the current
-> scheduler to go making deep changes.
+I have the same board.  I cannot get USB and 1394 to cohabitate.  On my
+system, when I insert a USB device, the 1394 system shows itself as
+handling the interrupt and the USB remains dormant.
 
-How about just simplifying the code? Both Con's and Peter's code 
-look a lot simpler compared to the stock scheduler and are easier 
-to understand. If they don't work significantly worse I think that
-would be a strong argument to move to one of them.
+Trever
 
--Andi
+On Mon, 2004-08-02 at 22:08 -0400, Michael Guterl wrote:
+> I have an nforce2 motherboard also (Asus A7N8X Deluxe).  And I'm
+> having issues as well, like the parent poster I had to previously
+> revert bk-usb.patch when using mm kernels.  Now the problem persists
+> in vanilla 2.6.8-rc2.  Specifically my problem is that Starting Cups
+> hangs during bootup.  I removed USB support and it booted fine, but I
+> can't live without USB, keyboard, mouse, and external hard drive are
+> all USB.  Below is my config file hopefully it will help.
+
+--
+"You can surrender Without a prayer But never ever pray Pray without
+surrender You can fight Fight without ever wining But you can never ever
+win Win without fight" -- Niel Peart
 

@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318930AbSHANjp>; Thu, 1 Aug 2002 09:39:45 -0400
+	id <S318822AbSHANnq>; Thu, 1 Aug 2002 09:43:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318931AbSHANjp>; Thu, 1 Aug 2002 09:39:45 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47116 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318930AbSHANjp>;
-	Thu, 1 Aug 2002 09:39:45 -0400
-Date: Thu, 1 Aug 2002 14:43:12 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Grover <andrew.grover@intel.com>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] ACPI: compilation fixes
-Message-ID: <20020801144312.A24803@parcelfarce.linux.theplanet.co.uk>
-References: <20020801104053.GA137@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020801104053.GA137@elf.ucw.cz>; from pavel@ucw.cz on Thu, Aug 01, 2002 at 12:40:53PM +0200
+	id <S318769AbSHANnq>; Thu, 1 Aug 2002 09:43:46 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:26542 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S318822AbSHANnp>;
+	Thu, 1 Aug 2002 09:43:45 -0400
+Date: Thu, 1 Aug 2002 15:45:28 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Marcin Dalecki <dalecki@evision.ag>
+Subject: [bug, 2.5.29, IDE] partition table corruption?
+Message-ID: <Pine.LNX.4.44.0208011541590.19906-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 12:40:53PM +0200, Pavel Machek wrote:
-> -	save_flags(flags);
-> +	local_irq_save(flags);
-> +	local_irq_disable();
 
-umm.  local_irq_save disables interrupts:
+using 2.5.29 (vanilla or BK-curr) i cannot use /sbin/lilo anymore to
+update the partition table.
 
-#define local_irq_save(x)       __asm__ __volatile__("pushfl ; popl %0 ; cli":"=
-g" (x): /* no input */ :"memory")
+if i do it then the partition table gets corrupted and the system does not
+boot - it stops at 'LI'. (iirc meaning that the second-stage loader does
+not load?) Using a recovery CD fixes the problem, so it's only the
+partition info that got trashed, not the filesystem.
 
-i think you're confused with local_save_flags.
+i use IDE disks.
 
--- 
-Revolutions do not require corporate support.
+this makes development under 2.5.29 quite inconvenient - i have to boot
+back into another kernel whenever loading a new kernel.
+
+	Ingo
+
+

@@ -1,73 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267164AbTAPQXO>; Thu, 16 Jan 2003 11:23:14 -0500
+	id <S267175AbTAPQ2r>; Thu, 16 Jan 2003 11:28:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267174AbTAPQXO>; Thu, 16 Jan 2003 11:23:14 -0500
-Received: from borg.org ([208.218.135.231]:4790 "HELO borg.org")
-	by vger.kernel.org with SMTP id <S267164AbTAPQXN>;
-	Thu, 16 Jan 2003 11:23:13 -0500
-Date: Thu, 16 Jan 2003 11:32:09 -0500
-From: Kent Borg <kentborg@borg.org>
-To: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: any brand recomendation for a linux laptop ?
-Message-ID: <20030116113209.B22370@borg.org>
-References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
-Mime-Version: 1.0
+	id <S267180AbTAPQ2r>; Thu, 16 Jan 2003 11:28:47 -0500
+Received: from cm19173.red.mundo-r.com ([213.60.19.173]:15511 "EHLO
+	demo.mitica") by vger.kernel.org with ESMTP id <S267175AbTAPQ2q>;
+	Thu, 16 Jan 2003 11:28:46 -0500
+To: "Andrey Borzenkov" <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org, chmouel@mandrakesoft.com
+Subject: Re: Does file read-ahead in 2.4 really read ahead?
+References: <E18WvfL-0000rr-00@f13.mail.ru>
+X-Url: http://people.mandrakesoft.com/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <E18WvfL-0000rr-00@f13.mail.ru>
+Date: 16 Jan 2003 17:46:21 +0100
+Message-ID: <m2of6hvy8y.fsf@demo.mitica>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2.92
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>; from Nicolas.Turro@sophia.inria.fr on Thu, Jan 16, 2003 at 11:00:45AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 16, 2003 at 11:00:45AM +0100, Nicolas Turro wrote:
-> I am software engineer at a french research institute, in charge of
-> the linux support on about 600 computers. I am looking for laptops
-> whith linux support/certification. I couln't find any recent laptop
-> model on your certification page.
+>>>>> "andrey" == Andrey Borzenkov <arvidjaar@mail.ru> writes:
 
-Linux is still too obscure for a good certification list.  (Have
-heart, the internet was once obscure too...)
+The last time that I looked, file_readahead was basically not used
+in the whole kernel.  Sorry for the delay.
 
-> Would you recomend me any brand of computer ?
+Later, Juan.
 
-Download the Knoppix CD (knoppix.com).  It is a bootable Linux that
-runs from CD and is quite usable.  It is based on Debian.  Bring the
-to your local omputer store and try booting different models with the
-CD and see which ones work.  That will give you one data point on how
-Linux compatible the computer it.
+andrey> The following analysis is based on Mandrake 2.4.20-2mdk kernel, but the problems exists since 2.4.18 and probably earlier so it is unlikely to be a Mandrake-specific. I have pure IDE hardware; situation may be different on SCSI.
+andrey> It appears that when do_generic_file_read queues readahead requests, it never ever runs tq_disk to trigger actual read. And in the worst case (when it is the first request in queue) it means that device queue remains plugged until next run_task_queue run. The effects are
 
-> - - sound is hard or impossible to setup correctly.
+andrey> - read-ahead may be delayed for as long as next read from device. In case of busy system doing much disk IO it is not as obvious (because tq_disk is run often); in case of single-user system running single-threaded aplication it makes read-ahead actually useless.
 
-I have an MSI motherboard-based computer at home on which Red Hat
-couldn't make the sound work until 8.0--but the Knoppix CD has managed
-sound on that machine just fine.
+andrey> - it kills supermount. Supermount checks for media change on every file operation (sans actual read). For IDE ide_do_request blocks until queue is unplugged. In the worst case it happens first on next kupdated run i.e. 5 seconds. That explains terrible performance of supermount on CDs under some usage patterns (rpm /mnt/cdrom/*.rpm being the best example).
 
-Knoppix is also a *great* rescue CD--and a nice way to temporarily
-turn a groady MS Windows into a decent Linux machine.
+andrey> Comment at the end of generic_file_readahead suggets that it should unplug the queue:
 
-> Any help/advice would be apreciated.
+andrey> /*
+andrey> * If we tried to read ahead some pages,
+andrey> * If we tried to read ahead asynchronously,
+andrey> *   Try to force unplug of the device in order to start an asynchronous
+andrey> *   read IO request.
 
-Laptops are just like big office computers, except they are more
-expensive, less compatible, less powerful, easier to steal and fence,
-and smaller.  Um, clearly "smaller" is the feature here.  Unless you
-really expect to only use it on two different desks and move it
-seldomly between them, I say go for small.  There is a world of
-difference between a computer that weighs under 2 kg and one that is
-over 3.5 kg.  Go for small and you can bring it with you on spec.
-Given builtin ethernet and wireless, the need for floppies or CDs is
-much less.  I have an old Sony Z505LE with no CD drive at all.  I have
-done Linux installs with an external USB floppy and an NFS copy of the
-distribution.  I have no regrets that I didn't spent $300 extra for
-Sony's CD.
+andrey> but it never happens as far as I can tell.
 
-Also battery life is important.  And what do extra batteries cost?  My
-original "single capacity" battery is worn out.  It can keep my
-computer in suspension while I commute, but can't really use it.  And
-replacements are really expensive.  I wish the Apple Ibook were x86...
+andrey> Is it intended behaviour? 
+
+andrey> -andrey
+
+andrey> P.S. Please Cc on replies as I am not on lkml
+
+andrey> P.P.S. Juan, Chmouel, I have patch for yet another bug that makes IDE CD-ROMs usable with supermount again, need to verify it. Unfortunately it cannot be generalized for HDs or SCSI devices.
 
 
--kb, the Kent whose current evening project is to remaster Knoppix
-with tripwire added and use that plus a locked floppy as a trustworthy
-intrusion detector.
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

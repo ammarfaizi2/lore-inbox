@@ -1,87 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277842AbRJIRIZ>; Tue, 9 Oct 2001 13:08:25 -0400
+	id <S277844AbRJIRKF>; Tue, 9 Oct 2001 13:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277844AbRJIRIQ>; Tue, 9 Oct 2001 13:08:16 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29714 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277842AbRJIRIC>; Tue, 9 Oct 2001 13:08:02 -0400
-Date: Tue, 9 Oct 2001 10:07:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: pre6 VM issues
-In-Reply-To: <20011009184912.H12727@athlon.random>
-Message-ID: <Pine.LNX.4.33.0110090959340.1937-100000@penguin.transmeta.com>
+	id <S277848AbRJIRJz>; Tue, 9 Oct 2001 13:09:55 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:45069 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S277844AbRJIRJq>;
+	Tue, 9 Oct 2001 13:09:46 -0400
+Date: Tue, 9 Oct 2001 14:10:00 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Till Immanuel Patzschke <tip@internetwork-ag.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [Q] cannot fork w/ 1000s of procs (but still mem avail.)
+In-Reply-To: <3BC32117.52E68787@internetwork-ag.de>
+Message-ID: <Pine.LNX.4.33L.0110091408470.2847-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 9 Oct 2001, Till Immanuel Patzschke wrote:
 
-On Tue, 9 Oct 2001, Andrea Arcangeli wrote:
->
-> If you think we're missing throttling and you add the infinite loop,
-> yes, you'll hide the lack of throttling by looping at full cpu speed
-> rather than using the cpu for more useful things, but that doesn't mean
-> that the looping in itself is adding throttling, a loop can't add
-> throttling.
+> hopefully a simple question to answer: I get "cannot fork" messages on
+> my machine running some 20000 processes and threads (1 master proc, 3
+> threads), where each (master) process opens a socket and does IP
+> traffic over it. Although there is plenty of memory left (4GB box, 2GB
+> used, 0 swap), I get "cannot fork - out of memory" when trying to
+> increase the number of procs. (If none of the procs does IP, I can
+> start more [of course?!].) Anything I can do to increase the number of
+> active processes using IP? Any kernel paramter, limit, sizing?
 
-The loop means that the return value of "try_to_free_pages()" basically
-becomes meaningless _except_ as a way of telling kswapd that "we are now
-having trouble freeing pages, maybe you should check if something should
-be killed".
+For efficiency reasons, the kernel and userspace have to share
+the same 4GB virtual address area. By default this area is split
+3:1, with 3GB virtual space available for user programs and 1GB
+for the kernel.
 
-Which means that "try_to_free_pages()" has more freedom in doing whatever
-it is it wants to do - it knows that real allocations will call it again
-(after having checked whether the process can die).
+I suspect in your case it may be worth it to change the kernel
+to use 2GB of virtual address space for itself and only let
+userspace have 2GB...
 
-> > > Think a list where pages can be only freeable or unfreeable.  Now scan
-> > > _all_ the pages and free all the freeable ones. Finished. If it failed
-> > > and it couldn't free anything it means there was nothing to free so
-> > > we're oom. How can that be "fragile"?
-> >
-> > That is fragile IMHO, Andrea.
->
-> Mind to explain "why"? Of course you can't because it isn't fragile,
-> period.
+regards,
 
-It's fragile because it means that to be true, the try_to_free_pages()
-logic _has_to_guarantee_ that it looked at every single page. Going
-through every list that ages _twice_ to get rid of potential accessed
-bits.
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
 
-For example, it means that if there are lots of pages that just happen to
-be locked due to having pending write-outs on them, you will return OOM.
-Even if the system isn't out of memory - it's only temporarily locked, and
-what try_to_free_pages() should have done is probably to wait on a page.
-
-HOWEVER, you cannot afford to wait on a single page with your approach,
-because if you wait for pages that you notice are locked, _together_ with
-the requirement that you have to go through every single list twice, you'd
-be totally screwed, and people might wait for a really long time.
-
-So what do you do? You never wait at all, and just skip locked pages.
-Which means that your loop can never throttle, and because you refuse to
-see the light about the "endless loop", you can never really even _start_
-throttling on IO without adding more and more special cases.
-
-> The infinite loop adds oom deadlocks and hides the real problems in the
-> memory balancing.
-
-You've not shown that to be true. Look at the code, tell us how it
-deadlocks.
-
-> I quote my first email about pre4 (I think I CC'ed you too):
->
-> 	".. think if the oom-selected task is looping trying to free memory, it
-> 	won't care about the signal you sent to it .."
-
-Look again, and read the emails we've sent you.
-
-You refuse to listen, and that's the problem. Check the PF_MEMALLOC logic,
-and stop blathering about things that you do not understand.
-
-		Linus
+http://www.surriel.com/		http://distro.conectiva.com/
 

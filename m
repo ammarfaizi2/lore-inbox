@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284477AbRLRSgn>; Tue, 18 Dec 2001 13:36:43 -0500
+	id <S284488AbRLRSgX>; Tue, 18 Dec 2001 13:36:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284497AbRLRSge>; Tue, 18 Dec 2001 13:36:34 -0500
-Received: from m851-mp1-cvx1c.edi.ntl.com ([62.253.15.83]:19694 "EHLO
+	id <S284506AbRLRSgD>; Tue, 18 Dec 2001 13:36:03 -0500
+Received: from m851-mp1-cvx1c.edi.ntl.com ([62.253.15.83]:19438 "EHLO
 	pinkpanther.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S284477AbRLRSgW>; Tue, 18 Dec 2001 13:36:22 -0500
+	id <S284500AbRLRSgB>; Tue, 18 Dec 2001 13:36:01 -0500
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200112181548.fBIFmXs16433@pinkpanther.swansea.linux.org.uk>
-Subject: Re: 8139too fails to compile
-To: rj@open-net.org (Robert Jameson)
-Date: Tue, 18 Dec 2001 15:48:33 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011216003356.5abcc2ac.rj@open-net.org> from "Robert Jameson" at Dec 16, 2001 12:33:56 
+Message-Id: <200112181727.fBIHRkm16908@pinkpanther.swansea.linux.org.uk>
+Subject: Re: [PATCH] kill(-1,sig)
+To: sim@netnation.com (Simon Kirby)
+Date: Tue, 18 Dec 2001 17:27:46 +0000 (GMT)
+Cc: Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20011214123628.A22506@netnation.com> from "Simon Kirby" at Dec 14, 2001 12:36:28 
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,8 +21,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello, I was trying to compile 2.4.17-rc1 with no luck, It looks like a GCC error.
+> On Fri, Dec 14, 2001 at 05:34:48PM +0000, Andries.Brouwer@cwi.nl wrote:
+> 
+> > + * POSIX (2001) specifies "If pid is -1, sig shall be sent to all processes
+> > + * (excluding an unspecified set of system processes) for which the process
+> > + * has permission to send that signal."
+> > + * So, probably the process should also signal itself.
+> > -			if (p->pid > 1 && p != current) {
+> > +			if (p->pid > 1) {
+> 
+> Argh, I hate this.  I fail to see what progress a process could make if
+> it kills everything _and_ itself.  I frequently use "kill -9 -1" to kill
+> everything except my shell, and now I'll have to kill everything else
+> manually, one by one.
+> 
+> If a process wants to commit suicide too, why doesn't it just do that
+> after?
 
-Yep - use 2.95. 3.0.1 seems to work too as does 2.96-85+ RH
-
+This is the best suggestion I've yet seen. kill() is defined at C library
+level so glibc can do the self kill at the end if POSIX_ME_HARDER is
+in the environment
 

@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265778AbUFDMrh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265776AbUFDMs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265778AbUFDMrh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 08:47:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265776AbUFDMrh
+	id S265776AbUFDMs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 08:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265779AbUFDMs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 08:47:37 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:36037 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265781AbUFDMrL (ORCPT
+	Fri, 4 Jun 2004 08:48:27 -0400
+Received: from gprs214-121.eurotel.cz ([160.218.214.121]:2689 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265776AbUFDMsU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 08:47:11 -0400
-Date: Fri, 4 Jun 2004 14:47:04 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: ide errors in 7-rc1-mm1 and later
-Message-ID: <20040604124704.GA1946@suse.de>
-References: <1085689455.7831.8.camel@localhost> <200406041357.58813.bzolnier@elka.pw.edu.pl> <20040604120140.GX1946@suse.de> <200406041438.44706.bzolnier@elka.pw.edu.pl>
+	Fri, 4 Jun 2004 08:48:20 -0400
+Date: Fri, 4 Jun 2004 14:48:11 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Christoph Hellwig <hch@ucw.cz>, vojtech@suse.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Lowered priority of "too many keys" message in atkbd
+Message-ID: <20040604124811.GC11950@elf.ucw.cz>
+References: <20040530083126.GA30916@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406041438.44706.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040530083126.GA30916@lst.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04 2004, Bartlomiej Zolnierkiewicz wrote:
-> Well, thanks but I still think that your patch suits crappy code perfectly
-> (you know all the complains).
+Hi!
 
-I'm not on a crusade to clean up drivers/ide, in fact I could not care
-less it if rots away (thank fully it is doing just that, pata is going
-away). Most of your complaints are not valid in my opinion (->wrq usage
-is fine. it's not pretty, but it's not broken as long as you serialize
-access across the hwgroup of course). Like the rest, it's an artifact of
-how messy the code paths are in there. That could be cleaned too
-naturally, but that's someone elses job and I'm not about to increase my
-work load in that area.
+> This patch is from the Debian kernel package and I think it's valid
+> because this error doesn't cause any kind of malfunction of the
+> system.
 
-That you need to queue pre/post flushes to support barriers is a _driver
-implementation detail_ in my opinion. You don't want to even advertise
-that to upper layers. I will move a little of that into the block layer,
-if only because SATA will need it as well.
+Except perhaps dropped key?
 
-As for REQ_DRIVE_TASK and ide_get_error_location(), well hell I do take
-patches! If there's something you consider broken, damnit send a patch
-to correct it and I'll surely merge it into the base if I agree it makes
-sense. That's the way to get changes done if you feel something should
-be different, snide remarks with basically zero detail is not.
+When keypress is lost, I like to know if my fingers are to blame,
+keyboard hardware is to blame, or keyboard is misdesigned.
+								Pavel
+
+> --- linux/drivers/input/keyboard/atkbd.c	2004-04-05 19:49:28.000000000 +1000
+> +++ linux/drivers/input/keyboard/atkbd.c	2004-04-06 19:55:38.000000000 +1000
+> @@ -284,7 +284,7 @@
+>  			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
+>  			goto out;
+>  		case ATKBD_RET_ERR:
+> -			printk(KERN_WARNING "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
+> +			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
+>  			goto out;
+>  	}
+>  
+
 
 -- 
-Jens Axboe
-
+934a471f20d6580d5aad759bf0d97ddc

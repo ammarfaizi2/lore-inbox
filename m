@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271697AbRIHRT3>; Sat, 8 Sep 2001 13:19:29 -0400
+	id <S271764AbRIHRTI>; Sat, 8 Sep 2001 13:19:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271765AbRIHRTT>; Sat, 8 Sep 2001 13:19:19 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:61773 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S271697AbRIHRTE>; Sat, 8 Sep 2001 13:19:04 -0400
-Date: Sat, 8 Sep 2001 19:19:54 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: linux-2.4.10-pre5
-Message-ID: <20010908191954.C11329@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0109072117580.1259-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109072117580.1259-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Sep 07, 2001 at 09:18:47PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S271761AbRIHRS7>; Sat, 8 Sep 2001 13:18:59 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:30178 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S271697AbRIHRSl>;
+	Sat, 8 Sep 2001 13:18:41 -0400
+Message-Id: <m15flku-000QFYC@amadeus.home.nl>
+Date: Sat, 8 Sep 2001 18:18:56 +0100 (BST)
+From: arjan@fenrus.demon.nl
+To: Eric.Brunet@physics.unige.ch (Brunet Eric)
+Subject: Re: Two bugs: PCMCIA doesn't work and bad DMA/APM interaction
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010908190133.B5716@serifos.unige.ch>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 07, 2001 at 09:18:47PM -0700, Linus Torvalds wrote:
-> pre5:
->  - Merge with Alan
->  - Trond Myklebust: NFS fixes - kmap and root inode special case
->  - Al Viro: more superblock cleanups, inode leak in rd.c, minix
->    directories in page cache
+In article <20010908190133.B5716@serifos.unige.ch> you wrote:
+> Hello all,
 
-"inode leak in rd.c" is correct description, what's wrong is that pre5
-is the one introducing the leak, and there was nothing to fix there. The
-inode of the initrd must be released with iput because it's a virtual
-inode, so if we don't iput it from there we'll lose all references to
-it.
+> (insmod's output is:
+> /lib/modules/2.4.10-pre4/kernel/drivers/pcmcia/i82365.o: init_module: No such device
+> Hint: insmod errors can be caused by incorrect module parameters,
+> including invalid IO or IRQ parameters
+> )
 
-There are instead a few initrd bugs that I corrected in the
-blkdev-pagecache patch while rewriting the ramdisk/initrd pagecache
-backed but I'm too lazy to extract them since they're quite low prio,
-I'll just wait for the blkdev in pagecache to be merged instead.
 
-Andrea
+that's because you need the "yenta_socket.o" module for cardbus!

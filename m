@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268097AbTBWJcp>; Sun, 23 Feb 2003 04:32:45 -0500
+	id <S268110AbTBWJqz>; Sun, 23 Feb 2003 04:46:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268098AbTBWJcp>; Sun, 23 Feb 2003 04:32:45 -0500
-Received: from [144.139.35.78] ([144.139.35.78]:9350 "EHLO portal.frood.au")
-	by vger.kernel.org with ESMTP id <S268097AbTBWJcm>;
-	Sun, 23 Feb 2003 04:32:42 -0500
-Message-ID: <3E589799.3000105@bigpond.com>
-Date: Sun, 23 Feb 2003 20:42:49 +1100
-From: James Harper <james.harper@bigpond.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: SMP and CPU1 not showing interrupts in /proc/interrupts
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268105AbTBWJqU>; Sun, 23 Feb 2003 04:46:20 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:52608 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S268118AbTBWJpp>; Sun, 23 Feb 2003 04:45:45 -0500
+Date: Sun, 23 Feb 2003 18:53:07 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] PC-9800 subarch. support for 2.5.62-AC1 (14/21) PNP
+Message-ID: <20030223095307.GO1324@yuzuki.cinet.co.jp>
+References: <20030223092116.GA1324@yuzuki.cinet.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030223092116.GA1324@yuzuki.cinet.co.jp>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-somewhere between about 2.5.53 and 2.5.62 my /proc/interrupts has gone 
-from an approximately even distribution of interrupts between CPU0 and 
-CPU1 to grossly uneven:
+This is additional patch to support NEC PC-9800 subarchitecture
+against 2.5.62-ac1. (14/21)
 
-           CPU0       CPU1       
-  0:   13223321    2233217    IO-APIC-edge  timer
-  1:      13442          0    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  3:     291874          0    IO-APIC-edge  serial
-  8:          3          0    IO-APIC-edge  rtc
-  9:          0          0    IO-APIC-edge  acpi
- 14:      18932          0    IO-APIC-edge  ide0
- 15:         14          0    IO-APIC-edge  ide1
- 16:     190607          1   IO-APIC-level  eth0, nvidia
- 17:       3214          0   IO-APIC-level  bttv0
- 18:      14249          1   IO-APIC-level  ide2
- 19:     121942          0   IO-APIC-level  uhci-hcd, wlan0
-NMI:          0          0
-LOC:   15458218   15458423
-ERR:          0
-MIS:          0
+Small change for Legacy bus PNP support.
+For fix IO port address.
 
-if i really hit the system hard then CPU1 will start accruing interrupts 
-but in a mostly idle state CPU1 just sits on its bum and lets CPU0 
-handle them all, with the exception of irq #0, for some reason.
+Regards,
+Osamu Tomita
 
-any ideas?
-
-thanks
-
-James
-
-
+diff -Nru linux/drivers/pnp/isapnp/core.c linux98/drivers/pnp/isapnp/core.c
+--- linux/drivers/pnp/isapnp/core.c	2003-01-02 12:22:18.000000000 +0900
++++ linux98/drivers/pnp/isapnp/core.c	2003-01-04 16:40:40.000000000 +0900
+@@ -72,8 +72,13 @@
+ MODULE_PARM_DESC(isapnp_verbose, "ISA Plug & Play verbose mode");
+ MODULE_LICENSE("GPL");
+ 
++#ifdef CONFIG_X86_PC9800
++#define _PIDXR		0x259
++#define _PNPWRP		0xa59
++#else
+ #define _PIDXR		0x279
+ #define _PNPWRP		0xa79
++#endif
+ 
+ /* short tags */
+ #define _STAG_PNPVERNO		0x01

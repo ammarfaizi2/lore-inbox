@@ -1,179 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbUDPFgb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 01:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUDPFgb
+	id S262361AbUDPFg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 01:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUDPFg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 01:36:31 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:26026 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S262347AbUDPFgY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 01:36:24 -0400
-Message-ID: <407F6CC8.1060903@stanford.edu>
-Date: Thu, 15 Apr 2004 22:19:04 -0700
-From: Andy Lutomirski <luto@stanford.edu>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
-       shuchen@realtek.com.tw
-Subject: r8169 excessive PHY reset
-Content-Type: multipart/mixed;
- boundary="------------020206070400060601020304"
+	Fri, 16 Apr 2004 01:36:56 -0400
+Received: from moo.samara.net ([195.209.64.5]:27917 "EHLO moo.samara.net")
+	by vger.kernel.org with ESMTP id S262361AbUDPFgv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 01:36:51 -0400
+Subject: Promise SX-6000 and kernel 2.6.5
+From: Alex Murphy <murphy@sgtp.samara.ru>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: SYS.NET.RU
+Message-Id: <1082093803.4962.86.camel@bene.samgtp>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 16 Apr 2004 10:36:43 +0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020206070400060601020304
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello!!!
 
-On my r8169 (Really 8110S, I think -- it's a MSI K8T Neo-FIS2R, running x86_64), 
-if I unplug the network cable and reconnect it, the link stays down and the 
-driver starts resetting the PHY at an absurd rate (many times per second).
+ I am sorry for the letter, but allow to address to you with my problem.
+Has bought Promise SX-6000 Pro the controller and has established on him
+Linux Redhat. All - is excellent!! Has updated a nucleus for 2.6.5 - I
+can not pick up the controller in any way. Source codes of a nucleus
+taking place on your site do not approach for 2.6 nucleus :( 
 
-Strangely enough, simply removing all the PHY reset code fixes it.  Is there any 
-reason for this code?  (The other end of my link is e1000, and I'm using 1000Mbps.)
+Can you know the possible decision of my problem??
 
-Patch against 2.6.5-mm5 (attached because my mailer will mangle it otherwise).
+ Yours faithfully and hope, Alexey.
 
---Andy
+P.S.1 firmware drivers for 2.4.x kernel download is 
+http://www.eventus.de/linux.html
 
-Please CC me b/c i'm not subscribed.
+P.S.2
 
---------------020206070400060601020304
-Content-Type: text/plain;
- name="r8169fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="r8169fix.patch"
+In make menuconfig has disconnected support of all PDC Promise. Has
+included all I2O devices in a nucleus.
 
---- ./drivers/net/r8169.c.orig	2004-04-15 22:08:07.962654280 -0700
-+++ ./drivers/net/r8169.c	2004-04-15 22:09:22.101383480 -0700
-@@ -98,7 +98,6 @@
- 
- #define RTL_MIN_IO_SIZE 0x80
- #define RTL8169_TX_TIMEOUT	(6*HZ)
--#define RTL8169_PHY_TIMEOUT	(HZ) 
- 
- /* write/read MMIO register */
- #define RTL_W8(reg, val8)	writeb ((val8), ioaddr + (reg))
-@@ -323,7 +322,6 @@
- 	dma_addr_t RxPhyAddr;
- 	struct sk_buff *Rx_skbuff[NUM_RX_DESC];	/* Rx data buffers */
- 	struct sk_buff *Tx_skbuff[NUM_TX_DESC];	/* Index of Transmit data buffer */
--	struct timer_list timer;
- 	unsigned long phy_link_down_cnt;
- 	u16 cp_cmd;
- };
-@@ -568,90 +566,6 @@
- 	mdio_write(ioaddr, 31, 0x0000); //w 31 2 0 0
- }
- 
--static void rtl8169_hw_phy_reset(struct net_device *dev)
--{
--	struct rtl8169_private *tp = dev->priv;
--	void *ioaddr = tp->mmio_addr;
--	int i, val;
--
--	printk(KERN_WARNING PFX "%s: Reset RTL8169s PHY\n", dev->name);
--
--	val = (mdio_read(ioaddr, 0) | 0x8000) & 0xffff;
--	mdio_write(ioaddr, 0, val);
--
--	for (i = 50; i >= 0; i--) {
--		if (!(mdio_read(ioaddr, 0) & 0x8000))
--			break;
--		udelay(100); /* Gross */
--	}
--
--	if (i < 0) {
--		printk(KERN_WARNING PFX "%s: no PHY Reset ack. Giving up.\n",
--		       dev->name);
--	}
--}
--
--static void rtl8169_phy_timer(unsigned long __opaque)
--{
--	struct net_device *dev = (struct net_device *)__opaque;
--	struct rtl8169_private *tp = dev->priv;
--	struct timer_list *timer = &tp->timer;
--	void *ioaddr = tp->mmio_addr;
--
--	assert(tp->mac_version > RTL_GIGA_MAC_VER_B);
--	assert(tp->phy_version < RTL_GIGA_PHY_VER_G);
--
--	if (RTL_R8(PHYstatus) & LinkStatus)
--		tp->phy_link_down_cnt = 0;
--	else {
--		tp->phy_link_down_cnt++;
--		if (tp->phy_link_down_cnt >= 12) {
--			int reg;
--
--			// If link on 1000, perform phy reset.
--			reg = mdio_read(ioaddr, PHY_1000_CTRL_REG);
--			if (reg & PHY_Cap_1000_Full) 
--				rtl8169_hw_phy_reset(dev);
--
--			tp->phy_link_down_cnt = 0;
--		}
--	}
--
--	mod_timer(timer, RTL8169_PHY_TIMEOUT);
--}
--
--static inline void rtl8169_delete_timer(struct net_device *dev)
--{
--	struct rtl8169_private *tp = dev->priv;
--	struct timer_list *timer = &tp->timer;
--
--	if ((tp->mac_version <= RTL_GIGA_MAC_VER_B) ||
--	    (tp->phy_version >= RTL_GIGA_PHY_VER_G))
--		return;
--
--	del_timer_sync(timer);
--
--	tp->phy_link_down_cnt = 0;
--}
--
--static inline void rtl8169_request_timer(struct net_device *dev)
--{
--	struct rtl8169_private *tp = dev->priv;
--	struct timer_list *timer = &tp->timer;
--
--	if ((tp->mac_version <= RTL_GIGA_MAC_VER_B) ||
--	    (tp->phy_version >= RTL_GIGA_PHY_VER_G))
--		return;
--
--	tp->phy_link_down_cnt = 0;
--
--	init_timer(timer);
--	timer->expires = jiffies + RTL8169_PHY_TIMEOUT;
--	timer->data = (unsigned long)(dev);
--	timer->function = rtl8169_phy_timer;
--	add_timer(timer);
--}
--
- static int __devinit
- rtl8169_init_board(struct pci_dev *pdev, struct net_device **dev_out,
- 		   void **ioaddr_out)
-@@ -1074,8 +988,6 @@
- 		goto err_free_rx;
- 
- 	rtl8169_hw_start(dev);
--
--	rtl8169_request_timer(dev);
- out:
- 	return retval;
- 
-@@ -1587,8 +1499,6 @@
- 
- 	netif_stop_queue(dev);
- 
--	rtl8169_delete_timer(dev);
--
- 	spin_lock_irq(&tp->lock);
- 
- 	/* Stop the chip's Tx and Rx DMA processes. */
+ns linux # cat .config|grep I2O
+# I2O device support
+CONFIG_I2O=y
+CONFIG_I2O_PCI=y
+CONFIG_I2O_BLOCK=y
+CONFIG_I2O_SCSI=y
+CONFIG_I2O_PROC=y
 
---------------020206070400060601020304--
+
+dmesg send 0 i2o controllers
+
+I2O Core - (C) Copyright 1999 Red Hat Software
+I2O: Event thread created as pid 17
+i2o: Checking for PCI I2O controllers...
+I2O configuration manager v 0.04.
+  (C) Copyright 1999 Red Hat Software
+I2O Block Storage OSM v0.9
+   (c) Copyright 1999-2001 Red Hat Software.
+i2o_block: Checking for Boot device...
+i2o_block: Checking for I2O Block devices...
+i2o_scsi.c: Version 0.1.2
+  chain_pool: 0 bytes @ f7ae85a0
+  (512 byte buffers X 4 can_queue X 0 i2o controllers)
+
+
+lspci:
+
+02:02.1 Class ff00: Intel Corp. 80960RM [i960RM Microprocessor] (rev 02)
+(prog-if 01)
+        Subsystem: Promise Technology, Inc. SuperTrak SX6000 I2O CPU
+        Flags: bus master, medium devsel, latency 32, IRQ 22
+        Memory at f6000000 (32-bit, prefetchable) [size=4M]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+

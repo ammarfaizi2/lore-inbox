@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262703AbUBZGVD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 01:21:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbUBZGVD
+	id S262704AbUBZGYD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 01:24:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbUBZGYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 01:21:03 -0500
-Received: from [152.101.81.89] ([152.101.81.89]:29963 "HELO southa.com")
-	by vger.kernel.org with SMTP id S262703AbUBZGT7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 01:19:59 -0500
-Message-ID: <02de01c3fc31$c0c77500$9c02a8c0@southa.com>
-From: "Kyle Wong" <kylewong@southa.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Serial ATA (SATA) status report
-Date: Thu, 26 Feb 2004 14:28:30 +0800
+	Thu, 26 Feb 2004 01:24:03 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2444 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262704AbUBZGXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 01:23:55 -0500
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Early memory patch, revised
+References: <403ADCDD.8080206@zytor.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 25 Feb 2004 23:16:00 -0700
+In-Reply-To: <403ADCDD.8080206@zytor.com>
+Message-ID: <m11xoifjrz.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Jeff,
+"H. Peter Anvin" <hpa@zytor.com> writes:
+> Hi all,
 
-Is there following 3112/3114 problem exist with latest kernel 2.6.x? or
-"Issue #4:  Need to have the most recent fixes posted to lkml, for stable
-operation and full performance (where possible)." suppose to fix this?
+While looking and understanding what this code does I have found
+a real bug.
 
-http://docs.freebsd.org/cgi/getmsg.cgi?fetch=1621281+0+/usr/local/www/db/tex
-t/2003/freebsd-current/20031130.freebsd-current
+> +/* 
+> + * This is how much memory *in addition to the memory covered up to
+> + * and including _end* we need mapped initially.  We need one bit for
+> + * each possible page, which currently means 2^36/4096/8 = 2 MB
+> + * (64-bit-capable chips can do more, but if you have more than 64 GB
+> + * of memory you *really* should be running a 64-bit kernel.  However,
+> + * if this really bothers someone we could query this dynamically.)
+> + *
+> + * The other thing we may want to do dynamically in the future is to
+> + * detect PSE and skip generating the PTEs.
+> + *
+> + * Modulo rounding, each megabyte assigned here requires a kilobyte of
+> + * memory, which is currently unreclaimed.
+> + *
+> + * This should be a multiple of a page.
+>   */
 
-http://docs.freebsd.org/cgi/getmsg.cgi?fetch=4276497+0+/usr/local/www/db/tex
-t/2004/freebsd-current/20040208.freebsd-current
+The comment about the bootmem is wrong and misleading.  The bootmem
+bitmap only included low memory.  So in the worst case with a 4G/4G split
+it can be 2^32/4096/8 = 128KiB.  Normally the worst case is only 32KiB with
+a 3G/1G split.
 
-Also, for ICH5, "Issue #2:  Excessive interrupts are seen in some
-configurations."
+> +#define INIT_MAP_BEYOND_END	(2*1024*1024)
 
-Is there any fix? W'll I get problems if I use 2 x PATA + 2 x SATA drives
-with ICH5 in enhanced mode?
+#define INIT_MAP_BEYOND_END (128*1024)
+is the correct value here.
 
-Thanks.
-
-
-
+Eric

@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267578AbTAGX2l>; Tue, 7 Jan 2003 18:28:41 -0500
+	id <S267597AbTAGXVm>; Tue, 7 Jan 2003 18:21:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267594AbTAGX2l>; Tue, 7 Jan 2003 18:28:41 -0500
-Received: from holomorphy.com ([66.224.33.161]:44423 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267578AbTAGX2j>;
-	Tue, 7 Jan 2003 18:28:39 -0500
-Date: Tue, 7 Jan 2003 15:37:13 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH] allow bigger PAGE_OFFSET with PAE
-Message-ID: <20030107233713.GB23814@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Hansen <haveblue@us.ibm.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-mm@kvack.org
-References: <3E1B334E.8030807@us.ibm.com>
+	id <S267598AbTAGXVm>; Tue, 7 Jan 2003 18:21:42 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3567 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267597AbTAGXVk>; Tue, 7 Jan 2003 18:21:40 -0500
+Date: Wed, 8 Jan 2003 00:30:12 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>, Robert Love <rml@tech9.net>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: observations on 2.5 config screens
+Message-ID: <20030107233012.GP6626@fs.tum.de>
+References: <Pine.LNX.4.44.0301011435300.27623-100000@dell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E1B334E.8030807@us.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <Pine.LNX.4.44.0301011435300.27623-100000@dell>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 12:06:38PM -0800, Dave Hansen wrote:
-> Also, this gets the kernel's pagetables right, but neglects 
-> userspace's for now.  pgd_alloc() needs to be fixed to allocate 
-> another PMD, if the split isn't PMD-alighed.
+On Wed, Jan 01, 2003 at 02:55:01PM -0500, Robert P. J. Day wrote:
+>...
+> Processor family
+> 
+>     It seems that the final option, "Preemptible kernel", does
+>   not belong there.  In fact, there seem to be a number of 
+>   kernel-related, kind of hacking/debugging options, that
+>   could be collected in one place, like preemption, sysctl,
+>   hacking, executable file formats, etc.  "Low-level kernel
+>   options", perhaps?
+>...
 
-Um, that should be automatic when USER_PTRS_PER_PGD is increased.
+Robert, could you comment on whether it's really needed to have the 
+preemt option defined architecture-dependant?
 
-I see the following:
+After looking through the arch/*/Kconfig files it seems to me that the
+most problematic things might be architecture-specific parts of other
+architecturs that don't even offer PREEMPT and the depends on CPU_32 in
+arch/arm/Kconfig.
 
-$ grep -n TASK_SIZE include/asm-i386/*.h                 
-include/asm-i386/a.out.h:22:#define STACK_TOP   TASK_SIZE
-include/asm-i386/elf.h:60:#define ELF_ET_DYN_BASE         (TASK_SIZE / 3 * 2)
-include/asm-i386/pgtable.h:68:#define USER_PTRS_PER_PGD (TASK_SIZE/PGDIR_SIZE)
-include/asm-i386/processor.h:277:#define TASK_SIZE      (PAGE_OFFSET)
-include/asm-i386/processor.h:282:#define TASK_UNMAPPED_BASE     (PAGE_ALIGN(TASK_SIZE / 3))
+>   anyway, just some observations from someone who doesn't
+> know any better.
 
+IMHO your comments are very valuable.
 
-... which sounds like you need to round up in an overflow-safe fashion
-in the macro.
+> rday
 
+cu
+Adrian
 
-Bill
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

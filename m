@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269091AbUIXTCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269080AbUIXTJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269091AbUIXTCk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 15:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269093AbUIXTCj
+	id S269080AbUIXTJj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 15:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269096AbUIXTJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 15:02:39 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:19218 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269091AbUIXTCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 15:02:38 -0400
-Date: Fri, 24 Sep 2004 20:02:31 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
-       kernel-janitors@lists.osdl.org, davej@codemonkey.org.uk, hpa@zytor.com
-Subject: Re: [PATCH 2.6.9-rc2-mm2] Create new function to see if pci dev is present
-Message-ID: <20040924200231.A30391@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-	greg@kroah.com, kernel-janitors@lists.osdl.org,
-	davej@codemonkey.org.uk, hpa@zytor.com
-References: <2480000.1095978400@w-hlinder.beaverton.ibm.com>
+	Fri, 24 Sep 2004 15:09:39 -0400
+Received: from waste.org ([209.173.204.2]:21203 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S269080AbUIXTJh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 15:09:37 -0400
+Date: Fri, 24 Sep 2004 14:09:03 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: James Morris <jmorris@redhat.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Jean-Luc Cooke <jlcooke@certainkey.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
+Message-ID: <20040924190903.GY31237@waste.org>
+References: <20040924174301.GB20320@thunk.org> <Xine.LNX.4.44.0409241440410.8732-100000@thoron.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <2480000.1095978400@w-hlinder.beaverton.ibm.com>; from hannal@us.ibm.com on Thu, Sep 23, 2004 at 03:26:40PM -0700
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <Xine.LNX.4.44.0409241440410.8732-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 03:26:40PM -0700, Hanna Linder wrote:
+On Fri, Sep 24, 2004 at 02:43:07PM -0400, James Morris wrote:
+> On Fri, 24 Sep 2004, Theodore Ts'o wrote:
 > 
-> Greg asked in a previous janitors thread:
-> "What we need is a simple "Is this pci device present right now" type
-> function, to solve the mess that logic like this needs."
+> > have *any* encryption algorithms in the kernel at all.  As to whether
+> > or not cryptoapi needs to be mandatory in the kernel, the question is
+> > aside from /dev/random, do most people need to have crypto in the
+> > kernel?  If they're not using ipsec, or crypto loop devices, etc.,
+> > they might not want to have the crypto api in their kernel
+> > unconditionally.
 > 
-> OK. How about this one? It uses pci_get_device but instead of returning
-> the dev it returns 1 if the device is present and 0 if it isnt. This take the
-> burdon off the driver from having to know when to use pci_dev_put or
-> not and should be cleaner for future maintenance work.
-> 
-> Ive tested it with two patches that will follow.
+> As far as I know embedded folk do not want the crypto API to be mandatory,
+> although I think Matt Mackall wanted to try and make something work
+> (perhaps a subset just for /dev/random use).
 
-Please include subdevice/subvendor id
+I want to move a couple critical hash algorithms into lib/ as has been done
+with the CRC code. Then cryptoapi and /dev/random and a couple other
+things (htree comes to mind) could share code without inflicting the
+cryptoapi overhead and context limitations on everyone.
 
+(currently about 4k messages behind on lkml, sorry for not chiming in sooner)
+
+-- 
+Mathematics is the supreme nostalgia of our time.

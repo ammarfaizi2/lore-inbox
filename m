@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266794AbSKOR6b>; Fri, 15 Nov 2002 12:58:31 -0500
+	id <S266848AbSKOSDU>; Fri, 15 Nov 2002 13:03:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266795AbSKOR6b>; Fri, 15 Nov 2002 12:58:31 -0500
-Received: from packet.digeo.com ([12.110.80.53]:51197 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266794AbSKOR63>;
-	Fri, 15 Nov 2002 12:58:29 -0500
-Message-ID: <3DD5375D.96736A69@digeo.com>
-Date: Fri, 15 Nov 2002 10:05:17 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S266841AbSKOSDT>; Fri, 15 Nov 2002 13:03:19 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:38628 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S266848AbSKOSDS>;
+	Fri, 15 Nov 2002 13:03:18 -0500
+Date: Fri, 15 Nov 2002 13:10:12 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+cc: "chandrasekhar.nagaraj" <chandrasekhar.nagaraj@patni.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Path Name to kdev_t
+In-Reply-To: <20021115161536.GA6654@reti>
+Message-ID: <Pine.GSO.4.21.0211151308560.17102-100000@steklov.math.psu.edu>
 MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: Mark Hazell <nutts@penguinmail.com>, adilger@clusterfs.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch/2.4] ll_rw_blk stomping on bh state [Re: kernel BUG at 
- journal.c:1732! (2.4.19)]
-References: <20021028111357.78197071.nutts@penguinmail.com> <20021112150711.F2837@redhat.com> <3DD140F1.F4AED387@digeo.com> <20021112185345.H2837@redhat.com> <20021115173858.S4512@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Nov 2002 18:05:18.0752 (UTC) FILETIME=[8E8E0200:01C28CD1]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
-> 
-> Hi,
-> 
-> On Tue, Nov 12, 2002 at 06:53:45PM +0000, Stephen C. Tweedie wrote:
-> 
-> > On Tue, Nov 12, 2002 at 09:57:05AM -0800, Andrew Morton wrote:
-> > > "Stephen C. Tweedie" wrote:
-> > > >
-> > > >                 if (maxsector < count || maxsector - count < sector) {
-> > > >                         /* Yecch */
-> > > >                         bh->b_state &= (1 << BH_Lock) | (1 << BH_Mapped);
-> > > > ...
-> > > > Folks, just which buffer flags do we want to preserve in this case?
-> >
-> > > Why do we want to clear any flags in there at all?  To prevent
-> > > a storm of error messages from a buffer which has a silly block
-> > > number?
-> >
-> > That's the only reason I can think of.  Simply scrubbing all the state
-> > bits is totally the wrong way of going about that, of course.
-> 
-> So what's the vote on this?  It's a decision between clearing only the
-> obvious bit (BH_Dirty) on the one hand, and keeping the code as
-> unchanged as possible to reduce the possibility of introducing new
-> bugs.
-> 
-> But frankly I can't see any convincing argument for clearing anything
-> except the dirty state in this case.
-> 
 
-I'd agree with that.  And the dirty bit will already be cleared, won't it?
 
-Maybe just treat it as an IO error and leave it at that; surely that won't
-introduce any problems, given all the testing that has gone into the
-error handling paths :)
+On Fri, 15 Nov 2002, Joe Thornber wrote:
+
+> On Thu, Nov 14, 2002 at 07:19:16PM +0530, chandrasekhar.nagaraj wrote:
+> > Hi,
+> > 
+> > In one of the part of my driver module , I have a path name to a device file
+> > (for eg:- /dev/hda1) .Now if I want to obtain the associated major number
+> > and minor number i.e. device ID(kdev_t) of this file what would be the
+> > procedure?
+> 
+> I think this should be standard function, I'm sure lots of people are
+> duplicating this code.  For 2.4 kernels:
+
+No, it really shouldn't.  You should _NOT_ mess with kdev_t - use real
+objects instead.
+

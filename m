@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135737AbQKGXn7>; Tue, 7 Nov 2000 18:43:59 -0500
+	id <S135701AbQKGXn5>; Tue, 7 Nov 2000 18:43:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135421AbQKGXnF>; Tue, 7 Nov 2000 18:43:05 -0500
-Received: from lolita.speakeasy.net ([216.254.0.13]:10 "HELO
-	lolita.speakeasy.net") by vger.kernel.org with SMTP
-	id <S132954AbQKGXlx>; Tue, 7 Nov 2000 18:41:53 -0500
-Date: Tue, 7 Nov 2000 15:35:59 -0800 (PST)
-From: Miles Lane <miles@speakeasy.org>
-To: David Luyer <david_luyer@pacific.net.au>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.0-test10 and X4.0.1 don't like each other on Libretto
- 110CT
-In-Reply-To: <200011072329.eA7NTDx17836@typhaon.pacific.net.au>
-Message-ID: <Pine.LNX.4.21.0011071534460.7109-100000@grace.speakeasy.org>
+	id <S135405AbQKGXm6>; Tue, 7 Nov 2000 18:42:58 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:15879 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S132998AbQKGXmA>; Tue, 7 Nov 2000 18:42:00 -0500
+Message-ID: <3A089254.397115FE@timpanogas.org>
+Date: Tue, 07 Nov 2000 16:37:56 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: davej@suse.de
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Installing kernel 2.4
+In-Reply-To: <Pine.LNX.4.21.0011072322120.8187-100000@neo.local>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-You must upgrade to the latest release:  4.0.1e
 
-The fix for this problem went into 4.0.1d, but since you
-need to upgrade, you might as well get the latest code.
+davej@suse.de wrote:
+> 
+> > There are tests for all this in the feature flags for intel and
+> > non-intel CPUs like AMD -- including MTRR settings.  All of this could
+> > be dynamic.  Here's some code that does this, and it's similiar to
+> > NetWare.  It detexts CPU type, feature flags, special instructions,
+> > etc.  All of this on x86 could be dynamically detected.
+> 
+> Detecting the CPU isn't the issue (we already do all this), it's what to
+> do when you've figured out what the CPU is. Show me code that can
+> dynamically adjust the alignment of the routines/variables/structs
+> dependant upon cacheline size.
 
-	Miles
+If the compiler always aligned all functions and data on 16 byte
+boundries (NetWare) 
+for all i386 code, it would run a lot faster.  Cache line alignment
+could be an option in the loader .... after all, it's hte loader that
+locates data in memory.  If Linux were PE based, relocation logic would
+be a snap with this model (like NT).
 
-On Wed, 8 Nov 2000, David Luyer wrote:
+Jeff
 
 > 
-> I'm having problems with X 4.0.1 and 2.4.0-test kernels on a Toshiba Libretto
-> 110CT.  Is this likely to be related to a known problem or can someone
-> recommend some random intermediate kernel versions to try (binary elimination
-> avoiding known-bad kernel versions...)?
+> regards,
 > 
-> H/w: Toshiba Libretto 110CT (NM2160), Xircom CEM336 modem/ethernet
-> S/w: Debian woody as at Wed Nov 8, with old xserver-svga package for testing
+> Davej.
 > 
-> Kernel                     xserver-xfree86 4.0.1-1    xserver-svga 3.3.6-10
-> 2.4.0-test10               Fail                       OK
-> 2.4.0-test4pre3            Fail                       OK
-> 2.2.15 (Debian build)      OK                         OK
-> 
-> "Fail" here means X startup results in a blank LCD, unable to switch to 
-> text consoles either, SAK results in a screen full of previous graphics-mode
-> display on LCD, even if it was pre-reboot, at that screen it is possible to
-> type (although not to see the result), login, reboot the system, try a
-> different version of X, etc (as long as you can remember what you've typed).
-> 
-> Thanks for any help,
-> David.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
-
+> --
+> | Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+> | SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262104AbSJFSeE>; Sun, 6 Oct 2002 14:34:04 -0400
+	id <S262119AbSJFSfV>; Sun, 6 Oct 2002 14:35:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262110AbSJFSeE>; Sun, 6 Oct 2002 14:34:04 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:26384 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262104AbSJFSeD>; Sun, 6 Oct 2002 14:34:03 -0400
-Date: Sun, 6 Oct 2002 20:39:19 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Larry McVoy <lm@bitmover.com>
-cc: Troy Benjegerdes <hozer@hozed.org>, Hans Reiser <reiser@namesys.com>,
-       walt <wa1ter@hotmail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-In-Reply-To: <20021006105821.L29486@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0210062015450.8911-100000@serv>
+	id <S262118AbSJFSfV>; Sun, 6 Oct 2002 14:35:21 -0400
+Received: from AGrenoble-101-1-1-66.abo.wanadoo.fr ([193.251.23.66]:9624 "EHLO
+	elessar.linux-site.net") by vger.kernel.org with ESMTP
+	id <S262110AbSJFSfH>; Sun, 6 Oct 2002 14:35:07 -0400
+Message-ID: <3DA0874F.8010302@wanadoo.fr>
+Date: Sun, 06 Oct 2002 20:56:15 +0200
+From: FD Cami <stilgar2k@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jbradford@dial.pipex.com
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: New BK License Problem?
+References: <200210061833.g96IXDCc001324@darkstar.example.net>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Sun, 6 Oct 2002, Larry McVoy wrote:
+jbradford@dial.pipex.com wrote:
+|>You can argue all you like that I'm wrong, I'm misguided, I don't have
+|>a clue about opensource or whatever.  The problem is that if I did what
+|>you'd like to see, GPL the code, and it turns out I was right, there is no
+|>turning back.  That's a gamble I'm unwilling to make because I am positive
+|>of the outcome.  And given what I've been doing for the last 5 years,
+|>my knowledge is probably more complete than your for this particular
+|>space.  I know it isn't a popular position to take, I'd love to be the
+|>guy everyone loved instead of hated, but I'm not going to screw up BK's
+|>future and our ability to support our users to win a popularity contest.
+|
+|
+| Roughly how much would you want to raise, in order to GPL Bit Keeper?
+  Seriously, this was done with Blender...
+|
+| John.
 
-> Another way to say it is "don't bite the hand that feeds you".  We work
-> hard to help the kernel team, we make the decisions we make based on the
-> premise that we have to be healthy to continue to help the kernel team as
-> well as our other users, and it's disheartening to get yelled it for it.
+Blender's parent company, NotANumber, went bankrupt.
+That's not the case of bitmover I think...
+And I think Larry wants to keep his own business, he has the right to do
+so...
 
-You get what you asked for, promoting a nonfree product in a free
-environment will never be fun.
-Can we all stop the whining now? Everyone using nonfree software should
-know, that he can get screwed.
-BK won't be the only (distributed) source management system forever and if
-there should be any interoperability problems caused by BK, Linus has
-hopefully a good filter on his inbox.
 
-bye, Roman
+- --
+
+F. CAMI
+- ----------------------------------------------------------
+~ "To disable the Internet to save EMI and Disney is the
+moral equivalent of burning down the library of Alexandria
+to ensure the livelihood of monastic scribes."
+~              - John Ippolito (Guggenheim)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE9oIdPuBGY13rZQM8RAggpAJ9D50jP8mJcU5MByXDraZzXgscw6QCggxDW
+IoCRUPTOKU5/lMtIhj5IuWk=
+=XCXU
+-----END PGP SIGNATURE-----
 

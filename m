@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267346AbSKPTjL>; Sat, 16 Nov 2002 14:39:11 -0500
+	id <S267347AbSKPUNM>; Sat, 16 Nov 2002 15:13:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267347AbSKPTjL>; Sat, 16 Nov 2002 14:39:11 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:15889
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267346AbSKPTjK>; Sat, 16 Nov 2002 14:39:10 -0500
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-From: Robert Love <rml@tech9.net>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <225710000.1037241209@flay>
-References: <225710000.1037241209@flay>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037475972.1610.696.camel@phantasy>
+	id <S267349AbSKPUNM>; Sat, 16 Nov 2002 15:13:12 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:9908 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S267347AbSKPUNL>;
+	Sat, 16 Nov 2002 15:13:11 -0500
+Date: Sat, 16 Nov 2002 21:19:44 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jeff Chua <jchua@fedex.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: VFAT mount (bug or feature?
+Message-ID: <20021116201944.GA1456@win.tue.nl>
+References: <Pine.LNX.4.44.0211162349160.1208-100000@boston.corp.fedex.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 16 Nov 2002 14:46:12 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211162349160.1208-100000@boston.corp.fedex.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-13 at 21:33, Martin J. Bligh wrote:
+On Sat, Nov 16, 2002 at 11:52:42PM +0800, Jeff Chua wrote:
 
-> Brave volunteers who've created an account would be most welcome,
-> ideally the code maintainers for those subsystems, but other people
-> familiar with those areas would be a great substitute. ;-)
+> > Yes. This is due to a somewhat buggy change in 2.5.43.
+> 
+> This is buggy in 2.4.20-rc1 as well.
+> 
+> drwxr--r--   40 root     root         4096 Jan  1  1970 /dos
+> 
+> Any patch for 2.4.20-rcx?
 
-If we can volunteer for sub-categories (I do not think so, but hey...) I
-will do "preemption" and "scheduler", if no one else has volunteered.
+Hm. Why do you think this is wrong? Didnt you ask for it?
 
-Otherwise I will take all of "Process Management", and the huge blanket
-of bugs that includes :)
-
-	Robert Love
 

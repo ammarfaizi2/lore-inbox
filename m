@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271888AbRHUXKY>; Tue, 21 Aug 2001 19:10:24 -0400
+	id <S271892AbRHUXLH>; Tue, 21 Aug 2001 19:11:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271890AbRHUXKO>; Tue, 21 Aug 2001 19:10:14 -0400
-Received: from p054.as-l031.contactel.cz ([212.65.234.246]:9220 "EHLO
-	p054.as-l031.contactel.cz") by vger.kernel.org with ESMTP
-	id <S271888AbRHUXJz>; Tue, 21 Aug 2001 19:09:55 -0400
-Date: Wed, 22 Aug 2001 01:06:51 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: kees <kees@schoen.nl>
-Cc: Alexandre Hautequest <hquest@fesppr.br>, linux-kernel@vger.kernel.org
-Subject: Re: IPX in 2.4.[5-9]
-Message-ID: <20010822010651.C1074@ppc.vc.cvut.cz>
-In-Reply-To: <20010821014517.G1394@ppc.vc.cvut.cz> <Pine.LNX.4.33.0108211436340.29582-100000@schoen3.schoen.nl>
+	id <S271891AbRHUXKy>; Tue, 21 Aug 2001 19:10:54 -0400
+Received: from dsl081-060-070.sfo1.dsl.speakeasy.net ([64.81.60.70]:13051 "EHLO
+	uzo.telecoma.net") by vger.kernel.org with ESMTP id <S271890AbRHUXKs>;
+	Tue, 21 Aug 2001 19:10:48 -0400
+Date: Wed, 22 Aug 2001 01:39:29 +0200
+From: firenza@gmx.net
+To: linux-kernel@vger.kernel.org
+Subject: how to page_cache.max_percent?
+Message-ID: <20010822013929.E2275@telecoma.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0108211436340.29582-100000@schoen3.schoen.nl>
-User-Agent: Mutt/1.3.20i
+X-Mailer: Mutt 0.95.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 21, 2001 at 02:38:04PM +0200, kees wrote:
-> Hi Petr,
-> 
-> While slist from 2.2.18 does indeed work with nwserv , nwuserlist does
-> not. it returns:
-> 
-> schoen3:/user2/download/www/ncpfs-2.2.0.18 # util/nwuserlist
-> util/nwuserlist: Unknown server (0x89FC) when initializing
-> 
-> schoen3:/user2/download/www/ncpfs-2.2.0.18 # util/slist
-> 
-> Known NetWare File Servers                          Network   Node Address
-> --------------------------------------------------------------------------
-> NW_SCHOEN                                           C0A80A28  000000000001
 
-It is by definition that way. 'slist' does not accept user name,
-and lists all available IPX servers on the network, while all other
-utilities require some server and user name, and works with specified 
-server only. You can specify default server name and user name in ~/.nwclient 
-file (man 5 nwclient), if you are lazy to type it.
-					Best regards,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+hi,
 
-P.S.: ncpfs is NOT tested with MarS
-P.P.S.: I assume that you did all tests with "export LD_LIBRARY_PATH=/user2/
-download/www/ncpfs-2.2.0.18/lib", otherwise tools used old system libncp
-anyway.
+the following scenario:
+
+ * kernel 2.4.9 smp
+ * machine with 6GB physical memory
+ * multiple processes are relying on a 3GB large data structure
+   to be in memory (speed goes down the drain, when some pages 
+   are swapped out)
+ * not every page in this 3GB data structure is used all the time
+ * this data structure is loaded from files, so initially
+   i end up having 3GB of used cache (visible in vmstat)
+
+now i start another memory intense process and discover via vmstat
+the following sensible behaviour: pagecache shrinks slowly and
+memory from the 3GB structure is swapped out at a faster rate...
+
+i don't care about the pagecache, i only care about having those
+3GB in memory... 
+
+is there a way to set a maximum size for the pagecache (afaik,
+page_cache.max_percent is not used)?
+
+or can i specify to always drain the pagecache before swapping out?
+
+cheers,
+-iowa
 

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265573AbUATQZr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 11:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265580AbUATQZr
+	id S265597AbUATQg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 11:36:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265600AbUATQg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 11:25:47 -0500
-Received: from relaycz.systinet.com ([62.168.12.68]:19138 "HELO
-	relaycz.systinet.com") by vger.kernel.org with SMTP id S265573AbUATQZq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 11:25:46 -0500
-Subject: Re: DMA timeout error and then kernel halted
-From: Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <400C1D16.5010008@domdv.de>
-References: <1074533362.7913.14.camel@narsil>  <400C1D16.5010008@domdv.de>
-Content-Type: text/plain
-Message-Id: <1074615933.1188.1.camel@narsil>
+	Tue, 20 Jan 2004 11:36:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26787 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265597AbUATQgz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 11:36:55 -0500
+Date: Tue, 20 Jan 2004 08:37:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.1-mm5
+Message-Id: <20040120083704.482f860c.akpm@osdl.org>
+In-Reply-To: <20040120111441.A14570@infradead.org>
+References: <20040120000535.7fb8e683.akpm@osdl.org>
+	<20040120111441.A14570@infradead.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 20 Jan 2004 17:25:33 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-19 at 19:08, Andreas Steinmetz wrote:
-> I do have similar problems with a HPT302 and WD2500JB disks on a Tyan 
-> S2885 (Dual Opteron 246). What does help me is to disable the IO-APICs 
-> at boot time using "noapic".
-> 
-> Thus I don't believe this to be a disk/mobo problem but probably a 
-> driver problem.
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> Any reason you keep CardServices-compatibility-layer.patch around?
 
-Thanks, I'll try it. What will I loose not using IO-APIC?
+err, it's my way of reminding myself that the issue isn't fully resolved. 
+Smarter people would use a pencil and a notebook or something.
 
-Jan "Pogo" Mynarik
+> Having a compat layer for old driver around just for some architectures,
+> thus having drivers that only compile on some for no deeper reasons sounds
+> like an incredibly bad idea.  Especially when that API is not used by any
+> intree driver and only in -mm ;)
 
--- 
-Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
+Yes, we were concerned about avoiding breaking the various random
+out-of-tree pcmcia drivers which people use.  Russell would prefer that if
+we _do_ have a compat layer it should be implemented in a different manner.
 
+But we're all fairly uncertain that the compat layer is needed - converting
+a driver is a pretty simple exercise, and Davd Hinds doesn't intend to
+maintain his drivers into 2.6.
+
+So the compatibility layer will probably go away soon, unless something
+happens to bring it back into consideration.

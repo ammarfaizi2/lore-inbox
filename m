@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263357AbRFTQQC>; Wed, 20 Jun 2001 12:16:02 -0400
+	id <S264002AbRFTQSM>; Wed, 20 Jun 2001 12:18:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263374AbRFTQPw>; Wed, 20 Jun 2001 12:15:52 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:61660 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263357AbRFTQPh>;
-	Wed, 20 Jun 2001 12:15:37 -0400
-Date: Wed, 20 Jun 2001 12:15:35 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: bert hubert <ahu@ds9a.nl>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Threads are processes that share more
-In-Reply-To: <20010620175937.A8159@home.ds9a.nl>
-Message-ID: <Pine.GSO.4.21.0106201204140.24658-100000@weyl.math.psu.edu>
+	id <S263997AbRFTQSC>; Wed, 20 Jun 2001 12:18:02 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:32641 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S263946AbRFTQRx>;
+	Wed, 20 Jun 2001 12:17:53 -0400
+Message-ID: <XFMail.20010620092104.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <20010619200442.E30785@work.bitmover.com>
+Date: Wed, 20 Jun 2001 09:21:04 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Larry McVoy <lm@bitmover.com>
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        Michael Rothwell <rothwell@holly-springs.nc.us>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Wed, 20 Jun 2001, bert hubert wrote:
-
-> Rounding up, it may be worth repeating what I think Alan said some months
-> ago:
+On 20-Jun-2001 Larry McVoy wrote:
+> On Tue, Jun 19, 2001 at 10:57:38PM -0400, Michael Rothwell wrote:
+>> On 19 Jun 2001 20:01:56 +0100, Alan Cox wrote:
+>> 
+>> > Linux inherits several unix properties which are not friendly to good
+>> > state
+>> > based programming - lack of good AIO for one.
+>> 
+>> Oh, how I would love for select() and poll() to work on files... or for
+>> any other working AIO mothods to be present.
+>> 
+>> What would get broken if things were changed to let select() work for
+>> filesystem fds?
 > 
->                     Threads are processes that share more
+> I asked Linus for this a long time ago and he pointed out that you couldn't
+> make it work over NFS, at least not nicely.  It does seem like that could 
+> be worked around by having a "poll daemon" which knew about all the things
+> being waited on and checked them.  Or something.
+> 
+> I'd like it too.  And I'd like a callback for iocompletion, a way to do
+> preread(fd, len).
 
-... and for absolute majority of programmers additional shared objects mean
-additional fsckup sources.  I don't trust them to write correct async code.
-OK, so I don't trust the majority of programmers to find their dicks if
-you take their Visual Masturbation Aid++ away, but that's another story -
-I'm talking about otherwise clued people, not burger-flippers armed with
-Foo For Complete Dummies in 24 Hours.
+I'll be more than happy to have IO completion only at socket level.
+Something like :
 
-> And if we just keep bearing that out to everybody a lot of the myths will go
-> away. I would suggest that the pthreads manpages get this attitude.
+
+struct iocompletion ioc;
+
+fcntl(sfd, F_SETFL, fcntl(sfd, F_GETFL, 0) | O_NONBLOCK);
+
+ioc.event = IOC_READ;
+ioc.callback = data_ready;
+ioc.data = session_data;
+
+fcntl(sfd, F_ADDIOC, (long) &ioc);
+
+
+This would be pretty nice.
+
+
+
+
+- Davide
 

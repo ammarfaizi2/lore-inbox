@@ -1,78 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbULaMfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbULaMi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbULaMfs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 07:35:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbULaMfs
+	id S261969AbULaMi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 07:38:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbULaMi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 07:35:48 -0500
-Received: from colin2.muc.de ([193.149.48.15]:36356 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261945AbULaMfj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 07:35:39 -0500
-Date: 31 Dec 2004 13:35:38 +0100
-Date: Fri, 31 Dec 2004 13:35:38 +0100
-From: Andi Kleen <ak@muc.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Davide Libenzi <davidel@xmailserver.org>, Mike Hearn <mh@codeweavers.com>,
-       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
-       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-Message-ID: <20041231123538.GA18209@muc.de>
-References: <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com> <53046857041230112742acccbe@mail.gmail.com> <Pine.LNX.4.58.0412301130540.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412301436330.22893@ppc970.osdl.org> <m1mzvvjs3k.fsf@muc.de> <Pine.LNX.4.58.0412301628580.2280@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0412301628580.2280@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 31 Dec 2004 07:38:58 -0500
+Received: from mail.portrix.net ([212.202.157.208]:55960 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S261969AbULaMi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 07:38:56 -0500
+Message-ID: <41D5485A.4060709@ppp0.net>
+Date: Fri, 31 Dec 2004 13:38:50 +0100
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: gene.heskett@verizon.net
+CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.6.10-ac1
+References: <1104103881.16545.2.camel@localhost.localdomain> <200412302006.19872.gene.heskett@verizon.net> <41D52275.8030100@ppp0.net> <200412310705.52976.gene.heskett@verizon.net>
+In-Reply-To: <200412310705.52976.gene.heskett@verizon.net>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 30, 2004 at 04:38:21PM -0800, Linus Torvalds wrote:
-> > Can someone repeat again what was wrong with the old ptrace
-> > semantics before the initial change that caused all these complex
-> > changes?  It seemed to work well for years. How about we just
-> > go back to the old state, revert all the recent ptrace changes 
-> > and skip all that?
+Gene Heskett wrote:
+> If I feed it the lines with the numbers it reports something about an 
+> invalid IP on restart.
 > 
-> Let me count the ways that were wrong before the changes:
->  - you couldn't debug any code that set TF. Really. ptrace would totally 
->    destroy the TF state in the controlled process, so it would do 
->    something totally different when debugged.
+> [root@coyote root]# parsemce -e Bank 2: d40040000000017a -b Bank 2: -s 
+> d40040000000017a
+> Status: (ba) Error IP valid
+> Restart IP invalid.
+> 
+> The exact same output is obtained from the Bank 1 message & numbers 
+> too.
 
-Well, tough. I assume people who play with TF themselves know
-how to handle it without debuggers.  Really adding instruction
-parsing for such a corner case seems like extreme overkill to me.
+Try
 
-I agree it is not nice, but is it really worth all that complexity
-to hide it?
+$ ./parsemce -e 0xba -b 2 -s d40040000000017a -a 0
+Status: (ba) Error IP valid
+Restart IP invalid.
+parsebank(2): d40040000000017a @ 0
+        External tag parity error
+        Correctable ECC error
+        Address in addr register valid
+        Error enabled in control register
+        Error overflow
+        Memory heirarchy error
+        Request: Generic error
+        Transaction type : Generic
+        Memory/IO : I/O
 
->  - you couldn't even debug signal handlers, because they were _really_ 
->    hard to get into unless you knew where they were and put a breakpoint 
->    on them.
+See [1] for a possible explanation. I hope the link works. It's a message
+from DaveJ about the same error:
+"Looks like the L2 cache ECC checking spotted something going wrong,
+and fixed it up. This can happen in cases where there is inadequate
+cooling, power, or overclocking (or in rare circumstances, flaky CPUs)"
 
-Ok I see this as being a problem. But I bet it could be fixed
-much simpler without doing all this complicated and likely-to-be-buggy
-popf parsing you added.
+Jan
 
->  - you couldn't see the instruction after a system call.
-
-Are you sure? 
-
->  - ptrace returned bogus TF state after a single-step
-
-I am sure all debuggers in existence deal with that (and they will
-need to continue doing so because there are so many old kernels around) 
-
-> descriptors, and we actually do that (badly) in another place: the AMD
-> "prefetch" check does exactly the same thing except it seems to get a few
-> details wrong (looks like it cannot handle 16-bit code), and only works
-> for the current process.
-
-Yes, it was intentional to simplify it. 16bit code is not supposed
-to use prefetches (and even if they do the probability of faulting
-is pretty small) Also we needed several iterations
-to get all the subtle bugs out (and I bet there are some issues left)
-
--Andi
+[1] http://groups-beta.google.com/group/linux.kernel/browse_thread/thread/bbf1d32da11eb369/8b2300b83ac0ab9e?q=%22Restart+IP+invalid%22&_done=%2Fgroups%3Fq%3D%22Restart+IP+invalid%22%26hl%3Den%26lr%3D%26client%3Dfirefox%26rls%3Dorg.mozilla:en-US:unofficial%26sa%3DN%26tab%3Dwg%26&_doneTitle=Back+to+Search&&d#8b2300b83ac0ab9e

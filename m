@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264402AbUDSM57 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 08:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbUDSM57
+	id S264398AbUDSM6r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 08:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264400AbUDSM6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 08:57:59 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:15501 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264398AbUDSM54
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 08:57:56 -0400
-Date: Mon, 19 Apr 2004 18:28:53 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: rusty@au1.ibm.com, Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: [lhcs-devel] Re: CPU Hotplug broken -mm5 onwards
-Message-ID: <20040419125853.GB6835@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040418170613.GA21769@in.ibm.com> <408348B6.7020606@yahoo.com.au>
+	Mon, 19 Apr 2004 08:58:46 -0400
+Received: from main.gmane.org ([80.91.224.249]:61664 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264398AbUDSM6n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 08:58:43 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Marc Bevand <bevand_m@epita.fr>
+Subject: Re: Sensors (W83627HF) in Tyan S2882
+Date: Mon, 19 Apr 2004 14:56:58 +0200
+Message-ID: <c60ids$nsf$1@sea.gmane.org>
+References: <20040419120132.GP23938@fi.muni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <408348B6.7020606@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213.41.133.51
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040326
+X-Accept-Language: en-us, en
+In-Reply-To: <20040419120132.GP23938@fi.muni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 19, 2004 at 01:34:14PM +1000, Nick Piggin wrote:
-> I think a rwsem might be a good idea anyway, because
-> sched_migrate_task can end up being called pretty often with
-> balance on exec and balance on clone. The semaphore could easily
-> place undue serialisation on that path.
+Jan Kasprzak wrote:
+> 	Hello, world!\n
+> 
+> 	I have two systems with Tyan S2882 boards (K8S Pro). The sensors chip
+> is Winbond w83627hf according to the mainboard documentation.  The w83627hf
+> driver can read values from the sensors, but apparently not all values.
+> The board has six fan connectors (two labeled CPU1 fan and CPU2 fan,
+> and four chassis fans). BIOS displays the fan status correctly for all fans,
+> so all fans are connected to the sensors chip. However, there are only three
+> fans listed in /sys/devices/platform/i2c-1/1-0290.
 
-I found that r/w sem does not help here ..It can still lead to deadlocks.
-One example I hit is :
-
-cpu_up takes write lock, sends out CPU_UP_PREPARE notification. As part
-of it, many do kthread_create, which uses workqueue. The work function
-is never processed because keventd would be blocked on a previous 
-work function, waiting for hotplug sem in exec path.
-
-So, as Rusty said, I think we really need to consider removing
-lock_cpu_hotplug from sched_migrate_task. AFAICS that lock
-was needed to prevent adding tasks to dead cpus. The same 
-can be accomplished by removing lock_cpu_hotplug from sched_migrate_task
-and adding a cpu_is_offline check in __migrate_task.
-This will eliminate all the deadlocks I have been hitting.
-
-
-> Can we arrange some of these checks to disappear when HOTPLUG_CPU
-> is not set? For example, make cpu_is_offline only valid to call for
-> CPUs that have been online sometime, and can evaluate to 0 if
-> HOTPLUG_CPU is not set?
-
-I think this is already being done in include/linux/cpu.h
-
-	
+On the S2885 (not your model), 2 fans are handled by the w83627hf, and 4 others
+by an adt7463. I see that the S2882 has an adm1027, maybe this is the chip that
+handles your 3 others fans ?
 
 -- 
+Marc Bevand                          http://www.epita.fr/~bevand_m
+Computer Science School EPITA - System, Network and Security Dept.
 
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

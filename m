@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262517AbREXXVh>; Thu, 24 May 2001 19:21:37 -0400
+	id <S263443AbREXX1r>; Thu, 24 May 2001 19:27:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262518AbREXXV1>; Thu, 24 May 2001 19:21:27 -0400
-Received: from gecius-0.dsl.speakeasy.net ([216.254.67.146]:52163 "EHLO
-	maniac.gecius.de") by vger.kernel.org with ESMTP id <S262517AbREXXVH>;
-	Thu, 24 May 2001 19:21:07 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 kernel freeze
-In-Reply-To: <Pine.LNX.4.10.10105231215280.11617-100000@coffee.psychology.mcmaster.ca>
-	<3B0BFD7F.B32695C8@bluewin.ch> <8766erwsm0.fsf@maniac.gecius.de>
-From: Jens Gecius <jens@gecius.de>
-Date: 24 May 2001 19:21:06 -0400
-In-Reply-To: <8766erwsm0.fsf@maniac.gecius.de> (Jens Gecius's message of "23 May 2001 19:30:47 -0400")
-Message-ID: <87eltewcyl.fsf@maniac.gecius.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) XEmacs/21.1 (Cuyahoga Valley)
+	id <S263447AbREXX1h>; Thu, 24 May 2001 19:27:37 -0400
+Received: from www.microgate.com ([216.30.46.105]:14610 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S263443AbREXX10>; Thu, 24 May 2001 19:27:26 -0400
+Message-ID: <008801c0e4a9$1de867b0$0201a8c0@mojo>
+From: "Paul Fulghum" <paulkf@microgate.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1533Ra-0005hC-00@the-village.bc.nu>
+Subject: Re: SyncPPP Generic PPP merge
+Date: Thu, 24 May 2001 18:27:35 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Jens Gecius <jens@gecius.de> writes:
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+> I suspect that bit can be fixed if need be. Its nice to keep a constant
+> naming between cisco/ppp modes. cisco/ppp autodetect is also possible and
+would
+> be rather nice to support
 
-> > > what do you mean by freeze?  in theory, the fact that the irq
-> > I cannot ping the machine anymore, no Ooops, no kernel messages, the
-> > attached screen is freezed (which implies that no more interrupts
-> > are handled, right?)
-> 
-> Excuse me hopping in.
-> 
-> I have that situation here, too. Screen frozen, no pings from the
-> local network, sysrq doesn't work (keyboard dead).
-> 
-> maniac kernel: NETDEV WATCHDOG: eth1: transmit timed out
-> maniac kernel: eth1: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3,
-> t=21.
-> 
-> All this happened on 2.4.3 and 2.4.4 (don't excactly remember on
-> earlier 2.4).
-> 
-> I followed your suggestion regarding PCI-slots. Both my nics used to
-> use PCI 4 and 5 (on a gigabyte vxd7, dual 1GHz). Only the one in slot
-> 4 had the problems. I switched the card to slot 1 and will monitor the
-> situation. I'll mail the list in case it doesn't change my situation.
+I can't see getting around moving the net device allocation out of each
+low level driver and into the layer above it. That removes
+duplicate code and allows syncppp to do the right thing (allocate it itself
+for cisco or allow ppp_generic.c do it for PPP). This would make
+net device naming consistancy easier.
 
-OK - now it even got worse. After just a couple hours slot5 was dead
-(that was the one working just fine with the other card in
-slot4). Three minutes later slot1 was dead, too. Both cards share
-irq12.
+The low level drivers should not need any awareness of the net device
+(possibly other than suggesting a name) as all they do is send and
+receive frames.
 
-Fortunately, the box wasn't frozen this time. X was up and running
-fine and I was able to reboot in a sound manner.
+The rest of the syncppp API should be (re)usable.
 
-I'll try another change in slots, but unfortunately, my nics are the
-ones with the lowest traffic: one other is SCSI, the other one
-firewire... (even though the latter one is hardly used).
- 
-> Any other hints are welcome (other than the noapic, which didn't help).
+> Assuming this is a 'when 2.5 starts' discussion I'd like initially to keep
+the
+> syncppp api is but the pppd code going via generic ppp - and yes it would
+> break configs.
+>
+> Clearly thats not 2.4 acceptable
 
-I have to reiterate this one. Any hints are very welcome.
+Agreed, but it's a good time to call the cats to the herding pen.
 
--- 
-Tschoe,                    Get my gpg-public-key here
- Jens                     http://gecius.de/gpg-key.txt
+Paul Fulghum paulkf@microgate.com
+Microgate Corporation http://www.microgate.com
+
+

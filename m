@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315529AbSGANX2>; Mon, 1 Jul 2002 09:23:28 -0400
+	id <S315540AbSGAN1O>; Mon, 1 Jul 2002 09:27:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315539AbSGANX1>; Mon, 1 Jul 2002 09:23:27 -0400
-Received: from web20513.mail.yahoo.com ([216.136.174.44]:52259 "HELO
-	web20513.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S315529AbSGANX1>; Mon, 1 Jul 2002 09:23:27 -0400
-Message-ID: <20020701132554.75863.qmail@web20513.mail.yahoo.com>
-Date: Mon, 1 Jul 2002 15:25:54 +0200 (CEST)
-From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Subject: Re: [ANNOUNCE] CMOV emulation for 2.4.19-rc1
-To: vda@port.imtp.ilyichevsk.odessa.ua, Willy TARREAU <willy@w.ods.org>,
-       willy@meta-x.org, linux-kernel@vger.kernel.org,
+	id <S315595AbSGAN1O>; Mon, 1 Jul 2002 09:27:14 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:18181 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S315540AbSGAN1N>; Mon, 1 Jul 2002 09:27:13 -0400
+Message-Id: <200207011326.g61DQ0T18850@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Willy TARREAU <willy@w.ods.org>, linux-kernel@vger.kernel.org,
        Ronald.Wahl@informatik.tu-chemnitz.de
-In-Reply-To: <200207011316.g61DGxT18808@Port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: [ANNOUNCE] CMOV emulation for 2.4.19-rc1
+Date: Mon, 1 Jul 2002 16:25:46 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <20020630043950.GA15516@pcw.home.local>
+In-Reply-To: <20020630043950.GA15516@pcw.home.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can you code up a "dummy" emulator (which just
-> ignores any invalid opcode by doing eip+=3) and
-> compare trap times of your emulator and dummy
-> one for, say, CMOVC AL,AL? (with carry flag
-> cleared)
+On 30 June 2002 02:39, Willy TARREAU wrote:
+> Hi all,
+>
+> OK, I know that many people dislike this, but I know others
+> who occasionally need it anyway. So I don't post it for general
+> inclusion, but for interested people.
 
-I may do this. Don't have the time at the moment,
-but perhaps this evening...
++       if ((*eip == 0x0F) && ((*(eip+1) & 0xF0) == 0x40)) {  /* CMOV* */
+...
++       if ((*eip == 0x0F) && ((*(eip+1) & 0xF8) == 0xC8)) {  /* BSWAP */
+...
++       if ((*eip == 0x0F) && ((*(eip+1) & 0xFE) == 0xB0)) {  /* CMPXCHG */
+...
++       if ((*eip == 0x0F) && ((*(eip+1) & 0xFE) == 0xC0)) {  /* XADD */
 
-cheers,
-Willy
+You may check for 0x0F only once:
 
-
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com
+	if(*eip!=0x0f) goto invalid_opcode;
+	eip++;
+--
+vda

@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267335AbTALJNR>; Sun, 12 Jan 2003 04:13:17 -0500
+	id <S267338AbTALJTD>; Sun, 12 Jan 2003 04:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267336AbTALJNR>; Sun, 12 Jan 2003 04:13:17 -0500
-Received: from tomts16.bellnexxia.net ([209.226.175.4]:42180 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267335AbTALJNQ>; Sun, 12 Jan 2003 04:13:16 -0500
-Date: Sun, 12 Jan 2003 04:22:10 -0500 (EST)
+	id <S267339AbTALJTD>; Sun, 12 Jan 2003 04:19:03 -0500
+Received: from tomts19-srv.bellnexxia.net ([209.226.175.73]:15534 "EHLO
+	tomts19-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S267338AbTALJTB>; Sun, 12 Jan 2003 04:19:01 -0500
+Date: Sun, 12 Jan 2003 04:27:55 -0500 (EST)
 From: "Robert P. J. Day" <rpjday@mindspring.com>
 X-X-Sender: rpjday@dell
-To: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@fs.tum.de>
 cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: more thoughts on kernel config organization
-In-Reply-To: <20030112080406.GA1006@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0301120421010.24231-100000@dell>
+Subject: Re: two more oddities with the fs/Kconfig file
+In-Reply-To: <20030112073406.GM21826@fs.tum.de>
+Message-ID: <Pine.LNX.4.44.0301120427170.4821-100000@dell>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jan 2003, Sam Ravnborg wrote:
+On Sun, 12 Jan 2003, Adrian Bunk wrote:
 
-> On Sat, Jan 11, 2003 at 11:17:46PM -0500, Robert P. J. Day wrote:
-> >   how about something like
+> On Sun, Jan 12, 2003 at 02:07:13AM -0500, Robert P. J. Day wrote:
 > > 
-> >   ext2
-> >   ext3
-> >   reiser
-> >   XFS
-> >   JFS
-> >   quotas
-> >   MS/DOS related filesystems
-> >     MD-DOS
-> >     VFAT
-> >     NTFS
-> >   other OS-related filessytems
-> >     Apple
-> >     ADFS
-> >     BeOS
-> >     BFS
-> >     QNX
-> >     System V/XENIX/...
-> >   Pseudo(?) filessytems
-> >     /proc
-> >     /dev/pts
-> >     /dev
+> >   there are a few options that are categorized as simply
+> > "bool", with no following label -- examples being UMSDOS,
+> > QUOTACTL, and a couple of others.  without a label on that
+> > line, the option is not displayed for selection anywhere
+> > on the menu.  is this deliberate?
+> >...
 > 
-> I like the structure proposed above. I for myself has often wondered why
-> ext2 was not named ext2, and hidden between lots of less used stuff.
-> If you sort in alphabetic order, then be consistent.
+> Yes, this is what was called define_bool in the old kconfig.
 > 
-> If you are going to reorganise fs/Kconfig I would suggest moving
-> ext3, reiserfs etc. specific stuff down in their respective directories,
-> and then source as appropriate.
-> There is no reason to keep that in a centralised placed, when it can
-> be distributed.
-> For simple (Kconfig wise) stuff like CODA or Intermezzo keep them
-> in fs/KConfig.
+> E.g.
+> 
+> config QUOTACTL
+>         bool
+>         depends on XFS_QUOTA || QUOTA
+>         default y
+> 
+> says that QUOTACTL is automatically selected if XFS_QUOTA or QUOTA is 
+> selected. This is a config option that is never visible to the user 
+> configuring the kernel.
 
-a couple hours ago, i posted an alternate fs/Kconfig file, but i haven't 
-seen it appear on the mailing list.  is there a size limit for postings?
-is there another way to make it available for anyone who wants to check
-it out?
+ah, and the same would apply to those options categorized as
+"tristate", with no label then?  thanks.
 
 rday
 

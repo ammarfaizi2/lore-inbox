@@ -1,82 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbTIOWpG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 18:45:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbTIOWpG
+	id S261648AbTIOW5i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 18:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTIOW5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 18:45:06 -0400
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:3205 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id S261679AbTIOWpA convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 18:45:00 -0400
-Date: Tue, 16 Sep 2003 00:44:54 +0200 (CEST)
-From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Olaf Hering <olh@suse.de>, <geert@linux-m68k.org>
-Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
-In-Reply-To: <1063663632.585.61.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0309160011540.24675-100000@deadlock.et.tudelft.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 15 Sep 2003 18:57:35 -0400
+Received: from smtp4.us.dell.com ([143.166.148.135]:63180 "EHLO
+	smtp4.us.dell.com") by vger.kernel.org with ESMTP id S261648AbTIOW5a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 18:57:30 -0400
+Date: Mon, 15 Sep 2003 17:57:19 -0500
+From: Stuart Hayes <Stuart_Hayes@dell.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] ide-tape locks up when loaded in kernel 2.4.22
+Message-ID: <20030915225719.GB18225@tux.linuxdev.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Sep 2003, Benjamin Herrenschmidt wrote:
+Resending patch... the text got mangled on the last message.
+Thanks
+Stuart
+Stuart_Hayes@Dell.com
 
-> I reported that I got user reports of breakage... so far, I don't know
-> more as I only have one mach64 machine that I couldn't test on yet.
 
-Can you ask them to contact me?
 
-> At least, iBook1 is broken (M1 chipset) from what Olaf says (in CC
-> list).
-
-Indeed... It's a catch-22. The current driver is correct; default clock
-rate is 125 MHz. Luckily, for the case that specific implementations
-use different rates I did build in the default_xclk=-1 and default_mclk=-1
-options, which make the driver not to touch the clocks.
-
-But that still breaks the default. Do you know someone elso who has an
-ibook, or any other PowerPC M1? If the 50 MHz is consequent on all PowerPC
-implementations, we could perhaps make it 50MHz on PowerPC only as
-emergency fix.
-
-> There are a few PPC machines for which atyfb is "critical":
->
->  - PowerBook Wallstreet I (Rage LT-G, that one I can test)
->  - PowerBook Wallstreet II (Rage LT-Pro I think)
->  - PowerBook 101 (aka Lombard) (Rage LT-Pro)
->  - iBook1 (Rage M1)
->  - iMac rev A,B and C (not sure which chip, LT-Pro or just 3D Pro)
->  - Beige G3 (older XL iirc)
-
-> Along with some older "performa" I forgot about (5400 I think).
->
-> The current driver works at least well enough to get a console on all
-> of these. I'm not sure a stable serie should get a new driver if it
-> has not been properly validated on these.
-
-> Unfortunately, I don't have access to all of this HW to test with, so...
-
-Same problem for me :)
-
-I did post the driver on the Linux-fbdev and LinuxPPC mailinglists.
-Replies: 0. I also asked you, you didn't have time, no problem, but again
-no test. It gets merged, people start testing...
-
-I agree the stable series should have a stable driver, I proposed that
-Marcelo would merge the driver, I would aggressively investigate problems,
-and in case of serious trouble a revert.
-
-> Why don't you push it to 2.6 first then backport to 2.4 ? That would
-> be better imho...
-
-It's a possibility, Alexander Kern is porting the code to 2.6. But
-please wait a few days, it's quite likely things will be fixed and stable then.
-
-Daniël
-
+diff -BurN linux-vanilla/drivers/ide/ide-tape.c linux-idetape-quickpatch/drivers/ide/ide-tape.c
+--- linux-vanilla/drivers/ide/ide-tape.c	2003-06-13 09:51:33.000000000 -0500
++++ linux-idetape-quickpatch/drivers/ide/ide-tape.c	2003-09-15 13:08:36.000000000 -0500
+@@ -1,5 +1,5 @@
+ /*
+- * linux/drivers/ide/ide-tape.c		Version 1.17b	Dec, 2002
++ * linux/drivers/ide/ide-tape.c		Version 1.17c	Sep, 2003
+  *
+  * Copyright (C) 1995 - 1999 Gadi Oxman <gadio@netvision.net.il>
+  *
+@@ -313,6 +313,9 @@
+  *			Cosmetic fixes to miscellaneous debugging output messages.
+  *			Set the minimum /proc/ide/hd?/settings values for "pipeline",
+  *			 "pipeline_min", and "pipeline_max" to 1.
++ * Ver 1.17c Sep 2003	Stuart Hayes <stuart_hayes@dell.com>
++ *			Initialized "feature" in idetape_issue_packet_command
++ *			 (this was causing lockups on certain systems)
+  *
+  * Here are some words from the first releases of hd.c, which are quoted
+  * in ide.c and apply here as well:
+@@ -422,7 +425,7 @@
+  *		sharing a (fast) ATA-2 disk with any (slow) new ATAPI device.
+  */
+ 
+-#define IDETAPE_VERSION "1.17b-ac1"
++#define IDETAPE_VERSION "1.17c"
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
+@@ -2367,6 +2370,8 @@
+ 	atapi_feature_t feature;
+ 	atapi_bcount_t bcount;
+ 
++	feature.all = 0;
++
+ #if IDETAPE_DEBUG_BUGS
+ 	if (tape->pc->c[0] == IDETAPE_REQUEST_SENSE_CMD &&
+ 	    pc->c[0] == IDETAPE_REQUEST_SENSE_CMD) {

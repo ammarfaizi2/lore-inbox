@@ -1,100 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282966AbRLHRar>; Sat, 8 Dec 2001 12:30:47 -0500
+	id <S283004AbRLHRfR>; Sat, 8 Dec 2001 12:35:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282964AbRLHRai>; Sat, 8 Dec 2001 12:30:38 -0500
-Received: from dsl-213-023-038-245.arcor-ip.net ([213.23.38.245]:37650 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S282966AbRLHRa0>;
-	Sat, 8 Dec 2001 12:30:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
-Date: Sat, 8 Dec 2001 18:32:55 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <3C110B3F.D94DDE62@zip.com.au> <9useu4$f4o$1@penguin.transmeta.com>
-In-Reply-To: <9useu4$f4o$1@penguin.transmeta.com>
+	id <S283009AbRLHRfH>; Sat, 8 Dec 2001 12:35:07 -0500
+Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:16851 "EHLO
+	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S283004AbRLHRfD>; Sat, 8 Dec 2001 12:35:03 -0500
+Message-ID: <3C124EC1.7DA2A1B4@wanadoo.fr>
+Date: Sat, 08 Dec 2001 18:32:49 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Organization: Home PC
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.1-pre7+devfs-v203 i686)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ClLY-000124-00@starship.berlin>
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre7 ide-cd module
+In-Reply-To: <3C1235C4.BC20AC8E@wanadoo.fr> <20011208161847.GK11567@suse.de> <3C12421C.47337242@wanadoo.fr> <20011208164552.GR11567@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 8, 2001 08:19 am, Linus Torvalds wrote:
-> In article <3C110B3F.D94DDE62@zip.com.au>,
-> Andrew Morton  <akpm@zip.com.au> wrote:
-> >Daniel Phillips wrote:
-> >> 
-> >> Because Ext2 packs multiple entries onto a single inode table block, the
-> >> major effect is not due to lack of readahead but to partially processed 
-inode
-> >> table blocks being evicted.
+Jens Axboe wrote:
+> 
+> On Sat, Dec 08 2001, Pierre Rousselet wrote:
+> > > Is this a new problem?
 > >
-> >Inode and directory lookups are satisfied direct from the icache/dcache,
-> >and the underlying fs is not informed of a lookup, which confuses the VM.
-> >
-> >Possibly, implementing a d_revalidate() method which touches the
-> >underlying block/page when a lookup occurs would help.
+> > The same is in 2.5.1-pre5 (i reported the 'Can play audio : 0' to l-k).
 > 
-> Well, the multi-level caching thing is very much "separate levels" on
-> purpose, one of the whole points of the icache/dcache being accessed
-> without going to any lower levels is that going all the way to the lower
-> levels is slow.
-> 
-> And there are cases where it is better to throw away the low-level
-> information, and keep the high-level cache, if that really is the access
-> pattern. For example, if we really always hit in the dcache, there is no
-> reason to keep any backing store around.
-> 
-> For inodes in particular, though, I suspect that we're just wasting
-> memory copying the ext2 data from the disk block to the "struct inode".
-> We might be much better off with
-> 
->  - get rid of the duplication between "ext2_inode_info" (in struct
->    inode) and "ext2_inode" (on-disk representation)
->  - add "struct ext2_inode *" and a "struct buffer_head *" pointer to
->    "ext2_inode_info".
->  - do all inode ops "in place" directly in the buffer cache.
-> 
-> This might actually _improve_ memory usage (avoid duplicate data), and
-> would make the buffer cache a "slave cache" of the inode cache, which in
-> turn would improve inode IO (ie writeback) noticeably.  It would get rid
-> of a lot of horrible stuff in "ext2_update_inode()", and we'd never have
-> to read in a buffer block in order to write out an inode (right now,
-> because inodes are only partial blocks, write-out becomes a read-modify-
-> write cycle if the buffer has been evicted). 
-> 
-> So "ext2_write_inode()" would basically become somehting like
-> 
-> 	struct ext2_inode *raw_inode = inode->u.ext2_i.i_raw_inode;
-> 	struct buffer_head *bh = inode->u.ext2_i.i_raw_bh;
-> 
-> 	/* Update the stuff we've brought into the generic part of the inode */
-> 	raw_inode->i_size = cpu_to_le32(inode->i_size);
-> 	...
-> 	mark_buffer_dirty(bh);
-> 
-> with part of the data already in the right place (ie the current
-> "inode->u.ext2_i.i_data[block]" wouldn't exist, it would just exist as
-> "raw_inode->i_block[block]" directly in the buffer block.
+> How about 2.4.16? Try attached patch.
 
-I'd then be able to write a trivial program that would eat inode+blocksize 
-worth of cache for each cached inode, by opening one file on each itable 
-block.
+With your patch applied on ide-cd.c (i double-checked it is applied):
+#modprobe ide-cd ; cat /proc/sys/dev/cdrom/info
+CD-ROM information, Id: cdrom.c 3.12 2000/10/18
 
-I'd also regret losing the genericity that comes from the read_inode (unpack) 
-and update_inode (repack) abstraction.  Right now, I don't see any fields in 
-_info that aren't directly copied, but I expect there soon will be.
+drive name:             hdc
+drive speed:            0
+drive # of slots:       1
+Can close tray:         0
+Can open tray:          1
+Can lock tray:          1
+Can change speed:       1
+Can select disk:        0
+Can read multisession:  1
+Can read MCN:           1
+Reports media changed:  1
+Can play audio:         0
+Can write CD-R:         0
+Can write CD-RW:        0
+Can read DVD:           0
+Can write DVD-R:        0
+Can write DVD-RAM:      0
+#rmmod ide-cd ; modprobe ide-cd ; cat /proc/sys/dev/cdrom/info
+CD-ROM information, Id: cdrom.c 3.12 2000/10/18
 
-An alternative approach: suppose we were to map the itable blocks with 
-smaller-than-blocksize granularity.  We could then fall back to smaller 
-transfers under cache pressure, eliminating much thrashing.
+drive name:             hdc
+drive speed:            1
+drive # of slots:       1
+Can close tray:         1
+Can open tray:          1
+Can lock tray:          1
+Can change speed:       1
+Can select disk:        0
+Can read multisession:  1
+Can read MCN:           1
+Reports media changed:  1
+Can play audio:         1
+Can write CD-R:         0
+Can write CD-RW:        0
+Can read DVD:           0
+Can write DVD-R:        0
+Can write DVD-RAM:      0
 
-By the way, we can trivially shrink every inode by 6 bytes, right now, with:
 
--	__u32	i_faddr;
--	__u8	i_frag_no;
--	__u8	i_frag_size;
 
---
-Daniel
+-- 
+------------------------------------------------
+ Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------

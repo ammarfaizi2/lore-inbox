@@ -1,106 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbTDMXaV (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 19:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbTDMXaV (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 19:30:21 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:51167 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262659AbTDMXaT (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 19:30:19 -0400
-Date: Sun, 13 Apr 2003 16:34:40 -0700 (PDT)
-Message-Id: <20030413.163440.22453695.davem@redhat.com>
-To: bunk@fs.tum.de
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-mm2: multiple definition of `ipip_err'
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030413201643.GP9640@fs.tum.de>
-References: <20030412180852.77b6c5e8.akpm@digeo.com>
-	<20030413201643.GP9640@fs.tum.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id S262683AbTDMXeK (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 19:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTDMXeK (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 19:34:10 -0400
+Received: from dp.samba.org ([66.70.73.150]:38814 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262683AbTDMXeH (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 19:34:07 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16025.63003.968553.194791@nanango.paulus.ozlabs.org>
+Date: Mon, 14 Apr 2003 09:43:23 +1000 (EST)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] M68k IDE updates
+In-Reply-To: <1050243002.24186.7.camel@dhcp22.swansea.linux.org.uk>
+References: <200304131306.h3DD6XQ3001331@callisto.of.borg>
+	<1050243002.24186.7.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Adrian Bunk <bunk@fs.tum.de>
-   Date: Sun, 13 Apr 2003 22:16:43 +0200
+Alan Cox writes:
 
-   On Sat, Apr 12, 2003 at 06:08:52PM -0700, Andrew Morton wrote:
-   >...
-   >  linus.patch
-   > 
-   >  Latest -bk
-   >...
-   
-   The following compile error seems to come from Linus' tree:
-   
-This patch undoubtedly fixes it.  I'm actually perplexed about that
-GCC didn't at least warn about the fact that ipip_fb_tunnel_init() is
-first declared static and then defined non-static.
+> This looks the wrong place to fix this problem Geert. The PPC 
+> folks have the same issues with byte order on busses but you
+> won't see ifdefs in the core IDE code for it.
+> 
+> Fix your __ide_mm_insw/ide_mm_outsw macros and the rest happens
+> automatically.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1179  -> 1.1180 
-#	net/ipv4/xfrm4_tunnel.c	1.1     -> 1.2    
-#	     net/ipv4/ipip.c	1.26    -> 1.27   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/04/13	davem@nuts.ninka.net	1.1180
-# [IPV4]: xfrm4_tunnel and ipip need to privateize some symbols.
-# --------------------------------------------
-#
-diff -Nru a/net/ipv4/ipip.c b/net/ipv4/ipip.c
---- a/net/ipv4/ipip.c	Sun Apr 13 16:39:07 2003
-+++ b/net/ipv4/ipip.c	Sun Apr 13 16:39:07 2003
-@@ -208,7 +208,7 @@
- 	write_unlock_bh(&ipip_lock);
- }
- 
--struct ip_tunnel * ipip_tunnel_locate(struct ip_tunnel_parm *parms, int create)
-+static struct ip_tunnel * ipip_tunnel_locate(struct ip_tunnel_parm *parms, int create)
- {
- 	u32 remote = parms->iph.daddr;
- 	u32 local = parms->iph.saddr;
-@@ -286,7 +286,7 @@
- 	dev_put(dev);
- }
- 
--void ipip_err(struct sk_buff *skb, void *__unused)
-+static void ipip_err(struct sk_buff *skb, void *__unused)
- {
- #ifndef I_WISH_WORLD_WERE_PERFECT
- 
-@@ -478,7 +478,7 @@
- 		IP_ECN_set_ce(inner_iph);
- }
- 
--int ipip_rcv(struct sk_buff *skb)
-+static int ipip_rcv(struct sk_buff *skb)
- {
- 	struct iphdr *iph;
- 	struct ip_tunnel *tunnel;
-@@ -852,7 +852,7 @@
- 	return 0;
- }
- 
--int __init ipip_fb_tunnel_init(struct net_device *dev)
-+static int __init ipip_fb_tunnel_init(struct net_device *dev)
- {
- 	struct iphdr *iph;
- 
-diff -Nru a/net/ipv4/xfrm4_tunnel.c b/net/ipv4/xfrm4_tunnel.c
---- a/net/ipv4/xfrm4_tunnel.c	Sun Apr 13 16:39:07 2003
-+++ b/net/ipv4/xfrm4_tunnel.c	Sun Apr 13 16:39:07 2003
-@@ -163,7 +163,7 @@
- 	return 0;
- }
- 
--void ipip_err(struct sk_buff *skb, u32 info)
-+static void ipip_err(struct sk_buff *skb, u32 info)
- {
- 	struct xfrm_tunnel *handler = ipip_handler;
- 	u32 arg = info;
+As I understand it, on some platforms (including some PPC platforms,
+but not powermacs) one needs to byteswap drive ID data but not the
+normal sector data.  Or vice versa.  Whether drive ID data needs
+byte-swapping comes down to how the drive is attached to the bus.  The
+conventions used by other systems that we need to interoperate with
+(e.g. other OSes, or just older kernels) determine whether normal
+sector data needs byte-swapping or not.
+
+Since __ide_mm_insw doesn't get told whether it is transferring normal
+sector data or drive ID data, it can't necessarily do the right thing
+in both situations.
+
+It's very possible that there are some PPC platforms for which IDE is
+borken right now - I strongly suspect this would be the case for the
+Tivo at least, and probably several other embedded PPC platforms.
+
+Paul.

@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbUJ0SpC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262591AbUJ1AFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262596AbUJ0SpC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 14:45:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUJ0Som
+	id S262591AbUJ1AFz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 20:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUJ1AEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 14:44:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46798 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262618AbUJ0SeF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 14:34:05 -0400
-Message-ID: <417FEA09.6080502@pobox.com>
-Date: Wed, 27 Oct 2004 14:33:45 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Wed, 27 Oct 2004 20:04:44 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:33172 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S262723AbUJ0Xbs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 19:31:48 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] [RFC] dev_acpi: support for userspace access to acpi
+Date: Wed, 27 Oct 2004 17:31:39 -0600
+User-Agent: KMail/1.7
+Cc: "Yu, Luming" <luming.yu@intel.com>,
+       "Alex Williamson" <alex.williamson@hp.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Brown, Len" <len.brown@intel.com>
+References: <3ACA40606221794F80A5670F0AF15F84041ABFF8@pdsmsx403>
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F84041ABFF8@pdsmsx403>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>
-Subject: Re: news about IDE PIO HIGHMEM bug
-References: <58cb370e041027074676750027@mail.gmail.com> <417FBB6D.90401@pobox.com> <1246230000.1098892359@[10.10.2.4]> <1246750000.1098892883@[10.10.2.4]> <20041027180816.GA32436@infradead.org>
-In-Reply-To: <20041027180816.GA32436@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="gb2312"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410271731.39077.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
->>To repeat what I said in IRC ... ;-)
->>
->>Actually, you could check this with the pfns being the same when >> MAX_ORDER-1.
->>We should be aligned on a MAX_ORDER boundary, I think.
->>
->>However, pfn_to_page(page_to_pfn(page) + 1) might be safer. If rather slower.
-> 
-> 
-> I think this is the wrong level of interface exposed.  Just add two hepler
-> kmap_atomic_sg/kunmap_atomic_sg that gurantee to map/unmap a sg list entry,
-> even if it's bigger than a page.
+On Wednesday 27 October 2004 11:17 am, Yu, Luming wrote:
+>   If don't use acpi_early_init , acpi is initialized in do_basic_setup() in kernel thread --init.
+> It is very close to launch first user space process(/sbin/init ..). So, if we can invent 
+> acpi_later_init, it is possible to move interpreter out of kernel.
 
-Why bother mapping anything larger than a page, when none of the users 
-need it?
+It's true that some early init stuff is based on the static tables
+and doesn't require the interpreter.  But there is a lot of stuff
+that DOES require the interpreter, like finding PCI root bridges,
+PRTs, PCI interrupt link devices, etc.  It's not clear to me that
+it's feasible to deal with all these from userspace.
 
-	Jeff
+>   The difficulty for inventing userspace interpreter is to eliminate the ACPI-interpreter dependency 
+> of drivers for booting. But this dependency is not mandatory. Once kernel booted to be able
+> to launch /sbin/init, it is also able to launch /sbin/user_space_interpreter, then kernel can enjoy
+> acpi from then on, despite the acpi interpreter is a user space daemon, we just need to invent
+> or user a communication method between kernel and user space daemon.
 
+Before the interpreter, you don't have ANY devices (legacy ones are
+described via the namespace of course, and PCI devices depend on root
+bridges that are also in the namespace).  So you end up at least
+requiring a ramdisk, plus a bunch of encoding to communicate resource
+information from the interpreter to the drivers.
 
-
-P.S. In your scheme you would need four helpers; you forgot kmap_sg() 
-and kunmap_sg().
+Maybe not impossible, but it certainly requires a lot of work.  Moving
+the interpreter to userspace has been proposed many times, but I've
+never seen any indication that anybody is actually working on it.

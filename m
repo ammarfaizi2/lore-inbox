@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265375AbTFUVsh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 17:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbTFUVsh
+	id S263398AbTFUWAL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 18:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263547AbTFUWAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 17:48:37 -0400
-Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:6664 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP id S265375AbTFUVsg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 17:48:36 -0400
-Date: Sun, 22 Jun 2003 00:01:44 +0200
-To: marcelo@conectiva.com.br
-Cc: twaugh@redhat.com, linux-kernel@vger.kernel.org, linux-parport@torque.net
-Subject: [patch] 2.4.21 parport_serial link order fix, NetMos support
-Message-ID: <20030621220144.GA528@alf.amelek.gda.pl>
-Mime-Version: 1.0
+	Sat, 21 Jun 2003 18:00:11 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:2317 "EHLO aslan.scsiguy.com")
+	by vger.kernel.org with ESMTP id S263398AbTFUWAG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 18:00:06 -0400
+Date: Sat, 21 Jun 2003 16:14:03 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Zack Gilburd <zack@tehunlose.com>, linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx and SiI3112 problems (2.4.21[-ac1] and 2.5.7x)
+Message-ID: <907540000.1056233643@aslan.scsiguy.com>
+In-Reply-To: <200306182203.36845.zack@tehunlose.com>
+References: <200306182203.36845.zack@tehunlose.com>
+X-Mailer: Mulberry/3.0.3 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> I have an Adaptec 29160N that uses the aic7xxx driver.  I have had no
+> problems with this driver in 2.4.20, but in 2.4.21, my drives fail parity
+> checks.  I've gone back and forward between 2.4.20 kernels and 2.4.21
+> kernels just to make sure it wasn't the drive's fault.  The exact error
+> message(s) are at the middle-end of this email.
 
-that's me again, trying to submit this since 2.4.19 or so, with no
-success so far.  Please consider for 2.4.22 if it ever happens...
+The typical reason that you might get a CRC error is that the termination
+is not configured correctly on your card.  I don't recall off hand any
+particular termination issues for the 29160N that have been resolved
+by driver releases after 6.2.8, but newer drivers do have more termination
+diagnostics that may help me to resolve your problem.  You should be able
+to just drop in the latest driver from here:
 
-I've been successfully using a few low cost PCI multi-IO cards (only
-"made in China" on the PCB, "STLab" on the box) based on the NetMos
-NM9835 chip (1 parallel port, 2 serial ports), for a few months now.
-Patches (now updated for 2.4.21) are available here:
+http://people.FreeBSD.org/~gibbs/linux/SRC/
 
-http://www.amelek.gda.pl/linux-patches/2.4.21/00_parport_serial
-http://www.amelek.gda.pl/linux-patches/2.4.21/01_netmos
+If the newer driver still causes problems, let me know and I can give
+you instructions on how to enable the debugging I need to better understand
+your problem.
 
-00_parport_serial fixes a link order bug (parport_serial didn't work
-at all when compiled into the kernel, only as a module).  The patch
-file is big, but most of it just moves drivers/parport/parport_serial.c
-to drivers/char/ without changing a single line.  This way the driver
-is initialised after serial, but still before any other drivers which
-need the parport subsystem, such as: lp, paride, plip, ...
-
-01_netmos (must be applied after 00_parport_serial) adds support for
-the NetMos PCI parallel port and multi-IO chips.  This is based on an
-old (2001) patch by Tim Waugh, without significant changes.
-
-Apparently, some people had system lockups with NetMos cards when
-trying to use the parport IRQ.  This patch does not do this -
-polling mode works, and is better than nothing.  Anyway, I've also
-added a config option (CONFIG_PARPORT_PC_NETMOS, conditional on
-CONFIG_EXPERIMENTAL), with Documentation/Configure.help description.
-Hopefully this will help to get the patch accepted into the kernel.
-
-Thanks,
-Marek
+--
+Justin
 

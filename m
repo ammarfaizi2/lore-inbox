@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269276AbTCBTCs>; Sun, 2 Mar 2003 14:02:48 -0500
+	id <S267870AbTCBTBL>; Sun, 2 Mar 2003 14:01:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269277AbTCBTCs>; Sun, 2 Mar 2003 14:02:48 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21773 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S269276AbTCBTCr>; Sun, 2 Mar 2003 14:02:47 -0500
-Date: Sun, 2 Mar 2003 19:13:01 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: 2.5.63: 'Debug: sleeping function called from illegal context
-Message-ID: <20030302191300.B10914@flint.arm.linux.org.uk>
-Mail-Followup-To: Manfred Spraul <manfred@colorfullife.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>
-References: <3E62200D.2010505@colorfullife.com>
+	id <S269276AbTCBTBL>; Sun, 2 Mar 2003 14:01:11 -0500
+Received: from imap.gmx.net ([213.165.64.20]:42874 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267870AbTCBTBK>;
+	Sun, 2 Mar 2003 14:01:10 -0500
+Date: Sun, 2 Mar 2003 20:11:32 +0100
+From: Marc Giger <gigerstyle@gmx.ch>
+To: Brad Laue <brad@brad-x.com>, linux-kernel@vger.kernel.org
+Subject: Re: Cisco Aironet 340 oops with 2.4.20
+Message-Id: <20030302201132.30572fbc.gigerstyle@gmx.ch>
+In-Reply-To: <3E6238EE.7050802@brad-x.com>
+References: <Pine.LNX.4.44.0303022210400.6149-100000@blackbird.intercode.com.au>
+	<3E6238EE.7050802@brad-x.com>
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E62200D.2010505@colorfullife.com>; from manfred@colorfullife.com on Sun, Mar 02, 2003 at 04:15:25PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 02, 2003 at 04:15:25PM +0100, Manfred Spraul wrote:
-> I would propose something like the attached patch - it handles all archs 
-> that support disable_irq on an unregistered interrupt. The remaining 
-> arch [which one, btw] must implement request_irq_disabled().
->...
-> +{
-> +	int retval;
-> +	disable_irq(irq);
-> +	retval = request_irq(irq, handler, irqflags, devname, dev_id);
-> +	if (retval < 0)
-> +		enable_irq(irq);
-> +	return retval;
-> +}
-> +#endif
+On Sun, 02 Mar 2003 12:01:34 -0500
+Brad Laue <brad@brad-x.com> wrote:
 
-request_irq() explicitly enables the interrupt source no matter how many
-times you call disable_irq() before hand.
+> James Morris wrote:
+> 
+> >The latter two are still happening with a tainted kernel.  Are you able to 
+> >generate the crash if these modules have never been loaded?
+> >
+> >
+> >- James
+> >  
+> >
+> I'm not sure I follow - the NVdriver module had not been loaded at all 
+> for the other two. How is the kernel tainted?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+What he meant is that you still have some modules loaded which arent't GPL'd licensed like the nvidia module. If you are unsure, please mail the ouptut of lsmod...
+Anyway, I think it's not the problem of these modules. The airo module sucks:-) But I think Javier and Benjamin will help us to solve the problem..
 
+> 
+>  Brad
+> 
+> -- 
+> // -- http://www.BRAD-X.com/ -- //
+> 
+> 

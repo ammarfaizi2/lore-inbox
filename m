@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271825AbRILVpF>; Wed, 12 Sep 2001 17:45:05 -0400
+	id <S271808AbRILVpY>; Wed, 12 Sep 2001 17:45:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271808AbRILVoy>; Wed, 12 Sep 2001 17:44:54 -0400
-Received: from smtp-ham-2.netsurf.de ([194.195.64.98]:39929 "EHLO
-	smtp-ham-2.netsurf.de") by vger.kernel.org with ESMTP
-	id <S271795AbRILVon>; Wed, 12 Sep 2001 17:44:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-To: Pavel Machek <pavel@suse.cz>, Phil Thompson <Phil.Thompson@pace.co.uk>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: User Space Emulation of Devices
-Date: Wed, 12 Sep 2001 23:45:24 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <54045BFDAD47D5118A850002A5095CC30AC57D@exchange1.cam.pace.co.uk> <20010912122826.A6153@bug.ucw.cz>
-In-Reply-To: <20010912122826.A6153@bug.ucw.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010912214444Z271795-760+12170@vger.kernel.org>
+	id <S271795AbRILVpP>; Wed, 12 Sep 2001 17:45:15 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:25092 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S271820AbRILVpE>;
+	Wed, 12 Sep 2001 17:45:04 -0400
+Message-ID: <20010912004818.A10240@bug.ucw.cz>
+Date: Wed, 12 Sep 2001 00:48:18 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Grover, Andrew" <andrew.grover@intel.com>,
+        "'Rik van Riel'" <riel@conectiva.com.br>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Samium Gromoff'" <_deepfire@mail.ru>
+Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0E2@orsmsx35.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0E2@orsmsx35.jf.intel.com>; from Grover, Andrew on Tue, Sep 04, 2001 at 02:52:17PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 12. September 2001 12:28 schrieb Pavel Machek:
-> Hi!
->
-> > Without going into the gory details, I have a requirement for a device
-> > driver that does very little apart from pass on the open/close/read/write
-> > "requests" onto a user space application to implement and pass back to
-> > the driver.
-> >
-> > Does anything like this already exist?
->
-> Something like that which would also pass ioctl()s would be *very*
-> welcome.
-> 								Pavel
+Hi!
 
-How do you pass an ioctl ? If any parameter is a pointer you actually need a 
-complex protocol for passing memory content to make it useful.
+> Here's Linux:
+> 
+> Drivers (SMP agnostic)
+> Kernel (SMP/UP specific)
+> 
+> Here's Windows:
+> 
+> Drivers (SMP agnostic)
+> Kernel (SMP agnostic)
+> HAL (SMP/UP specific, contains locking primitive funcs etc.)
+> 
+> So they use the same kernel and just switch out the HAL.
 
-	Regards
-		Oliver
+-> overhead.
 
+If you don't care about overhead, just run SMP kernels even on UP.
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

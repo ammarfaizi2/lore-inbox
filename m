@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265982AbUAQEFh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 23:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265983AbUAQEFh
+	id S265994AbUAQEIk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 23:08:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265995AbUAQEIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 23:05:37 -0500
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:9571 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265982AbUAQEFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 23:05:33 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Greg Fitzgerald <gregf@bigtimegeeks.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-mm4
-Date: Fri, 16 Jan 2004 23:05:26 -0500
-User-Agent: KMail/1.5.4
-References: <20040115225948.6b994a48.akpm@osdl.org> <20040117013115.GA5524@evilbint>
-In-Reply-To: <20040117013115.GA5524@evilbint>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401162305.26269.dtor_core@ameritech.net>
+	Fri, 16 Jan 2004 23:08:40 -0500
+Received: from main.gmane.org ([80.91.224.249]:25764 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265994AbUAQEIj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 23:08:39 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: kernel 2.6.1 and cdrecord on ATAPI bus
+Date: Sat, 17 Jan 2004 05:08:36 +0100
+Message-ID: <yw1xad4n6wu3.fsf@kth.se>
+References: <20040117031925.GA26477@widomaker.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:0K4Dc5bFXQAlV9RhYeT1/xQvEFQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 16 January 2004 08:31 pm, Greg Fitzgerald wrote:
-> Hi,
->
-> 	Just gave 2.6.1-mm4 a try hoping to fix my NFS problems. NFS seems
-> to be working better but now my mouse is not working properly. I have
-> psmouse.psmouse_proto=exps in my grub.conf.
->
+Charles Shannon Hendrix <shannon@widomaker.com> writes:
 
-Please change it to psmouse.proto=exps
+> Is CD burning supposed to work with kernel 2.6.1 using the ATAPI
+> interface, or are bugs still being worked out?
+>
+> I have run cdrecord under kernel 2.4.2x and it worked great using the
+> ATAPI interface like this:
+>
+> % cdrecord dev=ATAPI:bus,drive,lun
+
+I use dev=/dev/hdc.  It haven't seen it fail once.
 
 -- 
-Dmitry
+Måns Rullgård
+mru@kth.se
+

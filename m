@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262258AbSIZJWj>; Thu, 26 Sep 2002 05:22:39 -0400
+	id <S262259AbSIZJaz>; Thu, 26 Sep 2002 05:30:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262265AbSIZJWj>; Thu, 26 Sep 2002 05:22:39 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:12677 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262258AbSIZJWi>;
-	Thu, 26 Sep 2002 05:22:38 -0400
-Date: Thu, 26 Sep 2002 02:21:35 -0700 (PDT)
-Message-Id: <20020926.022135.42906349.davem@redhat.com>
-To: ratz@drugphish.ch
-Cc: ak@suse.de, niv@us.ibm.com, linux-kernel@vger.kernel.org, hadi@cyberus.ca
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D92D243.6060808@drugphish.ch>
-References: <3D92CCC5.5000206@drugphish.ch>
-	<20020926.020602.75761707.davem@redhat.com>
-	<3D92D243.6060808@drugphish.ch>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S262261AbSIZJaz>; Thu, 26 Sep 2002 05:30:55 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:24319 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S262259AbSIZJaz>;
+	Thu, 26 Sep 2002 05:30:55 -0400
+From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@redhat.com>, <zaitcev@redhat.com>
+Cc: <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>, <axboe@suse.de>,
+       <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] fix ide-iops for big endian archs
+Date: Thu, 26 Sep 2002 00:49:08 +0200
+Message-Id: <20020925224908.5805@192.168.4.1>
+In-Reply-To: <20020925.125734.32605968.davem@redhat.com>
+References: <20020925.125734.32605968.davem@redhat.com>
+X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Roberto Nibali <ratz@drugphish.ch>
-   Date: Thu, 26 Sep 2002 11:24:19 +0200
-   
-   Fair enough. I'm looking forward to seeing this framework. Any release 
-   schedules or rough plans?
-   
-None whatsoever, as it should be.
+>   IDE uses ide_insw instead of plain insw specifically to
+>   resolve this kind of issue, and you are trying to defeat
+>   the mechanism designed to help you. I smell a fish here.
+>
+>They're trying to abstract out as much as possible in 2.5.x, maybe a
+>bit too much :-)
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Well, no, we are changing the abstraction but didn't quite yet
+remove rests of the old one ;)
+
+Ben.
+
+

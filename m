@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262497AbUDBLeX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 06:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262542AbUDBLeW
+	id S262542AbUDBLod (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 06:44:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUDBLod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 06:34:22 -0500
-Received: from mxintern.kundenserver.de ([212.227.126.201]:51933 "EHLO
-	mxintern.schlund.de") by vger.kernel.org with ESMTP id S262497AbUDBLeV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 06:34:21 -0500
-Message-ID: <406D4FB6.4070301@snakefarm.org>
-Date: Fri, 02 Apr 2004 13:34:14 +0200
-From: Carsten Gaebler <ezinye-zinto@snakefarm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 2 Apr 2004 06:44:33 -0500
+Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:4363 "EHLO swin.edu.au")
+	by vger.kernel.org with ESMTP id S262542AbUDBLoc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 06:44:32 -0500
 To: linux-kernel@vger.kernel.org
-CC: linux-xfs@oss.sgi.com
-Subject: Re: 2.4.25 XFS can't create files
-References: <406D20FE.8040701@snakefarm.org> <20040402093238.GA28931@dingdong.cryptoapps.com>
-In-Reply-To: <20040402093238.GA28931@dingdong.cryptoapps.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Tim Connors <tconnors+linuxkernel1080906194@astro.swin.edu.au>
+Subject: Re:  [PATCH] cowlinks v2
+In-reply-to: <20040331144536.GA328@elf.ucw.cz>
+References: <20040320083411.GA25934@wohnheim.fh-wedel.de> <s5gznab4lhm.fsf@patl=users.sf.net> <20040320152328.GA8089@wohnheim.fh-wedel.de> <20040329171245.GB1478@elf.ucw.cz> <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040331143412.GA18990@mail.shareable.org> <20040331144536.GA328@elf.ucw.cz>
+X-Face: +*%dmR:3=9i\[:8fga\UgZT#@`f=DU0(wQqI'AR2/r0sBMO}Ax\,V*cWaW-owRlUmuz&=v\KItx0:gRCBg1&z_"4x&-N#Di7))]~p2('`6|5.c3&:Z?VLU`Zt5Kb,~uC6<y}P'~7A+^'|'+iAd4t43:P;tPiT<q=9P$MO]u^@OHn1_4#qP7,XiSo21SkgI`:5=i$,t&uNN_\LfuLyH`)8!:Tb]Z
+Message-ID: <slrn-0.9.7.4-30567-17303-200404022143-tc@hexane.ssi.swin.edu.au>
+Date: Fri, 2 Apr 2004 21:44:28 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> I suspect it's not MPT related.  I'm not farmiliar with stock 2.4.25
-> but assume the XFS merge went OK and everything is sane.  Any chance
-> you can test with a CVS kernel from oss.sgi.com to rule out the
-> (probably minor) differences there?
+Pavel Machek <pavel@ucw.cz> said on Wed, 31 Mar 2004 16:45:37 +0200:
+> Hi!
+> > The garbage collection is what's horrible about it :)
+> > Btw, 15 would be exceeded easily in my home directory.
+> 
+> Well, but chances are that you'll never unlink such files... Leaving
+> garbage collection to fsck would make it rather easy.
 
-The SGI kernel works fine. Thanks for the hint.
+How often do you fsck? Sure, I fscked the other day, but that's
+because some idiot unplugged my laptop.
 
-> strace shows open/creat failing?
+I sure as hell delete copied trees more often than once every 6 months
+though :)
 
-Yes.
-
-open("/mnt/xfs/foo", O_WRONLY|O_NONBLOCK|O_CREAT|O_NOCTTY|O_LARGEFILE, 
-0666) = -1 EACCES (Permission denied)
-
- > there are also no ACLs and/or
-> security modules involved are there?
-
-Nope.
-
-cg.
+-- 
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+I'm sorry. The number you have reached is imaginary. Please rotate your
+phone 90 degrees and try again.

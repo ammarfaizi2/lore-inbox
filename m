@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261684AbREUUVQ>; Mon, 21 May 2001 16:21:16 -0400
+	id <S261643AbREUUSg>; Mon, 21 May 2001 16:18:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbREUUVJ>; Mon, 21 May 2001 16:21:09 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:56580 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S261684AbREUUU3>;
-	Mon, 21 May 2001 16:20:29 -0400
-Message-ID: <20010520235409.G2647@bug.ucw.cz>
-Date: Sun, 20 May 2001 23:54:09 +0200
+	id <S261653AbREUUS0>; Mon, 21 May 2001 16:18:26 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:41220 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S261643AbREUUSI>;
+	Mon, 21 May 2001 16:18:08 -0400
+Message-ID: <20010520215300.A2647@bug.ucw.cz>
+Date: Sun, 20 May 2001 21:53:00 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Rik van Riel <riel@conectiva.com.br>, Mike Galbraith <mikeg@wen-online.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
-In-Reply-To: <Pine.LNX.4.33.0105200957500.323-100000@mikeg.weiden.de> <Pine.LNX.4.21.0105200546241.5531-100000@imladris.rielhome.conectiva>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ben LaHaise <bcrl@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+In-Reply-To: <Pine.LNX.4.33.0105191153400.5829-100000@devserv.devel.redhat.com> <E1519Xe-00005c-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.21.0105200546241.5531-100000@imladris.rielhome.conectiva>; from Rik van Riel on Sun, May 20, 2001 at 05:49:09AM -0300
+In-Reply-To: <E1519Xe-00005c-00@the-village.bc.nu>; from Alan Cox on Sat, May 19, 2001 at 05:25:22PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > You're right.  It should never dump too much data at once.  OTOH, if
-> > those cleaned pages are really old (front of reclaim list), there's no
-> > value in keeping them either.  Maybe there should be a slow bleed for
-> > mostly idle or lightly loaded conditions.
+> > Now that I'm awake and refreshed, yeah, that's awful.  But
+> > echo "hot-add,slot=5,device=/dev/sda" >/dev/md0/control *is* sane.  Heck,
+> > the system can even send back result codes that way.
 > 
-> If you don't think it's worthwhile keeping the oldest pages
-> in memory around, please hand me your excess DIMMS ;)
+> Only to an English speaker. I suspect Quebec City canadians would prefer a
+> different command set.
 
-Sorry, Rik, you can't have that that DIMM. You know, you are
-developing memory managment, and we can't have you having too much
-memory available ;-).
-								  Pavel
+Alan, bad idea.
+
+This is less evil than magic numbers, and *users* should not be
+touching this anyway. They should have nice gui tools that do it for
+them.
+
+English is *way* better than magic numbers. It makes sense at least
+for someone.
+								    Pavel 
+
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
 Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274182AbRISUzP>; Wed, 19 Sep 2001 16:55:15 -0400
+	id <S274183AbRISU4p>; Wed, 19 Sep 2001 16:56:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274185AbRISUzG>; Wed, 19 Sep 2001 16:55:06 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:55800 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274182AbRISUzA>;
-	Wed, 19 Sep 2001 16:55:00 -0400
-Date: Wed, 19 Sep 2001 22:55:05 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-Message-ID: <20010919225505.P720@athlon.random>
-In-Reply-To: <20010919202539.E720@athlon.random> <Pine.GSO.4.21.0109191515200.901-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0109191515200.901-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Sep 19, 2001 at 03:21:09PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274184AbRISU4f>; Wed, 19 Sep 2001 16:56:35 -0400
+Received: from viper.haque.net ([66.88.179.82]:4224 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S274183AbRISU4b>;
+	Wed, 19 Sep 2001 16:56:31 -0400
+Date: Wed, 19 Sep 2001 16:56:43 -0400 (EDT)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Mark Orr <markorr@intersurf.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10pre12 -- PPP compile problem;  tty_register_ldisc hanging
+In-Reply-To: <E15jmz5-0003c8-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0109191655030.1087-100000@viper.haque.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 03:21:09PM -0400, Alexander Viro wrote:
-> 
-> 
-> On Wed, 19 Sep 2001, Andrea Arcangeli wrote:
-> 
-> > Quite frankly the BDEV_* handling was and is a total mess IMHO, even if
-> > it was written by you ;), there was no difference at all from many of
-> > them, I didn't fixed that but I had to check all them on the differences
-> > until I realized there was none. I also think the other things you
-> 
-> There certainly _are_ differences  (e.g. in handling the moment
-> when you close them).
+On Wed, 19 Sep 2001, Alan Cox wrote:
 
-there aren't difference, only thing that matters is: "is that an fs
-or a blkdev". SWAP/RAW/FILE is useless.
+> The tty exports are now in the drivers/char/tty* files.
 
-> > mentioned (besides the inode pinning bug, non critical) are not buggy
-> 
-> _What_?
-> 
-> int fd = open("/dev/ram0", O_RDWR);
-> ioctl(fd, BLKFLSBUF);
-> ioctl(fd, BLKFLSBUF);
-> 
-> and you claim that resulting oops is not a bug?
+I guess that it didnt get merged then because it's not there.
 
-that is a bug.
+Here's the correct patch to be used instead of what I posted earlier...
 
-> > (infact I never had a single report), but well we'll verify that in
-> 
-> Richard, is that you?  What had you done with real Andrea?
+--- linux/drivers/char/tty_io.c.orig	Wed Sep 19 15:59:09 2001
++++ linux/drivers/char/tty_io.c	Wed Sep 19 15:59:20 2001
+@@ -270,6 +270,8 @@
+ 	return 0;
+ }
 
-You also screwup things sometime (think the few liner you posts to l-k
-after your cleanups).  Those are minor bugs, so I'm not going to panic
-on them (ramdisk works not by luck), this is what I meant, and they will
-be fixed shortly somehow, and many thanks for the further auditing.
++EXPORT_SYMBOL(tty_register_ldisc);
++
+ /* Set the discipline of a tty line. */
+ static int tty_set_ldisc(struct tty_struct *tty, int ldisc)
+ {
 
-Andrea
+-- 
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
+

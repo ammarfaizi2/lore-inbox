@@ -1,77 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbULBIYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbULBIdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbULBIYj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 03:24:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbULBIYj
+	id S261442AbULBIdw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 03:33:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbULBIdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 03:24:39 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:48279 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261439AbULBIYg
+	Thu, 2 Dec 2004 03:33:52 -0500
+Received: from smtp08.auna.com ([62.81.186.18]:30642 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id S261442AbULBIds convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 03:24:36 -0500
-Message-ID: <41AED140.4000306@andrew.cmu.edu>
-Date: Thu, 02 Dec 2004 03:24:32 -0500
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-CC: Imanpreet Singh Arora <imanpreet@gmail.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 2 Dec 2004 03:33:48 -0500
+Date: Thu, 02 Dec 2004 08:33:44 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
 Subject: Re: What if?
+To: linux-kernel@vger.kernel.org
 References: <41AE5BF8.3040100@gmail.com> <20041202044034.GA8602@thunk.org>
-In-Reply-To: <20041202044034.GA8602@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20041202044034.GA8602@thunk.org> (from tytso@mit.edu on Thu
+	Dec  2 05:40:34 2004)
+X-Mailer: Balsa 2.2.6
+Message-Id: <1101976424l.5095l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
 
->The way the kernel will deal with C++ language being a complete
->disaster (where something as simple as "a = b + c + d +e" could
->involve a dozen or more memory allocations, implicit type conversions,
->and overloaded operators) is to not use it.  Think about the words of
->wisdom from the movie Wargames: "The only way to win is not to play
->the game".
->
+On 2004.12.02, Theodore Ts'o wrote:
+> On Thu, Dec 02, 2004 at 05:34:08AM +0530, Imanpreet Singh Arora wrote:
+> > 
+> >    I realize most of the unhappiness lies with C++ compilers being 
+> > slow. Also the fact that a lot of Hackers around here are a lot more 
+> > familiar with C, rather than C++. However other than that what are the  
+> > _implementation_  issues that you hackers might need to consider if it 
+> > were to be implemented in C++. 
+> 
+> The suckitude of C++ compilers is only part of the issues.
+> 
+> > My question is regarding how will kernel 
+> > deal with C++ doing too much behind the back, Calling constructors, 
+> > templates exceptions and other. What are the possible issues of such an 
+> > approach while writing device drivers?  What sort of modifications do 
+> > you reckon might be needed if such a move were to be made?
+> 
+> The way the kernel will deal with C++ language being a complete
+> disaster (where something as simple as "a = b + c + d +e" could
+> involve a dozen or more memory allocations, implicit type conversions,
+> and overloaded operators) is to not use it.  Think about the words of
+> wisdom from the movie Wargames: "The only way to win is not to play
+> the game".
+> 
 
-I think this oft-repeated argument is a strawman, since C++ and C are 
-identical on primitive types, and for non-primitive types, C can't use 
-operators anyway.  So translating some C++ thing like your example where 
-[a,...,e] are all "struct foo", we would have a C function called 
-"bar(a,b,c,d,e)".  Well, guess what, without looking at its definition, 
-it could be doing all sorts of things too.  In C++ you look at the 
-struct definition and the C++ standard, in C you look at the function.  
-How is that so different?  In C, functions are arbitrary but operators 
-are not.  In C++, both are arbitrary.  Considering that Linux wraps 
-almost everything into function calls, there would be little difference 
-in the end.
+Don't ge silly. I have written C++ code to deal with SSE operations
+on vectors, and there you really need to control the assembler produced,
+and with the correct const and & on correct places the code is as
+efficient as C. Or more. You can control everything. No more temporal
+objects, no more copies, but still the type checking. I can send you,
+for example, the code for a Vector class (no __asm in it),
+and the assembler that g++ spits for a thing like a = b+c.
+You would do not better in handcoded asm.
 
-That's not to say I think C++ is a good idea for the kernel; It isn't.  
-C++ is more complex in the sense it requires more analysis to figure out 
-what the CPU is really doing, thus it does entail a higher cost.  It's 
-not that bad for an expert, and in a large part it depends on how many 
-of the advanced features you use; Don't use them and your code is 
-practically the same as in C.  So it really boils down to what you 
-*gain* compared to that extra analysis cost.  For a kernel, there is 
-really not much gain.  "Some cost vs. little gain" implies "not worthwhile".
+It is as all things, you need to know it deeply to use it well.
+There are a ton of myths around C++.
 
-For example, filesystems would probably be more cleanly implemented as 
-classes with virtual functions, but as the kernel code shows, with a 
-little extra effort you can achieve the same thing with structs of 
-function pointers in plain C.  Extra effort is easy to come by when you 
-have thousands of contributors, so there's no real difference.  The case 
-is similar with many other C++ features.
+For the kernel, you don't need exceptions nor iostreams, so don't use
+the C++ runtime library.
 
-The C language was developed for writing the original Unix kernel and 
-utilities, and not suprisingly it has all the features you need for 
-that.  C++ was developed for improved development of user applications, 
-mostly through more effective reuse of code.  So again, not suprisingly, 
-applications are what it is best at.  Let's also try not to mix up "use 
-the right tool for the right job" with "use the best tool for my normal 
-job for all problems".  Many people who espouse one language above all 
-others need to look outside of their own usual problem area.
+Constructor/destuctor is needed, and also virtual single inheritance.
+And those two things are already being done by hand with function
+pointers inside structs in the kernel. The cost of (single and multiple)
+inheritance in C++ is also just an indexed jump, the difference is that
+in the pseudo object oriented things done in the kernel you have to
+always initializa the funtions pointers, and C++ will do it for you.
+How many bugs have you seen because somebody wrote a bad
+.method = the wrong_func in an initializer ?
 
- - Jim Bruce
+The kernel is full of things like
+if (__builtin_constant_pointer(xxxx) and others to check if an argument
+is constant and optimize some path, and in C++ you could write
+class T {
+	T& f();
+	const T& f() const;
+}
+and the compiler will do it at compile time also.
+
+In short, with C++ you can generate code as efficient as C or asm.
+You just have to know how.
+
+But C++ is not supported in the kernel. I can live with it.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-rc2-jam4 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #2
+
 

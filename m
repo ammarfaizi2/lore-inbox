@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271307AbRIFTwR>; Thu, 6 Sep 2001 15:52:17 -0400
+	id <S272545AbRIFT75>; Thu, 6 Sep 2001 15:59:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272534AbRIFTwH>; Thu, 6 Sep 2001 15:52:07 -0400
-Received: from femail43.sdc1.sfba.home.com ([24.254.60.37]:21378 "EHLO
-	femail43.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S271307AbRIFTvv>; Thu, 6 Sep 2001 15:51:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: linux-kernel@vger.kernel.org
-Subject: K7/Athlon optimizations and Sacrifices to the Great Ones.
-Date: Thu, 6 Sep 2001 12:51:36 -0700
-X-Mailer: KMail [version 1.2]
+	id <S272543AbRIFT7r>; Thu, 6 Sep 2001 15:59:47 -0400
+Received: from spike.porcupine.org ([168.100.189.2]:47626 "EHLO
+	spike.porcupine.org") by vger.kernel.org with ESMTP
+	id <S272537AbRIFT7i>; Thu, 6 Sep 2001 15:59:38 -0400
+Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
+In-Reply-To: <E15f55T-0000Kc-00@the-village.bc.nu> "from Alan Cox at Sep 6, 2001
+ 08:45:19 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Thu, 6 Sep 2001 15:59:58 -0400 (EDT)
+Cc: Wietse Venema <wietse@porcupine.org>, kuznet@ms2.inr.ac.ru,
+        Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, netdev@oss.sgi.com
+X-Time-Zone: USA EST, 6 hours behind central European time
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Message-Id: <01090612513601.00171@c779218-a>
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20010906195958.222DFBC06C@spike.porcupine.org>
+From: wietse@porcupine.org (Wietse Venema)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm upset, and angry, and could go into more detail but a future employer 
-might read this.
+Alan Cox:
+> > Soldiers are marching down the street. The mother of one of those
+> > soldiers is ever so proud.  All the other guys are marching out of
+> > step.  Her son is the only one who does it right.
+> > 
+> > That's what it looks like for a person who writes Internet software
+> > that aims to work on a wide variety of platforms.
+> 
+> I think you have the metaphor wrong. The older API is a bit like the 
+> cavalry charging into battle at the start of world war one. It may have been
+> how everyone did it but they guys with the "newfangled, really not how it
+> should be done, definitely not cricket"  machine guns got the last laugh
 
-133Mhz FSB + KT133A chipset theory has been officially shot to hell.
-Not only that, but 6-4-4 (family/model/stepping) processors don't seem to 
-be the culprit. I've now had reports of 6-4-2 experiencing problems, and 
-6-4-4 NOT experiencing problems, even on KT133A @ 133Mhz.
-At this point, I can't even isolate a MOTHERBOARD that could be the 
-culprit, and I don't think it's the power supply.
+Keep your superiority complex out of my mailbox, thank you.
 
-The *only* other theory I have left in my arsenal is cooling. 
-Unfortunately this data is more difficult to obtain from users, and thus 
-wouldn't gather as many responses and in the end it'd probably be 
-useless. It would be best tested in controlled conditions, but 
-unfortunately I don't have the money to purchase the neccisary hardware 
-to test these issues. Any companies want to sponsor tests? I'm serious, 
-if someone wanted to, I'd be willing to test this possibility.
-There is another remote possibility, and that's the fab plant that the 
-processors came from. I didn't ask for CPU serial numbers, so I can't 
-speak to that effect.
-It's also possible that this is related to a specific batch or batches of 
-KT133A chipsets, however I currently have one report of a guy seeing this 
-problem on the SAME physical board, just two different processors. Both 
-6-4-2, the only difference is that one is 1.13Ghz and doesn't have the 
-problem, and the other is 1.2Ghz and DOES have the problem. This of 
-course leads me back to the clock speed theory, but again it doesn't make 
-any SENSE because the FSB on both of them is 133Mhz and I've got at least 
-two reports of 1.33Ghz chips running FINE! ARG!
-At this point, I'm giving up on collecting data, as I just don't see a 
-definitive pattern, all I can say for sure is that the "majority" 
-KT133A-based motherboards seem to have problems, but not ALL. I don't 
-know of a single report outside of the KT133A chipset of these problems.
-
-If anyone wants to keep collecting data, I'd be happy to send all the 
-information I have so far to that person, and any that filters in over 
-the next couple days.
-
-Now for the Sacrifices.
-
-At this point, I'd like to sacrifice a Red Hat Linux 6.2 CD to Alan Cox.
-
-I would also like to sacrifice Minix 1.3(?) installation diskettes to 
-Linus Torvalds.
-
-I perform these sacrifices in the hope that enlightenment comes to me.
+	Wietse

@@ -1,82 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293060AbSBWAhp>; Fri, 22 Feb 2002 19:37:45 -0500
+	id <S293059AbSBWAmg>; Fri, 22 Feb 2002 19:42:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293062AbSBWAhg>; Fri, 22 Feb 2002 19:37:36 -0500
-Received: from f266.law11.hotmail.com ([64.4.16.141]:24838 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S293060AbSBWAhU>;
-	Fri, 22 Feb 2002 19:37:20 -0500
-X-Originating-IP: [156.153.254.2]
-From: "Balbir Singh" <balbir_soni@hotmail.com>
-To: bcrl@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Trivial patch against mempool
-Date: Fri, 22 Feb 2002 16:37:13 -0800
+	id <S293061AbSBWAmQ>; Fri, 22 Feb 2002 19:42:16 -0500
+Received: from holomorphy.com ([216.36.33.161]:40873 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S293059AbSBWAmN>;
+	Fri, 22 Feb 2002 19:42:13 -0500
+Date: Fri, 22 Feb 2002 16:41:43 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Paul Larson <plars@austin.ibm.com>, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org, manfred@colorfullife.com
+Subject: Re: [PATCH] 2.4.18-rc2 Fix for get_pid hang
+Message-ID: <20020223004143.GL3511@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Paul Larson <plars@austin.ibm.com>, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org, manfred@colorfullife.com
+In-Reply-To: <1014416988.12007.461.camel@plars.austin.ibm.com> <E16eQ4R-0003cZ-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F266IJI90Ss8uaP6wb800006420@hotmail.com>
-X-OriginalArrivalTime: 23 Feb 2002 00:37:14.0051 (UTC) FILETIME=[3CE26130:01C1BC02]
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <E16eQ4R-0003cZ-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That is a good suggestion too, I have redone the patch so
-that the alloc_fn and free_fn are checked before calling
-kmalloc(). I think the BUG_ON is also a good solution
+At some point in the past, Paul Larson wrote:
+>> This was made against 2.4.18-rc2 but applies cleanly against
+>> 2.4.18-rc4.  This is a fix for a problem where if we run out of
+>> available pids, get_pid will hang the system while it searches
+>> through the tasks for an available pid forever.
 
-I have the following now
+On Sat, Feb 23, 2002 at 12:29:47AM +0000, Alan Cox wrote:
+> Wouldn't it be a much cleaner patch to limit the maximum number of
+> processes to less than the number of pids available. You seem to be
+> fixing a non problem by adding branches to the innards of a loop.
 
-1.
---- mempool.c.org       Fri Feb 22 12:00:58 2002
-+++ mempool.c   Fri Feb 22 17:26:02 2002
-@@ -34,6 +34,9 @@
-        mempool_t *pool;
-        int i;
+I've seen this one before. It seems to kick in at 11K processes, where
+one would normally expect it much higher... so I'm not sure a constant
+upper bound on that counter suffices. Maybe clashes of pid's with pgrp's
+and sessions and tgrps are what does that, maybe it's something else.
 
-+       BUG_ON(!alloc_fn);
-+       BUG_ON(!free_fn);
-+
-        pool = kmalloc(sizeof(*pool), GFP_KERNEL);
-        if (!pool)
-                return NULL;
+and of course:
 
-2.
---- mempool.c.org       Fri Feb 22 12:00:58 2002
-+++ mempool.c   Fri Feb 22 17:38:52 2002
-@@ -34,6 +34,8 @@
-        mempool_t *pool;
-        int i;
-
-+       BUG_ON(!(alloc_fn && free_fn));
-+
-        pool = kmalloc(sizeof(*pool), GFP_KERNEL);
-        if (!pool)
-                return NULL;
+#include <stdgeek.h>  /* Any hope of a non-O(tasks) solution? */
 
 
-
-I think (1) is more readable, what do you say?
-Balbir
-
->From: Benjamin LaHaise <bcrl@redhat.com>
->To: Balbir Singh <balbir_soni@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Re: [PATCH] Trivial patch against mempool
->Date: Fri, 22 Feb 2002 19:02:56 -0500
->
->On Fri, Feb 22, 2002 at 12:28:14PM -0800, Balbir Singh wrote:
-> > Check if the alloc_fn and free_fn are not NULL. The caller generally
-> > ensures that alloc_fn and free_fn are valid. It would not harm
-> > to check. This makes the checking in mempool_create() more complete.
->
->Rather than leak memory in that case, why not just BUG_ON null
->function pointers so that people know what code is at fault?
->
->		-ben
-
-
-
-
-_________________________________________________________________
-MSN Photos is the easiest way to share and print your photos: 
-http://photos.msn.com/support/worldwide.aspx
-
+Cheers,
+Bill

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268779AbTBZPP7>; Wed, 26 Feb 2003 10:15:59 -0500
+	id <S268788AbTBZPZz>; Wed, 26 Feb 2003 10:25:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268780AbTBZPP7>; Wed, 26 Feb 2003 10:15:59 -0500
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:44268 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S268779AbTBZPP6>; Wed, 26 Feb 2003 10:15:58 -0500
-Subject: Re: [PATCH] 2.5.63-current replace its with it's where appropriate.
-From: Steven Cole <elenstev@mesatop.com>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200302261200.h1QC0gs23846@Port.imtp.ilyichevsk.odessa.ua>
-References: <1046227493.7527.272.camel@spc1.mesatop.com> 
-	<200302261200.h1QC0gs23846@Port.imtp.ilyichevsk.odessa.ua>
+	id <S268790AbTBZPZz>; Wed, 26 Feb 2003 10:25:55 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:42691 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268788AbTBZPZy>;
+	Wed, 26 Feb 2003 10:25:54 -0500
+Subject: Re: 2.5.62-mjb3 (scalability / NUMA patchset)
+From: Mark Haverkamp <markh@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+In-Reply-To: <16170000.1046110132@[10.10.2.4]>
+References: <6490000.1045713212@[10.10.2.4]>
+	 <16170000.1046110132@[10.10.2.4]>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 26 Feb 2003 08:22:21 -0700
-Message-Id: <1046272941.6616.194.camel@spc9.esa.lanl.gov>
+Organization: 
+Message-Id: <1046273777.1913.6.camel@markh1.pdx.osdl.net>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 26 Feb 2003 07:36:18 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-26 at 04:57, Denis Vlasenko wrote:
-> On 26 February 2003 04:44, Steven Cole wrote:
-> > This patch replaces its (possessive of it) with it's (it is)
-> > in the following cases where "it is" is meant.
-> >
-> > its a   -> it's a
-> > its an  -> it's an
-> > its not -> it's not
+On Mon, 2003-02-24 at 10:08, Martin J. Bligh wrote:
+> The patchset contains mainly scalability and NUMA stuff, and anything 
+> else that stops things from irritating me. It's meant to be pretty stable, 
+> not so much a testing ground for new stuff.
 > 
-> I'd say it's ok to fix misspellings but this apostrophe
-> chasing is a bit too much. What comes next? Patches to fix
-> violations of "two spaces after the dot" rule?
-
-Nope, no spaces after dots changes.  But, how about
-removing unnecessary parenthesis around the expression in the
-return statement, e.g.
-  
-return(-EBUGGYEDITOR); -> return -EBUGGYEDITOR;
- 
-Just kidding!  I'll leave that for someone more bold or pedantic.
-
+> I'd be very interested in feedback from anyone willing to test on any 
+> platform, however large or small.
 > 
-> Single quotes in comments do confuse gcc _and_ some
-> text editors with syntax highlighting.
-> --
-> vda
+> ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.62/patch-2.5.62-mjb
+> 3.bz2
+> 
 
-I've been careful about the single quotes where it affects gcc.
-Which brings to mind "affect" (usually a verb, with exceptions) versus
-"effect" (usually a noun, with exceptions). ;)
+Martin,
 
-Steven
+I have been seeing system hangs on my 16 processor numaq while running
+contest.  The system will hang within a few seconds to half an hour. 
+Unfortunately there is no stack trace or any other indication on the
+system console.  I have been running your 2.5.62-mjb2 without problems
+previously.  Any ideas what I can do to narrow this down?
+
+Mark.
+-- 
+Mark Haverkamp <markh@osdl.org>
 

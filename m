@@ -1,79 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129084AbRBGTxN>; Wed, 7 Feb 2001 14:53:13 -0500
+	id <S129032AbRBGTxx>; Wed, 7 Feb 2001 14:53:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129032AbRBGTxD>; Wed, 7 Feb 2001 14:53:03 -0500
-Received: from tungsten.btinternet.com ([194.73.73.81]:56038 "EHLO
-	tungsten.btinternet.com") by vger.kernel.org with ESMTP
-	id <S129481AbRBGTws>; Wed, 7 Feb 2001 14:52:48 -0500
-Date: Wed, 7 Feb 2001 19:52:34 +0000 (GMT)
-From: <davej@suse.de>
-X-X-Sender: <davej@athlon.local>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Alan Cox <alan@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-Message-ID: <Pine.LNX.4.31.0102071951060.17788-100000@athlon.local>
+	id <S130460AbRBGTxn>; Wed, 7 Feb 2001 14:53:43 -0500
+Received: from denise.shiny.it ([194.20.232.1]:20752 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S129032AbRBGTxi>;
+	Wed, 7 Feb 2001 14:53:38 -0500
+Message-ID: <3A806260.BB77D017@denise.shiny.it>
+Date: Tue, 06 Feb 2001 21:45:20 +0100
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.1 ppc)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1 tcp ack bug ?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> rejected -- ioaddr assigned a value before pci_enable_device is called
+IMHO this tcpdump trace is quite strange:
 
-Better ?
 
-Dave.
+20:56:25.232532 ppp0 < mc105-v-2.royaume.com.6699 > ppp12.shiny.it.33148: .
+96265:97725(1460) ack 77 win 8684 (DF)
+20:56:25.242532 ppp0 > ppp12.shiny.it.33148 > mc105-v-2.royaume.com.6699: .
+77:77(0) ack 88073 win 62780 <nop,nop, sack 1 {90121:97725} > (DF)
+20:56:25.352532 ppp0 < mc105-v-2.royaume.com.6699 > ppp12.shiny.it.33148: P
+97725:98313(588) ack 77 win 8684 (DF)
+20:56:25.362532 ppp0 > ppp12.shiny.it.33148 > mc105-v-2.royaume.com.6699: .
+77:77(0) ack 88073 win 62780 <nop,nop, sack 1 {90121:98313} > (DF)
+20:56:26.172532 ppp0 < mc105-v-2.royaume.com.6699 > ppp12.shiny.it.33148: .
+88073:89533(1460) ack 77 win 8684 (DF)
+20:56:26.302532 ppp0 < mc105-v-2.royaume.com.6699 > ppp12.shiny.it.33148: P
+89533:90121(588) ack 77 win 8684 (DF)
 
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+Ok, it has just received the missing part, so why it does not ack 98313 ?
 
-diff -urN --exclude-from=/home/davej/.exclude linux/drivers/net/starfire.c linux-dj/drivers/net/starfire.c
---- linux/drivers/net/starfire.c	Wed Feb  7 12:42:42 2001
-+++ linux-dj/drivers/net/starfire.c	Wed Feb  7 19:47:54 2001
-@@ -396,12 +396,6 @@
- 		printk(KERN_INFO "%s" KERN_INFO "%s" KERN_INFO "%s",
- 		       version1, version2, version3);
+20:56:26.312532 ppp0 > ppp12.shiny.it.33148 > mc105-v-2.royaume.com.6699: .
+77:77(0) ack 88073 win 62780 <nop,nop, sack 1 {89533:98313} > (DF)
+20:56:32.272532 ppp0 < mc105-v-2.royaume.com.6699 > ppp12.shiny.it.33148: .
+88073:89533(1460) ack 77 win 8684 (DF)
+20:56:32.282532 ppp0 > ppp12.shiny.it.33148 > mc105-v-2.royaume.com.6699: .
+77:77(0) ack 98313 win 52560 (DF)
 
--	ioaddr = pci_resource_start (pdev, 0);
--	if (!ioaddr || ((pci_resource_flags (pdev, 0) & IORESOURCE_MEM) == 0)) {
--		printk (KERN_ERR "starfire %d: no PCI MEM resources, aborting\n", card_idx);
--		return -ENODEV;
--	}
--
- 	dev = init_etherdev(NULL, sizeof(*np));
- 	if (!dev) {
- 		printk (KERN_ERR "starfire %d: cannot alloc etherdev, aborting\n", card_idx);
-@@ -409,6 +403,14 @@
- 	}
- 	SET_MODULE_OWNER(dev);
 
-+	if (pci_enable_device (pdev))
-+		goto err_out_free_netdev;
-+
-+	ioaddr = pci_resource_start (pdev, 0);
-+	if (!ioaddr || ((pci_resource_flags (pdev, 0) & IORESOURCE_MEM) == 0)) {
-+		printk (KERN_ERR "starfire %d: no PCI MEM resources, aborting\n", card_idx);
-+		return -ENODEV;
-+	}
- 	irq = pdev->irq;
+I have other traces where the sack interval looks wrong too, let me know if
+you're interested.
 
- 	if (request_mem_region (ioaddr, io_size, dev->name) == NULL) {
-@@ -416,10 +418,7 @@
- 			card_idx, io_size, ioaddr);
- 		goto err_out_free_netdev;
- 	}
--
--	if (pci_enable_device (pdev))
--		goto err_out_free_res;
--
-+
- 	ioaddr = (long) ioremap (ioaddr, io_size);
- 	if (!ioaddr) {
- 		printk (KERN_ERR "starfire %d: cannot remap 0x%x @ 0x%lx, aborting\n",
 
+[kernel 2.4.1, gcc 2.95.3, tcpdump 3.4, ppp 2.4.0, PowerPC 750]
+
+Bye.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,279 +1,291 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279303AbRKFNqe>; Tue, 6 Nov 2001 08:46:34 -0500
+	id <S279307AbRKFNyE>; Tue, 6 Nov 2001 08:54:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279305AbRKFNqZ>; Tue, 6 Nov 2001 08:46:25 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:52491 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S279303AbRKFNqK>;
-	Tue, 6 Nov 2001 08:46:10 -0500
-Date: Tue, 6 Nov 2001 16:46:07 +0300
+	id <S279313AbRKFNxz>; Tue, 6 Nov 2001 08:53:55 -0500
+Received: from sushi.toad.net ([162.33.130.105]:24043 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S279307AbRKFNxm>;
+	Tue, 6 Nov 2001 08:53:42 -0500
+Subject: [PATCH] PnPBIOS patch #11
+From: Thomas Hood <jdthood@mail.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] PnP BIOS support for OPL3-SA1 sound driver (update)
-Message-ID: <20011106164607.A1722@orbita1.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 06 Nov 2001 08:53:00 -0500
+Message-Id: <1005054783.20875.37.camel@thanatos>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aM3YZ0Iwxop3KEKx"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 2:29pm  up 5 days,  3:10,  1 user,  load average: 0.00, 0.02, 0.00
-X-Uname: Linux orbita1.ru 2.2.20pre2 
-From: Andrey Panin <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is the same patch as #10 except that pnpbios_get_device()
+has been chopped out (because I think Alan doesn't like it).
 
---aM3YZ0Iwxop3KEKx
-Content-Type: multipart/mixed; boundary="FL5UXtIhxfXey3p5"
-Content-Disposition: inline
+- Minor formatting changes
+- Use spin_lock_init() instead of "= SPIN_LOCK_UNLOCKED"
+- Add some comments
+- Don't export pnpbios_announce_device, which isn't
+  used by outsiders
+- Don't spinlock when accessing info that doesn't change
+- Update Christian Schmidt's e-mail address
 
+Should be safe to apply.
 
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--
+Thomas Hood
 
-Hi,
-
-updated patch attached. Fixed small typo (dma2 assignment) and io, irq and =
-dma
-printk added.
-
-Best regards.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-opl3sa-pnpbios3
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN linux.vanilla/drivers/sound/opl3sa.c linux/drivers/sound/opl3sa.c
---- linux.vanilla/drivers/sound/opl3sa.c	Mon Oct 29 13:30:14 2001
-+++ linux/drivers/sound/opl3sa.c	Tue Nov  6 11:09:50 2001
-@@ -23,6 +23,8 @@
- #include <linux/init.h>
- #include <linux/module.h>
-=20
-+#include <linux/pnp_bios.h>
-+
- #undef  SB_OK
-=20
- #include "sound_config.h"
-@@ -35,35 +37,37 @@
- static int sb_initialized =3D 0;
- #endif
-=20
--static int kilroy_was_here =3D 0;	/* Don't detect twice */
--static int mpu_initialized =3D 0;
-+static int kilroy_was_here;	/* Don't detect twice */
-+static int mpu_initialized;
-+
-+static int *opl3sa_osp;
-=20
--static int *opl3sa_osp =3D NULL;
-+static int ctrl_port =3D 0xf86;
-=20
--static unsigned char opl3sa_read(int addr)
-+static unsigned char __init opl3sa_read(int addr)
+The Patch:
+--- linux-2.4.13-ac7/drivers/pnp/pnp_bios.c	Sat Nov  3 18:15:27 2001
++++ linux-2.4.13-ac7-fix/drivers/pnp/pnp_bios.c	Tue Nov  6 08:48:10 2001
+@@ -1,7 +1,7 @@
+ /*
+  * PnP BIOS services
+  * 
+- * Originally (C) 1998 Christian Schmidt (chr.schmidt@tu-bs.de)
++ * Originally (C) 1998 Christian Schmidt <schmidt@digadd.de>
+  * Modifications (c) 1998 Tom Lees <tom@lpsg.demon.co.uk>
+  * Minor reorganizations by David Hinds <dahinds@users.sourceforge.net>
+  * Modifications (c) 2001 by Thomas Hood <jdthood@mail.com>
+@@ -86,12 +86,12 @@
+ static union pnp_bios_expansion_header * pnp_bios_hdr = NULL;
+ 
+ /* The PnP BIOS entries in the GDT */
+-#define PNP_GDT		0x0060
+-#define PNP_CS32	(PNP_GDT+0x00)	/* segment for calling fn */
+-#define PNP_CS16	(PNP_GDT+0x08)	/* code segment for BIOS */
+-#define PNP_DS		(PNP_GDT+0x10)	/* data segment for BIOS */
+-#define PNP_TS1		(PNP_GDT+0x18)	/* transfer data segment */
+-#define PNP_TS2		(PNP_GDT+0x20)	/* another data segment */
++#define PNP_GDT    (0x0060)
++#define PNP_CS32   (PNP_GDT+0x00)	/* segment for calling fn */
++#define PNP_CS16   (PNP_GDT+0x08)	/* code segment for BIOS */
++#define PNP_DS     (PNP_GDT+0x10)	/* data segment for BIOS */
++#define PNP_TS1    (PNP_GDT+0x18)	/* transfer data segment */
++#define PNP_TS2    (PNP_GDT+0x20)	/* another data segment */
+ 
+ /* 
+  * These are some opcodes for a "static asmlinkage"
+@@ -137,7 +137,7 @@
+ u32 pnp_bios_fault_eip;
+ u32 pnp_bios_is_utter_crap = 0;
+ 
+-static spinlock_t pnp_bios_lock = SPIN_LOCK_UNLOCKED;
++static spinlock_t pnp_bios_lock;
+ 
+ static inline u16 call_pnp_bios(u16 func, u16 arg1, u16 arg2, u16 arg3,
+ 				u16 arg4, u16 arg5, u16 arg6, u16 arg7)
+@@ -230,19 +230,19 @@
+  *
+  */
+ 
+-#define PNP_GET_NUM_SYS_DEV_NODES       0x00
+-#define PNP_GET_SYS_DEV_NODE            0x01
+-#define PNP_SET_SYS_DEV_NODE            0x02
+-#define PNP_GET_EVENT                   0x03
+-#define PNP_SEND_MESSAGE                0x04
++#define PNP_GET_NUM_SYS_DEV_NODES           0x00
++#define PNP_GET_SYS_DEV_NODE                0x01
++#define PNP_SET_SYS_DEV_NODE                0x02
++#define PNP_GET_EVENT                       0x03
++#define PNP_SEND_MESSAGE                    0x04
+ #define PNP_GET_DOCKING_STATION_INFORMATION 0x05
+-#define PNP_SET_STATIC_ALLOCED_RES_INFO 0x09
+-#define PNP_GET_STATIC_ALLOCED_RES_INFO 0x0a
+-#define PNP_GET_APM_ID_TABLE            0x0b
+-#define PNP_GET_PNP_ISA_CONFIG_STRUC    0x40
+-#define PNP_GET_ESCD_INFO               0x41
+-#define PNP_READ_ESCD                   0x42
+-#define PNP_WRITE_ESCD                  0x43
++#define PNP_SET_STATIC_ALLOCED_RES_INFO     0x09
++#define PNP_GET_STATIC_ALLOCED_RES_INFO     0x0a
++#define PNP_GET_APM_ID_TABLE                0x0b
++#define PNP_GET_PNP_ISA_CONFIG_STRUC        0x40
++#define PNP_GET_ESCD_INFO                   0x41
++#define PNP_READ_ESCD                       0x42
++#define PNP_WRITE_ESCD                      0x43
+ 
+ /*
+  * Call PnP BIOS with function 0x00, "get number of system device nodes"
+@@ -793,26 +793,26 @@
+  * presumably it continues to describe the current config.
+  * For those BIOSes that can change the current config, we
+  * keep the information in the devlist up to date.
++ *
++ * Note that it is currently assumed that the list does not
++ * grow or shrink in size after init time, and slot_name
++ * never changes.
+  */
+ 
+ static LIST_HEAD(pnpbios_devices);
+ 
+-spinlock_t pnpbios_devices_lock = SPIN_LOCK_UNLOCKED;
+-EXPORT_SYMBOL(pnpbios_devices_lock);
++static spinlock_t pnpbios_devices_lock;
+ 
+ static int inline pnpbios_insert_device(struct pci_dev *dev)
  {
- 	unsigned long flags;
- 	unsigned char tmp;
-=20
- 	save_flags(flags);
- 	cli();
--	outb((0x1d), 0xf86);	/* password */
--	outb(((unsigned char) addr), 0xf86);	/* address */
--	tmp =3D inb(0xf87);	/* data */
-+	outb((0x1d), ctrl_port);			/* password */
-+	outb(((unsigned char) addr), ctrl_port);	/* address */
-+	tmp =3D inb(ctrl_port + 1);			/* data */
- 	restore_flags(flags);
-=20
- 	return tmp;
- }
-=20
--static void opl3sa_write(int addr, int data)
-+static void __init opl3sa_write(int addr, int data)
- {
- 	unsigned long flags;
-=20
- 	save_flags(flags);
- 	cli();
--	outb((0x1d), 0xf86);	/* password */
--	outb(((unsigned char) addr), 0xf86);	/* address */
--	outb(((unsigned char) data), 0xf87);	/* data */
-+	outb((0x1d), ctrl_port);			/* password */
-+	outb(((unsigned char) addr), ctrl_port);	/* address */
-+	outb(((unsigned char) data), ctrl_port + 1);	/* data */
- 	restore_flags(flags);
- }
-=20
-@@ -73,7 +77,7 @@
-=20
- 	if (((tmp =3D opl3sa_read(0x01)) & 0xc4) !=3D 0x04)
- 	{
--		DDB(printk("OPL3-SA detect error 1 (%x)\n", opl3sa_read(0x01)));
-+		DDB(printk(KERN_DEBUG "OPL3-SA detect error 1 (%x)\n", opl3sa_read(0x01)=
-));
- 		/* return 0; */
- 	}
-=20
-@@ -83,17 +87,17 @@
- =09
- 	if (inb(0xf87) =3D=3D tmp)
- 	{
--		DDB(printk("OPL3-SA detect failed 2 (%x/%x)\n", tmp, inb(0xf87)));
-+		DDB(printk(KERN_DEBUG "OPL3-SA detect failed 2 (%x/%x)\n", tmp, inb(0xf8=
-7)));
- 		return 0;
- 	}
- 	tmp =3D (opl3sa_read(0x04) & 0xe0) >> 5;
-=20
- 	if (tmp !=3D 0 && tmp !=3D 1)
- 	{
--		DDB(printk("OPL3-SA detect failed 3 (%d)\n", tmp));
-+		DDB(printk(KERN_DEBUG "OPL3-SA detect failed 3 (%d)\n", tmp));
- 		return 0;
- 	}
--	DDB(printk("OPL3-SA mode %x detected\n", tmp));
-+	DDB(printk(KERN_DEBUG "OPL3-SA mode %x detected\n", tmp));
-=20
- 	opl3sa_write(0x01, 0x00);	/* Disable MSS */
- 	opl3sa_write(0x02, 0x00);	/* Disable SB */
-@@ -112,7 +116,7 @@
- 	int ret;
- 	unsigned char tmp =3D 0x24;	/* WSS enable */
-=20
--	if (check_region(0xf86, 2))	/* Control port is busy */
-+	if (check_region(ctrl_port, 2))	/* Control port is busy */
- 		return 0;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&pnpbios_devices_lock, flags);
+ 
  	/*
- 	 * Check if the IO port returns valid signature. The original MS Sound
-@@ -157,7 +161,7 @@
-=20
- 	ret =3D probe_ms_sound(hw_config);
- 	if (ret)
--		request_region(0xf86, 2, "OPL3-SA");
-+		request_region(ctrl_port, 2, "OPL3-SA");
-=20
+ 	 * FIXME: Check for re-add of existing node;
+ 	 * return -1 if node already present
+ 	 */
+-	list_add_tail(&dev->global_list, &pnpbios_devices);
+ 
+-	spin_unlock_irqrestore(&pnpbios_devices_lock, flags);
++	/* We don't lock because we only do this at init time */
++	list_add_tail(&dev->global_list, &pnpbios_devices);
+ 
+ 	return 0;
+ }
+@@ -898,62 +898,59 @@
+ 		nodes_got, nodes_got != 1 ? "s" : "", devs);
+ }
+ 
++/*
++ * Return pointer to device node after *prev with name pnpid[]
++ */
+ struct pci_dev *pnpbios_find_device(char *pnpid, struct pci_dev *prev)
+ {
+ 	struct pci_dev *dev;
+-	int nodenum;
+-	unsigned long flags;
++	int minnodenum;
+ 
+-	nodenum = 0;
++	minnodenum = 0;
+ 	if(prev)
+-		nodenum=prev->devfn + 1;
+-
+-	spin_lock_irqsave(&pnpbios_devices_lock, flags);
++		minnodenum=prev->devfn + 1;
+ 
++	/*
++	 * We don't lock.  We assume that the list can be
++	 * traversed and slot_name searched at any time,
++	 * since this is static information.
++	 */
+ 	pnpbios_for_each_dev(dev) {
+-		if(dev->devfn >= nodenum) {
++		if(dev->devfn >= minnodenum) {
+ 			if(memcmp(dev->slot_name, pnpid, 7)==0)
+-				goto out;
++				return dev;
+ 		}
+ 	}
+-	dev = (struct pci_dev *)NULL;
+-
+-out:
+-	spin_unlock_irqrestore(&pnpbios_devices_lock, flags);
+ 
+-	return dev;
++	return (struct pci_dev *)NULL;
+ }
+ 
+ EXPORT_SYMBOL(pnpbios_find_device);
+ 
+-static struct pci_dev *__pnpbios_find_device_by_nodenum( u8 nodenum )
++static struct pci_dev *pnpbios_find_device_by_nodenum( u8 nodenum )
+ {
+ 	struct pci_dev *dev;
+ 
+ 	pnpbios_for_each_dev(dev) {
+ 		if(dev->devfn == nodenum)
+-			goto out;
++			return dev;
+ 	}
+-	dev = (struct pci_dev *)NULL;
+ 
+-out:
+-	return dev;
++	return NULL;
+ }
+ 
+ static void pnpbios_update_devlist( u8 nodenum, struct pnp_bios_node *data )
+ {
+ 	struct pci_dev *dev;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&pnpbios_devices_lock, flags);
+ 
+-	dev = __pnpbios_find_device_by_nodenum( nodenum );
++	dev = pnpbios_find_device_by_nodenum( nodenum );
+ 	if ( dev ) {
++		unsigned long flags;
++		spin_lock_irqsave(&pnpbios_devices_lock, flags);
+ 		pnpbios_node_resource_data_to_dev(data,dev);
++		spin_unlock_irqrestore(&pnpbios_devices_lock, flags);
+ 	}
+ 
+-	spin_unlock_irqrestore(&pnpbios_devices_lock, flags);
+-
+ 	return;
+ }
+ 
+@@ -976,11 +973,11 @@
+  * @dev: the PnPBIOS device structure to match against
+  * 
+  * Used by a driver to check whether a PnPBIOS device present in the
+- * system is in its list of supported devices.Returns the matching
++ * system is in its list of supported devices.  Returns the matching
+  * pnpbios_device_id structure or %NULL if there is no match.
+  */
+ 
+-const struct pnpbios_device_id *
++static const struct pnpbios_device_id *
+ pnpbios_match_device(const struct pnpbios_device_id *ids, const struct pci_dev *dev)
+ {
+ 	while (*ids->id)
+@@ -992,7 +989,7 @@
+ 	return NULL;
+ }
+ 
+-int pnpbios_announce_device(struct pnpbios_driver *drv, struct pci_dev *dev)
++static int pnpbios_announce_device(struct pnpbios_driver *drv, struct pci_dev *dev)
+ {
+ 	const struct pnpbios_device_id *id;
+ 	int ret = 0;
+@@ -1017,8 +1014,6 @@
  	return ret;
  }
-@@ -189,7 +193,7 @@
-=20
- 	if (mpu_initialized)
- 	{
--		DDB(printk("OPL3-SA: MPU mode already initialized\n"));
-+		DDB(printk(KERN_DEBUG "OPL3-SA: MPU mode already initialized\n"));
- 		return 0;
- 	}
- 	if (hw_config->irq > 10)
-@@ -238,7 +242,7 @@
- 	if (dma2 =3D=3D -1)
- 		dma2 =3D hw_config->dma;
-=20
--	release_region(0xf86, 2);
-+	release_region(ctrl_port, 2);
- 	release_region(hw_config->io_base, 4);
-=20
- 	ad1848_unload(hw_config->io_base + 4,
-@@ -280,11 +284,79 @@
- MODULE_PARM(mpu_io,"i");
- MODULE_PARM(mpu_irq,"i");
-=20
-+#ifdef CONFIG_PNPBIOS
-+
-+struct opl3sa_pnpbios_dev {
-+	char *name;
-+	int io, ctrl, irq, dma, dma2, mpu_io, mpu_irq;
-+};
-+
-+static struct opl3sa_pnpbios_dev opl3sa_devs[] __initdata =3D {
-+	{ "YMF701B on motherboard", 1, -1, 0, 0, 1, 2, 1 },
-+};
-+
-+static struct pnpbios_device_id opl3sa_pnpbios_table[] __initdata =3D {
-+	{ "YMH0007", (unsigned long) &opl3sa_devs[0] },
-+	{ "PNP0401", (unsigned long) &opl3sa_devs[0] },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(pnpbios, opl3sa_pnpbios_table);
-+
-+#define field(f) ((struct opl3sa_pnpbios_dev *) dev_id->driver_data)->##f
-+
-+#define pnp_resource_start(dev, type, bar) \
-+	((##dev##)->##type##_resource[(bar)].start)
-+
-+static int __init opl3sa_pnpbios_probe(void)
-+{
-+	struct pnpbios_device_id *dev_id =3D opl3sa_pnpbios_table;
-+	struct pci_dev *dev =3D NULL;
-+
-+	while (dev_id->driver_data) {
-+		if ((dev =3D pnpbios_find_device(dev_id->id, dev))) {
-+			printk(KERN_NOTICE "opl3sa: PnP BIOS reports %s\n", field(name));
-+
-+			io =3D pci_resource_start(dev, field(io));
-+			if (field(ctrl) !=3D -1)
-+				ctrl_port =3D pci_resource_start(dev, field(ctrl));
-+
-+			irq =3D pnp_resource_start(dev, irq, field(irq));
-+			dma =3D pnp_resource_start(dev, dma, field(dma));
-+
-+			printk(KERN_NOTICE "opl3sa: WSS at i/o %#x, %#x, irq %d, dma %d",
-+				io, ctrl_port, irq, dma);
-+
-+			if (field(dma2) !=3D -1) {
-+				dma2 =3D pnp_resource_start(dev, dma, field(dma2));
-+				printk(", %d", dma2);
-+			}
-+
-+			mpu_io =3D pci_resource_start(dev, field(mpu_io));
-+			mpu_irq =3D pnp_resource_start(dev, irq, field(mpu_irq));
-+
-+			printk(". MPU401 at i/o %#x, irq %d\n", mpu_io, mpu_irq);
-+
-+			return 0;
-+		}
-+		dev_id++;
-+	}
-+
-+	printk(KERN_NOTICE "opl3sa: No PnP BIOS devices found\n");
-+	return -ENODEV;
-+}
-+
-+#endif
-+
- static int __init init_opl3sa(void)
+ 
+-EXPORT_SYMBOL(pnpbios_announce_device);
+-
+ /**
+  * pnpbios_register_driver - register a new pci driver
+  * @drv: the driver structure to register
+@@ -1206,6 +1201,7 @@
+ 	int i, length;
+ 
+ 	spin_lock_init(&pnp_bios_lock);
++	spin_lock_init(&pnpbios_devices_lock);
+ 
+ 	if(pnpbios_disabled) {
+ 		printk(KERN_INFO "PnPBIOS: Disabled.\n");
+--- linux-2.4.13-ac7/include/linux/pnp_bios.h	Sat Nov  3 18:29:25 2001
++++ linux-2.4.13-ac7-fix/include/linux/pnp_bios.h	Tue Nov  6 08:40:53 2001
+@@ -137,8 +137,7 @@
+ 	for(dev = pnpbios_dev_g(pnpbios_devices.next); dev != pnpbios_dev_g(&pnpbios_devices); dev = pnpbios_dev_g(dev->global_list.next))
+ 
+ /* exported functions */
+-extern struct pci_dev *pnpbios_find_device(char *pnpid, struct pci_dev *dev);
+-extern int  pnpbios_announce_device(struct pnpbios_driver *drv, struct pci_dev *dev);
++extern struct pci_dev *pnpbios_find_device(char *pnpid, struct pci_dev *prevdev);
+ extern int  pnpbios_register_driver(struct pnpbios_driver *drv);
+ extern void pnpbios_unregister_driver(struct pnpbios_driver *drv);
+ 
+@@ -202,11 +201,6 @@
+ static __inline__ struct pci_dev *pnpbios_find_device(char *pnpid, struct pci_dev *dev)
  {
- 	if (io =3D=3D -1 || irq =3D=3D -1 || dma =3D=3D -1) {
--		printk(KERN_ERR "opl3sa: dma, irq and io must be set.\n");
--		return -EINVAL;
-+#ifdef CONFIG_PNPBIOS
-+		if (opl3sa_pnpbios_probe())
-+#endif
-+		{
-+			printk(KERN_ERR "opl3sa: dma, irq and io must be set.\n");
-+			return -EINVAL;
-+		}
- 	}
-=20
- 	cfg.io_base =3D io;
+ 	return NULL;
+-}
+-
+-static __inline__ int pnpbios_announce_device(struct pnpbios_driver *drv, struct pci_dev *dev)
+-{
+-	return 0;
+ }
+ 
+ static __inline__ int pnpbios_register_driver(struct pnpbios_driver *drv)
 
---FL5UXtIhxfXey3p5--
-
---aM3YZ0Iwxop3KEKx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE75+mfBm4rlNOo3YgRAv7QAJ0fUUsJ5vLGqcuHmotukbuey4SkcwCfbxS5
-rNCZ+16/lBcujt1MZ2mA+b0=
-=jCgz
------END PGP SIGNATURE-----
-
---aM3YZ0Iwxop3KEKx--

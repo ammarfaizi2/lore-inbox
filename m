@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266249AbUJATfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUJATnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266249AbUJATfG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 15:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUJATeK
+	id S266275AbUJATnp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 15:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266233AbUJATld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 15:34:10 -0400
-Received: from colin2.muc.de ([193.149.48.15]:8979 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S266236AbUJATba (ORCPT
+	Fri, 1 Oct 2004 15:41:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7898 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266291AbUJATjY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 15:31:30 -0400
-Date: 1 Oct 2004 21:31:28 +0200
-Date: Fri, 1 Oct 2004 21:31:28 +0200
-From: Andi Kleen <ak@muc.de>
-To: James Cleverdon <jamesclv@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Suresh Siddha <suresh.b.siddha@intel.com>,
-       linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
-Subject: Re: [Patch 1/2] Disable SW irqbalance/irqaffinity for E7520/E7320/E7525 - change TARGET_CPUS on x86_64
-Message-ID: <20041001193128.GA47295@muc.de>
-References: <2HSdY-7dr-3@gated-at.bofh.it> <20040930230133.0d4bcc0d.akpm@osdl.org> <20041001071922.GA32950@muc.de> <200410011202.41048.jamesclv@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410011202.41048.jamesclv@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 1 Oct 2004 15:39:24 -0400
+Date: Fri, 1 Oct 2004 12:39:21 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Loops in the Signed-off-by process
+In-Reply-To: <1096658717.3684.980.camel@localhost>
+Message-ID: <Pine.LNX.4.58.0410011233370.2403@ppc970.osdl.org>
+References: <1096658717.3684.980.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Excuse me, but since when is February "far off pie in the sky for some 
-> future unreleased hardware"?
 
-Compared to currently shipping Intel chipsets it definitely is. 
 
-> Zeus boxes are going out the door 1Q2005.  The question is, will v2.6 
-> work on them or not?
+On Fri, 1 Oct 2004, Dave Hansen wrote:
+> 
+> Or, does it even really matter?
 
-It will at some point, after the intrusive patches needed to support
-their pecularities have been well enough tested. 
+I don't think it matters that much, although I personally prefer to see 
+the person who sent it to me ("touched it last") be last in the list. 
+That's partly because of the fact that especially with bigger merges (ie 
+with Andrew), I just do a search-and-replace, and replace any "signed off 
+by sender" with "signed off by sender and me".
 
--Andi
+At the same time, I think it's pretty unnecessary (and possibly confusing)
+to have somebody mentioned twice, so I'd actually prefer to see people
+just move their (previous) sign-off to be last when they send it on.
 
+Side note: I also like seeing "Acked-by:" or "Cc:" things just above the
+sign-off lines, because it ends up being useful if there are any technical
+issues with the patch - if a bug is found, it's very convenient to just
+take all the sign-off people _and_ the other "involved" people and send
+off a query to them all. Even if that "Acked-by:" has no other meaning
+than as a mention of the fact that somebody else was involved in
+discussions, even if they may not have been involved in actually writing
+or passing off the ptch.
+
+		Linus

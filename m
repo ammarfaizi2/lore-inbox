@@ -1,29 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264300AbRFXRly>; Sun, 24 Jun 2001 13:41:54 -0400
+	id <S264323AbRFXSRL>; Sun, 24 Jun 2001 14:17:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264303AbRFXRlo>; Sun, 24 Jun 2001 13:41:44 -0400
-Received: from mail12.speakeasy.net ([216.254.0.212]:16397 "HELO
-	mail12.speakeasy.net") by vger.kernel.org with SMTP
-	id <S264300AbRFXRle>; Sun, 24 Jun 2001 13:41:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: linux-kernel@vger.kernel.org
-Subject: anyway to stop dma timeouts in 2.2.19?
-Date: Sun, 24 Jun 2001 13:41:28 -0400
-X-Mailer: KMail [version 1.2.3]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010624174143Z264300-17720+7238@vger.kernel.org>
+	id <S264334AbRFXSRC>; Sun, 24 Jun 2001 14:17:02 -0400
+Received: from amadeus.resilience.com ([209.245.157.29]:24417 "HELO jmcmullan")
+	by vger.kernel.org with SMTP id <S264323AbRFXSQp>;
+	Sun, 24 Jun 2001 14:16:45 -0400
+Date: Sun, 24 Jun 2001 14:01:14 -0400
+From: Jason McMullan <jmcmullan@linuxcare.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Jason McMullan <jmcmullan@linuxcare.com>, linux-kernel@vger.kernel.org
+Subject: Re: What are the VM motivations??
+Message-ID: <20010624140114.A10745@jmcmullan.resilience.com>
+In-Reply-To: <20010621190103.A888@jmcmullan.resilience.com> <Pine.LNX.4.21.0106241203420.7419-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.21.0106241203420.7419-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Sun, Jun 24, 2001 at 12:04:43PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I never got dma timeouts running 2.2.19 before installing my promise ata66 
-card and CDRW.  Now i get them whenever disk usage is up and what ends up 
-happening is none of my drives running in dma mode.  Is this some effect of 
-enabling the UDMA features of the promise card ?  If i compiled the kernel 
-without these UDMA features on the promise card, would it fix the problem?  I 
-have 5 drives now, 3 are UDMA4 drives and 1 (secondary slave) is a cdrom 
-using DMA.  I can move this to the secondary channel of the promise card if 
-that will help.  Is there any way to predict if you're going to have trouble 
-with DMA's?  
+On Sun, Jun 24, 2001 at 12:04:43PM -0300, Rik van Riel wrote:
+> OK.  I challenge you to come up with:
+> 
+> 1) the set of inputs for the neural network
+> 2) the set of outputs
+> 3) the goal for training the thing
+> 
+> I'm pretty fed up with people who want to "change the VM"
+> but never give any details of their ideas.
+
+
+	Uhh. That's not what I was ranting about. What I was
+ranting about is that we have never 'put to paper' the
+requirements ('motiviations') for a good VM, nor have we
+looked at said nonexistent list and figured out what instrumentation
+would be needed.
+
+	I don't now that much about VM, but I do know a bunch of
+people each scratching their own itch, and most of them not looking
+at the bigger picture. Linus, RvR, etc. excepted. Mostly. ;^)
+
+	The whole 'neural network' bit was mostly troll. Sorry,
+I got a little carried away at that point.
+
+-- 
+Jason McMullan, Senior Linux Consultant
+Linuxcare, Inc. 412.432.6457 tel, 412.656.3519 cell
+jmcmullan@linuxcare.com, http://www.linuxcare.com/
+Linuxcare. Putting open source to work.

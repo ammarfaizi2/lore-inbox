@@ -1,34 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315539AbSGFOrB>; Sat, 6 Jul 2002 10:47:01 -0400
+	id <S315593AbSGFPGj>; Sat, 6 Jul 2002 11:06:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315593AbSGFOrA>; Sat, 6 Jul 2002 10:47:00 -0400
-Received: from ares.kos.net ([199.246.2.117]:21960 "HELO ares.kos.net")
-	by vger.kernel.org with SMTP id <S315539AbSGFOrA>;
-	Sat, 6 Jul 2002 10:47:00 -0400
-Message-ID: <004201c224fc$4b828a40$0a00000a@kos.net>
-From: "Steve Cole" <coles@vip.kos.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Follow-up to Dual Athlon XP MP board problems
-Date: Sat, 6 Jul 2002 10:49:13 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S315595AbSGFPGi>; Sat, 6 Jul 2002 11:06:38 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:3851 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S315593AbSGFPGh>;
+	Sat, 6 Jul 2002 11:06:37 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, release 3.1 is available 
+In-Reply-To: Your message of "Mon, 24 Jun 2002 22:09:35 +1000."
+             <7587.1024920575@ocs3.intra.ocs.com.au> 
+Date: Sun, 07 Jul 2002 01:08:51 +1000
+Message-ID: <30724.1025968131@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears - though it is still too early to tell - that my problems with
-the dual Athlon XP MP system has to do with something called "slew rate".
-There is zero documentation on this feature in the motherboard manual, and
-setting it to "auto" is what was causing the problem.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Apparently for XP processors, the "slew rate" must be set to "1".  So far
-this has cleaned up the stability problems, and the 2.4.19.x kernel is
-supporting the hardware in the box.  Speaking of 2.4.19, I'm looking forward
-eagerly for it to be nailed together.
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 24 Jun 2002 22:09:35 +1000, 
+Keith Owens <kaos@ocs.com.au> wrote:
+>Release 3.1 of kernel build for kernel 2.5 (kbuild 2.5) is available.
+>http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
+>release 3.1.
+
+New files:
+
+kbuild-2.5-core-21
+  Changes from core-20
+
+  make mrproper updates.
+  Tweak order of generated include files.
+  Tweak pp_makefile4 -n processing.
+  Handle targets that are not known until phase5.
+
+kbuild-2.5-common-2.5.25-1
+kbuild-2.5-i386-2.5.25-1
+
+  Upgrade to 2.5.25.
+  Correct lib/zlib_{in,de}flate rules (Jak).
+  DocBook cleanups (Jak, KAO).
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE9Jwf2i4UHNye0ZOoRAgrBAKCvISmZFVF93/nW4RFCbBeeAAn7UwCfVtfu
+FxBFSiXaF+mAErsHBfREn9c=
+=bMhP
+-----END PGP SIGNATURE-----
 

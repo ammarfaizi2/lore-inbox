@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261926AbUBWP13 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 10:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbUBWP13
+	id S261928AbUBWP3p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 10:29:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUBWP3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 10:27:29 -0500
-Received: from adsl-065-083-130-194.sip.int.bellsouth.net ([65.83.130.194]:56569
-	"HELO mail.kotisprop.com") by vger.kernel.org with SMTP
-	id S261926AbUBWP1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 10:27:15 -0500
-Subject: Re: Sound choppy when switching scaling_gov
-From: Adam Voigt <adam@kotisprop.com>
-Reply-To: adam@kotisprop.com
-To: Jonas Diemer <diemer@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040221110948.5f023281.diemer@gmx.de>
-References: <20040221110948.5f023281.diemer@gmx.de>
-Content-Type: text/plain
-Organization: Kotis Properties
-Message-Id: <1077550109.1978.2.camel@globex.kotisprop.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 23 Feb 2004 10:28:30 -0500
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Feb 2004 10:29:45 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:12152 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261928AbUBWP1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 10:27:49 -0500
+Date: Mon, 23 Feb 2004 07:27:48 -0800 (PST)
+From: Tigran Aivazian <tigran@veritas.com>
+To: "Giacomo A. Catenazzi" <cate@debian.org>
+cc: Ryan Underwood <nemesis@icequake.net>, <224355@bugs.debian.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: microcode, devfs: Wrong interface change in 2.4.25
+In-Reply-To: <403A15E5.6010705@debian.org>
+Message-ID: <Pine.GSO.4.44.0402230725590.8603-100000@south.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does re-nicing the xmms process to a higher priority fix it? I had this
-same problem, and re-nicing fixed it (well, hack-fixed it). I think
-someone made mention of new 2.6 features like pre-emption, or the like
-fixing it. Though, I'm a kernel newb, so that maybe incorrect.
+Hi Giacomo,
 
+Thank you. Leave it with me and I'll verify what's going on in the
+2.4.25 version thereof and correct it.
 
-On Sat, 2004-02-21 at 05:09, Jonas Diemer wrote:
-> Hi!
-> 
-> I am experiencing choppy sound playback with xmms. For example, when I
-> keep switching workspaces in my WindowManager, the sound is nearly not
-> usable. But also during normal work, mp3 playback is somewhat chopy.
-> 
-> This only occurs after I change the scaling_gov. Not after every change
-> though. If it happens, and I change the scaling gov again, sound
-> eventually is ok again.
-> 
-> I have a Pentium III 1.13GHz Laptop with a snd_intel8x0 soundchip. The
-> CPU (should) run at 733Mhz in powersave, so mp3 playback should be ok...
-> 
-> My Kernel is 2.6.2 (haven't tried the new one yet).
-> 
-> regards
-> Jonas
-> 
-> PS: CC me in your replies, please.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
+Kind regards
+Tigran
 
-Adam Voigt
-adam@kotisprop.com
+On Mon, 23 Feb 2004, Giacomo A. Catenazzi wrote:
 
+> Hello!
+>
+>  From the 2.4.25, devfs doesn't create anymore the microcode
+> device in /dev/cpu/microcode (as expected from in devices.txt
+> and LANANA) but in /dev/misc/microcode. The /dev/cpu/microcode
+> path is also hardcoded also in microcode_ctl and distributions
+> create only /dev/cpu/microcode.
+>
+> So last microcode patch (in 2.4.25) is wrong.
+> You should add again the /dev/cpu/microcode support in devfs, so
+> that the normal and stable interface is maintained (in stable
+> kernel serie)
+>
+> ciao
+> 	giacomo
+>
+>
+>
+> Ryan Underwood wrote:
+>
+> > On Mon, Feb 23, 2004 at 09:47:58AM +0100, Giacomo A. Catenazzi wrote:
+> >
+> >>>What I meant is that the name "/dev/misc/microcode" must be used instead
+> >>>of "/dev/cpu/microcode", because the microcode driver in 2.4.25 no
+> >>>longer registers with devfs.
+> >>
+> >>I don't undestand.
+> >>Do you say that devfs will register only /dev/misc/microcode ?
+> >
+> >
+> > No, the microcode driver only registers with misc.
+> >
+> >
+> >>So if devfs will register misc/microcode, it is probably
+> >>a kernel bug (interface should not change!) or a problem
+> >>with LANANA (in this case I should change misc microcode
+> >> in drivers, but after an update to 'makedev' package.
+> >
+> >
+> > Examine microcode.c driver diff between 2.4.23 and 2.4.25 in the init
+> > function.  The removed code is obvious.
+> >
+>
 

@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131020AbRCWO7J>; Fri, 23 Mar 2001 09:59:09 -0500
+	id <S131175AbRCWO5J>; Fri, 23 Mar 2001 09:57:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130940AbRCWO7A>; Fri, 23 Mar 2001 09:59:00 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:40463 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131020AbRCWO6p>; Fri, 23 Mar 2001 09:58:45 -0500
-Date: Fri, 23 Mar 2001 11:56:23 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Stephen Clouse <stephenc@theiqgroup.com>,
-        Guest section DW <dwguest@win.tue.nl>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <3ABB2A19.D82B50A7@evision-ventures.com>
-Message-ID: <Pine.LNX.4.21.0103231154440.29682-100000@imladris.rielhome.conectiva>
+	id <S131194AbRCWO4t>; Fri, 23 Mar 2001 09:56:49 -0500
+Received: from zmamail05.zma.compaq.com ([161.114.64.105]:49676 "HELO
+	zmamail05.zma.compaq.com") by vger.kernel.org with SMTP
+	id <S131175AbRCWO4i>; Fri, 23 Mar 2001 09:56:38 -0500
+Reply-To: <frey@cxau.zko.dec.com>
+From: "Martin Frey" <frey@scs.ch>
+To: "'Andrew Morton'" <andrewm@uow.edu.au>
+Cc: "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: kernel_thread vs. zombie
+Date: Fri, 23 Mar 2001 00:06:56 -0800
+Message-ID: <009e01c0b3a9$54a3cdc0$90600410@SCHLEPPDOWN>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3ABAB12D.CE7FA890@uow.edu.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001, Martin Dalecki wrote:
-> Rik van Riel wrote:
-> > On Sat, 23 Mar 2002, Martin Dalecki wrote:
-> > 
-> > > This is due to the broken calculation formula in oom_kill().
-> > 
-> > Feel free to write better-working code.
-> 
-> I don't get paid for it and I'm not idling through my days...
+>So I think it's reasonable to use keventd as `kinit', if you like.
+>Something which knows how to launch and reap kernel daemons, and
+>which provides a known environment to them.
+>
+>A kernel API function (`kernel_daemon'?) which does all this
+>boilerplate is needed, I think.
+>
+I completely agree. I'll be on a trip for the next two weeks, but
+after that I can write a small example how it would look. I'll mail
+again when it is ready.
 
-  <similar response from Andries>
-
-Well, in that case you'll have to live with the current OOM
-killer.  Martin wrote down a pretty detailed description of
-what's wrong with my algorithm, if it really bothers him he
-should be able to come up with something better.
-
-Personally, I think there is more important VM code to look
-after, since OOM is a pretty rare occurrance anyway.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+Thanks, Martin

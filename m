@@ -1,40 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVAIELM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262247AbVAIE3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262243AbVAIELM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 23:11:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVAIELL
+	id S262247AbVAIE3p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 23:29:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVAIE3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 23:11:11 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:46983 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262243AbVAIEKv (ORCPT
+	Sat, 8 Jan 2005 23:29:45 -0500
+Received: from fsmlabs.com ([168.103.115.128]:10883 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262247AbVAIE3k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 23:10:51 -0500
-Message-Id: <200501090344.j093irLf027560@laptop11.inf.utfsm.cl>
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: kernel versions on Linus bk tree 
-In-Reply-To: Message from Jon Smirl <jonsmirl@gmail.com> 
-   of "Sat, 08 Jan 2005 13:23:20 CDT." <9e473391050108102355c9a714@mail.gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Sun, 09 Jan 2005 00:44:52 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.21.155]); Sun, 09 Jan 2005 01:10:46 -0300 (CLST)
+	Sat, 8 Jan 2005 23:29:40 -0500
+Date: Sat, 8 Jan 2005 21:29:41 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andi Kleen <ak@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] x86_64: Notify user of MCE events.
+Message-ID: <Pine.LNX.4.61.0501082121380.13639@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl <jonsmirl@gmail.com> said:
-> I just came across a problem with the way the kernel is being
-> versioned. The DRM driver needs an IFDEF for the four level page table
-> change depending on kernel version built against. I used this:
-> #if LINUX_VERSION_CODE < 0x02060a
+x86_64 uses a userspace mce utility to decode MCEs, this patch will ensure 
+that the user is notified of MCE events being logged too.
 
-Wait for 2.6.11 then. It is the price you pay for fooling around with
-kernels in between versions.
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 
-If you are experimenting, you know what you are working with, so what is
-the problem?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Index: linux-2.6.10-mm1/arch/x86_64/kernel/mce.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-mm1/arch/x86_64/kernel/mce.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 mce.c
+--- linux-2.6.10-mm1/arch/x86_64/kernel/mce.c	4 Jan 2005 04:03:35 -0000	1.1.1.1
++++ linux-2.6.10-mm1/arch/x86_64/kernel/mce.c	9 Jan 2005 03:15:48 -0000
+@@ -31,6 +32,8 @@ static int mce_dont_init;
+ static int tolerant = 1;
+ static int banks;
+ static unsigned long bank[NR_BANKS] = { [0 ... NR_BANKS-1] = ~0UL };
++static unsigned long console_logged;
++static int notify_user;
+ 
+ /*
+  * Lockless MCE logging infrastructure.
+@@ -68,6 +71,9 @@ void mce_log(struct mce *mce)
+ 	smp_wmb();
+ 	mcelog.entry[entry].finished = 1;
+ 	smp_wmb();
++
++	if (!test_and_set_bit(0, &console_logged))
++		notify_user = 1;
+ }
+ 
+ static void print_mce(struct mce *m)
+@@ -252,6 +258,12 @@ static void mcheck_timer(void *data)
+ {
+ 	on_each_cpu(mcheck_check_cpu, NULL, 1, 1);
+ 	schedule_delayed_work(&mcheck_work, check_interval * HZ);
++
++	if (notify_user && console_logged) {
++		notify_user = 0;
++		clear_bit(0, &console_logged);
++		printk(KERN_EMERG "Machine check exception logged, run mcelog\n");
++	}
+ }
+ 
+ 
+ 
+ 

@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274669AbRIYWl1>; Tue, 25 Sep 2001 18:41:27 -0400
+	id <S274667AbRIYWor>; Tue, 25 Sep 2001 18:44:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274567AbRIYWlR>; Tue, 25 Sep 2001 18:41:17 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:39690 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S274670AbRIYWlI>; Tue, 25 Sep 2001 18:41:08 -0400
-Date: Tue, 25 Sep 2001 18:41:32 -0400
-Message-Id: <200109252241.f8PMfWY07018@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <Pine.LNX.4.20.0109250820001.28393-100000@otter.mbay.net>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
+	id <S274666AbRIYWoh>; Tue, 25 Sep 2001 18:44:37 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:24075 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S274668AbRIYWoW>;
+	Tue, 25 Sep 2001 18:44:22 -0400
+Date: Tue, 25 Sep 2001 15:40:15 -0700
+From: Greg KH <greg@kroah.com>
+To: Mark Zealey <mark@itsolve.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Binary only module overview
+Message-ID: <20010925154015.B15591@kroah.com>
+In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com> <20010925084439.B6396@us.ibm.com> <20010925200947.B7174@itsolve.co.uk> <20010925134232.A14715@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010925134232.A14715@kroah.com>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.20.0109250820001.28393-100000@otter.mbay.net> jalvo@mbay.net wrote:
+On Tue, Sep 25, 2001 at 01:42:32PM -0700, Greg KH wrote:
+> On Tue, Sep 25, 2001 at 08:09:47PM +0100, Mark Zealey wrote:
+> > On Tue, Sep 25, 2001 at 08:44:39AM -0700, Greg KH wrote:
+> > 
+> > > On Mon, Sep 24, 2001 at 12:40:44PM -0400, Arjan van de Ven wrote:
+> > > > 
+> > > > I'm composing a list of all existing binary only modules, 
+> > > 
+> > > Argus System's PitBull for Linux modifies the kernel.  No source or
+> > > patches for these modifications can be found on the web, so I'm guessing
+> > > that it's closed source:
+> > > 	http://www.argus-systems.com/
+> > 
+> > Umm, is it me or is that totally against the GPL? Have you bitched at them about
+> > this?
+> 
+> I have only talked to one of their resellers, who could not find a link
+> to the code anywhere.  I have not asked them directly.  I will go do
+> that right now.
 
-| There used to be stupid hard disk formatting tricks where the sector
-| numbers were interleaved
-| 
-| 1001 1008 1002 1009 1003 1010 1004 1011 1005 1012 1006 1013 1007 1014
-| 
-| just to gain that enhancement. I also remember an ancient IBM Dasd trick
-| where the sectors were offset just slightly so that a track to track
-| switch could pick up the next sector in time.
-| 
-| Ancient history...
+Argus has responded to me that their kernel patch is released under the
+GPL (and will be placing it up on a sf.net site soon.)  However their
+security kernel module that their patch uses is closed source.  So add
+them to the closed source module list :)
 
-  The spacing between consecutively numbered sectors is called
-interleave, and the offset between cylinders is called skew.
+As for the legality of modifying the kernel to provide hooks for your
+closed source driver, I'm not going to argue that one, but I thought it
+was forbidden.
 
-  Take a look at superformat, it's still done. The object is to take any
-media without hardware cache and match the timing of the media under the
-head with the need for data. This could easily double the transfer rate
-on any media which runs in an unbuffered reader.
+thanks,
 
-  And I would be surprised if modern hard drives don't allow using an
-offset between tracks so that when a track is read the next track
-"starts" under the read heads after the delay to step one track. This
-can save you the rotational latency of the drive, which on a 7200rpm
-drive is ~8.5ms, or as great as the step time. If actual track to track
-is matched to the step time you save that one rotation on big block
-reads, like swaps.
-
-  Guess it's not quite so ancient history after all, just done by the
-vendor typically. If I were writing a low level formatting routine, and
-I haven't in over a decade, I would run some tests on how much skew is
-needed to have the first sector under the head. The penelty for making
-that number a little too large is a sector or two, the penalty for
-making it too small is one rotation less a sector or two.
-
--- 
-bill davidsen <davidsen@tmr.com>
- "If I were a diplomat, in the best case I'd go hungry.  In the worst
-  case, people would die."
-		-- Robert Lipe
+greg k-h

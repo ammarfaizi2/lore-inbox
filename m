@@ -1,31 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313120AbSDOJHq>; Mon, 15 Apr 2002 05:07:46 -0400
+	id <S313122AbSDOJOH>; Mon, 15 Apr 2002 05:14:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313122AbSDOJHp>; Mon, 15 Apr 2002 05:07:45 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8979 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313120AbSDOJHp>; Mon, 15 Apr 2002 05:07:45 -0400
-Subject: Re: Modify TCP/IP stack
-To: lucas75it@inwind.it
-Date: Mon, 15 Apr 2002 10:25:23 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <GU95RL$14B42BA14D16BDCE096D1F321C5E6770@inwind.it> from "lucas75it@inwind.it" at Apr 08, 2002 02:04:33 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S313123AbSDOJOG>; Mon, 15 Apr 2002 05:14:06 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:4362 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S313122AbSDOJOF>;
+	Mon, 15 Apr 2002 05:14:05 -0400
+Message-ID: <3CBA8B48.1030005@evision-ventures.com>
+Date: Mon, 15 Apr 2002 10:11:52 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jens Axboe <axboe@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.8 IDE 34
+In-Reply-To: <Pine.LNX.4.33.0203181243210.10517-100000@penguin.transmeta.com> <3CBA8476.9070208@evision-ventures.com> <20020415085145.GF12608@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16x2jj-0005nm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I developed and other people of my university (professors and students) has 
-> made a little change to TCP/IP of the linux kernel.
-> Now, we want to expose this new feature to the kernel developpers. 
-> Which people must i conctat ? Who develope the kernel code for the network ?
-> Please help me !
+Jens Axboe wrote:
+> On Mon, Apr 15 2002, Martin Dalecki wrote:
+> 
+> Two comments --
+> 
+> Could you please _not_ just rearrange comments or change style in ide-cd
+> just for the sake cleaning, it's very annoying when one has patches that
+> need to be adapted every time. And it serves zero purpose. Thanks.
 
-If you check the MAINTAINERS file you will find contact points for most
-of the kernel code. Generally people send small changes to the list as well
-or for bigger changes pointers to the diff
+Please do me a small favour and use an editor which highlights trailing white
+spaces please? The bandwidth waste caused by this is an waste of energy
+and causes a significant amount of environmental pollution...
+
+> I changed the CONFIG_BLK_DEV_IDEPCI stuff to always include the pci_dev
+> in the hwgroup, and just leave it at NULL if not defined. This cleans up
+> some ifdefs, I think this is the better approach.
+
+Agreed.
+
+> I'll sync the latest tcq stuff with you later today, it gets the
+> enabling right etc.
+
+Fine. I would like to go on with the request handling changes in ide-cd.c
+thereafter.
+
+> And a last comment not directly related to this particular patch -- when
+> you include something and change minor stuff along the way, please do it
+> in two steps. One that includes a patch, and a second version that
+> changes what you want to change. That makes merging _so_ much easier.
+> Thanks.
+
+OK - sorry. I try already to make the granularity of the
+patches smaller. Since I always apply patches line by line I wasn't aware of
+your "modus operandi".
+

@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261950AbSJWAZk>; Tue, 22 Oct 2002 20:25:40 -0400
+	id <S262161AbSJWA35>; Tue, 22 Oct 2002 20:29:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262161AbSJWAZk>; Tue, 22 Oct 2002 20:25:40 -0400
-Received: from packet.digeo.com ([12.110.80.53]:2256 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261950AbSJWAZj>;
-	Tue, 22 Oct 2002 20:25:39 -0400
-Message-ID: <3DB5EDEF.59A27A9A@digeo.com>
-Date: Tue, 22 Oct 2002 17:31:43 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: New panic (io-apic / timer?) going from 2.5.44 to 2.5.44-mm1
-References: <3DB5E909.7F2AF339@digeo.com> <442050000.1035332459@flay>
+	id <S262276AbSJWA35>; Tue, 22 Oct 2002 20:29:57 -0400
+Received: from 80-195-6-171.cable.ubr04.ed.blueyonder.co.uk ([80.195.6.171]:25991
+	"EHLO sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S262161AbSJWA34>; Tue, 22 Oct 2002 20:29:56 -0400
+Date: Wed, 23 Oct 2002 01:35:51 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+       linux-security-module@wirex.com, Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] remove sys_security
+Message-ID: <20021023013551.A23214@redhat.com>
+References: <Pine.GSO.4.21.0210171742050.18575-100000@weyl.math.psu.edu> <200210180014.16512.russell@coker.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Oct 2002 00:31:43.0019 (UTC) FILETIME=[8F8A67B0:01C27A2B]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200210180014.16512.russell@coker.com.au>; from russell@coker.com.au on Fri, Oct 18, 2002 at 12:14:16AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
-> 
-> >> Hmmm ... 2.5.43-mm2 and 2.5.44 work fine, but 2.5.44-mm1 (and mm2)
-> >> panic consistently on boot for a 16 way NUMA-Q.
-> >>
-> >> Normally this box will boot with TSC on or off. If anyone has any pointers as
-> >> to what's changed in the mm patchset going from 43-mm2 to 44-mm1 that
-> >> might have touched this area (I can't see anything), please poke me in the
-> >> eye. Otherwise I'll just keep digging into it ....
-> >>
-> >
-> >
-> > Is possibly the code which defers the allocation of the per-cpu
-> > memory until the secondary processors are being brought online.
-> 
-> Aha ... ;-) thanks for the pointer. Will poke at that.
+Hi,
 
-The kgdb code plays around at that level too.  A patch -R of
-kgdb.patch would be interesting.
-
-> > I've decided to toss that.  It's causing some grief for architectures,
-> > and only buys us 10k * (NR_CPUS - nr-cpus) worth of memory anyway.
-> 
-> Hmmm ... I guess people with SMP normally have lots of RAM anyway,
-> and those few that care could just config NR_CPUS down. Shame though,
-> automagical is much nicer. Maybe we can work out exactly why it's broken
-> instead.
-> 
-> > Well.  It would be useful for NUMA to be able to place the per-cpu storage
-> > into node-local memory.  But the code doesn't do that.  It just uses
-> > kmalloc on the boot cpu, and we don't have an alloc_pages_for_another_cpu()
-> > API..
-> 
-> Well at a page granularity level you have alloc_pages_node(cpu_to_node).
-> I suppose technically that's not guaranteed, but on boot it'll never fall back.
-> If you need it in permanent KVA, you can remap it into the vmalloc reserve
-> area.
-
-That would suit.
+On Fri, Oct 18, 2002 at 12:14:16AM +0200, Russell Coker wrote:
  
-> Why do you need to do it that late, should be able to do it once you've parsed
-> mptables? alloc_bootmem / alloc_bootmem_node ?
+> OK, how do you go about supplying extra data to a file open than to modify the 
+> open system call?
+> 
+> If for example I want to create a file of context 
+> "system_u:object_r:fingerd_log_t" under /var/log (instead of taking the 
+> context from that of the /var/log directory "system_u:object_r:var_log_t") 
+> then how would I go about doing it other than through a modified open system 
+> call?
 
-Lack of architecture hooks, maybe?  That'd be one for Rusty.
+With a "setesid(2)" syscall to set the effective sid.  
+
+A new file already inherits a ton of context, from the current uid/gid
+to the umask.  Those are already selectable by setting up the current
+process context.  And for the uid/gid bits, we also have setfsuid to
+set the id for creation without causing the whole process to suddenly
+change ownership.
+
+A similar way of setting the effective sid for new object creation
+would eliminate over 20 of the new sys_security syscalls in the
+SELinux patches.
+
+--Stephen

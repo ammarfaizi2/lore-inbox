@@ -1,101 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbUKSLoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbUKSLrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbUKSLoo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 06:44:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbUKSLoo
+	id S261358AbUKSLrt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 06:47:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbUKSLrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 06:44:44 -0500
-Received: from dp.samba.org ([66.70.73.150]:41890 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261358AbUKSLof (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 06:44:35 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16797.56428.329257.785330@samba.org>
-Date: Fri, 19 Nov 2004 22:43:40 +1100
-To: Andreas Dilger <adilger@clusterfs.com>
+	Fri, 19 Nov 2004 06:47:49 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49615 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261359AbUKSLp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 06:45:59 -0500
+Date: Fri, 19 Nov 2004 12:45:58 +0100
+From: Jan Kara <jack@suse.cz>
+To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: performance of filesystem xattrs with Samba4
-In-Reply-To: <20041119101600.GM1974@schnapps.adilger.int>
-References: <1098383538.987.359.camel@new.localdomain>
-	<16797.41728.984065.479474@samba.org>
-	<20041119101600.GM1974@schnapps.adilger.int>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
+Subject: [PATCH] Allow disabling quota messages to console
+Message-ID: <20041119114558.GA11334@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas,
 
- > Also, we (CFS) have developed patches for ext3 + e2fsprogs to support
- > "fast" EAs stored in larger inodes on disk, and this can improve
- > performance dramatically in the case where you are accessing a large
- > number of inodes with EAs just.
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-yep, that could help a lot. I imagine it will provide a similar
-benefit to the option to expand the inode size in XFS, which certainly
-made a huge difference.
+  Hello!
 
- > This patch also provides the infrastructure on disk for storing e.g.
- > nsecond and create timestamps in the ext3 large inodes, but the actual
- > implementation to save/load these isn't there yet.  If that were
- > available, would you use it instead of explicitly storing the NTTIME in
- > an EA?
+  Attached patch allows disabling of quota messages about exceeding of
+limits to console (some people don't like them disturbing their output).
+The patch applies well to any recent kernel. Please apply.
 
-certainly! 
+								Honza
 
-For Samba4 we need 4 timestamps (create/change/write/access),
-preferably all with 100ns resolution or better. All 4 timestamps need
-to be settable (unlike st_ctime in posix).
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
 
-The strategy I've adopted is this:
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="quota-2.6.9-quotawarn.diff"
 
- - use st_atime and st_mtime for the access and write time fields,
-   with nanosecond resolution if available, otherwise with 1 second
-   resolution. It's just too expensive to update an EA on every
-   read/write, so I didn't put these in the DosAttrib EA.
+Allow disabling of quota messages to console (they can disturb other output).
 
- - store create_time and change_time in the user.DosAttrib xattr, as
-   64 bit 100ns resolution times (same format as NT uses and Samba
-   uses internally). I store change_time there as its definition is a
-   little different from the posix ctime field (plus its settable).
+Signed-off-by: Jan Kara <jack@suse.cz>
 
-If we had a settable create_time field in the inode then I'd certainly
-want to use it in Samba4. A non-settable one wouldn't be nearly as
-useful. Some win32 applications care about being able to set all the
-time fields (such as excel 2003).
+diff -ru linux-2.6.9/fs/dquot.c linux-2.6.9-quotawarn/fs/dquot.c
+--- linux-2.6.9/fs/dquot.c	2004-10-18 23:54:39.000000000 +0200
++++ linux-2.6.9-quotawarn/fs/dquot.c	2004-10-25 15:48:56.000000000 +0200
+@@ -774,8 +774,13 @@
+ 	clear_bit(DQ_BLKS_B, &dquot->dq_flags);
+ }
+ 
++static int flag_print_warnings = 1;
++
+ static inline int need_print_warning(struct dquot *dquot)
+ {
++	if (!flag_print_warnings)
++		return 0;
++
+ 	switch (dquot->dq_type) {
+ 		case USRQUOTA:
+ 			return current->fsuid == dquot->dq_id;
+@@ -803,6 +808,7 @@
+ 
+ 	if (!need_print_warning(dquot) || (flag && test_and_set_bit(flag, &dquot->dq_flags)))
+ 		return;
++
+ 	tty_write_message(current->signal->tty, dquot->dq_sb->s_id);
+ 	if (warntype == ISOFTWARN || warntype == BSOFTWARN)
+ 		tty_write_message(current->signal->tty, ": warning, ");
+@@ -1722,6 +1728,14 @@
+ 		.mode		= 0444,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
++	{
++		.ctl_name	= FS_DQ_WARNINGS,
++		.procname	= "warnings",
++		.data		= &flag_print_warnings,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
+ 	{ .ctl_name = 0 },
+ };
+ 
+diff -ru linux-2.6.9/include/linux/sysctl.h linux-2.6.9-quotawarn/include/linux/sysctl.h
+--- linux-2.6.9/include/linux/sysctl.h	2004-10-18 23:54:31.000000000 +0200
++++ linux-2.6.9-quotawarn/include/linux/sysctl.h	2004-10-25 15:43:47.000000000 +0200
+@@ -662,7 +662,7 @@
+ 	FS_LEASES=13,	/* int: leases enabled */
+ 	FS_DIR_NOTIFY=14,	/* int: directory notification enabled */
+ 	FS_LEASE_TIME=15,	/* int: maximum time to wait for a lease break */
+-	FS_DQSTATS=16,	/* disc quota usage statistics */
++	FS_DQSTATS=16,	/* disc quota usage statistics and control */
+ 	FS_XFS=17,	/* struct: control xfs parameters */
+ 	FS_AIO_NR=18,	/* current system-wide number of aio requests */
+ 	FS_AIO_MAX_NR=19,	/* system-wide maximum number of aio requests */
+@@ -678,6 +678,7 @@
+ 	FS_DQ_ALLOCATED = 6,
+ 	FS_DQ_FREE = 7,
+ 	FS_DQ_SYNCS = 8,
++	FS_DQ_WARNINGS = 9,
+ };
+ 
+ /* CTL_DEBUG names: */
 
-This wouldn't allow us to get rid of the user.DosAttrib xattr
-completely though, as we stick a bunch of other stuff in there and
-will be expanding it soon to help with the case-insensitive speed
-problem.
-
->  I believe the 2.6 stat interface will support nsecond timestamps,
-
-yep, we are already using st.st_atim.tv_nsec when configure detects
-it. It's very useful, but the fact that ext3 doesn't store this on
-disk leads to potential problems when timestamps regress if inodes are
-ejected from the cache under memory pressure. That needs fixing.
-
- > but I don't think there is any API to get the create time to userspace
- > though we could hook this up to a pseudo EA.  The benefit of storing
- > these common fields in the inode instead of EAs is less overhead.
-
-I think it would make more sense to have a new varient of utime() for
-setting all available timestamps, and expose all timestamps in stat. A
-separate API for create time seems a bit hackish.
-
- > I would just configure out the xattr sharing code entirely since it will
- > likely do nothing but increase overhead if any of the EAs on an inode
- > are unique (this is the most common case, except for POSIX-ACL-only setups).
-
-I didn't know it was configurable. I can't see any CONFIG option for
-it - is there some trick I've missed?
-
- > I've attached this patch here.
-
-I'll give it a go and let you know how it changes the NBENCH results.
-
-Cheers, Tridge
+--Dxnq1zWXvFF0Q93v--

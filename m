@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266977AbTBCS6F>; Mon, 3 Feb 2003 13:58:05 -0500
+	id <S266996AbTBCTDQ>; Mon, 3 Feb 2003 14:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266981AbTBCS6F>; Mon, 3 Feb 2003 13:58:05 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22791 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266977AbTBCS6E>; Mon, 3 Feb 2003 13:58:04 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: futimes()?
-Date: 3 Feb 2003 11:07:15 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b1mel3$fug$1@cesium.transmeta.com>
-References: <b1htmi$9r6$1@cesium.transmeta.com> <20030202120752.GK5239@riesen-pc.gr05.synopsys.com>
+	id <S266998AbTBCTDQ>; Mon, 3 Feb 2003 14:03:16 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:3823 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266996AbTBCTDP>;
+	Mon, 3 Feb 2003 14:03:15 -0500
+Date: Mon, 03 Feb 2003 11:03:23 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Mark Haverkamp <markh@osdl.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.59-mjb3 (scalability / NUMA patchset)
+Message-ID: <316530000.1044299003@flay>
+In-Reply-To: <1044298502.29532.8.camel@markh1.pdx.osdl.net>
+References: <19270000.1038270642@flay><134580000.1039414279@titus> <32230000.1039502522@titus><568990000.1040112629@titus> <21380000.1040717475@titus> <821470000.1041579423@titus> <214500000.1041821919@titus> <676880000.1042101078@titus> <922170000.1042183282@titus> <437220000.1042531505@titus> <190030000.1042787514@titus> <19610000.1043137151@titus> <20200000.1043806571@flay>  <125620000.1044238081@[10.10.2.4]> <1044297228.29537.5.camel@markh1.pdx.osdl.net>  <315150000.1044297722@flay> <1044298502.29532.8.camel@markh1.pdx.osdl.net>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030202120752.GK5239@riesen-pc.gr05.synopsys.com>
-By author:    Alex Riesen <alexander.riesen@synopsys.COM>
-In newsgroup: linux.dev.kernel
->
-> H. Peter Anvin, Sun, Feb 02, 2003 02:53:22 +0100:
-> > In the general vein of avoiding security holes by using file
-> > descriptors when doing repeated operations on the same filesystem
-> > object, I have noticed that there doesn't seem to be a way to set
-> > mtime using a file descriptor.  Do we need a futimes() syscall?
+>> What gcc are you using? I'm betting 3.2 ... 2.95 seems to work fine.
 > 
-> There is a small problem with close(). It can update mtime as well.
+> You are right, I am using:
 > 
+> gcc (GCC) 3.2 20020903 (Red Hat Linux 8.0 3.2-7)
+> 
+> 
+>> (still might be an issue with the patch, just trying to track it down)
 
-Presumably it shouldn't unless the file descriptor has been written
-to since the last fsync().
+Could you find the definition of cpu_online_map, and remove the "=1"
+initialisation from it ... see if that fixes it? (I just added that)
+Seems suspiciously closely related ... if that doesn't do it, I'll 
+try to diagnose here.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Thanks,
+
+M.
+
+

@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267450AbUJRTWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267411AbUJRS4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267450AbUJRTWr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 15:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUJRTIl
+	id S267411AbUJRS4n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 14:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUJRSzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 15:08:41 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:13207 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S267450AbUJRTDW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 15:03:22 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] General purpose zeroed page slab
-Date: Mon, 18 Oct 2004 12:03:04 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0236348B@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] General purpose zeroed page slab
-Thread-Index: AcS1QjBYpFV2JdbRSFeS1dEbNibbHAAAg1eA
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Matthew Wilcox" <matthew@wil.cx>,
-       "Martin K. Petersen" <mkp@wildopensource.com>
-Cc: "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>, <akpm@osdl.org>
-X-OriginalArrivalTime: 18 Oct 2004 19:03:06.0202 (UTC) FILETIME=[19B723A0:01C4B545]
+	Mon, 18 Oct 2004 14:55:36 -0400
+Received: from pat.uio.no ([129.240.130.16]:45023 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S267411AbUJRSsF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 14:48:05 -0400
+Subject: Re: NFS4 client deadlock with 2.6.9-rc3-mm4 based kernel
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Christophe Saout <christophe@saout.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1098124066.13075.5.camel@leto.cs.pocnet.net>
+References: <1098124066.13075.5.camel@leto.cs.pocnet.net>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1098125272.5744.37.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 18 Oct 2004 20:47:52 +0200
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It's probably worth doing this with a static cachep in slab.c and only
->exposing a get_zeroed_page() / free_zeroed_page() interface, with the
->latter doing the memset to 0.  I disagree with Andi over the dumbness
->of zeroing the whole page.  That makes it cache-hot, which is what you
->want from a page you allocate from slab.
+På må , 18/10/2004 klokka 20:27, skreiv Christophe Saout:
+> Hi,
+> 
+> I've managed to lock up the nfs4 client code in an nfs4 chroot
+> environment.
+> 
+> I'm not sure but it seems that __rpc_execute has a problem when called
+> recursively...?
 
-We started this discussion with the plan of using this interface to
-allocate/free page tables at all levels in the page table hierarchy
-(rather than maintain a special purpose "quicklist" allocator for each
-level).  This is a somewhat specialized usage in that we know that we
-have a completely zeroed page when we free ... so we really don't
-want the overhead of zeroing it again.  There is also somewhat limited
-benefit to the cache hotness argument here as most page tables (especially
-higher-order ones) are used very sparsely.
+Yes. Synchronous RPC calls should never be run by rpciod.
 
-That said, the idea to expose this slab only through a specific API
-should calm fears about accidental mis-use (with people freeing a page
-that isn't all zeroes).
+This is a known problem, and I'm working on a fix. I've already got
+working code for nfs4_do_close(), but a similar scheme has be set up for
+the byte range locking code.
 
--Tony
+At the moment I'm busy with my move from Norway to the US, so please
+give me a week or 2 to get back to you on this one.
+
+Cheers,
+  Trond
+

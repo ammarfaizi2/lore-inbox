@@ -1,55 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261466AbSIWWxz>; Mon, 23 Sep 2002 18:53:55 -0400
+	id <S261467AbSIWW4Z>; Mon, 23 Sep 2002 18:56:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261467AbSIWWxy>; Mon, 23 Sep 2002 18:53:54 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:50950 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S261466AbSIWWxy>;
-	Mon, 23 Sep 2002 18:53:54 -0400
-Date: Mon, 23 Sep 2002 18:56:35 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: Larry McVoy <lm@bitmover.com>, Bill Davidsen <davidsen@tmr.com>,
-       Peter Waechtler <pwaechtler@mac.com>, linux-kernel@vger.kernel.org,
-       ingo Molnar <mingo@redhat.com>
+	id <S261468AbSIWW4Z>; Mon, 23 Sep 2002 18:56:25 -0400
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:46977 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S261467AbSIWW4Y>; Mon, 23 Sep 2002 18:56:24 -0400
+Date: Mon, 23 Sep 2002 16:01:22 -0700
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Peter W?chtler <pwaechtler@mac.com>, Ingo Molnar <mingo@elte.hu>,
+       Larry McVoy <lm@bitmover.com>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
 Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020923185635.C26887@mark.mielke.cc>
-References: <20020923083004.B14944@work.bitmover.com> <Pine.LNX.4.44.0209231433560.16864-100000@twinlark.arctic.org>
+Message-ID: <20020923230122.GA3642@gnuppy.monkey.org>
+References: <Pine.LNX.4.44.0209232233250.2343-100000@localhost.localdomain> <3D8F82E5.90A64E8@mac.com> <20020923184423.B26887@mark.mielke.cc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0209231433560.16864-100000@twinlark.arctic.org>; from dean-list-linux-kernel@arctic.org on Mon, Sep 23, 2002 at 02:41:33PM -0700
+In-Reply-To: <20020923184423.B26887@mark.mielke.cc>
+User-Agent: Mutt/1.4i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 23, 2002 at 02:41:33PM -0700, dean gaudet wrote:
-> so while this is I/O, it's certainly less efficient to have thousands of
-> tasks blocked in read(2) versus having thousands of entries in <pick your
-> favourite poll/select/etc. mechanism>.
+On Mon, Sep 23, 2002 at 06:44:23PM -0400, Mark Mielke wrote:
+> Think of it this way... two threads are blocked on different resources...
+> The currently executing thread reaches a point where it blocks.
+> 
+>     OS threads:
+>         1) thread#1 invokes a system call
+>         2) OS switches tasks to thread#2 and returns from blocking
+> 
+>     user-space threads:
+>         1) thread#1 invokes a system call
+>         2) thread#1 returns from system call, EWOULDBLOCK
 
-In terms of kernel memory, perhaps. In terms of 'efficiency', I
-wouldn't be so sure. Java uses a wack of user space storage to
-represent threads regardless of whether they are green or native.  The
-only difference is - is Java calling poll()/select()/ioctl()
-routinely? Or are the tasks sitting in an efficient kernel task queue?
+>         3) thread#1 invokes poll(), select(), ioctl() to determine state
+>         4) thread#1 returns from system call
 
-Which has a better chance of being more efficient, in terms of dispatching,
-(especially considering that most of the time, most java threads are idle),
-and which has a better chance of being more efficient in terms of the
-overhead of querying whether a task is ready to run? I lean towards the OS
-on both counts.
+More like the UTS blocks the thread and waits for an IO upcall to notify
+the change of state in the kernel. It's equivalent to a single in overhead,
+something like a SIGIO, or async IO notification.
 
-mark
+Delete 3 and 4. It's certainly much faster than select() and family.
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+>         5) thread#1 switches stack pointer to be thread#2 upon determination
+>            that the resource thread#2 was waiting on is ready.
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+Right, then marks it running and runs it.
 
-                           http://mark.mielke.cc/
+> Certainly the above descriptions are not fully accurate, or complete,
+> and it is possible that the M:N threading would make a fair compromise
+> between OS thread sand user-space threads, however, if user-space threads
+> requires all this extra work, and M:N threads requires some extra work,
+> some less work, and extra book keeping and system calls, why couldn't
+> OS threads by themselves be more efficient?
+
+Crazy synchronization by non-web-server like applications. Who knows. I
+personally can't think up really clear example at this time since I don't
+do that kind of programming, but I'm sure concurrency experts can...
+
+I'm just not one of those people.
+
+bill
 

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293578AbSBZLi2>; Tue, 26 Feb 2002 06:38:28 -0500
+	id <S293587AbSBZLkS>; Tue, 26 Feb 2002 06:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293579AbSBZLiS>; Tue, 26 Feb 2002 06:38:18 -0500
-Received: from mtao1.east.cox.net ([68.1.17.244]:36508 "EHLO
-	lakemtao01.cox.net") by vger.kernel.org with ESMTP
-	id <S293578AbSBZLiC>; Tue, 26 Feb 2002 06:38:02 -0500
-Message-ID: <006001c1beb9$ea412690$a7eb0544@CX535256D>
-From: "Barubary" <barubary@cox.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: ISO9660 bug and loopback driver bug
-Date: Tue, 26 Feb 2002 03:37:04 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S293579AbSBZLkJ>; Tue, 26 Feb 2002 06:40:09 -0500
+Received: from mailer.zib.de ([130.73.108.11]:7828 "EHLO mailer.zib.de")
+	by vger.kernel.org with ESMTP id <S293580AbSBZLjx>;
+	Tue, 26 Feb 2002 06:39:53 -0500
+Date: Tue, 26 Feb 2002 12:39:49 +0100
+From: Sebastian Heidl <heidl@zib.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: nick@snowman.net, linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
+        linux-net@vger.kernel.org
+Subject: Re: [BETA] First test release of Tigon3 driver
+Message-ID: <20020226123949.C8471@csr-pc6.local>
+Mail-Followup-To: Sebastian Heidl <heidl@zib.de>,
+	"David S. Miller" <davem@redhat.com>, nick@snowman.net,
+	linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
+	linux-net@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0202252243360.18586-100000@ns> <20020225.204022.62649663.davem@redhat.com> <20020226122205.B8471@csr-pc6.local> <20020226.032453.41634091.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <20020226.032453.41634091.davem@redhat.com>; from davem@redhat.com on Tue, Feb 26, 2002 at 03:24:53AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First, the ISO9660 bug.  The ISO file system driver in Linux doesn't handle
-leap years correctly.  It assumes all years divisible by 4 are leap years,
-which is incorrect.  For those that don't know the right algorithm, all
-years that (are divisible by 4) and ((not divisible by 100), or (divisible
-by 400)) are leap years.  ISO file dates on or after March 1, 2100 will be 1
-day off when viewed under Linux as a result.  The bug is in fs/isofs/util.c,
-function iso_date().  This is a very low priority bug, because a) nobody
-cares about ISO file date accuracy including me; and b) it shouldn't matter
-until 2100.  Anyone bored enough to fix this? :)  I guess I could do it...
+On Tue, Feb 26, 2002 at 03:24:53AM -0800, David S. Miller wrote:
+>    From: Sebastian Heidl <heidl@zib.de>
+>    Date: Tue, 26 Feb 2002 12:22:05 +0100
+> 
+>    I think these are 3C996-T. Is there any information about the
+>    compatibility of TG3 to TG2 ?
+> 
+> Totally different chip, but there are subtle similarities all over
+> the place.  Ie. if you knew how to program the tg2, or even were just
+> familiar with the acenic driver, the tg3 stuff looks familiar.
+That's what I noticed looking at tg3.c ;-)
+I guess nobody was crazy enough yet to try to load a tg2-firmware on a tg3 ?
+Only as there are some utils to build a customized firmware for the tg2.
 
-Now the loopback bug.  Files whose size is greater than 2^31-1 don't work
-with the loopback driver.  It fails with strange errors, like "device not
-found".  This bug prevents DVD-ROM .iso files from being mounted as either
-UDF or ISO file systems - the particular use I encountered it with.  It's a
-bit higher of a priority than the ISO9660 date bug, because it prevents
-useful features from working.  Still not too important though.
-
-The above were encountered on 2.4.17, and are both in 2.4.18.
-
--- Barubary
+just guessing wildly ;-)
+_sh_
 

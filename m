@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264045AbSIQLEq>; Tue, 17 Sep 2002 07:04:46 -0400
+	id <S264051AbSIQLLU>; Tue, 17 Sep 2002 07:11:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264055AbSIQLEq>; Tue, 17 Sep 2002 07:04:46 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4881 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264045AbSIQLEp>; Tue, 17 Sep 2002 07:04:45 -0400
-Date: Tue, 17 Sep 2002 12:09:37 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S264055AbSIQLLU>; Tue, 17 Sep 2002 07:11:20 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:33013
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264051AbSIQLLU>; Tue, 17 Sep 2002 07:11:20 -0400
+Subject: Re: Hi is this critical??
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk@arm.linux.org.uk>
 Cc: Andre Hedrick <andre@linux-ide.org>, jbradford@dial.pipex.com,
        Nuitari <nuitari@balthasar.nuitari.net>, venom@sns.it,
        linux-kernel@vger.kernel.org, xavier.bestel@free.fr, mark@veltzer.org
-Subject: Re: Hi is this critical??
-Message-ID: <20020917120937.B28438@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.10.10209170116280.11597-100000@master.linux-ide.org> <1032259304.13990.5.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <20020917120937.B28438@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.10.10209170116280.11597-100000@master.linux-ide.org>
+	<1032259304.13990.5.camel@irongate.swansea.linux.org.uk> 
+	<20020917120937.B28438@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 17 Sep 2002 12:17:53 +0100
+Message-Id: <1032261473.14015.31.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1032259304.13990.5.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Sep 17, 2002 at 11:41:44AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 17, 2002 at 11:41:44AM +0100, Alan Cox wrote:
-> On Tue, 2002-09-17 at 09:20, Andre Hedrick wrote:
-> > MORONS that think the drive vendors are not clued into the issue.
-> > I have to read and vote on NASTY proposals, whose intent is to check for
-> > G-Force damage.  If you think that record is not findable, even if you
-> 
-> Sounds good news for honest users. What it does want though is the
-> ability of users to check that data when the disk arrives, because we
-> have delivery people, and they think that if looks like a box its
-> probably a football.
+On Tue, 2002-09-17 at 12:09, Russell King wrote:
+> Then you find out that its been used in the world cup.  You try to
+> return it to the vendor, but the vendor says its your fault for
+> dropping the drive.  You protest, but the vendor refuses to listen
+> because they've got their technology that says so in their product.
 
-No.  Sounds _bad_ news for honest users.  Lets be realistic here.
-Parcel company uses package as a football, then delivers it.
+Then you take them to the small claims court. Its their burden of proof.
+Or in the US I imagine you file a class action lawsuit, but before you
+can file it the features go away because someone else sues them for
+patent infringement instead ;)
 
-How many parcel companies will wait while you unpack the hard drive,
-dismantle your machine, connect the drive, power it up and check to
-see if the drive has suffered too much shock?
-
-Yep, that's right, none.  If you try to, the parcel delivery person
-will get really ratty.  So you sign for it after checking that the
-outside box is undamaged.
-
-Then you find out that its been used in the world cup.  You try to
-return it to the vendor, but the vendor says its your fault for
-dropping the drive.  You protest, but the vendor refuses to listen
-because they've got their technology that says so in their product.
-
-So, its NOT great for honest users.  Its another form of "Digital
-Rights Management."
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Alan
 

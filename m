@@ -1,20 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267716AbSLGEYV>; Fri, 6 Dec 2002 23:24:21 -0500
+	id <S267614AbSLGEac>; Fri, 6 Dec 2002 23:30:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267717AbSLGEYV>; Fri, 6 Dec 2002 23:24:21 -0500
-Received: from web20408.mail.yahoo.com ([66.163.169.96]:34390 "HELO
-	web20420.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267716AbSLGEYU>; Fri, 6 Dec 2002 23:24:20 -0500
-Message-ID: <20021207043158.45345.qmail@web20420.mail.yahoo.com>
-Date: Fri, 6 Dec 2002 20:31:58 -0800 (PST)
-From: Z F <mail4me9999@yahoo.com>
-Subject: CPU cache problem
-To: linux-kernel@vger.kernel.org
+	id <S267615AbSLGEac>; Fri, 6 Dec 2002 23:30:32 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:53010 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S267614AbSLGEab>; Fri, 6 Dec 2002 23:30:31 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB1AD7@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: "'Z F'" <mail4me9999@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: RE: CPU cache problem
+Date: Fri, 6 Dec 2002 20:37:57 -0800 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Did you check in the BIOS if there is an L2 cache size mentioned? Not every
+BIOS supports it but you shoud check there ...
+
+Thanks
+-Manish
+
+-----Original Message-----
+From: Z F [mailto:mail4me9999@yahoo.com]
+Sent: Friday, December 06, 2002 8:32 PM
+To: linux-kernel@vger.kernel.org
+Subject: CPU cache problem
+
 
 Hello everybody
 
@@ -42,3 +57,8 @@ __________________________________________________
 Do you Yahoo!?
 Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
 http://mailplus.yahoo.com
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

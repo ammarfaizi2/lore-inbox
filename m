@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266910AbUJBAvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266914AbUJBAvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266910AbUJBAvM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 20:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266912AbUJBAvM
+	id S266914AbUJBAvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 20:51:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUJBAvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 20:51:12 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:133 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266910AbUJBAvI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 20:51:08 -0400
-Date: Sat, 2 Oct 2004 02:48:54 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
+	Fri, 1 Oct 2004 20:51:16 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:41887 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266914AbUJBAvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 20:51:09 -0400
+Subject: io_remap_page_range (was Re: [Alsa-devel] alsa-driver will not
+	compile with kernel  2.6.9-rc2-mm4-S7)
+From: Lee Revell <rlrevell@joe-job.com>
 To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [Alsa-devel] alsa-driver will not compile with kernel 2.6.9-rc2-mm4-S7
-Message-ID: <20041002004854.GB26711@thundrix.ch>
-References: <1096675930.27818.74.camel@krustophenia.net> <32868.192.168.1.8.1096677269.squirrel@192.168.1.8>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jho1yZJdad60DJr+"
-Content-Disposition: inline
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
 In-Reply-To: <32868.192.168.1.8.1096677269.squirrel@192.168.1.8>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+References: <1096675930.27818.74.camel@krustophenia.net>
+	 <32868.192.168.1.8.1096677269.squirrel@192.168.1.8>
+Content-Type: text/plain
+Message-Id: <1096678268.27818.84.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 01 Oct 2004 20:51:08 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-10-01 at 20:34, Rui Nuno Capela wrote:
+> Lee Revell wrote:
+> Good grief! I'm having this too, and I was desperate thinking I was the
+> only one, and ultimately offering the blame to gcc 3.4.1 which is what I'm
+> test-driving now on my laptop (Mdk 10.1c).
+> 
+> Now I remember that -mm4 has some issue about remap_page_range kernel
+> symbol being renamed to something else, which is breaking the build of
+> outsider modules (i.e. not the ones bundled under the kernel source tree).
+> Or so it seems.
 
---jho1yZJdad60DJr+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Looking through my archives I cannot find a report of this exact issue,
+but you are probably right.  Looks like ALSA drivers need to be updated.
 
-Salut,
+Lee
 
-On Sat, Oct 02, 2004 at 01:34:29AM +0100, Rui Nuno Capela wrote:
-> Maybe someone on the lkml may have a clue and help here?
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109526630905797&w=2
-
-			    Tonnerre
-
---jho1yZJdad60DJr+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBXfr2/4bL7ovhw40RAmjdAKCW9wM+qxUoWL8Kh3RGe1qo1fvnRACfcJiF
-mOqyoJGkvPrQ74S6M/HrArU=
-=n16G
------END PGP SIGNATURE-----
-
---jho1yZJdad60DJr+--

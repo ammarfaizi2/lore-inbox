@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268500AbUHLKLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268503AbUHLKla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268500AbUHLKLv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 06:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268504AbUHLKLv
+	id S268503AbUHLKla (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 06:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268504AbUHLKla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 06:11:51 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48272 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268500AbUHLKLt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 06:11:49 -0400
-Date: Thu, 12 Aug 2004 03:11:13 -0700
-From: Paul Jackson <pj@sgi.com>
-To: dino@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [PATCH] new bitmap list format (for cpusets)
-Message-Id: <20040812031113.425004da.pj@sgi.com>
-In-Reply-To: <20040812094837.GA3946@in.ibm.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<20040811131155.GA4239@in.ibm.com>
-	<20040811091732.411edb6d.pj@sgi.com>
-	<20040811180558.GA4066@in.ibm.com>
-	<20040811134018.1551e03b.pj@sgi.com>
-	<20040812094837.GA3946@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Aug 2004 06:41:30 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:19154 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S268503AbUHLKkt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 06:40:49 -0400
+Message-ID: <411B492D.4030206@free.fr>
+Date: Thu, 12 Aug 2004 12:40:45 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040618
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Len Brown <len.brown@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Karol Kozimor <sziwan@hell.org.pl>
+Subject: Re: 2.6.8-rc4-mm1 : Hard freeze due to ACPI
+References: <41189098.4000400@free.fr>  <4118A500.1080306@free.fr>	 <1092151779.5028.40.camel@dhcppc4> <41191929.4090305@free.fr>	 <411927C9.9040300@free.fr> <1092167817.5021.89.camel@dhcppc4>
+In-Reply-To: <1092167817.5021.89.camel@dhcppc4>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok revised patch attached
+Len Brown wrote:
 
-Sweet - thanks.  I have one other small patch against the
-cpuset patch I posted on lkml a week ago I guess now.
+> I'd be interested to know if the latest bk-acpi.patch is related to
+> the issue...
 
-Next week, I expect to repost, against a current *-mm,
-and I will include your revised patch, after I build and
-test it along with my stuff.  Thanks.
+I finaly found the time to test it : result is that 2.6.8-rc4 + 
+bk-acpi.patch boots fine. The thermal problem is also gone. SO something 
+must corrupt the data used by thermal.c in 2.6.8-rc4-mm1 :-(  Did not 
+managed to wake up from S3 once. Will retry to be sure...
 
-The rest of this week is taken up with unrelated duties
-for me.
-
-
-> applies only to the rest_init function which does not have
-> the __init qualifier
-
-Ok.
-
-If you have any thoughts on the issue I raised at the end of
-my previous message in this subthread, concerning numa policies
-that get out of sync with their tasks cpuset, I'd be interested
-to hear them.
+I think a minimal check on THRM value should be performed (-129°C) is 
+crazy as 150 probably...
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
+

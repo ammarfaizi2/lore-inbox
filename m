@@ -1,41 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266118AbRGGLgT>; Sat, 7 Jul 2001 07:36:19 -0400
+	id <S266104AbRGGLoV>; Sat, 7 Jul 2001 07:44:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266104AbRGGLgJ>; Sat, 7 Jul 2001 07:36:09 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:33039 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S266118AbRGGLf7>; Sat, 7 Jul 2001 07:35:59 -0400
-Date: Sat, 7 Jul 2001 13:27:05 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Satish Kumar <m_satish@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel patch process
-Message-ID: <20010707132704.A2370@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010707062835.74777.qmail@web11507.mail.yahoo.com>
-Mime-Version: 1.0
+	id <S266130AbRGGLoK>; Sat, 7 Jul 2001 07:44:10 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:50439 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S266104AbRGGLoF>;
+	Sat, 7 Jul 2001 07:44:05 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010707062835.74777.qmail@web11507.mail.yahoo.com>; from m_satish@yahoo.com on Fri, Jul 06, 2001 at 11:28:35PM -0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
+Message-ID: <15174.62880.772230.734585@tango.paulus.ozlabs.org>
+Date: Sat, 7 Jul 2001 21:42:24 +1000 (EST)
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, dhinds@zen.stanford.edu
+Subject: Memory region check in drivers/pcmcia/rsrc_mgr.c
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 06, 2001 at 11:28:35PM -0700, Satish Kumar wrote:
-> Can anyone let me know the steps for making/submitting
-> a linux kernel patch ? What is the difference between
-> an unofficial patch and an official patch ?
+In drivers/pcmcia/rsrc_mgr.c, there is code that check whether a given
+range of PCI memory addresses are available for the pcmcia code to
+use.  This code uses a macro, check_mem_resource(), to check whether a
+particular region is available, defined like this:
 
-See Documentation/SubmittingPatches in your kernel tree.
+#define check_mem_resource(b,n)	check_resource(&iomem_resource, (b), (n))
 
+This code is now causing me problems on my powerbook because we now
+register the regions mapped by each PCI host bridge in the
+iomem_resource structure.  The basic problem is that check_resource
+only checks at the top level of the iomem_resource tree.  I think that
+we should be using check_mem_region instead, which will descend the
+tree until it finds out whether the region is actually in use or not.
 
-Erik
+The patch below does this (and makes a similar correction for I/O
+space).  With this patch applied, the pcmcia stuff works fine on my
+powerbook, and I end up with something like this in /proc/iomem:
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+80000000-afffffff : /pci@f2000000
+  80000000-8007ffff : Apple Computer Inc. KeyLargo Mac I/O
+  90000000-9fffffff : PCI CardBus #02
+  a0000000-a0000fff : Texas Instruments PCI1211
+  a0001000-a0001fff : Apple Computer Inc. KeyLargo USB (#2)
+    a0001000-a0001fff : usb-ohci
+  a0002000-a0002fff : Apple Computer Inc. KeyLargo USB
+    a0002000-a0002fff : usb-ohci
+  a7000000-a7000fff : card services
+b0000000-bfffffff : /pci@f0000000
+  b0000000-b0003fff : ATI Technologies Inc Mobility M3 AGP 2x
+    b0000000-b0003fff : aty128fb MMIO
+  b4000000-b7ffffff : ATI Technologies Inc Mobility M3 AGP 2x
+    b4000000-b7ffffff : aty128fb FB
+f1000000-f1ffffff : /pci@f0000000
+f3000000-f3ffffff : /pci@f2000000
+  f3000000-f33fffff : PCI CardBus #02
+f5000000-f5ffffff : /pci@f4000000
+  f5000000-f5000fff : Apple Computer Inc. UniNorth FireWire
+  f5200000-f53fffff : Apple Computer Inc. UniNorth GMAC
+
+Linus, would you apply this patch to your tree?
+
+Paul.
+
+diff -urN linux/drivers/pcmcia/rsrc_mgr.c pmac/drivers/pcmcia/rsrc_mgr.c
+--- linux/drivers/pcmcia/rsrc_mgr.c	Sat Mar 31 03:06:19 2001
++++ pmac/drivers/pcmcia/rsrc_mgr.c	Wed Jun 20 14:25:25 2001
+@@ -104,8 +104,8 @@
+ 
+ ======================================================================*/
+ 
+-#define check_io_resource(b,n)	check_resource(&ioport_resource, (b), (n))
+-#define check_mem_resource(b,n)	check_resource(&iomem_resource, (b), (n))
++#define check_io_resource(b,n)	check_region((b), (n))
++#define check_mem_resource(b,n)	check_mem_region((b), (n))
+ 
+ /*======================================================================
+ 

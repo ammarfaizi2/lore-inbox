@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317874AbSFSMuj>; Wed, 19 Jun 2002 08:50:39 -0400
+	id <S317875AbSFSMv4>; Wed, 19 Jun 2002 08:51:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317875AbSFSMui>; Wed, 19 Jun 2002 08:50:38 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:45701 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S317874AbSFSMuh>; Wed, 19 Jun 2002 08:50:37 -0400
-Date: Wed, 19 Jun 2002 14:47:43 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Robbert Kouprie <robbert@radium.jvb.tudelft.nl>
-cc: "'Raphael Manfredi'" <Raphael_Manfredi@pobox.com>,
-       "'Helge Hafting'" <helgehaf@aitel.hist.no>,
-       linux-kernel@vger.kernel.org
-Subject: RE: The buggy APIC of the Abit BP6
-In-Reply-To: <004001c216dd$1d24f520$020da8c0@nitemare>
-Message-ID: <Pine.GSO.3.96.1020619144446.15094G-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317876AbSFSMvz>; Wed, 19 Jun 2002 08:51:55 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:18843 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S317875AbSFSMvy>;
+	Wed, 19 Jun 2002 08:51:54 -0400
+Date: Wed, 19 Jun 2002 14:51:54 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/partitions broken in 2.5.23
+Message-ID: <20020619125154.GA15739@win.tue.nl>
+References: <20020619090248.GA8681@suse.de> <20020619113233.GA15730@win.tue.nl> <20020619134402.B29373@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020619134402.B29373@suse.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jun 2002, Robbert Kouprie wrote:
+On Wed, Jun 19, 2002 at 01:44:02PM +0200, Dave Jones wrote:
 
-> Problem now is, in the ack_none function we only know about the
-> (illegal) vector we are getting, and not about the interrupt we need to
-> reset. Could there be some kind of link between these, so that
-> kick_IO_APIC_irq can be called from there?
+> hda2 is odd looking too showing a #blocks of '1', when
+> it's actually..
+> 
+>    Device Boot    Start       End    Blocks   Id  System
+> /dev/hda2           234     58168  29199240    5  Extended 
 
- You get an invalid vector delivered due to massive transmission errors at
-the inter-APIC bus.  The errors are a serious hardware problem that cannot
-and should not be fixed in software.
+That is correct, and something I did before you were born.
 
- I'm told getting a better PSU may help, though. 
+An extended partition is a box containing logical partitions.
+It is almost always an error when people want to write directly to it
+(confusing the extended partition with some logical partition inside).
+After a number of reports of people who messed up their disk
+by doing mkswap or mkfs on an extended partition I changed
+the length of an extended partition to 1 block, enough for LILO
+but stopping mkswap and mkfs.
+People who really want to access these blocks, like e.g. fdisk,
+can do so via /dev/hda.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Andries
 

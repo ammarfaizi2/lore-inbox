@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269967AbRIEBDY>; Tue, 4 Sep 2001 21:03:24 -0400
+	id <S270025AbRIEBnt>; Tue, 4 Sep 2001 21:43:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269971AbRIEBDP>; Tue, 4 Sep 2001 21:03:15 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43537 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269967AbRIEBDE>; Tue, 4 Sep 2001 21:03:04 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: CPU context corrupt?
-Date: 4 Sep 2001 18:03:11 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9n3tkf$fh8$1@cesium.transmeta.com>
-In-Reply-To: <999606788.1571.12.camel@hamlet>
+	id <S270050AbRIEBna>; Tue, 4 Sep 2001 21:43:30 -0400
+Received: from fmfdns01.fm.intel.com ([132.233.247.10]:36084 "EHLO
+	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S270025AbRIEBnS>; Tue, 4 Sep 2001 21:43:18 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDE0E2@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Rik van Riel'" <riel@conectiva.com.br>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Samium Gromoff'" <_deepfire@mail.ru>
+Subject: RE: lilo vs other OS bootloaders was: FreeBSD makes progress
+Date: Tue, 4 Sep 2001 14:52:17 -0700 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <999606788.1571.12.camel@hamlet>
-By author:    Aquila <aquila@hypox.org>
-In newsgroup: linux.dev.kernel
->
-> Hi
+> >  ANdreas Dilger wrote:
+> > > Win2K even abstracts all SMP/UP code into a module (the 
+> HAL) and loads this
+> > > at boot, thus using the same kernel for both.
 > 
-> I have had this problem quite a while now: when playing tribes2 or when
-> a particular CPU intensive xscreensaver is running, X would often hang.
-> I used to be able to ssh from another box or use SysRq-K to kill X and
-> restart (but I never figured out what the problem was).
+> >     the only possibility of this shows how ugly is SMP in win2k...
 > 
-> Ever since upgrading to 2.4.9-ac3 (from 2.4.8-ac5 I believe), whenever
-> it hangs in X the computer would beep and give this message in syslog:
-> 
-> Sep  4 21:43:41 hamlet kernel: CPU 0: Machine Check Exception:
-> 0000000000000004
-> Sep  4 21:43:41 hamlet kernel: Bank 1: f600200000000152 at
-> 7600200000000152
-> Sep  4 21:43:41 hamlet kernel: Bank 2: d40040000000017a at
-> 540040000000017a
-> Sep  4 21:43:41 hamlet kernel: Kernel panic: CPU context corrupt
-> 
-> It hangs there, and SysRq-K is no longer able to kill X properly. sshd
-> stops working as well. What does this message mean? Do I have faulty
-> hardware? 
-> 
+> Not necessarily. More likely the difference between SMP and
+> UP is marketing-only and both have the overhead of SMP
+> locking, etc..
 
-Yes.
+No, they don't do this by running an SMP kernel on UP, they do it by
+abstracting functions that care about SMP into another module.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Here's Linux:
+
+Drivers (SMP agnostic)
+Kernel (SMP/UP specific)
+
+Here's Windows:
+
+Drivers (SMP agnostic)
+Kernel (SMP agnostic)
+HAL (SMP/UP specific, contains locking primitive funcs etc.)
+
+So they use the same kernel and just switch out the HAL.
+
+I'm not advocating anything similar for Linux, I'm just saying it's an
+interesting thought experiment - what if the SMP-ness of a machine was
+abstracted from the kernel proper? How much of the kernel really cares, or
+really *should* care about SMP/UP?
+
+For one thing, it would get rid of the hundreds of "#ifdef CONFIG_SMP"s in
+the kernel. ;-)
+
+Regards -- Andy

@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129228AbQLOVNO>; Fri, 15 Dec 2000 16:13:14 -0500
+	id <S131031AbQLPBwz>; Fri, 15 Dec 2000 20:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129340AbQLOVNE>; Fri, 15 Dec 2000 16:13:04 -0500
-Received: from merlin.prod.itd.earthlink.net ([207.217.120.156]:57838 "EHLO
-	merlin.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S129228AbQLOVMu>; Fri, 15 Dec 2000 16:12:50 -0500
-To: Rob Landley <telomerase@yahoo.com>
-Cc: maddog@valinux.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Is there a Linux trademark issue with sun?
-In-Reply-To: <20001215022730.11497.qmail@web5203.mail.yahoo.com>
-From: burton@relativity.yi.org (Kevin A. Burton)
-Date: 14 Dec 2000 20:44:59 -0800
-In-Reply-To: Rob Landley's message of "Thu, 14 Dec 2000 18:27:30 -0800 (PST)"
-Message-ID: <m3snnqwawk.fsf@relativity.yi.org>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S130650AbQLPBwp>; Fri, 15 Dec 2000 20:52:45 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:23560 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131031AbQLPBwi>;
+	Fri, 15 Dec 2000 20:52:38 -0500
+Date: Thu, 14 Dec 2000 17:11:47 -0700 (MST)
+From: Dan Egli <dan@tools.c4usa.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Signal 11
+In-Reply-To: <Pine.LNX.4.10.10012141543130.12695-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0012141708160.13899-100000@tools.c4usa.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 14 Dec 2000, Linus Torvalds wrote:
 
-Rob Landley <telomerase@yahoo.com> writes:
+> Yes. 
+> 
+> And I realize that somebody inside RedHat really wanted to use a snapshot
+> in order to get some C++ code to compile right.
+> 
+> But it at the same time threw C stability out the window, by using a
+> not-very-widely-tested snapshot for a major new release. 
+> 
+> Are you seriously saying that you think it was a good trade-off? Or are
+> you just ashamed of admitting that RH did something stupid?
+> 
+Pardon the poking in here, but I must say I agree here. RH did a VERY dumb
+thing. 
 
-> Heads up everybody.  Scott McNealy has apparently been
-> calling Solaris Sun's implementation of Linux. 
-> Trademark violation time.
-<snip>
+> I have a report from a Sony VAIO user that couldn't compile the CVS X at
+> all on his picturebook (and you need to compile the CVS tree in order to
+> get required fixes for the ATI Rage Mobility in that machine). I don't
+> know the details, but they were apparently due to RH 7 issues. 
 
-Yeah... isn't he a moron :)
-
-> Assuming the quote is accurate (which, being ZD, is
-> iffy), this strikes me as a mondo trademark violation,
-> and exactly the sort of thing the Linux trademark was
-> designed to prevent.  Solaris is NOT Linux.
-<snip>
-
-I am not sure it is a big deal.  If you read the comment it was more of an
-off-the-cuff remark.
-
-I doubt anyone would testify in court that McNealy said this.  The only way it
-is something to worry about is if they used it in a printed format (IANAL)
-
-Kevin
-
-- -- 
-Kevin A. Burton ( burton@apache.org, burton@openprivacy.org, burtonator@acm.org )
-        Cell: 408-910-6145 URL: http://relativity.yi.org ICQ: 73488596 
-
-Fist in the air in the land of hypocrisy!
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Get my public key at: http://relativity.yi.org/pgpkey.txt
-
-iD8DBQE6OaHLAwM6xb2dfE0RAhjrAJ455OifteP/TUPNYPHSXS5rHlIpRQCfftmR
-1vhBmtZke0649VZCouwOgJk=
-=uO3l
------END PGP SIGNATURE-----
+It's not in the X tree or anything, but here's a personal example.
+Machine: Dual P3 550
+HDD: Dual Ultra2Wide Seagate 18GB Hdd
+OS: RedHat 7
+Compile Target: Linux Kernel 2.2.17
+Result with gcc 2.96: Failure (syntax errors in the i386 branch of the
+arch tree)
+Result with compat-egcs-62: Success on the first try.
 
 
-
-radar domestic disruption SEAL Team 6 Cocaine Ortega arrangements Panama
-Ft. Bragg Waco, Texas PLO ammunition genetic supercomputer FBI Uzi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

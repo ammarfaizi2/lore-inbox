@@ -1,110 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131317AbRCHKxC>; Thu, 8 Mar 2001 05:53:02 -0500
+	id <S131319AbRCHLDb>; Thu, 8 Mar 2001 06:03:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131312AbRCHKww>; Thu, 8 Mar 2001 05:52:52 -0500
-Received: from c617208-a.salem1.or.home.com ([24.20.70.203]:56380 "EHLO
-	amidala") by vger.kernel.org with ESMTP id <S131311AbRCHKwh>;
-	Thu, 8 Mar 2001 05:52:37 -0500
-Date: Thu, 8 Mar 2001 02:53:02 -0800
-From: Seth Arnold <sarnold@willamette.edu>
+	id <S131320AbRCHLDW>; Thu, 8 Mar 2001 06:03:22 -0500
+Received: from 13dyn210.delft.casema.net ([212.64.76.210]:29708 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S131319AbRCHLDH>; Thu, 8 Mar 2001 06:03:07 -0500
+Message-Id: <200103081102.MAA14864@cave.bitwizard.nl>
+Subject: Ooops on 2.2.18...
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.1, 2.4.2 don't compile with new 'ld' interface on i386
-Message-ID: <20010308025302.A8658@willamette.edu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="vkogqOf2sHV7VnPd"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+Date: Thu, 8 Mar 2001 12:02:36 +0100 (MET)
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi,
 
-Greetings! :)
+I misconfigured my Linux 2.2.18 kernel: forgot to include the network
+device, which is kind of essential for a machine with nfs-root.....
+So it just sat there waiting for the root floppy... Then I recompiled
+my kernel, but when I came back to the console I saw:
 
-I was presented with the following error when attempting to compile
-kernel 2.4.2 and 2.4.1:
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+scsi : 0 hosts.
+scsi : detected total.
+IP-Config: No network devices available
+Root-NFS: No NFS server available, giving up.
+VFS: Unable to mount root fs via NFS, trying floppy.
+(Warning, this kernel has no ramdisk support)
+VFS: Insert root floppy and press ENTER
+end_request: I/O error, dev 02:00 (floppy), sector 0
+Unable to handle kernel NULL pointer dereference at virtual address 00000008
+current->tss.cr3 = 00101000, %cr3 = 00101000
 
-[...]
-nm vmlinux | grep -v '\(compiled\)\|\(\.o$\)\|\( [aUw] \)\|\(\.\.ng$\)\|\(LASH[RL]DI\)' | sort > System.map
-make[2]: Entering directory `/home/sarnold/Local/Linux.2.4.1/arch/i386/boot'
-make[2]: warning: jobserver unavailable: using -j1.  Add `+' to parent make rule.
-gcc -E -D__KERNEL__ -I/home/sarnold/Local/Linux.2.4.1/include -D__BIG_KERNEL__ -traditional -DSVGA_MODE=NORMAL_VGA  bootsect.S -o bbootsect.s
-as -o bbootsect.o bbootsect.s
-bbootsect.s: Assembler messages:
-bbootsect.s:253: Warning: indirect lcall without `*'
-ld -m elf_i386 -Ttext 0x0 -s -oformat binary bbootsect.o -o bbootsect
-ld: cannot open binary: No such file or directory
-make[2]: *** [bbootsect] Error 1
-make[2]: Leaving directory `/home/sarnold/Local/Linux.2.4.1/arch/i386/boot'
-make[1]: *** [bzImage] Error 2
-make[1]: Leaving directory `/home/sarnold/Local/Linux.2.4.1'
-make: *** [stamp-build] Error 2
+If someone has some desire to fix something, you can try to find/fix
+this. 
 
-Debian bug report #87037 [0] gives many details on the situation.
-Upstream for 'ld' has changed -oformat to --oformat. I am probably not
-the only person to try compiling the kernel with a new ld (and I
-understand older versions of 'ld' support --oformat) so if 2.4.3 could
-incorporate the following patch I have created (and tested *only on my
-one single machine*) then many people will be spared the trouble I went
-through. (Well, not that bad. :)
+The recompile of course overwrote the symbol table from the kernel
+that I was running...
 
-(Noting that I renamed the original Makefile in arch/i386/boot/Makefile to
-Makefile.orig before making the diff; it may not apply cleanly, but I
-hope it is obvious ... chances are good other Makefiles will need to be
-modified but this is one *I* ran into. It is an exercise to find any
-others. :)
-
-
-[0]: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=87037
+					Roger. 
 
 -- 
-Earthlink: The #1 provider of unsolicited bulk email to the Internet.
-
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=diff
-
---- arch/i386/boot/Makefile.orig	Thu Mar  8 02:42:53 2001
-+++ arch/i386/boot/Makefile	Thu Mar  8 02:43:04 2001
-@@ -43,7 +43,7 @@
- 	$(HOSTCC) $(HOSTCFLAGS) -o $@ $< -I$(TOPDIR)/include
- 
- bootsect: bootsect.o
--	$(LD) -Ttext 0x0 -s -oformat binary -o $@ $<
-+	$(LD) -Ttext 0x0 -s --oformat binary -o $@ $<
- 
- bootsect.o: bootsect.s
- 	$(AS) -o $@ $<
-@@ -52,7 +52,7 @@
- 	$(CPP) $(CPPFLAGS) -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
- 
- bbootsect: bbootsect.o
--	$(LD) -Ttext 0x0 -s -oformat binary $< -o $@
-+	$(LD) -Ttext 0x0 -s --oformat binary $< -o $@
- 
- bbootsect.o: bbootsect.s
- 	$(AS) -o $@ $<
-@@ -61,7 +61,7 @@
- 	$(CPP) $(CPPFLAGS) -D__BIG_KERNEL__ -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
- 
- setup: setup.o
--	$(LD) -Ttext 0x0 -s -oformat binary -e begtext -o $@ $<
-+	$(LD) -Ttext 0x0 -s --oformat binary -e begtext -o $@ $<
- 
- setup.o: setup.s
- 	$(AS) -o $@ $<
-@@ -70,7 +70,7 @@
- 	$(CPP) $(CPPFLAGS) -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
- 
- bsetup: bsetup.o
--	$(LD) -Ttext 0x0 -s -oformat binary -e begtext -o $@ $<
-+	$(LD) -Ttext 0x0 -s --oformat binary -e begtext -o $@ $<
- 
- bsetup.o: bsetup.s
- 	$(AS) -o $@ $<
-
---vkogqOf2sHV7VnPd--
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

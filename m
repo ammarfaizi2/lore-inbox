@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S311791AbUKBBbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S293565AbUKBBit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S311791AbUKBBbk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 20:31:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S278626AbUKBBbj
+	id S293565AbUKBBit (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 20:38:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S381880AbUKAXai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 20:31:39 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:3027 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S383999AbUKBANb (ORCPT
+	Mon, 1 Nov 2004 18:30:38 -0500
+Received: from mail.kroah.org ([69.55.234.183]:36026 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S284672AbUKAWcv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 19:13:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Q8aB5JJxBw8QGyDDR2jrv/M5VjuBMB8OUwfNA+qwsbQfomrN17WARmd7lIdq2J3MLB0E4/HJLtrsW7xxqokBVgFqYk1QSd7zrVkKCDNuA6FGMuUBKGA7iXtlaEKNNlXsQIARehLJ6QzIRcc1S6q2t6JWamAwtTg5H60qQqPC1ns=
-Message-ID: <58cb370e0411011613305465e6@mail.gmail.com>
-Date: Tue, 2 Nov 2004 01:13:18 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 6/14] FRV: IDE fixes
-Cc: dhowells@redhat.com, torvalds@osdl.org, akpm@osdl.org, davidm@snapgear.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       uclinux-dev@uclinux.org
-In-Reply-To: <1099349584.16385.71.camel@localhost.localdomain>
+	Mon, 1 Nov 2004 17:32:51 -0500
+Date: Mon, 1 Nov 2004 14:31:53 -0800
+From: Greg KH <greg@kroah.com>
+To: Fabio Coatti <cova@ferrara.linux.it>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.10-mm1, class_simple_* and GPL addition
+Message-ID: <20041101223153.GB17341@kroah.com>
+References: <20041027135052.GE32199@gamma.logic.tuwien.ac.at> <200410272012.44361.dtor_core@ameritech.net> <20041029205505.GB30638@kroah.com> <200410301644.33997.cova@ferrara.linux.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com>
-	 <200411011930.iA1JULRt023195@warthog.cambridge.redhat.com>
-	 <1099349584.16385.71.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410301644.33997.cova@ferrara.linux.it>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 01 Nov 2004 22:53:06 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Llu, 2004-11-01 at 19:30, dhowells@redhat.com wrote:
-> >               memset(&hwif->hw, 0, sizeof(hwif->hw));
-> > +#ifndef IDE_ARCH_OBSOLETE_INIT
-> > +             ide_std_init_ports(&hwif->hw, base, (ctl | 2));
-> > +             hwif->hw.io_ports[IDE_IRQ_OFFSET] = 0;
-> > +#else
-> >               ide_init_hwif_ports(&hwif->hw, base, (ctl | 2), NULL);
-> > +#endif
+On Sat, Oct 30, 2004 at 04:44:33PM +0200, Fabio Coatti wrote:
 > 
-> Do you really need this, and if so please why ?
+> I understand all your motivation,and I agree with most of them, but I'm asking 
+> if this is the right way to handle this GPL issue...
 
-Because IDE_ARCH_OBSOLETE_INIT is not defined? [ See ide.h. ]
+I have been recently advised that I should not change these symbols, and
+so I will not.
+
+Sorry for the noise and wasted bandwidth, will not happen again.
+
+greg k-h

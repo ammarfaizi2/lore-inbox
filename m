@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269676AbTGULYV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 07:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269685AbTGULXE
+	id S269702AbTGULla (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 07:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269706AbTGULla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 07:23:04 -0400
-Received: from dp.samba.org ([66.70.73.150]:30445 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S269676AbTGULWz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 07:22:55 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Be more strict on recognising init sections
-Date: Mon, 21 Jul 2003 21:22:10 +1000
-Message-Id: <20030721113757.90D992C752@lists.samba.org>
+	Mon, 21 Jul 2003 07:41:30 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:56747 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S269702AbTGULlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 07:41:24 -0400
+Date: Mon, 21 Jul 2003 08:51:32 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: mason@suse.com, andrea@suse.de, riel@redhat.com,
+       linux-kernel@vger.kernel.org, maillist@jg555.com
+Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
+In-Reply-To: <20030721104906.34ae042a.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.55L.0307210849180.25063@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
+ <1058297936.4016.86.camel@tiny.suse.com> <Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
+ <20030718112758.1da7ab03.skraw@ithnet.com> <Pine.LNX.4.55L.0307180921120.6642@freak.distro.conectiva>
+ <20030718145033.5ff05880.skraw@ithnet.com> <Pine.LNX.4.55L.0307181109220.7889@freak.distro.conectiva>
+ <20030721104906.34ae042a.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomly prodded me to re-xmit this for parisc...
 
-Name: .init sections must start with .init
-Status: Trivial
 
-D: Someone pointed out that -ffunction-sections can cause a function
-D: called "init<something>" to be put in the init section, and discarded.
-D: Get more fussy with identifying them.
+On Mon, 21 Jul 2003, Stephan von Krawczynski wrote:
 
---- 1.86/kernel/module.c	Wed Jun 11 00:55:09 2003
-+++ edited/kernel/module.c	Thu Jun 12 15:46:13 2003
-@@ -1194,7 +1194,8 @@
- 			if ((s->sh_flags & masks[m][0]) != masks[m][0]
- 			    || (s->sh_flags & masks[m][1])
- 			    || s->sh_entsize != ~0UL
--			    || strstr(secstrings + s->sh_name, ".init"))
-+			    || strncmp(secstrings + s->sh_name,
-+				       ".init", 5) == 0)
- 				continue;
- 			s->sh_entsize = get_offset(&mod->core_size, s);
- 			DEBUGP("\t%s\n", secstrings + s->sh_name);
-@@ -1209,7 +1210,8 @@
- 			if ((s->sh_flags & masks[m][0]) != masks[m][0]
- 			    || (s->sh_flags & masks[m][1])
- 			    || s->sh_entsize != ~0UL
--			    || !strstr(secstrings + s->sh_name, ".init"))
-+			    || strncmp(secstrings + s->sh_name,
-+				       ".init", 5) != 0)
- 				continue;
- 			s->sh_entsize = (get_offset(&mod->init_size, s)
- 					 | INIT_OFFSET_MASK);
-@@ -1413,7 +1415,7 @@
- 		}
- #ifndef CONFIG_MODULE_UNLOAD
- 		/* Don't load .exit sections */
--		if (strstr(secstrings+sechdrs[i].sh_name, ".exit"))
-+		if (strncmp(secstrings+sechdrs[i].sh_name, ".exit", 5) == 0)
- 			sechdrs[i].sh_flags &= ~(unsigned long)SHF_ALLOC;
- #endif
- 	}
+> On Fri, 18 Jul 2003 11:14:15 -0300 (BRT)
+> Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+>
+> >
+> > I have just started stress testing a 8way OSDL box to see if I can
+> > reproduce the problem. I'm using pre6+axboes BH_Sync patch.
+> >
+> > I'm running 50 dbench clients on aic7xxx (ext2) and 50 dbench clients on
+> > DAC960 (ext3). Lets see what happens.
+> >
+> > After lunch I'll keep looking at the oopses. During the morning I only had
+> > time to setup the OSDL box and start the tests.
+>
+> Hello Marcelo,
+>
+> have you seen anything in your tests? My box just froze again after 3 days
+> during NFS action. This was with pre6, I am switching over to pre7.
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+No. I just checked it and the 8way is alive and well:
+
+bash-2.05a$ uptime
+  4:53am  up 2 days, 18:04,  2 users,  load average: 100.57, 96.27, 95.22
+
+
+Could you try to reproduce the tests with something else other than NFS?
+(local disk, SMB, ...) as Andrea suggested?

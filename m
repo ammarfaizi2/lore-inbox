@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129507AbQKGXZT>; Tue, 7 Nov 2000 18:25:19 -0500
+	id <S129591AbQKGXZu>; Tue, 7 Nov 2000 18:25:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129591AbQKGXZK>; Tue, 7 Nov 2000 18:25:10 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:16462 "EHLO
-	amsmta06-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129507AbQKGXYw>; Tue, 7 Nov 2000 18:24:52 -0500
-Date: Wed, 8 Nov 2000 01:32:42 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: xterm: no available ptys
-In-Reply-To: <8u7ibn$g5e$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0011080131200.32613-100000@server.serve.me.nl>
+	id <S130556AbQKGXZl>; Tue, 7 Nov 2000 18:25:41 -0500
+Received: from tungsten.btinternet.com ([194.73.73.81]:65214 "EHLO
+	tungsten.btinternet.com") by vger.kernel.org with ESMTP
+	id <S129591AbQKGXZ2>; Tue, 7 Nov 2000 18:25:28 -0500
+From: davej@suse.de
+Date: Tue, 7 Nov 2000 23:24:54 +0000 (GMT)
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: jmerkey@timpanogas.org
+Subject: Re: Installing kernel 2.4
+Message-ID: <Pine.LNX.4.21.0011072322120.8187-100000@neo.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > I'm missing ptmx. You NEED a writable /dev/pts dir.
-> > 
-> 
-> Actually, what you need is the devpts filesystem mounted onto
-> /dev/pts.
+> There are tests for all this in the feature flags for intel and
+> non-intel CPUs like AMD -- including MTRR settings.  All of this could
+> be dynamic.  Here's some code that does this, and it's similiar to
+> NetWare.  It detexts CPU type, feature flags, special instructions,
+> etc.  All of this on x86 could be dynamically detected.
 
-Agree. I had a shitload of probs when 2.2.0 came out and I switched.. Was
-due that /dev was readonly here. Bit strange if I think of it. 
+Detecting the CPU isn't the issue (we already do all this), it's what to
+do when you've figured out what the CPU is. Show me code that can
+dynamically adjust the alignment of the routines/variables/structs
+dependant upon cacheline size.
 
-> 
-> 	-hpa
-> 
+regards,
 
+Davej.
 
-	Igmar
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

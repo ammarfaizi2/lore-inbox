@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264444AbUEYB4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264471AbUEYB5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264444AbUEYB4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 21:56:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbUEYB4Q
+	id S264471AbUEYB5n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 21:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbUEYB5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 21:56:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7363 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264444AbUEYB4P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 21:56:15 -0400
-Date: Tue, 25 May 2004 02:56:14 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: "Francis J. A. Pinteric" <linuxdoctor@linuxdoctor.biz>
-Cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission
-Message-ID: <20040525015614.GM17014@parcelfarce.linux.theplanet.co.uk>
-References: <1YUY7-6fF-11@gated-at.bofh.it> <m3fz9pd2dw.fsf@averell.firstfloor.org> <Pine.LNX.4.58.0405241304580.4174@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0405241342190.32189@ppc970.osdl.org> <20040524204155.17836441.linuxdoctor@linuxdoctor.biz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040524204155.17836441.linuxdoctor@linuxdoctor.biz>
-User-Agent: Mutt/1.4.1i
+	Mon, 24 May 2004 21:57:43 -0400
+Received: from alt.aurema.com ([203.217.18.57]:52902 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S264471AbUEYB5M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 21:57:12 -0400
+Message-ID: <40B2A78E.3060302@aurema.com>
+Date: Tue, 25 May 2004 11:55:26 +1000
+From: Peter Williams <peterw@aurema.com>
+Organization: Aurema Pty Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hubertus Franke <frankeh@watson.ibm.com>
+CC: Rik van Riel <riel@redhat.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       kanderso@redhat.com, Chandra Seetharaman <sekharan@us.ibm.com>,
+       limin@sgi.com, jlan@sgi.com, linux-kernel@vger.kernel.org, jh@sgi.com,
+       Paul Jackson <pj@sgi.com>, gh@us.ibm.com,
+       Erik Jacobson <erikj@subway.americas.sgi.com>, ralf@suse.de,
+       lse-tech@lists.sourceforge.net, Vivek Kashyap <kashyapv@us.ibm.com>,
+       mason@suse.com
+Subject: Re: Minutes from 5/19 CKRM/PAGG discussion
+References: <Pine.LNX.4.44.0405241404080.22438-100000@chimarrao.boston.redhat.com> <40B2534E.3040302@watson.ibm.com>
+In-Reply-To: <40B2534E.3040302@watson.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 24, 2004 at 08:41:55PM -0400, Francis J. A. Pinteric wrote:
- 
-> Personally, I'd like to see this evolve into something along the lines
-> of ISO-9000. If linux development can have the ability to create
-> detailed audit trails of code changes there would never be a question
-> about who contributed what and who owns it.
+Hubertus Franke wrote:
 > 
-> It would be nice if some sort of ISO-9000 compliance were a long term
-> goal here. The proprietary software houses would go nuts.
+> One important input the PAGG team could give is some real
+> examples where actually multiple associations to different groups
+> is required and help us appreciate that position and let us
+> see how this would/could be done in CKRM.
 
-Why would we care whether they go nuts or not?  We would go nuts, now
-_that_ I do care about.
+One example would be the implementation of CPU sets (or pools) a la 
+Solaris where there are named CPU pools to which processors and 
+processes are assigned.   Processors can be moved between CPU pools and 
+when this happens it is necessary to visit all the processes that are 
+assigned to the pools involved (one losing and one gaining the 
+processor) and change their CPU affinity masks to reflect the new 
+assignment of processors.  PAGG would be ideal for implementing this.
 
-> >>>---fja->
-> 
-> 
-> -- 
-> If you think what I'm saying is "politically incorrect",
+At the same time, a resource management client could be controlling 
+resources allocated to processes based on some other criteria such as 
+the real user or the application being run without regard to which CPU 
+pool they are running in.
 
-No, just plain stupid.
+Peter
+-- 
+Dr Peter Williams, Chief Scientist                peterw@aurema.com
+Aurema Pty Limited                                Tel:+61 2 9698 2322
+PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
+79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
 
-> you've got the wrong politics.
->
-> Tired of `netiquette'?
 
-Not really.  *plonk*

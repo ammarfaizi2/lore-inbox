@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTLWQkd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 11:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTLWQkZ
+	id S262139AbTLWQkP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 11:40:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTLWQkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 11:40:25 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:40976 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262131AbTLWQjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 11:39:07 -0500
-Date: Tue, 23 Dec 2003 16:39:04 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Rob Love <rml@ximian.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: [PATCH] add sysfs mem device support  [2/4]
-Message-ID: <20031223163904.A8589@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Rob Love <rml@ximian.com>, Greg KH <greg@kroah.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-hotplug-devel@lists.sourceforge.net
-References: <20031223002126.GA4805@kroah.com> <20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com> <20031223131523.B6864@infradead.org> <1072193516.3472.3.camel@fur>
+	Tue, 23 Dec 2003 11:40:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:14994 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262139AbTLWQjN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 11:39:13 -0500
+Date: Tue, 23 Dec 2003 17:39:13 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Pascal Schmidt <der.eremit@email.de>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-mm1
+Message-ID: <20031223163913.GC23184@suse.de>
+References: <Pine.LNX.4.44.0312231732001.926-100000@neptune.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1072193516.3472.3.camel@fur>; from rml@ximian.com on Tue, Dec 23, 2003 at 10:31:56AM -0500
+In-Reply-To: <Pine.LNX.4.44.0312231732001.926-100000@neptune.local>
+X-OS: Linux 2.4.23aa1-axboe i686
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 10:31:56AM -0500, Rob Love wrote:
-> Creating them via udev is the point.
+On Tue, Dec 23 2003, Pascal Schmidt wrote:
 > 
-> Remember, the ultimate goal is to have udev in initramfs during early
-> boot, and all of these vital devices will be created.
+> On Tue, 23 Dec 2003 06:20:14 +0100, you wrote in linux.kernel:
+> 
+> >> +atapi-mo-support.patch
+> >> 
+> >>  Fix support for ATAPI MO drives (needs updating to reflect the changes 
+> >>  in mt-ranier-support.patch).
+> > Since the atapi-mo patch is mine, is there something I need to do?
+> 
+> I figured it out. ;) This small additional patch on top of mm1 is
+> needed to get MO write support to work.
+> 
+> 
+> --- linux-2.6.0-mm1/drivers/cdrom/cdrom.c	Tue Dec 23 17:26:27 2003
+> +++ linux-2.6.0-mm1-mo/drivers/cdrom/cdrom.c	Tue Dec 23 17:11:50 2003
+> @@ -708,6 +708,8 @@ static int cdrom_open_write(struct cdrom
+>  		ret = cdrom_mrw_open_write(cdi);
+>  	else if (CDROM_CAN(CDC_DVD_RAM))
+>  		ret = cdrom_dvdram_open_write(cdi);
+> +	else if (CDROM_CAN(CDC_MO_DRIVE))
+> +		ret = 0;
 
-I disagree. For fully static devices like the mem devices the udev indirection
-is completely superflous.
+Still needs cleanups, as mentioned in the other mail. Let me dig out
+the laptop and fix it up for posting.
+
+Jens
 

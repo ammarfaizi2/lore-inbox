@@ -1,124 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268511AbTBWQe4>; Sun, 23 Feb 2003 11:34:56 -0500
+	id <S268514AbTBWQjb>; Sun, 23 Feb 2003 11:39:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268514AbTBWQe4>; Sun, 23 Feb 2003 11:34:56 -0500
-Received: from tomts10.bellnexxia.net ([209.226.175.54]:22704 "EHLO
-	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S268511AbTBWQey>; Sun, 23 Feb 2003 11:34:54 -0500
-Date: Sun, 23 Feb 2003 11:42:04 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: even more thoughts on kernel configuration
-Message-ID: <Pine.LNX.4.44.0302231125380.27864-100000@dell>
+	id <S268515AbTBWQjb>; Sun, 23 Feb 2003 11:39:31 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:42128 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S268514AbTBWQj2>; Sun, 23 Feb 2003 11:39:28 -0500
+Message-ID: <20030223164924.16952.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@digeo.com, andrea@suse.de, axboe@suse.de
+Date: Mon, 24 Feb 2003 00:49:24 +0800
+Subject: as vs cfq vs deadline
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws5-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
+I've run a 'let's check if it does not skip frames test'.
+kernel is 2.5.62-mm2.
 
-  a few more random thoughts on the kernel configuration process
-and where it's going, and some of its weaknesses.
+** How I performed the test **
+startx
+I've opened to xterminal
 
-  first, there is an inherent inflexibility in the way some
-of the menus are defined.  more specifically, there's a 
-definite inconsistency in *who* defines the contents of a
-menu.
+terminal1
+[test@frodo test]$ glxgears
 
-  consider, for example, .../fs/Kconfig, which allegedly 
-defines the menu entries for filesystems.  note that that
-file *begins* with the menu definition
+terminal2
+./dbench 16
 
-  menu "File systems"
+Following the results:
 
-what this means is that the config file *itself* is saying,
-in effect, "this is it, these are the filesystems because i
-say so, there can be no others."  by that file naming itself
-as the filesystems menu, it does not give any other menu the
-freedom to perhaps incorporate its contents in the middle
-of an even larger menu which might include even more
-filesystems.
+** booted with scheduler=as ** 
+Throughput 19.8092 MB/sec (NB=24.7615 MB/sec  198.092 MBit/sec)  16 procs
 
-  compare that with an entry near the the bottom of the very
-same file, which sources a submenu for partition types:
+[test@frodo test]$ glxgears
+609 frames in 5.0 seconds = 121.800 FPS
+673 frames in 5.0 seconds = 134.600 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+591 frames in 5.0 seconds = 118.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+592 frames in 5.0 seconds = 118.400 FPS
+-- Here dbench starts --
+591 frames in 7.0 seconds = 84.429 FPS
+423 frames in 5.0 seconds = 84.600 FPS
+422 frames in 5.0 seconds = 84.400 FPS
+507 frames in 5.0 seconds = 101.400 FPS
+602 frames in 5.0 seconds = 120.400 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+591 frames in 5.0 seconds = 118.200 FPS
+592 frames in 5.0 seconds = 118.400 FPS
+422 frames in 9.0 seconds = 46.889 FPS
+423 frames in 5.0 seconds = 84.600 FPS
+507 frames in 5.0 seconds = 101.400 FPS
+507 frames in 5.0 seconds = 101.400 FPS
+507 frames in 5.0 seconds = 101.400 FPS
+422 frames in 5.0 seconds = 84.400 FPS
+338 frames in 5.0 seconds = 67.600 FPS
+254 frames in 7.0 seconds = 36.286 FPS
+338 frames in 8.0 seconds = 42.250 FPS
+507 frames in 10.0 seconds = 50.700 FPS
+84 frames in 5.0 seconds = 16.800 FPS
+-- dbench stops here --
+676 frames in 5.0 seconds = 135.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+X connection to :0.0 broken (explicit kill or server shutdown).
 
-  menu "Partition types"
 
-  source "fs/partitions/Kconfig"
 
-  endmenu
+** booted with scheduler=cfq **
+Throughput 24.3661 MB/sec (NB=30.4577 MB/sec  243.661 MBit/sec)  16 procs
 
-this is a far more reasonable approach since the sourced
-file defines just the menu *entries*, and leaves it up to
-the sourcing file to decide how it wants to incorporate that
-information into a higher-level menu *and* what to call it.
+[test@frodo test]$ glxgears
+689 frames in 5.0 seconds = 137.800 FPS
+675 frames in 5.0 seconds = 135.000 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+591 frames in 5.0 seconds = 118.200 FPS
+-- dbench starts here --
+507 frames in 5.0 seconds = 101.400 FPS
+338 frames in 5.0 seconds = 67.600 FPS
+507 frames in 5.0 seconds = 101.400 FPS
+616 frames in 5.0 seconds = 123.200 FPS
+507 frames in 5.0 seconds = 101.400 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+591 frames in 5.0 seconds = 118.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+423 frames in 6.0 seconds = 70.500 FPS
+338 frames in 8.0 seconds = 42.250 FPS
+422 frames in 5.0 seconds = 84.400 FPS
+169 frames in 7.0 seconds = 24.143 FPS
+507 frames in 16.0 seconds = 31.688 FPS
+338 frames in 5.0 seconds = 67.600 FPS
+-- dbench stops here --
+676 frames in 5.0 seconds = 135.200 FPS
+592 frames in 5.0 seconds = 118.400 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+X connection to :0.0 broken (explicit kill or server shutdown). 
 
-  the better approach would seem to be, then, for a directory's
-Kconfig file to simply supply the menu entry information, but
-never define its own menu label -- that job would be up to
-the sourcing file.  
 
-  as it is, both approaches are scattered among the Kconfig files,
-making it really confusing as to who gets to decide how a menu 
-will be incorporated.
+** booted with scheduler=deadline **
+Throughput 28.7021 MB/sec (NB=35.8776 MB/sec  287.021 MBit/sec)  16 procs
 
-  taking this even further, having all the Kconfig info in a 
-single file also makes the config process inflexible, since as
-it stands, you have to include a lower-level Kconfig on an
-all-or-nothing basis.  who says that should be the only 
-possibility?
+[test@frodo test]$ glxgears
+687 frames in 5.0 seconds = 137.400 FPS
+589 frames in 5.0 seconds = 117.800 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+-- dbench starts here --
+423 frames in 5.0 seconds = 84.600 FPS
+591 frames in 5.0 seconds = 118.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+338 frames in 5.0 seconds = 67.600 FPS
+507 frames in 5.0 seconds = 101.400 FPS
+676 frames in 5.0 seconds = 135.200 FPS
+592 frames in 5.0 seconds = 118.400 FPS
+338 frames in 5.0 seconds = 67.600 FPS
+253 frames in 9.0 seconds = 28.111 FPS
+169 frames in 7.0 seconds = 24.143 FPS
+507 frames in 15.0 seconds = 33.800 FPS
+169 frames in 5.0 seconds = 33.800 FPS
+-- dbench stops here --
+676 frames in 5.0 seconds = 135.200 FPS
+676 frames in 5.0 seconds = 135.200 FPS
 
-  the most flexible approach (and, granted, this is taking 
-this idea to the extreme) would be for a source directory to 
-include the config information on everything in that directory,
-perhaps in individual, separate files, and the sourcing file
-could decide, entry by entry, which entries to incorporate into
-a menu, what order they would be in, and what the menu label
-would be.  this simply pushes the menu creation decisions up
-at least a level, where the ultimate decisions are made at 
-the top level (which, in my opinion, is where they belong
-anyway).  using that approach would introduce the freedom
-to rearrange the menus right down at the individual entry
-level.
-  
-  my final issue is with the EXPERIMENTAL dependency, which
-is, quite frankly, not a dependency at all.
+I can not see any difference in the results above.
 
-  at the moment, the way experimental options are included or
-excluded is based on the "depends on" clause.  but this is
-really inappropriate since EXPERIMENTAL is not a dependency --
-it's more a selection criteria and is completely arbitrary.
+I guess the test I've run it is not a good test, isn't it ?
 
-  consider -- the option REISERFS_CHECK depends on REISERFS_FS.
-now *that's* a dependency -- without the latter, you simply
-cannot have the former.
+Comments/suggesiontions ?
 
-  but whether something is "EXPERIMENTAL" is nothing more than
-a judgment call.  at some point, after enough testing, something
-which was EXPERIMENTAL is finally accepted as a mainstream option.
-i think it's inappropriate to use the "depends on" clause to 
-represent both real dependencies and arbitrary selection.
+Ciao,
+		Paolo
+		
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
-  in addition, who's to say that there should be only one
-level of EXPERIMENTAL?  i own a sharp zaurus running the
-openzaurus OS, and there are three "feeds" from which i can
-download software: stable, testing and unstable.  and this
-seems like a reasonable approach since there's nothing that
-says that software can't be in three (or even more) states
-of dependability.  you could have "stable", as in thoroughly
-tested, "testing", as in still under test but fairly stable
-and any obvious bugs worked out, and "bleeding edge", as in
-really out there, you can try it if you want but it it blows
-up your system, you get to keep the pieces (think NTFS).
-
-  it would be far more useful and flexible to remove this
-concept as a dependency and perhaps introduce a new config
-option, like "status", which could have new levels introduced
-at any time.  the final selection would be made from the top
-level menu, based on user selection.
-
-  anyway, just some random thoughts.
-
-rday
-
+Powered by Outblaze

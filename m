@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267417AbSLLFKu>; Thu, 12 Dec 2002 00:10:50 -0500
+	id <S267423AbSLLFnv>; Thu, 12 Dec 2002 00:43:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267419AbSLLFKu>; Thu, 12 Dec 2002 00:10:50 -0500
-Received: from dsl-64-34-35-93.telocity.com ([64.34.35.93]:21009 "EHLO
-	roo.rogueind.com") by vger.kernel.org with ESMTP id <S267417AbSLLFKt>;
-	Thu, 12 Dec 2002 00:10:49 -0500
-Date: Thu, 12 Dec 2002 00:18:35 -0500 (EST)
-From: Tom Diehl <tdiehl@rogueind.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Karina <kgs@acabtu.com.mx>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Trouble with kernel 2.4.18-18.7.x
-In-Reply-To: <1039553498.14302.58.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0212120002230.9232-100000@tigger.rogueind.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267424AbSLLFnv>; Thu, 12 Dec 2002 00:43:51 -0500
+Received: from h80ad2794.async.vt.edu ([128.173.39.148]:24960 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267423AbSLLFnt>; Thu, 12 Dec 2002 00:43:49 -0500
+Message-Id: <200212120551.gBC5p8k7002633@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Doug Ledford <dledford@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.50 - sound driver issues with i810_audio 
+In-Reply-To: Your message of "Wed, 11 Dec 2002 17:59:28 EST."
+             <20021211225928.GC6513@redhat.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200212092124.gB9LOL3J007516@turing-police.cc.vt.edu>
+            <20021211225928.GC6513@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_902682968P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 12 Dec 2002 00:51:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Dec 2002, Alan Cox wrote:
+--==_Exmh_902682968P
+Content-Type: text/plain; charset=us-ascii
 
-> On Tue, 2002-12-10 at 19:33, Karina wrote:
-> > Hi, i've just installed kernel 2.4.18-18.7.x  (from RPM) and now it
-> > seems there are problems with my scsi devices.
-> > I have attached an adaptec scsi  AIC7XXX adapter, the system detects the
-> > device, but in the logs appears messages: "blk: queue c24afa18, I/0
-> > limit 4095Mb (mask0xfffffff)", these messages didn't appear before with
-> > my old kernel.
-> 
-> Thats a perfectly normal message. Its giving parameters for your scsi
-> 
-> > Also, there are another messages in the dmesg results:
-> > 
-> > kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter errno = 2
-> 
-> That one is a bit stranger. I'd have expected it to put the scsi adapter
-> in the initrd which apparently it hasnt
+On Wed, 11 Dec 2002 17:59:28 EST, Doug Ledford said:
 
-I get the exact same message on an intel L440GX (VA Linux) machine. I 
-attributed it to the routing problem this board has. Looks like I was 
-wrong or was I? FWIW I do not have any SCSI devices attached.
+> This sounds like the problem some chipsets had with wrapping counters in 
+> the dma pointer read code.  Basically, when the sg segment is advanced to 
+> the next segment, the offset counter would not be simultaneously cleared 
+> but instead would be momentarily delayed before the clear occured and a 
+> read at just the wrong time could result in us thinking that the buffer 
+> was a full sg segment farther than it was.  There were changes made to the 
+> oss i810 driver around version 0.18 to solve this problem if I remember 
+> correctly.  Similar code may be needed in the alsa driver, I'm not sure 
+> because I have looked at it or tried it (my machine with an i810 doesn't 
+> run 2.5 kernels).
 
-> So it looks like its ok. Do file the kmod: failed to exec report in
-> https://bugzilla.redhat.com/bugzilla however. Regardless of it not being
-> a problem in your case it does want fixing
+Ahh... That would exactly explain what I was seeing, and why it worked under
+2.4.18 for me, and gives me a good idea where to look (the relevant code in the
+alsa and oss drivers is pretty similar, there's only so many ways to code a
+ring buffer when the other part is cast in silicon. ;)
 
-Assuming that you still want it in bugzilla if Karina does not do it I will.
-Karina if you do bugzilla this please let me know the number.
+/Valdis
 
-Enjoy,
 
--- 
-.............Tom	"Nothing would please me more than being able to 
-tdiehl@rogueind.com	hire ten programmers and deluge the hobby market 
-			with good software." -- Bill Gates 1976
+--==_Exmh_902682968P
+Content-Type: application/pgp-signature
 
-   			We are still waiting ....
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQE9+CPLcC3lWbTT17ARApG4AKCwxOQr4RzFkw9yZ3/1mKbbZvioKwCeP6ne
+OiSR3or7ERGzmhrXPBDekDg=
+=VrFk
+-----END PGP SIGNATURE-----
+
+--==_Exmh_902682968P--

@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315754AbSETEyh>; Mon, 20 May 2002 00:54:37 -0400
+	id <S315762AbSETFLV>; Mon, 20 May 2002 01:11:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315762AbSETEyg>; Mon, 20 May 2002 00:54:36 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:65464 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315754AbSETEyf>;
-	Mon, 20 May 2002 00:54:35 -0400
-Date: Sun, 19 May 2002 21:40:53 -0700 (PDT)
-Message-Id: <20020519.214053.19164382.davem@redhat.com>
-To: ppadala@cise.ufl.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: No PTRACE_READDATA for archs other than SPARC?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.GSO.4.05.10205192307500.26915-100000@rain.cise.ufl.edu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S315783AbSETFLU>; Mon, 20 May 2002 01:11:20 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:60087 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S315762AbSETFLT>;
+	Mon, 20 May 2002 01:11:19 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Wayne.Brown@altec.com, linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3 
+In-Reply-To: Your message of "Sun, 19 May 2002 21:31:01 MST."
+             <20020520043101.GA502@matchmail.com> 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 20 May 2002 15:11:09 +1000
+Message-ID: <3487.1021871469@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Pradeep Padala <ppadala@cise.ufl.edu>
-   Date: Sun, 19 May 2002 23:08:36 -0400 (EDT)
+On Sun, 19 May 2002 21:31:01 -0700, 
+Mike Fedyk <mfedyk@matchmail.com> wrote:
+>Kieth, can you confirm that all of the old kbuild-2.4 commands have been
+>wrapped in kbuild-2.5 commands?
 
-      I was trying to understand ptrace code in kernel. It seems there's
-   no PTRACE_READDATA for architectures other than sparc and sparc64.
-   There's a function named ptrace_readdata() in kernel/ptrace.c but I
-   couldn't find a way to invoke it from user space. Is the feature
-   missing? or Is it intended?
+make *config	- same
+make dep	- kbuild 2.5 says 'nothing to do'.
+make [b]zImage	- Replaced by 'installable', with the kernel type
+		  specified in .config.
+make modules	- Replaced by 'installable'.
+make bzlilo	- All install targets have been subsumed by 'install'.
 
-Only Sparc implements this, that is correct.
+'make installable' is the default target if nothing else is specified.
+kbuild 2.5 moves the type of kernel to build into .config, it is no
+longer specified on the command line.  This makes it even easier to
+build from a previous kernel, copy .config and
 
-If other platforms added PTRACE_READDATA support, they would
-also need to add some way to do a feature test for it's presence
-so that GDB and other debugging code could actually make use
-of it portably.
+ make -j defconfig installable && sudo make -j install
 
-      Another thing I noticed, the prototype for do_ptrace() in
-      arch/sparc/kernel/ptrace.c is
-   
-      asmlinkage void do_ptrace(struct pt_regs *regs)
-   
-      I thought it should be some thing like
-      asmlinkage int sys_ptrace(long request, long pid, long addr, long
-   data)
+There is no need for separate passes for kernel and modules.  Building
+kernel and modules separately has always been a potential source of
+human error, kbuild 2.5 delivers a complete and accurate set of
+installable files.  Because kbuild 2.5 only rebuilds what is necessary,
+collapsing the two passes into one actually saves build time.
 
-The return values are set directly in the user's pt_regs.
+'make install' uses .config entries to determine what to install, where
+to install it, whether or not you want to install System.map or .config
+and where they are installed.  Again, this makes it much easier to
+reuse a previous config.  It also makes life easier for people doing
+cross compiles, set one config variable to a directory and everything
+is installed relative to that directory, instead of relative to /.
+
+Another config entry specifies an install script to be run after
+install.  You are no longer restricted to a hard coded script name.
+kbuild 2.5 deliberately does not include any interfaces to lilo, grub,
+syslinux, etc., nor to apt, rpm, tarballs etc., they are all handled by
+the post-install script.  Sample scripts are provided, if you don't
+like them you can modify to suit or write your own post-install
+scripts.  This is more flexible than "everything goes through
+/sbin/install".
+

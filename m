@@ -1,45 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265782AbUGOFW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266005AbUGOFqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265782AbUGOFW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 01:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266005AbUGOFW4
+	id S266005AbUGOFqX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 01:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266048AbUGOFqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 01:22:56 -0400
-Received: from holomorphy.com ([207.189.100.168]:22434 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265782AbUGOFWz (ORCPT
+	Thu, 15 Jul 2004 01:46:23 -0400
+Received: from cantor.suse.de ([195.135.220.2]:20460 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266005AbUGOFqU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 01:22:55 -0400
-Date: Wed, 14 Jul 2004 22:22:50 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christian Borntraeger <linux-kernel@borntraeger.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>, lmb@suse.de
-Subject: Re: [PATCH] was: [RFC] removal of sync in panic
-Message-ID: <20040715052250.GN3411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Christian Borntraeger <linux-kernel@borntraeger.net>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	lmb@suse.de
-References: <200407141745.47107.linux-kernel@borntraeger.net> <200407141939.52316.linux-kernel@borntraeger.net> <20040714143112.1d8d1892.akpm@osdl.org> <200407150658.54925.linux-kernel@borntraeger.net>
+	Thu, 15 Jul 2004 01:46:20 -0400
+Date: Thu, 15 Jul 2004 07:46:18 +0200
+From: Andi Kleen <ak@suse.de>
+To: Roland McGrath <roland@redhat.com>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       jparadis@redhat.com, cagney@redhat.com, discuss@x86-64.org
+Subject: Re: [PATCH] x86-64 singlestep through sigreturn system call
+Message-Id: <20040715074618.4c33bd31.ak@suse.de>
+In-Reply-To: <200407150056.i6F0uQMa010372@magilla.sf.frob.com>
+References: <20040713092344.39ea00a3.ak@suse.de>
+	<200407150056.i6F0uQMa010372@magilla.sf.frob.com>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407150658.54925.linux-kernel@borntraeger.net>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 15, 2004 at 06:58:54AM +0200, Christian Borntraeger wrote:
-> I have seen panic failing two times lately on an SMP system. The box 
-> panic'ed but was running happily on the other cpus. The culprit of this 
-> failure is the fact, that these panics have been caused by a block device 
-> or a filesystem (e.g. using errors=panic). In these cases the  likelihood 
-> of a failure/hang of  sys_sync() is high. This is exactly what happened in 
-> both cases I have seen. Meanwhile the other cpus are happily continuing  
-> destroying data as the kernel has a severe problem but its not aware of 
-> that as smp_send_stop happens after sys_sync.
+On Wed, 14 Jul 2004 17:56:26 -0700
+Roland McGrath <roland@redhat.com> wrote:
 
-I've seen SMP boxen run interrupt handlers for ages after panicking,
-but I never thought much of it.
+[adding discuss@x86-64.org, maybe someone there knows more about the SYSRET
+behaviour]
+
+> > > This patch fixes the problem by forcing a fake single-step trap at the end
+> > > of rt_sigreturn when PTRACE_SINGLESTEP was used to enter the system call.
+> > 
+> > I don't like this very much, see previous mail.
+> 
+> The previous mail addressed the subject of changing the behavior of i386
+> processes, where single-stepping any system call misses a trap.  The native
+> x86-64 behavior is different, and so this issue is really separate from
+> that one.  By the way, I would love it if you could explain to me with
+> references to the x86-64 chip documentation why restoring TF with sysret
+> seems to trap before executing the next user instruction in 64-bit mode,
+> while restoring TF with sysexit to 32-bit user mode behaves like native
+> 32-bit mode (as documented) and executes one instruction before taking the
+> single-step trap.
+
+I don't think it's documented anywhere. Even the old SYSCALL/SYSRET Athlon
+application note doesn't say anything about how single step is supposed
+to work with this. It's probably an artifact of the first implementation
+that has been faithfully reproduced since then.
+
+> Anyway, on native x86-64 single-stepping into `syscall' already works like
+> a user would expect, and takes a single-step trap immediately on return
+> from the system call before executing the first user instruction.  Only
+> stepping into an `rt_sigreturn' call behaves otherwise.
+
+and a few other calls who use iret, like iopl() or sigaltstack().
+
+Anyways, I don't have any plans to change the 64bit behaviour. gdb will
+have to live with a few minor inconsistencies as price for faster system
+calls. 
 
 
--- wli
+> > If you really wanted to do it:
+> > 
+> > Wouldn't it be simpler to just copy the TF bit from the previous Eflags? 
+> > This special case looks quite ugly.
+> 
+> I would expect that to work from the behavior I think I see with other
+> system calls.  But I've tried it and it doesn't work.  Setting TF this way
+> behaves like the i386 does: it executes one user instruction at the
+> restored PC and then traps.  I certainly find this confusing, but as I said
+> above I still haven't explained to myself why it doesn't behave that way
+> for normal system calls (that don't change the PC being returned to).
+
+The normal syscalls use SYSRET, the special syscalls use IRET. That's required
+because SYSRET cannot restore all registers, so sometimes a slow path out
+must be taken.
+
+-Andi
+

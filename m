@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269463AbRHWR7M>; Thu, 23 Aug 2001 13:59:12 -0400
+	id <S269645AbRHWSGm>; Thu, 23 Aug 2001 14:06:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269436AbRHWR7C>; Thu, 23 Aug 2001 13:59:02 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:44298 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269390AbRHWR6s>; Thu, 23 Aug 2001 13:58:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Subject: Re: 2.4.8/2.4.9 problem
-Date: Thu, 23 Aug 2001 20:05:24 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, riel@conectiva.com.br
-In-Reply-To: <200108171310.PAA26032@lambik.cc.kuleuven.ac.be> <20010823144024Z16183-32384+397@humbolt.nl.linux.org> <20010823173920.652a175a.skraw@ithnet.com>
-In-Reply-To: <20010823173920.652a175a.skraw@ithnet.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010823175857Z16193-32384+411@humbolt.nl.linux.org>
+	id <S269517AbRHWSGe>; Thu, 23 Aug 2001 14:06:34 -0400
+Received: from member.michigannet.com ([207.158.188.18]:60683 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S269436AbRHWSGS>; Thu, 23 Aug 2001 14:06:18 -0400
+Date: Thu, 23 Aug 2001 14:05:45 -0400
+From: Paul <set@pobox.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk, Wilfried.Weissmann@gmx.at
+Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 just run xdos
+Message-ID: <20010823140545.A224@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>, Andi Kleen <ak@suse.de>,
+	Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org,
+	alan@lxorguk.ukuu.org.uk, Wilfried.Weissmann@gmx.at
+In-Reply-To: <20010819004703.A226@squish.home.loc.suse.lists.linux.kernel> <3B831CDF.4CC930A7@didntduck.org.suse.lists.linux.kernel> <oupn14sny4f.fsf@pigdrop.muc.suse.de> <3B839E47.874F8F64@didntduck.org> <20010822141058.A18043@gruyere.muc.suse.de> <3B83A17C.CB8ABC53@didntduck.org> <20010822152203.A18873@gruyere.muc.suse.de> <20010822155226.A228@squish.home.loc> <20010823153419.A8743@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010823153419.A8743@gruyere.muc.suse.de>; from ak@suse.de on Thu, Aug 23, 2001 at 03:34:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 23, 2001 05:39 pm, Stephan von Krawczynski wrote:
-> On Thu, 23 Aug 2001 16:46:54 +0200
-> Daniel Phillips <phillips@bonn-fries.net> wrote:
+Andi Kleen <ak@suse.de>, on Thu Aug 23, 2001 [03:34:19 PM] said:
+
+> I found the problem in the previous patch. Here is an updated one.
+> Please test again. Again against -ac7 (or later if Alan hasn't applied 
+> the earlier patch) 
 > 
-> > Marcelo already posted a patch to fix this problem (bounce buffer 
-allocation). 
-> > Look under subject "Re: With Daniel Phillips Patch (was: aic7xxx with 
-2.4.9 on
-> > 7899P)" with a correction in his next post.
 > 
-> Aehm, Daniel, just to inform you: Marcelos patch does not solve the
-> problem. I just proofed it here. Is completely the same with or without 
-> patch.
+> -Andi
+> 
+> 
+	Good! I have beaten on this a bit, and it is holding up
+for me, and there are no problems using dosemu. My thanks to
+everyone who responded to this bug.
 
-That's because you have a different problem.  Marcelo's patch solves a
-problem with bounce buffer allocation.  Your problem is a higher-order atomic 
-allocation, very different.  Now lets take a close look at it and try to kill 
-it.
+Paul
+set@pobox.com
 
-> I tried another thing which might be interesting. I think your opinion is 
-> that page_launder gives you free memory if available when the system runs 
-> short. But it does not. I tried the following:
-> DEF_PRIORITY in vmscan.c set to 0. This should come out as page_launder 
-> doing the complete pagelist over in search of free pages. And guess what: 
-> it does not find enough to keep the system running. In other words: at 
-> least the search strategy in page_launder is broken, too. I can see 500 
-> Megs of Inact_dirty mem, but page_launder cannot find enough clean ones to 
-> keep a simple filecopy running.
-> Any ideas left.
-
-It's not a simple filecopy, it involves nfs, if I recall correctly.  Or maybe 
-you have a different test case now?  Could you please (re)summarize the 
-conditions that cause the allocation failures, and supply the rest of the 
-information you consider relevant.
-
-Could you please also list the problems that remain if you remove the 
-"allocation failed" kprint completely.
-
---
-Daniel
+> 
+> 
+> --- include/asm-i386/hw_irq.h-SEG2	Mon Aug 20 02:54:53 2001
+> +++ include/asm-i386/hw_irq.h	Wed Aug 22 13:02:16 2001
+> @@ -114,8 +114,10 @@
+>  	"cmpl %eax,7*4(%esp)\n\t"  \
+>  	"je 1f\n\t"  \
+>  	"movl %eax,%ds\n\t" \
+> +	"1: cmpl %eax,8*4(%esp)\n\t" \
+> +	"je 2f\n\t" \
+>  	"movl %eax,%es\n\t" \
+> -	"1:\n\t"
+> +	"2:\n\t"
+>  
+>  #define IRQ_NAME2(nr) nr##_interrupt(void)
+>  #define IRQ_NAME(nr) IRQ_NAME2(IRQ##nr)
+> --- arch/i386/kernel/entry.S-SEG2	Sat Aug 18 08:41:53 2001
+> +++ arch/i386/kernel/entry.S	Thu Aug 23 15:20:21 2001
+> @@ -291,9 +291,11 @@
+>  	movl $(__KERNEL_DS),%edx
+>  	cmpl %edx,%ecx
+>  	jz	1f
+> -	movl %edx,%ds
+>  	movl %edx,%es
+> -1:	GET_CURRENT(%ebx)
+> +1:	cmpl %edx,9*4(%esp)	# check ds on the stack
+> +	jz   2f	
+> +	movl %edx,%ds
+> +2:	GET_CURRENT(%ebx)
+>  	call *%edi
+>  	addl $8,%esp
+>  	jmp ret_from_exception

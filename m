@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129148AbQKQIDj>; Fri, 17 Nov 2000 03:03:39 -0500
+	id <S129111AbQKQIEJ>; Fri, 17 Nov 2000 03:04:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129130AbQKQIDT>; Fri, 17 Nov 2000 03:03:19 -0500
-Received: from post.polcard.com.pl ([195.116.107.242]:49928 "HELO
-	polcard.com.pl") by vger.kernel.org with SMTP id <S129111AbQKQIDP> convert rfc822-to-8bit;
-	Fri, 17 Nov 2000 03:03:15 -0500
-Date: Fri, 17 Nov 2000 08:06:10 +0100
-From: Jaros³aw Bekas <jaroslaw.bekas@polcard.com.pl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-test11-pre6 dev.c compile error
-Message-ID: <20001117080610.A6088@jaro.polcard.com.pl>
-Reply-To: Jaros³aw Bekas <jaroslaw.bekas@polcard.com.pl>
+	id <S129130AbQKQIEB>; Fri, 17 Nov 2000 03:04:01 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:48900
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129111AbQKQID3>; Fri, 17 Nov 2000 03:03:29 -0500
+Date: Fri, 17 Nov 2000 20:33:25 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test11-pre6
+Message-ID: <20001117203325.A15841@metastasis.f00f.org>
+In-Reply-To: <Pine.LNX.4.10.10011161832460.803-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-User-Agent: Mutt/1.2.5i
-Organization: Polcard
-X-MIMETrack: Itemize by SMTP Server on lotusik/Polcard(Release 5.0.4a |July 24, 2000) at
- 2000-11-17 08:05:57,
-	Serialize by Router on lotusik/Polcard(Release 5.0.4a |July 24, 2000) at
- 2000-11-17 08:32:52
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10011161832460.803-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Nov 16, 2000 at 06:33:11PM -0800
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello 
+On Thu, Nov 16, 2000 at 06:33:11PM -0800, Linus Torvalds wrote:
+    
+    The log-file says it all..
+    
+    		Linus
+    
+    -----
+    
+     - pre6:
+        - Intel: start to add Pentium IV specific stuff (128-byte cacheline
+          etc)
+        - David Miller: search-and-destroy places that forget to mark us
+          running after removing us from a wait-queue.
+        - me: NFS client write-back ref-counting SMP instability.
+        - me: fix up non-exclusive waiters
+        - Trond Myklebust: Be more careful about SMP in NFS and RPC code
+        - Trond Myklebust: inode attribute update race fix
+        - Charles White: don't do unaligned accesses in cpqarray driver.
+        - Jeff Garzik: continued driver cleanup and fixes
+        - Peter Anvin: integrate more of the Intel patches.
+        - Robert Love: add i815 signature to the intel AGP support
+        - Rik Faith: DRM update to make it easier to sync up 2.2.x
+        - David Woodhouse: make old 16-bit pcmcia controllers work
+          again (ie i82365 and TCIC)
 
-I try to compile 2.4.0-test11-pre6, and recive error: 
+There are 'hotplug' additions -- these now mean the networking code
+won't build without "CONFIG_HOTPLUG=y".
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686    -c -o dev.o
-dev.c
-dev.c: In function `run_sbin_hotplug':
-dev.c:2736: `hotplug_path' undeclared (first use in this function)
-dev.c:2736: (Each undeclared identifier is reported only once
-dev.c:2736: for each function it appears in.)
+What is the correct fix here; fix the networking code or just take
+this option out and ensure hotplug functionality is no longer
+compile-time dependent (always compiled in) ?
 
-linux/kmod.h is included in dev.c 
 
-Regards
+  --cw
 
--- 
-
-Jaros³aw Bekas
-<jaroslaw.bekas@polcard.com.pl>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

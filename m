@@ -1,50 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVAHWJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVAHWJ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVAHWJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 17:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVAHWGM
+	id S261864AbVAHWJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 17:09:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVAHWHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 17:06:12 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:43435
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261969AbVAHWBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 17:01:53 -0500
-Date: Sat, 8 Jan 2005 13:56:36 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: clameter@sgi.com, akpm@osdl.org, linux-ia64@vger.kernel.org,
-       torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Prezeroing V3 [1/4]: Allow request for zeroed memory
-Message-Id: <20050108135636.6796419a.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
-References: <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Sat, 8 Jan 2005 17:07:19 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:33797 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261864AbVAHWDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 17:03:40 -0500
+Date: Sat, 8 Jan 2005 23:03:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: al@alarsen.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/qnx4/: make some code static
+Message-ID: <20050108220336.GE14108@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Jan 2005 21:12:10 +0000 (GMT)
-Hugh Dickins <hugh@veritas.com> wrote:
+The patch below makes some needlessly global code static.
 
-> Christoph, a late comment: doesn't this effectively replace
-> do_anonymous_page's clear_user_highpage by clear_highpage, which would
-> be a bad idea (inefficient? or corrupting?) on those few architectures
-> which actually do something with that user addr?
 
-Good catch, it probably does.  We really do need to use
-the page clearing routines that pass in the user virtual
-address when preparing new anonymous pages or else we'll
-get cache aliasing problems on sparc, sparc64, and mips
-at the very least.  That is what the virtual address argument
-was added for to begin with.
+diffstat output:
+ fs/qnx4/bitmap.c        |    4 ++--
+ fs/qnx4/inode.c         |    8 ++++----
+ include/linux/qnx4_fs.h |    2 --
+ 3 files changed, 6 insertions(+), 8 deletions(-)
 
-The other way to deal with this is to make whatever routine
-the kscrubd thing invokes do all the cache flushing et al.
-magic so that the above works when taking pages from the
-pre-zero'd pool (only, if no pre-zero'd pages are available
-we sill need to invoke clear_user_highpage() with the proper
-virtual address).
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-mm2-full/fs/qnx4/bitmap.c.old	2005-01-08 17:14:26.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/qnx4/bitmap.c	2005-01-08 17:14:38.000000000 +0100
+@@ -28,8 +28,8 @@
+ 	return 0;
+ }
+ 
+-void count_bits(register const char *bmPart, register int size,
+-		int *const tf)
++static void count_bits(register const char *bmPart, register int size,
++		       int *const tf)
+ {
+ 	char b;
+ 	int tot = *tf;
+--- linux-2.6.10-mm2-full/include/linux/qnx4_fs.h.old	2005-01-08 17:15:37.000000000 +0100
++++ linux-2.6.10-mm2-full/include/linux/qnx4_fs.h	2005-01-08 17:15:52.000000000 +0100
+@@ -114,7 +114,6 @@
+ extern unsigned long qnx4_count_free_blocks(struct super_block *sb);
+ extern unsigned long qnx4_block_map(struct inode *inode, long iblock);
+ 
+-extern struct buffer_head *qnx4_getblk(struct inode *, int, int);
+ extern struct buffer_head *qnx4_bread(struct inode *, int, int);
+ 
+ extern struct inode_operations qnx4_file_inode_operations;
+@@ -130,7 +129,6 @@
+ extern int qnx4_rmdir(struct inode *dir, struct dentry *dentry);
+ extern int qnx4_sync_file(struct file *file, struct dentry *dentry, int);
+ extern int qnx4_sync_inode(struct inode *inode);
+-extern int qnx4_get_block(struct inode *inode, sector_t iblock, struct buffer_head *bh, int create);
+ 
+ static inline struct qnx4_sb_info *qnx4_sb(struct super_block *sb)
+ {
+--- linux-2.6.10-mm2-full/fs/qnx4/inode.c.old	2005-01-08 17:15:01.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/qnx4/inode.c	2005-01-08 17:16:08.000000000 +0100
+@@ -162,8 +162,8 @@
+ 	return 0;
+ }
+ 
+-struct buffer_head *qnx4_getblk(struct inode *inode, int nr,
+-				 int create)
++static struct buffer_head *qnx4_getblk(struct inode *inode, int nr,
++				       int create)
+ {
+ 	struct buffer_head *result = NULL;
+ 
+@@ -212,7 +212,7 @@
+ 	return NULL;
+ }
+ 
+-int qnx4_get_block( struct inode *inode, sector_t iblock, struct buffer_head *bh, int create )
++static int qnx4_get_block( struct inode *inode, sector_t iblock, struct buffer_head *bh, int create )
+ {
+ 	unsigned long phys;
+ 
+@@ -447,7 +447,7 @@
+ {
+ 	return generic_block_bmap(mapping,block,qnx4_get_block);
+ }
+-struct address_space_operations qnx4_aops = {
++static struct address_space_operations qnx4_aops = {
+ 	.readpage	= qnx4_readpage,
+ 	.writepage	= qnx4_writepage,
+ 	.sync_page	= block_sync_page,
+

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315388AbSGMTvg>; Sat, 13 Jul 2002 15:51:36 -0400
+	id <S315416AbSGMUFq>; Sat, 13 Jul 2002 16:05:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315406AbSGMTvf>; Sat, 13 Jul 2002 15:51:35 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34318 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315388AbSGMTvf>; Sat, 13 Jul 2002 15:51:35 -0400
-Date: Sat, 13 Jul 2002 20:54:22 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-rc1-ac3
-Message-ID: <20020713205422.E25995@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0207131435570.3808-100000@linux-box.realnet.co.sz> <m2n0svr42e.fsf@best.localdomain> <1026584861.13886.27.camel@irongate.swansea.linux.org.uk> <m265zj9zxn.fsf@best.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m265zj9zxn.fsf@best.localdomain>; from petero2@telia.com on Sat, Jul 13, 2002 at 09:43:16PM +0200
+	id <S315417AbSGMUFp>; Sat, 13 Jul 2002 16:05:45 -0400
+Received: from ns.suse.de ([213.95.15.193]:58122 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315416AbSGMUFp>;
+	Sat, 13 Jul 2002 16:05:45 -0400
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org, Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Martin Bligh <mjbligh@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch[ Simple Topology API
+References: <3D2F75D7.3060105@us.ibm.com.suse.lists.linux.kernel> <3D2F9521.96D7080B@zip.com.au.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 13 Jul 2002 22:08:35 +0200
+In-Reply-To: Andrew Morton's message of "13 Jul 2002 04:45:16 +0200"
+Message-ID: <p73ofdbv1a4.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 13, 2002 at 09:43:16PM +0200, Peter Osterlund wrote:
-> So, is any of the above true for x86 processors? Or are there other
-> reasons to expect frequency scaling to increase battery run-time.
+Andrew Morton <akpm@zip.com.au> writes:
 
-You're right if your CPU usage is 100% - lowering the CPU clock rate
-means you take longer to complete the task, and with the static
-element of the CPU power consumption, you'd probably end up using
-more energy to perform the same task in a longer time.
 
-However, if, like most desktops, your CPU is sitting around 90% idle,
-if you lower the CPU clock rate, the idle time will drop.  Since the
-power drops, the rate at which the CPU uses energy also drops.
-However, overall your task completes in the same amount of time.
+> AFAIK, the interested parties with this and the memory binding API are
+> ia32-NUMA, ia64, PPC, some MIPS and x86-64-soon.  It would be helpful
+> if the owners of those platforms could review this work and say "yes,
+> this is something we can use and build upon".  Have they done that?
 
-For instance, you are reading a file with "less".  Is running the CPU
-at full speed going to make you read the file any faster than if it's
-running at slow speed?  How about the amount of energy that the CPU
-consumes for this task?
+Comment from the x86-64 side: 
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Current x86-64 NUMA essentially has no 'nodes', just each CPU has
+local memory that is slightly faster than remote memory. This means
+the node number would be always identical to the CPU number. As long
+as the API provides it's ok for me. Just the node concept will not be
+very useful on that platform. memblk will also be identity mapped to
+node/cpu.
+
+Some way to tell user space about memory affinity seems to be useful,
+but...
+
+General comment:
+
+I don't see what the application should do with the memblk concept
+currently. Just knowing about it doesn't seem too useful. 
+Surely it needs some way to allocate memory in a specific memblk to be useful?
+Also doesn't it need to know how much memory is available in each memblk?
+(otherwise I don't see how it could do any useful partitioning)
+
+-Andi
 

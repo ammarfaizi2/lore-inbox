@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129155AbRCAMST>; Thu, 1 Mar 2001 07:18:19 -0500
+	id <S129456AbRCAMf3>; Thu, 1 Mar 2001 07:35:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129393AbRCAMR7>; Thu, 1 Mar 2001 07:17:59 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:60377 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129155AbRCAMRx>;
-	Thu, 1 Mar 2001 07:17:53 -0500
-Date: Thu, 1 Mar 2001 12:14:18 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Martin Rauh <martin.rauh@gmx.de>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Writing on raw device with software RAID 0 is slow
-Message-ID: <20010301121418.A7647@redhat.com>
-In-Reply-To: <3A9D1202.9A1C403E@gmx.de>
-Mime-Version: 1.0
+	id <S129534AbRCAMfT>; Thu, 1 Mar 2001 07:35:19 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4621 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129456AbRCAMfH>; Thu, 1 Mar 2001 07:35:07 -0500
+Subject: Re: [linux-usb-devel] USB oops Linux 2.4.2ac6
+To: david-b@pacbell.net (David Brownell)
+Date: Thu, 1 Mar 2001 12:38:13 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <113501c0a1fa$1499e5e0$6800000a@brownell.org> from "David Brownell" at Feb 28, 2001 06:48:21 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A9D1202.9A1C403E@gmx.de>; from martin.rauh@gmx.de on Wed, Feb 28, 2001 at 03:58:11PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14YSLX-0007mZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> makes it handle lowspeed devices wrong ... AMD told me I'd need
+> an NDA to learn their workaround, and I've not pursued it.  (Does
+> anyone already know what kind of NDA they use?)
 
-On Wed, Feb 28, 2001 at 03:58:11PM +0100, Martin Rauh wrote:
-> 
-> Writing to an software RAID 0 containing 4 SCSI discs is very fast.
-> I get transfer rates of about 100 MBytes/s. The filesystem on the RAID
-> is ext2.
-> 
-> Writing to the same RAID directly (that means on the raw device without
-> a filesystem) works
-> but gives low transfer rates of about 31 MBytes/s.
-> 
-> Any explanation for that?
+It varies depending on the info. They may well be able to sort out a sane
+NDA with you. If they dont want to then I guess it would be best if the
+ohci driver printing a message explaining the component has an undocumented
+errata fix, gave AMD's phone number and refused to load..
 
-Raw IO is always synchronous: it gets flushed to disk before the write
-returns.  You don't get any write-behind with raw IO, so the smaller
-the blocksize you write in, the slower things get.
-
---Stephen

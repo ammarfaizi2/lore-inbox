@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267608AbUBTGoU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 01:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267636AbUBTGoT
+	id S267632AbUBTGpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 01:45:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267636AbUBTGpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 01:44:19 -0500
-Received: from dp.samba.org ([66.70.73.150]:19348 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S267608AbUBTGoQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 01:44:16 -0500
-Date: Fri, 20 Feb 2004 17:42:28 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH] ppc64: fix debugger() warnings
-Message-ID: <20040220064228.GB20022@krispykreme>
-References: <200402190609.i1J69Hhl001602@hera.kernel.org> <1077214972.9115.4.camel@laptop.fenrus.com>
+	Fri, 20 Feb 2004 01:45:09 -0500
+Received: from herkules.viasys.com ([194.100.28.129]:10180 "HELO
+	mail.viasys.com") by vger.kernel.org with SMTP id S267632AbUBTGpD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 01:45:03 -0500
+Date: Fri, 20 Feb 2004 08:44:59 +0200
+From: Ville Herva <vherva@viasys.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Nur Hussein <obiwan@slackware.org.my>, linux-kernel@vger.kernel.org
+Subject: mremap patches for 2.4 and 2.2?
+Message-ID: <20040220064459.GF3767@viasys.com>
+Reply-To: vherva@viasys.com
+References: <1077201466.1636.19.camel@sophia.localdomain> <20040219170051.6b97f6bf.diegocg@teleline.es> <1077212582.223.17.camel@sophia.localdomain> <20040219095636.D22989@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1077214972.9115.4.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040219095636.D22989@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux herkules.viasys.com 2.4.25-rc2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > +static inline int debugger(struct *pt_regs regs) { return 0; }
-> > +static inline int debugger_bpt(struct *pt_regs regs) { return 0; }
-> > +static inline int debugger_sstep(struct *pt_regs regs) { return 0; }
+On Thu, Feb 19, 2004 at 09:56:36AM -0800, you [Chris Wright] wrote:
+> * Nur Hussein (obiwan@slackware.org.my) wrote:
+> > However, I am still intrigued by this fix:
+> > 
+> > http://linux.bkbits.net:8080/linux-2.4/diffs/mm/mremap.c@1.7?nav=cset@1.1136.94.4
+> > 
+> > It does not seem to be in 2.6.3. I can only assume 2.6.x does not
+> > require it? The Changeset says it is to prevent a potential exploit by
+> > the malicious use of mremap().
 > 
-> I guess these work a LOT better if you type them as "struct pt_regs
-> *regs) instead of 'struct *pt_regs regs'
+> It's fixed in 2.6 as well.
+> 
+> http://linux.bkbits.net:8080/linux-2.5/diffs/mm/mremap.c@1.35?nav=index.html|src/|src/mm|hist/mm/mremap.c
 
-Wow thats some impressively shit coding on my part :) Thanks for
-catching it.
+Are these the sole patches one should apply for this vulnerability if
+patching an older 2.4 or 2.6?
 
-Anton
+Is there a patch for 2.2 somewhere?
+
+
+-- v --
+
+v@iki.fi

@@ -1,81 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbUKDK27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbUKDLMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262158AbUKDK27 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 05:28:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbUKDK27
+	id S262141AbUKDLMY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 06:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbUKDLMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 05:28:59 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:13718 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262158AbUKDK24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 05:28:56 -0500
-Date: Thu, 4 Nov 2004 11:27:52 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Tejun Heo <tj@home-tj.org>
-Cc: rusty@rustcorp.com.au, mochel@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.10-rc1 0/4] driver-model: manual device attach
-Message-ID: <20041104102752.GW3618@admingilde.org>
-Mail-Followup-To: Tejun Heo <tj@home-tj.org>, rusty@rustcorp.com.au,
-	mochel@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org
-References: <20041104074330.GG25567@home-tj.org>
+	Thu, 4 Nov 2004 06:12:24 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:5337 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262141AbUKDLMQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 06:12:16 -0500
+Date: Thu, 4 Nov 2004 12:12:31 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 0/12] meye driver update
+Message-ID: <20041104111231.GF3472@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MUnXZt0Uv08c1hBe"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041104074330.GG25567@home-tj.org>
-User-Agent: Mutt/1.3.28i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---MUnXZt0Uv08c1hBe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please find attached a collection of patches updating the meye driver
+to the latest version.
 
-hoi :)
+The main changes in these patches are:
+	- migrate to module_param();
+	- implement the V4L2 API in addition to V4L1
+	- many code, whitespace and coding style cleanups
 
-On Thu, Nov 04, 2004 at 04:43:30PM +0900, Tejun Heo wrote:
->  Two files named attach and detach are created under each device's
-> sysfs directory.  Reading attach node shows the name of applicable
-> drivers.  Writing a driver name attaches the device to the driver.
-> Also, per-device parameters can be specified when writing to an attach
-> node.  Writing anything to the write-only detach node detaches the
-> driver from the currently associated driver.
+Full changelog below, the patches will be send as followups to this one.
 
-perhaps it'll be simpler with only the attach file and using a special
-magic value ("", "none", "detach", whatever) to manually detach a device
-from the driver.
+Please apply.
 
-Is it possible (and worthwhile) to reattach a manually detached device
-to the default driver? Perhaps using a magic value "auto" for attach.
-Something like your dev.autoattach=3D2 rescan method, but for one
-device only. (What is the use case to rescan all busses, anyway?)
+Thanks,
 
---=20
-Martin Waitz
+Stelian.
 
---MUnXZt0Uv08c1hBe
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+PATCH  1/12: meye: module related fixes
+	* use module_param() instead of MODULE_PARM() and __setup()
+	* use MODULE_VERSION()
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+PATCH  2/12: meye: replace homebrew queue with kfifo
 
-iD8DBQFBie+6j/Eaxd/oD7IRAhCsAJ0UHzcASkUu43jZGv5jgvQUOf1iYACeP7qV
-c0m3BzVHlUS+ESfHO3qny1k=
-=CZkt
------END PGP SIGNATURE-----
+PATCH  3/12: meye: picture depth is in bits not in bytes
 
---MUnXZt0Uv08c1hBe--
+PATCH  4/12: meye: do lock properly when waiting for buffers
+
+PATCH  5/12: meye: implement non blocking access using poll()
+
+PATCH  6/12: meye: cleanup init/exit paths
+
+PATCH  7/12: meye: the driver is no longer experimental and depends on PCI
+
+PATCH  8/12: meye: module parameters documentation fixes
+
+PATCH  9/12: meye: add v4l2 support
+
+PATCH 10/12: meye: whitespace and coding style cleanups
+
+PATCH 11/12: meye: bump up the version number
+
+PATCH 12/12: meye: retrieving the current settings from the camera does not work
+		   very well, we need to cache the values in the driver
+
+-- 
+Stelian Pop <stelian@popies.net>    

@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267264AbSK3QAy>; Sat, 30 Nov 2002 11:00:54 -0500
+	id <S267265AbSK3QIz>; Sat, 30 Nov 2002 11:08:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267265AbSK3QAx>; Sat, 30 Nov 2002 11:00:53 -0500
-Received: from mta02-svc.ntlworld.com ([62.253.162.42]:64246 "EHLO
-	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S267264AbSK3QAx>; Sat, 30 Nov 2002 11:00:53 -0500
-Message-ID: <3DE8E271.6090307@yahoo.com>
-Date: Sat, 30 Nov 2002 16:08:17 +0000
-From: Chris Rankin <rankincj@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: en-gb, en-us
-MIME-Version: 1.0
-To: alan@redhat.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Massive problems with 2.4.20 module loading
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267266AbSK3QIz>; Sat, 30 Nov 2002 11:08:55 -0500
+Received: from smtp06.iddeo.es ([62.81.186.16]:5815 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id <S267265AbSK3QIy>;
+	Sat, 30 Nov 2002 11:08:54 -0500
+Date: Sat, 30 Nov 2002 17:16:18 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@digeo.com>, hugang <hugang@soulinfo.com>
+Subject: [BUG] ext3-orlov for 2.4
+Message-ID: <20021130161618.GK2517@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-11-30 at 08:49, Martin Loschwitz wrote:
- > I'm having massive problems with Linux 2.4.20 and modul loading.
- > In fact, it seems to have something to do with devfs.
+HI all...
 
-On Sat Nov 30 2002 - 09:36:57 EST, Alan Cox wrote:
- > Linux 2,4.20 doesnt include vmware or ALSA. The fact you list those
- > modules alone suggests that the problem is that you haven't rebuilt
- > them for the new kernel.
+Tell me if this is correct. GCC-3.2 spits a wrning like this when
+building -jam, I did not noticed before:
 
-Well maybe that's his problem and maybe it isn't, but he's not the only 
-person thinking that there's something strange about devfs in 2.4.20. I 
-have a 2.4.20-SMP box that is deadlocking when loading modules via 
-devfs. The NMI watchdog has produced two oopsen for me, which I have 
-published to this list, and while one oops is also from the ALSA 
-modules, the other is from mga.o. Both oopsen occur in the 
-__write_lock_failed() function and have devfs_open() in the module 
-stack. I have most definitely NOT forgotten to recompile everything for 
-2.4.20, and I am using symbol versioning anyway.
+ialloc.c: In function `ext3_new_inode':
+ialloc.c:546: warning: comparison between pointer and integer
+ialloc.c:682: warning: label `out' defined but not used
+ialloc.c:520: warning: `gdp' might be used uninitialized in this function
 
-Chris
+Line is question is:
+    if (gdp == -1)
+        goto fail;
+It comes from the orlov-allocator for ext3.
 
+Looking at the structure of ext3_new_inode:
+
+struct inode * ext3_new_inode (handle_t *handle, struct inode * dir, int mode)
+{
+    ...
+    struct ext3_group_desc * gdp;
+        
+repeat:
+    ...
+    if (gdp == -1)
+        goto fail;
+    ...
+    gdp = ext3_get_group_desc (sb, group, &bh2);
+    ...                    
+
+Thigs to note:
+- gdp is used without previous initialization.
+- gdp is a pointer and is compared with -1
+
+Should not the structure be:
+    gdp = ext3_get_group_desc (sb, group, &bh2);
+    if (!gdp)
+        goto fail;
+
+Can anybody check 2.5 for this also ?
+
+???
+
+TIA
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.20-jam0 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))

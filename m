@@ -1,69 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262843AbUC2Nth (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 08:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbUC2Nte
+	id S262518AbUC2Nw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 08:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262871AbUC2Nw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 08:49:34 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:12787 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262843AbUC2Nqd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 08:46:33 -0500
-Subject: Re: replace MAX_MAP_COUNT with /proc/sys/vm/max_map_count
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@digeo.com>
-Cc: davidm@hpl.hp.com, lkml <linux-kernel@vger.kernel.org>,
-       James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>
-In-Reply-To: <20040326221731.54772019.akpm@digeo.com>
-References: <16485.5722.591616.846576@napali.hpl.hp.com>
-	 <20040326221731.54772019.akpm@digeo.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1080567765.18373.33.camel@moss-spartans.epoch.ncsc.mil>
+	Mon, 29 Mar 2004 08:52:26 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:38558
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262518AbUC2NvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 08:51:19 -0500
+Date: Mon, 29 Mar 2004 15:51:18 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc2-aa4
+Message-ID: <20040329135118.GN3039@dualathlon.random>
+References: <20040326082100.GB9604@dualathlon.random> <200403291636.38698.rathamahata@php4.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 29 Mar 2004 08:42:45 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403291636.38698.rathamahata@php4.ru>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-03-27 at 01:17, Andrew Morton wrote:
-> David Mosberger <davidm@napali.hpl.hp.com> wrote:
-> >
-> > Below is a warmed up version of a patch originally done by Werner
-> > Almesberger (see http://tinyurl.com/25zra) to replace the
-> > MAX_MAP_COUNT limit with a sysctl variable.
+On Mon, Mar 29, 2004 at 03:36:38PM +0300, Sergey S. Kostyliov wrote:
+> Hello Andrea,
 > 
-> Fair enough.
+> On Friday 26 March 2004 11:21, Andrea Arcangeli wrote:
+> > Fixup an hugetlbfs prio-tree truncate bug.
+> > 
+> > 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc2-aa4.gz
+> > 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc2-aa4/
+> > 
+> > Files 2.6.5-rc2-aa3/extraversion and 2.6.5-rc2-aa4/extraversion differ
+> > 
+> > 	Rediffed.
+> > 
+> > Files 2.6.5-rc2-aa3/prio-tree.gz and 2.6.5-rc2-aa4/prio-tree.gz differ
+> > 
+> > 	Avoid missing vmas starting at pg_off > truncate offset in
+> > 	hugetlbfs truncate. From Rajesh Venkatasubramanian.
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
 > 
-> >  int sysctl_overcommit_memory = 0;	/* default is heuristic overcommit */
-> >  int sysctl_overcommit_ratio = 50;	/* default is 50% */
-> > +int sysctl_max_map_count = DEFAULT_MAX_MAP_COUNT;
-> >  atomic_t vm_committed_space = ATOMIC_INIT(0);
-> >  
-> >  EXPORT_SYMBOL(sysctl_overcommit_memory);
-> >  EXPORT_SYMBOL(sysctl_overcommit_ratio);
-> > +EXPORT_SYMBOL(sysctl_max_map_count);
-> >  EXPORT_SYMBOL(vm_committed_space);
+> Here is what I get after one day of uptime:
 > 
-> The SELinux guys may want to hook into this.  I assume that's why these
-> symbols are exported to modules at present?
+> ------------[ cut here ]------------
+> kernel BUG at mm/objrmap.c:111!
+> invalid operand: 0000 [#1]
+> PREEMPT
+> CPU:    0
+> EIP:    0060:[<c0142ed7>]    Not tainted
+> EFLAGS: 00010282   (2.6.5-rc2-aa4)
+> EIP is at find_pte+0xa7/0xc0
 
-The symbols are exported to support the vm_enough_memory hook functions
-in the security modules.  We had originally (in 2.5) only proposed
-replacing the CAP_SYS_ADMIN check in the old vm_enough_memory function
-with a security hook so that SELinux could handle it differently than
-other CAP_SYS_ADMIN checks (in particular, to avoid spuriously auditing
-CAP_SYS_ADMIN denials generated by the check), but Alan Cox had
-suggested moving the entire vm_enough_memory logic into the security
-modules to support future implementation of policies such as role-based
-commit constraints.  Unless you envision introducing a different
-max_map_count for privileged processes, I'm not sure it is worthwhile to
-introduce a hook for the map_count check or to export this symbol to
-modules.  I've cc'd the LSM maintainer as well to see if he has a
-different view.
+this this is a false positive, my mistake:
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+out_wrong_vma:
+	BUG_ON(vma->vm_file);
+	goto out;
 
+
+it had to be a PageAnon check instead, this is likely a MAP_PRIVATE with
+an anonymous space, and the vma has been splitted.
+
+I will change the bug check to BUG_ON(PageAnon(page)), let's see if it
+triggers again then.
+
+Many thanks for helping fixing it!

@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbUB0Bj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 20:39:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbUB0Bj0
+	id S261709AbUB0Bju (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 20:39:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbUB0Bjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 20:39:26 -0500
-Received: from usen-221x116x13x66.ap-US01.usen.ad.jp ([221.116.13.66]:4486
-	"EHLO miyazawa.org") by vger.kernel.org with ESMTP id S261726AbUB0Bin
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 20:38:43 -0500
-From: Kazunori Miyazawa <kazunori@miyazawa.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: IPSec: can't get IPv6 IPSec working with racoon
-Date: Fri, 27 Feb 2004 10:38:34 +0900
-User-Agent: KMail/1.5.4
-References: <1077713881.793.25.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1077713881.793.25.camel@teapot.felipe-alfaro.com>
-Cc: NetDev Mailinglist <netdev@oss.sgi.com>,
-       Kernel Mailinglist <linux-kernel@vger.kernel.org>
+	Thu, 26 Feb 2004 20:39:36 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:3243 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261711AbUB0Bgw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 20:36:52 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402271038.34483.kazunori@miyazawa.org>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MIMEOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: Why no interrupt priorities?
+Date: Thu, 26 Feb 2004 17:36:34 -0800
+Message-ID: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Why no interrupt priorities?
+Thread-Index: AcP8udTMMoVivhM8RT2r/6uqtKpkWwAF7CtA
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "Mark Gross" <mgross@linux.co.intel.com>, <arjanv@redhat.com>,
+       "Tim Bird" <tim.bird@am.sony.com>
+Cc: <root@chaos.analogic.com>, "linux kernel" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 27 Feb 2004 01:36:34.0388 (UTC) FILETIME=[22373140:01C3FCD2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> On Thursday 26 February 2004 13:30, Arjan van de Ven wrote:
+> > hardware IRQ priorities are useless for the linux model. In 
+> linux, the
+> > hardirq runs *very* briefly and then lets the softirq context do the
+> > longer taking work. hardware irq priorities then don't matter really
+> > because the hardirq's are hardly ever interrupted really, 
+> and when they
+> > are they cause a performance *loss* due to cache trashing. 
+> The latency
+> > added by waiting briefly is going to be really really short 
+> for any sane
+> > hardware.
 
-On 2004/02/25(Wed) 21:58, you wrote:
-> 1. Host A tries to send and ICMPv6 ping echo request to host B, but
-> since there exists a Security Policy that requires the use of ESP/AH,
-> before A can send the ICMPv6 echo request, it must trigger an SA
-> negotiation with host B. To start this SA negotiation, host A needs to
-> know the link-layer address of peer host B:
->         1.1 Host A sends a Neighbor solicitation message to host B
->         1.2 Host B tries to send a Neigbor discovery packet, but since
->         there exists a Security Policy that requires the use of ESP/AH,
->         before B can send the Neighbor discovery, it triggers SA
->         negotiation.
-> 
-> This seems to create a loop: host A triggers SA negotiation in first
-> place, but needs to know link-layer address of B, thus it sends a
-> Neighbor solicitation packet which makes host B trigger SA association.
-> Thus, both hosts are trying to establish an SA association, creating a
-> deadlock.
+Is the assumption that hardirq handlers are superfast also the reason
+why Linux calls all handlers on a shared interrupt, even if the first
+handler reports it was for its device?
 
-It is well known chicken and egg problem about IPv6 IPsec.
-You can bypass ICMP packet with putting ICMP bypass policies before
-your own policies.
-Then you can not trigger IPsec with ICMP ECHO.
-
-spdadd fec0::204:75ff:feab:6fcc fec0::2 ipv6-icmp -P out none;
-spdadd fec0::204:75ff:feab:6fcc fec0::2 ipv6-icmp -P in none;
-
-spdadd fec0::204:75ff:feab:6fcc fec0::2 any -P out ipsec
-esp/transport//require ah/transport//require;
-spdadd fec0::2 fec0::204:75ff:feab:6fcc any -P in  ipsec
-esp/transport//require ah/transport//require;
-
---Kazunori Miyazawa
-
+-- Andy

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbTELRVA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 13:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbTELRU6
+	id S262348AbTELRSX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 13:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTELRSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 13:20:58 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:34977 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262328AbTELRUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 13:20:55 -0400
-Date: Mon, 12 May 2003 18:34:04 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.net
-Subject: Re: [PATCH] better ali1563 integrated ethernet support
-Message-ID: <20030512173404.GA11936@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	dean gaudet <dean-list-linux-kernel@arctic.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	jgarzik@pobox.net
-References: <200305111914.h4BJES3g007061@hera.kernel.org> <20030512113038.GA31870@suse.de> <Pine.LNX.4.53.0305121029330.21172@twinlark.arctic.org>
+	Mon, 12 May 2003 13:18:23 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:53004 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262348AbTELRSW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 13:18:22 -0400
+Date: Mon, 12 May 2003 19:25:47 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>, marcelo@conectiva.com.br
+Cc: Willy Tarreau <willy@w.ods.org>, gibbs@scsiguy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Undo aic7xxx changes
+Message-ID: <20030512172547.GA15233@alpha.home.local>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com> <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com> <20030509145738.GB17581@alpha.home.local> <20030512110218.4bbc1afe.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0305121029330.21172@twinlark.arctic.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030512110218.4bbc1afe.skraw@ithnet.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 10:31:44AM -0700, dean gaudet wrote:
- > >  >  #if defined(__sparc__)
- > >  >          /* DM9102A needs 32-dword alignment/burst length on sparc - chip bug? */
- > >  > -        if (pdev->vendor == 0x1282 && pdev->device == 0x9102)
- > >  > +	if ((pdev->vendor == 0x1282 && pdev->device == 0x9102)
- > >  > +		|| (pdev->vendor == 0x10b9 && pdev->device == 0x5261))
- > >  >                  csr0 = (csr0 & ~0xff00) | 0xe000;
- > >  >  #endif
- > >
- > > Integrated ALi 1563 on a sparc ?
- > 
- > oh duh i didn't even look hard at that... i just went and made sure any
- > 9102 bug tests were copied, in case the ali1563 was a bug-for-bug clone :)
- > 1563 is a hypertransport device... so i doubt it'll show up on a sparc.
- > oops.
+Hi All,
 
-For completeness, we should probably remove the entry from the dmfe
-pci_device_id table too.
+On Mon, May 12, 2003 at 11:02:18AM +0200, Stephan von Krawczynski wrote:
 
-		Dave
+> I have tried 2.4.21-rc2 with aic79xx-linux-2.4-20030502-tar.gz for three days
+> now and have to say it performs well. I had no freezes any more and nothing
+> weird happening. Everything is smooth and ok. This is the best performance I
+> have seen comparing all 2.4.21-X versions tested.
+
+Same here, it seems rock solid on my dual athlon and has survived several
+hours of 5 simultaneous make -j 8 bzImage modules with swapping. Definitely the
+most stable for me since I've switched from Doug's to Justin's driver.
+
+Marcelo, would it be unreasonable to include it in -rc3 ? After all, it would
+not be a radical update, since it was removed from -rc2 ? Just a few bug fixes.
+
+What do you think ?
+
+Regards,
+Willy
 

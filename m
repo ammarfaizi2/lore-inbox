@@ -1,44 +1,201 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270754AbTHJWQS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 18:16:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270751AbTHJWQR
+	id S270750AbTHJWP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 18:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270753AbTHJWP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 18:16:17 -0400
-Received: from hell.org.pl ([212.244.218.42]:44548 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S270754AbTHJWQO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 18:16:14 -0400
-Date: Mon, 11 Aug 2003 00:16:40 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Nathan Scott <nathans@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: [2.5/2.6] buffer layer error at fs/buffer.c:2800 when unlinking
-Message-ID: <20030810221640.GA14257@hell.org.pl>
-Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
-	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-References: <20030803145113.GA31715@hell.org.pl> <20030806235908.GC854@frodo>
+	Sun, 10 Aug 2003 18:15:27 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:39661 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S270750AbTHJWPR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 18:15:17 -0400
+Date: Mon, 11 Aug 2003 00:15:11 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>
+Subject: [PATCH] [2.6.0-test3] request_firmware related problems.
+Message-ID: <20030810221510.GA13529@ranty.pantax.net>
+Reply-To: ranty@debian.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: multipart/mixed; boundary="rJwd6BRFiFCcLxzm"
 Content-Disposition: inline
-In-Reply-To: <20030806235908.GC854@frodo>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Nathan Scott:
-> This is indeed an XFS issue (thanks for reporting it), the
-> patch below fixes it.
 
-Thanks, it works fine now. I've still got one issue with XFS (this: [1] may
-be helpful) left, though I didn't manage yet to reproduce it under
-2.6.0-test3 (though I've seen it with 2.6.0-test2, even with the above
-patch applied), so I'll start bothering you when (if, hopefully) this
-happens. Thanks again,
+--rJwd6BRFiFCcLxzm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-[1] http://marc.theaimsgroup.com/?l=linux-xfs&m=105240964125502&w=2
-    (I reported this once or twice on linux-xfs, however unsuccessfully)
+ Hi,
+
+ Please apply the following patches.
+ 
+ Matthew Wilcox seams busy lately and didn't confirm the PCI changes,
+ but I have tested them and it works. He can modify it later with nicer
+ code if he finds it necessary, sysfs binary support has been broken for
+ too much time already being in this stage of development :-/.
+
+ Since this is just a single change plus side effects I just merged it
+ back together.
+
+ ChangeLog:
+	- undo recent change, made in the believe that "buffer" was the
+	  size of the whole file, it is just PAGE_SIZE in size. This was
+	  causing kernel memory corruption.
+
+		- Since files are allowed to have unknown sizes, by
+		  setting their size to 0, we can't preallocate a buffer
+		  of their size on open.
+
+	- Adapt request_firmware() to the sysfs change.
+
+  	- Adapt drivers/pci/pci-sysfs.c to the sysfs change.
+
+ Sorry again for the multi-patch email
+
+ 	Manuel
 
 -- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.
+
+--rJwd6BRFiFCcLxzm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="sysfs-bin-unbreak-2.diff"
+
+diff -u drivers/base/firmware_class.c drivers/base/firmware_class.c
+--- drivers/base/firmware_class.c	26 Jul 2003 08:38:07 -0000
++++ drivers/base/firmware_class.c	1 Aug 2003 14:26:41 -0000
+@@ -151,7 +151,7 @@
+ 	if (offset + count > fw->size)
+ 		count = fw->size - offset;
+ 
+-	memcpy(buffer + offset, fw->data + offset, count);
++	memcpy(buffer, fw->data + offset, count);
+ 	return count;
+ }
+ static int
+@@ -200,7 +200,7 @@
+ 	if (retval)
+ 		return retval;
+ 
+-	memcpy(fw->data + offset, buffer + offset, count);
++	memcpy(fw->data + offset, buffer, count);
+ 
+ 	fw->size = max_t(size_t, offset + count, fw->size);
+ 
+only in patch2:
+unchanged:
+--- drivers/pci/pci-sysfs.c	4 Jul 2003 02:21:18 -0000	1.6
++++ drivers/pci/pci-sysfs.c	1 Aug 2003 14:26:43 -0000
+@@ -67,6 +67,7 @@
+ {
+ 	struct pci_dev *dev = to_pci_dev(container_of(kobj,struct device,kobj));
+ 	unsigned int size = 64;
++	loff_t init_off = off;
+ 
+ 	/* Several chips lock up trying to read undefined config space */
+ 	if (capable(CAP_SYS_ADMIN)) {
+@@ -87,7 +88,7 @@
+ 	while (off & 3) {
+ 		unsigned char val;
+ 		pci_read_config_byte(dev, off, &val);
+-		buf[off] = val;
++		buf[off - init_off] = val;
+ 		off++;
+ 		if (--size == 0)
+ 			break;
+@@ -96,10 +97,10 @@
+ 	while (size > 3) {
+ 		unsigned int val;
+ 		pci_read_config_dword(dev, off, &val);
+-		buf[off] = val & 0xff;
+-		buf[off + 1] = (val >> 8) & 0xff;
+-		buf[off + 2] = (val >> 16) & 0xff;
+-		buf[off + 3] = (val >> 24) & 0xff;
++		buf[off - init_off] = val & 0xff;
++		buf[off - init_off + 1] = (val >> 8) & 0xff;
++		buf[off - init_off + 2] = (val >> 16) & 0xff;
++		buf[off - init_off + 3] = (val >> 24) & 0xff;
+ 		off += 4;
+ 		size -= 4;
+ 	}
+@@ -107,7 +108,7 @@
+ 	while (size > 0) {
+ 		unsigned char val;
+ 		pci_read_config_byte(dev, off, &val);
+-		buf[off] = val;
++		buf[off - init_off] = val;
+ 		off++;
+ 		--size;
+ 	}
+@@ -120,6 +121,7 @@
+ {
+ 	struct pci_dev *dev = to_pci_dev(container_of(kobj,struct device,kobj));
+ 	unsigned int size = count;
++	loff_t init_off = off;
+ 
+ 	if (off > 256)
+ 		return 0;
+@@ -129,24 +131,24 @@
+ 	}
+ 
+ 	while (off & 3) {
+-		pci_write_config_byte(dev, off, buf[off]);
++		pci_write_config_byte(dev, off, buf[off - init_off]);
+ 		off++;
+ 		if (--size == 0)
+ 			break;
+ 	}
+ 
+ 	while (size > 3) {
+-		unsigned int val = buf[off];
+-		val |= (unsigned int) buf[off + 1] << 8;
+-		val |= (unsigned int) buf[off + 2] << 16;
+-		val |= (unsigned int) buf[off + 3] << 24;
++		unsigned int val = buf[off - init_off];
++		val |= (unsigned int) buf[off - init_off + 1] << 8;
++		val |= (unsigned int) buf[off - init_off + 2] << 16;
++		val |= (unsigned int) buf[off - init_off + 3] << 24;
+ 		pci_write_config_dword(dev, off, val);
+ 		off += 4;
+ 		size -= 4;
+ 	}
+ 
+ 	while (size > 0) {
+-		pci_write_config_byte(dev, off, buf[off]);
++		pci_write_config_byte(dev, off, buf[off - init_off]);
+ 		off++;
+ 		--size;
+ 	}
+only in patch2:
+unchanged:
+--- fs/sysfs/bin.c	4 Jul 2003 02:21:18 -0000	1.9
++++ fs/sysfs/bin.c	1 Aug 2003 14:26:45 -0000
+@@ -47,7 +47,7 @@
+ 		return ret;
+ 	count = ret;
+ 
+-	if (copy_to_user(userbuf, buffer + offs, count) != 0)
++	if (copy_to_user(userbuf, buffer, count) != 0)
+ 		return -EINVAL;
+ 
+ 	pr_debug("offs = %lld, *off = %lld, count = %zd\n", offs, *off, count);
+@@ -83,7 +83,7 @@
+ 			count = size - offs;
+ 	}
+ 
+-	if (copy_from_user(buffer + offs, userbuf, count))
++	if (copy_from_user(buffer, userbuf, count))
+ 		return -EFAULT;
+ 
+ 	count = flush_write(dentry, buffer, offs, count);
+
+--rJwd6BRFiFCcLxzm--

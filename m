@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262112AbSJNTWD>; Mon, 14 Oct 2002 15:22:03 -0400
+	id <S262115AbSJNT1K>; Mon, 14 Oct 2002 15:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262114AbSJNTWD>; Mon, 14 Oct 2002 15:22:03 -0400
-Received: from horkos.telenet-ops.be ([195.130.132.45]:31439 "EHLO
-	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S262112AbSJNTWC> convert rfc822-to-8bit; Mon, 14 Oct 2002 15:22:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Bart De Schuymer <bart.de.schuymer@pandora.be>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: [RFC] bridge-nf -- map IPv4 hooks onto bridge hooks, vs 2.5.42
-Date: Mon, 14 Oct 2002 21:29:56 +0200
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org, buytenh@gnu.org, rusty@rustcorp.com.au
-References: <200210142005.06292.bart.de.schuymer@pandora.be> <200210142058.53355.bart.de.schuymer@pandora.be> <20021014.120200.77420883.davem@redhat.com>
-In-Reply-To: <20021014.120200.77420883.davem@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210142129.56824.bart.de.schuymer@pandora.be>
+	id <S262126AbSJNT1K>; Mon, 14 Oct 2002 15:27:10 -0400
+Received: from faui80.informatik.uni-erlangen.de ([131.188.38.1]:41434 "EHLO
+	faui80.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S262115AbSJNT1I>; Mon, 14 Oct 2002 15:27:08 -0400
+Date: Mon, 14 Oct 2002 14:26:54 +0200
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Mark Mielke <mark@mark.mielke.cc>, "David S. Miller" <davem@redhat.com>,
+       Russell King <rmk@arm.linux.org.uk>, simon@baydel.com,
+       alan@lxorguk.ukuu.org.uk, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021014142654.B518@linux-m68k.org>
+References: <20021007165345.GA3068@mark.mielke.cc> <Pine.LNX.4.44.0210071307420.913-100000@xanadu.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0210071307420.913-100000@xanadu.home>; from nico@cam.org on Mon, Oct 07, 2002 at 01:45:35PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is my job to show you why a piece of code isn't going
-> to go in.  It is not my job to help you dream up a better
-> solution.
->
-> Because, frankly I don't care about bridge netfiltering.
+On Mon, Oct 07, 2002 at 01:45:35PM -0400, Nicolas Pitre wrote:
+ 
+> Here's the IO macro issue:  On some embedded platforms the IO bus is only 8
+> bit wide or only 16 bit wide, or address lines are shifted so registers
+> offsets are not the same, etc.  All this because embedded platforms are
+> often using standard ISA peripheral chipsets since they can be easily glued
+> to any kind of bare buses or static memory banks.
+> 
+> The nice thing here is the fact that only by modifying inb() and friends you
+> can reuse most current kernel drivers without further modifications.  
+> However the modifs to inb() are often different whether the peripheral in
+> question is wired to a static memory bank, to the PCMCIA space or onto some
+> expansion board via a CPLD or other weirdness some hardware designers are
+> pleased to come with.  Hence no global inb() and friend tweaking is possible
+> without some performance hit by using a runtime fixup based on the address
+> passed to them.
 
-You were the one who asked for that patch.
+we have all this problems on m68k as well (except that our speed
+constraints aren't so terribly strict), don't give up too quickly.
 
-> I do care about keeping the code as clean as possible so I don't
-> run into road blocks when trying to rework input/output processing
-> just because I let some bogon hack into the tree I must continue to
-> support.
+A possible solution is to generate multiple object file from the
+same source using a different set of defines for each one. The kbuild
+system can already handle it using the CFLAGS_$@ rule and asm/io.h
+can then select the appropriate macros for inb etc.
 
-Ack.
+Where it starts to be more interesting is when there are module 
+interdependecies (like ne.c and e8390.c) or all the object files 
+are to be be linked into kernel. Perhaps EXPORT_SYMBOL() and 
+INIT_MODULE() could be tweaked to mangle the names according to 
+some special define.
 
-> You do care about bridge netfiltering, so you are going to be the
-> one to find the clean solution that doesn't touch net/ipv4/*.c :-)
-
-I care about Linux. I absolutely don't need a bridging firewall for anything. 
-I just happen to know something about it.
-
-> That could work too, I think you'll need to specify a seperate
-> destructor in that case, and all this stuff ifdef'd on whether
-> bridge netfiltering is enabled or not.
-
-This brings me to another question: I've been told it is the general concensus 
-that this bridge firewall should be compiled in the kernel if 
-CONFIG_NETFILTER=y. Or should it be a user option? It is predicted that using 
-a user option will give alot of questions about the bridge firewall not 
-working.
-
-> Again, talk to the netfilter folks.  They may even have ideas
-> for you that you haven't dreamt of yet.
-
-Will do.
-
--- 
-cheers,
-Bart
-
+Richard

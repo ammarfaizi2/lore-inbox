@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263927AbUBHQml (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 11:42:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263903AbUBHQkl
+	id S263898AbUBHQkN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 11:40:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUBHQkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 11:40:41 -0500
-Received: from mail.kroah.org ([65.200.24.183]:48577 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263850AbUBHQkd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 11:40:33 -0500
-Date: Sun, 8 Feb 2004 08:40:18 -0800
-From: Greg KH <greg@kroah.com>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: usb-storage in 2.6.2
-Message-ID: <20040208164018.GC2531@kroah.com>
-References: <20040208092859.A30004@animx.eu.org>
+	Sun, 8 Feb 2004 11:40:13 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:13725 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263832AbUBHQkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 11:40:03 -0500
+Subject: Re: [BK PATCH] bug fixes for scsi for linux-2.6.3-rc1
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20040208161911.GF24334@parcelfarce.linux.theplanet.co.uk>
+References: <1076256895.2055.6.camel@mulgrave> 
+	<20040208161911.GF24334@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Feb 2004 11:39:51 -0500
+Message-Id: <1076258392.2055.9.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040208092859.A30004@animx.eu.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 08, 2004 at 09:28:59AM -0500, Wakko Warner wrote:
-> I've noticed that if I remove usb-storage and reinsert it, insmod will go
-> into D state and usb-storage will not work.  At this point, I can't shut
-> down the system normally since the shutdown will hang.
+On Sun, 2004-02-08 at 11:19, Matthew Wilcox wrote:
+> Wasn't the mptscsih_exit problem already fixed by:
 > 
-> Is this a known problem?  The system is a supermicro X5DA8 board (E7505
-> Chipset).  I've had this problem with all 2.6 kernels.
+> http://linux.bkbits.net:8080/linux-2.5/patch@1.1500.2.166?nav=index.html|ChangeSet@-3d|cset@1.1500.2.166
+> 
+> (went in via akpm 48 hours ago)
 
-No, it isn't a known problem.  Did you umount the device before removing
-it?  Or at least after you did remove it?
+Hmm, missed that.
 
-Please post this kind of info to the linux-usb-devel mailing list, the
-usb-storage developers would be interested in this.
+That would make the safest course of action to leave that in, and redo
+the true fix after 2.6.3 is released.
 
-thanks,
+Hang on, I'll redo the scsi-for-linus-2.6 tree.
 
-greg k-h
+James
+
+

@@ -1,98 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272615AbTG3Cbv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 22:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272647AbTG3Cbv
+	id S272653AbTG3Ctw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 22:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272658AbTG3Ctw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 22:31:51 -0400
-Received: from dsl2.external.hp.com ([192.25.206.7]:8210 "EHLO
-	dsl2.external.hp.com") by vger.kernel.org with ESMTP
-	id S272615AbTG3Cbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 22:31:49 -0400
-Date: Tue, 29 Jul 2003 20:31:47 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Grant Grundler <grundler@parisc-linux.org>, davem@redhat.com,
-       alan@lxorguk.ukuu.org.uk, James.Bottomley@SteelEye.com, axboe@suse.de,
-       suparna@in.ibm.com, linux-kernel@vger.kernel.org,
-       alex_williamson@hp.com, bjorn_helgaas@hp.com
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
-Message-ID: <20030730023147.GA31757@dsl2.external.hp.com>
-References: <20030708213427.39de0195.ak@suse.de> <20030708.150433.104048841.davem@redhat.com> <20030708222545.GC6787@dsl2.external.hp.com> <20030708.152314.115928676.davem@redhat.com> <20030723114006.GA28688@dsl2.external.hp.com> <20030728131513.5d4b1bd3.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Jul 2003 22:49:52 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:12239 "HELO
+	develer.com") by vger.kernel.org with SMTP id S272653AbTG3Ctv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 22:49:51 -0400
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+To: Tom Rini <trini@kernel.crashing.org>
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase
+Date: Wed, 30 Jul 2003 04:49:37 +0200
+User-Agent: KMail/1.5.9
+Cc: Willy Tarreau <willy@w.ods.org>, Christoph Hellwig <hch@lst.de>,
+       uClinux development list <uclinux-dev@uclinux.org>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <200307232046.46990.bernie@develer.com> <200307242227.16439.bernie@develer.com> <20030729222921.GK16051@ip68-0-152-218.tc.ph.cox.net>
+In-Reply-To: <20030729222921.GK16051@ip68-0-152-218.tc.ph.cox.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030728131513.5d4b1bd3.ak@suse.de>
-User-Agent: Mutt/1.3.28i
-X-Home-Page: http://www.parisc-linux.org/
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307300449.37692.bernie@develer.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 28, 2003 at 01:15:13PM +0200, Andi Kleen wrote:
-> Run it with 100-500 users (reaim -f workfile... -s 100 -e 500 -i 100) 
-> I tested with ext3 on a single SCSI disk.
+On Wednesday 30 July 2003 00:29, Tom Rini wrote:
 
-andi, davem, jens,
-sorry for the long delay. Here's the data for ZX1 using u320 HBA
-(LSI 53c1030) and ST373453LC disk (running U160 IIRC).
-If you need more runs on this config, please ask.
+> > Some of the bigger 2.6 additions cannot be configured out.
+> > I wish sysfs and the different I/O schedulers could be removed.
+> >
+> > There are probably many other things mostly useless for embedded
+> > systems that I'm not aware of.
+>
+> Well, from Pat's talk at OLS, it seems like sysfs would be an important
+> part of 'sleep', which is something at least some embedded systems care
+> about.
 
-Executive summary: < %1 difference for this config.
+I tried stripping sysfs away. I just saved 7KB and got a kernel that
+couldn't boot because root device translation depends on sysfs ;-)
 
-I'd still like to try a 53c1010 but don't have any installed right now.
-I suspect 53c1010 is alot less efficient at retrieving SG lists
-and will see a bigger difference in perf.
+> ... not that 2.6 doesn't need some good pruning options now, but maybe
+> CONFIG_EMBEDDED isn't the right place to put them all.
 
+In the long term the embedded menu would get cluttered with all kinds
+of disparate options... I don't think I would like it.
 
-One minor issue when starting re-aim-7, but not during the run:
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
 
-reaim(343): floating-point assist fault at ip 4000000000017a81, isr 0000020000000008                                                                            
-reaim(343): floating-point assist fault at ip 4000000000017a61, isr 0000020000000008
-
-
-For the record, I retrieved source from:
-    http://umn.dl.sourceforge.net/sourceforge/re-aim-7/reaim-0.1.8.tar.gz
-
-This should be renamed to osdl-aim-7 (or something like that).
-The name space collision is unfortunate and annoying.
-
-hth,
-grant
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
 
 
-
-
-#define BIO_VMERGE_BOUNDARY     0 /* (ia64_max_iommu_merge_mask + 1) */
-iota:/mnt# reaim -f /mnt/usr/local/share/reaim/workfile.new_dbase -s100 -e 500 -i 100
-
-REAIM Workload
-Times are in seconds - Child times from tms.cstime and tms.cutime
-
-Num     Parent   Child   Child  Jobs per   Jobs/min/  Std_dev  Std_dev  JTI
-Forked  Time     SysTime UTime   Minute     Child      Time     Percent 
-100     110.25   12.67   206.35  5605.19    56.05      3.48     3.29     96   
-200     219.07   25.56   411.93  5642.06    28.21      7.83     3.73     96   
-300     327.59   38.23   615.83  5659.46    18.86      12.79    4.09     95   
-400     436.66   51.19   821.30  5661.19    14.15      18.34    4.42     95   
-500     548.21   65.76   1029.15 5636.54    11.27      23.34    4.47     95   
-Max Jobs per Minute 5661.19
-iota:/mnt#
-
-
-
-#define BIO_VMERGE_BOUNDARY     (ia64_max_iommu_merge_mask + 1)                 
-
-iota:/mnt# PATH=$PATH:/mnt/usr/local/bin       
-iota:/mnt# reaim -f /mnt/usr/local/share/reaim/workfile.new_dbase -s100 -e 500 -i 100
-
-REAIM Workload
-Times are in seconds - Child times from tms.cstime and tms.cutime
-
-Num     Parent   Child   Child  Jobs per   Jobs/min/  Std_dev  Std_dev  JTI
-Forked  Time     SysTime UTime   Minute     Child      Time     Percent 
-100     108.72   12.47   203.78  5684.17    56.84      4.46     4.32     95   
-200     217.64   25.59   408.90  5679.16    28.40      8.65     4.16     95   
-300     326.48   37.88   613.62  5678.81    18.93      13.80    4.44     95   
-400     434.87   50.53   817.64  5684.46    14.21      17.40    4.18     95   
-500     544.69   65.23   1022.92 5672.92    11.35      21.53    4.12     95   
-Max Jobs per Minute 5684.46

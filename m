@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318007AbSG2EQ4>; Mon, 29 Jul 2002 00:16:56 -0400
+	id <S318008AbSG2ET0>; Mon, 29 Jul 2002 00:19:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318008AbSG2EQ4>; Mon, 29 Jul 2002 00:16:56 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6916 "EHLO
+	id <S318016AbSG2ET0>; Mon, 29 Jul 2002 00:19:26 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17412 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318007AbSG2EQz>; Mon, 29 Jul 2002 00:16:55 -0400
-Date: Sun, 28 Jul 2002 21:21:12 -0700 (PDT)
+	id <S318008AbSG2ETZ>; Mon, 29 Jul 2002 00:19:25 -0400
+Date: Sun, 28 Jul 2002 21:23:35 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: akpm@zip.com.au, <linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@zip.com.au>
+cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: [patch 2/13] remove pages from the LRU in __free_pages_ok()
-In-Reply-To: <20020728.204302.44950225.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0207282117030.1003-100000@home.transmeta.com>
+In-Reply-To: <3D44C1C8.C1617A09@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0207282121580.1003-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,28 +20,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 28 Jul 2002, David S. Miller wrote:
->    From a page cache standpoint softirq's are 100% equivalent to
->    hardware irq's, so that doesn't much help here.
->
-> Wait are we trying to make the final freeing of (potentially)
-> LRU/page-cache pages from any non-base context illegal?
+On Sun, 28 Jul 2002, Andrew Morton wrote:
+> truncate_complete_page() _used_ to explicitly remove the page from
+> the lru, but we took that out.  And it was never reliable anyway,
+> because some pages were left there (invalidatepage failed).
 
-We're not "trying to". It's always been hugely illegal, because we don't
-protect the LRU lists against interrupts etc, so anything that happens at
-irq (or bh) time will mess up the LRU lists if it tries to remove a page
-from them.
+I think we should try to fix invalidatepage instead, and just always
+remove it from the LRU.
 
-But the thing is, nobody should normally have a reference to such a page
-anyway. The only way they happen is by something mapping a page from user
-space, and saving it away, while the user space goes away and drops its
-references to the page.
+(If invalidatepage fails, we can just leave the page as an anonymous page
+_off_ the LRU, and let whoever holds a reference to the page eventually
+drop it, whatever).
 
-And the page cache won't drop its own reference to the page as long as
-somebody holds on to it - with the extra special case of truncate(), which
-at least used to remove it from the LRU's before it did that. I think one
-of Andrews patches undid that truncate() thing, though. I suspect we'll
-have to fix _that_ patch, not the other paths.
+> Anyway.  I have patches against 2.5.24, which work, which
+> turn pagemap_lru_lock into an innermost, irq-safe lock.  If
+> we get that in place then page_cache_release() from IRQ context
+> is fine.
+
+I'd _really_ really prefer to go the other way. I think this brokenness is
+all from that one broken patch that removed the "remove from LRU".
+
+And from what I can tell, that broken patch has no real point to it
+anyway.
 
 		Linus
 

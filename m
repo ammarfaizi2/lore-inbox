@@ -1,119 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268268AbUIWETi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268254AbUIWE1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268268AbUIWETi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 00:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268257AbUIWESl
+	id S268254AbUIWE1D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 00:27:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268257AbUIWE1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 00:18:41 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:8891 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S268254AbUIWEME
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 00:12:04 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9-rc2-mm2 vs glxgears
-Date: Thu, 23 Sep 2004 00:12:00 -0400
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409230012.00894.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.51.220] at Wed, 22 Sep 2004 23:12:01 -0500
+	Thu, 23 Sep 2004 00:27:02 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:3976 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S268254AbUIWE07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 00:26:59 -0400
+Date: Wed, 22 Sep 2004 22:25:31 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Strangeness with spinlocks declared static
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <000801c4a125$5d0e80f0$6601a8c0@northbrook>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+Content-type: text/plain; reply-type=original; charset=iso-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Priority: 3
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+I was recently debugging a Linux driver for a PCI card that was developed 
+in-house at our company. I was having a problem whereby a function which did 
+a spin_lock_irqsave and spin_unlock_irqsave seemed to hang up sometimes, 
+especially when the function was called very rapidly. It appeared that 
+sometimes the spin_lock_irqsave was blocking, even though the spinlock 
+should not have been locked. (This was on an SMP system, dual Xeon 
+processors or 4 logical CPUs.)
 
-One of the things I noted about the last few kernels is that glxgears 
-seems to get tangled up in a bowl of very stiff molasses, for 
-instance from 2.6.9-rc1-mm5:
+The spinlock was declared like this (outside of any function):
 
-[root@coyote root]# glxgears
-1622 frames in 5.0 seconds = 324.400 FPS
-932 frames in 5.0 seconds = 186.400 FPS
-800 frames in 5.0 seconds = 160.000 FPS
-712 frames in 5.0 seconds = 142.400 FPS
-637 frames in 5.0 seconds = 127.400 FPS
-624 frames in 5.0 seconds = 124.800 FPS
-564 frames in 5.0 seconds = 112.800 FPS
-554 frames in 5.0 seconds = 110.800 FPS
-553 frames in 5.0 seconds = 110.600 FPS
-554 frames in 5.0 seconds = 110.800 FPS
-554 frames in 5.0 seconds = 110.800 FPS
-525 frames in 5.0 seconds = 105.000 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-498 frames in 5.0 seconds = 99.600 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-498 frames in 5.0 seconds = 99.600 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-498 frames in 5.0 seconds = 99.600 FPS
-498 frames in 5.0 seconds = 99.600 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-498 frames in 5.0 seconds = 99.600 FPS
-Broken pipe
+static spinlock_t debug_spinlock;
 
-But, imagine by surprise when I rebooted to rc2-mm2 and found this:
-[root@coyote root]# glxgears
-49 frames in 5.0 seconds =  9.800 FPS
-46 frames in 5.0 seconds =  9.200 FPS
-46 frames in 5.0 seconds =  9.200 FPS
-31 frames in 5.0 seconds =  6.200 FPS <-I started kmail here
-37 frames in 5.0 seconds =  7.400 FPS
-49 frames in 5.0 seconds =  9.800 FPS
-47 frames in 5.0 seconds =  9.400 FPS
-49 frames in 5.0 seconds =  9.800 FPS
-50 frames in 5.0 seconds = 10.000 FPS
-50 frames in 5.0 seconds = 10.000 FPS
-50 frames in 5.0 seconds = 10.000 FPS
-50 frames in 5.0 seconds = 10.000 FPS
-Broken pipe
+and initialized with spin_lock_init.
 
-Now, just for grins, I going to rebuild 2.6.9-rc1-mm5 without cachefs 
-to see if that makes any difference.
+Eventually I went and looked at the assembly that gcc was generating for the 
+spinlock operations, and noticed that the spin loop appeared to be 
+performing operations checking the %ebx register instead of the actual 
+memory location of the spinlock. That explains why it was behaving so 
+strangely, since clearly another CPU won't be able to see/affect the 
+register contents.
 
-Not enough to bother calling mother over:
+I then changed the declaration of the spinlock to do it more like most other 
+code I've seen:
 
-[root@coyote root]# glxgears
-1516 frames in 5.0 seconds = 303.200 FPS
-983 frames in 5.0 seconds = 196.600 FPS
-832 frames in 5.0 seconds = 166.400 FPS
-703 frames in 5.0 seconds = 140.600 FPS
-663 frames in 5.0 seconds = 132.600 FPS
-623 frames in 5.0 seconds = 124.600 FPS
-585 frames in 5.0 seconds = 117.000 FPS
-553 frames in 5.0 seconds = 110.600 FPS
-554 frames in 5.0 seconds = 110.800 FPS
-554 frames in 5.0 seconds = 110.800 FPS
-554 frames in 5.0 seconds = 110.800 FPS
-554 frames in 5.0 seconds = 110.800 FPS
-514 frames in 5.0 seconds = 102.800 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-498 frames in 5.0 seconds = 99.600 FPS
-499 frames in 5.0 seconds = 99.800 FPS
-496 frames in 5.0 seconds = 99.200 FPS
-Broken pipe
+spinlock_t debug_spinlock = SPIN_LOCK_UNLOCKED;
 
-Its not using any cpu unless you count once or twice I saw it 
-report .25%.
+When I looked at the code for the operations then, it was operating on the 
+spinlock in memory as I expected, and the hang problem went away.
 
-Definitely weirdsville incorporated though.
+This was on Red Hat 9, kernel version 2.4.20-31.9, compiler version gcc 
+3.2.2.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+I am curious whether this is a known/unknown gcc bug, or whether the 
+declaration as static causes it to legally assume that the spinlock counter 
+can be cached in a register? The latter seems rather insane to me, 
+considering that the lock variable inside the spinlock_t is declared as 
+volatile..
+

@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263309AbVCKOBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263317AbVCKOMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263309AbVCKOBG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 09:01:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263312AbVCKOBG
+	id S263317AbVCKOMF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 09:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263316AbVCKOME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 09:01:06 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:38889 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S263309AbVCKOBD (ORCPT
+	Fri, 11 Mar 2005 09:12:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13224 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263315AbVCKOLr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 09:01:03 -0500
-Message-ID: <4231A498.4020101@trash.net>
-Date: Fri, 11 Mar 2005 15:00:56 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050106 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: netdev@oss.sgi.com, LKML <linux-kernel@vger.kernel.org>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: Last night Linus bk - netfilter busted?
-References: <200503110223.34461.dtor_core@ameritech.net>
-In-Reply-To: <200503110223.34461.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Mar 2005 09:11:47 -0500
+Date: Fri, 11 Mar 2005 15:11:32 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
+       linux-net@vger.kernel.org
+Subject: Fix suspend/resume on via-velocity
+Message-ID: <20050311141132.GA1539@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> My box gets stuck while booting (actually starting ntpd) whith tonight
-> pull from Linus. It looks like it is spinning in ipt_do_table when I do
-> SysRq-P. No call trace though.
+Hi!
 
-Please post your ruleset and .config. A backtrace would also be
-useful.
+This fixes suspend-resume on via-velocity. It was confused
+w.r.t. pointers... Please apply,
 
-> Anyone else seeing it? Any ideas?
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+							Pavel
 
-Works fine here. You could try if reverting one of these two patches
-helps (second one only if its a SMP box).
+--- clean-mm/drivers/net/via-velocity.c	2005-03-11 11:25:36.000000000 +0100
++++ linux/drivers/net/via-velocity.c	2005-03-11 10:06:05.000000000 +0100
+@@ -3212,7 +3212,8 @@
+ 
+ static int velocity_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+-	struct velocity_info *vptr = pci_get_drvdata(pdev);
++	struct net_device *dev = pci_get_drvdata(pdev);
++	struct velocity_info *vptr = dev->priv;
+ 	unsigned long flags;
+ 
+ 	if(!netif_running(vptr->dev))
+@@ -3245,7 +3246,8 @@
+ 
+ static int velocity_resume(struct pci_dev *pdev)
+ {
+-	struct velocity_info *vptr = pci_get_drvdata(pdev);
++	struct net_device *dev = pci_get_drvdata(pdev);
++	struct velocity_info *vptr = dev->priv;
+ 	unsigned long flags;
+ 	int i;
+ 
 
-ChangeSet@1.2010, 2005-03-09 20:28:17-08:00, bdschuym@pandora.be
-   [NETFILTER]: Reduce call chain length in netfilter (take 2)
-
-ChangeSet@1.1982.114.20, 2005-03-03 23:15:48+01:00, ak@suse.de
-   [NETFILTER]: Reduce netfilter memory use on MP systems
-
-Regards
-Patrick
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,58 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVCCD2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVCCD2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbVCCD2u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 22:28:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVCCDYq
+	id S261439AbVCCD2l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 22:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbVCCDZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 22:24:46 -0500
-Received: from fire.osdl.org ([65.172.181.4]:28590 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261367AbVCCDWn (ORCPT
+	Wed, 2 Mar 2005 22:25:31 -0500
+Received: from [203.2.177.22] ([203.2.177.22]:15123 "EHLO pinot.tusc.com.au")
+	by vger.kernel.org with ESMTP id S261439AbVCCDYQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 22:22:43 -0500
-Message-ID: <42268037.3040300@osdl.org>
-Date: Wed, 02 Mar 2005 19:10:47 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com>
-In-Reply-To: <20050303002733.GH10124@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 2 Mar 2005 22:24:16 -0500
+Subject: Re: x25_create initializing socket data twice ...
+From: Andrew Hendry <ahendry@tusc.com.au>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: eis@baty.hanse.de, linux-x25@vger.kernel.org,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050303011413.GB11516@mail.13thfloor.at>
+References: <20050303011413.GB11516@mail.13thfloor.at>
+Content-Type: text/plain
+Message-Id: <1109820054.3014.146.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 03 Mar 2005 14:20:54 +1100
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Mar 2005 03:20:45.0875 (UTC) FILETIME=[FD3BE830:01C51F9F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Wed, Mar 02, 2005 at 04:00:46PM -0800, Linus Torvalds wrote:
-> 
->  > I would not keep regular driver updates from a 2.6.<even> thing. 
-> 
-> Then the notion of it being stable is bogus, given how many regressions
-> the last few kernels have brought in drivers.  Moving from 2.6.9 -> 2.6.10
-> broke ALSA, USB, parport, firewire, and countless other little bits and
-> pieces that users tend to notice.
-> 
-> The reason that things like 4-level page tables worked out so well
-> was that it was tested in -mm for however long, so by the time it got
-> to your tree, the silly bugs had already been shaken out.
-> 
-> Compare this to random-driver-update.  -mm testing is a valuable
-> proving ground, but its no panacea to stability. There's no guarantee
-> that someone with $affected_device even tried a -mm kernel.
-> 
-> For it to truly be a stable kernel, the only patches I'd expect to
-> drivers would be ones fixing blindingly obvious bugs. No cleanups.
-> No new functionality. I'd even question new hardware support if it
-> wasn't just a PCI ID addition.
+Hi Herbert,
 
-Maybe I don't understand?  Is someone expecting distro
-quality/stability from kernel.org kernels?
-I don't, but maybe I'm one of those minorities.
+On the same path sk_set_owner also gets called twice, I think this
+causes double module use count when creating sockets. Module use count
+need some attention all over x25.
 
--- 
-~Randy
+Im not sure if the fix is as straightforward, the calls are:
+sock_init_data(sock,sk) vs
+sock_init_data(NULL,sk)
+
+Andrew.
+
+On Thu, 2005-03-03 at 12:14, Herbert Poetzl wrote:
+> Hi Folks!
+> 
+> x25_create() [net/x25/af_x25.c] is calling sock_init_data()
+> twice ... once indirectly via x25_alloc_socket() and a
+> second time directly via sock_init_data(sock, sk);
+> 
+> while this might not look as critical as it seems, it can
+> easily break stuff which assumes that sock_init_data()
+> isn't called twice on the same socket ...
+> 
+> maybe something like this might be appropriate?
+> 
+> --- ./net/x25/af_x25.c.orig	2005-03-02 12:39:11 +0100
+> +++ ./net/x25/af_x25.c	2005-03-03 02:12:11 +0100
+> @@ -490,7 +490,6 @@ static int x25_create(struct socket *soc
+>  
+>  	x25 = x25_sk(sk);
+>  
+> -	sock_init_data(sock, sk);
+>  	sk_set_owner(sk, THIS_MODULE);
+>  
+>  	x25_init_timers(sk);
+> 
+> 
+> best,
+> Herbert
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-x25" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

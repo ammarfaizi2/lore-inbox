@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264540AbTIDCAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 22:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbTIDCAZ
+	id S264527AbTIDBzm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 21:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbTIDByH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 22:00:25 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:9484
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S264540AbTIDCAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 22:00:21 -0400
-Date: Wed, 3 Sep 2003 19:00:38 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-pre3
-Message-ID: <20030904020038.GM16361@matchmail.com>
-Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+	Wed, 3 Sep 2003 21:54:07 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:48001 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264525AbTIDBxC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 21:53:02 -0400
+Date: Wed, 3 Sep 2003 18:52:49 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Steven Cole <elenstev@mesatop.com>, Antonio Vargas <wind@cocodriloo.com>,
+       Larry McVoy <lm@bitmover.com>, CaT <cat@zip.com.au>,
+       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise
+Message-ID: <20030904015249.GF5227@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Daniel Phillips <phillips@arcor.de>,
+	Steven Cole <elenstev@mesatop.com>,
+	Antonio Vargas <wind@cocodriloo.com>, Larry McVoy <lm@bitmover.com>,
+	CaT <cat@zip.com.au>, Anton Blanchard <anton@samba.org>,
 	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0309031851310.30503-100000@logos.cnet>
+References: <20030903040327.GA10257@work.bitmover.com> <20030903124716.GE2359@wind.cocodriloo.com> <1062603063.1723.91.camel@spc9.esa.lanl.gov> <200309040350.31949.phillips@arcor.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309031851310.30503-100000@logos.cnet>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200309040350.31949.phillips@arcor.de>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 06:53:45PM -0300, Marcelo Tosatti wrote:
-> 
-> Hello, here goes -pre3. Most changes are network and network driver
-> updates. We also have DRM supporting XFree 4.3 now.
+On Thu, Sep 04, 2003 at 03:50:31AM +0200, Daniel Phillips wrote:
+> There are other arguments, such as how complex locking is, and how it will 
+> never work correctly, but those are noise: it's pretty much done now, the 
+> complexity is still manageable, and Linux has never been more stable.
 
-How's the progress on the VM merging?
+yeah, right.  I'm not sure what you are smoking but I'll avoid your dealer.
+
+Your politics are showing, Daniel.  Try staying focussed on the technical
+merits and we can have a discussion.  Otherwise you just get ignored.  
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

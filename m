@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283591AbRLMIet>; Thu, 13 Dec 2001 03:34:49 -0500
+	id <S283618AbRLMIkJ>; Thu, 13 Dec 2001 03:40:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283618AbRLMIea>; Thu, 13 Dec 2001 03:34:30 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:58885 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S283591AbRLMIeV>; Thu, 13 Dec 2001 03:34:21 -0500
-Date: Thu, 13 Dec 2001 09:34:17 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Peter Svensson <petersv@psv.nu>
-Cc: Johannes Erdfelt <johannes@erdfelt.com>,
-        Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org
-Subject: Re: USB mouse disconnect/reconnect
-Message-ID: <20011213093417.A8564@suse.cz>
-In-Reply-To: <20011212221120.A7400@suse.cz> <Pine.LNX.4.33.0112130905350.1086-100000@cheetah.psv.nu>
-Mime-Version: 1.0
+	id <S283621AbRLMIjt>; Thu, 13 Dec 2001 03:39:49 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47365 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S283618AbRLMIjr>; Thu, 13 Dec 2001 03:39:47 -0500
+Subject: Re: 2.4.16 & OOM killer screw up (fwd)
+To: landley@trommello.org (Rob Landley)
+Date: Thu, 13 Dec 2001 08:48:52 +0000 (GMT)
+Cc: hch@ns.caldera.de (Christoph Hellwig), linux-kernel@vger.kernel.org
+In-Reply-To: <20011213063625.QQJV11490.femail23.sdc1.sfba.home.com@there> from "Rob Landley" at Dec 12, 2001 05:20:03 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0112130905350.1086-100000@cheetah.psv.nu>; from petersv@psv.nu on Thu, Dec 13, 2001 at 09:06:46AM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16ERXw-0004JK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 13, 2001 at 09:06:46AM +0100, Peter Svensson wrote:
-> On Wed, 12 Dec 2001, Vojtech Pavlik wrote:
+> On Tuesday 11 December 2001 12:23 pm, Christoph Hellwig wrote:
 > 
-> > Most active extension cables don't look like hubs. They have the
-> > electric part of the hub built in, but not the logic one. They're
-> > invisible on the USB bus.
+> > For BSD advocates it might be a problem that these are unified diffs
+> > that are only applyable with GPL-licensed patch(1) version..
 > 
-> The ones I have seen do act as a hub, and are visible from the host 
-> computer.
+> Why would BSD advocates be applying patches to the linux kernel?  (You don't 
+> need the tool to read a patch for ideas, do you?)  Why would BSD advocates 
+> apply a GPL-licensed patch to the GPL-licensed Linux kernel, and then 
+> complain that the tool they're using to do so is GPL-licensed?
+> 
+> I'm confused.  (Not SUPRISED, mind you.  Just easily confused.)
 
-I guess I'll have to get me some of those as a replacement to those I
-have.
+Christoph, please remember that irony is not available between the Canadian
+and Mexican border.... you are confusing them again 8)
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Alan

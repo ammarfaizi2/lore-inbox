@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVAOVfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbVAOVjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262326AbVAOVfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 16:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVAOVfZ
+	id S262328AbVAOVjI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 16:39:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbVAOVjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 16:35:25 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2065 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262326AbVAOVfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 16:35:19 -0500
-Date: Sat, 15 Jan 2005 22:35:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Arjan van de Ven <arjan@infradead.org>, viro@zenII.uk.linux.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: make flock_lock_file_wait static
-Message-ID: <20050115213515.GQ4274@stusta.de>
-References: <20050109194209.GA7588@infradead.org> <1105310650.11315.19.camel@lade.trondhjem.org> <1105345168.4171.11.camel@laptopd505.fenrus.org> <1105346324.4171.16.camel@laptopd505.fenrus.org> <1105367014.11462.13.camel@lade.trondhjem.org> <1105432299.3917.11.camel@laptopd505.fenrus.org> <1105471004.12005.46.camel@lade.trondhjem.org>
+	Sat, 15 Jan 2005 16:39:08 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:62085 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262328AbVAOVjB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 16:39:01 -0500
+Date: Sat, 15 Jan 2005 22:39:06 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: slab.c use of __get_user and sparse
+Message-ID: <20050115213906.GA22486@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Andi Kleen <ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105471004.12005.46.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 02:16:44PM -0500, Trond Myklebust wrote:
-> ty den 11.01.2005 Klokka 09:31 (+0100) skreiv Arjan van de Ven:
->...
-> > If it is going to take a LOT longer though I still feel it's wrong to
-> > bloat *everyones* kernel with this stuff.
-> > 
-> > (you may think "it's only 100 bytes", well, there are 700+ other such
-> > functions, total that makes over at least 70Kb of unswappable, wasted
-> > memory if not more.)
-> 
-> A list of these 700+ unused exported APIs would be very useful so that
-> we can deprecate and/or get rid of them.
->...
+Hi Andi, lkml.
 
-Patches are already sent for each one that is found (the one by Arjan in 
-this discusison is one of them).
+In slab.c around line 1450 the following code is present:
 
-My figures in [1] show, any kind of deprecation would mean _much_ extra 
-work within the current 2.6 development model.
+list_for_each(p, &cache_chain) {
+	kmem_cache_t *pc = list_entry(p, kmem_cache_t, next);
+	char tmp;
+	/* This happens when the module gets unloaded and doesn't
+	   destroy its slab cache and noone else reuses the vmalloc
+	   area of the module. Print a warning. */
+	if (__get_user(tmp,(char __user *) pc->name)) { 
+		printk("SLAB: cache with size %d has lost its name\n", 
+			pc->objsize); 
+		continue; 
 
-> Trond
+sparse emit a warning for the line with __get_user because the pointer
+is not marker __user. So the above cast inserted by me made sparse shut up.
 
-cu
-Adrian
+Based on the comment it is understood that suddenly this pointer points
+to userspace, because the module got unloaded.
+I wonder why we can rely on the same address now the module got unloaded -
+we may risk this virtual address is taken over by someone else?
 
-[1] http://www.ussg.iu.edu/hypermail/linux/kernel/0501.0/2036.html
+Andi - sent to you since you made this change loong time ago.
 
--- 
+[mm/ is sparse clean with defconfig when this is fixed].
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Sam

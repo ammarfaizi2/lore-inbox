@@ -1,68 +1,192 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270332AbTHQQ2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 12:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270354AbTHQQ2Q
+	id S270326AbTHQQXS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 12:23:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270332AbTHQQXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 12:28:16 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:487
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S270332AbTHQQ2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 12:28:14 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Voluspa <voluspa@comhem.se>
-Subject: Re: [RFC] Re: Blender profiling-1 O16.2int
-Date: Mon, 18 Aug 2003 02:34:41 +1000
-User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-References: <20030817003128.04855aed.voluspa@comhem.se> <20030817073859.51021571.voluspa@comhem.se> <200308172336.42593.kernel@kolivas.org>
-In-Reply-To: <200308172336.42593.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Aug 2003 12:23:18 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7685 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270326AbTHQQXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 12:23:13 -0400
+Date: Sun, 17 Aug 2003 17:23:10 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2: unable to suspend (APM)
+Message-ID: <20030817172310.B24478@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20030806231519.H16116@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308180234.41545.kernel@kolivas.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030806231519.H16116@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Wed, Aug 06, 2003 at 11:15:19PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Addendum:
+On Wed, Aug 06, 2003 at 11:15:19PM +0100, Russell King wrote:
+> I'm trying to test out APM on my laptop (in order to test some PCMCIA
+> changes), but I'm hitting a brick wall.  I've added the device_suspend()
+> calls for the SAVE_STATE, DISABLE and the corresponding device_resume()
+> calls into apm's suspend() function.  (this is needed so that PCI
+> devices receive their notifications.)
+> 
+> However, APM is refusing to suspend.  I'm seeing the following kernel
+> messages:
 
-KernProfile during starvation:
-   435 get_offset_tsc                            18.9130
-   273 do_softirq                                 1.8079
-   263 sys_gettimeofday                           1.3350
-   121 do_gettimeofday                            0.9167
-    72 fget                                       1.1077
-    68 schedule                                   0.0465
-    20 do_sys_settimeofday                        0.0943
-    20 do_settimeofday                            0.0627
-    14 fput                                       0.7000
-    14 add_wait_queue                             0.1474
-    11 __wake_up                                  0.1250
-    11 remove_wait_queue                          0.0815
-    11 do_anonymous_page                          0.0199
-     9 pipe_poll                                  0.0726
-     9 link_path_walk                             0.0040
-     8 free_hot_cold_page                         0.0311
+I've just been doing further testing.
 
-vmstat during starvation
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 1  0      0  99716  56348 193256    0    0     0     0 1687  5962 92  8  0  0
- 1  0      0  99716  56376 193256    0    0     0   144 1691  5976 81 19  0  0
- 1  0      0  99748  56376 193256    0    0     0     0 1656  6057 87 13  0  0
- 2  0      0  99748  56376 193256    0    0     0     0 1636  5477 85 15  0  0
-11  0      0  99748  56376 193256    0    0     0     0 1430   445 51 49  0  0
-12  0      0  99748  56376 193256    0    0     0     0 1459   362 52 48  0  0
-12  0      0  99764  56392 193256    0    0     0    92 1474   400 51 49  0  0
-12  0      0  99764  56392 193256    0    0     0     0 1463   356 53 47  0  0
-12  0      0  99764  56392 193256    0    0     0     0 1466   379 50 50  0  0
+The kernel test setup consists of booting a kernel with init=/bin/sh,
+and after the shell prompt appears, hitting the BIOS-magic "suspend to
+RAM" key combination.
 
-Note drop in ctx, rise in load (although in top only blender is actually 
-getting cpu at 99%) and massive rise in sys time.
+I can suspend to RAM under these circumstances:
 
-Con
+- from LILO
+- under RH7.2 2.4.9-31 kernel (with custom hacks to the APM code to allow
+  NFS mounts to be unmounted before we shut down CardBus - search LKML
+  for details on this)
+
+I can't suspend under these circumstances:
+
+- under a 2.6 kernel running any configuration, even with every driver
+  including CONFIG_INPUT turned off (Kconfig hacked to allow that)
+  leaving only IDE enabled, with the IDE power management disabled.
+  I've even tried without IDE.
+
+I've tried all the steps from a full configuration down to nothing with
+2.6, turning off one driver or subsystem at a time.
+
+Please note that this is my only x86 system, so I'm currently unable
+to test my PCMCIA/Cardbus changes as fully as I would like to under
+2.6 kernels.
+
+The machine is an IBM Thinkpad 380XD, 64MB.  The BIOS does not have
+the necessary ACPI tables so ACPI is of no use.  lspci output:
+
+00:00.0 Host bridge: Intel Corporation 430TX - 82439TX MTXC (rev 01)
+00:02.0 CardBus bridge: Texas Instruments PCI1250 (rev 02)
+00:02.1 CardBus bridge: Texas Instruments PCI1250 (rev 02)
+00:03.0 VGA compatible controller: Neomagic Corporation NM2160 [MagicGraph 128XD] (rev 01)
+00:06.0 Bridge: Intel Corporation 82371AB PIIX4 ISA (rev 01)
+00:06.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+00:06.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
+00:06.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 01)
+
+The last config I tried (with no drivers) is below.
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_M586MMX=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_F00F_BUG=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_CPUID=y
+CONFIG_EDD=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_HOTPLUG=y
+CONFIG_PCMCIA=y
+CONFIG_CARDBUS=y
+CONFIG_PCMCIA_PROBE=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_NET_PCI=y
+# Token Ring devices (depends on LLC=y)
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_PCNET=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_DRM=y
+CONFIG_DRM_RADEON=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFSD=y
+CONFIG_LOCKD=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
+CONFIG_FRAME_POINTER=y
+CONFIG_X86_BIOS_REBOOT=y
+
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

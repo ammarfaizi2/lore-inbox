@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266531AbUGPMNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266453AbUGPMSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266531AbUGPMNB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 08:13:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266532AbUGPMNB
+	id S266453AbUGPMSP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 08:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266532AbUGPMSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 08:13:01 -0400
-Received: from zero.aec.at ([193.170.194.10]:49674 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S266531AbUGPMM7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 08:12:59 -0400
-To: torvalds@osdl.org
-cc: linux-kernel@vger.kernel.org, gone@us.ibm.com
-Subject: [PATCH] Fix i386 bootup with HIGHMEM+SLAB_DEBUG+NUMA and no real
- highmem
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 16 Jul 2004 14:11:22 +0200
-Message-ID: <m3fz7s2lud.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Jul 2004 08:18:14 -0400
+Received: from www.logi-track.com ([213.239.193.212]:7315 "EHLO
+	mail.logi-track.com") by vger.kernel.org with ESMTP id S266453AbUGPMSM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 08:18:12 -0400
+Date: Fri, 16 Jul 2004 14:18:09 +0200
+From: Markus Schaber <schabios@logi-track.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: CCISS Maintainers Contact?
+Message-Id: <20040716141809.21fabff9@kingfisher.intern.logi-track.com>
+Organization: logi-track ag, =?ISO-8859-15?Q?z=FCrich?=
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+X-Face: Nx5T&>Nj$VrVPv}sC3IL&)TqHHOKCz/|)R$i"*r@w0{*I6w;UNU_hdl1J4NI_m{IMztq=>cmM}1gCLbAF+9\#CGkG8}Y{x%SuQ>1#t:;Z(|\qdd[i]HStki~#w1$TPF}:0w-7"S\Ev|_a$K<GcL?@F\BY,ut6tC0P<$eV&ypzvlZ~R00!A
+X-PGP-Key: http://schabi.de/pubkey.asc
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-For some reason I booted a NUMA and SLAB_DEBUG i386 kernel on a non
-NUMA 512MB machine.  This caused an oops at bootup in change_page_attr.
-The reason was that highmem_start_start page ended up zero and 
-that triggered the highmem check in change_page_attr when the 
-slab debug code would unmap a kernel mapping.
+Regarding my caching problems mentioned some days ago, I recently tried
+to contact the CCISS driver maintainers, but it seems that all the mail
+addresses mentioned in the source are dead, and they did not read this
+list (or all of them are on a long holiday which might as well be
+possible).
 
-Fix is straightforward: if there is no highmem set highmem_start_page
-to max_low_pfn+1
+Do you know any reliable way to contact them?
 
--Andi
+Thanks,
+Markus 
 
-diff -u linux-2.6.8rc1-work/arch/i386/mm/discontig.c-o linux-2.6.8rc1-work/arch/i386/mm/discontig.c
---- linux-2.6.8rc1-work/arch/i386/mm/discontig.c-o	2004-07-15 08:41:17.000000000 +0200
-+++ linux-2.6.8rc1-work/arch/i386/mm/discontig.c	2004-07-16 12:21:37.000000000 +0200
-@@ -448,7 +448,11 @@
- void __init set_max_mapnr_init(void)
- {
- #ifdef CONFIG_HIGHMEM
--	highmem_start_page = NODE_DATA(0)->node_zones[ZONE_HIGHMEM].zone_mem_map;
-+	struct zone *high0 = &NODE_DATA(0)->node_zones[ZONE_HIGHMEM];
-+	if (high0->spanned_pages > 0)
-+	      	highmem_start_page = high0->zone_mem_map;
-+	else
-+		highmem_start_page = pfn_to_page(max_low_pfn+1); 
- 	num_physpages = highend_pfn;
- #else
- 	num_physpages = max_low_pfn;
-
-
+-- 
+markus schaber | dipl. informatiker
+logi-track ag | rennweg 14-16 | ch 8001 zürich
+phone +41-43-888 62 52 | fax +41-43-888 62 53
+mailto:schabios@logi-track.com | www.logi-track.com

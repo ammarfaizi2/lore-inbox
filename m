@@ -1,112 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVAaWEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVAaWHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbVAaWEa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 17:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVAaWEa
+	id S261400AbVAaWHw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 17:07:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVAaWHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 17:04:30 -0500
-Received: from alog0059.analogic.com ([208.224.220.74]:4992 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261392AbVAaWEN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 17:04:13 -0500
-Date: Mon, 31 Jan 2005 17:04:20 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] "biological parent" pid
-In-Reply-To: <Pine.LNX.4.53.0501311923440.18039@gockel.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.61.0501311700350.5829@chaos.analogic.com>
-References: <Pine.LNX.4.53.0501311923440.18039@gockel.physik3.uni-rostock.de>
+	Mon, 31 Jan 2005 17:07:39 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:1684 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261399AbVAaWGo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 17:06:44 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: brking@us.ibm.com
+Subject: Re: pci: Arch hook to determine config space size
+Date: Mon, 31 Jan 2005 22:56:44 +0100
+User-Agent: KMail/1.6.2
+Cc: Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-pci@vger.kernel.org,
+       linux-arch@vger.kernel.org, paulus@samba.org
+References: <200501281456.j0SEuI12020454@d01av01.pok.ibm.com> <20050131192955.GJ31145@parcelfarce.linux.theplanet.co.uk> <41FEA4AA.1080407@us.ibm.com>
+In-Reply-To: <41FEA4AA.1080407@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_cmq/BYwyTitJF1I";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501312256.44692.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jan 2005, Tim Schmielau wrote:
 
-> The ppid of a process is not really helpful if I want to reconstruct the
-> real history of processes on a machine, since it may become 1 when the
-> parent dies and the process is reparented to init.
->
-> I am not aware of concepts in Linux or other unices that apply to this
-> case. So I made up the "biological parent pid" bioppid (in contrast to the
-> adoptive parents pid) that just never changes.
-> Any user of it must of course remember that it doesn't need to be a valid
-> pid anymore or might even belong to a different process that was forked in
-> the meantime. bioppid only had to be a valid pid at time btime (it's
-> a (btime, pid) pair that unambiguously identifies a process).
->
-> Comments? (other that I just broke /proc/nnn/status parsing once again :-)
->
-> Tim
+--Boundary-02=_cmq/BYwyTitJF1I
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-It's worthless for the reasons cited plus others and it just adds more
-unused stuff to the kernel.
+On Maandag 31 Januar 2005 22:35, Brian King wrote:
+> Matthew Wilcox wrote:
+> > Basically, ppc64's config ops are broken and need to check the offset
+> > being read. =A0Here's i386:
+> >=20
+> > static int pci_conf1_write (int seg, int bus, int devfn, int reg, int l=
+en, u32 v
+> > alue)
+> > {
+> > =A0 =A0 =A0 =A0 unsigned long flags;
+> >=20
+> > =A0 =A0 =A0 =A0 if ((bus > 255) || (devfn > 255) || (reg > 255))=20
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+>=20
+> Here is a pure ppc64 implementation that does this.
 
->
->
-> --- linux-2.6.10/include/linux/sched.h	2004-12-24 22:33:59.000000000 +0100
-> +++ linux-2.6.10-ppid/include/linux/sched.h	2005-01-31 19:20:00.000000000 +0100
-> @@ -556,6 +556,7 @@ struct task_struct {
-> 	unsigned did_exec:1;
-> 	pid_t pid;
-> 	pid_t tgid;
-> +	pid_t bioppid;                  /* biological parents */
-> 	/*
-> 	 * pointers to (original) parent process, youngest child, younger sibling,
-> 	 * older sibling, respectively.  (p->father can be replaced with
->
-> --- linux-2.6.10/kernel/fork.c	2004-12-24 22:33:59.000000000 +0100
-> +++ linux-2.6.10-ppid/kernel/fork.c	2005-01-31 18:15:39.000000000 +0100
-> @@ -889,6 +889,7 @@ static task_t *copy_process(unsigned lon
-> 	p->tgid = p->pid;
-> 	if (clone_flags & CLONE_THREAD)
-> 		p->tgid = current->tgid;
-> +	p->bioppid = current->pid;
->
-> 	if ((retval = security_task_alloc(p)))
-> 		goto bad_fork_cleanup_policy;
->
-> --- linux-2.6.10/fs/proc/array.c	2004-12-24 22:35:00.000000000 +0100
-> +++ linux-2.6.10-ppid/fs/proc/array.c	2005-01-31 18:19:02.000000000 +0100
-> @@ -165,6 +165,7 @@ static inline char * task_state(struct t
-> 		"Tgid:\t%d\n"
-> 		"Pid:\t%d\n"
-> 		"PPid:\t%d\n"
-> +		"BioPPid:\t%d\n"
-> 		"TracerPid:\t%d\n"
-> 		"Uid:\t%d\t%d\t%d\t%d\n"
-> 		"Gid:\t%d\t%d\t%d\t%d\n",
-> @@ -172,6 +173,7 @@ static inline char * task_state(struct t
-> 		(p->sleep_avg/1024)*100/(1020000000/1024),
-> 	       	p->tgid,
-> 		p->pid, pid_alive(p) ? p->group_leader->real_parent->tgid : 0,
-> +		p->bioppid,
-> 		pid_alive(p) && p->ptrace ? p->parent->pid : 0,
-> 		p->uid, p->euid, p->suid, p->fsuid,
-> 		p->gid, p->egid, p->sgid, p->fsgid);
->
-> --- linux-2.6.10/kernel/acct.c	2004-12-24 22:34:58.000000000 +0100
-> +++ linux-2.6.10-ppid/kernel/acct.c	2005-01-31 18:19:35.000000000 +0100
-> @@ -446,7 +446,7 @@ static void do_acct_process(long exitcod
-> #endif
-> #if ACCT_VERSION==3
-> 	ac.ac_pid = current->tgid;
-> -	ac.ac_ppid = current->parent->tgid;
-> +	ac.ac_ppid = current->bioppid;
-> #endif
->
-> 	read_lock(&tasklist_lock);	/* pin current->signal */
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Actually, it doesn't:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+> +static int config_access_valid(struct device_node *dn, int where)
+> +{
+> +=A0=A0=A0=A0=A0=A0=A0struct device_node *hose_dn =3D dn->phb->arch_data;
+> +
+> +=A0=A0=A0=A0=A0=A0=A0if (where < 256 || hose_dn->pci_ext_config_space)
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return 1;
+
+This needs a check for (where < 4096) in case of PCIe or PCI-X.
+
+> @@ -62,6 +72,8 @@ static int rtas_read_config(struct devic
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return PCIBIOS_DEVICE_NOT=
+_FOUND;
+> =A0=A0=A0=A0=A0=A0=A0=A0if (where & (size - 1))
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return PCIBIOS_BAD_REGIST=
+ER_NUMBER;
+> +=A0=A0=A0=A0=A0=A0=A0if (!config_access_valid(dn, where))
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return PCIBIOS_BAD_REGISTER=
+_NUMBER;
+> =A0
+> =A0=A0=A0=A0=A0=A0=A0=A0addr =3D (dn->busno << 16) | (dn->devfn << 8) | w=
+here;
+
+addr is still wrong, see my previous mail.
+
+> @@ -110,6 +122,8 @@ static int rtas_write_config(struct devi
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return PCIBIOS_DEVICE_NOT=
+_FOUND;
+> =A0=A0=A0=A0=A0=A0=A0=A0if (where & (size - 1))
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return PCIBIOS_BAD_REGIST=
+ER_NUMBER;
+> +=A0=A0=A0=A0=A0=A0=A0if (!config_access_valid(dn, where))
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return PCIBIOS_BAD_REGISTER=
+_NUMBER;
+> =A0
+> =A0=A0=A0=A0=A0=A0=A0=A0addr =3D (dn->busno << 16) | (dn->devfn << 8) | w=
+here;
+
+same here
+
+> @@ -285,6 +309,7 @@ static int __devinit setup_phb(struct de
+> =A0=A0=A0=A0=A0=A0=A0=A0phb->arch_data =3D dev;
+> =A0=A0=A0=A0=A0=A0=A0=A0phb->ops =3D &rtas_pci_ops;
+> =A0=A0=A0=A0=A0=A0=A0=A0phb->buid =3D get_phb_buid(dev);
+> +=A0=A0=A0=A0=A0=A0=A0get_phb_config_space_type(dev);
+> =A0
+> =A0=A0=A0=A0=A0=A0=A0=A0return 0;
+> =A0}
+
+Isn't the config space size a property of the PCI device instead of the
+host bridge? For a PCI device behind a PCIe host bridge, this could
+still lead to an incorrect config space accesses.
+
+	Arnd <><
+
+PS: I got a permanent fatal error from <linux-pci@vger.kernel.org>, does
+that list actually exist?
+
+--Boundary-02=_cmq/BYwyTitJF1I
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBB/qmc5t5GS2LDRf4RAhecAJ977PLjW2gsolIYtEygS06nEBfl9wCgl6cc
+4rJ7+4PptxcgsSYPCceZUu0=
+=5cMq
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_cmq/BYwyTitJF1I--

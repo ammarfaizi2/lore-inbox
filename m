@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262586AbSJGRT4>; Mon, 7 Oct 2002 13:19:56 -0400
+	id <S262593AbSJGRUv>; Mon, 7 Oct 2002 13:20:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262584AbSJGRS5>; Mon, 7 Oct 2002 13:18:57 -0400
-Received: from anchor-post-39.mail.demon.net ([194.217.242.80]:45019 "EHLO
-	anchor-post-39.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S262585AbSJGRSp> convert rfc822-to-8bit; Mon, 7 Oct 2002 13:18:45 -0400
-From: "" <simon@baydel.com>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Date: Mon, 7 Oct 2002 18:20:46 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-Subject: Re: The end of embedded Linux?
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3DA1D07E.10994.142437C@localhost>
-References: <3DA16A9B.7624.4B0397@localhost>
-In-reply-to: <1033988145.5494.19.camel@bip>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S262584AbSJGRUB>; Mon, 7 Oct 2002 13:20:01 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:62993 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262585AbSJGRT1>; Mon, 7 Oct 2002 13:19:27 -0400
+Date: Mon, 7 Oct 2002 18:25:00 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Steve Pratt <slpratt@us.ibm.com>
+Cc: Mark Peloquin <peloquin@us.ibm.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 2/4: evms.h
+Message-ID: <20021007182500.A20242@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Steve Pratt <slpratt@us.ibm.com>,
+	Mark Peloquin <peloquin@us.ibm.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+References: <OF57AD2670.5A531CF2-ON85256C48.006578C9@pok.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OF57AD2670.5A531CF2-ON85256C48.006578C9@pok.ibm.com>; from slpratt@us.ibm.com on Fri, Oct 04, 2002 at 01:45:04PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is likley that this project will not go to the market with Linux as 
-the OS. The original intention was to make available all kernel 
-changes and ship object modules for the specialised hardware. 
-
-Reading the GPL tells me that really it is not correct to ship 
-modules either, athough I know people do it.
-
-For these reasons I feel I will have to use some other OS.
-What I don't understand is how people in the embedded world live 
-with this and the reason for embedded Linux unless you are 
-effectively running a PC with some apps.
-
-Cheers
-
-Simon.
-
-
-On 7 Oct 2002, at 12:55, Xavier Bestel wrote:
-
-> Le lun 07/10/2002 à 12:06, simon@baydel.com a écrit :
+> >> and raid and LVM them all you want, and you don't consume 1000*layers
+> >> device nodes.
 > 
-> > The real point of all this is that the kernel developers seem really 
-> > upset about embedded code which is not released under the GPL.
-> 
-> Err ... but you *can't* get away with the GPL if you distribute the
-> kernel you modified, e.g. by selling your appliances. Unless you live in
-> a country without copyright law, you are allowed to distribute
-> linux-based software only if you enable source distribution too.
-> 
-> Trying to actively fold your modifications into the mainline is another
-> matter.
-> 
-> 	Xav
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> >I don't think it's a benefit but really ugly.  There is no reason to now
 
+sorry, that "now" should have been a 'not'.
 
-__________________________
+> >allow access to the lower layers.  How do I e.g. write a new volume label
+> to
+> >the lower level devices?
+> 
+> I am not sure I understand your question.  Did you mean that there does not
+> appear to be a **way** to access lower level devices or did you really mean
+> no reason to do so?
 
-Simon Haynes - Baydel 
-Phone : 44 (0) 1372 378811
-Email : simon@baydel.com
-__________________________
+Sorry again for above typo - it makes my whole statement worthless..
+
+To clarify: I think not having device nodes for anything but the uppermost
+layer of evms volumes is a bad idea.  This does not only make it impossible
+to access those normally from userspace but also makes evms duplicate
+code in the block layers as we already have stacking support there.

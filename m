@@ -1,67 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262662AbSLAVsl>; Sun, 1 Dec 2002 16:48:41 -0500
+	id <S262580AbSLAVqL>; Sun, 1 Dec 2002 16:46:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262664AbSLAVsl>; Sun, 1 Dec 2002 16:48:41 -0500
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:41923 "EHLO
-	mail.kolivas.net") by vger.kernel.org with ESMTP id <S262662AbSLAVsk>;
-	Sun, 1 Dec 2002 16:48:40 -0500
-Message-ID: <1038779765.3dea857568e16@kolivas.net>
-Date: Mon,  2 Dec 2002 08:56:05 +1100
-From: Con Kolivas <conman@kolivas.net>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [PATCH] 2.4.20-rmap15a
-References: <Pine.LNX.4.44L.0212011921420.15981-200000@imladris.surriel.com> <200212012236.17431.m.c.p@wolk-project.de>
-In-Reply-To: <200212012236.17431.m.c.p@wolk-project.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+	id <S262662AbSLAVqL>; Sun, 1 Dec 2002 16:46:11 -0500
+Received: from dialin-145-254-148-098.arcor-ip.net ([145.254.148.98]:5762 "HELO
+	schottelius.net") by vger.kernel.org with SMTP id <S262580AbSLAVqK>;
+	Sun, 1 Dec 2002 16:46:10 -0500
+Date: Sun, 1 Dec 2002 22:52:08 +0100
+From: Nico Schottelius <schottelius@wdt.de>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PCMCIA <dhinds@zen.stanford.edu>
+Subject: Re: [BUGS 2.5.45]
+Message-ID: <20021201215208.GM338@schottelius.org>
+References: <20021107090425.GA461@schottelius.org> <20021201144232.GC3098@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="va9XEZk9/dJ5GUjX"
+Content-Disposition: inline
+In-Reply-To: <20021201144232.GC3098@conectiva.com.br>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux flapp 2.4.19
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Marc-Christian Petersen <m.c.p@wolk-project.de>:
 
-> On Sunday 01 December 2002 22:25, you wrote:
-> 
-> Hi Rik,
-> 
-> > That was my gut feeling as well, but I guess it's a good thing
-> > to quantify how much of a difference it makes.  I wonder if we
-> > could convince Con to test a kernel both with and without this
-> > patch and look at the difference.
-> yep, would be a good idea. Con: *wake up ;)*
+--va9XEZk9/dJ5GUjX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sorry sleep and work intervene ;)
+Arnaldo Carvalho de Melo [Sun, Dec 01, 2002 at 12:42:32PM -0200]:
+> Em Sun, Dec 01, 2002 at 03:31:26PM +0100, Nico Schottelius escreveu:
+> > Hello again!
+>=20
+> 2.5.45 is too old, could you try 2.5.50 instead? Anyway, some comments:
 
-I have already tested it in -ck and was planning to put it into 2.4.20-ck1 when
-I finished it. I'll test it in vanilla to show how it works. It made a
-thunderous difference to io load.
+I am sorry, my mail was delayed. I am trying 2.5.50 currently. =20
+ =20
+> > 2) PCMCIA module ds.o cannot be loaded -> somehow the kernel denies tha=
+t.
+>=20
+> Perhaps related to Rusty's work on the in-kernel module loader
 
-Con
+in fact, 2.5.50 loads ds.o fine again!
+there seem still be some problems with some modules, but I think
+this will be fixed soon.
+ =20
+> > 3) atimach64 console driver makes blank screen on 01:00.0 VGA compatible
+> > controller: ATI Technologies Inc 3D Rage P/M Mobilit=3D y AGP 2x (rev 6=
+4)
+>=20
+> The fb code needs a merge with James Simmons tree, it seems to be planned=
+ to
+> happen soon.
 
-> 
-> > > So, here my patch proposal. Ontop of 2.4.20-rmap15a.
-> > Looks good, now lets test it.  If the patch is as needed as you
-> > say we should push it to marcelo ;)
-> yep, Andrew should do it. Anyway, all those patches do _not_ get rid of those
-> 
-> I/O pauses/stops since 2.4.19-pre6. Andrea did a good approach with his 
-> lowlatency elevator, even if it drops throughput (needs more testing to 
-> become equivalent to throughput w/o it) and also Con and me did a Mini 
-> Lowlatency Elevator + Config option, so you can decide weather you are 
-> building for serverusage where interactive "desktop performance" is not 
-> needed ;) or not.
-> 
-> I wish I'll have the time to eleminate the broken code which went into 2.4.19
-> 
-> that causes those I/O stops.
-> 
-> *Repetition: those stopps do not occur with 2.4.18* ;)
-> 
-> ciao, Marc
-> 
-> 
+Right now I am subscribed to fbdev list, hopefully they'll merge soon.
+I tried aty/aty128fb some months ago with the same result..
 
+Nico
 
+--=20
+Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
+ils
+to mailing list!). If you don't know what pgp is visit www.gnupg.org.
+(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+
+--va9XEZk9/dJ5GUjX
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE96oSItnlUggLJsX0RAiqwAKCLiBEfPyXY4QiQrUZXjtbGRxxisACfb5L/
+h5Xww+vGcQXJzGd0VTJ/f60=
+=pbpw
+-----END PGP SIGNATURE-----
+
+--va9XEZk9/dJ5GUjX--

@@ -1,69 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbTHXQyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 12:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbTHXQyQ
+	id S261268AbTHXRXO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 13:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTHXRXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 12:54:16 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:44294 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261674AbTHXQyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 12:54:14 -0400
-Subject: Re: [parisc-linux] Re: Problems with kernel mmap (failing
-	tst-mmap-eofsync in glibc on parisc)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: hugh@veritas.com, willy@debian.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>, drepper@redhat.com
-In-Reply-To: <20030823222300.4695a0c4.davem@redhat.com>
-References: <20030822110144.5f7b83c5.davem@redhat.com>
-	<Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain>
-	<20030822113106.0503a665.davem@redhat.com>
-	<1061578568.2053.313.camel@mulgrave>
-	<20030822121955.619a14eb.davem@redhat.com>
-	<1061591255.1784.636.camel@mulgrave>
-	<20030822154100.06314c8e.davem@redhat.com>
-	<1061600974.2090.809.camel@mulgrave>
-	<20030823144330.5ddab065.davem@redhat.com>
-	<1061677283.1992.471.camel@mulgrave>
-	<20030823155312.63f996f6.davem@redhat.com>
-	<1061680279.1785.534.camel@mulgrave>
-	<20030823172251.4e656f9a.davem@redhat.com>
-	<1061702282.1992.1153.camel@mulgrave> 
-	<20030823222300.4695a0c4.davem@redhat.com>
+	Sun, 24 Aug 2003 13:23:14 -0400
+Received: from [211.243.51.30] ([211.243.51.30]:46598 "HELO ubshvkf")
+	by vger.kernel.org with SMTP id S261268AbTHXRXM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 13:23:12 -0400
+From: Drusilla Gesino <Despinaqybr@id.ru>
+To: <linux-kernel@vger.kernel.org>
+Subject: This stuff is superior and costs less
+Date: Sun, 24 Aug 2003 21:23:05 -0400
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 24 Aug 2003 11:54:00 -0500
-Message-Id: <1061744042.13315.29.camel@mulgrave>
-Mime-Version: 1.0
+Message-Id: <hndkcqviiakwm@id.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-08-24 at 00:23, David S. Miller wrote:
-> This is what I'm asking of you, to find cases in real life,
-> not some contrived example, where your optimization helps
-> appreciably.
+<TITLE>postit</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+</HEAD>
+<BODY BGCOLOR=#FFFFFF LEFTMARGIN=0 TOPMARGIN=0 MARGINWIDTH=0 MARGINHEIGHT=0>
+<!-- ImageReady Slices (postit.psd) -->
+<TABLE WIDTH=608 BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR>
+		<TD>
+			<IMG SRC="http://www.saless1d.com/mailout_01.gif" WIDTH=77 HEIGHT=79 ALT=""></TD>
+		<TD COLSPAN=2>
+			<IMG SRC="http://www.saless1d.com/mailout_02.gif" WIDTH=310 HEIGHT=79 ALT=""></TD>
+		<TD COLSPAN=2>
+			<IMG SRC="http://www.saless1d.com/mailout_03.gif" WIDTH=221 HEIGHT=79 ALT=""></TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=2>
+			<IMG SRC="http://www.saless1d.com/mailout_04.gif" WIDTH=88 HEIGHT=70 ALT=""></TD>
+		<TD COLSPAN=2>
+			<IMG SRC="http://www.saless1d.com/mailout_05.gif" WIDTH=469 HEIGHT=70 ALT=""></TD>
+		<TD>
+			<IMG SRC="http://www.saless1d.com/mailout_06.gif" WIDTH=51 HEIGHT=70 ALT=""></TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=5>
+			<IMG SRC="http://www.saless1d.com/mailout_07.gif" WIDTH=608 HEIGHT=58 ALT=""></TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=5>
+			<IMG SRC="http://www.saless1d.com/mailout_08.gif" WIDTH=608 HEIGHT=50 ALT=""></TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=5><a href="http://www.great33eewa.com">
+			<IMG SRC="http://www.saless1d.com/mailout_09.gif" WIDTH=608 HEIGHT=47 ALT="" border="0"></a></TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=5>
+			<IMG SRC="http://www.saless1d.com/mailout_10.gif" WIDTH=608 HEIGHT=47 ALT=""></TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=5>
+			<IMG SRC="http://www.saless1d.com/mailout_11.gif" WIDTH=608 HEIGHT=75 ALT=""></TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=5>
+			<IMG SRC="http://www.saless1d.com/mailout_12.gif" WIDTH=608 HEIGHT=47 ALT=""></TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=2>
+			<IMG SRC="http://www.saless1d.com/mailout_13.gif" WIDTH=88 HEIGHT=180 ALT=""></TD>
+		<TD COLSPAN=3>
+			<IMG SRC="http://www.saless1d.com/mailout_14.gif" WIDTH=520 HEIGHT=180 ALT=""></TD>
+	</TR>
+<TR>	
+		<TD COLSPAN=5><a href="http://www.great33eewa.com">
+		<IMG SRC="http://www.saless1d.com/mailout_15.gif" WIDTH=608 HEIGHT=101 ALT="" border="0"></TD>
 
-Oh, OK, that's easy...it's what the glibc test was designed for.
-
-In glibc, for each file you fopen as a mapped file, you seem to get a
-separate mmapping of the file (this actually looks wrong to me...it
-seems glibc should have only one mapping per file which all the file
-objects share, but anyway).  That means we get one entry in one of the
-i_mmaps lists for each of the opens.  Since these are files, the chances
-are they'll be read and written which will generate lots of dcache
-flushes.  This case would kill us if we had to flush every entry in
-i_mmap.
-
-Right at the moment, you have to specifically request that the file be
-mmapped by specifying the "m" modifier, but glibc seems to be migrating
-to this being the default one day...that's what I want to be ready for.
-
-Besides the optimisation adds no overhead and compromises nothing, so
-its worth doing regardless.
-
-James
-
-
+	</TR>
+</a>	<TR>
+		<TD COLSPAN=5>
+<a href="http://www.onlinehe.com">	<IMG SRC="http://www.saless1d.com/mailout_16.gif" WIDTH=608 HEIGHT=46 ALT="" border="0"></TD>
+</a>
+	</TR>
+	<TR>
+		<TD>
+			<IMG SRC="http://www.saless1d.com/spacer.gif" WIDTH=77 HEIGHT=1 ALT=""></TD>
+		<TD>
+			<IMG SRC="http://www.saless1d.com/spacer.gif" WIDTH=11 HEIGHT=1 ALT=""></TD>
+		<TD>
+			<IMG SRC="http://www.saless1d.com/spacer.gif" WIDTH=299 HEIGHT=1 ALT=""></TD>
+		<TD>
+			<IMG SRC="http://www.saless1d.com/spacer.gif" WIDTH=170 HEIGHT=1 ALT=""></TD>
+		<TD>
+			<IMG SRC="http://www.saless1d.com/spacer.gif" WIDTH=51 HEIGHT=1 ALT=""></TD>
+	</TR>
+</TABLE>
+<!-- End ImageReady Slices -->
+</BODY>
+</HTML>

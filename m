@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272431AbTHFTsG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 15:48:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272450AbTHFTsG
+	id S271006AbTHFTmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 15:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272071AbTHFTmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 15:48:06 -0400
-Received: from a.smtp-out.sonic.net ([208.201.224.38]:52122 "HELO
-	a.smtp-out.sonic.net") by vger.kernel.org with SMTP id S272431AbTHFTsC
+	Wed, 6 Aug 2003 15:42:25 -0400
+Received: from smtp.terra.es ([213.4.129.129]:8069 "EHLO tsmtp7.mail.isp")
+	by vger.kernel.org with ESMTP id S271006AbTHFTkd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 15:48:02 -0400
-X-envelope-info: <dhinds@sonic.net>
-Date: Wed, 6 Aug 2003 12:47:59 -0700
-From: David Hinds <dhinds@sonic.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Jeff Garzik <jgarzik@pobox.com>, youssef@ece.utexas.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PROBLEM] xircom CBE2-100(faulty) hangs kernel 2.4.{21, 22-pre8} (fwd)
-Message-ID: <20030806124759.C30485@sonic.net>
-References: <Pine.LNX.4.44.0308061438400.4859-400000@logos.cnet>
+	Wed, 6 Aug 2003 15:40:33 -0400
+Date: Wed, 6 Aug 2003 21:40:23 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: reiser@namesys.com, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: Filesystem Tests
+Message-Id: <20030806214023.74546b84.diegocg@teleline.es>
+In-Reply-To: <20030806190850.GF21290@matchmail.com>
+References: <3F306858.1040202@mrs.umn.edu>
+	<20030805224152.528f2244.akpm@osdl.org>
+	<3F310B6D.6010608@namesys.com>
+	<20030806183410.49edfa89.diegocg@teleline.es>
+	<20030806180427.GC21290@matchmail.com>
+	<20030806204514.00c783d8.diegocg@teleline.es>
+	<20030806190850.GF21290@matchmail.com>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308061438400.4859-400000@logos.cnet>
-User-Agent: Mutt/1.3.22.1i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 02:39:03PM -0300, Marcelo Tosatti wrote:
-> 
-> ---------- Forwarded message ----------
-> Date: Sat, 2 Aug 2003 16:09:30 -0500 (CDT)
-> From: "Hmamouche, Youssef" <youssef@ece.utexas.edu>
-> To: linux-kernel@vger.kernel.org
-> Subject: [PROBLEM] xircom CBE2-100(faulty) hangs kernel 2.4.{21, 22-pre8}
-> 
-> 
-> Hi,
-> 
-> I have a xircom CBE2-100 ethernet card that I know(as a matter of fact) is
-> faulty. The warranty on the card expired and couldn't take it back to
-> the manufacturer. Anyway, I hotplugged it into the sock with no problem at
-> all. However, when I try to bring up the interface, the kernel hangs. If I
-> unplug the card, the kernel comes back to life and resumes. 
+El Wed, 6 Aug 2003 12:08:50 -0700 Mike Fedyk <mfedyk@matchmail.com> escribió:
 
-Uhh... let me get this straight... the card is known for a fact to be
-faulty.
+> But with servers, the larger your filesystem, the longer it will take to
+> fsck.  And that is bad for uptime.  Period.
 
-> The symptoms of the problem show at
-> drivers/net/pcmcia/xircom_tulip_cb: xircom_interrupt() where the interrupt
-> is never acknowledge(due to flawed hardware). 
+Sure. But Han's "don't benchmark ext2 because it's not an option" isn't
+a valid stament, at least to me.
 
-Perhaps the driver does not ack the interrupt, because the device
-registers do not indicate that it requires service, and the interrupt
-pin is just stuck.  Or perhaps the driver does ack and the card is
-immediately re-triggering or ignoring the ack.
-
-Drivers cannot in general diagnose hardware faults.  Perhaps, if
-someone had a card broken the same way your card is broken, and they
-knew the specific reason for the breakage, they could design a test
-for that particular hardware fault.  But your card might be the only
-one in the known universe with this particular failure mode.
-
--- Dave
+I'm not saying ext2 is the best fs on earth, but i *really* think
+it's a real option, and as such, it must be benchmarked.

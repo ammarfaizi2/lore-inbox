@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262887AbTJZLBf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 06:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbTJZLBe
+	id S262971AbTJZLFX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 06:05:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbTJZLFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 06:01:34 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:9358 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S262887AbTJZLBd (ORCPT
+	Sun, 26 Oct 2003 06:05:23 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:56198 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262971AbTJZLFT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 06:01:33 -0500
-Message-ID: <3F9BA98B.20408@namesys.com>
-Date: Sun, 26 Oct 2003 14:01:31 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+	Sun, 26 Oct 2003 06:05:19 -0500
+Message-ID: <3F9BAA1B.6080203@colorfullife.com>
+Date: Sun, 26 Oct 2003 12:03:55 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-CC: "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Russell King '" <rmk+lkml@arm.linux.org.uk>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>,
-       "'Krzysztof Halasa '" <khc@pm.waw.pl>
-Subject: Re: Blockbusting news, results end
-References: <346101c39b9e$35932680$24ee4ca5@DIAMONDLX60>
-In-Reply-To: <346101c39b9e$35932680$24ee4ca5@DIAMONDLX60>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Andrew Morton <akpm@osdl.org>
+CC: viro@parcelfarce.linux.theplanet.co.uk, arekm@pld-linux.org,
+       linux-kernel@vger.kernel.org, jmorris@redhat.com, sds@epoch.ncsc.mil,
+       "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Subject: Re: 2.6.0-test9 and sleeping function called from invalid context
+References: <200310260045.52094.arekm@pld-linux.org>	<20031025185055.4d9273ae.akpm@osdl.org>	<20031025224950.001b4055.akpm@osdl.org>	<20031026082610.GU7665@parcelfarce.linux.theplanet.co.uk> <20031026014153.0fdbd50a.akpm@osdl.org>
+In-Reply-To: <20031026014153.0fdbd50a.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norman Diamond wrote:
+Andrew Morton wrote:
 
->The drive finally reallocated the block and there are no longer any visible
->bad blocks.
->
->I will not be able to perform the following planned test:
->  Well, in a future weekend, I will try to see if ext2fs really takes action
->  on permanently bad blocks that are detected during normal operations on a
->  mounted partition.
->
->But I think the underlying defects remain in need of correction.  Toshiba
->knows about theirs but will probably never say if they make any fixes.  Mr.
->Reiser and friends have plans to add important features, and I am unable to
->detect if ext2fs needs it.  (As mentioned before, I understand that ext2fs
->can do it during formatting and fsck, but no one seems to be saying what
->happens if a permanently bad block is detected during normal operation on a
->mounted partition.)
->
->
->
+>What protects against concurrent execution of proc_pid_lookup() and
+>proc_task_lookup()?  I think nothing, because one is at /proc/42 and the
+>other is at /proc/41/42; the parent dir inodes are different.  hmm.
 >  
 >
-Badblocks support is in reiser4, and anyone is welcome to update the 
-patch for V3, or sponsor us to do it.  We are very low on cash, so we 
-only work on V4, as that is the only way it will get to ship.
+Ugs.
+/proc/1 and /proc/1/task/1 are two different dentrys.
+proc_task_lookup happily overwrites task->proc_dentry. Which means the 
+task patch broke tsk->proc_dentry.
+I think the cure is simple: proc_task_lookup should not write 
+proc_dentry, only proc_pid_lookup should do that.
+tsk->proc_dentry is only used by proc_pid_flush: If a task exits, all 
+entries below /proc/<pid> are stale, and a shrink_dcache_parent on the 
+/proc/<pid> dentry recovers the memory.
+There is a race between in proc_pid_lookup between checking that the 
+task is still running and setting tsk->proc_dentry, but AFAICS the race 
+is not critical: In the worst case, the stale dentries remain around. 
+They are never returned to user space, d_revalidate prevents that.
 
--- 
-Hans
+--
+    Manfred
 
 

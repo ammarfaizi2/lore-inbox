@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263025AbTGTHsS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 03:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTGTHsS
+	id S263171AbTGTHyn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 03:54:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbTGTHym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 03:48:18 -0400
-Received: from fc.capaccess.org ([151.200.199.53]:40973 "EHLO fc.capaccess.org")
-	by vger.kernel.org with ESMTP id S262931AbTGTHsQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 03:48:16 -0400
-Message-id: <fc.0010c7b2009ad0a90010c7b2009ad0a9.9ad0aa@capaccess.org>
-Date: Sun, 20 Jul 2003 04:05:19 -0400
-Subject: Forreal Mode update
-To: linux-kernel@vger.kernel.org, linux-assembly@vger.kernel.org
-From: "Rick A. Hohensee" <rickh@capaccess.org>
+	Sun, 20 Jul 2003 03:54:42 -0400
+Received: from [213.178.169.5] ([213.178.169.5]:17937 "EHLO ext1.enyo.de")
+	by vger.kernel.org with ESMTP id S263171AbTGTHym convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 03:54:42 -0400
+To: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
+	<lgcdutra@terra.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+References: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl>
+	<E18bHfV-0002QE-00@fencepost.gnu.org>
+	<20030122162107.GA26725@mark.mielke.cc>
+	<pan.2003.07.20.02.27.22.526885@terra.com.br>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Sun, 20 Jul 2003 10:09:40 +0200
+In-Reply-To: <pan.2003.07.20.02.27.22.526885@terra.com.br> (Leandro
+ =?iso-8859-1?q?Guimar=E3es?= Faria Corsetti Dutra's message of "Sun, 20 Jul 2003 04:27:22 +0200")
+Message-ID: <871xwl7h6j.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't have interrupts working in Forreal Mode yet, but I think I've
-figured out what the two likely scenarios are. (Forreal Mode is
-unprotected USE32. PE=0, Dbit in CS descriptor =1.)
+Leandro Guimarães Faria Corsetti Dutra <lgcdutra@terra.com.br> writes:
 
-PE=0 clearly means intvecs are 4-byte 8086-emulation-style, regardless of
-Dbit. The exact description of INT says so, and it would be a very big
-deal for it to be otherwise, like a special class of GDTless interrupt
-gate for a mode INTeL doesn't support, or who knows what. The issue a
-4-byte intvec creates in a USE32 world is what happens to a USE32 EIP
-when the intvec offset is assigned to IP. Just IP, not EIP. Is the high
-side of EIP persistant, like the high side of EAX when you clobber AX, or
-does it get zeroed? Those appear to be the two possibilities. Getting
-zeroed, UNLIKE EAX, would be better. Then your Forreal Mode event handler
-code needs to be in the low meg. Just the handlers, and just thier
-entry-points. No-Sweat Item. IF, HOWEVER, the high side of EIP is simply
-left there, all is not lost. Then there are schemes to replicate faux IDTs
-every 64k, and you can still have more than a meg of code in 32 bit
-unprotected Forreal Mode. And with an extra jump to get to the actual
-handler code Forreal Mode may still be faster to handle interrupts than
-Pmode, thanks in part to the 4-byte intvecs.
+> On Wed, 22 Jan 2003 11:21:07 -0500, Mark Mielke wrote:
+>
+>> Good. So go fight with RedHat, Debian, and all the other distros to ensure
+>> that they give you whatever credit you want.
+>
+> 	Debian actually calls it GNU/Linux.
 
-Things that aren't issues are the Dbit of the handler code, which can be
-USE32 also, and if fact must be, and thus the interrupt and the IRET stack
-frames balance. The rmode CS values in the intvecs probably should all be
-0, keeping them in the non-issue category. The real sticky bit is the
-undefined behavior of the high side of EIP.
-
-Even if you have to do something like keep all code in the low meg, data
-beyond the low meg is already a non-issue in Forreal Mode.
-
-Rick Hohensee
-
-
+OTOH, Debian is the only distribution that might remove FSF credits
+and calls for funding, and the GNU Manifesto from the distribution.  I
+don't know of any other distribution which is considering such
+far-reaching plans.

@@ -1,28 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262010AbREPRIp>; Wed, 16 May 2001 13:08:45 -0400
+	id <S262013AbREPRLz>; Wed, 16 May 2001 13:11:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262011AbREPRIf>; Wed, 16 May 2001 13:08:35 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:40208 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262010AbREPRI1>; Wed, 16 May 2001 13:08:27 -0400
-Date: Wed, 16 May 2001 19:08:34 +0200 (CEST)
-From: Axel Siebenwirth <axel@rayfun.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: NTFS with Win2k - Write Support broken?
-Message-ID: <Pine.LNX.4.33.0105161904160.10819-100000@neon.rayfun.org>
+	id <S262015AbREPRLg>; Wed, 16 May 2001 13:11:36 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:58884 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262013AbREPRLd>; Wed, 16 May 2001 13:11:33 -0400
+Date: Wed, 16 May 2001 10:11:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rootfs (part 1)
+In-Reply-To: <Pine.GSO.4.21.0105160756210.24199-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0105161010200.4738-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
 
-I have a linux system with kernel 2.4.4-ac9 and a win2k partition with
-ntfs. Since because of the new ntfs version rw support is disabled, I
-wondered how much rw support is broken, why and if I could try at least.
-Or maybe some help is appreciated?
+On Wed, 16 May 2001, Alexander Viro wrote:
+>
+> 	Linus, patch is the first chunk of rootfs stuff. I've tried to
+> get it as small as possible - all it does is addition of absolute root
+> on ramfs and necessary changes to mount_root/change_root/sys_pivot_root
+> and follow_dotdot. Real root is mounted atop of the "absolute" one.
 
-Thanks a lot,
-Axel Siebenwirth
+Looks ok, but it also feels like 2.5.x stuff to me. 
+
+Also, there's the question of whether to make ramfs just built-in, or make
+_tmpfs_ built in - ramfs is certainly simpler, but tmpfs does the same
+things and you need that one for shared mappings etc.
+
+Comments?
+
+		Linus
 

@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUJNLbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUJNLts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUJNLbs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 07:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUJNLbh
+	id S263117AbUJNLts (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 07:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUJNLts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 07:31:37 -0400
-Received: from main.gmane.org ([80.91.229.2]:7319 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263540AbUJNLbK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 07:31:10 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ganesan R <rganesan@myrealbox.com>
-Subject: Linux 2.6.x wrongly recognizes USB 2.0 DVD writer
-Date: Thu, 14 Oct 2004 11:14:44 +0000 (UTC)
-Message-ID: <ckln33$c3e$1@sea.gmane.org>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: grajagop-lnx.cisco.com
-User-Agent: slrn/0.9.8.0 (Linux)
+	Thu, 14 Oct 2004 07:49:48 -0400
+Received: from [200.48.36.148] ([200.48.36.148]:47825 "EHLO
+	correo.speedy.com.pe") by vger.kernel.org with ESMTP
+	id S263117AbUJNLtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 07:49:46 -0400
+Message-ID: <1097753635.416e6423adc5a@correo.speedy.com.pe>
+Date: Thu, 14 Oct 2004 06:33:55 -0500
+From: fancy3@speedy.com.pe
+To: fancy3@speedy.com.pe
+Subject: Proposal
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 200.60.240.194
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I have a NEC ND-2500A DVD writer in a ByteCC USB 2.0 external enclosure.
-It's recognized perfectly in 2.4.27 (Debian kernel-image-2.4.27-1-686
-package)
+Dear Customer,
 
-========
-scsi2 : SCSI emulation for USB Mass Storage
-   Vendor: _NEC      Model: DVD_RW ND-2500A
-   Type:   CD-ROM    ANSI SCSI revision: 02
-Attached scsi CD-ROM sr1 at scsi2, channel 0, id 0, lun 0
-sr1: scsi-1 drive
-USB Mass Storage support registered.
-========
+Be the very first listing in the top search engines immediately.
+Our company will now place any business with a qualified website permanently 
+at the top of the major search engines guaranteed never to move.  This 
+promotion includes unlimited traffic and is not going to last long.  If you 
+are interested in being guaranteed first position in the top search engines at 
+a promotional fee, please contact us promptly to find out if you qualify via 
+email at fancy3@speedy.com.pe and include the URL(s) you are interested in 
+placing.  This is not pay per click.
+ 
+The following are examples on Yahoo!, MSN and Alta Vista:
 
-When I boot 2.6.8 (Debian kernel-image-2.6.8-1-686 package), I get
+ 
+Company:             Oahu Dive Center
 
-========
-scsi3 : SCSI emulation for USB Mass Storage devices
-  Vendor: Revoltec  Model: USB/IDE Bridge (  Rev: 0103
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sdb at scsi3, channel 0, id 0, lun 0
-USB Mass Storage device found at 4
-========
+URL:                 http://oahudivecenter.com
 
-Any body else facing this problem?
+keyword:             oahu scuba diving
 
-Ganesan
-    
-  
+ 
+Company:             California Moves.com
 
+URL:                 http://steph.cbsocal.com/
+
+keyword:             find a home southern california
+
+Sincerely,
+
+IGN
+
+The Search Engine Promotional Consultants

@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314962AbSDVXpe>; Mon, 22 Apr 2002 19:45:34 -0400
+	id <S314957AbSDVXyX>; Mon, 22 Apr 2002 19:54:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314963AbSDVXpd>; Mon, 22 Apr 2002 19:45:33 -0400
-Received: from rwcrmhc54.attbi.com ([216.148.227.87]:33526 "EHLO
-	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
-	id <S314962AbSDVXp3>; Mon, 22 Apr 2002 19:45:29 -0400
-Message-ID: <3CC4A007.1070307@didntduck.org>
-Date: Mon, 22 Apr 2002 19:43:03 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] setup_per_cpu still broken in 2.5.9
-Content-Type: multipart/mixed;
- boundary="------------030904060501020008060905"
+	id <S314971AbSDVXyW>; Mon, 22 Apr 2002 19:54:22 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:26642 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S314957AbSDVXyW>;
+	Mon, 22 Apr 2002 19:54:22 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 2.1 is available 
+In-Reply-To: Your message of "Mon, 22 Apr 2002 01:04:12 +0200."
+             <E16zQNR-0001NS-00@starship> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 23 Apr 2002 09:54:12 +1000
+Message-ID: <6557.1019519652@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030904060501020008060905
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 22 Apr 2002 01:04:12 +0200, 
+Daniel Phillips <phillips@bonn-fries.net> wrote:
+>On Tuesday 23 April 2002 01:00, Keith Owens wrote:
+>> On Sun, 21 Apr 2002 16:32:35 +0200, 
+>> Daniel Phillips <phillips@bonn-fries.net> wrote:
+>> >On Sunday 21 April 2002 09:43, Keith Owens wrote:
+>> >> Content-Type: text/plain; charset=us-ascii
+>> >> 
+>> >> Release 2.1 of kernel build for kernel 2.5 (kbuild 2.5) is available.
+>> >> http://sourceforge.net/projects/kbuild/, Package kbuild-2.5, download
+>> >> release 2.1.
+>> >
+>> >Have you got an update on first-time build performance?
+>> 
+>> 30% faster than the existing kernel build system.
+>
+>Egad.  And we're waiting for what, exactly?
 
-Still broken for UP.  It looks like a patch got applied twice.
+For me to be satisfied that the code is stable, the rewrite with go
+faster stripes is less than four weeks old.
 
--- 
+For more arch maintainers to convert 2.5.8/arch/$(ARCH) to kbuild 2.5.
+i386 is converted, I am working on ia64, Tom Duffy is working on
+sparc64, Greg Banks is working on superh.  I would like patches for
+ppc, s390, alpha etc. as well but will go without them if necessary,
+they can catch up later.
 
-						Brian Gerst
-
---------------030904060501020008060905
-Content-Type: text/plain;
- name="percpu-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="percpu-1"
-
-diff -urN linux-2.5.9/init/main.c linux/init/main.c
---- linux-2.5.9/init/main.c	Mon Apr 22 19:17:23 2002
-+++ linux/init/main.c	Mon Apr 22 19:31:04 2002
-@@ -271,14 +271,7 @@
- #else
- #define smp_init()	do { } while (0)
- #endif
--static inline void setup_per_cpu_areas(void)
--{
--}
--
--static inline void setup_per_cpu_areas(void)
--{
--}
--
-+static inline void setup_per_cpu_areas(void) { }
- #else
- 
- #ifdef __GENERIC_PER_CPU
-
---------------030904060501020008060905--
+Then I will contact Linus.
 

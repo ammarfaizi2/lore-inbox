@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264711AbTCFO7h>; Thu, 6 Mar 2003 09:59:37 -0500
+	id <S265063AbTCFPGt>; Thu, 6 Mar 2003 10:06:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265063AbTCFO7h>; Thu, 6 Mar 2003 09:59:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19467 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264711AbTCFO7g>; Thu, 6 Mar 2003 09:59:36 -0500
-Date: Thu, 6 Mar 2003 07:07:58 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@digeo.com>, <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <Pine.LNX.4.44.0303060845510.4248-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303060704580.7206-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265135AbTCFPGt>; Thu, 6 Mar 2003 10:06:49 -0500
+Received: from CPE-144-132-203-93.nsw.bigpond.net.au ([144.132.203.93]:14470
+	"EHLO anakin.wychk.org") by vger.kernel.org with ESMTP
+	id <S265063AbTCFPGs>; Thu, 6 Mar 2003 10:06:48 -0500
+Date: Thu, 6 Mar 2003 23:12:40 +0800
+From: Geoffrey Lee <glee@gnupilgrims.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@rustcorp.com.au
+Subject: Re: [PATCH]  fix undefined reference for sis drm.
+Message-ID: <20030306151240.GA10810@anakin.wychk.org>
+References: <20030306101017.GA6479@anakin.wychk.org> <1046963902.17715.37.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=big5
+Content-Disposition: inline
+In-Reply-To: <1046963902.17715.37.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 6 Mar 2003, Ingo Molnar wrote:
 > 
-> please do another thing as well: in addition to applying the -A4 patch,
-> also renice X to -10.
+> Direct render occurs before the frame buffer so it doesn't work
+> In addition you can have both modular so you'd want to make it
+> 
+> dep_tristate '   SiS' CONFIG_DRM_SIS $CONFIG_AGP $CONFIG_FB_SIS
+> 
+> even if the order worked out.
 
-NO.
 
-This is a BUG IN THE SCHEDULER!
+Hm, yes indeed.  Please apply the correct fix to your tree.
 
-We should notice automatically that X is "interactive", thanks to the 
-fact that interactive tasks wait for it. That's the whole point of my very 
-simple patch..
+Sorry about the botched fix.
 
-So don't argue about things that are obviously broken. Renicing X is not 
-the answer, and in fact there have been multiple reports that it makes 
-XMMS skip sound because it just _hides_ the problem and moves it 
-elsewhere.
 
-Please test my simple patch that should at least attack the real issue 
-instead of waffling and hiding it.
+	-- G.
 
-			Linus
+-- 
+char p[] = "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
+  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
+  "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+
 

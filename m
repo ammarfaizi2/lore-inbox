@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315760AbSE3AMB>; Wed, 29 May 2002 20:12:01 -0400
+	id <S315785AbSE3AQF>; Wed, 29 May 2002 20:16:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315805AbSE3AMA>; Wed, 29 May 2002 20:12:00 -0400
-Received: from ns.suse.de ([213.95.15.193]:30225 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315760AbSE3AL7>;
-	Wed, 29 May 2002 20:11:59 -0400
-Date: Thu, 30 May 2002 02:11:59 +0200
-From: Dave Jones <davej@suse.de>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "J.A. Magallon" <jamagallon@able.es>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] intel-x86 model config cleanup
-Message-ID: <20020530021159.B26821@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <3CF53C34.2080300@mandrakesoft.com> <200205292205.g4TM5e8348005@saturn.cs.uml.edu>
+	id <S315805AbSE3AQE>; Wed, 29 May 2002 20:16:04 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:40189 "EHLO branoic")
+	by vger.kernel.org with ESMTP id <S315785AbSE3AQE>;
+	Wed, 29 May 2002 20:16:04 -0400
+Date: Wed, 29 May 2002 20:15:55 -0400
+From: Daniel Jacobowitz <dmj+@andrew.cmu.edu>
+To: William Lee Irwin III <wli@holomorphy.com>,
+        "David S. Miller" <davem@redhat.com>, frank.schafer@setuza.cz,
+        linux-kernel@vger.kernel.org
+Subject: Re: No PTRACE_READDATA for archs other than SPARC?
+Message-ID: <20020530001555.GA4831@branoic.them.org>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>, frank.schafer@setuza.cz,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.05.10205192307500.26915-100000@rain.cise.ufl.edu> <20020519.214053.19164382.davem@redhat.com> <1021876190.250.7.camel@ADMIN> <20020520.141800.52934272.davem@redhat.com> <20020529235116.GB3797@branoic.them.org> <20020530000311.GY14918@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 06:05:40PM -0400, Albert D. Cahalan wrote:
- > 
- > This is still a mess. It's better to have one boolean
- > per processor, and order the processors by the year
- > in which they were most commonly sold.
+On Wed, May 29, 2002 at 05:03:11PM -0700, William Lee Irwin III wrote:
+> On Mon, May 20, 2002 at 02:18:00PM -0700, David S. Miller wrote:
+> >> I can't see any reason why lack of PTRACE_READDATA prevents follow
+> >> fork mode support in GDB.
+> 
+> On Wed, May 29, 2002 at 07:51:16PM -0400, Daniel Jacobowitz wrote:
+> > It doesn't.  Follow-fork support is possible now, with a speed hit, but
+> > I am waiting for better kernel support; it should be forthcoming with
+> > the task ornament-based debugging interface proposed some time ago.
+> 
+> What is this and who is working on it?
 
-The information hiding of irrelevant options was one of the
-motivations behind that original patch. If I know I have
-an AMD Athlon, showing me all the Intel CPUs just gets in the way.
-A zillion options in a scrolly list is no better than what
-we currently have imo.
+David Howells, at the same time as the rest of the task ornaments
+stuff.  You'd have to ask him what the current state of it is.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Daniel Jacobowitz                           Carnegie Mellon University
+MontaVista Software                         Debian GNU/Linux Developer

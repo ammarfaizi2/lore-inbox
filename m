@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316198AbSEKDEj>; Fri, 10 May 2002 23:04:39 -0400
+	id <S314079AbSEKDDN>; Fri, 10 May 2002 23:03:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316199AbSEKDEi>; Fri, 10 May 2002 23:04:38 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:47501 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S316198AbSEKDEh>; Fri, 10 May 2002 23:04:37 -0400
-Date: Fri, 10 May 2002 23:04:37 -0400
+	id <S316198AbSEKDDM>; Fri, 10 May 2002 23:03:12 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:46854 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S314079AbSEKDDM>;
+	Fri, 10 May 2002 23:03:12 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Cc: kaos@ocs.com.au
-Subject: Re: [PATCH] iget-locked [2/6]
-Message-ID: <20020511030437.GA29392@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org, kaos@ocs.com.au
-In-Reply-To: <Pine.LNX.4.44.0205102120210.11642-100000@chaos.physics.uiowa.edu> <3950.1021085326@ocs3.intra.ocs.com.au>
+Subject: Re: [PATCH] BUG() disassembly tweak 
+In-Reply-To: Your message of "Sat, 11 May 2002 02:58:32 +0100."
+             <Pine.LNX.4.21.0205110255410.2235-100000@localhost.localdomain> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+Date: Sat, 11 May 2002 13:03:00 +1000
+Message-ID: <4058.1021086180@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 11, 2002 at 12:48:46PM +1000, Keith Owens wrote:
-> On Fri, 10 May 2002 21:21:16 -0500 (CDT), 
-> Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
-> >This is not true anymore in 2.5, this limitation was removed when ALSA 
-> >went in.
-> 
-> True, but if the iget change goes into 2.5 it will probably be
-> backported to 2.4 later, 2.4 still has the restriction.
-> 
-> As for modversions on 2.5, well you know my opinion ;).
+On Sat, 11 May 2002 02:58:32 +0100 (BST), 
+Hugh Dickins <hugh@veritas.com> wrote:
+>Is there some escaped syntax whereby we can (usefully) put
+>KBUILD_BASENAME into the BUG() macro in place of __FILE__?
 
-A backport is not that likely. The patch removes iget4 and as a result
-breaks compatibility for binary-only kernel modules that use iget and/or
-iget4. So, I don't believe this patch is appropriate for a stable series.
+AFAICT without testing it, you should be able to directly replace
+__FILE__ with KBUILD_BASENAME.  Both are just pre-processor variables.
 
-I'm going to fix the iget4 race in 2.4 by adding a per-superblock
-semaphore around the call to iget4 in Coda. My guess is that NFS and
-ReiserFS will have to do something similar. Filesystems that do not
-use a special 'find_actor' (i.e. iget) don't have a problem in 2.4.
-
-Jan
+On my bells and whistles list (things to add after kbuild 2.5 is in the
+kernel) is KBUILD_UNIQUE_NAME.  That variable will contain enough of
+the pathname to uniquely identify the source.  For globally unique
+names it is the same as KBUILD_BASENAME with a .[cS] suffix.  For
+repeated filenames like inode.c it is fs/inode.c for the top level,
+ext2/inode.c for an individual filesystem.
 

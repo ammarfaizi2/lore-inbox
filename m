@@ -1,75 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266129AbUFJGDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266202AbUFJGGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266129AbUFJGDn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 02:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266127AbUFJGDn
+	id S266202AbUFJGGq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 02:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUFJGGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 02:03:43 -0400
-Received: from ip-65-77-168-70-muca.aerosurf.net ([65.77.168.70]:4564 "EHLO
-	bedevere.spamaps.org") by vger.kernel.org with ESMTP
-	id S266129AbUFJGDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 02:03:41 -0400
-Date: Wed, 9 Jun 2004 23:03:38 -0700
-Subject: Re: 2.6 vm/elevator loading down disks where 2.4 does not
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v553)
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-To: Ray Lee <ray-lk@madrabbit.org>
-From: Clint Byrum <cbyrum@spamaps.org>
-In-Reply-To: <1086829384.13085.10.camel@orca.madrabbit.org>
-Message-Id: <EAAE7256-BAA3-11D8-B30D-000A95730E92@spamaps.org>
+	Thu, 10 Jun 2004 02:06:46 -0400
+Received: from prosun.first.gmd.de ([194.95.168.2]:45023 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S266202AbUFJGGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 02:06:43 -0400
+Subject: oops on wake up using usb-keyb/mouse on powerbook
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Benjamin Herrenschmidt <benh@KERNEL.CRASHING.ORG>
+Content-Type: text/plain
+Message-Id: <1086811906.24317.4.camel@localhost>
+Mime-Version: 1.0
+Date: Thu, 10 Jun 2004 08:06:20 +0200
 Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.553)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Wednesday, June 9, 2004, at 06:03 PM, Ray Lee wrote:
+I get this oops when I use a usb keyboard to wakeup the powerbook.
+Kernel is 2.6.7-rc2, usb keyboard is infect a ps2 keyboard attached via
+a usb->ps2 adapter.
 
->> Upon investigation, we saw that the 2.6 box was reading from the disk
->> about 5 times as much as 2.4.
->
-> I don't think this will account for the entire change in disk activity,
-> but 2.6.7-pre? contains a fix for the read ahead code to prevent it 
-> from
-> reading extra sectors when unneeded.
->
-> The fix applies to 'seeky database type loads' which...
->
->> The data access patterns are generally "search through index files in
->> a tree-walking type of manner, then seek to data records in data
->> files."
->
-> ...sounds like it may apply to you.
->
-> So, if you and your server have some time, you might try 2.6.7rc3 and
-> see if it changes any of the numbers.
->
+Any ideas ?
+Soeren.
 
-I updated my 2.6 box to 2.6.7-rc3 a few hours ago. While its not really 
-fair to pass judgement during such low-traffic times, things look about 
-the same. Where i see the 2.4 box not even touching the disks for a 
-minute or longer, the 2.6 box will hit it every 10 seconds at least, 
-and hit it with 40 blocks or more. 3 hours should be plenty of time to 
-get the indexes and data files mostly cached.
+kernel: ohci_hcd 0001:01:18.0: HC died; cleaning up
+kernel: drivers/usb/input/hid-core.c: can't resubmit intr, 0001:01:18.0-1/input1, status -108
+kernel: usb 1-1: USB disconnect, address 3
+kernel: Badness in hcd_endpoint_disable at drivers/usb/core/hcd.c:1359
+kernel: Call trace:
+kernel: [c0009c84] dump_stack+0x18/0x28
+kernel: [c0006ed4] check_bug_trap+0xb4/0xf0
+kernel: [c0007070] ProgramCheckException+0x160/0x190
+kernel: [c0006514] ret_from_except_full+0x0/0x4c
+kernel: [c02870b8] hcd_endpoint_disable+0x44/0x190
+kernel: [c0288804] usb_disable_endpoint+0xa8/0xac
+kernel: [c028897c] usb_disable_device+0x10c/0x128
+kernel: [c028289c] usb_disconnect+0xac/0x110
+kernel: [c0287400] hcd_panic+0x68/0x70
+kernel: [c0030124] worker_thread+0x17c/0x21c
+kernel: [c0033ff0] kthread+0xb8/0xc0
+kernel: [c0009384] kernel_thread+0x44/0x60
+kernel: Badness in hcd_endpoint_disable at drivers/usb/core/hcd.c:1359
+kernel: ohci_hcd 0001:01:18.0: leak ed efb69040 (#2) state 0 (has tds)
+[repeating several times]
+kernel: Call trace:
+kernel: [c0009c84] dump_stack+0x18/0x28
+kernel: [c0006ed4] check_bug_trap+0xb4/0xf0
+kernel: [c0007070] ProgramCheckException+0x160/0x190
+kernel: [c0006514] ret_from_except_full+0x0/0x4c
+kernel: [c0286edc] hcd_unlink_urb+0xa4/0x23c
+kernel: [c02878a4] usb_unlink_urb+0x5c/0x64
+kernel: [c0297ab0] hid_disconnect+0x40/0xcc
+kernel: [c0281b48] usb_unbind_interface+0x88/0x8c
+kernel: [c021c6e0] device_release_driver+0x84/0x88
+kernel: [c021c880] bus_remove_device+0x74/0xd0
+kernel: [c021b250] device_del+0xa8/0x114
+kernel: [c0288958] usb_disable_device+0xe8/0x128
+kernel: [c028289c] usb_disconnect+0xac/0x110
+kernel: [c0287400] hcd_panic+0x68/0x70
+kernel: [c0030124] worker_thread+0x17c/0x21c
+kernel: Badness in hcd_unlink_urb at drivers/usb/core/hcd.c:1246
+times]
+kernel: Call trace:
+kernel: [c0009c84] dump_stack+0x18/0x28
+kernel: [c0006ed4] check_bug_trap+0xb4/0xf0
+kernel: [c0007070] ProgramCheckException+0x160/0x190
+kernel: [c0006514] ret_from_except_full+0x0/0x4c
+kernel: [c0286edc] hcd_unlink_urb+0xa4/0x23c
+kernel: [c02878a4] usb_unlink_urb+0x5c/0x64
+kernel: [c0297190] hid_close+0x38/0x3c
+kernel: [c029a88c] hidinput_close+0x14/0x24
+kernel: [c029b22c] input_close_device+0x50/0x54
+kernel: [c029eb88] evdev_disconnect+0x44/0x6c
+kernel: [c029bd08] input_unregister_device+0x90/0x114
+kernel: [c029ab58] hidinput_disconnect+0x3c/0x80
+kernel: [c0297b20] hid_disconnect+0xb0/0xcc
+kernel: [c0281b48] usb_unbind_interface+0x88/0x8c
+kernel: [c021c6e0] device_release_driver+0x84/0x88
 
-It almost seems to me like 2.6 is caching too much with each read, and 
-therefore having to free other pages that really should have been left 
-alone. This might even explain why 2.4 is maintaining a lot more free 
-memory (75-80MB versus 2.6 having only 15-20MB free) and less cache. 
-Oddly enough, I noticed that the blockdev command reports 256 as the 
-readahead in 2.6.x, but 1024 in 2.4.x. I tried mucking with that value 
-but it didn't make a whole lot of difference.
-
-Might it help to have some swap available, if for nothing else but to 
-make the algorithms work better? Really the box should never use it; 
-there are no daemons that go unused for longer than 10 minutes ...  and 
-when I have turned on swap in the past, it uses less than 2MB of it. 
-This machine, for all intents and purposes, should spend most of its 
-time searching an index and database that are already cached.. 90% of 
-the searches are on similar terms.
-
-That brings up an interesting point... is there a system wide stat that 
-tells me how effective the file cache is? I guess majfaults/s fits that 
-bill to some degree.
 

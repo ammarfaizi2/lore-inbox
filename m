@@ -1,91 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262868AbVAQUQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbVAQUW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262868AbVAQUQw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 15:16:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVAQUQw
+	id S262869AbVAQUW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 15:22:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVAQUW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 15:16:52 -0500
-Received: from gprs215-94.eurotel.cz ([160.218.215.94]:59529 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262868AbVAQUQh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 15:16:37 -0500
-Date: Mon, 17 Jan 2005 21:16:25 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: driver model: pass pm_message_t down to pci drivers
-Message-ID: <20050117201625.GA1779@elf.ucw.cz>
-Mime-Version: 1.0
+	Mon, 17 Jan 2005 15:22:57 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:22728 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262869AbVAQUWy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 15:22:54 -0500
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Jan Hubicka <jh@suse.cz>,
+       Jack F Vogel <jfv@bluesong.net>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
+References: <Pine.LNX.4.61.0501141623530.3526@ezer.homenet>
+	<20050114205651.GE17263@kam.mff.cuni.cz>
+	<Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com>
+	<cs9v6f$3tj$1@terminus.zytor.com>
+	<Pine.LNX.4.61.0501170909040.4593@ezer.homenet>
+	<1105955608.6304.60.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.61.0501171002190.4644@ezer.homenet>
+	<41EBFF87.6080105@zytor.com>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 17 Jan 2005 21:22:53 +0100
+In-Reply-To: <41EBFF87.6080105@zytor.com> (H. Peter Anvin's message of "Mon,
+ 17 Jan 2005 10:10:15 -0800")
+Message-ID: <m1wtubvm8y.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-This passes pm_message_t down to PCI drivers. Ugly translation code
-can be removed and this will allow PCI devices to do right thing
-during swsusp snapshot -- like not unneccessarily blanking display.
+> Tigran Aivazian wrote:
+>> On Mon, 17 Jan 2005, Arjan van de Ven wrote:
+>>
+>>>> Actually, having cc'd Linus made me think very _carefully_ about what I
+>>>> say and I went and checked how the userspace does it, as I couldn't
+>>>> believe that such fine piece of software as gdb would be broken as well.
+>>>> And to my surprize I discovered that gdb (when a program is
+>>>> compiled with
+>>>> -g) works fine! I.e. it shows the function arguments correctly. And
+>>>
+>>> so why don't you use kgdb instead of kdb ?
+>> If kdb was some dead unmaintained piece of software then, yes, I
+>> would follow your advice and switch to kgdb. But kdb is a very nice
+>> and actively maintained piece of work, so it should be fixed to show
+>> the parameter values correctly in the backtrace.
+>
+> That's a kdb maintainer issue.  The x86-64 folks have nicely provided
+> a set of libraries to do backtraces, etc.  Your previous rant is just
+> so far off base it's not even funny.
 
-Only obscure /sysfs code passes anything but 3 to to
-pci_device_suspend, anyway, so this is pretty close to nop ;-).
+To be fair there isn't a nice library for it on x86-64.  There
+is libunwind on IA64, but afaik nobody ported it to x86-64 yet.
 
-Please apply,
-								Pavel
+Just various projects have their own private unwind
+implementation. The kernel including KDB has always lived with
+imprecise backtraces and no argument printing. I don't think it has
+been a show stopper so far.  If you really want the arguments you can
+always use kgdb.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+However I'm not sure we really want libunwind in the kernel anyways
+(not even in KDB ;-) If anything better something stripped down and 
+simple which libunwind isn't.
 
---- clean-cvs/drivers/pci/pci-driver.c	2005-01-16 22:27:25.000000000 +0100
-+++ linux-cvs/drivers/pci/pci-driver.c	2005-01-17 00:19:56.000000000 +0100
-@@ -288,23 +288,10 @@
- {
- 	struct pci_dev * pci_dev = to_pci_dev(dev);
- 	struct pci_driver * drv = pci_dev->driver;
--	u32 dev_state;
- 	int i = 0;
- 
--	/* Translate PM_SUSPEND_xx states to PCI device states */
--	static u32 state_conversion[] = {
--		[PM_SUSPEND_ON] = 0,
--		[PM_SUSPEND_STANDBY] = 1,
--		[PM_SUSPEND_MEM] = 3,
--		[PM_SUSPEND_DISK] = 3,
--	};
--
--	if (state >= sizeof(state_conversion) / sizeof(state_conversion[1]))
--		return -EINVAL;
--
--	dev_state = state_conversion[state];
- 	if (drv && drv->suspend)
--		i = drv->suspend(pci_dev, dev_state);
-+		i = drv->suspend(pci_dev, state);
- 	else
- 		pci_save_state(pci_dev);
- 	return i;
---- clean-cvs/include/linux/pci.h	2005-01-16 22:29:13.000000000 +0100
-+++ linux-cvs/include/linux/pci.h	2005-01-16 23:58:54.000000000 +0100
-@@ -667,7 +667,7 @@
- 	const struct pci_device_id *id_table;	/* must be non-NULL for probe to be called */
- 	int  (*probe)  (struct pci_dev *dev, const struct pci_device_id *id);	/* New device inserted */
- 	void (*remove) (struct pci_dev *dev);	/* Device removed (NULL if not a hot-plug capable driver) */
--	int  (*suspend) (struct pci_dev *dev, u32 state);	/* Device suspended */
-+	int  (*suspend) (struct pci_dev *dev, pm_message_t state);	/* Device suspended */
- 	int  (*resume) (struct pci_dev *dev);	                /* Device woken up */
- 	int  (*enable_wake) (struct pci_dev *dev, u32 state, int enable);   /* Enable wake event */
- 
-@@ -823,7 +823,7 @@
- int pci_save_state(struct pci_dev *dev);
- int pci_restore_state(struct pci_dev *dev);
- int pci_set_power_state(struct pci_dev *dev, pci_power_t state);
--pci_power_t pci_choose_state(struct pci_dev *dev, u32 state);
-+pci_power_t pci_choose_state(struct pci_dev *dev, pm_message_t state);
- int pci_enable_wake(struct pci_dev *dev, pci_power_t state, int enable);
- 
- /* Helper functions for low-level code (drivers/pci/setup-[bus,res].c) */
+Unfortunately dwarf2 is not exactly a simple spec so implementing
+a new backtracer for the kernel is not a trivial task. 
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
-
+-Andi

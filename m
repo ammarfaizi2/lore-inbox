@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVAJCnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbVAJCu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbVAJCnf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 21:43:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVAJCnb
+	id S262055AbVAJCu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 21:50:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVAJCu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 21:43:31 -0500
-Received: from waste.org ([216.27.176.166]:27045 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261890AbVAJCn2 (ORCPT
+	Sun, 9 Jan 2005 21:50:57 -0500
+Received: from gold.muskoka.com ([216.123.107.5]:4050 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id S262055AbVAJCut (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 21:43:28 -0500
-Date: Sun, 9 Jan 2005 18:43:20 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: torvads@osdl.org, akpm@osdl.org, jlan@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Move accounting function calls out of critical vm code paths
-Message-ID: <20050110024320.GD2995@waste.org>
-References: <Pine.LNX.4.58.0501051651140.10377@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501051651140.10377@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.3.28i
+	Sun, 9 Jan 2005 21:50:49 -0500
+Message-ID: <41E1EB68.5000709@muskoka.com>
+Date: Sun, 09 Jan 2005 21:41:44 -0500
+From: Paul Gortmaker <penguin@muskoka.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] 2.6.9 Use skb_padto() in drivers/net/8390.c
+References: <41DED9FA.7080106@pobox.com>  <41DF9AC1.2010609@muskoka.com> <1105197689.10505.22.camel@localhost.localdomain>
+In-Reply-To: <1105197689.10505.22.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 05, 2005 at 04:55:14PM -0800, Christoph Lameter wrote:
+Alan Cox wrote:
 
-> One disadvantage is that rss etc may now peak between stime
-> increments without being noticed. But I think we are mostly
-> interested in prolonged memory use rather than accurate data on the
-> max rss ever reached.
+>On Sad, 2005-01-08 at 08:33, Paul Gortmaker wrote:
+>  
+>
+>>Is it possible that skb_padto has since got its act together?   Reason I
+>>ask is that I just dusted off a crusty 386dx40 (doesn't get much older
+>>    
+>
+>Could be - kmalloc has probably improved but the skbuffs have got far
+>more complex
+>
+>
+>>than that) with a wd8013.  As a basic test, I did ttcp Tx tests with small
+>>packets and they came out to all intents and purposes, identical.   Kernel 
+>>was 2.6.10, with stack vs skb_padto, each size test ran 3 times, even tested
+>>packets bigger than ETH_ZLEN as a (hopefully) invariant.  I've attached the
+>>edited down results below.
+>>    
+>
+>What are you testing ? I don't see the relationship between network
+>throughput and efficiency on this device.
 
-This has the downside that applications may die well after the event
-that caused the excess. Also, I can see situations in RT where strict
-limits are put in place to ensure that particular apps are never
-starved so strict accounting is occassionally desireable.
+I was thinking that for a sufficiently slow CPU running at 100% (hence the
+lowly 386),  the throughput would be influenced by how efficiently we can
+get in, get the Tx set up and get out.
 
-Perhaps we could do the accounting on the fly iff we have an rlimit in
-the first place and we're already over half of it? Such strict
-accounting could triggered by a process flag turned off and on inside
-acct_update_integrals.
+>Drop it on a pentium or late 486 and use the tsc to compare the two code
+>paths. One is much much more efficienct.
 
-One also wonders if once per timer tick is more processing for compute
-intensive workloads.
+Using rdtscl over the  area affected by the patch on the two variants for a
+sample  of 234 small packets, I see an average of 4141 for using the
+existing stack scratch area, and 4162 for using skb_padto.   That is a
+difference of about 0.5%, which is significantly less than the typical
+spread in the samples themselves.  To help give a relevant scale,  feeding
+it a larger 1400 byte packet comes in at around 60,000 cycles on this
+particular box.   Am I being optimistic to see this as good news -- meaning
+that there is no longer a need for driver specific padto implementations,
+whereas it looks like there was back when you did your tests? 
 
-Finally, do { } while (0); is a bit of cargo cult. The compilers no
-longer warn for empty statements so a null #define is fine.
+Paul.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+
+
+

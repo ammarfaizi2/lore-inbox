@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131900AbQKJVfH>; Fri, 10 Nov 2000 16:35:07 -0500
+	id <S131807AbQKJVgH>; Fri, 10 Nov 2000 16:36:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131899AbQKJVe5>; Fri, 10 Nov 2000 16:34:57 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:17925 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S131898AbQKJVet>; Fri, 10 Nov 2000 16:34:49 -0500
-Date: Sat, 11 Nov 2000 00:29:22 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Gerard Roudier <groudier@club-internet.fr>
-Cc: Richard Henderson <rth@twiddle.net>, axp-list@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: PCI-PCI bridges mess in 2.4.x
-Message-ID: <20001111002922.A1348@jurassic.park.msu.ru>
-In-Reply-To: <20001110021723.A4142@jurassic.park.msu.ru> <Pine.LNX.4.10.10011101929190.1448-100000@linux.local>
+	id <S131848AbQKJVf5>; Fri, 10 Nov 2000 16:35:57 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:16132 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131807AbQKJVfl>;
+	Fri, 10 Nov 2000 16:35:41 -0500
+Message-ID: <20001110222416.B300@bug.ucw.cz>
+Date: Fri, 10 Nov 2000 22:24:16 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Dag Brattli <dagb@fast.no>
+Cc: jt@hpl.hp.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [RANT] Linux-IrDA status
+In-Reply-To: <Pine.LNX.4.10.10011072316180.15590-100000@penguin.transmeta.com> <200011081215.MAA69418@tepid.osl.fast.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.10.10011101929190.1448-100000@linux.local>; from groudier@club-internet.fr on Fri, Nov 10, 2000 at 07:35:41PM +0100
+X-Mailer: Mutt 0.93i
+In-Reply-To: <200011081215.MAA69418@tepid.osl.fast.no>; from Dag Brattli on Wed, Nov 08, 2000 at 12:15:48PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 07:35:41PM +0100, Gerard Roudier wrote:
-> I only have spec 1.0 on paper. I should have checked 1.1. Anyway, it may
-> still exist bridges that have been designed prior to spec. 1.1.
+Hi!
 
-Yes, DEC 2105x bridges, for example.
-
-The only update listed in revision history is "Update to include
-target initial latency requirements", so this (base > limit) stuff
-must be in rev. 1.0 as well. Please check chapters 3.2.5.[6,8,9].
-
+> Some options:
 > 
-> > I/O is slightly different because it's optional for the bridge -
-> > but if it's implemented same rules apply.
-> 
-> Will also check the spec. on this point. :)
+> 1) Split up the large patch and fix the things you didn't like, submit them
+> with better discription. But then It's probably to late anyway for 2.4 (even if 
+> the 2.4-test series is not the most stable stuff I've tried). Is it
+> to late for this?
 
-Also, according the spec, we need some paranoia checks ;-)
-1. check if the bridge has an I/O window not implemented
-2. if the bridge has regular BARs, allocate them properly
-   on the primary bus.
+Probably not. Get tytso to agree that broken IrDA is critical bug,
+split patches, and see them accepted.
 
-Ivan.
+> 2) Remove IrDA from the kernel, and we'll go back to using CVS and 
+> make our own package (like PCMCIA and IrDA was before they got 
+> into the kernel. At least PCMCIA used to work back then ;-)
+
+Do not do that, please.
+
+> 3) Just apply the stuff!?! Look at Jean's mail for description of
+> the changes.
+								Pavel
+
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

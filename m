@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319019AbSIDCs5>; Tue, 3 Sep 2002 22:48:57 -0400
+	id <S319021AbSIDCtH>; Tue, 3 Sep 2002 22:49:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319021AbSIDCs4>; Tue, 3 Sep 2002 22:48:56 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:15838 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S319019AbSIDCs4>; Tue, 3 Sep 2002 22:48:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-Subject: Re: 2.5.33-mm1
-Date: Tue, 3 Sep 2002 22:51:54 -0400
-User-Agent: KMail/1.4.3
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209032251.54795.tomlins@cam.org>
+	id <S319022AbSIDCtH>; Tue, 3 Sep 2002 22:49:07 -0400
+Received: from holomorphy.com ([66.224.33.161]:53410 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S319021AbSIDCtG>;
+	Tue, 3 Sep 2002 22:49:06 -0400
+Date: Tue, 3 Sep 2002 19:46:30 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Important per-cpu fix.
+Message-ID: <20020904024630.GU888@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@zip.com.au>,
+	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+References: <20020904023535.73D922C12D@lists.samba.org> <3D75766F.1ED7257D@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <3D75766F.1ED7257D@zip.com.au>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 3, 2002 09:13 pm, Andrew Morton wrote:
-> ext3_inode_cache     959   2430    448  264  270    1
->
-> That's 264 pages in use, 270 total.  If there's a persistent gap between
-> these then there is a problem - could well be that slablru is not locating
-> the pages which were liberated by the pruning sufficiently quickly.
+Rusty Russell wrote:
+>> Frankly, I'm amazed the kernel worked for long without this.
+>> Every linker script thinks the section is called .data.percpu.
+>> Without this patch, every CPU ends up sharing the same "per-cpu"
+>> variable.
 
-Sufficiently quickly is a relative thing.  It could also be that by the time
-the pages are reclaimed another <n> have been cleaned.  IMO its no worst
-than have freeable pages on lru from any other source.  If we get close to
-oom we will call kmem_cache_reap, otherwise we let the lru find the pages.
+On Tue, Sep 03, 2002 at 07:56:47PM -0700, Andrew Morton wrote:
+> wow.  Either this was working by fluke, or Bill's softirq problem
+> just got solved.
 
-> Calling kmem_cache_reap() after running the pruners will fix that up.
+It's pretty easy to find out, my machines don't get past
+execve("/sbin/init", argv_init, envp_init); without some kind of softirq
+fix. The boot cycle is not swift though... in progress.
 
-more specificly kmem_cache_reap will clean the one cache with the most
-free pages...
 
->What on earth is going on with kmem_cache_reap?  Am I missing
->something, or is that thing 700% overdesigned?  Why not just
->free the darn pages in kmem_cache_free_one()?  Maybe hang onto
->a few pages for cache warmth, but heck.
-
-This might be as simple as we can see the free pages in slabs.  We
-cannot see other freeable pages in the lru.  This makes slabs seem
-like a problem - just because we can see it.
-
-On the other hand we could setup to call __kmem_cache_shrink_locked
-after pruning a cache - as it is now this will use page_cache_release
-to free the pages...  Need to be careful coding this though.
-
-Andrew, you stated that we need to consider dcache and icache pages
-as very important ones.  I submit that this is what slablru is doing.
-It is keeping more of these objects around than the previous design,
-which is what you wanted to see happen.
-
-Still working on a good reply to your design suggestion/questions?
-
-Ed
-
--------------------------------------------------------
-
+Cheers,
+Bill

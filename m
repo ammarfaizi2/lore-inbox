@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265047AbUF1QBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUF1QR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265047AbUF1QBu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 12:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUF1QBu
+	id S265051AbUF1QR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 12:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUF1QR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 12:01:50 -0400
-Received: from ida.rowland.org ([192.131.102.52]:15876 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S265047AbUF1QBs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 12:01:48 -0400
-Date: Mon, 28 Jun 2004 12:01:48 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: Oliver Neukum <oliver@neukum.org>, Andries Brouwer <aebr@win.tue.nl>,
-       <greg@kroah.com>, <arjanv@redhat.com>, <jgarzik@redhat.com>,
-       <tburke@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <mdharm-usb@one-eyed-alien.net>, <david-b@pacbell.net>
-Subject: Re: drivers/block/ub.c
-In-Reply-To: <20040627171044.052a67c6@lembas.zaitcev.lan>
-Message-ID: <Pine.LNX.4.44L0.0406281156500.1598-100000@ida.rowland.org>
+	Mon, 28 Jun 2004 12:17:56 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:24449 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S265051AbUF1QRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 12:17:55 -0400
+Message-ID: <40E0449F.5050104@nortelnetworks.com>
+Date: Mon, 28 Jun 2004 12:17:35 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Timothy Miller <miller@techsource.com>
+CC: Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nice 19 process still gets some CPU
+References: <40E03C2D.5000809@techsource.com>
+In-Reply-To: <40E03C2D.5000809@techsource.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jun 2004, Pete Zaitcev wrote:
+Timothy Miller wrote:
+> 
+> 
+> Con Kolivas wrote:
+> 
+>  >
+>  > It definitely should _not_ starve. That is the unixy way of doing
+>  > things. Everything must go forward. Around 5% cpu for nice 19 sounds
+>  > just right. If you want scheduling only when there's spare cpu cycles
+>  > you need a sched batch(idle) implementation.
+>  >
+>  >
+> 
+> Well, since I can't rewrite the app, I can't make it sched batch.  Nice
+> values are an easy thing to get at for anything that's running.
 
-> This is very nice and would be a great help for Infiniband developers.
-> However, parts of SCSI commands are not defined in terms of C structures
-> or even 32 bit words with an endianness. They are streams of bytes, at
-> least historically. Please kindly refer to the WRITE(6) command for
-> the evidence. You'd need put_be20() to form that block address. :-)
+Sure you can.  You can set the scheduler policy on any process in the system, 
+while its running.
 
-About 13 years ago I wrote a data analysis program for an NMR spectrometer
-that stored its output as 24-bit integers!  Yes, one does encounter weird
-things from time to time.  Still, having the functions I mentioned would 
-be very handy in the majority of cases.  They remove several 
-possibilities for error (getting the bit shifts wrong, getting the array 
-indexes wrong, associating the right bit shift with the wrong index).
+int sched_setscheduler(pid_t pid, int policy, const struct sched_param *p);
 
-> I write these byte marshalling sequences since 1985 and I'm a little
-> used to them. I do not recall thinking twice about writing that element
-> of ub. It probably doesn't deserve all the tempest Oliver raised over it.
+Takes about two minutes to write an equivalent to "nice" to set scheduler 
+policies and priorities.
 
-Andries too.
 
-Alan Stern
-
+Chris

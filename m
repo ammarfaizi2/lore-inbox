@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271600AbRIGHin>; Fri, 7 Sep 2001 03:38:43 -0400
+	id <S271598AbRIGHrd>; Fri, 7 Sep 2001 03:47:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271598AbRIGHid>; Fri, 7 Sep 2001 03:38:33 -0400
-Received: from [195.211.46.202] ([195.211.46.202]:15222 "EHLO serv02.lahn.de")
-	by vger.kernel.org with ESMTP id <S271607AbRIGHiY>;
-	Fri, 7 Sep 2001 03:38:24 -0400
-X-Spam-Filter: check_local@serv02.lahn.de by digitalanswers.org
-Date: Fri, 7 Sep 2001 08:51:18 +0200 (CEST)
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-Reply-To: <pmhahn@titan.lahn.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dag Brattli <dagb@fast.no>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Irda-List <linux-irda@pasta.cs.UiT.No>
-Subject: [PATCH] Re: [CHECKER] security errors for 2.4.9 and 2.4.9-ac7
-In-Reply-To: <Pine.GSO.4.31.0109041405210.15852-100000@saga18.Stanford.EDU>
-Message-ID: <Pine.LNX.4.33.0109070843340.2937-100000@titan.lahn.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271607AbRIGHrN>; Fri, 7 Sep 2001 03:47:13 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:27404 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S271598AbRIGHrD>;
+	Fri, 7 Sep 2001 03:47:03 -0400
+Message-ID: <20010907115416.A26786@castle.nmd.msu.ru>
+Date: Fri, 7 Sep 2001 11:54:16 +0400
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Julian Anastasov <ja@ssi.bg>
+Cc: Wietse Venema <wietse@porcupine.org>,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip aliasbug 2.4.9 and 2.2.19]
+In-Reply-To: <Pine.LNX.4.33.0109070944510.1449-100000@u.domain.uli>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <Pine.LNX.4.33.0109070944510.1449-100000@u.domain.uli>; from "Julian Anastasov" on Fri, Sep 07, 2001 at 10:10:01AM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus, Alan, Dag, LKML, IrDA!
+Hi,
 
-Please apply, the patch was sent to Dag and Jean, Jean gave his OK, Dag
-didn't reply. The patch is obvious correct.
+On Fri, Sep 07, 2001 at 10:10:01AM +0000, Julian Anastasov wrote:
+> 
+> Andrey Savochkin wrote:
+> 
+> > > > connect a datagram socket (which won't produce any actual traffic) to
+> > > > the remote host with INADDR_ANY as the local address, and then query
+> > > > the local address.  If the local address is the same as the remote
+> > > > address, the address is local.
+> > >
+> > > That will always work, even when you have multiple ethernet
+> > > interfaces??
+> >
+> > It will work almost always, except cases where administrator set different
+> > preffered sources in local routes.
+> 
+> 	It seems if connect() is called without bind() and the target
+> is local address the selected source is the same (the preferred address
+> is not used). The postfix guys simply can try this proposal (I don't
 
---- linux-2.4.7/net/irda/af_irda.c~	Thu Jul 12 14:21:06 2001
-+++ linux-2.4.7/net/irda/af_irda.c	Sat Jul 14 12:36:07 2001
-@@ -2035,7 +2035,7 @@
- 	if (get_user(len, optlen))
- 		return -EFAULT;
+I've just checked, you're right.
+In the mainstream 2.4 kernels for local routes setting the source to be equal
+to the target overrides the preferred source from the route.
 
--	if(optlen < 0)
-+	if(len < 0)
- 		return -EINVAL;
+I personally consider it as a bug.
+Why do we have preferred source field in the routes if not to override how
+the kernel selects the source by itself?
 
- 	switch (optname) {
-
-
-
-On Tue, 4 Sep 2001, Kenneth Michael Ashcraft wrote:
-
-> I've extended the security checker (makes sure that user lengths are
-> bounds checked) quite a bit since my last report on July 13.  The checker
-> makes sure that bounds checks are present before a user length is:
-...
-> 1	|	/home/kash/linux/2.4.9/net/irda/af_irda.c/
-...
-> ---------------------------------------------------------
-> [BUG] looks like it
-> /home/kash/linux/2.4.9/net/irda/af_irda.c:2064:irda_getsockopt: ERROR:RANGE:2063:2064: Using user length "(null)" as argument to "copy_to_user" [type=LOCAL] [state = tainted] set by 'get_user':2064 [linkages -> 2063:len:start] [distance=3]
-> 			sizeof(struct irda_device_info);
->
-> 		/* Copy the list itself */
-> 		total = offset + (list.len * sizeof(struct irda_device_info));
-> 		if (total > len)
-> Start --->
-> 			total = len;
-> Error --->
-> 		if (copy_to_user(optval+offset, discoveries, total - offset))
-> 			err = -EFAULT;
->
-> 		/* Write total number of bytes used back to client */
-> ---------------------------------------------------------
-
-BYtE
-Philipp
--- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
-
+	Andrey

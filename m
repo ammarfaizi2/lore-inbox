@@ -1,61 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263519AbTJQVUK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 17:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbTJQVUK
+	id S263528AbTJQVWM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 17:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbTJQVWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 17:20:10 -0400
-Received: from mx3.evanzo-server.de ([81.209.142.20]:18396 "EHLO
-	mx3.evanzo-server.de") by vger.kernel.org with ESMTP
-	id S263519AbTJQVUG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 17:20:06 -0400
-From: Markus Schoder <markus_schoder@yahoo.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test7: Preempt enabled -> kernel panic
-Date: Fri, 17 Oct 2003 23:19:59 +0200
-User-Agent: KMail/1.5.4
+	Fri, 17 Oct 2003 17:22:12 -0400
+Received: from mx2.it.wmich.edu ([141.218.1.94]:37333 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S263528AbTJQVWH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 17:22:07 -0400
+Message-ID: <3F905D7D.9030602@wmich.edu>
+Date: Fri, 17 Oct 2003 17:22:05 -0400
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031010 Debian/1.4-6
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Alex Tomas <alex@clusterfs.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] EXT3 extents against 2.6.0-test7
+References: <20031013222747.37f5ee7b.alex@clusterfs.com>	<3F8B1BA1.4020800@wmich.edu>	<20031014212359.42243025.alex@clusterfs.com>	<3F9043E7.3070606@wmich.edu>	<20031018001001.25e85002.alex@clusterfs.com>	<3F904D7F.50403@wmich.edu> <20031018004152.6aa9e9c3.alex@clusterfs.com>
+In-Reply-To: <20031018004152.6aa9e9c3.alex@clusterfs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310172319.59776.markus_schoder@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When compiling 2.6.0-test7 with preempt I get a kernel panic
-when running the tst-eintr1 test program from the nptl 0.60 package.
-It does not happen every time but running it repeatedly will lead
-to a panic pretty quickly.
+Alex Tomas wrote:
+> On Fri, 17 Oct 2003 16:13:51 -0400
+> Ed Sweetman <ed.sweetman@wmich.edu> wrote:
+> 
+> 
+>>How am i supposed to know which directory in the fs this corruption 
+>>takes place in?   I can tell you the size of the partitions that have 
+>>extents enabled, From that error message i dont even know which 
+>>partition it was.  And judging by the dmesg last modified time, this 
+>>happened 2 days ago
+> 
+> 
+> OK. the question wasn't clear.
+> 
+> 1) could you _estimate_ max directory size or number of entries in single
+>    directory on your filesystems, please? had you large directories?
+>    100, 300, 500 or more entries?
 
-With preempt disabled it's rock solid.
+none of my directories have more than 60 or so entries.  I keep 
+everything very organized on my hdds.  The largest directories would be 
+the ones holding the largest files but that maxes out at around 60 file 
+entries.  i formatted those partitions with a 4KB inode size.
 
-Stack trace is not always the same but there always seems to
-be infinite recursion. Also sometimes interrupts are disabled
-(no SysRq) and sometimes not.
 
-This is on an Athlon XP, kernel compiled with gcc 3.3.1.
+outside of the two partitions with extents enabled though....  I'm not 
+sure if i have any seriously large directories in my other partitions. 
+And their inode size varies from 1KB to 4Kb depending on what type of 
+content they're expected to have .
 
-Example stack trace:
+> 2) did you use 2.6.0-test7+extents or some another patches?
 
-...
-do_page_fault+0x12c/0x454
-poke_blanked_console+0x5c/0x70
-try_to_wake_up+0xa7/0x160
-default_wake_function+0x2a/0x30
-__wake_up_common+0x31/0x60
-do_page_fault+0x0/0x454
-error_code+0x2d/0x38
-do_exit+0x1d2/0x350
-do_page_fault+0x0/0x454
-die+0xe1/0xf0
-do_page_fault+0x12c/0x454
-sys_exit+0x13/0x20
-syscall_call+0x7/0xb
+The only other patches i have are related to fbdev and directfb. 
+Otherwise it's a vanilla 2.6.0-test7 + extents patch that you posted for it.
 
-Code: 8b 5d 68 c7 44 24 20 01 00 03 00 8b 50 14 8b 00 81 e2 ff ff
-<6>note: ld-linux.so.2[2069] exited with preempt_count 1
 
---
-Markus
+> 3) could you describe workload. knowing it I'd try to reproduce this
+
+
+Workload on those partitions at the time?  It cant be anything more than 
+mplayer reading a movie or writing a movie to disk.  And the writes 
+would be at about 20MB/sec avg (ext3 to ext3 both with extents) from one 
+drive (the partitions happen to be on separate drives) to the other. The 
+transferrate spikes at 30MB/sec at start and stays at around 20MB/sec 
+for upwards up 1GB for a file.
+
+Nothing else is done on those partitions.  System wise though, what 
+caused the crash to occur was updatedb, which does a find on every 
+filesystem off of /.  This is what was running when the error occured, 
+and it didn't happen this morning when it happened again, the error i 
+mean.  I have dma enabled so updatedb doesn't cause significant 
+schedular issues due to cpu usage. That's all that was going on at the 
+time.
+
+
+> 
+> 
+>>Isn't it possible though that this happened in one of the non-extents 
+>>enabled partitions though?  Since they still have the ability to read 
+>>extents in files, they have to try and look them up every time for 
+>>everything dont they?  Anyways, the two partitions above are the only 
+>>ones i actually enable extents on.
+>>
+> 
+> 
+> extents take place only if flag in inode->i_flags is set. that flag can
+> be set only during inode creation on extents-enabled filesystem.
+> 
+> with best wishes, Alex
+> 
+
 

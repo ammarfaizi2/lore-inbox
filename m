@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261311AbTCOHgr>; Sat, 15 Mar 2003 02:36:47 -0500
+	id <S261319AbTCOHlK>; Sat, 15 Mar 2003 02:41:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261312AbTCOHgq>; Sat, 15 Mar 2003 02:36:46 -0500
-Received: from pop016pub.verizon.net ([206.46.170.173]:59586 "EHLO
-	pop016.verizon.net") by vger.kernel.org with ESMTP
-	id <S261311AbTCOHgq>; Sat, 15 Mar 2003 02:36:46 -0500
-Message-ID: <3E72DA08.6CCA19FA@verizon.net>
-Date: Fri, 14 Mar 2003 23:45:12 -0800
-From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.59 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S261320AbTCOHlK>; Sat, 15 Mar 2003 02:41:10 -0500
+Received: from cygnus-ext.enyo.de ([212.9.189.162]:37130 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id <S261319AbTCOHlJ>;
+	Sat, 15 Mar 2003 02:41:09 -0500
 To: linux-kernel@vger.kernel.org
-Subject: seq_file_howto updated (v1)
+Subject: Re: Never ever use word BitKeeper if Larry does not like you
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Sat, 15 Mar 2003 08:51:58 +0100
+In-Reply-To: <fqt47vk89d2sq6v3tfm5fj5o0jsgebalg6@4ax.com> (John Alvord's
+ message of "Fri, 14 Mar 2003 16:49:37 -0800")
+Message-ID: <8765qljcdd.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
+References: <20030314184009$1b0a@gated-at.bofh.it>
+	<20030314184009$54f5@gated-at.bofh.it>
+	<20030314184009$6d9e@gated-at.bofh.it>
+	<20030314184009$548a@gated-at.bofh.it>
+	<20030314184009$69b1@gated-at.bofh.it> <873clpbovs.fsf@deneb.enyo.de>
+	<fqt47vk89d2sq6v3tfm5fj5o0jsgebalg6@4ax.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at pop016.verizon.net from [4.64.238.61] at Sat, 15 Mar 2003 01:47:30 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+John Alvord <jalvo@mbay.net> writes:
 
-I've updated my seq_file howto, including some comments from
-Andries Brouwer as well.  It's now available at
+> If I were in BitMover, I would treat such advances as trade secrets,
 
-  http://www.xenotime.net/linux/seq_file_howto.txt
+It's a bit questionable to treat something as trade secret which is
+licensed for certain forms of redistribution.
 
-Comments/corrections welcome.
-
-Rik or John - would you post this at kernelnewbies.org also?
-
-~Randy
+(Maybe the license has changed since summer 2002, I don't know.)

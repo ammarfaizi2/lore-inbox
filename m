@@ -1,48 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131643AbRDXWCP>; Tue, 24 Apr 2001 18:02:15 -0400
+	id <S131563AbRDXWAX>; Tue, 24 Apr 2001 18:00:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132313AbRDXWCF>; Tue, 24 Apr 2001 18:02:05 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:16553 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S131643AbRDXWBv>; Tue, 24 Apr 2001 18:01:51 -0400
-Date: Wed, 25 Apr 2001 00:01:20 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+	id <S131643AbRDXWAP>; Tue, 24 Apr 2001 18:00:15 -0400
+Received: from mons.uio.no ([129.240.130.14]:41674 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S131563AbRDXWAD>;
+	Tue, 24 Apr 2001 18:00:03 -0400
 To: Alexander Viro <viro@math.psu.edu>
-Cc: Andreas Dilger <adilger@turbolinux.com>, Christoph Rohland <cr@sap.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Jan Harkes <jaharkes@cs.cmu.edu>,
-        "David L. Parsley" <parsley@linuxjedi.org>,
-        linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: hundreds of mount --bind mountpoints?
-Message-ID: <20010425000120.M719@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <200104241837.f3OIb0ii016925@webber.adilger.int> <Pine.GSO.4.21.0104241441560.6992-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+In-Reply-To: <Pine.GSO.4.21.0104232241130.4968-100000@weyl.math.psu.edu>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 24 Apr 2001 23:59:55 +0200
+In-Reply-To: Alexander Viro's message of "Mon, 23 Apr 2001 22:53:15 -0400 (EDT)"
+Message-ID: <shszod6j6w4.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.GSO.4.21.0104241441560.6992-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Apr 24, 2001 at 02:49:23PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 02:49:23PM -0400, Alexander Viro wrote:
-> On Tue, 24 Apr 2001, Andreas Dilger wrote:
-> > One thing to watch out for is that the current code zeros the u. struct
-> > for us (as you pointed out to me previously), but allocating from the
-> > slab cache will not...  This could be an interesting source of bugs for
-> > some filesystems that assume zero'd inode_info structs.
-> True, but easy to catch.
+>>>>> " " == Alexander Viro <viro@math.psu.edu> writes:
 
-Jepp. Just request SLAB_ZERO (still to be implemented) instead of
-SLAB_POISON or provide an constructor.
+     > On Mon, 23 Apr 2001, Jan Harkes wrote:
 
-A nice set of macros for this would make it quite easy. The ctor
-is the way to handle it. May be we could even put all the fs
-specific initalizers into it (e.g. magics, zeroes).
+    >> On Mon, Apr 23, 2001 at 10:45:05PM +0200, Ingo Oeser wrote:
 
-Regards
+    >> > BTW: Is it still less than one page? Then it doesn't make me
+    >> >    nervous. Why? Guess what granularity we allocate at, if we
+    >> >    just store pointers instead of the inode.u. Or do you like
+    >> >    every FS creating his own slab cache?
 
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+     > Oh, for crying out loud. All it takes is half an hour per
+     > filesystem.  Here - completely untested patch that does it for
+     > NFS. Took about that long. Absolutely straightforward, very
+     > easy to verify correctness.
+
+     > Some stuff may need tweaking, but not much (e.g. some functions
+     > should take nfs_inode_info instead of inodes, etc.). From the
+     > look of flushd cache it seems that we would be better off with
+     > cyclic lists instead of single-linked ones for the hash, but I
+     > didn't look deep enough.
+
+     > So consider the patch below as proof-of-concept. Enjoy:
+
+Hi Al,
+
+  I believe your patch introduces a race for the NFS case. The problem
+lies in the fact that nfs_find_actor() needs to read several of the
+fields from nfs_inode_info. By adding an allocation after the inode
+has been hashed, you are creating a window during which the inode can
+be found by find_inode(), but during which you aren't even guaranteed
+that the nfs_inode_info exists let alone that it's been initialized
+by nfs_fill_inode().
+
+One solution could be to have find_inode sleep on encountering a
+locked inode. It would have to be something along the lines of
+
+static struct inode * find_inode(struct super_block * sb, unsigned long ino, struct list_head *head, find_inode_t find_actor, void *opaque)
+{
+        struct list_head *tmp;
+        struct inode * inode;
+
+        tmp = head;
+        for (;;) {
+                tmp = tmp->next;
+                inode = NULL;
+                if (tmp == head)
+                        break;
+                inode = list_entry(tmp, struct inode, i_hash);
+                if (inode->i_ino != ino)
+                        continue;
+                if (inode->i_sb != sb)
+                        continue;
+                if (find_actor) {
+                        if (inode->i_state & I_LOCK) {
+                                spin_unlock(&inode_lock);
+                                __wait_on_inode(inode);
+                                spin_lock(&inode_lock);
+                                tmp = head;
+                                continue;
+                        }
+                        if (!find_actor(inode, ino, opaque))
+                                continue;
+                }
+                break;
+        }
+        return inode;
+}
+
+
+Cheers,
+   Trond

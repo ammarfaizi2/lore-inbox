@@ -1,50 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263670AbUCYXr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 18:47:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbUCYXr5
+	id S263814AbUCYXvh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 18:51:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbUCYXvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 18:47:57 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:62735 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S263670AbUCYXrr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 18:47:47 -0500
-Date: Thu, 25 Mar 2004 16:46:51 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-cc: Kevin Corry <kevcorry@us.ibm.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       linux-raid@vger.kernel.org
-Subject: Re: "Enhanced" MD code avaible for review
-Message-ID: <1035780000.1080258411@aslan.btc.adaptec.com>
-In-Reply-To: <40632994.7080504@pobox.com>
-References: <760890000.1079727553@aslan.btc.adaptec.com> <16480.61927.863086.637055@notabene.cse.unsw.edu.au> <40624235.30108@pobox.com> <200403251200.35199.kevcorry@us.ibm.com> <40632804.1020101@pobox.com> <40632994.7080504@pobox.com>
-X-Mailer: Mulberry/3.1.1 (Linux/x86)
+	Thu, 25 Mar 2004 18:51:33 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:63739 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263738AbUCYXut (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 18:50:49 -0500
+Date: Thu, 25 Mar 2004 15:49:43 -0800 (PST)
+From: Sridhar Samudrala <sri@us.ibm.com>
+X-X-Sender: sridhar@localhost.localdomain
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+cc: davem@redhat.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [PATCH] Consolidate multiple implementations of jiffies-msecs
+ conversions.
+In-Reply-To: <20040325210551.GA23993@ti19.telemetry-investments.com>
+Message-ID: <Pine.LNX.4.58.0403251531040.5173@localhost.localdomain>
+References: <Pine.LNX.4.58.0403251142110.3037@localhost.localdomain>
+ <20040325210551.GA23993@ti19.telemetry-investments.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Jeff Garzik wrote:
-> 
-> Just so there is no confusion...  the "failing over...in userland" thing I
-> mention is _only_ during discovery of the root disk.
+On Thu, 25 Mar 2004, Bill Rugolsky Jr. wrote:
 
-None of the solutions being talked about perform "failing over" in
-userland.  The RAID transforms which perform this operation are kernel
-resident in DM, MD, and EMD.  Perhaps you are talking about spare
-activation and rebuild?
+> On Thu, Mar 25, 2004 at 12:17:41PM -0800, Sridhar Samudrala wrote:
+> > The following patch to 2.6.5-rc2 consolidates 6 different implementations
+> > of msecs to jiffies and 3 different implementation of jiffies to msecs.
+> > All of them now use the generic msecs_to_jiffies() and jiffies_to_msecs()
+> > that are added to include/linux/time.h
+>
+> I was inplementing precisely the same diff while cleaning up the
+> select/poll timeout logic, when I came across this lkml post by George
+> Anziger,
+>
+>    http://marc.theaimsgroup.com/?l=linux-kernel&m=107772721007761&w=4
+>
+> the relevant part of which is:
+>
+>    As to small drifts of ~170 PPM, they are caused by code (ps I would
+>    guess)
+>    that assumes that jiffies is exactly 1/HZ whereas it is NOT in the 2.6.*
+>    kernel.  The size of the jiffie that the kernel uses is returned by:
+>
+>    struct timespec tv;
+>    :
+>    :
+>    clock_res(CLOCK_REALTIME, &tv);
+>
+> I inferred from the above that a generic msec_to_jiffies()/jiffies_to_msec()
+> ought to use TICK_NSEC, as with the other routines in time.h.  For 32-bit
+> platforms the scaled arithmetic is simple; one has to be more careful
+> when BITS_PER_LONG == 64.
+>
+> After e-mailing George about it, he replied:
+>
+>    You might want to look at the code in time.h that does the jiffies to
+>    timespec conversion.  We did a lot of work to get that right for both 32 and
+>    64 bit platforms.  I don't think you really need more precision than we get
+>    on the 32 bit platforms (if I recall correctly it is in the 100 PPB range,
+>    yeah that is parts per BILLION).
+>
+>    Unless this conversion is done a lot, I would just start with the timespec
+>    conversions and convert from / to using simple math.  As it is all power of
+>    10 stuff it should not have a precision problem.
+>
+> He also supplied me with his test harness.
+>
+> I haven't gotten around to doing this properly yet.  It seems that the
+> only place where precision is actually important (due to the possibility
+> of very long timeouts) is in poll/epoll, so perhaps it is best
+> to just code up a special version for them, as the simple version
+> becomes a no-op everywhere else for the default HZ==1000.
 
-> Similar code would need to go into the bootloader, for controllers that do
-> not present the entire RAID array as a faked BIOS INT drive.
+Do poll/epoll also use similar routines to do msecs/jiffies conversions?
+If so, i seem to have missed them.
+But i think for all the other users which i have consolidated, the simpler
+version should be good enough. In fact, some of the existing implementations
+do overflow for large values.
 
-None of the solutions presented here are attempting to make RAID
-transforms operate from the boot loader environment without BIOS
-support.  I see this as a completely tangental problem to what is
-being discussed.
+Once this patch is integrated, I guess you can either update the generic
+version to do a more precise calculation or create a special version for
+poll/epoll.
 
---
-Justin
-
+Thanks
+Sridhar
+>
+> Regards,
+>
+> 	Bill Rugolsky
+>

@@ -1,46 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267564AbRGRAah>; Tue, 17 Jul 2001 20:30:37 -0400
+	id <S266587AbRGRA5K>; Tue, 17 Jul 2001 20:57:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267670AbRGRAa0>; Tue, 17 Jul 2001 20:30:26 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:4237 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S267564AbRGRAaV>; Tue, 17 Jul 2001 20:30:21 -0400
-Message-ID: <3B54D8FB.F5EA4B57@uow.edu.au>
-Date: Wed, 18 Jul 2001 10:31:55 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Too much memory causes crash when reading/writing to disk
-In-Reply-To: Andrew Morton's message of Wed, 18 Jul 2001 00:00:54 +1000.,
-		<200107171322.HAA245907@ibg.colorado.edu> <3B544516.FF6643E8@uow.edu.au> <200107171615.KAA254078@ibg.colorado.edu>
+	id <S266529AbRGRA5A>; Tue, 17 Jul 2001 20:57:00 -0400
+Received: from [209.250.53.179] ([209.250.53.179]:11278 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S266587AbRGRA4v>; Tue, 17 Jul 2001 20:56:51 -0400
+Date: Tue, 17 Jul 2001 19:56:23 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: James Stevenson <mistral@stev.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: serious cd writer kernel bug 2.4.x
+Message-ID: <20010717195622.A22955@hapablap.dyn.dhs.org>
+In-Reply-To: <GBEALFKJGAFHFMBNFHAEGEBFCLAA.jorgp@bartnet.net> <Pine.LNX.4.30.0107180038180.2075-100000@cyrix.stev.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0107180038180.2075-100000@cyrix.stev.org>; from mistral@stev.org on Wed, Jul 18, 2001 at 12:42:31AM +0000
+X-Uptime: 7:44pm  up 1 day, 23:45,  1 user,  load average: 1.02, 1.49, 1.58
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Lessem wrote:
+I had a problem similar to this until I turned off DMA to the drive
+(hdparm -d0 /dev/hdc).  Additionally, my drive now works with DMA after
+apply Andre Hedrick's IDE patch.
+
+On Wed, Jul 18, 2001 at 12:42:31AM +0000, James Stevenson wrote:
+> Hi
 > 
-> >For interest's sake, could you please try booting with the
-> >`noapic' option, and also send another NMI watchdog trace?
+> > I experience almost the exact same thing with my cd-rw.
+> > PlexWriter 8/4/32A, does the same thing, and if I compile the modules
+> > ide-scsi and scsi
 > 
-> I tried that, but the Symbios SCSI controller freaks out with noapic.
-> I can be more detailed if that would be useful.
+> > directly into the kernel, whenever I access the cd-rw at all (try to mount a
+> > valid filesystem) entire system locks and have to hard reboot.. I can access
+> 
+> i am not running modules but the ide-scsi stuff is compiled into the
+> kernel both drives are running under the scsi-emu.
+> can you also access the cd rom fine under linux.
+> 
+> the cd-rom works fine for me
+> as soon as i touch the writer it dies.
+> 
+> > boot). I am using stock Mandrake 8.0 with 2.4.6-ac2 kernel. I can run
+> > cdrecord --scanbus and it sees the cd-rw fine
+> 
+> i am also running mandrake 8.0 and cdrecord works up to that point
+> i have seen it crash under.
+> 
+> 2.4.3
+> 2.4.4
+> 2.4.5
+> 2.4.5-ac15
+> 2.4.6
+> 2.4.6-ac5
+> 
+> i have not tried earlery kernels for various other resons.
+> 
+> > hda - disk 1
+> > hdb - disk 2
+> > hdc - cd-rom
+> > hdd - cd-rw
+> 
+> almost like that but its
+> hda - disk 1
+> hdb - disk 2
+> hdc - cd writer
+> hdd - cd rom
+> 
+> 
+> -- 
+> ---------------------------------------------
+> Web: http://www.stev.org
+> Mobile: +44 07779080838
+> E-Mail: mistral@stev.org
+>  12:30am  up 35 min,  6 users,  load average: 1.90, 2.32, 2.30
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Please do - that sounds like a strange interaction.
-
-> I can also try a
-> non-smp kernel and run the machine with 1 processor and 8GB, if you
-> think that would be useful in solving the problem.
-
-May as well - all data is good data.
-
-Can you please send a couple more ksymoops traces from the
-NMI watchdog trap?
-
-Have you tried 2.2.19, 2.4.4 and -ac kernels? 
-
--
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

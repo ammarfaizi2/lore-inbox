@@ -1,58 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbQKBX4W>; Thu, 2 Nov 2000 18:56:22 -0500
+	id <S129353AbQKCAAw>; Thu, 2 Nov 2000 19:00:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129843AbQKBX4J>; Thu, 2 Nov 2000 18:56:09 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:57594 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S129436AbQKBX4B>; Thu, 2 Nov 2000 18:56:01 -0500
-Date: Thu, 02 Nov 2000 15:51:45 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: PATCH 2.4.0.10: Update hotplug
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
+	id <S129363AbQKCAAm>; Thu, 2 Nov 2000 19:00:42 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28757 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129353AbQKCAA3>; Thu, 2 Nov 2000 19:00:29 -0500
+Subject: Re: select() bug
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Fri, 3 Nov 2000 00:01:08 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Message-id: <007401c04527$dc094510$6500000a@brownell.org>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset="Windows-1252"
-Content-transfer-encoding: 7bit
-X-MSMail-Priority: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-Priority: 3
+In-Reply-To: <8tsupp$gh8$1@cesium.transmeta.com> from "H. Peter Anvin" at Nov 02, 2000 03:53:29 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13rUI9-00027M-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm glad to see the CardBus/PCI and network hotplug
-support start happening!
+> Has anyone considered the possibility of expanding the buffer of
+> high-traffic pipes?
 
-Would you motivate two changes I noticed?
-
-    - Changing /sbin/hotplug invocations ... now it can
-      only support "add" and "del" events.  (USB now
-      uses "add" and "remove", though "remove" doesn't
-      try to do anything yet.)
-
-      This removes the intended flexibility whereby
-      different subsystems (such as networking) can
-      define their own events.
-
-    - "/sbin/hotplug net ..." replaced by "/sbin/network",
-      with two custom event types.
-
-The original intent of /sbin/hotplug was to centralize all
-the hotplug-related dispatching, addressing both the module
-selection/loading problem and device config/setup aspects
-of device setup.
-
-By creating another hotplug command (/sbin/network) you're
-starting down what seems a slippery slope, where there's
-no longer a single dispatch point to enable/disable or
-to debug from.  Why discard the, err, "conceptual unity"
-of one access point for usermode hotplug policy agents?
-
-- Dave
-
-
+Do that too much and the data falls out of L1 cache before we context switch. 
+Its a rather complex juggling game. DaveM's kiovec pipe patches avoid some of
+this by cheating and going user->user
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

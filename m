@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265823AbUGZV65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266004AbUGZWGB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265823AbUGZV65 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 17:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUGZV65
+	id S266004AbUGZWGB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 18:06:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUGZWFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 17:58:57 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:54918 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265823AbUGZV6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 17:58:55 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-J3
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com, lenar@vision.ee,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040726203634.GA26096@elte.hu>
-References: <20040713122805.GZ21066@holomorphy.com>
-	 <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com>
-	 <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe>
-	 <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe>
-	 <20040726083537.GA24948@elte.hu> <20040726125750.5e467cfd.akpm@osdl.org>
-	 <20040726203634.GA26096@elte.hu>
-Content-Type: text/plain
-Message-Id: <1090879146.1094.17.camel@mindpipe>
+	Mon, 26 Jul 2004 18:05:51 -0400
+Received: from main.gmane.org ([80.91.224.249]:48868 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266115AbUGZWEj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 18:04:39 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+Subject: Re: [PATCH] Delete cryptoloop
+Date: Mon, 26 Jul 2004 22:04:29 +0000 (UTC)
+Message-ID: <loom.20040726T234406-216@post.gmane.org>
+References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com> <1090672906.8587.66.camel@ghanima> <41039CAC.965AB0AA@users.sourceforge.net> <1090761870.10988.71.camel@ghanima> <4103ED18.FF2BC217@users.sourceforge.net> <1090778567.10988.375.camel@ghanima> <4104E2CC.D8CBA56@users.sourceforge.net> <1090845926.13338.98.camel@ghanima>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 26 Jul 2004 17:59:07 -0400
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 80.139.231.36 (Mozilla/5.0 (compatible; Konqueror/3.2; Linux) (KHTML, like Gecko))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-07-26 at 16:36, Ingo Molnar wrote:
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > The bigger this thing gets, the more worried I get.  Sometime this is
-> > going to need to be split up into individual fixes, and they need to
-> > be based upon an overall approach which we haven't yet settled on.
-> 
-> i will do that splitup. Right now i'm simply mapping how widespread the
-> problem is and what type of fixes we need. The situation isnt all that
-> bad but we might need (an optional) mechanism to make softirqs
-> synchronous. All of this stuff is nicely modular and i'll do a splitup
-> post 2.6.8 (i dont think we want to disturb 2.6.8 with any of this).
-> 
-
->From a user's perspective, and based on my own testing, I do not see the
-patch having to get much bigger, the vast majority of the hot spots have
-been fixed, and the patch remains quite comprehensible even to someone
-with a sketchy knowledge of the kernel.  There is only one issue I can
-think of that has not been addressed at all (the PS/2 Caps Lock issue). 
-All that seems to remain are tweaks to individual fixes that are already
-in the patch.
-
-Lee
+Fruhwirth Clemens <clemens-dated-1091709927.ed82 <at> endorphin.org> writes: 
+ 
+> To summarize for an innocent bystander: 
+>  
+> - The attacks you brought forward are in the best case a starting point 
+> for known plain text attacks. Even DES is secure against this attack, 
+> since an attacker would need 2^47 chosen plain texts to break the cipher 
+> via differential cryptanalysis. (Table 12.14 Applied Cryptography, 
+> Schneier). First, the watermark attack can only distinguish 32 
+> watermarks. Second, you'd need a ~2.000.000 GB to store 2^47 chosen 
+> plain texts. Third, I'm talking about DES (designed 1977!), no chance 
+> against AES. 
+>  
+ 
+>From what I understand now, this exploit is solely based on the weakness of 
+dm-crypt's/cryptoloops IV generation. 
+ 
+The difference in bit patterns between the first and second half of the 
+watermark block compensates partly for the trivially and predictably changing 
+IV beetween two successive sectors.  
+As Jari eplained, this causes *any* cipher to produce two identical blocks of 
+ciphertext (after all the input is identical). 
+This is also, why this exploit requires a minimum filesystem block size of 1kB 
+for good reliability. 
+ 
+> - The weaknesses brought forward by me are summarized  at 
+> http://clemens.endorphin.org/OnTheProblemsOfCryptoloop . Thanks goes to 
+> Pascal Brisset, who pointed out that cryptoloop is actually more secure 
+> than I assumed. 
+>  
+ 
+If my understanding is correct, an improved and unpredictable IV generation - 
+- as needed anyway for the vulnerability described at 
+http://clemens.endorphin.org/OnTheProblemsOfCryptoloop - 
+*should* protect against this watermarking as well. So both problems can be 
+fixed together and rather easily. 
+ 
+Regards 
+ 
 

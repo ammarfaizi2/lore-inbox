@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265126AbSLMQoJ>; Fri, 13 Dec 2002 11:44:09 -0500
+	id <S265135AbSLMQse>; Fri, 13 Dec 2002 11:48:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265130AbSLMQoJ>; Fri, 13 Dec 2002 11:44:09 -0500
-Received: from tenax.loup.net ([65.169.6.40]:22087 "EHLO tenax.loup.net")
-	by vger.kernel.org with ESMTP id <S265126AbSLMQoI>;
-	Fri, 13 Dec 2002 11:44:08 -0500
-Date: Fri, 13 Dec 2002 09:49:28 -0700
-Message-Id: <200212131649.gBDGnSS04425@flux.loup.net>
-From: Mike Hayward <hayward@loup.net>
-To: wli@holomorphy.com
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <20021213154544.GK9882@holomorphy.com> (message from William Lee
-	Irwin III on Fri, 13 Dec 2002 07:45:44 -0800)
-Subject: Re: Intel P6 vs P7 system call performance
-References: <200212090830.gB98USW05593@flux.loup.net> <20021213154544.GK9882@holomorphy.com>
+	id <S265139AbSLMQsd>; Fri, 13 Dec 2002 11:48:33 -0500
+Received: from pool-151-196-176-15.balt.east.verizon.net ([151.196.176.15]:44275
+	"EHLO beohost.scyld.com") by vger.kernel.org with ESMTP
+	id <S265135AbSLMQsc>; Fri, 13 Dec 2002 11:48:32 -0500
+Date: Fri, 13 Dec 2002 11:56:17 -0500 (EST)
+From: Donald Becker <becker@scyld.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, Roger Luethi <rl@hellgate.ch>,
+       <netdev@oss.sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pci-skeleton duplex check
+In-Reply-To: <1039771036.1509.5.camel@rth.ninka.net>
+Message-ID: <Pine.LNX.4.44.0212131109180.1399-100000@beohost.scyld.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bill,
+On 13 Dec 2002, David S. Miller wrote:
+> On Thu, 2002-12-12 at 17:18, Donald Becker wrote:
+> > Or perhaps recognizing that when someone that has been a significant,
+> > continuous contributer since the early days of Linux
+> 
+> Until you learn to play nice with people and mesh within the
+> fabric of Linux development, I adamently do not classify you
+> as you appear to self-classify yourself.  You don't contribute,
+> you sit in your sandbox and then point fingers at the people who
+> do know how to work with other human beings and say "see how much
+> that stuff sucks?  well my stuff works, nyah!"
+..
+> If Linux itself is worse off and went backwards in time for a while...
 
- > On Mon, Dec 09, 2002 at 01:30:28AM -0700, Mike Hayward wrote:
- > > Any ideas?  Not sure I want to upgrade to the P7 architecture if this
- > > is right, since for me system calls are probably more important than
- > > raw cpu computational power.
- > 
- > This is the same for me. I'm extremely uninterested in the P-IV for my
- > own use because of this.
+The development criteria used to be technically based, and that is still
+the public statement.  Now, as your statement makes clear, working code
+is an irrelevant criteria.
 
-I've also noticed that algorithms like the recursive one I run which
-simulates solving the Tower of Hanoi problem are most likely very hard
-to do branch prediction on.  Both the code and data no doubt fit
-entirely in the L2 cache.  The AMD processor below is a much lower
-cost and significantly lower clock rate (and on a machine with only a
-100Mhz Memory bus) than the Xeon, yet dramatically outperforms it with
-the same executable, compiled with gcc -march=i686 -O3.  Maybe with a
-better Pentium 4 optimizing compiler the P4 and Xeon could improve a
-few percent, but I doubt it'll ever see the AMD numbers.
+You comments immediately moved the subject from the technical merit and
+correctness of the code to an ad hominem attack.  The facts, and the
+code, clearly show the long term interaction and contribution.  In most
+cases the code and interfaces we are talking about were written and
+defined by me throughout the past decade.
 
-Recursion Test--Tower of Hanoi
 
-Uni  AMD XP 1800            2.4.18 kernel  46751.6 lps   (10 secs, 6 samples)
-Dual Pentium 4 Xeon 2.4Ghz  2.4.19 kernel  33661.9 lps   (10 secs, 6 samples)
 
-- Mike
+-- 
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Scyld Beowulf cluster system
+Annapolis MD 21403			410-990-9993
+

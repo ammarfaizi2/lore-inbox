@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264449AbTCZATd>; Tue, 25 Mar 2003 19:19:33 -0500
+	id <S264437AbTCZATP>; Tue, 25 Mar 2003 19:19:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264494AbTCZATd>; Tue, 25 Mar 2003 19:19:33 -0500
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:28824 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S264449AbTCZATb>; Tue, 25 Mar 2003 19:19:31 -0500
-Subject: Re: 2.5 and modules ?
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Louis Garcia <louisg00@bellsouth.net>
-Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1048636973.1569.20.camel@tiger>
-References: <1048564993.2994.13.camel@tiger>
-	 <Pine.LNX.4.51.0303251219250.9373@dns.toxicfilms.tv>
-	 <1048636973.1569.20.camel@tiger>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048638632.1176.4.camel@teapot>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 26 Mar 2003 01:30:32 +0100
-Content-Transfer-Encoding: 7bit
+	id <S264449AbTCZATP>; Tue, 25 Mar 2003 19:19:15 -0500
+Received: from pat.uio.no ([129.240.130.16]:34546 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S264437AbTCZATO>;
+	Tue, 25 Mar 2003 19:19:14 -0500
+To: Yedidyah Bar-David <didi@tau.ac.il>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20: kernel BUG at highmem.c:169!
+References: <20030325231418.GA8112@ibm-giga.math.tau.ac.il>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 26 Mar 2003 01:30:21 +0100
+In-Reply-To: <20030325231418.GA8112@ibm-giga.math.tau.ac.il>
+Message-ID: <shsu1dr55r6.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-26 at 01:02, Louis Garcia wrote:
-> Setting hostname tiger:                              [  OK  ]
-> Initializing USB controller (usb-uhci): FATAL: Module usb_uhci
+>>>>> " " == Yedidyah Bar-David <didi@tau.ac.il> writes:
 
-The USB UHCI module has been renamed. Now it's called uhci-hcd.ko. Make
-sure the following line is present in "/etc/modprobe.conf":
+     > Hi all, Today, a machine with vanilla 2.4.20 hung with this in
+     > syslog:
 
-alias usb-controller uhci-hcd
+     > kernel BUG at highmem.c:169!  invalid operand: 0000
 
->  not found.                                          [ FAILED ]
-> Mounting USB filesystem:                             [  OK  ]
-> grep: /proc/bus/usb/drivers:  No such file or directory.
+Known problem (see the L-k archives). The following patch fixes it...
 
-No more drivers in /proc/bus/usb.
+Cheers,
+  Trond
 
-> Mounting local filesystems:  mount: fs type ntfs not supported by
-> kernel.  mount: fs type vfat not supported by kernel.
->                                                      [ FAILED ]
-> 
-> 
-> I have built all required modules:
-
-"cat /proc/sys/kernel/modprobe" should spit:
-
-   /sbin/modprobe
-
-Double check this... I found that rc.sysinit from RH8 and RH9 do
-configure this to /sbin/true, thus invalidating dynamic kernel module
-loading.
-
-________________________________________________________________________
-        Felipe Alfaro Solana
-   Linux Registered User #287198
-http://counter.li.org
-
+--- linux-2.4.21-pre4/fs/nfs/symlink.c.orig	2002-08-14 05:59:37.000000000 -0700
++++ linux-2.4.21-pre4/fs/nfs/symlink.c	2003-02-25 20:42:39.000000000 -0800
+@@ -46,7 +46,6 @@
+ 
+ error:
+ 	SetPageError(page);
+-	kunmap(page);
+ 	UnlockPage(page);
+ 	return -EIO;
+ }

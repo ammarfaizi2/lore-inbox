@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVCCMbB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVCCMSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbVCCMbB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 07:31:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVCCMXc
+	id S261581AbVCCMSh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 07:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVCCLG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 07:23:32 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:4494 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261169AbVCCMWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 07:22:03 -0500
-Date: Thu, 3 Mar 2005 13:21:56 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11
-Message-ID: <20050303122156.GA25860@merlin.emma.line.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org> <20050302103158.GA13485@merlin.emma.line.org> <Pine.LNX.4.58.0503020738300.25732@ppc970.osdl.org> <20050303052021.GK7828@mythryan2.michonline.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050303052021.GK7828@mythryan2.michonline.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.8i
+	Thu, 3 Mar 2005 06:06:28 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:4532 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S262526AbVCCKl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 05:41:59 -0500
+Date: Thu, 3 Mar 2005 11:41:47 +0100
+Message-Id: <200503031041.j23AflwD020710@faui31y.informatik.uni-erlangen.de>
+From: Martin Waitz <tali@admingilde.org>
+To: tali@admingilde.org
+Cc: linux-kernel@vger.kernel.org
+References: <20050303102852.GG8617@admingilde.org>
+Subject: [PATCH 5/16] DocBook: update function parameter description in USB code
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Anderson schrieb am 2005-03-03:
+DocBook: update function parameter description in USB code
+Signed-off-by: Martin Waitz <tali@admingilde.org>
 
-> Is there some reason why
-> 	bk changes -aem -rv2.6.10..+ | shortlog
-> isn't sufficient?
 
-For some reason, this omits some changes, perhaps from sibling branches,
-I haven't checked.
-
-A similar change however warrants for a huge speedup of the changelog
-script, using bk changes rather than bk prs, without affection output at
-all. I have made such a change and committed it to my BK copy, see the
-"shortlog" announcement I posted two minutes ago.
-
--- 
-Matthias Andree
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.2029  -> 1.2030 
+#	drivers/usb/core/hub.c	1.160   -> 1.161  
+#	drivers/usb/core/hcd.c	1.115   -> 1.116  
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 05/01/26	tali@admingilde.org	1.2030
+# DocBook: update function parameter description in USB code
+# 
+# Signed-off-by: Martin Waitz <tali@admingilde.org>
+# --------------------------------------------
+#
+diff -Nru a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+--- a/drivers/usb/core/hcd.c	Thu Mar  3 11:41:51 2005
++++ b/drivers/usb/core/hcd.c	Thu Mar  3 11:41:51 2005
+@@ -1394,7 +1394,7 @@
+ /**
+  * usb_bus_start_enum - start immediate enumeration (for OTG)
+  * @bus: the bus (must use hcd framework)
+- * @port: 1-based number of port; usually bus->otg_port
++ * @port_num: 1-based number of port; usually bus->otg_port
+  * Context: in_interrupt()
+  *
+  * Starts enumeration, with an immediate reset followed later by
+diff -Nru a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+--- a/drivers/usb/core/hub.c	Thu Mar  3 11:41:51 2005
++++ b/drivers/usb/core/hub.c	Thu Mar  3 11:41:51 2005
+@@ -383,7 +383,7 @@
+ 
+ /**
+  * usb_hub_tt_clear_buffer - clear control/bulk TT state in high speed hub
+- * @dev: the device whose split transaction failed
++ * @udev: the device whose split transaction failed
+  * @pipe: identifies the endpoint of the failed transaction
+  *
+  * High speed HCDs use this to tell the hub driver that some split control or

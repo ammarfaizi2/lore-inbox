@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261365AbSIZPGE>; Thu, 26 Sep 2002 11:06:04 -0400
+	id <S261370AbSIZPLM>; Thu, 26 Sep 2002 11:11:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261366AbSIZPGD>; Thu, 26 Sep 2002 11:06:03 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:20985
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261365AbSIZPF5>; Thu, 26 Sep 2002 11:05:57 -0400
-Subject: Re: Kernel call chain search tool?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dan Kegel <dank@kegel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D913D58.49D855DB@kegel.com>
-References: <3D913D58.49D855DB@kegel.com>
-Content-Type: text/plain
+	id <S261371AbSIZPLM>; Thu, 26 Sep 2002 11:11:12 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:28144 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S261370AbSIZPLK>;
+	Thu, 26 Sep 2002 11:11:10 -0400
+From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Linus Torvalds" <torvalds@transmeta.com>,
+       "Andre Hedrick" <andre@linux-ide.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Jens Axboe" <axboe@suse.de>
+Subject: Re: [PATCH] fix ide-iops for big endian archs
+Date: Thu, 26 Sep 2002 17:16:09 +0200
+Message-Id: <20020926151609.22295@192.168.4.1>
+In-Reply-To: <1033053111.1269.33.camel@irongate.swansea.linux.org.uk>
+References: <1033053111.1269.33.camel@irongate.swansea.linux.org.uk>
+X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Sep 2002 16:15:48 +0100
-Message-Id: <1033053348.1269.37.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-25 at 05:36, Dan Kegel wrote:
-> <prelude>
-> I have a large multithreaded program that has a habit of using too
-> much memory, and as a safeguard, I want to kill it before it makes
-> the system unstable.  The OOM killer often guesses wrong, and RLIMIT_AS
-> kills too soon because of the address space used up by the many thread
-> stacks.
-> So I'd like an RLIMIT_RSS that just kills the fat process.
+>Thats true in current -ac. I killed the _p crap. Nobody uses it, the
+>switching for handling it is bogus anyway. If anyone has such broken
+>code they can implement ide-iops-speak-slowly-after-the-tone.c
 
-The RSS limit isnt a "kill" limit in Unix. its a residency limit. Its
-preventing the obese process from getting more than a certain amount of
-RAM as opposed to swap
+Ok, now go one step further and remove the {IN,OUT}{BYTE,WORD,LONG}
+macros and you'll end up with the stuff I had send you previously ;)
+
+Regarding the MMIO ops, where indeed I had some #ifdef CONFIG_PPC
+crap, that was because we lack proper abstraction of either an
+MMIO version of insw/outsw, or of the barrier (see previous
+discussion we had on this issue). It is by no mean yet another
+PowerPC'ism ;)
+
+Ben.
+
 

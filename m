@@ -1,82 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281668AbRKQBUq>; Fri, 16 Nov 2001 20:20:46 -0500
+	id <S281671AbRKQBYQ>; Fri, 16 Nov 2001 20:24:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281672AbRKQBUh>; Fri, 16 Nov 2001 20:20:37 -0500
-Received: from ns.roland.net ([65.112.177.35]:13316 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S281668AbRKQBUV>;
-	Fri, 16 Nov 2001 20:20:21 -0500
-Message-ID: <007101c16f06$029e24d0$a000a8c0@gespl2k1>
-From: "Jim Roland" <jroland@roland.net>
-To: <lobo@polbox.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011113024806.A13176@chello062179017166.chello.pl>
-Subject: Re: I'm sorry [it was: Nazi Kernels]
-Date: Fri, 16 Nov 2001 19:20:14 -0600
+	id <S281672AbRKQBYG>; Fri, 16 Nov 2001 20:24:06 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:44299 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S281671AbRKQBX6>; Fri, 16 Nov 2001 20:23:58 -0500
+Message-ID: <3BF5BB95.77B96DAF@zip.com.au>
+Date: Fri, 16 Nov 2001 17:21:25 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Jens Axboe <axboe@suse.de>
+CC: Andre Hedrick <andre@linux-ide.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: death by ATA
+In-Reply-To: <3BF41608.DF8C7068@zip.com.au>,
+		<3BF41608.DF8C7068@zip.com.au> <20011116234558.D11826@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Part of what might be your problem is the kernel version you're on.  The
-drivers are written as a module for kernel version 2.4.x (and maybe 2.2.x,
-but I'm not sure about 2.2.x).  Remember, kernel versions with an odd number
-in the 2nd place holder (eg, 2.1.x, 2.3.x) are considered "test" or "beta"
-kernels.  If you can't go to 2.4, try 2.2 and recompile the sources if a
-binary is not provided.  My memory may be failing, but I think I remember
-running my GeForce2 with NVidia provided drivers under 2.2 compiled from
-sources.  I use the 2.4 drivers right now and all works fine.
+Jens Axboe wrote:
+> 
+> On Thu, Nov 15 2001, Andrew Morton wrote:
+> > What does "end-request: buffer-list destroyed" mean?
+> 
+> It means that the request was not sane anymore, or specifically that
+> clustered number of sectors was set to lower value than current number
+> of sectors (which isn't valid, of course). The buffer-list destroyed
+> comment tells you that this corruption is most likely due to the
+> buffer_head list on the request having been corrupted -- which in turn
+> probably means that someone seriously screwed this request.
+> 
+> hda8: bad access: block=5296, count=-2
+> end_request: I/O error, dev 03:08 (hda), sector 5296
+> hda8: bad access: block=5298, count=-4
+> end_request: I/O error, dev 03:08 (hda), sector 5298
+> hda8: bad access: block=5300, count=-6
+> end_request: I/O error, dev 03:08 (hda), sector 5300
+> 
+> This errors would seem to backup that theory :-)
 
+'k, thanks.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Jim Roland, RHCE (RedHat Certified Engineer)
-Owner, Roland Internet Services
-     "The four surefire rules for success:  Show up, Pay attention, Ask
-questions, Don't quit."
-        --Rob Gilbert, PH.D.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> Is this an SMP board? Also, is
 
------ Original Message -----
-From: <lobo@polbox.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Monday, November 12, 2001 7:48 PM
-Subject: I'm sorry [it was: Nazi Kernels]
+Uniprocessor VIA C3, running 2.4.15-pre4. The controller is a
+VT8231.  Running at UDMA100.
 
+> end_request: buffer-list destroyed
+> 
+> the very first error message?
 
-> Hi again!
->
-> I'm sorry for my last post. It was very stupid, but it was written
-> without any thinking. I respect You, and Your work, so I meant no
-> offense to You, but I know, that my last post, was very aggresive.
-> I'm sorry again, and I will try to think twice before I write any
-> post like last.
->
-> Now after this introduction, I try to explain whats my problem with
-> the new driver policy. When I try to load NVdriver to the kernel
-> 2.1.14, the modprobe (modutils 2.4.10) writes following line
-> "Note: modules without a GPL compatible license cannot use \
-> GPLONLY_ symbols". It's Your decision, but in My opinion, its not
-> the right way. I'm affraid, that this doesn't change the hardware
-> manufacters opinions about the binary distributions of the drivers,
-> so they copy or write this functions, and the only effect for end
-> user will be more memory consumption (I know that memory is cheap
-> today). I think in the future this may be the right way, but today
-> it's to early for that step.
->
-> Best Regards
-> Przemek
->
-> PS. Sorry for my english, it's not my native language.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Yes, it is.
 
+It is reproducible after around three few hours.  Exactly the
+same.
+
+-

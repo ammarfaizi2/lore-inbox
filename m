@@ -1,202 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbUKEX7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbUKFACs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbUKEX7k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 18:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbUKEX7k
+	id S261268AbUKFACs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 19:02:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbUKFACs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 18:59:40 -0500
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:14842 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S261246AbUKEX7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 18:59:23 -0500
-Date: Fri, 5 Nov 2004 16:59:21 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: akpm@osdl.org
-Cc: ebs@ebshome.net, linuxppc-embedded@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH][PPC32] Add PPC440GX L2C error handler
-Message-ID: <20041105165921.K12135@home.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	Fri, 5 Nov 2004 19:02:48 -0500
+Received: from 82-68-133-177.dsl.in-addr.zen.co.uk ([82.68.133.177]:55269 "EHLO
+	fars-robotics.net") by vger.kernel.org with ESMTP id S261268AbUKFACf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 19:02:35 -0500
+Subject: RE: Kernel 2.6.x hangs with Symbios Logic 53c1010 Ultra3 SCSI Ada pter
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Sat, 6 Nov 2004 00:02:32 -0000
+Message-ID: <D5169CBBC6369D4CBFFABD7905CC9D695D31@tehran.Fars-Robotics.local>
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Kernel 2.6.x hangs with Symbios Logic 53c1010 Ultra3 SCSI Ada pter
+thread-index: AcTDdzOotnFYfFL0RrC9/Qt7zIgbgwABMLmQ
+From: "Richard Waltham" <richard@fars-robotics.net>
+To: "Matthew Wilcox" <matthew@wil.cx>, "SUPPORT" <support@4bridgeworks.com>
+Cc: "Thomas Babut" <thomas@babut.net>, <linux-kernel@vger.kernel.org>,
+       "Linux SCSI" <linux-scsi@vger.kernel.org>, <groudier@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds an L2-Cache error handler. In addition,
-it reenables setup of the L2 cache based on erratum
-L2C0_1 now that we have been reassured that there are
-no more faulty parts being shipped. If there is a
-problem, the error handler will report it.
+ 
 
-Signed-off-by: Eugene Surovegin <ebs@ebshome.net>
-Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
+> -----Original Message-----
+> From: willy@www.linux.org.uk [mailto:willy@www.linux.org.uk] 
+> 
+> On Fri, Nov 05, 2004 at 04:25:03PM -0000, SUPPORT wrote:
+> > I've been seeing problems with various tape drives and PPR. 
+> And a SCSI 
+> > 3 SE disk is interesting as well! SE and PPR don't get on too well;)
+> 
+> ... yes ...
+> 
+> I think we should *never* attempt PPR on a SE bus, even when 
+> the drive supports it.  We've seen bugs in Seagate drive 
+> firmware because of this, so let's stop doing it.
+> 
+> How does this patch (whitespace damaged, apply by hand) make 
+> people feel?
+> 
 
-===== arch/ppc/syslib/ibm440gx_common.c 1.2 vs edited =====
---- 1.2/arch/ppc/syslib/ibm440gx_common.c	2004-10-18 22:26:41 -07:00
-+++ edited/arch/ppc/syslib/ibm440gx_common.c	2004-11-05 16:28:07 -07:00
-@@ -4,7 +4,7 @@
-  * PPC440GX system library
-  *
-  * Eugene Surovegin <eugene.surovegin@zultys.com> or <ebs@ebshome.net>
-- * Copyright (c) 2003 Zultys Technologies
-+ * Copyright (c) 2003, 2004 Zultys Technologies
-  *
-  * This program is free software; you can redistribute  it and/or modify it
-  * under  the terms of  the GNU General  Public License as published by the
-@@ -14,6 +14,7 @@
-  */
- #include <linux/config.h>
- #include <linux/kernel.h>
-+#include <linux/interrupt.h>
- #include <asm/ibm44x.h>
- #include <asm/mmu.h>
- #include <asm/processor.h>
-@@ -97,10 +98,51 @@
- 		p->uart1 = p->plb / __fix_zero(uart1 & 0xff, 256);
- }
- 
--/* Enable L2 cache (call with IRQs disabled) */
-+/* Issue L2C diagnostic command */
-+static inline u32 l2c_diag(u32 addr)
-+{
-+	mtdcr(DCRN_L2C0_ADDR, addr);
-+	mtdcr(DCRN_L2C0_CMD, L2C_CMD_DIAG);
-+	while (!(mfdcr(DCRN_L2C0_SR) & L2C_SR_CC)) ;
-+	return mfdcr(DCRN_L2C0_DATA);
-+}
-+
-+static irqreturn_t l2c_error_handler(int irq, void* dev, struct pt_regs* regs)
-+{
-+	u32 sr = mfdcr(DCRN_L2C0_SR);
-+	if (sr & L2C_SR_CPE){
-+		/* Read cache trapped address */
-+		u32 addr = l2c_diag(0x42000000);
-+		printk(KERN_EMERG "L2C: Cache Parity Error, addr[16:26] = 0x%08x\n", addr);
-+	}
-+	if (sr & L2C_SR_TPE){
-+		/* Read tag trapped address */
-+		u32 addr = l2c_diag(0x82000000) >> 16;
-+		printk(KERN_EMERG "L2C: Tag Parity Error, addr[16:26] = 0x%08x\n", addr);
-+	}
-+	
-+	/* Clear parity errors */
-+	if (sr & (L2C_SR_CPE | L2C_SR_TPE)){
-+		mtdcr(DCRN_L2C0_ADDR, 0);
-+		mtdcr(DCRN_L2C0_CMD, L2C_CMD_CCP | L2C_CMD_CTE);
-+	} else
-+		printk(KERN_EMERG "L2C: LRU error\n");
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/* Enable L2 cache */
- void __init ibm440gx_l2c_enable(void){
- 	u32 r;
--
-+	unsigned long flags;
-+	
-+	/* Install error handler */
-+	if (request_irq(87, l2c_error_handler, SA_INTERRUPT, "L2C", 0) < 0){	
-+		printk(KERN_ERR "Cannot install L2C error handler, cache is not enabled\n");
-+		return;
-+	}
-+	
-+	local_irq_save(flags);
- 	asm volatile ("sync" ::: "memory");
- 
- 	/* Disable SRAM */
-@@ -137,20 +179,22 @@
- 
- 	/* Enable ICU/DCU ports */
- 	r = mfdcr(DCRN_L2C0_CFG);
--	r &= ~(L2C_CFG_DCW_MASK | L2C_CFG_CPIM | L2C_CFG_TPIM | L2C_CFG_LIM
--		| L2C_CFG_PMUX_MASK | L2C_CFG_PMIM | L2C_CFG_TPEI | L2C_CFG_CPEI
--		| L2C_CFG_NAM | L2C_CFG_NBRM);
--	r |= L2C_CFG_ICU | L2C_CFG_DCU | L2C_CFG_TPC | L2C_CFG_CPC | L2C_CFG_FRAN
--		| L2C_CFG_SMCM;
-+	r &= ~(L2C_CFG_DCW_MASK | L2C_CFG_PMUX_MASK | L2C_CFG_PMIM | L2C_CFG_TPEI 
-+		| L2C_CFG_CPEI | L2C_CFG_NAM | L2C_CFG_NBRM);
-+	r |= L2C_CFG_ICU | L2C_CFG_DCU | L2C_CFG_TPC | L2C_CFG_CPC | L2C_CFG_FRAN 
-+		| L2C_CFG_CPIM | L2C_CFG_TPIM | L2C_CFG_LIM | L2C_CFG_SMCM;
- 	mtdcr(DCRN_L2C0_CFG, r);
- 
- 	asm volatile ("sync; isync" ::: "memory");
-+	local_irq_restore(flags);
- }
- 
--/* Disable L2 cache (call with IRQs disabled) */
-+/* Disable L2 cache */
- void __init ibm440gx_l2c_disable(void){
- 	u32 r;
-+	unsigned long flags;
- 
-+	local_irq_save(flags);
- 	asm volatile ("sync" ::: "memory");
- 
- 	/* Disable L2C mode */
-@@ -169,6 +213,7 @@
- 	      SRAM_SBCR_BAS3 | SRAM_SBCR_BS_64KB | SRAM_SBCR_BU_RW);
- 
- 	asm volatile ("sync; isync" ::: "memory");
-+	local_irq_restore(flags);
- }
- 
- void __init ibm440gx_l2c_setup(struct ibm44x_clocks* p)
-===== arch/ppc/platforms/4xx/ocotea.c 1.10 vs edited =====
---- 1.10/arch/ppc/platforms/4xx/ocotea.c	2004-11-02 07:40:33 -07:00
-+++ edited/arch/ppc/platforms/4xx/ocotea.c	2004-11-05 16:28:06 -07:00
-@@ -145,13 +145,13 @@
- }
- 
- #define PCIX_READW(offset) \
--	(readw((u32)pcix_reg_base+offset))
-+	(readw(pcix_reg_base+offset))
- 
- #define PCIX_WRITEW(value, offset) \
--	(writew(value, (u32)pcix_reg_base+offset))
-+	(writew(value, pcix_reg_base+offset))
- 
- #define PCIX_WRITEL(value, offset) \
--	(writel(value, (u32)pcix_reg_base+offset))
-+	(writel(value, pcix_reg_base+offset))
- 
- /*
-  * FIXME: This is only here to "make it work".  This will move
-@@ -321,6 +321,11 @@
- 	printk("IBM Ocotea port (MontaVista Software, Inc. <source@mvista.com>)\n");
- }
- 
-+static void __init ocotea_init(void)
-+{
-+	ibm440gx_l2c_setup(&clocks);
-+}
-+
- void __init platform_init(unsigned long r3, unsigned long r4,
- 		unsigned long r5, unsigned long r6, unsigned long r7)
- {
-@@ -341,13 +346,12 @@
- 	 */
- 	ibm440gx_get_clocks(&clocks, 33333333, 6 * 1843200);
- 	ocp_sys_info.opb_bus_freq = clocks.opb;
--
--	/*
--	 * Always disable L2 cache. All revs/speeds of silicon
--	 * have parity error problems despite errata claims to
--	 * the contrary.
-+	
-+	/* XXX Fix L2C IRQ triggerring setting (edge-sensitive). 
-+	 * Firmware (at least PIBS v1.72 OCT/28/2003) sets it incorrectly 
-+	 * --ebs
- 	 */
--	ibm440gx_l2c_disable();
-+	mtdcr(DCRN_UIC_TR(UIC2), mfdcr(DCRN_UIC_TR(UIC2)) | 0x00000100);
- 
- 	ibm44x_platform_init();
- 
-@@ -365,4 +369,5 @@
- #ifdef CONFIG_KGDB
- 	ppc_md.early_serial_map = ocotea_early_serial_map;
- #endif
-+	ppc_md.init = ocotea_init;
- }
+Good as a backup but the original PPR capability is defined in
+scan_scsi.c. Shouldn't scan_scsi.c take note of the bus mode and enable
+PPR capabilities accordingly? This would then cover this issue for all
+relevant LLDDs wouldn't it?
+
+> 
+> > Matthew - I have attached some bits of SCSI analyser traces which I 
+> > hope may be useful. An IBM SCSI 3 SE disk and a couple of LTO tape 
+> > drives - IBM and HP. The HP causes severe problems as 
+> modprobe hangs 
+> > without the fix. I have also seen drives that do unexpected 
+> disconnects if they get sent PPR.
+> 
+> Thanks, those are interesting.  It's good to see that we 
+> really are spitting PPR out onto the wire when we shouldn't be.
+
+And from what I've seen is the PPR negotiation keeps on being retied on
+all subsequent commands. So performance really is killed by this.
+
+> 
+> > I have been toying with the idea of disabling PPR 
+> capability if PPR is 
+> > rejected - forcing sdev->ppr=0 in the driver when it determines PPR 
+> > has been rejected - but I'm not sure that's right. There are drives 
+> > which reject negotiation - legacy sync and wide at least - 
+> while they 
+> > are initialising but will then accept it later on.
+> 
+> I think disabling PPR on an SE bus should be a better fix than that.
+> 
+
+And don't forget HVD as well;)   
+
+My main concern with my patch to scan_scsi.c was to handle SCSI 3 LVD
+devices that caused problems. Scan_scsi.c sets all SCSI 3 devices as PPR
+capable - SE, HVD as well as LVD. I have no issue with explicitly
+disallowing PPR for SE and HVD devices. But what about SCSI 3 and LVD
+devices that don't handle PPR - OK they may be broken but... For now the
+patch for scan_scsi.c is a temp fix for us while we dream up something
+better. It will only allow PPR with devices that advertise that they
+handle DT transfers.
+
+There is an issue that needs resolving where a drive appears to indicate
+it is capable of PPR, i.e. says it is SCSI 3 + LVD, but does not
+actually support PPR. Then when it receives at PPR message it causes
+problems in the driver because it terminates the PPR MSG OUT early with
+an unexpected phase change.
+
+Exactly what happens then seems dependent on when the message is
+aborted. You can see the differences in the analyser traces. The IBM LTO
+is handled reasonably well although the driver spits out an unexpected
+phase change msg, but the HP LTO really causes problems. And the disk
+accepts the whole message and again causes no problems.
+
+However currently the problem in these cases is that the PPR
+capabilities bit (sdev->ppr) remains set so the next time negotiation is
+attempted PPR is used again etc, etc. so the drives never negotiate to
+what they are really capable of running at. This is why I mentioned
+clearing sdev->ppr above. Because the capabilities determined in
+scan_scsi.c indicate ppr, sync and wide and sdev->ppr remains set after
+the negotiation is aborted the drives never ever successfully complete
+negotiation no matter how many commands are sent as far as I can see.
+
+Guess this boils down to three problems. 1. Make sure only drives on bus
+modes capable of supporting PPR can be flagged as PPR capable. 2. Drives
+that appear to support PPR (SCSI 3 + LVD) but _may be_ broken in some
+way are handled by the driver without the unexpected phase changes
+causing issues. And 3. What to do with drives that abort negotiation
+messages, wide, sync or ppr?
+
+1. is straight forward although there could be disagreement about where
+the fix should really be. Personally, I think, this should really be
+classified a general SCSI problem rather than specific to just this
+driver.
+2. requires modification to the handling of extended messages (or all
+multi-byte messages?) so an aborted message doesn't break the driver.
+This is driver specific.
+3. this may be the nasty one. What do we do with negotiations that fail?
+Do we keep trying the same negotiation time after time - i.e. leave it
+as it is - not at all satisfactory, although I'm pretty certain I've
+seen a trace from a drive that aborts negotiation until it is ready and
+then accepts it later on - I really need to check this out when I'm back
+in the office. Do we drop back from PPR to WIDE/SYNC? Is this better?
+May be. Anything else? This again, I believe, can be classified as a
+general issue rather than driver specific but may be easier to handle
+within the driver. 
+
+
+Richard
+
+
+Richard Waltham
+Bridgeworks Ltd
+135 Somerford Road,
+Christchurch
+Dorset, BH23 3PY
+England.
+
+Tel 0870 121 0708
+Fax 0870 121 0709
+

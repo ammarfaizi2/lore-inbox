@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268795AbTCCUtz>; Mon, 3 Mar 2003 15:49:55 -0500
+	id <S268804AbTCCU65>; Mon, 3 Mar 2003 15:58:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268796AbTCCUtz>; Mon, 3 Mar 2003 15:49:55 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:48090 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S268795AbTCCUty>; Mon, 3 Mar 2003 15:49:54 -0500
-Subject: re: Linux 2.4.21pre4-ac5 status report
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Edward King <edk@cendatsys.com>, Mikael Pettersson <mikpe@user.it.uu.se>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030303195750.GI6946@louise.pinerecords.com>
-References: <200303011252.h21CqBpl013357@harpo.it.uu.se>
-	 <1046523858.26074.7.camel@sun> <3E63B227.8030101@cendatsys.com>
-	 <20030303195750.GI6946@louise.pinerecords.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046725013.1743.96.camel@fortknox>
+	id <S268805AbTCCU65>; Mon, 3 Mar 2003 15:58:57 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21263 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268804AbTCCU64>; Mon, 3 Mar 2003 15:58:56 -0500
+Date: Mon, 3 Mar 2003 21:09:21 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: David Hinds <dhinds@sonic.net>
+Cc: Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fallback to PCI IRQs for TI bridges
+Message-ID: <20030303210921.D17997@flint.arm.linux.org.uk>
+Mail-Followup-To: David Hinds <dhinds@sonic.net>,
+	Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.50.0302281944470.6367-100000@marabou.research.att.com> <20030301093814.A6700@sonic.net> <Pine.LNX.4.50.0303031203300.17551-100000@marabou.research.att.com> <20030303125620.A26220@sonic.net>
 Mime-Version: 1.0
-Date: 03 Mar 2003 21:56:53 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030303125620.A26220@sonic.net>; from dhinds@sonic.net on Mon, Mar 03, 2003 at 12:56:20PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-03 at 20:57, Tomas Szepe wrote:
-> > [edk@cendatsys.com]
-> > 
-> > >>Maybe that's changed in 2.4.21-pre-ac new IDE code, I don't know.
-> > >>
-> > >>Your cards don't share interrupts with anything else I hope?
-> > >>
-> > I tried  two pdc20268's which failed miserably
-> > 
-> > Used an Asus motherboard and an FIC motherboard, different cables, 
-> > different cards, different powersupply.Hard drives are 200GB western 
-> > digitals, one drive per channel.  
-> > 
-> > Tried an SIIG card with the SiI680 chipset -- same problem using is and 
-> > the pdc20268, but is more stable than a single pdc -- so now I have 4 
-> > drives on that card.
-> > 
-> > My kernel is 2.4.21-pre4-ac6 -- let me know if the pre5's solve the problem.
+On Mon, Mar 03, 2003 at 12:56:20PM -0800, David Hinds wrote:
+> > I think it CONFIG_ISA is meant to be that.  The "ISA support" is so
+> > trivial from the kernel perspective, that the line between systems with
+> > and without ISA is somewhat blurred.
 > 
-> I'd be quite interested to know whether the FreeBSD IDE driver can handle
-> these setups properly.
+> I don't really know what the scope of CONFIG_ISA should be.  I think
+> now it is mainly used to show or hide drivers for ISA cards, rather
+> than describing a system capability.
 
-Me too... I would not think so, but who know.
+In my bunch of PCMCIA/Cardbus/PCI changes, I have one patch which
+decouples CONFIG_ISA from the PCMCIA subsystem, replacing it with
+CONFIG_PCMCIA_PROBE - on statically mapped PCMCIA systems (eg, SA1110)
+all the region probing, resource handling, and interrupt stuff is
+rather heavy weight.  However, decoupling it from CONFIG_ISA would
+allow all that supporting code to remain when required for some socket
+drivers.
 
-However at least the freeze was reproducable here. Just take two
-pdc20268 controller, attach one driver per channel, setup a raid5, let
-it build up the raid. Then start bonnie and you will get a freeze within
-15min when using something higher than mdma0.
+I'm working through getting stuff tested and in to Linus in a reasonable
+way.  Of course, this won't help for 2.4 based kernels, although the
+CONFIG_PCMCIA_PROBE has existed in the ARM tree for a fair while and
+could, given someone with enough motivation, the relevant changes could
+be dug out and submitted to Marcello.
 
-The system now is really rock stable with these htp370 based
-dawicontrol-100 cards (which are in the same slots as the pdcs were).
-
-Soeren.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

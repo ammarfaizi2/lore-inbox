@@ -1,34 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319083AbSHFMfN>; Tue, 6 Aug 2002 08:35:13 -0400
+	id <S319098AbSHFMmF>; Tue, 6 Aug 2002 08:42:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319094AbSHFMfN>; Tue, 6 Aug 2002 08:35:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:64972 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319083AbSHFMfN>;
-	Tue, 6 Aug 2002 08:35:13 -0400
-Date: Tue, 06 Aug 2002 05:26:07 -0700 (PDT)
-Message-Id: <20020806.052607.73151005.davem@redhat.com>
-To: marcelo@conectiva.com.br
-Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre1
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0208060832090.6811-100000@freak.distro.conectiva>
-References: <3D4F164F.2070006@candelatech.com>
-	<Pine.LNX.4.44.0208060832090.6811-100000@freak.distro.conectiva>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S319099AbSHFMmF>; Tue, 6 Aug 2002 08:42:05 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:52473 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319098AbSHFMmE>; Tue, 6 Aug 2002 08:42:04 -0400
+Subject: Re: [PATCH] NUMA-Q xquad_portio declaration
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <349340000.1028591613@flay>
+References: <349340000.1028591613@flay>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 06 Aug 2002 15:04:28 +0100
+Message-Id: <1028642668.18130.159.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Marcelo Tosatti <marcelo@conectiva.com.br>
-   Date: Tue, 6 Aug 2002 08:32:59 -0300 (BRT)
-   
-   > Second:  Where is the patch?  I looked on kernel.org and didn't
-   > find it.  If it's going to be there shortly, that's fine, I'll
-   > keep checking back.
-   
-   Maybe at davem's CVS repo?
+On Tue, 2002-08-06 at 00:53, Martin J. Bligh wrote:
+> This patch is from Matt Dobson. It corrects the definition of
+> xquad_portio, getting rid of a compile warning.
 
-I don't use CVS anymore...
+Marcelo - I have a much cleaner change for this.
+

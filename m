@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261720AbSJCPc2>; Thu, 3 Oct 2002 11:32:28 -0400
+	id <S263302AbSJCO7E>; Thu, 3 Oct 2002 10:59:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261721AbSJCPc2>; Thu, 3 Oct 2002 11:32:28 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:692 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261720AbSJCPc0>;
-	Thu, 3 Oct 2002 11:32:26 -0400
-Date: Thu, 3 Oct 2002 11:37:33 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Kevin Corry <corryk@us.ibm.com>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       evms-devel@lists.sourceforge.net
+	id <S263304AbSJCO7E>; Thu, 3 Oct 2002 10:59:04 -0400
+Received: from msp-65-29-16-62.mn.rr.com ([65.29.16.62]:45803 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S263302AbSJCO7C>; Thu, 3 Oct 2002 10:59:02 -0400
+Date: Thu, 3 Oct 2002 10:03:41 -0500
+From: Shawn <core@enodev.com>
+To: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
 Subject: Re: EVMS Submission for 2.5
-In-Reply-To: <02100309534906.05904@boiler>
-Message-ID: <Pine.GSO.4.21.0210031130560.15787-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20021003100341.B32461@q.mn.rr.com>
+References: <02100216332002.18102@boiler> <20021003153256.B17513@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021003153256.B17513@infradead.org>; from hch@infradead.org on Thu, Oct 03, 2002 at 03:32:56PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 3 Oct 2002, Kevin Corry wrote:
-
-> On Thursday 03 October 2002 09:51, Alexander Viro wrote:
-> > On Thu, 3 Oct 2002, Kevin Corry wrote:
-> > > > IOW, the real question is what are you going to do with that list of
-> > > > gendisks?
-> > >
-> > > EVMS will try to read volume metadata from each device and activate
-> > > volumes if it finds any pertinent metadata.
-> >
-> > _Ouch_.  "Each" as in...?  E.g. do you want to do that for floppies? 
-> > Cdroms? EVMS volumes themselves?  Things like /dev/loop? (and if yes, at
-> > which point do you do that?)
+On 10/03, Christoph Hellwig said something like:
+> On Wed, Oct 02, 2002 at 04:33:20PM -0500, Kevin Corry wrote:
+> > EVMS provides a new, stand-alone subsystem to the kernel
 > 
-> EVMS can filter out devices that don't make sense to probe for volumes. 
-> Currently it ignores such things as floppies and cd-roms, as well as EVMS 
-> volumes. We have actually added the ability to probe loop devices, though, 
-> since we had several requests for that functionality.
+> i.e. it duplictes existing block layer/volume managment functionality..
 
-How does it recognize cdroms?  Explicit list of majors?  Doesn't work for
-IDE and I'm fairly sure that it doesn't catch all exotic ones.  Basically,
-I don't believe that any methods based on keeping a registry of bad device
-numbers are viable - if that information belongs anywhere, it's in drivers.
+Ok, LVM1 is non-existant if that's what you're referring to. Really,
+this replaces LVM1, but your statement WRT md still has merit. As for
+md duplication, it has been stated already that a preferred approach
+might be to send only core functionality bits for now, leaving that
+out till that question can be addressed.
 
-IMO the right way is to have driver set properties of gendisk and stuff
-like partition-related devfs/driverfs code, RAID, evms, etc. to check
-that.  _If_ we handle that stuff in the kernel, that is.
+Let's take an initially critical look, both philisophically and
+technically at this, but also keep an open mind. There /is/ a
+difference.
 
-The question being, what property are you looking for?  "I'm suitable for
-EVMS" is not an answer, obviously...
+--
+Shawn Leas
+core@enodev.com
 
-As for the loop...  At which point do you want to notice it?  Notice that
-it can be opened earlier than anything could be read from it.
-
+My house is on the median strip of a highway.  You don't really
+notice, except I have to leave the driveway doing 60 MPH.
+						-- Stephen Wright

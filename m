@@ -1,64 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131070AbQKACJO>; Tue, 31 Oct 2000 21:09:14 -0500
+	id <S131098AbQKACM5>; Tue, 31 Oct 2000 21:12:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131098AbQKACJF>; Tue, 31 Oct 2000 21:09:05 -0500
-Received: from 35-LASP-X2.red.retevision.es ([62.174.192.163]:40320 "HELO
-	jaya.dyndns.org") by vger.kernel.org with SMTP id <S131070AbQKACJA>;
-	Tue, 31 Oct 2000 21:09:00 -0500
-Date: Wed, 1 Nov 2000 02:00:48 -0500
-From: linuxx <linuxx@retemail.es>
-To: linux-kernel@vger.kernel.org
-Subject: small fix in 2.4.0-test10
-Message-ID: <20001101020048.B2975@retemail.es>
+	id <S131128AbQKACMq>; Tue, 31 Oct 2000 21:12:46 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:10512 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131118AbQKACMj>;
+	Tue, 31 Oct 2000 21:12:39 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+cc: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
+        "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: test10-pre7 (LINK ordering) 
+In-Reply-To: Your message of "Tue, 31 Oct 2000 17:24:24 -0800."
+             <D5E932F578EBD111AC3F00A0C96B1E6F07DBDBE5@orsmsx31.jf.intel.com> 
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 01 Nov 2000 13:11:30 +1100
+Message-ID: <21184.973044690@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 31 Oct 2000 17:24:24 -0800, 
+"Dunlap, Randy" <randy.dunlap@intel.com> wrote:
+>Is it valid to run depmod like this before
+>booting the kernel that has usbcore in-kernel?
+>depmod -ae works after I boot that kernel + usbcore.
 
---tjCHc7DPkfUGtrlw
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+To run depmod against a new 2.4.0-test10 kernel,
+  make modules_install
+  depmod -ae -F System.map 2.4.0-test10
+Without -F, depmod reads /proc/ksyms which are for the old kernel.
+make modules_install runs depmod with those parameters anyway.
 
-The version of udf in this kernel version has a bug in the access at the en=
-d of the device (usually used in DVDs) the patch is currently in new versio=
-ns of
-udf 0.9.2 and 0.9.2.1 from linux-udf.sourceforge.net.  bye.
-
---=20
- Luis Toro Teijeiro
-A=D1O 3021 de la era del pinguino :-) tux rules.
-ICQ : 42466380
-pasate por http://www.gulic.org  y veras Canarias y los linuxeros
-http://jaya.dyndns.org  ------pagina personal
-Firma gnupg disponible en http://jaya.dyndns.org/linuxx/gnupg/
-GnupgFingerprint: 8F06 3E9A F610 89BF 0B09  3DEB 0C7E 9AE1 6CE0 B251=20
-                              Windows Where do you want to go today?
-                              MacOS   Where do you want to be tomorrow?
-                              Linux           Are you coming, or what?
-   =20
-
-   =20
-
---tjCHc7DPkfUGtrlw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE5/7+fDH6a4WzgslERAuUQAJ9lMe4POEHv5Cdls6yQe49w0KjxkgCfZXUc
-TtHCU37ZMYct/xzWUtMtXqA=
-=oN8e
------END PGP SIGNATURE-----
-
---tjCHc7DPkfUGtrlw--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,115 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267321AbTBJKv0>; Mon, 10 Feb 2003 05:51:26 -0500
+	id <S267441AbTBJK7D>; Mon, 10 Feb 2003 05:59:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267441AbTBJKv0>; Mon, 10 Feb 2003 05:51:26 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:15620 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S267321AbTBJKvY>; Mon, 10 Feb 2003 05:51:24 -0500
-Date: Mon, 10 Feb 2003 12:01:09 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: levon@movementarian.org, linux-kernel@vger.kernel.org
-Subject: Re: Switch APIC (+nmi, +oprofile) to driver model
-Message-ID: <20030210110108.GE2838@atrey.karlin.mff.cuni.cz>
-References: <200302091407.PAA14076@kim.it.uu.se>
+	id <S267443AbTBJK7D>; Mon, 10 Feb 2003 05:59:03 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:10130 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267441AbTBJK7B>;
+	Mon, 10 Feb 2003 05:59:01 -0500
+Date: Mon, 10 Feb 2003 16:44:01 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net,
+       fastboot@osdl.org
+Subject: Re: Kexec on 2.5.59 problems ?
+Message-ID: <20030210164401.A11250@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <3E448745.9040707@mvista.com> <m1isvuzjj2.fsf@frodo.biederman.org> <3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200302091407.PAA14076@kim.it.uu.se>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m1d6m1z4bk.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Feb 09, 2003 at 11:39:27AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I am using the OSDL versions of the kexec patches for
+2.5.59 (plm 1442 and 1444) for lkcd-kexec based crash dump
+work. So far I had only been trying the cases where 
+machine_kexec was being invoked directly from (safe)
+panics, which worked, i.e. it could successfully kexec and 
+save dumps generated via artificially induced panics on
+a system that's not doing very much (Not considering harder 
+cases or for the moment).
 
-> >Here's next attempt at moving APIC (+nmi, +oprofile) to the driver
-> >model. If it looks good I'l submit it to Linus.
-> 
-> I'm sorry to be a killjoy, but this still doesn't look right.
-> 
-> >--- clean/arch/i386/kernel/apic.c	2003-01-05 22:58:18.000000000 +0100
-> >+++ linux-swsusp/arch/i386/kernel/apic.c	2003-02-03 16:36:41.000000000 +0100
-> >-static void apic_pm_resume(void *data)
-> >+static int apic_resume(struct device *dev, u32 level)
-> > {
-> > 	unsigned int l, h;
-> > 	unsigned long flags;
-> > 
-> >+	if (level != RESUME_POWER_ON)
-> >+		return 0;
-> >+
-> >+	set_fixmap_nocache(FIX_APIC_BASE, apic_phys);		/* FIXME: this is needed for S3 resume, but why? */
-> 
-> This is horrible! The only reason this might be needed is if
-> the page tables weren't restored properly at resume, and that
-> indicates a bug somewhere else.
-> 
-> Also, apic_phys is (or should be) APIC_DEFAULT_PHYS_BASE, so
-> you shouldn't need to make apic_phys global.
+Surprisingly though, when I tried just a simple 
+kexec -e today (having loaded the kernel earlier on), 
+I ran into the following Oops, consistently:
 
-Really?
+I'm using kexec-tools-1.8, and this has worked for me
+earlier. The test system is a 4way SMP machine.
 
-        /*
-         * If no local APIC can be found then set up a fake all
-         * zeroes page to simulate the local APIC and another
-         * one for the IO-APIC.
-         */
-        if (!smp_found_config && detect_init_APIC()) {
-                apic_phys = (unsigned long) alloc_bootmem_pages(PAGE_SIZE);
-                apic_phys = __pa(apic_phys);
-        } else
-                apic_phys = mp_lapic_addr;
+Has anyone seen this as well ?  (I'd already issued init 1 
+and unmounted filesystems by this point)
 
-        set_fixmap_nocache(FIX_APIC_BASE, apic_phys);
+sh-2.05a# /sbin/kexec -e
+Synchronizing SCSI caches:
+Shutting down devices
+Starting new kernel
+Unable to handle kernel paging request at virtual address 361ae000
+ printing eip:
+c011470a
+*pde = 00000000
+Oops: 0002
+CPU: 0
+EIP: 0060:[<c011470a>] Not tainted
+EFLAGS: 00010003
+EIP is at machine_kexec+0x14a/0x190
+eax: 00000097 ebx: f7742260 ecx: 00000025 edx: 361ac000
+esi: c0114750 edi: 361ae000 ebp: f7365e94 esp: f7365e80
+ds: 007b es: 007b ss: 0068
 
-So it seems to me it really is variable.
+Process kexec (pid: 1685, threadinfo=f7364000 task=f6290060)
+Stack: 361ae000 361ac000 f7742260 f7364000 00000000 f7365fbc 
+c0126903 f7742260 c02a71af c03a9aa8 00000001 00000000 f7fe1640
+f7793ec0 c1b3b120 f7364000 00000001 f7365edc c014dbef f7fe1668
+f7fe1668 00000286 f7ff51e0 f7365efc 
 
-> >--- clean/arch/i386/kernel/nmi.c	2003-01-05 22:58:19.000000000 +0100
-> >+++ linux-swsusp/arch/i386/kernel/nmi.c	2003-02-09 11:43:29.000000000 +0100
-> >@@ -118,10 +121,6 @@
-> > 	 * missing bits. Right now Intel P6/P4 and AMD K7 only.
-> > 	 */
-> > 	if ((nmi == NMI_LOCAL_APIC) &&
-> >-			(boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) &&
-> >-			(boot_cpu_data.x86 == 6 || boot_cpu_data.x86 == 15))
-> >-		nmi_watchdog = nmi;
-> >-	if ((nmi == NMI_LOCAL_APIC) &&
-> > 			(boot_cpu_data.x86_vendor == X86_VENDOR_AMD) &&
-> > 	  		(boot_cpu_data.x86 == 6 || boot_cpu_data.x86 == 15))
-> > 		nmi_watchdog = nmi;
-> 
-> You just killed NMI_LOCAL_APIC support on Intel.
+Call Trace: 
+[<c0126903>] sys_reboot+0x363/0x400 
+[<c014dbef>] invalidate_inode_buffers+0xf/0x90 
+[<c01633b0>] clear_inode+0x10/0xb0 
+[<c0238276>] sock_destroy_inode+0x16/0x20 
+[<c016149e>] dput+0x1e/0x170 i
+[<c014cb56>] __fput+0x116/0x140 i
+[<c014b38f>] filp_close+0xcf/0xe0 i
+[<c014b43e>] sys_close+0x9e/0xd0 i
+[<c01091c7>] syscall_call+0x7/0xb i
 
-Oops, sorry, I seen two identical blocks of code... and they were not
-identical. Sorry.
+Code: f3 a5 a8 02 74 02 66 a5 a8 01 74 01 a4 e8 84 fe ff ff 6a 00 
 
-> >--- clean/arch/i386/oprofile/nmi_int.c	2003-01-05 22:58:19.000000000 +0100
-> >+++ linux-swsusp/arch/i386/oprofile/nmi_int.c	2003-02-09 12:16:52.000000000 +0100
-> ...
-> >+	if (nmi_watchdog == NMI_LOCAL_APIC) {
-> >+		disable_apic_nmi_watchdog();
-> >+		nmi_watchdog = NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE;
-> >+	}
-> ...
-> >+	if (nmi_watchdog == NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE) {
-> >+		nmi_watchdog = NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE;
-> >+		setup_apic_nmi_watchdog();
-> >+	}
-> ...
-> >--- clean/include/asm-i386/apic.h	2002-10-20 16:22:45.000000000 +0200
-> >+++ linux-swsusp/include/asm-i386/apic.h	2003-02-09 11:46:09.000000000 +0100
-> >@@ -95,6 +95,7 @@
-> > #define NMI_IO_APIC	1
-> > #define NMI_LOCAL_APIC	2
-> > #define NMI_INVALID	3
-> >+#define NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE	4
-> 
-> This is ugly like h*ll. Surely oprofile could just do:
+Regards
+Suparna
 
-Yes, whole oprofile/nmi interaction is ugly like hell. This way it is
-at least explicit, so people *know* its ugly.
-								Pavel
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
+

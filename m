@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269953AbRHJRTw>; Fri, 10 Aug 2001 13:19:52 -0400
+	id <S269956AbRHJR3d>; Fri, 10 Aug 2001 13:29:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269952AbRHJRTn>; Fri, 10 Aug 2001 13:19:43 -0400
-Received: from smtp.awc.net ([216.205.112.6]:61199 "EHLO mx-a.awc.net")
-	by vger.kernel.org with ESMTP id <S269957AbRHJRTi>;
-	Fri, 10 Aug 2001 13:19:38 -0400
-For: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=US-ASCII
-From: Caleb Tennis <caleb@aei-tech.com>
-Organization: Analytical Engineering, Inc.
-To: "Stuart MacDonald" <stuartm@connecttech.com>,
-        <linux-kernel@vger.kernel.org>, <tytso@mit.edu>
-Subject: Re: [PATCH] serial.c to support ConnectTech Blueheat PCI
-Date: Fri, 10 Aug 2001 12:21:31 -0500
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01081010190800.03758@pete.aei-tech.com> <017801c121b5$e254f3e0$294b82ce@connecttech.com>
-In-Reply-To: <017801c121b5$e254f3e0$294b82ce@connecttech.com>
+	id <S269957AbRHJR3Y>; Fri, 10 Aug 2001 13:29:24 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:11018 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S269956AbRHJR3V>; Fri, 10 Aug 2001 13:29:21 -0400
+Message-ID: <aTlBpFApnBd7EwPW@n-cantrell.demon.co.uk>
+Date: Fri, 10 Aug 2001 18:29:13 +0100
+To: linux-kernel@vger.kernel.org
+From: robert w hall <bobh@n-cantrell.demon.co.uk>
+Subject: question on best "Linux" Internals book - Bovet & Cesati
+In-Reply-To: <Pine.LNX.4.33.0108101112130.8865-100000@filesrv1.baby-dragons.com>
+ <14806.010810@2ka.mipt.ru>
+In-Reply-To: <14806.010810@2ka.mipt.ru>
 MIME-Version: 1.0
-Message-Id: <01081012213100.08017@pete.aei-tech.com>
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Turnpike Integrated Version 4.02 U <ZNyPpF8T4habUIG8OkVoLRXKJZ>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 August 2001 11:02, Stuart MacDonald wrote:
-
-> This patch is maintained by me; it applies to 5.05. I'm not sure how
-> 5.05[abc] are different from vanilla 5.05 though.
-
-I'm quite pleased at the support ConnectTech has for this product.  We are 
-planning on purchasing more in the future.
-
+In article <14806.010810@2ka.mipt.ru>, s0mbre <johnpol@2ka.mipt.ru>
+writes
+>Hello.
 >
-> The reason this patch hasn't been seen on lkml is that I prefer
-> to have all the serial driver patches go through Ted (T'so the
-> serial driver maintainer) first. He's rejected this patch once
-> already on the basis that it adds specific board functionality to
-> the driver, which he's trying to avoid. I resubmitted it Jun 27 2001
-> with a lengthy explanation that all boards with half duplex and slave
-> multiplex functionality would have to have some method of doing the
-> switching between the modes, and that this isn't specific to our
-> products. I haven't heard back from him since.
+>MJWL>         Hello Robert ,  Is the one you are speaking about published
+>MJWL>         Oct-2000 ?  Or is yours a newer edition ?  Tia ,  JimL
+>
+>This book was lished about 1-2 month ago.
 
-I originally applied the ConnectTech patch a few months ago to a 2.2.19 
-kernel.  I ran into a lot of problems related to the serial driver 5.05 
-having some errors in it.  it would compile just fine as as module, but not 
-when integrated into the kernel.  There were almost 20 patches to the serial 
-driver up on sourceforge fixing most of these problems - and they took care 
-of the situation.  After looking at the sourceforge site, it seemed like Ted 
-Tso isn't actively maintaining the serial driver anymore (though I noticed 
-activity from him on other projects he supports, like e2fsprogs) and my 
-assumption was that he was busy.  I had noticed that in the 2.4 series, some 
-modifications had been made to the serial driver (hence the "abc" 
-progression), and thought it may be valuable to submit a patch related to the 
-latest kernel.
+The fly-leaf says 
+January 2001 First Edition
+ISBN 0-596-00002-2
 
-There really isn't a good way around this patch - I understand Ted's concern 
-on board specific functionality, but it is quite extendable to other 485/232 
-combination boards as well.  I sure hope it makes it into the kernel at some 
-point, but if not I'll continue hand patching away :)
+I think it may have been hanging around in script for a bit -
+the  2nd edition of Tanenbaum's 'Modern Operating Systems' (also 2001)
+has it referenced  as '2000'
 
-> Caleb: I appreciate the effort, thanks.
-
-Not a problem - it was a fun way to spend a day upgrading to 2.4.  In fact, 
-the serial driver was the only snag I ran into during the upgrade process.
+Bob
+>
+>---
+>WBR. //s0mbre
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Caleb Tennis
-Analytical Engineering
-2555 Technology Blvd
-Columbus, IN 47201
+robert w hall

@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274746AbRJJEu5>; Wed, 10 Oct 2001 00:50:57 -0400
+	id <S274749AbRJJFGW>; Wed, 10 Oct 2001 01:06:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274752AbRJJEur>; Wed, 10 Oct 2001 00:50:47 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:36711 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S274749AbRJJEuk>; Wed, 10 Oct 2001 00:50:40 -0400
-Date: Wed, 10 Oct 2001 00:51:12 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200110100451.f9A4pCW10769@devserv.devel.redhat.com>
-To: paul.thacker@st.com, linux-kernel@vger.kernel.org
-Subject: Re: usb_bulk_msg timeout w/ rvmalloc
-In-Reply-To: <mailman.1002674521.5223.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.1002674521.5223.linux-kernel2news@redhat.com>
+	id <S274752AbRJJFGE>; Wed, 10 Oct 2001 01:06:04 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8977 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S274749AbRJJFFr>; Wed, 10 Oct 2001 01:05:47 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
+Date: Wed, 10 Oct 2001 05:05:10 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9q0ku6$175$1@penguin.transmeta.com>
+In-Reply-To: <OF296D0EDC.4D1AE07A-ON88256AE0.00568638@boulder.ibm.com> <20011010040502.A726@athlon.random>
+X-Trace: palladium.transmeta.com 1002690363 22745 127.0.0.1 (10 Oct 2001 05:06:03 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 10 Oct 2001 05:06:03 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->      I have written a driver which, in part, facilitates the usb bulk 
->      transfer of raw image data. It works fine for small (CIF, QCIF) 
->      images, but for larger images, kmalloc will not allocate enough 
->      memory. 
+In article <20011010040502.A726@athlon.random>,
+Andrea Arcangeli  <andrea@suse.de> wrote:
+>On Tue, Oct 09, 2001 at 08:45:15AM -0700, Paul McKenney wrote:
+>> Please see the example above.  I do believe that my algorithms are
+>> reliably forcing proper read ordering using IPIs, just in an different
+>> way.  Please note that I have discussed this algorithm with Alpha
+>> architects, who believe that it is sound.
+>
+>The IPI way is certainly safe.
 
-How much do you need?
-     
->      I copied the rvmalloc code from the cpia2 driver and used it in place 
->      of kmalloc. The memory allocates fine, but usb_bulk_msg now times out 
->      when using the pointer to the rvmalloc'd memory. I have been unable to 
->      find an instance of an existing driver using rvmalloc in conjunction 
->      with usb_bulk_msg. 
+Now, before people get all excited, what is this particular code
+actually _good_ for?
 
-The best thing would be to use pipelined transfer with
-several URBs, I think. If that is too difficult for you,
-try to use __get_free_pages(), but mind that even if free
-RAM is available, kernel may not be able to fulfill your
-request. Check response codes carefuly.
+Creating a lock-free list that allows insertion concurrently with lookup
+is _easy_.
 
--- Pete
+But what's the point? If you insert stuff, you eventually have to remove
+it. What goes up must come down. Insert-inane-quote-here.
+
+And THAT is the hard part. Doing lookup without locks ends up being
+pretty much worthless, because you need the locks for the removal
+anyway, at which point the whole thing looks pretty moot.
+
+Did I miss something?
+
+		Linus

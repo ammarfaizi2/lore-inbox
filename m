@@ -1,77 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271744AbTGXV4M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 17:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271743AbTGXV4M
+	id S271743AbTGXWBu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 18:01:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271745AbTGXWBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 17:56:12 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:34197 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S271745AbTGXV4K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 17:56:10 -0400
-Date: Fri, 25 Jul 2003 00:10:59 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: weissg@vienna.at, kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] OHCI problems with suspend/resume
-Message-ID: <20030724221059.GC348@elf.ucw.cz>
-References: <20030723220805.GA278@elf.ucw.cz> <3F1F342F.70701@pacbell.net> <20030724102432.GB228@elf.ucw.cz> <3F2012F8.8030103@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Jul 2003 18:01:50 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:32486
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S271743AbTGXWBt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 18:01:49 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "Szonyi Calin" <sony@etc.utt.ro>, <felipe_alfaro@linuxmail.org>
+Subject: Re: [PATCH] O8int for interactivity
+Date: Fri, 25 Jul 2003 08:20:49 +1000
+User-Agent: KMail/1.5.2
+Cc: <linux-kernel@vger.kernel.org>
+References: <200307232155.27107.kernel@kolivas.org> <1058978784.740.4.camel@teapot.felipe-alfaro.com> <5783.194.138.39.55.1059063130.squirrel@webmail.etc.utt.ro>
+In-Reply-To: <5783.194.138.39.55.1059063130.squirrel@webmail.etc.utt.ro>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F2012F8.8030103@pacbell.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Message-Id: <200307250820.49434.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 25 Jul 2003 02:12, Szonyi Calin wrote:
+> Felipe Alfaro Solana said:
+> > I'm playing a bit with tunables to see if I can tune the scheduler a
+> > little bit for my system/workload. I've had good results reducing max
+> > timeslice to 100 (yeah, I know I shouldn't do this too).
+> >
+> > Will keep you informed :-)
+>
+> same thing here. Reducing max timeslice to 100 is much better.
+> It's the only thing that allow me to watch a movie while compiling
+> the kernel with make -j 2 bzImage on my Duron 700Mhz with 256M RAM
 
-> >Can you try echo 4 > /proc/acpi/sleep? echo 3 breaks it, too, but that
-> >is little harder to set up.
-> 
-> I usually test with "apm -s" ... since I've yet to come up with
-> an ACPI configuration that works properly.  IRQ misconfiguration
-> for USB is still a blocking issue for many people (not just me).
+Does this patch help?
 
-Actually, you do not need acpi to test swsusp (echo 4 >
-/proc/acpi/sleep is the easiest way, but there's syscall to do the
-same).
+Con
 
-> Going through ACPI would certainly explain some breakage; it's
-> been sufficiently troublesome with USB that it's not gotten much
-> testing at all.  I happened to notice this morning that ACPI's
-> USB IRQ problems are one of the longest-standing open 2.6 bugs:
-> http://bugme.osdl.org/show_bug.cgi?id=10 ... and it's now been
-> migrated into the 2.4.22-pre series (sigh).
+--- linux-2.6.0-test1-mm2/kernel/sched.c	2003-07-24 10:31:41.000000000 +1000
++++ linux-2.6.0-test1ck2/kernel/sched.c	2003-07-25 08:18:54.000000000 +1000
+@@ -1243,7 +1243,7 @@ void scheduler_tick(int user_ticks, int 
+ 		} else
+ 			enqueue_task(p, rq->active);
+ 	} else if (p->mm && !((task_timeslice(p) - p->time_slice) %
+-		 (MIN_TIMESLICE * (MAX_BONUS + 1 - p->sleep_avg * MAX_BONUS / MAX_SLEEP_AVG)))){
++		 (MIN_TIMESLICE * (1 + (MAX_BONUS - p->sleep_avg * MAX_BONUS / MAX_SLEEP_AVG) / 2)))){
+ 		/*
+ 		 * Running user tasks get requeued with their remaining timeslice
+ 		 * after a period proportional to how cpu intensive they are to
 
-That's okay, ACPI in 2.4.22-pre just replaced older ACPI and
-even-more-buggy ACPI in 2.4.21.
-
-> Could you try reproducing this failure using just APM?  I could
-> believe there's a generic PM issue (I've been expecting 2.6-test
-> to eventually start shaking PM out); but given the amount of
-> trouble ACPI has caused, we should first rule that factor out.
-
-ACPI is not much involved. If you want, I can (attempt to) make swsusp
-work on your machine....
-
-> >Actually, as PCI interrupts are shared, I do not find that too
-> >surprising. 
-> 
-> I do.  Sharing is irrelevant.  If it's been cleaned up, then
-> the IRQ should no longer be bound to that device.
-
-ohci_stop() does not seem to unregister IRQ...
-
-> >That would be good. I definitely had another failure path, where it
-> >did not tell me that hcd is no K.O...
-> 
-> I'll likely submit that to Greg in the next few days, cc you.
-
-Okay, thanx.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

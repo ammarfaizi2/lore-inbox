@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262578AbTENSDn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 14:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTENSDn
+	id S262351AbTENSJN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 14:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbTENSJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 14:03:43 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:17516 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262578AbTENSDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 14:03:41 -0400
-Date: Wed, 14 May 2003 11:17:48 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: mika.penttila@kolumbus.fi, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Race between vmtruncate and mapped areas?
-Message-Id: <20030514111748.57670088.akpm@digeo.com>
-In-Reply-To: <99000000.1052935556@baldur.austin.ibm.com>
-References: <154080000.1052858685@baldur.austin.ibm.com>
-	<3EC15C6D.1040403@kolumbus.fi>
-	<199610000.1052864784@baldur.austin.ibm.com>
-	<20030513181018.4cbff906.akpm@digeo.com>
-	<18240000.1052924530@baldur.austin.ibm.com>
-	<20030514103421.197f177a.akpm@digeo.com>
-	<82240000.1052934152@baldur.austin.ibm.com>
-	<20030514105706.628fba15.akpm@digeo.com>
-	<99000000.1052935556@baldur.austin.ibm.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 May 2003 18:16:24.0728 (UTC) FILETIME=[EDDCE180:01C31A44]
+	Wed, 14 May 2003 14:09:13 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:59588 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262351AbTENSJN convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 14:09:13 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780CCB0943@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Shaheed R. Haque'" <srhaque@iee.org>,
+       "'Zwane Mwaikambo'" <zwane@linuxpower.ca>
+Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       "'Andrew Morton'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.6 must-fix list, v2
+Date: Wed, 14 May 2003 11:21:29 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken <dmccr@us.ibm.com> wrote:
+-----Original Message-----
+> From: Shaheed R. Haque [mailto:srhaque@iee.org]
 >
-> > It would be nice to make them go away - they cause problems.
-> 
->  Definitely.  We almost have the pieces necessary to detect it and/or
->  prevent it, but the info isn't in quite the right layer at the right time.
->  If it weren't for the lock order problem with mmap_sem we could have nailed
->  it that way.  Sigh.
+> Can I be certain that there is no shared lock or anything else in the
+whole
+> kernel? No, but I'm prepared to make that probabalistic tradeoff (backed
+via
+> extensive testing) rather than have to go to hard-realtime.
 
-I think it might be sufficient to re-check the page against i_size
-after IO completion in filemap_nopage().
+An of course, when you pin one of those, you try to "fix it",
+so to improve the time response of the kernel ...
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

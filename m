@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVBGGin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVBGGro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVBGGin (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 01:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVBGGin
+	id S261365AbVBGGro (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 01:47:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVBGGre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 01:38:43 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:47876 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261362AbVBGGim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 01:38:42 -0500
-Subject: Re: How to read file in kernel module?
-From: Arjan van de Ven <arjan@infradead.org>
-To: linux lover <linux_lover2004@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050207061718.47940.qmail@web52203.mail.yahoo.com>
-References: <20050207061718.47940.qmail@web52203.mail.yahoo.com>
+	Mon, 7 Feb 2005 01:47:34 -0500
+Received: from ozlabs.org ([203.10.76.45]:17555 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261365AbVBGGrb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 01:47:31 -0500
+Subject: Re: [linux-usb-devel] 2.6: USB disk unusable level of data
+	corruption
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <200502062115.07626.david-b@pacbell.net>
+References: <1107519382.1703.7.camel@localhost.localdomain>
+	 <200502041241.28029.david-b@pacbell.net>
+	 <1107744922.8689.6.camel@localhost.localdomain>
+	 <200502062115.07626.david-b@pacbell.net>
 Content-Type: text/plain
-Date: Mon, 07 Feb 2005 07:38:36 +0100
-Message-Id: <1107758316.3886.58.camel@laptopd505.fenrus.org>
+Date: Mon, 07 Feb 2005 17:46:30 +1100
+Message-Id: <1107758790.8689.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.3 (/)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (0.3 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-02-06 at 22:17 -0800, linux lover wrote:
-> Hello,
->         I have written one /proc file creation kernel
-> module. This module creates /proc/file and defied
-> operations on it. Also i have written user program
-> that will read & write to /proc files from user space.
-> Now what i want is to use same bufproc_read &
-> bufproc_write  functions defined in /proc file
-> handling kernel module to be used in another kernel
-> module to read that /proc/file in kernel module.The
-> second kernel module only used to read /proc file in
-> kernel. I am not understanding how can i open that
-> /proc/file in second kenrel module to read in kernel?
-> regards,
+On Sun, 2005-02-06 at 21:15 -0800, David Brownell wrote:
+> And I didn't see an "unusual_devs.h" entry for it, but it does
+> look to need the CONFIG_USB_STORAGE_HP8200e support, which I
+> see is labeled "experimental".  I don't know how solid the
+> support for that is.   But I see Greg's checked in a big patch
+> against the file with that driver, which should make the next
+> MM patchset against 2.6.11-rc3 ... mostly to support some
+> new hardware, but with that many changes I suspect there'll
+> be some bugfixes too.
 
-the answer really is that you should not read files from kernel
-modules; /proc or otherwise.
+OK, I'll check once that comes through, thanks.
 
+> This would be www.macpower.com.tw/produts/hdd2/daisycutter/dc_usb2
+> maybe?  The www.qbik.ch/usb/devices database has a report from one
+> user saying they had problems with a different MacPower adapter until
+> they fixed its jumpers.  Also worth a check.
+
+Actually, it's
+http://www.macpower.com.tw/products/hdd2/clearlight/cl_400plus
+
+I didn't put the drive in myself, but I'll unscrew it and check the
+jumpers.
+
+A simple DIRECT_IO 4096-byte read-write on the block device does reveal
+corruption after an hour or so, so I should be able to track this down.
+Might move my home dir back off it for a while though 8)
+
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 

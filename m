@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274102AbRISQop>; Wed, 19 Sep 2001 12:44:45 -0400
+	id <S274103AbRISQqp>; Wed, 19 Sep 2001 12:46:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274103AbRISQog>; Wed, 19 Sep 2001 12:44:36 -0400
-Received: from [217.201.19.65] ([217.201.19.65]:24046 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274102AbRISQoR>;
-	Wed, 19 Sep 2001 12:44:17 -0400
-Date: Wed, 19 Sep 2001 18:35:48 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-Message-ID: <20010919183548.W720@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0109180935180.2077-100000@penguin.transmeta.com> <Pine.GSO.4.21.0109181354470.27125-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0109181354470.27125-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Sep 18, 2001 at 02:19:42PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274104AbRISQqf>; Wed, 19 Sep 2001 12:46:35 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:35282 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S274103AbRISQqU>; Wed, 19 Sep 2001 12:46:20 -0400
+Date: Wed, 19 Sep 2001 10:47:41 -0600
+Message-Id: <200109191647.f8JGlfs21635@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: paulus@samba.org
+Cc: "Nick Piggin" <s3293115@student.anu.edu.au>, linux-kernel@vger.kernel.org,
+        rgooch@ras.ucalgary.ca
+Subject: Re: [2.4.10-pre11 OOPS] in do_generic_file_read
+In-Reply-To: <15272.23190.629095.594202@cargo.ozlabs.ibm.com>
+In-Reply-To: <000701c13ffb$785126d0$0200a8c0@W2K>
+	<15272.23190.629095.594202@cargo.ozlabs.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 02:19:42PM -0400, Alexander Viro wrote:
-> with Andrea and once he gets back to life (no, 'e's just sleepin') we'll
+Paul Mackerras writes:
+> Nick Piggin writes:
+> 
+> > I got the following oops on startup while mounting the root filesystem.
+> > Unfortunately there was no "Code" because of a bad EIP value. If anyone
+> > would like more information or anything for me to test, please CC me.
+> 
+> I got something similar.  I would predict that you are using devfs.
+> The problem is that devfs doesn't set inode->i_mapping->a_ops for a
+> block device.  Ext2 (for instance) calls init_special_inode, and pre11
+> added a line to that procedure to initialize that field.  But devfs
+> doesn't use init_special_inode.
+> 
+> The patch below fixes the problem for me.  It may be that devfs should
+> be calling init_special_inode instead, but that sets inode->i_fop as
+> well and it looks like devfs sets that a bit differently.  Richard?
 
-yes, I'm back to life but I had a surprise: but my ISP is down so I'm
-now masqueraded my dekstop over a wirless GPRS link via irda on the
-laptop [GRPS is flat rate in Italy :) ] so it's quite dogslow at the
-moment, I cannot read emails and RTT over GSM is of the order of 1
-second (but I can send emails and slowly browse the web). I still hope
-the ISP returns alive before tomorrow... (I'm looking into Andrew's
-report at the moment and I don't need good connectivity for debugging it
-luckily :)
+Correct. In devfs, I need to capture the open() method. So my fops
+have devfs_open(), which in turn initialises file->f_op as required.
+I've applied your patch to my tree. I'll be releasing a new patch
+shortly.
 
-I think the bug we have in the inode pinning isn't a showstopper (I
-probably could live with it forever without ever have chance to notice it),
-so no user should be hurted by it [but I understand it can hurt you very
-much], and I am _very_ concerned in addressing it ASAP and I'm very
-happy you spoteed it immediatly. I'll also check your worries with the
-ramdisk BLKFLSBUF (the logic should be just like before the changes, the
-reason I backed out the rd_bdev changes is because I was always working
-with inodes for everything related to the physical address space, not
-with bdevs so I didn't see a value in the change, but after the bugfix
-[bdev->bd_mapping] probably this will change), for the other issue with the
-->writepage as said it is fine and intentional, except we can do
-something more efficient for the ramdisk adding some special case to the
-memory balancing code (for istance we could always put the ramdisk stuff
-over the active list rather than rolling it over in the inactive list
-again, but quite frankly that's low prio unless somebody has a real
-patological case and of course that applies and it always applied to
-ramfs too [I did it with the argument: it works for ramfs so it will
-obviously work work for ramdisk too]). In the next days I'll also be
-very busy with some non linux-kernel developement issue, but I'll try to
-be still as much responsive as possible for anything urgent (I'll
-certainly be 100% responsive again next week starting from Wed 26).
+				Regards,
 
-At the moment my very first prio is to address the BUG() reported by
-Andrew (if it is just been fixed please somebody at SuSE send me an SMS
-so I don't waste time since as said I cannot read emails at the moment).
-
-Andrea
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

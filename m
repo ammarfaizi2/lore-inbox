@@ -1,41 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269461AbTCDOD3>; Tue, 4 Mar 2003 09:03:29 -0500
+	id <S269453AbTCDOAn>; Tue, 4 Mar 2003 09:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269462AbTCDOD3>; Tue, 4 Mar 2003 09:03:29 -0500
-Received: from dp.samba.org ([66.70.73.150]:61831 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S269461AbTCDOD2>;
-	Tue, 4 Mar 2003 09:03:28 -0500
-Date: Wed, 5 Mar 2003 01:13:25 +1100
-From: Anton Blanchard <anton@samba.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: xmms (audio) skipping in 2.5 (not 2.4)
-Message-ID: <20030304141324.GA12185@krispykreme>
-References: <103200000.1046755559@[10.10.2.4]>
+	id <S269454AbTCDOAn>; Tue, 4 Mar 2003 09:00:43 -0500
+Received: from 24-216-225-11.charter.com ([24.216.225.11]:28035 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id <S269453AbTCDOAm>;
+	Tue, 4 Mar 2003 09:00:42 -0500
+Date: Tue, 4 Mar 2003 09:11:09 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: eepro100 ?
+Message-ID: <20030304141109.GI646@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5vjQsMS/9MbKYGLq"
 Content-Disposition: inline
-In-Reply-To: <103200000.1046755559@[10.10.2.4]>
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> OK, so I finally took the plunge, and put 2.5 on my main desktop as well as
-> just the lab machines ;-)
-> 
-> Generally seems to work very well, and VM performance is much more stable
-> than 2.4 ... but xmms seems to skip if I just waggle the scrollbar in some
-> windows. This happens most in my email client (which is Mulberry), but
-> other things show it to a more limited extent.
-> 
-> The audio pauses happen on a simple window scroll down, without intensive
-> CPU background activity ... they're very short in duration, which makes it
-> *feel* more like the audio buffer is too small than a scheduler problem,
-> but I'm just guessing really.
+--5vjQsMS/9MbKYGLq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Are you running debian? It likes to nice -10 the X server. Renicing it
-back to 0 fixes my xmms skips with 2.5.
 
-Anton
+
+I have 2 machines with eepro100 cards.  I used the original driver for
+them out of habit and on the last 2.4.20 kernel get A LOT of:
+
+eth0: freeing mc frame.
+
+in my dmesg log.  Out of curiosity I tried with the alternate driver and
+that seems to have gone away.  Is one depreciated or are they both
+viable and just different?   The help message doesn't really say much on
+the topic.
+
+< >     EtherExpressPro/100 support (eepro100, original Becker driver)
+< >     EtherExpressPro/100 support (e100, Alternate Intel driver)
+
+Robert
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | PGP Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Diagnosis: witzelsucht  =09
+
+IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
+
+--5vjQsMS/9MbKYGLq
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+ZLP98+1vMONE2jsRAibaAKCeiyntwVa0XB6+L+t6zhw41kCqygCgm2Fo
+aTsMxZZd+NmQ9HLx/+/cVn8=
+=2neH
+-----END PGP SIGNATURE-----
+
+--5vjQsMS/9MbKYGLq--

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264906AbTIDLUu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 07:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbTIDLUu
+	id S264930AbTIDLPq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 07:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264932AbTIDLPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 07:20:50 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:60626 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264906AbTIDLUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 07:20:50 -0400
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: nagendra_tomar@adaptec.com
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Kars de Jong <jongk@linux-m68k.org>,
-       Linux/m68k kernel mailing list 
-	<linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0309032134040.25093-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0309032134040.25093-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062674382.21667.32.camel@dhcp23.swansea.linux.org.uk>
+	Thu, 4 Sep 2003 07:15:46 -0400
+Received: from ns2.questra.com ([64.132.48.187]:43533 "EHLO ns2.questra.com")
+	by vger.kernel.org with ESMTP id S264930AbTIDLPp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 07:15:45 -0400
+Date: Thu, 4 Sep 2003 07:15:43 -0400
+From: Scott Mcdermott <smcdermott@questra.com>
+To: netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: SNAT interaction with kernel-based IPSEC (in 2.6)
+Message-ID: <20030904111543.GT17837@questra.com>
+Mail-Followup-To: netfilter@lists.netfilter.org,
+	linux-kernel@vger.kernel.org
+References: <20030904091525.GO17837@questra.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Thu, 04 Sep 2003 12:19:44 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030904091525.GO17837@questra.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-09-03 at 17:07, Nagendra Singh Tomar wrote:
-> In x86 store buffer is not snooped which leads to all these serialization 
-> issues (other CPUs looking at stale value of data which is in the store 
-> buffer of some other CPU).
+To netfilter@lists.netfilter.org on Thu  4/09 05:15 -0400:
+> I'm having some difficulty doing simple pings over an
+> IPSEC tunnel using the implementation in 2.6.0-test4 (with
+> Racoon, and successful Phase 1 and 2, I get the IPSEC SA
+> fine), in combination with iptables.
 
-x86 gives you coherency and store ordering (barring errata and special
-CPU modes)
+Nevermind this, I had set the security policy with the wrong
+/24 on the remote end.  It's now working great with IPSEC
+and doing SNAT only when it doesn't traverse the tunnel.
+I'm really surprised that it "just works."  The IPSEC in 2.6
+is very good IMO, basically turnkey.
 
+It still would be nice to know where IPSEC fits in to the
+Netfilter engine (ie, why it does "just work" and not SNAT
+when it goes over the tunnel), but it works great now...I
+think RTFS is in order.

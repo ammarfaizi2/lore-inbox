@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbUBTTop (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 14:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbUBTTlT
+	id S261363AbUBTTyA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 14:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbUBTTud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 14:41:19 -0500
-Received: from tantale.fifi.org ([216.27.190.146]:3975 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id S261390AbUBTTUk (ORCPT
+	Fri, 20 Feb 2004 14:50:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12730 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261403AbUBTTtP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 14:20:40 -0500
-To: Kiko Piris <kernel@pirispons.net>
-Cc: Cristiano De Michele <demichel@na.infn.it>, linux-kernel@vger.kernel.org
-Subject: Re: laptop mode in 2.4.24
-References: <1077276719.6533.16.camel@piro>
-	<20040220134218.GA15112@fpirisp.portsdebalears.com>
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 20 Feb 2004 11:15:25 -0800
-In-Reply-To: <20040220134218.GA15112@fpirisp.portsdebalears.com>
-Message-ID: <87vfm136lu.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Fri, 20 Feb 2004 14:49:15 -0500
+Date: Fri, 20 Feb 2004 11:41:41 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Thomas Munck Steenholdt <tmus@tmus.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pcnet32 link detection patch proposal
+Message-Id: <20040220114141.1d3099a3.rddunlap@osdl.org>
+In-Reply-To: <40366254.2050109@tmus.dk>
+References: <40365368.5020508@tmus.dk>
+	<20040220104521.4aaabd6e.rddunlap@osdl.org>
+	<40366254.2050109@tmus.dk>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Fri, 20 Feb 2004 20:39:00 +0100 Thomas Munck Steenholdt <tmus@tmus.dk> wrote:
 
-Kiko Piris <kernel@pirispons.net> writes:
-
-> On 20/02/2004 at 12:32, Cristiano De Michele wrote:
-> 
-> > that is only journaling is writing to my HD
-> > and anyway every minute more or less something
-> > gets written to HD preventing it from being spinned down
-> 
-> IIRC, laptop-mode included in mainline 2.4 does not reset commit
-> interval of ext3 filesystems (as surely did the patch you applied to
-> older kernels).
-> 
-> You need to remount your filesystems with appropate commit option. You
-> can see the updated control script that's in 2.6.*-mm* trees.
-
-Or use this patch...
+| Randy.Dunlap wrote:
+| 
+| >Hi,
+| >
+| >There has been some recent pcnet32 driver activity on the netdev
+| >mailing list.  Try that list.
+| >Recent patches have been from Don Fry (brazilnut@us.ibm.com).
+| >Mail archives for it are here:
+| >  http://oss.sgi.com/projects/netdev/archive/
+| >	
+| >  
+| >
+| Is this the "main" place for linux net stuff???
 
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment;
-  filename=linux-2.4.24-09-laptop-mode.patch.bz2
+Yes, for linux networking development.
 
-diff -ruN linux-2.4.24.orig/fs/jbd/transaction.c linux-2.4.24/fs/jbd/transaction.c
---- linux-2.4.24.orig/fs/jbd/transaction.c	Fri Nov 28 10:26:21 2003
-+++ linux-2.4.24/fs/jbd/transaction.c	Mon Jan 12 12:01:54 2004
-@@ -56,7 +56,11 @@
- 	transaction->t_journal = journal;
- 	transaction->t_state = T_RUNNING;
- 	transaction->t_tid = journal->j_transaction_sequence++;
--	transaction->t_expires = jiffies + journal->j_commit_interval;
-+	/*
-+	 * have to do it here, otherwise changed age_buffers since boot
-+	 * wont have any effect
-+	 */
-+	transaction->t_expires = jiffies + get_buffer_flushtime();
- 	INIT_LIST_HEAD(&transaction->t_jcb);
- 
- 	/* Set up the commit timer for the new transaction. */
+Linux user networking email goes to linux-net@vger.kernel.org .
 
---=-=-=
-
-
-Phil.
-
---=-=-=--
+--
+~Randy

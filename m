@@ -1,77 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132299AbQL1Man>; Thu, 28 Dec 2000 07:30:43 -0500
+	id <S132175AbQL1Man>; Thu, 28 Dec 2000 07:30:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132287AbQL1Mad>; Thu, 28 Dec 2000 07:30:33 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:40660 "EHLO
+	id <S132299AbQL1Mad>; Thu, 28 Dec 2000 07:30:33 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:41172 "EHLO
 	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S132175AbQL1MaW>; Thu, 28 Dec 2000 07:30:22 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] shmem_unuse race fix
-In-Reply-To: <Pine.LNX.4.21.0012272025190.528-100000@dual.transmeta.com>
+	id <S132287AbQL1MaX>; Thu, 28 Dec 2000 07:30:23 -0500
+To: Andries Brouwer <aeb@veritas.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Dave Gilbert <gilbertd@treblig.org>
+Subject: Re: [Patch] shmmin behaviour back to 2.2 behaviour
+In-Reply-To: <m3d7eeb1pa.fsf@linux.local>
+	<Pine.LNX.4.21.0012271316020.11471-100000@freak.distro.conectiva>
+	<20001227215703.A1302@veritas.com>
 From: Christoph Rohland <cr@sap.com>
-Message-ID: <m31yuswyig.fsf@linux.local>
+In-Reply-To: <20001227215703.A1302@veritas.com>
+Message-ID: <m3wvck99wx.fsf@linux.local>
 User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: 28 Dec 2000 13:02:07 +0100
+Date: 28 Dec 2000 13:01:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+Andries Brouwer <aeb@veritas.com> writes:
 
-> On 27 Dec 2000, Christoph Rohland wrote:
-> Woul dyou mind testing this alternate fix instead:
+> On Wed, Dec 27, 2000 at 01:16:44PM -0200, Marcelo Tosatti wrote:
+> I happen to see this post, but have not followed earlier discussion.
+> See a patch fragment
 
-Does not work, but is the right direction I think.
+(The patch does not show a lot of context. You should look at the
+whole files)
 
-First we need the following patch since otherwise we use a swap entry
-without having the count increased:
+> 
+> 	-#define SHMMIN 0    /* min shared seg size (bytes) */
+> 	+#define SHMMIN 1    /* min shared seg size (bytes) */
+> 
+> 	+ if (size < SHMMIN || size > shm_ctlmax)
+> 	+   return -EINVAL;
+> 
+> My first reaction is that this patch is broken, since
+> one usually specifies size 0 in shmget to get an existing
+> bit of shared memory (with known key but unknown size).
 
---- 4-13-4/mm/vmscan.c  Fri Dec 22 10:05:38 2000
-+++ m4-13-4/mm/vmscan.c Thu Dec 28 11:57:57 2000
-@@ -93,8 +93,8 @@
-                entry.val = page->index;
-                if (pte_dirty(pte))
-                        SetPageDirty(page);
--set_swap_pte:
-                swap_duplicate(entry);
-+set_swap_pte:
-                set_pte(page_table, swp_entry_to_pte(entry));
- drop_pte:
-                UnlockPage(page);
-@@ -185,7 +185,7 @@
-         * we have the swap cache set up to associate the
-         * page with that swap entry.
-         */
--       entry = get_swap_page();
-+       entry = __get_swap_page(2);
-        if (!entry.val)
-                goto out_unlock_restore; /* No swap space left */
+That's still covert: The check is moved out of shmget into the create
+function. So you cannot create segments of size 0 but you can get
+existing segments by giving a size 0.
 
+> [Was this rehashed in earlier discussion? I wonder whether there
+> are any reasons to forbid size 0. Forbidding size 0 is
+> allowed by SUSv2 as I read it - it says
+> 
+> 	The shmget() function will fail if: 
+> 
+> 	[EINVAL]
+> 		The value of size is less than the system-imposed minimum
+> 		or greater than the system-imposed maximum,
 
-Second there look at this in handle_pte_fault:
+We match this with a system-imposed minimum of 1 now.
 
-		/*
-		 * If it truly wasn't present, we know that kswapd
-		 * and the PTE updates will not touch it later. So
-		 * drop the lock.
-		 */
-		spin_unlock(&mm->page_table_lock);
-		if (pte_none(entry))
-			return do_no_page(mm, vma, address, write_access, pte);
-		return do_swap_page(mm, vma, address, pte, pte_to_swp_entry(entry), write_access);
+> 		or a shared memory identifier exists for the argument key
+> 		but the size of the segment associated with it is less
+> 		than size and size is not 0. 
 
-The comment is wrong. try_to_unuse will touch it. This stumbles over a
-bad swap entry after try_to_unuse complaining about an undead swap
-entry.
+We don't match this exactly since we allow arbitrary sizes smaller
+than segment size for existing segments (0 included).
 
-If I retry in try_to_unuse it goes into an infinite loop since it
-deadlocks with this.
+> but is contrary to AIX, which says
+> 
+> 	EINVAL
+>          A shared memory identifier does not exist and the Size
+> 	parameter is less than the system-imposed minimum or greater
+> 	than the system-imposed maximum.
+> 	EINVAL
+>          A shared memory identifier exists for the Key parameter,
+> 	but the size of the segment associated with it is less than
+> 	the Size parameter, and the Size parameter is not equal to 0.
 
-Ideas?
-        Christoph
+That's what we do and always did.
+
+So should we go for SUSv2? I do not think that we should restrict the
+shmget so late in the release cycle. We could enhance this check
+further in 2.5 perhaps.
+
+Greetings
+                Christoph
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

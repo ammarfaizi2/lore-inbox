@@ -1,116 +1,240 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263480AbTIHTHV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 15:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263498AbTIHTHV
+	id S263470AbTIHS6z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 14:58:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263492AbTIHS6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 15:07:21 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:45580 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S263480AbTIHTHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 15:07:08 -0400
-Message-ID: <3F5CD863.4020605@techsource.com>
-Date: Mon, 08 Sep 2003 15:28:35 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Mon, 8 Sep 2003 14:58:55 -0400
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:41222 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id S263470AbTIHS6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 14:58:47 -0400
+Date: Mon, 8 Sep 2003 16:01:21 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+X-X-Sender: marcelo@logos.cnet
+To: Moal Tanguy <tanguy.moal.tux@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org, "Justin T. Gibbs" <gibbs@scsiguy.com>
+Subject: Re: kernel 2.4.22's AIC7(triple x) driver not working anymore
+In-Reply-To: <1063032626.5032.21.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0309081559290.6626-100000@logos.cnet>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Use of AI for process scheduling
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got back from vacation and have 3278 list messages to sift
-through.  (Yay.)  I wouldn't be surprised, therefore, if others were
-already discussing this, but I've been thinking of some ideas over the
-past week that we may be helpful for the advancement of intelligent
-process scheduling.
 
-To begin with, let's consider the parts of an intelligent system:
+Justin, 
 
-1) Inputs (ie. properties and behaviors of processes)
-2) Heuristics
-3) Outputs (ie. dynamic priorities, etc.)
+Can you take a look at this? 
 
-Up to this point, the interactive scheduler has been designed in a very
-expert-system-like manner.  Human experts observe behaviors and define
-heuristics.  Ultimately, we do want a solid set of heuristics that are
-coded in C, and that's what the current development process has been
-working directly toward.
+On 8 Sep 2003, Moal Tanguy wrote:
 
-The progress has been slow, and there have been a lot of false starts
-and tangents which have been discarded.  This is all how development
-works, and it's important to explore all possibilities.  But what I
-would like to propose is that we work on a way to accelerate that
-process, and that is to make use of machine learning.  We move from
-expert systems to artificial intelligence, because the heuristics are
-determined by the machine and are therefore dynamic.
+> Hello,
+> I sent this message here because I don't where to send it!
+> Please redirect this message or read it if you can help
+> (I feel like talking with some kind of a god!)
+> 
+> There is the bug report. I hope it is completely clear and
+> understandable. 
+> Don't blame me for any grammar or spelling things, Sheakspire's language
+> isn't my cup of tea, but it seems to be a universal language.
+> :-)
+> Don't be affraid to reply me, I won't blame anyone.
+> 
+> [1.] One line summary of the problem: aic7xxx driver fails to
+> scan/probe? a hard drive
+> [2.] Full description of the problem/report: 
+> During the boot up, when the scsi card is being initialized (an adaptec 
+> 19160B one) a hard drive (an IBM 9.1 GB 10krpm one) fails to load : the 
+> following message was printed on the screen :
+> Unexpected busfree while idle
+> [3.] Keywords (i.e., modules, networking, kernel): kernel : aic7xxx
+> [4.] Kernel version (from /proc/version) : 
+> Linux version 2.4.22 (root@localhost.localdomain) (version gcc 3.2.3 
+> 20030422 (Gentoo Linux 1.4 3.2.3-r1, propolice)) #2 lun sep 8 12:51:17
+> CEST 2003
+> [5.] Output of Oops : no Oops :-)
+> [6.] A small shell script :
+> Sorry but this problem isn't linked to any program/application, it 
+> happened during boot up, before the prompt.
+> [7.] Environment
+> [7.1.] Software :
+> 
+> If some fields are empty or look unusual you may have an old version.
+> Compare to the current minimal requirements in Documentation/Changes.
+>  
+> Linux localhost.localdomain 2.4.22 #2 lun sep 8 12:51:17 CEST 2003 i686
+> AMD Athlon(tm) Processor AuthenticAMD GNU/Linux
+>  
+> Gnu C                  3.2.3
+> Gnu make               3.80
+> util-linux             2.11z
+> mount                  2.11z
+> modutils               2.4.25
+> e2fsprogs              1.33
+> reiserfsprogs          3.6.8
+> Linux C Library        2.3.2
+> Dynamic linker (ldd)   2.3.2
+> Procps                 3.1.9
+> Net-tools              1.60
+> Kbd                    1.06
+> Sh-utils               2.0.15
+> Modules Loaded         nvidia 8139too mii crc32
+> [7.2.] Processor information (from /proc/cpuinfo)
+> 
+> processor	: 0
+> vendor_id	: AuthenticAMD
+> cpu family	: 6
+> model		: 4
+> model name	: AMD Athlon(tm) Processor
+> stepping	: 4
+> cpu MHz		: 1400.064
+> cache size	: 256 KB
+> fdiv_bug	: no
+> hlt_bug		: no
+> f00f_bug	: no
+> coma_bug	: no
+> fpu		: yes
+> fpu_exception	: yes
+> cpuid level	: 1
+> wp		: yes
+> flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+> pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+> bogomips	: 2791.83
+> 
+> [7.3.] Module information (from /proc/modules):
+> 
+> nvidia               1630784  11
+> 8139too                15592   1
+> mii                     2528   0 [8139too]
+> crc32                   2880   0 [8139too]
+> [7.4.] Loaded driver and hardware information (/proc/ioports,
+> /proc/iomem)
+> 
+> 0000-001f : dma1
+> 0020-003f : pic1
+> 0040-005f : timer
+> 0060-006f : keyboard
+> 0070-007f : rtc
+> 0080-008f : dma page reg
+> 00a0-00bf : pic2
+> 00c0-00df : dma2
+> 00f0-00ff : fpu
+> 01f0-01f7 : ide0
+> 02f8-02ff : serial(auto)
+> 0378-037a : parport0
+> 03c0-03df : vesafb
+> 03f6-03f6 : ide0
+> 03f8-03ff : serial(auto)
+> 0cf8-0cff : PCI conf1
+> 9800-98ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+
+>   9800-98ff : 8139too
+> a000-a0ff : Adaptec AIC-7892B U160/m
+> a400-a4ff : C-Media Electronics Inc CM8738
+>   a400-a4ff : cmpci
+> d000-d01f : VIA Technologies, Inc. USB (#2)
+>   d000-d01f : usb-uhci
+> d400-d41f : VIA Technologies, Inc. USB
+>   d400-d41f : usb-uhci
+> d800-d80f : VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C
+> PIPC Bus Master IDE
+>   d800-d807 : ide0
+> e000-e003 : Advanced Micro Devices [AMD] AMD-760 [IGD4-1P] System
+> Controller
+> e300-e37f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+> e800-e80f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+> 00000000-0009f7ff : System RAM
+> 0009f800-0009ffff : reserved
+> 000a0000-000bffff : Video RAM area
+> 000c0000-000c7fff : Video ROM
+> 000d4000-000d93ff : Extension ROM
+> 000f0000-000fffff : System ROM
+> 00100000-1ffebfff : System RAM
+>   00100000-0031ef35 : Kernel code
+>   0031ef36-003d9283 : Kernel data
+> 1ffec000-1ffeefff : ACPI Tables
+> 1ffef000-1fffefff : reserved
+> 1ffff000-1fffffff : ACPI Non-volatile Storage
+> cd000000-cd0000ff : Realtek Semiconductor Co., Ltd.
+> RTL-8139/8139C/8139C+
+>   cd000000-cd0000ff : 8139too
+> cd800000-cd800fff : Adaptec AIC-7892B U160/m
+>   cd800000-cd800fff : aic7xxx
+> ce000000-cf5fffff : PCI Bus #01
+>   ce000000-ceffffff : nVidia Corporation NV20 [GeForce3 Ti 200]
+> cf700000-df7fffff : PCI Bus #01
+>   cf800000-cf87ffff : nVidia Corporation NV20 [GeForce3 Ti 200]
+>   d0000000-d7ffffff : nVidia Corporation NV20 [GeForce3 Ti 200]
+>     d0000000-d05fffff : vesafb
+> df800000-df800fff : Advanced Micro Devices [AMD] AMD-760 [IGD4-1P]
+> System Controller
+> e0000000-efffffff : Advanced Micro Devices [AMD] AMD-760 [IGD4-1P]
+> System Controller
+> ffff0000-ffffffff : reserved
+> 
+> [7.5.]  PCI information ('lspci -vvv' as root):
+> 
+> no lspci on my system...
+> :-(
+> 
+> [7.6.] SCSI information (from /proc/scsi/scsi)
+> 
+> Attached devices: 
+> Host: scsi0 Channel: 00 Id: 00 Lun: 00
+>   Vendor: QUANTUM  Model: ATLAS10K3_36_WLS Rev: 020K
+>   Type:   Direct-Access                    ANSI SCSI revision: 03
+> Host: scsi0 Channel: 00 Id: 06 Lun: 00
+>   Vendor: YAMAHA   Model: CRW6416S         Rev: 1.0d
+>   Type:   CD-ROM                           ANSI SCSI revision: 02
+> [7.7.] Other information :
+> We should see at 7.6 one more device looking something like that:
+> Host: scsi0 Channel: 00 Id: 01 Lun: 00
+>   Vendor: IBM      Model: DDYS-T09170N     Rev: xxxx
+>   Type:   Direct-Access                    ANSI SCSI revision: xx
+> (replacing x's by the appripriate values, I don't remember them)
+> 
+> Which is weird, is the fact that the same thing happened first with
+> gentoo sources of kernel 2.4.20-gentoo... Then I decided to get the
+> sources from kernel.org 2.4.21 it worked great! Then 2.4.22 went out
+> I downloaded it and installed and then, exactly the same error!
+> I will now shutdown my computer and check for any plugging error
+> (i.e. scsi id's or something)
+> I will also check adaptec website for any firmware update.
+> And then I'll try to get the full verbose output from the kernel
+> during next boot up
+> Finally I will send this e-mail.
+> 
+> 
+> I checked everything and used Adaptec SCSI Select(TM) utilities to
+> do a scandisk on each devices but the same error applies.
+> In addition, I quote the output on the screen during boot and it says 
+> the following:
+> 
+> scsi0: Unexpected busfree while idle
+> SEQADDR ==0x1
+> 
+> May be this can help?
+> 
+> For now, I well replaces the source subtree  aic7xxx in the
+> 2.4.22/drivers/scsi
+>  by the one in 2.4.21/drivers/scsi to see if the problem is there...
+> I'll post the e-mail message later.
+> 
+> I did the replacement and built a knew kernel image. It works with the
+> older aic7xxx subtree (present in 2.4.21) and everything seems alright.
+> I will send this e-mail message know. I hope it will help. At least I
+> would be glade If someone could explain me what's going wrong and better
+> if a patch could published.
+> Best regards, Mr Moal Tanguy tanguy.moal.tux@wanadoo.fr.
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Basically, we need to write and install into the kernel an AI engine
-which uses user feedback about the "feel" of the system to adjust
-heuristics dynamically.  For instance, if the user sees that the system
-is misbehaving, they can pause the system in the kernel debugger,
-examine process priorities, and indicate what "outputs" from the AI
-engine are wrong.  It then learns from that.  Heuristics can be tweaked
-until things run as desired.  At that point, scheduler developers trade
-emails in the AI heuristic language.
-
-Obviously, this AI engine will be slow and add a huge amount of
-processing overhead.  The idea is to determine what the heuristics are,
-and then to release a kernel, recode the heuristics in C.
-
-We have a number of options for what kinds of AI engines we use.  A 
-neural net is something that's relatively easy to train, but beyond a 
-certain level of complexity, it's impossible to make much sense out of 
-the weights.  Genetic algorithms are probably out of the question.
-
-The ideal situation would be to have a rule processor that uses a script 
-language of sorts (lots of if-thens with some math, etc.) to compute on 
-inputs and produce directives to the scheduler (dynamic priorities, but 
-perhaps more) -- but what would produce the script?  How do you turn 
-user feedback automatically into better rules?  But at the very least, 
-it could speed up development by making scheduler behavior dynamically 
-programmable.  If a priority inversion occurs and you stop the kernel to 
-examine it, the AI engine could report to you what combination of rules 
-were used to cause that condition.  You then dynamically change the 
-rules and observe the effects.
-
-I have huge gaps in my knowledge of AI, so I'm hoping some LKML members 
-who are experts on this will engage in this discussion.
-
-I think use of AI could be applied to the development of MANY parts of 
-the kernel.  Obviously, the I/O scheduler could benefit.  But what about 
-intelligently dealing with failure conditions?
-
-Maybe AI could be useful in a running kernel, at least as an observer. 
-I read an article about self-correcting systems in space craft.  There 
-is the logic of the system, and then there is an AI model of it.  When 
-some component fails to operate properly or the system behaves in an 
-unexpected manner, the "model" finds a way to work around the problem. 
-This kind of redundancy in a kernel being debugged could be invaluable. 
-  In a deployment kernel, it could exist at a reduced level of 
-sophistocation.
-
-Another freaky idea is that large parts of the kernel could be rewritten 
-in the heuristic language and interpreted during debugging and then 
-compiled for release.
-
-Also, some logic which is not computationally intensive could be always 
-interpreted because the size of the interpretor plus the size of the 
-pcode would be smaller than the size of the object code for the compiled 
-version.  This would not be for performance-critical logic in a deployed 
-system.
-
-Ok, I know I'm going too far.  Right now, the best application would be 
-the process scheduler, but we should start thinking about ways of making 
-the system "self aware" and "self correcting" so that when the model 
-observes the logic to misbehave, detailed information can be produced 
-for debugging purposes.
-
-Naturally, I am interested in contributing to this, but some of what I 
-will have to learn to participate will come out of ensuing discussions. 
-  I have a lot to learn, but I think if these ideas are valuable, others 
-who already know enough will start to do something with them.
 

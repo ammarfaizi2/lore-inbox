@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261407AbTCTH0B>; Thu, 20 Mar 2003 02:26:01 -0500
+	id <S263212AbTCTHaY>; Thu, 20 Mar 2003 02:30:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263212AbTCTH0A>; Thu, 20 Mar 2003 02:26:00 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:37541 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S261407AbTCTHZ7>; Thu, 20 Mar 2003 02:25:59 -0500
-Date: Thu, 20 Mar 2003 08:36:52 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: george anzinger <george@mvista.com>
-cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix nanosleep() granularity bumps
-In-Reply-To: <3E78E16E.7090602@mvista.com>
-Message-ID: <Pine.LNX.4.33.0303200831260.6486-100000@gans.physik3.uni-rostock.de>
+	id <S263217AbTCTHaY>; Thu, 20 Mar 2003 02:30:24 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:53209 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263212AbTCTHaX>; Thu, 20 Mar 2003 02:30:23 -0500
+Date: Wed, 19 Mar 2003 23:41:20 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] remove warning for 3c509.c
+Message-ID: <13950000.1048146080@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Mar 2003, george anzinger wrote:
+Get this compile warning:
+drivers/net/3c509.c:207: warning: `el3_device_remove' declared `static' but never defined
+because the function definition is under 
+"#if defined(CONFIG_EISA) || defined(CONFIG_MCA)".
 
-> I found a problem with the last version.  The attached is for
-> 2.5.65-1.1171 (i.e. after the other post 2.5.65 changes).  The bug is
-> fixed, and the code even simpler here.
->
-> The problem in the prior patch was that cascade should return:
-> (index +1) &... not  index &...
+This patch puts the declaration under the same conditions. 
+I'd be shocked if it wasn't correct ;-)
 
-I haven't had time yet to look into any of the patches more closely,
-but ...
+M.
 
-> Here I changed the call to cascade() to expect "index" back so it
-> checks for 0 instead of 1.  Nice and simple.
-
-... this is what I expected to come out from our simplification and what
-made me suspicious against the previous version.
-So I'd just guess the patch is fine now.
-
-Tim
+diff -urpN -X /home/fletch/.diff.exclude virgin/drivers/net/3c509.c 3c509_fix/drivers/net/3c509.c
+--- virgin/drivers/net/3c509.c	Wed Mar  5 07:37:01 2003
++++ 3c509_fix/drivers/net/3c509.c	Wed Mar 19 23:35:44 2003
+@@ -204,7 +204,9 @@ static int el3_resume(struct pm_dev *pde
+ static int el3_pm_callback(struct pm_dev *pdev, pm_request_t rqst, void *data);
+ #endif
+ /* generic device remove for all device types */
++#if defined(CONFIG_EISA) || defined(CONFIG_MCA)
+ static int el3_device_remove (struct device *device);
++#endif
+ 
+ #ifdef CONFIG_EISA
+ struct eisa_device_id el3_eisa_ids[] = {
 

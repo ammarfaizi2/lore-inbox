@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264494AbTF0QnM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 12:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbTF0QnM
+	id S264490AbTF0Q5T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 12:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbTF0Q5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 12:43:12 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63110
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264494AbTF0QnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 12:43:11 -0400
-Subject: Re: bkbits.net is down
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: CaT <cat@zip.com.au>
-Cc: nick@snowman.net, Larry McVoy <lm@bitmover.com>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030627163720.GF357@zip.com.au>
-References: <20030627145727.GB18676@work.bitmover.com>
-	 <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net>
-	 <20030627163720.GF357@zip.com.au>
+	Fri, 27 Jun 2003 12:57:19 -0400
+Received: from cs180094.pp.htv.fi ([213.243.180.94]:27264 "EHLO
+	hades.pp.htv.fi") by vger.kernel.org with ESMTP id S264490AbTF0Q5S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 12:57:18 -0400
+Subject: Re: Linux 2.4.21-ac3
+From: Mika Liljeberg <mika.liljeberg@welho.com>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200306251636.h5PGag417884@devserv.devel.redhat.com>
+References: <200306251636.h5PGag417884@devserv.devel.redhat.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1056733889.746.5.camel@hades>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Jun 2003 17:54:14 +0100
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 27 Jun 2003 20:11:29 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-06-27 at 17:37, CaT wrote:
-> On Fri, Jun 27, 2003 at 12:28:50PM -0400, nick@snowman.net wrote:
-> > I've always had very good luck with 3ware hardware.  As I understand it
-> > Serverworks officially says only to use their IDE for CDRom drives &
-> > similar.
-> 
-> Aye. From what I read when researching them a few years ago, they have
-> truly excellent motherboards except for one thing: IDE support. There
-> they suck the bigone. If you're gonna use a serverworks mb, use SCSI
-> with it. It's what they were designed for.
+On Wed, 2003-06-25 at 19:36, Alan Cox wrote:
+> Linux 2.4.1-ac3
+> o	Fix an hpt driver bug triggered by the new HPT 	(me)
+> 	BIOS
+> o	Initial VIA and S3 DRM modules merges		(VIA)
+> 	| These are marked up with some warnings and need
+> 	| a chunk of clean up work yet.
+> o	btaudio update					(Gerd Knorr)
+> o	Backport 2.5 ipc/sem.c fix			(Manfred Spraul)
+> o	Fix scsi_register failure path for aacraid	(Michael Still)
+> o	First crack at fixing the ide reset oopses	(me)
+> o	Fix the incompatibility between via audio and	(me)
+> 	esd/gnome desktops
 
-CSB5/CSB6 is a decent IDE interface the old OSB4 stuff is not
+Looks like ICH5-SATA IDE was also disabled in favor of a SCSI ATA
+driver. Caused me a momentary headache before I figured out why my disk
+drives went away. :)
+
+	MikaL
 

@@ -1,60 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbTI3Lkd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 07:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTI3Lkd
+	id S261361AbTI3LyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 07:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTI3LyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 07:40:33 -0400
-Received: from mail1.kth.se ([130.237.32.62]:14026 "EHLO mail1.kth.se")
-	by vger.kernel.org with ESMTP id S261347AbTI3Lk0 (ORCPT
+	Tue, 30 Sep 2003 07:54:16 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:28380 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261361AbTI3LyM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 07:40:26 -0400
-Message-ID: <3F796B6B.8070505@kth.se>
-Date: Tue, 30 Sep 2003 13:39:23 +0200
-From: Christoph Klocker <cklocker@kth.se>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030723 Thunderbird/0.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: datatransfer slow down with 1TB files
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Sep 2003 07:54:12 -0400
+Date: Tue, 30 Sep 2003 13:54:11 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel includefile bug not fixed after a year :-(
+Message-ID: <20030930115411.GL2908@suse.de>
+References: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-I am developing a system to stream large uncompressed videofiles which 
-are about 1,5TB.
-I need a bandwith of 195MB/s (HD-SDI)
-my system is now:
-RH8 - kernel: 2.4.18
-xeon 2,4GHz
-1GB RAM
-3ware escalade controller 12 s-ata harddisks (seagate barracuda 7200.7 - 
-120GB - SCSI)
+On Tue, Sep 30 2003, Joerg Schilling wrote:
+> >From axboe@suse.de  Tue Sep 30 13:05:18 2003
+> 
+> >On Tue, Sep 30 2003, Joerg Schilling wrote:
+> >> A year after I did report this inconsistency, it is still not fixed
+> >> 
+> >> If include/scsi/scsi.h is included without __KERNEL__ #defined, then this
+> >> error message apears.
+> >> 
+> >> /usr/src/linux/include/scsi/scsi.h:172: parse error before "u8"
+> >> /usr/src/linux/include/scsi/scsi.h:172: warning: no semicolon at end of struct 
+> >> or union
+> >> /usr/src/linux/include/scsi/scsi.h:173: warning: data definition has no type or 
+> >> storage class
+> >> 
+> >> Is there no interest in user applications for kernel features or is there just
+> >> no kernel maintainer left over who makes the needed work?
+> 
+> >/usr/include/scsi/scsi.h looks fine on my system, probably also on
+> >yours. You should not include kernel headers in your user space program.
+> 
+> Looks like you did not understand the background :-(
 
-when I do different tests with bonnie++ I get very good results for a 
-2GB file, sequential input 236mb/s,
-but when the files get larger the speed is going down significantly.
-at 10GB - 216MB/s
-at 100GB - 187MB/s
-at 1TB - 161MB/s
-the sequential output stays at 183MB/s any time, up to 1TB.
-As my harddisks have a sustained rate of 32-50 MB/s each it should not 
-be the
-case that they influence the results. I also tested the raid full up to 
-1,2TB and there was no difference in the results.
-Best filesystem performance I tested was on XFS or EXT2
-I applied min-readahead to 128 and max-readahead to 256
+I think I do.
 
-I tested also with lmdd with the O_DIRECT option, and get lower results.
-lmdd if=internal of=fred bs=2m count=1000 fsync=1 direct=1
-2097.1520 MB in 12.5588 secs, 166.9860 MB/sec
+> In order to use kernel interfaces you _need_ to include kernel include
+> files.
 
-the driver for the videocard I use don't support 2.6
-please reply personally
-thanks
-christoph
+False. You need to include the glibc kernel headers.
 
+> This is in particular true as long as we are talking about
+> beta/testing kernels.
+> 
+> 
+> Background: on homogeneous platforms like e.g. Solaris or FreeBSD
+> which are maintained and distributed as whole, an _enduser_ should
+> include files from /usr/include only. 
+> 
+> 	This is not even true for people who do Solaris or FreeBSD
+> 	kernel development and like to test new features with user level
+> 	programs.  It is definitely not true for compilations against
+> 	Linux kernel interfaces.
+> 
+> Linux is not a homogeneous system. There is a separately developed
+> kernel and a separate base user level system. People often install a
+> newer kernel and need to recompile software because the kernel/user
+> interfaces are not stable between different Linux releases.
 
+That's a pretty bold claim, when did the kernel/user interface break? A
+lot of care is usually taken to ensure that this does not happen.
+
+This subject has been debated to death lots of times before, I'm sure
+the archives are more detailed and enlightening that I am.
+
+-- 
+Jens Axboe
 

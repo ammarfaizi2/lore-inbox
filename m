@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVBQSTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262269AbVBQSS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbVBQSTK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 13:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVBQSTK
+	id S262269AbVBQSS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 13:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVBQSSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 13:19:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39329 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261166AbVBQSS6 (ORCPT
+	Thu, 17 Feb 2005 13:18:55 -0500
+Received: from fire.osdl.org ([65.172.181.4]:3239 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262324AbVBQSSB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 13:18:58 -0500
-Date: Thu, 17 Feb 2005 13:18:50 -0500
-From: Dave Jones <davej@redhat.com>
-To: Itsuro Oda <oda@valinux.co.jp>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] /proc/cpumem
-Message-ID: <20050217181850.GE21623@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Itsuro Oda <oda@valinux.co.jp>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	fastboot <fastboot@lists.osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20050203154433.18E4.ODA@valinux.co.jp> <m14qgu81bw.fsf@ebiederm.dsl.xmission.com> <20050216170224.4C66.ODA@valinux.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050216170224.4C66.ODA@valinux.co.jp>
-User-Agent: Mutt/1.4.1i
+	Thu, 17 Feb 2005 13:18:01 -0500
+Date: Thu, 17 Feb 2005 10:18:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+cc: Andrew Morton <akpm@osdl.org>, noel@zhtwn.com, kas@fi.muni.cz,
+       axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: -rc3 leaking NOT BIO [Was: Memory leak in 2.6.11-rc1?]
+In-Reply-To: <200502170800.28012.kernel-stuff@comcast.net>
+Message-ID: <Pine.LNX.4.58.0502171014200.2371@ppc970.osdl.org>
+References: <20050121161959.GO3922@fi.muni.cz> <200502160107.08039.kernel-stuff@comcast.net>
+ <20050216155255.0ffab555.akpm@osdl.org> <200502170800.28012.kernel-stuff@comcast.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 16, 2005 at 05:49:51PM +0900, Itsuro Oda wrote:
- > Hi, Eric and all
- > 
- > Attached is an implementation of /proc/cpumem.
- > /proc/cpumem shows the valid physical memory ranges.
- > 
- > * i386 and x86_64
- > * implement valid_phys_addr_range() and use it.
- >   (the first argument of the i386 version is little uncomfortable.)
- > * /dev/mem of the i386 version should be mofified. but not yet.
- > 
- > example: amd64 8GB Mem
- > # cat /proc/cpumem
- > 0000000000000000 000000000009b800
- > 0000000000100000 00000000fbe70000
- > 0000000100000000 0000000100000000
- > #
- > start address and size. hex digit.
- > 
- > Any comments, recomendations and suggestions are welcom.
 
-It may make more sense to export the entire e820 (or similar)
-bios memory tables. Probably better off in sysfs than adding
-more cruft to procfs too.
 
-		Dave
+On Thu, 17 Feb 2005, Parag Warudkar wrote:
+> 
+> A question - is it safe to assume it is  a kmalloc based leak? (I am thinking 
+> of tracking it down by using kprobes to insert a probe into __kmalloc and 
+> record the stack to see what is causing so many allocations.)
 
+It's definitely kmalloc-based, but you may not catch it in __kmalloc. The 
+"kmalloc()" function is actually an inline function which has some magic 
+compile-time code that statically determines when the size is constant and 
+can be turned into a direct call to "kmem_cache_alloc()" with the proper 
+cache descriptor.
+
+So you'd need to either instrument kmem_cache_alloc() (and trigger on the 
+proper slab descriptor) or you would need to modify the kmalloc() 
+definition in <linux/slab.h> to not do the constant size optimization, at 
+which point you can instrument just __kmalloc() and avoid some of the 
+overhead.
+
+		Linus

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268190AbTBNFvn>; Fri, 14 Feb 2003 00:51:43 -0500
+	id <S268207AbTBNFuh>; Fri, 14 Feb 2003 00:50:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268210AbTBNFvn>; Fri, 14 Feb 2003 00:51:43 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:43855
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S268190AbTBNFvl>; Fri, 14 Feb 2003 00:51:41 -0500
-Date: Fri, 14 Feb 2003 01:00:04 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Sahara Workshop <workshop@cpt.saharapc.co.za>
-cc: KML <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with 2.5.*'s SCSI headers and cdrtools
-In-Reply-To: <1045201685.5971.78.camel@workshop.saharact.lan>
-Message-ID: <Pine.LNX.4.50.0302140056410.3518-100000@montezuma.mastecende.com>
-References: <1045201685.5971.78.camel@workshop.saharact.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268210AbTBNFuh>; Fri, 14 Feb 2003 00:50:37 -0500
+Received: from lmail.actcom.co.il ([192.114.47.13]:60561 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S268207AbTBNFug>; Fri, 14 Feb 2003 00:50:36 -0500
+Date: Fri, 14 Feb 2003 08:00:24 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: modutils that works with 2.4 and 2.5?
+Message-ID: <20030214060024.GC9578@actcom.co.il>
+References: <1045162343.1311.7.camel@mentor>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1045162343.1311.7.camel@mentor>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Feb 2003, Sahara Workshop wrote:
-
+On Thu, Feb 13, 2003 at 11:52:23AM -0700, Dax Kelson wrote:
+> Does such a thing exist?
 > 
-> Kernel 2.5.5x (have not tried earlier) and 2.5.60 's scsi/scsi.h do
-> not have like in 2.4 the 'include <features.h>', or as it may seem
-> to need an 'include <types.h>', and thus cdrtools for one do not
-> compile.
-> 
-> The take I get on this from Jorg is that he feels its a problem
-> kernel side.  Comments ?
-> 
-> Attached is a patch that get cdrtools-2.01a2 to compile.
+> I would like to help out testing 2.5, but I need to still use 2.4 as
+> well.
 
-Good heavens that's ugly, shouldn't you be using userland header files and 
-not the ones from 'Kernel du jour'? Is your /usr/include/linux pointing to 
-your current kernel? If that's the case.. don't do that.
-
-What were Joerg's justifications again?
-
-	Zwane
-
-Aside: Are Sahara shipping computers with bleeding edge Linux 
-configurations? ;)
-
+Rusty's modutils package maintains the old modutils binaries and falls
+back to them if it discovers that you're running a 2.4 system. If
+you're installing from source, take a look at the documentation for
+how to tell the Makefile to rename your $MODULE_BIN to
+$MODULE_BIN.old
 -- 
-function.linuxpower.ca
+Muli Ben-Yehuda
+http://www.mulix.org
+http://syscalltrack.sf.net
+

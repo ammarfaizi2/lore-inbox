@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265286AbRF0HoQ>; Wed, 27 Jun 2001 03:44:16 -0400
+	id <S265288AbRF0Hw0>; Wed, 27 Jun 2001 03:52:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265290AbRF0HoF>; Wed, 27 Jun 2001 03:44:05 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:30166 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265286AbRF0Hnu>;
-	Wed, 27 Jun 2001 03:43:50 -0400
-Date: Wed, 27 Jun 2001 03:43:48 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Paul Menage <pmenage@ensim.com>, "Mohammad A. Haque" <mhaque@haque.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] User chroot
-In-Reply-To: <20010627191946.B5913@weta.f00f.org>
-Message-ID: <Pine.GSO.4.21.0106270335220.19655-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265290AbRF0HwR>; Wed, 27 Jun 2001 03:52:17 -0400
+Received: from delrom.ro ([193.231.234.28]:47377 "HELO delrom.ro")
+	by vger.kernel.org with SMTP id <S265288AbRF0HwD>;
+	Wed, 27 Jun 2001 03:52:03 -0400
+Date: Wed, 27 Jun 2001 10:52:56 +0300
+From: Silviu Marin-Caea <silviu@delrom.ro>
+To: linux-kernel@vger.kernel.org
+Subject: Realtek 8139 driver or sucky hardware?
+Message-Id: <20010627105256.2e75fdca.silviu@delrom.ro>
+Organization: Delta Romania
+X-Mailer: Sylpheed version 0.4.99cvs3 (GTK+ 1.2.9; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: OK (checked by AntiVir Version 6.7.0.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a server that had a Realtek 8139 card that worked nicely under
+normal circumstances.
 
+But I made a mistake in a crontab and I had 60 instances of a backup
+script starting one per minute, all of them wishing to create the same
+.tar.gz into a samba mounted share.
 
-On Wed, 27 Jun 2001, Chris Wedgwood wrote:
+This crazy situation had the server freeze solid, with only cold boot as
+remedy.
 
-> On Tue, Jun 26, 2001 at 09:40:36PM -0400, Alexander Viro wrote:
-> 
-> > You need /dev/zero to get anywhere near the normal behaviour of the
-> > system.
-> 
-> Not commenting on the original patch, I think requiring /dev/zero for
-> a 'usable' system should be considered a [g]libc bug. /dev/zero should
-> be present, but if not, [g]libc should have fall-back mechanisms to
-> deal with things.
+No matter what stupid things I do on it, I shouldn't be able to take the
+kernel down, right?
 
-Frankly, glibc already has too many fall-back mechanisms of various kinds.
-Several things Should Be There(tm). /dev/zero, /dev/null and /dev/tty are
-definitely among them.
+After I replaced the Realtek with a 3com, I could see all of the 60
+instances fighting like worms in shit, but the server survived.
 
+Kernel 2.4.5 compiled with Red Hat gcc 2.96-81.  With kgcc, it was
+acting the same way.
+
+Please CC me.
+
+Thank you.
+
+-- 
+Systems and Network Administrator - Delta Romania
+Phone +4093-267961

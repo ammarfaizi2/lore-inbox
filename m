@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272914AbTG3O4V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272927AbTG3Ozx
+	id S272911AbTG3Orl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272913AbTG3Ork
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:55:53 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57092 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S272914AbTG3Ozl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:55:41 -0400
-Date: Wed, 30 Jul 2003 16:55:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: dgp85@users.sourceforge.net, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] LIRC drivers for 2.6.0-test2 (and earliers) - 3rd version
-Message-ID: <20030730145538.GB10276@atrey.karlin.mff.cuni.cz>
-References: <20030729173846.GB2601@openzaurus.ucw.cz>
+	Wed, 30 Jul 2003 10:47:40 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:64756 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272911AbTG3Ori
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:47:38 -0400
+Subject: Re: [PATCH] Remove module reference counting.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: notting@redhat.com, arjanv@redhat.com, torvalds@osdl.org,
+       shemminger@osdl.org, davem@redhat.com, greg@kroah.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030730063310.70b5c794.rusty@rustcorp.com.au>
+References: <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org>
+	 <20030727193919.832302C450@lists.samba.org>
+	 <20030727214701.A23137@devserv.devel.redhat.com>
+	 <20030727201242.A29448@devserv.devel.redhat.com>
+	 <1059392321.15458.23.camel@dhcp22.swansea.linux.org.uk>
+	 <20030730063310.70b5c794.rusty@rustcorp.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059576018.8052.44.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030729173846.GB2601@openzaurus.ucw.cz>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Jul 2003 15:40:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> You can download it from here
-> http://flameeyes.web.ctonet.it/patch-2.6.0-test2-lirc.diff.bz2.
-> Sorry for not inlining it but it seens too big to be sent to lkml.
+On Maw, 2003-07-29 at 21:33, Rusty Russell wrote:
+> > I guess kudzu could simply do lots of I/O ops directly on the floppy 
+> > hardware to detect it without loading drivers but thats pretty fugly.
 > 
-> This version fixes problems using lirc_dev as a module (it needs to be
-> compiled in the kernel), merges the patch that Koos Vriezen sent to me
-> for homebrew receivers, the lirc's cvs fixes for lirc_serial, and add
-> the new atiusb driver (from lirc's cvs).
-> I'm trying to rejoin the i2c driver but it need more work.
-> I hope this patch will work for everyone.
+> Agreed that'd be kinda silly.  But I was "educated" earlier that driver
+> loading shouldn't fail just because hardware is missing, due to hotplug.
+> 
+> Is this wrong?
 
-It does not look that bad. Perhaps you can separate that one lirc
-driver that you can test, and attempt to get it merged?
+On systems without hotplug, on not hotpluggable devices and in a few other
+cases - yes.
 
-Perhaps btXXX driver is the one most commonly needed?
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.

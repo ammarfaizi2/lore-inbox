@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262637AbTDAQno>; Tue, 1 Apr 2003 11:43:44 -0500
+	id <S262663AbTDARBS>; Tue, 1 Apr 2003 12:01:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262650AbTDAQno>; Tue, 1 Apr 2003 11:43:44 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:46600 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262637AbTDAQnm>; Tue, 1 Apr 2003 11:43:42 -0500
-Date: Tue, 1 Apr 2003 17:55:02 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: bcrl@redhat.com, akpm@digeo.com, linux-fsdevel@vger.kernel.org,
-       linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Filesystem aio rdwr patchset
-Message-ID: <20030401175502.B19660@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Suparna Bhattacharya <suparna@in.ibm.com>, bcrl@redhat.com,
-	akpm@digeo.com, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
-	linux-kernel@vger.kernel.org
-References: <20030401215957.A1800@in.ibm.com> <20030401220242.B1857@in.ibm.com>
+	id <S262670AbTDARBS>; Tue, 1 Apr 2003 12:01:18 -0500
+Received: from rth.ninka.net ([216.101.162.244]:8120 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S262663AbTDARBR> convert rfc822-to-8bit;
+	Tue, 1 Apr 2003 12:01:17 -0500
+Subject: Re: assertion failed in tcp.c & af_inet.c
+From: "David S. Miller" <davem@redhat.com>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <yw1xy92wxt8c.fsf@zaphod.guide>
+References: <yw1xy92wxt8c.fsf@zaphod.guide>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Organization: 
+Message-Id: <1049217138.3938.0.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030401220242.B1857@in.ibm.com>; from suparna@in.ibm.com on Tue, Apr 01, 2003 at 10:02:42PM +0530
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 Apr 2003 09:12:18 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +int blk_congestion_wait_async(int rw, long timeout)
+On Sun, 2003-03-30 at 16:41, Måns Rullgård wrote:
+> I keep getting these messages in the kernel log:
+> 
+> KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+> KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+> 
+> It seems to be related to accepting an incoming connection.
+> 
+> The kernel is 2.4.21-pre4 on Alpha.  The machine is behind a firewall
+> that forwards connections so some ports to this machine.
 
-Isn't the name a bit silly? :)
+Fixed in 2.4.21-pre5 and later.
 
+-- 
+David S. Miller <davem@redhat.com>

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266554AbUAWLYs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 06:24:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUAWLYs
+	id S265557AbUAWLri (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 06:47:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbUAWLri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 06:24:48 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:24082 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S266554AbUAWLYq
+	Fri, 23 Jan 2004 06:47:38 -0500
+Received: from medusa.csi-inc.com ([204.17.222.19]:14722 "EHLO
+	medusa.csi-inc.com") by vger.kernel.org with ESMTP id S265557AbUAWLrg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 06:24:46 -0500
-Date: Fri, 23 Jan 2004 11:24:44 +0000
-From: John Levon <levon@movementarian.org>
-To: Dave Jones <davej@redhat.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: logic error in radeonfb.
-Message-ID: <20040123112444.GB81582@compsoc.man.ac.uk>
-References: <E1Ajuub-0000xr-00@hardwired> <1074840394.949.200.camel@gaston> <20040123065410.GF9327@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040123065410.GF9327@redhat.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1AjzQb-000IdB-N9*oyc6XX7pnng*
+	Fri, 23 Jan 2004 06:47:36 -0500
+Message-ID: <000701c3e1a6$ac762330$c8de11cc@black>
+From: "Mike Black" <mblack@csi-inc.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: 2.1.6 st.o sleeping invalid context
+Date: Fri, 23 Jan 2004 06:47:26 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 23, 2004 at 06:54:10AM +0000, Dave Jones wrote:
+Testing 2.6.1 and got the following message during boot -- apparently when loading the st.o module -- although the modules still
+loads successfully.
 
-> Back then someone came up with a cool one-liner that grepped for
-> suspicious if's with !'s, it seems no-one ever did the same for 2.6,
-> as there were a few others (see seperate mails for patches).
+Jan 23 06:41:49 yeti kernel: Debug: sleeping function called from invalid context at mm/slab.c:1856
+Jan 23 06:41:49 yeti kernel: in_atomic():1, irqs_disabled():0
+Jan 23 06:41:49 yeti kernel: Call Trace:
+Jan 23 06:41:49 yeti kernel:  [<c011da0c>] __might_sleep+0xab/0xc9
+Jan 23 06:41:49 yeti kernel:  [<c0142a4a>] kmem_cache_alloc+0x74/0x76
+Jan 23 06:41:49 yeti kernel:  [<c0162e81>] cdev_alloc+0x24/0x5e
+Jan 23 06:41:49 yeti kernel:  [<f8871743>] st_probe+0x3f4/0x7c1 [st]
+Jan 23 06:41:49 yeti kernel:  [<c018f7b0>] init_dir+0x0/0x22
+Jan 23 06:41:49 yeti kernel:  [<c01f7d29>] bus_match+0x3d/0x65
+Jan 23 06:41:49 yeti kernel:  [<c01f7e42>] driver_attach+0x59/0x83
+Jan 23 06:41:49 yeti kernel:  [<c01f810b>] bus_add_driver+0x9e/0xb1
+Jan 23 06:41:49 yeti kernel:  [<f881905e>] init_st+0x5e/0x9c [st]
+Jan 23 06:41:49 yeti kernel:  [<c013898f>] sys_init_module+0x13e/0x29a
+Jan 23 06:41:49 yeti kernel:  [<c01091e3>] syscall_call+0x7/0xb
 
-Actually I did make a one-liner for 2.6, and found rather a lot (15 or
-so if I remember correctly). I also went as far as hacking up something
-in gcc, but it was too flaky to go in and I haven't got round to fixing
-it up yet.
+Michael D. Black mblack@csi-inc.com
+http://www.csi-inc.com/
+http://www.csi-inc.com/~mike
+321-676-2923, x203
+Melbourne FL
 
-Some of them were right under our noses for ages:
-
-http://linus.bkbits.net:8080/linux-2.5/user=levon/patch@1.889.272.4?nav=!-|index.html|stats|!+|index.html|ChangeSet|cset@1.889.272.4
-
-If you like I can see if I can dig up the gcc patch or the one-liner.
-
-regards,
-john
-
--- 
-Khendon's Law:
-If the same point is made twice by the same person, the thread is over.

@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265210AbUEVBoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263614AbUEVBoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265210AbUEVBoI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 21:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUEVBnQ
+	id S263614AbUEVBoh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 21:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUEVBog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 21:43:16 -0400
-Received: from web13907.mail.yahoo.com ([216.136.175.70]:28938 "HELO
-	web13907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265200AbUEUXn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 19:43:29 -0400
-Message-ID: <20040521100200.84714.qmail@web13907.mail.yahoo.com>
-X-RocketYMMF: knobi.rm
-Date: Fri, 21 May 2004 03:02:00 -0700 (PDT)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Re: Broken things in kernel 2.6.6-mm2 and 2.6.6-mm3
-To: linux-kernel@vger.kernel.org
+	Fri, 21 May 2004 21:44:36 -0400
+Received: from ghoul.undead.cc ([216.126.84.18]:3712 "HELO mail.undead.cc")
+	by vger.kernel.org with SMTP id S263614AbUEVBiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 21:38:10 -0400
+Message-ID: <40AEAEFB.4010005@undead.cc>
+Date: Fri, 21 May 2004 21:38:03 -0400
+From: John Zielinski <grim@undead.cc>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] sysfs kobject that doesn't trigger hotplug events
+References: <40AAC26C.2080803@undead.cc> <20040519033439.GA8160@kroah.com> <40AAE603.1080707@undead.cc> <20040519051612.GA13657@kroah.com>
+In-Reply-To: <20040519051612.GA13657@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using 2.6.x kernel build system.
-make: Entering directory `/tmp/vmware-config2/vmmon-only'
-make -C /lib/modules/2.6.6/build/include/.. SUBDIRS=$PWD SRCROOT=$PWD/.
-modules
-make[1]: Entering directory `/usr/src/linux-2.6.6'
-CC [M] /tmp/vmware-config2/vmmon-only/linux/driver.o
-/tmp/vmware-config2/vmmon-only/linux/driver.c:131: warning:
-initialization from incompatible pointer type
->/tmp/vmware-config2/vmmon-only/linux/driver.c:135: warning:
->initialization from incompatible pointer type
->CC [M] /tmp/vmware-config2/vmmon-only/linux/hostif.o
->/tmp/vmware-config2/vmmon-only/linux/hostif.c: In function
-`>HostIF_FreeLockedPages':
->/tmp/vmware-config2/vmmon-only/linux/hostif.c:738: error: structure
->has no member named `count'
->/tmp/vmware-config2/vmmon-only/linux/hostif.c:740: error: structure
->has no member named `count'
->make[2]: *** [/tmp/vmware-config2/vmmon-only/linux/hostif.o] Error 1
->make[1]: *** [/tmp/vmware-config2/vmmon-only] Error 2
->make[1]: Leaving directory `/usr/src/linux-2.6.6'
->make: *** [vmmon.ko] Error 2
->make: Leaving directory `/tmp/vmware-config2/vmmon-only'
->Unable to build the vmmon module.
->
+Greg KH wrote:
 
- Yup. I have been bitten by this too. Apparently "count" has been
-replaced by "_count" which in addition seems to be "count-1". But there
-is now a function "page_count" that does the right thing.
+> So why are you creating a kobject, and not just attributes?
+>  
 
- For VMware I have just removed the definition of the "page_count"
-macro from vmmon-only/include/compat_mm.h.
+So I could reuse the kobjects reference counting code so that my data 
+would get freed once other kernel code no longer referenced it.   It 
+would also let me have a more elaborate directory tree instead of just a 
+single subdirectory deep as with attribute groups, kind of like what 
+Stephen Hemminger wanted to do with his bridge device directory layout.
 
-Martin
+> What exactly are you wanting to do?  How about we start there.
+>  
 
-=====
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+
+This is for an embedded project I'm working on but the code may be 
+useful once the fbdev guys start expanding their sysfs support.  
+Basically I want to expose the fbdev's modedb structures to user space 
+and have an interface for manipulating this information.  I'm expanding 
+that modedb to also include supported color bit formats, etc.  Trying to 
+encode the relationships in the attribute filenames would quickly get 
+unmanageable.  That's why I want to have a nice directory layout 
+presenting that info.
+
+Now there was a big Holy War (tm) in the fbdev mailing list about 
+whether that should be done in kernel space or user space, but for my 
+project for simplicity I want in in kernel space and I _believe_ the 
+last truce in the fbdev list has it in the kernel as well.  :)
+
+John
+
+

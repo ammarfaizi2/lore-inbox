@@ -1,52 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbTEYIu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 04:50:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbTEYIu2
+	id S261603AbTEYIwl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 04:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTEYIwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 04:50:28 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:8833
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S261564AbTEYIuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 04:50:25 -0400
-Date: Sun, 25 May 2003 04:52:07 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: john@grabjohn.com
-cc: linux-kernel@vger.kernel.org, "" <jgarzik@pobox.com>,
-       "" <linux-scsi@vger.kernel.org>
-Subject: Re: [RFR] a new SCSI driver
-In-Reply-To: <200305250944.h4P9i5Ct000456@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.50.0305250447350.19617-100000@montezuma.mastecende.com>
-References: <200305250944.h4P9i5Ct000456@81-2-122-30.bradfords.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 May 2003 04:52:41 -0400
+Received: from smtp01.web.de ([217.72.192.180]:32533 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S261603AbTEYIwh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 04:52:37 -0400
+Date: Sun, 25 May 2003 11:21:50 +0200
+From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
+To: Ben Collins <bcollins@debian.org>, Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
+Message-Id: <20030525112150.3994df9b.l.s.r@web.de>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 May 2003 john@grabjohn.com wrote:
-
-> Thinking ahead, by the 2.8 timescale, PATA could well be legacy hardware 
-> which could be supported only by an 'old' IDE driver, much like we already
-> have at the moment - I.E. we could remove the current 'old' IDE driver
-> sometime during the 2.7 timescale, and support SATA only via the SCSI layer.
+> How about just adding a sane
 > 
-> This would save having any more than the minimum SATA code going in to the
-> existing IDE driver, and consolidate work in the future.        
-
-PATA is in _way_ too many current boxes, those computers will continue to 
-run for a very long time from now. In 10 years what is technologically 
-obselete will still be very capable.
-
+> 	int copy_string(char *dest, const char *src, int len)
+> 	{
+> 		int size;
 > 
-> The bloat of the SCSI layer in embedded machines might be a concern, but  
-> then again, maybe it won't - how many embedded machines are going to be   
-> using SATA, anyway?  Once we move away from spinning disks towards solid
-> state storage, (which is going to happen first in the embedded market),
-> will we want to use *ATA or SCSI at all?
+> 		if (!len)
+> 			return 0;
+> 		size = strlen(src);
+> 		if (size >= len)
+> 			size = len-1;
+> 		memcpy(dest, src, size);
+> 		dest[size] = '\0';
+> 		return size;
+> 	}
+> 
+> which is what pretty much everybody really _wants_ to have anyway? We 
+> should deprecate "strncpy()" within the kernel entirely.
 
-You're confusing media and transport.
+This looks suspiciously like strlcpy() from the *BSDs. Why not name it
+so?
 
-	Zwane
--- 
-function.linuxpower.ca
+The following patch is based on Samba's implementation (found in
+source/lib/replace.c). I just reformatted it somewhat, there are no
+functional changes. What do you think?
+
+René
+
+
+
+diff -ur linux-a/kernel/ksyms.c linux-b/kernel/ksyms.c
+--- linux-a/kernel/ksyms.c	2003-05-05 01:52:49.000000000 +0200
++++ linux-b/kernel/ksyms.c	2003-05-25 11:02:22.000000000 +0200
+@@ -588,6 +588,7 @@
+ EXPORT_SYMBOL(strnicmp);
+ EXPORT_SYMBOL(strspn);
+ EXPORT_SYMBOL(strsep);
++EXPORT_SYMBOL(strlcpy);
+ 
+ /* software interrupts */
+ EXPORT_SYMBOL(tasklet_init);
+diff -ur linux-a/lib/string.c linux-b/lib/string.c
+--- linux-a/lib/string.c	2003-05-05 01:53:40.000000000 +0200
++++ linux-b/lib/string.c	2003-05-25 11:12:58.000000000 +0200
+@@ -527,3 +527,28 @@
+ }
+ 
+ #endif
++
++#ifndef __HAVE_ARCH_STRLCPY
++/**
++ * strlcpy - Copy a length-limited, %NUL-terminated string
++ * @dest: Where to copy the string to
++ * @src: Where to copy the string from
++ * @bufsize: Size of the destination buffer
++ *
++ * Returns the length of @src, or 0 if @bufsize is 0. Unlike strncpy(),
++ * strlcpy() always NUL-terminates @dest and does no padding.
++ */
++size_t strlcpy(char *dest, const char *src, size_t bufsize)
++{
++	size_t len = strlen(src);
++	size_t ret = len;
++
++	if (bufsize == 0)
++		return 0;
++	if (len >= bufsize)
++		len = bufsize-1;
++	memcpy(dest, src, len);
++	dest[len] = '\0';   
++	return ret;
++}
++#endif

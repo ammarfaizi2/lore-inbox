@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279427AbRJWNfF>; Tue, 23 Oct 2001 09:35:05 -0400
+	id <S279430AbRJWNkp>; Tue, 23 Oct 2001 09:40:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279429AbRJWNe4>; Tue, 23 Oct 2001 09:34:56 -0400
-Received: from riker.skynet.be ([195.238.3.132]:10641 "EHLO riker.skynet.be")
-	by vger.kernel.org with ESMTP id <S279428AbRJWNek>;
-	Tue, 23 Oct 2001 09:34:40 -0400
-Message-Id: <200110231334.f9NDYq416699@riker.skynet.be>
-Date: Tue, 23 Oct 2001 15:34:00 +0200 (CEST)
-From: jarausch@belgacom.net
-Reply-To: jarausch@belgacom.net
-Subject: Thanks - Nvidia modules with 2.4.13-pre6
-To: rob <rob@dsvr.net>
-cc: Josh McKinney <forming@home.com>, linux-kernel@vger.kernel.org
+	id <S279432AbRJWNkf>; Tue, 23 Oct 2001 09:40:35 -0400
+Received: from dark.pcgames.pl ([195.205.62.2]:8920 "EHLO dark.pcgames.pl")
+	by vger.kernel.org with ESMTP id <S279430AbRJWNkX>;
+	Tue, 23 Oct 2001 09:40:23 -0400
+Date: Tue, 23 Oct 2001 15:39:32 +0200 (CEST)
+From: Krzysztof Oledzki <ole@ans.pl>
+X-X-Sender: <ole@dark.pcgames.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel panic in 2.4.x
+Message-ID: <Pine.LNX.4.33.0110231529460.17293-100000@dark.pcgames.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Oct, rob wrote:
-...
-> Have you changed C compiler since your last kernel upgrade ?
-...
-On 22 Oct, Josh McKinney wrote:
-> I have seen this same problem here before.  I am *pretty sure* that
-> the problem was I was building the kernel with gcc-3.0 and to build
-> the nvidia modules I was using gcc-2.95.4.  You may want to check what
-> the sim-link in /usr/bin/cc points to.  The nvidia kernel modules use
-> cc, so make sure cc is a symlink to the same compiler that you used to
-> build your currently running kernel.
+Hello,
 
-That's exactly what happend.
-Under /usr/local/bin/gcc I have gcc-3.0.2 (cvs) and I recently
-made a symlink /usr/local/bin/cc to it.
+Why after kernel panic in 2.4.x it is not possible to do anything? It is
+little annoying that, for example after entering wrong partition into
+root=<>, I have to press reset key. It is not even possible to check
+kernel messages (like names assigned to scsi and ide devices) with
+Shift-PageUp. And ofcourse, during next boot, all raid arrays need to be
+rebuild. 2.2.x kernels do not have this feature.
 
-While I put /usr/bin (where gcc-2.95.3 is installed) first in my path
-when compiling the kernel, I didn't do so, when (re)making the
-kernel modules from Nvidia. This worked fine since the only  cc
-was /usr/bin/cc which pointed to /usr/bin/gcc .
 
-I have (re)made Nvidia's module with gcc-2.95.3 and it runs fine
-now with 2.4.13-pre6 .
+Best regards,
 
-Sorry for the noise.
-
-Helmut.
-
+				Krzysztof Oledzki
 

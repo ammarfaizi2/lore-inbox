@@ -1,119 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267759AbUHaKua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266147AbUHaK40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267759AbUHaKua (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 06:50:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267791AbUHaKua
+	id S266147AbUHaK40 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 06:56:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267806AbUHaK40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 06:50:30 -0400
-Received: from mail.gmx.de ([213.165.64.20]:2703 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267759AbUHaKuN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 06:50:13 -0400
-Date: Tue, 31 Aug 2004 12:50:12 +0200 (MEST)
-From: "Alexander Stohr" <Alexander.Stohr@gmx.de>
-To: linux-kernel@vger.kernel.org
+	Tue, 31 Aug 2004 06:56:26 -0400
+Received: from web52306.mail.yahoo.com ([206.190.39.101]:63167 "HELO
+	web52306.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266147AbUHaK4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 06:56:24 -0400
+Message-ID: <20040831105118.85292.qmail@web52306.mail.yahoo.com>
+Date: Tue, 31 Aug 2004 12:51:18 +0200 (CEST)
+From: =?iso-8859-1?q?Albert=20Herranz?= <albert_herranz@yahoo.es>
+Subject: Re: 2.6.9-rc1-mm1 ppc build broken
+To: Roland McGrath <roland@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200408302348.i7UNmvw0006978@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="========GMXBoundary198131093949412"
-Subject: [patch] uts-semaphore fix for sparc64 solaris emu for kernel-2.6.9-rc1-bk6
-X-Priority: 3 (Normal)
-X-Authenticated: #15156664
-Message-ID: <19813.1093949412@www4.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encapsulated multipart message -
-please use a MIME-compliant e-mail program to open it.
+> This is creating a circularity on ppc that others
+> don't have apparently.
+> 
+> >   CC      arch/ppc/kernel/asm-offsets.s
+> > In file included from include/linux/mm.h:4,
+> 
+> >                  from include/asm/io.h:7,
+> >                  from include/linux/timex.h:61,
+> 
+> This #include link here is the issue.  Vanilla
+> linux/timex.h does not have
+> the #include <asm/io.h>.  On other machines,
+> <asm/io.h> does not include
+> <linux/mm.h>, so you don't get into the problem with
+> sched.h.
 
-Dies ist eine mehrteilige Nachricht im MIME-Format -
-bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
+Thanks.
 
---========GMXBoundary198131093949412
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+The #include <asm/io.h> comes from bk-ia64.patch time
+interpolation logic patch from Cristoph Lameter.
 
-Hello,
+I've checked that at least for the embedded port I'm
+working on the linux/mm.h is *not* a must on ppc
+asm/io.h so we can get rid of it (commented out).
+Maybe this is also true for the rest of ppc platforms.
 
-when copy-to-user and alikes does fail 
-for the solaris personality on sparc64
-did fail then it is possible that the
-current function gets left with an error
-without prior releasing the uts-semphore.
+Now 2.6.9-rc1-mm1 builds fine.
 
-the attached diff provides a patch that
-is supposed to fixe that behaviour.
-i was not able to test test this in the wild
-due to lack of the respective hardware, so 
-any reports from machine owners would be nice.
+Cheers,
+Albert
 
--Alex.
 
-PS: please CC me on replys, i am not subscribed to this list.
 
--- 
-NEU: Bis zu 10 GB Speicher für e-mails & Dateien!
-1 GB bereits bei GMX FreeMail http://www.gmx.net/de/go/mail
---========GMXBoundary198131093949412
-Content-Type: application/octet-stream; name="linux-2.6.9-rc1-bk6-sparcsolarisutsfield.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.9-rc1-bk6-sparcsolarisutsfield.diff"
-
-ZGlmZiAtTnVyIGxpbnV4LTIuNi45LXJjMS1iazYub3JpZy9hcmNoL3NwYXJjNjQvc29sYXJpcy9t
-aXNjLmMgbGludXgtMi42LjktcmMxLWJrNi9hcmNoL3NwYXJjNjQvc29sYXJpcy9taXNjLmMKLS0t
-IGxpbnV4LTIuNi45LXJjMS1iazYub3JpZy9hcmNoL3NwYXJjNjQvc29sYXJpcy9taXNjLmMJMjAw
-NC0wOC0yNSAwNzozODo0Mi4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi45LXJjMS1iazYv
-YXJjaC9zcGFyYzY0L3NvbGFyaXMvbWlzYy5jCTIwMDQtMDgtMzEgMTI6MzA6MjkuMDAwMDAwMDAw
-ICswMjAwCkBAIC0xMzcsMjAgKzEzNywyMiBAQAogCXJldHVybiBzdW5vc19icmsoYnJrKTsKIH0K
-IAotI2RlZmluZSBzZXRfdXRzZmllbGQodG8sIGZyb20sIGRvdGNob3AsIGNvdW50ZnJvbSkgewkJ
-CVwKLQljaGFyICpwOyAJCQkJCQkJXAotCWludCBpLCBsZW4gPSAoY291bnRmcm9tKSA/IAkJCQkJ
-XAotCQkoKHNpemVvZih0bykgPiBzaXplb2YoZnJvbSkgPyAJCQkJXAotCQkJc2l6ZW9mKGZyb20p
-IDogc2l6ZW9mKHRvKSkpIDogc2l6ZW9mKHRvKTsgCVwKLQlpZiAoY29weV90b191c2VyKHRvLCBm
-cm9tLCBsZW4pKQkJCQlcCi0JCXJldHVybiAtRUZBVUxUOwkJCQkJCVwKLQlpZiAoZG90Y2hvcCkg
-CQkJCQkJCVwKLQkJZm9yIChwPWZyb20saT0wOyAqcCAmJiAqcCAhPSAnLicgJiYgLS1sZW47IHAr
-KyxpKyspOyAJXAotCWVsc2UgCQkJCQkJCQlcCi0JCWkgPSBsZW4gLSAxOyAJCQkJCQlcCi0JaWYg
-KF9fcHV0X3VzZXIoJ1wwJywgKGNoYXIgX191c2VyICopKCh0bykraSkpKQkJCVwKLQkJcmV0dXJu
-IC1FRkFVTFQ7CQkJCQkJXAotfQorI2RlZmluZSBzZXRfdXRzZmllbGQodG8sIGZyb20sIGRvdGNo
-b3AsIGNvdW50ZnJvbSwgcGVycm9yKSBkbyB7CQkJXAorCWNoYXIgKnA7IAkJCQkJCQkJXAorCWlu
-dCBpLCBsZW4gPSAoY291bnRmcm9tKSA/IAkJCQkJCVwKKwkJKChzaXplb2YodG8pID4gc2l6ZW9m
-KGZyb20pID8gCQkJCQlcCisJCQlzaXplb2YoZnJvbSkgOiBzaXplb2YodG8pKSkgOiBzaXplb2Yo
-dG8pOyAJCVwKKwlpZiAoY29weV90b191c2VyKHRvLCBmcm9tLCBsZW4pKQkJCQkJXAorCQkqcGVy
-cm9yID0gLUVGQVVMVDsJCQkJCQlcCisJZWxzZSB7CQkJCQkJCQkJXAorCQlpZiAoZG90Y2hvcCkg
-CQkJCQkJCVwKKwkJCWZvciAocD1mcm9tLGk9MDsgKnAgJiYgKnAgIT0gJy4nICYmIC0tbGVuOyBw
-KyssaSsrKTsgCVwKKwkJZWxzZSAJCQkJCQkJCVwKKwkJCWkgPSBsZW4gLSAxOyAJCQkJCQlcCisJ
-CWlmIChfX3B1dF91c2VyKCdcMCcsIChjaGFyIF9fdXNlciAqKSgodG8pK2kpKSkJCQlcCisJCQkq
-cGVycm9yID0gLUVGQVVMVDsJCQkJCVwKKwl9CQkJCQkJCQkJXAorfSB3aGlsZSAoMCkKIAogc3Ry
-dWN0IHNvbF91bmFtZSB7CiAJY2hhciBzeXNuYW1lWzldOwpAQCAtMjIxLDE1ICsyMjMsMTcgQEAK
-IAlzdHJ1Y3Qgc29sX3VuYW1lIF9fdXNlciAqdiA9IEEoYnVmKTsKIAlzd2l0Y2ggKHdoaWNoKSB7
-CiAJY2FzZSAwOgkvKiBvbGQgdW5hbWUgKi8KLQkJLyogTGV0J3MgY2hlYXQgKi8KLQkJc2V0X3V0
-c2ZpZWxkKHYtPnN5c25hbWUsICJTdW5PUyIsIDEsIDApOwotCQlkb3duX3JlYWQoJnV0c19zZW0p
-OwotCQlzZXRfdXRzZmllbGQodi0+bm9kZW5hbWUsIHN5c3RlbV91dHNuYW1lLm5vZGVuYW1lLCAx
-LCAxKTsKLQkJdXBfcmVhZCgmdXRzX3NlbSk7Ci0JCXNldF91dHNmaWVsZCh2LT5yZWxlYXNlLCAi
-Mi42IiwgMCwgMCk7Ci0JCXNldF91dHNmaWVsZCh2LT52ZXJzaW9uLCAiR2VuZXJpYyIsIDAsIDAp
-OwotCQlzZXRfdXRzZmllbGQodi0+bWFjaGluZSwgbWFjaGluZSgpLCAwLCAwKTsKLQkJcmV0dXJu
-IDA7CisJCXsJaW50IGVycm9yID0gMDsKKwkJCS8qIExldCdzIGNoZWF0ICovCisJCQlzZXRfdXRz
-ZmllbGQodi0+c3lzbmFtZSwgIlN1bk9TIiwgMSwgMCwgJmVycm9yKTsKKwkJCWRvd25fcmVhZCgm
-dXRzX3NlbSk7CisJCQlzZXRfdXRzZmllbGQodi0+bm9kZW5hbWUsIHN5c3RlbV91dHNuYW1lLm5v
-ZGVuYW1lLCAxLCAxLCAmZXJyb3IpOworCQkJdXBfcmVhZCgmdXRzX3NlbSk7CisJCQlzZXRfdXRz
-ZmllbGQodi0+cmVsZWFzZSwgIjIuNiIsIDAsIDAsICZlcnJvcik7CisJCQlzZXRfdXRzZmllbGQo
-di0+dmVyc2lvbiwgIkdlbmVyaWMiLCAwLCAwLCAmZXJyb3IpOworCQkJc2V0X3V0c2ZpZWxkKHYt
-Pm1hY2hpbmUsIG1hY2hpbmUoKSwgMCwgMCwgJmVycm9yKTsKKwkJCXJldHVybiBlcnJvcjsKKwkJ
-fQogCWNhc2UgMjogLyogdXN0YXQgKi8KIAkJcmV0dXJuIC1FTk9TWVM7CiAJY2FzZSAzOiAvKiBm
-dXNlcnMgKi8KQEAgLTI0MSwxNiArMjQ1LDE3IEBACiAKIGFzbWxpbmthZ2UgaW50IHNvbGFyaXNf
-dXRzbmFtZSh1MzIgYnVmKQogeworCWludCBlcnJvciA9IDA7CiAJc3RydWN0IHNvbF91dHNuYW1l
-IF9fdXNlciAqdiA9IEEoYnVmKTsKIAkvKiBXaHkgc2hvdWxkIHdlIG5vdCBsaWUgYSBiaXQ/ICov
-CiAJZG93bl9yZWFkKCZ1dHNfc2VtKTsKLQlzZXRfdXRzZmllbGQodi0+c3lzbmFtZSwgIlN1bk9T
-IiwgMCwgMCk7Ci0Jc2V0X3V0c2ZpZWxkKHYtPm5vZGVuYW1lLCBzeXN0ZW1fdXRzbmFtZS5ub2Rl
-bmFtZSwgMSwgMSk7Ci0Jc2V0X3V0c2ZpZWxkKHYtPnJlbGVhc2UsICI1LjYiLCAwLCAwKTsKLQlz
-ZXRfdXRzZmllbGQodi0+dmVyc2lvbiwgIkdlbmVyaWMiLCAwLCAwKTsKLQlzZXRfdXRzZmllbGQo
-di0+bWFjaGluZSwgbWFjaGluZSgpLCAwLCAwKTsKKwlzZXRfdXRzZmllbGQodi0+c3lzbmFtZSwg
-IlN1bk9TIiwgMCwgMCwgJmVycm9yKTsKKwlzZXRfdXRzZmllbGQodi0+bm9kZW5hbWUsIHN5c3Rl
-bV91dHNuYW1lLm5vZGVuYW1lLCAxLCAxLCAmZXJyb3IpOworCXNldF91dHNmaWVsZCh2LT5yZWxl
-YXNlLCAiNS42IiwgMCwgMCwgJmVycm9yKTsKKwlzZXRfdXRzZmllbGQodi0+dmVyc2lvbiwgIkdl
-bmVyaWMiLCAwLCAwLCAmZXJyb3IpOworCXNldF91dHNmaWVsZCh2LT5tYWNoaW5lLCBtYWNoaW5l
-KCksIDAsIDAsICZlcnJvcik7CiAJdXBfcmVhZCgmdXRzX3NlbSk7Ci0JcmV0dXJuIDA7CisJcmV0
-dXJuIGVycm9yOwogfQogCiAjZGVmaW5lIFNJX1NZU05BTUUJCTEgICAgICAgLyogcmV0dXJuIG5h
-bWUgb2Ygb3BlcmF0aW5nIHN5c3RlbSAqLwo=
-
---========GMXBoundary198131093949412--
-
+		
+______________________________________________
+Renovamos el Correo Yahoo!: ¡100 MB GRATIS!
+Nuevos servicios, más seguridad
+http://correo.yahoo.es

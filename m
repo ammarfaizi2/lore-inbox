@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285226AbSACJ5z>; Thu, 3 Jan 2002 04:57:55 -0500
+	id <S285246AbSACJ6g>; Thu, 3 Jan 2002 04:58:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285246AbSACJ5p>; Thu, 3 Jan 2002 04:57:45 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:22788 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S285226AbSACJ5d>;
-	Thu, 3 Jan 2002 04:57:33 -0500
-Date: Wed, 2 Jan 2002 10:26:35 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org,
-        ext2-devel@lists.sourceforge.net,
-        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Alexander Viro <viro@math.psu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [Ext2-devel] [RFC] [PATCH] Clean up fs.h union for ext2
-Message-ID: <20020102102635.A53@toy.ucw.cz>
-In-Reply-To: <E16JR71-0000cU-00@starship.berlin> <20011227111415.D12868@lynx.no>
+	id <S285250AbSACJ6Z>; Thu, 3 Jan 2002 04:58:25 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:57351 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S285246AbSACJ6N>; Thu, 3 Jan 2002 04:58:13 -0500
+Date: Thu, 3 Jan 2002 09:57:42 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: "H . J . Lu" <hjl@lucon.org>, Momchil Velikov <velco@fadata.bg>,
+        Oliver Xymoron <oxymoron@waste.org>,
+        vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: Extern variables in *.c files
+Message-ID: <20020103095742.A11443@flint.arm.linux.org.uk>
+In-Reply-To: <02010216180403.01928@manta> <Pine.LNX.4.43.0201021322120.30079-100000@waste.org> <3C337EF1.4C7C72AB@zip.com.au>, <3C337EF1.4C7C72AB@zip.com.au> <87ell8wgo9.fsf@fadata.bg> <3C340601.E9A3507F@zip.com.au>, <3C340601.E9A3507F@zip.com.au>; <20020102234226.A23580@lucon.org> <3C340EA9.FE084B4C@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011227111415.D12868@lynx.no>; from adilger@turbolabs.com on Thu, Dec 27, 2001 at 11:14:15AM -0700
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C340EA9.FE084B4C@zip.com.au>; from akpm@zip.com.au on Wed, Jan 02, 2002 at 11:56:25PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Jan 02, 2002 at 11:56:25PM -0800, Andrew Morton wrote:
+> Oh well.  Seems that disabling -fno-common and enabling
+> --warn-common is the only way to autodetect bugs such as this.
 
-> Why not just declare ext2_i like the following?  It _should_ work:
-> 
-> static inline struct ext2_inode_info *ext2_i(const struct inode *inode)
-> {
-> 	return &(inode->u.ext2_inode_info);
-> }
-> 
-> 
-> Minor nit: this is already done for the ext3 code, but it looks like:
-> 
-> #define EXT3_I	(&((inode)->u.ext3_i))
-> 
-> We already have the EXT3_SB, so I thought I would be consistent with it:
-> 
-> #define EXT3_SB	(&((sb)->u.ext3_sb))
-> 
-> Do people like the inline version better?  Either way, I would like to make
-> the ext2 and ext3 codes more similar, rather than less.
+You open another can of worms with variables in drivers that should be
+static that aren't - you end up with no way to detect these without
+-fno-common.
 
-Maybe 2.5 is time to merge ext2 and ext3?
-								Pavel
+So, you have a choice:
+1. Enable -fno-common
+   - detect variables that should be marked static which aren't
+   - don't detect size differences
+2. Disable -fno-common
+   - don't detect variables that should be marked static
+   - detect size differences as long as the variables aren't marked extern
+
+As soon as someone has int foo in one file, and extern char foo in another,
+you've lost no matter which option you take.
+
+The header file approach is the most reliable (and imho correct) method to
+solve this problem.
 
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

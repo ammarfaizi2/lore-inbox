@@ -1,107 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261412AbSJYTmq>; Fri, 25 Oct 2002 15:42:46 -0400
+	id <S261565AbSJYTrg>; Fri, 25 Oct 2002 15:47:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261567AbSJYTmq>; Fri, 25 Oct 2002 15:42:46 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:19653 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S261412AbSJYTmp>; Fri, 25 Oct 2002 15:42:45 -0400
-Message-ID: <F2DBA543B89AD51184B600508B68D4000EA17130@fmsmsx103.fm.intel.com>
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: Robert Love <rml@tech9.net>, Dave Jones <davej@codemonkey.org.uk>,
-       akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       chrisl@vmware.com, "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: RE: [PATCH] How to get number of physical CPU in linux from user 
-	space?
-Date: Fri, 25 Oct 2002 12:48:49 -0700
+	id <S261567AbSJYTrg>; Fri, 25 Oct 2002 15:47:36 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:12312 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S261565AbSJYTrf>;
+	Fri, 25 Oct 2002 15:47:35 -0400
+Message-ID: <3DB9A163.1050306@acm.org>
+Date: Fri, 25 Oct 2002 14:54:11 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Mikael Pettersson <mikpe@csd.uu.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NMI watchdog not ticking at the right intervals
+References: <200210251802.UAA18166@harpo.it.uu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One more request :-)
+Mikael Pettersson wrote:
 
-Actually "processor" keyword was not good in "physical processor ID"
-(someone may be grepping it to find out the number of processors), and it
-was one of the reasons it was changed/fixed in the AC tree. 
+>On Fri, 25 Oct 2002 09:09:10 -0500, Corey Minyard wrote:
+>  
+>
+>>As I have been working on my NMI patch, I have noticed that the NMI 
+>>watchdog does not seem to be ticking correctly.  I've tried 2.4 and 2.5 
+>>kernels, and I get the same results.  From my reading of the code, it 
+>>should tick once a second.  However, I have had the time between ticks 
+>>vary from around 33 to over 100 seconds.  Tbe time between ticks is 
+>>different on every boot, but is consistent once booted.  Is there some 
+>>divider register that's not getting initialized?
+>>
+>>Here's my cpuinfo:
+>>
+>>processor    : 0
+>>cpu_package    : 0
+>>vendor_id    : GenuineIntel
+>>cpu family    : 6
+>>model        : 11
+>>model name    : Intel(R) Pentium(R) III Mobile CPU      1066MHz
+>>    
+>>
+>
+>(Me thinks "speedstep?")
+>
+>Do you boot with nmi_watchdog=1 or 2?
+>
+It's set to 2 (local APIC).  Actually, when I set it to 1 (in 2.5) the 
+code overrides it and sets it to 2.  But 2 is what it is running with now.
 
-Since (H/W) threads (rather than "siblings") in a CPU is generic (i.e. not
-just an Intel thing), I would like to propose this ("physical id" is from
-AC). Alan also simplified "number of simblings" to  "siblings". 
+>The perfctr + local-APIC driven NMI watchdog is dependent
+>on the CPU's clock frequency. If this changes, the NMI rate
+>will change accordingly.
+>
+>The NMI rate may also be affected by APM/ACPI and how often
+>the kernel executes HLT.
+>
+This board is not doing speed stepping.  It's running derated for 
+reliability.
 
-+#ifdef CONFIG_SMP
-+	if (cpu_has_ht) {
-+		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
-+		seq_printf(m, "threads\t\t: %d\n", smp_num_siblings);
-+	}
-+#endif
+But that makes me think of something...
+
+If I put a program into an infinite loop, then it will step every second 
+like it is supposed to.  That makes sense now.
 
 Thanks,
-Jun
 
------Original Message-----
-From: Robert Love [mailto:rml@tech9.net]
-Sent: Friday, October 25, 2002 12:21 PM
-To: Dave Jones; akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org; Nakajima, Jun; chrisl@vmware.com;
-Martin J. Bligh
-Subject: Re: [PATCH] How to get number of physical CPU in linux from
-user space?
+-Corey
 
-
-On Fri, 2002-10-25 at 15:13, Dave Jones wrote:
-
-> Should this be wrapped in a if (cpu_has_ht(c)) { }  ?
-> Seems silly to be displaying HT information on non-HT CPUs.
-
-I am neutral, but is fine with me. It is just "cpu_has_ht", btw.
-
-Take two...
-
-This displays the physical processor id and number of siblings of each
-processor in /proc/cpuinfo.
-
-	Robert Love
-
- .proc.c.swp |binary
- proc.c      |    7 +++++++
- 2 files changed, 7 insertions(+)
-
-diff -urN linux-2.5.44/arch/i386/kernel/cpu/proc.c
-linux/arch/i386/kernel/cpu/proc.c
---- linux-2.5.44/arch/i386/kernel/cpu/proc.c	2002-10-19
-00:02:29.000000000 -0400
-+++ linux/arch/i386/kernel/cpu/proc.c	2002-10-25 15:18:03.000000000 -0400
-@@ -17,6 +17,7 @@
- 	 * applications want to get the raw CPUID data, they should access
- 	 * /dev/cpu/<cpu_nr>/cpuid instead.
- 	 */
-+	extern int phys_proc_id[NR_CPUS];
- 	static char *x86_cap_flags[] = {
- 		/* Intel-defined */
- 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
-@@ -74,6 +75,12 @@
- 	/* Cache size */
- 	if (c->x86_cache_size >= 0)
- 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
-+#ifdef CONFIG_SMP
-+	if (cpu_has_ht) {
-+		seq_printf(m, "physical processor ID\t: %d\n",
-phys_proc_id[n]);
-+		seq_printf(m, "number of siblings\t: %d\n",
-smp_num_siblings);
-+	}
-+#endif
- 	
- 	/* We use exception 16 if we have hardware math and we've either
-seen it or the CPU claims it is internal */
- 	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129260AbQLNRUE>; Thu, 14 Dec 2000 12:20:04 -0500
+	id <S129289AbQLNRXE>; Thu, 14 Dec 2000 12:23:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129289AbQLNRTy>; Thu, 14 Dec 2000 12:19:54 -0500
-Received: from ip252.uni-com.net ([205.198.252.252]:59654 "HELO www.nondot.org")
-	by vger.kernel.org with SMTP id <S129260AbQLNRTi>;
-	Thu, 14 Dec 2000 12:19:38 -0500
-Date: Thu, 14 Dec 2000 10:49:47 -0600 (CST)
-From: Chris Lattner <sabre@nondot.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        Alexander Viro <viro@math.psu.edu>,
-        "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
-        linux-kernel@vger.kernel.org, orbit-list@gnome.org,
-        korbit-cvs@lists.sourceforge.net
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <Pine.LNX.4.21.0012141442390.1437-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0012141048190.26708-100000@www.nondot.org>
+	id <S129428AbQLNRWy>; Thu, 14 Dec 2000 12:22:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12295 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129289AbQLNRWu>;
+	Thu, 14 Dec 2000 12:22:50 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200012141525.PAA00867@raistlin.arm.linux.org.uk>
+Subject: Re: Fwd: [Fwd: [PATCH] cs89x0 is not only an ISA card]
+To: J.A.K.Mouw@ITS.TUDelft.NL (Erik Mouw)
+Date: Thu, 14 Dec 2000 15:25:07 +0000 (GMT)
+Cc: nico@cam.org (Nicolas Pitre), morton@nortelnetworks.com,
+        jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20001214011415.E15157@arthur.ubicom.tudelft.nl> from "Erik Mouw" at Dec 14, 2000 01:14:15 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 1. kORBit adds about 150k of code to the 2.4t10 kernel.
-> > 2. kNFS adds about 100k of code to the 2.4t10 kernel.
+Erik Mouw writes:
+> The Crystal CS89x0 ethernet chip is also used in quite some embedded
+> systems that don't have an ISA bus at all, so the CONFIG_ISA option in
+> drivers/net/Config.in is inapropriate. Here is a patch against
+> 2.4.0-test12 to fix that. Please consider applying.
 
-> So can you implement a kNFS server in kORBit that takes
-> less than 50kB of RAM?  Otherwise it's still a contributor
-> to bloat and this argument won't work ;)
+I don't think this is the right way to fix the problem.  Take for instance
+an EBSA285 platform which has only PCI sockets.  It is possible to plug in
+a card with an ISA bridge on, with a ESS SB clone on board (I have one here).
 
-Actually the kORBitNFS server would have to take -50K of code to break
-even.  :)  The point was that kORBit lets you do a lot more... so
-hopefully that 50k of generality gives you something.  :)
-
-> I guess it's time to stop the flaming and to see what can
-> be achieved using kORBit. The people who favour kORBit should
-> IMHO be left alone and given the opportunity to show what can
-> be achieved with kORBit ... if they don't achieve anything,
-> the nay-sayers can always claim their "victory"; if something
-> useful comes out the kORBit people can claim usefulness.
-
-Agreed!
-
--Chris
-
-http://www.nondot.org/~sabre/os/
-http://www.nondot.org/MagicStats/
-http://korbit.sourceforge.net/
-
+Maybe the right thing to do is to define CONFIG_ISA on these architectures/
+machine types where the device itself is actually an ISA device, instead of
+going through special-casing the driver configuration entries?
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

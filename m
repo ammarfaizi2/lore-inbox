@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262571AbSJGRMf>; Mon, 7 Oct 2002 13:12:35 -0400
+	id <S262570AbSJGRM0>; Mon, 7 Oct 2002 13:12:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262572AbSJGRMf>; Mon, 7 Oct 2002 13:12:35 -0400
-Received: from adsl-64-161-25-16.dsl.sntc01.pacbell.net ([64.161.25.16]:22674
-	"EHLO crdic.ath.cx") by vger.kernel.org with ESMTP
-	id <S262571AbSJGRMd>; Mon, 7 Oct 2002 13:12:33 -0400
-Date: Mon, 7 Oct 2002 10:18:12 -0700
-From: Craig Dickson <crdic@pacbell.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-Message-ID: <20021007171812.GB13653@linux700.localnet>
+	id <S262571AbSJGRM0>; Mon, 7 Oct 2002 13:12:26 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:6280 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262570AbSJGRMZ>;
+	Mon, 7 Oct 2002 13:12:25 -0400
+Date: Mon, 7 Oct 2002 19:17:53 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: sean darcy <seandarcy@hotmail.com>
+Cc: rml@tech9.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.40 - no keyboard
+Message-ID: <20021007191753.A1978@ucw.cz>
+References: <F26l1GM3h3vLgAusVxO00010172@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <F26l1GM3h3vLgAusVxO00010172@hotmail.com>; from seandarcy@hotmail.com on Sun, Oct 06, 2002 at 12:21:44AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+On Sun, Oct 06, 2002 at 12:21:44AM -0400, sean darcy wrote:
+> 
+> Thanks. Worked like a charm. Of course then i had to fix psaux legacy to 
+> make XFree work - and then go back for ps/2 mice.
+> 
+> Obviously I wasn't paying enough attention to lkml to catch this change, but 
+> it certainly seems like a trap for the unwary - and even the somewhat wary. 
+> If I could help, I'd be happy to try to fix the config options to make all 
+> this clearer.
 
-> It always was and always will be a feature that it is easy to get in
-> and get *out* of BK. We may be pains in the butt on the license front
-> but once you are using BK, if you have to get the data out, BK makes
-> that as pleasant as can possibly be made.
+Send a patch to me. :)
 
-This is all very well, but is this not something that might change if
-someone else were to come into control of the company? It isn't hard to
-imagine some future BitMover CEO with a more Microsoft-like mentality
-looking at the product and thinking, "This 'ease of getting data out'
-has to go -- we need to make it less convenient for our customers to
-defect."
-
-It is a general problem with power that you have to worry not just about
-whether those who currently wield it will abuse it, but also their
-successors.
-
-Craig
+-- 
+Vojtech Pavlik
+SuSE Labs

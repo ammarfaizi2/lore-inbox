@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293258AbSCAEl2>; Thu, 28 Feb 2002 23:41:28 -0500
+	id <S293488AbSCAEwh>; Thu, 28 Feb 2002 23:52:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310350AbSCAEjj>; Thu, 28 Feb 2002 23:39:39 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:9742 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S310356AbSCAEgU>; Thu, 28 Feb 2002 23:36:20 -0500
-Date: Fri, 1 Mar 2002 05:36:15 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: rsync kills 2.4.1X, also -ac and 2.4.18-rc4+XFS.
-Message-ID: <20020301043615.GA1668@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S310351AbSCAEut>; Thu, 28 Feb 2002 23:50:49 -0500
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:62733 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S310336AbSCAErv>; Thu, 28 Feb 2002 23:47:51 -0500
+Date: Fri, 1 Mar 2002 12:52:22 +0800
+From: He Jian Bing <hjbsy@yahoo.com.cn>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: barrier and volatile
+X-mailer: FoxMail 3.11 Release [cn]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020301044755Z310336-889+101562@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I have some tough stuff to debug for VM hackers.
+Here is the __barrier__ definition:
 
-I "killed" my kernel (it was just swapping and otherwise irresponsive)
-with just aborting rsync v2.5.2.
+/* The "volatile" is due to gcc bugs */
+#define barrier() __asm__ __volatile__("": : :"memory")
 
-0. Hardware: Single Duron 700, 320 MB RAM, 1.5 GB swap distributed over
-   some disks. One SCSI (Fujitsu, attached to SYM53C875) holding the
-   system (LVM), three IDE (Maxtor and IBM) holding data (no LVM,
-   attached to VIA KT133). -ac kernels were compiled with gcc 2.95.3,
-   not sure about SuSE's kernel.
+I know the reason of the "memory" clobber, I also know an 'asm'
+instruction without any operands is implicitly considered volatile,
+but the comment say: we must use volatile because of the "gcc bugs".
+So I guess the "gcc bug" is that the compiler doesn't consider it
+volatile in fact if we remove __volatile__ in barrier().Is it right?
 
-1. Use rsync v2.5.2 to copy some files from one partition (reiserfs, on
-   IDE) to another partition (ext3).
+Suppose gcc compiler doesn't think the asm statement
+__asm__ ("": : :"memory") is volatile, and if we want the "barrier"
+is volatile, we should use __asm__ __volatile__ ("": : :"memory").
+My interest is what the gcc compiler will do respectively when it
+optimize the above two statement.
 
-2. Watch the kernel nicely use all free RAM for Cache, no swap.
+Another question, my gcc version is(use gcc -v):
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
 
-3. While rsync is sill running, press Ctrl+C.
+The below is from gcc info pages(Node: Extended Asm):
+   If your assembler instruction modifies memory in an unpredictable
+fashion, add 'memory' to the list of clobbered registers. This will
+cause GNU CC to not keep memory values cached in registers across the
+assembler instruction. You will also want to add the 'volatile'
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+keyword if the memory affected is not listed in the inputs or outputs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+of the 'asm', as the 'memory' clobber does not count as a side-effect
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+of the 'asm'.
+^^^^^^^^^^^^^
+what's the meaning of the underlined line?
 
-4. Now watch how the kernel turns CACHE into USED RAM (xosview), starts
-   swapping like hell (page out is high, swaps like 100 MB in just some few
-   seconds) and makes the machine unusable.
+Regards,
+He Jian Bing
 
-Careful, save your data before you try this!
 
-With 2.4.18-pre9-ac3 + Morton's Mini-LL patch, I was able to do "swapoff
--av" to have the machine recover in some minutes' time, with 2.4.18-rc4
-or with 2.4.19-pre1-ac2 without LL patch, no way to get a single
-character into my xterm.
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
-Using GNU cp v4.1 instead of rsync v2.5.2 does not exhibit this
-behaviour, but I'm not sure what rsync does that messes the kernel.
-Initially, I thought it was related to rmap, but I cannot find hints
-that Hubert's kernel uses rmap. I didn't get around to try -aa kernels
-yet. Will do later unless someone has a fix until then ;-)
-
-Some bug must lurk in the kernel which lets rsync wreak havoc with the
-memory management.
-
--- 
-Matthias Andree
-
-GPG encrypted mail welcome, unless it's unsolicited commercial email.

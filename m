@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132223AbRAGOdh>; Sun, 7 Jan 2001 09:33:37 -0500
+	id <S132605AbRAGOeR>; Sun, 7 Jan 2001 09:34:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132605AbRAGOd2>; Sun, 7 Jan 2001 09:33:28 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:18828 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S132223AbRAGOdW>; Sun, 7 Jan 2001 09:33:22 -0500
-Date: Sun, 7 Jan 2001 15:33:48 +0100 (CET)
-From: Matthias Juchem <matthias@gandalf.math.uni-mannheim.de>
-Reply-To: Matthias Juchem <juchem@uni-mannheim.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S132976AbRAGOeD>; Sun, 7 Jan 2001 09:34:03 -0500
+Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:8656
+	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
+	with SMTP id <S132605AbRAGOds>; Sun, 7 Jan 2001 09:33:48 -0500
+Date: Sun, 7 Jan 2001 15:33:42 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: <bunk@pluto.fachschaften.tu-muenchen.de>
+To: Philip Armstrong <phil@kantaka.co.uk>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new bug report script
-In-Reply-To: <E14FGfM-0002jO-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0101071523090.7104-100000@gandalf.math.uni-mannheim.de>
+Subject: Re: Related VIA PCI crazyness?
+In-Reply-To: <20010107122800.A636@kantaka.co.uk>
+Message-ID: <Pine.NEB.4.31.0101071449220.29839-100000@pluto.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Alan Cox wrote:
+On Sun, 7 Jan 2001, Philip Armstrong wrote:
 
-> None of these are needed for normal build/use/bug reporting work. In fact
-> if you look at script_asm you'll see we go to great pains to ship prebuilt
-> files too
+> In supplement to Evan Thompson's emails with the subject "Additional
+> info. for PCI VIA IDE crazyness. Please read." I've noticed the
+> following message with recent 2.4.0 test + release kernels:
+>
+> IRQ routing conflict in pirq table! Try 'pci=autoirq'
+>...
+> and the output of lspci is:
+>
+> 00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 03)
+> 00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
+> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo VP] (rev 41)
+> 00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+> 00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 02)
+> 00:07.3 Bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 10)
+> 00:08.0 SCSI storage controller: Advanced System Products, Inc ABP940-U / ABP960-U (rev 03)
+> 00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+>...
 
-Well, DocBook documentation isn't need for normal builds either and has
-jade as dependency - something that can less often be found on GNU/Linux
-in my opinion.
-Why can't I assume that perl is installed? It can be found on every
-standard Linux/Unix installation.
-And besides, the bug report script doesn't replace anything the doesn't
-need perl - ver_linux, REPORTING-BUGS and oops-tracing.txt are still there
-for the more advanced user.
-My script is intended for the one who likes to provide bug reports but is
-too lazy to look up all the information or simply is not sure about what
-to include.
-Starting with my script to generate their reports, the users can customize
-the reports and also write them by hand if they feel like doing so.
+I have exactly the same board and the same symptoms: I have a Realtek
+Semiconductor Co., Ltd. RTL-8029(AS) (using the NE2000-PCI driver). I
+always get the 'pci=autoirq' error message from the card when booting but
+it took some time until I noticed it because the card works without any
+problems. I get the same error message in 2.4.0-ac1 with the VIA IDE
+driver upgraded to v3.6 . I don't have module support in my kernels.
 
-Matthias
+> HTH someone.
+>
+> cheers,
+>
+> Phil Armstrong
+
+cu,
+Adrian
+
+-- 
+A "No" uttered from deepest conviction is better and greater than a
+"Yes" merely uttered to please, or what is worse, to avoid trouble.
+                -- Mahatma Ghandi
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312141AbSCQX7F>; Sun, 17 Mar 2002 18:59:05 -0500
+	id <S312140AbSCQX7P>; Sun, 17 Mar 2002 18:59:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312143AbSCQX64>; Sun, 17 Mar 2002 18:58:56 -0500
-Received: from 26-072.104.popsite.net ([64.24.54.72]:7940 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S312141AbSCQX6f>; Sun, 17 Mar 2002 18:58:35 -0500
-Message-Id: <200203172358.g2HNwPo01891@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Dave Jones <davej@suse.de>, Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, dougg@torque.net
-Subject: Re: Linux 2.5.6-dj1
+	id <S312144AbSCQX7G>; Sun, 17 Mar 2002 18:59:06 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:4778 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S312140AbSCQX64>;
+	Sun, 17 Mar 2002 18:58:56 -0500
+Message-Id: <5.1.0.14.2.20020317235532.051d0cc0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 17 Mar 2002 23:59:03 +0000
+To: Joel Becker <jlbec@evilplan.org>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: fadvise syscall?
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20020317192028.U4836@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk>
+ <3C945635.4050101@mandrakesoft.com>
+ <3C945A5A.9673053F@zip.com.au>
+ <3C945D7D.8040703@mandrakesoft.com>
+ <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 17 Mar 2002 18:58:25 -0500
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas Gilbert <dougg@torque.net> said:
-> There are over 30 scsi subsystem patches backed up in
-> your tree. Some are over 2 months old. Could
-> some (or perhaps all) of them get promoted to the
-> main tree? 
+At 19:20 17/03/02, Joel Becker wrote:
+>On Sun, Mar 17, 2002 at 01:41:37PM +0000, Anton Altaparmakov wrote:
+> > When you want large data streaming, i.e. you start getting worried about
+> > memory pressure, then you want open(2) + O_DIRECT. No caching done. 
+> Perfect
+> > for large data streams and we have that already. I agree that you may want
+> > some form of asynchronous read ahead with passed pages being dropped from
+> > the cache but that could be just a open(2) + O_SEQUENTIAL (doesn't 
+> exist yet).
+>
+>         O_DIRECT isn't the right thing for large streaming.  You want
+>readahead and dropbehind.  O_DIRECT takes substantial penalties for its
+>lack of copy/cacheing.  This works fine in certain circumstances
+>(applications that keep their own caching), but for something like a
+>video or mp3, you'll win with working dropbehind easily.
 
-davej@suse.de said:
->  Indeed. Once Linus returns from vacation, I'll be doing a
->  patch-bombing on a larger scale than usual 8-)
->  Any bits I'm uncertain of, I'll bounce your way first for
->  clarification, deal ?
+Oh absolutely. For mp3s, dvds, etc. Note I wrote O_SEQUENTIAL... Perhaps I 
+didn't emphasize it enough. In multimedia applications you very well know 
+in advance what you want so you can specify it at open(2) time.
 
-This really brings up a very important point.  As Doug has said before, since 
-there are quite a few patches floating around on the SCSI list and other 
-discussion of structural alteration in there, could we not have our own 
-bitkeeper repository for the SCSI subsystem to keep them all in (and so that 
-we can roll our own patch sets from)?
+Best regards,
 
-Jens, you're now listed as the SCSI maintainer so you are the person who is 
-supposed to serve as a conduit to Linus for all of the SCSI patches.  You 
-would also be the logical person to look after a SCSI bitkeeper repository, so 
-will you look after one for us?  I can volunteer to help, and I'm sure others 
-will.
+Anton
 
-I'm getting pretty tired of the snide comments from HW manufacturers and other 
-OS interests about the state of our SCSI subsystem (not to mention 
-unfavourable comparisons from the IDE guys).  Perhaps something like this 
-could galvanise the community and serve as a catalyst for a general 
-streamlining of the subsystem.
 
-James
-
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

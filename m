@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUHJIZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUHJIbC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbUHJIZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 04:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUHJIZ3
+	id S261239AbUHJIbC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 04:31:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUHJIbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 04:25:29 -0400
-Received: from holomorphy.com ([207.189.100.168]:58342 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261857AbUHJIXo (ORCPT
+	Tue, 10 Aug 2004 04:31:02 -0400
+Received: from main.gmane.org ([80.91.224.249]:23207 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261239AbUHJIa7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 04:23:44 -0400
-Date: Tue, 10 Aug 2004 01:23:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.8-rc3-mm2
-Message-ID: <20040810082340.GH11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Nick Piggin <nickpiggin@yahoo.com.au>
-References: <200408091132.39752.jbarnes@engr.sgi.com> <200408091217.50786.jbarnes@engr.sgi.com> <20040809195323.GU11200@holomorphy.com> <20040809204357.GX11200@holomorphy.com> <20040809211042.GY11200@holomorphy.com> <20040809224546.GZ11200@holomorphy.com> <20040810063445.GE11200@holomorphy.com> <20040810080430.GA25866@elte.hu> <20040810080801.GA26014@elte.hu> <20040810081752.GG11200@holomorphy.com>
+	Tue, 10 Aug 2004 04:30:59 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Tue, 10 Aug 2004 10:20:49 +0200
+Message-ID: <yw1xekmfflpa.fsf@kth.se>
+References: <1092082920.5761.266.camel@cube> <cone.1092092365.461905.29067.502@pc.kolivas.org>
+ <1092099669.5759.283.camel@cube>
+ <cone.1092113232.42936.29067.502@pc.kolivas.org>
+ <1092106283.5761.304.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040810081752.GG11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:YZUTtIELb1dkNSb2lELveCQuh8c=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, someone wrote:
->>> is keventd_up() true during normal SMP bootup? [...]
+Albert Cahalan <albert@users.sf.net> writes:
 
-On Tue, Aug 10, 2004 at 10:08:01AM +0200, Ingo Molnar wrote:
->> it ought to be up at this point - smp_init() is done from the init
->> thread and the scheduler is up and running.
+> I'm not about to burn CDs trying, but I do believe
+> that "a ruined cd is likely" would be accurate if I
+> were to keep busy with Mozilla and such. OpenOffice
+> would surely ruin a cd. Light web browsing makes my
+> mp3 player skip.
+>
+> Not all of us have hardware like you do. Encoding
+> video is something I wouldn't bother to try, even
+> without the CD burner going!
 
-On Tue, Aug 10, 2004 at 01:17:52AM -0700, William Lee Irwin III wrote:
-> Well, I'm working backward from an "unacceptable fix", where I changed
-> a bunch of things defensively at once and (of course) it was adding the
-> printk()'s that actually fixed things.
-> One of those changes was to ditch the schedule_work() shenanigans in
-> do_boot_cpu(), which was actually meant to rule out the initializers
-> for the struct create_idle getting miscompiled or otherwise not
-> behaving as I expected.
+Encoding video is a typically CPU-bound task, unless your machine is
+so fast that it saturates the disk bandwidth.  The scheduler should
+give the encoding lower priority than the "interactive" CD burning.
 
-The "unacceptable fix" is now down to one line. So, what I need to
-figure out now is what the printk did.
+-- 
+Måns Rullgård
+mru@kth.se
 
-
---- mm2-2.6.8-rc3/arch/ia64/kernel/smpboot.c.orig	2004-08-10 13:42:38.000000000 -0700
-+++ mm2-2.6.8-rc3/arch/ia64/kernel/smpboot.c	2004-08-10 01:03:51.527428678 -0700
-@@ -671,6 +671,7 @@
- 		return 0;
- 	}
- 	/* Processor goes to start_secondary(), sets online flag */
-+	printk("about to call do_boot_cpu(%d, %d)\n", sapicid, cpu);
- 	ret = do_boot_cpu(sapicid, cpu);
- 	if (ret < 0)
- 		return ret;

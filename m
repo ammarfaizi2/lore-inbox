@@ -1,91 +1,177 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316783AbSE3SBa>; Thu, 30 May 2002 14:01:30 -0400
+	id <S316794AbSE3SMC>; Thu, 30 May 2002 14:12:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316789AbSE3SB3>; Thu, 30 May 2002 14:01:29 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:1913 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316783AbSE3SB3>; Thu, 30 May 2002 14:01:29 -0400
-Date: Thu, 30 May 2002 19:59:23 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Denis Lunev <den@asplinux.ru>
-Cc: linux-kernel@vger.kernel.org, Andrey Nekrasov <andy@spylog.ru>,
-        rwhron@earthlink.net, Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>
-Subject: Re: inode highmem imbalance fix [Re: Bug with shared memory.]
-Message-ID: <20020530175923.GF1383@dualathlon.random>
-In-Reply-To: <OF6D316E56.12B1A4B0-ONC1256BB9.004B5DB0@de.ibm.com> <3CE16683.29A888F8@zip.com.au> <20020520043040.GA21806@dualathlon.random> <20020524073341.GJ21164@dualathlon.random> <15606.3088.552163.828139@artemis.asplinux.ru>
+	id <S316793AbSE3SMB>; Thu, 30 May 2002 14:12:01 -0400
+Received: from ppp-217-133-209-102.dialup.tiscali.it ([217.133.209.102]:46741
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S316794AbSE3SL7>; Thu, 30 May 2002 14:11:59 -0400
+Subject: [PATCH] [2.4] Waitable counter structure
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-7yDViTHmZYBl72j52IuT"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 30 May 2002 20:11:53 +0200
+Message-Id: <1022782313.1921.123.camel@ldb>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 30, 2002 at 03:25:04PM +0400, Denis Lunev wrote:
-Content-Description: message body text
-> Hello!
-> 
-> The patch itself cures my problems, but after a small fix concerning
-> uninitialized variable resulting in OOPS.
-> 
-> Regards,
-> 	Denis V. Lunev
-> 
 
-Content-Description: diff-andrea-inodes2
-> --- linux/fs/inode.c.old	Wed May 29 20:16:17 2002
-> +++ linux/fs/inode.c	Wed May 29 20:17:08 2002
-> @@ -669,6 +669,7 @@
->  	struct inode * inode;
->  
->  	count = pass = 0;
-> +	entry = &inode_unused;
->  
->  	spin_lock(&inode_lock);
->  	while (goal && pass++ < 2) {
+--=-7yDViTHmZYBl72j52IuT
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
+"Waitable counter": object that keeps a count and allows to wait until
+it reaches zero or is no longer zero.
 
-Great spotting! this fix is certainly correct, without it the unused
-list will be corrupted if prune_icache gets a goal == 0 as parameter.
-OTOH if fixes that cases only (that riggers only when the number of
-unused inodes is <= vm_vfs_scan_ratio, not an extremely common case, I
-wonder if that's enough to cure all the oopses I received today),
-probably it's enough, the number of unused inodes is != than the number
-of inodes allocated. At first glance I don't see other issues (my error
-is been to assume goal was going to be always something significant).
-BTW, it's great that at the first showstopper bug since a long time I
-got such an high quality feedback after a few hours, thank you very
-much! :)
+Sample usage: keep track of requests and, on driver shutdown, wait for
+completion of all the requests (counter goes to 0) before completing the
+shutdown (an alternative design is to have the last request completed
+perform the shutdown, but this isn't always possible).
 
-Could you test if the below one liner from Denis (I attached it below
-too without quotes) fixes all your problems with 2.4.19pre9aa1 or with
-the single inode highmem imbalance fix? thanks,
+Actually having to do something like the sample seems so common that it
+seems strange that there isn't already something to handle this. Am I an
+obvious simpler way of doing this? (other than scheduling in a loop,
+which is unelegant and inappropriate if the task might wait for a long
+time)
 
---- linux/fs/inode.c.old	Wed May 29 20:16:17 2002
-+++ linux/fs/inode.c	Wed May 29 20:17:08 2002
-@@ -669,6 +669,7 @@
- 	struct inode * inode;
+diff --exclude-from=/home/ldb/src/linux-exclude -u -r -N linux-base/include/linux/waitcount.h linux/include/linux/waitcount.h
+--- linux-base/include/linux/waitcount.h	Thu Jan  1 01:00:00 1970
++++ linux/include/linux/waitcount.h	Thu May 30 16:28:45 2002
+@@ -0,0 +1,67 @@
++#ifndef __LINUX_WAITCOUNT_H
++#define __LINUX_WAITCOUNT_H
++
++#include <linux/config.h>
++#include <linux/wait.h>
++#include <asm/atomic.h>
++
++/* "Waitable counter": object that keeps a count and allows to wait
++   until it reaches zero or is no longer zero.
++ */
++
++struct waitable_count {
++	atomic_t count;
++	wait_queue_head_t waitq;
++};
++
++
++#define __WAITABLE_COUNT_INITIALIZER(name) (struct waitable_count) {ATOMIC_INIT(0), __WAIT_QUEUE_HEAD_INITIALIZER((name).waitq)}
++#define INITIALIZE_WAITABLE_COUNT(name) (name) = __WAITABLE_COUNT_INITIALIZER(name)
++#define DECLARE_WAITABLE_COUNT(name) struct waitable_count name = __WAITABLE_COUNT_INITIALIZER(name)
++
++static inline void
++inc_count(struct waitable_count *wcount)
++{
++	atomic_inc(&wcount->count);
++}
++
++static inline void
++dec_count_wake_up(struct waitable_count *wcount)
++{
++	if (atomic_dec_and_test(&wcount->count) && waitqueue_active(&wcount->waitq)) {
++		wake_up_all(&wcount->waitq);
++	}
++}
++
++static inline void
++inc_count_wake_up(struct waitable_count *wcount)
++{
++	if (!atomic_inc_and_test(&wcount->count) && waitqueue_active(&wcount->waitq)) {
++		wake_up_all(&wcount->waitq);
++	}
++}
++
++static inline void
++dec_count(struct waitable_count *wcount)
++{
++	atomic_dec(&wcount->count);
++}
++
++#define inc_nonzero inc_count_wake_up
++#define dec_nonzero dec_count
++#define inc_zero inc_count
++#define dec_zero dec_count_wake_up
++
++void
++__wait_count(struct waitable_count *wcount, int nonzero, int state);
++
++static inline void
++wait_count(struct waitable_count *wcount, int nonzero, int state)
++{
++	if (!atomic_read(&wcount->count) == nonzero)
++	{
++		__wait_count (wcount, nonzero, state);
++	}
++}
++
++#endif
+diff --exclude-from=/home/ldb/src/linux-exclude -u -r -N linux-base/kernel/ksyms.c linux/kernel/ksyms.c
+--- linux-base/kernel/ksyms.c	Wed Apr 10 14:37:33 2002
++++ linux/kernel/ksyms.c	Thu May 30 16:29:13 2002
+@@ -47,6 +47,7 @@
+ #include <linux/in6.h>
+ #include <linux/completion.h>
+ #include <linux/seq_file.h>
++#include <linux/waitcount.h>
+ #include <asm/checksum.h>
  
- 	count = pass = 0;
-+	entry = &inode_unused;
+ #if defined(CONFIG_PROC_FS)
+@@ -472,6 +473,7 @@
+ EXPORT_SYMBOL(sleep_on_timeout);
+ EXPORT_SYMBOL(interruptible_sleep_on);
+ EXPORT_SYMBOL(interruptible_sleep_on_timeout);
++EXPORT_SYMBOL(__wait_count);
+ EXPORT_SYMBOL(schedule);
+ EXPORT_SYMBOL(schedule_timeout);
+ EXPORT_SYMBOL(jiffies);
+diff --exclude-from=/home/ldb/src/linux-exclude -u -r -N linux-base/kernel/sched.c linux/kernel/sched.c
+--- linux-base/kernel/sched.c	Wed Apr 10 14:37:29 2002
++++ linux/kernel/sched.c	Thu May 30 16:29:28 2002
+@@ -27,6 +27,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/completion.h>
++#include <linux/waitcount.h>
+ #include <linux/prefetch.h>
+ #include <linux/compiler.h>
  
- 	spin_lock(&inode_lock);
- 	while (goal && pass++ < 2) {
+@@ -851,6 +852,22 @@
+ 	SLEEP_ON_TAIL
+ 
+ 	return timeout;
++}
++
++void
++__wait_count(struct waitable_count *wcount, int nonzero, int state)
++{
++#define q (&wcount->waitq)
++	SLEEP_ON_VAR
++	
++	current->state = state;
++	
++	SLEEP_ON_HEAD
++	if (!atomic_read(&wcount->count) == nonzero)
++		schedule();
++	current->state = TASK_RUNNING;
++	SLEEP_ON_TAIL
++#undef q		
+ }
+ 
+ void scheduling_functions_end_here(void) { }
 
+--=-7yDViTHmZYBl72j52IuT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Also it seems the O1 scheduler is doing well so far. In next -aa I will
-also include the patch from Mike Kravetz that I finished auditing and
-it's really strightforward, it serializes the execution of the reder of
-the pipe with the writer of the pipe if the writer expires the length
-of the pipe buffer, that will maximize pipe bandwith similar to the
-pre-o1 levels, and still the tasks runs in parallel in two cpus if no
-blocking from the writer is necessary, I think it's the best heuristic.
-Adding the sync beahviour also with the reader seems inferior, I can
-imagine a writer running full time in a cpu and sometime posting a few
-bytes to the pipe, while the reader always blocking. This way the reader
-will keep running in its own cpu, and it won't interfere with the "cpu
-intensive" writer.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-Andrea
+iD8DBQA89mtpdjkty3ft5+cRAhmeAJ9DwBdCYwFBY5f63eIOFaN8h4LhjACeMXnK
+uAFRmdpHWah9aeYU0BS+pI8=
+=Jb7I
+-----END PGP SIGNATURE-----
+
+--=-7yDViTHmZYBl72j52IuT--

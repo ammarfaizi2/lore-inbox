@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279018AbRJVWaV>; Mon, 22 Oct 2001 18:30:21 -0400
+	id <S279030AbRJVWgU>; Mon, 22 Oct 2001 18:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279009AbRJVW1V>; Mon, 22 Oct 2001 18:27:21 -0400
-Received: from virtucon.warpcore.org ([216.81.249.22]:24449 "EHLO virtucon")
-	by vger.kernel.org with ESMTP id <S279010AbRJVW0i>;
-	Mon, 22 Oct 2001 18:26:38 -0400
-Date: Mon, 22 Oct 2001 17:27:42 -0500
-From: drevil@warpcore.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
-Message-ID: <20011022172742.B445@virtucon.warpcore.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200110221846.f9MIkE416013@riker.skynet.be> <E15vlcJ-0003E5-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15vlcJ-0003E5-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.23i
+	id <S279028AbRJVWgF>; Mon, 22 Oct 2001 18:36:05 -0400
+Received: from sm13.texas.rr.com ([24.93.35.40]:7633 "EHLO sm13.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S279025AbRJVWeV>;
+	Mon, 22 Oct 2001 18:34:21 -0400
+User-Agent: Microsoft-Outlook-Express-Macintosh-Edition/5.02.2022
+Date: Mon, 22 Oct 2001 17:34:33 -0500
+Subject: Re: hfs cdrom broken in 2.4.13pre
+From: Hollis Blanchard <hollis-lists@austin.rr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Giuliano Pochini <pochini@denise.shiny.it>
+CC: <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
+Message-ID: <B7FA0929.12F5%hollis-lists@austin.rr.com>
+In-Reply-To: <E15vmro-0003Ut-00@the-village.bc.nu>
+Mime-version: 1.0
+Content-type: text/plain; charset="US-ASCII"
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 09:24:11PM +0100, Alan Cox wrote:
-> Only Nvidia can help you 
+on 22/10/01 4:44 PM, Alan Cox at alan@lxorguk.ukuu.org.uk wrote:
+> 
+>> Kernel 2.4.13pre1 on powerpc. I can no longer mount HFS-formatted cdroms.
+>> The last kernel I'm sure it worked fine is 2.4.7
+> 
+> Mount it over loopback device.
 
-With a problem caused by someone else and not them? Interesting viewpoint. I
-also find it interesting that people think NVidia is the sole company in control
-of whether or not ther drivers are opened considering SGI and other 3rd parties
-own code in the 'driver pie'. This is a simplistic naive view IMHO....
+Why has that become necessary?
+
+-Hollis
+

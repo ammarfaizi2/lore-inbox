@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293053AbSCFCSj>; Tue, 5 Mar 2002 21:18:39 -0500
+	id <S293068AbSCFC0J>; Tue, 5 Mar 2002 21:26:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293068AbSCFCS3>; Tue, 5 Mar 2002 21:18:29 -0500
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:2564
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S293053AbSCFCSM>; Tue, 5 Mar 2002 21:18:12 -0500
-Date: Tue, 5 Mar 2002 21:19:38 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Dave Jones <davej@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of
- BitKeeper by Linux Maintainers
-In-Reply-To: <20020306015049.GA336@matchmail.com>
-Message-ID: <Pine.LNX.4.40.0203052118540.278-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293075AbSCFC0A>; Tue, 5 Mar 2002 21:26:00 -0500
+Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:58888
+	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S293068AbSCFCZu>; Tue, 5 Mar 2002 21:25:50 -0500
+Date: Wed, 6 Mar 2002 03:24:45 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [SiS IDE] 530,540,620 5511,5513 testers wanted
+Message-ID: <20020306032445.C9217@bouton.inet6-interne.fr>
+Mail-Followup-To: Andre Hedrick <andre@linuxdiskcert.org>,
+	=?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>,
+	linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <20020306024001.A9217@bouton.inet6-interne.fr> <Pine.LNX.4.10.10203051746580.18118-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10203051746580.18118-100000@master.linux-ide.org>; from andre@linuxdiskcert.org on Tue, Mar 05, 2002 at 05:50:59PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 05, 2002 at 05:50:59PM -0800, Andre Hedrick wrote:
+> 
+> Lionel,
+> 
+> Please add your name to the Maintainer List for the SIS5513 chipset code.
+> [...]
 
-well let's see, it takes forever to do a bk clone its the verfication that
-slows things down hugely.
+If no show-stopper bugreport comes in in the following days, I'll submit a
+patch (marked sis5513.c v0.13 final) with debug mode deactivated to lkml,
+you and Marcelo that will address this.
 
-Shawn.
+So lkml SiS chipset owners, please stress the 20020304_1 patch
+available at:
+http://inet6.dyn.dhs.org/sponsoring/sis5513/index.html
 
+As I lack test reports on some chip generations, if people with a SiS530,
+540,620 or SiS5511,5513 chip would take the time to mail me test results
+with this patch, that would be perfect.
 
-On Tue, 5 Mar 2002, Mike Fedyk wrote:
-
-> On Tue, Mar 05, 2002 at 08:46:27PM -0500, Shawn Starr wrote:
-> >
-> > The only problem I have with BK is it's slow on a Pentium 200Mhz, vs
-> > CVS. ;/ Wish that would be fixed.
-> >
->
-> How much (wall clock) time will it take to produce a patch with bk
-> compared to cvs?
->
->
-
+LB.

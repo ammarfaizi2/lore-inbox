@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264208AbUDRXWh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 19:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264210AbUDRXWe
+	id S264222AbUDRXoI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 19:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264226AbUDRXoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 19:22:34 -0400
-Received: from mail.shareable.org ([81.29.64.88]:47523 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S264208AbUDRXWc
+	Sun, 18 Apr 2004 19:44:08 -0400
+Received: from florence.buici.com ([206.124.142.26]:16003 "HELO
+	florence.buici.com") by vger.kernel.org with SMTP id S264222AbUDRXoG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 19:22:32 -0400
-Date: Mon, 19 Apr 2004 00:22:30 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Jamie Lokier <jamie@shareable.or>, linux-kernel@vger.kernel.org
-Subject: Re: NFS and kernel 2.6.x
-Message-ID: <20040418232230.GA11064@mail.shareable.org>
-References: <1082079061.7141.85.camel@lade.trondhjem.org> <20040415185355.1674115b.akpm@osdl.org> <20040416090331.GC22226@mail.shareable.org> <1082130906.2581.10.camel@lade.trondhjem.org> <20040416184821.GA25402@mail.shareable.org> <1082142401.2581.131.camel@lade.trondhjem.org> <20040416193914.GA25792@mail.shareable.org> <1082241169.3930.14.camel@lade.trondhjem.org> <20040418032638.GA1786@mail.shareable.org> <1082271815.3619.104.camel@lade.trondhjem.org>
+	Sun, 18 Apr 2004 19:44:06 -0400
+Date: Sun, 18 Apr 2004 16:44:04 -0700
+From: Marc Singer <elf@buici.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Marc Singer <elf@buici.com>, William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: vmscan.c heuristic adjustment for smaller systems
+Message-ID: <20040418234404.GA11231@flea>
+References: <20040417233037.GA15576@flea> <20040417165151.24b1fed5.akpm@osdl.org> <20040418002343.GA16025@flea> <4081F809.4030606@yahoo.com.au> <20040418041748.GW743@holomorphy.com> <408206E8.5000600@yahoo.com.au> <20040418051024.GA19595@flea> <40820FFF.8090906@yahoo.com.au> <20040418053553.GB19595@flea> <40821504.8050700@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1082271815.3619.104.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <40821504.8050700@yahoo.com.au>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> On Sat, 2004-04-17 at 20:26, Jamie Lokier wrote:
-> >       Are they intended to stop doubling at 3.2?  The major timeout
-> >       thus happens after 22.3 seconds.
-> > 
-> >       Unsurprisingly, subsequent major timeouts take 44.1 seconds.
+On Sun, Apr 18, 2004 at 03:41:24PM +1000, Nick Piggin wrote:
+> >We'll, I'll try applying his patch and then yours.  If it doesn't work
+> >I'll let you know.
+> >
 > 
-> Right... ...but since the timeout value is already capped at 60 seconds,
-> this is not a major problem. It is pretty pointless to be talking about
-> "predictable" or "consistent" behaviour when talking about a situation
-> where we believe that the server has crashed.
+> OK thanks.
 
-I agree, but would still prefer more consistent behaviour if it is
-easy -- and I explained how to do it, it's an easy algorithm.
+There appear to be a lot of conflicts between my development tree and
+the -mm6 patch.  Even your patch doesn't apply cleanly, though I think
+it is only because a piece has already been applied.
 
-You don't respond to the other question: the doubling stopping at
-3.2s.  Is it intended?  It goes againt a basic principle of congestion
-control.
+I'm starting with 2.6.5, applying Russell King's 2.6.5 patch from the
+8th, applying -mm6 patch, and then yours.  It looks like a good bit of
+Russell's patch has been included in the -mm6.  But not enough of mm6
+is present in my tree for your patch to work.
 
-> AFAICS, all we care about is to establish a predictable *lower limit*.
-
-I agree that is the most important thing, and the old behaviour was
-probably the cause of problems for at least one poster on this thread.
-
--- Jamie
+I'm working on the scripts and BK docs.  At this point, I may have to
+wait for 2.6.6 before we can make another test.
 

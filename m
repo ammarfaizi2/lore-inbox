@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbUCVSZM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 13:25:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbUCVSZM
+	id S262198AbUCVScu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 13:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbUCVScu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 13:25:12 -0500
-Received: from ns.suse.de ([195.135.220.2]:21461 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262190AbUCVSZE (ORCPT
+	Mon, 22 Mar 2004 13:32:50 -0500
+Received: from ns.suse.de ([195.135.220.2]:15840 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262198AbUCVScs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 13:25:04 -0500
+	Mon, 22 Mar 2004 13:32:48 -0500
 Subject: Re: 2.6.5-rc1-mm2 and direct_read_under and wb
 From: Chris Mason <mason@suse.com>
 To: Daniel McNeil <daniel@osdl.org>
 Cc: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        "linux-aio@kvack.org" <linux-aio@kvack.org>
-In-Reply-To: <1079979800.11055.514.camel@watt.suse.com>
+In-Reply-To: <1079979016.6930.62.camel@ibm-c.pdx.osdl.net>
 References: <20040314172809.31bd72f7.akpm@osdl.org>
 	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
 	 <1079474312.4186.927.camel@watt.suse.com>
@@ -43,41 +43,43 @@ References: <20040314172809.31bd72f7.akpm@osdl.org>
 	 <1079715901.6930.52.camel@ibm-c.pdx.osdl.net>
 	 <1079879799.11062.348.camel@watt.suse.com>
 	 <1079979016.6930.62.camel@ibm-c.pdx.osdl.net>
-	 <1079979800.11055.514.camel@watt.suse.com>
 Content-Type: text/plain
-Message-Id: <1079980049.11061.519.camel@watt.suse.com>
+Message-Id: <1079980512.11058.524.camel@watt.suse.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 22 Mar 2004 13:27:29 -0500
+Date: Mon, 22 Mar 2004 13:35:13 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-03-22 at 13:23, Chris Mason wrote:
-> On Mon, 2004-03-22 at 13:10, Daniel McNeil wrote:
-> > Andrew and Chris,
-> > 
-> > I re-ran the direct_read_under tests over the weekend on ext3 with
-> > the attached wb_rwsema patch and ran without errors.
-> > 
-> > It looks like the same thing as before -- async writebacks are causing
-> > the sync writebacks to miss pages.
-> > 
-> > Thoughts?
+On Mon, 2004-03-22 at 13:10, Daniel McNeil wrote:
+> Andrew and Chris,
 > 
-> It does seem clear that's what is happening, but the part I don't
-> understand is exactly where they are racing.
+> I re-ran the direct_read_under tests over the weekend on ext3 with
+> the attached wb_rwsema patch and ran without errors.
+> 
+> It looks like the same thing as before -- async writebacks are causing
+> the sync writebacks to miss pages.
+> 
+> Thoughts?
+> 
+This hunk alone should be enough to force the sync writers to find a
+page with locked but clean buffers.
 
-Wait, maybe I do see it.
+diff -rup linux-2.6.5-rc1-mm2.orig/fs/buffer.c linux-2.6.5-rc1-mm2/fs/buffer.c
+--- linux-2.6.5-rc1-mm2.orig/fs/buffer.c        2004-03-22 09:51:08.780141187 -0800
++++ linux-2.6.5-rc1-mm2/fs/buffer.c     2004-03-19 16:24:57.000000000 -0800
+@@ -1814,8 +1814,7 @@ static int __block_write_full_page(struc
+                        lock_buffer(bh);
+                } else {
+                        if (test_set_buffer_locked(bh)) {
+-                               if (buffer_dirty(bh))
+-                                       __set_page_dirty_nobuffers(page);
++                               __set_page_dirty_nobuffers(page);
+                                continue;
+                        }
+                }
 
-In __block_write_full_page, if the buffers are locked by ll_rw_block and
-under io, they are clean.  The page is only redirtied in this case
-because the buffers are clean.
-
-So we set_page_writeback and nr_underway == 0.  Then, in the if
-(nr_underway == 0) code, we clear page writeback even though the buffers
-are still locked and under io.
 
 -chris
-
 

@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283380AbRLDUDM>; Tue, 4 Dec 2001 15:03:12 -0500
+	id <S283378AbRLDUAW>; Tue, 4 Dec 2001 15:00:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281664AbRLDUBt>; Tue, 4 Dec 2001 15:01:49 -0500
-Received: from [206.98.161.198] ([206.98.161.198]:52238 "EHLO
-	bart.learningpatterns.com") by vger.kernel.org with ESMTP
-	id <S283376AbRLDUBY>; Tue, 4 Dec 2001 15:01:24 -0500
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-From: Edward Muller <emuller@learningpatterns.com>
-To: Dave Jones <davej@suse.de>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-In-Reply-To: <Pine.LNX.4.33.0112041833150.3798-100000@Appserv.suse.de>
-In-Reply-To: <Pine.LNX.4.33.0112041833150.3798-100000@Appserv.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 04 Dec 2001 14:59:29 -0500
-Message-Id: <1007495969.4621.9.camel@akira.learningpatterns.com>
+	id <S283218AbRLDT6h>; Tue, 4 Dec 2001 14:58:37 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:5813 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S283365AbRLDT5W>;
+	Tue, 4 Dec 2001 14:57:22 -0500
+Date: Tue, 4 Dec 2001 20:57:00 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Dan Hollis <goemon@anime.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Message-ID: <20011204205700.I360@khan.acc.umu.se>
+In-Reply-To: <20011204144140.E360@khan.acc.umu.se> <Pine.LNX.4.30.0112041134410.14323-100000@anime.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.30.0112041134410.14323-100000@anime.net>; from goemon@anime.net on Tue, Dec 04, 2001 at 11:35:11AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-12-04 at 12:43, Dave Jones wrote:
-> On Tue, 4 Dec 2001, Eric S. Raymond wrote:
+On Tue, Dec 04, 2001 at 11:35:11AM -0800, Dan Hollis wrote:
+> On Tue, 4 Dec 2001, David Weinehall wrote:
+> > Indeed. And I'm sure the ALSA-team would be delighted and fully willing
+> > to write a working driver, if mr Borasky donated an M-Audio Delta 66
+> > together with full documentation to them...
 > 
-> > After CML2 has proven itself in 2.5, I do plan to go back to Marcelo
-> > and lobby for him accepting it into 2.4, on the grounds that doing so
-> > will simplify his maintainance task no end.
-> > ...
-> > I'm just going to say "Today's problems, today's tools."
-> 
-> So anyone perfectly happy with an older distro that didn't
-> ship python2-and-whatever-else gets screwed when they want to
-> build a newer kernel. Nice.
+> ALSA already has a working driver...!
 
-That's been the case all along, sans python2. Newer kernels need newer
-tools. That's always been the case.
-
-> 
-> Dave.
-> 
+The point I was trying to make was just "stop complaining about lack
+of drivers, contribute one or help someone else create one. I wasn't
+criticizing ALSA, rather the opposite. Now, if I could just find
+someone willing to program a driver for that old 8-bit, totally sucky,
+IBM ACPA/A I have (the only MCA sound adapter I have managed to get
+hold of...)
 
 
-
-> -- 
-> | Dave Jones.        http://www.codemonkey.org.uk
-> | SuSE Labs
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
--------------------------------
-Edward Muller
-Director of IS
-
-973-715-0230 (cell)
-212-487-9064 x115 (NYC)
-
-http://www.learningpatterns.com
--------------------------------
-
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

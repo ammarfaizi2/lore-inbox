@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130155AbQLJUUk>; Sun, 10 Dec 2000 15:20:40 -0500
+	id <S132673AbQLJUXa>; Sun, 10 Dec 2000 15:23:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132673AbQLJUUa>; Sun, 10 Dec 2000 15:20:30 -0500
-Received: from zero.tech9.net ([209.61.188.187]:20484 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S130155AbQLJUUS>;
-	Sun, 10 Dec 2000 15:20:18 -0500
-Date: Sun, 10 Dec 2000 14:49:48 -0500 (EST)
-From: "Robert M. Love" <rml@tech9.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Compile Failure: mga_dma.o on 2.4.0-test12-pre8
-Message-ID: <Pine.LNX.4.30.0012101445010.15992-100000@phantasy.awol.org>
+	id <S132833AbQLJUXU>; Sun, 10 Dec 2000 15:23:20 -0500
+Received: from mail.mojomofo.com ([208.248.233.19]:1541 "EHLO mojomofo.com")
+	by vger.kernel.org with ESMTP id <S132673AbQLJUXA>;
+	Sun, 10 Dec 2000 15:23:00 -0500
+Message-ID: <006b01c062e2$b4c3ddc0$0500a8c0@methusela>
+From: "Aaron Tiensivu" <mojomofo@mojomofo.com>
+To: <elenstev@mesatop.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <00121008312900.00872@localhost.localdomain>
+Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
+Date: Sun, 10 Dec 2000 14:52:18 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cleanly patched 2.4.0-test12-pre8 (with the correct pre8, linus!) ...
-fails compile with the following. I have CONFIG_DRM_MGA enabled. pre7
-compiled fine.
+| 2.2.18-pre26 was compiled with gcc 2.91.66 (kgcc).
+| 2.4.0-test12-pre7 was compiled with gcc 2.95.3.
 
-kgcc -D__KERNEL__ -I/home/rml/src/linux/linux/include -Wall
- -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
- -march=i686    -c -o mga_dma.o mga_dma.c
-mga_dma.c: In function `mga_irq_install':
-mga_dma.c:821: structure has no member named `next'
-make[4]: *** [mga_dma.o] Error 1
-make[4]: Leaving directory `/home/rml/src/linux/linux/drivers/char/drm'
-make[3]: *** [first_rule] Error 2
+That's your answer right there. 
+GCC 2.95.3 compiles much slower than kgcc.
 
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
+Rerun the 2.4.0 with kgcc to be fair. :)
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

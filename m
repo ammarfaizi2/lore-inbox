@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318324AbSHEHLC>; Mon, 5 Aug 2002 03:11:02 -0400
+	id <S314138AbSHEHJB>; Mon, 5 Aug 2002 03:09:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318325AbSHEHLB>; Mon, 5 Aug 2002 03:11:01 -0400
-Received: from hmbg-d5144309.dsl.mediaWays.net ([213.20.67.9]:2578 "EHLO
-	birnet.org") by vger.kernel.org with ESMTP id <S318324AbSHEHLB>;
-	Mon, 5 Aug 2002 03:11:01 -0400
-Date: Mon, 5 Aug 2002 09:13:33 +0200 (CEST)
-From: Tim Janik <timj@gtk.org>
-To: Theodore Tso <tytso@mit.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: process accounting continues on RO fs
-Message-ID: <Pine.LNX.4.21.0208050835100.902-100000@birgrave.birnet.private>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318324AbSHEHJB>; Mon, 5 Aug 2002 03:09:01 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:12539 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314138AbSHEHJA>; Mon, 5 Aug 2002 03:09:00 -0400
+Subject: Re: 2.4.19-ac2 ... file not found worries me
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
+Cc: Thunder from the hill <thunder@ngforever.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <74122858180.20020805073804@eunet.at>
+References: <Pine.LNX.4.44.0208041327260.10270-100000@hawkeye.luckynet.adm>
+	 <74122858180.20020805073804@eunet.at>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Aug 2002 09:31:06 +0100
+Message-Id: <1028536266.16555.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi ted,
+On Mon, 2002-08-05 at 06:38, Clemens 'Gullevek' Schwaighofer wrote:
+> Hello Thunder, 
+> 
+> Sunday, August 4, 2002, 9:34:00 PM, Thunder from the hill wrote,
+> and I answered on Montag, 05. August 2002, 07:36:30 with this ...
+> 
+> >> via-pmu.c:40:22: asm/prom.h: No such file or directory
+> >> via-pmu.c:41:25: asm/machdep.h: No such file or directory
+> >> via-pmu.c:45:26: asm/sections.h: No such file ordirectory
+> >> via-pmu.c:48:30: asm/pmac_feature.h: No such file or directory
+> >> via-pmu.c:51:26: asm/sections.h: No such file or directory
+> >> via-pmu.c:52:26: asm/cputable.h: No such file or directory
+> >> via-pmu.c:53:22: asm/time.h: No such file or directory
+> 
+> > Are you on i386? via-pmu is IMHO a macintosh interface.
+> 
+> then there has to be some sort of configure error, as in fact I am on
 
-i just noted, that with process accounting enabled, /var/account/pacct
-is still being written to after it's file system (ext2 here) got
-(emergency) remounted read-only. the behaviour is reproducable for me
-with at least 2.4.17 and 2.4.19.
-of course, fsck (e2fsck 1.27 (8-Mar-2002) here) badly screwes
-up with fixing block counts in that situation (if run after the remount
-before the next reboot, that is).
-for the record, my accounting utils version is 6.3.5.
-let me know if you need more information or are unable to reproduce
-this behaviour.
-
----
-ciaoTJ
-
-
+None at all. Its just the wake the dependancy generator works
 

@@ -1,21 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264319AbUAHIUN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 03:20:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264321AbUAHIUN
+	id S263723AbUAHIXL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 03:23:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbUAHIXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 03:20:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29077 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264319AbUAHIUK (ORCPT
+	Thu, 8 Jan 2004 03:23:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41365 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263723AbUAHIXJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 03:20:10 -0500
-Date: Thu, 8 Jan 2004 00:20:34 -0800
+	Thu, 8 Jan 2004 03:23:09 -0500
+Date: Thu, 8 Jan 2004 00:23:29 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.1-rc2-mm1
-Message-Id: <20040108002034.69081d4b.akpm@osdl.org>
-In-Reply-To: <20040107232831.13261f76.akpm@osdl.org>
-References: <20040107232831.13261f76.akpm@osdl.org>
+To: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
+Cc: lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: a new version of memory hotremove patch
+Message-Id: <20040108002329.3faee471.akpm@osdl.org>
+In-Reply-To: <20040108073634.8A9947007A@sv1.valinux.co.jp>
+References: <20040108073634.8A9947007A@sv1.valinux.co.jp>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -23,12 +25,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+IWAMOTO Toshihiro <iwamoto@valinux.co.jp> wrote:
 >
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1-rc2/2.6.1-rc2-mm1/
-> 
+> - If a page is in mapping->io_pages when remap happens, it will be
+>    moved to dirty_pages.  Tracking page->list to find out the list
+>    which page is connected to would be too expensive, and I have no other
+>    idea.
 
-Well I managed to release this five seconds after 2.6.1-rc3.
+That sounds like a reasonable thing to do.  The only impact would be that
+an fsync() which is currently in progress could fail to write the page, so
+the page is still dirty after the fsync() returns.
 
-2.6.1-rc2-mm1 contains everything which is in 2.6.1-rc3.
-
+If this is the biggest problem, you've done well ;)

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130512AbQJaUvJ>; Tue, 31 Oct 2000 15:51:09 -0500
+	id <S130490AbQJaUz3>; Tue, 31 Oct 2000 15:55:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130525AbQJaUu7>; Tue, 31 Oct 2000 15:50:59 -0500
-Received: from k2.llnl.gov ([134.9.1.1]:43395 "EHLO k2.llnl.gov")
-	by vger.kernel.org with ESMTP id <S130512AbQJaUun>;
-	Tue, 31 Oct 2000 15:50:43 -0500
-Message-ID: <39FEE9A4.3959CFF8@scs.ch>
-Date: Tue, 31 Oct 2000 07:47:48 -0800
-From: Reto Baettig <baettig@scs.ch>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17ext3 i686)
-X-Accept-Language: en
+	id <S130553AbQJaUzT>; Tue, 31 Oct 2000 15:55:19 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24945 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130490AbQJaUzH>; Tue, 31 Oct 2000 15:55:07 -0500
+Subject: Re: Linux-2.4.0-test10
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 31 Oct 2000 20:55:13 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.10.10010311237430.22165-100000@penguin.transmeta.com> from "Linus Torvalds" at Oct 31, 2000 12:41:55 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <Pine.LNX.4.21.0010311835420.1190-100000@duckman.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13qiR9-0008FT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> Ummm, last I looked Linux held the Specweb99 record;
-> by a wide margin...
+> Ok, test10-final is out there now. This has no _known_ bugs that I
+> consider show-stoppers, for what it's worth.
 
-...does that remove any memory copies???
+The fact power management even handling is completely broken and crashes
+on unfortunately timed module unloads doesnt count ?
 
-To be best does not mean that there's no place for improvment.
+More importantly has the bug when you can use the proc/self/mem trick with read
+to crash machines as any user via svgalib stuff been fixed ?
 
-Can anybody please help me and tell me where to start understanding what
-tux does?
+Questions:
+	Has the O_SYNC stuff been fixed so that more than ext2 honours this
+	flag ?
+	What about the fact anyone can crash a box using ioctls on net
+	devices and waiting for an unload - was this fixed ?
 
-www.tux.org does not seem to be the right place :-(
+Less Critical:
+	Does autofs4 work yet
+	Why haven't you merged irda changes people have been sending for months 	which mean irda in 2.4test doesnt work ?
+	Making ramfs work seems to not be merged
 
-I don't want to make linux bad or stand on anybodys toes. I'd just like
-to improve linux like everybody else and I do not know every single
-peace of source code floating around the world by heart ;-)
+Ok so Im always on the more conservative side but the large collection of
+'fixe exists isnt merged' and those 4 or 5 other issues to me count as at the
+very least alarm bells.
 
-Reto
+But I have to admit it seems close to 2.4.0. Its stayed up a lot better than
+I expected under load once I fixed the scsi one
+
+Alan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

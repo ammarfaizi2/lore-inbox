@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261733AbTAaRgN>; Fri, 31 Jan 2003 12:36:13 -0500
+	id <S261724AbTAaRfz>; Fri, 31 Jan 2003 12:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261742AbTAaRgN>; Fri, 31 Jan 2003 12:36:13 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:36858 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S261733AbTAaRgL>;
-	Fri, 31 Jan 2003 12:36:11 -0500
-Date: Fri, 31 Jan 2003 18:43:16 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, parisc-linux@parisc-linux.org,
-       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: Generic RTC driver in 2.4.x
-In-Reply-To: <20030130180315.GA14768@ip68-0-152-218.tc.ph.cox.net>
-Message-ID: <Pine.GSO.4.21.0301311838270.10634-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261733AbTAaRfz>; Fri, 31 Jan 2003 12:35:55 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:63495 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S261724AbTAaRfy>; Fri, 31 Jan 2003 12:35:54 -0500
+Date: Fri, 31 Jan 2003 18:45:19 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: =?iso-8859-2?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Pavel Machek <pavel@ucw.cz>, Xavier Bestel <xavier.bestel@free.fr>,
+       Raphael Schmid <Raphael_Schmid@CUBUS.COM>,
+       "'John Bradford'" <john@grabjohn.com>, rob@r-morris.co.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bootscreen
+Message-ID: <20030131174519.GA26929@atrey.karlin.mff.cuni.cz>
+References: <398E93A81CC5D311901600A0C9F2928946937F@cubuss2> <1043764502.24813.16.camel@bip.localdomain.fake> <20030130072521.GA559@zaurus> <20030131174036.GA9694@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030131174036.GA9694@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Jan 2003, Tom Rini wrote:
-> On Fri, Jan 10, 2003 at 09:05:55PM +0100, Geert Uytterhoeven wrote:
-> > Unfortunately I didn't receive any feedback from the pa-risc and ppc people
-> > after my previous posting last Sunday.
-> [snip]
-> > Pa-risc and ppc people (any other users?), please send me your enhancements (or
-> > just ack if none are necessary), so I can send genrtc to Marcelo.
+Hi!
+
+> > Well, with right scripts you can probably boot
+> > faster than do resume (and you can certainly
+> > shutdown faster than suspend). OTOH, if you
+> > turn off ide-scsi in 2.5.59, swsusp should just
+> > work.
 > 
-> Sorry I haven't spoken up before this, A simple cp of
-> include/asm-ppc/rtc.h (and then throwing the question
-> someplace) compiles a kernel correctly, and from what I recall of
-> getting it to work in 2.5, at that point it was all good anyhow.  So
-> this is fine for PPC32 as is.
+> But it takes quite a while to open all those editor windows again, let
+> alone remembering, where you were when you closed them. This is the
+> real benefit I see in software suspend.
 
-Note that in the mean time genrtc has changed, so I'd prefer you to at least
-sent me your include/asm-ppc/rtc.h and a patch to add the question on PPC,
-_after_ you have test-compiled the latest version. I'll send it to you in a
-separate mail.
+Hey, I'm developing swsusp, no need to tell *me* its usefull. Primary
+application here will be to be able to do long-running computation
+(lingvistic experiments) and *still* sleep at night ;-).
 
-Gr{oetje,eeting}s,
+								Pavel
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
-
-
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267512AbUG3CDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267575AbUG3CJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267512AbUG3CDg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 22:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265962AbUG3CDd
+	id S267575AbUG3CJe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 22:09:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUG3CJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 22:03:33 -0400
-Received: from sv.sms13.de ([216.40.241.214]:50360 "HELO sv.sms13.de")
-	by vger.kernel.org with SMTP id S267479AbUG3CDa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 22:03:30 -0400
-Date: Fri, 30 Jul 2004 04:03:21 +0200
-From: MA <admin@sms13.de>
-Reply-To: MA <admin@sms13.de>
-X-Priority: 3 (Normal)
-Message-ID: <1623453663.20040730040321@sms13.de>
-To: linux-kernel@vger.kernel.org
-Subject: kernel problems, crc32c
-MIME-Version: 1.0
+	Thu, 29 Jul 2004 22:09:34 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:11656 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S267575AbUG3CJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 22:09:33 -0400
+Date: Fri, 30 Jul 2004 04:09:10 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
+       riel@redhat.com, akpm@osdl.org
+Subject: Re: [patch] mlock-as-nonroot revisted
+Message-ID: <20040730020910.GA30369@dualathlon.random>
+References: <20040729100307.GA23571@devserv.devel.redhat.com> <20040729185215.Q1973@build.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040729185215.Q1973@build.pdx.osdl.net>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Thu, Jul 29, 2004 at 06:52:15PM -0700, Chris Wright wrote:
+> 1) hugetlb accounting is not done. so it's only simple change to checking
+> permission, but the acutal usage is not tracked (gets back to problem
+> andrea pointed out).  with this patch, wouldn't !capable(CAP_IPC_LOCK)
+> && rlim[RLIMIT_MEMLOCK].rlim_cur == 1 be enough to get all the hugepages
+> a user would want (i.e. security hole)?
 
-Not sure if this is the correct place to ask, I compiled my own
-kernel, nothing fancy, mostly default stuff + some additional device
-drivers but after trying to load the kernel I end up with the
-following error
+exactly, you beaten me on reply-speed ;).
 
-Failed to load transform for crc32c
+And this patch is needed primarly to get access to hugetlbfs without
+IPC_CAP_LOCK as Arjan mentioned.
 
-Testing hmac_md5 
+> I do agree, however, that storing in user struct allows for quota like
+> accounting that matches the shm_lock and hugetlb use cases.
 
-Test 1: 
-9294727a3638bb1c13f48ef8158bfc9d 
-Pass 
-
-Test 2: 
-750c783e6ab0b503eaa86e310a5db738 
-Pass 
-
-Test 3: 
-56be34521d144c88dbb8c733f0e8b3f6 
-Pass 
-
-Test 4: 
-697eaf0aca3a3aea3a75164746ffaa79 
-Pass 
-
-Test 5: 
-56461ef2342edc00f9bab995690efd4c 
-Pass 
-
-Test 6: 
-6b1ab7fe4db7bf8f0b62ebce61b9d0cd 
-Pass 
-
-Test 7: 
-6f630fad67cda0ee1fb1f562db63aa53e 
-Pass 
-
-
-AT THIS POINT IT HANGS
-
-This is redhat enterprise 3.0, I was trying a couple 2.6.X serie
-kernels and the error was the same each time, I was also trying to
-exlcude crc32 options from kernel but it didnt help, I was not able to
-find the resolution on google, so here I am asking for help, thanks
-
-
--- 
-Sincerely MA
-
+Looking forward to see hugetlbfs working with user quota too...
+rlimit user-quota is certainly a reasonable approach, though I'm not
+sure what happens if root runs chown, that's funny not? Comments?

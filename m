@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318873AbSHWPSd>; Fri, 23 Aug 2002 11:18:33 -0400
+	id <S318838AbSHWPdM>; Fri, 23 Aug 2002 11:33:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318882AbSHWPSc>; Fri, 23 Aug 2002 11:18:32 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:22520 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318873AbSHWPSb>; Fri, 23 Aug 2002 11:18:31 -0400
-Subject: Re: 2.4.19 - Promise TX2 Ultra133 (pdc20269) sticks at UDMA33
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: barrie_spence@agilent.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020823144016.GM14278@louise.pinerecords.com>
-References: <C12D24916888D311BC790090275414BB0B724742@oberon.britain.agilent.com> 
-	<20020823144016.GM14278@louise.pinerecords.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 23 Aug 2002 16:24:09 +0100
-Message-Id: <1030116249.5911.19.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318857AbSHWPdM>; Fri, 23 Aug 2002 11:33:12 -0400
+Received: from pD9E2385F.dip.t-dialin.net ([217.226.56.95]:29593 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318838AbSHWPdL>; Fri, 23 Aug 2002 11:33:11 -0400
+Date: Fri, 23 Aug 2002 09:37:22 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Holger Schurig <h.schurig@mn-logistik.de>
+cc: Jan Harkes <jaharkes@cs.cmu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: cell-phone like keyboard driver anywhere?
+In-Reply-To: <200208231710.19950.h.schurig@mn-logistik.de>
+Message-ID: <Pine.LNX.4.44.0208230933230.3234-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam-Babelsberg; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-23 at 15:40, Tomas Szepe wrote:
-> > Trying hdparm -X69 after boot gives the message "Speed warnings UDMA 3/4/5 is not functional."
-> 
-> Known issue.
-> Boot/load the ide core mod with ideX=ata66, repeat for all your promise hosts.
-Providing you have 80pin cables
+Hi,
+
+On Fri, 23 Aug 2002, Holger Schurig wrote:
+> But what if the computer is used for tn-5250 (ncurses), Konq/Embedded
+> (Qt/Embedded) and Java (X11), just as the user pleases?  In this case
+> you need something general, and that usually means a kernel driver
+
+The problem is that most cell phones, if they don't have a keyboard 
+themselves, only have 16 keys (0 through 9, *, #, cancel, menu, up/down). 
+My cellphonish pocket terminal got its own space-cadet derived keyboard, 
+works well. But I don't really thing you'll cope w/only 16 keys.
+
+Otherwise proceed the ugly way it is. 0 through 9 have their usual 
+meaning, all the multicodes, menu is say return, C is esc, up/down - well, 
+ok, and * and # have any meaning. I see no better way.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

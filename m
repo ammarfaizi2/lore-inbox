@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbTELPow (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 11:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbTELPow
+	id S262235AbTELPr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 11:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbTELPr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 11:44:52 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:62659 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262221AbTELPou
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 11:44:50 -0400
-Date: Mon, 12 May 2003 06:43:11 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: 2.5.69-mjb1
-Message-ID: <24330000.1052746990@[10.10.2.4]>
-In-Reply-To: <3EBFBEF5.6050600@us.ibm.com>
-References: <9380000.1052624649@[10.10.2.4]> <20030512132939.GF19053@holomorphy.com> <21850000.1052743254@[10.10.2.4]> <20030512150309.GG19053@holomorphy.com> <23510000.1052744845@[10.10.2.4]> <3EBFBEF5.6050600@us.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 12 May 2003 11:47:59 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:37013 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S262235AbTELPr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 11:47:58 -0400
+Date: Mon, 12 May 2003 18:00:29 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Dave Jones <davej@codemonkey.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new kconfig goodies
+Message-ID: <20030512160029.GJ5376@louise.pinerecords.com>
+References: <Pine.LNX.4.44.0305111838300.14274-100000@serv> <20030512143207.GA6459@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030512143207.GA6459@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---On Monday, May 12, 2003 08:34:13 -0700 Dave Hansen <haveblue@us.ibm.com> wrote:
-
-> Martin J. Bligh wrote:
->> OK, so maybe I'm still asleep, but I don't see why the hardcoded
->> magic constant (grrr) is 4096 in mainline, when the stacksize is 8K.
->> Presumably the 1019*4 makes up the rest of it? Maybe the real question 
->> is what the hell was whoever wrote that in the first place smoking ? ;-)
->> Why on earth would you skip halfway through the stack with one stupid 
->> magic constant, and then the rest of the way with another? 
+> [davej@codemonkey.org.uk]
 > 
-> You can go ask the author:
+> On Mon, May 12, 2003 at 03:39:11PM +0200, Roman Zippel wrote:
 > 
-> http://linus.bkbits.net:8080/linux-2.5/diffs/include/asm-i386/processor.h@1.12?nav=index.html|src/|src/include|src/include/asm-i386|hist/include/asm-i386/processor.h
+>  > config AGP
+>  > 	tristate "/dev/agpgart (AGP Support)" if !GART_IOMMU
+>  > 	default y if GART_IOMMU
+>  > 
+>  > this can be changed into:
+>  > 
+>  > config AGP
+>  > 	tristate "/dev/agpgart (AGP Support)"
+>  > 
+>  > config GART_IOMMU
+>  > 	bool "IOMMU support"
+>  > 	enable AGP
+>  > 
+>  > This will cause AGP to be selected if GART_IOMMU is selected.
+> 
+> Looks good. However, will this still offer the CONFIG_AGP tristate
+> in the menu? If IOMMU is on, there must be no way to switch off
+> the agpgart support on which it depends.
 
--#define KSTK_EIP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)))[1019])
--#define KSTK_ESP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)))[1022])
-...
-+#define KSTK_EIP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)->thread_info))[1019])
-+#define KSTK_ESP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)->thread_info))[1022])
+Also, will the config system let the user know that their having
+enabled a certain option has affected other options (possibly in
+different submenus)?  As things work now, there's no way to tell
+if an option has been switched on "by dependency," so in the above
+example, in switching GART_IOMMU off after its switching on has
+enabled AGP, the system won't know to disable AGP again.  I'm not
+convinced this is a nice feature in fact. :)  Maybe we just need
+something like grayed-out entries with a comment, for instance:
 
-Nope, not his fault, really.
+/* [ ] IOMMU support (needs "/dev/agpgard (AGP Support)") */
 
-M.
+-- 
+Tomas Szepe <szepe@pinerecords.com>

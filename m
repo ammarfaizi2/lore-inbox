@@ -1,153 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268888AbUHLXrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268893AbUHLXuC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268888AbUHLXrX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 19:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268890AbUHLXrX
+	id S268893AbUHLXuC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 19:50:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbUHLXuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 19:47:23 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:12928 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268888AbUHLXrP (ORCPT
+	Thu, 12 Aug 2004 19:50:02 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:46829 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268893AbUHLXtu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 19:47:15 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] allocate page caches pages in round robin fasion
-Date: Thu, 12 Aug 2004 16:46:50 -0700
-User-Agent: KMail/1.6.2
-Cc: steiner@sgi.com
-MIME-Version: 1.0
+	Thu, 12 Aug 2004 19:49:50 -0400
+Date: Fri, 13 Aug 2004 01:51:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+Message-ID: <20040812235116.GA27838@elte.hu>
+References: <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_qFAHB0vSwnhkh0f"
-Message-Id: <200408121646.50740.jbarnes@engr.sgi.com>
+In-Reply-To: <20040810132654.GA28915@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-1.524, required 5.9,
+	autolearn=not spam, BAYES_01 -1.52
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_qFAHB0vSwnhkh0f
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+i've uploaded the latest version of the voluntary-preempt patch:
+     
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc4-O6
 
-[ugg, attach the patch this time]
+during the past couple of weeks there has been a steady trend towards
+rarer and harder to analyze latencies.
 
-On a NUMA machine, page cache pages should be spread out across the system 
-since they're generally global in nature and can eat up whole nodes worth of 
-memory otherwise.  This can end up hurting performance since jobs will have 
-to make off node references for much or all of their non-file data.
+The preempt-timing patch was a nice starting point but it only prints
+limited info about the beginning and the end of a critical section -
+often leaving us in the dark about what happened within the critical
+section. Often the trace only contains generic entry/exit points like
+e.g. do_poll() which are not very helpful in determining the precise
+reason for the latency.
 
-The patch works by adding an alloc_page_round_robin routine that simply 
-allocates on successive nodes each time its called, based on the value of a 
-per-cpu variable modulo the number of nodes.  The variable is per-cpu to 
-avoid cacheline contention when many cpus try to do page cache allocations at 
-once.
+so in -O6 i've implemented a 'latency tracer', which automatically
+records all kernel functions called during a maximum-latency incident.
+This typically means thousands of functions per critical section. I've
+combined this tracer with the preempt-timing approach to produce a
+pretty powerful tool to find & squash latencies.
 
-After dd if=/dev/zero of=/tmp/bigfile bs=1G count=2 on a stock kernel:
-Node 7 MemUsed:         49248 kB
-Node 6 MemUsed:         42176 kB
-Node 5 MemUsed:        316880 kB
-Node 4 MemUsed:         36160 kB
-Node 3 MemUsed:         45152 kB
-Node 2 MemUsed:         50000 kB
-Node 1 MemUsed:         68704 kB
-Node 0 MemUsed:       2426256 kB
+there's a new /proc/latency_trace file that holds the current latency
+trace (belonging to the previous high-latency event). It has a format
+that is intended to make it as easy as possible for kernel developers to
+fix any particular latency source. Audio developers and users can
+generate such traces and send them along to kernel developers as text
+files.
 
-and after the patch:
-Node 7 MemUsed:        328608 kB
-Node 6 MemUsed:        319424 kB
-Node 5 MemUsed:        318608 kB
-Node 4 MemUsed:        321600 kB
-Node 3 MemUsed:        319648 kB
-Node 2 MemUsed:        327504 kB
-Node 1 MemUsed:        389504 kB
-Node 0 MemUsed:        744752 kB
+Sample use of the latency tracer:
 
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+E.g. the following incident:
 
-Thanks,
-Jesse
+ (default.hotplug/1470): 121 us critical section violates 100 us threshold.
+  => started at: <kmap_high+0x2b/0x2d0>
+  => ended at:   <kmap_high+0x1a9/0x2d0>
+  [<c0105a23>] dump_stack+0x23/0x30
+  [<c0140d14>] check_preempt_timing+0x184/0x1e0
+  [<c0140e84>] sub_preempt_count+0x54/0x5d
+  [<c0152959>] kmap_high+0x1a9/0x2d0
+  [<c017655a>] copy_strings+0xea/0x230
+  [<c01766db>] copy_strings_kernel+0x3b/0x50
+  [<c017840d>] do_execve+0x12d/0x1f0
+  [<c0103284>] sys_execve+0x44/0x80
+  [<c0104b95>] sysenter_past_esp+0x52/0x71
 
---Boundary-00=_qFAHB0vSwnhkh0f
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="page-cache-round-robin-3.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="page-cache-round-robin-3.patch"
+this doesnt tell us too much about why it took 121 usecs to get from one
+end of kmap_high() to the other end of kmap_high(). Looking at
+/proc/latency_trace tells us the full story:
 
-===== include/linux/gfp.h 1.18 vs edited =====
---- 1.18/include/linux/gfp.h	2004-05-22 14:56:25 -07:00
-+++ edited/include/linux/gfp.h	2004-08-12 16:27:01 -07:00
-@@ -86,6 +86,8 @@
- 		NODE_DATA(nid)->node_zonelists + (gfp_mask & GFP_ZONEMASK));
- }
- 
-+extern struct page *alloc_page_round_robin(unsigned int gfp_mask);
-+
- #ifdef CONFIG_NUMA
- extern struct page *alloc_pages_current(unsigned gfp_mask, unsigned order);
- 
-===== include/linux/pagemap.h 1.43 vs edited =====
---- 1.43/include/linux/pagemap.h	2004-06-24 01:55:57 -07:00
-+++ edited/include/linux/pagemap.h	2004-08-12 14:37:36 -07:00
-@@ -52,12 +52,12 @@
- 
- static inline struct page *page_cache_alloc(struct address_space *x)
- {
--	return alloc_pages(mapping_gfp_mask(x), 0);
-+	return alloc_page_round_robin(mapping_gfp_mask(x));
- }
- 
- static inline struct page *page_cache_alloc_cold(struct address_space *x)
- {
--	return alloc_pages(mapping_gfp_mask(x)|__GFP_COLD, 0);
-+	return alloc_page_round_robin(mapping_gfp_mask(x)|__GFP_COLD);
- }
- 
- typedef int filler_t(void *, struct page *);
-===== mm/page_alloc.c 1.224 vs edited =====
---- 1.224/mm/page_alloc.c	2004-08-07 23:43:41 -07:00
-+++ edited/mm/page_alloc.c	2004-08-12 16:27:43 -07:00
-@@ -31,6 +31,7 @@
- #include <linux/topology.h>
- #include <linux/sysctl.h>
- #include <linux/cpu.h>
-+#include <linux/percpu.h>
- 
- #include <asm/tlbflush.h>
- 
-@@ -41,6 +42,7 @@
- long nr_swap_pages;
- int numnodes = 1;
- int sysctl_lower_zone_protection = 0;
-+static DEFINE_PER_CPU(int, next_rr_node);
- 
- EXPORT_SYMBOL(totalram_pages);
- EXPORT_SYMBOL(nr_swap_pages);
-@@ -577,6 +579,23 @@
- 	}
- 	return page;
- }
-+
-+/**
-+ * alloc_page_round_robin - distribute pages across nodes
-+ * @gfp_mask: GFP_* flags
-+ *
-+ * alloc_page_round_robin() will simply allocate from a different node
-+ * than was allocated from in the last call using the next_rr_node variable.
-+ * We use __get_cpu_var since we don't care about disabling preemption (we're
-+ * using a mod function so nid will always be less than numnodes).  A per-cpu
-+ * variable will make round robin allocations scale a bit better.
-+ */
-+struct page *alloc_page_round_robin(unsigned int gfp_mask)
-+{
-+	return alloc_pages_node(__get_cpu_var(next_rr_node)++ % numnodes,
-+				gfp_mask, 0);
-+}
-+
- 
- /*
-  * This is the 'heart' of the zoned buddy allocator.
+  preemption latency trace v1.0
+  -----------------------------
+   latency: 121 us, entries: 1032 (1032)
+   process: default.hotplug/1470, uid: 0
+   nice: -10, policy: 0, rt_priority: 0
+  =======>
+   0.000ms (+0.000ms): page_address (kmap_high)
+   0.000ms (+0.000ms): page_slot (page_address)
+   0.000ms (+0.000ms): flush_all_zero_pkmaps (kmap_high)
+   0.000ms (+0.000ms): set_page_address (flush_all_zero_pkmaps)
+  [...]
+   0.118ms (+0.000ms): page_slot (set_page_address)
+   0.118ms (+0.000ms): check_preempt_timing (sub_preempt_count)
 
---Boundary-00=_qFAHB0vSwnhkh0f--
+it's the rare but possible call to flush_all_zero_pkmaps() that
+generates this particular latency.
+
+as can be seen in the above the example, the trace contains a header
+portion and a trace line for every kernel function called. Only function
+entries are recorded (not function returns) so i've added the parent
+function to the trace too, for easier identification of the call
+sequence.
+
+there's a MAX_TRACE define in kernel/latency.c - set to 4000 currently -
+this is the maximum number of function calls traced per critical
+section. Feel free to increase/decrease this. The header portion shows
+the true number of functions called in a critical section, e.g.:
+
+   latency: 1531 us, entries: 4000 (16098)
+
+tells us that there were 16098 trace entries but only the first 4000
+were recorded.
+
+-O6 also adds another timing option besides preempt_thresh: if
+preempt_thresh is set to 0 then the tracer will automatically track the
+largest-previous latency. (i.e. the system does a search for the
+absolute maximum latency.) The /proc/sys/kernel/preempt_max_latency 
+control can be used to reset this value to conduct a new search for a 
+new workload, without having to reboot the system.
+
+-O6 also does some SMP improvements: the IRQ threads now listen to the
+/proc/irq/*/smp_affinity mask and bind themselves to the configured CPU. 
+This means that e.g. the irqbalance daemon will work as expected.
+
+-O6 also fixes and cleans up a number of other aspects of the
+preempt-timing mechanism.
+
+the latency tracer can be turned on/off via CONFIG_LATENCY_TRACE at
+compile time. An active tracer means considerable runtime overhead. 
+Especially code that does alot of small function calls will see a
+performance hit. I'm seeing a ~10% overhead on a 2GHz system, but YMMV. 
+
+reports, suggestions welcome,
+
+	Ingo

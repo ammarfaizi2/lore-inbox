@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263150AbTEBUiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 16:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263156AbTEBUiJ
+	id S263124AbTEBVMl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 17:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263127AbTEBVMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 16:38:09 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:39626 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S263150AbTEBUiI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 16:38:08 -0400
-Subject: Re: 2.5.68-mm4
-From: Steven Cole <elenstev@mesatop.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20030502133405.57207c48.akpm@digeo.com>
-References: <20030502020149.1ec3e54f.akpm@digeo.com>
-	 <1051905879.2166.34.camel@spc9.esa.lanl.gov>
-	 <20030502133405.57207c48.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1051908541.2166.40.camel@spc9.esa.lanl.gov>
+	Fri, 2 May 2003 17:12:41 -0400
+Received: from ns.suse.de ([213.95.15.193]:51210 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263124AbTEBVMk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 17:12:40 -0400
+Date: Fri, 2 May 2003 23:25:05 +0200
+From: Andi Kleen <ak@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature
+Message-ID: <20030502212505.GD21239@oldwotan.suse.de>
+References: <Pine.LNX.4.44.0305021325130.6565-100000@devserv.devel.redhat.com.suse.lists.linux.kernel> <200305021829.h42ITclA000178@81-2-122-30.bradfords.org.uk.suse.lists.linux.kernel> <b8udjm$cgq$1@cesium.transmeta.com.suse.lists.linux.kernel> <p73n0i5138g.fsf@oldwotan.suse.de> <3EB2DB8C.70600@zytor.com> <20030502210758.GB21239@oldwotan.suse.de> <3EB2DEA2.6070002@zytor.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 02 May 2003 14:49:02 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EB2DEA2.6070002@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-02 at 14:34, Andrew Morton wrote:
-> Steven Cole <elenstev@mesatop.com> wrote:
+On Fri, May 02, 2003 at 02:09:54PM -0700, H. Peter Anvin wrote:
+> Andi Kleen wrote:
+> >>
+> >>Why is that?  And, in particular, why is it "too late to turn it back
+> > 
+> > mprotect() didn't (and probably still does not) work when you change
+> > PROT_EXEC.
 > >
-> > For what it's worth, kexec has worked for me on the following
-> > two systems.
-> > ...
-> > 00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
 > 
-> Are you using eepro100 or e100?  I found that e100 failed to bring up the
-> interface on restart ("failed selftest"), but eepro100 was OK.
+> Kernel bug or CPU bug?
 
-CONFIG_EEPRO100=y
-# CONFIG_EEPRO100_PIO is not set
-# CONFIG_E100 is not set
+Kernel bug probably. Need to debug it sometime, but there were more important
+things to do. Of course patches would be welcome if anybody is motivated ;)
 
-I can test E100 again to verify if that would help.
-
-Also, I found that if I mistyped the argument to do-kexec.sh, the
-system would stay up, but the interface would get hosed, fixable with
-/etc/rc.d/init.d/network restart.
-
-Otherwise, kexec works fine here so far over about a dozen reboots on
-both machines.
-
-Steven
-
+-Andi

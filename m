@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263840AbTLJSW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 13:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbTLJSW1
+	id S263812AbTLJSQz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 13:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbTLJSQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 13:22:27 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:33291
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263840AbTLJSWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 13:22:20 -0500
-Date: Wed, 10 Dec 2003 10:16:37 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-       Kendall Bennett <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <Pine.LNX.4.58.0312100714390.29676@home.osdl.org>
-Message-ID: <Pine.LNX.4.10.10312101011530.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	Wed, 10 Dec 2003 13:16:55 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:23180 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263812AbTLJSQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 13:16:53 -0500
+Date: Wed, 10 Dec 2003 18:08:49 +0000
+From: Dave Jones <davej@redhat.com>
+To: Chris Petersen <Chris.Petersen@synopsys.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FIXED (was Re: PROBLEM:  Blk Dev Cache causing kswapd thrashing)
+Message-ID: <20031210180849.GA13303@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Chris Petersen <Chris.Petersen@synopsys.com>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0311271649520.21568-100000@logos.cnet> <3FD75B8A.21FA59D9@synopsys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FD75B8A.21FA59D9@synopsys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 10, 2003 at 12:44:42PM -0500, Chris Petersen wrote:
 
-Linus,
+ > It appears the block-device-cache/kswapd problem is indeed fixed in
+ > 2.4.23 (yay!).
+ > 
+ > To confuse matters RedHat has released an RPM with 2.4.20-24.7 which
+ > apparently contains later patches that include the fix.
 
-Thanks for the clarification !
+2.4.20-24.7 contains two patches. Both security issues. (do_brk
+and an nptl local DoS), nothing else (vs previous 2.4.20-20.7)
+ 
+ > This can be
+ > confusing because their 2.4.21-4EL kernel is busted (WRT this bug)
 
-So as I suspected and validated via other means, the content of the
-headers are not an issue as it relates to GPL as many claim.
+That kernel bears no relation whatsoever to 2.4.20-24.7
+It's for a completely different product for one thing, with
+very little in common between them (in terms of patches we add).
 
-Well I have gotten side requests that I was late in joining the thread
-party and I am distracting you from patch merging.  This is a fair point,
-and we can restart after 2.6.0 is out.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Wed, 10 Dec 2003, Linus Torvalds wrote:
-
-> 
-> 
-> On Wed, 10 Dec 2003, Andre Hedrick wrote:
-> >
-> > So why not do the removal of the inlines to real .c files and quit playing
-> > games with bogus attempts to bleed taint into the inprotectable api?
-> 
-> The inlines have nothing to do with _anything_.
-> 
-> Trust me, a federal judge couldn't care less about some very esoteric
-> technical detail. I don't know who brought up inline functions, but they
-> aren't what would force the GPL.
-> 
-> What has meaning for "derived work" is whether it stands on its own or
-> not, and how tightly integrated it is. If something works with just one
-> particular version of the kernel - or depends on things like whether the
-> kernel was compiled with certain options etc - then it pretty clearly is
-> very tightly integrated.
-> 
-> Don't think that copyright would depend on any technicalities.
-> 
-> 		Linus
-> 
+		Dave
 

@@ -1,88 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267593AbUHJQ5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267587AbUHJQ5f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267593AbUHJQ5j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 12:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267605AbUHJQy6
+	id S267587AbUHJQ5f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 12:57:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267612AbUHJQzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 12:54:58 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:53891 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S267588AbUHJQwM (ORCPT
+	Tue, 10 Aug 2004 12:55:32 -0400
+Received: from resin.csoft.net ([63.111.22.86]:6725 "HELO mail231.csoft.net")
+	by vger.kernel.org with SMTP id S267591AbUHJQwi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 12:52:12 -0400
-Date: Tue, 10 Aug 2004 18:52:08 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: schilling@fokus.fraunhofer.de, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
-       diablod3@gmail.com, dwmw2@infradead.org, eric@lammerts.org,
-       james.bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040810165208.GE1127@lug-owl.de>
-Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
-	schilling@fokus.fraunhofer.de, alan@lxorguk.ukuu.org.uk,
-	axboe@suse.de, diablod3@gmail.com, dwmw2@infradead.org,
-	eric@lammerts.org, james.bottomley@steeleye.com,
-	linux-kernel@vger.kernel.org
-References: <200408101427.i7AERDld014134@burner.fokus.fraunhofer.de> <20040810164947.7f363529.skraw@ithnet.com> <20040810152458.GA1127@lug-owl.de> <20040810174814.414c8fdd.skraw@ithnet.com> <20040810161056.GB1127@lug-owl.de> <20040810184718.769c046f.skraw@ithnet.com>
+	Tue, 10 Aug 2004 12:52:38 -0400
+Subject: 2.4.27-lck1
+From: Eric Hustvedt <lkml@plumlocosoft.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tkHn2aI1syvJxFTXynwv"
+Message-Id: <1092156238.4082.26.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h56sxpGKRmy85csR"
-Content-Disposition: inline
-In-Reply-To: <20040810184718.769c046f.skraw@ithnet.com>
-X-Operating-System: Linux mail 2.6.8-rc4 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 12:44:49 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---h56sxpGKRmy85csR
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+--=-tkHn2aI1syvJxFTXynwv
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2004-08-10 18:47:18 +0200, Stephan von Krawczynski <skraw@ithnet.co=
-m>
-wrote in message <20040810184718.769c046f.skraw@ithnet.com>:
-> On Tue, 10 Aug 2004 18:10:57 +0200
-> Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
->=20
-> > Actually, I use Debian since, um, long ago:)  But accept that J=F6rg
-> > doesn't really like to care about f*cked up patched versions of
-> > cdrecord.
->=20
-> He does not need to. Nobody told him to do.
+Updated the lck patchset. This is the patchset formerly known as the
+2.4-ck patchset.
 
-Net being legally or by contract *in charge* to do some supportative
-work doesn't mean to be asked to do that or to be expected to do that.
+http://www.plumlocosoft.com/kernel/
 
-However, I for one *expect* people to help out if they can. ...and J=F6rg
-is probably one of those who actually *know* all those shiny toasters
-better than most of us.
+Includes:
+O(1) scheduler with batch scheduling, interactivity
+Preemptible kernel
+Low Latency
+Read Latency2
+Variable Hz
+64-bit jiffies
+Supermount-NG v1.2.11a
+Bootsplash v3.0.7
+POSIX ACL/xattr v0.8.71
+POSIX extended security attributes v0.8.71
+NTFS file system v2.1.6b
 
-MfG, JBG (who'll now continue to find the sense data from NCR5380.c ...)
+Updated:
+- NTFS updated to latest version.
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
-  O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+Pending:
+- GRsec update to version 2.0.1.
+- PPC fixes for the O(1) scheduler and variable hertz.
 
---h56sxpGKRmy85csR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+-Eric
+
+--=-tkHn2aI1syvJxFTXynwv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFBGP04Hb1edYOZ4bsRAjzKAJ0Y5pNH0ub1bDEdh1nhP0Zvi4u15wCdEh/q
-ppQ8Nhtrh9IzQMqCbowH1pA=
-=4rYU
+iD4DBQBBGPtO8O0ZDXGTPEIRAo2mAJwKy3YTLifvg94yqNvXWffYdSfuiwCYjA38
+AnBwvXK/sUAICGWPuVTjEw==
+=UU2B
 -----END PGP SIGNATURE-----
 
---h56sxpGKRmy85csR--
+--=-tkHn2aI1syvJxFTXynwv--
+

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbQLBEyI>; Fri, 1 Dec 2000 23:54:08 -0500
+	id <S129464AbQLBF0y>; Sat, 2 Dec 2000 00:26:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129464AbQLBEx6>; Fri, 1 Dec 2000 23:53:58 -0500
-Received: from rocko.intermag.com ([216.218.196.2]:528 "EHLO
-	rocko.intermag.com") by vger.kernel.org with ESMTP
-	id <S129415AbQLBExw>; Fri, 1 Dec 2000 23:53:52 -0500
-Date: Fri, 1 Dec 2000 20:18:46 -0800
-From: Jamie Manley <jamie@homebrewcomputing.com>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre24 and drm/agpgart static?
-Message-ID: <20001201201846.B13358@homebrewcomputing.com>
-In-Reply-To: <20001129203752.A15218@homebrewcomputing.com> <Pine.LNX.4.21.0012011450270.1317-100000@mrworry.compsoc.man.ac.uk> <20001201175153.B11780@homebrewcomputing.com> <20001201212222.D25464@wire.cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001201212222.D25464@wire.cadcamlab.org>; from peter@cadcamlab.org on Fri, Dec 01, 2000 at 09:22:22PM -0600
+	id <S129476AbQLBF0o>; Sat, 2 Dec 2000 00:26:44 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13071 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129464AbQLBF0j>; Sat, 2 Dec 2000 00:26:39 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Transmeta and Linux-2.4.0-test12-pre3
+Date: 1 Dec 2000 20:55:56 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <909vcs$3oo$1@cesium.transmeta.com>
+In-Reply-To: <200012020409.UAA04058@adam.yggdrasil.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2000 at 09:22:22PM -0600, Peter Samuelson wrote:
+Followup to:  <200012020409.UAA04058@adam.yggdrasil.com>
+By author:    "Adam J. Richter" <adam@yggdrasil.com>
+In newsgroup: linux.dev.kernel
 > 
-> [Jamie Manley]
-> > Yes, modversions was enabled.  Should that be affecting the build of
-> > the kernel proper?
+> 	Well, alas, it appears that linux-2.4.0-test12-pre3 freezes hard
+> while reading the base address registers of the first PCI device
+> (the "host bridge").  Actually, I think the problem is some kind of
+> system management interrupt occuring at about this time, since the
+> exact point where the printk's stop gets earlier as I add more
+> printk's.  With few printk's the printk's stop while the 6th base
+> address configuration register is being read; with more printk's it
+> stops at the second one, and it will stop in different places with
+> different boots, at least with the not-quite-stock kernels that I usually
+> use.  Also, turning off interrupts during this code has no effect, so
+> I do not think it is directly caused by the something in the PictureBook
+> pepperring the processor with unexpected interrupts (I thought it might have
+> to do with the USB-based floppy disk).
 > 
-> The bug you ran into is that MODVERSIONS messes up the
-> 'get_module_symbol' function, which is a sort of "optional dependency"
-> mechanism used by a few modules such as DRI (in this case: DRI needs to
-> be able to use the facilities of agpgart, but should also work
-> *without* agpgart present, since many systems have PCI video cards).
 
-Of course, PCI and DRI shouldn't be mutually exclusive.  Glad to hear
-it's being worked on.
+It's a slight bug in the Linux PCI probing code that triggers when
+there is ongoing DMA activity during PCI probing.  Linus already have
+a fix for it; I expect that it will be in the next prepatch.
 
-> 
-> MODVERSIONS is ugly and gross for any number of reasons, but the
-> get_module_symbol problem is quite localized -- AGP/DRI, MTD and maybe
-> one or two other subsystems.  In any case it has been replaced by a
-> much better inter-module registration system in 2.4.
-> 
-> Peter
-
-I guess that means I should start testing 2.4.0test* on this machine
-:)  Thanks for the background.
-
-Jamie
-
+	-hpa
 -- 
-Jamie					        http://www.intermag.com
-And I said, "This must be the place." -- Laurie Anderson, "Big Science"
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

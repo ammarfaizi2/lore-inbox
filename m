@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278794AbRJVN3x>; Mon, 22 Oct 2001 09:29:53 -0400
+	id <S278800AbRJVNeD>; Mon, 22 Oct 2001 09:34:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278797AbRJVN3n>; Mon, 22 Oct 2001 09:29:43 -0400
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:19379 "EHLO
-	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S278794AbRJVN3d>; Mon, 22 Oct 2001 09:29:33 -0400
-Date: Mon, 22 Oct 2001 08:29:35 -0500 (EST)
-Message-Id: <20011022.082935.74750744.wscott@bitmover.com>
-To: viro@math.psu.edu
-Cc: cr@sap.com, lm@bitmover.com, janfrode@parallab.uib.no,
-        linux-kernel@vger.kernel.org
-Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
-From: Wayne Scott <wscott@bitmover.com>
-In-Reply-To: <Pine.GSO.4.21.0110220556150.2294-100000@weyl.math.psu.edu>
-In-Reply-To: <m3pu7gggbf.fsf@linux.local>
-	<Pine.GSO.4.21.0110220556150.2294-100000@weyl.math.psu.edu>
-X-Mailer: Mew version 2.0.60 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S278798AbRJVNdx>; Mon, 22 Oct 2001 09:33:53 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:21005 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S278803AbRJVNdj>; Mon, 22 Oct 2001 09:33:39 -0400
+Message-Id: <200110221333.f9MDXuTM026249@pincoya.inf.utfsm.cl>
+To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10 
+In-Reply-To: Message from bert hubert <ahu@ds9a.nl> 
+   of "Mon, 22 Oct 2001 14:25:05 +0200." <20011022142505.B15501@outpost.ds9a.nl> 
+Date: Mon, 22 Oct 2001 10:33:55 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Alexander Viro <viro@math.psu.edu>
-> > tmpfs does not know anything about directory handling. It uses
-> > generic_read_dir and dcache_readdir. So this must be a bug in the vfs
-> > layer. Al, what do you say?
-> 
-> If you are changing directory between the calls of getdents(2) - you have
-> no warranty that offsets will stay stable.  It's not just Linux.
-> 
-> Frankly, I don't see what could be done, short of doing qsort() by inumber
-> or something equivalent...
+bert hubert <ahu@ds9a.nl> said:
+> On Mon, Oct 22, 2001 at 01:30:00PM +0100, Alan Cox wrote:
+> > > This would then presumably lead to password protected access for US kernel
+> > > developers that need to know? And some kind of NDA?
+> > 
+> > US kernel developers cannot be told. Period.
+> (...)
+> > Its based directly on legal opinion.
 
-So if I am adding files while reading the directory the directory
-structure gets rewritten and I might return files more than once?
-What happens if files are being deleted?  Can files be skipped?!?
+> Then I suggest we leave this planet.
 
-Any reason we have never seen this on ext2 on other filesystems on 10+
-versions of UNIX?  BitKeeper is pretty paranoid and includes a lot of
-sanity checks.
-
-Does this only happen when the subdirectory I am reading changes, or
-on tmpfs will changing any directory cause this?
-
-I am looking at coding a workaround, but I need to know how bad the
-problem can be.
-
--Wayne
+I'd expected an "all the world is USA" delusion from an US citizen, not
+from somebody in .nl...
+-- 
+Dr. Horst H. von Brand                Usuario #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264643AbRFYPmY>; Mon, 25 Jun 2001 11:42:24 -0400
+	id <S264640AbRFYPpE>; Mon, 25 Jun 2001 11:45:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264642AbRFYPmO>; Mon, 25 Jun 2001 11:42:14 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:39695 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S264640AbRFYPl7>;
-	Mon, 25 Jun 2001 11:41:59 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: klink@clouddancer.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5-ac12 kernel oops 
-In-Reply-To: Your message of "Mon, 25 Jun 2001 08:15:49 MST."
-             <20010625151549.7ED6F784D9@mail.clouddancer.com> 
-Mime-Version: 1.0
+	id <S264650AbRFYPoo>; Mon, 25 Jun 2001 11:44:44 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:36356 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S264640AbRFYPoc>;
+	Mon, 25 Jun 2001 11:44:32 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: Pete Wyckoff <pw@osc.edu>, nick@snowman.net, Kip Macy <kmacy@netapp.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 3com Driver and the 3XP Processor
+In-Reply-To: <15145.11935.992736.767777@pizda.ninka.net> <Pine.LNX.4.21.0106141739140.16013-100000@ns> <15145.12192.199302.981306@pizda.ninka.net> <20010615111213.C2245@osc.edu> <15146.11179.315190.615024@pizda.ninka.net>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 25 Jun 2001 17:42:59 +0200
+In-Reply-To: "David S. Miller"'s message of "Fri, 15 Jun 2001 08:37:15 -0700 (PDT)"
+Message-ID: <d366dkefb0.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 26 Jun 2001 01:41:52 +1000
-Message-ID: <32526.993483712@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jun 2001 08:15:49 -0700 (PDT), 
-klink@clouddancer.com (Colonel) wrote:
->ksymoops 2.4.1 on i686 2.4.5-ac12.  Options used
->Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base says c01aad00, System.map says c014cba0.  Ignoring ksyms_base entry
->Why the symbol mismatch?
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
-The mismatch is caused by two variables called partition_name.  What
-does 'nm vmlinux | grep partition_name' show?  Probably one
-partition_name at c01aad00 and another at c014cba0.  Both
-fs/partitions/msdos.c and drivers/md/md.c define that symbol, md
-exports its version.  A good reason why exported symbols should have
-unique names.
+David> Pete Wyckoff writes:
+>> We're currently working on using both processors of the Tigon in
+>> parallel.
 
->Why ignore /proc over the System.map?
+David> It is my understanding that on the Tigon2, the second processor
+David> is only for working around hw bugs in the DMA controller of the
+David> board and cannot be used for other tasks.
 
-ksymoops has a hierarchy of trust.  System.map is more trustworthy than
-/proc/ksyms because ksyms changes, especially if you rebooted after the
-oops and before running ksymoops.
+Actually it was intended to be used for other stuff but they ended up
+having to use it for workarounds.
 
+Jes

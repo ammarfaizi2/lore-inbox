@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129667AbRBPLYo>; Fri, 16 Feb 2001 06:24:44 -0500
+	id <S129243AbRBPLkr>; Fri, 16 Feb 2001 06:40:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129243AbRBPLYe>; Fri, 16 Feb 2001 06:24:34 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:25828 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129942AbRBPLYT>;
-	Fri, 16 Feb 2001 06:24:19 -0500
-Date: Fri, 16 Feb 2001 11:19:21 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-cc: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 8139 full duplex?
-In-Reply-To: <200102161003.LAA02713@cave.bitwizard.nl>
-Message-ID: <Pine.SOL.4.21.0102161117080.3048-100000@orange.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129309AbRBPLk2>; Fri, 16 Feb 2001 06:40:28 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:64357 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S129243AbRBPLkV>; Fri, 16 Feb 2001 06:40:21 -0500
+Date: Fri, 16 Feb 2001 13:40:11 +0200
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: Doug Ledford <dledford@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Aic7xxx troubles with 2.4.1ac6
+Message-ID: <20010216134011.C5199@niksula.cs.hut.fi>
+In-Reply-To: <20010208135606.F2223@viasys.com> <3A8296E3.FC1EE707@redhat.com> <20010208181601.H2223@viasys.com> <20010215125735.C1147@niksula.cs.hut.fi> <3A8BB89C.581BC524@redhat.com> <20010215132231.F1040@niksula.cs.hut.fi> <20010215141155.D1147@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010215141155.D1147@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Thu, Feb 15, 2001 at 02:11:55PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Feb 2001, Rogier Wolff wrote:
-> Jeff Garzik wrote:
-> > On Fri, 16 Feb 2001, Rogier Wolff wrote:
-> > > I have a bunch of computers with 8139 cards. When I moved the cables
-> > > over from my hub to my new switch all the "full duplex" lights came on
-> > > immediately.
+On Thu, Feb 15, 2001 at 02:11:55PM +0200, you [Ville Herva] claimed:
+> On Thu, Feb 15, 2001 at 01:22:31PM +0200, you [Ville Herva] claimed:
+> > On Thu, Feb 15, 2001 at 06:08:12AM -0500, you [Doug Ledford] claimed:
 > > > 
-> > > Would this mean that the driver/card already were in full-duplex? That
-> > > would explain me seeing way too many collisions on that old hub (which
-> > > obviously doesn't support full-duplex).
-> > > 
-> > > (Some machines run 2.2 kernels, others run 2.4 kernels some run the
-> > > old driver, others run the 8139too driver). 
+> > > There was a new aic7xxx driver (version 5.2.3) that went into the 2.4.1ac
+> > > kernel series around 2.4.1-ac7.  I would be curious to know if it worked on
+> > > your machine properly.
 > > 
-> > Some versions of the driver bork the LED register, which may lead to
-> > false assumptions.
+> > Ok. Will try. 
 > 
-> Does the driver control the led on my switch?????
+> Tried 2.4.1ac13 vanilla. Still a no-go:
 
-No, the switch does that.
+Hmm. I think we finally found a fully functional cable.
 
-> (My cards just have a "link" led, and a "100Mbps" led)
-
-Ah... Mine have an FD indicator. I think - it's a while since I last
-looked closely enough at the back of the machine to tell :)
-
-> I'm not going back to the hub after upgrading just to see the
-> changeover messages. I'm confident that we're running full-duplex now
-> on the switch and that that's OK with the switch. I was just wondering
-> wether this confirmed my suspicion that there was something wrong with
-> the /duplexicity/. 
-
-I suppose one machine could have auto-negotiated wrongly - was it a Linux
-box? I've seen Win2k fail to negotiate the best settings - running HD on a
-switch - but I haven't seen FD on a hub...
+2.4.1.ac13 vanilla now seems to work flawlessly, even at 160MB/s. Pretty
+weird, though, that 2.4.1ac13+Gibbs's aic7xxx worked even with the previous
+cable.
 
 
-James.
+-- v --
 
+v@iki.fi

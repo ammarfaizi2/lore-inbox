@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbUDNOVP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 10:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUDNOVP
+	id S264251AbUDNOXr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 10:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbUDNOXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 10:21:15 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:58029 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S261322AbUDNOVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 10:21:14 -0400
-X-Sasl-enc: db9R3Pd3ttkjJazvZXm4uw 1081952362
-Message-ID: <407D4869.3010303@fastmail.fm>
-Date: Wed, 14 Apr 2004 16:19:21 +0200
-From: Igor Bukanov <igor@fastmail.fm>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
-X-Accept-Language: en-us, en
+	Wed, 14 Apr 2004 10:23:47 -0400
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:54483 "EHLO
+	openlab.rtlab.org") by vger.kernel.org with ESMTP id S264251AbUDNOXq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 10:23:46 -0400
+Date: Wed, 14 Apr 2004 10:23:45 -0400 (EDT)
+From: "Calin A. Culianu" <calin@ajvar.org>
+X-X-Sender: <calin@rtlab.med.cornell.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Shielded CPUs
+Message-ID: <Pine.LNX.4.33L2.0404141013330.20579-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: drivers/usb/emi26_fw.h has a non-free license
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ This was originally reported at 
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=242895 ]
 
-Date: Fri, 9 Apr 2004 15:50:11 +0200
-From: Bill Allombert
-...
+This might be a bit off-topic (and might belong in the rtlinux mailing
+list), but I wanted people's opinion on LKML...
+
+There's an article in the May 2004 Linux Journal about some CPU affinity
+features in Redhawk Linux that allow a process and a set of interrupts to
+be locked to a particular CPU for the purposes of improving real-time
+performance.  This technique is dubbed CPU Shielding
+(http://www.ccur.com/isddocs/wp-shielded-cpu.pdf) and the claim is made
+that a user program that is thus configured (with the appropriately
+patched kernel, of course) can acheive deterministic (hard) real-time
+performance.  The author claimed you can get (bounded) interrupt response
+time in the 100s of microseconds, and he alluded to the fact that
+scheduling jitter also is reduced and bounded with a hard limit.
+
+Does this make any sense to anyone here?
+
+Specifically, what about, among other things, priority inversion?
+
+Presumably your high priority task is always undergoing some small amount
+of priority inversion if it touches a spinlock.  Worse yet, if your
+process ever has to touch anything in the Linux kernel that needs to sleep
+(such as, say, memory being swapped from disk) then your hard realtime
+program has just failed to be hard realtime.
+
+Does anyone know anything more about this?  Is this magic?!  The author of
+this paper certainly makes it seem like it is...
+
+Perplexedly yours,
+
+-Calin
 
 
-The file drivers/usb/emi26_fw.h carry the license below:
-/*
-  * This firmware is for the Emagic EMI 2|6 Audio Interface
-  *
-  * The firmware contained herein is Copyright (c) 1999-2002 Emagic
-  * as an unpublished work. This notice does not imply unrestricted
-  * or public access to this firmware which is a trade secret of Emagic,
-  * and which may not be reproduced, used, sold or transferred to
-  * any third party without Emagic's written consent. All Rights Reserved.
-  *
-  * This firmware may not be modified and may only be used with the
-  * Emagic EMI 2|6 Audio Interface. Distribution and/or Modification of
-  * any driver which includes this firmware, in whole or in part,
-  * requires the inclusion of this statement.
-  */
-
-Do we have Emagic's written consent to distribute it ?
-
-This file is #include'd in the drivers/usb/emi26.c GPL module by
-Tapio Laxström.
 

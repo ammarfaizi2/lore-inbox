@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVCKTka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbVCKTkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbVCKTka (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 14:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVCKTfh
+	id S261762AbVCKTkX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 14:40:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVCKTe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 14:35:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44952 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261557AbVCKTdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 14:33:47 -0500
-Message-ID: <4231F281.8060202@pobox.com>
-Date: Fri, 11 Mar 2005 14:33:21 -0500
+	Fri, 11 Mar 2005 14:34:57 -0500
+Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:43419 "EHLO
+	bastet.signetmail.com") by vger.kernel.org with ESMTP
+	id S261344AbVCKTcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 14:32:24 -0500
+Date: Fri, 11 Mar 2005 14:32:05 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>, linux-net@vger.kernel.org
-Subject: Re: Fix suspend/resume on via-velocity
-References: <20050311141132.GA1539@elf.ucw.cz>
-In-Reply-To: <20050311141132.GA1539@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Daniele Venzano <webvenza@libero.it>
+Cc: Chris Wright <chrisw@osdl.org>, stable@kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: [stable] [BK PATCHES] 2.6.x net driver oops fixes
+Message-ID: <20050311193205.GA23140@havoc.gtf.org>
+References: <422F59E8.2090707@pobox.com> <20050310202548.GV5389@shell0.pdx.osdl.net> <4230AE24.602@pobox.com> <20050310213917.GW5389@shell0.pdx.osdl.net> <c37a8fd17af92b648c6474904e0003c0@libero.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c37a8fd17af92b648c6474904e0003c0@libero.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+On Fri, Mar 11, 2005 at 08:29:50PM +0100, Daniele Venzano wrote:
+> I have been acting maintainer for more than a year now, and I'm 
+> completely fine with the patch.
 > 
-> This fixes suspend-resume on via-velocity. It was confused
-> w.r.t. pointers... Please apply,
-> 
-> Signed-off-by: Pavel Machek <pavel@suse.cz>
-> 							Pavel
-> 
-> --- clean-mm/drivers/net/via-velocity.c	2005-03-11 11:25:36.000000000 +0100
-> +++ linux/drivers/net/via-velocity.c	2005-03-11 10:06:05.000000000 +0100
-> @@ -3212,7 +3212,8 @@
->  
->  static int velocity_suspend(struct pci_dev *pdev, pm_message_t state)
->  {
-> -	struct velocity_info *vptr = pci_get_drvdata(pdev);
-> +	struct net_device *dev = pci_get_drvdata(pdev);
-> +	struct velocity_info *vptr = dev->priv;
->  	unsigned long flags;
->  
->  	if(!netif_running(vptr->dev))
-> @@ -3245,7 +3246,8 @@
->  
->  static int velocity_resume(struct pci_dev *pdev)
->  {
-> -	struct velocity_info *vptr = pci_get_drvdata(pdev);
-> +	struct net_device *dev = pci_get_drvdata(pdev);
-> +	struct velocity_info *vptr = dev->priv;
+> A lot of time ago (2.6.6) I proposed a patch to update MAINTAINERS, but 
+> Jeff said he wanted to wait some time. I don't know if such change is 
+> now possible/wanted.
+> AFAIK Ollie's email address bounces.
 
-Please use netdev_priv() rather than 'dev->priv', to eliminate a 
-dereference.
+Feel free to send a patch to MAINTAINERS
 
 	Jeff
 

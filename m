@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbUFBMFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbUFBMES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbUFBMFK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 08:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUFBMEj
+	id S262060AbUFBMES (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 08:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUFBMCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 08:04:39 -0400
-Received: from users.linvision.com ([62.58.92.114]:43749 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262194AbUFBMEB (ORCPT
+	Wed, 2 Jun 2004 08:02:25 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:12675 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S262170AbUFBMBz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 08:04:01 -0400
-Date: Wed, 2 Jun 2004 14:03:59 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Hamish Whittal <hamish@QEDux.co.za>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Multiple CDR's on an IDE based system
-Message-ID: <20040602120359.GB22648@harddisk-recovery.com>
-References: <1086083663.925.114.camel@defender.QEDux.co.za>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Jun 2004 08:01:55 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Subject: Re: [PATCH] fix dependeces for CONFIG_USB_STORAGE
+Date: Wed, 2 Jun 2004 14:00:21 +0200
+User-Agent: KMail/1.6.2
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+References: <200406021116.35529.ornati@fastwebnet.it> <20040602104900.GB32474@infradead.org> <200406021352.14561.ornati@fastwebnet.it>
+In-Reply-To: <200406021352.14561.ornati@fastwebnet.it>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1086083663.925.114.camel@defender.QEDux.co.za>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406021400.21080.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 09:54:23AM +0000, Hamish Whittal wrote:
-> I have a machine that has 3 CDRW's in it. I have tried many different
-> configurations of these drives on various IDE controllers, but am still
-> having some problems.
+
+> > Huh, why?
 > 
-> I will try to sketch the scenario:
-> CDRW1 slave on controller with HDD
-> CDRW2 as master on second on-board IDE controller
-> CDRW3 as master on additional PCI IDE controller
+> This HELP (taken from linux/drivers/scsi/Kconfig) is quite explicit:
 > 
-> (I have also tried adding 2 PCI IDE controllers, and putting each CDRW
-> as master on each of these controllers, but I get the FIFO buffer
-> dropping to 0% very soon after starting a write).
+> config BLK_DEV_SD
+>         tristate "SCSI disk support"
+>         depends on SCSI
+>         ---help---
+>           If you want to use SCSI hard disks, Fibre Channel disks,
+>           USB storage or the SCSI or parallel port version of
+>           the IOMEGA ZIP drive, say Y and read the SCSI-HOWTO,
+>           the Disk-HOWTO and the Multi-Disk-HOWTO, available from
+>           <http://www.tldp.org/docs.html#howto>. This is NOT for SCSI
+>           CD-ROMs.
+> 
+> So if you want to use USB Mass Storage devices (that use SCSI emulation) you 
+> need also SCSI disk support (I have realized it when I've tried to mount 
+> one those USB devices, without success).
 
-What kind of PCI controller was that? I've seen that kind of behaviour
-with Promise IDE cards.
+The help text is misleading. You need SD to mount disks. There are other
+devices which are not disks. In fact there are USB<->SCSI bridges, so
+you could do everything SCSI can do, eg. attach an old scanner which needs
+only SG.
 
-> My machine is a Debian linux IDE based machine. The specs of the machine
-> are as follows:
-> CPU      : Intel(R) Pentium(R) 4 CPU 2.80GHz
-> 2 IDE controllers, single 120GB HDD.
-> Additional PCI IDE controller
-
-What are the *exact* specs: what kind of IDE controller, chipsets
-revisions, etc. See the file REPORTING-BUGS in your kernel source tree.
-
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+	Regards
+		Oliver

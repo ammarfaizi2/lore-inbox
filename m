@@ -1,67 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbTJ1Sk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 13:40:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTJ1Sk5
+	id S261411AbTJ1Sxe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 13:53:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbTJ1Sxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 13:40:57 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1798 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261240AbTJ1Skz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 13:40:55 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Blockbusting news, results end
-Date: 28 Oct 2003 18:30:43 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bnmckj$r90$1@gatekeeper.tmr.com>
-References: <785F348679A4D5119A0C009027DE33C105CDB3CA@mcoexc04.mlm.maxtor.com>
-X-Trace: gatekeeper.tmr.com 1067365843 27936 192.168.12.62 (28 Oct 2003 18:30:43 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 28 Oct 2003 13:53:34 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:3598 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S261411AbTJ1Sxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 13:53:32 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] input hotplug support
+Date: Tue, 28 Oct 2003 21:19:01 +0300
+User-Agent: KMail/1.5.3
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Rusty Russell <rusty@rustcorp.com.au>
+References: <200308020139.37446.arvidjaar@mail.ru> <200308021253.03005.arvidjaar@mail.ru> <20031013235623.GA12898@kroah.com>
+In-Reply-To: <20031013235623.GA12898@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310282119.01702.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <785F348679A4D5119A0C009027DE33C105CDB3CA@mcoexc04.mlm.maxtor.com>,
-Mudama, Eric <eric_mudama@Maxtor.com> wrote:
-| 
-| 
-| > -----Original Message-----
-| > From: Norman Diamond
+On Tuesday 14 October 2003 03:56, Greg KH wrote:
+> On Sat, Aug 02, 2003 at 12:53:02PM +0400, Andrey Borzenkov wrote:
+> > On Saturday 02 August 2003 03:57, Greg KH wrote:
+> > > On Sat, Aug 02, 2003 at 01:39:37AM +0400, Andrey Borzenkov wrote:
+> > > > this adds input agent and coldplug rc script. It relies on patch for
+> > > > module-init-tools that gnerates input handlers map table being posted
+> > > > to lkml as well.
+> > > >
+> > > > input agent loads input handler in respond to input subsystem
+> > > > request. It is currently purely table-driven, no attempt to provide
+> > > > for any static list or like was done, it needs some operational
+> > > > experience.
+> > > >
+> > > > static coldplug rc script is intended to load input handlers for any
+> > > > built-in input drivers, like e.g. psmouse (if you built it in).
+> > > > Currently it does it by parsing /proc/bus/input/devices, I'd like to
+> > > > use sysfs but apparently support for it in input susbsystem is
+> > > > incomplete at best.
+> > > >
+> > > > It also modifies usb.agent to not consult usb.handmap on 2.6, as it
+> > > > is not needed anymore.
+> > > >
+> > > > Patch is against 2003_05_01 version of hotplug. Comments appreciated.
+> > >
+> > > Can you send it not compressed so we have a chance to read it?
+> >
+> > sorry.
+> >
+> > plain text attached.
+>
+> Thanks, I've applied this patch.  Did your module-init-tools patch make
+> it into that package too?
+>
 
-| > It is really hard to imagine a physical sector still being 
-| > 512B because the inter-sector gaps would take some huge
-| > multiple of the space occupied by the sectors.
-| 
-| We measure these gaps in nanoseconds.  They're not that huge.  But yes,
-| moving to a larger standard sector size would get you a significantly larger
-| disk drive built from the same parts.
+No, Rusty was against it. You should have received those mails as well (you 
+were on Cc at least), subject was
 
-Given that we did that back in the CP/M days (late 70's) on floppy, and
-with MFM, RLL and finally SCSI drives in the 70's, I would hope that
-current drives use large sectors since the drive now has local cache
-and doesn't need a fancy driver to do the caching!
+"module-init-tools - input devices id support"
 
-| > I'm sure the physical sectors are not 512B.
-| 
-| I'm sure you're wrong.
-| 
-| I'd imagine that since Seagate and WD and Maxtor are constantly duking it
-| out to release the next generation of capacity, and we all wind up producing
-| nearly-identical products when all is said and done, that they're using 512B
-| data sectors also.
+If you do not have them I can forward or they are on lkml as well, sorry do 
+not have pointers handy.
 
-Given that the IRG is fixed size regardless of sector size, I certainly
-hope I misread what you say or you are incorrect. The difference
-between 512B and 4KB sectors should be about 20-40% added capacity per
-track (seven IRG sizes). I would expect large sectors would be
-standard.
+in short Rusty said the right thing is to use scripts/file2alias to generate 
+module aliases out of input device id tables. While I do not object in 
+principle, the reasons I did it the current way were
 
-We used to diddle interleave when formatting as well, until we put full
-track caching in the device driver.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+- it is consistent with how things are implemented currently and no one so far 
+told me it is going to change
+
+- I think it is more flexible. E.g. it provides for extra filtering 
+(blacklisting) if needed. Doing this requires most of the current code (in 
+some form) even in presence of aliases generated by file2alias
+
+- given size of input id tables it will generate aliases of size more than 1k 
+characters. Not that I really care but it is hardly readable.
+
+- file2alias works only at kernel compile time. Users are free to install 
+extra (binary) modules at any time and expect them to still be recognized.
+
+I really think that keeping module-init-tools in sync with kernel is not much 
+more difficult than keeping file2alias in sync with kernel. Whoever neglects 
+update the former may just as well neglect to update the latter. And so far 
+this was the main argument of Rusty IIRC.
+
+cheers
+	and sorry for delay too
+
+-andrey
+

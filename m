@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265644AbUFIOh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUFIOj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265644AbUFIOh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 10:37:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265796AbUFIOhz
+	id S265795AbUFIOj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 10:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUFIOj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 10:37:55 -0400
-Received: from mail.dif.dk ([193.138.115.101]:36309 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S265644AbUFIOhw (ORCPT
+	Wed, 9 Jun 2004 10:39:28 -0400
+Received: from box.punkt.pl ([217.8.180.66]:2573 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S265796AbUFIOjU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 10:37:52 -0400
-Date: Wed, 9 Jun 2004 16:37:06 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] tiny patch to kill warning in drivers/ide/ide.c
-In-Reply-To: <20040609023308.GC24042@schnapps.adilger.int>
-Message-ID: <Pine.LNX.4.56.0406091632550.26677@jjulnx.backbone.dif.dk>
-References: <20040609023308.GC24042@schnapps.adilger.int>
+	Wed, 9 Jun 2004 10:39:20 -0400
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] linux-libc-headers 2.6.6.0
+Date: Wed, 9 Jun 2004 16:37:55 +0200
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406091637.55771.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jun 2004, Andreas Dilger wrote:
-
-> On Jun 09, 2004  03:38 +0200, Jesper Juhl wrote:
-> > drivers/ide/ide.c: In function `ide_unregister_subdriver':
-> > drivers/ide/ide.c:2216: warning: implicit declaration of function
-> `pnpide_init'
-> >
-> > I added a simple declaration of pnpide_init to drivers/ide/ide.c
-> >
-> > Here's a patch against 2.6.7-rc3 - please consider including it (or if
-> > that's not the way to do it, then don't) :)
-> Better to add the declaration into a header like linux/ide.h that is
-> included into both ide.c and ide-pnp.c so that when/if pnpide_init()
-> ever changes its prototype you will get a warning during compilation.
-> The only good reason to have declarations within .c files is for forward
-> declarations of functions only used in the same file.
-
-That makes perfect sense. I actually considered making a header for it,
-but since it would contain only a single declaration I abandoned that - I
-see now that I should have done that in any case to avoid stuff becomming
-out of sync.
-
-Would you like an updated patch ?
+Available at http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
+Changes:
+- updated to 2.6.6 kernel
+- readded allmost all of the sound/* headers; some of those contain driver 
+specific definitions that might be used in userland apps to control various 
+hardware features 
+- added scsi headers - more on that below 
+- fixed macros in byteorder/swab.h - now hdparm on big endian machines really 
+builds
+- other fixes (eg. frottle should build)
+- I've made linux/audit.h parse out of the box; if I understand correctly this 
+is supposed to be a "kernel talks to userland" thing
 
 
---
-Jesper Juhl <juhl@dif.dk>
+First of all sorry for the long delay - this version should be here three 
+weeks ago, but I've been kind of busy. This shouldn't happen anymore and new 
+version should be released no more than a week after the kernel.
+(yes, I know 2.6.7 will probably be here in a week or so :)
 
+As for the addition of sanitized scsi headers - I've had some requests for it. 
+Up until now I've encountered only one app that wanted something more than 
+glibc had to offer and am not entirely sure if using these headers instead of 
+glibc's won't break more things than it fixes. Test it if you like and do 
+send a bugreport if you find that it breaks something.
+
+
+-- 
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286342AbRLTTDJ>; Thu, 20 Dec 2001 14:03:09 -0500
+	id <S286334AbRLTTBJ>; Thu, 20 Dec 2001 14:01:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286338AbRLTTC7>; Thu, 20 Dec 2001 14:02:59 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:51081 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S286327AbRLTTCw>;
-	Thu, 20 Dec 2001 14:02:52 -0500
-Subject: Re: Poor performance during disk writes
-From: Robert Love <rml@tech9.net>
-To: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>
-Cc: vda <vda@port.imtp.ilyichevsk.odessa.ua>,
-        Helge Hafting <helgehaf@idb.hist.no>, jlm <jsado@mediaone.net>,
-        Andre Hedrick <andre@linuxdiskcert.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200112201436.fBKEa2m26640@zero.tech9.net>
-In-Reply-To: <20011220132729Z286241-18285+3296@vger.kernel.org>
-	<0112201629230E.01835@manta>  <200112201436.fBKEa2m26640@zero.tech9.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 20 Dec 2001 14:02:20 -0500
-Message-Id: <1008874944.2779.26.camel@phantasy>
-Mime-Version: 1.0
+	id <S286331AbRLTTBA>; Thu, 20 Dec 2001 14:01:00 -0500
+Received: from ns.suse.de ([213.95.15.193]:61708 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S286327AbRLTTAm>;
+	Thu, 20 Dec 2001 14:00:42 -0500
+Date: Thu, 20 Dec 2001 20:00:34 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Randolph Bentson <bentson@grieg.holmsjoen.com>
+Cc: Matt Bernstein <matt@theBachChoir.org.uk>, Steven Cole <scole@lanl.gov>,
+        <esr@thyrsus.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+In-Reply-To: <20011220104226.A5716@grieg.holmsjoen.com>
+Message-ID: <Pine.LNX.4.33.0112201955570.2519-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-12-20 at 09:35, Dieter N?tzel wrote:
+On Thu, 20 Dec 2001, Randolph Bentson wrote:
 
-> > Robert maintains latency measurement patch, do you use it?
-> 
-> Yes, I did the ReiserFS lock-break tests for him.
->  
-> > Does it show where are the problems?
-> 
-> NO, we have no clue, yet :-(
+> I'm afraid I have to disagree with you.  Not enough people
+> know that KB stands for 1000B.  I know through experience that
+> KB is often used for 1024B.  The introduction of KiB makes it
+> clear that 1024B is intended.
 
-Want to see if its the VM?  Rik van Riel has updated his 2.4-ac VM for
-new kernels and added reverse page mapping (a neat feature).
+Given the confusion its raised in this thread already, this strikes
+me as a particularly bad change. Some of those definitions in
+Configure.help have been there for the better part of 10 years
+now, and I don't recall anyone in the past few years needing to
+ask for clarification.
 
-It is available at:
-	http://www.surriel.com/patches/2.4/2.4.16-rmap-6
+Is this really that important ?
 
-Give it a whirl, you might me impressed.  If not, maybe we can scratch
-the VM as the problem and stare meanly at VFS ;-)
+Dave.
 
-(Note my lock-break patch will fail on the new VM.  Ignore it.  The rest
-is still fine. Perhaps I'll do a lock-break for this VM later).
-
-	Robert Love
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

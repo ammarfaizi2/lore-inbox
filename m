@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283603AbRLRCAn>; Mon, 17 Dec 2001 21:00:43 -0500
+	id <S281488AbRLRCxS>; Mon, 17 Dec 2001 21:53:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283586AbRLRCAX>; Mon, 17 Dec 2001 21:00:23 -0500
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:54410 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S283680AbRLRCAQ>; Mon, 17 Dec 2001 21:00:16 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: "ChristianK."@t-online.de (Christian Koenig)
+	id <S282859AbRLRCxI>; Mon, 17 Dec 2001 21:53:08 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27912 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281488AbRLRCxB>; Mon, 17 Dec 2001 21:53:01 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Making Linux multiboot capable and grub loading kernel modules at boot time.
-Date: Tue, 18 Dec 2001 04:01:39 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: richardt@vzavenue.net, maciek@mzn.dyndns.org, andrew.grover@intel.com,
-        dcinege@psychosis.com, rusty@rustcorp.com.au
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <16G9Xo-0fYaGGC@fwd02.sul.t-online.com>
+From: Daniel Quinlan <quinlan@transmeta.com>
+Subject: Re: [PATCH] Endianness-aware mkcramfs
+Date: 17 Dec 2001 18:52:30 -0800
+Organization: Transmeta Corporation
+Message-ID: <6ylmg1tf2p.fsf@sodium.transmeta.com>
+In-Reply-To: <3C0BD8FD.F9F94BE0@mvista.com> <3C0CB59B.EEA251AB@lightning.ch>
+X-Trace: palladium.transmeta.com 1008643950 1309 127.0.0.1 (18 Dec 2001 02:52:30 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 18 Dec 2001 02:52:30 GMT
+Original-Sender: quinlan@transmeta.com
+X-Newsreader: Gnus v5.7/Emacs 20.4
+Cache-Post-Path: palladium.transmeta.com!unknown@sodium.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Daniel Marmier <daniel.marmier@lightning.ch> writes:
 
-I send this to every one who seems to be interested in it as cc.
-(If you don't want this simple let me know).
+> Here you are, against kernel 2.4.16. The patch is not as clean as one
+> would like it to be, but we use it and it works well for us.
+> 
+> Basically it adds a "-b" (byteorder option) which can take four parameters:
+>    -bb	creates a big-endian cramfs,
+>    -bl	creates a little-endian cramfs,
+>    -bh	creates a cramfs with the same endianness as the host,
+>    -br	creates a cramfs with the reverse endianness as the host,
+> where "host" refers to the machine running the mkcramfs program.
+> 
+> As told above, it could be cleaner, but I don't know of a nice method of
+> accessing byteorder dependent data through structures.
+> 
+> Have a nice day,
 
-This is the next release off my Kernel Patch letting grub loads 
-Kernel-Modules at boot time.
+Hmm... I've been on vacation, so I'm joining the discussion a little
+late here, but as hpa and others have said, cramfs is defined to be
+little-endian -- we do not want two different versions of the
+filesystem.
 
-This patch is against Kernel 2.5.1 and grub 0.90 and consider off 3 Parts:
+Send me a patch so big-endian systems byte-swap metadata (and the
+equivalent for the mkcramfs/cramfsck programs) and I'd be happy to
+help you clean it up and get it into the kernel.
 
-1. mboot.diff: Makes vmlinux multiboot compliant.
-   
-   Changes made since last Version:
-	1.  added 2 new build targets to the Kernel Makefiles "mImage"
-	     and "mImage.gz" creating clean Multiboot Kernel-Images in
-	     arch/i386/boot.
-	2.  setup.c now evaluates the multiboot apm table correctly.
+ Dan
 
-2. bootmodules.diff: Adds a new elf-object file loader, evaluating and 
-   inserting the modules grub have loaded into the Kernel.
-
-   Changes made since last Version:
-	1.  Module Parameters are evaluated correctly now.
-	2.  Fixed some memory leaks and 1 byte miss bug in boot_modules.c.
-	3.  Fixed a ugly bug that made modules exporting much kernel symbols oops at 
-	     boott up.
-
-3. grub.diff: This is a new patch adding a command to grub who loads all
- 	     modules in a specified file with correct module-dependecies.
-	     Now you could do something like:
-
-	     root (hd0,1)
-	     kernel /boot/vmlinux-2.5.1prex root=/dev/hda1 ro
-	     modulesfromfile /etc/modules /lib/modules/2.5.1/modules.dep
-
-	     inside your grub menu.lst and every thing specified in /etc/module
-	     gets loaded before the Kernel is booted.
-
-You can download these patches at
-
-http://home.t-online.de/home/ChristianK./patches/mboot.diff
-http://home.t-online.de/home/ChristianK./patches/bootmodules.diff
-http://home.t-online.de/home/ChristianK./patches/grub.diff
-
-Please tell me what you think about it / how it works.
-
-MfG, Christian König. (Sorry for my poor English)

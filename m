@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbTIAQNI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 12:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262997AbTIAQNI
+	id S262993AbTIAQRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 12:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbTIAQPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 12:13:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64166 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263003AbTIAQNB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 12:13:01 -0400
-Message-ID: <3F537001.7070304@pobox.com>
-Date: Mon, 01 Sep 2003 12:12:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tigran Aivazian <tigran@veritas.com>
-CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       tigran@aivazian.fsnet.co.uk
-Subject: Re: dontdiff for 2.6.0-test4
-References: <Pine.GSO.4.44.0309010848040.18476-100000@north.veritas.com>
-In-Reply-To: <Pine.GSO.4.44.0309010848040.18476-100000@north.veritas.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Sep 2003 12:15:48 -0400
+Received: from ns.suse.de ([195.135.220.2]:13793 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263011AbTIAQPU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 12:15:20 -0400
+Date: Mon, 1 Sep 2003 18:15:19 +0200
+From: Andi Kleen <ak@suse.de>
+To: Christoph Hellwig <hch@infradead.org>, Larry McVoy <lm@work.bitmover.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Larry McVoy <lm@bitmover.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, ak@suse.de
+Subject: Re: bitkeeper comments
+Message-ID: <20030901161519.GH6558@wotan.suse.de>
+References: <1062389729.314.31.camel@cube> <20030901140706.GG18458@work.bitmover.com> <1062430014.314.59.camel@cube> <20030901154646.GB1327@work.bitmover.com> <20030901165658.A24661@infradead.org> <20030901155915.GC1327@work.bitmover.com> <20030901170218.A24713@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030901170218.A24713@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
->>On Mon, Sep 01, 2003 at 07:57:27AM -0700, Tigran Aivazian wrote:
->>
->>>I have updated dontdiff in the usual place:
->>>
->>>  http://www.moses.uklinux.net/patches/dontdiff
->>>
->>>for the 2.6 kernels. Obviously this was only tested on my configuration(s)
->>>so any additions are welcome. Just email them to me and I will add them.
->>>
->>>For those who don't know what "dontdiff" is --- grep the file:
->>>
->>>/usr/src/linux/Documentation/SubmittingPatches
->>
->>Btw, what about putting this somewhere in the kernel tree?
+On Mon, Sep 01, 2003 at 05:02:18PM +0100, Christoph Hellwig wrote:
+> On Mon, Sep 01, 2003 at 08:59:15AM -0700, Larry McVoy wrote:
+> > Hey, I'm not in the middle of this because I don't understand who is right
+> > and it's not my place to make that call.
 > 
-> 
-> Probably a good idea, because I hesitated whether to call this
-> "dontdiff-2.6" and leave the existing dontdiff for 2.4 or just switch to
-> 2.6 (assuming it is applicable to 2.4 as well). But if it is in the kernel
-> tree then no need to worry about which dontdiff matches which kernel.
+> I doesn't matter who's actually right.  If Andi was wrong Albert can
+> demand a apology from him or sue him or whater (not that his name is
+> actually mentioned in the message).
 
+I was wrong in this case, although I partly blame Albert because he sneaked
+in x86-64 patches behind my back directly to Linus, which caused 
+merging problems and resulted in this comment. 
 
-I'll throw it into 2.6.  I use dontdiff all the time :)
-
-FWIW I use the same dontdiff for 2.4 and 2.6...
-
-	Jeff
-
+-Andi
 

@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVBNJrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVBNJtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVBNJrM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 04:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVBNJrM
+	id S261379AbVBNJtp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 04:49:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVBNJtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 04:47:12 -0500
-Received: from dou122.neoplus.adsl.tpnet.pl ([83.24.128.122]:52710 "EHLO
-	orbiter.attika.ath.cx") by vger.kernel.org with ESMTP
-	id S261375AbVBNJrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 04:47:10 -0500
-Date: Mon, 14 Feb 2005 10:47:01 +0100
-From: Piotr Kaczuba <pepe@attika.ath.cx>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI access mode on x86_64
-Message-ID: <20050214094701.GA323@attika.ath.cx>
-References: <20050213213117.GA18812@attika.ath.cx> <m1oeenh53g.fsf@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1oeenh53g.fsf@muc.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 14 Feb 2005 04:49:45 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:41646 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261379AbVBNJtm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 04:49:42 -0500
+Date: Mon, 14 Feb 2005 10:49:33 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Larry McVoy <lm@bitmover.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [BK] upgrade will be needed
+In-Reply-To: <20050214020802.GA3047@bitmover.com>
+Message-ID: <Pine.GSO.4.61.0502141047360.14403@waterleaf.sonytel.be>
+References: <20050214020802.GA3047@bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 10:18:43AM +0100, Andi Kleen wrote:
-> Piotr Kaczuba <pepe@attika.ath.cx> writes:
-> > Is there a reason why "PCI access mode" config option isn't available for
-> > x86_64? Due to this, PCIE config options aren't available either.
-> 
-> There is no 64bit PCI BIOS, so access is always direct.
-> 
-> I assume you mean mmconfig access with "PCIE config options", that is
-> a separate config option and available.
+On Sun, 13 Feb 2005, Larry McVoy wrote:
+> wasn't our intent.  What we would like to do is change the language to
+> say that if you use BK you are agreeing that you won't work on another
+> SCM for 1 year after you stop using BK.  But after that you would be
 
-I mean the PCIEPORTBUS option which depends on PCI_GOMMCONFIG or
-PCI_GOANY. I assume that due to PCI_MMCONFIG / PCI_GOMMCONFIG mismatch
-it's not available on x86_64.
+Hypothetical question (for me, since I don't use BK right now): What if my
+employer wants to put me on an SCM-project next month?
 
-Piotr Kaczuba
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

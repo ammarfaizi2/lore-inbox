@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270724AbTGUVRH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 17:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270729AbTGUVRH
+	id S270728AbTGUVTg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270741AbTGUVTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 17:17:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28932 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S270724AbTGUVRA (ORCPT
-	<rfc822;linux-kernel@vger.redhat.com>);
-	Mon, 21 Jul 2003 17:17:00 -0400
-Date: Mon, 21 Jul 2003 23:31:42 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>,
-       kernel list <linux-kernel@vger.kernel.org>
-Cc: linux-kernel@vger.redhat.com
-Subject: Re: swsusp / 2.6.0-test1
-Message-ID: <20030721213141.GF436@elf.ucw.cz>
-References: <1058805510.15585.7.camel@simulacron> <20030721193615.GB473@elf.ucw.cz> <3F1C5C26.10607@kolumbus.fi>
+	Mon, 21 Jul 2003 17:19:35 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:28832 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S270728AbTGUVRM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 17:17:12 -0400
+Date: Mon, 21 Jul 2003 14:31:59 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Larry McVoy <lm@bitmover.com>, Mike Fedyk <mfedyk@matchmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
+Message-ID: <20030721213159.GA7240@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
+	Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
+References: <20030721190226.GA14453@matchmail.com> <20030721194514.GA5803@work.bitmover.com> <20030721212155.GF4677@x30.linuxsymposium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F1C5C26.10607@kolumbus.fi>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030721212155.GF4677@x30.linuxsymposium.org>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >>swsusp is working fine, but mplayer
-> >>in sdl and xv output mode displays a blank
-> >>screen after a resume. 
-> >>   
-> >You probably need to write suspend/resume support for your card.
-> >
+On Mon, Jul 21, 2003 at 05:21:55PM -0400, Andrea Arcangeli wrote:
+> Hi Larry,
 > 
-> Just wondering what kind of support for suspend/resume is "enough", say 
-> for video cards? Surely not the pci configuration space, you need to 
-> restore video mode, color maps, gfx engine state etc etc...what about 
-> frame buffer contents on card? Probably yes. Sounds like a lot of code, 
-> and different thing for every possible video card. Is there some general 
-> guidance here? Is drivers/video soon bloating with tons of 
-> suspend/resume code? I hope I am wrong :)
+> On Mon, Jul 21, 2003 at 12:45:14PM -0700, Larry McVoy wrote:
+> > You don't need the tags, use dates.  You can get the date range you want 
+> > with an rlog of the ChangeSet file and then use those dates.
+> 
+> I realized I could do this, and it can of course be automated with an
+> additional bkcvs specific hack in cvsps. But the tag in every file would
+> have kept the functionality generic with the already available -r
+> option, and since I can't see any downside in the tag in the files, I
+> prefer that generic way.
 
-I'm not sure if you are wrong. If you switch  to non-graphics console,
-that may save some code, but...
+The tags means that each file gets modified for each tag and then we have
+to transfer the whole tree after a tag.  It thrashes the hell out of the
+disk too, for no good reason.
 
-BTW vger.redhat.com, what is that?
-								Pavel
+Also note that there are nowhere near as many tags as there are commits
+in the CVS tree.  So by using tags you are restricting yourself to coarse
+granularity in your bug hunts.
 
+> But if you're sure the tags aren't coming back we can start adding the
+> automation to cvsps.
+
+Please do, we're not adding the tags.  
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

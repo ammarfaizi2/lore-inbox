@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVBKMJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVBKMWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbVBKMJw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 07:09:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbVBKMJw
+	id S262126AbVBKMWK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 07:22:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVBKMWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 07:09:52 -0500
-Received: from B3114.karlshof.wh.tu-darmstadt.de ([130.83.219.14]:30366 "HELO
+	Fri, 11 Feb 2005 07:22:10 -0500
+Received: from B3114.karlshof.wh.tu-darmstadt.de ([130.83.219.14]:35486 "HELO
 	B3114.karlshof.wh.tu-darmstadt.de") by vger.kernel.org with SMTP
-	id S262125AbVBKMJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 07:09:50 -0500
-Subject: Re: [linux-dvb-maintainer] DVB at76c651.c driver seems to be dead
-	code
+	id S262126AbVBKMWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 07:22:07 -0500
+Subject: Re: DVB at76c651.c driver seems to be dead code
 From: Andreas Oberritter <obi@linuxtv.org>
-To: Holger Waechtler <holger@qanu.de>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org, Linux-dvb <Linux-dvb@linuxtv.org>
-In-Reply-To: <420C7C83.4070309@qanu.de>
-References: <20050210235605.GN2958@stusta.de>  <420C7C83.4070309@qanu.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Mws <mws@twisted-brains.org>, linux-dvb-maintainer@linuxtv.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050211094934.GO2958@stusta.de>
+References: <20050210235605.GN2958@stusta.de>
+	 <200502110211.29055.mws@twisted-brains.org>
+	 <20050211094934.GO2958@stusta.de>
 Content-Type: text/plain
-Date: Fri, 11 Feb 2005 13:11:08 +0100
-Message-Id: <1108123869.3535.5.camel@localhost.localdomain>
+Date: Fri, 11 Feb 2005 13:23:24 +0100
+Message-Id: <1108124605.3535.17.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-11 at 10:36 +0100, Holger Waechtler wrote:
-> Adrian Bunk wrote:
-> 
-> >I didn't find any way how the drivers/media/dvb/frontends/at76c651.c 
-> >driver would do anything inside kernel 2.6.11-rc3-mm2. All it does is to 
-> >EXPORT_SYMBOL a function at76c651_attach that isn't used anywhere.
-> >
-> >Is a patch to remove this driver OK or did I miss anything?
-> >  
-> >
-> 
-> no, please let it there. This driver is the GPL'd part of the dbox2 
-> driver which is not part of the official kernel tree.
+On Fri, 2005-02-11 at 10:49 +0100, Adrian Bunk wrote:
+> If I understand it correctly, there are several drivers that only make 
+> sense if they are used together. at76c651.c alone makes zero sense?
+> This means it would be highly appreciated to have all parts inside the 
+> kernel at some time in the future.
 
-(Actually all dbox2 drivers are GPL-licensed, you can get them at
-cvs.tuxbox.org)
+It makes sense if
+- the dbox2 core code gets merged into mainline, which is our goal, but
+  can take a huge amount of time.
+- someone rips off the frontend module of a dbox2 and puts it on his
+  PCI DVB card because this Atmel chip rocks so much :-)
+  It will require only very few changes to the PCI driver...
+- or a company decides to use this chip on their brand new DVB-C device
+  and john doe decides to write a Linux driver for it. He will then
+  notice that there is already a driver for the frontend module and can
+  therefore save a lot of work.
 
-> Since frontend and demod drivers are reusable elsewhere and mainstream 
-> hardware that makes use of this demodulator may show up every week it's 
-> just stupid to remove this code as long we know it is working and 
-> continously tested by the dbox2 folks.
-> 
-> Instead it may make sense to move the dbox2 sources into the mainstream 
-> source tree. Andreas, what do you think?
+> Something different:
+> The atmel at76c651 frontend driver is specific to the MPC823 
+> architecture?
 
-It has been a long term goal since months, but I don't have the time for
-it now. We are still waiting for mpc8xx to become stable in 2.6.
+no.
 
 Regards,
 Andreas

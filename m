@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268848AbRIDUEH>; Tue, 4 Sep 2001 16:04:07 -0400
+	id <S268861AbRIDUDp>; Tue, 4 Sep 2001 16:03:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268856AbRIDUD4>; Tue, 4 Sep 2001 16:03:56 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:7943 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S268848AbRIDUDl>; Tue, 4 Sep 2001 16:03:41 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrea Arcangeli <andrea@suse.de>, Jan Harkes <jaharkes@cs.cmu.edu>
-Subject: Re: page_launder() on 2.4.9/10 issue
-Date: Tue, 4 Sep 2001 22:10:42 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010904131349.B29711@cs.cmu.edu> <20010904135427.A30503@cs.cmu.edu> <20010904215449.S699@athlon.random>
-In-Reply-To: <20010904215449.S699@athlon.random>
+	id <S268856AbRIDUDf>; Tue, 4 Sep 2001 16:03:35 -0400
+Received: from mons.uio.no ([129.240.130.14]:13262 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S268848AbRIDUD2>;
+	Tue, 4 Sep 2001 16:03:28 -0400
+To: David Rees <dbr@greenhydrant.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS to Irix server broken again in 2.4.9
+In-Reply-To: <15253.1002.189305.674221@barley.abo.fi>
+	<20010904120737.A17459@greenhydrant.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 04 Sep 2001 22:03:43 +0200
+In-Reply-To: David Rees's message of "Tue, 4 Sep 2001 12:07:37 -0700"
+Message-ID: <shswv3eena8.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010904200348Z16581-32383+3477@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 4, 2001 09:54 pm, Andrea Arcangeli wrote:
-> On Tue, Sep 04, 2001 at 01:54:27PM -0400, Jan Harkes wrote:
-> > Now for the past _9_ stable kernel releases, page aging hasn't worked
-> > at all!! Nobody seems to even have bothered to check. I send in a patch
-> 
-> All I can say is that I hope you will get your problem fixed with one of
-> the next -aa, I incidentally started working on it yesterday. So far
-> it's a one thousand diff very far from compiling, so it will grow
-> further, but it shouldn't take too long to finish the rewrite. Once
-> finished the benchmarks and the reproducible 2.4 deadlocks will tell me
-> if I'm right.
+>>>>> " " == David Rees <dbr@greenhydrant.com> writes:
 
-Which reproducible deadlocks did you have in mind, and how do I reproduce
-them?
+     > Previous 2.4.X kernels didn't require the 32bitclients option
+     > on the IRIX server for some reason.
 
---
-Daniel
+That was because prior to 2.4.9 the kernel would automatically
+truncate the getdents() offsets to 32 bits. We now have true 64 bit
+offsets, and they actually get passed back to userland.
+
+glibc-2.x's 32 bit version of readdir() still assumes that
+getdents64() syscall returns some an offset (rather than a cookie) and
+that the offset fits into 32bits on ordinary directories.
+Using '32bitclients' on these older IRIX servers sort of shoehorns
+them into the glibc assumptions in the same way the 32 bit truncation
+in kernels 2.4.[0-8] did.
+
+Cheers,
+   Trond

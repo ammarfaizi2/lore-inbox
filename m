@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279024AbRKDVlw>; Sun, 4 Nov 2001 16:41:52 -0500
+	id <S278078AbRKDVkc>; Sun, 4 Nov 2001 16:40:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279105AbRKDVlm>; Sun, 4 Nov 2001 16:41:42 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:49423 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S279024AbRKDVlX>;
-	Sun, 4 Nov 2001 16:41:23 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200111042141.fA4LfDY191148@saturn.cs.uml.edu>
+	id <S278081AbRKDVkX>; Sun, 4 Nov 2001 16:40:23 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:9410 "EHLO
+	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S278078AbRKDVkL>; Sun, 4 Nov 2001 16:40:11 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Tim Jansen <tim@tjansen.de>
+To: Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>
 Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-To: viro@math.psu.edu (Alexander Viro)
-Date: Sun, 4 Nov 2001 16:41:13 -0500 (EST)
-Cc: tim@tjansen.de (Tim Jansen), phillips@bonn-fries.net (Daniel Phillips),
-        jakob@unthought.net (Jakob =?iso-8859-1?q?=D8stergaard=20?=),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0111041321300.21449-100000@weyl.math.psu.edu> from "Alexander Viro" at Nov 04, 2001 01:30:38 PM
-X-Mailer: ELM [version 2.5 PL2]
+Date: Sun, 4 Nov 2001 22:42:54 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011104204502.O14001@unthought.net> <200111042112.fA4LCNR241720@saturn.cs.uml.edu> <20011104222009.Y14001@unthought.net>
+In-Reply-To: <20011104222009.Y14001@unthought.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-ID: <160Uzc-1RQC4OC@fmrl03.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
+On Sunday 04 November 2001 22:20, Jakob Østergaard wrote:
+> > > I could even live with parsing ASCII, as long as there'd just be type
+> > > information to go with the values.
+> > You are looking for something called the registry. It's something
+> > that was introduced with Windows 95. It's basically a filesystem
+> > with typed files: char, int, string, string array, etc.
+> Having read out 64 bit values, floating point data etc. from the registry,
+> I'm old enough to know that it is *NOT* what I'm looking for   :)
 
-> Folks, could we please deep-six the "ASCII is tough" mentality?
+Why? It's not bad only because it is from MS. IMHO the disadvantages of the 
+registry are:
+- you need special software/syscalls to access it
+- because of that making backups etc is hard
+- the organization of the data is horrible
 
-Sure. How about:
-It's a PITA to break out the dragon book, bloat sucks,
-and I'd just rather not have to write the code.
+Assuming you could mount it as a regular filesystem and use it for kernel 
+configuration, what else are its disadvantages?
 
-I also like:
-Trusting every little status app to not have exploitable
-buffer overruns is worrisome.
+bye...
 
-The more serious problem:
-ASCII formats change in unpredictable ways. (see below)
 
->  Idea of
-> native-endian data is so broken that it's not even funny.  Exercise:
-> try to export such thing over the network.
-
-Ooh! You're making /proc NFS exportable?
-
->  Another one: try to use
-> that in a shell script.  One more: try to do it portably in Perl script.
-
-FOO=`ps -o foo= -p $$`    # Get our FOO value out of binary /proc
-
-> It had been tried.  Many times.  It had backfired 100 times out 100.
-> We have the same idiocy to thank for fun trying to move a disk with UFS
-> volume from Solaris sparc to Solaris x86.
-
-Disks are slow, so native endian UFS was indeed a poor choice.
-
->  We have the same idiocy to
-> thank for a lot of ugliness in X.
-
-This was a necessary performance hack. Hopefully nobody wrote
-an X server or client that would do conditional byte swaps
-all over the code.
-
-> At the very least, use canonical bytesex and field sizes.  Anything less
-> is just begging for trouble.  And in case of procfs or its equivalents,
-> _use_ the_ _damn_ _ASCII_ _representations_.  scanf(3) is there for
-> purpose.
-
-SigCgt in /proc/self/status wasn't always spelled that way.
-It wasn't always in the same location either. ASCII bites
-because people can't resist screwing with it.
 

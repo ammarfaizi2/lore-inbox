@@ -1,49 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267561AbTGZTWe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 15:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267634AbTGZTWe
+	id S268702AbTGZTcb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 15:32:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268822AbTGZTcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 15:22:34 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:3983 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S267561AbTGZTWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 15:22:34 -0400
-Date: Sat, 26 Jul 2003 19:37:43 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       "David S. Miller" <davem@redhat.com>, arjanv@redhat.com,
-       Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove module reference counting.
-Message-ID: <20030726193743.B20667@devserv.devel.redhat.com>
-References: <20030726172139.348342C24B@lists.samba.org> <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org>
+	Sat, 26 Jul 2003 15:32:31 -0400
+Received: from main.gmane.org ([80.91.224.249]:62697 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268702AbTGZTcQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 15:32:16 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
+	<lgcdutra@terra.com.br>
+Subject: Re: Switching to the OSL License, in a dual way.
+Date: Sat, 26 Jul 2003 21:46:28 +0200
+Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
+Message-ID: <pan.2003.07.26.19.46.27.632068@terra.com.br>
+References: <20030724215744.GA7777@work.bitmover.com> <Pine.LNX.4.44.0307261508400.10872-100000@chimarrao.boston.redhat.com> <20030726192322.GA24865@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org>; from torvalds@osdl.org on Sat, Jul 26, 2003 at 12:31:25PM -0700
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 26, 2003 at 12:31:25PM -0700, Linus Torvalds wrote:
-> 
-> First off - we're not changing fundamental module stuff any more.
+On Sat, 26 Jul 2003 12:23:22 -0700, Larry McVoy wrote:
 
-fair enough
+> I can't tell if we are in agreement or not.  As far as I've been
+> able to tell disallowing reverse engineering is not allowed in some
+> countries if and only if the application does not provide documented
+> ways to interoperate with the application.  People have tried to claim
+> otherwise but every time we've dug into we've found the laws to be pretty
+> reasonable and balanced.
 
-> 
-> On Sat, 26 Jul 2003, Rusty Russell wrote:
-> > 
-> > No, it would just leak memory.  Not really a concern for developers.
-> > It's fairly trivial to hack up a backdoor "remove all freed modules
-> > and be damned" thing for developers if there's real demand.
-> 
-> It's not just a developer thing. At least installers etc used to do some 
-> device probing by loading modules and depending on the result.
+	I find quite amusing your notion of reason and balance.  Or
+rather sad...
 
-yes but those same installers couldn't care less if the kernel
-completely frees the memory of the module text or if it leaks that.
-It won't even notice the difference....
+
+> They tend to have the view "if you are being
+> a jerk and locking people into your application with no way to get at
+> their data, then of course reverse engineering is allowed, how else are
+> people to get at their data?  On the other hand, if you are being nice
+> and you provide documented ways for people to get at their data then
+> reverse engineering is not allowed".  Which seems to make sense, right?
+
+	No.  Reverse engineering is first a way of learning, then a
+safeguard... if you need to learn (for there are no docs) and if you
+need a safeguard (for you can't trust the vendor), then you need the
+possibility of cloning.  Both of these conditions are much more likely
+present in non-free software.  If both of them are fulfilled, it is
+also very likely one will need to create a clone, but not necessarily
+so.
+
+	That you get so jumpy at the mere mention of reverse
+engineering should have rang bells everywhere long time ago, not only
+at the FSF proverbial HQ.
+
+
+> If corporations aren't trying to lock you into their products then they
+> ought to be able to enjoy some fruits from their labors without people
+> coping their work.
+
+	I assume you meant copying.
+
+	No one is threatening to copy your source code.  People only want to
+create a clone, not a copy: something that interoperates with the same
+data structures, perhaps with the same user interfaces.
+
+	Perhaps you are claiming the definition of protocols and data
+structures as protected by copyright.  Perhaps, but it doesn't make
+cloning less moral.  Laws and morals unfortunately are splitting
+farther and farther.
+
+
+-- 
+ _   Leandro Guimarães Faria Corsetti Dutra     +41 (21) 648 11 34
+/ \  http://br.geocities.com./lgcdutra/         +41 (78) 778 11 34
+\ /  Answer to the list, not to me directly!    +55 (11) 5686 2219
+/ \  Rate this if helpful: http://svcs.affero.net/rm.php?r=leandro
+
+

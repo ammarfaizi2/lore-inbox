@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270012AbUIDB6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270020AbUIDC6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270012AbUIDB6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 21:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270014AbUIDB6Y
+	id S270020AbUIDC6l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 22:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270022AbUIDC6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 21:58:24 -0400
-Received: from mx1.magmacom.com ([206.191.0.217]:59578 "EHLO mx1.magmacom.com")
-	by vger.kernel.org with ESMTP id S270012AbUIDB6U (ORCPT
+	Fri, 3 Sep 2004 22:58:41 -0400
+Received: from main.gmane.org ([80.91.224.249]:32936 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270020AbUIDC6j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 21:58:20 -0400
-Message-ID: <41392139.6010700@magma.ca>
-Date: Fri, 03 Sep 2004 21:58:17 -0400
-From: Nicholas Reilly <nreilly@magma.ca>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 3 Sep 2004 22:58:39 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Fix for NForce2 secondary IDE getting wrong IRQ
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: The argument for fs assistance in handling archives
+Date: Sat, 4 Sep 2004 04:58:15 +0200
+Message-ID: <MPG.1ba2816bae8677619896e0@news.gmane.org>
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org> <20040902175034.GA18861@lst.de> <Pine.LNX.4.58.0409021059230.2295@ppc970.osdl.org> <wn5k6vc6ufp.fsf@linhd-2.ca.nortel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-33-131.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not on the list so please cc me on replies.
+Linh Dang wrote:
+> On such a system, one would have multiple virtual views mounted (by
+> root) under:
+> 
+>         /view/tar, /view/dpkg, /view/rpm, etc.
+> 
+> for every regular file /home/joe/blah.tar
+> 
+> the path /view/tar/home/joe/blah.tar/ is a directory where member of
+> the archives directly accessible.
+> 
+> old tools continue work as is. new tools can take a look on virtual
+> views for virtual access. 
+> 
+> Not sure how such a system would work with the dentry cache.
 
-I have a Shuttle SN41G2 and the secondary IDE channel alternates between 
-IRQ 15 (correct) and IRQ 7 (causing failures accessing the DVD+-RW which 
-is master, no slave and also messing with the parallel port if it is 
-enabled) on each boot. This is running ACPI and APIC on 2.6.5, 2.6.7 and 
-2.6.8. dmesg, dmidecode and /proc/acpi/dsdt are all identical (apart 
-from dmesg printing of IRQ and errors it causes) regardless of whether 
-it decides to go on 7 or 15. It is now running the latest BIOS, earlier 
-BIOS did the same.
+How does it cope with 'view withint view'? Say you have a 
+.zipped ISO. Can you do
 
-Comparing the amd74xx.c with piix.c suggests the following diff which 
-works for me. MAINTAINERS doesn't list anyone for this driver and the 
-file lists Vojtech Pavlik with no email address.
+cd /view/iso/view/zip/home/joe/mycd.zip/mycd.iso/
 
-Regards,
-Nick.
+?
 
-diff -u drivers/ide/pci/amd74xx.c ~/ide/amd74xx.c
---- drivers/ide/pci/amd74xx.c   2004-08-28 02:11:57.000000000 -0400
-+++ /home/nreilly/ide/amd74xx.c 2004-09-03 21:21:30.000000000 -0400
-@@ -443,6 +443,10 @@
-                  hwif->autodma = 1;
-          hwif->drives[0].autodma = hwif->autodma;
-          hwif->drives[1].autodma = hwif->autodma;
-+#ifndef CONFIG_IA64
-+        if (!hwif->irq)
-+                hwif->irq = hwif->channel ? 15 : 14;
-+#endif /* CONFIG_IA64 */
-  }
+-- 
+Giuseppe "Oblomov" Bilotta
 
-  #define DECLARE_AMD_DEV(name_str)                                      \
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
+

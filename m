@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269509AbTHQMma (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 08:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269578AbTHQMma
+	id S269628AbTHQMwh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 08:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269736AbTHQMwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 08:42:30 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:24566 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S269509AbTHQMm3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 08:42:29 -0400
-Message-ID: <3F3F7878.1000202@softhome.net>
-Date: Sun, 17 Aug 2003 14:43:36 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Sun, 17 Aug 2003 08:52:37 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:59858 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S269628AbTHQMwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 08:52:36 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns?=
+	=?iso-8859-1?q?=20Rullg=E5rd?=),
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG]  Serious scheduler starvation
+Date: Sun, 17 Aug 2003 14:55:53 +0200
+User-Agent: KMail/1.5.3
+References: <yw1xekzkv5yv.fsf@users.sourceforge.net>
+In-Reply-To: <yw1xekzkv5yv.fsf@users.sourceforge.net>
 MIME-Version: 1.0
-To: Doug McNaught <doug@mcnaught.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
-References: <lg0i.6yo.11@gated-at.bofh.it> <lgjJ.6Oo.5@gated-at.bofh.it> <lilr.p2.7@gated-at.bofh.it> <livc.wX.17@gated-at.bofh.it>
-In-Reply-To: <livc.wX.17@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200308171455.53822.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug McNaught wrote:
-> 
-> You can still DoS by forking repeatedly and having the child die with
-> SEGV...
-> 
+On Sunday 17 August 2003 14:11, Måns Rullgård wrote:
+> What can I do to collect more information about the problem?
 
-   We had a problems with synchronization between CPU and memory.
-   But the problem was showing up us random crashes of applications with 
-SIGSEGV and (rarely) SIGILL.
+Look in top's "PRI" column, which is where you see the effects of the dynamic 
+priority adjustment.
 
-   But still to prove bug is not in Linux kernel and not in software we 
-have killed three weeks, just to find out that Motorola has forgotten to 
-publish one errata for their CPU.
+Regards,
 
-   Probably to have an option to log this kind of signals would be 
-useful. Because just blindly killing applications - is not correct too.
-
-   I will vote for 'if unhandled -> log it' ;-)
+Daniel
 

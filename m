@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262940AbTCKPGf>; Tue, 11 Mar 2003 10:06:35 -0500
+	id <S262943AbTCKPMj>; Tue, 11 Mar 2003 10:12:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262941AbTCKPGf>; Tue, 11 Mar 2003 10:06:35 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:11494 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S262940AbTCKPGe>; Tue, 11 Mar 2003 10:06:34 -0500
-Date: Tue, 11 Mar 2003 16:14:08 +0100
-From: =?unknown-8bit?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4 patch] include cfi_cmdset_0020 in drivers/mtd/chips/Makefile
-Message-ID: <20030311151408.GA495@wohnheim.fh-wedel.de>
-References: <20030227233627.GW7685@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030227233627.GW7685@fs.tum.de>
-User-Agent: Mutt/1.3.28i
+	id <S262944AbTCKPMj>; Tue, 11 Mar 2003 10:12:39 -0500
+Received: from vbws78.voicebs.com ([66.238.160.78]:18705 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S262943AbTCKPMh>; Tue, 11 Mar 2003 10:12:37 -0500
+Message-ID: <3E6DFF55.5070908@didntduck.org>
+Date: Tue, 11 Mar 2003 10:23:01 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrey Panin <pazke@orbita1.ru>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] kernel/rcupdate.c microcleanup
+References: <20030311140249.GB756@pazke>
+In-Reply-To: <20030311140249.GB756@pazke>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 February 2003 00:36:27 +0100, Adrian Bunk wrote:
+Andrey Panin wrote:
+> Hi all,
 > 
-> 2.4.21-pre5 includes drivers/mtd/chips/cfi_cmdset_0020.c but doesn't 
-> compile it. The following patch fixes it:
+> attached patch (2.5.64) contains small cleanup of RCU code:
+>     - move smp_processor_id() outside of irq disabled region in call_rcu();
+>     - consolidate multiple spin_unlock() in the rcu_check_quiescent_state(),
+>       remove some unneeded {} and make this function inline.
 > 
-> --- linux-2.4.21-pre5-full/drivers/mtd/chips/Makefile.old	2003-02-28 00:28:56.000000000 +0100
-> +++ linux-2.4.21-pre5-full/drivers/mtd/chips/Makefile	2003-02-28 00:32:43.000000000 +0100
-> @@ -17,6 +17,7 @@
->  obj-$(CONFIG_MTD)		+= chipreg.o
->  obj-$(CONFIG_MTD_AMDSTD)	+= amd_flash.o 
->  obj-$(CONFIG_MTD_CFI)		+= cfi_probe.o
-> +obj-$(CONFIG_MTD_CFI_STAA)	+= cfi_cmdset_0020.o
->  obj-$(CONFIG_MTD_CFI_AMDSTD)	+= cfi_cmdset_0002.o
->  obj-$(CONFIG_MTD_CFI_INTELEXT)	+= cfi_cmdset_0001.o
->  obj-$(CONFIG_MTD_GEN_PROBE)	+= gen_probe.o
+> Tested and works (at least doesn't crash). Please consider applying.
+> 
+> Best regards.
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> diff -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/kernel/rcupdate.c linux-2.5.64/kernel/rcupdate.c
+> --- linux-2.5.64.vanilla/kernel/rcupdate.c	Thu Nov 28 01:35:46 2002
+> +++ linux-2.5.64/kernel/rcupdate.c	Mon Mar 10 20:18:48 2003
+> @@ -67,13 +67,12 @@
+>   */
+>  void call_rcu(struct rcu_head *head, void (*func)(void *arg), void *arg)
+>  {
+> -	int cpu;
+> +	int cpu = smp_processor_id();
+>  	unsigned long flags;
+>  
+>  	head->func = func;
+>  	head->arg = arg;
+>  	local_irq_save(flags);
+> -	cpu = smp_processor_id();
+>  	list_add_tail(&head->list, &RCU_nxtlist(cpu));
+>  	local_irq_restore(flags);
+>  }
 
-This is fixed in mtd cvs already.
+This is not preempt-safe.  smp_processor_id() can only be used in a 
+preempt-disabled region (which local_irq_save() provides).
 
-Just out of curiosity: How did you notice it? Do you actually use that
-driver?
+--
+				Brian Gerst
 
-Jörn
-
--- 
-I can say that I spend most of my time fixing bugs even if I have lots
-of new features to implement in mind, but I give bugs more priority.
--- Andrea Arcangeli, 2000

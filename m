@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbUBZXNV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbUBZXM5
+	id S261236AbUBZXMb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:12:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbUBZXIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:12:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62922 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261264AbUBZXJq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:09:46 -0500
-Date: Thu, 26 Feb 2004 15:15:25 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jakub Jelinek <jakub@redhat.com>
-cc: linux-kernel@vger.kernel.org, drepper@redhat.com
-Subject: Re: [PATCH] Add getdents32t syscall
-In-Reply-To: <20040226223212.GA31589@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.58.0402261504230.7830@ppc970.osdl.org>
-References: <20040226193819.GA3501@sunsite.ms.mff.cuni.cz>
- <Pine.LNX.4.58.0402261411420.7830@ppc970.osdl.org>
- <Pine.LNX.4.58.0402261415590.7830@ppc970.osdl.org>
- <20040226223212.GA31589@devserv.devel.redhat.com>
+	Thu, 26 Feb 2004 18:08:42 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:64762 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261253AbUBZXHx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 18:07:53 -0500
+Message-ID: <403E7C40.9060603@mvista.com>
+Date: Thu, 26 Feb 2004 15:07:44 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel Jacobowitz <dan@debian.org>
+CC: Tom Rini <trini@kernel.crashing.org>, Pavel Machek <pavel@suse.cz>,
+       "Amit S. Kale" <amitkale@emsyssoft.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
+Subject: Re: kgdb: rename i386-stub.c to kgdb.c
+References: <20040224130650.GA9012@elf.ucw.cz> <200402251303.50102.amitkale@emsyssoft.com> <20040225103703.GB6206@atrey.karlin.mff.cuni.cz> <403D10DB.8060506@mvista.com> <20040225212826.GE1052@smtp.west.cox.net> <403D2230.8070000@mvista.com> <20040226042454.GA31771@nevyn.them.org>
+In-Reply-To: <20040226042454.GA31771@nevyn.them.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 26 Feb 2004, Jakub Jelinek wrote:
+Daniel Jacobowitz wrote:
+> On Wed, Feb 25, 2004 at 02:31:12PM -0800, George Anzinger wrote:
 > 
-> Userland struct dirent is:
+>>I would guess it is a problem in the emacs interface where one points at a 
+>>location in the code window and enters a command to set a break point ( I 
+>>think it is "^x " (control X space)).  It would appear that emacs then only 
+>>sends the file name to gdb rather than the full path.
+>>
+>>This is not a show stopping problem, only confusing.  Once gdb figures out 
+>>the right source, all is well.  I usually do it by setting a break point at 
+>>the function by name, thus avoiding the point and grunt thing.
+> 
+> 
+> This is a known problem in the emacs interfaces; it will be fixed, but
+> I have no idea when the fixed version will be available :)
+> 
+I agree AND I have bigger fish to fry with emacs so....
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
-Ahh. So with the new thing, you'd need no conversion at all.
-
-> (since 1997 or so), so with the extended getdents syscall glibc would need
-> to memmove every name by 1 byte.
-
-The thing is, I hate encouraging glibc's behaviour of "we'll make up our
-own structures", and then ask the kernel to fix it later when it was done
-wrong in glibc. This is a totally new format that is totally unnecessary,
-and the RIGHT thing to do is to have glibc just use the proper 64-bit
-format.
-
-In other words, why doesn't glibc ever just make a new major number and
-make its "struct dirent" be the 64-bit version? It is _ridiculous_ to
-carry this baggage around, and then complain and add MORE baggage to the
-kernel because of having done things wrong the first time around.
-
-			Linus

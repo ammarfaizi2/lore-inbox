@@ -1,36 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131275AbRDXI0X>; Tue, 24 Apr 2001 04:26:23 -0400
+	id <S131446AbRDXIby>; Tue, 24 Apr 2001 04:31:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131446AbRDXI0O>; Tue, 24 Apr 2001 04:26:14 -0400
-Received: from fluent1.pyramid.net ([206.100.220.212]:40246 "EHLO
-	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S131275AbRDXIZ5>; Tue, 24 Apr 2001 04:25:57 -0400
-Message-Id: <4.3.2.7.2.20010424012505.00b80590@mail.fluent-access.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 24 Apr 2001 01:25:43 -0700
-To: linux-kernel@vger.kernel.org
-From: Stephen Satchell <satch@fluent-access.com>
-Subject: Re: [PATCH] pedantic code cleanup - am I wasting my time with
-  this?
+	id <S131460AbRDXIbo>; Tue, 24 Apr 2001 04:31:44 -0400
+Received: from zmailer.org ([194.252.70.162]:22027 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S131446AbRDXIbc>;
+	Tue, 24 Apr 2001 04:31:32 -0400
+Date: Tue, 24 Apr 2001 11:31:10 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Paolo Castagna <castagna@cefriel.it>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [help] TCP rate control and Linux TCP/IP Stack?
+Message-ID: <20010424113110.Y805@mea-ext.zmailer.org>
+In-Reply-To: <76D2776C1B442B4C90E1F95FCA217C46866D65@roll.cefriel.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <76D2776C1B442B4C90E1F95FCA217C46866D65@roll.cefriel.it>; from castagna@cefriel.it on Tue, Apr 24, 2001 at 10:11:15AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:58 PM 4/23/01 +0200, you wrote:
->>On Mon, Apr 23, 2001 at 05:26:27PM +0200, Jesper Juhl wrote:
->>>last entry should not have a trailing comma.
->>Sadly not.  This isn't a gcc thing: ANSI says that trailing comma is ok (K&R
->>Second edition, A8.7 - pg 218 &219 in my copy)
->
->You are right, I just consulted my own copy, and nothing strictly forbids 
->the comma... Sorry about that, I should have been more thorough before 
->reporting that one...
+On Tue, Apr 24, 2001 at 10:11:15AM +0200, Paolo Castagna wrote:
+> Hi,
+> I'm an Italian student and I'm doing a Master Thesis on TCP rate 
+> control.
 
- From the X3J11 Rationale document, paraphrase:  The inclusion of optional 
-trailing commas is to ease the task of generating code by automatic 
-programs such as LEX and YACC.
+   You have already posted this very same message to
+        linux-net@vger.kernel.org
+   and:
+        netdev@oss.sgi.com
+   lists.  If you don't get reply from those (netdev mainly), the
+   linux-kernel is not going to yield cheers either.
 
-Satch
+   People that know the networking code intimately are presently
+   "somewhat" busy,   Be patient, repeat this topic at  netdev
+   list after about a week.
 
+....
+> ---------------------------------------------------------------------
+> About this algorithm, I've a problem... how can I measure the rate
+> Ri for each TCP flow? I've found NeTraMet on this URL:
+> http://www.auckland.ac.nz/net/Accounting/ntm.Release.note.html
+> ... and I've also read the discussion about that on linux-kernel 
+> mailing list. Where is the best place to make a such thing? 
+> I've thought in /net/core/dev.c in function dev_queue_xmit. 
+> And, again, how can I associate the rate Ri to each TCP flow?
+
+        TCP Timestamps ?
+        (Which Linux does use if the other end supports them too.)
+
+        Of course, what is "rate" ?  Units of something per units
+	of time ?  Packets ?  Payload bytes ?   How does the size
+        of payload data in the packets affect the "rate" ?
+
+...
+> Greetings,
+> Paolo Castagna.
+
+/Matti Aarnio

@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVCEUUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVCEUVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVCEUUo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 15:20:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVCEUSS
+	id S261268AbVCEUVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 15:21:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVCEUR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 15:18:18 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:21689 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261237AbVCEUFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 15:05:40 -0500
-Subject: Unsupported PM cap regs version 1
-From: Lee Revell <rlrevell@joe-job.com>
+	Sat, 5 Mar 2005 15:17:28 -0500
+Received: from secure.htb.at ([195.69.104.11]:12815 "EHLO pop3.htb.at")
+	by vger.kernel.org with ESMTP id S261253AbVCEUGQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 15:06:16 -0500
+Date: Sat, 5 Mar 2005 21:05:57 +0100
+From: Richard Mittendorfer <jkerdawn@yahoo.com>
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Sat, 05 Mar 2005 15:05:35 -0500
-Message-Id: <1110053135.12513.7.camel@mindpipe>
+Subject: Re: Error messages with ACPI
+Message-Id: <20050305210557.26d7fa28.jkerdawn@yahoo.com>
+In-Reply-To: <33065.24.85.238.99.1110046181.squirrel@24.85.238.99>
+References: <33065.24.85.238.99.1110046181.squirrel@24.85.238.99>
+X-Mailer: Sylpheed version 0.9.99-gtk2-20041024 (GTK+ 2.4.14; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan *1D7fXH-000227-00*2p.z0u/rAVs*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every time I load the driver for my SBLive Platinum I get this log
-message:
+Also sprach Mina Nozar <nozarm@triumf.ca> (Sat, 5 Mar 2005 10:09:41
+-0800 (PST)):
+> Hi,
 
-PCI: 0000:00:0f.0 has unsupported PM cap regs version (1)
+hi mina.
 
-even though CONFIG_PM is not set.
+> [...]
+> kernel:  ACPI-1133: *** Error: Method execution failed
+> [\_SB_.BAT0._BST](Node dfe043c0), AE_AML_NO_RETURN_VALUE
+> lastt message repeated 2 times
+> last message repeated 4 times
+> ...
+> ...
 
-I see that this issue came up in January on LKML but there was no
-resolution.
+(afaik) these are not critical - they come from the yout acpi bios.
+these implementions are known to be bad. you can find more information
+on the acpi homepage[1]. maybe you can fix this with a modifcated dsdt
+from there - but i'm not sure if it's worth the work.
 
-First, why don't we support PM cap regs versions other than 2?  Second,
-why is this printk() necessary?  If we really don't support older
-versions for a good reason, do we really need to constantly remind the
-user about it?  Especially if power management is disabled?
+do you get valid entries in /proc/acpi and are your battery states ok?
+then you most likely have no problem. on my old libretto i get tons of
+them at bootup and sometimes when comming out of suspend.
 
-The overall effect is to give the user the impression that the hardware
-is somehow broken.
+however, if your logs get filled with those messages ... 
 
-Lee
+sl ritch.
 
+[1] http://acpi.sourceforge.net/

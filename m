@@ -1,74 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbTKTPRC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 10:17:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbTKTPRC
+	id S261936AbTKTP0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 10:26:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTKTP0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 10:17:02 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36256 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261903AbTKTPQ7 convert rfc822-to-8bit
+	Thu, 20 Nov 2003 10:26:16 -0500
+Received: from ns2.uk.superh.com ([193.128.105.170]:47267 "EHLO
+	smtp.uk.superh.com") by vger.kernel.org with ESMTP id S261936AbTKTP0J
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 10:16:59 -0500
-Date: Thu, 20 Nov 2003 07:22:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Frank Dekervel <kervel@drie.kotnet.org>
-Cc: linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>
-Subject: Re: 2.6.0-test9-mm4 (does not boot)
-Message-Id: <20031120072236.68327dca.akpm@osdl.org>
-In-Reply-To: <200311201137.55553.kervel@drie.kotnet.org>
-References: <200311191749.28327.kervel@drie.kotnet.org>
-	<20031119165928.70a1d077.akpm@osdl.org>
-	<200311201134.04050.kervel@drie.kotnet.org>
-	<200311201137.55553.kervel@drie.kotnet.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 20 Nov 2003 10:26:09 -0500
+Date: Thu, 20 Nov 2003 15:25:58 +0000
+From: Richard Curnow <Richard.Curnow@superh.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: Simplification in pbus_size_mem
+Message-ID: <20031120152558.GA5895@malvern.uk.w2k.superh.com>
+Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Greg KH <greg@kroah.com>
+References: <20031120122838.GA4575@malvern.uk.w2k.superh.com> <20031120171624.A30024@jurassic.park.msu.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031120171624.A30024@jurassic.park.msu.ru>
+X-OS: Linux 2.4.22 i686
+User-Agent: Mutt/1.5.4i
+X-OriginalArrivalTime: 20 Nov 2003 15:27:06.0687 (UTC) FILETIME=[C1AF54F0:01C3AF7A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Dekervel <kervel@drie.kotnet.org> wrote:
->
-> Op Thursday 20 November 2003 11:34, schreef Frank Dekervel:
-> > pnpbios says something like this:
-> >  found installation structure 0xc00f5560
-> >  version 1.0 entry 0xf0000:0x6149 dseg 0xf0000
-> >
-> > i'm going to try without pnpbios i think.
-> >
-> > my working 2.6.0test9 also has pnpbios setup:
-> > kervel@bakvis:~$ cat /boot/config-2.6.0-test9 | grep -i pnpbios
-> > CONFIG_PNPBIOS=y
+* Ivan Kokshaysky <ink@jurassic.park.msu.ru> [2003-11-20]:
+> On Thu, Nov 20, 2003 at 12:28:38PM +0000, Richard Curnow wrote:
+> > * 96Mb PCI memory aperture
 > 
-> ok, replying to myself to be more specific:
+> Also there is a PCI-PCI bridge, I guess? ;-)
+
+Yes.  'cat /proc/pci' (with my patch so the USB card gets allocations)
+gives
+
+  Bus  0, device   2, function  0:
+    PCI bridge: Digital Equipment Corporation DECchip 21150 (rev 6).
+      Master Capable.  Latency=32.  Min Gnt=12.
+  Bus  1, device   9, function  0:
+    USB Controller: Lucent Microelectronics USS-344S USB Controller (rev 17).
+      IRQ 4.
+      Master Capable.  Latency=32.  Min Gnt=3.Max Lat=86.
+      Non-prefetchable 32 bit memory at 0x14100000 [0x14100fff].
+  Bus  1, device   9, function  1:
+    USB Controller: Lucent Microelectronics USS-344S USB Controller (#2) (rev 17).
+      IRQ 4.
+      Master Capable.  Latency=32.  Min Gnt=3.Max Lat=86.
+      Non-prefetchable 32 bit memory at 0x14101000 [0x14101fff].
+  Bus  1, device   9, function  2:
+    USB Controller: Lucent Microelectronics USS-344S USB Controller (#3) (rev 17).
+      IRQ 4.
+      Master Capable.  Latency=32.  Min Gnt=3.Max Lat=86.
+      Non-prefetchable 32 bit memory at 0x14102000 [0x14102fff].
+  Bus  1, device   9, function  3:
+    USB Controller: Lucent Microelectronics USS-344S USB Controller (#4) (rev 17).
+      IRQ 4.
+      Master Capable.  Latency=32.  Min Gnt=3.Max Lat=86.
+      Non-prefetchable 32 bit memory at 0x14103000 [0x14103fff].
+  Bus  1, device  11, function  0:
+    VGA compatible controller: SGS Thomson Microelectronics STG4000 [3D Prophet Kyro Series] (rev 1).
+      IRQ 2.
+      Master Capable.  Latency=32.  
+      Prefetchable 32 bit memory at 0x10000000 [0x13ffffff].
+      Prefetchable 32 bit memory at 0x14000000 [0x1407ffff].
+      I/O at 0x2000 [0x20ff].
+  Bus  1, device  12, function  0:
+    Ethernet controller: SGS Thomson Microelectronics DEC-Tulip compatible 10/100 Ethernet (rev 161).
+      IRQ 1.
+      Master Capable.  Latency=32.  Min Gnt=255.Max Lat=255.
+      I/O at 0x2400 [0x24ff].
+      Non-prefetchable 32 bit memory at 0x14104000 [0x141040ff].
+
+(This is an SH-4 platform.)
+
+> 768Kb sounds strange. It must be power of 2. Perhaps it's 512Kb MMIO
+> and 256Kb ROM? But MMIO registers must be non-prefetchable. Weird.
+
+Looks like it's actually 512kB.  I'm not sure why I thought it was
+768kB.
+
+> > alignment requirement that was found?), hence in the pass where the
+> > prefetchable block is sized, 'size' ends up as 96Mb, which means there
+> > is no space left in which to place the non-prefetchable blocks for the
+> > USB card.
 > 
-> working pnpbios gives this:
-> ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 6 7 10 *11 12 14 15)
-> Linux Plug and Play Support v0.97 (c) Adam Belay
-> PnPBIOS: Scanning system for PnP BIOS support...
-> PnPBIOS: Found PnP BIOS installation structure at 0xc00f5560
-> PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x614a, dseg 0xf0000
-> PnPBIOS: 15 nodes reported by PnP BIOS; 15 recorded by driver
-> SCSI subsystem initialized
+> Yes, it's a trade-off - minimizing alignment vs. size requirements.
+> In most situations the former approach gives much better allocations.
+
+So is the idea that by rounding up 'size' to 96Mb in this case, it's
+guaranteed that there will be a 64Mb aligned chunk inside where the
+framebuffer can go, still leaving enough room around for the other
+allocation, _regardless_ of the alignment of the base of the memory
+aperture?  (Or if there are multiple PCI-to-PCI bridges, the aperture
+base for any one bridge is going to depend on the sizes of the apertures
+forwarded by the others, I suppose).
+
+If this is so, I can begin to see what the loop in the existing code is
+doing.
+
 > 
-> mm4 pnpbios gives the same numbers, but never says 
-> PnPBIOS: 15 nodes reported by PnP BIOS; 15 recorded by driver
-> instead it says general protection fault
+> > With the patch above, the alignment requirement for the prefetchable
+> > memory actually ends up as the alignment required for the framebuffer,
+> > and the size isn't rounded up unnecessarily.  The USB card gets
+> > allocated successfully as a result.
 > 
+> Well, it works only because your 96Mb PCI aperture is aligned at 64Mb
+> (or more).
 
-There are three pnpbios patches in -mm:
+It's aligned at 256Mb in fact, as shown above.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-1.patch
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-2.patch
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-3.patch
+> If it was aligned at 32Mb, you wouldn't be able to allocate
+> prefetchable memory at all with your patch.
 
-It would help if you could determine which (if any) of these are causing
-the problem.  You can remove the patches with
+Good point.
 
-	cd /usr/src/linux
-	patch -p1 -R < ~/pnp-fix-3.patch
+I'll think about this some more.
 
-etcetera.
+> As a workaround, you can mark those additional 768Kb regions as
+> non-prefetchable and be done with it.
 
+How do I do that?
 
-Thanks.
+Many thanks for your help
+Richard
+
+-- 
+Richard \\\ SuperH Core+Debug Architect /// .. At home ..
+  P.    /// richard.curnow@superh.com  ///  rc@rc0.org.uk
+Curnow  \\\ http://www.superh.com/    ///  www.rc0.org.uk

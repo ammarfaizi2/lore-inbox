@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263998AbTJOSlg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 14:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263940AbTJOS0d
+	id S263999AbTJOSlf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 14:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263998AbTJOSjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 14:26:33 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:63949 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263922AbTJOSZf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 14:25:35 -0400
-Date: Tue, 14 Oct 2003 13:43:53 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] SMP races in the timer code, timer-fix-2.6.0-test7-A0
-In-Reply-To: <Pine.LNX.4.44.0310132122160.2156-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.56.0310141339220.17642@earth>
-References: <Pine.LNX.4.44.0310132122160.2156-100000@home.osdl.org>
+	Wed, 15 Oct 2003 14:39:46 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:3986 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263996AbTJOSjN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 14:39:13 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 15 Oct 2003 11:35:07 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question on incoming packets and scheduler
+In-Reply-To: <3F8D8F3A.5040506@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.56.0310151133030.2144@bigblue.dev.mdolabs.com>
+References: <3F8CA55C.1080203@nortelnetworks.com>
+ <Pine.LNX.4.56.0310151035480.2144@bigblue.dev.mdolabs.com>
+ <3F8D8F3A.5040506@nortelnetworks.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 15 Oct 2003, Chris Friesen wrote:
 
-On Mon, 13 Oct 2003, Linus Torvalds wrote:
+> Davide Libenzi wrote:
+> > On Tue, 14 Oct 2003, Chris Friesen wrote:
+>
+> >>I have a long-running cpu hog background task, and a high-priority
+> >>critical task that waits on a socket for network traffic.  When a packet
+> >>comes in, I'd like the cpu hog to be swapped out ASAP, rather than
+> >>waiting for the end of the timeslice.  Is there any way to make this happen?
+>
+>
+> > What do you mean for high priority? Is it an RT task? The wakeup (AKA
+> > inserion in the run queue) happen soon :
+> > IRQ->do_IRQ->softirq->net_rx_action->ip_rcv->...
+> > but if your task is not RT there no guarantee that it'll preempt the
+> > current running.
+>
+> Yes, it was an RT task.
+>
+> It appears that 2.4.20 fixes this issue, but there is another one
+> remaining that the latency appears to be dependent on the number of
+> incoming packets.  See thread "incoming packet latency in 2.4.[18-20]"
+> for details.  This behaviour doesn't show up in 2.6, and I'm about to
+> test 2.4.22.
 
-> since the timer may not even _exist_ any more - the act of running the
-> timer may well have free'd the timer structure, and you're now zeroing
-> memory that may have been re-allocated for something else.
+Are you sure it's not a livelock issue during the burst?
 
-doh, indeed.
 
-i'm happy with the timer->base write ordering fix that addresses the first
-race, it fixes the bug that was actually triggered in RL. The other two
-races are present too but were present in previous incarnations of the
-timer code too. I'll think about them - both rely on racing with timer
-expiry itself - which is more likely to trigger these days because the
-tick is now 1 msec, and kernel virtualization is more common too, which
-can introduce almost arbitrary 'CPU delays' at any point in the kernel.
+- Davide
 
-	Ingo

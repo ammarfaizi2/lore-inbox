@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265177AbSLJU66>; Tue, 10 Dec 2002 15:58:58 -0500
+	id <S266767AbSLJVCU>; Tue, 10 Dec 2002 16:02:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266310AbSLJU65>; Tue, 10 Dec 2002 15:58:57 -0500
-Received: from ma.cavium.com ([209.113.159.130]:33802 "EHLO
-	exch1.caveonetworks.com") by vger.kernel.org with ESMTP
-	id <S265177AbSLJU6z>; Tue, 10 Dec 2002 15:58:55 -0500
-Reply-To: <imran.badr@cavium.com>
-From: "Imran Badr" <imran.badr@cavium.com>
-To: "Linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: vmalloc
-Date: Tue, 10 Dec 2002 13:02:56 -0800
-Message-ID: <CNEJKAHIKPFGKOPLKCGDAEJOIEAA.imran.badr@cavium.com>
-MIME-Version: 1.0
+	id <S266772AbSLJVCU>; Tue, 10 Dec 2002 16:02:20 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:25732 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S266767AbSLJVCT>; Tue, 10 Dec 2002 16:02:19 -0500
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20021210205045.GB63@DervishD>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Importance: Normal
-X-OriginalArrivalTime: 10 Dec 2002 21:06:33.0511 (UTC) FILETIME=[04BE4B70:01C2A090]
+  charset="us-ascii"
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+To: "'Arnaldo Carvalho de Melo'" <acme@conectiva.com.br>
+Subject: [PATCH] make net/ipv4/route.c compile without CONFIG_PROC_FS
+Date: Tue, 10 Dec 2002 22:08:31 +0100
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200212102208.31562.arnd@bergmann-dalldorf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The recent cleanup of /proc/net/rt_cache broke compiling
+without procfs, this makes it work again.
 
-Hi,
-Is there any limitation on the amount of memory that can be allocated by
-using vmalloc ( like 128KB for kmalloc) ?
+===== net/ipv4/route.c 1.31 vs edited =====
+--- 1.31/net/ipv4/route.c       Sun Dec  8 03:45:58 2002
++++ edited/net/ipv4/route.c     Tue Dec 10 22:01:36 2002
+@@ -402,6 +402,11 @@
+ {
+        remove_proc_entry("rt_cache", proc_net);
+ }
++#else
++
++#define rt_cache_stat_get_info (get_info_t*)0
++static inline int rt_cache_proc_init(void) { return 0; }
++
+ #endif /* CONFIG_PROC_FS */
 
-Thanks,
-Imran.
-
-
-
+ static __inline__ void rt_free(struct rtable *rt)
 

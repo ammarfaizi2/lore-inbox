@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUFRXhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263850AbUFRXhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUFRXhT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 19:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbUFRXdb
+	id S263850AbUFRXhU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 19:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264900AbUFRXdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 19:33:31 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:60625 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262138AbUFRX32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 19:29:28 -0400
+	Fri, 18 Jun 2004 19:33:45 -0400
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:46736 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S265768AbUFRX2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 19:28:48 -0400
+Date: Sat, 19 Jun 2004 00:27:39 +0100
+From: Ian Molton <spyro@f2s.com>
+To: root@chaos.analogic.com
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, greg@kroah.com,
+       tony@atomide.com, david-b@pacbell.net, jamey.hicks@hp.com,
+       joshua@joshuawise.com, James.Bottomley@steeleye.com
 Subject: Re: DMA API issues
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Ian Molton <spyro@f2s.com>
-Cc: david-b@pacbell.net, Linux Kernel <linux-kernel@vger.kernel.org>,
-       greg@kroah.com, tony@atomide.com, jamey.hicks@hp.com,
-       joshua@joshuawise.com
-In-Reply-To: <20040619002522.0c0d8e51.spyro@f2s.com>
-References: <1087582845.1752.107.camel@mulgrave>
-	<20040618193544.48b88771.spyro@f2s.com>
-	<1087584769.2134.119.camel@mulgrave>
-	<20040618195721.0cf43ec2.spyro@f2s.com> <40D34078.5060909@pacbell.net>
-	<20040618204438.35278560.spyro@f2s.com>
-	<1087588627.2134.155.camel@mulgrave> 
-	<20040619002522.0c0d8e51.spyro@f2s.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Jun 2004 18:29:22 -0500
-Message-Id: <1087601363.2078.208.camel@mulgrave>
+Message-Id: <20040619002739.05f83abf.spyro@f2s.com>
+In-Reply-To: <Pine.LNX.4.53.0406181751020.7785@chaos>
+References: <20040618175902.778e616a.spyro@f2s.com>
+	<40D359B3.6080400@pobox.com>
+	<Pine.LNX.4.53.0406181751020.7785@chaos>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-18 at 18:25, Ian Molton wrote:
-> On 18 Jun 2004 14:57:01 -0500
-> James Bottomley <James.Bottomley@SteelEye.com> wrote:
-> > There are complications to this: not all platforms can access PCI memory
-> > directly.  That's why ioremap and memcpy_toio and friends exist.  What
-> > should happen on these platforms?
+On Fri, 18 Jun 2004 18:12:48 -0400 (EDT)
+"Richard B. Johnson" <root@chaos.analogic.com> wrote:
+
 > 
-> I wasnt talking about a PCI system here.
+> Take the simple PLX chip that is pretty common, at least as a clone
+> or macro-cell in many PCI/Bus devices.
 
-ioremap is used for all bus remote MMIO regions, not just PCI.
+<cut>
 
-James
-
+But this *isnt* one of those. its a simple, straightforward, and fairly
+common architecture thats so close to the existing model support is near
+trivial.
 

@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275743AbRKNTVo>; Wed, 14 Nov 2001 14:21:44 -0500
+	id <S277012AbRKNTte>; Wed, 14 Nov 2001 14:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276135AbRKNTVf>; Wed, 14 Nov 2001 14:21:35 -0500
-Received: from inetc.connecttech.com ([64.7.140.42]:44548 "EHLO
-	inetc.connecttech.com") by vger.kernel.org with ESMTP
-	id <S275743AbRKNTVZ>; Wed, 14 Nov 2001 14:21:25 -0500
-Message-ID: <02da01c16d41$f9fa0b20$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Jeff Garzik" <jgarzik@mandrakesoft.com>
-Cc: <tytso@mit.edu>, <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <00df01c16d23$b409ab20$294b82ce@connecttech.com> <3BF2947B.DF3BE9DC@mandrakesoft.com> <013d01c16d29$bc5d4380$294b82ce@connecttech.com> <3BF29D69.B16479A1@mandrakesoft.com> <02b901c16d3c$a4e4adc0$294b82ce@connecttech.com> <3BF2BE98.3205C11C@mandrakesoft.com>
-Subject: Re: Fw: [Patch] Some updates to serial-5.05
-Date: Wed, 14 Nov 2001 14:24:27 -0500
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S276956AbRKNTtZ>; Wed, 14 Nov 2001 14:49:25 -0500
+Received: from anime.net ([63.172.78.150]:8207 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S277152AbRKNTtK>;
+	Wed, 14 Nov 2001 14:49:10 -0500
+Date: Wed, 14 Nov 2001 11:47:46 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
+In-Reply-To: <Pine.GSO.4.33.0111141421230.14971-100000@gurney>
+Message-ID: <Pine.LNX.4.30.0111141143310.24024-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
-> I converted serial.c to support cardbus/hotplug, and have merged a patch
-> or two due to absence of maintainer...
+On Wed, 14 Nov 2001, Alastair Stevens wrote:
+> Hi folks - I'm having real problems getting our new dual CPU server
+> going. It's a 2x Athlon XP 1800+ on a Tyan mobo, AMD 760MP chipset, with
+> an Adaptec SCSI controller and 512Mb DDR SDRAM.
 
-Fair enough. I'll do a set against... ? Which serial
-version would you like me to redo against?
+It had better well be registered ECC DDR ram. And hopefully on the tyan
+approved list:
 
-..Stu
+http://www.tyan.com/support/html/pc2100_tg_mp.html
 
+-Dan
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

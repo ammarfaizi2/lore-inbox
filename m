@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130391AbRAEQBq>; Fri, 5 Jan 2001 11:01:46 -0500
+	id <S130984AbRAEQDg>; Fri, 5 Jan 2001 11:03:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130984AbRAEQBg>; Fri, 5 Jan 2001 11:01:36 -0500
-Received: from sls.lcs.mit.edu ([18.27.0.167]:42740 "EHLO sls.lcs.mit.edu")
-	by vger.kernel.org with ESMTP id <S130391AbRAEQB0>;
-	Fri, 5 Jan 2001 11:01:26 -0500
-Message-ID: <3A55EFD0.515728CF@sls.lcs.mit.edu>
-Date: Fri, 05 Jan 2001 11:01:20 -0500
-From: I Lee Hetherington <ilh@sls.lcs.mit.edu>
-Organization: MIT Laboratory for Computer Science
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.18-pre25.1.smp i686)
-X-Accept-Language: en
+	id <S131859AbRAEQD0>; Fri, 5 Jan 2001 11:03:26 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12550 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130984AbRAEQDS>; Fri, 5 Jan 2001 11:03:18 -0500
+Subject: Re: [PATCH] VESA framebuffer w/ MTRR locks 2.4.0 on init
+To: bmayland@leoninedev.com (Bryan Mayland)
+Date: Fri, 5 Jan 2001 16:05:11 +0000 (GMT)
+Cc: kraxel@goldbach.in-berlin.de, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+In-Reply-To: <3A55EE29.EBE9D348@leoninedev.com> from "Bryan Mayland" at Jan 05, 2001 10:54:17 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Andrew Morton <andrewm@uow.edu.au>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dell Precision 330 (Pentium 4, i850 chipset, 3c905c)
-In-Reply-To: <3A54E717.11A43B42@sls.lcs.mit.edu> <3A557D12.A5383794@uow.edu.au> <3A55E15B.F39D6B87@sls.lcs.mit.edu> <3A55EF19.1BD5EE39@uow.edu.au> <3A55EE56.8C1DCDD0@sls.lcs.mit.edu> <3A55F047.1F41A6FC@uow.edu.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14EZMf-0007vp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/proc/interrupts shows eth0 (sharing aic7xxx) now.  The NIC is fully
-functional now.
+> 1)  The amount of video memory is being incorrectly reported my the VESA call
+> used in arch/i386/video.S (INT 10h AX=4f00h).  My Dell Inspiron 3200 (NeoMagic
+> video) returns that it has 31 64k blocks of video memory, instead of the
+> correct 32.  This means that vesafb thinks that I've got 1984k of video ram,
 
-I was actually trying your 3c59x.c-2.2.19pre2.gz, and not the -2
-version.  Trying that now.
+You have 31. The last one is used for audio buffering
 
---Lee
+> 2)  When the vesafb goes to mtrr_add its range (with the incorrect 1984k size)
+> mtrr_add fails with -EINVAL.  The code in vesafb_init then goes into a while
+> loop with no exit, as each size mtrr fails.
+>                  while (mtrr_add(video_base, temp_size, MTRR_TYPE_WRCOMB,
+> 1)==-EINVAL) {
+>                          temp_size >>= 1;
+>                  }
+
+Ok that one is the bug.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

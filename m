@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271222AbTHLSzM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 14:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271225AbTHLSzM
+	id S271376AbTHLS4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 14:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271359AbTHLS4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 14:55:12 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:41344 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S271222AbTHLSzI (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 14:55:08 -0400
-Message-Id: <200308121855.h7CIt6St002437@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3-mm1 and rootflags
-From: Valdis.Kletnieks@vt.edu
+	Tue, 12 Aug 2003 14:56:24 -0400
+Received: from pool-141-155-151-209.ny5030.east.verizon.net ([141.155.151.209]:12498
+	"EHLO mail.blazebox.homeip.net") by vger.kernel.org with ESMTP
+	id S271341AbTHLS4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 14:56:09 -0400
+Subject: Re: Linux [2.6.0-test3/mm1] aic7xxx problems.
+From: Paul Blazejowski <paulb@blazebox.homeip.net>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <2425882704.1060622541@aslan.btc.adaptec.com>
+References: <1060543928.887.19.camel@blaze.homeip.net>
+	 <2425882704.1060622541@aslan.btc.adaptec.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TBefMCLAjaqHbg9WZXz5"
+Message-Id: <1060714576.849.3.camel@blaze.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1439189981P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 12 Aug 2003 14:55:06 -0400
+X-Mailer: Ximian Evolution 1.4.4 (Slackware Linux)
+Date: Tue, 12 Aug 2003 14:56:16 -0400
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.14; AVE: 6.21.0.0; VDF: 6.21.0.10; host: blazebox.homeip.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1439189981P
-Content-Type: text/plain; charset=us-ascii
 
-OK.. I'm stumped..
+--=-TBefMCLAjaqHbg9WZXz5
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-While testing something, I tried to boot with 'rootflags=noatime', and
-found the system wouldn't boot, as ext3, ext2, and reiserfs all failed to
-recognize the option.  Looking at the code in fs/ext3/super.c:parse_options()
-and init/do_mounts.c:root_data_setup(), it appears to be impossible
-to set any of the filesystem-independent flags via rootflags, which explains
-the special-case code for the 'ro' and 'rw' flags.  However, there doesn't
-seem to be any way to pass nodev, noatime, nodiratime, or any of the other
-flags.  (And yes, all 3 of those make sense in my environment - it's a laptop
-and I don't need atime, and I use devfs so nodev on the root makes sense too).
+On Mon, 2003-08-11 at 13:22, Justin T. Gibbs wrote:
 
-Am I missing something?  Or in fact, is this an non-doable?
+>=20
+> I don't think that any of the changes between 6.2.35 and 6.2.36 will
+> make a difference for you, but you could try upgrading.  The source
+> files are here:
+>=20
+> http://people.FreeBSD.org/~gibbs/linux/SRC/
+>=20
+> The console output you've provided makes me think that interrupts are
+> not working correctly in your system.
+>=20
+> --
+> Justin
+>=20
+>=20
 
---==_Exmh_1439189981P
-Content-Type: application/pgp-signature
+Justin,
+
+I have a nice oops from the
+http://people.freebsd.org/~gibbs/linux/SRC/aic79xx-linux-2.5-20030603-tar.g=
+z driver on 2.6.0-test3.
+
+I took few snaps which show the scsi controller scan process and the
+oops from kernel, they are at:
+http://www.blazebox.homeip.net:81/diffie/images/linux-2.6.0-test2/2.6.36/
+
+Paul
+
+--=-TBefMCLAjaqHbg9WZXz5
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE/OTgJcC3lWbTT17ARApYVAKCyV7VpXLPRcfDgZt5ZQSwR3pEtvQCdHga3
-n5f7IQIVcYhvbu1Piu6KpT0=
-=S9QY
+iD8DBQA/OThPIymMQsXoRDARAmtHAJ0a6Gh56EYg1/7xyzoSKvXJscGAGACeIXEX
+ZgrrGU73qaeiTWKy/JMJ0pw=
+=ymEt
 -----END PGP SIGNATURE-----
 
---==_Exmh_1439189981P--
+--=-TBefMCLAjaqHbg9WZXz5--
+

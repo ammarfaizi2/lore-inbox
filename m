@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265418AbUFHX74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265454AbUFIAM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265418AbUFHX74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 19:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265429AbUFHX74
+	id S265454AbUFIAM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 20:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265429AbUFIAM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 19:59:56 -0400
-Received: from smtp4.cwidc.net ([154.33.63.114]:31995 "EHLO smtp4.cwidc.net")
-	by vger.kernel.org with ESMTP id S265418AbUFHX7y (ORCPT
+	Tue, 8 Jun 2004 20:12:59 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:27824 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265463AbUFIAMt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 19:59:54 -0400
-Message-ID: <40C652F3.1060404@tequila.co.jp>
-Date: Wed, 09 Jun 2004 08:59:47 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\ Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
-X-Accept-Language: en-us, en, ja
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: APM realy sucks on 2.6.x
-References: <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de> <20040607140511.GA1467@elf.ucw.cz> <40C47B94.6040408@scienion.de> <20040607144841.GD1467@elf.ucw.cz> <40C53D80.2080603@tequila.co.jp> <20040608085814.GA1269@elf.ucw.cz> <40C580BE.1030802@tequila.co.jp> <20040608091709.GC2569@elf.ucw.cz> <40C58BD2.8040001@tequila.co.jp> <20040608095546.GA19578@elf.ucw.cz>
-In-Reply-To: <20040608095546.GA19578@elf.ucw.cz>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Jun 2004 20:12:49 -0400
+Date: Wed, 9 Jun 2004 10:12:44 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.26 JFS: cannot mount
+Message-ID: <20040609101244.G1200131@wobbly.melbourne.sgi.com>
+References: <20040608195610.GA4757@merlin.emma.line.org> <20040608201446.GA13764@merlin.emma.line.org> <1086727014.26567.20.camel@shaggy.austin.ibm.com> <20040608223528.GA13241@merlin.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040608223528.GA13241@merlin.emma.line.org>; from matthias.andree@gmx.de on Wed, Jun 09, 2004 at 12:35:28AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Jun 09, 2004 at 12:35:28AM +0200, Matthias Andree wrote:
+> On Tue, 08 Jun 2004, Dave Kleikamp wrote:
+> 
+> > No, all of the code to replay the journal is in user space.  JFS does
+> > allow a read-only mount when the superblock is dirty.  This allows
+> > fsck.jfs to replay the journal while the root is mounted read-only.  /
+> > can then be remounted rw after fsck runs.
+> 
+> So was the mount was refused because a) the read-only
+> option was missing while b) the file system needed a journal replay?
+> 
+> Interesting difference. XFS insists on replaying the log in kernel space
+> (user space can only zero the log),
 
-Pavel Machek wrote:
+FWIW, all of the log replay code is there in userspace, so it
+should just be a "simple matter of programming" to implement
+this for XFS (noone has ever done so though, and its never
+really been a priority for us).
 
-|>Well I wouldn't put PCMCIA into the same part as ISA and Pentium I,
-|>because my 2 year old Sonylaptop with a Pentium-M 4 1.5Ghz has PCMCIA
-|>slots ... So its not like it is found only on stone old Laptops.
-|
-|
-| That's cardbus, I believe. Its backwards compatible to PCMCIA.
+cheers.
 
-well thats something I have to checkout ... I really rarerly use it, so
-I can't say for sure what it is ...
-
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.co.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAxlLzjBz/yQjBxz8RAmIGAJ9ZDl6HjJOR9+9LytOKeEYcsn7xSwCgnQ7R
-kQF43IjDvepnhxW1E+UHmLc=
-=Dnp3
------END PGP SIGNATURE-----
+-- 
+Nathan

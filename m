@@ -1,159 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVADKfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVADKim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbVADKfL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 05:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVADKfL
+	id S261589AbVADKim (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 05:38:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVADKim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 05:35:11 -0500
-Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:38052 "EHLO
-	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261760AbVADKel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 05:34:41 -0500
-Subject: Re: FAT, NTFS, CIFS and DOS attributes
-From: Anton Altaparmakov <aia21@cam.ac.uk>
+	Tue, 4 Jan 2005 05:38:42 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18580 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261589AbVADKi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 05:38:29 -0500
 To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: sfrench@samba.org, ntfs-dev <linux-ntfs-dev@lists.sourceforge.net>,
-       samba-technical@lists.samba.org, hirofumi@mail.parknet.co.jp,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <41D9C635.1090703@zytor.com>
-References: <41D9C635.1090703@zytor.com>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Date: Tue, 04 Jan 2005 10:34:25 +0000
-Message-Id: <1104834865.26349.32.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] i386 boot loader IDs
+References: <41D31696.8050701@zytor.com>
+	<m1vfadr65h.fsf@ebiederm.dsl.xmission.com>
+	<41DA4BFB.7090800@zytor.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 04 Jan 2005 03:37:17 -0700
+In-Reply-To: <41DA4BFB.7090800@zytor.com>
+Message-ID: <m17jmtqy3m.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-03 at 14:24 -0800, H. Peter Anvin wrote:
-> I recently posted to LKML a patch to get or set DOS attribute flags for 
-> fatfs.  That patch used ioctl().  It was suggested that a better way 
-> would be using xattrs, although the xattr mechanism seems clumsy to me, 
-> and has namespace issues.
+"H. Peter Anvin" <hpa@zytor.com> writes:
+
+> Eric W. Biederman wrote:
+> > I suspect /sbin/kexec could use one.  But I don't have the faintest
+> > what you could do with the information after the kernel came up.
+> >
 > 
-> I also think it would be good to have a unified interface for FAT, NTFS 
-> and CIFS for these attributes.
+> Sounds incorrect, unless you're generating the zeropage information.
+
+I do.  That is the format of the information the kernel expects,
+so it is the easiest and simplest way to go.  And since it is relatively
+simple to strip off the real mode code from the rest and enter
+the kernel at 1MB in 32bit mode that is what I do.  
+
+I even have code that will enter the kernel in 16bit and run the normal
+setup code but that frequently hits BIOS calls that are confused by
+having had a kernel running.  The plan when I get beyond booting
+linux kernels similar things is to use a modified version of Bochs
+BIOS code to provide the handful of BIOS calls that are needed to
+boot most kernels.
+
+The kexec on panic case is a little different and it requires
+a kernel that is built to run at an address other than 1MB.  So I load
+specially built vmlinux instead of messing with the bzImage at all.
+And for booting it making BIOS calls is simply not an option, as the
+machine is in a weird state.
+
+> > I don't think enhancing the bootloader numeric parameter is the
+> > right way to go.  Currently the value is a single byte with the low
+> > nibble reserved for version number information.  With the
+> > values already assigned we have 7 left.  If we assign a new value each for the
 > 
-> I noticed that CIFS has a placeholder "user.DosAttrib" in cifs/xattr.c, 
-> although it doesn't seem to be implemented.
+> > bootloaders I know of that don't
+> > yet have values assigned: pxelinux, isolinux, filo, /sbin/kexec,
+> > redboot the pool of numbers is nearly exhausted.  With the addition of
+> > bootloaders I can't recall or have not been written yet we will
+> > quickly exhaust the pool of numbers.
 > 
-> Questions:
+> pxelinux, isolinux and extlinux are syslinux derivatives (0x32, 0x33 and 0x34
+> respectively.)  filo and redboot probably could use them, though.
 > 
-> a) is xattr the right thing?  It seems to be a fairly complex and 
-> ill-thought-out mechanism all along, especially the whole namespace 
-> business (what is a system attribute to one filesystem is a user 
-> attribute to another, for example.)
+> > Even if using this mechanism is needed for supporting existing
+> > bootloaders I suggest it be deprecated in favor of a kernel command
+> > line option.  A command line option would be easier to maintain
+> > being string based.  It would be portable to architectures besides
+> > x86.  And it requires no additional code to implement, as you
+> > can already read /proc/cmdline.
 > 
-> b) if xattr is the right thing, shouldn't this be in the system 
-> namespace rather than the user namespace?
-> 
-> c) What should the representation be?  Binary byte?  String containing a 
-> subset of "rhsvda67" (barf)?
+> Unfortunately the command line is very squeezed.  With the newer protocol we can
+> probably support longer command lines, though.
 
-Definitely not c!
+Hmm. It currently sits at 256 bytes.  Which is 2 to 3 lines of text
+which is not too bad, and an easy limit to raise if it is a problem.
 
-In NTFS, the "dos attribute flags" are part of the system information
-attribute which is an entity in its own right, totally separate from
-extended attributes (and named streams for that matter).  So if I were
-to be thinking in an NTFS-only world I would be inclined to use an
-ioctl() to access/modify them (i.e. not b either).  So if you implement
-an ioctl() for vfat I will probably be able to provide the same in NTFS
-with almost zero effort (we already have the code to read and write the
-attribute flags in the kernel ntfs driver, we just do not provide an
-interface for it).
+My impression is that the limit at 256 bytes is has always been a
+kernel implementation issue rather than a protocol issue.  With
+a little care even the old protocol could probably do 32K command
+line.
 
-But please note that it would be best if you could use 32-bits for the
-flags.  At the very least 16-bits though as on NTFS there are currently
-in use 16-bits in the standard information but the field is u32 sized on
-disk (little endian) and two of the higher bits are in use in the file
-name attribute as well and I would not be surprised if more bits get
-used in future NTFS releases.  Tridge already gave you a list of all the
-Samba dos attributes so here is the full list for NTFS (note they are
-100% compatible to the Samba ones and also note in NTFS we always keep
-the flags in little endian and just define all the constants to be
-little endian as well - makes life much easier):
+> It's a significant boot loader change, though.  In the short term it's
+> definitely desirable to be able to read it.
 
-/*
- * File attribute flags (32-bit).
- */
-enum {
-        /*
-         * The following flags are only present in the
-STANDARD_INFORMATION
-         * attribute (in the field file_attributes).
-         */
-        FILE_ATTR_READONLY              = const_cpu_to_le32(0x00000001),
-        FILE_ATTR_HIDDEN                = const_cpu_to_le32(0x00000002),
-        FILE_ATTR_SYSTEM                = const_cpu_to_le32(0x00000004),
-        /* Old DOS volid. Unused in NT. = const_cpu_to_le32(0x00000008),
-*/
-                                                                                
-        FILE_ATTR_DIRECTORY             = const_cpu_to_le32(0x00000010),
-        /* Note, FILE_ATTR_DIRECTORY is not considered valid in NT.  It
-is
-           reserved for the DOS SUBDIRECTORY flag. */
-        FILE_ATTR_ARCHIVE               = const_cpu_to_le32(0x00000020),
-        FILE_ATTR_DEVICE                = const_cpu_to_le32(0x00000040),
-        FILE_ATTR_NORMAL                = const_cpu_to_le32(0x00000080),
-                                                                                
-        FILE_ATTR_TEMPORARY             = const_cpu_to_le32(0x00000100),
-        FILE_ATTR_SPARSE_FILE           = const_cpu_to_le32(0x00000200),
-        FILE_ATTR_REPARSE_POINT         = const_cpu_to_le32(0x00000400),
-        FILE_ATTR_COMPRESSED            = const_cpu_to_le32(0x00000800),
-                                                                                
-        FILE_ATTR_OFFLINE               = const_cpu_to_le32(0x00001000),
-        FILE_ATTR_NOT_CONTENT_INDEXED   = const_cpu_to_le32(0x00002000),
-        FILE_ATTR_ENCRYPTED             = const_cpu_to_le32(0x00004000),
-                                                                                
-        FILE_ATTR_VALID_FLAGS           = const_cpu_to_le32(0x00007fb7),
-        /* Note, FILE_ATTR_VALID_FLAGS masks out the old DOS VolId and
-the
-           FILE_ATTR_DEVICE and preserves everything else.  This mask is
-used
-           to obtain all flags that are valid for reading. */
-        FILE_ATTR_VALID_SET_FLAGS       = const_cpu_to_le32(0x000031a7),
-        /* Note, FILE_ATTR_VALID_SET_FLAGS masks out the old DOS VolId,
-the
-           F_A_DEVICE, F_A_DIRECTORY, F_A_SPARSE_FILE,
-F_A_REPARSE_POINT,
-           F_A_COMPRESSED, and F_A_ENCRYPTED and preserves the rest.
-This mask
-           is used to to obtain all flags that are valid for setting. */
-                                                                                
-        /*
-         * The following flags are only present in the FILE_NAME
-attribute (in
-         * the field file_attributes).
-         */
-        FILE_ATTR_DUP_FILE_NAME_INDEX_PRESENT   =
-const_cpu_to_le32(0x10000000),        /* Note, this is a copy of the
-corresponding bit from the mft record,
-           telling us whether this is a directory or not, i.e. whether
-it has
-           an index root attribute or not. */
-        FILE_ATTR_DUP_VIEW_INDEX_PRESENT        =
-const_cpu_to_le32(0x20000000),        /* Note, this is a copy of the
-corresponding bit from the mft record,
-           telling us whether this file has a view index present (eg.
-object id
-           index, quota index, one of the security indexes or the
-encrypting
-           file system related indexes). */
-};
-                                                                                
-typedef le32 FILE_ATTR_FLAGS;
+Agreed. You always get a can and mouse game with when you are
+upgrading these things.  
 
-Best regards,
+However it would be simple to present user space with a single
+interface, by doing something like:
 
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+        if (strstr(command_line, "BOOT_LOADER=") != 0) {
+        	snprintf(command_line + strlen(command_line),
+			COMMAND_LINE_SIZE, " BOOT_LOADER=0x%02x",
+                        LOADER_TYPE);
+        }
 
+At which point a upgrading bootloaders could be done piecemeal with
+user space simply needing to learn about the new bootloader strings.
+
+Eric

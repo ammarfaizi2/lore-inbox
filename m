@@ -1,34 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbULBAG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbULBAG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbULBAG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 19:06:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbULBADp
+	id S261527AbULBAG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 19:06:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbULBADb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 19:03:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17639 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261515AbULAX64 (ORCPT
+	Wed, 1 Dec 2004 19:03:31 -0500
+Received: from a.mail.sonic.net ([64.142.16.245]:33769 "EHLO a.mail.sonic.net")
+	by vger.kernel.org with ESMTP id S261527AbULAX6e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 18:58:56 -0500
-Date: Wed, 1 Dec 2004 15:58:46 -0800
-Message-Id: <200412012358.iB1Nwk3C002166@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: joe.korty@ccur.com
-X-Fcc: ~/Mail/linus
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: waitid breaks telnet
-In-Reply-To: Joe Korty's message of  Wednesday, 1 December 2004 18:22:04 -0500 <20041201232204.GA29829@tsunami.ccur.com>
-Emacs: an inspiring example of form following function... to Hell.
+	Wed, 1 Dec 2004 18:58:34 -0500
+Newsgroups: local.ml.linux.kernel
+From: dalgoda@ix.netcom.com (Mike Castle)
+Subject: Re: linux-2.4.28 compile problem with gcc-3.4.3
+References: <20041201221051.GR790@thune.sonic.net> <20041201224623.GA5148@stusta.de>
+Organization: House of Linux
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Path: not-for-mail
+Originator: nexus@thune.mrc.org (Mike Castle)
+Date: Wed, 01 Dec 2004 15:58:25 -0800
+Message-ID: <1e2282xnoc.ln2@thune.mrc-home.org>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since I can only manage so far to see this once in a blue moon, and you can
-produce it frequently, it would be helpful if you can diagnose the problem
-some.  That is, figure out exactly what wrong results from a wait* call is
-at fault.
+In article <20041201224623.GA5148@stusta.de>,
+Adrian Bunk  <bunk@stusta.de> wrote:
+>This is a known bug already fixed in 2.4.29-pre1.
 
+Darn.
 
-Thanks,
-Roland
+I glanced through the ChangeLog for 2.4.29-pre1, but I didn't see anything
+relevant.
+
+Which line did I miss?
+
+mrc
+
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129047AbQKNJ0P>; Tue, 14 Nov 2000 04:26:15 -0500
+	id <S129061AbQKNJ1f>; Tue, 14 Nov 2000 04:27:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129061AbQKNJ0F>; Tue, 14 Nov 2000 04:26:05 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:3420
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S129047AbQKNJZ6>; Tue, 14 Nov 2000 04:25:58 -0500
-Date: Tue, 14 Nov 2000 10:53:18 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops on 2.2.17 [klogd bonus question]
-Message-ID: <20001114105317.D3096@jaquet.dk>
-In-Reply-To: <20001113162155.A18009@jaquet.dk> <20001113231008.G18203@wire.cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001113231008.G18203@wire.cadcamlab.org>; from peter@cadcamlab.org on Mon, Nov 13, 2000 at 11:10:08PM -0600
+	id <S129469AbQKNJ1Z>; Tue, 14 Nov 2000 04:27:25 -0500
+Received: from spike2.i405.net ([63.229.23.90]:15633 "EHLO spike2.i405.net")
+	by vger.kernel.org with ESMTP id <S129061AbQKNJ1M>;
+	Tue, 14 Nov 2000 04:27:12 -0500
+Message-ID: <0066CB04D783714B88D83397CCBCA0CD495F@spike2.i405.net>
+From: linux-kernel <linux-kernel@i405.com>
+To: linux-kernel@vger.kernel.org
+Subject: newbie, 2.4.0-test11-pre4 no compile when CONFIG_AGP=y
+Date: Tue, 14 Nov 2000 00:56:13 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 13, 2000 at 11:10:08PM -0600, Peter Samuelson wrote:
-> 
-> [Rasmus Andersen]
-> > I'm getting oopses on a linux 2.2.17 box when I try to do
-> > tar cvIf <file> -X<file> /. Reproducably.
-> 
-> Are you excluding /proc?  Trying to back up all of /proc is definitely
-> asking for trouble, although the oops still indicates a kernel bug.
+I'll preface this saying I'm a kernel compile newbie and I could be making
+the most basic of mistakes.
 
-Good suggestion. But I exclude /proc and anyways it crashes before I get
-to that part of the fs.
+My problem is that I have an Asus CUSL2 board and am attempting to use the
+Intel i815-based on-board video.  I'm on Redhat 7.0, which works great with
+the stock 2.2.16-22 kernel.
 
-Regards,
-  Rasmus
+I am able to compile and boot a 2.4.0-test10 kernel for text only.  The
+problem is that to use the on-board video of the i810/i815 board, you have
+to have agpgart -- but when I try to turn CONFIG_AGP=y in the .config the
+2.4.0-test11-pre4 compile fails on agpsupport.c:35
+
+I've found many references to similar problems in prior test builds, but I
+thought this was already patched?  There linux-kernel mailing list archives
+had a lengthy discussion about other .config setting dependencies, but I
+couldn't find the "final word" on this issue.
+
+I have documented the EXACT procedure I use to build my kernel.  For every
+attempt, I start with a DELETED /usr/src/linux/ tree and all fresh files
+from the downloaded tarball.  My steps are documented at:
+
+  http://www.roundsparrow.com/Linux/240oni815/
+
+Any help appreciated.  Feel free to keep replies off the main list, as this
+may be a training issue more than a kernel one :)
+
+Thanks.
+
+  Stephen Gutknecht
+  Renton, Washington
+  mailto:Stephen@i405.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

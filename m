@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267863AbUHESVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267865AbUHES0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267863AbUHESVw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 14:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267862AbUHESVv
+	id S267865AbUHES0J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 14:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267874AbUHES0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 14:21:51 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:12009 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S267850AbUHESFM
+	Thu, 5 Aug 2004 14:26:09 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:26033 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S267865AbUHESFn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 14:05:12 -0400
-Date: Thu, 5 Aug 2004 20:05:04 +0200
+	Thu, 5 Aug 2004 14:05:43 -0400
+Date: Thu, 5 Aug 2004 20:05:29 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-390@vm.marist.edu
 Cc: arjanv@redhat.com, tim.bird@am.sony.com, mulix@mulix.org, alan@redhat.com,
        crisw@osdl.org, jan.glauber@de.ibm.com
-Subject: [PATCH] cputime (4/6): introduce cputime.
-Message-ID: <20040805180504.GE9240@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] cputime (5/6): microsecond based cputime for s390.
+Message-ID: <20040805180529.GF9240@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,337 +23,916 @@ User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] cputime (4/6): introduce cputime.
+[PATCH] cputime (5/6): microsecond based cputime for s390.
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-This patch introduces the concept of (virtual) cputime. Each architecture
-can define its method to measure cputime. The main idea is to define a
-cputime_t type and a set of operations on it (see asm-generic/cputime.h).
-Then use the type for utime, stime, cutime, cstime, it_virt_value,
-it_virt_incr, it_prof_value and it_prof_incr and use the cputime operations
-for each access to these variables. The default implementation is jiffies
-based and the effect of this patch for architectures which use the default
-implementation should be neglectible.
-
-There is a second type cputime64_t which is necessary for the kernel_stat
-cpu statistics. The default cputime_t is 32 bit and based on HZ, this will
-overflow after 49.7 days. This is not enough for kernel_stat (ihmo not
-enough for a processes too), so it is necessary to have a 64 bit type.
-
-The third thing that gets introduced by this patch is an additional field
-for the /proc/stat interface: cpu steal time. An architecture can account
-cpu steal time by calls to the account_stealtime function. The cpu
-which backs a virtual processor doesn't spent all of its time for the
-virtual cpu. To get meaningful cpu usage numbers this involuntary wait
-time needs to be accounted and exported to user space.
+This patch adds the architecture magic to replace the jiffies based
+cputime with microsecond based cputime and it adds code to calculate
+involuntary wait time. With this patch the numbers reported by top and
+ps when running on LPAR or z/VM are finally not junk anymore.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- arch/parisc/kernel/binfmt_elf32.c  |    6 -
- arch/ppc64/kernel/binfmt_elf32.c   |    6 -
- arch/s390/kernel/binfmt_elf32.c    |    6 -
- arch/sparc64/kernel/binfmt_elf32.c |    6 -
- fs/binfmt_elf.c                    |    8 -
- fs/proc/array.c                    |    8 -
- fs/proc/proc_misc.c                |   60 ++++++++------
- include/asm-alpha/cputime.h        |    6 +
- include/asm-arm/cputime.h          |    6 +
- include/asm-arm26/cputime.h        |    6 +
- include/asm-cris/cputime.h         |    6 +
- include/asm-generic/cputime.h      |   63 +++++++++++++++
- include/asm-h8300/cputime.h        |    6 +
- include/asm-i386/cputime.h         |    6 +
- include/asm-ia64/cputime.h         |    6 +
- include/asm-m68k/cputime.h         |    6 +
- include/asm-m68knommu/cputime.h    |    6 +
- include/asm-mips/cputime.h         |    6 +
- include/asm-parisc/cputime.h       |    6 +
- include/asm-ppc/cputime.h          |    6 +
- include/asm-ppc64/cputime.h        |    6 +
- include/asm-s390/cputime.h         |    6 +
- include/asm-sh/cputime.h           |    6 +
- include/asm-sparc/cputime.h        |    6 +
- include/asm-sparc64/cputime.h      |    6 +
- include/asm-um/cputime.h           |    6 +
- include/asm-v850/cputime.h         |    6 +
- include/asm-x86_64/cputime.h       |    6 +
- include/linux/kernel_stat.h        |   19 ++--
- include/linux/sched.h              |   10 +-
- kernel/compat.c                    |    8 -
- kernel/cpu.c                       |    4 
- kernel/exit.c                      |   10 +-
- kernel/fork.c                      |    9 +-
- kernel/itimer.c                    |   55 +++++++------
- kernel/sched.c                     |  152 +++++++++++++++++++++++++++++++------
- kernel/signal.c                    |    8 -
- kernel/sys.c                       |   22 ++---
- kernel/timer.c                     |   63 +--------------
- mm/oom_kill.c                      |    3 
- 40 files changed, 459 insertions(+), 187 deletions(-)
+ arch/s390/Kconfig               |    7 +
+ arch/s390/kernel/binfmt_elf32.c |    5 -
+ arch/s390/kernel/entry.S        |  139 +++++++++++++++++++++++++++++++-
+ arch/s390/kernel/entry64.S      |  132 +++++++++++++++++++++++++++++--
+ arch/s390/kernel/setup.c        |   26 ++++++
+ arch/s390/kernel/time.c         |   42 ++-------
+ arch/s390/kernel/vtime.c        |  109 ++++++++++++++++++++++---
+ include/asm-s390/cputime.h      |  169 +++++++++++++++++++++++++++++++++++++++-
+ include/asm-s390/hardirq.h      |    7 +
+ include/asm-s390/lowcore.h      |   47 +++++++++--
+ include/asm-s390/system.h       |   10 ++
+ include/asm-s390/timer.h        |    2 
+ 12 files changed, 614 insertions(+), 81 deletions(-)
 
-diff -urN linux-2.6.8-rc3/arch/parisc/kernel/binfmt_elf32.c linux-2.6.8-s390/arch/parisc/kernel/binfmt_elf32.c
---- linux-2.6.8-rc3/arch/parisc/kernel/binfmt_elf32.c	Wed Jun 16 07:19:13 2004
-+++ linux-2.6.8-s390/arch/parisc/kernel/binfmt_elf32.c	Thu Aug  5 18:40:24 2004
-@@ -92,10 +92,12 @@
- 	current->thread.map_base = DEFAULT_MAP_BASE32; \
- 	current->thread.task_size = DEFAULT_TASK_SIZE32 \
+diff -urN linux-2.6.8-rc3/arch/s390/Kconfig linux-2.6.8-s390/arch/s390/Kconfig
+--- linux-2.6.8-rc3/arch/s390/Kconfig	Thu Aug  5 18:39:51 2004
++++ linux-2.6.8-s390/arch/s390/Kconfig	Thu Aug  5 18:40:25 2004
+@@ -282,6 +282,13 @@
+ 	  This provides a kernel interface for virtual CPU timers.
+ 	  Default is disabled.
  
--#define jiffies_to_timeval jiffies_to_compat_timeval 
-+#undef cputime_to_timeval
-+#define cputime_to_timeval cputime_to_compat_timeval 
- static __inline__ void
--jiffies_to_compat_timeval(unsigned long jiffies, struct compat_timeval *value)
-+cputime_to_compat_timeval(const cputime_t cputime, struct compat_timeval *value)
- {
-+	unsigned long jiffies = cputime_to_jiffies(cputime);
- 	value->tv_usec = (jiffies % HZ) * (1000000L / HZ);
- 	value->tv_sec = jiffies / HZ;
- }
-diff -urN linux-2.6.8-rc3/arch/ppc64/kernel/binfmt_elf32.c linux-2.6.8-s390/arch/ppc64/kernel/binfmt_elf32.c
---- linux-2.6.8-rc3/arch/ppc64/kernel/binfmt_elf32.c	Wed Jun 16 07:19:37 2004
-+++ linux-2.6.8-s390/arch/ppc64/kernel/binfmt_elf32.c	Thu Aug  5 18:40:24 2004
-@@ -60,10 +60,12 @@
- 
- #include <linux/time.h>
- 
--#define jiffies_to_timeval jiffies_to_compat_timeval
-+#undef cputime_to_timeval
-+#define cputime_to_timeval cputime_to_compat_timeval
- static __inline__ void
--jiffies_to_compat_timeval(unsigned long jiffies, struct compat_timeval *value)
-+cputime_to_compat_timeval(const cputime_t cputime, struct compat_timeval *value)
- {
-+	unsigned long jiffies = cputime_to_jiffies(cputime);
- 	value->tv_usec = (jiffies % HZ) * (1000000L / HZ);
- 	value->tv_sec = jiffies / HZ;
- }
++config VIRT_CPU_ACCOUNTING
++	bool "Base user process accounting on virtual cpu timer"
++	depends on VIRT_TIMER
++	help
++	  Select this option to use CPU timer deltas to do user
++	  process accounting.
++
+ config APPLDATA_BASE
+ 	bool "Linux - VM Monitor Stream, base infrastructure"
+ 	depends on PROC_FS && VIRT_TIMER=y
 diff -urN linux-2.6.8-rc3/arch/s390/kernel/binfmt_elf32.c linux-2.6.8-s390/arch/s390/kernel/binfmt_elf32.c
---- linux-2.6.8-rc3/arch/s390/kernel/binfmt_elf32.c	Wed Jun 16 07:20:03 2004
-+++ linux-2.6.8-s390/arch/s390/kernel/binfmt_elf32.c	Thu Aug  5 18:40:24 2004
-@@ -173,10 +173,12 @@
- #undef MODULE_DESCRIPTION
- #undef MODULE_AUTHOR
- 
--#define jiffies_to_timeval jiffies_to_compat_timeval
-+#undef cputime_to_timeval
-+#define cputime_to_timeval cputime_to_compat_timeval
+--- linux-2.6.8-rc3/arch/s390/kernel/binfmt_elf32.c	Thu Aug  5 18:40:25 2004
++++ linux-2.6.8-s390/arch/s390/kernel/binfmt_elf32.c	Thu Aug  5 18:40:25 2004
+@@ -178,9 +178,8 @@
  static __inline__ void
--jiffies_to_compat_timeval(unsigned long jiffies, struct compat_timeval *value)
-+cputime_to_compat_timeval(const cputime_t cputime, struct compat_timeval *value)
+ cputime_to_compat_timeval(const cputime_t cputime, struct compat_timeval *value)
  {
-+	unsigned long jiffies = cputime_to_jiffies(cputime);
- 	value->tv_usec = (jiffies % HZ) * (1000000L / HZ);
- 	value->tv_sec = jiffies / HZ;
- }
-diff -urN linux-2.6.8-rc3/arch/sparc64/kernel/binfmt_elf32.c linux-2.6.8-s390/arch/sparc64/kernel/binfmt_elf32.c
---- linux-2.6.8-rc3/arch/sparc64/kernel/binfmt_elf32.c	Wed Jun 16 07:19:52 2004
-+++ linux-2.6.8-s390/arch/sparc64/kernel/binfmt_elf32.c	Thu Aug  5 18:40:24 2004
-@@ -132,10 +132,12 @@
- 
- #include <linux/time.h>
- 
--#define jiffies_to_timeval jiffies_to_compat_timeval
-+#undef cputime_to_timeval
-+#define cputime_to_timeval cputime_to_compat_timeval
- static __inline__ void
--jiffies_to_compat_timeval(unsigned long jiffies, struct compat_timeval *value)
-+cputime_to_compat_timeval(const cputime_t cputime, struct compat_timeval *value)
- {
-+	unsigned long jiffies = cputime_to_jiffies(cputime);
- 	value->tv_usec = (jiffies % HZ) * (1000000L / HZ);
- 	value->tv_sec = jiffies / HZ;
- }
-diff -urN linux-2.6.8-rc3/fs/binfmt_elf.c linux-2.6.8-s390/fs/binfmt_elf.c
---- linux-2.6.8-rc3/fs/binfmt_elf.c	Thu Aug  5 18:39:59 2004
-+++ linux-2.6.8-s390/fs/binfmt_elf.c	Thu Aug  5 18:40:24 2004
-@@ -1176,10 +1176,10 @@
- 	prstatus->pr_ppid = p->parent->pid;
- 	prstatus->pr_pgrp = process_group(p);
- 	prstatus->pr_sid = p->signal->session;
--	jiffies_to_timeval(p->utime, &prstatus->pr_utime);
--	jiffies_to_timeval(p->stime, &prstatus->pr_stime);
--	jiffies_to_timeval(p->cutime, &prstatus->pr_cutime);
--	jiffies_to_timeval(p->cstime, &prstatus->pr_cstime);
-+	cputime_to_timeval(p->utime, &prstatus->pr_utime);
-+	cputime_to_timeval(p->stime, &prstatus->pr_stime);
-+	cputime_to_timeval(p->cutime, &prstatus->pr_cutime);
-+	cputime_to_timeval(p->cstime, &prstatus->pr_cstime);
+-	unsigned long jiffies = cputime_to_jiffies(cputime);
+-	value->tv_usec = (jiffies % HZ) * (1000000L / HZ);
+-	value->tv_sec = jiffies / HZ;
++	value->tv_usec = cputime % 1000000;
++	value->tv_sec = cputime / 1000000;
  }
  
- static void fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p,
-diff -urN linux-2.6.8-rc3/fs/proc/array.c linux-2.6.8-s390/fs/proc/array.c
---- linux-2.6.8-rc3/fs/proc/array.c	Thu Aug  5 18:40:24 2004
-+++ linux-2.6.8-s390/fs/proc/array.c	Thu Aug  5 18:40:24 2004
-@@ -372,10 +372,10 @@
- 		task->cmin_flt,
- 		task->maj_flt,
- 		task->cmaj_flt,
--		jiffies_to_clock_t(task->utime),
--		jiffies_to_clock_t(task->stime),
--		jiffies_to_clock_t(task->cutime),
--		jiffies_to_clock_t(task->cstime),
-+		cputime_to_clock_t(task->utime),
-+		cputime_to_clock_t(task->stime),
-+		cputime_to_clock_t(task->cutime),
-+		cputime_to_clock_t(task->cstime),
- 		priority,
- 		nice,
- 		num_threads,
-diff -urN linux-2.6.8-rc3/fs/proc/proc_misc.c linux-2.6.8-s390/fs/proc/proc_misc.c
---- linux-2.6.8-rc3/fs/proc/proc_misc.c	Thu Aug  5 18:40:24 2004
-+++ linux-2.6.8-s390/fs/proc/proc_misc.c	Thu Aug  5 18:40:24 2004
-@@ -135,10 +135,10 @@
- 	struct timespec uptime;
- 	struct timespec idle;
- 	int len;
--	u64 idle_jiffies = init_task.utime + init_task.stime;
-+	cputime_t idletime = cputime_add(init_task.utime, init_task.stime);
+ #include "../../../fs/binfmt_elf.c"
+diff -urN linux-2.6.8-rc3/arch/s390/kernel/entry.S linux-2.6.8-s390/arch/s390/kernel/entry.S
+--- linux-2.6.8-rc3/arch/s390/kernel/entry.S	Thu Aug  5 18:39:51 2004
++++ linux-2.6.8-s390/arch/s390/kernel/entry.S	Thu Aug  5 18:40:25 2004
+@@ -62,6 +62,27 @@
+  *    R15 - kernel stack pointer
+  */
  
- 	do_posix_clock_monotonic_gettime(&uptime);
--	jiffies_to_timespec(idle_jiffies, &idle);
-+	cputime_to_timespec(idletime, &idle);
- 	len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
- 			(unsigned long) uptime.tv_sec,
- 			(uptime.tv_nsec / (NSEC_PER_SEC / 100)),
-@@ -355,10 +355,12 @@
++	.macro  STORE_TIMER lc_offset
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	stpt	\lc_offset
++#endif
++	.endm
++
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	.macro  UPDATE_VTIME lc_from,lc_to,lc_sum
++	lm	%r10,%r11,\lc_from
++	sl	%r10,\lc_to
++	sl	%r11,\lc_to+4
++	bc	3,BASED(0f)
++	sl	%r10,BASED(.Lc_1)
++0:	al	%r10,\lc_sum
++	al	%r11,\lc_sum+4
++	bc	12,BASED(1f)
++	al	%r10,BASED(.Lc_1)
++1:	stm	%r10,%r11,\lc_sum
++	.endm
++#endif
++
+ 	.macro	SAVE_ALL_BASE savearea
+ 	stm	%r12,%r15,\savearea
+ 	l	%r13,__LC_SVC_NEW_PSW+4	# load &system_call to %r13
+@@ -108,6 +129,7 @@
+ 	ni	__LC_RETURN_PSW+1,0xfd	# clear wait state bit
+ 	.endif
+ 	lm	%r0,%r15,SP_R0(%r15)	# load gprs 0-15 of user
++	STORE_TIMER __LC_EXIT_TIMER
+ 	lpsw	__LC_RETURN_PSW		# back to caller
+ 	.endm
+ 
+@@ -146,7 +168,6 @@
+  */
+ 	.global do_call_softirq
+ do_call_softirq:
+-	stnsm	24(%r15),0xfc
+ 	stm	%r12,%r15,28(%r15)
+ 	lr	%r12,%r15
+         basr    %r13,0
+@@ -161,7 +182,6 @@
+ 	l	%r1,.Ldo_softirq-do_call_base(%r13)
+ 	basr	%r14,%r1
+ 	lm	%r12,%r15,28(%r12)
+-	ssm	24(%r15)
+ 	br	%r14
+ 	
+ __critical_start:
+@@ -172,9 +192,21 @@
+ 
+ 	.globl  system_call
+ system_call:
++	STORE_TIMER __LC_SYNC_ENTER_TIMER
++sysc_saveall:
+ 	SAVE_ALL_BASE __LC_SAVE_AREA
+         SAVE_ALL __LC_SVC_OLD_PSW,__LC_SAVE_AREA,1
+ 	lh	%r7,0x8a	  # get svc number from lowcore
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++sysc_vtime:
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	bz	BASED(sysc_do_svc)
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
++sysc_stime:
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++sysc_update:
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
++#endif
+ sysc_do_svc:
+ 	l	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+ 	sla	%r7,2             # *4 and test for svc 0
+@@ -399,10 +431,19 @@
+  * we just ignore the PER event (FIXME: is there anything we have to do
+  * for LPSW?).
+  */
++	STORE_TIMER __LC_SYNC_ENTER_TIMER
+ 	SAVE_ALL_BASE __LC_SAVE_AREA
+         tm      __LC_PGM_INT_CODE+1,0x80 # check whether we got a per exception
+         bnz     BASED(pgm_per)           # got per exception -> special case
+ 	SAVE_ALL __LC_PGM_OLD_PSW,__LC_SAVE_AREA,1
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	bz	BASED(pgm_no_vtime)
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
++pgm_no_vtime:
++#endif
+ 	l	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+         l       %r3,__LC_PGM_ILC         # load program interruption code
+ 	la	%r8,0x7f
+@@ -433,6 +474,14 @@
+ #
+ pgm_per_std:
+ 	SAVE_ALL __LC_PGM_OLD_PSW,__LC_SAVE_AREA,1
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	bz	BASED(pgm_no_vtime2)
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
++pgm_no_vtime2:
++#endif
+ 	l	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+ 	l	%r1,__TI_task(%r9)
+ 	mvc	__THREAD_per+__PER_atmid(2,%r1),__LC_PER_ATMID
+@@ -450,6 +499,14 @@
+ #
+ pgm_svcper:
+ 	SAVE_ALL __LC_SVC_OLD_PSW,__LC_SAVE_AREA,1
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	bz	BASED(pgm_no_vtime3)
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
++pgm_no_vtime3:
++#endif
+ 	lh	%r7,0x8a		# get svc number from lowcore
+ 	l	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+ 	l	%r1,__TI_task(%r9)
+@@ -466,9 +523,18 @@
+ 
+         .globl io_int_handler
+ io_int_handler:
++	STORE_TIMER __LC_ASYNC_ENTER_TIMER
+ 	stck	__LC_INT_CLOCK
+ 	SAVE_ALL_BASE __LC_SAVE_AREA+16
+         SAVE_ALL __LC_IO_OLD_PSW,__LC_SAVE_AREA+16,0
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	bz	BASED(io_no_vtime)
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_ASYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
++io_no_vtime:
++#endif
+ 	l	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+         l       %r1,BASED(.Ldo_IRQ)        # load address of do_IRQ
+         la      %r2,SP_PTREGS(%r15) # address of register-save area
+@@ -557,9 +623,18 @@
+ 
+         .globl  ext_int_handler
+ ext_int_handler:
++	STORE_TIMER __LC_ASYNC_ENTER_TIMER
+ 	stck	__LC_INT_CLOCK
+ 	SAVE_ALL_BASE __LC_SAVE_AREA+16
+         SAVE_ALL __LC_EXT_OLD_PSW,__LC_SAVE_AREA+16,0
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	bz	BASED(ext_no_vtime)
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_ASYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
++ext_no_vtime:
++#endif
+ 	l	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+ 	la	%r2,SP_PTREGS(%r15)    # address of register-save area
+ 	lh	%r3,__LC_EXT_INT_CODE  # get interruption code
+@@ -573,8 +648,17 @@
+ 
+         .globl mcck_int_handler
+ mcck_int_handler:
++	STORE_TIMER __LC_ASYNC_ENTER_TIMER
+ 	SAVE_ALL_BASE __LC_SAVE_AREA+32
+         SAVE_ALL __LC_MCK_OLD_PSW,__LC_SAVE_AREA+32,0
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	bz	BASED(mcck_no_vtime)
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_ASYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
++mcck_no_vtime:
++#endif
+ 	l       %r1,BASED(.Ls390_mcck)
+ 	basr    %r14,%r1	  # call machine check handler
+ mcck_return:
+@@ -644,17 +728,47 @@
+ 	br	%r14
+ 
+ cleanup_system_call:
+-	mvc	__LC_RETURN_PSW(4),0(%r12)
+-	clc	4(4,%r12),BASED(cleanup_table_system_call)
+-	bne	BASED(0f)
++	mvc	__LC_RETURN_PSW(8),0(%r12)
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	clc	__LC_RETURN_PSW+4(4),BASED(cleanup_system_call_insn+4)
++	bh	BASED(0f)
++	mvc	__LC_SYNC_ENTER_TIMER(8),__LC_ASYNC_ENTER_TIMER
++0:	clc	__LC_RETURN_PSW+4(4),BASED(cleanup_system_call_insn+8)
++	bhe	BASED(cleanup_vtime)
++#endif
++	clc	__LC_RETURN_PSW+4(4),BASED(cleanup_system_call_insn)
++	bh	BASED(0f)
+ 	mvc	__LC_SAVE_AREA(16),__LC_SAVE_AREA+16
+ 0:	st	%r13,__LC_SAVE_AREA+20
+ 	SAVE_ALL __LC_SVC_OLD_PSW,__LC_SAVE_AREA,1
+ 	st	%r15,__LC_SAVE_AREA+28
+ 	lh	%r7,0x8a
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++cleanup_vtime:
++	clc	__LC_RETURN_PSW+4(4),BASED(cleanup_system_call_insn+12)
++	bhe	BASED(cleanup_stime)
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	bz	BASED(cleanup_novtime)
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
++cleanup_stime:
++	clc	__LC_RETURN_PSW+4(4),BASED(cleanup_system_call_insn+16)
++	bh	BASED(cleanup_update)
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++cleanup_update:
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
++cleanup_novtime:
++#endif
+ 	mvc	__LC_RETURN_PSW+4(4),BASED(cleanup_table_system_call+4)
+ 	la	%r12,__LC_RETURN_PSW
+ 	br	%r14
++cleanup_system_call_insn:
++	.long	sysc_saveall + 0x80000000
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	.long   system_call + 0x80000000
++	.long   sysc_vtime + 0x80000000
++	.long   sysc_stime + 0x80000000
++	.long   sysc_update + 0x80000000
++#endif
+ 
+ cleanup_sysc_return:
+ 	mvc	__LC_RETURN_PSW(4),0(%r12)
+@@ -663,15 +777,23 @@
+ 	br	%r14
+ 
+ cleanup_sysc_leave:
+-	clc	4(4,%r12),BASED(cleanup_sysc_leave_lpsw)
++	clc	4(4,%r12),BASED(cleanup_sysc_leave_insn)
++	be	BASED(0f)
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	mvc	__LC_EXIT_TIMER(8),__LC_ASYNC_ENTER_TIMER
++	clc	4(4,%r12),BASED(cleanup_sysc_leave_insn+4)
+ 	be	BASED(0f)
++#endif
+ 	mvc	__LC_RETURN_PSW(8),SP_PSW(%r15)
+ 	mvc	__LC_SAVE_AREA+16(16),SP_R12(%r15)
+ 	lm	%r0,%r11,SP_R0(%r15)
+ 	l	%r15,SP_R15(%r15)
+ 0:	la	%r12,__LC_RETURN_PSW
+ 	br	%r14
+-cleanup_sysc_leave_lpsw:
++cleanup_sysc_leave_insn:
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	.long	sysc_leave + 14 + 0x80000000
++#endif
+ 	.long	sysc_leave + 10 + 0x80000000
+ 
+ /*
+@@ -687,6 +809,7 @@
+ .L0x028:       .short 0x028
+ .L0x030:       .short 0x030
+ .L0x038:       .short 0x038
++.Lc_1:         .long  1
+ 
+ /*
+  * Symbol constants
+@@ -695,7 +818,7 @@
+ .Ldo_IRQ:      .long  do_IRQ
+ .Ldo_extint:   .long  do_extint
+ .Ldo_signal:   .long  do_signal
+-.Ldo_softirq:  .long  do_softirq
++.Ldo_softirq:  .long  __do_softirq
+ .Lhandle_per:  .long  do_single_step
+ .Ljump_table:  .long  pgm_check_table
+ .Lschedule:    .long  schedule
+diff -urN linux-2.6.8-rc3/arch/s390/kernel/entry64.S linux-2.6.8-s390/arch/s390/kernel/entry64.S
+--- linux-2.6.8-rc3/arch/s390/kernel/entry64.S	Thu Aug  5 18:39:51 2004
++++ linux-2.6.8-s390/arch/s390/kernel/entry64.S	Thu Aug  5 18:40:25 2004
+@@ -54,6 +54,21 @@
+ 
+ #define BASED(name) name-system_call(%r13)
+ 
++	.macro  STORE_TIMER lc_offset
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	stpt	\lc_offset
++#endif
++	.endm
++
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	.macro  UPDATE_VTIME lc_from,lc_to,lc_sum
++	lg	%r10,\lc_from
++	slg	%r10,\lc_to
++	alg	%r10,\lc_sum
++	stg	%r10,\lc_sum
++	.endm
++#endif
++
+ /*
+  * Register usage in interrupt handlers:
+  *    R9  - pointer to current task structure
+@@ -107,6 +122,7 @@
+ 	ni	__LC_RETURN_PSW+1,0xfd	# clear wait state bit
+ 	.endif
+ 	lmg	%r0,%r15,SP_R0(%r15)	# load gprs 0-15 of user
++	STORE_TIMER __LC_EXIT_TIMER
+ 	lpswe	__LC_RETURN_PSW		# back to caller
+ 	.endm
+ 
+@@ -143,7 +159,6 @@
+  */
+ 	.global do_call_softirq
+ do_call_softirq:
+-	stnsm	48(%r15),0xfc
+ 	stmg	%r12,%r15,56(%r15)
+ 	lgr	%r12,%r15
+ 	lg	%r0,__LC_ASYNC_STACK
+@@ -153,9 +168,8 @@
+ 	lg	%r15,__LC_ASYNC_STACK
+ 0:	aghi	%r15,-STACK_FRAME_OVERHEAD
+ 	stg	%r12,0(%r15)		# store back chain
+-	brasl	%r14,do_softirq
++	brasl	%r14,__do_softirq
+ 	lmg	%r12,%r15,56(%r12)
+-	ssm	48(%r15)
+ 	br	%r14
+ 
+ __critical_start:
+@@ -166,9 +180,21 @@
+ 
+ 	.globl  system_call
+ system_call:
++	STORE_TIMER __LC_SYNC_ENTER_TIMER
++sysc_saveall:
+ 	SAVE_ALL_BASE __LC_SAVE_AREA
+         SAVE_ALL __LC_SVC_OLD_PSW,__LC_SAVE_AREA,1
+ 	llgh    %r7,__LC_SVC_INT_CODE # get svc number from lowcore
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++sysc_vtime:
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	jz	sysc_do_svc
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
++sysc_stime:
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++sysc_update:
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
++#endif
+ sysc_do_svc:
+ 	lg	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+         slag    %r7,%r7,2         # *4 and test for svc 0
+@@ -446,10 +472,19 @@
+  * we just ignore the PER event (FIXME: is there anything we have to do
+  * for LPSW?).
+  */
++	STORE_TIMER __LC_SYNC_ENTER_TIMER
+ 	SAVE_ALL_BASE __LC_SAVE_AREA
+         tm      __LC_PGM_INT_CODE+1,0x80 # check whether we got a per exception
+         jnz     pgm_per                  # got per exception -> special case
+ 	SAVE_ALL __LC_PGM_OLD_PSW,__LC_SAVE_AREA,1
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	jz	pgm_no_vtime
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
++pgm_no_vtime:
++#endif
+ 	lg	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+ 	lgf     %r3,__LC_PGM_ILC	 # load program interruption code
+ 	lghi	%r8,0x7f
+@@ -480,6 +515,14 @@
+ #
+ pgm_per_std:
+ 	SAVE_ALL __LC_PGM_OLD_PSW,__LC_SAVE_AREA,1
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	jz	pgm_no_vtime2
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
++pgm_no_vtime2:
++#endif
+ 	lg	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+ 	lg	%r1,__TI_task(%r9)
+ 	mvc	__THREAD_per+__PER_atmid(2,%r1),__LC_PER_ATMID
+@@ -497,6 +540,14 @@
+ #
+ pgm_svcper:
+ 	SAVE_ALL __LC_SVC_OLD_PSW,__LC_SAVE_AREA,1
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	jz	pgm_no_vtime3
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
++pgm_no_vtime3:
++#endif
+ 	llgh    %r7,__LC_SVC_INT_CODE	# get svc number from lowcore
+ 	lg	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+ 	lg	%r1,__TI_task(%r9)
+@@ -512,9 +563,18 @@
+  */
+         .globl io_int_handler
+ io_int_handler:
++	STORE_TIMER __LC_ASYNC_ENTER_TIMER
+ 	stck	__LC_INT_CLOCK
+ 	SAVE_ALL_BASE __LC_SAVE_AREA+32
+         SAVE_ALL __LC_IO_OLD_PSW,__LC_SAVE_AREA+32,0
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	jz	io_no_vtime
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_ASYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
++io_no_vtime:
++#endif
+ 	lg	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+         la      %r2,SP_PTREGS(%r15)    # address of register-save area
+ 	brasl   %r14,do_IRQ            # call standard irq handler
+@@ -600,9 +660,18 @@
+  */
+         .globl  ext_int_handler
+ ext_int_handler:
++	STORE_TIMER __LC_ASYNC_ENTER_TIMER
+ 	stck	__LC_INT_CLOCK
+ 	SAVE_ALL_BASE __LC_SAVE_AREA+32
+         SAVE_ALL __LC_EXT_OLD_PSW,__LC_SAVE_AREA+32,0
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	jz	ext_no_vtime
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_ASYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
++ext_no_vtime:
++#endif
+ 	lg	%r9,__LC_THREAD_INFO	# load pointer to thread_info struct
+ 	la	%r2,SP_PTREGS(%r15)    # address of register-save area
+ 	llgh	%r3,__LC_EXT_INT_CODE  # get interruption code
+@@ -614,8 +683,17 @@
+  */
+         .globl mcck_int_handler
+ mcck_int_handler:
++	STORE_TIMER __LC_ASYNC_ENTER_TIMER
+ 	SAVE_ALL_BASE __LC_SAVE_AREA+64
+         SAVE_ALL __LC_MCK_OLD_PSW,__LC_SAVE_AREA+64,0
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	jz	mcck_no_vtime
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_ASYNC_ENTER_TIMER,__LC_USER_TIMER
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_ASYNC_ENTER_TIMER
++mcck_no_vtime:
++#endif
+ 	brasl   %r14,s390_do_machine_check
+ mcck_return:
+         RESTORE_ALL 0
+@@ -682,17 +760,47 @@
+ 	br	%r14
+ 
+ cleanup_system_call:
+-	mvc	__LC_RETURN_PSW(8),0(%r12)
+-	clc	8(8,%r12),BASED(cleanup_table_system_call)
+-	jne	0f
++	mvc	__LC_RETURN_PSW(16),0(%r12)
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	clc	__LC_RETURN_PSW+8(8),BASED(cleanup_system_call_insn+8)
++	jh	0f
++	mvc	__LC_SYNC_ENTER_TIMER(8),__LC_ASYNC_ENTER_TIMER
++0:	clc	__LC_RETURN_PSW+8(8),BASED(cleanup_system_call_insn+16)
++	jhe	cleanup_vtime
++#endif
++	clc	__LC_RETURN_PSW+8(8),BASED(cleanup_system_call_insn)
++	jh	0f
+ 	mvc	__LC_SAVE_AREA(32),__LC_SAVE_AREA+32
+ 0:	stg	%r13,__LC_SAVE_AREA+40
+ 	SAVE_ALL __LC_SVC_OLD_PSW,__LC_SAVE_AREA,1
+ 	stg	%r15,__LC_SAVE_AREA+56
+ 	llgh	%r7,__LC_SVC_INT_CODE
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++cleanup_vtime:
++	clc	__LC_RETURN_PSW+8(8),BASED(cleanup_system_call_insn+24)
++	jhe	cleanup_stime
++	tm	SP_PSW+1(%r15),0x01	# interrupting from user ?
++	jz	cleanup_novtime
++	UPDATE_VTIME __LC_EXIT_TIMER,__LC_SYNC_ENTER_TIMER,__LC_USER_TIMER
++cleanup_stime:
++	clc	__LC_RETURN_PSW+8(8),BASED(cleanup_system_call_insn+32)
++	jh	cleanup_update
++	UPDATE_VTIME __LC_LAST_UPDATE_TIMER,__LC_EXIT_TIMER,__LC_SYSTEM_TIMER
++cleanup_update:
++	mvc	__LC_LAST_UPDATE_TIMER(8),__LC_SYNC_ENTER_TIMER
++cleanup_novtime:
++#endif
+ 	mvc	__LC_RETURN_PSW+8(8),BASED(cleanup_table_system_call+8)
+ 	la	%r12,__LC_RETURN_PSW
+ 	br	%r14
++cleanup_system_call_insn:
++	.quad	sysc_saveall
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	.quad   system_call
++	.quad   sysc_vtime
++	.quad   sysc_stime
++	.quad   sysc_update
++#endif
+ 
+ cleanup_sysc_return:
+ 	mvc	__LC_RETURN_PSW(8),0(%r12)
+@@ -701,15 +809,23 @@
+ 	br	%r14
+ 
+ cleanup_sysc_leave:
+-	clc	8(8,%r12),BASED(cleanup_sysc_leave_lpsw)
++	clc	8(8,%r12),BASED(cleanup_sysc_leave_insn)
++	je	0f
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	mvc	__LC_EXIT_TIMER(8),__LC_ASYNC_ENTER_TIMER
++	clc	8(8,%r12),BASED(cleanup_sysc_leave_insn+8)
+ 	je	0f
++#endif
+ 	mvc	__LC_RETURN_PSW(16),SP_PSW(%r15)
+ 	mvc	__LC_SAVE_AREA+32(32),SP_R12(%r15)
+ 	lmg	%r0,%r11,SP_R0(%r15)
+ 	lg	%r15,SP_R15(%r15)
+ 0:	la	%r12,__LC_RETURN_PSW
+ 	br	%r14
+-cleanup_sysc_leave_lpsw:
++cleanup_sysc_leave_insn:
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	.quad	sysc_leave + 16
++#endif
+ 	.quad	sysc_leave + 12
+ 
+ /*
+diff -urN linux-2.6.8-rc3/arch/s390/kernel/setup.c linux-2.6.8-s390/arch/s390/kernel/setup.c
+--- linux-2.6.8-rc3/arch/s390/kernel/setup.c	Thu Aug  5 18:39:51 2004
++++ linux-2.6.8-s390/arch/s390/kernel/setup.c	Thu Aug  5 18:40:25 2004
+@@ -650,3 +650,29 @@
  {
- 	int i;
- 	extern unsigned long total_forks;
-+	cputime64_t user, nice, system, idle, iowait, irq, softirq, steal;
-+	u64 sum = 0;
- 	unsigned long jif;
--	u64	sum = 0, user = 0, nice = 0, system = 0,
--		idle = 0, iowait = 0, irq = 0, softirq = 0;
+ 	/* nothing... */
+ }
++
++extern asmlinkage void __do_softirq(void);
++
++asmlinkage void do_softirq(void)
++{
++	unsigned long flags;
++
++	if (in_interrupt())
++		return;
++
++	account_process_vtimes(current);
++
++	local_irq_save(flags);
++	local_bh_disable();
++
++	if (local_softirq_pending())
++		/* Call __do_softirq on asynchromous interrupt stack. */
++		do_call_softirq();
++
++	account_process_vtimes(current);
++
++	__local_bh_enable();
++	local_irq_restore(flags);
++}
++
++EXPORT_SYMBOL(do_softirq);
+diff -urN linux-2.6.8-rc3/arch/s390/kernel/time.c linux-2.6.8-s390/arch/s390/kernel/time.c
+--- linux-2.6.8-rc3/arch/s390/kernel/time.c	Thu Aug  5 18:40:22 2004
++++ linux-2.6.8-s390/arch/s390/kernel/time.c	Thu Aug  5 18:40:25 2004
+@@ -150,28 +150,6 @@
  
-+	user = nice = system = idle = iowait =
-+		irq = softirq = steal = cputime64_zero;
- 	jif = - wall_to_monotonic.tv_sec;
- 	if (wall_to_monotonic.tv_nsec)
- 		--jif;
-@@ -366,25 +368,27 @@
- 	for_each_cpu(i) {
- 		int j;
+ EXPORT_SYMBOL(do_settimeofday);
  
--		user += kstat_cpu(i).cpustat.user;
--		nice += kstat_cpu(i).cpustat.nice;
--		system += kstat_cpu(i).cpustat.system;
--		idle += kstat_cpu(i).cpustat.idle;
--		iowait += kstat_cpu(i).cpustat.iowait;
--		irq += kstat_cpu(i).cpustat.irq;
--		softirq += kstat_cpu(i).cpustat.softirq;
-+		user = cputime64_add(user, kstat_cpu(i).cpustat.user);
-+		nice = cputime64_add(nice, kstat_cpu(i).cpustat.nice);
-+		system = cputime64_add(system, kstat_cpu(i).cpustat.system);
-+		idle = cputime64_add(idle, kstat_cpu(i).cpustat.idle);
-+		iowait = cputime64_add(iowait, kstat_cpu(i).cpustat.iowait);
-+		irq = cputime64_add(irq, kstat_cpu(i).cpustat.irq);
-+		softirq = cputime64_add(softirq, kstat_cpu(i).cpustat.softirq);
-+		steal = cputime64_add(steal, kstat_cpu(i).cpustat.steal);
- 		for (j = 0 ; j < NR_IRQS ; j++)
- 			sum += kstat_cpu(i).irqs[j];
+-#ifndef CONFIG_ARCH_S390X
+-
+-static inline __u32
+-__calculate_ticks(__u64 elapsed)
+-{
+-	register_pair rp;
+-
+-	rp.pair = elapsed >> 1;
+-	asm ("dr %0,%1" : "+d" (rp) : "d" (CLK_TICKS_PER_JIFFY >> 1));
+-	return rp.subreg.odd;
+-}
+-
+-#else /* CONFIG_ARCH_S390X */
+-
+-static inline __u32
+-__calculate_ticks(__u64 elapsed)
+-{
+-	return elapsed / CLK_TICKS_PER_JIFFY;
+-}
+-
+-#endif /* CONFIG_ARCH_S390X */
+-
+ 
+ #ifdef CONFIG_PROFILING
+ extern char _stext, _etext;
+@@ -227,14 +205,14 @@
+ void account_ticks(struct pt_regs *regs)
+ {
+ 	__u64 tmp;
+-	__u32 ticks;
++	__u32 ticks, xticks;
+ 
+ 	/* Calculate how many ticks have passed. */
+ 	if (S390_lowcore.int_clock < S390_lowcore.jiffy_timer)
+ 		return;
+ 	tmp = S390_lowcore.int_clock - S390_lowcore.jiffy_timer;
+ 	if (tmp >= 2*CLK_TICKS_PER_JIFFY) {  /* more than two ticks ? */
+-		ticks = __calculate_ticks(tmp) + 1;
++		ticks = __div(tmp, CLK_TICKS_PER_JIFFY) + 1;
+ 		S390_lowcore.jiffy_timer +=
+ 			CLK_TICKS_PER_JIFFY * (__u64) ticks;
+ 	} else if (tmp >= CLK_TICKS_PER_JIFFY) {
+@@ -256,11 +234,9 @@
+ 	 */
+ 	write_seqlock(&xtime_lock);
+ 	if (S390_lowcore.jiffy_timer > xtime_cc) {
+-		__u32 xticks;
+-
+ 		tmp = S390_lowcore.jiffy_timer - xtime_cc;
+ 		if (tmp >= 2*CLK_TICKS_PER_JIFFY) {
+-			xticks = __calculate_ticks(tmp);
++			xticks = __div(tmp, CLK_TICKS_PER_JIFFY);
+ 			xtime_cc += (__u64) xticks * CLK_TICKS_PER_JIFFY;
+ 		} else {
+ 			xticks = 1;
+@@ -270,14 +246,18 @@
+ 			do_timer(regs);
  	}
+ 	write_sequnlock(&xtime_lock);
+-	while (ticks--)
+-		update_process_times(user_mode(regs));
+ #else
+-	while (ticks--) {
++	for (xticks = ticks; xticks > 0; xticks--)
+ 		do_timer(regs);
++#endif
++
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++	update_process_vtimes(current);
++#else
++	while (ticks--)
+ 		update_process_times(user_mode(regs));
+-	}
+ #endif
++
+ 	s390_do_profile(regs);
+ }
  
--	seq_printf(p, "cpu  %llu %llu %llu %llu %llu %llu %llu\n",
--		(unsigned long long)jiffies_64_to_clock_t(user),
--		(unsigned long long)jiffies_64_to_clock_t(nice),
--		(unsigned long long)jiffies_64_to_clock_t(system),
--		(unsigned long long)jiffies_64_to_clock_t(idle),
--		(unsigned long long)jiffies_64_to_clock_t(iowait),
--		(unsigned long long)jiffies_64_to_clock_t(irq),
--		(unsigned long long)jiffies_64_to_clock_t(softirq));
-+	seq_printf(p, "cpu  %llu %llu %llu %llu %llu %llu %llu %llu\n",
-+		(unsigned long long)cputime64_to_clock_t(user),
-+		(unsigned long long)cputime64_to_clock_t(nice),
-+		(unsigned long long)cputime64_to_clock_t(system),
-+		(unsigned long long)cputime64_to_clock_t(idle),
-+		(unsigned long long)cputime64_to_clock_t(iowait),
-+		(unsigned long long)cputime64_to_clock_t(irq),
-+		(unsigned long long)cputime64_to_clock_t(softirq),
-+		(unsigned long long)cputime64_to_clock_t(steal));
- 	for_each_online_cpu(i) {
+diff -urN linux-2.6.8-rc3/arch/s390/kernel/vtime.c linux-2.6.8-s390/arch/s390/kernel/vtime.c
+--- linux-2.6.8-rc3/arch/s390/kernel/vtime.c	Thu Aug  5 18:39:51 2004
++++ linux-2.6.8-s390/arch/s390/kernel/vtime.c	Thu Aug  5 18:40:25 2004
+@@ -17,6 +17,8 @@
+ #include <linux/types.h>
+ #include <linux/timex.h>
+ #include <linux/notifier.h>
++#include <linux/kernel_stat.h>
++#include <linux/rcupdate.h>
  
- 		/* Copy values here to work around gcc-2.95.3, gcc-2.96 */
-@@ -395,15 +399,17 @@
- 		iowait = kstat_cpu(i).cpustat.iowait;
- 		irq = kstat_cpu(i).cpustat.irq;
- 		softirq = kstat_cpu(i).cpustat.softirq;
--		seq_printf(p, "cpu%d %llu %llu %llu %llu %llu %llu %llu\n",
-+		steal = kstat_cpu(i).cpustat.steal;
-+		seq_printf(p, "cpu%d %llu %llu %llu %llu %llu %llu %llu %llu\n",
- 			i,
--			(unsigned long long)jiffies_64_to_clock_t(user),
--			(unsigned long long)jiffies_64_to_clock_t(nice),
--			(unsigned long long)jiffies_64_to_clock_t(system),
--			(unsigned long long)jiffies_64_to_clock_t(idle),
--			(unsigned long long)jiffies_64_to_clock_t(iowait),
--			(unsigned long long)jiffies_64_to_clock_t(irq),
--			(unsigned long long)jiffies_64_to_clock_t(softirq));
-+			(unsigned long long)cputime64_to_clock_t(user),
-+			(unsigned long long)cputime64_to_clock_t(nice),
-+			(unsigned long long)cputime64_to_clock_t(system),
-+			(unsigned long long)cputime64_to_clock_t(idle),
-+			(unsigned long long)cputime64_to_clock_t(iowait),
-+			(unsigned long long)cputime64_to_clock_t(irq),
-+			(unsigned long long)cputime64_to_clock_t(softirq),
-+			(unsigned long long)cputime64_to_clock_t(steal));
- 	}
- 	seq_printf(p, "intr %llu", (unsigned long long)sum);
+ #include <asm/s390_ext.h>
+ #include <asm/timer.h>
+@@ -25,7 +27,93 @@
+ static ext_int_info_t ext_int_info_timer;
+ DEFINE_PER_CPU(struct vtimer_queue, virt_cpu_timer);
  
-diff -urN linux-2.6.8-rc3/include/asm-alpha/cputime.h linux-2.6.8-s390/include/asm-alpha/cputime.h
---- linux-2.6.8-rc3/include/asm-alpha/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-alpha/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __ALPHA_CPUTIME_H
-+#define __ALPHA_CPUTIME_H
+-void start_cpu_timer(void)
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++/*
++ * Update process times based on virtual cpu times stored by entry.S
++ * to the lowcore fields user_timer, system_timer & steal_clock.
++ */
++void update_process_vtimes(struct task_struct *tsk)
++{
++	cputime_t user, system, steal;
 +
-+#include <asm-generic/cputime.h>
++	user = S390_lowcore.user_timer >> 12;
++	S390_lowcore.user_timer -= user << 12;
++	system =  S390_lowcore.system_timer >> 12;
++	S390_lowcore.system_timer -= system << 12;
++	steal = S390_lowcore.steal_clock >> 12;
++	S390_lowcore.steal_clock -= steal << 12;
++	if (steal > user + system)
++		steal -= user + system;
++	else
++		steal = 0;
 +
-+#endif /* __ALPHA_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-arm/cputime.h linux-2.6.8-s390/include/asm-arm/cputime.h
---- linux-2.6.8-rc3/include/asm-arm/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-arm/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __ARM_CPUTIME_H
-+#define __ARM_CPUTIME_H
++	account_cputime(tsk, HARDIRQ_OFFSET, user, system);
++	account_stealtime(tsk, steal);
 +
-+#include <asm-generic/cputime.h>
++	run_local_timers();
++	if (rcu_pending(smp_processor_id()))
++		rcu_check_callbacks(smp_processor_id(), user != 0);
++	scheduler_tick();
++}
 +
-+#endif /* __ARM_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-arm26/cputime.h linux-2.6.8-s390/include/asm-arm26/cputime.h
---- linux-2.6.8-rc3/include/asm-arm26/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-arm26/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __ARM26_CPUTIME_H
-+#define __ARM26_CPUTIME_H
++/*
++ * Update process times based on virtual cpu times stored by entry.S
++ * to the lowcore fields user_timer, system_timer & steal_clock.
++ */
++void account_process_vtimes(struct task_struct *tsk)
++{
++	cputime_t user, system, steal;
++	__u64 timer, clock;
 +
-+#include <asm-generic/cputime.h>
++	timer = S390_lowcore.last_update_timer;
++	clock = S390_lowcore.last_update_clock;
++	asm volatile ("  STPT %0\n"    /* Store current cpu timer value */
++		      "  STCK %1"      /* Store current tod clock value */
++		      : "=m" (S390_lowcore.last_update_timer),
++		        "=m" (S390_lowcore.last_update_clock) );
++	S390_lowcore.system_timer += timer - S390_lowcore.last_update_timer;
++	S390_lowcore.steal_clock += S390_lowcore.last_update_clock - clock;
 +
-+#endif /* __ARM26_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-cris/cputime.h linux-2.6.8-s390/include/asm-cris/cputime.h
---- linux-2.6.8-rc3/include/asm-cris/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-cris/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __CRIS_CPUTIME_H
-+#define __CRIS_CPUTIME_H
++	user = S390_lowcore.user_timer >> 12;
++	S390_lowcore.user_timer -= user << 12;
++	system =  S390_lowcore.system_timer >> 12;
++	S390_lowcore.system_timer -= system << 12;
++	steal = S390_lowcore.steal_clock >> 12;
++	S390_lowcore.steal_clock -= steal << 12;
++	if (steal > user + system)
++		steal -= user + system;
++	else
++		steal = 0;
 +
-+#include <asm-generic/cputime.h>
++	account_cputime(tsk, 0, user, system);
++	account_stealtime(tsk, steal);
++}
 +
-+#endif /* __CRIS_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-generic/cputime.h linux-2.6.8-s390/include/asm-generic/cputime.h
---- linux-2.6.8-rc3/include/asm-generic/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-generic/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,63 @@
-+#ifndef _ASM_GENERIC_CPUTIME_H
-+#define _ASM_GENERIC_CPUTIME_H
++static inline void set_vtimer(__u64 expires)
++{
++	__u64 timer;
 +
-+#include <linux/time.h>
-+#include <linux/jiffies.h>
++	asm volatile ("  STPT %0\n"  /* Store current cpu timer value */
++		      "  SPT %1"     /* Set new value immediatly afterwards */
++		      : "=m" (timer) : "m" (expires) );
++	S390_lowcore.system_timer += S390_lowcore.last_update_timer - timer;
++	S390_lowcore.last_update_timer = expires;
 +
-+typedef unsigned long cputime_t;
++	/* store expire time for this CPU timer */
++	per_cpu(virt_cpu_timer, smp_processor_id()).to_expire = expires;
++}
++#else
++static inline void set_vtimer(__u64 expires)
++{
++	S390_lowcore.last_update_timer = expires;
++	asm volatile ("SPT %0" : : "m" (S390_lowcore.last_update_timer));
 +
-+#define cputime_zero (0UL)
++	/* store expire time for this CPU timer */
++	per_cpu(virt_cpu_timer, smp_processor_id()).to_expire = expires;
++}
++#endif
++
++static void start_cpu_timer(void)
+ {
+ 	struct vtimer_queue *vt_list;
+ 
+@@ -33,7 +121,7 @@
+ 	set_vtimer(vt_list->idle);
+ }
+ 
+-void stop_cpu_timer(void)
++static void stop_cpu_timer(void)
+ {
+ 	__u64 done;
+ 	struct vtimer_queue *vt_list;
+@@ -71,19 +159,11 @@
+ 	set_vtimer(VTIMER_MAX_SLICE);
+ }
+ 
+-void set_vtimer(__u64 expires)
+-{
+-	asm volatile ("SPT %0" : : "m" (expires));
+-
+-	/* store expire time for this CPU timer */
+-	per_cpu(virt_cpu_timer, smp_processor_id()).to_expire = expires;
+-}
+-
+ /*
+  * Sorted add to a list. List is linear searched until first bigger
+  * element is found.
+  */
+-void list_add_sorted(struct vtimer_list *timer, struct list_head *head)
++static void list_add_sorted(struct vtimer_list *timer, struct list_head *head)
+ {
+ 	struct vtimer_list *event;
+ 
+@@ -429,11 +509,12 @@
+ {
+ 	struct vtimer_queue *vt_list;
+ 	unsigned long cr0;
+-	__u64 timer;
+ 
+ 	/* kick the virtual timer */
+-	timer = VTIMER_MAX_SLICE;
+-	asm volatile ("SPT %0" : : "m" (timer));
++	S390_lowcore.exit_timer = VTIMER_MAX_SLICE;
++	S390_lowcore.last_update_timer = VTIMER_MAX_SLICE;
++	asm volatile ("SPT %0" : : "m" (S390_lowcore.last_update_timer));
++	asm volatile ("STCK %0" : "=m" (S390_lowcore.last_update_clock));
+ 	__ctl_store(cr0, 0, 0);
+ 	cr0 |= 0x400;
+ 	__ctl_load(cr0, 0, 0);
+diff -urN linux-2.6.8-rc3/include/asm-s390/cputime.h linux-2.6.8-s390/include/asm-s390/cputime.h
+--- linux-2.6.8-rc3/include/asm-s390/cputime.h	Thu Aug  5 18:40:25 2004
++++ linux-2.6.8-s390/include/asm-s390/cputime.h	Thu Aug  5 18:40:25 2004
+@@ -1,6 +1,167 @@
+-#ifndef __S390_CPUTIME_H
+-#define __S390_CPUTIME_H
++/*
++ *  include/asm-s390/cputime.h
++ *
++ *  (C) Copyright IBM Corp. 2004
++ *
++ *  Author: Martin Schwidefsky <schwidefsky@de.ibm.com>
++ */
+ 
+-#include <asm-generic/cputime.h>
++#ifndef _S390_CPUTIME_H
++#define _S390_CPUTIME_H
+ 
+-#endif /* __S390_CPUTIME_H */
++/* We want to use micro-second resolution. */
++
++typedef unsigned long long cputime_t;
++typedef unsigned long long cputime64_t;
++
++#ifndef __s390x__
++
++static inline unsigned int
++__div(unsigned long long n, unsigned int base)
++{
++	register_pair rp;
++
++	rp.pair = n >> 1;
++	asm ("dr %0,%1" : "+d" (rp) : "d" (base >> 1));
++	return rp.subreg.odd;
++}
++
++#else /* __s390x__ */
++
++static inline unsigned int
++__div(unsigned long long n, unsigned int base)
++{
++	return n / base;
++}
++
++#endif /* __s390x__ */
++
++#define cputime_zero			(0ULL)
 +#define cputime_add(__a, __b)		((__a) +  (__b))
 +#define cputime_sub(__a, __b)		((__a) -  (__b))
 +#define cputime_eq(__a, __b)		((__a) == (__b))
@@ -361,829 +940,292 @@ diff -urN linux-2.6.8-rc3/include/asm-generic/cputime.h linux-2.6.8-s390/include
 +#define cputime_ge(__a, __b)		((__a) >= (__b))
 +#define cputime_lt(__a, __b)		((__a) <  (__b))
 +#define cputime_le(__a, __b)		((__a) <= (__b))
-+#define cputime_to_jiffies(__ct)	(__ct)
-+#define jiffies_to_cputime(__hz)	(__hz)
++#define cputime_to_jiffies(__ct)	(__div((__ct), 1000000 / HZ))
++#define jiffies_to_cputime(__hz)	((cputime_t)(__hz) * (1000000 / HZ))
 +
-+typedef u64 cputime64_t;
-+
-+#define cputime64_zero (0ULL)
++#define cputime64_zero			(0ULL)
 +#define cputime64_add(__a, __b)		((__a) + (__b))
-+#define cputime64_to_jiffies64(__ct)	(__ct)
-+#define cputime_to_cputime64(__ct)	((u64) __ct)
++#define cputime_to_cputime64(__ct)	(__ct)
 +
++static inline u64
++cputime64_to_jiffies64(cputime64_t cputime)
++{
++	do_div(cputime, 1000000 / HZ);
++	return cputime;
++}
 +
 +/*
 + * Convert cputime to milliseconds and back.
 + */
-+#define cputime_to_msecs(__ct)		jiffies_to_msecs(__ct)
-+#define msecs_to_cputime(__msecs)	msecs_to_jiffies(__msecs)
++static inline unsigned int
++cputime_to_msecs(const cputime_t cputime)
++{
++	return __div(cputime, 1000);
++}
++
++static inline cputime_t
++msecs_to_cputime(const unsigned int m)
++{
++	return (cputime_t) m * 1000;
++}
 +
 +/*
-+ * Convert cputime to seconds and back.
++ * Convert cputime to milliseconds and back.
 + */
-+#define cputime_to_secs(__ct)		(jiffies_to_msecs(__ct) / HZ)
-+#define secs_to_cputime(__secs)		(msecs_to_jiffies(__secs * HZ))
++static inline unsigned int
++cputime_to_secs(const cputime_t cputime)
++{
++	return __div(cputime, 1000000);
++}
++
++static inline cputime_t
++secs_to_cputime(const unsigned int s)
++{
++	return (cputime_t) s * 1000000;
++}
 +
 +/*
 + * Convert cputime to timespec and back.
 + */
-+#define timespec_to_cputime(__val)	timespec_to_jiffies(__val)
-+#define cputime_to_timespec(__ct,__val)	jiffies_to_timespec(__ct,__val)
++static inline cputime_t
++timespec_to_cputime(const struct timespec *value)
++{
++        return value->tv_nsec / 1000 + (u64) value->tv_sec * 1000000;
++}
++
++static inline void
++cputime_to_timespec(const cputime_t cputime, struct timespec *value)
++{
++#ifndef __s390x__
++	register_pair rp;
++
++	rp.pair = cputime >> 1;
++	asm ("dr %0,%1" : "+d" (rp) : "d" (1000000 >> 1));
++	value->tv_nsec = rp.subreg.even * 1000;
++	value->tv_sec = rp.subreg.odd;
++#else
++	value->tv_nsec = (cputime % 1000000) * 1000;
++	value->tv_sec = cputime / 1000000;
++#endif
++}
 +
 +/*
 + * Convert cputime to timeval and back.
++ * Since cputime and timeval have the same resolution (microseconds)
++ * this is easy.
 + */
-+#define timeval_to_cputime(__val)	timeval_to_jiffies(__val)
-+#define cputime_to_timeval(__ct,__val)	jiffies_to_timeval(__ct,__val)
++static inline cputime_t
++timeval_to_cputime(const struct timeval *value)
++{
++        return value->tv_usec + (u64) value->tv_sec * 1000000;
++}
++
++static inline void
++cputime_to_timeval(const cputime_t cputime, struct timeval *value)
++{
++#ifndef __s390x__
++	register_pair rp;
++
++	rp.pair = cputime >> 1;
++	asm ("dr %0,%1" : "+d" (rp) : "d" (1000000 >> 1));
++	value->tv_usec = rp.subreg.even;
++	value->tv_sec = rp.subreg.odd;
++#else
++	value->tv_usec = cputime % 1000000;
++	value->tv_sec = cputime / 1000000;
++#endif
++}
 +
 +/*
 + * Convert cputime to clock and back.
 + */
-+#define cputime_to_clock_t(__ct)	jiffies_to_clock_t(__ct)
-+#define clock_t_to_cputime(__x)		clock_t_to_jiffies(__x)
++static inline clock_t
++cputime_to_clock_t(cputime_t cputime)
++{
++	return __div(cputime, 1000000 / USER_HZ);
++}
++
++static inline cputime_t
++clock_t_to_cputime(unsigned long x)
++{
++	return (cputime_t) x * (1000000 / USER_HZ);
++}
 +
 +/*
 + * Convert cputime64 to clock.
 + */
-+#define cputime64_to_clock_t(__ct)	jiffies_64_to_clock_t(__ct)
++static inline clock_t
++cputime64_to_clock_t(cputime64_t cputime)
++{
++       return __div(cputime, 1000000 / USER_HZ);
++}
 +
-+#endif
-diff -urN linux-2.6.8-rc3/include/asm-h8300/cputime.h linux-2.6.8-s390/include/asm-h8300/cputime.h
---- linux-2.6.8-rc3/include/asm-h8300/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-h8300/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __H8300_CPUTIME_H
-+#define __H8300_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __H8300_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-i386/cputime.h linux-2.6.8-s390/include/asm-i386/cputime.h
---- linux-2.6.8-rc3/include/asm-i386/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-i386/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __I386_CPUTIME_H
-+#define __I386_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __I386_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-ia64/cputime.h linux-2.6.8-s390/include/asm-ia64/cputime.h
---- linux-2.6.8-rc3/include/asm-ia64/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-ia64/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __IA64_CPUTIME_H
-+#define __IA64_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __IA64_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-m68k/cputime.h linux-2.6.8-s390/include/asm-m68k/cputime.h
---- linux-2.6.8-rc3/include/asm-m68k/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-m68k/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __M68K_CPUTIME_H
-+#define __M68K_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __M68K_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-m68knommu/cputime.h linux-2.6.8-s390/include/asm-m68knommu/cputime.h
---- linux-2.6.8-rc3/include/asm-m68knommu/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-m68knommu/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __M68KNOMMU_CPUTIME_H
-+#define __M68KNOMMU_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __M68KNOMMU_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-mips/cputime.h linux-2.6.8-s390/include/asm-mips/cputime.h
---- linux-2.6.8-rc3/include/asm-mips/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-mips/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __MIPS_CPUTIME_H
-+#define __MIPS_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __MIPS_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-parisc/cputime.h linux-2.6.8-s390/include/asm-parisc/cputime.h
---- linux-2.6.8-rc3/include/asm-parisc/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-parisc/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __PARISC_CPUTIME_H
-+#define __PARISC_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __PARISC_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-ppc/cputime.h linux-2.6.8-s390/include/asm-ppc/cputime.h
---- linux-2.6.8-rc3/include/asm-ppc/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-ppc/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __PPC_CPUTIME_H
-+#define __PPC_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __PPC_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-ppc64/cputime.h linux-2.6.8-s390/include/asm-ppc64/cputime.h
---- linux-2.6.8-rc3/include/asm-ppc64/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-ppc64/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __PPC_CPUTIME_H
-+#define __PPC_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __PPC_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-s390/cputime.h linux-2.6.8-s390/include/asm-s390/cputime.h
---- linux-2.6.8-rc3/include/asm-s390/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-s390/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __S390_CPUTIME_H
-+#define __S390_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __S390_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-sh/cputime.h linux-2.6.8-s390/include/asm-sh/cputime.h
---- linux-2.6.8-rc3/include/asm-sh/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-sh/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __SH_CPUTIME_H
-+#define __SH_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __SH_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-sparc/cputime.h linux-2.6.8-s390/include/asm-sparc/cputime.h
---- linux-2.6.8-rc3/include/asm-sparc/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-sparc/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __SPARC_CPUTIME_H
-+#define __SPARC_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __SPARC_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-sparc64/cputime.h linux-2.6.8-s390/include/asm-sparc64/cputime.h
---- linux-2.6.8-rc3/include/asm-sparc64/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-sparc64/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __SPARC64_CPUTIME_H
-+#define __SPARC64_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __SPARC64_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-um/cputime.h linux-2.6.8-s390/include/asm-um/cputime.h
---- linux-2.6.8-rc3/include/asm-um/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-um/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __UM_CPUTIME_H
-+#define __UM_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __UM_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-v850/cputime.h linux-2.6.8-s390/include/asm-v850/cputime.h
---- linux-2.6.8-rc3/include/asm-v850/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-v850/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __V850_CPUTIME_H
-+#define __V850_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __V850_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/asm-x86_64/cputime.h linux-2.6.8-s390/include/asm-x86_64/cputime.h
---- linux-2.6.8-rc3/include/asm-x86_64/cputime.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6.8-s390/include/asm-x86_64/cputime.h	Thu Aug  5 18:40:24 2004
-@@ -0,0 +1,6 @@
-+#ifndef __X86_64_CPUTIME_H
-+#define __X86_64_CPUTIME_H
-+
-+#include <asm-generic/cputime.h>
-+
-+#endif /* __X86_64_CPUTIME_H */
-diff -urN linux-2.6.8-rc3/include/linux/kernel_stat.h linux-2.6.8-s390/include/linux/kernel_stat.h
---- linux-2.6.8-rc3/include/linux/kernel_stat.h	Wed Jun 16 07:20:04 2004
-+++ linux-2.6.8-s390/include/linux/kernel_stat.h	Thu Aug  5 18:40:24 2004
-@@ -6,6 +6,7 @@
- #include <linux/smp.h>
++#endif /* _S390_CPUTIME_H */
+diff -urN linux-2.6.8-rc3/include/asm-s390/hardirq.h linux-2.6.8-s390/include/asm-s390/hardirq.h
+--- linux-2.6.8-rc3/include/asm-s390/hardirq.h	Wed Jun 16 07:20:26 2004
++++ linux-2.6.8-s390/include/asm-s390/hardirq.h	Thu Aug  5 18:40:25 2004
+@@ -16,6 +16,7 @@
  #include <linux/threads.h>
- #include <linux/percpu.h>
-+#include <asm/cputime.h>
+ #include <linux/sched.h>
+ #include <linux/cache.h>
++#include <linux/interrupt.h>
+ #include <asm/lowcore.h>
  
- /*
-  * 'kernel_stat.h' contains the definitions needed for doing
-@@ -14,13 +15,14 @@
-  */
+ /* irq_cpustat_t is unused currently, but could be converted
+@@ -89,6 +90,7 @@
  
- struct cpu_usage_stat {
--	u64 user;
--	u64 nice;
--	u64 system;
--	u64 softirq;
--	u64 irq;
--	u64 idle;
--	u64 iowait;
-+	cputime64_t user;
-+	cputime64_t nice;
-+	cputime64_t system;
-+	cputime64_t softirq;
-+	cputime64_t irq;
-+	cputime64_t idle;
-+	cputime64_t iowait;
-+	cputime64_t steal;
+ #define irq_enter()							\
+ do {									\
++	account_process_vtimes(current);				\
+ 	(preempt_count() += HARDIRQ_OFFSET);				\
+ } while(0)
+ 	
+@@ -96,7 +98,7 @@
+ extern void do_call_softirq(void);
+ extern void account_ticks(struct pt_regs *);
+ 
+-#define invoke_softirq() do_call_softirq()
++#define __ARCH_HAS_DO_SOFTIRQ
+ 
+ #ifdef CONFIG_PREEMPT
+ # define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+@@ -108,10 +110,11 @@
+ 
+ #define irq_exit()							\
+ do {									\
++	account_process_vtimes(current);				\
+ 	preempt_count() -= IRQ_EXIT_OFFSET;				\
+ 	if (!in_interrupt() && local_softirq_pending())			\
+ 		/* Use the async. stack for softirq */			\
+-		do_call_softirq();					\
++		do_softirq();						\
+ 	preempt_enable_no_resched();					\
+ } while (0)
+ 
+diff -urN linux-2.6.8-rc3/include/asm-s390/lowcore.h linux-2.6.8-s390/include/asm-s390/lowcore.h
+--- linux-2.6.8-rc3/include/asm-s390/lowcore.h	Wed Jun 16 07:19:22 2004
++++ linux-2.6.8-s390/include/asm-s390/lowcore.h	Thu Aug  5 18:40:25 2004
+@@ -56,13 +56,18 @@
+ 
+ #define __LC_RETURN_PSW                 0x200
+ 
+-#define __LC_IRB			0x210
+-
+-#define __LC_DIAG44_OPCODE		0x250
+-
+ #define __LC_SAVE_AREA                  0xC00
+ 
+ #ifndef __s390x__
++#define __LC_IRB			0x208
++#define __LC_SYNC_ENTER_TIMER		0x248
++#define __LC_ASYNC_ENTER_TIMER		0x250
++#define __LC_EXIT_TIMER			0x258
++#define __LC_LAST_UPDATE_TIMER		0x260
++#define __LC_USER_TIMER			0x268
++#define __LC_SYSTEM_TIMER		0x270
++#define __LC_LAST_UPDATE_CLOCK		0x278
++#define __LC_STEAL_CLOCK		0x280
+ #define __LC_KERNEL_STACK               0xC40
+ #define __LC_THREAD_INFO		0xC44
+ #define __LC_ASYNC_STACK                0xC48
+@@ -75,6 +80,16 @@
+ #define __LC_CURRENT			0xC90
+ #define __LC_INT_CLOCK			0xC98
+ #else /* __s390x__ */
++#define __LC_IRB			0x210
++#define __LC_SYNC_ENTER_TIMER		0x250
++#define __LC_ASYNC_ENTER_TIMER		0x258
++#define __LC_EXIT_TIMER			0x260
++#define __LC_LAST_UPDATE_TIMER		0x268
++#define __LC_USER_TIMER			0x270
++#define __LC_SYSTEM_TIMER		0x278
++#define __LC_LAST_UPDATE_CLOCK		0x280
++#define __LC_STEAL_CLOCK		0x288
++#define __LC_DIAG44_OPCODE		0x290
+ #define __LC_KERNEL_STACK               0xD40
+ #define __LC_THREAD_INFO		0xD48
+ #define __LC_ASYNC_STACK                0xD50
+@@ -85,7 +100,7 @@
+ #define __LC_IPLDEV                     0xDB8
+ #define __LC_JIFFY_TIMER		0xDC0
+ #define __LC_CURRENT			0xDD8
+-#define __LC_INT_CLOCK			0xDe8
++#define __LC_INT_CLOCK			0xDE8
+ #endif /* __s390x__ */
+ 
+ #define __LC_PANIC_MAGIC                0xE00
+@@ -167,7 +182,15 @@
+ 
+         psw_t        return_psw;               /* 0x200 */
+ 	__u8	     irb[64];		       /* 0x208 */
+-	__u8         pad8[0xc00-0x248];        /* 0x248 */
++	__u64        sync_enter_timer;         /* 0x248 */
++	__u64        async_enter_timer;        /* 0x250 */
++	__u64        exit_timer;               /* 0x258 */
++	__u64        last_update_timer;        /* 0x260 */
++	__u64        user_timer;               /* 0x268 */
++	__u64        system_timer;             /* 0x270 */
++	__u64        last_update_clock;        /* 0x278 */
++	__u64        steal_clock;              /* 0x280 */
++	__u8         pad8[0xc00-0x288];        /* 0x288 */
+ 
+         /* System info area */
+ 	__u32        save_area[16];            /* 0xc00 */
+@@ -247,8 +270,16 @@
+ 	psw_t        io_new_psw;               /* 0x1f0 */
+         psw_t        return_psw;               /* 0x200 */
+ 	__u8	     irb[64];		       /* 0x210 */
+-	__u32        diag44_opcode;            /* 0x250 */
+-        __u8         pad8[0xc00-0x254];        /* 0x254 */
++	__u64        sync_enter_timer;         /* 0x250 */
++	__u64        async_enter_timer;        /* 0x258 */
++	__u64        exit_timer;               /* 0x260 */
++	__u64        last_update_timer;        /* 0x268 */
++	__u64        user_timer;               /* 0x270 */
++	__u64        system_timer;             /* 0x278 */
++	__u64        last_update_clock;        /* 0x280 */
++	__u64        steal_clock;              /* 0x288 */
++	__u32        diag44_opcode;            /* 0x290 */
++        __u8         pad8[0xc00-0x294];        /* 0x294 */
+         /* System info area */
+ 	__u64        save_area[16];            /* 0xc00 */
+         __u8         pad9[0xd40-0xc80];        /* 0xc80 */
+diff -urN linux-2.6.8-rc3/include/asm-s390/system.h linux-2.6.8-s390/include/asm-s390/system.h
+--- linux-2.6.8-rc3/include/asm-s390/system.h	Wed Jun 16 07:20:26 2004
++++ linux-2.6.8-s390/include/asm-s390/system.h	Thu Aug  5 18:40:25 2004
+@@ -22,6 +22,12 @@
+ struct task_struct;
+ 
+ extern struct task_struct *__switch_to(void *, void *);
++#ifdef CONFIG_VIRT_CPU_ACCOUNTING
++extern void update_process_vtimes(struct task_struct *);
++extern void account_process_vtimes(struct task_struct *);
++#else
++#define account_process_vtimes(tsk)
++#endif
+ 
+ #ifdef __s390x__
+ #define __FLAG_SHIFT 56
+@@ -107,7 +113,9 @@
+ #define task_running(rq, p)		((rq)->curr == (p))
+ #define finish_arch_switch(rq, prev) do {				     \
+ 	set_fs(current->thread.mm_segment);				     \
+-	spin_unlock_irq(&(rq)->lock);					     \
++	spin_unlock(&(rq)->lock);					     \
++	account_process_vtimes(prev);					     \
++	local_irq_enable();						     \
+ } while (0)
+ 
+ #define nop() __asm__ __volatile__ ("nop")
+diff -urN linux-2.6.8-rc3/include/asm-s390/timer.h linux-2.6.8-s390/include/asm-s390/timer.h
+--- linux-2.6.8-rc3/include/asm-s390/timer.h	Wed Jun 16 07:19:01 2004
++++ linux-2.6.8-s390/include/asm-s390/timer.h	Thu Aug  5 18:40:25 2004
+@@ -37,8 +37,6 @@
+ 	__u64 idle;		  /* temp var for idle */
  };
  
- struct kernel_stat {
-@@ -50,4 +52,7 @@
- 	return sum;
- }
- 
-+extern void account_cputime(struct task_struct *, int, cputime_t, cputime_t);
-+extern void account_stealtime(struct task_struct *, cputime_t);
-+
- #endif /* _LINUX_KERNEL_STAT_H */
-diff -urN linux-2.6.8-rc3/include/linux/sched.h linux-2.6.8-s390/include/linux/sched.h
---- linux-2.6.8-rc3/include/linux/sched.h	Thu Aug  5 18:40:07 2004
-+++ linux-2.6.8-s390/include/linux/sched.h	Thu Aug  5 18:40:24 2004
-@@ -19,6 +19,7 @@
- #include <asm/page.h>
- #include <asm/ptrace.h>
- #include <asm/mmu.h>
-+#include <asm/cputime.h>
- 
- #include <linux/smp.h>
- #include <linux/sem.h>
-@@ -168,7 +169,7 @@
- extern void cpu_init (void);
- extern void trap_init(void);
- extern void update_process_times(int user);
--extern void scheduler_tick(int user_tick, int system);
-+extern void scheduler_tick(void);
- extern unsigned long cache_decay_ticks;
- 
- /* Attach to any functions which should be ignored in wchan output. */
-@@ -452,10 +453,11 @@
- 	int __user *clear_child_tid;		/* CLONE_CHILD_CLEARTID */
- 
- 	unsigned long rt_priority;
--	unsigned long it_real_value, it_prof_value, it_virt_value;
--	unsigned long it_real_incr, it_prof_incr, it_virt_incr;
-+	unsigned long it_real_value, it_real_incr;
-+	cputime_t it_virt_value, it_virt_incr;
-+	cputime_t it_prof_value, it_prof_incr;
- 	struct timer_list real_timer;
--	unsigned long utime, stime, cutime, cstime;
-+	cputime_t utime, stime, cutime, cstime;
- 	unsigned long nvcsw, nivcsw, cnvcsw, cnivcsw; /* context switch counts */
- 	u64 start_time;
- /* mm fault and swap info: this can arguably be seen as either mm-specific or thread-specific */
-diff -urN linux-2.6.8-rc3/kernel/compat.c linux-2.6.8-s390/kernel/compat.c
---- linux-2.6.8-rc3/kernel/compat.c	Thu Aug  5 18:40:08 2004
-+++ linux-2.6.8-s390/kernel/compat.c	Thu Aug  5 18:40:24 2004
-@@ -160,10 +160,10 @@
- 	 */
- 	if (tbuf) {
- 		struct compat_tms tmp;
--		tmp.tms_utime = compat_jiffies_to_clock_t(current->utime);
--		tmp.tms_stime = compat_jiffies_to_clock_t(current->stime);
--		tmp.tms_cutime = compat_jiffies_to_clock_t(current->cutime);
--		tmp.tms_cstime = compat_jiffies_to_clock_t(current->cstime);
-+		tmp.tms_utime = compat_jiffies_to_clock_t(cputime_to_jiffies(current->utime));
-+		tmp.tms_stime = compat_jiffies_to_clock_t(cputime_to_jiffies(current->stime));
-+		tmp.tms_cutime = compat_jiffies_to_clock_t(cputime_to_jiffies(current->cutime));
-+		tmp.tms_cstime = compat_jiffies_to_clock_t(cputime_to_jiffies(current->cstime));
- 		if (copy_to_user(tbuf, &tmp, sizeof(tmp)))
- 			return -EFAULT;
- 	}
-diff -urN linux-2.6.8-rc3/kernel/cpu.c linux-2.6.8-s390/kernel/cpu.c
---- linux-2.6.8-rc3/kernel/cpu.c	Thu Aug  5 18:40:08 2004
-+++ linux-2.6.8-s390/kernel/cpu.c	Thu Aug  5 18:40:24 2004
-@@ -49,7 +49,9 @@
- 
- 	write_lock_irq(&tasklist_lock);
- 	for_each_process(p) {
--		if (task_cpu(p) == cpu && (p->utime != 0 || p->stime != 0))
-+		if (task_cpu(p) == cpu &&
-+		    (!cputime_eq(p->utime, cputime_zero) ||
-+		     !cputime_eq(p->stime, cputime_zero)))
- 			printk(KERN_WARNING "Task %s (pid = %d) is on cpu %d\
- 				(state = %ld, flags = %lx) \n",
- 				 p->comm, p->pid, cpu, p->state, p->flags);
-diff -urN linux-2.6.8-rc3/kernel/exit.c linux-2.6.8-s390/kernel/exit.c
---- linux-2.6.8-rc3/kernel/exit.c	Thu Aug  5 18:40:08 2004
-+++ linux-2.6.8-s390/kernel/exit.c	Thu Aug  5 18:40:24 2004
-@@ -90,8 +90,10 @@
- 		zap_leader = (leader->exit_signal == -1);
- 	}
- 
--	p->parent->cutime += p->utime + p->cutime;
--	p->parent->cstime += p->stime + p->cstime;
-+	p->parent->cutime = cputime_add(p->parent->cutime, p->utime);
-+	p->parent->cutime = cputime_add(p->parent->cutime, p->cutime);
-+	p->parent->cstime = cputime_add(p->parent->cstime, p->stime);
-+	p->parent->cstime = cputime_add(p->parent->cstime, p->cstime);
- 	p->parent->cmin_flt += p->min_flt + p->cmin_flt;
- 	p->parent->cmaj_flt += p->maj_flt + p->cmaj_flt;
- 	p->parent->cnvcsw += p->nvcsw + p->cnvcsw;
-@@ -762,8 +764,8 @@
- 	 * Clear these here so that update_process_times() won't try to deliver
- 	 * itimer, profile or rlimit signals to this task while it is in late exit.
- 	 */
--	tsk->it_virt_value = 0;
--	tsk->it_prof_value = 0;
-+	tsk->it_virt_value = cputime_zero;
-+	tsk->it_prof_value = cputime_zero;
- 	tsk->rlim[RLIMIT_CPU].rlim_cur = RLIM_INFINITY;
- 
- 	/*
-diff -urN linux-2.6.8-rc3/kernel/fork.c linux-2.6.8-s390/kernel/fork.c
---- linux-2.6.8-rc3/kernel/fork.c	Thu Aug  5 18:40:08 2004
-+++ linux-2.6.8-s390/kernel/fork.c	Thu Aug  5 18:40:24 2004
-@@ -953,13 +953,14 @@
- 	clear_tsk_thread_flag(p, TIF_SIGPENDING);
- 	init_sigpending(&p->pending);
- 
--	p->it_real_value = p->it_virt_value = p->it_prof_value = 0;
--	p->it_real_incr = p->it_virt_incr = p->it_prof_incr = 0;
-+	p->it_real_value = p->it_real_incr = 0;
-+	p->it_virt_value = p->it_virt_incr = cputime_zero;
-+	p->it_prof_value = p->it_prof_incr = cputime_zero;
- 	init_timer(&p->real_timer);
- 	p->real_timer.data = (unsigned long) p;
- 
--	p->utime = p->stime = 0;
--	p->cutime = p->cstime = 0;
-+	p->utime = p->stime = cputime_zero;
-+	p->cutime = p->cstime = cputime_zero;
- 	p->lock_depth = -1;		/* -1 = no lock */
- 	p->start_time = get_jiffies_64();
- 	p->security = NULL;
-diff -urN linux-2.6.8-rc3/kernel/itimer.c linux-2.6.8-s390/kernel/itimer.c
---- linux-2.6.8-rc3/kernel/itimer.c	Thu Aug  5 18:40:08 2004
-+++ linux-2.6.8-s390/kernel/itimer.c	Thu Aug  5 18:40:24 2004
-@@ -15,11 +15,10 @@
- 
- int do_getitimer(int which, struct itimerval *value)
- {
--	register unsigned long val, interval;
-+	register unsigned long val;
- 
- 	switch (which) {
- 	case ITIMER_REAL:
--		interval = current->it_real_incr;
- 		val = 0;
- 		/* 
- 		 * FIXME! This needs to be atomic, in case the kernel timer happens!
-@@ -31,20 +30,20 @@
- 			if ((long) val <= 0)
- 				val = 1;
- 		}
-+		jiffies_to_timeval(val, &value->it_value);
-+		jiffies_to_timeval(current->it_real_incr, &value->it_interval);
- 		break;
- 	case ITIMER_VIRTUAL:
--		val = current->it_virt_value;
--		interval = current->it_virt_incr;
-+		cputime_to_timeval(current->it_virt_value, &value->it_value);
-+		cputime_to_timeval(current->it_virt_incr, &value->it_interval);
- 		break;
- 	case ITIMER_PROF:
--		val = current->it_prof_value;
--		interval = current->it_prof_incr;
-+		cputime_to_timeval(current->it_prof_value, &value->it_value);
-+		cputime_to_timeval(current->it_prof_incr, &value->it_interval);
- 		break;
- 	default:
- 		return(-EINVAL);
- 	}
--	jiffies_to_timeval(val, &value->it_value);
--	jiffies_to_timeval(interval, &value->it_interval);
- 	return 0;
- }
- 
-@@ -80,37 +79,41 @@
- 
- int do_setitimer(int which, struct itimerval *value, struct itimerval *ovalue)
- {
--	register unsigned long i, j;
-+	unsigned long expire;
-+	cputime_t cputime;
- 	int k;
- 
--	i = timeval_to_jiffies(&value->it_interval);
--	j = timeval_to_jiffies(&value->it_value);
- 	if (ovalue && (k = do_getitimer(which, ovalue)) < 0)
- 		return k;
- 	switch (which) {
- 		case ITIMER_REAL:
- 			del_timer_sync(&current->real_timer);
--			current->it_real_value = j;
--			current->it_real_incr = i;
--			if (!j)
-+			expire = timeval_to_jiffies(&value->it_value);
-+			current->it_real_value = expire;
-+			current->it_real_incr =
-+				timeval_to_jiffies(&value->it_interval);
-+			if (!expire)
- 				break;
--			if (j > (unsigned long) LONG_MAX)
--				j = LONG_MAX;
--			i = j + jiffies;
--			current->real_timer.expires = i;
-+			if (expire > (unsigned long) LONG_MAX)
-+				expire = LONG_MAX;
-+			current->real_timer.expires = jiffies + expire;
- 			add_timer(&current->real_timer);
- 			break;
- 		case ITIMER_VIRTUAL:
--			if (j)
--				j++;
--			current->it_virt_value = j;
--			current->it_virt_incr = i;
-+			cputime = timeval_to_cputime(&value->it_value);
-+			if (cputime_eq(cputime, cputime_zero))
-+				cputime = jiffies_to_cputime(1);
-+			current->it_virt_value = cputime;
-+			cputime = timeval_to_cputime(&value->it_interval);
-+			current->it_virt_incr = cputime;
- 			break;
- 		case ITIMER_PROF:
--			if (j)
--				j++;
--			current->it_prof_value = j;
--			current->it_prof_incr = i;
-+			cputime = timeval_to_cputime(&value->it_value);
-+			if (cputime_eq(cputime, cputime_zero))
-+				cputime = jiffies_to_cputime(1);
-+			current->it_prof_value = cputime;
-+			cputime = timeval_to_cputime(&value->it_interval);
-+			current->it_prof_incr = cputime;
- 			break;
- 		default:
- 			return -EINVAL;
-diff -urN linux-2.6.8-rc3/kernel/sched.c linux-2.6.8-s390/kernel/sched.c
---- linux-2.6.8-rc3/kernel/sched.c	Thu Aug  5 18:40:08 2004
-+++ linux-2.6.8-s390/kernel/sched.c	Thu Aug  5 18:40:24 2004
-@@ -912,7 +912,7 @@
- 		 */
- 		current->time_slice = 1;
- 		preempt_disable();
--		scheduler_tick(0, 0);
-+		scheduler_tick();
- 		local_irq_enable();
- 		preempt_enable();
- 	} else
-@@ -1972,48 +1972,152 @@
- 			((rq)->curr->static_prio > (rq)->best_expired_prio))
- 
- /*
-+ * Do the virtual cpu time signal calculations.
-+ * @p: the process that the cpu time gets accounted to
-+ * @cputime: the cpu time spent in user space since the last update
-+ */
-+static inline void account_it_virt(struct task_struct * p, cputime_t cputime)
-+{
-+	cputime_t it_virt = p->it_virt_value;
-+
-+	if (cputime_gt(it_virt, cputime_zero) &&
-+	    cputime_gt(cputime, cputime_zero)) {
-+		if (cputime_ge(cputime, it_virt)) {
-+			it_virt = cputime_add(it_virt, p->it_virt_incr);
-+			send_sig(SIGVTALRM, p, 1);
-+		}
-+		it_virt = cputime_sub(it_virt, cputime);
-+		p->it_virt_value = it_virt;
-+	}
-+}
-+
-+/*
-+ * Do the virtual profiling signal calculations.
-+ * @p: the process that the cpu time gets accounted to
-+ * @cputime: the cpu time spent in user and kernel space since the last update
-+ */
-+static inline void account_it_prof(struct task_struct *p, cputime_t cputime)
-+{
-+	cputime_t it_prof = p->it_prof_value;
-+
-+	if (cputime_gt(it_prof, cputime_zero) &&
-+	    cputime_gt(cputime, cputime_zero)) {
-+		if (cputime_ge(cputime, it_prof)) {
-+			it_prof = cputime_add(it_prof, p->it_prof_incr);
-+			send_sig(SIGPROF, p, 1);
-+		}
-+		it_prof = cputime_sub(it_prof, cputime);
-+		p->it_prof_value = it_prof;
-+	}
-+}
-+
-+/*
-+ * Check if the process went over its cputime resource limit after
-+ * some cpu time got added to utime/stime.
-+ * @p: the process that the cpu time gets accounted to
-+ * @cputime: the cpu time spent in user and kernel space since the last update
-+ */
-+static inline void check_rlimit(struct task_struct *p, cputime_t cputime)
-+{
-+	cputime_t total, tmp;
-+		
-+	total = cputime_add(p->utime, p->stime);
-+	tmp = jiffies_to_cputime(p->rlim[RLIMIT_CPU].rlim_cur);
-+	if (unlikely(cputime_gt(total, tmp))) {
-+		/* Send SIGXCPU every second. */
-+		tmp = cputime_sub(total, cputime);
-+		if (cputime_to_secs(tmp) < cputime_to_secs(total))
-+			send_sig(SIGXCPU, p, 1);
-+		/* and SIGKILL when we go over max.. */
-+		tmp = jiffies_to_cputime(p->rlim[RLIMIT_CPU].rlim_max);
-+		if (cputime_gt(total, tmp))
-+			send_sig(SIGKILL, p, 1);
-+	}
-+}
-+
-+/*
-+ * Account user & system cpu time to a process.
-+ * @p: the process that the cpu time gets accounted to
-+ * @hardirq_offset: the offset to subtract from hardirq_count()
-+ * @user: the cpu time spent in user space since the last update
-+ * @system: the cpu time spent in kernel space since the last update
-+ */
-+void account_cputime(struct task_struct *p, int hardirq_offset,
-+		     cputime_t user, cputime_t system)
-+{
-+	struct cpu_usage_stat *cpustat = &kstat_this_cpu.cpustat;
-+	runqueue_t *rq = this_rq();
-+	cputime64_t tmp64;
-+	cputime_t tmp;
-+
-+	p->utime = cputime_add(p->utime, user);
-+	p->stime = cputime_add(p->stime, system);
-+
-+	/* Check for signals (SIGVTALRM, SIGPROF, SIGXCPU & SIGKILL). */
-+	tmp = cputime_add(user, system);
-+	check_rlimit(p, tmp);
-+	account_it_virt(p, user);
-+	account_it_prof(p, tmp);
-+
-+	/* Add user time to cpustat. */
-+	tmp64 = cputime_to_cputime64(user);
-+	if (TASK_NICE(p) > 0)
-+		cpustat->nice = cputime64_add(cpustat->nice, tmp64);
-+	else
-+		cpustat->user = cputime64_add(cpustat->user, tmp64);
-+
-+	/* Add system time to cpustat. */
-+	tmp64 = cputime_to_cputime64(system);
-+	if (hardirq_count() - hardirq_offset)
-+		cpustat->irq = cputime64_add(cpustat->irq, tmp64);
-+	else if (softirq_count())
-+		cpustat->softirq = cputime64_add(cpustat->softirq, tmp64);
-+	else if (p != rq->idle)
-+		cpustat->system = cputime64_add(cpustat->system, tmp64);
-+	else if (atomic_read(&rq->nr_iowait) > 0)
-+		cpustat->iowait = cputime64_add(cpustat->iowait, tmp64);
-+	else
-+		cpustat->idle = cputime64_add(cpustat->idle, tmp64);
-+}
-+
-+/*
-+ * Account for involuntary wait time.
-+ * @p: the process from which the cpu time has been stolen
-+ * @steal: the cpu time spent in involuntary wait
-+ */
-+void account_stealtime(struct task_struct *p, cputime_t steal)
-+{
-+	struct cpu_usage_stat *cpustat = &kstat_this_cpu.cpustat;
-+	cputime64_t steal64 = cputime_to_cputime64(steal);
-+	runqueue_t *rq = this_rq();
-+
-+	if (p == rq->idle)
-+		cpustat->system = cputime64_add(cpustat->system, steal64);
-+	else
-+		cpustat->steal = cputime64_add(cpustat->steal, steal64);
-+}
-+
-+/*
-  * This function gets called by the timer code, with HZ frequency.
-  * We call it with interrupts disabled.
-  *
-  * It also gets called by the fork code, when changing the parent's
-  * timeslices.
-  */
--void scheduler_tick(int user_ticks, int sys_ticks)
-+void scheduler_tick(void)
- {
- 	int cpu = smp_processor_id();
--	struct cpu_usage_stat *cpustat = &kstat_this_cpu.cpustat;
- 	runqueue_t *rq = this_rq();
- 	task_t *p = current;
- 
- 	rq->timestamp_last_tick = sched_clock();
- 
--	if (rcu_pending(cpu))
--		rcu_check_callbacks(cpu, user_ticks);
+-void set_vtimer(__u64 expires);
 -
--	/* note: this timer irq context must be accounted for as well */
--	if (hardirq_count() - HARDIRQ_OFFSET) {
--		cpustat->irq += sys_ticks;
--		sys_ticks = 0;
--	} else if (softirq_count()) {
--		cpustat->softirq += sys_ticks;
--		sys_ticks = 0;
--	}
--
- 	if (p == rq->idle) {
--		if (atomic_read(&rq->nr_iowait) > 0)
--			cpustat->iowait += sys_ticks;
--		else
--			cpustat->idle += sys_ticks;
- 		if (wake_priority_sleeper(rq))
- 			goto out;
- 		rebalance_tick(cpu, rq, IDLE);
- 		return;
- 	}
--	if (TASK_NICE(p) > 0)
--		cpustat->nice += user_ticks;
--	else
--		cpustat->user += user_ticks;
--	cpustat->system += sys_ticks;
- 
- 	/* Task might have expired already, but not scheduled off yet */
- 	if (p->array != rq->active) {
-diff -urN linux-2.6.8-rc3/kernel/signal.c linux-2.6.8-s390/kernel/signal.c
---- linux-2.6.8-rc3/kernel/signal.c	Thu Aug  5 18:40:08 2004
-+++ linux-2.6.8-s390/kernel/signal.c	Thu Aug  5 18:40:24 2004
-@@ -1445,8 +1445,8 @@
- 	info.si_uid = tsk->uid;
- 
- 	/* FIXME: find out whether or not this is supposed to be c*time. */
--	info.si_utime = tsk->utime;
--	info.si_stime = tsk->stime;
-+	info.si_utime = cputime_to_jiffies(tsk->utime);
-+	info.si_stime = cputime_to_jiffies(tsk->stime);
- 
- 	status = tsk->exit_code & 0x7f;
- 	why = SI_KERNEL;	/* shouldn't happen */
-@@ -1534,8 +1534,8 @@
- 	info.si_uid = tsk->uid;
- 
- 	/* FIXME: find out whether or not this is supposed to be c*time. */
--	info.si_utime = tsk->utime;
--	info.si_stime = tsk->stime;
-+	info.si_utime = cputime_to_jiffies(tsk->utime);
-+	info.si_stime = cputime_to_jiffies(tsk->stime);
- 
- 	info.si_status = tsk->exit_code & 0x7f;
- 	info.si_code = CLD_STOPPED;
-diff -urN linux-2.6.8-rc3/kernel/sys.c linux-2.6.8-s390/kernel/sys.c
---- linux-2.6.8-rc3/kernel/sys.c	Thu Aug  5 18:40:24 2004
-+++ linux-2.6.8-s390/kernel/sys.c	Thu Aug  5 18:40:24 2004
-@@ -947,10 +947,10 @@
- 	 */
- 	if (tbuf) {
- 		struct tms tmp;
--		tmp.tms_utime = jiffies_to_clock_t(current->utime);
--		tmp.tms_stime = jiffies_to_clock_t(current->stime);
--		tmp.tms_cutime = jiffies_to_clock_t(current->cutime);
--		tmp.tms_cstime = jiffies_to_clock_t(current->cstime);
-+		tmp.tms_utime = cputime_to_clock_t(current->utime);
-+		tmp.tms_stime = cputime_to_clock_t(current->stime);
-+		tmp.tms_cutime = cputime_to_clock_t(current->cutime);
-+		tmp.tms_cstime = cputime_to_clock_t(current->cstime);
- 		if (copy_to_user(tbuf, &tmp, sizeof(struct tms)))
- 			return -EFAULT;
- 	}
-@@ -1547,24 +1547,26 @@
- 	memset((char *) &r, 0, sizeof(r));
- 	switch (who) {
- 		case RUSAGE_SELF:
--			jiffies_to_timeval(p->utime, &r.ru_utime);
--			jiffies_to_timeval(p->stime, &r.ru_stime);
-+			cputime_to_timeval(p->utime, &r.ru_utime);
-+			cputime_to_timeval(p->stime, &r.ru_stime);
- 			r.ru_nvcsw = p->nvcsw;
- 			r.ru_nivcsw = p->nivcsw;
- 			r.ru_minflt = p->min_flt;
- 			r.ru_majflt = p->maj_flt;
- 			break;
- 		case RUSAGE_CHILDREN:
--			jiffies_to_timeval(p->cutime, &r.ru_utime);
--			jiffies_to_timeval(p->cstime, &r.ru_stime);
-+			cputime_to_timeval(p->cutime, &r.ru_utime);
-+			cputime_to_timeval(p->cstime, &r.ru_stime);
- 			r.ru_nvcsw = p->cnvcsw;
- 			r.ru_nivcsw = p->cnivcsw;
- 			r.ru_minflt = p->cmin_flt;
- 			r.ru_majflt = p->cmaj_flt;
- 			break;
- 		default:
--			jiffies_to_timeval(p->utime + p->cutime, &r.ru_utime);
--			jiffies_to_timeval(p->stime + p->cstime, &r.ru_stime);
-+			cputime_to_timeval(cputime_add(p->utime, p->cutime),
-+					    &r.ru_utime);
-+			cputime_to_timeval(cputime_add(p->stime, p->cstime),
-+					    &r.ru_stime);
- 			r.ru_nvcsw = p->nvcsw + p->cnvcsw;
- 			r.ru_nivcsw = p->nivcsw + p->cnivcsw;
- 			r.ru_minflt = p->min_flt + p->cmin_flt;
-diff -urN linux-2.6.8-rc3/kernel/timer.c linux-2.6.8-s390/kernel/timer.c
---- linux-2.6.8-rc3/kernel/timer.c	Thu Aug  5 18:40:22 2004
-+++ linux-2.6.8-s390/kernel/timer.c	Thu Aug  5 18:40:24 2004
-@@ -785,58 +785,6 @@
- 	}
- }
- 
--static inline void do_process_times(struct task_struct *p,
--	unsigned long user, unsigned long system)
--{
--	unsigned long psecs;
--
--	psecs = (p->utime += user);
--	psecs += (p->stime += system);
--	if (psecs / HZ >= p->rlim[RLIMIT_CPU].rlim_cur) {
--		/* Send SIGXCPU every second.. */
--		if (!(psecs % HZ))
--			send_sig(SIGXCPU, p, 1);
--		/* and SIGKILL when we go over max.. */
--		if (psecs / HZ >= p->rlim[RLIMIT_CPU].rlim_max)
--			send_sig(SIGKILL, p, 1);
--	}
--}
--
--static inline void do_it_virt(struct task_struct * p, unsigned long ticks)
--{
--	unsigned long it_virt = p->it_virt_value;
--
--	if (it_virt) {
--		it_virt -= ticks;
--		if (!it_virt) {
--			it_virt = p->it_virt_incr;
--			send_sig(SIGVTALRM, p, 1);
--		}
--		p->it_virt_value = it_virt;
--	}
--}
--
--static inline void do_it_prof(struct task_struct *p)
--{
--	unsigned long it_prof = p->it_prof_value;
--
--	if (it_prof) {
--		if (--it_prof == 0) {
--			it_prof = p->it_prof_incr;
--			send_sig(SIGPROF, p, 1);
--		}
--		p->it_prof_value = it_prof;
--	}
--}
--
--static void update_one_process(struct task_struct *p, unsigned long user,
--			unsigned long system, int cpu)
--{
--	do_process_times(p, user, system);
--	do_it_virt(p, user);
--	do_it_prof(p);
--}	
--
- /*
-  * Called from the timer interrupt handler to charge one tick to the current 
-  * process.  user_tick is 1 if the tick is user time, 0 for system.
-@@ -844,11 +792,16 @@
- void update_process_times(int user_tick)
- {
- 	struct task_struct *p = current;
--	int cpu = smp_processor_id(), system = user_tick ^ 1;
-+	int cpu = smp_processor_id();
-+	cputime_t user = jiffies_to_cputime(user_tick);
-+	cputime_t system = jiffies_to_cputime(user_tick ^ 1);
- 
--	update_one_process(p, user_tick, system, cpu);
-+	/* Note: this timer irq context must be accounted for as well. */
-+	account_cputime(p, HARDIRQ_OFFSET, user, system);
- 	run_local_timers();
--	scheduler_tick(user_tick, system);
-+	if (rcu_pending(cpu))
-+		rcu_check_callbacks(cpu, user_tick);
-+	scheduler_tick();
- }
- 
- /*
-diff -urN linux-2.6.8-rc3/mm/oom_kill.c linux-2.6.8-s390/mm/oom_kill.c
---- linux-2.6.8-rc3/mm/oom_kill.c	Thu Aug  5 18:40:08 2004
-+++ linux-2.6.8-s390/mm/oom_kill.c	Thu Aug  5 18:40:24 2004
-@@ -60,7 +60,8 @@
- 	 * particular reason for this other than that it turned out to work
- 	 * very well in practice.
- 	 */
--	cpu_time = (p->utime + p->stime) >> (SHIFT_HZ + 3);
-+	cpu_time = (cputime_to_jiffies(p->utime) + cputime_to_jiffies(p->stime))
-+		>> (SHIFT_HZ + 3);
- 	run_time = (get_jiffies_64() - p->start_time) >> (SHIFT_HZ + 10);
- 
- 	s = int_sqrt(cpu_time);
+ extern void init_virt_timer(struct vtimer_list *timer);
+ extern void add_virt_timer(void *new);
+ extern void add_virt_timer_periodic(void *new);

@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263304AbUJ2M3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263305AbUJ2Mgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263304AbUJ2M3R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 08:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbUJ2M3R
+	id S263305AbUJ2Mgl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 08:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbUJ2Mgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 08:29:17 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:53929 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263304AbUJ2M3N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 08:29:13 -0400
-Date: Fri, 29 Oct 2004 14:30:26 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SysRq-n changes RT tasks to normal
-Message-ID: <20041029123026.GA8429@elte.hu>
-References: <yw1xy8hpix4z.fsf@inprovide.com> <20041029113405.GA32204@elte.hu> <yw1xpt31ivy1.fsf@inprovide.com>
+	Fri, 29 Oct 2004 08:36:40 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:14503 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S263305AbUJ2MgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 08:36:08 -0400
+Subject: Re: [RFC] Linux 2.6.9.1-pre1 contents
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <200410282205_MC3-1-8D77-F5C5@compuserve.com>
+References: <200410282205_MC3-1-8D77-F5C5@compuserve.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1099049557.13082.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xpt31ivy1.fsf@inprovide.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 29 Oct 2004 12:33:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2004-10-29 at 03:02, Chuck Ebbert wrote:
+> 3c59x_pci_disable_device.patch
+>         Add missing pci_disable_device() in failure paths
+>         NOTE: 3c59x_remove_one() needs disable call, too
+>               ...as do tulip, natsemi, etc.
 
-* Måns Rullgård <mru@inprovide.com> wrote:
+The mm tree with this in has shown some problems which aren't yet
+fully explained and are more likely the eeprom thing.
 
-> > you must take the tasklist_lock outside the for_each_process().
-> 
-> The danger of cut and paste programming.  New diff below.
+>         Fixes from 2.6.9-ac4
 
-it's looking good now.
+I'll post -ac5 shortly although you seem to have most of that
+and a lot more.
 
-	Ingo
+> ide_maxtor_probe.patch
+>         Another Maxtor IDE drive serial number oddity
+
+This is definitely wrong, the others look fairly sane although there are
+a lot that are for such obscure cases they seem to add not reduce risk.
+
+Alan
+

@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266152AbUA1UZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 15:25:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266029AbUA1UZ7
+	id S266174AbUA1U3L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 15:29:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUA1U3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 15:25:59 -0500
-Received: from nevyn.them.org ([66.93.172.17]:15521 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S266152AbUA1UZz (ORCPT
+	Wed, 28 Jan 2004 15:29:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48586 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266170AbUA1U3B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 15:25:55 -0500
-Date: Wed, 28 Jan 2004 15:25:51 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: long long on 32-bit machines
-Message-ID: <20040128202551.GA16884@nevyn.them.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <26879984$107531702940180925001758.71044950@config16.schlund.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <26879984$107531702940180925001758.71044950@config16.schlund.de>
-User-Agent: Mutt/1.5.1i
+	Wed, 28 Jan 2004 15:29:01 -0500
+Date: Wed, 28 Jan 2004 12:28:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: willy@debian.org, ishii.hironobu@jp.fujitsu.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [RFC/PATCH, 2/4] readX_check() performance evaluation
+In-Reply-To: <20040128211554.0cc890fb.ak@suse.de>
+Message-ID: <Pine.LNX.4.58.0401281221320.28145@home.osdl.org>
+References: <00a301c3e541$c13a6350$2987110a@lsd.css.fujitsu.com>
+ <Pine.LNX.4.58.0401271847440.10794@home.osdl.org>
+ <20040128182003.GL11844@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0401281129570.28145@home.osdl.org> <20040128204049.627e6312.ak@suse.de>
+ <Pine.LNX.4.58.0401281205250.28145@home.osdl.org> <20040128211554.0cc890fb.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 28, 2004 at 08:22:01PM +0100, Arnd Bergmann wrote:
-> 
-> H.P.A wrote:
-> 
-> > Does anyone happen to know if there are *any* 32-bit architectures (on 
-> > which Linux runs) for which the ABI for a "long long" is different from 
-> > passing two "longs" in the appropriate order, i.e. (hi,lo) for bigendian 
-> > or (lo,hi) for littleendian?
-> 
-> Some architectures require long long arguments to be passed as an
-> even/odd register pair. For example on s390, 
-> 
->    void f(int a, int b, long long x) 
-> 
-> uses registers 2, 3, 4 and 5, while 
-> 
->    void f(int a, long long x, int b)
-> 
-> uses registers 2, 4, 5 and 6. AFAIK, mips does the same, probably others
-> as well.
 
-Yes.  Also, IIRC, one of SH3 and SH4 requires the padding, and the
-other doesn't.
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+On Wed, 28 Jan 2004, Andi Kleen wrote:
+> 
+> Where would you put the flag? 
+> 
+> Doing it global may give false errors for the wrong device with async MCEs
+> and on SMP.
+
+That entirely depends on what the hardware supports. How much information 
+will you get about the error?
+
+If the real error is on the bridge somewhere but you don't even know which
+CPU did the access (and just "somebody" gets an MCE), just set a global
+flag, and have "read_pcix_error()" check the bridge (since it doesn't need
+to look anything up - it already knows the device).
+
+And in that case then you need to take the proper locks (per-bridge, or
+global, depending on just how much you care) in "clear_pcix_error()" and
+release them in "read_pcix_error()".
+
+Alternatively, if you get a lot of information at MCE time (CPU that did
+the access + some device data), just queue up the information in a per-CPU
+queue. You don't have to worry about overflow - you can just drop if if 
+you get many errors (or maybe maintain a count), since the only thing that 
+matters is "we got an error for this device" along with maybe some small 
+amount of info on what kind(s) of error(s).
+
+Basically: it all boils down to what the hardware offers.
+
+		Linus

@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268889AbRHFVPK>; Mon, 6 Aug 2001 17:15:10 -0400
+	id <S269099AbRHFWsy>; Mon, 6 Aug 2001 18:48:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268941AbRHFVOv>; Mon, 6 Aug 2001 17:14:51 -0400
-Received: from smtprt16.wanadoo.fr ([193.252.19.183]:51846 "EHLO
-	smtprt16.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S268889AbRHFVOk>; Mon, 6 Aug 2001 17:14:40 -0400
-Message-Id: <5.1.0.14.2.20010806231341.00aa7580@pop.wanadoo.fr>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 06 Aug 2001 23:17:05 +0200
-To: Gregoire Favre <greg@ulima.unil.ch>
-From: eddantes@wanadoo.fr
-Subject: Re: 2.4.7-ac8 compilation error
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010806230743.A12850@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S269102AbRHFWso>; Mon, 6 Aug 2001 18:48:44 -0400
+Received: from mail.inf.elte.hu ([157.181.161.6]:41404 "EHLO mail.inf.elte.hu")
+	by vger.kernel.org with ESMTP id <S269099AbRHFWsd>;
+	Mon, 6 Aug 2001 18:48:33 -0400
+Date: Tue, 7 Aug 2001 00:48:37 +0200 (CEST)
+From: BERECZ Szabolcs <szabi@inf.elte.hu>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: kswapd eats the cpu without swap
+In-Reply-To: <Pine.LNX.4.21.0108031920410.8951-100000@freak.distro.conectiva>
+Message-ID: <Pine.A41.4.31.0108070044550.37910-100000@pandora.inf.elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi everyone
 
-Yep, same error. What's funny is that all the stuff in mm/shmem.c is 
-related to the TMPFS (as far as I understood), and seems to be included and 
-compiled even if you don't select TMPFS...
+On Fri, 3 Aug 2001, Marcelo Tosatti wrote:
 
-I tried to hack a bit around, but to be honest I've got no clue. :)
-
-Have fun
-Ed
-
-
-At 23:07 06/08/2001 +0200, Gregoire Favre wrote:
->Hello,
+> Does the problem happen only with the used-once patch ?
 >
->I got the following error while trying 2.4.7-ac8:
->
->make[1]: Leaving directory `/usr/src/linux-2.4.7-ac8/arch/i386/lib'
->ld -m elf_i386 -T /usr/src/linux-2.4.7-ac8/arch/i386/vmlinux.lds -e stext 
->arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
->init/version.o \
->         --start-group \
->         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
-> mm/mm.o fs/fs.o ipc/ipc.o \
->         drivers/parport/driver.o drivers/char/char.o 
-> drivers/block/block.o drivers/misc/misc.o drivers/net/net.o 
-> drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o 
-> drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o 
-> drivers/pci/driver.o drivers/video/video.o drivers/usb/usbdrv.o 
-> drivers/net/irda/irda.o \
->         net/network.o \
->         /usr/src/linux-2.4.7-ac8/arch/i386/lib/lib.a 
-> /usr/src/linux-2.4.7-ac8/lib/lib.a 
-> /usr/src/linux-2.4.7-ac8/arch/i386/lib/lib.a \
->         --end-group \
->         -o vmlinux
->mm/mm.o: In function `init_shmem_fs':
->mm/mm.o(.text.init+0xec4): undefined reference to `shmem_set_size'
->make: *** [vmlinux] Error 1
->
->         Greg
->________________________________________________________________
->http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+> If it also happens without the used-once patch, can you reproduce the
+> problem with 2.4.6 ?
+The problem happened about 4 times, with the used-once patch,
+but I don't know exactly what triggered it.
+
+now I use 2.4.7-ac5, and I have not seen the problem, yet.
+
+I will try with the used-once patch, if it appears again.
+
+Bye,
+Szabi
+
 

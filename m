@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVAVKNQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbVAVKUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbVAVKNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 05:13:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVAVKNQ
+	id S262691AbVAVKUr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 05:20:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbVAVKUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 05:13:16 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.61]:6326 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S262690AbVAVKNE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 05:13:04 -0500
-Message-ID: <008d01c5006a$ef695c00$8d00150a@dreammac>
-From: "Pankaj Agarwal" <pankaj@toughguy.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Help
-Date: Sat, 22 Jan 2005 15:42:47 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+	Sat, 22 Jan 2005 05:20:47 -0500
+Received: from gprs215-125.eurotel.cz ([160.218.215.125]:32489 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262691AbVAVKUn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 05:20:43 -0500
+Date: Sat, 22 Jan 2005 11:03:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: "Seth, Rohit" <rohit.seth@intel.com>, Linus Torvalds <torvalds@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Andrey Savochkin <saw@sawoct.com>, linux-kernel@vger.kernel.org
+Subject: Re: possible CPU bug and request for Intel contacts
+Message-ID: <20050122100322.GB9357@elf.ucw.cz>
+References: <01EF044AAEE12F4BAAD955CB7506494302DFE109@scsmsx401.amr.corp.intel.com> <41F0F9A6.5040601@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41F0F9A6.5040601@sw.ru>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-Kindly help/update me on how to set these parameters in the used kernel...
+> Here are the details about CPU bug I mentioned in my previous post. 
+> Though it turned out later that it happens on P-III systems only I still 
+> hope it can be of interest.
 
-CONFIG_IP_ADVANCED_ROUTER
+What about Pentium-M? They are based on P-III and are certainly *very*
+interesting.
+								Pavel
 
-CONFIG_IP_MULTIPLE_TABLES
-
-CONFIG_IP_ROUTE_MULTIPATH
-
-Thanks and Regards,
-
-Pankaj
-
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

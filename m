@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269070AbUHYBDT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269072AbUHYBE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269070AbUHYBDT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 21:03:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269072AbUHYBDS
+	id S269072AbUHYBE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 21:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269069AbUHYBE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 21:03:18 -0400
-Received: from mail019.syd.optusnet.com.au ([211.29.132.73]:48775 "EHLO
-	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S269070AbUHYBDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 21:03:16 -0400
-Message-Id: <200408250102.i7P12Bp08783@mail019.syd.optusnet.com.au>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
+	Tue, 24 Aug 2004 21:04:56 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:404 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S269072AbUHYBEu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 21:04:50 -0400
+Message-ID: <412BE5CC.8020303@linux-user.net>
+Date: Wed, 25 Aug 2004 03:05:16 +0200
+From: Daniel Andersen <anddan@linux-user.net>
+User-Agent: Mozilla Thunderbird 0.7.2 (X11/20040712)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
-From: chakkerz_dev@optusnet.com.au
-To: Dr NoName <spamacct11@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Date: Wed, 25 Aug 2004 11:02:11 +1000
-Subject: Re: NForce 2 support
+To: "Sartorelli, Kevin" <Kevin.Sartorelli@openpolytechnic.ac.nz>
+Cc: fraga@abusar.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: Linux 2.6.9-rc1
+References: <4B2093FFC31B7A45862B62A376EA7176033C058D@mickey.topnz.ac.nz>
+In-Reply-To: <4B2093FFC31B7A45862B62A376EA7176033C058D@mickey.topnz.ac.nz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sartorelli, Kevin wrote:
+> Daniel Andersen wrote:
+> 
+>>As Linus initially said, there is the possibility of releasing 
+>>a bug-fix patch 2.6.8.2 *after* 2.6.9 has been released.
+> 
+> 
+> So, in this case, which would be considered the latest stable kernel to be used in production?  I can see this getting to a stage where you just pick and hope :-(
+> 
+> Cheers
+> Kevin
 
+This would normally be 2.6.9(.w). I did not point it out but Linus said 
+-rc kernels.
+Lately there has been some talk about removing deprecated features (eg. 
+devfs, cryptoloop) which makes me think. Linus, is there a chance that 
+there will be a x.y.z.W release of an old kernel after the next x.y.Z.w 
+has been released and no longer is -rc? For example releasing a 2.6.8.2 
+after 2.6.9 has been released and no longer is a 2.6.9-rcX.
 
-Heya
+In this case Kevin would have a point.
 
-Not a kernel hacker but and nforce2 user
-
-nforce 2 works sweet with the exception of sound which has been broken in 2.6.7 and 
-2.6.8.1 causing system crashes. If you have a soundcard not to worry, if you are 
-gonna run onboard ... wait and see with 2.6.9 brings
-
-> Dr NoName <spamacct11@yahoo.com> wrote:
-> 
-> Hello kernel hackers,
-> 
-> I have a quick question: what is the current state of
-> support for NVidia NForce 2 chipset? I am planning to
-> get a new Athlon XP rig and just wondering if NForce
-> (specifically Abit NF7-S) is a good choice. I can
-> compile a custom kernel and don't mind installing
-> nvidia drivers separately but I do want everything to
-> work and be rock-solid (ide, agp, sound, network,
-> etc.). So will NForce work or should I stick with VIA?
-> 
-> thanks in advance,
-> 
-> Eugene
-> 
-> 
-> 		
-> _______________________________
-> Do you Yahoo!?
-> Win 1 of 4,000 free domain names from Yahoo! Enter now.
-> http://promotions.yahoo.com/goldrush
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Daniel Andersen
+--

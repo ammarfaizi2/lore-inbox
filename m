@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291547AbSCRSbl>; Mon, 18 Mar 2002 13:31:41 -0500
+	id <S291625AbSCRSgL>; Mon, 18 Mar 2002 13:36:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291625AbSCRSbb>; Mon, 18 Mar 2002 13:31:31 -0500
-Received: from mail.scsiguy.com ([63.229.232.106]:1555 "EHLO aslan.scsiguy.com")
-	by vger.kernel.org with ESMTP id <S291547AbSCRSbP>;
-	Mon, 18 Mar 2002 13:31:15 -0500
-Message-Id: <200203181833.g2IIXrI07542@aslan.scsiguy.com>
-To: Andrey Slepuhin <pooh@msu.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx driver v6.2.4 "queue abort message" questions 
-In-Reply-To: Your message of "Mon, 18 Mar 2002 15:58:32 +0300."
-             <20020318155832.A8849@glade.nmd.msu.ru> 
-Date: Mon, 18 Mar 2002 11:33:52 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S291745AbSCRSgB>; Mon, 18 Mar 2002 13:36:01 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:45835 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S291625AbSCRSf4>;
+	Mon, 18 Mar 2002 13:35:56 -0500
+Date: Mon, 18 Mar 2002 15:35:32 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help
+In-Reply-To: <a75bd6$mb5$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.44L.0203181535090.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The system in problem is:
->
->Dual PIII-1266,
->SuperMicro P3TDER motherboard,
+On 18 Mar 2002, H. Peter Anvin wrote:
 
-BTW, I have done extensive testing on a P3TDE6 which uses the
-same chipset.  Can you send me your kernel configuration in private
-email so I can try to reproduce this?
+> The unit here is B, which does conflict with the unit bel, but is
+> widely used to mean byte in computer contexts.
 
---
-Justin
+Also, the kilobell is highly unlikely to be used ;)
+
+Rik
+-- 
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

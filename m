@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266476AbUHILWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266486AbUHILX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266476AbUHILWI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 07:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUHILWI
+	id S266486AbUHILX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 07:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266485AbUHILX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 07:22:08 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:15269 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266476AbUHILWF (ORCPT
+	Mon, 9 Aug 2004 07:23:27 -0400
+Received: from cantor.suse.de ([195.135.220.2]:23172 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266481AbUHILXM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 07:22:05 -0400
-Date: Mon, 9 Aug 2004 12:45:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: [patch] inode-lock-break.patch, 2.6.8-rc3-mm2
-Message-ID: <20040809104533.GA13710@elte.hu>
-References: <20040809102125.GA12391@elte.hu> <20040809032523.40250fe8.akpm@osdl.org>
+	Mon, 9 Aug 2004 07:23:12 -0400
+Date: Mon, 9 Aug 2004 13:23:08 +0200
+From: Andi Kleen <ak@suse.de>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mpm@selenic.com
+Subject: Re: [PATCH][2.6] Completely out of line spinlocks / x86_64
+Message-Id: <20040809132308.7312656b.ak@suse.de>
+In-Reply-To: <Pine.LNX.4.58.0408080156550.19619@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0408072217170.19619@montezuma.fsmlabs.com>
+	<Pine.LNX.4.58.0408080156550.19619@montezuma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040809032523.40250fe8.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 8 Aug 2004 02:08:30 -0400 (EDT)
+Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
 
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> > tested on x86, the patch solves these particular latencies.
+>  arch/x86_64/Kconfig           |   10 ++++++++++
+>  arch/x86_64/lib/Makefile      |    1 +
+>  arch/x86_64/lib/spinlock.c    |   38 ++++++++++++++++++++++++++++++++++++++
+>  include/asm-x86_64/spinlock.h |   22 ++++++++++++++++++++--
+>  4 files changed, 69 insertions(+), 2 deletions(-)
 > 
-> On uniprocessor only.  What are we going to do about SMP?
+> Index: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig
+> ===================================================================
+> RCS file: /home/cvsroot/linux-2.6.8-rc3-mm1/arch/x86_64/Kconfig,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 Kconfig
+> --- linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig	5 Aug 2004 16:37:48 -0000	1.1.1.1
+> +++ linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig	7 Aug 2004 22:47:30 -0000
+> @@ -438,6 +438,16 @@ config DEBUG_SPINLOCK
+>  	  best used in conjunction with the NMI watchdog so that spinlock
+>  	  deadlocks are also debuggable.
+> 
+> +config COOL_SPINLOCK
+> +	bool "Completely out of line spinlocks"
+> +	depends on SMP
+> +	default y
+> +	help
+> +	  Say Y here to build spinlocks which have common text for contended
+> +	  and uncontended paths. This reduces kernel text size by at least
+> +	  50k on most configurations, plus there is the additional benefit
+> +	  of better cache utilisation.
 
-i believe we should 'ignore' SMP spinlock starvation for now: it will be
-fixed in a natural way with the most-spinlocks-are-mutexes solution,
-with that approach all preemption wishes of other CPUs are properly
-expressed in terms of need_resched().
+I think the 50k number is wrong. I took a look at it and the big 
+difference is only seen when you enable interrupts during spinning, which
+we didn't do before.  If you compare it to the old implementation the
+difference is much less.
 
-alternatively the 'release the lock every 128 iterations and do a
-cpu_relax()' hack could be used - but i think that doesnt solve the SMP
-issues in a sufficiant way.
+I don't really like the config option. Either it's a good idea
+then it should be done by default without option or it should not be done at all.
 
-	Ingo
+Did you do any lock intensive benchmarks that could show a slowdown?
+
+> Index: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
+> ===================================================================
+> RCS file: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
+> diff -N linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
+> --- /dev/null	1 Jan 1970 00:00:00 -0000
+> +++ linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c	8 Aug 2004 05:39:04 -0000
+> @@ -0,0 +1,38 @@
+> +#include <linux/module.h>
+
+You should make this file assembly only. 
+
+
+-Andi

@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317760AbSFSELL>; Wed, 19 Jun 2002 00:11:11 -0400
+	id <S317762AbSFSEiH>; Wed, 19 Jun 2002 00:38:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317761AbSFSELK>; Wed, 19 Jun 2002 00:11:10 -0400
-Received: from pcp01314487pcs.hatisb01.ms.comcast.net ([68.63.220.2]:59529
-	"EHLO bacchus.jdhouse.org") by vger.kernel.org with ESMTP
-	id <S317760AbSFSELI>; Wed, 19 Jun 2002 00:11:08 -0400
-Date: Tue, 18 Jun 2002 23:13:55 -0500 (CDT)
-From: "Jonathan A. Davis" <davis@jdhouse.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: VIA KT266 PCI-related crashes fixed.  Now whats the catch?
-Message-ID: <Pine.LNX.4.44.0206182240330.29752-100000@bacchus.jdhouse.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317763AbSFSEiH>; Wed, 19 Jun 2002 00:38:07 -0400
+Received: from ns.suse.de ([213.95.15.193]:6416 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317762AbSFSEiG>;
+	Wed, 19 Jun 2002 00:38:06 -0400
+Date: Wed, 19 Jun 2002 06:38:07 +0200
+From: Dave Jones <davej@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.x: arch/i386/kernel/cpu
+Message-ID: <20020619063807.B25509@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <aeouoe$a66$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <aeouoe$a66$1@cesium.transmeta.com>; from hpa@zytor.com on Tue, Jun 18, 2002 at 08:45:18PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 18, 2002 at 08:45:18PM -0700, H. Peter Anvin wrote:
+ > Whomever broke up arch/i386/kernel/setup.c and created the CPU
+ > directory (very good idea) messed up in at least one place:
 
-G'day Alan, all,
+Patrick Mochel takes credit/glory/fame/blame for this one.
 
-In November, I assembled a new machine using a Soyo Dragon+ mb with a
-Pinnacle PCTV/Pro card as the only add-in board (I have an ATI 7500 in the
-AGP slot).  Very quickly I learned that any heavy disk activity (from two
-UDMA100 drives) during TV card use would lock the system tight.  As long
-as I didn't use the TV card, the system was completely solid -- under
-heavy disk, sound, net usage, etc.  I tried moving the card around,
-playing with BIOS, upgrading BIOS, with no success.  I dug around in
-quirks.c and put a serious dent in google's usage reports trying to find
-answers.  About the time I was concluding that I had a defective mb, a
-friend decided to install Linux on his KT266 system also.  After the
-install, we popped a PCTV (non-PRO minus FM radio) into it and ended up
-duplicating my machines's crashing behaviour.
+ > The *AMD-defined* CPUID flags (0x80000001) are not just used on AMD
+ > processors!  In fact, at least AMD, Transmeta, Cyrix and VIA all use
+ > them; I don't know about Centaur or Rise.  Intel supports the actual
+ > level starting with the P4 although it returns all zero.
 
-About a month ago, after giving up and either avoiding TV card use (which
-given the state of US TV isn't a completely bad thing :-), or resigning
-myself to not doing serious work if I had the TV card on, I stumbled
-across Serguei Miridonov's site (http://www.cicese.mx/~mirsev/Linux/VIA/).  
-His small module changes PCI config register 0x75 from 0x01 to 0x07 and
-clears all the bits on 0x76 (originally set to 0x10 on my mb).  The result
-has been perfect stability for both boards with TV cards and as much disk
-and other I/O as bonnie and friends could generate.
+Bugger, you're right.
 
-Alan, given that you are one of gurus on VIA chipset quirks, what am I 
-trading off on this?  Is this an isolated quirk, or have I stumbled across 
-something mildly useful to others?
+On my Cyrix III box before..
 
-Any insights would be appreciated.
+ CPU: After vendor init, caps: 00803135 80803035 00000000 00000000
+ CPU:     After generic, caps: 00803135 80803035 00000000 00000000
+ CPU:             Common caps: 00803135 80803035 00000000 00000000
 
-Many thanks,
+and after..
+
+ CPU: After vendor init, caps: 00803135 80000000 00000000 00000000
+ CPU:     After generic, caps: 00803135 80000000 00000000 00000000
+ CPU:             Common caps: 00803135 80000000 00000000 00000000
+
+Interesting how it's picking up that 8 in the 2nd set of caps, but
+not any of the other bits..
+
+ > It should, in my opinion, be moved into generic_identify().  Anyone
+ > who has a reason why that shouldn't be done speak now or I'll send the
+ > patch to Linus.
+
+Sounds reasonable to me, unless Patrick has a preferred way of fixing 
+this problem.
+
+        Dave
+
 
 -- 
-
--Jonathan <davis@jdhouse.org>
-
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

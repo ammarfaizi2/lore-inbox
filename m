@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265396AbSJaWJp>; Thu, 31 Oct 2002 17:09:45 -0500
+	id <S265413AbSJaWSD>; Thu, 31 Oct 2002 17:18:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265413AbSJaWJI>; Thu, 31 Oct 2002 17:09:08 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:49306 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265389AbSJaWIG>; Thu, 31 Oct 2002 17:08:06 -0500
-Subject: Re: Reiser vs EXT3
-From: "David C. Hansen" <haveblue@us.ibm.com>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0210311248030.25405-100000@dlang.diginsite.com>
-References: <Pine.LNX.4.44.0210311248030.25405-100000@dlang.diginsite.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 31 Oct 2002 14:13:24 -0800
-Message-Id: <1036102404.4272.285.camel@nighthawk>
-Mime-Version: 1.0
+	id <S265415AbSJaWSC>; Thu, 31 Oct 2002 17:18:02 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:30691 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S265413AbSJaWSB>; Thu, 31 Oct 2002 17:18:01 -0500
+Date: Thu, 31 Oct 2002 16:24:27 -0600 (CST)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Gregoire Favre <greg@ulima.unil.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.45 : kernel BUG at kernel/workqueue.c:69! (ISDN?)
+In-Reply-To: <20021031215441.GD24890@ulima.unil.ch>
+Message-ID: <Pine.LNX.4.44.0210311620470.27728-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-31 at 12:49, David Lang wrote:
-> note that breaking up this locking bottleneckhas been done in the 2.5
-> kernel series so when 2.6 is released this should be much less significant
-> (Q2 2003 is the current thought, but don't count on it until it's out)
+On Thu, 31 Oct 2002, Gregoire Favre wrote:
 
-Actually, ext3 has been immune from most of the lock breakups in 2.5. 
-ext2 used to have a lot of problems with BKL contention resulting from 
-ext2_get_block() and some other assorted functions.  Al Viro cleaned
-these up in early 2.5, but ext3 never got the cleanup.  It still scales
-horribly, even 2.5.45.  
+> On Thu, Oct 31, 2002 at 02:13:14PM -0600, Kai Germaschewski wrote:
+> 
+> > > kernel BUG at kernel/workqueue.c:69!
+> 
+> > Well, I thought I had all of these fixed...
+> 
+> Oops: sorry for reporting...
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+Well, since I obviously hadn't, thanks for reporting this ;)
+
+These traces still have a lot of weird things in it, but I think I figured 
+out what went wrong now. As a workaround, the following should do.
+
+===== drivers/isdn/hisax/avm_pci.c 1.11 vs edited =====
+--- 1.11/drivers/isdn/hisax/avm_pci.c	Tue Oct 29 19:50:48 2002
++++ edited/drivers/isdn/hisax/avm_pci.c	Thu Oct 31 16:19:26 2002
+@@ -731,10 +731,10 @@
+ 			release_region(cs->hw.avm.cfg_reg, 32);
+ 			return(0);
+ 		case CARD_INIT:
+-			clear_pending_isac_ints(cs);
+ 			initisac(cs);
+-			clear_pending_hdlc_ints(cs);
++			clear_pending_isac_ints(cs);
+ 			inithdlc(cs);
++			clear_pending_hdlc_ints(cs);
+ 			outb(AVM_STATUS0_DIS_TIMER | AVM_STATUS0_RES_TIMER,
+ 				cs->hw.avm.cfg_reg + 2);
+ 			WriteISAC(cs, ISAC_MASK, 0);
+
+Anyway, actually, this driver has been superseded by hisax_fcpcipnp, so 
+I'd prefer if you used the new driver ("modprobe hisax_fcpcipnp", no 
+parameters necessary), to find bugs there. Also, be advised that this is 
+not the last bug you'll find in current 2.5 ISDN, but I'll be thankful for 
+any reports and testing ;)
+
+--Kai
+
 

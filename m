@@ -1,86 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262302AbTCPDzT>; Sat, 15 Mar 2003 22:55:19 -0500
+	id <S262317AbTCPEVF>; Sat, 15 Mar 2003 23:21:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262317AbTCPDzT>; Sat, 15 Mar 2003 22:55:19 -0500
-Received: from emf.emf.net ([205.149.0.20]:55813 "EHLO emf.net")
-	by vger.kernel.org with ESMTP id <S262302AbTCPDzR>;
-	Sat, 15 Mar 2003 22:55:17 -0500
-Date: Sat, 15 Mar 2003 20:06:08 -0800 (PST)
-From: Tom Lord <lord@emf.net>
-Message-Id: <200303160406.UAA11523@emf.net>
-To: linux-kernel@vger.kernel.org
-cc: arch-users@lists.fifthvision.net, dev@subversion.tigris.org,
-       opencm-dev@smtp.opencm.org, jmacd@users.sourceforge.net
-Subject: moving the BitBucket GPL discussion to a context with
-   potential for _progress_
+	id <S262327AbTCPEVF>; Sat, 15 Mar 2003 23:21:05 -0500
+Received: from nat9.steeleye.com ([65.114.3.137]:48646 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id <S262317AbTCPEVF>; Sat, 15 Mar 2003 23:21:05 -0500
+Subject: Re: [patch] NUMAQ subarchification
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, colpatch@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1047776836.1327.11.camel@irongate.swansea.linux.org.uk>
+References: <1047676332.5409.374.camel@mulgrave>
+	<3E7284CA.6010907@us.ibm.com> <3E7285E7.8080802@us.ibm.com>
+	<247240000.1047693951@flay> 
+	<1047776836.1327.11.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 15 Mar 2003 22:31:43 -0600
+Message-Id: <1047789106.1964.189.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2003-03-15 at 19:07, Alan Cox wrote:
+> It was fixed in about 2.5.50-ac. I thought Linus had picked up the 
+> improved version of mach-default* too. Its used extensively for stuff
+> like PC9800 which is deeply un-PC
 
+Actually, we have all that in the mainline.  It was the .h fallback to
+mach-defaults.
 
-[PLEASE ... DO NOT followup without trimming the addressees.]
+The issue here is that mach-numaq and mach-summit are very PC like and
+so don't need any of the hooks that are in setup.c, thus they'd like to
+share setup.c from mach-default.  Likewise, they have the same topology
+file, I think (although this time it would be different from
+mach-default since we can pull the numa pieces out).  Prior to the build
+changes, VPATH would solve this problem (I used to use it to get
+trampoline.o for voyager).  However, now, the best I think we can do is
+to cat the file across.
 
-	David Lang (on lkml, in the context of a partly interesing
-	revision control system discussion):
-
-        hey guys, the suggestion to move to another list for this
-        discussion was to reduce traffic on the kernel list, not add a
-        bunch of arch discussions to the bitkeeper discussions.
-
-
-First, please tolerate _some_ (hopefully very _short_ term)
-cross-posting as a tactic to move the discussion to the
-arch-users@lists.fifthvision.net list.  Honestly, I think a few
-redundant declarations on lkml can help with the medium-to-longer-term
-movement of traffic off of lkml.  (Not that your plea is inconsistent
-with that.)
-
-Second, I personally (taking a risk here) think it's reasonable to use
-arch-users for more than just the narrow arch topic -- for the whole
-lkml-vs.-bk issue, for example.  arch-users are already learning from
-these lkml threads.  If you're *really* off-topic on arch-users, but
-have made what you think is an enriching post, just put "OT:" in the
-subject line (but, hey, make it a _high quality_ post, whatever that
-means).
-
-Third, in the arch world, I think we're really open-minded and
-interested about revision control in general -- we're thinking a lot
-about design issues -- not slavishly devoted to just a narrow
-conception of arch.  Projects that compete with arch -- developers of
-competing systems -- let's (M. Grubb, forgive me for not getting prior
-permission :-), gather on arch-users for rational discourse.
-
-I'll leave you with the enclosed, from arch-users.  We _are_ conscious
-of de-noisifying lkml (and not needlessly noisifying any other list or
-mbox).
-
--t
-
-Subject: [arch-users] the "zen" of lkml
-
-Here, let me try to say nothing at all:
-
-*) On the one hand, if several of us say essentially the same
-   thing on lkml, but in different terms, that greatly increases
-   the chances of achieving communication.
-
-
-*) On the other hand, if several of us say essentially the same
-   thing on lkml, but in different terms, that greatly increases
-   the chances of dragging out an unwelcome thread.
-
-
-I don't know what that means but it sounds important so keep it in
-mind.
-
-
--t
-
-_______________________________________________
-arch-users mailing list
-arch-users@lists.fifthvision.net
-http://lists.fifthvision.net/mailman/listinfo/arch-users
-
+James
 
 

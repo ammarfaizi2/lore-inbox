@@ -1,66 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264940AbSLXSRp>; Tue, 24 Dec 2002 13:17:45 -0500
+	id <S265637AbSLXScz>; Tue, 24 Dec 2002 13:32:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265608AbSLXSRp>; Tue, 24 Dec 2002 13:17:45 -0500
-Received: from holomorphy.com ([66.224.33.161]:35029 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264940AbSLXSRo>;
-	Tue, 24 Dec 2002 13:17:44 -0500
-Date: Tue, 24 Dec 2002 10:24:58 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <fletch@aracnet.com>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix 4 compile time warnings in 2.5.53
-Message-ID: <20021224182458.GL9704@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <fletch@aracnet.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <48180000.1040751403@titus>
+	id <S265681AbSLXScz>; Tue, 24 Dec 2002 13:32:55 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:28126 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S265637AbSLXScy>; Tue, 24 Dec 2002 13:32:54 -0500
+Date: Tue, 24 Dec 2002 13:41:03 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: vojtech@suse.cz
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Patch for initial CapsLock
+Message-ID: <20021224134103.A24181@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <48180000.1040751403@titus>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 24, 2002 at 09:36:43AM -0800, Martin J. Bligh wrote:
-> Fix the following warnings:
-> drivers/serial/core.c: In function `uart_get_divisor':
-> drivers/serial/core.c:390: warning: `quot' might be used uninitialized in 
-> this function
+Hi, Vojtech:
 
-This is a (harmless) toolchain problem. Upgrading compilers (or patching
-your current compiler) fixes it. I've posted a "fix" for this before.
+In 2.4.21-pre2, if Caps Lock is on and a USB keyboard is connected,
+the LED will not be lit. It mostly affects KVM users like those
+of IBM BladeCenter, because they "connect" keyboards all day long.
+Would you be so kind to review the attached patch?
 
+-- Pete
 
-On Tue, Dec 24, 2002 at 09:36:43AM -0800, Martin J. Bligh wrote:
-> net/ipv4/route.c: In function `rt_cache_seq_stop':
-> net/ipv4/route.c:279: warning: unused variable `st'
-
-Fair enough.
-
-
-On Tue, Dec 24, 2002 at 09:36:43AM -0800, Martin J. Bligh wrote:
-> drivers/net/starfire.c: In function `netdev_close':
-> drivers/net/starfire.c:1851: warning: unsigned int format, different type 
-> arg (arg 2)
-> drivers/net/starfire.c:1858: warning: unsigned int format, different type 
-> arg (arg 2)
-
-Hmm, I thought I got this one into jgarzik's tree. I posted a fix for this
-one too.
-
-
-On Tue, Dec 24, 2002 at 09:36:43AM -0800, Martin J. Bligh wrote:
-> arch/i386/kernel/smpboot.c:691: warning: `wakeup_secondary_via_INIT' 
-> defined but not used
-> My build is now eerily quiet.
-
-This one's all you. =)
-
-
-Bill
+diff -ur -X dontdiff linux-2.4.21-pre2/drivers/char/keyboard.c linux-2.4.21-pre2-usb/drivers/char/keyboard.c
+--- linux-2.4.21-pre2/drivers/char/keyboard.c	2002-08-02 17:39:43.000000000 -0700
++++ linux-2.4.21-pre2-usb/drivers/char/keyboard.c	2002-12-24 10:40:48.000000000 -0800
+@@ -64,6 +64,7 @@
+ void (*kbd_ledfunc)(unsigned int led);
+ EXPORT_SYMBOL(handle_scancode);
+ EXPORT_SYMBOL(kbd_ledfunc);
++EXPORT_SYMBOL(kbd_refresh_leds);
+ 
+ extern void ctrl_alt_del(void);
+ 
+@@ -899,9 +900,9 @@
+  * Aside from timing (which isn't really that important for
+  * keyboard interrupts as they happen often), using the software
+  * interrupt routines for this thing allows us to easily mask
+- * this when we don't want any of the above to happen. Not yet
+- * used, but this allows for easy and efficient race-condition
+- * prevention later on.
++ * this when we don't want any of the above to happen.
++ * This allows for easy and efficient race-condition prevention
++ * for kbd_ledfunc => input_event(dev, EV_LED, ...) => ...
+  */
+ static void kbd_bh(unsigned long dummy)
+ {
+@@ -917,6 +918,18 @@
+ EXPORT_SYMBOL(keyboard_tasklet);
+ DECLARE_TASKLET_DISABLED(keyboard_tasklet, kbd_bh, 0);
+ 
++/*
++ * This allows a newly plugged keyboard to pick the LED state.
++ * We do it in this seemindly backwards fashion to ensure proper locking.
++ * Built-in keyboard does refresh on its own.
++ */
++void kbd_refresh_leds(void)
++{
++	tasklet_disable(&keyboard_tasklet);
++	if (ledstate != 0xff && kbd_ledfunc != NULL) kbd_ledfunc(ledstate);
++	tasklet_enable(&keyboard_tasklet);
++}
++
+ typedef void (pm_kbd_func) (void);
+ 
+ pm_callback pm_kbd_request_override = NULL;
+diff -ur -X dontdiff linux-2.4.21-pre2/drivers/input/keybdev.c linux-2.4.21-pre2-usb/drivers/input/keybdev.c
+--- linux-2.4.21-pre2/drivers/input/keybdev.c	2001-10-11 09:14:32.000000000 -0700
++++ linux-2.4.21-pre2-usb/drivers/input/keybdev.c	2002-12-23 23:43:53.000000000 -0800
+@@ -201,6 +201,7 @@
+ 	input_open_device(handle);
+ 
+ //	printk(KERN_INFO "keybdev.c: Adding keyboard: input%d\n", dev->number);
++	kbd_refresh_leds();
+ 
+ 	return handle;
+ }
+@@ -222,6 +223,7 @@
+ {
+ 	input_register_handler(&keybdev_handler);
+ 	kbd_ledfunc = keybdev_ledfunc;
++	kbd_refresh_leds();
+ 
+ 	if (jp_kbd_109) {
+ 		x86_keycodes[0xb5] = 0x73;	/* backslash, underscore */
+diff -ur -X dontdiff linux-2.4.21-pre2/include/linux/kbd_kern.h linux-2.4.21-pre2-usb/include/linux/kbd_kern.h
+--- linux-2.4.21-pre2/include/linux/kbd_kern.h	2002-12-19 20:22:19.000000000 -0800
++++ linux-2.4.21-pre2-usb/include/linux/kbd_kern.h	2002-12-23 23:43:31.000000000 -0800
+@@ -72,6 +72,7 @@
+ extern int do_poke_blanked_console;
+ 
+ extern void (*kbd_ledfunc)(unsigned int led);
++extern void kbd_refresh_leds(void);
+ 
+ extern void set_console(int nr);
+ extern void schedule_console_callback(void);

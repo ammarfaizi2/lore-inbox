@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270729AbTGUVjE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 17:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270731AbTGUVjE
+	id S270717AbTGUVmw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270731AbTGUVmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 17:39:04 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:49300 "EHLO
-	VL-MO-MR005.ip.videotron.ca") by vger.kernel.org with ESMTP
-	id S270729AbTGUVjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 17:39:02 -0400
-Date: Mon, 21 Jul 2003 17:55:51 -0400
-From: Simon Boulet <simon.boulet@divahost.net>
-Subject: Re: 2.6.0-test1+ Alsa + Intel 82801CA/CAM AC'97 Audio OOPS
-In-reply-to: <"from tiwai"@suse.de>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <20030721215551.GC1704@i2650>
-MIME-version: 1.0
-X-Mailer: Balsa 2.0.12
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <20030719021012.GA919@i2650> <s5h4r1gj6t2.wl@alsa2.suse.de>
+	Mon, 21 Jul 2003 17:42:52 -0400
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:64938 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S270717AbTGUVmv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 17:42:51 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 IDE problems (lost interrupt, bad DMA status)
+From: Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>
+Date: Mon, 21 Jul 2003 23:57:58 +0200
+Message-ID: <m24r1fa6ft.fsf@rohan.middle-earth.priv>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Spam-Score: -1.0 (-)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19eifK-0004FO-00*Xmqwgtdj31A*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, CONFIG_FRAME_POINTER does fix my issues with ALSA. And the patch 
-submited by Valdis some days ago fixed OSS.
+Herbert Xu wrote:
+> joe briggs <jbriggs@briggsmedia.com> wrote:
+> > Can anyone tell me what the -ac patches do with respect to this problem?  
+> > Also, what functionality is lost when CONFIG_X86_IO_APIC is not set, and 
+> > should it improve this hd timeout/lost interrupt problem?
 
-Thank you
+> It fixes the problem where interrupts are lost when the relevant IRQ line
+> is disabled.
 
-Simon
+I have 3 questions regarding this issue:
 
-On 2003.07.21 10:25, Takashi Iwai wrote:
-> At Fri, 18 Jul 2003 22:10:12 -0400,
-> Simon Boulet wrote:
-> >
-> > [1  <text/plain; ISO-8859-1 (7bit)>]
-> > Hello everyone,
-> >
-> > In case I am sending this to a list, please CC to me regarding
-> anything
-> > related to this issue. I am not a member of the list.
-> >
-> > I am having a Kernel OOPS with 2.6.0-test1-ac2 (same thing under
-> non-
-> > ac2) using ALSA with OSS compatibily enabled on an Intel 82801CA/
-> CAM
-> 
-> > AC'97 (ICH3 mobile) integrated Audio.
-> 
-> perhaps a known problem.
-> a workaround is to turn on the framepointer.
-> 
-> 
-> Takashi
-> 
-> 
+1. Can you explain the problem a little bit more in detail?
+
+2. Is there a dedicated patch solving this issue? (I don't want to
+   apply the complete -ac patch )
+
+3. Will this patch be in 2.4.22?
+
+
+Thx & regards,
+ron
+
+PS: Sorry if this mail is not part of the origin thread. I'm not on the
+    list and read about the problem in a mailing list archive.

@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264959AbTLKOH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 09:07:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbTLKOHZ
+	id S264912AbTLKOEM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 09:04:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbTLKOEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 09:07:25 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:57541 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264959AbTLKOHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 09:07:24 -0500
-Date: Thu, 11 Dec 2003 08:54:22 -0500
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-       Erik Andersen <andersen@codepoet.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
+	Thu, 11 Dec 2003 09:04:12 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:49360 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264912AbTLKOEK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 09:04:10 -0500
+Date: Thu, 11 Dec 2003 15:03:23 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Rob Landley <rob@landley.net>
+cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+       Kendall Bennett <KendallB@scitechsoft.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
 Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031211135422.GA4315@pimlott.net>
-Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
-	Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-	Erik Andersen <andersen@codepoet.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20031204235055.62846.qmail@web21503.mail.yahoo.com> <20031205004653.GA7385@codepoet.org> <Pine.LNX.4.58.0312041956530.27578@montezuma.fsmlabs.com> <20031205010349.GA9745@codepoet.org> <20031205012124.GB15799@work.bitmover.com> <Pine.LNX.4.58.0312041750270.6638@home.osdl.org> <1071146277.5712.589.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1071146277.5712.589.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.3.28i
-From: Andrew Pimlott <andrew@pimlott.net>
+In-Reply-To: <200312110132.06286.rob@landley.net>
+Message-ID: <Pine.GSO.4.21.0312111439350.7575-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 11, 2003 at 12:37:58PM +0000, David Woodhouse wrote:
-> Your conditions for granting that permission do _not_ have to be
-> restricted to licensing of derived works. You can even ask for _money_
-> in return, if you like. Or you could require that the lucky recipient
-> bathe in creosote daily, in order to receive your licence.
+On Thu, 11 Dec 2003, Rob Landley wrote:
+> On Wednesday 10 December 2003 10:34, Larry McVoy wrote:
+> > On Wed, Dec 10, 2003 at 08:21:52AM -0800, Linus Torvalds wrote:
+> > > There's a fundamental difference between "plugins" and "kernel modules":
+> > > intent.
+> >
+> > Which is?  How is it that you can spend a page of text saying a judge
+> > doesn't care about technicalities and then base the rest of your argument
+> > on the distinction between a "plugin" and a "kernel module"?
+> 
+> Because there are distinctions that aren't technicalities?
+> 
+> Strange but true...
 
-NAL, but look up "misuse of copyright".  You can't just require
-whatever pleases your fancy.
+Let's take a fresh look, from a historical perspective...
 
-Eg,
+We had a GPLed kernel with (lots of) GPLed drivers. Even too many drivers,
+since a kernel with all drivers enabled is too large to fit in 640 KiB! (of
+course we elitist m68k users didn't suffer from that limitation ;-)
 
-    http://www.digital-law-online.com/lpdi1.0/cases/15PQ2D1846.htm
+So someone solved this problem and found a way to reduce the kernel image size
+below the magical limit by moving driver code to `loadable kernel modules'. A
+nice side-effect was that people (read: distributors) now no longer needed a
+bloated kernel that took ages to start during device probe. They could provide
+a small kernel instead, with separate driver modules for all possible hardware,
+to be loaded at boot time or on demand.
 
-> I could write a piece of software and tell you that you're only allowed
-> to use it if you release _all_ future software you write under the GPL.
-> Even stuff which isn't at all related, let alone non-derived.
+Hence technically loadable kernel modules are just a work-around to allow
+larger kernels, and all loadable kernel code should be treated the same as
+in-kernel code. So they are clearly derived from the kernel.
 
-Highly doubtful.
+Later people started to realize that:
+  (a) They can build out-of-tree modules, i.e. drivers that can't even be built
+      in,
+  (b) They can build out-of-tree modules and make them non-GPL.
 
-Andrew
+And (b) is where the problem started...
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

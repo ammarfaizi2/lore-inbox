@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282912AbRLBRcv>; Sun, 2 Dec 2001 12:32:51 -0500
+	id <S282904AbRLBRdL>; Sun, 2 Dec 2001 12:33:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281599AbRLBRco>; Sun, 2 Dec 2001 12:32:44 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20242 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S283520AbRLBRc1>;
-	Sun, 2 Dec 2001 12:32:27 -0500
-Date: Sun, 2 Dec 2001 15:32:14 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Victor Yodaiken <yodaiken@fsmlabs.com>,
-        Andrew Morton <akpm@zip.com.au>, Larry McVoy <lm@bitmover.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Henning Schmiedehausen <hps@intermeta.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <Pine.LNX.4.33.0112021910480.18232-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33L.0112021528300.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S281599AbRLBRdC>; Sun, 2 Dec 2001 12:33:02 -0500
+Received: from [199.29.68.123] ([199.29.68.123]:4616 "EHLO MailAndNews.com")
+	by vger.kernel.org with ESMTP id <S282904AbRLBRcq>;
+	Sun, 2 Dec 2001 12:32:46 -0500
+X-WM-Posted-At: MailAndNews.com; Sun, 2 Dec 01 12:32:35 -0500
+Message-ID: <022601c17b57$548ef230$0500a8c0@myroom>
+From: "Matt Schulkind" <mschulkind@mailandnews.com>
+To: "lkml" <linux-kernel@vger.kernel.org>
+Subject: AMD Viper IDE chipset
+Date: Sun, 2 Dec 2001 12:32:35 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Dec 2001, Ingo Molnar wrote:
+I'm currently using the Tyan Tiger mobo with the AMD Viper chipset. On past
+kernels 2.4.14 and before definatly, hdparm -t gave me 3.8MB/s on my ATA100
+drive. Using some IDE patch taht I'd found on the web, I was able to get to
+28MB/s and 38MB/s with some tweaking. Now with the 2.4.16 kernel, I get
+28MB/s which is a good improvement, but my drive is only being detected as
+UDMA33, I have not tried forcing it to UDMA66 or UDMA100 like I had with the
+IDE patch I found which had the same detecting problem. It seems that the
+mode detection is broken, but the actual interface code is functioning.
+Anyone else having similar problems? I'm using the IBM 60GB 75GXP drive.
 
-> This whole effort called Linux might look structured on the micro-level
-> (this world *does* appear to have some rules apart of chaos), but it
-> simply *cannot* be anything better than random on the macro (longterm)
-> level. So we better admit this to ourselves and adapt to it.
-
-Note that this screams for some minimal kind of modularity
-on the source level, trying to limit the "magic" to as small
-a portion of the code base as possible.
-
-Also, natural selection tends to favour the best return/effort
-ratio, not the best end result. Letting a kernel take shape
-due to natural selection pressure could well result in a system
-which is relatively simple, works well for 95% of the population,
-has the old cruft level at the upper limit of what's deemed
-acceptable and completely breaks for the last 5% of the population.
-
-That is, unless we give those last 5% of the population baseball
-bats and Linus his house address, in which case there is some
-biological pressure to merge the fixes needed for those folks ;)
-
-regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
+-Matt Schulkind
 

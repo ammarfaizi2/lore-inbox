@@ -1,82 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265841AbUBPTP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 14:15:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUBPTP4
+	id S265878AbUBPTao (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 14:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265876AbUBPTao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 14:15:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26822 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265841AbUBPTPo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 14:15:44 -0500
-Subject: Re: Linux 2.6.3-rc3 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org>
-References: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org>
-Content-Type: text/plain
-Message-Id: <1076959106.9928.59.camel@cherrytest.pdx.osdl.net>
+	Mon, 16 Feb 2004 14:30:44 -0500
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:54444 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S265851AbUBPT1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 14:27:55 -0500
+Date: Mon, 16 Feb 2004 12:27:41 -0700
+From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Chip Salzenberg <chip@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.3-rc3 - IDE DMA errors on Thinkpad A30
+Message-ID: <20040216192741.GA22218@bounceswoosh.org>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Chip Salzenberg <chip@pobox.com>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <E1AsO6X-0003hW-1u@tytlal> <200402151658.57710.bzolnier@elka.pw.edu.pl> <20040215163438.GC3789@perlsupport.com> <200402151808.42611.bzolnier@elka.pw.edu.pl> <20040216005523.GD3789@perlsupport.com> <40302783.6020505@pobox.com> <20040216033740.GE3789@perlsupport.com> <40303D59.4030605@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 16 Feb 2004 11:18:26 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <40303D59.4030605@pobox.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+On Sun, Feb 15 at 22:47, Jeff Garzik wrote:
+>Chip Salzenberg wrote:
+>>Still: I wonder if the occasional bad sector is really that bad.
+>>Shirley, at the unreal densities of today's drives, the development of
+>>bad sectors is inevitable?  (Especially in a laptop drive that's
+>>bounced around in normal use.)
+>
+>Open argument :)
+>
+>A lot of smart people will argue that a bad sector every now and again 
+>occurs, and "I've run my server's disks that way for years."
+>
+>Other equally smart people argue that modern IDE disks reserve space for 
+>remapping bad sectors.  If you run out of sectors that the drive is 
+>willing to silently remap for you, you should toss the disk and buy a 
+>new one.
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
-2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
+Yes, definitely.  There are a *lot* of spare sectors on a modern IDE
+drive -- Running out of spares is an extremely rare event, and usually
+indicates that the drive has been operating in severe conditions for
+its lifetime.  (>55C + vibe sorts of things)
 
-Warning summary:
-   drivers/block: 1 warnings, 0 errors
-   drivers/cdrom: 3 warnings, 0 errors
-   drivers/char: 1 warnings, 0 errors
-   drivers/ide: 5 warnings, 0 errors
-   drivers/isdn: 2 warnings, 0 errors
-   drivers/message: 1 warnings, 0 errors
-   drivers/mtd: 23 warnings, 0 errors
-   drivers/net: 7 warnings, 0 errors
-   drivers/pcmcia: 3 warnings, 0 errors
-   drivers/scsi/pcmcia: 1 warnings, 0 errors
-   drivers/scsi: 32 warnings, 0 errors
-   drivers/serial: 1 warnings, 0 errors
-   drivers/telephony: 5 warnings, 0 errors
-   drivers/usb: 2 warnings, 0 errors
-   drivers/video/console: 2 warnings, 0 errors
-   drivers/video/matrox: 5 warnings, 0 errors
-   sound/isa: 6 warnings, 0 errors
-   sound/oss: 33 warnings, 0 errors
+>There is of course the caveat that it is impossible to avoid the drive 
+>returning "bad sector", instead of silently remapping, on reads.
 
-Error summary:
-   drivers/net: 0 warnings, 1 errors
+Yes, because at that point, there's nothing to remap.  If the drive
+couldn't read it, and knows it isn't in its 2/8MB cache, remapping is
+pointless until there is known-good data to apply.  Therefore, only on
+the write is there a good reason to examine and possibly remap an LBA.
 
+>Oh, and I just thought of something else.  Current Linux filesystems 
+>will, on a read error, usually mark it as a bad sector and move on. 
+>Really, they should attempt to write to the bad sector before 
+>considering it bad.
+>
+>As a result, current kernels will AFAICT assume a sector is bad even 
+>when the drive politely swaps a good sector in place for you.
+>
+>One for the todo list, I suppose...  a useable workaround for this is 
+>probably good ole 'e2fsck -c', i.e. badblocks...  That says "check again 
+>to see if this sector is bad", and -hopefully- will unmark bad blocks 
+>that were incorrectly marked bad.
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Daily compiles (ia64): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
+Agreed.
 
-John
+In most cases, a simpe write to the supposedly-defective LBA will get
+the drive to resolve whether it is a permanent media defect that needs
+to be remapped, or else functional media that has gone bad for some
+other reason. (of which there are several... excessive cold/heat,
+vibration, poor power, etc)
 
 
+-- 
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
 

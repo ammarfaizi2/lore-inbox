@@ -1,60 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262849AbTDVC5T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 22:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbTDVC5T
+	id S262912AbTDVDAw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 23:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbTDVDAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 22:57:19 -0400
-Received: from web40810.mail.yahoo.com ([66.218.78.187]:57614 "HELO
-	web40810.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262849AbTDVC5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 22:57:18 -0400
-Message-ID: <20030422030917.12838.qmail@web40810.mail.yahoo.com>
-Date: Mon, 21 Apr 2003 20:09:17 -0700 (PDT)
-From: gordon anderson <gordonski_anderson@yahoo.com>
-Subject: 2.5.68 build - modules_install - depmod probs - 815fb / zlib - help
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Apr 2003 23:00:52 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:28833 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262912AbTDVDAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 23:00:49 -0400
+Date: Mon, 21 Apr 2003 20:13:20 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: trelane@digitasaru.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.68 oopses
+Message-Id: <20030421201320.59f28288.akpm@digeo.com>
+In-Reply-To: <20030422015612.GB599@digitasaru.net>
+References: <20030422015612.GB599@digitasaru.net>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Apr 2003 03:12:46.0740 (UTC) FILETIME=[0C55F540:01C3087D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joseph Pingenot <trelane@digitasaru.net> wrote:
+>
+> I get the following when booting 2.5.68:
+> 
+> Apr 21 00:41:37 paulus kernel: airo: Doing fast bap_reads
+> Apr 21 00:41:37 paulus kernel: airo: MAC enabled eth1 0:7:e:b8:d6:7d
+> Apr 21 00:41:37 paulus kernel: eth1: index 0x05: Vcc 5.0, Vpp 5.0, irq 4, io 0x0100-0x013f
+> Apr 21 00:41:37 paulus kernel: bad: scheduling while atomic!
 
-Sorry if wrong forum!
+It's not really an oops - but it's trying hard to become one.
 
-Building 2.5.68 kernel with intel815 framebuffer support &
-crypto options.
+Could you please run with this patch for a while, and let me know
+what it puts in the logs?
 
-make modules_install gives -
+ drivers/net/wireless/airo.c |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.68/kernel/crypto/deflate.ko
-depmod:         zlib_inflateInit2_
-depmod:         zlib_inflate
-depmod:         zlib_inflate_workspacesize
-depmod:         zlib_deflateInit2_
-depmod:         zlib_deflate_workspacesize
-depmod:         zlib_deflate
-depmod:         zlib_inflateReset
-depmod:         zlib_deflateReset
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.68/kernel/drivers/video/console/fbcon.ko
-depmod:         find_font
-depmod:         get_default_font
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.68/kernel/drivers/video/i810/i810fb.ko
-depmod:         restore_vga
-depmod:         save_vga
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.68/kernel/drivers/video/vga16fb.ko
-depmod:         restore_vga
-depmod:         save_vga
+diff -puN drivers/net/wireless/airo.c~airo-schedule-fix drivers/net/wireless/airo.c
+--- 25/drivers/net/wireless/airo.c~airo-schedule-fix	2003-04-21 20:09:39.000000000 -0700
++++ 25-akpm/drivers/net/wireless/airo.c	2003-04-21 20:11:43.000000000 -0700
+@@ -44,6 +44,7 @@
+ #include <linux/ioport.h>
+ #include <linux/config.h>
+ #include <linux/pci.h>
++#include <linux/delay.h>
+ #include <asm/uaccess.h>
+ 
+ #ifdef CONFIG_PCI
+@@ -2376,20 +2377,26 @@ static u16 setup_card(struct airo_info *
+ static u16 issuecommand(struct airo_info *ai, Cmd *pCmd, Resp *pRsp) {
+         // Im really paranoid about letting it run forever!
+ 	int max_tries = 600000;
++	static int max = 0;
++	int count = 0;
+ 
+ 	if (sendcommand(ai, pCmd) == (u16)ERROR)
+ 		return ERROR;
+ 
+ 	while (max_tries-- && (IN4500(ai, EVSTAT) & EV_CMD) == 0) {
+-		if (!in_interrupt() && (max_tries & 255) == 0)
+-			schedule();
++		udelay(1);
++		count++;
+ 	}
+-	if ( max_tries == -1 ) {
++	if (max_tries == -1) {
+ 		printk( KERN_ERR
+ 			"airo: Max tries exceeded waiting for command\n" );
+                 return ERROR;
+ 	}
+ 	completecommand(ai, pRsp);
++	if (count > max) {
++		max = count;
++		printk("%s: max delay = %d usec\n", __FUNCTION__, max);
++	}
+ 	return SUCCESS;
+ }
+ 
 
-Any ideas/workaround.
+_
 
-gord.
-
-__________________________________________________
-Do you Yahoo!?
-The New Yahoo! Search - Faster. Easier. Bingo
-http://search.yahoo.com

@@ -1,34 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310368AbSBRKB2>; Mon, 18 Feb 2002 05:01:28 -0500
+	id <S292917AbSBQKUj>; Sun, 17 Feb 2002 05:20:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310371AbSBRKBT>; Mon, 18 Feb 2002 05:01:19 -0500
-Received: from mail1.tinet.ie ([159.134.237.19]:20544 "EHLO mcclure.tinet.ie")
-	by vger.kernel.org with ESMTP id <S310368AbSBRKBL>;
-	Mon, 18 Feb 2002 05:01:11 -0500
-From: "John Brosnan" <brosnans1@eircom.net>
+	id <S292918AbSBQKUa>; Sun, 17 Feb 2002 05:20:30 -0500
+Received: from holomorphy.com ([216.36.33.161]:3715 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S292917AbSBQKUV>;
+	Sun, 17 Feb 2002 05:20:21 -0500
+Date: Sun, 17 Feb 2002 02:20:13 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-Subject: ARP timeout value, why 1 minute ?
+Cc: riel@surriel.com
+Subject: [PATCH] [rmap] upper limit on wait table size
+Message-ID: <20020217102013.GG832@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, riel@surriel.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: 193.120.151.1
-X-Mailer: Eircom Net CRC Webmail (http://www.eircom.net/)
-Organization: Eircom Net (http://www.eircom.net/)
-Message-Id: <E16ckba-0001mi-00@mcclure.tinet.ie>
-Date: Mon, 18 Feb 2002 10:01:06 +0000
+Content-Description: brief message
+Content-Disposition: attachment; filename="waitq_bound.patch"
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi, 
-
-I may not be correct but isn't the traditional ARP timeout value 20 minutes in many Unix versions such as BSD, freeBSD 
-and early version of Linux. But from a certain point, Linux(only?) changed from 20 minutes to one minute. This changes the system configuration to shorten the ARP expiration timer to one minute instead of the default 20 minutes. 
-
-Why was it changed to 1 minute ? 
-
-thanks in advance, 
-
-John. 
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Long-term Linux VM development
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.201   ->        
+#	     mm/page_alloc.c	1.60    -> 1.61   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/02/17	wli@holomorphy.com	1.202
+# Set upper limits on the maximum number of waitqueue table entries.
+# --------------------------------------------
+#
+diff -Nru a/mm/page_alloc.c b/mm/page_alloc.c
+--- a/mm/page_alloc.c	Sun Feb 17 02:15:31 2002
++++ b/mm/page_alloc.c	Sun Feb 17 02:15:31 2002
+@@ -825,6 +825,22 @@
+ 	while(size < pages)
+ 		size <<= 1;
+ 
++	/*
++	 * 16384 blocked kernel threads seems like a reasonable
++	 * number and this throttles the growth of the wait table
++	 * to something bounded above by something resembling
++	 * approximately the maximum number of kernel threads
++	 * expected. This limit will trigger at 16K*4K*256 = 16GB
++	 * on i386. The hard upper bound for i386 is then
++	 * 16K*12B = 192KB, which is large but acceptable. For
++	 * uniprocessor machines 4096 threads is a more likely
++	 * number. i386 UP triggers this at 4GB for a 48KB table.
++	 */
++	if (NR_CPUS > 1)
++		size = min(size, 16384UL);
++	else
++		size = min(size, 4096UL);
++
+ 	return size;
+ }
+ 

@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262671AbVCXLIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbVCXLh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262671AbVCXLIo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 06:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbVCXLIn
+	id S262448AbVCXLh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 06:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbVCXLh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 06:08:43 -0500
-Received: from fire.osdl.org ([65.172.181.4]:17133 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262671AbVCXLIT (ORCPT
+	Thu, 24 Mar 2005 06:37:28 -0500
+Received: from skora.net ([62.141.41.44]:33413 "EHLO skora.net")
+	by vger.kernel.org with ESMTP id S262448AbVCXLhY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 06:08:19 -0500
-Date: Thu, 24 Mar 2005 03:07:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Baumann <waste.manager@gmx.de>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: [Bug] invalid mac address after rebooting (kernel 2.6.11.5)
-Message-Id: <20050324030751.6e150376.akpm@osdl.org>
-In-Reply-To: <20050324110102.GA30711@faui00u.informatik.uni-erlangen.de>
-References: <20050323122423.GA24316@faui00u.informatik.uni-erlangen.de>
-	<20050323185225.11097185.akpm@osdl.org>
-	<20050324110102.GA30711@faui00u.informatik.uni-erlangen.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Mar 2005 06:37:24 -0500
+To: Roger Luethi <rl@hellgate.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] via-rhine.c, wol-bugfix, Kernel 2.6.11.5
+References: <87psxp6fq4.fsf@powers.localnet>
+	<20050324074109.GA14926@k3.hellgate.ch>
+From: Thomas Skora <thomas@skora.net>
+Date: Thu, 24 Mar 2005 12:37:50 +0100
+In-Reply-To: <20050324074109.GA14926@k3.hellgate.ch> (Roger Luethi's message
+ of "Thu, 24 Mar 2005 08:41:09 +0100")
+Message-ID: <87br9946lt.fsf@powers.localnet>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Baumann <waste.manager@gmx.de> wrote:
->
-> > 
-> > The only PCI change I see is
-> > 
-> > --- drivers/pci/pci.c   22 Jan 2005 03:20:37 -0000      1.71
-> > +++ drivers/pci/pci.c   24 Feb 2005 18:02:37 -0000      1.72
-> > @@ -268,7 +268,7 @@
-> >                 return -EIO; 
-> >  
-> >         pci_read_config_word(dev,pm + PCI_PM_PMC,&pmc);
-> > -       if ((pmc & PCI_PM_CAP_VER_MASK) != 2) {
-> > +       if ((pmc & PCI_PM_CAP_VER_MASK) > 2) {
-> >                 printk(KERN_DEBUG
-> >                        "PCI: %s has unsupported PM cap regs version (%u)\n",
-> >                        dev->slot_name, pmc & PCI_PM_CAP_VER_MASK);
-> > 
-> > and you're not getting that message (are you?)
-> > 
-> 
-> Reverting the above patch solved it. But _now_ I get the message.
-> (dmesg output with above patch reverted at the end of the mail)
+Roger Luethi <rl@hellgate.ch> writes:
 
-Greg, help!
+> This patch won't apply to the 2.6.11.5 I have here -- the driver is
+> clearing ~0xFC already. The description makes me suspect that the patch
+> is meant to go the other way, and that would be wrong.
 
-> > Nothing much in arch/i386..
-> > 
-> > There were some ACPI changes, which is always a worry ;) Does that machine
-> > run OK without ACPI support?  If so, could you determine whether disabling
-> > ACPI fixes things up?
-> >
-> Hm. I tried it with 2.6.11.5 by appending  acpi=off  at the cmdline but
-> as I remember it hasn't changed anything. Or do I have to specify
-> someting else at the commandline to deactivate acpi?
+You are right. I don't know what happened, but in my sources (from
+kernel.org without any patches) this was cleared to 0xFE.
 
-We like to change these things so people send us more email.
+> Use ethtool if you want to enable WOL, default in Linux net drivers is
+> off.
 
-According to Documentation/kernel-parameters.txt, acpi=off should still work.
+The problem was, that this doesn't worked.
+
+> Please don't send patches as application/octet-stream, that's
+> annoying. Send either text/plain or inline.
+
+Ok, thank you for the hint.
+
+Thomas

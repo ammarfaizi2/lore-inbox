@@ -1,93 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130726AbQKCQbf>; Fri, 3 Nov 2000 11:31:35 -0500
+	id <S129069AbQKCQlj>; Fri, 3 Nov 2000 11:41:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130791AbQKCQb0>; Fri, 3 Nov 2000 11:31:26 -0500
-Received: from gromco.com ([209.10.98.91]:8000 "HELO gromco.com")
-	by vger.kernel.org with SMTP id <S130726AbQKCQbM>;
-	Fri, 3 Nov 2000 11:31:12 -0500
-Message-ID: <3A02E71E.745138F4@gromco.com>
-Date: Fri, 03 Nov 2000 11:26:06 -0500
-From: Vladislav Malyshkin <mal@gromco.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: test10-pre7
-In-Reply-To: <39FEF039.69FAFDB2@gromco.com>
-		<14846.63285.212616.574188@wire.cadcamlab.org>
-		<39FF0A71.FE05FAEB@gromco.com> <14847.51541.625121.78324@wire.cadcamlab.org>
+	id <S129094AbQKCQla>; Fri, 3 Nov 2000 11:41:30 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:19304 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129069AbQKCQlU>; Fri, 3 Nov 2000 11:41:20 -0500
+Date: Fri, 3 Nov 2000 17:41:05 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: dledford@redhat.com, gareth@valinux.com, linux-kernel@vger.kernel.org
+Subject: SETFPXREGS fix
+Message-ID: <20001103174105.C857@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Peter
+While auditing the PIII-4 patch for 2.2.x I found a local security problem in
+SETFPXREGS that affects 2.4.0-test10 too when it's compiled for PIII
+processors and run on a PIII CPU. The problem is that any user can break the
+FPU by uploading into the kernel a not valid mxcsr value.
 
-> [Vladislav Malyshkin <mal@gromco.com>]
-> > Also, the function remove_duplicates can be written using make rules
-> > and functions.  Using functions "foreach" "if" from make and
-> > comparison you can easily build a function remove_duplicates in make,
-> > no shell involved.
->
-> Could you please write me this function?  I am curious to see how you
-> do it.
->
-> I am also a bit skeptical.  About 3 months ago, I thought it would be
-> possible to do this, so I spent a few hours fiddling around and reading
-> documentation.  I failed; nothing I tried worked.
->
-> > so instead of $(sort) your will have $(remove_duplicates) written
-> > entirely in make.
->
-> That would make me happy.
+I verified with this proggy:
 
-Absense of recursive macros in make makes the problem not that clear.
-An alternative may be if to put \n into variable value,
-so the make commands will be automatically generated
----- like this
-remove_duplicates = $(2) := ; $(foreach tmpvar1,$(1),$(2) += $$(if
-$$(findstring $(tmpvar1),$$($(2))),,$(tmpvar1)); )
-$(call remove_duplicates, x y a a c c a b c,ABCD)
---- in this example the variable ABCD is set to the string without
-duplicates
-but make seems does not allow \n as a value and does not understand
-several assignments in one line, so
-A = B ; C = D
-does not work as expected.
+struct user_fxsr_struct {
+	unsigned short	cwd;
+	unsigned short	swd;
+	unsigned short	twd;
+	unsigned short	fop;
+	long	fip;
+	long	fcs;
+	long	foo;
+	long	fos;
+	long	mxcsr;
+	long	reserved;
+	long	st_space[32];	/* 8*16 bytes for each FP-reg = 128 bytes */
+	long	xmm_space[32];	/* 8*16 bytes for each XMM-reg = 128 bytes */
+	long	padding[56];
+};
 
-So the best what we can get without using shell is below (the code and
-usage example)
-The function $(call remove_duplicates,string with duplicates)
-removes the duplicates from the string.
+main()
+{
+	struct user_fxsr_struct fxsr;
+	int pid = fork();
 
-# joins four strings
-join4 = $(join $(join $(1),$(2)),$(join $(3),$(4)))
-# generates indexes
-numbers = $(foreach x4,0 1 2 3 4 5 6 7 8 9,\
-$(strip $(foreach x3,0 1 2 3 4 5 6 7 8 9,\
-$(strip $(foreach x2,0 1 2 3 4 5 6 7 8 9,\
-$(strip $(foreach x1,0 1 2 3 4 5 6 7 8 9,\
-$(strip $(if $(findstring $(call join4,$(x4),$(x3),$(x2),$(x1)),0000),,\
-$(if $(word $(call join4,$(x4),$(x3),$(x2),$(x1)),$(1)),\
-$(call join4,$(x4),$(x3),$(x2),$(x1)))))))))))))
-# generates indexes
-numbers1 = $(wordlist 1,$(words $(wordlist 2,$(words $(1)),$(1))),\
-$(call numbers,$(1)))
-# Remove duplicates from a line of up to 10000 words
-remove_duplicates = $(strip $(firstword $(1)) \
-$(foreach tmpvar,$(call numbers1,$(1)),\
-$(if $(findstring \
-$(word $(tmpvar),$(wordlist 2,$(words $(1)),$(1))),\
-$(wordlist 1,$(tmpvar),$(1))),,\
-$(word $(tmpvar),$(wordlist 2,$(words $(1)),$(1))))))
+	if (pid < 0)
+		perror("fork"), exit(1);
+	else if (!pid) {
+		for (;;)
+			__asm__("fninit");
+	}
 
-f := x x y a b c d x e y jj jj j2 j2 j2 j7
-all:
-    echo '$(call remove_duplicates,$(f))'
+	if (ptrace(0x10, pid, 0, 0) < 0)
+		perror("attach"), exit(1);
+	memset(&fxsr, 0xff, sizeof(struct user_fxsr_struct));
+	waitpid(pid, 0, 0);
+	if (ptrace(19, pid, 0, &fxsr))
+		perror("setfxsr"), exit(1);
+	if (ptrace(0x11, pid, 0, 17) < 0)
+		perror("detach"), exit(1);
+}
+
+This is the fix against 2.4.0-test10, please include.
+
+--- 2.4.0-test10/arch/i386/kernel/i387.c	Thu Nov  2 20:58:58 2000
++++ PIII/arch/i386/kernel/i387.c	Thu Nov  2 18:44:36 2000
+@@ -440,8 +436,25 @@
+ int set_fpxregs( struct task_struct *tsk, struct user_fxsr_struct *buf )
+ {
+ 	if ( HAVE_FXSR ) {
+-		__copy_from_user( &tsk->thread.i387.fxsave, (void *)buf,
+-				  sizeof(struct user_fxsr_struct) );
++		long mxcsr;
++
++		if (__copy_from_user(&tsk->thread.i387.fxsave, (void *)buf,
++				     (long) &((struct user_fxsr_struct *)
++					      0)->mxcsr))
++			return -EFAULT;
++		if (__get_user(mxcsr,
++			       &((struct user_fxsr_struct *) buf)->mxcsr))
++			return -EFAULT;
++		/* bit 6 and 31-16 must be zero for security reasons */
++		mxcsr &= 0xffbf;
++		tsk->thread.i387.fxsave.mxcsr = mxcsr;
++		if (__copy_from_user(&tsk->thread.i387.fxsave.reserved,
++				     &((struct user_fxsr_struct *)
++				       buf)->reserved,
++				     sizeof(struct user_fxsr_struct)-
++				     (long) &((struct user_fxsr_struct *)
++					      0)->reserved))
++			return -EFAULT;
+ 		return 0;
+ 	} else {
+ 		return -EIO;
 
 
+Downloadable also from here:
 
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0-test10/SETFPXREGS-fix-1
+
+Users of 2.2.18pre17aa1 running their kernel on a PIII cpu are affected as well.
+Workaround is to boot with the `nofxsr' parameter (with the downside that
+PIII instructions to be inibithed like in vanilla 2.2.x), real fix is to
+backout the PIII-4 patch from 2.2.18pre17aa1 and apply this new one:
+
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre19/PIII-5.bz2
+
+PIII-5 also merges some worthwhile diff from Doug, thanks!
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

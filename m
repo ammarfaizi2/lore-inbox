@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315441AbSEVOpB>; Wed, 22 May 2002 10:45:01 -0400
+	id <S315528AbSEVOpD>; Wed, 22 May 2002 10:45:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315540AbSEVOnk>; Wed, 22 May 2002 10:43:40 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27660 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S315528AbSEVOmf>; Wed, 22 May 2002 10:42:35 -0400
-Date: Wed, 22 May 2002 16:42:36 +0200
-From: Pavel Machek <pavel@suse.cz>
+	id <S315539AbSEVOng>; Wed, 22 May 2002 10:43:36 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:58546 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315540AbSEVOn0>;
+	Wed, 22 May 2002 10:43:26 -0400
+Date: Wed, 22 May 2002 16:43:12 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
-        Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: AUDIT: copy_from_user is a deathtrap.
-Message-ID: <20020522144236.GA2357@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020522141306.GB29028@atrey.karlin.mff.cuni.cz> <E17AXVZ-0001up-00@the-village.bc.nu>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Padraig Brady <padraig@antefacto.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+Message-ID: <20020522164312.B1309@ucw.cz>
+In-Reply-To: <20020522154902.A361@ucw.cz> <E17AXbD-0001wu-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, May 22, 2002 at 04:00:23PM +0100, Alan Cox wrote:
 
-> > In such case, linus, here is your "reasonable" example. For PPro, it
-> > is faster to copy out-of-order, and if we wanted to use that for
-> > copy_to_user, you'd have your example.
+> > On Wed, May 22, 2002 at 02:52:19PM +0100, Alan Cox wrote:
+> > 
+> > > > /sbin/kbdrate: util-linux
+> > > 
+> > > I'd hope kbrate is using the ioctls nowdays, otherwise it will break on USB
+> > 
+> > Actually, the ioctls won't work on USB, because they try to output data
+> > to the traditional i/o ports anyway.
 > 
-> I think there is a misunderstanding here.
-> 
-> Nothing in the standards says that
-> 
-> 	write(pipe_fd, halfmappedbuffer, 2*PAGE_SIZE)
-> 
-> 
-> must return PAGE_SIZE on an error. What it seems to say is that it if an error
-> is reported then no data got written down the actual pipe itself. Putting
-> 4K into the pipe then reporting Esomething is not allowed. Copying 4K into
-> a buffer faulting and erroring with Efoo then throwing away the buffer is
-> allowed
+> The ioctl goes to the keyboard driver. They keyboard driver either
+> implements it, errors it or is buggy. No other path. I seem to be able to
+> portably set my keyboard rate on everything but USB 8)
 
-So... Is copy_to_user allowed to copy more than it actually reported?
-Because if so, it might return 0/-EFAULT as well ;-).
+Agreed, current method of interfacing USB keyboards to keyboard.c (as
+implemented by keybdev.c) is a bug in itself.
 
-									Pavel
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Vojtech Pavlik
+SuSE Labs

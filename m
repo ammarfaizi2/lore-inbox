@@ -1,100 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262359AbSJOBME>; Mon, 14 Oct 2002 21:12:04 -0400
+	id <S262390AbSJOBMj>; Mon, 14 Oct 2002 21:12:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262364AbSJOBME>; Mon, 14 Oct 2002 21:12:04 -0400
-Received: from h-64-236-139-249.aoltw.net ([64.236.139.249]:36560 "EHLO
-	msglinux1.mcom.com") by vger.kernel.org with ESMTP
-	id <S262359AbSJOBMB>; Mon, 14 Oct 2002 21:12:01 -0400
-Date: Mon, 14 Oct 2002 18:17:33 -0700
-From: John Myers <jgmyers@netscape.com>
-Message-Id: <200210150117.g9F1HXm26163@msglinux1.mcom.com>
-To: linux-aio@kvack.org, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] aio updates
+	id <S262403AbSJOBMj>; Mon, 14 Oct 2002 21:12:39 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:12499 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262390AbSJOBMh>; Mon, 14 Oct 2002 21:12:37 -0400
+Date: Mon, 14 Oct 2002 18:08:56 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: john stultz <johnstul@us.ibm.com>, Matt <colpatch@us.ibm.com>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       LSE Tech <lse-tech@lists.sourceforge.net>,
+       Andrew Morton <akpm@zip.com.au>, Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [Lse-tech] Re: [rfc][patch] Memory Binding API v0.3 2.5.41
+Message-ID: <2007503407.1034618934@[10.10.2.3]>
+In-Reply-To: <1034643354.19094.149.camel@cog>
+References: <1034643354.19094.149.camel@cog>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please apply.
+>> Also, right now, memblks map to nodes in a straightforward manner (1-1 
+>> on NUMA-Q, the only architecture that has defined them).  It will likely 
+>> look the same on most architectures, too.
+> 
+> Just an FYI: I believe the x440 breaks this assumption. 
+> 
+> There are 2 chunks on the first CEC. The current discontig patch for it
+> has to drop the second chunk (anything over 3.5G on the first CEC) in
+> order to work w/ the existing code. However, that will probably need to
+> be addressed at some point, so be aware that this might affect you as
+> well. 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.850   -> 1.851  
-#	            fs/aio.c	1.22    -> 1.23   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/14	jgmyers@netscape.com	1.851
-# aio updates
-#     fix uninitialized variable causing incorrect timeout
-#     add support for IO_CMD_NOOP
-#     make sys_io_cancel(), not cancel method, initialize most of returned result
-#     minor aio_cancel_all() optimization
-#     fix a debug printk
-# --------------------------------------------
-#
-diff -Nru a/fs/aio.c b/fs/aio.c
---- a/fs/aio.c	Mon Oct 14 16:51:45 2002
-+++ b/fs/aio.c	Mon Oct 14 16:51:45 2002
-@@ -248,7 +248,7 @@
- 	write_unlock(&mm->ioctx_list_lock);
- 
- 	dprintk("aio: allocated ioctx %p[%ld]: mm=%p mask=0x%x\n",
--		ctx, ctx->user_id, current->mm, ctx->ring_info.ring->nr);
-+		ctx, ctx->user_id, current->mm, ctx->ring_info.nr);
- 	return ctx;
- 
- out_cleanup:
-@@ -281,12 +281,12 @@
- 		struct kiocb *iocb = list_kiocb(pos);
- 		list_del_init(&iocb->ki_list);
- 		cancel = iocb->ki_cancel;
--		if (cancel)
-+		if (cancel) {
- 			iocb->ki_users++;
--		spin_unlock_irq(&ctx->ctx_lock);
--		if (cancel)
-+			spin_unlock_irq(&ctx->ctx_lock);
- 			cancel(iocb, &res);
--		spin_lock_irq(&ctx->ctx_lock);
-+			spin_lock_irq(&ctx->ctx_lock);
-+		}
- 	}
- 	spin_unlock_irq(&ctx->ctx_lock);
- }
-@@ -845,13 +845,13 @@
- 
- 	/* End fast path */
- 
-+	init_timeout(&to);
- 	if (timeout) {
- 		struct timespec	ts;
- 		ret = -EFAULT;
- 		if (unlikely(copy_from_user(&ts, timeout, sizeof(ts))))
- 			goto out;
- 
--		init_timeout(&to);
- 		set_timeout(start_jiffies, &to, &ts);
- 	}
- 
-@@ -1073,6 +1073,9 @@
- 		if (file->f_op->aio_fsync)
- 			ret = file->f_op->aio_fsync(req, 0);
- 		break;
-+	case IOCB_CMD_NOOP:
-+		aio_complete(req, iocb->aio_buf, iocb->aio_offset);
-+		return 0;
- 	default:
- 		dprintk("EINVAL: io_submit: no operation provided\n");
- 		ret = -EINVAL;
-@@ -1197,6 +1200,9 @@
- 	if (NULL != cancel) {
- 		struct io_event tmp;
- 		printk("calling cancel\n");
-+		memset(&tmp, 0, sizeof(tmp));
-+		tmp.obj = (u64)(unsigned long)kiocb->ki_user_obj;
-+		tmp.data = kiocb->ki_user_data;
- 		ret = cancel(kiocb, &tmp);
- 		if (!ret) {
- 			/* Cancellation succeeded -- copy the result
+No, the NUMA code in the kernel doesn't support that anyway.
+You have to use zholes_size, and waste some struct pages,
+or config_nonlinear. Either way you get 1 memblk.
+
+M.
+

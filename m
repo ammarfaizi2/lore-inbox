@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVAYDyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVAYD7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261792AbVAYDyl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 22:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVAYDyl
+	id S261797AbVAYD7i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 22:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVAYD7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 22:54:41 -0500
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:55267 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261792AbVAYDyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 22:54:38 -0500
-Message-ID: <41F5C347.4030605@kolivas.org>
-Date: Tue, 25 Jan 2005 14:55:51 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-Cc: "Jack O'Quin" <joq@io.com>, Ingo Molnar <mingo@elte.hu>,
-       linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
-References: <200501201542.j0KFgOwo019109@localhost.localdomain>	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>	<87pszvlvma.fsf@sulphur.joq.us> <41F42BD2.4000709@kolivas.org>	<877jm3ljo9.fsf@sulphur.joq.us> <41F44AC2.1080609@kolivas.org>	<87hdl7v3ik.fsf@sulphur.joq.us> <87651nv356.fsf@sulphur.joq.us>	<87ekgbqr2a.fsf@sulphur.joq.us> <41F49735.5000400@kolivas.org> <873bwrpb4o.fsf@sulphur.joq.us> <41F57D94.4010500@kolivas.org>
-In-Reply-To: <41F57D94.4010500@kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jan 2005 22:59:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:36586 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261797AbVAYD7f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 22:59:35 -0500
+Date: Mon, 24 Jan 2005 22:59:30 -0500
+From: Dave Jones <davej@redhat.com>
+To: Len Brown <len.brown@intel.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/29] x86-i8259-shutdown
+Message-ID: <20050125035930.GG13394@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Len Brown <len.brown@intel.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
+	linux-kernel@vger.kernel.org
+References: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com> <1106623970.2399.205.camel@d845pe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106623970.2399.205.camel@d845pe>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> -cc list trimmed to those who have recently responded.
-> 
-> 
-> Here is a patch to go on top of 2.6.11-rc2-mm1 that fixes some bugs in 
-> the general SCHED_ISO code, fixes the priority support between ISO 
-> threads, and implements SCHED_ISO_RR and SCHED_ISO_FIFO as separate 
-> policies. Note the bugfixes and cleanups mean the codepaths in this are 
-> leaner than the original ISO2 implementation despite the extra features.
-> 
-> This works safely and effectively on UP (but not tested on SMP yet) so 
-> Jack if/when you get a chance I'd love to see more benchmarks from you 
-> on this one. It seems on my machine the earlier ISO2 implementation 
-> without priority nor FIFO was enough for good results, but not on yours, 
-> which makes your testcase a more discriminating one.
+On Mon, Jan 24, 2005 at 10:32:50PM -0500, Len Brown wrote:
+ > On Wed, 2005-01-19 at 02:31, Eric W. Biederman wrote:
+ > > From: Eric W. Biederman <ebiederm@xmission.com>
+ > > 
+ > > This patch disables interrupt generation from the legacy pic on
+ > > reboot.  Now that there is a sys_device class it should not be called
+ > > while drivers are still using interrupts.
+ > > 
+ > > There is a report about this breaking ACPI power off on some systems.
+ > > http://bugme.osdl.org/show_bug.cgi?id=4041
+ > > However the final comment seems to exhonorate this code.  So until
+ > > I get more information I believe that was a false positive.
+ > 
+ > No, the last comment in the bug report
+ > (davej says that there were poweroff problems in FC)
+ > does not exhonerate this patch.
+ > All it says is that there are additional poweroff bugs out there.
 
-Sorry, I see yet another flaw in the design and SMP is broken so hold 
-off testing for a bit.
+Indeed. Since dropping the kexec bits from the Fedora kernel,
+the 'hangs at poweroff' bug went away for a lot of folks,
+but there still remain some people affected by some other regression.
+https://bugzilla.redhat.com/beta/show_bug.cgi?id=acpi_power_off
+has the gory details.
 
-Cheers,
-Con
+		Dave
+

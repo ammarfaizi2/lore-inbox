@@ -1,100 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268282AbUJDUK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268344AbUJDUN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268282AbUJDUK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 16:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUJDUK7
+	id S268344AbUJDUN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 16:13:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUJDUN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 16:10:59 -0400
-Received: from mail.kroah.org ([69.55.234.183]:52871 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268282AbUJDUKz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 16:10:55 -0400
-Date: Mon, 4 Oct 2004 13:10:16 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andrew Morton <akpm@osdl.org>, Reuben Farrelly <reuben-news@reub.net>,
-       Hanno Meyer-Thurow <h.mth@web.de>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH (as387)] UHCI: check return code from pci_register_driver
-Message-ID: <20041004201016.GA29771@kroah.com>
-References: <20041001225636.76224a2c.akpm@osdl.org> <Pine.LNX.4.44L0.0410041125290.1358-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 4 Oct 2004 16:13:27 -0400
+Received: from pD9FF1A09.dip.t-dialin.net ([217.255.26.9]:2564 "EHLO
+	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
+	id S268344AbUJDUMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 16:12:40 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: Fw: Re: 2.6.9-rc2-mm4
+Date: Mon, 4 Oct 2004 22:12:31 +0200
+User-Agent: KMail/1.7
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040929214637.44e5882f.akpm@osdl.org> <200410041754.25677.petkov@uni-muenster.de> <20041004173620.GA5707@suse.de>
+In-Reply-To: <20041004173620.GA5707@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0410041125290.1358-100000@ida.rowland.org>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200410042212.32106.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 04, 2004 at 11:33:35AM -0400, Alan Stern wrote:
-> Greg:
-> 
-> This is all your fault!  :-)
-> 
-> The patch below fixes the problem in which the UHCI driver doesn't
-> properly check the return code from pci_register_driver().
+On Monday 04 October 2004 19:36, Jens Axboe wrote:
+> On Mon, Oct 04 2004, Borislav Petkov wrote:
+> > Ok here we go,
+> >
+> > final results:
+> >
+> >  2.6.8-rc1: OK
+> >  2.6.8-rc2: OK
+> >  2.6.8-rc3: OK
+> >  2.6.8-rc3-bk1: OK
+> >  2.6.8-rc3-bk2: OK
+> >  2.6.8-rc3-bk3: OK
+> >  2.6.8-rc3-bk4: OK
+> >  2.6.8-rc4: BUG!
+> >
+> > So, assuming that everything went fine during testing, the bug got
+> > introduced in the transition between 2.6.8-rc3-bk4 and 2.6.8-rc4.
+>
+> That's some nice testing, thank you. Try backing out this hunk:
+>
+> diff -urp linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c
+> linux-2.6.8-rc4/drivers/block/scsi_ioctl.c ---
+> linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c 2004-08-03
+> 23:28:51.000000000 +0200 +++
+> linux-2.6.8-rc4/drivers/block/scsi_ioctl.c 2004-08-10 04:24:08.000000000
+> +0200 @@ -90,7 +90,7 @@ static int sg_set_reserved_size(request_
+>   if (size < 0)
+>    return -EINVAL;
+>   if (size > (q->max_sectors << 9))
+> -  return -EINVAL;
+> +  size = q->max_sectors << 9;
+>
+>   q->sg_reserved_size = size;
+>   return 0;
+>
+> It's the only thing that sticks out, and it could easily explain it if
+> your cd ripper starts issuing requests that are too big. Maybe even add
+> a printk() here, so it will look like this in the kernel you test:
+>
+>  if (size > (q->sectors << 9)) {
+>   printk("%u rejected\n", size);
+>   return -EINVAL;
+>  }
+>
+> to verify.
 
-Yeah, it's all my fault, what else is new...
+Yeah, that was it. Two lines in the log:
 
-Anyway, no, my change to the uhci (and ohci and ehci drivers) is ok,
-it's just that pci_register_driver() is incorrect :)
+Oct 4 22:07:04 zmei kernel: 3145728 rejected
+Oct 4 22:07:04 zmei kernel: 3145728 rejected
 
-Here's a fix for it, that lets the USB host controllers work properly.
-Now PCI works like the other bus drivers.  As we had no idea of how many
-devices bound to the driver, this function was just lying and returning
-"1".  What a stinker.
+Hmm, so this means that my dvd drive is sending too big requests. What do we 
+do: firmware upgrade?
 
-I'll add this to my trees, and I've gone through and audited all callers
-of this function to now work properly (there were some pretty strange
-ideas of what to do on an error returned from this function...)
-
-Alan, these error messages lead me to believe that the error recovery
-code in the uhci driver doesn't quite work properly, as even if the
-register of the pci driver fails, we shouldn't error out with this mess,
-right?
-
-thanks,
-
-greg k-h
-
-
-===== pci-driver.c 1.46 vs edited =====
---- 1.46/drivers/pci/pci-driver.c	2004-09-29 23:09:23 -07:00
-+++ edited/pci-driver.c	2004-10-04 11:11:20 -07:00
-@@ -396,13 +396,13 @@
-  * @drv: the driver structure to register
-  * 
-  * Adds the driver structure to the list of registered drivers.
-- * Returns a negative value on error. The driver remains registered
-- * even if no device was claimed during registration.
-+ * Returns a negative value on error, otherwise 0. 
-+ * If no error occured, the driver remains registered even if 
-+ * no device was claimed during registration.
-  */
--int
--pci_register_driver(struct pci_driver *drv)
-+int pci_register_driver(struct pci_driver *drv)
- {
--	int count = 0;
-+	int error;
- 
- 	/* initialize common driver fields */
- 	drv->driver.name = drv->name;
-@@ -414,13 +414,12 @@
- 	pci_init_dynids(&drv->dynids);
- 
- 	/* register with core */
--	count = driver_register(&drv->driver);
-+	error = driver_register(&drv->driver);
- 
--	if (count >= 0) {
-+	if (!error)
- 		pci_populate_driver_dir(drv);
--	}
- 
--	return count ? count : 1;
-+	return error;
- }
- 
- /**
+Regards,
+Boris.

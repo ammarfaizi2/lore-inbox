@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbTDOFle (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 01:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTDOFle (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 01:41:34 -0400
-Received: from holomorphy.com ([66.224.33.161]:2437 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264299AbTDOFld (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 01:41:33 -0400
-Date: Mon, 14 Apr 2003 22:52:56 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Antonio Vargas <wind@cocodriloo.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.67-mm3
-Message-ID: <20030415055256.GF706@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Antonio Vargas <wind@cocodriloo.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030414015313.4f6333ad.akpm@digeo.com> <20030415020057.GC706@holomorphy.com> <20030415041759.GA12487@holomorphy.com> <20030415055229.GJ14552@wind.cocodriloo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030415055229.GJ14552@wind.cocodriloo.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+	id S264298AbTDOFse (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 01:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTDOFsd (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 01:48:33 -0400
+Received: from ca-fulrtn-cuda2-c6a-113.anhmca.adelphia.net ([68.66.9.113]:43661
+	"EHLO shrike.mirai.cx") by vger.kernel.org with ESMTP
+	id S264298AbTDOFsd (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 01:48:33 -0400
+Message-ID: <3E9B9FF7.2020803@tmsusa.com>
+Date: Mon, 14 Apr 2003 23:00:23 -0700
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.67-mm3 report
+References: <3E9B400D.60403@tmsusa.com> <20030414174434.07a2268a.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 09:17:59PM -0700, William Lee Irwin III wrote:
->> It's a bit of an open question as to how much of a difference this one
->> makes now, but it says "FIXME". fault_in_pages_writeable() and 
->> fault_in_pages_readable() have a limited "range" with respect to the
->> size of the region they can prefault; as they are now, they are only
->> meant to handle spanning a page boundary. This converts them to iterate
->> over the virtual address range specified and so touch each virtual page
->> within it once as specified. As per the comment within the "FIXME",
->> this is only an issue if PAGE_SIZE < PAGE_CACHE_SIZE.
->> [patch snip]
+Andrew Morton wrote:
 
-On Tue, Apr 15, 2003 at 07:52:29AM +0200, Antonio Vargas wrote:
-> Page clustering? I did a simple patch yesterday called "cow-ahead", which
-> may be related: on a write to a COW page, it breaks the COW from several pages
-> at the same time. The implementation survived a complete debian 2.2 boot
-> and a fork bomb. Please have a look. The idea came from a discussion with
-> Martin J. Bligh... we liked the name too much not to implement it.
+>jjs <jjs@tmsusa.com> wrote:
+>
+>>The symptom here is that running the "ruptime" command on an -mm3
+>>box shows all hosts down -
+>>
+>>Interestingly, the other hosts are getting the rwho broadcasts from
+>>the -mm3 box, but the -mm3 box is unable to process rwho broadcasts,
+>>including  it's own -
+>>    
+>>
+>
+>Does it use IP multicast?  There were recent changes in there. 
+>CONFIG_IP_MULTICAST may need to be fiddled with.
+>
 
-I apologize if the name is deceiving, but it's conventional. I saw your
-patch and it could very well be valuable, but it would be called
-"prefaulting" or "faultahead". Page clustering is divorcing the TLB
-mapping unit from the kernel's internal allocation unit, specifically,
-enlarging the kernel's allocation unit for reductions in the size of
-certain data structures (for PAE, the most important of these is the
-mem_map[] array but the pagecache radix trees also see good reductions),
-and for physical contiguity benefits in things like io as they are
-applicable (it is not applicable to workloads with many small files or
-for workloads with predominantly small io sizes).
+It only uses normal ip broadcast AFAIK -
+I don't see a solaris-like "-m" option in the
+linux man page for rwhod -
 
-The article on kerneltrap.org on the subject should have more pointers
-to explanatory posts etc. to get a better idea of what's going on.
+Joe
 
-Also important is to properly credit Hugh Dickins with the original
-2.4 implementation of page clustering, which for optimality and
-correctness and cleanliness is superior to the current state of my own
-for 2.5, and is the source base from which my implementation is derived.
-
-
--- wli

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135661AbRDXOv3>; Tue, 24 Apr 2001 10:51:29 -0400
+	id <S135663AbRDXOwt>; Tue, 24 Apr 2001 10:52:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135660AbRDXOvT>; Tue, 24 Apr 2001 10:51:19 -0400
-Received: from algernon.satimex.tvnet.hu ([195.38.110.113]:37650 "EHLO
-	zeus.suselinux.hu") by vger.kernel.org with ESMTP
-	id <S135661AbRDXOvE> convert rfc822-to-8bit; Tue, 24 Apr 2001 10:51:04 -0400
-Date: Tue, 24 Apr 2001 16:49:57 +0200 (CEST)
-From: Pjotr Kourzanoff <pjotr@suselinux.hu>
-To: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
-In-Reply-To: <20010424163009.A7197@vega.digitel2002.hu>
-Message-ID: <Pine.LNX.4.31.0104241643400.17653-100000@zeus.suselinux.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	id <S135656AbRDXOwk>; Tue, 24 Apr 2001 10:52:40 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:46092 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S135660AbRDXOwX>; Tue, 24 Apr 2001 10:52:23 -0400
+Date: Tue, 24 Apr 2001 15:52:19 +0100
+From: Roger Gammans <roger@computer-surgery.co.uk>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: CML2 <linux-kernel@vger.kernel.org>, "Eric S. Raymond" <esr@thyrsus.com>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Request for comment -- a better attribution system
+Message-ID: <20010424155219.B23511@knuth.computer-surgery.co.uk>
+In-Reply-To: <roger@computer-surgery.co.uk> <200104241314.f3ODEfrn010473@pincoya.inf.utfsm.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <200104241314.f3ODEfrn010473@pincoya.inf.utfsm.cl>; from Horst von Brand on Tue, Apr 24, 2001 at 09:14:41AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Apr 2001, [iso-8859-2] Gábor Lénárt wrote:
->
-> Or even without xinetd. Just use local port forwarding eg 2525 -> 25, and
+On Tue, Apr 24, 2001 at 09:14:41AM -0400, Horst von Brand wrote:
+> Roger Gammans <roger@computer-surgery.co.uk> said:
+> 
+> People who want to take over "because it is s00 k3w1 to be a maintainer"
+> with no real interest in the code, just in the fact that it is orphaned...
 
-  This is more like 25 -> 2525 :-)
+No. People who want to give something back to the linux community
+and want to find an option within their ability and time constariants.
 
-> use port 2525 as SMTP port in your MTA. I've succeed to setup such a
-> configuration.
-
-  This requires you to ensure that your MTA is started first on that
-  port...Might be difficult to achieve reliably in an automatic way
-  without root privileges :-(
-
-  mailuser@foo% /etc/rc.d/init.d/sendmail stop
-  badguy@foo% ./suck 2525
-  mailuser@foo% /etc/rc.d/init.d/sendmail start
-  ...
-
-
-
+TTFN
+-- 
+Roger
+     Think of the mess on the carpet. Sensible people do all their
+     demon-summoning in the garage, which you can just hose down afterwards.
+        --     damerell@chiark.greenend.org.uk
+	

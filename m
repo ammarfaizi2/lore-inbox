@@ -1,83 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288919AbSBMU4W>; Wed, 13 Feb 2002 15:56:22 -0500
+	id <S288936AbSBMVFE>; Wed, 13 Feb 2002 16:05:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288936AbSBMU4N>; Wed, 13 Feb 2002 15:56:13 -0500
-Received: from relay02.valueweb.net ([216.219.253.236]:9994 "EHLO
-	relay02.valueweb.net") by vger.kernel.org with ESMTP
-	id <S288919AbSBMU4B>; Wed, 13 Feb 2002 15:56:01 -0500
-From: Craig Christophel <merlin@transgeek.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] -- filesystems.c::sys_nfsservctl 
-Date: Wed, 13 Feb 2002 15:51:47 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Keith Owens <kaos@ocs.com.au>
+	id <S288949AbSBMVEy>; Wed, 13 Feb 2002 16:04:54 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5385 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288936AbSBMVEm>; Wed, 13 Feb 2002 16:04:42 -0500
+Message-ID: <3C6AD4DC.8010802@zytor.com>
+Date: Wed, 13 Feb 2002 13:04:28 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_BMOHPIKMF7YKQ9ECLLSF"
-Message-Id: <20020213205144Z282414-24962+32@thor.valueweb.net>
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: /proc key naming consistency
+In-Reply-To: <20020213030047.8B1FB2257B@www.webservicesolutions.com> <a4eh19$lko$1@cesium.transmeta.com> <E16b6OL-0002Q8-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
 
---------------Boundary-00=_BMOHPIKMF7YKQ9ECLLSF
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-
-Ok guys get ready to flame me....  
-
-	The attached patch removes the lock/unlock in this function.   Now I am 80% 
-sure of this one, but would like a word from the kmod maintainer about 
-whether request_module needs the BKL or not.   do_nfsservctl already takes 
-the BKL inside the function so as long as request_module is safe this pair 
-can be removed -- effectively making do_nfsservctl responsible for it's own 
-locking scheme.
-
-	So whoever knows for SURE about request_module, please reply.
-
-========NOT A PATCH --- filesystems.c::sys_nfsservctl================
-long
-asmlinkage sys_nfsservctl(int cmd, void *argp, void *resp)
-{
-	int ret = -ENOSYS;
-	
-	lock_kernel();
-
-	if (nfsd_linkage ||
-	    (request_module ("nfsd") == 0 && nfsd_linkage))
-		ret = nfsd_linkage->do_nfsservctl(cmd, argp, resp);
-
-	unlock_kernel();
-	return ret;
-}
+> 
+> What do you think about the idea earlier in this thread of going with 
+> shell-parsable key value pairs?  I find that idea really attractive, but 
+> there's the issue of breaking utilities (kde control panel?) that already 
+> parse the existing format.
+> 
 
 
-==================PATCH ATTACHED==========================
+I like the idea.  Unfortunately I think it's more than kde that's going to
+break.
 
---------------Boundary-00=_BMOHPIKMF7YKQ9ECLLSF
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="filesystems-remove-lock_kernel-nfsd.diff"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="filesystems-remove-lock_kernel-nfsd.diff"
+	-hpa
 
-===== fs/filesystems.c 1.4 vs edited =====
---- 1.4/fs/filesystems.c	Fri Feb  8 22:10:55 2002
-+++ edited/fs/filesystems.c	Wed Feb 13 15:30:20 2002
-@@ -22,13 +22,11 @@
- {
- 	int ret = -ENOSYS;
- 	
--	lock_kernel();
- 
- 	if (nfsd_linkage ||
- 	    (request_module ("nfsd") == 0 && nfsd_linkage))
- 		ret = nfsd_linkage->do_nfsservctl(cmd, argp, resp);
- 
--	unlock_kernel();
- 	return ret;
- }
- EXPORT_SYMBOL(nfsd_linkage);
 
---------------Boundary-00=_BMOHPIKMF7YKQ9ECLLSF--
+
+

@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131352AbRDBVwA>; Mon, 2 Apr 2001 17:52:00 -0400
+	id <S131324AbRDBWDU>; Mon, 2 Apr 2001 18:03:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131362AbRDBVvu>; Mon, 2 Apr 2001 17:51:50 -0400
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:27405 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S131352AbRDBVvn>; Mon, 2 Apr 2001 17:51:43 -0400
-Message-ID: <3AC8F437.2000601@humboldt.co.uk>
-Date: Mon, 02 Apr 2001 22:50:47 +0100
-From: Adrian Cox <adrian@humboldt.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20010112
-X-Accept-Language: en
+	id <S131369AbRDBWDL>; Mon, 2 Apr 2001 18:03:11 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29201 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131324AbRDBWC7>; Mon, 2 Apr 2001 18:02:59 -0400
+Subject: Re: Oracle 8I & Kernel 2.4.3 : Sane ?
+To: Yann.Dupont@IPv6.univ-nantes.fr (Yann Dupont)
+Date: Mon, 2 Apr 2001 23:04:50 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <986213560.24497.2.camel@olive> from "Yann Dupont" at Apr 02, 2001 02:12:40 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: "Richard A. Smith" <rsmith@bitworks.com>
-CC: "andre@linux-ide.org" <andre@linux-ide.org>,
-   "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-   Padraig Brady <Padraig@AnteFacto.com>,
-   Steffen Grunewald <steffen@gfz-potsdam.de>
-Subject: Re: Cool Road Runner (was CFA as Ide.)
-In-Reply-To: <MDAEMON-F200104021623.AA231904MD92067@bitworks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14kCRR-0006ob-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard A. Smith wrote:
-
-> On Mon, 02 Apr 2001 21:50:59 +0100, Adrian Cox wrote:
->> If only. In my limited experience SanDisk cards have been the most 
->> tolerant. I suspect that Sandisk actually implement the full range of 
->> timings documented in the spec, and nobody else bothers.
-[...]
-
-> We do actually use SST (Silcon Storage Technolog) CF's as well and they seem to function just 
-> identical to the SanDisk but not quite as robust... I have had several of the SST's develope 
-> a problem in the partition table and as thus the just error when you try to mount them.
-> Several people on the liunx-embedded list also have similar experiences.
+> I noticed that 2.4.3 contains some fixs for shared memory -
+> So the final question IS :
 > 
-> That seems to follow your observations...
-> 
-> Will it be worth while for you if I break out the scope and examine how our CF's handle the 
-> PDIAG signal or can we just go on faith that they do indeed work as expected?
+> Is oracle 8.1.5 + Kernel 2.4.3 a sane combination ?
 
-Might be interesting to see. The worst trouble I've had has been with 
-noname parts from high street computer stores, and I don't know who the 
-original manufacturer was. If I knew what subset of functionality 
-digital cameras used I'd know what could be relied on.
+Probably not yet but getting closer.
 
-- Adrian
+> In general is oracle + Kernel 2.4 working ? 
+
+Ditto.
+
+The shm and rawio fixes are very recent
 

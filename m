@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129873AbRAELsA>; Fri, 5 Jan 2001 06:48:00 -0500
+	id <S129675AbRAEMAd>; Fri, 5 Jan 2001 07:00:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129983AbRAELru>; Fri, 5 Jan 2001 06:47:50 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:26608 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129873AbRAELrh>; Fri, 5 Jan 2001 06:47:37 -0500
-Date: Fri, 5 Jan 2001 09:46:46 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Nicholas Knight <tegeran@home.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Change of policy for future 2.2 driver submissions
-In-Reply-To: <002201c076c7$76cab720$8d19b018@c779218a>
-Message-ID: <Pine.LNX.4.21.0101050944450.1295-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130085AbRAEMAO>; Fri, 5 Jan 2001 07:00:14 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:57472 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S129675AbRAEMAJ>; Fri, 5 Jan 2001 07:00:09 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010104224946.C1290@redhat.com> 
+In-Reply-To: <20010104224946.C1290@redhat.com>  <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com> <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva> <3A5352ED.A263672D@innominate.de> <20010104192104.C2034@redhat.com> <20010104220821.B775@stefan.sime.com> 
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Stefan Traby <stefan@hello-penguin.com>,
+        Daniel Phillips <phillips@innominate.de>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Journaling: Surviving or allowing unclean shutdown? 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 05 Jan 2001 11:58:56 +0000
+Message-ID: <1628.978695936@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, Nicholas Knight wrote:
 
-> While I understand the reasoning behind this, and might do the
-> same thing if I was in your position, I feel it may be a
-> mistake. I personaly do not trust the 2.4.x kernel entirely yet,
-> and would prefer to wait for 2.4.1 or 2.4.2 before upgrading
-> from 2.2.18 to ensure last-minute wrinkles have been completely
-> ironed out,
+sct@redhat.com said:
+> In what way?  A root fs readonly mount is usually designed to prevent
+                                            ^^^^^^^
+> the filesystem from being stomped on during the initial boot so that
+> fsck can run without the filesystem being volatile.  That's the only
+> reason for the readonly mount: to allow recovery before we enable
+> writes.  With ext3, that recovery is done in the kernel, so doing that
+> recovery during mount makes perfect sense even if the user is mounting
+> root readonly. 
 
-This is *exactly* why Alan's policy change makes sense.
 
-If somebody submits a driver bugfix or update for 2.2,
-but not for 2.4, it'll take FOREVER for 2.4 to become
-as "trustable" as 2.2...
+Alternative reasons for readonly mount include "my hard drive is dying and 
+I don't want _anything_ to write to it because it'll explode".
 
-This change, however, will make sure that 2.4 will be
-as reliable as 2.2 much faster. Unlike 2.2, the core
-kernel of 2.4 is reliable ... only the peripheral stuff
-like drivers may be out of date or missing.
+You mount it read-only, recover as much as possible from it, and bin it.
 
-regards,
+You _don't_ want the fs code to ignore your explicit instructions not to
+write to the medium, and to destroy whatever data were left.
 
-Rik
 --
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to loose...
+dwmw2
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266006AbUITEYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266003AbUITEiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266006AbUITEYB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 00:24:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUITEWb
+	id S266003AbUITEiA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 00:38:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266009AbUITEiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 00:22:31 -0400
-Received: from mail.kroah.org ([69.55.234.183]:16579 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265996AbUITEWW (ORCPT
+	Mon, 20 Sep 2004 00:38:00 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:23518 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266003AbUITEh6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 00:22:22 -0400
-Date: Sun, 19 Sep 2004 21:11:02 -0700
-From: Greg KH <greg@kroah.com>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev is too slow creating devices
-Message-ID: <20040920041101.GB5344@kroah.com>
-References: <414C9003.9070707@softhome.net> <1095568704.6545.17.camel@gaston> <414D42F6.5010609@softhome.net> <cijrui$g9s$1@sea.gmane.org> <20040919173221.GB2345@kroah.com> <Pine.LNX.4.60.0409192004020.30139@alpha.polcom.net>
+	Mon, 20 Sep 2004 00:37:58 -0400
+Date: Sun, 19 Sep 2004 21:37:06 -0700
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: akpm@osdl.org, len.brown@intel.com, tony.luck@intel.com,
+       jbarnes@engr.sgi.com, jes@wildopensource.com,
+       linux-kernel@vger.kernel.org, andrew.vasquez@qlogic.com
+Subject: Re: 2.6.9-rc2-mm1
+Message-Id: <20040919213706.4b8083e8.pj@sgi.com>
+In-Reply-To: <20040920011231.GP9106@holomorphy.com>
+References: <20040916024020.0c88586d.akpm@osdl.org>
+	<20040920011231.GP9106@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0409192004020.30139@alpha.polcom.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 19, 2004 at 08:43:50PM +0200, Grzegorz Kulewski wrote:
-> I have Gentoo with udev (with 100% modular kernel). And I have speedtouch 
-> USB ADSL modem. I am using paralell startup scripts feature. And 
-> speedtouch tries to initialize itself (load firmware and so on) before USB 
-> bus (or how to call it) is discovered.
+wli wrote:
+> Fails to boot on my Altix.
 
-That's not good.
+See a couple of patches on this linux-scsi thread, mostly between Jesse
+Barnes and Andrew Vasquez:
 
-> I can imagine moving firmware loader to udev.d scripts but where
-> should I place pppd launching (for example I might have pppd or
-> ifconfig binary on nfs mounted /usr from my LAN...).
+	SCSI QLA not working on latest *-mm SN2
+	http://marc.theaimsgroup.com/?l=linux-scsi&m=109537406715003&w=2
 
-The firmware downloader should be in the usb hotplug agent notifier
-location.  See the linux-hotplug documentation for how to do this
-properly (I thought the speedtouch driver package already did this
-properly for some reason...)
+Or I got it working (I think - memory fuzzy know) without this patch, by
+(1) disabling the CONFIG_SCSI_QLA2[123]?? options, and (2) applying the
+following workaround patch:
 
-Use the network scripts to start up the connection when it is seen by
-the system.  Gentoo currently does this already today.
+--- 2.6.9-rc2-mm1.orig/arch/ia64/pci/pci.c	2004-09-16 07:45:58.000000000 -0700
++++ 2.6.9-rc2-mm1/arch/ia64/pci/pci.c	2004-09-16 12:02:34.000000000 -0700
+@@ -445,7 +445,7 @@ pcibios_enable_device (struct pci_dev *d
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return acpi_pci_irq_enable(dev);
++	return ia64_platform_is("sn2") ? 0 : acpi_pci_irq_enable(dev);
+ }
+ 
+ void
 
-> And how udev, hotlpug and the rest of the system should hadle SATA disk 
-> unpluggged in the middle of writing? And what if it will be plugged back?
+===
 
-udev will delete the device node.  As for your data the user is screwed
-as they did something very stupid :)
+Jesse - could you post on lkml the definitive guide to getting
+2.6.9-rc2-mm1 working on Altix?
 
-Plug the device back in, and it gets discovered, device node gets
-created, and then mounted.  That is if your SATA kernel driver supports
-hotpluggable disks.
-
-thanks,
-
-greg k-h
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313385AbSDOXod>; Mon, 15 Apr 2002 19:44:33 -0400
+	id <S313412AbSDPABt>; Mon, 15 Apr 2002 20:01:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313392AbSDOXod>; Mon, 15 Apr 2002 19:44:33 -0400
-Received: from dsl092-148-080.wdc1.dsl.speakeasy.net ([66.92.148.80]:20609
-	"EHLO tyan.doghouse.com") by vger.kernel.org with ESMTP
-	id <S313385AbSDOXoc>; Mon, 15 Apr 2002 19:44:32 -0400
-Date: Mon, 15 Apr 2002 19:43:49 -0400 (EDT)
-From: Maxwell Spangler <maxwax@mindspring.com>
-X-X-Sender: maxwell@tyan.doghouse.com
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Meelis Roos <mroos@linux.ee>, <linux-kernel@vger.kernel.org>
-Subject: Re:  [COMMENTS IDE 2.5] - "idebus=66" in 2.5.8 results in "ide_setup:
- idebus=66 -- BAD OPTION"
-In-Reply-To: <Pine.LNX.4.10.10204151553280.6776-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.44.0204151941590.1505-100000@tyan.doghouse.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313413AbSDPABs>; Mon, 15 Apr 2002 20:01:48 -0400
+Received: from pool-151-201-224-154.pitt.east.verizon.net ([151.201.224.154]:11649
+	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
+	id <S313412AbSDPABr>; Mon, 15 Apr 2002 20:01:47 -0400
+Date: Mon, 15 Apr 2002 20:01:43 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: link() security
+Message-ID: <20020415200143.E431@marta>
+In-Reply-To: <E16xFtQ-0007Gp-00@the-village.bc.nu> <3CBB5ECB.2040002@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Apr 2002, Andre Hedrick wrote:
+Scribbling feverishly on April 15, H. Peter Anvin managed to emit:
 
-> 
-> Do not know what is left of the kernel base in 2.5 as I am out of the
-> development tree.  Somewhat offically kicked out of Linux.  After 2.4 pass
-> on so will I.
+[schnip]
 
-I'm interested in production systems, and that means staying with 2.4 for a 
-LONG time from now.  So your code for 2.4.x is very relevant to me and 
-that's why I was asking..
+> The point was mostly that storing mail in a (basically) unstructured
+> flat-file format isn't really consistent with the operations you want to
+> perform on it.  I didn't mean the directory/file format was necessarily
+> the ultimate solution, only that (a) it works better than mbox, (b) it's
+> been around for a long time.
 
-Is the Promise Ultra133TX2 supported with 2.4.18, or do I need to patch in 
-your major ATA upgrade? (Which I assume is still a patch and not included in 
-the mainstream kernel?)
+[nod] 
 
-Thanks!
+I suppose it made sense back when we made our 1s and 0s by hand, but
+whoever (would dare) take credit for "designing" the UNIX mbox "format"
+needs a remedial course if file format design.
 
--- ----------------------------------------------------------------------------
-Maxwell Spangler                                                 Save Futurama!
-Program Writer                                               Sign the petition!
-Greenbelt, Maryland, U.S.A.                         http://www.gotfuturama.com/
-Washington D.C. Metropolitan Area 
-
+K
+-- 
+Are you ever going to do the dishes?  Or will you change your major to biology?

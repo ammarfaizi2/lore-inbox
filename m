@@ -1,85 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbUCREcH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 23:32:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUCREcH
+	id S262380AbUCREwC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 23:52:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbUCREwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 23:32:07 -0500
-Received: from dp.samba.org ([66.70.73.150]:3228 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262374AbUCREcC (ORCPT
+	Wed, 17 Mar 2004 23:52:01 -0500
+Received: from fw.osdl.org ([65.172.181.6]:40639 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262380AbUCREv5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 23:32:02 -0500
-Date: Thu, 18 Mar 2004 15:27:44 +1100
-From: Anton Blanchard <anton@samba.org>
-To: vojtech@suse.cz
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Recent input patch broke my keyboard
-Message-ID: <20040318042744.GE28212@krispykreme>
+	Wed, 17 Mar 2004 23:51:57 -0500
+Date: Wed, 17 Mar 2004 20:51:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nivedita Singhvi <niv@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New documentation file - SuccessfulProjects.txt
+Message-Id: <20040317205159.6bad1ca2.akpm@osdl.org>
+In-Reply-To: <4054E77E.3090206@us.ibm.com>
+References: <4054E77E.3090206@us.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nivedita Singhvi <niv@us.ibm.com> wrote:
+>
+> This draft is a start on a Documentation file for new Linux
+> projects in the family of SubmittingPatches and CodingStyle.
+> 
+> It attempts to capture advice kernel maintainers repeatedly give
+> to large Linux project developers, especially those new to Linux.
+> With an increasing amount of software development taking place
+> in the Linux environment, it is hoped this contributes in some
+> small way to help people avoid the mistakes of those who have gone
+> before them in getting their code accepted into the Linux kernel.
+> Inspired by Andrew Morton's post on lkml just a while back on this
+> subject.
+> 
+> If including this file in the Documentation directory is agreed to,
+> I'll be glad to incorporate feedback and resubmit.
+>
+> Any thoughts?
 
-Hi,
+Looks useful, thanks.  I guess I'm not really in the target audience, so
+I'll probably miss things.
 
-The patch below breaks my ppc64 box. None of the keys behave as expected :)
-I also get a bunch of stuff in the dmesg:
 
-atkbd.c: Use 'setkeycodes 66 <keycode>' to make it known.
-atkbd.c: Unknown key pressed (translated set 2, code 0x66 on isa0060/serio0).
+> --------------------
+> File:	SuccessfulProjects.txt
+> Date:	3/14/04
+> Title:	How To Run A Successful Linux Project
+> 
+> " How to improve your chances of launching and sustaining a successful Linux
+>     project, get your code or technology accepted into the Linux kernel and
+>     adopted by the community, earn fame (or employment, or at least continued
+>     employment, or well, at least not completely waste your spare time), all
+>     without losing your hair and your sanity. "
+> 
+> Goal
+> ====
+> - Increase the success rate of Linux development projects
+> - Reduce the burden on the kernel maintainers and the community
+> - Decrease the angst and conflict experienced by project developers
+> - Make software development faster and more efficient
+> - Make users, consumers of those software projects happier
+> 
 
-The boot messages show:
+  - Use the kernel's review processes and testing base to increase the
+    quality of your software.
 
-serio: i8042 AUX port at 0x60,0x64 irq 12
-input: PS/2 Logitech Mouse on isa0060/serio1
-serio: i8042 KBD port at 0x60,0x64 irq 1
-input: AT Translated Set 2 keyboard on isa0060/serio0
+> 
+> Introduction
+> ============
+> Most of the information here is very basic, obvious and covered frequently in a
+> multitude of places, at length.  However, it is also difficult to locate in one
+> convenient place, and ignored frequently enough to provoke the presence of this
+> file in the kernel Documentation subdirectory.
+> 
+> 
+> Tips
+> ====
+> 
 
-If I back the patch out, things work again and I get:
+Read Documentation/CodingStyle!  If the code doesn't look like kernel code
+you've just made things much harder for yourself.
 
-serio: i8042 AUX port at 0x60,0x64 irq 12
-input: PS/2 Logitech Mouse on isa0060/serio1
-serio: i8042 KBD port at 0x60,0x64 irq 1
-input: AT Raw Set 2 keyboard on isa0060/serio0
 
-Sounds like assuming we are always in translate mode is bad for me.
+> 1]. Become familiar with Linux kernel development!
+> --------------------------------------------------
+> 1.1 Who are the maintainers affected?
+>       Learn who the maintainers are for the subsystems affected by your project,
+>       and for the various releases, especially for the releases you intend to
+>       provide code to.
+>       2.4 -> Marcelo Tosatti
+>       2.6 -> Andrew Morton
+>       development -> Linus
+>       Maintainers file -> current list of maintainers
 
-Anton
+        ./MAINTAINERS
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/03/03 15:14:01+01:00 vojtech@suse.cz 
-#   input: i8042.c:
-#     Assume the chip always is in XLATE mode, even when it doesn't
-#     have the XLATE bit set - apparently IBM PS/2 model 70 behaves
-#     this way.
-# 
-# drivers/input/serio/i8042.c
-#   2004/03/03 15:13:56+01:00 vojtech@suse.cz +0 -8
-#   input: i8042.c:
-#     Assume the chip always is in XLATE mode, even when it doesn't
-#     have the XLATE bit set - apparently IBM PS/2 model 70 behaves
-#     this way.
-# 
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	Thu Mar 18 15:06:59 2004
-+++ b/drivers/input/serio/i8042.c	Thu Mar 18 15:06:59 2004
-@@ -722,14 +722,6 @@
- 	}
- 
- /*
-- * If the chip is configured into nontranslated mode by the BIOS, don't
-- * bother enabling translating and be happy.
-- */
--
--	if (~i8042_ctr & I8042_CTR_XLATE)
--		i8042_direct = 1;
--
--/*
-  * Set nontranslated mode for the kbd interface if requested by an option.
-  * After this the kbd interface becomes a simple serial in/out, like the aux
-  * interface is. We don't do this by default, since it can confuse notebook
+> 
+> 1.2 Which are the mailing lists you need?
+>       Learn which mailing lists cover development in the areas affected by your
+>       project.  It is always a good idea to involve the kernel community or
+>       sub-community as the case may be - which involves posting to the right
+>       mailing lists.  Solicit advice on which lists are appropriate.
+>       You can start by checking the MARC archives to find the right lists.
+>       http://marc.theaimsgroup.com/
+
+Well.  Hopefully simply *reading* the mailing lists will help get people up
+to speed.
+
+> 1.3 Learn Linux Kernel Mailing List (lkml) etiquette
+>       Read the Linux Kernel Mailing List FAQ.
+>       http://www.tux.org/lkml/
+> 
+> 1.4 Which Linux source tree?
+>       Learn what a stable release and what a development release is.
+>           Read the Linux FAQ.
+>           http://en.tldp.org/FAQ/Linux-FAQ/index.html
+>           This is, admittedly, already slightly out of date.
+
+It would be a good idea to spell this out here.  People often do
+development against kernels which, frankly, are not development kernels.
+
+
+
+Apart from that, heck, why not?  Please run up a diff.
+
+
+

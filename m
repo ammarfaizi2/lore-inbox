@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbTEIAEw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 20:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbTEIAEw
+	id S262189AbTEIAJd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 20:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTEIAJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 20:04:52 -0400
-Received: from ns.suse.de ([213.95.15.193]:7944 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262170AbTEIAEv (ORCPT
+	Thu, 8 May 2003 20:09:33 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:1702 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262189AbTEIAJc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 20:04:51 -0400
-Date: Fri, 9 May 2003 02:17:28 +0200 (CEST)
-From: Bernhard Kaindl <bk@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.4] cleanup ptrace secfix and fix most side effects
-In-Reply-To: <Pine.LNX.4.44.0305090033240.12720-100000@wotan.suse.de>
-Message-ID: <Pine.LNX.4.44.0305090210360.12720-100000@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 May 2003 20:09:32 -0400
+Date: Thu, 8 May 2003 17:22:41 -0700
+From: Greg KH <greg@kroah.com>
+To: David van Hoose <davidvh@cox.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI conflict with USB
+Message-ID: <20030509002240.GA4328@kroah.com>
+References: <3EBADF3C.1040609@cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EBADF3C.1040609@cox.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan wrote:
-> Thinking about this harder
->
-> A ptraced thread cannot go setuid since we don't permit the exec to do
-> it
->
-> A setuid thread marks the mm dumpable so no thread can be ptraced (since
-> all threads inheriting the mm inherit it from the exec)
+On Thu, May 08, 2003 at 05:50:36PM -0500, David van Hoose wrote:
+> I'm wondering if there is any work towards correcting the ACPI conflict 
+> with USB. On my system, I cannot use any USB devices due to a timeout 
+> anytime I use ACPI with my kernel. Other people have noticed this 
+> happening on their systems as well, so I am assuming it isn't just on my 
+> system.
 
-Agreed, this is the short form of what I tried to say.
+Have you tried the latest 2.5 kernels?  I think this is fixed in 2.5.69
+for the majority of people.  Also, does booting with "noapic" work for
+you?
 
-> So ignore my earlier message
+thanks,
 
-Thanks,
-Bernd
-
-On Fri, 9 May 2003, Bernhard Kaindl wrote:
->
-> a) setuid requires execve() which decouples from the other thread
->    and also gives the new thread a newly allocated task->mm.
->
-> b) If the thread which calls execve() is being traced, execve ignores
->    setuid.
->
-> c) If the thread which calls execve() is being not traced, a tracer has
->    to attach first, otherwise
-...
-> d)
-...
-
+greg k-h

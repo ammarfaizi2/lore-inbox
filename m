@@ -1,134 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268042AbRHBAfq>; Wed, 1 Aug 2001 20:35:46 -0400
+	id <S268611AbRHBDU5>; Wed, 1 Aug 2001 23:20:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268063AbRHBAfg>; Wed, 1 Aug 2001 20:35:36 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:3598 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S268042AbRHBAfX>; Wed, 1 Aug 2001 20:35:23 -0400
-Date: Wed, 1 Aug 2001 18:38:21 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Adam Radford <aradford@3WARE.com>
-Cc: Scott Ransom <ransom@cfa.harvard.edu>, linux-kernel@vger.kernel.org,
-        "'eric@andante.org'" <eric@andante.org>
-Subject: Re: 3ware Escalade problems
-Message-ID: <20010801183821.A22521@vger.timpanogas.org>
-In-Reply-To: <53B208BD9A7FD311881A009027B6BBFB9EADCC@siamese>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <53B208BD9A7FD311881A009027B6BBFB9EADCC@siamese>; from aradford@3WARE.com on Wed, Aug 01, 2001 at 02:13:02PM -0700
+	id <S268606AbRHBDUr>; Wed, 1 Aug 2001 23:20:47 -0400
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:35735 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S268598AbRHBDUa>; Wed, 1 Aug 2001 23:20:30 -0400
+Message-ID: <3B68C6FF.31035354@yahoo.co.uk>
+Date: Wed, 01 Aug 2001 23:20:31 -0400
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: PATCH to fix bug: "serial" does not show up in /proc/interrupts
+Content-Type: multipart/mixed;
+ boundary="------------4706668D69139E11E46D515A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 01, 2001 at 02:13:02PM -0700, Adam Radford wrote:
+This is a multi-part message in MIME format.
+--------------4706668D69139E11E46D515A
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Adam,
+Here is a patch to fix the serial driver so that its name
+appears in /proc/interrupts.  The bug was caused by code
+that was overwriting the string literal "serial" with "".
+gcc merges all the "serial" strings together into one, so
+the "serial" sent to irq_request() was being ""ed as a
+side-effect.
 
-Nice to meet you.  The gendisk head is improperly reporting devices
-attached to the 3ware controller.  What I am seeing is drives being 
-reported with zero lengths in the block size fields, etc.  This causes
-kernel level software to crash and some user space utilities to malfunction.
+Here is the patch to 2.4.7-ac3 both inline and attached.
+// Thomas Hood  <jdthood_AT_yahoo.co.uk>
 
-Please provide your telephone number so I can call you and go over 
-these problems.  The driver is also **VERY** unstable on some systems,
-and gets all sorts of lost interrupt problems and noisy messages on 
-the Serverworks HE chipsets we are using with SCI.
+--- serial.c_ORIG       Wed Aug  1 23:02:09 2001
++++ serial.c    Wed Aug  1 23:11:01 2001
+@@ -4852,10 +4852,13 @@
 
-Jeff 
+ MODULE_DEVICE_TABLE(pci, serial_pci_tbl);
+
++/* serial_pci_driver_name[] gets truncated to ""  if the pci probe fails */
++static char serial_pci_driver_name[] = "serial";
++
+ static struct pci_driver serial_pci_driver = {
+-       name:           "serial",
++       name:           serial_pci_driver_name,
+        probe:          serial_init_one,
+-       remove:        serial_remove_one,
++       remove:         serial_remove_one,
+        id_table:       serial_pci_tbl,
+ };
 
 
-> Jeff,
+I wrote:
+> I noticed the following anomaly.  I am using a modular serial
+> driver for /dev/ttyS0 and /dev/ttyS1 (actually /dev/tts/0 and
+> /dev/tts/1 under devfs).  See the listing of my /proc/interrupts
+> below.  I have /dev/ttyS1 open; it uses IRQ3; but note that the
+> name of the serial driver is not printed in the list.
 > 
-> The problems this user is seeing with drive timeouts and ECC errors have 
-> absolutely nothing to do with 'gendisk support'.
+> root@thanatos:~# cat /proc/interrupts
+>            CPU0       
+>   0:      65078          XT-PIC  timer
+>   1:       1546          XT-PIC  keyboard
+>   2:          0          XT-PIC  cascade
+>   3:       1979          XT-PIC  
+>   5:       3324          XT-PIC  CS4231
+>   8:          1          XT-PIC  rtc
+>  10:         27          XT-PIC  mwave_3780i
+>  11:       5021          XT-PIC  usb-uhci, Texas Instruments PCI1250, Texas Instruments PCI1250 (#2)
+>  12:       3268          XT-PIC  PS/2 Mouse
+>  14:       8807          XT-PIC  ide0
+>  15:          4          XT-PIC  ide1
+> NMI:          0 
+> ERR:          0
 > 
-> BTW... would you mind explaining to me what I need to do to have 'gendisk
-> support' in the 3ware driver?  greping for 'struct gendisk' in the drivers/
-> scsi directory on 2.4.7 shows only sd.c instantiating a struct gendisk.  
+> Strange.  But it gets stranger.  I insert a combination modem/
+> ethernet pcmcia card and I get:
 > 
-> What do the low level drivers need to do?  If there's some missing gendisk
-> calls in the 3ware driver, then why don't any other scsi drivers have any 
-> instances of struct gendisk ?
+>   7:          9          XT-PIC  xirc2ps_cs,
 > 
-> Maybe Eric Youngdale can clarify what you are talking about ?
+> In the past, there was something printed after the comma,
+> but now there's just a space.  Bizarre.
 > 
-> BTW, I am the author and maintainer of the 3ware driver.
+> I was not able to find any silly bugs in the serial driver
+> or irq routines that would account for this, so I am worried
+> that something is very wrong somewhere.
 > 
 > --
-> Adam Radford
-> Software Engineer
-> 3ware, Inc.
-> 
-> -----Original Message-----
-> From: Jeff V. Merkey [mailto:jmerkey@vger.timpanogas.org]
-> Sent: Wednesday, August 01, 2001 2:40 PM
-> To: Scott Ransom
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: 3ware Escalade problems
-> 
-> 
-> On Wed, Aug 01, 2001 at 02:14:44PM -0400, Scott Ransom wrote:
-> 
-> 
-> I am also using 8 way escalade adapters, and am seeing a host of problems.
-> The first and foremore is that the gendisk head in 2.4.X is not being 
-> initialized properly in the driver.  I have reported these problems to
-> 3-ware, and they are attmepting to get the engineer who owns the drivers
-> on the line with us.  The problems you are seeing are probably related 
-> to the same bugs.  This driver requires some rework to get it compliant
-> with 2.4.X.  At present, several programs fail with it since is is not 
-> setting up the gendisk head properly.  I do not know if your
-> problem is related, but this one will get added to the list when I speak 
-> with this person.
-> 
-> Jeff
-> 
-> 
-> > Hello,
-> > 
-> > After months of running a fileserver with an 8 port 3ware escalade card
-> > (kernels 2.4.[3457] using reiserfs and software RAID5) I started getting
-> > problems this weekend.
-> > 
-> > Over the last three days, when I try to access the drives, after a
-> > couple minutes I get a drive failure (I even heard a "yelp" from the
-> > drive during one of them...).  But the "failure" has happened to 3 of
-> > the 8 drives over 3 days -- so unless there is a hardware problem that
-> > is killing my drives I find it hard to believe that 3 drives really and
-> > truly failed....
-> > 
-> > Here is a sample from my syslog of a failure:
-> > 
-> > 3w-xxxx: tw_interrupt(): Bad response, status = 0xc7, flags = 0x51, unit
-> > = 0x1.
-> > 3w-xxxx: tw_scsi_eh_reset(): Reset succeeded for card 1.
-> > 3w-xxxx: tw_interrupt(): Bad response, status = 0xc7, flags = 0x51, unit
-> > = 0x1.
-> > scsi: device set offline - not ready or command retry failed after host
-> > reset: host 1 channel 0 id 1 lun 0
-> > SCSI disk error : host 1 channel 0 id 1 lun 0 return code = 80000
-> > I/O error: dev 08:11, sector 158441712
-> > 
-> > I've noticed several "issues" with the 3ware cards in the archives.  Has
-> > anyone seen something like this?
-> > 
-> > Scott
-> > 
-> > PS:  I'm currently running 2.4.7 with the lm-sensors/i2c patches.
-> > 
-> > -- 
-> > Scott M. Ransom                   Address:  Harvard-Smithsonian CfA
-> > Phone:  (617) 496-7908                      60 Garden St.  MS 10 
-> > email:  ransom@cfa.harvard.edu              Cambridge, MA  02138
-> > GPG Fingerprint: 06A9 9553 78BE 16DB 407B  FFCA 9BFA B6FF FFD3 2989
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Thomas Hood
+> jdthood_AT_yahoo.co.uk
+>
+--------------4706668D69139E11E46D515A
+Content-Type: text/plain; charset=us-ascii;
+ name="toms-serial-patch-20010801-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="toms-serial-patch-20010801-1"
+
+--- serial.c_ORIG	Wed Aug  1 23:02:09 2001
++++ serial.c	Wed Aug  1 23:11:01 2001
+@@ -4852,10 +4852,13 @@
+ 
+ MODULE_DEVICE_TABLE(pci, serial_pci_tbl);
+ 
++/* serial_pci_driver_name[] gets truncated to ""  if the pci probe fails */
++static char serial_pci_driver_name[] = "serial";
++
+ static struct pci_driver serial_pci_driver = {
+-       name:           "serial",
++       name:           serial_pci_driver_name,
+        probe:          serial_init_one,
+-       remove:	       serial_remove_one,
++       remove:         serial_remove_one,
+        id_table:       serial_pci_tbl,
+ };
+ 
+
+--------------4706668D69139E11E46D515A--
+

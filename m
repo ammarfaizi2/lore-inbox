@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266439AbTGETnw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 15:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266441AbTGETnw
+	id S266441AbTGETsM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 15:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266442AbTGETsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 15:43:52 -0400
-Received: from quechua.inka.de ([193.197.184.2]:45249 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S266439AbTGETnv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 15:43:51 -0400
-From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
-In-Reply-To: <200307041357.32871.jeffpc@optonline.net>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-xfs (i686))
-Message-Id: <E19YtAq-0006Xf-00@calista.inka.de>
-Date: Sat, 05 Jul 2003 21:58:20 +0200
+	Sat, 5 Jul 2003 15:48:12 -0400
+Received: from smtp3.wanadoo.fr ([193.252.22.25]:41035 "EHLO
+	mwinf0603.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S266441AbTGETsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 15:48:11 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4 BK compile failure in dmi_scan: `BROKEN_PNP_BIOS' undeclared
+Date: Sat, 5 Jul 2003 22:02:40 +0200
+User-Agent: KMail/1.5.9
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200307051356.35663.baldrick@wanadoo.fr> <1057412245.23488.5.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1057412245.23488.5.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307052202.40781.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200307041357.32871.jeffpc@optonline.net> you wrote:
-> If one cpu tries to read a u_int64_t variable while another tries to 
-> update it, the worst case scenario is that the reader will get the high 
-> 32-bits before the write, and low 32-bit after the write, now if the counter 
-> overflow, the number would be off by 4GB! (This only applies to 32-bit 
-> architectures.) True, there are cache coherency algorithms, etc...
+On Saturday 05 July 2003 15:37, Alan Cox wrote:
+> On Sad, 2003-07-05 at 12:56, Duncan Sands wrote:
+> > make[2]: Entering directory `/home/duncan/linux-2.4/arch/i386/kernel'
+> > gcc -D__KERNEL__ -I/home/duncan/linux-2.4/include -Wall
+> > -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+> > -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon  
+> > -nostdinc -iwithprefix include -DKBUILD_BASENAME=dmi_scan  -c -o
+> > dmi_scan.o dmi_scan.c
+> > dmi_scan.c: In function `exploding_pnp_bios':
+> > dmi_scan.c:521: error: `BROKEN_PNP_BIOS' undeclared (first use in this
+> > function) dmi_scan.c:521: error: (Each undeclared identifier is reported
+> > only once dmi_scan.c:521: error: for each function it appears in.)
+> > dmi_scan.c: In function `dmi_decode':
+> > dmi_scan.c:944: warning: unused variable `data'
+>
+> Marcelo hasn't yet applied all the changes I sent him, including some
+> that depend on each other. Just pull that change from -ac or wait
 
-a reader like ifconfig can easyly work around this with multiple tries, but
-incremeting those variables wont work that easy, and therefore needs a lock,
-which will be a major pita.
+I didn't need to wait long - thanks!
 
-64bit counters should be a result of lockless per-cpu network counters
-(32bit) with some kind of async merging.
-
-Or we wait till 64bit hardware is more common :)
-
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+D.

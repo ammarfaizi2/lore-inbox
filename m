@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267634AbTGLFIM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 01:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267638AbTGLFIM
+	id S267638AbTGLFIY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 01:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267652AbTGLFIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 01:08:12 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:24034 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267634AbTGLFIL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 01:08:11 -0400
-Date: Fri, 11 Jul 2003 22:23:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: jcwren@jcwren.com, linux-kernel@vger.kernel.org
-Subject: Re: Bug in open() function (?)
-Message-Id: <20030711222300.7627a811.akpm@osdl.org>
-In-Reply-To: <200307120511.h6C5BCSe017963@turing-police.cc.vt.edu>
-References: <20030712011716.GB4694@bouh.unh.edu>
-	<16143.25800.785348.314274@cargo.ozlabs.ibm.com>
-	<20030712024216.GA399@bouh.unh.edu>
-	<200307112309.08542.jcwren@jcwren.com>
-	<20030711203809.3c320823.akpm@osdl.org>
-	<200307120511.h6C5BCSe017963@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 12 Jul 2003 01:08:24 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:10692
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S267638AbTGLFIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 01:08:21 -0400
+Message-ID: <3F0F9B0C.10604@redhat.com>
+Date: Fri, 11 Jul 2003 22:22:20 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030710 Thunderbird/0.1a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@digeo.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: utimes/futimes/lutimes syscalls
+X-Enigmail-Version: 0.80.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
->
-> On Fri, 11 Jul 2003 20:38:09 PDT, Andrew Morton said:
-> > "J.C. Wren" <jcwren@jcwren.com> wrote:
-> > >
-> > > I was playing around today and found that if an existing file is opened wit
-> h 
-> > >  O_TRUNC | O_RDONLY, the existing file is truncated.
-> > 
-> > Well that's fairly idiotic, isn't it?
-> 
-> Not idiotic at all
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Sigh.  I meant the kernel behaviour is idiotic.  Returning -EINVAL would
-have been much better behaviour.
+With the introduction of the nanosecond fields in struct stat the
+utime() syscall is kind of obsolete.  It's not possible anymore to
+restore the exact access/modification time of a file.
 
-> 
-> > The Open Group go on to say "The result of using O_TRUNC with O_RDONLY is
-> > undefined" which is also rather silly.
-> > 
-> > I'd be inclined to leave it as-is, really.
-> 
-> I hate to think how many programmers are relying on the *documented* behavior to
-> prevent data loss during debugging/test runs....
+Unix defines the utimes() function for this.  It is currently
+implementated in glibc on top of the utime() syscall which used to be OK
+but isn't anymore today.  In addition some systems provide the futimes()
+and lutimes() functions which appropriate semantics.
 
-We've lived with it for this long.
+The question: would a patch introducing these syscalls be accepted?  If
+there are filesystems which store the sub-seconds on disk I think this
+is necessary since otherwise all kinds of programs (including archives)
+cannot be written correctly.  If the sub-seconds only live in memory I
+still think it would be good to have the syscalls but it would not be
+that urgent.
 
-The behaviour is "undefined".  Any application which uses O_RDONLY|O_TRUNC
-is buggy.
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-If we were to alter the behaviour now, any buggy-but-happens-to-work app
-which is accidentally using O_RDONLY|O_TRUNC may break.  And now is not the
-time to break things.
+iD8DBQE/D5sS2ijCOnn/RHQRAjhgAJoCHPLGWjvK6VUxVmyJx/MPnwzjeQCggpmy
+1qKasu1RgrliP4QA0t9QuUE=
+=NQyO
+-----END PGP SIGNATURE-----
 
-Given that the behaviour is undefined, the behaviour which we should
-implement is clearly "whatever 2.4 is doing".  So let's leave it alone.

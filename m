@@ -1,188 +1,336 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270363AbTGPIXq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 04:23:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270420AbTGPIX2
+	id S270434AbTGPIbi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 04:31:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270412AbTGPIbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 04:23:28 -0400
-Received: from dp.samba.org ([66.70.73.150]:931 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S270363AbTGPIW6 (ORCPT
+	Wed, 16 Jul 2003 04:31:38 -0400
+Received: from dp.samba.org ([66.70.73.150]:15011 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S270434AbTGPI0k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 04:22:58 -0400
+	Wed, 16 Jul 2003 04:26:40 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, akpm@zip.com.au, rth@twiddle.net
+To: torvalds@transmeta.com, akpm@zip.com.au
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/5] Centralize linker-generated symbols.
-Date: Wed, 16 Jul 2003 18:15:46 +1000
-Message-Id: <20030716083750.83B542C24B@lists.samba.org>
+Subject: [PATCH 6/5] local_t for IA64
+Date: Wed, 16 Jul 2003 18:41:02 +1000
+Message-Id: <20030716084132.3076B2C141@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+And then David M-T was second.
 
-	Many places define _stext etc: I finally hit a clash.  The
-asm/sections.h header seems to be the preferred place.  Unify them,
-and make them RTH-compliant.
+Rusty.
 
-Name: Centralize linker symbols
-Author: Rusty Russell
-Status: Trivial
+Name: local_t ia64 support
+Author: David Mosberger <davidm@napali.hpl.hp.com>
+Status: Tested on 2.6.0-test1
+Depends: Percpu/local_t.patch.gz
+Depends: Misc/i386_linker_symbols.patch.gz
 
-D: Richard Henderson point out a while back that linker generated symbols
-D: should be declared as: "char _text[]" so that the compiler can't make
-D: assumptions about them sitting in small sections, etc.
+D: There are others who wanted atomic64 for some time (on 64-bit
+D: platforms), so I added it to asm-ia64/atomic.h as well.
 D: 
-D: Centralize these defintions in asm/sections.h (where some already
-D: are on x86).
+D: I attached the percpu.h and local.h which I'm using on ia64.
+D: It all seems to work very nicely.
+D: 
+D: __get_cpu_var() now returns the canonical address, so there is no
+D: source of confusion (if someone really knows what they're doing, they
+D: can still use __ia64_per_cpu_var() to get the aliased variable).
+D: To avoid an array-lookup, I defined a per-CPU variable which holds
+D: the per-CPU offset of the current CPU.  WIth that, __get_cpu_var()
+D: becomes:
+D: 
+D: #define __get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __ia64_per_cpu_var(local_per_cpu_offset)))
+D: 
+D: (Yeah, it runs the risk of messing with your head, but if you think
+D: about it the right way, it's entirely obvious... ;-).
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .30655-linux-2.6.0-test1/arch/i386/kernel/setup.c .30655-linux-2.6.0-test1.updated/arch/i386/kernel/setup.c
---- .30655-linux-2.6.0-test1/arch/i386/kernel/setup.c	2003-06-23 10:52:42.000000000 +1000
-+++ .30655-linux-2.6.0-test1.updated/arch/i386/kernel/setup.c	2003-07-16 18:09:04.000000000 +1000
-@@ -42,6 +42,7 @@
- #include <asm/edd.h>
- #include <asm/setup.h>
- #include <asm/arch_hooks.h>
-+#include <asm/sections.h>
- #include "setup_arch_pre.h"
- #include "mach_resources.h"
+===== include/asm-ia64/percpu.h 1.8 vs edited =====
+--- 1.8/include/asm-ia64/percpu.h	Thu Jun  5 23:36:29 2003
++++ edited/include/asm-ia64/percpu.h	Tue Jul 15 12:03:21 2003
+@@ -1,42 +1,65 @@
+ #ifndef _ASM_IA64_PERCPU_H
+ #define _ASM_IA64_PERCPU_H
  
-@@ -100,7 +101,7 @@ extern void early_cpu_init(void);
- extern void dmi_scan_machine(void);
- extern void generic_apic_probe(char *);
- extern int root_mountflags;
--extern char _text, _etext, _edata, _end;
-+extern char _end[];
+-#include <linux/config.h>
+-#include <linux/compiler.h>
+-
+ /*
+  * Copyright (C) 2002-2003 Hewlett-Packard Co
+  *	David Mosberger-Tang <davidm@hpl.hp.com>
+  */
++
+ #define PERCPU_ENOUGH_ROOM PERCPU_PAGE_SIZE
  
- unsigned long saved_videomode;
+ #ifdef __ASSEMBLY__
+-
+-#define THIS_CPU(var)	(var##__per_cpu)  /* use this to mark accesses to per-CPU variables... */
+-
++# define THIS_CPU(var)	(per_cpu__##var)  /* use this to mark accesses to per-CPU variables... */
+ #else /* !__ASSEMBLY__ */
  
-@@ -676,7 +677,7 @@ static unsigned long __init setup_memory
- 	 * partially used pages are not usable - thus
- 	 * we are rounding upwards:
- 	 */
--	start_pfn = PFN_UP(__pa(&_end));
-+	start_pfn = PFN_UP(__pa(_end));
++#include <linux/config.h>
++
+ #include <linux/threads.h>
  
- 	find_max_pfn();
++#define DECLARE_PER_CPU(type, name) extern __typeof__(type) per_cpu__##name
++
++/*
++ * Pretty much a literal copy of asm-generic/percpu.h, except that percpu_modcopy() is an
++ * external routine, to avoid include-hell.
++ */
++#ifdef CONFIG_SMP
++
+ extern unsigned long __per_cpu_offset[NR_CPUS];
  
-@@ -947,15 +948,15 @@ void __init setup_arch(char **cmdline_p)
++/* Equal to __per_cpu_offset[smp_processor_id()], but faster to access: */
++DECLARE_PER_CPU(unsigned long, local_per_cpu_offset);
++
++/* Separate out the type, so (int[3], foo) works. */
+ #define DEFINE_PER_CPU(type, name) \
+-    __attribute__((__section__(".data.percpu"))) __typeof__(type) name##__per_cpu
+-#define DECLARE_PER_CPU(type, name) extern __typeof__(type) name##__per_cpu
++    __attribute__((__section__(".data.percpu"))) __typeof__(type) per_cpu__##name
  
- 	if (!MOUNT_ROOT_RDONLY)
- 		root_mountflags &= ~MS_RDONLY;
--	init_mm.start_code = (unsigned long) &_text;
--	init_mm.end_code = (unsigned long) &_etext;
--	init_mm.end_data = (unsigned long) &_edata;
--	init_mm.brk = (unsigned long) &_end;
-+	init_mm.start_code = (unsigned long) _text;
-+	init_mm.end_code = (unsigned long) _etext;
-+	init_mm.end_data = (unsigned long) _edata;
-+	init_mm.brk = (unsigned long) _end;
+-#define __get_cpu_var(var)	(var##__per_cpu)
+-#ifdef CONFIG_SMP
+-# define per_cpu(var, cpu)	(*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
++#define per_cpu(var, cpu)  (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]))
++#define __get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __ia64_per_cpu_var(local_per_cpu_offset)))
  
--	code_resource.start = virt_to_phys(&_text);
--	code_resource.end = virt_to_phys(&_etext)-1;
--	data_resource.start = virt_to_phys(&_etext);
--	data_resource.end = virt_to_phys(&_edata)-1;
-+	code_resource.start = virt_to_phys(_text);
-+	code_resource.end = virt_to_phys(_etext)-1;
-+	data_resource.start = virt_to_phys(_etext);
-+	data_resource.end = virt_to_phys(_edata)-1;
+ extern void percpu_modcopy(void *pcpudst, const void *src, unsigned long size);
+-#else
+-# define per_cpu(var, cpu)	((void)cpu, __get_cpu_var(var))
+-#endif
  
- 	parse_cmdline_early(cmdline_p);
+-#define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(var##__per_cpu)
+-#define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
++#else /* ! SMP */
++
++#define DEFINE_PER_CPU(type, name)		__typeof__(type) per_cpu__##name
++#define per_cpu(var, cpu)			((void)cpu, per_cpu__##var)
++#define __get_cpu_var(var)			per_cpu__##var
++
++#endif	/* SMP */
++
++#define EXPORT_PER_CPU_SYMBOL(var)		EXPORT_SYMBOL(per_cpu__##var)
++#define EXPORT_PER_CPU_SYMBOL_GPL(var)		EXPORT_SYMBOL_GPL(per_cpu__##var)
++
++/* ia64-specific part: */
  
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .30655-linux-2.6.0-test1/arch/i386/mm/init.c .30655-linux-2.6.0-test1.updated/arch/i386/mm/init.c
---- .30655-linux-2.6.0-test1/arch/i386/mm/init.c	2003-06-23 10:52:42.000000000 +1000
-+++ .30655-linux-2.6.0-test1.updated/arch/i386/mm/init.c	2003-07-16 18:09:04.000000000 +1000
-@@ -565,7 +565,7 @@ void free_initmem(void)
- 		free_page(addr);
- 		totalram_pages++;
- 	}
--	printk (KERN_INFO "Freeing unused kernel memory: %dk freed\n", (&__init_end - &__init_begin) >> 10);
-+	printk (KERN_INFO "Freeing unused kernel memory: %dk freed\n", (__init_end - __init_begin) >> 10);
+ extern void setup_per_cpu_areas (void);
++
++/*
++ * Be extremely careful when taking the address of this variable!  Due to virtual
++ * remapping, it is different from the canonical address returned by __get_cpu_var(var)!
++ * On the positive side, using __ia64_per_cpu_var() instead of __get_cpu_var() is slightly
++ * more efficient.
++ */
++#define __ia64_per_cpu_var(var)	(per_cpu__##var)
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
+
+===== include/asm-ia64/atomic.h 1.6 vs edited =====
+--- 1.6/include/asm-ia64/atomic.h	Sat May 10 02:28:47 2003
++++ edited/include/asm-ia64/atomic.h	Tue Jul 15 11:56:20 2003
+@@ -9,7 +9,7 @@
+  * "int" types were carefully placed so as to ensure proper operation
+  * of the macros.
+  *
+- * Copyright (C) 1998, 1999, 2002 Hewlett-Packard Co
++ * Copyright (C) 1998, 1999, 2002-2003 Hewlett-Packard Co
+  *	David Mosberger-Tang <davidm@hpl.hp.com>
+  */
+ #include <linux/types.h>
+@@ -21,11 +21,16 @@
+  * memory accesses are ordered.
+  */
+ typedef struct { volatile __s32 counter; } atomic_t;
++typedef struct { volatile __s64 counter; } atomic64_t;
+ 
+ #define ATOMIC_INIT(i)		((atomic_t) { (i) })
++#define ATOMIC64_INIT(i)	((atomic64_t) { (i) })
+ 
+ #define atomic_read(v)		((v)->counter)
++#define atomic64_read(v)	((v)->counter)
++
+ #define atomic_set(v,i)		(((v)->counter) = (i))
++#define atomic64_set(v,i)	(((v)->counter) = (i))
+ 
+ static __inline__ int
+ ia64_atomic_add (int i, atomic_t *v)
+@@ -37,7 +42,21 @@
+ 		CMPXCHG_BUGCHECK(v);
+ 		old = atomic_read(v);
+ 		new = old + i;
+-	} while (ia64_cmpxchg("acq", v, old, old + i, sizeof(atomic_t)) != old);
++	} while (ia64_cmpxchg("acq", v, old, new, sizeof(atomic_t)) != old);
++	return new;
++}
++
++static __inline__ int
++ia64_atomic64_add (int i, atomic64_t *v)
++{
++	__s64 old, new;
++	CMPXCHG_BUGCHECK_DECL
++
++	do {
++		CMPXCHG_BUGCHECK(v);
++		old = atomic_read(v);
++		new = old + i;
++	} while (ia64_cmpxchg("acq", v, old, new, sizeof(atomic_t)) != old);
+ 	return new;
  }
  
- #ifdef CONFIG_BLK_DEV_INITRD
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .30655-linux-2.6.0-test1/include/asm-generic/sections.h .30655-linux-2.6.0-test1.updated/include/asm-generic/sections.h
---- .30655-linux-2.6.0-test1/include/asm-generic/sections.h	2003-01-02 12:24:26.000000000 +1100
-+++ .30655-linux-2.6.0-test1.updated/include/asm-generic/sections.h	2003-07-16 18:09:54.000000000 +1000
-@@ -3,9 +3,10 @@
+@@ -55,6 +74,20 @@
+ 	return new;
+ }
  
- /* References to section boundaries */
++static __inline__ int
++ia64_atomic64_sub (int i, atomic64_t *v)
++{
++	__s64 old, new;
++	CMPXCHG_BUGCHECK_DECL
++
++	do {
++		CMPXCHG_BUGCHECK(v);
++		old = atomic_read(v);
++		new = old - i;
++	} while (ia64_cmpxchg("acq", v, old, new, sizeof(atomic_t)) != old);
++	return new;
++}
++
+ #define atomic_add_return(i,v)						\
+ ({									\
+ 	int __ia64_aar_i = (i);						\
+@@ -67,6 +100,18 @@
+ 		: ia64_atomic_add(__ia64_aar_i, v);			\
+ })
  
--extern char _text, _etext;
--extern char _data, _edata;
--extern char __bss_start;
--extern char __init_begin, __init_end;
-+extern char _text[], _stext[], _etext[];
-+extern char _data[], _sdata[], _edata[];
-+extern char __bss_start[];
-+extern char __init_begin[], __init_end[];
-+extern char _sinittext[], _einittext[];
- 
- #endif /* _ASM_GENERIC_SECTIONS_H_ */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .30655-linux-2.6.0-test1/include/asm-i386/hw_irq.h .30655-linux-2.6.0-test1.updated/include/asm-i386/hw_irq.h
---- .30655-linux-2.6.0-test1/include/asm-i386/hw_irq.h	2003-03-25 12:17:28.000000000 +1100
-+++ .30655-linux-2.6.0-test1.updated/include/asm-i386/hw_irq.h	2003-07-16 18:09:04.000000000 +1000
-@@ -16,6 +16,7 @@
- #include <linux/profile.h>
- #include <asm/atomic.h>
- #include <asm/irq.h>
-+#include <asm/sections.h>
- 
++#define atomic64_add_return(i,v)					\
++({									\
++	long __ia64_aar_i = (i);					\
++	(__builtin_constant_p(i)					\
++	 && (   (__ia64_aar_i ==  1) || (__ia64_aar_i ==   4)		\
++	     || (__ia64_aar_i ==  8) || (__ia64_aar_i ==  16)		\
++	     || (__ia64_aar_i == -1) || (__ia64_aar_i ==  -4)		\
++	     || (__ia64_aar_i == -8) || (__ia64_aar_i == -16)))		\
++		? ia64_fetch_and_add(__ia64_aar_i, &(v)->counter)	\
++		: ia64_atomic64_add(__ia64_aar_i, v);			\
++})
++
  /*
-  * Various low-level irq details needed by irq.c, process.c,
-@@ -63,8 +64,6 @@ extern unsigned long io_apic_irqs;
- extern atomic_t irq_err_count;
- extern atomic_t irq_mis_count;
+  * Atomically add I to V and return TRUE if the resulting value is
+  * negative.
+@@ -77,6 +122,12 @@
+ 	return atomic_add_return(i, v) < 0;
+ }
  
--extern char _stext, _etext;
--
- #define IO_APIC_IRQ(x) (((x) >= 16) || ((1<<(x)) & io_apic_irqs))
++static __inline__ int
++atomic_add64_negative (int i, atomic64_t *v)
++{
++	return atomic64_add_return(i, v) < 0;
++}
++
+ #define atomic_sub_return(i,v)						\
+ ({									\
+ 	int __ia64_asr_i = (i);						\
+@@ -89,17 +140,39 @@
+ 		: ia64_atomic_sub(__ia64_asr_i, v);			\
+ })
  
- /*
-@@ -95,7 +94,7 @@ static inline void x86_do_profile(struct
- 	if (!((1<<smp_processor_id()) & prof_cpu_mask))
- 		return;
++#define atomic64_sub_return(i,v)					\
++({									\
++	long __ia64_asr_i = (i);					\
++	(__builtin_constant_p(i)					\
++	 && (   (__ia64_asr_i ==   1) || (__ia64_asr_i ==   4)		\
++	     || (__ia64_asr_i ==   8) || (__ia64_asr_i ==  16)		\
++	     || (__ia64_asr_i ==  -1) || (__ia64_asr_i ==  -4)		\
++	     || (__ia64_asr_i ==  -8) || (__ia64_asr_i == -16)))	\
++		? ia64_fetch_and_add(-__ia64_asr_i, &(v)->counter)	\
++		: ia64_atomic64_sub(__ia64_asr_i, v);			\
++})
++
+ #define atomic_dec_return(v)		atomic_sub_return(1, (v))
+ #define atomic_inc_return(v)		atomic_add_return(1, (v))
++#define atomic64_dec_return(v)		atomic64_sub_return(1, (v))
++#define atomic64_inc_return(v)		atomic64_add_return(1, (v))
  
--	eip -= (unsigned long) &_stext;
-+	eip -= (unsigned long)_stext;
- 	eip >>= prof_shift;
- 	/*
- 	 * Don't ignore out-of-bounds EIP values silently,
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .30655-linux-2.6.0-test1/kernel/extable.c .30655-linux-2.6.0-test1.updated/kernel/extable.c
---- .30655-linux-2.6.0-test1/kernel/extable.c	2003-04-20 18:05:15.000000000 +1000
-+++ .30655-linux-2.6.0-test1.updated/kernel/extable.c	2003-07-16 18:09:53.000000000 +1000
-@@ -17,10 +17,10 @@
- */
- #include <linux/module.h>
- #include <asm/uaccess.h>
-+#include <asm/sections.h>
+ #define atomic_sub_and_test(i,v)	(atomic_sub_return((i), (v)) == 0)
+ #define atomic_dec_and_test(v)		(atomic_sub_return(1, (v)) == 0)
+ #define atomic_inc_and_test(v)		(atomic_add_return(1, (v)) != 0)
++#define atomic64_sub_and_test(i,v)	(atomic64_sub_return((i), (v)) == 0)
++#define atomic64_dec_and_test(v)	(atomic64_sub_return(1, (v)) == 0)
++#define atomic64_inc_and_test(v)	(atomic64_add_return(1, (v)) != 0)
  
- extern const struct exception_table_entry __start___ex_table[];
- extern const struct exception_table_entry __stop___ex_table[];
--extern char _stext[], _etext[], _sinittext[], _einittext[];
+ #define atomic_add(i,v)			atomic_add_return((i), (v))
+ #define atomic_sub(i,v)			atomic_sub_return((i), (v))
+ #define atomic_inc(v)			atomic_add(1, (v))
+ #define atomic_dec(v)			atomic_sub(1, (v))
++
++#define atomic64_add(i,v)		atomic64_add_return((i), (v))
++#define atomic64_sub(i,v)		atomic64_sub_return((i), (v))
++#define atomic64_inc(v)			atomic64_add(1, (v))
++#define atomic64_dec(v)			atomic64_sub(1, (v))
  
- /* Given an address, look for it in the exception tables. */
- const struct exception_table_entry *search_exception_tables(unsigned long addr)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .30655-linux-2.6.0-test1/kernel/profile.c .30655-linux-2.6.0-test1.updated/kernel/profile.c
---- .30655-linux-2.6.0-test1/kernel/profile.c	2003-02-25 10:11:11.000000000 +1100
-+++ .30655-linux-2.6.0-test1.updated/kernel/profile.c	2003-07-16 18:09:04.000000000 +1000
-@@ -8,8 +8,7 @@
- #include <linux/bootmem.h>
- #include <linux/notifier.h>
- #include <linux/mm.h>
--
--extern char _stext, _etext;
-+#include <asm/sections.h>
- 
- unsigned int * prof_buffer;
- unsigned long prof_len;
-@@ -36,7 +35,7 @@ void __init profile_init(void)
- 		return;
-  
- 	/* only text is profiled */
--	prof_len = (unsigned long) &_etext - (unsigned long) &_stext;
-+	prof_len = _etext - _stext;
- 	prof_len >>= prof_shift;
- 		
- 	size = prof_len * sizeof(unsigned int) + PAGE_SIZE - 1;
+ /* Atomic operations are already serializing */
+ #define smp_mb__before_atomic_dec()	barrier()
+
+--- /dev/null	2003-03-27 10:58:26.000000000 -0800
++++ include/asm-ia64/local.h	2003-07-15 12:04:24.000000000 -0700
+@@ -0,0 +1,50 @@
++#ifndef _ASM_IA64_LOCAL_H
++#define _ASM_IA64_LOCAL_H
++
++/*
++ * Copyright (C) 2003 Hewlett-Packard Co
++ *	David Mosberger-Tang <davidm@hpl.hp.com>
++ */
++
++#include <linux/percpu.h>
++
++typedef struct {
++	atomic64_t val;
++} local_t;
++
++#define LOCAL_INIT(i)	((local_t) { { (i) } })
++#define local_read(l)	atomic64_read(&(l)->val)
++#define local_set(l, i)	atomic64_set(&(l)->val, i)
++#define local_inc(l)	atomic64_inc(&(l)->val)
++#define local_dec(l)	atomic64_dec(&(l)->val)
++#define local_add(l)	atomic64_add(&(l)->val)
++#define local_sub(l)	atomic64_sub(&(l)->val)
++
++/* Non-atomic variants, i.e., preemption disabled and won't be touched in interrupt, etc.  */
++
++#define __local_inc(l)		(++(l)->val.counter)
++#define __local_dec(l)		(--(l)->val.counter)
++#define __local_add(i,l)	((l)->val.counter += (i))
++#define __local_sub(i,l)	((l)->val.counter -= (i))
++
++/*
++ * Use these for per-cpu local_t variables.  Note they take a variable (eg. mystruct.foo),
++ * not an address.
++ */
++#define cpu_local_read(v)	local_read(&__ia64_per_cpu_var(v))
++#define cpu_local_set(v, i)	local_set(&__ia64_per_cpu_var(v), (i))
++#define cpu_local_inc(v)	local_inc(&__ia64_per_cpu_var(v))
++#define cpu_local_dec(v)	local_dec(&__ia64_per_cpu_var(v))
++#define cpu_local_add(i, v)	local_add((i), &__ia64_per_cpu_var(v))
++#define cpu_local_sub(i, v)	local_sub((i), &__ia64_per_cpu_var(v))
++
++/*
++ * Non-atomic increments, i.e., preemption disabled and won't be touched in interrupt,
++ * etc.
++ */
++#define __cpu_local_inc(v)	__local_inc(&__ia64_per_cpu_var(v))
++#define __cpu_local_dec(v)	__local_dec(&__ia64_per_cpu_var(v))
++#define __cpu_local_add(i, v)	__local_add((i), &__ia64_per_cpu_var(v))
++#define __cpu_local_sub(i, v)	__local_sub((i), &__ia64_per_cpu_var(v))
++
++#endif /* _ASM_IA64_LOCAL_H */
+
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266024AbTGAHQY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 03:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbTGAHQY
+	id S266025AbTGAHU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 03:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266023AbTGAHU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 03:16:24 -0400
-Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([24.192.190.108]:6660
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id S266023AbTGAHQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 03:16:12 -0400
-From: "Shawn Starr" <spstarr@sh0n.net>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Adam Belay" <ambx1@neo.rr.com>
-Subject: Re: simple pnp bios io resources bug makes  system unusable
-Date: Tue, 1 Jul 2003 03:30:40 -0400
-Message-ID: <000001c33fa2$ae2a85a0$030aa8c0@panic>
+	Tue, 1 Jul 2003 03:20:29 -0400
+Received: from mail3.netbeat.de ([62.208.140.20]:10945 "HELO mail3.netbeat.de")
+	by vger.kernel.org with SMTP id S266025AbTGAHU2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 03:20:28 -0400
+Message-ID: <3F01397B.7060109@gmx.de>
+Date: Tue, 01 Jul 2003 09:34:19 +0200
+From: =?ISO-8859-1?Q?Cornelius_K=F6lbel?= <cornelius.koelbel@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4) Gecko/20030601
+X-Accept-Language: de-de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: Bug in Kernel 2.4.20-8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I also ran into this problem, Adam is was also working on a fix
-although I wonder if it's the same fix?
+Hello,
 
-Shawn S.
+I am using Kernel 2.4.20. I admit, it is the kernel of RedHat 9.
+I hope this is not, because RedHat did so much changes to the Kernel
 
->List:     linux-kernel
->Subject:  simple pnp bios io resources bug makes  system unusable
->From:     CarlosRomero <caberome () bellsouth ! net>
->Date:     2003-07-01 3:38:17
+I was just typing a mail, when the caps lock light and the scroll lock light went on.
+Nothing happend anymore. No mouse, no keyboard.
+I resetted the computer.
 
->cat /sys/devices/pnp0/00\:0c/name
->Reserved Motherboard Resources
+After that, I found the attached output in the /var/log/messages.
+I am running cyurs-imapd, I am not sure, if it is due to cyrus.
 
->cat /sys/devices/pnp0/00\:0c/resources
->state = active
->io 0x4d0-0x4d1
->io 0xcf8-0xcff
->io 0x3f7-0x3f7
->io 0x401-0x407
->io 0x298-0x298
->io 0x00000000-0xffffffff
->mem 0xfffe0000-0xffffffff
->mem 0x100000-0x7ffffff
+If the buffer.c might have something to do with the filesystem:
+I am using the ext3 filesystem, I have ide and scsi-drives in my system.
+Here is an extract of lsmod:
+ext3                   69984   4
+jbd                    51220   4  [ext3]
+sym53c8xx              67376   1
+sd_mod                 13324   2
+scsi_mod              106168   2  [sym53c8xx sd_mod]
 
->fixup: check for null io base, other devices are now able to initialize.
+If you need any furhter information I will provide it.
+
+Regards
+Corneius
 
 

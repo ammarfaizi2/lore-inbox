@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317182AbSIEGub>; Thu, 5 Sep 2002 02:50:31 -0400
+	id <S317101AbSIEGtd>; Thu, 5 Sep 2002 02:49:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317176AbSIEGub>; Thu, 5 Sep 2002 02:50:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26640 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317169AbSIEGua>;
-	Thu, 5 Sep 2002 02:50:30 -0400
-Message-ID: <3D7702BE.85A5D11D@zip.com.au>
-Date: Thu, 05 Sep 2002 00:07:42 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Race in shrink_cache
-References: <E17mooe-00064m-00@starship> <3D76FB64.7AAB215F@zip.com.au> <E17mqFV-00065Y-00@starship>
+	id <S317117AbSIEGtc>; Thu, 5 Sep 2002 02:49:32 -0400
+Received: from bof.de ([195.4.223.10]:39572 "HELO oknodo.bof.de")
+	by vger.kernel.org with SMTP id <S317101AbSIEGtc>;
+	Thu, 5 Sep 2002 02:49:32 -0400
+Date: Thu, 5 Sep 2002 08:51:03 +0200
+From: Patrick Schaaf <bof@bof.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@suse.de>, Harald Welte <laforge@gnumonks.org>,
+       Netfilter Mailing List <netfilter-devel@lists.netfilter.org>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+       Patrick Schaaf <bof@bof.de>
+Subject: Re: ip_conntrack_hash() problem
+Message-ID: <20020905085103.G19551@oknodo.bof.de>
+References: <20020904152626.A11438@wotan.suse.de> <20020905044436.0772A2C0DF@lists.samba.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020905044436.0772A2C0DF@lists.samba.org>; from rusty@rustcorp.com.au on Thu, Sep 05, 2002 at 10:39:40AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> ...
-> /*
->  * We must not allow an anon page
->  * with no buffers to be visible on
->  * the LRU, so we unlock the page after
->  * taking the lru lock
->  */
-> 
-> That is, what's scary about an anon page without buffers?
+Rusty,
 
-ooop.  That's an akpm comment.  umm, err..
+> This work is already done:
+> http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Netfilter/conntrack_hashing.patch.gz
 
-It solves this BUG:
+Regarding the rehash check in ip_conntrack_find_get, wouldn't it be
+better to do that in the confirm function, where a new conntrack
+is put into the list? That's called a lot less often than _find_get,
+and should be logically equivalent. IOW, why wait until we _find_
+an overly long list, when we can rehash at the point in time when
+it _became_ overly long?
 
-http://www.cs.helsinki.fi/linux/linux-kernel/2001-37/0594.html
+best regards
+  Patrick
 
-Around the 2.4.10 timeframe, Andrea started putting anon pages
-on the LRU.  Then he backed that out, then put it in again.  I
-think this comment dates from the time when anon pages were
-not on the LRU.  So there's a little window there where the
-page is unlocked, we've just dropped its swapdev buffers, the page is
-on the LRU and pagemap_lru_lock is not held.
-
-So another CPU came in, found the page on the LRU, saw that it had
-no ->mapping and no ->buffers and went BUG.
-
-The fix was to take pagemap_lru_lock before unlocking the page.
-
-The comment is stale.

@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289995AbSAPQhC>; Wed, 16 Jan 2002 11:37:02 -0500
+	id <S290000AbSAPQjC>; Wed, 16 Jan 2002 11:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289999AbSAPQgw>; Wed, 16 Jan 2002 11:36:52 -0500
-Received: from [66.89.142.2] ([66.89.142.2]:9275 "EHLO starship.berlin")
-	by vger.kernel.org with ESMTP id <S289995AbSAPQgk>;
-	Wed, 16 Jan 2002 11:36:40 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Wed, 16 Jan 2002 17:37:05 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1020116102256.28369C-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1020116102256.28369C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Qt3i-00020l-00@starship.berlin>
+	id <S290434AbSAPQix>; Wed, 16 Jan 2002 11:38:53 -0500
+Received: from willow.seitz.com ([207.106.55.140]:32272 "EHLO willow.seitz.com")
+	by vger.kernel.org with ESMTP id <S290000AbSAPQip>;
+	Wed, 16 Jan 2002 11:38:45 -0500
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Wed, 16 Jan 2002 11:38:40 -0500
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available
+Message-ID: <20020116113840.A16168@willow.seitz.com>
+In-Reply-To: <20020115145324.A5772@thyrsus.com> <20020115152643.A6846@willow.seitz.com> <20020115230211.A5177@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020115230211.A5177@thyrsus.com>; from esr@thyrsus.com on Tue, Jan 15, 2002 at 11:02:11PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 16, 2002 04:27 pm, Bill Davidsen wrote:
-> On Tue, 15 Jan 2002, Daniel Phillips wrote:
-> > On January 15, 2002 06:26 am, Mark Hahn wrote:
-> > > > than the task's float, the completion time of the schedule as a whole will be 
-> > > > delayed.  This is no different for a computer than it is for a group of 
-> > > > people, it is still a scheduling problem.  Delaying any random task risks 
-> > > 
-> > > it is quite different.  with computers, there are often STRONG benefits
-> > > to clustering, batching, chunking, piggybacking, whatever you want to call it.
-> > 
-> > It's no different.
+On Tue, Jan 15, 2002 at 11:02:11PM -0500, Eric S. Raymond wrote:
+> Ross Vandegrift <ross@willow.seitz.com>:
+> > I tried CML2 (2.1.2) yesterday with Linux 2.4.17 and found that I
+> > couldn't turn on suppression ('S' didn't seem to toggle, only
+> > disable suppression, which was already off) and entering into a
+> > submenu marked FROZEN locked up the configurator.
 > 
-> Sorry, there are strong benefits from all of the things mentioned. I lack
-> time and inclination to explain how caching works, but there are costs of
-> changing from one thing to another.
+> I'd sure like to know how you managed this.  Since 2.1.2 frozen symbols
+> are no longer supposed to be visible at all.  Can you reproduce this?
+> Can you give me the recipe for reproducing it?
 
-With people, there are often STRONG benefits to clustering, batching, 
-chunking, piggybacking.  See what I mean?
+Here's what I do to reproduce it:
 
-> The other issue is that processes doing i/o (blocking before a whole
-> timeslice) will run better if they get priority when they can use the CPU.
-> Therefore a system needs to recognize (and be tuned) for both of these.
-> 
-> Computers are very different than people in lines.
+$ tar yxvf linux-2.4.17.tar.bz2
+...
+$ cd cml2-2.1.2
+$ ./install-cml2 /home/ross/linux
+Examining your build environment...
+Good. You have Python 2.x installed as 'python' already.
+Python looks sane...
+Good, your python has curses support linked in.
+Good, your python has Tk support linked in.
+Compiling file list...
+Operating on /home/ross/linux...
+Installing new files...
+Merging in CML2 help texts from Configure.help...
+Modifying configuration productions...
+You are ready to go, cd to /home/ross/linux.
+$ cd ../linux
+$ make config
 
-Oh yes, computers don't *know* they are in lines.
+At this point the rules are compiled and a dialog box indicates that
+Suppression has been turned off (press any key to continue).  I hit any key and
+am presented with the first menu.
 
---
-Daniel
+The first selection at the top of the screen is "Intel or Processor type
+(FROZEN)" and it is highlighted as the default selection.  If I press enter
+*boom*, I'm locked solid.  If I move the active selection off of this menu item,
+I can't move back to it, though it remains visible.  If I enter a submenu, the
+frozen processor type menu is gone.
+
+It's reproduceable with fresh trees (as above), existing trees, and at least
+linux 2.4.12 and linux 2.4.17 (the two kernel tarballs I have lying around).
+
+I'm planning on trying this on a Debian testing box I have at work at some
+point.
+
+Ross Vandegrift
+ross@willow.seitz.com

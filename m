@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUD2DJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbUD2DJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbUD2DJi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 23:09:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbUD2DJi
+	id S263019AbUD2DJE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 23:09:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbUD2DJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 23:09:38 -0400
-Received: from mail.kroah.org ([65.200.24.183]:16553 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261880AbUD2DJf (ORCPT
+	Wed, 28 Apr 2004 23:09:04 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12740 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263019AbUD2DJB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 23:09:35 -0400
-Date: Wed, 28 Apr 2004 20:08:24 -0700
-From: Greg KH <greg@kroah.com>
-To: Sean Young <sean@mess.org>
-Cc: Chester <fitchett@phidgets.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB: add new USB PhidgetServo driver
-Message-ID: <20040429030824.GA4397@kroah.com>
-References: <20040428181806.GA36322@atlantis.8hz.com> <20040428184138.GA17275@kroah.com> <20040429015951.GA4135@behemoth.pad.mess.org>
+	Wed, 28 Apr 2004 23:09:01 -0400
+Date: Wed, 28 Apr 2004 20:08:01 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: whitehorse@mustika.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: QM_MODULES
+Message-Id: <20040428200801.7bbe8757.rddunlap@osdl.org>
+In-Reply-To: <S263020AbUD2DDL/20040429030311Z+232@vger.kernel.org>
+References: <S263020AbUD2DDL/20040429030311Z+232@vger.kernel.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040429015951.GA4135@behemoth.pad.mess.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 03:59:51AM +0200, Sean Young wrote:
-> On Wed, Apr 28, 2004 at 11:41:38AM -0700, Greg KH wrote:
-> > On Wed, Apr 28, 2004 at 08:18:06PM +0200, Sean Young wrote:
-> > > Here is a driver for the usb servo controllers from Phidgets 
-> > > <http://www.phidgets.com/>, using sysfs. 
-> > > 
-> > > Note that the devices claim to be hid devices, so I've added them to the 
-> > > hid_blacklist (HID_QUIRK_IGNORE). A servo controller isn't really an hid
-> > > device (or is it?).
-> > > 
-> > > diff against 2.6.6-rc2.
-> > 
-> > Nice, I like tiny clean drivers like this :)
-> > 
-> > I've applied it to my trees, and it will make it into the next -mm tree,
-> > and show up in the 2.6.7 release whenever it happens.
-> 
-> Great! Thanks.
-> 
-> Somehow I managed to send the wrong version. Here is a patch which fixes
-> that. (Remove a dev_info() which wasn't supposed to be there, and make sure 
-> that everything is still consistent in the unlikely event that kmalloc()
-> fails). Just minor cleanups.
+On Wed, 28 Apr 2004 23:03:07 -0400 (EDT) whitehorse@mustika.net wrote:
 
-Heh, that happens :)
+| dear Sir,
+|  I have a problem in compiling kernel 2.6.4 from kernel 2.4.19. I use
+|  Debian woody. When I rebooting new kernel, some message occur such:
+|  "modprobe: QM_MODULES: function not implemented"
+|  and I can't load my modules when boot. I would like to waiting any one who
+|  answer this. Please send to this mail. Thanks
 
-Applied, thanks.
+You need to upgrade to the new module-init-tools...
+and read the 2.6 "update FAQ", from here:
 
-greg k-h
+  http://www.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.6.txt
+
+--
+~Randy

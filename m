@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRAYPTo>; Thu, 25 Jan 2001 10:19:44 -0500
+	id <S129291AbRAYPWx>; Thu, 25 Jan 2001 10:22:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129291AbRAYPTd>; Thu, 25 Jan 2001 10:19:33 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:7901 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129143AbRAYPTW>;
-	Thu, 25 Jan 2001 10:19:22 -0500
-Date: Thu, 25 Jan 2001 15:16:55 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Timur Tabi <ttabi@interactivesi.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: ioremap_nocache problem?
-Message-ID: <20010125151655.V11607@redhat.com>
-In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010123165117Z131182-221+34@kanga.kvack.org>; from ttabi@interactivesi.com on Tue, Jan 23, 2001 at 10:53:51AM -0600
+	id <S130960AbRAYPWo>; Thu, 25 Jan 2001 10:22:44 -0500
+Received: from fwns1d.raleigh.ibm.com ([204.146.167.235]:45831 "EHLO
+	fwns1.raleigh.ibm.com") by vger.kernel.org with ESMTP
+	id <S129291AbRAYPWi>; Thu, 25 Jan 2001 10:22:38 -0500
+Message-ID: <3A704459.9D747A04@raleigh.ibm.com>
+Date: Thu, 25 Jan 2001 10:20:57 -0500
+From: Ralph Blach <rcblach@raleigh.ibm.com>
+Organization: IBM MicroElectronics, RTP, NC
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: hdlc interface in 2.2.18 is not in 2.4.0
+Content-Type: multipart/mixed;
+ boundary="------------8A91DA6CAF4870C6DDF85D34"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------8A91DA6CAF4870C6DDF85D34
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jan 23, 2001 at 10:53:51AM -0600, Timur Tabi wrote:
-> 
-> My problem is that it's very easy to map memory with ioremap_nocache, but if
-> you use iounmap() the un-map it, the entire system will crash.  No one has been
-> able to explain that one to me, either.
+I have discovered that the hdlc interface in the 2.2.18 kernel is not in
+the 2.4.0 kernel.  Is there any particular reason for this?  Will it be
+added in later 2.4.0 kernels?
 
-ioremap*() is only supposed to be used on IO regions or reserved
-pages.  If you haven't marked the pages as reserved, then iounmap will
-do the wrong thing, so it's up to you to reserve the pages.
+Thanks
 
-Cheers,
- Stephen
+Chip
+rcblach@raleigh.ibm.com
+--------------8A91DA6CAF4870C6DDF85D34
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="rcblach.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Ralph Blach
+Content-Disposition: attachment;
+ filename="rcblach.vcf"
+
+begin:vcard 
+n:Blach;Ralph
+tel;work:919-543-1207
+x-mozilla-html:TRUE
+url:www.ibm.com
+org:IBM MicroElectronics
+adr:;;3039 Cornwallis		;RTP;NC;27709;USA
+version:2.1
+email;internet:rcblach@raleigh.ibm.com
+x-mozilla-cpt:;15936
+fn:Ralph Blach
+end:vcard
+
+--------------8A91DA6CAF4870C6DDF85D34--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

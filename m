@@ -1,117 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUIVLHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUIVLJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbUIVLHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 07:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUIVLHP
+	id S264386AbUIVLJl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 07:09:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUIVLJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 07:07:15 -0400
-Received: from nat.ecole.ensicaen.fr ([193.49.200.25]:25987 "EHLO
-	e450.ensicaen.ismra.fr") by vger.kernel.org with ESMTP
-	id S264299AbUIVLHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 07:07:11 -0400
-From: "Jean Delvare" <khali@linux-fr.org>
-To: Adrian Cox <adrian@humboldt.co.uk>, Michael Hunold <hunold-ml@web.de>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sensors@Stimpy.netroedge.com
-Reply-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sensors@Stimpy.netroedge.com
-Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
-Date: Wed, 22 Sep 2004 13:08:00 +0100
-Message-Id: <20040922102938.M15856@linux-fr.org>
-In-Reply-To: <1095843365.18365.48.camel@localhost>
-References: <414F111C.9030809@linuxtv.org> <20040921154111.GA13028@kroah.com>	 <41506099.8000307@web.de> <41506D78.6030106@web.de> <1095843365.18365.48.camel@localhost>
-X-Mailer: Open WebMail 2.10 20030617
-X-OriginatingIP: 62.23.212.160 (delvare)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
+	Wed, 22 Sep 2004 07:09:41 -0400
+Received: from dialin-212-144-166-182.arcor-ip.net ([212.144.166.182]:14730
+	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S264386AbUIVLJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 07:09:38 -0400
+In-Reply-To: <03c501c4a077$9530c410$0901a8c0@test>
+References: <03c501c4a077$9530c410$0901a8c0@test>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-7--571886197"
+Message-Id: <8019AE27-0C7D-11D9-BFE5-000A958E35DC@fhm.edu>
+Content-Transfer-Encoding: 7bit
+Cc: <linux-kernel@vger.kernel.org>
+From: Daniel Egger <degger@fhm.edu>
+Subject: Re: WRT54G
+Date: Wed, 22 Sep 2004 11:55:14 +0200
+To: "www.sveasoft.com" <james.ewing@sveasoft.com>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Sep 2004 09:56:06 +0100, Adrian Cox wrote
-> On Tue, 2004-09-21 at 19:05, Michael Hunold wrote:
-> 
-> > With that addition, it's possible for the i2c core to check if the
-> > .class entries of the adapter and the client match. If they don't then
-> > there is no need to probe a driver. This will help to keep non-i2c
-> > drivers to be probed on dvb i2c busses (and screw them up accidently).
-> > Currently it's up to the driver to decide wheter to probe a bus or not.
-> 
-> I've said it before, but:
-> This is all the wrong way round. I2C probing is a solution for the
-> problem of finding sensors on a pre-ACPI PC. We'd never have 
-> invented it if all we had was DVB cards and monitor detection.
 
-Agreed, the sensors case is different from the other I2C bus users. However I
-don't get the "pre-ACPI PC" part. Detecting the hardware monitoring chip is
-still needed even in ACPI-enabled PCs. I've almost never seen the ACPI
-subsystem handle hardware monitoring (except on my laptop where it presents a
-single temperature value and no limits). Instead, the hardware monitoring
-chips are still there sitting on the I2C or ISA bus, waiting for us to probe
-them. I'm not familiar with ACPI, but if it is supposed to handle hardware
-monitoring, it looks like at least the current BIOS and/or Linux
-implementations don't handle it yet.
+--Apple-Mail-7--571886197
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-> These .class entries are workarounds that shouldn't be required. For 
-> DVB cards, TV capture cards, monitor detection, and embedded systems 
-> the required behaviour is normally known in advance. Why should the top
-> level driver have to use these workarounds to steer the result of
-> probing when it already has all the information?
+On 22.09.2004, at 09:41, www.sveasoft.com wrote:
 
-Well, I don't quite follow you here. On the one hand you agree that sensors
-and video/embedded stuff should be handled differently, but then you don't
-want us to tag them according to their function in order to actually behave
-differently.
+> What folks are mirroring and arguing about are our unstable, 
+> development
+> releases including code developed entirely by Sveasoft and not 
+> licensed for
+> general release. Stable releases are free (beer) with full source code 
+> and
+> are available from many different sites. Mirroring unstable dev 
+> releases is
+> not 'helping your neighbor' plus they contain applications developed
+> entirely by us not licensed for general release.
 
-Of course we could limit the difference to a simple "do probe or do not probe"
-flag. This would probably be sufficent. While we are at it though, clearly
-labeling adapters with a class promises a wider usability. Another superiority
-with the classes is that the check is done by the core instead of relying on
-the client's good will. OK, the client could lie on its class(es) to bypass
-the check, but this is quite different from simply omitting to check the "do
-not probe" flag and less likely to happen by accident too.
+That part about this I don't understand is why you're disclosing
+your propietary non-free software in unstable at all. Simply
+remove it from the tarball and you don't have to worry about
+illegal copies making the round; after all you still have to
+provide the GPLed part of the code at least to the buyers of the
+unstable version which themselves have the right to spread it.
 
-> My rough proposal would be:
-> 1) One by one, disable probing on these I2C adapters.
+Servus,
+       Daniel
 
-The clients are probing the adapters, not the other way around, so there is no
-way to "disable probing on these I2C adapters". The only way is to tag the
-adapters as "do not probe" and have either the core or the clients respect
-this, just as I described above.
+--Apple-Mail-7--571886197
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
 
-> 2) In the pci probe function of the DVB or capture card, do a 
-> sequence like this: my_dev_priv->i2c_adapter = 
-> i2c_adapter_create(...); my_dev_priv->tea6415 = 
-> tea6415_create(my_dev_priv->i2c_adapter,                             
->          &my_tea6415_parameters); my_dev_priv->saa7111 = 
-> saa7111_create(my_dev_priv->i2c_adapter);
-> 
-> 3) Then to use the i2c client:
-> tea6415_switch(my_dev_priv->tea6415, &vm);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
 
-As far as I know, this is exactly what video folks already do. The whole issue
-is not with video folks probing adapters, but with them not wanting us (the
-sensors clients) to arbitrarily probe their video i2c busses in search of
-hardware monitoring chips. Michael's proposal is meant to give us a way not to
-do this anymore.
+iQEVAwUBQVFMAjBkNMiD99JrAQJ6Iwf+Pqyq+PrBYeoR+ObdcuJbKlR+gNzqpaOy
+9IhVaQTO5EGIyQFhwjE6ffQfPu4IWOA/xeenY39SZ+bGlny54dQO4S/xoshW6YDx
+qZNVOm75BpYpOWQ9JxqFVir0KN5O7szPbHWCmO4Rm6aTOg3fgpinlxjJVbZD61NM
+lX7+kOlRcEnToLhNVU9cM6/i7N827baLjNKjHjf0rR8Cu3nna1IUebuO3apoUN0H
+SrHqE+OvqQLxDdTpTUVVdDWLpM4H50uOZfnvT/ia6E49yXEkL68oOYxaY454W2jU
+Tt6w39eX4FAqt1cZjcfZvihdVZHyMdkQxfbYLT2n29hBppB9u5SG9g==
+=JOAW
+-----END PGP SIGNATURE-----
 
-> This is type safe, it allows out of tree DVB and capture drivers,
->  and it never ever sends an unexpected event down an I2C bus. It 
-> doesn't even need to change the I2C core very much.
-
-The change in the i2c-core will be really simple (comparing two bitfields
-isn't that hard), although I agree it'll almost certainly cause troube in the
-early days if .class fields are not properly filled in some adapters or clients.
-
-All in all I don't see how we can solve the problem without either a "do not
-probe" flag in the adapter structure or a class bitfield in both the adapter
-and the client structures. I would be fine with either option unless someone
-explains how one is better than the other in any particular case.
-
-Thanks.
-
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+--Apple-Mail-7--571886197--
 

@@ -1,30 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316161AbSGIJiK>; Tue, 9 Jul 2002 05:38:10 -0400
+	id <S317346AbSGIJmc>; Tue, 9 Jul 2002 05:42:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316989AbSGIJiJ>; Tue, 9 Jul 2002 05:38:09 -0400
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:37295 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S316161AbSGIJiI>; Tue, 9 Jul 2002 05:38:08 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Duncan Sands <duncan.sands@wanadoo.fr>
-To: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.25-dj1
-Date: Tue, 9 Jul 2002 11:40:42 +0200
-User-Agent: KMail/1.4.2
-References: <20020709004643.GA21880@suse.de>
-In-Reply-To: <20020709004643.GA21880@suse.de>
+	id <S317347AbSGIJmb>; Tue, 9 Jul 2002 05:42:31 -0400
+Received: from 62-190-201-188.pdu.pipex.net ([62.190.201.188]:53509 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S317346AbSGIJm3>; Tue, 9 Jul 2002 05:42:29 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200207090941.KAA00806@darkstar.example.net>
+Subject: Re: ATAPI + cdwriter problem
+To: mistral@stev.org (James Stevenson)
+Date: Tue, 9 Jul 2002 10:41:29 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <016e01c22720$1be7ad80$0cfea8c0@ezdsp.com> from "James Stevenson" at Jul 09, 2002 09:10:36 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207091140.42367.duncan.sands@wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fs/fs.o: In function `proc_pid_stat':
-fs/fs.o(.text+0x1fb72): undefined reference to `__udivdi3'
-fs/fs.o: In function `kstat_read_proc':
-fs/fs.o(.text+0x20b42): undefined reference to `__udivdi3'
-fs/fs.o(.text+0x20bd0): undefined reference to `__udivdi3'
-make[1]: *** [vmlinux] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.5.25-dj1'
-make: *** [stamp-build] Error 2
+Hi,
+
+> the other 2 drives are on a different controller not a prmoise its running
+> off the motherboard.
+
+Odd, I was positive you were going to say it was the Promise controller to blame :-)
+
+> its a via chipset motherboard which botht the old 2x writer and 44x are on
+> the secondary channel
+> the whole ide system looks a bit like this.
+> hda: IBM-DTTA-351680, ATA DISK drive
+> hdb: IBM-DTLA-305040, ATA DISK drive
+> hdc: HP CD-Writer+ 7200, ATAPI CD/DVD-ROM drive
+> hdd: IDE/ATAPI CD-ROM 44X, ATAPI CD/DVD-ROM drive
+> hde: Maxtor 4G160J8, ATA DISK drive
+> hdf: Maxtor 4G160J8, ATA DISK drive
+> hdg: 32X10, ATAPI CD/DVD-ROM drive
+
+Can't see anything obviously wrong with that setup, but once you get the new CD-writer working, I'd re-arrange things like this:
+
+hda: IBM-DTTA-351680, ATA DISK drive
+hdb: IBM-DTLA-305040, ATA DISK drive
+hdc: 32X10, ATAPI CD/DVD-ROM drive
+hdd: IDE/ATAPI CD-ROM 44X, ATAPI CD/DVD-ROM drive
+hde: Maxtor 4G160J8, ATA DISK drive
+hdf: Maxtor 4G160J8, ATA DISK drive
+not connected: HP CD-Writer+ 7200, ATAPI CD/DVD-ROM drive
+
+Unless you really need 2 CD-Writers available, (in which case, I would suggest moving over to SCSI anyway).
+
+Then you are only using 3 interfaces, and not 4, (which seems 'neater' to me, but you might dis-agree).  I don't think you're likely to see much performace advantage to having the CD-writer on the Promise card, to be honest.  You probably will for the Maxtor, (good choice), hard drives, though.
+
+> i have some time over the next few days so i could try to recreate crash
+> and try stuff.
+
+That might help, as I can't think of anything else to suggest off hand.
+
+John.

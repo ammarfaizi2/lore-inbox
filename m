@@ -1,84 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269059AbUHZPtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269077AbUHZPvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269059AbUHZPtX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 11:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269066AbUHZPtV
+	id S269077AbUHZPvD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 11:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269067AbUHZPuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 11:49:21 -0400
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:52123 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S269059AbUHZPtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 11:49:08 -0400
-Subject: Re: reiser4 plugins (was: silent semantic changes with reiser4)
-From: Christophe Saout <christophe@saout.de>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
-In-Reply-To: <20040826153748.GA3700@lst.de>
-References: <20040826014542.4bfe7cc3.akpm@osdl.org>
-	 <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de>
-	 <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de>
-	 <1093526273.11694.8.camel@leto.cs.pocnet.net>
-	 <20040826132439.GA1188@lst.de>
-	 <1093527307.11694.23.camel@leto.cs.pocnet.net>
-	 <20040826134034.GA1470@lst.de>
-	 <1093528683.11694.36.camel@leto.cs.pocnet.net>
-	 <20040826153748.GA3700@lst.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bSwd1y9Gf+7i9zGKHhE6"
-Date: Thu, 26 Aug 2004 17:48:54 +0200
-Message-Id: <1093535334.5482.1.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.92.1 
+	Thu, 26 Aug 2004 11:50:52 -0400
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:26506 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id S269066AbUHZPuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 11:50:17 -0400
+Message-ID: <412E06B2.7060106@pobox.com>
+Date: Thu, 26 Aug 2004 11:50:10 -0400
+From: Will Dyson <will_dyson@pobox.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <20040826100530.GA20805@taniwha.stupidest.org> <20040826110258.GC30449@mail.shareable.org>
+In-Reply-To: <20040826110258.GC30449@mail.shareable.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jamie Lokier wrote:
 
---=-bSwd1y9Gf+7i9zGKHhE6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> However, as far as I know it's not accessible in a file-as-directory
+> form as yet.  In my opinion that is the most natural form and it would
+> be very intuitive to use.  I hope we can pick a useful semantics for
+> them, and also provide filesystem-independent plugins with GNU
+> Hurd-like per-user extensibility.
+> 
+> -- Jamie
+> 
+> * plenty == too much.
+>   Gnome, KDE, Emacs and Bash all see different virtual filesystems.
+>   (All but Bash implement their own virtual filesystem extensions).
+>   That makes them much less useful than they could be.
 
-Am Donnerstag, den 26.08.2004, 17:37 +0200 schrieb Christoph Hellwig:
+It has always bugged me that Gnome and KDE implement their own VFS layers.
 
-> > > compression or encryption must sit below the pagecache to work nicely=
-,
-> > > and this hint things that usually sit at the pagecache level.  But le=
-t's
-> > > assume you have a valid use for different file_operations, why don't =
-you
-> > > simply add in different file_operations instead of adding another
-> > > internal dispatch layer? =20
-> >=20
-> > I don't know, ask Hans. How could the VFS know it a filesystem wants to
-> > do something specific with a file that is completely transparent to the
-> > VFS?
->=20
-> The VFS shouldn't, that the whole point.  That's why it allows the
-> filesystem to register different method tables for each object.
+It seems to me that having a standard userspace filesystem layer like 
+FUSE (http://sourceforge.net/projects/avf) would provide a lot of the 
+benefit that HURD users (all 5 of them) see from filesystem 
+"translators". Now, safely allowing unprivileged users to run arbitrary 
+userspace filesystems would be a real trick. But, if it were possible, 
+it could be combined with files-as-directories in some rather neat ways.
 
-Only the objects it can distinguish.
-
->         ops->file    =3D reiser4_file_operations;
->         ops->symlink =3D reiser4_symlink_inode_operations;
->         ops->special =3D reiser4_special_inode_operations;
->         ops->dentry  =3D reiser4_dentry_operations;
->         ops->as      =3D reiser4_as_operations;
-
-How could reiser4 register other operations for files that should be
-stored encrypted or compressed? It's all under reiser4_file_operations.
-
-
---=-bSwd1y9Gf+7i9zGKHhE6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBLgZlZCYBcts5dM0RAuwyAJ0b5C+KYJcGgRQCClYiyvuKPLe9HQCgqpRV
-2F2FKtmT/ZliTFgXl14l5dQ=
-=3y8l
------END PGP SIGNATURE-----
-
---=-bSwd1y9Gf+7i9zGKHhE6--
-
+-- 
+Will Dyson
+"Back off man, I'm a scientist!" -Dr. Peter Venkman

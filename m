@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264640AbUEYGrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264779AbUEYGxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264640AbUEYGrw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 02:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264779AbUEYGrw
+	id S264779AbUEYGxk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 02:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbUEYGxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 02:47:52 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:24266 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264640AbUEYGru (ORCPT
+	Tue, 25 May 2004 02:53:39 -0400
+Received: from mx2.redhat.com ([66.187.237.31]:62618 "EHLO mx2.redhat.com")
+	by vger.kernel.org with ESMTP id S264779AbUEYGxi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 02:47:50 -0400
-Date: Tue, 25 May 2004 08:47:31 +0200
-From: Jens Axboe <axboe@suse.de>
-To: braam <braam@clusterfs.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       "'Phil Schwan'" <phil@clusterfs.com>
-Subject: Re: [PATCH/RFC] Lustre VFS patch
-Message-ID: <20040525064730.GB14792@suse.de>
-References: <20040524114650.GV1952@suse.de> <20040525014902.245C8310127@moraine.clusterfs.com>
+	Tue, 25 May 2004 02:53:38 -0400
+Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Greg KH <greg@kroah.com>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <20040524210146.GA5532@kroah.com>
+References: <20040524210146.GA5532@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-BEcWa4vKHJLsYRKeUfv0"
+Organization: Red Hat UK
+Message-Id: <1085468008.2783.1.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040525014902.245C8310127@moraine.clusterfs.com>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 25 May 2004 08:53:28 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25 2004, braam wrote:
-> Hi Jens,
-> 
-> We use this patch on servers as follows. 
-> 
-> Lustre servers give an immediate response for RPC's to clients, and
-> later indicate what transactions numbers have been committed to disk.
-> At known points in the execution we sync all transactions to disk,
-> execute our ioctl.  When the ioctl is issues Lustre is also instructed
-> not to send disk commit confirmation to clients. Then the system
-> continues to execute some transactions, but only in memory, and send
-> responses to clients.   We are sure they are lost if we powercycle
-> that system.  This enables tests for replay of transactions by client
-> nodes in the cluster.
-> 
-> If we were to return errors, (which, I agree, _seems_ much more sane,
-> and we _did_ try that for a while!) then there is a good chance,
-> namely immediately when something is flushed to disk, that the system
-> will detect the errors and not continue to execute transactions making
-> consistent testing of our replay mechanisms impossible.
-> 
-> I hope that this explains why we do not return errors.  Now if you
-> tell me that I can turn off I/O, and not get errors, with existing
-> ioctls then I certainly should existing ioctls. Can you clarify that.
-> 
-> Am I making sense to you now?
 
-Not really, since you are not answering my question at all... My
-question is not why you need this codeo or how you are using it, it's
-why you cannot use existing functionality to do the same? Look at
-genhd.c, it has functions for checking/marking/clearing read-only bit on
-a block_device.
+--=-BEcWa4vKHJLsYRKeUfv0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-And if this it to make sense for inclusion, io _must_ be ended with
--EROFS or similar.
+On Mon, 2004-05-24 at 23:01, Greg KH wrote:
+> Hi,
+>=20
+> Now that the ACPI portion of PCI Express support is in the 2.4 kernel
+> tree, I can send you the remaining portion to actually enable this
+> feature to work properly.  Here is the PCI Express support for i386 and
+> x86_64 platforms backported from 2.6 to the 2.4 kernel.
 
-It seems to me that this probably belongs in your test harness for
-debugging purposes. At least in its current state it's not acceptable
-for inclusion.
 
--- 
-Jens Axboe
+how does this mesh with the "2.4 is now feature frozen"?
+Especially since you don't NEED this patch to run on pci express
+hardware, it's just that you can use a few performance tweaks.
+
+
+--=-BEcWa4vKHJLsYRKeUfv0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAsu1oxULwo51rQBIRAlNgAKCpk1Glc+t6Jpg2Ptqxl/uCqRysYACcD4UI
+9kQQT2o/kUmkSU3n+tDivE4=
+=HW0N
+-----END PGP SIGNATURE-----
+
+--=-BEcWa4vKHJLsYRKeUfv0--
 

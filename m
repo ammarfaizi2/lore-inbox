@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135646AbREBQxD>; Wed, 2 May 2001 12:53:03 -0400
+	id <S135404AbREBQ7F>; Wed, 2 May 2001 12:59:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135650AbREBQwx>; Wed, 2 May 2001 12:52:53 -0400
-Received: from m213-mp1-cvx1a.col.ntl.com ([213.104.68.213]:21634 "EHLO
-	[213.104.68.213]") by vger.kernel.org with ESMTP id <S135645AbREBQwj>;
-	Wed, 2 May 2001 12:52:39 -0400
-To: Pavel Machek <pavel@suse.cz>
-Cc: <sfr@canb.auug.org.au>, <linux-laptop@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <apenwarr@worldvisions.ca>
-Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <E14pqYS-0004Y3-00@the-village.bc.nu>
-	<m27l0i58i3.fsf@boreas.yi.org.> <20010420190227.B905@bug.ucw.cz>
-From: John Fremlin <chief@bandits.org>
-Date: 02 May 2001 17:52:26 +0100
-In-Reply-To: <20010420190227.B905@bug.ucw.cz>
-Message-ID: <m27kzzae2d.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (GTK)
-MIME-Version: 1.0
+	id <S135658AbREBQ6z>; Wed, 2 May 2001 12:58:55 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:45067 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135404AbREBQ6m>; Wed, 2 May 2001 12:58:42 -0400
+Date: Wed, 2 May 2001 13:58:24 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Pavel Roskin <proski@gnu.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.4-ac3 +IPX -SYSCTL compile fix
+Message-ID: <20010502135823.C1261@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Pavel Roskin <proski@gnu.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0105021040120.921-100000@fonzie.nine.com> <Pine.LNX.4.33.0105021115090.8687-100000@fonzie.nine.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.33.0105021115090.8687-100000@fonzie.nine.com>; from proski@gnu.org on Wed, May 02, 2001 at 11:17:22AM -0400
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
-
-> > > > I'm wondering if that veto business is really needed. Why not reject
-> > > > *all* APM rejectable events, and then let the userspace event handler
-> > > > send the system to sleep or turn it off? Anybody au fait with the APM
-> > > > spec?
-> > > 
-> > > Because apmd is optional
-> > 
-> > The veto stuff only comes into action, iff someone has registered as
-> > willing to exercise this power. We would not break compatibility with
-> > any std kernel by instead having a apmd send a "reject all" ioctl
-> > instead, and so deal with events without having the pressure of having
-> > to reject or accept them, and let us remove all the veto code from the
-> > kernel driver. Or am I missing something?
+Em Wed, May 02, 2001 at 11:17:22AM -0400, Pavel Roskin escreveu:
+> > +#error This file shouldn't be compiled without CONFIG_SYSCTL defined
 > 
-> No, this looks reasonable.
+> Oops, sorry! Unterminated string constant in preprocessor. It should be
+> 
+> #error This file should not be compiled without CONFIG_SYSCTL defined
+> 
+> The patch at http://www.red-bean.com/~proski/linux/ipxsysctl.diff has been
+> updated.
 
-What do you think Stephen and Avery? Are you happy with this idea?
+ok, I'm looking at this and including in the patch I'm about to send.
 
-If anybody wants to test it, my latest pmevent patch will reject *all*
-APM events it can. It would be easy to adapt that to turn on and off
-with an ioctl. I am happy to do that if Stephen would accept
-it. (Personally would like it if events were rejected by default but
-that breaks backward compatibility and there is always someone who
-would get bitten.)
-
-The latest pmevent patch (v3) with various APM cleanups is available
-at
-
-        http://ape.n3.net/programs/linux/offbutton/download
-
-Note that it currently shares no code with the pmpolicy patch.
-For more information see
-
-        http://ape.n3.net/programs/linux/offbutton/
-
--- 
-
-	http://ape.n3.net
+- Arnaldo

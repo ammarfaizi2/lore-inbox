@@ -1,145 +1,366 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268276AbTCCB7p>; Sun, 2 Mar 2003 20:59:45 -0500
+	id <S268272AbTCCB7f>; Sun, 2 Mar 2003 20:59:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268281AbTCCB7p>; Sun, 2 Mar 2003 20:59:45 -0500
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:52651 "EHLO
-	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S268276AbTCCB7k>; Sun, 2 Mar 2003 20:59:40 -0500
-Date: Sun, 2 Mar 2003 21:15:46 -0500
-To: linux-kernel@vger.kernel.org
-Cc: mbligh@aracnet.com
-Subject: 2.5.63-mjb2 (scalability / NUMA patchset)
-Message-ID: <20030303021546.GA4322@rushmore>
+	id <S268276AbTCCB7f>; Sun, 2 Mar 2003 20:59:35 -0500
+Received: from packet.digeo.com ([12.110.80.53]:29916 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268272AbTCCB71>;
+	Sun, 2 Mar 2003 20:59:27 -0500
+Date: Sun, 2 Mar 2003 18:09:59 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: 2.5.63-mm2
+Message-Id: <20030302180959.3c9c437a.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Mar 2003 02:09:46.0579 (UTC) FILETIME=[F687AA30:01C2E129]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd be very interested in feedback from anyone willing to test on any
-> platform, however large or small.
 
-The objrmap patch in recent mjb and mm makes the autoconf-2.52 build (fork)
-a few percent faster on uniprocessor K6/2 475 Mhz with 384 MB ram:
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.63/2.5.63-mm2/
 
-1205 seconds 2.5.63-mjb1
-1216 seconds 2.5.63-mjb1
-1219 seconds 2.5.63-mjb2
-1226 seconds 2.5.63-mjb1
-1238 seconds 2.5.63-mjb2
-1266 seconds 2.5.63-mm1-dline
-1267 seconds 2.5.63-mm1-dline
-1279 seconds 2.5.63-mm1-dline
-1297 seconds 2.5.63
-1301 seconds 2.5.63
-1309 seconds 2.5.63
+Mainly bugfixes, and solidification of the anticipatory scheduler.
 
+The anticipatory scheduler has become significantly better - I believe that
+all of the little regressions which had previously been identified are fixed
+up now, with the exception of the OLTP-style database workload which is still
+10% slower.  Write-versus-write latency problems have been fixed, which is
+important for ext3 behaviour during heavy writeback.
 
-The mjb patchset has a HZ=100 option that gives about 1.1% to several tests.
-Note the 2.4 kernel and 2.5 with HZ=100 give very similar result:
+All the infrastructure for per-task IO pattern tracking is in now place so we
+should be able to fix the OLTP slowdown without any requirement for manual
+tuning.
 
- kernel                   Tower of Hanoi (unixbench)
- 2.5.63-mjb1                     14156.4 (higher is better)
- 2.5.63-mjb2                     14156.4
- 2.4.21-pre3aa1                  14153.1
- 2.5.63                          14002.1
- 2.5.63-mm1-dline                14000.2
- 2.5.62-mm3                      13999.9
-
-Almost all of the unixbench metrics are a little better with mjb2:
-
-kernel          C Compiler Throughput   Execl Throughput   Copy 1024 bufsize
-2.5.63-mjb2                     190.0              368.1              6348.0
-2.5.63                          180.7              366.4              6108.0
-
-kernel          Copy 4096 bufsize 	Read 1024 bufsize
-2.5.63-mjb2               6391.0             15636.0
-2.5.63                    6308.0             14872.0
-
-kernel          Read 4096 bufsize	Write 512 bufsize
-2.5.63-mjb2               15775.0             20833.0
-2.5.63                    14676.0             20833.0
-
-kernel          Piped Context Switching   Shell Scripts (1)   Shell Scripts (16)   Shell Scripts (64)
-2.5.63-mjb2                     73785.0               506.3                 34.0                  8.0
-2.5.63                          77893.2               483.4                 32.7                  7.7
-
-kernel          System Call Overhead 
-2.5.63-mjb2                 232773.2
-2.5.63                      231530.5
+We still have not located Ed Tomlinson's lost IO request.  It's odd.
 
 
-LMbench memory latency is a little over 1% lower on kernels with HZ=100:
 
- Memory latencies in nanoseconds - smaller is better
- ---------------------------------------------------
- kernel                          Mhz     L1 $     L2 $    Main mem
- -----------------------------  -----  -------  -------  ---------
- 2.5.63-mjb1                      476     4.20   192.47      262.2
- 2.4.21-pre3-ac4                  476     4.20   193.96      262.2
- 2.4.21-pre3aa1                   476     4.20   197.31      261.9
- 2.5.63-mjb2                      476     4.20   199.25      262.2
- 2.5.63-mm1-dline                 476     4.25   195.99      266.5
- 2.5.63                           476     4.25   200.82      266.9
- 2.5.62-mm3                       476     4.25   204.81      266.7
+If you see this come out:
 
-Several other lmbench tests have approximately 1% improvement.
+Slab corruption: start=cde0414c, expend=cde0418b, problemat=cde04162
+Data: **********************7B ****************************************A5 
+Next: 71 F0 2C .A5 C2 0F 17 84 10 B3 CE 00 80 04 08 00 A0 05 08 8C 1C 90 CE 25 00 00 00 75 18 00 00 
+slab error in check_poison_obj(): cache `vm_area_struct': object was modified after freeing
+Call Trace:
+ [<c013aabd>] __slab_error+0x21/0x28
+ [<c013acac>] check_poison_obj+0x104/0x110
+ [<c013c080>] kmem_cache_alloc+0x90/0x11c
+ [<c01449c0>] split_vma+0x28/0xcc
+ [<c0144b35>] do_munmap+0xd1/0x178
+ [<c0144c21>] sys_munmap+0x45/0x64
+ [<c0109143>] syscall_call+0x7/0xb
 
- AIM7 compute workload was about 1.9% faster with mjb2 compared
-to 2.5.63:
+please do not report it.  We know.
 
- kernel                   Tasks   Jobs/Min         Real    CPU   
- 2.4.21-pre3-ac4          384    325.4            7151.7  7129.3
- 2.4.21-pre3aa1           384    323.8            7187.6  7160.3
- 2.5.63-mjb2              384    322.8            7207.9  7180.6
- 2.5.63                   384    319.4            7286.1  7255.7
- 2.5.63-mjb1              384    318.6            7303.7  7169.7
- 2.5.63-mm1-dline         384    318.0            7318.9  7289.4
-
-On the AIM7 database test, mjb2 looks good compared to the other
-2.5.63 kernels.  Recent 2.4 kernels have an edge here as the 
-number of tasks goes up, though there is no measurement of 
-fairness or interactive usability in this test.
-
- AIM7 dbase workload
- kernel                   Tasks   Jobs/Min          Real    CPU 
- 2.4.21-pre3aa1           4      43.1              551.7   117.1
- 2.4.21-pre3-ac4          4      43.1              551.8   116.5
- 2.4.21-pre3              4      43.0              552.1   114.6
- 2.5.63-mjb2              4      41.8              567.8   124.2
- 2.5.63-mm1-dline         4      41.4              574.4   124.8
- 2.5.63-mjb1              4      41.2              576.8   122.3
- 2.5.63                   4      39.8              597.1   124.4
-                                                  
- 2.4.21-pre3              8      74.7              636.6   203.1
- 2.4.21-pre3-ac4          8      74.3              639.4   203.5
- 2.4.21-pre3aa1           8      73.5              646.1   201.5
- 2.5.63-mjb2              8      67.9              699.8   212.6
- 2.5.63-mjb1              8      67.5              704.3   209.4
- 2.5.63-mm1-dline         8      67.0              709.1   208.6
- 2.5.63                   8      67.0              709.4   212.0
-                                                  
- 2.4.21-pre3aa1           12     100.3             710.8   287.1
- 2.4.21-pre3              12     97.8              728.7   289.0
- 2.4.21-pre3-ac4          12     97.4              731.6   286.8
- 2.5.63-mjb2              12     85.0              838.1   302.2
- 2.5.63-mm1-dline         12     84.5              843.5   298.1
- 2.5.63-mjb1              12     83.8              850.6   292.2
- 2.5.63                   12     81.6              873.3   296.0
-                                                  
- 2.4.21-pre3aa1           16     118.5             801.8   367.4
- 2.4.21-pre3-ac4          16     115.9             819.7   371.1
- 2.4.21-pre3              16     115.8             821.0   377.1
- 2.5.63-mjb2              16     97.7              972.6   386.6
- 2.5.63-mm1-dline         16     97.7              972.9   383.0
- 2.5.63-mjb1              16     96.7              983.2   376.1
- 2.5.63                   16     96.1              989.1   381.3
+If this message comes out for any cache apart from vm_area_struct then please
+_do_ report it.
 
 
---
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
+
+
+Changes since 2.5.63-mm1:
+
+
+-devfs-fix.patch
+
+ Dropped for now - conflicts with changes in Linus's tree
+
+-nfs-unstable-pages.patch
+
+ Dropped for a while - it could impact testing of limit-write-latency.patch
+
+-as-comments-and-tweaks.patch
+-as-hz-1000-fix.patch
+-as-tidy-up-rename.patch
+-anticipation_is_killing_me.patch
+-as-update-1.patch
+-as-break-anticipation-on-write.patch
+-as-break-if-readahead.patch
+-as-fix-hughs-problem.patch
+-as-cleanup.patch
+-as-start-stop-anticipation-helpers.patch
+-as-cleanup-2.patch
+-as-cleanup-3.patch
+-as-cleanup-3-write-latency-fix.patch
+-as-handle-exitted-tasks.patch
+-as-handle-exitted-tasks-fix.patch
+-as-no-plugging-and-cleanups.patch
+-as-remove-debug.patch
+-as-track-queued-reads.patch
+-as-accounting-fix.patch
+-as-nr_reads-fix.patch
+-as-tuning.patch
+-as-disable-nr_reads.patch
+
+ Folded into anticipatory-scheduling.patch
+
++as-random-fixes.patch
++as-comment-fix.patch
+
+ More anticipatory scheduling work
+
++objrmap-nr_mapped-fix.patch
++objrmap-mapped-mem-fix-2.patch
+
+ Fix up the mapped page accounting
+
++sched-b3.patch
+
+ Latest HT-aware CPU scheduler patch
+
++cciss-startup-problem-fix.patch
++cciss-retry-bus-reset.patch
++cciss-add-cmd-type.patch
++cciss-getluninfo-ioctl.patch
++cciss-passthrough-ioctl.patch
+
+ cciss update
+
++show_task-free-stack-fix.patch
+
+ Fix some nonsense in the sysrq-t output.  Probably we should just remove
+ the non-functional "free stack" accounting.
+
++use-after-free-check.patch
+
+ Full use-after-free checking in slab
+
++reiserfs-fix-memleaks.patch
+
+ Reiserfs fixes
+
++copy_page_range-invalid-page-fix.patch
+
+ Fix a crash when an app forks while holding a mmap of /dev/mem.  This is
+ incomplete.
+
+
+
+
+All 77 patches:
+
+linus.patch
+  Latest from Linus
+
+separate.patch
+
+mm.patch
+  add -mmN to EXTRAVERSION
+
+rpc_rmdir-fix.patch
+  Fix nfs oops during mount
+
+ppc64-reloc_hide.patch
+
+ppc64-pci-patch.patch
+  Subject: pci patch
+
+ppc64-e100-fix.patch
+  fix e100 for big-endian machines
+
+ppc64-aio-32bit-emulation.patch
+  32/64bit emulation for aio
+
+ppc64-64-bit-exec-fix.patch
+  Subject: 64bit exec
+
+ppc64-scruffiness.patch
+  Fix some PPC64 compile warnings
+
+sym-do-160.patch
+  make the SYM driver do 160 MB/sec
+
+kgdb.patch
+
+nfsd-disable-softirq.patch
+  Fix race in svcsock.c in 2.5.61
+
+report-lost-ticks.patch
+  make lost-tick detection more informative
+
+ptrace-flush.patch
+  cache flushing in the ptrace code
+
+buffer-debug.patch
+  buffer.c debugging
+
+warn-null-wakeup.patch
+
+ext3-truncate-ordered-pages.patch
+  ext3: explicitly free truncated pages
+
+deadline-dispatching-fix.patch
+  deadline IO scheduler dispatching fix
+
+limit-write-latency.patch
+  fix possible latency in balance_dirty_pages()
+
+reiserfs_file_write-5.patch
+
+tcp-wakeups.patch
+  Use fast wakeups in TCP/IPV4
+
+lockd-lockup-fix-2.patch
+  Subject: Re: Fw: Re: 2.4.20 NFS server lock-up (SMP)
+
+rcu-stats.patch
+  RCU statistics reporting
+
+ext3-journalled-data-assertion-fix.patch
+  Remove incorrect assertion from ext3
+
+nfs-speedup.patch
+
+nfs-oom-fix.patch
+  nfs oom fix
+
+sk-allocation.patch
+  Subject: Re: nfs oom
+
+nfs-more-oom-fix.patch
+
+nfs-sendfile.patch
+  Implement sendfile() for NFS
+
+rpciod-atomic-allocations.patch
+  Make rcpiod use atomic allocations
+
+linux-isp.patch
+
+isp-update-1.patch
+
+remove-unused-congestion-stuff.patch
+  Subject: [PATCH] remove unused congestion stuff
+
+aic-makefile-fix.patch
+  aicasm Makefile fix
+
+loop-hack.patch
+  loop: Fix OOM and oops
+
+atm_dev_sem.patch
+  convert atm_dev_lock from spinlock to semaphore
+
+flock-fix.patch
+  flock fixes for 2.5.62
+
+sysfs-dget-fix-2.patch
+
+irq-sharing-fix.patch
+  fix irq sharing and SA_INTERRUPT on x86
+
+as-iosched.patch
+  anticipatory I/O scheduler
+
+as-random-fixes.patch
+  Subject: [PATCH] important fixes
+
+as-comment-fix.patch
+  AS: comment fix
+
+readahead-shrink-to-zero.patch
+  Allow VFS readahead to fall to zero
+
+cfq-2.patch
+  CFQ scheduler, #2
+
+smalldevfs.patch
+  smalldevfs
+
+objrmap-2.5.62-5.patch
+  object-based rmap
+
+objrmap-X-fix.patch
+  objrmap fix for X
+
+objrmap-nr_mapped-fix.patch
+  objrmap: fix /proc/meminfo:Mapped
+
+objrmap-mapped-mem-fix-2.patch
+  fix objrmap mapped mem accounting again
+
+oprofile-up-fix.patch
+  fix oprofile on UP (lockless sync)
+
+update_atime-speedup.patch
+  speed up update_atime()
+
+ext2-update_atime_speedup.patch
+  Use one_sec_update_atime in ext2
+
+ext3-update_atime_speedup.patch
+  Use one_sec_update_atime in ext2
+
+UPDATE_ATIME-to-update_atime.patch
+  Rename UPDATE_ATIME to update_atime
+
+per-cpu-disk-stats.patch
+  Make diskstats per-cpu using kmalloc_percpu
+
+presto_get_sb-fix.patch
+  fix presto_get_sb() return value and oops.
+
+on_each_cpu.patch
+  fix preempt-issues with smp_call_function()
+
+on_each_cpu-ldt-cleanup.patch
+
+notsc-panic.patch
+  Don't panic if TSC is enabled and notsc is used
+
+alloc_pages_cleanup.patch
+  clean up redundant code for alloc_pages
+
+ext2-handle-htree-flag.patch
+  ext2: clear ext3 htree flag on directories
+
+sched-b3.patch
+  HT scheduler, sched-2.5.63-B3
+
+mpparse-typo-fix.patch
+  fix typo in arch/i386/kernel/mpparse.c in printk
+
+i386-no-swap-fix.patch
+  allow CONFIG_SWAP=n for i386
+
+remove-hugetlb_key.patch
+  remove dead hugetlb_key forward decl
+
+hugetlbpage-doc-update.patch
+  hugetlbpage documentation update
+
+hugetlb-valid-page-ranges.patch
+  hugetlb: fix MAP_FIXED handling
+
+cciss-startup-problem-fix.patch
+  cciss: fix unlikely startup problem
+
+cciss-retry-bus-reset.patch
+  cciss: retry bus resets
+
+cciss-add-cmd-type.patch
+  cciss: add cmd_type to sendcmd parameters
+
+cciss-getluninfo-ioctl.patch
+  cciss: add CCISS_GETLUNINFO ioctl
+
+cciss-passthrough-ioctl.patch
+  cciss: add passthrough ioctl
+
+show_task-free-stack-fix.patch
+  show_task() fix and cleanup
+
+use-after-free-check.patch
+  slab use-after-free detector
+
+reiserfs-fix-memleaks.patch
+  ReiserFS: fix memleaks on journal opening failures
+
+copy_page_range-invalid-page-fix.patch
+  Fix copy_page_range()'s handling of invalid pages
+
+
 

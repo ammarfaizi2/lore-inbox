@@ -1,290 +1,197 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263121AbSJBQEp>; Wed, 2 Oct 2002 12:04:45 -0400
+	id <S263129AbSJBQMR>; Wed, 2 Oct 2002 12:12:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263127AbSJBQEp>; Wed, 2 Oct 2002 12:04:45 -0400
-Received: from draal.physics.wisc.edu ([128.104.137.82]:7592 "EHLO
-	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
-	id <S263121AbSJBQEl>; Wed, 2 Oct 2002 12:04:41 -0400
-Date: Wed, 2 Oct 2002 11:10:06 -0500
-From: Bob McElrath <bob+linux-kernel@mcelrath.org>
-To: linux-kernel@vger.kernel.org
-Subject: NVIDIA binary-only driver patch for 2.5.40
-Message-ID: <20021002161006.GM25319@draal.physics.wisc.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DH4/xewco2zMcht6"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S263130AbSJBQMR>; Wed, 2 Oct 2002 12:12:17 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:13224 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S263129AbSJBQMO>;
+	Wed, 2 Oct 2002 12:12:14 -0400
+Date: Wed, 2 Oct 2002 09:17:00 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Vincent Hanquez <tab@tuxfamily.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Ext3 documentation
+In-Reply-To: <20021002085713.GA23086@darwin.crans.org>
+Message-ID: <Pine.LNX.4.33L2.0210020915400.14122-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2 Oct 2002, Vincent Hanquez wrote:
 
---DH4/xewco2zMcht6
-Content-Type: multipart/mixed; boundary="LJm8egi4vkexsie5"
-Content-Disposition: inline
+| Here a (small) documentation for ext3 filesystem.
+| it seem now correct/accurate. report me any problem/bugs
+|
+| It can be merge in 2.4/2.5 kernel I think. feedback appreciated.
 
+Here are a few typo corrections for you.  My correction lines
+begin with '#'.
 
---LJm8egi4vkexsie5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Here is an updated patch to the binary-only drivers provided by NVIDIA
-(version 1.0-3123) for kernel 2.5.40.  I have tested it for both 2D and
-3D and it seems to work fine.  (Warcraft III under linux 2.5.40 should
-be a good enough test, no?)
-
-I have not tested their NVAGP under 2.5.40.  If in doubt use the
-kernel's agpgart driver and:
-    Option "NvAGP" "2"
-to tell the NVIDIA driver not to use its internal NVAGP driver.
-
-This patch is based on a patch previously posted by Roberto Nibali.  I
-place my contributions to this patch under the GPL.  NVIDIA may not use
-this code without prior written consent from me.
-
-Cheers,
--- Bob
-
-Bob McElrath (bob+linux-kernel@mcelrath.org)=20
-Univ. of Wisconsin at Madison, Department of Physics
-
-    "The purpose of separation of church and state is to keep forever from
-    these shores the ceaseless strife that has soaked the soil of Europe in
-    blood for centuries." -- James Madison
+Regards,
+-- 
+~Randy
 
 
---LJm8egi4vkexsie5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="nvidia.2.5.40.patch"
-Content-Transfer-Encoding: quoted-printable
 
-diff -ur NVIDIA_kernel-1.0-3123/nv-linux.h NVIDIA_kernel-1.0-3123.bob/nv-li=
-nux.h
---- NVIDIA_kernel-1.0-3123/nv-linux.h	Tue Aug 27 18:36:53 2002
-+++ NVIDIA_kernel-1.0-3123.bob/nv-linux.h	Wed Oct  2 10:25:19 2002
-@@ -36,11 +36,6 @@
- #  error This driver does not support 2.3.x development kernels!
- #elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
- #  define KERNEL_2_4
--#elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0)
--#  error This driver does not support 2.5.x development kernels!
--#  define KERNEL_2_5
--#else
--#  error This driver does not support 2.6.x or newer kernels!
- #endif
-=20
- #if defined (CONFIG_SMP) && !defined (__SMP__)
-diff -ur NVIDIA_kernel-1.0-3123/nv.c NVIDIA_kernel-1.0-3123.bob/nv.c
---- NVIDIA_kernel-1.0-3123/nv.c	Tue Aug 27 18:36:52 2002
-+++ NVIDIA_kernel-1.0-3123.bob/nv.c	Wed Oct  2 10:47:03 2002
-@@ -1068,11 +1068,22 @@
-=20
-     /* for control device, just jump to its open routine */
-     /* after setting up the private data */
-+
-+    /* I don't really know the correct kernel version since when it change=
-d */=20
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)=20
-     if (NV_DEVICE_IS_CONTROL_DEVICE(inode->i_rdev))
-         return nv_kern_ctl_open(inode, file);
--
-+#else
-+    if (NV_DEVICE_IS_CONTROL_DEVICE(kdev_val(inode->i_rdev)))
-+        return nv_kern_ctl_open(inode, file);
-+#endif
-     /* what device are we talking about? */
-+
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-     devnum =3D NV_DEVICE_NUMBER(inode->i_rdev);
-+#else
-+    devnum =3D NV_DEVICE_NUMBER(kdev_val(inode->i_rdev));
-+#endif
-     if (devnum >=3D NV_MAX_DEVICES)
-     {
-         rc =3D -ENODEV;
-@@ -1178,9 +1189,14 @@
-=20
-     /* for control device, just jump to its open routine */
-     /* after setting up the private data */
-+
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-     if (NV_DEVICE_IS_CONTROL_DEVICE(inode->i_rdev))
-+       return nv_kern_ctl_close(inode, file);
-+#else
-+    if(NV_DEVICE_IS_CONTROL_DEVICE(kdev_val(inode->i_rdev)))
-         return nv_kern_ctl_close(inode, file);
--
-+#endif
-     NV_DMSG(nv, "close");
-=20
-     rm_free_unused_clients(nv, current->pid, (void *) file);
-@@ -1299,11 +1315,21 @@
- #if defined(NVCPU_IA64)
-         vma->vm_page_prot =3D pgprot_noncached(vma->vm_page_prot);
- #endif
-+
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-         if (remap_page_range(vma->vm_start,
-                              (u32)(nv->regs.address) + LINUX_VMA_OFFS(vma)=
- - NV_MMAP_REG_OFFSET,
-                              vma->vm_end - vma->vm_start,
-                              vma->vm_page_prot))
-             return -EAGAIN;
-+#else
-+        if (remap_page_range(vma,
-+                            vma->vm_start,
-+                             (u32) (nv->regs.address) + LINUX_VMA_OFFS(vma=
-) - NV_MMAP_REG_OFFSET,
-+                             vma->vm_end - vma->vm_start,
-+                             vma->vm_page_prot))
-+            return -EAGAIN;
-+#endif
-=20
-         /* mark it as IO so that we don't dump it on core dump */
-         vma->vm_flags |=3D VM_IO;
-@@ -1316,11 +1342,20 @@
- #if defined(NVCPU_IA64)
-         vma->vm_page_prot =3D pgprot_noncached(vma->vm_page_prot);
- #endif
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-         if (remap_page_range(vma->vm_start,
-                              (u32)(nv->fb.address) + LINUX_VMA_OFFS(vma) -=
- NV_MMAP_FB_OFFSET,
-                              vma->vm_end - vma->vm_start,
-                              vma->vm_page_prot))
-             return -EAGAIN;
-+#else
-+        if (remap_page_range(vma,
-+                            vma->vm_start,
-+                             (u32) (nv->fb.address) + LINUX_VMA_OFFS(vma) =
-- NV_MMAP_FB_OFFSET,
-+                             vma->vm_end - vma->vm_start,
-+                             vma->vm_page_prot))
-+            return -EAGAIN;
-+#endif
-=20
-         // mark it as IO so that we don't dump it on core dump
-         vma->vm_flags |=3D VM_IO;
-@@ -1350,8 +1385,13 @@
-         while (pages--)
-         {
-             page =3D (unsigned long) at->page_table[i++];
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-             if (remap_page_range(start, page, PAGE_SIZE, PAGE_SHARED))
-               	return -EAGAIN;
-+#else
-+            if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-+                 return -EAGAIN;
-+#endif
-             start +=3D PAGE_SIZE;
-             pos +=3D PAGE_SIZE;
-        	}
-@@ -1627,8 +1667,12 @@
-         nv_lock_bh(nv);
-         nv->bh_count++;
-         nvl->bh->data =3D nv->pdev;
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-         queue_task(nvl->bh, &tq_immediate);
-         mark_bh(IMMEDIATE_BH);
-+#else
-+        schedule_task(nvl->bh);
-+#endif
-         nv_unlock_bh(nv);
-     }
- }
-@@ -2179,7 +2223,11 @@
-     pte_kunmap(pte__);
- #else
-     pte__ =3D NULL;
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-     pte =3D *pte_offset(pg_mid_dir, address);
-+#else
-+    pte =3D *pte_offset_map(pg_mid_dir, address);
-+#endif
- #endif
-=20
-     if (!pte_present(pte))=20
-diff -ur NVIDIA_kernel-1.0-3123/os-interface.c NVIDIA_kernel-1.0-3123.bob/o=
-s-interface.c
---- NVIDIA_kernel-1.0-3123/os-interface.c	Tue Aug 27 18:36:52 2002
-+++ NVIDIA_kernel-1.0-3123.bob/os-interface.c	Wed Oct  2 10:25:19 2002
-@@ -27,7 +27,10 @@
-=20
- BOOL os_is_administrator(PHWINFO pDev)
- {
--    return suser();
-+    /* Actually suser() wasn't really a bool, but since the
-+       nvidia guys want it as a bool, let's give them a bool.
-+    */
-+    return (!capable(CAP_SYS_ADMIN)?1:0);
- }
-=20
- U032 os_get_page_size(VOID)
-@@ -1141,9 +1144,14 @@
-     uaddr =3D *priv;
-=20
-     /* finally, let's do it! */
--    err =3D remap_page_range( (size_t) uaddr, (size_t) paddr, size_bytes,=
-=20
-+   =20
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-+    err =3D remap_page_range( (size_t) uaddr, (size_t) paddr, size_bytes,
-+                           PAGE_SHARED);
-+#else
-+    err =3D remap_page_range( kaddr, (size_t) uaddr, (size_t) paddr, size_=
-bytes,
-                             PAGE_SHARED);
--
-+#endif
-     if (err !=3D 0)
-     {
-         return (void *) NULL;
-@@ -1176,10 +1184,14 @@
-=20
-     uaddr =3D *priv;
-=20
--    /* finally, let's do it! */
--    err =3D remap_page_range( (size_t) uaddr, (size_t) start, size_bytes,=
-=20
-+    /* finally, let's do it! */=20
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-+    err =3D remap_page_rage( (size_t) uaddr, (size_t) start, size_bytes,
-+                          PAGE_SHARED);   =20
-+#else
-+    err =3D remap_page_range( *priv, (size_t) uaddr, (size_t) start, size_=
-bytes,=20
-                             PAGE_SHARED);
--
-+#endif
-     if (err !=3D 0)
-     {
-         return (void *) NULL;
-@@ -1593,7 +1605,8 @@
-=20
-     agp_addr =3D agpinfo.aper_base + (agp_data->offset << PAGE_SHIFT);
-=20
--    err =3D remap_page_range(vma->vm_start, (size_t) agp_addr,=20
-+    err =3D remap_page_range(vma,
-+			   vma->vm_start, (size_t) agp_addr,=20
-                            agp_data->num_pages << PAGE_SHIFT,
- #if defined(NVCPU_IA64)
-                            vma->vm_page_prot);
 
---LJm8egi4vkexsie5--
 
---DH4/xewco2zMcht6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Ext3 Filesystem
+===============
 
-iEYEARECAAYFAj2bGl4ACgkQjwioWRGe9K0x4QCgrp35HI/1/gmlx9cEWS3/lePm
-Xw8AoN7Lrj/SxAkRw76l8wwB5Gs0slqB
-=/Njk
------END PGP SIGNATURE-----
+ext3 was originally released in September 1999. Written by Stephen Tweedie
+for 2.2 branch, and ported to 2.4 kernels by Peter Braam, Andreas Dilger,
+Andrew Morton, Alexander Viro, Ted Ts'o and Stephen Tweedie.
 
---DH4/xewco2zMcht6--
+ext3 is ext2 filesystem enhanced with journalling capabilities.
+#                                     journaling
+#to be consistent.
+
+Options
+=======
+
+When mounting an ext3 filesystem, the following option are accepted:
+(*) == default
+
+jounal=update		Update the ext3 file system's journal to the
+			current format.
+
+journal=inum		When a journal already exists, this option is
+			ignored. Otherwise, it specifies the number of
+			the inode which will represent the ext3 file
+			system's journal file.
+
+bsddf 		(*)	Make 'df' act like BSD.
+minixdf			Make 'df' act like Minix.
+
+check=none		Don't do extra checking of bitmaps on mount.
+nocheck
+
+debug			Extra debugging information is sent to syslog.
+
+noload			Don't load the journal on mounting.
+
+errors=remount-ro(*)	Remount the filesystem read-only on an error.
+errors=continue		Keep going on a filesystem error.
+errors=panic		Panic and halt the machine if an error occurs.
+
+grpid			Give objects the same group ID as their creator.
+bsdgroups
+
+nogrpid		(*)	New objects have the group ID of their creator.
+sysvgroups
+
+resgid=n		The group ID which may use the reserved blocks.
+
+resuid=n		The user ID which may use the reserved blocks.
+
+sb=n			Use alternate superblock at this location.
+
+data=journal		All data are commited into the journal prior
+#                                    committed
+			to being written into the main file system.
+
+data=ordered	(*)	All data are forced directly out to the main file
+			system prior to its metadata being commited to
+#                                                          committed
+			the journal.
+
+data=writeback  	Data ordering is not preserved, data may be
+			written into the main file system after its
+			metadata has been committed to the journal.
+
+quota			Quota options are currently silently ignored.
+noquota			(see fs/ext3/super.c, line 594)
+grpquota
+usrquota
+
+
+Specification
+=============
+ext3 shares all disk implementation with ext2 filesystem, and add
+transactions capabilities to ext2.
+Journaling is done by the Journaling block device layer.
+
+Journaling Block Device layer
+-----------------------------
+The Journaling Block Device layer (JBD) isn't ext3 specific. It was design
+#                                                                   designed
+to add journaling capabilities on a block device.
+The ext3 filesystem code will inform the JBD of modifications it is
+performing (Call a transaction). the journal support the transactions start
+#          (called a transaction). The journal supports
+and stop, and in case of crash, the journal can replayed the transactions
+#                                               replay
+to put the partition on a consistant state fastly.
+#  restore           to a consistent state quickly.
+
+handles represent a single atomic update to a filesystem.
+JBD can handle external journal on a block device.
+
+Data Mode
+---------
+There's 3 different data modes:
+#There are 3...
+
+* writeback mode
+In data=writeback mode, ext3 doesn't do any form of data journaling at
+all (as XFS, JFS, and ReiserFS).
+Despite the fact it could corrupt recently modified file, this
+#Despite the fact that it...
+mode should give you in general the best ext3 performance.
+
+* ordered mode
+In data=ordered mode, ext3 only officially journals metadata, but it
+logically groups metadata and data blocks into a single unit called a
+transaction. When it's time to write the new metadata out to disk, the
+associated data blocks are written first.
+In general, this mode perform slightly slower than writeback
+but significantly faster than journal mode.
+
+* journal mode
+data=journal mode provides full data and metadata journaling. All new data
+is written to the journal first, and then to its final location.
+In the event of a crash, the journal can be replayed, bringing both data
+and metadata into a consistent state.
+This mode is the slowest except when data needs to be read from and
+written to disk at the same time where it outperform all others mode.
+#                                        ^may(?)         other modes.
+
+Compatibility
+-------------
+Ext2 partition can be easily convert to ext3, with `tune2fs -j <dev>`.
+#                            converted
+Ext3 is fully compatible with Ext2. Ext3 partition can easily be mounted
+as Ext2.
+
+Quota
+=====
+Quota implementation for ext3 is available in -ac tree for 2.4.
+There is no implementation for 2.5 yet.
+
+External Tools
+==============
+see manual pages to know more.
+
+tune2fs: 	create a ext3 journal on a ext2 partition with the -j flags
+#                                                                     flag
+mke2fs: 	create a ext3 partition with the -j flags
+#                                                   flag
+debugfs: 	ext2 and ext3 file system debugger
+
+References
+==========
+
+kernel source:	file:/usr/src/linux/fs/ext3
+		file:/usr/src/linux/fs/jbd
+
+programs: 	http://e2fsprogs.sourceforge.net
+
+useful link:
+#      links:
+		http://www.zip.com.au/~akpm/linux/ext3/ext3-usage.html
+		http://www-106.ibm.com/developerworks/linux/library/l-fs7/
+		http://www-106.ibm.com/developerworks/linux/library/l-fs8/
+

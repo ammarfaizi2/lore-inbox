@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267260AbTBXRKt>; Mon, 24 Feb 2003 12:10:49 -0500
+	id <S265725AbTBXRGq>; Mon, 24 Feb 2003 12:06:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267264AbTBXRKt>; Mon, 24 Feb 2003 12:10:49 -0500
-Received: from [67.99.70.131] ([67.99.70.131]:59657 "EHLO
-	peter.integraltech.com") by vger.kernel.org with ESMTP
-	id <S267260AbTBXRKs>; Mon, 24 Feb 2003 12:10:48 -0500
-Message-ID: <006801c2dc29$1a80e560$8f00a8c0@integraltech.com>
-From: "Rob Murphy" <rmurphy@integraltech.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.62 ioremap fails
-Date: Mon, 24 Feb 2003 12:21:01 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S267264AbTBXRGq>; Mon, 24 Feb 2003 12:06:46 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:53009 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S265725AbTBXRGp>; Mon, 24 Feb 2003 12:06:45 -0500
+Date: Mon, 24 Feb 2003 17:16:57 +0000
+From: John Levon <levon@movementarian.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add module load profile hook
+Message-ID: <20030224171657.GA96095@compsoc.man.ac.uk>
+References: <20030221005412.GA95016@compsoc.man.ac.uk> <20030224025907.A75512C093@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030224025907.A75512C093@lists.samba.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18nMDq-000NUM-00*nLfw135oMM6*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been trying to allocate memory past the end of the kernel in a system
-that has more that 1 Gb of memory and have been unsuccessful.  My current
-machine has an athlon processor and 1.5Gb of memory.
+On Mon, Feb 24, 2003 at 11:33:34AM +1100, Rusty Russell wrote:
 
-I created a driver with the following code:
+> > What needs this ?
+> 
+> I was thinking those who want to roll their own two-stage init and
+> delete.  I wouldn't implement them all at first, but putting a
+> notifier in is simple, and it can be expanded later.
 
-#define MAXHM 0x8000000 // 128 Mb
-int __init init_module(void)
-{
-    void *kHighMem;
+So you'll add code in case somebody might want it, but you refuse to fix
+regressions wrt the old code because it's a "corner case" (as if corner
+cases isn't exactly what makes things complicated) ? How odd :)
 
-    printk(KERN_ERR"before ioremap\n");
-    kHighMem = ioremap(__pa(high_memory), MAXHM);
-    printk(KERN_ERR"ioremap ret: %x\n",kHighMem);
+> ie. you'd just implement MODULE_INITIALIZED, and leave the rest.
 
-    return 0;
-}
+OK, I'll look at doing it like this instead, if you want.
 
-void __exit leave_mod(void) {
-    iounmap(kHighMem);
-    printk(KERN_ERR"iounmap passed\n");
-
-    printk(KERN_ERR,"module successfully unloaded.\n");
-}
-
-I add the line append="mem=xx" to lilo.
-If I set "xx" to around 860 or above then ioremap fails.  If I set "xx" to
-860 or less then ioremap is successful.  Has anyone had any experience
-trying to allocate a contiguous memory buffer beyond the end of what the
-kernel manages in a system with over 1Gb of memory?  Any help would be
-appreciated in this matter.
-
-Regards,
-Rob Murphy
-
-
+john

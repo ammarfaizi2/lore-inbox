@@ -1,47 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbVCAIr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVCAI5B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbVCAIr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 03:47:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVCAIr6
+	id S261767AbVCAI5B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 03:57:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVCAI5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 03:47:58 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:30672 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261804AbVCAIrv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 03:47:51 -0500
-Date: Tue, 1 Mar 2005 09:47:42 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Greg Stark <gsstark@mit.edu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] scsi/sata write barrier support
-Message-ID: <20050301084741.GD12295@suse.de>
-References: <20050127120244.GO2751@suse.de> <87acpxurwf.fsf@stark.xeocode.com> <20050222071340.GC2835@suse.de> <874qg4v81q.fsf@stark.xeocode.com>
+	Tue, 1 Mar 2005 03:57:01 -0500
+Received: from h80ad2654.async.vt.edu ([128.173.38.84]:40459 "EHLO
+	h80ad2654.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261767AbVCAI45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 03:56:57 -0500
+Message-Id: <200503010856.j218ushk004074@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc4-mm1 - pcmcia weirdness/breakage 
+In-Reply-To: Your message of "Mon, 28 Feb 2005 14:48:20 EST."
+             <200502281948.j1SJmKdV006528@turing-police.cc.vt.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <200502281948.j1SJmKdV006528@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <874qg4v81q.fsf@stark.xeocode.com>
+Content-Type: multipart/signed; boundary="==_Exmh_1109667413_3728P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 01 Mar 2005 03:56:54 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 22 2005, Greg Stark wrote:
-> 
-> Jens Axboe <axboe@suse.de> writes:
-> 
-> > fsync has been working all along, since the initial barrier support for
-> > ide. only ext3 and reiserfs support it.
-> 
-> Really? That's huge news. Since what kernel version(s) is that?
+--==_Exmh_1109667413_3728P
+Content-Type: text/plain; charset=us-ascii
 
-Since 2.6.9.
+On Mon, 28 Feb 2005 14:48:20 EST, Valdis.Kletnieks@vt.edu said:
 
-> What about a non-journaled fs, or at least a meta-data-only-journaled fs?
-> Journaled FS's don't mix well with transaction based databases since they're
-> basically doing their own journaling anyways.
+> Symptoms:  Running '/etc/init.d/pcmcia start' bombs - cardmgr goes into
+> a loop spewing repeated 'Common memory region at 0x0: Generic or SRAM'
+> messages.  In the dmesg, we find:
 
-Only works on ext3 and reiserfs currently.
+> [4294859.369000] cs: unable to map card memory!
+> [4294859.369000] cs: unable to map card memory!
 
--- 
-Jens Axboe
+I backed the bk-pci.patch out, and it started working again, so the problem is
+somewhere in there (progress - we've got it down to one 5,500 patch ;).
+Perhaps related, the following compile warnings also went away:
 
+   CC [M]  drivers/ieee1394/ohci1394.o
+drivers/ieee1394/ohci1394.c: In function `ohci_initialize':
+drivers/ieee1394/ohci1394.c:589: warning: long unsigned int format, different type arg (arg 7)
+drivers/ieee1394/ohci1394.c:589: warning: long unsigned int format, different type arg (arg 8)
+drivers/ieee1394/ohci1394.c: In function `ohci1394_pci_probe':
+drivers/ieee1394/ohci1394.c:3266: warning: long unsigned int format, different type arg (arg 4)
+
+   CC      drivers/pci/rom.o
+drivers/pci/rom.c: In function `pci_map_rom':
+drivers/pci/rom.c:74: warning: cast to pointer from integer of different size
+drivers/pci/rom.c: In function `pci_map_rom_copy':
+drivers/pci/rom.c:160: warning: cast to pointer from integer of different size
+drivers/pci/rom.c:164: warning: cast to pointer from integer of different size
+drivers/pci/rom.c: In function `pci_cleanup_rom':
+drivers/pci/rom.c:217: warning: cast to pointer from integer of different size
+
+   CC [M]  drivers/pcmcia/rsrc_nonstatic.o
+drivers/pcmcia/rsrc_nonstatic.c: In function `nonstatic_find_io_region':
+drivers/pcmcia/rsrc_nonstatic.c:629: warning: passing arg 7 of `pci_bus_alloc_resource' from incompatible pointer type
+drivers/pcmcia/rsrc_nonstatic.c:633: warning: passing arg 7 of `allocate_resource' from incompatible pointer type
+drivers/pcmcia/rsrc_nonstatic.c: In function `nonstatic_find_mem_region':
+drivers/pcmcia/rsrc_nonstatic.c:672: warning: passing arg 7 of `pci_bus_alloc_resource' from incompatible pointer type
+drivers/pcmcia/rsrc_nonstatic.c:676: warning: passing arg 7 of `allocate_resource' from incompatible pointer type
+
+I'm suspicious of the warnings for rsrc_nonstatic.o, because we end up in that
+exact piece of code just before failing with the 'unable to map card memory'
+message. Maybe that arg 7 is causing us to pass a stack that doesn't quite
+match what's expected, and thus the bug?
+
+
+
+--==_Exmh_1109667413_3728P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCJC5VcC3lWbTT17ARAi76AJ962O1AV1bgD86qbpLUHzR3VZpuCACgwZBC
+n0GL5ULtYkYal96dwGeDL4U=
+=rMRA
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1109667413_3728P--

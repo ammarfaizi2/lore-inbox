@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267953AbUJOP2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267976AbUJOPfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267953AbUJOP2j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 11:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUJOP2j
+	id S267976AbUJOPfN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 11:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267926AbUJOPfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 11:28:39 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:6980 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S267976AbUJOP2h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 11:28:37 -0400
-Subject: Re: 2.6.9-rc4-mm1 : oops when rmmod uhci_hcd  [was: 2.6.9-rc3-mm2
-	: oops...]
-From: Paul Fulghum <paulkf@microgate.com>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <416F09EF.6040605@free.fr>
-References: <Pine.LNX.4.44L0.0410141703260.1026-100000@ida.rowland.org>
-	 <416F09EF.6040605@free.fr>
-Content-Type: text/plain
-Message-Id: <1097853723.5829.17.camel@deimos.microgate.com>
+	Fri, 15 Oct 2004 11:35:13 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:39686 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267976AbUJOPen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 11:34:43 -0400
+Date: Fri, 15 Oct 2004 16:34:40 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RESEND][PATCH 4/6] Add page becoming writable notification
+Message-ID: <20041015153440.GA22607@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, linux-fsdevel@vger.kernel.org
+References: <20041014203545.GA13639@infradead.org> <24449.1097780701@redhat.com> <28544.1097852703@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 15 Oct 2004 10:22:03 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <28544.1097852703@redhat.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-14 at 18:21, Laurent Riffard wrote:
-> Alan Stern wrote:
-> > Yes, try that.  At least if the problem still occurs, it will be
-> > easier to track down.
-> > 
-> > Alan Stern
-> > 
+On Fri, Oct 15, 2004 at 04:05:03PM +0100, David Howells wrote:
 > 
-> I just tried kernel 2.6.9-rc4 : it woks fine, there is no oops when 
-> I rmmod uhci_hcd.
+> > > +	/* notification that a page is about to become writable */
+> > > +	int (*page_mkwrite)(struct page *page);
+> > 
+> > This doesn't fit into address_space operations at all.  The vm_operation
+> > below is enough.
+> 
+> Filesystems shouldn't be overloading vm_operations on ordinary files, or so
+> I've been instructed.
 
-Alan:
+huh?  that doesn't make any sense.  if a filesystem needs to do something
+special win regards to the VM it should overload vm_operations.  Currently
+that's only ncpfs and xfs.
 
-This looks like it is related to the generic-irq-subsystem patches.
-Specifically, adding and removing proc entries for each interrupt.
+> > This prototype shows pretty much that splitting it out doesn't make much
+> > sense.  Why not add a goto reuse_page; where you call it currently and
+> > append it at the end of do_wp_page?
+> 
+> Judging by the CodingStyle doc - which you like throwing at me - it should be
+> split into a separate inline function. I could come up with a better name, I
+> suppose to keep Willy happy too - perhaps make_pte_writable(); it's just that
+> I wanted to name it to show its derivation.
 
-Laurent's configuration has two controllers sharing the same interrupt.
-The hcd->description for both controllers are identical: "uhci_hcd"
-
-This string is used when requesting the irq (hcd-pci.c).
-request_irq() creates a /proc/irq/nn/uhci_hcd entry.
-The IRQ action->dir (one for each device) is a pointer to this entry.
-There does not appear to be a check for name collision
-when creating this entry. So two identical entries are created,
-one for each device. The proc entries are added to the head of
-a list so the second entry is 1st in the list.
-
-When unloading the module, the proc entry is removed when free_irq()
-is called. Removal of the proc entry is based on name matching
-starting at the head of the list so the 2nd entry is found 1st.
-It looks like the proc entry of the second device is removed
-when calling free_irq() for the first device. When the
-second device is removed, the action->dir has already
-been freed causing the oops.
-
-Comments?
-
--- 
-Paul Fulghum
-paulkf@microgate.com
+Splitting in helpers makes sense if there's a sane interface.  The number of
+arguments doesn't exactly imply that it's the case here.
 

@@ -1,112 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbTIOVhL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 17:37:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbTIOVhL
+	id S261647AbTIOVkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 17:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbTIOVkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 17:37:11 -0400
-Received: from [193.138.115.2] ([193.138.115.2]:62968 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S261653AbTIOVgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 17:36:03 -0400
-Date: Mon, 15 Sep 2003 23:34:50 +0200 (CEST)
-From: Jesper Juhl <jju@dif.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] aic7xxx config info corrections against 2.6.0-test5
-Message-ID: <Pine.LNX.4.56.0309152319130.6308@jju_lnx.backbone.dif.dk>
+	Mon, 15 Sep 2003 17:40:16 -0400
+Received: from boss.staszic.waw.pl ([195.205.163.66]:51091 "EHLO
+	boss.staszic.waw.pl") by vger.kernel.org with ESMTP id S261647AbTIOVkJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 17:40:09 -0400
+From: Marek Szyprowski <march@staszic.waw.pl>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 15 Sep 2003 23:34:23 +0100
+Message-ID: <yam9388.1183.1193506560@boss.staszic.waw.pl>
+In-Reply-To: <Pine.GSO.4.21.0309111730550.1879-100000@vervain.sonytel.be>
+X-Mailer: YAM 2.4p1 [040] AmigaOS E-mail Client (c) 2000-2003 by YAM Open Source Team - http://www.yam.ch/
+Subject: Re: ASFS filesystem patch, kernel 2.4.21
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Geert
 
-Below are a few minor cleanups for the kernel config info regarding the
-aic7xxx and aic79xx scsi drivers. Patches are generated against
-2.6.0-test5
+On 11.09.03, you wrote:
 
-The following is done :
+>> This patch adds read-only support for Amiga SmartFileSystem. This
+>> filesystem is being used very commonly on AmigaOS and MorphOS systems.
+>> This patch has been tested on Linux/PPC, Linux/m68k and Linux/x86
+>> machines. This patch is prepared for kernel 2.4.21.
 
-- correct minor typo in Documentation/scsi/aic79xx.txt
-- correct minor typo in Documentation/scsi/aic7xxx.txt
-- correct reference to nonexisting document (README.aic79xx) in drivers/scsi/aic7xxx/Kconfig.aic79xx
-- correct reference to nonexisting document in (README.aic7xxx) in drivers/scsi/aic7xxx/Kconfig.aic7xxx
+> ASFS is happily living in the Linux/m68k CVS tree as well.
 
+> However, I guess Marcelo will insist you port it to 2.6.0 first, before it
+> will be accepted in the mainline.
 
-Kind regards,
+OK. I made a quick port to 2.6.x. It compiles without any problems and even
+works (I tested it on a 2.6.0test5/x86).
 
-Jesper Juhl <jju@dif.dk>
+Both patches (for 2.4.x and 2.6.x) are available at:
 
+http://www.staszic.waw.pl/~march/asfs/
 
-
-diff -ur linux-2.6.0-test5-orig/Documentation/scsi/aic79xx.txt
-linux-2.6.0-test5/Documentation/scsi/aic79xx.txt
---- linux-2.6.0-test5-orig/Documentation/scsi/aic79xx.txt       2003-09-08
-21:50:18.000000000 +0200
-+++ linux-2.6.0-test5/Documentation/scsi/aic79xx.txt    2003-09-14
-16:12:08.000000000 +0200
-@@ -141,7 +141,7 @@
-               Option: global_tag_depth
-           Definition: Global tag depth for all targets on all busses.
-                       This option sets the default tag depth which
--                      may be selectively overridden vi the tag_info
-+                      may be selectively overridden via the tag_info
-                       option.
-      Possible Values: 1 - 253
-        Default Value: 32
-
-
-
-diff -ur linux-2.6.0-test5-orig/Documentation/scsi/aic7xxx.txt
-linux-2.6.0-test5/Documentation/scsi/aic7xxx.txt
---- linux-2.6.0-test5-orig/Documentation/scsi/aic7xxx.txt       2003-09-08
-21:49:58.000000000 +0200
-+++ linux-2.6.0-test5/Documentation/scsi/aic7xxx.txt    2003-09-14
-16:11:45.000000000 +0200
-@@ -225,7 +225,7 @@
-               Option: global_tag_depth:[value]
-           Definition: Global tag depth for all targets on all busses.
-                       This option sets the default tag depth which
--                      may be selectively overridden vi the tag_info
-+                      may be selectively overridden via the tag_info
-                       option.
-      Possible Values: 1 - 253
-        Default Value: 32
-
-
-
-diff -ur linux-2.6.0-test5-orig/drivers/scsi/aic7xxx/Kconfig.aic79xx
-linux-2.6.0-test5/drivers/scsi/aic7xxx/Kconfig.aic79xx
---- linux-2.6.0-test5-orig/drivers/scsi/aic7xxx/Kconfig.aic79xx 2003-09-08
-21:50:03.000000000 +0200
-+++ linux-2.6.0-test5/drivers/scsi/aic7xxx/Kconfig.aic79xx      2003-09-15
-23:32:06.000000000 +0200
-@@ -66,7 +66,7 @@
-        with read streaming enabled so it is disabled by default.  Read
-        Streaming can be configured in much the same way as tagged
-queueing
-        using the "rd_strm" command line option.  See
--       drivers/scsi/aic7xxx/README.aic79xx for details.
-+       <file:Documentation/scsi/aic79xx.txt> for details.
-
- config AIC79XX_DEBUG_ENABLE
-        bool "Compile in Debugging Code"
-
-
-
-diff -ur linux-2.6.0-test5-orig/drivers/scsi/aic7xxx/Kconfig.aic7xxx
-linux-2.6.0-test5/drivers/scsi/aic7xxx/Kconfig.aic7xxx
---- linux-2.6.0-test5-orig/drivers/scsi/aic7xxx/Kconfig.aic7xxx 2003-09-08
-21:50:01.000000000 +0200
-+++ linux-2.6.0-test5/drivers/scsi/aic7xxx/Kconfig.aic7xxx      2003-09-15
-22:00:34.000000000 +0200
-@@ -36,7 +36,7 @@
-        on some devices.  The upper bound is 253.  0 disables tagged
-queueing.
-
-        Per device tag depth can be controlled via the kernel command line
--       "tag_info" option.  See drivers/scsi/aic7xxx/README.aic7xxx
-+       "tag_info" option.  See <file:Documentation/scsi/aic7xxx.txt>
-        for details.
-
- config AIC7XXX_RESET_DELAY_MS
+Regards
+-- 
+Marek Szyprowski .. GG:2309080 .. mailto:marek@amiga.pl ..
+...... happy AmigaOS, MacOS and Debian/Linux user ........
+........... http://march.home.staszic.waw.pl/ ............
 

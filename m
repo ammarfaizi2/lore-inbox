@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264915AbSLQLGW>; Tue, 17 Dec 2002 06:06:22 -0500
+	id <S264919AbSLQLKg>; Tue, 17 Dec 2002 06:10:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264919AbSLQLGW>; Tue, 17 Dec 2002 06:06:22 -0500
-Received: from cpe.atm2-0-1071115.0x50c4d862.boanxx10.customer.tele.dk ([80.196.216.98]:12477
-	"EHLO fugmann.dhs.org") by vger.kernel.org with ESMTP
-	id <S264915AbSLQLGV>; Tue, 17 Dec 2002 06:06:21 -0500
-Message-ID: <3DFF070A.6010804@fugmann.dhs.org>
-Date: Tue, 17 Dec 2002 12:14:18 +0100
-From: Anders Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
+	id <S264920AbSLQLKg>; Tue, 17 Dec 2002 06:10:36 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:56219 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP
+	id <S264919AbSLQLKf>; Tue, 17 Dec 2002 06:10:35 -0500
+Message-ID: <000b01c2a5bd$ebb6e870$760010ac@edumazet>
+From: "dada1" <dada1@cosmosbay.com>
+To: "Ulrich Drepper" <drepper@redhat.com>,
+       "Linus Torvalds" <torvalds@transmeta.com>
+Cc: "Dave Jones" <davej@codemonkey.org.uk>, "Ingo Molnar" <mingo@elte.hu>,
+       <linux-kernel@vger.kernel.org>, <hpa@transmeta.com>
+References: <Pine.LNX.4.44.0212162140500.1644-100000@home.transmeta.com> <3DFF023E.6030401@redhat.com>
+Subject: Re: Intel P6 vs P7 system call performance
+Date: Tue, 17 Dec 2002 12:17:42 +0100
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: mousewheel not working.
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+> For the libc DSO I had to play some dirty tricks.  The x86 CPU has no
+> absolute call.  The variant with an immediate parameter is a relative
+> jump.  Only when jumping through a register or memory location is it
+> possible to jump to an absolute address.  To be clear, if I have
+>
+>     call 0xfffff000
+>
+> in a DSO which is loaded at address 0x80000000 the jumps ends at
+> 0x7fffffff.  The problem is that the static linker doesn't know the load
+> address.  We could of course have the dynamic linker fix up the
+> addresses but this is plain stupid.  It would mean fixing up a lot of
+> places and making of those pages covered non-sharable.
+>
 
-I'm having troubles getting the mosuewheel on my logitech ps/2 mouseman+
-(model M-C48) to work, under 2.5.52. Do I need to add something special 
-to the kernel boot parameters to instruct the driver that my mouse 
-carries 5 buttons?
+You could have only one routine that would need a relocation / patch at
+dynamic linking stage :
 
-dmesg:
-device class 'input': registering
-register interface 'mouse' with class 'input'
-mice: PS/2 mouse device common for all mice
-input: PS2++ Logitech Wheel Mouse on isa0060/serio1
+absolute_syscall:
+    jmp  0xfffff000
 
-.config
+Then all syscalls routine could use :
 
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_SERIAL is not set
+getpid:
+    ...
+    call absolute_syscall
+    ...
+instead of "call 0xfffff000"
 
-Regards
-Anders Fugmann
+
+If the kernel doesnt support the 0xfffff000 page, you could patch
+absolute_syscall (if it resides in .data section) with :
+    absolute_syscall:
+            int 0x80
+            ret
+(3 bytes instead of 5 bytes)
+
+See you
 

@@ -1,68 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268851AbUHZN0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268795AbUHZN17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268851AbUHZN0A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 09:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268866AbUHZNZ7
+	id S268795AbUHZN17 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 09:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUHZN1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 09:25:59 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:64965 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S268851AbUHZNZy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 09:25:54 -0400
-Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
-       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
-       James Morris <jmorris@redhat.com>
-In-Reply-To: <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp>
-References: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com>
-	 <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
-	 <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil>
-	 <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
-	 <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil>
-	 <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp>
-	 <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil>
-	 <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1093526652.9280.104.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 26 Aug 2004 09:27:45 -0400
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:48276 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S268794AbUHZN1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 09:27:13 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Christophe Saout <christophe@saout.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
+In-Reply-To: <20040826130718.GB820@lst.de>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
+	 <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com>
+	 <20040826014542.4bfe7cc3.akpm@osdl.org>
+	 <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de>
+	 <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GF3yaRKueIaxVkCW+tfp"
+Date: Thu, 26 Aug 2004 15:27:01 +0200
+Message-Id: <1093526821.11694.15.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 26 Aug 2004 09:24:12 -0400
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 1.5.92.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-26 at 03:53, Kaigai Kohei wrote:
-> In my understanding, your worry about robustness is the execution path
-> when kmalloc() returns NULL.
 
-Correct.
+--=-GF3yaRKueIaxVkCW+tfp
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> (But avc_insert() always returns 0, because avc_insert() reclaim a avc_node
->  under the spinlock when free_list is empty.)
+Am Donnerstag, den 26.08.2004, 15:07 +0200 schrieb Christoph Hellwig:
 
-Yes, this is the point.  avc_has_perm could not fail previously from an
-out of memory condition, as the cache nodes were preallocated,
-maintained on their own freelist, and reclaimed as needed.
+> > The reiser4 core doesn't know about inodes, directories or files. It's
+> > the glue code between the VFS and the storage layer that does. It's
+> > implemented as a plugin. This has nothing to do with semantic
+> > enhancements yet. These should be removed for now and made a 2.7 topic.
+>=20
+> Oh yes, it is.  As soon as you use different access methods on an
+> overlapping set of objects you see exactly the problems I described.
 
-> By this method, the decision-making is available irrespective of
-> the result of kmalloc(). Is it robustless?
-> The original implementation has too many lock contensitons in Big-SMP
-> environment. It is more positive to consider the method using RCU.
+Right. That shouldn't happen. Since an object is usally tied to exactly
+one plugin this can't happen I think. At least as long the programmer
+doesn't mess anything up.
 
-Yes, that would address my concern.  However, I'm still unclear as to
-why using RCU mandates that we migrate from preallocated nodes to
-dynamic allocation.  I certainly agree that the existing global spinlock
-doesn't scale.  
+> If they don't overlap there's no point for the plugins to start with,
+> you'll better turn the core into a library that can be used by different
+> projects then.
 
-> Please wait for a patch, thanks.
+I think that's what Hans is trying to suggest. The core is theoretically
+usable for anything. He made a filesystem of it.
 
-Thanks for working on this.  Could you also supply updated performance
-data when you have a newer patch?  Thanks.
+You can see reiser4 as a library and the UNIX directory and file plugins
+as the filesystem. That's why they are linked in uncoditionally because
+it doesn't make sense otherwise. It's mainly the naming that seems to
+confuse people.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+
+--=-GF3yaRKueIaxVkCW+tfp
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBLeUlZCYBcts5dM0RAgtMAJ9Ioh6ZzeKEDC54OzV2AbcEGthyqACfX9kV
+/LMOtx7w/Zks1bTQkLPP9pY=
+=hb0O
+-----END PGP SIGNATURE-----
+
+--=-GF3yaRKueIaxVkCW+tfp--
 

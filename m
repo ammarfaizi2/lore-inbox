@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269779AbUICTuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269802AbUICTyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269779AbUICTuE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 15:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUICTsc
+	id S269802AbUICTyV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 15:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUICTxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 15:48:32 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:63390 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269795AbUICTi1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 15:38:27 -0400
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-From: john stultz <johnstul@us.ibm.com>
-To: george anzinger <george@mvista.com>
-Cc: Christoph Lameter <clameter@sgi.com>, lkml <linux-kernel@vger.kernel.org>,
-       tim@physik3.uni-rostock.de, albert@users.sourceforge.net,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-In-Reply-To: <413820A2.80409@mvista.com>
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
-	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0409021512360.28532@schroedinger.engr.sgi.com>
-	 <1094164096.14662.345.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0409021536450.28532@schroedinger.engr.sgi.com>
-	 <1094166858.14662.367.camel@cog.beaverton.ibm.com>
-	 <B6E8046E1E28D34EB815A11AC8CA312902CF6059@mtv-atc-605e--n.corp.sgi.com>
-	 <1094170054.14662.391.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0409021737310.6412@schroedinger.engr.sgi.com>
-	 <1094175004.14662.440.camel@cog.beaverton.ibm.com>
-	 <413820A2.80409@mvista.com>
-Content-Type: text/plain
-Message-Id: <1094239970.14662.516.camel@cog.beaverton.ibm.com>
+	Fri, 3 Sep 2004 15:53:24 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3856 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S269797AbUICTvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 15:51:19 -0400
+Date: Fri, 3 Sep 2004 20:51:15 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: John Lenz <lenz@cs.wisc.edu>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.8.1 0/2] leds: new class for led devices
+Message-ID: <20040903205115.E15620@flint.arm.linux.org.uk>
+Mail-Followup-To: John Lenz <lenz@cs.wisc.edu>, Pavel Machek <pavel@ucw.cz>,
+	linux-kernel@vger.kernel.org
+References: <1094157190l.4235l.2l@hydra> <20040903135103.GA982@elf.ucw.cz> <1094236686l.7429l.0l@hydra> <20040903195555.D15620@flint.arm.linux.org.uk> <1094238599l.7429l.2l@hydra>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 03 Sep 2004 12:32:51 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1094238599l.7429l.2l@hydra>; from lenz@cs.wisc.edu on Fri, Sep 03, 2004 at 07:09:59PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-03 at 00:43, George Anzinger wrote:
-> john stultz wrote:
-> > On Thu, 2004-09-02 at 17:47, Christoph Lameter wrote:
+On Fri, Sep 03, 2004 at 07:09:59PM +0000, John Lenz wrote:
+> > > The led class does not really inforce any policy, it just passes this
+> > > number along to the actual driver that is registered.  So say you had
+> > > a led that could be red, green, or both red and green at the same time
+> > > (not sure how that would work hardware wise, but ok).
 > > 
-> >>On Thu, 2 Sep 2004, john stultz wrote:
-> > read(): Rather then just giving the address of the register, the read
-> > call allows for timesource specific logic. This lets us use jiffies as a
-> > timesource, or in cases like the ACPI PM timesource, where the register
-> > must be read 3 times in order to ensure a correct value is latched, we
-> > can avoid having to include that logic into the generic code, so it does
-> > not affect systems that do not use or have that timesource.
+> > See Netwinders.  They have a bi-colour LED which has independent red
+> > and green LEDs in the same package.  When they're both on it's yellow.
+> > 
+> > It's _VERY_ useful to see the green LED flashing and know that the
+> > headless machine is running, or that the red LED being on means that
+> > either it hasn't booted a kernel yet or the system has successfully
+> > shut down.
+> > 
+> > It means I don't have to fsck around with monitor cables before pulling
+> > the power.
+> > 
+> > And no, doing that from userspace won't work because userspace is dead
+> > _before_ the system has finished shutting down (see drive cache
+> > flushing on shutdown.)
+> > 
+> > It's also _VERY_ useful to know whether the kernel has managed to get
+> > far enough through the boot that the heartbeat LED is flashing but
+> > maybe not sufficiently to bring up the serial console as well -
+> > again another thing that a userspace implementation will never be
+> > able to support.
 > 
-> I am not convince that 3 reads are in fact needed.  In fact, I am amost certain 
-> that two is more than enough.  In fact, it takes so long to read it that I just 
-> use one read and a sanity check in the HRT code.  Here is the code I use:
+> Hey I agree!  I use the led as a debugging tool on the Sharp Zaurus.   
+> Before I had the framebuffer or the serial port working, being able to see  
+> the led told me something was working :)  This patch isn't really intended  
+> for debugging support, so perhaps some other interface could be added.
+> 
+> On the other hand, perhaps we can just do a #ifdef LEDS_DEBUGGING that  
+> would toggle the led on a timer.
 
-[snip]
+You missed the point.  The above scenarios I was describing are _not_
+debugging.
 
-I'd have to defer to Dominik (acpi-pm author) for that. But the case
-remains, to get a "good" value, you have to do more then just give
-access to the raw register.
-
-thanks
--john
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVCPRcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbVCPRgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbVCPRcR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 12:32:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVCPRcQ
+	id S262706AbVCPRgw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 12:36:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVCPRgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 12:32:16 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4104 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262704AbVCPRbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 12:31:51 -0500
-Date: Wed, 16 Mar 2005 18:31:47 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm4
-Message-ID: <20050316173147.GC3153@stusta.de>
-References: <20050316040654.62881834.akpm@osdl.org> <20050316142248.GI29333@ens-lyon.fr>
+	Wed, 16 Mar 2005 12:36:51 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:19290 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262706AbVCPRgo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 12:36:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=mGkKp72USdKS7vfgq32g6K2PTzr9d72EZhTnD5jLxq0ug+pGSGvSdaQsmhoIw3PDC/wQE7QppHXHCyD92JtuA3xl7jeiAkIyIXwy2RUwivLovOR1rtYB8CA3bkZu3spwqnNaFWRf9Fi3sCoVwVTVaWaI/bb9TDRt7MqCGcyvmHw=
+Message-ID: <d120d50005031609363906360d@mail.gmail.com>
+Date: Wed, 16 Mar 2005 12:36:43 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Michael Tokarev <mjt@tls.msk.ru>
+Subject: Re: psmouse et al and mousedev dependancy
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4238642F.9080701@tls.msk.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050316142248.GI29333@ens-lyon.fr>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <4238642F.9080701@tls.msk.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 16, 2005 at 03:22:49PM +0100, Benoit Boissinot wrote:
+Hi,
 
-> It doesn't compile with gcc-4.0.
+On Wed, 16 Mar 2005 19:51:59 +0300, Michael Tokarev <mjt@tls.msk.ru> wrote:
+> A quick (hopefully) question.
 > 
-> drivers/video/console/fbcon.c:133: error: static declaration of ???fb_con???
-> follows non-static declaration
-> drivers/video/console/fbcon.h:166: error: previous declaration of
-> ???fb_con??? was here
+> When mousedev is compiled as a module, loading psmouse or usbhid
+> modules does not enable the mouse, one have to load mousedev too.
+> The same is true for keybdev and actual keyboard drivers.
 > 
-> Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+> Why not add this dependancy explicitly in psmouse et al modules,
+> something like (pseudocode):
+> 
+> #if CONFIG_MOUSEDEV==m
+>  request_module(mousedev);
+> #endif
+> 
+> , or, to "use" some symbol in psmouse.ko which is defined in mousedev?
+> 
 
-Acked-by: Adrian Bunk <bunk@stusta.de>
-
-Thanks for the patch.
-
-That was my fault:
-gcc 3.4 doesn't even warn about this, and I missed it while grep'ing.
-
-cu
-Adrian
+Not everyone uses mousedev (evdev, tsdev, joydev) so they are not
+loaded by default. It is actually hotplug scripts' task to load proper
+interface module after a new input device has been discovered.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Dmitry

@@ -1,68 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbULOSEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262428AbULOSNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbULOSEV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 13:04:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbULOSEV
+	id S262428AbULOSNF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 13:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbULOSNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 13:04:21 -0500
-Received: from h142-az.mvista.com ([65.200.49.142]:52612 "HELO
-	xyzzy.farnsworth.org") by vger.kernel.org with SMTP id S262422AbULOSDm
+	Wed, 15 Dec 2004 13:13:04 -0500
+Received: from h142-az.mvista.com ([65.200.49.142]:65156 "HELO
+	xyzzy.farnsworth.org") by vger.kernel.org with SMTP id S262428AbULOSM7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 13:03:42 -0500
+	Wed, 15 Dec 2004 13:12:59 -0500
 From: "Dale Farnsworth" <dale@farnsworth.org>
-Date: Wed, 15 Dec 2004 11:03:37 -0700
+Date: Wed, 15 Dec 2004 11:12:58 -0700
 To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/6] mv643xx_eth: replace fixed-count spin delays
-Message-ID: <20041215180337.GA17904@xyzzy>
-References: <20041213220949.GA19609@xyzzy> <20041213221431.GB19951@xyzzy> <20041214231101.GA11617@infradead.org>
+Subject: Re: [PATCH 3/6] mv643xx_eth: fix hw checksum generation on transmit
+Message-ID: <20041215181258.GB17904@xyzzy>
+References: <20041213220949.GA19609@xyzzy> <20041213221541.GC19951@xyzzy> <20041214231555.GB11617@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041214231101.GA11617@infradead.org>
+In-Reply-To: <20041214231555.GB11617@infradead.org>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 14, 2004 at 11:11:01PM +0000, Christoph Hellwig wrote:
-> On Mon, Dec 13, 2004 at 03:14:31PM -0700, Dale Farnsworth wrote:
-> > This patch removes spin delays (count to 1000000, ugh) and instead waits
-> > with udelay or msleep for hardware flags to change.
-> > 
-> > It also adds a spinlock to protect access to the MV64340_ETH_SMI_REG,
-> > which is shared across ports.
+On Tue, Dec 14, 2004 at 11:15:55PM +0000, Christoph Hellwig wrote:
+> > +			dev_kfree_skb_irq((struct sk_buff *)
+> > +                                                  pkt_info.return_info);
 > 
-> Care to add a comment with this information?  Driver-global locks are
-> something we tend to avoid, and cases like this one where it's actually
-> nessecary should be properly documented.
+> pkt_info.return_info already is a pointer to struct sk_buff
 
-I did have comments where the spinlock is used.  I'll add one at the
-spinlock definition as well.
+Yep.  This line was moved, but not changed by my patch.  I'll remove the
+cast.
 
+> > +			/* CPU already calculated pseudo header checksum. */
+> > +			if (skb->nh.iph->protocol == IPPROTO_UDP) {
+> > +				pkt_info.cmd_sts |= ETH_UDP_FRAME;
+> > +				pkt_info.l4i_chk = skb->h.uh->check;
+> > +			}
+> > +			else if (skb->nh.iph->protocol == IPPROTO_TCP)
+> > +				pkt_info.l4i_chk = skb->h.th->check;
+> > +			else {
 > 
-> > +	for (i=0; i<10; i++) {
+> 			} else if (skb->nh.iph->protocol == IPPROTO_TCP) {
+> 				pkt_info.l4i_chk = skb->h.th->check;
+> 			} else {
 > 
-> This is missing some space, should be:
+> > +	pkt_info.buf_ptr = pci_map_single(0, skb->data, skb->len,
+> > +							PCI_DMA_TODEVICE);
 > 
-> 	for (i = 0; i < 10; i++) {
+> s/0/NULL/ to avoid sparse warnings
 
-Ok. I'll fix.
+Another line that was moved but not changed.  In patch 4/6 I changed it
+to dma_map_single(NULL, ...
 
-> > +#define PHY_WAIT_ITERATIONS	1000	/* 1000 iterations * 10uS = 10mS max */
+> > +	/*
+> > +	 * The hardware requires that each buffer that is <= 8 bytes
+> > +	 * in length must be aligned on an 8 byte boundary.
+> > +	 */
+> > +        if (p_pkt_info->byte_cnt <= 8 && p_pkt_info->buf_ptr & 0x7) {
 > 
-> Put this into the header or at least ontop of the file?
+> please use tabs, not spaces for indentation.
 
-Will do.
+Again, I didn't change the indentation on this line.  The driver is
+replete with whitespace problems.  I don't want to address them now,
+but as soon as it's confirmed that these patches are "in the queue",
+I'll submit several cosmetic patches:  white space cleanup, rename
+from 64340 to 643xx, rename MV_READ/MV_WRITE to mv_read/mv_write,
+and a few localized code simplifications.
 
-> > +	/* wait for the SMI register to become available */
-> > +	for (i=0; MV_READ(MV64340_ETH_SMI_REG) & ETH_SMI_BUSY; i++) {
+> >  #ifdef MV64340_CHECKSUM_OFFLOAD_TX
+> > -        int tx_first_desc;
+> > +        int tx_busy_desc = mp->tx_first_desc_q;
 > 
-> Missing spaces again.
-> 
-> > +	for (i=0; !(MV_READ(MV64340_ETH_SMI_REG) & ETH_SMI_READ_VALID); i++) {
-> 
-> Dito.  (And a few more)
-
-I'll fix them all.
+> Again.
 
 Thanks,
 -Dale

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288956AbSAISRg>; Wed, 9 Jan 2002 13:17:36 -0500
+	id <S288959AbSAISSg>; Wed, 9 Jan 2002 13:18:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288957AbSAISR1>; Wed, 9 Jan 2002 13:17:27 -0500
-Received: from dialin-212-144-147-111.arcor-ip.net ([212.144.147.111]:22259
-	"EHLO merv") by vger.kernel.org with ESMTP id <S288956AbSAISRS>;
-	Wed, 9 Jan 2002 13:17:18 -0500
-Date: Wed, 9 Jan 2002 19:17:58 +0100
-From: Andreas Bombe <bombe@informatik.tu-muenchen.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: i810_audio.c .text.exit reference in 2.4.17
-Message-ID: <20020109181758.GC586@informatik.tu-muenchen.de>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020104215040.GA3020@storm.local> <7131.1010210820@ocs3.intra.ocs.com.au>
+	id <S288958AbSAISSW>; Wed, 9 Jan 2002 13:18:22 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:37640 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S288957AbSAISRs>;
+	Wed, 9 Jan 2002 13:17:48 -0500
+Date: Wed, 9 Jan 2002 19:17:36 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Michael Zhu <mylinuxk@yahoo.ca>
+Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: your mail
+Message-ID: <20020109191736.L19814@suse.de>
+In-Reply-To: <20020109174926.23012.qmail@web14902.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7131.1010210820@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.3.24i
+In-Reply-To: <20020109174926.23012.qmail@web14902.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 05, 2002 at 05:07:00PM +1100, Keith Owens wrote:
-> On Fri, 4 Jan 2002 22:50:40 +0100, 
-> Andreas Bombe <bombe@informatik.tu-muenchen.de> wrote:
-> >I just want to mention that i810_audio.c suffers from referencing a
-> >symbol in .text.exit(i810_remove), too, with the usual symptoms.
+On Wed, Jan 09 2002, Michael Zhu wrote:
+> > 
+> > This may be a troll. How would you boot? Who
+> decrypts during the
+> > boot?
+> > 
 > 
-> If the reference is coming from .text.lock then there is a patch
-> waiting for Marcelo to fix that.  If the reference is coming from
-> another section then it is a bug.
+> You mean that the loop device couldn't en/decrypt the
+> whole data on the disk? That mean the loop device
+> could implement the block level en/decryption.
 
-So there are actually two kinds of those errors...  It was coming from
-the PCI function table, referencing i810_remove for its remove entry.  I
-fixed it locally with an #ifdef MODULE around that line.
+Please, read up on the loop crypto stuff off-list. Most of these
+questions are very FAQ. You can loop crypto a whole disk or partition of
+you want.
 
 -- 
-Andreas Bombe <bombe@informatik.tu-muenchen.de>    DSA key 0x04880A44
+Jens Axboe
+

@@ -1,59 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbUCGKtW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 05:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbUCGKtW
+	id S261807AbUCGK7P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 05:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbUCGK7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 05:49:22 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:14599 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261806AbUCGKtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 05:49:19 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Lawrence Walton <lawrence@the-penguin.otak.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: server migration
-Date: Sun, 7 Mar 2004 12:31:50 +0200
-User-Agent: KMail/1.5.4
-References: <20040305181322.GA32114@the-penguin.otak.com> <200403070133.07784.vda@port.imtp.ilyichevsk.odessa.ua> <20040307013507.GB13908@the-penguin.otak.com>
-In-Reply-To: <20040307013507.GB13908@the-penguin.otak.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Mar 2004 05:59:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:27308 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261807AbUCGK7N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 05:59:13 -0500
+Date: Sun, 7 Mar 2004 11:59:11 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Olaf Fr?czyk <olaf@cbk.poznan.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3 BUG - can't write DVD-RAM - reported as write-protected
+Message-ID: <20040307105911.GH23525@suse.de>
+References: <1078434953.1961.13.camel@venus.local.navi.pl> <20040305082350.GO31750@suse.de> <1078487159.3300.23.camel@venus.local.navi.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403071231.50912.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <1078487159.3300.23.camel@venus.local.navi.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 07 March 2004 03:35, Lawrence Walton wrote:
-> Denis Vlasenko [vda@port.imtp.ilyichevsk.odessa.ua] wrote:
-> > On Friday 05 March 2004 20:13, Lawrence Walton wrote:
-> > > Hi all!
-> > >
-> > > I tried about four months ago to migrate a busy server to 2.6.0-test9,
-> > > and failed miserably. Lightly loaded it worked well but as the number
-> > > of users increased, the number of processes in uninterruptible sleep
-> > > increased to the hundreds and then the server fell on it's face. I
-> > > never found out exactly why or what processes where hanging if I
-> > > guessed it would be openldap.
-> >
-> > Why do you guess? Determine what processes are stuck.
->
-> Because I did not expect it to happen, I had lots of users screaming at
-> me to fix it now, when it did happen. The server had been up sense the
-> night before. It was not until users started showing up in the morning
-> that the problem manifested itself.
->
-> The point is I was hoping to get a list of things to try to capture in
-> case it happened again, testing is all well and good, but getting
-> information from a production box can be valuable, as long as it's not
-> some odd corner case.
->
-> Capturing SysRq-T was on my list to do.
-> I'll investigate stack pointers, and If I can post stack traces.
+On Fri, Mar 05 2004, Olaf Fr?czyk wrote:
+> On Fri, 2004-03-05 at 09:23, Jens Axboe wrote:
+> > On Thu, Mar 04 2004, Olaf Fr?czyk wrote:
+> > > Hi,
+> > > I switched to 2.6.3 from 2.4.x serie.
+> > > When I mount DVD-RAM it is mounted read-only:
+> > > 
+> > > [root@venus olaf]# mount /dev/dvdram /mnt/dvdram
+> > > mount: block device /dev/dvdram is write-protected, mounting read-only
+> > > [root@venus olaf]#
+> > > 
+> > > In 2.4 it is mounted correctly as read-write.
+> > > 
+> > > Drive: Panasonic LF-201, reported in Linux as:
+> > > MATSHITA        DVD-RAM LF-D200         A120
+> > > 
+> > > SCSI controller: Adaptec 2940U2W
+> > 
+> > What does cat /proc/sys/dev/cdrom/info say? Do you get any kernel
+> > messages in dmesg when the rw mount fails?
+> 
+> I get nothing in /var/log/dmesg and in /var/log/messages
+> In /proc/sys/dev/cdrom/info I get:
+> [olaf@venus olaf]$ cat /proc/sys/dev/cdrom/info
+> CD-ROM information, Id: cdrom.c 3.20 2003/12/17
+>  
+> drive name:             sr1     sr0     hdc
+> drive speed:            0       16      44
+> drive # of slots:       1       1       1
+> Can close tray:         1       1       1
+> Can open tray:          1       1       1
+> Can lock tray:          1       1       1
+> Can change speed:       1       1       1
+> Can select disk:        0       0       0
+> Can read multisession:  1       1       1
+> Can read MCN:           1       1       1
+> Reports media changed:  1       1       1
+> Can play audio:         1       1       1
+> Can write CD-R:         0       1       1
+> Can write CD-RW:        0       1       1
+> Can read DVD:           1       0       0
+> Can write DVD-R:        0       0       0
+> Can write DVD-RAM:      1       0       0
+> Can read MRW:           0       0       1
+> Can write MRW:          0       0       1
+> 
+> The one I'm mounting is /dev/scd1.
+> As there is capablity to write-protect DVD-RAM disk (like a 1.44"
+> Floppy), I think that the linux kernel interprets some message from
+> device in wrong way.
 
-Well. That's easy. Just press SysRq-T and look into syslog.
---
-vda
+Please repeat with this patch applied and send back the results, thanks.
+
+===== drivers/cdrom/cdrom.c 1.48 vs edited =====
+--- 1.48/drivers/cdrom/cdrom.c	Mon Feb  9 21:58:21 2004
++++ edited/drivers/cdrom/cdrom.c	Sun Mar  7 11:58:40 2004
+@@ -645,9 +645,12 @@
+ {
+ 	disc_information di;
+ 
+-	if (cdrom_get_disc_info(cdi, &di))
++	if (cdrom_get_disc_info(cdi, &di)) {
++		printk("cdrom: read di failed\n");
+ 		return 0;
++	}
+ 
++	printk("cdrom: erasable: %d\n", di.erasable);
+ 	return di.erasable;
+ }
+ 
+
+-- 
+Jens Axboe
 

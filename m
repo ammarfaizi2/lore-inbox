@@ -1,65 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267479AbSLLSax>; Thu, 12 Dec 2002 13:30:53 -0500
+	id <S264806AbSLLSnE>; Thu, 12 Dec 2002 13:43:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267482AbSLLSax>; Thu, 12 Dec 2002 13:30:53 -0500
-Received: from cidacos ([212.21.224.62]:10771 "EHLO r-y-r.com")
-	by vger.kernel.org with ESMTP id <S267479AbSLLSaw>;
-	Thu, 12 Dec 2002 13:30:52 -0500
-Date: Thu, 12 Dec 2002 19:41:53 +0100
-From: ciriso@retena.com
-To: "Breno" <breno_silva@bandnet.com.br>
+	id <S264954AbSLLSnE>; Thu, 12 Dec 2002 13:43:04 -0500
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:28910 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S264806AbSLLSnD>; Thu, 12 Dec 2002 13:43:03 -0500
+Date: Thu, 12 Dec 2002 10:53:17 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [patch 2.5.51] add wait_event() to <linux/completion.h>
+To: "Milton D. Miller II" <miltonm@realtime.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROCESS IMIGRATION
-Message-Id: <20021212194153.55f05ca3.ciriso@retena.com>
-In-Reply-To: <001801c2a20c$387fc4c0$8be1a7c8@bsb.virtua.com.br>
-References: <000701c2a208$f50e7a40$8be1a7c8@bsb.virtua.com.br>
-	<20021212192118.47f55d2b.ciriso@retena.com>
-	<001801c2a20c$387fc4c0$8be1a7c8@bsb.virtua.com.br>
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Message-id: <3DF8DB1D.4000208@pacbell.net>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_u5O2VD96tUutsE5nbyU8RQ)"
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <200212120746.gBC7kR482233@sullivan.realtime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-d> César
-> 
-> OpenMosix do this operation ?
+This is a multi-part message in MIME format.
 
-		Well ,I have tree Pentium(200mmx , 166 & 120 )  running 
-	with Mosix .This is a patch for the kernel, i have 2.4.19 and 
-	several user progs for admin.
-		Now , the node #3 is running setiathome owned for the node #1.
-		Basicly the nodes balance yours loads.
+--Boundary_(ID_u5O2VD96tUutsE5nbyU8RQ)
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+
+Milton D. Miller II wrote:
+>  __remove_wait_queue(&x->wait, &wait); 
+> 
+> should be under 
+> spin_lock_irq(&x->wait.lock); 
+
+Duh!  Updated patch is attached.
+
+- Dave
+
+
+--Boundary_(ID_u5O2VD96tUutsE5nbyU8RQ)
+Content-type: text/plain; name=sched2.patch
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=sched2.patch
+
+--- ./include/linux-dist/completion.h	Mon Dec  9 23:49:44 2002
++++ ./include/linux/completion.h	Tue Dec 10 09:35:57 2002
+@@ -28,6 +28,7 @@
+ }
  
-		http://www.mosix.org
-		http://www.openmosix.org	
-		
-	Sorry for my english :)
-	
-> thanks
-> ----- Original Message -----
-> From: <ciriso@retena.com>
-> To: "Breno" <breno_silva@bandnet.com.br>
-> Cc: <linux-kernel@vger.kernel.org>
-> Sent: Thursday, December 12, 2002 4:21 PM
-> Subject: Re: PROCESS IMIGRATION
-> 
-> 
-> > d> Hi
-> > >
-> > > I saw something about one project of FreeBSD and this is about
-> > > imigration of
-> > > processes between two machines.
-> > > The kernel Linux has something about this , or some project like
-> that ?
-> >
-> > Hi .
-> > Perhaps are you finding OpenMosix  ?
-> >
-> > César
-> >
-> >
-> 
-> 
+ extern void FASTCALL(wait_for_completion(struct completion *));
++extern int FASTCALL(wait_timeout(struct completion *, signed long jiffies));
+ extern void FASTCALL(complete(struct completion *));
+ extern void FASTCALL(complete_all(struct completion *));
+ 
+--- ./kernel-dist/ksyms.c	Thu Dec 12 10:24:44 2002
++++ ./kernel/ksyms.c	Tue Dec 10 09:35:57 2002
+@@ -404,7 +404,9 @@ EXPORT_SYMBOL(autoremove_wake_function);
+ 
+ /* completion handling */
+ EXPORT_SYMBOL(wait_for_completion);
++EXPORT_SYMBOL(wait_timeout);
+ EXPORT_SYMBOL(complete);
++EXPORT_SYMBOL(complete_all);
+ 
+ /* The notion of irq probe/assignment is foreign to S/390 */
+ 
+--- ./kernel-dist/sched.c	Thu Dec 12 10:24:44 2002
++++ ./kernel/sched.c	Thu Dec 12 10:15:56 2002
+@@ -1204,6 +1204,11 @@ void complete_all(struct completion *x)
+ 
+ void wait_for_completion(struct completion *x)
+ {
++	(void) wait_timeout (x, MAX_SCHEDULE_TIMEOUT);
++}
++
++int wait_timeout(struct completion *x, signed long timeout)
++{
+ 	might_sleep();
+ 	spin_lock_irq(&x->wait.lock);
+ 	if (!x->done) {
+@@ -1214,13 +1219,18 @@ void wait_for_completion(struct completi
+ 		do {
+ 			__set_current_state(TASK_UNINTERRUPTIBLE);
+ 			spin_unlock_irq(&x->wait.lock);
+-			schedule();
++			timeout = schedule_timeout(timeout);
+ 			spin_lock_irq(&x->wait.lock);
+-		} while (!x->done);
++		} while (!x->done && timeout != 0);
+ 		__remove_wait_queue(&x->wait, &wait);
+ 	}
+-	x->done--;
++	if (x->done) {
++		timeout = 1;
++		x->done--;
++	}
+ 	spin_unlock_irq(&x->wait.lock);
++	/* nonzero return means we timed out */
++	return timeout == 0;
+ }
+ 
+ #define	SLEEP_ON_VAR				\
+
+--Boundary_(ID_u5O2VD96tUutsE5nbyU8RQ)--

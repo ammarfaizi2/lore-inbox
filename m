@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290184AbSCKTki>; Mon, 11 Mar 2002 14:40:38 -0500
+	id <S290277AbSCKTn2>; Mon, 11 Mar 2002 14:43:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290277AbSCKTk3>; Mon, 11 Mar 2002 14:40:29 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9223 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S290184AbSCKTkV>; Mon, 11 Mar 2002 14:40:21 -0500
-Date: Mon, 11 Mar 2002 11:39:31 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Gunther Mayer <gunther.mayer@gmx.net>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19, return of taskfile
-In-Reply-To: <E16kVlK-0001VU-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10203111137590.10583-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S290767AbSCKTnS>; Mon, 11 Mar 2002 14:43:18 -0500
+Received: from zero.tech9.net ([209.61.188.187]:47375 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S290277AbSCKTnL>;
+	Mon, 11 Mar 2002 14:43:11 -0500
+Subject: Re: [PATCH] KERN_INFO 2.4.19-pre2 IP/TCP hash table size printks
+From: Robert Love <rml@tech9.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+In-Reply-To: <20020311.060324.69703263.davem@redhat.com>
+In-Reply-To: <200203111359.g2BDx1q05409@Port.imtp.ilyichevsk.odessa.ua> 
+	<20020311.060324.69703263.davem@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 11 Mar 2002 14:43:03 -0500
+Message-Id: <1015875785.928.45.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Alan Cox wrote:
+On Mon, 2002-03-11 at 09:03, David S. Miller wrote:
 
-> > Currently your taskfile access is hardcoded in tables in your ide patches and this is
-> > 
-> > inflexible (e.g. cannot support future commands, unknown at the time of your writing)
-> > !
-> 
-> It stops things like disk level DRM nicely too
+> Maybe it is even better idea to change default kernel printk
+> logging level which is used when no KERN_* is specified, eh?
 
-Stop using "logic", it is clear it is not a "Darwin" thing to do.
+Only if we really consider the printks in question "whatever the default
+is."  The default has changed before and may change again (as you are
+suggesting).  I have no problem changing the default - I just think if
+Denis suggests a printk should be classified as "informative" and we
+agree, let's change it.  Although I don't think it would fly with Linus,
+any printk we can solidly classify we should, imo.
 
-Cheers,
+This doesn't preclude changing the default, as you suggest, especially
+if its clearly too high.  But I don't see why we shouldn't be explicit
+where possible.  No?
 
-Andre Hedrick
-The Second Linux X-IDE guy
+	Robert Love
 

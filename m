@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUHROYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266522AbUHRO3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUHROYX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 10:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266427AbUHROYX
+	id S266522AbUHRO3b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 10:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266745AbUHRO3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 10:24:23 -0400
-Received: from penguin.cohaesio.net ([212.97.129.34]:47006 "EHLO
-	mail.cohaesio.net") by vger.kernel.org with ESMTP id S266304AbUHROYU
+	Wed, 18 Aug 2004 10:29:31 -0400
+Received: from digitalimplant.org ([64.62.235.95]:32153 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S266522AbUHRO3a
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 10:24:20 -0400
-From: Anders Saaby <as@cohaesio.com>
-Organization: Cohaesio A/S
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: oom-killer 2.6.8.1
-Date: Wed, 18 Aug 2004 16:24:24 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200408181455.42279.as@cohaesio.com> <20040818140550.GY11200@holomorphy.com>
-In-Reply-To: <20040818140550.GY11200@holomorphy.com>
+	Wed, 18 Aug 2004 10:29:30 -0400
+Date: Wed, 18 Aug 2004 07:29:27 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: [patch] enums to clear suspend-state confusion
+In-Reply-To: <1092812149.9932.180.camel@gaston>
+Message-ID: <Pine.LNX.4.50.0408180727390.6727-100000@monsoon.he.net>
+References: <20040812120220.GA30816@elf.ucw.cz>  <20040817212510.GA744@elf.ucw.cz>
+ <20040817152742.17d3449d.akpm@osdl.org>  <20040817223700.GA15046@elf.ucw.cz>
+ <20040817161245.50dd6b96.akpm@osdl.org>  <20040818002711.GD15046@elf.ucw.cz>
+ <1092794687.10506.169.camel@gaston>  <20040818061227.GA7854@elf.ucw.cz>
+ <1092812149.9932.180.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408181624.25131.as@cohaesio.com>
-X-OriginalArrivalTime: 18 Aug 2004 14:24:20.0242 (UTC) FILETIME=[0D116F20:01C4852F]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 August 2004 16:05, William Lee Irwin III wrote:
-> On Wed, Aug 18, 2004 at 02:55:42PM +0200, Anders Saaby wrote:
-> > This is a high-volume NFS server running almost no user-space
-> > applications. It serves a handfull of web server NFS clients from a
-> > ~700G XFS filesystem. The machine has about 2.5 GB of RAM and 4G of
-> > swap (which is almost not in use - i may use 5-10 MB total tops).
-> > CONFIG_HIGHMEM and CONFIG_HIGHMEM4G enabled, SMP enabled, preempt
-> > disabled. Today the OOM killer kicked in - it seemed that swap was almost
-> > unused at the time (which is strange, as that should prevent the OOM
-> > killer from kicking in).
-> > Relevant part of the syslog follows (syslogd was killed too eventually):
->
-> This seems to have been meant to resolve laptop_mode issues, but looks
-> like it didn't get applied. I'm not convinced it will help given that
-> you appear to have a vanilla ZONE_NORMAL slab OOM (858MB slab), but you
-> never know. Capturing /proc/slabinfo data may be more helpful.
->
->
-> Index: oom-2.6.8-rc1/mm/vmscan.c
-> ===================================================================
-> --- oom-2.6.8-rc1.orig/mm/vmscan.c	2004-07-14 06:17:13.876343912 -0700
-> +++ oom-2.6.8-rc1/mm/vmscan.c	2004-07-14 06:22:15.986416200 -0700
-> @@ -417,7 +417,8 @@
->  				goto keep_locked;
->  			if (!may_enter_fs)
->  				goto keep_locked;
-> -			if (laptop_mode && !sc->may_writepage)
-> +			if (laptop_mode && !sc->may_writepage &&
-> +							!PageSwapCache(page))
->  				goto keep_locked;
->
->  			/* Page is dirty, try to write it out here */
 
-laptop_mode is not set on this server <- :-)
+On Wed, 18 Aug 2004, Benjamin Herrenschmidt wrote:
 
-- So I guess this is not relevant for my setup?
+>
+> > Yes, that's exactly what I did... Unfortunately typedef means ugly
+> > code. So I'll just switch it back to enum system_state, and lets care
+> > about device power managment when it hits us, okay?
+>
+> I don't agree... with this approach, we'll have to change all drivers
+> _twice_ when we move to something more descriptive than a scalar
 
-/Saaby
+I totally agree. Why be hasty? We need to do it right and do it once. If
+that means a couple of more weeks and several more emails, than so be it.
+Otherwise, we'll be stuck with a sub-par solution for who knows how long.
+
+
+	Pat

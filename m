@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289671AbSBNEgN>; Wed, 13 Feb 2002 23:36:13 -0500
+	id <S289708AbSBNEnz>; Wed, 13 Feb 2002 23:43:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289677AbSBNEf4>; Wed, 13 Feb 2002 23:35:56 -0500
-Received: from rwcrmhc54.attbi.com ([216.148.227.87]:31721 "EHLO
-	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
-	id <S289671AbSBNEfd>; Wed, 13 Feb 2002 23:35:33 -0500
-From: "Guillaume Boissiere" <boissiere@attbi.com>
-To: Hiro Yoshioka <hyoshiok@miraclelinux.com>
-Date: Wed, 13 Feb 2002 23:34:33 -0500
+	id <S289711AbSBNEno>; Wed, 13 Feb 2002 23:43:44 -0500
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:5796 "EHLO
+	ip68-3-107-226.ph.ph.cox.net") by vger.kernel.org with ESMTP
+	id <S289708AbSBNEnc>; Wed, 13 Feb 2002 23:43:32 -0500
+Message-ID: <3C6B406E.1010706@candelatech.com>
+Date: Wed, 13 Feb 2002 21:43:26 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Subject: Re: status of LKCD into Linux Kernel
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3C6AF809.6875.F4DF6F4@localhost>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Petro <petro@auctionwatch.com>, linux-kernel@vger.kernel.org
+Subject: Re: Eepro100 driver.
+In-Reply-To: <20020213211639.GB2742@auctionwatch.com> <3C6B2277.CA9A0BF8@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a naive question. Will the LKCD be merged into
-> the Linus' kernel? If yes, when? wild guess?
->
-> http://kernelnewbies.org/status/latest.html
-> status is alpha. what does it mean?
->
-> please cc to me, because I'm not on the lkcd-general/linux-kernel
-> mailing list.
 
-Hi Hiro, 
 
-I am the maintainer of the 2.5 status page.  There is an explanation of
-what alpha, beta, etc. mean if you go to http://kernelnewbies.org/status/
-and click on the link at the bottom.
-The project status usually reflects what the project maintainer told me
-or just my best guess, so take it with a grain of salt  :-)  
-This page is for information purposes only.
+Jeff Garzik wrote:
 
-One more thing I should reiterate: it's not because an item is on this 
-list that it will be included in 2.5.  In fact, I expect many items in 
-there to never make it into 2.5.  What goes in is ultimately Linus' 
-decision.
 
-Actually, it'd be fun to have a contest (now that we are at the 
-beginning of the 2.5 series) to see what people think are the items the 
-least likely to get in!
+> Long term, it is going to be replaced with e100 from Intel, as soon as
+> that driver is in good shape.
 
--- Guillaume
+
+Any ETA on that?  (Make them really support the ethtool IOCTLs first :))
+
+In the past, I heard there were licensing problems, have those
+been cleared up?
+
+Thanks,
+Ben
+
+
+> 
+> 	Jeff
+> 
+> 
+> 
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

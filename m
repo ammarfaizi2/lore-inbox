@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264279AbUE3Ryp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264278AbUE3Rvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264279AbUE3Ryp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 13:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264288AbUE3Ryp
+	id S264278AbUE3Rvu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 13:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264279AbUE3Rvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 13:54:45 -0400
-Received: from lgsx13.lg.ehu.es ([158.227.2.28]:62114 "EHLO lgsx13.lg.ehu.es")
-	by vger.kernel.org with ESMTP id S264279AbUE3Ryn convert rfc822-to-8bit
+	Sun, 30 May 2004 13:51:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14752 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264278AbUE3Rvs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 13:54:43 -0400
-From: Luis Miguel =?iso-8859-1?q?Garc=EDa_Mancebo?= <ktech@wanadoo.es>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc1 breaks forcedeth
-Date: Sun, 30 May 2004 19:54:40 +0200
-User-Agent: KMail/1.6.52
+	Sun, 30 May 2004 13:51:48 -0400
+Message-ID: <40BA1F25.4080402@pobox.com>
+Date: Sun, 30 May 2004 13:51:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200405301954.40111.ktech@wanadoo.es>
+To: bunk@fs.tum.de, linux-kernel@vger.kernel.org
+CC: "Randy.Dunlap" <rddunlap@osdl.org>, Danny ter Haar <dth@dth.net>,
+       wa1ter@myrealbox.com, dth@ncc1701.cistron.net,
+       Netdev <netdev@oss.sgi.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Re: Gigabit Kconfig problems with yesterday's update
+References: <40B8A37D.1090802@myrealbox.com>	<20040530134544.GE13111@fs.tum.de>	<20040530143734.GA24627@dth.net> <20040530094120.61b22d2e.rddunlap@osdl.org>
+In-Reply-To: <20040530094120.61b22d2e.rddunlap@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------000106000903050204030600"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Lee Howard wrote:
-> > I use the forcedeth driver for my nVidia ethernet successfully with 
-> > kernel 2.6.6.  I recently tested 2.6.7-rc1, and when using it the 
-> > ethernet does not work, and I see this in dmesg:
-> > 
-> > eth1: forcedeth.c: subsystem: 01043:80a7 bound to 0000:00:04.0
-> > NETDEV WATCHDOG: eth1: transmit timed out
-> > NETDEV WATCHDOG: eth1: transmit timed out
-> > NETDEV WATCHDOG: eth1: transmit timed out
-> > NETDEV WATCHDOG: eth1: transmit timed out
-> > NETDEV WATCHDOG: eth1: transmit timed out
-> > 
-> > I can ping localhost and the device's IP number, but I cannot ping other 
-> > systems' IP numbers.
-> 
-> 
-> Well, there are zero changes to the driver itself, so I would guess ACPI 
-> perhaps...
-> 
-> Try booting with 'acpi=off' or 'noapic' or 'pci=noacpi' or similar...
-> 
->         Jeff
+This is a multi-part message in MIME format.
+--------------000106000903050204030600
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The same here with nforce2 too. Actually I cannot test that, but I can confirm 
-problems with the ethernet driver in -rc1. Perhaps I can test on tuesday if 
--rc2 works or the options you mention above.
+NET_GIGE is rightly dependent on NET_ETHERNET, as it is a subset.
 
-Now that you remember me... I remember seeing one message... something about 
-problems with IRQ # 9.
+I wonder if the attached patch "fixes" peoples config problems :)
 
-Thanks.,
--- 
-Luis Miguel García Mancebo
-Universidad de Deusto / Deusto University
-Spain
+--------------000106000903050204030600
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+===== drivers/net/Kconfig 1.74 vs edited =====
+--- 1.74/drivers/net/Kconfig	2004-05-27 16:42:40 -04:00
++++ edited/drivers/net/Kconfig	2004-05-30 13:49:48 -04:00
+@@ -163,7 +163,7 @@
+ 	depends on NETDEVICES
+ 
+ config NET_ETHERNET
+-	bool "Ethernet (10 or 100Mbit)"
++	bool "Ethernet (10/100/1000/10000 Mbit)"
+ 	---help---
+ 	  Ethernet (also called IEEE 802.3 or ISO 8802-2) is the most common
+ 	  type of Local Area Network (LAN) in universities and companies.
+
+--------------000106000903050204030600--

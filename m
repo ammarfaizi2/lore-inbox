@@ -1,50 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129514AbQKWCtw>; Wed, 22 Nov 2000 21:49:52 -0500
+        id <S129529AbQKWCyW>; Wed, 22 Nov 2000 21:54:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129529AbQKWCtn>; Wed, 22 Nov 2000 21:49:43 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:42784 "EHLO
-        deliverator.sgi.com") by vger.kernel.org with ESMTP
-        id <S129514AbQKWCtS>; Wed, 22 Nov 2000 21:49:18 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel-2.4.0-test11 crashed again; this time i send you the Oops-message 
-In-Reply-To: Your message of "Wed, 22 Nov 2000 20:58:28 CDT."
-             <200011230158.eAN1wSr138515@saturn.cs.uml.edu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 23 Nov 2000 13:19:05 +1100
-Message-ID: <3445.974945945@kao2.melbourne.sgi.com>
+        id <S129927AbQKWCyN>; Wed, 22 Nov 2000 21:54:13 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:58337 "EHLO hera.cwi.nl")
+        by vger.kernel.org with ESMTP id <S129529AbQKWCyJ>;
+        Wed, 22 Nov 2000 21:54:09 -0500
+Date: Thu, 23 Nov 2000 03:24:02 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200011230224.DAA141466.aeb@aak.cwi.nl>
+To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
+Subject: Re: silly [< >] and other excess
+Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000 20:58:28 -0500 (EST), 
-"Albert D. Cahalan" <acahalan@cs.uml.edu> wrote:
->The infamous LINK_FIRST infrastructure was sort of half-way done.
->
->It would be best to cause drivers with an unspecified link order
->to move around a bit, so that errors may be discovered more quickly.
+> Thats because too many things get put on a line then.
+> And because we do [<foo>] [<bar>]  not   [<foo>][<bar>] ?
 
-The "other" list in LINK_FIRST is sorted by name.  It could be changed
-to a random sort, probably based on a hash of size and mtime.  It would
-be relatively expensive so would have to be restricted to a "exercise
-the kernel" CONFIG option.
+In the good old times we had  foo bar  for a total of 8*(8+1) = 72
+positions. Now we have [<foo>] [<bar>] which takes 8*(8+1+4) = 104
+positions. If you turned this into 6 items per line instead of 8,
+it would certainly improve matters a bit.
+Still..
 
->LINK_FIRST is pretty coarse. One would want a topological sort,
->or at least LINK_0 through LINK_9 _without_ anything else.
-
-There is no need for multiple LINK_n entries, the objects partition
-neatly into three groups.  LINK_FIRST objects, in the order they are
-defined.  The rest of the objects (object list - (LINK_FIRST +
-LINK_LAST), in an undefined order.  LINK_LAST objects, in the order
-they are defined.
-
-If you can come up with a concrete link order example that cannot be
-handled by a three partition model then I will listen.  Otherwise it is
-just over engineering.
-
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

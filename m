@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265003AbSKKNDu>; Mon, 11 Nov 2002 08:03:50 -0500
+	id <S265010AbSKKNHv>; Mon, 11 Nov 2002 08:07:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265006AbSKKNDu>; Mon, 11 Nov 2002 08:03:50 -0500
-Received: from ezri.xs4all.nl ([194.109.253.9]:61135 "HELO ezri.xs4all.nl")
-	by vger.kernel.org with SMTP id <S265003AbSKKNDt>;
-	Mon, 11 Nov 2002 08:03:49 -0500
-Date: Mon, 11 Nov 2002 14:10:36 +0100 (CET)
-From: Eric Lammerts <eric@lammerts.org>
-To: "Filipau, Ihar" <ifilipau@sussdd.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: FW: [linux-usb-devel] boot from usb storage
-In-Reply-To: <7A5D4FEED80CD61192F2001083FC1CF9065048@CHARLY>
-Message-ID: <Pine.LNX.4.44.0211111406080.11999-100000@ally.lammerts.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265016AbSKKNHv>; Mon, 11 Nov 2002 08:07:51 -0500
+Received: from itaqui.terra.com.br ([200.176.3.19]:16808 "EHLO
+	itaqui.terra.com.br") by vger.kernel.org with ESMTP
+	id <S265010AbSKKNHu>; Mon, 11 Nov 2002 08:07:50 -0500
+Date: Mon, 11 Nov 2002 11:14:36 -0200
+From: Lucio Maciel <abslucio@terra.com.br>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: "rusty's trivial patch monkey" <trivial@rustcorp.com.au>
+Subject: [TRIVIAL PATCH 2.5.47] implicit declaration in drivers/acpi/bus.c
+Message-Id: <20021111111436.068b6c4b.abslucio@terra.com.br>
+Organization: absoluta
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 11 Nov 2002, Filipau, Ihar wrote:
-> 	In short:
-> 	Is it possible to boot from portable USB DVD drive?
-> 	Is this supported in BIOSes?
-
-Don't know.
-
-> 	Will kernel be able to find a root?
-
-Normally it doesn't work because USB devices are detectly
-asynchronously (from a kernel thread). At the time a USB device is
-discovered, the root mounting code has already given up.
-
-I have a patch to fix this at
-http://www.lammerts.org/software/kernelpatches/usb-storage-root.patch
-It's tested only with USB harddisks, but will probably also work with
-DVD drives.
-
-Eric
+this patchs fix a  implicit declaration of function "firmware_register" warning in 2.5.47
 
 
+--- linux/drivers/acpi/bus.c~	11 Nov 2002 12:28:44 -0000
++++ linux/drivers/acpi/bus.c	11 Nov 2002 12:40:07 -0000
+@@ -28,6 +28,7 @@
+ #include <linux/sched.h>
+ #include <linux/pm.h>
+ #include <linux/proc_fs.h>
++#include <linux/device.h>
+ #ifdef CONFIG_X86
+ #include <asm/mpspec.h>
+ #endif
+
+
+-- 
+::: Lucio F. Maciel
+::: abslucio@terra.com.br
+::: icq 93065464
+::: Absoluta.net

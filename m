@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279951AbRKNB3Q>; Tue, 13 Nov 2001 20:29:16 -0500
+	id <S279952AbRKNBbf>; Tue, 13 Nov 2001 20:31:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279952AbRKNB3I>; Tue, 13 Nov 2001 20:29:08 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:3858 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S279951AbRKNB2Y>;
-	Tue, 13 Nov 2001 20:28:24 -0500
-Date: Tue, 13 Nov 2001 18:27:19 -0800
-From: Greg KH <greg@kroah.com>
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] CML 1.8.4 is available
-Message-ID: <20011113182718.A1630@kroah.com>
-In-Reply-To: <20011113175010.A15716@thyrsus.com>
+	id <S279956AbRKNBb0>; Tue, 13 Nov 2001 20:31:26 -0500
+Received: from theirongiant.zip.net.au ([61.8.0.198]:8588 "EHLO
+	theirongiant.zip.net.au") by vger.kernel.org with ESMTP
+	id <S279952AbRKNBbP>; Tue, 13 Nov 2001 20:31:15 -0500
+Date: Wed, 14 Nov 2001 12:30:33 +1100
+From: CaT <cat@zip.com.au>
+To: Riley Williams <rhw@MemAlpha.cx>
+Cc: Pascal Schmidt <pleasure.and.pain@web.de>, H Peter Anvin <hpa@zytor.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: fdutils.
+Message-ID: <20011114123033.N991@zip.com.au>
+In-Reply-To: <Pine.LNX.4.33.0111140135420.1297-100000@neptune.sol.net> <Pine.LNX.4.21.0111140048250.3058-100000@Consulate.UFP.CX>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011113175010.A15716@thyrsus.com>
+In-Reply-To: <Pine.LNX.4.21.0111140048250.3058-100000@Consulate.UFP.CX>
 User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 16 Oct 2001 23:58:25 -0700
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 13, 2001 at 05:50:10PM -0500, Eric S. Raymond wrote:
+On Wed, Nov 14, 2001 at 12:50:25AM +0000, Riley Williams wrote:
+> >> 	http://www.kernel.org/pub/dist/superrescue/
 > 
-> CML2 is now fully caught up with the CML1 rulebase in the most current
-> kernel version, with symbol coverage mechanically checked in both directions.
+> > Sure, but having to mount the CDROM means the drive is inaccessible
+> > during a rescue operation, so no restore from CDROM or CDRW backups
+> > is possible. ;) Mine runs out of a 4 MB ramdisk image.
+> 
+> Maybe that drive is inaccessible, but what about the other drive? Many
+> systems have both a CD (or DVD) drive and a CD-RW as well nowadays.
 
-The following symbols should be allowed to be set to 'm' but are not:
-	CONFIG_USB
-	CONFIG_UHCI
-	CONFIG_UHCI_ALT
+Are you guys trying to target the highest or lowest common denominator
+here? Because the more of this thread I read the more of the population
+you guys are excluding.
 
-If CONFIG_USB_SERIAL is set to 'y' CONFIG_USB_SERIAL_DEBUG should be
-allowed to be chosen.  I do not see this happening.
+(Oh but I have my 2 friends have 5 dvd players, 3 cdrws, 4 zip drives,
+7 ls-120's and a partridge in their pc and as such I must conclude that
+the vast majority of the world does also).
 
-And why is the CONFIG_USB_SERIAL options in the drivers/usb directory?
-In the CML1 version they live in their own subdirectory quite nicely :)
-Either way they should be in the USB port drivers section, not the "USB
-devices" section of the menu.
+Hrmph.
 
-There doesn't seem to be any rules set up for drivers/hotplug.
-
-thanks,
-
-greg k-h
+-- 
+CaT        "As you can expect it's really affecting my sex life. I can't help
+           it. Each time my wife initiates sex, these ejaculating hippos keep
+           floating through my mind."
+                - Mohd. Binatang bin Goncang, Singapore Zoological Gardens

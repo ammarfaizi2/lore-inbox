@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312997AbSDEP3D>; Fri, 5 Apr 2002 10:29:03 -0500
+	id <S313057AbSDEQdz>; Fri, 5 Apr 2002 11:33:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312998AbSDEP2x>; Fri, 5 Apr 2002 10:28:53 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:49364 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S312997AbSDEP2r>; Fri, 5 Apr 2002 10:28:47 -0500
-Message-ID: <3CADC2AB.731BA766@delusion.de>
-Date: Fri, 05 Apr 2002 17:28:43 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.7 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Luigi Genoni <kernel@expansa.sns.it>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Busy buffers in invalidate
-In-Reply-To: <Pine.LNX.4.44.0204051725240.15574-100000@Expansa.sns.it>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S313059AbSDEQdg>; Fri, 5 Apr 2002 11:33:36 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:5515 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S313050AbSDEQdS>; Fri, 5 Apr 2002 11:33:18 -0500
+Date: Fri, 5 Apr 2002 09:33:02 -0700
+Message-Id: <200204051633.g35GX2309151@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: bcrl@redhat.com (Benjamin LaHaise), akpm@zip.com.au (Andrew Morton),
+        joeja@mindspring.com, linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+In-Reply-To: <E16tTAF-0008F2-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luigi Genoni wrote:
+Alan Cox writes:
+> > Be careful here. I did this for a while with a Maxtor 80 GB IDE drive,
+> > and after a few months, it started making unpleasant noises when
+> > spinning up (lots of clicking and clacking). I went back to continuous
 > 
-> Are you using LVM.
+> I can tell you I've had 80Gb Maxtors do that that were always spun
+> up. They went back and the replacement ones have behaved so far. I
+> don't think its that related
 
-I'm not.
+Well, one year on, after continuous spinning, I still don't hear
+clicking and clacking.
 
--Udo.
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

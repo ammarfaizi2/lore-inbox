@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265791AbTBTQM2>; Thu, 20 Feb 2003 11:12:28 -0500
+	id <S265667AbTBTQV4>; Thu, 20 Feb 2003 11:21:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265798AbTBTQM2>; Thu, 20 Feb 2003 11:12:28 -0500
-Received: from services.erkkila.org ([24.97.94.217]:32136 "EHLO erkkila.org")
-	by vger.kernel.org with ESMTP id <S265791AbTBTQM1>;
-	Thu, 20 Feb 2003 11:12:27 -0500
-Message-ID: <3E5500BF.2000706@erkkila.org>
-Date: Thu, 20 Feb 2003 16:22:23 +0000
-From: "Paul E. Erkkila" <pee@erkkila.org>
-Reply-To: pee@erkkila.org
-Organization: ErkkilaDotOrg
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030218
-X-Accept-Language: en-us, en
+	id <S265670AbTBTQV4>; Thu, 20 Feb 2003 11:21:56 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:60040 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265667AbTBTQVz>; Thu, 20 Feb 2003 11:21:55 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: cifs leaks memory like crazy in 2.5.61
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OF566C3F49.C8CA5594-ON87256CD3.0058B0B3@us.ibm.com>
+From: Steven French <sfrench@us.ibm.com>
+Date: Thu, 20 Feb 2003 10:28:07 -0600
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 6.0 [IBM]|December 16, 2002) at
+ 02/20/2003 09:31:51
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>,
-       linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: vcdxrip , CDROM_SEND_PACKET, and 2.5.42->2.5.43 ide-cd changes
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Hi,
-
-  I often use vcdxrip to pull mpeg data off of
-old vcd's/svcds to archive to tape/dvd. This
-worked fine in the 2.5 kernel series up to
-2.5.42 where it worked after running the app
-more then once ( i assumed it was an initialization
-error someplace). After kernel 2.5.43 it no longer
-works. I've sent mail to the authors and they
-suggested switching it from using ioctl(CDROM_SEND_PACKET)
-to ioctl(CDROMREADMODE2) , which does work only
-a little slower.
-
- I've traced it down to cdrom_queue_packet_command() in ide-cd.c
-returning a 0 error status from ide_do_drive_cmd(), and
-req.data_len is 0, and there doesn't appear to be any sense
-available.
 
 
-I'd appreciate any suggestions for tracking this further
-or ideas on possible causes.
+Hadn't run into this - I had been focusing on the readahead and write page
+improvements (which have improved especially write performance
+spectacularly) and also have just fixed a problem with redundant lookups of
+directory inodes but had not been doing readdir (cifs
+Trans2FindFirst/Trans2FindNext) testing recently.  I just did - and the
+situation looks worse than you describe and probably related to what you
+are running into. I found a readdir test case that hangs my post 2.5.62
+system pretty fast and the last two unrelated cifs changesets don't fix it.
+The cifs readdir code needed some rework anyway - I will crawl through it
+today.  Thanks for finding this.
 
--pee
+>kmem_cache_destroy: Can't free all objects e8eefd00
+>cifs_destroy_request_cache: error not all structures were freed
+>
+>Is this a known problem?
 
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench@us.ibm.com
 

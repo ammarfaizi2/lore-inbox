@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261206AbSLUANT>; Fri, 20 Dec 2002 19:13:19 -0500
+	id <S261645AbSLUAP6>; Fri, 20 Dec 2002 19:15:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261295AbSLUANT>; Fri, 20 Dec 2002 19:13:19 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:944 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S261206AbSLUANT>; Fri, 20 Dec 2002 19:13:19 -0500
-Message-Id: <200212210021.BAA15952@post.webmailer.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Christian Seidemann <christian.seidemann@mni.fh-giessen.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: vt8235 fix, hopefully last variant
-Date: Sat, 21 Dec 2002 01:25:33 +0100
-X-Mailer: KMail [version 1.3.2]
-References: <20021219112640.A21164@ucw.cz>
-In-Reply-To: <20021219112640.A21164@ucw.cz>
+	id <S261356AbSLUAP6>; Fri, 20 Dec 2002 19:15:58 -0500
+Received: from magic.adaptec.com ([208.236.45.80]:54422 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S261495AbSLUAP5>; Fri, 20 Dec 2002 19:15:57 -0500
+Date: Fri, 20 Dec 2002 17:23:42 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Janet Morgan <janetmor@us.ibm.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] aic7xxx bouncing over 4G
+Message-ID: <176730000.1040430221@aslan.btc.adaptec.com>
+In-Reply-To: <200212210012.gBL0Cng21338@eng2.beaverton.ibm.com>
+References: <200212210012.gBL0Cng21338@eng2.beaverton.ibm.com>
+X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+> I have an Adaptec AIC-7897 Ultra2 SCSI adapter on a system with 8G
+> of physical memory.  The adapter is using bounce buffers when DMA'ing
+> to memory >4G because of a bug in the aic7xxx driver. 
 
-> Hi!
->
-> Can you guys try out this last take on a fix for your ATAPI device
-> problems? Applies against clean 2.4.20.
->
-> Please report failure/success.
->
-> Thanks.
+This has been fixed in both the aic7xxx and aic79xx drivers for some
+time.  The problem is that these later revisions have not been integrated
+into the mainline trees.
 
-I also tried the vt8235-atapi patch and it works for me.
-MSI KT3 Ultra2 mainboard (KT333), vt8235.
-LG DVD-ROM DRD-8160B
+--
+Justin
 
-Thanks
-Christian

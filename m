@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269487AbUINSiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269362AbUINVOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269487AbUINSiG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 14:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269698AbUINS3x
+	id S269362AbUINVOG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 17:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269280AbUINVNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 14:29:53 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:47614 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S269699AbUINSRu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 14:17:50 -0400
-Date: Tue, 14 Sep 2004 14:22:29 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] sched: fix scheduling latencies in mtrr.c
-In-Reply-To: <20040914132536.GA9742@elte.hu>
-Message-ID: <Pine.LNX.4.53.0409141418280.2297@montezuma.fsmlabs.com>
-References: <20040914095731.GA24622@elte.hu> <20040914100652.GB24622@elte.hu>
- <20040914101904.GD24622@elte.hu> <20040914102517.GE24622@elte.hu>
- <20040914104449.GA30790@elte.hu> <20040914105048.GA31238@elte.hu>
- <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu>
- <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu>
- <20040914132536.GA9742@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Sep 2004 17:13:10 -0400
+Received: from main.gmane.org ([80.91.229.2]:57756 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266186AbUINVFD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 17:05:03 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97     patch)
+Date: Tue, 14 Sep 2004 23:04:41 +0200
+Message-ID: <MPG.1bb164a85e6c9d459896e9@news.gmane.org>
+References: <200409111850.i8BIowaq013662@harpo.it.uu.se> <20040912011128.031f804a@localhost> <Pine.LNX.4.60.0409131526050.29875@tomservo.workpc.tds.net> <20040914175949.6b59a032@sashak.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-230-140.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Sep 2004, Ingo Molnar wrote:
+Sasha Khapyorsky wrote:
+> Such modems also exist (AC97 controller + MC97 codec + DAA), but less
+> popular (especially with laptops there modem are mostly used).
 
-> 
-> > fix scheduling latencies in the MTRR-setting codepath.
-> > Also, fix bad bug: MTRR's _must_ be set with interrupts disabled!
-> 
-> patch attached ...
-> 
-> caveat: one of the wbinvd() removals is correct i believe, but the other
-> one might be problematic. It doesnt seem logical to do a wbinvd() at
-> that point though ...
+I have one such built in in my Dell Inspiron 8200, which is why 
+I'm following this thread with particular interest.
 
-Just a data point, Volume 3 "MTRR considerations in MP systems" states 
-that the second wbinvd() isn't required for P6 and Pentium 4 but might be 
-necessary for future systems.
+The strange thing is that under Windows the modem is configured 
+as a Conexant thingie ... or is the problem that I have both 
+and the Conexant thingie is the one connected to the actual 
+modem plug? Is there a way to know this (other than having a 
+look inside my laptop, that is)?
 
-	Zwane
+-- 
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
 

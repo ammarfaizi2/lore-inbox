@@ -1,28 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261582AbSJMSqj>; Sun, 13 Oct 2002 14:46:39 -0400
+	id <S261575AbSJMSpL>; Sun, 13 Oct 2002 14:45:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261583AbSJMSqj>; Sun, 13 Oct 2002 14:46:39 -0400
-Received: from m-net.arbornet.org ([209.142.209.161]:47887 "EHLO arbornet.org")
-	by vger.kernel.org with ESMTP id <S261582AbSJMSqh>;
-	Sun, 13 Oct 2002 14:46:37 -0400
-Date: Sun, 13 Oct 2002 14:54:01 -0400 (EDT)
-From: Eric Blade <eblade@m-net.arbornet.org>
-Message-Id: <200210131854.g9DIs1I0062874@m-net.arbornet.org>
-To: linux-kernel@vger.kernel.org
-Subject: Evolution and 2.5.x
+	id <S261578AbSJMSpL>; Sun, 13 Oct 2002 14:45:11 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:7940 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261575AbSJMSpI>;
+	Sun, 13 Oct 2002 14:45:08 -0400
+Date: Sun, 13 Oct 2002 20:38:38 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: in_atomic() & spin_lock / spin_unlock in different functions
+Message-ID: <20021013203838.A122@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
- 
-  I'm guessing that not too many of the kernel developers use Evolution as
-their email program :)   Since I started picking up the 2.5.x series, at around
-2.5.34, Evolution does not run anywhere near properly.  I'm not sure if that
-is a kernel issue, or a problem with Evolution's code..  But it did improve
-quite a bit with all the low-level process management that was in the 2.5.3x 
-series.  It still doesn't work right though.  (in 2.5.34, evolution would
-just plain halt the system ... in 2.5.42, it mostly works right, as long
-as you don't try to compose a message.. composing a message will leave you
-with a whole buch of zombie processes). 
- 
+Hi!
+
+What is it that in_atomic counts? Obviously spinlocks and
+get_cpu/put_cpu. Anything else?
+
+Is there easy way to find out which spinlock causes "scheduling in
+atomic" warning? [It happens a *lot* in swsusp].
+
+I'm doing spin_lock_irqsave() then in another function
+spin_unlock_irqrestore. Is that okay? If no, can it cause "scheduling
+in atomic"?
+								Pavel
+-- 
+When do you have heart between your knees?

@@ -1,74 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbTHSHPN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 03:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbTHSHPN
+	id S261180AbTHSHNk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 03:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbTHSHN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 03:15:13 -0400
-Received: from core.kaist.ac.kr ([143.248.147.118]:23703 "EHLO
-	core.kaist.ac.kr") by vger.kernel.org with ESMTP id S261151AbTHSHPH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 03:15:07 -0400
-Message-ID: <003701c36620$fd9f2d80$a5a5f88f@core8fyzomwjks>
-From: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
-To: <linux-kernel@vger.kernel.org>
-Subject: [Q] IDE drive DMA failure
-Date: Tue, 19 Aug 2003 16:10:37 +0900
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Tue, 19 Aug 2003 03:13:26 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:42678 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S262116AbTHSHMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 03:12:54 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Tue, 19 Aug 2003 09:12:43 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: andrea@suse.de, green@namesys.com, marcelo@conectiva.com.br, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, mason@suse.com
+Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
+Message-Id: <20030819091243.007acac0.skraw@ithnet.com>
+In-Reply-To: <20030819011208.GK10320@matchmail.com>
+References: <20030813125509.360c58fb.skraw@ithnet.com>
+	<Pine.LNX.4.44.0308131143570.4279-100000@localhost.localdomain>
+	<20030813145940.GC26998@namesys.com>
+	<20030813171224.2a13b97f.skraw@ithnet.com>
+	<20030813153009.GA27209@namesys.com>
+	<20030819011208.GK10320@matchmail.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Mon, 18 Aug 2003 18:12:08 -0700
+Mike Fedyk <mfedyk@matchmail.com> wrote:
 
-I send some data from ide disk to some PCI device's RAM directly.
+> > > It is unlikely for bad ram to survive memtest for several hours.
+> > 
+> > memtest is single threaded, UP kernel works fine too.
+> 
+> Are you saying that one CPU can't saturate the memory bus?  Or maybe we're
+> hitting something on the CPU bus, or just that SMP will change the timings
+> and stress things differently?  Or that if memtest doesn't test from the
+> second CPU then it could be a faulty cpu/L2?
 
-At above sentence, 'directly' means that data is not transferred through
-RAM.
+Well, if memtest does not use a second available CPU then probably we should
+ask the author about this...
+ 
+> Grr, has anything been done to verify the hardware is running withing specs
+> and isn't too hot?
 
-Data path is only from ide disk controller to PCI device's RAM.
+In fact we are talking about datacenter environment with air conditioning and
+the like.
+Besides the favourite test box I have others (already mentioned in this thread)
+- SMP with completely different hw - where I can make 2.4.21 and above crash,
+too.
 
-Anyway data can be transferred by PIO.
-
-But DMA method can't operate. Below is error message.
-
-Aug 18 15:08:12 localhost kernel: hdc: dma_timer_expiry: status=0x58 {
-DriveReady SeekComplete DataRequest }
-Aug 18 15:08:12 localhost kernel: hdc: timeout waiting for DMA
-Aug 18 15:08:12 localhost kernel: ide_dmaproc: chipset supported
-ide_dma_timeout func only: 14
-
-After this DMA timeout error, data is transferred by PIO.
-
-Do you have similar experience?
-
-I want to send data by DMA method.
-
-What is problem? Kernel? Hardware?
-
-And how can I solve this problem?
-
-Please give me anser or hint, Thanks!
-
-
-Below is my system spec
-
-CPU
-celeron 400
-
-Motherboard
-440BX
-
-IDE interface
-Intel Corporation 82371AB PIIX4 IDE (rev 1).
-
-
-HDD
-hdc: IC35L040AVVA07-0, ATA DISK drive (Hitachi)
-
-
-
-
-
+Regards,
+Stephan

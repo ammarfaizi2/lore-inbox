@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129507AbQKGABt>; Mon, 6 Nov 2000 19:01:49 -0500
+	id <S129543AbQKGAC6>; Mon, 6 Nov 2000 19:02:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129543AbQKGABi>; Mon, 6 Nov 2000 19:01:38 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:19982 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129507AbQKGAB1>;
-	Mon, 6 Nov 2000 19:01:27 -0500
-Message-ID: <3A074633.12ED8137@mandrakesoft.com>
-Date: Mon, 06 Nov 2000 19:00:51 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S129802AbQKGACs>; Mon, 6 Nov 2000 19:02:48 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:13730 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S129543AbQKGACo>;
+	Mon, 6 Nov 2000 19:02:44 -0500
+Date: Mon, 6 Nov 2000 16:02:40 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.0test10 crash (RAID+SMP)
+Message-ID: <Pine.LNX.4.21.0011061601120.7242-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu
-Subject: swapout vs. filemap_sync_pte...?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The address_space::writepage callback is called from try_to_swap_out()
-path, and also from the filemap_sync_pte() path.  There appears to be no
-way to tell the difference between the two callers.  This is not good
-because the semantics are very different:  "sync this page" versus "page
-is going away".
+[s/rutgers.edu/kernel.org/]
 
-Should address_space::writepage get passed an additional arg, indicating
-the caller?
-Should filemap_sync_pte call address_space::sync_page instead of
-::writepage?
+On Tue, 7 Nov 2000 09:19:12 +1100 (EST), Neil Brown <neilb@cse.unsw.edu.au>
+wrote:
+> On Monday November 6, jgarzik@mandrakesoft.com wrote:
 
-Either way, this allows the writepage function to know whether it really
-needs to store the page, because it is going away, or not.
+>> If multiple interrupts are hitting a single code path (like IDE irqs 14
+>> -and- 15), you definitely have to think about that.  The reentrancy
+>> guarantee only exists when a single IRQ is assigned to a single
+>> handler...
+>> 
+> The b_end_io routine that raid1 attaches to io request buffer_heads
+> that are used for resyncing had a side effect of re-enabling
+> interrupts.  As it is called from an interrupt context, this is
+> clearly a bug.  It allowed another interrupt to be serviced before a
+> previous interrupt had been completed, which is a problem waiting to
+> happen.
+> In this case, it became a real problem because the first interrupt had
+> grabbed a spinlock (I didn't bother to discover which one) and the
+> second interrupt tried to grab the same spinlock. This produced the
+> deadlock which the NMI-Oopser detected and reported.
 
-I will admit I might be missing something obvious...  I'm pretty new to
-this part of the code.
+You are absolutely right, it is a bug, but Jeff is also right in pointing
+that the bug won't hit you unless you have two different hardware IRQ's
+being serviced by the same code. Otherwise, just enabling the interrupts
+won't re-enable _your_ IRQ, so another interrupt triggered by your IRQ
+won't be serviced until you exit the handler.
 
-	Jeff
+It could also be that the code is running with SA_INTERRUPT and is relying
+on the fact that _all_ interrupts are disabled. That's less likely, 
+especially since AFAIK the interrupts are disabled only on the local
+processor, so it's not much of a guarantee on SMP.
 
+In any case, a bug is a bug and should get fixed, no question about it. :)
+
+Ion
 
 -- 
-Jeff Garzik             | "When I do this, my computer freezes."
-Building 1024           |          -user
-MandrakeSoft            | "Don't do that."
-                        |          -level 1
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

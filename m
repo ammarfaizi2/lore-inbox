@@ -1,790 +1,254 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129729AbRALI2m>; Fri, 12 Jan 2001 03:28:42 -0500
+	id <S129226AbRALIpS>; Fri, 12 Jan 2001 03:45:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129825AbRALI2c>; Fri, 12 Jan 2001 03:28:32 -0500
-Received: from styx.suse.cz ([195.70.145.226]:61688 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S129729AbRALI2Y>;
-	Fri, 12 Jan 2001 03:28:24 -0500
-Date: Fri, 12 Jan 2001 09:28:13 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD760/765 DDR Athlon testers needed....
-Message-ID: <20010112092813.C812@suse.cz>
-In-Reply-To: <Pine.LNX.4.10.10101110942250.29587-200000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="XsQoSWH+UP9D9v3l"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10101110942250.29587-200000@master.linux-ide.org>; from andre@linux-ide.org on Thu, Jan 11, 2001 at 09:46:41AM -0800
+	id <S129825AbRALIpI>; Fri, 12 Jan 2001 03:45:08 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:53769
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129226AbRALIou>; Fri, 12 Jan 2001 03:44:50 -0500
+Date: Fri, 12 Jan 2001 00:44:25 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: ide.2.4.1-p3.01112001.patch
+Message-ID: <Pine.LNX.4.10.10101120039130.32320-101000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; BOUNDARY="-1019260510-1302512642-979289065=:32320"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---XsQoSWH+UP9D9v3l
+---1019260510-1302512642-979289065=:32320
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Hi!
 
-Hmm, seems like I've got that one covered a while ago already ...
-though I must admit my code isn't tested yet.
-
-Vojtech
-
-On Thu, Jan 11, 2001 at 09:46:41AM -0800, Andre Hedrick wrote:
-> 
-> Calling AMD Geeks^H^H^H^H^HUsers,
-> 
-> I have one of these DDR boxes from AMD with the AMD760/765 cores, if you
-> have one please let me know if you wnat to test this new code?
-> It is only ATA66 limited and the DOCS I have do not have the ATA100
-> timings.
-> 
-> Cheers,
-> 
-> Andre Hedrick
-> Linux ATA Development
-
-> Inspecting /boot/System.map
-> Symbol table has incorrect version number.
-> 
-> <6>Uniform Multi-Platform E-IDE driver Revision: 6.30
-> <4>ide: Assuming 33MHz system bus speed for PIO modes
-> <4>AMD7411: IDE controller on PCI bus 00 dev 39
-> <4>AMD7411: chipset revision 1
-> <4>AMD7411: not 100% native mode: will probe irqs later
-> <4>    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
-> <4>    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
-> <4>PDC20267: IDE controller on PCI bus 00 dev 58
-> <4>PDC20267: chipset revision 2
-> <4>PDC20267: not 100% native mode: will probe irqs later
-> <4>PDC20267: ROM enabled at 0xe7000000
-> <4>PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-> <4>    ide2: BM-DMA at 0xe800-0xe807, BIOS settings: hde:DMA, hdf:pio
-> <4>    ide3: BM-DMA at 0xe808-0xe80f, BIOS settings: hdg:DMA, hdh:pio
-> <4>hda: QUANTUM FIREBALL CX13.0A, ATA DISK drive
-> <4>hdb: QUANTUM FIREBALL CR4.3A, ATA DISK drive
-> <4>hdc: ATAPI CD ROM DRIVE 50X MAX, ATAPI CDROM drive
-> <4>hdd: HITACHI DVD-RAM GF-2000, ATAPI CDROM drive
-> <4>ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> <4>ide1 at 0x170-0x177,0x376 on irq 15
-> <4>hda: TF.1=x00 TF.2=x00 TF.3=x00 TF.4=x00 TF.5=x00 TF.6=x40 TF.7=xf8 
-> <6>hda: QUANTUM FIREBALL CX13.0A, 12416MB w/418kB Cache, CHS=25228/16/63, UDMA(33)
-> <4>hdb: TF.1=x00 TF.2=x00 TF.3=x00 TF.4=x00 TF.5=x00 TF.6=x40 TF.7=xf8 
-> <6>hdb: QUANTUM FIREBALL CR4.3A, 4110MB w/418kB Cache, CHS=14848/9/63, UDMA(66)
-> <4>hdc: ATAPI 50X CD-ROM drive, 128kB Cache, UDMA(33)
-> <6>Uniform CD-ROM driver Revision: 3.11
-> <4>hdd: ATAPI DVD-ROM DVD-R drive, 512kB Cache, UDMA(33)
-
--- 
-Vojtech Pavlik
-SuSE Labs
-
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="amd7409.c"
-
-/*
- * $Id: amd7409.c,v 1.4 2000/09/19 08:33:60 vojtech Exp $
- *
- *  Copyright (c) 2000 Vojtech Pavlik
- *
- *  Based on the work of:
- *	Andre Hedrick
- *
- *  Sponsored by SuSE
- */
-
-/*
- * AMD755/756 IDE driver for Linux.
- *
- * UDMA66 and higher modes are autodetected only in case the BIOS has enabled
- * them. To force UDMA66, use 'ide0=ata66' or 'ide1=ata66' on the kernel
- * command line. You may also need to configure the kernel IDE driver to ignore
- * byte93 UDMA66 enable bits if your drives don't use them correctly.
- */
-
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * Should you need to contact me, the author, you can do so either by
- * e-mail - mail your message to <vojtech@suse.cz>, or by paper mail:
- * Vojtech Pavlik, Ucitelska 1576, Prague 8, 182 00 Czech Republic
- */
-
-#include <linux/config.h>
-#include <linux/kernel.h>
-#include <linux/ioport.h>
-#include <linux/blkdev.h>
-#include <linux/pci.h>
-#include <linux/init.h>
-#include <linux/ide.h>
-#include <asm/io.h>
-
-#include "ide-timing.h"
-
-#define AMD_IDE_ENABLE		0x40
-#define AMD_IDE_CONFIG		0x41
-#define AMD_CABLE_DETECT	0x42
-#define AMD_DRIVE_TIMING	0x48
-#define AMD_8BIT_TIMING		0x4e
-#define AMD_ADDRESS_SETUP	0x4c
-#define AMD_UDMA_TIMING		0x50
-
-#define AMD_UDMA		0x07
-#define AMD_UDMA_33		0x01
-#define AMD_UDMA_66		0x02
-#define AMD_UDMA_100		0x04
-#define AMD_NO_SWDMA		0x08
-#define AMD_CABLE		0x10
-
-#ifndef PCI_DEVICE_ID_AMD_VIPPL_7411
-#define PCI_DEVICE_ID_AMD_VIPPL_7411	0x7411
-#endif
-
-/*
- * AMD SouthBridge chips.
- */
-
-static struct amd_ide_chip {
-	char *name;
-	unsigned short id;
-	unsigned char rev;
-	unsigned char flags;
-} amd_ide_chips[] = {
-	{ "766 ViperPlus",	PCI_DEVICE_ID_AMD_VIPPL_7411, 0x00, AMD_UDMA_100 | AMD_CABLE },
-	{ "756/c4+ Viper",	PCI_DEVICE_ID_AMD_VIPER_7409, 0x07, AMD_UDMA_66 },
-	{ "756 Viper",		PCI_DEVICE_ID_AMD_VIPER_7409, 0x00, AMD_UDMA_66 | AMD_NO_SWDMA },
-	{ "755 Cobra",		PCI_DEVICE_ID_AMD_COBRA_7401, 0x00, AMD_UDMA_33 | AMD_NO_SWDMA },
-	{ NULL }
-};
-
-static struct amd_ide_chip *amd_config;
-static unsigned char amd_enabled;
-static unsigned int amd_80w;
-
-static unsigned char amd_cyc2udma[] = { 5, 5, 5, 4, 0, 1, 1, 2, 2, 3, 3 };
-static unsigned char amd_udma2cyc[] = { 4, 6, 8, 10, 3, 2, 1, 1 };
-
-/*
- * AMD /proc entry.
- */
-
-#ifdef CONFIG_PROC_FS
-
-#include <linux/stat.h>
-#include <linux/proc_fs.h>
-
-int amd7409_proc, amd_base;
-static struct pci_dev *bmide_dev;
-extern int (*amd7409_display_info)(char *, char **, off_t, int); /* ide-proc.c */
-
-#define amd_print(format, arg...) p += sprintf(p, format "\n" , ## arg)
-#define amd_print_drive(name, format, arg...)\
-	p += sprintf(p, name); for (i = 0; i < 4; i++) p += sprintf(p, format, ## arg); p += sprintf(p, "\n");
-
-static int amd_get_info(char *buffer, char **addr, off_t offset, int count)
-{
-	short pci_clock, speed[4], cycle[4], setup[4], active[4],
-		recover[4], uen[4], udma[4], active8b[4], recover8b[4];
-	struct pci_dev *dev = bmide_dev;
-	unsigned int v, u, i;
-	unsigned short c, w;
-	unsigned char t;
-	char *p = buffer;
-
-	amd_print("----------AMD BusMastering IDE Configuration----------------");
-
-	amd_print("Driver Version:                     1.4");
-	amd_print("South Bridge:                       AMD-%s", amd_config->name);
-
-	pci_read_config_byte(dev, PCI_REVISION_ID, &t);
-	amd_print("Revision:                           IDE %#x", t);
-
-	amd_print("BM-DMA base:                        %#x", amd_base);
-	amd_print("PCI clock:                          %dMHz", pci_clock = system_bus_clock());
-
-	amd_print("-----------------------Primary IDE-------Secondary IDE------");
-
-	pci_read_config_byte(dev, AMD_IDE_CONFIG, &t);
-	amd_print("Prefetch Buffer:       %10s%20s", (t & 0x80) ? "yes" : "no", (t & 0x20) ? "yes" : "no");
-	amd_print("Post Write Buffer:     %10s%20s", (t & 0x40) ? "yes" : "no", (t & 0x10) ? "yes" : "no");
-
-	pci_read_config_byte(dev, AMD_IDE_ENABLE, &t);
-	amd_print("Enabled:               %10s%20s", (t & 0x02) ? "yes" : "no", (t & 0x01) ? "yes" : "no");
-
-	c = inb(amd_base + 0x02) | (inb(amd_base + 0x0a) << 8);
-	amd_print("Simplex only:          %10s%20s", (c & 0x80) ? "yes" : "no", (c & 0x8000) ? "yes" : "no");
-
-	amd_print("Cable Type:            %10s%20s", (amd_80w & 1) ? "80w" : "40w", (amd_80w & 2) ? "80w" : "40w");
-
-	amd_print("-------------------drive0----drive1----drive2----drive3-----");
-
-	pci_read_config_byte(dev, AMD_ADDRESS_SETUP, &t);
-	pci_read_config_dword(dev, AMD_DRIVE_TIMING, &v);
-	pci_read_config_word(dev, AMD_8BIT_TIMING, &w);
-	pci_read_config_dword(dev, AMD_UDMA_TIMING, &u);
-
-	for (i = 0; i < 4; i++) {
-		setup[i]     = ((t >> ((3 - i) << 1)) & 0x3) + 1;
-		recover8b[i] = ((w >> ((1 - (i >> 1)) << 3)) & 0xf) + 1;
-		active8b[i]  = ((w >> (((1 - (i >> 1)) << 3) + 4)) & 0xf) + 1;
-		active[i]    = ((v >> (((3 - i) << 3) + 4)) & 0xf) + 1;
-		recover[i]   = ((v >> ((3 - i) << 3)) & 0xf) + 1;
-
-		udma[i] = amd_udma2cyc[((u >> ((3 - i) << 3)) & 0x7)];
-		uen[i]  = ((u >> ((3 - i) << 3)) & 0x40) ? 1 : 0;
-
-		speed[i] = 40 * pci_clock / (uen[i] ? udma[i] : (active[i] + recover[i]) * 2);
-		cycle[i] = 1000 / pci_clock * (uen[i] ? udma[i] : (active[i] + recover[i]) * 2) / 2;
-	}
-
-	amd_print_drive("Transfer Mode: ", "%10s",
-			(c & ((i & 1) ? 0x40 : 0x20) << ((i & 2) << 2)) ? (uen[i] ? "UDMA" : "DMA") : "PIO");
-
-	amd_print_drive("Address Setup: ", "%8dns", (1000 / pci_clock) * setup[i]);
-	amd_print_drive("Cmd Active:    ", "%8dns", (1000 / pci_clock) * active8b[i]);
-	amd_print_drive("Cmd Recovery:  ", "%8dns", (1000 / pci_clock) * recover8b[i]);
-	amd_print_drive("Data Active:   ", "%8dns", (1000 / pci_clock) * active[i]);
-	amd_print_drive("Data Recovery: ", "%8dns", (1000 / pci_clock) * recover[i]);
-	amd_print_drive("Cycle Time:    ", "%8dns", cycle[i]);
-	amd_print_drive("Transfer Rate: ", "%4d.%dMB/s", speed[i] / 10, speed[i] % 10);
-
-	return p - buffer;	/* hoping it is less than 4K... */
-}
-
-#endif
-
-/*
- * amd_set_speed() writes timing values to the chipset registers
- */
-
-static void amd_set_speed(struct pci_dev *dev, unsigned char dn, struct ide_timing *timing)
-{
-	unsigned char t;
-
-	pci_read_config_byte(dev, AMD_ADDRESS_SETUP, &t);
-	t = (t & ~(3 << ((3 - dn) << 1))) | ((FIT(timing->setup, 1, 4) - 1) << ((3 - dn) << 1));
-	pci_write_config_byte(dev, AMD_ADDRESS_SETUP, t);
-
-	pci_write_config_byte(dev, AMD_8BIT_TIMING + (1 - (dn >> 1)),
-		((FIT(timing->act8b, 1, 16) - 1) << 4) | (FIT(timing->rec8b, 1, 16) - 1));
-
-	pci_write_config_byte(dev, AMD_DRIVE_TIMING + (3 - dn),
-		((FIT(timing->active, 1, 16) - 1) << 4) | (FIT(timing->recover, 1, 16) - 1));
-
-	switch(amd_config->flags & AMD_UDMA) {
-		case AMD_UDMA_33: t = timing->udma ? (0xc0 | (FIT(timing->udma, 2, 5) - 2)) : 0x03; break;
-		case AMD_UDMA_66: t = timing->udma ? (0xc0 | amd_cyc2udma[FIT(timing->udma, 2, 10)]) : 0x03; break;
-		case AMD_UDMA_100: t = timing->udma ? (0xc0 | amd_cyc2udma[FIT(timing->udma / 2, 2, 10)]) : 0x03; break;
-	}
-
-	pci_write_config_byte(dev, AMD_UDMA_TIMING + (3 - dn), t);
-}
-
-/*
- * amd_set_drive() computes timing values configures the drive and
- * the chipset to a desired transfer mode. It also can be called
- * by upper layers.
- */
-
-static int amd_set_drive(ide_drive_t *drive, unsigned char speed)
-{
-	ide_drive_t *peer = HWIF(drive)->drives + (~drive->dn & 1);
-	struct ide_timing t, p;
-	int err, T, UT;
-
-	if (speed != XFER_PIO_SLOW && speed != drive->current_speed)
-		if ((err = ide_config_drive_speed(drive, speed)))
-			return err;
-
-	T = 1000 / system_bus_clock();
-	UT = T / MAX(amd_config->flags & AMD_UDMA, 1);
-
-	ide_timing_compute(drive, speed, &t, T, UT);
-
-	if (peer->present) {
-		ide_timing_compute(peer, peer->current_speed, &p, T, UT);
-		ide_timing_merge(&p, &t, &t, IDE_TIMING_8BIT);
-	}
-
-	amd_set_speed(HWIF(drive)->pci_dev, drive->dn, &t);
-
-	if (!drive->init_speed)	
-		drive->init_speed = speed;
-	drive->current_speed = speed;
-
-	return 0;
-}
-
-/*
- * amd7409_tune_drive() is a callback from upper layers for
- * PIO-only tuning.
- */
-
-static void amd7409_tune_drive(ide_drive_t *drive, unsigned char pio)
-{
-	if (!((amd_enabled >> HWIF(drive)->channel) & 1))
-		return;
-
-	if (pio == 255) {
-		amd_set_drive(drive, ide_find_best_mode(drive, XFER_PIO | XFER_EPIO));
-		return;
-	}
-
-	amd_set_drive(drive, XFER_PIO_0 + MIN(pio, 5));
-}
-
-#ifdef CONFIG_BLK_DEV_IDEDMA
-
-/*
- * amd7409_dmaproc() is a callback from upper layers that can do
- * a lot, but we use it for DMA/PIO tuning only, delegating everything
- * else to the default ide_dmaproc().
- */
-
-int amd7409_dmaproc(ide_dma_action_t func, ide_drive_t *drive)
-{
-
-	if (func == ide_dma_check) {
-
-		short w80 = eighty_ninty_three(drive);
-
-		short speed = ide_find_best_mode(drive,
-			XFER_PIO | XFER_EPIO | XFER_MWDMA | XFER_UDMA |
-			((amd_config->flags & AMD_NO_SWDMA) ? 0 : XFER_SWDMA) |
-			(w80 && (amd_config->flags & AMD_UDMA) == AMD_UDMA_66 ? XFER_UDMA_66 : 0) |
-			(w80 && (amd_config->flags & AMD_UDMA) == AMD_UDMA_100 ? XFER_UDMA_100 : 0));
-
-		func = ((speed & XFER_MODE) != XFER_PIO) ? ide_dma_on : ide_dma_off_quietly;
-
-		if (amd_set_drive(drive, speed))
-			func = ide_dma_off;
-	}
-
-	return ide_dmaproc(func, drive);
-}
-
-#endif /* CONFIG_BLK_DEV_IDEDMA */
-
-/*
- * The initialization callback. Here we determine the IDE chip type
- * and initialize its drive independent registers.
- */
-
-unsigned int __init pci_init_amd7409(struct pci_dev *dev, const char *name)
-{
-	unsigned char t;
-	unsigned int u;
-	int i;
-
-/*
- * Find out what AMD IDE this is.
- */
-
-	for (amd_config = amd_ide_chips; amd_config->id; amd_config++) {
-			pci_read_config_byte(dev, PCI_REVISION_ID, &t);
-			if (dev->device == amd_config->id && t >= amd_config->rev)
-				break;
-		}
-
-	if (!amd_config->id) {
-		printk(KERN_WARNING "AMD7409: Unknown AMD IDE Chip, contact Vojtech Pavlik <vojtech@suse.cz>\n");
-		return -ENODEV;
-	}
-
-/*
- * Check UDMA66 mode or cable info set by BIOS.
- */
-
-	if ((amd_config->flags & AMD_UDMA) > AMD_UDMA_33) {
-
-		if (amd_config->flags & AMD_CABLE) {
-			pci_read_config_byte(dev, AMD_CABLE_DETECT, &t);
-			amd_80w = ((u & 0x3) ? 1 : 0) | ((u & 0xc) ? 2 : 0);
-		} else {
-			pci_read_config_dword(dev, AMD_UDMA_TIMING, &u);
-			for (i = 24; i >= 0; i -= 8)
-				if ((u >> i) & 4)
-					amd_80w |= (1 << (1 - (i >> 4)));
-		}
-	}
-
-	pci_read_config_dword(dev, AMD_IDE_ENABLE, &u);
-	amd_enabled = ((u & 1) ? 2 : 0) | ((u & 2) ? 1 : 0);
-
-/*
- * Set up prefetch & postwrite.
- */
-
-	pci_read_config_byte(dev, AMD_IDE_CONFIG, &t);
-	pci_write_config_byte(dev, AMD_IDE_CONFIG, t | 0xf0);
-
-/*
- * Print the boot message.
- */
-
-	printk(KERN_INFO "AMD7409: AMD-%s IDE %s controller on pci%d:%d.%d\n",
-			amd_config->name,
-			(amd_config->flags & AMD_UDMA) == AMD_UDMA_100 ? "UDMA100" :
-			(amd_config->flags & AMD_UDMA) == AMD_UDMA_66 ? "UDMA66" : "UDMA33",
-			dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
-
-/*
- * Register /proc/ide/via entry
- */
-
-#ifdef CONFIG_PROC_FS
-	if (!amd7409_proc) {
-		for (i = 0; i < 6; i++)
-                	if (pci_resource_flags(dev, i) & IORESOURCE_IO)
-                        	break;
-
-		amd_base = pci_resource_start(dev, i);
-		bmide_dev = dev;
-		amd7409_display_info = &amd_get_info;
-		amd7409_proc = 1;
-
-	}
-#endif
-
-	return 0;
-}
-
-unsigned int __init ata66_amd7409(ide_hwif_t *hwif)
-{
-	return ((amd_enabled & amd_80w) >> hwif->channel) & 1;
-}
-
-void __init ide_init_amd7409(ide_hwif_t *hwif)
-{
-	int i;
-
-	hwif->tuneproc = &amd7409_tune_drive;
-	hwif->speedproc = &amd_set_drive;
-	hwif->autodma = 0;
-
-	for (i = 0; i < 2; i++) {
-		hwif->drives[i].io_32bit = 1;
-		hwif->drives[i].unmask = 1;
-		hwif->drives[i].autotune = 1;
-		hwif->drives[i].dn = hwif->channel * 2 + i;
-	}
-
-#ifdef CONFIG_BLK_DEV_IDEDMA
-	if (hwif->dma_base) {
-		hwif->dmaproc = &amd7409_dmaproc;
-		hwif->autodma = 1;
-	}
-#endif /* CONFIG_BLK_DEV_IDEDMA */
-}
-
-/*
- * We allow the BM-DMA driver only work on enabled interfaces.
- */
-
-void __init ide_dmacapable_amd7409(ide_hwif_t *hwif, unsigned long dmabase)
-{
-	if ((amd_enabled >> hwif->channel) & 1)
-		ide_setup_dma(hwif, dmabase, 8);
-}
-
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ide-timing.h"
-
-#ifndef _IDE_TIMING_H
-#define _IDE_TIMING_H
-
-/*
- * $Id: ide-timing.h,v 1.4 2000/10/02 20:48:56 vojtech Exp $
- *
- *  Copyright (c) 1999-2000 Vojtech Pavlik
- *
- *  Sponsored by SuSE
- */
-
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * Should you need to contact me, the author, you can do so either by
- * e-mail - mail your message to <vojtech@suse.cz>, or by paper mail:
- * Vojtech Pavlik, Ucitelska 1576, Prague 8, 182 00 Czech Republic
- */
-
-#include <linux/hdreg.h>
-
-#ifndef XFER_PIO_5
-#define XFER_PIO_5		0x0d
-#endif
-
-struct ide_timing {
-	short mode;
-	short setup;	/* t1 */
-	short act8b;	/* t2 for 8-bit io */
-	short rec8b;	/* t2i for 8-bit io */
-	short cyc8b;	/* t0 for 8-bit io */
-	short active;	/* t2 or tD */
-	short recover;	/* t2i or tK */
-	short cycle;	/* t0 */
-	short udma;	/* t2CYCTYP/2 */
-};
-
-/*
- * PIO 0-5, MWDMA 0-2 and UDMA 0-5 timings (in nanoseconds).
- * These were taken from ATA/ATAPI-6 standard, rev 0a, except
- * for PIO 5, which is a nonstandard extension.
- */
-
-static struct ide_timing ide_timing[] = {
-
-	{ XFER_UDMA_5,     0,   0,   0,   0,   0,   0,   0,  20 },
-	{ XFER_UDMA_4,     0,   0,   0,   0,   0,   0,   0,  30 },
-	{ XFER_UDMA_3,     0,   0,   0,   0,   0,   0,   0,  45 },
-
-	{ XFER_UDMA_2,     0,   0,   0,   0,   0,   0,   0,  60 },
-	{ XFER_UDMA_1,     0,   0,   0,   0,   0,   0,   0,  80 },
-	{ XFER_UDMA_0,     0,   0,   0,   0,   0,   0,   0, 120 },
-                                          
-	{ XFER_MW_DMA_2,  25,   0,   0,   0,  70,  25, 120,   0 },
-	{ XFER_MW_DMA_1,  45,   0,   0,   0,  80,  50, 150,   0 },
-	{ XFER_MW_DMA_0,  60,   0,   0,   0, 215, 215, 480,   0 },
-                                          
-	{ XFER_SW_DMA_2,  60,   0,   0,   0, 120, 120, 240,   0 },
-	{ XFER_SW_DMA_1,  90,   0,   0,   0, 240, 240, 480,   0 },
-	{ XFER_SW_DMA_0, 120,   0,   0,   0, 480, 480, 960,   0 },
-
-	{ XFER_PIO_5,     20,  50,  30, 100,  50,  30, 100,   0 },
-	{ XFER_PIO_4,     25,  70,  25, 120,  70,  25, 120,   0 },
-	{ XFER_PIO_3,     30,  80,  70, 180,  80,  70, 180,   0 },
-
-	{ XFER_PIO_2,     30, 290,  40, 330, 100,  90, 240,   0 },
-	{ XFER_PIO_1,     50, 290,  93, 383, 125, 100, 383,   0 },
-	{ XFER_PIO_0,     70, 290, 240, 600, 165, 150, 600,   0 },
-
-	{ XFER_PIO_SLOW, 120, 290, 240, 960, 290, 240, 960,   0 },
-
-	{ -1 }
-};
-
-#define IDE_TIMING_SETUP	0x01
-#define IDE_TIMING_ACT8B	0x02
-#define IDE_TIMING_REC8B	0x04
-#define IDE_TIMING_CYC8B	0x08
-#define IDE_TIMING_8BIT		0x0e
-#define IDE_TIMING_ACTIVE	0x10
-#define IDE_TIMING_RECOVER	0x20
-#define IDE_TIMING_CYCLE	0x40
-#define IDE_TIMING_UDMA		0x80
-#define IDE_TIMING_ALL		0xff
-
-#define MIN(a,b)	((a)<(b)?(a):(b))
-#define MAX(a,b)	((a)>(b)?(a):(b))
-#define FIT(v,min,max)	MAX(MIN(v,max),min)
-#define ENOUGH(v,unit)	(((v)-1)/(unit)+1)
-#define EZ(v,unit)	((v)?ENOUGH(v,unit):0)
-
-#define XFER_MODE	0xf0
-#define XFER_UDMA_100	0x44
-#define XFER_UDMA_66	0x42
-#define XFER_UDMA	0x40
-#define XFER_MWDMA	0x20
-#define XFER_SWDMA	0x10
-#define XFER_EPIO	0x01
-#define XFER_PIO	0x00
-
-static short ide_find_best_mode(ide_drive_t *drive, int map)
-{
-	struct hd_driveid *id = drive->id;
-	short best = 0;
-
-	if (!id)
-		return XFER_PIO_SLOW;
-
-	if ((map & XFER_UDMA) && (id->field_valid & 4)) {	/* Want UDMA and UDMA bitmap valid */
-
-		if ((map & XFER_UDMA_100) == XFER_UDMA_100)
-			if ((best = (id->dma_ultra & 0x0020) ? XFER_UDMA_5 : 0)) return best;
-
-		if ((map & XFER_UDMA_66) == XFER_UDMA_66)
-			if ((best = (id->dma_ultra & 0x0010) ? XFER_UDMA_4 :
-                	    	    (id->dma_ultra & 0x0008) ? XFER_UDMA_3 : 0)) return best;
-
-                if ((best = (id->dma_ultra & 0x0004) ? XFER_UDMA_2 :
-                	    (id->dma_ultra & 0x0002) ? XFER_UDMA_1 :
-                	    (id->dma_ultra & 0x0001) ? XFER_UDMA_0 : 0)) return best;
-	}
-
-	if ((map & XFER_MWDMA) && (id->field_valid & 2)) {	/* Want MWDMA and drive has EIDE fields */
-
-		if ((best = (id->dma_mword & 0x0004) ? XFER_MW_DMA_2 :
-                	    (id->dma_mword & 0x0002) ? XFER_MW_DMA_1 :
-                	    (id->dma_mword & 0x0001) ? XFER_MW_DMA_0 : 0)) return best;
-	}
-
-	if (map & XFER_SWDMA) {					/* Want SWDMA */
-
- 		if (id->field_valid & 2) {			/* EIDE SWDMA */
-
-			if ((best = (id->dma_1word & 0x0004) ? XFER_SW_DMA_2 :
-      				    (id->dma_1word & 0x0002) ? XFER_SW_DMA_1 :
-				    (id->dma_1word & 0x0001) ? XFER_SW_DMA_0 : 0)) return best;
-		}
-
-		if (id->capability & 1) {			/* Pre-EIDE style SWDMA */
-
-			if ((best = (id->tDMA == 2) ? XFER_SW_DMA_2 :
-				    (id->tDMA == 1) ? XFER_SW_DMA_1 :
-				    (id->tDMA == 0) ? XFER_SW_DMA_0 : 0)) return best;
-		}
-	}
-
-
-	if ((map & XFER_EPIO) && (id->field_valid & 2)) {	/* EIDE PIO modes */
-
-		if ((best = (drive->id->eide_pio_modes & 4) ? XFER_PIO_5 :
-			    (drive->id->eide_pio_modes & 2) ? XFER_PIO_4 :
-			    (drive->id->eide_pio_modes & 1) ? XFER_PIO_3 : 0)) return best;
-	}
-	
-	return  (drive->id->tPIO == 2) ? XFER_PIO_2 :
-		(drive->id->tPIO == 1) ? XFER_PIO_1 :
-		(drive->id->tPIO == 0) ? XFER_PIO_0 : XFER_PIO_SLOW;
-}
-
-static void ide_timing_quantize(struct ide_timing *t, struct ide_timing *q, int T, int UT)
-{
-	q->setup   = EZ(t->setup,   T);
-	q->act8b   = EZ(t->act8b,   T);
-	q->rec8b   = EZ(t->rec8b,   T);
-	q->cyc8b   = EZ(t->cyc8b,   T);
-	q->active  = EZ(t->active,  T);
-	q->recover = EZ(t->recover, T);
-	q->cycle   = EZ(t->cycle,   T);
-	q->udma    = EZ(t->udma,   UT);
-}
-
-static void ide_timing_merge(struct ide_timing *a, struct ide_timing *b, struct ide_timing *m, unsigned int what)
-{
-	if (what & IDE_TIMING_SETUP  ) m->setup   = MAX(a->setup,   b->setup);
-	if (what & IDE_TIMING_ACT8B  ) m->act8b   = MAX(a->act8b,   b->act8b);
-	if (what & IDE_TIMING_REC8B  ) m->rec8b   = MAX(a->rec8b,   b->rec8b);
-	if (what & IDE_TIMING_CYC8B  ) m->cyc8b   = MAX(a->cyc8b,   b->cyc8b);
-	if (what & IDE_TIMING_ACTIVE ) m->active  = MAX(a->active,  b->active);
-	if (what & IDE_TIMING_RECOVER) m->recover = MAX(a->recover, b->recover);
-	if (what & IDE_TIMING_CYCLE  ) m->cycle   = MAX(a->cycle,   b->cycle);
-	if (what & IDE_TIMING_UDMA   ) m->udma    = MAX(a->udma,    b->udma);
-}
-
-static struct ide_timing* ide_timing_find_mode(short speed)
-{
-	struct ide_timing *t;
-
-	for (t = ide_timing; t->mode != speed; t++)
-		if (t->mode < 0)
-			return NULL;
-	return t; 
-}
-
-static int ide_timing_compute(ide_drive_t *drive, short speed, struct ide_timing *t, int T, int UT)
-{
-	struct hd_driveid *id = drive->id;
-	struct ide_timing *s, p;
-
-/*
- * Find the mode.
- */
-
-	if (!(s = ide_timing_find_mode(speed)))
-		return -EINVAL;
-
-/*
- * If the drive is an EIDE drive, it can tell us it needs extended
- * PIO/MWDMA cycle timing.
- */
-
-	if (id && id->field_valid & 2) {	/* EIDE drive */
-
-		memset(&p, 0, sizeof(p));
-
-		switch (speed & XFER_MODE) {
-
-			case XFER_PIO:
-				if (speed <= XFER_PIO_2) p.cycle = p.cyc8b = id->eide_pio;
-						    else p.cycle = p.cyc8b = id->eide_pio_iordy;
-				break;
-
-			case XFER_MWDMA:
-				p.cycle = id->eide_dma_min;
-				break;
-		}
-
-		ide_timing_merge(&p, t, t, IDE_TIMING_CYCLE | IDE_TIMING_CYC8B);
-	}
-
-/*
- * Convert the timing to bus clock counts.
- */
-
-	ide_timing_quantize(s, t, T, UT);
-
-/*
- * Even in DMA/UDMA modes we still use PIO access for IDENTIFY, S.M.A.R.T
- * and some other commands. We have to ensure that the DMA cycle timing is
- * slower/equal than the fastest PIO timing.
- */
-
-	if ((speed & XFER_MODE) != XFER_PIO) {
-		ide_timing_compute(drive, ide_find_best_mode(drive, XFER_PIO | XFER_EPIO), &p, T, UT);
-		ide_timing_merge(&p, t, t, IDE_TIMING_ALL);
-	}
-
-/*
- * Lenghten active & recovery time so that cycle time is correct.
- */
-
-	if (t->act8b + t->rec8b < t->cyc8b) {
-		t->act8b += (t->cyc8b - (t->act8b + t->rec8b)) / 2;
-		t->rec8b = t->cyc8b - t->act8b;
-	}
-
-	if (t->active + t->recover < t->cycle) {
-		t->active += (t->cycle - (t->active + t->recover)) / 2;
-		t->recover = t->cycle - t->active;
-	}
-
-	return 0;
-}
-
-#endif
-
---XsQoSWH+UP9D9v3l--
+AMD Update.
+HPT366 Update.
+
+NASTY-ARSE!!!! dma-timeout "hack" as a compile option.
+It works 99% of the time but invokes nasty-nasty kernel messages.
+
+double handler, double timer........fails dma renable attempt
+
+However deadlock should be gone, lets hope.
+
+It is not exactly correct, but function :-((
+
+Cheers,
+
+Andre Hedrick
+Linux ATA Development
+
+---1019260510-1302512642-979289065=:32320
+Content-Type: application/octet-stream; name="ide.2.4.1-p3.01112001.patch.bz2"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10101120044250.32320@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename="ide.2.4.1-p3.01112001.patch.bz2"
+
+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
+wh5arJTvVkHzJPlHwaGcTqVuVKVYU+wz+E/U+XRP77/G1+y39Jk/0GqYqVzW
+HYqq9+GGMO1k5qpVdp9qsjRWw6jZvYBzIoOJ0ET/eLH8Z1p5P6yk+btwXMJ4
+MF7Em95bOEh9fPDoLNXJxZMlNCpSpUqhjGKGrCYf5DJGatNpScj0jcinCB6J
+kyLPtD7H4Mtad9Zt+/KMlG480mE8z4H0Yj+DlG1w/OLj80q8RDPCz5/pwPj4
+vF2bGjR8WTvsm93dm+277999c7I3ZP2h+M/SEL4t+XUDnKbdzgToV+lgzJva
+Kqupwf0K8avF+Xf1p5XDE92/Zs+nj5/Dv/FOb548YiI1XM53xNPG+m++85vn
+faIiNVu4nwMj5zWHFw6S8aopDY2OiISaHdYFZjdBBEUFzUMEh1mRN3OHrk/u
+x+bwb11bt9soNuaj5Cy/K2HhnbGXkFs4nbGx16c8KLNUsuG6nNNfZdStMz50
+2nS8pXGYIpWbDigDDLMXjZWNlOX53ManWSxyysntqsnVSrTacXlLTpCmWbTp
+pib40H8AtB2GxPtG4EkwhCSQq2yCqlLSWUsqqvHEwsknIVEKvpixbIT8qISU
+/NEwhFiVDHgU6wqR9IoZoPzlQeMEdfo9xHX9XxEW955YgbIrHeDifcgsKruC
+UeklSWFh5/yxjCszHVZdh/v0CTA2HsOk5TxnynEB4xtAc2gcnOSYINhIc6zx
+rKYzHTIoK+VuhC80WBYcwE5O5US3bg0mI3oIMOssDgNO9y8tAtPONmk6kanW
+6x9bTqls3mzdVhkvirpbmPKkebr0OANJL0JrsUVJM/BExfx96xRPkh5wWnN7
+uLFTiqjDy82ocxOfoA9YISGNJCQxVIsSyB/sMSSfBQyiffR0lYLHqBG8l62F
+IYeoWE5B3HQGsPBJUYBazVmlGSR7mUDNmYKzTNhkcc6/+T+3P5NdmuZYdd5r
+OgZj0ESnoRKmcNUYJCBHt3eE36JrW0nw0pETSa8DadwI7wRZP1gMOfxPTl6P
+T87mJvV4bHVVe7L3ve9X5mNkmObnLulKm33Nj8s72MtlKKdJ0pR0nRilloGA
+BAYnDVo2VuPQHcAht96D3mZhl8QUkhFgIPjCZoRZ4+yTzSd/Fnn1be2EjkRG
+aNsAAAAaJLEvJJZzgGR3yrKwKdhoYJ806za+2+vkxlYxZ8Vmvie/9GaDgGDQ
+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
+---1019260510-1302512642-979289065=:32320--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

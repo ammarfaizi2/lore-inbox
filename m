@@ -1,109 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268479AbUH3PT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268489AbUH3P3C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268479AbUH3PT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 11:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268484AbUH3PT6
+	id S268489AbUH3P3C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 11:29:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268490AbUH3P3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 11:19:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37347 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268479AbUH3PTt (ORCPT
+	Mon, 30 Aug 2004 11:29:02 -0400
+Received: from zero.aec.at ([193.170.194.10]:15364 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S268489AbUH3P27 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 11:19:49 -0400
-Date: Mon, 30 Aug 2004 10:19:45 -0500
-From: Ken Preslan <kpreslan@redhat.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Allow cluster-wide flock
-Message-ID: <20040830151945.GA16894@potassium.msp.redhat.com>
-Mime-Version: 1.0
+	Mon, 30 Aug 2004 11:28:59 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org, mark.langsdorf@amd.com,
+       root@chaos.analogic.com
+Subject: Re: Celistica with AMD chip-set
+References: <2yV1c-29L-7@gated-at.bofh.it> <2yVb1-2ft-57@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 30 Aug 2004 17:28:07 +0200
+In-Reply-To: <2yVb1-2ft-57@gated-at.bofh.it> (Alan Cox's message of "Mon, 30
+ Aug 2004 16:20:15 +0200")
+Message-ID: <m34qmktzlk.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Below is a patch that lets a cluster filesystem (such as GFS) implement
-flock across a the cluster.  Please apply.
+> On Llu, 2004-08-30 at 15:02, Richard B. Johnson wrote:
+>> Hello all,
+>> 
+>> The Celistica server with the AMD chip-set has very poor
+>> PCI performance with Linux (and probably W$ too).
+>> 
+>> The problem was traced to incorrect bridge configuration
+>> in the HyperTransport(tm) chips that connect up pairs
+>> of slots.
 
-Thanks!
+>    while((pdev = pci_find_device(0x1022, 0x7450, pdev)) != NULL)
+>        pci_write_config_dword(pdev,  0x4c, 0x2ec1);
 
 
-diff -urN -p linux-2.6.9-rc1-mm1/fs/locks.c linux/fs/locks.c
---- linux-2.6.9-rc1-mm1/fs/locks.c	2004-08-27 10:54:32.939282703 -0500
-+++ linux/fs/locks.c	2004-08-27 10:54:34.540910950 -0500
-@@ -1318,6 +1318,33 @@ out_unlock:
- }
- 
- /**
-+ * flock_lock_file_wait - Apply a FLOCK-style lock to a file
-+ * @filp: The file to apply the lock to
-+ * @fl: The lock to be applied
-+ *
-+ * Add a FLOCK style lock to a file.
-+ */
-+int flock_lock_file_wait(struct file *filp, struct file_lock *fl)
-+{
-+	int error;
-+	might_sleep();
-+	for (;;) {
-+		error = flock_lock_file(filp, fl);
-+		if ((error != -EAGAIN) || !(fl->fl_flags & FL_SLEEP))
-+			break;
-+		error = wait_event_interruptible(fl->fl_wait, !fl->fl_next);
-+		if (!error)
-+			continue;
-+
-+		locks_delete_block(fl);
-+		break;
-+	}
-+	return error;
-+}
-+
-+EXPORT_SYMBOL(flock_lock_file_wait);
-+
-+/**
-  *	sys_flock: - flock() system call.
-  *	@fd: the file descriptor to lock.
-  *	@cmd: the type of lock to apply.
-@@ -1365,6 +1392,13 @@ asmlinkage long sys_flock(unsigned int f
- 	if (error)
- 		goto out_free;
- 
-+	if (filp->f_op && filp->f_op->lock) {
-+		error = filp->f_op->lock(filp,
-+					(can_sleep) ? F_SETLKW : F_SETLK,
-+					lock);
-+		goto out_free;
-+	}
-+
- 	for (;;) {
- 		error = flock_lock_file(filp, lock);
- 		if ((error != -EAGAIN) || !can_sleep)
-@@ -1732,6 +1766,12 @@ void locks_remove_flock(struct file *fil
- 	if (!inode->i_flock)
- 		return;
- 
-+	if (filp->f_op && filp->f_op->lock) {
-+		struct file_lock fl = { .fl_flags = FL_FLOCK,
-+					.fl_type = F_UNLCK };
-+		filp->f_op->lock(filp, F_SETLKW, &fl);
-+	}	
-+
- 	lock_kernel();
- 	before = &inode->i_flock;
- 
-diff -urN -p linux-2.6.9-rc1-mm1/include/linux/fs.h linux/include/linux/fs.h
---- linux-2.6.9-rc1-mm1/include/linux/fs.h	2004-08-27 10:54:32.941282239 -0500
-+++ linux/include/linux/fs.h	2004-08-27 10:54:34.541910717 -0500
-@@ -697,6 +697,7 @@ extern int posix_lock_file_wait(struct f
- extern void posix_block_lock(struct file_lock *, struct file_lock *);
- extern void posix_unblock_lock(struct file *, struct file_lock *);
- extern int posix_locks_deadlock(struct file_lock *, struct file_lock *);
-+extern int flock_lock_file_wait(struct file *filp, struct file_lock *fl);
- extern int __break_lease(struct inode *inode, unsigned int flags);
- extern void lease_get_mtime(struct inode *, struct timespec *time);
- extern int lock_may_read(struct inode *, loff_t start, unsigned long count);
+> Can you get Celestica to mail me their PCI subvendor
+> id/devid's for the problem configuration or DMI strings
+> and then we can do a PCI quirk properly for this.
 
+Celistica is just the contract manufacturer for the AMD
+reference design, they're really AMD designs. 0122/7450 
+is the AMD 8131 PCI-X bridge.
+
+I doubt it is a good idea to blindly change the configuration of the
+bridge like this in the kernel.  It is probably better to wait for an
+BIOS update or if you really need an urgent fix to do it from user
+space. Any fix should probably read/change bit/write the register, not
+blindly overwrite.
+
+-Andi
 

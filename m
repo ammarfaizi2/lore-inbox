@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316161AbSFZAVw>; Tue, 25 Jun 2002 20:21:52 -0400
+	id <S316185AbSFZA0c>; Tue, 25 Jun 2002 20:26:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316163AbSFZAVv>; Tue, 25 Jun 2002 20:21:51 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:23022 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S316161AbSFZAVv>; Tue, 25 Jun 2002 20:21:51 -0400
-Message-ID: <3D1908E4.8030404@us.ibm.com>
-Date: Tue, 25 Jun 2002 17:20:52 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Michael Hohnbaum <hbaum@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
-Subject: [patch] boot hang on multi-quad machines.
-Content-Type: multipart/mixed;
- boundary="------------080701030902000809050301"
+	id <S316187AbSFZA0b>; Tue, 25 Jun 2002 20:26:31 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:10722 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S316185AbSFZA0a>; Tue, 25 Jun 2002 20:26:30 -0400
+Date: Tue, 25 Jun 2002 18:57:46 -0400
+From: Doug Ledford <dledford@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@redhat.com, linux-scsi@redhat.com
+Subject: [PATCH] initio driver update
+Message-ID: <20020625185746.A19388@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080701030902000809050301
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+The initio a100 driver has not worked for some time now (needed updating 
+to the DMA mapping API).  This patch implements an update to the DMA 
+mapping API plus fixes a lot of obvious problems I saw in the driver (I'm 
+sure more exist).  I don't have hardware to test this, so testers would 
+be *much* appreciated.  It compiles, that's all I guarantee until testers 
+step forward.  However, it can't be any worse than the old version since 
+the old version wouldn't compile.  Linus, please apply this (and let me 
+know if you don't like pulling patches this way, it was too big to send 
+to the mailing lists).  Thanks.
 
-As mentioned in several posts, the balance_irq code introduced in 2.5.9 is 
-broken for any architecture that doesn't use flat logical addressing.  Also, 
-even when it does work, there have been several reports of it degrading 
-performance.  As the NUMA-Q architecture I work with doesn't use flat logical 
-addressing, and it isn't worth the possible performance hit, I'm submitting 
-this patch for inclusion into the mainline.
+http://people.redhat.com/dledford/patches/initio.patch
 
-Cheers!
-
--Matt
-
-
---------------080701030902000809050301
-Content-Type: text/plain;
- name="balance_irq-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="balance_irq-fix.patch"
-
---- linux-2.5.21-vanilla/arch/i386/kernel/io_apic.c	Fri Jun 14 17:17:44 2002
-+++ linux-2.5.21-patched/arch/i386/kernel/io_apic.c.fixed	Mon Jun 24 17:54:20 2002
-@@ -247,7 +247,7 @@
- 
- static inline void balance_irq(int irq)
- {
--#if CONFIG_SMP
-+#if (CONFIG_SMP && !CONFIG_MULTIQUAD)
- 	irq_balance_t *entry = irq_balance + irq;
- 	unsigned long now = jiffies;
- 
-
---------------080701030902000809050301--
-
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130339AbRAJRdg>; Wed, 10 Jan 2001 12:33:36 -0500
+	id <S135996AbRAJRjH>; Wed, 10 Jan 2001 12:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135972AbRAJRd0>; Wed, 10 Jan 2001 12:33:26 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:64519 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130339AbRAJRdQ>;
-	Wed, 10 Jan 2001 12:33:16 -0500
-Date: Wed, 10 Jan 2001 18:32:56 +0100
-From: Andi Kleen <ak@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Daniel Phillips <phillips@innominate.de>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug
-Message-ID: <20010110183256.A28025@gruyere.muc.suse.de>
-In-Reply-To: <dnbstgewoj.fsf@magla.iskon.hr> <Pine.LNX.4.10.10101091041150.2070-100000@penguin.transmeta.com> <3A5B61F7.FB0E79C1@innominate.de> <shsvgror0ch.fsf@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <shsvgror0ch.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Tue, Jan 09, 2001 at 08:29:02PM +0100
+	id <S135972AbRAJRi6>; Wed, 10 Jan 2001 12:38:58 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:58532 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135994AbRAJRir>;
+	Wed, 10 Jan 2001 12:38:47 -0500
+Date: Wed, 10 Jan 2001 12:38:34 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Chris Mason <mason@suse.com>
+cc: Marc Lehmann <pcg@goof.com>, reiserfs-list@namesys.com,
+        linux-kernel@vger.kernel.org, vs@namesys.botik.ru
+Subject: Re: [reiserfs-list] major security bug in reiserfs (may affect SuSE
+ Linux)
+In-Reply-To: <169460000.979141737@tiny>
+Message-ID: <Pine.GSO.4.21.0101101229050.13614-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 08:29:02PM +0100, Trond Myklebust wrote:
-> Al has mentioned that he wants us to move towards a *BSD-like system
-> of credentials (i.e. struct ucred) that could be used here, but that's
-> in the far future. In the meantime, we cache RPC credentials in the
-> struct file...
-
-struct ucred is also needed to get LinuxThreads POSIX compliant (sharing
-credentials between threads, but still keeping system calls atomic in
-relation to credential changes) 
 
 
--Andi (who doesn't want to know how many security holes are in linux ported
-programs using threads and set*id() because of that) 
+On Wed, 10 Jan 2001, Chris Mason wrote:
+
+> 
+> 
+> On Wednesday, January 10, 2001 12:47:17 AM -0500 Alexander Viro
+> <viro@math.psu.edu> wrote:
+> 
+> > However, actual code really looks like the end of filldir(). If that's the
+> > case we are deep in it - argument of filldir() gets screwed. buf, that is.
+> > Since it happens after we've already done dereferencing of buf in
+> > filldir() and we don't trigger them... Fsck knows. copy_to_user() and
+> > put_user() should not be able to screw the kernel stack.
+> > 
+> In filldir, I don't like the line where we ((char *)dirent += reclen ;  If
+> reclen is much larger than the buffer sent from userspace, I don't see how
+> we stay in bounds.
+
+	So? copy_to_user() and put_user() will refuse to scramble the
+kernel memory. IOW, dirent can be out of the userspace. Hell, user could
+call getdents() and pass it a kernel pointer. Try it and you'll see what
+happens.
+
+	BTW, in that particular line we are actually even protected from
+getting too large dirent, since if the sum was out of the user space we
+would die several lines above upon copy_to_user().
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

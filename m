@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbTJNXwr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 19:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbTJNXwr
+	id S261872AbTJNXtr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 19:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbTJNXtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 19:52:47 -0400
-Received: from tog-wakko4.prognet.com ([207.188.29.244]:19072 "EHLO virago")
-	by vger.kernel.org with ESMTP id S261735AbTJNXwp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 19:52:45 -0400
-Date: Tue, 14 Oct 2003 16:52:13 -0700
-From: Tom Marshall <tmarshall@real.com>
-To: George Anzinger <george@mvista.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: missed itimer signals in 2.6
-Message-ID: <20031014235213.GC860@real.com>
-References: <20031013163411.37423e4e.akpm@osdl.org> <3F8C8692.5010108@mvista.com>
+	Tue, 14 Oct 2003 19:49:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:25253 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261872AbTJNXtq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 19:49:46 -0400
+Date: Tue, 14 Oct 2003 16:49:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Karel =?ISO-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Vortex 3c900 passing driver parameters
+Message-Id: <20031014164954.20ac88f6.akpm@osdl.org>
+In-Reply-To: <20031014183226.A188@beton.cybernet.src>
+References: <20031014183226.A188@beton.cybernet.src>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="raC6veAxrt5nqIoY"
-Content-Disposition: inline
-In-Reply-To: <3F8C8692.5010108@mvista.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Karel Kulhavý <clock@twibright.com> wrote:
+>
+> Hello
+> 
+> How do I do a ether=... (kernel boot-time) equivalent of
+> insmod 3c59x.o options=0x201 full_duplex=1 ?
+> 
 
---raC6veAxrt5nqIoY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Unfortunately you cannot.  `ether=' is broken for all drivers which use the
+new(ish) alloc_etherdev() API.
 
-> Since the actual interval used by the system is a bit larger than what=20
-> was asked for, there will be fewer ticks.
-
-I understand what happens and why.  I admit that I'm not familiar with the
-POSIX standard on this issue.  Questions:
-
- * I've heard that the kernel's timer resolution has increased from 10ms to
-   1ms in 2.6.  Why does the itimer have such a large granularity?  I
-   expected it to be highly accurate in this range.
-
- * Is this how the timer is supposed to work?  It seems to me that an
-   algorithm which kept running track of the difference in requested and
-   actual times (a la Bresenham) could make the itimer behave closer to what
-   the user requested.
-
-> Maybe you could save this code if it is part of a test suite....
-
-This code is part of a "timer calibration" routine used by the RealNetworks
-Helix Server.  I just noticed that the timer calibration failed on a machine
-that had 2.6.0-test7 installed (we have not officially looked at supporting
-2.6 yet).  The test runs on many different flavors of *nix (probably a dozen
-or so).  I can check to see what the behavior is on the other platforms if
-that would be useful.  If this is the Right Way to do timers, we'll probably
-end up changing our "calibration" routine to read back the actual timer
-interval as you suggest.
-
---=20
-One good reason why computers can do more work than people is that they
-never have to stop and answer the phone.
-
---raC6veAxrt5nqIoY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/jIwtqznSmcYu2m8RAvr9AKCQ2ip4lupQT4Lx5yt5+MTs4RVVSwCeLptv
-7v0ylI1J768smJ2ZrqcN4sg=
-=MCMU
------END PGP SIGNATURE-----
-
---raC6veAxrt5nqIoY--
+It is due to ordering problems: the name of the interface is not known at
+the time of parsing the setup info and nobody has got down and worked out
+how to fix it.  

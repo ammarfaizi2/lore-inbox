@@ -1,81 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265927AbTL3XXE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 18:23:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265912AbTL3XU5
+	id S265832AbTL3WIt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 17:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265853AbTL3WHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 18:20:57 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:10218 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S265895AbTL3XUa
+	Tue, 30 Dec 2003 17:07:32 -0500
+Received: from mail.kroah.org ([65.200.24.183]:46785 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265280AbTL3WG2 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 18:20:30 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <bluefoxicy@linux.net>, <linux-kernel@vger.kernel.org>
-Subject: RE: Slab allocator . . . cache?  WTF is it?
-Date: Tue, 30 Dec 2003 15:20:24 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMELIJBAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20031230221859.15F503956@sitemail.everyone.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2055
-Importance: Normal
+	Tue, 30 Dec 2003 17:06:28 -0500
+Subject: Re: [PATCH] i2c driver fixes for 2.6.0
+In-Reply-To: <10728219702169@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 30 Dec 2003 14:06:10 -0800
+Message-Id: <10728219704116@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Mem:    775616k total,   747740k used,    27876k free,    96584k buffers
-> Swap:   250480k total,    71340k used,   179140k free,   298852k cached
->
->
-> This is somewhat distressing.  Last time this happened, I started
-> opening every
-> program I had (including every OpenOffice.org product and every
-> browser I had
-> installed), and the "cached" value dropped quickly.
+ChangeSet 1.1496.6.3, 2003/12/04 00:44:29-08:00, khali@linux-fr.org
 
-	So, as you've seen, when the kernel needs memory, it can easily throw its
-cached data away and gain as much free memory as it needs.
+[PATCH] I2C: i2c documentation (2 of 2)
 
-> I'm wondering, what IS cache?  It seems to increase even when
-> swap is not used,
-> and sometimes when there's no swap partition enabled.  It also
-> seems to cause
-> me to run into swap when I have ample ram available,
+This is a patch to writing-clients. The current version in Linux 2.6
+still mentions the old module reference counting mechanism. The patch
+brings it to the same version we have in i2c CVS, where that section has
+been updated.
 
-	All true, all good. No matter how much RAM you have available, odds are you
-are moving more dat to and from disk then you have RAM. So it sometimes
-makes sense to swap stuff to make room for more cache.
 
-> assuming
-> that cache is just
-> some sort of cache that is copied from and mirrors another
-> portion of ram for
-> some sort of speed increase.
+ Documentation/i2c/writing-clients |   57 ++++++--------------------------------
+ 1 files changed, 10 insertions(+), 47 deletions(-)
 
-	More typically, it contains copies of data that was written to or read from
-disk in case it is requested (again).
 
-> It's wasteful to me,
-
-	Huh? Why do you say that?
-
-> and I want to
-> more understand
-> its implimentation and its purpose, and in all honesty limit its
-> impact if possible.
-> I got this RAM upgrade because I was using about 676M of RAM
-> total, including swap,
-> at peak; and now I find myself using 820M RAM at peak and about
-> 750-800 continually.
-
-	If you don't want the computer to use the RAM, take the RAM out of the
-computer. The computer will use all of the RAM you give it. Why shouldn't
-it?
-
-	DS
-
+diff -Nru a/Documentation/i2c/writing-clients b/Documentation/i2c/writing-clients
+--- a/Documentation/i2c/writing-clients	Tue Dec 30 12:32:43 2003
++++ b/Documentation/i2c/writing-clients	Tue Dec 30 12:32:43 2003
+@@ -24,16 +24,14 @@
+ routines, a client structure specific information like the actual I2C
+ address.
+ 
+-  struct i2c_driver foo_driver
+-  {  
+-    /* name           */  "Foo version 2.3 and later driver",
+-    /* id             */  I2C_DRIVERID_FOO,
+-    /* flags          */  I2C_DF_NOTIFY,
+-    /* attach_adapter */  &foo_attach_adapter,
+-    /* detach_client  */  &foo_detach_client,
+-    /* command        */  &foo_command,   /* May be NULL */
+-    /* inc_use        */  &foo_inc_use,   /* May be NULL */
+-    /* dec_use        */  &foo_dec_use    /* May be NULL */
++  static struct i2c_driver foo_driver = {
++    .owner          = THIS_MODULE,
++    .name           = "Foo version 2.3 driver",
++    .id             = I2C_DRIVERID_FOO, /* usually from i2c-id.h */
++    .flags          = I2C_DF_NOTIFY,
++    .attach_adapter = &foo_attach_adapter,
++    .detach_client  = &foo_detach_client,
++    .command        = &foo_command /* may be NULL */
+   }
+  
+ The name can be chosen freely, and may be upto 40 characters long. Please
+@@ -50,43 +48,8 @@
+ All other fields are for call-back functions which will be explained 
+ below.
+ 
+-
+-Module usage count
+-==================
+-
+-If your driver can also be compiled as a module, there are moments at 
+-which the module can not be removed from memory. For example, when you
+-are doing a lengthy transaction, or when you create a /proc directory,
+-and some process has entered that directory (this last case is the
+-main reason why these call-backs were introduced).
+-
+-To increase or decrease the module usage count, you can use the
+-MOD_{INC,DEC}_USE_COUNT macros. They must be called from the module
+-which needs to get its usage count changed; that is why each driver
+-module has to implement its own callback.
+-
+-  void foo_inc_use (struct i2c_client *client)
+-  {
+-  #ifdef MODULE
+-    MOD_INC_USE_COUNT;
+-  #endif
+-  }
+-
+-  void foo_dec_use (struct i2c_client *client)
+-  {
+-  #ifdef MODULE
+-    MOD_DEC_USE_COUNT;
+-  #endif
+-  }
+-
+-Do not call these call-back functions directly; instead, use one of the
+-following functions defined in i2c.h:
+-  void i2c_inc_use_client(struct i2c_client *);
+-  void i2c_dec_use_client(struct i2c_client *);
+-
+-You should *not* increase the module count just because a device is
+-detected and a client created. This would make it impossible to remove
+-an adapter driver! 
++There use to be two additional fields in this structure, inc_use et dec_use,
++for module usage count, but these fields were obsoleted and removed.
+ 
+ 
+ Extra client data
 

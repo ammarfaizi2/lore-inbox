@@ -1,190 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVDDOgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVDDOq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVDDOgj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 10:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVDDOgi
+	id S261249AbVDDOq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 10:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVDDOq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 10:36:38 -0400
-Received: from Giotto.spidernet.net ([194.154.128.30]:14531 "EHLO
-	mail0q.spidernet.net") by vger.kernel.org with ESMTP
-	id S261252AbVDDOga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 10:36:30 -0400
-Subject: UPDATE: out of vmalloc space - but vmalloc parameter does not
-	allow boot
-From: Ranko Zivojnovic <ranko@spidernet.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1112577841.6035.40.camel@localhost.localdomain>
-References: <1112577841.6035.40.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: SpiderNet Services Ltd
-Date: Mon, 04 Apr 2005 17:36:15 +0300
-Message-Id: <1112625375.5680.45.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+	Mon, 4 Apr 2005 10:46:56 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:19401 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S261249AbVDDOqx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 10:46:53 -0400
+Message-ID: <42515358.7020101@blue-labs.org>
+Date: Mon, 04 Apr 2005 10:46:48 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8b2) Gecko/20050331
+MIME-Version: 1.0
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: ALSA bugs with 2.6.12-rc1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please do CC replies as I am still not on the list)
+It seems that 2.6.12-rc1 introduced an ALSA bug generating an oops for a 
+null pointer.
 
-As I am kind of pressured to resolve this issue, I've set up a test
-environment using VMWare in order to reproduce the problem and
-(un)fortunately the attempt was successful.
+codec_semaphore: semaphore is not ready [0x1][0x300300]
+codec_read 0: semaphore is not ready for register 0x2c
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+c01d7746
+*pde = 00000000
+Oops: 0002 [#1]
+PREEMPT
+Modules linked in: orinoco_cs orinoco hermes pcmcia yenta_socket 
+rsrc_nonstatic pcmcia_core vfat fat nls_base i2c_sensor i2c_core eth1394 
+ohci1394 ieee1394 i8k
+CPU:    0
+EIP:    0060:[<c01d7746>]    Not tainted VLI
+EFLAGS: 00010202   (2.6.12-rc1)
+EIP is at memcpy+0x1e/0x39
+eax: 00000010   ebx: e7608180   ecx: 00000004   edx: 00000000
+esi: e13d1ee4   edi: 00000000   ebp: bf924390   esp: e13d1eb4
+ds: 007b   es: 007b   ss: 0068
+Process artsd (pid: 11880, threadinfo=e13d1000 task=e1436590)
+Stack: ffffffea ffffffea e13d1ef4 c02b8793 00000000 e13d1ee4 00000010 
+e7608180
+       c02b954d e7608180 e13d1ee4 00000050 00000006 00000000 00000000 
+00000000
+       00000005 00000001 00000000 00000000 00008002 00000000 00000000 
+00000000
+Call Trace:
+ [<c02b8793>] snd_timer_user_append_to_tqueue+0x40/0x49
+ [<c02b954d>] snd_timer_user_params+0x236/0x245
+ [<c016f152>] do_ioctl+0x9a/0xa9
+ [<c016f2ef>] vfs_ioctl+0x65/0x1e1
+ [<c015bc34>] get_unused_fd+0x2c/0xd2
+ [<c016f4b0>] sys_ioctl+0x45/0x6d
+ [<c0102f87>] sysenter_past_esp+0x54/0x75
+Code: fd 31 c0 c3 31 d2 b8 f2 ff ff ff c3 90 83 ec 0c 8b 44 24 18 8b 54 
+24 10 89 74 24 04 89 c1 89 7c 24 08 8b 74 24 14 c1 e9 02 89 d7 <f3> a5 
+a8 02 74 02 66 a5 a8 01 74 01 a4 89 d0 8b 74 24 04 8b 7c
+ codec_semaphore: semaphore is not ready [0x1][0x300300]
+codec_read 1: semaphore is not ready for register 0x54
+codec_semaphore: semaphore is not ready [0x1][0x300300]
+codec_write 1: semaphore is not ready for register 0x54
 
-I have noticed a few points that relate to the size of the physical RAM
-and the behavior vmalloc. As I am not sure if this is by design or a
-bug, so please someone enlighten me:
 
-The strange thing I have seen is that with the increase of the physical
-RAM, the VmallocTotal in the /proc/meminfo gets smaller! Is this how it
-is supposed to be?
+This happens on multiple machines, 32b and 64bit.  I'll be happy to 
+provide further information if needed.
 
-Namely (tests done using VMWare, using the 2.6.11.5 kernel):
-
-/proc/meminfo on a machine with 256M of physical RAM plus 512M swap:
-MemTotal:       254580 kB
-MemFree:        220504 kB
-Buffers:          4928 kB
-Cached:          18212 kB
-SwapCached:          0 kB
-Active:          13360 kB
-Inactive:        12604 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       254580 kB
-LowFree:        220504 kB
-SwapTotal:      530128 kB
-SwapFree:       530128 kB
-Dirty:              12 kB
-Writeback:           0 kB
-Mapped:           6440 kB
-Slab:             5812 kB
-CommitLimit:    657416 kB
-Committed_AS:     7272 kB
-PageTables:        344 kB
-VmallocTotal:   770040 kB  <----------
-VmallocUsed:      1348 kB
-VmallocChunk:   768504 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     4096 kB
-
-/proc/meminfo on a machine with 512M of physical RAM plus 512M swap:
-MemTotal:       514260 kB
-MemFree:        479068 kB
-Buffers:          4880 kB
-Cached:          18000 kB
-SwapCached:          0 kB
-Active:          13264 kB
-Inactive:        12556 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       514260 kB
-LowFree:        479068 kB
-SwapTotal:      530128 kB
-SwapFree:       530128 kB
-Dirty:               8 kB
-Writeback:           0 kB
-Mapped:           6452 kB
-Slab:             5740 kB
-CommitLimit:    787256 kB
-Committed_AS:     7280 kB
-PageTables:        344 kB
-VmallocTotal:   507896 kB  <----------
-VmallocUsed:      1348 kB
-VmallocChunk:   506360 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     4096 kB
-
-/proc/meminfo on a machine with 768M of physical RAM plus 512M swap:
-MemTotal:       774348 kB
-MemFree:        739132 kB
-Buffers:          4888 kB
-Cached:          17992 kB
-SwapCached:          0 kB
-Active:          13260 kB
-Inactive:        12568 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       774348 kB
-LowFree:        739132 kB
-SwapTotal:      530128 kB
-SwapFree:       530128 kB
-Dirty:             228 kB
-Writeback:           0 kB
-Mapped:           6448 kB
-Slab:             5736 kB
-CommitLimit:    917300 kB
-Committed_AS:     7272 kB
-PageTables:        344 kB
-VmallocTotal:   245752 kB  <----------
-VmallocUsed:      1348 kB
-VmallocChunk:   244216 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     4096 kB
-
-/proc/meminfo on a machine with 1024M of physical RAM plus 512M swap:
-MemTotal:      1034444 kB
-MemFree:        997764 kB
-Buffers:          4876 kB
-Cached:          18004 kB
-SwapCached:          0 kB
-Active:          13260 kB
-Inactive:        12544 kB
-HighTotal:      131008 kB
-HighFree:       108448 kB
-LowTotal:       903436 kB
-LowFree:        889316 kB
-SwapTotal:      530128 kB
-SwapFree:       530128 kB
-Dirty:             612 kB
-Writeback:           0 kB
-Mapped:           6436 kB
-Slab:             5824 kB
-CommitLimit:   1047348 kB
-Committed_AS:     7272 kB
-PageTables:        344 kB
-VmallocTotal:   114680 kB  <----------
-VmallocUsed:      1348 kB
-VmallocChunk:   113144 kB
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     4096 kB
-
-Or in summary:
- 256M RAM --> VmallocTotal:   770040 kB
- 512M RAM --> VmallocTotal:   507896 kB
- 768M RAM --> VmallocTotal:   245752 kB
-   1G RAM --> VmallocTotal:   114680 kB
-   4G RAM --> VmallocTotal:   114680 kB
-   6G RAM --> VmallocTotal:   114680 kB
-
-(4G and 6G RAM VmallocTotal values taken off the real machines)
-
-Now the question: Is this behavior normal? Should it not be in reverse -
-more RAM equals more space for vmalloc?
-
-With regards to the 'vmalloc' kernel parameter, I was able to boot
-normally using kernel parameter vmalloc=192m with RAM sizes 256, 512,
-768 but _not_ with 1024M of RAM and above. 
-
-With 1024M of RAM (and apparently everything above), it is unable to
-boot if vmalloc parameter is specified to a value lager than default
-128m. It panics with the following:
-
-EXT2-fs: unable to read superblock
-isofs_fill_super: bread failed, dev=md0, iso_blknum=16, block=32
-XFS: SB read failed
-VFS: Cannot open root device "md0" or unknown-block(9,0)
-Please append a correct "root=" boot option
-Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(9,0)
-
-Question: Is this inability to boot related to the fact that the system
-is unable to reserve enough space for vmalloc?
-
-Thanks for your valuable time,
-
-Ranko
+-david
 

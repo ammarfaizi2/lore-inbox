@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289102AbSAGD0x>; Sun, 6 Jan 2002 22:26:53 -0500
+	id <S289104AbSAGDcn>; Sun, 6 Jan 2002 22:32:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289104AbSAGD0n>; Sun, 6 Jan 2002 22:26:43 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:36366 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S289102AbSAGD0W>; Sun, 6 Jan 2002 22:26:22 -0500
-Date: Sun, 6 Jan 2002 19:31:16 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Richard Henderson <rth@twiddle.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-In-Reply-To: <Pine.LNX.4.33.0201061908330.5819-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.40.0201061927490.1000-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289103AbSAGDcd>; Sun, 6 Jan 2002 22:32:33 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:9564 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S289104AbSAGDcS>; Sun, 6 Jan 2002 22:32:18 -0500
+Date: Mon, 7 Jan 2002 04:32:36 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] truncate fixes
+Message-ID: <20020107043236.J1561@athlon.random>
+In-Reply-To: <3C36DEA9.AEA2A402@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3C36DEA9.AEA2A402@zip.com.au>; from akpm@zip.com.au on Sat, Jan 05, 2002 at 03:08:25AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jan 2002, Linus Torvalds wrote:
+On Sat, Jan 05, 2002 at 03:08:25AM -0800, Andrew Morton wrote:
+>  	}
+>  	return 0;
+>  out:
+> +	bh = head;
+> +	block_start = 0;
+> +	do {
+> +		if (buffer_new(bh) && !buffer_uptodate(bh)) {
+> +			memset(kaddr+block_start, 0, bh->b_size);
+> +			set_bit(BH_Uptodate, &bh->b_state);
+> +			mark_buffer_dirty(bh);
+> +		}
+> +		block_start += bh->b_size;
+> +		bh = bh->b_this_page;
+> +	} while (bh != head);
+>  	return err;
+>  }
 
->
-> On Sun, 6 Jan 2002, Richard Henderson wrote:
-> > On Sun, Jan 06, 2002 at 02:13:32AM +0000, Alan Cox wrote:
-> > > ... since an 8bit ffz can be done by lookup table
-> > > and that is fast on all processors
-> >
-> > Please still provide the arch hook -- single cycle ffs type
-> > instructions are still faster than any memory access.
->
-> This is probably true even on x86, except in benchmarks (the x86 ffs
-> instruction definitely doesn't historically count as "fast", and a table
-> lookup will probably win in a benchmark where the table is hot in the
-> cache, but you don't have to miss very often to be ok with a few CPU
-> cycles..)
->
-> (bsfl used to be very slow. That's not as true any more)
+the above code will end marking uptodate (zeroed) buffers relative to
+blocks that cannot be read from disk. So a read-retry won't hit the disk
+and that's wrong.
 
-32 bit words lookup can be easily done in few clock cycles in most cpus
-by using tuned assembly code.
+I think that will be fixed by additionally also return -EIO in the
+wait_on_buffer loop (instead of goto out), so we won't generate zeroed
+uptodate cache in case of read failure.
 
-
-
-
-- Davide
-
-
+Andrea

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbUCGXTC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 18:19:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbUCGXTC
+	id S262346AbUCGXVB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 18:21:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbUCGXVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 18:19:02 -0500
-Received: from mail.comscore.com ([66.119.41.10]:24382 "EHLO
-	csiadwebmail01.office.comscore.com") by vger.kernel.org with ESMTP
-	id S261686AbUCGXTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 18:19:00 -0500
-thread-index: AcQEmnVzAofkWpvATSC+lOqOyebloQ==
-Thread-Topic: Symantec Mail Security detected that you sent a message containing an executable file.                                        (SYM:40199701240766837106)
-From: <Administrator@vger.kernel.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Symantec Mail Security detected that you sent a message containing an executable file.                                        (SYM:40199701240766837106)
-Date: Sun, 7 Mar 2004 18:18:11 -0500
-Message-ID: <98c001c4049a$75739400$7c01640a@office.comscore.com>
+	Sun, 7 Mar 2004 18:21:01 -0500
+Received: from [213.226.134.105] ([213.226.134.105]:2289 "EHLO mx.ktv.lt")
+	by vger.kernel.org with ESMTP id S262346AbUCGXUC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 18:20:02 -0500
+Date: Mon, 8 Mar 2004 01:12:33 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re: XFS and ACLs in 2.4.25...what happen?
+To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft CDO for Exchange 2000
-Content-Class: urn:content-classes:message
-Importance: normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-OriginalArrivalTime: 07 Mar 2004 23:18:11.0535 (UTC) FILETIME=[7575DDF0:01C4049A]
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+References: <27232.1078690548@ocs3.ocs.com.au>
+In-Reply-To: <27232.1078690548@ocs3.ocs.com.au>
+X-Mailer: Mahogany 0.65.0 'Claire', compiled for Linux 2.4.18-rc4 i686
+Message-Id: <20040307232039.5C7CE62F1@mx.ktv.lt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject of the message: Re: Your picture
-Recipient of the message: "fr-service@marketscore.com" <fr-service@marketscore.com>
+On Mon, 08 Mar 2004 07:15:48 +1100 Keith Owens <kaos@ocs.com.au> wrote:
 
+> >So what gives?  What happened to XFS ACL support?
+> 
+> ftp://oss.sgi.com/projects/xfs/download/patches/2.4.24-pre1/xfs-2.4.24-pre1-split-acl.bz2
+> 
+> should be want you want.
 
+Why isn't it included in 2.4.25?
+Is it included in 2.6?
+
+Regards,
+Nerijus
 

@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbTKMIx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 03:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTKMIx3
+	id S262139AbTKMJgd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 04:36:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbTKMJgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 03:53:29 -0500
-Received: from mail.advantest.de ([213.61.178.178]:20489 "EHLO it.advantest.de")
-	by vger.kernel.org with ESMTP id S262126AbTKMIx2 (ORCPT
+	Thu, 13 Nov 2003 04:36:33 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:37865 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262139AbTKMJgc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 03:53:28 -0500
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       Davide Libenzi <davidel@xmailserver.org>, walt <wa1ter@myrealbox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel.bkbits.net off the air
-References: <Pine.LNX.4.44.0311102316330.980-100000@bigblue.dev.mdolabs.com>
-	<3FB091C0.9050009@cyberone.com.au> <20031111150417.GF1649@x30.random>
-From: Benoit Poulot-Cazajous <Benoit.Poulot-Cazajous@jaluna.com>
-Organization: Jaluna
-Date: 12 Nov 2003 22:35:22 +0100
-In-Reply-To: <20031111150417.GF1649@x30.random>
-Message-Id: <03Nov13.095622cet.122129@mojo.it.advantest.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 13 Nov 2003 04:36:32 -0500
+Date: Thu, 13 Nov 2003 10:36:21 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Dax Kelson <dax@gurulabs.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: List of SCO files
+In-Reply-To: <1068691791.13135.41.camel@gaston>
+Message-ID: <Pine.GSO.4.21.0311131034300.1979-100000@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> writes:
+On Thu, 13 Nov 2003, Benjamin Herrenschmidt wrote:
+> Or just include/asm-m68k/spinlock.h :)
+> 
+> The whole file is just:
+> 
+> #ifndef __M68K_SPINLOCK_H
+> #define __M68K_SPINLOCK_H
+>  
+> #error "m68k doesn't do SMP yet"
+>  
+> #endif
 
-> the usual problem, and the reason we need a sequence number (increased
-> before and after the repo update). A file lock not.
+Ah, thank you for checking out the m68k-specific files :-)
 
-Or a file that contains md5sums of the other files in the tree. 
-After the rsync, you recompute the md5sums file, and if it does not match,
-rsync again. As a bonus feature, the md5sums file can be pgp-signed.
+Although I don't think I wrote that one, I'm quite sure it was written from
+scratch, probably by Jes. I can dig it up if we really need to know...
 
-  -- Benoit
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

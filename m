@@ -1,105 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314545AbSDTEUc>; Sat, 20 Apr 2002 00:20:32 -0400
+	id <S314527AbSDTEgH>; Sat, 20 Apr 2002 00:36:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314551AbSDTEUb>; Sat, 20 Apr 2002 00:20:31 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:19981 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S314545AbSDTEUa>; Sat, 20 Apr 2002 00:20:30 -0400
-Date: Sat, 20 Apr 2002 06:21:49 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, "H. Peter Anvin" <hpa@zytor.com>,
-        ak@suse.de, linux-kernel@vger.kernel.org, jh@suse.cz
+	id <S314556AbSDTEgG>; Sat, 20 Apr 2002 00:36:06 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60685 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314527AbSDTEgG>; Sat, 20 Apr 2002 00:36:06 -0400
+Date: Fri, 19 Apr 2002 21:35:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Brian Gerst <bgerst@didntduck.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        <ak@suse.de>, <linux-kernel@vger.kernel.org>, <jh@suse.cz>
 Subject: Re: [PATCH] Re: SSE related security hole
-Message-ID: <20020420062149.G1291@dualathlon.random>
-In-Reply-To: <Pine.LNX.4.44.0204191637570.20973-100000@home.transmeta.com> <3CC0B16F.1050501@didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <20020420062149.G1291@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0204192129130.3110-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 19, 2002 at 08:08:15PM -0400, Brian Gerst wrote:
-> diff -urN linux-2.5.8/arch/i386/kernel/i387.c linux/arch/i386/kernel/i387.c
-> --- linux-2.5.8/arch/i386/kernel/i387.c	Thu Mar  7 21:18:32 2002
-> +++ linux/arch/i386/kernel/i387.c	Fri Apr 19 19:35:14 2002
-> @@ -31,13 +31,21 @@
->   * value at reset if we support XMM instructions and then
->   * remeber the current task has used the FPU.
->   */
-> -void init_fpu(void)
-> +void init_fpu(struct task_struct *tsk)
->  {
-> -	__asm__("fninit");
-> -	if ( cpu_has_xmm )
-> -		load_mxcsr(0x1f80);
-> -		
-> -	current->used_math = 1;
-> +	if (cpu_has_fxsr) {
-> +		memset(&tsk->thread.i387.fxsave, 0, sizeof(struct i387_fxsave_struct));
-> +		tsk->thread.i387.fxsave.cwd = 0x37f;
-> +		if (cpu_has_xmm)
-> +			tsk->thread.i387.fxsave.mxcsr = 0x1f80;
-> +	} else {
-> +		memset(&tsk->thread.i387.fsave, 0, sizeof(struct i387_fsave_struct));
-> +		tsk->thread.i387.fsave.cwd = 0xffff037f;
-> +		tsk->thread.i387.fsave.swd = 0xffff0000;
-> +		tsk->thread.i387.fsave.twd = 0xffffffff;
-> +		tsk->thread.i387.fsave.fos = 0xffff0000;
-> +	}
-> +	tsk->used_math = 1;
->  }
->  
->  /*
-> diff -urN linux-2.5.8/arch/i386/kernel/traps.c linux/arch/i386/kernel/traps.c
-> --- linux-2.5.8/arch/i386/kernel/traps.c	Sun Apr 14 23:48:18 2002
-> +++ linux/arch/i386/kernel/traps.c	Fri Apr 19 18:22:12 2002
-> @@ -757,13 +757,12 @@
->   */
->  asmlinkage void math_state_restore(struct pt_regs regs)
->  {
-> +	struct task_struct *tsk = current;
->  	clts();		/* Allow maths ops (or we recurse) */
->  
-> -	if (current->used_math) {
-> -		restore_fpu(current);
-> -	} else {
-> -		init_fpu();
-> -	}
-> +	if (!tsk->used_math)
-> +		init_fpu(tsk);
-> +	restore_fpu(tsk);
->  	set_thread_flag(TIF_USEDFPU);	/* So we fnsave on switch_to() */
->  }
->  
 
-I don't think it's good enough for merging yet. If you really want to do
-the fxrestor, you should at least do the init_fpu only once during
-bootup. The fxrestor is probably just overkill, but the memset + the
-initializations is completly superflous in a fast path, I'd also use the
-proper set_fpu_cwd and friends instead of doing it by hand.  Even better
-is to merge the:
 
-			/* Simulate an empty FPU. */
-			set_fpu_cwd(child, 0x037f);
-			set_fpu_swd(child, 0x0000);
-			set_fpu_twd(child, 0xffff);
-			set_fpu_mxcsr(child, 0x1f80);
+On Sat, 20 Apr 2002, Andrea Arcangeli wrote:
+>
+> I don't think it's good enough for merging yet. If you really want to do
+> the fxrestor, you should at least do the init_fpu only once during
+> bootup.
 
-			/* Simulate an empty FPU. */
-			set_fpu_cwd(child, 0x037f);
-			set_fpu_swd(child, 0x0000);
-			set_fpu_twd(child, 0xffff);
+No, it needs to be done once per process FP state init, ie "flush_thread".
 
-in ptrace.c in a single function instead of duplicating functionality by
-hand.
+Think about it - we do _not_ copy the FP registers over an execve().
 
-I still think the xor will be faster, no dcache pollution at all and
-less I/O to ram. Future features can require change to the "empty FPU"
-state anyways.
+> The fxrestor is probably just overkill, but the memset + the
+> initializations is completly superflous in a fast path,
 
-Andrea
+That's no fast path, that's a "this process has never used the FPU before,
+so we'd better make sure that it starts off with a really clean slate".
+
+There is not just "one" FP state per kernel - there is one per process.
+There _has_ to be.
+
+> I still think the xor will be faster, no dcache pollution at all and
+> less I/O to ram. Future features can require change to the "empty FPU"
+> state anyways.
+
+But the point is that people may still use a 2.4.x kernel on a P4-SSE3,
+which only adds a few new instructions, and which re-uses the old SSE2
+save area.
+
+No kernel support necessary - it's transparent to the kernel, which won't
+ever even know that some new fields in the save area are now used.
+
+That was the whole point of MMX - it worked without any new OS support.
+Intel learnt somewhat from past mistakes and made the save area bigger
+than necessary, so that they can add new extensions without needing to
+upgrade the OS yet another time.
+
+THAT is the reason we can't just zero the SSE registers - because if we
+do, we'll have the same problem next time around.
+
+		Linus
+

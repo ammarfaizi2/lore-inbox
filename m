@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135292AbRDRUJz>; Wed, 18 Apr 2001 16:09:55 -0400
+	id <S135288AbRDRUR0>; Wed, 18 Apr 2001 16:17:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135288AbRDRUJe>; Wed, 18 Apr 2001 16:09:34 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12809 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135284AbRDRUJW>; Wed, 18 Apr 2001 16:09:22 -0400
-Subject: Re: Let init know user wants to shutdown
-To: chief@bandits.org (John Fremlin)
-Date: Wed, 18 Apr 2001 21:10:37 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), sfr@linuxcare.com.au,
-        linux-kernel@vger.kernel.org, apenwarr@worldvisions.ca
-In-Reply-To: <m27l0i58i3.fsf@boreas.yi.org.> from "John Fremlin" at Apr 18, 2001 08:10:44 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135293AbRDRURQ>; Wed, 18 Apr 2001 16:17:16 -0400
+Received: from central.caverock.net.nz ([210.55.207.1]:8717 "EHLO
+	central.caverock.net.nz") by vger.kernel.org with ESMTP
+	id <S135288AbRDRURN>; Wed, 18 Apr 2001 16:17:13 -0400
+Date: Thu, 19 Apr 2001 07:30:33 +1200 (NZST)
+From: Eric Gillespie <viking@flying-brick.caverock.net.nz>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Won't Power down (Was: More about 2.4.3 timer problems)
+In-Reply-To: <3ADCE83D.478F765B@uow.edu.au>
+Message-ID: <Pine.LNX.4.21.0104190718050.1106-100000@brick.flying-brick.caverock.net.nz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14pyHg-0005cJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> willing to exercise this power. We would not break compatibility with
-> any std kernel by instead having a apmd send a "reject all" ioctl
-> instead, and so deal with events without having the pressure of having
-> to reject or accept them, and let us remove all the veto code from the
-> kernel driver. Or am I missing something?
+On Tue, 17 Apr 2001, Andrew Morton wrote:
 
-That sounds workable. But the same program could reply to the events just
-as well as issue the ioctl 8)
+:viking wrote:
+:> 
+:> Incidentally, Andrew, thanks for that patch.
+:
+:My brain is fading.  Which patch was that?
 
+Gee! 8-) and you suggested it to me!  It was the patch against 2.4.3-pre6
+which corrected the system clock slowing down, due to the interrupts being
+disabled for too long in framebuffer mode.  Well, it worked! I'm using it now,
+and as I mentioned in the past email, my only trouble now is the non-powering
+down of the machine.
+
+Ah well, again, thanks for monitoring.And here's a few lines to add to that
+patch too...your patch had neglected to turn on printk for all modules, and
+when I compiled my kernel, that was fine, but my modules couldn't see
+printk()!
+
+--- linux-2.4.3-pre6/kernel/Makefile Sun Apr 15 20:00:00 2001
++++ lk/kernel/Makefile Sun Apr 15 21:00:00 2001
+@@ -12,1 +12,1 @@
+
+- export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o
++ export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o printk.o
+
+Thanks again.
+
+-- 
+ /|   _,.:*^*:.,   |\           Cheers from the Viking family, 
+| |_/'  viking@ `\_| |            including Pippin, our cat
+|    flying-brick    | $FunnyMail  Bilbo   : Now far ahead the Road has gone,
+ \_.caverock.net.nz_/     5.39    in LOTR  : Let others follow it who can!
 

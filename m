@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264733AbRFZXuC>; Tue, 26 Jun 2001 19:50:02 -0400
+	id <S265155AbRF0AC5>; Tue, 26 Jun 2001 20:02:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265157AbRFZXty>; Tue, 26 Jun 2001 19:49:54 -0400
-Received: from THANK.THUNK.ORG ([216.175.175.163]:52684 "EHLO thunk.org")
-	by vger.kernel.org with ESMTP id <S264733AbRFZXtr>;
-	Tue, 26 Jun 2001 19:49:47 -0400
-Date: Tue, 26 Jun 2001 19:49:19 -0400
-From: Theodore Tso <tytso@valinux.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Andreas Dilger <adilger@turbolinux.com>,
-        Tony Gale <gale@syntax.dera.gov.uk>, Heusden@mail.bonn-fries.net,
-        Folkert van <f.v.heusden@ftr.nl>, linux-kernel@vger.kernel.org,
-        ext2-devel@lists.sourceforge.net, Alexander Viro <viro@math.psu.edu>
-Subject: Re: [Ext2-devel] Re: [UPDATE] Directory index for ext2
-Message-ID: <20010626194919.J537@think.thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@valinux.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Andreas Dilger <adilger@turbolinux.com>,
-	Tony Gale <gale@syntax.dera.gov.uk>, Heusden@mail.bonn-fries.net,
-	Folkert van <f.v.heusden@ftr.nl>, linux-kernel@vger.kernel.org,
-	ext2-devel@lists.sourceforge.net,
-	Alexander Viro <viro@math.psu.edu>
-In-Reply-To: <200106251951.f5PJpOYN025503@webber.adilger.int> <01062600253207.01008@starship>
+	id <S265157AbRF0ACs>; Tue, 26 Jun 2001 20:02:48 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:4623 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S265155AbRF0ACe>;
+	Tue, 26 Jun 2001 20:02:34 -0400
+Message-ID: <20010627020237.A24622@win.tue.nl>
+Date: Wed, 27 Jun 2001 02:02:37 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Kenneth Johansson <ken@canit.se>, "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EXT2 Filesystem permissions (bug)?
+In-Reply-To: <m28zigi7m4.fsf@boreas.yi.org.> <Pine.LNX.4.30.0106251729450.18996-100000@coredump.sh0n.net> <9h8b8q$s95$1@cesium.transmeta.com> <3B390B48.D444B7C5@canit.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <01062600253207.01008@starship>; from phillips@bonn-fries.net on Tue, Jun 26, 2001 at 12:25:32AM +0200
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3B390B48.D444B7C5@canit.se>; from Kenneth Johansson on Wed, Jun 27, 2001 at 12:23:04AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 26, 2001 at 12:25:32AM +0200, Daniel Phillips wrote:
-> > This is only true without the COMPAT_DIR_INDEX flag.  Since e2fsck _needs_
-> > to know about every filesystem feature, it will (correctly) refuse to touch
-> > such a system for now.  You could "tune2fs -O ^FEATURE_C4 /dev/hdX" to
-> > turn of the COMPAT_DIR_INDEX flag and let e2fsck go to town.  That will
-> > break all of the directory indexes, I believe.
-> 
-> This is what he wants, a workaround so he can fsck.  However, the above 
-> command (on version 1.2-WIP) just gives me:
-> 
->    Invalid filesystem option set: ^FEATURE_C4
-> 
-> Maybe he should just edit the source so it doesn't set the superblock flag 
-> for now.
+"H. Peter Anvin" wrote:
 
-I haven't had a chance to analyze the directory index format to see if
-an-dirindexing-ignorant e2fsck could do any damage to the index.  It's
-probably the case as long as the filesystem isn't corrupted, simply
-modifying e2fsck to ignore the compatibility flag won't hurt.  But
-it's certainly not something I would recommend for any kind of
-production operation.
+:: It's neither a bug nor undocumented.
 
-						- Ted
+Kenneth Johansson wrote:
 
+: Interesting but I wonder how much this helps someone that not already know
+: what it is. Should not the ls manual also contain something that explains
+
+In fact the best info is on the stat page:
+
+...
+       The set GID bit (S_ISGID) has several special uses: For  a
+       directory  it  indicates  that BSD semantics is to be used
+       for that directory:  files  created  there  inherit  their
+       group ID from the directory, not from the effective gid of
+       the creating process, and directories created  there  will
+       also  get  the  S_ISGID bit set.  For a file that does not
+       have the group execution bit (S_IXGRP) set,  it  indicates
+       mandatory file/record locking.
+
+       The  `sticky'  bit  (S_ISVTX)  on a directory means that a
+       file in that directory can be renamed or deleted  only  by
+       the  owner of the file, by the owner of the directory, and
+       by root.
+...

@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbVAKHqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVAKHuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbVAKHqE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 02:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbVAKHoH
+	id S262492AbVAKHuX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 02:50:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVAKHuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 02:44:07 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:24582 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262498AbVAKHms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 02:42:48 -0500
-Subject: Re: address space reservation functionality?
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41E2EB09.5000603@sbcglobal.net>
-References: <41E2EB09.5000603@sbcglobal.net>
-Content-Type: text/plain
-Date: Tue, 11 Jan 2005 08:42:42 +0100
-Message-Id: <1105429362.3917.2.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Tue, 11 Jan 2005 02:50:20 -0500
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:23266
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S262505AbVAKHtQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 02:49:16 -0500
+Message-ID: <41E384FA.80507@bio.ifi.lmu.de>
+Date: Tue, 11 Jan 2005 08:49:14 +0100
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: uselib()  & 2.6.X?
+References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl>	 <20050107170712.GK29176@logos.cnet>	 <1105136446.7628.11.camel@localhost.localdomain>	 <Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org>	 <20050107221255.GA8749@logos.cnet>	 <Pine.LNX.4.58.0501081042040.2386@ppc970.osdl.org>	 <20050108182841.GD2701@logos.cnet>	 <Pine.LNX.4.58.0501081734400.2339@ppc970.osdl.org>	 <20050109110630.GA9144@logos.cnet>  <41E23E26.50403@bio.ifi.lmu.de> <1105380726.12004.79.camel@localhost.localdomain>
+In-Reply-To: <1105380726.12004.79.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-10 at 15:52 -0500, Robert W. Fuller wrote:
-> Hi,
-> 
-> I was wondering if some functionality existed in Linux.  Specifically, 
-> in Solaris, you can mmap the null device in order to reserve part of the 
-> address space without otherwise consuming resources.  This is detailed 
-> in the Solaris manpage null(7D).  The same functionality is also 
-> available under Windows NT/XP/2K by calling the VirtualAlloc function 
-> with the MEM_RESERVE flag omitting the MEM_COMMIT flag.  Does Linux have 
-> a similar mechanism buried somewhere whereby I can reserve a part of the 
-> address space and not increase the "virtual size" of the process or the 
-> system's idea of the amount of memory in use?  I could not find one by 
-> using the source.
+Thanks Alan, thanks Marcelo!
 
-malloc() already does this...
-what you describe is the default behavior of linux; only when you
-actually write to the memory does it get backed by ram.
+Alan Cox wrote
 
+> If you want a patch right now grab the -ac patches (they also fix a pile
+> of other less holes found including the grsecurity ones). The -ac
+> version of the fix should be complete but it won't be the final one in
+> the master tree (I get to nail holes shut Linus has to do the right
+> engineering for the long term 8))
+
+So I will use -ac until 2.6.11 is out :-)
+
+Thanks!
+
+
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *

@@ -1,92 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265677AbUBBPWu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 10:22:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265694AbUBBPWu
+	id S265646AbUBBPVf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 10:21:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265677AbUBBPVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 10:22:50 -0500
-Received: from dhcp-1.wlan.creatis.insa-lyon.fr ([134.214.205.35]:33664 "EHLO
-	dhcp-1.wlan.creatis.insa-lyon.fr") by vger.kernel.org with ESMTP
-	id S265677AbUBBPWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 10:22:45 -0500
-Date: Mon, 2 Feb 2004 16:22:34 +0100
-From: Fabrice Bellet <fabrice@bellet.info>
-To: Warren Togami <wtogami@redhat.com>
-Cc: fedora-devel-list@redhat.com, linux-kernel@vger.kernel.org,
-       Bill Nottingham <notting@redhat.com>, csmith@redhat.com
-Subject: Re: Trouble with Cisco Airo MPI350 and kernel-2.6.1+
-Message-ID: <20040202152234.GA5710@bellet.info>
-Reply-To: Fabrice Bellet <fabrice@bellet.info>
-Mail-Followup-To: Warren Togami <wtogami@redhat.com>,
-	fedora-devel-list@redhat.com, linux-kernel@vger.kernel.org,
-	Bill Nottingham <notting@redhat.com>, csmith@redhat.com
-References: <4014AA49.8050800@redhat.com> <20040127164031.GA13174@bellet.info> <401CCF8A.2010406@redhat.com> <401D6FD8.2040406@redhat.com>
+	Mon, 2 Feb 2004 10:21:33 -0500
+Received: from gprs147-64.eurotel.cz ([160.218.147.64]:57472 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265646AbUBBPVc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 10:21:32 -0500
+Date: Mon, 2 Feb 2004 16:19:53 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Miklos Szeredi <Miklos.Szeredi@eth.ericsson.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Userspace filesystems (WAS: Encrypted Filesystem)
+Message-ID: <20040202151953.GA262@elf.ucw.cz>
+References: <OFA97B290B.67DE842E-ON87256E27.0061728C-86256E27.0061BB0E@us.ibm.com> <y2ar7xmkyqe.fsf@cartman.at.fivegeeks.net> <200401281350.i0SDo2I03247@duna48.eth.ericsson.se> <20040130170610.GB625@elf.ucw.cz> <200402020942.i129gHf15172@duna48.eth.ericsson.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <401D6FD8.2040406@redhat.com>
-X-Operating-System: Linux bonobo 2.6.1-mm5
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <200402020942.i129gHf15172@duna48.eth.ericsson.se>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Sun, Feb 01, 2004 at 11:30:00AM -1000, Warren Togami wrote:
-> >>On Sun, Jan 25, 2004 at 07:48:57PM -1000, Warren Togami wrote:
-> >>
-> >>>IBM Thinkpad T41
-> >>>Cisco Airo MPI350 802.11b Wireless
-> >>>PCIID: 0x14b9  0xa504
-> >>>Kernel: Fedora rawhide 2.6.1-1.57 (Based on 2.6.2-rc1)
-> >>>
-> >>>http://bellet.info/~bellet/laptop/t40.html#wireless
-> >>>http://bellet.info/~bellet/laptop/airo.c-2.6.1-mm2.diff
-> >>>airo.ko does not support this Airo device, but with the addition of 
-> >>>this patch it recognizes the device.
-> >>
-> >>
-> >>
-> >[SNIP]
-> >Used the ACU tool under Windows XP for flashing the firmware.  The 
-> >newest firmware version that operates with your driver is:
-> >5.00.03
-> >
-> >Perhaps mention within a comment and/or config Help of your patch that 
-> >the newest supported firmware is 5.00.03?  That would save people like 
-> >me a lot of time in the future...
-> >
+> > >    app wants to read data from a file ->
+> > >    userspace application requires memory allocation to provide this data ->
+> > >    VM tries to write out dirty data associated with the Coda mountpoint ==
+> > >    deadlock
+> > 
+> > How do you solve this one?
 > 
-> Are these many errors normal?
+> 1) In FUSE normal writes go through the cache, so no dirty pages are
+>    created.  The only possibility to create dirty pages is with shared
+>    writable mapping, and this is rare
 > 
-[snip]
+> 2) Userspace filesystem app can be multithreaded, so probably write
+>    can be satisfied even if read is pending.
 > 
-> [root@ibmlaptop etc]# ifconfig eth1
-> eth1      Link encap:Ethernet  HWaddr 00:02:8A:DF:50:FC
->           inet addr:192.168.1.103  Bcast:192.168.1.255  Mask:255.255.255.0
->           inet6 addr: fe80::202:8aff:fedf:50fc/64 Scope:Link
->           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->           RX packets:905 errors:655 dropped:0 overruns:0 frame:655
->           TX packets:699 errors:33 dropped:0 overruns:0 carrier:0
->           collisions:30 txqueuelen:1000
->           RX bytes:439321 (429.0 Kb)  TX bytes:118979 (116.1 Kb)
->           Interrupt:11 Base address:0x8000
+> 3) The 2.6 kernel provides asynchronous page writeback, so even if a
+>    writeback is blocking forever the VM will continue to try to free
+>    up memory.
+> 
+> 4) If no memory can be freed, then the allocation will fail, so the
+>    read will fail: no deadlock.
 
-The "rx errors" value is generated by summing 4 error counters from the 
-card internal stats structure in airo_read_stats() : 
-     RxOverrun, RxPlcpFormatErr, RxPlcpLengthErr and RxMacCrcErr.
+Transient real failure looks pretty ugly. I'd not expect
+read(/etc/passwd) to return -ENOMEM, and read(/#ftp:somewhere/passwd)
+should be the same, but as this is basically "can not happen"... I
+guess that's enough.
+								Pavel
 
-Altough my connection is up and running, I also observe a high rate of 
-RxMacCrcErr errors :
-
-% grep MacCrc /proc/driver/aironet/eth1/Stats 
-RxMacCrcErr: 7688
-RxMacCrcOk: 11399
-
-I think that these errors are probably just related to the quality of the 
-radio link, and do not reflect something bad, that would occur in the 
-driver itself.
-
-Best wishes,
 -- 
-fabrice
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

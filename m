@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbTEXRu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 13:50:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTEXRu1
+	id S262703AbTEXRwu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 13:52:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbTEXRwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 13:50:27 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:32265 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262567AbTEXRu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 13:50:26 -0400
-Date: Sat, 24 May 2003 19:03:29 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Christoph Hellwig <hch@lst.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make vt_ioctl ix86isms explicit
-In-Reply-To: <Pine.LNX.4.44.0305241046590.10806-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0305241901250.27645-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 24 May 2003 13:52:50 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:34498 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262703AbTEXRws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 13:52:48 -0400
+Date: Sat, 24 May 2003 19:06:37 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Gutko <gutko@poczta.onet.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.21-RC2 Nforce2 AGP patch
+Message-ID: <20030524180637.GA14838@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Gutko <gutko@poczta.onet.pl>, linux-kernel@vger.kernel.org
+References: <3ECFA5F9.6060906@poczta.onet.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ECFA5F9.6060906@poczta.onet.pl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 24, 2003 at 07:03:53PM +0200, Gutko wrote:
+ > Same again but with proper topic
+ > Sorry for this
+ > Gutko
+ > ----------
+ > 
+ > Hello,
+ > This is patch against 2.4.21-rc2 adding Nvidia Nforce1/Nforce2 AGP 
+ > chipset support.It worked very good on  2.4.21-rc2-ac3. I found this 
+ > patch here : http://etudiant.epita.fr:8000/~nonolk/nforce-agp.diff
+ > 
+ > Don't know who ported it from 2.5.69, however I know this address above 
+ > belongs to author of this patch
 
-> > sys_ioperm is only implemented on x86 (i386/x86_64).  Make the
-> > ifdefs in vt_ioctl.c more explicit so the other architectures can
-> > get rid of their stubs in favour of just using sys_ni_syscall in
-> > the syscall table.  (Personally I still wonder why they added it
-> > at all but that's another question..)
-> 
-> They were added because this was how the X server got IO permissions a 
-> million years ago.  It comes from some random old UNIX/386 thing, it 
-> predates Linux itself as far as I know.
-> 
-> I'm fairly certain that X itself no longer uses it at all, but there may
-> be other programs that still do (unlikely). Your patch looks sane,
-> although it might be equally sane to just remove the code altogether.
+This is based on an old backport, and has at least one bug in it.
+(It must use its own insert/remove, or you get problems with 32MB
+ apertures).
 
-I suggest we remove it. It was the old way to access the VGA register 
-ports. 
+
+		Dave
 

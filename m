@@ -1,84 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293150AbSBWQEZ>; Sat, 23 Feb 2002 11:04:25 -0500
+	id <S293151AbSBWQLP>; Sat, 23 Feb 2002 11:11:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293151AbSBWQEQ>; Sat, 23 Feb 2002 11:04:16 -0500
-Received: from ns1.baby-dragons.com ([199.33.245.254]:37013 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S293150AbSBWQEF>; Sat, 23 Feb 2002 11:04:05 -0500
-Date: Sat, 23 Feb 2002 11:04:04 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-cc: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: floppy in 2.4.17
-In-Reply-To: <Pine.LNX.4.44.0202231054460.11337-100000@filesrv1.baby-dragons.com>
-Message-ID: <Pine.LNX.4.44.0202231100230.11337-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293152AbSBWQLG>; Sat, 23 Feb 2002 11:11:06 -0500
+Received: from mail.gmx.net ([213.165.64.20]:62541 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S293151AbSBWQKx>;
+	Sat, 23 Feb 2002 11:10:53 -0500
+Subject: Re: [RFC] [PATCH] C exceptions in kernel
+From: Dan Aloni <da-x@gmx.net>
+To: bert hubert <ahu@ds9a.nl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020223162100.A1952@outpost.ds9a.nl>
+In-Reply-To: <1014412325.1074.36.camel@callisto.yi.org> 
+	<20020223162100.A1952@outpost.ds9a.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 23 Feb 2002 18:05:48 +0200
+Message-Id: <1014480355.1844.16.camel@callisto.yi.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2002-02-23 at 17:21, bert hubert wrote:
+> On Fri, Feb 22, 2002 at 09:18:29PM +0000, Dan Aloni wrote:
+> > The attached patch implements C exceptions in the kernel, which *don't*
+> > depend on special support from the compiler. This is a 'request for
+> > comments'. The patch is very initial, should not be applied.
+> > 
+> > I actually got this code to work in the kernel:
+> > 
+> >         try {
+> >                 printk("TEST: before throwing \n");
+> >                 throw(1000);
+> >                 printk("TEST: won't run\n");
+> >         }
+> >         catch(unsigned long, value) {
+> >                 printk("TEST: caught: %ld\n", value);
+> >         } yrt;
+> 
+> Can they fall through multiple function calls? How do they jive with
+> preemtive scheduling? How much is the stack unwinding overhead?
 
-	Hello All ,  More info ...  Hth ,  JimL
+They fall through several function calls like they should.
 
-On Sat, 23 Feb 2002, Mr. James W. Laferriere wrote:
-> 	Hello J.A. , Nice name .  I have verified that the floppy drive
-> 	under 2.4.18-pre3 is in the same shape . Hth ,  JimL
+I don't see any problem with preemtive scheduling (every kernel thread
+has its own seperated exception frames). 
 
-> # fdformat /dev/fd0u1440		,  Hmmm ,  Move little tab .
-> /dev/fd0u1440: Read-only file system
-> # fdformat /dev/fd0u1440		,  Hmmm ......
-> /dev/fd0u1440: Read-only file system
-> # tar -ztvf /dev/fd0			,  Hmmm ,  J.A.'s right .
-> (hang ..wait several minutes..)^C
-> tar (grandchild): Read error on /dev/fd0: Input/output error
-> tar (grandchild): At beginning of tape, quitting now
-> tar (grandchild): Error is not recoverable: exiting now
->
-> gzip: stdin: unexpected end of file
-> tar: Child returned status 1
-> tar: Error exit delayed from previous errors
+The overhead on the stack is 36 bytes for each exception frame (a
+context of a try block). The unwinding procedure itself is short, the
+throw macro calls a rather small asm function for an unwind.
 
-VFS: Disk change detected on device fd(2,28)
-VFS: Disk change detected on device fd(2,28)
-VFS: Disk change detected on device fd(2,28)
-VFS: Disk change detected on device fd(2,28)
-VFS: Disk change detected on device fd(2,0)
-end_request: I/O error, dev 02:00 (floppy), sector 0
-end_request: I/O error, dev 02:00 (floppy), sector 0
-end_request: I/O error, dev 02:00 (floppy), sector 2
-end_request: I/O error, dev 02:00 (floppy), sector 4
-end_request: I/O error, dev 02:00 (floppy), sector 6
+> Potentially this is very cool but I'm again appalled at the INSTANT
+> rejection seen here by kernel hackers, minor and major. Do NOT reject an
+> idea before you've thought it through. Do NOT reject an idea simply because
+> it is new.
+ 
+> Also, do not jump on the bandwagon BECAUSE it is new. But still - people
+> here should get a life if they get off on rejecting new stuff because it is
+> new.
 
+Whether it is accepted or not, I can't see it being used in the core
+kernel code, just because there is too much code to rewrite for it to
+happen. Maybe if this thing was proposed back in 1992/3 it would have
+been different.
 
-> On Sat, 23 Feb 2002, J.A. Magallon wrote:
->
-> > Hi.
-> >
-> > I am getting problems with floppy drive in 2.4.17.
-> > All started with floppy not working in 18-rc4, went back to 17
-> > and still does not work. Just plain 2.4.17, no patching.
-> >
-> > mkfs -t ext2 /dev/fd0 just hangs forever.
-> >
-> > mkfs -v -t ext2 /dev/fd0 gives:
-> >
-> > mke2fs 1.26 (3-Feb-2002)
-> > mkfs.ext2: bad blocks count - /dev/fd0
-> >
-> > Hardware:
-> >
-> > Floppy drive(s): fd0 is 1.44M
-> > FDC 0 is a post-1991 82077
-> > ide-floppy driver 0.97.sv
-> >
-> > ???
-> >
-> > TIA
+But, it CAN be used in *local* driver call branches. Writing a new
+driver? have a lot of local nested calls? Hate goto's? You can use
+exceptions.
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+The only problem is that because C is natively not object oriented, it's
+hard to come up with an exception scheme for the C language that is
+better than ye' old goto's, like in C++ when you have automatic
+destruction during unwinding.
 

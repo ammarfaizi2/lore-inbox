@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262855AbTELWLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 18:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTELWLI
+	id S262931AbTELWQx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 18:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbTELWQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 18:11:08 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:38548 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S262855AbTELWLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 18:11:05 -0400
-Date: Mon, 12 May 2003 15:23:39 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MPPE in kernel?
-Message-ID: <20030512152339.E30310@google.com>
-References: <20030512045929.C29781@google.com> <200305121504.h4CF4EJ5007017@turing-police.cc.vt.edu>
+	Mon, 12 May 2003 18:16:52 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:48429 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S262931AbTELWQv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 18:16:51 -0400
+Subject: Re: PCMCIA 2.5.X sleeping from illegal context
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Hinds <dahinds@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1052773631.31825.18.camel@dhcp22.swansea.linux.org.uk>
+References: <1052775331.1995.49.camel@diemos>
+	 <1052773631.31825.18.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052742964.1467.3.camel@doobie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200305121504.h4CF4EJ5007017@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Mon, May 12, 2003 at 11:04:14AM -0400
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 12 May 2003 07:36:05 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 11:04:14AM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 12 May 2003 04:59:29 PDT, Frank Cusack <fcusack@fcusack.com>  said:
-> > I've written a public domain implementation, which I'd be willing to
-> > relicense under GPL (although I don't see the point), but in any case
+On Mon, 2003-05-12 at 16:07, Alan Cox wrote:
+> On Llu, 2003-05-12 at 22:35, Paul Fulghum wrote:
+> > The 2.5.X PCMCIA kernel support seems to have a problem
+> > with drivers/pcmcia/rsrc_mgr.c in function undo_irq().
 > 
-> Well.. there's a very good reason to relicense under GPL, or BSD, or X11-style.
-> 
-> And that's to cover your ass from being sued.
-> 
-> If you release it as "public domain", you waive *all* rights to it, including:
-> 
-> 1) The right to prohibit or control what people do with it, including taking
-> it private and closed and making lots of money off it and basically ripping
-> you off.
+> Does this still happen with all the patches Russell King posted
+> that everyone else is ignoring ?
 
-The code is trivial (compared to the effort required to use it in any
-larger application).  I understand the value of this for the general
-case, though.
+I don't know, I've been ignoring them :-)
 
-> 2) You can't attach a "hold harmless" clause to it.  So if you put it in
-> the public domain, since you don't have copyright on it anymore, you can't
-> say "as a condition of copying, you promise not to sue me if this software
-> turns your hair green".
+Seriously, are they centralized someplace or
+should I scan back and try to extract them
+from the lk archive? Do you know about when
+they were posted?
 
-I thought public domain explicitly meant that you get what you pay for.
-Kind of like good samaritan laws.  It'd be interesting to hear from any
-lawyers, are any on lkml?
+Thanks,
+Paul
 
-/fc
+Paul Fulghum
+paulkf@microgate.com
+
+

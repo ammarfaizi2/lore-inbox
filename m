@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132595AbRBRFPs>; Sun, 18 Feb 2001 00:15:48 -0500
+	id <S132603AbRBRFbE>; Sun, 18 Feb 2001 00:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132653AbRBRFP1>; Sun, 18 Feb 2001 00:15:27 -0500
-Received: from toscano.org ([64.50.191.142]:8917 "HELO bubba.toscano.org")
-	by vger.kernel.org with SMTP id <S132595AbRBRFPV>;
-	Sun, 18 Feb 2001 00:15:21 -0500
-Date: Sun, 18 Feb 2001 00:15:16 -0500
-From: Pete Toscano <pete.lkml@toscano.org>
-To: Thomas Molina <tmolina@home.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1ac17 hang on mounting loopback fs
-Message-ID: <20010218001516.A29803@bubba.toscano.org>
-Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
-	Thomas Molina <tmolina@home.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010217191930.A12036@bubba.toscano.org> <Pine.LNX.4.30.0102172126430.686-100000@wr5z.localdomain>
+	id <S132643AbRBRFaz>; Sun, 18 Feb 2001 00:30:55 -0500
+Received: from 64-32-144-137.nyc1.phoenixdsl.net ([64.32.144.137]:12806 "HELO
+	mail.ovits.net") by vger.kernel.org with SMTP id <S132603AbRBRFak>;
+	Sun, 18 Feb 2001 00:30:40 -0500
+Date: Sun, 18 Feb 2001 00:31:26 -0500
+From: Mordechai Ovits <movits@ovits.net>
+To: Andre Tomt <andre@tomt.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1 crashing every other day
+Message-ID: <20010218003125.A25564@ovits.net>
+In-Reply-To: <OPECLOJPBIHLFIBNOMGBOEGFDBAA.andre@tomt.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0102172126430.686-100000@wr5z.localdomain>; from tmolina@home.com on Sat, Feb 17, 2001 at 09:28:27PM -0600
-X-Unexpected: The Spanish Inquisition
-X-Uptime: 12:14am  up  2:42,  3 users,  load average: 0.35, 0.38, 0.19
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <OPECLOJPBIHLFIBNOMGBOEGFDBAA.andre@tomt.net>; from andre@tomt.net on Sun, Feb 18, 2001 at 02:46:30AM +0100
+X-Satellite-Tracking: 0x4B305AFF
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 18, 2001 at 02:46:30AM +0100, Andre Tomt wrote:
+> Very recently I installed a new mailserver for my company, based around
+> qmail, linux 2.4.1, and software raid 1.
+> It works very nicely untill it spews out oops's after a few days, leaving
+> hundreds of qmail-popup processes hanging, unkillable. THe server is very
+> lightly loaded for now, doing only a few hundreds smtp + pop's a day.
+> 
+> It's a Pentium III 733 based system, with 256MB RAM (one stick, we have
+> already tried another stick), and every partition except swap on software
+> RAID 1. Both IDE disks (IBM-DTLA-307030, 30GB each) are connected to a HPT
+> ATA100 IDE controller (see the lscpi-output). I've attached some info, and
+> one decoded oops. Longer down you'll find info from lspci and the like.
+> 
+> As a side note, we have one other _identical_ hardware setup, running the
+> same kernel, same base software, same partitioning, same RAID setup, just as
+> a webserver. And it works grrrreat, no hickups whatsoever. Also, the oops's
+> seems to happen only with qmail-popup, at least thats how the few crashes I
+> had the chance to investigate did.
+> 
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Looks like you were bitten by either the RAID 1 bugs or the elevator bugs.
+Try a 2.4.2-pre4 or an 2.4.1-ac18 kernel.  Should solve it.
 
-Excellent!  Thanks, that worked.
-
-pete
-
-On Sat, 17 Feb 2001, Thomas Molina wrote:
-
-> On Sat, 17 Feb 2001, Pete Toscano wrote:
->=20
-> > reading this, I see now why mkbootdisk was locking in the D state with
-> > the loop mounted... Would this also explain not being able to seek
-> > forward while writing a floppy?
-> >
-> > I was trying to make the GRUB boot disk by writing the stage 1 and 2
-> > loaders to the floppy (as per the GRUB docs) with dd:
-> >
-> > [root@bubba grub]# dd of=3D/dev/fd0 if=3Dstage1 bs=3D512 count=3D1
-> > 1+0 records in
-> > 1+0 records out
-> > [root@bubba grub]# dd of=3D/dev/fd0 if=3Dstage2 bs=3D512 seek=3D1
-> > dd: advancing past 1 blocks in output file `/dev/fd0': Permission denied
->=20
-> Different problem.  Add conv=3Dnotrunc to the dd command to make it work.
->=20
-
---3V7upXqbjpZ4EhLz
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6j1pksMikd2rK89sRAmsKAJ0eULEKZRDtsbuBNgj8vuBIwRQLewCcCufC
-KmwwWW18WeIiUj2O/RnOELg=
-=0taR
------END PGP SIGNATURE-----
-
---3V7upXqbjpZ4EhLz--
+Mordy

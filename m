@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262215AbSKTS4H>; Wed, 20 Nov 2002 13:56:07 -0500
+	id <S262418AbSKTTAJ>; Wed, 20 Nov 2002 14:00:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262289AbSKTS4H>; Wed, 20 Nov 2002 13:56:07 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:40584 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262215AbSKTS4G>;
-	Wed, 20 Nov 2002 13:56:06 -0500
-Date: Wed, 20 Nov 2002 19:01:12 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Steffen Persvold <sp@scali.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-rc2 strange L1 cache values
-Message-ID: <20021120190112.GC10698@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Steffen Persvold <sp@scali.com>,
-	Margit Schubert-While <margit@margit.com>,
-	linux-kernel@vger.kernel.org
-References: <20021120181359.GA10698@suse.de> <Pine.LNX.4.44.0211201941290.15336-100000@sp-laptop.isdn.scali.no>
-Mime-Version: 1.0
+	id <S262420AbSKTTAJ>; Wed, 20 Nov 2002 14:00:09 -0500
+Received: from packet.digeo.com ([12.110.80.53]:56220 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262418AbSKTTAI>;
+	Wed, 20 Nov 2002 14:00:08 -0500
+Message-ID: <3DDBDD5A.F76AAD0E@digeo.com>
+Date: Wed, 20 Nov 2002 11:07:06 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mark Haverkamp <markh@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Call trace at mm/page-writeback.c in 2.5.47
+References: <1037808468.6367.41.camel@markh1.pdx.osdl.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211201941290.15336-100000@sp-laptop.isdn.scali.no>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Nov 2002 19:07:06.0605 (UTC) FILETIME=[04AC39D0:01C290C8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 07:48:27PM +0100, Steffen Persvold wrote:
+Mark Haverkamp wrote:
+> 
+> While running a memory stress workload test on a 16 processor numa
+> system, I received a number of call traces like the following:
 
- > >  > <6>CPU: L1 I cache: 0K, L1 D cache: 8K
- > Yep that works (I have two Xeon boxes with the same issue) :
- > But why does this P4 Trace cache report as L1 I cache on 2.4.18 ? 
+What is the workload?  And in which journalling mode was ext3
+being used?
 
-Look again above, and you'll see .18 said it had 0K L1 (which is
-correct, L1 != Trace cache).
- 
- > Does this have any implications on the 2.4.18 performance (or the 
- > 2.4.20-rc2 performance without the descriptors.diff) ?
+Was the workload actually being run against ext3?
 
-The SMP weighting should be done with L2 cache size, which
-was correct on .18 too, so it should be ok.
+> buffer layer error at mm/page-writeback.c:559
+> Pass this trace through ksymoops for reporting
+> Call Trace:
+>  [<c013f1fb>] __set_page_dirty_buffers+0x3b/0x150
+>  [<c012d746>] zap_pte_range+0x1d6/0x2c0
+>  [<c0183401>] do_get_write_access+0x4a1/0x4d0
+>  [<c012d89c>] zap_pmd_range+0x6c/0x80
 
-		Dave
+A non-uptodate page mapped into pagetables.  I _think_ I
+can see how that can happen.  If the workload was, say,
+bash-shared-mapping...
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+If it is reproducible, does the removal of the ClearPageUptodate
+statement from mm/truncate.c:truncate_complete_page() make it
+go away?
+
+Thanks.

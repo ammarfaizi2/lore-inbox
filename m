@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265443AbRGSRYi>; Thu, 19 Jul 2001 13:24:38 -0400
+	id <S265452AbRGSRZs>; Thu, 19 Jul 2001 13:25:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265467AbRGSRY2>; Thu, 19 Jul 2001 13:24:28 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:17681 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S265452AbRGSRYR>;
-	Thu, 19 Jul 2001 13:24:17 -0400
-Date: Thu, 19 Jul 2001 14:24:12 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-        Dave McCracken <dmc@austin.ibm.com>, Dirk Wetter <dirkw@rentec.com>
+	id <S265488AbRGSRZj>; Thu, 19 Jul 2001 13:25:39 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:27910 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265452AbRGSRYm>; Thu, 19 Jul 2001 13:24:42 -0400
+Date: Thu, 19 Jul 2001 10:23:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] swap usage of high memory (fwd)
-In-Reply-To: <Pine.LNX.4.33.0107190940370.7162-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0107191358070.8447-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+In-Reply-To: <200107191659.f6JGxYh13394@mobilix.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.33.0107191020350.8055-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 19 Jul 2001, Linus Torvalds wrote:
 
-> Note that the unfair aging (apart from just being a natural requirement of
-> higher allocation pressure) actually has some other advantages too: it
-> ends up being  aload balancing thing. Sure, it might throw out some things
-> that get "unfairly" treated, but once we bring them in again we have a
-> better chance of bringing them into a zone that _isn't_ under pressure.
+On Thu, 19 Jul 2001, Richard Gooch wrote:
+> Linus Torvalds writes:
+> > Note that the unfair aging (apart from just being a natural
+> > requirement of higher allocation pressure) actually has some other
+> > advantages too: it ends up being aload balancing thing. Sure, it
+> > might throw out some things that get "unfairly" treated, but once we
+> > bring them in again we have a better chance of bringing them into a
+> > zone that _isn't_ under pressure.
 >
-> So unfair eviction can actually end up being a natural solution to
-> different memory pressure too
+> What about moving data to zones with free pages? That would save I/O.
 
-Note the difference between unfair aging and unfair eviction.
+Well, remember that we _are_ talking about pages that have been aged (just
+a bit more aggressively than some other pages), and are not being used.
+Dropping them may well be the right thing to do, and migrating them is
+potentially very costly indeed (and can cause oscillating patterns etc
+horror-schenarios).
 
-Unfair eviction is needed and is no problem because with
-fair aging this will lead to a large surplus of inactive
-pages in less loaded zones, increasing the chances that
-future allocations will end up in those zones.
+Yes, true page migration might eventually be something we have to start
+thinking about for NUMA machines, but I'd really really prefer just about
+any alternative. Getting a good balance would be _much_ preferable to
+having to take out the sledgehammer..
 
-Unfair aging, OTOH, throws away that information, making
-it harder for the system to get the pressure across the
-zones equal again.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+			Linus
 

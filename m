@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135914AbRDZVBo>; Thu, 26 Apr 2001 17:01:44 -0400
+	id <S135927AbRDZVLH>; Thu, 26 Apr 2001 17:11:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135917AbRDZVAt>; Thu, 26 Apr 2001 17:00:49 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:128 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S135926AbRDZU7x>;
-	Thu, 26 Apr 2001 16:59:53 -0400
-Date: Thu, 26 Apr 2001 22:14:45 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-Message-ID: <20010426221445.F819@athlon.random>
-In-Reply-To: <20010426214444.B819@athlon.random> <Pine.GSO.4.21.0104261554050.15385-100000@weyl.math.psu.edu> <20010426221109.E819@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010426221109.E819@athlon.random>; from andrea@suse.de on Thu, Apr 26, 2001 at 10:11:09PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S135926AbRDZVKs>; Thu, 26 Apr 2001 17:10:48 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:49413 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135925AbRDZVKp>; Thu, 26 Apr 2001 17:10:45 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Can multiple device drivers *share* a PCI bridge?
+Date: 26 Apr 2001 14:10:14 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9ca2rm$2sc$1@cesium.transmeta.com>
+In-Reply-To: <AF6E1CA59D6AD1119C3A00A0C9893C9A04F57136@cninexchsrv01.crane.navy.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 26, 2001 at 10:11:09PM +0200, Andrea Arcangeli wrote:
-> On Thu, Apr 26, 2001 at 03:55:19PM -0400, Alexander Viro wrote:
-> > 
-> > 
-> > On Thu, 26 Apr 2001, Andrea Arcangeli wrote:
-> > 
-> > > On Thu, Apr 26, 2001 at 03:34:00PM -0400, Alexander Viro wrote:
-> > > > Same scenario, but with read-in-progress started before we do getblk(). BTW,
-> > > 
-> > > how can the read in progress see a branch that we didn't spliced yet? We
-> > 
-> > fd = open("/dev/hda1", O_RDONLY);
-> > read(fd, buf, sizeof(buf));
+Followup to:  <AF6E1CA59D6AD1119C3A00A0C9893C9A04F57136@cninexchsrv01.crane.navy.mil>
+By author:    Friedrich Steven E CONT CNIN <friedrich_s@crane.navy.mil>
+In newsgroup: linux.dev.kernel
+>
+> I have 5 IP modules (Industry Pak I/O) that plug onto an IP carrier.  The
+> carrier has a bridge that gets found via vendor ID/device ID, but the *sub*
+> devices don't show up as distinct pci devices.  I'm using the *new*
+> approach, i.e., defining a pci_device_id struct that has been initialized
+> with vendirID/deviceID pairs I'm supporting.
 > 
-> You misunderstood the context of what I said, I perfectly know the race
-> you are talking about, I was answering Linus's question "the
-> wait_on_buffer isn't even necessary to protect ext2 against ext2". You
-> are talking about the other race that is "ext2" against "block_dev", and
-> I obviously agree on that one since the first place as I immediatly
-> answered you "correct".
+> When my module loads, the kernel calls my probe routine.  If my probe
+> routine returns 0, then this pci device is essentially locked to my device
+> driver.  How can I share that pci device with multiple drivers?  My current
+> thoughts are to simply make a *unified* driver that supports the various IP
+> modules.  That unified driver is not a general solution, but it would be ok
+> for this project.  I'm curious about how to develop a general solution to
+> this problem.  I believe any user of these IP modules would want to be able
+> to mix-n-match IP modules at will, merely adding device drivers, not having
+> a unified driver.
 > 
-> What I'm saying above is that even without the wait_on_buffer ext2 can
-								     ^^^ "cannot" of course
-> screwup itself because the splice happens after the buffer are just all
-> uptodate so any "reader" (I mean any reader through ext2 not through
-> block_dev) will never try to do a bread on that blocks before they're
-> just zeroed and uptodate.
-> 
-> Andrea
 
+A properly designed device should have a separate PCI function (with
+its own VID/DID) for each of the subdevices.  That's what the PCI
+functions are all about.  Your device is doing something nonstandard,
+so you need a shim device to handle its nonstandard decoding.
 
-Andrea
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

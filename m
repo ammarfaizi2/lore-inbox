@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315415AbSE2O2Z>; Wed, 29 May 2002 10:28:25 -0400
+	id <S315388AbSE2OfN>; Wed, 29 May 2002 10:35:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315419AbSE2O2Y>; Wed, 29 May 2002 10:28:24 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:11766 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315415AbSE2O2W>; Wed, 29 May 2002 10:28:22 -0400
-Subject: Re: A reply on the RTLinux discussion.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dana Lacoste <dana.lacoste@peregrine.com>
-Cc: Mark Mielke <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
-In-Reply-To: <1022682030.9044.8.camel@dlacoste.ottawa.loran.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 29 May 2002 16:31:44 +0100
-Message-Id: <1022686304.9255.236.camel@irongate.swansea.linux.org.uk>
+	id <S315413AbSE2OfM>; Wed, 29 May 2002 10:35:12 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:37904 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315388AbSE2OfL>; Wed, 29 May 2002 10:35:11 -0400
+Date: Wed, 29 May 2002 15:35:04 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Gerald Champagne <gerald@io.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.18 IDE 73
+Message-ID: <20020529153504.C30585@flint.arm.linux.org.uk>
+In-Reply-To: <1022680784.2945.24.camel@wiley> <3CF4D19F.9080402@evision-ventures.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-05-29 at 15:20, Dana Lacoste wrote:
-> I wish it weren't so, but it IS.  If RedHat is filing patents, then
-> it's fairly apparent that RedHat thinks so too, isn't it?
+On Wed, May 29, 2002 at 03:03:27PM +0200, Martin Dalecki wrote:
+> Dear Gerald please look closer. The hdparm -i is executing the
+> drive id command directly and does *not* rely on the internally
 
-Strange line of reasoning. Red Hat is an open source company. It doesn't
-have a proprietary installer, random bits of the binaries and libraries
-that are licensed per seat, embedded setups that happen to generate
-partially non free per unit licensed embedded targets.
+hdparm -i uses the HDIO_GET_IDENTITY ioctl, which returns drive->id.
+It doesn't obtain the ID from the drive.  hdparm -I asks the
+identity from the drive.
 
-There are years old Cygnus patents on bits of gcc, there are current Red
-Hat filed patents with GPL grants, there are countless thousands of IBM
-patents a few of which have GPL grants. People keep assuming this is
-something new, yet I would not be suprised if some of the gcc related
-patents pre-date Red Hat's existance.
+hdparm --help gives some hints:
+
+ -i   display drive identification
+ -I   read drive identification directly from drive
+
+and the man page is quite clear:
+
+       -i     Display the identification info that  was  obtained
+              from the drive at boot time, if available.  This is
+              a feature of modern IDE drives, and may not be sup­
+              ported  by older devices.  The data returned may or
+              may not be current,  depending  on  activity  since
+              booting  the system.  However, the current multiple
+              sector mode count is  always  shown.   For  a  more
+              detailed interpretation of the identification info,
+              refer to AT Attachment Interface  for  Disk  Drives
+              (ANSI  ASC X3T9.2 working draft, revision 4a, April
+              19/93).
+
+       -I     Request  identification  info  directly  from   the
+              drive,  which  is displayed in its raw form with no
+              endian changes or corrections.   Text  strings  may
+              appear mangled when using -I but that is NOT a bug.
+              Otherwise similar to the -i option.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbUFNJTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbUFNJzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbUFNJTR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 05:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUFNJTR
+	id S262176AbUFNJzi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 05:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUFNJzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 05:19:17 -0400
-Received: from holomorphy.com ([207.189.100.168]:21151 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262170AbUFNJTQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 05:19:16 -0400
-Date: Mon, 14 Jun 2004 02:19:13 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc3-mm2
-Message-ID: <20040614091913.GY1444@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040614021018.789265c4.akpm@osdl.org>
+	Mon, 14 Jun 2004 05:55:38 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:18899 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262176AbUFNJzg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 05:55:36 -0400
+Date: Mon, 14 Jun 2004 10:55:29 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Cesar Eduardo Barros <cesarb@nitnet.com.br>
+Cc: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] O_NOATIME support
+Message-ID: <20040614095529.GA11563@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Cesar Eduardo Barros <cesarb@nitnet.com.br>,
+	linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
+References: <20040612011129.GD1967@flower.home.cesarb.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040614021018.789265c4.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040612011129.GD1967@flower.home.cesarb.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 02:10:18AM -0700, Andrew Morton wrote:
-> +ignore-errors-from-tw_setfeature-in-3w-xxxxc.patch
->  3ware driver fix
+On Fri, Jun 11, 2004 at 10:11:29PM -0300, Cesar Eduardo Barros wrote:
+> (not subscribed to lkml, please CC: me on replies)
+> 
+> This patch adds support for the O_NOATIME open flag (GNU extension):
+> 
+> int O_NOATIME  	Macro
+>   If this bit is set, read will not update the access time of the file.
+>   See File Times. This is used by programs that do backups, so that
+>   backing a file up does not count as reading it. Only the owner of the
+>   file or the superuser may use this bit.
+> 
+> It is useful if you want to do something with the file atime (for
+> instance, moving files that have not been accessed in a while to
+> somewhere else, or something like Debian's popularity-contest) but you
+> also want to read all files periodically (for instance, tripwire or
+> debsums).
+> 
+> Currently, the program that reads all files periodically has to use
+> utimes, which can race with the atime update:
 
-I've been informed this is bogus (I myself don't understand what's going
-on with this patch).
+Any chance we could change the flag to also not update mtime and ctime
+for updates on a fd opened with it (and renaming it to O_INVISIBLE for
+example).  That's needed for your above moving infrequently used files
+away scenario (aka a HSM)
 
-
-On Mon, Jun 14, 2004 at 02:10:18AM -0700, Andrew Morton wrote:
-> +fake-inquiry-for-sony-clie-peg-tj25-in-unusual_devsh.patch
->  Sony Clie USB driver fix
-
-This unfortunately creates a duplicate entry in the unusual_devs.h
-
-On Mon, Jun 14, 2004 at 02:10:18AM -0700, Andrew Morton wrote:
-> +fix-thread_infoh-ignoring-__have_thread_functions.patch
->  m68k build fix
-
-It's been suggested that the m68k people were withholding this in order
-to come up with a better fix.
-
-
--- wli

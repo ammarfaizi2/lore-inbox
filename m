@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbQLAQni>; Fri, 1 Dec 2000 11:43:38 -0500
+	id <S129434AbQLARON>; Fri, 1 Dec 2000 12:14:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129231AbQLAQn2>; Fri, 1 Dec 2000 11:43:28 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:24329 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129319AbQLAQnQ>; Fri, 1 Dec 2000 11:43:16 -0500
-Date: Fri, 1 Dec 2000 10:33:35 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-To: Velizar Bodurski <velizarb@goce.pirincom.com>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: XFree 4.0 problems.
-In-Reply-To: <Pine.LNX.4.21.0012010105270.22261-100000@goce.pirincom.com>
-Message-ID: <Pine.LNX.4.30.0012011031500.620-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
+	id <S129431AbQLAROD>; Fri, 1 Dec 2000 12:14:03 -0500
+Received: from mailhub2.shef.ac.uk ([143.167.2.154]:17300 "EHLO
+	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
+	id <S129257AbQLARNv>; Fri, 1 Dec 2000 12:13:51 -0500
+Date: Fri, 1 Dec 2000 16:41:38 +0000 (GMT)
+From: Guennadi Liakhovetski <gvlyakh@mail.ru>
+To: linux-kernel@vger.kernel.org
+cc: Mike Dresser <mdresser@windsormachine.com>
+Subject: PCI support in kernel
+Message-ID: <Pine.GSO.4.21.0012011622040.12071-100000@acms23>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2000, Velizar Bodurski wrote:
+Actually, this is a continuation of the 
+"Re: DMA !NOT ONLY! for triton again..."
+thread.
 
->Date: Fri, 1 Dec 2000 01:06:50 +0200 (EET)
->From: Velizar Bodurski <velizarb@goce.pirincom.com>
->To: linux-kernel@vger.kernel.org
->Content-Type: TEXT/PLAIN; charset=US-ASCII
->Subject: XFree 4.0 problems.
->
->Ok I don't have the system in question, but i use others' experience with
->the problem. The system is 2xPentium II Celeron 600 Mhz, 256 MB RAM, Video
->Card Matrox Millenium G400, HDD 15 Gb Maxtor 7200 rpm, 2 Mb Cashe,
->MB Abit BP6.
->Both with kernel version 2.2.17 and 2.4.0-test11 after switching from
->X to the console the system hangs, nothing changes if the console is frame
->buffer or vt. If for X is used XFree 3.3.3.6 then the problem doesn't
->appear.
->Any help is apreciated, I don't really know if the problem is with the
->kernel or with the config, so any directions will be a lot helpfull.
->
->Thanks in advance.
->I'm not on the list, so if there is something i should read please send a
->cc: to this address.
+Mike Dresser wrote:
+> I'm taking the case off the machine right now, i can guarantee you its
+> not UDMA compatible, simply because this thing was made in early1997. :)
+> 
+> Here we go:
+> 
+> MDL WDAC21600-00H
+> P/N 99-004199-000
+> CCC F3 20 FEB 97
 
-What distribution are you using?  If Red Hat Linux, please check
-bugzilla.redhat.com and see if this is already reported, if not,
-please report it there.
+YEP! Mine is F6. Which means, that both of them are 'other than UDMA'. And
+since yours supports DMA I'll assume that so does mine too. Which means
+that the reason why I can't turn it on is BIOS - from your previous
+postings. Please, can anybody here explain, how is this possible, if
+ide.txt clearly says the contrary:
+"(linux) does not use the BIOS for disk access"
+or am I wrong somewhere? Shall I tell the kernel 
+'hda=noprobe,... ide0=dma...'
+?
 
+> DCM: BHBBKLP
+> 
+> I've got various of these hard drives in service, for the last 4
+> years.  Many run in windows pc's, and DMA mode in osr2 and newer, works,
+> and is noticeablely faster.
 
-----------------------------------------------------------------------
-      Mike A. Harris  -  Linux advocate  -  Open source advocate
-          This message is copyright 2000, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
+Guennadi
+___
 
+Dr. Guennadi V. Liakhovetski
+Department of Applied Mathematics
+University of Sheffield, U.K.
+email: G.Liakhovetski@sheffield.ac.uk
 
-If at first you don't succeed, call it version 1.0
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

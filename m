@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262760AbTLWUUS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 15:20:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTLWUUS
+	id S261889AbTLWUXX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 15:23:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTLWUXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 15:20:18 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:25302 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S262760AbTLWUUM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 15:20:12 -0500
-Date: Tue, 23 Dec 2003 12:21:16 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       "Giacomo A. Catenazzi" <cate@pixelized.ch>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "Eric S. Raymond" <esr@thyrsus.com>, Jonathan Magid <jem@ibiblio.org>,
-       "H. J. Lu" <hjl@lucon.org>, "Adam J. Richter" <adam@yggdrasil.com>
-Subject: Re: SCO's infringing files list
-Message-ID: <20031223202116.GB64011@gaz.sfgoth.com>
-References: <Pine.LNX.4.58.0312221337010.6868@home.osdl.org> <20031223002641.GD28269@pegasys.ws> <20031223092847.GA3169@deneb.enyo.de> <3FE811E3.6010708@debian.org> <Pine.LNX.4.58.0312230317450.12483@home.osdl.org> <3FE862E7.1@pixelized.ch> <20031223160425.GB45620@gaz.sfgoth.com> <20031223174454.GD45620@gaz.sfgoth.com> <Pine.LNX.4.58.0312230946010.14184@home.osdl.org> <20031223190656.GB15049@win.tue.nl>
-Mime-Version: 1.0
+	Tue, 23 Dec 2003 15:23:23 -0500
+Received: from smtp14.eresmas.com ([62.81.235.114]:5836 "EHLO
+	smtp14.eresmas.com") by vger.kernel.org with ESMTP id S261889AbTLWUXW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 15:23:22 -0500
+Message-ID: <3FE8A3D3.9090100@wanadoo.es>
+Date: Tue, 23 Dec 2003 21:21:39 +0100
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
+MIME-Version: 1.0
+To: Arnaud Fontaine <dsdebian@free.fr>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops with 2.4.23
+References: <3FE732A7.60402@wanadoo.es> <20031223150704.GA19243@scrappy>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031223190656.GB15049@win.tue.nl>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
-> I just uploaded a copy to
-> ftp://ftp.win.tue.nl/pub/linux-local/libc.archive/libc/libc-222.taz
+Arnaud Fontaine wrote:
 
-OK, so that takes us back to errlist.c modified 18-Jun-92:
+> Do i ran burnMMX during more than 30 minutes and nothing reported. Do
+> you have an other idea ?
 
-% tar tvfz libc-222.taz | grep errlist
--rw-r--r-- hlu/other      5601 1992-06-18 21:58:54 ./libc-linux/string/errlist.c
+next steps :
 
-And yes it includes the incorrect comment.
+- run burnP5 for 30 min.
+- try 2.4.24-pre2
 
--Mitch

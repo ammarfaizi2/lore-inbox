@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264930AbUBRMW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 07:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUBRMW6
+	id S266222AbUBRLnz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 06:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUBRLnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 07:22:58 -0500
-Received: from [211.198.200.42] ([211.198.200.42]:18963 "EHLO
-	smisvr.smiltd.co.kr") by vger.kernel.org with ESMTP id S265825AbUBRMW4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 07:22:56 -0500
-From: MRBATESALAN@netscape.net
-To: linux-kernel@vger.kernel.org
-Subject: REPLY SOON
-X-Priority: 3
-Message-Id: <S265825AbUBRMW4/20040218122256Z+1223@vger.kernel.org>
-Date: Wed, 18 Feb 2004 07:22:56 -0500
+	Wed, 18 Feb 2004 06:43:55 -0500
+Received: from dp.samba.org ([66.70.73.150]:48296 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266222AbUBRLnu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 06:43:50 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16435.20457.610841.62521@samba.org>
+Date: Wed, 18 Feb 2004 22:43:37 +1100
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Cc: hpa@zytor.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 and case-insensitivity
+In-Reply-To: <200402181105.58425.robin.rosenberg.lists@dewire.com>
+References: <16434.58656.381712.241116@samba.org>
+	<200402181105.58425.robin.rosenberg.lists@dewire.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friend,
+Robin,
 
-As you read this, I don't want you to feel sorry for 
-me, because, I believe everyone will die someday. 
-My name is BATES ALAN a merchant in Dubai, in the 
-U.A.E.I have been diagnosed with Esophageal cancer.
-It has defiled all forms of medical treatment, and right now 
-I have only about a few months to live, according to medical experts. 
-I have not particularly lived my life so well, as I 
-never really cared for anyone(not even myself)but my 
-business. Though I am very rich, I was never 
-generous, I was always hostile to people and only 
-focused on my business as that was the only thing I 
-cared for. But now I regret all this as I now know 
-that there is more to life than just wanting to have 
-or make all the money in the world. 
-I believe when God gives me a second chance to come 
-to this world I would live my life a different way 
-from how I have lived it. Now that God has called 
-me, I have willed and given most of my property 
-and assets to my immediate and extended family 
-members as well as a few close friends. 
-I want God to be merciful to me and accept my soul 
-so, I have decided to give alms to charity 
-organizations, as I want this to be one of the last 
-good deeds I do on earth. So far, I have distributed 
-money to some charity organizations in the U.A.E, 
-Algeria and Malaysia. Now that my health has 
-deteriorated so badly, I cannot do this myself 
-anymore. I once asked members of my family to close one 
-of my accounts and distribute the money which I have 
-there to charity organization in Bulgaria and 
-Pakistan, they refused and kept the money to 
-themselves. Hence, I do not trust them anymore, as 
-they seem not to be contended with what I have left 
-for them. 
-The last of my money which no one knows of is the 
-huge cash deposit of eighteen million dollars 
-$18,000,000,00 that I have with a finance/Security Company 
-abroad. I will want you to help me collect this deposit 
-and dispatched it to charity organizations.
-I have set aside 10% for you and for your time.
-God be with you. 
-BATES ALAN
+ > I've read it also:
+ > http://www.microsoft.com/globaldev/getwr/steps/wrg_unicode.mspx
+ > "The fundamental representation of text in Windows NT-based
+ > operating systems is UTF-16"
 
+yep, in this thread I've been mistakenly using the term UCS-16 when I
+should have said UTF-16 (ie. the variable length, 2 byte encoding).
+
+Samba currently treats the bytes on the wire from windows as UCS-2 (a
+2 byte fixed width encoding), whereas perhaps it should be treating
+them as UTF-16. I should write a smbtorture test to detect the
+difference and see what different versions of windows actually use.
+
+luckily the new charset handling stuff in samba3 and samba4 will make
+this easy to fix :-)

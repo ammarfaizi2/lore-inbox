@@ -1,73 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314327AbSEIUmz>; Thu, 9 May 2002 16:42:55 -0400
+	id <S314338AbSEIUsP>; Thu, 9 May 2002 16:48:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314329AbSEIUmy>; Thu, 9 May 2002 16:42:54 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:15432 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S314327AbSEIUmx>; Thu, 9 May 2002 16:42:53 -0400
-Date: Thu, 9 May 2002 16:41:09 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: [PATCH] Fix scsi.c kmod noise
-Message-ID: <20020509164109.F11386@redhat.com>
-In-Reply-To: <mailman.1020966481.25371.linux-kernel2news@redhat.com> <200205092033.g49KXxG06486@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314343AbSEIUsO>; Thu, 9 May 2002 16:48:14 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:21509 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314338AbSEIUsO>; Thu, 9 May 2002 16:48:14 -0400
+Message-ID: <3CDAD1C0.9090406@evision-ventures.com>
+Date: Thu, 09 May 2002 21:45:04 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        James Bottomley <James.Bottomley@steeleye.com>, mochel@osdl.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] PCI reorg fix
+In-Reply-To: <20020509165234.GA17627@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 09, 2002 at 04:33:59PM -0400, Pete Zaitcev wrote:
-> > [...] This error crops up whenever scsi.c
-> > is compiled in (which is fairly common in 2.4, Red Hat Linux does this
-> > as well).
+Uz.ytkownik Greg KH napisa?:
+> Linus,
 > 
-> > "kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2"
+> James pointed out that pci_alloc_consistent() and pci_free_consistent()
+> are allowed to be called, even if CONFIG_PCI is not enabled.  So this
+> changeset moves these calls back into the arch/i386/kernel directory.
 > 
-> > --- linux/drivers/scsi/scsi.c.OLD	Wed May  1 16:33:14 2002
-> > +++ linux/drivers/scsi/scsi.c	Wed May  1 16:34:46 2002
-> > @@ -2389,10 +2389,18 @@
+> Pull from:  bk://linuxusb.bkbits.net/linux-2.5-pci
 > 
-> > +/* This doesn't make much sense to do unless CONFIG_SCSI is a module itself.
-> > + *
-> > + * ~spot <tcallawa@redhat.com> 05012002
-> > + */
-> > +
-> > +#ifdef MODULE
-> >  #ifdef CONFIG_KMOD
-> >  		if (scsi_hosts == NULL)
-> >  			request_module("scsi_hostadapter");
-> >  #endif
-> > +#endif
-> >  		return scsi_register_device_module((struct Scsi_Device_Template *) ptr);
-> 
-> I do not see how you suppose this should work. What if scsi.c
-> is compiled in, and sunesp.c is not? Besides, why are you running
-> a kernel with CONFIG_KMOD if exec returns -ENOENT? I suspect
-> something is broken in the Aurora land.
+> As a side note, I don't think that any pci_* function should be able to
+> be called by non-pci drivers.  Is it worth spending the time now in 2.5
+> to make these two functions not rely on 'struct pci_dev' and fix up all
+> of the drivers and architectures and documentation to reflect this?
+> Possible names would be alloc_consistent() and free_consistent()?
 
-Actually, it happens because of the standard initrd.  In the initrd we 
-load scsi_mod first, and on initialization scsi_mod attempt to 
-request_module the host adapter, but there is no /sbin/modprobe (and no 
-/etc/modules.conf for modprobe to read either) so you get the error above.  
-Then, the initrd continues on to load the specific scsi modules.  So, in 
-actuallity, it makes sense to *disable* this entire code section if scsi 
-is a module because it will *always* be loaded before the host adapter (it 
-has to for dependancy's sake) and will always be a failure.  When compiled 
-into the kernel I'm not sure it makes any sense either since if the scsi 
-driver isn't loaded yet, then where would we be getting modprobe and 
-/etc/modules.conf from?  It would either have to be an initrd (in which 
-case the linuxrc script can load the module manually) or / is on ide (or 
-something like that) which doesn't depend on our host adapter, in which 
-case it makes no sense to go around loading things without them being 
-specifically requested.  Personally, I think this code should just die, 
-period.
+If your are at it: I was always itching my had what
+pci_alloc_inconsistent and pci_free_inconsistent is supposed to be?
+Negating semantically the consistent attribute shows nicely
+that the _consistent is a bad nomenclatures. Perhaps something
+more related to the purpose of it would help. Like
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+ioalloc() and iofree()
+
+Could be even abstracted from the bus implementation.
+
+And of course much less typing...
+
+

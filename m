@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268044AbTGUGw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 02:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269321AbTGUGw7
+	id S262931AbTGUHB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 03:01:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269321AbTGUHAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 02:52:59 -0400
-Received: from smtp3.att.ne.jp ([165.76.15.139]:39360 "EHLO smtp3.att.ne.jp")
-	by vger.kernel.org with ESMTP id S268044AbTGUGw6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 02:52:58 -0400
-Message-ID: <0c4e01c34f56$b2b95ce0$64ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: <generica@email.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <0c1801c34f50$a9706800$64ee4ca5@DIAMONDLX60> <46349.203.113.198.161.1058770320.squirrel@bad-sports.com>
-Subject: Re: Tried to run 2.6.0-test1
-Date: Mon, 21 Jul 2003 16:06:32 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Mon, 21 Jul 2003 03:00:38 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:64941 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S269269AbTGUHAg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 03:00:36 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 21 Jul 2003 09:28:53 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Greg KH <greg@kroah.com>
+Cc: Kernel List <linux-kernel@vger.kernel.org>,
+       video4linux list <video4linux-list@redhat.com>
+Subject: Re: [RFC/PATCH] sysfs'ify video4linux
+Message-ID: <20030721072853.GA21450@bytesex.org>
+References: <20030716084448.GC27600@bytesex.org> <20030716161924.GA7406@kroah.com> <20030716202018.GC26510@bytesex.org> <20030716210800.GE2279@kroah.com> <20030717120121.GA15061@bytesex.org> <20030717145749.GA5067@kroah.com> <20030717163715.GA19258@bytesex.org> <20030717214907.GA3255@kroah.com> <20030718095920.GA32558@bytesex.org> <20030718234359.GK1583@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030718234359.GK1583@kroah.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Brett" <generica@email.com> replied to one of my desperate messages today.
-I'm sending this personally and to the list.  Again I can't keep up with the
-list, so if Brett or anyone else has further advice or questions, please
-contact me directly.
+> Hm, it just looks like you quoted my message and didn't write anything
+> new.  Did something not go through correctly?
 
-> > By the way, the last line in that README file says that if this is all
-> > too complicated then install the source RPM.  Gee thanks.  I already
-> >  tried "rpm --rebuild" but it assumes an i686.
->
-> you want rpmbuild
+:-/  ... I should learn to use my mailer correctly ...
+Should have been that one:
 
-SuSE 8.1 doesn't seem to have it.
+==============================[ cut here ]==============================
+To: Greg KH <greg@kroah.com>
+Subject: Re: [RFC/PATCH] sysfs'ify video4linux
+In-Reply-To: <20030717214907.GA3255@kroah.com>
 
-> [brett@synapse brett]$ rpmbuild --help
-> Usage: rpmbuild [OPTION...]
-> <snip>
->   --target=CPU-VENDOR-OS        override target platform
+> > Version (1) can be done without breaking the build, with a hack along 
+> > the lines "if (no release callback) printk(KERN_WARN please fix your
+> > driver)", so the drivers can be fixed step-by-step afterwards.
+> 
+> That sounds like a nice way to start.
 
-Yeah, that's better than ARCH-VENDOR-OS.  The rpm --rebuild command's
-assumed arch of i486 was fine with me, the problem is the assumed cpu of
-i686.
+> I don't think it will be that bad for them.  Just have them change the
+> v4l device from being a structure included in their structure, into a
+> pointer, and then create it before registering, and free it in the
+> release() callback.
 
-Any chance that the rpm --rebuild command's arch-vendor-os might really mean
-cpu-vendor-os?  Nah, I guess you would have said so if it were.
+Good point.  So the mandatory ->release() callback version is also the
+more flexible one.  I like that :)
 
-> rpmbuild --target=i586 --rebuild modutils-*.src.rpm
+> Breaking the build is a very good thing to do at times, to ensure that
+> stuff gets fixed properly.  Users might go for a while without realizing
+> that there really is a problem in their driver.
+> 
+> But in the end, it's up to you...
 
-Oh, it doesn't need --target=i586-intel-linux  :-?  (By the way, the reason
-I come up with snarky questions like this one is that I RTFM.  Sigh.)
+Breaking the build _right now_ with 2.6 becoming stable is IMHO not a
+good idea, I think I better try to avoid that until 2.7.
+
+New patch will come later today or early next week.
+
+  Gerd
+
+-- 
+sigfault
 

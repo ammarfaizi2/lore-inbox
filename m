@@ -1,49 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266553AbUGKK2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUGKKas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266553AbUGKK2V (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 06:28:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUGKK2V
+	id S266555AbUGKKas (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 06:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266554AbUGKKar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 06:28:21 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:15119 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S266553AbUGKK2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 06:28:02 -0400
-Date: Sun, 11 Jul 2004 18:16:05 +0800 (WST)
-From: raven@themaw.net
-To: Thomas Moestl <moestl@ibr.cs.tu-bs.de>
-cc: autofs mailing list <autofs@linux.kernel.org>, nfs@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: umount() and NFS races in 2.4.26
-In-Reply-To: <20040710181912.GA800@timesink.dyndns.org>
-Message-ID: <Pine.LNX.4.58.0407111812460.1900@donald.themaw.net>
-References: <20040708180709.GA7704@timesink.dyndns.org>
- <Pine.LNX.4.58.0407101419210.1378@donald.themaw.net> <20040710181912.GA800@timesink.dyndns.org>
+	Sun, 11 Jul 2004 06:30:47 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:23179 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266555AbUGKK34 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 06:29:56 -0400
+Date: Sun, 11 Jul 2004 12:29:51 +0200 (MEST)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+In-Reply-To: <Pine.GSO.4.58.0407102126150.10242@waterleaf.sonytel.be>
+Message-ID: <Pine.GSO.4.58.0407111226350.3963@waterleaf.sonytel.be>
+References: <20040707122525.X1924@build.pdx.osdl.net>
+ <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <20040707202746.1da0568b.davem@redhat.com>
+ <buo7jtfi2p9.fsf@mctpc71.ucom.lsi.nec.co.jp> <Pine.LNX.4.58.0407072220060.1764@ppc970.osdl.org>
+ <buosmc3gix6.fsf@mctpc71.ucom.lsi.nec.co.jp> <Pine.LNX.4.58.0407080855120.1764@ppc970.osdl.org>
+ <Pine.LNX.4.58.0407091313570.20635@scrub.home>
+ <Pine.GSO.4.58.0407102126150.10242@waterleaf.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.2, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
-	RCVD_IN_ORBS, REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Jul 2004, Thomas Moestl wrote:
+On Sat, 10 Jul 2004, Geert Uytterhoeven wrote:
+> On Fri, 9 Jul 2004, Roman Zippel wrote:
+> > On Thu, 8 Jul 2004, Linus Torvalds wrote:
+> > > I have one. It's in my head. It's called the Linux Kernel C standard. Some
+> > > of it is documented in CodinggStyle, others is just codified in existing
+> > > practice.
+> >
+> > So far we have been quite liberal in style questions, what annoys me here
+> > is that people send warning patches directly to you without even notifying
+> > the maintainers. If you want people to conform people to a certain
+> > CodingStyle please document officially in the kernel, sparse isn't
+> > distributed with the kernel and the sparse police is silently changing the
+> > kernel all over the place with sometimes questionable benefit. Only the
+>
+> I agree, when you're talking about the `if ((x = f())' cases. We already added
+> the extra parentheses to shut up gcc...
+>
+> > __user warnings had really found the bugs, but the rest I've seen changes
+> > perfectly legal code.
 
-> > Never the less I'm sure there is a race in waitq.c of autofs4 in 
-> > 2.4 that seems to cause this problem. This is one of the things 
-> > addressed by my patch.
-> 
-> The system in question still uses autofs3. While I believe that the
-> waitq race is also present there (it could probably cause directory
-> lookups to hang, if I understand it correctly), I do not think that
-> any autofs3 code could cause exactly those symptoms that I have
-> observed. For that, it would have to obtain dentries of the file
-> systems that it has mounted, but the old code never does that.
+But why does sparse complain about
 
-I don't think autofs v3 has this race. It uses the BKL everywhere to 
-serialise execution. Never the less people seem to see the "busy inode" 
-messages sometimes.
+    p->thread.fs = get_fs().seg;
 
-Ian
+with
 
+    linux-m68k-2.6.7/arch/m68k/kernel/process.c:265:23: warning: expected lvalue for member dereference
+
+? Looks valid to me?
+
+(patch to kill the warning below, _for reference only_)
+
+--- linux-m68k-2.6.7/arch/m68k/kernel/process.c.orig	2004-06-21 20:20:00.000000000 +0200
++++ linux-m68k-2.6.7/arch/m68k/kernel/process.c	2004-06-27 14:47:23.000000000 +0200
+@@ -242,6 +242,7 @@
+ 	struct pt_regs * childregs;
+ 	struct switch_stack * childstack, *stack;
+ 	unsigned long stack_offset, *retp;
++	mm_segment_t fs;
+
+ 	stack_offset = THREAD_SIZE - sizeof(struct pt_regs);
+ 	childregs = (struct pt_regs *) ((unsigned long) (p->stack) + stack_offset);
+@@ -262,7 +263,8 @@
+ 	 * Must save the current SFC/DFC value, NOT the value when
+ 	 * the parent was last descheduled - RGH  10-08-96
+ 	 */
+-	p->thread.fs = get_fs().seg;
++	fs = get_fs();
++	p->thread.fs = fs.seg;
+
+ 	if (!FPU_IS_EMU) {
+ 		/* Copy the current fpu state */
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271851AbRHUUOZ>; Tue, 21 Aug 2001 16:14:25 -0400
+	id <S271852AbRHUUXQ>; Tue, 21 Aug 2001 16:23:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271850AbRHUUOP>; Tue, 21 Aug 2001 16:14:15 -0400
-Received: from [145.254.145.253] ([145.254.145.253]:20975 "HELO
-	schottelius.org") by vger.kernel.org with SMTP id <S271849AbRHUUOD>;
-	Tue, 21 Aug 2001 16:14:03 -0400
-Message-ID: <3B82C0C5.4924A507@pcsystems.de>
-Date: Tue, 21 Aug 2001 22:12:54 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S271855AbRHUUXF>; Tue, 21 Aug 2001 16:23:05 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:36833 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S271852AbRHUUWq>; Tue, 21 Aug 2001 16:22:46 -0400
+Date: Tue, 21 Aug 2001 16:22:53 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@touchme.toronto.redhat.com>
+To: <Andries.Brouwer@cwi.nl>
+cc: <satch@fluent-access.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: FYI  PS/2 Mouse problems -- userland issue
+In-Reply-To: <200108211940.TAA184696@vlet.cwi.nl>
+Message-ID: <Pine.LNX.4.33.0108211609510.14374-100000@touchme.toronto.redhat.com>
 MIME-Version: 1.0
-To: Luigi Genoni <kernel@Expansa.sns.it>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: cpu not detected(x86)
-In-Reply-To: <Pine.LNX.4.33.0108080148060.17173-100000@Expansa.sns.it>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luigi Genoni wrote:
+On Tue, 21 Aug 2001 Andries.Brouwer@cwi.nl wrote:
 
-> On Tue, 7 Aug 2001, Nico Schottelius wrote:
+>     machine driven code that doesn't block interrupts out for long periods of
+>     time, as well as fixing a few of the lockup issues the current driver has.
 >
-> > Hello!
-> >
-> > I am trying to run 2.4.7 and have heavily problems with my cpu.
-> > The kernel retected another speed at every start! I attached
-> > three times CPUINFO. The cpu in reality is a p3 650 mhz speedstep.
-> > (may switch down to 500 mhz, but 126 _not_).
-> >
-> > Who changed something in the 2.4.7 source ?
-> > I am more or less unable to run X with netscape to write this email
-> > with 126 Mhz!
-> Sometimes i use an old Pentium 133 classic (no mmx), and it works, well to
-> do this with X11 and netscape. I think we are starting to be used to PC
-> that are too powerful. :) If you go to fast how can you see where you are
-> going? ;)
-> OK, it was a joke...
->
-> I would like to know, if your CPU is on a laptop, are you sure that your
-> power management works well?
+> Have you written the patch already?
+> There are interesting difficulties here.
 
-No, seems like ACPI killed the cpu speed.
-I can't undernstand why ACPI is not marked EXPERIMENTAL,
-if those things are normal!
+Nothing in a usable state.  It needs a few days of work, but the general
+design is done.  Having high resolution timers would help, but it's not
+essential.  Most of the work was in tracking down all the docs for the
+keyboard and ps/2 mouse ports to get an overview of what the code was
+trying to coax the hardware into doing.  Armed with docs I was able to see
+just why our code is completely wrong for handling things like the ps/2
+mouse being removed at runtime.
 
-> Is it working ok with 2.4.6? and 2.4.8-pre3?
-
-Sorry, only tested 2.4.7.
-Maybe I can test 2.4.8 in the next days.
-
-
-Nico
+		-ben
 

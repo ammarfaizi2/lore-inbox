@@ -1,54 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318747AbSICKUM>; Tue, 3 Sep 2002 06:20:12 -0400
+	id <S318748AbSICKdv>; Tue, 3 Sep 2002 06:33:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318748AbSICKUM>; Tue, 3 Sep 2002 06:20:12 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:7652 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S318747AbSICKUL>;
-	Tue, 3 Sep 2002 06:20:11 -0400
-Date: Tue, 3 Sep 2002 12:28:18 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Tobias Ringstrom <tori@ringstrom.mine.nu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with the O(1) scheduler in 2.4.19
-In-Reply-To: <Pine.LNX.4.44.0209031150310.6862-100000@boris.prodako.se>
-Message-ID: <Pine.LNX.4.44.0209031220230.25506-100000@localhost.localdomain>
+	id <S318750AbSICKdv>; Tue, 3 Sep 2002 06:33:51 -0400
+Received: from ns.commfireservices.com ([216.6.9.162]:10758 "HELO
+	hemi.commfireservices.com") by vger.kernel.org with SMTP
+	id <S318748AbSICKdu>; Tue, 3 Sep 2002 06:33:50 -0400
+From: zwane@commfireservices.com
+Subject: [PATCH][2.5.33] oops on futexfs mount
+To: rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+X-Originating-IP: 196.28.7.236
+X-Mailer: Webmin 0.910
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="bound1031049454"
+Message-Id: <20020903103734.4412BBC51@hemi.commfireservices.com>
+Date: Tue,  3 Sep 2002 06:37:34 -0400 (EDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-On Tue, 3 Sep 2002, Tobias Ringstrom wrote:
+--bound1031049454
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> For the case of a game server, this means that when the CPU utilization
-> gets above 50% (roughly), it will switch from -5 to +5 in dynamic
-> priority in a few seconds and stay there until the CPU utilization drops
-> under 50%.
-> 
-> Is my analysis correct, and is this what we want?
+Hi Rusty,
+	I know it's in the don't do that category ;)
 
-do you expect a task that uses up 50% CPU time over an extended period of
-time to be rated 'interactive'?
+Index: linux-2.5.33/kernel/futex.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.33/kernel/futex.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 futex.c
+--- linux-2.5.33/kernel/futex.c	31 Aug 2002 22:32:06 -0000	1.1.1.1
++++ linux-2.5.33/kernel/futex.c	3 Sep 2002 08:51:31 -0000
+@@ -359,6 +359,7 @@
+ static struct file_system_type futex_fs_type = {
+ 	.name		= "futexfs",
+ 	.get_sb		= futexfs_get_sb,
++	.kill_sb	= kill_anon_super,
+ };
+ 
+ static int __init init(void)
 
-we might make the '50%' rule to be '100% / nr_running_avg', so that if
-your task is the only one in the system then it gets rated interactive -
-but i suspect it will still be rated a CPU hog if it keeps trying to use
-up 50% of CPU time even during busier periods. I have tried the
-(1/nr_running) rule in earlier incarnations of the scheduler, and it didnt
-make much difference, but we obviously need a boundary case like yours to
-see the differences.
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+00000000
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: cf729240   ebx: cf729200   ecx: 00000001   edx: 00000000
+esi: c552e000   edi: c0441d20   ebp: c54f3000   esp: c552fee8
+ds: 0068   es: 0068   ss: 0068
+Stack: c0155088 cf729200 cf7edcf8 cf7edcf8 c016b538 cf7edcf8 ffffffea c17df194
+       cf7edcf8 c016cac8 cf729200 cd66b824 42029c74 00000000 00001000 c54e8000
+       00000000 c552ff50 c016ccfb c552ff50 c54e8000 00000000 00000000 c54f3000
+Call Trace: [<c0155088>] [<c016b538>] [<c016cac8>] [<c016ccfb>] [<c0140068>]
+   [<c016cb2c>] [<c016d362>] [<c0107bdf>]
+Code:  Bad EIP value.
 
-> I tried that yesterday (without the O(1) scheduler), and it does wonders
-> for the in-game latency (i.e. ping).  I suppose that the dynamic prio
-> will still be +5 at 70% CPU utilization even with a HZ of 1000 using the
-> O(1)  scheduler.  Why would it make a difference?
+>>EIP; 00000000 Before first symbol
+Trace; c0155088 <deactivate_super+98/140>
+Trace; c016b538 <__mntput+18/30>
+Trace; c016cac8 <do_add_mount+128/140>
+Trace; c016ccfb <do_mount+17b/1a0>
+Trace; c0140068 <s_show+198/2c0>
+Trace; c016cb2c <copy_mount_options+4c/a0>
+Trace; c016d362 <sys_mount+e2/180>
+Trace; c0107bdf <syscall_call+7/b>
 
-(it could in theory make a difference in some rare cases, in which the
-frequency of sampling resonates with internal timings of the application -
-i asked for this only to make sure there are no interactions.)
 
-	Ingo
-
+--bound1031049454--

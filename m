@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbULPBFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbULPBO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbULPBFn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 20:05:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbULPBDB
+	id S262596AbULPBO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 20:14:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbULPBOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 20:03:01 -0500
-Received: from mail.dif.dk ([193.138.115.101]:48548 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262569AbULPA1s (ORCPT
+	Wed, 15 Dec 2004 20:14:05 -0500
+Received: from mail.dif.dk ([193.138.115.101]:32677 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262539AbULPAnI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 19:27:48 -0500
-Date: Thu, 16 Dec 2004 01:38:17 +0100 (CET)
+	Wed, 15 Dec 2004 19:43:08 -0500
+Date: Thu, 16 Dec 2004 01:53:35 +0100 (CET)
 From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Linux Kernel Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [PATCH 24/30] return statement cleanup - kill pointless parentheses
- in arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
-Message-ID: <Pine.LNX.4.61.0412160137320.3864@dragon.hygekrogen.localhost>
+To: Nathan Scott <nathans@sgi.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH N/30] return statement cleanup - kill pointless parentheses
+ in fs/xfs/*
+In-Reply-To: <20041216113943.A480215@wobbly.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.61.0412160151420.3864@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0412160115370.3864@dragon.hygekrogen.localhost>
+ <20041216113943.A480215@wobbly.melbourne.sgi.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 16 Dec 2004, Nathan Scott wrote:
 
-This patch removes pointless parentheses from return statements in 
-arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
+> On Thu, Dec 16, 2004 at 01:16:55AM +0100, Jesper Juhl wrote:
+> > This patch removes pointless parentheses from return statements in 
+> > fs/xfs/*
+> > 
+> 
+> Thanks, but no thanks.  This sort of "noise" diff makes comparing
+> new versions of a file/routine/... to older versions much more
+> difficult than need be, for no gain really.
+> 
+Ok, fair enough, I'll strike fs/xfs/ from my todo list.  a few more are 
+already send - just ignore those then, please.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+Seems eople have different oppinions on this.....
 
---- linux-2.6.10-rc3-bk8-orig/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2004-12-06 22:24:16.000000000 +0100
-+++ linux-2.6.10-rc3-bk8/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2004-12-15 23:55:42.000000000 +0100
-@@ -450,7 +450,7 @@ static int centrino_cpu_init_acpi(struct
-  err_unreg:
- 	acpi_processor_unregister_performance(&p, policy->cpu);
- 	printk(KERN_INFO PFX "invalid ACPI data\n");
--	return (result);
-+	return result;
- }
- #else
- static inline int centrino_cpu_init_acpi(struct cpufreq_policy *policy) { return -ENODEV; }
-@@ -518,7 +518,7 @@ static int centrino_cpu_init(struct cpuf
- 
- 	ret = cpufreq_frequency_table_cpuinfo(policy, centrino_model->op_points);
- 	if (ret)
--		return (ret);
-+		return ret;
- 
- 	cpufreq_frequency_table_get_attr(centrino_model->op_points, policy->cpu);
- 
-@@ -587,7 +587,7 @@ static int centrino_target (struct cpufr
- 	set_cpus_allowed(current, policy->cpus);
- 	if (smp_processor_id() != policy->cpu) {
- 		dprintk("couldn't limit to CPUs in this domain\n");
--		return(-EAGAIN);
-+		return -EAGAIN;
- 	}
- 
- 	if (cpufreq_frequency_table_target(policy, centrino_model->op_points, target_freq,
-@@ -627,7 +627,7 @@ static int centrino_target (struct cpufr
- 	retval = 0;
- migrate_end:
- 	set_cpus_allowed(current, saved_mask);
--	return (retval);
-+	return retval;
- }
- 
- static struct freq_attr* centrino_attr[] = {
-
+-- 
+Jesper Juhl
 
 

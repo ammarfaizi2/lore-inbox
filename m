@@ -1,54 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267534AbUHEAkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267527AbUHEAmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267534AbUHEAkO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 20:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267531AbUHEAkO
+	id S267527AbUHEAmv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 20:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267529AbUHEAmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 20:40:14 -0400
-Received: from ns1.skjellin.no ([80.239.42.66]:33756 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S267529AbUHEAkB (ORCPT
+	Wed, 4 Aug 2004 20:42:50 -0400
+Received: from S010600104b97db1e.gv.shawcable.net ([24.68.211.67]:27660 "EHLO
+	antichrist") by vger.kernel.org with ESMTP id S267527AbUHEAmp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 20:40:01 -0400
-Message-ID: <411181DE.1050304@tomt.net>
-Date: Thu, 05 Aug 2004 02:39:58 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 4 Aug 2004 20:42:45 -0400
+Date: Wed, 4 Aug 2004 17:34:26 -0700
+From: carbonated beverage <ramune@net-ronin.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7 SATA (SCSI emulation) sw-raid1 - lockup when 1 drive is
- removed
-References: <4111577A.9010901@geizhals.at>
-In-Reply-To: <4111577A.9010901@geizhals.at>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: ACPI/Panic 2.6.8-rc3
+Message-ID: <20040805003426.GA18820@net-ronin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marinos J. Yannikos wrote:
-> A box with a stock 2.6.7 kernel using the Promise SX4 controller 
-> (CONFIG_SCSI_SATA_SX4, i.e. libata driver) locks up completely when one 
-> of the 2 drives in a raid 1 configuration is removed. I believe this is 
-> not how raid 1 is supposed to work. ;-) swap was initially on the drive 
->   I removed only (/dev/sdb2), but I also tested this with swap on a raid 
-> volume (/dev/md2 = /dev/sdb2 + /dev/sdc2)- the effect is exactly the 
-> same in both cases.
-> 
-> The last message seen is: "ata1 DMA timeout", then the console stops 
-> working. dmesg output and config.gz available at: 
-> http://stuff.geizhals.at/misc/2004-08-04/
-> 
-> Perhaps there is a work-around or this issue can be resolved quickly 
-> before one of the drives actually dies...
+Reported this a while ago, but tried it again, still getting oops
+when doing an rmmod of the ACPI processor module.
 
-I've seen this same thing when S-ATA drives have really died on me while 
-using 2.4.24-26+libata, computer just locks up even when used with md 
-RAID1/RAID5. Though this is Intel ICH5("R"). Didn't have any time to get 
-any more debugging done at those few times, though.
+Hardware: IBM T30, P4 2.4GHz, 256MiB, Debian/stable, did an rmmod processor.
 
-It's mostly just annoying to have to reset the machines, especially as 
-this does not happen with the drivers/ide drivers (not verified with 
-ich5 specificly).
+Note: Oops below was copied by hand, so may not be fully reliable.  Also,
+EIP was screwy, so no idea what was executing.
 
--- 
-André Tomt
+100% reproducible.
+
+ramune@hasenpfeffer:linux-2.6: ./scripts/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux hasenpfeffer 2.6.8-rc3 #25 Tue Aug 3 20:28:47 PDT 2004 i686 unknown
+
+Gnu C                  2.95.4
+Gnu make               3.79.1
+binutils               2.12.90.0.1
+util-linux             2.11n
+mount                  2.11n
+module-init-tools      3.0-pre7
+e2fsprogs              1.27
+pcmcia-cs              3.1.33
+nfs-utils              1.0
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+
+ksymoops 2.4.9 on i686 2.6.8-rc3.  Options used
+     -v /home/ramune/src/kernel-stuff/linux-2.6/vmlinux (specified)
+     -K (specified)
+     -l /proc/modules (specified)
+     -o /lib/modules/2.6.8-rc3 (specified)
+     -m /boot/System.map-2.6.8-rc3 (specified)
+
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+eip: d0a42294
+*pde = 012c5067
+Oops: 0000 [#1]
+CPU: 0
+EIP: 0060:[<d0a42294>] Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010216 (2.6.8-rc3)
+eax: 00000000 ebx: 002bef05 ecx: 00000008 edx: 00001020
+esi: cff346f8 edi: 002beb87 ebp: cff34600 esp: c02fbfd4
+ds: 007b es: 007b ss: 0068
+Stack: 0009ef00 00000000 c0fb0000 0009ef00 c031a120 00388007 c010208c c02fc5d3
+       c031abe0 0001080e c010019f
+Call Trace:
+  [<c010208c>]
+  [<c02fc5d3>]
+Code: Bad EIP value
+
+
+>>EIP; d0a42294 <pg0+106db294/3fc97000>   <=====
+
+>>esi; cff346f8 <pg0+fbcd6f8/3fc97000>
+>>ebp; cff34600 <pg0+fbcd600/3fc97000>
+>>esp; c02fbfd4 <init_thread_union+fd4/1000>
+
+Trace; c010208c <cpu_idle+1f/34>
+Trace; c02fc5d3 <start_kernel+145/148>
+

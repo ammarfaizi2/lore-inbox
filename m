@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQJaOaE>; Tue, 31 Oct 2000 09:30:04 -0500
+	id <S129740AbQJaOdy>; Tue, 31 Oct 2000 09:33:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129843AbQJaO3r>; Tue, 31 Oct 2000 09:29:47 -0500
-Received: from ns.dce.bg ([212.50.14.242]:3595 "HELO home.dce.bg")
-	by vger.kernel.org with SMTP id <S129069AbQJaO3l>;
-	Tue, 31 Oct 2000 09:29:41 -0500
-Message-ID: <39FED73C.A4BA630D@dce.bg>
-Date: Tue, 31 Oct 2000 16:29:16 +0200
-From: Petko Manolov <petkan@dce.bg>
-Organization: Deltacom Electronics
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en, bg
+	id <S129213AbQJaOdg>; Tue, 31 Oct 2000 09:33:36 -0500
+Received: from tellus.thn.htu.se ([193.10.192.40]:39435 "EHLO thn.htu.se")
+	by vger.kernel.org with ESMTP id <S129740AbQJaOd2>;
+	Tue, 31 Oct 2000 09:33:28 -0500
+Date: Tue, 31 Oct 2000 15:33:16 +0100 (CET)
+From: Richard Torkar <ds98rito@thn.htu.se>
+To: John R Lenton <john@grulic.org.ar>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: oopsen in 2.4.0-pre9
+In-Reply-To: <20001031094755.A1029@grulic.org.ar>
+Message-ID: <Pine.LNX.4.21.0010311532090.1566-100000@toor.thn.htu.se>
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: changed section attributes
-In-Reply-To: <16848.973001732@ocs3.ocs-net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+John R Lenton wrote:
+
+> Several oops come up when using a lot of memory (using
+> imagemagick on PIA00001.tif from photojournal.jpl.nasa.gov/tiff,
+> on a 64MB machine, for example)
 > 
-> >Changing the declaration in linux/module.h to ".modinfo,"a""
-> >fixed the problem, but i noticed that the author said that
-> >"we want .modinfo to not be allocated"
+> The weird thing is the oops happen *after* I've finished with
+> imagemagick (or the gimp, or ...). In this particular situation
+> netscape suddenly died, together with wmtime, and then the whole
+> of X hung. I entered via the network, to find that xfs had died
+> (explaining X's hanging), and as soon as I restarted X the whole
+> box was gone. It still responded to pings, but even the active
+> ssh session was dead and I couldn't get a new one.
 > 
-> Historically that was the only way of preventing the .modinfo section
-> from being included in modules when they were loaded into the kernel.
-> An alternative is to allow .modinfo to be allocated and have modutils
-> treat it as non-allocated.  This feature was added to modutils 2.3.19
-> on October 22 (bleeding edge toolchains for IA64 are "fun") so anybody
-> who is annoyed by the warning messages can apply this patch.
-
-[snip]
- 
-> -/* The attributes of a section are set the first time the section is
-> -   seen; we want .modinfo to not be allocated.  */
-> -
-> -__asm__(".section .modinfo\n\t.previous");
-> -
->  /* Define the module variable, and usage macros.  */
->  extern struct module __this_module;
+> Please email me if you need anything else (other than the
+> attached ksymoops output, that is).
 
 
-This is exactly what i did (excluding removing of the comment ;-)
+Well some more info.
 
-I wonder why the compiler decides to add ".section
-.modinfo,"a",@progbits"
-May be this is the thing which should be fixed.
+I see kswapd starting to run @ ~7% CPU.
+
+But my swap starts getting eaten up with approx 5 MB/sec.
+
+Any ideas anyone?
+
+RvR something for you?
 
 
-	Petkan
+/Richard
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE5/tgvUSLExYo23RsRArxbAKCg6ADFyb6G2oKDMZT9m3mKqMF8awCggEBY
+2RnARjaRDxqI7BCxaAGjr5M=
+=tfT6
+-----END PGP SIGNATURE-----
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

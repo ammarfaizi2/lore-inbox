@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315337AbSGUXv2>; Sun, 21 Jul 2002 19:51:28 -0400
+	id <S316678AbSGVKqG>; Mon, 22 Jul 2002 06:46:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315431AbSGUXuK>; Sun, 21 Jul 2002 19:50:10 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:39585 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S315417AbSGUXuD>;
-	Sun, 21 Jul 2002 19:50:03 -0400
-Date: Mon, 22 Jul 2002 01:52:06 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Russell King <rmk@arm.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@tech9.net>
-Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
-In-Reply-To: <1027299841.16818.124.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0207220151420.4346-100000@localhost.localdomain>
+	id <S316682AbSGVKqG>; Mon, 22 Jul 2002 06:46:06 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:17416 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316678AbSGVKqF>; Mon, 22 Jul 2002 06:46:05 -0400
+Message-ID: <3D3BE1DD.3040803@evision.ag>
+Date: Mon, 22 Jul 2002 12:43:41 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.27 devfs
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com>
+Content-Type: multipart/mixed;
+ boundary="------------020908090708020803010901"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020908090708020803010901
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 22 Jul 2002, Alan Cox wrote:
+Kill two inlines which are notwhere used and which don't make sense
+in the case someone is not compiling devfs at all.
 
-> > > Actually its to cover the case where you have a floppy drive, and you've
-> > > booted the kernel from a floppy disk, and the kernel doesn't have the
-> > > floppy driver built in.  It turns the floppy drive off, cause there's
-> > > nothing else to do that.
-> > 
-> > this should then be done by the floppy boot code?
-> 
-> Most definitely. On legacy free boxes there may not even be a floppy
-> controller present, and on non x86 your guess is as good as mine at
-> where the fdc lives.
+--------------020908090708020803010901
+Content-Type: text/plain;
+ name="devfs-2.5.27.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="devfs-2.5.27.diff"
 
-non-x86 was covered via an #ifdef, but legacy-free is not covered.
+diff -urN linux-2.5.27/include/linux/devfs_fs_kernel.h linux/include/linux/devfs_fs_kernel.h
+--- linux-2.5.27/include/linux/devfs_fs_kernel.h	2002-07-20 21:11:30.000000000 +0200
++++ linux/include/linux/devfs_fs_kernel.h	2002-07-21 22:14:16.000000000 +0200
+@@ -286,16 +286,6 @@
+     return;
+ }
+ 
+-static inline kdev_t devfs_alloc_devnum (char type)
+-{
+-    return NODEV;
+-}
+-
+-static inline void devfs_dealloc_devnum (char type, kdev_t devnum)
+-{
+-    return;
+-}
+-
+ static inline int devfs_alloc_unique_number (struct unique_numspace *space)
+ {
+     return -1;
 
-	Ingo
+--------------020908090708020803010901--
 

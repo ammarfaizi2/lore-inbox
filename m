@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267070AbTCFANb>; Wed, 5 Mar 2003 19:13:31 -0500
+	id <S267083AbTCFAUP>; Wed, 5 Mar 2003 19:20:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267083AbTCFANb>; Wed, 5 Mar 2003 19:13:31 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:11476 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267070AbTCFANa>;
-	Wed, 5 Mar 2003 19:13:30 -0500
-Date: Wed, 5 Mar 2003 18:00:05 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Bob Miller <rem@osdl.org>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bugme-new] [Bug 442] New: compile failure in drivers/cpufreq/userspace.c
- (fwd)
-In-Reply-To: <20030306002225.GA10819@doc.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33.0303051759060.998-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267089AbTCFAUP>; Wed, 5 Mar 2003 19:20:15 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:9476 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267083AbTCFAUN>;
+	Wed, 5 Mar 2003 19:20:13 -0500
+Date: Thu, 6 Mar 2003 01:29:46 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: davej@suse.de, John Clemens <john@deater.net>, cpufreq@www.linux.org.uk,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Re: cpufreq: allow user to specify voltage
+Message-ID: <20030306002945.GA31895@elf.ucw.cz>
+References: <20030225190949.GM12028@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44.0302251419290.12073-100000@pianoman.cluster.toy> <20030225193341.GA19556@atrey.karlin.mff.cuni.cz> <20030228211638.GA888@brodo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030228211638.GA888@brodo.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Wed, 5 Mar 2003, Bob Miller wrote:
-
-> On Wed, Mar 05, 2003 at 02:53:33PM -0800, Martin J. Bligh wrote:
-> >   gcc -Wp,-MD,drivers/cpufreq/.userspace.o.d -D__KERNEL__ -Iinclude -Wall
-> > -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
-> > -mpreferred-stack-boundary=2 -march=athlon -Iinclude/asm-i386/mach-default
-> > -nostdinc -iwithprefix include    -DKBUILD_BASENAME=userspace
-> > -DKBUILD_MODNAME=userspace -c -o drivers/cpufreq/.tmp_userspace.o
-> > drivers/cpufreq/userspace.c
-> > drivers/cpufreq/userspace.c: In function `cpufreq_governor_userspace':
-> > drivers/cpufreq/userspace.c:514: structure has no member named `intf'
-> > drivers/cpufreq/userspace.c:523: structure has no member named `intf'
-> > make[2]: *** [drivers/cpufreq/userspace.o] Error 1
-> > make[1]: *** [drivers/cpufreq] Error 2
-> > make: *** [drivers] Error 2
+> Here's my suggestion, (partly) based on something Patrick Mochel suggested
+> for the passing of attribute files of cpufreq drivers to the cpufreq core:
+> a NULL-terminated list of device_attributes *attr is passed to the core. And
+> if attr itself is NULL, no attribute is passed, of course. Using this
+> approach, this patch against cpufreq-CVS-HEAD adds a file
 > 
-> I believe the patch below fixes the problem.  Pat?
+> /sys/devices/sys/cpu0/scaling_available_freqs (something Carl Thompson
+> 						asked for)
 
-Yup, that'll do it. 
+Strange, I need 
 
-I just sent Linus an update with an identical patch in it, so hopefully 
-it'll be in BK soon.
+> @@ -166,8 +166,11 @@
+>  	/* optional, for the moment */
+>  	int	(*init)		(struct cpufreq_policy *policy);
+>  	int	(*exit)		(struct cpufreq_policy *policy);
+> +	struct device_attribute *attr[];
 
-	-pat
+to change this to *attr[99] if I want it to compile...
+								Pavel
 
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

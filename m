@@ -1,64 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268428AbTANAVp>; Mon, 13 Jan 2003 19:21:45 -0500
+	id <S268464AbTANAtJ>; Mon, 13 Jan 2003 19:49:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268430AbTANAVp>; Mon, 13 Jan 2003 19:21:45 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:22988 "EHLO w-patman.des")
-	by vger.kernel.org with ESMTP id <S268428AbTANAVo>;
-	Mon, 13 Jan 2003 19:21:44 -0500
-Date: Mon, 13 Jan 2003 16:27:41 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Andries.Brouwer@cwi.nl, mdharm-usb@one-eyed-alien.net,
-       Greg KH <greg@kroah.com>
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
+	id <S268465AbTANAtJ>; Mon, 13 Jan 2003 19:49:09 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:8711 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S268464AbTANAtI>;
+	Mon, 13 Jan 2003 19:49:08 -0500
+Date: Mon, 13 Jan 2003 16:57:56 -0800
+From: Greg KH <greg@kroah.com>
+To: Patrick Mansfield <patmans@us.ibm.com>, Andries.Brouwer@cwi.nl,
+       mochel@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: sysfs
-Message-ID: <20030113162741.A18396@beaverton.ibm.com>
-References: <UTC200301111443.h0BEhRZ06262.aeb@smtp.cwi.nl>
+Message-ID: <20030114005756.GC10764@kroah.com>
+References: <UTC200301111443.h0BEhRZ06262.aeb@smtp.cwi.nl> <20030113162741.A18396@beaverton.ibm.com> <20030113165102.A26346@one-eyed-alien.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <UTC200301111443.h0BEhRZ06262.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Sat, Jan 11, 2003 at 03:43:27PM +0100
+In-Reply-To: <20030113165102.A26346@one-eyed-alien.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries -
+On Mon, Jan 13, 2003 at 04:51:02PM -0800, Matthew Dharm wrote:
+> Really, we don't want to hang the device under USB... it's really an
+> emulated SCSI device.  Or, at least I think so.
 
-On Sat, Jan 11, 2003 at 03:43:27PM +0100, Andries.Brouwer@cwi.nl wrote:
-> Yesterday evening I wrote a trivial utility fd ("find device")
-> that gives the contents of sysfs. Mostly in order to see what
-> name the memory stick card reader has today.
-> 
-> I wondered about several things.
-> Is there a description of the intended hierachy, so that one can
-> compare present facts with intention?
-> 
-> In /sysfs/devices I see
-> 1:0:6:0  2:0:0:1  2:0:0:3  3:0:0:1  4:0:0:0  4:0:0:2   ide0  legacy  sys
-> 2:0:0:0  2:0:0:2  3:0:0:0  3:0:0:2  4:0:0:1  ide-scsi  ide1  pci0
-> many SCSI devices and some subdirectories.
-> Would it not be better to have subdirectories scsiN just like ideN?
-> One can have SCSI hosts, even when presently no devices are connected.
+Yes, and since you're looking like a scsi device, and acting like a scsi
+device, and you are showing up in the sysfs tree as a scsi device, let's
+at least point your device to the proper place, so that the tree shows
+the proper representation for what is happening.
 
-It looks like there is a missing scsi_set_device() call in scsiglue.c,
-(similiar to what happens if we handled NULL dev pointer in scis_add_host)
-so all the usb scsi devices end up under /sysfs/devices.
+thanks,
 
-I don't have any usb mass storage devices, this patch against 2.5 bk
-compiles but otherwise is not tested. It should put the usb-scsi mass
-storage devices below the usb sysfs dev (I assume in your case under
-/sysfs/devices/pci0/00:07.2/usb1/1-2/1-2.4/1-2.4.4).
-
-Maybe Matthew or Greg can comment.
-
---- 1.33/drivers/usb/storage/scsiglue.c	Sun Nov 10 09:49:52 2002
-+++ edited/drivers/usb/storage/scsiglue.c	Mon Jan 13 15:33:49 2003
-@@ -90,6 +90,7 @@
- 	if (us->host) {
- 		us->host->hostdata[0] = (unsigned long)us;
- 		us->host_no = us->host->host_no;
-+		scsi_set_device(us->host, &us->pusb_dev->dev);
- 		return 1;
- 	}
- 
--- Patrick Mansfield
+greg k-h

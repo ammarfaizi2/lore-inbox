@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265798AbSKAWWd>; Fri, 1 Nov 2002 17:22:33 -0500
+	id <S265800AbSKAWa3>; Fri, 1 Nov 2002 17:30:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265799AbSKAWWd>; Fri, 1 Nov 2002 17:22:33 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:17926 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265798AbSKAWWb>;
-	Fri, 1 Nov 2002 17:22:31 -0500
-Date: Fri, 1 Nov 2002 14:25:50 -0800
-From: Greg KH <greg@kroah.com>
-To: Christian Vogel <vogel@skunk.physik.uni-erlangen.de>
-Cc: Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing-List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-pre10-ac2: proc_bus_pci_dir unresolved in pci_hotplug.o module
-Message-ID: <20021101222550.GD18015@kroah.com>
-References: <20021101150129.A15230@skunk.physik.uni-erlangen.de>
+	id <S265801AbSKAWa3>; Fri, 1 Nov 2002 17:30:29 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:18850 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265800AbSKAWa2>;
+	Fri, 1 Nov 2002 17:30:28 -0500
+Message-Id: <200211012236.gA1MaqT20507@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Hans Reiser <reiser@namesys.com>
+cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       Oleg Drokin <green@namesys.com>, Nikita Danilov <Nikita@namesys.com>,
+       cliffw@osdl.org
+Subject: Re: We need help benchmarking and debugging reiser4 
+In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
+   of "Wed, 30 Oct 2002 11:30:31 +0300." <3DBF98A7.8060906@namesys.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021101150129.A15230@skunk.physik.uni-erlangen.de>
-User-Agent: Mutt/1.4i
+Date: Fri, 01 Nov 2002 14:36:52 -0800
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 03:01:29PM +0100, Christian Vogel wrote:
-> Hi,
+> Can some of you help us by doing such things as replicating our 
+> benchmarks, and helping us debug it as we enter the last stretch before 
+> Halloween?
 > 
-> when insmodding the pci_hotplug.o module I get unresolved symbol
-> proc_bus_pci_dir on Kernel 2.4.20-pre10-ac2.
-> 
-> The symbol is declared extern here:
-> 
-> drivers/hotplug/pci_hutplug_core.c (line 131) has:
->         extern struct proc_dir_entry *proc_bus_pci_dir
-> 
-> The symbol is defined here:
-> 
-> drivers/pci/proc.c (line 372) has:
->         struct proc_dir_entry *proc_bus_pci_dir
-> 
-> Probably some EXPORT_SYMBOL(proc_bus_pci_dir) is missing
-> in the latter file?...
 
-It is exported in the main 2.4.20-rc1 tree, so hopefully the next time
-Alan syncs up he will get this fix.
+We are interested in helping, but i haven't seen the follow-up mail 
+mentioned below - if you could send us some more specifics, we'd be
+glad to join the fun.
+cliffw
+OSDL
 
-thanks,
+> Nikita and Oleg will describe the details of what to do to replicate the 
+> benchmarks, please be sure to use reiser4 readdir order for writes to 
+> reiser4 (that means don't use tarballs made from ext2 (Remember that 
+> writes determine subsequent read performance.)), and to use the latest 
+> hard drives and fast processors with udma 5 turned on.  We are quite 
+> sensitive to transfer speed since we do a good job of avoiding seeks.  
+> We are sensitive to readdir order because we sort directory entries 
+> (which is necessary for having efficient large directory lookups).   In 
+> reiser4.1 we will ship a repacker, and then it won't matter what order 
+> you do writes in so long as the repacker gets a chance to run at night.  
+> 
+> -- 
+> Hans
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-greg k-h
+

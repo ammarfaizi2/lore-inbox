@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291121AbSBYQAV>; Mon, 25 Feb 2002 11:00:21 -0500
+	id <S293334AbSBYPyl>; Mon, 25 Feb 2002 10:54:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291082AbSBYQAL>; Mon, 25 Feb 2002 11:00:11 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:13551 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S291121AbSBYP77>;
-	Mon, 25 Feb 2002 10:59:59 -0500
-Date: Sun, 24 Feb 2002 22:08:13 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Steven Walter <srwalter@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: ext3 and undeletion
-Message-ID: <20020224220813.F12832@lynx.adilger.int>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020224212727.A15097@hapablap.dyn.dhs.org>
+	id <S293325AbSBYPyc>; Mon, 25 Feb 2002 10:54:32 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30709
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S292484AbSBYPyY>; Mon, 25 Feb 2002 10:54:24 -0500
+Date: Mon, 25 Feb 2002 07:54:52 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: Fran?ois Cami <stilgar2k@wanadoo.fr>, "J.A. Magallon" <jamagallon@able.es>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.18-rc4-jam1
+Message-ID: <20020225155452.GT20060@matchmail.com>
+Mail-Followup-To: Ed Sweetman <ed.sweetman@wmich.edu>,
+	Fran?ois Cami <stilgar2k@wanadoo.fr>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020223234217.C2023@werewolf.able.es> <3C782531.6050701@wanadoo.fr> <1014514801.492.14.camel@psuedomode> <1014516072.491.28.camel@psuedomode> <20020224030620.GR20060@matchmail.com> <1014526676.587.29.camel@psuedomode>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020224212727.A15097@hapablap.dyn.dhs.org>; from srwalter@yahoo.com on Sun, Feb 24, 2002 at 09:27:27PM -0600
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <1014526676.587.29.camel@psuedomode>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 24, 2002  21:27 -0600, Steven Walter wrote:
-> After unintentionally deleting some file, I noticed what appears to be
-> an incosistency (or at least a change) in ext3.  Running debugfs and
-> executing the command "lsdel", I saw no inodes listed since I last ran
-> the partition as ext2.  Does ext3 not add its deleted inodes to whatever
-> list ext2 does?  And can this be fixed without compromising the speed or
-> data-integrity of ext3?
+On Sat, Feb 23, 2002 at 11:57:51PM -0500, Ed Sweetman wrote:
+> On Sat, 2002-02-23 at 22:06, Mike Fedyk wrote:
+> > On Sat, Feb 23, 2002 at 09:01:06PM -0500, Ed Sweetman wrote:
+> > > Or it could be my ext3 fs corrupting files again.
+> > > 
+> > 
+> > Oy, do you have one of those write-back (behind) ide hard drives?
 
-Known problem.  Apparently difficult to fix, unfortunately.  It's not so
-much that ext2 adds deleted inodes to a list, as that it simply marks the
-inode "deleted" and doesn't overwrite any of the inode data on the disk.
+> Probably, it's a WD 100GB.  hdparm says   WriteCache=enabled
+> I dont know if the bios is set to writeback off hand, I'd have to
+> reboot, which I'll probably do soon to add in another hdd and possibly
+> run memtest86 instead of just memtest
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Does it turn off automatically on shutdown (halt)?
 
+Debian has recently turned off write-back caching on shutdown just after
+unmounting all local filesystems.  That, or turning off write-back caching
+will probably fix your problem.
+
+Mike

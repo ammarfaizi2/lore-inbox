@@ -1,76 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269926AbRHMX2l>; Mon, 13 Aug 2001 19:28:41 -0400
+	id <S269927AbRHMXeL>; Mon, 13 Aug 2001 19:34:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269928AbRHMX2c>; Mon, 13 Aug 2001 19:28:32 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:8864 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S269926AbRHMX2Z>;
-	Mon, 13 Aug 2001 19:28:25 -0400
-Message-ID: <3B7862FD.BBDF0C51@candelatech.com>
-Date: Mon, 13 Aug 2001 16:30:05 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies Inc
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Requesting clarification on IPTOS_* values w/regard to RFC-1349
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S269928AbRHMXeB>; Mon, 13 Aug 2001 19:34:01 -0400
+Received: from smtp2.netc.pt ([212.18.160.142]:15490 "EHLO smtp2.netc.pt")
+	by vger.kernel.org with ESMTP id <S269927AbRHMXd5>;
+	Mon, 13 Aug 2001 19:33:57 -0400
+Date: Tue, 14 Aug 2001 01:31:28 +0100
+From: Paulo Andre <baggio@netc.pt>
+Subject: 2.4.8-ac3 fails on compiling
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk
+Message-id: <01081401312801.01021@nirvana.local.net>
+MIME-version: 1.0
+X-Mailer: KMail [version 1.1.95.2]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a hard time believing that the kernel is wrong
-on something so basic, but I cannot reconcile RFC-1349
-with include/linux/ip.h
+Alan,
 
-Here is the snippet from RFC-1349, found here:
-http://www.cis.ohio-state.edu/cgi-bin/rfc/rfc1349.html
-
-****************************************************************************
-3 Specification of the Type of Service Octet
-
-    The TOS facility is one of the features of the Type of Service
-    octet in the IP datagram header. The Type of Service
-    octet consists of three fields: 
-
-                    0     1     2     3     4     5     6     7
-                 +-----+-----+-----+-----+-----+-----+-----+-----+
-                 |                 |                       |     |
-                 |   PRECEDENCE    |          TOS          | MBZ |
-                 |                 |                       |     |
-                 +-----+-----+-----+-----+-----+-----+-----+-----+
-
-    The first field, labeled "PRECEDENCE" above, is intended to denote the
-    importance or priority of the datagram. This
-    field is not discussed in detail in this memo. 
-****************************************************************************
+Got this compiling error when trying to build 2.4.8-ac3 on top of 2.4.8, it 
+chokes when trying to compile the FAT support. Might aswell be a problem 
+within the Makefile. Here's the produced output...
 
 
-However, include/linux/ip.h defines the values as if RFC-1349 numbered
-the bits backwards.  (It appears to me, for example, that the TOS_MASK
-should be, in binary: 0111 1000, not 0001 1110 as ip.h shows.)
-
-*************************************************
-/* SOL_IP socket options */
-
-#define IPTOS_TOS_MASK		0x1E
-#define IPTOS_TOS(tos)		((tos)&IPTOS_TOS_MASK)
-#define	IPTOS_LOWDELAY		0x10
-#define	IPTOS_THROUGHPUT	0x08
-#define	IPTOS_RELIABILITY	0x04
-#define	IPTOS_MINCOST		0x02
-*************************************************
-
-
-Am I even more confused than normal, or is this really a problem?
+make -C fat
+make[2]: Entering directory `/usr/src/linux/fs/fat'
+make all_targets
+make[3]: Entering directory `/usr/src/linux/fs/fat'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=i686    -c -o buffer.o buffer.c
+make[3]: *** No rule to make target `msbuffer.h', needed by `cache.o'.  Stop.
+make[3]: Leaving directory `/usr/src/linux/fs/fat'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/fs/fat'
+make[1]: *** [_subdir_fat] Error 2
+make[1]: Leaving directory `/usr/src/linux/fs'
+make: *** [_dir_fs] Error 2
 
 
-Thanks,
-Ben
+Cheers,
 
-
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+// Paulo Andre'

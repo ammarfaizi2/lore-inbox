@@ -1,33 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268778AbUJMPHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268239AbUJMPNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268778AbUJMPHw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 11:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268828AbUJMPHv
+	id S268239AbUJMPNe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 11:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268828AbUJMPNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 11:07:51 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:16572 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S268778AbUJMPFn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 11:05:43 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Martijn Sipkema <martijn@entmoot.nl>
-Subject: Re: waiting on a condition
-Date: Wed, 13 Oct 2004 17:05:36 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <02bb01c4b138$8a786f10$161b14ac@boromir> <416D41FF.6080002@redhat.com>
-In-Reply-To: <416D41FF.6080002@redhat.com>
+	Wed, 13 Oct 2004 11:13:34 -0400
+Received: from fire.osdl.org ([65.172.181.4]:8422 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S268239AbUJMPNc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 11:13:32 -0400
+Message-ID: <416D442C.5070305@osdl.org>
+Date: Wed, 13 Oct 2004 08:05:16 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: haroldo.gamal@silexonline.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Submitting patches for unmaintained areas (Solaris x86 UFS bug)
+References: <c461c0d10410130406714fafe3@mail.gmail.com> <416D1D6F.4080508@silexonline.org>
+In-Reply-To: <416D1D6F.4080508@silexonline.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410131705.36873.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You may want to look at include/linux/completion.h
+Haroldo Gamal wrote:
+> I've done have done the same with 
+> http://bugzilla.kernel.org/show_bug.cgi?id=3330 and I have the same 
+> question!
+> 
+> Where do I go from now?
 
-Ciao,
+Have you tried contacting the SMBfs maintainer?
+from the MAINTAINERS file:
 
-Duncan.
+SMB FILESYSTEM
+P:	Urban Widmark
+M:	urban@teststation.com
+W:	http://samba.org/
+L:	samba@samba.org
+S:	Maintained
+
+-- 
+~Randy

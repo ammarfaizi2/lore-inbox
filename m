@@ -1,99 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317672AbSGZKTx>; Fri, 26 Jul 2002 06:19:53 -0400
+	id <S317464AbSGZK23>; Fri, 26 Jul 2002 06:28:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317671AbSGZKTx>; Fri, 26 Jul 2002 06:19:53 -0400
-Received: from spirit.qbfox.com ([212.67.200.51]:40977 "EHLO spirit.qbfox.com")
-	by vger.kernel.org with ESMTP id <S317672AbSGZKTs>;
-	Fri, 26 Jul 2002 06:19:48 -0400
-Message-Id: <200207261022.LAA08395@spirit.qbfox.com>
-From: Per Gregers Bilse <bilse@qbfox.com>
-Date: Fri, 26 Jul 2002 11:22:59 +0100
-In-Reply-To: <3D4036A0.6FAA303@mvista.com>
-Organization: qbfox
-X-Mailer: Mail User's Shell (7.2.2 4/12/91)
-To: george anzinger <george@mvista.com>
-Subject: Re: 2.4.18 clock warps 4294 seconds
-Cc: linux-kernel@vger.kernel.org
+	id <S317498AbSGZK23>; Fri, 26 Jul 2002 06:28:29 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:9344 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317464AbSGZK21>;
+	Fri, 26 Jul 2002 06:28:27 -0400
+Date: Fri, 26 Jul 2002 12:31:04 +0200
+From: Pavel Machek <pavel@elf.ucw.cz>
+To: Robert Love <rml@tech9.net>
+Cc: akpm@zip.com.au, riel@conectiva.com.br, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5-rmap: VM strict overcommit
+Message-ID: <20020726103104.GA279@elf.ucw.cz>
+References: <1026928763.1116.11.camel@sinai>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1026928763.1116.11.camel@sinai>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 25, 10:34am, george anzinger <george@mvista.com> wrote:
-> You have the number a bit low.  If I recall, this is an 800
-
-Yes, I figured that, and bumped it up a lot (to 1e9).  Of course, since
-setting the trap, things have been fine, including no loss of NTP synch.-/
-Let's see over the weekend.
-
-> The first thing I would check is that you are using DMA for
-> you disc transfers.  To the best of my knowledge, the
-
-Yes, both machines and both disks use DMA, and also allow interrupts
-("unmaskirq" option) during disk transfers, here's from hdparm(8):
-
-/dev/hda:
- multcount    = 16 (on)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 2434/255/63, sectors = 39102336, start = 0
-
-The only slightly unusual thing is that both machines use soft RAID,
-I don't know if that code might be doing something.  But the problem
-occurred at the same time as I made an application change (debug/logging)
-that vastly -reduced- disk I/O.
-
-Anyway, I've been looking through archived log files, and found a few
-entries from the 2.4.7-10 kernel that looked interesting, here's a pair:
-
-Feb 23 04:07:52 vulpes kernel: probable hardware bug: clock timer configuration lost - probably a VIA686a motherboard.
-Feb 23 04:07:52 vulpes kernel: probable hardware bug: restoring chip configuration.
-
-Both machines indeed have identical VIA686a motherboards.  The messages
-come from code in timer_interrupt() in time.c:
-
-                /* read Pentium cycle counter */
-
-                rdtscl(last_tsc_low);
-
-                spin_lock(&i8253_lock);
-                outb_p(0x00, 0x43);     /* latch the count ASAP */
-
-                count = inb_p(0x40);    /* read the latched count */
-                count |= inb(0x40) << 8;
-
-                /* VIA686a test code... reset the latch if count > max */
-                if (count > LATCH) {
-                        static int last_whine;
-                        outb_p(0x34, 0x43);
-                        outb_p(LATCH & 0xff, 0x40);
-                        outb(LATCH >> 8, 0x40);
-                        count = LATCH - 1;
-                        if(time_after(jiffies, last_whine))
-                        {
-                                printk(KERN_WARNING "probable hardware bug: clock timer configuration lost - probably a VIA686a motherboard.\n");
-                                printk(KERN_WARNING "probable hardware bug: restoring chip configuration.\n");
-                                last_whine = jiffies + HZ;
-                        }
-                }
-
-                spin_unlock(&i8253_lock);
+Hi!
 
 
-The "if (count > LATCH)" block has been taken out of the 2.4.18
-kernel, while similar code is in do_slow_gettimeoffset() in both
-the 2.4.7-10 and 2.4.18 kernels.  I'm not sufficiently familiar
-with the hardware and the code to know if this is significant,
-but it does seem that there are some known hardware bugs which
-the earlier kernel tried to address (but with limited or no success).
+> diff -urN linux-2.5.26-rmap/Documentation/vm/overcommit-accounting linux/Documentation/vm/overcommit-accounting
+> --- linux-2.5.26-rmap/Documentation/vm/overcommit-accounting	Wed Dec 31 16:00:00 1969
+> +++ linux/Documentation/vm/overcommit-accounting	Wed Jul 17 10:45:47 2002
+> @@ -0,0 +1,77 @@
+> +The Linux kernel supports four overcommit handling modes
+> +
+> +0	-	Heuristic overcommit handling. Obvious overcommits of
+> +		address space are refused. Used for a typical system. It
+> +		ensures a seriously wild allocation fails while allowing
+> +		overcommit to reduce swap usage.  This is the default.
+> +
+> +1	-	No overcommit handling. Appropriate for some scientific
+> +		applications.
+> +
+> +2	-	(NEW) swapless strict overcommit. The total address space
+> +		commit for the system is not permitted to exceed 95% of
+> +		free memory. This mode utilizes the new stricter accounting
+> +		but does not impose a very strict rule.  It is possible that
+> +		the system could kill a process accessing pages in certain
+> +		cases.  If mode 3 is too strict when no swap is	present
+> +		this is the best you can do.
+> +
+> +3	-	(NEW) strict overcommit. The total address space commit
+> +		for the system is not permitted to exceed swap + half ram.
+> +		In almost all situations this means a process will not be
+> +		killed while accessing pages but only by malloc failures
+> +		that are reported back by the kernel mmap/brk code.
 
-Anyway, let's see what happens over the weekend.
+In what scenario can "strict overcommit" kill?
 
-Thanks.
+> +4	-	(NEW) paranoid overcommit. The total address space commit
+> +		for the system is not permitted to exceed swap. The machine
+> +		will never kill a process accessing pages it has mapped
+> +		except due to a bug (ie report it!).
 
-  -- Per
-
+...and why is that scenario impossible on "paranoid overcommit"?
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

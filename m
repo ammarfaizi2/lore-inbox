@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268209AbUIKQ6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268213AbUIKRAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268209AbUIKQ6a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 12:58:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268204AbUIKQ6a
+	id S268213AbUIKRAi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 13:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268212AbUIKRAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 12:58:30 -0400
-Received: from mail.kroah.org ([69.55.234.183]:43146 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268209AbUIKQ5N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 12:57:13 -0400
-Date: Sat, 11 Sep 2004 09:56:45 -0700
-From: Greg KH <greg@kroah.com>
-To: Tim Hockin <thockin@hockin.org>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Robert Love <rml@ximian.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-ID: <20040911165645.GA17099@kroah.com>
-References: <20040902083407.GC3191@kroah.com> <1094142321.2284.12.camel@betsy.boston.ximian.com> <20040904005433.GA18229@kroah.com> <1094353088.2591.19.camel@localhost> <20040905121814.GA1855@vrfy.org> <20040906020601.GA3199@vrfy.org> <20040910235409.GA32424@kroah.com> <20040911001849.GA321@hockin.org> <20040911004827.GA8139@kroah.com> <20040911014543.GA5053@hockin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 11 Sep 2004 13:00:38 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:26555 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S268210AbUIKRAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 13:00:33 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>
+Subject: Re: [PATCH] sis5513 fix for SiS962 chipset
+Date: Sat, 11 Sep 2004 18:02:45 +0200
+User-Agent: KMail/1.6.2
+Cc: tglx@linutronix.de, LKML <linux-kernel@vger.kernel.org>,
+       Linux-IDE <linux-ide@vger.kernel.org>
+References: <1094826555.7868.186.camel@thomas.tec.linutronix.de> <200409102321.17042.bzolnier@elka.pw.edu.pl> <4142D3AE.5050602@inet6.fr>
+In-Reply-To: <4142D3AE.5050602@inet6.fr>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040911014543.GA5053@hockin.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409111802.45628.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 06:45:43PM -0700, Tim Hockin wrote:
-> On Fri, Sep 10, 2004 at 05:48:27PM -0700, Greg KH wrote:
-> > need be.  This keeps the kernel interface much simpler, and doesn't
-> > allow you to abuse it for things it is not intended for (like error
-> > reporting stuff...)
+On Saturday 11 September 2004 12:30, Lionel Bouton wrote:
+> Bartlomiej Zolnierkiewicz wrote the following on 09/10/2004 11:21 PM :
 > 
-> Errm, not for error reporting?  So the "driver hardening" and fault
-> logging people shouldn't use this?
+> >>I see it's not really a cutting-edge design (2002). Apparently nobody 
+> >>seemed to care about Linux IDE performance before :-|
+> >>    
+> >>
+> >
+> >Yep. :/  Lionel, can I push this fix upstream?
+> >  
+> >
+> 
+> Please do.
 
-The "driver hardening" people hopefully have been scared away from Linux
-so they never show their face around here again.  And if they do, no,
-this is not what they want to do (what they need to do is get a clue...)
+OK, will do.
 
-The fault logging people should also not use this, as this is for
-notifying userspace that an event has happened.  And yes, "overheat" is
-an example of a event that some people consider a "fault" :)
+> In fact I think I'm only a speed bumper here. There's so little work to 
+> do on the sis5513 driver now that I don't follow IDE work closely 
+> anymore and must refresh my memories even for such simple patches. I 
+> believe there are people around more fit than me for sis5513 maintenance.
 
-thanks,
+I'm not aware of any such person...
 
-greg k-h
+> With SATA, sis5513.c will soon be considered legacy code. I don't think 
+> a dedicated maintainer is usefull anymore, seems to me it would be 
+> better handled by someone with a broader view of IDE chipsets than me.
+
+Dedicated maintainers are very useful even for legacy drivers.
+This way the subsystem maintainer doesn't have to worry about
+every fscking driver (less bugs, faster development). :-)
+
+If you really want to give up maintainership of sis5513 please
+send a patch to Linus+me removing you from MAINTAINERS file.
+
+Anyway, thanks for all your hard work on sis5513 driver.

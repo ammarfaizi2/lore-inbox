@@ -1,67 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129729AbRATPdS>; Sat, 20 Jan 2001 10:33:18 -0500
+	id <S129860AbRATPeI>; Sat, 20 Jan 2001 10:34:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129860AbRATPdI>; Sat, 20 Jan 2001 10:33:08 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:21247 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129729AbRATPdE>; Sat, 20 Jan 2001 10:33:04 -0500
-Message-Id: <5.0.2.1.2.20010120152158.00ab7bc0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Sat, 20 Jan 2001 15:32:51 +0000
-To: Linus Torvalds <torvalds@transmeta.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Coding Style
-Cc: Mark I Manning IV <mark4@purplecoder.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10101192217390.9361-100000@penguin.transmeta
- .com>
-In-Reply-To: <3A68E309.2540A5E1@purplecoder.com>
+	id <S130022AbRATPd6>; Sat, 20 Jan 2001 10:33:58 -0500
+Received: from mailproxy.de.uu.net ([192.76.144.34]:3470 "EHLO
+	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
+	id <S129860AbRATPdo>; Sat, 20 Jan 2001 10:33:44 -0500
+Date: Sat, 20 Jan 2001 16:33:41 +0100
+From: Ulrich Kunitz <gefm21@uumail.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0 i386: Why free_xxx_slow() instead free_xxx_fast()?
+Message-ID: <20010120163341.A767@uumail.de>
+Mail-Followup-To: Ulrich Kunitz <gefm21@uumail.de>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:29 20/01/2001, Linus Torvalds wrote:
->On Fri, 19 Jan 2001, Mark I Manning IV wrote:
-[snip]
-> > > And two spaces is not enough. If you write code that needs comments at
-> > > the end of a line, your code is crap.
-> >
-> > Might i ask you to qualify that statement ?
->
->Ok. I'll qualify it. Add a "unless you write in assembly language" to the
->end. I have to admit that most assembly languages are terse and hard to
->read enough that you often want to comment at the end. In assembly you
->just don't tend to have enough flexibility to make the code readable, so
->you must live with unreadable code that is commented.
+Hello,
 
-Would you not also add "unless you are defining structure definitions and 
-want to explain what each of the struct members means"?
+in include/asm-i386/pgalloc.h the {pgd,pmd,pte}_free* functions are
+defined as the functions free_{pgd,pmd,pte}_slow (see the patch below).
+IMO this leaves the quick lists pretty useless for i386.
+Have I overlooked something?
 
-[snip]
->Notice? Not AFTER the statements.
->
->Why? Because you are likely to want to change the statements. You don't
->want to keep moving the comments around to line them up. And trying to
->have a multi-line comment with code is just HORRIBLE:
+There is a linux-kernel mail from Martin Schwidefsky
+(schwidefsky@de.ibm.com) about 2.4.0-test10 hinting on bad_pmd_table()
+and bad_pgd_table() landing in the quick lists. Using the _slow
+functions would fix any problem with the quick lists for now.
 
-And structs are not likely to change so this argument would not longer apply?
+Changing the defines as in the patch seems to work here on a
+two uniprocessor machines (Pentium III, Athlon). I've checked with
+2.4.1-pre9 too. But what are the risks?
 
-Just curious.
+Ciao,
 
-Regards,
+Uli Kunitz
 
-         Anton
-
+--- linux-2.4.0/include/asm-i386/pgalloc.h	Tue Jan  9 15:00:08 2001
++++ linux/include/asm-i386/pgalloc.h	Thu Jan 11 17:30:55 2001
+@@ -92,9 +92,9 @@
+ 	free_page((unsigned long)pte);
+ }
+ 
+-#define pte_free_kernel(pte)    free_pte_slow(pte)
+-#define pte_free(pte)	   free_pte_slow(pte)
+-#define pgd_free(pgd)	   free_pgd_slow(pgd)
++#define pte_free_kernel(pte)    free_pte_fast(pte)
++#define pte_free(pte)	   free_pte_fast(pte)
++#define pgd_free(pgd)	   free_pgd_fast(pgd)
+ #define pgd_alloc()	     get_pgd_fast()
+ 
+ extern inline pte_t * pte_alloc_kernel(pmd_t * pmd, unsigned long address)
+@@ -145,7 +145,7 @@
+  * inside the pgd, so has no extra memory associated with it.
+  * (In the PAE case we free the page.)
+  */
+-#define pmd_free(pmd)	   free_pmd_slow(pmd)
++#define pmd_free(pmd)	   free_pmd_fast(pmd)
+ 
+ #define pmd_free_kernel		pmd_free
+ #define pmd_alloc_kernel	pmd_alloc
 
 -- 
-    "Programmers never die. They do a GOSUB without RETURN." - Unknown source
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Ulrich Kunitz (gefm21@uumail.de)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

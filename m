@@ -1,55 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbUCMSoS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 13:44:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbUCMSoS
+	id S263164AbUCMSuX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 13:50:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUCMSuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 13:44:18 -0500
-Received: from [80.72.36.106] ([80.72.36.106]:45789 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S263162AbUCMSoQ (ORCPT
+	Sat, 13 Mar 2004 13:50:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:15017 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263164AbUCMSuV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 13:44:16 -0500
-Date: Sat, 13 Mar 2004 19:44:11 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Marek Szuba <scriptkiddie@wp.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4, or what I still don't quite like about the new stable
- branch
-In-Reply-To: <S263158AbUCMS0h/20040313182637Z+893@vger.kernel.org>
-Message-ID: <Pine.LNX.4.58.0403131932510.22707@alpha.polcom.net>
-References: <S263158AbUCMS0h/20040313182637Z+893@vger.kernel.org>
+	Sat, 13 Mar 2004 13:50:21 -0500
+Date: Sat, 13 Mar 2004 10:57:01 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Rik van Riel <riel@redhat.com>
+cc: Hugh Dickins <hugh@veritas.com>, Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: anon_vma RFC2
+In-Reply-To: <Pine.LNX.4.44.0403131227210.15971-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.58.0403131048340.900@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0403131227210.15971-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 4. Module autounloading. Is it actually possible? Will it be possible?
-> If not, why? The old method of periodically invoking "modprobe -ras" via
-> cron doesn't seem to accomplish anything and I really liked the idea of
-> keeping only the required modules in memory at any given moment without
-> having to log in as root to unload the unneeded ones - after all, if the
-> autoloader can only add them what's the point of not going the
-> monolithic way? The docs on the new approach towards modules are
-> virtually nonexistent in the kernel source package and while I suppose I
-> could simply write a script which would scan the list of
-> currently-loaded modules for the unused ones and remove them one by one,
-> but this approach feels terribly crude comparing with the elegance of
-> the old solution. I use module-init-tools-3.0, a serious improvement
-> over 0.9.15 if I may say so but, unless I'm thinking about it with
-> completely wrong base assumptions, still far from perfect.
-
-As far as I know, the new preffered way of handling modules, is to load 
-them when device is detected (hotplug and udev, at boot or later) 
-and (optionally) remove when device is removed, not as in older kernels, 
-when module was added or removed depending on its use. This way (as 
-opposed to monolithic kernel) you can have "generic" kernel by placing 
-everything in modules. And what is the point in unloading not currently 
-needed modules? They should not use much resources when not needed...
-And if you want to put your system to sleep, you must put to sleep all 
-devices (in the right order) *including* these not currently used but 
-present in the system. If you will not do this, you can probably get big 
-crash. So you need loaded module, that knows how to put device to sleep.
 
 
-Grzegorz Kulewski
+On Sat, 13 Mar 2004, Rik van Riel wrote:
+> 
+> No, Linus is right.
+> 
+> If a child process uses mremap(), it stands to reason that
+> it's about to use those pages for something.
 
+That's not necessarily true, since it's entirely possible that it's just a 
+realloc(), and the old part of the allocation would have been left alone.
+
+That said, I suspect that
+ - mremap() isn't all _that_ common in the first place
+ - it's even more rare to do a fork() and then a mremap() (ie most of the 
+   time I suspect the page count will be 1, and no COW is necessary). Most
+   apps tend to exec() after a fork.
+ - I agree that in at least part of the remaining cases we _would_ COW the
+   pages anyway.
+
+I suspect that the only common "no execve after fork" usage is for a few 
+servers, especially the traditional UNIX kind (ie using processes are 
+fairly heavy-weight threads). It could be interesting to see numbers.
+
+But basically I'm inclined to believe that the "unnecessary COW" case is
+_so_ rare, that if it allows us to make other things simpler (and thus
+more stable and likely faster) it is worth it. Especially the simplicity
+just appeals to me.
+
+I just think that if mremap() causes so many problems for reverse mapping,
+we should make _that_ the expensive operation, instead of making
+everything else more complicated. After all, if it turns out that the
+"early COW" behaviour I suggest can be a performance problem for some
+(rare) circumstances, then the fix for that is likely to just let
+applications know that mremap() can be expensive.
+
+(It's still likely to be a lot cheaper than actually doing a new
+mmap+memcpy+munmap, so it's not like mremap would become pointless).
+
+			Linus

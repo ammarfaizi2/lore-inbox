@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263345AbTKKIKg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 03:10:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTKKIKg
+	id S264274AbTKKIX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 03:23:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbTKKIX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 03:10:36 -0500
-Received: from zok.sgi.com ([204.94.215.101]:63165 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S263345AbTKKIKe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 03:10:34 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
+	Tue, 11 Nov 2003 03:23:28 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:20703 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264274AbTKKIX1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 03:23:27 -0500
+Date: Tue, 11 Nov 2003 13:59:15 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: Jack Steiner <steiner@sgi.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Announce: kdb v4.3 is available for kernel 2.4.23-rc1
-Date: Tue, 11 Nov 2003 19:10:28 +1100
-Message-ID: <9573.1068538228@kao2.melbourne.sgi.com>
+Subject: Re: hot cache line due to note_interrupt()
+Message-ID: <20031111082915.GC1130@llm08.in.ibm.com>
+References: <20031110215844.GC21632@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031110215844.GC21632@sgi.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Nov 10, 2003 at 03:58:44PM -0600, Jack Steiner wrote:
+> 
+> I dont know the background on note_interrupt() in arch/ia64/kernel/irq.c, 
+> but I had to disable the function on our large systems (IA64).
+> 
+> The function updates a counter in the irq_desc_t table. An entry in this table
+> is shared by all cpus that take a specific interrupt #. For most interrupt #'s,
+> this is a problem but it is prohibitive for the timer tick on big systems.
+> 
+> Updating the counter causes a cache line to be bounced between
+> cpus at a rate of at least HZ*active_cpus. (The number of bus transactions
 
-Content-Type: text/plain; charset=us-ascii
+The answer to this is probably alloc_percpu for the counters.
+right now this might not possible because irq_desc_t table might be used very
+early, and alloc_percpu uses slab underneath.  alloc_percpu will have to be 
+made to work early enough for this....
 
-ftp://oss.sgi.com/projects/kdb/download/v4.3/
-
-Current versions are kdb-v4.3-2.4.23-rc1-common-1.bz2,
-kdb-v4.3-2.4.23-rc1-i386-1.bz2.  Other platforms will follow as they get
-updated to 2.4.23-rc1.  This is just a maintenance version to sync with
-kernel 2.4.23-rc1.  Changelog extracts since 2.4.22.
-
-common
-
-2003-11-11 Keith Owens  <kaos@sgi.com>
-
-	* Make KDB for USB keyboards build.  Peter T. Breuer.
-	* Do not use USB keyboard if it has not been probed.
-	* kdb v4.3-2.4.23-rc1-common-1.
-
-
-i386
-
-2003-11-11 Keith Owens  <kaos@sgi.com>
-
-	* Do not use USB keyboard if it has not been probed.
-	* kdb v4.3-2.4.23-rc1-i386-1.
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE/sJl0i4UHNye0ZOoRAlZRAKDTqX4PVnFUXZhQwQbDh2VOyOO5pACeOkK6
-xoonzwya6mUogPYqCIqkjzA=
-=A/yQ
------END PGP SIGNATURE-----
+Thanks,
+Kiran
 

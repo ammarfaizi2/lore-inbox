@@ -1,71 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267512AbRHAQq1>; Wed, 1 Aug 2001 12:46:27 -0400
+	id <S267517AbRHAQxR>; Wed, 1 Aug 2001 12:53:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267514AbRHAQqH>; Wed, 1 Aug 2001 12:46:07 -0400
-Received: from home.paris.trader.com ([195.68.19.162]:26793 "EHLO
-	smtp-gw.netclub.com") by vger.kernel.org with ESMTP
-	id <S267512AbRHAQqD>; Wed, 1 Aug 2001 12:46:03 -0400
-Message-ID: <3B683237.641478BE@trader.com>
-Date: Wed, 01 Aug 2001 18:45:43 +0200
-From: joseph.bueno@trader.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-5mdk i686)
-X-Accept-Language: en
+	id <S267514AbRHAQxH>; Wed, 1 Aug 2001 12:53:07 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:58121 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S267517AbRHAQwy>;
+	Wed, 1 Aug 2001 12:52:54 -0400
+Message-Id: <200107312243.CAA00461@mops.inr.ac.ru>
+Subject: Re: Linux sk_buff issues.
+To: pschulz@foursticks.COM.AU (Paul Schulz)
+Date: Wed, 1 Aug 2001 02:43:34 -2000 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15RSJ5-0001mT-00@mars.foursticks.com.au> from "Paul Schulz" at Jul 31, 1 10:15:00 am
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: Chris Friesen <cfriesen@nortelnetworks.com>,
-        Thomas Zehetbauer <thomasz@hostmaster.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: tulip driver still broken
-In-Reply-To: <20010731001907.A21982@hostmaster.org> <3B66B13B.28BD0324@nortelnetworks.com> <3B682593.AB3D143C@candelatech.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> 
-> Chris Friesen wrote:
-> >
-> > Thomas Zehetbauer wrote:
-> > >
-> > > My genuine digital network interface card ceased to work with the tulip
-> > > driver contained in kernel revisions >= 2.4.4 and the development driver from
-> > > sourceforge.net.
-> >
-> > How is the sourceforge driver different than the one at www.scyld.com?
-> >
-> 
-> Becker (Scyld) has only recently gotten his drivers to even compile
-> on 2.4 kernel, and they are still beta quality for 2.4, evidently.
-> 
-> There seem to be attempts to keep the drivers in sync, functionally,
-> but the architectures have diverged quite a lot...
-> 
-> Ben
-> 
-> --
-> Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-> President of Candela Technologies Inc      http://www.candelatech.com
-> ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Hello!
 
-Hi,
+>							 I am assuming using
+> skb->nh.raw is the corrent version to use at this point.
 
-I am currently using a Xircom Ethernet adapter (tulip_cb module) with a
-2.4.5 kernel.
+Yes, nh is almost always set to right value, unlike h.
 
-The only way I have found to make it work is to turn on promiscuous mode
-(with 'tcpdump -i eth0 -n > /dev/null') after bootup. I can turn it off
-after a few minutes without problem. 
+"Almost" is because, it is possible to see it shifted
+when packet is sent via raw packet socket with an complicaed MAC header.
+Shortly, corresponding pointer is reliable when packet originated
+by corresponding part of code. h is reliable, when packet is sourced
+by tcp/udp, nh - when it is srourced by a protocol.
 
-I don't know if tulip driver I am using has been patched since I haven't
-compiled this 2.4.5 kernel myself. Here is driver bootup information:
+The only 100% right way is to parse from skb->data and skip mac header
+at el.
 
-tulip.c:v0.91g-ppc 7/16/99 becker@cesdis.gsfc.nasa.gov (modified by danilo@cs.uni-magdeburg.de for XIRCOM CBE, fixed by Doug Ledford)
-eth0: Xircom Cardbus Adapter (DEC 21143 compatible mode) rev 3 at 0x200, 00:10:A4:C0:2A:30, IRQ 9.
-eth0:  MII transceiver #0 config 3100 status 7809 advertising 01e1.
-
-Hope this helps
-Regards
---
-Joseph Bueno
+Alexey

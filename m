@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266018AbUGELIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266016AbUGELOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266018AbUGELIs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 07:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUGELIr
+	id S266016AbUGELOg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 07:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbUGELOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 07:08:47 -0400
-Received: from mailfe07.swip.net ([212.247.154.193]:20386 "EHLO
-	mailfe07.swip.net") by vger.kernel.org with ESMTP id S266018AbUGELIT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 07:08:19 -0400
-X-T2-Posting-ID: mzHRUpvOlCbvaGn327Befg==
-Date: Mon, 5 Jul 2004 12:54:21 +0200
-From: Erik Rigtorp <erik@rigtorp.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel/power/swsusp.c
-Message-ID: <20040705105421.GA8680@linux.nu>
-References: <20040703172843.GA7274@linux.nu> <20040703204647.GE31892@elf.ucw.cz> <20040704133715.GA4717@linux.nu> <20040704151848.GC8488@elf.ucw.cz>
+	Mon, 5 Jul 2004 07:14:36 -0400
+Received: from byo26.neoplus.adsl.tpnet.pl ([83.30.34.26]:55431 "EHLO
+	uran.kolkowski.no-ip.org") by vger.kernel.org with ESMTP
+	id S266016AbUGELOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 07:14:34 -0400
+Date: Mon, 5 Jul 2004 13:14:45 +0200
+From: Damian Kolkowski <damian@kolkowski.no-ip.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [BUG] - 2.6.7+ - Radeonfb (NEW)
+Message-ID: <20040705111445.ALLYOURBASEAREBELONGTOUS.A13229@kolkowski.no-ip.org>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="sm4nu43k4a2Rpi4c"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
 Content-Disposition: inline
-In-Reply-To: <20040704151848.GC8488@elf.ucw.cz>
-X-GPG-Key: Search for erkki@linux.nu at wwwkeys.eu.pgp.net
-X-GPG-Fingerprint: 0534 CF05 8171 3EC6 921A  346F 1882 91C4 993F C709
+X-GPG-Key: 0xB2C5DE03 (http://kolkowski.no-ip.org/damian.asc x-hkp://wwwkeys.eu.pgp.net)
+X-Girl: 1 will be enough!
+X-Age: 24 (1980.09.27 - libra)
+X-IM: JID:damian@kolkowski.no-ip.org ICQ:59367544 GG:88988
+X-Operating-System: Slackware Linux, kernel 2.6.7-cset1339, up 21:42
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+Which one of you have rv250if (radeon 9000 Pro / HIS) working fine with rad=
+eonfb (new/old)
+on 2.6.7+ ???
+
+For me it is still 43 Hz when using append (1024..).
+Allso switching console (tty) after fbset sets resolution (1024..) size is =
+gone...
+
+Take care.
+
+--=20
+# Damian Ko=B3kowski (dEiMoS) # http://kolkowski.no-ip.org/ #
+
+--liOOAslEiF7prFVr
+Content-Type: application/pgp-signature
 Content-Disposition: inline
 
-On Sun, Jul 04, 2004 at 05:18:49PM +0200, Pavel Machek wrote:
-> Actually, this has several advantages -- you can actually see the
-> messages of the kernel during resume. And reading does logically
-> belong to the kernel doing boot, so it belongs on its screen, too...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Here's a clean patch that does just that.
+iD8DBQFA6TgjzbCEkrLF3gMRAliQAJwIru8PdzD/haQ0vLw4KZzuRLuN+wCfb77t
+MT8q+tz8st0g9VDExeHzeSg=
+=xlbC
+-----END PGP SIGNATURE-----
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="swsusp-alloc-console-later.patch"
-
-diff -Nru linux-2.6.7/kernel/power/swsusp.c linux-2.6.7-pavel/kernel/power/swsusp.c
---- linux-2.6.7/kernel/power/swsusp.c	2004-06-16 07:19:02.000000000 +0200
-+++ linux-2.6.7-pavel/kernel/power/swsusp.c	2004-07-04 15:15:25.000000000 +0200
-@@ -1190,9 +1190,6 @@
- 	}
- 	MDELAY(1000);
- 
--	if (pm_prepare_console())
--		printk("swsusp: Can't allocate a console... proceeding\n");
--
- 	if (!resume_file[0] && resume_status == RESUME_SPECIFIED) {
- 		printk( "suspension device unspecified\n" );
- 		return -EINVAL;
-@@ -1201,12 +1198,15 @@
- 	printk( "resuming from %s\n", resume_file);
- 	if (read_suspend_image(resume_file, 0))
- 		goto read_failure;
-+
-+	if (pm_prepare_console())
-+		printk("swsusp: Can't allocate a console... proceeding\n");
-+
- 	device_suspend(4);
- 	do_magic(1);
- 	panic("This never returns");
- 
- read_failure:
--	pm_restore_console();
- 	return 0;
- }
- 
-
---sm4nu43k4a2Rpi4c--
+--liOOAslEiF7prFVr--

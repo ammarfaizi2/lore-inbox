@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265736AbSJYBV3>; Thu, 24 Oct 2002 21:21:29 -0400
+	id <S261258AbSJYBdq>; Thu, 24 Oct 2002 21:33:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265738AbSJYBV3>; Thu, 24 Oct 2002 21:21:29 -0400
-Received: from adsl-64-160-137-6.dsl.lsan03.pacbell.net ([64.160.137.6]:25102
-	"EHLO gate.debonne.net") by vger.kernel.org with ESMTP
-	id <S265736AbSJYBV1>; Thu, 24 Oct 2002 21:21:27 -0400
-Date: Thu, 24 Oct 2002 18:29:26 -0700 (PDT)
-From: <kernelnewbie@gate.debonne.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Passing info from the top-half ISR to the bottom-half
-Message-ID: <Pine.LNX.4.33.0210241827460.24173-100000@gate.debonne.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261287AbSJYBdq>; Thu, 24 Oct 2002 21:33:46 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:17412 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261258AbSJYBdp>; Thu, 24 Oct 2002 21:33:45 -0400
+Date: Fri, 25 Oct 2002 02:39:52 +0100
+From: John Levon <levon@movementarian.org>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: dipankar@gamebox.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI request/release, version 6 - "Well I thought the last one was ready"
+Message-ID: <20021025013952.GA34678@compsoc.man.ac.uk>
+References: <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com> <20021024132004.A29039@dikhow> <3DB7F574.9030607@mvista.com> <20021024144632.GC32181@compsoc.man.ac.uk> <3DB81376.90403@mvista.com> <20021024171815.GA6920@compsoc.man.ac.uk> <3DB85213.4020509@mvista.com> <20021024202910.GA16192@compsoc.man.ac.uk> <3DB89CD9.5090409@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB89CD9.5090409@mvista.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *184tS4-000EP7-00*cLqWeiovVvM* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My ISR is split into top-half and bottom-half processing. The bottom-half
-is implemented as a tasklet (I'm using Kernel 2.4). The top-half knows
-which physical device (minor number) caused the interrupt and that info
-has to be passed to the tasklet somehow.
+On Thu, Oct 24, 2002 at 08:22:33PM -0500, Corey Minyard wrote:
 
-The DECLARE_TASKLET macro provides an unsigned long data argument, but it
-appears that that argument must be constant. Rubini's book says it's fine
-to pass a pointer via this data argument, and I'd like to pass the pointer
-to my device control block, but since the argument must be a constant, the
-best I can do is pass a pointer to a global which points to my DCB. But
-this won't work because another device's interrupt will overwrite it.
+> http://home.attbi.com/~minyard/linux-nmi-v6.diff.
 
-Do I have to make a separate DECLARE_TASKLET for each physical device like
-the following:
+                case NOTIFY_DONE:
+                default:
+                }
 
-Declarations:
+This needs to be :
 
-dev_t g_dev[4];
+		case NOTIFY_DONE:
+		default:;
+		}
 
-DECLARE_TASKLET (tasklet0, do_tasklet, (unsigned long) &g_dev[0]);
-DECLARE_TASKLET (tasklet1, do_tasklet, (unsigned long) &g_dev[1]);
-DECLARE_TASKLET (tasklet2, do_tasklet, (unsigned long) &g_dev[2]);
-DECLARE_TASKLET (tasklet3, do_tasklet, (unsigned long) &g_dev[3]);
+or later gcc's whine.
 
-Top Half:
-	...
-        switch (minor) {
-        case 0:
-                tasklet_schedule(&tasklet0);
-                break;
-        case 1:
-                tasklet_schedule(&tasklet1);
-                break;
-        case 2:
-                tasklet_schedule(&tasklet2);
-                break;
-        case 3:
-                tasklet_schedule(&tasklet3);
-                break;
-        }
-	...
++ * handler, if you have a fast-path handler there's another tie-in
++ * for you.  See the oprofile code.
 
-Tasklet:
-        dev_t *dev = (dev_t*) arg;
-	...
+You forgot to remove this comment.
 
-That seems kinda kludgy, but it's the only solution I can think of.
+        if (!list_empty(&(handler->link)))
+                return EBUSY;
 
+This wants to be -EBUSY (it eventually gets returned to userspace via
+oprofile, and is more common anyway).
 
+static int nmi_std (void           * dev_id,
+                    struct pt_regs * regs,
+                    int            cpu,
+                    int            handled)
+
+I don't think this matches the usual kernel style.
+
+I think the rest looks OK, I'll find some time to play with oprofile
+side of this.
+
+thanks
+john
+
+-- 
+"This is playing, not work, therefore it's not a waste of time."
+	- Zath

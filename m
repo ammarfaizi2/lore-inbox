@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbSKKV4C>; Mon, 11 Nov 2002 16:56:02 -0500
+	id <S261451AbSKKV5J>; Mon, 11 Nov 2002 16:57:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261446AbSKKV4C>; Mon, 11 Nov 2002 16:56:02 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:29416 "HELO palrel13.hp.com")
-	by vger.kernel.org with SMTP id <S261427AbSKKV4B>;
-	Mon, 11 Nov 2002 16:56:01 -0500
-To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
-Cc: "'Mario Smarduch '" <cms063@email.mot.com>,
-       "'davidm+AEA-hpl.hp.com '" <davidm@hpl.hp.com>,
-       "'Mario Smarduch '" <CMS063@motorola.com>,
-       "'linux-ia64+AEA-linuxia64.org '" <linux-ia64@linuxia64.org>,
-       "'linux-kernel+AEA-vger.kernel.org '" <linux-kernel@vger.kernel.org>,
-       grundler@cup.hp.com
-Subject: Re: [Linux-ia64] RE: +AFs-Linux-ia64+AF0- reader-writer livelock proble 
-In-Reply-To: Your message of "Mon, 11 Nov 2002 14:36:38 CST."
-             <3FAD1088D4556046AEC48D80B47B478C0101F4F7@usslc-exch-4.slc.unisys.com> 
-References: <3FAD1088D4556046AEC48D80B47B478C0101F4F7@usslc-exch-4.slc.unisys.com> 
-Date: Mon, 11 Nov 2002 14:02:32 -0800
-From: Grant Grundler <grundler@cup.hp.com>
-Message-Id: <20021111220232.C94F712C0C@debian.cup.hp.com>
+	id <S261456AbSKKV5J>; Mon, 11 Nov 2002 16:57:09 -0500
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:3210 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S261451AbSKKV5H>;
+	Mon, 11 Nov 2002 16:57:07 -0500
+Message-ID: <3DD028F5.7080209@candelatech.com>
+Date: Mon, 11 Nov 2002 14:02:29 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Folkert van Heusden <folkert@vanheusden.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: how to export a symbol so that I can use it in a module
+References: <002c01c289cc$e6468470$3640a8c0@boemboem>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Van Maren, Kevin" wrote:
-> It is also possible that a processor can get stuck +ACI-forever+ACI-
-> spinning in the kernel with interrupts disabled trying to
-> acquire a lock, and never succeed, without the rest of the
-> kernel going south.  If that happens, and application will
-> be livelocked, but the rest of the system will function.
+Folkert van Heusden wrote:
+> Hi,
+> 
+> I've added a function "create_tcp_port_number" to net/core/utils.c
+> like this:
+> 
+> int create_tcp_port_number(void)
+> {
+> /* blah blah */
+> }
+> EXPORT_SYMBOL(create_tcp_port_number);
 
-Probably not. ia64 systems (and x86 systems with IO xapic) direct
-IO interrupts to specific CPUs. Devices would not get serviced
-in the above case and IO to/from those devices would come to a
-grinding halt. It would look more like "dead" lock than "live" lock.
+Try putting the EXPORT_SYMBOL macro in net/netsyms.c
+
+Ben
 
 
-> It really depends on the particular circumstances.
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-yes. But it sounds very likely to me.
 
-grant

@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131301AbRAaAhV>; Tue, 30 Jan 2001 19:37:21 -0500
+	id <S130092AbRAaAjk>; Tue, 30 Jan 2001 19:39:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131680AbRAaAhL>; Tue, 30 Jan 2001 19:37:11 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:26354 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S131301AbRAaAgx>; Tue, 30 Jan 2001 19:36:53 -0500
-Date: Tue, 30 Jan 2001 18:36:51 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200101310008.f0V08Wv23250@localhost.localdomain>
-Subject: Re: Request: increase in PCI bus limit
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-ID: <FLRPM.A.TsC.j41d6@dinero.interactivesi.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S131680AbRAaAja>; Tue, 30 Jan 2001 19:39:30 -0500
+Received: from ping-ef-gw.ping.de ([62.72.90.14]:9750 "EHLO noefs.ping.de")
+	by vger.kernel.org with ESMTP id <S130092AbRAaAjW>;
+	Tue, 30 Jan 2001 19:39:22 -0500
+Message-Id: <200101310038.BAA21051@noefs.ping.de>
+Subject: Re: Multiple SCSI host adapters, naming of attached devices
+In-Reply-To: <20010130224912.A388@kermit.wd21.co.uk> from Michael Pacey at "Jan
+ 30, 2001 10:49:12 pm"
+To: Michael Pacey <michael@wd21.co.uk>
+Date: Wed, 31 Jan 2001 01:38:39 +0100 (MET)
+CC: linux-kernel@vger.kernel.org
+From: Wolfgang Wegner <wolfgang@leila.ping.de>
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from Christopher Neufeld <neufeld@linuxcare.com> on Tue, 30
-Jan 2001 16:08:32 -0800
+Hi,
+> Given two host adapters each with 1 disk of ID 0, how do I tell Linux which
+> is sda and which sdb?
+[...]
+which leads me to the question:
+Is there any reason for the (IMHO stupid) "dynamic" naming of
+SCSI devices (in contrast to e.g. IDE devices or the "physical"
+device naming used in Solaris)?
+It may be possible always maintaining the "right" order with
+one SCSI chain, but as soon as there is a second bus, it is
+really a pain. Is devfs the only solution?
 
-
-> Would it be possible to bump it up to 128, or even
-> 256, in later 2.4.* kernel releases?  That would allow this customer to
-> work with an unpatched kernel, at the cost of an additional 3.5 kB of
-> variables in the kernel.
-
-I don't think that's going to happen.  If we did this for your obscure system,
-then we'd have to do it for every obscure system, and before you know it, the
-kernel is 200KB larger.
-
-Besides, why is your client afraid of patched kernels?  It sounds like a very
-odd request from someone with a linuxcare.com email address.  I would think that
-you'd WANT to provide patched kernels so that the customer can keep paying you
-(until they learn how to use a text editor, at which point they can patch the
-kernel themselves!!!)
-
-
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+Regards,
+Wolfgang
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

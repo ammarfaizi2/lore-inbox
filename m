@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbTJGAUf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 20:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbTJGAUe
+	id S261800AbTJGASX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 20:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbTJGASX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 20:20:34 -0400
-Received: from mail1-106.ewetel.de ([212.6.122.106]:41438 "EHLO
-	mail1.ewetel.de") by vger.kernel.org with ESMTP id S261763AbTJGAUd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 20:20:33 -0400
-Date: Tue, 7 Oct 2003 02:20:19 +0200 (CEST)
-From: Pascal Schmidt <der.eremit@email.de>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-In-Reply-To: <Pine.LNX.4.10.10310061532330.31134-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.44.0310070215470.32013-100000@neptune.local>
+	Mon, 6 Oct 2003 20:18:23 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:14605 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261800AbTJGASW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 20:18:22 -0400
+Date: Mon, 6 Oct 2003 20:18:12 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Domen Puncer <domen@coderock.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 3c59x on 2.6.0-test3->test6 slow
+In-Reply-To: <200310070144.47822.domen@coderock.org>
+Message-ID: <Pine.LNX.4.53.0310062016340.19396@montezuma.fsmlabs.com>
+References: <200310061529.56959.domen@coderock.org> <200310070033.53590.domen@coderock.org>
+ <Pine.LNX.4.53.0310061842030.19396@montezuma.fsmlabs.com>
+ <200310070144.47822.domen@coderock.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Oct 2003, Andre Hedrick wrote:
+On Tue, 7 Oct 2003, Domen Puncer wrote:
 
-> No it can not, by only using the headers as the functional API for that
-> snapshot verson of the kernel release, it is the standard means for
-> functionality.
+> On Tuesday 07 of October 2003 00:43, Zwane Mwaikambo wrote:
+> > On Tue, 7 Oct 2003, Domen Puncer wrote:
+> > > > Ok, could you send your .config too, i use the 3c59x driver and haven't
+> > > > noticed this in 2.6.0-test5-mm4. My card is;
+> > >
+> > > .config at the end of mail
+> >
+> > Sorry i forgot to ask for a dmesg too (from a kernel exhibiting the
+> > problem)
+> 
+> 0000:00:0a.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xd400. Vers LK1.1.19
+> eth0: no IPv6 routers present
+> eth0: Setting full-duplex based on MII #24 link partner capability of 0141.
 
-Well, I don't see "standard means for functionality" mentioned anywhere
-in the GPL or copyright law (though I'm no expert on that).
+What is your link peer?
 
-If a header contains a macro that expands to real code and a module
-has to use that, it means that it absolutely needs that part of kernel
-source code to function and then it is a derived work because it
-includes GPL'ed code and would not work without it.
+> Might be relevant... the last line is lagged a couple of seconds, and network
+> works fine before i see that line in dmesg.
 
-> If the macro is require for any driver and or one in the
-> kernel to function, and is listed in the headers, it is generally deemed
-> to part of the unportected API.
-
-Says who? Who defines what is unprotected API and what is not?
-
-> Again it is very simple declare, all modules which are not GPL and reject
-> loading, and we can watch the death of linux as nobody will use it.  Again
-> who cares, because it started out as fun for a Finn in 1991, and should
-> never be of use or value outside of academics.
-
-Well, silly me, I only buy hardware with open source drivers available.
-I wouldn't agree that something is good and has to be done just because
-it would improve Linux' "success" (I wouldn't define that to be
-commercial success, either).
-
--- 
-Ciao,
-Pascal
+I'm also curious as to why mii-tool doesn't work, can you attach an strace 
+mii-tool eth0?
 

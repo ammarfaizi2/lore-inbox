@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbUKXM3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbUKXMa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262628AbUKXM3X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 07:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbUKXM3X
+	id S262629AbUKXMa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 07:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbUKXMa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 07:29:23 -0500
-Received: from knserv.hostunreachable.de ([212.72.163.70]:51678 "EHLO
-	mail.hostunreachable.de") by vger.kernel.org with ESMTP
-	id S262628AbUKXM3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 07:29:20 -0500
-Message-ID: <41A478F2.3080004@syncro-community.de>
-Date: Wed, 24 Nov 2004 13:05:06 +0100
-From: Hendrik Wiese <7.e.Q@syncro-community.de>
-User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKLM <linux-kernel@vger.kernel.org>
-Subject: Difference wait_event_interruptible and interruptible_wait_on
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Nov 2004 07:30:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59581 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262629AbUKXMaB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 07:30:01 -0500
+Date: Wed, 24 Nov 2004 05:43:36 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: status of cdrom patches for 2.4 ?
+Message-ID: <20041124074336.GB8718@logos.cnet>
+References: <41A3C391.8070609@ttnet.net.tr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41A3C391.8070609@ttnet.net.tr>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Nov 24, 2004 at 01:11:13AM +0200, O.Sezer wrote:
+> Hi all:
+> 
+> What are the status of the cdrom patches for 2.4 series?
+> Namely the dvd patches which are dropped while in the
+> 27-rc era, and the cd-mrw patch which never had a chance
+> trying to go in to 2.4. Jens? Mancelo?
 
-I'm porting a device driver from 2.2.14 to 2.6.7 and I got some problems 
-doing this...
+There were problems with the DVD-RW patches so I reverted them.
 
-one of them is the following:
-I know that a call to interruptible_wait_on puts a process into sleep 
-state and that wait_event_interruptible does the same. But the 
-difference is that wait_event_interruptible needs a condition to pass to 
-wake up the processes. I do not need that mechanism since I wake up the 
-processes at other places inside my driver with wake_up_interruptible 
-calls. So how do I get a function similar to interruptible_wait_on where 
-no condition is needed using kernel 2.6?
+Jens, what do you think?
 
-Thanks a lot and please CC me, 'cos I haven't subscribed to the LKML yet.
+No idea about the cd-mrw ones.
 
-Kind regards,
-Hendrik

@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129964AbRB0Xn3>; Tue, 27 Feb 2001 18:43:29 -0500
+	id <S129991AbRB1ABt>; Tue, 27 Feb 2001 19:01:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129958AbRB0XnU>; Tue, 27 Feb 2001 18:43:20 -0500
-Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:29452 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S129740AbRB0XnD>; Tue, 27 Feb 2001 18:43:03 -0500
-Date: Tue, 27 Feb 2001 16:42:59 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Subject: Via-rhine is not finding its interrupts under 2.2.19pre14
-Message-ID: <20010227164259.B23026@mail.harddata.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.5us
+	id <S129958AbRB1ABi>; Tue, 27 Feb 2001 19:01:38 -0500
+Received: from smtp1.jp.psi.net ([154.33.63.111]:530 "EHLO smtp1.jp.psi.net")
+	by vger.kernel.org with ESMTP id <S129740AbRB1ABa>;
+	Tue, 27 Feb 2001 19:01:30 -0500
+From: "Rainer Mager" <rmager@vgkk.com>
+To: "Linux kernel list" <linux-kernel@vger.kernel.org>
+Subject: Building autofs
+Date: Wed, 28 Feb 2001 09:00:39 +0900
+Message-ID: <NEBBJBCAFMMNIHGDLFKGGENDDCAA.rmager@vgkk.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <20010228001221.P21238@garloff.etpnet.phys.tue.nl>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-After I booted 2.2.19pre14 on a system with two via-rhine cards I see the
-following:
+	I'm trying to use autofs for the first time and am running into some
+problems. First,  the documentation seems quite weak, that is, I'm not sure
+if what I have is what I should have. I managed to find an autofs version 4
+pre 9 tarball on the kernel mirrors. This seem the latest but is still a bit
+old and the referenced home page doesn't seem any newer. My real problem,
+however, is that when I try to build it I get this error:
 
-via-rhine.c:v1.08b-LK1.0.0 12/14/2000  Written by Donald Becker
-  http://www.scyld.com/network/via-rhine.html
-eth0: VIA VT3043 Rhine at 0x9400, 00:50:ba:c1:64:d9, IRQ 0.
-eth0: MII PHY found at address 8, status 0x7809 advertising 05e1 Link 0000.
-eth1: VIA VT3043 Rhine at 0x8800, 00:50:ba:ab:60:64, IRQ 0.
-eth1: MII PHY found at address 8, status 0x782d advertising 05e1 Link 0000.
+lookup_program.c:147: `OPEN_MAX' undeclared (first use in this function)
 
-and a network does not work due to these IRQ 0, I guess.
-
-In contrast when I will boot on the same hardware 2.4.2-ac5 then I get,
-among other things,
-
-via-rhine.c:v1.08b-LK1.1.7  8/9/2000  Written by Donald Becker
-  http://www.scyld.com/network/via-rhine.html
-PCI: Enabling device 00:09.0 (0094 -> 0097)
-PCI: Found IRQ 9 for device 00:09.0
-PCI: The same IRQ used for device 00:04.2
-PCI: The same IRQ used for device 00:04.3
-PCI: The same IRQ used for device 00:0d.0
-eth0: VIA VT3043 Rhine at 0x9400, 00:50:ba:c1:64:d9, IRQ 9.
-eth0: MII PHY found at address 8, status 0x7809 advertising 05e1 Link 0000.
-PCI: Enabling device 00:0c.0 (0094 -> 0097)
-PCI: Found IRQ 11 for device 00:0c.0
-eth1: VIA VT3043 Rhine at 0x8800, 00:50:ba:ab:60:64, IRQ 11.
-eth1: MII PHY found at address 8, status 0x782d advertising 05e1 Link 0000.
+My understanding is that OPEN_MAX is defined in linux/limits.h but I
+hesitate to change the code since I would expect this to build out of the
+box.
 
 
-Devices in question can be seen here:
+	Cas someone who is using autofs give me some pointers? Am I on the right
+track?
 
--[00]-+-00.0  VIA Technologies, Inc. VT8363/8365 [KT133/KM133]
-      +-01.0-[01]----00.0  ATI Technologies Inc Rage 128 RF
-      +-04.0  VIA Technologies, Inc. VT82C686 [Apollo Super South]
-      +-04.1  VIA Technologies, Inc. Bus Master IDE
-      +-04.2  VIA Technologies, Inc. UHCI USB
-      +-04.3  VIA Technologies, Inc. UHCI USB
-      +-04.4  VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-      +-09.0  VIA Technologies, Inc. VT86C100A [Rhine 10/100]
-      +-0a.0  Symbios Logic Inc. (formerly NCR) 53c810
-      +-0c.0  VIA Technologies, Inc. VT86C100A [Rhine 10/100]
-      +-0d.0  Ensoniq CT5880 [AudioPCI]
-      \-11.0  Promise Technology, Inc. 20265
+Thanks,
 
-
-I do not have turned on a support for USB or audio in either of these
-two kernels.  They are actually configured pretty similar (within a
-reason :-).  But network is operational with 2.4.2-ac5.  Hm...
-
-Even with these IRQ conflicts for eth0 one would think that eth1 should
-get its interrupt.  It does not conflict with anything.  Forgotten
-'pci_enable()' somewhere?
-
-  Michal
+--Rainer
 

@@ -1,77 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbTKHAdd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 19:33:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbTKGWGE
+	id S263956AbTKGWEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:04:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263914AbTKGWEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:06:04 -0500
-Received: from smtp2.clb.oleane.net ([213.56.31.18]:42467 "EHLO
-	smtp2.clb.oleane.net") by vger.kernel.org with ESMTP
-	id S263950AbTKGIvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 03:51:01 -0500
-Subject: Re: [Bug 1412] Copy from USB1 CF/SM reader stalls, no actual
-	content is read (only directory structure)
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20031107082439.GB504@suse.de>
-References: <20031105084002.GX1477@suse.de>
-	 <Pine.LNX.4.44L0.0311051013190.828-100000@ida.rowland.org>
-	 <20031107082439.GB504@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CbHSyOhnXxCmM/2GyR7a"
-Organization: Adresse personnelle
-Message-Id: <1068195038.21576.1.camel@ulysse.olympe.o2t>
+	Fri, 7 Nov 2003 17:04:14 -0500
+Received: from mail.kroah.org ([65.200.24.183]:48552 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264598AbTKGT2l convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 14:28:41 -0500
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <1068233275660@kroah.com>
+Subject: Re: [PATCH] More fixes for 2.6.0-test9
+In-Reply-To: <10682332743672@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 7 Nov 2003 11:27:55 -0800
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 07 Nov 2003 09:50:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1419, 2003/11/07 10:07:03-08:00, mdharm-usb@one-eyed-alien.net
 
---=-CbHSyOhnXxCmM/2GyR7a
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+[PATCH] USB: fix a thread-exit problem at module unload
 
-Le ven 07/11/2003 =E0 09:24, Jens Axboe a =E9crit :
-> On Wed, Nov 05 2003, Alan Stern wrote:
+This patch fixes a thread-exit problem when the usb-storage module is
+unloaded with a preemptable kernel.  Please refer to the comments in the
+code for more detail.
 
-> > In any case, it quite likely _does_ point to a driver bug.  But since
-> > sddr09_read_data() was handed this sg entry and didn't change it, if th=
-ere
-> > is such a bug it must lie in a higher-level driver.  Maybe the scsi lay=
-er,=20
-> > maybe the block layer, maybe the memory-management system, maybe the fi=
-le=20
-> > system.  That was my original point.
->=20
-> Well, the sg entry looks perfectly valid. And that was my original
-> point :-). And that is why I said it looks like a driver bug, not in
-> upper layers. How much memory did the system that crashed have? If the
-> system has highmem, try testing with scsi_calculate_bounce_limit()
-> unconditionally returning BLK_BOUNCE_HIGH.
 
-The system has 1 GiB of memory, ie just enough to make stuff like
-radeonfb fail
+ drivers/usb/storage/usb.c |   19 +++++++++++++++----
+ 1 files changed, 15 insertions(+), 4 deletions(-)
 
-Cheers,
 
---=20
-Nicolas Mailhot
-
---=-CbHSyOhnXxCmM/2GyR7a
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/q1zdI2bVKDsp8g0RAjZ2AJ9hTmXjfxCk2rZM7gGaCDfdUvEQSQCfcHXg
-aegkZJ4Nu8yOdqbRSWJtAfk=
-=58fz
------END PGP SIGNATURE-----
-
---=-CbHSyOhnXxCmM/2GyR7a--
+diff -Nru a/drivers/usb/storage/usb.c b/drivers/usb/storage/usb.c
+--- a/drivers/usb/storage/usb.c	Fri Nov  7 11:22:10 2003
++++ b/drivers/usb/storage/usb.c	Fri Nov  7 11:22:10 2003
+@@ -417,10 +417,21 @@
+ 		scsi_unlock(host);
+ 	} /* for (;;) */
+ 
+-	/* notify the exit routine that we're actually exiting now */
+-	complete(&(us->notify));
+-
+-	return 0;
++	/* notify the exit routine that we're actually exiting now 
++	 *
++	 * complete()/wait_for_completion() is similar to up()/down(),
++	 * except that complete() is safe in the case where the structure
++	 * is getting deleted in a parallel mode of execution (i.e. just
++	 * after the down() -- that's necessary for the thread-shutdown
++	 * case.
++	 *
++	 * complete_and_exit() goes even further than this -- it is safe in
++	 * the case that the thread of the caller is going away (not just
++	 * the structure) -- this is necessary for the module-remove case.
++	 * This is important in preemption kernels, which transfer the flow
++	 * of execution immediately upon a complete().
++	 */
++	complete_and_exit(&(us->notify), 0);
+ }	
+ 
+ /***********************************************************************
 

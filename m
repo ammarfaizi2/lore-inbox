@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261960AbRE2VP4>; Tue, 29 May 2001 17:15:56 -0400
+	id <S262036AbRE2Vcj>; Tue, 29 May 2001 17:32:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261965AbRE2VPr>; Tue, 29 May 2001 17:15:47 -0400
-Received: from gold.MUSKOKA.COM ([216.123.107.5]:32260 "EHLO gold.muskoka.com")
-	by vger.kernel.org with ESMTP id <S261960AbRE2VPd>;
-	Tue, 29 May 2001 17:15:33 -0400
-Message-ID: <3B14108B.78B02A5C@yahoo.com>
-Date: Tue, 29 May 2001 17:11:39 -0400
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
+	id <S262052AbRE2Vc3>; Tue, 29 May 2001 17:32:29 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:39797 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S262036AbRE2VcP>; Tue, 29 May 2001 17:32:15 -0400
+Message-ID: <001a01c0e886$5be3eea0$3303a8c0@pnetz>
+From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= <christian@borntraeger.net>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: PROMISE+ATHLON crashes with 2.4.3ac7 or higher. workaround?
+Date: Tue, 29 May 2001 23:28:49 +0200
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.org>
-CC: linux-kernel list <linux-kernel@vger.kernel.org>,
-        linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] panic in scsi_free/sr_scatter_pad
-In-Reply-To: <3B133ADC.974A76A@yahoo.com> <20010529121153.I26871@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> 
-> On Tue, May 29 2001, Paul Gortmaker wrote:
-> > I think I recall seeing something reported like this on the list(?):
-> >
-> >   sr: ran out of mem for scatter pad
-> >   Kernel panic: scsi_free: bad offset
-> 
-> Here's a better patch, it also gets the freeing right. It's been fixed
-> for long, just haven't been sent to Linus yet. It's in Alan's tree, and
-> in fact I think I've send it to this list more than once :)
+Hi all,
 
-Ok, essentially same patch - good to see.  Seems old rule of thumb[1] for
-linux patches still applies :)   I see you opted for a new var. to store
-old use_sg value, rather than make use of SCpnt->old_use_sg like I did.
-Was curious as to your reasoning for that - maybe I'm overlooking something.
+I faced several system hangs with an ASUS A7V133 using a kernel 2.4.3ac7 or
+higher. (I reported this some time ago)
+Now I removed the 2 hard drives from the promise controller and attached
+them an to the via controller.
+After that step I could not reproduced the system freeze at least with
+2.4.5.
+So I __guess__ that the promise controller in combination with the VIA PCI
+Interface leads to some trouble. I will do some further investigations, to
+find out, if the promise controller was my problem.
 
-Other thing that crossed my mind was the appropriateness of scsi_free()
-doing a panic.  For this particular case, a BUG() would have been more
-informative if we were relying on info in a bug report from Joe Average
-to solve the problem. (Also, panic is a bit harsh if say CD is only SCSI
-device and everything else is EIDE, but scsi_free has no way of knowing...)
+Just ask if you need more information.
 
-Paul.
+greetings
 
-[1] Odds are somebody has already posted the patch you just finished...
+Christian Bornträger
 

@@ -1,95 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbTI3J2t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 05:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbTI3J2t
+	id S261242AbTI3Jlo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 05:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbTI3Jlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 05:28:49 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:19881 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261240AbTI3J2m
+	Tue, 30 Sep 2003 05:41:44 -0400
+Received: from mx1.actcom.co.il ([192.114.47.13]:32650 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S261242AbTI3Jlj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 05:28:42 -0400
-Message-ID: <3F794CC8.1070105@namesys.com>
-Date: Tue, 30 Sep 2003 13:28:40 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Reiser4 debugging status update
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Sep 2003 05:41:39 -0400
+Date: Tue, 30 Sep 2003 12:24:03 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Miles Bader <miles@gnu.org>
+Cc: Jamie Lokier <jamie@shareable.org>, Andrew Morton <akpm@osdl.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] document optimizing macro for translating PROT_ to VM_ bits
+Message-ID: <20030930092403.GR29313@actcom.co.il>
+References: <20030929090629.GF29313@actcom.co.il> <20030929153437.GB21798@mail.jlokier.co.uk> <20030930071005.GY729@actcom.co.il> <buohe2u3f20.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030930074138.GG729@actcom.co.il> <buoad8m3dvn.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/KohU7xR/z4Rz7fl"
+Content-Disposition: inline
+In-Reply-To: <buoad8m3dvn.fsf@mcspd15.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The filesystem is getting reasonably stable. 
 
-This weekend we hit a bug in space reservation, which we can't reproduce 
-yet but probably isn't too hard to find by code inspection.  There is 
-some thought that the assertion not the space reservation is buggy, in 
-any case we'll release a snapshot after it is fixed.
+--/KohU7xR/z4Rz7fl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Our performance is generally wonderful and getting better. 
+On Tue, Sep 30, 2003 at 04:59:56PM +0900, Miles Bader wrote:
+> Muli Ben-Yehuda <mulix@mulix.org> writes:
+> > Ok, that's a pretty convincing argument for scraping that
+> > version. I'll rewrite it to evaluate the arguments at compile time if
+> > they're constants, which they are, in our case. Unless someone else
+> > beats me to it, of course ;-)=20
+>=20
+> What's wrong with the macro version?  The presence of a __ prefix
+> suggests that it's only used in controlled circumstances anyway, so is
+> validity-checking on the bit arguments really worthwhile?
 
-It has the following weakpoints:
+I like code that is "future proof", especially when it doesn't cost
+anything. These examples generate identical code for me with gcc-3.3
+and almost identical code with gcc-2.96 (one instruction difference,
+and I can't tell which is faster), and the inline function barfs when
+its arguments are incorrect during compile time, whereas the macro
+will silently give you the wrong results. How does it fare on your
+arch?
 
-* We allocate a "jnode" per unformatted node in the filesystem.  The 
-traversing of these jnodes consumes more CPU than performing the memcpy 
-from user space to kernel space when doing large writes.  I don't yet 
-really understand on an intuitive level why this is so, which is a 
-reflection on my ignorance as it is consistent with stories I have heard 
-from other implementors of filesystems who found that eliminating per 
-page structures was an important part of optimizing large writes.  We 
-will fix this by creating a new structure called an extent-node that 
-will exist on a per extent basis, and this will probably cure the 
-problem.  This will greatly simplify parts of our code for reasons I 
-won't go into, and it will also take us 6 weeks to do it.  I don't think 
-users should wait for it, and so we will ship without it.
+#include <stdio.h>=20
+#include <assert.h>=20
 
-* Our dbench performance was poor, has improved due to coding changes, 
-and we need to test and analyze again.  Perhaps more fixes will be 
-needed, we can't say yet.
+#define BUG_ON(x) assert(x)=20
 
-* Our fsync performance is poor.  We will pay attention to this next 
-year, frankly, after we have fully implemented the transactions API.  At 
-that point we will say something like, if you care about fsync 
-performance you should be using the transactions API and/or sponsoring 
-us to tune for NVRAM, users will say back "but our legacy apps on 
-hardware without NVRAM matter!", and we will grudgingly but effectively 
-tune for this because we care about real users too.;-)
+/* compiler trap for assert_single_bit. */=20
+extern void __assert_single_bit_failed_dont_exist(void);=20
 
-Nikita recently invented and implemented a clever bit of code that keeps 
-track of the highest node in the tree that spans a directory, and then 
-performs repeat lookups within the same directory starting from there 
-rather than the root.  This is a nice answer to those who keep asking 
-me, wouldn't it be faster to have separate trees for each directory?  
-Now I have better answer for them --- nice work Nikita.  It also has the 
-nice side effect of reducing spin lock contention on the root node for 
-4-way SMP.
+/*=20
+ * assert that only a single bit is on in 'bit'=20
+ */=20
+#define assert_single_bit(bit) do { \
+        if (__builtin_constant_p(bit)) {			        \
+		if ((bit & (bit -1)))					\
+			__assert_single_bit_failed_dont_exist();	\
+	}  else								\
+		BUG_ON(!(bit & (bit - 1)));				\
+	} while(0)
+/*=20
+ * Optimisation function.  It is equivalent to:=20
+ *      (x & bit1) ? bit2 : 0
+ * but this version is faster. =20
+ * ("bit1" and "bit2" must be single bits).=20
+ */
+static inline unsigned long=20
+inline_calc_vm_trans(unsigned long x, unsigned long bit1, unsigned long bit=
+2)=20
+{
+	assert_single_bit(bit1);=20
+	assert_single_bit(bit2);=20
 
-I am hoping to move my laptop to SuSE 9.0 running reiser4 sometime this 
-week, and I am hoping we will ask for more outside testers to help us 
-find bugs at that time.  While I have mentioned only the performance 
-flaws in this email, our overall performance seems to leave little doubt 
-that the filesystem as-is is far better than V3, and even though it will 
-get much faster with another year or so of tuning, if now we are the 
-fastest available on Linux, we should be shipping now (assuming we find 
-no new bugs in the last round of internal testing).
+	return ((bit1) <=3D (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1))
+		: ((x) & (bit1)) / ((bit1) / (bit2)));=20
+}
 
-Benchmarks can be found at www.namesys.com/benchmarks.html
-
-As you can see in those benchmarks, in V4 tails IMPROVE performance due 
-to saving IO transfer time.  This is a great improvement over V3, and 
-generally speaking V4 stomps all over V3 performance.  It also scales 
-better, has plugins, and improves semantics a little bit (big semantic 
-improvements will be in the next major release not V4). 
-
-You'll also notice that we increased the size of the fileset to be more 
-fair to ext3, and we tested some ext3 configurations Andrew Morton 
-suggested testing.
-
--- 
-Hans
+/* Optimisation macro. */
+#define macro_calc_vm_trans(x,bit1,bit2) \
+  ((bit1) <=3D (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1)) \
+   : ((x) & (bit1)) / ((bit1) / (bit2)))
 
 
+int test3(unsigned long arg)
+{
+	return macro_calc_vm_trans(arg, 0x20, 0x80);=20
+}
+
+int test4(unsigned long arg)
+{=20
+	return inline_calc_vm_trans(arg, 0x20, 0x80);=20
+}
+
+int main(void)
+{
+	int l1 =3D test4(~0UL);=20
+	int l2 =3D test3(~0UL);=20
+	return l1 & l2; /* don't optimize them out */=20
+}
+
+gcc-2.96:=20
+
+test3:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	andl	$32, %eax
+	sall	$2, %eax
+	popl	%ebp
+	ret
+
+test4:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$8, %esp
+	movl	8(%ebp), %eax
+	andl	$32, %eax
+	sall	$2, %eax
+	leave
+	ret
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
+
+
+--/KohU7xR/z4Rz7fl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/eUuzKRs727/VN8sRAoB8AJwNMJhoG1wLeD7j4wMzZwc2eEbiagCfXzup
+b2HbB5jMSe5DO3I7Ic3ZjUE=
+=kN8Q
+-----END PGP SIGNATURE-----
+
+--/KohU7xR/z4Rz7fl--

@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261810AbTCGVyB>; Fri, 7 Mar 2003 16:54:01 -0500
+	id <S261816AbTCGWCS>; Fri, 7 Mar 2003 17:02:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261809AbTCGVyB>; Fri, 7 Mar 2003 16:54:01 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28847
+	id <S261818AbTCGWCS>; Fri, 7 Mar 2003 17:02:18 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:32175
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261810AbTCGVx7>; Fri, 7 Mar 2003 16:53:59 -0500
-Subject: Re: acx100_pci.o GPL but only binary version
+	id <S261816AbTCGWCR>; Fri, 7 Mar 2003 17:02:17 -0500
+Subject: Re: [RFC] one line fix in arch/i386/Kconfig
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: alx <alx@autistici.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1047068240.1604.11.camel@galileo.homenet.lan>
-References: <1047068240.1604.11.camel@galileo.homenet.lan>
+To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030307220337.5841.qmail@linuxmail.org>
+References: <20030307220337.5841.qmail@linuxmail.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1047078623.23696.5.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1047079121.23696.14.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 07 Mar 2003 23:10:24 +0000
+Date: 07 Mar 2003 23:18:41 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-07 at 20:17, alx wrote:
-> acx100_pci.o wanna be a linux driver from the TI acx100 chipset.
-> but it doesn't work at all!
-> - First ifconfig SegFault 
-> - Second hangs the machine
+On Fri, 2003-03-07 at 22:03, Paolo Ciarrocchi wrote:
+> If I say that my cpu is not a PentiumIV why
+> he bothers me about "check for P4 thermal throttling interrupt." ?
+> 
+> This patch show that option only if you select that kind of CPU.
+> 
+> Is it correct ? Does it makes sense ?
 
-Its a known one. No source, the GPL license appears to be a fiction 
-designed to violate the Linux copyright. I guess someone needs a DMCA
-takedown order in the post
+We want people to be able to build a kernel which will run on many systems
+but still use CPU specific features. 
 

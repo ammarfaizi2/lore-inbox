@@ -1,95 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313928AbSDFC4K>; Fri, 5 Apr 2002 21:56:10 -0500
+	id <S313817AbSDFFLI>; Sat, 6 Apr 2002 00:11:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313931AbSDFC4B>; Fri, 5 Apr 2002 21:56:01 -0500
-Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:22799 "EHLO
-	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
-	id <S313928AbSDFCzm>; Fri, 5 Apr 2002 21:55:42 -0500
-Message-ID: <003301c1dd16$855df1b0$7e0aa8c0@bridge>
-From: "Jeremy Jackson" <jerj@coplanar.net>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <00c501c1dce3$0ed806d0$7e0aa8c0@bridge> <1674141067.1018028922@[10.10.2.3]>
-Subject: Re: Faster reboots (and a better way of taking crashdumps?)
-Date: Fri, 5 Apr 2002 18:55:33 -0800
+	id <S313990AbSDFFK6>; Sat, 6 Apr 2002 00:10:58 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:11728 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S313817AbSDFFKp>; Sat, 6 Apr 2002 00:10:45 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: "Rick A. Hohensee" <rickh@Capaccess.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Forth interpreter as kernel module
+Date: Fri, 5 Apr 2002 21:10:58 -0800
+Message-ID: <HBEHIIBBKKNOBLMPKCBBEEOCEKAA.znmeb@aracnet.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
+X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <fc.00858412003a290a00858412003a290a.3a291d@Capaccess.org>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Sent: Friday, April 05, 2002 5:48 PM
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Rick A. Hohensee
+> Sent: Friday, April 05, 2002 5:22 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: Forth interpreter as kernel module
 
-> I need to avoid going through the BIOS ... this is a
-> multiquad NUMA machine, and it doesn't take kindly
-> to the reboot through the BIOS for various reasons.
-> It also takes about 4 minutes, which is a pain ;-)
->
-> I have source code access to our BIOS if I really wanted,
-> I just want to avoid modifying it if possible.
+> Phil Burk is I believe still affiliated with Mills College. He'd love to
+> hear about this. Mike Haas too, probably. Mike Haas wrote the kernel of
+> Amiga JForth and Phil wrote all the music stuff. I added all the Linux
+> syscalls to the PForth in cLIeNUX mostly out of nostalgia for JForth, a
+> "...once in a paradigm thing." Jack "jax" Woehr (sp?). Phil was quite
+> pleased to hear there's a PForth out there with 160 Linux syscalls as
+> primitives.
 
-well keep in mind that the fastest LinuxBIOS boot is 3 seconds...
-a large part of the boot time on most PCs is the BIOS setting up
-DOS support and painting silly logos on the screen, all of which
-can go away.  I'm guessing your NUMA system has a bit more
-to do at this stage due to the hardware, but still...
+Yes, Phil Burk is still doing music ... no, he's not doing it in Forth, but
+in Java. Hunt up "jmsl" and "jsyn" for the details. I haven't heard much
+from Jack recently; I have his book which had an ANS-ish 16-bit DOS Forth on
+a floppy. At one time, I was doing some absolutely *amazing* things with
+16-bit Forths on my HP100LX Palmtop PC. Still, I must confess I haven't been
+to the Taygeta Scientific Forth archive in over a year.
 
->
-> > there are patches where a kernel can load another
-> > kernel, also.
->
-> Hmmm ... sounds interesting ... any pointers?
+> More to the point, Forth can be a great personalizer of unix/Linux. Sure,
+> you don't want a Forth in your DNS box. (I do, but...) You do want a Forth
+> in your multimedia box. Bigtime. Which is why the "forth" command in
+> cLIeNUX is upforth, PForth with a unix Jones.
 
-LOBOS,
+Well, I want a full-strength Forth in my Linux box -- I've got SwiftForth
+Pro on my Windows system and I'm holding out for something of that
+comprehensive nature on Linux. I have to admit I haven't played with the
+gForth that I think comes with my Red Hat distro, so I don't know what it's
+like. I've heard hard-core Forthers gag profusely at the mere mention of
+gForth.
 
-http://www.acl.lanl.gov/linuxbios/papers/index.html
-http://www.usenix.org/publications/library/proceedings/als2000/minnichLOBOS.
-html
+So, enough "old Forthers home week" on the Linux kernel mailing list, eh?
 
-two kernel monte,
+: TOOT FORTH LOVE IF HONK THEN ;
+--
+M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
+http://www.borasky-research.net  http://www.aracnet.com/~znmeb
+mailto:znmeb@borasky-research.net  mailto:znmeb@aracnet.com
 
-http://www.scyld.com/products/beowulf/software/monte.html
+Q. Who invented the non-Von Neumann computer architecture?
+A. John non-Von Neumann.
 
-There's also suspend to disk support, which is closely related.
-Kind of a restartable crash dump, without the crash:
-
-http://falcon.sch.bme.hu/~seasons/linux/swsusp.html
-
->
-> > As for taking crashdumps on the way up, I believe
-> > (SGI's ?) linux kernel crash dumps does *exactly*
-> > this.
->
-> I was under the impression that most BIOSes reset
-> memory on reboot, so this was impossible during a
-> BIOS reboot?
-
-oss.sgi.com seems to be down today... but iirc,
-it doesn't boot through bios, but stashes some critical state
-in a buffer previously reserverd, uses one of the above methods
-to boot a new kernel, lets this kernel do the dump, then boots
-through the bios to make sure hardware is completely restored
-after the crash.  I'm sure it could be tailored to suit though.
-
-I'm currently researching combining the two, to create a LinuxBIOS
-firmware debug console, which will allow complete crash dump to
-be taken after a hardware reset, with the smallest possible Heisenburg
-effect, aside from a hardware debugger.
-
-Basically when the kernel panics, it dumps the CPU registers and
-resets the CPU.  The firmware console makes no alterations to
-the state of the hardware, instead running a modified kgdb stub
-like routine, possibly without even touching RAM.  Also, if an SMI
-button is available, this can be used as a hardware break switch,
-allowing panics to use an even less invasive HLT instruction.
-
-Jeremy
 

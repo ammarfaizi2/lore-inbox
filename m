@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUHMLwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263943AbUHMLyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbUHMLwH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 07:52:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUHMLwH
+	id S263943AbUHMLyA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 07:54:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUHMLyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 07:52:07 -0400
-Received: from netmail01.eng.net ([213.130.128.38]:8623 "EHLO
-	netmail01.eng.net") by vger.kernel.org with ESMTP id S264231AbUHMLwA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 07:52:00 -0400
-From: Chris Clayton <chris@theclaytons.giointernet.co.uk>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: CDMRW in 2.6
-Date: Fri, 13 Aug 2004 12:53:49 +0000
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200408091625.31210.chris@theclaytons.giointernet.co.uk> <20040813071537.GE2321@suse.de>
-In-Reply-To: <20040813071537.GE2321@suse.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 13 Aug 2004 07:54:00 -0400
+Received: from pop.gmx.de ([213.165.64.20]:22707 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263943AbUHMLxz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 07:53:55 -0400
+X-Authenticated: #4399952
+Date: Fri, 13 Aug 2004 14:03:21 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+Message-Id: <20040813140321.78da570d@mango.fruits.de>
+In-Reply-To: <20040813105406.GJ8135@elte.hu>
+References: <20040726083537.GA24948@elte.hu>
+	<1090832436.6936.105.camel@mindpipe>
+	<20040726124059.GA14005@elte.hu>
+	<20040726204720.GA26561@elte.hu>
+	<20040729222657.GA10449@elte.hu>
+	<20040801193043.GA20277@elte.hu>
+	<20040809104649.GA13299@elte.hu>
+	<20040810132654.GA28915@elte.hu>
+	<20040812235116.GA27838@elte.hu>
+	<20040813124249.13066d94@mango.fruits.de>
+	<20040813105406.GJ8135@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408131253.49321.chris@theclaytons.giointernet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 Aug 2004 07:15, Jens Axboe wrote:
-> On Mon, Aug 09 2004, Chris Clayton wrote:
-> > cdrom: hdc: mrw address space DMA selected
-> > cdrom open: mrw_status 'mrw complete'
-> > hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-> > hdc: command error: error=0x54
-> > end_request: I/O error, dev hdc, sector 1048576
->
-> Command was aborted, probably the media isn't writable after all.  Can
-> you try and force a full format with cdrwtool?
+On Fri, 13 Aug 2004 12:54:06 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Jens,
+> > (ksoftirqd/0/2): 307 us critical section violates 250 us threshold.
+> >  => started at: <___do_softirq+0x20/0x90>
+> >  => ended at: <cond_resched_softirq+0x59/0x70>
+> 
+> this is too opaque - could you try -O7, enable tracing and save a
+> /proc/latency_trace instance of such a latency? It looks like some
+> sort of softirq latency - perhaps one particular driver's timer fn
+> causes it- we'll be able to tell more from the trace.
 
-Did you mean cdrwtool or cdmrw?
+Hi, this looks like one of them:
 
-I've done a format with cdrwtool (cdrwtool -t 10 -d /dev/hdc -q) but when I 
-try and mount it (mount -o rw,noatime -t udf /dev/hdc /cdmrw) and mount gives 
-the message:
+mango:~# cat /proc/latency_trace 
+preemption latency trace v1.0
+-----------------------------
+ latency: 308 us, entries: 12 (12)
+ process: ksoftirqd/0/2, uid: 0
+ nice: -10, policy: 0, rt_priority: 0
+=======>
+ 0.000ms (+0.000ms): run_timer_softirq (___do_softirq)
+ 0.000ms (+0.000ms): sis900_timer (run_timer_softirq)
+ 0.001ms (+0.000ms): mdio_read (sis900_timer)
+ 0.002ms (+0.000ms): mdio_reset (mdio_read)
+ 0.071ms (+0.069ms): mdio_idle (mdio_read)
+ 0.151ms (+0.079ms): mdio_read (sis900_timer)
+ 0.151ms (+0.000ms): mdio_reset (mdio_read)
+ 0.220ms (+0.069ms): mdio_idle (mdio_read)
+ 0.300ms (+0.079ms): __mod_timer (sis900_timer)
+ 0.300ms (+0.000ms): internal_add_timer (__mod_timer)
+ 0.300ms (+0.000ms): cond_resched_softirq (run_timer_softirq)
+ 0.301ms (+0.000ms): check_preempt_timing (touch_preempt_timing)
 
-mount: block device /dev/hdc is write-protected, mounting read-only
-
-dmesg shows no error after cdrwtool has run but has the following new messages 
-after the media is mounted:
-
-cdrom: hdc: mrw address space DMA selected
-cdrom open: mrw_status 'not mrw'
-UDF-fs INFO UDF 0.9.8.1 (2004/29/09) Mounting volume 'LinuxUDF', timestamp 
-2004/08/13 12:35 (1000)
-
-The media does, however, mount OK for packet writing (sudo mount -t udf -o 
-rw,noatime /dev/pktcdvd/cdrw /cdrw) using another kernel patched with the 
-packet writing patches Peter Osterlund has submitted for the -mm series.
-
-I'll try a full (as opposed to quick) blank with cdrwtool plus a forced format 
-with cdmrw and report back when that has finished.
+Flo
 
 -- 
-Chris
+Palimm Palimm!
+http://affenbande.org/~tapas/
+

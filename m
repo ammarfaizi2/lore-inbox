@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269595AbTGJSGf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 14:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269596AbTGJSGf
+	id S264676AbTGJSHd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 14:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269590AbTGJSHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 14:06:35 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:10887 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S269595AbTGJSGc (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 14:06:32 -0400
-Message-Id: <200307101821.h6AIL87u013299@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.74-mm3 
-In-Reply-To: Your message of "Tue, 08 Jul 2003 22:35:48 PDT."
-             <20030708223548.791247f5.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030708223548.791247f5.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-327683311P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 10 Jul 2003 14:07:33 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:6593 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S264676AbTGJSH0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 14:07:26 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Thu, 10 Jul 2003 14:21:08 -0400
+Message-ID: <16141.44749.105050.260268@napali.hpl.hp.com>
+Date: Thu, 10 Jul 2003 11:22:05 -0700
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: davidm@hpl.hp.com, Rusty Russell <rusty@rustcorp.com.au>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, <ak@suse.de>
+Subject: Re: per_cpu fixes 
+In-Reply-To: <Pine.LNX.4.44.0307101112320.16847-100000@home.osdl.org>
+References: <16141.43130.657025.952793@napali.hpl.hp.com>
+	<Pine.LNX.4.44.0307101112320.16847-100000@home.osdl.org>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-327683311P
-Content-Type: text/plain; charset=us-ascii
+>>>>> On Thu, 10 Jul 2003 11:15:25 -0700 (PDT), Linus Torvalds <torvalds@osdl.org> said:
 
-On Tue, 08 Jul 2003 22:35:48 PDT, Andrew Morton <akpm@osdl.org>  said:
+  Linus> On Thu, 10 Jul 2003, David Mosberger wrote:
+  >> 
+  >> You mean there would be three primitives:
+  >> 
+  >> (1) get value from a per-CPU variable
+  >> (2) set value of a per-CPU variable
+  >> (3) get the (canonical) address of a per-CPU variable
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.74/2.5.74-mm3/
+  Linus> Argh.
 
-OK, I'm finally getting around to actually commenting, this has been a niggling issue for
-a while...
+  Linus> We'd better have the rule that if there are any virtual
+  Linus> caches or other issues, then the "canonical address" had
+  Linus> better be the _only_ address (or at least any virtual
+  Linus> remapping has to be done in such a way that it never causes
+  Linus> aliasing or other performance problems with the canonical
+  Linus> address).
 
-> All 113 patches:
+  Linus> This is already turning fairly ugly, and I just don't want to
+  Linus> see even more ugly rules like "you can't mix direct accesses
+  Linus> with pointer accesses"
 
-> 64-bit-dev_t-kdev_t.patch
->   64-bit dev_t and kdev_t
+Yes, Rusty's proposal (as I think I summarized above) would do exactly
+that: the only address that you'll ever see for a per-CPU variable
+will be the canonical one.  The get/set macros can use an alias on
+platforms where this is more efficient, but the alias will never be
+visible outside the macros.
 
-Yes, this patch says "not ready for prime time, it breaks things".
-
-In particular, this gives the device-mapper userspace indigestion, because the
-ioctl passes something other than a 64-bit kdev_t in from libdevmapper. Upshot
-is that the LVM2 'vgchange -ay' fails gloriously.
-
-Workaround:  Compile the devmapper/LVM stuff with a private copy of include/
-linux/kdev_t.h that matches the one the kernel uses.  No, I didn't actually get
-that to work, so I backed out the 64-bit patch...
-
-(And no, the recent devmapper/LVM2 stuff posted doesn't fix this).
-
---==_Exmh_-327683311P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/Da6TcC3lWbTT17ARApIQAJ9JMegsEJN357NYSvTStxnMzXgYpQCguhRW
-HlaLZRp46OZz+L7gRVIDV/A=
-=ZBv1
------END PGP SIGNATURE-----
-
---==_Exmh_-327683311P--
+	--david

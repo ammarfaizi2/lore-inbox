@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316535AbSIIGQb>; Mon, 9 Sep 2002 02:16:31 -0400
+	id <S316542AbSIIGpa>; Mon, 9 Sep 2002 02:45:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSIIGQb>; Mon, 9 Sep 2002 02:16:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:8860 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316535AbSIIGQa>;
-	Mon, 9 Sep 2002 02:16:30 -0400
-Date: Sun, 08 Sep 2002 23:13:04 -0700 (PDT)
-Message-Id: <20020908.231304.30400540.davem@redhat.com>
-To: rusty@rustcorp.com.au
-Cc: pavel@suse.cz, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       akpm@zip.com.au
-Subject: Re: [PATCH] Important per-cpu fix. 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020909054106.19E762C0C4@lists.samba.org>
-References: <20020906095743.A35@toy.ucw.cz>
-	<20020909054106.19E762C0C4@lists.samba.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316545AbSIIGp3>; Mon, 9 Sep 2002 02:45:29 -0400
+Received: from [212.3.242.3] ([212.3.242.3]:1013 "HELO mail.vt4.net")
+	by vger.kernel.org with SMTP id <S316542AbSIIGp3>;
+	Mon, 9 Sep 2002 02:45:29 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: linux-kernel@vger.kernel.org
+Subject: linux 2.4.20-ac patches
+Date: Mon, 9 Sep 2002 08:47:32 +0200
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200209090847.32334.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rusty Russell <rusty@rustcorp.com.au>
-   Date: Mon, 09 Sep 2002 13:45:02 +1000
+Hello,
 
-   	/* FIXME: Initializer required so gcc 2.96 doesn't put in BSS */
-   	DEFINE_PER_CPU(int, xxx) = 0;
-   
-   everywhere, which can be deleted later
+Since my recent harddisk problems I had to reinstall my entire linux. 
+The only hardware change in the system is that the two harddisks have been 
+swapped on the ide cable (jumpers have been changed accordingly).
 
-Why everywhere?  If you do it in the macro, then when you want
-to delete the initializer remove the macro arg.  Then you cover
-both in-kernel and cases in external sources because the build
-will break for them so they'll know to fixup their macro invocation.
+Since then if I ever attempt to access the cdrom (which is used through 
+/dev/sr1 using ide-scsi) i get an oops. After that, I get errors from the 
+SCSI layer talking about timeouts and retries.
 
-I hate when things change silently, and if you don't put it in
-the macro, someone will get it wrong and we'll find out only
-when someone with an older compiler uses that feature on an SMP
-machine.
+I've since then switched back to vanilla 2.4.19 which works fine with me. The 
+-ac patches don't.
 
-Read as: This is bad programming practice Rusty, regardless of
-         your personal views about this particular GCC bug or
-	 what you think is a legitimate initializer.
+Before the harddiskproblems it worked correctly.
 
-See spinlock_t's declaration for older GCC versions, that is how we
-traditionally deal with compiler bugs like this, explicitly so that it
-is impossible to "miss" something and get it wrong.
+I'll see this eve to cause, ksymoops and send in an oops.
+-- 
+Bacchus, n.:
+	A convenient deity invented by the ancients as an excuse for
+getting drunk.
+		-- Ambrose Bierce, "The Devil's Dictionary"
 
-Everytime I asked Linus to rearrange some piece of code that used
-spinlock_t initializers to workaround the "empty initializer at
-end of struct" GCC bug he always told me "someone will get it
-wrong if we do it that way"  And I think he's right.

@@ -1,528 +1,219 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317582AbSH3WFc>; Fri, 30 Aug 2002 18:05:32 -0400
+	id <S317176AbSH3WEJ>; Fri, 30 Aug 2002 18:04:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317592AbSH3WFc>; Fri, 30 Aug 2002 18:05:32 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:29715 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317582AbSH3WFX>;
-	Fri, 30 Aug 2002 18:05:23 -0400
-Date: Fri, 30 Aug 2002 15:08:47 -0700
+	id <S317582AbSH3WEI>; Fri, 30 Aug 2002 18:04:08 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:28435 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317176AbSH3WEF>;
+	Fri, 30 Aug 2002 18:04:05 -0400
+Date: Fri, 30 Aug 2002 15:07:21 -0700
 From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] PCI ops cleanups for 2.5.32-bk
-Message-ID: <20020830220846.GB10783@kroah.com>
-References: <20020830220720.GA10783@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, hannal@us.ibm.com, colpatch@us.ibm.com
+Subject: [BK PATCH] PCI ops cleanups for 2.5.32-bk
+Message-ID: <20020830220720.GA10783@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020830220720.GA10783@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And here are the different patches in this set of changesets...
+Hi,
 
+Here are the pci_ops cleanups that were discussed on lkml last week.  It
+removes a lot of code from the arch specific implementation of
+pci_*_config* functions, and removes lots of code from the pci_hotplug
+core (yes, the pci_hotplug code is still broken, I'm working on that
+next...) 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.542   -> 1.543  
-#	arch/i386/pci/pcbios.c	1.9     -> 1.10   
-#	arch/i386/pci/direct.c	1.9     -> 1.10   
-#	arch/i386/pci/common.c	1.32    -> 1.33   
-#	include/asm-i386/pci.h	1.15    -> 1.16   
-#	 include/linux/pci.h	1.35    -> 1.36   
-#	drivers/pci/access.c	1.3     -> 1.4    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/08/30	colpatch@us.ibm.com	1.543
-# [PATCH] PCI Cleanup
-# 
-# The patch removes the pci_confN_(read|write)_config_(byte|word|dword) mess and
-# pares it down to pci_confN_(read|write).  This change is reflected in the
-# pci_ops structure, which only has read and write function pointers rather than
-# the byte, word, and dword versions.  These changes happen in the pci_conf(1|2)
-# and pci_bios read and write calls.
-# 
-# This patch also removes the pci_config_(read|write) function pointers.  People
-# shouldn't be using these (I don't think) and should be using the pci_ops
-# structure linked through the pci_dev structure.  These end up calling the same
-# functions that the pci_config_(read|write) pointers refer to anyway.
-# --------------------------------------------
-#
-diff -Nru a/arch/i386/pci/common.c b/arch/i386/pci/common.c
---- a/arch/i386/pci/common.c	Fri Aug 30 15:00:39 2002
-+++ b/arch/i386/pci/common.c	Fri Aug 30 15:00:39 2002
-@@ -25,9 +25,6 @@
- struct pci_bus *pci_root_bus = NULL;
- struct pci_ops *pci_root_ops = NULL;
- 
--int (*pci_config_read)(int seg, int bus, int dev, int fn, int reg, int len, u32 *value) = NULL;
--int (*pci_config_write)(int seg, int bus, int dev, int fn, int reg, int len, u32 value) = NULL;
--
- /*
-  * legacy, numa, and acpi all want to call pcibios_scan_root
-  * from their initcalls. This flag prevents that.
-diff -Nru a/arch/i386/pci/direct.c b/arch/i386/pci/direct.c
---- a/arch/i386/pci/direct.c	Fri Aug 30 15:00:39 2002
-+++ b/arch/i386/pci/direct.c	Fri Aug 30 15:00:39 2002
-@@ -13,7 +13,7 @@
- #define PCI_CONF1_ADDRESS(bus, dev, fn, reg) \
- 	(0x80000000 | (bus << 16) | (dev << 11) | (fn << 8) | (reg & ~3))
- 
--static int pci_conf1_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
-+static int __pci_conf1_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
- {
- 	unsigned long flags;
- 
-@@ -41,7 +41,7 @@
- 	return 0;
- }
- 
--static int pci_conf1_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value)
-+static int __pci_conf1_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value)
- {
- 	unsigned long flags;
- 
-@@ -69,75 +69,23 @@
- 	return 0;
- }
- 
--
- #undef PCI_CONF1_ADDRESS
- 
--static int pci_conf1_read_config_byte(struct pci_dev *dev, int where, u8 *value)
-+static int pci_conf1_read(struct pci_dev *dev, int where, int size, u32 *value)
- {
--	int result; 
--	u32 data;
--
--	if (!value) 
--		return -EINVAL;
--
--	result = pci_conf1_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 1, &data);
--
--	*value = (u8)data;
--
--	return result;
-+	return __pci_conf1_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
-+		PCI_FUNC(dev->devfn), where, size, value);
- }
- 
--static int pci_conf1_read_config_word(struct pci_dev *dev, int where, u16 *value)
-+static int pci_conf1_write(struct pci_dev *dev, int where, int size, u32 value)
- {
--	int result; 
--	u32 data;
--
--	if (!value) 
--		return -EINVAL;
--
--	result = pci_conf1_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 2, &data);
--
--	*value = (u16)data;
--
--	return result;
--}
--
--static int pci_conf1_read_config_dword(struct pci_dev *dev, int where, u32 *value)
--{
--	if (!value) 
--		return -EINVAL;
--
--	return pci_conf1_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 4, value);
--}
--
--static int pci_conf1_write_config_byte(struct pci_dev *dev, int where, u8 value)
--{
--	return pci_conf1_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 1, value);
--}
--
--static int pci_conf1_write_config_word(struct pci_dev *dev, int where, u16 value)
--{
--	return pci_conf1_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 2, value);
--}
--
--static int pci_conf1_write_config_dword(struct pci_dev *dev, int where, u32 value)
--{
--	return pci_conf1_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 4, value);
-+	return __pci_conf1_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
-+		PCI_FUNC(dev->devfn), where, size, value);
- }
- 
- static struct pci_ops pci_direct_conf1 = {
--	pci_conf1_read_config_byte,
--	pci_conf1_read_config_word,
--	pci_conf1_read_config_dword,
--	pci_conf1_write_config_byte,
--	pci_conf1_write_config_word,
--	pci_conf1_write_config_dword
-+	.read =		pci_conf1_read,
-+	.write =	pci_conf1_write,
- };
- 
- 
-@@ -147,7 +95,7 @@
- 
- #define PCI_CONF2_ADDRESS(dev, reg)	(u16)(0xC000 | (dev << 8) | reg)
- 
--static int pci_conf2_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
-+static int __pci_conf2_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
- {
- 	unsigned long flags;
- 
-@@ -181,7 +129,7 @@
- 	return 0;
- }
- 
--static int pci_conf2_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value)
-+static int __pci_conf2_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value)
- {
- 	unsigned long flags;
- 
-@@ -217,57 +165,21 @@
- 
- #undef PCI_CONF2_ADDRESS
- 
--static int pci_conf2_read_config_byte(struct pci_dev *dev, int where, u8 *value)
--{
--	int result; 
--	u32 data;
--	result = pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 1, &data);
--	*value = (u8)data;
--	return result;
--}
--
--static int pci_conf2_read_config_word(struct pci_dev *dev, int where, u16 *value)
--{
--	int result; 
--	u32 data;
--	result = pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 2, &data);
--	*value = (u16)data;
--	return result;
--}
--
--static int pci_conf2_read_config_dword(struct pci_dev *dev, int where, u32 *value)
--{
--	return pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 4, value);
--}
--
--static int pci_conf2_write_config_byte(struct pci_dev *dev, int where, u8 value)
-+static int pci_conf2_read(struct pci_dev *dev, int where, int size, u32 *value)
- {
--	return pci_conf2_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 1, value);
-+	return __pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
-+		PCI_FUNC(dev->devfn), where, size, value);
- }
- 
--static int pci_conf2_write_config_word(struct pci_dev *dev, int where, u16 value)
-+static int pci_conf2_write(struct pci_dev *dev, int where, int size, u32 value)
- {
--	return pci_conf2_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 2, value);
--}
--
--static int pci_conf2_write_config_dword(struct pci_dev *dev, int where, u32 value)
--{
--	return pci_conf2_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 4, value);
-+	return __pci_conf2_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
-+		PCI_FUNC(dev->devfn), where, size, value);
- }
- 
- static struct pci_ops pci_direct_conf2 = {
--	pci_conf2_read_config_byte,
--	pci_conf2_read_config_word,
--	pci_conf2_read_config_dword,
--	pci_conf2_write_config_byte,
--	pci_conf2_write_config_word,
--	pci_conf2_write_config_dword
-+	.read =		pci_conf2_read,
-+	.write =	pci_conf2_write,
- };
- 
- 
-@@ -283,7 +195,7 @@
-  */
- static int __devinit pci_sanity_check(struct pci_ops *o)
- {
--	u16 x;
-+	u32 x = 0;
- 	struct pci_bus bus;		/* Fake bus and device */
- 	struct pci_dev dev;
- 
-@@ -292,16 +204,16 @@
- 	bus.number = 0;
- 	dev.bus = &bus;
- 	for(dev.devfn=0; dev.devfn < 0x100; dev.devfn++)
--		if ((!o->read_word(&dev, PCI_CLASS_DEVICE, &x) &&
-+		if ((!o->read(&dev, PCI_CLASS_DEVICE, 2, &x) &&
- 		     (x == PCI_CLASS_BRIDGE_HOST || x == PCI_CLASS_DISPLAY_VGA)) ||
--		    (!o->read_word(&dev, PCI_VENDOR_ID, &x) &&
-+		    (!o->read(&dev, PCI_VENDOR_ID, 2, &x) &&
- 		     (x == PCI_VENDOR_ID_INTEL || x == PCI_VENDOR_ID_COMPAQ)))
- 			return 1;
- 	DBG("PCI: Sanity check failed\n");
- 	return 0;
- }
- 
--static struct pci_ops * __devinit pci_check_direct(void)
-+static int __init pci_direct_init(void)
- {
- 	unsigned int tmp;
- 	unsigned long flags;
-@@ -321,8 +233,10 @@
- 			local_irq_restore(flags);
- 			printk(KERN_INFO "PCI: Using configuration type 1\n");
- 			if (!request_region(0xCF8, 8, "PCI conf1"))
--				return NULL;
--			return &pci_direct_conf1;
-+				pci_root_ops = NULL;
-+			else
-+				pci_root_ops = &pci_direct_conf1;
-+			return 0;
- 		}
- 		outl (tmp, 0xCF8);
- 	}
-@@ -339,28 +253,15 @@
- 			local_irq_restore(flags);
- 			printk(KERN_INFO "PCI: Using configuration type 2\n");
- 			if (!request_region(0xCF8, 4, "PCI conf2"))
--				return NULL;
--			return &pci_direct_conf2;
-+				pci_root_ops = NULL;
-+			else
-+				pci_root_ops = &pci_direct_conf2;
-+			return 0;
- 		}
- 	}
- 
- 	local_irq_restore(flags);
--	return NULL;
--}
--
--static int __init pci_direct_init(void)
--{
--	if ((pci_probe & (PCI_PROBE_CONF1 | PCI_PROBE_CONF2)) 
--		&& (pci_root_ops = pci_check_direct())) {
--		if (pci_root_ops == &pci_direct_conf1) {
--			pci_config_read = pci_conf1_read;
--			pci_config_write = pci_conf1_write;
--		}
--		else {
--			pci_config_read = pci_conf2_read;
--			pci_config_write = pci_conf2_write;
--		}
--	}
-+	pci_root_ops = NULL;
- 	return 0;
- }
- 
-diff -Nru a/arch/i386/pci/pcbios.c b/arch/i386/pci/pcbios.c
---- a/arch/i386/pci/pcbios.c	Fri Aug 30 15:00:39 2002
-+++ b/arch/i386/pci/pcbios.c	Fri Aug 30 15:00:39 2002
-@@ -185,7 +185,7 @@
- 	return (int) (ret & 0xff00) >> 8;
- }
- 
--static int pci_bios_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
-+static int __pci_bios_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
- {
- 	unsigned long result = 0;
- 	unsigned long flags;
-@@ -240,7 +240,7 @@
- 	return (int)((result & 0xff00) >> 8);
- }
- 
--static int pci_bios_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value)
-+static int __pci_bios_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value)
- {
- 	unsigned long result = 0;
- 	unsigned long flags;
-@@ -295,63 +295,16 @@
- 	return (int)((result & 0xff00) >> 8);
- }
- 
--static int pci_bios_read_config_byte(struct pci_dev *dev, int where, u8 *value)
-+static int pci_bios_read(struct pci_dev *dev, int where, int size, u32 *value)
- {
--	int result; 
--	u32 data;
--
--	if (!value) 
--		return -EINVAL;
--
--	result = pci_bios_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 1, &data);
--
--	*value = (u8)data;
--
--	return result;
--}
--
--static int pci_bios_read_config_word(struct pci_dev *dev, int where, u16 *value)
--{
--	int result; 
--	u32 data;
--
--	if (!value) 
--		return -EINVAL;
--
--	result = pci_bios_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 2, &data);
--
--	*value = (u16)data;
--
--	return result;
--}
--
--static int pci_bios_read_config_dword(struct pci_dev *dev, int where, u32 *value)
--{
--	if (!value) 
--		return -EINVAL;
--	
--	return pci_bios_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 4, value);
--}
--
--static int pci_bios_write_config_byte(struct pci_dev *dev, int where, u8 value)
--{
--	return pci_bios_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 1, value);
--}
--
--static int pci_bios_write_config_word(struct pci_dev *dev, int where, u16 value)
--{
--	return pci_bios_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 2, value);
-+	return __pci_bios_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
-+		PCI_FUNC(dev->devfn), where, size, value);
- }
- 
--static int pci_bios_write_config_dword(struct pci_dev *dev, int where, u32 value)
-+static int pci_bios_write(struct pci_dev *dev, int where, int size, u32 value)
- {
--	return pci_bios_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 4, value);
-+	return __pci_bios_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
-+		PCI_FUNC(dev->devfn), where, size, value);
- }
- 
- 
-@@ -360,12 +313,8 @@
-  */
- 
- static struct pci_ops pci_bios_access = {
--      pci_bios_read_config_byte,
--      pci_bios_read_config_word,
--      pci_bios_read_config_dword,
--      pci_bios_write_config_byte,
--      pci_bios_write_config_word,
--      pci_bios_write_config_dword
-+	.read =		pci_bios_read,
-+	.write =	pci_bios_write
- };
- 
- /*
-@@ -551,8 +500,6 @@
- 		&& ((pci_root_ops = pci_find_bios()))) {
- 		pci_probe |= PCI_BIOS_SORT;
- 		pci_bios_present = 1;
--		pci_config_read = pci_bios_read;
--		pci_config_write = pci_bios_write;
- 	}
- 	return 0;
- }
-diff -Nru a/drivers/pci/access.c b/drivers/pci/access.c
---- a/drivers/pci/access.c	Fri Aug 30 15:00:39 2002
-+++ b/drivers/pci/access.c	Fri Aug 30 15:00:39 2002
-@@ -19,24 +19,38 @@
- #define PCI_word_BAD (pos & 1)
- #define PCI_dword_BAD (pos & 3)
- 
--#define PCI_OP(rw,size,type) \
--int pci_##rw##_config_##size (struct pci_dev *dev, int pos, type value) \
-+#define PCI_OP_READ(size,type,len) \
-+int pci_read_config_##size (struct pci_dev *dev, int pos, type *value) \
- {									\
- 	int res;							\
- 	unsigned long flags;						\
-+	u32 data = 0;							\
- 	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
- 	spin_lock_irqsave(&pci_lock, flags);				\
--	res = dev->bus->ops->rw##_##size(dev, pos, value);		\
-+	res = dev->bus->ops->read(dev, pos, len, &data);		\
-+	*value = (type)data;						\
- 	spin_unlock_irqrestore(&pci_lock, flags);			\
- 	return res;							\
- }
- 
--PCI_OP(read, byte, u8 *)
--PCI_OP(read, word, u16 *)
--PCI_OP(read, dword, u32 *)
--PCI_OP(write, byte, u8)
--PCI_OP(write, word, u16)
--PCI_OP(write, dword, u32)
-+#define PCI_OP_WRITE(size,type,len) \
-+int pci_write_config_##size (struct pci_dev *dev, int pos, type value) \
-+{									\
-+	int res;							\
-+	unsigned long flags;						\
-+	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
-+	spin_lock_irqsave(&pci_lock, flags);				\
-+	res = dev->bus->ops->write(dev, pos, len, value);		\
-+	spin_unlock_irqrestore(&pci_lock, flags);			\
-+	return res;							\
-+}
-+
-+PCI_OP_READ(byte, u8, 1)
-+PCI_OP_READ(word, u16, 2)
-+PCI_OP_READ(dword, u32, 4)
-+PCI_OP_WRITE(byte, u8, 1)
-+PCI_OP_WRITE(word, u16, 2)
-+PCI_OP_WRITE(dword, u32, 4)
- 
- EXPORT_SYMBOL(pci_read_config_byte);
- EXPORT_SYMBOL(pci_read_config_word);
-diff -Nru a/include/asm-i386/pci.h b/include/asm-i386/pci.h
---- a/include/asm-i386/pci.h	Fri Aug 30 15:00:39 2002
-+++ b/include/asm-i386/pci.h	Fri Aug 30 15:00:39 2002
-@@ -22,8 +22,6 @@
- 
- void pcibios_config_init(void);
- struct pci_bus * pcibios_scan_root(int bus);
--extern int (*pci_config_read)(int seg, int bus, int dev, int fn, int reg, int len, u32 *value);
--extern int (*pci_config_write)(int seg, int bus, int dev, int fn, int reg, int len, u32 value);
- 
- void pcibios_set_master(struct pci_dev *dev);
- void pcibios_penalize_isa_irq(int irq);
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	Fri Aug 30 15:00:39 2002
-+++ b/include/linux/pci.h	Fri Aug 30 15:00:39 2002
-@@ -456,12 +456,8 @@
- /* Low-level architecture-dependent routines */
- 
- struct pci_ops {
--	int (*read_byte)(struct pci_dev *, int where, u8 *val);
--	int (*read_word)(struct pci_dev *, int where, u16 *val);
--	int (*read_dword)(struct pci_dev *, int where, u32 *val);
--	int (*write_byte)(struct pci_dev *, int where, u8 val);
--	int (*write_word)(struct pci_dev *, int where, u16 val);
--	int (*write_dword)(struct pci_dev *, int where, u32 val);
-+	int (*read)(struct pci_dev *, int where, int size, u32 *val);
-+	int (*write)(struct pci_dev *, int where, int size, u32 val);
- };
- 
- struct pbus_set_ranges_data
+These patches includes fixups for almost all of the different
+architecture specific code.  I have a number of patches that I will send
+to some of the arch maintainers directly, that are not included in this
+bk tree.
+
+I would like to thank Matt Dobson and Hanna Linder for doing lots of
+this work.
+
+This series also includes a driverfs pci pool patch from David Brownell
+(as long as we are making pci changes...)
+
+Pull from:  http://linuxusb.bkbits.net/pci-2.5
+
+thanks,
+
+greg k-h
+
+ arch/alpha/kernel/core_apecs.c            |  102 ++++-------
+ arch/alpha/kernel/core_cia.c              |  101 ++++-------
+ arch/alpha/kernel/core_irongate.c         |   81 +--------
+ arch/alpha/kernel/core_lca.c              |  100 ++++-------
+ arch/alpha/kernel/core_polaris.c          |   79 +--------
+ arch/alpha/kernel/core_t2.c               |  101 ++++-------
+ arch/i386/pci/common.c                    |    3 
+ arch/i386/pci/direct.c                    |  193 +++++-----------------
+ arch/i386/pci/numa.c                      |   34 +++
+ arch/i386/pci/pcbios.c                    |   85 +--------
+ arch/ia64/kernel/pci.c                    |   80 +--------
+ arch/ia64/sn/io/pci.c                     |  157 ++----------------
+ arch/mips/ddb5074/pci.c                   |  219 +++++++++++--------------
+ arch/mips/ddb5476/pci.c                   |  215 ++++++++++---------------
+ arch/mips/ddb5xxx/ddb5477/pci_ops.c       |  253 ++++++++++++-----------------
+ arch/mips/gt64120/common/pci.c            |  258 ++++++++++--------------------
+ arch/mips/ite-boards/generic/it8172_pci.c |  133 ++++-----------
+ arch/mips/mips-boards/generic/pci.c       |  119 +++----------
+ arch/mips/sni/pci.c                       |  124 ++++++--------
+ arch/sh/kernel/pci-dc.c                   |  105 +++++-------
+ arch/sh/kernel/pci-sh7751.c               |  180 +++++++-------------
+ arch/sh/kernel/pci_st40.c                 |  112 ++++---------
+ arch/x86_64/pci/direct.c                  |  165 +++----------------
+ drivers/hotplug/pci_hotplug_util.c        |  245 ----------------------------
+ drivers/pci/access.c                      |   54 ++++--
+ drivers/pci/pool.c                        |   76 ++++++++
+ drivers/pci/probe.c                       |    1 
+ include/asm-i386/pci.h                    |    2 
+ include/asm-ia64/pci.h                    |    2 
+ include/linux/pci.h                       |   50 ++++-
+ 30 files changed, 1138 insertions(+), 2291 deletions(-)
+-----
+
+ChangeSet@1.553, 2002-08-30 14:56:40-07:00, greg@kroah.com
+  PCI: compile time fix for the pci pool patch.
+
+ drivers/pci/pool.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+------
+
+ChangeSet@1.552, 2002-08-30 14:52:18-07:00, david-b@pacbell.net
+  [PATCH] show pci_pool stats in driverfs]
+  
+  This patch exposes basic allocation statistics for pci pools,
+  very much like /proc/slabinfo but applying to DMA-consistent
+  memory.  A file "pools" is created in the driverfs directory
+  for the relevant pci device when the first pool is created, and
+  removed when the last pool is destroyed.
+  
+  Please merge to 2.5.latest.  If it matters, DaveM said it
+  looks fine.  It produces sane output for all the 2.5.30
+  USB host controller drivers.
+
+ drivers/pci/pool.c  |   74 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/pci/probe.c |    1 
+ include/linux/pci.h |    1 
+ 3 files changed, 76 insertions(+)
+------
+
+ChangeSet@1.551, 2002-08-30 14:34:21-07:00, colpatch@us.ibm.com
+  [PATCH] Fixed NUMA-Q PCI patch
+  
+  This patch fixes a bug in NUMA-Q PCI code where the kernel can't find PCI
+  devices on any node other than the first.
+
+ arch/i386/pci/numa.c |   34 ++++++++++++++++++++++++++--------
+ 1 files changed, 26 insertions(+), 8 deletions(-)
+------
+
+ChangeSet@1.550, 2002-08-30 14:30:06-07:00, hannal@us.ibm.com
+  [PATCH] PCI: sh pci_ops changes
+  
+  sh pci ops changes
+
+ arch/sh/kernel/pci-dc.c     |  105 ++++++++++---------------
+ arch/sh/kernel/pci-sh7751.c |  180 +++++++++++++++-----------------------------
+ arch/sh/kernel/pci_st40.c   |  112 ++++++++++-----------------
+ 3 files changed, 146 insertions(+), 251 deletions(-)
+------
+
+ChangeSet@1.549, 2002-08-30 14:29:38-07:00, hannal@us.ibm.com
+  [PATCH] PCI: mips pci_ops changes
+  
+  mips pci ops changes
+
+ arch/mips/ddb5074/pci.c                   |  219 +++++++++++--------------
+ arch/mips/ddb5476/pci.c                   |  215 ++++++++++---------------
+ arch/mips/ddb5xxx/ddb5477/pci_ops.c       |  253 ++++++++++++-----------------
+ arch/mips/gt64120/common/pci.c            |  258 ++++++++++--------------------
+ arch/mips/ite-boards/generic/it8172_pci.c |  133 ++++-----------
+ arch/mips/mips-boards/generic/pci.c       |  119 +++----------
+ arch/mips/sni/pci.c                       |  124 ++++++--------
+ 7 files changed, 511 insertions(+), 810 deletions(-)
+------
+
+ChangeSet@1.548, 2002-08-30 14:29:11-07:00, hannal@us.ibm.com
+  [PATCH] PCI: ia64 pci_ops changes
+  
+  ia64 pci ops changes
+
+ arch/ia64/kernel/pci.c |   80 +++---------------------
+ arch/ia64/sn/io/pci.c  |  157 +++++--------------------------------------------
+ include/asm-ia64/pci.h |    2 
+ 3 files changed, 28 insertions(+), 211 deletions(-)
+------
+
+ChangeSet@1.547, 2002-08-30 14:28:47-07:00, greg@kroah.com
+  [PATCH] PCI: alpha pci_ops changes
+  
+  pci_ops update for most of the alpha ports.
+
+ arch/alpha/kernel/core_apecs.c    |  102 ++++++++++++++------------------------
+ arch/alpha/kernel/core_cia.c      |  101 +++++++++++++++----------------------
+ arch/alpha/kernel/core_irongate.c |   81 ++++--------------------------
+ arch/alpha/kernel/core_lca.c      |  100 +++++++++++++++----------------------
+ arch/alpha/kernel/core_polaris.c  |   79 ++++-------------------------
+ arch/alpha/kernel/core_t2.c       |  101 ++++++++++++++-----------------------
+ 6 files changed, 184 insertions(+), 380 deletions(-)
+------
+
+ChangeSet@1.546, 2002-08-30 14:28:21-07:00, greg@kroah.com
+  [PATCH] PCI: x86-64 pci_ops changes
+  
+  x86-64 pci changes
+
+ arch/x86_64/pci/direct.c |  165 +++++++++--------------------------------------
+ 1 files changed, 33 insertions(+), 132 deletions(-)
+------
+
+ChangeSet@1.545, 2002-08-30 14:27:56-07:00, greg@kroah.com
+  [PATCH] PCI Hotplug: removed the pci_*_nodev functions
+  
+  removed the pci_*_nodev functions, as the pci_bus_* functions should be used instead.
+
+ drivers/hotplug/pci_hotplug_util.c |  245 -------------------------------------
+ 1 files changed, 245 deletions(-)
+------
+
+ChangeSet@1.544, 2002-08-30 14:27:34-07:00, greg@kroah.com
+  [PATCH] PCI:  add pci_bus_* functions to replace the pci_read_* and pci_write_* functions.
+  
+  add pci_bus_* functions to replace the pci_read_* and pci_write_* functions.
+
+ arch/i386/pci/direct.c |   28 ++++++++++++++--------------
+ arch/i386/pci/pcbios.c |   12 ++++++------
+ drivers/pci/access.c   |   22 ++++++++++++----------
+ include/linux/pci.h    |   41 +++++++++++++++++++++++++++++++++--------
+ 4 files changed, 65 insertions(+), 38 deletions(-)
+------
+
+ChangeSet@1.543, 2002-08-30 14:27:12-07:00, colpatch@us.ibm.com
+  [PATCH] PCI Cleanup
+  
+  The patch removes the pci_confN_(read|write)_config_(byte|word|dword) mess and
+  pares it down to pci_confN_(read|write).  This change is reflected in the
+  pci_ops structure, which only has read and write function pointers rather than
+  the byte, word, and dword versions.  These changes happen in the pci_conf(1|2)
+  and pci_bios read and write calls.
+  
+  This patch also removes the pci_config_(read|write) function pointers.  People
+  shouldn't be using these (I don't think) and should be using the pci_ops
+  structure linked through the pci_dev structure.  These end up calling the same
+  functions that the pci_config_(read|write) pointers refer to anyway.
+
+ arch/i386/pci/common.c |    3 
+ arch/i386/pci/direct.c |  165 +++++++++----------------------------------------
+ arch/i386/pci/pcbios.c |   73 ++-------------------
+ drivers/pci/access.c   |   32 ++++++---
+ include/asm-i386/pci.h |    2 
+ include/linux/pci.h    |    8 --
+ 6 files changed, 68 insertions(+), 215 deletions(-)
+------
+

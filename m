@@ -1,78 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286217AbRL0E1P>; Wed, 26 Dec 2001 23:27:15 -0500
+	id <S286210AbRL0Emo>; Wed, 26 Dec 2001 23:42:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286214AbRL0E1E>; Wed, 26 Dec 2001 23:27:04 -0500
-Received: from mailout3-eri1.midsouth.rr.com ([24.165.200.8]:49831 "EHLO
-	mailout3-eri1.midsouth.rr.com") by vger.kernel.org with ESMTP
-	id <S286210AbRL0E07>; Wed, 26 Dec 2001 23:26:59 -0500
-From: "Stephen M. Williams" <mrsteve@midsouth.rr.com>
-To: "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: RE: Vacation
-Date: Wed, 26 Dec 2001 22:26:51 -0600
-Message-ID: <000d01c18e8e$b525ad10$6401a8c0@swilliam>
+	id <S286211AbRL0Emf>; Wed, 26 Dec 2001 23:42:35 -0500
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:54884 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S286210AbRL0EmY>; Wed, 26 Dec 2001 23:42:24 -0500
+Message-ID: <3C2AA64C.2CD1AD6E@randomlogic.com>
+Date: Wed, 26 Dec 2001 20:40:44 -0800
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Akamai Technologies, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Sound issues with kernel 2.4.14 - 2.4.17
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <3C2A68AE.6030902@vitalstream.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LOL, no doubt.  Have a good, well deserved vacation Marcelo.
+Sound worked fine through kernel 2.4.9. Since I upgraded to 2.4.14, and
+now to 2.4.17 (I skipped 2.4.10 - 2.4.13) I have several games that are
+FUBAR, all sound related: Quake III Arena and Quake II both core dump
+initializing sound; Soldier of Fortune, Railroad Tycoon II, Sid Myers
+Alpha Centaury all make strange noises with no intelligable game sound.
+Tribes 2, Unreal Tournament, and Descent 3 all work fine. GNOME and
+Enlightenment sound work fine as well, as does xmms.
 
-Sincerely,
-	A lurker of the list that doesn't know how to program and is amazed and the
-mind power here.
+I have a SB Live! OEM and have tried compiling with and without the MIDI
+module. The main thing is I am trying to do some game development and
+it's impossible when sound is FUBAR. Any ideas?
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Rick Stevens
-Sent: Wednesday, December 26, 2001 6:18 PM
-To: lkml
-Subject: Re: Vacation
+I hate to go back to an earlier kernel as IDE did not work (for me) in
+the previous kernels.
 
-
-Steve Bergman wrote:
-
-> On Wed, 2001-12-26 at 15:20, Marcelo Tosatti wrote:
->
->
->>I'm going out on vacation (beach, weee) tomorrow (Thursday), and I'll
->>return around Jan 4.
->>
->>Unfortunately there will be no Internet connection at the place I'll stay,
-sorry.
->>
->>
->
-> Hmmm.  I guess someone should email MS informing them that the stable
-> Linux kernel is currently unmaintained.  That way they can add it to
-> their "Dispelling the Linux Hype" web page.
->
-> Just kidding, of course... ;-)
->
-> Enjoy your vacation, Marcelo! :-)
-
-
-Don't give the Redmond guys ideas!  Sheesh!  For that, we will pelt you
-with an entire set of Windows for Workgroups floppies!  Ouch!
-
-----------------------------------------------------------------------
-- Rick Stevens, SSE, VitalStream, Inc.      rstevens@vitalstream.com -
-- 949-743-2010 (Voice)                    http://www.vitalstream.com -
--                                                                    -
--                  Heisenberg _may_ have slept here                  -
-----------------------------------------------------------------------
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+PGA
+-- 
+Paul G. Allen
+Owner, Sr. Engineer, Security Specialist
+Random Logic/Dream Park
+www.randomlogic.com

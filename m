@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281440AbRKPOw2>; Fri, 16 Nov 2001 09:52:28 -0500
+	id <S281437AbRKPO62>; Fri, 16 Nov 2001 09:58:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281441AbRKPOwT>; Fri, 16 Nov 2001 09:52:19 -0500
-Received: from samar.sasken.com ([164.164.56.2]:54229 "EHLO samar.sasken.com")
-	by vger.kernel.org with ESMTP id <S281440AbRKPOwF>;
-	Fri, 16 Nov 2001 09:52:05 -0500
-From: Sureshkumar Kamalanathan <skk@sasken.com>
-Subject: dev_queue_xmit()
-Date: Fri, 16 Nov 2001 20:21:59 +0530
-Organization: Sasken Communication Technologies Limited
-Message-ID: <3BF5280F.3ED0DD80@sasken.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-To: linux-kernel@vger.kernel.org
-X-News-Gateway: ncc-z.sasken.com
+	id <S281439AbRKPO6I>; Fri, 16 Nov 2001 09:58:08 -0500
+Received: from ns1ca.ubisoft.qc.ca ([205.205.27.131]:57863 "EHLO
+	ns1ca.ubisoft.qc.ca") by vger.kernel.org with ESMTP
+	id <S281437AbRKPO6C>; Fri, 16 Nov 2001 09:58:02 -0500
+Message-ID: <9A1957CB9FC45A4FA6F35961093ABB8405730CC1@srvmail-mtl.ubisoft.qc.ca>
+From: Patrick Allaire <pallaire@gameloft.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: gdbserver ?
+Date: Fri, 16 Nov 2001 09:54:58 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  Good day!
-  I am making some changes to the ethernet header for all outgoing
-packets.  I need to add a tag to it.  This tag will be recognised by the
-target machine.
-  Currently, I am putting this tag addition code in dev_queue_xmit(). 
-It doesn't work.  When I do gdb (remote gdb), I found that
-skb->mac.ethernet was 0.  What does it mean?
-  Is the ethernet header removed by the calling functions of
-dev_queue_xmit()?
-  And, if I have to do changes to all outgoing ethernet packets, which
-is the appropriate function?  Isn't dev_queue_xmit() the correct one?
-  
-  Thanks a lot in advance,
 
-Regards,
-Suresh.
+Where can I get gdbserver source or binary package ... its not included with
+Mandrake 8.1
 
--- 
-Sureshkumar Kamalanathan,
-Ph: 5578300 Extn: 8072.
-Sasken Communication Technologies Limited, Bangalore.
-(Formerly, Silicon Automation Systems.)
+On the web we can find 1000+ page talking about how to use it ... but I cant
+find a place from where to get it.
+
+thank you
+
+
+Patrick Allaire
+mailto:pallaire@gameloft.com
+If you can see it, but it's not there, it's virtual. 
+If you can't see it, but it is there, it's hidden. 
+It you can't see it and it isn't there, it's gone.
+
+

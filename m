@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRC2VQW>; Thu, 29 Mar 2001 16:16:22 -0500
+	id <S129156AbRC2Vgc>; Thu, 29 Mar 2001 16:36:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129078AbRC2VQM>; Thu, 29 Mar 2001 16:16:12 -0500
-Received: from chromium11.wia.com ([207.66.214.139]:24588 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S129066AbRC2VQF>; Thu, 29 Mar 2001 16:16:05 -0500
-Message-ID: <3AC3A6C9.991472C0@chromium.com>
-Date: Thu, 29 Mar 2001 13:19:05 -0800
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: linux scheduler limitations?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129143AbRC2VgW>; Thu, 29 Mar 2001 16:36:22 -0500
+Received: from jalon.able.es ([212.97.163.2]:7621 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129166AbRC2VgO>;
+	Thu, 29 Mar 2001 16:36:14 -0500
+Date: Thu, 29 Mar 2001 23:35:21 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Fabio Riccardi <fabio@chromium.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux scheduler limitations?
+Message-ID: <20010329233521.C6053@werewolf.able.es>
+In-Reply-To: <3AC3A6C9.991472C0@chromium.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3AC3A6C9.991472C0@chromium.com>; from fabio@chromium.com on Thu, Mar 29, 2001 at 23:19:05 +0200
+X-Mailer: Balsa 1.1.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I'm working on an enhanced version of Apache and I'm hitting my head
-against something I don't understand.
+On 03.29 Fabio Riccardi wrote:
+> 
+> I've found a (to me) unexplicable system behaviour when the number of
+> Apache forked instances goes somewhere beyond 1050, the machine
+> suddently slows down almost top a halt and becomes totally unresponsive,
+> until I stop the test (SpecWeb).
+> 
 
-I've found a (to me) unexplicable system behaviour when the number of
-Apache forked instances goes somewhere beyond 1050, the machine
-suddently slows down almost top a halt and becomes totally unresponsive,
-until I stop the test (SpecWeb).
+Have you though about pthreads (when you talk about fork, I suppose you
+say literally 'fork()') ?
 
-Profiling the kernel shows that the scheduler and the interrupt handler
-are taking most of the CPU time.
+I give a course on Parallel Programming at the university and the practical
+work was done with POSIX threads. One of my students caught the idea and
+used it to modify his assignment from one other matter on Networks, and
+changed the traditional 'fork()' in a simple ftp server he had to implement
+by 'pthread_create' and got a 10-30 speedup (conns per second).
 
-I understand that there must be a limit to the number of processes that
-the scheduler can efficiently handle, but I would expect some sort of
-gradual performance degradation when increasing the number of tasks,
-instead I observe that by increasing Apache's MaxClient linit by as
-little as 10 can cause a sudden transition between smooth working with
-lots (30-40%) of CPU idle to a total lock-up.
+And you will get rid of some process-per-user limit. But you will fall into
+an threads-per-user limit, if there is any.
 
-Moreover the max number of processes is not even constant. If I increase
-the server load gradually then I manage to have 1500 processes running
-with no problem, but if the transition is sharp (the SpecWeb case) than
-I end-up having a lock up.
+And you cal also control its scheduling, to make each thread fight against
+the whole system or only its siblings.
 
-Anybody seen this before? Any clues?
+-- 
+J.A. Magallon                                          #  Let the source
+mailto:jamagallon@able.es                              #  be with you, Luke... 
 
- - Fabio
-
+Linux werewolf 2.4.2-ac28 #1 SMP Thu Mar 29 16:41:17 CEST 2001 i686
 

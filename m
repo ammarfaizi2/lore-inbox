@@ -1,90 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbUJZK3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbUJZKkp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbUJZK3K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 06:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUJZK3K
+	id S262208AbUJZKkp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 06:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUJZKkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 06:29:10 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:33549 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262211AbUJZK2j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 06:28:39 -0400
-Date: Tue, 26 Oct 2004 11:28:38 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Mike Waychison <michael.waychison@sun.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       raven@themaw.net
-Subject: Re: [PATCH 15/28] VFS: Mountpoint file descriptor umount support
-Message-ID: <20041026102838.GB12026@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mike Waychison <michael.waychison@sun.com>,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	raven@themaw.net
-References: <10987155332448@sun.com> <10987155691365@sun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <10987155691365@sun.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 26 Oct 2004 06:40:45 -0400
+Received: from smtp1.netcabo.pt ([212.113.174.28]:14799 "EHLO
+	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S262208AbUJZKke (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 06:40:34 -0400
+Message-ID: <62112.195.245.190.94.1098787213.squirrel@195.245.190.94>
+Date: Tue, 26 Oct 2004 11:40:13 +0100 (WEST)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: multipart/mixed;boundary="----=_20041026114013_41843"
+X-Priority: 3 (Normal)
+Importance: Normal
+References: <20041022155048.GA16240@elte.hu> <20041025141628.GA14282@elte.hu>
+       <33313.192.168.1.5.1098733224.squirrel@192.168.1.5>   
+    <200410260827.39888.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200410260827.39888.vda@port.imtp.ilyichevsk.odessa.ua>
+X-OriginalArrivalTime: 26 Oct 2004 10:40:33.0319 (UTC) FILETIME=[38805370:01C4BB48]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 10:46:09AM -0400, Mike Waychison wrote:
-> This patch adds functionality to mountfd so that a user can perform the
-> various types of umount (forced umount, not-busy umount, lazy-umount).
-> 
-> Signed-off-by: Mike Waychison <michael.waychison@sun.com>
-> ---
-> 
->  fs/mountfd.c       |   20 ++++++++++++++++++++
->  fs/namespace.c     |    2 +-
->  include/linux/fs.h |    5 ++++-
->  3 files changed, 25 insertions(+), 2 deletions(-)
-> 
-> Index: linux-2.6.9-quilt/fs/mountfd.c
-> ===================================================================
-> --- linux-2.6.9-quilt.orig/fs/mountfd.c	2004-10-22 17:17:40.736271288 -0400
-> +++ linux-2.6.9-quilt/fs/mountfd.c	2004-10-22 17:17:41.367175376 -0400
-> @@ -11,6 +11,8 @@
->  
->  #define VFSMOUNT(filp) ((struct vfsmount *)((filp)->private_data))
->  
-> +extern int do_umount(struct vfsmount *mnt, int flags);
-> +
->  static struct vfsmount *mfdfs_mnt;
->  
->  static void mfdfs_read_inode(struct inode *inode);
-> @@ -72,6 +74,18 @@ static int mfd_release(struct inode *ino
->  	return 0;
->  }
->  
-> +static long mfd_umount(struct file *mountfilp, int flags)
-> +{
-> +	struct vfsmount *mnt;
-> +	int error;
-> +	
-> +	mnt = mntget(VFSMOUNT(mountfilp));
-> +
-> +	error = do_umount(mnt, flags);
-> +
-> +	return error;
-> +}
-> +
->  static int mfd_ioctl(struct inode *inode, struct file *filp,
->  		     unsigned int cmd, unsigned long arg);
->  static struct file_operations mfd_file_ops = {
-> @@ -243,6 +257,12 @@ static int mfd_ioctl(struct inode *inode
->  	switch (cmd) {
->  	case MOUNTFD_IOC_GETDIRFD:
->  		return mfd_getdirfd(filp);
-> +	case MOUNTFD_IOC_DETACH:
-> +		return mfd_umount(filp, MNT_DETACH);
-> +	case MOUNTFD_IOC_UNMOUNT:
-> +		return mfd_umount(filp, 0);
-> +	case MOUNTFD_IOC_FORCEDUNMOUNT:
-> +		return mfd_umount(filp, MNT_FORCE);
+------=_20041026114013_41843
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Urgg, you don't want to add gazillions of strange ioctls, do you?
+Denis Vlasenko wrote:
+>
+> <shameless plug>
+> Maybe this program will be useful. It is designed to give you
+> overall system statistics without the need to scan entire /proc/NNN
+> forest. Together with nice -20, it will hopefully not stall.
+>
+> Compiled with dietlibc. If you will have trouble compiling it,
+> binary is attached too.
+>
+> Latest version is 0.9 but it seems I forgot it in my home box :(
+</shameless plug>
+
+Thanks for nmeter. I have changed a couple of little bits to build with
+gcc-3.4 here (see diff attached).
+
+Indeed, it says 0.7 as its version string. What's up on 0.9?
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+
+
+------=_20041026114013_41843
+Content-Type: text/plain; name="nmeter-1.diff"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="nmeter-1.diff"
+
+--- nmeter.c.orig	2004-10-26 10:01:00.579922368 +0100
++++ nmeter.c	2004-10-26 09:59:48.525876248 +0100
+@@ -59,15 +59,15 @@
+ char outbuf[4096];
+ char *cur_outbuf = outbuf;
+ 
+-extern inline void reset_outbuf() {
++inline void reset_outbuf() {
+     cur_outbuf = outbuf;
+ }
+ 
+-extern inline int outbuf_count() {
++inline int outbuf_count() {
+     return cur_outbuf-outbuf;
+ }
+ 
+-extern inline void print_outbuf() {
++inline void print_outbuf() {
+     if(cur_outbuf>outbuf) {
+ 	write(1, outbuf, cur_outbuf-outbuf);
+ 	cur_outbuf = outbuf;
+------=_20041026114013_41843--
+
 

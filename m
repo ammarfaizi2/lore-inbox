@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261832AbTCLSSl>; Wed, 12 Mar 2003 13:18:41 -0500
+	id <S261826AbTCLSQs>; Wed, 12 Mar 2003 13:16:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261833AbTCLSSl>; Wed, 12 Mar 2003 13:18:41 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:11724 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S261832AbTCLSSj>; Wed, 12 Mar 2003 13:18:39 -0500
-Message-ID: <3E6F7C78.1040302@tmsusa.com>
-Date: Wed, 12 Mar 2003 10:29:12 -0800
-From: jjs <jjs@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	id <S261832AbTCLSQs>; Wed, 12 Mar 2003 13:16:48 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:60843 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261826AbTCLSQr>; Wed, 12 Mar 2003 13:16:47 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 12 Mar 2003 10:36:43 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Martin Waitz <tali@admingilde.org>
+cc: Niels Provos <provos@citi.umich.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marius Aamodt Eriksen <marius@citi.umich.edu>
+Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
+In-Reply-To: <20030312180550.GA27366@admingilde.org>
+Message-ID: <Pine.LNX.4.50.0303121031400.991-100000@blue1.dev.mcafeelabs.com>
+References: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com>
+ <20030311043202.GK2225@citi.citi.umich.edu> <20030312180550.GA27366@admingilde.org>
 MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: named vs 2.5.64-mm5
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings -
+On Wed, 12 Mar 2003, Martin Waitz wrote:
 
-2.5.64-mm4 and -mm5 seem more rugged than previous
-kernels, but there are a couple of minor nits - one of them
-is the tendency of named (which appears to work reliably
-under 2.4) to go catatonic under recent 2.5.6x kernels -
+> On Mon, Mar 10, 2003 at 11:32:02PM -0500, Niels Provos wrote:
+> > It seems that option 3) which implements both "edge" and "level"
+> > triggered behavior is the best solution.  This is similar to kqueue
+> > which supports both triggering modes.
+> imho the kqueue api is a lot nicer anyway.
+>
+> what about simply implementing kqueue?
+> it's already available in other OS's,
+> so it's easier for application developers to adopt it, too.
 
-More verbose kernel logging may shed some light - or is
-this just a red herring? I get a tons of these in 2.5.64-mm5:
+See opinions about APIs are strictly personal. IMO kqueue is overbloated
+for example. The epoll API is extremely easy to use and very much remember
+the poll one, that many developers are used to. If you want to make your
+software completely abstract, you can use Niels's libevent library for
+example, that supports poll/select/epoll/kqueue.
 
-<...>
-process `named' is using obsolete setsockopt SO_BSDCOMPAT
-process `named' is using obsolete setsockopt SO_BSDCOMPAT
-process `named' is using obsolete setsockopt SO_BSDCOMPAT
-<...>
 
-Anybody here running a compliant version of named?
 
-(This is the bind 9.2.1 which ships with Red Hat 8.0)
-
-Best Regards,
-
-Joe
-
+- Davide
 

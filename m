@@ -1,99 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275506AbRJJLlx>; Wed, 10 Oct 2001 07:41:53 -0400
+	id <S275511AbRJJLyi>; Wed, 10 Oct 2001 07:54:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275511AbRJJLld>; Wed, 10 Oct 2001 07:41:33 -0400
-Received: from mail5.speakeasy.net ([216.254.0.205]:64528 "EHLO
-	mail5.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S275506AbRJJLlZ>; Wed, 10 Oct 2001 07:41:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: 2.4.10-ac10-preempt lmbench output.
-Date: Wed, 10 Oct 2001 07:41:54 -0400
-X-Mailer: KMail [version 1.3.2]
-Cc: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200110100358.NAA17519@isis.its.uow.edu.au> <3BC3D916.B0284E00@zip.com.au> <20011010072607.P726@athlon.random>
-In-Reply-To: <20011010072607.P726@athlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011010114132Z275506-760+23131@vger.kernel.org>
+	id <S275527AbRJJLy3>; Wed, 10 Oct 2001 07:54:29 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:25616 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S275511AbRJJLyV>;
+	Wed, 10 Oct 2001 07:54:21 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: torvalds@transmeta.com (Linus Torvalds)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion 
+In-Reply-To: Your message of "Wed, 10 Oct 2001 05:05:10 GMT."
+             <9q0ku6$175$1@penguin.transmeta.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 10 Oct 2001 21:54:39 +1000
+Message-ID: <12638.1002714879@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 October 2001 01:26, Andrea Arcangeli wrote:
-> On Tue, Oct 09, 2001 at 10:13:58PM -0700, Andrew Morton wrote:
-> > I don't understand why Andrea is pointing at write throttling?  xmms
-> > doesn't do any disk writes, does it??
+On Wed, 10 Oct 2001 05:05:10 +0000 (UTC), 
+torvalds@transmeta.com (Linus Torvalds) wrote:
+>Now, before people get all excited, what is this particular code
+>actually _good_ for?
 >
-> Of course it doesn't. You're right it could be just because of I/O
-> bandwith shortage. But it could really be also because of vm write
-> throttling.
+>Creating a lock-free list that allows insertion concurrently with lookup
+>is _easy_.
 >
-> xmms can end waiting I/O completion for I/O submitted by other I/O bound
-> tasks. This because xmms is reading from disk and in turn it is
-> allocating cache and in turn it is allocating memory. While allocating
-> memory it may need to write throttle.
+>But what's the point? If you insert stuff, you eventually have to remove
+>it. What goes up must come down. Insert-inane-quote-here.
 >
-> Copying the file to /dev/shm fixed the problem but that would cover both
-> the write throttling and the disk bandwith problems at the same time and
-> I guess it's a mixed effect of both things.
->
-> > Andrea's VM has a rescheduling point in shrink_cache(), which is the
-> > analogue of the other VM's page_launder().  This rescheduling point
-> > is *absolutely critial*, because it opens up what is probably the
-> > longest-held spinlock in the kernel (under common use).  If there
-> > were a similar reschedulig point in page_launder(), comparisons
-> > would be more valid...
->
-> Indeed.
->
-> > I would imagine that for a (very) soft requirement such as audio
-> > playback, the below patch, combined with mlockall and renicing
-> > should fix the problems.  I would expect that this patch will
-> > give effects which are similar to the preempt patch.  This is because
->
-> I didn't checked the patch in the detail yet but it seems you covered
-> read/write some bits in /proc and a lru list during buffer flushing. I
-> agree that it should be enough to give the same effects of the preempt
-> patch.
->
-> > most of the other latency problems are under locks - icache/dcache
-> > shrinking and zap_page_range(), etc.
->
-> Exactly.
->
-> > This patch should go into the stock 2.4 kernel.
-> >
-> > Oh.  And always remember to `renice -19' your X server.
-Blah,  You shouldn't need to. You shouldn't have anything able to lag your X 
-server unless you're running so many programs your cpu time slices are too 
-small for it's needs ( or memory).
+>And THAT is the hard part. Doing lookup without locks ends up being
+>pretty much worthless, because you need the locks for the removal
+>anyway, at which point the whole thing looks pretty moot.
 
+<pedantic>
 
-> I don't renice my X server (I rather renice all cpu hogs to +19 and I
-> left -20 for something that really needs to run as fast as possible
-> regardless of the X server).
->
-> Andrea
+It is possible to do completely lock free queue management, I have done
+it (once).  There are several major requirements :-
 
-freeamp runs with no noticable cpu usage, meaning it's 0.0 nearly 100% of the 
-time and i have 256K of input buffer and 16K of output.   Then i have a 
-process like dbench create a bunch of threads (32) and cause freeamp to skip. 
-  Now how is that a fair spread of cpu?  The point is that this doesn't have 
-to do with cpu spread and getting locked out of cpu.  It just has to do with 
-dbench holding the kernel for too long in places and the kernel should know 
-that and tell it to wait  since other processes are behaving.   There needs 
-to be a threshhold of kernel usage before the kernel will begin to preempt 
-that task for all the ones within the threshhold unless YOU want that kernel 
-hogger to run at full speed. In which case you can renice it to a lower nice 
-(higher priority).  Dbench is getting it's share of cpu maybe, but it's 
-getting for too much of it's share of kernel time and that needs to be 
-stopped and it's unfair in a multi-user multiprocessing system.   That's what 
-i meant earlier.  
+* Storage must never change its type (type stable storage).  Once a
+  block has been assigned as struct foo, it must always contain struct
+  foo.  This can be relaxed slightly as long as the data types have a
+  common header format.
 
-It's just my opinion that kernel hoggers should need to be given user defined 
-higher priority to hog the kernel and not everything else to just run because 
-you're running a kernel hogger. 
+  The biggest problem this causes is that storage can never be released
+  and unmapped.  You never know if somebody is going to follow an old
+  pointer to access storage that you freed.  You must put the storage
+  on a free list for struct foo instead of unmapping it, to maintain
+  the type stable storage.
+
+* Every piece of code that traverses the data tree for structure foo
+  must take a copy of each struct foo into local storage.  After taking
+  a copy it must verify that its local copy is self consistent, via
+  validity indicators in each struct.  The validity indicators are
+  typically generation numbers, whatever you use, the indicators must
+  be atomically updated and atomically read, with suitable wmb and rmb
+  barriers for machines with weak memory ordering.
+
+* After following a pointer in your local copy of struct foo to access
+  another data area, you must verify that the master version of your
+  local copy has not been changed.  If the master copy has changed then
+  the pointer you just followed is no longer reliable.  In almost every
+  case you have to start the traversal from the beginning.  It makes
+  for very convoluted reader and updater code.
+
+</pedantic>
+
+The only reason I used lock free read and update was to hook into an
+existing system that mandated sub second responses.  Some of the new
+operations that were performed during list traversal and update were
+subject to unbounded delays that were completely outside my control.  I
+could not afford to lock the data structures during traversal because
+any delay in the new operations would completely stall the existing
+system, also the existing system had to be able to retrieve and delete
+data for the new operations at any time.
+
+I don't recommend doing lock free unless you have absolutely no
+alternative.  It requires convoluted code, it is difficult to debug, it
+is expensive on memory bandwidth (forget zero copy) and tends to be
+expensive on storage as well.
+
+If you are interested in lock free work, take a look at
+http://www.cs.pitt.edu/~moir/papers.html, particularly Practical
+Implementations of Non-Blocking Synchronization Primitives.  But
+beware, that paper has an error which caused intermittent bugs that
+took me 5 months to track down.  Section 3.3, proc Copy, line 6 should
+be
+
+6:     y := addr->data[i];
+

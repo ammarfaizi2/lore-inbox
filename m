@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbTH2ArN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 20:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTH2ArN
+	id S264380AbTH2At0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 20:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbTH2AtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 20:47:13 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:32916 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S261379AbTH2ArK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 20:47:10 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Bernd Eckenfels" <ecki@calista.eckenfels.6bone.ka-ip.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Lockless file reading
-Date: Thu, 28 Aug 2003 17:47:04 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKIEHHFMAA.davids@webmaster.com>
+	Thu, 28 Aug 2003 20:49:25 -0400
+Received: from mail.vtc.edu.hk ([202.75.80.229]:33624 "EHLO pandora.vtc.edu.hk")
+	by vger.kernel.org with ESMTP id S264380AbTH2AtY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 20:49:24 -0400
+Message-ID: <3F4EA30C.CEA49F2F@vtc.edu.hk>
+Date: Fri, 29 Aug 2003 08:49:16 +0800
+From: Nick Urbanik <nicku@vtc.edu.hk>
+Organization: Institute of Vocational Education (Tsing Yi)
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Single P4, many IDE PCI cards == trouble??
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
-In-Reply-To: <E19sUzl-0004Az-00@calista.inka.de>
+X-Junkmail-Whitelist: YES (by domain whitelist at pandora.vtc.edu.hk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Folks,
 
-> In article <MDEHLPKNGKAHNMBLJOLKEEEEFMAA.davids@webmaster.com> you wrote:
+With a single 2.26GHz P4, an Asus P4B533-E motherboard, is it possible
+to reliably use two additional PCI IDE cards (using SI680), one hard
+disk per channel, and have the thing work reliably?
 
-> > Find those GIFs, double-check, and publish immediately.
-> > That would be
-> > amazingly big news and would probably cause huge numbers of
-> > people to switch
-> > from MD5 to SHA1 overnight.
+Could this be the cause of my lockups?  I have a total of 6 ATA133
+hard disks, one DVD player all connected to the two IDE channels on
+the motherboard, and one disk to each of the channels of the SI680
+cards.
 
-> Why is that?
+Some people have told me that this is just asking for trouble, and
+that I should buy a 3ware card instead.
 
-	Because the security of a hash is based upon it being impractical to find
-collisions. If you could demonstrate that you could find even a single
-collision (by actually doing it), that would reduce confidence in MD5
-massively.
+I am also using software RAID1, RAID5 with LVM on top.
 
-> For a hash with n bits there are at least
-> 2^y / 2^n = 2^(y-n) files with the same hash, if they have size y bits.
-> Three are even more, if you consider all files up to this size.
->
-> With n=128 (md5) and y=80000 (10k file) x=2^79872 different files
-> with the same
-> hash, which is:
-[snip]
+My machine locks solid at unpredictable intervals with no response
+from keyboard lights, no Alt-Sysrq-x response, etc, with a wide
+variety of 2.4.x kernels, including 2.4.22.
 
-	So what? You can, in principle, break a 4096-bit RSA key just by brute
-force factorization. The security is based upon the difficulty of actually
-doing it in practice. The simplicity of doing it in theory is irrelevent.
-Yes, in theory you can break any public key encryption scheme or any hash
-digest algrithm by brute force trial and error. In practice, however your
-children's, children's, children's, children would be long dead before you
-got 1% of the way there.
+--
+Nick Urbanik   RHCE                               nicku(at)vtc.edu.hk
+Dept. of Information & Communications Technology
+Hong Kong Institute of Vocational Education (Tsing Yi)
+Tel:   (852) 2436 8576, (852) 2436 8713          Fax: (852) 2436 8526
+PGP: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B     ID: 7529555D
+GPG: 7FFA CDC7 5A77 0558 DC7A 790A 16DF EC5B BB9D 2C24   ID: BB9D2C24
 
-	To date, no full MD5 collisions have been published and until earlier in
-this thread, nobody even claimed to have one. And I'll bet $100 to $1 that
-the claimant is in error, either because he used only part of the hash or a
-hash of the hash, mis-implementing the hash, o actually hashed the same data
-twice without realizing it.
-
-	DS
 
 

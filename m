@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316681AbSFJGzI>; Mon, 10 Jun 2002 02:55:08 -0400
+	id <S316695AbSFJHAu>; Mon, 10 Jun 2002 03:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316695AbSFJGzH>; Mon, 10 Jun 2002 02:55:07 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:42761 "EHLO
+	id <S316705AbSFJHAt>; Mon, 10 Jun 2002 03:00:49 -0400
+Received: from [202.135.142.196] ([202.135.142.196]:29193 "EHLO
 	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S316681AbSFJGzG>; Mon, 10 Jun 2002 02:55:06 -0400
+	id <S316695AbSFJHAt>; Mon, 10 Jun 2002 03:00:49 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Futex Asynchronous Interface 
-In-Reply-To: Your message of "Sun, 02 Jun 2002 00:10:19 GMT."
-             <20020602001018.A35@toy.ucw.cz> 
-Date: Mon, 10 Jun 2002 16:57:56 +1000
-Message-Id: <E17HJ7o-00061I-00@wagner.rustcorp.com.au>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org, ralf@gnu.org, rhw@memalpha.cx,
+        mingo@redhat.com, paulus@samba.org, anton@samba.org,
+        schwidefsky@de.ibm.com, bh@sgi.com, davem@redhat.com, ak@suse.de,
+        torvalds@transmeta.com
+Subject: Re: Hotplug CPU Boot Changes: BEWARE 
+In-Reply-To: Your message of "07 Jun 2002 08:51:32 CST."
+             <m1elfjw39n.fsf@frodo.biederman.org> 
+Date: Mon, 10 Jun 2002 17:05:16 +1000
+Message-Id: <E17HJEs-00061l-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020602001018.A35@toy.ucw.cz> you write:
-> Hi!
-> 
-> > Name: Waker can unpin page, rather than waiting process
-> > Author: Rusty Russell
-> > Status: Tested in 2.5.20
-> > Depends: Futex/copy-from-user.patch.gz Futex/unpin-page-fix.patch.gz
-> > Depends: Futex/waitq.patch.gz
-> > 
-> > D: This changes the implementation so that the waker actually unpins
-> > D: the page.  This is preparation for the async interface, where the
-> > D: process which registered interest is not in the kernel.
-> 
-> What is it? Nice header, did you generate it by hand?
+In message <m1elfjw39n.fsf@frodo.biederman.org> you write:
+> But for the latter something just a little more than minimal hacks
+> must be implemented.  But dynamic cpu enable/disable is definitely
+> worth it.
 
-It's a format I made up for all the patches on my web page.  Most
-important is the Depends: line which my patch scripts can deal with
-quite nicely: see my kernel.org page.
+Perhaps I didn't make myself clear: hotplugging does not neccessarily
+mean physically removing or adding the CPU.  And as to whether they
+offer full support, or stub support, architectures can decide that for
+themselves, as they need.  It's not my call.
 
-Down with Bit Keeper! Long live patch! 8)
+I don't know how much of a win it is to disable HT on cpus, but I can
+tell you that adding & subtracting CPUs is a fairly heavy-weight
+operation in this design (I don't think we really want to lock around
+every cpu iteration).
+
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

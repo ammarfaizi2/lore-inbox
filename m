@@ -1,83 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318401AbSGaWYk>; Wed, 31 Jul 2002 18:24:40 -0400
+	id <S318502AbSGaWfn>; Wed, 31 Jul 2002 18:35:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318502AbSGaWYk>; Wed, 31 Jul 2002 18:24:40 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:51727 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S318401AbSGaWYj>; Wed, 31 Jul 2002 18:24:39 -0400
-Date: Wed, 31 Jul 2002 15:27:57 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: [PATCH] console part 2.
-Message-ID: <Pine.LNX.4.44.0207311523540.21567-100000@www.transvirtual.com>
+	id <S318516AbSGaWfn>; Wed, 31 Jul 2002 18:35:43 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:48874 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S318502AbSGaWfm>;
+	Wed, 31 Jul 2002 18:35:42 -0400
+Date: Wed, 31 Jul 2002 18:39:08 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+cc: Pavel Machek <pavel@ucw.cz>, Matt_Domsch@Dell.com, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.28 and partitions
+In-Reply-To: <15688.25919.138565.6427@wombat.chubb.wattle.id.au>
+Message-ID: <Pine.GSO.4.21.0207311832270.8505-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Here is the second patch. It has many fixes and alot of major changes
-internally. Please test it out. It will break a few keyboard drivers due
-to the struct kbd_struct changes. It will also break a few framebuffer
-drivers as well since they touch console data structures. If you port your
-fbdev driver to the new api you will not have to worry about this
-(reason I developed this new api) :-)
 
- arch/mips/au1000/common/serial.c         |    2
- arch/parisc/kernel/pdc_cons.c            |    3
- arch/ppc/4xx_io/serial_sicc.c            |    2
- arch/ppc/8xx_io/uart.c                   |    2
- arch/ppc64/kernel/ioctl32.c              |   64
- arch/sparc64/kernel/ioctl32.c            |   23
- arch/x86_64/ia32/ia32_ioctl.c            |   20
- drivers/char/Makefile                    |   12
- drivers/char/console.c                   | 3032 -------------------------------
- drivers/char/console_macros.h            |  161 -
- drivers/char/consolemap.c                |  136 -
- drivers/char/decvte.c                    | 2054 +++++++++++++++++++++
- drivers/char/hvc_console.c               |    2
- drivers/char/keyboard.c                  |  595 +++---
- drivers/char/misc.c                      |    1
- drivers/char/selection.c                 |   63
- drivers/char/sysrq.c                     |   22
- drivers/char/tty_io.c                    |    2
- drivers/char/vc_screen.c                 |  115 -
- drivers/char/vt.c                        | 2753 +++++++++++++++++-----------
- drivers/char/vt_ioctl.c                  | 1443 ++++++++++++++
- drivers/s390/char/ctrlchar.c             |    2
- drivers/tc/zs.c                          |    2
- drivers/video/dummycon.c                 |    1
- drivers/video/fbcon-accel.c              |    5
- drivers/video/fbcon.c                    |   55
- drivers/video/mdacon.c                   |   21
- drivers/video/newport_con.c              |    1
- drivers/video/promcon.c                  |   33
- drivers/video/sticon-bmode.c             |    2
- drivers/video/sticon.c                   |    3
- drivers/video/vgacon.c                   |   21
- include/linux/console.h                  |   17
- include/linux/console_struct.h           |  110 -
- include/linux/consolemap.h               |    6
- include/linux/kbd_kern.h                 |   27
- include/linux/selection.h                |   23
- include/linux/tty.h                      |    8
- include/linux/vt_kern.h                  |  275 ++
- include/video/fbcon.h                    |    2
- 45 files changed, 6214 insertions(+), 4923 deletions(-)
+On Thu, 1 Aug 2002, Peter Chubb wrote:
 
-diff:
-   http://www.transvirtual.com/~jsimmons/console.diff.gz
+> Maybe we need to roll our own?  I suggest something like:
+>       struct linux_volume_header {
+> 	     char  volname[16];
+> 	     __u32 nparts;
+> 	     __u32 blocksize;
+> 	     struct linux_partition {
+> 		    char partname[16]
+> 		    __u64  start;
+> 		    __u64  len;
+> 		    __u32  usage;
+> 		    __u32  flags;
+> 	    } parts[]
+>     }
 
-BK:
-   http://linuxconsole.bkbits.net:8080/dev
+Oh, ferchrissake!  WHY???  People, we'd seen a lot of demonstrations
+of the reasons why binary structures are *bad* for such stuff.
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
+What the bleedin' hell is wrong with <name> <start> <len>\n - all in ASCII?  
+Terminated by \0.  No need for flags, no need for endianness crap, no
+need to worry about field becoming too narrow...
+
+What, parsing that would be too slow?  Right.  Sure.  How many times do
+we parse partition table?  How many times do we end up reading it from
+disk?  How does IO time compare to the "overhead" of trivial sscanf loop?
+
+Furrfu...  "ASCII is tough, let's go shopping"...
 

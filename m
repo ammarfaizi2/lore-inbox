@@ -1,105 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317014AbSFFRAZ>; Thu, 6 Jun 2002 13:00:25 -0400
+	id <S317016AbSFFRCd>; Thu, 6 Jun 2002 13:02:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317016AbSFFRAZ>; Thu, 6 Jun 2002 13:00:25 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:13452 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S317014AbSFFRAX>;
-	Thu, 6 Jun 2002 13:00:23 -0400
-Date: Thu, 6 Jun 2002 09:56:13 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: device model update 2/2
-In-Reply-To: <ado3j5$304$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0206060949280.654-100000@geena.pdx.osdl.net>
+	id <S317017AbSFFRCc>; Thu, 6 Jun 2002 13:02:32 -0400
+Received: from voyager.st-peter.stw.uni-erlangen.de ([131.188.24.132]:14012
+	"EHLO voyager.st-peter.stw.uni-erlangen.de") by vger.kernel.org
+	with ESMTP id <S317016AbSFFRCa>; Thu, 6 Jun 2002 13:02:30 -0400
+Message-ID: <3CFF9590.5030504@st-peter.stw.uni-erlangen.de>
+Date: Thu, 06 Jun 2002 19:02:08 +0200
+From: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.20]newbee call for help getting lvm working 
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan *17G0eL-0003IU-00*i/Tb9kU/LNA* (Studentenwohnanlage Nuernberg St.-Peter)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi ,
+i was trying to get the patch from Anders Gustafsson working in 2.5.20,
+but i'm getting  by compilation:
+....
+lvm.c: In function `__update_hardsectsize':
+lvm.c:2021: warning: implicit declaration of function `get_hardsect_size'
+...
+and by make modules_install:
+...........
+depmod: *** Unresolved symbols in 
+/lib/modules/2.5.20-dj3-lvm-xfs2/kernel/drivers/md/lvm-mod.o
+depmod:         get_hardsect_size
+make: *** [_modinst_post] Error 1
+............
 
-On Thu, 6 Jun 2002, Linus Torvalds wrote:
+it seems that this function is disapeared between 2.5.18 and 2.5.20
+(the patch from Anders Gustafsson is against 2.5.18)
 
-> In article <Pine.LNX.4.33.0206060808050.654-100000@geena.pdx.osdl.net>,
-> Patrick Mochel  <mochel@osdl.org> wrote:
-> >-
-> > 		/* detach from driver */
-> > 		if (dev->driver->remove)
-> > 			dev->driver->remove(dev);
-> > 		put_driver(dev->driver);
-> >+
-> >+		lock_device(dev);
-> >+		dev->driver = NULL;
-> >+		unlock_device(dev);
-> 
-> Code like the above just basically can _never_ be correct.
-> 
-> The locking just doesn't make any sense like that. 
-> 
-> Real locking looks something like this:
-> 
-> 	lock_device(dev);
-> 	driver = dev->driver;
-> 	dev->driver = NULL;
-> 	unlock_device(dev);
-> 
-> 	if (driver->remove)
-> 		driver->remove(dev);
-> 	put_driver(driver);
-> 
-> together with some promise that "dev" cannot go away from under us (ie a
-> refcount on "dev" itself).
+can smbd please help me to solve this issue
 
-The device is already going away; the refcount has hit 0 and we're 
-detaching it from the driver. 
+regards
 
-Incremental patch below; also in bk://ldm.bkbits.net/linux-2.5
+svetljo
 
-	-pat
+the patch : 
+http://www.linuxhq.com/kernel/v2.5/unofficial/v2.5.18/patches/lvm-cleanups-2.5.18.patch
 
-ChangeSet@1.457, 2002-06-06 09:50:30-07:00, mochel@osdl.org
-  device detach locking, one more time: get driver and reset it in struct device before calling remove()
+and the correspondig text from drivers/md/lvm.c :
+..............
+static void __update_hardsectsize(kern_lv_t *lv) {
+    int le, e;
+    int max_hardsectsize = 0, hardsectsize;
 
- drivers/base/core.c |   21 ++++++++++++---------
- 1 files changed, 12 insertions, 9 deletions
+    for (le = 0; le < lv->lv_allocated_le; le++) {
+        hardsectsize = bdev_hardsect_size(lv->lv_current_pe[le].bdev);
+        if (hardsectsize == 0)
+            hardsectsize = 512;
+        if (hardsectsize > max_hardsectsize)
+            max_hardsectsize = hardsectsize;
+    }
 
-
-diff -Nru a/drivers/base/core.c b/drivers/base/core.c
---- a/drivers/base/core.c	Thu Jun  6 09:52:43 2002
-+++ b/drivers/base/core.c	Thu Jun  6 09:52:43 2002
-@@ -98,19 +98,22 @@
- 
- static void device_detach(struct device * dev)
- {
--	if (dev->driver) {
--		write_lock(&dev->driver->lock);
--		list_del_init(&dev->driver_list);
--		write_unlock(&dev->driver->lock);
--
--		/* detach from driver */
--		if (dev->driver->remove)
--			dev->driver->remove(dev);
--		put_driver(dev->driver);
-+	struct device_driver * drv; 
- 
-+	if (dev->driver) {
- 		lock_device(dev);
-+		drv = dev->driver;
- 		dev->driver = NULL;
- 		unlock_device(dev);
-+
-+		write_lock(&drv->lock);
-+		list_del_init(&dev->driver_list);
-+		write_unlock(&drv->lock);
-+
-+		/* detach from driver */
-+		if (drv->remove)
-+			drv->remove(dev);
-+		put_driver(drv);
- 	}
- }
- 
-
+    /* only perform this operation on active snapshots */
+    if ((lv->lv_access & LV_SNAPSHOT) &&
+        (lv->lv_status & LV_ACTIVE)) {
+        for (e = 0; e < lv->lv_remap_end; e++) {
+            hardsectsize =  get_hardsect_size( 
+lv->lv_block_exception[e].rdev_new);
+            if (hardsectsize == 0)
+                hardsectsize = 512;
+            if (hardsectsize > max_hardsectsize)
+                max_hardsectsize = hardsectsize;
+        }
+    }
+}
+............................
 

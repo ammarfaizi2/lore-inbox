@@ -1,28 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263158AbREWQlp>; Wed, 23 May 2001 12:41:45 -0400
+	id <S263154AbREWQjZ>; Wed, 23 May 2001 12:39:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263159AbREWQlf>; Wed, 23 May 2001 12:41:35 -0400
-Received: from shine.micron.net ([204.229.122.198]:36839 "EHLO
-	shine.micron.net") by vger.kernel.org with ESMTP id <S263158AbREWQla>;
-	Wed, 23 May 2001 12:41:30 -0400
-Date: Wed, 23 May 2001 10:41:21 -0600 (MDT)
-From: null <null@null.com>
+	id <S263155AbREWQjP>; Wed, 23 May 2001 12:39:15 -0400
+Received: from violin.dcs.uky.edu ([204.198.75.11]:10985 "EHLO
+	violin.dcs.uky.edu") by vger.kernel.org with ESMTP
+	id <S263154AbREWQjJ>; Wed, 23 May 2001 12:39:09 -0400
+Date: Wed, 23 May 2001 12:39:08 -0400 (EDT)
+From: Srinivasan Venkatraman <srini@dcs.uky.edu>
 To: linux-kernel@vger.kernel.org
-Subject: Re: bdflush/mm performance drop-out defect (more info)
-In-Reply-To: <Pine.LNX.4.21.0105230927360.32238-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0105231038520.32238-100000@localhost.localdomain>
+Subject: How to time in Kernel
+In-Reply-To: <5.0.2.1.2.20010428092215.00a68b30@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.10.10105231237210.13795-100000@lisa.dcs.uky.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-SMTP-HELO: cboi17p51.boi.micron.net
-X-SMTP-MAIL-FROM: null@null.com
-X-SMTP-PEER-INFO: cboi17p51.boi.micron.net [209.19.158.149]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> post I quoted some conversation between Rick Van Riel and Alan Cox
+Hi, 
 
-Oops.  The least I can do is spell his name right.  Sorry Rik.  8)
-Keep up the good work.
+ I am trying to time a portion of code inside the kernel. How do I do it?
+Can I use do_gettimeofday ? or do_getitimer ? Any leads will be
+appreciated.
 
+Thanks in advance,
+-Srini.
 

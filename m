@@ -1,56 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262917AbTKEOjP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 09:39:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbTKEOjO
+	id S262932AbTKEPMS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 10:12:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262940AbTKEPMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 09:39:14 -0500
-Received: from ns.suse.de ([195.135.220.2]:57225 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262932AbTKEOhe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 09:37:34 -0500
-Date: Wed, 5 Nov 2003 12:26:15 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       "Prakash K. Cheemplavam" <prakashpublic@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Message-ID: <20031105112615.GL1477@suse.de>
-References: <3FA69CDF.5070908@gmx.de> <3FA8D059.7010204@cyberone.com.au> <20031105102904.GK1477@suse.de> <200311050554.38147.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 5 Nov 2003 10:12:18 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:13454 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262932AbTKEPMR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 10:12:17 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] fix rq->flags use in ide-tape.c
+Date: Wed, 5 Nov 2003 16:16:53 +0100
+User-Agent: KMail/1.5.4
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200311041718.hA4HIBmv027100@hera.kernel.org> <200311051454.27514.bzolnier@elka.pw.edu.pl> <20031105135618.GT1477@suse.de>
+In-Reply-To: <20031105135618.GT1477@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200311050554.38147.gene.heskett@verizon.net>
+Message-Id: <200311051616.53701.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 05 2003, Gene Heskett wrote:
-> On Wednesday 05 November 2003 05:29, Jens Axboe wrote:
-> >On Wed, Nov 05 2003, Nick Piggin wrote:
-> >> Prakash K. Cheemplavam wrote:
-> >> >SOmething else I noticed with new 2.6tes9-mm2 kernel: Now the
-> >> > mouse stutters slighty when burning (in atapi mode). I am now
-> >> > using as sheduler. Shoudl I try deadline or do you this it is
-> >> > something else? Should I open a new topic?
-> >>
-> >> This is more likely to be the CPU scheduler or something holding
-> >> interrupts for too long. Are you running anything at a modified
+On Wednesday 05 of November 2003 14:56, Jens Axboe wrote:
+> On Wed, Nov 05 2003, Bartlomiej Zolnierkiewicz wrote:
+> > On Wednesday 05 of November 2003 13:00, Bartlomiej Zolnierkiewicz wrote:
+> > > On Wednesday 05 of November 2003 09:40, Jens Axboe wrote:
+> > > > On Tue, Nov 04 2003, Linux Kernel Mailing List wrote:
+> > > > > ChangeSet 1.1413, 2003/11/04 08:01:30-08:00,
+> > > > > B.Zolnierkiewicz@elka.pw.edu.pl
+> > > > >
+> > > > > 	[PATCH] fix rq->flags use in ide-tape.c
+> > > > >
+> > > > > 	Noticed by Stuart_Hayes@Dell.com:
+> > > >
+> > > > Guys, this is _way_ ugly. We definitely dont need more crap in
+> > > > ->flags for private driver use, stuff them somewhere else in the rq.
+> > > > rq->cmd[0] usage would be a whole lot better. This patch should never
+> > > > have been merged. If each and every driver needs 5 private bits in
+> > > > ->flags, well...
+> > >
+> > > Yeah, it is ugly.  Using rq->cmd is also ugly as it hides the problem
+> > > in ide-tape.c, but if you prefer this way I can clean it up.  I just
+> > > wanted minimal changes to ide-tape.c to make it working.
 > >
-> >                 ^^^^^^^^
-> >
-> >precisely, that's why the actual interface that cdrecord uses is the
-> >primary key to knowing what the problem is.
-> 
-> Similar problem here Jens.
-> 
-> I have the emulation stuff turned on, and use /dev/scd0 to access my
-> 12/10/32 Creative burner.  I failed to complete an iso burn yesterday,
-> useing test9-mm1, and the initial logged message indicate an IRQ timeout.
+> > Also putting these flags in rq->cmd[0] makes it hard to later convert
+> > ide-tape.c to use rq->cmd[] for storing packet commands.
+>
+> What's wrong with just looking at the opcode instead of inventing magic
+> flags. Seems like _just_ the right thing to do, convert to really using
+> rq and killing the private command stuff as much as possible. The latter
+> can wait though, the flag thing really has to go right now.
 
-Well don't, ide-scsi must not be used. So the dozens of messages to that
-effect on this list, and Dave Jones 2.6 kernel document for more info.
+It is non-trivial cause it seems packet commands are prepared during
+processing request, not prior to queuing it.  Also I still don't fully
+understand driver inner-workings with respect to DSC, "pipeline" and internal
+commands processing.
 
--- 
-Jens Axboe
+> ide-*.c driver by Gadi are all completely over designed and attempts to
+> basically implement everything themselves. Horrible.
+
+Yep, but we should be careful in removing cruft.  I've already had a hard time
+fixing it after (totally unnecessary and broken) buffer_head->bio conversion.
+
+cheers,
+--bartlomiej
 

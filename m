@@ -1,290 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264056AbSIQLUp>; Tue, 17 Sep 2002 07:20:45 -0400
+	id <S264058AbSIQLZX>; Tue, 17 Sep 2002 07:25:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264058AbSIQLUo>; Tue, 17 Sep 2002 07:20:44 -0400
-Received: from pcow053o.blueyonder.co.uk ([195.188.53.96]:24595 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S264056AbSIQLUk>;
-	Tue, 17 Sep 2002 07:20:40 -0400
-Subject: Problems accessing USB Mass Storage
-From: Mark C <gen-lists@blueyonder.co.uk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
-Date: 17 Sep 2002 12:25:37 +0100
-Message-Id: <1032261937.1170.13.camel@stimpy.angelnet.internal>
+	id <S264060AbSIQLZX>; Tue, 17 Sep 2002 07:25:23 -0400
+Received: from employees.nextframe.net ([212.169.100.200]:14586 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S264058AbSIQLZV>; Tue, 17 Sep 2002 07:25:21 -0400
+Date: Tue, 17 Sep 2002 13:33:38 +0200
+From: Morten Helgesen <morten.helgesen@nextframe.net>
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS 2.4.19] Unable to handle kernel paging request at virtual address 7ec64585
+Message-ID: <20020917133338.B762@sexything>
+Reply-To: morten.helgesen@nextframe.net
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey guys, 
+
+got the following on one of my machines :
+
+Sep 17 11:41:14 sql kernel:  <1>Unable to handle kernel paging request at virtual address 7ec64585
+Sep 17 11:41:14 sql kernel: c0141edc
+Sep 17 11:41:14 sql kernel: *pde = 00000000
+Sep 17 11:41:14 sql kernel: Oops: 0000
+Sep 17 11:41:14 sql kernel: CPU:    0
+Sep 17 11:41:14 sql kernel: EIP:    0010:[<c0141edc>]    Not tainted
+Sep 17 11:41:14 sql kernel: EFLAGS: 00010206
+Sep 17 11:41:14 sql kernel: eax: 00000000   ebx: c762f820   ecx: c7e2f830   edx: c7e2f830
+Sep 17 11:41:14 sql kernel: esi: 7ec64565   edi: 00000000   ebp: 00000039   esp: cc985d14
+Sep 17 11:41:14 sql kernel: ds: 0018   es: 0018   ss: 0018
+Sep 17 11:41:14 sql kernel: Process mysqld (pid: 6715, stackpage=cc985000)
+Sep 17 11:41:14 sql kernel: Stack: c35d8638 c35d8620 c762f820 c01400b6 c762f820 00000001 000001d2 00000020
+Sep 17 11:41:14 sql kernel:        00000006 c014037b 000019b5 c0129f40 00000006 000001d2 00000006 000001d2
+Sep 17 11:41:14 sql kernel:        c02794f4 c02794f4 c02794f4 c0129f8f 00000020 cc984000 00000000 00000010
+Sep 17 11:41:14 sql kernel: Call Trace:    [<c01400b6>] [<c014037b>] [<c0129f40>] [<c0129f8f>] [<c012a8ac>]
+Sep 17 11:41:14 sql kernel:   [<c012ab1c>] [<c012a856>] [<c0121d50>] [<c0121e23>] [<c0121fbe>] [<c0112254>]
+Sep 17 11:41:14 sql kernel:   [<c01120f4>] [<c020132c>] [<c01f4fdd>] [<c01190fa>] [<c0109952>] [<c010863c>]
+Sep 17 11:41:14 sql kernel:   [<c0124b46>] [<c01246e3>] [<c0124bf6>] [<c0124aec>] [<c0130006>] [<c010854b>]
+Sep 17 11:41:14 sql kernel: Code: 8b 7e 20 85 ff 74 0d 8b 47 10 85 c0 74 06 53 ff d0 83 c4 04
+
+
+>>EIP; c0141edc <iput+2c/19c>   <=====
+
+>>ebx; c762f820 <END_OF_CODE+73393ac/????>
+>>ecx; c7e2f830 <END_OF_CODE+7b393bc/????>
+>>edx; c7e2f830 <END_OF_CODE+7b393bc/????>
+>>esi; 7ec64565 Before first symbol
+>>esp; cc985d14 <END_OF_CODE+c68f8a0/????>
+
+Trace; c01400b6 <prune_dcache+c6/138>
+Trace; c014037b <shrink_dcache_memory+1b/34>
+Trace; c0129f40 <shrink_caches+68/80>
+Trace; c0129f8f <try_to_free_pages+37/58>
+Trace; c012a8ac <balance_classzone+54/1ac>
+Trace; c012ab1c <__alloc_pages+118/178>
+Trace; c012a856 <_alloc_pages+16/18>
+Trace; c0121d50 <do_anonymous_page+34/d4>
+Trace; c0121e23 <do_no_page+33/17c>
+Trace; c0121fbe <handle_mm_fault+52/b0>
+Trace; c0112254 <do_page_fault+160/490>
+Trace; c01120f4 <do_page_fault+0/490>
+Trace; c020132c <ip_rcv_finish+0/1a4>
+Trace; c01f4fdd <net_rx_action+139/214>
+Trace; c01190fa <do_softirq+5a/a4>
+Trace; c0109952 <do_IRQ+96/a8>
+Trace; c010863c <error_code+34/3c>
+Trace; c0124b46 <file_read_actor+5a/8c>
+Trace; c01246e3 <do_generic_file_read+1d7/404>
+Trace; c0124bf6 <generic_file_read+7e/130>
+Trace; c0124aec <file_read_actor+0/8c>
+Trace; c0130006 <sys_read+96/f0>
+Trace; c010854b <system_call+33/38>
+
+Code;  c0141edc <iput+2c/19c>
+00000000 <_EIP>:
+Code;  c0141edc <iput+2c/19c>   <=====
+   0:   8b 7e 20                  mov    0x20(%esi),%edi   <=====
+Code;  c0141edf <iput+2f/19c>
+   3:   85 ff                     test   %edi,%edi
+Code;  c0141ee1 <iput+31/19c>
+   5:   74 0d                     je     14 <_EIP+0x14> c0141ef0 <iput+40/19c>
+Code;  c0141ee3 <iput+33/19c>
+   7:   8b 47 10                  mov    0x10(%edi),%eax
+Code;  c0141ee6 <iput+36/19c>
+   a:   85 c0                     test   %eax,%eax
+Code;  c0141ee8 <iput+38/19c>
+   c:   74 06                     je     14 <_EIP+0x14> c0141ef0 <iput+40/19c>
+Code;  c0141eea <iput+3a/19c>
+   e:   53                        push   %ebx
+Code;  c0141eeb <iput+3b/19c>
+   f:   ff d0                     call   *%eax
+Code;  c0141eed <iput+3d/19c>
+  11:   83 c4 04                  add    $0x4,%esp
+
+
+[13:39][admin@sql:~]$ uname -a
+Linux sql 2.4.19 #1 Wed Aug 14 04:49:14 CEST 2002 i686 unknown
+
+[13:39][admin@sql:~]$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Celeron (Coppermine)
+stepping        : 6
+cpu MHz         : 601.386
+cache size      : 128 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips        : 1199.30
+
+
+Any ideas ?
+
+== Morten
+
 -- 
----
-To steal ideas from one person is plagiarism;
-to steal from many is research.
 
-I'm trying to access a USB digital camera under RedHat null Beta2 
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
 
-The Camera information is as follows:
-
-USB Epsilon 1.3  (Digital Dreams)
-Resolution 1600 x 1280 pixels
-Image sensor CMOS
-LCD Screen 1.5" colour TFT
-Internal memory 8MB NAND Gate Flash
-External Memory Build in Smart Media card slot
-Viewfinder Optical
-Digital zoom X 4
-Image capacity (with build in memory)   1600x1200 - 20
-                                        1280x1024 - 29
-                                        640x480 - 121
-White balance Auto/Day/Shade/Bulb/Fl
-Exposure Auto/Manual
-Image format JPG, AVI (through software)
-Computer interface USB
-Power control Auto off (10 seconds)
-
-
-I'm running a standard kernel 2.4.19-ac2 with USB Mass Storage degugging
-Information.and also RedHat's 2.4.18-12.5 
-(the below messages was taken for the 2.4.19-ac2)
-
-When I plug it in its detected as: 
-
-[root@stimpy mark]# usb.c: USB device 2 (vend/prod 0x733/0x1310) is not
-claimed by any active driver.
-  Vendor:           Model: 1.3M DigitalCAM   Rev: 1.00
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
-SCSI device sda: 16384 512-byte hdwr sectors (8 MB)
-sda: test WP failed, assume Write Enabled
- sda1
-
-
-Which means that the kernel has seen it and its being treated as a mass
-Storage device, thus treated as a SCSI device.
-
-So I also ran cdrecord -scanbus and that listed the device as well. 
-
-scsibus1: 
-        1,0,0   100) '        ' '1.3M DigitalCAM ' '1.00' Removable Disk
-
-After reading several pages on USB and Mass storage, I have found out
-how I should be able to access it
-
-The following Kernel modules that are relevant to this device are loaded
-as below:
-
-vfat                   11356   0  (autoclean)
-fat                    36888   0  (autoclean) [vfat]
-sr_mod                 16248   0  (autoclean)
-usb-storage           102352   0
-usb-ohci               19528   0  (unused)
-usbcore                69888   1  [usb-storage hid usb-ohci]
-aic7xxx               123444   0
-sd_mod                 13104   0
-scsi_mod               99716   4  [sr_mod usb-storage aic7xxx sd_mod]
-
-The file system on the camera is FAT (this can be accessed by VMware
-running on this Box, as a removable device (which is running a Virtual
-WinXp O/S) through the USB port using the drivers for windows supplied
-by the manufacturer)
-
-mount /dev/sda /mnt/camera
-
-and
-
-/sbin/modprobe fat && mount -t fat /dev/sda /mnt/camera
-
-I've also tried vat, auto, autofs and /dev/sda[0-10] as well.
-
-Also running the following, it cannot access the device either:
-
-[root@stimpy dev]# dd if=/dev/sda of=/dev/null bs=1k count=1
-dd: reading `/dev/sda': Input/output error
-0+0 records in
-0+0 records out
-
-It seems it cannot find a partition table on the device, in WinXp I can
-happily right click and create folders on the camera, It can also
-Identify the amount of space on the device 8MB, when first plugged it.
-
-And I have also tried the following as well:
-
-[root@stimpy mark]# cat /dev/sda | file  -
-cat: /dev/sda: Input/output error
-standard input:              empty
-
-
-Please see below the output of dmesg -n 9, with USB Mass storage
-debugging turned on (sorry for the large amount)
-
----------------------- cut -----------------------------
-
-hub.c: USB new device connect on bus1/1, assigned device number 2
-usb.c: USB device 2 (vend/prod 0x733/0x1310) is not claimed by any
-active driver.
-Initializing USB Mass Storage driver...
-usb.c: registered new driver usb-storage
-usb-storage: act_altsettting is 0
-usb-storage: id_index calculated to be: 85
-usb-storage: Array length appears to be: 87
-usb-storage: USB Mass Storage device detected
-usb-storage: Endpoints: In: 0xdb6b0b20 Out: 0xdb6b0b34 Int: 0xdb6b0b48
-(Period 1)
-usb-storage: New GUID 07331310000ffffffffff700
-usb-storage: GetMaxLUN command result is 1, data is 0
-usb-storage: Transport: Bulk
-usb-storage: Protocol: Transparent SCSI
-usb-storage: *** thread sleeping.
-scsi1 : SCSI emulation for USB Mass Storage devices
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command INQUIRY (6 bytes)
-usb-storage: 12 00 00 00 ff 00 4f da d4 33 4f da
-usb-storage: Bulk command S 0x43425355 T 0x8 Trg 0 LUN 0 L 255 F 128 CL
-6
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
-usb-storage: usb_stor_bulk_msg() returned 0 xferred 36/255
-usb-storage: Bulk data transfer result 0x1
-usb-storage: Attempting to get CSW...
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x8 R 219 Stat 0x0
-usb-storage: Fixing INQUIRY data to show SCSI rev 2
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-  Vendor:           Model: 1.3M DigitalCAM   Rev: 1.00
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (1/0)
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (2/0)
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (3/0)
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (4/0)
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (5/0)
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (6/0)
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Bad target number (7/0)
-usb-storage: *** thread sleeping.
-Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command TEST_UNIT_READY (6 bytes)
-usb-storage: 00 00 00 00 00 00 00 00 00 00 30 da
-usb-storage: Bulk command S 0x43425355 T 0x10 Trg 0 LUN 0 L 0 F 0 CL 6
-usb-storage: Bulk command transfer result=0
-usb-storage: Attempting to get CSW...
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x10 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command READ_CAPACITY (10 bytes)
-usb-storage: 25 00 00 00 00 00 00 00 00 00 30 da
-usb-storage: Bulk command S 0x43425355 T 0x11 Trg 0 LUN 0 L 8 F 128 CL
-10
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
-usb-storage: usb_stor_bulk_msg() returned 0 xferred 8/8
-usb-storage: usb_stor_transfer_partial(): transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x11 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-SCSI device sda: 16384 512-byte hdwr sectors (8 MB)
-usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command MODE_SENSE (6 bytes)
-usb-storage: 1a 00 3f 00 ff 00 00 00 00 00 30 da
-usb-storage: Bulk command S 0x43425355 T 0x12 Trg 0 LUN 0 L 255 F 128 CL
-6
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
-usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/255
-usb-storage: clearing endpoint halt for pipe 0xc0038280
-usb-storage: usb_stor_clear_halt: result=0
-usb-storage: usb_stor_transfer_partial(): unknown error
-usb-storage: Bulk data transfer result 0x2
-usb-storage: Attempting to get CSW...
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x12 R 255 Stat 0x1
-usb-storage: -- transport indicates command failure
-usb-storage: Issuing auto-REQUEST_SENSE
-usb-storage: Bulk command S 0x43425355 T 0x12 Trg 0 LUN 0 L 18 F 128 CL
-6
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
-usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
-usb-storage: usb_stor_transfer_partial(): transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x12 R 0 Stat 0x0
-usb-storage: -- Result from auto-sense is 0
-usb-storage: -- code: 0x70, key: 0x5, ASC: 0x24, ASCQ: 0x0
-usb-storage: Illegal Request: invalid field in CDB
-usb-storage: scsi cmd done, result=0x2
-usb-storage: *** thread sleeping.
-sda: test WP failed, assume Write Enabled
- sda:<7>usb-storage: queuecommand() called
-usb-storage: *** thread awakened.
-usb-storage: Command READ_10 (10 bytes)
-usb-storage: 28 00 00 00 00 00 00 00 08 00 30 da
-usb-storage: Bulk command S 0x43425355 T 0x13 Trg 0 LUN 0 L 4096 F 128
-CL 10
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_transfer_partial(): xfer 4096 bytes
-usb-storage: usb_stor_bulk_msg() returned 0 xferred 4096/4096
-usb-storage: usb_stor_transfer_partial(): transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: Bulk status result = 0
-usb-storage: Bulk status Sig 0x53425355 T 0x13 R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
- sda1
-WARNING: USB Mass Storage data integrity not assured
-USB Mass Storage device found at 2
-USB Mass Storage support registered.
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 2, lun 0
-sr0: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
-cdrom: This disc doesn't have any tracks I recognize!
-
----------------------- cut -----------------------------
-
-Not being a programmer or kernel developer, I'm not sure where the error
-lies, Its going to be either a USB device driver bug or the actual
-camera itself (thus relying on the Windows drivers doing the actual
-work, rather than properly implementing USB Mass Storage)
-
-After several conversations with the RedHat mailing list,
-I have not got any closer with regards to finding out where the error
-actually lies
-
-Can anyone possibly help on this one. 
-
-Thanks in advance
-
-Mark
-
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

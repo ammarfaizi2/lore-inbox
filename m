@@ -1,86 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbVAQTbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262844AbVAQTaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262848AbVAQTbH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 14:31:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbVAQTbH
+	id S262844AbVAQTaU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 14:30:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVAQTaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 14:31:07 -0500
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:64959 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S262848AbVAQTau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 14:30:50 -0500
-Date: Mon, 17 Jan 2005 14:30:27 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [RFC] shared subtrees
-In-reply-to: <20050117190028.GF24830@fieldses.org>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-id: <41EC1253.8080902@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
- <41EC0466.9010509@sun.com> <20050117190028.GF24830@fieldses.org>
+	Mon, 17 Jan 2005 14:30:20 -0500
+Received: from blaster.systems.pipex.net ([62.241.163.7]:62930 "EHLO
+	blaster.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S262844AbVAQTaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 14:30:12 -0500
+Date: Mon, 17 Jan 2005 19:29:46 +0000
+From: Paul Walker <paul@black-sun.demon.co.uk>
+To: Fruhwirth Clemens <clemens@endorphin.org>
+Cc: linux-kernel@vger.kernel.org, Bill Davidsen <davidsen@tmr.com>,
+       linux-crypto@nl.linux.org, James Morris <jmorris@redhat.com>
+Subject: Re: Announce loop-AES-v3.0b file/swap crypto package
+Message-ID: <20050117192946.GT7782@black-sun.demon.co.uk>
+References: <41EAE36F.35354DDF@users.sourceforge.net> <41EB3E7E.7070100@tmr.com> <41EBD4D4.882B94D@users.sourceforge.net> <1105989298.14565.36.camel@ghanima>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="h22Fi9ANawrtbNPX"
+Content-Disposition: inline
+In-Reply-To: <1105989298.14565.36.camel@ghanima>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-J. Bruce Fields wrote:
-> On Mon, Jan 17, 2005 at 01:31:02PM -0500, Mike Waychison wrote:
-> 
->>Corner case: how do we handle the case where:
->>
->>mount --make-shared /foo
->>mount --bind /foo /foo/bar
->>
->>A nested --bind without sharing makes sense, but doesn't when sharing is
->>enabled (infinite loop).
-> 
-> 
-> How does this force an infinite loop?  I don't see it.
-> 
+--h22Fi9ANawrtbNPX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Well, if I understand it correctly:
+On Mon, Jan 17, 2005 at 08:14:58PM +0100, Fruhwirth Clemens wrote:
 
-(assuming /foo is vfsmount A)
+> > Unlikely to go to mainline kernel. Mainline folks are just too much in =
+love
+> > with their backdoored device crypto implementations [1].=20
 
-$> mount --make-shared /foo
+Just to add back in Jari's link, so the folks added know what you're talking
+about:
 
-will make A->A
+> [1]  http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107419912024246&w=
+=3D2
 
-$> mount --bind /foo /foo/bar
+--=20
+Paul
 
-will create a vfsmount B based off A, but because A is in a p-node,
-A->B, B->A.
+--h22Fi9ANawrtbNPX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Then, we attach B to A in the vfsmount tree, but because A->B in the
-propagation tree, B also gets a vfsmount C added on dentry 'bar'.
-Recurse ad infinitum.
-
-Make sense?
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFB7BJTdQs4kOxk3/MRAm9HAJ9gLZC9N1QkpriYtwE6pfJ7u47FyACfYXwU
-tTIEFgSUeoocka4RZVe9McI=
-=iWNB
+iD8DBQFB7BIqP9fOqdxRstoRAiggAJ9vZQmLgcq3T4DeMMWx4MDKpmpm3ACgh+Zn
+15ryEOh1kL9zdVOyKuaMSQw=
+=48Ab
 -----END PGP SIGNATURE-----
+
+--h22Fi9ANawrtbNPX--

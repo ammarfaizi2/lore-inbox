@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271720AbTHDNEK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 09:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271722AbTHDNEK
+	id S271723AbTHDNJo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 09:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271724AbTHDNJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 09:04:10 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:49051 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271720AbTHDNEI
+	Mon, 4 Aug 2003 09:09:43 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:10739 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S271723AbTHDNJm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 09:04:08 -0400
-Subject: Re: DVD-RAM errors (was: DVD-RAM crashing system)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nachman Yaakov Ziskind <awacs@egps.com>
+	Mon, 4 Aug 2003 09:09:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>,
+       Werner Almesberger <werner@almesberger.net>
+Subject: Re: TOE brain dump
+Date: Mon, 4 Aug 2003 08:08:50 -0500
+X-Mailer: KMail [version 1.2]
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030803234706.A13048@egps.egps.com>
-References: <20030803234706.A13048@egps.egps.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1060002004.416.2.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 Aug 2003 14:00:04 +0100
+References: <g83n.8vu.9@gated-at.bofh.it> <20030803151000.D10280@almesberger.net> <3F2E1F7B.3020906@softhome.net>
+In-Reply-To: <3F2E1F7B.3020906@softhome.net>
+MIME-Version: 1.0
+Message-Id: <03080408085000.03433@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-08-04 at 04:47, Nachman Yaakov Ziskind wrote:
-> command like 'tar cvf /dev/scd0 my-files', the machine hangs for a couple of
-> seconds, writes nothing to DVD, and I get these errors:
-> 
-> Aug  3 13:40:08 gemach kernel: Current sd0b:00: sense key Data Protect
-> Aug  3 13:40:08 gemach kernel:  I/O error: dev 0b:00, sector 4
-> Aug  3 13:40:08 gemach kernel: SCSI cdrom error : host 2 channel 0 id 0 lun 0
-> return code = 28000000
+On Monday 04 August 2003 03:55, Ihar 'Philips' Filipau wrote:
+> Werner Almesberger wrote:
+> > Ihar 'Philips' Filipau wrote:
+> >>    Modern NPUs generally do this.
+> >
+> > Unfortunately, they don't - they run *some* code, but that
+> > is rarely a Linux kernel, or a substantial part of it.
+>
+>    Embedded CPU we are using is based MIPS, and has a lot of specialized
+> instructions.
+>    It makes not that much sense to run kernel (especially Linux) on CPU
+> which is optimized for handling of network packets. (And has actually
+> several co-processors to help in this task).
+>    How much sense it makes to run general purpose OS (optimized for PCs
+> and servers) on devices which can make only couple of functions? (and no
+> MMU btw)
+>    It is a whole idea behind this kind of CPUs - to do a few of
+> functions - but to do them good.
+>
+>    If you will start stretching CPUs like this to fit Linux kernel - it
+> will generally just increase price. Probably there are some markets
+> which can afford this.
+>
+>    Remeber - "Small is beatiful" (c) - and linux kernel far from it.
+>    Our routing code which handles two GE interfaces (actually not pure
+> GE, but up to 2.5GB) fits into 3k. 3k of code - and that's it. not 650kb
+> of bzip compressed bloat. And it handles two interfaces, handles fast
+> data path from siblign interfaces, handles up to 1E6 routes. 3k of code.
+> not 650k of bzip.
 
-Your drive rejected the command.
+And it handles ipfilter?
+and LSM security hooks?
+how about IPSec?
+and IPv6?
 
+I don't think so.

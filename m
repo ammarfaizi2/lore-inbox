@@ -1,131 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263499AbTDSXta (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 19:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263501AbTDSXta
+	id S263503AbTDTASZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 20:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263505AbTDTASZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 19:49:30 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:60393 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263499AbTDSXt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 19:49:28 -0400
-Date: Sun, 20 Apr 2003 01:00:51 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server terminates
-Message-ID: <20030420000051.GA20130@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030415125507.GA29143@iucha.net> <3E9C03DD.3040200@oracle.com> <20030415164435.GA6389@rivenstone.net> <20030415182057.GC29143@iucha.net> <20030415154355.08ef6672.akpm@digeo.com> <20030416004556.GD29143@iucha.net> <1050493328.28591.42.camel@dhcp22.swansea.linux.org.uk> <20030416131536.GF29143@iucha.net> <20030416135819.GB18358@suse.de> <20030418152824.GJ29143@iucha.net>
+	Sat, 19 Apr 2003 20:18:25 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:19640 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263503AbTDTASX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 20:18:23 -0400
+Date: Sat, 19 Apr 2003 17:30:21 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK->CVS, kernel.bkbits.net
+Message-ID: <20030420003021.GA10547@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <20030417162723.GA29380@work.bitmover.com> <b7n46e$dtb$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030418152824.GJ29143@iucha.net>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <b7n46e$dtb$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 18, 2003 at 10:28:24AM -0500, Florin Iucha wrote:
- > 
- > With 2.5.67-bk8, agpgart and sis-agp compiled as modules and loaded:
- >    - X starts (I am using wdm as display manager)
- >    - direct rendering is enabled, according to /var/log/XFree86.0.log
- >    - start glxgears
- >    - framerate 130!!! It should be around 1900-2000 on my hardware
- >      (moons ago on XFree 4.2.1 + DRI snapshot)
+On Thu, Apr 17, 2003 at 01:52:30PM -0700, H. Peter Anvin wrote:
+> Followup to:  <20030417162723.GA29380@work.bitmover.com>
+> By author:    Larry McVoy <lm@bitmover.com>
+> In newsgroup: linux.dev.kernel
+> >
+> > It's back up, and the CVS server up to date with the 2.4 2.5 kernels as
+> > of a few minutes ago.  The CVS server is at
+> > 
+> > :pserver:anonymous@kernel.bkbits.net:/home/cvs 
+> > 
+> > There are linux-2.4/ and linux-2.5/ subdirectories there (should this go in
+> > a FAQ someplace or does nobody except Andrea care?).
+> 
+> It definitely should.
 
-Very strange. Does glxinfo output look sane too? Especially the
-OpenGL renderer string. It sounds like it isn't doing hw rendering
-even if your X log says it is..
+OK, so how about this?  I assume you manage DNS for kernel.org, right?
+How about a DNS entry for cvs.kernel.org -> 64.241.2.13?  If you ever
+find a machine to host this then you already own cvs.kernel.org and you
+can just reset the address.  By the way, I think the bandwidth is pretty
+darn low, after all that fuss almost nobody seems to use this, it just
+gives them warm fuzzies to know that the history has been captured in
+an open format which is worth it if it means no more BK flame wars, eh?
 
- >    - after 15-20 seconds, the X session is restarted - back to wdm
- >      screen
- >    - I login, I logout and the machine freeze
- >    - the last words on serial console:
- >       [drm] Loading R200 Microcode
- >       double fault, gdt at c039df00 [255 bytes]
- >       double fault, tss at c0418800
- >       eip = c0143a00, esp = ececbf0c
- >       eax = ee37dc60, ebx = ee37dc40, ecx = 0000007b, edx = 00000000
- >       esi = ee37dc60, edi = edc0e0c0
+Then whoever maintains the kernel FAQ these days could add something like
+this:
 
-Not good at all. 'bad shit happened'.
+SCM access to the kernel trees:
+-------------------------------
 
- > With 2.5.67-bk8, agpgart and sis-agp built in:
- >    - no lockups
+Linus started using an SCM (source code management) tool called BitKeeper
+in February of 2002.  Since BitKeeper isn't free software, he does not
+require that anyone else use BitKeeper, he continues to accept patches
+just like he always did.  The only difference is that information about
+who did what, and maybe why they did it, is recorded and is useful for
+learning the source base, tracking down bugs, etc.  Many, but not all,
+of the core developers have switched to using BitKeeper because it makes
+their life easier in various ways.
 
-It's essentially the same code though, which doesn't
-make a lot of sense.
+Some people haven't switched because BitKeeper isn't free software and
+they feel uncomfortable using non-free software as part of working on
+the kernel.  That's fine, it's an explicit goal of both Linus and the
+BitKeeper developers that nobody is required to use BitKeeper to work
+on the kernel.  Some senior developers have decided they'd rather
+not use BitKeeper, Alan Cox being a good example.  That's not a problem,
+the BitKeeper developers worked with Linus to streamline the importing
+of traditional patches so that anyone can work in any way they see fit.
 
- >    - direct rendering is disabled
+If you want to use BitKeeper (http://www.bitkeeper.com) then the official
+trees are maintained on linux.bkbits.net - to get a particular release
+try this:
 
-Again, puzzling. What reason is given for this in your
-XFree86.log ?
+	bk clone bk://linux.bkbits.net/linux-2.4
 
- >    - X crashes sometimes with the following traces:
- > agpgart: Found an AGP 2.0 compliant device.
- > agpgart: Putting AGP V2 device at 00:00.0 into 4x mode
- > agpgart: Putting AGP V2 device at 01:00.0 into 4x mode
- > [drm] Loading R200 Microcode
- > agpgart: Found an AGP 2.0 compliant device.
- > agpgart: Putting AGP V2 device at 00:00.0 into 4x mode
- > agpgart: Putting AGP V2 device at 01:00.0 into 4x mode
- > [drm] Loading R200 Microcode
+There was a fair amount of fuss amongst the free software purists,
+over the fact that a lot of information that was available in BitKeeper
+was lost when Linus provided the traditional tarball releases and patch
+updates.  Flame wars happened and when the dust settled, the BitKeeper
+folks built a BitKeeper to CVS gateway which captures the bulk of the
+information (as of this writing on April 19th 2003 there are 9,311
+snapshots captured).  If you would prefer to get your source with 100%
+God fearing, politically correct, open source, fully buzzword enabled
+software, then you can do this:
 
-The fact that this lot appears twice is odd, or did you
-restart the X server ?
+	cvs -d:pserver:anonymous@cvs.kernel.org:/home/cvs co linux-2.4
 
- > Unable to handle kernel paging request at virtual address fffffff0
- >  printing eip:
- > c0146147
- > *pde = 00001067
- > *pte = 00000000
- > Oops: 0000 [#1]
- > CPU:    0
- > EIP:    0060:[<c0146147>]    Not tainted
- > EFLAGS: 00013286
- > EIP is at page_remove_rmap+0xb7/0x130
- > eax: ffffffff   ebx: c14acc48   ecx: 0000000f   edx: fffffff0
- > esi: dcd5ffc0   edi: ffffffff   ebp: fffffff0   esp: da333b60
- > ds: 007b   es: 007b   ss: 0068
- > Process XFree86 (pid: 657, threadinfo=da332000 task=de0ced00)
- > Stack: dcb72cc0 dcd5ffc0 da403a18 da403a18 0006e000 00100000 c14acc48 c0140495 
- >        c14acc48 da332000 da332000 00000000 1deb5045 dc8b5084 08618000 08318000 
- >        c0465758 c014053b c0465758 dc8b5080 08218000 00100000 08218000 dc8b5084 
- > Call Trace:
- >  [<c0140495>] zap_pte_range+0x155/0x1b0
- >  [<c014053b>] zap_pmd_range+0x4b/0x70
- >  [<c01405a3>] unmap_page_range+0x43/0x70
- >  [<c0140694>] unmap_vmas+0xc4/0x220
- >  [<c01444cb>] exit_mmap+0x7b/0x190
- >  [<c011bc44>] mmput+0x54/0xb0
- >  [<c0159203>] exec_mmap+0xb3/0x130
- >  [<c0159309>] flush_old_exec+0x19/0x850
- >  [<c0159140>] kernel_read+0x50/0x60
- >  [<c0175525>] load_elf_binary+0x2d5/0xb50
- >  [<c01651e2>] dput+0x22/0x1e0
- >  [<c021a187>] linvfs_readv+0x47/0x50
- >  [<c0175250>] load_elf_binary+0x0/0xb50
- >  [<c0159e7a>] search_binary_handler+0x8a/0x1d0
- >  [<c015a1d1>] do_execve+0x211/0x260
- >  [<c01093e0>] sys_execve+0x50/0x80
- >  [<c010ab77>] syscall_call+0x7/0xb
+As releases progress, the release numbers will change so some day you might
+say
 
-So X tried to load a module (likely the DRI part), and in doing so
-something went awry.
-Could be that something else caused memory corruption beforehand,
-but that's speculation.  If this always happens the second time
-the server starts, it could be a problem with reentrancy of the
-r200 dri module maybe. *shrug*.
+	bk clone bk://linux.bkbits.net/linux-4.2
+or
+	cvs -d:pserver:anonymous@cvs.kernel.org:/home/cvs co linux-4.2
 
-Frankly, from this backtrace, I've no idea.
-There are a bunch of radeon fixes pending in the DRI tree,
-so things could suddenly 'start working' again, so this could
-be one to keep an eye on in bugzilla for now so we don't forget about it.
-
-		Dave
-
-		Dave
-
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

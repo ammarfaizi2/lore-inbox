@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbTJGEqn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 00:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTJGEqm
+	id S261798AbTJGFYT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 01:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbTJGFYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 00:46:42 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:64129 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261796AbTJGEql (ORCPT
+	Tue, 7 Oct 2003 01:24:19 -0400
+Received: from gemini.smart.net ([205.197.48.109]:56337 "EHLO gemini.smart.net")
+	by vger.kernel.org with ESMTP id S261798AbTJGFYS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 00:46:41 -0400
-Date: Tue, 7 Oct 2003 10:17:03 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Dipankar Sarma <dipankar@in.ibm.com>, Patrick Mochel <mochel@osdl.org>,
-       Greg KH <gregkh@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 0/6] Backing Store for sysfs
-Message-ID: <20031007044703.GB9036@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20031006085915.GE4220@in.ibm.com> <Pine.LNX.4.44.0310061123110.985-100000@localhost.localdomain> <20031006192713.GE1788@in.ibm.com> <20031006193050.GT7665@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
+	Tue, 7 Oct 2003 01:24:18 -0400
+Message-ID: <3F824E03.C309F2BE@smart.net>
+Date: Tue, 07 Oct 2003 01:24:19 -0400
+From: "Daniel B." <dsb@smart.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18+dsb+smp+ide i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IDE DMA errors, massive disk corruption: Why? Fixed Yet? Whynot  
+ re-do failed op?
+References: <785F348679A4D5119A0C009027DE33C105CDB20A@mcoexc04.mlm.maxtor.com>	            <3F81CE9A.851806B8@smart.net> <200310062045.h96KjxJP008005@turing-police.cc.vt.edu> <3F81D995.D9C13F33@smart.net> <3F81DE1D.6070304@pobox.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031006193050.GT7665@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 08:30:50PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> What's more important, for leaves of the sysfs tree your overhead is also
-> a loss - we don't need to pin dentry down for them even with current sysfs
-> design.   And that can be done with minimal code changes and no data changes
-> at all.  Your patch will have to be more attractive than that.  What's the
-> expected ratio of directories to non-directories in sysfs?
+Jeff Garzik wrote:
+> 
+> Daniel B. wrote:
+> > If the kernel starts a write command for block 993, wouldn't it wait
+> > for a DMA interrupt signalling that the drive has received and accepted
+> > the command before the kernel starts the write command for block 10934?
+> 
+> With command queueing, no, it would not wait.
 
-Current sysfs / kobject design _require_ that dentries for the leaves to be
-present all the times. There is simply no generic way to find attributes
-of a kobject. As of now it uses dentry->d_fsdata to reach to the attribute.
+Other than the write-back caching, it's not an open-loop system, 
+right?  Regardless of how commands are batched or queued, isn't there 
+some acknowledgment back from the drive that some batch of commands
+(or some command, or some part of some command) was completed?
 
-In my system leaves are around 65% of the total.
+Surely the kernel checks for such acknowledgments, right? 
 
-Thanks
-Maneesh
+DMA-complete interrupts are probably how some of those acknowledgments 
+are communicated, right?
 
+So if the kernel doesn't get an expected DMA interrupt, it should
+know that some command(/batch/part) wasn't acknowledged successfully,
+right?  And surely it can tell _which_ command/batch/part wasn't
+acknowledged (if multiple ones can be outstanding), right?
+
+So if some command/batch/etc. wasn't acknowledged, why can't the 
+kernel retry the command/batch/etc.?
+
+
+> > If it timed out waiting for that interrupt, can't it re-issue the
+> > write for block 993 before proceeding?
+> 
+> Assuming a large amount of sanity in your OS driver... certainly.
+
+Given the serious of disk data corruption, why isn't the Linux kernel
+more reliable here?  Hasn't this family of IDE problems been around
+for a couple of years now?
+
+
+Daniel
 -- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696
+Daniel Barclay
+dsb@smart.net

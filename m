@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbUCCJ7b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 04:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUCCJ7b
+	id S262370AbUCCKCu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 05:02:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbUCCKCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 04:59:31 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:16904 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S262366AbUCCJ73 (ORCPT
+	Wed, 3 Mar 2004 05:02:50 -0500
+Received: from dinsnail.net ([217.160.166.159]:33946 "EHLO heinz.dinsnail.net")
+	by vger.kernel.org with ESMTP id S262370AbUCCKCs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 04:59:29 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
-Date: Wed, 3 Mar 2004 10:59:26 +0100
-User-Agent: KMail/1.6.1
-Cc: David Weinehall <david@southpole.se>, Andrew Ho <andrewho@animezone.org>,
-       Dax Kelson <dax@gurulabs.com>, Peter Nelson <pnelson@andrew.cmu.edu>,
-       Hans Reiser <reiser@namesys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
-       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
-       linux-xfs@oss.sgi.com
-References: <4044119D.6050502@andrew.cmu.edu> <200403030700.57164.robin.rosenberg.lists@dewire.com> <1078307033.904.1.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1078307033.904.1.camel@teapot.felipe-alfaro.com>
-MIME-Version: 1.0
+	Wed, 3 Mar 2004 05:02:48 -0500
+Date: Wed, 3 Mar 2004 10:56:15 +0100
+From: Michael Weiser <michael@weiser.dinsnail.net>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 021 release
+Message-ID: <20040303095615.GA89995@weiser.dinsnail.net>
+References: <20040303000957.GA11755@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403031059.26483.robin.rosenberg.lists@dewire.com>
+In-Reply-To: <20040303000957.GA11755@kroah.com>
+User-Agent: Mutt/1.4.2.1i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 March 2004 10:43, Felipe Alfaro Solana wrote:
-> But XFS easily breaks down due to media defects. Once ago I used XFS,
-> but I lost all data on one of my volumes due to a bad block on my hard
-> disk. XFS was unable to recover from the error, and the XFS recovery
-> tools were unable to deal with the error.
+On Tue, Mar 02, 2004 at 04:09:57PM -0800, Greg KH wrote:
+> Major changes from the 019 version:
+> 	- new variable $local for the udev.permission file allows
+> 	  permissions to be set for the currently logged in user.
+Yay, just the other day I thought that might be a nice feature in
+concert with RedHat's/Fedora's pam_console module. Am I right in
+assuming that the current utmp based code will give the file to the user
+that most recently logged into the local console? This could cause some
+confusion with the pam_console-method which gives files to the user that
+logged in *first* on a local console.
 
-What file systems work on defect media? 
+Call me stupid but I have two other questions that look quite simple but
+I can't seem to wrap my head about:
 
-As for crashed disks I rarely bothered trying to "fix" them anymore. I save
-what I can and restore what's backed up and recovery tools (other than
-the undo-delete ones) usually destroy what's left, but that's not unique to
-XFS. Depending on how good my backups are I sometimes try the recovery
-tools just to see, but that has never helped so far.
+Normally with static /dev one has a /dev/dsp device for example. As soon
+as an application tries to open it the kernel would try to load a module
+"sound" or "char-major-something" if sound support isn't compiled into
+it. Now with udev I'll never get /dev/dsp in the first place and there's
+no mechanism like devfs's file open monitoring and subsequent device
+file creation. So my idea is to initialise /dev with some static files,
+for hardware I know is there but hasn't had a driver loaded yet. My
+question is: Is there a nicer and more elegant way than just unpacking a
+tarball into /dev before starting udevd? A tarball would also break a
+(theoretical) use of dynamic major/minor numbers by the kernel.
 
--- robin
+Also I very much liked the automatic creation of /dev/root by devfs
+because it kept the system bootable after moves around different
+harddrives and partitions several times where I would normally have
+forgotten to adjust fstab to the new root. I poked around sysfs and proc
+a bit but can't seem to find anything that would permit me to simlute
+that behaviour with udev. Does udev perhaps already support something
+like this?
+
+Thanks in advance for any advice.
+-- 
+bye, Micha

@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVCFWp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVCFWz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261599AbVCFWp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 17:45:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVCFWpq
+	id S261608AbVCFWz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 17:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVCFWuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 17:45:46 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:14757 "EHLO
+	Sun, 6 Mar 2005 17:50:52 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:22181 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261585AbVCFWoV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 17:44:21 -0500
-Date: Sun, 6 Mar 2005 22:44:18 +0000
+	id S261605AbVCFWtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 17:49:19 -0500
+Date: Sun, 6 Mar 2005 22:49:12 +0000
 From: Christoph Hellwig <hch@infradead.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 23/29] FAT: Remove the multiple MSDOS_SB() call
-Message-ID: <20050306224418.GB5827@infradead.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Russell King <rmk@arm.uk.linux.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mm/swap_state.c: unexport swapper_space
+Message-ID: <20050306224912.GE5827@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <87wtsmorii.fsf_-_@devron.myhome.or.jp> <87sm3aorho.fsf_-_@devron.myhome.or.jp> <87oedyorgu.fsf_-_@devron.myhome.or.jp> <87k6olq60a.fsf_-_@devron.myhome.or.jp> <87fyz9q5z7.fsf_-_@devron.myhome.or.jp> <87br9xq5y8.fsf_-_@devron.myhome.or.jp> <877jklq5x7.fsf_-_@devron.myhome.or.jp> <873bv9q5vx.fsf_-_@devron.myhome.or.jp> <87y8d1orah.fsf_-_@devron.myhome.or.jp> <87u0npor9o.fsf_-_@devron.myhome.or.jp>
+	Hugh Dickins <hugh@veritas.com>, Adrian Bunk <bunk@stusta.de>,
+	Russell King <rmk@arm.uk.linux.org>, linux-kernel@vger.kernel.org
+References: <20050306144758.GJ5070@stusta.de> <Pine.LNX.4.61.0503061515200.19898@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87u0npor9o.fsf_-_@devron.myhome.or.jp>
+In-Reply-To: <Pine.LNX.4.61.0503061515200.19898@goblin.wat.veritas.com>
 User-Agent: Mutt/1.4.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 06, 2005 at 03:56:51AM +0900, OGAWA Hirofumi wrote:
+On Sun, Mar 06, 2005 at 03:28:19PM +0000, Hugh Dickins wrote:
+> immediately on demand).  It's used by the inline page_mapping() in
+> include/linux/mm.h, which _was_ used by various arch cacheflushing
+> inlines, which could reasonably be called from modular filesystems.
 > 
-> Since MSDOS_SB() is inline function, it increases text size at each calls.
-> I don't know whether there is __attribute__ for avoiding this.
+> I think those architectures hit the missed export when the dependence
+> on &swapper_space got added to page_mapping(), the export was soon
+> added to mainline, but meanwhile they moved their inlines out-of-line
+> - perhaps temporarily, but not yet reverted.
+> 
+> Better leave it exported so long as page_mapping is using it.
 
-If you mark it pure the compile should be smart enough to optimize way
-multiple invocations - heck for an inline it should be smart enough without
-annotaitons..
-
-Anyway, your new version looks much more readable.
+I disagree.  swapper_state is far too much of an internal detail to be
+exported.  I argued that way when page_mapping was changed to use it and
+that's why the architectures moved their helpers out of line.
+Looks like the exported unfortunately got added anyway although we settled
+that discussion.
 

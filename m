@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271625AbRIBNiP>; Sun, 2 Sep 2001 09:38:15 -0400
+	id <S271626AbRIBNsr>; Sun, 2 Sep 2001 09:48:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271626AbRIBNiF>; Sun, 2 Sep 2001 09:38:05 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:56707 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S271625AbRIBNhx>; Sun, 2 Sep 2001 09:37:53 -0400
-Date: Sun, 2 Sep 2001 23:38:16 +1000
-From: john slee <indigoid@higherplane.net>
-To: zheng baojian <bjzheng@ict.ac.cn>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: start linux kernel in linux
-Message-ID: <20010902233815.A1365@higherplane.net>
-In-Reply-To: <01090221320401.01071@bj>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271627AbRIBNsi>; Sun, 2 Sep 2001 09:48:38 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:63651 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271626AbRIBNsY>;
+	Sun, 2 Sep 2001 09:48:24 -0400
+Date: Sun, 02 Sep 2001 14:48:39 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Stephan von Krawczynski <skraw@ithnet.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: Memory Problem in 2.4.10-pre2 / __alloc_pages failed
+Message-ID: <1013623912.999442119@[169.254.198.40]>
+In-Reply-To: <200109020226.f822QCS18912@maile.telia.com>
+In-Reply-To: <200109020226.f822QCS18912@maile.telia.com>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <01090221320401.01071@bj>
-User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 02, 2001 at 09:32:04PM -0400, zheng baojian wrote:
-> 	Who try to do that:start another linux kernel in a running linux.
+> Or/and we could remove the sources of higher order allocs, as an example:
+> why is the SCSI layer allowed to allocate order 3 allocs (32 kB) several
+> times per second? Will we really get a performance hit by not allowing
+> higher order allocs in active driver code?
 
-is this what you want?
+Or put them in some slab like code, the slab for which gets allocated
+early on when memory is not fragmented, and (nearly) never gets released.
+Most of the stuff that actually NEEDS atomic allocation (as opposed
+to some of the requirements that are bogus) are for packets / data
+in flight. There is probably a finite amount of this at any given time.
 
-http://user-mode-linux.sourceforge.net/
-
-j.
-
--- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+--
+Alex Bligh

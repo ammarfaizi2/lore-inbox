@@ -1,58 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270454AbTGMXrk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 19:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270450AbTGMXrk
+	id S270453AbTGMXiP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 19:38:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270454AbTGMXiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 19:47:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:40902 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S270449AbTGMXri (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 19:47:38 -0400
-Date: Sun, 13 Jul 2003 16:53:23 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: lm@bitmover.com, roland@topspin.com, alan@storlinksemi.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: TCP IP Offloading Interface
-Message-Id: <20030713165323.3fc2601f.davem@redhat.com>
-In-Reply-To: <20030713235424.GB31793@work.bitmover.com>
-References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
-	<20030713004818.4f1895be.davem@redhat.com>
-	<52u19qwg53.fsf@topspin.com>
-	<20030713160200.571716cf.davem@redhat.com>
-	<20030713233503.GA31793@work.bitmover.com>
-	<20030713164003.21839eb4.davem@redhat.com>
-	<20030713235424.GB31793@work.bitmover.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Jul 2003 19:38:15 -0400
+Received: from mail9.speakeasy.net ([216.254.0.209]:21197 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP id S270453AbTGMXiG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 19:38:06 -0400
+To: "David Schwartz" <davids@webmaster.com>
+Cc: "Davide Libenzi" <davidel@xmailserver.org>,
+       "Eric Varsanyi" <e0206@foo21.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch][RFC] epoll and half closed TCP connections
+References: <MDEHLPKNGKAHNMBLJOLKGEFKEFAA.davids@webmaster.com>
+From: Entrope <entrope@gamesnet.net>
+Date: Sun, 13 Jul 2003 19:52:51 -0400
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEFKEFAA.davids@webmaster.com> (David
+ Schwartz's message of "Sun, 13 Jul 2003 16:05:38 -0700")
+Message-ID: <877k6m6l2k.fsf@sanosuke.troilus.org>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jul 2003 16:54:24 -0700
-Larry McVoy <lm@bitmover.com> wrote:
+"David Schwartz" <davids@webmaster.com> writes:
 
-> Every time I tried to push the page flip idea or offloading or any of
-> that crap, Andy Bechtolsheim would tell "the CPUs will get faster faster
-> than you can make that work".  He was right.
+>	This is really just due to bad coding in 'poll', or more precisely very bad
+> for this case. For example, why is it allocating a wait queue buffer if the
+> odds that it will need to wait are basically zero? Why is it adding file
+> descriptors to the wait queue before it has determined that it needs to
+> wait?
+>
+> 	As load increases, more and more calls to 'poll' require no waiting. Yet
+> 'poll' is heavily optimized for the 'no or low load' case. That's why 'poll'
+> doesn't scale on Linux.
 
-I really don't see why receive is so much of a big deal
-compared to send, and we do a send side version of this
-stuff already with zero problems.
+Your argument is bogus.  My first-hand experience is with IRC servers,
+which customarily have thousands of connections at once, with a very
+few percent active in a given check.  The scaling problem is not with
+the length of waiting or how poll() is optimized -- it is with the
+overhead *inherent* to processing poll().  Common IRC servers spend
+100% of CPU when using poll() for only a few thousand clients.  Those
+same servers, using FreeBSD's kqueue()/kevent() API, use well under
+10% of the CPU.
 
-The NFS code is already basically ready to handle a fragmented packet
-(headers + pages), and could stick the page part into the page cache
-easily on receive.
+Yes, the amount of time spent doing useful work increases as the
+poll() load increases -- but the time wasted setting up and checking
+activity for poll() is something you can never reclaim, and which only
+goes up as your CPU gets faster.  epoll() makes you pay the cost of
+updating the interest list only when the list changes; poll() makes
+you pay the cost every time you call it.
 
-And it's not the CPUs that really limit us here, it's memory
-bandwidth.  It's one thing to have a PCI-X bus fast enough
-to service 10Ggb/sec rates, it's yet another thing to have
-a memory bus and RAM underneath that which can handle moving
-that data over it _twice_.
+Empirically, four of the five biggest IRC networks run server software
+that prefers kqueue() on FreeBSD.  kqueue() did not cause them to be
+large, but using kqueue() addresses specific concerns.  On the network
+I can speak for, we look forward to having epoll() on Linux for the
+same reason.
 
-The infrastructure needed to support this on the networking side
-help us support other useful things, such as driver local packet
-buffer recycling.
+>> Yes, of course. The time spent inside poll/select becomes a PITA when you
+>> start dealing with huge number of fds. And this is kernel time. This does
+>> not obviously mean that if epoll is 10 times faster than poll under load,
+>> and you switch your app on epoll, it'll be ten times faster. It means that
+>> the kernel time spent inside poll will be 1/10. And many of the operations
+>> done by poll require IRQ locks and this increase the time the kernel
+>> spend with disabled IRQs, that is never a good thing.
+>
+> 	My experience has been that this is a huge problem with Linux but not with
+> any other OS. It can be solved in user-space with some other penalities by
+> an adaptive sleep before each call to 'poll' and polling with a zero timeout
+> (thus avoiding the wait queue pain). But all the deficiencies in the 'poll'
+> implementation in the world won't show anything except that 'poll' is badly
+> implemented.
+
+Your experience must be unique, because many people have seen poll()'s
+inactive-client overhead cause CPU wastage problems on non-Linux OSes
+(for me, FreeBSD and Solaris).
+
+poll() may be badly implemented on Linux or not, but it shares a
+design flaw with select(): that the application must specify the list
+of FDs for each system call, no matter how few change per call.  That
+is the design flaw that epoll() addresses.  If you truly believe that
+poll()'s implementation is so flawed, please provide an improved
+implementation.
+
+To put it another way, all the optimizations in the world for a 'poll'
+implementation won't sustain it unless you understand the flaw in its
+specification.  The specification requires inefficient use of CPU for
+very common situations.
+
+Michael Poole

@@ -1,38 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265470AbSKKEdh>; Sun, 10 Nov 2002 23:33:37 -0500
+	id <S265446AbSKKExB>; Sun, 10 Nov 2002 23:53:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265515AbSKKEdh>; Sun, 10 Nov 2002 23:33:37 -0500
-Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.228]:44943 "EHLO
-	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S265470AbSKKEdg>; Sun, 10 Nov 2002 23:33:36 -0500
-Date: Sun, 10 Nov 2002 23:32:52 -0500 (EST)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@linux-dev
+	id <S265515AbSKKExB>; Sun, 10 Nov 2002 23:53:01 -0500
+Received: from smtp.sw.oz.au ([203.31.96.1]:39186 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id <S265446AbSKKExA>;
+	Sun, 10 Nov 2002 23:53:00 -0500
+Date: Mon, 11 Nov 2002 15:59:41 +1100
+From: Kingsley Cheung <kingsley@aurema.com>
 To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com
-Subject: 2.5.47 : fs/nfsd/nfs4proc.c compile error
-Message-ID: <Pine.LNX.4.44.0211102331390.6444-100000@linux-dev>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: trivial@rustcorp.com.au
+Subject: Re: [PATCH] setrlimit incorrectly allows hard limits to exceed soft limits
+Message-ID: <20021111155941.A15095@aurema.com>
+References: <20021111151005.B14949@aurema.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021111151005.B14949@aurema.com>; from kingsley@aurema.com on Mon, Nov 11, 2002 at 03:10:05PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-   While 'make bzImage', I received the following error.
+Oops, should be after the copy :-(
 
-Regards,
-Frank
+--- sys.c       Sat Aug  3 10:39:46 2002
++++ edited.sys.c        Mon Nov 11 15:56:51 2002
+@@ -1120,6 +1120,8 @@
+                return -EINVAL;
+        if(copy_from_user(&new_rlim, rlim, sizeof(*rlim)))
+                return -EFAULT;
++       if (new_rlim.rlim_cur > new_rlim.rlim_max)
++               return -EINVAL;
+        old_rlim = current->rlim + resource;
+        if (((new_rlim.rlim_cur > old_rlim->rlim_max) ||
+             (new_rlim.rlim_max > old_rlim->rlim_max)) &&
 
-fs/nfsd/nfs4proc.c: In function `nfsd4_write':
-fs/nfsd/nfs4proc.c:484: warning: passing arg 4 of `nfsd_write' from incompatible pointer type
-fs/nfsd/nfs4proc.c:484: warning: passing arg 6 of `nfsd_write' makes integer from pointer without a cast
-fs/nfsd/nfs4proc.c:484: too few arguments to function `nfsd_write'
-fs/nfsd/nfs4proc.c: In function `nfsd4_proc_compound':
-fs/nfsd/nfs4proc.c:568: structure has no member named `rq_resbuf'
-fs/nfsd/nfs4proc.c:569: structure has no member named `rq_resbuf'
-fs/nfsd/nfs4proc.c:569: structure has no member named `rq_resbuf'
-make[2]: *** [fs/nfsd/nfs4proc.o] Error 1
-make[1]: *** [fs/nfsd] Error 2
-make: *** [fs] Error 2
 
+On Mon, Nov 11, 2002 at 03:10:05PM +1100, Kingsley Cheung wrote:
+> Hi,
+> 
+> In 2.4.19 (also 2.5.46) setrlimit code only ever makes a comparison to
+> check the old soft limit with the new soft limit and the new hard
+> limit with the old hard limit.  There is never a check to ensure the
+> new soft limit never exceeds the new hard limit. 
+> 
+> Just try "ulimit -H -m 10000" for memory limits that were not
+> previously set.  You end up with (hard limit = 10000) < (soft limit =
+> unlimited).
+> 
+> Fix is trivial.
+> 
+> --- sys.c       Sat Aug  3 10:39:46 2002
+> +++ edited.sys.c        Mon Nov 11 14:49:19 2002
+> @@ -1118,6 +1118,8 @@
+>  
+>         if (resource >= RLIM_NLIMITS)
+>                 return -EINVAL;
+> +       if (new_rlim.rlim_cur > new_rlim.rlim_max)
+> +               return -EINVAL;
+>         if(copy_from_user(&new_rlim, rlim, sizeof(*rlim)))
+>                 return -EFAULT;
+>         old_rlim = current->rlim + resource;
+> 
+
+-- 
+		Kingsley

@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270129AbUJTK0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270125AbUJTMdn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270129AbUJTK0s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 06:26:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270201AbUJSXBO
+	id S270125AbUJTMdn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 08:33:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269517AbUJTMd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:01:14 -0400
-Received: from mail.kroah.org ([69.55.234.183]:62089 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270078AbUJSWqV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:46:21 -0400
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI fixes for 2.6.9
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <10982257372797@kroah.com>
-Date: Tue, 19 Oct 2004 15:42:17 -0700
-Message-Id: <1098225737586@kroah.com>
+	Wed, 20 Oct 2004 08:33:28 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64521 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270125AbUJTMcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 08:32:05 -0400
+Date: Wed, 20 Oct 2004 13:31:58 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: New consolidate irqs vs . probe_irq_*()
+Message-ID: <20041020133158.B14627@flint.arm.linux.org.uk>
+Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Anton Blanchard <anton@samba.org>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>,
+	Christoph Hellwig <hch@infradead.org>
+References: <16758.3807.954319.110353@cargo.ozlabs.ibm.com> <20041020083358.GB23396@elte.hu> <1098261745.6263.9.camel@gaston> <20041020100103.G1047@flint.arm.linux.org.uk> <1098269455.20955.1.camel@gaston> <20041020120140.J1047@flint.arm.linux.org.uk> <16758.20925.984734.83651@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16758.20925.984734.83651@cargo.ozlabs.ibm.com>; from paulus@samba.org on Wed, Oct 20, 2004 at 09:53:33PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1997.37.44, 2004/10/06 13:05:44-07:00, greg@kroah.com
+On Wed, Oct 20, 2004 at 09:53:33PM +1000, Paul Mackerras wrote:
+> Russell King writes:
+> 
+> > Remember that PCMCIA effectively has its own IRQ router which requires
+> > the PCMCIA code to know which IRQs are physically connected and which
+> > aren't.  Unfortunately, there's no way to get that information as far
+> > as I know except by the published method in the code.
+> 
+> On my powerbook, the pcmcia/cardbus controller has one interrupt,
+> which is used both for card status changes and for card functional
+> interrupts.  It doesn't have an ISA bus and it doesn't have an 8259
+> interrupt controller, and interrupts 0-15 aren't anything like what
+> they might be on a PC.  This is why (as Ben says) there is no point
+> probing for interrupts, and why on ppc (or at least on powermacs) the
+> probe functions are no-ops.
 
-[PATCH] PCI: change cyrix.c driver to use pci_dev_present
+Correct - and Ben's comments seem to imply that yenta is wrong for doing
+so.  I'm making the point that it isn't.
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- arch/i386/kernel/cpu/cyrix.c |   19 +++++++++----------
- 1 files changed, 9 insertions(+), 10 deletions(-)
-
-
-diff -Nru a/arch/i386/kernel/cpu/cyrix.c b/arch/i386/kernel/cpu/cyrix.c
---- a/arch/i386/kernel/cpu/cyrix.c	2004-10-19 15:23:42 -07:00
-+++ b/arch/i386/kernel/cpu/cyrix.c	2004-10-19 15:23:42 -07:00
-@@ -187,12 +187,19 @@
- }
- 
- 
-+#ifdef CONFIG_PCI
-+static struct pci_device_id cyrix_55x0[] = {
-+	{ PCI_DEVICE(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5510) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5520) },
-+	{ },
-+};
-+#endif
-+
- static void __init init_cyrix(struct cpuinfo_x86 *c)
- {
- 	unsigned char dir0, dir0_msn, dir0_lsn, dir1 = 0;
- 	char *buf = c->x86_model_id;
- 	const char *p = NULL;
--	struct pci_dev *dev;
- 
- 	/* Bit 31 in normal CPUID used for nonstandard 3DNow ID;
- 	   3DNow is IDd by bit 31 in extended CPUID (1*32+31) anyway */
-@@ -275,16 +282,8 @@
- 		/*
- 		 *  The 5510/5520 companion chips have a funky PIT.
- 		 */  
--		dev = pci_get_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5510, NULL);
--		if (dev) {
--			pci_dev_put(dev);
--			pit_latch_buggy = 1;
--		}
--		dev =  pci_get_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5520, NULL);
--		if (dev) {
--			pci_dev_put(dev);
-+		if (pci_dev_present(cyrix_55x0))
- 			pit_latch_buggy = 1;
--		}
- 
- 		/* GXm supports extended cpuid levels 'ala' AMD */
- 		if (c->cpuid_level == 2) {
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

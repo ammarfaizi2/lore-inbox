@@ -1,57 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274146AbRI0Xrg>; Thu, 27 Sep 2001 19:47:36 -0400
+	id <S274171AbRI1ADu>; Thu, 27 Sep 2001 20:03:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274154AbRI0Xr0>; Thu, 27 Sep 2001 19:47:26 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:18172 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274146AbRI0XrN>;
-	Thu, 27 Sep 2001 19:47:13 -0400
-Date: Fri, 28 Sep 2001 01:47:20 +0200
+	id <S274161AbRI1ADk>; Thu, 27 Sep 2001 20:03:40 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:25852 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274164AbRI1ADX>;
+	Thu, 27 Sep 2001 20:03:23 -0400
+Date: Fri, 28 Sep 2001 02:03:34 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Robert Macaulay <robert_macaulay@dell.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org,
-        Bob Matthews <bmatthews@redhat.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs. 2.4.9-ac14/15(+stuff)]
-Message-ID: <20010928014720.Z14277@athlon.random>
-In-Reply-To: <20010928001321.L14277@athlon.random> <Pine.LNX.4.33.0109271605550.25667-100000@penguin.transmeta.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
+Message-ID: <20010928020334.B14277@athlon.random>
+In-Reply-To: <E15mkaf-0000ms-00@mail.tv-sign.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109271605550.25667-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Sep 27, 2001 at 04:16:11PM -0700
+In-Reply-To: <E15mkaf-0000ms-00@mail.tv-sign.ru>; from oleg@tv-sign.ru on Fri, Sep 28, 2001 at 03:29:13AM +0400
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 27, 2001 at 04:16:11PM -0700, Linus Torvalds wrote:
-> 
-> On Fri, 28 Sep 2001, Andrea Arcangeli wrote:
-> However, your patch is racy:
-> 
-> > --- 2.4.10aa2/fs/buffer.c.~1~	Wed Sep 26 18:45:29 2001
-> > +++ 2.4.10aa2/fs/buffer.c	Fri Sep 28 00:04:44 2001
-> > @@ -194,6 +194,7 @@
-> >  		struct buffer_head * bh = *array++;
-> >  		bh->b_end_io = end_buffer_io_sync;
-> >  		submit_bh(WRITE, bh);
-> > +		clear_bit(BH_Pending_IO, &bh->b_state);
-> 
-> No way can we clear the bit here, because the submit_bh() may have caused
-> the buffer to be unlocked and IO to have completed, and it is no longer
-> "owned" by us - somebody else might have started IO on it and we'd be
-> clearing the bit for the wrong user.
+On Fri, Sep 28, 2001 at 03:29:13AM +0400, Oleg Nesterov wrote:
+> --- 2.4.10-softirq-A7/kernel/softirq.c.orig	Thu Sep 27 22:31:06 2001
+> +++ 2.4.10-softirq-A7/kernel/softirq.c	Thu Sep 27 22:54:37 2001
+> @@ -85,7 +85,7 @@
+>  {
+>  	int max_restart = MAX_SOFTIRQ_RESTART;
+>  	int cpu = smp_processor_id();
+> -	__u32 pending, mask;
+> +	__u32 pending;
+>  	long flags;
+>  
+>  	if (in_interrupt())
+> @@ -98,7 +98,6 @@
+>  	if (pending) {
+>  		struct softirq_action *h;
+>  
+> -		mask = ~pending;
+>  		local_bh_disable();
+>  restart:
+>  		/* Reset the pending bitmask before enabling irqs */
 
-Moving clear_bit just above submit_bh will fix it (please Robert make
-this change before testing it), because if we block in submit_bh in the
-bounce, then we won't deadlock on ourself because of the pagehighmem
-check, and all previous non-pending bh are ok too, (only the next are
-problematic, and they're still marked pending_IO so we can't deadlock on
-them).
+correct.
 
-So you can re-consider my approch, the design of the fix was ok, it was
-just a silly implementation error.
+> @@ -381,26 +380,22 @@
+>  #endif
+>  
+>  	current->nice = 19;
+> -	schedule();
+> -	__set_current_state(TASK_INTERRUPTIBLE);
+
+buggy (check cpus_allowed).
+
+>  	for (;;) {
+> -back:
+> +		schedule();
+> +		__set_current_state(TASK_INTERRUPTIBLE);
+> +
+>  		do {
+>  			do_softirq();
+>  			if (current->need_resched)
+>  				goto preempt;
+>  		} while (softirq_pending(cpu));
+> -		schedule();
+> -		__set_current_state(TASK_INTERRUPTIBLE);
+> -	}
+>  
+> +		continue;
+>  preempt:
+> -	__set_current_state(TASK_RUNNING);
+> -	schedule();
+> -	__set_current_state(TASK_INTERRUPTIBLE);
+> -	goto back;
+> +		__set_current_state(TASK_RUNNING);
+> +	}
+>  }
+
+you dropped Ingo's optimization (but you resurrected the strictier /proc
+statistics).
 
 Andrea

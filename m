@@ -1,96 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284535AbRLEWCB>; Wed, 5 Dec 2001 17:02:01 -0500
+	id <S283759AbRLEWEv>; Wed, 5 Dec 2001 17:04:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284536AbRLEWAO>; Wed, 5 Dec 2001 17:00:14 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:15092
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S284760AbRLEV7Z>; Wed, 5 Dec 2001 16:59:25 -0500
-Date: Wed, 5 Dec 2001 13:59:17 -0800
-To: Rene Rebe <rene.rebe@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16 freezes during IDE RAID5 resync
-Message-ID: <20011205215917.GD9050@mikef-linux.matchmail.com>
-Mail-Followup-To: Rene Rebe <rene.rebe@gmx.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011205195308.53c6170c.rene.rebe@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011205195308.53c6170c.rene.rebe@gmx.net>
-User-Agent: Mutt/1.3.24i
-From: Mike Fedyk <mfedyk@matchmail.com>
+	id <S284745AbRLEWDE>; Wed, 5 Dec 2001 17:03:04 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:30477 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S284536AbRLEWCG>; Wed, 5 Dec 2001 17:02:06 -0500
+Date: Wed, 5 Dec 2001 14:13:04 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Lars Brinkhoff <lars.spam@nocrew.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <hps@intermeta.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: SMP/cc Cluster description [was Linux/Pro]
+In-Reply-To: <20011205134133.A11801@work.bitmover.com>
+Message-ID: <Pine.LNX.4.40.0112051404520.1644-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 07:53:08PM +0100, Rene Rebe wrote:
-> Hi all!
-> 
-> Due to a f**ked power shortage (no UPS yet) our server had to reboot:
-> Hardware:
-> 
-> model name      : AMD-K6(tm) 3D processor
-> stepping        : 0
-> cpu MHz         : 350.814
-> 
-> RAM: 128 MB
+On Wed, 5 Dec 2001, Larry McVoy wrote:
+
+> > I still think (see my previous email) that we're actually heading to more or
+> > less the same place from different directions, which was actually my main
+> > point.
 >
+> Oh, I agree with that.  There is no doubt of that, I thought that was fairly
+> apparent.  We aren't arguing about "what" we are arguing about "how".  You
+> are saying "I can take the path explored before and do it better" and I'm
+> saying "Maybe, but extremely unlikely given history.  It's far more likely
+> that you'll repeat history by ignoring it, a time honored tradition, albeit
+> ill-advised."
 
-SMP 2x366 Celeron, 256MB ram, Debian sid-Unstable (2.4.16)
-
-lspci:
-00:00.0 Host bridge: Intel Corp. 440LX/EX - 82443LX/EX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corp. 440LX/EX - 82443LX/EX AGP bridge (rev 03)
-00:07.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 01)
-00:07.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 01)
-00:08.0 SCSI storage controller: Adaptec AIC-7881U (rev 01)
-00:0a.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 [Tulip Pass 3] (rev 21)
-00:0b.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G100 [Productiva] AGP (rev 01)
-
-/proc/isapnp:
-Card 1 'CTL0044:Creative SB32 PnP' PnP version 1.0 Product version 1.0
-
-> There where 1 (for /) and 3 software RAID 5 IBM-DTLA-305040 each as master
-> on a single channel connected all using ReiserFS.
->
-
-Just /home in ext3 (data=journal) on /dev/md0
-
-Personalities : [raid1] 
-read_ahead 1024 sectors
-md0 : active raid1 hda3[0] sda3[1]
-      3927808 blocks [2/2] [UU]
-      
-unused devices: <none>
+Larry, I'd like to remember You that science progress has been made by
+people that forced common knowledge, starting from Platone spherical earth
+up to Einstain theory of relativity.
+A lot of failures sure, but a single success is enough to pay out.
+The _main_ difference with the two examples is that earth has always been
+spherical and sub-atomic mechanics is always been in that way, while
+technology progress could make someone else to succeed where you failed
+time ago.
 
 
-hda: FUJITSU MPB3043ATU
-sda: Vendor: IBM      Model: DCAS-34330W      Rev: S65A
 
-> The system freezed (no oops - simply freeze) reproduceable during a ReiseFS
-> check of the / partiotion. (So it doens't even come to the /home md0 one).
->
-> I even booted a recsue disc mounted the / (so the transaction-log is clean),
-> and rebooted. Then it freezes at an ramdon point during the init.d scripts.
->
 
-Didn't crash (hang, no oops, interrupts off -- no sysrq, no capslock/numlock
-response) during the init scripts, but did while X was running during a
-raid1 reconstruction.
+- Davide
 
-> I fixed it by removing one IBM disc from the on-board IDE chip's
-> second channel and adding it to the promisse as slave. Now it works?
->
-> The server ran stable for 17 days using a 2.4.14 kernel and using the
-> 2.4.16 since it got out ... I do not know what might be wrong, IDE code,
 
-2.4.14+ext3 was also reliable for me.
-
-Common items in our setups are IDE and RAID.
-
-I can run some tests if anyone comes up with something.
-
-mf

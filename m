@@ -1,73 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268417AbRGXSKW>; Tue, 24 Jul 2001 14:10:22 -0400
+	id <S268418AbRGXSIw>; Tue, 24 Jul 2001 14:08:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265754AbRGXSKM>; Tue, 24 Jul 2001 14:10:12 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:48393 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S268419AbRGXSJz>; Tue, 24 Jul 2001 14:09:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>,
+	id <S265754AbRGXSIm>; Tue, 24 Jul 2001 14:08:42 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:60624 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S268419AbRGXSI3>; Tue, 24 Jul 2001 14:08:29 -0400
+Message-Id: <5.1.0.14.2.20010724185730.00b1fec0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 24 Jul 2001 19:07:47 +0100
+To: Davide Libenzi <davidel@xmailserver.org>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: user-mode port 0.44-2.4.7
+Cc: Alexander Viro <viro@math.psu.edu>, Jonathan Lundell <jlundell@pobox.com>,
+        Jan Hubicka <jh@suse.cz>, linux-kernel@vger.kernel.org,
+        user-mode-linux-user@lists.sourceforge.net,
+        Jeff Dike <jdike@karaya.com>, Andrea Arcangeli <andrea@suse.de>,
         Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] Optimization for use-once pages
-Date: Tue, 24 Jul 2001 20:14:36 +0200
-X-Mailer: KMail [version 1.2]
-Cc: <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0107241359180.20326-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0107241359180.20326-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Message-Id: <01072420143600.00520@starship>
-Content-Transfer-Encoding: 7BIT
+In-Reply-To: <XFMail.20010724095229.davidel@xmailserver.org>
+In-Reply-To: <Pine.GSO.4.21.0107241203260.25475-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tuesday 24 July 2001 19:04, Rik van Riel wrote:
-> On Tue, 24 Jul 2001, Linus Torvalds wrote:
-> > Hey, this looks _really_ nice. I never liked the special-cases
-> > that you removed (drop_behind in particular), and I have to say
-> > that the new code looks a lot saner, even without your extensive
-> > description and timing analysis.
+At 17:52 24/07/2001, Davide Libenzi wrote:
+>On 24-Jul-2001 Alexander Viro wrote:
+> > On Tue, 24 Jul 2001, Davide Libenzi wrote:
+>You're simply telling the compiler the way it has to ( not ) optimize the 
+>code.
+>This is IMHO a declaration time issue.
+>Looking at this code :
 >
-> Fully agreed, drop_behind is an ugly hack.  The sooner
-> it dies the happier I am ;)
+>while (jiffies < ...) {
+>         ...
+>}
 >
-> > Please people, test this out extensively - I'd love to integrate
-> > it, but while it looks very sane I'd really like to hear of
-> > different peoples reactions to it under different loads.
+>the "natural" behaviour that a reader expects is that the "content" of the 
+>memory pointed by  jiffied  is loaded and compared.
+
+Well, that depends on your definition of "natural". In my definition, it 
+would be absolutely normal in this example for the compiler to cache 
+jiffies because it considers it as a non-changing variable if none of the 
+code inside the while loop refers to jiffies again. But that's just me...
+
+>If you like this code more :
 >
-> The one thing which has always come up in LRU/k and 2Q
-> papers is that the "first reference" can really be a
-> series of references in a very short time.
+>for (;;) {
+>         barrier();
+>         if (jiffies >= ...)
+>                 break;
+>         ...
+>}
 
-Yes, I thought about that but decided to try to demonstrate the
-concept in its simplest form, and if things worked out, go ahead
-and try to refine it.
+Er, what is wrong with:
 
-Memory-mapped files have to be handled too.  One possible way to
-go at it is to do the test not against the current page being
-handled by generic_* but against the page already on the head of
-the inactive_dirty list, at the time the *next* page is queued.
-This introduces a slight delay, time enough for several programmed
-IO operations to complete.  It will also work for mmap.  As a
-bonus, the code might even get cleaner because all the use_once
-tests are gathered together into a single place.
+while (barrier(), jiffies < ...) {
+         ...
+}
 
-> Counting only the very first reference will fail if we
-> do eg. sequential IO with non-page aligned read() calls,
-> which doesn't look like it's too uncommon.
+It is just as clean as the starting point but tells both the compiler at 
+compile time and _me_ when reading the code that jiffies is expected to 
+change under me.
 
-Yep.  We should also look at some statistics.  So far I've just
-used a single number: execution time.
+That is _way_ better than declaring it volatile in some obsure header file 
+which, chances are, I have never looked at, or looked at and long forgotten 
+about...
 
-> In order to prevent this from happening, either the system
-> counts all first references in a short timespan (complex to
-> implement) or it has the new pages on a special - small fixed
-> size - page list and all references to the page while on that
-> list are ignored.
+Just my 2p.
 
-Yes, those are both possibilities.
+Anton
 
---
-Daniel
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

@@ -1,48 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129856AbQKGA3Q>; Mon, 6 Nov 2000 19:29:16 -0500
+	id <S129792AbQKGAbg>; Mon, 6 Nov 2000 19:31:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130486AbQKGA3H>; Mon, 6 Nov 2000 19:29:07 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2920 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129856AbQKGA2y>; Mon, 6 Nov 2000 19:28:54 -0500
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-To: jas88@cam.ac.uk (James A. Sutherland)
-Date: Tue, 7 Nov 2000 00:27:03 +0000 (GMT)
-Cc: goemon@anime.net (Dan Hollis), dwmw2@infradead.org (David Woodhouse),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <00110700192100.00940@dax.joh.cam.ac.uk> from "James A. Sutherland" at Nov 07, 2000 12:18:00 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130328AbQKGAb0>; Mon, 6 Nov 2000 19:31:26 -0500
+Received: from smtp-fwd.valinux.com ([198.186.202.196]:4107 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129792AbQKGAbL>;
+	Mon, 6 Nov 2000 19:31:11 -0500
+Date: Mon, 6 Nov 2000 16:31:54 -0800
+From: David Hinds <dhinds@valinux.com>
+To: David Ford <david@linux.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: current snapshots of pcmcia
+Message-ID: <20001106163154.A20457@valinux.com>
+In-Reply-To: <3A06757F.3C63F1A8@linux.com> <20001106104927.A19573@valinux.com> <3A073C8D.B6511746@linux.com> <20001106154039.A19860@valinux.com> <3A074AAC.1F88DB3@linux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13swbR-0006pk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <3A074AAC.1F88DB3@linux.com>; from David Ford on Mon, Nov 06, 2000 at 04:19:56PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> changing settings. If I plug in a hotplug soundcard and load the driver, I do
-> NOT want the driver to decide to set some settings. If I want settings set,
-> I'll do it myself (or have a script to do it).
+Incidentally, the i82365 module should work ok (using ISA interrupts)
+despite the "No IRQ known" messages.  The Yenta driver won't work at
+all if PCI interrupts aren't set up.  So I guess another question
+would be, what card(s) are you using and how are they misbehaving?
 
-How about if your stuff is already nicely set up and you remove then replug
-a device, or remove and swap for an identical replacement part. Most people then
-want the configuration preserved.
-
-And guess what the simple modutils solution using an ELF section solves that too
-Want to go to default configuration ?
-
-	rm /var/run/modules/eth0.data
-
-or wrap it in a GUI.
-
-[BTW windows gets the USB speaker state management right, seems they store all
-the module persistent data in the registry!]
-
-
+-- Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

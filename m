@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129764AbRAXPUg>; Wed, 24 Jan 2001 10:20:36 -0500
+	id <S129953AbRAXP1I>; Wed, 24 Jan 2001 10:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129953AbRAXPU1>; Wed, 24 Jan 2001 10:20:27 -0500
-Received: from mail.iex.net ([192.156.196.5]:61410 "EHLO mail.iex.net")
-	by vger.kernel.org with ESMTP id <S129764AbRAXPUF>;
-	Wed, 24 Jan 2001 10:20:05 -0500
-Message-ID: <3A6EF2A1.286092D5@iex.net>
-Date: Wed, 24 Jan 2001 08:20:01 -0700
-From: Tim Sullivan <tsulliva@iex.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
+	id <S129944AbRAXP06>; Wed, 24 Jan 2001 10:26:58 -0500
+Received: from [212.255.16.226] ([212.255.16.226]:53426 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S130153AbRAXP0q> convert rfc822-to-8bit;
+	Wed, 24 Jan 2001 10:26:46 -0500
+Message-ID: <006001c0861a$0c85c960$0100a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>
+Subject: Hercules Graphics Card
+Date: Wed, 24 Jan 2001 15:22:57 -0000
+Organization: eccesys.net Linux Distribution Development
 MIME-Version: 1.0
-To: Matt_Domsch@Dell.com
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: No SCSI Ultra 160 with Adaptec Controller
-In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9C0F@ausxmrr501.us.dell.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="x-user-defined"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.3018.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt_Domsch@Dell.com wrote:
-> 
-> > Justin's 6.0.9beta(latest release) hasn't corrected the problem yet.
-> >
-> > scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.0.9 BETA
-> >         <Adaptec 29160 Ultra160 SCSI adapter>
-> >         aic7892: Wide Channel A, SCSI Id=7, 32/255 SCBs
-> >
-> >   Vendor: QUANTUM   Model: ATLAS10K2-TY367L  Rev: DDD6
-> >   Type:   Direct-Access                      ANSI SCSI revision: 03
-> > (scsi0:A:0): async, 8bit
-> > scsi0:0:0:0: Tagged Queuing enabled.  Depth 8
-> > Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
-> > (scsi0:A:0): async, 16bit
-> > (scsi0:A:0): synchronous at 80.0MHz DT, offset 0x7f, 16bit
-> > SCSI device sda: 71721820 512-byte hdwr sectors (36722 MB)
-> 
-> I could still be wrong, but 80 MHz * 16 bits (2 bytes) = 160 MB/sec.
-> We are testing Justin's driver internally.  I'll grab our SCSI disk guys and
-> make sure it's up to speed.
-> 
-> Thanks,
-> Matt
+So I'm not the only... -- surprise for me, too.
 
-My apologies, you're right of course :-)  I was seeing MHz and thinking
-MB!
+I'm too using this, mostly because I like it, got up with it, and it's better than those pixelled displays today. And who needs colours?
+For me, it says (2.4.0-prerelease) I'd got a HGC with 8 kB of RAM.
+This surely isn't true because under DOS some pgmz work problemless
+which use the whole 64K of &hB0000 to &hBFFFF (when I deactivate the VGA
+card), and even Turbo Debugger 1.0's dual-screen option works in both gfx and
+text mode, with the other card as debugging display in text mode, no matter whether the PGM uses HGC or VGA as primary display.
+I'm sorry I've got no correction, but prolly you could try to read-modify-write-read-write_original, and compare the read value with the written bzw. the original.
+And - do we get a HGC gfx framebuffer hgc1fb? (Btw, the vga16fb must be called vga4fb - it uses 4 bit colour, not 16)
+What about dual-screen X... (this is OT - I know)
 
-Thanks,
-tim
+(Sorry about my English) - mirabilos
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,123 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268180AbUJCWm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268206AbUJCWtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268180AbUJCWm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 18:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268184AbUJCWm1
+	id S268206AbUJCWtc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 18:49:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268207AbUJCWtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 18:42:27 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:37442 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268180AbUJCWmW (ORCPT
+	Sun, 3 Oct 2004 18:49:32 -0400
+Received: from [145.85.127.2] ([145.85.127.2]:2242 "EHLO mail.il.fontys.nl")
+	by vger.kernel.org with ESMTP id S268206AbUJCWta (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 18:42:22 -0400
-Message-ID: <9e473391041003154231bcccd8@mail.gmail.com>
-Date: Sun, 3 Oct 2004 18:42:21 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Vladimir Dergachev <volodya@mindspring.com>
-Subject: Re: Merging DRM and fbdev
-Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0410031636320.18135@node2.an-vo.com>
-Mime-Version: 1.0
+	Sun, 3 Oct 2004 18:49:30 -0400
+Message-ID: <59409.217.121.83.210.1096843766.squirrel@217.121.83.210>
+In-Reply-To: <Pine.LNX.4.10.10410031203240.7525-100000@netwinder.perches.com>
+References: <56986.217.121.83.210.1096826639.squirrel@217.121.83.210>
+    <Pine.LNX.4.10.10410031203240.7525-100000@netwinder.perches.com>
+Date: Mon, 4 Oct 2004 00:49:26 +0200 (CEST)
+Subject: Re: [Patch] nfsd: Insecure port warning shows decimal IPv4 address
+From: "Ed Schouten" <ed@il.fontys.nl>
+To: linux-kernel@vger.kernel.org
+Cc: "Joe Perches" <joe@perches.com>, akpm@osdl.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e47339104100220553c57624a@mail.gmail.com>
-	 <Pine.LNX.4.58.0410030824280.2325@skynet>
-	 <9e4733910410030833e8a6683@mail.gmail.com>
-	 <Pine.LNX.4.61.0410031145560.17248@node2.an-vo.com>
-	 <9e4733910410030924214dd3e3@mail.gmail.com>
-	 <Pine.LNX.4.61.0410031254280.17448@node2.an-vo.com>
-	 <9e473391041003105511b77003@mail.gmail.com>
-	 <Pine.LNX.4.61.0410031636320.18135@node2.an-vo.com>
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there are device driver level interface defined for controlling
-tuners? Or is this something that even needs to be done in a device
-driver? With X on GL Xv will have to change form too.
+On Sun, October 3, 2004 9:12 pm, Joe Perches said:
+> There may be a couple of places where this could be done in fs/nfsd
 
-On Sun, 3 Oct 2004 16:37:03 -0400 (EDT), Vladimir Dergachev
-<volodya@mindspring.com> wrote:
-> 
-> 
-> On Sun, 3 Oct 2004, Jon Smirl wrote:
-> 
-> > How is the tuner controlled? Is it a V4L insterface?
-> 
-> No, the tuner is controlled via Xserver Xv extension. No V4L interface is
-> provided for tuner control.
-> 
->                        best
-> 
->                           Vladimir Dergachev
-> 
-> 
-> 
-> >
-> >
-> > On Sun, 3 Oct 2004 12:59:38 -0400 (EDT), Vladimir Dergachev
-> > <volodya@mindspring.com> wrote:
-> >> Jon, this is a common misconception - GATOS km module *does* provide a v4l
-> >> interface.
-> >>
-> >> What is different is that the device configuration (like setting the tuner
-> >> or encoding) is done by Xserver.
-> >>
-> >> All km does is check whether the card can supply a v4l stream and, if so,
-> >> it provides it. This is little different from a webcam driver, especially
-> >> if a webcam has its own on/off switch.
-> >>
-> >> The misconception arises from the fact that many v4l programs were only
-> >> made to work with bt848 cards - they would *not* work with webcams any
-> >> more than they would work with km.
-> >>
-> >>                                best
-> >>
-> >>                                  Vladimir Dergachev
-> >>
-> >>>
-> >>> --
-> >>> Jon Smirl
-> >>> jonsmirl@gmail.com
-> >>>
-> >>>
-> >>> -------------------------------------------------------
-> >>> This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
-> >>> Use IT products in your business? Tell us what you think of them. Give us
-> >>> Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
-> >>> http://productguide.itmanagersjournal.com/guidepromo.tmpl
-> >>> --
-> >>> _______________________________________________
-> >>> Dri-devel mailing list
-> >>> Dri-devel@lists.sourceforge.net
-> >>> https://lists.sourceforge.net/lists/listinfo/dri-devel
-> >>>
-> >>
-> >
-> >
-> >
-> > --
-> > Jon Smirl
-> > jonsmirl@gmail.com
-> >
-> >
-> > -------------------------------------------------------
-> 
-> 
-> > This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
-> > Use IT products in your business? Tell us what you think of them. Give us
-> > Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
-> > http://productguide.itmanagersjournal.com/guidepromo.tmpl
-> > --
-> > _______________________________________________
-> > Dri-devel mailing list
-> > Dri-devel@lists.sourceforge.net
-> > https://lists.sourceforge.net/lists/listinfo/dri-devel
-> >
-> 
+True. After a quick look, I found another spot in nfsproc.c. Here's a new
+patch, using the NIPQUAD macro.
+---
 
+ nfsfh.c   |    4 ++--
+ nfsproc.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
+diff -u -r linux-2.6.9-rc3/fs/nfsd/nfsfh.c
+linux-2.6.9-rc3-xbox/fs/nfsd/nfsfh.c
+--- linux-2.6.9-rc3/fs/nfsd/nfsfh.c	2004-09-30 05:04:26.000000000 +0200
++++ linux-2.6.9-rc3-xbox/fs/nfsd/nfsfh.c	2004-10-04 00:45:16.926659000 +0200
+@@ -153,8 +153,8 @@
+ 		error = nfserr_perm;
+ 		if (!rqstp->rq_secure && EX_SECURE(exp)) {
+ 			printk(KERN_WARNING
+-			       "nfsd: request from insecure port (%08x:%d)!\n",
+-			       ntohl(rqstp->rq_addr.sin_addr.s_addr),
++			       "nfsd: request from insecure port (%u.%u.%u.%u:%d)!\n",
++			       NIPQUAD(rqstp->rq_addr.sin_addr.s_addr),
+ 			       ntohs(rqstp->rq_addr.sin_port));
+ 			goto out;
+ 		}
+diff -u -r linux-2.6.9-rc3/fs/nfsd/nfsproc.c
+linux-2.6.9-rc3-xbox/fs/nfsd/nfsproc.c
+--- linux-2.6.9-rc3/fs/nfsd/nfsproc.c	2004-09-30 05:04:25.000000000 +0200
++++ linux-2.6.9-rc3-xbox/fs/nfsd/nfsproc.c	2004-10-04 00:44:58.225659000
++0200
+@@ -128,8 +128,8 @@
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+ 	if (NFSSVC_MAXBLKSIZE < argp->count) {
+ 		printk(KERN_NOTICE
+-			"oversized read request from %08x:%d (%d bytes)\n",
+-				ntohl(rqstp->rq_addr.sin_addr.s_addr),
++			"oversized read request from %u.%u.%u.%u:%d (%d bytes)\n",
++				NIPQUAD(rqstp->rq_addr.sin_addr.s_addr),
+ 				ntohs(rqstp->rq_addr.sin_port),
+ 				argp->count);
+ 		argp->count = NFSSVC_MAXBLKSIZE;

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262977AbSJTPpH>; Sun, 20 Oct 2002 11:45:07 -0400
+	id <S262981AbSJTPkK>; Sun, 20 Oct 2002 11:40:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263135AbSJTPpG>; Sun, 20 Oct 2002 11:45:06 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:33776 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S262977AbSJTPpG>;
-	Sun, 20 Oct 2002 11:45:06 -0400
-Date: Mon, 21 Oct 2002 01:50:50 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: george anzinger <george@mvista.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH ] POSIX clocks & timers take 3 (NOT HIGH RES)
-Message-Id: <20021021015050.21dbd4d9.sfr@canb.auug.org.au>
-In-Reply-To: <3DAF4362.EE87F7F1@mvista.com>
-References: <3DAF4362.EE87F7F1@mvista.com>
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S262977AbSJTPkK>; Sun, 20 Oct 2002 11:40:10 -0400
+Received: from blowme.phunnypharm.org ([65.207.35.140]:55051 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S262981AbSJTPkJ>; Sun, 20 Oct 2002 11:40:09 -0400
+Date: Sun, 20 Oct 2002 11:46:09 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper outrage, old and new
+Message-ID: <20021020154609.GD696@phunnypharm.org>
+References: <E180rX3-0005dL-00@fencepost.gnu.org> <20021014170248.A19897@infradead.org> <E181WHl-00010N-00@fencepost.gnu.org> <20021015193138.A4010@infradead.org> <200210161856.g9GIu57t013710@santafe.santafe.edu> <20021016201328.A24882@infradead.org> <E1832Lh-0004xH-00@fencepost.gnu.org> <20021019161201.A26017@work.bitmover.com> <3DB1EAAB.30401@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB1EAAB.30401@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi George,
+On Sat, Oct 19, 2002 at 07:28:43PM -0400, Jeff Garzik wrote:
+> Larry McVoy wrote:
+> >I have no problem with the GPL, I think it's a fine license if your
+> >goal is to have things done out in the open with no hoarding.  A great
+> >license, in fact.  But I have a big problem with this constant harping
+> >on the term "freedom".  The GPL absolutely positively does not grant me
+> >all the rights I want, it took substantial portions of my freedom away.
+> >I am not free to use GPL source in any way I wish and neither is anyone
+> >else.
+> >
+> >I'm OK with you having a free license, go make one.  I'm OK with you 
+> >sticking with the GPL, but then you get admit that it is not a free
+> >license and stop kidding yourself and others.
+> 
+> 
+> At the potential cost of getting flamed, I think it is worth pointing 
+> out that the FSF's copyright assignment policy on several of their 
+> projects is _very_ anti-freedom.  You are required to relinquish all 
+> your rights to your contributions, in exchange for the hope that the FSF 
+> will protect them.
 
-On Thu, 17 Oct 2002 16:10:26 -0700 george anzinger <george@mvista.com> wrote:
->
-> +++ linux/include/asm-generic/siginfo.h	Thu Oct 17 15:33:39 2002
-> @@ -43,8 +43,9 @@
->  
->  		/* POSIX.1b timers */
-> 		struct {
-> -			unsigned int _timer1;
-> -			unsigned int _timer2;
-> +			timer_t _tid;		/* timer id */
-> +			int _overrun;		/* overrun count */
-> +			sigval_t _sigval;	/* same as below */
->  		} _timer;
+Jeff, they don't force you, they require it to be turned over to them
+for inclusion in the FSF proper upstream source. Also, it doesn't mean
+that you lose your rights to the original piece. You can still reuse
+your own source as the copyright owner.
 
-This, of course, will only work on architectures where (sizeof(timer_t) +
-sizeof(int) + alignment padding for sigval_t) is the same as
-(sizeof(pid_t) + sizeof(uid_t) + alignment padding for sigval_t). Which is
-true as far as I can see, but is fragile.  It might be worth a comment.
+That doesn't stop things like egcs from happening, does it? It's not
+like Apple's old license that the mere releasing of your patches to the
+source requires turning over non-exclusive rights.
+
+I really hope I didn't help this thread diminish into a licensing
+flamefest.
 
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

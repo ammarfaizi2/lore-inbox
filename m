@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbUK1RtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbUK1R6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbUK1RtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 12:49:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbUK1RtZ
+	id S261538AbUK1R6p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 12:58:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUK1R6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 12:49:25 -0500
-Received: from main.gmane.org ([80.91.229.2]:8665 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261531AbUK1RtW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 12:49:22 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Pasi Savolainen <psavo@iki.fi>
-Subject: Re: Is controlling DVD speeds via SET_STREAMING supported?
-Date: Sun, 28 Nov 2004 17:49:12 +0000 (UTC)
-Message-ID: <slrncqk3so.19r.psavo@varg.dyndns.org>
-References: <33133.192.168.0.2.1101499190.squirrel@192.168.0.10> <32942.192.168.0.2.1101549298.squirrel@192.168.0.10> <slrncqhqib.19r.psavo@varg.dyndns.org> <33262.192.168.0.2.1101597468.squirrel@192.168.0.10> <slrncqjcve.19r.psavo@varg.dyndns.org> <33050.192.168.0.5.1101651929.squirrel@192.168.0.10> <20041128165257.GA26714@suse.de>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: a11a.mannikko1.ton.tut.fi
-X-Face: $sk2zxhxVp'QPUj~kr+z:<m>#+84DO\Ab{4Hes1.P>]p=XhgsnwZM^[:"M?W#_x{W5[lu7i bqv7lOL`]5G%fH"Pgd5;+t"w)sOPDg::&T$Z9p#|xSMIb`$Udj6u14lh]imQ\z
-User-Agent: slrn/0.9.8.1 (Debian)
+	Sun, 28 Nov 2004 12:58:45 -0500
+Received: from pool-141-154-235-89.bos.east.verizon.net ([141.154.235.89]:3076
+	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S261538AbUK1R6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 12:58:44 -0500
+Message-Id: <200411282014.iASKE2Fr012406@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: Blaisorblade <blaisorblade_spam@yahoo.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] UML - Build cleanups 
+In-Reply-To: Your message of "Thu, 25 Nov 2004 04:53:18 +0100."
+             <200411250453.18844.blaisorblade_spam@yahoo.it> 
+References: <200411242305.iAON5qbn005388@ccure.user-mode-linux.org>  <200411250453.18844.blaisorblade_spam@yahoo.it> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 28 Nov 2004 15:14:02 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jens Axboe <axboe@suse.de>:
->> > I modified your speed-1.0 to open device O_RDWR, didn't help.
->> > I modified it to also dump_sense after CMD_SEND_PACKET, it's just
->> > duplicate packet.
->> 
->> No this will definitively not solve this issue. I will try to check this
->> in the kernel, but because I'm not a kernel developer I will CC Jens
->> Axboe. Maybe he can help?
->
-> Just fix the permission on the special file. Additionally, the program
-> must open the device O_RDWR.
+blaisorblade_spam@yahoo.it said:
+> Jeff, sometimes you should upgrade changelogs...
 
-(under 2.6.10-rc2-mm1)
-I ran speed-1.0 program as root and also modified to open the device
-file as O_RDWR. This didn't help, it still reports same error.
+I've had that patch sitting in my queue for ages.  You can always send me an
+update to it.
 
-Booted into 2.4.28, speed-1.0 didn't do the trick there either. 'sense'
-reported was 00.00.00 though.
+I didn't change the chnagelog because I'm considering that to be part of the
+Signed-off-by material.  If I change it, then it's no longer your creation.
 
-
--- 
-   Psi -- <http://www.iki.fi/pasi.savolainen>
+				Jeff
 

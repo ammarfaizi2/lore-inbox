@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316821AbSFJKFx>; Mon, 10 Jun 2002 06:05:53 -0400
+	id <S313743AbSFJMki>; Mon, 10 Jun 2002 08:40:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316823AbSFJKFw>; Mon, 10 Jun 2002 06:05:52 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:15113 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S316821AbSFJKFw>; Mon, 10 Jun 2002 06:05:52 -0400
-Date: Sun, 9 Jun 2002 15:26:02 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
+	id <S313711AbSFJMjj>; Mon, 10 Jun 2002 08:39:39 -0400
+Received: from 27.Red-80-59-189.pooles.rima-tde.net ([80.59.189.27]:63478 "EHLO
+	femto") by vger.kernel.org with ESMTP id <S313628AbSFJMik>;
+	Mon, 10 Jun 2002 08:38:40 -0400
+Date: Sun, 9 Jun 2002 19:36:55 +0200
+From: Eric Van Buggenhaut <Eric.VanBuggenhaut@AdValvas.be>
 To: linux-kernel@vger.kernel.org
-Subject: External compilation
-Message-ID: <20020609142602.GA77496@compsoc.man.ac.uk>
+Subject: 2.4.18 ooops when modprobe'ing if pci=biosirq
+Message-ID: <20020609173654.GC2350@eric.ath.cx>
+Reply-To: Eric.VanBuggenhaut@AdValvas.be
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
-X-Scanner: exiscan *17HM3J-000Hlj-00*5ZXPEV4PceQ* (Manchester Computing, University of Manchester)
+User-Agent: Mutt/1.3.28i
+X-Echelon: FBI WTC NSA Handgun Anthrax Afgahnistan Bomb Heroin Laden
+X-message-flag: Microsoft discourages the use of Outlook.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Is there any good example code for compiling a kernel module
-externally, that works for modversions etc. on 2.2, 2.4, and 2.5,
-and does the right thing (including Rules.make) ?
+My kernel ooops at boot time when using pci=biosirq.
 
-I'm having an awful time working out the exact incantations.
 
-On a related note, is it at all possible to make a "mini filesystem"
-that will work on 2.2 upwards, so I can avoid proc,sysctl, and ioctl ?
+Loading modules: 3c59x Unable to handle kernel paging request at
+virtual address 00009a28
+ printing eip:
+c00f7241
+*pde = 00000000
+Oops: 0000
+[...]
+Process modprobe (pid: 34, stackpage=c1ddb000)
 
-thanks
-john
+
+
+I tried pci=biosirq because I had a :
+
+kernel: PCI: No IRQ known for interrupt pin A of device 00:09.0. Please try
+using pci=biosirq.
+
+When trying to get a Ricoh RL5c475 CardBus bridge working.
+
+Is this a known bug ? What is the workaround ?
+
+I'm not a kernel guru, so I don't exactly know how to give you useful
+infos.
+
+If you want the full ooops output, just let me know, i'd copy it by
+hand.
+
+Cheers,
 
 -- 
-"Saying that taste is just personal preference is a good way to prevent
-disputes. The trouble is, it's not true."
-	- Paul Graham
+Eric VAN BUGGENHAUT
+Eric.VanBuggenhaut@AdValvas.be

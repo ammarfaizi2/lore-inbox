@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319021AbSIKOTx>; Wed, 11 Sep 2002 10:19:53 -0400
+	id <S318971AbSIKOYF>; Wed, 11 Sep 2002 10:24:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319041AbSIKOTx>; Wed, 11 Sep 2002 10:19:53 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:3066 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319021AbSIKOTv>;
-	Wed, 11 Sep 2002 10:19:51 -0400
-Date: Wed, 11 Sep 2002 19:59:39 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Robert Love <rml@tech9.net>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Paul McKenney <paul.mckenney@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Read-Copy Update 2.5.34
-Message-ID: <20020911195939.E28198@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20020911164940.C28198@in.ibm.com> <Pine.LNX.4.44.0209111323360.12332-100000@localhost.localdomain> <20020911175011.D28198@in.ibm.com> <1031753011.950.106.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1031753011.950.106.camel@phantasy>; from rml@tech9.net on Wed, Sep 11, 2002 at 10:03:28AM -0400
+	id <S319041AbSIKOYF>; Wed, 11 Sep 2002 10:24:05 -0400
+Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:62730
+	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S318971AbSIKOYE>; Wed, 11 Sep 2002 10:24:04 -0400
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A7992@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'dchristian@mail.arc.nasa.gov'" <dchristian@mail.arc.nasa.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.4.18 serial drops characters with 16654
+Date: Wed, 11 Sep 2002 07:28:45 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 11, 2002 at 10:03:28AM -0400, Robert Love wrote:
-> On Wed, 2002-09-11 at 08:20, Dipankar Sarma wrote:
+On Tue, September 10, 2002 at 3:22 PM, Dan Christian wrote:
+> I've got a 2.4.18-10 (RedHat) running on a 2 processor Athlon (1.5Ghz).
+> If I send data over a PCI 16654 serial card (Connect Tech Blue Heat) and 
+> RTSCTS flow control is used, characters are dropped.  The drops are 
+> pretty consistent.  As far as I can tell, the data can only be lost in 
+> the driver (I'm re-trying the write until all the data gets out).
 > 
-> > 			vanilla-2.5.34	rcu_poll-2.5.34
-> > 			--------------  ---------------
-> > 80 , 40 , 		1.593		1.569
-> > 112 , 40 , 		1.544		1.554
-> > 144 , 40 , 		1.595		1.552
-> > 176 , 40 , 		1.568		1.605
-> > 198 , 40 , 		1.562		1.577
-> > 230 , 40 , 		1.563		1.583
-> > 244 , 40 , 		1.671		1.638
-> > 
-> > Not sure how reliable these numbers are.
+> If I use a 16550, then everything is fine.  Unfortunately, I can't get 
+> rid of the 16654s.
 > 
-> And how bad is the performance drop from 2.5.34-preempt to
-> 2.5.34-preempt-rcu?
+> If is use a 1 processor Athlon running 2.4.9-34 (RedHat), then 
+> everything is fine.
 > 
-> I am glad you guys support kernel preemption (not that you have a chance
-> at this point) but I hope it was not an afterthought.
+> I haven't been about to test the 2.4.18 SMP system in single processor 
+> mode, because the IO-APIC goes nuts.  But that's another bug...
+> 
+> Anybody know why the serial driver is losing data?
+> 
+> I'm not on linux-kernel, so please reply directly.
 
-Hi Robert,
+Hi Dan,
 
-Sorry, I should have been more careful labelling them - those are 2.5.34-preempt
-vs 2.5.34-preempt-rcu numbers. I did them first because rcu-poll-preempt
-kernel has a conditinal branch in fast path and hence more interesting. 
-I will publish the vanilla vs rcu_poll reflex numbers in a few minutes 
-from now.
+We use Exar ST16C654D chips on a cPCI 16-port mux we build and have not
+(yet) had a problem report on it for this. Maybe I can reproduce the symptom
+on this board. What vendor marking is on your UARTs? Could you tell me more
+about your test setup and specifically how often data is dropped and how
+many characters are dropped each time? What kind of device is receiving the
+data and how much receive FIFO does it have left when it drops RTS to tell
+the Blue Heat to stop? 
 
-The preemption support have been in RCU for a very long time. IIRC, I added
-it in around 2.5.14.
+Best regards,
+Ed
 
-See http://marc.theaimsgroup.com/?l=linux-kernel&m=102084967517192&w=2
+---------------------------------------------------------------- 
+Ed Vance              serial24 (at) macrolink (dot) com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
 
-Our OLS paper and presentation too deals with preemption -
-
-http://www.rdrop.com/users/paulmck/rclock/rcu.2002.07.08.pdf
-http://www.rdrop.com/users/paulmck/rclock/rclock.OLS.2002.07.08a.pdf
-
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.

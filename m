@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315437AbSHMOQZ>; Tue, 13 Aug 2002 10:16:25 -0400
+	id <S315440AbSHMOSg>; Tue, 13 Aug 2002 10:18:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315439AbSHMOQZ>; Tue, 13 Aug 2002 10:16:25 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:2222 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315437AbSHMOQY>;
-	Tue, 13 Aug 2002 10:16:24 -0400
-Date: Tue, 13 Aug 2002 07:17:41 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, colpatch@us.ibm.com
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>, Greg KH <gregkh@us.ibm.com>
-Subject: Re: [patch] PCI Cleanup
-Message-ID: <1847016869.1029223059@[10.10.2.3]>
-In-Reply-To: <1029239133.20980.10.camel@irongate.swansea.linux.org.uk>
-References: <1029239133.20980.10.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S315442AbSHMOSg>; Tue, 13 Aug 2002 10:18:36 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:18913 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S315440AbSHMOSg> convert rfc822-to-8bit; Tue, 13 Aug 2002 10:18:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Subject: Re: TUX in 2.4.20?
+Date: Tue, 13 Aug 2002 15:36:12 +0200
+User-Agent: KMail/1.4.1
+References: <200208131339.31547.roy@karlsbakk.net>
+In-Reply-To: <200208131339.31547.roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208131536.12666.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 2002-08-13 at 01:08, Matthew Dobson wrote:
-> 
->> -	if (!value) 
->> -		return -EINVAL;
->> -
->> -	result = pci_conf1_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
->> -		PCI_FUNC(dev->devfn), where, 2, &data);
->> -
-> 
-> This stil has the same problems as it did last time you posted it. The
-> pointless NULL check and the increased complexity over duplicating about
-> 60 lines of code and having pci_conf1 ops cleanly as we do in 2.4.
-> 
-> The !value check is extremely bad because it turns a critical debuggable
-> software error into a silent unnoticed mistake.
-> 
-> Fixing the code instead of just resending it might improve the changes
-> of it being merged no end.
+Am Dienstag, 13. August 2002 13:39 schrieb Roy Sigurd Karlsbakk:
+> hi all
+>
+> perhaps it's time to ditch khttpd in favour for Tux now? I beleive
+> 2.4.20 would be a nice time to do this.
+>
+> anyone?
 
-Alan, please *look* at the patch. The NULL check is already
-there, he's REMOVING about 60 lines of duplicated code,
-reducing the complexity, and shifting the indirection up one
-level to get rid of redundancy.
+2.4 is a stable series. Removing something needs a very good
+reason, which just isn't there.
 
-If you want to delete the NULL check as well, that's fine, but
-totally a side issue. Ironically, the very snippet of code you
-quoted is all prefaced with "-", no?
-
-M.
+	Regards
+		Oliver
 

@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277986AbRJRTNv>; Thu, 18 Oct 2001 15:13:51 -0400
+	id <S277985AbRJRTNL>; Thu, 18 Oct 2001 15:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278001AbRJRTNm>; Thu, 18 Oct 2001 15:13:42 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:51642 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S277986AbRJRTN1>; Thu, 18 Oct 2001 15:13:27 -0400
-Message-ID: <3BCF2A44.60B295FD@nortelnetworks.com>
-Date: Thu, 18 Oct 2001 15:15:16 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S277986AbRJRTNC>; Thu, 18 Oct 2001 15:13:02 -0400
+Received: from pc2-redb4-0-cust130.bre.cable.ntl.com ([213.107.133.130]:507
+	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
+	id <S277985AbRJRTMu>; Thu, 18 Oct 2001 15:12:50 -0400
+Date: Thu, 18 Oct 2001 20:13:21 +0100
+From: Mark Zealey <mark@zealos.org>
 To: linux-kernel@vger.kernel.org
-Cc: kuznet@ms2.inr.ac.ru
-Subject: how to see manually specified proxy arp entries using "ip neigh" 
-         command?
+Subject: Re: 2.2.x process limits (NR_TASKS)?
+Message-ID: <20011018201321.B3187@itsolve.co.uk>
+In-Reply-To: <Pine.LNX.4.33.0110181139380.30308-100000@tigger.unnerving.org> <3BCF27D5.CE4C53DE@didntduck.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BCF27D5.CE4C53DE@didntduck.org>; from bgerst@didntduck.org on Thu, Oct 18, 2001 at 03:04:53PM -0400
+X-Operating-System: Linux sunbeam 2.2.19 
+X-Homepage: http://zealos.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 18, 2001 at 03:04:53PM -0400, Brian Gerst wrote:
 
+> Gregory Ade wrote:
+> > 
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > We're running into what appears to be a 256-process-per-user limit on one
+> > of our webservers, due to the number of processes running as a specific
+> > user for our application.  I'd like to increase the process limit, and
+> > *THINK* that to do so i need to increase NR_TASKS in
+> > /usr/src/linux/include/linux/tasks.h.
+> > 
+> > Is this correct?  What other things do I need to watch out for when making
+> > this modification?
+> > 
+> > Also, where can this limit be changed in 2.4.x?
+> > 
+> > Thanks ahead of time.
+> > 
+> 
+> 2.2.x has a hard limit of 512 tasks on the x86 because it uses hardware
+> task switching.  2.4.x allows an unlimited number of tasks, and is
+> configurable via /proc/sys/kernel/threads-max and ulimit.
 
-I (and others) have asked this a couple times here and on the netdev list, and
-so far nobody has answered it (not even negatively).
-
-If I manually set some proxy arp entries and then list the arp entries, the
-manually set ones do not show up when using "ip neigh" but they do show up with
-the "arp" command.
-
-Is there any way to see them using "ip neigh"?  If not, are there any plans to
-enable this?
-
-If not, I may have to look at adding support for this, and this is why I'm
-wondering.
-
-Thanks,
-
-Chris
+eh? why? The GDT can hold up to 2 ** 16 bytes (limit is 16-bit). Each entry is 8
+bytes, that means that there are 8192 possible 'slots' in the GDT. Each process
+has 2 entries, an LDT and a task struct entry. Why is the limit 512? couldn't it
+be about 4000? (Some entries are needed for APM and other things...)
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+
+Mark Zealey (aka JALH on irc.openprojects.net: #zealos and many more)
+mark@zealos.org
+mark@itsolve.co.uk
+
+UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
+!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
+!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
+
+(www.geekcode.com)

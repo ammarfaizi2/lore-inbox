@@ -1,68 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132911AbRDQWYt>; Tue, 17 Apr 2001 18:24:49 -0400
+	id <S132914AbRDQWbj>; Tue, 17 Apr 2001 18:31:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132910AbRDQWYj>; Tue, 17 Apr 2001 18:24:39 -0400
-Received: from m110-mp1-cvx1c.col.ntl.com ([213.104.76.110]:5280 "EHLO
-	[213.104.76.110]") by vger.kernel.org with ESMTP id <S132908AbRDQWY2>;
-	Tue, 17 Apr 2001 18:24:28 -0400
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'Pavel Machek'" <pavel@suse.cz>,
-        Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE847@orsmsx35.jf.intel.com>
-From: John Fremlin <chief@bandits.org>
-Date: 17 Apr 2001 23:23:32 +0100
-In-Reply-To: "Grover, Andrew"'s message of "Tue, 17 Apr 2001 09:45:07 -0700"
-Message-ID: <m24rvntbbv.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+	id <S132919AbRDQWbU>; Tue, 17 Apr 2001 18:31:20 -0400
+Received: from spc2.esa.lanl.gov ([128.165.67.191]:53953 "HELO
+	spc2.esa.lanl.gov") by vger.kernel.org with SMTP id <S132914AbRDQWbK>;
+	Tue, 17 Apr 2001 18:31:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+To: alan@lxorguk.ukuu.org.uk
+Subject: 2.4.3-ac8 build error with CONFIG_DEBUG_KERNEL not set
+Date: Tue, 17 Apr 2001 16:37:17 -0600
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org, elenstev@mesatop.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01041716371704.01250@spc2.esa.lanl.gov>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- "Grover, Andrew" <andrew.grover@intel.com> writes:
+I got the following with CONFIG_DEBUG_KERNEL not set:
 
-> Hi Pavel,
-> 
-> I think init is doing a perfect job WRT UPSs because this is a
-> trivial application of power management. init wasn't really meant
-> for this.  According to its man page:
-> 
-> "init...it's primary role is to create processes from a script in
-> the file /etc/inittab...It also controls autonomous processes
-> required by any particular system"
-> 
-> We are going to need some software that handles button events, as
-> well as thermal events, battery events, polling the battery, AC
-> adapter status changes, sleeping the system, and more.
+kernel/kernel.o(__ksymtab+0xc80): undefined reference to `handle_sysrq'
+kernel/kernel.o(__ksymtab+0xc88): undefined reference to `__handle_sysrq_nolock'
+kernel/kernel.o(__ksymtab+0xc90): undefined reference to `__sysrq_lock_table'
+kernel/kernel.o(__ksymtab+0xc98): undefined reference to `__sysrq_unlock_table'
+kernel/kernel.o(__ksymtab+0xca0): undefined reference to `__sysrq_get_key_op'
+kernel/kernel.o(__ksymtab+0xca8): undefined reference to `__sysrq_put_key_op'
+make: *** [vmlinux] Error 1
 
-Dealing with events should be disjoint from polling the battery or
-powerstatus. Many processes might reasonably simultaneously want to
-provide a display to the user of the current power status.
+However, with CONFIG_DEBUG_KERNEL and CONFIG_MAGIC_SYSRQ set to y,
+I got a clean build. 
 
-However, button presses and so on should be handled by a single
-process. Otherwise the kernel is unreasonably complicated by having to
-deal with multiple processes' veto power, which could just as well and
-more flexibly be handled in userspace.
+Steven
 
-I don't why there needs to be an additional daemon constantly running
-to deal with button presses and power status changes. Apparently init
-is already handling similar things: why should it not be extended to
-include button presses?
-
-Alternatively, why not forgo a daemon altogether? (This scheme is
-already implemented in the pmpolicy patch, i.e. it is already
-working.)
-
-> We need WAY more flexibility than init provides. 
-
-Examples please.
-
-[...]
-
--- 
-
-	http://www.penguinpowered.com/~vii

@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbUEDXUe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUEDXWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbUEDXUe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 19:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUEDXUe
+	id S261474AbUEDXWV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 19:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUEDXWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 19:20:34 -0400
-Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:41168 "EHLO
-	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S261351AbUEDXUc convert rfc822-to-8bit (ORCPT
+	Tue, 4 May 2004 19:22:21 -0400
+Received: from ns.suse.de ([195.135.220.2]:57533 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261474AbUEDXWS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 19:20:32 -0400
-content-class: urn:content-classes:message
+	Tue, 4 May 2004 19:22:18 -0400
+To: Zan Lynx <zlynx@acm.org>
+Cc: chris@scary.beasts.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sigaction, fork, malloc, and futex
+References: <200405042015.i44KFb0R001900@emess.mscd.edu>
+	<Pine.LNX.4.58.0405042315001.24297@sphinx.mythic-beasts.com>
+	<1083711395.29189.10.camel@localhost.localdomain>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I invented skydiving in 1989!
+Date: Wed, 05 May 2004 01:16:36 +0200
+In-Reply-To: <1083711395.29189.10.camel@localhost.localdomain> (Zan Lynx's
+ message of "Tue, 04 May 2004 16:56:36 -0600")
+Message-ID: <jed65jn5pn.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: 2.6.2 scsi host reset success but all device are offlined
-Date: Tue, 4 May 2004 17:20:31 -0600
-Message-ID: <0A78D025ACD7C24F84BD52449D8505A15A8131@wcosmb01.cos.agilent.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.2 scsi host reset success but all device are offlined
-Thread-Index: AcQyLmSJWjt/ofOLTE6SQB6snUHMHQ==
-From: <yiding_wang@agilent.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <yiding_wang@agilent.com>
-X-OriginalArrivalTime: 04 May 2004 23:20:32.0033 (UTC) FILETIME=[6529A910:01C4322E]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running 2.6.2 linux on i386. During the error injection test, eh_device_reset, eh_bus_reset and eh_host_reset were called by scsi_error.c in sequence.  For each reset, HBA driver returned SUCCESS (0x2002, I specially traced the host reset case). 
+Zan Lynx <zlynx@acm.org> writes:
 
-The quesion is why scsi_error.c failed to react properly according to the returned reset status.
+> I am not sure it is really a problem though.  I don't think you should
+> be allowed to fork inside a signal handler.  That seems very wrong.
 
-The scsi_eh_host_reset() calls scsi_try_host_reset() and further calls hba eh_host_reset_handler. Upon the retuned status SUCCESS (0x2002), it shoud not call function scsi_eh_offline_sdevs().  Inmy case, every time host reset SUCCESS will lead to "Device offlined" situation from scsi_eh_offline_sdevs(). All available device are lost.
+fork is marked async-signal-safe, provided that all atfork handlers are
+async-signal-safe.
 
-I thought I might get quick answer for this issue from commmunity before debugging into scsi layer code.
+Andreas.
 
-Thanks!
-
-Eddie
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

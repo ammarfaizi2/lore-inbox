@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262804AbSKDV4h>; Mon, 4 Nov 2002 16:56:37 -0500
+	id <S262807AbSKDWQw>; Mon, 4 Nov 2002 17:16:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262805AbSKDV4h>; Mon, 4 Nov 2002 16:56:37 -0500
-Received: from h-64-105-136-52.SNVACAID.covad.net ([64.105.136.52]:16067 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S262804AbSKDV4h>; Mon, 4 Nov 2002 16:56:37 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 4 Nov 2002 14:02:57 -0800
-Message-Id: <200211042202.OAA00458@baldur.yggdrasil.com>
-To: viro@math.psu.edu
-Subject: Re: Patch(2.5.45): Eliminate unchecked kfree(disk->random)
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, tytso@mit.edu
+	id <S262811AbSKDWQw>; Mon, 4 Nov 2002 17:16:52 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:3465 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262807AbSKDWQv>;
+	Mon, 4 Nov 2002 17:16:51 -0500
+Subject: [PATCH] aacraid compile problem 2.5.45+
+From: Mark Haverkamp <markh@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 04 Nov 2002 14:23:38 -0800
+Message-Id: <1036448619.24054.9.camel@markh1.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
->On Mon, 4 Nov 2002, Adam J. Richter wrote:
+This fixes some compile problems in aachba.c
 
->> 	alloc_disk in linux-2.5.45/drivers/block/genhd.c calls
->> rand_initialize_disk, which can set disk->random to NULL on kmalloc
->> failure.  disk_release does a kfree(disk->random) without checking.
+Mark.
 
->kfree(NULL) is guaranteed to be OK and is a very common idiom.  Talk
->to Linus about that - it's a religious issue and FWIW I'm on the same
->side ("free(NULL) should be allowed").  IIRC, Linus had claimed quite
->a few times that change of kfree() that would break kfree(NULL) would
->be considered as a bug.
 
-	Oops, sorry for not checking that possibility before posting.
+===== drivers/scsi/aacraid/aachba.c 1.4 vs edited =====
+--- 1.4/drivers/scsi/aacraid/aachba.c	Fri Nov  1 04:28:15 2002
++++ edited/drivers/scsi/aacraid/aachba.c	Mon Nov  4 14:14:26 2002
+@@ -1113,12 +1113,12 @@
+ 	qd.locked = fsa_dev_ptr->locked[qd.cnum];
+ 	qd.deleted = fsa_dev_ptr->deleted[qd.cnum];
+ 
+-	if (fsa_dev_ptr->devno[qd.cnum][0] == '\0')
++	if (fsa_dev_ptr->devname[qd.cnum][0] == '\0')
+ 		qd.unmapped = 1;
+ 	else
+ 		qd.unmapped = 0;
+ 
+-	strncpy(dq.name, fsa_dev_ptr->devname[qd.cnum], 8);
++	strncpy(qd.name, fsa_dev_ptr->devname[qd.cnum], 8);
+ 
+ 	if (copy_to_user(arg, &qd, sizeof (struct aac_query_disk)))
+ 		return -EFAULT;
+@@ -1170,7 +1170,7 @@
+ 		 *	Mark the container as no longer being valid.
+ 		 */
+ 		fsa_dev_ptr->valid[dd.cnum] = 0;
+-		fsa_dev_ptr->devno[dd.cnum][0] = '\0';
++		fsa_dev_ptr->devname[dd.cnum][0] = '\0';
+ 		return 0;
+ 	}
+ }
 
-	I'd still like to see this patch integrated as a clean-up (it
-does delete a few lines and should shrink vmlinux by a few bytes), but
-it can certainly wait until post-crunch.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+

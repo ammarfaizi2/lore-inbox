@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266626AbUBDW7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 17:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266627AbUBDW7X
+	id S266581AbUBDXNm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 18:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266601AbUBDXNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 17:59:23 -0500
-Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:52612 "EHLO
-	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S266626AbUBDW7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 17:59:18 -0500
-Message-ID: <40217945.1010704@jcwren.com>
-Date: Wed, 04 Feb 2004 17:59:17 -0500
-From: "J.C. Wren" <jcwren@jcwren.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040110 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.2 aka "Feisty Dunnart"
-References: <40210578.6000504@mrc-bsu.cam.ac.uk> <200402041503.i14F3Bdq000287@81-2-122-30.bradfords.org.uk> <1075907649.23288.1.camel@midux> <40211EE7.8090707@backtobasicsmgmt.com> <20040204205434.GX15492@khan.acc.umu.se>
-In-Reply-To: <20040204205434.GX15492@khan.acc.umu.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 4 Feb 2004 18:13:42 -0500
+Received: from mail.kroah.org ([65.200.24.183]:16048 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266581AbUBDXNj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 18:13:39 -0500
+Date: Wed, 4 Feb 2004 15:13:24 -0800
+From: Greg KH <greg@kroah.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] PCI / OF linkage in sysfs
+Message-ID: <20040204231324.GA5078@kroah.com>
+References: <1075878713.992.3.camel@gaston> <Pine.LNX.4.58.0402041407160.2086@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402041407160.2086@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
+On Wed, Feb 04, 2004 at 02:08:58PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 4 Feb 2004, Benjamin Herrenschmidt wrote:
+> > 
+> > This patch adds a "devspec" property to all PCI entries in sysfs
+> > that provides the full "Open Firmware" path to each device on
+> > PPC and PPC64 platforms that have Open Firmware support.
+> 
+> Wouldn't it make more sense to go the other way? Ie have the PCI devices 
+> be pointed to from the OF paths?
 
->On Wed, Feb 04, 2004 at 09:33:43AM -0700, Kevin P. Fleming wrote:
->  
->
->>Markus Hästbacka wrote:
->>
->>    
->>
->>>On Wed, 2004-02-04 at 17:03, John Bradford wrote:
->>>
->>>      
->>>
->>>>There was some discussion on the list about dropping version numbers
->>>>altogether during 2.7:
->>>>
->>>>http://marc.theaimsgroup.com/?l=linux-kernel&m=107174577415393&w=2
->>>>        
->>>>
->>>Like it isn't hard enough already? You mean something like
->>>Smoking beaver.Out of detox.While running?
->>>      
->>>
->>Several Species Of Small Furry Animals.Gathered Together In A Cave.And 
->>Grooving With A Pict
->>    
->>
->
->Can't get enough of Pink Floyd...
->
->When Alan returns from his studies, we can always release
->
->Alan's.Psychedelic.Breakfast
->
->
->Regards: David Weinehall
->  
->
-"One of these days I'm going to boot you on little tiny PeeCees" </mason>
+Or, if you really want to be able to get the OF info from the pci device
+in sysfs, why not create a symlink in the pci device directory pointing
+to your OF path in sysfs?  That would seem like the best option.
 
-   --jc
+thanks,
+
+greg k-h

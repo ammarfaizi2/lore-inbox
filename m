@@ -1,86 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261389AbTCYV5g>; Tue, 25 Mar 2003 16:57:36 -0500
+	id <S261871AbTCYWBA>; Tue, 25 Mar 2003 17:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261397AbTCYV5g>; Tue, 25 Mar 2003 16:57:36 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:1880 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S261389AbTCYV5f>; Tue, 25 Mar 2003 16:57:35 -0500
-Date: Tue, 25 Mar 2003 22:10:39 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] swap 01/13 no SWAP_ERROR
-Message-ID: <Pine.LNX.4.44.0303252209070.12636-100000@localhost.localdomain>
+	id <S261625AbTCYWA7>; Tue, 25 Mar 2003 17:00:59 -0500
+Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:55561 "HELO
+	ritz.dnsalias.org") by vger.kernel.org with SMTP id <S261461AbTCYWAi> convert rfc822-to-8bit;
+	Tue, 25 Mar 2003 17:00:38 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH 2.5] fix OSS cs4232 linking when compiled-in
+Date: Tue, 25 Mar 2003 23:11:32 +0100
+User-Agent: KMail/1.4.3
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>, bwindle-kbt@fint.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200303252311.32261.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of thirteen miscellaneous independent patches in the swap/rmap
-area, several touching the same files therefore numbered in sequence.
-Many but not all fixes extracted from the reverted anobjrmap patch.
-Based upon 2.5.65-mm4, the aggregate has diffstat:
+hi
 
- include/linux/rmap-locking.h |    2 
- include/linux/swap.h         |   18 ++----
- mm/fremap.c                  |   12 ++--
- mm/mmap.c                    |    8 --
- mm/rmap.c                    |   68 ++++++++++++++-----------
- mm/shmem.c                   |   26 ++++++---
- mm/swap_state.c              |    4 -
- mm/swapfile.c                |  115 ++++++++++++++++++++++++++-----------------
- mm/vmscan.c                  |   14 ++---
- 9 files changed, 151 insertions(+), 116 deletions(-)
+this patch fixes the linking of sound/oss/cs4232.c.
+unload_cs4232 can't be __exit since it's called from cs_4232_pnp_remove
+which isn't __exit.
 
-swap 01/13 no SWAP_ERROR
-Delete unused SWAP_ERROR and non-existent page_over_rsslimit().
+against 2.5.66-bk. please apply.
+[fixes bugzilla.kernel.org #499]
 
---- 2.5.65-mm4/include/linux/swap.h	Wed Mar  5 07:26:34 2003
-+++ swap01/include/linux/swap.h	Tue Mar 25 20:42:56 2003
-@@ -174,13 +174,11 @@
- 					struct pte_chain *));
- void FASTCALL(page_remove_rmap(struct page *, pte_t *));
- int FASTCALL(try_to_unmap(struct page *));
--int FASTCALL(page_over_rsslimit(struct page *));
- 
- /* return values of try_to_unmap */
- #define	SWAP_SUCCESS	0
- #define	SWAP_AGAIN	1
- #define	SWAP_FAIL	2
--#define	SWAP_ERROR	3
- 
- /* linux/mm/shmem.c */
- extern int shmem_unuse(swp_entry_t entry, struct page *page);
---- 2.5.65-mm4/mm/rmap.c	Sun Mar 23 10:30:15 2003
-+++ swap01/mm/rmap.c	Tue Mar 25 20:42:56 2003
-@@ -677,7 +677,6 @@
-  * SWAP_SUCCESS	- we succeeded in removing all mappings
-  * SWAP_AGAIN	- we missed a trylock, try again later
-  * SWAP_FAIL	- the page is unswappable
-- * SWAP_ERROR	- an error occurred
-  */
- int try_to_unmap(struct page * page)
- {
-@@ -754,9 +753,6 @@
- 			case SWAP_FAIL:
- 				ret = SWAP_FAIL;
- 				goto out;
--			case SWAP_ERROR:
--				ret = SWAP_ERROR;
--				goto out;
- 			}
- 		}
+rgds
+-daniel
+
+
+===== sound/oss/cs4232.c 1.10 vs edited =====
+--- 1.10/sound/oss/cs4232.c	Wed Feb 26 11:52:04 2003
++++ edited/sound/oss/cs4232.c	Tue Mar 25 22:55:07 2003
+@@ -313,7 +313,7 @@
  	}
---- 2.5.65-mm4/mm/vmscan.c	Tue Feb 18 02:14:32 2003
-+++ swap01/mm/vmscan.c	Tue Mar 25 20:42:56 2003
-@@ -284,7 +284,6 @@
- 		 */
- 		if (page_mapped(page) && mapping) {
- 			switch (try_to_unmap(page)) {
--			case SWAP_ERROR:
- 			case SWAP_FAIL:
- 				pte_chain_unlock(page);
- 				goto activate_locked;
+ }
+ 
+-static void __exit unload_cs4232(struct address_info *hw_config)
++static void unload_cs4232(struct address_info *hw_config)
+ {
+ 	int base = hw_config->io_base, irq = hw_config->irq;
+ 	int dma1 = hw_config->dma, dma2 = hw_config->dma2;
 

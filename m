@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261498AbSJUSxB>; Mon, 21 Oct 2002 14:53:01 -0400
+	id <S261545AbSJUSyd>; Mon, 21 Oct 2002 14:54:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbSJUSxA>; Mon, 21 Oct 2002 14:53:00 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:55047 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261498AbSJUSwx>; Mon, 21 Oct 2002 14:52:53 -0400
-Date: Mon, 21 Oct 2002 20:58:55 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Christoph Hellwig <hch@infradead.org>
+	id <S261555AbSJUSyc>; Mon, 21 Oct 2002 14:54:32 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:44612 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S261545AbSJUSxi>; Mon, 21 Oct 2002 14:53:38 -0400
+Date: Mon, 21 Oct 2002 12:07:57 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Christoph Hellwig <hch@sgi.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Listmaster request: Blacklist rms@gnu.org
-In-Reply-To: <20021021193255.A26486@infradead.org>
-Message-ID: <Pine.LNX.4.44.0210212051130.8911-100000@serv>
+Subject: Re: [PATCH] 2.5.44: lkcd (9/9): dump driver and build files
+In-Reply-To: <20021021172112.C14993@sgi.com>
+Message-ID: <Pine.LNX.4.44.0210211206310.22662-100000@nakedeye.aparity.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+There's a lot of stuff to change in your suggestions, my team
+will be working on it over the next night or two.  We should
+be able to integrate most modifications.  It's normally testing
+that consumes most of the time.
+
+Thanks, Christoph.
+
+--Matt
 
 On Mon, 21 Oct 2002, Christoph Hellwig wrote:
-
-> HE started the original thread, and he changed the subject to get
-> out of the blocking.
-
-The original thread was started by Tom Gall and went through several
-incarnations:
-
-Subject: New BK License Problem?
-Subject: BK MetaData License Problem?
-Subject: BK is *evil* corporate software
-Subject: Off topic, bandwidth wasting, waffle about Bit Keeper
-Subject: BK license questions and answers
-Subject: Bitkeeper outrage, old and new
-
-So everyone else who changed the subject will be blacklisted too?
-
-bye, Roman
+|>On Mon, Oct 21, 2002 at 03:16:05AM -0700, Matt D. Robinson wrote:
 

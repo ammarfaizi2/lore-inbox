@@ -1,50 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbTEEPNT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 11:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbTEEPNT
+	id S262362AbTEEPN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 11:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbTEEPN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 11:13:19 -0400
-Received: from pop.gmx.de ([213.165.64.20]:5706 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261216AbTEEPNS (ORCPT
+	Mon, 5 May 2003 11:13:56 -0400
+Received: from CPE0010e000064f-CM014270111571.cpe.net.cable.rogers.com ([65.49.101.0]:60742
+	"EHLO bunny.augustahouse.net") by vger.kernel.org with ESMTP
+	id S262362AbTEEPNx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 11:13:18 -0400
-Message-ID: <3EB68273.90905@gmx.net>
-Date: Mon, 05 May 2003 17:25:39 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
+	Mon, 5 May 2003 11:13:53 -0400
+Date: Mon, 5 May 2003 11:24:18 -0400 (EDT)
+From: Mike Waychison <mike@waychison.com>
+X-X-Sender: <mike@bunny.augustahouse.net>
+To: Michael Buesch <fsdeveloper@yahoo.de>
+cc: Zeev Fisher <Zeev.Fisher@il.marvell.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: processes stuck in D state
+In-Reply-To: <200305051656.32048.fsdeveloper@yahoo.de>
+Message-ID: <Pine.LNX.4.33.0305051122190.20491-100000@bunny.augustahouse.net>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Terje Eggestad <terje.eggestad@scali.com>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: The disappearing sys_call_table export.
-References: <20030505092324.A13336@infradead.org> <1052127216.2821.51.camel@pc-16.office.scali.no> <20030505112531.B16914@infradead.org> <1052133798.2821.122.camel@pc-16.office.scali.no> <20030505135211.A21658@infradead.org> <1052142082.2821.169.camel@pc-16.office.scali.no> <20030505144353.B23483@infradead.org> <1052142626.2821.173.camel@pc-16.office.scali.no> <20030505145519.A23727@infradead.org> <3EB674F7.8060807@gmx.net> <20030505153414.A24056@infradead.org>
-In-Reply-To: <20030505153414.A24056@infradead.org>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Mon, May 05, 2003 at 04:28:08PM +0200, Carl-Daniel Hailfinger wrote:
-> 
->>LSM?
-> 
-> LSM is explicitly not syscall hooks.  And educated readers of lkml should
 
-Yes, sorry, I mixed that up with an old Usenix paper.
 
-> know my opinion on LSM...
+On Mon, 5 May 2003, Michael Buesch wrote:
 
-Um yeah.
-/me puts on asbestos suit
-I remember your patch to remove the nested syscall (sys_security) for
-LSM quite well.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> On Monday 05 May 2003 07:52, Zeev Fisher wrote:
+> > Hi!
+>
+> Hi Zeev!
+>
+> > I got a continuos problem of unkillable processes stuck in D state (
+> > uninterruptable sleep ) on my Linux servers.
+> > It happens randomly every time on other server on another process ( all
+> > the servers are configured the same with 2.4.18-10 kernel ). Here's an
+> > example :
+> [snip]
+> > Has anyone noticed the same behavior ? Is this a well known problem ?
+>
+> I've had the same problem with some 2.4.21-preX twice (or maybe more times,
+> don't remember) on one of my machines.
+> IMHO it has something to do with NFS. (I'm using this box as a NFS-client).
+> I wish, I could reproduce it one more time, to do some traces, etc
+> on it. But I've not found a way to reproduce it, yet.
+>
 
-Carl-Daniel
+This happens when you mount an NFS mount with the 'hard' option (default)
+and a mount's handle expires incorrectly (eg: server crash).
+Read the mount manpage for an explanation to the downsides of using
+the 'soft' option.
+
+
+Mike Waychison
+
+> - --
+> Regards Michael Büsch
+> http://www.8ung.at/tuxsoft
+>  16:50:44 up 52 min,  1 user,  load average: 1.00, 1.00, 0.94
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.1 (GNU/Linux)
+>
+> iD8DBQE+tnugoxoigfggmSgRAt8BAJ0deufnL/E6acpz4pIPZll8f48TIgCfWmcI
+> auSRmi6oyrTbqMVe+MrfuV4=
+> =ahIZ
+> -----END PGP SIGNATURE-----
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

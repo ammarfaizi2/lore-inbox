@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264574AbTK0Smm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 13:42:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbTK0Smm
+	id S264578AbTK0SuW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 13:50:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264580AbTK0SuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 13:42:42 -0500
-Received: from relay-6v.club-internet.fr ([194.158.96.111]:24748 "EHLO
-	relay-6v.club-internet.fr") by vger.kernel.org with ESMTP
-	id S264574AbTK0Sml convert rfc822-to-8bit (ORCPT
+	Thu, 27 Nov 2003 13:50:22 -0500
+Received: from main.gmane.org ([80.91.224.249]:417 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264578AbTK0SuS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 13:42:41 -0500
-From: pinotj@club-internet.fr
-To: manfred@colorfullife.com, torvalds@osdl.org
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-Date: Thu, 27 Nov 2003 19:42:39 CET
-Mime-Version: 1.0
-X-Mailer: Medianet/v2.0
-Message-Id: <mnet1.1069958559.15912.pinotj@club-internet.fr>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 27 Nov 2003 13:50:18 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+X-Quarantined-From: <news@complete.org>
+X-Quarantined-To: <gmane-linux-kernel@moderator.gmane.org>
+From: John Goerzen <jgoerzen@complete.org>
+Subject: Promise IDE controller crashes 2.4.22
+Date: Thu, 27 Nov 2003 18:43:20 +0000 (UTC)
+Organization: Complete.Org
+Message-ID: <slrnbsche8.2ir.jgoerzen@christoph.complete.org>
+X-Complaints-To: usenet@complete.org
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-first, some news
+Hi,
 
-2.6.0-test11 makes same oops during second compilation of kernel. The vanilla kernel with PREEMPT always oops the same way. No matter, it's always reproductible.
+I have a Promise 20269-based UDMA 133 IDE controller.  If I have DMA
+enabled on this controller, then when it is seeing heavy write activity,
+the system freezes.  No messages on the console, ctrl-alt-del does
+nothing, magic sysrq does nothing.
 
-2.6.0-test11 + Manfred's patch doesn't hang but I found a slab error in the logs that occured during a compilation. (I didn't find this for -test10, I was lucky ?)
+Reads do not appear to cause this problem, and the problem also
+disappears if I disable DMA on the drive connected to the controller by
+using hdparm.
 
-So, there is no more way for my system to run a kernel > -test9 without problem.
+System information:
+Linux pi 2.4.22 #3 Sat Oct 25 15:45:50 CDT 2003 i586 GNU/Linux
+AMD K6 400MHz processor
 
->De: Manfred Spraul <manfred@colorfullife.com>
-[...]
->There are several sources for the "-1": My initial guess was either a bug in slab, or a bad memory cell (only one bit difference). 
->Thus I sent him a patch that changes multiple bits. Result: It remained a single bit change, i.e it's proven that slab doesn't write BUFCTL_END into the wrong slot.
+lspci:
+00:08.0 Unknown mass storage controller: Promise Technology, Inc. 20269
+(rev 02)
 
-Thanks for your explanation.
-Should I try with L1 and/or L2 cache disable on my computer (I don't know if it's safe) ?
-I trust my hardware but it's better to get some facts.
+Drive: Maxtor 6Y160P0 150GB UDMA 133
 
-Jerome Pinot
+I have, in my .config:
 
-(between LFS/BLFS, kernel compilation and tests compilation, I will surely break kind of record about load average :-)
+CONFIG_BLK_DEV_PDC202XX_NEW=y
+CONFIG_BLK_DEV_PDC202XX=y
+
+Thanks for any insight.
+
+-- John Goerzen
+
 

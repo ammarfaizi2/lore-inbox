@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265382AbSLIM1F>; Mon, 9 Dec 2002 07:27:05 -0500
+	id <S265333AbSLIMTm>; Mon, 9 Dec 2002 07:19:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265385AbSLIM1F>; Mon, 9 Dec 2002 07:27:05 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:42046 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S265382AbSLIM1E>; Mon, 9 Dec 2002 07:27:04 -0500
-Date: Mon, 9 Dec 2002 07:34:34 -0500
-From: Arjan van de Ven <arjanv@redhat.com>
-To: george anzinger <george@mvista.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
+	id <S265351AbSLIMTm>; Mon, 9 Dec 2002 07:19:42 -0500
+Received: from 5-048.ctame701-1.telepar.net.br ([200.193.163.48]:27359 "EHLO
+	5-048.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S265333AbSLIMTl>; Mon, 9 Dec 2002 07:19:41 -0500
+Date: Mon, 9 Dec 2002 10:27:04 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Peter Chubb <peter@chubb.wattle.id.au>
+cc: Rusty Trivial Russell <rusty@rustcorp.com.au>,
        Linus Torvalds <torvalds@transmeta.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/3] High-res-timers part 1 (core) take 20
-Message-ID: <20021209073434.A24382@devserv.devel.redhat.com>
-References: <3DF2F8D9.6CA4DC85@mvista.com> <1039341009.1483.3.camel@laptop.fenrus.com> <3DF44031.58A12F66@mvista.com> <20021209035347.C12524@devserv.devel.redhat.com> <3DF48C4C.3F056661@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DF48C4C.3F056661@mvista.com>; from george@mvista.com on Mon, Dec 09, 2002 at 04:27:56AM -0800
+       "" <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>
+Subject: Re: [TRIVIAL] Re: setrlimit incorrectly allows hard limits to exceed
+ soft limits
+In-Reply-To: <15860.1070.521840.791396@wombat.chubb.wattle.id.au>
+Message-ID: <Pine.LNX.4.50L.0212091026410.21756-100000@imladris.surriel.com>
+References: <15860.1070.521840.791396@wombat.chubb.wattle.id.au>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 9 Dec 2002, Peter Chubb wrote:
 
-On Mon, Dec 09, 2002 at 04:27:56AM -0800, george anzinger wrote:
-> > 
-> > that's why spinlocks are effectively nops on UP.
-> > What you say is true of just about every spinlock user, and no
-> > they shouldn't all do some IF_SMP() thing; the spinlock itself should be
-> > (and is) zero on UP
-> 
-> But with preemption, they really are not nops on UP...
+> Rik> Wouldn't it be better to simply take the soft limit down to
+> Rik> min(new_rlim.rlim_cur, new_rlim.rlim_max) ?
+>
+> Single unix spec says to return EINVAL in this case.
+>
+> [EINVAL]
+> An invalid resource was specified; or in a setrlimit() call, the new
+> rlim_cur exceeds the new rlim_max.
 
-that doesn't justify fuglyfying the kernel code. If you can't live
-with the overhead of preemption, disable preemption. Simple. 
-We DON'T want
-spin_lock_nop_on_preempt()
-...
+So how about "the old rlim_cur exceeds the new rlim_max" ? ;)
 
-spin_unlock_nop_on_preempt()
-
-really, I don't, and I can't see anyone else wanting that either
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

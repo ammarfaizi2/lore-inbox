@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129589AbRCGTsd>; Wed, 7 Mar 2001 14:48:33 -0500
+	id <S129245AbRCGTyx>; Wed, 7 Mar 2001 14:54:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129734AbRCGTsX>; Wed, 7 Mar 2001 14:48:23 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:40200 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S129589AbRCGTsV>; Wed, 7 Mar 2001 14:48:21 -0500
-Message-Id: <200103071948.f27Jm2O29441@aslan.scsiguy.com>
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2-ac13, aic7xxx without any device and oops 
-In-Reply-To: Your message of "Wed, 07 Mar 2001 20:37:17 +0700."
-             <1671BE33779@vcnet.vc.cvut.cz> 
-Date: Wed, 07 Mar 2001 12:48:02 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S129734AbRCGTyo>; Wed, 7 Mar 2001 14:54:44 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:14789 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S129197AbRCGTya>; Wed, 7 Mar 2001 14:54:30 -0500
+Importance: Normal
+Subject: Announcing Journaled  File System (JFS)  beta 2 release 0.2.0 available
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Wed, 7 Mar 2001 14:54:01 -0500
+Message-ID: <OFAA131B69.E61F02FD-ON85256A08.006CC071@raleigh.ibm.com>
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 03/07/2001 02:54:05 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi Justin,
->  your new driver complains loudly here, because of
->ahc_match_scb is invoked with NULL scb, and it does not like that.
->
->Call trace was:
->   0xc01c9073: ahc_match_scb + 23/191
->   0xc01c945d: ahc_search_qinfifo+ 333/1719 (it is first of two calls to ahc_m
->atch...)
->   0xc01c9ede: ahc_abort_scbs + 102/758
+The beta 2 drop of JFS was made available today.
 
-What version of the driver is in ac13?  I may already have a fix
-for this.
+The file system has fixes included.
+In the utility area there is new jfsprogs.spec file
+created by Jim Nance. This spec file can be used to create
+RPM for the JFS utilities. The file system has general work
+done to remove SMP and UP hang related problems. The performance
+of the file system has increased by changes to extent inode cache,
+also the log manager is no longer uses the page cache for log pages
+and this change has increased the performance of the file system.
+Joe Nuspl patches have also been included in this drop for the
+problems he has found/fixed.
 
---
-Justin
+Jim and Joe thanks for your changes.
+
+For more details about the problems fixed, please see the README.
+
+Steve
+JFS for Linux http://oss.software.ibm.com/developerworks/opensource/jfs
+

@@ -1,148 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263393AbTDCNcN>; Thu, 3 Apr 2003 08:32:13 -0500
+	id <S263331AbTDCNg7>; Thu, 3 Apr 2003 08:36:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263394AbTDCNcN>; Thu, 3 Apr 2003 08:32:13 -0500
-Received: from [80.93.79.213] ([80.93.79.213]:36624 "EHLO
-	nt-smtp-relay0.seat.it") by vger.kernel.org with ESMTP
-	id <S263393AbTDCNcK>; Thu, 3 Apr 2003 08:32:10 -0500
-Message-ID: <3E8C3646.3010906@seat.it>
-Date: Thu, 03 Apr 2003 15:25:26 +0200
-From: Paolo Zeppegno <zeppegno.paolo@seat.it>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@muc.de>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [rfc][patch] Memory Binding Take 2 (1/1)
-References: <Pine.LNX.4.44.0304031317290.1718-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0304031317290.1718-100000@localhost.localdomain>
-X-MIMETrack: Itemize by SMTP Server on domino1/Seat/IT(Versione 5.0.5 |Ottobre 31, 2000) at
- 03/04/2003 03.28.28 PM,
-	Serialize by Router on nt-smtp-relay0/Seat/IT(Release 5.0.8 |June 18, 2001) at
- 03/04/2003 15.41.01,
-	Serialize complete at 03/04/2003 15.41.01
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S263396AbTDCNg7>; Thu, 3 Apr 2003 08:36:59 -0500
+Received: from smtp4.wanadoo.fr ([193.252.22.28]:40523 "EHLO
+	mwinf0303.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S263331AbTDCNg6>; Thu, 3 Apr 2003 08:36:58 -0500
+Date: Thu, 3 Apr 2003 15:48:18 +0200
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: Sven Luther <luther@dpt-info.u-strasbg.fr>,
+       James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] [PATCH]: EDID parser
+Message-ID: <20030403134818.GB8297@iliana>
+References: <4E134F4AFE@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4E134F4AFE@vcnet.vc.cvut.cz>
+User-Agent: Mutt/1.5.4i
+From: Sven Luther <luther@dpt-info.u-strasbg.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I suggested mbind for consistency with mmap, munmap, mremap and msync, 
-that is IFF the mbind operation is in some ways related with these other 
-syscalls.
-
-
-Hugh Dickins wrote:
-
->On Wed, 2 Apr 2003, Matthew Dobson wrote:
->+/*
->+ * membind -  Bind a range of a process' VM space to a set of memory blocks according to
->
->membind or mbind?  Me, I like mbind (modulo remarks below), but you may
->find Linus does not (he was rather caustic when I suggested that fremap
->should be mseek, and it ended up as remap_file_pages instead).
->
->+ *            a predefined policy.
->+ * @start:    beginning address of memory region to bind
->+ * @len:      length of memory region to bind
->
->Oh really? len is unused in the code below.  If you were to use it,
->you'd need to loop over vmas, splitting where necessary.
->
->+ * @mask_ptr: pointer to bitmask of cpus
->+ * @mask_len: length of the bitmask
->+ * @policy:   flag specifying the policy to use for the segment
->
->I think you already remarked that policy is currently unused,
->fair enough.
->
->+ */
->+asmlinkage unsigned long sys_mbind(unsigned long start, unsigned long len, 
->+		unsigned long *mask_ptr, unsigned int mask_len, unsigned long policy)
->+{
->+	DECLARE_BITMAP(cpu_mask, NR_CPUS);
->+	DECLARE_BITMAP(node_mask, MAX_NUMNODES);
->+	struct vm_area_struct *vma = NULL;
->+	struct address_space *mapping;
->+	int copy_len, error = 0;
->+
->+	/* Deal with getting cpu_mask from userspace & translating to node_mask */
->+	copy_len = min(mask_len, (unsigned int)NR_CPUS);
->+	CLEAR_BITMAP(cpu_mask, NR_CPUS);
->+	CLEAR_BITMAP(node_mask, MAX_NUMNODES);
->+	if (copy_from_user(cpu_mask, mask_ptr, (copy_len+7)/8)) {
->+		error = -EFAULT;
->+		goto out;
->+	}
->
->Shouldn't there be some capability restriction?  Is it right that
->anyone who can mmap a file for reading can determine its binding
->(until the next does it differently)?
->
->+	cpumask_to_nodemask(cpu_mask, node_mask);
->+
->+	vma = find_vma(current->mm, start);
->
->You must not scan the vma list without at least
->down_read(&current->mm->mmap_sem).
->
->+	if (!(vma && vma->vm_file && vma->vm_ops && 
->+		vma->vm_ops->nopage == shmem_nopage)) {
->+		/* This isn't a shm segment.  For now, we bail. */
->
->So you're allowing this on any file on tmpfs,
->but on no file on any other filesystem: curious.
->
->+		error = -EINVAL;
->+		goto out;
->+	}
->+
->+	mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
->+	mapping->binding = alloc_binding(node_mask);
->
->Your NUMA machines clearly have more memory than is good for you:
->nowhere is there an equivalent free_binding: which in particular
->would need to be called first here if binding is already set (or
->else old structure reused), and when inode is freed.
->
->So... mapping->binding conditions every page_cache_alloc for that
->inode.  Hmm, what on earth does this have to do with mbind or membind?
->It looks to me like fbind, except that you've dressed up the interface
->to use an address in the caller's address space: presumably because you
->couldn't get a file handle on SysV shared memory, and that's what you
->were really wanting to bind, hence the shmem_nopage test?
->
->I think this interface is confused (but it probably thinks I am).
->
->+	if (!mapping->binding)
->+		error = -EFAULT;
->+
->+out:
->+	return error;
->+}
->diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.66-pre_membind/mm/swap_state.c linux-2.5.66-membind/mm/swap_state.c
->--- linux-2.5.66-pre_membind/mm/swap_state.c	Mon Mar 24 14:00:21 2003
->+++ linux-2.5.66-membind/mm/swap_state.c	Tue Apr  1 17:12:00 2003
->@@ -47,6 +47,9 @@
-> 	.i_shared_sem	= __MUTEX_INITIALIZER(swapper_space.i_shared_sem),
-> 	.private_lock	= SPIN_LOCK_UNLOCKED,
-> 	.private_list	= LIST_HEAD_INIT(swapper_space.private_list),
->+#ifdef CONFIG_NUMA
->+	.binding	= NULL,
->+#endif
-> };
+On Thu, Apr 03, 2003 at 03:38:43PM +0100, Petr Vandrovec wrote:
+> On  3 Apr 03 at 15:11, Sven Luther wrote:
+> > On Thu, Apr 03, 2003 at 03:05:54PM +0100, Petr Vandrovec wrote:
+> > > On  3 Apr 03 at 14:38, Sven Luther wrote:
+> > > > On Thu, Apr 03, 2003 at 12:05:13PM +0100, Petr Vandrovec wrote:
+> > > > > No. With matroxfb, you have two framebuffer devices, /dev/fb0 &
+> > > > > /dev/fb1, which can be connected to any of three outputs: analog
+> > > > > primary, analog secondary and DVI. Analog primary & DVI share same
+> > > > > pair of DDC cables, and analog secondary has its own... And user can
+> > > > > interconnect fb* with outputs in almost any way he wants, as long as
+> > > > > hardware supports it.
+> > > > 
+> > > > Mmm, i have not been into fbdev much lately, but for my X devel work, i
+> > > > believe thta it is a good thing to separate the framebuffer issues from
+> > > > the output issues, and thus, for the card i have at least, have one
+> > > > function where the per chip things are done (memory detection, bypass
+> > > > unit handling, framebuffer and memory management) and another set of
+> > > > functions which would be head, that is output, specific. This way, you
+> > > > would configure the /dev/fbx and when the user which to use this or that
+> > > > output, the DDC will be connected to the output, not the framebuffer.
+> > > > This seems a reasonable way of doing this and should solve your problem,
+> > > > no ?
+> > > 
+> > > Of course. But because of James decided that fbdev layer will
+> > > automatically choose appropriate resolution only from xres/yres, I need to
+> > > have monitor capabilities at the time upper layer asks to set videomode on
+> > > /dev/fbx... And it just sets it on /dev/fbx, leaving out both VTs (so I
+> > > cannot remember what mode was probed on each VT anymore) and outputs.
+> > 
+> > Mmm, and at what time is the fbdev->output mapping done ?
 > 
-> #define INC_CACHE_INFO(x)	do { swap_cache_info.x++; } while (0)
->
->Please leave swap_state.c out of it: this patch does nothing but add
->an ugly #ifdef to initialize something to 0 which would be 0 anyway.
->
->Hugh
->
->  
->
+> At random time, when user asks to change fbdev->output mapping... And it 
+> still means that I have to create new EDID based on all EDIDs I read from 
+> each output - this is biggest problem, and that currently used videomode
+> can become invalid - and this is even worse problem.
 
+Ideally, the EDID reading would be done just after the user request an
+output mapping change for the first time, and then stored privately to
+each output. mode changes and such would be done after the output has
+been assigned only, and you would have the EDID by then. You could even
+reread it regularly, in case the monitor is hot swapped or something
+such.
 
+I have not read James response to you, but had the impression he did
+propose something such, did he not ?
+
+Friendly,
+
+Sven Luther

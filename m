@@ -1,78 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262676AbVAFAw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262679AbVAFAxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262676AbVAFAw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 19:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbVAFAw4
+	id S262679AbVAFAxW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 19:53:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbVAFAxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 19:52:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3270 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262676AbVAFAwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 19:52:53 -0500
-Date: Wed, 5 Jan 2005 16:52:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-mm1 panic in sysfs ?
-Message-Id: <20050105165241.481473a3.akpm@osdl.org>
-In-Reply-To: <1104946602.4000.22.camel@dyn318077bld.beaverton.ibm.com>
-References: <1104946602.4000.22.camel@dyn318077bld.beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 5 Jan 2005 19:53:22 -0500
+Received: from CPE-139-168-157-43.nsw.bigpond.net.au ([139.168.157.43]:36600
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id S262679AbVAFAxH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 19:53:07 -0500
+Message-ID: <41DC8BED.3020405@eyal.emu.id.au>
+Date: Thu, 06 Jan 2005 11:53:01 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.10 IDE lockups
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> Hi Andrew,
-> 
-> I get a panic in sysfs_readdir() while booting 2.6.10-mm1
-> kernel. Known fixes ?
-> 
+I am trying to figure out if this is a problem with my system or
+a kernel issue.
 
-It's news to me.
+The symptom is that an IDE disk reports a DMA problem and then the
+machine locks up hard (not even SysRq).
 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000020
->  printing eip:
-> c109c8ef
-> *pde = 0191c001
-> Oops: 0000 [#1]
-> SMP
-> Modules linked in:
-> CPU:    2
-> EIP:    0060:[<c109c8ef>]    Not tainted VLI
-> EFLAGS: 00010282   (2.6.10-mm1kexec)
+I ran an overnight memcheck and all was well.
 
-What is "2.6.10mm1kexec"?
+Now, I cannot blame the software outright because a second disk
+(hdb) was added about the time the problems started. Either the
+disk is at fault or it just provoked a real software bug.
 
-> EIP is at sysfs_readdir+0xef/0x280
-> eax: 00000000   ebx: c15e1160   ecx: 0000000c   edx: 00000020
-> esi: c15e1164   edi: c15dd72d   ebp: c1a7df78   esp: c1a7df3c
-> ds: 007b   es: 007b   ss: 0068
-> Process getcfg (pid: 1927, threadinfo=c1a7c000 task=c2ba3040)
+The new hdb is used strictly for mythtv, and looking at the
+latest crash I can say with confidence that hdb had no activity.
+It died at 09:20:01 and I was, naturally, still sleeping happily
+at the time. Mythtv had no active clients and the log shows
+an idle server. BTW, I has a 'sync' done every 10s to reduce
+the damage, but I expect it had nothing to write to hdb.
 
-Try to work out what arguments are being passed to `getcfg', then run it by
-hand, under strace, to see what /sysfs file is being accessed when it oopses.
+I had lockups where hda reported an errors, and others where
+hdb reported the error.
 
-> Stack: 00000001 00000000 00000017 00000004 c156d62c 0000000c c15dd720 c21bf324
->        c156d620 c1071f80 c1a7dfa0 c1c837e0 c131caa0 c1c837e0 c1587428 c1a7df94
->        c1071e48 c1a7dfa0 c1071f80 c1a7c000 0804f944 fffffff7 c1a7dfbc c10720aa
-> Call Trace:
->  [<c1004dc6>] show_stack+0xa6/0xb0
->  [<c1004f42>] show_registers+0x152/0x1c0
->  [<c100514d>] die+0xed/0x180
->  [<c1018b6d>] do_page_fault+0x45d/0x6e9
->  [<c1004a2b>] error_code+0x2b/0x30
->  [<c1071e48>] vfs_readdir+0x98/0xb0
->  [<c10720aa>] sys_getdents+0x6a/0xd0
->  [<c1003f31>] sysenter_past_esp+0x52/0x75
-> Code: eb 89 d8 e8 c4 ea ff ff 89 45 dc b9 ff ff ff ff 31 c0 8b 7d dc f2 ae f7 d1 49 89 4d d8 8b 43 20 85 c0 0f 84 37 01 00 00 8b 40 0c <8b> 50 20 0f b7 43 1c 89 54 24 08 c1 e8 0c 89 44 24 0c 8b 4d f0
->                                          
-> 
-> 
-> 
-> 
-> 
-> 
+This showed up with 2.6.10, -ac3, -mm1 and -rc3-mm1. At times
+I could even see an oops. Here are some snippets. How should I
+proceed with the investigation?
+
+Boot log
+========
+hda: status timeout: status=0x80 { Busy }
+ide: failed opcode was: unknown
+hda: DMA disabled
+hdb: DMA disabled
+hda: drive not ready for command
+ide0: reset: success
+
+and the system went on without DMA.
+
+serial console
+==============
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+
+And the machine is dead. I saw this one most of the time
+
+An unusual boot log with 2.6.10-rc3-mm1
+===================
+------------[ cut here ]------------
+PREEMPT SMP
+Modules linked in: ichxrom mtdcore chipreg map_funcs ehci_hcd usb_storage scsi_mod uhci_hcd usbcore shpchp pci_hotplug intel_mch_agp intel_agp agpgart parport_pc parport evdev nls_cp437 msdos fat dm_mod rtc unix
+CPU:    0
+EIP:    0060:[__change_page_attr+412/425]    Not tainted VLI
+EFLAGS: 00010002   (2.6.10-rc3-mm1)
+EIP is at __change_page_attr+0x19c/0x1a9
+eax: ffffffff   ebx: c2ff6000   ecx: c2ff6000   edx: 00000246
+esi: 00000000   edi: 00000173   ebp: 00000246   esp: c3dcbf0c
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 2601, threadinfo=c3dcb000 task=f7b71a60)
+Stack: 00000000 00500000 ffb00000 c2ff6000 00000000 00000000 00000246 c0116254         c2ff6000 00000173 ffb00000 f8a80000 00500000 c3dcb000 c0115dbd c2ff6000
+        00000500 00000173 c19f0000 00000000 c3dcbf7f f880e2cd ffb00000 00500000
+Call Trace:
+  [change_page_attr+71/92] change_page_attr+0x47/0x5c
+  [ioremap_nocache+147/170] ioremap_nocache+0x93/0xaa
+  [pg0+943305421/1069069312] ichxrom_init_one+0x1a4/0x580 [ichxrom]
+  [pci_find_device+47/51] pci_find_device+0x2f/0x33
+  [pg0+944808020/1069069312] init_ichxrom+0x54/0x56 [ichxrom]
+  [sys_init_module+367/542] sys_init_module+0x16f/0x21e
+  [syscall_call+7/11] syscall_call+0x7/0xb
+Code: fc fe ff ff 80 3e 00 78 15 29 d3 c1 fb 05 c1 e3 0c 09 fb 89 1e f0 ff 49 04 e9 f5 fe ff ff 0f 0b 82 00 44 4e 2d c0 e9 e8 fe ff ff <0f> 0b 6c 00 44 4e 2d c0 e9 71 fe ff ff 55 b8 18 b8 30 c0 57 31
+  <6>note: modprobe[2601] exited with preempt_count 1
+  [schedule+2904/2909] schedule+0xb58/0xb5d
+  [zap_pgd_range+70/98] zap_pgd_range+0x46/0x62
+  [cond_resched+39/60] cond_resched+0x27/0x3c
+  [unmap_vmas+388/661] unmap_vmas+0x184/0x295
+  [exit_mmap+165/400] exit_mmap+0xa5/0x190
+  [mmput+67/246] mmput+0x43/0xf6
+  [do_exit+424/1333] do_exit+0x1a8/0x535
+  [do_trap+0/272] do_trap+0x0/0x110
+  [do_invalid_op+0/195] do_invalid_op+0x0/0xc3
+  [do_invalid_op+174/195] do_invalid_op+0xae/0xc3
+  [buffered_rmqueue+294/586] buffered_rmqueue+0x126/0x24a
+  [__change_page_attr+412/425] __change_page_attr+0x19c/0x1a9
+  [__alloc_pages+596/1033] __alloc_pages+0x254/0x409
+  [smp_call_function+196/272] smp_call_function+0xc4/0x110
+  [__get_free_pages+51/63] __get_free_pages+0x33/0x3f
+  [error_code+43/48] error_code+0x2b/0x30
+  [__change_page_attr+412/425] __change_page_attr+0x19c/0x1a9
+  [change_page_attr+71/92] change_page_attr+0x47/0x5c
+  [ioremap_nocache+147/170] ioremap_nocache+0x93/0xaa
+  [pg0+943305421/1069069312] ichxrom_init_one+0x1a4/0x580 [ichxrom]
+  [pci_find_device+47/51] pci_find_device+0x2f/0x33
+  [pg0+944808020/1069069312] init_ichxrom+0x54/0x56 [ichxrom]
+  [sys_init_module+367/542] sys_init_module+0x16f/0x21e
+  [syscall_call+7/11] syscall_call+0x7/0xb
+
+But the machine continued the boot to completion.
+
+-- 
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+	If attaching .zip rename to .dat

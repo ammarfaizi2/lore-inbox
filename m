@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316999AbSFFQM3>; Thu, 6 Jun 2002 12:12:29 -0400
+	id <S316994AbSFFQLk>; Thu, 6 Jun 2002 12:11:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317003AbSFFQM2>; Thu, 6 Jun 2002 12:12:28 -0400
-Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:18060
-	"HELO tabriel.tabris.net") by vger.kernel.org with SMTP
-	id <S316999AbSFFQM1>; Thu, 6 Jun 2002 12:12:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: tabris <tabris@tabris.net>
-To: Francois Romieu <romieu@cogenit.fr>, moffe@amagerkollegiet.dk
-Subject: Re: Failure report: tulip driver
-Date: Thu, 6 Jun 2002 12:12:21 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0206041555020.1201-100000@grignard> <20020604201812.A20250@fafner.intra.cogenit.fr>
+	id <S316999AbSFFQLk>; Thu, 6 Jun 2002 12:11:40 -0400
+Received: from mail.epost.de ([64.39.38.76]:10738 "EHLO mail.epost.de")
+	by vger.kernel.org with ESMTP id <S316994AbSFFQLj>;
+	Thu, 6 Jun 2002 12:11:39 -0400
+Message-ID: <3CFF8904.9010703@dlr.de>
+Date: Thu, 06 Jun 2002 18:08:36 +0200
+From: Martin Wirth <martin.wirth@dlr.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-DE; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: de-DE
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020606161222.35636FB911@tabriel.tabris.net>
+To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futex Asynchronous Interface
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 June 2002 14:18, Francois Romieu wrote:
-> moffe@amagerkollegiet.dk :
-> [...]
->
-> > Gnu C                  2.95.2
->
-> It won't hurt if you upgrade. It may if you don't.
+Hi Rusty,
 
-Perhaps, but given that at the time that I reported this problem back in 
-April, I  was using 2.95.3.
+>if (this->page == page && this->offset == offset) {
+> 			list_del_init(i);
+> 			tell_waiter(this);
+>+			unpin_page(this->page);
+> 			num_woken++;
+> 			if (num_woken >= num) break;
+> 		}
+> 	}
+> 	spin_unlock(&futex_lock);
+>+	unpin_page(page);
+> 	return num_woken;
 
-My current kernel is compiled with 3.1 and I have had the same failure, 
-if only once (a week or so ago, iirc).
+If I understand right you shouldn't unpin the page if you are not sure that
+all waiters for a specific (page,offset)-combination are woken up and deleted
+from the waitqueue. Otherwise a second call to futex_wake may look on the wrong
+hash_queue or wake the wrong waiters.
 
---
-tabris
+In general, I think fast userspace synchronization primitives and asynchronous 
+notification are different enough to keep them logically more separated. 
+Your double use of the hashed wait queues and sys_call make the code difficult
+to grasp and thus open for subtle error.
+
+Martin
+
+Martin 
+
+

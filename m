@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263229AbUCYQVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 11:21:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263233AbUCYQVQ
+	id S263226AbUCYQYe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 11:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbUCYQYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 11:21:16 -0500
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:52912 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S263229AbUCYQVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 11:21:10 -0500
-Date: Thu, 25 Mar 2004 11:20:08 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [PATCH] export complete_all
-In-reply-to: <1080200277.5225.2.camel@laptop.fenrus.com>
-To: arjanv@redhat.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Message-id: <406306B8.90303@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <406210A4.4030609@sun.com>
- <1080200277.5225.2.camel@laptop.fenrus.com>
+	Thu, 25 Mar 2004 11:24:34 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:31138 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263226AbUCYQYd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 11:24:33 -0500
+Message-ID: <004101c41285$4e820270$6800a8c0@comcast.net>
+From: "John Hawkes" <hawkes@sgi.com>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>, "Andi Kleen" <ak@suse.de>,
+       "Ingo Molnar" <mingo@elte.hu>
+Cc: <piggin@cyberone.com.au>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
+       <kernel@kolivas.org>, <rusty@rustcorp.com.au>, <ricklind@us.ibm.com>,
+       <anton@samba.org>, <lse-tech@lists.sourceforge.net>,
+       <mbligh@aracnet.com>
+References: <7F740D512C7C1046AB53446D3720017301119907@scsmsx402.sc.intel.com>
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Date: Thu, 25 Mar 2004 08:19:28 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+> We have found some performance regressions (e.g. SPECjbb) with the
+> scheduler on a large IA-64 NUMA machine, and we are debugging it. On SMP
+> machines, we haven't seen performance regressions.
 
-Arjan van de Ven wrote:
-| On Wed, 2004-03-24 at 23:50, Mike Waychison wrote:
-|
-|>-----BEGIN PGP SIGNED MESSAGE-----
-|>Hash: SHA1
-|>
-|>No idea why it hasn't been done already, but complete_all wasn't
-|>exported while complete was.
-|
-|
-| which module is using this ?
+I've run a flavor of AIM7 and kernbench on a variety of ia64-NUMA CPU counts,
+ranging up to 128p (and my 2.6.4 + Piggin-scheduler kernel hangs during boot
+at >=192p, vs. 2.6.4 + vanilla-scheduler booting and running at 512p), and the
+Piggin scheduler is 10-15% slower at 64p, and even worse at 128p.  I did,
+however, produce superior performance (superior to the vanilla scheduler) with
+AIM7 by increasing the sched_domain->busy_factor by 4x.  I tried a few other
+things, but nothing improved performance on these big systems better than a
+simple increase of busy_factor.
 
-None at the moment, so getting this applied isn't neccesarily a high
-priority.  Actually, the only in-tree caller is fs/exec.c:do_coredump.
-
-I'm currently working on writing a new autofs stack and will eventually
-~ need this call exported.  It seems strange to me that we'd only export
-portions of an api like this.
+John Hawkes
 
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-mailto: Michael.Waychison@Sun.COM
-http://www.sun.com
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAYwa3dQs4kOxk3/MRAo5vAJ423HBBuES9xxzWOUW5Ms+jWUtfGwCgkoIf
-V3yDiSgsetl5A4pOUdRvkXQ=
-=/zUy
------END PGP SIGNATURE-----

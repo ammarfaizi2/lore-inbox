@@ -1,45 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbUKXJQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbUKXJTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262556AbUKXJQk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 04:16:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbUKXJQj
+	id S262561AbUKXJTO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 04:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbUKXJTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 04:16:39 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:4326 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262556AbUKXJQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 04:16:27 -0500
-Date: Wed, 24 Nov 2004 11:18:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Priority Inheritance Test (Real-Time Preemption)
-Message-ID: <20041124101854.GA686@elte.hu>
-References: <20041123133456.GA10453@elte.hu> <Pine.OSF.4.05.10411232343010.4816-100000@da410.ifa.au.dk>
+	Wed, 24 Nov 2004 04:19:13 -0500
+Received: from psych.st-and.ac.uk ([138.251.11.1]:4303 "EHLO
+	psych.st-andrews.ac.uk") by vger.kernel.org with ESMTP
+	id S262561AbUKXJRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 04:17:55 -0500
+Subject: Re: file as a directory
+From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Tomas Carnecky <tom@dbservice.com>, Helge Hafting <helge.hafting@hist.no>,
+       Amit Gud <amitgud1@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+In-Reply-To: <41A23496.505@namesys.com>
+References: <2c59f00304112205546349e88e@mail.gmail.com>
+	 <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com>
+	 <41A23496.505@namesys.com>
+Content-Type: text/plain
+Message-Id: <1101287762.1267.41.camel@pear.st-and.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10411232343010.4816-100000@da410.ifa.au.dk>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 24 Nov 2004 09:16:03 +0000
+Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-11-22 at 18:48, Hans Reiser wrote:
+> Tomas Carnecky wrote:
+> > Helge Hafting wrote:
+> >> I recommend looking at archived threads about file as directory,
+> >> you'll find many more arguments.  Currently there is one kind
+> >> of support for archive files - loop mounts over files containing
+> >> filesystem images.  These are not compressed though.
+> >
+> > Isn't reiserfs trying to implement such things? I've read that in some 
+> > next version of reiserfs one will be able to open 
+> > /etc/passwd/[username]  and get the informations about [username], 
+> > like UID, GID, home directory etc.
+> > Still true? And when can we except such a version of reiserfs?
+> > tom
+> >
+> It was more that we said we would like to implement the functionality 
+> necessary for doing that (e.g. inheritance), not that we would 
+> specifically do /etc/passwd.  And that functionality will trickle in 
+> over time.
+> 
+> Hans
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-> Results (in short): 
-> -30-9 doesn't resolved nested locking well. The expected max locking time
-> in my test would be depth * 1ms - it is much higher just at a locking
-> depth at two.
+I think something like
 
-could you check the -30-10 kernel i just uploaded? I fixed the PI bugs
-you reported (and found/fixed other ones as well).
+/etc/passwd/[username]
 
-	Ingo
+would be a really nice extension. The idea is more general, it would
+unify the namespace for file selection and part-of-file selection.
+
+So if you have a file named "/home/peter/book", you should be able to
+look at its Introduction as "/home/peter/book/Introduction" or chapter
+3, paragraph 2 as
+/home/peter/book/chapter[3]/paragraph[2]
+
+(this may not be the ideal syntax, but something like this should be
+good.)
+
+In this case you could use 
+/home/peter/book/chapter[3]/paragraph[2]
+as a "real" file, read it, even edit it in a text editor. When you later
+look at the whole book as /home/peter/book , you should see your
+changes.
+
+The idea is related to the W3C "XPath"
+http://www.w3.org/TR/xpath
+http://www.w3schools.com/xpath/
+XPath only applies within XML files, but it is mostly a superset of
+current Unix file naming, so it would be natural to unify the two
+namespaces. The idea is that you would use the same syntax for selecting
+file and part-of-file in a way that the user doesn't even need to know
+at which level they "cross over" to selecting within the file.
+In the above example, it may be that each chapter is stored in a
+separate "real" file. We don't even need to know. In a sense, the whole
+concept of a "file" becomes a bit blurred. (What we need to think about
+is which fragments to store metadata for, and which fragments should
+simply inherit their metadata from the parent.)
+Hans' tree-based file system is really ideal for this kind of thing.
+I am not sure how closely we would want to follow the XPath syntax (it
+has some nice ideas), but it should then be easy to write an plugin
+doing XPath really efficiently on top of this.(And it could be made to
+work for non-XML files as well.)
+
+I would really like to implement this for the next version of Hans' file
+system.
+ Peter
+

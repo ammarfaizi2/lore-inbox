@@ -1,44 +1,411 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263325AbTKQDmK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 22:42:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbTKQDmK
+	id S261492AbTKQDfk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 22:35:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTKQDfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 22:42:10 -0500
-Received: from amber.ccs.neu.edu ([129.10.116.51]:28067 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S263325AbTKQDmI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 22:42:08 -0500
-Subject: Bad interactivity with 2.6-test9
-From: Stan Bubrouski <stan@ccs.neu.edu>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1069040526.23511.40.camel@duergar>
+	Sun, 16 Nov 2003 22:35:40 -0500
+Received: from holomorphy.com ([199.26.172.102]:58530 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261492AbTKQDf3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 22:35:29 -0500
+Date: Sun, 16 Nov 2003 19:35:04 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: anton@samba.org, ak@muc.de
+Subject: format_cpumask()
+Message-ID: <20031117033504.GC19856@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, anton@samba.org, ak@muc.de
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sun, 16 Nov 2003 22:42:07 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
+I botched printing out cpumasks, and about a dozen times over.
 
-I have been testing 2.6-test9 (Arjan van de Ven's 2.6.0-0.test9.1.67
-RPMS rebuilt) tainted by nvidia drivers.
+This implements a generic format_cpumask() function and calls
+it in various places. This time, without scrambling the bits.
 
-The kernel has worked awesome and desktop interactivity works great
-under most circumstances, however I have noticed something ratehr
-annoying.
 
-When I start watching a video under mplayer and have something like
-spamassassin doing a sa-learn in an x-term if I start the sa-learn
-before mplayer and then play a video, the sa-learn makes  no  progress
-until I switch away from mplayer (playing full screen).  After which
-sa-learn continues to filter through messages much faster, and even
-while mplayer is going is still progressing much faster than before I
-switched away from mplayer the first time.
+-- wli
 
-Very odd.  Con anyone ideas?
 
--sb
-
+===== include/linux/cpumask.h 1.1 vs edited =====
+--- 1.1/include/linux/cpumask.h	Mon Aug 18 19:46:23 2003
++++ edited/include/linux/cpumask.h	Sun Nov 16 19:28:33 2003
+@@ -68,4 +68,23 @@
+ 		cpu < NR_CPUS;						\
+ 		cpu = next_online_cpu(cpu,map))
+ 
++static inline int format_cpumask(char *buf, cpumask_t cpus)
++{
++	int k, len = 0;
++
++	for (k = sizeof(cpumask_t)/sizeof(long) - 1; k >= 0; ++k) {
++		int m;
++		cpumask_t tmp;
++
++		cpus_shift_right(tmp, cpus, BITS_PER_LONG*k);
++		if (BITS_PER_LONG == 32)
++			m = sprintf(buf, "%08lx", cpus_coerce(tmp));
++		else /* BITS_PER_LONG == 64 */
++			m = sprintf(buf, "%16lx", cpus_coerce(tmp));
++		len += m;
++		buf += m;
++	}
++	return len;
++}
++
+ #endif /* __LINUX_CPUMASK_H */
+===== arch/i386/kernel/irq.c 1.45 vs edited =====
+--- 1.45/arch/i386/kernel/irq.c	Wed Oct 22 20:26:34 2003
++++ edited/arch/i386/kernel/irq.c	Sun Nov 16 19:19:13 2003
+@@ -949,19 +949,13 @@
+ static int irq_affinity_read_proc(char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
+-	int k, len;
+-	cpumask_t tmp = irq_affinity[(long)data];
++	int len;
+ 
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+ 
+-	len = 0;
+-	for (k = 0; k < sizeof(cpumask_t)/sizeof(u16); ++k) {
+-		int j = sprintf(page, "%04hx", (u16)cpus_coerce(tmp));
+-		len += j;
+-		page += j;
+-		cpus_shift_right(tmp, tmp, 16);
+-	}
++	len = format_cpumask(page, irq_affinity[(long)data];
++	page += len;
+ 	len += sprintf(page, "\n");
+ 	return len;
+ }
+@@ -1000,10 +994,16 @@
+ static int prof_cpu_mask_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
+-	unsigned long *mask = (unsigned long *) data;
++	int len;
++	cpumask_t *mask = (cpumask_t *)data;
++
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+-	return sprintf (page, "%08lx\n", *mask);
++
++	len = format_cpumask(page, *mask);
++	page += len;
++	len += sprintf (page, "\n");
++	return len;
+ }
+ 
+ static int prof_cpu_mask_write_proc (struct file *file, const char __user *buffer,
+===== arch/ia64/kernel/irq.c 1.31 vs edited =====
+--- 1.31/arch/ia64/kernel/irq.c	Tue Nov  4 11:31:16 2003
++++ edited/arch/ia64/kernel/irq.c	Sun Nov 16 19:07:19 2003
+@@ -974,19 +974,13 @@
+ static int irq_affinity_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
+-	int k, len;
+-	cpumask_t tmp = irq_affinity[(long)data];
++	int len;
+ 
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+ 
+-	len = 0;
+-	for (k = 0; k < sizeof(cpumask_t)/sizeof(u16); ++k) {
+-		int j = sprintf(page, "%04hx", (u16)cpus_coerce(tmp));
+-		len += j;
+-		page += j;
+-		cpus_shift_right(tmp, tmp, 16);
+-	}
++	len = format_cpumask(page, irq_affinity[(long)data]);
++	page += len;
+ 	len += sprintf(page, "\n");
+ 	return len;
+ }
+@@ -1034,17 +1028,13 @@
+ 			int count, int *eof, void *data)
+ {
+ 	cpumask_t *mask = (cpumask_t *)data;
+-	int k, len = 0;
++	int len;
+ 
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+ 
+-	for (k = 0; k < sizeof(cpumask_t)/sizeof(u16); ++k) {
+-		int j = sprintf(page, "%04hx", (u16)cpus_coerce(*mask));
+-		len += j;
+-		page += j;
+-		cpus_shift_right(*mask, *mask, 16);
+-	}
++	len = format_cpumask(page, *mask);
++	page += len;
+ 	len += sprintf(page, "\n");
+ 	return len;
+ }
+===== arch/mips/kernel/irq.c 1.14 vs edited =====
+--- 1.14/arch/mips/kernel/irq.c	Tue Oct  7 19:53:39 2003
++++ edited/arch/mips/kernel/irq.c	Sun Nov 16 19:07:59 2003
+@@ -872,17 +872,13 @@
+ static int irq_affinity_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
+-	int len, k;
+-	cpumask_t tmp = irq_affinity[(long)data];
++	int len;
+ 
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+-	for (k = 0; k < sizeof(cpumask_t)/sizeof(u16); ++k) {
+-		int j = sprintf(page, "%04hx", cpus_coerce(tmp));
+-		len += j;
+-		page += j;
+-		cpus_shift_right(tmp, tmp, 16);
+-	}
++
++	len = format_cpumask(page, irq_affinity[(long)data]);
++	page += len;
+ 	len += sprintf(page, "\n");
+ 	return len;
+ }
+@@ -918,19 +914,14 @@
+ static int prof_cpu_mask_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
+-	int len, k;
+-	cpumask_t *mask = (cpumask_t *)data, tmp;
++	int len;
++	cpumask_t *mask = (cpumask_t *)data;
+ 
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+-	tmp = *mask;
+ 
+-	for (k = 0; k < sizeof(cpumask_t)/sizeof(u16); ++k) {
+-		int j = sprintf(page, "%04hx", cpus_coerce(tmp));
+-		len += j;
+-		page += j;
+-		cpus_shift_right(tmp, tmp, 16);
+-	}
++	len = format_cpumask(page, *mask);
++	page += len;
+ 	len += sprintf(page, "\n");
+ 	return len;
+ }
+===== arch/ppc/kernel/irq.c 1.33 vs edited =====
+--- 1.33/arch/ppc/kernel/irq.c	Tue Oct  7 19:53:39 2003
++++ edited/arch/ppc/kernel/irq.c	Sun Nov 16 19:08:36 2003
+@@ -574,19 +574,13 @@
+ static int irq_affinity_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
+-	cpumask_t tmp = irq_affinity[(long)data];
+-	int k, len = 0;
++	int len;
+ 
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+ 
+-	for (k = 0; k < sizeof(cpumask_t)/sizeof(u16); ++k) {
+-		int j = sprintf(page, "%04hx", (u16)cpus_coerce(tmp));
+-		len += j;
+-		page += j;
+-		cpus_shift_right(tmp, tmp, 16);
+-	}
+-
++	len = format_cpumask(page, irq_affinity[(long)data]);
++	page += len;
+ 	len += sprintf(page, "\n");
+ 	return len;
+ }
+@@ -665,17 +659,13 @@
+ 			int count, int *eof, void *data)
+ {
+ 	cpumask_t mask = *(cpumask_t *)data;
+-	int k, len = 0;
++	int len;
+ 
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+ 
+-	for (k = 0; k < sizeof(cpumask_t)/sizeof(u16); ++k) {
+-		int j = sprintf(page, "%04hx", (u16)cpus_coerce(mask));
+-		len += j;
+-		page += j;
+-		cpus_shift_right(mask, mask, 16);
+-	}
++	len = format_cpumask(page, mask);
++	page += len;
+ 	len += sprintf(page, "\n");
+ 	return len;
+ }
+===== arch/ppc64/kernel/irq.c 1.36 vs edited =====
+--- 1.36/arch/ppc64/kernel/irq.c	Wed Oct 15 18:43:36 2003
++++ edited/arch/ppc64/kernel/irq.c	Sun Nov 16 19:11:59 2003
+@@ -657,18 +657,13 @@
+ static int irq_affinity_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
+-	int k, len;
+-	cpumask_t tmp = irq_affinity[(long)data];
++	int len;
+ 
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+ 
+-	for (k = 0; k < sizeof(cpumask_t) / sizeof(u16); ++k) {
+-		int j = sprintf(page, "%04hx", (u16)cpus_coerce(tmp));
+-		len += j;
+-		page += j;
+-		cpus_shift_right(tmp, tmp, 16);
+-	}
++	len = format_cpumask(page, irq_affinity[(long)data]);
++	page += len;
+ 	len += sprintf(page, "\n");
+ 	return len;
+ }
+@@ -744,10 +739,16 @@
+ static int prof_cpu_mask_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
+-	unsigned long *mask = (unsigned long *) data;
++	int len;
++	cpumask_t *mask = (cpumask_t *) data;
++
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+-	return sprintf (page, "%08lx\n", *mask);
++
++	len = format_cpumask(page, *mask);
++	page += len;
++	len += sprintf (page, "\n");
++	return len;
+ }
+ 
+ static int prof_cpu_mask_write_proc (struct file *file, const char __user *buffer,
+===== arch/um/kernel/irq.c 1.11 vs edited =====
+--- 1.11/arch/um/kernel/irq.c	Tue Oct  7 19:53:41 2003
++++ edited/arch/um/kernel/irq.c	Sun Nov 16 19:09:06 2003
+@@ -577,9 +577,15 @@
+ static int irq_affinity_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
++	int len;
++
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+-	return sprintf (page, "%08lx\n", irq_affinity[(long)data]);
++
++	len = format_cpumask(page, irq_affinity[(long)data]);
++	page += len;
++	len += sprinf(page, "\n");
++	return len;
+ }
+ 
+ static unsigned int parse_hex_value (const char *buffer,
+@@ -652,18 +658,14 @@
+ static int prof_cpu_mask_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
+-	cpumask_t tmp, *mask = (cpumask_t *) data;
+-	int k, len = 0;
++	cpumask_t *mask = (cpumask_t *)data;
++	int len;
+ 
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+-	tmp = *mask;
+-	for (k = 0; k < sizeof(cpumask_t)/sizeof(u16); ++k) {
+-		int j = sprintf(page, "%04hx", cpus_coerce(tmp));
+-		len += j;
+-		page += j;
+-		cpus_shift_right(tmp, tmp, 16);
+-	}
++
++	len = format_cpumask(page, *mask);
++	page += len;
+ 	len += sprintf(page, "\n");
+ 	return len;
+ }
+===== arch/x86_64/kernel/irq.c 1.18 vs edited =====
+--- 1.18/arch/x86_64/kernel/irq.c	Tue Oct  7 19:53:42 2003
++++ edited/arch/x86_64/kernel/irq.c	Sun Nov 16 19:12:18 2003
+@@ -850,18 +850,13 @@
+ static int irq_affinity_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
+-	int k, len;
+-	cpumask_t tmp = irq_affinity[(long)data];
++	int len;
+ 
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+ 
+-	for (k = len = 0; k < sizeof(cpumask_t)/sizeof(u16); ++k) {
+-		int j = sprintf(page, "%04hx", (u16)cpus_coerce(tmp));
+-		len += j;
+-		page += j;
+-		cpus_shift_right(tmp, tmp, 16);
+-	}
++	len = format_cpumask(page, irq_affinity[(long)data]);
++	page += len;
+ 	len += sprintf(page, "\n");
+ 	return len;
+ }
+@@ -897,19 +892,14 @@
+ static int prof_cpu_mask_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
+-	cpumask_t tmp, *mask = (cpumask_t *) data;
+-	int k, len;
++	cpumask_t *mask = (cpumask_t *)data;
++	int len;
+ 
+ 	if (count < HEX_DIGITS+1)
+ 		return -EINVAL;
+ 
+-	tmp = *mask;
+-	for (k = len = 0; k < sizeof(cpumask_t)/sizeof(u16); ++k) {
+-		int j = sprintf(page, "%04hx", (u16)cpus_coerce(tmp));
+-		len += j;
+-		page += j;
+-		cpus_shift_right(tmp, tmp, 16);
+-	}
++	len = format_cpumask(page, *mask);
++	page += len;
+ 	len += sprintf(page, "\n");
+ 	return len;
+ }
+===== drivers/base/node.c 1.15 vs edited =====
+--- 1.15/drivers/base/node.c	Mon Aug 18 19:46:23 2003
++++ edited/drivers/base/node.c	Sun Nov 16 19:20:29 2003
+@@ -19,15 +19,11 @@
+ {
+ 	struct node *node_dev = to_node(dev);
+ 	cpumask_t tmp = node_dev->cpumap;
+-	int k, len = 0;
++	int len = 0;
+ 
+-	for (k = 0; k < sizeof(cpumask_t)/sizeof(u16); ++k) {
+-		int j = sprintf(buf, "%04hx", (u16)cpus_coerce(tmp));
+-		len += j;
+-		buf += j;
+-		cpus_shift_right(tmp, tmp, 16);
+-	}
+-        len += sprintf(buf, "\n");
++	len = format_cpumask(buf, node_dev->cpumap);
++	buf += len;
++	len += sprintf(buf, "\n");
+ 	return len;
+ }
+ static SYSDEV_ATTR(cpumap,S_IRUGO,node_read_cpumap,NULL);

@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282841AbRLGP4x>; Fri, 7 Dec 2001 10:56:53 -0500
+	id <S282843AbRLGQAn>; Fri, 7 Dec 2001 11:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282843AbRLGP4n>; Fri, 7 Dec 2001 10:56:43 -0500
-Received: from otter.mbay.net ([206.40.79.2]:9484 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S282841AbRLGP4Z> convert rfc822-to-8bit;
-	Fri, 7 Dec 2001 10:56:25 -0500
-From: John Alvord <jalvo@mbay.net>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: John Cowan <jcowan@reutershealth.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5 
-Date: Fri, 07 Dec 2001 07:56:15 -0800
-Message-ID: <5gp11u40iqo6bj0mj8emav1oe0a8fs0ij4@4ax.com>
-In-Reply-To: <jcowan@reutershealth.com>  of "Thu, 06 Dec 2001 17:17:36 CDT." <3C0FEE80.2050603@reutershealth.com> <200112071444.fB7EitoH024769@pincoya.inf.utfsm.cl>
-In-Reply-To: <200112071444.fB7EitoH024769@pincoya.inf.utfsm.cl>
-X-Mailer: Forte Agent 1.8/32.553
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	id <S282850AbRLGQA1>; Fri, 7 Dec 2001 11:00:27 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:28299 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S282843AbRLGQAI>; Fri, 7 Dec 2001 11:00:08 -0500
+Date: Fri, 7 Dec 2001 08:59:58 -0700
+Message-Id: <200112071559.fB7FxwR14021@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Rene Rebe <rene.rebe@gmx.net>, <linux-kernel@vger.kernel.org>,
+        <alsa-devel@lists.sourceforge.net>
+Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] /
+ ALSA-0.9.0beta[9,10]
+In-Reply-To: <Pine.LNX.4.33.0112071617440.2935-100000@serv>
+In-Reply-To: <200112070609.fB769Eo08508@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.33.0112071617440.2935-100000@serv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 07 Dec 2001 11:44:55 -0300, Horst von Brand
-<vonbrand@inf.utfsm.cl> wrote:
+Roman Zippel writes:
+> Hi,
+> 
+> On Thu, 6 Dec 2001, Richard Gooch wrote:
+> 
+> > Two possibilities:
+> >
+> > - the module is trying to register "unknown" twice. The old devfs core
+> >   was forgiving about this (although it was always a driver bug to
+> >   attempt to create a duplicate). The new core won't let you do that.
+> >   Error 17 is EEXIST. Please fix the driver
+> >
+> > - something in user-space created the "unknown" inode before the
+> >   driver could create it. This is a configuration bug.
+> 
+> Option 3:
+> Turn a user generated entry into a kernel generated one and return
+> 0.  Prepopulating devfs was a valid option so far, you cannot simply
+> change this during a stable kernel release.
 
->John Cowan <jcowan@reutershealth.com> dijo:
->
->[...]
->
->> You only need to learn Python if you are going to change the
->> CML2 compiler or interpreter, not if you are just changing
->> CML2.
->
->I did look around in CML1 when I had some troubles way back. Turned out to
->be my fault, or was fixed in the next patch, so I didn't contribute back.
->Trouble is that another opaque tool makes hacking _harder_, and this in
->turn turns hackers away, and the development suffers.
->
->>       You might as well complain that you must learn
->> Python to hack GNU Mailman.
->
->Just use majordomo ;-)
->
->> CML2 hacking requires knowing Python; kernel hacking does not.
->
->CML2 hacking _is_ kernel hacking, if you like to call it such or not.
+Well, no, it was never a valid option. It was always a bug. In any
+case, the stricter behaviour isn't preventing people from using their
+drivers, it's just issuing a warning. The user-space created device
+node still works.
 
-I wonder how many people did CML1 tool hacking, fixing up one of the
-three (four?) parsers/compilers/runtime. Most people wouldn't know if
-those were written in C. sh, or ADA... Those would be the only people
-that need to worry about learning Python to do the CML2 tool hacking.
+				Regards,
 
-john alvord
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,90 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVDDIrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVDDIsT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVDDIrR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 04:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVDDIrR
+	id S261182AbVDDIsT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 04:48:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVDDIsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 04:47:17 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51634 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261180AbVDDIqz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 04:46:55 -0400
-Date: Mon, 4 Apr 2005 10:46:38 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, Len Brown <len.brown@intel.com>
-Subject: Re: [RFC 1/6]SEP initialization rework
-Message-ID: <20050404084638.GB14642@elf.ucw.cz>
-References: <1112580349.4194.331.camel@sli10-desk.sh.intel.com>
+	Mon, 4 Apr 2005 04:48:19 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:38380 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261182AbVDDIsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 04:48:04 -0400
+Subject: Re: [ACPI] Re: [RFC 0/6] S3 SMP support with physcial CPU hotplug
+From: Li Shaohua <shaohua.li@intel.com>
+To: ncunningham@cyclades.com
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, Len Brown <len.brown@intel.com>,
+       Pavel Machek <pavel@suse.cz>
+In-Reply-To: <1112601670.3757.6.camel@desktop.cunningham.myip.net.au>
+References: <1112580342.4194.329.camel@sli10-desk.sh.intel.com>
+	 <20050403193750.40cdabb2.akpm@osdl.org>
+	 <1112582553.4194.349.camel@sli10-desk.sh.intel.com>
+	 <20050403194807.32fd761a.akpm@osdl.org>
+	 <1112582947.4194.352.camel@sli10-desk.sh.intel.com>
+	 <1112601670.3757.6.camel@desktop.cunningham.myip.net.au>
+Content-Type: text/plain
+Message-Id: <1112604263.4194.367.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112580349.4194.331.camel@sli10-desk.sh.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 04 Apr 2005 16:44:23 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Make SEP init per-cpu, so is hotplug safe.
+On Mon, 2005-04-04 at 16:01, Nigel Cunningham wrote:
+> Hi.
 > 
-> Thanks,
-> Shaohua
-> 
-> ---
-> 
->  linux-2.6.11-root/arch/i386/kernel/smpboot.c           |    6 ++++++
->  linux-2.6.11-root/arch/i386/kernel/sysenter.c          |   10 ++++++----
->  linux-2.6.11-root/arch/i386/mach-voyager/voyager_smp.c |    6 ++++++
->  3 files changed, 18 insertions(+), 4 deletions(-)
-> 
-> diff -puN arch/i386/kernel/sysenter.c~sep_init_cleanup arch/i386/kernel/sysenter.c
-> --- linux-2.6.11/arch/i386/kernel/sysenter.c~sep_init_cleanup	2005-03-28 09:32:30.936304248 +0800
-> +++ linux-2.6.11-root/arch/i386/kernel/sysenter.c	2005-03-28 09:58:20.703703792 +0800
-> @@ -26,6 +26,11 @@ void enable_sep_cpu(void *info)
->  	int cpu = get_cpu();
->  	struct tss_struct *tss = &per_cpu(init_tss, cpu);
->  
-> +	if (!boot_cpu_has(X86_FEATURE_SEP)) {
-> +		put_cpu();
-> +		return;
-> +	}
-> +
->  	tss->ss1 = __KERNEL_CS;
->  	tss->esp1 = sizeof(struct tss_struct) + (unsigned long) tss;
->  	wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
-> @@ -41,7 +46,7 @@ void enable_sep_cpu(void *info)
->  extern const char vsyscall_int80_start, vsyscall_int80_end;
->  extern const char vsyscall_sysenter_start, vsyscall_sysenter_end;
->  
-> -static int __init sysenter_setup(void)
-> +int __init sysenter_setup(void)
->  {
->  	void *page = (void *)get_zeroed_page(GFP_ATOMIC);
->  
+> I'm switching suspend2 to use hotplug too. Li, I'll try adding your
+> patches as well as Zwane's if you like 
+Great!
 
-Can this still be __init? I think you are calling it from hotplug code
-now, right?
+> (suspend2 can enter S3, S4 or S5
+> after writing the image). I'd love to try it on my HT desktop, and
+> hotplug will get more testing too :>
+Unfortunately, my patches break Pavel's swsusp SMP, as my patches break
+current 'cpu_up' mechanism. S4 doesn't require to boot AP CPUs from real
+mode.
 
-> diff -puN arch/i386/kernel/smpboot.c~sep_init_cleanup arch/i386/kernel/smpboot.c
-> --- linux-2.6.11/arch/i386/kernel/smpboot.c~sep_init_cleanup	2005-03-28 09:33:49.972288952 +0800
-> +++ linux-2.6.11-root/arch/i386/kernel/smpboot.c	2005-03-28 09:46:01.814032096 +0800
-> @@ -415,6 +415,8 @@ static void __init smp_callin(void)
->  
->  static int cpucount;
->  
-> +extern int sysenter_setup(void);
-> +extern void enable_sep_cpu(void *);
->  /*
->   * Activate a secondary processor.
->   */
+Thanks,
+Shaohua
 
-Perhaps these should go to header file somewhere?
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

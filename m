@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269031AbUJEOXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269024AbUJEOW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269031AbUJEOXg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 10:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUJEOXf
+	id S269024AbUJEOW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 10:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269028AbUJEOW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 10:23:35 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:63925 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S269031AbUJEOWz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 10:22:55 -0400
-Date: Tue, 5 Oct 2004 16:20:01 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: [PATCH] ide-dma blacklist behaviour broken
-Message-ID: <20041005142001.GR2433@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Tue, 5 Oct 2004 10:22:26 -0400
+Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:14761 "EHLO
+	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S269024AbUJEOWY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 10:22:24 -0400
+Message-ID: <4162AE07.7030701@kolivas.org>
+Date: Wed, 06 Oct 2004 00:21:59 +1000
+From: Con Kolivas <lkml@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm2
+References: <20041004020207.4f168876.akpm@osdl.org> <200410051607.40860.dominik.karall@gmx.net>
+In-Reply-To: <200410051607.40860.dominik.karall@gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dominik Karall wrote:
+> On Monday 04 October 2004 11:02, Andrew Morton wrote:
+> 
+>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6
+>>.9-rc3-mm2/
+> 
+> 
+> some more scheduling/preempt problems. following patches were applied:
+> +               preempt_disable();                                      \
+> +               per_cpu(ip_conntrack_stat, smp_processor_id()).count++; \
+> +               preempt_disable();                                      \
 
-The blacklist stuff is broken. When set_using_dma() calls into
-ide_dma_check(), it returns ide_dma_off() for a blacklisted drive. This
-of course succeeds, returning success to the caller of ide_dma_check().
-Not so good... It then uncondtionally calls ide_dma_on(), which turns on
-dma for the drive.
+double preempt_disable looks suspect.
 
-This moves the check to ide_dma_on() so we also catch the buggy
-->ide_dma_check() defined by various chipset drivers.
-
---- drivers/ide/ide-dma.c~	2004-10-05 16:11:49.631910586 +0200
-+++ drivers/ide/ide-dma.c	2004-10-05 16:21:58.828330845 +0200
-@@ -354,11 +355,13 @@
- 	struct hd_driveid *id = drive->id;
- 	ide_hwif_t *hwif = HWIF(drive);
- 
--	if ((id->capability & 1) && hwif->autodma) {
--		/* Consult the list of known "bad" drives */
--		if (__ide_dma_bad_drive(drive))
--			return __ide_dma_off(drive);
-+	/* Consult the list of known "bad" drives */
-+	if (__ide_dma_bad_drive(drive)) {
-+		__ide_dma_off(drive);
-+		return 1;
-+	}
- 
-+	if ((id->capability & 1) && hwif->autodma) {
- 		/*
- 		 * Enable DMA on any drive that has
- 		 * UltraDMA (mode 0/1/2/3/4/5/6) enabled
-@@ -512,6 +515,9 @@
-  
- int __ide_dma_on (ide_drive_t *drive)
- {
-+	if (__ide_dma_bad_drive(drive))
-+		return 1;
-+
- 	drive->using_dma = 1;
- 	ide_toggle_bounce(drive, 1);
- 
-
--- 
-Jens Axboe
-
+Con

@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136135AbRECHIP>; Thu, 3 May 2001 03:08:15 -0400
+	id <S136137AbRECHJf>; Thu, 3 May 2001 03:09:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136137AbRECHIG>; Thu, 3 May 2001 03:08:06 -0400
-Received: from lilly.ping.de ([62.72.90.2]:46087 "HELO lilly.ping.de")
-	by vger.kernel.org with SMTP id <S136135AbRECHH4>;
-	Thu, 3 May 2001 03:07:56 -0400
-Date: 3 May 2001 09:06:45 +0200
-Message-ID: <20010503070645.1175.qmail@toyland.ping.de>
-From: "Michael Stiller" <michael@toyland.ping.de>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Amarendra GODBOLE" <agodbole@mahindrabt.com>,
-        linux-kernel@vger.kernel.org
-X-Mailer: exmh version 2.0.2 2/24/98
-Subject: Re: Broken gcc ? 
-In-Reply-To: Your message of "Wed, 02 May 2001 12:48:32 BST."
-             <E14uv7T-0003TY-00@the-village.bc.nu> 
-X-Url: http://www.ping.de/~michael
-X-Face: "wBy`XBjk-b]Wks].wV-RmZmir({Qfv85d&!VDrjx+4Ra(/ZyXjaV-x^QXX-Ab5X#3Eap^/
-  W^Zo.K9=py=t6/F&p3cl/.zrgKH)0uxy{#5Y(_dD=ftF*Q}-lp\&Z-563qR3X5qv^o9~iP(pw3_1q
-  !ti@9"V[C?^iW\BVArF#(YjjLJ/[R%Ri*sw
-Mime-Version: 1.0
+	id <S136138AbRECHJ1>; Thu, 3 May 2001 03:09:27 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:28556 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136137AbRECHJL>;
+	Thu, 3 May 2001 03:09:11 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15089.979.650927.634060@pizda.ninka.net>
+Date: Thu, 3 May 2001 00:08:03 -0700 (PDT)
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: unsigned long ioremap()?
+In-Reply-To: <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg>
+In-Reply-To: <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> 
-> I do all my kernel development with gcc 2.96-69 and 2.96-81 (the errata
-> 7.0 and the 7.1 gcc).
+Geert Uytterhoeven writes:
+ > Since you're not allowed to use direct memory dereferencing on ioremapped
+ > areas, wouldn't it be more logical to let ioremap() return an unsigned long
+ > instead of a void *?
+ > 
+ > Of course we then have to change readb() and friends to take a long as well,
+ > but at least we'd get compiler warnings when someone tries to do a direct
+ > dereference.
 
-2.96-81 will not compile sgi's xfs patches due to some cpp macros using ##.
-Use kgcc supplied with rh7 for that.
+There is a school of thought which believes that:
 
-Cheers,
+struct xdev_regs {
+	u32 reg1;
+	u32 reg2;
+};
 
--Michael
+	val = readl(&regs->reg2);
 
--- 
-x(f,s,c)char *s;{return f&1 ? *s ? *s-c ? x(f,++s,c) :7[s]:0:f&2 
-? x(--f,"!/*,xq-ih9]c$=le&M t)r\nm@p31n%ag.8}Sdoy",c):f&4 ? *s ? 
-x(f,s+1,putchar(x(f-2,"^&%!*)",*s))) : 0 : 0;}main(){return x(4,
-"]!x/mhicn$!iihle&!x/mhiM$agimr%p !r@p%he&!x/mhiM !r@p%he",65);}
+is cleaner than:
 
+#define REG1 0x00
+#define REG2 0x04
 
+	val = readl(regs + REG2);
+
+I'm personally ambivalent and believe that both cases should be allowed.
+
+BTW, current {read,write}{b,w,l}() allow both pointer and unsigned
+long arguments.  If your implementation isn't casting the port address
+arg right now, perhaps you haven't tried to compile very many drivers
+which use these interfaces or you're just ignoreing the warnings :-)
+
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269860AbUIDJtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269859AbUIDJwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269860AbUIDJtE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 05:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269859AbUIDJtE
+	id S269859AbUIDJwi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 05:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269865AbUIDJwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 05:49:04 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:64517 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269860AbUIDJsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 05:48:47 -0400
-Date: Sat, 4 Sep 2004 10:48:34 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Keith Whitwell <keith@tungstengraphics.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
-       Jon Smirl <jonsmirl@yahoo.com>, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
+	Sat, 4 Sep 2004 05:52:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11988 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269859AbUIDJtI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 05:49:08 -0400
 Subject: Re: New proposed DRM interface design
-Message-ID: <20040904104834.B13362@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Keith Whitwell <keith@tungstengraphics.com>,
-	Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
-	dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20040904004424.93643.qmail@web14921.mail.yahoo.com> <Pine.LNX.4.58.0409040145240.25475@skynet> <20040904102914.B13149@infradead.org> <41398EBD.2040900@tungstengraphics.com>
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Dave Airlie <airlied@linux.ie>
+Cc: Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@yahoo.com>,
+       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0409041031370.25475@skynet>
+References: <20040904004424.93643.qmail@web14921.mail.yahoo.com>
+	 <Pine.LNX.4.58.0409040145240.25475@skynet>
+	 <20040904102914.B13149@infradead.org>
+	 <Pine.LNX.4.58.0409041031370.25475@skynet>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-heHp7ldn0ijUvQsH46FJ"
+Organization: Red Hat UK
+Message-Id: <1094291327.2801.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <41398EBD.2040900@tungstengraphics.com>; from keith@tungstengraphics.com on Sat, Sep 04, 2004 at 10:45:33AM +0100
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 04 Sep 2004 11:48:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 04, 2004 at 10:45:33AM +0100, Keith Whitwell wrote:
-> > Umm, the Linux kernel isn't about minimizing interfaces.  We don't link a
-> > copy of scsi helpers into each scsi driver either, or libata into each sata
+
+--=-heHp7ldn0ijUvQsH46FJ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, 2004-09-04 at 11:43, Dave Airlie wrote:
+> >
+> > Umm, the Linux kernel isn't about minimizing interfaces.  We don't link=
+ a
+> > copy of scsi helpers into each scsi driver either, or libata into each =
+sata
 > > driver.
-> 
-> But regular users don't tend to pull down new scsi or ata drivers in the same 
-> way that they do graphics drivers.  Hence the concern of many drm developers 
-> to avoid introducing new failure modes in this process.
+>=20
+> true but the DRM isn't only about the Linux kernel, the DRM is a lowlevel
+> component of a much larger system, of which the DRM just has to reside in
+> the kernel,
 
-Actually regulat users do.  And they do by pulling an uptodate kernel or
-using a vendor kernel with backports.  This model would work for video drivers
-aswell.
 
-> People who'd never dream of upgrading their kernel have acquired the habit of 
-> pulling down up-to-date video drivers on a weekly or monthly basis.  So, for 
-> sanity's sake, the DRI/DRM has been in the business of minimizing exposed 
-> interfaces, and for my money, should continue to be in that business.
+you seem to be confusing 2 things.
 
-And DRM is the most crappy code in the kernel.  See any corelations?
+The kernel<->userspace interface is supposed to be stable, and it should
+be so that you can basically decouple X and kernel versions.
+
+Within the kernel you should go for the best interface (where "best" is
+a notion that is flexible over time) because 1) you can and 2) you are
+suboptimal in both performance and maintenance if you don't
+
+
+--=-heHp7ldn0ijUvQsH46FJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBOY9/xULwo51rQBIRAkmJAKClwpgbncTRN415Jdqq/A3Gy643uQCeJ85P
+lEMxqlVJYADeJE6W98BOxNQ=
+=r6b8
+-----END PGP SIGNATURE-----
+
+--=-heHp7ldn0ijUvQsH46FJ--
 

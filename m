@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262411AbUKZXDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263300AbUKZXHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262411AbUKZXDv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 18:03:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263320AbUKZTtI
+	id S263300AbUKZXHu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 18:07:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbUKZTsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:49:08 -0500
+	Fri, 26 Nov 2004 14:48:55 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:4291 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262411AbUKZT3H (ORCPT
+	by vger.kernel.org with ESMTP id S262402AbUKZT3Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:29:07 -0500
-Date: Thu, 25 Nov 2004 22:58:07 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge: 9/51: init/* changes.
-Message-ID: <20041125215807.GI2488@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101293918.5805.221.camel@desktop.cunninghams> <20041125170718.GA1417@openzaurus.ucw.cz> <1101418614.27250.21.camel@desktop.cunninghams> <20041125214524.GE2488@elf.ucw.cz> <1101419500.27250.41.camel@desktop.cunninghams>
-Mime-Version: 1.0
+	Fri, 26 Nov 2004 14:29:16 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101419500.27250.41.camel@desktop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16806.21992.295157.530799@cargo.ozlabs.ibm.com>
+Date: Fri, 26 Nov 2004 09:00:08 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, brking@us.ibm.com,
+       Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST
+In-Reply-To: <1100954543.11822.8.camel@localhost.localdomain>
+References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
+	<1100917635.9398.12.camel@localhost.localdomain>
+	<1100934567.3669.12.camel@gaston>
+	<1100954543.11822.8.camel@localhost.localdomain>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Alan Cox writes:
 
-> > > > And if you really want to make it changeable, pass major:minor from userland; once
-> > > > userland is running getting them is easy.
-> > > 
-> > > Yes, but that's also far uglier, and who thinks in terms of major and
-> > > minor numbers anyway? I think of my harddrive as /dev/sda, not 08:xx.
-> > > The parsing accepts majors and minors, of course, but shouldn't we make
-> > > these things easier to do, not harder? (Would we insist on using majors
-> > > and minors for root=?).
-> > 
-> > Kernel interface is not supposed to be "easy". root= has exception,
-> > that's init code, and you can't easily ls -al /dev at that point. If
-> > you want easy interface, create userland program that looks up
-> > minor/major in /dev/ and uses them.
+> That doesn't mean it is the right implementation. Most devices don't
+> need
+> this check so might as well have a fast path. You can at least reduce
+> the cost by setting a flag on devices that potentially have this problem
+
+But that's exactly what Brian's later patch does!  Did you actually
+read the patch?  All that we are doing is testing one bit in the
+struct pci_dev to see whether to do the actual access or not.  Or do
+you want one bit to tell us whether to go and look at another bit to
+see whether to do the access? :)
+
+> (or a PCI_ANY PCI_ANY quirk for platforms with it globally)
+
+How would you use a quirk to block config space accesses?  The two are
+unrelated.
+
+> >  - The device he's working on, which sometimes need to trigger a BIST
+> > (built-in self test). During this operation, the device stops responding
+> > on the PCI bus, which can be sort-of fatal if anything (userland playing
+> > with /sys/bus/pci/* for example) touches the config space.
 > 
-> That's a fair possibility, but is it really worth it when all we need to
-> do is make two routines not be init? We would still have to duplicate
-> some of this code elsewhere anyway, because we need to parse the major
-> and minor numbers.
+> That will be fun given some laptop SMM touches config space.
 
-Parsing major/minor should be as simple as sscanf("%d %d"). And you'll
-have one less modification to generic code. Yes I think it is worth
-it.
+Well, I can see that that would limit your power management options,
+but fortunately we don't have SMM on the machines where we need this
+config access blocking.
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> Some of the Intel CPU's are very bad at lock handling so it is an issue.
+
+There is no extra locking introduced by Brian's patch.  Config
+accesses were already taking the pci_lock and that hasn't changed.
+
+> I dislike the "Hey it sucks, lets make it suck more" approach when it
+> seems easy to do the job well.
+
+Perhaps you could expand on what you mean by "do the job well"?
+
+Paul.

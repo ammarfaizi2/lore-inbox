@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265839AbUBPUUt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 15:20:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265869AbUBPUUt
+	id S265851AbUBPUQV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 15:16:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265872AbUBPUQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 15:20:49 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:43190 "EHLO
-	mailout.schmorp.de") by vger.kernel.org with ESMTP id S265839AbUBPUUr
+	Mon, 16 Feb 2004 15:16:21 -0500
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:38326 "EHLO
+	mailout.schmorp.de") by vger.kernel.org with ESMTP id S265851AbUBPUQT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 15:20:47 -0500
-Date: Mon, 16 Feb 2004 21:20:43 +0100
+	Mon, 16 Feb 2004 15:16:19 -0500
+Date: Mon, 16 Feb 2004 21:16:10 +0100
 From: Marc Lehmann <pcg@schmorp.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: John Bradford <john@grabjohn.com>, Jeff Garzik <jgarzik@pobox.com>,
+To: John Bradford <john@grabjohn.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
        viro@parcelfarce.linux.theplanet.co.uk,
        Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-Message-ID: <20040216202043.GD17015@schmorp.de>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	John Bradford <john@grabjohn.com>, Jeff Garzik <jgarzik@pobox.com>,
+Message-ID: <20040216201610.GC17015@schmorp.de>
+Mail-Followup-To: John Bradford <john@grabjohn.com>,
+	Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
 	viro@parcelfarce.linux.theplanet.co.uk,
 	Linux kernel <linux-kernel@vger.kernel.org>
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402150006.23177.robin.rosenberg.lists@dewire.com> <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <4031197C.1040909@pobox.com> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.58.0402161141140.30742@home.osdl.org>
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402150006.23177.robin.rosenberg.lists@dewire.com> <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <4031197C.1040909@pobox.com> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402161141140.30742@home.osdl.org>
+In-Reply-To: <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk>
 X-Operating-System: Linux version 2.4.24 (root@cerebro) (gcc version 2.95.4 20011002 (Debian prerelease)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 16, 2004 at 11:48:35AM -0800, Linus Torvalds <torvalds@osdl.org> wrote:
-> works on the raw byte sequence and isn't confused). Basically accept the
-> fact that UTF-8 strings can contain "garbage", and don't try to fix it up.
+On Mon, Feb 16, 2004 at 07:48:19PM +0000, John Bradford <john@grabjohn.com> wrote:
+> Quote from Jeff Garzik <jgarzik@pobox.com>:
+> None of this is a real problem, if everything is set up correctly and
+> bug free.  Unfortunately the Just Works thing falls apart in the,
+> (frequent), instances that it's not :-(.
+      
+And this is the whole point.
 
-But you are wrong, UTF-8 strings never contain garbage. UTF-8 is
-well-defined and is always proper UTF-8. It's a tautology.
+BTW, to people trying to explain some properties of UTF-8 to me. I don't
+think ad-hominem attacks like assuming that I don't understand UTF-8
+(without any indication that this is so) are useful.
 
-The evry idea of "UTF-8 with garbage in it" doesn't make sense.
+The point here is that the kernel does, in a very narrow interpretation,
+not support the use of UTF-8, because proper support of UTF-8 means that
+no illegal byte sequences will be produced.
 
-> And no, I'm not claiming that it's wonderfully clean and that we should
-> all love it.
+Of course, I can feed the kernel UTF-8, and if everybody does that, it
+will generally work quite fine. However, Windows surely works fine if
+every program only feeds allowed values into system calls. And even unix
+dialects without memory protection work, as long as everybody plays
+fair.
 
-It's also a totally useless idiom...
+The point is, however, that this is highly undesirable, and it would be
+nice to have a kernel that would (optionally) fully support a UTF-8
+environment in where applications can feed UTF-8 and _expect_ UTF-8 in
+return, which _is_ a security issue.
 
-> And it largely works today.
-> 		Linus
-
-On ascii-only-systems, it works fine. My system is largely ascii-only,
-with only very few filenames (japanese and german ones mostly) in
-UTF-8. Sometimes in EUC-JP, but that's a bug in rar.
-
-It also works fine in single-user environments where the user just forces
-everything to be in her locale. It does fail miserably on multi-user
-systems. It does fail miserably in ISO-C's locale model. It does fail
-miserably with gnu shellutils, fileutils and most other apps.
-
-It fails, because it's not at all well supported by the kernel.
-
-Claiming that it largely works today is simply not true for most
-non-ascii-users (which increasingly includes the US).
+It's very desirable to have a kernel that actively supports this. IT is
+clearly not _required_, of course. But then again, process abstraction
+is also not required...
 
 -- 
       -----==-                                             |

@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbULPX2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbULPXaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbULPX2e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 18:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbULPX2d
+	id S262194AbULPXaR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 18:30:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbULPXaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 18:28:33 -0500
-Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:37087 "EHLO
+	Thu, 16 Dec 2004 18:30:16 -0500
+Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:42719 "EHLO
 	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
-	id S262062AbULPX2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 18:28:30 -0500
-Message-ID: <41C21A1A.7010606@rnl.ist.utl.pt>
-Date: Thu, 16 Dec 2004 23:28:26 +0000
+	id S262070AbULPX37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 18:29:59 -0500
+Message-ID: <41C21A74.8090400@rnl.ist.utl.pt>
+Date: Thu, 16 Dec 2004 23:29:56 +0000
 From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
 User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Neil Conway <nconway_kernel@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3TB disk hassles
-References: <20041216145229.29167.qmail@web26502.mail.ukl.yahoo.com>
-In-Reply-To: <20041216145229.29167.qmail@web26502.mail.ukl.yahoo.com>
+To: Greg KH <greg@kroah.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: debugfs in the namespace
+References: <20041216110002.3e0ddf52@lembas.zaitcev.lan> <20041216190835.GE5654@kroah.com>
+In-Reply-To: <20041216190835.GE5654@kroah.com>
 X-Enigmail-Version: 0.89.5.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -27,24 +27,22 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Conway wrote:
-> Howdy...
+Greg KH wrote:
+> On Thu, Dec 16, 2004 at 11:00:02AM -0800, Pete Zaitcev wrote:
 > 
-> After much banging of heads on walls, I am throwing in the towel and
-> asking the experts ;-) ... To cut a long story short:
+>>Hi Greg,
+>>
+>>what is the canonic place to mount debugfs: /debug, /debugfs, or anything
+>>else? The reason I'm asking is that USBMon has to find it somewhere and
+>>I'd really hate to see it varying from distro to distro.
 > 
-> Is it possible to make a 3TB disk work properly in Linux?
 > 
-> Our "disk" is 12x300GB in RAID5 (with 1 hot-spare) on a 3ware 9500-S12,
-> so it's actually 2.7TiB ish.  It's also /dev/sda - i.e., the one and
-> only disk in the system.
+> Hm, in my testing I've been putting it in /dbg, but I don't like vowels :)
+> 
+> Anyway, I don't really know.  /dev/debug/ ?  /proc/debug ?  /debug ?
 
-not meaning to criticise... but isn't it a good idea to have a separate raid1 
-volume to boot the system?
-
-is there a good reason why one should mix system & storage?
-
-I think that would solve your problem.
+well, since there is already a /sys, /proc... /debug wouldn't be that bad. 
+perhaps the /.debug is better to keep it simple and away from people's eyes.
 
 regards,
 pedro venda.

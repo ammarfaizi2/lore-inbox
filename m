@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262318AbTGFNjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 09:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbTGFNjJ
+	id S262316AbTGFNfH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 09:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbTGFNfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 09:39:09 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:8900 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262318AbTGFNjG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 09:39:06 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: 2.5.74-mm1
-Date: Sun, 6 Jul 2003 15:54:48 +0200
-User-Agent: KMail/1.5.2
-Cc: Jamie Lokier <jamie@shareable.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-References: <20030703023714.55d13934.akpm@osdl.org> <200307060414.34827.phillips@arcor.de> <Pine.LNX.4.55.0307051918310.4599@bigblue.dev.mcafeelabs.com>
-In-Reply-To: <Pine.LNX.4.55.0307051918310.4599@bigblue.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Jul 2003 09:35:07 -0400
+Received: from ool-4352eb9e.dyn.optonline.net ([67.82.235.158]:1920 "EHLO
+	nikolas.hn.org") by vger.kernel.org with ESMTP id S262316AbTGFNfB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 09:35:01 -0400
+Date: Sun, 6 Jul 2003 09:49:26 -0400
+From: Nick Orlov <nick.orlov@mail.ru>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.5.74-mm2 [kernel BUG at include/linux/list.h:148!]
+Message-ID: <20030706134926.GA472@nikolas.hn.org>
+Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <20030705132528.542ac65e.akpm@osdl.org> <1057455650.3119.3.camel@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200307061554.48126.phillips@arcor.de>
+In-Reply-To: <1057455650.3119.3.camel@debian>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 July 2003 04:21, Davide Libenzi wrote:
-> On Sun, 6 Jul 2003, Daniel Phillips wrote:
-> > On Sunday 06 July 2003 03:28, Jamie Lokier wrote:
-> > > Your last point is most important.  At the moment, a SCHED_RR process
-> > > with a bug will basically lock up the machine, which is totally
-> > > inappropriate for a user app.
-> >
-> > How does the lockup come about?  As defined, a single SCHED_RR process
-> > could lock up only its own slice of CPU, as far as I can see.
->
-> They're de-queued and re-queue in the active array w/out having dynamic
-> priority adjustment (like POSIX states). This means that any task with
-> lower priority will starve if the RR task will not release the CPU.
+On Sun, Jul 06, 2003 at 03:40:51AM +0200, Ram?n Rey Vicente???? wrote:
+> Hi.
+> 
+> Recently compiled and booted succesfully, I obtain this message
+> 
+> kernel BUG at include/linux/list.h:148!
 
-OK, I see, I didn't pay close enough attention to the "it will be put at the 
-end of the list _for its priority_" part.
+The same BUG here after 2.5 hours of uptime.
+Without preempt (but with nvidia kernel module).
 
-So SCHED_RR is broken by design, too bad.  Now, how would SCHED_RR_NOTBROKEN 
-work?
+===============================================================================
+Jul  6 03:19:15 nikolas kernel: ------------[ cut here ]------------
+Jul  6 03:19:15 nikolas kernel: kernel BUG at include/linux/list.h:148!
+Jul  6 03:19:15 nikolas kernel: invalid operand: 0000 [#1]
+Jul  6 03:19:15 nikolas kernel: CPU:    0
+Jul  6 03:19:15 nikolas kernel: EIP:    0060:[remove_wait_queue+75/96]    Tainted: P   VLI
+Jul  6 03:19:15 nikolas kernel: EFLAGS: 00010017
+Jul  6 03:19:15 nikolas kernel: eax: d84ede2c   ebx: d931be98   ecx: d84ede2c   edx: d931bea4
+Jul  6 03:19:15 nikolas kernel: esi: 00000292   edi: d931a000   ebp: d836d240   esp: d931be58
+Jul  6 03:19:15 nikolas kernel: ds: 007b   es: 007b   ss: 0068
+Jul  6 03:19:15 nikolas kernel: Process syslogd (pid: 794, threadinfo=d931a000 task=db12d900)
+Jul  6 03:19:15 nikolas kernel: Stack: d931be98 d84ede2c c018925c c030aa00 00000000 40127860 d84ede28 dffce840 
+Jul  6 03:19:15 nikolas kernel:        00000000 db12d900 c0117440 00000000 00000000 d931be98 00000001 d9a8f5e0 
+Jul  6 03:19:15 nikolas kernel:        00000000 db12d900 c0117440 d84ede2c d84ede2c d94b9005 000056ed 00000001 
+Jul  6 03:19:15 nikolas kernel: Call Trace: [devfs_d_revalidate_wait+300/304]  [default_wake_function+0/48]  [default_wake_function+0/48]  [do_lookup+104/176]  [link_path_walk+1036/1952]  [open_namei+131/992]  [fcntl_setlk+257/672]  [filp_open+62/112]  [sys_open+91/144]  [syscall_call+7/11] 
+Jul  6 03:19:15 nikolas kernel: Code: 20 89 48 04 89 01 c7 42 04 00 02 20 00 c7 43 0c 00 01 10 00 56 9d 8b 74 24 04 8b 1c 24 83 c4 08 c3 0f 0b 95 00 04 fd 26 c0 eb d6 <0f> 0b 94 00 04 fd 26 c0 eb c4 8d 74 26 00 8d bc 27 00 00 00 00 
+===============================================================================
 
-Regards,
-
-Daniel
+Hope it helps,
+	Nick.
+-- 
+With best wishes,
+	Nick Orlov.
 

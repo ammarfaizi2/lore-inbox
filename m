@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261430AbSKBV3r>; Sat, 2 Nov 2002 16:29:47 -0500
+	id <S261429AbSKBV3M>; Sat, 2 Nov 2002 16:29:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261433AbSKBV3q>; Sat, 2 Nov 2002 16:29:46 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:42881 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261430AbSKBV3j>;
-	Sat, 2 Nov 2002 16:29:39 -0500
-Date: Sat, 2 Nov 2002 22:35:29 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Kronos <kronos@kronoz.cjb.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.45] CDRW not working
-Message-ID: <20021102213529.GB3612@suse.de>
-References: <20021102152143.GA515@dreamland.darkstar.net> <20021102152725.GD1922@suse.de> <20021102174727.GA294@dreamland.darkstar.net>
+	id <S261430AbSKBV3M>; Sat, 2 Nov 2002 16:29:12 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:56974 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261429AbSKBV3K>;
+	Sat, 2 Nov 2002 16:29:10 -0500
+Date: Sat, 2 Nov 2002 21:25:41 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: Nero <neroz@iinet.net.au>, Romain Lievin <rlievin@free.fr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kconfig (qt) -> Gconfig (gtk)
+Message-ID: <20021102212541.GA2567@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+	Nero <neroz@iinet.net.au>, Romain Lievin <rlievin@free.fr>,
+	linux-kernel@vger.kernel.org
+References: <20020625222135.GA617@free.fr> <3DC378D0.5080703@iinet.net.au> <20021102203608.GB731@gallifrey>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021102174727.GA294@dreamland.darkstar.net>
+In-Reply-To: <20021102203608.GB731@gallifrey>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02 2002, Kronos wrote:
-> Il Sat, Nov 02, 2002 at 04:27:25PM +0100, Jens Axboe ha scritto: 
-> > > I can't even mount a cd using my CDRW drive (CD-ROM drive is ok).
-> > 
-> > Does 2.5.42 work?
-> 
-> I can reproduce it using hdparm -i /dev/hdd:
-> 
-> hdd: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> hdd: drive_cmd: error=0x04Aborted Command
-> hdd: irq timeout: status=0xd0 { Busy }
-> hdd: irq timeout: error=0xd0LastFailedSense 0x0d
-> hdd: status timeout: status=0xd0 { Busy }
-> hdd: status timeout: error=0xd0LastFailedSense 0x0d
-> hdd: DMA disabled
-> hdd: drive not ready for command
-> hdd: ATAPI reset complete
-> hdd: packet command error: status=0x51 { DriveReady SeekComplete Error }
-> hdd: packet command error: error=0x50
-> end_request: I/O error, dev 16:40, sector 0
-> end_request: I/O error, dev 16:40, sector 0
-> hdd: request sense failure: status=0x51 { DriveReady SeekComplete Error }
-> hdd: request sense failure: error=0x50LastFailedSense 0x05
+On Sat, Nov 02, 2002 at 08:36:08PM +0000, Dr. David Alan Gilbert wrote:
 
-What is this, 2.5.42 or 2.5.45? Does 2.5.42 work or not? You haven't
-answered my question at all.
+ > > Yes please :)
+ > > GTK+ is probably the most common (decent) toolkit out there - nearly any 
+ > > system with X has it installed, from what I've seen.
+ > Oh please....
+ > Wouldn't it be more helpful to iron the (few) small glitches out of the
+ > qt based one than write a new one just because you don't happen to like
+ > the library?
+
+Linus mentioned this a while ago. This kind of holy war is going to
+happen regardless of the library used. There's no reason that a
+GTK config tool would have to be merged anyway, it could live
+as a seperate project (as could the qt one really imo), outside
+the kernel sources.
+
+		Dave
 
 -- 
-Jens Axboe
-
+| Dave Jones.        http://www.codemonkey.org.uk

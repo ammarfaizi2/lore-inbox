@@ -1,95 +1,1658 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUJLNFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUJLNMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUJLNFf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 09:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUJLNFf
+	id S261169AbUJLNMn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 09:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUJLNMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 09:05:35 -0400
-Received: from open.hands.com ([195.224.53.39]:58841 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S261234AbUJLNFW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 09:05:22 -0400
-Date: Tue, 12 Oct 2004 14:16:22 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: jonathan@jonmasters.org
+	Tue, 12 Oct 2004 09:12:43 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:22186 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261169AbUJLNLT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 09:11:19 -0400
+Date: Tue, 12 Oct 2004 08:11:24 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: how do you call userspace syscalls (e.g. sys_rename) from inside kernel
-Message-ID: <20041012131622.GX22010@lkcl.net>
-References: <20041008130442.GE5551@lkcl.net> <35fb2e5904101117156b033f6b@mail.gmail.com>
+Subject: Re: [patch 2/3] lsm: add bsdjail module
+Message-ID: <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com>
+References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094270.6939.9.camel@serge.austin.ibm.com> <20041006162620.4c378320.akpm@osdl.org> <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com> <20041010104113.GC28456@infradead.org> <1097502444.31259.19.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <35fb2e5904101117156b033f6b@mail.gmail.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+In-Reply-To: <1097502444.31259.19.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hiya jon,
+> That however requires a co-operator outside the chroot so doesn't seem
+> to be a problem. I like the CLONE approach, its a lot cleaner.
 
-i'm placing _a_ version at http://hands.com/~lkcl/fuse.xattr.2.tgz.
+The attached patch (against -rc4-mm1) moves the responsibility for
+filesystem containment entirely to userspace.  The Documentation/bsdjail.txt
+file reflects the new usage.  It also incorporates Christoph's cleanups.
 
-it's the "mostly userspace" version, with hacked-up xattrs that "track"
-what the userspace code does, inside the kernel.
+I still need to see about generalizing the networking confinement.  I
+certainly like the concept (as I understand it at least) behind the new
+vserver networking, but am not sure it can be done without patching.
 
-due to having to implement fuse "getxattr" and friends in
-kernel-space (in order to avoid having the -512 error message
-returned to selinux/hooks.c), there are two locations in the
-code where you must specify the proxy point:
-
-1) example/fusexmp.c you must change "/home/sez" to your-directory.
-
-2) kernel/util.c likewise.
-
-in 1) it is the location where userspace file access occurs.  2) is
-obviously matching the userspace xattr access.
-
-i _do_ have a version of fuse where
-pretty-much-everything-but-the-inode-allocation-which-is-done-in-libfuse-has-been-moved-to-kernel.
-
-i've been examining a number of kernel modules (ncpfs primarily)
-in an attempt to understand how to move libfuse's userspace
-inode allocation system into kernelspace.
-
-i'm tempted to abandon fuse and use lufs instead... that has a directory
-cache in userspace but at least it appears to allocate inodes in
-kernel (using iunique()).
-
-hmmm...
+-serge
 
 
-On Tue, Oct 12, 2004 at 01:15:34AM +0100, Jon Masters wrote:
-> On Fri, 8 Oct 2004 14:04:42 +0100, Luke Kenneth Casson Leighton
-> <lkcl@lkcl.net> wrote:
-> > could someone kindly advise me on the location of some example code in
-> > the kernel which calls one of the userspace system calls from inside the
-> > kernel?
-> 
-> Hi Luke,
-> 
-> I enjoyed your recent talk at OxLUG in which you mentioned this
-> briefly. Could you please send me the source that you are working on
-> so that I can take a look and make suggestions if tha'ts useful - I
-> posted to the OxLUG list but you're not actually on it and although I
-> now have your address from someone, this post reminded me.
-> 
-> I've copied lkml for two reasons - a). Someone else might want to take
-> a look. b). I sat and talked with Luke for a while about this, he's
-> not a typical "I want to do stuff in the kernel I should be doing from
-> userspace" kind of person in my opinion (there might still be a better
-> way but until I see more what he's actually doing then I can't work
-> out what).
-> 
-> Jon.
-
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+diff -Nrup linux-2.6.9-rc4-mm1/Documentation/bsdjail.txt linux-2.6.9-rc4-mm1-jail/Documentation/bsdjail.txt
+--- linux-2.6.9-rc4-mm1/Documentation/bsdjail.txt	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.9-rc4-mm1-jail/Documentation/bsdjail.txt	2004-10-11 16:22:12.845891208 -0500
+@@ -0,0 +1,135 @@
++BSD Jail Linux Security Module
++Serge E. Hallyn <serue@us.ibm.com>
++
++Description:
++
++Used in conjunction with per-process namespaces, this implements
++a subset of the BSD Jail functionality as a Linux LSM. What is
++currently implemented:
++
++  If a proces is in a jail, it:
++
++    1. Cannot mount or umount
++    2. Cannot send signals outside of jail
++    3. Cannot ptrace processes outside of jail
++    4. Cannot create devices
++    5. Cannot renice processes
++    6. Cannot load or unload modules
++    7. Cannot change network settings
++    8. May be assigned a specific ip address which will be used
++         for all it's socket binds.
++    9. Cannot see contents of /proc/<pid> entries of processes not in the
++         same jail.  (We hide their existence for convenience's sake, but
++         their existance can still be detected using, for instance, statfs)
++   10. Has no CAP_SYS_RAWIO capability (no ioperm/iopl)
++   11. May not share IPC resources with processes outside its own jail.
++   12. May find it's valid network address (if restricted) under
++       /proc/$$/attr/current.
++
++  If properly locked into its own namespace, processes will not be able
++  to escape to parts of the system's filesystem which were made
++  unavailable (without outside help).
++
++WARNINGS:
++The security of this module is very much dependent on the security
++of the rest of the system.  You must carefully think through your
++use of the system.
++
++Some examples:
++	1. If you leave /dev/hda1 in the jail, processes in the
++	jail can access that filesystem (i.e. /sbin/debugfs).
++	2. If you provide root access within a jail, this can of
++	course be used to setuid binaries in the jail.  Combined
++	with an unjailed regular user account, this gives jailed
++	users unjailed root access.  (thanks to Brad Spender for
++	pointing this out).
++
++How to use:
++    1. Load the bsdjail module if not already loaded or compiled in:
++    
++         modprobe bsdjail
++
++    3. (Optional) Set up an ipv4 alias for the jail
++
++         # /sbin/ifconfig eth0:0 192.168.1.101
++         # /sbin/route add -host 192.168.1.101 dev eth0:0
++
++    3. Execute a shell under a new namespace:
++
++         exec clone_ns
++
++       (see http://www.win.tue.nl/~aeb/linux/lk/lk-6.html#6.3)
++
++    4. If not already done, set up the filesystem for the jail.  in our
++       example, we will set it up under /opt.
++    
++          mount /dev/hdc5 /opt
++          mount -t proc proc /opt/proc
++
++    5. Make sure there is an empty directory to put the old root in.  We
++       will just use /opt/mnt
++
++          mkdir /opt/mnt
++
++    6. Pivot the old and new roots:
++
++          cd /opt
++          /sbin/pivot_root . mnt
++          /usr/sbin/chroot . /bin/sh
++
++    7. Unmount the old root
++
++          umount -l /mnt
++
++    6. Give the desired arguments for the jail.  If no arguments are
++       necessary, just say:
++
++          echo lock > /proc/$$/attr/exec
++
++       To lock the process into an ip alias, say:
++
++          echo "ip 192.168.1.101" > /proc/$$/attr/exec
++
++    7. Execute a new shell.  The shell will be under the new jail, and in
++       the private namespace you've been setting up.
++    
++          exec /bin/sh
++
++    8. To allow friends/customers/whoever to use this system, you might start
++       start some services.
++
++          sshd
++
++    9. Ssh is now running under the jail, so you no longer need the original
++    shell:
++
++          exit
++
++The new shell runs in a private jail on the filesystem on /dev/hdc5. If proc
++has been mounted under /dev/hdc5, then a "ps -auxw" under the jailed shell
++will show only entries for processes started under that jail.
++
++If a private IP was specified for the jail, then
++		cat /proc/$$/attr/current
++will show the address for the private network device.  Other network
++devices will be visible through /sbin/ifconfig -a, but not usable.
++
++If the reading process is not in a jail, then
++		cat /proc/$$/attr/current
++returns information about the root and ip * for the target process,
++or "Not Jailed" if the target process is not jailed.
++
++Cat /proc/$$/attr/exec gives a list of the valid keywords to cat into
++/proc/$$/attr/exec when starting a jail.
++
++Current valid keywords for creating a jail are:
++
++     lock: specifies the next exec should land us in a jail.  (only needed
++                if you don't want to give any other keywords)
++     ip: IPV4 addr for this jail
++     ip6: IPV6 addr for this jail
++     nrtask: Number of tasks in this jail
++     nice: The nice level for this jail.  (maybe should be min/max?)
++     slice: Max timeslice per process
++     data: Max size of DATA segment per process
++     memlock: Max size of memory which can be locked per process
+diff -Nrup linux-2.6.9-rc4-mm1/fs/proc/base.c linux-2.6.9-rc4-mm1-jail/fs/proc/base.c
+--- linux-2.6.9-rc4-mm1/fs/proc/base.c	2004-10-11 17:02:19.612007144 -0500
++++ linux-2.6.9-rc4-mm1-jail/fs/proc/base.c	2004-10-11 10:00:36.000000000 -0500
+@@ -1706,6 +1706,8 @@ static int get_tgid_list(int index, unsi
+ 		int tgid = p->pid;
+ 		if (!pid_alive(p))
+ 			continue;
++		if (security_task_lookup(p))
++			continue;
+ 		if (--index >= 0)
+ 			continue;
+ 		tgids[nr_tgids] = tgid;
+diff -Nrup linux-2.6.9-rc4-mm1/include/linux/security.h linux-2.6.9-rc4-mm1-jail/include/linux/security.h
+--- linux-2.6.9-rc4-mm1/include/linux/security.h	2004-10-11 17:02:21.888661040 -0500
++++ linux-2.6.9-rc4-mm1-jail/include/linux/security.h	2004-10-11 10:00:36.000000000 -0500
+@@ -630,6 +630,11 @@ struct swap_info_struct;
+  * 	Set the security attributes in @p->security for a kernel thread that
+  * 	is being reparented to the init task.
+  *	@p contains the task_struct for the kernel thread.
++ * @task_lookup:
++ *	Check permission to see the /proc/<pid> entry for process @p.
++ *	@p contains the task_struct for task <pid> which is being looked
++ *	up under /proc
++ *	return 0 if permission is granted.
+  * @task_to_inode:
+  * 	Set the security attributes for an inode based on an associated task's
+  * 	security attributes, e.g. for /proc/pid inodes.
+@@ -1162,6 +1167,7 @@ struct security_operations {
+ 			   unsigned long arg3, unsigned long arg4,
+ 			   unsigned long arg5);
+ 	void (*task_reparent_to_init) (struct task_struct * p);
++	int (*task_lookup)(struct task_struct *p);
+ 	void (*task_to_inode)(struct task_struct *p, struct inode *inode);
+ 
+ 	int (*ipc_permission) (struct kern_ipc_perm * ipcp, short flag);
+@@ -1767,6 +1773,11 @@ static inline void security_task_reparen
+ 	security_ops->task_reparent_to_init (p);
+ }
+ 
++static inline int security_task_lookup(struct task_struct *p)
++{
++	return security_ops->task_lookup(p);
++}
++
+ static inline void security_task_to_inode(struct task_struct *p, struct inode *inode)
+ {
+ 	security_ops->task_to_inode(p, inode);
+@@ -2407,6 +2418,11 @@ static inline void security_task_reparen
+ 	cap_task_reparent_to_init (p);
+ }
+ 
++static inline int security_task_lookup(struct task_struct *p)
++{
++	return 0;
++}
++
+ static inline void security_task_to_inode(struct task_struct *p, struct inode *inode)
+ { }
+ 
+diff -Nrup linux-2.6.9-rc4-mm1/security/bsdjail.c linux-2.6.9-rc4-mm1-jail/security/bsdjail.c
+--- linux-2.6.9-rc4-mm1/security/bsdjail.c	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.9-rc4-mm1-jail/security/bsdjail.c	2004-10-11 16:55:33.967674456 -0500
+@@ -0,0 +1,1365 @@
++/*
++ * File: linux/security/bsdjail.c
++ * Author: Serge Hallyn (serue@us.ibm.com)
++ * Date: Sep 12, 2004
++ *
++ * (See Documentation/bsdjail.txt for more information)
++ *
++ * Copyright (C) 2004 International Business Machines <serue@us.ibm.com>
++ *
++ *   This program is free software; you can redistribute it and/or modify
++ *   it under the terms of the GNU General Public License as published by
++ *   the Free Software Foundation; either version 2 of the License, or
++ *   (at your option) any later version.
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/security.h>
++#include <linux/namei.h>
++#include <linux/namespace.h>
++#include <linux/proc_fs.h>
++#include <linux/in.h>
++#include <linux/in6.h>
++#include <linux/pagemap.h>
++#include <linux/ip.h>
++#include <net/ipv6.h>
++#include <linux/mount.h>
++#include <linux/netdevice.h>
++#include <linux/inetdevice.h>
++#include <linux/seq_file.h>
++#include <linux/un.h>
++#include <linux/smp_lock.h>
++#include <linux/kref.h>
++#include <asm/uaccess.h>
++
++static int jail_debug;
++module_param(jail_debug, int, 0);
++MODULE_PARM_DESC(jail_debug, "Print bsd jail debugging messages.\n");
++
++#define DBG 0
++#define WARN 1
++#define bsdj_debug(how, fmt, arg... ) \
++	do { \
++		if ( how || jail_debug ) \
++			printk(KERN_NOTICE "%s: %s: " fmt, \
++				MY_NAME, __FUNCTION__ , \
++				## arg ); \
++	} while ( 0 )
++
++#define MY_NAME "bsdjail"
++
++/* flag to keep track of how we were registered */
++static int secondary;
++
++/*
++ * The task structure holding jail information.
++ * Taskp->security points to one of these (or is null).
++ * There is exactly one jail_struct for each jail.  If >1 process
++ * are in the same jail, they share the same jail_struct.
++ */
++struct jail_struct {
++	struct kref		kref;
++
++	/* these are set on writes to /proc/<pid>/attr/exec */
++	char *ip4_addr_name;  /* char * containing ip4 addr to use for jail */
++	char *ip6_addr_name;  /* char * containing ip6 addr to use for jail */
++
++	/* these are set when a jail becomes active */
++	__u32 addr4;      	/* internal form of ip4_addr_name */
++	struct in6_addr addr6;	/* internal form of ip6_addr_name */
++
++	/* Resource limits.  0 = no limit */
++	int max_nrtask;		/* maximum number of tasks within this jail. */
++	int cur_nrtask;	/* current number of tasks within this jail. */
++	long maxtimeslice;      /* max timeslice in ms for procs in this jail */
++	long nice;      	/* nice level for processes in this jail */
++	long max_data, max_memlock;  /* equivalent to RLIMIT_{DATA, MEMLOCK} */
++/* values for the jail_flags field */
++#define IN_USE 1	 /* if 0, task is setting up jail, not yet in it */
++#define GOT_IPV4 2
++#define GOT_IPV6 4	 /* if 0, ipv4, else ipv6 */
++	char jail_flags;
++};
++
++/*
++ * disable_jail:  A jail which was in use, but has no references
++ * left, is disabled - we free up the mountpoint and dentry, and
++ * give up our reference on the module.
++ *
++ *   don't need to put namespace, it will be done automatically
++ *     when the last process in jail is put.
++ *   DO need to put the dentry and vfsmount
++ */
++static void
++disable_jail(struct jail_struct *tsec)
++{
++	module_put(THIS_MODULE);
++}
++
++
++static void free_jail(struct jail_struct *tsec)
++{
++	if (!tsec)
++		return;
++
++	kfree(tsec->ip4_addr_name);
++	kfree(tsec->ip6_addr_name);
++	kfree(tsec);
++}
++
++/* release_jail:
++ * Callback for kref_put to use for releasing a jail when its
++ * last user exits.
++ */
++static void release_jail(struct kref *kref)
++{
++	struct jail_struct *tsec;
++
++	tsec = container_of(kref, struct jail_struct, kref);
++	disable_jail(tsec);
++	free_jail(tsec);
++}
++
++/*
++ * jail_task_free_security: this is the callback hooked into LSM.
++ * If there was no task->security field for bsdjail, do nothing.
++ * If there was, but it was never put into use, free the jail.
++ * If there was, and the jail is in use, then decrement the usage
++ *  count, and disable and free the jail if the usage count hits 0.
++ */
++static void jail_task_free_security(struct task_struct *task)
++{
++	struct jail_struct *tsec = task->security;
++
++	if (!tsec)
++		return;
++
++	if (!(tsec->jail_flags & IN_USE)) {
++		/*
++		 * someone did 'echo -n x > /proc/<pid>/attr/exec' but
++		 * then forked before execing.  Nuke the old info.
++		 */
++		free_jail(tsec);
++		task->security = NULL;
++		return;
++	}
++	tsec->cur_nrtask--;
++	/* If this was the last process in the jail, delete the jail */
++	kref_put(&tsec->kref, release_jail);
++}
++
++static struct jail_struct *
++alloc_task_security(struct task_struct *tsk)
++{
++	struct jail_struct *tsec;
++
++	tsec = kmalloc(sizeof(struct jail_struct), GFP_KERNEL);
++	if (tsec) {
++		memset(tsec, 0, sizeof(struct jail_struct));
++		tsk->security = tsec;
++	}
++	return tsec;
++}
++
++static inline int
++in_jail(struct task_struct *t)
++{
++	struct jail_struct *tsec = t->security;
++
++	if (tsec && (tsec->jail_flags & IN_USE))
++		return 1;
++
++	return 0;
++}
++
++/*
++ * If a network address was passed into /proc/<pid>/attr/exec,
++ * then process in its jail will only be allowed to bind/listen
++ * to that address.
++ */
++static void
++setup_netaddress(struct jail_struct *tsec)
++{
++	unsigned int a, b, c, d, i;
++	unsigned int x[8];
++
++	tsec->jail_flags &= ~(GOT_IPV4 | GOT_IPV6);
++	tsec->addr4 = 0;
++	ipv6_addr_set(&tsec->addr6, 0, 0, 0, 0);
++
++	if (tsec->ip4_addr_name) {
++		if (sscanf(tsec->ip4_addr_name, "%u.%u.%u.%u",
++					&a, &b, &c, &d) != 4)
++			return;
++		if (a>255 || b>255 || c>255 || d>255)
++			return;
++		tsec->addr4 = htonl((a<<24) | (b<<16) | (c<<8) | d);
++		tsec->jail_flags |= GOT_IPV4;
++		bsdj_debug(DBG, "Network (ipv4) set up (%s)\n",
++			tsec->ip4_addr_name);
++	}
++
++	if (tsec->ip6_addr_name) {
++		if (sscanf(tsec->ip6_addr_name, "%x:%x:%x:%x:%x:%x:%x:%x",
++			&x[0], &x[1], &x[2], &x[3], &x[4], &x[5], &x[6],
++			&x[7]) != 8) {
++			printk(KERN_INFO "%s: bad ipv6 addr %s\n", __FUNCTION__,
++				tsec->ip6_addr_name);
++			return;
++		}
++		for (i=0; i<8; i++) {
++			if (x[i] > 65535) {
++				printk("%s: %x > 65535 at %d\n", __FUNCTION__, x[i], i);
++				return;
++			}
++			tsec->addr6.in6_u.u6_addr16[i] = htons(x[i]);
++		}
++		tsec->jail_flags |= GOT_IPV6;
++		bsdj_debug(DBG, "Network (ipv6) set up (%s)\n",
++			tsec->ip6_addr_name);
++	}
++}
++
++/*
++ * enable_jail:
++ * Called when a process is placed into a new jail to handle the
++ * actual creation of the jail.
++ *   Creates namespace
++ *   Stores the requested ip address
++ *   Registers a unique pseudo-proc filesystem for this jail
++ */
++static int enable_jail(struct task_struct *tsk)
++{
++	struct jail_struct *tsec = tsk->security;
++	int retval = -EFAULT;
++
++	if (!tsec)
++		goto out;
++
++	/* set up networking */
++	if (tsec->ip4_addr_name || tsec->ip6_addr_name)
++		setup_netaddress(tsec);
++
++	tsec->cur_nrtask = 1;
++	if (tsec->nice)
++		set_user_nice(current, tsec->nice);
++	if (tsec->max_data) {
++		current->signal->rlim[RLIMIT_DATA].rlim_cur = tsec->max_data;
++		current->signal->rlim[RLIMIT_DATA].rlim_max = tsec->max_data;
++	}
++	if (tsec->max_memlock) {
++		current->signal->rlim[RLIMIT_MEMLOCK].rlim_cur =
++					tsec->max_memlock;
++		current->signal->rlim[RLIMIT_MEMLOCK].rlim_max =
++					tsec->max_memlock;
++	}
++	if (tsec->maxtimeslice) {
++		current->signal->rlim[RLIMIT_CPU].rlim_cur = tsec->maxtimeslice;
++		current->signal->rlim[RLIMIT_CPU].rlim_max = tsec->maxtimeslice;
++	}
++	/* success and end */
++	kref_init(&tsec->kref);
++	tsec->jail_flags |= IN_USE;
++
++	/* won't let ourselves be removed until this jail goes away */
++	try_module_get(THIS_MODULE);
++
++	return 0;
++
++out:
++	return retval;
++}
++
++/*
++ * LSM /proc/<pid>/attr hooks.
++ * You may write into /proc/<pid>/attr/exec:
++ *    lock  (no value, just to specify a jail)
++ *    ip 2.2.2.2
++ etc...
++ * These values will be used on the next exec() to set up your jail
++ *  (assuming you're not already in a jail)
++ */
++static int
++jail_setprocattr(struct task_struct *p, char *name, void *value, size_t rsize)
++{
++	struct jail_struct *tsec = current->security;
++	long val;
++	char *v = value;
++	int start, len;
++	size_t size = rsize;
++
++	if (tsec && (tsec->jail_flags & IN_USE))
++		return -EINVAL;  /* let them guess why */
++
++	if (p != current || strcmp(name, "exec"))
++		return -EPERM;
++
++	if (!tsec) {
++		tsec = alloc_task_security(current);
++		if (!tsec)
++			return -ENOMEM;
++	}
++
++	if (v[size-1] == '\n')
++		size--;
++
++	if (strncmp(value, "ip ", 3) == 0) {
++		kfree(tsec->ip4_addr_name);
++		start = 3;
++		len = size - start + 1;
++		tsec->ip4_addr_name = kmalloc(len, GFP_KERNEL);
++		if (!tsec->ip4_addr_name)
++			return -ENOMEM;
++		strlcpy(tsec->ip4_addr_name, value+start, len);
++	} else if (strncmp(value, "ip6 ", 4) == 0) {
++		kfree(tsec->ip6_addr_name);
++		start = 4;
++		len = size - start + 1;
++		tsec->ip6_addr_name = kmalloc(len, GFP_KERNEL);
++		if (!tsec->ip6_addr_name)
++			return -ENOMEM;
++		strlcpy(tsec->ip6_addr_name, value+start, len);
++
++	/* the next two are equivalent */
++	} else if (strncmp(value, "slice ", 6) == 0) {
++		val = simple_strtoul(value+6, NULL, 0);
++		tsec->maxtimeslice = val;
++	} else if (strncmp(value, "timeslice ", 10) == 0) {
++		val = simple_strtoul(value+10, NULL, 0);
++		tsec->maxtimeslice = val;
++	} else if (strncmp(value, "nrtask ", 7) == 0) {
++		val = (int) simple_strtol(value+7, NULL, 0);
++		if (val < 1)
++			return -EINVAL;
++		tsec->max_nrtask = val;
++	} else if (strncmp(value, "memlock ", 8) == 0) {
++		val = simple_strtoul(value+8, NULL, 0);
++		tsec->max_memlock = val;
++	} else if (strncmp(value, "data ", 5) == 0) {
++		val = simple_strtoul(value+5, NULL, 0);
++		tsec->max_data = val;
++	} else if (strncmp(value, "nice ", 5) == 0) {
++		val = simple_strtoul(value+5, NULL, 0);
++		tsec->nice = val;
++	} else if (strncmp(value, "lock", 4) != 0)
++		return -EINVAL;
++
++	return rsize;
++}
++
++static int print_jail_net_info(struct jail_struct *j, char *buf, int maxcnt)
++{
++	int len = 0;
++
++	if (j->ip4_addr_name)
++		len += snprintf(buf, maxcnt, "%s\n", j->ip4_addr_name);
++	if (j->ip6_addr_name)
++		len += snprintf(buf, maxcnt-len, "%s\n", j->ip6_addr_name);
++
++	return snprintf(buf, maxcnt, "No network information\n");
++}
++
++/*
++ * LSM /proc/<pid>/attr read hook.
++ *
++ * /proc/$$/attr/current output:
++ * If the reading process, say process 1001, is in a jail, then
++ *   cat /proc/999/attr/current
++ * will print networking information.
++ * If the reading process, say process 1001, is not in a jail, then
++ *   cat /proc/999/attr/current
++ * will return
++ *   ip:   (ip address of jail)
++ * if 999 is in a jail, or
++ *   -EINVAL
++ * if 999 is not in a jail.
++ *
++ * /proc/$$/attr/exec output:
++ * A process in a jail gets -EINVAL for /proc/$$/attr/exec.
++ * A process not in a jail gets hints on starting a jail.
++ */
++static int
++jail_getprocattr(struct task_struct *p, char *name, void *value, size_t size)
++{
++	struct jail_struct *tsec;
++	int err = 0;
++
++	if (in_jail(current)) {
++		if (strcmp(name, "current") == 0) {
++			/* provide network info */
++			err = print_jail_net_info(current->security, value,
++				size);
++			return err;
++		}
++		return -EINVAL;  /* let them guess why */
++	}
++
++	if (strcmp(name, "exec") == 0) {
++		/* Print usage some help */
++		err = snprintf(value, size,
++			"Valid keywords:\n"
++			"lock\n"
++			"ip      <ip4-addr>\n"
++			"ip6     <ip6-addr>\n"
++			"nrtask  <max number of tasks in this jail>\n"
++			"nice    <nice level for processes in this jail>\n"
++			"slice   <max timeslice per process in msecs>\n"
++			"data    <max data size per process in bytes>\n"
++			"memlock <max lockable memory per process in bytes>\n");
++		return err;
++	}
++
++	if (strcmp(name, "current"))
++		return -EPERM;
++
++	tsec = p->security;
++	if (!tsec || !(tsec->jail_flags & IN_USE)) {
++		err = snprintf(value, size, "Not Jailed\n");
++	} else {
++		err = snprintf(value, size,
++			"IPv4: %s\nIPv6: %s\n"
++			"max_nrtask %d current nrtask %d max_timeslice %lu "
++			"nice %lu\n"
++			"max_memlock %lu max_data %lu\n",
++			tsec->ip4_addr_name ? tsec->ip4_addr_name : "(none)",
++			tsec->ip6_addr_name ? tsec->ip6_addr_name : "(none)",
++			tsec->max_nrtask, tsec->cur_nrtask, tsec->maxtimeslice,
++			tsec->nice, tsec->max_data, tsec->max_memlock);
++	}
++
++	return err;
++}
++
++/*
++ * Forbid a process in a jail from sending a signal to a process in another
++ * (or no) jail through file sigio.
++ *
++ * We consider the process which set the fowner to be the one sending the
++ * signal, rather than the one writing to the file.  Therefore we store the
++ * jail of a process during jail_file_set_fowner, then check that against
++ * the jail of the process receiving the signal.
++ */
++static int
++jail_file_send_sigiotask(struct task_struct *tsk, struct fown_struct *fown,
++       int fd, int reason)
++{
++	struct file *file;
++
++	if (!in_jail(current))
++		return 0;
++
++	file = container_of(fown, struct file, f_owner);
++	if (file->f_security != tsk->security)
++		return -EPERM;
++
++	return 0;
++}
++
++static int
++jail_file_set_fowner(struct file *file)
++{
++	struct jail_struct *tsec;
++
++	tsec = current->security;
++	file->f_security = tsec;
++	if (tsec)
++		kref_get(&tsec->kref);
++
++	return 0;
++}
++
++static void free_ipc_security(struct kern_ipc_perm *ipc)
++{
++	struct jail_struct *tsec;
++
++	tsec = ipc->security;
++	if (!tsec)
++		return;
++	kref_put(&tsec->kref, release_jail);
++	ipc->security = NULL;
++}
++
++static void free_file_security(struct file *file)
++{
++	struct jail_struct *tsec;
++
++	tsec = file->f_security;
++	if (!tsec)
++		return;
++	kref_put(&tsec->kref, release_jail);
++	file->f_security = NULL;
++}
++
++static void free_inode_security(struct inode *inode)
++{
++	struct jail_struct *tsec;
++
++	tsec = inode->i_security;
++	if (!tsec)
++		return;
++	kref_put(&tsec->kref, release_jail);
++	inode->i_security = NULL;
++}
++
++/*
++ * LSM ptrace hook:
++ * process in jail may not ptrace process not in the same jail
++ */
++static int
++jail_ptrace (struct task_struct *tracer, struct task_struct *tracee)
++{
++	struct jail_struct *tsec = tracer->security;
++
++	if (tsec && (tsec->jail_flags & IN_USE)) {
++		if (tsec == tracee->security)
++			return 0;
++		return -EPERM;
++	}
++	return 0;
++}
++
++/*
++ * process in jail may only use one (aliased) ip address.  If they try to
++ * attach to 127.0.0.1, that is remapped to their own address.  If some
++ * other address (and not their own), deny permission
++ */
++static int jail_socket_unix_bind(struct socket *sock, struct sockaddr *address,
++		int addrlen);
++
++#define loopbackaddr htonl((127 << 24) | 1)
++
++static inline int jail_inet4_bind(struct socket *sock, struct sockaddr *address,
++	int addrlen, struct jail_struct *tsec)
++{
++	struct sockaddr_in *inaddr;
++	__u32 sin_addr, jailaddr;
++
++	if (!(tsec->jail_flags & GOT_IPV4))
++		return -EPERM;
++
++	inaddr = (struct sockaddr_in *) address;
++	sin_addr = inaddr->sin_addr.s_addr;
++	jailaddr = tsec->addr4;
++
++	if (sin_addr == jailaddr)
++		return 0;
++
++	if (sin_addr == loopbackaddr || !sin_addr) {
++		bsdj_debug(DBG, "Got a loopback or 0 address\n");
++		sin_addr = jailaddr;
++		bsdj_debug(DBG, "Converted to: %u.%u.%u.%u\n",
++			NIPQUAD(sin_addr));
++		return 0;
++	}
++
++	return -EPERM;
++}
++
++static inline int
++jail_inet6_bind(struct socket *sock, struct sockaddr *address, int addrlen,
++	struct jail_struct *tsec)
++{
++	struct sockaddr_in6 *inaddr6;
++	struct in6_addr *sin6_addr, *jailaddr;
++
++	if (!(tsec->jail_flags & GOT_IPV6))
++		return -EPERM;
++
++	inaddr6 = (struct sockaddr_in6 *) address;
++	sin6_addr = &inaddr6->sin6_addr;
++	jailaddr = &tsec->addr6;
++
++	if (ipv6_addr_cmp(jailaddr, sin6_addr) == 0)
++		return 0;
++
++	if (ipv6_addr_cmp(sin6_addr, &in6addr_loopback) == 0) {
++		ipv6_addr_copy(sin6_addr, jailaddr);
++		return 0;
++	}
++
++	printk(KERN_NOTICE "%s: DENYING\n", __FUNCTION__);
++	printk(KERN_NOTICE "%s: a %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x "
++		"j %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
++		__FUNCTION__,
++		NIP6(*sin6_addr),
++		NIP6(*jailaddr));
++
++	return -EPERM;
++}
++
++static int
++jail_socket_bind(struct socket *sock, struct sockaddr *address, int addrlen)
++{
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec || !(tsec->jail_flags & IN_USE))
++		return 0;
++
++	if (sock->sk->sk_family == AF_UNIX)
++		return jail_socket_unix_bind(sock, address, addrlen);
++
++	if (!(tsec->jail_flags & (GOT_IPV4 | GOT_IPV6)))
++		/* If we want to be strict, we could just
++		 * deny net access when lacking a pseudo ip.
++		 * For now we just allow it. */
++		return 0;
++
++	switch(address->sa_family) {
++		case AF_INET:
++			return jail_inet4_bind(sock, address, addrlen, tsec);
++
++		case AF_INET6:
++			return jail_inet6_bind(sock, address, addrlen, tsec);
++
++		default:
++			return 0;
++	}
++}
++
++/*
++ * If locked in an ipv6 jail, don't let them use ipv4, and vice versa
++ */
++static int
++jail_socket_create(int family, int type, int protocol, int kern)
++{
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec || kern || !(tsec->jail_flags & IN_USE) ||
++			!(tsec->jail_flags & (GOT_IPV4 | GOT_IPV6)))
++		return 0;
++
++	switch(family) {
++		case AF_INET:
++			if (tsec->jail_flags & GOT_IPV4)
++				return 0;
++			return -EPERM;
++		case AF_INET6:
++			if (tsec->jail_flags & GOT_IPV6)
++				return 0;
++			return -EPERM;
++		default:
++			return 0;
++	};
++
++	return 0;
++}
++
++static void
++jail_socket_post_create(struct socket *sock, int family, int type,
++	int protocol, int kern)
++{
++	struct inet_opt *inet;
++	struct ipv6_pinfo *inet6;
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec || kern || !(tsec->jail_flags & IN_USE) ||
++			!(tsec->jail_flags & (GOT_IPV4 | GOT_IPV6)))
++		return;
++
++	switch(family) {
++		case AF_INET:
++			inet = inet_sk(sock->sk);
++			inet->saddr = tsec->addr4;
++			break;
++		case AF_INET6:
++			inet6 = inet6_sk(sock->sk);
++			ipv6_addr_copy(&inet6->saddr, &tsec->addr6);
++			break;
++		default:
++			break;
++	};
++
++	return;
++}
++
++static int
++jail_socket_listen(struct socket *sock, int backlog)
++{
++	struct inet_opt *inet;
++	struct ipv6_pinfo *inet6;
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec || !(tsec->jail_flags & IN_USE) ||
++			!(tsec->jail_flags & (GOT_IPV4 | GOT_IPV6)))
++		return 0;
++
++	switch (sock->sk->sk_family) {
++		case AF_INET:
++			inet = inet_sk(sock->sk);
++			if (inet->saddr == tsec->addr4)
++				return 0;
++			return -EPERM;
++
++		case AF_INET6:
++			inet6 = inet6_sk(sock->sk);
++			if (ipv6_addr_cmp(&inet6->saddr, &tsec->addr6) == 0)
++				return 0;
++			return -EPERM;
++
++		default:
++			return 0;
++
++	}
++}
++
++static void free_sock_security(struct sock *sk)
++{
++	struct jail_struct *tsec;
++
++	tsec = sk->sk_security;
++	if (!tsec)
++		return;
++	kref_put(&tsec->kref, release_jail);
++	sk->sk_security = NULL;
++}
++
++/*
++ * The next three (socket) hooks prevent a process in a jail from sending
++ * data to a abstract unix domain socket which was bound outside the jail.
++ */
++static int
++jail_socket_unix_bind(struct socket *sock, struct sockaddr *address,
++	int addrlen)
++{
++	struct sockaddr_un *sunaddr;
++	struct jail_struct *tsec;
++
++	if (sock->sk->sk_family != AF_UNIX)
++		return 0;
++
++	sunaddr = (struct sockaddr_un *) address;
++	if (sunaddr->sun_path[0] != 0)
++		return 0;
++
++	tsec = current->security;
++	sock->sk->sk_security = tsec;
++	if (tsec)
++		kref_get(&tsec->kref);
++	return 0;
++}
++
++/*
++ * Note - we deny sends  both from unjailed to jailed, and from jailed
++ * to unjailed.  As well as, of course between different jails.
++ */
++static int
++jail_socket_unix_may_send(struct socket *sock, struct socket *other)
++{
++	struct jail_struct *tsec, *ssec;
++
++	tsec = current->security;  /* jail of sending process */
++	ssec = other->sk->sk_security;  /* jail of receiver */
++
++	if (tsec != ssec)
++		return -EPERM;
++
++	return 0;
++}
++
++static int
++jail_socket_unix_stream_connect(struct socket *sock,
++	      struct socket *other, struct sock *newsk)
++{
++	struct jail_struct *tsec, *ssec;
++
++	tsec = current->security;  /* jail of sending process */
++	ssec = other->sk->sk_security;  /* jail of receiver */
++
++	if (tsec != ssec)
++		return -EPERM;
++
++	return 0;
++}
++
++static int
++jail_mount(char * dev_name, struct nameidata *nd, char * type,
++                         unsigned long flags, void * data)
++{
++	if (in_jail(current))
++		return -EPERM;
++
++	return 0;
++}
++
++static int
++jail_umount(struct vfsmount *mnt, int flags)
++{
++	if (in_jail(current))
++		return -EPERM;
++
++	return 0;
++}
++
++/*
++ * process in jail may not:
++ *   use nice
++ *   change network config
++ *   load/unload modules
++ */
++static int
++jail_capable (struct task_struct *tsk, int cap)
++{
++	if (in_jail(tsk)) {
++		if (cap == CAP_SYS_NICE)
++			return -EPERM;
++		if (cap == CAP_NET_ADMIN)
++			return -EPERM;
++		if (cap == CAP_SYS_MODULE)
++			return -EPERM;
++		if (cap == CAP_SYS_RAWIO)
++			return -EPERM;
++	}
++
++	if (cap_is_fs_cap (cap) ? tsk->fsuid == 0 : tsk->euid == 0)
++		return 0;
++	return -EPERM;
++}
++
++/*
++ * jail_security_task_create:
++ *
++ * If the current process is ina a jail, and that jail is about to exceed a
++ * maximum number of processes, then refuse to fork.  If the maximum number
++ * of jails is listed as 0, then there is no limit for this jail, and we allow
++ * all forks.
++ */
++static inline int
++jail_security_task_create (unsigned long clone_flags)
++{
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec || !(tsec->jail_flags & IN_USE))
++		return 0;
++
++	if (tsec->max_nrtask && tsec->cur_nrtask >= tsec->max_nrtask)
++		return -EPERM;
++	return 0;
++}
++
++/*
++ * The child of a process in a jail belongs in the same jail
++ */
++static int
++jail_task_alloc_security(struct task_struct *tsk)
++{
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec || !(tsec->jail_flags & IN_USE))
++		return 0;
++
++	tsk->security = tsec;
++	kref_get(&tsec->kref);
++	tsec->cur_nrtask++;
++	if (tsec->maxtimeslice) {
++		tsk->signal->rlim[RLIMIT_CPU].rlim_max = tsec->maxtimeslice;
++		tsk->signal->rlim[RLIMIT_CPU].rlim_cur = tsec->maxtimeslice;
++	}
++	if (tsec->max_data) {
++		tsk->signal->rlim[RLIMIT_CPU].rlim_max = tsec->max_data;
++		tsk->signal->rlim[RLIMIT_CPU].rlim_cur = tsec->max_data;
++	}
++	if (tsec->max_memlock) {
++		tsk->signal->rlim[RLIMIT_CPU].rlim_max = tsec->max_memlock;
++		tsk->signal->rlim[RLIMIT_CPU].rlim_cur = tsec->max_memlock;
++	}
++	if (tsec->nice)
++		set_user_nice(current, tsec->nice);
++
++	return 0;
++}
++
++static int
++jail_bprm_alloc_security(struct linux_binprm *bprm)
++{
++	struct jail_struct *tsec = current->security;
++	int ret;
++
++	if (!tsec)
++		return 0;
++
++	if (tsec->jail_flags & IN_USE)
++		return 0;
++
++	ret = enable_jail(current);
++	if (ret) {
++		/* if we failed, nix out the ip requests */
++		jail_task_free_security(current);
++		return ret;
++	}
++	return 0;
++}
++
++/*
++ * Process in jail may not create devices
++ * Thanks to Brad Spender for pointing out fifos should be allowed.
++ */
++/* TODO: We may want to allow /dev/log, at least... */
++static int
++jail_inode_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
++{
++	if (!in_jail(current))
++		return 0;
++
++	if (S_ISFIFO(mode))
++		return 0;
++
++	return -EPERM;
++}
++
++/* yanked from fs/proc/base.c */
++static unsigned name_to_int(struct dentry *dentry)
++{
++	const char *name = dentry->d_name.name;
++	int len = dentry->d_name.len;
++	unsigned n = 0;
++
++	if (len > 1 && *name == '0')
++		goto out;
++	while (len-- > 0) {
++		unsigned c = *name++ - '0';
++		if (c > 9)
++			goto out;
++		if (n >= (~0U-9)/10)
++			goto out;
++		n *= 10;
++		n += c;
++	}
++	return n;
++out:
++	return ~0U;
++}
++
++/*
++ * jail_proc_inode_permission:
++ *   called only when current is in a jail, and is trying to reach
++ *   /proc/<pid>.  We check whether <pid> is in the same jail as
++ *   current.  If not, permission is denied.
++ *
++ * NOTE:  On the one hand, the task_to_inode(inode)->i_security
++ * approach seems cleaner, but on the other, this prevents us
++ * from unloading bsdjail for awhile...
++ */
++static int
++jail_proc_inode_permission(struct inode *inode, int mask,
++				    struct nameidata *nd)
++{
++	struct jail_struct *tsec = current->security;
++	struct dentry *dentry = nd->dentry;
++	unsigned pid;
++
++	pid = name_to_int(dentry);
++	if (pid == ~0U) {
++		return 0;
++	}
++
++	if (dentry->d_parent != dentry->d_sb->s_root)
++		return 0;
++	if (inode->i_security != tsec)
++		return -ENOENT;
++
++	return 0;
++}
++
++/*
++ * A process in a jail may not see that /proc/<pid> exists for
++ * process not in its jail
++ * Unfortunately we can't pretend that pid for the starting process
++ * is 1, as vserver does.
++ */
++static int jail_task_lookup(struct task_struct *p)
++{
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec)
++		return 0;
++	if (tsec == p->security)
++		return 0;
++	return -EPERM;
++}
++/*
++ * security_task_to_inode:
++ * Set inode->security = task's jail.
++ */
++static void jail_task_to_inode(struct task_struct *p, struct inode *inode)
++{
++	struct jail_struct *tsec = p->security;
++
++	if (!tsec || !(tsec->jail_flags & IN_USE))
++		return;
++	if (inode->i_security)
++		return;
++	kref_get(&tsec->kref);
++	inode->i_security = tsec;
++}
++
++/*
++ * inode_permission:
++ * If we are trying to look into certain /proc files from in a jail, we
++ * 	may deny permission.
++ */
++static int
++jail_inode_permission(struct inode *inode, int mask,
++				    struct nameidata *nd)
++{
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec || !(tsec->jail_flags & IN_USE))
++		return 0;
++
++	if (!nd)
++		return 0;
++
++	if (nd->dentry &&
++		strcmp(nd->dentry->d_sb->s_type->name, "proc") == 0) {
++		return jail_proc_inode_permission(inode, mask, nd);
++
++	}
++
++	return 0;
++}
++
++/*
++ * A function which returns -ENOENT if dentry is the dentry for
++ * a /proc/<pid> directory.  It returns 0 otherwise.
++ */
++static inline int
++generic_procpid_check(struct dentry *dentry)
++{
++	struct jail_struct *jail = current->security;
++	unsigned pid = name_to_int(dentry);
++
++	if (!jail || !(jail->jail_flags & IN_USE))
++		return 0;
++	if (pid == ~0U)
++		return 0;
++	if (strcmp(dentry->d_sb->s_type->name, "proc") != 0)
++		return 0;
++	if (dentry->d_parent != dentry->d_sb->s_root)
++		return 0;
++	if (dentry->d_inode->i_security != jail)
++		return -ENOENT;
++	return 0;
++}
++
++/*
++ * We want getattr to fail on /proc/<pid> to prevent leakage through, for
++ * instance, ls -d.
++ */
++static int
++jail_inode_getattr(struct vfsmount *mnt, struct dentry *dentry)
++{
++	return generic_procpid_check(dentry);
++}
++
++/* This probably is not necessary - /proc does not support xattrs? */
++static int
++jail_inode_getxattr(struct dentry *dentry, char *name)
++{
++	return generic_procpid_check(dentry);
++}
++
++/* process in jail may not send signal to process not in the same jail */
++static int
++jail_task_kill(struct task_struct *p, struct siginfo *info, int sig)
++{
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec || !(tsec->jail_flags & IN_USE))
++		return 0;
++
++	if (tsec == p->security)
++		return 0;
++
++	if (sig==SIGCHLD)
++		return 0;
++
++	return -EPERM;
++}
++
++/*
++ * LSM hooks to limit jailed process' abilities to muck with resource
++ * limits
++ */
++static int jail_task_setrlimit (unsigned int resource, struct rlimit *new_rlim)
++{
++	if (!in_jail(current))
++		return 0;
++
++	return -EPERM;
++}
++
++static int jail_task_setscheduler (struct task_struct *p, int policy,
++				    struct sched_param *lp)
++{
++	if (!in_jail(current))
++		return 0;
++
++	return -EPERM;
++}
++
++/*
++ * LSM hooks to limit IPC access.
++ */
++
++static inline int
++basic_ipc_security_check(struct kern_ipc_perm *p, struct task_struct *target)
++{
++	struct jail_struct *tsec = target->security;
++
++	if (!tsec || !(tsec->jail_flags & IN_USE))
++		return 0;
++
++	if (p->security != tsec)
++		return -EPERM;
++
++	return 0;
++}
++
++static int
++jail_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
++{
++	return basic_ipc_security_check(ipcp, current);
++}
++
++static int
++jail_shm_alloc_security (struct shmid_kernel *shp)
++{
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec || !(tsec->jail_flags & IN_USE))
++		return 0;
++	shp->shm_perm.security = tsec;
++	kref_get(&tsec->kref);
++	return 0;
++}
++
++static void
++jail_shm_free_security (struct shmid_kernel *shp)
++{
++	free_ipc_security(&shp->shm_perm);
++}
++
++static int
++jail_shm_associate (struct shmid_kernel *shp, int shmflg)
++{
++	return basic_ipc_security_check(&shp->shm_perm, current);
++}
++
++static int
++jail_shm_shmctl(struct shmid_kernel *shp, int cmd)
++{
++	if (cmd == IPC_INFO || cmd == SHM_INFO)
++		return 0;
++
++	return basic_ipc_security_check(&shp->shm_perm, current);
++}
++
++static int
++jail_shm_shmat(struct shmid_kernel *shp, char *shmaddr, int shmflg)
++{
++	return basic_ipc_security_check(&shp->shm_perm, current);
++}
++
++static int
++jail_msg_queue_alloc(struct msg_queue *msq)
++{
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec || !(tsec->jail_flags & IN_USE))
++		return 0;
++	msq->q_perm.security = tsec;
++	kref_get(&tsec->kref);
++	return 0;
++}
++
++static void
++jail_msg_queue_free(struct msg_queue *msq)
++{
++	free_ipc_security(&msq->q_perm);
++}
++
++static int jail_msg_queue_associate(struct msg_queue *msq, int flag)
++{
++	return basic_ipc_security_check(&msq->q_perm, current);
++}
++
++static int
++jail_msg_queue_msgctl(struct msg_queue *msq, int cmd)
++{
++	if (cmd == IPC_INFO || cmd == MSG_INFO)
++		return 0;
++
++	return basic_ipc_security_check(&msq->q_perm, current);
++}
++
++static int
++jail_msg_queue_msgsnd(struct msg_queue *msq, struct msg_msg *msg, int msqflg)
++{
++	return basic_ipc_security_check(&msq->q_perm, current);
++}
++
++static int
++jail_msg_queue_msgrcv(struct msg_queue *msq, struct msg_msg *msg,
++		struct task_struct *target, long type, int mode)
++
++{
++	return basic_ipc_security_check(&msq->q_perm, target);
++}
++
++static int
++jail_sem_alloc_security(struct sem_array *sma)
++{
++	struct jail_struct *tsec = current->security;
++
++	if (!tsec || !(tsec->jail_flags & IN_USE))
++		return 0;
++	sma->sem_perm.security = tsec;
++	kref_get(&tsec->kref);
++	return 0;
++}
++
++static void
++jail_sem_free_security(struct sem_array *sma)
++{
++	free_ipc_security(&sma->sem_perm);
++}
++
++static int
++jail_sem_associate(struct sem_array *sma, int semflg)
++{
++	return basic_ipc_security_check(&sma->sem_perm, current);
++}
++
++static int
++jail_sem_semctl(struct sem_array *sma, int cmd)
++{
++	if (cmd == IPC_INFO || cmd == SEM_INFO)
++		return 0;
++	return basic_ipc_security_check(&sma->sem_perm, current);
++}
++
++static int
++jail_sem_semop(struct sem_array *sma, struct sembuf *sops, unsigned nsops,
++	int alter)
++{
++	return basic_ipc_security_check(&sma->sem_perm, current);
++}
++
++static int
++jail_sysctl(struct ctl_table *table, int op)
++{
++	if (!in_jail(current))
++		return 0;
++
++	if (op & 002)
++		return -EPERM;
++
++	return 0;
++}
++
++static struct security_operations bsdjail_security_ops = {
++	.ptrace  =			jail_ptrace,
++	.capable =			jail_capable,
++
++	.task_kill =			jail_task_kill,
++	.task_alloc_security =		jail_task_alloc_security,
++	.task_free_security =		jail_task_free_security,
++	.bprm_alloc_security =		jail_bprm_alloc_security,
++	.task_create =			jail_security_task_create,
++	.task_to_inode =		jail_task_to_inode,
++	.task_lookup =			jail_task_lookup,
++
++	.task_setrlimit =		jail_task_setrlimit,
++	.task_setscheduler =		jail_task_setscheduler,
++
++	.setprocattr =                  jail_setprocattr,
++	.getprocattr =                  jail_getprocattr,
++
++	.file_set_fowner =		jail_file_set_fowner,
++	.file_send_sigiotask =		jail_file_send_sigiotask,
++	.file_free_security =		free_file_security,
++
++	.socket_bind =			jail_socket_bind,
++	.socket_listen =		jail_socket_listen,
++	.socket_create =		jail_socket_create,
++	.socket_post_create =		jail_socket_post_create,
++        .unix_stream_connect =		jail_socket_unix_stream_connect,
++	.unix_may_send =		jail_socket_unix_may_send,
++	.sk_free_security =		free_sock_security,
++
++	.inode_mknod =			jail_inode_mknod,
++	.inode_permission =		jail_inode_permission,
++	.inode_free_security =		free_inode_security,
++	.inode_getattr =		jail_inode_getattr,
++	.inode_getxattr =		jail_inode_getxattr,
++	.sb_mount =			jail_mount,
++	.sb_umount =			jail_umount,
++
++	.ipc_permission =		jail_ipc_permission,
++	.shm_alloc_security = 		jail_shm_alloc_security,
++	.shm_free_security = 		jail_shm_free_security,
++	.shm_associate =		jail_shm_associate,
++	.shm_shmctl =			jail_shm_shmctl,
++	.shm_shmat =			jail_shm_shmat,
++
++	.msg_queue_alloc_security =	jail_msg_queue_alloc,
++	.msg_queue_free_security =	jail_msg_queue_free,
++	.msg_queue_associate =		jail_msg_queue_associate,
++	.msg_queue_msgctl =		jail_msg_queue_msgctl,
++	.msg_queue_msgsnd =		jail_msg_queue_msgsnd,
++	.msg_queue_msgrcv =		jail_msg_queue_msgrcv,
++
++	.sem_alloc_security = 		jail_sem_alloc_security,
++	.sem_free_security =  		jail_sem_free_security,
++	.sem_associate =		jail_sem_associate,
++	.sem_semctl =			jail_sem_semctl,
++	.sem_semop =			jail_sem_semop,
++
++	.sysctl =			jail_sysctl,
++};
++
++static int __init bsdjail_init (void)
++{
++	int rc = 0;
++
++	if (register_security (&bsdjail_security_ops)) {
++		printk (KERN_INFO
++			"Failure registering BSD Jail module with the kernel\n");
++
++		rc = mod_reg_security(MY_NAME, &bsdjail_security_ops);
++		if (rc < 0) {
++			printk (KERN_INFO "Failure registering BSD Jail "
++				" module with primary security module.\n");
++			return -EINVAL;
++		}
++		secondary = 1;
++	}
++	printk (KERN_INFO "BSD Jail module initialized.\n");
++
++	return 0;
++}
++
++static void __exit bsdjail_exit (void)
++{
++	if (secondary) {
++		if (mod_unreg_security (MY_NAME, &bsdjail_security_ops))
++			printk (KERN_INFO "Failure unregistering BSD Jail "
++				" module with primary module.\n");
++	} else {
++		if (unregister_security (&bsdjail_security_ops)) {
++			printk (KERN_INFO "Failure unregistering BSD Jail "
++				"module with the kernel\n");
++		}
++	}
++
++	printk (KERN_INFO "BSD Jail module removed\n");
++}
++
++security_initcall (bsdjail_init);
++module_exit (bsdjail_exit);
++
++MODULE_DESCRIPTION("BSD Jail LSM.");
++MODULE_LICENSE("GPL");
+diff -Nrup linux-2.6.9-rc4-mm1/security/dummy.c linux-2.6.9-rc4-mm1-jail/security/dummy.c
+--- linux-2.6.9-rc4-mm1/security/dummy.c	2004-10-11 17:02:22.265603736 -0500
++++ linux-2.6.9-rc4-mm1-jail/security/dummy.c	2004-10-11 10:00:36.000000000 -0500
+@@ -623,6 +623,11 @@ static void dummy_task_reparent_to_init 
+ 	return;
+ }
+ 
++static int dummy_task_lookup(struct task_struct *p)
++{
++	return 0;
++}
++
+ static void dummy_task_to_inode(struct task_struct *p, struct inode *inode)
+ { }
+ 
+@@ -986,6 +991,7 @@ void security_fixup_ops (struct security
+ 	set_to_dummy_if_null(ops, task_kill);
+ 	set_to_dummy_if_null(ops, task_prctl);
+ 	set_to_dummy_if_null(ops, task_reparent_to_init);
++ 	set_to_dummy_if_null(ops, task_lookup);
+  	set_to_dummy_if_null(ops, task_to_inode);
+ 	set_to_dummy_if_null(ops, ipc_permission);
+ 	set_to_dummy_if_null(ops, msg_msg_alloc_security);
+diff -Nrup linux-2.6.9-rc4-mm1/security/Kconfig linux-2.6.9-rc4-mm1-jail/security/Kconfig
+--- linux-2.6.9-rc4-mm1/security/Kconfig	2004-10-11 17:02:22.265603736 -0500
++++ linux-2.6.9-rc4-mm1-jail/security/Kconfig	2004-10-11 10:00:51.000000000 -0500
+@@ -86,5 +86,16 @@ config SECURITY_SECLVL
+ 
+ source security/selinux/Kconfig
+ 
++config SECURITY_BSDJAIL
++	tristate "BSD Jail LSM"
++	depends on SECURITY
++	select SECURITY_NETWORK
++	help
++	  Provides BSD Jail compartmentalization functionality.
++	  See Documentation/bsdjail.txt for more information and
++	  usage instructions.
++
++	  If you are unsure how to answer this question, answer N.
++
+ endmenu
+ 
+diff -Nrup linux-2.6.9-rc4-mm1/security/Makefile linux-2.6.9-rc4-mm1-jail/security/Makefile
+--- linux-2.6.9-rc4-mm1/security/Makefile	2004-10-11 17:02:22.287600392 -0500
++++ linux-2.6.9-rc4-mm1-jail/security/Makefile	2004-10-11 10:00:51.000000000 -0500
+@@ -17,3 +17,4 @@ obj-$(CONFIG_SECURITY_SELINUX)		+= selin
+ obj-$(CONFIG_SECURITY_CAPABILITIES)	+= commoncap.o capability.o
+ obj-$(CONFIG_SECURITY_ROOTPLUG)		+= commoncap.o root_plug.o
+ obj-$(CONFIG_SECURITY_SECLVL)		+= seclvl.o
++obj-$(CONFIG_SECURITY_BSDJAIL)		+= bsdjail.o

@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261609AbTCTRxn>; Thu, 20 Mar 2003 12:53:43 -0500
+	id <S261618AbTCTRyx>; Thu, 20 Mar 2003 12:54:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261613AbTCTRxn>; Thu, 20 Mar 2003 12:53:43 -0500
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:18381 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id <S261609AbTCTRxl>; Thu, 20 Mar 2003 12:53:41 -0500
-Date: Thu, 20 Mar 2003 10:04:35 -0800
-From: Thomas Duffy <tduffy@afara.com>
-Subject: Re: Deprecating .gz format on kernel.org
-In-reply-to: <3E79FFAD.3040904@inet.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1048183475.3427.112.camel@biznatch>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.33.0303201138000.29061-100000@router.windsormachine.com>
- <3E79FFAD.3040904@inet.com>
+	id <S261625AbTCTRyx>; Thu, 20 Mar 2003 12:54:53 -0500
+Received: from ppp-62-11-45-143.dialup.tiscali.it ([62.11.45.143]:8320 "EHLO
+	Knoppix") by vger.kernel.org with ESMTP id <S261618AbTCTRyr>;
+	Thu, 20 Mar 2003 12:54:47 -0500
+Date: Thu, 20 Mar 2003 19:04:41 +0100
+From: Mauro Chiarugi <vlaovic@libero.it>
+To: linux-kernel@vger.kernel.org
+Subject: Pcmcia and bad bios (Phoenix KA.M1.37)
+Message-Id: <20030320190441.453106be.vlaovic@libero.it>
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-20 at 09:51, Eli Carter wrote:
-> So, who can beat his 15.10 bogomips?
+Hi,
+i've just written here about a problem with my pcmcia..
+At pcmcia-cs-devel@sourceforge.net they say me that the problem ("IRQ
+Routing conflict") is the bios and they don't know how to fix it.
 
-my firewall:
+I'd like to know that someone have written a workaround... :-)
 
-[tduffy@crackho ~]$ more /proc/cpuinfo
-processor       : 0
-vendor_id       : unknown
-cpu family      : 4
-model           : 0
-model name      : 486
-stepping        : unknown
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : no
-fpu_exception   : no
-cpuid level     : -1
-wp              : yes
-flags           :
-bogomips        : 12.44
+My bios is Phoenix KA.M1.37 (in a notebook hp pavillon ze4288), but a
+lot of hp and compaq notebook use it.
 
--- 
-YOO-ESS-AYE! YOO-ESS-AYE!
+tnx
 
+--
+sracatus

@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129154AbRBOTdj>; Thu, 15 Feb 2001 14:33:39 -0500
+	id <S129373AbRBOTeS>; Thu, 15 Feb 2001 14:34:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129373AbRBOTd2>; Thu, 15 Feb 2001 14:33:28 -0500
-Received: from unimur.um.es ([155.54.1.1]:32192 "EHLO unimur.um.es")
-	by vger.kernel.org with ESMTP id <S129319AbRBOTdP>;
-	Thu, 15 Feb 2001 14:33:15 -0500
-Message-ID: <3A8C333D.FA59D477@ditec.um.es>
-Date: Thu, 15 Feb 2001 20:51:25 +0100
-From: Juan <piernas@ditec.um.es>
-X-Mailer: Mozilla 4.76 [es] (X11; U; Linux 2.4.2-pre3 i686)
-X-Accept-Language: es-ES, en
+	id <S129118AbRBOTeJ>; Thu, 15 Feb 2001 14:34:09 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:22532 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129110AbRBOTeC>;
+	Thu, 15 Feb 2001 14:34:02 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200102151933.WAA20558@ms2.inr.ac.ru>
+Subject: Re: MTU and 2.4.x kernel
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Thu, 15 Feb 2001 22:33:23 +0300 (MSK)
+Cc: roger@kea.GRace.CRi.NZ, linux-kernel@vger.kernel.org
+In-Reply-To: <E14TTRF-0000Ul-00@the-village.bc.nu> from "Alan Cox" at Feb 15, 1 06:47:31 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Remy.Card@linux.org
-Subject: [ONE-LINE PATCH](Silly?) bug in ext2/namei.c, 2.2.x, 2.4.x
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello!
 
-I think that this is a bug. The buffer is always released except in this
-case.
+> Please cite an exact RFC reference.
 
-Bye.
+No need to cite RFC, this is plain sillogism.
 
-----------------------------------------------------
-*** /usr/src/linux-2.4.1/fs/ext2/namei.c        Tue Dec 12 16:48:22 2000
---- namei.c.new Thu Feb 15 20:42:45 2001
-***************
-*** 235,240 ****
---- 235,241 ----
-                                return retval;
-                        if (dir->i_size <= offset) {
-                                if (dir->i_size == 0) {
-+                                       brelse(bh);
-                                        return -ENOENT;
-                                }
-----------------------------------------------------
--- 
-D. Juan Piernas Cánovas
-Departamento de Ingeniería y Tecnología de Computadores
-Facultad de Informática. Universidad de Murcia
-Campus de Espinardo - 30080 Murcia (SPAIN)
-Tel.: +34968367657    Fax: +34968364151
-email: piernas@ditec.um.es
-PGP public key:
-http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index
+A. Datagram protocols do not work with mtus not allowing to send
+   512 byte frames (even DNS).
+B. Accoutning, classification, resource reervation does not work on
+   fragmented packets.
+
+-> IP suite is not full functional with low MTUs and must be eliminated.
+
+
+Current setting of min_adv_mss to 536 is actually occasional.
+I tested pmtu discovery on local clients using mtu 296 and did not
+change the value to less fascist after this. I happened to be not
+mistake, I found some fun talking to people, which suffer of superstition
+that "mtu 296 is good for..." (latency for example) 8)8)8)
+
+
+> to put it back together. Our handling of DF on syn frames is also broken
+> due to that misassumption, but fortunately only for crazy mtus like 70.
+
+Right observation. It stops to work even earlier: at mtu<128.
+It is strict limit. Pardon, discussing marginal cases is useless.
+If someone has device with mtu of 128, let him to put it back to the place,
+where he found it.
+
+Preventing DoSes requires to block pmtu discovery at 576 or at least 552.
+
+More practical question is mtu=296. There exist old myth that this value
+is good for PPP. This is nothing but myth. 14% of overhead.
+
+I would prefer that minimal MTU on internet stayed on 576, which
+is already fact.
+
+Alexey

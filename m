@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264272AbTL2VUM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 16:20:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbTL2VUM
+	id S264265AbTL2VUj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 16:20:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264277AbTL2VUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 16:20:12 -0500
-Received: from colin2.muc.de ([193.149.48.15]:51725 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S264272AbTL2VUH (ORCPT
+	Mon, 29 Dec 2003 16:20:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44007 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264265AbTL2VUe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 16:20:07 -0500
-From: Stephan Maciej <stephanm@muc.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.0: Change cryptic description and help for CONFIG_PDC202XX_FORCE
-Date: Mon, 29 Dec 2003 04:15:00 +0100
-User-Agent: KMail/1.5.94
-Cc: Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_0w57/bSFBi3CEWa"
-Message-Id: <200312290415.00502.stephanm@muc.de>
+	Mon, 29 Dec 2003 16:20:34 -0500
+Date: Mon, 29 Dec 2003 13:14:25 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: szepe@pinerecords.com, clock@twibright.com, linux-kernel@vger.kernel.org
+Subject: Re: Can't mount USB partition as root
+Message-Id: <20031229131425.3d3042e0.rddunlap@osdl.org>
+In-Reply-To: <20031229133812.A4788@animx.eu.org>
+References: <20031229173853.A32038@beton.cybernet.src>
+	<20031229164539.GD30794@louise.pinerecords.com>
+	<20031229133812.A4788@animx.eu.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 29 Dec 2003 13:38:12 -0500 Wakko Warner <wakko@animx.eu.org> wrote:
 
---Boundary-00=_0w57/bSFBi3CEWa
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+| > > Is it possible to boot kernel with root from /dev/sda1 (USB)?
+| > > partition table: whole /dev/sda is one partition (sda1), type 83 (Linux).
+| > > Tried also switching on and off hotplugging in kernel and it didn't help.
+| > 
+| > Well, is the device detected and the partition table scanned before the
+| > root mount is attempted?
+| > 
+| > I believe this should work given you've compiled in all the necessary
+| > code.  Please capture the dmesg using serial console/netconsole/whatever
+| > and post it along with your .config.
+| 
+| I did this with 2.4 a few months back.  Basically all I did was add the same
+| delay before mounting root as the kernel does with mounting a root floppy. 
+| Problem is the kernel is too fast for the usb code to find the disk.
+| 
+| I'v been wanting to ask this question.  How can I make the kernel "sleep"
+| for say 5 seconds (or pause or something, whatever is required to delay
+| execution) to wait for the device to become available.  I tried the same
+| thing doing nfsroot with a cardbus nic which fails because the kernel
+| doesn't see the card until after it attempted to mount /
 
-The description and the help text for this option has bothered me long 
-enough... I hope the new strings are more self-explanatory than the ones 
-before.
+I posted a patch for 2.4.22 which someone tested and reported as working.
+The patch is here:
+  http://www.xenotime.net/linux/usb/usbboot-2422.patch
 
-Stephan
-
---Boundary-00=_0w57/bSFBi3CEWa
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="kconfig-pdc202xx.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="kconfig-pdc202xx.diff"
-
---- drivers/ide/Kconfig.orig	2003-12-29 04:00:06.000000000 +0100
-+++ drivers/ide/Kconfig	2003-12-29 04:05:24.000000000 +0100
-@@ -734,10 +734,10 @@
- 
- # FIXME - probably wants to be one for old and for new
- config PDC202XX_FORCE
--	bool "Special FastTrak Feature"
-+	bool "Enable controller even if disabled by BIOS"
- 	depends on BLK_DEV_PDC202XX_NEW=y
- 	help
--	  For FastTrak enable overriding BIOS.
-+	  Enable the PDC202xx controller even if it has been disabled in the BIOS setup.
- 
- config BLK_DEV_SVWKS
- 	tristate "ServerWorks OSB4/CSB5/CSB6 chipsets support"
-
---Boundary-00=_0w57/bSFBi3CEWa--
+--
+~Randy

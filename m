@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131273AbQLVQNo>; Fri, 22 Dec 2000 11:13:44 -0500
+	id <S131401AbQLVQYZ>; Fri, 22 Dec 2000 11:24:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131430AbQLVQNZ>; Fri, 22 Dec 2000 11:13:25 -0500
-Received: from mail.rd.ilan.net ([216.27.80.130]:4868 "EHLO mail.rd.ilan.net")
-	by vger.kernel.org with ESMTP id <S131273AbQLVQNQ>;
-	Fri, 22 Dec 2000 11:13:16 -0500
-Message-ID: <3A437657.92AE2979@holly-springs.nc.us>
-Date: Fri, 22 Dec 2000 10:42:15 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S131430AbQLVQYP>; Fri, 22 Dec 2000 11:24:15 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4224 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131401AbQLVQYM>; Fri, 22 Dec 2000 11:24:12 -0500
+Date: Fri, 22 Dec 2000 10:53:31 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.19pre3
+In-Reply-To: <20001222173228.A1424@elektroni.ee.tut.fi>
+Message-ID: <Pine.LNX.3.95.1001222104908.791A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Felix von Leitner <leitner@convergence.de>, linux-kernel@vger.kernel.org
-Subject: Re: iptables: "stateful inspection?"
-In-Reply-To: <3A40DBC2.AEC6B3CA@holly-springs.nc.us> <20001222140517.A30215@convergence.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felix von Leitner wrote:
-> 
-> > IPChains is essentially useless as a firewall due to its lack of
-> > stateful packet filering.
-> 
-> Bullshit.
-> Go back to the bowels or Redmond where you belong, luser.
+On Fri, 22 Dec 2000, Petri Kaukasoina wrote:
 
-Thanks. I appreciate that.
+> On Fri, Dec 22, 2000 at 12:52:32AM +0000, Alan Cox wrote:
+> > 
+> > o	Optimise kernel compiler detect, kgcc before	(Peter Samuelson)
+> > 	gcc272 also
+> 
+> kwhich doesn't seem to work ok with several arguments if sh is bash-1.14.7:
+> 
+> $ sh scripts/kwhich kgcc gcc272 cc gcc
+> kgcc:gcc272:cc:gcc: not found
+> 
+> If sh is bash-2.04 or ash-0.3.7 it works ok:
+> 
+> $ sh scripts/kwhich kgcc gcc272 cc gcc
+> /usr/bin/kgcc
+> -
 
--M
+Yep.
+
+alias kwhich='type -path' in ~./bashrc should fix. I don't know
+why 'standard' Unix/sell/executable commands keep getting changed
+to GNUisms in distributions.
+
+If you make a neat new GNU program, it had ought to function at
+least like what it's replacing...
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

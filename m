@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265041AbUHQK52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUHQLHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265041AbUHQK52 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 06:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUHQK52
+	id S265093AbUHQLHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 07:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268179AbUHQLHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 06:57:28 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:54226 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S265041AbUHQK51 (ORCPT
+	Tue, 17 Aug 2004 07:07:08 -0400
+Received: from gprs214-89.eurotel.cz ([160.218.214.89]:1408 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265093AbUHQLHE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 06:57:27 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Shaun Jackman <sjackman@telus.net>
-Date: Tue, 17 Aug 2004 12:57:11 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Hang after "BIOS data check successful" with DVI
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <E82D6B0981@vcnet.vc.cvut.cz>
+	Tue, 17 Aug 2004 07:07:04 -0400
+Date: Tue, 17 Aug 2004 13:03:29 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: swsusp: fix highmem
+Message-ID: <20040817110329.GA1522@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Aug 04 at 16:55, Shaun Jackman wrote:
-> When I have a DVI display plugged into my Matrox G550 video card the
-> boot process hangs at "BIOS data check successful". I am running Linux
-> kernel 2.6.6. This problem does not affect Linux kernel 2.4.26. If I
-> boot without the DVI display plugged in, I can plug it in after the
-> boot process and the display works.
+Hi!
 
-Try disabling CONFIG_VIDEO_SELECT and/or comment out call to store_edid
-in arch/i386/boot/video.S. Also which bootloader you use? From
-quick glance at bootloaders, grub1 seems to set %sp to 0x9000, while 
-LILO to 0x0800. And I think that 2048 byte stack (plus something already 
-allocated by loader) might be too small for DDC call, as MGA BIOS first
-creates EDID copy on stack...
-                                           Best regards,
-                                                Petr Vandrovec
-                                                
+This actually calls highmem_resume(), so swsusp has chance to work on
+highmem machines. It also adds comments about code flow, which is
+quite interesting at that point.
 
+Please apply,
+								Pavel 
+
+--- clean-mm/kernel/power/swsusp.c	2004-08-17 12:21:44.000000000 +0200
++++ linux-mm/kernel/power/swsusp.c	2004-08-17 13:01:35.000000000 +0200
+@@ -854,8 +854,10 @@
+ 	local_irq_disable();
+ 	save_processor_state();
+ 	error = swsusp_arch_suspend();
++	/* Restore control flow magically appears here */
+ 	restore_processor_state();
+ 	local_irq_enable();
++	restore_highmem();
+ 	return error;
+ }
+ 
+@@ -874,8 +876,13 @@
+ {
+ 	int error;
+ 	local_irq_disable();
++	/* We'll ignore saved state, but this gets preempt count (etc) right */
+ 	save_processor_state();
+ 	error = swsusp_arch_resume();
++	/* Code below is only ever reached in case of failure. Otherwise
++	 * execution continues at place where swsusp_arch_suspend was called
++         */
++	BUG_ON(!error);
+ 	restore_processor_state();
+ 	restore_highmem();
+ 	local_irq_enable();
+
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291314AbSBQX2e>; Sun, 17 Feb 2002 18:28:34 -0500
+	id <S310706AbSBRPJ6>; Mon, 18 Feb 2002 10:09:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291316AbSBQX2O>; Sun, 17 Feb 2002 18:28:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15367 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291314AbSBQX2G>;
-	Sun, 17 Feb 2002 18:28:06 -0500
-Message-ID: <3C703C7F.98CA5AD2@mandrakesoft.com>
-Date: Sun, 17 Feb 2002 18:27:59 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Francois Romieu <romieu@cogenit.fr>
-CC: linux-kernel@vger.kernel.org, khc@pm.waw.pl, davem@redhat.com,
-        torvalds@transmeta.com
-Subject: Re: [PATCH] HDLC patch for 2.5.5 (2/3)
-In-Reply-To: <20020217193110.D14629@se1.cogenit.fr>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S310710AbSBRPJs>; Mon, 18 Feb 2002 10:09:48 -0500
+Received: from dentin.eaze.net ([216.228.128.151]:17937 "EHLO xirr.com")
+	by vger.kernel.org with ESMTP id <S310706AbSBRPJf>;
+	Mon, 18 Feb 2002 10:09:35 -0500
+Date: Mon, 18 Feb 2002 09:15:43 -0600
+From: SodaPop <soda@xirr.com>
+Message-Id: <200202181515.g1IFFh614020@xirr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> 
-> [2/3]:
-> - conversion of drivers/net/wan/hdlc_xxx.c files.
+I can't believe you people, even if you are high level kernel
+maintainers.
+   
+The most major complaints I see against CML2 are that 'the
+behaviour is different from CML1' and 'CML2 has a whole bunch of
+"features" too which will be shoved down our throats'.
+          
+Duh!  That was the freaking point!  Granted I'm not a kernel hacking
+expert, but I've been building my own kernels since 1995 and I see
+definite value in having the side effects and grouping stuff in
+CML2.  I also see significant value in having the symbol set and
+rules provably coherent.
+                       
+You guys change the low level kernel interfaces all the time.  You
+change module interfaces out from underneath people every other
+month.  You depreciate malloc.h and replace it with slab.h and
+don't so much as give it a second thought, yet you bitch up a
+storm about how the changes in CML2 behaviour are unacceptable?
+                                                              
+You guys force changes down the throats of other people all the
+time.  Well now, in my lowly opinion, it's time for you to do what
+everyone else is already used to - choke it down, and comfort
+yourself by saying 'it was the right thing to do.'
+                                                 
+Looking forward to seeing CML2 in 2.5,
 
-I like it.  It shows these changes are having a positive effect...
-
-(presuming my concerns in previous e-mail about binary compatibility are
-unfounded)
-
--- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"
+-dennis T

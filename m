@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbTEOCDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 22:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263656AbTEOCDZ
+	id S263656AbTEOCDh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 22:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263660AbTEOCDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 22:03:25 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:50886 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263653AbTEOCDY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 22:03:24 -0400
-Date: Wed, 14 May 2003 19:17:35 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+	Wed, 14 May 2003 22:03:37 -0400
+Received: from dp.samba.org ([66.70.73.150]:21894 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263656AbTEOCDf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 22:03:35 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com, akpm@zip.com.au, rth@twiddle.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-mm5: pccard oops while booting: resolved
-Message-Id: <20030514191735.6fe0998c.akpm@digeo.com>
-In-Reply-To: <1052964213.586.3.camel@teapot.felipe-alfaro.com>
-References: <1052964213.586.3.camel@teapot.felipe-alfaro.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 May 2003 02:16:08.0478 (UTC) FILETIME=[F25093E0:01C31A87]
+Subject: [PATCH] __optional and __keep
+Date: Thu, 15 May 2003 12:09:25 +1000
+Message-Id: <20030515021624.B814B2C017@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
->
-> I've been able to pinpoint the culprit of this: it's the
->  "make-KOBJ_NAME-match-BUS_ID_SIZE.patch" patch that it's causing the
->  oops for me when booting 2.5.69.mm5.
-> 
->  Reverting this patch solves the oops for me.
+Hi all!
 
-I might have screwed that patch up.
+Does anyone else find __attribute_used__ confusing, or is it just me?
+In the tradition of likely() and unlikely(), I think __optional and
+__keep are clearer.
 
-This is the second half of it.  When it crashed, did you have the below
-change in place as well?
+Thoughts?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-Index: include/linux/device.h
-===================================================================
-RCS file: /home/scm/linux-2.5/include/linux/device.h,v
-retrieving revision 1.48
-diff -u -u -r1.48 device.h
---- include/linux/device.h	29 Apr 2003 17:30:20 -0000	1.48
-+++ include/linux/device.h	13 May 2003 07:47:39 -0000
-@@ -35,7 +35,7 @@
- #define DEVICE_NAME_SIZE	50
- #define DEVICE_NAME_HALF	__stringify(20)	/* Less than half to accommodate slop */
- #define DEVICE_ID_SIZE		32
--#define BUS_ID_SIZE		20
-+#define BUS_ID_SIZE		KOBJ_NAME_LEN
+Name: __keep and __optional attributes
+Author: Rusty Russell
+Status: Trivial
+
+D: Renames __attribute_used to __keep, and introduces __optional.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21892-linux-2.5.69-bk9/include/linux/compiler.h .21892-linux-2.5.69-bk9.updated/include/linux/compiler.h
+--- .21892-linux-2.5.69-bk9/include/linux/compiler.h	2003-04-20 18:05:14.000000000 +1000
++++ .21892-linux-2.5.69-bk9.updated/include/linux/compiler.h	2003-05-15 11:11:19.000000000 +1000
+@@ -51,10 +51,11 @@
+  * would be warned about except with attribute((unused)).
+  */
+ #if __GNUC__ == 3 && __GNUC_MINOR__ >= 3 || __GNUC__ > 3
+-#define __attribute_used__	__attribute__((__used__))
++#define __keep		__attribute__((__used__))
+ #else
+-#define __attribute_used__	__attribute__((__unused__))
++#define __keep		__attribute__((__unused__))
+ #endif
++#define __optional	__attribute__((__unused__))
  
+ /* This macro obfuscates arithmetic on a variable address so that gcc
+    shouldn't recognize the original var, and make assumptions about it */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21892-linux-2.5.69-bk9/scripts/modpost.c .21892-linux-2.5.69-bk9.updated/scripts/modpost.c
+--- .21892-linux-2.5.69-bk9/scripts/modpost.c	2003-05-05 12:37:16.000000000 +1000
++++ .21892-linux-2.5.69-bk9.updated/scripts/modpost.c	2003-05-15 11:11:19.000000000 +1000
+@@ -466,7 +466,7 @@ add_depends(struct buffer *b, struct mod
  
- enum {
--
-
-
+ 	buf_printf(b, "\n");
+ 	buf_printf(b, "static const char __module_depends[]\n");
+-	buf_printf(b, "__attribute_used__\n");
++	buf_printf(b, "__keep\n");
+ 	buf_printf(b, "__attribute__((section(\".modinfo\"))) =\n");
+ 	buf_printf(b, "\"depends=");
+ 	for (s = mod->unres; s; s = s->next) {

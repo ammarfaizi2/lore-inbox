@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263120AbRE1TDz>; Mon, 28 May 2001 15:03:55 -0400
+	id <S263122AbRE1TO5>; Mon, 28 May 2001 15:14:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263122AbRE1TDf>; Mon, 28 May 2001 15:03:35 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:40082 "HELO mcafee-labs.nai.com")
-	by vger.kernel.org with SMTP id <S263120AbRE1TDd>;
-	Mon, 28 May 2001 15:03:33 -0400
-Message-ID: <XFMail.20010528120635.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <20010528113446.G32600@thune.mrc-home.com>
-Date: Mon, 28 May 2001 12:06:35 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Mike Castle <dalgoda@ix.netcom.com>
-Subject: Re: File read.
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S263123AbRE1TOh>; Mon, 28 May 2001 15:14:37 -0400
+Received: from f256.law9.hotmail.com ([64.4.8.131]:38674 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S263122AbRE1TOZ>;
+	Mon, 28 May 2001 15:14:25 -0400
+X-Originating-IP: [212.58.173.223]
+From: "Jonathan Brugge" <jonathan_brugge@hotmail.com>
+To: laughing@shared-source.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac3 [address]
+Date: Mon, 28 May 2001 21:14:19 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F256WeLcKkPQh0pIYW50000b1c7@hotmail.com>
+X-OriginalArrivalTime: 28 May 2001 19:14:19.0334 (UTC) FILETIME=[651EAE60:01C0E7AA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From: Alan Cox <laughing@shared-source.org>
+>To: linux-kernel@vger.kernel.org
+>Subject: Linux 2.4.5-ac3
+>Date: Mon, 28 May 2001 17:49:23 +0100
 
-On 28-May-2001 Mike Castle wrote:
-> On Mon, May 28, 2001 at 11:26:31AM -0700, Davide Libenzi wrote:
->> 
->> On 28-Jun-2001 Anil Kumar wrote:
->> > hi,
->> > How do i read file within the kernel modules. I hope we can't use the FS
->> > open... calls within kernel.
->> 
->> You can access fs methods directly.
-> 
-> But generally you don't want to.
+Huh? What mail-address is this from? "laughing@shared-source.org"? Guess I 
+missed something? It's a nice one anyway ;-)
 
-I usually don't but, you know, usually people like to know that they could ...
-
-
-
-
-- Davide
+Jonathan Brugge
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 

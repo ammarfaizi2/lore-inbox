@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261518AbREQTYV>; Thu, 17 May 2001 15:24:21 -0400
+	id <S261513AbREQTYK>; Thu, 17 May 2001 15:24:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261515AbREQTYL>; Thu, 17 May 2001 15:24:11 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27652 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261517AbREQTX4>; Thu, 17 May 2001 15:23:56 -0400
-Subject: Re: Linux 2.4.4-ac10
-To: reality@delusion.de (Udo A. Steinberg)
-Date: Thu, 17 May 2001 20:21:00 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <3B041980.BC22BA38@delusion.de> from "Udo A. Steinberg" at May 17, 2001 08:33:36 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261519AbREQTYA>; Thu, 17 May 2001 15:24:00 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:24028 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261513AbREQTXn>;
+	Thu, 17 May 2001 15:23:43 -0400
+Date: Thu, 17 May 2001 12:22:58 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Updates...ide.2.4.5-p1.05132001...FastTrak...CSB5...AMD761
+Message-ID: <Pine.LNX.4.10.10105171211460.938-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E150TKW-0005x3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.4-ac/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o apm.o apm.c
-> {standard input}: Assembler messages:
-> {standard input}:180: Warning: indirect lcall without `*'
-> {standard input}:274: Warning: indirect lcall without `*'
-> 
-> Does anyone know what's up with that? Kernel problem or binutils issue?
 
-binutils is issuing a correct warning but if we fix the warning old old binutils
-will then refuse to assemble it right.
+What did we do....
+
+First we added two things for the Promise owners.
+
+If you have a FastTrak and you wish to use it in normal mode, we have a
+solution now.  Place all the drives in "span" with only one drive per
+array.  This makes each array a single device.  This will work; however,
+you must set the new Promise Option to enable the HOST regardless.
+Do not set this option with Promise's I2O card!
+
+CSB5...erm it is a work in progress but should be fully functional in
+24-48 hours.
+
+AMD761 is fully functional upto ATA-66, the ATA-100 feature is not
+complete, but will register so...if you board works great, otherwise issue
+an hdparm -X68 /dev/hdX to set the HOST into ATA-66 mode.
+
+The dreaded timeout is actively being killed.
+
+The mystery of hot-swap, well see LANANA thread....since there is a freeze
+on char-major-10-XXX device points, thus there is a freeeze on this code
+coming to Linux. :-(
+
+I hope to have all of this cleaned up and ready for submission for the
+pre3/4/5 patch releases.
+
+Cheers,
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+

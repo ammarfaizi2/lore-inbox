@@ -1,120 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTDQUod (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 16:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbTDQUoc
+	id S262627AbTDQUro (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 16:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbTDQUro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 16:44:32 -0400
-Received: from cdrobot.com ([65.70.252.73]:10474 "EHLO mainsrv.cdrobot.com")
-	by vger.kernel.org with ESMTP id S262001AbTDQUo3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 16:44:29 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	Thu, 17 Apr 2003 16:47:44 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29708 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262627AbTDQUrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 16:47:43 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: problems booting 2.5 kernel, rh9
+Date: 17 Apr 2003 13:59:11 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b7n4iv$dub$1@cesium.transmeta.com>
+References: <000501c3048d$a3e41700$0200a8c0@satellite> <20030417111714.GA16335@wind.cocodriloo.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Help with virus/hackers
-Date: Thu, 17 Apr 2003 15:56:37 -0500
-Message-ID: <78939086E7E52D4A9CDBEAB7A6097812253188@mainsrv.cdrobot.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Help with virus/hackers
-Thread-Index: AcMFC60WcSbZPN+qS8yzaJxTIdfRwgAAB3uQAAX1WqA=
-From: "Kenny Mann" <Kennymann@cdrobot.com>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.openitx.com/g/networkadmin-select.asp
-
-That mail list would probably be more appropriate.
-Openitx also has allot of mail list.. Perhaps one of them may be even
-more appropriate.
-
---KM
-
------Original Message-----
-From: Kenny Mann 
-Sent: Thursday, April 17, 2003 1:13 PM
-To: John Bradford; Alan Cox
-Cc: root@chaos.analogic.com; joe briggs; linux-kernel@vger.kernel.org
-Subject: RE: Help with virus/hackers
-
-
-Perhaps this:
-Using FTP to connect to another secured computer which has only that
-service running. Write-only (no read, etc) is what is used to send to
-it. This file will remain open until time X. Where X equals when that
-file will close and another file will begin. Random names or perhaps
-based on date/time. Everything Y amount of time, it will burn to a CD
-that directory or perhaps only new files added. (all but the last file
-which is currently
-open)
-When that directory (minues the open file) size hits a certain size, it
-will either ask for another CD or auto-create another CD and move
-previous logs there. (or perhaps when that directory hits a certain size
-it moves the old logs there and then burns them instead of every Y time)
-
-Any suggestions/flames?
-
->> Linux supports console on printer. Its not totally foolproof (there
-is 
->> a famous story of someone who simply reprinted the past two days of
->> logs edited so the admins wouldnt realise when they looked)
->!!!  You can't be serious :-)
-Hmm, true or not... Better safe than sorry. :-) If that person knows
-about It they are bound it try and figure something out.
-
-Perhaps if you see a massive directory size difference (increased size)
-That might be something to set it off... (assuming you follow the idea
-above)
-
---KM
-
------Original Message-----
-From: John Bradford [mailto:john@grabjohn.com] 
-Sent: Thursday, April 17, 2003 1:01 PM
-To: Alan Cox
-Cc: John Bradford; root@chaos.analogic.com; joe briggs;
-'linux-kernel@vger.kernel.org'
-Subject: Re: Help with virus/hackers
-
-
-> > I've often wondered whether it would be worth connecting a very
-> > large serial EEPROM to a serial port interface, and have it 
-> > effectively appear as a solid state printer, (to that you could 
-> > cheaply log to an unmodifyable device).  Has anybody ever tried 
-> > this?
+Followup to:  <20030417111714.GA16335@wind.cocodriloo.com>
+By author:    Antonio Vargas <wind@cocodriloo.com>
+In newsgroup: linux.dev.kernel
 > 
-> Linux supports console on printer. Its not totally foolproof (there is
+> Dave, since your ISP is blocking my mail, I reply on lkml...
+> 
+> I booted fine the 2.5 kernel by tagging it for netboot and
+> then placing it on my tftp directory. I never use harddisk
+> bootloaders, so if you can not make it work with grub,
+> I would get ahead and make it boot from floppy. Yes, it
+> takes a minute to load a kernel, but it works and is simple.
+> 
+> I use syslinux for that, it's fairly simple and you can
+> enter kernel options directly at the boot prompt.
+> 
+> Also, since it's a dos 8.3-formatted floppy, you can upgrade
+> your kernel by simply replacing the kernel file.
+> 
+> If you need a dos-formatted empty disk, I can post one to my
+> homepage for you to download.
+> 
 
-> a famous story of someone who simply reprinted the past two days of
-> logs edited so the admins wouldnt realise when they looked)
+Especially on recent 2.5, you can just "make bzdisk" and have it make
+a syslinux floppy.  make bzdisk FDARGS='blah' lets you set the default
+options right on the fly.  You need syslinux 2.02 or later (and, of
+course, write permission to the floppy drive) if you want to do this
+as non-root.
 
-!!!  You can't be serious :-)
+	-hpa
 
-> but it works pretty well. Just use a dot-matrix printer save keeping
-> HP, Lexmark or Xerox in business 8)
-
-Aren't you concerned with all of the trees that will be cut down to make
-that paper, though?
-
-I think 1 tree = about 50 reams.  Let's say you get through a ream a
-day, that's a tree every couple of months!
-
-Maybe there is a way to encode the data in the rings of the tree while
-it's still growing, that would be the ultimate WORM device :-) :-) :-).
-
-John.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in the body of a message to majordomo@vger.kernel.org More majordomo
-info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in the body of a message to majordomo@vger.kernel.org More majordomo
-info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

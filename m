@@ -1,69 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbUCaQIh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 11:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUCaQIh
+	id S262043AbUCaQI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 11:08:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbUCaQIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 11:08:37 -0500
-Received: from gprs212-18.eurotel.cz ([160.218.212.18]:9856 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262035AbUCaQIf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 11:08:35 -0500
-Date: Wed, 31 Mar 2004 18:08:06 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
-       kgdb-bugreport@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Latest kgdb?
-Message-ID: <20040331160806.GG220@elf.ucw.cz>
-References: <20040319162009.GE4569@smtp.west.cox.net> <200403242011.26314.amitkale@emsyssoft.com> <20040324154355.GD7126@smtp.west.cox.net> <200403251022.39704.amitkale@emsyssoft.com> <20040325151444.GC13366@smtp.west.cox.net> <20040331152925.GA6205@elf.ucw.cz> <20040331154541.GH13819@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040331154541.GH13819@smtp.west.cox.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 31 Mar 2004 11:08:55 -0500
+Received: from qfep05.superonline.com ([212.252.122.161]:56224 "EHLO
+	qfep05.superonline.com") by vger.kernel.org with ESMTP
+	id S262043AbUCaQIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 11:08:51 -0500
+Message-ID: <406AEC59.5040609@superonline.com>
+Date: Wed, 31 Mar 2004 19:05:45 +0300
+From: "O.Sezer" <sezero@superonline.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.26-rc1: ACPI power button not working
+Content-Type: multipart/mixed;
+ boundary="------------010108020005040703000409"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------010108020005040703000409
+Content-Type: text/plain; charset=ISO-8859-9; format=flowed
+Content-Transfer-Encoding: 8bit
 
-> > Where can I get latest kgdb? The version on kgdb.sf.net is still
-> > against 2.6.3, afaics. Or should I forward port it?
-> 
-> CVS is against 2.6.4.  Once 2.6.5 comes out, I'll move it forward again.
-> Locally, I've got a series of patches vs 2.6.5-rc3 + some -mm bits for
-> Andrew which I hope to post today, but might not make it until tomorrow.
+$SUBJECT ... (Probably known, but still..)
 
-Okay, CVS *is* against 2.6.4, but it says it is against 2.6.3. Okay to
-commit?
-								Pavel
-Index: README
-===================================================================
-RCS file: /cvsroot/kgdb/kgdb-2/README,v
-retrieving revision 1.5
-diff -u -u -r1.5 README
---- README	2 Mar 2004 11:10:36 -0000	1.5
-+++ README	31 Mar 2004 15:52:54 -0000
-@@ -1,4 +1,4 @@
--Base Kernel version: 2.6.3
-+Base Kernel version: 2.6.4
- 
- Patch:
- ------
-@@ -39,8 +39,8 @@
- Supply command line options kgdbwait and kgdb8250 to the kernel.
- Example:  kgdbwait kgdb8250=0,115200
- (for ttyS0), then
--   % stty 115200 < /dev/ttyS0
-    % gdb ./vmlinux
-+   (gdb) set remotebaud 115200
-    (gdb) target remote /dev/ttyS0
- 
- Example for kgdb ethernet interface
+It used to work properly with 2.4.25-pac1 / 25-pac1+26pre1.
 
+I first thought that I mismerged something from the 25-pac1
+tree into 26-rc1, but the pristine kernel doesn't seem to
+behave either.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+dmesg output attached. Can provide more info if necessary.
+Please CC me on replies.
+
+Regards;
+Özkan Sezer
+
+--------------010108020005040703000409
+Content-Type: application/x-gzip;
+ name="dmesg.out.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="dmesg.out.gz"
+
+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
+--------------010108020005040703000409--
+

@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129479AbRBGQe4>; Wed, 7 Feb 2001 11:34:56 -0500
+	id <S129026AbRBGQjQ>; Wed, 7 Feb 2001 11:39:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129538AbRBGQeh>; Wed, 7 Feb 2001 11:34:37 -0500
-Received: from web114.mail.yahoo.com ([205.180.60.86]:1810 "HELO
-	web114.yahoomail.com") by vger.kernel.org with SMTP
-	id <S129479AbRBGQee>; Wed, 7 Feb 2001 11:34:34 -0500
-Message-ID: <20010207163432.25823.qmail@web114.yahoomail.com>
-Date: Wed, 7 Feb 2001 08:34:32 -0800 (PST)
-From: Paul Powell <moloch16@yahoo.com>
-Subject: Ioctl CDROMRESET has no effect
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S129214AbRBGQjH>; Wed, 7 Feb 2001 11:39:07 -0500
+Received: from npt12056206.cts.com ([216.120.56.206]:63498 "HELO
+	forty.spoke.nols.com") by vger.kernel.org with SMTP
+	id <S129116AbRBGQi4>; Wed, 7 Feb 2001 11:38:56 -0500
+Date: Wed, 7 Feb 2001 08:38:54 -0800
+From: David Rees <dbr@spoke.nols.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+Message-ID: <20010207083854.F24270@spoke.nols.com>
+Mail-Followup-To: David Rees <dbr@spoke.nols.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+In-Reply-To: <3A813A63.EBD1B768@namesys.com> <420500000.981560829@tiny>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <420500000.981560829@tiny>; from mason@suse.com on Wed, Feb 07, 2001 at 10:47:09AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm attempting to reset a CDROM using the CDROMRESET
-ioctl.  The reset command only seems to reset the
-device if the device is not mounted.  If the device is
-mounted, the reset command seems to have no effect.
+On Wed, Feb 07, 2001 at 10:47:09AM -0500, Chris Mason wrote:
+> 
+> Ok, how about we list the known bugs:
+> 
+> zeros in log files, apparently only between bytes 2048 and 4096 (not
+> reproduced yet).
 
-With the device unmounted, sending the reset command
-causes the drive to become active and I see the
-activity light light up.  With the device mounted, the
-activity light does nothing.  I also can't open the
-CD-ROM drive using the eject button after resetting a
-mounted CD.
+Could this bug be related to the reported corruption that people with
+new VIA chipsets have been also reporting on ext2?  It seems similar
+because of the location of the corruption:
 
-It seems the reset command should work even if the OS
-thinks the device is mounted for error recovery.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=98147483712620&w=2
 
-Here is my test program:
+Anyway, it can't hurt to ask the bug reported if they're using a
+newer VIA chipset and see if they will upgrade their BIOS which seems
+to fix the problem.
 
-#include <stdio.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <linux/cdrom.h>
-
-int main(int argc, char* argv[])
-{
-   int fd, result;
-
-   fd = open("/dev/hda", O_RDONLY|O_NONBLOCK);
-   if (fd < 0)
-   {
-      perror("open");
-      return fd;
-   }   
-   
-   result = ioctl(fd, CDROMRESET, 1);
-   if (result < 0)
-      perror("ioctl");
-  
-   close(fd);
-   return 0;
-}
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - Buy the things you want at great prices.
-http://auctions.yahoo.com/
+-Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

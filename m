@@ -1,105 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265988AbUA2D6n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 22:58:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUA2D6m
+	id S265923AbUA2EX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 23:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUA2EX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 22:58:42 -0500
-Received: from post.tau.ac.il ([132.66.16.11]:28907 "EHLO post.tau.ac.il")
-	by vger.kernel.org with ESMTP id S265988AbUA2D6h (ORCPT
+	Wed, 28 Jan 2004 23:23:56 -0500
+Received: from gate.crashing.org ([63.228.1.57]:28902 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265923AbUA2EXz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 22:58:37 -0500
-Date: Thu, 29 Jan 2004 05:56:54 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Bart Samwel <bart@samwel.tk>
-Subject: [patch] backport commit=NNN mount option for reiserfs to 2.4
-Message-ID: <20040129035654.GA4052@luna.mooo.com>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>,
-	Bart Samwel <bart@samwel.tk>
+	Wed, 28 Jan 2004 23:23:55 -0500
+Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Hugang <hugang@soulinfo.com>
+Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
+In-Reply-To: <20040129100554.6453e6c8@localhost>
+References: <20040119105237.62a43f65@localhost>
+	 <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux>
+	 <1074490463.10595.16.camel@gaston> <1074534964.2505.6.camel@laptop-linux>
+	 <1074549790.10595.55.camel@gaston> <20040122211746.3ec1018c@localhost>
+	 <1074841973.974.217.camel@gaston> <20040123183030.02fd16d6@localhost>
+	 <1074912854.834.61.camel@gaston> <20040126181004.GB315@elf.ucw.cz>
+	 <1075154452.6191.91.camel@gaston> <1075156310.2072.1.camel@laptop-linux>
+	 <20040128202217.0a1f8222@localhost> <1075336478.30623.317.camel@gaston>
+	 <20040129100554.6453e6c8@localhost>
+Content-Type: text/plain
+Message-Id: <1075350214.1231.18.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="fdj2RfSjLxBAspz7"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.23.0.3; VDF: 6.23.0.51; host: localhost)
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 29 Jan 2004 15:23:34 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-01-29 at 13:05, Hugang wrote:
+> On Thu, 29 Jan 2004 11:34:53 +1100
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> 
+> > Ok, had a quick look. I  _HATE_ those horrible macros you did. Why
+> > not just call asm functions or just inline the code ?
+> 
+> Good idea, But will try inline first. I can't sure change to call asm
+> function can works. But I'll try.
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+As long as you make sure you save the LR in case you need it, you
+can call asm functions. macros are _evil_ :)
 
-I backported the commit=NNN mount option for reiserfs to 2.4 (the patch
-is against 2.4.25-pre7).
-This mount option allows to set the journal maximum age so that
-reiserfs would play nicely with laptop-mode.
-I did change the settings a bit so that setting commit=0 sets the
-journals maximum age to the default value so that the value can be
-switched between the default and a longer one when laptop-mode is
-activated (since if I am not mistaken the current value can't be
-extracted in user mode unless the reiserfs proc entry option is
-compiled in and thus this can't be done at the script level).
-This did take a bit of work since reiserfs stores this value on disk in
-the journal header which isn't kept in memory later. Thus the value
-needs to either be reread from disk when resetting to the default value
-or stored in memory with the current value.
-Each has its problems. I went with the first option since there seems
-to be disk activity anyway during remount, and this is non-intrusive
-on the current structures.
-This is instead of the current implementation that ext3 uses for
-laptop-mode (there is no such implementation for reiserfs in 2.4),
-which after looking at the code may be a bit less intrusive but is more
-of a hack (and it does tramp over the existing commit=NNN mount option
-in ext3 BTW).
-Any comments are welcome.
+Also, you can remove the code playing with BATs for now, they don't
+really need to be saved. If the boot kernel sets them up any differently
+than the saved kernel, we are in trouble anyway. And the G5 has no BATs.
 
---fdj2RfSjLxBAspz7
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="reiserfs-commit_max_age-mount_option-2.4.25.diff.bz2"
-Content-Transfer-Encoding: base64
+Ben.
 
-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
 
---fdj2RfSjLxBAspz7--

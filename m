@@ -1,116 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262357AbTIOKVH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 06:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbTIOKVH
+	id S262467AbTIOKaM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 06:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbTIOKaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 06:21:07 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:21475 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262357AbTIOKVA (ORCPT
+	Mon, 15 Sep 2003 06:30:12 -0400
+Received: from main.gmane.org ([80.91.224.249]:52667 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262467AbTIOKaJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 06:21:00 -0400
-Date: Mon, 15 Sep 2003 15:51:28 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: mochel@osdl.org
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: [PATCH 2.6] sysfs_remove_dir
-Message-ID: <20030915102127.GA1387@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Mon, 15 Sep 2003 06:30:09 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Adam Jones <adam@yggdrasl.demon.co.uk>
+Subject: Re: SII SATA request size limit
+Date: 15 Sep 2003 10:12:47 GMT
+Organization: none
+Message-ID: <bk43av$cp6$1%proserpine.haus@yggdrasl.demon.co.uk>
+References: <200309112357.41592.eu@marcelopenna.org> <1063363288.5330.1.camel@dhcp23.swansea.linux.org.uk> <200309121946.31810.adasi@kernel.pl>
+X-Complaints-To: usenet@sea.gmane.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In a futile gesture against entropy, Witold Krecicki wrote:
 
-Hi Pat,
+> I've lost some of mails about siimage on LKML, but Im' getting more and more 
+> confused about 'hangs' probably caused by siimage driver. I was using 15 
+> rqsize, now 128 - doesn't matter. It happens in random moments - sometimes at 
+> boot time when drive is fscked, sometimes when I'm trying to copy large 
+> amount of data and sometimes without any particular reason after several 
+> hours.
 
-sysfs_remove_dir() does not remove the contents of subdirs corresponding
-to the attribute groups of a kobject. The following patch fixes this by first
-removing the subdir contents and then removing thus emptied subdirs along
-with the other attribute files of the kobject and plugs the memory
-leakage resulting from orphan dentries.
+Out of interest, do you have some sort of SCSI controller in your
+system as well?  I've got a SiI3112 card and I get a hard lock-up pretty
+much as soon as anything touches the SCSI bus on my aic7xxx card.
+Disabling DMA on the SiI IDE channel seems to work around it, at the
+cost of a lot of performance... (this is on stock 2.4.22, BTW)
 
-I tested it by inserting and removing "dummy.o" network module and verifying
-that dentires corresponding to "statistics" attribute group are removed.
-
-Please comment.
-
-Thanks
-Maneesh
-
-
-
- o sysfs_remove_dir() has to remove the files in the subdirs (corresponding
-   to the attribute groups) and then remove such empty subdirs along with the 
-   other attribute files for the given kobject. The following patch does this
-   assuming that there are/will be no attribute sub-groups.
-
-
- fs/sysfs/dir.c |   22 +++++++++++++++++-----
- 1 files changed, 17 insertions(+), 5 deletions(-)
-
-diff -puN fs/sysfs/dir.c~sysfs_remove_dir-fix fs/sysfs/dir.c
---- linux-2.6.0-test5-mm2/fs/sysfs/dir.c~sysfs_remove_dir-fix	2003-09-15 15:08:45.000000000 +0530
-+++ linux-2.6.0-test5-mm2-maneesh/fs/sysfs/dir.c	2003-09-15 15:26:04.000000000 +0530
-@@ -119,23 +119,30 @@ void sysfs_remove_dir(struct kobject * k
- {
- 	struct list_head * node;
- 	struct dentry * dentry = dget(kobj->dentry);
-+	struct dentry * parent;
- 
- 	if (!dentry)
- 		return;
- 
- 	pr_debug("sysfs %s: removing dir\n",dentry->d_name.name);
--	down(&dentry->d_inode->i_sem);
- 
-+	parent = dentry;
-+	down(&parent->d_inode->i_sem);
- 	spin_lock(&dcache_lock);
--	node = dentry->d_subdirs.next;
--	while (node != &dentry->d_subdirs) {
--		struct dentry * d = list_entry(node,struct dentry,d_child);
-+repeat:
-+	node = parent->d_subdirs.next;
-+	while (node != &parent->d_subdirs) {
-+		struct dentry * d = list_entry(node, struct dentry, d_child);
- 		list_del_init(node);
- 
- 		pr_debug(" o %s (%d): ",d->d_name.name,atomic_read(&d->d_count));
- 		if (d->d_inode) {
- 			d = dget_locked(d);
- 			pr_debug("removing");
-+			if (!list_empty(&d->d_subdirs)) {
-+				parent = d;
-+				goto repeat;
-+			}
- 
- 			/**
- 			 * Unlink and unhash.
-@@ -147,7 +154,12 @@ void sysfs_remove_dir(struct kobject * k
- 			spin_lock(&dcache_lock);
- 		}
- 		pr_debug(" done\n");
--		node = dentry->d_subdirs.next;
-+		node = parent->d_subdirs.next;
-+	}
-+
-+	if (!list_empty(&dentry->d_subdirs)) {
-+		parent = dentry;
-+		goto repeat;
- 	}
- 	list_del_init(&dentry->d_child);
- 	spin_unlock(&dcache_lock);
-
-_
-
+Setting rqsize to 128 seems perfectly stable for me - my drive reports
+itself as a ST380013AS (Seagate Barracuda 7200.7 SATA 80GB).
 -- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696
+Adam Jones (adam@yggdrasl.demon.co.uk)(http://www.yggdrasl.demon.co.uk/)
+.oO("Ja voll, Herr General."                                           )
+PGP public key: http://www.yggdrasl.demon.co.uk/pubkey.asc
+

@@ -1,253 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318032AbSIOMgp>; Sun, 15 Sep 2002 08:36:45 -0400
+	id <S318035AbSIONOs>; Sun, 15 Sep 2002 09:14:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318033AbSIOMgp>; Sun, 15 Sep 2002 08:36:45 -0400
-Received: from [61.183.85.240] ([61.183.85.240]:24581 "ehlo 21cn.com")
-	by vger.kernel.org with ESMTP id <S318032AbSIOMgm>;
-	Sun, 15 Sep 2002 08:36:42 -0400
-From: "Xin Feng" <koyia@21cn.com>
-Subject: cheapest high quality battery from china
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="US-ASCII"
-Reply-To: koyia@21cn.com
-Date: Sun, 15 Sep 2002 20:39:37 +0800
-X-Priority: 3
-X-Mailer: Foxmail 4.2 [cn]
-Message-Id: <20020915123642Z318032-685+48740@vger.kernel.org>
+	id <S318038AbSIONOs>; Sun, 15 Sep 2002 09:14:48 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:28585 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S318035AbSIONOr>;
+	Sun, 15 Sep 2002 09:14:47 -0400
+Date: Sun, 15 Sep 2002 15:19:20 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
+Subject: Re: [2.5] DAC960
+Message-ID: <20020915131920.GR935@suse.de>
+References: <E17odbY-000BHv-00@f1.mail.ru> <20020910062030.GL8719@suse.de> <E17qQum-0001qO-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E17qQum-0001qO-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir 
+On Sun, Sep 15 2002, Daniel Phillips wrote:
+> On Tuesday 10 September 2002 08:20, Jens Axboe wrote:
+> > On Tue, Sep 10 2002, Samium Gromoff wrote:
+> > >       Hello folks, i`m looking at the DAC960 driver and i have
+> > > realised its implemented at the block layer, bypassing SCSI.
+> > > 
+> > >    So given i have some motivation to have a working 2.5 DAC960
+> > > driver (i have one, being my only controller)
+> > > i`m kinda pondering the matter.
+> > > 
+> > >    Questions:
+> > >        1. Whether we need the thing to be ported to SCSI
+> > > layer, as opposed to leaving it being a generic block device? (i suppose yes)
+> > 
+> > No
+> 
+> A somewhat curt reply, it could be seen as a brush-off.  I believe the
+> whole story goes something like this: the scsi system is a festering
+> sore on the whole and eventually needs to be rationalized.  But until
+> that happens, we should basically just keep nursing along the various
+> drivers that should be using a generic interface, until there really
+> is a generic interface around worth putting in the effort to port to.
 
-I am the sales manager of WUHAN LIXING(TORCH)POWER SOURCES CO., LTD located in China. We are a professional lithium battery manufacturer with 10 years experiences in China,offering over 100 various kinds of lithium battery products(prismatic,cylindrical like CR123A and ER14505,button type battery like CR2032,LIR2450 ) and monthly output up to 5-8 million pieces. 
+Please, the scsi sub system is not a 'festering sore'. Have you even
+taken a decent look at it, or just spreading the usual "I heard SCSI
+dizzed somwhere" fud? Sure there's room for improvement, 2.5 has in fact
+already gotten quite a lot. It's not perfect and there's still stuff
+that can be cleaned up, but that doesn't mean it's crap.
 
-And we are the No.1 lithium coin battery in China even Asia. We export 5000k pc Lithium Coin Battery to most of Taiwan mainboard manufacturors(Asus,KTS etc) per month which exceeded our Japanese competitors like Panasonic,Maxell. We are the best manufacturer that you can trust in China. We believe our products could help your products more competitive whether on quality and price.
+> Linus indicated at the Kernel Summit that he'd like to see a
+> cleaned-up scsi midlayer used as framework for *all* disk IO,
+> including IDE.  Obviously, what with IDE transitions and whatnot, we
+> are far from being ready to attempt that, so see "nursing along"
+> above.  There's no longer any chance that a generic disk midlayer is
+> going to happen in this cycle, as far as I can see.  Still, anybody
+> who is interested would do well by studing the issues, and fixing
+> broken drivers certainly qualifies as a way to come up to speed.
 
-And we also have ability to produce custom-made battery pack for down-size portable products like PDA,GPS,Portable Instrument.
+First of all, I believe Linus' plan is to push more functionality into
+the block layer. Generic functionality. And in fact a lot of has already
+happened there, but one does need to pay attention to that sort of thing
+instead of just assuming spouting fud. Examples:
 
-We have pleasure in introducing these batteries for you as follows: 
+	- queue merge and dma mappings. this is all generic block/bio
+	  functionality now. please compare scsi_merge.c between 2.4 and
+	  2.5, if you care to.
 
-- Prismatic Lithium Ion Battery series(for mobile phone battery pack.) 
-there are dozens of models prismatic lithium ion cells.It has a wide capacity range which is from 450mAh to 2200mAh. The details is in our webpage: 
-http://www.lisun.com/noflash/english/pl.htm 
-The following are most pop prismatic models: 
+	- highmem bounceless operation also added the possibilty to do
+	  isa bouncing generically in 2.5. this is also gone from scsi.
 
-Model:LIS063048(750mAh)
-Price: FOB WUHAN USD $0.80,Min Order Qty:5k,Delivery Time:15 days after the
-receipt of L/C or T/T.
+	- request tagging. 2.5 has a generic implementation, scsi
+	  transition is not complete though.
 
+that's just off the top of my head.
 
-Model:LIS053048(600mA)
-Price: FOB WUHAN USD $0.80,Min Order Qty:5k,Delivery Time:15 days after the
-receipt of L/C or T/T.
+So where am I going with this? I said "don't bother" to the question of
+studying SCSI code, and I stand by that 100%. It would be an absolute
+_waste of time_ if the goal is to make dac960 work in 2.5. I believe why
+should be pretty obvious now.
 
-Model:LIS063448(800mAh)
-Price: FOB WUHAN USD $0.85,Min Order Qty:5k,Delivery Time:15 days after the
-receipt of L/C or T/T.
+Daniel, your (seen before) 'clarification' posts are not.
 
-Model:LIS063465(1100mAh)
-Price: FOB WUHAN USD $0.90,Min Order Qty:5k,Delivery Time:15 days after the
-receipt of L/C or T/T.
+> > >        2. Which 2.5 SCSI driver should i use as a start of learning?
+> > 
+> > Don't bother
+> 
+> Ah, a little harsh.  I'd say: study the DAC960 driver, study the
+> scsi midlayer, and study the new bio interface.  That's what I'm
+> doing.
 
-Model:LIS1324248(2200mAh)
-Capacity:2200mAh
-Price: FOB WUHAN USD $3.6,Min Order Qty:5k,Delivery Time:15 days after the
-receipt of L/C or T/T.
+My advise is: take a look at the transition of other drivers, forget
+scsi. Study of bio goes hand in hand with learning from transition of
+other drivers. And note that a reasonable update of dac960 should remove
+3x as much code as it adds, at least.
 
------------------------------- 
-- Lithium Ion battery pack series(for PDA, GPS, Camera, Portable Devices) 
-Our Lithium Ion battery packs are custom-made products. We call it "soft pack" and we provide it on the demands of each customer. We have our electric engineering department to work for customer's special demands especially in the field of battery pack for CAMERA\GPS\PDA. We have long-term cooperation relationship with some famous companies by supplying them with customized service like Legend,Asus,KTS. 
-In order to have you understand what is our soft pack, I attached some pictures of our soft packs. I hope it will be helpful. 
-With regard to the price of our soft pack, we usually fix the price according to the concrete design demands. We don't have a existing price list. But I could give you one example which we provide for another customer: 
+I can only note that so far there has been a lot of talk about dac960
+and updating it, and that's about it. Talk/code ratio is very very low,
+I'm tempted to just do the update myself. Might even safe some time.
 
-Model:LIS1324248IIS 
-Voltage:7.2V 
-Capacity:2200mAh 
-Size(mm): 27X47X53 
-FOB Wuhan,Order Qty:5000,Price:USD17.3/pc for battery(include charger),Delivery Time:20-30 days after the receipt of L/C or T/T. 
+-- 
+Jens Axboe
 
------------------------------ 
-- Lithium Cylindrical Battery series(for instrument, without replacement in 10 years) 
-
-Model:CR123A
-Nominal capacity:1200mAh(Continuously discharged under 10mA current till 2.0V) end-voltage at the temperature of 23 C degree) 
-900mAh(Continuously discharged under 1000mA current till 2.0V end-voltage at the temperature of 23  C degree) 
-1100mAh(Continuously discharged under 50mA current till 2.0V end-voltage at the temperature of 23 C degree) 
-1200mAh(Continuously discharged under 20mA current till 2.0V end-voltage at the temperature of 23 C degree) 
-Discharge current:Max Constant current:1500mA 
-Max pulse current:3000mA 
-Nominal weight:16g 
-Temperature characteristic 
-Operating temperature range:-40 C degree-- +60 C degree
-Price: FOB WUHAN USD $0.65,Min Order Qty:5k,Delivery Time:20 days after the receipt of L/C or T/T. 
-
-CR 2 
-FOB WUHAN USD $0.63,Min Order Qty:5k,Delivery Time:20 days after the receipt of L/C or T/T.
-
-CRP 2
-FOB WUHAN USD $1.5,Min Order Qty:3kDelivery Time:20 days after the receipt of L/C or T/T.
-
-2CR 5
-FOB WUHAN USD $1.5,Min Order Qty:3kDelivery Time:20 days after the receipt of L/C or T/T.
-
-2CR 5
-FOB WUHAN USD $1.5,Min Order Qty:3kDelivery Time:20 days after the receipt of L/C or T/T. 
-
-Model:ER14335 
-Normal capacity(1mA--2V)---1.45Ah 
-Rated voltage--------------3.6v 
-Max constant current-------50mA 
-Pulse current--------------100mA 
-Weight---------------------12g 
-Volume---------------------5.7cm3 
-Size(mm)-------------------14.5(D)X33.5(H) 
-Operating temperature----- -55 C degree -- +85 C degree 
-FOB WUHAN USD $1.20,Min Order Qty:5k,Delivery Time:20 days after the receipt of L/C or T/T. 
-
-Model:ER14250 
-Normal capacity(4mA--2V)---0.9Ah 
-Rated voltage--------------3.6v 
-Max constant current-------50mA 
-Pulse current--------------100mA 
-Weight---------------------10g 
-Volume---------------------4.3cm3 
-Size(mm)-------------------14.5(D)X25.0(H) 
-Operating temperature----- -55 C degree -- +85 C degree 
-FOB Wuhan USD0.98,Min Order Qty:10k,Delivery Time:20 days after the receipt of L/C or T/T. 
-
-
-Model:ER14505 
-Normal capacity(2mA--2V)---2.0Ah 
-Rated voltage--------------3.6v 
-Max constant current-------100mA 
-Pulse current--------------200mA 
-Weight---------------------19g 
-Volume---------------------8cm3 
-Size(mm)-------------------14.5(D)X50.5(H) 
-Operating temperature----- -55 C degree -- +85 C degree 
-FOB Wuhan USD1.25,Min Order Qty:10k,Delivery Time:20 days after the receipt of L/C or T/T. 
-
-Model:ER14505M(High-power) 
-Normal capacity(1mA--2v)---1.9Ah 
-Rated voltage--------------3.6v 
-Max constant current-------1000mA 
-Pulse current--------------1500mA 
-Weight---------------------19g 
-Volume---------------------8cm3 
-Size(mm)-------------------14.5(D)X50.5(H) 
-Operating temperature----- -55 C degree -- +70 C degree 
-
-Model:ER14505S(High-temperature) 
-Normal capacity(100mA--2v)---1.6Ah 
-Rated voltage--------------3.6v 
-Max constant current-------100mA 
-Pulse current--------------200mA 
-Weight---------------------19g 
-Volume---------------------8cm3 
-Size(mm)-------------------14.5(D)X50.5(H) 
-Operating temperature----- 0 C degree -- +150 C degree 
-
-Model:ER26500 
-Normal capacity(1mA--2V)---1.45Ah 
-Rated voltage--------------3.6v 
-Max constant current-------50mA 
-Pulse current--------------100mA 
-Weight---------------------12g 
-Volume---------------------5.7cm3 
-Size(mm)-------------------14.5(D)X33.5(H) 
-Operating temperature----- -55 C degree -- +85 C degree 
-FOB WUHAN USD 2.95,Min Order Qty:5k,Delivery Time:20 days after the receipt of L/C or T/T. 
-
-Model:ER34615 
-Normal capacity(2mA--2V)---13Ah 
-Rated voltage--------------3.6v 
-Max constant current-------230mA 
-Pulse current--------------500mA 
-Weight---------------------100g 
-Volume---------------------51cm3 
-Size(mm)-------------------34.2(D)X61.5(H) 
-Operating temperature----- -55 C degree -- +85 C degree 
-FOB WUHAN USD $4.3,Min Order Qty:5k,Delivery Time:20 days after the receipt of L/C or T/T. 
-
---------------------------------
-Lithium Primary Button Cells(3V,high capacity)
-
-CR2016
-FOB WUHAN USD $0.055,Min Order Qty:5k,Delivery Time:15 days after the receipt of L/C or T/T.
-
-CR2025
-FOB WUHAN USD $0.055,Min Order Qty:5k,Delivery Time:15 days after the receipt of L/C or T/T.
-
-CR2032
-FOB WUHAN USD $0.055,Min Order Qty:5k,Delivery Time:15 days after the receipt of L/C or T/T.
-
-CR1620
-FOB WUHAN USD $0.06,Min Order Qty:5k,Delivery Time:15 days after the receipt of L/C or T/T.
-
-CR1220
-FOB WUHAN USD $0.06,Min Order Qty:5k,Delivery Time:15 days after the receipt of L/C or T/T.
-
-CR1216
-FOB WUHAN USD $0.06,Min Order Qty:5k,Delivery Time:15 days after the receipt of L/C or T/T.
-
-CR2450
-FOB WUHAN USD $0.135,Min Order Qty:5k,Delivery Time:15 days after the receipt of L/C or T/T.
-
-CR2430
-FOB WUHAN USD $0.125,Min Order Qty:5k,Delivery Time:15 days after the receipt of L/C or T/T.
-
--------------------------------- 
-- Lithium Ion Rechargeable Button-Type Battery series (for wireless earphone especially designed for bluetooth technology). 
-Model:LIR2450 
-Normal capacity -----------80mAh 
-Rated voltage--------------3.6v 
-Size(mm)-------------------24.5(D)X5.4(H) 
-Operating temperature----- -20 C degree -- +60 C degree
-Price: FOB WUHAN USD $0.8,Min Order Qty:5k,Delivery Time:20 days after the receipt of L/C or T/T. 
-
-Model:LIR2450II 
-Normal capacity -----------110mAh 
-Rated voltage--------------3.6v 
-Size(mm)-------------------24.5(D)X5.4(H) 
-Operating temperature----- -20 C degree -- +60 C degree
-Price: FOB WUHAN USD $0.9,Min Order Qty:5k,Delivery Time:20 days after the receipt of L/C or T/T. 
-
-Model:LIR2450III 
-Normal capacity -----------130mAh 
-Rated voltage--------------3.6v 
-Size(mm)-------------------24.5(D)X5.4(H) 
-Operating temperature----- -20 C degree -- +60 C degree
-
-Model #: LIS631116 - 3.7V Lithium Batteries w/High Energy Density(for wireless earphone especially for bluetooth earphone).  
-Model:LIS063048 
-Capacity:80mAh 
-Voltage:3.7V 
-Size(mm):6.3x11x16
-Price: FOB WUHAN USD $0.85,Min Order Qty:5k,Delivery Time:15 days after the receipt of L/C or T/T.
-
-
-If you want to get more information about our products,please take a look at our official website. 
-
-Our website address is: 
-
-http://www.lisun.com 
-
-And another website is also available at Globalresources website: 
-
-http://www.globalsources.com/lisun.co 
-
-If you have any questions,don't hesitate to contact us. We hope we will do business in the near future. 
-
-I look forward to hearing from you soon.
-
-Thanks for your support! 
-
-Best Regards 
-Xin Feng 
-Wuhan Lixing Power Sources Co.,Ltd 
-7th Block GuanDong Sciences Industries Park,Wuhan,PRC 
-tel:86-027-87561816 
-fax:86-027-87531810 
-mobile:86-13825232773  
-email:koyia@21cn.com

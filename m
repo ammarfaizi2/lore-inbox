@@ -1,47 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313927AbSDJX2D>; Wed, 10 Apr 2002 19:28:03 -0400
+	id <S313928AbSDJXdO>; Wed, 10 Apr 2002 19:33:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313930AbSDJX2C>; Wed, 10 Apr 2002 19:28:02 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:13838 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S313927AbSDJX2C>;
-	Wed, 10 Apr 2002 19:28:02 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.7 and runaway modprobe loop? 
-In-Reply-To: Your message of "Wed, 10 Apr 2002 11:00:49 MST."
-             <Pine.LNX.4.33L2.0204101059130.25409-100000@dragon.pdx.osdl.net> 
-Mime-Version: 1.0
+	id <S313929AbSDJXdN>; Wed, 10 Apr 2002 19:33:13 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:14863 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S313928AbSDJXdM>; Wed, 10 Apr 2002 19:33:12 -0400
+Message-ID: <3CB4BD2F.B711556D@zip.com.au>
+Date: Wed, 10 Apr 2002 15:31:11 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [prepatch] address_space-based writeback
+In-Reply-To: <3CB4B248.2807558D@zip.com.au> <5.1.0.14.2.20020410235415.03d41d00@pop.cus.cam.ac.uk>
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 11 Apr 2002 09:27:51 +1000
-Message-ID: <9964.1018481271@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Apr 2002 11:00:49 -0700 (PDT), 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->| On Tue, 9 Apr 2002 09:17:08 -0700 (PDT),
->| "Randy.Dunlap" <rddunlap@osdl.org> wrote:
->| >If I build/boot 2.5.7 with 64 GB support (with or without
->| >high_pte), I get:
->| >
->| >Freeing unused kernel memory: 448k freed
->| >INIT: version 2.78 booting
->| >kmod: runaway modprobe loop assumed and stopped
->| >
->| >If I build/boot it with 4 GB support, it boots fine.
->
->I added module_name to the runaway message (OK ?) and its
->answer is binfmt-0000.
->
->I also moved from 2.5.7 to 2.5.8-pre2 and don't have this
->problem.
+Anton Altaparmakov wrote:
+> 
+> At 22:44 10/04/02, Andrew Morton wrote:
+> >When a page is marked dirty, the path which is followed
+> >is page->mapping->host->i_sb.  So in this case the page will
+> >be attached to its page->mapping.dirty_pages, and
+> >page->mapping->host will be attached to page->mapping->host->i_sb.s_dirty
+> >
+> >This is as it always was - I didn't change any of this.
+> 
+> Um, NTFS uses address spaces for things where ->host is not an inode at all
+> so doing host->i_sb will give you god knows what but certainly not a super
+> block!
 
-Interesting.  The binfmt-0000 implies that search_binary_handler() is
-reading garbage for the executable.  It tries to load a handler for
-binfmt-0000 which tries to execute modprobe which hits the same bug.
-At a guess, the executable binary is not being mapped correctly with
-64GB support.
+But it's a `struct inode *' :(
 
+What happens when someone runs set_page_dirty against one of
+the address_space's pages?  I guess that doesn't happen, because
+it would explode.  Do these address_spaces not support writable
+mappings?
+
+I like to think in terms of "top down" and "bottom up".
+
+set_page_dirty is the core "bottom up" function which propagates
+dirtiness information from the bottom of the superblock/inode/page
+tree up to the top.
+
+writeback is top-down.  It goes from the superblock list down
+to pages.
+
+The assumption about page->mapping->host being an inode
+only occurs in the bottom-up path, at set_page_dirty().
+
+> As long as your patches don't break that is possible to have I am happy...
+> But from what you are saying above I have a bad feeling you are somehow
+> assuming that a mapping's host is an inode...
+
+Well the default implementation of __set_page_dirty() will
+make that assumption.  (It always has).
+
+But the address_space may implement its own a_ops->set_page_dirty(page),
+so you can do whatever you need to do there, yes?
+
+I currently have:
+
+static inline int set_page_dirty(struct page *page)
+{
+        if (page->mapping) {
+                int (*spd)(struct page *, int reserve_page);
+
+                spd = page->mapping->a_ops->set_page_dirty;
+                if (spd)
+                        return (*spd)(page, 1);
+        }
+        return __set_page_dirty_buffers(page, 1);
+}
+
+Where __set_page_dirty_buffers() will dirty the buffers if
+they exist.  And non-buffer_head-backed filesystems which
+use page->private MUST implement set_page_dirty().
+
+The reserve_page stuff is for delayed-allocate, the priority
+and timing of which has been pushed waaay back by this.  I'm
+keeping the reserve_page infrastructure around at present
+because of vague thoughts that it may be useful to fix the
+data-loss bug which occurs when a shared mapping of a sparse
+file has insufficient disk space to satisfy new page instantiations.
+Dunno yet.
+
+(Sometime I need to go through and spell out all the new a_ops
+methods in all the filesystems, and take out the fall-through-
+to-default-handler stuff here, and in do_flushpage() and
+try_to_release_page() and others.  But not now).
+
+
+-

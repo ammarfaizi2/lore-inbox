@@ -1,33 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143934AbRAHPIJ>; Mon, 8 Jan 2001 10:08:09 -0500
+	id <S143672AbRAHPTM>; Mon, 8 Jan 2001 10:19:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143953AbRAHPH7>; Mon, 8 Jan 2001 10:07:59 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18949 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S143934AbRAHPHq>; Mon, 8 Jan 2001 10:07:46 -0500
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-To: viro@math.psu.edu (Alexander Viro)
-Date: Mon, 8 Jan 2001 15:09:01 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        stefan@hello-penguin.com (Stefan Traby), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0101080941430.4061-100000@weyl.math.psu.edu> from "Alexander Viro" at Jan 08, 2001 09:52:20 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Fduy-0004jm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S143866AbRAHPTD>; Mon, 8 Jan 2001 10:19:03 -0500
+Received: from ns.caldera.de ([212.34.180.1]:44552 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S143672AbRAHPSw>;
+	Mon, 8 Jan 2001 10:18:52 -0500
+Date: Mon, 8 Jan 2001 16:18:44 +0100
+Message-Id: <200101081518.QAA01381@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: mlsoft@videotron.ca (Martin Laberge)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 - sndstat not present
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <3A59CD57.6FA72934@videotron.ca>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Which happens to be remarkably ugly. And it will not get better tomoorow...
+In article <3A59CD57.6FA72934@videotron.ca> you wrote:
+> i installed 2.4.0 last week and all worked well on my amd-K6-350
+> i use a cheap sound card since 2.0.36 and it always worked well too.
+> it work well now in 2.4.0, BUT , /dev/sndstat report me <no such file or
+> directory>
+> and /proc/sound (as noted in documentation) does not exist...
 
-Its really only ugly in one way which is that you pass an int for the item
-rather than having a struct of all the data
+Please read Documentation/sound/NEWS.
+Where in the documentation is /proc/sound still noted?
 
-Alan
+> the sound work well, but i cant verify the existence of the driver with
+> sndstat anymore
+>
+> could someone tell me if i should have done some additionnal
+> configuration to see
+> appear the /proc/sound or to enable /dev/sndstat...
 
+No - it's simply gone.
+
+> maybe is it another method now in 2.4 to see the sound status...
+
+cat foo.au > /dev/audio
+
+> Best Wishes to all of you for the new year...
+
+	Christoph
+
+-- 
+Whip me.  Beat me.  Make me maintain AIX.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,188 +1,335 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266959AbTBQIIu>; Mon, 17 Feb 2003 03:08:50 -0500
+	id <S266938AbTBQIIv>; Mon, 17 Feb 2003 03:08:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266938AbTBQIIj>; Mon, 17 Feb 2003 03:08:39 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:32158
+	id <S266962AbTBQIIX>; Mon, 17 Feb 2003 03:08:23 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:33182
 	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S266959AbTBQIFz>; Mon, 17 Feb 2003 03:05:55 -0500
-Date: Mon, 17 Feb 2003 03:14:33 -0500 (EST)
+	id <S266938AbTBQIGB>; Mon, 17 Feb 2003 03:06:01 -0500
+Date: Mon, 17 Feb 2003 03:14:08 -0500 (EST)
 From: Zwane Mwaikambo <zwane@holomorphy.com>
 X-X-Sender: zwane@montezuma.mastecende.com
 To: Linux Kernel <linux-kernel@vger.kernel.org>
 cc: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH][2.5][4/5] CPU Hotplug mm/
-Message-ID: <Pine.LNX.4.50.0302170306420.18087-100000@montezuma.mastecende.com>
+Subject: [PATCH][2.5][2/5] CPU Hotplug i386 core
+Message-ID: <Pine.LNX.4.50.0302170304330.18087-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- slab.c   |   39 +++++++++++++++++++++++++++++++++++++++
- vmscan.c |   44 ++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 83 insertions(+)
+ arch/i386/kernel/irq.c     |   18 ++++++++++++
+ arch/i386/kernel/process.c |   39 ++++++++++++++++++++++++++-
+ arch/i386/kernel/smp.c     |   18 ++++++++++--
+ arch/i386/kernel/smpboot.c |   63 ++++++++++++++++++++++++++++++++++++++++++---
+ include/asm-i386/smp.h     |    4 ++
+ 5 files changed, 133 insertions(+), 9 deletions(-)
 
-Index: linux-2.5.61-trojan/mm/slab.c
+Index: linux-2.5.61-trojan/include/asm-i386/smp.h
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.61/mm/slab.c,v
+RCS file: /build/cvsroot/linux-2.5.61/include/asm-i386/smp.h,v
 retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 slab.c
---- linux-2.5.61-trojan/mm/slab.c	15 Feb 2003 12:32:45 -0000	1.1.1.1
-+++ linux-2.5.61-trojan/mm/slab.c	17 Feb 2003 05:32:26 -0000
-@@ -464,6 +464,7 @@
- } g_cpucache_up;
- 
- static struct timer_list reap_timers[NR_CPUS];
-+static unsigned long stop_reap_timer_mask;
- 
- static void reap_timer_fnc(unsigned long data);
- 
-@@ -523,10 +524,20 @@
- 		init_timer(rt);
- 		rt->expires = jiffies + HZ + 3*cpu;
- 		rt->function = reap_timer_fnc;
-+		clear_bit(cpu, &stop_reap_timer_mask);
- 		add_timer_on(rt, cpu);
- 	}
+diff -u -r1.1.1.1 smp.h
+--- linux-2.5.61-trojan/include/asm-i386/smp.h	15 Feb 2003 12:32:04 -0000	1.1.1.1
++++ linux-2.5.61-trojan/include/asm-i386/smp.h	15 Feb 2003 19:31:05 -0000
+@@ -100,6 +100,10 @@
  }
  
-+static void stop_cpu_timer(int cpu)
+ #endif
++
++extern int __cpu_disable(void);
++extern void __cpu_die(unsigned int cpu);
++
+ #endif /* !__ASSEMBLY__ */
+ 
+ #define NO_PROC_ID		0xFF		/* No processor magic marker */
+Index: linux-2.5.61-trojan/arch/i386/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.61/arch/i386/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.61-trojan/arch/i386/kernel/irq.c	15 Feb 2003 12:32:09 -0000	1.1.1.1
++++ linux-2.5.61-trojan/arch/i386/kernel/irq.c	15 Feb 2003 21:23:09 -0000
+@@ -870,6 +870,24 @@
+ 	return full_count;
+ }
+ 
++void migrate_irqs_from(unsigned int cpu)
 +{
-+	struct timer_list *rt = &reap_timers[cpu];
++	unsigned long mask = cpu_online_map & ~(1UL << cpu);
++	unsigned int irq;
 +
-+	set_bit(cpu, &stop_reap_timer_mask);
-+	while (rt->function)
-+		cpu_relax();
-+}
++	for (irq = 0; irq < NR_IRQS; irq++) {
++		if (!irq_desc[irq].handler->set_affinity)
++			continue;
 +
- /*
-  * Note: if someone calls kmem_cache_alloc() on the new
-  * cpu before the cpuup callback had a chance to allocate
-@@ -583,6 +594,26 @@
- 		}
- 		up(&cache_chain_sem);
- 		break;
-+	case CPU_OFFLINE:
-+		stop_cpu_timer(cpu);
-+		break;
-+
-+	case CPU_DEAD:
-+		down(&cache_chain_sem);
-+		list_for_each(p, &cache_chain) {
-+			struct array_cache *nc;
-+
-+			kmem_cache_t* cachep = list_entry(p, kmem_cache_t, next);
-+			spin_lock_irq(&cachep->spinlock);
-+			nc = cachep->array[cpu];
-+			cachep->array[cpu] = NULL;
-+			cachep->free_limit = (num_online_cpus())*cachep->batchcount
-+						+ cachep->num;
-+			kfree(nc);
-+			spin_unlock_irq(&cachep->spinlock);
++		irq_affinity[irq] &= mask;
++		if (irq_affinity[irq] == 0) {
++			irq_affinity[irq] = mask;
++			printk(KERN_INFO "dying cpu%d has irq%d affined to it, setting to %lx\n",
++				cpu, irq, mask);
 +		}
-+		up(&cache_chain_sem);
-+		break;
- 	}
- 	return NOTIFY_OK;
- bad:
-@@ -1235,6 +1266,9 @@
- 	}
- 	{
- 		int i;
-+		/* no cpu_online check required here since we clear the percpu
-+		 * array on cpu offline and set this to NULL.
-+		 */
- 		for (i = 0; i < NR_CPUS; i++)
- 			kfree(cachep->array[i]);
- 		/* NUMA: free the list3 structures */
-@@ -2183,6 +2217,11 @@
- 	int cpu = smp_processor_id();
- 	struct timer_list *rt = &reap_timers[cpu];
- 
-+	if (unlikely(test_bit(cpu, &stop_reap_timer_mask))) {
-+		del_timer(rt);
-+		rt->function = NULL;
-+		return;
++		irq_desc[irq].handler->set_affinity(irq, mask);
 +	}
- 	cache_reap();
- 	mod_timer(rt, jiffies + REAPTIMEOUT_CPUC + cpu);
- }
-Index: linux-2.5.61-trojan/mm/vmscan.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.61/mm/vmscan.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 vmscan.c
---- linux-2.5.61-trojan/mm/vmscan.c	15 Feb 2003 12:32:45 -0000	1.1.1.1
-+++ linux-2.5.61-trojan/mm/vmscan.c	17 Feb 2003 06:47:05 -0000
-@@ -27,6 +27,7 @@
- #include <linux/pagevec.h>
- #include <linux/backing-dev.h>
- #include <linux/rmap-locking.h>
-+#include <linux/notifier.h>
- 
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
-@@ -931,6 +932,7 @@
- 	daemonize("kswapd%d", pgdat->node_id);
- 	set_cpus_allowed(tsk, node_to_cpumask(pgdat->node_id));
- 	
-+	printk("Set %s affinity to %08lX\n", tsk->comm, tsk->cpus_allowed);
- 	/*
- 	 * Tell the memory management that we're a "memory allocator",
- 	 * and that if we need more memory we should get access to it
-@@ -996,6 +998,47 @@
- }
++}
  #endif
  
-+/* It's optimal to keep kswapds on the same CPUs as their memory, but
-+   not required for correctness.  So if the last cpu in a node goes
-+   away, let them run anywhere, and as the first one comes back,
-+   restore their cpu bindings. */
-+static int __devinit cpu_callback(struct notifier_block *nfb,
-+				  unsigned long action,
-+				  void *hcpu)
-+{
+ static int prof_cpu_mask_read_proc (char *page, char **start, off_t off,
+Index: linux-2.5.61-trojan/arch/i386/kernel/process.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.61/arch/i386/kernel/process.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 process.c
+--- linux-2.5.61-trojan/arch/i386/kernel/process.c	15 Feb 2003 12:32:09 -0000	1.1.1.1
++++ linux-2.5.61-trojan/arch/i386/kernel/process.c	17 Feb 2003 06:47:05 -0000
+@@ -36,7 +36,7 @@
+ #include <linux/mc146818rtc.h>
+ #include <linux/module.h>
+ #include <linux/kallsyms.h>
+-
++#include <linux/brlock.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+ #include <asm/system.h>
+@@ -46,6 +46,7 @@
+ #include <asm/i387.h>
+ #include <asm/irq.h>
+ #include <asm/desc.h>
++#include <asm/tlbflush.h>
+ #ifdef CONFIG_MATH_EMULATION
+ #include <asm/math_emu.h>
+ #endif
+@@ -80,6 +81,8 @@
+ 	hlt_counter--;
+ }
+ 
++DECLARE_PER_CPU(int, cpu_die);
++
+ /*
+  * We use this if we don't have any better
+  * idle routine..
+@@ -127,6 +130,36 @@
+ 	}
+ }
+ 
 +#if defined(CONFIG_HOTPLUG) && defined(CONFIG_SMP)
-+	pg_data_t *pgdat;
-+	unsigned int hotcpu = (unsigned long)hcpu;
-+	unsigned long mask;
++static inline void maybe_play_dead(void)
++{
++	if (unlikely(__get_cpu_var(cpu_die))) {
++		printk("Cpu %u Dust Dust Dust\n", smp_processor_id());
++		/* Ack it */
++		__get_cpu_var(cpu_die) = 2;
 +
-+	if (action == CPU_OFFLINE) {
-+		/* Make sure that kswapd never becomes unschedulable. */
-+		for_each_pgdat(pgdat) {
-+			mask = node_to_cpumask(pgdat->node_id);
-+			if (any_online_cpu(mask) < 0) {
-+				mask = ~0UL;
-+				set_cpus_allowed(pgdat->kswapd, mask);
-+			}
-+		}
-+	}
++		/* Death loop */
++		local_irq_disable();
++		while (__get_cpu_var(cpu_die))
++			cpu_relax();
++		local_irq_enable();
 +
-+	if (action == CPU_ONLINE) {
-+		for_each_pgdat(pgdat) {
-+			mask = node_to_cpumask(pgdat->node_id);
-+			mask &= ~(1UL << hotcpu);
-+			if (any_online_cpu(mask) < 0) {
-+				mask |= (1UL << hotcpu);
-+				/* One of our CPUs came back: restore mask */
-+				set_cpus_allowed(pgdat->kswapd, mask);
-+			}
-+		}
++		/* Now, we missed any cache flush IPIs, so be safe. */
++		local_flush_tlb();
++
++		/* Ack it by setting online bit */
++		br_write_lock_irq(BR_CPU_LOCK);
++		set_bit(smp_processor_id(), &cpu_online_map);
++		br_write_unlock_irq(BR_CPU_LOCK);
++		printk("Cpu %u arisen\n", smp_processor_id());
 +	}
-+#endif
-+	return NOTIFY_OK;
 +}
++#else
++static inline void maybe_play_dead(void)
++{
++}
++#endif /*CONFIG_HOTPLUG*/
 +
-+static struct notifier_block cpu_nfb = { &cpu_callback, NULL, 0 };
+ /*
+  * The idle thread. There's no useful work to be
+  * done, so just try to conserve power and have a
+@@ -141,8 +174,10 @@
+ 		if (!idle)
+ 			idle = default_idle;
+ 		irq_stat[smp_processor_id()].idle_timestamp = jiffies;
+-		while (!need_resched())
++		while (!need_resched()) {
++			maybe_play_dead();
+ 			idle();
++		}
+ 		schedule();
+ 	}
+ }
+Index: linux-2.5.61-trojan/arch/i386/kernel/smp.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.61/arch/i386/kernel/smp.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 smp.c
+--- linux-2.5.61-trojan/arch/i386/kernel/smp.c	15 Feb 2003 12:32:09 -0000	1.1.1.1
++++ linux-2.5.61-trojan/arch/i386/kernel/smp.c	15 Feb 2003 19:31:05 -0000
+@@ -19,6 +19,7 @@
+ #include <linux/mc146818rtc.h>
+ #include <linux/cache.h>
+ #include <linux/interrupt.h>
++#include <linux/brlock.h>
+ 
+ #include <asm/mtrr.h>
+ #include <asm/pgalloc.h>
+@@ -350,13 +351,18 @@
+ 	 */
+ 	if (!cpumask)
+ 		BUG();
+-	if ((cpumask & cpu_online_map) != cpumask)
++	if ((cpumask & cpu_callout_map) != cpumask)
+ 		BUG();
+ 	if (cpumask & (1 << smp_processor_id()))
+ 		BUG();
+ 	if (!mm)
+ 		BUG();
+ 
++	/* CPUs might have gone offline: don't worry about them. */
++	cpumask &= cpu_online_map;
++	if (!cpumask)
++		return;
 +
- static int __init kswapd_init(void)
+ 	/*
+ 	 * i'm not happy about this global shared spinlock in the
+ 	 * MM hot path, but we'll see how contended it is.
+@@ -515,10 +521,15 @@
+  */
  {
- 	pg_data_t *pgdat;
-@@ -1003,6 +1046,7 @@
- 	for_each_pgdat(pgdat)
- 		kernel_thread(kswapd, pgdat, CLONE_KERNEL);
- 	total_memory = nr_free_pagecache_pages();
-+	register_cpu_notifier(&cpu_nfb);
+ 	struct call_data_struct data;
+-	int cpus = num_online_cpus()-1;
++	int cpus;
+ 
+-	if (!cpus)
++	br_read_lock(BR_CPU_LOCK);
++	cpus = num_online_cpus()-1;
++
++	if (!cpus) {
++		br_read_unlock(BR_CPU_LOCK);
+ 		return 0;
++	}
+ 
+ 	data.func = func;
+ 	data.info = info;
+@@ -542,6 +553,7 @@
+ 			barrier();
+ 	spin_unlock(&call_lock);
+ 
++	br_read_unlock(BR_CPU_LOCK);
  	return 0;
  }
  
+Index: linux-2.5.61-trojan/arch/i386/kernel/smpboot.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.61/arch/i386/kernel/smpboot.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 smpboot.c
+--- linux-2.5.61-trojan/arch/i386/kernel/smpboot.c	15 Feb 2003 12:32:09 -0000	1.1.1.1
++++ linux-2.5.61-trojan/arch/i386/kernel/smpboot.c	16 Feb 2003 19:56:16 -0000
+@@ -45,6 +45,8 @@
+ 
+ #include <linux/delay.h>
+ #include <linux/mc146818rtc.h>
++#include <linux/brlock.h>
++#include <linux/percpu.h>
+ #include <asm/pgalloc.h>
+ #include <asm/tlbflush.h>
+ #include <asm/desc.h>
+@@ -64,9 +66,10 @@
+ /* Bitmask of currently online CPUs */
+ unsigned long cpu_online_map;
+ 
+-static volatile unsigned long cpu_callin_map;
++/* Initialize, although master cpu never calls in */
++static volatile unsigned long cpu_callin_map = 1;
+ volatile unsigned long cpu_callout_map;
+-static unsigned long smp_commenced_mask;
++static unsigned long smp_commenced_mask = 1;
+ 
+ /* Per CPU bogomips and other parameters */
+ struct cpuinfo_x86 cpu_data[NR_CPUS] __cacheline_aligned;
+@@ -456,7 +461,9 @@
+ 	 * the local TLBs too.
+ 	 */
+ 	local_flush_tlb();
++	br_write_lock_irq(BR_CPU_LOCK);
+ 	set_bit(smp_processor_id(), &cpu_online_map);
++	br_write_unlock_irq(BR_CPU_LOCK);
+ 	wmb();
+ 	return cpu_idle();
+ }
+@@ -1130,10 +1136,11 @@
+ 	set_bit(smp_processor_id(), &cpu_callout_map);
+ }
+ 
++DEFINE_PER_CPU(int, cpu_die) = { 0 };
++
+ int __devinit __cpu_up(unsigned int cpu)
+ {
+-	/* This only works at boot for x86.  See "rewrite" above. */
+-	if (test_bit(cpu, &smp_commenced_mask)) {
++	if (test_bit(cpu, &smp_commenced_mask) && cpu_online(cpu)) {
+ 		local_irq_enable();
+ 		return -ENOSYS;
+ 	}
+@@ -1144,12 +1151,61 @@
+ 		return -EIO;
+ 	}
+ 
++	/* Already up, and in maybe_play_dead now? */
++	if (test_bit(cpu, &smp_commenced_mask)) {
++		per_cpu(cpu_die, cpu) = 0;
++		wmb();
++		wake_idle_cpu(cpu);
++		while (!cpu_online(cpu))
++			yield();
++		printk("Cpu %u says it's online\n", cpu);
++		return 0;
++	}
++
+ 	local_irq_enable();
+ 	/* Unleash the CPU! */
+ 	set_bit(cpu, &smp_commenced_mask);
+ 	while (!test_bit(cpu, &cpu_online_map))
+ 		mb();
+ 	return 0;
++}
++
++int __cpu_disable(void)
++{
++	br_write_lock_irq(BR_CPU_LOCK);
++  	cpu_online_map &= ~(1UL << smp_processor_id());
++	br_write_unlock_irq(BR_CPU_LOCK);
++
++	printk("Disabled cpu %u\n", smp_processor_id());
++	return 0;
++}
++
++extern void migrate_irqs_from(unsigned int cpu);
++
++void __cpu_die(unsigned int cpu)
++{
++	unsigned int start;
++
++	/* Final threads can take some time to actually clean up */
++	while (!idle_cpu(cpu))
++		yield();
++
++	/* The irq affinity code is generic, now we just need a kernel/irq.c
++	 * notice that we don't add it again on cpu_up, this is to avoid
++	 * botching up current affinity and it would have to be moved later
++	 * since we can't do this at boot hmm FIXME... -Zwane */
++	migrate_irqs_from(cpu);
++
++	per_cpu(cpu_die, cpu) = 1;
++	wmb();
++	for (start = jiffies; time_before(jiffies, start + HZ); ) {
++		wake_idle_cpu(cpu);
++		/* They ack this in maybe_play_dead by incrementing it. */
++		if (per_cpu(cpu_die, cpu) == 2)
++			return;
++		yield();
++	}
++	printk(KERN_ERR "CPU %u didn't die...\n", cpu);
+ }
+ 
+ void __init smp_cpus_done(unsigned int max_cpus)

@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262446AbSJJVrg>; Thu, 10 Oct 2002 17:47:36 -0400
+	id <S262385AbSJJVu2>; Thu, 10 Oct 2002 17:50:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262450AbSJJVrf>; Thu, 10 Oct 2002 17:47:35 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:33550 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262446AbSJJVrA>;
-	Thu, 10 Oct 2002 17:47:00 -0400
-Date: Thu, 10 Oct 2002 14:48:38 -0700
-From: Greg KH <greg@kroah.com>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [PATCH] PCI Hotplug fixes for 2.4.20-pre10
-Message-ID: <20021010214838.GE27523@kroah.com>
-References: <20021010214455.GA27523@kroah.com> <20021010214527.GB27523@kroah.com> <20021010214549.GC27523@kroah.com> <20021010214625.GD27523@kroah.com>
+	id <S262472AbSJJVu1>; Thu, 10 Oct 2002 17:50:27 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:35758 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262417AbSJJVty>; Thu, 10 Oct 2002 17:49:54 -0400
+Subject: Re: Xbox Linux Kernel Patches Questions
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Steil <mist@c64.org>
+Cc: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Xbox-linux-devel@lists.sourceforge.net
+In-Reply-To: <333B8114-DC98-11D6-B7BF-003065E1FB16@c64.org>
+References: <333B8114-DC98-11D6-B7BF-003065E1FB16@c64.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Oct 2002 23:06:35 +0100
+Message-Id: <1034287595.6462.30.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021010214625.GD27523@kroah.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.740   -> 1.741  
-#	drivers/hotplug/ibmphp_core.c	1.8     -> 1.9    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/10	greg@kroah.com	1.741
-# IBM PCI Hotplug driver: typo fix for previous patch.
-# --------------------------------------------
-#
-diff -Nru a/drivers/hotplug/ibmphp_core.c b/drivers/hotplug/ibmphp_core.c
---- a/drivers/hotplug/ibmphp_core.c	Thu Oct 10 14:44:38 2002
-+++ b/drivers/hotplug/ibmphp_core.c	Thu Oct 10 14:44:38 2002
-@@ -731,8 +731,8 @@
- 		bus_speed = PCI_SPEED_UNKNOWN;
- 	}
- 
--	info->cur_bus_speed_status = bus_speed;
--	info->max_bus_speed_status = slot_cur->hotplug_slot->info->max_bus_speed_status;
-+	info->cur_bus_speed = bus_speed;
-+	info->max_bus_speed = slot_cur->hotplug_slot->info->max_bus_speed;
- 	// To do: bus_names 
- 	
- 	rc = pci_hp_change_slot_info (buffer, info);
+On Thu, 2002-10-10 at 22:35, Michael Steil wrote:
+> > Can you tell the xbox by the subsystem id on the root bridges ?
+> 
+> Yes, these are unique.
+
+> Where would we put out Xbox detection code? If it detects the Xbox as 
+> described above, CONFIG_XBOX_SUPPORT will depend on CONFIG_PCI.
+
+Which seems fair enough. ISA bus X-box systems are suprisingly rare
+
+

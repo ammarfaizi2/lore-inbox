@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263102AbUB0UU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 15:20:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263092AbUB0UU6
+	id S263133AbUB0UR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 15:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263119AbUB0UQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 15:20:58 -0500
-Received: from mail.kroah.org ([65.200.24.183]:61136 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263102AbUB0USW (ORCPT
+	Fri, 27 Feb 2004 15:16:45 -0500
+Received: from mail.gmx.net ([213.165.64.20]:20133 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263116AbUB0UQ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 15:18:22 -0500
-Date: Fri, 27 Feb 2004 12:17:44 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Question about (or bug in?) the kobject implementation
-Message-ID: <20040227201744.GA11291@kroah.com>
-References: <20040227194855.GB10864@kroah.com> <Pine.LNX.4.44L0.0402271457530.1225-100000@ida.rowland.org>
-Mime-Version: 1.0
+	Fri, 27 Feb 2004 15:16:26 -0500
+X-Authenticated: #22280117
+Date: Fri, 27 Feb 2004 21:19:09 +0100
+From: Bernhard Gruber <bernig@gmx.at>
+X-Mailer: The Bat! (v1.62 Christmas Edition) Personal
+Reply-To: Bernhard Gruber <bernig@gmx.at>
+X-Priority: 3 (Normal)
+Message-ID: <12413031438.20040227211909@gmx.at>
+To: linux-kernel@vger.kernel.org
+Subject: Re: /dev/psaux-Interface
+In-Reply-To: <185903078.20040227124512@gmx.at>
+References: <185903078.20040227124512@gmx.at>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0402271457530.1225-100000@ida.rowland.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 27, 2004 at 03:06:32PM -0500, Alan Stern wrote:
-> On Fri, 27 Feb 2004, Greg KH wrote:
-> > Seriously, once kobject_del() is called, you can't safely call
-> > kobject_get() anymore on that object.
-> 
-> Are you worried about the possibility of the refcount dropping to 0 and 
-> the cleanup starting but then kobject_get() increasing the refcount again?
+OK, I think, we found out WHY it did not function with my trackpoint.
+Actually, it was not the trackpoint but the fact, that I had compiled
+in SMP-support into the kernel. I removed it and now the trackpoint
+utilities work just fine! It's very likely, that this psaux-module
+will work with ANY old driver/utility written for 2.4.X-kernels as
+long as you follow the steps on the homepage and remove SMP-support!
 
-Exactly, that is where the problem could happen.
-
-thanks,
-
-greg k-h

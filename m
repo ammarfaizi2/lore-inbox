@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270917AbTGPUaY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 16:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270950AbTGPUaX
+	id S270950AbTGPUhk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 16:37:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270993AbTGPUhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 16:30:23 -0400
-Received: from moutng.kundenserver.de ([212.227.126.189]:52166 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S270917AbTGPUaX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 16:30:23 -0400
-Message-ID: <01a201c34bda$eb5b78a0$0200a8c0@marvin>
-From: "Gueven Bay" <guevenbay@tharidium.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: [OT] Is there any german linux kernel?
-Date: Wed, 16 Jul 2003 22:43:31 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Wed, 16 Jul 2003 16:37:40 -0400
+Received: from sponsa.its.UU.SE ([130.238.7.36]:22525 "EHLO sponsa.its.uu.se")
+	by vger.kernel.org with ESMTP id S270950AbTGPUhj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 16:37:39 -0400
+Date: Wed, 16 Jul 2003 22:52:20 +0200 (MEST)
+Message-Id: <200307162052.h6GKqKFQ027503@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: lcapitulino@prefeitura.sp.gov.br, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.6-osdl1 compiler error.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+On 16 Jul 2003 15:12:04 -0300, Luiz Capitulino wrote:
+> While trying to compile the 2.6-osdl1 with the 
+>''performance-monitoring'' I'm getting this:
+>
+>CC      drivers/perfctr/init.o
+>drivers/perfctr/init.c:19: version.h: No such file or directory
 
- Excuse me for this off-topic but I am on the search for a translated kernel
-source tree (at least the Documentation tree) into German.
+The file drivers/perfctr/version.h is missing, apparently due
+to an incomplete merge of the external perfctr package. This
+will result in the compilation errors you quoted.
 
- Can you give me an(some) address(es)? (I already googled for it but found
-nothing.)
+Look at the top of drivers/perfctr/RELEASE-NOTES and you'll see
+which version of perfctr OSDL is using, get the corresponding
+tarball from http://www.csd.uu.se/~mikpe/linux/perfctr/, and
+copy its linux/drivers/perfctr/version.h into your kernel.
 
-I thank you for your responses!
+You should also file a bug report with the OSDL people.
 
- With best regards
-Gueven Bay
-
+/Mikael

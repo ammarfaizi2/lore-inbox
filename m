@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267785AbTAHJyC>; Wed, 8 Jan 2003 04:54:02 -0500
+	id <S267796AbTAHJ4v>; Wed, 8 Jan 2003 04:56:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267794AbTAHJxO>; Wed, 8 Jan 2003 04:53:14 -0500
-Received: from cmailm4.svr.pol.co.uk ([195.92.193.211]:57351 "EHLO
-	cmailm4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S267785AbTAHJwa>; Wed, 8 Jan 2003 04:52:30 -0500
-Date: Wed, 8 Jan 2003 10:00:42 +0000
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 10/10] dm: Remove redundant error checking
-Message-ID: <20030108100042.GK2063@reti>
-References: <20030108095221.GA2063@reti>
+	id <S267798AbTAHJ4u>; Wed, 8 Jan 2003 04:56:50 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:1408 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S267796AbTAHJ4s>; Wed, 8 Jan 2003 04:56:48 -0500
+Date: Wed, 8 Jan 2003 11:05:09 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: dipankar@in.ibm.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx broken in 2.5.53/54 ?
+Message-ID: <20030108100509.GA229@louise.pinerecords.com>
+References: <20030103101618.GB8582@in.ibm.com> <596830816.1041606846@aslan.scsiguy.com> <20030106073204.GA1875@in.ibm.com> <274040000.1041869813@aslan.scsiguy.com> <20030108024107.GA1127@louise.pinerecords.com> <703940000.1041999784@aslan.btc.adaptec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030108095221.GA2063@reti>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+In-Reply-To: <703940000.1041999784@aslan.btc.adaptec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bio_alloc() shouldn't fail if GFP_NOIO is used, and the bvec count is
-sensible.  So remove redundant error checking.
---- diff/drivers/md/dm.c	2003-01-02 11:10:22.000000000 +0000
-+++ source/drivers/md/dm.c	2003-01-02 11:27:23.000000000 +0000
-@@ -347,18 +347,15 @@
- 	struct bio_vec *bv = bio->bi_io_vec + idx;
- 
- 	clone = bio_alloc(GFP_NOIO, 1);
-+	memcpy(clone->bi_io_vec, bv, sizeof(*bv));
- 
--	if (clone) {
--		memcpy(clone->bi_io_vec, bv, sizeof(*bv));
--
--		clone->bi_sector = sector;
--		clone->bi_bdev = bio->bi_bdev;
--		clone->bi_rw = bio->bi_rw;
--		clone->bi_vcnt = 1;
--		clone->bi_size = to_bytes(len);
--		clone->bi_io_vec->bv_offset = offset;
--		clone->bi_io_vec->bv_len = clone->bi_size;
--	}
-+	clone->bi_sector = sector;
-+	clone->bi_bdev = bio->bi_bdev;
-+	clone->bi_rw = bio->bi_rw;
-+	clone->bi_vcnt = 1;
-+	clone->bi_size = to_bytes(len);
-+	clone->bi_io_vec->bv_offset = offset;
-+	clone->bi_io_vec->bv_len = clone->bi_size;
- 
- 	return clone;
- }
-@@ -432,11 +429,6 @@
- 
- 		clone = split_bvec(bio, ci->sector, ci->idx,
- 				   bv->bv_offset, max);
--		if (!clone) {
--			dec_pending(ci->io, -ENOMEM);
--			return;
--		}
--
- 		__map_bio(ti, clone, ci->io);
- 
- 		ci->sector += max;
-@@ -446,11 +438,6 @@
- 		len = to_sector(bv->bv_len) - max;
- 		clone = split_bvec(bio, ci->sector, ci->idx,
- 				   bv->bv_offset + to_bytes(max), len);
--		if (!clone) {
--			dec_pending(ci->io, -ENOMEM);
--			return;
--		}
--
- 		__map_bio(ti, clone, ci->io);
- 
- 		ci->sector += len;
+> [gibbs@scsiguy.com]
+> 
+> > [gibbs@scsiguy.com]
+> > 
+> > These reads are actually more expensive than just using PIO.  Neither of
+> > these older drivers included a test to try and catch fishy behavior.
+> > 
+> > Justin, are you quite sure that these tests actually work?
+> > I too have just run into
+> 
+> See my recent post to the SCSI list.  The tests don't work on
+> certain older controllers that lack a feature I was using.  The
+> latest csets submitted to Linus correct this problem (as verified
+> on a dusty dual P-90 PCI/EISA box just added to our regression cluster).
+
+Ok.  I can confirm 6.2.26 fixes the false positive here:
+
+PCI: Found IRQ 11 for device 00:10.0
+PCI: Found IRQ 10 for device 00:11.0
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.26
+        <Adaptec 2940 Ultra SCSI adapter>
+        aic7880: Ultra Single Channel A, SCSI Id=7, 16/253 SCBs
+
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.26
+        <Adaptec 2940 Ultra SCSI adapter>
+        aic7880: Ultra Single Channel A, SCSI Id=7, 16/253 SCBs
+
+Thanks,
+-- 
+Tomas Szepe <szepe@pinerecords.com>

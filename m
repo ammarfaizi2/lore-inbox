@@ -1,44 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266868AbSL3VGs>; Mon, 30 Dec 2002 16:06:48 -0500
+	id <S267083AbSL3VRN>; Mon, 30 Dec 2002 16:17:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267068AbSL3VGs>; Mon, 30 Dec 2002 16:06:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30984 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266868AbSL3VGr>;
-	Mon, 30 Dec 2002 16:06:47 -0500
-Date: Mon, 30 Dec 2002 21:15:09 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       kernel-janitor-discuss@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Current unclaimed 2.5 bugs on bugme.osdl.org
-Message-ID: <20021230211509.GN721@gallifrey>
-References: <129460000.1041214462@titus> <1041255152.544.14.camel@zion.wanadoo.fr> <299610000.1041267777@titus>
+	id <S267085AbSL3VRN>; Mon, 30 Dec 2002 16:17:13 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:13703 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267083AbSL3VRL> convert rfc822-to-8bit; Mon, 30 Dec 2002 16:17:11 -0500
+Message-Id: <4.3.2.7.2.20021230213831.00b5b250@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Mon, 30 Dec 2002 22:26:05 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: Re: [PATCHSET] 2.4.21-pre2-jp15
+Cc: joergprante@netcologne.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <299610000.1041267777@titus>
-User-Agent: Mutt/1.4i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 21:14:44 up 6 days,  3:39,  1 user,  load average: 0.06, 0.28, 0.57
+Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Martin J. Bligh (mbligh@aracnet.com) wrote:
-> 
-> >>117 nor mbligh@aracnet.com OPEN build failure: arch/ppc/kernel/process.c
-> >
-> >Works in current ppc bk tree, probably waiting for next round of merges
-> >by Paul Mackerras to Linus.
-> 
-> According to DaveJ, this should be fixed in 51 ... anyone able to test?
+Hi Jörg,
+	No, the defines in sched.h are surrounded by #idef CONFIG_PREEMPT
+	before #ifdef CONFIG_PREEMPT_LOG and therefore don't bite.
+	You need the #ifdef CONFIG_PREEMPT_LOG around the
+	sysrq_handle_preempt_log and the following sysrq_key_op sysrq_preempt_log_op
+	functions as per later in the code :
+	#ifdef CONFIG_PREEMPT_LOG
+	/* g */ &sysrq_preempt_log_op,
+	#else
+	/* g */ NULL,
+	#endif
 
-Yep, this bug is not in 53.
 
-Dave
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+	Next problems :
+
+scx200.c:117: parse error before 
+"this_object_must_be_defined_as_export_objs_in_the_Makefile"
+scx200.c:117: warning: type defaults to `int' in declaration of 
+`this_object_must_be_defined_as_export_objs_in_the_Makefile'
+scx200.c:117: warning: data definition has no type or storage class
+scx200.c:118: parse error before 
+"this_object_must_be_defined_as_export_objs_in_the_Makefile"
+scx200.c:118: warning: type defaults to `int' in declaration of 
+`this_object_must_be_defined_as_export_objs_in_the_Makefile'
+scx200.c:118: warning: data definition has no type or storage class
+scx200.c:119: parse error before 
+"this_object_must_be_defined_as_export_objs_in_the_Makefile"
+scx200.c:119: warning: type defaults to `int' in declaration of 
+`this_object_must_be_defined_as_export_objs_in_the_Makefile'
+scx200.c:119: warning: data definition has no type or storage class
+scx200.c:120: parse error before 
+"this_object_must_be_defined_as_export_objs_in_the_Makefile"
+scx200.c:120: warning: type defaults to `int' in declaration of 
+`this_object_must_be_defined_as_export_objs_in_the_Makefile'
+scx200.c:120: warning: data definition has no type or storage class
+scx200.c:121: parse error before 
+"this_object_must_be_defined_as_export_objs_in_the_Makefile"
+scx200.c:121: warning: type defaults to `int' in declaration of 
+`this_object_must_be_defined_as_export_objs_in_the_Makefile'
+scx200.c:121: warning: data definition has no type or storage class
+make[2]: *** [scx200.o] Error 1
+make[2]: Leaving directory `/var/tmp/linux-2.4.20/drivers/char'
+make[1]: *** [_modsubdir_char] Error 2
+make[1]: Leaving directory `/var/tmp/linux-2.4.20/drivers'
+make: *** [_mod_drivers] Error 2
+
+
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.21mw0; fi
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.21mw0/kernel/drivers/net/wan/comx.o
+depmod:         proc_get_inode
+depmod: *** Unresolved symbols in /lib/modules/2.4.21mw0/kernel/net/irda/irda.o
+depmod:         irlmp_lap_tx_queue_full
+
+
+Margit
+

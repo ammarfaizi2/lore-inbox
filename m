@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271486AbRHPF6O>; Thu, 16 Aug 2001 01:58:14 -0400
+	id <S271501AbRHPG0k>; Thu, 16 Aug 2001 02:26:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271490AbRHPF6F>; Thu, 16 Aug 2001 01:58:05 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:15792 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S271486AbRHPF5r>;
-	Thu, 16 Aug 2001 01:57:47 -0400
-Message-ID: <3B7B60E7.E5ACB4A7@candelatech.com>
-Date: Wed, 15 Aug 2001 22:57:59 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S271503AbRHPG0a>; Thu, 16 Aug 2001 02:26:30 -0400
+Received: from web20008.mail.yahoo.com ([216.136.225.71]:44816 "HELO
+	web20008.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S271501AbRHPG0T>; Thu, 16 Aug 2001 02:26:19 -0400
+Message-ID: <20010816062632.69184.qmail@web20008.mail.yahoo.com>
+Date: Thu, 16 Aug 2001 14:26:32 +0800 (CST)
+From: =?gb2312?q?=D0=C2=20=D4=C2?= <xinyuepeng@yahoo.com>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Question on IOCTL hooks.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, my VLAN code creates a file: /proc/net/vlan/config,
-and I have attached an IOCTL hook to that file, such that when
-an ioctl call is done on that file, my method is called...
-
-However, davem wants VLAN to be able to function w/out the
-/proc fs.  So, I need to know how to ensure my IOCTL
-code can be called on any (or some other) file.
-
-Can someone suggest a piece of code or documentation that
-I should look at for the 'right way' to do this?
-
-Also, any suggestions as to how to pick an IOCTL that is
-guaranteed not to conflict with someone else's IOCTL?
+hi!
+   I am beginning learn to write a driver follow the
+Book "Beginnng Linux programming(Second
+Edition)".There is a example about char driver,I write
+as that,but I can open device,but can't read from it.I
+just copy some static data to user buffer as follow:
+   copy_to_user(buf, schar_buffer, count)
 
 Thanks,
-Ben
+xin
 
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

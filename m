@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292601AbSBUBXA>; Wed, 20 Feb 2002 20:23:00 -0500
+	id <S292605AbSBUBkZ>; Wed, 20 Feb 2002 20:40:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292605AbSBUBWl>; Wed, 20 Feb 2002 20:22:41 -0500
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:10767
-	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S292601AbSBUBW2>; Wed, 20 Feb 2002 20:22:28 -0500
-Date: Thu, 21 Feb 2002 02:21:54 +0100
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-To: Diego Calleja <diegocg@teleline.es>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: hang in 2.4.18-rc2-ac1
-Message-ID: <20020221022154.A6241@bouton.inet6-interne.fr>
-Mail-Followup-To: Diego Calleja <diegocg@teleline.es>,
-	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20020220192127.622006ff.diegocg@teleline.es> <E16dcvN-0004YR-00@the-village.bc.nu> <20020220213715.0a741080.diegocg@teleline.es>
-Mime-Version: 1.0
+	id <S292307AbSBUBkO>; Wed, 20 Feb 2002 20:40:14 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:784 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292306AbSBUBj7>; Wed, 20 Feb 2002 20:39:59 -0500
+Subject: Re: ide cd-recording not working in 2.4.18-rc2-ac1
+To: ed.sweetman@wmich.edu (Ed Sweetman)
+Date: Thu, 21 Feb 2002 01:54:17 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1014237877.441.7.camel@psuedomode> from "Ed Sweetman" at Feb 20, 2002 03:44:32 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020220213715.0a741080.diegocg@teleline.es>; from diegocg@teleline.es on Wed, Feb 20, 2002 at 09:37:15PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16diR7-0005RF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 20, 2002 at 09:37:15PM +0100, Diego Calleja wrote:
-
-> [...
-> Chipset is SIS 5571, ide chipset SIS 5513. I've some problems with
-> latest updates about SIS Ide driver update: When I sleep the drive with
-> hdparm -Y /dev/hda
-> then the drive sleeps. But it doesn't 'awake'. I can do 'Login: XXX \n Password: XXX' or write a command
-> in the shell. But when the unit has to read/write, it just does nothing.
+> I get this on every cd I try and I've tried more than I'd have liked to.
 > 
-> Latest kernels without this patch (2.4.18-preX....) did something different:
-> I could sleep drive normally. But when the system had to read/write something:
-> 
-> Feb 15 18:13:08 localhost kernel: hda: timeout waiting for DMA
-> Feb 15 18:13:08 localhost kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> Feb 15 18:13:08 localhost kernel: hda: status timeout: status=0xd0 { Busy }
-> Feb 15 18:13:08 localhost kernel: hda: drive not ready for command
-> Feb 15 18:13:08 localhost kernel: ide0: reset: success
-> 
-> The system just stopped a few seconds, and then it started as always.
-> [...]
+> Performing OPC...
+> /usr/bin/cdrecord: Input/output error. write_g1: scsi sendcmd: no error
+> CDB:  2A 00 00 00 00 1F 00 00 1F 00
+> status: 0x2 (CHECK CONDITION)
+> Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 21 00 00 00
+> Sense Key: 0x5 Illegal Request, Segment 0
+> Sense Code: 0x21 Qual 0x00 (logical block address out of range) Fru 0x0
 
-I don't know anything about the SiS5571 yet, please send me your boot logs related
-to SiS IDE (you can't miss them...). If you know what your chip
-capabilities are (see your motherboard doc, ATA33/66/100 should
-be printed somewhere if the chipset supports these ATA generations).
-As the driver is not yet aware of this chip it defaults to
-original SiS5513 behaviour, this is most probably the source of your problem.
+Thats saying that cdrecord sent the drive a bogus command.
 
-LB.
+> Now I know every cd isn't bad because they used to work in older
+> 2.4.17ish kernels.  I have scsi-generic support compiled as a module as
+
+Does it still work with them ?
+
+> SCSI subsystem driver Revision: 1.00
+> scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+
+Right same as I am using
+
+> not sure what else I can get informationwize about what the drive is
+> doing.  
+
+What type of IDE controller ?

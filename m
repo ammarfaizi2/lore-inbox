@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264638AbUGNVFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265361AbUGNVJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264638AbUGNVFe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 17:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUGNVFe
+	id S265361AbUGNVJL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 17:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbUGNVJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 17:05:34 -0400
-Received: from mail.gmx.net ([213.165.64.20]:9671 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264638AbUGNVFb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 17:05:31 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@fs.tum.de>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.8-rc1-mm1
-Date: Wed, 14 Jul 2004 23:08:01 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20040713182559.7534e46d.akpm@osdl.org>
-In-Reply-To: <20040713182559.7534e46d.akpm@osdl.org>
-MIME-Version: 1.0
+	Wed, 14 Jul 2004 17:09:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15316 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265245AbUGNVJE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 17:09:04 -0400
+Date: Wed, 14 Jul 2004 22:09:03 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: gettimeofday nanoseconds patch (makes it possible for the posix-timer functions to return higher accuracy)
+Message-ID: <20040714210903.GA32326@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407142308.01408.dominik.karall@gmx.net>
+In-Reply-To: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 July 2004 03:25, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc1/2.6
->.8-rc1-mm1/
+On Wed, Jul 14, 2004 at 09:41:03AM -0700, Christoph Lameter wrote:
+> The following patch introduces a new gettimeofday function using
+> struct timespec instead of struct timeval. If a platforms supports time
+> interpolation then the new gettimeofday will use that to provide a
+> gettimeofday function with higher accuracy and then also clock_gettime
+> will return with nanosecond accuracy.
 
-next one:
+You seem to have included two patches here that are very similar ...
+could you send the patch you intended please?
 
-  CC [M]  drivers/scsi/sg.o
-drivers/scsi/sg.c: In function `sg_ioctl':
-drivers/scsi/sg.c:209: nicht implementiert: >>inline<< beim Aufruf von 
->>sg_jif_to_ms<< gescheitert: function body not available
-drivers/scsi/sg.c:930: nicht implementiert: von hier aufgerufen
-make[3]: *** [drivers/scsi/sg.o] Fehler 1
-make[2]: *** [drivers/scsi] Fehler 2
-make[1]: *** [drivers] Fehler 2
-
-greets
-dominik
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

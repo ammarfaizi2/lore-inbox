@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267512AbRGMRiZ>; Fri, 13 Jul 2001 13:38:25 -0400
+	id <S267515AbRGMRng>; Fri, 13 Jul 2001 13:43:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267513AbRGMRiP>; Fri, 13 Jul 2001 13:38:15 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:54083 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267512AbRGMRiN>; Fri, 13 Jul 2001 13:38:13 -0400
-Date: Fri, 13 Jul 2001 18:38:00 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mike Black <mblack@csihq.com>
-Cc: Andrew Morton <andrewm@uow.edu.au>,
-        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
-        ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: 2.4.6 and ext3-2.4-0.9.1-246
-Message-ID: <20010713183800.J13419@redhat.com>
-In-Reply-To: <02ae01c10925$4b791170$e1de11cc@csihq.com> <3B4BD13F.6CC25B6F@uow.edu.au> <021801c10a03$62434540$e1de11cc@csihq.com> <3B4C729B.6352A443@uow.edu.au> <05c401c10ac1$0e81ad70$e1de11cc@csihq.com> <3B4D8B5D.E9530B60@uow.edu.au> <036e01c10b96$72ce57d0$e1de11cc@csihq.com> <111501c10ba3$664a1370$e1de11cc@csihq.com> <3B4F0273.1DF40F8E@uow.edu.au> <125101c10bc1$85eab630$e1de11cc@csihq.com>
-Mime-Version: 1.0
+	id <S267514AbRGMRn1>; Fri, 13 Jul 2001 13:43:27 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:4873 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S267513AbRGMRnP>;
+	Fri, 13 Jul 2001 13:43:15 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200107131743.f6DHhGc186373@saturn.cs.uml.edu>
+Subject: Re: tty->name conversion?
+To: taral@taral.net (Taral)
+Date: Fri, 13 Jul 2001 13:43:16 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010705023647.A18014@taral.net> from "Taral" at Jul 05, 2001 02:36:47 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <125101c10bc1$85eab630$e1de11cc@csihq.com>; from mblack@csihq.com on Fri, Jul 13, 2001 at 01:30:34PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Taral writes:
 
-On Fri, Jul 13, 2001 at 01:30:34PM -0400, Mike Black wrote:
-> Here's the oops:
-> Message on console:
-> yeti kernel: EXT3-fs error (device md(9,0)): ext3_new_inode: reserved inode
-> or inode > inodes count - block_group = 0,inode=1
-> 
-> Here line 575:
->         J_ASSERT_JH(jh, !buffer_locked(jh2bh(jh)));
+> I noticed that ps still relies on device numbers to determine tty, since
+> /proc/*/stat only exports the device number. Is there any way to get the
+> device name? I noticed that it is not present in tty_struct anywhere
+> (proc_pid_stat() uses task->tty->device, which is a kdev_t).
+>
+> This would be useful to consider if we ever intend to create real
+> unnumbered character/block devices.
 
-Many thanks.  Were there any other log messages at all?
+This isn't quite true, at least for the version shipped with Debian.
 
-Cheers,
- Stephen
+The non-existant /proc/*/tty link is examined first. This is
+because several people have agreed that such a link would be
+good, even though it is difficult to implement with the current
+code. I think viro, hpa, and tytso have all looked into this.
+
+The ps code also looks at /proc/*/fd/* when possible. This often
+gives a real filename. Otherwise, ps has to guess a name based
+on the device number and either a hard-coded table or information
+from /proc/tty/drivers.

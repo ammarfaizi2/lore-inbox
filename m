@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268664AbTBZIyv>; Wed, 26 Feb 2003 03:54:51 -0500
+	id <S268685AbTBZI4e>; Wed, 26 Feb 2003 03:56:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268685AbTBZIyv>; Wed, 26 Feb 2003 03:54:51 -0500
-Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:29144 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S268664AbTBZIyu>; Wed, 26 Feb 2003 03:54:50 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH][COMPAT] make struct compat_iovec
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>,
-       anton@samba.org, "David S. Miller" <davem@redhat.com>, ak@muc.de,
-       davidm@hpl.hp.com, ralf@gnu.org, matthew@wil.cx
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF22F54E7C.90692833-ONC1256CD9.0030C408@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Wed, 26 Feb 2003 09:54:52 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 26/02/2003 09:56:06
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S268686AbTBZI4e>; Wed, 26 Feb 2003 03:56:34 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:42884 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268685AbTBZI4d>;
+	Wed, 26 Feb 2003 03:56:33 -0500
+Date: Wed, 26 Feb 2003 00:47:26 -0800 (PST)
+Message-Id: <20030226.004726.22558908.davem@redhat.com>
+To: jmorris@intercode.com.au
+Cc: hch@infradead.org, yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
+       usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Privacy Extensions for Stateless Address
+ Autoconfiguration in IPv6
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0302261926450.13739-100000@blackbird.intercode.com.au>
+References: <20030225160634.A4525@infradead.org>
+	<Pine.LNX.4.44.0302261926450.13739-100000@blackbird.intercode.com.au>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: James Morris <jmorris@intercode.com.au>
+   Date: Wed, 26 Feb 2003 19:33:18 +1100 (EST)
 
-> (by zero extension in general, but s390x is probably diferent).
-
-Not really, the difference is that an address in ESA mode has 31 bits
-and not 32 bits. The llgtr instructions sets the upper 33 bits to zero.
-
-blue skies,
-   Martin
-
-
+   On Tue, 25 Feb 2003, Christoph Hellwig wrote:
+   
+   > Also I really wonder whether we want to add just md5.c to 2.4 or
+   > backport the cryptoapi core with md5 as the only algorithm so far..
+   
+   Any backport of new cryptoapi is likely to be some way off (after 2.6
+   stabilizes), so the md5 module submitted for 2.4 is required for the time
+   being.
+   
+This could be accelerated.

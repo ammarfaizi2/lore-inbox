@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135723AbRD3Sqb>; Mon, 30 Apr 2001 14:46:31 -0400
+	id <S135681AbRD3S5W>; Mon, 30 Apr 2001 14:57:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135681AbRD3SqV>; Mon, 30 Apr 2001 14:46:21 -0400
-Received: from [63.109.146.2] ([63.109.146.2]:3068 "EHLO mail0.myrio.com")
-	by vger.kernel.org with ESMTP id <S135532AbRD3SqJ>;
-	Mon, 30 Apr 2001 14:46:09 -0400
-Message-ID: <B65FF72654C9F944A02CF9CC22034CE22E1B9F@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Kenneth Johansson'" <ken@canit.se>,
-        Jonathan Lundell <jlundell@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.4 and 2GB swap partition limit
-Date: Mon, 30 Apr 2001 11:45:59 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S135722AbRD3S5L>; Mon, 30 Apr 2001 14:57:11 -0400
+Received: from pop.gmx.net ([194.221.183.20]:24948 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S135681AbRD3S5B>;
+	Mon, 30 Apr 2001 14:57:01 -0400
+Date: Mon, 30 Apr 2001 20:56:09 +0200
+From: Daniel Elstner <daniel.elstner@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.4 SMP: spurious EOVERFLOW "Value too large for defined data type"
+Message-Id: <20010430205609.36599ccd.daniel@master.daniel.homenet>
+X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+With kernel 2.4.4 SMP, I get some spurios errors from several
+user-space programs. Unfortunately it's hard to reproduce, I had most
+luck with the XFree86-4.0.3 build. When doing `make World', soon cpp0
+(called by imake) dies with the following error message:
 
-Kenneth Johansson wrote:
-> Jonathan Lundell wrote:
-> >
-> > (Does Linux swap out text, by the way, he asks ignorantly?)
-> 
-> .text is just droped and read back from the actuall file it's 
-> not put into the swap
+cpp0: : Value too large for defined data type
 
-Is this always true, even for init?  Can init be swapped out?  
+The message seems to correspond to EOVERFLOW in gcc's libiberty.
+When calling imake directly, it fails 1 out of 10-20 times.
+I couldn't reproduce this with calling cpp directly.
 
-In general, is there a safe way to replace executable files for
-programs that might be running while their on-disk images are
-replaced?
+I also got a lot of that messages once at shutdown,
+as init was trying to umount /proc.
 
-Thanks for any hints...
+The error occurs neither with 2.4.3 SMP nor with 2.4.4 UP.
+(I'm using reiserfs, too.)
 
-Torrey Hoffman
-torrey.hoffman@myrio.com
+ABIT VP6
+dual P3 866
+gcc version 2.95.4 20010319 (prerelease)
+binutils 2.11
+glibc 2.2.3
+
+Could you please give me further advice how to track this down?
+
+Thanks,
+-- Daniel

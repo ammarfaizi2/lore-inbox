@@ -1,110 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263380AbTEISBC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 14:01:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263383AbTEISBB
+	id S263376AbTEIR7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 13:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTEIR7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 14:01:01 -0400
-Received: from holomorphy.com ([66.224.33.161]:28577 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263380AbTEISAZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 14:00:25 -0400
-Date: Fri, 9 May 2003 11:12:57 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.69-mm3
-Message-ID: <20030509181257.GB8931@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030508013958.157b27b7.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030508013958.157b27b7.akpm@digeo.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Fri, 9 May 2003 13:59:15 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37898 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263376AbTEIR7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 13:59:10 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: hammer: MAP_32BIT
+Date: 9 May 2003 11:11:15 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b9gr03$42n$1@cesium.transmeta.com>
+References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell> <16059.37067.925423.998433@gargle.gargle.HOWL> <20030509113845.GA4586@averell>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08, 2003 at 01:39:58AM -0700, Andrew Morton wrote:
-> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.69-mm3.gz
->   Will appear sometime at
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.69/2.5.69-mm3/
+Followup to:  <20030509113845.GA4586@averell>
+By author:    Andi Kleen <ak@muc.de>
+In newsgroup: linux.dev.kernel
+>
+> 
+> On Fri, May 09, 2003 at 01:28:11PM +0200, mikpe@csd.uu.se wrote:
+> > I have a potential use for mmap()ing in the low 4GB on x86_64.
+> 
+> Just use MAP_32BIT
+> 
+> > Sounds like your MAP_32BIT really is MAP_31BIT :-( which is too limiting.
+> > What about a more generic way of indicating which parts of the address
+> > space one wants? The simplest that would work for me is a single byte
+> > 'nrbits' specifying the target address space as [0 .. 2^nrbits-1].
+> > This could be specified on a per-mmap() basis or as a settable process attribute.
+> 
+> On x86-64 an mmap extension for that would be fine, but on i386 you get
+> problems because mmap64() already maxes out the argument limit and you 
+> cannot add more.
+>  
 
-topology.h has a syntactic hygiene issue where it has a for () loop with
-an if () in the body defined as a macro:
+How about this: since the address argument is basically unused anyway
+unless MAP_FIXED is set, how about a MAP_MAXADDR which interprets the
+address argument as the highest permissible address (or lowest
+nonpermissible address)?
 
-#define foo(...) for (...) if (...)
-
-This patch prepares some of the bitop definitions used for the loop
-mechanics to be usable in headers where BITS_PER_LONG is not guaranteed
-to be defined for some reason. It removes the #ifdef on BITS_PER_LONG
-in favor of if (sizeof(...) == ...) tests so hweight_long() will be
-defined even when BITS_PER_LONG is not. unsigned long is also used for
-some variables and/or return types that changed size with BITS_PER_LONG.
-The 32-bit generic_hweight64() also changed its argument from a pointer
-to a u64, which actually makes for a consistent interface in both cases.
-
-The follow-up will make use of this to clean up the hygiene issue above
-and correct a compilation error in topology.h
-
-
--- wli
-
-
-diff -urpN mm3-2.5.69-1/include/linux/bitops.h mm3-2.5.69-2/include/linux/bitops.h
---- mm3-2.5.69-1/include/linux/bitops.h	2003-05-09 09:22:16.000000000 -0700
-+++ mm3-2.5.69-2/include/linux/bitops.h	2003-05-09 10:27:57.000000000 -0700
-@@ -1,5 +1,6 @@
- #ifndef _LINUX_BITOPS_H
- #define _LINUX_BITOPS_H
-+#include <asm/types.h>
- #include <asm/bitops.h>
- 
- /*
-@@ -107,11 +108,14 @@ static inline unsigned int generic_hweig
-         return (res & 0x0F) + ((res >> 4) & 0x0F);
- }
- 
--#if (BITS_PER_LONG == 64)
--
--static inline u64 generic_hweight64(u64 w)
-+static inline unsigned long generic_hweight64(u64 w)
- {
--        u64 res = (w & 0x5555555555555555) + ((w >> 1) & 0x5555555555555555);
-+	u64 res;
-+	if (sizeof(unsigned long) == 4)
-+		return generic_hweight32((unsigned long)(w >> 32)) +
-+					generic_hweight32((unsigned long)w);
-+
-+	res = (w & 0x5555555555555555) + ((w >> 1) & 0x5555555555555555);
-         res = (res & 0x3333333333333333) + ((res >> 2) & 0x3333333333333333);
-         res = (res & 0x0F0F0F0F0F0F0F0F) + ((res >> 4) & 0x0F0F0F0F0F0F0F0F);
-         res = (res & 0x00FF00FF00FF00FF) + ((res >> 8) & 0x00FF00FF00FF00FF);
-@@ -119,22 +123,9 @@ static inline u64 generic_hweight64(u64 
-         return (res & 0x00000000FFFFFFFF) + ((res >> 32) & 0x00000000FFFFFFFF);
- }
- 
--#define hweight_long(w)	generic_hweight64(w)
--
--#endif /* BITS_PER_LONG == 64 */
--
--#if (BITS_PER_LONG == 32)
--
--static inline unsigned int generic_hweight64(unsigned int *w)
-+static inline unsigned long hweight_long(unsigned long x)
- {
--	return generic_hweight32(w[0]) + generic_hweight32(w[1]);
-+	return sizeof(x) == 4 ? generic_hweight32(x) : generic_hweight64(x);
- }
- 
--#define hweight_long(w)	generic_hweight32(w)
--
--#endif /* BITS_PER_LONG == 32 */
--
--#include <asm/bitops.h>
--
--
- #endif
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,57 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281567AbRKUV6m>; Wed, 21 Nov 2001 16:58:42 -0500
+	id <S281294AbRKUWHc>; Wed, 21 Nov 2001 17:07:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281711AbRKUV6W>; Wed, 21 Nov 2001 16:58:22 -0500
-Received: from fep02-0.kolumbus.fi ([193.229.0.44]:56790 "EHLO
-	fep02-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id <S281567AbRKUV6R>; Wed, 21 Nov 2001 16:58:17 -0500
-Date: Wed, 21 Nov 2001 23:58:25 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: <makisara@kai.makisara.local>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: st.c SCSI Tape ioctl() bug
-In-Reply-To: <20011118204819.A968@vger.timpanogas.org>
-Message-ID: <Pine.LNX.4.33.0111212349540.5548-100000@kai.makisara.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281395AbRKUWHX>; Wed, 21 Nov 2001 17:07:23 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:49426 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S281294AbRKUWHS>;
+	Wed, 21 Nov 2001 17:07:18 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: marcel@mesa.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make modules_install fails with latest fileutils 
+In-Reply-To: Your message of "Wed, 21 Nov 2001 09:08:54 BST."
+             <20011121090854.A15851@joshua.mesa.nl> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 22 Nov 2001 09:06:31 +1100
+Message-ID: <7409.1006380391@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Nov 2001, Jeff V. Merkey wrote:
+On Wed, 21 Nov 2001 09:08:54 +0100, 
+"Marcel J.E. Mol" <marcel@mesa.nl> wrote:
+>On Wed, Nov 21, 2001 at 11:52:26AM +1100, Keith Owens wrote:
+>> (2) The correct workaround is
+>>      cp -f $(sort $(ALL_MOBJS)) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
+>
+>shouldn't this then be 'sort -u'.
 
->
->
-> Kai/Linux,
->
-> The ioctl() function to enable/disable code 15 comrpession has
-> some problems.  I have a fix to the code, but it does not
-> always seem to work properly, so I think you should do this
-> review.
->
-> If you call the ioctl() tape command from kernel space to
-> enable and disable **DEFAULT** compression (not MTCOMPRESSION
-> ioctl, the MT_ST_DEF_COMPRESSION code path) there is a case
-> where the default_compression/compression_changed flags
-> can horribly out of sync.
->
-> Please take a look at this code.  We have gotten around it
-> by simply calling MTCOMPRESSION everytime we need to use it,
-> however, but the other path seems busted, and it would be
-> nice for it to work properly.
->
-The default compression is meant to be set only at system
-startup/module loading. If the user wants to change the compression at any
-other time, using MTCOMPRESSION is the correct way.
-
-However, I agree that setting the default compression at any other time
-should also give the expected result. Currently, the compression default
-will be enforced when a new tape is inserted. It might be better to change
-the compression immediately after the default has been changed if the
-drive is ready. This should also synchronize the compression_changed flag.
-I will think about this a little more and then make the changes.
-
-	Kai
-
+info make, /$(sort
 

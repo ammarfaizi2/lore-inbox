@@ -1,60 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262771AbTIVEeo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 00:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbTIVEeo
+	id S262772AbTIVEsY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 00:48:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbTIVEsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 00:34:44 -0400
-Received: from imf16aec.mail.bellsouth.net ([205.152.59.64]:54678 "EHLO
-	imf16aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S262771AbTIVEen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 00:34:43 -0400
+	Mon, 22 Sep 2003 00:48:24 -0400
+Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:33951 "EHLO
+	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S262772AbTIVEsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 00:48:22 -0400
 From: "J.C. Wren" <jcwren@jcwren.com>
 Reply-To: jcwren@jcwren.com
-To: linux-kernel@vger.kernel.org
-Subject: Warnings when building 2.6.0-test5-bk8 (ntfs, i2c, ide, video, lib)
-Date: Mon, 22 Sep 2003 00:34:41 -0400
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test5-bk8 breaks VMWare build
+Date: Mon, 22 Sep 2003 00:48:21 -0400
 User-Agent: KMail/1.5.4
-References: <1064202544.17769.3.camel@poohbox.perlaholic.com>
-In-Reply-To: <1064202544.17769.3.camel@poohbox.perlaholic.com>
+References: <20030917050950.GC1376@Master> <20030922024058.GA1348@Master> <3F6E7A8A.8010604@cyberone.com.au>
+In-Reply-To: <3F6E7A8A.8010604@cyberone.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200309220034.41530.jcwren@jcwren.com>
+Message-Id: <200309220048.22043.jcwren@jcwren.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  CC      fs/ntfs/super.o
-fs/ntfs/super.c: In function `is_boot_sector_ntfs':
-fs/ntfs/super.c:375: warning: integer constant is too large for "long" type
+I don't know if this should be considered a VMWare or a kernel problem.  This works fine under 2.6.0-test3-bk8, so a header that VMWare depends on has changed.  The 
+`__set_64bit_var': warning does occur in test3-bk8, but the module safely compiles.
 
-  CC [M]  drivers/i2c/i2c-sensor.o
-drivers/i2c/i2c-sensor.c: In function `i2c_detect':
-drivers/i2c/i2c-sensor.c:54: warning: `check_region' is deprecated (declared at include/linux/ioport.h:117)
+None of VMware Workstation's pre-built vmmon modules is suitable for your
+running kernel.  Do you want this program to try to build the vmmon module for
+your system (you need to have a C compiler installed on your system)? [yes]
 
-  CC [M]  drivers/ide/ide-tape.o
-drivers/ide/ide-tape.c: In function `idetape_setup':
-drivers/ide/ide-tape.c:6245: warning: duplicate `const'
+Using compiler "/usr/bin/gcc". Use environment variable CC to override.
 
-  CC      drivers/video/matrox/matroxfb_g450.o
-drivers/video/matrox/matroxfb_g450.c: In function `g450_compute_bwlevel':
-drivers/video/matrox/matroxfb_g450.c:129: warning: duplicate `const'
-drivers/video/matrox/matroxfb_g450.c:130: warning: duplicate `const'
+What is the location of the directory of C header files that match your running
+kernel? [/lib/modules/2.6.0-test5-bk8/build/include]
 
-  CC      lib/string.o
-lib/string.c:435: warning: conflicting types for built-in function `bcopy'
+Extracting the sources of the vmmon module.
 
+Building the vmmon module.
 
-  AS      arch/i386/boot/setup.o
-arch/i386/boot/setup.S: Assembler messages:
-arch/i386/boot/setup.S:165: Warning: value 0x37ffffff truncated to 0x37ffffff
+make: Entering directory `/tmp/vmware-config0/vmmon-only'
+make[1]: Entering directory `/tmp/vmware-config0/vmmon-only'
+make[2]: Entering directory `/tmp/vmware-config0/vmmon-only/driver-2.6.0-test5-bk8'
+make[2]: Leaving directory `/tmp/vmware-config0/vmmon-only/driver-2.6.0-test5-bk8'
+make[2]: Entering directory `/tmp/vmware-config0/vmmon-only/driver-2.6.0-test5-bk8'
+In file included from /lib/modules/2.6.0-test5-bk8/build/include/asm/processor.h:18,
+                 from /lib/modules/2.6.0-test5-bk8/build/include/asm/thread_info.h:13,
+                 from /lib/modules/2.6.0-test5-bk8/build/include/linux/thread_info.h:21,
+                 from /lib/modules/2.6.0-test5-bk8/build/include/linux/spinlock.h:12,
+                 from /lib/modules/2.6.0-test5-bk8/build/include/linux/capability.h:45,
+                 from /lib/modules/2.6.0-test5-bk8/build/include/linux/sched.h:7,
+                 from /lib/modules/2.6.0-test5-bk8/build/include/linux/module.h:10,
+                 from ../linux/driver.c:16:
+/lib/modules/2.6.0-test5-bk8/build/include/asm/system.h: In function `__set_64bit_var':
+/lib/modules/2.6.0-test5-bk8/build/include/asm/system.h:193: warning: dereferencing type-punned pointer will break strict-aliasing rules
+/lib/modules/2.6.0-test5-bk8/build/include/asm/system.h:193: warning: dereferencing type-punned pointer will break strict-aliasing rules
+../linux/driver.c: In function `init_module':
+../linux/driver.c:246: error: structure has no member named `prev'
+../linux/driver.c:247: error: structure has no member named `next'
+../include/vm_asm.h: In function `Div643264':
+../include/vm_asm.h:1095: warning: use of memory input without lvalue in asm operand 4 is deprecated
+make[2]: *** [driver.o] Error 1
+make[2]: Leaving directory `/tmp/vmware-config0/vmmon-only/driver-2.6.0-test5-bk8'
+make[1]: *** [driver] Error 2
+make[1]: Leaving directory `/tmp/vmware-config0/vmmon-only'
+make: *** [auto-build] Error 2
+make: Leaving directory `/tmp/vmware-config0/vmmon-only'
+Unable to build the vmmon module.
 
-Reading specs from /usr/lib/gcc-lib/i686-pc-linux-gnu/3.3.1/specs
-Configured with: /var/tmp/portage/gcc-3.3.1-r1/work/gcc-3.3.1/configure --prefix=/usr --bindir=/usr/i686-pc-linux-gnu/gcc-bin/3.3 --includedir=/usr/lib/gcc-lib/i686-pc-linux-gnu/3.3.1/include --datadir=/usr/share/gcc-data/i686-pc-linux-gnu/3.3 --mandir=/usr/share/gcc-data/i686-pc-linux-gnu/3.3/man --infodir=/usr/share/gcc-data/i686-pc-linux-gnu/3.3/info --enable-shared --host=i686-pc-linux-gnu --target=i686-pc-linux-gnu --with-system-zlib --enable-languages=c,c++,ada,f77,objc,java --enable-threads=posix --enable-long-long --disable-checking --enable-cstdio=stdio --enable-clocale=generic --enable-__cxa_atexit --enable-version-specific-runtime-libs --with-gxx-include-dir=/usr/lib/gcc-lib/i686-pc-linux-gnu/3.3.1/include/g++-v3 --with-local-prefix=/usr/local --enable-shared --enable-nls --without-included-gettext --x-includes=/usr/X11R6/include --x-libraries=/usr/X11R6/lib --enable-interpreter --enable-java-awt=xlib --with-x --disable-multilib
-Thread model: posix
-gcc version 3.3.1 20030904 (Gentoo Linux 3.3.1-r1, propolice)
+For more information on how to troubleshoot module-related problems, please
+visit our Web site at "http://www.vmware.com/download/modules/modules.html" and
+"http://www.vmware.com/support/reference/linux/prebuilt_modules_linux.html".
 
+Execution aborted.
 
 

@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263096AbREaOHB>; Thu, 31 May 2001 10:07:01 -0400
+	id <S263105AbREaPA6>; Thu, 31 May 2001 11:00:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263099AbREaOGv>; Thu, 31 May 2001 10:06:51 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:14857
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S263096AbREaOGl>; Thu, 31 May 2001 10:06:41 -0400
-Date: Thu, 31 May 2001 09:56:53 -0400
-From: Chris Mason <mason@suse.com>
-To: Andrej Borsenkow <Andrej.Borsenkow@mow.siemens.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: NULL characters in file on ReiserFS again.
-Message-ID: <874280000.991317413@tiny>
-In-Reply-To: <000201c0e9c5$7643d540$21c9ca95@mow.siemens.ru>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S263106AbREaPAi>; Thu, 31 May 2001 11:00:38 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:26792 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S263105AbREaPA1>;
+	Thu, 31 May 2001 11:00:27 -0400
+Date: Wed, 30 May 2001 22:07:39 -0400 (EDT)
+From: Feng Xian <fxian@fxian.jukie.net>
+X-X-Sender: <fxian@tiger>
+To: <linux-kernel@vger.kernel.org>
+cc: Feng Xian <fxian@chrysalis-its.com>
+Subject: APIC problem or 3com 3c590 driver problem in smp kernel 2.4.x
+Message-ID: <Pine.LNX.4.33.0105302155180.31379-100000@tiger>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, all,
+
+I have one pci device in my dell optiplex gx300 dual pIII box. when this
+device in a certain pci slot, it shares the same IRQ with the on mother
+board 3com NIC(3c905) (irq=5). when I run the kernel smp-2.4.x, my PCI
+device can not receive any interrupt while the /proc/interrupts shows that
+3c905 receives over million of interrupts and number grows very fast. then
+I moved my pci device to another pci slot, now, 3c905's irq=5, my device's
+irq=0xb, my device behaves normal, the interrupt number for 3c905 also
+looks normal. 	I also tried to use a uni-processor kernel without APIC
+support enabled, my pci device shares irq with 3c905, but works fine.
+
+It looks more like APIC support problem. but it also may be 3c905
+driver's ISR's problem. Anyone who owns the code has any idea about this?
+
+Thanks in advance.
+
+Alex
 
 
-On Thursday, May 31, 2001 03:33:06 PM +0400 Andrej Borsenkow
-<Andrej.Borsenkow@mow.siemens.ru> wrote:
-
-> This happened to me yesterday on kernel-2.4.4-6mdk (Mandrake cooker, based
-> on 2.4.4-ac14), single reiser root filesystem, mounted with default
-> options. Hardware - ASUS CUSL2 (i815e chipset), Fujitsu UDMA-4 drive.
-> 
-> I tried to change hostname and did not have the corresponding entry in
-> /etc/hosts (or anywhere). As a tesult, startx hung starting X server; it
-> was not possible to switch to alpha console or kill X server. I pressed
-> reset and after reboot looked into /var/log/XFree86*log - and there were
-> a bunch of ^@ there.
-> 
-
-There are two ways to get nulls in log files.  reiserfs bugs, and a crash
-before data blocks are flushed to disk.  You've probably hit the second.
-Reiserfs only logs metadata, so it is possible for newly allocated data
-blocks to have null bytes after a crash.
-
-Patches are in progress to flush new data blocks before transaction commit.
-I'm about to send out the first building block for this...
-
--chris
-
+-- 
+        Feng Xian
+   _o)     .~.      (o_
+   /\\     /V\      //\
+  _\_V    // \\     V_/_
+         /(   )\
+          ^^-^^
+           ALEX
 

@@ -1,133 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131332AbQLGXaE>; Thu, 7 Dec 2000 18:30:04 -0500
+	id <S129267AbQLGXff>; Thu, 7 Dec 2000 18:35:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131731AbQLGX3y>; Thu, 7 Dec 2000 18:29:54 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:30828
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S131692AbQLGX3q>; Thu, 7 Dec 2000 18:29:46 -0500
-Date: Fri, 8 Dec 2000 00:59:05 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: torvalds@transmeta.com, davem@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] CONFIG_PCI cleanup in drivers/net/fc/iph5526.c (240t12p7)
-Message-ID: <20001208005905.A600@jaquet.dk>
+	id <S129314AbQLGXf0>; Thu, 7 Dec 2000 18:35:26 -0500
+Received: from d06lmsgate.uk.ibm.com ([195.212.29.1]:34475 "EHLO
+	d06lmsgate.uk.ibm.COM") by vger.kernel.org with ESMTP
+	id <S129267AbQLGXfR>; Thu, 7 Dec 2000 18:35:17 -0500
+From: richardj_moore@uk.ibm.com
+X-Lotus-FromDomain: IBMGB
+To: root@chaos.analogic.com
+cc: Andi Kleen <ak@suse.de>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        linux-kernel@vger.kernel.org
+Message-ID: <802569AE.007EC129.00@d06mta06.portsmouth.uk.ibm.com>
+Date: Thu, 7 Dec 2000 23:03:40 +0000
+Subject: Re: Why is double_fault serviced by a trap gate?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-This patch is blessed by the maintainer and is based on the observation
-that the Interphase 5526 card requires PCI to work. Therefore the PCI
-dependency is moved into net/Config.in and removed from the .c-file.
-The maintainers email address is also updated and a minor code shuffle
-is done in order to eliminate an #ifdef MODULE.
-
-Please apply (or at least comment :) )
 
 
-diff -Naur linux-240-t12-pre7-clean/drivers/net/Config.in linux/drivers/net/Config.in
---- linux-240-t12-pre7-clean/drivers/net/Config.in	Wed Nov 22 22:41:40 2000
-+++ linux/drivers/net/Config.in	Fri Dec  8 00:50:34 2000
-@@ -258,7 +258,7 @@
- 
- bool 'Fibre Channel driver support' CONFIG_NET_FC
- if [ "$CONFIG_NET_FC" = "y" ]; then
--   dep_tristate '  Interphase 5526 Tachyon chipset based adapter support' CONFIG_IPHASE5526 $CONFIG_SCSI
-+   dep_tristate '  Interphase 5526 Tachyon chipset based adapter support' CONFIG_IPHASE5526 $CONFIG_SCSI $CONFIG_PCI
- fi
- 
- if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-diff -Naur linux-240-t12-pre7-clean/drivers/net/fc/iph5526.c linux/drivers/net/fc/iph5526.c
---- linux-240-t12-pre7-clean/drivers/net/fc/iph5526.c	Wed Nov 22 22:41:40 2000
-+++ linux/drivers/net/fc/iph5526.c	Fri Dec  8 00:50:34 2000
-@@ -1,7 +1,7 @@
- /**********************************************************************
-  * iph5526.c: IP/SCSI driver for the Interphase 5526 PCI Fibre Channel
-  *			  Card.
-- * Copyright (C) 1999 Vineet M Abraham <vma@iol.unh.edu>
-+ * Copyright (C) 1999 Vineet M Abraham <vmabraham@hotmail.com>
-  *
-  * This program is free software; you can redistribute it and/or 
-  * modify it under the terms of the GNU General Public License as 
-@@ -33,7 +33,7 @@
- */	
- 
- static const char *version =
--    "iph5526.c:v1.0 07.08.99 Vineet Abraham (vma@iol.unh.edu)\n";
-+    "iph5526.c:v1.0 07.08.99 Vineet Abraham (vmabraham@hotmail.com)\n";
- 
- #include <linux/module.h>
- #include <linux/config.h>
-@@ -220,32 +220,23 @@
- 
- static void iph5526_timeout(struct net_device *dev);
- 
--#ifdef CONFIG_PCI
- static int iph5526_probe_pci(struct net_device *dev);
--#endif
+You seem to be misunderstanding the point of the argument: R3 stack fault -
+no problem - handled by trap gate for idt vector 12 - recovery is possible
+if one wants to handle it. R0 stack fault - big problem, exception 12 is
+converted to a double-fault, which is converted to a triple-fault because
+vector 8 is a trap gate and not a task gate.
+
+
+Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
+
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
+
+
+"Richard B. Johnson" <root@chaos.analogic.com> on 07/12/2000 21:44:23
+
+Please respond to root@chaos.analogic.com
+
+To:   Richard J Moore/UK/IBM@IBMGB
+cc:   Andi Kleen <ak@suse.de>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+      linux-kernel@vger.kernel.org
+Subject:  Re: Why is double_fault serviced by a trap gate?
+
+
+
+
+On Thu, 7 Dec 2000 richardj_moore@uk.ibm.com wrote:
+
+>
+>
+> Which surely we can on today's x86 systems. Even back in the days of OS/2
+> 2.0 running on a 386 with 4Mb RAM we used a taskgate for both NMI and
+> Double Fault. You need only a minimal stack - 1K, sufficient to save
+state
+> and restore ESP to a known point before switching back to the main TSS to
+> allow normal exception handling to occur.
+>
+> There no architectural restriction that some folks have hinted at - as
+long
+> as the DPL for the task gates is 3.
+>
+[SNIPPED...]
+
+Please refer to page 6-16, Inter486 Microprocessor Family Programmer's
+Reference Manual.
+
+The specifc text is: "The TSS does not have a stack pointer for a
+privilege level 3 stack, because the procedure cannot be called by a less
+privileged procedure. The stack for privilege level 3 is preserved by the
+contents of SS and EIP registers which have been saved on the stack
+of the privilege level called from level 3".
+
+What this means is that a stack-fault in level 3 will kill you no
+matter how cute you try to be. And, putting a task gate as call
+procedure entry from a trap or fault is just trying to be cute.
+It's extra code that will result in the same processor reset.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
- 
- int __init iph5526_probe(struct net_device *dev)
- {
--#ifdef CONFIG_PCI
- 	if (pci_present() && (iph5526_probe_pci(dev) == 0))
- 		return 0;
--#endif
-     return -ENODEV;
- }
- 
--#ifdef CONFIG_PCI
- static int __init iph5526_probe_pci(struct net_device *dev)
- {
--#ifndef MODULE
--struct fc_info *fi;
--static int count = 0;
--#endif
- #ifdef MODULE
--struct fc_info *fi = (struct fc_info *)dev->priv;
--#endif
--
--#ifndef MODULE
-+	struct fc_info *fi = (struct fc_info *)dev->priv;
-+#else
-+	struct fc_info *fi;
-+	static int count = 0;
-+ 
- 	if(fc[count] != NULL) {
- 		if (dev == NULL) {
- 			dev = init_fcdev(NULL, 0);
-@@ -277,7 +268,6 @@
- 	display_cache(fi);
- 	return 0;
- }
--#endif  /* CONFIG_PCI */
- 
- static int __init fcdev_init(struct net_device *dev)
- {
-diff -Naur linux-240-t12-pre7-clean/drivers/net/fc/tach_structs.h linux/drivers/net/fc/tach_structs.h
---- linux-240-t12-pre7-clean/drivers/net/fc/tach_structs.h	Mon Aug 23 19:12:38 1999
-+++ linux/drivers/net/fc/tach_structs.h	Fri Dec  8 00:50:34 2000
-@@ -1,7 +1,7 @@
- /**********************************************************************
-  * iph5526.c: Structures for the Interphase 5526 PCI Fibre Channel 
-  *			  IP/SCSI driver.
-- * Copyright (C) 1999 Vineet M Abraham <vma@iol.unh.edu>
-+ * Copyright (C) 1999 Vineet M Abraham <vmabraham@hotmail.com>
-  **********************************************************************/
- 
- #ifndef _TACH_STRUCT_H
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+Please read the FAQ at http://www.tux.org/lkml/
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
 
-Without censorship, things can get terribly confused in the
-public mind. -General William Westmoreland, during the war in Viet Nam
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

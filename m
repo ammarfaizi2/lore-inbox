@@ -1,57 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267885AbUHEXWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267924AbUHEX01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267885AbUHEXWx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 19:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267924AbUHEXWw
+	id S267924AbUHEX01 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 19:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267932AbUHEX01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 19:22:52 -0400
-Received: from mms2.broadcom.com ([63.70.210.59]:15624 "EHLO mms2.broadcom.com")
-	by vger.kernel.org with ESMTP id S267885AbUHEXWv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 19:22:51 -0400
-X-Server-Uuid: 011F2A72-58F1-4BCE-832F-B0D661E896E8
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: MMCONFIG violates pci power mgmt spec
-Date: Thu, 5 Aug 2004 16:22:17 -0700
-Message-ID: <B1508D50A0692F42B217C22C02D84972020F3BBB@NT-IRVA-0741.brcm.ad.broadcom.com>
-Thread-Topic: MMCONFIG violates pci power mgmt spec
-thread-index: AcR7O6c6zKBHrKTrSLa52smZyNRZggAAXxvA
-From: "Michael Chan" <mchan@broadcom.com>
-To: "Andi Kleen" <ak@muc.de>
-cc: linux-kernel@vger.kernel.org, "Steve Lindsay" <slindsay@broadcom.com>,
-       "Marcus Calescibetta" <marcusc@broadcom.com>
-X-WSS-ID: 6D0C1EA215C5119413-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Thu, 5 Aug 2004 19:26:27 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:41128 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S267924AbUHEX0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 19:26:20 -0400
+Date: Thu, 5 Aug 2004 16:26:18 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH][PPC32] Cleanup PPC44x mmu_mapin_ram()
+Message-ID: <20040805162618.I14159@home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Remove some old cruft in the kernel lowmem mapping code and
+save some memory in the process.
 
-> > For example, if the device is transitioning into or out of 
-> D3hot, the 
-> > spec requires a delay of 10 msec before any accesses can be made to 
-> > the device. The dummy read in pci_mmcfg_write violates the delay 
-> > requirements even though pci_set_power_state has all the necessary 
-> > delays.
-> 
-> Interesting. What happens? Hangs? 
-> 
+Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
 
-What happens depends on the system/chipset/bios. Sometimes we see an
-NMI, sometimes nothing bad happens.
-
-> 
-> Reading is the official way to flush.
-> 
-
-The MMCONFIG ECN document from pcisig below gives a few examples on how
-the mmconfig write can be flushed. The exact mechanism of course is
-implemention specific.
-
-http://www.pcisig.com/specifications/pciexpress/specifications
-
-Michael
-
+===== arch/ppc/mm/44x_mmu.c 1.3 vs edited =====
+--- 1.3/arch/ppc/mm/44x_mmu.c	Fri Feb 13 08:24:55 2004
++++ edited/arch/ppc/mm/44x_mmu.c	Thu Aug  5 16:18:10 2004
+@@ -93,10 +93,14 @@
+ }
+ 
+ /*
+- * Configure PPC44x TLB for AS0 exception processing.
++ * MMU_init_hw does the chip-specific initialization of the MMU hardware.
+  */
+-static void __init
+-ppc44x_tlb_config(void)
++void __init MMU_init_hw(void)
++{
++	flush_instruction_cache();
++}
++
++unsigned long __init mmu_mapin_ram(void)
+ {
+ 	unsigned int pinned_tlbs = 1;
+ 	int i;
+@@ -124,39 +128,6 @@
+ 			unsigned int phys_addr = (PPC44x_LOW_SLOT-i) * PPC44x_PIN_SIZE;
+ 			ppc44x_pin_tlb(i, phys_addr+PAGE_OFFSET, phys_addr);
+ 		}
+-}
+-
+-/*
+- * MMU_init_hw does the chip-specific initialization of the MMU hardware.
+- */
+-void __init MMU_init_hw(void)
+-{
+-	flush_instruction_cache();
+-
+-	ppc44x_tlb_config();
+-}
+-
+-/* TODO: Add large page lowmem mapping support */
+-unsigned long __init mmu_mapin_ram(void)
+-{
+-	unsigned long v, s, f = _PAGE_GUARDED;
+-	phys_addr_t p;
+-
+-	v = KERNELBASE;
+-	p = PPC_MEMSTART;
+-
+-	for (s = 0; s < total_lowmem; s += PAGE_SIZE) {
+-		if ((char *) v >= _stext && (char *) v < etext)
+-			f |= _PAGE_RAM_TEXT;
+-		else
+-			f |= _PAGE_RAM;
+-		map_page(v, p, f);
+-		v += PAGE_SIZE;
+-		p += PAGE_SIZE;
+-	}
+-
+-	if (ppc_md.progress)
+-		ppc_md.progress("MMU:mmu_mapin_ram done", 0x401);
+ 
+-	return s;
++	return total_lowmem;
+ }

@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265608AbTBPCVr>; Sat, 15 Feb 2003 21:21:47 -0500
+	id <S265637AbTBPCeW>; Sat, 15 Feb 2003 21:34:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265637AbTBPCVr>; Sat, 15 Feb 2003 21:21:47 -0500
-Received: from virtisp1.zianet.com ([216.234.192.105]:18191 "HELO
-	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S265608AbTBPCVq>; Sat, 15 Feb 2003 21:21:46 -0500
-Subject: [PATCH] 2.5.61 more accurate spelling of accuracy
-From: Steven Cole <elenstev@mesatop.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 15 Feb 2003 19:23:24 -0700
-Message-Id: <1045362206.5965.58.camel@localhost.localdomain>
+	id <S265643AbTBPCeW>; Sat, 15 Feb 2003 21:34:22 -0500
+Received: from holomorphy.com ([66.224.33.161]:20104 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S265637AbTBPCeW>;
+	Sat, 15 Feb 2003 21:34:22 -0500
+Date: Sat, 15 Feb 2003 18:43:17 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       lkml <linux-kernel@vger.kernel.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: [PATCH] make jiffies wrap 5 min after boot
+Message-ID: <20030216024317.GM29983@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Anton Blanchard <anton@samba.org>,
+	Tim Schmielau <tim@physik3.uni-rostock.de>,
+	lkml <linux-kernel@vger.kernel.org>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+References: <Pine.LNX.4.33L2.0302040935230.6174-100000@dragon.pdx.osdl.net> <Pine.LNX.4.33.0302160232120.7975-100000@gans.physik3.uni-rostock.de> <20030216020808.GF9833@krispykreme>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030216020808.GF9833@krispykreme>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This provides a accurate spelling of accuracy.
+At some point in the past, someone else wrote:
+>> +#define INITIAL_JIFFIES (0xffffffffUL & (unsigned long)(-300*HZ))
 
-Steven
+On Sun, Feb 16, 2003 at 01:08:08PM +1100, Anton Blanchard wrote:
+> In order to make 64bit arches wrap too, you might want to use -1UL here.
+> Not that jiffies should wrap on a 64bit machine...
 
+Can I get a vote for ~0UL instead of -1UL?
 
-diff -ur linux-2.5.61-1.1027-orig/include/asm-arm/arch-pxa/time.h linux-2.5.61-1.1027/include/asm-arm/arch-pxa/time.h
---- linux-2.5.61-1.1027-orig/include/asm-arm/arch-pxa/time.h	Thu Jan 16 19:22:07 2003
-+++ linux-2.5.61-1.1027/include/asm-arm/arch-pxa/time.h	Sat Feb 15 19:12:18 2003
-@@ -53,7 +53,7 @@
- 	int next_match;
- 
- 	/* Loop until we get ahead of the free running timer.
--	 * This ensures an exact clock tick count and time acuracy.
-+	 * This ensures an exact clock tick count and time accuracy.
- 	 * IRQs are disabled inside the loop to ensure coherence between
- 	 * lost_ticks (updated in do_timer()) and the match reg value, so we
- 	 * can use do_gettimeofday() from interrupt handlers.
-diff -ur linux-2.5.61-1.1027-orig/include/asm-arm/arch-sa1100/time.h linux-2.5.61-1.1027/include/asm-arm/arch-sa1100/time.h
---- linux-2.5.61-1.1027-orig/include/asm-arm/arch-sa1100/time.h	Thu Jan 16 19:23:00 2003
-+++ linux-2.5.61-1.1027/include/asm-arm/arch-sa1100/time.h	Sat Feb 15 19:11:56 2003
-@@ -67,7 +67,7 @@
-  * We will be entered with IRQs enabled.
-  *
-  * Loop until we get ahead of the free running timer.
-- * This ensures an exact clock tick count and time acuracy.
-+ * This ensures an exact clock tick count and time accuracy.
-  * IRQs are disabled inside the loop to ensure coherence between
-  * lost_ticks (updated in do_timer()) and the match reg value, so we
-  * can use do_gettimeofday() from interrupt handlers.
-
-
-
-
+-- wli

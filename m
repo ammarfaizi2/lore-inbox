@@ -1,97 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262694AbVDAKgH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262696AbVDAKle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbVDAKgH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 05:36:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbVDAKgH
+	id S262696AbVDAKle (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 05:41:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbVDAKle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 05:36:07 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:21690 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262694AbVDAKf0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 05:35:26 -0500
-Date: Fri, 1 Apr 2005 12:34:52 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Jackson <pj@engr.sgi.com>
-Cc: nickpiggin@yahoo.com.au, kenneth.w.chen@intel.com, torvalds@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Industry db benchmark result on recent 2.6 kernels
-Message-ID: <20050401103452.GA31082@elte.hu>
-References: <200503312214.j2VMEag23175@unix-os.sc.intel.com> <424C8956.7070108@yahoo.com.au> <20050331220526.3719ed7f.pj@engr.sgi.com> <20050401065955.GB26203@elte.hu> <20050401012902.2fb1a992.pj@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Apr 2005 05:41:34 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:61410 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262696AbVDAKlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 05:41:31 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: AMD64 Machine hardlocks when using memset
+Date: Fri, 1 Apr 2005 13:41:02 +0300
+User-Agent: KMail/1.5.4
+References: <3NTHD-8ih-1@gated-at.bofh.it> <3O99L-40N-9@gated-at.bofh.it> <424CD018.5000005@shaw.ca>
+In-Reply-To: <424CD018.5000005@shaw.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050401012902.2fb1a992.pj@engr.sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200504011341.02790.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Paul Jackson <pj@engr.sgi.com> wrote:
-
-> > It has to be made sure that H1+H2+H3 != H4+H5+H6,
+On Friday 01 April 2005 07:37, Robert Hancock wrote:
+> Stelian Pop wrote:
+> > Just a thought: does deactivating cpufreq change anything ?
+> > 
+> > I haven't tested yet your program, but on my Asus K8NE-Deluxe very
+> > strange things happen if cpufreq/powernow is activated *and* 
+> > the cpu frequency is changed...
 > 
-> Yeah - if you start trying to think about the general case here, the 
-> combinations tend to explode on one.
-
-well, while i dont think we need that much complexity, the most generic 
-case is a representation of the actual hardware (cache/bus) layout, 
-where separate hardware component types have different IDs.
-
-e.g. a simple hiearchy would be:
-
-         ____H1____
-      _H2_        _H2_
-    H3    H3    H3    H3
-   [P1]  [P2]  [P3]  [P4]
-
-Then all that has to happen is to build a 'path' of ids (e.g. "H3,H2,H3" 
-is a path), which is a vector of IDs, and an array of already measured 
-vectors. These IDs never get added so they just have to be unique per 
-type of component.
-
-there are two different vectors possible: H3,H2,H3 and H3,H2,H1,H2,H3, 
-so two measurements are needed, between P1 and P2 and P1 and P3. (the 
-first natural occurence of each path)
-
-this is tree walking and vector building/matching. There is no 
-restriction on the layout of the hierarchy, other than it has to be a 
-tree. (no circularity) It's easy to specify such a tree, and there are 
-no 'mixup' dangers.
-
-> I'm thinking we get off easy, because:
+> Didn't change anything for me, I tried deactivating cpufreq, still 
+> crashes when I run that test program.
 > 
->  1) Specific arch's can apply specific short cuts.
-> 
-> 	My intuition was that any specific architecture, when it
-> 	got down to specifics, could find enough ways to cheat
-> 	so that it could get results quickly, that easily fit
-> 	in a single 'distance' word, which results were 'close
-> 	enough.'
+> This is getting pretty ridiculous.. I've tried memory timings down to 
+> the slowest possible, ran Memtest86 for 4 passes with no errors, and 
+> it's been stable in Windows for a few months now. Still something is 
+> blowing up in Linux with this test though..
 
-yes - but the fundamental problem is already that we do have per-arch 
-shortcuts: the cache_hot value. If an arch wanted to set it up, it could 
-do it. But it's not easy to set it up and the value is not intuitive. So 
-the key is to make it convenient and fool-proof to set up the data - 
-otherwise it just wont be used, or will be used incorrectly.
+If you want to dig deeper, go to assembler level.
+That is, instead of using memset(), disassemble
+your program and make your own
 
-but i'd too go for the simpler 'pseudo-distance' function, because it's 
-so much easier to iterate through it. But it's not intuitive. Maybe it 
-should be called 'connection ID': a unique ID for each uniqe type of 
-path between CPUs. An architecture can take shortcuts if it has a simple 
-layout (most have). I.e.:
+void my_memset(...)
+{
+	asm volatile(/* code sequence from your crashing prog*/);
+}
 
-	sched_cpu_connection_type(int cpu1, int cpu2)
+and use that in your memsetting loop. Sure, it won't change anything,
+but:
 
-would return a unique type ID for different. Note that 'distance' (or 
-'memory access latency', or 'NUMA factor') as a unit is not sufficient, 
-as it does not take cache-size nor CPU speed into account, which does 
-play a role in the migration characteristics.
+a) we will know exactly which instruction sequence drives
+   your CPU/chipset crazy
+b) others can try to reproduce without danger of memset being
+   implemented differently on their perticular version of gcc/glibc/whatever
+c) you can try other memsets in order to know more about this bug
+   (for example, if inserting some NOPs in the my_memset body
+   makes bug disappear will definitely point towards defective/
+   overheating CPU. etc...)
+--
+vda
 
-	Ingo

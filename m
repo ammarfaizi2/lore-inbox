@@ -1,72 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbULGXVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbULGXZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbULGXVL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 18:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbULGXVL
+	id S261951AbULGXZT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 18:25:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbULGXZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 18:21:11 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:48514 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261970AbULGXU6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 18:20:58 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Wed, 8 Dec 2004 00:08:11 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Michael Hunold <hunold@linuxtv.org>, eyal@eyal.emu.id.au,
-       hunold@convergence.de, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       js@convergence.de
-Subject: Re: Linux 2.6.10-rc3 oops when 'modprobe -r dvb-bt8xx'
-Message-ID: <20041207230811.GA27344@bytesex>
-References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org> <41B1BD24.4050603@eyal.emu.id.au> <87653ex9wy.fsf@bytesex.org> <41B613E1.2010602@linuxtv.org> <20041207135521.4c04c102.akpm@osdl.org>
+	Tue, 7 Dec 2004 18:25:19 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:2470 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261951AbULGXZQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 18:25:16 -0500
+Date: Tue, 7 Dec 2004 11:39:15 -0800
+From: Greg KH <greg@kroah.com>
+To: jonathan li <spiderium@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: usb does not work on via's smp mainboard
+Message-ID: <20041207193915.GA26208@kroah.com>
+References: <14dd4ead041206215713fd1646@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041207135521.4c04c102.akpm@osdl.org>
+In-Reply-To: <14dd4ead041206215713fd1646@mail.gmail.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 07, 2004 at 01:55:21PM -0800, Andrew Morton wrote:
-> Michael Hunold <hunold@linuxtv.org> wrote:
-> >
-> > I just spoke to Johannes and we agree with you, Gerd. The DVB changes 
-> > can and should be merged from -mm now. There is a fair chance that the 
-> > remaining issues with broken cards can be resolved before 2.6.10.
-> 
-> How much end-user testing has the new code had?
+On Tue, Dec 07, 2004 at 01:57:14PM +0800, jonathan li wrote:
+> hi, all
+> I installed kernel 2.4.21 on an via's mainboard, it seems that the usb
+> host controller does not work. when a connect my flash disk to it,it
+> reports the messages as follows:
 
-Test coverage by people running -rc or -mm kernels seems to be small,
-my impression is that the users tend to use either the versions in
-release kernels (i.e. 2.6.9) or latest stuff from cvs.  I'd say it is
-mostly tested by people tracking the linuxtv cvs.
+Can you try a newer, 2.4 or even 2.6 kernel?  This is probably an
+interrupt routing issue that should be fixed in a newer kernel.
 
-> ie: are we confident that the new code is presently more stable than
-> the old code?
+thanks,
 
-I'm pretty sure, otherwise I wouldn't have suggested that.  Test coverage
-is probably about the same for the code currently in Linus tree and the
--mm updates.  The last big dvb update which introduced the problems we
-see now in 2.6.10-rc kernels was merged after 2.6.9, so I think it
-didn't got that much end user testing as well.
-
-The interface design of the current code is much better and less error
-prone, that alone should help alot in stability by fixing the oopses.
-The new frontend handling has -- unlike the old one -- no problems with
-i2c address clashes, which should also fix a number of problems.
-
-The new core code runs rock solid, I use that every day without problems.
-We might have introduced some new hardware specific bugs nobody trapped
-into so far (but thats true for the code currently in -rc3 as well, see
-above).
-
-> > The code is in a good shape and only some small patches are missing from 
-> > the LinuxTV.org CVS.
-
-Which should help alot when dealing with any issues showing up because
-merging fixes from cvs into mainline kernel will be very easy ;)
-
-  Gerd
-
--- 
-#define printk(args...) fprintf(stderr, ## args)
+greg k-h

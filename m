@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135426AbRECXWh>; Thu, 3 May 2001 19:22:37 -0400
+	id <S135413AbRECXb6>; Thu, 3 May 2001 19:31:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135427AbRECXW1>; Thu, 3 May 2001 19:22:27 -0400
-Received: from jalon.able.es ([212.97.163.2]:35801 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S135426AbRECXWL>;
-	Thu, 3 May 2001 19:22:11 -0400
-Date: Fri, 4 May 2001 01:22:02 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Miles Lane <miles@megapathdsl.net>
+	id <S135427AbRECXbr>; Thu, 3 May 2001 19:31:47 -0400
+Received: from smtp102.urscorp.com ([38.202.96.105]:54034 "EHLO
+	smtp102.urscorp.com") by vger.kernel.org with ESMTP
+	id <S135413AbRECXb1>; Thu, 3 May 2001 19:31:27 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: OT: Here's the article text -- Microsoft Is Set to Be Top Foe of Free Code
-Message-ID: <20010504012202.C2512@werewolf.able.es>
-In-Reply-To: <988925908.1280.42.camel@agate>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <988925908.1280.42.camel@agate>; from miles@megapathdsl.net on Thu, May 03, 2001 at 23:38:27 +0200
-X-Mailer: Balsa 1.1.4
+Subject: Re: skb->truesize > sk->rcvbuf == Dropped packets
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+From: mike_phillips@urscorp.com
+Message-ID: <OFB60DB560.B716D10F-ON84256A41.007A7A73@urscorp.com>
+Date: Thu, 3 May 2001 20:24:07 -0300
+X-MIMETrack: Serialize by Router on SMTP102/URSCorp(Release 5.0.5 |September 22, 2000) at
+ 05/03/2001 07:27:09 PM,
+	Serialize complete at 05/03/2001 07:27:09 PM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> I can implement one solution by copying the received packets into skb's 
 
-On 05.03 Miles Lane wrote:
-> Sorry for sending a link to a (albeit, free) subcription
-> service earlier.  Here's the text of the article, in case 
-> you are interested in Microsoft's latest shinanigans.
-> 
-> 
-> away in an effort to attract visitors to Web sites.  G.P.L. requires
-> that any software using source code already covered by the licensing
-> agreement must become available for free distribution.
-> 
+>> with the correct length, but that eliminates the performance gains from 
 
-AFAIK, GPL only forces you to distribute the source of the GPLed parts
-of your soft, not everything.
+>> simply swapping buffers around (and would definately mean no 
+zero-copy). 
 
-PLEASE, could any good writer post a commented-rationale of the GPL to
-NYT ?
+> Generally it is a win to copy rather than swap buffers when the frame 
+does
+> not occupy most of the buffer. Most traffic is very small or MTU sized
+> frames (and on TR of course ethernet not TR mtu frames are popular)
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.4-ac4 #1 SMP Thu May 3 21:05:41 CEST 2001 i686
+Any suggestions on heuristics for this ? 
+Say maybe copy if skb->len <= eth_max_mtu, skb->len <= skb->truesize * .5, 
+or just copy the packets no matter what size. 
+
+Mike
 

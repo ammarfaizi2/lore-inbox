@@ -1,119 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269508AbUJAJHC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269583AbUJAJVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269508AbUJAJHC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 05:07:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269532AbUJAJHB
+	id S269583AbUJAJVV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 05:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269727AbUJAJVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 05:07:01 -0400
-Received: from mail.dif.dk ([193.138.115.101]:58295 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S269508AbUJAJG4 (ORCPT
+	Fri, 1 Oct 2004 05:21:21 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:51108 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269583AbUJAJVS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 05:06:56 -0400
-Date: Fri, 1 Oct 2004 11:04:23 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: George Anzinger <george@mvista.com>
-Cc: Christoph Lameter <clameter@sgi.com>, Ulrich Drepper <drepper@redhat.com>,
-       johnstul@us.ibm.com, Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
-       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
-Subject: Re: patches inline in mail
-In-Reply-To: <415B4FEE.2000209@mvista.com>
-Message-ID: <Pine.LNX.4.61.0410011054210.3887@jjulnx.backbone.dif.dk>
-References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
- <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
- <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
- <41550B77.1070604@redhat.com> <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com>
- <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com>
- <4159B920.3040802@redhat.com> <Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com>
- <415AF4C3.1040808@mvista.com> <Pine.LNX.4.58.0409291054230.25276@schroedinger.engr.sgi.com>
- <415B0C9E.5060000@mvista.com> <Pine.LNX.4.61.0409292143050.2744@dragon.hygekrogen.localhost>
- <415B4FEE.2000209@mvista.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 1 Oct 2004 05:21:18 -0400
+Date: Fri, 1 Oct 2004 11:18:25 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+Cc: Borislav Petkov <petkov@uni-muenster.de>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: Re: 2.6.9-rc2-mm4
+Message-ID: <20041001091825.GC3008@suse.de>
+References: <20040929214637.44e5882f.akpm@osdl.org> <200409301825.41124.bzolnier@elka.pw.edu.pl> <200409302346.35214.petkov@uni-muenster.de> <200410010130.51769.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410010130.51769.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Sep 2004, George Anzinger wrote:
-
-> Date: Wed, 29 Sep 2004 17:14:38 -0700
-> From: George Anzinger <george@mvista.com>
-> To: Jesper Juhl <juhl-lkml@dif.dk>
-> Cc: Christoph Lameter <clameter@sgi.com>, Ulrich Drepper <drepper@redhat.com>,
->     johnstul@us.ibm.com, Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
->     linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
-> Subject: Re: patches inline in mail
-> 
-> Jesper Juhl wrote:
-> > Unrelated to the CLOCK_PROCESS/THREAD_CPUTIME_ID discussion, just wanted to
-> > comment on the 'patches inline vs attached' bit.
+On Fri, Oct 01 2004, Bartlomiej Zolnierkiewicz wrote:
+> On Thursday 30 September 2004 23:46, Borislav Petkov wrote:
+> > On Thursday 30 September 2004 18:25, Bartlomiej Zolnierkiewicz wrote:
+> > > On Thursday 30 September 2004 17:32, Borislav Petkov wrote:
+> > > > On Thursday 30 September 2004 14:52, Bartlomiej Zolnierkiewicz wrote:
+> > > > > On Thursday 30 September 2004 06:46, Andrew Morton wrote:
+> > > > > > ide broke :(   Maybe Bart's bk tree?
+> > > > >
+> > > > > no, disk works just fine ;)  If it is my tree I will happilly fix it.
+> > > > >
+> > > > > Borislav, could you apply only these patches from -mm4 and retest?
+> > > > >
+> > > > > linus.patch
+> > > > > bk-ide-dev.patch
+> > > > >
+> > > > > > Begin forwarded message:
+> > > > > >
+> > > > > > Date: Wed, 29 Sep 2004 12:43:35 +0200
+> > > > > > From: Borislav Petkov <petkov@uni-muenster.de>
+> > > > > > To: Andrew Morton <akpm@osdl.org>
+> > > > > > Cc: linux-kernel@vger.kernel.org
+> > > > > > Subject: Re: 2.6.9-rc2-mm4
+> > > > > >
+> > > > > >
+> > > > > > <snip>
+> > > > > >
+> > > > > > Hello,
+> > > > > >  I've already posted about problems with audio extraction but it went
+> > > > > > unnoticed. Here's a recount: When I attempt to read an audio cd into
+> > > > > > wavs with cdda2wav, the process starts but after a while the
+> > > > > > completion meter freezes and klogd says "hdc: lost interrupt" and
+> > > > > > cdda2wav hangs itself. Disabling DMA doesn't help as well as the boot
+> > > > > > option "pci=routeirq" too. Older kernels like 2.6.7 do not show such
+> > > > > > behavior and there audio extraction runs fine. Sysinfo attached.
+> > > > > >
+> > > > > > Regards,
+> > > > > > Boris.
+> > > >
+> > > > Hi people,
+> > > >
+> > > >  well, I've applied the above patches but no change - same "hdc: lost
+> > > > interrupt" message. 2.6.9-rc3 behaves the same, as expected.
+> > >
+> > > Well, if 2.6.9-rc3 fails then it is not my tree...
+> > >
+> > > Please find kernel version which introduces this bug.
+> > >
 > > 
-> > On Wed, 29 Sep 2004, George Anzinger wrote:
-> > 
-> > 
-> > > Christoph Lameter wrote:
-> > > 
-> > > > On Wed, 29 Sep 2004, George Anzinger wrote:
-> > > > 
-> > > > 
-> > > > > Christoph Lameter wrote:
-> > > > > 
-> > > > > Please, when sending patches, attach them.  This avoids problems with
-> > > > > mailers,
-> > > > > on both ends, messing with white space.  They still appear in line, at
-> > > > > least in
-> > > > > some mailers (mozilla in my case).
-> > > > 
-> > > > 
-> > > > The custom on lkml, for Linus and Andrew is to send them inline. I also
-> > > > prefer them inline. Will try to remember sending attachments when
-> > > > sending a
-> > > > patch to you.
-> > > 
-> > > I think they WILL be inline as well as attached if you attach them.  The
-> > > difference is that in both presentations neither mailer will mess with
-> > > white
-> > > space.  This means that long lines will not be wrapped and tabs vs space
-> > > will
-> > > not be changed.
-> > > 
-> > 
-> > Not all mailers show attachments inline. Mailers that do usually depend on
-> > the mimetype of the attachment when choosing to show inline or not. pine (my
-> > personal favorite) show attachments with a text/plain and similar mime-type
-> > inline, but a not all mailers use that (I see a lot of attached patches on
-> > lkml that don't show inline, and that's somewhat annoying).
+> > Just compiled 2.6.8.1 and tested audio extraction. The bug is there.
+> > After that, reran the test with 2.6.7. Everything went fine. So it must have 
+> > been between 2.6.7 and 2.6.8.1 when the bug got introduced. Any additional 
+> > debugging options in the ATA/IDE cd driver i could turn on so that I could 
+> > get more verbose messages while executing cdda2wav?
 > 
-> So we should make sure that the mailer uses the right mime-type.  I suppose
-> that depends on the mailer?
-> > 
-> > It's also harder to reply and comment on bits of a patch when your mailer
-> > does not include attachments inline in a reply (even if it did show them
-> > inline while reading the mail).
-> > Having to save the patch, open it in a text editor and then cut'n'paste bits
-> > of it into the reply mail is a pain. Same goes for having to save & open it
-> > in order to read it in the first place.
-> 
-> We agree.  Still, I have been bitten too many times by misshandled white space
-> to trust pure inlineing.  Likewise on picking it up one would usually past it
-> in the mail (I suppose) where as the attachment is through the mailer and less
-> prone to missing a character.
-> 
+> I'm not aware of any.  Jens?
 
-When I include patches inline in mails I use pine's "Read File" 
-functionality. Pressing CTRL+R and then specifying a filename causes pine 
-to read the file and place it inline exactely as read from the file. So no 
-whitespace damage by cut'n'paste. 
-I don't know, but I would suspect that other mailers would have similar 
-functionality.??
+I don't see any changes that could impact this from 2.6.7 to 2.6.8. We
+tightened the dma alignment (from 4 to 32 bytes), but should not cause
+problems going in that direction. Unless the other path is buggy, of
+course.
 
+Does dma make a difference? Please try 2.6.9-rc3 as well.
 
-> The best answer, I think, is attachments that show as inline AND stay that way
-> on the reply.
-> 
-That would be just as fine as plain inline, but I think it'll be difficult 
-to find a way to do that that works universally with all mailers.
-
-
---
-Jesper Juhl
-
+-- 
+Jens Axboe
 

@@ -1,42 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268237AbUHKVOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268231AbUHKVYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268237AbUHKVOx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 17:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268235AbUHKVOx
+	id S268231AbUHKVYA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 17:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268233AbUHKVYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 17:14:53 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:26579 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268237AbUHKVOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 17:14:42 -0400
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Martin Mares <mj@ucw.cz>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>
-In-Reply-To: <20040811192411.36763.qmail@web14927.mail.yahoo.com>
-References: <20040811192411.36763.qmail@web14927.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092255102.18968.276.camel@localhost.localdomain>
+	Wed, 11 Aug 2004 17:24:00 -0400
+Received: from mx2.valuehost.ru ([62.118.251.7]:16647 "HELO mx2.valuehost.ru")
+	by vger.kernel.org with SMTP id S268231AbUHKVX7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 17:23:59 -0400
+Date: Wed, 11 Aug 2004 23:23:16 +0200
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: khandelw@cs.fsu.edu
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Palmer <nick@sluggardy.net>, netdev@oss.sgi.com
+Subject: Re: select implementation not POSIX compliant?
+Message-ID: <20040811212316.GA16028@steel.home>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
+	khandelw@cs.fsu.edu, linux-kernel <linux-kernel@vger.kernel.org>,
+	Nick Palmer <nick@sluggardy.net>, netdev@oss.sgi.com
+References: <20040811194018.GA3971@steel.home> <1092256397.512046f64c822@system.cs.fsu.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 11 Aug 2004 21:11:42 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092256397.512046f64c822@system.cs.fsu.edu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-08-11 at 20:24, Jon Smirl wrote:
-> Alan Cox had concerns about copying the ROMs for those devices that
-> don't implement full address decoding. I'm using kmalloc for 40-60KB.
-> Would vmalloc be a better choice? Very few drivers will use the copy
-> option, mostly old hardware.
-
-As I said before you don't need to allocate big chunks of kernel memory
-for this because you don't want to store ROM copies in kernel, you just
-disallow mmap in such a case and let the user use read().
-
-I am opposed to anything that keeps ROM copies in the kernel.
+I missed the point: threads! _Not_ duplicated handles.
+Ignore me.
 

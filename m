@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbULSWTm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbULSWgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbULSWTm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 17:19:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbULSWTl
+	id S261345AbULSWgE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 17:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbULSWgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 17:19:41 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:41182 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261344AbULSWTk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 17:19:40 -0500
-Subject: Re: What does atomic_read actually do?
-From: Robert Love <rml@novell.com>
-To: Joseph Seigh <jseigh_02@xemaps.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <opsi707edhs29e3l@grunion>
-References: <opsi7o5nqfs29e3l@grunion>
-	 <1103394867.4127.18.camel@laptopd505.fenrus.org> <opsi7xcuizs29e3l@grunion>
-	 <1103399680.4127.20.camel@laptopd505.fenrus.org> <opsi707edhs29e3l@grunion>
-Content-Type: text/plain
-Date: Sun, 19 Dec 2004 17:21:06 -0500
-Message-Id: <1103494866.6052.354.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Dec 2004 17:36:04 -0500
+Received: from mailgate2.uni-paderborn.de ([131.234.22.35]:42981 "EHLO
+	mailgate2.uni-paderborn.de") by vger.kernel.org with ESMTP
+	id S261345AbULSWgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 17:36:01 -0500
+Date: Sun, 19 Dec 2004 23:37:36 +0100 (CET)
+From: stefanb@upb.de
+X-X-Sender: imp@kater
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: tun device doesn't report its device name
+Message-ID: <Pine.LNX.4.61.0412192331081.5458@kater>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
+X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
+X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.715,
+	required 4, AUTH_EIM_USER -5.00, NO_REAL_NAME 0.28)
+X-MailScanner-From: stefanb@upb.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-12-18 at 15:43 -0500, Joseph Seigh wrote:
+Hello,
+I have a problem with the virtual tun/tap device on my sparc64 (kernel 
+2.6.9). I try to do:
 
-> > it does so on *x86
-> 
-> Is this documented for gcc anywhere?  Just because it does so doesn't
-> mean it's guaranteed.
+struct ifreq ifr;
+ifr.ifr_flags=IFF_TAP | IFF_NO_PI;
+ioctl (dev, TUNSETIFF, &ifr);
 
-Listen to what Arjan is saying: It is not a compiler feature.  x86
-already guarantees that an aligned word-size read is atomic in the
-nothing-can-interleave sense.
+After doing this I expect to find the name of the new interface in 
+ifr.ifr_name. But it remains unchanged. ioctl's return value does not 
+indicate an error. The device has actually been created (according to 
+ifconfig).
 
-	Robert Love
+The same piece of code works fine on my x86 machine.
 
+Regards,
+Stefan Boettner
 

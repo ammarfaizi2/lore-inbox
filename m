@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265154AbTB0Oi0>; Thu, 27 Feb 2003 09:38:26 -0500
+	id <S265174AbTB0Os2>; Thu, 27 Feb 2003 09:48:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265174AbTB0Oi0>; Thu, 27 Feb 2003 09:38:26 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:27548 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S265154AbTB0OiZ>;
-	Thu, 27 Feb 2003 09:38:25 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15966.9540.641385.149104@gargle.gargle.HOWL>
-Date: Thu, 27 Feb 2003 15:48:36 +0100
-To: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] local APIC init fixes for 2.4.21-pre5
+	id <S265177AbTB0Os2>; Thu, 27 Feb 2003 09:48:28 -0500
+Received: from oumail.zero.ou.edu ([129.15.0.75]:1782 "EHLO c3p0.ou.edu")
+	by vger.kernel.org with ESMTP id <S265174AbTB0Os1>;
+	Thu, 27 Feb 2003 09:48:27 -0500
+Date: Thu, 27 Feb 2003 08:58:41 -0600
+From: Steve Kenton <skenton@ou.edu>
+Subject: pointer to .subsection and .previous usage in kernel?
+To: lkml <linux-kernel@vger.kernel.org>
+Message-id: <3E5E27A1.70BE4B30@ou.edu>
+Organization: The University Of Oklahoma
+MIME-version: 1.0
+X-Mailer: Mozilla 4.7 [en] (X11; U; SunOS 5.8 sun4u)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo & Alan,
+Anyone have a pointer to what we are really trying to accomplish
+with .subsection and .previous in the in-line and asm stuff?
 
-This patch for 2.4.21-pre fixes two local APIC initialisation bugs.
-It has been reported to fix serious stability problems with UP kernels
-on SMP Athlons. It needs to go in 2.4.21-pre & -ac as soon as possible.
+Like maybe a readme or coding style doc for in-line and asm code?
 
-Bug 1: APIC_init_uniprocessor() has a broken write to APIC_ID, forcing
-APIC_ID to always be zero for the boot CPU. This causes serious
-problems when running UP kernels on SMP Athlons. The fix is to remove
-the write altogether, since it's redundant and potentially dangerous.
+That was the main thing I tripped over while trying to build
+a 2.5 kernel using the cygwin toolchain with an eye towards
+uml under windows.  I found very little documentation about
+the directives themselves even in the gnu info stuff and nada,
+except one thread about abstracting them in spinlocks,
+bout how/why they are used in the kernel.  They appear to be
+elf specific which is why the i386pe stuff puked on them.  I
+assume that most of this is to maximize cache hits, but that's
+just a guess.  There are a largish handful of them scattered
+around the kernel outside of locks. Any pointers would be appreciated.
 
-Bug 2: APIC_init_uniprocessor() incorrectly sets phys_cpu_present_map
-to 1 instead of 1 << boot_cpu_physical_apicid. Any machine whose boot
-CPU doesn't have ID zero will trigger a BUG() in setup_local_APIC().
-The fix is to correct the initialisation of phys_cpu_present_map.
-
-/Mikael
-
-diff -ruN linux-2.4.21-pre5/arch/i386/kernel/apic.c linux-2.4.21-pre5.apic-fixes/arch/i386/kernel/apic.c
---- linux-2.4.21-pre5/arch/i386/kernel/apic.c	2003-02-27 12:58:55.000000000 +0100
-+++ linux-2.4.21-pre5.apic-fixes/arch/i386/kernel/apic.c	2003-02-27 13:05:28.000000000 +0100
-@@ -649,7 +649,6 @@
- 	}
- 	set_bit(X86_FEATURE_APIC, &boot_cpu_data.x86_capability);
- 	mp_lapic_addr = APIC_DEFAULT_PHYS_BASE;
--	boot_cpu_physical_apicid = 0;
- 	if (nmi_watchdog != NMI_NONE)
- 		nmi_watchdog = NMI_LOCAL_APIC;
- 
-@@ -1169,8 +1168,7 @@
- 
- 	connect_bsp_APIC();
- 
--	phys_cpu_present_map = 1;
--	apic_write_around(APIC_ID, boot_cpu_physical_apicid);
-+	phys_cpu_present_map = 1 << boot_cpu_physical_apicid;
- 
- 	apic_pm_init2();
- 
+Steve

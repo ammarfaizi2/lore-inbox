@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317018AbSFQVMb>; Mon, 17 Jun 2002 17:12:31 -0400
+	id <S317024AbSFQVXJ>; Mon, 17 Jun 2002 17:23:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317022AbSFQVMa>; Mon, 17 Jun 2002 17:12:30 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55536 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317018AbSFQVM3>; Mon, 17 Jun 2002 17:12:29 -0400
-Subject: Re: [patch] v2.5.22 - add wait queue function callback support
-From: Robert Love <rml@tech9.net>
-To: Bob Miller <rem@osdl.org>
-Cc: Dave Jones <davej@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
+	id <S317026AbSFQVXI>; Mon, 17 Jun 2002 17:23:08 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:18817 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S317024AbSFQVXI>;
+	Mon, 17 Jun 2002 17:23:08 -0400
+Date: Mon, 17 Jun 2002 14:23:01 -0700
+From: Bob Miller <rem@osdl.org>
+To: Dave Jones <davej@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
        Linus Torvalds <torvalds@transmeta.com>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020617135744.A24347@doc.pdx.osdl.net>
-References: <20020617161434.D1457@redhat.com> <20020617222812.I758@suse.de>
-	 <20020617135744.A24347@doc.pdx.osdl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 17 Jun 2002 14:12:20 -0700
-Message-Id: <1024348340.922.124.camel@sinai>
+Subject: Re: [patch] v2.5.22 - add wait queue function callback support
+Message-ID: <20020617142301.B24347@doc.pdx.osdl.net>
+References: <20020617161434.D1457@redhat.com> <20020617222812.I758@suse.de> <20020617135744.A24347@doc.pdx.osdl.net> <20020617230831.J758@suse.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020617230831.J758@suse.de>; from davej@suse.de on Mon, Jun 17, 2002 at 11:08:32PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-17 at 13:57, Bob Miller wrote:
-
-> It depends on what you mean by killed off.  I submitted a patch to Linus back
-> at 2.5.3 to clean up the way the completion code called the wait queue
-> interface.  This interface got added then.  You picked up those changes at
-> that time (and still have them in your kernel tree) but the changes have
-> never made it into Linus' tree.
+On Mon, Jun 17, 2002 at 11:08:32PM +0200, Dave Jones wrote:
+> Your patch was to use wq_write_lock and friends in sched.c iirc.
+> That change is now removed from my tree (though I've not put up a
+> version containing that change yet).
 > 
-> So, Linus has never had the code to 'kill' and you've never dropped it
-> after picking it up.
+> Since 2.5.20 or so, the wq_write_lock functions are dead as in gone.
+> Not around, Extinct. They are ex-functions.
+> 
+>         Dave
 
-Work has gone in since this.
+Always look before you leap.  Just looked a 2.5.20 kernel and these
+are indeed gone.  Sorry for the fire drill.
 
-During 2.5.20, Linus asked for and I submitted a patch to remove the
-whole wq_lock_t mess altogether.  It was merged into 2.5.21. 
-Subsequently, there is no wq_lock_t abstraction in current 2.5 kernels
-and code should use a standard spinlock.
-
-	Robert Love
-
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17

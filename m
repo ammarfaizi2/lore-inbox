@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316423AbSE3HHa>; Thu, 30 May 2002 03:07:30 -0400
+	id <S316446AbSE3HXp>; Thu, 30 May 2002 03:23:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316430AbSE3HH3>; Thu, 30 May 2002 03:07:29 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:14506 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S316423AbSE3HH2>;
-	Thu, 30 May 2002 03:07:28 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Decoding of addreses in kernel logs 
-In-Reply-To: Your message of "Thu, 30 May 2002 10:57:50 +0400."
-             <6134254DE87BD411908B00A0C99B044F037F72F5@mowd019a.mow.siemens.ru> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 30 May 2002 17:07:01 +1000
-Message-ID: <28024.1022742421@kao2.melbourne.sgi.com>
+	id <S316444AbSE3HXo>; Thu, 30 May 2002 03:23:44 -0400
+Received: from schwerin.p4.net ([195.98.200.5]:15962 "EHLO schwerin.p4.net")
+	by vger.kernel.org with ESMTP id <S316441AbSE3HXo>;
+	Thu, 30 May 2002 03:23:44 -0400
+Message-ID: <3CF5D424.2060500@p4all.de>
+Date: Thu, 30 May 2002 09:26:28 +0200
+From: Michael Dunsky <michael.dunsky@p4all.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Peter Chubb <peter@chubb.wattle.id.au>
+Subject: Re: Strange code in ide_cdrom_register
+In-Reply-To: <15605.34861.599803.405864@wombat.chubb.wattle.id.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 May 2002 10:57:50 +0400, 
-Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru> wrote:
->Are there any cases except oopses when decoding of addresses in kernel logs
->is needed? The reason is I'd like to switch from klogd+syslogd to other
->logging system and I was adviced to forget klogd and just get logs from
->/proc/kmsg and decode them with ksymoops. While I have no problem with it
->actually, my concern is - is it possible that some information in kernel
->logs can be decoded by klogd but not by ksymoops?
+Hi!
 
-It is the other way around.  ksymoops decodes far more than klogd does.
-ksymoops has been continually extended as new diagnostics are added to
-the kernel, klogd has not.
+Peter Chubb wrote:
+ > Hi,
+ > 	This code snippet in ide_cdrom_register() seems really
+ > strange...
+ >
+ > 	devinfo->ops = &ide_cdrom_dops;
+ > 	devinfo->mask = 0;
+ >
+ >>>>	*(int *)&devinfo->speed = CDROM_STATE_FLAGS (drive)->current_speed;
+ >>>>	*(int *)&devinfo->capacity = nslots;
+ >>>
+ > 	devinfo->handle = (void *) drive;
+ > 	strcpy(devinfo->name, drive->name);
+ >
+ > devinfo->speed and devinfo->capacity are both ints.  So the casts are
+ > just a disaster waiting to happen, if the types of capacity or speed
+ > ever change?
+
+Just take a quick look in drivers/ide/ide-cd.h: values "nslots" and
+"current_speed" are of type "byte", so we need to cast to store them 
+(like that) into the integer-vars. Nothing strange there....
+
+
+ > Peter C
+ >
+
+ciao
+
+Michael
+
 

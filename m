@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbTILEIL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 00:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbTILEIL
+	id S261654AbTILEJV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 00:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbTILEJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 00:08:11 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:23513 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261532AbTILEIK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 00:08:10 -0400
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM LTC
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Overflow check for i386 assign_irq_vector, 2.6.0-test5
-Date: Thu, 11 Sep 2003 21:07:55 -0700
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_baUY/LhF9ZPlSGF"
-Message-Id: <200309112107.55790.jamesclv@us.ibm.com>
+	Fri, 12 Sep 2003 00:09:21 -0400
+Received: from dp.samba.org ([66.70.73.150]:12234 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261654AbTILEJU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 00:09:20 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Harry Brueckner <hb@o-d.de>, linux-kernel@vger.kernel.org
+Subject: Re: devfs with 2.6.0-test4 kernel 
+In-reply-to: Your message of "Thu, 11 Sep 2003 04:54:19 -0400."
+             <3F60383B.6030406@cornell.edu> 
+Date: Fri, 12 Sep 2003 13:39:09 +1000
+Message-Id: <20030912040920.8DAA52C019@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <3F60383B.6030406@cornell.edu> you write:
+> 
+> > Any ideas what might be wrong?
+> 
+> Modprobe is too verbose when it comes to devfs failures.
+> This is known issue, and Rusty Russel has a patch for modutils, but he 
+> hasn't merged it yet, I think (or has he?).
 
---Boundary-00=_baUY/LhF9ZPlSGF
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I've just released 0.9.14.
 
-Some very large systems overflow the array and corrupt memory.  A BUG_ON will 
-at least flag the problem until dynamic irq_vector allocation is added.
-
-
--- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm
---Boundary-00=_baUY/LhF9ZPlSGF
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="x445_assign_irq_vector_bug_on_2003-09-11_2.6.0-test5"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="x445_assign_irq_vector_bug_on_2003-09-11_2.6.0-test5"
-
-diff -pru 2.6.0-test5/arch/i386/kernel/io_apic.c t5/arch/i386/kernel/io_apic.c
---- 2.6.0-test5/arch/i386/kernel/io_apic.c	2003-09-08 12:50:01.000000000 -0700
-+++ t5/arch/i386/kernel/io_apic.c	2003-09-11 12:08:14.000000000 -0700
-@@ -1143,6 +1143,7 @@ int irq_vector[NR_IRQS] = { FIRST_DEVICE
- static int __init assign_irq_vector(int irq)
- {
- 	static int current_vector = FIRST_DEVICE_VECTOR, offset = 0;
-+	BUG_ON(irq >= NR_IRQS);
- 	if (IO_APIC_VECTOR(irq) > 0)
- 		return IO_APIC_VECTOR(irq);
- next:
-
---Boundary-00=_baUY/LhF9ZPlSGF--
-
+Cheers!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVANUPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVANUQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbVANUPr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 15:15:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVANUPn
+	id S262148AbVANUQN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 15:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbVANUNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 15:15:43 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:7926 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262127AbVANUOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 15:14:50 -0500
-Message-ID: <41E8282F.8060208@comcast.net>
-Date: Fri, 14 Jan 2005 14:14:39 -0600
-From: Tom Zanussi <zanussi@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Karim Yaghmour <karim@opersys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [PATCH 4/4] relayfs for 2.6.10: headers
-References: <41E736C4.3080806@opersys.com> <20050114191013.GB15337@kroah.com>
-In-Reply-To: <20050114191013.GB15337@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jan 2005 15:13:23 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:40890 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262131AbVANULj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 15:11:39 -0500
+Date: Fri, 14 Jan 2005 12:11:25 -0800
+From: Dave Jiang <dave.jiang@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       smaurer@teja.com, linux@arm.linux.org.uk, greg@kroah.com,
+       mporter@kernel.crashing.org
+Subject: [PATCH 3/5] resource: i386 arch fixes for u64 resources
+Message-ID: <20050114201125.GA19681@plexity.net>
+Reply-To: dave.jiang@gmail.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Intel Corp.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Jan 13, 2005 at 10:04:36PM -0500, Karim Yaghmour wrote:
-> 
->>+/**
->>+ *	have_cmpxchg - does this architecture have a cmpxchg?
->>+ *
->>+ *	Returns 1 if this architecture has a cmpxchg useable by
->>+ *	the lockless scheme, 0 otherwise.
->>+ */
->>+static inline int
->>+have_cmpxchg(void)
->>+{
->>+#if defined(__HAVE_ARCH_CMPXCHG)
->>+	return 1;
->>+#else
->>+	return 0;
->>+#endif
->>+}
-> 
-> 
-> Shouldn't this be a build time check, and not a runtime one?
-> 
+i386 arch update to changing resource from unsigned long to u64
 
-This was to avoid having an ifdef in the main body of the code.  It's 
-only used in channel setup, so I did'nt worrry about runtime checking.
+Signed-off-by: Dave Jiang <dave.jiang@gmail.com>
 
-Thanks,
 
-Tom
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+diff -Naur linux-2.6.11-rc1/arch/i386/pci/i386.c linux-2.6.11-rc1-u64/arch/i386/pci/i386.c
+--- linux-2.6.11-rc1/arch/i386/pci/i386.c	2004-12-24 14:34:26.000000000 -0700
++++ linux-2.6.11-rc1-u64/arch/i386/pci/i386.c	2005-01-13 11:45:41.830462776 -0700
+@@ -48,7 +48,7 @@
+  */
+ void
+ pcibios_align_resource(void *data, struct resource *res,
+-		       unsigned long size, unsigned long align)
++		       u64 size, u64 align)
+ {
+ 	if (res->flags & IORESOURCE_IO) {
+ 		unsigned long start = res->start;
 

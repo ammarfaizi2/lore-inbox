@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291619AbSBNNQT>; Thu, 14 Feb 2002 08:16:19 -0500
+	id <S291621AbSBNNS3>; Thu, 14 Feb 2002 08:18:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291621AbSBNNP7>; Thu, 14 Feb 2002 08:15:59 -0500
-Received: from linux.kappa.ro ([194.102.255.131]:47565 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S291619AbSBNNPx>;
-	Thu, 14 Feb 2002 08:15:53 -0500
-Date: Thu, 14 Feb 2002 15:17:30 +0200 (EET)
-From: Teodor Iacob <theo@astral.kappa.ro>
-X-X-Sender: <theo@linux.kappa.ro>
-Reply-To: <Teodor.Iacob@astral.kappa.ro>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: weird system load (2.4.18-pre3)
-In-Reply-To: <E16bLJI-0008LG-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.31.0202141514450.17391-100000@linux.kappa.ro>
+	id <S291627AbSBNNST>; Thu, 14 Feb 2002 08:18:19 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:16853 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S291621AbSBNNSF>; Thu, 14 Feb 2002 08:18:05 -0500
+Date: Thu, 14 Feb 2002 14:14:26 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-rc1
+In-Reply-To: <Pine.LNX.4.21.0202131732330.20915-100000@freak.distro.conectiva>
+Message-ID: <Pine.NEB.4.44.0202141404210.25879-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Feb 2002, Alan Cox wrote:
+On Wed, 13 Feb 2002, Marcelo Tosatti wrote:
 
-> > I have a linux router running 2.4.18-pre3 kernel and I've got the
-> > following problem with it:
-> >
-> > It doesn't have free cpu, more than 75% of the resources go to system:
+> So here it goes.
 >
-> Well its paging somewhat which suprises me, but unless your disks are in PIO
-> mode I would not expect it to account for that.
+> rc1:
+>...
+> - Merge some -ac bugfixes			(Alan Cox)
 >
-> What network and disk drivers are you using ?
+> pre9:
+>...
+> - Add framebuffer support for trident graphics
+>   card						(James Simmons)
+>...
 
- Ok, we have 2 Intel Etherexpress (eepro100.c) 82557. SCSI drives on a
-Adaptec AIC7xxx board ( 7892B ).
->
-> > ext3 mounted, and we had a lot of problems with ext3 when reaching maximum
-> > capacity ( after reboot had a lot of fatal errors ), but that seemed to
->
-> Thats not a good sign for trusting the machine either
-  We also get lots of APIC error on CPU ..etc.. ( about 20 a day )
->
-> > passed, and now we are getting this unusual load, plus the system is not
-> > so reponsive.
->
-> Not so responsive as when ?  also what is in the dmesg log ?
- I meant not as responsive as right after the startup or when we used 2.2.
-kernel, now there is still something I forgot to mention, and that would
-be the fact that we stil use ipchains compatibility mode ( because of some
-huge scripts that we were too lazy to convert ). Today I converted them
-but I didn't reboot yet, maybe we can find a bug after all ?
+These two changes together result in the fact that there's now a
+CONFIG_FB_TRIDENT but if you try to enable it compilation fails with a
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+  tridentfb.c:524: #error "Floating point maths. This needs fixing before
+  the driver is safe"
+
+which makes it pretty useless. Since this is a stable kernel series I want
+to suggest that if there's no fix for this before 2.4.18-final to remove
+the trident support from 2.4.18 and to re-add it in 2.4.19-pre1 (with
+the hope that it will be fixed before 2.4.19-final).
+
+cu
+Adrian
+
+
 

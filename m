@@ -1,96 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132780AbQK3KUL>; Thu, 30 Nov 2000 05:20:11 -0500
+        id <S129385AbQK3KdR>; Thu, 30 Nov 2000 05:33:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132794AbQK3KUB>; Thu, 30 Nov 2000 05:20:01 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:1809 "HELO
-        note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-        id <S132780AbQK3KTo>; Thu, 30 Nov 2000 05:19:44 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Russell King <rmk@arm.linux.org.uk>
-Date: Thu, 30 Nov 2000 20:49:03 +1100 (EST)
+        id <S129797AbQK3KdG>; Thu, 30 Nov 2000 05:33:06 -0500
+Received: from 213-120-136-24.btconnect.com ([213.120.136.24]:12293 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S129385AbQK3KdB>;
+        Thu, 30 Nov 2000 05:33:01 -0500
+Date: Thu, 30 Nov 2000 10:04:34 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: linux-kernel@vger.kernel.org
+Subject: load_elf_interp()->padzero()->clear_user() + page_fault = hang.
+Message-ID: <Pine.LNX.4.21.0011301003000.846-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14886.8847.933172.241464@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-kbuild@torque.net
-Subject: Re: PATCH  - kbuild documentation.
-In-Reply-To: message from Russell King on Thursday November 30
-In-Reply-To: <14885.37565.611695.816426@notabene.cse.unsw.edu.au>
-        <200011300036.eAU0aTc05028@flint.arm.linux.org.uk>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-        LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-        8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday November 30, rmk@arm.linux.org.uk wrote:
-> Neil Brown writes:
-> > +	An example for libraries from drivers/acorn/scsi/Makefile:
-> 
-> This is no longer true; you'll have to find another example.
-> 
-> > +	As ordering is not so important in libraries, this still uses
-> > +	LX_OBJS and MX_OBJS, though (presumably) it could be changed to
-> > +	use MIX_OBJS as follows:
-> > +
-> > +		active-objs	:= $(sort $(obj-y) $(obj-m))
-> > +		L_OBJS		:= $(obj-y)
-> > +		M_OBJS		:= $(obj-m)
-> > +		MIX_OBJS	:= $(filter $(export-objs), $(active-objs))
-> > +
-> > +	which is clearly shorted and arguably clearer.
-> 
-> What if you have
-> 
-> obj-$(CONFIG_FOO) += foo.o foobar.o
-> obj-$(CONFIG_BAR) += bar.o foobar.o
-> 
-> and CONFIG_FOO=y and CONFIG_BAR=m?  What about CONFIG_FOO=y and
-> CONFIG_BAR=y?  Do we still support this method?  If not, what is the
-> recommended way of doing this sort of stuff?
+Hi,
 
-The first case (y and m) would be satisifed by
+Interesting stack trace I got here on a 4way SMP machine by just running
+ps -ef which hangs. Any ideas?
 
-   M_OBJS := $(filter-out $(O_OBJS) $(L_OBJS), $(obj-m))
+Stack traceback for pid 1078
+    EBP       EIP         Function(args)
+0x40016000 0xc0127fe8 handle_mm_fault+0x204 (0xc7798a80, 0xe9d776a0,
+0x40016848, 0x1, 0xd015c000)
+                               kernel .text 0xc0100000 0xc0127de4
+0xc01281d8
+0xd015dbc8 0xc0115b42 do_page_fault+0x18a (0xd015dbd8, 0x2, 0x7b8, 0x1ee,
+0x1ee)
+                               kernel .text 0xc0100000 0xc01159b8
+0xc0115fa0
+           0xc010c7c0 error_code+0x34
+                               kernel .text 0xc0100000 0xc010c78c
+0xc010c7c8
+Interrupt registers:
+eax = 0x00000000 ebx = 0x000007b8 ecx = 0x000001ee edx = 0x000001ee
+esi = 0x00000000 edi = 0x40016848 esp = 0xd015dc0c eip = 0xc02270e7 
+ebp = 0xd015dc1c xss = 0x00000018 xcs = 0x00000010 eflags = 0x00010246
+xds = 0x00000018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xd015dbd8
+           0xc02270e7 clear_user+0x37 (0x40016848, 0x7b8)
+                               kernel .text 0xc0100000 0xc02270b0
+0xc02270fc
+0xd015dc2c 0xc014f84e padzero+0x1e (0x40016848, 0x0)
+                               kernel .text 0xc0100000 0xc014f830
+0xc014f854
+0xd015dc78 0xc014fdac load_elf_interp+0x24c (0xd015dda8, 0xf71050e0,
+0xd015dd78, 0xc0302ca0, 0xc014ff20)
+                               kernel .text 0xc0100000 0xc014fb60
+0xc014fdfc
+0xd015de10 0xc01507a7 load_elf_binary+0x887 (0xd015de68, 0xd015dfc4,
+0xd015de68)
+                               kernel .text 0xc0100000 0xc014ff20
+0xc0150af8
+0xd015de48 0xc0142918 search_binary_handler+0x68 (0xd015de68, 0xd015dfc4)
+                               kernel .text 0xc0100000 0xc01428b0
+0xc0142a60
+0xd015df9c 0xc0142ba8 do_execve+0x148 (0xc972c000, 0x80f7bcc, 0x80d760c,
+0xd015dfc4)
+                               kernel .text 0xc0100000 0xc0142a60
+0xc0142bfc
+0xd015dfbc 0xc010af6f sys_execve+0x2f (0x80f7aac, 0x80f7bcc, 0x80d760c,
+0x80f7aac, 0x80f7aac)
+                               kernel .text 0xc0100000 0xc010af40
+0xc010af9c
+           0xc010c68b system_call+0x33
+                               kernel .text 0xc0100000 0xc010c658
+0xc010c690
 
-but the second (y and y) wouldn't.  If you want to be allowed to
-mention a .o file twice, and still maintain ordering, you are asking a lot.
-You could try:
 
-obj-$(CONFIG_FOO)$(CONFIG_BAR) += foobar.o
-obj-$(CONFIG_FOO) += foo.o foobar.o
-obj-$(CONFIG_BAR) += bar.o foobar.o
 
-O_OBJS := $(obj-y) $(obj-ym) $(obj-my)
-M_OBJS := $(obj-m) $(obj-mm)
-
-But that it starting to look ugly.
-
-Maybe:
-O_OBJS := $(shell echo $(obj-y) | tr ' ' '\n' | cat -n | sort -u +1 | sort -n | cut -f2)
-
-But I don't think that is much better.
-
-There is room for other good ideas here if this is a real need.
-
-NeilBrown
-
-(I love Unix pipelines)
-
->    _____
->   |_____| ------------------------------------------------- ---+---+-
->   |   |         Russell King        rmk@arm.linux.org.uk      --- ---
->   | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
->   | +-+-+                                                     --- -+-
->   /   |               THE developer of ARM Linux              |+| /|\
->  /  | | |                                                     ---  |
->     +-+-+ -------------------------------------------------  /\\\  |
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288778AbSANNlv>; Mon, 14 Jan 2002 08:41:51 -0500
+	id <S289238AbSANNqB>; Mon, 14 Jan 2002 08:46:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289192AbSANNln>; Mon, 14 Jan 2002 08:41:43 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:41476 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S288778AbSANNl3>;
-	Mon, 14 Jan 2002 08:41:29 -0500
-Date: Mon, 14 Jan 2002 06:38:50 -0700
-From: yodaiken@fsmlabs.com
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: yodaiken@fsmlabs.com, Daniel Phillips <phillips@bonn-fries.net>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020114063850.C22065@hq.fsmlabs.com>
-In-Reply-To: <20020113223438.A19324@hq.fsmlabs.com> <Pine.LNX.4.33.0201141201040.28881-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.33.0201141201040.28881-100000@serv>; from zippel@linux-m68k.org on Mon, Jan 14, 2002 at 12:14:47PM +0100
-Organization: FSM Labs
+	id <S289236AbSANNpv>; Mon, 14 Jan 2002 08:45:51 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:44173 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S289238AbSANNpd>; Mon, 14 Jan 2002 08:45:33 -0500
+Date: Mon, 14 Jan 2002 15:44:34 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Jim Studt <jim@federated.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with ServerWorks CNB20LE and lost interrupts
+In-Reply-To: <Pine.GSO.3.96.1020114130649.10091E-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.33.0201141541540.9075-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 12:14:47PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Sun, 13 Jan 2002 yodaiken@fsmlabs.com wrote:
-> 
-> > 	Nobody has answered my question about the conflict between SMP per-cpu caching
-> > 	and preempt. Since NUMA is apparently the future of MP in the PC world and
-> > 	the future of Linux servers, it's interesting to consider this tradeoff.
-> 
-> Preempt is a UP feature so far.
+On Mon, 14 Jan 2002, Maciej W. Rozycki wrote:
+>  Why to code complicated workarounds for broken firmware?  It's so easy to
+> fix, so either bother the vendor for a fix or replace the system with a
+> sane one.  Reading and understanding the Intel's MP spec is a day or at
+> most two worth of man's work.  I wouldn't trust the vendor that refuses to
+> invest in a product even that little.
 
-I think this is a sufficient summary of your engineering approach.
+You may have noticed the great deal of "hacks" which people have put into
+the kernel over the years to get it to work with the imperfect world of
+hardware. It makes you wonder wether we should waste our time supporting
+broken hardware... Then again if we didn't we'd only run on 0.1% of the
+boxes out there ;) But... i'm in no way advocating for adding more
+kludges.
 
- ...
+Regards,
+	Zwane Mwaikambo
 
-> More of other FUD deleted, Victor, could you please stop this?
-
-I guess that Andrew, Alan, Andrea and I all are raising objections that
-you ignore because we  have some kind of shared bias.
-
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
 

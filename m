@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbTJ2Jit (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 04:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTJ2Jit
+	id S261838AbTJ2J6G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 04:58:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbTJ2J6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 04:38:49 -0500
-Received: from gprs198-79.eurotel.cz ([160.218.198.79]:63360 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261845AbTJ2Jir (ORCPT
+	Wed, 29 Oct 2003 04:58:06 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:24995 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261838AbTJ2J6E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 04:38:47 -0500
-Date: Wed, 29 Oct 2003 10:38:03 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Patrick Mochel <mochel@osdl.org>, George Anzinger <george@mvista.com>,
-       John stultz <johnstul@us.ibm.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [pm] fix time after suspend-to-*
-Message-ID: <20031029093802.GA757@elf.ucw.cz>
-References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise> <1067329994.861.3.camel@teapot.felipe-alfaro.com> <20031028093233.GA1253@elf.ucw.cz> <1067351431.1358.11.camel@teapot.felipe-alfaro.com> <20031028172818.GB2307@elf.ucw.cz> <1067372182.864.11.camel@teapot.felipe-alfaro.com>
+	Wed, 29 Oct 2003 04:58:04 -0500
+Date: Wed, 29 Oct 2003 10:55:38 +0100
+From: Kovacs Richard <krichard@elte.hu>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI suspend does not work when X is running
+Message-ID: <20031029095537.GA1625@login.elte.hu>
+Reply-To: krichard@elte.hu
+References: <20031028102944.GA5230@login.elte.hu> <Pine.LNX.4.33.0310280852350.7139-100000@osdlab.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1067372182.864.11.camel@teapot.felipe-alfaro.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.33.0310280852350.7139-100000@osdlab.pdx.osdl.net>
+User-Agent: Mutt/1.3.28i
+Organization: Eotvos Lorand University, Budapest, Hungary
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> > You are not asking userspace whether to reboot or not, and you should
-> > not ask them about suspend, either.
-> 
-> OK, so how should the system behave when a real-time-like process is
-> running? I talked about the CD burning example. Should the kernel simply
-> ignore the process and suspend?
+On Tue, Oct 28 Patrick Mochel wrote:
+> > I think it might have something to do with the modules
+> > agpgart,
+> > intel-agp,
+> > i830.
+> Please try unloading as many of those modules as you can before
+> suspending, and re-inserting them after you resume.
 
-Yes.
+Okay. What I've done is the following. Unloaded every module except
+the ones above before even trying to suspend. Then unloaded the above
+modules during suspend, so basically no modules should have been
+loaded before shutting down. The result: the same. Blank screen has
+not appeared now, I only got the double fault, that is attached to my
+previous mail.
 
-> > > 1. Network connections must be reestablished. A userspace program can't
-> > > try to automatically reestablish a broken TCP connection for no apparent
-> > > reason. A broken TCP connection could be the cause of an overloaded or
-> > > broken server/service. If we do not inform userspace processes that the
-> > > system is going to sleep (or that the system has been brought up from
-> > > standby), they will blindly try to restore TCP connections back, even
-> > > when the remote server is broken, generating a lot of unnecesary
-> > > traffic.
-> > 
-> > gettimeofday(), if I slept for too long, oops, something strange
-> > happened (maybe there was heavy io load and I was swapped out? or
-> > suspend? Did machine sleep for 20 minutes in cli?) try to reconnect.
-> 
-> Does "gettimeofday()" have into account the effect of adjusting the time
-> twice a year, once to make time roll forward one hour and another one to
-> roll it back?
+In 2.4.22 swsusp works fine for me.
 
-Not sure how it is supposed to work, but here I just have ntpd
-step-setting by one hour...
-							Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+
+So what's the next step I should do to investigate?
+
+
+Thx,
+
+Richard

@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbTJXFNw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 01:13:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTJXFNw
+	id S261996AbTJXFJi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 01:09:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTJXFJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 01:13:52 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:43926 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262009AbTJXFNv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 01:13:51 -0400
-Date: Thu, 23 Oct 2003 22:17:56 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: jtholmes@jtholmes.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test8  scsi logging not working
-Message-ID: <20031024051755.GD1133@beaverton.ibm.com>
-Mail-Followup-To: jtholmes@jtholmes.com, linux-kernel@vger.kernel.org
-References: <102420030310.18374.4e89@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <102420030310.18374.4e89@comcast.net>
-X-Operating-System: Linux 2.0.32 on an i486
-User-Agent: Mutt/1.5.4i
+	Fri, 24 Oct 2003 01:09:38 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:55425 "EHLO
+	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S261996AbTJXFJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 01:09:37 -0400
+Message-Id: <200310240510.h9O5AJwl004405@pasta.boston.redhat.com>
+To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: posix capabilities inheritance
+In-Reply-To: Your message of "Fri, 24 Oct 2003 04:19:10 +0200."
+             <E1ACrXi-0000oW-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Fri, 24 Oct 2003 01:10:19 -0400
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jtholmesjr@comcast.net [jtholmesjr@comcast.net] wrote:
-> The problem:
-> 
-> I thought
-> echo "scsi log all" >/proc/scsi/scsi 
-> with
-> scsi_logging=y  in .config
-> would turn on kernel scsi logging and put some notification line
-> in /var/log/messages
-> indicating scsi logging was now active at such and such a level
-> 
-> that is not happening and I have a external drive connected via
-> usb talking scsi that cannot be unmounted and i need to trace
-> scsi action so I can post here.
-> 
-> lsscsi output is
-> [0:0:0:0]    disk    USB 2.0  Storage Device   0100  /dev/sda
-> [1:0:0:0]    disk    Linux    scsi_debug       0004  /dev/sdb
-> 
+On Friday, 24-Oct-2003 at 4:19 +0200, Bernd Eckenfels wrote:
 
-The scsi logging interface switched control from proc to sysctl. 
+> In article <200310240136.h9O1aaOU002931@pasta.boston.redhat.com> you wrote:
+> > However, I agree that it's often not viable to require application
+> > changes to achieve the desired result.
+>
+> What does often mean? This is the Open Source Linux, and here we can do
+> changes to the source if it is good for securtiy, architecture, speat,
+> whatever.
 
-sysctl -w dev.scsi.logging_level=0xffffffff
+I agree, but sometimes the source to the *application* is not available
+to us.
 
-Will result in a scsi log all. You need to use caution if syslogd is
-running and you have other scsi devices.
-
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
-
+Cheers.  -ernie

@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288776AbSAIVF0>; Wed, 9 Jan 2002 16:05:26 -0500
+	id <S289025AbSAIVEr>; Wed, 9 Jan 2002 16:04:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289018AbSAIVFL>; Wed, 9 Jan 2002 16:05:11 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:2491 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288776AbSAIVE5>;
-	Wed, 9 Jan 2002 16:04:57 -0500
-Date: Thu, 10 Jan 2002 00:02:18 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        Mike Kravetz <kravetz@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-        george anzinger <george@mvista.com>
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-In-Reply-To: <Pine.LNX.4.33.0201091212380.7845-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0201092351570.9339-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289024AbSAIVEe>; Wed, 9 Jan 2002 16:04:34 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:23959
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289027AbSAIVCo>; Wed, 9 Jan 2002 16:02:44 -0500
+Date: Wed, 9 Jan 2002 15:47:42 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: "Eric S. Raymond" <esr@snark.thyrsus.com>, linux-kernel@vger.kernel.org,
+        greg@kroah.com, felix-dietlibc@fefe.de
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Message-ID: <20020109154742.B28755@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Patrick Mochel <mochel@osdl.org>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>,
+	linux-kernel@vger.kernel.org, greg@kroah.com,
+	felix-dietlibc@fefe.de
+In-Reply-To: <200201092005.g09K5OL28043@snark.thyrsus.com> <Pine.LNX.4.33.0201091247510.865-100000@segfault.osdlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201091247510.865-100000@segfault.osdlab.org>; from mochel@osdl.org on Wed, Jan 09, 2002 at 12:55:29PM -0800
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patrick Mochel <mochel@osdl.org>:
+> 
+> On Wed, 9 Jan 2002, Eric S. Raymond wrote:
+> 
+> > greg k-h:
+> > >What does everyone else need/want there?
+> >
+> > dmidecode, so the init script can dump a DMI report in a known
+> > location such as /var/run/dmi.
+> 
+> Why do you need that during that stage of the boot process? The DMI tables
+> won't go away.
 
-On Wed, 9 Jan 2002, Linus Torvalds wrote:
+I know.  My proposal to put dmidecode in initramfs is an alternative to
+/proc/dmi, one which won't involve having dmidecode run in kernelspace.
 
-> Not a way in hell should "nice 19" cause the throughput to improve
-> like that. It looks like this is a result of "nice 19" simply doing
-> _different_ scheduling, possibly more batch-like, and as such those
-> numbers cannot sanely be compared to anything else.
+The underlying problem is that dmidecode needs access to kmem, and I can't
+assume that the person running my configurator will be root.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-yes, this is what happens. The difference is that the load estimator
-'punishes' tasks to have lower priority, while the recalc-based method
-gives a 'bonus'. If run with nice +19 then the process cannot be punished
-anymore, all the tasks will run on the same priority level - and none can
-cause a preemption of the other one. The priority limit is set right at
-the nice +19 level.
-
-is this an intended thing with nice +19 tasks? I think so, at least for
-some usages. It could be fixed by adding some more priority space (+13
-levels) they could explore into (but which couldnt be set as the default
-priority). So by having a ceiling it really behaves differently, very
-batch-like - but that's what such benchmarks are asking for anyway ... I
-think it's an intended effect for CPU hogs as well - we do not want them
-to preempt each other, they should each use up their timeslices fully and
-roundrobin nicely.
-
-> (And if they _are_ comparable, then you should be able to get the good
-> numbers even without "nice 19". Quite frankly it sounds to me like the
-> whole chat benchmark is another "dbench", ie doing unbalanced
-> scheduling _helps_ it performance-wise, which implies that it's
-> probably a bad benchmark to look at numbers for).
-
-yes, agreed. It's not really unbalanced scheduling, the scheduler is still
-fair. What doesnt happen is priority based preemption.
-
-i think it could be a bonus to have such a scheduler mode - people dont
-run shells at +19 niceness level, it's the known CPU hogs that get started
-up with nice +19. It's a kind of SCHED_IDLE - everything can preempt it
-and it will preempt nothing, without the priority inheritance problems of
-SCHED_IDLE.
-
-	Ingo
-
+The whole of the Bill [of Rights] is a declaration of the right of the
+people at large or considered as individuals...  It establishes some
+rights of the individual as unalienable and which consequently, no
+majority has a right to deprive them of.
+         -- Albert Gallatin, Oct 7 1789

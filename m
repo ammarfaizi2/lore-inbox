@@ -1,253 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbUDPF4t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 01:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUDPF4t
+	id S262488AbUDPFzo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 01:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbUDPFzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 01:56:49 -0400
-Received: from gate.crashing.org ([63.228.1.57]:37769 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262441AbUDPF4c (ORCPT
+	Fri, 16 Apr 2004 01:55:44 -0400
+Received: from ind-iport-1-sec.cisco.com ([64.104.129.9]:15229 "EHLO
+	ind-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S262488AbUDPFzj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 01:56:32 -0400
-Subject: [PATCH] ppc64: Fix RTAS races on pSeries
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Olaf Hering <olh@suse.de>
-Content-Type: text/plain
-Message-Id: <1082094687.2135.255.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 16 Apr 2004 15:51:27 +1000
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Apr 2004 01:55:39 -0400
+X-BrightmailFiltered: true
+Content-Type: text/plain;
+  charset="us-ascii"
+From: "N.C.Krishna Murthy" <krmurthy@cisco.com>
+To: saw@saw.sw.com.sg
+Subject: N/W Card ceases to function after page allocation failure
+Date: Fri, 16 Apr 2004 11:24:26 +0530
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, "Manish Kumar Bhojasia" <mbhojasi@cisco.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200404161124.26930.krmurthy@cisco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Hi,
+	I was testing our iSCSI initiator driver on linux-2.6.4. The host 
+machine had Ethernet Pro 100 ethernet cards using which iSCSI sessions were 
+established. Few minutes after starting I/O on iSCSI disks the following 
+messages started appearing on the console:
 
-The low level kernel interface to RTAS (the firmware runtime services)
-was plagued with races that could cause from bogus results of RTAS
-operations to total machine crashes in some circumstances. This patch
-fix the ones I could identify, hoping I didn't miss any. I also added
-a WARN_ON (well, it's asm equivalent) to enter_rtas to make sure we
-never _ever_ try to call that with interrupts enabled.
-
-Please, apply,
-Ben.
-
-===== arch/ppc64/kernel/rtas.c 1.39 vs edited =====
---- 1.39/arch/ppc64/kernel/rtas.c	Tue Apr 13 14:04:32 2004
-+++ edited/arch/ppc64/kernel/rtas.c	Fri Apr 16 15:38:11 2004
-@@ -68,15 +68,20 @@
- void
- call_rtas_display_status(char c)
- {
--	struct rtas_args *rtas = &(get_paca()->xRtas);
-+	struct rtas_args *args = &(get_paca()->xRtas);
-+	unsigned long s;
-+
-+	spin_lock_irqsave(&rtas.lock, s);
- 
--	rtas->token = 10;
--	rtas->nargs = 1;
--	rtas->nret  = 1;
--	rtas->rets  = (rtas_arg_t *)&(rtas->args[1]);
--	rtas->args[0] = (int)c;
-+	args->token = 10;
-+	args->nargs = 1;
-+	args->nret  = 1;
-+	args->rets  = (rtas_arg_t *)&(args->args[1]);
-+	args->args[0] = (int)c;
- 
--	enter_rtas((void *)__pa((unsigned long)rtas));	
-+	enter_rtas((void *)__pa((unsigned long)args));	
-+
-+	spin_unlock_irqrestore(&rtas.lock, s);
- }
- 
- int
-@@ -91,8 +96,9 @@
- 	return tokp ? *tokp : RTAS_UNKNOWN_SERVICE;
- }
- 
--void
--log_rtas_error(struct rtas_args	*rtas_args)
-+
-+static int
-+__log_rtas_error(struct rtas_args *rtas_args)
- {
- 	struct rtas_args err_args, temp_args;
- 
-@@ -111,14 +117,24 @@
- 	PPCDBG(PPCDBG_RTAS, "\tentering rtas with 0x%lx\n",
- 	       (void *)__pa((unsigned long)&err_args));
- 	enter_rtas((void *)__pa((unsigned long)&get_paca()->xRtas));
--	PPCDBG(PPCDBG_RTAS, "\treturned from rtas ...\n");
--	
--
-+	PPCDBG(PPCDBG_RTAS, "\treturned from rtas ...\n");	
- 
- 	err_args = get_paca()->xRtas;
- 	get_paca()->xRtas = temp_args;
- 
--	if (err_args.rets[0] == 0)
-+	return err_args.rets[0];
-+}
-+
-+void
-+log_rtas_error(struct rtas_args	*rtas_args)
-+{
-+	unsigned long s;
-+	int rc;
-+
-+	spin_lock_irqsave(&rtas.lock, s);
-+	rc = __log_rtas_error(rtas_args);
-+	spin_unlock_irqrestore(&rtas.lock, s);
-+	if (rc == 0)
- 		log_error(rtas_err_buf, ERR_TYPE_RTAS_LOG, 0);
- }
- 
-@@ -127,9 +143,10 @@
- 	  unsigned long *outputs, ...)
- {
- 	va_list list;
--	int i;
-+	int i, logit = 0;
- 	unsigned long s;
- 	struct rtas_args *rtas_args = &(get_paca()->xRtas);
-+	long ret;
- 
- 	PPCDBG(PPCDBG_RTAS, "Entering rtas_call\n");
- 	PPCDBG(PPCDBG_RTAS, "\ttoken    = 0x%x\n", token);
-@@ -139,6 +156,9 @@
- 	if (token == RTAS_UNKNOWN_SERVICE)
- 		return -1;
- 
-+	/* Gotta do something different here, use global lock for now... */
-+	spin_lock_irqsave(&rtas.lock, s);
-+
- 	rtas_args->token = token;
- 	rtas_args->nargs = nargs;
- 	rtas_args->nret  = nret;
-@@ -151,26 +171,16 @@
- 	va_end(list);
- 
- 	for (i = 0; i < nret; ++i)
--	  rtas_args->rets[i] = 0;
-+		rtas_args->rets[i] = 0;
- 
--#if 0   /* Gotta do something different here, use global lock for now... */
--	spin_lock_irqsave(&rtas_args->lock, s);
--#else
--	spin_lock_irqsave(&rtas.lock, s);
--#endif
- 	PPCDBG(PPCDBG_RTAS, "\tentering rtas with 0x%lx\n",
- 		(void *)__pa((unsigned long)rtas_args));
- 	enter_rtas((void *)__pa((unsigned long)rtas_args));
- 	PPCDBG(PPCDBG_RTAS, "\treturned from rtas ...\n");
- 
- 	if (rtas_args->rets[0] == -1)
--		log_rtas_error(rtas_args);
-+		logit = (__log_rtas_error(rtas_args) == 0);
- 
--#if 0   /* Gotta do something different here, use global lock for now... */
--	spin_unlock_irqrestore(&rtas_args->lock, s);
--#else
--	spin_unlock_irqrestore(&rtas.lock, s);
--#endif
- 	ifppcdebug(PPCDBG_RTAS) {
- 		for(i=0; i < nret ;i++)
- 			udbg_printf("\tnret[%d] = 0x%lx\n", i, (ulong)rtas_args->rets[i]);
-@@ -179,7 +189,15 @@
- 	if (nret > 1 && outputs != NULL)
- 		for (i = 0; i < nret-1; ++i)
- 			outputs[i] = rtas_args->rets[i+1];
--	return (ulong)((nret > 0) ? rtas_args->rets[0] : 0);
-+	ret = (ulong)((nret > 0) ? rtas_args->rets[0] : 0);
-+
-+	/* Gotta do something different here, use global lock for now... */
-+	spin_unlock_irqrestore(&rtas.lock, s);
-+
-+	if (logit)
-+		log_error(rtas_err_buf, ERR_TYPE_RTAS_LOG, 0);
-+
-+	return ret;
- }
- 
- /* Given an RTAS status code of 990n compute the hinted delay of 10^n
-@@ -465,12 +483,12 @@
- 	enter_rtas((void *)__pa((unsigned long)&get_paca()->xRtas));
- 	args = get_paca()->xRtas;
- 
-+	spin_unlock_irqrestore(&rtas.lock, flags);
-+
- 	args.rets  = (rtas_arg_t *)&(args.args[nargs]);
- 	if (args.rets[0] == -1)
- 		log_rtas_error(&args);
- 
--	spin_unlock_irqrestore(&rtas.lock, flags);
--
- 	/* Copy out args. */
- 	if (copy_to_user(uargs->args + nargs,
- 			 args.args + nargs,
-@@ -486,7 +504,9 @@
- void rtas_stop_self(void)
- {
- 	struct rtas_args *rtas_args = &(get_paca()->xRtas);
-+	unsigned long s;
- 
-+	spin_lock_irqsave(&rtas.lock, s);
- 	rtas_args->token = rtas_token("stop-self");
- 	BUG_ON(rtas_args->token == RTAS_UNKNOWN_SERVICE);
- 	rtas_args->nargs = 0;
-@@ -496,6 +516,8 @@
- 	printk("%u %u Ready to die...\n",
- 	       smp_processor_id(), hard_smp_processor_id());
- 	enter_rtas((void *)__pa(rtas_args));
-+	spin_unlock_irqrestore(&rtas.lock, s);
-+
- 	panic("Alas, I survived.\n");
- }
- #endif /* CONFIG_HOTPLUG_CPU */
-===== arch/ppc64/kernel/entry.S 1.40 vs edited =====
---- 1.40/arch/ppc64/kernel/entry.S	Thu Apr 15 09:47:36 2004
-+++ edited/arch/ppc64/kernel/entry.S	Fri Apr 16 15:06:53 2004
-@@ -487,7 +487,7 @@
- 	mflr	r0
- 	std	r0,16(r1)
-         stdu	r1,-RTAS_FRAME_SIZE(r1)	/* Save SP and create stack space. */
--
-+	
- 	/* Because RTAS is running in 32b mode, it clobbers the high order half
- 	 * of all registers that it saves.  We therefore save those registers
- 	 * RTAS might touch to the stack.  (r0, r3-r13 are caller saved)
-@@ -512,12 +512,25 @@
- 	mfsrr1	r10
- 	std	r10,_SRR1(r1)
- 
-+	/* There is no way it is acceptable to get here with interrupts enabled,
-+	 * check it with the asm equivalent of WARN_ON
-+	 */
-+	mfmsr	r6
-+	andi.	r0,r6,MSR_EE
-+1:	tdnei	r0,0
-+.section __bug_table,"a"
-+	.llong	1b,__LINE__ + 0x1000000, 1f, 2f
-+.previous
-+.section .rodata,"a"
-+1:	.asciz	__FILE__
-+2:	.asciz "enter_rtas"
-+.previous
-+	
- 	/* Unfortunately, the stack pointer and the MSR are also clobbered,
- 	 * so they are saved in the PACA which allows us to restore
- 	 * our original state after RTAS returns.
-          */
- 	std	r1,PACAR1(r13)
--	mfmsr	r6
-         std	r6,PACASAVEDMSR(r13)
- 
- 	/* Setup our real return addr */	
+Apr 12 12:04:10 linux-2 kernel: iscsi-tx: page allocation failure. order:0, 
+mode:0x20
+Apr 12 12:04:10 linux-2 kernel: Call Trace:
+Apr 12 12:04:10 linux-2 kernel:  [<c014b25b>] __alloc_pages+0x33b/0x3d0
+Apr 12 12:04:11 linux-2 kernel:  [<c01212b5>] scheduler_tick+0x105/0x680
+Apr 12 12:04:11 linux-2 kernel:  [<c014b317>] __get_free_pages+0x27/0x40
+Apr 12 12:04:11 linux-2 kernel:  [<c014f46c>] inet_sendmsg+0x4b/0x60
+Apr 12 12:04:11 linux-2 kernel:  [<c032710b>] cache_grow+0xdc/0x3b0
+Apr 12 12:04:11 linux-2 kernel:  [<c014f85d>] cache_alloc_refill+0x11d/0x530
+Apr 12 12:04:11 linux-2 kernel:  [<c010bff2>] apic_timer_interrupt+0x1a/0x20
+Apr 12 12:04:11 linux-2 kernel:  [<c0150415>] kmem_cache_alloc+0x205/0x230
+Apr 12 12:04:11 linux-2 kernel:  [<c032b343>] sock_sendmsg+0xcb/0xd0
+Apr 12 12:04:11 linux-2 kernel:  [<c011b6dd>] 
+smp_apic_timer_interrupt+0xcd/0x140
+Apr 12 12:04:11 linux-2 kernel:  [<c010bff2>] apic_timer_interrupt+0x1a/0x20
+Apr 12 12:04:11 linux-2 kernel:  [<e0900430>] iscsi_sendmsg+0x60/0x70 
+[iscsi_sfnet]
+Apr 12 12:04:11 linux-2 kernel:  [<e08fd825>] iscsi_xmit_task+0x1f5/0xa10 
+[iscsi_sfnet]
+Apr 12 12:04:11 linux-2 kernel:  [<c011b6dd>] 
+smp_apic_timer_interrupt+0xcd/0x140
+Apr 12 12:04:11 linux-2 kernel:  [<c010bff2>] apic_timer_interrupt+0x1a/0x20
+Apr 12 12:04:11 linux-2 kernel:  [<e0900430>] iscsi_sendmsg+0x60/0x70 
+[iscsi_sfnet]
+Apr 12 12:04:11 linux-2 kernel:  [<e08e59fb>] kunmap_sg+0x1b/0x20 
+[iscsi_sfnet]
+Apr 12 12:04:11 linux-2 kernel:  [<e09054a0>] iscsi_xmit_data+0x520/0x940 
+[iscsi_sfnet]
+Apr 12 12:04:11 linux-2 kernel:  [<c010df30>] do_IRQ+0x120/0x230
+Apr 12 12:04:11 linux-2 kernel:  [<e08fabfa>] alloc_task+0x5a/0x100 
+[iscsi_sfnet]
+Apr 12 12:04:11 linux-2 kernel:  [<e08fabfa>] alloc_task+0x5a/0x100 
+[iscsi_sfnet]
+Apr 12 12:04:11 linux-2 kernel:  [<e08faea9>] add_session_task+0x39/0x60 
+[iscsi_sfnet]
+Apr 12 12:04:11 linux-2 kernel:  [<e0904b61>] 
+iscsi_xmit_queued_cmnds+0x2d1/0x6f0 [iscsi_sfnet]
+Apr 12 12:04:11 linux-2 kernel:  [<e08e6400>] iscsi_tx_thread+0x850/0xbc0 
+[iscsi_sfnet]
+Apr 12 12:04:12 linux-2 kernel:  [<c010913d>] kernel_thread_helper+0x5/0x18
+Apr 12 12:04:12 linux-2 kernel:
+Apr 12 12:04:12 linux-2 kernel: speedo_rx+0x265/0x380
+Apr 12 12:04:12 linux-2 kernel:  [<c026466e>] speedo_interrupt+0x2ee/0x310
+Apr 12 12:04:12 linux-2 kernel:  [<c014f262>] cache_init_objs+0xe2/0x1e0
+Apr 12 12:04:12 linux-2 kernel:  [<c010da9b>] handle_IRQ_event+0x3b/0x70
+Apr 12 12:04:12 linux-2 kernel:  [<c010def2>] do_IRQ+0xe2/0x230
+Apr 12 12:04:12 linux-2 kernel:  [<c010bf70>] common_interrupt+0x18/0x20
+Apr 12 12:04:12 linux-2 kernel:  [<c011007b>] handle_vm86_fault+0x6ab/0xa70
+Apr 12 12:04:12 linux-2 kernel:  [<c015026b>] kmem_cache_alloc+0x5b/0x230
+Apr 12 12:04:12 linux-2 kernel:  [<c032b343>] alloc_skb+0x23/0xf0
+Apr 12 12:04:12 linux-2 kernel:  [<c0356a49>] tcp_sendmsg+0x1149/0x13f0
+Apr 12 12:04:12 linux-2 kernel:  [<c034bca6>] ip_rcv+0x3b6/0x550
+Apr 12 12:04:12 linux-2 kernel:  [<c037ab9b>] inet_sendmsg+0x4b/0x60
+Apr 12 12:04:12 linux-2 kernel:  [<c032710b>] sock_sendmsg+0xcb/0xd0
+Apr 12 12:04:12 linux-2 kernel:  [<c011b6dd>] 
+smp_apic_timer_interrupt+0xcd/0x140
+Apr 12 12:04:12 linux-2 kernel:  [<c010bf70>] common_interrupt+0x18/0x20
+Apr 12 12:04:12 linux-2 kernel:  [<e0900430>] iscsi_sendmsg+0x60/0x70 
+[iscsi_sfnet]
+Apr 12 12:04:12 linux-2 kernel:  [<e0905419>] iscsi_xmit_data+0x499/0x940 
+[iscsi_sfnet]
+Apr 12 12:04:12 linux-2 kernel:  [<c0330e80>] net_rx_action+0x80/0x120
+Apr 12 12:04:13 linux-2 kernel:  [<c010df85>] do_IRQ+0x175/0x230
+Apr 12 12:04:13 linux-2 kernel:  [<e09059ff>] iscsi_xmit_r2t_data+0x13f/0x310 
+[iscsi_sfnet]
+Apr 12 12:04:13 linux-2 kernel:  [<e08e63f6>] iscsi_tx_thread+0x846/0xbc0 
+[iscsi_sfnet]
+Apr 12 12:04:13 linux-2 kernel:  [<c0121fc0>] default_wake_function+0x0/0x20
+Apr 12 12:04:13 linux-2 kernel:  [<c0121fc0>] default_wake_function+0x0/0x20
+Apr 12 12:04:13 linux-2 kernel:  [<e08e5bb0>] iscsi_tx_thread+0x0/0xbc0 
+[iscsi_sfnet]
+Apr 12 12:04:13 linux-2 kernel:  [<c010913d>] kernel_thread_helper+0x5/0x18
+Apr 12 12:04:13 linux-2 kernel:
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 1)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 1)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 1)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 1)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 1)!
+Apr 12 12:04:13 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:14 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:14 linux-2 kernel: eth1: can't fill rx buffer (force 1)!
+Apr 12 12:04:14 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:14 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:14 linux-2 kernel: eth1: can't fill rx buffer (force 1)!
+Apr 12 12:04:14 linux-2 kernel: eth1: can't fill rx buffer (force 1)!
+Apr 12 12:04:14 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:14 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:14 linux-2 kernel: eth1: can't fill rx buffer (force 1)!
+Apr 12 12:04:14 linux-2 kernel: eth1: can't fill rx buffer (force 1)!
+Apr 12 12:04:14 linux-2 kernel: eth1: can't fill rx buffer (force 0)!
+Apr 12 12:04:17 linux-2 kernel: eth1: RxAbort command stalled
 
 
+--------------------------------------------------------------------------------
+After this eth1  ceased to function until the system was rebooted.
+Even ping failed. 
+
+I tried the same test on another machine which had a different n/w card.
+Though I saw messages about page allocation failure, the card continued to 
+function normally.
+
+I was wondering if this is a bug in ethernet pro 100 driver. Please let 
+me know in case I am wrong.
+Thanx
+N.C.Krishna Murthy

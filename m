@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268807AbUIHETl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268849AbUIHEWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268807AbUIHETl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 00:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268861AbUIHETk
+	id S268849AbUIHEWm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 00:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268889AbUIHEWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 00:19:40 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:38596
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S268807AbUIHET3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 00:19:29 -0400
-Date: Tue, 7 Sep 2004 21:16:37 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: jonsmirl@gmail.com, willy@debian.org, linux-kernel@vger.kernel.org
-Subject: Re: multi-domain PCI and sysfs
-Message-Id: <20040907211637.20de06f4.davem@davemloft.net>
-In-Reply-To: <200409072115.09856.jbarnes@engr.sgi.com>
-References: <9e4733910409041300139dabe0@mail.gmail.com>
-	<9e47339104090715585fa4f8af@mail.gmail.com>
-	<20040907161140.29fbfccc.davem@davemloft.net>
-	<200409072115.09856.jbarnes@engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Sep 2004 00:22:42 -0400
+Received: from www2.muking.org ([216.231.42.228]:16413 "HELO www2.muking.org")
+	by vger.kernel.org with SMTP id S268836AbUIHEWN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 00:22:13 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
+From: Kevin Hilman <kjh-lkml@hilman.org>
+Organization: None to speak of.
+Date: 07 Sep 2004 21:22:11 -0700
+Message-ID: <834qm92xvw.fsf@www2.muking.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Sep 2004 21:15:09 -0700
-Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+I'm running the VP patch on a PII 400MHz to closer approximate an
+embedded target.  I get a 21ms latency trace during boot which dwarfs
+other latencies and prevents me from seeing any of the later latencies
+when I'm running my test.  The trace (from -R5) is available here:
 
-> On Tuesday, September 7, 2004 4:11 pm, David S. Miller wrote:
-> > This is a real touchy area btw, because if there is no
-> > VGA card, such I/O port accesses are going to trap and
-> > we need to have a common way to handle that somehow.
-> 
-> So I take it your platform won't soft fail the accesses and return all 1s?
+  http://hilman.org/kevin/VP/trace-cond_resched.txt
 
-Nope, you get a machine check trap.  We have to catch these when doing
-PCI config space accesses in the kernel too.  Grep for pci_poke_* in
-arch/sparc64/kernel/*.c
+At first glance, it appears to be the result of an accumulation of
+calls to __delay() from the 3c59x vortex driver.  Any ideas what's
+going on here?
 
-> A potentially cleaner option which Ben and I would prefer is to use
-> the vga device Jon is creating to do legacy I/O with explicit
-> read/write or ioctl calls.
+Is there a way to disable the trace by default and enable it later via
+/proc?  I see that the preemption itself can be disabled via
+command-line and then enable later via /proc but I don't see the same
+for the latency trace.
 
-Definitely.  Note that xfree86 already has a signal handler for this
-stuff, ppc generates traps like sparc64 too.
+Kevin
+http://hilman.org/
+

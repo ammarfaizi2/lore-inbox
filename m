@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265754AbTAFCLt>; Sun, 5 Jan 2003 21:11:49 -0500
+	id <S265681AbTAFCT1>; Sun, 5 Jan 2003 21:19:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265773AbTAFCLt>; Sun, 5 Jan 2003 21:11:49 -0500
-Received: from mx5.mail.ru ([194.67.57.15]:31248 "EHLO mx5.mail.ru")
-	by vger.kernel.org with ESMTP id <S265754AbTAFCLs>;
-	Sun, 5 Jan 2003 21:11:48 -0500
-Date: Mon, 6 Jan 2003 05:14:12 +0300
-From: Dmitry Volkoff <vdb@mail.ru>
+	id <S265689AbTAFCT1>; Sun, 5 Jan 2003 21:19:27 -0500
+Received: from dp.samba.org ([66.70.73.150]:29882 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265681AbTAFCT1>;
+	Sun, 5 Jan 2003 21:19:27 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: Re: fs corruption with 2.4.20 IDE+md+LVM
-Message-ID: <20030106021412.GA3993@server1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Cc: rth@twiddle.net, bjornw@axis.com, davidm@hpl.hp.com, geert@linux-m68k.org,
+       ralf@gnu.org, mkp@mkp.net, willy@debian.org, anton@samba.org,
+       gniibe@m17n.org, kkojima@rr.iij4u.or.jp, Jeff Dike <jdike@karaya.com>
+Subject: Userspace Test Framework for module loader porting
+Date: Mon, 06 Jan 2003 13:27:02 +1100
+Message-Id: <20030106022803.902F82C0E2@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I observed filesystem corruption on my home workstation recently. I was
-> running kernel 2.4.20 (built myself with gcc 2.95.4), and ext3 with the
-> default journaling mode (ordered?).
+The userspace test framework I used to develop module loading on
+different archs is up at:
 
-Hello, 
+	http://www.kernel.org/pub/linux/kernel/people/rusty/modules/module-test-framework.tar.gz 
 
-Same problem here. I have software raid-1 on 2 IDE Seagate 80G, kernel 
-2.4.20aa1 built with gcc-3.2, all filesystems are ext2, no LVM. 
-FS corruption after running Cerberus test for about 8 hours. 
+I found it much easier to use for each arch than doing the
+crash/reboot cycle (and you can use a real debugger).
 
-> I will also point out that kernel 2.4.20-ac1 and 2.4.21-pre6 will not 
-> boot on my machine; they kernel panic when detecting my IDE devices. 
+BTW, the change to use shared objects for modules is going to be a 2.7
+thing: after 10 architectures, MIPS toolchain issues made it
+non-trivial.  So the current stuff is what is going to be there for
+2.6, so no point waiting 8)
 
-I can confirm. Kernel 2.4.21-pre2 does not boot from a RAID device 
-(/dev/md0). 
-
--- 
-
-    D.V.
+Please report any problems!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318124AbSHZOhm>; Mon, 26 Aug 2002 10:37:42 -0400
+	id <S318117AbSHZOr4>; Mon, 26 Aug 2002 10:47:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318121AbSHZOhl>; Mon, 26 Aug 2002 10:37:41 -0400
-Received: from windsormachine.com ([206.48.122.28]:37130 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S318117AbSHZOhk>; Mon, 26 Aug 2002 10:37:40 -0400
-Date: Mon, 26 Aug 2002 10:41:55 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: <linux-ppp@vger.kernel.org>
-cc: <linux-kernel@vger.kernel.org>, <debian-user@lists.debian.org>
-Subject: PPP problems I was having
-Message-ID: <Pine.LNX.4.33.0208261036030.10194-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318123AbSHZOrz>; Mon, 26 Aug 2002 10:47:55 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29970 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318117AbSHZOrx>; Mon, 26 Aug 2002 10:47:53 -0400
+Date: Mon, 26 Aug 2002 15:52:08 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Cc: Linux Colonel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] Export symbols corrected...
+Message-ID: <20020826155208.A4763@flint.arm.linux.org.uk>
+References: <20020826100023.A900@flint.arm.linux.org.uk> <Pine.LNX.4.44.0208260825080.3234-100000@hawkeye.luckynet.adm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0208260825080.3234-100000@hawkeye.luckynet.adm>; from thunder@lightweight.ods.org on Mon, Aug 26, 2002 at 08:28:12AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I went out and swapped the PCI 3com Sportster modem with another
-spare ISA Sportster I had lying around.  Set it up, same problem of
-persist option not working properly.
-Looking through the syslog again, I noticed this...
+On Mon, Aug 26, 2002 at 08:28:12AM -0600, Thunder from the hill wrote:
+> I thought you had it fixed in the meanwhile. There was lots of time to do 
+> so.
 
-Aug 26 08:42:32 tilburybackup pppd[330]: Connect time 0.9 minutes.
-Aug 26 08:42:32 tilburybackup pppd[330]: Sent 87 bytes, received 72 bytes.
-Aug 26 08:42:32 tilburybackup pppd[330]: Couldn't release PPP unit: Invalid argument
-Aug 26 08:42:33 tilburybackup pppd[330]: Script /etc/ppp/ip-down finished (pid 862), status = 0x1
-Aug 26 08:43:27 tilburybackup pppd[330]: Serial connection established.
-Aug 26 08:43:27 tilburybackup pppd[330]: using channel 2
-Aug 26 08:43:27 tilburybackup pppd[330]: Couldn't create new ppp unit: Inappropriate ioctl for device
-Aug 26 08:43:28 tilburybackup pppd[330]: Hangup (SIGHUP)
+Well, I didn't have lots of time.
 
-Furthermore, everytime it tries to reconnect, it increases the channel
-count.  As well, this invalid argument on the release PPP unit seems odd.
+> But irq.o is correct?
 
-I did find a way to get around having to wait 6 hours for the ISP to
-hangup.  Just pulling the phone cable, letting it time out and attempt to
-shut down, and then plugging the cable back in, works.
+Shrug.
 
-I finally did a work around:
+> irq.o correct again, either?
 
+Looks like it.
 
-tilburybackup:/etc/ppp/ip-down.d# cat reset
-#!/bin/sh
-if [ $PPP_TTY == "/dev/ttyS4" ]; then
-        poff chatham
-        pon chatham
-fi
+> Do you have an idea about when the sa1111 is going to get merged?
 
+Nope.
 
-This fixes it for now(as poff shuts it down cleanly, but pppd's persist is
-fubar)
-
-Ideas?
-
-Still running 2.4.19 with pppd 2.4.1
-
-If I get desperate enough, I'll go try 2.2.21 the next time I'm in the
-area of this facility, to see if it's pppd 2.4.1, or the 2.4.19 kernel
-that's causing it.
-
-Mike
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

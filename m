@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUJIXY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267553AbUJIX2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267601AbUJIXY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 19:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267566AbUJIXY4
+	id S267553AbUJIX2R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 19:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267554AbUJIX2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 19:24:56 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:5038 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267571AbUJIXYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 19:24:49 -0400
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-From: Lee Revell <rlrevell@joe-job.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: dwalker@mvista.com, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>,
-       "Amakarov@Ru. Mvista. Com" <amakarov@ru.mvista.com>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>,
-       New Zhang Haitao <hzhang@ch.mvista.com>,
-       "Yyang@Ch. Mvista. Com" <yyang@ch.mvista.com>
-In-Reply-To: <1097364034.8085.1.camel@localhost>
-References: <41677E4D.1030403@mvista.com>
-	 <1097304045.1442.166.camel@krustophenia.net>
-	 <1097307234.13748.1.camel@dhcp153.mvista.com>
-	 <1097364034.8085.1.camel@localhost>
-Content-Type: text/plain
-Message-Id: <1097364287.1363.19.camel@krustophenia.net>
+	Sat, 9 Oct 2004 19:28:17 -0400
+Received: from gw.anda.ru ([212.57.164.72]:53508 "EHLO mail.ward.six")
+	by vger.kernel.org with ESMTP id S267553AbUJIX2Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 19:28:16 -0400
+Date: Sun, 10 Oct 2004 05:28:09 +0600
+From: Denis Zaitsev <zzz@anda.ru>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG][2.6.8.1] Something wrong with ISAPnP and serial driver
+Message-ID: <20041010052809.C1639@natasha.ward.six>
+Mail-Followup-To: Rene Herman <rene.herman@keyaccess.nl>,
+	linux-kernel@vger.kernel.org
+References: <20041010015206.A30047@natasha.ward.six> <4168479C.5080306@keyaccess.nl> <20041010033820.B30047@natasha.ward.six> <41685E04.3070103@keyaccess.nl> <20041010043443.A1639@natasha.ward.six> <41686A40.3060305@keyaccess.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 09 Oct 2004 19:24:47 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41686A40.3060305@keyaccess.nl>; from rene.herman@keyaccess.nl on Sun, Oct 10, 2004 at 12:46:24AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-09 at 19:20, Dave Hansen wrote:
-> On Sat, 2004-10-09 at 00:33, Daniel Walker wrote:
-> > Do you have 4k stacks turned off? The docs make note of this.
+On Sun, Oct 10, 2004 at 12:46:24AM +0200, Rene Herman wrote:
+> Denis Zaitsev wrote:
 > 
-> Isn't this a better thing to spell out in a Kconfig file than some
-> documentation?
+> > /proc/tty/driver/serial shows the correct info for now.  Does the fact
+> > that it used to do not means that something wrong with sysfs PnP
+> > activation mechanics?
+> 
+> That would appear to be the case yes. Adam Belay <ambx1@neo.rr.com> is 
+> the person to talk to concerning PnP issues, if you care to.
 
-FWIW I did see this in the docs, it's clearly stated, I just forgot that
-I had enabled 4k stacks.
-
-Lee
-
+Thanks.

@@ -1,106 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266522AbUBEUQg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 15:16:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266408AbUBEUQg
+	id S266808AbUBEUQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 15:16:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266809AbUBEUQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 15:16:36 -0500
-Received: from fmr09.intel.com ([192.52.57.35]:30659 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S266522AbUBEUQ3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 15:16:29 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
-Date: Thu, 5 Feb 2004 12:16:17 -0800
-Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C3682@orsmsx410.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
-Thread-Index: AcPsGZjROImzXgQCRJWTJFQhgl26twABc3+gAAEPX2A=
-From: "Woodruff, Robert J" <woody@co.intel.com>
-To: "King, Steven R" <steven.r.king@intel.com>, "Greg KH" <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>
-Cc: <infiniband-general@lists.sourceforge.net>
-X-OriginalArrivalTime: 05 Feb 2004 20:16:18.0139 (UTC) FILETIME=[E9C38AB0:01C3EC24]
+	Thu, 5 Feb 2004 15:16:15 -0500
+Received: from mail.kroah.org ([65.200.24.183]:20896 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266808AbUBEUQJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 15:16:09 -0500
+Date: Thu, 5 Feb 2004 12:16:05 -0800
+From: Greg KH <greg@kroah.com>
+To: "Tillier, Fabian" <ftillier@infiniconsys.com>
+Cc: "Hefty, Sean" <sean.hefty@intel.com>, linux-kernel@vger.kernel.org,
+       Troy Benjegerdes <hozer@hozed.org>,
+       "Woodruff, Robert J" <woody@co.intel.com>,
+       "Magro, Bill" <bill.magro@intel.com>,
+       "Woodruff, Robert J" <woody@jf.intel.com>,
+       infiniband-general@lists.sourceforge.net
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in the Linux kernel
+Message-ID: <20040205201605.GC14646@kroah.com>
+References: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96C2@mercury.infiniconsys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96C2@mercury.infiniconsys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that we tried to isolate a lot of these kernel calls into
-one library, the component library, so that when the kernel APIs change,
-which seems to happen every release, we only have to change the code 
-in one spot. 
+On Thu, Feb 05, 2004 at 02:44:07PM -0500, Tillier, Fabian wrote:
+> 
+> The component library (the abstraction layer used by IBAL) is in no way
+> tied to InfiniBand.  Whatever is in there can be used by any other
+> projects, and there's a lot of useful stuff in there that does provide
+> value.
 
-This actually helps porting to new kernels. For example, I think that
-it only took a week to get the IBAL code to compile on 2.6 since all or
-most 
-of the kernel dependencies were isolated to one module. 
+Great, if you think so, please provide patches to the main kernel tree
+for all of us to see.  Just don't try to bury it in a driver subsystem.
+That is my complaint.
 
-It also then allows most of the code to remain very readable, since we
-don't have to put #ifdefs all over the place when an API or kernel data
-structure changes. 
+> One goal of IBAL is to get InfiniBand support for Linux.  As such, it is
+> a higher priority to get things working than to wait for changes to
+> appear in the Linux kernel before making forward progress.
 
-Are there any other examples of drivers that isolate kernel specific
-calls
-to one module or file of their code to ease portability between
-different revisions
-of the kernel ? If not, maybe they should look at what we have done,
-it might save them some headaches in the future. 
+Isn't it a better idea to try to work with the community, instead of
+ignoring them and thinking that you are progressing ahead of them?  :)
 
+> Keep in mind also that InfiniBand is not a Linux-only technology.
+> Sharing code between different operating systems accelerates development
+> and reduces the cost of maintenance.
 
+For your driver subsystem, possibly.  I know the whole history of ACPI,
+and how that is developed too.  Also remember all of the man-hours that
+were spent getting that acpi code into the proper shape for Linux...
 
------Original Message-----
-From: infiniband-general-admin@lists.sourceforge.net
-[mailto:infiniband-general-admin@lists.sourceforge.net] On Behalf Of
-King, Steven R
-Sent: Thursday, February 05, 2004 11:39 AM
-To: Greg KH; linux-kernel@vger.kernel.org
-Cc: infiniband-general@lists.sourceforge.net
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in
-the linux kernel
+> Lastly, there are things (like timers) that are blatantly missing from
+> user-mode in Linux, and having an abstraction here allows code to be
+> shared between kernel and user mode.
 
+Again, patches are always appreciated to address anything that you feel
+is missing in Linux.
 
-We just use the kernel's spin_lock_irqsave(), so I don't know what
-you're talking about.
+> Keep in mind that we're not expecting you or the Linux community to
+> blindly take the code as is.
 
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com] 
-Sent: Thursday, February 05, 2004 10:55 AM
-To: King, Steven R; linux-kernel@vger.kernel.org
-Cc: infiniband-general@lists.sourceforge.net
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
-the linux kernel
+That's good, as you have yet to even submit anything :)
 
+> We're looking for constructive feedback to
+> make it so that everyone goes home happy.  It's disappointing that the
+> feedback we're getting from you is that any abstractions will be cause
+> for rejection.  What are the grounds for this policy?
 
-On Thu, Feb 05, 2004 at 10:27:54AM -0800, King, Steven R wrote:
-> Hi Greg,
-> What exactly is wrong with spinlock?  Far as I know, it's been working
+Um, "no one else does it as it is not necessary," is not enough?
 
-> bug-free on a variety of platforms for quite some time now.  The other
+> What does it accomplish?  Is portable code a problem for the Linux
+> community in general?
 
-> abstractions such as atomic_t are for platform portability.
+Not at all.  Just look at the vast array of different hardware platforms
+that Linux runs on!  And look at how almost all drivers work on all of
+those platforms with no changes needed!  We are all for portability.
 
-Again, compare them to the current kernel spinlocks and try to realize
-why your implementation of spinlock_irqsave() will not work on all
-platforms.
+> Removing the abstraction from the IBAL project would require
+> significant rework of the code that would add very little from a
+> functional perspective, and make the code base more complicated and
+> harder to maintain.
 
-Come on, just use the kernel versions, there is no need to reinvent the
-wheel all of the time, it just wastes everyones time (including mine...)
+Harder for whom to maintain?  You, or the rest of the kernel community?
+Remember, once your code is in the tree, everyone is free to make
+changes to it, that's the power of a community effort.
+
+That's enough of this, just submit a patch and we can work from there,
+with real, technical answers for specific technical issues.
 
 thanks,
 
 greg k-h
-
-
--------------------------------------------------------
-The SF.Net email is sponsored by EclipseCon 2004
-Premiere Conference on Open Tools Development and Integration See the
-breadth of Eclipse activity. February 3-5 in Anaheim, CA.
-http://www.eclipsecon.org/osdn
-_______________________________________________
-Infiniband-general mailing list Infiniband-general@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/infiniband-general

@@ -1,96 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265706AbUFXXHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUFXXJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265706AbUFXXHU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 19:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbUFXXHT
+	id S264677AbUFXXJT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 19:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265863AbUFXXJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 19:07:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:433 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265706AbUFXXHP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 19:07:15 -0400
-Date: Thu, 24 Jun 2004 16:09:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: andrea@suse.de, nickpiggin@yahoo.com.au, tiwai@suse.de, ak@suse.de,
+	Thu, 24 Jun 2004 19:09:19 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8340
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264677AbUFXXJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 19:09:16 -0400
+Date: Fri, 25 Jun 2004 01:09:19 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: wli@holomorphy.com, nickpiggin@yahoo.com.au, tiwai@suse.de, ak@suse.de,
        ak@muc.de, tripperda@nvidia.com, discuss@x86-64.org,
        linux-kernel@vger.kernel.org
 Subject: Re: [discuss] Re: 32-bit dma allocations on 64-bit platforms
-Message-Id: <20040624160945.69185c46.akpm@osdl.org>
-In-Reply-To: <20040624225121.GS21066@holomorphy.com>
-References: <s5h4qp1hvk0.wl@alsa2.suse.de>
-	<20040624164258.1a1beea3.ak@suse.de>
-	<s5hy8mdgfzj.wl@alsa2.suse.de>
-	<20040624152946.GK30687@dualathlon.random>
-	<40DAF7DF.9020501@yahoo.com.au>
-	<20040624165200.GM30687@dualathlon.random>
-	<20040624165629.GG21066@holomorphy.com>
-	<20040624145441.181425c8.akpm@osdl.org>
-	<20040624220823.GO21066@holomorphy.com>
-	<20040624224529.GA30687@dualathlon.random>
-	<20040624225121.GS21066@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Message-ID: <20040624230919.GB30687@dualathlon.random>
+References: <20040624112900.GE16727@wotan.suse.de> <s5h4qp1hvk0.wl@alsa2.suse.de> <20040624164258.1a1beea3.ak@suse.de> <s5hy8mdgfzj.wl@alsa2.suse.de> <20040624152946.GK30687@dualathlon.random> <40DAF7DF.9020501@yahoo.com.au> <20040624165200.GM30687@dualathlon.random> <20040624165629.GG21066@holomorphy.com> <20040624145441.181425c8.akpm@osdl.org> <20040624151130.4a444973.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040624151130.4a444973.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> On Fri, Jun 25, 2004 at 12:45:29AM +0200, Andrea Arcangeli wrote:
-> > Luckily this problem doesn't fall in this scenario and it's trivial to
-> > reproduce if you've >= 2G of ram. I still have here the testcase google
-> > sent me years ago when this problem seen the light during 2.4.1x. They
-> > used mlock, but it's even simpler to reproduce it with a single malloc +
-> > bzero (note: no mlock). The few mbytes of lowmem left won't last long if
-> > you load some big app after that.
+On Thu, Jun 24, 2004 at 03:11:30PM -0700, Andrew Morton wrote:
+> After setting lower_zone_protection to 10:
 > 
-> Well, there are magic numbers here we need to explain to get a testcase
-> runnable on more machines than just x86 boxen with exactly 2GB RAM.
-> Where do the 2GB and 1GB come from? Is it that 1GB is the size of the
-> upper zone?
+> Active:111515 inactive:65009 dirty:116 writeback:0 unstable:0 free:3290 slab:75489 mapped:52247 pagetables:446
+> DMA free:4172kB min:16kB low:32kB high:48kB active:0kB inactive:0kB present:16384kB
+> protections[]: 8 5156 5860
+> Normal free:8736kB min:936kB low:1872kB high:2808kB active:352780kB inactive:224972kB present:901120kB
+> protections[]: 0 468 1172
+> HighMem free:252kB min:128kB low:256kB high:384kB active:93280kB inactive:35064kB present:130516kB
+> protections[]: 0 0 64
 > 
+> It's a bit complex, and perhaps the relative levels of the various
+> thresholds could be tightened up.
 
-A testcase would be, on a 2G box:
+this is the algorithm I added to 2.4 to produce good protection levels (with
+lower_zone_reserve_ratio supposedly tunable at boot time):
 
-a) free up as much memory as you can
-
-b) write a 1.2G file to fill highmem with pagecache
-
-c) malloc(800M), bzero(), sleep
-
-d) swapoff -a
-
-You now have a box which has almost all of lowmem pinned in anonymous
-memory.  It'll limp along and go oom fairly easily.
+static int lower_zone_reserve_ratio[MAX_NR_ZONES-1] = { 256, 32 };
 
 
-Another testcase would be:
+		zone->watermarks[j].min = mask;
+		zone->watermarks[j].low = mask*2;
+		zone->watermarks[j].high = mask*3;
+		/* now set the watermarks of the lower zones in the "j" classzone */
+		for (idx = j-1; idx >= 0; idx--) {
+			zone_t * lower_zone = pgdat->node_zones + idx;
+			unsigned long lower_zone_reserve;
+			if (!lower_zone->size)
+				continue;
 
-a) free up as much memory as you can
+			mask = lower_zone->watermarks[idx].min;
+			lower_zone->watermarks[j].min = mask;
+			lower_zone->watermarks[j].low = mask*2;
+			lower_zone->watermarks[j].high = mask*3;
 
-b) write a 1.2G file to fill highmem with pagecache
+			/* now the brainer part */
+			lower_zone_reserve = realsize / lower_zone_reserve_ratio[idx];
+			lower_zone->watermarks[j].min += lower_zone_reserve;
+			lower_zone->watermarks[j].low += lower_zone_reserve;
+			lower_zone->watermarks[j].high += lower_zone_reserve;
 
-c) malloc(800M), mlock it
+			realsize += lower_zone->realsize;
+		}
 
-You now have most of lowmem mlocked.
-
-
-In both situations the machine is really sick.  Probably the most risky
-scenario is a swapless machine in which lots of lowmem is allocated to
-anonymous memory.
-
-
-It should be the case that increasing lower_zone_peotection will fix all
-the above.  If not, it needs fixing.
-
-So we're down the question "what should we default to at bootup".  I find
-it hard to justify defaulting to a mode where we're super-defensive against
-this sort of thing, simply because nobody seems to be hitting the problems.
-
-Distributors can, if the must, bump lower_zone_protection in initscripts,
-and it's presumably pretty simple to write a boot script which parses
-/proc/meminfo's MemTotal and SwapTotal lines, producing an appropriate
-lower_zone_protection setting.
-
+Your code must be inferior since it doesn't even allow to tune each zone
+differently (you seems not to have a lower_zone_reserve_ratio[idx]). Not sure
+why you dont' simply forward port the code from 2.4 instead of reinventing it.

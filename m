@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265399AbUF2Ehs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265426AbUF2Ek2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265399AbUF2Ehs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 00:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265426AbUF2Ehr
+	id S265426AbUF2Ek2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 00:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265410AbUF2Ek1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 00:37:47 -0400
-Received: from mail5.speakeasy.net ([216.254.0.205]:3740 "EHLO
-	mail5.speakeasy.net") by vger.kernel.org with ESMTP id S265399AbUF2Ehg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 00:37:36 -0400
-Date: Mon, 28 Jun 2004 21:37:34 -0700
-Message-Id: <200406290437.i5T4bYPI022901@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Jun 2004 00:40:27 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:63439 "HELO
+	spl35.corp.google.com") by vger.kernel.org with SMTP
+	id S265426AbUF2EkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 00:40:13 -0400
+Message-ID: <6599ad830406282140a6310fe@mail.google.com>
+Date: Mon, 28 Jun 2004 21:40:10 -0700
+From: Paul Menage <menage@google.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Subject: Race in iput()?
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: Linus Torvalds <torvalds@osdl.org>, mingo@redhat.com, cagney@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] x86 single-step (TF) vs system calls & traps
-In-Reply-To: Andrew Morton's message of  Monday, 28 June 2004 21:15:59 -0700 <20040628211559.73ded525.akpm@osdl.org>
-X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Davide's patch (which has been in -mm for 6-7 weeks) doesn't add
-> fastpath overhead.
+Hi,
 
-I am also dubious about exactly what it does.  That patch seems a bizarre
-obfuscation of the code to me.  TIF_SINGLESTEP is really there to handle
-the lazy TF clearing for sysenter entry, and that's all.  I don't think
-that patch handles user-mode setting TF properly, unusual though that case
-is.  How does that patch interact with PT_TRACESYSGOOD?  It appears to me
-that PTRACE_SINGLESTEP will now generate a syscall trap instead of a
-single-step trap, which is an undesireable change in behavior I would say.
+Is the following sequence of events possible? If so, that would seem
+to be a bug.
 
-I don't really care about user-mode setting of TF before executing int
-$0x80.  If poeple have programs that use TF in user mode, they have never
-complained about the issue before.  For PTRACE_SINGLESTEP, Davide's
-approach of setting the kernel-work flag directly when PTRACE_SINGLESTEP
-sets TF in the user flags word is the obvious way to avoid the test in the
-fast path.  I am inclined to combine that approeach with what my patch
-does, i.e. just take out the system call fast-path test and set
-TIF_SINGLESTEP_TRAP in PTRACE_SINGLESTEP.  I think the way Davide's patch
-uses TIF_SINGLESTEP is pretty questionable.
+- inode on non-MS_ACTIVE superblock is on unused list (fs being unmounted?)
+- prune_icache() starts processing inode, so sets I_LOCK
+- in another thread, someone calls iget() then iput() on inode 
+- inode is dirty, so iput() calls write_inode_now() 
+- write_inode_now() calls sync_one()
+- sync_one() calls __iget() and bumps inode ref count back up to 1
+- sync_one() calls __wait_on_inode() and sleeps
+- in original thread, prune_icache() finishes with inode and clears I_LOCK
+- sync_one() wakes up and calls iput()
+- iput() decrements ref count to 0 again and frees inode (no wait this time)
+- sync_one() and callers now hold a pointer to a freed inode
 
+Alternatively, try_to_sync_unused_inodes() could be racing rather than
+prune_icache().
 
-Thanks,
-Roland
+We've seen a crash that could be explained by this race being hit, if
+it is possible.
 
+Paul

@@ -1,64 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTEAADf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 20:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbTEAADe
+	id S262609AbTEAAK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 20:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbTEAAK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 20:03:34 -0400
-Received: from zero.aec.at ([193.170.194.10]:26897 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262610AbTEAADd (ORCPT
+	Wed, 30 Apr 2003 20:10:58 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:47540 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262609AbTEAAK4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 20:03:33 -0400
-Date: Thu, 1 May 2003 02:15:12 +0200
-From: Andi Kleen <ak@muc.de>
-To: torvalds@transmeta.com
+	Wed, 30 Apr 2003 20:10:56 -0400
+Date: Wed, 30 Apr 2003 17:21:02 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: rmoser <mlmoser@comcast.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix prefetch patching in 2.5-bk
-Message-ID: <20030501001511.GA2890@averell>
+Subject: Re: Kernel source tree splitting
+Message-Id: <20030430172102.69e13ce9.rddunlap@osdl.org>
+In-Reply-To: <200304301946130000.01139CC8@smtp.comcast.net>
+References: <200304301946130000.01139CC8@smtp.comcast.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Brown paperbag time. I forgot to take the modrm byte in account
-with the prefetch patch replacement.  With 3.2 it worked because
-it used the right registers in my configuration.
+I'm probably misreading this...but,
 
-But gcc 2.96 uses a different register in __dpath and the prefetch becomes
-4 bytes with modrm and the original nop needs to be as long as that too.
+Have you tried this yet?  Does it modify/customize all Kconfig
+and Makefiles for the selected tree splits?
 
-If your machine BUG()s in apply_alternatives at booting 
-or module loading you need this patch.
+A few days ago, in one tree, I rm-ed arch/{all that I don't need}
+and drivers/{all that I don't need}.
+After that I couldn't run "make *config" because it wants all of
+those files, even if I don't want them.
 
-Linus please apply.
+So there are many edits that needed to be done in lots of
+Kconfig and Makefiles if one selectively pulls or omits certain
+sub-directories.
 
--Andi
 
-Index: linux/include/asm-i386/processor.h
-===================================================================
-RCS file: /home/cvs/linux-2.5/include/asm-i386/processor.h,v
-retrieving revision 1.48
-diff -u -u -r1.48 processor.h
---- linux/include/asm-i386/processor.h	30 Apr 2003 14:32:05 -0000	1.48
-+++ linux/include/asm-i386/processor.h	30 Apr 2003 22:48:26 -0000
-@@ -564,7 +564,7 @@
- #define ARCH_HAS_PREFETCH
- extern inline void prefetch(const void *x)
- {
--	alternative_input(ASM_NOP3,
-+	alternative_input(ASM_NOP4,
- 			  "prefetchnta (%1)",
- 			  X86_FEATURE_XMM,
- 			  "r" (x));
-@@ -578,7 +578,7 @@
-    spinlocks to avoid one state transition in the cache coherency protocol. */
- extern inline void prefetchw(const void *x)
- {
--	alternative_input(ASM_NOP3,
-+	alternative_input(ASM_NOP4,
- 			  "prefetchw (%1)",
- 			  X86_FEATURE_3DNOW,
- 			  "r" (x));
+
+On Wed, 30 Apr 2003 19:46:13 -0400 rmoser <mlmoser@comcast.net> wrote:
+
+| Eh, Linus won't be happy making a bunch of tarballs.
+| I've made it less work if you read the message here...
+| 
+| The message mirrored at:
+| 
+| http://marc.theaimsgroup.com/?l=linux-kernel&m=105173077417526&w=2
+| 
+| Shows my pre-thought on this subject.  I thought a bit more,
+| and began to come up with a simple sketch to lead the
+| way in case anyone becomes interested.
+| 
+| First off, the kernel tarballs would be built by a script
+| that splits the source tree apart appropriately and tar's it
+| up.  How this is done is explained.
+| 
+| Second off, there's always a script to download that runs
+| wget and gets the source tree from which it was downloaded.
+| The whole thing.  As in, every tarball is downloaded and
+| untar'd for the user, assembling the full kernel source
+| tree (as it would be if you untar'd it now).
+| 
+| Now, I explained LOD's in that message above in small
+| detail.  But, for clarity, LOD's are files which explain
+| which pieces of source in the kernel tree belong to the
+| LOD; what gets added to the config; where their makefiles
+| are; what config options depend on other linux options;
+| and what groups these LOD's are in.
+| 
+| A command such as `make disttree` should read the LOD's,
+| split apart each linux option, tar 'em together, and
+| then compress the tar's.  Then Linus could just scp the
+| new directory of tar's and a script up.
+| 
+| As for download, the script that goes up can be
+| downloaded (duh), and then run (... why do I bother?).
+| Now this script would run in "dumb mode" (unless the
+| user tells it not to maybe?) and rip down the whole
+| tree, untar it, and rebuild the original source tree.
+| I think.  I'm not sure, I really haven't tried yet.
+| I'll tell you how it works after it's implimented, if
+| ever that happens.  This would likely require wget.
+| 
+| Of course there's always the ftp method.  Go download
+| the pieces you want, untar 'em, copy 'em to the same
+| directory, and the build system adjusts.  but newbies
+| and developers, for completely opposite reasons, will
+| want to use the script in dumb mode.
+| 
+| For experienced users, this will make configuration
+| somewhat easier, as the user can avoid being prompted
+| for irrelavent drivers.  This is just a concept idea,
+| not a fully thought-out idea.  What do you think?
+| 
+| --Bluefox Icy
+
+--
+~Randy

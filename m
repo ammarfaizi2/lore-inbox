@@ -1,33 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131477AbRDBXLv>; Mon, 2 Apr 2001 19:11:51 -0400
+	id <S131497AbRDBXOL>; Mon, 2 Apr 2001 19:14:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131509AbRDBXLl>; Mon, 2 Apr 2001 19:11:41 -0400
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:40953 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S131477AbRDBXL0>; Mon, 2 Apr 2001 19:11:26 -0400
-Date: Mon, 2 Apr 2001 16:10:06 -0700 (PDT)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: Jesse Pollard <jesse@cats-chateau.net>
-cc: Shawn Starr <spstarr@sh0n.net>, Matti Aarnio <matti.aarnio@zmailer.org>,
+	id <S131508AbRDBXOE>; Mon, 2 Apr 2001 19:14:04 -0400
+Received: from waste.org ([209.173.204.2]:5733 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S131497AbRDBXNp>;
+	Mon, 2 Apr 2001 19:13:45 -0400
+Date: Mon, 2 Apr 2001 18:12:25 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Tom Leete <tleete@mountain.net>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, David Lang <dlang@diginsite.com>,
+   Manfred Spraul <manfred@colorfullife.com>,
+   "Albert D. Cahalan" <acahalan@cs.uml.edu>, <lm@bitmover.com>,
    <linux-kernel@vger.kernel.org>
-Subject: Re: Disturbing news..
-In-Reply-To: <01032806093901.11349@tabby>
-Message-ID: <Pine.LNX.4.30.0104021608090.29684-100000@sol.compendium-tech.com>
+Subject: Re: bug database braindump from the kernel summit
+In-Reply-To: <3AC9058F.580E268B@mountain.net>
+Message-ID: <Pine.LNX.4.30.0104021808040.29801-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Mar 2001, Jesse Pollard wrote:
-> Sure - very simple. If the execute bit is set on a file, don't allow
-> ANY write to the file. This does modify the permission bits slightly
-> but I don't think it is an unreasonable thing to have.
+On Mon, 2 Apr 2001, Tom Leete wrote:
 
-Oh, honestly! Think about what you are saying here:
+> Oliver Xymoron wrote:
+> >
+> > On Sun, 1 Apr 2001, Jeff Garzik wrote:
+> >
+> > > On Sun, 1 Apr 2001, David Lang wrote:
+> > > > if we want to get the .config as part of the report then we need to make
+> > > > it part of the kernel in some standard way (the old /proc/config flamewar)
+> > > > it's difficult enough sometimes for the sysadmin of a box to know what
+> > > > kernel is running on it, let alone a bug reporting script.
+> > >
+> > > Let's hope it's not a flamewar, but here goes :)
+> > >
+> > > We -need- .config, but /proc/config seems like pure bloat.
+> >
+> > As a former proponent of /proc/config (I wrote one of the much-debated
+> > patches), I tend to agree. Debian's make-kpkg does the right thing, namely
+> > treating .config the same way it treats System-map, putting it in the
+> > package and eventually installing it in /boot/config-x.y.z. If Redhat's
+> > kernel-install script did the same it would rapidly become a non-issue.
+>
+> How about /lib/modules/$(uname -r)/build/.config ? It's already there.
 
-What if you are developing something in an interpereted language such as
-perl or a shell script, where you *directly modify the executable file*?
+It'd be great if we got away from the config being hidden too.
 
-No, this won't work...Not wwithout being annoying as hell.
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266096AbUJBNXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266116AbUJBN3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266096AbUJBNXW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 09:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUJBNXW
+	id S266116AbUJBN3V (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 09:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUJBN3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 09:23:22 -0400
-Received: from [80.227.59.61] ([80.227.59.61]:9612 "EHLO HasBox.COM")
-	by vger.kernel.org with ESMTP id S266096AbUJBNXU (ORCPT
+	Sat, 2 Oct 2004 09:29:21 -0400
+Received: from asplinux.ru ([195.133.213.194]:19213 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S266116AbUJBN3T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 09:23:20 -0400
-Message-ID: <415EABA2.6010605@0Bits.COM>
-Date: Sat, 02 Oct 2004 17:22:42 +0400
-From: Mitch <Mitch@0Bits.COM>
-User-Agent: Application 0.6+ (X11/20041001)
-X-Accept-Language: en-us, en
+	Sat, 2 Oct 2004 09:29:19 -0400
+Message-ID: <415EB03F.2020500@sw.ru>
+Date: Sat, 02 Oct 2004 17:42:23 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-To: pavel@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Ugly netdev sysfs errors handling
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't understand. The highmem issue was when resuming, not when
-suspending ? My laptop doesn't suspend with -rc3. Please elaborate ?
-What config do i change ? Remember i don't have ACPI, so unless pmdisk
-supports APM BIOS poweroff, then -rc3 is useless to me.
+Hello,
 
-Thanks
-M
--------- Original Message --------
-Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working
-Date: Fri, 1 Oct 2004 15:40:05 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Mitch DSouza <Mitch@0Bits.COM>
-CC: linux-kernel@vger.kernel.org
-References: <415D311E.2050006@0Bits.COM>
+During debug I faced oops in 
+netdev_unregister_sysfs()->sysfs_remove_group(),
+since kobj->dentry == NULL.
 
-Hi!
+The problem is that netdev code doesn't handle errors from sysfs 
+correctly - it calls netdev_unregister_sysfs() in any case, even if 
+netdev_register_sysfs() failed on registering:
 
-> I thought i was going barmy. I've reverted back to -rc2 which
-> pmdisk works flawlessly on my laptop.
+void netdev_run_todo(void)
+...
+                 case NETREG_REGISTERING:
+                         err = netdev_register_sysfs(dev);
+                         if (err)
+                                 printk(KERN_ERR "%s: failed sysfs 
+registration (%d)\n",
+                                        dev->name, err);
+                         dev->reg_state = NETREG_REGISTERED;
+                         break;
+                 case NETREG_UNREGISTERING:
+                         netdev_unregister_sysfs(dev); <<<< OOPS here,
+					<<<< if netdev_register_sysfs()
+					<<<<< failed
+...
 
-Actually problem turned out to be in highmem. Unless you
-are using highmem, -rc3 should work. You'll need to change config if
-switching from pmdisk to swsusp...
+I tried to fix it in netdev code, but it's impossible to do it in a 
+fashioned manner. Since there are some kobject manipulations in 
+destructors (e.g. free_netdev() oopses as well if workaround the above 
+code).
+Another approach can be to check kobj->dentry and other fields in sysfs.
 
-				Pavel
+Maybe someone has any ideas on this? Except for "no errors should 
+normally happen" :)
+
+Kirill
+
+

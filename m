@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317512AbSGOQhU>; Mon, 15 Jul 2002 12:37:20 -0400
+	id <S317536AbSGOQka>; Mon, 15 Jul 2002 12:40:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317536AbSGOQhT>; Mon, 15 Jul 2002 12:37:19 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:65154 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S317512AbSGOQhS>; Mon, 15 Jul 2002 12:37:18 -0400
-Date: Mon, 15 Jul 2002 12:42:31 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Weber, Frank" <FWeber@ndsuk.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Process-wise swap-on/off option
-In-Reply-To: <1A961872F9CE0B4AB641DD256115865F225C5E@tornado.uk.nds.com>
-Message-ID: <Pine.LNX.3.95.1020715124057.21519A-100000@chaos.analogic.com>
+	id <S317537AbSGOQk3>; Mon, 15 Jul 2002 12:40:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53004 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317536AbSGOQk2>;
+	Mon, 15 Jul 2002 12:40:28 -0400
+Message-ID: <3D32FB8D.6030202@mandrakesoft.com>
+Date: Mon, 15 Jul 2002 12:42:53 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Jones <davej@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] agpgart splitup and cleanup for 2.5.25
+References: <20020711230222.GA5143@kroah.com> <agtn5j$ij2$1@penguin.transmeta.com> <20020715104629.A11096@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Jul 2002, Weber, Frank wrote:
+Dave Jones wrote:
+> On Mon, Jul 15, 2002 at 05:38:59AM +0000, Linus Torvalds wrote:
+>  > > drivers/char/agp/agpgart_be-via.c    |  151 +
+>  > Ok, so is there any real _reason_ to have filenames quite this ugly?
+> 
+> of course not. I'll fix it up later, and send an updated patch
+> with 1-2 other small changes that happened since Greg's work
+> (one of the Intel backends had a subtle thinko brought forward
+>  from 2.4.19rc1)
+> 
+>  > If you want the redundancy, duplication and profusion, please keep it
+>  > shorter.  And put it at the end, so that at least filename completion
+>  > works well: "via-agp.c".
+>  > 
+>  > Ok?
+> 
+> Ok, I think we can even do away with the -agp, as we're in the
+> agp/ dircetory, which again seems to be pointless duplication.
 
-> Hello:
-> 
-> Is it possible to arrange that a Linux application 
-> (or one of its threads) has the ability to
-> 
-> 	"... lock (a certain) stack and data segment ... 
-> 	into memory so that it can't be swapped out"?
-> 
-> [This has been formulated as a requirement by one of 
-> our analysts.]
-> 
-> I have been told that this is unlikely (except by 
-> disabling swapout altogether (for all processes). 
-> 
-> Any hints as to where to look for a solution (i.e., 
-> pointers to documentation or manuals where the ifs 
-> and hows are explained) would be greatly appreciated.
-> 
-> Many thanks in advance,
-> F.P.Weber
 
-Sure. mlock() and mlockall().
+modprobe is still a flat namespace :/  So it's not necessarily pointless 
+duplication.  That's why I named the via82cxxx audio driver with the 
+_audio suffix, to eliminate conflicts with drivers/ide/via82cxxx.c 
+when/if it becomes directly modprobe-able.
 
-Cheers,
-Dick Johnson
+	Jeff
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
-                 Windows-2000/Professional isn't.
+
 

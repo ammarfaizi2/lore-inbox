@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264215AbTCXOTy>; Mon, 24 Mar 2003 09:19:54 -0500
+	id <S264217AbTCXOUq>; Mon, 24 Mar 2003 09:20:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264217AbTCXOTy>; Mon, 24 Mar 2003 09:19:54 -0500
-Received: from p5082005B.dip0.t-ipconnect.de ([80.130.0.91]:16779 "EHLO
-	localhost") by vger.kernel.org with ESMTP id <S264215AbTCXOTx>;
-	Mon, 24 Mar 2003 09:19:53 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Inspiron 8100 Trackpoint/Touchpad issue (with solution?)
-From: Arne Koewing <ark@gmx.net>
-Date: Mon, 24 Mar 2003 15:30:54 +0100
-Message-ID: <878yv4x2e9.fsf@gmx.net>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
+	id <S264218AbTCXOUq>; Mon, 24 Mar 2003 09:20:46 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:65420 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S264217AbTCXOUm>; Mon, 24 Mar 2003 09:20:42 -0500
+Date: Mon, 24 Mar 2003 09:33:29 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Ded-Fat 8.0 and ext3
+In-Reply-To: <1048515655.1636.4.camel@laptop.fenrus.com>
+Message-ID: <Pine.LNX.4.53.0303240926001.24323@chaos>
+References: <Pine.LNX.4.53.0303211420170.13876@chaos>  <1048324118.3306.3.camel@LNX.iNES.RO>
+  <Pine.LNX.4.53.0303240909410.24249@chaos> <1048515655.1636.4.camel@laptop.fenrus.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Mon, 24 Mar 2003, Arjan van de Ven wrote:
 
-Hi!
-As some people before I had the 'trackpoint does not work' problem 
-after upgrading to 2.5.XX:
-That was:
-     
-the trackpoint of your dell won't work until:
-    - hibernate and wake up the system again
-    - plug in an external mouse (you may remove it immediately)
+> On Mon, 2003-03-24 at 15:11, Richard B. Johnson wrote:
+>
+> > I did not bother to go any further than `make oldconfig` and
+> > `make dep` in this "Show-and-tell". As previously reported,
+>
+> as previously report to YOU: you have to do a make mrproper first.
+> Then it just works.
+>
 
-it seems that dells hardware is disabling the trackpoint if you
-probed for the touchpad. 
-A device reset after probing does help, but I've no idea how this
-would affect other synaptics touchpad devices although I think
-most devices will not complain one extra reset.
+Look at the damn script. It does every possible:
+make clean
+make distclean
+make mrproper  (line 71)
+
+It's hard to find because script got broken in that distribution,
+too.
+
+Again look at the evidence, rather than just barking back a
+retort.
+
+> I've not received a SINGLE report where starting with make mrproper
+> didn't fix this issue. You can claim I ignore this issue, but I don't.
+> It's just not an issue at all so far!
+>
+Well you got more than a "SINGLE" report now. Please check it out.
 
 
-Arne
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-patch included:
-
-
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=synaptics_reset.patch
-
---- linux-2.5.65-old/drivers/input/mouse/psmouse.c	2003-03-05 04:29:03.000000000 +0100
-+++ linux-2.5.65-dev/drivers/input/mouse/psmouse.c	2003-03-24 08:42:11.000000000 +0100
-@@ -345,6 +345,8 @@
-                   thing up. */
-                psmouse->vendor = "Synaptics";
-                psmouse->name = "TouchPad";
-+	       psmouse_command(psmouse, param, PSMOUSE_CMD_RESET_BAT);
-+	       psmouse_command(psmouse, param, PSMOUSE_CMD_ENABLE);
-                return PSMOUSE_PS2;
-        }
- 
-
---=-=-=--

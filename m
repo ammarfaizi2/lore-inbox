@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVBJUTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVBJUVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbVBJUTH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 15:19:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVBJUTH
+	id S261698AbVBJUVb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 15:21:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVBJUVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 15:19:07 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:53605 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261660AbVBJUTF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 15:19:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=e4l9/Ox0VMzo9uSImiyKg0b9IjQh9ktN42veNIoTL0otIPJ+rIJJFntkyVoVsAtjczLapCBIBZ+JOBG0scSzXFlasBmM4qc8moxf0qVOC9Pi17I/m1hB6lQDJyZbYiN+guJLDMj4xJDg4bhjVuZkyWtuq6uTPCr9JtLgA+Hn0rA=
-Message-ID: <9e473391050210121756874a84@mail.gmail.com>
-Date: Thu, 10 Feb 2005 15:17:47 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI] Samsung P35, S3, black screen (radeon))
-Cc: =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>,
-       Bill Davidsen <davidsen@tmr.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Machek <pavel@ucw.cz>, ncunningham@linuxmail.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1108066096.4085.69.camel@tyrosine>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Feb 2005 15:21:31 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:10993 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261698AbVBJUVY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 15:21:24 -0500
+Message-ID: <420BC23F.6030308@mvista.com>
+Date: Thu, 10 Feb 2005 12:21:19 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: William Weston <weston@lysdexia.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+References: <20050204100347.GA13186@elte.hu> <Pine.LNX.4.58.0502081135340.21618@echo.lysdexia.org> <20050209115121.GA13608@elte.hu> <Pine.LNX.4.58.0502091233360.4599@echo.lysdexia.org> <20050210075234.GC9436@elte.hu>
+In-Reply-To: <20050210075234.GC9436@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <1107695583.14847.167.camel@localhost.localdomain>
-	 <420BB267.8060108@tmr.com> <20050210192554.GA15726@sci.fi>
-	 <1108066096.4085.69.camel@tyrosine>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Feb 2005 20:08:15 +0000, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> It also explicitly states that Windows 2000 and XP don't support this,
-> which leads me to suspect that vendors no longer expect POSTing to be
-> possible after initial system boot.
+If I want to write a patch that will work with or without the RT patch applied 
+is the following enough?
 
-No, it means that some of my ATI cards don't function as secondary
-adapters on 2K and XP.
+#ifndef RAW_SPIN_LOCK_UNLOCKED
+typedef raw_spinlock_t spinlock_t
+#define RAW_SPIN_LOCK_UNLOCKED SPIN_LOCK_UNLOCKED
+#endif
+
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+

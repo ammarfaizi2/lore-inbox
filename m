@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129127AbRBHQZm>; Thu, 8 Feb 2001 11:25:42 -0500
+	id <S129055AbRBHQ2c>; Thu, 8 Feb 2001 11:28:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129130AbRBHQZc>; Thu, 8 Feb 2001 11:25:32 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:32164 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129127AbRBHQZM>; Thu, 8 Feb 2001 11:25:12 -0500
-Date: Thu, 8 Feb 2001 16:24:23 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        David Howells <dhowells@cambridge.redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] micro-opt DEBUG_ADD_PAGE
-In-Reply-To: <Pine.LNX.4.10.10102071336230.5084-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0102081549210.12077-100000@localhost.localdomain>
+	id <S129130AbRBHQ2W>; Thu, 8 Feb 2001 11:28:22 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:18170 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129055AbRBHQ2J>; Thu, 8 Feb 2001 11:28:09 -0500
+Date: Thu, 8 Feb 2001 14:27:27 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: osamu <ogawaosm@bs.mmk.fst.pb.nttdata.co.jp>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: someone knows a good sendmail mailing list ?
+In-Reply-To: <20010208094957.6478.OGAWAOSM@bs.mmk.fst.pb.nttdata.co.jp>
+Message-ID: <Pine.LNX.4.21.0102081426350.2378-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Feb 2001, Linus Torvalds wrote:
-> On Wed, 7 Feb 2001, Hugh Dickins wrote:
-> > 
-> > None of those optimizes this: I believe the semantics of "||" (don't
-> > try next test if first succeeds) forbid the optimization "|" gives?
-> 
-> No. The optimization is entirely legal - but the fact that
-> "constant_test_bit()" uses a "volatile unsigned int *" is the reason why
-> gcc thinks it can't optimize it.
+On Thu, 8 Feb 2001, osamu wrote:
 
-Ah, yes, I hadn't noticed that, the "volatile" is indeed why it ends up
-with three "mov"s.  But take the "volatile"s out of constant_test_bit(),
-and DEBUG_ADD_PAGE still expands to three tests and three (four if 2.97)
-jumps - which is what originally offended me.
+> someone knows a good sendmail mailing list ? active like this one ?
 
-But Mark (in test program in private mail) shows gcc combining bits
-into one test and one jump, just as we'd hope (and I wrongly thought
-forbidden).  Perhaps the inline function nature of constant_test_bit()
-(which Mark didn't use) gets in the way of combining those tests.
+I doubt it, if only because sendmail wouldn't be able to
+handle the load.
 
-> You could try to remove the volatile from test_bit, and see if that fixes
-> it - but then we'd have to find and add the proper "rmb()" calls to people
-> who do the endless loop kind of thing like above.
 
-That is not an inviting path to me, at least not any time soon!
+(yeah, I know it's off-topic; but I couldn't resist this one)
 
-I think this all argues for the little patch I suggested - just avoid
-test_bit() here.  But it was only intended as a quick little suggestion:
-looks like our tastes differ, and you prefer taking the _tiny_ hit of
-using the regular macros, to seeing "1<<PG_bitshift"s in DEBUG_ADD_PAGE.
+cheers,
 
-Hugh
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

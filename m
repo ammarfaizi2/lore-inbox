@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265116AbSJWSVp>; Wed, 23 Oct 2002 14:21:45 -0400
+	id <S265138AbSJWS02>; Wed, 23 Oct 2002 14:26:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265123AbSJWSVp>; Wed, 23 Oct 2002 14:21:45 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:43398 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265116AbSJWSVo>; Wed, 23 Oct 2002 14:21:44 -0400
-Date: Wed, 23 Oct 2002 14:30:22 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Nivedita Singhvi <niv@us.ibm.com>
-cc: bert hubert <ahu@ds9a.nl>, Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-       "David S. Miller" <davem@rth.ninka.net>, netdev@oss.sgi.com,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [RESEND] tuning linux for high network performance?
-In-Reply-To: <3DB6E56D.8D930A1D@us.ibm.com>
-Message-ID: <Pine.LNX.3.95.1021023141949.15292A-100000@chaos.analogic.com>
+	id <S265139AbSJWS02>; Wed, 23 Oct 2002 14:26:28 -0400
+Received: from cse.ogi.edu ([129.95.20.2]:20172 "EHLO church.cse.ogi.edu")
+	by vger.kernel.org with ESMTP id <S265138AbSJWS01>;
+	Wed, 23 Oct 2002 14:26:27 -0400
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+References: <Pine.LNX.4.44.0210231102480.1581-100000@blue1.dev.mcafeelabs.com>
+From: "Charles 'Buck' Krasic" <krasic@acm.org>
+Date: 23 Oct 2002 11:32:32 -0700
+In-Reply-To: <Pine.LNX.4.44.0210231102480.1581-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <xu4u1jdj9a7.fsf@brittany.cse.ogi.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Oct 2002, Nivedita Singhvi wrote:
 
-> "Richard B. Johnson" wrote:
-> 
-> > No. It's done over each word (short int) and the actual summation
-> > takes place during the address calculation of the next word. This
-> > gets you a checksum that is practically free.
-> 
-> Yep, sorry, word, not byte. My bad. The cost is in the fact 
-> that this whole process involves loading each word of the data
-> stream into a register. Which is why I also used to consider
-> the checksum cost as negligible. 
-> 
-> > A 400 MHz ix86 CPU will checksum/copy at 685 megabytes per second.
-> > It will copy at 1,549 megabytes per second. Those are megaBYTES!
-> 
-> But then why the difference in the checksum/copy and copy?
-> Are you saying the checksum is not costing you 864 megabytes
-> a second??
+I see.  Adding async accept/connect would seem to make more sense to me.
 
-Costing you 864 megabytes per second?
-Lets say the checksum was free. You are then able to INF bytes/per/sec.
-So it's costing you INF bytes/per/sec?  No, it's costing you nothing.
-If we were not dealing with INF, then 'Cost' is approximately 1/N, not
-N. Cost is work_done_without_checksum - work_done_with_checksum. Because
-of the low-pass filter pole, these numbers are practically the same.
-But, you can get a measurable difference between any two large numbers.
-This makes the 'cost' seem high. You need to make it relative to make
-any sense, so a 'goodness' can be expressed as a ratio of the cost and
-the work having been done.
+-- Buck
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
+Davide Libenzi <davidel@xmailserver.org> writes:
 
+> Maybe my understanding of AIO on Linux is limited but how would you do
+> async accept/connect ? Will you be using std poll/select for that, and
+> then you'll switch to AIO for read/write requests ?
 
+> - Davide

@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275980AbRJYSjI>; Thu, 25 Oct 2001 14:39:08 -0400
+	id <S275822AbRJYSeQ>; Thu, 25 Oct 2001 14:34:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275973AbRJYSi7>; Thu, 25 Oct 2001 14:38:59 -0400
-Received: from [160.131.145.131] ([160.131.145.131]:30213 "EHLO W20303512")
-	by vger.kernel.org with ESMTP id <S275963AbRJYSiw>;
-	Thu, 25 Oct 2001 14:38:52 -0400
-Message-ID: <00ee01c15d84$5e878310$839183a0@W20303512>
-From: "Wilson" <defiler@null.net>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <1004013479.2597.50.camel@athlon1.hemma.se> <3BD80A32.16D618FD@mandrakesoft.com> <1004033467.1726.3.camel@athlon1.hemma.se>
-Subject: Re: Network device problems
-Date: Thu, 25 Oct 2001 14:39:22 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S275861AbRJYSeG>; Thu, 25 Oct 2001 14:34:06 -0400
+Received: from [213.96.124.18] ([213.96.124.18]:5358 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S275822AbRJYSdw>;
+	Thu, 25 Oct 2001 14:33:52 -0400
+Date: Thu, 25 Oct 2001 20:37:43 +0000
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jdomingo@internautas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux Scheduler and Compilation
+Message-ID: <20011025203743.B504@dardhal.mired.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <007501c15d68$94f12c60$8630fdd4@3232424>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <007501c15d68$94f12c60$8630fdd4@3232424>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Thomas Svedberg" <thsv@bigfoot.com>
-To: "Jeff Garzik" <jgarzik@mandrakesoft.com>
-Cc: <linux-kernel@vger.kernel.org>; <rgooch@atnf.csiro.au>
-Sent: Thursday, October 25, 2001 2:11 PM
-Subject: Re: Network device problems
+On Thursday, 25 October 2001, at 18:20:25 +0300,
+Omer Sever wrote:
 
-> > > 
-> > > Just updated to RedHat 7.2 and after compiling and starting my new
-> > > kernel my network interfaces won't go up (not even lo), I get the
-> > > following message:
-> > > "ifup: Cannot send dump request: Connection refused".
-> > 
-> > Yep.  Newer initscripts from RedHat and Mandrake (and others?) require
-> > CONFIG_NETLINK_DEV.  initscripts runs, IIRC, iproute, which in turn
-> > requires the netlink device.
-> > 
+>      I have a project on Linux CPU Scheduler to make it Fair Share
+> Scheduler.I will make some changes on some files such as sched.c vs...I will
+> want to see the effect ot the change but recompilation of the kernel takes
+> about half an hour on my machine.How can I minimize this time?Which part
+> should I necessarily include in my config file for the kernel to minimize
+> it?
+> 
+make is your friend: it will only recompile those files that changed from
+the last compilation. If you modify some #includes in the code, I believe
+you will have to also run "make dep" before, to get dependencies right.
 
-Here's the relevant portion of the RELEASE-NOTES document from RedHat 7.2:
+Another approach would be to compile the kernel on another different
+machine, should you have one more powerful that the one you expect to try
+the kernel on.
 
-"The initscripts now use /sbin/ip (from the iproute packages) for most
-operations. /sbin/ip requires the netlink and netlink routing features
-of the kernel to function properly; it is impossible to make use of
-the kernel's full routing functionality without these features. If you
-are building your own kernel, make sure that CONFIG_NETLINK and
-CONFIG_RTNETLINK are enabled."
-
-They accused us of suppressing freedom of expression.
-This was a lie and we could not let them publish it.
--- Nelba Blandon, Nicaraguan Interior Ministry Director of Censorship
-
-
+-- 
+José Luis Domingo López
+Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+ 
+jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
+jdomingo AT internautas DOT   org  => Spam at your own risk
 

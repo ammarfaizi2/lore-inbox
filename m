@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbTFTQfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 12:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTFTQfJ
+	id S263354AbTFTQmY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 12:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTFTQmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 12:35:09 -0400
-Received: from 211.187-201-80.adsl.skynet.be ([80.201.187.211]:32782 "EHLO
-	obelix.village-gaulois") by vger.kernel.org with ESMTP
-	id S263311AbTFTQd7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 12:33:59 -0400
-Subject: Re: xircom card bus with 2.4.20 link trouble
-From: Arnaud Ligot <spyroux@freegates.be>
-To: Mike Dresser <mdresser_l@windsormachine.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0306201031160.15589-100000@router.windsormachine.com>
-References: <Pine.LNX.4.33.0306201031160.15589-100000@router.windsormachine.com>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1056127656.6728.30.camel@portable>
+	Fri, 20 Jun 2003 12:42:24 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:63938
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263354AbTFTQmV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 12:42:21 -0400
+Date: Fri, 20 Jun 2003 12:56:20 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Eli Carter <eli.carter@inet.com>
+Cc: John Bradford <john@grabjohn.com>, nuno.silva@vgertech.com,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org, samphan@thai.com,
+       vojtech@suse.cz
+Subject: Re: Crusoe's persistent translation on linux?
+Message-ID: <20030620165620.GA9164@gtf.org>
+References: <200306201040.h5KAerPK000431@81-2-122-30.bradfords.org.uk> <3EF33B12.7070901@inet.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 20 Jun 2003 18:47:36 +0200
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EF33B12.7070901@inet.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le ven 20/06/2003 à 16:35, Mike Dresser a écrit :
-> On 20 Jun 2003, Arnaud Ligot wrote:
-> 
-> > I have a CEM56-100
-> >
-> 
-> > I use the xirc2ps_cs module. I haven't force cardmgr to use so I think
-> > it's the good module for the card
-> 
-> If it's a CEM56-100, that's not a cardbus card!
-> 
-a day my father give me this card and said me it's a cardbus card...
-I accept and since this day, I think it's a cardbus... but if you sais
-it's a regular pcmcia... why not ;-)
+On Fri, Jun 20, 2003 at 11:49:22AM -0500, Eli Carter wrote:
+> Hmm... basically you want to trim the x86 instruction set to get closer 
+> to RISC mentality.  Interesting.  gcc may already do that to some extent 
+> by not using the really complex instructions.  If that is the case, 
+> dropping those instructions might give some room for testing some of its 
+> possible benefits.  I doubt restricting the registers used by some 
+> instructions would help... I've heard comments that the x86 is 
+> register-starved enough already.
 
-++
-Arnaud
--- 
-Arnaud Ligot <spyroux@freegates.be>
+Newer CPUs do register renaming in an attempt to avoid the
+register-starved ISA issue.  I presume Xmeta would do something
+similar...
+
+	Jeff
+
+
+
 

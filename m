@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbUBXWeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 17:34:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262504AbUBXWdm
+	id S262513AbUBXWki (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 17:40:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbUBXWiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 17:33:42 -0500
-Received: from mail.kroah.org ([65.200.24.183]:14789 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262503AbUBXWb3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 17:31:29 -0500
-Date: Tue, 24 Feb 2004 14:30:43 -0800
-From: Greg KH <greg@kroah.com>
-To: marcel cotta <mc123@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3 - Badness in pci_find_subsys at drivers/pci/search.c:167
-Message-ID: <20040224223043.GA2455@kroah.com>
-References: <403B7627.6080805@mail.ru>
+	Tue, 24 Feb 2004 17:38:09 -0500
+Received: from ncc1701.cistron.net ([62.216.30.38]:65214 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S262513AbUBXWhl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 17:37:41 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: Promise SATA driver
+Date: Tue, 24 Feb 2004 22:37:40 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <c1gjnj$68q$1@news.cistron.nl>
+References: <200402241110.07526.andrew@walrond.org> <403B73E3.80100@pobox.com> <200402241630.36105.andrew@walrond.org> <403B8028.1060700@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403B7627.6080805@mail.ru>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1077662260 6426 62.216.29.200 (24 Feb 2004 22:37:40 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 05:04:55PM +0100, marcel cotta wrote:
-> i came across this while playing with hdparm
-> 
-> Call Trace:
->  [<c0264128>] pci_find_subsys+0xe8/0xf0
->  [<c026415f>] pci_find_device+0x2f/0x40
->  [<c02e5d89>] ide_system_bus_speed+0x69/0x90
->  [<c02e528e>] ali15x3_tune_drive+0x1e/0x250
+In article <403B8028.1060700@pobox.com>,
+Jeff Garzik  <jgarzik@pobox.com> wrote:
+>Andrew Walrond wrote:
+>> I take it the software raid thing wasn't part of the gpl'ed driver, and isn't 
+>> something that is likely to happen?
+>
+>
+>In 2.4, RAID0 and RAID1 are supported via the pdcraid driver.
 
-Ugh, this is due to calling system_bus_clock() from within an interrupt.
-Is there any good reason to do this?  Can't we just cache the bus speed
-in the local device structure if we really have to do this from within
-an interrupt?
+I looked at those drivers, but they don't support error recovery
+in RAID1 mode of any kind. It's just "read from one drive,
+write to both" but if one disk goes south you're SOL.
 
-thanks,
+Just FYI ;)
 
-greg k-h
+Mike.
+

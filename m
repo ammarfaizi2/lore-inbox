@@ -1,99 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316106AbSHIVL0>; Fri, 9 Aug 2002 17:11:26 -0400
+	id <S315928AbSHIVJ0>; Fri, 9 Aug 2002 17:09:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316213AbSHIVL0>; Fri, 9 Aug 2002 17:11:26 -0400
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:32655 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S316106AbSHIVLW>; Fri, 9 Aug 2002 17:11:22 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Grant Grundler <grundler@dsl2.external.hp.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: PCI<->PCI bridges, transparent resource fix
-Date: Fri, 9 Aug 2002 23:14:45 +0200
-Message-Id: <20020809211445.11929@smtp.wanadoo.fr>
-In-Reply-To: <20020809210128.A17979@jurassic.park.msu.ru>
-References: <20020809210128.A17979@jurassic.park.msu.ru>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S315942AbSHIVJ0>; Fri, 9 Aug 2002 17:09:26 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:39955 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S315928AbSHIVJZ>;
+	Fri, 9 Aug 2002 17:09:25 -0400
+Date: Fri, 9 Aug 2002 23:13:06 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Phil Auld <pauld@egenera.com>, linux-kernel@vger.kernel.org
+Subject: Re: why is lseek broken (>= 2.4.11) ?
+Message-ID: <20020809211306.GA1252@win.tue.nl>
+References: <20020809084915.P3542@vienna.EGENERA.COM> <3D542AAE.64B70B55@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D542AAE.64B70B55@zip.com.au>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Child<->parent resource relationship between system and PCI buses
->not only isn't required, but might be simply impossible in some situations.
->Consider non-linear (or linear, but just not 1:1) mapping between
->system and PCI bus addressing. Or even no mapping at all. ;-)
->Yes, most architectures use global resources as parents of PCI resources -
->just because it happens to work and is convenient. But this doesn't mean
->that everybody must do the same.
+On Fri, Aug 09, 2002 at 01:48:47PM -0700, Andrew Morton wrote:
 
-Right. Though it's convenient that way on ppc32 ;)
+> What should the behaviour be?   The lseek should succeed,
 
->> Well... at one point, I had more than that :( I added some code to
->> coalesce the ranges provided by the firmware and figured out it
->> mostly turned into 1 big range of 256 or 512Mb, one small in the
->> 0xfx000000 region, and one IO. So that should fit. But nothing prevents
->> the firmware from setting things up differently.
->
->Exactly. One day, after firmware update, you may end up asking for
->a bit more resource slots. :-)
+Yes
 
-Yup, especially since Apple does the firmware :)
+> but subsequent reads and writes return zero?
 
->BTW, do you really need that additional small IOMEM range?
+Yes. The first read must return 0. Subsequent reads may return 0
+or return the ENXIO error.
 
-Yup. It's really used by some devices on some machines, and it's nasty
-to let the kernel relocate PCI devices when it turns to be Apple's
-ASICs. Especially when things get out of sync with the Open Firmware
-device tree. So we need to keep the PCI setup as close as possible
-as what is set by the firmware, while still having some freedom
-for things like bus renumbering or reallocations of some PCI
-devices.
+For read: "No data transfer shall occur past the current end-of-file.
+If the starting position is at or after the end-of-file, 0 shall be
+returned. If the file refers to a device special file, the result of
+subsequent read() requests is implementation-defined."
 
->> They should probably then, but I haven't quite looked at the cardbus
->> code yet. I still think the resource management should be generic
->> enough not to rely on ordering & number of resources, as the actual
->> informations we want out of the parent resources are already encoded
->> in the flags (that is knowing if we deal with the parent IO window,
->> MEM window, or MEM+prefetch window). We have generic routines
->> working only on flags for finding parents when populating the
->> tree already.
->
->This would add a lot of unneeded complexity to the code in
->drivers/pci/setup-bus.c. Also, this would make impossible
->configurations like this:
->root bus windows	0x80000000-0x8fffffff
->			0xf0000000-0xf0ffffff
->pci-pci bridge window	0x80200000-0xf02fffff
+ENXIO: "the request was outside the capabilities of the device".
 
-A bit of complexity on a rarely usesed code path (typically at boot
-only most of the time) for more flexibility may be worth the trade ;)
-
->which is perfectly valid in your setup unless you
->place some device resources in the range 0x90000000-0xefffffff.
->BTW, you can avoid that range with properly coded pcibios_align_resource() -
->maybe this would be cleaner solution than allocating dummy resource.
-
-Yup, nasty case, but does the current code handle it cleanly anyway ?
-
->> But that isn't an urgent issue nor difficult to work around if
->> needed, so let's put that on hold until I can prove we really need
->> all of those ;)
->
->Ok. But IMO, you're trying to expose your host bridge internals to
->the generic code instead of hiding it...
-
-Maybe. I have a quite non-PCI centric view of it (maybe after dealing
-a bit with embedded stuff). I want to represent my physical bus layout
-with those, having a coherent tree, crossing a PCI segment or not.
-It makes sense to me to expose the resources of the host as they are
-really implemented.
-
-Ben.
+For write: "If a write() requests that more bytes be written than
+there is room for (for example, ... the physical end of a medium),
+only as many bytes as there is room for shall be written.
 
 
+Andries

@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316617AbSFJEit>; Mon, 10 Jun 2002 00:38:49 -0400
+	id <S316623AbSFJEnB>; Mon, 10 Jun 2002 00:43:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316623AbSFJEis>; Mon, 10 Jun 2002 00:38:48 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48309 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316617AbSFJEir>;
-	Mon, 10 Jun 2002 00:38:47 -0400
-Date: Sun, 09 Jun 2002 21:34:40 -0700 (PDT)
-Message-Id: <20020609.213440.04716391.davem@redhat.com>
-To: greearb@candelatech.com
-Cc: mark@mark.mielke.cc, cfriesen@nortelnetworks.com,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: RFC: per-socket statistics on received/dropped packets
+	id <S316629AbSFJEnA>; Mon, 10 Jun 2002 00:43:00 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:52661 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316623AbSFJEnA>;
+	Mon, 10 Jun 2002 00:43:00 -0400
+Date: Sun, 09 Jun 2002 21:39:04 -0700 (PDT)
+Message-Id: <20020609.213904.09568104.davem@redhat.com>
+To: engler@csl.Stanford.EDU
+Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
+Subject: Re: [CHECKER] 18 potential missing unlocks in 2.4.17
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D039D22.2010805@candelatech.com>
+In-Reply-To: <200206100354.UAA17008@csl.Stanford.EDU>
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -21,19 +20,10 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ben Greear <greearb@candelatech.com>
-   Date: Sun, 09 Jun 2002 11:23:30 -0700
-   
-   I need to account for packets on a per-session basis, where a
-   session endpoint is a UDP port.  So, knowing global protocol numbers is
-   good, but it is not very useful for the detailed accounting I
-   need.
 
-Why can't you just disable the other UDP services, and then there is
-no question which UDP server/client is causing the drops.
+2.4.17 is _REALLY_ old, any chance you can rerun these things
+on 2.4.19-pre10 by chance?
 
-Every argument I hear is one out of lazyness.  And that is not a
-reason to add something.  Simply put, I don't want to add all of this
-per-socket counter bumping that only, at best, 1 tenth of 1 percent
-of people will use.  This means that the rest of the world eats the
-overhead just for this small group that actually uses it.
+You should really investigate toning down the amount of hand frobbing
+you have to do to the kernel tree to get your experimental g++ to eat
+it.

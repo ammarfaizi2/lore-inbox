@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132801AbRD3SWS>; Mon, 30 Apr 2001 14:22:18 -0400
+	id <S135263AbRD3SXI>; Mon, 30 Apr 2001 14:23:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135263AbRD3SWG>; Mon, 30 Apr 2001 14:22:06 -0400
-Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:4949 "EHLO
-	cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S132801AbRD3ST6>; Mon, 30 Apr 2001 14:19:58 -0400
-Message-ID: <3AEDACAE.5090105@humboldt.co.uk>
-Date: Mon, 30 Apr 2001 19:19:26 +0100
-From: Adrian Cox <adrian@humboldt.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; rv:0.8.1+) Gecko/20010422
-X-Accept-Language: en
+	id <S135310AbRD3SWx>; Mon, 30 Apr 2001 14:22:53 -0400
+Received: from adsl-80-148-88.rdu.bellsouth.net ([65.80.148.88]:37530 "HELO
+	inspire.localnet.net") by vger.kernel.org with SMTP
+	id <S135263AbRD3SWb>; Mon, 30 Apr 2001 14:22:31 -0400
+Date: Mon, 30 Apr 2001 14:20:15 -0400 (EDT)
+From: "volodya@mindspring.com" <volodya@mindspring.com>
+To: cacook@freedom.net
+cc: mistral@stev.org, linux-kernel@vger.kernel.org
+Subject: Re: Common GUI Config for All Users
+In-Reply-To: <20010430180058Z129346-409+1737@vger.kernel.org>
+Message-ID: <Pine.LNX.4.20.0104301417470.30162-100000@inspire.localnet.net>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, Greg Hosler <hosler@lugs.org.sg>,
-        linux-kernel@vger.kernel.org
-Subject: Re: AC'97 (VT82C686A) & IRQ reassignment (I/O APIC)
-In-Reply-To: <Pine.LNX.3.95.1010430131456.14407A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
 
 
-> Woof...  More GAWDAUFULL junk. You mean that if I write 0xff to the R/W
-> interrupt line register and read it back, it's only 0x0f? 
+On Mon, 30 Apr 2001 cacook@freedom.net wrote:
+
+> This was my point... Mohammad WAS the only one to help and not criticize.
+> 
+> I did not pass along the crap I got from the 'bad attitudes', like Jasper Jans, Mark Hahn, & Paul Dunne.  All grief, no guidance nor respect.  Tough to be a newbie.
+
+grief: no need for that if you can do what you want
+guidance: source, archive, RFC, FAQ, README
+respect: decide what you want to do, do it, be happy
+
+                      Vladimir Dergachev
 
 
-Yes, and that disables generation of audio interrupts.
-
-> This didn't
-> save any money. There are only 4 interrupt 'pins', i.e., interrupt lines
-> that go to the PCI bus (A thru D). What these lines connect to for
-> actual IRQs is known only to the motherboard manufacturer hence the
-> BIOS has to check the pin value and write the appropriate IRQ value
-> into the interrupt line register.  This register is used only as a
-> scratch-pad so that a driver "knows" what IRQ goes to the board. The
-> board, itself, never accesses this register. The board only gets one
-> interrupt connected (A thru D), and to the board, all interrupts are
-> the same.
-
-
-  I'm currently writing the BIOS for a PowerPC embedded system using the 
-686B southbridge.  On the 686 the 8259 interrupt controller and the 
-audio system are inside the same physical device. The value you write to 
-offset 0x3c actually makes the internal connection between the audio 
-interrupt and the PIC. There is a trick to route that interrupt to an 
-external APIC involving config register 0x58 in function 0, but I've not 
-used it.
-
-Most southbridge functions work this way. The USB on the 686B is like 
-this, and the the IDE controller always generates the legacy IRQ 14/15.
-
-- Adrian Cox
+> --
+> C.
+> 
+> The best way out is always through.
+>       - Robert Frost  A Servant to Servants, 1914
+> 
+> 
+> James Stevenson wrote:
+> 
+> > Hi
+> >
+> > >Thank you for the =constructive= answer Mohammad.  I have thusfar only received criticism for my question, with no further
+> > >  information, which I think is destructive to the spirit of the list, and to the culture.
+> >
+> > i belive he did give you extra information look at the section below
+> > is it just me or is there a web site address in there.
+> > also dont expect information to be handed to you on a plate.
+> >
+> > >> This list doesn't deal with what you are asking. Try
+> > >> http://www.linux.com and see if anything/anyone there can help you.
+> >
+> > --
+> > ---------------------------------------------
+> > Check Out: http://stev.org
+> > E-Mail: mistral@stev.org
+> >   6:50pm  up 6 days,  5:38,  4 users,  load average: 0.95, 1.13, 0.83
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

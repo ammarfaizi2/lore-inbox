@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266436AbUFQJai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUFQJkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266436AbUFQJai (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 05:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266441AbUFQJai
+	id S264702AbUFQJkl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 05:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266435AbUFQJkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 05:30:38 -0400
-Received: from mail.dif.dk ([193.138.115.101]:16775 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S266436AbUFQJag (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 05:30:36 -0400
-Date: Thu, 17 Jun 2004 11:29:38 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, James Simmons <jsimmons@infradead.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix warning in fbmem.c
-In-Reply-To: <Pine.GSO.4.58.0406171015270.21503@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.56.0406171128250.12749@jjulnx.backbone.dif.dk>
-References: <8A43C34093B3D5119F7D0004AC56F4BC082C7F93@difpst1a.dif.dk>
- <Pine.GSO.4.58.0406171015270.21503@waterleaf.sonytel.be>
+	Thu, 17 Jun 2004 05:40:41 -0400
+Received: from CPE-203-51-26-230.nsw.bigpond.net.au ([203.51.26.230]:41212
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id S264702AbUFQJkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 05:40:40 -0400
+Message-ID: <40D16710.9010105@eyal.emu.id.au>
+Date: Thu, 17 Jun 2004 19:40:32 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel@vger.kernel.org, martin.lubich@gmx.at
+Subject: Re: Linux 2.4.27-pre6: visor.c
+References: <20040616183343.GA9940@logos.cnet>
+In-Reply-To: <20040616183343.GA9940@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jun 2004, Geert Uytterhoeven wrote:
+Marcelo Tosatti wrote:
 
-> On Thu, 17 Jun 2004, Jesper Juhl wrote:
-> > Here are two proposed patches to fix the following warning in fbmem.c :
-> > drivers/video/fbmem.c:933: warning: passing arg 1 of `copy_from_user' discards qualifiers from pointer target type
-> >
-> > The cause of the warning is that the .data member of struct fb_image is of
-> > type 'const char *' and copy_from_user() takes a 'void *' as it's first
-> > 'to' argument.
-> > I see two ways to fix it;
-> > a) use a simple cast to hide the warning
-> > b) rewrite the code to copy into a buffer pointed to by a non-const
-> > pointer, then assign the pointer to cursor.image.data
->
-> Here is a variant of b, which avoids the cast and makes cursor.mask const as
-> well.
->
+> <martin.lubich:gmx.at>:
+>   o USB: add Clie TH55 Support in visor kernel module
 
-> --- linux-2.6.7-rc1/include/linux/fb.h.orig	2004-05-24 11:14:01.000000000 +0200
-> +++ linux-2.6.7-rc1/include/linux/fb.h	2004-06-07 22:38:01.000000000 +0200
-> @@ -375,7 +375,7 @@ struct fb_cursor {
->  	__u16 set;		/* what to set */
->  	__u16 enable;		/* cursor on/off */
->  	__u16 rop;		/* bitop operation */
-> -	char *mask;		/* cursor mask bits */
-> +	const char *mask;	/* cursor mask bits */
->  	struct fbcurpos hot;	/* cursor hot spot */
->  	struct fb_image	image;	/* Cursor image */
->  };
->
+A declaration at the wrong place.
 
-Nice. I didn't know the code well enough to dare make this change as well.
-
+gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4 -DMODULE -DMODVERSIONS -include /data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=visor  -c -o visor.o visor.c
+visor.c: In function `clie_5_startup':
+visor.c:899: parse error before `struct'
+visor.c:901: `connection_info' undeclared (first use in this function)
+visor.c:901: (Each undeclared identifier is reported only once
+visor.c:901: for each function it appears in.)
+make[3]: *** [visor.o] Error 1
+make[3]: Leaving directory `/data2/usr/local/src/linux-2.4-pre/drivers/usb/serial'
+make[2]: *** [_modsubdir_serial] Error 2
 
 --
-Jesper Juhl <juhl-lkml@dif.dk>
+Eyal Lebedinsky		(eyal@eyal.emu.id.au)

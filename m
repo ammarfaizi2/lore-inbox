@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbULPCHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbULPCMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbULPCHw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 21:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbULPCEu
+	id S262597AbULPCMT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 21:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbULPCIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 21:04:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29150 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262566AbULPB6c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 20:58:32 -0500
-Date: Wed, 15 Dec 2004 17:58:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [patch, 2.6.10-rc3] safe_hlt() & NMIs
-In-Reply-To: <1103157476.3585.33.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0412151756550.3279@ppc970.osdl.org>
-References: <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com> 
- <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com> 
- <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com> 
- <41BC0854.4010503@colorfullife.com>  <20041212093714.GL16322@dualathlon.random>
-  <41BC1BF9.70701@colorfullife.com>  <20041212121546.GM16322@dualathlon.random>
-  <1103060437.14699.27.camel@krustophenia.net>  <20041214222307.GB22043@elte.hu>
- <20041214224706.GA26853@elte.hu>  <Pine.LNX.4.58.0412141501250.3279@ppc970.osdl.org>
- <1103157476.3585.33.camel@localhost.localdomain>
+	Wed, 15 Dec 2004 21:08:22 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:61158 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S262603AbULPCD5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 21:03:57 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: USB making time drift [was Re: dynamic-hz]
+Date: Wed, 15 Dec 2004 21:03:49 -0500
+User-Agent: KMail/1.7
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>
+References: <20041213002751.GP16322@dualathlon.random> <200412151203.44679.gene.heskett@verizon.net> <Pine.LNX.4.53.0412151846370.27011@gockel.physik3.uni-rostock.de>
+In-Reply-To: <Pine.LNX.4.53.0412151846370.27011@gockel.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412152103.49174.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.42.94] at Wed, 15 Dec 2004 20:03:49 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 15 December 2004 12:48, Tim Schmielau wrote:
+>> Ok, I was going to do that, but forgive me, its not in the .config
+>> file as a setting.  So where do edit what to revert to 100hz's.
+>
+>It's in line 5 of include/asm-i386/param.h:
+># define HZ             1000            /* Internal kernel timer
+> frequency */
+>
+>(if you are on an i386 system). Just change that back to 100.
+>
+>Tim
 
+Thanks Tim, I might do that for a boot or 2 just for the exersize.
 
-On Thu, 16 Dec 2004, Alan Cox wrote:
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
 
-> On Maw, 2004-12-14 at 23:09, Linus Torvalds wrote:
-> > On Tue, 14 Dec 2004, Ingo Molnar wrote:
-> > Now that you mention it, I have this dim memory of the one-instruction
-> > "sti-shadow" actually disabling NMI's (and debug traps) too. The CPU 
-> > literally doesn't test for async events following "sti". 
-> > 
-> > Or maybe that was "mov->ss". That one also has that strange "black hole"  
-> > for one instruction.
-> 
-> The mov to ss one is a bit more magic than that however. If you write
-> 3Gb of mov->ss into memory (ie about 64 pages to thrash the cache and
-> slow it plus mmap repeatedly) and run it you don't get a vastly long irq
-> delay at least on intel, not tried the others. 
-
-The irq window should actually be open every alternate instruction, I 
-think. Although it's not actually architected, and I thought that there 
-was some errata for some CPU about this..
-
-			Linus

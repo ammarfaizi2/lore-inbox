@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288850AbSBDKUp>; Mon, 4 Feb 2002 05:20:45 -0500
+	id <S288845AbSBDKUZ>; Mon, 4 Feb 2002 05:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288851AbSBDKUg>; Mon, 4 Feb 2002 05:20:36 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:16133 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S288850AbSBDKUb>;
-	Mon, 4 Feb 2002 05:20:31 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Vlodavsky, Zvi" <zvi.vlodavsky@intel.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Using "query_module" 
-In-Reply-To: Your message of "Mon, 04 Feb 2002 12:04:19 +0200."
-             <436282DBEE7CD51191E30002A50A636924113B@hasmsx102.iil.intel.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 04 Feb 2002 21:20:09 +1100
-Message-ID: <19550.1012818009@ocs3.intra.ocs.com.au>
+	id <S288850AbSBDKUP>; Mon, 4 Feb 2002 05:20:15 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:64452 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288845AbSBDKUI>;
+	Mon, 4 Feb 2002 05:20:08 -0500
+Date: Mon, 4 Feb 2002 13:16:51 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Steffen Persvold <sp@scali.com>
+Cc: Jens Axboe <axboe@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Short question regarding generic_make_request()
+In-Reply-To: <3C5E4CDE.9B60F077@scali.com>
+Message-ID: <Pine.LNX.4.33.0202041315200.4046-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Feb 2002 12:04:19 +0200 , 
-"Vlodavsky, Zvi" <zvi.vlodavsky@intel.com> wrote:
->Please personally CC me with responses on this posting:
->I would like to use the "query_module" system call with the QM_SYMBOLS flag
->in an application, but I am not sure of what the appropriate way of doing it
->is, and whether it is safe.
 
-query_module(NULL, 0, NULL, 0, NULL) returns 0 if the kernel supports
-query_module, -ENOSYS if it does not.
+On Mon, 4 Feb 2002, Steffen Persvold wrote:
 
-If the kernel supports query_module,
-  query_module(NULL, -1, NULL, 0, NULL)
-returns -ENOSYS if the kernel has been compiled without modules,
--EINVAL if the kernel was compiled with module support.
+> [root@damd1 root]# ping sci4
+> PING sci4 (192.168.4.4) from 192.168.4.3 : 56(84) bytes of data.
+> 64 bytes from sci4 (192.168.4.4): icmp_seq=0 ttl=255 time=238 usec
 
-Grab the modutils source and see utils/modstat.c::new_get_kernel_info,
-it uses all the query_module facilities.
+> For simplicity I'll say ~200usec. When I change the receive handler
+> from a tasklet to a kernel thread, the numbers look like this :
+>
+> [root@damd1 root]# ping sci4
+> PING sci4 (192.168.4.4) from 192.168.4.3 : 56(84) bytes of data.
+> 64 bytes from sci4 (192.168.4.4): icmp_seq=0 ttl=255 time=4.215 msec
+> 64 bytes from sci4 (192.168.4.4): icmp_seq=1 ttl=255 time=5.728 msec
+
+this shows some sort of wakeup or softirq handling irregularity. A number
+of softirq latency bugs were fixed, i'd suggest to try this with any
+recent kernel (or recent errata kernel rpms).
+
+	Ingo
 

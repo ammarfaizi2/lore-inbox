@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129752AbQK0Tg5>; Mon, 27 Nov 2000 14:36:57 -0500
+        id <S129431AbQK0Tir>; Mon, 27 Nov 2000 14:38:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129748AbQK0Tgr>; Mon, 27 Nov 2000 14:36:47 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:4892 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S129707AbQK0Tgc>; Mon, 27 Nov 2000 14:36:32 -0500
-Date: Mon, 27 Nov 2000 20:06:18 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Michael Meissner <meissner@spectacle-pond.org>
-Cc: "David S. Miller" <davem@redhat.com>, Werner.Almesberger@epfl.ch,
-        adam@yggdrasil.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0"
-Message-ID: <20001127200618.A19980@athlon.random>
-In-Reply-To: <200011270556.VAA12506@baldur.yggdrasil.com> <20001127094139.H599@almesberger.net> <200011270839.AAA28672@pizda.ninka.net> <20001127182113.A15029@athlon.random> <20001127123655.A16930@munchkin.spectacle-pond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001127123655.A16930@munchkin.spectacle-pond.org>; from meissner@spectacle-pond.org on Mon, Nov 27, 2000 at 12:36:55PM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+        id <S129547AbQK0Tih>; Mon, 27 Nov 2000 14:38:37 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19718 "EHLO
+        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+        id <S129455AbQK0Tic>; Mon, 27 Nov 2000 14:38:32 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: KERNEL BUG: console not working in linux
+Date: 27 Nov 2000 11:08:10 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8vubeq$r5r$1@cesium.transmeta.com>
+In-Reply-To: <E140Pc3-0003AI-00@the-village.bc.nu> <200011271849.eARInfc255418@saturn.cs.uml.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2000 at 12:36:55PM -0500, Michael Meissner wrote:
-> wrong to depend on two variables winding up in at adjacent offsets.
+Followup to:  <200011271849.eARInfc255418@saturn.cs.uml.edu>
+By author:    "Albert D. Cahalan" <acahalan@cs.uml.edu>
+In newsgroup: linux.dev.kernel
+>
+> >> 1) Why did they disable my videocard ?
+> >
+> > Because your machine is not properly PC compatible
+> 
+> The same can be said of systems that don't support the
+> standard keyboard controller for A20 control.
+> 
 
-I'd like if it will be written explicitly in the specs that it's forbidden to
-rely on that. I grepped the specs and I didn't find anything. So I wasn't sure
-if I missed the information in the specs or not. I never investigated on it
-because I always considered it bad coding regardless the fact it's guaranteed
-to generate the right asm with the _current_ tools.
+Yes, it can.  Unfortunately, some "legacy-free" PCs apparently are
+starting to take the tack that the KBC is legacy.  Therefore, the use
+of port 92h is mandatory on those systems.
 
-Andrea
+Port 92h dates back to at the very least the IBM PS/2.
+
+Either way, the video card of the original poster is broken in more
+ways than that.  Ports 0x00-0xFF are reserved for the motherboard
+chipset and have been since the original IBM PC.
+
+It would have been somewhat different if there had been a standard
+BIOS function for enabling A20, but there isn't one.
+
+Sometimes, in the PC world, you just have to draw a line and say "this
+is too broken to use".  I think the original posters' video card falls
+in that category.  Get a new video card, they're cheap these days.
+
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

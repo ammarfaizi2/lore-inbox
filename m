@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbTH2SQC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 14:16:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbTH2SQC
+	id S261620AbTH2Sa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 14:30:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbTH2Sa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 14:16:02 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:50837 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S261657AbTH2SP5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 14:15:57 -0400
-Message-ID: <3F4F96DE.7030603@rackable.com>
-Date: Fri, 29 Aug 2003 11:09:34 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: libata update posted (was Re: VIA Serial ATA chipset)
-References: <20030813074535.C3AB427AC8@mail.medav.de> <3F4F6863.4080400@pobox.com> <3F4F8BA7.1080002@rackable.com> <3F4F949B.6030900@pobox.com>
-In-Reply-To: <3F4F949B.6030900@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Aug 2003 18:15:56.0731 (UTC) FILETIME=[976020B0:01C36E59]
+	Fri, 29 Aug 2003 14:30:27 -0400
+Received: from mx.laposte.net ([213.30.181.11]:28336 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S261620AbTH2Sa0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 14:30:26 -0400
+Subject: CONFIG_LOG_BUF_SHIFT hardwired in 2.6.0-test4-bk2 ?
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c+wlUg3xxlMiHAKTNMpO"
+Organization: Adresse personnelle
+Message-Id: <1062181819.3618.4.camel@rousalka.dyndns.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Fri, 29 Aug 2003 20:30:19 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
 
-> Samuel Flory wrote:
->
->> Jeff Garzik wrote:
->>
->>> Changes:
->>> * continue work towards fully async taskfile API:  you call 
->>> submit_tf(), and later on, your callback is called when the taskfile 
->>> completes or times out.   async taskfile API is required for ATAPI 
->>> and supporting more advanced host controllers like Promise or AHCI 
->>> (SATA2).
->>> * some cleanups
->>
->
->>   I'm guessing there is no support for Promise yet?
->
->
-> Not yet.  Once I finish the item mentioned above, "async taskfile 
-> API", Promise support will appear quite rapidly.
->
->
->> PS-  The driver works great on the silcon image chipset.  (Once I 
->> realized that my Seagate drive needed newer firmware.)
->
->
-> Um... libata doesn't support Silicon Image yet?
->
+--=-c+wlUg3xxlMiHAKTNMpO
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+Hi,
 
-  The Intel PIIX/ICH support in the ac kernel seems to work on all my 
-onboard  Silicon Image controllers.  I think that's only your ata-scsi 
-work, however.
+	I'm testing acpi changes and unfortunately all the debug messages
+overflow the log buffer. So I decided to increase CONFIG_LOG_BUF_SHIFT=20
+in .config (there was a menu entry for this at some time in menuconfig
+but I can't find it anymore).
 
--- 
-Once you have their hardware. Never give it back.
-(The First Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+	Anyway no matter what I do the value seems to be reseted to 14 at build
+time. Is there a way to cleanly change it without poking directly into
+the kernel source code ?
 
+Regards,
+
+[ Please CC me answers as I only skim the list via marc ]
+
+--=20
+Nicolas Mailhot
+
+--=-c+wlUg3xxlMiHAKTNMpO
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/T5u6I2bVKDsp8g0RAgzhAKDc2f6oqE5WtuBQX46nv5y9OoFo7QCeIYe5
+1CRktnXpLkmngdpqnzJC2vY=
+=BPFP
+-----END PGP SIGNATURE-----
+
+--=-c+wlUg3xxlMiHAKTNMpO--
 

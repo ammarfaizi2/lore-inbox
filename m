@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276468AbRJ2QxC>; Mon, 29 Oct 2001 11:53:02 -0500
+	id <S276477AbRJ2Qzc>; Mon, 29 Oct 2001 11:55:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276477AbRJ2Qww>; Mon, 29 Oct 2001 11:52:52 -0500
-Received: from adsl-63-207-97-74.dsl.snfc21.pacbell.net ([63.207.97.74]:56307
-	"EHLO nova.botz.org") by vger.kernel.org with ESMTP
-	id <S276468AbRJ2Qwo> convert rfc822-to-8bit; Mon, 29 Oct 2001 11:52:44 -0500
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: eepro100.c & Intel integrated MBs
+	id <S276534AbRJ2QzW>; Mon, 29 Oct 2001 11:55:22 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:3571 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S276477AbRJ2QzL>; Mon, 29 Oct 2001 11:55:11 -0500
+Date: Mon, 29 Oct 2001 11:50:46 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Patch to make 2.4.13 compile on s390
+Message-ID: <20011029115046.A9687@devserv.devel.redhat.com>
+In-Reply-To: <20011029015210.A10144@devserv.devel.redhat.com> <E15yA2A-0002GW-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Mon, 29 Oct 2001 08:53:15 -0800
-Message-ID: <11361.1004374395@nova.botz.org>
-From: Jurgen Botz <jurgen@botz.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15yA2A-0002GW-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 29, 2001 at 10:52:46AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently discovered (as others have posted to the list) that the
-currently included eepro100 driver doesn't work on Intel 815 (and
-possibly other) integrated mainboards.  I stops working after a bit
-of activity and in some circumstances totally locks up the machine.
-For more details scan the archives, lots of people have run into
-this.
+> Date: Mon, 29 Oct 2001 10:52:46 +0000 (GMT)
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
-I'm now using the e100 driver from the Intel web site, which works
-perfectly, and light testing shows the Scyld (Don Becker) driver
-to work as well.  The Intel driver seems to have an incompatible
-license (noxious advertising clause?), but the Scyld drivers don't...
-at least there isn't any license mentioned and of course many 
-of the net drivers in the current kernel are just earlier versions
-of the Scyld drivers.
+> > --- linux-2.4.13-0.2/arch/s390/config.in	Mon Oct 29 04:28:40 2001
+> > +++ linux-2.4.13-0.2-t1/arch/s390/config.in	Mon Oct 29 06:22:48 2001
+> > +define_bool CONFIG_GENERIC_ISA_DMA y
+> 
+> Please tell me where you find an S/390 mainframe with ISA bus. I think you
+> may have fixed the effect not the cause.
 
-815 MBs are pretty common, so getting a solution to this should
-be pretty important.  I'm surprised that RedHat didn't include
-the Scyld drivers in 7.2... these network lockups should present
-a major support headache for them.
+This picks empty placeholders for request_dma, free_dma
+that kernel/dma.c provides. Before, dma.o always was
+compiled regardless of CONFIG_GENERIC_ISA_DMA.
 
-So what's the scoop?  Anyone have plans to fix this?
-
-:j
-
--- 
-Jürgen Botz                       | While differing widely in the various
-jurgen@botz.org                   | little bits we know, in our infinite
-                                  | ignorance we are all equal. -Karl Popper
-
-
+-- Pete

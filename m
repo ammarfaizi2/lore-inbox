@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263697AbUE1Q5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUE1Q6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263697AbUE1Q5H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 12:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbUE1Q5H
+	id S261724AbUE1Q6b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 12:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUE1Q6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 12:57:07 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:64945 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S263772AbUE1Q4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 12:56:52 -0400
-From: "braam" <braam@clusterfs.com>
-To: <arjanv@redhat.com>, <hch@infradead.org>
-Cc: <torvalds@osdl.org>, <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       "'Phil Schwan'" <phil@clusterfs.com>
-Subject: RE: [PATCH/RFC] Lustre VFS patch
-Date: Sat, 29 May 2004 00:56:40 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Fri, 28 May 2004 12:58:30 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:12334 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S261724AbUE1Q6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 12:58:23 -0400
+In-Reply-To: <20040528164544.GF422@louise.pinerecords.com>
+References: <20040528122854.GA23491@clipper.ens.fr> <1085748363.22636.3102.camel@watt.suse.com> <20040528162450.GE422@louise.pinerecords.com> <1085761753.22636.3329.camel@watt.suse.com> <20040528164544.GF422@louise.pinerecords.com>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <38445FF4-B0C8-11D8-B96B-000A95CC3A8A@mesatop.com>
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-In-Reply-To: <1085406284.2780.13.camel@laptop.fenrus.com>
-Thread-Index: AcRBlUgsCy3m3OkDSbK8YehV/86AmgDB3YzQ
-Message-Id: <20040528165649.91F1F3100D3@moraine.clusterfs.com>
+Cc: David Madore <david.madore@ens.fr>, Chris Mason <mason@suse.com>,
+       linux-kernel@vger.kernel.org
+From: Steven Cole <elenstev@mesatop.com>
+Subject: Re: filesystem corruption (ReiserFS, 2.6.6): regions replaced by \000 bytes
+Date: Fri, 28 May 2004 10:58:19 -0600
+To: Tomas Szepe <szepe@pinerecords.com>
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Arjan, 
 
-> -----Original Message-----
-> From: Arjan van de Ven [mailto:arjanv@redhat.com] 
-> 
-> fun question: how does it deal with say a rename that would 
-> span mounts on the client but wouldn't on the server? :)
+On May 28, 2004, at 10:45 AM, Tomas Szepe wrote:
 
+> On May-28 2004, Fri, 12:29 -0400
+> Chris Mason <mason@suse.com> wrote:
+>
+>> On Fri, 2004-05-28 at 12:24, Tomas Szepe wrote:
+>>> On May-28 2004, Fri, 08:46 -0400
+>>> Chris Mason <mason@suse.com> wrote:
+>>>
+>>>>> The bottom line: I've experienced file corruption, of the following
+>>>>> nature: consecutive regions (all, it seems, aligned on 256-byte
+>>>>> boundaries, and typically around 1kb or 2kb in length) of seemingly
+>>>>> random files are replaced by null bytes.
+>>>>
+>>>> The good news is that we tracked this one down recently.  2.6.7-rc1
+>>>> shouldn't do this anymore.
+>>>
+>>> So did this only affect SMP machines?
+>>
+>> No, if you slept in the right spot you could hit it on UP.
+>
+> Uh oh.  Any idea about when the bug was introduced?
+>
 
-Mostly checks are done like in sys_rename.  
+As far as I know, I was the first to publicly complain about
+the bug, first to Bitmover, (I was hitting it when using bk)
+who then figured out that it was a kernel bug, hence the
+long "1352 NUL bytes at end of page" thread.
 
-Some cases require new distributed state in the FS, such as the fact that a
-certain directory is a mountpoint, possibly not on the node doing a rename,
-but on another node.  
+I first noticed the bug around April 15, doing almost nightly
+kernel updates and builds.  The bug was rather hard to hit
+reliably though, so it could have been there for some time
+earlier.
 
-For this the Linux VFS has no api - we added something we call "pinning" for
-this in 2.4, but not in 2.6 yet.
-
-- Peter -
+Steven
 

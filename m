@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289058AbSANVQc>; Mon, 14 Jan 2002 16:16:32 -0500
+	id <S289073AbSANVSd>; Mon, 14 Jan 2002 16:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289084AbSANVP7>; Mon, 14 Jan 2002 16:15:59 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:38155 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S289070AbSANVOW>; Mon, 14 Jan 2002 16:14:22 -0500
-Date: Mon, 14 Jan 2002 22:14:08 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        linux india programming 
-	<linux-india-programmers@lists.sourceforge.net>
-Subject: Re: How to take a crash dump
-Message-ID: <20020114211408.GB21480@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.10.10201041427001.2221-100000@blrmail>
-Mime-Version: 1.0
+	id <S289077AbSANVS2>; Mon, 14 Jan 2002 16:18:28 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:41736 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S289073AbSANVRQ>; Mon, 14 Jan 2002 16:17:16 -0500
+Message-ID: <3C43497C.2609D55@zip.com.au>
+Date: Mon, 14 Jan 2002 13:11:24 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Roman Zippel <zippel@linux-m68k.org>, yodaiken@fsmlabs.com,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <3C43394D.412C7ECC@zip.com.au> from "Andrew Morton" at Jan 14, 2002 12:02:21 PM <E16QEVS-0002yh-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10201041427001.2221-100000@blrmail>
-User-Agent: Mutt/1.3.25i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 04, 2002 at 02:30:20PM +0530, SATHISH.J wrote:
-> I have "lcrash" installed on my system. I have 2.4.8 kernel. I would like
-> to know how to make a linux system panic so that I can take a crash dump
-> and analyse using "lcrash". Is there any command to make the system panis
-> as we have on other unices(SVR4 and unixware)?
+Alan Cox wrote:
+> 
+> > I have all along assumed that a well-designed RT application would delegate
+> > all these operations to SCHED_OTHER worker processes, probably via shared
+> > memory/shared mappings.  So in the simplest case, you'd have a SCHED_FIFO
+> > task which talks to the hardware, and which has a helper task which reads
+> > and writes stuff from and to disk.  With sufficient buffering and readahead
+> > to cover the worst case IO latencies.
+> 
+> A real RT task has hard guarantees and to all intents and purposes you may
+> deem the system failed if it ever misses one (arguably if you cannot verify
+> it will never miss one).
 
-I wrote a toy module that does exactly what you want:
+We know that :)  Here, "RT" means "Linux-RT": something which is non-SCHED_OTHER,
+and which we'd prefer didn't completely suck.
 
-  http://www.lart.tudelft.nl/lartware/port/lart.c
+> The stuff we care about is things like DVD players which tangle with
+> sockets, pipes, X11, memory allocation, and synchronization between multiple
+> hardware devices all running at slightly incorrect clocks.
 
-I still have to get the module into Linus' tree so Christoph Hellwig
-will drive to .nl to buy me a beer :)
+Well, that's my point.  A well-designed DVD player would have two processes.
+One which tangles with the sockets, pipes, disks, etc, and which feeds data into
+and out of the SCHED_FIFO task via a shared, mlocked memory region.
 
+What I'm trying to develop here is a set of guidelines which will allow
+application developers to design these programs with a reasonable
+degree of success.
 
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+-

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVBXXoC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbVBXXoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbVBXXoC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 18:44:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbVBXXmx
+	id S262569AbVBXXoE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 18:44:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbVBXXmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 18:42:53 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57865 "HELO
+	Thu, 24 Feb 2005 18:42:40 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:57097 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262572AbVBXXhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 18:37:40 -0500
-Date: Fri, 25 Feb 2005 00:37:39 +0100
+	id S262570AbVBXXhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 18:37:34 -0500
+Date: Fri, 25 Feb 2005 00:37:32 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] unexport mmu_cr4_features
-Message-ID: <20050224233739.GQ8651@stusta.de>
+Cc: Christer Weinigel <christer@weinigel.se>, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] i386 scx200.c: misc cleanups
+Message-ID: <20050224233732.GP8651@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,38 +22,83 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't found any possible modular usage of mmu_cr4_features in the 
-kernel.
+The patch below contains the following cleanups:
+- make some needlessly global code static
+- #if 0 the following unused global functions:
+  - scx200_gpio_dump
+- remove the following unneeded EXPORT_SYMBOL's:
+  - scx200_gpio_lock
+  - scx200_gpio_dump
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 20 Jan 2005
+- 16 Jan 2005
 
- arch/i386/kernel/setup.c   |    1 -
- arch/x86_64/kernel/setup.c |    1 -
- 2 files changed, 2 deletions(-)
+ arch/i386/kernel/scx200.c   |    9 ++++-----
+ include/linux/scx200_gpio.h |    2 --
+ 2 files changed, 4 insertions(+), 7 deletions(-)
 
---- linux-2.6.11-rc1-mm2-full/arch/i386/kernel/setup.c.old	2005-01-20 18:26:25.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/i386/kernel/setup.c	2005-01-20 18:26:32.000000000 +0100
-@@ -77,7 +77,6 @@
- struct cpuinfo_x86 boot_cpu_data = { 0, 0, 0, 0, -1, 1, 0, 0, -1 };
+--- linux-2.6.11-rc1-mm1-full/include/linux/scx200_gpio.h.old	2005-01-16 04:45:06.000000000 +0100
++++ linux-2.6.11-rc1-mm1-full/include/linux/scx200_gpio.h	2005-01-16 04:45:20.000000000 +0100
+@@ -1,10 +1,8 @@
+ #include <linux/spinlock.h>
  
- unsigned long mmu_cr4_features;
--EXPORT_SYMBOL_GPL(mmu_cr4_features);
+ u32 scx200_gpio_configure(int index, u32 set, u32 clear);
+-void scx200_gpio_dump(unsigned index);
  
- #ifdef	CONFIG_ACPI_INTERPRETER
- 	int acpi_disabled = 0;
---- linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/setup.c.old	2005-01-20 18:26:39.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/setup.c	2005-01-20 18:26:43.000000000 +0100
-@@ -67,7 +67,6 @@
- struct cpuinfo_x86 boot_cpu_data;
+ extern unsigned scx200_gpio_base;
+-extern spinlock_t scx200_gpio_lock;
+ extern long scx200_gpio_shadow[2];
  
- unsigned long mmu_cr4_features;
--EXPORT_SYMBOL_GPL(mmu_cr4_features);
+ #define scx200_gpio_present() (scx200_gpio_base!=0)
+--- linux-2.6.11-rc1-mm1-full/arch/i386/kernel/scx200.c.old	2005-01-16 04:44:09.000000000 +0100
++++ linux-2.6.11-rc1-mm1-full/arch/i386/kernel/scx200.c	2005-01-16 04:45:28.000000000 +0100
+@@ -37,7 +37,6 @@
+ 	.probe = scx200_probe,
+ };
  
- int acpi_disabled;
- EXPORT_SYMBOL(acpi_disabled);
+-DEFINE_SPINLOCK(scx200_gpio_lock);
+ static DEFINE_SPINLOCK(scx200_gpio_config_lock);
+ 
+ static int __devinit scx200_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+@@ -81,6 +80,7 @@
+ 	return config;
+ }
+ 
++#if 0
+ void scx200_gpio_dump(unsigned index)
+ {
+ 	u32 config = scx200_gpio_configure(index, ~0, 0);
+@@ -112,15 +112,16 @@
+ 		printk(" DEBOUNCE"); /* debounce */
+ 	printk("\n");
+ }
++#endif  /*  0  */
+ 
+-int __init scx200_init(void)
++static int __init scx200_init(void)
+ {
+ 	printk(KERN_INFO NAME ": NatSemi SCx200 Driver\n");
+ 
+ 	return pci_module_init(&scx200_pci_driver);
+ }
+ 
+-void __exit scx200_cleanup(void)
++static void __exit scx200_cleanup(void)
+ {
+ 	pci_unregister_driver(&scx200_pci_driver);
+ 	release_region(scx200_gpio_base, SCx200_GPIO_SIZE);
+@@ -131,9 +132,7 @@
+ 
+ EXPORT_SYMBOL(scx200_gpio_base);
+ EXPORT_SYMBOL(scx200_gpio_shadow);
+-EXPORT_SYMBOL(scx200_gpio_lock);
+ EXPORT_SYMBOL(scx200_gpio_configure);
+-EXPORT_SYMBOL(scx200_gpio_dump);
+ 
+ /*
+     Local variables:
 

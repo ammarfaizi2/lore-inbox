@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275093AbTHQJYp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 05:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275094AbTHQJYp
+	id S262872AbTHQJjT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 05:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbTHQJjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 05:24:45 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:738
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S275093AbTHQJYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 05:24:44 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] O16.2int
-Date: Sun, 17 Aug 2003 19:30:51 +1000
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <200308161902.52337.kernel@kolivas.org> <20030817004013.14c399da.akpm@osdl.org>
-In-Reply-To: <20030817004013.14c399da.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Aug 2003 05:39:19 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:54545 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262872AbTHQJjS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 05:39:18 -0400
+Date: Sun, 17 Aug 2003 10:39:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul Mackeras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: scsi proc_info called unconditionally
+Message-ID: <20030817103914.A26579@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Olaf Hering <olh@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Paul Mackeras <paulus@samba.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030816084409.GA8038@suse.de> <1061053254.10688.6.camel@dhcp23.swansea.linux.org.uk> <20030817080901.GA3754@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308171930.51621.kernel@kolivas.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030817080901.GA3754@suse.de>; from olh@suse.de on Sun, Aug 17, 2003 at 10:09:01AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Aug 2003 17:40, Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> > Much simpler
->
-> But broken.
->
-> The machine runs about 100x slower than normal.  The screensaver cut in
-> halfway through the initscripts ;) That's on 2-way.  The same kernel works
-> OK on uniprocessor.
+On Sun, Aug 17, 2003 at 10:09:01AM +0200, Olaf Hering wrote:
+> Paul, do you want to fill in some content in that proc file?
 
-Good enough. Don't worry about any of the 16s; this drastic change only helped 
-the mild case anyway. I'll save only the cleanups and post an incremental to 
-16.2 at a later stage.
-
-Con
+No!  proc_info is deprecated in 2.6 and you should not add a new
+implementation.  If you want to expose information to userland
+use sysfs.
 

@@ -1,106 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264972AbUDUGbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264978AbUDUGce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264972AbUDUGbE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 02:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265025AbUDUGHQ
+	id S264978AbUDUGce (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 02:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265077AbUDUGbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 02:07:16 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:35500 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264978AbUDUGFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 02:05:41 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/15] New set of input patches: synaptics middle button support
-Date: Wed, 21 Apr 2004 00:51:06 -0500
-User-Agent: KMail/1.6.1
-Cc: Vojtech Pavlik <vojtech@suse.cz>
-References: <200404210049.17139.dtor_core@ameritech.net>
-In-Reply-To: <200404210049.17139.dtor_core@ameritech.net>
+	Wed, 21 Apr 2004 02:31:45 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:26635 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S265087AbUDUG3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 02:29:39 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "Kevin O'Connor" <kevin@koconnor.net>, Andrew Morton <akpm@osdl.org>
+Subject: Re: inline_hunter 0.2 and it's results
+Date: Wed, 21 Apr 2004 09:29:22 +0300
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org
+References: <200404162230.40530.vda@port.imtp.ilyichevsk.odessa.ua> <20040419214041.GA3749@ohio.localdomain> <200404210901.48882.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200404210901.48882.vda@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404210051.08554.dtor_core@ameritech.net>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_YOCIKBCL7OUL5PMVYOF9"
+Message-Id: <200404210929.22198.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-===================================================================
+--------------Boundary-00=_YOCIKBCL7OUL5PMVYOF9
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
+> disasm, diff of
+> void inline_copy_from_user_3(void) { copy_from_user(0,0,0); }
+> yields:
+>
+> --- copy_from_user_43   Tue Apr 20 23:40:07 2004
+> +++ copy_from_user_56   Tue Apr 20 23:41:23 2004
+> @@ -11,11 +11,16 @@
+>         39 5a 18                cmp    %ebx,0x18(%edx)
+>         83 d9 00                sbb    $0x0,%ecx
+>         85 c9                   test   %ecx,%ecx
+> -       75 0b                   jne    XXXX <inline_copy_from_user_3+0x=
+28>
+> +       75 0d                   jne    XXXX <inline_copy_from_user_3+0x=
+2a>
+>         31 c9                   xor    %ecx,%ecx
+>         31 d2                   xor    %edx,%edx
+>         31 c0                   xor    %eax,%eax
+>         e8 fc ff ff ff          call   XXXX <inline_copy_from_user_3+0x=
+24>
+> +       eb 0b                   jmp    XXXX <inline_copy_from_user_3+0x=
+35>
+> +       31 c9                   xor    %ecx,%ecx
+> +       31 d2                   xor    %edx,%edx
+> +       31 c0                   xor    %eax,%eax
+> +       e8 4f 01 00 00          call   XXXX <__constant_c_and_count_mem=
+set>
+>         5b                      pop    %ebx
+>         c9                      leave
+>         c3                      ret
+>
+> oops... we've got files which do not honor 'inline' on
+> __constant_c_and_count_memset()! For example,
+>
+> fs/open.c:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> #include <linux/string.h>
+>         this pulls __constant_c_and_count_memset()
+> #include <linux/mm.h>
+>         this pulls <compiler.h>, re#defining
+>         inline =3D=3D __inline__ __attribute__((always_inline)).
+>         too late!
+> #include <linux/utime.h>
+>
+> Will do patch tomorrow.
 
-ChangeSet@1.1903, 2004-04-20 22:23:47-05:00, dtor_core@ameritech.net
-  Input: support Synaptics touchpads that have separate middle button
+All affected files #include strings.h
+This should fix it. Untested.
+--=20
+vda
+--------------Boundary-00=_YOCIKBCL7OUL5PMVYOF9
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="include_compiler_h.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="include_compiler_h.patch"
 
-
- synaptics.c |   11 +++++++++++
- synaptics.h |    2 ++
- 2 files changed, 13 insertions(+)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
---- a/drivers/input/mouse/synaptics.c	Tue Apr 20 22:57:07 2004
-+++ b/drivers/input/mouse/synaptics.c	Tue Apr 20 22:57:07 2004
-@@ -184,6 +184,8 @@
- 		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
- 			printk(KERN_INFO " -> %d multi-buttons, i.e. besides standard buttons\n",
- 			       (int)(SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap)));
-+		if (SYN_CAP_MIDDLE_BUTTON(priv->capabilities))
-+			printk(KERN_INFO " -> middle button\n");
- 		if (SYN_CAP_FOUR_BUTTON(priv->capabilities))
- 			printk(KERN_INFO " -> four buttons\n");
- 		if (SYN_CAP_MULTIFINGER(priv->capabilities))
-@@ -342,6 +344,9 @@
- 	set_bit(BTN_LEFT, dev->keybit);
- 	set_bit(BTN_RIGHT, dev->keybit);
+diff -urN linux-2.6.5/include/linux/string.h linux-2.6.5.fixed_includes/include/linux/string.h
+--- linux-2.6.5/include/linux/string.h	Sun Apr  4 06:36:56 2004
++++ linux-2.6.5.fixed_includes/include/linux/string.h	Wed Apr 21 09:17:32 2004
+@@ -5,6 +5,7 @@
  
-+	if (SYN_CAP_MIDDLE_BUTTON(priv->capabilities))
-+		set_bit(BTN_MIDDLE, dev->keybit);
-+
- 	if (SYN_CAP_FOUR_BUTTON(priv->capabilities)) {
- 		set_bit(BTN_FORWARD, dev->keybit);
- 		set_bit(BTN_BACK, dev->keybit);
-@@ -470,6 +475,9 @@
- 		hw->left  = (buf[0] & 0x01) ? 1 : 0;
- 		hw->right = (buf[0] & 0x02) ? 1 : 0;
+ #ifdef __KERNEL__
  
-+		if (SYN_CAP_MIDDLE_BUTTON(priv->capabilities))
-+			hw->middle = ((buf[0] ^ buf[3]) & 0x01) ? 1 : 0;
-+
- 		if (SYN_CAP_FOUR_BUTTON(priv->capabilities)) {
- 			hw->up   = ((buf[0] ^ buf[3]) & 0x01) ? 1 : 0;
- 			hw->down = ((buf[0] ^ buf[3]) & 0x02) ? 1 : 0;
-@@ -568,6 +576,9 @@
++#include <linux/compiler.h>	/* for inline */
+ #include <linux/types.h>	/* for size_t */
+ #include <linux/stddef.h>	/* for NULL */
  
- 	input_report_key(dev, BTN_LEFT, hw.left);
- 	input_report_key(dev, BTN_RIGHT, hw.right);
-+
-+	if (SYN_CAP_MIDDLE_BUTTON(priv->capabilities))
-+		input_report_key(dev, BTN_MIDDLE, hw.middle);
- 
- 	if (SYN_CAP_FOUR_BUTTON(priv->capabilities)) {
- 		input_report_key(dev, BTN_FORWARD, hw.up);
-diff -Nru a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
---- a/drivers/input/mouse/synaptics.h	Tue Apr 20 22:57:07 2004
-+++ b/drivers/input/mouse/synaptics.h	Tue Apr 20 22:57:07 2004
-@@ -44,6 +44,7 @@
- 
- /* synaptics capability bits */
- #define SYN_CAP_EXTENDED(c)		((c) & (1 << 23))
-+#define SYN_CAP_MIDDLE_BUTTON(c)	((c) & (1 << 18))
- #define SYN_CAP_PASS_THROUGH(c)		((c) & (1 << 7))
- #define SYN_CAP_SLEEP(c)		((c) & (1 << 4))
- #define SYN_CAP_FOUR_BUTTON(c)		((c) & (1 << 3))
-@@ -88,6 +89,7 @@
- 	int w;
- 	unsigned int left:1;
- 	unsigned int right:1;
-+	unsigned int middle:1;
- 	unsigned int up:1;
- 	unsigned int down:1;
- 	unsigned char ext_buttons;
+
+--------------Boundary-00=_YOCIKBCL7OUL5PMVYOF9--
+

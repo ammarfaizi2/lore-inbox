@@ -1,74 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129414AbQLDAbZ>; Sun, 3 Dec 2000 19:31:25 -0500
+	id <S129596AbQLDAgG>; Sun, 3 Dec 2000 19:36:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129700AbQLDAbP>; Sun, 3 Dec 2000 19:31:15 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:44551 "EHLO
+	id <S129700AbQLDAf4>; Sun, 3 Dec 2000 19:35:56 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:45575 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129414AbQLDAa5>; Sun, 3 Dec 2000 19:30:57 -0500
-Date: Sun, 3 Dec 2000 17:56:10 -0700
+	id <S129596AbQLDAfo>; Sun, 3 Dec 2000 19:35:44 -0500
+Date: Sun, 3 Dec 2000 18:01:36 -0700
 From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Andrew Morton <andrewm@uow.edu.au>, Petr Vandrovec <vandrove@vc.cvut.cz>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Jonathan Hudson <jonathan@daria.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [resync?] Re: corruption
-Message-ID: <20001203175610.A24729@vger.timpanogas.org>
-In-Reply-To: <3A2ABEC5.97AF9C61@uow.edu.au> <Pine.GSO.4.21.0012031730020.3601-100000@weyl.math.psu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18-24 with IPVS patch has compile errors
+Message-ID: <20001203180136.A24746@vger.timpanogas.org>
+In-Reply-To: <20001203175226.B24652@vger.timpanogas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.GSO.4.21.0012031730020.3601-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Dec 03, 2000 at 05:45:57PM -0500
+In-Reply-To: <20001203175226.B24652@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Sun, Dec 03, 2000 at 05:52:26PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 03, 2000 at 05:45:57PM -0500, Alexander Viro wrote:
+On Sun, Dec 03, 2000 at 05:52:26PM -0700, Jeff V. Merkey wrote:
 > 
 > 
-> On Mon, 4 Dec 2000, Andrew Morton wrote:
+> With the 2.2.17 IPVS patch applied to 2.2.18-24, I am seeing the following
+> compile errors.  
 > 
-> > Sorry, it's still failing.  It took three hours.
+>  -D__KERNEL__ -I/usr/src/ute/BUILD/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe -fno-strength-reduce
+> -m386 -DCPU=386 -DMODULE -DMODVERSIONS -include /usr/src/ute/BUILD/linux/include/linux/modversions.h   -c -o emd.o emd.c
+> cc -D__KERNEL__ -I/usr/src/ute/BUILD/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe -fno-strength-reduce
+> -m386 -DCPU=386 -DMODULE -DMODVERSIONS -include /usr/src/ute/BUILD/linux/include/linux/modversions.h   -c -o check.o check.c
+> cc -D__KERNEL__ -I/usr/src/ute/BUILD/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe -fno-strength-reduce
+> -m386 -DCPU=386 -DMODULE -DMODVERSIONS -include /usr/src/ute/BUILD/linux/include/linux/modversions.h   -c -o fsync.o fsync.c
+> touch: /usr/src/ute/BUILD/linux/include/linux/sdladrv.h: No such file or directory
+> make[2]: *** No rule to make target `/usr/src/ute/BUILD/linux/include/linux/sdlasfm.h', needed by `sdladrv.o'.  Stop.
+> make[2]: *** Waiting for unfinished jobs....
+> make[2]: *** [/usr/src/ute/BUILD/linux/include/linux/sdladrv.h] Error 1
+> shell-init: could not get current directory
+> job-working-directory: could not get current directory
 > 
-> Yes. For one thing, original was plain wrong wrt locking (lru_list_lock
-> should be held). For another, it does not take care of metadata. And
-> that's way more serious. What really happens:
+>                                                               
+> The IPVS patch is also attached.  They would seem to be unrelated, but 
+> 2.2.18-23 builds clean with this patch.
 > 
-> ext2_truncate() got a buffer_head of indirect block that is going to
-> die. Fine, we release the blocks refered from it and... do bforget()
-> on our block. Notice that we are not guaranteed that bh will actually
-> die here. buffer.c code might bump its ->b_count for a while, it might
-> be written out right now, etc. As the result, bforget() leaves the
-> sucker alive. It's not a big deal, since we will do unmap_underlying_metadata()
-> before we write anything there (if it will be reused for data) or we'll
-> just pick the bh and zero the buffer out (if it will be reused for metadata).
+> Jeff
 > 
-> Unfortunately, we also leave it on the per-inode dirty blocks list. Guess
-> what happens if inode is destroyed, page that used to hold it gets reused
-> and bh gets finally written? Exactly.
-> 
-> Suggested fix: void bforget_inode(struct buffer_head *bh) that would
-> be a copy of __bforget(), except that it would call remove_inode_queue(bh)
-> unconditionally. And replace bforget() with bforget_inode() in those places
-> of ext2/inode.c that are followed by freeing the block.
-> 
-> Comments? I'll do a patch, but I'ld really like to know what had already
-> gone into the main tree. Linus, could you put the 12-pre4-dont-use on
-> ftp.kernel.org?
 
-Al,
+Update.  2.2.18-24 requires that the patch be applied to 2.2.17 before 
+applying the pre-patch.  2.2.18-23 didn't seem to care about patch
+order.  Got it to build with piranha after switching the patch order.
 
-I am always amazed at how rapidly you seem to be able to run down some
-of these file system corruption problems.   You seem to understand the
-interaction of this layer extremely well.  :-)
+Jeff 
 
-Jeff
-
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLOBgN>; Thu, 14 Dec 2000 20:36:13 -0500
+	id <S129325AbQLOBhd>; Thu, 14 Dec 2000 20:37:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129325AbQLOBgD>; Thu, 14 Dec 2000 20:36:03 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:61852 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129267AbQLOBgC>;
-	Thu, 14 Dec 2000 20:36:02 -0500
-Date: Thu, 14 Dec 2000 20:05:34 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: David Riley <oscar@the-rileys.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Miquel van Smoorenburg <miquels@traveler.cistron-office.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linus's include file strategy redux
-In-Reply-To: <3A396C39.798939C5@the-rileys.net>
-Message-ID: <Pine.GSO.4.21.0012141958410.10441-100000@weyl.math.psu.edu>
+	id <S132657AbQLOBhX>; Thu, 14 Dec 2000 20:37:23 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12293 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129325AbQLOBhT>; Thu, 14 Dec 2000 20:37:19 -0500
+Subject: Re: Signal 11
+To: michael@linuxmagic.com (Michael Peddemors)
+Date: Fri, 15 Dec 2000 01:09:29 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <0012141807080M.19494@mistress> from "Michael Peddemors" at Dec 14, 2000 06:07:08 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E146jNL-0000SN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > o	We tell vendors to build RPMv3 , glibc 2.1.x
+> Curious HOW do you tell vendors??
 
+When they ask. More usefully Dan Quinlann and most vendors put together a
+recommended set of things to build with and use. It warns about library
+pitfalls, kernel changes and what packaging is supported. It is far from
+perfect and nothing like the LSB goals but its a start and following it does
+give you applications that with a bit of care run on everything.
 
-On Thu, 14 Dec 2000, David Riley wrote:
+> > o	Vendors not being stupid understand that they have a bigger market
+> > 	share if they do that.
+> Ummm.. I remember Oracle's first release... wasn't it JUST redhat??
 
-> Alexander Viro wrote:
-> > 
-> >         Actually, I suspect that quite a few of us had done that since long -
-> > IIRC I've got burned on 1.2/1.3 and decided that I had enough. Bugger if I
-> > remember what exactly it was - ISTR that it was restore(8) built with
-> > 1.3.<something> headers and playing funny games on 1.2, but it might be
-> > something else...
-> 
-> So then what's the correct header tree to put in /usr/include/linux?  I
-> could use the stock 2.2.14-patched headers that came with the dist, but
-> how often does it need to be updated?  Or should I use the latest 2.2?
+I believe so, and Adabas was SuSE only, and I doubt either vendor wanted it
+that way. Both actually ran fine on the other but were not supported.
 
-Whatever your libc was built against. It shouldn't matter that much,
-but when shit hits the fan... you really don't want to be there.
-
-Look at it that way: you don't want to build some object files with one
-set of headers, some - with another and link them together. Now,
-s/some object files/libc/. With a minimal luck you will be OK, but
-it's easier not to ask for trouble in the first place.
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272322AbTHKIYY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 04:24:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272318AbTHKIYY
+	id S272379AbTHKI0z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 04:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272343AbTHKI0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 04:24:24 -0400
-Received: from law11-f19.law11.hotmail.com ([64.4.17.19]:18956 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S272322AbTHKIXq
+	Mon, 11 Aug 2003 04:26:55 -0400
+Received: from law11-f31.law11.hotmail.com ([64.4.17.31]:35851 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S272318AbTHKI0Z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 04:23:46 -0400
+	Mon, 11 Aug 2003 04:26:25 -0400
 X-Originating-IP: [220.224.16.230]
 X-Originating-Email: [kartik_me@hotmail.com]
 From: "kartikey bhatt" <kartik_me@hotmail.com>
 To: jmorris@intercode.com.au
 Cc: linux-kernel@vger.kernel.org
-Date: Mon, 11 Aug 2003 13:53:44 +0530
+Date: Mon, 11 Aug 2003 13:56:19 +0530
 Mime-Version: 1.0
 Content-Type: text/plain; format=flowed
-Message-ID: <Law11-F19TZyabYTHrd000431de@hotmail.com>
-X-OriginalArrivalTime: 11 Aug 2003 08:23:45.0326 (UTC) FILETIME=[E1927CE0:01C35FE1]
+Message-ID: <Law11-F31yjlX5LxQAO00017ad4@hotmail.com>
+X-OriginalArrivalTime: 11 Aug 2003 08:26:20.0016 (UTC) FILETIME=[3DC64F00:01C35FE2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -1003,7 +1003,6 @@ out:
 Vectors---------------------------*/
 
 _________________________________________________________________
-Attention NRIs! Send money home in a jiffy. 
-http://server1.msn.co.in/msnleads/citibankrca/citibankrca2.asp?type=txt Find 
-out how here.
+Latest movie trailers. On your mobile. 
+http://server1.msn.co.in/sp03/gprs/howcani_movie.asp With GPRS.
 

@@ -1,86 +1,286 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVBKHFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVBKHGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262204AbVBKHFn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 02:05:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbVBKHFm
+	id S262205AbVBKHGa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 02:06:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbVBKHGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 02:05:42 -0500
-Received: from smtp817.mail.sc5.yahoo.com ([66.163.170.3]:38494 "HELO
+	Fri, 11 Feb 2005 02:06:30 -0500
+Received: from smtp817.mail.sc5.yahoo.com ([66.163.170.3]:41310 "HELO
 	smtp817.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262204AbVBKHFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 02:05:32 -0500
+	id S262205AbVBKHFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 02:05:34 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: InputML <linux-input@atrey.karlin.mff.cuni.cz>
-Subject: [PATCH 0/10] Convert gameport to driver model/sysfs
-Date: Fri, 11 Feb 2005 01:58:47 -0500
+Subject: [PATCH 1/10] Gameport: rename driver to port_data
+Date: Fri, 11 Feb 2005 01:59:50 -0500
 User-Agent: KMail/1.7.2
 Cc: alsa-devel@alsa-project.org, LKML <linux-kernel@vger.kernel.org>,
        Vojtech Pavlik <vojtech@suse.cz>
+References: <200502110158.47872.dtor_core@ameritech.net>
+In-Reply-To: <200502110158.47872.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200502110158.47872.dtor_core@ameritech.net>
+Message-Id: <200502110159.51020.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-This series of patches adds a new "gameport" bus to the driver model.
-It is implemented very similarly to "serio" bus and also allows
-individual drivers to be manually bound/disconnected from a port
-by manipulating port's "drvctl" attribute.
+===================================================================
 
-01-gameport-renames1.patch
-- rename gameport->driver to gameport->port_data in preparation
-  to sysfs integration to avoid confusion with real drivers.
 
-02-gameport-renames2.patch
-- more renames in gameport in preparations to sysfs integration,
-  gameport_dev renamed to gameport_driver, gameport_[un]register_device
-  renamed to gameport_[un]register_driver
+ChangeSet@1.2149, 2005-02-11 01:09:43-05:00, dtor_core@ameritech.net
+  Input: rename gameport->driver to gameport->port_data in preparation
+         to sysfs integration.
+    
+  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-03-gameport-connect-mandatory.patch
-- make connect and disconnect mandatory as these call gameport_open
-  and gameport_close which actually bind driver and port together.
 
-04-gameport-dynalloc-prepare.patch
-- sysfs/kobjects requires objects be allocated synamically. Prepare
-  to dynamic gameport allocation, create gameport_allocate_port and
-  gameport_free_port; dynamically allocated ports are freed by core
-  upon release. Also add gameport_set_name and gameport_set_phys
-  to ease transition.
+ drivers/input/gameport/lightning.c |    8 ++++----
+ drivers/input/gameport/vortex.c    |   10 +++++-----
+ drivers/input/joystick/a3d.c       |    8 ++++----
+ include/linux/gameport.h           |    4 ++--
+ sound/oss/trident.c                |   10 +++++-----
+ sound/pci/au88x0/au88x0_game.c     |   15 +++++++--------
+ 6 files changed, 27 insertions(+), 28 deletions(-)
 
-05-gameport-dynalloc-input.patch
-- convert drivers in input/gameport to dynamic gameport allocation.
 
-06-gameport-dynalloc-sound-oss.patch
-- convert drivers in sound/oss to dynamic gameport allocation.
+===================================================================
 
-07-gameport-dynalloc-sound-alsa.patch
-- convert drivers in sound/pci to dynamic gameport allocation.
 
-08-gameport-drivers-sysfs.patch
-- add "gameport" bus and have joystick gameport drivers register
-  themselves on this bus.
 
-09-gameport-devices-sysfs.patch
-- complete gameport sysfs integration. Gameports are registered on
-  the "gameport" bus.
+diff -Nru a/drivers/input/gameport/lightning.c b/drivers/input/gameport/lightning.c
+--- a/drivers/input/gameport/lightning.c	2005-02-11 01:34:39 -05:00
++++ b/drivers/input/gameport/lightning.c	2005-02-11 01:34:39 -05:00
+@@ -79,7 +79,7 @@
  
-10-gameport-drvdata.patch
-- Get rid of gameport->private, use driver-specific data in device
-  structure, access through gameport_get/set_drvdata helpers.
-
-The changes can also be pulled from my tree (which has Vojtech's
-input tree as a parent):
-
-	bk pull bk://dtor.bkbits.net/input 
-
-I am CC-ing ALSA list as the changes touch quite a few sound drivers.
-
-Comments/testing is appreciated.
-
--- 
-Dmitry
+ static int l4_cooked_read(struct gameport *gameport, int *axes, int *buttons)
+ {
+-	struct l4 *l4 = gameport->driver;
++	struct l4 *l4 = gameport->port_data;
+ 	unsigned char status;
+ 	int i, result = -1;
+ 
+@@ -112,7 +112,7 @@
+ 
+ static int l4_open(struct gameport *gameport, int mode)
+ {
+-	struct l4 *l4 = gameport->driver;
++	struct l4 *l4 = gameport->port_data;
+         if (l4->port != 0 && mode != GAMEPORT_MODE_COOKED)
+ 		return -1;
+ 	outb(L4_SELECT_ANALOG, L4_PORT);
+@@ -190,7 +190,7 @@
+ {
+ 	int i, t;
+ 	int cal[4];
+-	struct l4 *l4 = gameport->driver;
++	struct l4 *l4 = gameport->port_data;
+ 
+ 	if (l4_getcal(l4->port, cal))
+ 		return -1;
+@@ -252,7 +252,7 @@
+ 			sprintf(l4->phys, "isa%04x/gameport%d", L4_PORT, 4 * i + j);
+ 
+ 			gameport = &l4->gameport;
+-			gameport->driver = l4;
++			gameport->port_data = l4;
+ 			gameport->open = l4_open;
+ 			gameport->cooked_read = l4_cooked_read;
+ 			gameport->calibrate = l4_calibrate;
+diff -Nru a/drivers/input/gameport/vortex.c b/drivers/input/gameport/vortex.c
+--- a/drivers/input/gameport/vortex.c	2005-02-11 01:34:39 -05:00
++++ b/drivers/input/gameport/vortex.c	2005-02-11 01:34:39 -05:00
+@@ -62,19 +62,19 @@
+ 
+ static unsigned char vortex_read(struct gameport *gameport)
+ {
+-	struct vortex *vortex = gameport->driver;
++	struct vortex *vortex = gameport->port_data;
+ 	return readb(vortex->io + VORTEX_LEG);
+ }
+ 
+ static void vortex_trigger(struct gameport *gameport)
+ {
+-	struct vortex *vortex = gameport->driver;
++	struct vortex *vortex = gameport->port_data;
+ 	writeb(0xff, vortex->io + VORTEX_LEG);
+ }
+ 
+ static int vortex_cooked_read(struct gameport *gameport, int *axes, int *buttons)
+ {
+-	struct vortex *vortex = gameport->driver;
++	struct vortex *vortex = gameport->port_data;
+ 	int i;
+ 
+ 	*buttons = (~readb(vortex->base + VORTEX_LEG) >> 4) & 0xf;
+@@ -89,7 +89,7 @@
+ 
+ static int vortex_open(struct gameport *gameport, int mode)
+ {
+-	struct vortex *vortex = gameport->driver;
++	struct vortex *vortex = gameport->port_data;
+ 
+ 	switch (mode) {
+ 		case GAMEPORT_MODE_COOKED:
+@@ -120,7 +120,7 @@
+ 
+ 	pci_set_drvdata(dev, vortex);
+ 
+-	vortex->gameport.driver = vortex;
++	vortex->gameport.port_data = vortex;
+ 	vortex->gameport.fuzz = 64;
+ 
+ 	vortex->gameport.read = vortex_read;
+diff -Nru a/drivers/input/joystick/a3d.c b/drivers/input/joystick/a3d.c
+--- a/drivers/input/joystick/a3d.c	2005-02-11 01:34:39 -05:00
++++ b/drivers/input/joystick/a3d.c	2005-02-11 01:34:39 -05:00
+@@ -197,7 +197,7 @@
+ 
+ static int a3d_adc_cooked_read(struct gameport *gameport, int *axes, int *buttons)
+ {
+-	struct a3d *a3d = gameport->driver;
++	struct a3d *a3d = gameport->port_data;
+ 	int i;
+ 	for (i = 0; i < 4; i++)
+ 		axes[i] = (a3d->axes[i] < 254) ? a3d->axes[i] : -1;
+@@ -212,7 +212,7 @@
+ 
+ static int a3d_adc_open(struct gameport *gameport, int mode)
+ {
+-	struct a3d *a3d = gameport->driver;
++	struct a3d *a3d = gameport->port_data;
+ 	if (mode != GAMEPORT_MODE_COOKED)
+ 		return -1;
+ 	if (!a3d->used++)
+@@ -226,7 +226,7 @@
+ 
+ static void a3d_adc_close(struct gameport *gameport)
+ {
+-	struct a3d *a3d = gameport->driver;
++	struct a3d *a3d = gameport->port_data;
+ 	if (!--a3d->used)
+ 		del_timer(&a3d->timer);
+ }
+@@ -336,7 +336,7 @@
+ 		a3d->dev.relbit[0] |= BIT(REL_X) | BIT(REL_Y);
+ 		a3d->dev.keybit[LONG(BTN_MOUSE)] |= BIT(BTN_RIGHT) | BIT(BTN_LEFT) | BIT(BTN_MIDDLE);
+ 
+-		a3d->adc.driver = a3d;
++		a3d->adc.port_data = a3d;
+ 		a3d->adc.open = a3d_adc_open;
+ 		a3d->adc.close = a3d_adc_close;
+ 		a3d->adc.cooked_read = a3d_adc_cooked_read;
+diff -Nru a/include/linux/gameport.h b/include/linux/gameport.h
+--- a/include/linux/gameport.h	2005-02-11 01:34:39 -05:00
++++ b/include/linux/gameport.h	2005-02-11 01:34:39 -05:00
+@@ -17,8 +17,8 @@
+ 
+ struct gameport {
+ 
+-	void *private;	/* Private pointer for joystick drivers */
+-	void *driver;	/* Private pointer for gameport drivers */
++	void *private;		/* Private pointer for joystick drivers */
++	void *port_data;	/* Private pointer for gameport drivers */
+ 	char *name;
+ 	char *phys;
+ 
+diff -Nru a/sound/oss/trident.c b/sound/oss/trident.c
+--- a/sound/oss/trident.c	2005-02-11 01:34:39 -05:00
++++ b/sound/oss/trident.c	2005-02-11 01:34:39 -05:00
+@@ -4257,21 +4257,21 @@
+ static unsigned char
+ trident_game_read(struct gameport *gameport)
+ {
+-	struct trident_card *card = gameport->driver;
++	struct trident_card *card = gameport->port_data;
+ 	return inb(TRID_REG(card, T4D_GAME_LEG));
+ }
+ 
+ static void
+ trident_game_trigger(struct gameport *gameport)
+ {
+-	struct trident_card *card = gameport->driver;
++	struct trident_card *card = gameport->port_data;
+ 	outb(0xff, TRID_REG(card, T4D_GAME_LEG));
+ }
+ 
+ static int
+ trident_game_cooked_read(struct gameport *gameport, int *axes, int *buttons)
+ {
+-	struct trident_card *card = gameport->driver;
++	struct trident_card *card = gameport->port_data;
+ 	int i;
+ 
+ 	*buttons = (~inb(TRID_REG(card, T4D_GAME_LEG)) >> 4) & 0xf;
+@@ -4288,7 +4288,7 @@
+ static int
+ trident_game_open(struct gameport *gameport, int mode)
+ {
+-	struct trident_card *card = gameport->driver;
++	struct trident_card *card = gameport->port_data;
+ 
+ 	switch (mode) {
+ 	case GAMEPORT_MODE_COOKED:
+@@ -4368,7 +4368,7 @@
+ 	card->banks[BANK_B].addresses = &bank_b_addrs;
+ 	card->banks[BANK_B].bitmap = 0UL;
+ 
+-	card->gameport.driver = card;
++	card->gameport.port_data = card;
+ 	card->gameport.fuzz = 64;
+ 	card->gameport.read = trident_game_read;
+ 	card->gameport.trigger = trident_game_trigger;
+diff -Nru a/sound/pci/au88x0/au88x0_game.c b/sound/pci/au88x0/au88x0_game.c
+--- a/sound/pci/au88x0/au88x0_game.c	2005-02-11 01:34:39 -05:00
++++ b/sound/pci/au88x0/au88x0_game.c	2005-02-11 01:34:39 -05:00
+@@ -44,20 +44,20 @@
+ 
+ static unsigned char vortex_game_read(struct gameport *gameport)
+ {
+-	vortex_t *vortex = gameport->driver;
++	vortex_t *vortex = gameport->port_data;
+ 	return hwread(vortex->mmio, VORTEX_GAME_LEGACY);
+ }
+ 
+ static void vortex_game_trigger(struct gameport *gameport)
+ {
+-	vortex_t *vortex = gameport->driver;
++	vortex_t *vortex = gameport->port_data;
+ 	hwwrite(vortex->mmio, VORTEX_GAME_LEGACY, 0xff);
+ }
+ 
+ static int
+ vortex_game_cooked_read(struct gameport *gameport, int *axes, int *buttons)
+ {
+-	vortex_t *vortex = gameport->driver;
++	vortex_t *vortex = gameport->port_data;
+ 	int i;
+ 
+ 	*buttons = (~hwread(vortex->mmio, VORTEX_GAME_LEGACY) >> 4) & 0xf;
+@@ -73,7 +73,7 @@
+ 
+ static int vortex_game_open(struct gameport *gameport, int mode)
+ {
+-	vortex_t *vortex = gameport->driver;
++	vortex_t *vortex = gameport->port_data;
+ 
+ 	switch (mode) {
+ 	case GAMEPORT_MODE_COOKED:
+@@ -96,11 +96,10 @@
+ 
+ static int vortex_gameport_register(vortex_t * vortex)
+ {
+-	if ((vortex->gameport = kcalloc(1, sizeof(struct gameport), GFP_KERNEL)) == NULL) {
++	if ((vortex->gameport = kcalloc(1, sizeof(struct gameport), GFP_KERNEL)) == NULL)
+ 		return -1;
+-	};
+-	
+-	vortex->gameport->driver = vortex;
++
++	vortex->gameport->port_data = vortex;
+ 	vortex->gameport->fuzz = 64;
+ 
+ 	vortex->gameport->read = vortex_game_read;

@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276670AbRJKTIF>; Thu, 11 Oct 2001 15:08:05 -0400
+	id <S276720AbRJKTPH>; Thu, 11 Oct 2001 15:15:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276673AbRJKTH4>; Thu, 11 Oct 2001 15:07:56 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:42442 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S276670AbRJKTHj>;
-	Thu, 11 Oct 2001 15:07:39 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 11 Oct 2001 19:07:25 GMT
-Message-Id: <UTC200110111907.TAA32409.aeb@cwi.nl>
-To: adilger@turbolabs.com, arvest@orphansonfire.com
-Subject: Re: 2.4.11 loses sda9
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+	id <S276716AbRJKTO5>; Thu, 11 Oct 2001 15:14:57 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:12295 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S276702AbRJKTOz>; Thu, 11 Oct 2001 15:14:55 -0400
+Message-Id: <200110111915.f9BJFLY97700@aslan.scsiguy.com>
+To: Alexander Feigl <Alexander.Feigl@gmx.de>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: aic7xxx SCSI system hangs 
+In-Reply-To: Your message of "11 Oct 2001 14:58:13 +0200."
+             <1002805093.3593.9.camel@PowerBox.MysticWorld.de> 
+Date: Thu, 11 Oct 2001 13:15:21 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 11, 2001 at 12:08:14AM -0600, Andreas Dilger wrote:
+>Hi
+>
+>Sorry for my incomplete console output yesterday.
 
-> You probably need to go into fdisk and change the partition type of
-> sda9 from "0" to "83" (or any other non-zero type).  There is a
-> reason that it is saying "omitting empty partition (9)" at boot,
-> and "fdisk -l" doesn't list it - because type "0" means "I don't exist".
+Not a problem.
 
-If I am not mistaken, it is fdisk rather than the kernel that says
-"omitting empty partition (9)". (And the latest fdisk no longer
-deletes partitions of type 0 from its listings.)
-The sys_type field never had any significance to the kernel.
+Here's the interesting part...
 
-Andries
+>scsi0:0:2:0: Attempting to queue an ABORT message
+>scsi0: Dumping Card State in Command phase, at SEQADDR 0xbf
 
+The sequencer believes that the last, REQ qualified, phase was
+the command phase.
 
-[By the way, it is a sad sight to see patch-2.4.11.
-Where my own sources use  dev->hardsect_size , and
-intermediate sources use  get_hardsect_size(dev)
-an inline function defined roughly either as
-        dev->hardsect_size
-or as
-        hardsect_size[MAJOR(dev)][MINOR(dev)]
-so as to make it easy to switch between compiles where
-a kdev_t is a number and we use the infamous arrays,
-and compiles where a kdev_t is a pointer to a device struct,
-and no arrays exist, I now see that get_hardsect_size(dev)
-is replaced by
-        get_hardsect_size(to_kdev_t(bdev->bd_dev))
-. Yecch.
-Al, I never understood why you want to introduce a
-struct block_device * to do precisely what kdev_t
-was designed to do.]
+>ACCUM = 0x80, SINDEX = 0xa0, DINDEX = 0xe4, ARG_2 = 0x0
+>HCNT = 0xa
+
+We're setup to send a 10byte cdb(command) to the target.  No bytes of
+the cdb have yet been transfered.
+
+>SCSISEQ = 0x12, SBLKCTL = 0xa
+> DFCNTRL = 0x24, DFSTATUS = 0x80
+
+The data fifo is all set to send data...
+
+>LASTPHASE = 0x80, SCSISIGI = 0x44, SXFRCTL0 = 0x80
+			      ^^^^
+But what's this?  The target has us in data-in phase.
+
+>SSTAT0 = 0x0, SSTAT1 = 0x3
+
+But this phase, according to the hardware, was never qualified by
+a REQ, so we never see this change and fall out of the loop that is
+trying to process the command phase.
+
+To sum up, from time to time, the controller sees the first REQ for
+the data-in phase that follows the command phase, prior to seeing the
+phase lines change to data-in.  This is either caused by the plextor
+not allowing the proper bus-settle time for the phase change to be
+seen prior to asserting REQ *OR* your cabling is poor (too long,
+marginal/bent pin, incorrect termination, etc.) giving a similar
+result.
+
+As for why you cannot talk to the device after a while, the device
+has been set offline.  The controller was unable to talk to it
+successfully, so the SCSI layer decided to ignore it.
+
+--
+Justin

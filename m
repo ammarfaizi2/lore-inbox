@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266787AbUBEVTB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 16:19:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266785AbUBEVS7
+	id S266860AbUBEVM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 16:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266863AbUBEVM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 16:18:59 -0500
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:26531 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S266787AbUBEVQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 16:16:35 -0500
-Date: Thu, 5 Feb 2004 22:16:33 +0100
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: LKML <linux-kernel@vger.kernel.org>
+	Thu, 5 Feb 2004 16:12:27 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:46005 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266860AbUBEVMP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 16:12:15 -0500
+Date: Thu, 5 Feb 2004 22:12:12 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Tomas Zvala <tomas@zvala.cz>, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.0, cdrom still showing directories after being erased
-Message-ID: <20040205211633.GH10547@stud.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20040205203336.GE10547@stud.uni-erlangen.de> <20040205205421.GE11683@suse.de>
+Message-ID: <20040205211212.GG11683@suse.de>
+References: <20040203131837.GF3967@aurora.fi.muni.cz> <Pine.LNX.4.53.0402030839380.31203@chaos> <401FB78A.5010902@zvala.cz> <20040203152805.GI11683@suse.de> <20040205182335.GB294@elf.ucw.cz> <20040205204109.GD11683@suse.de> <20040205210907.GB1541@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040205205421.GE11683@suse.de>
-X-URL: http://wwwcip.informatik.uni-erlangen.de/~sithglan/
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040205210907.GB1541@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Feb 05 2004, Pavel Machek wrote:
+> Hi!
+> 
+> > > > > I believe he meant to write he umounted it.
+> > > > > The problem is that there is still some data left in CDRW's cache and it 
+> > > > > needs to be emptied. That happens when CDRW is ejected and reinserted 
+> > > > > (that is why windows burning software ie. Nero wants to eject the CDR/RW 
+> > > > > when it gets written or erased).
+> > > > > Maybe kernel could flush the buffers/caches or whatever is there when 
+> > > > > CDROM gets mounted. But im afraid about compatibility with broken drives 
+> > > > > such as LG.
+> > > > 
+> > > > There's no command to invalidate read cache, you are probably thinking
+> > > > of the SYNC_CACHE command to flush dirty data to media (which is what LG
+> > > > fucked up).
+> > > > 
+> > > > IMO, it's a user problem.
+> > > 
+> > > Does not look like so.
+> > > 
+> > > mount
+> > > umount
+> > > cdrecord -blank
+> > > mount
+> > > see old data
+> > > 
+> > > That looks pretty bad. If there's no other solution, we might just
+> > > document it, but...
+> > 
+> > Nonsense. Even if the above was what the user did (I believe he didn't
+> > umount the device before blanking it), then it'd be a hardware "bug".
+> > It's common to require an eject to completely clear the cache.
+> 
+> Later in the thread user said he did indeed do umount, and it is
+> reproducible for him.
+> 
+> Okay, we may be dealing with the buggy hardware at this point. Would
+> it make sense to tell the drive to flush it caches? If there's no
+> other possibility, we might want cdrecord to reset drive at the end of
+> blank and/or to make it eject...
 
-> So the drive ought to report media changed if it knowingly over wrote
-> the table of contents, for instance.
+Just have cdrecord eject the disc, it's pretty common. Resetting the
+drive is a bit drastic, imho.
 
-I am not so sure about this. I can't find anything describing this. But
-looking at SPC-2 Section 7.25 talks only about 'becoming ready and media
-changed'.
+-- 
+Jens Axboe
 
-> I still think this is to be expected when mucking in undefined teritory.
-> Reload the media, it's not hard... Sure you can get around this with
-> snooping if you really wanted to, but IMO it's wasted effort. Add -eject
-> to cdrecord command line of default config, how you want so solve it is
-> not my problem.
-
-I don't understand why the Linux kernel doesn't simply invalidates the
-buffers when a CDROM media is unmounted. If this would be case no such
-problems would ever occur.
-
-	Thomas

@@ -1,119 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129538AbRABVtL>; Tue, 2 Jan 2001 16:49:11 -0500
+	id <S129692AbRABV7w>; Tue, 2 Jan 2001 16:59:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129692AbRABVtB>; Tue, 2 Jan 2001 16:49:01 -0500
-Received: from miranda.org ([209.58.150.153]:25867 "HELO miranda.org")
-	by vger.kernel.org with SMTP id <S129538AbRABVsn>;
-	Tue, 2 Jan 2001 16:48:43 -0500
+	id <S129733AbRABV7m>; Tue, 2 Jan 2001 16:59:42 -0500
+Received: from www.ylenurme.ee ([193.40.6.1]:23800 "EHLO ylenurme.ee")
+	by vger.kernel.org with ESMTP id <S129692AbRABV7Y>;
+	Tue, 2 Jan 2001 16:59:24 -0500
+Date: Tue, 2 Jan 2001 23:28:45 +0200 (GMT-2)
+From: Elmer Joandi <elmer@ylenurme.ee>
+To: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: prerelease total nonmodular compile, compiler warnings, linking
+ errors
+In-Reply-To: <20010102213045.A2103@storm.local>
+Message-ID: <Pine.LNX.4.30.0101022324191.8096-200000@yle-server.ylenurme.sise>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14930.17815.720457.433064@light.alephnull.com>
-Date: Tue, 2 Jan 2001 16:18:15 -0500 (EST)
-From: Rik Faith <faith@valinux.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        DRI Development <dri-devel@lists.sourceforge.net>
-Subject: Re: Happy new year^H^H^H^Hkernel.. 
-In-Reply-To: [Keith Owens <kaos@ocs.com.au>] Tue  2 Jan 2001 08:32:45 +1100
-In-Reply-To: <Pine.LNX.4.10.10101010938590.2892-100000@penguin.transmeta.com>
-	<9103.978384765@ocs3.ocs-net>
-X-Mailer: VM 6.72; XEmacs 21.1; Linux 2.4.0-test12 (light)
-X-Pgp-Key: FB4753BD; 26 A0 3C 88 57 FA 19 D2  90 B3 60 60 97 C0 20 47
+Content-Type: MULTIPART/MIXED; BOUNDARY="34210307-160492660-978470925=:8096"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue  2 Jan 2001 08:32:45 +1100,
-   Keith Owens <kaos@ocs.com.au> wrote:
-> On Mon, 1 Jan 2001 09:39:38 -0800 (PST), 
-> Linus Torvalds <torvalds@transmeta.com> wrote:
-> >On 1 Jan 2001, Adam Sampson wrote:
-> >> 
-> >> It appears to work (even with the reiserfs patch with the obvious
-> >> Makefile tweak), but the drm modules have unresolved symbols:
-> >
-> >Does this fix it for you (do a "make clean" before re-building your tree)?
-> >
-> >		Linus
-> >
-> >----
-> >--- v2.4.0-prerelease/linux/drivers/char/drm/Makefile	Mon Jan  1 09:38:35 2001
-> >+++ linux/drivers/char/drm/Makefile	Mon Jan  1 09:38:04 2001
-> >@@ -44,22 +44,22 @@
-> > mga-objs   := mga_drv.o   mga_dma.o     mga_context.o  mga_bufs.o  mga_state.o
-> > i810-objs  := i810_drv.o  i810_dma.o    i810_context.o i810_bufs.o
-> > 
-> >-obj-$(CONFIG_DRM_GAMMA) += gamma.o
-> >-obj-$(CONFIG_DRM_TDFX)  += tdfx.o
-> >-obj-$(CONFIG_DRM_R128)  += r128.o
-> >-obj-$(CONFIG_DRM_FFB)   += ffb.o
-> >-obj-$(CONFIG_DRM_MGA)   += mga.o
-> >-obj-$(CONFIG_DRM_I810)  += i810.o
-> >-
-> >-
-> > # When linking into the kernel, link the library just once. 
-> > # If making modules, we include the library into each module
-> > 
-> > ifdef MAKING_MODULES
-> >   lib = drmlib.a
-> > else
-> >-  obj-y += drmlib.a
-> >+  extra-obj = drmlib.a  
-> > endif
-> >+
-> >+obj-$(CONFIG_DRM_GAMMA) += gamma.o $(extra-obj)
-> >+obj-$(CONFIG_DRM_TDFX)  += tdfx.o $(extra-obj)
-> >+obj-$(CONFIG_DRM_R128)  += r128.o $(extra-obj)
-> >+obj-$(CONFIG_DRM_FFB)   += ffb.o $(extra-obj)
-> >+obj-$(CONFIG_DRM_MGA)   += mga.o $(extra-obj)
-> >+obj-$(CONFIG_DRM_I810)  += i810.o $(extra-obj)
-> >+
-> > 
-> > include $(TOPDIR)/Rules.make
-> 
-> That will break for anybody compiling a DRM card into the kernel and
-> compiling a second DRM card as a module.  drmlib.a will get a split
-> personality, it will be compiled twice, once for kernel and once for
-> module, which version actually gets linked will depend on the phase of
-> the moon.  Either that or it only gets compiled for kernel, which is
-> where we came in.
-> 
-> DRM maintainers: can we remove this restriction on needing multiple
-> copies of the library?  It makes no sense anyway.  If you build a new
-> library with the same function names then you cannot have two DRM cards
-> built into the kernel, the function names will collide within vmlinux.
-> So you have to use different function names for a new library, but then the
-> old cards can share the old library and the new cards can share the new
-> library, i.e. there is no need for each driver to have its own copy of
-> the library.
-> 
-> I strongly recommend that you remove the restriction on having multiple
-> copies of the library.  Then Adam J. Richter's patch does the job
-> nicely, making drmlib.a a helper module.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-We plan to remove the need to have multiple copies of drmlib.a and make
-the kernel Makefile fully compatible with the 2.4 make system -- but we
-haven't finished this work yet.  With this new work, however, the
-end-user will still load a single module (e.g., tdfx.o), just like now.
-(Loading a single kernel module is a significant win when dealing with
-end users: there is no possibility of version skew or of having two
-modules that were compiled with different options.)
+--34210307-160492660-978470925=:8096
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Linus -- Please use your patch or Keith Owens' patch as a bandaid to
-solve this problem until we can do it the right way.  Whatever patch you
-select, please do *NOT* make drmlib into a separate helper module --
-this will only lead to user confusion (especially since we'll move back
-to a single-module solution soon).  From the user's standpoint, I'm not
-concerned that you can't mix modules with in-kernel versions, since most
-users don't do that [and we could fix the configuration file to prevent
-this -- that's another way to bandage this problem that I'll send you a
-patch for tomorrow].  I am very concerned that users will see us move
-from 1 DRM module to 2 and then back to 1 -- that would be very
-confusing for them.
 
---Rik
+
+On Tue, 2 Jan 2001, Andreas Bombe wrote:
+> You're then using the ieee1394.o module object which doesn't include the
+> hardware and highlevel drivers.  I've sent a patch to Linus already and
+> cc'd the mailing list also.
+
+
+!!! there were heaps of other (not related to ieee1394 stuff )
+linking errors.
+hack was for to see other errors
+
+I hope I did not confuse anybody, and those ohter linking errors are
+attached again with this letter.
+
+I'd like to see if by grub can load a nonmodular kernel with everything
+compiled in (should be about 20MB ? ). Not that it would of any value
+other than being nice to see.
+
+elmer.
+
+
+
+--34210307-160492660-978470925=:8096
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="err.link"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0101022328450.8096@yle-server.ylenurme.sise>
+Content-Description: 
+Content-Disposition: attachment; filename="err.link"
+
+ZHJpdmVycy9zb3VuZC9zb3VuZGRyaXZlcnMubzogSW4gZnVuY3Rpb24gYGNs
+ZWFudXBfbW9kdWxlJzoNCmRyaXZlcnMvc291bmQvc291bmRkcml2ZXJzLm8o
+LnRleHQuZXhpdCsweGYzMCk6IG11bHRpcGxlIGRlZmluaXRpb24gb2YgYGNs
+ZWFudXBfbW9kdWxlJw0KZHJpdmVycy9pc2RuL2lzZG4uYSgudGV4dCsweDE3
+NmQ0KTogZmlyc3QgZGVmaW5lZCBoZXJlDQpsZDogV2FybmluZzogc2l6ZSBv
+ZiBzeW1ib2wgYGNsZWFudXBfbW9kdWxlJyBjaGFuZ2VkIGZyb20gMTA1IHRv
+IDQ1IGluIGRyaXZlcnMvc291bmQvc291bmRkcml2ZXJzLm8NCmRyaXZlcnMv
+c291bmQvc291bmRkcml2ZXJzLm86IEluIGZ1bmN0aW9uIGBpbml0X21vZHVs
+ZSc6DQpkcml2ZXJzL3NvdW5kL3NvdW5kZHJpdmVycy5vKC50ZXh0LmluaXQr
+MHhhZGUwKTogbXVsdGlwbGUgZGVmaW5pdGlvbiBvZiBgaW5pdF9tb2R1bGUn
+DQpkcml2ZXJzL2lzZG4vaXNkbi5hKC50ZXh0KzB4MTc2NzApOiBmaXJzdCBk
+ZWZpbmVkIGhlcmUNCmxkOiBXYXJuaW5nOiBzaXplIG9mIHN5bWJvbCBgaW5p
+dF9tb2R1bGUnIGNoYW5nZWQgZnJvbSA5NyB0byAyNSBpbiBkcml2ZXJzL3Nv
+dW5kL3NvdW5kZHJpdmVycy5vDQpkcml2ZXJzL25ldC9uZXQubzogSW4gZnVu
+Y3Rpb24gYG5ldHdvcmtfbGRpc2NfaW5pdCc6DQpkcml2ZXJzL25ldC9uZXQu
+bygudGV4dC5pbml0KzB4NTMyZik6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8g
+YG1raXNzX2luaXRfY3RybF9kZXYnDQpkcml2ZXJzL25ldC9uZXQubyguZGF0
+YS5pbml0KzB4NTI4OTApOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGB5YW1f
+aW5pdCcNCmRyaXZlcnMvbmV0L3Rva2VucmluZy90ci5hKHNtY3RyLm8pOiBJ
+biBmdW5jdGlvbiBgc21jdHJfcmVzZXRfYWRhcHRlcic6DQpzbWN0ci5vKC50
+ZXh0KzB4MzkyYSk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYF9fYmFkX3Vk
+ZWxheScNCnNtY3RyLm8oLnRleHQrMHgzOTM4KTogdW5kZWZpbmVkIHJlZmVy
+ZW5jZSB0byBgX19iYWRfdWRlbGF5Jw0KZHJpdmVycy9pZWVlMTM5NC9pZWVl
+MTM5NC5vOiBJbiBmdW5jdGlvbiBgcmVnaXN0ZXJfYnVpbHRpbl9oaWdobGV2
+ZWxzJzoNCmRyaXZlcnMvaWVlZTEzOTQvaWVlZTEzOTQubygudGV4dCsweDI3
+YjkpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBpbml0X3JhdzEzOTQnDQpk
+cml2ZXJzL2llZWUxMzk0L2llZWUxMzk0Lm86IEluIGZ1bmN0aW9uIGByZWdp
+c3Rlcl9idWlsdGluX2xvd2xldmVscyc6DQpkcml2ZXJzL2llZWUxMzk0L2ll
+ZWUxMzk0Lm8oLnRleHQuaW5pdCsweDI0KTogdW5kZWZpbmVkIHJlZmVyZW5j
+ZSB0byBgZ2V0X2x5bnhfdGVtcGxhdGUnDQpkcml2ZXJzL2llZWUxMzk0L2ll
+ZWUxMzk0Lm8oLnRleHQuaW5pdCsweDUxKTogdW5kZWZpbmVkIHJlZmVyZW5j
+ZSB0byBgZ2V0X29oY2lfdGVtcGxhdGUnDQpkcml2ZXJzL3ZpZGVvL3ZpZGVv
+Lm86IEluIGZ1bmN0aW9uIGBhdHlfc2V0X3BsbDE4ODE4JzoNCmRyaXZlcnMv
+dmlkZW8vdmlkZW8ubygudGV4dCsweGMxMjEpOiB1bmRlZmluZWQgcmVmZXJl
+bmNlIHRvIGBfX2JhZF91ZGVsYXknDQpkcml2ZXJzL3ZpZGVvL3ZpZGVvLm86
+IEluIGZ1bmN0aW9uIGBpbml0X3ZnYWNoaXAnOg0KZHJpdmVycy92aWRlby92
+aWRlby5vKC50ZXh0LmluaXQrMHg0MWFkKTogdW5kZWZpbmVkIHJlZmVyZW5j
+ZSB0byBgX19iYWRfdWRlbGF5Jw0KZHJpdmVycy9uZXQvaXJkYS9pcmRhLm86
+IEluIGZ1bmN0aW9uIGB0b3Nob2JvZV9nb3Rvc2xlZXAnOg0KZHJpdmVycy9u
+ZXQvaXJkYS9pcmRhLm8oLnRleHQrMHg2YjgxKTogdW5kZWZpbmVkIHJlZmVy
+ZW5jZSB0byBgX19iYWRfdWRlbGF5Jw0KbWFrZTogKioqIFt2bWxpbnV4XSBF
+cnJvciAxDQo=
+--34210307-160492660-978470925=:8096--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269225AbTGUPJL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 11:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269559AbTGUPJL
+	id S270164AbTGUPLy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 11:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270165AbTGUPLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 11:09:11 -0400
-Received: from ldap.somanetworks.com ([216.126.67.42]:15592 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id S269225AbTGUPJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 11:09:08 -0400
-Date: Mon, 21 Jul 2003 11:24:05 -0400
-From: Georg Nikodym <georgn@somanetworks.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-Subject: [PATCH] compilation failure in kernel/suspend.c
-Message-Id: <20030721112405.6be4f4e3.georgn@somanetworks.com>
-Organization: SOMA Networks
-X-Mailer: Sylpheed version 0.9.3claws (GTK+ 1.2.10; i386-pc-linux-gnu)
-X-Face: #EE>^U0b8z^y>O0BZ>JJMGXyyxSP?<W-(g1&Yh;2p1'N6AeM]{Zfu(v>Uhe8ptGua4P}`QZ
- m%yb7CYwN^TiGQcP&mncyDrjAtLh7cB|m{$C,ww;yaYi*YvQllxb*vet
+	Mon, 21 Jul 2003 11:11:54 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:47233 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S270164AbTGUPLw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 11:11:52 -0400
+Date: Mon, 21 Jul 2003 17:26:46 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: jsimmons@infradead.org
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.org
+Subject: How is info->cmap supposed to work?
+Message-ID: <20030721152646.GA14520@vana.vc.cvut.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.cyqcWiJuyFNYL?"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.cyqcWiJuyFNYL?
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Hi James,
+  I have few problems with understanding how
+info->cmap is supposed to work:
 
-Apologies if you've heard this one before.
+(1) FBIOGETCMAP calls fb_copy_cmap(&info->cmap, &cmap, 0);
+    Should not it use last argument of '2', as &cmap points
+    to the userspace? It looks to me like that anybody can
+    overwrite kernel currently... Only positive side is that
+    there is no way to control info->cmap contents (see (2)),
+    so you can only crash kernel with random code, you cannot 
+    stuff some malicious code there.
 
->From the latest 2.5 (2.6.0-test1) bk, I get:
+(2) FBIOPUTCMAP calls fb_set_cmap, which in turn calls
+    fb_setcolreg. FBIOGETCMAP copies cmap entries from
+    info->cmap (after fixing (1)). Does it mean that
+    fb_setcolreg has to fill info->cmap itself? Is not it
+    a bit ugly? And fb_set_cmap documentation is incorrect:
+    kspc == 0 means copy from userspace, while
+    kspc != 0 means copy "local", inside kernel-space. Documentation
+    says that 0 is local, while 1 is get_user.
 
-  CC      kernel/suspend.o
-kernel/suspend.c:293: warning: #warning This might be broken. We need to somehow wait for data to reach the disk
-kernel/suspend.c:86: conflicting types for `_text'
-include/asm-generic/sections.h:6: previous declaration of `_text'
-kernel/suspend.c:86: conflicting types for `_etext'
-include/asm-generic/sections.h:6: previous declaration of `_etext'
-kernel/suspend.c:86: conflicting types for `_edata'
-include/asm-generic/sections.h:7: previous declaration of `_edata'
-kernel/suspend.c:86: conflicting types for `__bss_start'
-include/asm-generic/sections.h:8: previous declaration of `__bss_start'
-make[1]: *** [kernel/suspend.o] Error 1
-make: *** [kernel] Error 2
+(3) And who is supposed to initialize info->cmap, and to
+    what value? It looks to me like that fbdev driver is
+    supposed to do:
 
-sections.h defines things like "extern char _text[]" whereas suspend.c
-defines "extern char _text"
+      memset(&info->cmap, 0, sizeof(info->cmap));
+      fb_alloc_cmap(&info->cmap, 256, 1);
 
-Since the _text, _etext, etc symbols are not even used in suspend.c,
-removing them seems the correct thing to do.
+    Is it right? What about fb_init_cmap() then? And why
+    fbdev has to play with info->cmap, cannot generic
+    layer take a care of this, if all info->cmap accesses
+    go through generic layer, and fbdev driver itself has
+    no need for this field?
 
---- 1.42/kernel/suspend.c	Fri May  2 14:16:11 2003
-+++ edited/suspend.c	Mon Jul 21 11:20:14 2003
-@@ -83,7 +83,6 @@
- #define ADDRESS2(x) __ADDRESS(__pa(x))		/* Needed for x86-64 where some pages are in memory twice */
- 
- /* References to section boundaries */
--extern char _text, _etext, _edata, __bss_start, _end;
- extern char __nosave_begin, __nosave_end;
- 
- extern int is_head_of_free_region(struct page *);
+    				Thanks,
+    					Petr Vandrovec
+    					vandrove@vc.cvut.cz
 
---=.cyqcWiJuyFNYL?
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/HAWWoJNnikTddkMRAmP2AKCLjRh4dUA3YbfJucxrBuRyri2WFgCeMAAi
-WcwVF9Bcyal95QNb+g6Mt/Q=
-=yIP4
------END PGP SIGNATURE-----
-
---=.cyqcWiJuyFNYL?--

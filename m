@@ -1,215 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270203AbTGMKTL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 06:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270204AbTGMKTC
+	id S270201AbTGMKS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 06:18:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270204AbTGMKS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 06:19:02 -0400
-Received: from sun13.bham.ac.uk ([147.188.128.145]:12197 "EHLO
-	sun13.bham.ac.uk") by vger.kernel.org with ESMTP id S270203AbTGMKSw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 06:18:52 -0400
-Subject: Re: 2.4.22pre3 / pwc / emi disconnect == oops, workaround
-From: Mark Cooke <mpc@star.sr.bham.ac.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1058085276.31918.31.camel@dhcp22.swansea.linux.org.uk>
-References: <1058024543.8030.3.camel@sage.kitchen>
-	 <1058085276.31918.31.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: multipart/mixed; boundary="=-N41sRy8w42tmVeUiElWI"
-Organization: 
-Message-Id: <1058092416.24654.11.camel@sage.kitchen>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 Jul 2003 11:33:36 +0100
+	Sun, 13 Jul 2003 06:18:27 -0400
+Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:43431 "EHLO
+	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
+	id S270201AbTGMKSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 06:18:25 -0400
+Message-ID: <3F11354B.1080501@portrix.net>
+Date: Sun, 13 Jul 2003 12:32:43 +0200
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030524 Debian/1.3.1-1.he-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Three drivers/i2c/ patches
+References: <3F107F0F.40701@portrix.net> <20030713102407.A24901@infradead.org>
+In-Reply-To: <20030713102407.A24901@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-N41sRy8w42tmVeUiElWI
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-How about something like the attached patch ? (based on the se401
-driver)
-
-Caution: I'm not in front of the test machine currently, so it's only
-had a compile test so far (and the EMI error only happens about once a
-day)
-
-Also, while I was grepping around, it seems ov511 suffers from the same
-unregister in the disconnect callback.  Someone with an ov511 camera
-might want to check into that.
-
-Cheers,
-
-Mark
-
-On Sun, 2003-07-13 at 09:34, Alan Cox wrote:
-> On Sad, 2003-07-12 at 16:42, Mark Cooke wrote:
-> > 3. usb.c appears to force a disconnect immediately after #2.
-> > 4. pwc module warns about a disconnect while open.
-> > 5. Next call to video_ioctl with handle from #1 causes oops.
+Christoph Hellwig wrote:
 > 
-> pwc driver bug. It must defer its unregister until it closes
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Sleeping with interrupts disabled and a spinlock held still isn't exactly a
+> good idea.  As is sleep_on..
+
+So something like the following does make more sense?
+I don't quite understand, how that code worked before - I suppose
+interruptible_sleep_on_timeout activates irqs again, otherwise the interrupt 
+handler would have never been called? But then, the sti() doesn't make much 
+sense and should have been moved to the else path?
+
+Thanks,
+
+Jan
+
+--- 2.5.75/drivers/i2c/i2c-elektor.c    2003-07-11 09:35:37.000000000 +0200
++++ 2.5.75-bk1/drivers/i2c/i2c-elektor.c        2003-07-13 12:06:06.000000000
++0200
+@@ -59,6 +59,8 @@
+    need to be rewriten - but for now just remove this for simpler reading */
+
+  static wait_queue_head_t pcf_wait;
++
++spinlock_t pcf_pending_lock = SPIN_LOCK_UNLOCKED;
+  static int pcf_pending;
+
+  /* ----- global defines ----------------------------------------------- 
+    */
+@@ -120,12 +122,14 @@
+         int timeout = 2;
+
+         if (irq > 0) {
+-               cli();
++               spin_lock_irq(&pcf_pending_lock);
+                 if (pcf_pending == 0) {
++                       spin_unlock_irq(&pcf_pending_lock);
+                         interruptible_sleep_on_timeout(&pcf_wait, timeout*HZ );
+-               } else
++               } else {
+                         pcf_pending = 0;
+-               sti();
++                       spin_unlock_irq(&pcf_pending_lock);
++               }
+         } else {
+                 udelay(100);
+         }
+@@ -133,7 +137,10 @@
+
+
+  static irqreturn_t pcf_isa_handler(int this_irq, void *dev_id, struct pt_regs
+*regs) {
++       unsigned long flags;
++       spin_lock_irqsave(&pcf_pending_lock, flags);
+         pcf_pending = 1;
++       spin_unlock_irqrestore(&pcf_pending_lock, flags);
+         wake_up_interruptible(&pcf_wait);
+         return IRQ_HANDLED;
+  }
+
+
 -- 
-Mark Cooke <mpc@star.sr.bham.ac.uk>
-
---=-N41sRy8w42tmVeUiElWI
-Content-Disposition: attachment; filename=patch-2.4.22-pre3-ac1-videodev
-Content-Type: text/plain; name=patch-2.4.22-pre3-ac1-videodev; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- linux-2.4.21/drivers/usb/pwc-if.c.orig	2003-03-04 22:43:01.000000000 +0000
-+++ linux-2.4.21/drivers/usb/pwc-if.c	2003-07-13 10:55:10.000000000 +0100
-@@ -1077,6 +1077,7 @@
- /* Note that all cleanup is done in the reverse order as in _open */
- static void pwc_video_close(struct video_device *vdev)
- {
-+        /* Called with BKL held */
- 	struct pwc_device *pdev;
- 	int i;
- 
-@@ -1107,17 +1108,16 @@
- 				Err("Failed to power down camera (%d)\n", i);
- 		}
- 	}
--
-+	
- 	pdev->vopen = 0;
--	if (pdev->decompressor != NULL) {
--		pdev->decompressor->exit();
--		pdev->decompressor->unlock();
--	}
--	pwc_free_buffers(pdev);
--
--	/* wake up _disconnect() routine */
--	if (pdev->unplugged)
--		wake_up(&pdev->remove_ok);
-+	
-+	if (pdev->unplugged) {
-+	  /* Camera was unplugged during use.  Now the user is dead, we can
-+	     unregister */
-+	  video_unregister_device(pdev->vdev); 
-+	  usb_pwc_remove_disconnected(pdev);
-+	}
-+	
- 	Trace(TRACE_OPEN, "<< video_close()\n");
- }
- 
-@@ -1885,11 +1885,8 @@
- static void usb_pwc_disconnect(struct usb_device *udev, void *ptr)
- {
- 	struct pwc_device *pdev;
--	int hint;
--	DECLARE_WAITQUEUE(wait, current);
- 
- 	lock_kernel();
--	free_mem_leak();
- 
- 	pdev = (struct pwc_device *)ptr;
- 	if (pdev == NULL) {
-@@ -1910,53 +1907,41 @@
- 		return;
- 	}
- #endif	
--	
--	pdev->unplugged = 1;
--	if (pdev->vdev != NULL) {
--		Trace(TRACE_PROBE, "Unregistering video device.\n");
--		video_unregister_device(pdev->vdev); 
--		if (pdev->vopen) {
--			Info("Disconnected while device/video is open!\n");
--			
--			/* Wake up any processes that might be waiting for
--			   a frame, let them return an error condition
--			 */
--			wake_up(&pdev->frameq);
--			
--			/* Wait until we get a 'go' from _close(). This used
--			   to have a gigantic race condition, since we kfree()
--			   stuff here, but we have to wait until close() 
--			   is finished. 
--			 */
--			   
--			Trace(TRACE_PROBE, "Sleeping on remove_ok.\n");
--			add_wait_queue(&pdev->remove_ok, &wait);
--			set_current_state(TASK_UNINTERRUPTIBLE);
--			/* ... wait ... */
--			schedule();
--			remove_wait_queue(&pdev->remove_ok, &wait);
--			set_current_state(TASK_RUNNING);
--			Trace(TRACE_PROBE, "Done sleeping.\n");
--			set_mem_leak(pdev->vdev);
--			pdev->vdev = NULL;
--		}
--		else {
--			/* Normal disconnect; remove from available devices */
--			kfree(pdev->vdev);
--			pdev->vdev = NULL;
--		}
--	}
- 
--	/* search device_hint[] table if we occupy a slot, by any chance */
--	for (hint = 0; hint < MAX_DEV_HINTS; hint++)
--		if (device_hint[hint].pdev == pdev)
--			device_hint[hint].pdev = NULL;
--
--	pdev->udev = NULL;
-+	if (!pdev->user) {
-+	  Trace(TRACE_PROBE, "Unregistering video device.\n");
-+	  video_unregister_device(pdev->vdev); 
-+	  usb_pwc_remove_disconnected(pdev);
-+	} else {
-+	  Trace(TRACE_PROBE, "Disconnect while open - defer until close.\n");
-+	  pdev->unplugged = 1;
-+	}
-+	
- 	unlock_kernel();
--	kfree(pdev);
- }
- 
-+static inline void usb_pwc_remove_disconnected(struct pwc_device *pdev)
-+{
-+  int hint;
-+  
-+  /* search device_hint[] table if we occupy a slot, by any chance */
-+  for (hint = 0; hint < MAX_DEV_HINTS; hint++)
-+    if (device_hint[hint].pdev == pdev)
-+      device_hint[hint].pdev = NULL;
-+  
-+  if (pdev->decompressor != NULL) {
-+    pdev->decompressor->exit();
-+    pdev->decompressor->unlock();
-+  }
-+  pwc_free_buffers(pdev);
-+  
-+  /* Normal disconnect; remove from available devices */
-+  free_mem_leak();
-+  kfree(pdev->vdev);
-+  pdev->vdev = NULL;
-+  pdev->udev = NULL;
-+  kfree(pdev);
-+}
- 
- /* *grunt* We have to do atoi ourselves :-( */
- static int pwc_atoi(const char *s)
---- linux-2.4.21/drivers/usb/pwc-if.c.orig	2003-07-13 10:58:24.000000000 +0100
-+++ linux-2.4.21/drivers/usb/pwc-if.c	2003-07-13 11:01:49.000000000 +0100
-@@ -94,6 +94,7 @@
- 
- static void *usb_pwc_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id);
- static void usb_pwc_disconnect(struct usb_device *udev, void *ptr);
-+static inline void usb_pwc_remove_disconnected(struct pwc_device *pdev);
- 
- static struct usb_driver pwc_driver =
- {
-
---=-N41sRy8w42tmVeUiElWI--
+Linux rubicon 2.5.75-mm1-jd10 #1 SMP Sat Jul 12 19:40:28 CEST 2003 i686
 

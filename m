@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279544AbRJXMY1>; Wed, 24 Oct 2001 08:24:27 -0400
+	id <S279552AbRJXMsG>; Wed, 24 Oct 2001 08:48:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279548AbRJXMYH>; Wed, 24 Oct 2001 08:24:07 -0400
-Received: from home.geizhals.at ([213.229.14.34]:62726 "HELO home.geizhals.at")
-	by vger.kernel.org with SMTP id <S279544AbRJXMX7>;
-	Wed, 24 Oct 2001 08:23:59 -0400
-Message-ID: <3BD6B278.3070300@geizhals.at>
-Date: Wed, 24 Oct 2001 14:22:16 +0200
-From: Marinos Yannikos <mjy@geizhals.at>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.5) Gecko/20011011
-X-Accept-Language: de-AT,en,el
+	id <S279554AbRJXMr4>; Wed, 24 Oct 2001 08:47:56 -0400
+Received: from [160.131.145.131] ([160.131.145.131]:41488 "EHLO W20303512")
+	by vger.kernel.org with ESMTP id <S279552AbRJXMrr>;
+	Wed, 24 Oct 2001 08:47:47 -0400
+Message-ID: <00a601c15c8a$28f9b420$839183a0@W20303512>
+From: "Wilson" <defiler@null.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110240042570.1210-100000@u.domain.uli> <3BD65188.1060203@blue-labs.org> <02b601c15c53$c02f4990$0800a8c0@century.cz>
+Subject: Re: issue: deleting one IP alias deletes all
+Date: Wed, 24 Oct 2001 08:48:18 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: gdth / SCSI read performance issues (2.2.19 and 2.4.10)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+----- Original Message ----- 
+From: "Petr Titera" <owl@century.cz>
+To: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, October 24, 2001 2:18 AM
+Subject: Re: issue: deleting one IP alias deletes all
 
-our brand-new ICP GDT8523RZ controller with 6 disks peaks out at
-45MB/s under 2.4.10, while with 2.2.19 it reaches 85MB/s (seq.
-read performance). It should realistically be able to reach
-at least 150-200MB/s in this configuration (RAID-5, 6 disks,
-it's a 64-bit 66MHz PCI card). It's in a dual P3-1GHz box with
-Tyan 2510NG board. Sequential write performance is OK with both
-kernels, it's higher than the read performance on 2.4.10 (60MB/s).
+> > Switch to 'ip' instead of 'ifconfig', several large distros now include
+> > it.  Addresses can be added and removed completely indiscriminately on
+> > interfaces.
+> >
+> 
+> I'd like to, but there's nothing like documentation with it.
+> 
 
-Under 2.4.10, when I test the performance with a simple program
-that just read()'s 16MB blocks from /dev/sda, both CPUs report
-40-50% System time usage. 2.2.19 reports ~20% for one CPU (and
-better performance).
+iproute should come with the ip command reference.
+On RedHat 7.1, it lives here:
+/usr/share/doc/iproute-2.2.4/ip-cref.ps
+I've converted it to PDF, if you don't like PS:
+http://www.hellninjacommando.com/misc/ip-cref.pdf
 
-Is there anything that can be done about this? It seems like a
-serious performance problem either with the gdth driver or the
-kernel and it renders this neat controller rather ineffective.
+They accused us of suppressing freedom of expression.
+This was a lie and we could not let them publish it.
+-- Nelba Blandon, Nicaraguan Interior Ministry Director of Censorship
 
-Regards,
--mjy
-[please CC: answers]
+
 

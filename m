@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbTEHItq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 04:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbTEHItq
+	id S261241AbTEHIyd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 04:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbTEHIyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 04:49:46 -0400
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:38551 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP id S261233AbTEHItp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 04:49:45 -0400
-Message-ID: <029601c31540$b57f1280$0305a8c0@arch.sel.sony.com>
-From: "Ming Lei" <lei.ming@attbi.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: linux rt priority  thread corrupt  global variable?
-Date: Thu, 8 May 2003 02:03:35 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-x-mimeole: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Thu, 8 May 2003 04:54:33 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:52117 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261241AbTEHIyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 04:54:32 -0400
+Date: Thu, 8 May 2003 11:06:53 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Timothy Miller <miller@techsource.com>
+Cc: root@chaos.analogic.com, Roland Dreier <roland@topspin.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+Message-ID: <20030508090653.GG1469@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.53.0305071008080.11871@chaos> <p05210601badeeb31916c@[207.213.214.37]> <Pine.LNX.4.53.0305071323100.13049@chaos> <52k7d2pqwm.fsf@topspin.com> <Pine.LNX.4.53.0305071424290.13499@chaos> <52bryeppb3.fsf@topspin.com> <Pine.LNX.4.53.0305071523010.13724@chaos> <52n0hyo85x.fsf@topspin.com> <Pine.LNX.4.53.0305071547060.13869@chaos> <3EB96FB2.2020401@techsource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3EB96FB2.2020401@techsource.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Platform:
-Intel Pentium II; RedHat 7.2 with kernel version 2.4.7-10, libc 2.2.4-13 and
-gcc 2.96.
+On Wed, 7 May 2003 16:42:26 -0400, Timothy Miller wrote:
+> Richard B. Johnson wrote:
+> >
+> >When a caller executes int 0x80, this is a software interrupt,
+> >called a 'trap'. It enters the trap handler on the kernel stack,
+> >with the segment selectors set up as defined for that trap-handler.
+> >It happens because software told hardware what to do ahead of time.
+> >Software doesn't do it during the trap event. In the trap handler,
+> >no context switch normally occurs. 
+> 
+> On typical processors, when one gets an interrupt, the current program 
+> counter and processor state flags are pushed onto a stack.  Which stack 
+> gets used for this?
 
-Problem description:
+I have no idea, what a 'typical processor' might look like. But the
+thing most CPU seem to have in common is that they save two registers
+either on the stack or into other registers that only exist for this
+purpose (SRR on PPC).
 
-a program has 3 threads of priority 12, 10, 6 respectively, and the main
-process at priority 0. All the threads except main process is created with
-pthread_create, and defined SCHED_FIFO as real time scheduler policy.
+Once that has happened, the OS has the job to figure out where it's
+stack (or equivalent) is located, *without* clobbering the registers.
+Once that is done, it can save all the registern on the stack,
+including SRR. It might also move what the CPU has pushed to the
+"stack" somewhere else.
 
-There is a global variable I define with 'int cpl'. All the threads and main
-process may alter cpl at any time. cpl may have one of these values {0,
-0xf000006e, 0xf0000068, 0xe0000000, 0xe0000060}. cpl is protected by mutex
-for any access.
+After the interrupt has been handled, the reverse path is executed,
+restoring registers in the correct order, possibly switching from
+kernel to user stack, etc.
 
-<Problem=> at some point of execution which cpl should be a value say
-e0000060, but the actual value retained at cpl is another say e0000000; that
-is, the value is changed without the program actually done anything on it.
-The retained value I observed is kind of historic value(one of these value
-in the above set), not the arbituary value. The problem had occured just
-after context switch, also occured during a thread execution.
+And there is one kernel stack per process. Please don't argue about
+that, unless you have read the code.
 
-<Confirm> I used Intel debug register to track any writing to the cpl memory
-address globally, which is the way GDB use for x86 hardware watchpoint
-implementation. I could see all the writing from my program to change cpl,
-but failed to see the source from which the problem occured. So I dont know
-what cause the problem.
+Jörn
 
-Can anyone listening give me a direction or hint on this annoying situation?
-
-PS. please cc to this email address.
--Ming
-
-
-Related questions:
-
-Is linux kernel 2.4.10 considered strictly preemptive such as VxWorks or
-other RTOS? I guess 2.4.10 may simulate preemptive with running scheduler on
-every syscall or interrupt returns. Am I right?
-
-Is printf() real-time priority thread safe?
-
+-- 
+Do not stop an army on its way home.
+-- Sun Tzu

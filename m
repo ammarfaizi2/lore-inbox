@@ -1,35 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129155AbRBBTu5>; Fri, 2 Feb 2001 14:50:57 -0500
+	id <S129506AbRBBTwh>; Fri, 2 Feb 2001 14:52:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129105AbRBBTur>; Fri, 2 Feb 2001 14:50:47 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:1028 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129047AbRBBTue>;
-	Fri, 2 Feb 2001 14:50:34 -0500
-Message-ID: <20010202145149.A129@bug.ucw.cz>
-Date: Fri, 2 Feb 2001 14:51:49 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Olsen <alan@clueserver.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Recommended swap for 2.4.x.
-In-Reply-To: <Pine.LNX.4.10.10101291348330.9791-100000@penguin.transmeta.com> <Pine.LNX.4.10.10101291452120.31258-100000@clueserver.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.10.10101291452120.31258-100000@clueserver.org>; from Alan Olsen on Mon, Jan 29, 2001 at 02:57:44PM -0800
+	id <S129781AbRBBTw3>; Fri, 2 Feb 2001 14:52:29 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:5760 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129506AbRBBTwO>; Fri, 2 Feb 2001 14:52:14 -0500
+Date: Fri, 2 Feb 2001 14:51:58 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+cc: meltingpot-admin@Postal.Miralink.Com
+Subject: Re: Your message to Meltingpot awaits moderator approval
+In-Reply-To: <200102021947.f12Jl0e20111@Postal.Miralink.Com>
+Message-ID: <Pine.LNX.3.95.1010202144836.1597A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> I am asking because I have just ordered a new drive for my Vaio (8.1 gig
-> in a 8.45mm drive!) and I want to install 2.4.x on it.  (I like getting
+WARNING!! Messages to linux-kernel are now being intercepted
+(and answered) by this company:
+On Fri, 2 Feb 2001 meltingpot-admin@Postal.Miralink.Com wrote:
 
-8.1GB in under centimeter? That's 8.1GB in compactflash slot?
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+My message was sent directly to linux-kernel, with no cc address.
+It should not have gone anywhere else.
+
+
+
+On Fri, 2 Feb 2001 meltingpot-admin@Postal.Miralink.Com wrote:
+
+> Your mail to 'Meltingpot' with the subject
+> 
+>     Version 2.4.1 has ext2 problems.
+> 
+> Is being held until the list moderator can review it for approval.
+> 
+> The reason it is being held:
+> 
+>     Message has implicit destination
+> 
+> Either the message will get posted to the list, or you will receive
+> notification of the moderator's decision.
+> 
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

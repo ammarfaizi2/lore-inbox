@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289699AbSBER5f>; Tue, 5 Feb 2002 12:57:35 -0500
+	id <S289708AbSBER70>; Tue, 5 Feb 2002 12:59:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289692AbSBER5R>; Tue, 5 Feb 2002 12:57:17 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:35590 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S289699AbSBER5L>;
-	Tue, 5 Feb 2002 12:57:11 -0500
-Date: Tue, 5 Feb 2002 18:05:43 +0100
+	id <S289725AbSBER7G>; Tue, 5 Feb 2002 12:59:06 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:59654 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S289708AbSBER5o>;
+	Tue, 5 Feb 2002 12:57:44 -0500
+Date: Tue, 5 Feb 2002 13:54:46 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VESA Anybody out there
-Message-ID: <20020205170543.GA1071@elf.ucw.cz>
-In-Reply-To: <20020131.222643.85689058.davem@redhat.com> <E16WfDe-0005Jd-00@the-village.bc.nu> <20020201095510.D17412@havoc.gtf.org> <20020201151221.GA8404@vana.vc.cvut.cz> <3C5AB463.7050204@evision-ventures.com>
+To: Stevie O <stevie@qrpff.net>
+Cc: David Woodhouse <dwmw2@infradead.org>, Thomas Hood <jdthood@mail.com>,
+        linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: APM and APIC -- multiple batteries (was: apm.c and multiple battery slots)
+Message-ID: <20020205135445.C37@toy.ucw.cz>
+In-Reply-To: <1012705104.774.4.camel@thanatos> <1012705104.774.4.camel@thanatos> <12638.1012737679@redhat.com> <5.1.0.14.2.20020203203302.00abcec8@whisper.qrpff.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C5AB463.7050204@evision-ventures.com>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <5.1.0.14.2.20020203203302.00abcec8@whisper.qrpff.net>; from stevie@qrpff.net on Sun, Feb 03, 2002 at 09:55:00PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Is there actually anybody out there for whoom the vga=ask kernelparamter
-> followed by a mode scan actually works? For me personally I never 
-> encountered
-> *any* single one computer wher ethis wouldn't hang the system entierly, so
-> I wonder whatever the wholesale option ain't borken?
+> How does the ACPI stuff handle this? *Does* the ACPI stuff handle this 
+> (i.e. multiple batteries)?
 
-Works for me.
+Yes.
 
-ask mj@ucw.cz, he coded that.
-									Pavel
+> If so:
+>    Is it a generic interface?
+>      If so, we should let APM use it too.
+
+Should be generic enough...
+								Pavel
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

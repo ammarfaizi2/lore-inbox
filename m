@@ -1,72 +1,242 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbVAZOAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbVAZOCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbVAZOAb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 09:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVAZOAb
+	id S262309AbVAZOCx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 09:02:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVAZOCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 09:00:31 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:44005 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262299AbVAZOAW (ORCPT
+	Wed, 26 Jan 2005 09:02:50 -0500
+Received: from exize.demon.co.uk ([62.49.7.54]:25584 "EHLO loki.gnova.org")
+	by vger.kernel.org with ESMTP id S262302AbVAZOBX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 09:00:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=PgEnctZduxQFQmykxTYikXx2TmxNJFV3JW034DM7PpB5NsGP6U5XGbijuYnqZX4FiVe4qDMpGL4aqnMENB/e4F1aWH9fHSRpYIA+BjctkYwi52SWCI4SWbU8eBHeaa2hvp0+UMiEFYlf6aiOmJKVhYkgJ9XxdgJqP9qM1hBeVYI=
-Message-ID: <d120d5000501260600fb8589e@mail.gmail.com>
-Date: Wed, 26 Jan 2005 09:00:21 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: johnpol@2ka.mipt.ru
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Cc: Christoph Hellwig <hch@infradead.org>, Jean Delvare <khali@linux-fr.org>,
-       Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1106737157.5257.139.camel@uganda>
+	Wed, 26 Jan 2005 09:01:23 -0500
+Subject: Re: [PATCH] OSS Support for AC97 low power codecs
+From: Liam Girdwood <lkml@gnova.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1106746962.3998.1652.camel@cearnarfon>
+References: <1106746962.3998.1652.camel@cearnarfon>
+Content-Type: multipart/mixed; boundary="=-HmPoA8hfFmbrQoTfy8VV"
+Message-Id: <1106748060.3998.1667.camel@cearnarfon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	 <20050124213442.GC18933@kroah.com>
-	 <20050124214751.GA6396@infradead.org>
-	 <20050125060256.GB2061@kroah.com>
-	 <20050125195918.460f2b10.khali@linux-fr.org>
-	 <20050126003927.189640d4@zanzibar.2ka.mipt.ru>
-	 <20050125224051.190b5ff9.khali@linux-fr.org>
-	 <20050126013556.247b74bc@zanzibar.2ka.mipt.ru>
-	 <20050126101434.GA7897@infradead.org>
-	 <1106737157.5257.139.camel@uganda>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 26 Jan 2005 14:01:01 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jan 2005 13:59:17 +0300, Evgeniy Polyakov
-<johnpol@2ka.mipt.ru> wrote:
-> On Wed, 2005-01-26 at 10:14 +0000, Christoph Hellwig wrote:
-> > On Wed, Jan 26, 2005 at 01:35:56AM +0300, Evgeniy Polyakov wrote:
-> > > I have one rule - if noone answers that it means noone objects,
-> > > or it is not interesting for anyone, and thus noone objects.
-> >
-> > That's simply not true.  The amount of patches submitted is extremly
-> > huge and the reviewers don't have time to look at everythning.
-> >
-> > If no one replies it simply means no one has looked at it in enough
-> > detail to comment yet.
+
+--=-HmPoA8hfFmbrQoTfy8VV
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Andrew,
+
+Looks like I missed a critical diff line in the patch :-
+
+--- a/include/linux/ac97_codec.h 2005-01-22 01:46:59.000000000 +0000
+
+and added some PM stuff that is from a future patch.
+
+Correct patch is attached.
+
+Liam
+
+On Wed, 2005-01-26 at 13:42, Liam Girdwood wrote:
+> Hi Andrew,
 > 
-> That is why I resent it several times.
-> Then I asked for inclusion.
+> This is a resend of a patch that has been applied to 2.4. The low power
+> codec functionality has also now been included in ALSA.
 > 
-> I never send it to lkml just because simple static/non static + module
-> name
-> discussion in lkml already overflowed into more than 20 messages...
+> I've attached a patch against 2.6.11-rc2 that checks the codec ID before
+> doing an AC97 register reset. This allows the kernel to support low
+> power codecs that are powered down by a reset command. This patch also
+> fixes some other minor issues.
+> 
+> Changes:-
+> 
+>  o Added AC97_DEFAULT_POWER_OFF to ac97_codec_ids[]
+>  o ac97_probe now checks hardwired codec ID's before sending a reset
+>  o Added support for WM9713
+>  o Moved the codec specific inits after the mixer setup as some init
+> settings were being clobbered.
+>  o Added extra check so that default_digital_ops doesn't overwrite a
+> valid codec_ops. (SPDIF)
+> 
+> Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
+> 
+> Liam
 
-Well, not everyone is subscribed to lm_sensors mailing list but
-nonetheless are interested when a new subsystem is introduced into the
-kernel. There several established subsystems (network, USB, ide) whose
-maintainers people trust either because of the good track record or
-because it affects small number of people so the main discussion is
-kept on special lists. But even then most patches are presented on
-LKML when issues ironed out on special list.
+--=-HmPoA8hfFmbrQoTfy8VV
+Content-Disposition: attachment; filename=ac97-oss.diff
+Content-Type: text/x-patch; name=ac97-oss.diff; charset=
+Content-Transfer-Encoding: 7bit
 
-With a new subsystem it is wise to present it to LKML so it gets wider coverage.
+diff -ur a/sound/oss/ac97_codec.c b/sound/oss/ac97_codec.c
+--- a/sound/oss/ac97_codec.c	2005-01-22 01:47:15.000000000 +0000
++++ b/sound/oss/ac97_codec.c	2005-01-26 13:22:23.000000000 +0000
+@@ -71,6 +71,7 @@
+ static int wolfson_init04(struct ac97_codec * codec);
+ static int wolfson_init05(struct ac97_codec * codec);
+ static int wolfson_init11(struct ac97_codec * codec);
++static int wolfson_init13(struct ac97_codec * codec);
+ static int tritech_init(struct ac97_codec * codec);
+ static int tritech_maestro_init(struct ac97_codec * codec);
+ static int sigmatel_9708_init(struct ac97_codec *codec);
+@@ -107,6 +108,7 @@
+ static struct ac97_ops wolfson_ops04 = { wolfson_init04, NULL, NULL };
+ static struct ac97_ops wolfson_ops05 = { wolfson_init05, NULL, NULL };
+ static struct ac97_ops wolfson_ops11 = { wolfson_init11, NULL, NULL };
++static struct ac97_ops wolfson_ops13 = { wolfson_init13, NULL, NULL };
+ static struct ac97_ops tritech_ops = { tritech_init, NULL, NULL };
+ static struct ac97_ops tritech_m_ops = { tritech_maestro_init, NULL, NULL };
+ static struct ac97_ops sigmatel_9708_ops = { sigmatel_9708_init, NULL, NULL };
+@@ -171,6 +173,7 @@
+ 	{0x574D4C05, "Wolfson WM9705/WM9710",   &wolfson_ops05},
+ 	{0x574D4C09, "Wolfson WM9709",		&null_ops},
+ 	{0x574D4C12, "Wolfson WM9711/9712",	&wolfson_ops11},
++	{0x574D4C13, "Wolfson WM9713",	&wolfson_ops13, AC97_DEFAULT_POWER_OFF},
+ 	{0x83847600, "SigmaTel STAC????",	&null_ops},
+ 	{0x83847604, "SigmaTel STAC9701/3/4/5", &null_ops},
+ 	{0x83847605, "SigmaTel STAC9704",	&null_ops},
+@@ -797,6 +800,9 @@
+  *	Currently codec_wait is used to wait for AC97 codec
+  *	reset to complete. 
+  *
++ *     Some codecs will power down when a register reset is
++ *     performed. We now check for such codecs.
++ *
+  *	Returns 1 (true) on success, or 0 (false) on failure.
+  */
+  
+@@ -810,34 +816,17 @@
+ 	struct list_head *l;
+ 	struct ac97_driver *d;
+ 	
+-	/* probing AC97 codec, AC97 2.0 says that bit 15 of register 0x00 (reset) should 
+-	 * be read zero.
+-	 *
+-	 * FIXME: is the following comment outdated?  -jgarzik 
+-	 * Probing of AC97 in this way is not reliable, it is not even SAFE !!
+-	 */
+-	codec->codec_write(codec, AC97_RESET, 0L);
+-
+-	/* also according to spec, we wait for codec-ready state */	
++	/* wait for codec-ready state */	
+ 	if (codec->codec_wait)
+ 		codec->codec_wait(codec);
+ 	else
+ 		udelay(10);
+-
+-	if ((audio = codec->codec_read(codec, AC97_RESET)) & 0x8000) {
+-		printk(KERN_ERR "ac97_codec: %s ac97 codec not present\n",
+-		       (codec->id & 0x2) ? (codec->id&1 ? "4th" : "Tertiary") 
+-		       : (codec->id&1 ? "Secondary":  "Primary"));
+-		return 0;
+-	}
+-
+-	/* probe for Modem Codec */
+-	codec->modem = ac97_check_modem(codec);
+-	codec->name = NULL;
+-	codec->codec_ops = &default_ops;
+-
++	
++	/* will the codec power down if register reset ? */
+ 	id1 = codec->codec_read(codec, AC97_VENDOR_ID1);
+ 	id2 = codec->codec_read(codec, AC97_VENDOR_ID2);
++	codec->name = NULL;
++	codec->codec_ops = &null_ops;
+ 	for (i = 0; i < ARRAY_SIZE(ac97_codec_ids); i++) {
+ 		if (ac97_codec_ids[i].id == ((id1 << 16) | id2)) {
+ 			codec->type = ac97_codec_ids[i].id;
+@@ -849,9 +838,34 @@
+ 	}
+ 
+ 	codec->model = (id1 << 16) | id2;
++	if ((codec->flags & AC97_DEFAULT_POWER_OFF) == 0) {
++		/* reset codec and wait for the ready bit before we continue */
++		codec->codec_write(codec, AC97_RESET, 0L);
++		if (codec->codec_wait)
++			codec->codec_wait(codec);
++		else
++			udelay(10);
++	}
+ 	
++	/* probing AC97 codec, AC97 2.0 says that bit 15 of register 0x00 (reset) should 
++	 * be read zero.
++	 *
++	 * FIXME: is the following comment outdated?  -jgarzik 
++	 * Probing of AC97 in this way is not reliable, it is not even SAFE !!
++	 */
++	if ((audio = codec->codec_read(codec, AC97_RESET)) & 0x8000) {
++		printk(KERN_ERR "ac97_codec: %s ac97 codec not present\n",
++		       (codec->id & 0x2) ? (codec->id&1 ? "4th" : "Tertiary") 
++		       : (codec->id&1 ? "Secondary":  "Primary"));
++		return 0;
++	}
++	
++	/* probe for Modem Codec */
++	codec->modem = ac97_check_modem(codec);
++	
++	/* enable SPDIF */
+ 	f = codec->codec_read(codec, AC97_EXTENDED_STATUS);
+-	if(f & 4)
++	if((codec->codec_ops == &null_ops) && (f & 4))
+ 		codec->codec_ops = &default_digital_ops;
+ 	
+ 	/* A device which thinks its a modem but isnt */
+@@ -920,11 +934,6 @@
+ 	codec->recmask_io = ac97_recmask_io;
+ 	codec->mixer_ioctl = ac97_mixer_ioctl;
+ 
+-	/* codec specific initialization for 4-6 channel output or secondary codec stuff */
+-	if (codec->codec_ops->init != NULL) {
+-		codec->codec_ops->init(codec);
+-	}
+-
+ 	/* initialize mixer channel volumes */
+ 	for (i = 0; i < SOUND_MIXER_NRDEVICES; i++) {
+ 		struct mixer_defaults *md = &mixer_defaults[i];
+@@ -934,6 +943,11 @@
+ 			continue;
+ 		ac97_set_mixer(codec, md->mixer, md->value);
+ 	}
++	
++	/* codec specific initialization for 4-6 channel output or secondary codec stuff */
++	if (codec->codec_ops->init != NULL) {
++		codec->codec_ops->init(codec);
++	}
+ 
+ 	/*
+ 	 *	Volume is MUTE only on this device. We have to initialise
+@@ -1090,6 +1104,19 @@
+ 	return 0;
+ }
+ 
++/* WM9713 */
++static int wolfson_init13(struct ac97_codec * codec)
++{
++	codec->codec_write(codec, AC97_RECORD_GAIN, 0x00a0);	
++	codec->codec_write(codec, AC97_POWER_CONTROL, 0x0000);
++	codec->codec_write(codec, AC97_EXTENDED_MODEM_ID, 0xDA00);
++	codec->codec_write(codec, AC97_EXTEND_MODEM_STAT, 0x3810);
++	codec->codec_write(codec, AC97_PHONE_VOL, 0x0808);
++	codec->codec_write(codec, AC97_PCBEEP_VOL, 0x0808);
++
++	return 0;
++}
++
+ static int tritech_init(struct ac97_codec * codec)
+ {
+ 	codec->codec_write(codec, 0x26, 0x0300);
+--- a/include/linux/ac97_codec.h	2005-01-22 01:46:59.000000000 +0000
++++ b/include/linux/ac97_codec.h	2005-01-26 13:22:50.000000000 +0000
+@@ -290,6 +290,7 @@
+ 	
+ #define AC97_DELUDED_MODEM	1	/* Audio codec reports its a modem */
+ #define AC97_NO_PCM_VOLUME	2	/* Volume control is missing 	   */
++#define AC97_DEFAULT_POWER_OFF 4 /* Needs warm reset to power up */
+ };
+ 
+ extern int ac97_read_proc (char *page_out, char **start, off_t off,
 
--- 
-Dmitry
+--=-HmPoA8hfFmbrQoTfy8VV--
+

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267134AbRGXIeL>; Tue, 24 Jul 2001 04:34:11 -0400
+	id <S267140AbRGXIpm>; Tue, 24 Jul 2001 04:45:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267135AbRGXIeB>; Tue, 24 Jul 2001 04:34:01 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:24081 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S267134AbRGXIeA>;
-	Tue, 24 Jul 2001 04:34:00 -0400
-Date: Tue, 24 Jul 2001 10:33:10 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
-Subject: Re: MO-Drive under 2.4.7 usinf vfat
-Message-ID: <20010724103310.L4221@suse.de>
-In-Reply-To: <3B5AE813.658ADC66@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B5AE813.658ADC66@torque.net>
+	id <S267178AbRGXIpc>; Tue, 24 Jul 2001 04:45:32 -0400
+Received: from staf.steva.nl ([213.84.5.97]:48398 "HELO charon.staf.steva.nl")
+	by vger.kernel.org with SMTP id <S267148AbRGXIpR>;
+	Tue, 24 Jul 2001 04:45:17 -0400
+Message-ID: <000701bff54b$750ea6b0$140bc90a@delphi>
+From: "Jordi Verwer" <jordiv@steva.nl>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Externally transparent routing
+Date: Mon, 24 Jul 2000 10:45:02 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, Jul 22 2001, Douglas Gilbert wrote:
-> > Logical sector size smaller than device sector size cannot
-> > be handled with FAT of 2.4 series.
-> 
-> Great. When will that be fixed (Jens?) ? If not, can we get 
-> a more civilized response than the current oops?
+Hello all,
 
-FAT oopses, right?
+To prevent my NAT-box from showing up on traceroutes I'd like to let it
+route without decreasing the TTL. I was told that proxy arp also archieves
+this, however I have no need for proxy arp per se and am also not completely
+confident that that will do what I want. I also saw TTL decrease/increase
+settings in the iptables mangling options, however I use 2.2 and would
+rather not upgrade. So my question is: is this possible under 2.2 and if so,
+how?
 
-It will not be fixed (Logical sector size smaller than device sector
-size) directly, there needs to be support for this type of thing. For
-now folks should just use loop on top of DVD-RAM, for instance.
+Thanks in advance,
+Jordi Verwer
 
--- 
-Jens Axboe
+P.S.: Please send me a CC of your reply, as I am not subscibed.
 

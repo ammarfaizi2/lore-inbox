@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316824AbSF0MiB>; Thu, 27 Jun 2002 08:38:01 -0400
+	id <S316820AbSF0MkU>; Thu, 27 Jun 2002 08:40:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316832AbSF0MiB>; Thu, 27 Jun 2002 08:38:01 -0400
-Received: from mailrelay2.lrz-muenchen.de ([129.187.254.102]:5853 "EHLO
-	mailrelay2.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S316824AbSF0MiA>; Thu, 27 Jun 2002 08:38:00 -0400
-Date: Thu, 27 Jun 2002 14:36:24 +0200 (MET DST)
-From: Oliver.Neukum@lrz.uni-muenchen.de
-X-X-Sender: ui222bq@sun4.lrz-muenchen.de
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: David Woodhouse <dwmw2@infradead.org>,
-       Nicolas Bougues <nbougues-listes@axialys.net>,
-       Andries Brouwer <aebr@win.tue.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with wait queues 
-In-Reply-To: <Pine.LNX.3.95.1020627073831.4174A-101000@chaos.analogic.com>
-Message-Id: <Pine.SOL.4.44.0206271432020.4650-100000@sun4.lrz-muenchen.de>
+	id <S316821AbSF0MkT>; Thu, 27 Jun 2002 08:40:19 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:6924 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S316820AbSF0MkS>; Thu, 27 Jun 2002 08:40:18 -0400
+Message-Id: <200206271236.g5RCahT08722@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: lgarfiel@students.depaul.edu, linux-kernel@vger.kernel.org,
+       zaurus-general@lists.sourceforge.net
+Subject: Re: [Zaurus-general] Re: New Zaurus Wishlist - removable media handling
+Date: Thu, 27 Jun 2002 15:36:43 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <Pine.LNX.3.96.1020627032159.2332J-100000@pioneer> <3D1A7AB1.D4955601@students.depaul.edu>
+In-Reply-To: <3D1A7AB1.D4955601@students.depaul.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Do not ever use sleep_on() and friends. Almost all usage of these
-> > functions will be buggy.
-> >
->
-> Whatever your message means; perhaps it was a way of saying "Hello"
-> to an old friend?
->
-> Attached is a file showing about 485 usages of 'sleep_on' in the
-> kernel drivers. If this usage is, as you say, buggy then will you
-> please inform us unwashed hordes what we should use to replace these?
+On 27 June 2002 00:38, Larry Garfield wrote:
+> What?  The unified file tree?  Yes, the unified file tree.  The idea
+> that the silver plastic round thing you just put into the front of the
+> computer is accessed.... "under" the "storage" in the computer?  Does
+> that, conceptually, metaphorically, make sense?  No, it doesn't.
 
-The simplest way is with the wait_event[_interruptible] macros.
-In newer versions of the USB drivers, you'll find examples.
-You may also set your task's state and put yourself on a waitqueue,
-before you do something that will cause you to be woken up.
+"Programmatically" it makes a lot of sense.
 
+Do you see any fundamental difference in
+A:\dir\dir
+B:\dir\dir
+ and
+/mnt/auto/fd0/dir/dir
+/mnt/auto/fd1/dir/dir
+ from user POV?
 
-And yes, most examples you found are buggy, as they can miss
-a wakeup.
-To use sleep_on safely you must make sure that you cannot be woken up
-before you begin to sleep.
+> Nor
+> does the need to explicitly "mount" and "umount" (the n having gotten
+> lost while moving from one office to another a few years back) a floppy
+> disk.  This is one place where, I hate to say it, drive letters a la
+> DOS/Windows (or some other top-level identifier) are significantly
+> better from a user perspective.
 
-	Regards
-		Oliver
+You can live without mount/umount. Automounter is your friend.
 
+It is theoretically possible to teach filesystems to sync dirty
+data to removable media ASAP and to cope with diskettes being removed without 
+umount ("no disk? do we have diryt buffers? no? ok, implicit umount").
+Who's volunteering to do that is an open question. :-)
 
+I live with automounter with short umount timeout.
+--
+vda

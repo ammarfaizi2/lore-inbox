@@ -1,45 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263567AbUDPSnX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 14:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263599AbUDPSnW
+	id S263589AbUDPSsc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 14:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbUDPSsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 14:43:22 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:54950 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S263567AbUDPSnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 14:43:14 -0400
-Message-ID: <4080297A.1090002@pacbell.net>
-Date: Fri, 16 Apr 2004 11:44:10 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Colin Leroy <colin@colino.net>
-CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] 2.6.6-rc1: cdc-acm still (differently) broken
-References: <20040415201117.11524f63@jack.colino.net>	<407EDA4A.2070509@pacbell.net>	<20040415212334.4a568c5a@jack.colino.net>	<407EE9A5.3020305@pacbell.net> <20040416122415.6f532584@jack.colino.net>
-In-Reply-To: <20040416122415.6f532584@jack.colino.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Apr 2004 14:48:32 -0400
+Received: from mail.shareable.org ([81.29.64.88]:48546 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263589AbUDPSs2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 14:48:28 -0400
+Date: Fri, 16 Apr 2004 19:48:21 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@osdl.org>, shannon@widomaker.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: NFS and kernel 2.6.x
+Message-ID: <20040416184821.GA25402@mail.shareable.org>
+References: <20040416011401.GD18329@widomaker.com> <1082079061.7141.85.camel@lade.trondhjem.org> <20040415185355.1674115b.akpm@osdl.org> <20040416090331.GC22226@mail.shareable.org> <1082130906.2581.10.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1082130906.2581.10.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Colin,
+Trond Myklebust wrote:
+> > Perhaps because 2.6 changes the UDP retransmit model for NFS, to
+> > estimate the round-trip time and thus retransmit faster than 2.4
+> > would.  Sometimes _much_ faster: I observed retransmits within a few
+> > hundred microseconds.
+> 
+> Retransmits within a few 100 microsecond should no longer be occurring.
+> Have you redone those measurements with a more recent kernel?
 
-> Here's another patch, which fixes the leak. It also fixes the
-> FIXME, by looking at all interfaces to find the data one. Is it correct ?
+No, not since I sent you the packet trace from a 2.5 kernel that
+wasn't working with "soft".  I took your advice and stopped using
+"soft".  It causes the obvious problem when I (rarely) turn off the
+server, otherwise it's been fine and I'm using 2.6.5 now, still fine
+(with "soft" not being used).
 
-It's looking better, but what I'd rather see is code scanning the
-CDC descriptors (see "usbnet").  The deal is that there's actually
-no guarantee that there's only one data interface, although that
-seems to hold true for many current products.
+> 2.6.x and 2.4.x should have pretty much the same code for RTO
+> estimation.
+> 
+> In fact pretty much all the 2.4.x and 2.6.x RPC code is shared. The one
+> difference is that 2.6.x uses zero copy writes.
+> 
+> > There was also a problem with late 2.5 clients and "soft" NFS mounts.
+> > Requests would timeout after a fixed number of retransmits, which on a
+> > LAN could be after a few milliseconds due to round-trip estimation and
+> > fast server response.  Then when an I/O on the server took longer,
+> > e.g. due to a disk seek or contention, the client would timeout and
+> > abort requests.  2.4 doesn't have this problem with "soft" due to the
+> > longer, fixed retransmit timeout.  I don't know if it is fixed in
+> > current 2.6 kernels - but you can avoid it by not using "soft" anyway.
+> 
+> Or changing the default value of "retrans" to something more sane. As
+> usual, Linux has a default that is lower than on any other platform.
 
-But unless you're interested in finishing a much-needed rewrite
-of that cdc-acm probe() code, this might be a good place to stop.
-(Or at least pause!)
+If few-100-microsecond retransmits no longer occur, perhaps it's no
+longer relevant.
 
-- Dave
+The problem I saw with "soft" was that the retransmit time was quite a
+good estimate of the server response time.  That part was fine, nice
+even.  But then the server response latency would increase by a factor
+of 10000 (ten thousand) due to normal disk I/O activity (compare cache
+response with disk response on a busy disk), and of course 3
+retransmits doubling each time is not adequate to cover that.  2.4 was
+fine because the default rtt and retrans together could never get
+shorter than a few seconds.
 
+That's why I felt that iff rtt was adapting to the server response
+time, then a fixed number of retransmits was no longer appropriate: a
+lower bound on the time before timing out is appropriate, e.g. 3
+seconds or 10 seconds or whatever.
 
+In other words, with adaptive rtt the concept of "retrans" being a
+fixed number is fundamentally flawed -- unless it's also accompanied
+by a minimum timeout time.  You'd need a retrans value of 20 or so for
+the above perfectly normal LAN situation, but then that's far too
+large on other occasions with other networks or servers.
 
+-- Jamie

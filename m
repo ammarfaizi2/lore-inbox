@@ -1,111 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUDZSPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUDZSXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUDZSPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 14:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbUDZSPQ
+	id S263107AbUDZSXX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 14:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbUDZSXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 14:15:16 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:65471 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262406AbUDZSPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 14:15:07 -0400
-Message-ID: <408D51C4.7010803@namesys.com>
-Date: Mon, 26 Apr 2004 11:15:32 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com, akpm@osdl.org
-Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary	additional
- namespace to ReiserFS
-References: <1082750045.12989.199.camel@watt.suse.com>	 <408D3FEE.1030603@namesys.com> <1083000711.30344.44.camel@watt.suse.com>
-In-Reply-To: <1083000711.30344.44.camel@watt.suse.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Apr 2004 14:23:23 -0400
+Received: from port-212-202-41-96.reverse.qsc.de ([212.202.41.96]:22715 "EHLO
+	rocklinux-consulting.de") by vger.kernel.org with ESMTP
+	id S263107AbUDZSXQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 14:23:16 -0400
+Date: Mon, 26 Apr 2004 20:22:57 +0200 (CEST)
+Message-Id: <20040426.202257.884025800.rene@rocklinux-consulting.de>
+To: trini@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org, valentin@rocklinux-consulting.de
+Subject: Re: [PATCH] fix compilation of ppc embedded configs
+From: Rene Rebe <rene@rocklinux-consulting.de>
+In-Reply-To: <20040426164641.GB19246@smtp.west.cox.net>
+References: <20040422.103620.607961025.rene@rocklinux-consulting.de>
+	<20040426164641.GB19246@smtp.west.cox.net>
+X-Mailer: Mew version 3.1 on XEmacs 21.4.13 (Rational FORTRAN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: Spam detection software, running on the system "heap.localnet", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or block
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Hi, (un CC'ed Linus) On: Mon, 26 Apr 2004 09:46:41
+	-0700, Tom Rini <trini@kernel.crashing.org> wrote: > I'd like to see
+	the hunks that aren't tested dropped as I strongly [...] 
+	Content analysis details:   (0.0 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
+Hi, (un CC'ed Linus)
 
->On Mon, 2004-04-26 at 12:59, Hans Reiser wrote:
->
->  
->
->
->v4 didn't factor into these decisions because it was still in extremely
->early stages back then (2.4.16 or so).
->  
->
-It was clearly indicated then that accessing acls was scheduled for V4 
-not V3. 
+On: Mon, 26 Apr 2004 09:46:41 -0700,
+    Tom Rini <trini@kernel.crashing.org> wrote:
 
->  
->
->>I also view 
->>V3 as stable code that should not be disturbed more than minimally 
->>necessary, and I desire for all new functionality to go into V4 (Chris 
->>was also told that before his patch was written).
->>
->>    
->>
->
->You can't release v4 and then expect all the v3 users to disappear
->instantly.  Our users have an expectation that the filesystem they
->choose for their production systems will be reasonably maintained over
->time.
->  
->
-The ReiserFS maintainer (me, in case you forgot;-) ) decided what 
-release acls would go into, and you disregarded it and wrote an 
-implementation that was inconsistent with the one planned.
+> I'd like to see the hunks that aren't tested dropped as I strongly
 
->I consider supporting the linux standard interfaces for acls and xattrs
->part of being reasonably maintained, and the pending release of v4
->doesn't change that.
->
->  
->
->>Making it possible to unify operating system namespaces was why ReiserFS 
->>was created.  I am not in this for the money.  Pasting in an additional 
->>namespace beyond what Unix had for short term marketing reasons violates 
->>its soul, and I have no desire to provide support for it as it 
->>complicates one feature at a time over 30 years.
->>
->>    
->>
->Disliking the xattr interface is a different discussion.  We
->specifically did not do new and interesting namespace research with the
->v3 patches, we supported the existing apis in as plain and non-intrusive
->a manner possible.
->  
->
-Reiser4 was specifically created as a rejection of the xattr api at the 
-time that xattrs were first discussed.  It took longer to write it than 
-xattrs.  One of your colleagues wrote the xattr api and you/Jeff did the 
-ReiserFS portion.  ReiserFS did not go down the xattr path, and declared 
-that it would not do so long at the very beginning.  You are continuing 
-to try to force us down that path, and now you are claiming that because 
-V4 took longer than hacking V3 that means that xattrs are a pre-existing 
-api that we are heretically not conforming to.  Love it.
+If you think so - I found it logical to fix the found on the way and
+not to let too much bit-rot ...
 
->These patches were not a quick hack,
->
-Creating reiser4's unified namespaces was more work and took longer, and 
-fragmented namespaces are ugly, that makes xattrs a quick hack.
+If I have to work with one of those boards in the future I want to
+track the real problems I might encounter - and not to fix 20 obvious
+compile issues first ...
 
-ReiserFS is release managed.  That means that we schedule when features 
-get implemented, and stick to those schedules.  Persons who disregard 
-the schedules they were informed of get their release schedule violating 
-patches disregarded.  Stable branches do not get new semantics added to 
-them just before new major releases with preferred semantics come out.
+> suspect there's more subtle errors in these platforms, if the call to
+> openpic_init hasn't been changed.  Also, why is:
 
-Please consider contributing to enriching the collection of files that 
-act as attributes of other files in V4 instead of pulling your oars in 
-the other direction.  If you do, you will be (as usually) a valued 
-contributor.
+> > --- linux-2.6.6-rc2/arch/ppc/platforms/pplus.c	2004-04-22 10:27:16.000000000 +0200
+> > +++ linux-2.6.5-wip/arch/ppc/platforms/pplus.c	2004-04-18 22:36:08.000000000 +0200
+> > @@ -19,6 +19,7 @@
+> >  #include <linux/kernel.h>
+> >  #include <linux/interrupt.h>
+> >  #include <linux/init.h>
+> > +#include <linux/initrd.h>
+> >  #include <linux/ioport.h>
+> >  #include <linux/console.h>
+> >  #include <linux/pci.h>
+> 
+> Needed?  Thanks.
 
-Hans
+To get the file compile - otherwise you get:
+
+arch/ppc/platforms/pplus.c: In function `pplus_setup_arch':
+arch/ppc/platforms/pplus.c:569: `initrd_start' undeclared (first use in this function)
+arch/ppc/platforms/pplus.c:569: (Each undeclared identifier is reported only once
+arch/ppc/platforms/pplus.c:569: for each function it appears in.)
+
+and since I do not have all the kernel kernel in my memory and the
+other files include initrd.h I thought it is the most logical thing to try ...
+
+# grep initrd * | grep include
+adir_setup.c:#include <linux/initrd.h>
+apus_setup.c:#include <linux/initrd.h>
+chrp_setup.c:#include <linux/initrd.h>
+ev64260_setup.c:#include <linux/initrd.h>
+gemini_setup.c:#include <linux/initrd.h>
+k2_setup.c:#include <linux/initrd.h>
+lopec_setup.c:#include <linux/initrd.h>
+mcpn765_setup.c:#include <linux/initrd.h>
+mvme5100_setup.c:#include <linux/initrd.h>
+pal4_setup.c:#include <linux/initrd.h>
+pcore_setup.c:#include <linux/initrd.h>
+pmac_setup.c:#include <linux/initrd.h>
+powerpmc250.c:#include <linux/initrd.h>
+prep_setup.c:#include <linux/initrd.h>
+prpmc750_setup.c:#include <linux/initrd.h>
+prpmc800_setup.c:#include <linux/initrd.h>
+sandpoint.c:#include <linux/initrd.h>
+spruce.c:#include <linux/initrd.h>
+
+Sincerely yours,
+  René Rebe
+    - ROCK Linux stable release maintainer
+
+--  
+René Rebe - Europe/Germany/Berlin
+  rene@rocklinux.org rene@rocklinux-consulting.de
+http://www.rocklinux.org http://www.rocklinux-consulting.de
+

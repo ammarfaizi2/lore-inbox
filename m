@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264609AbSIQVQJ>; Tue, 17 Sep 2002 17:16:09 -0400
+	id <S264608AbSIQVL4>; Tue, 17 Sep 2002 17:11:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264613AbSIQVQJ>; Tue, 17 Sep 2002 17:16:09 -0400
-Received: from vena.lwn.net ([206.168.112.25]:27660 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S264609AbSIQVQI>;
-	Tue, 17 Sep 2002 17:16:08 -0400
-Message-ID: <20020917212109.14302.qmail@eklektix.com>
-To: Mark C <gen-lists@blueyonder.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems accessing USB Mass Storage 
-From: corbet@lwn.net (Jonathan Corbet)
-In-reply-to: Your message of "17 Sep 2002 20:46:31 BST."
-             <1032291993.1276.12.camel@stimpy.angelnet.internal> 
-Date: Tue, 17 Sep 2002 15:21:08 -0600
+	id <S264609AbSIQVL4>; Tue, 17 Sep 2002 17:11:56 -0400
+Received: from pcow035o.blueyonder.co.uk ([195.188.53.121]:24847 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S264608AbSIQVLz>;
+	Tue, 17 Sep 2002 17:11:55 -0400
+Subject: Re: [Linux-usb-users] Re: Problems accessing USB Mass Storage
+From: Mark C <gen-lists@blueyonder.co.uk>
+To: linux-usb-users <linux-usb-users@lists.sourceforge.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D878CF7.3040304@cypress.com>
+References: <Pine.LNX.4.33L2.0209171119430.14033-100000@dragon.pdx.osdl.net>
+	<3D878788.2030603@cypress.com> <20020917125817.B11583@one-eyed-alien.net> 
+	<3D878CF7.3040304@cypress.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 17 Sep 2002 22:13:13 +0100
+Message-Id: <1032297193.1276.23.camel@stimpy.angelnet.internal>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have also been advised by Jonathan Corbet 
-> to use dd to copy your card to disk with an offset of 25
+On Tue, 2002-09-17 at 21:13, Thomas Dodd wrote:
+
 > 
-> looking through the info and man pages for dd, I can find no mention of
-> offset at all, the next best thing I could find was the command option
-> 'skip'
+> Give that a go Mark.
+> 
+> Try a few values like 25, 50, 75, and 100. with bs=1k and
+> unset (default 512 byte).
 
-That's what I meant.  Something like:
+If I'm reading this correctly, I have been trying:
 
-       dd if=/dev/sda of=/somewhere/image skip=25
+[root@stimpy mark]# dd if=/dev/sda of=tmp/tmp.img skip=50 \
+bs=1k                                                                                                         dd: reading `/dev/sda': Input/output error
+0+0 records in
+0+0 records out
 
-If that works, please let me know - maybe there *is* a place for my hackish
-fake partition table patch...
+Then the output of dmesg:
 
-jon
+SCSI device (ioctl) reports ILLEGAL REQUEST.
+SCSI device sda: 16384 512-byte hdwr sectors (8 MB)
+sda: test WP failed, assume Write Enabled
+ sda: I/O error: dev 08:00, sector 0
+ I/O error: dev 08:00, sector 0
+ unable to read partition table
+ I/O error: dev 08:00, sector 96
 
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net
+I have altered skip from 25 - 100 and received the same errors, except
+the sectors change in size with relation to altering the skip size.
+
+This may be the wrong way of running the command, if so I'm sorry for
+wasting peoples time on that.
+
+Mark
+
+-- 
+---
+To steal ideas from one person is plagiarism;
+to steal from many is research.
+

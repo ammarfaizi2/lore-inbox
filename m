@@ -1,85 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbTIHK5L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 06:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbTIHK5L
+	id S261835AbTIHMB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 08:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbTIHMB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 06:57:11 -0400
-Received: from madrid10.amenworld.com ([217.174.194.138]:16397 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S261808AbTIHK5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 06:57:09 -0400
-Date: Mon, 8 Sep 2003 12:57:28 +0200
-From: DervishD <raul@pleyades.net>
-To: Dave Jones <davej@redhat.com>, Ch & Ph Drapela <pcdrap@bluewin.ch>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hardware supported by the kernel
-Message-ID: <20030908105728.GA10052@DervishD>
-References: <3F59DF81.8000407@bluewin.ch> <20030906134029.GE69@DervishD> <20030907223258.GE28927@redhat.com> <20030908092952.GA51@DervishD> <20030908095357.GD10358@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030908095357.GD10358@redhat.com>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+	Mon, 8 Sep 2003 08:01:59 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:56732 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S261835AbTIHMB4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 08:01:56 -0400
+Message-ID: <3F5C7009.4030004@softhome.net>
+Date: Mon, 08 Sep 2003 14:03:21 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: nasm over gas?
+References: <rZQN.83u.21@gated-at.bofh.it> <saVL.7lR.1@gated-at.bofh.it> <soFo.16a.1@gated-at.bofh.it> <ssJa.6M6.25@gated-at.bofh.it> <tcVB.rs.3@gated-at.bofh.it>
+In-Reply-To: <tcVB.rs.3@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Dave :)
+Eric W. Biederman wrote:
+> insecure <insecure@mail.od.ua> writes:
+>>        movl    $0, 20(%esp)
+>>        movl    $1000000, %edi      <----
+>>        movl    $1000000, 16(%esp)  <----
+>>        movl    $0, 12(%esp)
+>>
+>>No sane human will do that.
+>>main:
+>>        movl    $1000000, %edi
+>>        movl    %edi, 16(%esp)	<-- save 4 bytes
+>>        movl    %ebp, 12(%esp)  <-- save 4 bytes
+>>        movl    $.LC27, 8(%esp)
+>>
+>>And this is only from a cursory examination.
+> 
+> Actually it is no as simple as that.  With the instruction that uses
+> %edi following immediately after the instruction that populates it you cannot
+> execute those two instructions in parallel.  So the code may be slower.  The
+> exact rules depend on the architecture of the cpu.
+> 
 
- * Dave Jones <davej@redhat.com> dixit:
->  >     My mistake, sorry. BTW: what graphics cards manufacturer currently
->  > supports Linux?. I need to buy a new graphic card for a friend (AGP)
->  > and I don't know what one to buy :(((
-> in the performance/gamer end of the market, you're screwed.
+   It will depend on arch CPU only in case if you have unlimited i$ size.
+   Servers with 8MB of cache - yes it is faster.
+   Celeron with 128k of cache - +4bytes == higher probability of i$ miss 
+== lower performance.
 
-    I supposed :(( The problem is that this friend have never used
-Linux at all, and wants a Knoppix, so any card supported by Knoppix,
-both with open and binary only drivers will do. But I would largely
-prefer a card with open drivers. I don't feel like supporting closed
-hardware with my money (well, my friend's money in this case).
+> 
+>>What gives you an impression that anyone is going to rewrite linux in asm?
+>>I _only_ saying that compiler-generated asm is not 'good'. It's mediocre.
+>>Nothing more. I am not asm zealot.
+> 
+> 
+> I think I would agree with that statement most compiler-generated assembly
+> code is mediocre in general.  At the same time I would add most human
+> generated assembly is poor, and a pain to maintain.
+> 
+> If you concentrate on those handful of places where you need to
+> optimize that is reasonable.  Beyond that there simply are not the
+> developer resources to do good assembly.  And things like algorithmic
+> transformations in assembly are an absolute nightmare.  Where they are
+> quite simple in C.
+> 
+> And if the average generated code quality bothers you enough with C
+> the compiler can be fixed, or another compiler can be written that
+> does a better job, and the benefit applies to a lot more code.
+> 
 
-    Speed shouldn't be an issue, since this computer is fairly old,
-and the graphics card replacement is just because the PC failed
-recently and although we identified the problem (seemed to be the
-HD), the graphics card does... well, weird things...
+   e.g. C-- project: something like C, where you can operate with 
+registers just like another variables. Under DOS was producing .com 
+files witout any overhead: program with only 'int main() { return 0; }' 
+was optimized to one byte 'ret' ;-) But sure it was not complete C 
+implementation.
 
-    OTOH, I'm worried because if someday I must replace *my* graphic
-card, I want one that gives me speed in 2D, no more. I spend 99% of
-my time in the console, so I need... 1D so to say ;))). When I run X
-I just want decent performance, not a high-end card. Any card
-supported by X with some speed and an open driver will do.
+   Sure I would prefere to have nasm used for kernel asm parts - but 
+obviously gas already became standard.
 
-> ATI -    Radeon 9200 is AGPx8, supported by open driver (Based on R200 core)
->          All other current cards need binary only driver.
+P.S. Add having good macroprocessor for assembler is a must: CPP is 
+terribly stupid by design. I beleive gas has no preprocessor comparable 
+to masm's one? I bet they are using C's cpp. This is degradation: macros 
+is the major feature of any translator I was working with. They can save 
+you a lot of time and make code much more cleaner/readable/mantainable. 
+CPP is just too dumb for asm...
+Good old times, when people were responsible to _every_ byte of their 
+programmes... Yeh... Memory/programmers are cheap nowadays...
 
-    Well, if the Radeon 9200 has open driver, it may be the card.
-
-> Nvidia - Binary only for accelerated 3d.
-
-    I will NEVER buy an NVidia. I will NEVER put a binary only driver
-in my box.
-
-> Matrox - Not exactly a speed demon any more in the 3d market. Open
->          drivers though. Not sure about Parhelia.
-
-    Speed is not an issue. If a Matrox is open hardware (well, more
-or less) it may be a candidate too.
-
-> S3     - Again, poorly performing, specs/drivers are out there.
-
-    S3 are slow cards, generally, but I don't mind. If it works in
-text mode I'm done. If it works with X (without bells and whistles,
-no KDE maybe, slow window moving, etc...) it may do too. I would like
-to see movies under my X, but if I must sacrifice some functionality
-in order to support open drivers, I will do.
-
-    Thanks a lot for the info ;)
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/

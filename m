@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317340AbSGII5L>; Tue, 9 Jul 2002 04:57:11 -0400
+	id <S317343AbSGIIvo>; Tue, 9 Jul 2002 04:51:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317341AbSGII5K>; Tue, 9 Jul 2002 04:57:10 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:56995 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S317340AbSGII5J>; Tue, 9 Jul 2002 04:57:09 -0400
-Date: Tue, 9 Jul 2002 03:59:40 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] Module removal 
-In-Reply-To: <Pine.LNX.4.44.0207090744180.8911-100000@serv>
-Message-ID: <Pine.LNX.4.44.0207090352090.25461-100000@chaos.physics.uiowa.edu>
+	id <S317342AbSGIIvn>; Tue, 9 Jul 2002 04:51:43 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:27296 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317341AbSGIIvm> convert rfc822-to-8bit; Tue, 9 Jul 2002 04:51:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Thunder from the hill <thunder@ngforever.de>,
+       Keith Owens <kaos@ocs.com.au>
+Subject: Re: Driverfs updates
+Date: Tue, 9 Jul 2002 10:30:17 +0200
+User-Agent: KMail/1.4.1
+Cc: Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0207081745150.10105-100000@hawkeye.luckynet.adm>
+In-Reply-To: <Pine.LNX.4.44.0207081745150.10105-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207091030.17096.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jul 2002, Roman Zippel wrote:
 
-> Who is changing the use count? How do you ensure that someone doesn't
-> cache a reference past that magic sync point?
-> IMO the real problem is that cleanup_module() can't fail. If modules
-> already do proper data acounting, it's not too difficult to detect if
-> there still exists a reference. In the driverfs example the problem is
-> that remove_driver() returns void instead of int, so it can't fail.
+> > I suggest you add a global driverfs_lock.
+>
+> Better than locking all kernel threads, isn't it?
 
-I tend to see this differently: cleanup_module() cannot fail, but it can 
-sleep. So it's perfectly fine to deregister, wait until all references are 
-gone, clean up and return. So a kind of two-stage unregister is already 
-happening. 
+No, it is not, not by far.
 
-It's different in that it does use explicit refcounting, but 
-when the right interfaces are provided, the driver author doesn't need to 
-care - the author should just call pci_unregister/netdev_unregister/.., 
-that'll sleep until all references are gone (which also means no one will 
-use callbacks into the module anymore) and be done.
+-It means that modules are not transparent.
+-Everybody is punished, module or no module.
+-It limits modules to providing open/use/close APIs.
+-It is slow.
+-Modules can only be used on APIs that provide for them.
 
---Kai
+By freezing, which happens only on module removal,
+only users of modules are punished. Handling of
+module usage counts can be encapsulated in the modules
+themselves. And alternative methods of determining removability
+are possible.
 
+Face it, SMP and module unloading have some fundamental problems.
+Therefore you switch the box to pseudo-UP for unloading,
+that's what freeze effectively does. You just have to disable preempt
+on all CPUs and wait for the tasks running to leave kernel.
+
+Cleanly killing a kernel thread of a module is duty of the module's
+cleanup function. Independent kernel threads which use a module
+must be allowed to sleep voluntarily before they are frozen.
+In this case the old rule of "INC before you sleep" is valid again.
+
+	Regards
+		Oliver
 

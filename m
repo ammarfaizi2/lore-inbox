@@ -1,29 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbTDNUFZ (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTDNUFZ (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 16:05:25 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:47044 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S263893AbTDNUFY (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 16:05:24 -0400
-From: Balram Adlakha <b_adlakha@softhome.net>
+	id S263929AbTDNUOe (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTDNUOe (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 16:14:34 -0400
+Received: from citi.umich.edu ([141.211.92.141]:46611 "HELO citi.umich.edu")
+	by vger.kernel.org with SMTP id S263929AbTDNUOd (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 16:14:33 -0400
+Date: Mon, 14 Apr 2003 16:26:21 -0400
+From: Niels Provos <provos@citi.umich.edu>
 To: linux-kernel@vger.kernel.org
-Subject: sony flash walkman
-Date: Tue, 15 Apr 2003 01:50:59 +0000
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Subject: epoll support in libevent-0.7
+Message-ID: <20030414202620.GM22642@citi.citi.umich.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304150150.59350.b_adlakha@softhome.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have this a sony usb walkman ATRAC3 player (nw-e5), obviously has some kind 
-of flash memory (don't want to open it and see)
-I Don't see any driver for such a thing in the config...
-Can I mount this device? I just want to use the momory... What filesystem will 
-be appropriate for flash memory?
+I just released a new version of libevent that supports Linux new
+epoll mechanism; see
 
-P.S. I'm not subscribed
+  http://www.monkey.org/~provos/libevent/
+
+The page contains some performance comparisons for different event
+notification mechanisms.
+
+The library supports platform independent high performance network
+applications.  It chooses the fastest notification mechansims
+supported by the operating system.
+
+Niels.

@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264797AbTBOTqu>; Sat, 15 Feb 2003 14:46:50 -0500
+	id <S264986AbTBOTxJ>; Sat, 15 Feb 2003 14:53:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264822AbTBOTqu>; Sat, 15 Feb 2003 14:46:50 -0500
-Received: from virtisp1.zianet.com ([216.234.192.105]:19471 "HELO
-	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S264797AbTBOTqt>; Sat, 15 Feb 2003 14:46:49 -0500
-Subject: Re: PATCH: another ia64 typo
-From: Steven Cole <elenstev@mesatop.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <E18k81K-0007KN-00@the-village.bc.nu>
-References: <E18k81K-0007KN-00@the-village.bc.nu>
+	id <S264992AbTBOTxJ>; Sat, 15 Feb 2003 14:53:09 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20354
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264986AbTBOTxI>; Sat, 15 Feb 2003 14:53:08 -0500
+Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: John Bradford <john@grabjohn.com>
+Cc: Cort Dougan <cort@fsmlabs.com>, rusty@linux.co.intel.com, pavel@ucw.cz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mochel@osdl.org, davej@codemonkey.org.uk, daniel@rimspace.net
+In-Reply-To: <200302150913.h1F9Du9q000369@darkstar.example.net>
+References: <200302150913.h1F9Du9q000369@darkstar.example.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 15 Feb 2003 12:48:28 -0700
-Message-Id: <1045338511.10680.26.camel@localhost.localdomain>
+Organization: 
+Message-Id: <1045342995.5130.8.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 15 Feb 2003 21:03:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-02-15 at 12:30, Alan Cox wrote:
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/include/asm-ia64/sn/router.h linux-2.5.61-ac1/include/asm-ia64/sn/router.h
-> --- linux-2.5.61/include/asm-ia64/sn/router.h	2003-02-10 18:38:16.000000000 +0000
-> +++ linux-2.5.61-ac1/include/asm-ia64/sn/router.h	2003-02-14 23:30:42.000000000 +0000
-> @@ -500,7 +500,7 @@
->  
->  	/*
->  	 * Everything below here is for kernel use only and may change at	
-> -	 * at any time with or without a change in teh revision number
-> +	 * at any time with or without a change in the revision number
->  	 *
->  	 * Any pointers or things that come and go with DEBUG must go at
->   	 * the bottom of the structure, below the user stuff.
-> -
+On Sat, 2003-02-15 at 09:13, John Bradford wrote:
+> Magnetic media                       -> disk
+> Optical media                        -> disc
+> Combination media, (magneto-optical) -> disk
 
-Here is a similar fix in arch/alpha:
+It varies by place. Optincal media is "disc" primarily because the
+trademarks forced the one spelling on the funny foreigners. As everyone
+knows the proper spelling is "disg" for all three.
 
-Steven
-
---- linux-2.5.61/arch/alpha/kernel/sys_marvel.c.orig	Sat Feb 15 12:45:14 2003
-+++ linux-2.5.61/arch/alpha/kernel/sys_marvel.c	Sat Feb 15 12:45:31 2003
-@@ -223,7 +223,7 @@
- 	 */
- 	val = io7->csrs->PO7_LSI_CTL[which].csr;
- 	val &= ~(0x1ffUL << 14);		/* clear the target pid */
--	val |= ((unsigned long)where << 14);	/* set teh new target pid */
-+	val |= ((unsigned long)where << 14);	/* set the new target pid */
- 
- 	io7->csrs->PO7_LSI_CTL[which].csr = val;
- 	mb();
-@@ -240,7 +240,7 @@
- 	 */
- 	val = io7->csrs->PO7_MSI_CTL[which].csr;
- 	val &= ~(0x1ffUL << 14);		/* clear the target pid */
--	val |= ((unsigned long)where << 14);	/* set teh new target pid */
-+	val |= ((unsigned long)where << 14);	/* set the new target pid */
- 
- 	io7->csrs->PO7_MSI_CTL[which].csr = val;
- 	mb();
+Its not a useful argument to have.
 

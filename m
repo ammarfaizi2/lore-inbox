@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbUKEWTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbUKEWTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbUKEWTl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 17:19:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbUKEWTl
+	id S261235AbUKEWTa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 17:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbUKEWTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 17:19:41 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:24705 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S261228AbUKEWTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 17:19:31 -0500
-Date: Fri, 5 Nov 2004 16:19:05 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Willy Tarreau <willy@w.ods.org>
-cc: Linus Torvalds <torvalds@osdl.org>, Chris Wedgwood <cw@f00f.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: support of older compilers
-In-Reply-To: <20041105202038.GC30993@alpha.home.local>
-Message-ID: <Pine.LNX.4.58.0411051454430.1229@gradall.private.brainfood.com>
-References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
- <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
- <20041103233029.GA16982@taniwha.stupidest.org>
- <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
- <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
- <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
- <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
- <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
- <20041105202038.GC30993@alpha.home.local>
+	Fri, 5 Nov 2004 17:19:30 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:34247 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261209AbUKEWTW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 17:19:22 -0500
+Message-ID: <418BFC5C.20201@trash.net>
+Date: Fri, 05 Nov 2004 23:19:08 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041008 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pablo Neira <pablo@eurodev.net>
+CC: Matthias Andree <matthias.andree@gmx.de>, linux-net@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks
+ amanda dumps
+References: <20041104121522.GA16547@merlin.emma.line.org>	<418A7B0B.7040803@trash.net>	<20041104231734.GA30029@merlin.emma.line.org> <418AC0F2.7020508@trash.net> <418BE156.4020400@eurodev.net>
+In-Reply-To: <418BE156.4020400@eurodev.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Nov 2004, Willy Tarreau wrote:
+Pablo Neira wrote:
 
-> On Thu, Nov 04, 2004 at 05:39:08PM -0600, Adam Heath wrote:
+> Patrick, what about this? this way we save a copy to a buffer for 
+> linear skbs.
 >
-> > Using an old version of gcc because it is faster at compiling is a
-> > non-argument.
+> Signed-off-by: Pablo Neira Ayuso <pablo@eurodev.net>
 >
-> If you can send to all of us for free some hardware which is twice as fast
-> as what we have, which does not generate more heat and noise, then perhaps
-> most of us will accept to use a twice as slow compiler. But not for long,
-> since some may realize that they can produce quality code twice as fast on
-> their new system ;-)
+>@@ -74,12 +75,17 @@
+> 				 skb->len - dataoff, amanda_buffer);
+> 	BUG_ON(amp == NULL);
+> 	data = amp;
+>-	data_limit = amp + skb->len - dataoff;
+>-	*data_limit = '\0';
+> 
+> 	/* Search for the CONNECT string */
+>-	data = strstr(data, "CONNECT ");
+>-	if (!data)
+>+	while((data = memchr(data, 'C', skb->len - dataoff)) != NULL) {
+>+		if (strncmp(data, "CONNECT ", 8) == 0) {
+>  
 >
-> At least, with fast machines and fast compilers, people have no excuse not
-> testing the patches they send. A few years ago, broken & non-tested patches
-> were very common. This could become standard again if everyone jumped into
-> gcc 3.4 unconditionnaly.
+What if the C is the last byte ? There are also more str* commands below
+that need a terminating 0-byte.
 
-My argument started when people starting complaining about new compilers being
-slow, and using that as the only reason to not use them.
+Regards
+Patrick
 
-A single datapoint by itself can not be used in an argument here.
-
-You are adding additional requirements(using older hardware), as that makes
-the argument valid.
-
-> > If they produce bad code, then that's a valid reason.
-> > If they produce larger code, that is a valid reason.
+>+			found = 1;
+>+			break;
+>+		}
+>+		data++;
+>+	}
+>+
+>+	if (!found)
+> 		goto out;
+> 	data += strlen("CONNECT ");
+> 
+>  
 >
-> You can also ask the gcc people when they will decide to write a new version
-> which is able to compile some code which compiles with the previous release.
-> I have some tools which don't compile anymore with gcc 3 and error messages
-> look more like insults than information, and I don't even know how to "fix"
-> (adapt ?) them. This too is a valid reason to stick to older compilers.
 
-Not always.  Older gccs accepted bad code; you can't honestly expect newer
-ones to always accept this bad code.
-
-Note: I'm not saying that's the specific case here.

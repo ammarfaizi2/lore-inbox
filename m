@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130309AbRARTwG>; Thu, 18 Jan 2001 14:52:06 -0500
+	id <S131825AbRARTx0>; Thu, 18 Jan 2001 14:53:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132484AbRARTv4>; Thu, 18 Jan 2001 14:51:56 -0500
-Received: from palrel3.hp.com ([156.153.255.226]:35599 "HELO palrel3.hp.com")
-	by vger.kernel.org with SMTP id <S131202AbRARTvp>;
-	Thu, 18 Jan 2001 14:51:45 -0500
-Message-ID: <3A67494D.5D09DF2B@cup.hp.com>
-Date: Thu, 18 Jan 2001 11:51:41 -0800
-From: Rick Jones <raj@cup.hp.com>
-Organization: the Unofficial HP
-X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
-X-Accept-Language: en
+	id <S132205AbRARTxQ>; Thu, 18 Jan 2001 14:53:16 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:60686 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131825AbRARTxM>; Thu, 18 Jan 2001 14:53:12 -0500
+Date: Thu, 18 Jan 2001 11:52:33 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrea Arcangeli <andrea@suse.de>, Rick Jones <raj@cup.hp.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+In-Reply-To: <Pine.LNX.4.30.0101182041240.1009-100000@elte.hu>
+Message-ID: <Pine.LNX.4.10.10101181146190.18387-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@fh-brandenburg.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Andreas Dilger <adilger@turbolinux.com>,
-        Rogier Wolff <R.E.Wolff@bitwizard.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <Pine.GSO.4.10.10101181938310.25170-100000@zeus.fh-brandenburg.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> device-to-device is not the same as disk-to-disk. A better example would
-> be a streaming file server. Slowly the pci bus becomes a bottleneck, why
-> would you want to move the data twice over the pci bus if once is enough
-> and the data very likely not needed afterwards? Sure you can use a more
-> expensive 64bit/60MHz bus, but why should you if the 32bit/30MHz bus is
-> theoretically fast enough for your application?
 
-theoretically fast enough for the application would imply the dual
-transfers across the bus would fit :)
+On Thu, 18 Jan 2001, Ingo Molnar wrote:
+> 
+> i believe a network-conscious application should use MSG_MORE - that has
+> no system-call overhead.
 
-also, if a system was doing something with that much throughput, i
-suspect it would not only be designed with 64/66 busses (or better), but
-also have things on several different busses. that makes device to
-device life more of a challenge.
+I think Andrea was thinking more of the case of the anonymous IO
+generator, and having the "controller" program thgat keeps the socket
+always in CORK mode, but uses SIOCPUSH when it doesn't know what teh
+future access patterns will be. 
 
-rick jones
+Basically, it could use SIOCPUSH whenever its request queue is empty,
+instead of uncorking (and re-corking when the next request comes in).
 
--- 
-ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
-these opinions are mine, all mine; HP might not want them anyway... :)
-feel free to email, OR post, but please do NOT do BOTH...
-my email address is raj in the cup.hp.com domain...
+Again, the actual data _senders_ may not be aware of the network issues.
+They are the worker bees, and they may not know or care that they are
+pushing out data to the network. 
+
+Ingo, you should realize that people actually _want_ to use things like
+stdio. Not everything is a Tux web-server. There are specialized servers
+out there, and there are tons of people who prefer to use "fprintf()"
+and letting the library handle buffering etc.
+
+Very few people want to use send() directly.
+
+Mantra: "everything is a stream of bytes". Repeat until enlightened.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

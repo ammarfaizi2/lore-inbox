@@ -1,585 +1,671 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261363AbSJ1RUf>; Mon, 28 Oct 2002 12:20:35 -0500
+	id <S261391AbSJ1R2S>; Mon, 28 Oct 2002 12:28:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbSJ1RUf>; Mon, 28 Oct 2002 12:20:35 -0500
-Received: from ophelia.ess.nec.de ([193.141.139.8]:62343 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S261363AbSJ1RU2>; Mon, 28 Oct 2002 12:20:28 -0500
-From: Erich Focht <efocht@ess.nec.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: NUMA scheduler  (was: 2.5 merge candidate list 1.5)
-Date: Mon, 28 Oct 2002 18:26:37 +0100
-User-Agent: KMail/1.4.1
-Cc: Michael Hohnbaum <hohnbaum@us.ibm.com>, mingo@redhat.com,
-       habanero@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-References: <200210280132.33624.efocht@ess.nec.de> <200210281734.41115.efocht@ess.nec.de> <524720000.1035824241@flay>
-In-Reply-To: <524720000.1035824241@flay>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_DGCPZTTZF56GQGMWNU79"
-Message-Id: <200210281826.37451.efocht@ess.nec.de>
+	id <S261429AbSJ1R2S>; Mon, 28 Oct 2002 12:28:18 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:59919 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S261391AbSJ1RXo>; Mon, 28 Oct 2002 12:23:44 -0500
+Date: Tue, 29 Oct 2002 02:30:04 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCHSET 5/23] add support for PC-9800 architecture (core #2)
+Message-ID: <20021029023004.A2247@precia.cinet.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a part 5/23 of patchset for add support NEC PC-9800 architecture,
+against 2.5.44.
 
---------------Boundary-00=_DGCPZTTZF56GQGMWNU79
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Summary:
+ core modules (continued)
 
-On Monday 28 October 2002 17:57, Martin J. Bligh wrote:
-> > I'm preparing a core patch which doesn't need the pool_lock. I'll sen=
-d it
-> > out today.
->
-> Cool! Thanks,
+diffstat:
+ include/asm-i386/bugs.h         |    2 
+ include/asm-i386/dma.h          |    7 +
+ include/asm-i386/io.h           |    6 +
+ include/asm-i386/irq.h          |    4 
+ include/asm-i386/pc9800.h       |   27 ++++
+ include/asm-i386/pc9800_debug.h |  152 +++++++++++++++++++++++++
+ include/asm-i386/pc9800_dma.h   |  238 ++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/pc9800_sca.h   |   25 ++++
+ include/asm-i386/pgtable.h      |    4 
+ include/asm-i386/processor.h    |    2 
+ include/asm-i386/scatterlist.h  |    6 +
+ include/asm-i386/setup.h        |    1 
+ include/asm-i386/timex.h        |    4 
+ 13 files changed, 477 insertions(+), 1 deletion(-)
 
-OK, here it comes. The core doesn't use the loop_over_nodes() macro any
-more. There's one big loop over the CPUs for computing node loads and
-the most loaded CPUs in find_busiest_queue. The call to build_cpus()
-isn't critical any more. Functionality is the same as in the previous
-patch (i.e. steal delays, ranking of task_to_steal, etc...).
-
-I kept the loop_over_node() macro for compatibility reasons with the
-additional patches. You might need to replace in the additional patches:
-numpools -> numpools()
-pool_nr_cpus[] -> pool_ncpus()
-
-I'm puzzled about the initial load balancing impact and have to think
-about the results I've seen from you so far... In the environments I am
-used to, the frequency of exec syscalls is rather low, therefore I didn't
-care too much about the sched_balance_exec performance and prefered to
-try harder to achieve good distribution across the nodes.
-
-Regards,
-Erich
-
---------------Boundary-00=_DGCPZTTZF56GQGMWNU79
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="01-numa_sched_core-2.5.39-12b.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="01-numa_sched_core-2.5.39-12b.patch"
-
-diff -urNp a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
---- a/arch/i386/kernel/smpboot.c	Fri Sep 27 23:49:54 2002
-+++ b/arch/i386/kernel/smpboot.c	Mon Oct 28 10:15:28 2002
-@@ -1194,6 +1194,9 @@ int __devinit __cpu_up(unsigned int cpu)
- void __init smp_cpus_done(unsigned int max_cpus)
+patch:
+diff -urN linux/include/asm-i386/bugs.h linux98/include/asm-i386/bugs.h
+--- linux/include/asm-i386/bugs.h	Sun Jun  9 14:27:38 2002
++++ linux98/include/asm-i386/bugs.h	Mon Jun 10 20:49:15 2002
+@@ -34,6 +34,7 @@
+ 
+ __setup("no-hlt", no_halt);
+ 
++#ifndef CONFIG_PC9800
+ static int __init mca_pentium(char *s)
  {
- 	zap_low_mappings();
-+#ifdef CONFIG_NUMA
-+	build_pools();
-+#endif
+ 	mca_pentium_flag = 1;
+@@ -41,6 +42,7 @@
  }
  
- void __init smp_intr_init()
-diff -urNp a/arch/ia64/kernel/smpboot.c b/arch/ia64/kernel/smpboot.c
---- a/arch/ia64/kernel/smpboot.c	Tue Oct 22 15:46:38 2002
-+++ b/arch/ia64/kernel/smpboot.c	Mon Oct 28 10:15:28 2002
-@@ -397,7 +397,7 @@ unsigned long cache_decay_ticks;	/* # of
- static void
- smp_tune_scheduling (void)
+ __setup("mca-pentium", mca_pentium);
++#endif
+ 
+ static int __init no_387(char *s)
  {
--	cache_decay_ticks = 10;	/* XXX base this on PAL info and cache-bandwidth estimate */
-+	cache_decay_ticks = 8;	/* XXX base this on PAL info and cache-bandwidth estimate */
+diff -urN linux/include/asm-i386/dma.h linux98/include/asm-i386/dma.h
+--- linux/include/asm-i386/dma.h	Sat Jul 21 04:52:59 2001
++++ linux98/include/asm-i386/dma.h	Fri Aug 17 22:15:06 2001
+@@ -10,6 +10,9 @@
  
- 	printk("task migration cache decay timeout: %ld msecs.\n",
- 	       (cache_decay_ticks + 1) * 1000 / HZ);
-@@ -508,6 +508,9 @@ smp_cpus_done (unsigned int dummy)
+ #include <linux/config.h>
+ #include <linux/spinlock.h>	/* And spinlocks */
++#ifdef CONFIG_PC9800
++#include <asm/pc9800_dma.h>
++#else /* !CONFIG_PC9800 */
+ #include <asm/io.h>		/* need byte IO */
+ #include <linux/delay.h>
  
- 	printk(KERN_INFO"Total of %d processors activated (%lu.%02lu BogoMIPS).\n",
- 	       num_online_cpus(), bogosum/(500000/HZ), (bogosum/(5000/HZ))%100);
-+#ifdef CONFIG_NUMA
-+	build_pools();
+@@ -72,8 +75,10 @@
+ 
+ #define MAX_DMA_CHANNELS	8
+ 
++#ifndef CONFIG_PC9800
+ /* The maximum address that we can perform a DMA transfer to on this platform */
+ #define MAX_DMA_ADDRESS      (PAGE_OFFSET+0x1000000)
 +#endif
- }
  
- int __devinit
-diff -urNp a/include/linux/sched.h b/include/linux/sched.h
---- a/include/linux/sched.h	Tue Oct  8 15:03:54 2002
-+++ b/include/linux/sched.h	Mon Oct 28 12:12:22 2002
-@@ -22,6 +22,7 @@ extern unsigned long event;
- #include <asm/mmu.h>
- 
- #include <linux/smp.h>
-+#include <asm/topology.h>
- #include <linux/sem.h>
- #include <linux/signal.h>
- #include <linux/securebits.h>
-@@ -167,7 +168,6 @@ extern void update_one_process(struct ta
- extern void scheduler_tick(int user_tick, int system);
- extern unsigned long cache_decay_ticks;
- 
--
- #define	MAX_SCHEDULE_TIMEOUT	LONG_MAX
- extern signed long FASTCALL(schedule_timeout(signed long timeout));
- asmlinkage void schedule(void);
-@@ -457,6 +457,9 @@ extern void set_cpus_allowed(task_t *p, 
- # define set_cpus_allowed(p, new_mask) do { } while (0)
+ /* 8237 DMA controllers */
+ #define IO_DMA1_BASE	0x00	/* 8 bit slave DMA, channels 0..3 */
+@@ -295,4 +300,6 @@
+ #define isa_dma_bridge_buggy 	(0)
  #endif
  
-+#ifdef CONFIG_NUMA
-+extern void build_pools(void);
-+#endif
- extern void set_user_nice(task_t *p, long nice);
- extern int task_prio(task_t *p);
- extern int task_nice(task_t *p);
-diff -urNp a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	Fri Sep 27 23:50:27 2002
-+++ b/kernel/sched.c	Mon Oct 28 16:59:23 2002
-@@ -154,6 +154,9 @@ struct runqueue {
- 	task_t *migration_thread;
- 	struct list_head migration_queue;
++#endif /* CONFIG_PC9800 */
++
+ #endif /* _ASM_DMA_H */
+diff -urN linux/include/asm-i386/io.h linux98/include/asm-i386/io.h
+--- linux/include/asm-i386/io.h	Sat Oct 12 13:22:45 2002
++++ linux98/include/asm-i386/io.h	Sat Oct 12 19:25:19 2002
+@@ -27,6 +27,8 @@
+  *		Linus
+  */
  
-+	unsigned long wait_time;
-+	int wait_node;
++#include <linux/config.h>
 +
- } ____cacheline_aligned;
- 
- static struct runqueue runqueues[NR_CPUS] __cacheline_aligned;
-@@ -173,6 +176,62 @@ static struct runqueue runqueues[NR_CPUS
- # define task_running(rq, p)		((rq)->curr == (p))
- #endif
- 
-+#define cpu_to_node(cpu) __cpu_to_node(cpu)
-+
-+#ifdef CONFIG_NUMA
-+/* Number of CPUs per pool: sane values until all CPUs are up */
-+int _pool_nr_cpus[MAX_NUMNODES] = { [0 ... MAX_NUMNODES-1] = NR_CPUS };
-+int pool_cpus[NR_CPUS];		/* list of cpus sorted by node number */
-+int pool_ptr[MAX_NUMNODES+1];	/* pointer into the sorted list */
-+unsigned long pool_mask[MAX_NUMNODES];
-+#define numpools() numnodes
-+#define pool_ncpus(pool)  _pool_nr_cpus[pool]
-+
-+#define POOL_DELAY_IDLE  (1*HZ/1000)
-+#define POOL_DELAY_BUSY  (20*HZ/1000)
-+
-+#define loop_over_node(i,cpu,n) \
-+	for(i=pool_ptr[n], cpu=pool_cpus[i]; i<pool_ptr[n+1]; \
-+		    i++, cpu=pool_cpus[i])
-+
-+
-+/*
-+ * Build pool data after all CPUs have come up.
-+ */
-+void build_pools(void)
-+{
-+	int n, cpu, ptr;
-+	unsigned long mask;
-+
-+	ptr=0;
-+	for (n=0; n<numnodes; n++) {
-+		mask = pool_mask[n] = __node_to_cpu_mask(n) & cpu_online_map;
-+		pool_ptr[n] = ptr;
-+		for (cpu=0; cpu<NR_CPUS; cpu++)
-+			if (mask  & (1UL << cpu))
-+				pool_cpus[ptr++] = cpu;
-+		pool_ncpus(n) = ptr - pool_ptr[n];;
-+	}
-+	printk("CPU pools : %d\n",numpools());
-+	for (n=0;n<numpools();n++)
-+		printk("pool %d : %lx\n",n,pool_mask[n]);
-+	if (cache_decay_ticks==1)
-+		printk("WARNING: cache_decay_ticks=1, probably unset by platform. Running with poor CPU affinity!\n");
-+#ifdef CONFIG_X86_NUMAQ
-+	/* temporarilly set this to a reasonable value for NUMAQ */
-+	cache_decay_ticks=8;
-+#endif
-+}
-+
+  /*
+   *  Bit simplified and optimized by Jan Hubicka
+   *  Support of BIGMEM added by Gerhard Wichert, Siemens AG, July 1999.
+@@ -288,7 +290,11 @@
+ #ifdef SLOW_IO_BY_JUMPING
+ #define __SLOW_DOWN_IO "jmp 1f; 1: jmp 1f; 1:"
+ #else
++#ifndef CONFIG_PC9800
+ #define __SLOW_DOWN_IO "outb %%al,$0x80;"
 +#else
-+#define numpools() 1
-+#define pool_ncpus(pool)  num_online_cpus()
-+#define POOL_DELAY_IDLE 0
-+#define POOL_DELAY_BUSY 0
-+#define loop_over_node(i,cpu,n) for(cpu=0; cpu<NR_CPUS; cpu++)
++#define __SLOW_DOWN_IO "outb %%al,$0x5f;"
 +#endif
-+
-+
- /*
-  * task_rq_lock - lock the runqueue a given task resides on and disable
-  * interrupts.  Note the ordering: we can safely lookup the task_rq without
-@@ -632,121 +691,146 @@ static inline unsigned int double_lock_b
- }
+ #endif
  
- /*
-- * find_busiest_queue - find the busiest runqueue.
-- */
--static inline runqueue_t *find_busiest_queue(runqueue_t *this_rq, int this_cpu, int idle, int *imbalance)
--{
--	int nr_running, load, max_load, i;
--	runqueue_t *busiest, *rq_src;
-+ * Find a runqueue from which to steal a task. We try to do this as locally as
-+ * possible because we don't want to let tasks get far from their node.
-+ * 
-+ * 1. First try to find a runqueue within the own CPU pool (AKA node) with
-+ * imbalance larger than 25% (relative to the current runqueue).
-+ * 2. If the local node is well balanced, locate the most loaded node and its
-+ * most loaded CPU.
-+ *
-+ * This routine implements node balancing by delaying steals from remote
-+ * nodes more if the own node is (within margins) averagely loaded. The
-+ * most loaded node is remembered as well as the time (jiffies). In the
-+ * following calls to the load_balancer the time is compared with
-+ * POOL_DELAY_BUSY (if load is around the average) or POOL_DELAY_IDLE (if own
-+ * node is unloaded) if the most loaded node didn't change. This gives less 
-+ * loaded nodes the chance to approach the average load but doesn't exclude
-+ * busy nodes from stealing (just in case the cpus_allowed mask isn't good
-+ * for the idle nodes).
-+ * This concept can be extended easilly to more than two levels (multi-level
-+ * scheduler), e.g.: CPU -> node -> supernode... by implementing node-distance
-+ * dependent steal delays.
-+ *
-+ *                                                         <efocht@ess.nec.de>
-+ */
-+static inline runqueue_t *find_busiest_queue(int this_cpu, int idle, int *nr_running)
-+{
-+	runqueue_t *busiest = NULL, *this_rq = cpu_rq(this_cpu), *src_rq;
-+	int best_cpu, this_pool, max_pool_load, pool_idx;
-+	int pool_load[MAX_NUMNODES], cpu_load[MAX_NUMNODES];
-+	int cpu_idx[MAX_NUMNODES];
-+	int cpu, pool, load, avg_load, i, steal_delay;
-+
-+	/* Need at least ~25% imbalance to trigger balancing. */
-+#define CPUS_BALANCED(m,t) (((m) <= 1) || (((m) - (t))/2 < (((m) + (t))/2 + 3)/4))
+ static inline void slow_down_io(void) {
+diff -urN linux/include/asm-i386/irq.h linux98/include/asm-i386/irq.h
+--- linux/include/asm-i386/irq.h	Sat Sep 21 00:20:16 2002
++++ linux98/include/asm-i386/irq.h	Sat Sep 21 07:17:56 2002
+@@ -17,7 +17,11 @@
  
--	/*
--	 * We search all runqueues to find the most busy one.
--	 * We do this lockless to reduce cache-bouncing overhead,
--	 * we re-check the 'best' source CPU later on again, with
--	 * the lock held.
--	 *
--	 * We fend off statistical fluctuations in runqueue lengths by
--	 * saving the runqueue length during the previous load-balancing
--	 * operation and using the smaller one the current and saved lengths.
--	 * If a runqueue is long enough for a longer amount of time then
--	 * we recognize it and pull tasks from it.
--	 *
--	 * The 'current runqueue length' is a statistical maximum variable,
--	 * for that one we take the longer one - to avoid fluctuations in
--	 * the other direction. So for a load-balance to happen it needs
--	 * stable long runqueue on the target CPU and stable short runqueue
--	 * on the local runqueue.
--	 *
--	 * We make an exception if this CPU is about to become idle - in
--	 * that case we are less picky about moving a task across CPUs and
--	 * take what can be taken.
--	 */
- 	if (idle || (this_rq->nr_running > this_rq->prev_nr_running[this_cpu]))
--		nr_running = this_rq->nr_running;
-+		*nr_running = this_rq->nr_running;
- 	else
--		nr_running = this_rq->prev_nr_running[this_cpu];
--
--	busiest = NULL;
--	max_load = 1;
--	for (i = 0; i < NR_CPUS; i++) {
--		if (!cpu_online(i))
--			continue;
-+		*nr_running = this_rq->prev_nr_running[this_cpu];
- 
--		rq_src = cpu_rq(i);
--		if (idle || (rq_src->nr_running < this_rq->prev_nr_running[i]))
--			load = rq_src->nr_running;
-+	/* compute all pool loads and save their max cpu loads */
-+	for (pool=0; pool<MAX_NUMNODES; pool++)
-+		cpu_load[pool] = -1;
-+
-+	for (cpu=0; cpu<NR_CPUS; cpu++) {
-+		if (!cpu_online(cpu)) continue;
-+		pool = cpu_to_node(cpu);
-+		src_rq = cpu_rq(cpu);
-+		if (idle || (src_rq->nr_running < this_rq->prev_nr_running[cpu]))
-+			load = src_rq->nr_running;
- 		else
--			load = this_rq->prev_nr_running[i];
--		this_rq->prev_nr_running[i] = rq_src->nr_running;
-+			load = this_rq->prev_nr_running[cpu];
-+		this_rq->prev_nr_running[cpu] = src_rq->nr_running;
- 
--		if ((load > max_load) && (rq_src != this_rq)) {
--			busiest = rq_src;
--			max_load = load;
-+		pool_load[pool] += load;
-+		if (load > cpu_load[pool]) {
-+			cpu_load[pool] = load;
-+			cpu_idx[pool] = cpu;
- 		}
- 	}
- 
--	if (likely(!busiest))
--		goto out;
-+	this_pool = cpu_to_node(this_cpu);
-+	best_cpu = cpu_idx[this_pool];
-+	if (best_cpu != this_cpu)
-+		if (!CPUS_BALANCED(cpu_load[this_pool],*nr_running)) {
-+			busiest = cpu_rq(best_cpu);
-+			this_rq->wait_node = -1;
-+			goto out;
-+		}
-+#ifdef CONFIG_NUMA
- 
--	*imbalance = (max_load - nr_running) / 2;
-+#define POOLS_BALANCED(comp,this) (((comp) -(this)) < 50)
-+	avg_load = pool_load[this_pool];
-+	pool_load[this_pool] = max_pool_load = 
-+		pool_load[this_pool]*100/pool_ncpus(this_pool);
-+	pool_idx = this_pool;
-+	for (i = 1; i < numpools(); i++) {
-+		pool = (i + this_pool) % numpools();
-+		avg_load += pool_load[pool];
-+		pool_load[pool]=pool_load[pool]*100/pool_ncpus(pool);
-+		if (pool_load[pool] > max_pool_load) {
-+			max_pool_load = pool_load[pool];
-+			pool_idx = pool;
-+		}
-+	}
- 
--	/* It needs an at least ~25% imbalance to trigger balancing. */
--	if (!idle && (*imbalance < (max_load + 3)/4)) {
--		busiest = NULL;
-+	best_cpu = (pool_idx==this_pool) ? -1 : cpu_idx[pool_idx];
-+	/* Exit if not enough imbalance on any remote node. */
-+	if ((best_cpu < 0) || (max_pool_load <= 100) ||
-+	    POOLS_BALANCED(max_pool_load,pool_load[this_pool])) {
-+		this_rq->wait_node = -1;
- 		goto out;
- 	}
--
--	nr_running = double_lock_balance(this_rq, busiest, this_cpu, idle, nr_running);
--	/*
--	 * Make sure nothing changed since we checked the
--	 * runqueue length.
--	 */
--	if (busiest->nr_running <= nr_running + 1) {
--		spin_unlock(&busiest->lock);
--		busiest = NULL;
-+	avg_load = avg_load*100/num_online_cpus();
-+	/* Wait longer before stealing if own pool's load is average. */
-+	if (POOLS_BALANCED(avg_load,pool_load[this_pool]))
-+		steal_delay = POOL_DELAY_BUSY;
-+	else
-+		steal_delay = POOL_DELAY_IDLE;
-+	/* if we have a new most loaded node: just mark it */
-+	if (this_rq->wait_node != pool_idx) {
-+		this_rq->wait_node = pool_idx;
-+		this_rq->wait_time = jiffies;
-+		goto out;
-+	} else
-+		/* old most loaded node: check if waited enough */
-+		if (jiffies - this_rq->wait_time < steal_delay)
-+			goto out;
-+
-+	if ((best_cpu >= 0) &&
-+	    (!CPUS_BALANCED(cpu_load[pool_idx],*nr_running))) {
-+		busiest = cpu_rq(best_cpu);
-+		this_rq->wait_node = -1;
- 	}
--out:
-+#endif
-+ out:
- 	return busiest;
- }
- 
- /*
-- * pull_task - move a task from a remote runqueue to the local runqueue.
-- * Both runqueues must be locked.
-+ * Find a task to steal from the busiest RQ. The busiest->lock must be held
-+ * while calling this routine. 
-  */
--static inline void pull_task(runqueue_t *src_rq, prio_array_t *src_array, task_t *p, runqueue_t *this_rq, int this_cpu)
-+static inline task_t *task_to_steal(runqueue_t *busiest, int this_cpu)
+ static __inline__ int irq_cannonicalize(int irq)
  {
--	dequeue_task(p, src_array);
--	src_rq->nr_running--;
--	set_task_cpu(p, this_cpu);
--	this_rq->nr_running++;
--	enqueue_task(p, this_rq->active);
--	/*
--	 * Note that idle threads have a prio of MAX_PRIO, for this test
--	 * to be always true for them.
--	 */
--	if (p->prio < this_rq->curr->prio)
--		set_need_resched();
--}
--
--/*
-- * Current runqueue is empty, or rebalance tick: if there is an
-- * inbalance (current runqueue is too short) then pull from
-- * busiest runqueue(s).
-- *
-- * We call this with the current runqueue locked,
-- * irqs disabled.
-- */
--static void load_balance(runqueue_t *this_rq, int idle)
--{
--	int imbalance, idx, this_cpu = smp_processor_id();
--	runqueue_t *busiest;
-+	int idx;
-+	task_t *next = NULL, *tmp;
- 	prio_array_t *array;
- 	struct list_head *head, *curr;
--	task_t *tmp;
-+	int weight, maxweight=0;
++#ifndef CONFIG_PC9800
+ 	return ((irq == 2) ? 9 : irq);
++#else
++	return ((irq == 7) ? 11 : irq);
++#endif
+ }
  
--	busiest = find_busiest_queue(this_rq, this_cpu, idle, &imbalance);
--	if (!busiest)
--		goto out;
-+	/*
-+	 * We do not migrate tasks that are:
-+	 * 1) running (obviously), or
-+	 * 2) cannot be migrated to this CPU due to cpus_allowed.
-+	 */
-+
-+#define CAN_MIGRATE_TASK(p,rq,this_cpu)	\
-+		((jiffies - (p)->sleep_timestamp > cache_decay_ticks) && \
-+		p != rq->curr && \
-+		 ((p)->cpus_allowed & (1UL<<(this_cpu))))
- 
- 	/*
- 	 * We first consider expired tasks. Those will likely not be
-@@ -772,7 +856,7 @@ skip_bitmap:
- 			array = busiest->active;
- 			goto new_array;
- 		}
--		goto out_unlock;
-+		goto out;
- 	}
- 
- 	head = array->queue + idx;
-@@ -780,33 +864,72 @@ skip_bitmap:
- skip_queue:
- 	tmp = list_entry(curr, task_t, run_list);
- 
-+	if (CAN_MIGRATE_TASK(tmp, busiest, this_cpu)) {
-+		weight = (jiffies - tmp->sleep_timestamp)/cache_decay_ticks;
-+		if (weight > maxweight) {
-+			maxweight = weight;
-+			next = tmp;
-+		}
-+	}
-+	curr = curr->next;
-+	if (curr != head)
-+		goto skip_queue;
-+	idx++;
-+	goto skip_bitmap;
-+
-+ out:
-+	return next;
-+}
-+
+ extern void disable_irq(unsigned int);
+diff -urN linux/include/asm-i386/pc9800.h linux98/include/asm-i386/pc9800.h
+--- linux/include/asm-i386/pc9800.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/asm-i386/pc9800.h	Fri Aug 17 21:50:18 2001
+@@ -0,0 +1,27 @@
 +/*
-+ * pull_task - move a task from a remote runqueue to the local runqueue.
-+ * Both runqueues must be locked.
-+ */
-+static inline void pull_task(runqueue_t *src_rq, prio_array_t *src_array, task_t *p, runqueue_t *this_rq, int this_cpu)
-+{
-+	dequeue_task(p, src_array);
-+	src_rq->nr_running--;
-+	set_task_cpu(p, this_cpu);
-+	this_rq->nr_running++;
-+	enqueue_task(p, this_rq->active);
- 	/*
--	 * We do not migrate tasks that are:
--	 * 1) running (obviously), or
--	 * 2) cannot be migrated to this CPU due to cpus_allowed, or
--	 * 3) are cache-hot on their current CPU.
-+	 * Note that idle threads have a prio of MAX_PRIO, for this test
-+	 * to be always true for them.
- 	 */
-+	if (p->prio < this_rq->curr->prio)
-+		set_need_resched();
-+}
- 
--#define CAN_MIGRATE_TASK(p,rq,this_cpu)					\
--	((jiffies - (p)->sleep_timestamp > cache_decay_ticks) &&	\
--		!task_running(rq, p) &&					\
--			((p)->cpus_allowed & (1UL << (this_cpu))))
--
--	curr = curr->prev;
--
--	if (!CAN_MIGRATE_TASK(tmp, busiest, this_cpu)) {
--		if (curr != head)
--			goto skip_queue;
--		idx++;
--		goto skip_bitmap;
--	}
--	pull_task(busiest, array, tmp, this_rq, this_cpu);
--	if (!idle && --imbalance) {
--		if (curr != head)
--			goto skip_queue;
--		idx++;
--		goto skip_bitmap;
--	}
-+/*
-+ * Current runqueue is empty, or rebalance tick: if there is an
-+ * inbalance (current runqueue is too short) then pull from
-+ * busiest runqueue(s).
++ *  PC-9800 machine types.
 + *
-+ * We call this with the current runqueue locked,
-+ * irqs disabled.
++ *  Copyright (C) 1999	TAKAI Kosuke <tak@kmc.kyoto-u.ac.jp>
++ *			(Linux/98 Project)
 + */
-+static void load_balance(runqueue_t *this_rq, int idle)
++
++#ifndef _ASM_PC9800_H_
++#define _ASM_PC9800_H_
++
++#include <asm/pc9800_sca.h>
++#include <asm/types.h>
++
++#define __PC9800SCA(type, pa)	(*(type *) phys_to_virt(pa))
++#define __PC9800SCA_TEST_BIT(pa, n)	\
++	((__PC9800SCA(u8, pa) & (1U << (n))) != 0)
++
++#define PC9800_HIGHRESO_P()	__PC9800SCA_TEST_BIT(PC9800SCA_BIOS_FLAG, 3)
++#define PC9800_8MHz_P()		__PC9800SCA_TEST_BIT(PC9800SCA_BIOS_FLAG, 7)
++
++				/* 0x2198 is 98 21 on memory... */
++#define PC9800_9821_P()		(__PC9800SCA(u16, PC9821SCA_ROM_ID) == 0x2198)
++
++/* Note PC9821_...() are valid only when PC9800_9821_P() was true. */
++#define PC9821_IDEIF_DOUBLE_P()	__PC9800SCA_TEST_BIT(PC9821SCA_ROM_FLAG4, 4)
++
++#endif
+diff -urN linux/include/asm-i386/pc9800_debug.h linux98/include/asm-i386/pc9800_debug.h
+--- linux/include/asm-i386/pc9800_debug.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/asm-i386/pc9800_debug.h	Fri Aug 17 22:20:21 2001
+@@ -0,0 +1,152 @@
++/*
++ * linux/include/asm-i386/pc9800_debug.h: Defines for debug routines
++ *
++ * Written by Linux/98 Project, 1998.
++ *
++ * Revised by TAKAI Kousuke, Nov 1999.
++ */
++
++#ifndef _ASM_PC9800_DEBUG_H
++#define _ASM_PC9800_DEBUG_H
++
++extern unsigned char __pc9800_beep_flag;
++
++/* Don't depend on <asm/io.h> ... */
++static __inline__ void pc9800_beep_on(void)
 +{
-+	int nr_running, this_cpu = task_cpu(this_rq->curr);
-+	task_t *tmp;
-+	runqueue_t *busiest;
++	__asm__ ("out%B0 %0,%1" : : "a"((char) 0x6), "N"(0x37));
++	__pc9800_beep_flag = 0x6;
++}
 +
-+	busiest = find_busiest_queue(this_cpu, idle, &nr_running);
-+	if (!busiest)
-+		goto out;
++static __inline__ void pc9800_beep_off(void)
++{
++	__asm__ ("out%B0 %0,%1" : : "a"((char) 0x7), "N"(0x37));
++	__pc9800_beep_flag = 0x7;
++}
 +
-+	nr_running = double_lock_balance(this_rq, busiest, this_cpu, idle, nr_running);
-+	/*
-+	 * Make sure nothing changed since we checked the
-+	 * runqueue length.
-+	 */
-+	if (busiest->nr_running <= nr_running + 1)
-+		goto out_unlock;
++static __inline__ void pc9800_beep_toggle(void)
++{
++	__pc9800_beep_flag ^= 1;
++	__asm__ ("out%B0 %0,%1" : : "a"(__pc9800_beep_flag), "N"(0x37));
++}
 +
-+	tmp = task_to_steal(busiest, this_cpu);
-+	if (!tmp)
-+		goto out_unlock;
-+	pull_task(busiest, tmp->array, tmp, this_rq, this_cpu);
- out_unlock:
- 	spin_unlock(&busiest->lock);
- out:
-@@ -819,10 +942,10 @@ out:
-  * frequency and balancing agressivity depends on whether the CPU is
-  * idle or not.
-  *
-- * busy-rebalance every 250 msecs. idle-rebalance every 1 msec. (or on
-+ * busy-rebalance every 200 msecs. idle-rebalance every 1 msec. (or on
-  * systems with HZ=100, every 10 msecs.)
-  */
--#define BUSY_REBALANCE_TICK (HZ/4 ?: 1)
-+#define BUSY_REBALANCE_TICK (HZ/5 ?: 1)
- #define IDLE_REBALANCE_TICK (HZ/1000 ?: 1)
++static __inline__ void pc9800_udelay(unsigned int __usec)
++{
++	if ((__usec = __usec * 10 / 6) > 0)
++		do
++			__asm__ ("out%B0 %%al,%0" : : "N"(0x5F));
++		while (--__usec);
++}
++
++# define assertk(expr)	({						\
++	if (!(expr)) {							\
++		__pc9800_saveregs();					\
++		__assert_fail(__BASE_FILE__, __FILE__, __LINE__,	\
++			       __PRETTY_FUNCTION__,			\
++			       __builtin_return_address (0), #expr);	\
++	}								\
++})
++# define check_kernel_pointer(expr)	({				\
++	void *__p = (expr);						\
++	if ((unsigned long) __p < PAGE_OFFSET) {			\
++		__pc9800_saveregs();					\
++		__invalid_kernel_pointer				\
++			(__BASE_FILE__, __FILE__, __LINE__,		\
++			 __PRETTY_FUNCTION__,				\
++			 __builtin_return_address(0), #expr, __p);	\
++	}								\
++})
++
++extern void __assert_fail(const char *, const char *, unsigned int,
++			   const char *, void *, const char *)
++     __attribute__ ((__noreturn__));
++extern void __invalid_kernel_pointer(const char *, const char *, unsigned int,
++				      const char *, void *,
++				      const char *, void *)
++     __attribute__ ((__noreturn__));
++extern void __pc9800_saveregs(void);
++
++extern void ucg_saveargs(unsigned int, ...);
++
++#ifdef NEED_UNMAP_PHYSPAGE
++
++#include <linux/mm.h>
++#include <asm/pgtable.h>
++#include <asm/pgalloc.h>
++
++/*
++ * unmap_physpage (addr)
++ */
++static __inline__ void
++unmap_physpage(unsigned long addr)
++{
++	pgd_t *pgd = pgd_offset_k(addr);
++	pmd_t *pmd;
++	pte_t *pte;
++
++	if (pgd_none(*pgd))
++		panic("%s: No pgd?!?", __BASE_FILE__);
++	pmd = pmd_offset(pgd, addr);
++	if (pmd_none(*pmd))
++		panic("%s: No pmd?!?", __BASE_FILE__);
++	if (pmd_val(*pmd) & _PAGE_PSE) {
++		int i;
++		unsigned long paddr = pmd_val(*pmd) & PAGE_MASK;
++
++		pte = (pte_t *) __get_free_page(GFP_KERNEL);
++		set_pmd(pmd, __pmd(_KERNPG_TABLE + __pa(pte)));
++		for (i = 0; i < PTRS_PER_PTE; pte++, i++)
++			*pte = mk_pte_phys(paddr + i * PAGE_SIZE,
++					    PAGE_KERNEL);
++	}
++	pte = pte_offset(pmd, addr);
++
++	set_pte(pte, pte_modify(*pte, PAGE_NONE));
++	__flush_tlb_one(addr);
++}
++#endif /* NEED_UNMAP_PHYSPAGE */
++
++#ifdef NEED_KERNEL_POINTER_CHECKER
++# /* no dep */ include <asm/uaccess.h>
++
++/*
++ *  KERNEL_POINTER_VALIDP(PTR) validates kernel pointer PTR.
++ *  If PTR points vaild memory address for kernel internal use,
++ *  return nonzero; otherwise return zero.
++ *
++ *  Note PTR is invalid if PTR points user area.
++ */
++#define KERNEL_POINTER_VALIDP(PTR)	({	\
++	const int *_ptr = (const int *) (PTR);	\
++	int _dummy;				\
++	(unsigned long) _ptr >= PAGE_OFFSET	\
++		&& !__get_user(_dummy, _ptr);	\
++})
++
++/*
++ *  Similar, but validates for a trivial string in kernel.
++ *  Here `trivial' means that the string has no non-ASCII characters
++ *  and is shorter than 80 characters.
++ *
++ *  Note this is intended for checking various `name' (I/O
++ *  resources and so on).
++ */
++#define KERNEL_POINTER_TRIVIAL_STRING_P(PTR)	({			\
++	const char *_ptr = (const char *) (PTR);			\
++	char _dummy;							\
++	(unsigned long) _ptr >= PAGE_OFFSET				\
++		&& ({ int _result;					\
++		      while (!(_result = __get_user(_dummy, _ptr))	\
++			     && _dummy)					\
++			      _ptr++;					\
++		      !_result; }); })
++
++#endif /* NEED_VALIDATE_KERNEL_POINTER */
++
++#endif /* _ASM_PC9800_DEBUG_H */
++
++/*
++ * Local variables:
++ * c-file-style: "linux"
++ * End:
++ */
+diff -urN linux/include/asm-i386/pc9800_dma.h linux98/include/asm-i386/pc9800_dma.h
+--- linux/include/asm-i386/pc9800_dma.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/asm-i386/pc9800_dma.h	Fri Aug 17 22:15:01 2001
+@@ -0,0 +1,238 @@
++/* $Id: dma.h,v 1.7 1992/12/14 00:29:34 root Exp root $
++ * linux/include/asm/dma.h: Defines for using and allocating dma channels.
++ * Written by Hennus Bergman, 1992.
++ * High DMA channel support & info by Hannu Savolainen
++ * and John Boyd, Nov. 1992.
++ */
++
++#ifndef _ASM_PC9800_DMA_H
++#define _ASM_PC9800_DMA_H
++
++#include <linux/config.h>
++#include <asm/io.h>		/* need byte IO */
++#include <linux/delay.h>
++
++
++#ifdef HAVE_REALLY_SLOW_DMA_CONTROLLER
++#define dma_outb	outb_p
++#else
++#define dma_outb	outb
++#endif
++
++#define dma_inb		inb
++
++/*
++ * NOTES about DMA transfers:
++ *
++ *  controller 1: channels 0-3, byte operations, ports 00-1F
++ *  controller 2: channels 4-7, word operations, ports C0-DF
++ *
++ *  - ALL registers are 8 bits only, regardless of transfer size
++ *  - channel 4 is not used - cascades 1 into 2.
++ *  - channels 0-3 are byte - addresses/counts are for physical bytes
++ *  - channels 5-7 are word - addresses/counts are for physical words
++ *  - transfers must not cross physical 64K (0-3) or 128K (5-7) boundaries
++ *  - transfer count loaded to registers is 1 less than actual count
++ *  - controller 2 offsets are all even (2x offsets for controller 1)
++ *  - page registers for 5-7 don't use data bit 0, represent 128K pages
++ *  - page registers for 0-3 use bit 0, represent 64K pages
++ *
++ * DMA transfers are limited to the lower 16MB of _physical_ memory.  
++ * Note that addresses loaded into registers must be _physical_ addresses,
++ * not logical addresses (which may differ if paging is active).
++ *
++ *  Address mapping for channels 0-3:
++ *
++ *   A23 ... A16 A15 ... A8  A7 ... A0    (Physical addresses)
++ *    |  ...  |   |  ... |   |  ... |
++ *    |  ...  |   |  ... |   |  ... |
++ *    |  ...  |   |  ... |   |  ... |
++ *   P7  ...  P0  A7 ... A0  A7 ... A0   
++ * |    Page    | Addr MSB | Addr LSB |   (DMA registers)
++ *
++ *  Address mapping for channels 5-7:
++ *
++ *   A23 ... A17 A16 A15 ... A9 A8 A7 ... A1 A0    (Physical addresses)
++ *    |  ...  |   \   \   ... \  \  \  ... \  \
++ *    |  ...  |    \   \   ... \  \  \  ... \  (not used)
++ *    |  ...  |     \   \   ... \  \  \  ... \
++ *   P7  ...  P1 (0) A7 A6  ... A0 A7 A6 ... A0   
++ * |      Page      |  Addr MSB   |  Addr LSB  |   (DMA registers)
++ *
++ * Again, channels 5-7 transfer _physical_ words (16 bits), so addresses
++ * and counts _must_ be word-aligned (the lowest address bit is _ignored_ at
++ * the hardware level, so odd-byte transfers aren't possible).
++ *
++ * Transfer count (_not # bytes_) is limited to 64K, represented as actual
++ * count - 1 : 64K => 0xFFFF, 1 => 0x0000.  Thus, count is always 1 or more,
++ * and up to 128K bytes may be transferred on channels 5-7 in one operation. 
++ *
++ */
++
++#define MAX_DMA_CHANNELS	4
++
++/* The maximum address that we can perform a DMA transfer to on this platform */
++#define MAX_DMA_ADDRESS      (~0UL)
++
++/* 8237 DMA controllers */
++#define IO_DMA_BASE		0x01
++
++/* DMA controller registers */
++#define DMA_CMD_REG			((IO_DMA_BASE)+0x10) /* command register (w) */
++#define DMA_STAT_REG		((IO_DMA_BASE)+0x10) /* status register (r) */
++#define DMA_REQ_REG			((IO_DMA_BASE)+0x12) /* request register (w) */
++#define DMA_MASK_REG		((IO_DMA_BASE)+0x14) /* single-channel mask (w) */
++#define DMA_MODE_REG		((IO_DMA_BASE)+0x16) /* mode register (w) */
++#define DMA_CLEAR_FF_REG	((IO_DMA_BASE)+0x18) /* clear pointer flip-flop (w) */
++#define DMA_TEMP_REG		((IO_DMA_BASE)+0x1A) /* Temporary Register (r) */
++#define DMA_RESET_REG		((IO_DMA_BASE)+0x1A) /* Master Clear (w) */
++#define DMA_CLR_MASK_REG	((IO_DMA_BASE)+0x1C) /* Clear Mask */
++#define DMA_MASK_ALL_REG	((IO_DMA_BASE)+0x1E) /* all-channels mask (w) */
++
++#define DMA_PAGE_0			0x27	/* DMA page registers */
++#define DMA_PAGE_1			0x21
++#define DMA_PAGE_2			0x23
++#define DMA_PAGE_3			0x25
++
++#define DMA_Ex_PAGE_0		0xe05	/* DMA Extended page reg base */
++#define DMA_Ex_PAGE_1		0xe07
++#define DMA_Ex_PAGE_2		0xe09
++#define DMA_Ex_PAGE_3		0xe0b
++
++#define DMA_MODE_READ	0x44	/* I/O to memory, no autoinit, increment, single mode */
++#define DMA_MODE_WRITE	0x48	/* memory to I/O, no autoinit, increment, single mode */
++#define DMA_AUTOINIT	0x10
++
++extern spinlock_t  dma_spin_lock;
++
++static __inline__ unsigned long claim_dma_lock(void)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&dma_spin_lock, flags);
++	return flags;
++}
++
++static __inline__ void release_dma_lock(unsigned long flags)
++{
++	spin_unlock_irqrestore(&dma_spin_lock, flags);
++}
++
++/* enable/disable a specific DMA channel */
++static __inline__ void enable_dma(unsigned int dmanr)
++{
++	dma_outb(dmanr,  DMA_MASK_REG);
++}
++
++static __inline__ void disable_dma(unsigned int dmanr)
++{
++	dma_outb(dmanr | 4,  DMA_MASK_REG);
++}
++
++/* Clear the 'DMA Pointer Flip Flop'.
++ * Write 0 for LSB/MSB, 1 for MSB/LSB access.
++ * Use this once to initialize the FF to a known state.
++ * After that, keep track of it. :-)
++ * --- In order to do that, the DMA routines below should ---
++ * --- only be used while holding the DMA lock ! ---
++ */
++static __inline__ void clear_dma_ff(unsigned int dmanr)
++{
++	dma_outb(0,  DMA_CLEAR_FF_REG);
++}
++
++/* set mode (above) for a specific DMA channel */
++static __inline__ void set_dma_mode(unsigned int dmanr, char mode)
++{
++	dma_outb(mode | dmanr,  DMA_MODE_REG);
++}
++
++/* Set only the page register bits of the transfer address.
++ * This is used for successive transfers when we know the contents of
++ * the lower 16 bits of the DMA current address register, but a 64k boundary
++ * may have been crossed.
++ */
++static __inline__ void set_dma_page(unsigned int dmanr, unsigned int pagenr)
++{
++	unsigned char low=pagenr&0xff;
++	unsigned char hi=pagenr>>8;
++
++	switch(dmanr) {
++		case 0:
++			dma_outb(low, DMA_PAGE_0);
++			dma_outb(hi, DMA_Ex_PAGE_0);
++			break;
++		case 1:
++			dma_outb(low, DMA_PAGE_1);
++			dma_outb(hi, DMA_Ex_PAGE_1);
++			break;
++		case 2:
++			dma_outb(low, DMA_PAGE_2);
++			dma_outb(hi, DMA_Ex_PAGE_2);
++			break;
++		case 3:
++			dma_outb(low, DMA_PAGE_3);
++			dma_outb(hi, DMA_Ex_PAGE_3);
++			break;
++	}
++}
++
++/* Set transfer address & page bits for specific DMA channel.
++ * Assumes dma flipflop is clear.
++ */
++static __inline__ void set_dma_addr(unsigned int dmanr, unsigned int a)
++{
++	set_dma_page(dmanr, a>>16);
++	dma_outb( a & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
++	dma_outb( (a>>8) & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
++}
++
++
++/* Set transfer size (max 64k for DMA1..3, 128k for DMA5..7) for
++ * a specific DMA channel.
++ * You must ensure the parameters are valid.
++ * NOTE: from a manual: "the number of transfers is one more
++ * than the initial word count"! This is taken into account.
++ * Assumes dma flip-flop is clear.
++ * NOTE 2: "count" represents _bytes_ and must be even for channels 5-7.
++ */
++static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
++{
++	count--;
++	dma_outb( count & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
++	dma_outb( (count>>8) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
++}
++
++
++/* Get DMA residue count. After a DMA transfer, this
++ * should return zero. Reading this while a DMA transfer is
++ * still in progress will return unpredictable results.
++ * If called before the channel has been used, it may return 1.
++ * Otherwise, it returns the number of _bytes_ left to transfer.
++ *
++ * Assumes DMA flip-flop is clear.
++ */
++static __inline__ int get_dma_residue(unsigned int dmanr)
++{
++	/* using short to get 16-bit wrap around */
++	unsigned short count;
++
++	count = 1 + dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE);
++	count += dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE) << 8;
++	
++	return count;
++}
++
++
++/* These are in kernel/dma.c: */
++extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */
++extern void free_dma(unsigned int dmanr);	/* release it again */
++
++/* From PCI */
++
++#ifdef CONFIG_PCI
++extern int isa_dma_bridge_buggy;
++#else
++#define isa_dma_bridge_buggy 	(0)
++#endif
++
++#endif /* _ASM_PC9800_DMA_H */
+diff -urN linux/include/asm-i386/pc9800_sca.h linux98/include/asm-i386/pc9800_sca.h
+--- linux/include/asm-i386/pc9800_sca.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/asm-i386/pc9800_sca.h	Fri Aug 17 21:50:18 2001
+@@ -0,0 +1,25 @@
++/*
++ *  System-common area definitions for NEC PC-9800 series
++ *
++ *  Copyright (C) 1999	TAKAI Kousuke <tak@kmc.kyoto-u.ac.jp>,
++ *			Kyoto University Microcomputer Club.
++ */
++
++#ifndef _ASM_I386_PC9800SCA_H_
++#define _ASM_I386_PC9800SCA_H_
++
++#define PC9800SCA_EXPMMSZ		(0x0401)	/* B */
++#define PC9800SCA_SCSI_PARAMS		(0x0460)	/* 8 * 4B */
++#define PC9800SCA_DISK_EQUIPS		(0x0482)	/* B */
++#define PC9800SCA_XROM_ID		(0x04C0)	/* 52B */
++#define PC9800SCA_BIOS_FLAG		(0x0501)	/* B */
++#define PC9800SCA_MMSZ16M		(0x0594)	/* W */
++
++/* PC-9821 have additional system common area in their BIOS-ROM segment. */
++
++#define PC9821SCA__BASE			(0xF8E8 << 4)
++#define PC9821SCA_ROM_ID		(PC9821SCA__BASE + 0x00)
++#define PC9821SCA_ROM_FLAG4		(PC9821SCA__BASE + 0x05)
++#define PC9821SCA_RSFLAGS		(PC9821SCA__BASE + 0x11)	/* B */
++
++#endif /* !_ASM_I386_PC9800SCA_H_ */
+diff -urN linux/include/asm-i386/pgtable.h linux98/include/asm-i386/pgtable.h
+--- linux/include/asm-i386/pgtable.h	Mon Apr 15 04:18:55 2002
++++ linux98/include/asm-i386/pgtable.h	Wed Apr 17 10:37:22 2002
+@@ -58,7 +58,11 @@
+ #endif
+ #endif
  
- static inline void idle_tick(runqueue_t *rq)
-@@ -2027,7 +2150,8 @@ static int migration_thread(void * data)
- 		spin_unlock_irqrestore(&rq->lock, flags);
++#ifndef CONFIG_PC9800
+ #define __beep() asm("movb $0x3,%al; outb %al,$0x61")
++#else
++#define __beep() asm("movb $0x6,%al; outb %al,$0x37")
++#endif
  
- 		p = req->task;
--		cpu_dest = __ffs(p->cpus_allowed);
-+		cpu_dest = __ffs(p->cpus_allowed & cpu_online_map);
+ #define PMD_SIZE	(1UL << PMD_SHIFT)
+ #define PMD_MASK	(~(PMD_SIZE-1))
+diff -urN linux/include/asm-i386/processor.h linux98/include/asm-i386/processor.h
+--- linux/include/asm-i386/processor.h	Sat Sep 21 00:20:15 2002
++++ linux98/include/asm-i386/processor.h	Sun Sep 22 09:16:38 2002
+@@ -87,7 +87,7 @@
+ #define current_cpu_data boot_cpu_data
+ #endif
+ 
+-extern char ignore_irq13;
++extern char ignore_fpu_irq;
+ 
+ extern void identify_cpu(struct cpuinfo_x86 *);
+ extern void print_cpu_info(struct cpuinfo_x86 *);
+diff -urN linux/include/asm-i386/scatterlist.h linux98/include/asm-i386/scatterlist.h
+--- linux/include/asm-i386/scatterlist.h	Mon Apr 15 04:18:52 2002
++++ linux98/include/asm-i386/scatterlist.h	Wed Apr 17 10:37:22 2002
+@@ -1,6 +1,8 @@
+ #ifndef _I386_SCATTERLIST_H
+ #define _I386_SCATTERLIST_H
+ 
++#include <linux/config.h>
 +
- 		rq_dest = cpu_rq(cpu_dest);
- repeat:
- 		cpu_src = task_cpu(p);
-@@ -2130,6 +2254,8 @@ void __init sched_init(void)
- 			__set_bit(MAX_PRIO, array->bitmap);
- 		}
- 	}
-+	if (cache_decay_ticks)
-+		cache_decay_ticks=1;
- 	/*
- 	 * We have to do a little magic to get the first
- 	 * thread right in SMP mode.
-
---------------Boundary-00=_DGCPZTTZF56GQGMWNU79--
-
+ struct scatterlist {
+     struct page		*page;
+     unsigned int	offset;
+@@ -8,6 +10,10 @@
+     unsigned int	length;
+ };
+ 
++#ifdef CONFIG_PC9800
++#define ISA_DMA_THRESHOLD (0xffffffff)
++#else
+ #define ISA_DMA_THRESHOLD (0x00ffffff)
++#endif
+ 
+ #endif /* !(_I386_SCATTERLIST_H) */
+diff -urN linux/include/asm-i386/setup.h linux98/include/asm-i386/setup.h
+--- linux/include/asm-i386/setup.h	Sat Oct 19 13:02:01 2002
++++ linux98/include/asm-i386/setup.h	Mon Oct 21 15:32:08 2002
+@@ -28,6 +28,7 @@
+ #define APM_BIOS_INFO (*(struct apm_bios_info *) (PARAM+0x40))
+ #define DRIVE_INFO (*(struct drive_info_struct *) (PARAM+0x80))
+ #define SYS_DESC_TABLE (*(struct sys_desc_table_struct*)(PARAM+0xa0))
++#define PC9800_MISC_FLAGS (*(unsigned char *)(PARAM+0x1AF))
+ #define MOUNT_ROOT_RDONLY (*(unsigned short *) (PARAM+0x1F2))
+ #define RAMDISK_FLAGS (*(unsigned short *) (PARAM+0x1F8))
+ #define VIDEO_MODE (*(unsigned short *) (PARAM+0x1FA))
+diff -urN linux/include/asm-i386/timex.h linux98/include/asm-i386/timex.h
+--- linux/include/asm-i386/timex.h	Thu Feb 14 18:09:15 2002
++++ linux98/include/asm-i386/timex.h	Thu Feb 14 23:58:57 2002
+@@ -9,11 +9,15 @@
+ #include <linux/config.h>
+ #include <asm/msr.h>
+ 
++#ifdef CONFIG_PC9800
++   extern int CLOCK_TICK_RATE;
++#else
+ #ifdef CONFIG_MELAN
+ #  define CLOCK_TICK_RATE 1189200 /* AMD Elan has different frequency! */
+ #else
+ #  define CLOCK_TICK_RATE 1193180 /* Underlying HZ */
+ #endif
++#endif
+ 
+ #define CLOCK_TICK_FACTOR	20	/* Factor of both 1000000 and CLOCK_TICK_RATE */
+ #define FINETUNE ((((((long)LATCH * HZ - CLOCK_TICK_RATE) << SHIFT_HZ) * \

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264023AbTJ1QS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 11:18:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264027AbTJ1QS6
+	id S264033AbTJ1QXy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 11:23:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264032AbTJ1QXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 11:18:58 -0500
-Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:26382 "EHLO
-	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S264023AbTJ1QS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 11:18:57 -0500
-Date: Tue, 28 Oct 2003 16:17:44 +0000
-From: Ciaran McCreesh <ciaranm@firedrop.org.uk>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CPU-Test similar to Memtest?
-Message-Id: <20031028161744.12a33fa9.ciaranm@firedrop.org.uk>
-In-Reply-To: <20031028160550.GA855@rdlg.net>
-References: <20031028160550.GA855@rdlg.net>
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Oct 2003 11:23:54 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:6137 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264031AbTJ1QXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 11:23:52 -0500
+Message-ID: <3F9E97FB.5090603@nortelnetworks.com>
+Date: Tue, 28 Oct 2003 11:23:23 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, Amir Hermelin <amir@montilio.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: how do file-mapped (mmapped) pages become dirty?
+References: <006901c39d50$0b1313d0$2501a8c0@CARTMAN> <3F9E84A5.2060500@aitel.hist.no> <3F9E8AB3.4070305@nortelnetworks.com> <Pine.LNX.4.53.0310281042530.21561@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Oct 2003 16:18:56.0329 (UTC) FILETIME=[2FACCB90:01C39D6F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Oct 2003 11:05:50 -0500 "Robert L. Harris"
-<Robert.L.Harris@rdlg.net> wrote:
-| I'm going to run MEMTEST today when I get home and get a chance to
-| make a bootable CD but I'm wondering if there might be a "CPUTEST" or
-| such utility anyone knows of that'll poke and prod a dual athalon real
-| well and make sure I don't have a flaky cpu.
+Richard B. Johnson wrote:
+> On Tue, 28 Oct 2003, Chris Friesen wrote:
 
-I've found 'cpuburn' to work well for x86 CPUs:
+>>Note however that you need an msync() -- fsync() and fdatasync() do not
+>>catch changes to mmapped pages.
 
-http://users.ev1.net/~redelm/
+> Sure they do. fsync() will sync the whole file, regardless of
+> whether or not it's been mapped. msync()  allows you to sync
+> only a  specific portion and control how that portion is
+> handled with some flags.
+
+According to Rik van Riel and HPA, fsync() does not check page tables 
+for dirty bits.  This is confirmed by my testing, in which msync() takes 
+significantly longer than fsync() for the same file (in a ramdisk). 
+msync() on the 3 pages dirtied took 39 usec, while fsync() on the whole 
+200KB file took 12 usec.
+
+Also, some googling leads to to believe that if the file is mmapped and 
+you close() it, it won't get synced.
+
+Chris
 
 -- 
-Ciaran McCreesh
-Mail:       ciaranm at firedrop.org.uk
-Web:        www.firedrop.org.uk
-System:     Gentoo Base System version 1.4.3.10p1 Linux 2.4.20-gentoo-r7
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

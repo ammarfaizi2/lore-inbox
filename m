@@ -1,51 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263092AbUC2TR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 14:17:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUC2TR7
+	id S263101AbUC2TUS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 14:20:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbUC2TUS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 14:17:59 -0500
-Received: from ns.suse.de ([195.135.220.2]:41623 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263092AbUC2TR5 (ORCPT
+	Mon, 29 Mar 2004 14:20:18 -0500
+Received: from noose.gt.owl.de ([62.52.19.4]:48910 "EHLO noose.gt.owl.de")
+	by vger.kernel.org with ESMTP id S263101AbUC2TUG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 14:17:57 -0500
-Subject: Re: [EXT3/JBD] Periodic journal flush not enough?
-From: Chris Mason <mason@suse.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andreas Dilger <adilger@clusterfs.com>
-In-Reply-To: <1080586577.2285.107.camel@sisko.scot.redhat.com>
-References: <20040326231958.GA484@gondor.apana.org.au>
-	 <20040326154851.7a3ad417.akpm@osdl.org>
-	 <1080586577.2285.107.camel@sisko.scot.redhat.com>
-Content-Type: text/plain
-Message-Id: <1080587796.28604.12.camel@watt.suse.com>
+	Mon, 29 Mar 2004 14:20:06 -0500
+Date: Mon, 29 Mar 2004 21:15:04 +0200
+From: Florian Lohoff <flo@rfc822.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.4] invalid operand: 0000 / PREEMPT / 0060:[__break_lease+367/599]
+Message-ID: <20040329191503.GA1611@paradigm.rfc822.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 14:16:36 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Content-Disposition: inline
+Organization: rfc822 - pure communication
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-03-29 at 13:56, Stephen C. Tweedie wrote:
 
-> Sounds like it's due to the "b_committed_data" avoidance code.  Ext3
-> cannot immediately reuse disk space after a delete, because of lazy
-> writeback --- until the final writeback of the delete hits disk, we have
-> to be able to undo it.  And because in non-data-journaled modes we allow
-> new disk writes to hit disk before a transaction commit, that means we
-> can't reuse deleted blocks until after they are committed.
-> 
-> I've never seen it reported as a problem outside of artificial test
-> scenarios, but if it is something we need to address, Andreas Dilger's
-> patch looks good.
-
-Just FYI, reiserfs does something slightly different.  When
-reiserfs_file_write and get_block routines see -ENOSPC, they get things
-into a consistent state, commit the running transaction and try again
-(once).  It didn't end up very complex...
-
--chris
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
+Hi,
+
+Machine: Sony Vaio C1-MHP, Transmeta Crusoe
+Kernel: 2.6.4 plain
+Filesystem: ext3
+Crashing process is a "postfix" daemon.
+
+Might be important - Some postfix dirs have a chattr +S
+
+invalid operand: 0000 [#1]
+PREEMPT=20
+CPU:    0
+EIP:    0060:[__break_lease+367/599]    Not tainted
+EFLAGS: 00010246
+EIP is at __break_lease+0x16f/0x257
+eax: 00000000   ebx: ffffffff   ecx: cc74c040   edx: c5796000
+esi: c5796000   edi: ceccb780   ebp: 00000000   esp: c5797ef0
+ds: 007b   es: 007b   ss: 0068
+Process cleanup (pid: 1226, threadinfo=3Dc5796000 task=3Dcc74c040)
+Stack: cdba3354 00008001 c5797f80 cdb6eaa0 cdba3382 00000000 00000000 ceccb=
+3c0=20
+       c0155c74 cdba3354 00008001 00000000 c5797f80 c6665000 00008001 c0155=
+f8a=20
+       c5797f80 00000004 00008001 00000000 c6665000 00008000 c5796000 c5796=
+000=20
+Call Trace:
+ [may_open+245/351] may_open+0xf5/0x15f
+ [open_namei+684/951] open_namei+0x2ac/0x3b7
+ [flock_lock_file+324/398] flock_lock_file+0x144/0x18e
+ [filp_open+59/92] filp_open+0x3b/0x5c
+ [sys_open+55/111] sys_open+0x37/0x6f
+ [syscall_call+7/11] syscall_call+0x7/0xb
+
+Code: c6 8d 66 81 85 f6 0f 44 f0 56 8f 54 24 20 50 57 e8 37 f4 ff=20
+
+Flo
+--=20
+Florian Lohoff                  flo@rfc822.org             +49-171-2280134
+                        Heisenberg may have been here.
+
+--VS++wcV0S1rZb1Fb
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAaHW3Uaz2rXW+gJcRAobBAJ0c5Wq2viC09YCgl8ZLmXLXKMDRlwCfbMHs
++6TdSx4gsQgyMx2btQUAqro=
+=tVkZ
+-----END PGP SIGNATURE-----
+
+--VS++wcV0S1rZb1Fb--

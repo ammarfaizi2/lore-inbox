@@ -1,83 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S145277AbRA2F4o>; Mon, 29 Jan 2001 00:56:44 -0500
+	id <S145307AbRA2GDt>; Mon, 29 Jan 2001 01:03:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S145292AbRA2F4e>; Mon, 29 Jan 2001 00:56:34 -0500
-Received: from grunt.okdirect.com ([209.54.94.12]:47626 "HELO mail.pyxos.com")
-	by vger.kernel.org with SMTP id <S145277AbRA2F41>;
-	Mon, 29 Jan 2001 00:56:27 -0500
-Message-Id: <5.0.2.1.2.20010128140720.03465e38@209.54.94.12>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Sun, 28 Jan 2001 23:57:06 -0600
-To: linux-kernel@vger.kernel.org
-From: Daniel Walton <zwwe@opti.cgi.net>
-Subject: 2.4.0 Networking oddity
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S145292AbRA2GD3>; Mon, 29 Jan 2001 01:03:29 -0500
+Received: from femail2.rdc1.on.home.com ([24.2.9.89]:42726 "EHLO
+	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S145307AbRA2GDV>; Mon, 29 Jan 2001 01:03:21 -0500
+Message-ID: <3A750792.2698D108@Home.net>
+Date: Mon, 29 Jan 2001 01:02:58 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre11 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkm <linux-kernel@vger.kernel.org>
+Subject: [PROBLEM?] PCI Probe failing? 2.4.x kernels
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+snip from dmesg:
 
-I am running a web server under the new 2.4.0 kernel and am experiencing 
-some intermittent odd behavior from the kernel.  The machine will sometimes 
-go through cycles where network response becomes slow even though top 
-reports over 60% idle CPU time.   When this is happening ping goes from 
-reasonable response times to response times of several seconds in cycles of 
-about 15 to 20 seconds.
+PCI: Probing PCI hardware
+PCI: Cannot allocate resource region 0 of device 00:09.0
+  got res[10000000:10ffffff] for resource 0 of ATI Technologies Inc 3D
+Rage I/II 215GT [Mach64 GT]
+Limiting direct PCI/PCI transfers.
 
-As a test I pinged another machine on the same network segment and received 
-the same results listed above.  On the other hand, I pinged from the other 
-machine on the LAN to the problem machine and the ping times were a 
-consistent 0.1ms.  This tells me two things.  One, that the network switch 
-was not causing the problem, and two, that the problem is very likely 
-somewhere in the handoff of packets from kernel-land to user-land on the 
-problem server.
+What does this mean?
 
-Here is the ping results from the problem server to another machine on the 
-same segment:
+The video card should be using irq 10 according to the BIOS on bootup.
+The video card shares int 10 with other devices as well.
 
-77 packets transmitted, 77 packets received, 0% packet loss
-round-trip min/avg/max = 0.2/4368.1/15126.6 ms
-
-
-Here are the ping results from the other machine to the problem server 
-taken at exactly the same time:
-
-116 packets transmitted, 115 packets received, 0% packet loss
-round-trip min/avg/max = 0.1/0.1/0.3 ms
+           CPU0
+  0:    1614217          XT-PIC  timer
+  1:      20928          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  4:     143613          XT-PIC  serial
+  5:     384574          XT-PIC  soundblaster
+  8:          1          XT-PIC  rtc
+  9:      78029          XT-PIC  eth0
+ 14:      17015          XT-PIC  ide0
+ 15:         47          XT-PIC  ide1
 
 
-A little information about what I'm running.  The server is running about 
-700Kbps continuous network output from nearly a thousand concurrent 
-connections.  The web server is a single process which utilizes the 
-select/poll method of multiplexing.  The machine is an 1gig Athlon 
-processor with 512megs with RedHat 6.2 installed.
+Why is it limiting PCI/PCI transfers?
 
-I have the following tweaks setup in my rc.local file:
-
-echo "7168 32767 65535" > /proc/sys/net/ipv4/tcp_mem
-echo 32768 > /proc/sys/net/ipv4/tcp_max_orphans
-echo 4096 > /proc/sys/net/ipv4/tcp_max_syn_backlog
-echo 1 > /proc/sys/net/ipv4/tcp_syncookies
-echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
-echo 4 > /proc/sys/net/ipv4/tcp_syn_retries
-echo 7 > /proc/sys/net/ipv4/tcp_retries2
-echo 300 > /proc/sys/net/ipv4/tcp_keepalive_time
-echo 30 > /proc/sys/net/ipv4/tcp_keepalive_intvl
-echo 16384 > /proc/sys/fs/file-max
-echo 16384 > /proc/sys/kernel/rtsig-max
-
-
-Am I simply missing something in my tweaks or is this a bug?  I would be 
-happy to supply more information if it would help anyone in the know on a 
-problem like this.
-
-I appreciate any light anyone can shed on this subject.  I've been trying 
-to find the source of this problem for some time now.
-
-Daniel Walton
-
-
+Shawn.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

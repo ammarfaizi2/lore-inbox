@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281337AbRKEVDC>; Mon, 5 Nov 2001 16:03:02 -0500
+	id <S281312AbRKEUWk>; Mon, 5 Nov 2001 15:22:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281336AbRKEVCw>; Mon, 5 Nov 2001 16:02:52 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:42962 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S281335AbRKEVCm>; Mon, 5 Nov 2001 16:02:42 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Rik van Riel <riel@conectiva.com.br>, Ben Greear <greearb@candelatech.com>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Date: Mon, 5 Nov 2001 22:03:05 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: <dalecki@evision.ag>, Stephen Satchell <satch@concentric.net>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Alexander Viro <viro@math.psu.edu>, John Levon <moz@compsoc.man.ac.uk>,
-        <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@bonn-fries.net>
-In-Reply-To: <Pine.LNX.4.33L.0111051638230.27028-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0111051638230.27028-100000@duckman.distro.conectiva>
+	id <S281315AbRKEUWc>; Mon, 5 Nov 2001 15:22:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60422 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281314AbRKEUWP>; Mon, 5 Nov 2001 15:22:15 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Limited RAM - how to save it?
+Date: 5 Nov 2001 12:21:51 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9s6scv$hq0$1@cesium.transmeta.com>
+In-Reply-To: <20011105125231.A3783@microdata-pos.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-ID: <160qqc-1ClvWqC@fmrl04.sul.t-online.com>
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 November 2001 19:40, Rik van Riel wrote:
-> I think you've hit the core of the problem. There is no magical
-> bullet which will stop badly written userland programs from
-> breaking, but the kernel developers should have the courtesy
-> of providing documentation for the /proc files so the writers
-> of userland programs can have an idea what to expect.
+Followup to:  <20011105125231.A3783@microdata-pos.de>
+By author:    Jan-Benedict Glaw <jbglaw@microdata-pos.de>
+In newsgroup: linux.dev.kernel
+> 
+> I'm working on a 4MB linux system (for a customer) which has quite
+> limited resources at all:
+> 
+> 	- 4MB RAM
+> 	- 386 or 486 like processor (9..16 BogoMIPS)
+> 	- < 100MB HDD
+> 	- Quite a lot user space running:-(
+> 
+> For me, 4MB seems to be a problem. I've stripped diwn the applications
+> quite a lot, but 4MB behaves very slow and unresponsible. Adding only
+> one more MB solves any performance problem! I've made a small patch
+> practically removing printk() from kernel which helps a lot (patch
+> attached below). Basically, the running kernel is ~160KB smaller!
+> Are there further methods of saving space? I've already done some
+> other things, but these don't help that much:
+> 
 
-I think the core insight is that if the kernel continues to have dozens of 
-"human-readable" file formats in /proc, each should to be documented using a 
-BNF description that can guarantee that the format is still valid in the 
-future, even if there is the need to add additional fields. 
-The result of this is, of course, that it may be very hard to write 
-shell scripts that won't break sooner or later and that accessing the data in 
-C is much more work than a simple scanf. 
+4 MB was the practical minimum for even the very early versions of
+Linux.  I would probably suggest backrevving to 2.0 (which is still
+maintained) or even 1.2 (which isn't) for a start...
 
-bye...
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264504AbTIDBuP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 21:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbTIDBuP
+	id S264490AbTIDBmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 21:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTIDBmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 21:50:15 -0400
-Received: from dsl093-172-017.pit1.dsl.speakeasy.net ([66.93.172.17]:210 "EHLO
-	nevyn.them.org") by vger.kernel.org with ESMTP id S264504AbTIDBuJ
+	Wed, 3 Sep 2003 21:42:16 -0400
+Received: from bartek.tu.kielce.pl ([81.26.6.5]:42403 "EHLO
+	bartek.tu.kielce.pl") by vger.kernel.org with ESMTP id S264490AbTIDBmO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 21:50:09 -0400
-Date: Wed, 3 Sep 2003 21:50:06 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Reza Naima <reza@reza.net>
+	Wed, 3 Sep 2003 21:42:14 -0400
+From: Tomasz =?ISO-8859-1?Q?=20B=B1tor?= <tomba@bartek.tu.kielce.pl>
+Date: Thu, 4 Sep 2003 03:42:07 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: gdb-5.3 doesn't work under linux-2.6.0-test4 / ide unhandled interrupts
-Message-ID: <20030904015006.GA28467@nevyn.them.org>
-Mail-Followup-To: Reza Naima <reza@reza.net>, linux-kernel@vger.kernel.org
-References: <20030902081222.GA22989@boom.net>
+Subject: Re: What is the SiI 0680 chipset status?
+Message-ID: <20030904014207.GA8579@bartek.tu.kielce.pl>
+References: <20030902165537.GA1830@bartek.tu.kielce.pl> <1062589779.19059.8.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20030902081222.GA22989@boom.net>
-User-Agent: Mutt/1.5.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1062589779.19059.8.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 02, 2003 at 01:12:22AM -0700, Reza Naima wrote:
-> I've found no mention of this problem while searching the linux-kernel
-> or the gdb archives...
-> 
-> In trying to debug a userland application (mythfrontend from
-> mythtv.org) running on linux-2.6.0-test4, I get this as soon as the
-> application tries to display video:
-> 
-> 	Program terminated with signal SIGTRAP, Trace/breakpoint trap.
-> 	The program no longer exists.
-> 	(gdb)
-> 
-> Running in the exact same environment but under linux-2.4.22, gdb works
-> without fault and no problems occur.  The application also runs without
-> problem under linux-2.6.0-test4 if gdb is not used.
-> 
-> I'm including my 2.6.0 dmesg output in case it might be useful.   Let me know
-> if anyone wants additional information.  And again, I hope this is not
-> off-topic.
+Witam,
+Dnia Wed, Sep 03, 2003 at 12:49:40PM +0100 Alan Cox napisal(a):
 
-I'm doing GDB development on top of 2.6.0-test4, and I haven't
-encountered anything like this.  Sorry.  Does it work on other
-programs?
+> On Maw, 2003-09-02 at 17:55, Tomasz B??tor wrote:
+> > I recently got MiNt PCI IDE ATA/133 RAID controller based on SiI 0680
+> > chipset. I browsed through the archives and I know that the driver is
+> > known to be broken and simply doesn't work.
+> 
+> It just works. You do want 2.4.22 ideally, and you want 2.4.22-ac to use
+> hotplug.
+
+It doesn't for me. I have no idea what could I possibly do wrong, but
+I've tried dozens of possibilities without any luck. Compiling in
+siimage.c = drive errors, ide2 reset and infinite loop of "lost
+interrupt" messages at boot time. Without siimage.c compiled and with
+ide2=xxx ide3=xxx parameters in lilo, disks are visible, but of course
+there is no DMA.
+
+Any ideas?
+
+t.
+
+ps. yes, I use 2.4.22, without hotplug.
 
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+  Tomasz B±tor  e-mail: tomba@bartek.tu.kielce.pl  ICQ: 101194886
+ ------ ---- -- - -  -    -   -  -  -   -    -  - - -- ---- ------
+"The most important job is not to be governor, or first lady in my case."
+                        -- George W. Bush

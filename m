@@ -1,36 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbULOSeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbULOSmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbULOSeM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 13:34:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbULOSeM
+	id S262442AbULOSmL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 13:42:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbULOSmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 13:34:12 -0500
-Received: from fw.osdl.org ([65.172.181.6]:6884 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262432AbULOSeI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 13:34:08 -0500
-Date: Wed, 15 Dec 2004 10:34:07 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: David Jacoby <dj@outpost24.com>
+	Wed, 15 Dec 2004 13:42:11 -0500
+Received: from web51505.mail.yahoo.com ([206.190.38.197]:2167 "HELO
+	web51505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262442AbULOSmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 13:42:07 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=TK/DLnCiiTG7AVAS4Tj8zvA/aaH+lj/UEZKolGYLUAvCWIlZglpv48NlREyHycB/EtUZRqabrddAZO0EpFREP7geJL6gHftE6x1cDtMp4o9H8bb9xbqw9mPSM9+ZDvVNdeB5zJuFJ2//LmGWnFJiD3se39kK5tvUd98tH7Rm+1g=  ;
+Message-ID: <20041215184206.43601.qmail@web51505.mail.yahoo.com>
+Date: Wed, 15 Dec 2004 10:42:06 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Issue on connect 2 modems with a single phone line 
+To: dave@lafn.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel IGMP vulnerabilities, PATCH IS BROKEN!
-Message-ID: <20041215103407.T469@build.pdx.osdl.net>
-References: <41BFF931.6030205@outpost24.com> <20041215.180839.93043538.yoshfuji@linux-ipv6.org> <41C024B0.4010009@outpost24.com> <200412151254.37612@WOLK> <41C0268B.2030708@outpost24.com> <20041215120418.GA9049@tufnell.lon1.poggs.net> <41C029F7.7010405@outpost24.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <41C029F7.7010405@outpost24.com>; from dj@outpost24.com on Wed, Dec 15, 2004 at 01:11:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David Jacoby (dj@outpost24.com) wrote:
-> The patch fucked something up, sorry for my language. Is there anyone 
-> else on
-> this list who has the patch installed?
+Hi,
+  I want to try serial console in order to see the
+complete Linux kernel oops. 
+  I have 2 computers, one is a PC, and the other is a
+Laptop. Unfortunately,my Laptop doesn't have a serial
+port on it. But then, the each machine has a internal
+serial modem respectively.
+  Then, can I use a telephone line to directly connect
+the two machines via their internal modems (i.e. One
+end of the telephone line is plugged into The PC's
+modem, and the other end is plugged into The Laptop's
+modem directly), and let them do the same function as
+two serial ports and a null modem can do? If it is,
+How to achieve that?
 
-Patch is fine.  I've used it and ssh quite a bit.  It only touches small
-bit of multicast specific code which isn't used at all during ssh session.
+  Thank you.
 
-thanks,
--chris
+
+
+=====
+Best Regards,
+Park Lee
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - now with 250MB free storage. Learn more.
+http://info.mail.yahoo.com/mail_250

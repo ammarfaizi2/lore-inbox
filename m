@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129440AbQKCAHm>; Thu, 2 Nov 2000 19:07:42 -0500
+	id <S129718AbQKCAIw>; Thu, 2 Nov 2000 19:08:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129718AbQKCAHc>; Thu, 2 Nov 2000 19:07:32 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:31899 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129440AbQKCAHS>;
-	Thu, 2 Nov 2000 19:07:18 -0500
-Date: Thu, 2 Nov 2000 15:52:38 -0800
-Message-Id: <200011022352.PAA02403@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: hpa@transmeta.com
-CC: hpa@zytor.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3A0200F5.2D6F4F70@transmeta.com> (hpa@transmeta.com)
-Subject: Re: select() bug
-In-Reply-To: <E13rTfB-00023L-00@the-village.bc.nu> <3A01FC44.8A43FE8B@iname.com> <8tsupp$gh8$1@cesium.transmeta.com> <200011022346.PAA01451@pizda.ninka.net> <3A0200F5.2D6F4F70@transmeta.com>
+	id <S130037AbQKCAIm>; Thu, 2 Nov 2000 19:08:42 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:23812 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S129718AbQKCAIX>;
+	Thu, 2 Nov 2000 19:08:23 -0500
+Date: Thu, 2 Nov 2000 23:08:44 -0800 (PST)
+From: James Simmons <jsimmons@suse.com>
+To: "CRADOCK, Christopher" <cradockc@oup.co.uk>
+Cc: "'M.H.VanLeeuwen'" <vanl@megsinet.net>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: RE: Linux-2.4.0-test10
+In-Reply-To: <A528EB7F25A2D111838100A0C9A6E5EF068A1DBC@exc01.oup.co.uk>
+Message-ID: <Pine.LNX.4.21.0011022306180.14650-100000@euclid.oak.suse.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Thu, 02 Nov 2000 16:04:05 -0800
-   From: "H. Peter Anvin" <hpa@transmeta.com>
 
-   That's (very) nice, but it does assume there is currently a reader
-   listening.
+> I have a similar hardware list and I don't observe any of these problems on
+> 2.4.0-test10x. Is it possibly a hardware conflict somewhere?
+> 
+> What I do see occasionally is if X was ever heavy on the memory usage (say
+> I've run GIMP for a couple of hours) then the text console's font set gets
+> trashed until the next reboot. Console driver failing to reset something?
 
-No, it has no such assumption.
+No! The X server resets the VGA mode including resetting the fonts. See
+xc/programs/Xserver/hw/xfree86/vgahw to see how XF4.0 switchs between X
+and vgacon. It see under heavy pressure X fails to reset the video
+hardware on it own :-( 
 
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

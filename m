@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269400AbUJSNuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269409AbUJSNwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269400AbUJSNuT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 09:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269406AbUJSNuT
+	id S269409AbUJSNwa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 09:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269410AbUJSNwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 09:50:19 -0400
-Received: from beta.netcraft.com ([195.92.95.67]:5306 "EHLO beta.netcraft.com")
-	by vger.kernel.org with ESMTP id S269400AbUJSNuM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 09:50:12 -0400
-Date: Tue, 19 Oct 2004 14:50:06 +0100
-From: Colin Phipps <cph@cph.demon.co.uk>
+	Tue, 19 Oct 2004 09:52:30 -0400
+Received: from mail4.worldserver.net ([217.13.200.24]:64155 "EHLO
+	mail4.worldserver.net") by vger.kernel.org with ESMTP
+	id S269409AbUJSNwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 09:52:22 -0400
+Date: Tue, 19 Oct 2004 15:52:14 +0200
+From: Christian Leber <christian@leber.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-ID: <20041019135006.GE29039@netcraft.com>
-References: <20041019012103.GA1990@sa.pracom.com.au>
+Subject: Re: DMA memory allocation --how to  more than 1 MB
+Message-ID: <20041019135214.GA29435@core.home>
+References: <4EE0CBA31942E547B99B3D4BFAB34811175F32@mail.esn.co.in>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041019012103.GA1990@sa.pracom.com.au>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB34811175F32@mail.esn.co.in>
+X-Accept-Language: de en
+X-Location: Europe, Germany, Mannheim
+X-Operating-System: Debian GNU/Linux (sid)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19, 2004 at 10:51:03AM +0930, John Pearson wrote:
-> As far as I can see:
+On Tue, Oct 19, 2004 at 11:18:13AM +0530, Srinivas G. wrote:
+> I have a doubt about allocating the DMA memory using kmalloc OR
+> __get_dma_pages OR pci_alloc_consistent. I was unable to allocate the
+> memory greater than 1 MB using any one of the above memory functions. 
 > 
->   - YES, Linux select 'lies' and violates POSIX wrt checksums:
->     a call to recvmsg() might well have blocked when select()
->     said data was ready, as a result of a currupt UDP packet;
-> 
->   - NO, 'fixing' select() won't guarantee that recvmsg()
->     will not block/return EAGAIN, because select() only
->     guarantees that a call to recvmsg() would not have blocked
->     at that time - as others have observed, it cannot guarantee
->     that 'valid' data won't subsequently be discarded; any
->     subsequent call to recvmsg() is only 'immediate' in a fuzzy,
->     imprecise and inadequate sense.
-> 
-> Can we get back to arguing about something less repetitive
-> (or at least, make the circle larger and more scenic)?
+> Is there any other method which will allocate the DMA memory greater
+> than 1 MB?
 
-I would put a third point on the list; the behaviour makes the failure
-case for a lot of broken apps much more likely, and easy to trigger
-remotely.
+You should be able to get at least order 9, therefore 2 MB.
+With kernel 2.6 you should also be able to get order 10, therefore 4 MB.
+If you need more you have to puzzle the areas together.
 
-In the interest of making things more "scenic", let's have a few more
-broken apps:
+The way wli suggested is better.
+But if this is no possible just make it a requierement to load the
+module while booting, then there are enough free areas.
 
-glibc RPC - so portmap, statd, ...
 
-It seems there's a common idiom in most of the broken programs.
-Programmers assume that they can take a collection of library functions
-that do blocking IO, and then multiplex them by sticking a select on the
-front to choose when to call them. Given the wording of the POSIX
-standard, it could be naively read to endorse this idiom - it says a
-socket is readable if it won't block to read.  glibc RPC does this; the
-underlying functions all assume blocking fds, and it then sticks a
-select on the front. This occurs again in inetd, again in syslog, again
-in net-snmp, and those are just the ones I see on my desktop machine.
-You can easily patch the kernel to have it report them all (just
-remember to disable syslog first, as it is one of the culprits).
+Christian Leber
 
-Sure they are all broken, but now they are all exposed to bad UDP
-checksums. Perhaps the people who benefit from the time saved by this
-micro-optimisation would care to use the time saved to fix glibc?
-
+-- 
+  "Omnis enim res, quae dando non deficit, dum habetur et non datur,
+   nondum habetur, quomodo habenda est."       (Aurelius Augustinus)
+  Translation: <http://gnuhh.org/work/fsf-europe/augustinus.html>

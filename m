@@ -1,226 +1,230 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263326AbTARIF1>; Sat, 18 Jan 2003 03:05:27 -0500
+	id <S263899AbTARIK3>; Sat, 18 Jan 2003 03:10:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263342AbTARIF1>; Sat, 18 Jan 2003 03:05:27 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:48650 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263326AbTARIFW>; Sat, 18 Jan 2003 03:05:22 -0500
-Date: Sat, 18 Jan 2003 09:14:08 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.59 doesn't boot - hangs after 'Uncompressing the kernel'
-Message-ID: <20030118081408.GA1163@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
+	id <S263794AbTARIK2>; Sat, 18 Jan 2003 03:10:28 -0500
+Received: from packet.digeo.com ([12.110.80.53]:9354 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263760AbTARIKJ>;
+	Sat, 18 Jan 2003 03:10:09 -0500
+Date: Sat, 18 Jan 2003 00:20:27 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: 2.5.59-mm2
+Message-Id: <20030118002027.2be733c7.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Jan 2003 08:19:02.0514 (UTC) FILETIME=[42520D20:01C2BECA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can't get 2.5.59 to boot on my dual tualatin/via PRO266T system.
-It hangs early in the boot-process, I don't see anything after the
-'Uncompressing the kernel' line. The keyboard led's stuck then as well,
-and waiting doesn't help.
 
-gcc -v:
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm2/
 
-Reading specs from /usr/lib/gcc-lib/i386-linux/3.2.2/specs
-Configured with: ../src/configure -v --enable-languages=c,c++,java,f77,proto,pascal,objc,ada --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-gxx-include-dir=/usr/include/c++/3.2 --enable-shared --with-system-zlib --enable-nls --without-included-gettext --enable-__cxa_atexit --enable-clocale=gnu --enable-java-gc=boehm --enable-objc-gc i386-linux
-Thread model: posix
-gcc version 3.2.2 20030109 (Debian prerelease)
+- Added Andi's lockless current_kernel_time() patch again.  It'll break
+  non-ia32 builds.  But it appears that we should push ahead and get this
+  implemented across the other architectures.
 
-this gcc worked with 2.5.58, BTW, and the .config below worked also.
-I've tried removing preempt (worked with 2.5.58), framepointer (worked
-with 2.5.58) - but 2.5.59 won't boot. Any hints?
+- Updated oprofile patches from John.
 
-Thanks,
-Jurriaan
+- Adam's devfs rework is back in.  We only had two testers last time, (out
+  of maybe 150 downloads) which is fairly disappointing.
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_SWAP=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_MODULES=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_PREFETCH=y
-CONFIG_SMP=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_APM=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_HPT366=y
-CONFIG_BLK_DEV_PDC202XX_OLD=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_PDC202XX=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_SYM53C8XX_2=y
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID5=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_IP_ROUTE_LARGE_TABLES=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_TULIP=y
-CONFIG_DE2104X=y
-CONFIG_TULIP=y
-CONFIG_TULIP_MWI=y
-CONFIG_TULIP_MMIO=y
-CONFIG_NET_PCI=y
-CONFIG_E100=y
-# ISDN subsystem
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_PRINTER=y
-CONFIG_I2C=y
-CONFIG_I2C_ALGOBIT=y
-CONFIG_I2C_CHARDEV=y
-CONFIG_I2C_PROC=y
-CONFIG_WATCHDOG=y
-CONFIG_SOFT_WATCHDOG=y
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_MGA=y
-CONFIG_RAW_DRIVER=y
-CONFIG_REISERFS_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_JBD=y
-CONFIG_FAT_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_NTFS_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_UDF_FS=y
-CONFIG_FS_MBCACHE=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_EMU10K1=y
-# Open Sound System
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_PRINTER=y
-CONFIG_USB_SCANNER=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_KALLSYMS=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_X86_TRAMPOLINE=y
+  So if you use devfs, _please_ test this change and send either success or
+  failure reports (not to me though).
 
--- 
-And if people want to take off their clothes and chase one another, it
-certainly wouldnt hurt morale around here.
-	Neelix - Startrek Voyager
-GNU/Linux 2.5.53 SMP/ReiserFS 2x2752 bogomips load av: 0.79 0.55 0.23
+  Adam said:
+
+   If you want devfsd functionality (well, at least the "REGISTER" and
+   "LOOKUP" events), you can get my user level program devfs_helper, which is
+   a reduced functionality replacement program for devfsd from the following
+   URL.
+
+	ftp://ftp.yggdrasil.com/pub/dist/device_control/devfs/devfs_helper-0.2.tar.gz
+
+
+
+
+Changes since 2.5.59-mm1:
+
+
++lockless-current_kernel_time.patch
+
+ Reinstated.
+
+-mixer-bounds-check.patch
+
+ This didn't look right.
+
++kirq-up-fix.patch
+
+ Fix the kirq build for non-SMP
+
+-op4-fix.patch
+
+ Not needed with the updated oprofile patch
+
++oprofile_cpu-as-string.patch
+
+ oprofile work from John.
+
++remove-will_become_orphaned_pgrp.patch
+
+ Cleanup
+
++MAX_IO_APICS-ifdef.patch
+
+ NUMA fix
+
++dac960-error-retry.patch
+
+ DAC960 robustness enhancements
+
++put_user-warning-fix.patch
+
+ ARM build fix
+
++vmlinux-fix.patch
+
+ Should fix the modprobe oopses with RH8.0 toolchains
+
++smalldevfs.patch
+
+ devfs rework
+
++sound-firmware-load-fix.patch
+
+ Build fix for OSS sound card firmware loading.
+
++exit_mmap-fix2.patch
+
+ Fix exec of 32-bit apps from 64-bit apps on PPC64/ia64/sparc64, perhaps.
+
+
+
+All 43 patches:
+
+kgdb.patch
+
+devfs-fix.patch
+
+deadline-np-42.patch
+  (undescribed patch)
+
+deadline-np-43.patch
+  (undescribed patch)
+
+setuid-exec-no-lock_kernel.patch
+  remove lock_kernel() from exec of setuid apps
+
+buffer-debug.patch
+  buffer.c debugging
+
+warn-null-wakeup.patch
+
+reiserfs-readpages.patch
+  reiserfs v3 readpages support
+
+fadvise.patch
+  implement posix_fadvise64()
+
+ext3-scheduling-storm.patch
+  ext3: fix scheduling storm and lockups
+
+auto-unplug.patch
+  self-unplugging request queues
+
+less-unplugging.patch
+  Remove most of the blk_run_queues() calls
+
+lockless-current_kernel_time.patch
+  Lockless current_kernel_timer()
+
+scheduler-tunables.patch
+  scheduler tunables
+
+htlb-2.patch
+  hugetlb: fix MAP_FIXED handling
+
+kirq.patch
+
+kirq-up-fix.patch
+  Subject: Re: 2.5.59-mm1
+
+ext3-truncate-ordered-pages.patch
+  ext3: explicitly free truncated pages
+
+prune-icache-stats.patch
+  add stats for page reclaim via inode freeing
+
+vma-file-merge.patch
+
+mmap-whitespace.patch
+
+read_cache_pages-cleanup.patch
+  cleanup in read_cache_pages()
+
+remove-GFP_HIGHIO.patch
+  remove __GFP_HIGHIO
+
+quota-lockfix.patch
+  quota locking fix
+
+quota-offsem.patch
+  quota semaphore fix
+
+oprofile-p4.patch
+
+oprofile_cpu-as-string.patch
+  oprofile cpu-as-string
+
+wli-11_pgd_ctor.patch
+  (undescribed patch)
+
+wli-11_pgd_ctor-update.patch
+  pgd_ctor update
+
+stack-overflow-fix.patch
+  stack overflow checking fix
+
+Richard_Henderson_for_President.patch
+  Subject: [PATCH] Richard Henderson for President!
+
+parenthesise-pgd_index.patch
+  Subject: i386 pgd_index() doesn't parenthesize its arg
+
+macro-double-eval-fix.patch
+  Subject: Re: i386 pgd_index() doesn't parenthesize its arg
+
+mmzone-parens.patch
+  asm-i386/mmzone.h macro paren/eval fixes
+
+blkdev-fixes.patch
+  blkdev.h fixes
+
+remove-will_become_orphaned_pgrp.patch
+  remove will_become_orphaned_pgrp()
+
+MAX_IO_APICS-ifdef.patch
+  MAX_IO_APICS #ifdef'd wrongly
+
+dac960-error-retry.patch
+  Subject: [PATCH] linux2.5.56 patch to DAC960 driver for error retry
+
+put_user-warning-fix.patch
+  Subject: Re: Linux 2.5.59
+
+vmlinux-fix.patch
+  vmlinux fix
+
+smalldevfs.patch
+  smalldevfs
+
+sound-firmware-load-fix.patch
+  soundcore.c referenced non-existent errno variable
+
+exit_mmap-fix2.patch
+  exit_mmap fix for 64bit->32bit execs
+
+

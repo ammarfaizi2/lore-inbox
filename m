@@ -1,48 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbTKIR2h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 12:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbTKIR2h
+	id S262714AbTKIRjL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 12:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbTKIRjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 12:28:37 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:56452 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262709AbTKIR2g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 12:28:36 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 9 Nov 2003 09:27:47 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Con Kolivas <kernel@kolivas.org>, Nick Piggin <piggin@cyberone.com.au>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] Fix find busiest queue 2.6.0-test9
-In-Reply-To: <124780000.1068396507@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0311090921090.12198-100000@bigblue.dev.mdolabs.com>
+	Sun, 9 Nov 2003 12:39:11 -0500
+Received: from lilzmailfe01.liwest.at ([212.33.55.13]:10028 "EHLO
+	lilzmailfe01.liwest.at") by vger.kernel.org with ESMTP
+	id S262714AbTKIRjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 12:39:08 -0500
+Message-ID: <3FAE7BB1.3090007@voxel.at>
+Date: Sun, 09 Nov 2003 18:38:57 +0100
+From: "Dr. Simon Vogl" <office@voxel.at>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: sensors@stimpy.netroedge.com
+CC: DI Dr Simon Vogl <simon@voxel.at>, linux-kernel@vger.kernel.org
+Subject: Re: I2C parallel port adapters drivers
+References: <20031102132342.79920c6f.khali@linux-fr.org>	<3FAB6A8C.9070608@voxel.at> <20031107223611.173c82cc.khali@linux-fr.org>
+In-Reply-To: <20031107223611.173c82cc.khali@linux-fr.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Nov 2003, Martin J. Bligh wrote:
+Jean,
+some comments, in no particular order :)
 
-> +/* 
-> + * macro to make the code more readable - this_rq->prev_cpu_load[i]
-> + * is our local cached value of i's prev cpu_load. However, putting
-> + * this_rq->prev_cpu_load into the code makes it read like it's the
-> + * prev_cpu_load of this_cpu, which makes it confusing to read
-> + */
-> +#define prev_cpu_load_cache(cpu) (this_rq->prev_cpu_load[cpu])
+When I wrote the parallel port drivers, the parport api was changing a 
+lot. Therefore I did not
+make use of it. Blocking the parport might be a good idea, but it 
+introduces another dependency.
 
-Ouch, the implicit "this_rq" is really evil ;) Eventually:
+Anyway, parport only makes real sense when you want to share your 
+parport between multiple devices,
+say a zip drive. Therefore, a question to the whole sensors list: Is 
+anyone really using such a setup?
+It should be at least be configurable as an option (also think of using 
+it in embedded devices, where you
+wouldn't want to bloat the kernel with such things...)
 
-#define prev_cpu_load_cache(rq, cpu) (rq->prev_cpu_load[cpu])
+Also, are there any hardware cracks out there with multiple adapters, 
+like a home-brew philips adapter
+and a velleman kit on two parports?
+
+Just a few special cases to think about...
+
+As for the naming, i2c-parport would conflict with the old i2c-parport 
+module that is still available in 2.4ish
+kernels in the v4l section - maybe i2c-parallel is an option.
+
+Also, have a look at the wealth of i2c drivers that are present in the 
+2.6 kernels :)
+So long,
+Simon
+
+Jean Delvare wrote:
+
+>OK, I'll write a unified driver then. Just one more question. Any reason
+>to prefer direct I/O access (ELV/Velleman) over parallel-port-style
+>programming (i2c-philips-par)? I'd say that the second is preferable,
+>but you might have had a reason to use direct access, that I ignore. If
+>not, I'll somehow use i2c-philips-par as a base for my unified driver,
+>which I'll probably call i2c-parport (since it won't be Philips-specific
+>anymore). That driver would support Philips adapters, ELV, Velleman and
+>ADM evaluation boards (I have one here for testing).
+>
+>Thanks a lot for spending some time replying.
+>
+>  
+>
 
 
+-- 
+Dipl.-Ing. Dr. Simon Vogl !  http://www.voxel.at/
+VoXel Interaction Design  !  office@voxel.at
+Breitwiesergutstr. 50     !  +43 650 2323 555
+A-4020 Linz - Austria     !  
 
-- Davide
+
 
 
 

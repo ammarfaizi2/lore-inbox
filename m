@@ -1,82 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318361AbSG3R3R>; Tue, 30 Jul 2002 13:29:17 -0400
+	id <S315431AbSG3Rlx>; Tue, 30 Jul 2002 13:41:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318365AbSG3R3Q>; Tue, 30 Jul 2002 13:29:16 -0400
-Received: from acd.ufrj.br ([146.164.3.7]:32263 "EHLO acd.ufrj.br")
-	by vger.kernel.org with ESMTP id <S318361AbSG3R3N>;
-	Tue, 30 Jul 2002 13:29:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Scorpion <scorpionlab@ieg.com.br>
-Reply-To: scorpionlab@ieg.com.br
-Organization: ScorpionLAB
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: IO-APIC in SMP dual Athlon XP1800
-Date: Tue, 30 Jul 2002 14:32:00 -0300
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0207292151420.20701-100000@linux-box.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.44.0207292151420.20701-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207301432.00401.scorpionlab@ieg.com.br>
+	id <S315485AbSG3Rlx>; Tue, 30 Jul 2002 13:41:53 -0400
+Received: from holomorphy.com ([66.224.33.161]:1971 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315431AbSG3Rlx>;
+	Tue, 30 Jul 2002 13:41:53 -0400
+Date: Tue, 30 Jul 2002 10:44:57 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+Cc: "'Andi Kleen'" <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-ia64] Linux kernel deadlock caused by spinlock bug
+Message-ID: <20020730174457.GB25038@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
+	'Andi Kleen' <ak@suse.de>, linux-kernel@vger.kernel.org
+References: <3FAD1088D4556046AEC48D80B47B478C0101F3B2@usslc-exch-4.slc.unisys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C0101F3B2@usslc-exch-4.slc.unisys.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 30, 2002 at 12:06:54PM -0500, Van Maren, Kevin wrote:
+> It isn't obvious to me how to extend those queued to reader/writer
+> locks if you have to allow recursive readers without incurring the
+> same overhead of tracking which processors already have a reader lock.
+> If you do want to trigger recursive rw_locks, simply change the header
+> file to make them normal spinlocks.  Then whenever the kernel hangs,
+> see where it is. Of course, this approach only finds all of them if
+> you execute every code path.
+> Does anyone want to chip in on why we need recursive r/w locks?  Or why it
+> is hard to remove them?  It doesn't sound like they are used much.
 
-I tried using:
+The tasklist_lock is taken in interrupt context by sigio generation,
+and read_locks on it are permitted to be interrupted by other read_locks,
+where write_locks of it must mask interrupts locally to prevent deadlock.
+I think IA64 performance monitor code does it in interrupt context too.
 
-2.4.18-3smp (red hat 7.3) with options: hdc=ide-scsi
-and using ext3 fs.
-
-2.4.18-5custom (red hat 7.3 recompiled with smp, bigmem and ext3 fs) with 
-options: hdc=ide-scsi
-
-2.4.18-5smp (red hat 7.3 upgrade of bigmem header problem and ext3 fs problem) 
-with options: hdc=ide-scsi
-
-2.4.18-3 (red hat 7.3 uniprocessor for get up) with options:
-hdc=ide-scsi noprobe mem=256m
-
-details about the last:  
-    When changing mem parameter value to 64 or 512 or 128 its stop in 
-different places (using the "printk debbug technic") in io_apic.c/apic.c 
-parts.
-
-After that I tried the kernel from kernel.org and got the following message:
-
------------^^^cut here^^^------------
-Total of 2 processors activated (6121.06 BogoMIPS).
-ENABLING IO-APIC IRQs
-Setting 2 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 2 ... ok.
-...TIMER: vector=0x31 pin1=2 pin2=0
-testing the IO APIC...........................................
-
-......................................................................done.
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 1533.2911 MHz.
-..... host bus clock speed is 266.6593 MHz.
-cpu: 0, clocks: 2666593, slice: 888864
-CPU0<T0:2666592,T1:1777728,D:0,S:888864,C:2666593>
------------^^^cut here^^^------------
-
-Its a error? Should a try the last last kernel patchs?
-
-I'm not thinking about a hadware problem, cause BIOS detect
-2 CPUS and Linux agree with this. Am I wrong?
-
-Regards,
-Ricardo.
+Older (2.4.x and 2.5.x-early) took the tasklist_lock in interrupt
+context to compute the load average by traversing the list of all tasks.
+My concern when I changed that was largely timeslice overrun.
 
 
-On Monday 29 July 2002 16:52, The Kernel Developer Zwane Mwaikambo wrote:
-> On Mon, 29 Jul 2002, Scorpion wrote:
-> > I'm getting in troubles with a A7M266-D motherboard with two
-> > Athlon XP 1800 cpus (yes, XP not MP!).
->
-> Which kernel version ?
->
-> 	Zwane
-
+Cheers,
+Bill

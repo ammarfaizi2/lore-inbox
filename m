@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318883AbSG1Cmt>; Sat, 27 Jul 2002 22:42:49 -0400
+	id <S318888AbSG1C44>; Sat, 27 Jul 2002 22:56:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318886AbSG1Cmt>; Sat, 27 Jul 2002 22:42:49 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8721 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318883AbSG1Cms>; Sat, 27 Jul 2002 22:42:48 -0400
-Date: Sat, 27 Jul 2002 19:47:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Daniel Egger <degger@fhm.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: Linux-2.5.28
-In-Reply-To: <20020727235726.GB26742@win.tue.nl>
-Message-ID: <Pine.LNX.4.44.0207271939220.3799-100000@home.transmeta.com>
+	id <S318890AbSG1C44>; Sat, 27 Jul 2002 22:56:56 -0400
+Received: from mail.linux-new-media.de ([62.245.157.204]:8452 "HELO
+	mail.linux-new-media.de") by vger.kernel.org with SMTP
+	id <S318888AbSG1C44>; Sat, 27 Jul 2002 22:56:56 -0400
+Date: Sun, 28 Jul 2002 05:00:06 +0200 (CEST)
+From: =?iso-8859-15?Q?Mirko_D=F6lle?= <mdoelle@linux-user.de>
+X-X-Sender: mdoelle@troy.linux-magazin.de
+To: alan@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.19-rc3, i810_audio: ignoring ready status of ICH for
+ i845G chipset / Epox mainboard
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020728030014.B250015C97@mail.linux-new-media.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+
+this patch for Kernel 2.4.19-rc3 removes the "break" that aborted the module
+init of i810_audio.o in case of "not ready" status before probing (line
+2656-2663).
+On my Epox 4G4A+ mainboard with i845G chipset the ready status was always "0",
+so the module could not be loaded. After removing the "break" in line 2663
+the module works great: loading, playing serveral MP3s, removing and reloading
+were no problem.
+
+Perhaps someone can confirm this so the break could perhaps be removed in the
+final Kernel 2.4.19.
 
 
-On Sun, 28 Jul 2002, Andries Brouwer wrote:
 
-> On Wed, Jul 24, 2002 at 06:08:48PM -0700, Linus Torvalds wrote:
->
-> > Most of the IDE stuff is FUD and misinformation. I've run every single
-> > 2.5.x kernel on an IDE system ("penguin.transmeta.com" has everything on
-> > IDE), and the main reported 2.5.27 corruption was actually from my BK tree
-> > apparently due to the IRQ handling changes.
->
-> Linus, Linus, how can you say something so naive?
-> I need not tell you that one user without problems does not imply
-> that nobody will have problems.
+diff -ru linux-2.4.19-rc3.orig/drivers/sound/i810_audio.c linux-2.4.19-rc3.patched/drivers/sound/i810_audio.c
+--- linux-2.4.19-rc3.orig/drivers/sound/i810_audio.c	Sun Jul 28 05:54:54 2002
++++ linux-2.4.19-rc3.patched/drivers/sound/i810_audio.c	Sun Jul 28 06:06:06 2002
+@@ -2660,7 +2660,10 @@
+ 		if (!i810_ac97_exists(card,num_ac97)) {
+ 			if(num_ac97 == 0)
+ 				printk(KERN_ERR "i810_audio: Primary codec not ready.\n");
+-			break; /* I think this works, if not ready stop */
++			/* Hack by dg2fer: On my Epox 4G4A+ with i845G we should just    */
++			/* continue probing and *not* break. The status is always "not   */
++			/* ready" but afterwards it works great. So I removed the break. */
++			/* break; */ /* I think this works, if not ready stop */
+ 		}
 
-That's not what I'm saying. I'm saying that there _are_ problems with IDE,
-but that the real problem with IDE is that some people aren't even willing
-to help despite the fact that we do have a maintainer that actually can
-work with people.
+ 		if ((codec = kmalloc(sizeof(struct ac97_codec), GFP_KERNEL)) == NULL)
 
-I realize that so many people are probably used to the fact that IDE
-maintainers do not take patches from the outside that people have kind of
-given up on even working on IDE, but it doesn't help to have people only
-be negative (and btw, I'm definitely not talking about you - you've been
-exceedingly _positive_ in that you're still willing to test and report on
-problems. I'm talking about people who don't even bother to do
-bug-reports, but only trash-talk the maintenance).
 
-> A few people reported lost filesystems. Many more reported mild
-> filesystem damage. And now you also report mild filesystem damage.
 
-No, I've not reported lost filesystems. I'm reporting that _others_
-reported filesystem damage that was _not_ related to the IDE patches at
-all, yet were instantly blamed on the IDE patches.
-
-And THAT is part of the problem. I don't know why, but the IDE subsystem
-brings out the worst in people.
-
-This is, btw, one reason why I hate mid layers. People blame them for
-everything, and fixing it for one setup breaks it for another.
-
-> My third candidate is USB. Systems without USB are clearly more stable.
-
-Hmm.. I doubt that's your problem, but you might just want to pester
-Martin about your particular IDE setup and see if some light eventually
-goes off somewhere.
-
-I have this memory that you're using PIO mode? Please do make full details
-available, reminding people which exact setups are broken..
-
-		Linus
+With best regards,
+Sincerely,
+  Mirko, dg2fer
 

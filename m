@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289412AbSAOElO>; Mon, 14 Jan 2002 23:41:14 -0500
+	id <S289415AbSAOEt1>; Mon, 14 Jan 2002 23:49:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289413AbSAOElE>; Mon, 14 Jan 2002 23:41:04 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:29446 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S289412AbSAOEkr>; Mon, 14 Jan 2002 23:40:47 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 14 Jan 2002 20:46:40 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.2
-In-Reply-To: <Pine.LNX.4.33.0201141840070.2544-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.40.0201142042570.935-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289413AbSAOEtQ>; Mon, 14 Jan 2002 23:49:16 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:21662 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S289415AbSAOEtG>;
+	Mon, 14 Jan 2002 23:49:06 -0500
+Date: Mon, 14 Jan 2002 20:47:04 -0800 (PST)
+Message-Id: <20020114.204704.21652738.davem@redhat.com>
+To: fds@cs.ucsd.edu
+Cc: netdev@oss.sgi.com, ak@muc.de, kuznet@ms2.inr.ac.ru,
+        linux-kernel@vger.kernel.org
+Subject: Re: New network monitoring proc file.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020114234525.4C84B77BB@bulldog.sacerdoti.org>
+In-Reply-To: <20020114234525.4C84B77BB@bulldog.sacerdoti.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Linus Torvalds wrote:
+   From: Federico David Sacerdoti <fds@cs.ucsd.edu>
+   Date: Mon, 14 Jan 2002 15:48:26 -0800
 
->
-> Ok, lots of various changes between 2.5.1->2, mainly in bio, kdev_t and
-> scheduler (and several USB updates).
+   I would like to submit a patch that adds a /proc file to the kernel which 
+   monitors the health of active TCP connections. It does this by counting 
+   the number of duplicate ACKs sent out, among other things.
+   
+   I have a website detailing the exact metrics used and why I choose them:  		
+   http://heron.ucsd.edu/tcphealth/
+   
+I would rather that you add this to the tcp_diag facility in
+2.4.x instead of creating yet another proc file.  tcp_diag is
+designed perfectly for fetching the kind of information your
+TCP health monitor is providing.
 
-Linus, i've a weird behavior with 2.5.2
-swapon first fails at boot ( early stage ) then it succeed ( late boot
-stage ) but the swap is not actually activated. Running swapon by hand it
-reports a seccessful operation but the swap is not on.
-I'm trying to understand what is happening ...
-
-
-
-
-- Davide
-
-
+This is irregardless of whether your selection of health metrics is
+sound or not, I have not looked into this part at all.  But it will
+have to be discussed before we think about adding the changes.

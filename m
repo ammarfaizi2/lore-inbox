@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbTG1LCO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 07:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTG1LCO
+	id S261741AbTG1LIb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 07:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTG1LIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 07:02:14 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:31239 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S262577AbTG1LCG (ORCPT
+	Mon, 28 Jul 2003 07:08:30 -0400
+Received: from smtp012.mail.yahoo.com ([216.136.173.32]:58638 "HELO
+	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261741AbTG1LI1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 07:02:06 -0400
-Date: Mon, 28 Jul 2003 13:17:20 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNC] linld 0.96 is available
-Message-ID: <20030728111720.GA7452@lug-owl.de>
-Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org
-References: <200307281028.h6SASBj12316@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5LK7OEqpP/xdrAG9"
+	Mon, 28 Jul 2003 07:08:27 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Ethernet falls into deep sleep.
+Date: Mon, 28 Jul 2003 13:23:28 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-net@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <200307281028.h6SASBj12316@Port.imtp.ilyichevsk.odessa.ua>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307281323.47013.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---5LK7OEqpP/xdrAG9
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi.
 
-On Mon, 2003-07-28 13:37:35 +0300, Denis Vlasenko <vda@port.imtp.ilyichevsk=
-=2Eodessa.ua>
-wrote in message <200307281028.h6SASBj12316@Port.imtp.ilyichevsk.odessa.ua>:
-> linld 0.96 is available at
->=20
-> http://sort.imtp.ilyichevsk.odessa.ua/linux/linld/
+I've a problem with my server/router, that I've seen on
+various kernels. currently I'm running 2.4.21, but I've
+seen the problem on 2.4.20 and 2.5.70, too.
+I'm using a 3com 3c509 ISA ethernet card.
 
-Doesn't resolve.
+When this server stays a longer time (about one night, 12 hours)
+without network-traffic, it seems like the whole network-interface
+falls into a very deep sleep. It's very hard to wake the machine
+up.
+Today it was _very_ hard. First I tried to reach the internet
+through this machine (it's a router), but it didn't work.
+Every packet was thrown away by the router.
+Then I tried to login via ssh into the machine, but I got
+no response. Then I tried to ping the machine. All packages
+got lost. But after a few minutes of pinging, suddenly the
+machine responded in normal speed. From now on ssh and
+routing was possible too.
+It's like I have to tickle the machine a bit, before its
+network-interface wakes up and I'm able to transmit some
+packages.
 
-MfG, JBG
+I've no idea for the reason.
+Thank you for every help.
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+(Please CC me, as I'm not subscribed to linux-net)
 
---5LK7OEqpP/xdrAG9
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+- -- 
+Regards Michael Buesch
+http://www.8ung.at/tuxsoft
+Penguin on this machine:  Linux 2.4.21  - i386
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE/JQZAHb1edYOZ4bsRAiLBAJ9g9W9RoC9Uwg753CEvZXPFdMGCrwCeIjgW
-QDGFGMaeMkoPfi90BQmUah4=
-=37dn
+iD8DBQE/JQfCoxoigfggmSgRAoKBAJ0bZIXp6BYIzvz4p+HuQKyiEcyNPQCfUfo6
+VtA+E7Q/V6cLXotHloXYGC8=
+=XEC1
 -----END PGP SIGNATURE-----
 
---5LK7OEqpP/xdrAG9--

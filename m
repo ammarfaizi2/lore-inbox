@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311701AbSCXSEu>; Sun, 24 Mar 2002 13:04:50 -0500
+	id <S311670AbSCXSEU>; Sun, 24 Mar 2002 13:04:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311661AbSCXSEc>; Sun, 24 Mar 2002 13:04:32 -0500
-Received: from [64.66.228.215] ([64.66.228.215]:48651 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S311642AbSCXSEO>; Sun, 24 Mar 2002 13:04:14 -0500
-Date: Sun, 24 Mar 2002 12:03:37 -0600
-From: Steven Walter <srwalter@yahoo.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Screen corruption in 2.4.18
-Message-ID: <20020324180337.GA925@hapablap.dyn.dhs.org>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020324155930.GA20926@hapablap.dyn.dhs.org> <E16pBAL-0006f2-00@the-village.bc.nu>
+	id <S311661AbSCXSEB>; Sun, 24 Mar 2002 13:04:01 -0500
+Received: from mario.gams.at ([194.42.96.10]:15152 "EHLO mario.gams.at")
+	by vger.kernel.org with ESMTP id <S311642AbSCXSD4> convert rfc822-to-8bit;
+	Sun, 24 Mar 2002 13:03:56 -0500
+Message-Id: <200203241803.g2OI3sW30448@frodo.gams.co.at>
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.3
+From: Bernd Petrovitsch <bernd@gams.at>
+To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.18] Security: Process-Killer if machine get's out of memory 
+In-Reply-To: <200203241757.SAA20700@piggy.rz.tu-ilmenau.de> 
+X-url: http://www.luga.at/~bernd/
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Uptime: 12:01:59 up 3 days, 10:59,  0 users,  load average: 1.38, 1.13, 1.04
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Sun, 24 Mar 2002 19:03:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 24, 2002 at 04:48:20PM +0000, Alan Cox wrote:
-> > Here is a patch which should apply cleanly to everyone's tree, which
-> > only clears bit 7 on all chips except the KT266.  No problems have been
-> > reported there, so I'm leaving well enough alone.  Please apply.
-> 
-> No. Not until someone explains to me why VIA specifically told me I must
-> clear the 3 bits. If you get that wrong you get slow and insidious disk
-> corruption. Its hard to test and I'm not going to use other people's
-> hardware as target practice for a hunch.
+Christian Borntr ger <linux-kernel@borntraeger.net> wrote:
+>Well, I think could be worth in terms of security, because a local user could 
+>use a bad memory-eating program to produce an Denial of Service of other 
+>processes.
 
-I've contacted someone at VIA about it, but have yet to hear back.
-You'll be the first to know when I do.
+man setrlimit
+
+>Unfortunately detecting a program, written to cause harm is harder than 
+>detecting a crazy program.
+
+ACK.
+	Bernd
 -- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
-He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
-Well, who's mad now?
-			-- Montgomery C. Burns
+Bernd Petrovitsch                              Email : bernd@gams.at
+g.a.m.s gmbh                                  Fax : +43 1 205255-900
+Prinz-Eugen-Straﬂe 8                    A-1040 Vienna/Austria/Europe
+                     LUGA : http://www.luga.at
+
+

@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbTKHKcX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 05:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTKHKcX
+	id S261692AbTKHKwM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 05:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbTKHKwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 05:32:23 -0500
-Received: from cap175-219-202.pixi.net ([207.175.219.202]:2457 "EHLO
-	beaucox.com") by vger.kernel.org with ESMTP id S261685AbTKHKcW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 05:32:22 -0500
-From: "Beau E. Cox" <beau@beaucox.com>
-Organization: BeauCox.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: PROBLEM: 2.4.23-pre7,pre8,pre9 hang on starting squid
-Date: Sat, 8 Nov 2003 00:31:28 -1000
-User-Agent: KMail/1.5.4
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0311061204510.8534-100000@logos.cnet> <200311070600.02069.beau@beaucox.com> <20031107155147.05671d94.rddunlap@osdl.org>
-In-Reply-To: <20031107155147.05671d94.rddunlap@osdl.org>
+	Sat, 8 Nov 2003 05:52:12 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:61155 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261692AbTKHKwL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 05:52:11 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4] forcedeth
+References: <3FAC837F.2070601@gmx.net> <20031108085415.C18856@infradead.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 08 Nov 2003 11:51:34 +0100
+In-Reply-To: <20031108085415.C18856@infradead.org>
+Message-ID: <m3k76b16bt.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311080031.28457.beau@beaucox.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 November 2003 01:51 pm, Randy.Dunlap wrote:
-> On Fri, 7 Nov 2003 06:00:01 -1000 "Beau E. Cox" <beau@beaucox.com> wrote:
-> | On Thursday 06 November 2003 04:06 am, Marcelo Tosatti wrote:
-> | > On Mon, 3 Nov 2003, Beau E. Cox wrote:
-> | > > [1.] summary:
-> | > >
-> | > > 2.4.23-pre7,pre8,pre9 hang depending on when 'squid' is started.
-> | > >
-> | > > [snipped]
-> | >
-> | > Strange.
-> | >
-> | > Can you find out in which -pre the problem starts?
-> |
-> | Hi - I want to track down the 'pre' where my problem started (I would
-> | need 2.4.23-pre1 thru pre6), but I can't find them anywhere on the
-> | kernel archaive site (mirros too). Where can I get these pre patches?
->
-> They are in this directory:
->   http://www.kernel.org/pub/linux/kernel/v2.4/testing/
->
-> --
-> ~Randy
-> MOTD:  Always include version info.
+Christoph Hellwig <hch@infradead.org> writes:
 
-Thanks Randy -
+> Any chance to give the driver a more descriptive name, say nforce_eth?
+> Traditionally we tend to name like drivers after the hardware's name or
+> codename, not the development methology used.
 
-I don't know how I missed them...
-I'll start from pre1 and test. This will take several days to a week.
-
-Aloha => Beau;
-
+Actually my brain keeps interpreting "forcedeth" as "forcedeath" :-)
+-- 
+Krzysztof Halasa, B*FH

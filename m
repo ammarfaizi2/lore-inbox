@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272313AbRH3QVn>; Thu, 30 Aug 2001 12:21:43 -0400
+	id <S272316AbRH3QYX>; Thu, 30 Aug 2001 12:24:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272312AbRH3QVd>; Thu, 30 Aug 2001 12:21:33 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:37905 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S272315AbRH3QV1>;
-	Thu, 30 Aug 2001 12:21:27 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200108301621.UAA05134@ms2.inr.ac.ru>
-Subject: Re: tcp connection hangs on connect
-To: val@nmt.edu (Val Henson)
-Date: Thu, 30 Aug 2001 20:21:16 +0400 (MSK DST)
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010829195259.B11544@boardwalk> from "Val Henson" at Aug 29, 1 07:53:02 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S272314AbRH3QYN>; Thu, 30 Aug 2001 12:24:13 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:22536 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S272312AbRH3QYA>; Thu, 30 Aug 2001 12:24:00 -0400
+Date: Thu, 30 Aug 2001 17:23:46 +0100 (BST)
+From: David Woodhouse <dwmw2@infradead.org>
+X-X-Sender: <dwmw2@imladris.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: lcs ethernet driver source
+In-Reply-To: <E15cU4q-0001Hp-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108301720190.23048-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, 30 Aug 2001, Alan Cox wrote:
 
-> :) I was hoping Alexey would respond with "Oh yeah, here's that patch,
+> > Sorry, at this point we are not allowed to publish the source code of the
+> > lcs and qeth drivers (due to the use of confidential hardware interface
+> > specifications).  We make those modules available only in binary form
+> > on our developerWorks web site.
+> 
+> Is there any plan to change this ? 
 
-Your hopes were groundless.
-Actually, you could change subject, this apparently has nothing
-to do with your problem and this is misleading.
+Erm, Linux on S/390 runs as a virtual machine, doesn't it? Does a lack of 
+network drivers not render it completely useless?
 
-I have no idea what happens in your case, apparently, retransmission
-timer is lost on sender, which is absolutely impossible. :-)
-Well, send me cat of /proc/tcp after the stall happened.
+If the architecture port is not sanely usable in the form in which it 
+appears in the Linux kernel, then it should be removed from the tree.
 
-Alexey
+-- 
+dwmw2
+
+

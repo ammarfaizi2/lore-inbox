@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272242AbTHIAwd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 20:52:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272223AbTHIAwH
+	id S272224AbTHIBDg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 21:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272167AbTHIBDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 20:52:07 -0400
-Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:49360 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S272168AbTHIAvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 20:51:31 -0400
-Date: Sat, 9 Aug 2003 02:51:24 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>
-Subject: I2C errors
-Message-Id: <20030809025124.7ed1395e.us15@os.inf.tu-dresden.de>
-Organization: Fiasco Core Team
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-X-Mailer: X-Mailer 5.0 Gold
+	Fri, 8 Aug 2003 21:03:23 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:24080
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S272163AbTHIBDS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 21:03:18 -0400
+Date: Fri, 8 Aug 2003 18:03:15 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm1
+Message-ID: <20030809010315.GB1027@matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20030727233716.56fb68d2.akpm@osdl.org> <20030809002817.GA1027@matchmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.iJfA(vcjbpSv5I"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030809002817.GA1027@matchmail.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.iJfA(vcjbpSv5I
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+[killing linux-mm in CC]
 
+On Fri, Aug 08, 2003 at 05:28:17PM -0700, Mike Fedyk wrote:
+> Though it was interesting that there weren't any errors reported from the
+> 2.6 nfs server.
 
-Hi Greg,
+Ok, the 2.6 client is having trouble with the 2.6 server also, so that
+wasn't anything special then.
 
-Both under 2.4 and 2.5/2.6 I'm getting occasional I2C errors like these:
+I have some tcpdump traces from one of the nfs servers that shows the pauses
+that are happening in the transmission if anyone would like to take a look.
 
-i2c-algo-bit.o: bt848 #0 i2c_write: error - bailout.
-msp34xx: I/O error #1 (read 0x12/0x18)
+I'm not sure what else I can do to find out why it is pausing.
 
-They repeat every 5 minutes or so until the video device (bttv) is
-reinitialized. 
-
-Any ideas what's going on?
-
-Regards,
--Udo.
-
---=.iJfA(vcjbpSv5I
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.1 (GNU/Linux)
-
-iD8DBQE/NEWPnhRzXSM7nSkRAhHoAJ91tTBTDTPjA0nXsCEVyzeFL/TgqACeM5eZ
-c65tF36I5SIPOiuz65Vq8Zk=
-=ZTRu
------END PGP SIGNATURE-----
-
---=.iJfA(vcjbpSv5I--
+Any ideas?

@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268659AbRGZTjR>; Thu, 26 Jul 2001 15:39:17 -0400
+	id <S268628AbRGZTtR>; Thu, 26 Jul 2001 15:49:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268657AbRGZTjI>; Thu, 26 Jul 2001 15:39:08 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:34709 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S268658AbRGZTi6>;
-	Thu, 26 Jul 2001 15:38:58 -0400
-Date: Thu, 26 Jul 2001 19:37:41 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: nfs weirdness
-Message-ID: <20010726193741.J19492@grobbebol.xs4all.nl>
-In-Reply-To: <20010723154217.F19492@grobbebol.xs4all.nl> <15197.21462.625678.700365@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <15197.21462.625678.700365@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Tue, Jul 24, 2001 at 08:54:14PM +1000
-X-OS: Linux grobbebol 2.4.6 
+	id <S268660AbRGZTtH>; Thu, 26 Jul 2001 15:49:07 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:3986 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S268628AbRGZTtE>; Thu, 26 Jul 2001 15:49:04 -0400
+Date: Thu, 26 Jul 2001 20:50:23 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Jeremy Linton <jlinton@interactivesi.com>
+cc: mingo@elte.hu, Anton Blanchard <anton@samba.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: highmem-2.4.7-A0 [Re: kmap() while holding spinlock]
+In-Reply-To: <00bc01c11600$4c3901a0$bef7020a@mammon>
+Message-ID: <Pine.LNX.4.21.0107262012210.1120-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 24, 2001 at 08:54:14PM +1000, Neil Brown wrote:
-> If you ask to export "/windows" and nothing is mounted on "/windows",
-> then you are asking to export part of the root filesystem starting at
-> "/windows".  If you subsequently mount something on /windows, then you
-> haven't asked for that to be exported so it won't be, and mountd will
-> get confused.
-> You should always mount filesystems before trying to export them.
+On Thu, 26 Jul 2001, Jeremy Linton wrote:
+> > > [...] or to do the clearing (and copying) speculatively, after
+> > > allocating the page but before locking the pagetable lock. This might
+> > > lead to a bit more work in the pagefault-race case, but we dont care
+> > > about that window. It will on the other hand reduce pagetable_lock
+> > > contention (because the clearing/copying is done outside the lock), so
+> > > perhaps this solution is better.
+> >
+> > the attached highmem-2.4.7-A0 patch implements this method in both
+> > affected functions. Comments?
+>     It seems to me that the problem is more fundamental than that. Excuse my
+> ignorance, but what keeps the 'old_page' (and associated pte, checked two
+> lines down) from disappearing somewhere between the lock drop, alloc page
+> and the copy from the old page? Normally if this happens it appears the new
+> page gets dropped and the fault occurs again, and is resolved in a
+> potentially different way.
 
+I was about to answer this by pointing out that, although the pte may
+change and the old_page be reused for some other purpose while we drop
+the lock, the old_page won't actually "disappear".  It will remain
+physically present, just containing irrelevant data: there won't be
+any danger from copying the wrong data, we just notice further down
+that the pte changed and discard this copy and fault again (or not).
 
-well, I tested it for trouble shooting. if I mount the /windows vfat and
-export with knfsd it fails. if I do not moiut the vfat, it does. ergo,
-the config files are okay, knfsd refuses. 
+But in writing, I realize (perhaps it's your very point, understated)
+that it's conceivable (though *very* unlikely) that the old_page is
+reused for some other purpose while we do the copy, then freed from
+that use and reused for its original purpose by the time we regain the
+lock: so that the pte_same() test succeeds yet the copied data is wrong.
 
+Either do_wp_page() needs page_cache_get(old_page) before dropping
+page_table_lock, page_cache_release(old_page) after reacquiring it;
+or the kmap()s done while the lock is dropped, but copy_user_page()
+and kunmap()s left until the lock has been reacquired.  Ingo?
 
-somebody else pointed out in private mail that knfsd isn't supposed to
-be able to export vfat filesystems and unfsd could. if he is correct, I
-will have to onstall the other utils again and install unfsd instead.
+Hugh
 
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  

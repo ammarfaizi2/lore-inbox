@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290811AbSAYVck>; Fri, 25 Jan 2002 16:32:40 -0500
+	id <S290816AbSAYVhY>; Fri, 25 Jan 2002 16:37:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290814AbSAYVcY>; Fri, 25 Jan 2002 16:32:24 -0500
-Received: from rakis.net ([207.8.143.12]:34741 "EHLO egg.rakis.net")
-	by vger.kernel.org with ESMTP id <S290811AbSAYVcO>;
-	Fri, 25 Jan 2002 16:32:14 -0500
-Date: Fri, 25 Jan 2002 16:32:06 -0500 (EST)
-From: Greg Boyce <gboyce@rakis.net>
-X-X-Sender: gboyce@egg
-To: linux-kernel@vger.kernel.org
-Subject: re: Uptime again?
-Message-ID: <Pine.LNX.4.42.0201251629540.6408-100000@egg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290817AbSAYVhO>; Fri, 25 Jan 2002 16:37:14 -0500
+Received: from dsl081-242-114.sfo1.dsl.speakeasy.net ([64.81.242.114]:13440
+	"EHLO drscience.sciencething.org") by vger.kernel.org with ESMTP
+	id <S290816AbSAYVg7>; Fri, 25 Jan 2002 16:36:59 -0500
+User-Agent: Microsoft-Entourage/10.0.0.1309
+Date: Fri, 25 Jan 2002 13:33:02 -0800
+Subject: UVFS Version 0.2
+From: Britt Park <britt@drscience.sciencething.org>
+To: <linux-kernel@vger.kernel.org>
+Message-ID: <B8770F0E.33BE%britt@sciencething.org>
+Mime-version: 1.0
+Content-type: text/plain; charset="US-ASCII"
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Uptime, when using Linux-2.4.1 doesn't seem to go past 128 days!
-> This is a RedHat distrubution, 7.x
+UVFS Version 0.2 is now available at
+http://www.sciencething.org/geekthings/index.html
 
-Hm.
+UVFS is a userspace filesystem kit designed to provide a complete interface
+to the linux VFS.  Version 0.2 now understands multiple mounts per
+filesystem type.
 
-I just checked a group of machines I control, and the longest uptime I
-found was also 128 days.
+TIA for any feedback,
 
-[root@nocc66 /root]# uptime
-  4:30pm  up 128 days, 53 min,  2 users,  load average: 0.00, 0.00, 0.00
-
-Mine is Redhat 7.1 with the 2.4.3-12 kernel.
-
-
---
-Gregory Boyce
+Britt Park
 

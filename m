@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264669AbTD0O3o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 10:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264675AbTD0O3o
+	id S264674AbTD0OZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 10:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264669AbTD0OZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 10:29:44 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:4070 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S264669AbTD0O3n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 10:29:43 -0400
-Date: Sun, 27 Apr 2003 07:41:51 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Houston, I think we have a problem
-Message-ID: <28750000.1051454510@[10.10.2.4]>
-In-Reply-To: <5.2.0.9.2.20030427090009.01f89870@pop.gmx.net>
-References: <5.2.0.9.2.20030427090009.01f89870@pop.gmx.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Sun, 27 Apr 2003 10:25:57 -0400
+Received: from zero.aec.at ([193.170.194.10]:7950 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264674AbTD0OZ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 10:25:56 -0400
+Date: Sun, 27 Apr 2003 16:38:01 +0200
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Andi Kleen <ak@muc.de>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] An generic subarchitecture for 2.5.68
+Message-ID: <20030427143801.GA2000@averell>
+References: <20030427012238.GA13997@averell> <20030426231147.69efb07d.akpm@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030426231147.69efb07d.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> To reproduce this 100% of the time, simply compile virgin 2.5.68
-> up/preempt, reduce your ram to 128mb, and using gcc-2.95.3 as to not
-> overload the vm, run a make -j30 bzImage in an ext3 partition on a P3/500
-> single ide disk box.  No, you don't really need to meet all of those
-> restrictions... you'll see the problem on a big hairy chested box as
-> well, just not as bad as I see it on my little box.  The first symptom of
-> the problem you will notice is a complete lack of swap activity along
-> with highly improbable quantities of unused ram were all those hungry
-> cc1's getting regular CPU feedings.
+On Sun, Apr 27, 2003 at 08:11:47AM +0200, Andrew Morton wrote:
+> Andi Kleen <ak@muc.de> wrote:
+> >
+> > 
+> > This patch adds an generic x86 subarchitecture.
+> 
+> It causes a large number of compilation errors with the config at
+> http://www.zip.com.au/~akpm/linux/patches/stuff/config
+> 
+> Some Kconfig help would be nice...
 
-Yes, that's why I don't use ext3 ;-) It's known broken, akpm is fixing it.
+This incremental patch fixes it by just disallowing SMP in the dependencies.
 
-M.
+-Andi
+
+--- linux-subarch/arch/i386/Kconfig-o	2003-04-27 16:32:53.000000000 +0200
++++ linux-subarch/arch/i386/Kconfig	2003-04-27 16:26:24.000000000 +0200
+@@ -66,6 +66,7 @@
+ 
+ config X86_SUMMIT
+ 	bool "Summit/EXA (IBM x440)"
++	depends on SMP
+ 	help
+ 	  This option is needed for IBM systems that use the Summit/EXA chipset.
+ 	  In particular, it is needed for the x440.
+@@ -74,6 +75,7 @@
+ 
+ config X86_BIGSMP
+ 	bool "Support for other sub-arch SMP systems with more than 8 CPUs"
++	depends on SMP
+ 	help
+ 	  This option is needed for the systems that have more than 8 CPUs
+ 	  and if the system is not of any sub-arch type above.
+@@ -93,6 +95,7 @@
+ 
+ config X86_GENERICARCH
+        bool "Generic architecture (Summit, bigsmp, default)"
++       depends on SMP
+        help
+           This option compiles in the Summit, bigsmp, default subarchitectures.
+ 	  It is intended for a generic binary kernel.
 

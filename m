@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVALXNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVALXUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbVALXNE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 18:13:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVALXLx
+	id S261562AbVALXUs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 18:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVALXSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 18:11:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38307 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261555AbVALXKj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 18:10:39 -0500
-Date: Wed, 12 Jan 2005 15:10:38 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050112151038.W469@build.pdx.osdl.net>
-References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112191814.GA11042@kroah.com> <87sm56e8po.fsf@deneb.enyo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <87sm56e8po.fsf@deneb.enyo.de>; from fw@deneb.enyo.de on Wed, Jan 12, 2005 at 08:41:23PM +0100
+	Wed, 12 Jan 2005 18:18:03 -0500
+Received: from ithilien.qualcomm.com ([129.46.51.59]:46324 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id S261557AbVALXR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 18:17:29 -0500
+Message-ID: <41E5AFDB.5010102@qualcomm.com>
+Date: Wed, 12 Jan 2005 15:16:43 -0800
+From: Max Krasnyansky <maxk@qualcomm.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: davem@davemloft.net, linux-kernel@vger.kernel.org
+Subject: Re: [BK] TUN/TAP driver update and fixes for 2.6.BK
+References: <41E5A5DA.1010301@qualcomm.com> <20050112150129.09601d64.akpm@osdl.org>
+In-Reply-To: <20050112150129.09601d64.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Florian Weimer (fw@deneb.enyo.de) wrote:
-> * Greg KH:
+Andrew Morton wrote:
+> Max Krasnyansky <maxk@qualcomm.com> wrote:
 > 
-> >> In other words, if you allow embargoes and vendor politics, what would the 
-> >> new list buy that isn't already in vendor-sec.
-> >
-> > vendor-sec handles a lot of other stuff that is not kernel related
-> > (every package that is in a distro.) This would only be for the kernel.
+>>Could one of you please pull TUN/TAP driver updates from my tree
 > 
-> I don't know that much about vendor-sec, but wouldn't the kernel list
-> contain roughly the same set of people?
+> That would be Dave.
+> 
+> Did you see this fly past on netdev?
+Nope. Somehow I'm not getting any mail on netdev. I guess I need to check
+my subscription :).
 
-No.
+I'll apply it an push to Dave.
 
-> vendor-sec also has people
-> from the *BSDs, I believe, but they should probably notified of Linux
-> issues as well (often, similar mistakes are made in different
-> implementations).
-
-Take a look at <http://www.freebsd.org/security/index.html>.  Pretty
-good description.  It's normal for projects to have their own security
-contact to handle security issues.  Once it's vetted, understood,
-etc...it's normal to give vendors some heads-up.
-
-> If the readership is the same, it doesn't make sense to run two lists,
-> especially because it's not a normal list and you have to be capable
-> to deal with the vetting.
-
-It's not the same readership.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Thanks
+Max

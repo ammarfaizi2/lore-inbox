@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130077AbRADINK>; Thu, 4 Jan 2001 03:13:10 -0500
+	id <S129742AbRADISv>; Thu, 4 Jan 2001 03:18:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129742AbRADINA>; Thu, 4 Jan 2001 03:13:00 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:55825 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130077AbRADIMv>;
-	Thu, 4 Jan 2001 03:12:51 -0500
-Date: Thu, 4 Jan 2001 09:12:41 +0100
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Pete Zaitcev <zaitcev@metabyte.com>, linux-kernel@vger.kernel.org
+	id <S129962AbRADISm>; Thu, 4 Jan 2001 03:18:42 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:41231 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S129742AbRADIS0>; Thu, 4 Jan 2001 03:18:26 -0500
+Message-ID: <3A54332E.58374060@uow.edu.au>
+Date: Thu, 04 Jan 2001 19:24:14 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Pete Zaitcev <zaitcev@metabyte.com>, linux-kernel@vger.kernel.org
 Subject: Re: So, what about kwhich on RH6.2?
-Message-ID: <20010104091241.B18973@gruyere.muc.suse.de>
-In-Reply-To: <3A541361.65942CB3@metabyte.com> <3A5430C6.FBAB094A@uow.edu.au>
-Mime-Version: 1.0
+In-Reply-To: <3A541361.65942CB3@metabyte.com> <3A5430C6.FBAB094A@uow.edu.au>,
+		<3A5430C6.FBAB094A@uow.edu.au>; from andrewm@uow.edu.au on Thu, Jan 04, 2001 at 07:13:58PM +1100 <20010104091241.B18973@gruyere.muc.suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5430C6.FBAB094A@uow.edu.au>; from andrewm@uow.edu.au on Thu, Jan 04, 2001 at 07:13:58PM +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2001 at 07:13:58PM +1100, Andrew Morton wrote:
-> Silly question:
+Andi Kleen wrote:
 > 
-> can't we just hardwire `kgcc' into the build system and be done
-> with all this kwhich stuff?  It's just a symlink....
+> On Thu, Jan 04, 2001 at 07:13:58PM +1100, Andrew Morton wrote:
+> > Silly question:
+> >
+> > can't we just hardwire `kgcc' into the build system and be done
+> > with all this kwhich stuff?  It's just a symlink....
+> 
+> And break compilation on all non RedHat 7, non connectiva systems ?
 
-And break compilation on all non RedHat 7, non connectiva systems ? 
-Would you volunteer to handle the support load on l-k that would cause?
+I don't buy that.  The compulsory modutils upgrade a couple of months
+back caused, what?  Ten emails?
 
+> Would you volunteer to handle the support load on l-k that would cause?
 
--Andi
-
+With pleasure.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

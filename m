@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbVCPPqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVCPPtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262616AbVCPPqz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 10:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVCPPqy
+	id S261267AbVCPPtt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 10:49:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVCPPtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 10:46:54 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:20878 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261262AbVCPPqx (ORCPT
+	Wed, 16 Mar 2005 10:49:49 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:36757 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261267AbVCPPtn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 10:46:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=UCLsQYaZODJwsgTwWXZO3H0bs+Dr6r4ofsTGIiZoR+ioN93FjFC6izAqpdCd9r9tl9TxfKx9nwQVoAfZHk1zx4eEUWASipmaq/fk2khxZ4QgYh886GYCz0g1lMCY1Owz/gDDLXBwzE0GwjSgTHM42SmWT0Y4YzUJAdM5ElXhWXc=
-Message-ID: <5a3ed5650503160744730b7db4@mail.gmail.com>
-Date: Wed, 16 Mar 2005 18:44:51 +0300
-From: regatta <regatta@gmail.com>
-Reply-To: regatta <regatta@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 32Bit vs 64Bit
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 16 Mar 2005 10:49:43 -0500
+Message-ID: <423864EE.52A3AE91@tv-sign.ru>
+Date: Wed, 16 Mar 2005 19:55:10 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <christoph@lameter.com>, linux-kernel@vger.kernel.org,
+       Shai Fultheim <Shai@Scalex86.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 0/2] del_timer_sync: proof of concept
+References: <4231E959.141F7D85@tv-sign.ru> <Pine.LNX.4.58.0503111254270.25992@server.graphe.net> <4237192B.7E8AA85A@tv-sign.ru>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+Andrew Morton wrote:
+>
+> If we're prepared to rule that a timer handler is not allowed to do
+> add_timer_on() then a recurring timer is permanently pinned to a CPU, isn't
+> it?
+>
+> That should make things simpler?
 
-I have a question about the 64Bit mode in AMD 64bit
+I think that current inplementation of del_timer_sync() don't like
+add_timer_on() too.
 
-My question is if I run a 32Bit application in Optreon AMD 64Bit with
-Linux 64Bit does this give my any benefit ? I mean running 32Bit
-application in 64Bit machine with 64 Linux is it better that running
-it in 32Bit or doesn't make any different at all ?
+Consider the timer running on CPU_0. It sets timer->expires = jiffies,
+and calls add_timer_on(1). Now it is possible that local timer interrupt
+on CPU_1 happens and starts that timer before timer->function returns on
+CPU_0.
 
-Thanks
--- 
-Best Regards,
---------------------
--*- If Linux doesn't have the solution, you have the wrong problem -*-
+del_timer_sync() detects that timer is running on CPU_0, waits while
+->running_timer == timer, and returns. The timer still runs on CPU_1.
+
+Oleg.

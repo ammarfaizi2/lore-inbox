@@ -1,121 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263890AbTLJTS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 14:18:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbTLJTS4
+	id S263880AbTLJTZb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 14:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbTLJTZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 14:18:56 -0500
-Received: from medusa.csi-inc.com ([204.17.222.19]:49046 "EHLO
-	medusa.csi-inc.com") by vger.kernel.org with ESMTP id S263890AbTLJTSw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 14:18:52 -0500
-Message-ID: <02f701c3bf52$6f6a3240$c8de11cc@black>
-From: "Mike Black" <mblack@csi-inc.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: hdparm and DMA
-Date: Wed, 10 Dec 2003 14:18:47 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Wed, 10 Dec 2003 14:25:31 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:653 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263914AbTLJTZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 14:25:21 -0500
+Date: Wed, 10 Dec 2003 19:16:48 +0000
+From: Dave Jones <davej@redhat.com>
+To: Chris Petersen <Chris.Petersen@synopsys.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FIXED (was Re: PROBLEM:  Blk Dev Cache causing kswapd thrashing)
+Message-ID: <20031210191648.GI5661@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Chris Petersen <Chris.Petersen@synopsys.com>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0311271649520.21568-100000@logos.cnet> <3FD75B8A.21FA59D9@synopsys.com> <20031210180849.GA13303@redhat.com> <3FD76D99.1960A104@synopsys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FD76D99.1960A104@synopsys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm testing IDE hotswap using hdparm's ability to reset the IDE bus.
-Problem is, even though it seems to work I can' re-enable DMA on the drive afterwards without a reboot.
-This is similar to a problems I had with the via8xxxx module which when compiled as module couldn't get DMA going either.
+On Wed, Dec 10, 2003 at 02:01:45PM -0500, Chris Petersen wrote:
 
-I'm running 2.4.23.  And here's the two different IDE reports:
+ > After some research it looks like the fix is sortof there in
+ > RedHat's 2.4.20-13.7.  It behaves better, but not as good as 2.4.23
+ > or 2.4.20-24.7.  By "better" I mean kswapd (and bdflush, kupdated,
+ > kreclaimd) doesn't hog the CPU(s) as much; but it still does to
+ > a greater extent compared to what I'm calling the "fixed" versions.
+ > So in 2.4.20-13.7 it's quasi-busted or quasi-fixed, depending on
+ > your half-full/empty position.
 
-Boot messages where DMA is fine:
-Dec  9 05:21:04 picard kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
-Dec  9 05:21:04 picard kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-Dec  9 05:21:04 picard kernel: VP_IDE: IDE controller at PCI slot 00:11.1
-Dec  9 05:21:04 picard kernel: VP_IDE: chipset revision 6
-Dec  9 05:21:04 picard kernel: VP_IDE: not 100%% native mode: will probe irqs later
-Dec  9 05:21:04 picard kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-Dec  9 05:21:04 picard kernel: VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci00:11.1
-Dec  9 05:21:04 picard kernel:     ide0: BM-DMA at 0xc000-0xc007, BIOS settings: hda:DMA, hdb:pio
-Dec  9 05:21:04 picard kernel:     ide1: BM-DMA at 0xc008-0xc00f, BIOS settings: hdc:DMA, hdd:pio
-Dec  9 05:21:04 picard kernel: hda: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63, UDMA(100)
-Dec  9 05:21:04 picard kernel: hdc: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=14593/255/63, UDMA(100)
+Red Hat's 2.4.20 based kernels include the rmap VM.
+Due to this fixes that have gone into mainline vm may or may not
+be relevant. You may notice the same bug affecting both, but they're
+not necessarily fixed in the same way.
 
-After running idectl to add remove and add the drive back to the IDE bus.
-Dec  8 08:04:16 picard kernel: hdc: WDC WD1200JB-00DUA3, ATA DISK drive
-Dec  8 08:04:16 picard kernel: ide1 at 0x170-0x177,0x376 on irq 15
-Dec  8 08:04:16 picard kernel: hdc: attached ide-disk driver.
+ > I suppose I am working from the assumption that if vanilla
+ > (kernel.org) 2.4.20 was fixed then 2.4.21-4EL would also be fixed
+ > (which it's not).  It would seem to me that a kernel's got no
+ > business calling itself 2.4.21-<anything> if it's not based off of
+ > previous kernel base.  Otherwise, "21" has absolutely no meaning.
 
-And trying to turn DMA on produces:
-hdparm -d 1 /dev/hdc
+2.4.20-x.7 is a 2.4.20 kernel with additional patches.
+2.4.21-4EL is a 2.4.21 kernel with additional patches.
 
-/dev/hdc:
-setting using_dma to 1 (on)
-HDIO_SET_DMA failed: Operation not permitted
-using_dma    =  0 (off)
+I.e., they _are_ based off the previous kernel base.
 
-Also I end up with multiple ide1 entreis in /proc/ide (one for every time I re-add the drive):
-drivers  hda@     hdc@     ide0/    ide1/    ide1/    via
+What you've seen is that something got fixed for one product
+but not for another. Hardly surprising considering the VM
+for those kernels is quite different.  If the 2.4.21-4EL kernel
+still suffers this bug, file it in bugzilla.
 
-So it looks like the reset is not occuring on the VIA but on the higher level IDE bus.
+ > Imperical evidence seems to indicate that vanilla 2.4.20 does not
+ > contain the fix.  Whereas something that RedHat calls 2.4.20-XYZ does.
 
-Here's the idectl script from hdparm-5.4
-#!/bin/sh
+See above. The VM in Red Hat's 2.4.20 works completely differently
+to mainline.
 
-HDPARM=/sbin/hdparm
-MAX_IDE_NR=1
+		Dave
 
-IDE_IO_0=0x1f0
-IDE_IO_1=0x170
-
-USE_IDE_DEV_0=/dev/hdc
-USE_IDE_DEV_1=/dev/hda
-
-usage () {
-       if [ $# -gt 0 ]; then
-               echo $* >&2
-               echo
-       fi
-
-       echo "usage: $0 ide-channel-nr [off|on|rescan]" 2>&1
-       exit 1
-}
-
-IDE_NR=$1
-MODE=$2
-
-do_register=0
-do_unregister=0
-
-
-if [ ! "$IDE_NR" ] || [ $IDE_NR -lt 0 ] || [ $IDE_NR -gt $MAX_IDE_NR ]; then
-       usage "Unrecognized IDE-channel number"
-fi
-
-case "$MODE" in
-on )            do_register=1 ;;
-off )           do_unregister=1 ;;
-rescan )        do_unregister=1; do_register=1 ;;
-* )                     usage "Unrecognized command" ;;
-esac
-
-eval "IDE_IO=\$IDE_IO_$IDE_NR"
-eval "USE_IDE_DEV=\$USE_IDE_DEV_$IDE_NR"
-
-[ $do_unregister -eq 1 ] && eval "$HDPARM -U $IDE_NR $USE_IDE_DEV > /dev/null"
-[ $do_register -eq 1 ] && eval "$HDPARM -R $IDE_IO 0 0 $USE_IDE_DEV > /dev/null"
-
-ioctl(3, 0x326, 0x1)                    = 0
-ioctl(3, 0x30b, 0x8053664)              = 0
-write(1, " using_dma    =  1 (on)\n", 24 using_dma    =  1 (on)
-) = 24
-
-
-Michael D. Black mblack@csi-inc.com
-http://www.csi-inc.com/
-http://www.csi-inc.com/~mike
-321-676-2923, x203
-Melbourne FL

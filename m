@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbTJNAQX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 20:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbTJNAQX
+	id S262117AbTJNAjP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 20:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTJNAjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 20:16:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24287 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261433AbTJNAQV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 20:16:21 -0400
-Message-ID: <3F8B4048.2010007@pobox.com>
-Date: Mon, 13 Oct 2003 20:16:08 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ide write barrier support
-References: <20031013140858.GU1107@suse.de> <20031013223911.GB14152@merlin.emma.line.org>
-In-Reply-To: <20031013223911.GB14152@merlin.emma.line.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Oct 2003 20:39:15 -0400
+Received: from mail.kroah.org ([65.200.24.183]:31134 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262117AbTJNAjM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 20:39:12 -0400
+Date: Mon, 13 Oct 2003 16:56:23 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] input hotplug support
+Message-ID: <20031013235623.GA12898@kroah.com>
+References: <200308020139.37446.arvidjaar@mail.ru> <20030801235748.GC321@kroah.com> <200308021253.03005.arvidjaar@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308021253.03005.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
-> On Mon, 13 Oct 2003, Jens Axboe wrote:
+On Sat, Aug 02, 2003 at 12:53:02PM +0400, Andrey Borzenkov wrote:
+> On Saturday 02 August 2003 03:57, Greg KH wrote:
+> > On Sat, Aug 02, 2003 at 01:39:37AM +0400, Andrey Borzenkov wrote:
+> > > this adds input agent and coldplug rc script. It relies on patch for
+> > > module-init-tools that gnerates input handlers map table being posted to
+> > > lkml as well.
+> > >
+> > > input agent loads input handler in respond to input subsystem request. It
+> > > is currently purely table-driven, no attempt to provide for any static
+> > > list or like was done, it needs some operational experience.
+> > >
+> > > static coldplug rc script is intended to load input handlers for any
+> > > built-in input drivers, like e.g. psmouse (if you built it in). Currently
+> > > it does it by parsing /proc/bus/input/devices, I'd like to use sysfs but
+> > > apparently support for it in input susbsystem is incomplete at best.
+> > >
+> > > It also modifies usb.agent to not consult usb.handmap on 2.6, as it is
+> > > not needed anymore.
+> > >
+> > > Patch is against 2003_05_01 version of hotplug. Comments appreciated.
+> >
+> > Can you send it not compressed so we have a chance to read it?
 > 
+> sorry.
 > 
->>Forward ported and tested today (with the dummy ext3 patch included),
->>works for me. Some todo's left, but I thought I'd send it out to gauge
->>interest. TODO:
->>
->>- Detect write cache setting and only issue SYNC_CACHE if write cache is
->>  enabled (not a biggy, all drives ship with it enabled)
-> 
-> 
-> Yup, and I disable it on all drives at boot time at the latest.
-> 
-> Is there a status document that lists
-> 
-> - what SCSI drivers support write barriers
->   (I'm interested in sym53c8xx_2 if that matters)
-> 
-> - what IDE drivers support write barriers
->   (VIA for AMD and Intel for PII/PIII/P4 chip sets here)
+> plain text attached.
 
-The device is the entity that does, or does not, support flush-cache... 
-  All IDE chipsets support flush-cache... it's just another IDE command.
+Thanks, I've applied this patch.  Did your module-init-tools patch make
+it into that package too?
 
-	Jeff
+thanks,
 
-
-
+greg k-h

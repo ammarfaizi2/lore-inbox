@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264298AbUFXMGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264373AbUFXMPR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264298AbUFXMGA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 08:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbUFXMGA
+	id S264373AbUFXMPR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 08:15:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbUFXMPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 08:06:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6798 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264298AbUFXMF6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 08:05:58 -0400
-Date: Thu, 24 Jun 2004 08:05:34 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: using gcc built-ins for bitops?
-Message-ID: <20040624120534.GW21264@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20040624070936.GB30057@devserv.devel.redhat.com> <20040624020022.0601d4ae.akpm@osdl.org> <20040624113151.GA21376@devserv.devel.redhat.com>
+	Thu, 24 Jun 2004 08:15:16 -0400
+Received: from [203.178.140.15] ([203.178.140.15]:43784 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S264373AbUFXMPO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 08:15:14 -0400
+Date: Thu, 24 Jun 2004 21:16:15 +0900 (JST)
+Message-Id: <20040624.211615.386508853.yoshfuji@linux-ipv6.org>
+To: l.barnaba@openssl.it
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7 INET6 Oops when executing tracepath6
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <1088078069.6320.5.camel@nowhere.openssl.softmedia.lan>
+References: <1088078069.6320.5.camel@nowhere.openssl.softmedia.lan>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on XEmacs 21.4.6 (Common Lisp)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040624113151.GA21376@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 01:31:51PM +0200, Arjan van de Ven wrote:
-> On Thu, Jun 24, 2004 at 02:00:22AM -0700, Andrew Morton wrote:
-> > For the implementation it would be nice to have the old-style
-> > implementations in one header and the new-style ones in a separate header. 
-> > That would create a bit of an all-or-nothing situation, but that should be
-> > OK?
-> 
-> In addition I stuck those in asm-generic since they no longer are
-> architecture specific....
+In article <1088078069.6320.5.camel@nowhere.openssl.softmedia.lan> (at Thu, 24 Jun 2004 13:54:30 +0200), Marcello Barnaba <l.barnaba@openssl.it> says:
 
-This is not going to work.
-Say on x86_64, __builtin_ctzl (~word) ends up __ctzdi2 (~word) call in GCC
-3.4.x, which is not defined in the kernel (in 3.5 it will be bsfq).
-On a bunch of arches which don't have an instruction for ffz operation
-it will always result in a library call.
+> tracepath6 exited with SIGSEGV.
 
-	Jakub
+Already fixed in current bk tree. Thanks.
+
+--yoshfuji

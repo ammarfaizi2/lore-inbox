@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268162AbTBNC6y>; Thu, 13 Feb 2003 21:58:54 -0500
+	id <S268160AbTBNDEc>; Thu, 13 Feb 2003 22:04:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268160AbTBNC6y>; Thu, 13 Feb 2003 21:58:54 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:16842 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S268164AbTBNC6J>; Thu, 13 Feb 2003 21:58:09 -0500
-Subject: Re: Synchronous signal delivery..
-From: Keith Adamson <keith.adamson@attbi.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030214024046.GA18214@bjl1.jlokier.co.uk>
-References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com> 
-	<20030214024046.GA18214@bjl1.jlokier.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Feb 2003 22:11:07 -0500
-Message-Id: <1045192268.14703.20.camel@x1-6-00-d0-70-00-74-d1>
+	id <S268161AbTBNDEc>; Thu, 13 Feb 2003 22:04:32 -0500
+Received: from almesberger.net ([63.105.73.239]:46603 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S268160AbTBNDEb>; Thu, 13 Feb 2003 22:04:31 -0500
+Date: Fri, 14 Feb 2003 00:13:10 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, suparna@in.ibm.com,
+       Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org,
+       lkcd-devel@lists.sourceforge.net
+Subject: Re: Kexec, DMA, and SMP
+Message-ID: <20030214001310.B2791@almesberger.net>
+References: <m18ywoyq78.fsf@frodo.biederman.org> <20030211182508.A2936@in.ibm.com> <20030211191027.A2999@in.ibm.com> <3E490374.1060608@mvista.com> <20030211201029.A3148@in.ibm.com> <3E4914CA.6070408@mvista.com> <m1of5ixgun.fsf@frodo.biederman.org> <3E4A578C.7000302@mvista.com> <m13cmty2kq.fsf@frodo.biederman.org> <3E4A70EA.4020504@mvista.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E4A70EA.4020504@mvista.com>; from cminyard@mvista.com on Wed, Feb 12, 2003 at 10:06:02AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-trimmed cc list
+Corey Minyard wrote:
+> Another thought.  If you add a delay with all other processors and 
+> interrupts off, the disk devices
+> will run out of things to do.
 
-> I see that there are several fairly general event sources now:
-> 
-> 	- signals
-> 	- epoll events
-> 	- async I/O events
-> 	- posix timers
-> 
-> More events that don't provide enough information:
-> 
-> 	- dnotify details (siginfo doesn't say enough)
-> 	- sigsegv read/write? (siginfo doesn't say enough)
-> 
-> More events that should be accessible but aren't:
-> 
-> 	- vm paging like crazy, please release some memory
-> 
-> Your synchronous signals code effectively makes signals work with
-> select/poll/epoll nicely.  
+But the network will be there, patiently waiting for its chance to
+strike. Likewise, I guess: USB (e.g. move the mouse at the wrong
+moment to crash the system).
 
-How about also including a connect()/bind() interface so that 
-you can sort of have a "sockets for signals" type interface.  
-This seems like a nice type of interface for synchronization.
-And maybe use send()/recv() instead of read()/write().  Or am 
-I on crack:)
+- Werner
 
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

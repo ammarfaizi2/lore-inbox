@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263375AbRFKDaQ>; Sun, 10 Jun 2001 23:30:16 -0400
+	id <S263378AbRFKDhH>; Sun, 10 Jun 2001 23:37:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263378AbRFKDaH>; Sun, 10 Jun 2001 23:30:07 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:518 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263375AbRFKD3x>; Sun, 10 Jun 2001 23:29:53 -0400
-Date: Sun, 10 Jun 2001 20:29:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Aron Lentsch <lentsch@nal.go.jp>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: IRQ problems on new Toshiba Libretto
-In-Reply-To: <Pine.LNX.4.21.0106111107270.1065-100000@triton.nal.go.jp>
-Message-ID: <Pine.LNX.4.21.0106102026290.2599-100000@penguin.transmeta.com>
+	id <S263379AbRFKDgr>; Sun, 10 Jun 2001 23:36:47 -0400
+Received: from HSE-MTL-ppp72834.qc.sympatico.ca ([64.229.202.135]:19338 "HELO
+	oscar.casa.dyndns.org") by vger.kernel.org with SMTP
+	id <S263378AbRFKDgq>; Sun, 10 Jun 2001 23:36:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: what is using memory?
+Date: Sun, 10 Jun 2001 23:36:42 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-mm@kvack.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01061023364200.03146@oscar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have been trying to figure out what is using my memory
 
-On Mon, 11 Jun 2001, Aron Lentsch wrote:
-> 
-> dump_irq returns the following:
-> -----------------------------------------------------------------------
-> No PCI interrupt routing table was found.
+My box has 
 
-Hey, you don't have a pirq table, no wonder Linux cannot find the
-information.
+320280K
 
-It's probably an ACPI-only system - rather uncommon, but I bet it will
-become fairly common especially in laptops with WindowsME and higher only.
+>From boot I see
 
-There's a ACPI dump utility in the ACPI tools, that might give people some
-idea on what's up. Right now Linux ACPI only does irq routing on ia64, if
-I remember correctly, so ACPI per se won't fix the problem, but it would
-definitely be the next thing to look at.
+   924	kernel
+  8224	reserved (initrd ramdisk?)
+  1488	hash tables (dentry, inode, mount, buffer, page, tcp)
 
-Oh, well..
+from lsmod I caculate
+  
+   876	for loaded modules
+  
+from proc/slabinfo
 
-		Linus
+ 11992	for all slabs
+
+from proc/meminfo
+
+ 17140	buffer
+123696	cache
+ 32303	free
+
+leaving unaccounted
+
+123627K 	
+
+This is about 38% of my memory, and only about 46% is pageable
+Is it possible to figure out what is using this?
+
+This is with 2.4.6-pre2 with Rik's page_launder_improvements patch, 
+lvm beta7 and some reieserfs patches applied, after about 12 hours
+of uptime.
+
+TIA,
+
+Ed Tomlinson
 

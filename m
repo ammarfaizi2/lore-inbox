@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262653AbRE3I2G>; Wed, 30 May 2001 04:28:06 -0400
+	id <S262655AbRE3IcR>; Wed, 30 May 2001 04:32:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262657AbRE3I14>; Wed, 30 May 2001 04:27:56 -0400
-Received: from t2.redhat.com ([199.183.24.243]:25841 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S262653AbRE3I1l>; Wed, 30 May 2001 04:27:41 -0400
-Message-ID: <3B14AEFC.B522A7B4@redhat.com>
-Date: Wed, 30 May 2001 09:27:40 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: anuradha@gnu.org, linux-kernel@vger.kernel.org
-Subject: Re: Generating valid random .configs
-In-Reply-To: <Pine.LNX.4.21.0105301102560.282-100000@presario>
+	id <S262659AbRE3IcH>; Wed, 30 May 2001 04:32:07 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:64713 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S262655AbRE3Ibv>; Wed, 30 May 2001 04:31:51 -0400
+Date: Wed, 30 May 2001 09:30:48 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Procfs Guide
+Message-ID: <20010530093048.O1332@redhat.com>
+In-Reply-To: <20010530012917.E31655@arthur.ubicom.tudelft.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010530012917.E31655@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Wed, May 30, 2001 at 01:29:17AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anuradha Ratnaweera wrote:
-> 
-> Recently, I posted a request here to send your .config files and I
-> received a good number of them. (thanks!).
-> 
-> Now I want to generate even more different configurations, and a random
-> .config generator would be ideal. If I write a program which randomly
-> outputs "y", "m" and "n" and pipe its output through make config, will the
-> generated .configs always compile? Yes. the best thing is to go ahead and
-> try it (which I am doing at the moment) but I like to know the theoretical
-> answer;)
+On Wed, May 30, 2001 at 01:29:17AM +0200, Erik Mouw wrote:
 
-Every once in a while I run this and fix everything that doesn't
-compile. It has been 
-2 months since I last did that, so I should do it again soon..
+> I'm still looking for a proper way to automatically include the example
+> source into the SGML file, this patch with the same content in two
+> files is a bit of an ugly hack.
 
-Greetings,
-   Arjan van de Ven
+Probably your best bet is to get the Makefile to pass a copy of the
+real example source through sed to &entity;ify the bits that would
+confuse SGML (<, >, etc), and into example.c.sed, make that into an
+entity, and include it.
+
+See <URL:http://people.redhat.com/twaugh/docbook/selfdocbook/> for
+instance, which does this with its own SGML source.
+
+Tim.
+*/

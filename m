@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVC1AyC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVC1BTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVC1AyC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 19:54:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbVC1AyC
+	id S261653AbVC1BTq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 20:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVC1BTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 19:54:02 -0500
-Received: from pimout4-ext.prodigy.net ([207.115.63.98]:25785 "EHLO
-	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261641AbVC1Ax7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 19:53:59 -0500
-Date: Sun, 27 Mar 2005 16:53:47 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Greg KH <greg@kroah.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Mark Fortescue <mark@mtfhpc.demon.co.uk>, linux-kernel@vger.kernel.org
+	Sun, 27 Mar 2005 20:19:46 -0500
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:50140 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261653AbVC1BTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 20:19:44 -0500
 Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Message-ID: <20050328005347.GA32265@taniwha.stupidest.org>
-References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk> <20050326182828.GA8540@kroah.com> <1111869274.32641.0.camel@mindpipe> <20050327004801.GA610@kroah.com> <1111885480.1312.9.camel@mindpipe> <20050327032059.GA31389@kroah.com> <1111894220.1312.29.camel@mindpipe> <20050327181056.GA14502@kroah.com>
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: greg@kroah.com, rlrevell@joe-job.com, mark@mtfhpc.demon.co.uk
+Content-Type: text/plain
+Date: Sun, 27 Mar 2005 20:03:47 -0500
+Message-Id: <1111971828.1912.189.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050327181056.GA14502@kroah.com>
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 27, 2005 at 10:10:56AM -0800, Greg KH wrote:
+greg k-h writes:
+> On Sat, Mar 26, 2005 at 10:30:20PM -0500, Lee Revell wrote:
 
-> How about the fact that when you load a kernel module, it is linked
-> into the main kernel image?  The GPL explicitly states what needs to
-> be done for code linked in.
+>> That's the problem, it's not spelled out explicitly anywhere.
+>> That file does not address the issue of whether a driver is
+>> a "derived work". This is the part he should talk to a lawyer
+>> about, right?
+>
+> How about the fact that when you load a kernel module, it is
+> linked into the main kernel image?  The GPL explicitly states
+> what needs to be done for code linked in.
 
-oddly, the close nv driver has like 2.4MB if text in the kernel.  i
-suspect a good chunk of this really should be in userspace but
-probably lives in the kernel because 'the windows driver does that'
+This probably fails. Obviously, it's not over until the courts
+say so, but...
 
-if the in-kernel part was trimmed down it would be nice for nv to move
-the resource manager and whatever else lives in their gigantic module
-(larger than most kernels!) to userspace and side-step the entire
-issue completely
+First of all, the GPL might not be as infectious as you and RMS
+wish it to be. There is a limit to what can be a derived work
+in copyright law.
 
-> Also, realize that you have to use GPL licensed header files to
-> build your kernel module...
+Second of all, module loading is not the same as "linking" in
+the traditional sense. The GPL was written before Linux had
+kernel modules. Don't be so sure a court would rule as you
+would like it to rule.
 
-people could make their own.  i'm not sure if anyone has though.
+> Also, realize that you have to use GPL licensed header files
+> to build your kernel module...
+
+Um, like the printer cartridges and game cartridges with code
+in them? Courts have held that it was OK to copy because it was
+needed to implement an interface.
+
+Whatever your lawyer may have said was undoubtably influenced
+by your biased attempt to describe the technical issues.
+
+Not that I care for proprietary stuff, being a PowerPC user
+myself, but spreading unjustified FUD isn't proper behavior.
+Neither is it proper to be marking key driver interfaces as
+GPL-only. It's far better to just ignore the proprietary stuff.
+
+

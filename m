@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbQLKWXN>; Mon, 11 Dec 2000 17:23:13 -0500
+	id <S130138AbQLKWbo>; Mon, 11 Dec 2000 17:31:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131039AbQLKWXD>; Mon, 11 Dec 2000 17:23:03 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:9992 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S129383AbQLKWWy>; Mon, 11 Dec 2000 17:22:54 -0500
-Message-Id: <200012112152.eBBLqNs06411@aslan.scsiguy.com>
-To: Michael@Meding.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx version status for 2.4.0test ? 
-In-Reply-To: Your message of "Mon, 11 Dec 2000 23:40:32 +0100."
-             <00121123403208.00322@Hal> 
-Date: Mon, 11 Dec 2000 14:52:23 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S130658AbQLKWbX>; Mon, 11 Dec 2000 17:31:23 -0500
+Received: from innerfire.net ([208.181.73.33]:55047 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S130902AbQLKWbP>;
+	Mon, 11 Dec 2000 17:31:15 -0500
+Date: Mon, 11 Dec 2000 14:03:46 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        John Fremlin <vii@penguinpowered.com>, scole@lanl.gov,
+        linux-kernel@vger.kernel.org
+Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
+In-Reply-To: <E145Xy6-0008HA-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10012111357430.21909-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi all,
->
->am I right that the aic7xx version in latest test is 5.2.1 ? Is there a 
->reason why this is not up to date to Doug Ledfords 5.1.31 ?
+On Mon, 11 Dec 2000, Alan Cox wrote:
 
-My hope is that the Adaptec sponsored driver will eventually
-become the driver embedded in 2.4.X kernels.  This driver is
-currently in Alpha (Beta to be released later today) and can
-be found here:
+> > Doing a 'make bzImage' is NOT VM-intensive. Using this as a test
+> > for the VM doesn't make any sense since it doesn't really excercise
+> > the VM in any way...
+> 
+> Its an interesting demo that 2.4 has some performance problems since 2.2
+> is slower than 2.0 although nowdays not much.
 
-http://people.FreeBSD.org/~gibbs/linux/
+How much of that is due to the fact that the 2.4.0 scheduler interrupts
+processes more often than 2.2.x?  Is the better interactivity worth the
+slight drop in performance?
 
-I know the site hosting the driver is a little, well, ironic,
-for a Linux driver, but there is too much red tape involved
-to distribute the driver from Adaptec's own site while it is
-still evolving, and FreeBSD.org has excellent connectivity.
+	Gerhard
+
 
 --
-Justin
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,70 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135300AbRANTvm>; Sun, 14 Jan 2001 14:51:42 -0500
+	id <S135324AbRANUB0>; Sun, 14 Jan 2001 15:01:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135324AbRANTvX>; Sun, 14 Jan 2001 14:51:23 -0500
-Received: from pop.gmx.net ([194.221.183.20]:57611 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S135300AbRANTvV>;
-	Sun, 14 Jan 2001 14:51:21 -0500
-From: Martin Maciaszek <mmaciaszek@gmx.net>
-Date: Sun, 14 Jan 2001 20:49:48 +0100
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: vmware 2.0.3, kernel 2.4.0 and a cdrom
-Message-ID: <20010114204948.A10017@nexus.shadowrun.not>
-Mail-Followup-To: mmaciaszek@gmx.net,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S135344AbRANUBG>; Sun, 14 Jan 2001 15:01:06 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:41850
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S135324AbRANUBD>; Sun, 14 Jan 2001 15:01:03 -0500
+Date: Sun, 14 Jan 2001 21:00:55 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make drivers/scsi/a3000.c check request_irq (240p3)
+Message-ID: <20010114210055.E602@jaquet.dk>
+In-Reply-To: <20010114194935.A602@jaquet.dk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20010114194935.A602@jaquet.dk>; from rasmus@jaquet.dk on Sun, Jan 14, 2001 at 07:49:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 14, 2001 at 07:49:35PM +0100, Rasmus Andersen wrote:
+> Comments?
+> 
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well, Hans Grobler had some. the patch below tries to accommodate them by
+adding scsi_unregister() and wd33c93_release() to the earlier patch.
+Sorry for the multiple mailings.
 
-Since I installed Kernel 2.4.0 VMware is no longer able to
-recognize my cdrom drive. VMware shows a dialog box on power up
-with following content:
-[...]
-CDROM: '/dev/scd0' exists, but does not appear tobe a CDROM device.
+(Any other) comments? :)
 
-Error connecting the CDROM device
-[...]
 
-At the same time my syslog records the following message:
-Jan 13 21:49:57 nexus kernel: sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
+--- linux-ac9/drivers/scsi/a3000.c.org	Sun Jan 14 13:47:32 2001
++++ linux-ac9/drivers/scsi/a3000.c	Sun Jan 14 20:51:56 2001
+@@ -194,8 +194,13 @@
+     DMA(a3000_host)->DAWR = DAWR_A3000;
+     wd33c93_init(a3000_host, (wd33c93_regs *)&(DMA(a3000_host)->SASR),
+ 		 dma_setup, dma_stop, WD33C93_FS_12_15);
+-    request_irq(IRQ_AMIGA_PORTS, a3000_intr, SA_SHIRQ, "A3000 SCSI",
+-		a3000_intr);
++    if (!request_irq(IRQ_AMIGA_PORTS, a3000_intr, SA_SHIRQ, "A3000 SCSI",
++		     a3000_intr)) {
++	wd33c93_release();
++	scsi_unregister(a3000_host);
++	release_mem_region(0xDD0000, 256);
++    	return 0;
++    }	    
+     DMA(a3000_host)->CNTR = CNTR_PDMD | CNTR_INTEN;
+     called = 1;
+ 
 
-I tried 2.2.18 and VMware recognized the cdrom drive.
+-- 
+        Rasmus(rasmus@jaquet.dk)
 
-Any hints?
-
-Cheers
-Martin
---=20
-BOFH excuse #122:
-
-because Bill Gates is a Jehovah's witness and so nothing can work on St. Sw=
-ithin's day.
-
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6YgLctOa6aqYVgUYRAmCwAJ9jMjot+8rrpTMdsLN1JSn9VaIFcQCfTffh
-tquznAdUoe3wYia1FIFW8zU=
-=JLKU
------END PGP SIGNATURE-----
-
---TB36FDmn/VVEgNH/--
+A chicken and an egg are lying in bed. The chicken is smoking a
+cigarette with a satisfied smile on it's face and the egg is frowning
+and looking a bit pissed off. The egg mutters, to no-one in particular,
+"Well, I guess we answered THAT question..."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

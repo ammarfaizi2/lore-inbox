@@ -1,78 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283582AbRK3Jat>; Fri, 30 Nov 2001 04:30:49 -0500
+	id <S283577AbRK3Ja1>; Fri, 30 Nov 2001 04:30:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283580AbRK3Jaa>; Fri, 30 Nov 2001 04:30:30 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:50699 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S283582AbRK3JaI>; Fri, 30 Nov 2001 04:30:08 -0500
-Message-ID: <3C075196.613894EA@zip.com.au>
-Date: Fri, 30 Nov 2001 01:29:58 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
-X-Accept-Language: en
+	id <S283581AbRK3JaO>; Fri, 30 Nov 2001 04:30:14 -0500
+Received: from web20506.mail.yahoo.com ([216.136.226.141]:8200 "HELO
+	web20506.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S283577AbRK3J2y>; Fri, 30 Nov 2001 04:28:54 -0500
+Message-ID: <20011130092853.20937.qmail@web20506.mail.yahoo.com>
+Date: Fri, 30 Nov 2001 10:28:53 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Did someone try to boot 2.4.16 on a 386 ?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: space-00002@vortex.physik.uni-konstanz.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: buffer/memory strangeness in 2.4.16
-In-Reply-To: <200111291201.fATC1pd04206@lists.us.dell.com>,
-		<200111291201.fATC1pd04206@lists.us.dell.com> <200111292030.fATKU1s05921@vortex.physik.uni-konstanz.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-space-00002@vortex.physik.uni-konstanz.de wrote:
-> 
-> Hi,
-> 
-> I am experiencing a bit of strange system behaviour in a vanilla 2.4.16
-> kernel (2.95.3, very stable machine etc.)
-> 
-> I noticed, that after running for a while (day) I had significantly less
-> memory available for my simulation program than right after booting. Looking
-> at the problem using 'xosview' (or 'free'), I noticed that there was a large
-> number of MBs filled with 'buffers' that did not get wiped when other
-> programs need the memory. The system seems to rather kill an 'offender' than
-> clean out buffers.
-> 
->
+Hi !
 
-Seconded.   After an updatedb run, my 768 megabyte 2.5.1-pre4 machine
-shows:
+I just happened to test 2.4.16 on my 386 (firewall)
+and 
+just after the message "Uncompressing kernel", the PC
+reboots just as after an illegal op, or a triple
+fault. I tried
+to diff between 2.4.13-ac8 (which previously worked)
+and 2.4.16, but I don't see many changes (except the
+CR2 patch that I reverted in 2.4.13-ac8 anyway, and
+which is still not present in 2.4.16).
 
-             total       used       free     shared    buffers     cached
-Mem:        770668     384460     386208          0     138548      17744
--/+ buffers/cache:     228168     542500
+I also checked for illegal instructions like there has
+already been in the past (cmov, bswap, cmpxchg) but
+couldn't find any. I could only find some rdmsr, wrmsr
+and cpuid in functions which, to my knowledge, are not
+called when an i386 boots.
 
-and, after malloc/memset of 700 megs:
+I'm sorry I don't have the .config right here, but
+it's
+simply minimalistic : module, ide, iptables, serial
+console. Of course, I've already checked there were no
+accidental CONFIG_SMP nor MTRR ...
 
-             total       used       free     shared    buffers     cached
-Mem:        770668      73340     697328          0      41160       5960
--/+ buffers/cache:      26220     744448
-Swap:       499928      18628     481300
+The system has 8 MB of RAM, and 16 MB of
+CompactFlash connected to the IDE controller. The
+onboard VGA is enabled and didn't cause any problem
+before, but it may be possible that the reboots
+happens
+when the system tries to change the video mode.
 
-I repeated the malloc/memset a few times, wrote a gigabyte file
-and was unable to make the 40 megabytes of buffermem go away.
+Since I spent a long time recompiling with several
+options, I didn't yet test if vanilla 2.4.13-2.4.15
+could
+boot on this PC. I didn't test with a serial console
+either.
 
-MemTotal:       770668 kB
-MemFree:        698008 kB
-MemShared:           0 kB
-Buffers:         42092 kB
-Cached:           6088 kB
-SwapCached:       9808 kB
-Active:          48064 kB
-Inactive:        10112 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       770668 kB
-LowFree:        698008 kB
-SwapTotal:      499928 kB
-SwapFree:       484512 kB
+So my two questions are :
+  - does anybody happen to boot 2.4.16 on a 386 ?
+  - does someone have an idea of another change in the
 
-After running an extremely memory-intensive test program for
-two minutes, buffermem fell to 38 megabytes.
+    kernel that could affect its boot on such a
+machine ?
 
-Seems broken to me.
+Regards,
+Willy
 
--
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Courrier : http://courrier.yahoo.fr

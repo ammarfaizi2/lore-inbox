@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264485AbTLZFHL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 00:07:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTLZFHL
+	id S264506AbTLZGEy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 01:04:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbTLZGEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 00:07:11 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:19206 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S264485AbTLZFHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 00:07:09 -0500
-Date: Fri, 26 Dec 2003 03:17:46 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Dmytro Bablinyuk <dmytro.bablinyuk@tait.co.nz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22: Sending data using raw IP. HELP!!
-Message-ID: <20031226051745.GI14954@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Dmytro Bablinyuk <dmytro.bablinyuk@tait.co.nz>,
-	linux-kernel@vger.kernel.org
-References: <3FEB9C70.9060504@tait.co.nz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FEB9C70.9060504@tait.co.nz>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.5.1i
+	Fri, 26 Dec 2003 01:04:54 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:37836 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S264506AbTLZGEx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 01:04:53 -0500
+Message-ID: <3FEBCF7B.5030208@zytor.com>
+Date: Thu, 25 Dec 2003 22:04:43 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en, sv, es, fr
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: GCC 3.4 Heads-up
+References: <1072403207.17036.37.camel@clubneon.clubneon.com> <bsgav5$4qh$1@cesium.transmeta.com> <Pine.LNX.4.58.0312252021540.14874@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312252021540.14874@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Dec 26, 2003 at 03:26:56PM +1300, Dmytro Bablinyuk escreveu:
-> I need to send a data out using raw IP.
-> For start I tried to send an ICMP response using the code below, but it 
-> gives me a error (kernel 2.4.22) and clears the skb buffer without 
-> sending it.
+Linus Torvalds wrote:
+> 
+> Similarly, what the _hell_ does the gcc extension
+> 
+> 	int a;
+> 
+> 	(char)a += b;
+> 
+> really mean? The whole extension is just braindamaged, again probably 
+> because there were non-C people involved at some point. It's very much 
+> against the C philosophy. I bet 99% of the people on this list have no 
+> clue what the exact semantics of the above are.
+> 
 
-Could you please send this message to the linux-net@vger.kernel.org mailing
-list? That is the proper place for these kinds of questions.
+Oh, right.  When I heard "cast as lvalue" I envisioned:
 
-Thanks,
+*(char *)foo = bar;
 
-- Arnaldo
+... being a warning, but that's not a cast, even though the pointer is.
+
+	-hpa
+
+
+

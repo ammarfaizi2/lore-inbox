@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264641AbTEQBOk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 21:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbTEQBOk
+	id S264646AbTEQBlH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 21:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264647AbTEQBlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 21:14:40 -0400
-Received: from siaag1ac.compuserve.com ([149.174.40.5]:43489 "EHLO
-	siaag1ac.compuserve.com") by vger.kernel.org with ESMTP
-	id S264641AbTEQBOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 21:14:39 -0400
-Date: Fri, 16 May 2003 21:23:25 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.5.69-mm6
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ch@murgatroid.com, Andrew Morton <akpm@digeo.com>
-Message-ID: <200305162126_MC3-1-3947-176E@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Fri, 16 May 2003 21:41:06 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:50103 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S264646AbTEQBlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 21:41:06 -0400
+Date: Sat, 17 May 2003 02:55:41 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Marek Habersack <grendel@caudium.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel oops on boot with 2.5.69-mm{5,6}
+Message-ID: <20030517015541.GA26464@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Marek Habersack <grendel@caudium.net>, linux-kernel@vger.kernel.org
+References: <20030516230526.GA1527@thanes.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030516230526.GA1527@thanes.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Sat, May 17, 2003 at 01:05:26AM +0200, Marek Habersack wrote:
+ > Hello all,
+ > 
+ > 2.5.69-mm3 works fine, mm4 wasn't tested. Kernel oopses right after attempting to
+ > initialize agpgart. I've managed to copy only the little data from the oops
+ > that is shown below, enough to locate it (oops happened in the swapper task):
 
-> > I'd vote for treating this patch just like the futexes one, making sure that
-> > those who know *how* can turn epoll off, but leave it out of make config.
-> > 
-> > Furthermore, I wonder if this patch is a large savings, the bulk of epoll is
-> > infrastructure, not the few syscalls.
->
-> All of this stuff should be disablable and far more. It probably all
-> wants hiding under a single "Shrink feature set" type option most people
-> can skip over as they do with kernel debugging.
+patch from Christoph Hellwig attached.
+Still waiting for Linus to pull this (and other) agp bits from bkbits.
 
-
-  What else should be disablable?
+		Dave
 
 
+--- 1.39/drivers/char/agp/via-agp.c	Mon Apr 28 03:32:35 2003
++++ edited/drivers/char/agp/via-agp.c	Tue May 13 10:51:00 2003
+@@ -402,6 +402,7 @@
+ 
+ 	bridge->dev = pdev;
+ 	bridge->capndx = cap_ptr;
++	bridge->driver = &via_driver; /* might be overriden later */
+ 
+ 	switch (pdev->device) {
+ 	case PCI_DEVICE_ID_VIA_8367_0:
+@@ -427,7 +428,6 @@
+ 		}
+ 		/*FALLTHROUGH*/
+ 	default:
+-		bridge->driver = &via_driver;
+ 		break;
+ 	}
+ 
 

@@ -1,187 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272294AbTHDXWi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 19:22:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272299AbTHDXWi
+	id S272288AbTHDXSy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 19:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272289AbTHDXSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 19:22:38 -0400
-Received: from adsl-216-102-91-59.dsl.snfc21.pacbell.net ([216.102.91.59]:9733
-	"EHLO nasledov.com") by vger.kernel.org with ESMTP id S272294AbTHDXWd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 19:22:33 -0400
-Date: Mon, 4 Aug 2003 16:22:04 -0700
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5/2.6 PCMCIA Issues
-Message-ID: <20030804232204.GA21763@nasledov.com>
+	Mon, 4 Aug 2003 19:18:53 -0400
+Received: from adsl-67-121-153-186.dsl.pltn13.pacbell.net ([67.121.153.186]:53205
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S272288AbTHDXSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 19:18:52 -0400
+Date: Mon, 4 Aug 2003 16:18:50 -0700
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: interesting oops - 2.6.0-test2-mm2
+Message-ID: <20030804231850.GA7816@firesong>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="IJpNTDwzlM2Ie8A6"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
 Content-Disposition: inline
 User-Agent: Mutt/1.5.4i
-From: Misha Nasledov <misha@nasledov.com>
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---IJpNTDwzlM2Ie8A6
+--mP3DRpeJDSE+ciuQ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+This was the interesting result of 'less -f /dev/kmem' on 2.6.0-test2-mm2:
 
-I was told that you would be the correct person to write to regarding
-issues with PCMCIA under the 2.5/2.6 kernels. I own an IBM ThinkPad 
-T21 with a Texas Instruments PCI1450 (rev 03) CardBus bridge. When I 
-first installed a 2.5 kernel on here, it was 2.5.73; when I would 
-insert my Orinoco card, it would work fine, but when I ejected the
-card (either manually or by using cardctl first), the module would
-fail to unload and this would cause issues, eventually forcing me to
-reboot my machine to relinquish my Orinoco card. 2.5.74 was supposed 
-to have some PCMCIA fixes to fix this hotplug issues, but to my
-surprise, it made my PCMCIA problems even worse; as soon as I put my
-Orinoco card into the slot, the system would completely lock up. Even
-the cursor in my console would stop blinking, so I am unable to get
-any sort of oops message or kernel error for you. Kernels 2.5.75,
-2.6.0-test1, and 2.6.0-test2 also had the new problem from 2.5.74. If
-it is in any way pertinent, I am running the latest version of cardmgr
-from pcmcia-cs.
+<1>Unable to handle kernel NULL pointer dereference at virtual address 0000=
+0020
+ printing eip:
+c01b9d4a
+*pde =3D 00000000
+Oops: 0000 [#3]
+PREEMPT
+CPU:    0
+EIP:    0060:[<c01b9d4a>]    Not tainted VLI
+EFLAGS: 00010296
+EIP is at __copy_user_intel+0x16/0xac
+eax: 00000004   ebx: 00000000   ecx: 00002000   edx: 0806546c
+esi: 00000000   edi: 0806346c   ebp: 00000000   esp: c6401f18
+ds: 007b   es: 007b   ss: 0068
+Process less (pid: 7815, threadinfo=3Dc6400000 task=3Dc400b900)
+Stack: 00000000 0806346c c01b9ef4 0806346c 00000000 00002000 0806346c 00002=
+000
+       c01e48b6 0806346c 00000000 00002000 ce0fcbd4 0000000a 0000000a 08060=
+42a
+       c01ebd1f 00000000 00002000 00000000 c8134480 c81344a0 00002000 c0150=
+344
+Call Trace:
+ [<c01b9ef4>] __copy_to_user_ll+0x68/0x6c
+ [<c01e48b6>] read_kmem+0x158/0x15f
+ [<c01ebd1f>] write_chan+0x0/0x255
+ [<c0150344>] vfs_read+0xb0/0x119
+ [<c01505eb>] sys_read+0x42/0x63
+ [<c0109167>] syscall_call+0x7/0xb
 
-Please find attached a gzipped copy of my 2.6.0-test2 .config file.
--- 
-Misha Nasledov
-misha@nasledov.com
-http://nasledov.com/misha/
+Code: 29 ca 01 d0 8b 7c 24 08 21 f0 8b 1c 24 8b 74 24 04 83 c4 0c c3 83 ec =
+08 89 34 24 89 7c 24 04 8b 4c 24 14 8b 7c 24=20
+0c 8b 74 24 10 <8b> 46 20 83 f9 43 76 04 8b 46 40 90 8b 46 00 8b 56 04 89 4=
+7 00
 
---IJpNTDwzlM2Ie8A6
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="config-2.6.0-test2.gz"
-Content-Transfer-Encoding: base64
+I'm not worried, I was explicitly trying to find ways to oops my kernel :)
 
-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
+-Josh
 
---IJpNTDwzlM2Ie8A6--
+--mP3DRpeJDSE+ciuQ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/LunaT2bz5yevw+4RAuoPAJ4su0B48uziyPd0VUNe9btplk/WEACeLjfD
+oLvCivTHx/p7orfHZPloIEU=
+=f5uD
+-----END PGP SIGNATURE-----
+
+--mP3DRpeJDSE+ciuQ--

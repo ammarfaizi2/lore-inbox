@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129034AbQKFLQp>; Mon, 6 Nov 2000 06:16:45 -0500
+	id <S129040AbQKFLXO>; Mon, 6 Nov 2000 06:23:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129040AbQKFLQZ>; Mon, 6 Nov 2000 06:16:25 -0500
-Received: from ppp-96-181-an01u-dada6.iunet.it ([151.35.96.181]:15876 "HELO
-	home.bogus") by vger.kernel.org with SMTP id <S129034AbQKFLQQ>;
-	Mon, 6 Nov 2000 06:16:16 -0500
-From: Davide Libenzi <davidel@xmail.virusscreen.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: visual gcc
-Date: Mon, 6 Nov 2000 13:31:10 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <Pine.GSO.4.21.0011060133270.27399-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0011060133270.27399-100000@weyl.math.psu.edu>
+	id <S129144AbQKFLXE>; Mon, 6 Nov 2000 06:23:04 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:54539 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129040AbQKFLW4>;
+	Mon, 6 Nov 2000 06:22:56 -0500
+Message-ID: <3A0693E9.B4677F4E@mandrakesoft.com>
+Date: Mon, 06 Nov 2000 06:20:09 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <00110613324000.00208@linux1.home.bogus>
-Content-Transfer-Encoding: 7BIT
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Dan Hollis <goemon@anime.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+In-Reply-To: <Pine.LNX.4.21.0011060302290.17667-100000@anime.net> <24273.973508761@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Nov 2000, Alexander Viro wrote:
-> On Sun, 5 Nov 2000, Anonymous wrote:
-> 
-> > Does anyone know where to find a gui for gcc or g++ or any compiler for a
-> > KDE shell?
-> 
-> Yes.
+Remember the /dev/mixer and /dev/dsp are separate.
 
-:^) 
+* Driver initializes mixer to 100% muted
+* Userspace app sets desired values to /dev/mixer
+* Userspace app opens /dev/dsp to play sound
 
-www.kdevelop.org
+I don't see where any sound can "escape" in this scenario, and it
+doesn't require any module data persistence...
 
+	Jeff
+
+
+-- 
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

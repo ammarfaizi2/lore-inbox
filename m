@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263472AbUDBA76 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 19:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUDBA76
+	id S263475AbUDBBDS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 20:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbUDBBDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 19:59:58 -0500
-Received: from fw.osdl.org ([65.172.181.6]:18657 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263472AbUDBA7s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 19:59:48 -0500
-Date: Thu, 1 Apr 2004 16:59:44 -0800
-From: Chris Wright <chrisw@osdl.org>
+	Thu, 1 Apr 2004 20:03:18 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:62910 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S263475AbUDBBDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 20:03:14 -0500
+Date: Fri, 2 Apr 2004 02:03:14 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
 To: Andrea Arcangeli <andrea@suse.de>
-Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
-Subject: Re: disable-cap-mlock
-Message-ID: <20040401165944.X22989@build.pdx.osdl.net>
-References: <20040401223619.GB18585@dualathlon.random> <Pine.LNX.4.44.0404011807350.5589-100000@chimarrao.boston.redhat.com> <20040401232603.GE18585@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040401232603.GE18585@dualathlon.random>; from andrea@suse.de on Fri, Apr 02, 2004 at 01:26:03AM +0200
+cc: Andrew Morton <akpm@osdl.org>, <vrajesh@umich.edu>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity
+    fix
+In-Reply-To: <20040402001535.GG18585@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrea Arcangeli (andrea@suse.de) wrote:
-> On Thu, Apr 01, 2004 at 06:08:18PM -0500, Rik van Riel wrote:
-> > Oracle seems to be using it just fine in a certain 2.4
-> > based kernel, so why exactly do you think it would be
-> > useless for the problem you want to solve ?
-> > 
-> > Also, what would need to be fixed in order for it to
-> > not be useless ? ;)
+On Fri, 2 Apr 2004, Andrea Arcangeli wrote:
 > 
-> tell me how to call shmget(SHM_HUGETLB) without having the CAP_IPC_LOCK
-> with the rlimit patch.
+> the good thing is that I believe this fix will make it work with the -mm
+> writeback changes. However this fix now collides with anon-vma since
+> swapsuspend passes compound pages to rw_swap_page_sync and
+> add_to_page_cache overwrites page->private and the kernel crashes at the
+> next page_cache_get() since page->private is now the swap entry and not
+> a page_t pointer. So I guess I've a good reason now to giveup trying to
+> add the page to the swapcache, and to just fake the radix tree like I
+> did in my original fix. That way the page won't be swapcache either so I
+> don't even need to use get_page to avoid remove_exclusive_swap_page to
+> mess with it.
 
-Account for the equivalent "locked" huge pages on shmget.  I did something
-like this when porting the mlock patch to 2.6 a month or so ago.  I also
-recall finding a couple problems along the way, but it's been a while.
-I'll dig up what I have and send it in.
+Yes, I too was feeling that we'd gone far enough in this "make it like
+a real swap page" direction, and we'd probably have better luck with
+"take away all resemblance to a real swap page".
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+I've still done no work or testing on rw_swap_page_sync, but I wonder...
+remember how your page_mapping(page) gives &swapper_space on a swap
+cache page, whereas my page_mapping(page) gives NULL on them?  My guess
+(quite possibly wrong) is that I won't have any of the trouble you've
+had with this, that the page_writeback functions, seeing NULL mapping,
+won't get involved with the radix tree at all - and why should they,
+it isn't doing anything useful for rw_swap_page_sync, just getting you
+into memory allocation difficulties.  No need for add_to_page_cache or
+add_to_swap_cache there at all.  As I say, I haven't tested this path,
+but I do know that the rest of swap works fine with NULL page_mapping.
+
+Hugh
+

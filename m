@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275990AbRKCXA2>; Sat, 3 Nov 2001 18:00:28 -0500
+	id <S275743AbRKCXCh>; Sat, 3 Nov 2001 18:02:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275752AbRKCXAS>; Sat, 3 Nov 2001 18:00:18 -0500
-Received: from [202.44.245.6] ([202.44.245.6]:20150 "EHLO prdr30.prd.go.th")
-	by vger.kernel.org with ESMTP id <S275743AbRKCW77>;
-	Sat, 3 Nov 2001 17:59:59 -0500
-Date: Sat, 3 Nov 2001 23:59:20 +0100
-From: victor <ixnay@infonegocio.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: victor <ixnay@infonegocio.com>
-X-Priority: 3 (Normal)
-Message-ID: <144182173191.20011103235920@infonegocio.com>
-To: linux-kernel@vger.kernel.org
-Subject: problem whit kernel 2.4.X
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S275752AbRKCXC1>; Sat, 3 Nov 2001 18:02:27 -0500
+Received: from pc1-camb5-0-cust171.cam.cable.ntl.com ([62.253.134.171]:41671
+	"EHLO fenrus.demon.nl") by vger.kernel.org with ESMTP
+	id <S275743AbRKCXCO>; Sat, 3 Nov 2001 18:02:14 -0500
+From: arjan@fenrus.demon.nl
+To: skraw@ithnet.com (Stephan von Krawczynski)
+Subject: Re: Adaptec vs Symbios performance
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200111032253.XAA20342@webserver.ithnet.com>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+Message-Id: <E1609mt-0007WE-00@fenrus.demon.nl>
+Date: Sat, 03 Nov 2001 23:01:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+In article <200111032253.XAA20342@webserver.ithnet.com> you wrote:
 
-i cant boot ok with a kernel 2.4.X (any version)
+> Hello Justin, hello Gerard                                            
+>                                                                      
+> I am looking currently for reasons for bad behaviour of aic7xxx driver
+> in an shared interrupt setup and general not-nice behaviour of the    
+> driver regarding multi-tasking environment.                           
+> Here is what I found in the code:                                     
 
-i compile and boot the 2.2.19  whitout problem (the 2.2.20 problem is in other mail) but when i boot whit 2.4 series the
-scsi subsystem  fails
+>         * It would be nice to run the device queues from a           
+>         * bottom half handler, but as there is no way to             
+>         * dynamically register one, we'll have to postpone           
+>         * that until we get integrated into the kernel.              
+>         */                    
 
-i have a alcor alphastation 5/266 and this are the loop messages
-
-the scsi controller is a Qlogic isp 1020 and the driver i am using is
-Qlogic PCI
-
-scsi: aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 0
-scsi: aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 0 
-scsi: aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 0 
-scsi: aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 0 
-
-what i am doing wrog :?
-
-thaks in advantage
-
--- 
-Best regards,
- victor                          mailto:ixnay@infonegocio.com
-
+sounds like a good tasklet candidate......

@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261856AbSI3AMw>; Sun, 29 Sep 2002 20:12:52 -0400
+	id <S261845AbSI3AMf>; Sun, 29 Sep 2002 20:12:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261857AbSI3AMw>; Sun, 29 Sep 2002 20:12:52 -0400
-Received: from CPE-203-51-31-60.nsw.bigpond.net.au ([203.51.31.60]:57329 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S261856AbSI3AMv>; Sun, 29 Sep 2002 20:12:51 -0400
-Message-ID: <3D979841.BBEF64C7@eyal.emu.id.au>
-Date: Mon, 30 Sep 2002 10:18:09 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre8-ac1 unresolved
-References: <200209291848.g8TImtf19741@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S261856AbSI3AMf>; Sun, 29 Sep 2002 20:12:35 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:60330 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261845AbSI3AMf>;
+	Sun, 29 Sep 2002 20:12:35 -0400
+Date: Sun, 29 Sep 2002 17:11:10 -0700 (PDT)
+Message-Id: <20020929.171110.04716295.davem@redhat.com>
+To: hch@infradead.org
+Cc: ak@muc.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020929182643.C8564@infradead.org>
+References: <20020929152731.GA10631@averell>
+	<20020929182643.C8564@infradead.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ignoring comx, the other two are new.
+   From: Christoph Hellwig <hch@infradead.org>
+   Date: Sun, 29 Sep 2002 18:26:43 +0100
+   
+   BTW, do you have any stats on the better optimization?
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.20-pre8-ac1/kernel/drivers/hotplug/pci_hotplug.o
-depmod:         proc_bus_pci_dir
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.20-pre8-ac1/kernel/drivers/net/wan/comx.o
-depmod:         proc_get_inode
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.20-pre8-ac1/kernel/fs/jfs/jfs.o
-depmod:         cond_resched
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Unlikely since we disable strict aliasing on the gcc command
+line which is why I think this suggested __malloc thing is
+utterly pointless.

@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129732AbQLMIpH>; Wed, 13 Dec 2000 03:45:07 -0500
+	id <S129415AbQLMI6o>; Wed, 13 Dec 2000 03:58:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129730AbQLMIo5>; Wed, 13 Dec 2000 03:44:57 -0500
-Received: from [24.65.192.120] ([24.65.192.120]:36599 "EHLO webber.adilger.net")
-	by vger.kernel.org with ESMTP id <S129524AbQLMIov>;
-	Wed, 13 Dec 2000 03:44:51 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200012130814.eBD8ELc10852@webber.adilger.net>
-Subject: [PATCH] 2.2.18 ext2 large file bug?
-To: Ext2 development mailing list <ext2-devel@lists.sourceforge.net>,
-        Linux FS development list <linux-fsdevel@vger.kernel.org>
-Date: Wed, 13 Dec 2000 01:14:21 -0700 (MST)
-CC: Linux kernel development list <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
+	id <S129652AbQLMI6e>; Wed, 13 Dec 2000 03:58:34 -0500
+Received: from cassis.axialys.net ([195.115.102.11]:37895 "EHLO
+	cassis.axialys.net") by vger.kernel.org with ESMTP
+	id <S129415AbQLMI6Z>; Wed, 13 Dec 2000 03:58:25 -0500
+Date: Wed, 13 Dec 2000 09:32:48 +0100
+From: Simon Huggins <huggie@earth.li>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: D-LINK DFE-530-TX
+Message-ID: <20001213093247.A24856@paranoidfreak.freeserve.co.uk>
+Mail-Followup-To: Simon Huggins <huggie@earth.li>,
+	Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0012061942570.620-100000@asdf.capslock.lan> <20001208012321.A1732@colonel-panic.com> <3A30F68F.50076AA7@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A30F68F.50076AA7@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Dec 08, 2000 at 09:56:15AM -0500
+Organization: Black Cat Networks, http://www.blackcatnetworks.co.uk/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-while looking at the COMPAT flag patches I made, I noticed the following
-in the ext2/ext3 code.  I believe that this bug is fixed in 2.4, but it
-also needs to be fixed in 2.2.  Basically, we are checking for an ext2
-large file, which would be a file > 2GB on systems that don't support
-such.  However, we are checking for a file > 8GB which is clearly wrong.
-The ext3 version of the patch is also attached.
+Hi Linux,
 
-Cheers, Andreas
-==========================================================================
---- linux-2.2.18pre27-TL/fs/ext2/file.c.orig	Mon Dec 11 22:43:17 2000
-+++ linux-2.2.18pre27-TL/fs/ext2/file.c	Wed Dec 13 00:13:00 2000
-@@ -208,7 +208,7 @@
- 			if (!count)
- 				return -EFBIG;
- 		}
--		if (((pos + count) >> 31) &&
-+		if (((pos + count) >> 33) &&
- 		    !(sb->u.ext2_sb.s_es->s_feature_ro_compat &
- 		      cpu_to_le32(EXT2_FEATURE_RO_COMPAT_LARGE_FILE))) {
- 			/* If this is the first large file created, add a flag
+On Fri, Dec 08, 2000 at 09:56:15AM -0500, Jeff Garzik wrote:
+> Peter Horton wrote:
+> > If the PCI device ID is 3065 then it's via-rhine, but not supported
+> > by the driver in the kernel. Get updated via-rhine from Donald
+> > Becker's site http://www.scyld.com/network.
+> 2.4.x-test has some fixes for via-rhine which don't appear to have made
+> it into the Becker driver yet...
 
---- linux-2.2.18pre27-TL/fs/ext3/file.c.orig	Mon Dec 11 22:43:17 2000
-+++ linux-2.2.18pre27-TL/fs/ext3/file.c	Wed Dec 13 00:13:00 2000
-@@ -208,7 +208,7 @@
- 			if (!count)
- 				return -EFBIG;
- 		}
--		if (((pos + count) >> 31) &&
-+		if (((pos + count) >> 33) &&
- 		    !EXT3_HAS_RO_COMPAT_FEATURE(sb,
- 					EXT3_FEATURE_RO_COMPAT_LARGE_FILE)) {
- 			/* If this is the first large file created, add a flag
+Is either of these likely to make it into the stock 2.2 via-rhine?
+
+Simon.
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Just another wannabie | "I get mail; therefore I am."  |  Just another fool
+----------------------+           - Dilbert            +-------------------
+This message was brought to you the letter L and the number 31.
+htag.pl 0.0.17 -- http://www.earth.li/projectpurple/progs/htag.html
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

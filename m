@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S133082AbQK0AU3>; Sun, 26 Nov 2000 19:20:29 -0500
+        id <S132180AbQK0Ano>; Sun, 26 Nov 2000 19:43:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S135193AbQK0AUT>; Sun, 26 Nov 2000 19:20:19 -0500
-Received: from iq.sch.bme.hu ([152.66.226.168]:58016 "EHLO iq.rulez.org")
-        by vger.kernel.org with ESMTP id <S133082AbQK0AUF>;
-        Sun, 26 Nov 2000 19:20:05 -0500
-Date: Mon, 27 Nov 2000 00:52:02 +0100 (CET)
-From: Sasi Peter <sape@iq.rulez.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Andre Hedrick <andre@linux-ide.org>
-Subject: ATA-4, ATA-5 TCQ status
-In-Reply-To: <Pine.LNX.4.10.10011181220390.17557-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.30.0011270042320.21801-100000@iq.rulez.org>
+        id <S132202AbQK0And>; Sun, 26 Nov 2000 19:43:33 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:54128 "EHLO
+        nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+        id <S132180AbQK0AnY>; Sun, 26 Nov 2000 19:43:24 -0500
+Message-ID: <3A21A720.75A4EEB1@linux.com>
+Date: Sun, 26 Nov 2000 16:13:20 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: LKML <linux-kernel@vger.kernel.org>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Subject: Re: [PATCH] modutils 2.3.20 and beyond
+In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu> <20001126164556.B1665@vger.timpanogas.org>
+Content-Type: multipart/mixed;
+ boundary="------------DABFB68F73B42FB6EE79B0CA"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------DABFB68F73B42FB6EE79B0CA
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I would like to ask if the tagged command queueing capability in the
-decent ATA standards is utilized in the linux IDE driver (2.2 2.2ide
-patches, or 2.4 maybe...)?
+"Jeff V. Merkey" wrote:
 
-Another question, a little bit offtopic is if anybody on this list is able
-to point me to some pci UltraATA controller card, which has more than 2
-channels (more than 4 drives w/o cascade magic) (preferrably 6 or 8
-channels)? If the exists one, I do not need no HW RAID or anything like
-that... I only need a lot of channels, in only one PCI slot.
-There have been a lot of rant around here, and why I am addressing Andre
-personally too is that in that debate his stated, that because such cards
-exist, IDE can fall into line with SCSI in drives possible / PCI slot.
+> On Sun, Nov 26, 2000 at 10:46:35PM +0000, Alan Cox wrote:
+> > > +           {"ignore-versions", 0, 0, 'i'},
+> >
+> > I dont think we should encourage anyone to ignore symbol versions
+>
+> Anaconda will barf and require over 850+ changes to the scripts without
+> it.  If you look at the patch, you will note that it's a silent switch
+> that's only there to avoid a noisy error message from depmod.  It
+> actually does nothing other than set a flag that also does nothing.
+> -m simply maps to -F.
 
-Your help is very much appreciated,
+It's still a bad precedent.  Anaconda should have been written correctly in
+the first place.
 
--- 
-SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
+-d
 
+
+--------------DABFB68F73B42FB6EE79B0CA
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;14688
+fn:David Ford
+end:vcard
+
+--------------DABFB68F73B42FB6EE79B0CA--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

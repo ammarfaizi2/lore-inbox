@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbUL0XA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbUL0XAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbUL0XA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 18:00:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUL0XA4
+	id S262001AbUL0XAU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 18:00:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUL0XAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 18:00:56 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29700 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261999AbUL0W64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 17:58:56 -0500
-Date: Mon, 27 Dec 2004 23:58:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "prem.de.ms" <prem.de.ms@gmx.de>
-Cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-Subject: [2.6 patch] let VIDEO_CX88 select FW_LOADER
-Message-ID: <20041227225854.GG5345@stusta.de>
-References: <41D08611.9000004@gmx.de>
+	Mon, 27 Dec 2004 18:00:19 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:33956
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262001AbUL0W7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 17:59:23 -0500
+Date: Mon, 27 Dec 2004 14:58:07 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: kaber@trash.net, alan@lxorguk.ukuu.org.uk, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: PATCH: kmalloc packet slab
+Message-Id: <20041227145807.73803fa8.davem@davemloft.net>
+In-Reply-To: <200412272250.iBRMo2Qb011114@turing-police.cc.vt.edu>
+References: <1104156983.20944.25.camel@localhost.localdomain>
+	<41D043AC.2070203@trash.net>
+	<20041227142350.1cf444fe.davem@davemloft.net>
+	<200412272250.iBRMo2Qb011114@turing-police.cc.vt.edu>
+X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41D08611.9000004@gmx.de>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 27, 2004 at 11:00:49PM +0100, prem.de.ms wrote:
+On Mon, 27 Dec 2004 17:50:01 -0500
+Valdis.Kletnieks@vt.edu wrote:
 
-> Hello,
+> On Mon, 27 Dec 2004 14:23:50 PST, "David S. Miller" said:
 > 
-> I get the following error message when I try to compile the new 
-> 2.6.10-kernel:
+> > If we are really going to do something like this, it should
+> > be calculated properly and be determined per-interface
+> > type as netdevs are registered.
 > 
-> [...]
-> CHK     include/linux/compile.h
->  UPD     include/linux/compile.h
->  CC      init/version.o
->  LD      init/built-in.o
->  LD      .tmp_vmlinux1
-> drivers/built-in.o(.text+0x8a3b2): In function `blackbird_load_firmware':
-> : undefined reference to `request_firmware'
-> drivers/built-in.o(.text+0x8a454): In function `blackbird_load_firmware':
-> : undefined reference to `release_firmware'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> Seems like the Conexant drivers are broken because the kernel compiles 
-> when I uncheck them.
-> 
-> Any suggestions?
+> Would you prefer to see this done for all interface types if we do it
+> at all, or would a special-case for 1 or 2 types that can use a slab
+> without being wasteful be an acceptable solution? (Let's face it - if
+> 3.95 objects fit in each slab, we may not want to do it...)
 
+It's not even just device MTU based (which can change dynamically
+at run time), it's also based upon the PMTU for various paths.
 
-Thanks for this report.
+As for wastefulness, that's a good question.  Adding a mechanism
+to do kmalloc slabs dynamically doesn't sound all that wise.  That
+would undo all the inlining tricks.
 
-The patch below should fix it.
+Probably a better idea is to provide a way to attach a slab to
+an SKB's data area so that we can have per-device SLABs for this
+kind of stuff (and if all "ethernet" devices want to share the
+same SLAB, that's fine too, but it won't help all ethernet drivers
+for reasons outlined in my previous email).
 
+We added something similar for the Xen folks, and it's in Linus's
+BK tree right now.  It's named alloc_skb_from_cache().
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc3-mm1-full/drivers/media/video/Kconfig.old	2004-12-27 23:53:33.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/drivers/media/video/Kconfig	2004-12-27 23:54:09.000000000 +0100
-@@ -304,8 +304,9 @@
- config VIDEO_CX88
- 	tristate "Conexant 2388x (bt878 successor) support"
- 	depends on VIDEO_DEV && PCI && EXPERIMENTAL
- 	select I2C_ALGOBIT
-+	select FW_LOADER
- 	select VIDEO_BTCX
- 	select VIDEO_BUF
- 	select VIDEO_TUNER
- 	---help---
-
+What I'd really like to see is device based determination of the
+correct slab to use.  Unfortunately, dev_alloc_skb() doesn't take
+a netdev argument, which is truly offensive.  Otherwise we could
+just stick the necessary logic there.

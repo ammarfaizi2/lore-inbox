@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262884AbVCWJD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262885AbVCWJE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262884AbVCWJD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 04:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbVCWJD7
+	id S262885AbVCWJE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 04:04:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbVCWJE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 04:03:59 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:20188 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262884AbVCWJDz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 04:03:55 -0500
-Date: Wed, 23 Mar 2005 10:03:41 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Zijlstra <peter@programming.kicks-ass.net>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Linux-kernel <linux-kernel@vger.kernel.org>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-Message-ID: <20050323090341.GA7960@elte.hu>
-References: <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu> <20050323061601.GE1294@us.ibm.com> <20050323063317.GB31626@elte.hu> <20050323071604.GA32712@elte.hu> <1111566593.14156.2.camel@nspc0585.nedstat.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Mar 2005 04:04:27 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:64261 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262885AbVCWJEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 04:04:20 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Jesper Juhl <juhl-lkml@dif.dk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] devfs: remove a redundant NULL pointer check prior to kfree()
+Date: Wed, 23 Mar 2005 11:04:10 +0200
+User-Agent: KMail/1.5.4
+Cc: Richard Gooch <rgooch@atnf.csiro.au>
+References: <Pine.LNX.4.62.0503222351350.2683@dragon.hyggekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.62.0503222351350.2683@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1111566593.14156.2.camel@nspc0585.nedstat.nl>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200503231104.10704.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 23 March 2005 00:55, Jesper Juhl wrote:
+> 
+> Remove a redundant NULL pointer check prior to kfree(). kfree() has no 
+> problem with NULL pointers.
+> 
+> 
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> 
+> --- linux-2.6.12-rc1-mm1-orig/fs/devfs/base.c	2005-03-02 08:37:49.000000000 +0100
+> +++ linux-2.6.12-rc1-mm1/fs/devfs/base.c	2005-03-22 23:51:23.000000000 +0100
+> @@ -2738,10 +2738,8 @@ static int devfsd_close(struct inode *in
+>  	entry = fs_info->devfsd_first_event;
+>  	fs_info->devfsd_first_event = NULL;
+>  	fs_info->devfsd_last_event = NULL;
+> -	if (fs_info->devfsd_info) {
+> -		kfree(fs_info->devfsd_info);
+> -		fs_info->devfsd_info = NULL;
+> -	}
+> +	kfree(fs_info->devfsd_info);
+> +	fs_info->devfsd_info = NULL;
+>  	spin_unlock(&fs_info->devfsd_buffer_lock);
+>  	fs_info->devfsd_pgrp = 0;
+>  	fs_info->devfsd_task = NULL;
 
-* Peter Zijlstra <peter@programming.kicks-ass.net> wrote:
+IIRC devfs is deprecated and has less than a year to live.
+--
+vda
 
-> > i think the 'migrate read-count' method is not adequate either, because
-> > all callbacks queued within an RCU read section must be called after the
-> > lock has been dropped - while with the migration method CPU#1 would be
-> > free to process callbacks queued in the RCU read section still active on
-> > CPU#2.
->
-> how about keeping the rcu callback list in process context and only
-> splice it to a global (per cpu) list on rcu_read_unlock?
-
-hm, that would indeed solve this problem. It would also solve the grace
-period problem: all callbacks in the global (per-CPU) list are
-immediately processable. Paul?
-
-	Ingo

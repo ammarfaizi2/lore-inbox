@@ -1,74 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbUCUXvs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 18:51:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbUCUXvr
+	id S261498AbUCUXvW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 18:51:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbUCUXvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 18:51:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9693 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261517AbUCUXvm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 18:51:42 -0500
-Date: Sun, 21 Mar 2004 15:51:31 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+	Sun, 21 Mar 2004 18:51:22 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:10890
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261498AbUCUXvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 18:51:15 -0500
+Date: Mon, 22 Mar 2004 00:52:07 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-In-Reply-To: <405E23A5.7080903@pobox.com>
-Message-ID: <Pine.LNX.4.58.0403211542051.1106@ppc970.osdl.org>
-References: <20040320121345.2a80e6a0.akpm@osdl.org> <20040320205053.GJ2045@holomorphy.com>
- <20040320222639.K6726@flint.arm.linux.org.uk> <20040320224500.GP2045@holomorphy.com>
- <1079901914.17681.317.camel@imladris.demon.co.uk> <20040321204931.A11519@infradead.org>
- <1079902670.17681.324.camel@imladris.demon.co.uk>
- <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org> <20040321222327.D26708@flint.arm.linux.org.uk>
- <405E1859.5030906@pobox.com> <20040321225117.F26708@flint.arm.linux.org.uk>
- <Pine.LNX.4.58.0403211504550.1106@ppc970.osdl.org> <405E23A5.7080903@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] anobjrmap 1/6 objrmap
+Message-ID: <20040321235207.GC3649@dualathlon.random>
+References: <Pine.LNX.4.44.0403190642450.17899-100000@localhost.localdomain> <2663710000.1079716282@[10.10.2.4]> <20040320123009.GC9009@dualathlon.random> <2696050000.1079798196@[10.10.2.4]> <20040320161905.GT9009@dualathlon.random> <2924080000.1079886632@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2924080000.1079886632@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 21 Mar 2004, Jeff Garzik wrote:
+On Sun, Mar 21, 2004 at 08:30:34AM -0800, Martin J. Bligh wrote:
+> >> Mmmm, if you have a broken out patch, it'd be preferable. If I were to 
+> >> apply the whole of -mjb, I'll get a damned sight better results than 
+> >> any of them, but that's not really a fair comparison ;-) I'll can at 
+> >> least check it's stable for me that way though. 
+> >> 
+> >> I did find your broken-out anon-vma patch, but it's against something
+> >> else, maybe half-way up your tree or something, and I didn't bother
+> >> trying to fix it ;-)
+> > 
+> > this one is against mainline, but you must use my objrmap patch too
+> > which is fixed so it doesn't crash in 2.6.5-rc1.
+> > 
+> > 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc1-aa2/00100_objrmap-core-1.gz
+> > 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc1-aa2/00101_anon_vma-2.gz
+> > 
+> > just backout your objrmap and apply the above two, it should apply
+> > pretty well.
 > 
-> That would be nice, though the reason I avoided remap_page_range() in 
-> via82cxxx_audio is that it discourages S/G.  Because remap_page_range() 
-> is easier and more portable, several drivers allocate one-big-area and 
-> then create an S/G list describing individual portions of that area.
+> I tried the aa3 equiv of the above, just on top of virgin 2.6.5-rc1, but 
+> it doesn't work cleanly. Your whole aa3 tree runs nicely, but I'd prefer
+> to have the broken out patch before publishing comparisons, as otherwise
+> it's a bit unfair ;-) I'm not sure if the results come from your anon_vma
+> approach, or other patches in your tree ...
+> 
+> I'm presuming you shifted the cost of find_get_page into find_trylock_page
+> and pgd_ctor into pgd_alloc from the profiles below ...
 
-Note that there is really two different kinds of IO memory:
- - real IO-mapped memory on the other side of a bus
- - real RAM which is on the CPU side of the bus, but that has additionally 
-   been "mapped" some way as to be visible from devices.
+I cannot see how can find_trylock_page be affected by my anon_vma
+changes. The only difference I can see is taht Andrew's -mm writeback
+code is adding the _irq to the spinlocks there and I don't see other
+obvious changes in that function. I included all -mm writeback changes
+primarly to avoid me to maintain two slightly different versions of
+anon_vma and secondly to nuke the page->list. Other trees I'm dealing
+with daily have those applied already.  At the very least that
+additional cost that you measured cannot be associated in any way with
+the allocation and maintainace of the anon_vma, since that
+find_trylock_page cost is a per-page pagecache thing absolutely
+unrelated to the anon_vmas costs.
 
-The second kind is what you seem to be talking about, and it actually
-_does_ have a "struct page" associated with it, and as such you can
-happily return it from "nopage()". It's just that you had better be sure
-that you find the page properly. Just doing a "virt_to_page()" doesn't do
-it - you have to make sure to undo the mapping that was done for DMA
-reasons.
+It's probably best that I port my version of objrmap (basically the same
+as yours but with the shm swapout fixes) + anon_vma to your tree, it's
+not a big effort to do the porting once, I applied Andrew's patches
+primarly to avoid porting back and forth all the time.
 
-So the minimal fix for any misuses would be to just have a
-"dma_map_to_page()" reverse mapping for "dma_alloc_coherent()". For x86,
-that's just the same thing as "virt_to_page()". For others, you have to
-look more carefully at undoing whatever mapping the iommu has been set up
-for.
+Just tell me which is exactly the codebase I should port against and
+I'll send you a patch shortly.
 
-That might be the minimal fix, since it would basically involve:
- - change whatever offensive "virt_to_page()" calls into 
-   "dma_map_to_page()".
- - implement "dma_map_to_page()" for all architectures.
-
-Would that make people happy?
-
-(Architectures that have cache coherency issues will obviously also have 
-to set cache disable bits in the vma information, that's they broken 
-architecture problem)
-
-		Linus
+Thanks!

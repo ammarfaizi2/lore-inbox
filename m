@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275424AbRJYRWR>; Thu, 25 Oct 2001 13:22:17 -0400
+	id <S275767AbRJYRXh>; Thu, 25 Oct 2001 13:23:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275680AbRJYRWG>; Thu, 25 Oct 2001 13:22:06 -0400
-Received: from ns.caldera.de ([212.34.180.1]:28107 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S275424AbRJYRWD>;
-	Thu, 25 Oct 2001 13:22:03 -0400
-Date: Thu, 25 Oct 2001 19:22:25 +0200
+	id <S275758AbRJYRXa>; Thu, 25 Oct 2001 13:23:30 -0400
+Received: from ns.caldera.de ([212.34.180.1]:29131 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S275278AbRJYRXS>;
+	Thu, 25 Oct 2001 13:23:18 -0400
+Date: Thu, 25 Oct 2001 19:23:40 +0200
 From: Christoph Hellwig <hch@caldera.de>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] ELF personality setting fixes
-Message-ID: <20011025192225.A10880@caldera.de>
+Subject: [PATCH] export syscalls
+Message-ID: <20011025192340.B10880@caldera.de>
 Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
 	Linus Torvalds <torvalds@transmeta.com>,
 	linux-kernel@vger.kernel.org
@@ -24,12 +24,9 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Linus,
 
-the appended patch fixes binfmt_elf to always set the
-personality before looking up the ELF interpreter, thus
-enabling it to find the interpreterusing the alternate
-root.
-
-Also remove a sparc-specific hack to archive the goal.
+the appended patch exports the syscalls (GPL-limited), this is needed
+for the Linux-ABI modules so they can use the syscalls in their
+syscall tables for non-Linux personalities.
 
 Please apply,
 
@@ -38,53 +35,511 @@ Please apply,
 -- 
 Of course it doesn't work. We've performed a software upgrade.
 
-
-diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/fs/binfmt_elf.c linux/fs/binfmt_elf.c
---- ../master/linux-2.4.14-pre1/fs/binfmt_elf.c	Thu Oct 25 19:05:47 2001
-+++ linux/fs/binfmt_elf.c	Thu Oct 25 19:18:28 2001
-@@ -505,30 +505,10 @@
- #if 0
- 			printk("Using ELF interpreter %s\n", elf_interpreter);
- #endif
--#ifdef __sparc__
--			if (ibcs2_interpreter) {
--				unsigned long old_pers = current->personality;
--				struct exec_domain *old_domain = current->exec_domain;
--				struct exec_domain *new_domain;
--				struct fs_struct *old_fs = current->fs, *new_fs;
--				get_exec_domain(old_domain);
--				atomic_inc(&old_fs->count);
--
--				set_personality(PER_SVR4);
--				interpreter = open_exec(elf_interpreter);
--
--				new_domain = current->exec_domain;
--				new_fs = current->fs;
--				current->personality = old_pers;
--				current->exec_domain = old_domain;
--				current->fs = old_fs;
--				put_exec_domain(new_domain);
--				put_fs_struct(new_fs);
--			} else
--#endif
--			{
--				interpreter = open_exec(elf_interpreter);
--			}
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-alpha/syscall.h linux-2.4.14-pre1/include/asm-alpha/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-alpha/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-alpha/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
 +
-+			SET_PERSONALITY(elf_ex, ibcs2_interpreter);
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
 +
-+			interpreter = open_exec(elf_interpreter);
- 			retval = PTR_ERR(interpreter);
- 			if (IS_ERR(interpreter))
- 				goto out_free_interp;
-@@ -602,10 +582,6 @@
- 	current->flags &= ~PF_FORKNOEXEC;
- 	elf_entry = (unsigned long) elf_ex.e_entry;
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-arm/syscall.h linux-2.4.14-pre1/include/asm-arm/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-arm/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-arm/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-cris/syscall.h linux-2.4.14-pre1/include/asm-cris/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-cris/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-cris/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-i386/syscall.h linux-2.4.14-pre1/include/asm-i386/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-i386/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-i386/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,31 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#include <linux/sched.h>	/* struct pt_regs */
++#include <asm/signal.h>		/* old_sigset_t */
++
++
++/* arch/i386/kernel/ldt.c */
++extern asmlinkage int	sys_modify_ldt(int, void *, unsigned long);
++
++/* arch/i386/kernel/process.c */
++extern asmlinkage int	sys_fork(struct pt_regs regs);                                                      
++
++/* arch/i386/kernel/ptrace.c */
++extern asmlinkage int	sys_ptrace(long request, long pid,
++				long addr, long data);
++
++/* arch/i386/kernel/signal.c */
++extern int		sigsuspend1(struct pt_regs *regs, old_sigset_t mask);
++
++/* arch/i386/kernel/sys_i386.c */
++extern asmlinkage int	sys_ipc(uint call, int first, int second,
++				int third, void *ptr, long fifth);
++extern asmlinkage int	sys_pause(void);
++extern asmlinkage int	sys_pipe(unsigned long * fildes);
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-ia64/syscall.h linux-2.4.14-pre1/include/asm-ia64/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-ia64/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-ia64/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-m68k/syscall.h linux-2.4.14-pre1/include/asm-m68k/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-m68k/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-m68k/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-mips/syscall.h linux-2.4.14-pre1/include/asm-mips/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-mips/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-mips/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-mips64/syscall.h linux-2.4.14-pre1/include/asm-mips64/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-mips64/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-mips64/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-parisc/syscall.h linux-2.4.14-pre1/include/asm-parisc/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-parisc/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-parisc/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-ppc/syscall.h linux-2.4.14-pre1/include/asm-ppc/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-ppc/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-ppc/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-s390/syscall.h linux-2.4.14-pre1/include/asm-s390/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-s390/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-s390/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-s390x/syscall.h linux-2.4.14-pre1/include/asm-s390x/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-s390x/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-s390x/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-sh/syscall.h linux-2.4.14-pre1/include/asm-sh/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-sh/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-sh/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-sparc/syscall.h linux-2.4.14-pre1/include/asm-sparc/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-sparc/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-sparc/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/asm-sparc64/syscall.h linux-2.4.14-pre1/include/asm-sparc64/syscall.h
+--- ../master/linux-2.4.14-pre1/include/asm-sparc64/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/asm-sparc64/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,8 @@
++#ifndef _ASM_SYSCALL_H
++#define _ASM_SYSCALL_H
++
++/*
++ * Prototypes for architecture-specific Linux syscalls.
++ */
++
++#endif /* _ASM_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/include/linux/syscall.h linux-2.4.14-pre1/include/linux/syscall.h
+--- ../master/linux-2.4.14-pre1/include/linux/syscall.h	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/include/linux/syscall.h	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,177 @@
++#ifndef _LINUX_SYSCALL_H
++#define _LINUX_SYSCALL_H
++
++/*
++ * Prototypes for Linux syscalls.
++ *
++ * Maybe this could be automatically generated from some kind of
++ * master file (like BSD's syscalls.master), so it is always coherent
++ * to the actual syscalls (which may as well be arch-specific).
++ */
++
++#include <asm/syscall.h>
++
++struct itimerval;
++struct msghdr;
++struct pollfd;
++struct rlimit;
++struct timespec;
++struct timeval;
++struct timezone;
++struct sigaction;
++struct sockaddr;
++struct statfs;
++
++
++/* fs/exec.c */
++extern asmlinkage long	sys_uselib(const char * library);
++
++/* fs/fcntl.c */
++extern asmlinkage long	sys_dup2(unsigned int oldfd, unsigned int newfd);
++extern asmlinkage long	sys_fcntl(unsigned int fd, unsigned int cmd,
++				unsigned long arg);
++
++/* fs/ioctl.c */
++extern asmlinkage long	sys_ioctl(unsigned int fd, unsigned int cmd, void *);
++
++/* fs/namei.c */
++extern asmlinkage long	sys_mkdir(const char * pathname, int mode);
++extern asmlinkage long	sys_mknod(const char * filename, int mode, dev_t dev);
++extern asmlinkage long	sys_rename(const char * oldname, const char * newname);
++
++/* fs/open.c */
++extern asmlinkage long	sys_access(const char * filename, int mode);                              
++extern asmlinkage long	sys_open(const char * filename, int flags, int mode);
++extern asmlinkage long	sys_statfs(const char * path, struct statfs * buf);
++extern asmlinkage long	sys_fstatfs(unsigned int fd, struct statfs * buf);
++extern asmlinkage long	sys_ftruncate(unsigned int fd, unsigned long length);
++extern asmlinkage long	sys_ftruncate64(unsigned int fd, loff_t length);
++extern asmlinkage long	sys_truncate64(const char * path, loff_t length);
++extern asmlinkage long	sys_truncate64(const char * path, loff_t length);
++
++/* fs/read_write.c */
++extern asmlinkage off_t	sys_lseek(unsigned int fd, off_t offset,
++				unsigned int origin);
++extern asmlinkage long	sys_llseek(unsigned int fd, unsigned long offset_high,
++				unsigned long offset_low, loff_t * result,
++				unsigned int origin);
++extern asmlinkage ssize_t sys_read(unsigned int fd, char * buf, size_t count);
++extern asmlinkage ssize_t sys_pread(unsigned int fd, char * buf,
++				size_t count, loff_t pos);
++extern asmlinkage ssize_t sys_pwrite(unsigned int fd, const char * buf,
++				size_t count, loff_t pos);
++
++/* fs/readdir.c */
++extern asmlinkage int	old_readdir(unsigned int fd, void * dirent,
++				unsigned int count);
++
++/* fs/select.c */
++extern asmlinkage long	sys_poll(struct pollfd * ufds, unsigned int nfds,
++				long timeout);
++extern asmlinkage int	sys_select(int, fd_set *, fd_set *, fd_set *,
++				struct timeval *);
++
++/* fs/stat.c */
++extern asmlinkage long	sys_readlink(const char * path, char * buf,
++				int bufsiz);
++
++/* fs/super.c */
++extern asmlinkage long	sys_sysfs(int option, unsigned long arg1,
++				unsigned long arg2);
++
++/* kernel/exit.c */
++extern asmlinkage long	sys_exit(int error_code);
++
++/* kernel/itimer.c */
++extern asmlinkage long	sys_getitimer(int which, struct itimerval *value);
++extern asmlinkage long	sys_setitimer(int which, struct itimerval *value,
++				struct itimerval *ovalue);
++
++/* kernel/time.c */
++extern asmlinkage long	sys_gettimeofday(struct timeval *tv,
++				struct timezone *tz);
++extern asmlinkage long	sys_settimeofday(struct timeval *tv,
++				struct timezone *tz);
++extern asmlinkage long	sys_stime(int * tptr);
++extern asmlinkage long	sys_time(int * tloc);
++
++/* kernel/timer.c */
++extern asmlinkage long	sys_nanosleep(struct timespec *rqtp,
++				struct timespec *rmtp);
++
++/* kernel/signal.c */
++extern asmlinkage long	sys_kill(int pid, int sig);
++extern asmlinkage long	sys_rt_sigaction(int sig, const struct sigaction *act,
++				struct sigaction *oact, size_t sigsetsize);
++extern asmlinkage long	sys_rt_sigpending(sigset_t *set, size_t sigsetsize);
++extern asmlinkage long	sys_rt_sigprocmask(int how, sigset_t *set,
++				sigset_t *oset, size_t sigsetsize);
++extern asmlinkage long	sys_rt_sigtimedwait(const sigset_t *uthese,
++				siginfo_t *uinfo, const struct timespec *uts,
++				size_t sigsetsize);
++extern asmlinkage long	sys_sigaltstack(const stack_t *uss, stack_t *uoss);
++extern asmlinkage long	sys_sigpending(old_sigset_t *set);
++extern asmlinkage long	sys_sigprocmask(int how, old_sigset_t *set,
++				old_sigset_t *oset);
++extern asmlinkage int	sys_sigsuspend(int history0, int history1,
++				old_sigset_t mask);
++
++/* kernel/sys.c */
++extern asmlinkage long	sys_gethostname(char *name, int len);
++extern asmlinkage long	sys_sethostname(char *name, int len);
++extern asmlinkage long	sys_setdomainname(char *name, int len);
++extern asmlinkage long	sys_getrlimit(unsigned int resource,
++				struct rlimit *rlim);
++extern asmlinkage long	sys_setsid(void);
++extern asmlinkage long	sys_getsid(pid_t pid);
++extern asmlinkage long	sys_getpgid(pid_t pid);
++extern asmlinkage long	sys_setpgid(pid_t pid, pid_t pgid);
++extern asmlinkage long	sys_getgroups(int gidsetsize, gid_t *grouplist);
++extern asmlinkage long	sys_setgroups(int gidsetsize, gid_t *grouplist);
++
++#ifdef CONFIG_UID16
++/* kernel/uid16.c */
++extern asmlinkage long	sys_setreuid16(old_uid_t ruid, old_uid_t euid);
++extern asmlinkage long	sys_setregid16(old_gid_t rgid, old_gid_t egid);
++extern asmlinkage long	sys_getgroups16(int gidsetsize, old_gid_t *grouplist);
++extern asmlinkage long	sys_setgroups16(int gidsetsize, old_gid_t *grouplist);
++#endif /* CONFIG_UID16 */
++
++/* mm/mmap.c */
++extern asmlinkage unsigned long sys_brk(unsigned long brk);
++
++/* net/socket.c */
++extern asmlinkage long	sys_socket(int family, int type, int protocol);
++extern asmlinkage long	sys_socketpair(int family, int type,
++				int protocol, int usockvec[2]);
++extern asmlinkage long	sys_bind(int fd, struct sockaddr *umyaddr,
++				int addrlen);
++extern asmlinkage long	sys_listen(int fd, int backlog);
++extern asmlinkage long	sys_accept(int fd, struct sockaddr *upeer_sockaddr,
++				int *upeer_addrlen);
++extern asmlinkage long	sys_connect(int fd, struct sockaddr *uservaddr,
++				int addrlen);
++extern asmlinkage long	sys_getsockname(int fd, struct sockaddr *usockaddr,
++				int *usockaddr_len);
++extern asmlinkage long	sys_getpeername(int fd, struct sockaddr *usockaddr,
++				int *usockaddr_len);
++extern asmlinkage long	sys_sendto(int fd, void * buff, size_t len,
++				unsigned flags, struct sockaddr *addr,
++				int addr_len);
++extern asmlinkage long	sys_send(int fd, void * buff, size_t len,
++					unsigned flags);
++extern asmlinkage long	sys_recvfrom(int fd, void * ubuf, size_t size,
++				unsigned flags, struct sockaddr *addr,
++				int *addr_len);
++extern asmlinkage long	sys_setsockopt(int fd, int level, int optname,
++				char *optval, int optlen);
++extern asmlinkage long	sys_getsockopt(int fd, int level, int optname,
++				char *optval, int *optlen);
++extern asmlinkage long	sys_shutdown(int fd, int how);
++extern asmlinkage long	sys_sendmsg(int fd, struct msghdr *msg,
++				unsigned flags);
++extern asmlinkage long	sys_recvmsg(int fd, struct msghdr *msg,
++				unsigned int flags);
++extern asmlinkage long	sys_socketcall(int call, unsigned long *args);
++
++#endif /* _LINUX_SYSCALL_H */
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/kernel/Makefile linux-2.4.14-pre1/kernel/Makefile
+--- ../master/linux-2.4.14-pre1/kernel/Makefile	Sun Sep 23 21:21:03 2001
++++ linux-2.4.14-pre1/kernel/Makefile	Thu Oct 25 19:13:29 2001
+@@ -9,12 +9,13 @@
  
--	/* Do this immediately, since STACK_TOP as used in setup_arg_pages
--	   may depend on the personality.  */
--	SET_PERSONALITY(elf_ex, ibcs2_interpreter);
--
- 	/* Do this so that we can load the interpreter, if need be.  We will
- 	   change some of these later */
- 	current->mm->rss = 0;
+ O_TARGET := kernel.o
+ 
+-export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o printk.o
++export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
++	      printk.o syscall_ksyms.o
+ 
+ obj-y     = sched.o dma.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o info.o time.o softirq.o resource.o \
+ 	    sysctl.o acct.o capability.o ptrace.o timer.o user.o \
+-	    signal.o sys.o kmod.o context.o
++	    signal.o sys.o kmod.o context.o syscall_ksyms.o
+ 
+ obj-$(CONFIG_UID16) += uid16.o
+ obj-$(CONFIG_MODULES) += ksyms.o
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/kernel/syscall_ksyms.c linux-2.4.14-pre1/kernel/syscall_ksyms.c
+--- ../master/linux-2.4.14-pre1/kernel/syscall_ksyms.c	Thu Jan  1 01:00:00 1970
++++ linux-2.4.14-pre1/kernel/syscall_ksyms.c	Thu Oct 25 19:13:29 2001
+@@ -0,0 +1,101 @@
++/*
++ * Exports all Linux syscalls.
++ * Christoph Hellwig (hch@caldera.de), 2001
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/syscall.h>
++#include <linux/msg.h>
++#include <linux/sem.h>
++#include <linux/shm.h>
++
++EXPORT_SYMBOL_GPL(sys_ioctl);
++EXPORT_SYMBOL_GPL(sys_gettimeofday);
++EXPORT_SYMBOL_GPL(sys_settimeofday);
++EXPORT_SYMBOL_GPL(sys_getitimer);
++EXPORT_SYMBOL_GPL(sys_setitimer);
++EXPORT_SYMBOL_GPL(sys_access);
++EXPORT_SYMBOL_GPL(sys_statfs);
++EXPORT_SYMBOL_GPL(sys_fstatfs);
++EXPORT_SYMBOL_GPL(sys_open);
++EXPORT_SYMBOL_GPL(sys_ftruncate);
++EXPORT_SYMBOL_GPL(sys_poll);
++EXPORT_SYMBOL_GPL(sys_sysfs);
++EXPORT_SYMBOL_GPL(sys_stime);
++EXPORT_SYMBOL_GPL(sys_gethostname);
++EXPORT_SYMBOL_GPL(sys_sethostname);
++EXPORT_SYMBOL_GPL(sys_getrlimit);
++EXPORT_SYMBOL_GPL(sys_exit);
++EXPORT_SYMBOL_GPL(sys_pread);
++EXPORT_SYMBOL_GPL(sys_pwrite);
++EXPORT_SYMBOL_GPL(sys_nanosleep);
++EXPORT_SYMBOL_GPL(sys_ftruncate64);
++EXPORT_SYMBOL_GPL(sys_time);
++EXPORT_SYMBOL_GPL(sys_kill);
++EXPORT_SYMBOL_GPL(sys_brk);
++EXPORT_SYMBOL_GPL(sys_mkdir);
++EXPORT_SYMBOL_GPL(sys_setdomainname);
++EXPORT_SYMBOL_GPL(sys_setsid);
++EXPORT_SYMBOL_GPL(sys_getsid);
++EXPORT_SYMBOL_GPL(sys_setpgid);
++EXPORT_SYMBOL_GPL(sys_getpgid);
++EXPORT_SYMBOL_GPL(sys_lseek);
++EXPORT_SYMBOL_GPL(sys_mknod);
++EXPORT_SYMBOL_GPL(sys_rt_sigprocmask);
++EXPORT_SYMBOL_GPL(sys_rt_sigpending);
++EXPORT_SYMBOL_GPL(sys_rt_sigtimedwait);
++EXPORT_SYMBOL_GPL(sys_sigpending);
++EXPORT_SYMBOL_GPL(sys_sigprocmask);
++EXPORT_SYMBOL_GPL(sys_rt_sigaction);
++EXPORT_SYMBOL_GPL(sys_sigaltstack);
++EXPORT_SYMBOL_GPL(old_readdir);
++EXPORT_SYMBOL_GPL(sys_llseek);
++EXPORT_SYMBOL_GPL(sys_sigsuspend);
++EXPORT_SYMBOL_GPL(sys_readlink);
++EXPORT_SYMBOL_GPL(sys_dup2);
++EXPORT_SYMBOL_GPL(sys_select);
++EXPORT_SYMBOL_GPL(sys_truncate64);
++EXPORT_SYMBOL_GPL(sys_uselib);
++EXPORT_SYMBOL_GPL(sys_wait4);
++EXPORT_SYMBOL_GPL(sys_fcntl);
++EXPORT_SYMBOL_GPL(sys_read);
++EXPORT_SYMBOL_GPL(sys_rename);
++EXPORT_SYMBOL_GPL(sys_setgroups);
++EXPORT_SYMBOL_GPL(sys_getgroups);
++
++EXPORT_SYMBOL_GPL(sys_socket);
++EXPORT_SYMBOL_GPL(sys_socketpair);
++EXPORT_SYMBOL_GPL(sys_bind);
++EXPORT_SYMBOL_GPL(sys_listen);
++EXPORT_SYMBOL_GPL(sys_accept);
++EXPORT_SYMBOL_GPL(sys_connect);
++EXPORT_SYMBOL_GPL(sys_getsockname);
++EXPORT_SYMBOL_GPL(sys_getpeername);
++EXPORT_SYMBOL_GPL(sys_sendto);
++EXPORT_SYMBOL_GPL(sys_send);
++EXPORT_SYMBOL_GPL(sys_recvfrom);
++EXPORT_SYMBOL_GPL(sys_setsockopt);
++EXPORT_SYMBOL_GPL(sys_getsockopt);
++EXPORT_SYMBOL_GPL(sys_shutdown);
++EXPORT_SYMBOL_GPL(sys_sendmsg);
++EXPORT_SYMBOL_GPL(sys_recvmsg);
++EXPORT_SYMBOL_GPL(sys_socketcall);
++
++EXPORT_SYMBOL_GPL(sys_shmctl);
++EXPORT_SYMBOL_GPL(sys_shmat);
++EXPORT_SYMBOL_GPL(sys_semop);
++EXPORT_SYMBOL_GPL(sys_shmdt);
++EXPORT_SYMBOL_GPL(sys_msgctl);
++EXPORT_SYMBOL_GPL(sys_msgrcv);
++EXPORT_SYMBOL_GPL(sys_shmget);
++EXPORT_SYMBOL_GPL(sys_msgsnd);
++EXPORT_SYMBOL_GPL(sys_msgget);
++EXPORT_SYMBOL_GPL(sys_semget);
++
++#ifdef CONFIG_UID16
++EXPORT_SYMBOL_GPL(sys_getgroups16);
++EXPORT_SYMBOL_GPL(sys_setgroups16);
++EXPORT_SYMBOL_GPL(sys_setreuid16);
++EXPORT_SYMBOL_GPL(sys_setregid16);
++#endif /* CONFIG_UID16 */

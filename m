@@ -1,85 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266907AbSKOWot>; Fri, 15 Nov 2002 17:44:49 -0500
+	id <S266924AbSKOW6m>; Fri, 15 Nov 2002 17:58:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266911AbSKOWot>; Fri, 15 Nov 2002 17:44:49 -0500
-Received: from pc3-stoc3-4-cust114.midd.cable.ntl.com ([80.6.255.114]:46349
-	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
-	id <S266907AbSKOWoq>; Fri, 15 Nov 2002 17:44:46 -0500
-Date: Fri, 15 Nov 2002 22:51:37 +0000
-From: Ian Chilton <mailinglist@ichilton.co.uk>
-To: Miloslaw Smyk <thorgal@wfmh.org.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Anyone use HPT366 + UDMA in Linux?
-Message-ID: <20021115225137.GB6625@buzz.ichilton.co.uk>
-Reply-To: Ian Chilton <ian@ichilton.co.uk>
-References: <20021115123541.GA1889@buzz.ichilton.co.uk> <1037371184.19971.0.camel@irongate.swansea.linux.org.uk> <3DD571F1.3010502@wfmh.org.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD571F1.3010502@wfmh.org.pl>
-User-Agent: Mutt/1.3.28i
+	id <S266928AbSKOW6m>; Fri, 15 Nov 2002 17:58:42 -0500
+Received: from dp.samba.org ([66.70.73.150]:42404 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266924AbSKOW6j>;
+	Fri, 15 Nov 2002 17:58:39 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Richard Henderson <rth@twiddle.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: in-kernel linking issues 
+In-reply-to: Your message of "Fri, 15 Nov 2002 14:22:26 -0800."
+             <20021115142226.B25624@twiddle.net> 
+Date: Sat, 16 Nov 2002 09:45:21 +1100
+Message-Id: <20021115230536.6C9982C10F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In message <20021115142226.B25624@twiddle.net> you write:
+> On Sat, Nov 16, 2002 at 08:21:32AM +1100, Rusty Russell wrote:
+> > AFAICT, that would hurt some archs.  Of course, you could say "modules
+> > are meant to be slow" but I don't think that would win you any
+> > friends 8)
+> 
+> Actually, I've yet to come across one that is adversely affected.
+> Note that we're putting code _not_ compiled with -fpic into this
+> shared object.
 
-I booed 2.4.19 with HPT366 compiled in and i have not got it to fall
-over yet :)
+Hmm, OK, I'm officially confused: I always connected the two.
 
-HPT366: onboard version of chipset, pin1=1 pin2=2
-HPT366: IDE controller on PCI bus 00 dev 98
-HPT366: chipset revision 1
-HPT366: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xb400-0xb407, BIOS settings: hda:DMA, hdb:pio
-HPT366: IDE controller on PCI bus 00 dev 99
-HPT366: chipset revision 1
-HPT366: not 100% native mode: will probe irqs later
-    ide1: BM-DMA at 0xc000-0xc007, BIOS settings: hdc:pio, hdd:pio
-hda: IBM-DTLA-307045, ATA DISK drive
-ide0 at 0xac00-0xac07,0xb002 on irq 15
-hda: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=89355/16/63,
-UDMA(44)
-Partition check:
- hda: [PTBL] [5606/255/63] hda1 hda3 hda4
+> > Note: "extreme reduction" is probably overstating.  There are only
+> > about 300 lines of linker code in the kernel (x86).
+> 
+> Note that x86 is the easiest possible case.
 
+Of course.  And ia64's module.c is about 500 lines (vs 130 for x86).
+It's probably the worst case unless Alpha proves to be a complete pig
+(note: ia64 might be missing some other stuff, but the linker is
+tested).
 
-[root@buzz:~]# hdparm-5.2/hdparm -i /dev/hda
+> You've only got two relocation types, you don't need to worry about
+> .got, .plt, .opd allocation, nor sorting sections into a required
+> order, nor sorting COMMON symbols.
 
-/dev/hda:
+Hmm, OK, I guess this is where I say "patch welcome"?
 
- Model=IBM-DTLA-307045, FwRev=TX6OA5AA, SerialNo=YZDYZNM1366
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
- BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=16
- CurCHS=65535/1/63, CurSects=4128705, LBA=yes, LBAsects=90069840
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 udma2 *udma3 udma4 udma5
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  2 3 4 5
-
-
-Does this look normal?
-
-
-Thanks!
-
-
-Bye for Now,
-
-Ian
-
-
-                                \|||/ 
-                                (o o)
- /---------------------------ooO-(_)-Ooo---------------------------\
- |  Ian Chilton                  Web: http://www.ichilton.co.uk    |
- |  E-Mail: ian@ichilton.co.uk   Backup: ian@linuxfromscratch.org  | 
- |-----------------------------------------------------------------|
- |            There are 10 types of people in the world:           |
- |        Those who understand binary, and those who don't.        |
- \-----------------------------------------------------------------/
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,74 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286207AbSBCGa6>; Sun, 3 Feb 2002 01:30:58 -0500
+	id <S286303AbSBCGei>; Sun, 3 Feb 2002 01:34:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286303AbSBCGa4>; Sun, 3 Feb 2002 01:30:56 -0500
-Received: from mx3.fuse.net ([216.68.1.123]:54700 "EHLO mta03.fuse.net")
-	by vger.kernel.org with ESMTP id <S286207AbSBCGaf>;
-	Sun, 3 Feb 2002 01:30:35 -0500
-Message-ID: <3C5CD8FD.6@fuse.net>
-Date: Sun, 03 Feb 2002 01:30:21 -0500
-From: Nathan <wfilardo@fuse.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020121
-X-Accept-Language: en
+	id <S286311AbSBCGe2>; Sun, 3 Feb 2002 01:34:28 -0500
+Received: from pubnix.org ([204.80.221.10]:24023 "EHLO pubnix.org")
+	by vger.kernel.org with ESMTP id <S286303AbSBCGeY>;
+	Sun, 3 Feb 2002 01:34:24 -0500
+Date: Sun, 3 Feb 2002 01:31:18 -0500 (EST)
+From: syzygy <syzygy@pubnix.org>
+To: Douglas Gilbert <dougg@torque.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SCSI + IDE = HANG
+In-Reply-To: <3C5C2B17.289A3049@torque.net>
+Message-ID: <Pine.GSO.4.21.0202030129420.20173-100000@pubnix.org>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Issues with 2.5.3-dj1
-In-Reply-To: <3C5B5EC0.40503@fuse.net> <20020202055115.GA11359@kroah.com> <3C5B8C0D.8090009@fuse.net> <20020202133358.A5738@suse.de> <3C5C8CA2.9000103@fuse.net> <20020203062124.GA15134@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+the first command sucseeded and my machine seems to be stable with
+it...  I then tried the second command and got this...
 
->On Sat, Feb 02, 2002 at 08:04:34PM -0500, Nathan wrote:
->
->>Dave Jones wrote:
->>
->>>On Sat, Feb 02, 2002 at 01:49:49AM -0500, Nathan wrote:
->>>
->>>>Alright... a 2.5.3 with no extras boots fine (with init=/bin/bash) and 
->>>>can load and unload hotplug several times without OOPSing.  So it 
->>>>appears to be something else.  Hope that helps.
->>>>
->>>Do you have driverfs mounted ? Can you try 2.5.3 + greg's
->>>USB driverfs patch ?
->>>
->>Unless driverfs is mounted by default or by something other than 
->>/etc/fstab, no I don't have it on.
->>
->
->It's internally mounted even if you don't physically mount the fs.
->
->>w/ Greg's USB driverfs patch : system proves to be stable.
->>   (though 2.5.3 sometimes looses my keyboard after a time?)
->>
->
->Is this a USB keyboard?  Are there any kernel log messages?
->
-It's a regular AT keyboard... no, there are no kernel log messages 
-dumped to the screen and I highly doubt any captured to any file because 
-the only way out is to power down the system.  Searching kern.log, all I 
-see is hotplug add NAME=AT commands, which is nothing unusual.  This 
-"losing" only seems to happen after 2.5.2-dj6 (did not try -dj7).
+/dev/hdd:
+ setting using_dma to 1 (on)
+ setting xfermode to 34 (multiword DMA mode2)
+ HDIO_DRIVE_CMD(setxfermode) failed: Input/output error
+ using_dma    =  1 (on)
 
-But even 2.5.2-dj6 will lose my mouse... or rather, it will never see it 
-to begin with.  It's a regular, bland, boring PS/2 mouse.
+I noted that it turned dma back on and left 32 bit alone...  but the xfer
+mode seemed to fail...  it does jhowever still seem stable...  thoughts?
 
->>Raw -dj1:  explosion as above. [no ACPI (doesn't compile anyway), no 
->>preempt this time around, either.]
->>   (also lost my keyboard.  Odd.  Seems to be about 50% of the time 
->>with 2.5.3 + anything.)
->>
->
->Hm, input layer changes?
->
->Glad 2.5.3 is working for you :)
->
->Thanks for testing it with my driverfs patch.
->
->greg k-h
->
 
+
+Keith Baker	
+Email:	Syzygy@pubnix.org
+
+Life is a sexually transmitted disease with 100% mortality. 
+
+On Sat, 2 Feb 2002, Douglas Gilbert wrote:
+
+> Keith Baker wrote:
+> >I  have had a few random hangs with my machine since I added a maxtor 27
+> > gig IDE drive to it.  I kept trying different combinations of bus
+> > positions etc.  I figured it was flacky hardware or something.  I added
+> > the drive in the early 2.4 series.  Recently I became slightly suspicious
+> > of my Adaptec 2940U2W after reading all of the problems it had in the
+> > early 2.4.  So I upgraded the bios and got kernel 2.4.17.  Though the
+> > problem seems diminished it is certainly not gone...
+> > 
+> > Now for the kicker...  I found a 99% guarenteed way to hard lock my
+> > box.  I tried ripping two cds at a time.  One on the ide bus and one on
+> > the scsi.  Just a note the data is being stored to the maxtor 27 gig
+> > mentioned above.  The reason I point to the IDE + SCSI combo is that I can
+> > do two scsi cdroms ripping to the maxtor and it works much more
+> > reliably.  I am under the impression that IDE CDROMs use the ide bus quite
+> > heavily under ripping...
+> 
+> Keith,
+> Does turning off (or reducing the speed of) DMA to the
+> IDE cdrom with either one of these commands help?
+>     hdparm -d0 -c1 /dev/hdd 
+>     hdparm -d 1 -X 34 /dev/hdd
+> [This assumes the IDE cdrom is connected to /dev/hdd.]
+> 
+> Doug Gilbert
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

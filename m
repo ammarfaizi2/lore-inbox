@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293258AbSCRXW6>; Mon, 18 Mar 2002 18:22:58 -0500
+	id <S293276AbSCRX0S>; Mon, 18 Mar 2002 18:26:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293245AbSCRXWt>; Mon, 18 Mar 2002 18:22:49 -0500
-Received: from ns.suse.de ([213.95.15.193]:29451 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293258AbSCRXWm>;
-	Mon, 18 Mar 2002 18:22:42 -0500
-Date: Tue, 19 Mar 2002 00:22:41 +0100
-From: Dave Jones <davej@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Larry McVoy <lm@work.bitmover.com>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper licence issues
-Message-ID: <20020319002241.K17410@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Pavel Machek <pavel@suse.cz>, Larry McVoy <lm@work.bitmover.com>,
-	kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020318212617.GA498@elf.ucw.cz> <20020318144255.Y10086@work.bitmover.com> <20020318231427.GF1740@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S293245AbSCRX0I>; Mon, 18 Mar 2002 18:26:08 -0500
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:21645 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S293276AbSCRXZz>; Mon, 18 Mar 2002 18:25:55 -0500
+Message-ID: <3C967758.1010102@didntduck.org>
+Date: Mon, 18 Mar 2002 18:25:12 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gregoire Favre <greg@ulima.unil.ch>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] Re: 2.5.7 hfs modules compil error
+In-Reply-To: <20020318215221.GA942@ulima.unil.ch>
+Content-Type: multipart/mixed;
+ boundary="------------050401040509010909060806"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 12:14:28AM +0100, Pavel Machek wrote:
+This is a multi-part message in MIME format.
+--------------050401040509010909060806
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
- > > Pavel, the problem here is your fundamental distrust.  
- > By giving me binary-only installer you ask me to trust you. You ask me
- > to trust you without good reason [it only generates .tar.gz and
- > shellscript, why should it be binary? Was not shar designed to handle
- > that?], and that's pretty suspect.
+Gregoire Favre wrote:
+> Hello,
+> 
+> gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+> -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE
+> -DKBUILD_BASENAME=super  -c -o super.o super.c
+> super.c: In function `hfs_fill_super':
+> super.c:536: `sb' undeclared (first use in this function)
 
- Bitmover doing anything remotely suspect in an executable installer
- would be commercial suicide, do you distrust realplayer too?
- did you distrust early netscape before they released source?
- yada yada countless other programs..
-
- If your distrust of commercial organisations providing binaries
- is so great, you know where objdump, strace and friends are.
+Typo fixed.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+						Brian Gerst
+
+--------------050401040509010909060806
+Content-Type: text/plain;
+ name="sb-hfs-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sb-hfs-2"
+
+diff -urN linux-2.5.7/fs/hfs/super.c linux/fs/hfs/super.c
+--- linux-2.5.7/fs/hfs/super.c	Mon Mar 18 16:14:15 2002
++++ linux/fs/hfs/super.c	Mon Mar 18 17:06:11 2002
+@@ -533,7 +533,7 @@
+ 	set_blocksize(dev, BLOCK_SIZE);
+ bail3:
+ 	kfree(sbi);
+-	sb->u.generic_sbp = NULL;
++	s->u.generic_sbp = NULL;
+ 	return -EINVAL;	
+ }
+ 
+
+--------------050401040509010909060806--
+

@@ -1,35 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUHOUHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUHOUJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266864AbUHOUHK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 16:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266870AbUHOUHK
+	id S266867AbUHOUJu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 16:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266870AbUHOUJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 16:07:10 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:47764 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266864AbUHOUHF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 16:07:05 -0400
-Date: Sun, 15 Aug 2004 13:06:21 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
- pte
-In-Reply-To: <411F7067.8040305@colorfullife.com>
-Message-ID: <Pine.LNX.4.58.0408151304190.2470@schroedinger.engr.sgi.com>
-References: <411F7067.8040305@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 15 Aug 2004 16:09:50 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:25195 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266867AbUHOUJt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 16:09:49 -0400
+Date: Sun, 15 Aug 2004 22:12:24 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Subject: kbuild + kconfig: Updates
+Message-ID: <20040815201224.GI7682@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Aug 2004, Manfred Spraul wrote:
+A number of kbuild updates and Randy's Kconfig.debug
 
-> Very odd. Why do you see a problem with the page_table_lock but no
-> problem from the mmap semaphore?
+Most important stuff is:
+o Get rid og bogus "has no CRC" when building external modules
+o Rename *.lds.s to *.lds (*)
+o Allow external modules to use host-progs
 
-Because there is a only a down_read() call for the mmap semaphore before
-invoking handle_mm_fault. This is a rw semaphore which means that multiple
-processors/processes may be entering handle_mm_fault with a read lock on
-the mmap semaphore.
+(*) The renaming of the *.lds file has been doen to allow the kernel to
+be build with for example Cygwin.
+The major outstanding issue with Cygwin/Solaris are availability of
+certain .h files for the tools in scripts/* and spread in the tree.
+Tested patches that allows the tools to be build under Cygwin/Solaris
+are appreciated.
+
+Patches follows this mail.
+
+Everything pushed to:
+bk://linux-sam.bkbits.net/kbuild
+
+	Sam

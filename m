@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131063AbRCWOrU>; Fri, 23 Mar 2001 09:47:20 -0500
+	id <S131140AbRCWOw7>; Fri, 23 Mar 2001 09:52:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131076AbRCWOrK>; Fri, 23 Mar 2001 09:47:10 -0500
-Received: from [166.70.28.69] ([166.70.28.69]:61496 "EHLO flinx.biederman.org")
-	by vger.kernel.org with ESMTP id <S131056AbRCWOq5>;
-	Fri, 23 Mar 2001 09:46:57 -0500
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Dave Kleikamp <shaggy@austin.ibm.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] sane access to per-fs metadata (was Re: [PATCH] Documentation/ioctl-number.txt)
-In-Reply-To: <Pine.GSO.4.21.0103221720250.5619-100000@weyl.math.psu.edu>
+	id <S131151AbRCWOww>; Fri, 23 Mar 2001 09:52:52 -0500
+Received: from [166.70.28.69] ([166.70.28.69]:63544 "EHLO flinx.biederman.org")
+	by vger.kernel.org with ESMTP id <S131140AbRCWOwj>;
+	Fri, 23 Mar 2001 09:52:39 -0500
+To: Guest section DW <dwguest@win.tue.nl>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Michael Peddemors <michael@linuxmagic.com>,
+        Stephen Clouse <stephenc@theiqgroup.com>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <20010323015358Z129164-406+3041@vger.kernel.org> <Pine.LNX.4.21.0103230403370.29682-100000@imladris.rielhome.conectiva> <20010323122815.A6428@win.tue.nl>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Mar 2001 07:45:16 -0700
-In-Reply-To: Alexander Viro's message of "Thu, 22 Mar 2001 18:07:44 -0500 (EST)"
-Message-ID: <m1lmpw1r43.fsf@frodo.biederman.org>
+Date: 23 Mar 2001 07:50:25 -0700
+In-Reply-To: Guest section DW's message of "Fri, 23 Mar 2001 12:28:15 +0100"
+Message-ID: <m1hf0k1qvi.fsf@frodo.biederman.org>
 User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> writes:
+Guest section DW <dwguest@win.tue.nl> writes:
 
-> IOW, you can get normal filesystem view (meaning that you have all usual
-> UNIX toolkit available) for per-fs control stuff. And keep the ability to
-> do proper locking - it's the same driver that handles the main fs and you
-> have access to superblock. No need to change the API - everything is already
-> there...
-> 	I'll post an example patch for ext2 (safe access to superblock,
-> group descriptors, inode table and bitmaps on a live fs) after this weekend
-> (== when misc shit will somewhat settle down).
-> 						Cheers,
-> 							Al
+> On Fri, Mar 23, 2001 at 04:04:09AM -0300, Rik van Riel wrote:
+> > On 22 Mar 2001, Michael Peddemors wrote:
+> > 
+> > > Here, Here.. killing qmail on a server who's sole task is running mail
+> > > doesn't seem to make much sense either..
+> > 
+> > I won't defend the current OOM killing code.
+> > 
+> > Instead, I'm asking everybody who's unhappy with the
+> > current code to come up with something better.
 > 
-> PS: Folks[1], I hope it explains why I'm very sceptical about "let's add new
-> A{B,P}I" sort of ideas - approach above can be used for almost all stuff
-> I've seen proposed. You can have multiple views of the same object. And
-> have all of them available via normal API.
+> To a murderer: "Why did you kill that old lady?"
+> Reply: "I won't defend that deed, but who else should I have killed?"
 
+> 
+> Andries - getting more and more unhappy with OOM
+> 
+> Mar 23 11:48:49 mette kernel: Out of Memory: Killed process 2019 (emacs).
+> Mar 23 11:48:49 mette kernel: Out of Memory: Killed process 1407 (emacs).
+> Mar 23 11:48:50 mette kernel: Out of Memory: Killed process 1495 (emacs).
+> Mar 23 11:48:50 mette kernel: Out of Memory: Killed process 2800 (rpm).
+> 
+> [yes, that was rpm growing too large, taking a few emacs sessions]
+> [2.4.2]
 
-This is a cool idea.  But I couple of places where this might fall down.
-1) If a filesystem has multiple name spaces and we use different mounts
-   to handle them, will this break anything?  Fat32 with it's short and long
-   names, and the Novell filesystem are the examples I can think of.
+Let me get this straight you don't have enough swap for your workload?
+And you don't have per process limits on root by default?
 
-2) An API is still being developed it just uses the existing infrastructure
-   which is good, but we still need to standardize what is exported.  It's
-   a cleaner way to build a new API but a new API is being built.
-
-3) What is a safe way to do this so a non-root user can call mount?
-
-4) What is appropriate way using open,read,write,close,mount to handle stat data
-   and extended attributes.  The stat data is the big one because it is used
-   so frequently.  Possibly a mount&open&read/write&close&umount syscall is needed.
-   
-   I keep thinking open("/path/to/file/stat_data") but that feels excessively heavy
-   at the API level.   But if we involve mount (at least semantically)
-   that could work for directories as well. 
-
-The goal here is to push your ideas to the limits so we can where
-using ioctl or new a syscall is appropriate.  If indeed there is such
-a case.
+So you are complaining about the OOM killer?  
 
 Eric

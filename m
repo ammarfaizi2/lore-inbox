@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316434AbSIIFDE>; Mon, 9 Sep 2002 01:03:04 -0400
+	id <S316446AbSIIFKp>; Mon, 9 Sep 2002 01:10:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316437AbSIIFDE>; Mon, 9 Sep 2002 01:03:04 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43931 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316434AbSIIFDD>;
-	Mon, 9 Sep 2002 01:03:03 -0400
-Date: Sun, 08 Sep 2002 22:00:08 -0700 (PDT)
-Message-Id: <20020908.220008.79156946.davem@redhat.com>
-To: phillips@arcor.de
-Cc: imran.badr@cavium.com, linux-kernel@vger.kernel.org
-Subject: Re: Calculating kernel logical address ..
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E17oGD2-0006lP-00@starship>
-References: <E17nUee-0006Lc-00@starship>
-	<20020907.170151.84915731.davem@redhat.com>
-	<E17oGD2-0006lP-00@starship>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S316465AbSIIFKp>; Mon, 9 Sep 2002 01:10:45 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:26037 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S316446AbSIIFKn>;
+	Mon, 9 Sep 2002 01:10:43 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Disabled kernel.org accounts 
+In-reply-to: Your message of "06 Sep 2002 16:54:17 MST."
+             <albf79$3jd$1@cesium.transmeta.com> 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 09 Sep 2002 15:15:15 +1000
+Message-ID: <18629.1031548515@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Daniel Phillips <phillips@arcor.de>
-   Date: Sun, 8 Sep 2002 20:44:17 +0200
+On 6 Sep 2002 16:54:17 -0700, 
+"H. Peter Anvin" <hpa@zytor.com> wrote:
+>I have disabled several kernel.org accounts due to bouncing email.
+>If you have a kernel.org account and you can no longer log in, please
+>contact me and provide an updated, *working* email.
 
-   > For anything else you're in non-portablt land, including and
-   > in partiular:
-   > 
-   > 1) kernel stack addresses
-   
-   Could you elaborate on what bad things happen here?
-   
-Kernel stack allocation is defined per-architecture.  On
-sun4c sparc systems, we carve virtual pages out from the kernel
-address space and hard map them into the TLB by hand.
+It does not help when 63.209.4.196 does not have a valid reverse DNS.
+Some sites recognize it as neon-gw-l3.transmeta.com but four different
+sites in USA and AUS cannot do a reverse lookup on 63.209.4.196.  That
+makes you look like just another level3 spammer.
 
-   > 2) addresses within the main kernel image text/data/bss
-   
-   Yep.  MIPS's KSEG0 (a stupid design if there ever was one)
-
-Actually, KSEG0 the most Linux friendly design in the world
-particularly in 64-bit mode.  There is no need to have page tables at
-all for the main kernel physical memory map.  It would shave a lot of
-code from the sparc64 TLB miss handlers if I didn't have to handle
-PAGE_OFFSET pages, for example.
-
-Alpha does something akin to KSEG0 as well.
-
-I pine constantly for it appearing some day on a future UltraSPARC
-revision :-)

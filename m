@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264329AbRGNRaB>; Sat, 14 Jul 2001 13:30:01 -0400
+	id <S264375AbRGNRdu>; Sat, 14 Jul 2001 13:33:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264375AbRGNR3u>; Sat, 14 Jul 2001 13:29:50 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:60323 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264329AbRGNR3i>;
-	Sat, 14 Jul 2001 13:29:38 -0400
-Message-ID: <3B50817B.37FE29@mandrakesoft.com>
-Date: Sat, 14 Jul 2001 13:29:31 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
-        Christoph Hellwig <hch@caldera.de>,
-        Gunther Mayer <Gunther.Mayer@t-online.de>, paul@paulbristow.net,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S264416AbRGNRdl>; Sat, 14 Jul 2001 13:33:41 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14861 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264375AbRGNRdd>; Sat, 14 Jul 2001 13:33:33 -0400
 Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy)
-In-Reply-To: <E15LSoA-0001Sj-00@the-village.bc.nu> <20010715051134.A7056@weta.f00f.org>
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Sat, 14 Jul 2001 18:33:45 +0100 (BST)
+Cc: cw@f00f.org (Chris Wedgwood), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        dwmw2@infradead.org (David Woodhouse),
+        hch@caldera.de (Christoph Hellwig),
+        Gunther.Mayer@t-online.de (Gunther Mayer), paul@paulbristow.net,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <3B50817B.37FE29@mandrakesoft.com> from "Jeff Garzik" at Jul 14, 2001 01:29:31 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15LTIY-0001Ul-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-oh cool, thanks.  This saves me some work.  I originally did a lot of
-the cleanup in 2.4 to get rid of malloc.h references, but specifically
-didn't touch much arch/* at the time.
+> tangent, it would be nice to remove __KERNEL__ from at least the i386
+> kernel headers in 2.5, and I think it's a doable task...
 
-tangent, it would be nice to remove __KERNEL__ from at least the i386
-kernel headers in 2.5, and I think it's a doable task...
+That just generates work for the glibc folks when they are working off copies
+of kernel header snapshots as they need to
 
--- 
-Jeff Garzik      | A recent study has shown that too much soup
-Building 1024    | can cause malaise in laboratory mice.
-MandrakeSoft     |
+

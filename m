@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbUJ0OWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262457AbUJ0OXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbUJ0OWa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 10:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUJ0OW3
+	id S262457AbUJ0OXL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 10:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUJ0OXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 10:22:29 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:27407 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S262456AbUJ0OVL
+	Wed, 27 Oct 2004 10:23:10 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:46742 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S262457AbUJ0OVS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 10:21:11 -0400
-Message-ID: <417FAE3F.20908@vmware.com>
-Date: Wed, 27 Oct 2004 07:18:39 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: Strange IO behaviour on wakeup from sleep
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Oct 2004 14:18:39.0771 (UTC) FILETIME=[DB0C2EB0:01C4BC2F]
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.12; VDF: 6.28.0.41; host: mailout1.vmware.com)
+	Wed, 27 Oct 2004 10:21:18 -0400
+Date: Wed, 27 Oct 2004 16:21:07 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [patch] s390: tty_write fix.
+Message-ID: <20041027142107.GA3405@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->Hi !
->
->Not much datas at this point yet, but paulus and I noticed that current
->bk (happened already last saturday or so) has a very strange problem
->when waking up from sleep (suspend to ram) on our laptops.
->
->This doesn't seem to be directly related to the PM code, at least not
->the arch one, as far as I know. The IDE throughput goes down to less
->than 100k/sec on hdparm. We haven't yet figured out where the time is
->lost, the disk seem to properly be restored to UDMA4 as usual, that code
->didn't change for ages, I don't think it's a problem at that level in
->IDE.
->  
->
+[patch] s390: tty_write fix.
 
-I would tend to be very suspicious of DMA not being restored correctly 
-because on some systems, prior to or during suspend, DMA may be shutdown 
-to conserve power.  There are changes afloat that touch suspend/resume, 
-and there have been historical problems with DMA not being restored 
-properly after wakeup on some laptops.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Although this may be another shot in the dark, it might rule out the DMA 
-problem:  try cat /proc/ide/yourchipset before and after suspend and 
-note any changes.  Failing that, use hdparm to turn off DMA before 
-suspend and see if the performance suffers to the same degree as after 
-wakeup.
+Make the s/390 console drivers compile without warnings again
+after the recent tty layer change that moved the copy_from_user
+out of the drivers.
 
-Zachary Amsden
-zach@vmware.com
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+
+diffstat:
+ drivers/s390/char/con3215.c  |    1 -
+ drivers/s390/char/sclp_tty.c |    4 +---
+ drivers/s390/char/tty3270.c  |    1 -
+ 3 files changed, 1 insertion(+), 5 deletions(-)
+
+diff -urN linux-2.6/drivers/s390/char/con3215.c linux-2.6-patched/drivers/s390/char/con3215.c
+--- linux-2.6/drivers/s390/char/con3215.c	2004-10-27 12:20:48.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/con3215.c	2004-10-27 12:21:03.000000000 +0200
+@@ -987,7 +987,6 @@
+ 	      const unsigned char *buf, int count)
+ {
+ 	struct raw3215_info *raw;
+-	int length, ret;
+ 
+ 	if (!tty)
+ 		return 0;
+diff -urN linux-2.6/drivers/s390/char/sclp_tty.c linux-2.6-patched/drivers/s390/char/sclp_tty.c
+--- linux-2.6/drivers/s390/char/sclp_tty.c	2004-10-27 12:20:48.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/sclp_tty.c	2004-10-27 12:21:03.000000000 +0200
+@@ -397,8 +397,6 @@
+ static int
+ sclp_tty_write(struct tty_struct *tty, const unsigned char *buf, int count)
+ {
+-	int length, ret;
+-
+ 	if (sclp_tty_chars_count > 0) {
+ 		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count);
+ 		sclp_tty_chars_count = 0;
+@@ -603,7 +601,7 @@
+ 
+ 	/* if set in ioctl write operators input to console  */
+ 	if (sclp_ioctls.echo)
+-		sclp_tty_write(sclp_tty, 0, start, count);
++		sclp_tty_write(sclp_tty, start, count);
+ 
+ 	/* transfer input to high level driver */
+ 	sclp_tty_input(start, count);
+diff -urN linux-2.6/drivers/s390/char/tty3270.c linux-2.6-patched/drivers/s390/char/tty3270.c
+--- linux-2.6/drivers/s390/char/tty3270.c	2004-10-27 12:20:48.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/tty3270.c	2004-10-27 12:21:03.000000000 +0200
+@@ -1603,7 +1603,6 @@
+ 	      const unsigned char *buf, int count)
+ {
+ 	struct tty3270 *tp;
+-	int length, ret;
+ 
+ 	tp = tty->driver_data;
+ 	if (!tp)

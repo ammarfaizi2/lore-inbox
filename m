@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262137AbSJVEdS>; Tue, 22 Oct 2002 00:33:18 -0400
+	id <S262122AbSJVE2o>; Tue, 22 Oct 2002 00:28:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262147AbSJVEdS>; Tue, 22 Oct 2002 00:33:18 -0400
-Received: from merlin.sccs.swarthmore.edu ([130.58.218.7]:34823 "HELO
-	merlin.sccs.swarthmore.edu") by vger.kernel.org with SMTP
-	id <S262137AbSJVEdR>; Tue, 22 Oct 2002 00:33:17 -0400
-Date: Tue, 22 Oct 2002 00:39:25 -0400
-From: sean finney <seanius@seanius.net>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem opening multiple pipes with pipe(2) in 2.4.1[78]
-Message-ID: <20021022003925.A15745@sccs.swarthmore.edu>
-References: <20021021213220.A26136@sccs.swarthmore.edu> <3DB4B517.1070906@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3DB4B517.1070906@redhat.com>; from drepper@redhat.com on Mon, Oct 21, 2002 at 07:16:55PM -0700
+	id <S262137AbSJVE2n>; Tue, 22 Oct 2002 00:28:43 -0400
+Received: from dp.samba.org ([66.70.73.150]:37071 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262122AbSJVE2n>;
+	Tue, 22 Oct 2002 00:28:43 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: landley@trommello.org
+Cc: Roman Zippel <zippel@linux-m68k.org>
+Cc: riel@conectiva.com.br, linux-kernel@vger.kernel.org, akpm@zip.com.au,
+       davej@suse.de, davem@redhat.com,
+       "Guillaume Boissiere" <boissiere@adiglobal.com>, mingo@redhat.com,
+       alan@redhat.com
+Subject: Re: 2.6: Shortlist of Missing Features 
+In-reply-to: Your message of "Sun, 20 Oct 2002 21:44:59 EST."
+             <200210202144.59787.landley@trommello.org> 
+Date: Tue, 22 Oct 2002 12:26:26 +1000
+Message-Id: <20021022043451.46C792C053@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <200210202144.59787.landley@trommello.org> you write:
+> Sigh.  If great minds think alike, how do you explain either of us then? =
+> :)
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+"Fools never differ" perhaps?
 
-On Mon, Oct 21, 2002 at 07:16:55PM -0700, Ulrich Drepper wrote:
-> The fault is entirely yours.  You're not allowed to look at errno unless
-> a function, which is defined to modify error on failure, is reporting it
-> failed.  Both pipe() calls work just fine and errno has some random
-> value which happens to be ESPIPE for you.  Read the standard.
+I'm not worried about stuff which is in -mm: they won't get lost, and
+some of them will get thrown out if the benchmarks don't pay off.
 
-right.  the perror() giving nonsensical results wasn't the cause of my
-problem of course, i was just trying to use it to find out why the pipe
-didn't seem to work.  turns out that i missed the forest for the trees;
-the pipe was being opened for writing from the wrong end...
+> o in -ac PCMCIA Zoom video support (Alan Cox)=20
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0203.1/0326.html
 
-(as a side note, the code in question was written on a solaris box, and
-it seems to Just Work in the wrong direction there, go fig.)
+Hmm... is this merely a new driver or significant new infrastructure?
 
-thanks
---sean
+> o Ready - Dynamic Probes (dprobes team)=20
+> http://oss.software.ibm.com/developerworks/opensource/linux/projects/dpro=
+> bes
 
---9amGYk9869ThD9tj
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+The minimal kernel part of this is kprobes.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+> o Ready - Zerocopy NFS (Hirokazu Takahashi)=20
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.1/0429.html
 
-iD8DBQE9tNZ9ynjLPm522B0RAhEwAJ4p2HjZw73IvMO609pUE0HfgdxytACfXUeQ
-vYBH0ZyqI2EUl2HQmIld6js=
-=y72D
------END PGP SIGNATURE-----
+This is really up to Dave.  I thought he was already merging it?
 
---9amGYk9869ThD9tj--
+> And In a reply to me, Hans Reiser promised Reiser 4 by the 27th.  (That's=
+
+Another filesystem can go in during the freeze, unless it makes
+infrastructure changes?
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

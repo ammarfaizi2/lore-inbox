@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUL0QEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbUL0QDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbUL0QEo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 11:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUL0QEo
+	id S261921AbUL0QDh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 11:03:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUL0QDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 11:04:44 -0500
-Received: from mail.x-echo.com ([195.101.94.2]:51199 "EHLO mail.x-echo.com")
-	by vger.kernel.org with ESMTP id S261914AbUL0QE3 (ORCPT
+	Mon, 27 Dec 2004 11:03:37 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:4363 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261914AbUL0QCF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 11:04:29 -0500
-From: Serge Tchesmeli <zztchesmeli@echo.fr>
-Organization: Transiciel
-To: Andrew Benton <andy@benton987.fsnet.co.uk>
-Subject: Re: 2.6.10 and speedtouch usb
-Date: Mon, 27 Dec 2004 17:03:49 +0100
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <200412271108.47578.zztchesmeli@echo.fr> <200412271433.28454.zztchesmeli@echo.fr> <41D02EBD.80600@benton987.fsnet.co.uk>
-In-Reply-To: <41D02EBD.80600@benton987.fsnet.co.uk>
+	Mon, 27 Dec 2004 11:02:05 -0500
+Message-ID: <41D031FD.9000601@domdv.de>
+Date: Mon, 27 Dec 2004 17:02:05 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.10-ac1
+References: <1104103881.16545.2.camel@localhost.localdomain>	 <58cb370e04122616577e1bd33@mail.gmail.com> <41CF649E.20409@domdv.de>	 <58cb370e041226174019e75e23@mail.gmail.com>	 <8783be660412270645717b89d1@mail.gmail.com>	 <58cb370e0412270738fbc045c@mail.gmail.com> <41D02EEC.4090000@domdv.de> <58cb370e04122707544be6d600@mail.gmail.com>
+In-Reply-To: <58cb370e04122707544be6d600@mail.gmail.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412271703.49289.zztchesmeli@echo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bartlomiej Zolnierkiewicz wrote:
+> Ah, so the problem only affects native PCI IRQs.
+> Is it possible that it is a buggy IDE host driver not a generic IDE problem?
 
->
-> Well it looks like modem_run is giving you problems. If you want you could
-> do without it and  let the kernel load the firmware itself. To try this you
-> will need to  prepare the firmware by splitting it into two parts To do
-> that you'll need a copy of the speedtouch-1.3.1 driver
-> http://prdownloads.sourceforge.net/speedtouch/speedtouch-1.3.1.tar.gz?downl
->oad untar it and cd into the speedtouch-1.3.1/src folder and then enter
->
-.../...
-
-Ok i will try this next week end, because this machine is actually at 180km 
-away from me and if i do something wrong with the modem, i will not be able 
-to reach it :)
-Actually i have reboot it on 2.6.9 and it work well.
-So i will tell you more next week.
-
-Thanks for all :)
+No, I tried 3 different pci cards requiring three different drivers. The 
+problem appeared with all three the same way.
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

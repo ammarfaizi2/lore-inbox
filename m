@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262923AbUJ0V6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262903AbUJ0WUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262923AbUJ0V6H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 17:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262928AbUJ0Vs0
+	id S262903AbUJ0WUu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 18:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbUJ0WSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 17:48:26 -0400
-Received: from wingding.demon.nl ([82.161.27.36]:3713 "EHLO wingding.demon.nl")
-	by vger.kernel.org with ESMTP id S262720AbUJ0VhW (ORCPT
+	Wed, 27 Oct 2004 18:18:34 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:14976 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S262759AbUJ0VVV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 17:37:22 -0400
-Date: Wed, 27 Oct 2004 23:38:07 +0200
-From: Rutger Nijlunsing <rutger@nospam.com>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
-Message-ID: <20041027213807.GA9334@nospam.com>
-Reply-To: linux-kernel@tux.tmfweb.nl
-References: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com> <417FB7BA.9050005@grupopie.com>
+	Wed, 27 Oct 2004 17:21:21 -0400
+Date: Wed, 27 Oct 2004 23:21:07 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Greg KH <greg@kroah.com>, Norbert Preining <preining@logic.at>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.10-mm1, class_simple_* and GPL addition
+Message-ID: <20041027212107.GA22957@vana.vc.cvut.cz>
+References: <20041027135052.GE32199@gamma.logic.tuwien.ac.at> <20041027153715.GB13991@kroah.com> <20041027191728.GA6897@vana.vc.cvut.cz> <1098906941.6990.30.camel@laptop.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <417FB7BA.9050005@grupopie.com>
-Organization: M38c
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1098906941.6990.30.camel@laptop.fenrus.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 03:59:06PM +0100, Paulo Marques wrote:
-> Pallipadi, Venkatesh wrote:
-> >>....
-> >Yes. Clock modulation is not as useful compared to enhanced speedstep.
-> >But, 
-> >I feel, it should be OK to have the driver, though it is not really
-> >useful 
-> >in common case. It may be useful in some exceptional cases. 
+On Wed, Oct 27, 2004 at 09:55:41PM +0200, Arjan van de Ven wrote:
+> On Wed, 2004-10-27 at 21:17 +0200, Petr Vandrovec wrote:
+> > VMware's vmnet is broken by this too.  VMware was asked by RedHat to 
+> > add udev compatibility to the code, and now you are saying that both
 > 
-> I think I have one of such cases.
-> 
-> I am one of the members of the robotic soccer team from the University 
-> of Oporto, and a couple of months ago we were looking for new 
-> motherboards for our robots, because we are starting to need new 
-> hardware (on-board lan, usb2.0, etc.).
-> 
-> We really don't need excepcional performance, but we really, really need 
-> low power consumption, so lowering the clock on a standard mainboard 
-> seemed to be the best cost/performance scenario.
-> 
-> Could this driver be used to keep a standard p4 processor at say 25% 
-> clock speed at all times?
+> who in Red Hat (notice the space) asked you this? I'm not aware of any
+> official request to vmware to do this...
+ 
+I assumed that email I received from Warren Togami was official notice that
+RHEL4 is going to be udev based and that as vmnet does not currently create
+its device nodes in /dev, something should be done about it.
 
-Nope, p4-clockmod is completely useles. It doesn't slow down the CPU
-frequency, it only executes 7000 tick some kind of 'hlt' / 'halt'
-instruction out of 8000 ticks (for example, to get 12.5%) just like
-Linux's idle routine.
+As this request was quite popular, and doing it properly through sysfs 
+instead of doing several mknods when initscripts run, I filled internal
+bug report that RHEL4 will use udev and vmnet should be compatible with
+it.  And then I implemented some minimal sysfs support.
 
-So you've got the _disadvantages_ of a slow clock (programs run
-slower), and not the _advantages_ (power consumption is same as idle
-CPU and not lower, temperature is same as idle CPU and not lower).
+Week after that I saw first email from Greg changing sysfs_driver_* & co.
+to GPL only.  I did not worry as this set did not comtain class_simple,
+and so I assumed that I'm doing nothing wrong.  But today I noticed
+that even class_simple is GPL only in -mm.
 
-But why does the P4 have such a mode? It uses this mode during thermal
-throttling to get to the 'idle' temperature.
+It was not lot of work, I'd say under 1 hour, but it just does not seem
+correct to me, changing symbols visibility after people start using them.
 
-Therefore, p4-clockmod is completely misnamed: it's _not_ a cpufreq
-driver in the sense that it does not change the frequency. The
-documentation should be updated to reflect this (eventually).
+OK, next beta will do several mknods in /etc/init.d/vmware script.
+Not technically nice, but working.
+					Petr Vandrovec
 
-In short: p4-clockmod can be emulated in software.
-
--- 
-Rutger Nijlunsing ---------------------------- rutger ed tux tmfweb nl
-never attribute to a conspiracy which can be explained by incompetence
-----------------------------------------------------------------------

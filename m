@@ -1,194 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311885AbSGYMcY>; Thu, 25 Jul 2002 08:32:24 -0400
+	id <S312560AbSGYMmD>; Thu, 25 Jul 2002 08:42:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312558AbSGYMcY>; Thu, 25 Jul 2002 08:32:24 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:42762
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S311885AbSGYMcV>; Thu, 25 Jul 2002 08:32:21 -0400
-Date: Thu, 25 Jul 2002 05:30:00 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: martin@dalecki.de, Vojtech Pavlik <vojtech@suse.cz>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/CFT] cmd640 irqlocking fixes
-In-Reply-To: <1027602528.9488.68.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10207250526000.4719-100000@master.linux-ide.org>
+	id <S312590AbSGYMmD>; Thu, 25 Jul 2002 08:42:03 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:47634 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S293680AbSGYMmB>;
+	Thu, 25 Jul 2002 08:42:01 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Alexander Viro <viro@math.psu.edu>
+Date: Thu, 25 Jul 2002 14:43:24 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: RE: 2.5.28 and partitions
+CC: Matt_Domsch@Dell.com, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <1CE69F64FF@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-EEK!
-
-Alan, how are you going to sync to access to the shared HBA registers if
-the lock is decoupled from the main loop?  Since there are general
-register mucking abouts during data transfers, iirc the behavors of the
-CMD640B I use for testing.  You have me a little close to the edge of my
-seat on concern.
-
-
-On 25 Jul 2002, Alan Cox wrote:
-
-> Martin this patch should do the job. It uses the correct pci_config_lock
-> and it also adds the 2.4 probe safety checks for deciding which pci
-> modes to use.
+On 25 Jul 02 at 7:44, Alexander Viro wrote:
+> On Wed, 24 Jul 2002, Linus Torvalds wrote:
 > 
-> --- ../linux-2.5.28/drivers/ide/cmd640.c	Thu Jul 25 10:49:19 2002
-> +++ drivers/ide/cmd640.c	Thu Jul 25 11:41:27 2002
-> @@ -216,27 +216,27 @@
->  
->  /* PCI method 1 access */
->  
-> -static void put_cmd640_reg_pci1 (unsigned short reg, byte val)
-> +extern spinlock_t pci_config_lock;
-> +
-> +static void put_cmd640_reg_pci1 (unsigned short reg, u8 val)
->  {
->  	unsigned long flags;
-> -
-> -	save_flags(flags);
-> -	cli();
-> -	outl_p((reg & 0xfc) | cmd640_key, 0xcf8);
-> +	
-> +	spin_lock_irqsave(&pci_config_lock, flags);
-> +	outb_p((reg & 0xfc) | cmd640_key, 0xcf8);
->  	outb_p(val, (reg & 3) | 0xcfc);
-> -	restore_flags(flags);
-> +	spin_unlock_irqrestore(&pci_config_lock, flags);
->  }
->  
->  static u8 get_cmd640_reg_pci1 (unsigned short reg)
->  {
->  	u8 b;
->  	unsigned long flags;
-> -
-> -	save_flags(flags);
-> -	cli();
-> -	outl_p((reg & 0xfc) | cmd640_key, 0xcf8);
-> -	b = inb_p((reg & 3) | 0xcfc);
-> -	restore_flags(flags);
-> +	
-> +	spin_lock_irqsave(&pci_config_lock, flags);
-> +	outb_p((reg & 0xfc) | cmd640_key, 0xcf8);
-> +	b=inb_p((reg & 3) | 0xcfc);
-> +	spin_unlock_irqrestore(&pci_config_lock, flags);
->  	return b;
->  }
->  
-> @@ -245,26 +245,24 @@
->  static void put_cmd640_reg_pci2 (unsigned short reg, u8 val)
->  {
->  	unsigned long flags;
-> -
-> -	save_flags(flags);
-> -	cli();
-> +	
-> +	spin_lock_irqsave(&pci_config_lock, flags);
->  	outb_p(0x10, 0xcf8);
->  	outb_p(val, cmd640_key + reg);
->  	outb_p(0, 0xcf8);
-> -	restore_flags(flags);
-> +	spin_unlock_irqrestore(&pci_config_lock, flags);
->  }
->  
->  static u8 get_cmd640_reg_pci2 (unsigned short reg)
->  {
->  	u8 b;
->  	unsigned long flags;
-> -
-> -	save_flags(flags);
-> -	cli();
-> +	
-> +	spin_lock_irqsave(&pci_config_lock, flags);
->  	outb_p(0x10, 0xcf8);
->  	b = inb_p(cmd640_key + reg);
->  	outb_p(0, 0xcf8);
-> -	restore_flags(flags);
-> +	spin_unlock_irqrestore(&pci_config_lock, flags);
->  	return b;
->  }
->  
-> @@ -701,9 +699,62 @@
->  
->  #endif
->  
-> +/**
-> + *	pci_conf1	-	check for PCI type 1 configuration
-> + *	
-> + *	Issues a safe probe sequence for PCI configuration type 1 and
-> + *	returns non-zero if conf1 is supported. Takes the pci_config lock
-> + */
-> + 
-> +static int pci_conf1(void)
-> +{
-> +	u32 tmp;
-> +	unsigned long flags;
-> +	
-> +	spin_lock_irqsave(&pci_config_lock, flags);
-> +
-> +	OUT_BYTE(0x01, 0xCFB);
-> +	tmp = inl(0xCF8);
-> +	outl(0x80000000, 0xCF8);
-> +	if (inl(0xCF8) == 0x80000000) {
-> +		spin_unlock_irqrestore(&pci_config_lock, flags);
-> +		outl(tmp, 0xCF8);
-> +		return 1;
-> +	}
-> +	outl(tmp, 0xCF8);
-> +	spin_unlock_irqrestore(&pci_config_lock, flags);
-> +	return 0;
-> +}
-> +
-> +/**
-> + *	pci_conf2	-	check for PCI type 2 configuration
-> + *	
-> + *	Issues a safe probe sequence for PCI configuration type 2 and
-> + *	returns non-zero if conf2 is supported. Takes the pci_config lock.
-> + */
-> + 
-> +
-> +static int pci_conf2(void)
-> +{
-> +	unsigned long flags;
-> +	spin_lock_irqsave(&pci_config_lock, flags);
-> +	
-> +	OUT_BYTE(0x00, 0xCFB);
-> +	OUT_BYTE(0x00, 0xCF8);
-> +	OUT_BYTE(0x00, 0xCFA);
-> +	if (IN_BYTE(0xCF8) == 0x00 && IN_BYTE(0xCF8) == 0x00) {
-> +		spin_unlock_irqrestore(&pci_config_lock, flags);
-> +		return 1;
-> +	}
-> +	spin_unlock_irqrestore(&pci_config_lock, flags);
-> +	return 0;
-> +}
-> +
-> +
->  /*
->   * Probe for a cmd640 chipset, and initialize it if found.  Called from ide.c
->   */
-> + 
->  int __init ide_probe_for_cmd640x(void)
->  {
->  #ifdef CONFIG_BLK_DEV_CMD640_ENHANCED
-> @@ -718,9 +769,10 @@
->  		bus_type = "VLB";
->  	} else {
->  		cmd640_vlb = 0;
-> -		if (probe_for_cmd640_pci1())
-> +		/* Find out what kind of PCI probing is supported */
-> +		if (pci_conf1() && probe_for_cmd640_pci1())
->  			bus_type = "PCI (type1)";
-> -		else if (probe_for_cmd640_pci2())
-> +		else if (pci_conf2() && probe_for_cmd640_pci2())
->  			bus_type = "PCI (type2)";
->  		else
->  			return 0;
+> > Note that there is one place where 64 bits is simply _too_ expensive, and
+> > that's the page cache. In particular, the "index" in "struct page". We
+> > want to make "struct page" _smaller_, not larger.
+> > 
+> > Right now that means that 16TB really is a hard limit for at least some
+> > device access on a 32-bit machine with a 4kB page-size (yes, you could
+> > make a filesystem that is bigger, but you very fundamentally cannot make
+> > individual files larger than 16TB).
 > 
+> ITYM "8Tb" - indices are signed, IIRC.  OTOH, it's not 2^31 * PAGE_SIZE -
+> it's 2^31 * PAGE_CACHE_SIZE, which can be bigger.
+> 
+> Al, still thinking that anybody who does mkfs.<whatever> on a multi-Tb
+> device should seek professional help of the kind they don't give on l-k...
 
-Andre Hedrick
-LAD Storage Consulting Group
+Don't worry. Netware (NW6) uses also 32bit for indices to page cache, 
+and 4KB page cache size, but in addition to our implementation they 
+(1) do not verify that file you created is smaller than 16TB, and 
+(2) they have signedness bug somewhere too. So if you'll create file 
+larger than 8TB, data you wrote in are silently discarded, while
+file size is preserved.
 
+I was really surprised when I updated ncpfs to access files > 4GB.
+Written data were disappearing after server reboot :-(
+
+Just my two cents.
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz

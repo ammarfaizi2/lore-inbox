@@ -1,67 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293224AbSCJU3z>; Sun, 10 Mar 2002 15:29:55 -0500
+	id <S293230AbSCJUhZ>; Sun, 10 Mar 2002 15:37:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293222AbSCJU3g>; Sun, 10 Mar 2002 15:29:36 -0500
-Received: from ns.suse.de ([213.95.15.193]:41732 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293224AbSCJU3e>;
-	Sun, 10 Mar 2002 15:29:34 -0500
-Mail-Copies-To: never
-To: Robert Love <rml@tech9.net>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] syscall interface for cpu affinity
-In-Reply-To: <1015784104.1261.8.camel@phantasy>
-From: Andreas Jaeger <aj@suse.de>
-Date: Sun, 10 Mar 2002 21:29:31 +0100
-In-Reply-To: <1015784104.1261.8.camel@phantasy> (Robert Love's message of
- "10 Mar 2002 13:15:03 -0500")
-Message-ID: <u8zo1g9nf8.fsf@gromit.moeb>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Artificial
- Intelligence, i386-suse-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293229AbSCJUhG>; Sun, 10 Mar 2002 15:37:06 -0500
+Received: from [217.79.102.244] ([217.79.102.244]:27637 "EHLO
+	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
+	id <S293226AbSCJUhA>; Sun, 10 Mar 2002 15:37:00 -0500
+Subject: Re: Sun GEM card looses TX on x86 32bit PCI
+From: Beezly <beezly@beezly.org.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-+sjUgR6Wd7Mcc8TehFR9"
+X-Mailer: Evolution/1.0.2 
+Date: 10 Mar 2002 20:36:59 +0000
+Message-Id: <1015792619.1801.4.camel@monkey>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net> writes:
 
-> Linus,
->
-> I have updated the patch a bit and resycned to 2.5.6.  Are you
-> interested?  I believe a user interface for setting task CPU affinity is
-> useful and completes the rest of our sched_* syscalls.  A syscall
-> implementation seems to be what everyone wants (I have a proc-interface,
-> too...)
+--=-+sjUgR6Wd7Mcc8TehFR9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Please add the procinterface also!  I've found it today (for 2.4.18)
-and it's much easier to use with existing programs.
+Hi David,
 
-Andreas
+Unfortunately not. I've just applied these changes and recompiled, but
+I'm suffering exactly the same problem.
 
-> This patch implements
->
->         int sched_set_affinity(pid_t pid, unsigned int len,
->                                unsigned long *new_mask_ptr);
->
->         int sched_get_affinity(pid_t pid, unsigned int *user_len_ptr,
->                                unsigned long *user_mask_ptr)
->
-> which set and get the cpu affinity (task->cpus_allowed) for a task,
-> using the set_cpus_allowed function in Ingo's scheduler.  The functions
-> properly support changes to cpus_allowed, implement security, and are
-> well-tested.
->
-> They are based on Ingo's older affinity syscall patch and my older
-> affinity proc patch.
->
-> Comments?
+This is what I have this time when the card has stopped receiving;
 
-Please add it for all archs - this is not only interesting for x86,
-Andreas
+monkey:/home/andy# ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:03:BA:04:5B:D7 =3D20
+          inet addr:10.0.0.12  Bcast:10.0.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::203:baff:fe04:5bd7/10 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:48508 errors:0 dropped:1 overruns:1 frame:68
+          TX packets:49362 errors:0 dropped:0 overruns:0 carrier:1
+          collisions:2 txqueuelen:100=3D20
+          RX bytes:61058494 (58.2 MiB)  TX bytes:61988220 (59.1 MiB)
+          Interrupt:5 Base address:0x8400=3D20
 
-[...]
--- 
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
+Cheers,
+
+Beezly
+
+On Sun, 2002-03-10 at 08:19, David S. Miller wrote:
+>=3D20
+> Let me know if this makes things any better:
+>=3D20
+
+--=-+sjUgR6Wd7Mcc8TehFR9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8i8PrXu4ZFsMQjPgRAhGeAJwJlIUw79SlYAgzFoV2UWB83NXLYwCguQ23
+3BHc0XllA2t9kL4fftOGi10=
+=XYqW
+-----END PGP SIGNATURE-----
+
+--=-+sjUgR6Wd7Mcc8TehFR9--

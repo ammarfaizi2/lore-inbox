@@ -1,30 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbULYU1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbULYUpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261560AbULYU1K (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 15:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbULYU1K
+	id S261561AbULYUpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 15:45:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbULYUpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 15:27:10 -0500
-Received: from quechua.inka.de ([193.197.184.2]:43214 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261560AbULYU1J (ORCPT
+	Sat, 25 Dec 2004 15:45:25 -0500
+Received: from mail.dif.dk ([193.138.115.101]:41930 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261561AbULYUpU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 15:27:09 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: signal.c: convert assertion to BUG_ON()
-References: <20041225172939.GA7495@elf.ucw.cz>
-Organization: private Linux site, southern Germany
-Date: Sat, 25 Dec 2004 21:25:57 +0100
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E1CiIU9-0006yK-00@bigred.inka.de>
+	Sat, 25 Dec 2004 15:45:20 -0500
+Date: Sat, 25 Dec 2004 21:56:12 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Domen Puncer <domen@coderock.org>
+Cc: chas@cmf.nrl.navy.mil, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] maintainers: delete moderated atm list
+In-Reply-To: <20041225171048.GB31577@nd47.coderock.org>
+Message-ID: <Pine.LNX.4.61.0412252152270.3495@dragon.hygekrogen.localhost>
+References: <20041225171048.GB31577@nd47.coderock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -	if (sig == -1)
-> -		BUG();
-> +	BUG_ON(sig == -1);
+On Sat, 25 Dec 2004, Domen Puncer wrote:
 
-Can sig be < -1? If not, this should probably be BUG_ON(sig < 0)
-(common defensive coding rule...)
+> If you are subscribed, you already know the address :-)
+> 
+> 
+And what about people who don't already know of the list and have a bug to 
+report or a patch to submit? The first place people will look for a (list) 
+address is the MAINTAINERS file.
 
-Olaf
+I'd sugest that instead of removing the entry just add a note that the 
+list requires subscription to post.  And on many lists that don't allow 
+unsubscribed people to post the post can often still make it to the list 
+via moderator aproval, so the address is still good for unsubscribed 
+people.
+
+Either leave it as it is or add a note would be my suggestion.
+
+
+-- 
+Jesper Juhl
+
 

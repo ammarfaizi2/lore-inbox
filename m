@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbVAKTLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVAKTLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbVAKTLU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 14:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbVAKTLT
+	id S262339AbVAKTLu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 14:11:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbVAKTLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 14:11:19 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:54163 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262328AbVAKTLD (ORCPT
+	Tue, 11 Jan 2005 14:11:50 -0500
+Received: from main.gmane.org ([80.91.229.2]:54933 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262339AbVAKTLZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 14:11:03 -0500
-Date: Tue, 11 Jan 2005 20:10:58 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to burn DVDs
-In-Reply-To: <Pine.LNX.4.60.0501111943500.8024@alpha.polcom.net>
-Message-ID: <Pine.LNX.4.61.0501112008080.7967@yvahk01.tjqt.qr>
-References: <41E2F823.1070608@apartia.fr> <Pine.LNX.4.61.0501110802180.8535@yvahk01.tjqt.qr>
- <41E41B32.9070206@apartia.fr> <Pine.LNX.4.60.0501111943500.8024@alpha.polcom.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 11 Jan 2005 14:11:25 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jim Zajkowski <jamesez@umich.edu>
+Subject: Sparse LUN scanning - 2.4.x
+Date: Tue, 11 Jan 2005 14:05:53 -0500
+Message-ID: <cs182h$6nl$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 141.211.74.215
+User-Agent: Unison/1.5.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also there is packet cdrw/dvd+-rw driver in kernel now (2.6.10?) that permits
+Hi there,
 
-I've got susekotd-2.6.8-0, which is a 2.6.9-rc2 if I'm not mistaken. 
+We have an Apple Xserve RAID, connected through a FC switch.  The RAID 
+has LUN-masking enabled, such that one of our Linux boxes only gets LUN 
+1 and not LUN 0.  We're running the 2.4.x kernel series now, since this 
+is under a RHEL envinronment.
 
-> you to mount normal filesystem (for example UDF, but FAT or ISO - readonly of
+The problem is this: since LUN 0 does not show up -- specifically, it 
+can't read the vendor or model informaton -- the kernel SCSI scan does 
+not match with the table to tell the kernel to do sparse LUN 
+scanning... so the RAID does not appear.
 
-No, it's all read-write, see 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110297545900945&w=2
-(It's really readwrite, no "-o ro" done by user- or kernelspace)
+I can make the RAID show up by injecting a add-single-device to the 
+SCSI proc layer.  Trivially patching scsi_scan.c to always do sparse 
+scanning works as well.  No hokery with max_scsi_luns or ghost devices 
+works.
 
-> course or EXT2 or any other but better for your media without journal) on such
-> device.
+I'm considering making a patch to add a kernel option to force sparse 
+scanning.  Is there a better way?
 
+Thanks in advance,
 
+--Jim
 
-Jan Engelhardt
 -- 
-ENOSPC
+Jim Zajkowski          OpenPGP 0x21135C3    http://www.jimz.net/pgp.asc
+System Administrator  8A9E 1DDF 944D 83C3 AEAB  8F74 8697 A823 2113 5C53
+UM Life Sciences Institute
+
+ 
+
+

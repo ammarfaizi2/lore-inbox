@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263641AbUDOFoL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 01:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263828AbUDOFoL
+	id S263817AbUDOFvr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 01:51:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263828AbUDOFvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 01:44:11 -0400
-Received: from ozlabs.org ([203.10.76.45]:44500 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263641AbUDOFoH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 01:44:07 -0400
-Date: Thu, 15 Apr 2004 13:54:46 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
-Subject: PPC64 hugepage cleanup
-Message-ID: <20040415035446.GA25560@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linuxppc64-dev@lists.linuxppc.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 15 Apr 2004 01:51:47 -0400
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:15968 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263817AbUDOFvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 01:51:45 -0400
+Message-ID: <407E22ED.6050802@yahoo.com.au>
+Date: Thu, 15 Apr 2004 15:51:41 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: dvhltc@us.ibm.com, linux-kernel@vger.kernel.org, mingo@redhat.com,
+       mjbligh@us.ibm.com, ricklind@us.ibm.com, akpm@osdl.org
+Subject: Re: 2.6.5-rc3-mm4 x86_64 sched domains patch
+References: <1081466480.10774.0.camel@farah>	<20040414154456.78893f3f.ak@suse.de>	<407D473B.8010109@yahoo.com.au> <20040414164135.75f1856f.ak@suse.de>
+In-Reply-To: <20040414164135.75f1856f.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply.  This is a small cleanup to the PPC64 hugepage
-code.  It removes an unhelpful function, removing some studlyCaps in
-the process.  It was originally this way to match the normal page
-path, but that has all been rewritten since.
+Andi Kleen wrote:
+> On Thu, 15 Apr 2004 00:14:19 +1000
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-Index: working-2.6/arch/ppc64/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/ppc64/mm/hugetlbpage.c	2004-04-13 11:42:35.000000000 +1000
-+++ working-2.6/arch/ppc64/mm/hugetlbpage.c	2004-04-14 15:04:28.512784264 +1000
-@@ -609,15 +609,6 @@
- 	}
- }
- 
--static inline unsigned long computeHugeHptePP(unsigned int hugepte)
--{
--	unsigned long flags = 0x2;
--
--	if (! (hugepte & _HUGEPAGE_RW))
--		flags |= 0x1;
--	return flags;
--}
--
- int hash_huge_page(struct mm_struct *mm, unsigned long access,
- 		   unsigned long ea, unsigned long vsid, int local)
- {
-@@ -671,7 +662,7 @@
- 	old_pte = *ptep;
- 	new_pte = old_pte;
- 
--	hpteflags = computeHugeHptePP(hugepte_val(new_pte));
-+	hpteflags = 0x2 | (! (hugepte_val(new_pte) & _HUGEPAGE_RW));
- 
- 	/* Check if pte already has an hpte (case 2) */
- 	if (unlikely(hugepte_val(old_pte) & _HUGEPAGE_HASHPTE)) {
+>>Where is STREAM versus other kernels? You said you got
+>>best performance on a custom 2.4 kernel. Do we match
+>>that?
+> 
+> 
+> Differences were below the measurement error, so I consider it fixed.
+> 
 
+great.
 
+> 
+>>How is your performance for other things? I recall you
+>>may have told me about some other (smaller) issues you
+>>were seeing?
+> 
+> 
+> I haven't tested much yet.  I can compare kernel compilations later.
+> 
 
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+That would be good. I don't expect you to do all the work,
+but Opteron being a non traditional NUMA, and me doing most
+of my testing on an old NUMAQ makes them quite important.
+
+Even if you just got some results for a couple of random
+benchmarks would be great.
+
+> Also I'm still somewhat hoping that the IBM benchmark team will take a stab at 
+> it - they are much better than me at running many tests.
+> 
+
+Well we've survived OSDL's STP tests as far as I know. A
+couple of regressions were found and fixed there, so that
+was good.

@@ -1,63 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129030AbQKDXHW>; Sat, 4 Nov 2000 18:07:22 -0500
+	id <S129030AbQKDXWs>; Sat, 4 Nov 2000 18:22:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129040AbQKDXHM>; Sat, 4 Nov 2000 18:07:12 -0500
-Received: from [216.151.155.116] ([216.151.155.116]:49934 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S129030AbQKDXHE>; Sat, 4 Nov 2000 18:07:04 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Applying crypto patch to recent 2.2.18pre
-From: Doug McNaught <doug@wireboard.com>
-Date: 04 Nov 2000 18:07:03 -0500
-Message-ID: <m3r94rnxpk.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S129040AbQKDXWj>; Sat, 4 Nov 2000 18:22:39 -0500
+Received: from paloma12.e0k.nbg-hannover.de ([62.159.219.12]:15234 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S129030AbQKDXWd>; Sat, 4 Nov 2000 18:22:33 -0500
+From: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+Date: Sun, 5 Nov 2000 00:22:39 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+To: "Rik Faith" <rik@valinux.com>
+Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>,
+        "Dri-devel" <Dri-devel@lists.sourceforge.net>
+Subject: 2.4.0.-test10: kernel oops - mount / tdfx.o related
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <00110500223900.07516@SunWave1>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to get an up-to-date stable kernel (2.2.18pre19, with
-PowerPC changes, downloaded from the PowerPC BitKeeper archive)
-compiled with the international patch (patch-int-2.2.17-9 which is the 
-latest in the crypto/ directory).  The patch applies fine (with some
-offsets, but all hunks succeed) but when linking vmlinux, I get the
-following: 
+Hello Rik,
 
-ld -T arch/ppc/vmlinux.lds -Ttext 0xc0000000 -Bstatic
-arch/ppc/kernel/head.o init/main.o init/version.o \
-        --start-group \
-        arch/ppc/kernel/kernel.o arch/ppc/mm/mm.o arch/ppc/lib/lib.o
-kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-        fs/filesystems.a \
-        net/network.a \
-        drivers/block/block.a drivers/char/char.o drivers/misc/misc.a
-drivers/net/net.a drivers/cdrom/cdrom.a drivers/sound/sounddrivers.o
-drivers/pci/pci.a drivers/macintosh/macintosh.o drivers/video/video.a
-\
-        /usr/src/linuxppc_2_2/lib/lib.a \
-        --end-group \
-        -o vmlinux
-init/main.o: In function `do_basic_setup':
-init/main.o(.text.init+0x9f0): undefined reference to `cryptoapi_init'
-init/main.o(.text.init+0x9f0): relocation truncated to fit: R_PPC_REL24 cryptoapi_init
-drivers/block/block.a(loop_gen.o): In function `loop_gen_init2':
-loop_gen.o(.text+0x104): undefined reference to `find_transform_by_id'
-loop_gen.o(.text+0x104): relocation truncated to fit: R_PPC_REL24 find_transform_by_id
-make: *** [vmlinux] Error 1
+I've got a kernel oops with the 'latest' linux kernel and the DRI.
+CD mounting was involved.
 
-This happened somewhere between 2.2.18pre3 (which compiles
-successfully with the 2.2.17 crypto patch) and vanilla (from
-people/alan) pre9, which fails with the same error as above.
+ksymoops 2.3.4 on i686 2.4.0-test10.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.0-test10/ (default)
+     -m /boot/System.map (specified)
 
-I'm guessing something changed in the conventions for subsystem
-initialization.  If someone can give me a quick summary of what to
-change, I'll try to fix it.  Otherwise I'll grovel through the
-2.2.18pre patches and try to figure out what to do myself, but I'm not 
-looking forward to that option...
+Nov  4 18:40:05 SunWave1 kernel: Unable to handle kernel paging request at 
+virtual address d0c353f3 
+Nov  4 18:40:05 SunWave1 kernel: d0c353f3 
+Nov  4 18:40:05 SunWave1 kernel: *pde = 0c291063 
+Nov  4 18:40:05 SunWave1 kernel: Oops: 0000 
+Nov  4 18:40:05 SunWave1 kernel: CPU:    0 
+Nov  4 18:40:05 SunWave1 kernel: EIP:    0010:[<d0c353f3>] 
+Using defaults from ksymoops -t elf32-i386 -a i386
+Nov  4 18:40:05 SunWave1 kernel: EFLAGS: 00010296 
+Nov  4 18:40:05 SunWave1 kernel: eax: c147a2a8   ebx: cd3c3bd4   ecx: 
+00000001   edx: c147a280 
+Nov  4 18:40:05 SunWave1 kernel: esi: cc6e2214   edi: cbc3dd84   ebp: 
+cd3c3b80   esp: cbc3dd34 
+Nov  4 18:40:05 SunWave1 kernel: ds: 0018   es: 0018   ss: 0018 
+Nov  4 18:40:05 SunWave1 kernel: Process mount (pid: 325, stackpage=cbc3d000) 
+Nov  4 18:40:05 SunWave1 kernel: Stack: cd3c3b80 cbc3dd84 00000000 00000000 
+00000bb8 00000003 00000002 cc6e2214  
+Nov  4 18:40:05 SunWave1 kernel:        d0c36d20 00000000 00000000 00000000 
+c147a280 d0c35b12 00000000 cbc3dd84  
+Nov  4 18:40:05 SunWave1 kernel:        00000000 00000000 00000000 00000003 
+0000001b 00000003 0000292e d0c2b3e2  
+Nov  4 18:40:05 SunWave1 kernel: Call Trace: [<d0c36d20>] [<d0c35b12>] 
+[<d0c2b3e2>] [bread+24/112] [<d0c2b2f8>] [blkdev_get+262/336] 
+[do_no_page+168/272]  
+Nov  4 18:40:05 SunWave1 kernel: Code:  Bad EIP value. 
 
-Thanks in advance,
-Doug
+>>EIP; d0c353f3 <[tdfx].bss.end+3f538/60041a5>   <=====
+Trace; d0c36d20 <[tdfx].bss.end+40e65/60041a5>
+Trace; d0c35b12 <[tdfx].bss.end+3fc57/60041a5>
+Trace; d0c2b3e2 <[tdfx].bss.end+35527/60041a5>
+
+Thanks,
+	Dieter
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+Cognitive Systems Group
+Vogt-Kölln-Straße 30
+D-22527 Hamburg, Germany
+
+email: nuetzel@kogs.informatik.uni-hamburg.de
+@home: Dieter.Nuetzel@hamburg.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

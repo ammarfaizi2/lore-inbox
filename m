@@ -1,70 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbTEFL4y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 07:56:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbTEFL4y
+	id S262620AbTEFL5s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 07:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbTEFL5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 07:56:54 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:21508 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S262601AbTEFL4K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 07:56:10 -0400
-Subject: [PATCH]   include/linux/sunrpc/svc.h compilation error
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus <torvalds@transmeta.com>, blues@ds.pg.gda.pl
-In-Reply-To: <Pine.LNX.4.51L.0305061205400.1232@piorun.ds.pg.gda.pl>
-References: <Pine.LNX.4.44.0305041739020.1737-100000@home.transmeta.com>
-	 <Pine.LNX.4.51L.0305061205400.1232@piorun.ds.pg.gda.pl>
-Content-Type: text/plain; charset=ISO-8859-2
-Organization: K4 labs
-Message-Id: <1052222558.3873.19.camel@nalesnik>
+	Tue, 6 May 2003 07:57:47 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:7114 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262620AbTEFL5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 07:57:17 -0400
+Date: Tue, 6 May 2003 14:09:39 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Only use MSDOS-Partitions by default on X86
+Message-ID: <20030506120939.GB15261@wohnheim.fh-wedel.de>
+References: <20030505210811.GC7049@wohnheim.fh-wedel.de> <1052218090.28792.15.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 06 May 2003 13:02:38 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <1052218090.28792.15.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-06 at 11:08, Pawe³ Go³aszewski wrote:
-> That kernel fails for me when building...
-> [cut]
+On Tue, 6 May 2003 11:48:11 +0100, Alan Cox wrote:
+> On Llu, 2003-05-05 at 22:08, Jörn Engel wrote:
+> > 
+> > This patch makes a lot of sense in my eyes, but maybe someone
+> > disagrees. Applies cleanly to current 2.4.
+> > 
+> > Comments?
 > 
-> gcc -Wp,-MD,fs/lockd/.clntproc.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4 -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include -DMODULE -DKBUILD_BASENAME=clntproc -DKBUILD_MODNAME=lockd -c -o fs/lockd/.tmp_clntproc.o fs/lockd/clntproc.c
-> In file included from fs/lockd/clntproc.c:17:
-> include/linux/sunrpc/svc.h: In function `svc_take_page': 
-> include/linux/sunrpc/svc.h:180: invalid lvalue in assignment
-> make[3]: *** [fs/lockd/clntproc.o] Error 1
-> make[2]: *** [fs/lockd] Error 2
-> make[1]: *** [fs] Error 2
-> make: *** [modules] Error 2
+> MSDOS partitions turn up in lots of places beyond x86 boxes. The
+> port maintainers made their decisions for sound reasons
 
-Looks like gcc fault, can You Pawel give as gcc version  ?
+Which were?
 
-this patch as reported by Pawel helps:
+My reasons for this patch:
 
+- Even if x86 is not the only platform that uses MSDOS partitions,
+this should be a positive list, not a negative list. Else every new
+platform has to explicitly express, *not* to use MSDOS partitions.
+Seems awkward.
 
---- ./include/linux/sunrpc/svc.h.buildfix       Mon May  6 12:45:11 2003
-+++ ./include/linux/sunrpc/svc.h        Tue May  6 12:42:13 2003
-@@ -176,8 +176,14 @@
- {
-        if (rqstp->rq_arghi <= rqstp->rq_argused)
-                return -ENOMEM;
-+
-+       rqstp->rq_arghi--;
-+
-        rqstp->rq_respages[rqstp->rq_resused++] =
-                rqstp->rq_argpages[--rqstp->rq_arghi];
-+
-+       rqstp->rq_resused++;
-+
-        return 0;
- }
+- Any platform needing MSDOS partitions but not explicitly listed can
+still turn that option on through the advanced partitioning.
+Currently, allnoconfig gives you MSDOS partitioning, which is not very
+intuitive.
 
-
-but still, it looks strange - i am sure it is just an gcc issue
+Jörn
 
 -- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 labs
-
+Mundie uses a textbook tactic of manipulation: start with some
+reasonable talk, and lead the audience to an unreasonable conclusion.
+-- Bruce Perens

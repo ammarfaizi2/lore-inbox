@@ -1,199 +1,277 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264954AbTBOTNd>; Sat, 15 Feb 2003 14:13:33 -0500
+	id <S264853AbTBOTUn>; Sat, 15 Feb 2003 14:20:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264944AbTBOTMf>; Sat, 15 Feb 2003 14:12:35 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52752 "EHLO
+	id <S265171AbTBOTTv>; Sat, 15 Feb 2003 14:19:51 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62224 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264943AbTBOTLh>; Sat, 15 Feb 2003 14:11:37 -0500
-Subject: PATCH: printk levels for mpparse
+	id <S265139AbTBOTTX>; Sat, 15 Feb 2003 14:19:23 -0500
+Subject: PATCH: Fix aha1542
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Date: Sat, 15 Feb 2003 19:21:47 +0000 (GMT)
+Date: Sat, 15 Feb 2003 19:29:32 +0000 (GMT)
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E18k7sh-0007I8-00@the-village.bc.nu>
+Message-Id: <E18k80D-0007Ju-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also recognize the NEC98 busses
+Randy Dunlap included this with the 152x stuff which then got lost in
+discussion about core changes and queueing reset. 154x doesnt need the
+extra discussion. Also adds a fix to use mca-legacy as needed for 1640
+right now
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/arch/i386/kernel/mpparse.c linux-2.5.61-ac1/arch/i386/kernel/mpparse.c
---- linux-2.5.61/arch/i386/kernel/mpparse.c	2003-02-10 18:38:16.000000000 +0000
-+++ linux-2.5.61-ac1/arch/i386/kernel/mpparse.c	2003-02-14 22:47:48.000000000 +0000
-@@ -169,7 +169,7 @@
- 	num_processors++;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/drivers/scsi/aha1542.c linux-2.5.61-ac1/drivers/scsi/aha1542.c
+--- linux-2.5.61/drivers/scsi/aha1542.c	2003-02-10 18:38:39.000000000 +0000
++++ linux-2.5.61-ac1/drivers/scsi/aha1542.c	2003-02-14 20:13:00.000000000 +0000
+@@ -40,6 +40,7 @@
+ #include <linux/isapnp.h>
+ #include <linux/blk.h>
+ #include <linux/mca.h>
++#include <linux/mca-legacy.h>
  
- 	if (m->mpc_apicid > MAX_APICS) {
--		printk("Processor #%d INVALID. (Max ID: %d).\n",
-+		printk(KERN_WARNING "Processor #%d INVALID. (Max ID: %d).\n",
- 			m->mpc_apicid, MAX_APICS);
- 		--num_processors;
- 		return;
-@@ -182,7 +182,7 @@
- 	 * Validate version
+ #include <asm/dma.h>
+ #include <asm/system.h>
+@@ -597,8 +598,8 @@
+ 	unchar ahacmd = CMD_START_SCSI;
+ 	unchar direction;
+ 	unchar *cmd = (unchar *) SCpnt->cmnd;
+-	unchar target = SCpnt->target;
+-	unchar lun = SCpnt->lun;
++	unchar target = SCpnt->device->id;
++	unchar lun = SCpnt->device->lun;
+ 	unsigned long flags;
+ 	void *buff = SCpnt->request_buffer;
+ 	int bufflen = SCpnt->request_bufflen;
+@@ -608,8 +609,8 @@
+ 
+ 	DEB(int i);
+ 
+-	mb = HOSTDATA(SCpnt->host)->mb;
+-	ccb = HOSTDATA(SCpnt->host)->ccb;
++	mb = HOSTDATA(SCpnt->device->host)->mb;
++	ccb = HOSTDATA(SCpnt->device->host)->ccb;
+ 
+ 	DEB(if (target > 1) {
+ 	    SCpnt->result = DID_TIME_OUT << 16;
+@@ -653,25 +654,25 @@
+ 	   is how the host adapter will scan for them */
+ 
+ 	spin_lock_irqsave(&aha1542_lock, flags);
+-	mbo = HOSTDATA(SCpnt->host)->aha1542_last_mbo_used + 1;
++	mbo = HOSTDATA(SCpnt->device->host)->aha1542_last_mbo_used + 1;
+ 	if (mbo >= AHA1542_MAILBOXES)
+ 		mbo = 0;
+ 
+ 	do {
+-		if (mb[mbo].status == 0 && HOSTDATA(SCpnt->host)->SCint[mbo] == NULL)
++		if (mb[mbo].status == 0 && HOSTDATA(SCpnt->device->host)->SCint[mbo] == NULL)
+ 			break;
+ 		mbo++;
+ 		if (mbo >= AHA1542_MAILBOXES)
+ 			mbo = 0;
+-	} while (mbo != HOSTDATA(SCpnt->host)->aha1542_last_mbo_used);
++	} while (mbo != HOSTDATA(SCpnt->device->host)->aha1542_last_mbo_used);
+ 
+-	if (mb[mbo].status || HOSTDATA(SCpnt->host)->SCint[mbo])
++	if (mb[mbo].status || HOSTDATA(SCpnt->device->host)->SCint[mbo])
+ 		panic("Unable to find empty mailbox for aha1542.\n");
+ 
+-	HOSTDATA(SCpnt->host)->SCint[mbo] = SCpnt;	/* This will effectively prevent someone else from
++	HOSTDATA(SCpnt->device->host)->SCint[mbo] = SCpnt;	/* This will effectively prevent someone else from
+ 							   screwing with this cdb. */
+ 
+-	HOSTDATA(SCpnt->host)->aha1542_last_mbo_used = mbo;
++	HOSTDATA(SCpnt->device->host)->aha1542_last_mbo_used = mbo;
+ 	spin_unlock_irqrestore(&aha1542_lock, flags);
+ 
+ #ifdef DEBUG
+@@ -762,7 +763,7 @@
+ 		    aha1542_stat());
+ 		SCpnt->scsi_done = done;
+ 		mb[mbo].status = 1;
+-		aha1542_out(SCpnt->host->io_port, &ahacmd, 1);	/* start scsi command */
++		aha1542_out(SCpnt->device->host->io_port, &ahacmd, 1);	/* start scsi command */
+ 		DEB(aha1542_stat());
+ 	} else
+ 		printk("aha1542_queuecommand: done can't be NULL\n");
+@@ -1356,7 +1357,7 @@
  	 */
- 	if (ver == 0x0) {
--		printk("BIOS bug, APIC version is 0 for CPU#%d! fixing up to 0x10. (tell your hw vendor)\n", m->mpc_apicid);
-+		printk(KERN_WARNING "BIOS bug, APIC version is 0 for CPU#%d! fixing up to 0x10. (tell your hw vendor)\n", m->mpc_apicid);
- 		ver = 0x10;
- 	}
- 	apic_version[m->mpc_apicid] = ver;
-@@ -209,8 +209,10 @@
- 		mp_current_pci_id++;
- 	} else if (strncmp(str, BUSTYPE_MCA, sizeof(BUSTYPE_MCA)-1) == 0) {
- 		mp_bus_id_to_type[m->mpc_busid] = MP_BUS_MCA;
-+	} else if (strncmp(str, BUSTYPE_NEC98, sizeof(BUSTYPE_NEC98)-1) == 0) {
-+		mp_bus_id_to_type[m->mpc_busid] = MP_BUS_NEC98;
- 	} else {
--		printk("Unknown bustype %s - ignoring\n", str);
-+		printk(KERN_WARNING "Unknown bustype %s - ignoring\n", str);
- 	}
+ 
+ 	printk(KERN_ERR "aha1542.c: Unable to abort command for target %d\n",
+-	       SCpnt->target);
++	       SCpnt->device->id);
+ 	return FAILED;
  }
  
-@@ -219,10 +221,10 @@
- 	if (!(m->mpc_flags & MPC_APIC_USABLE))
- 		return;
- 
--	printk("I/O APIC #%d Version %d at 0x%lX.\n",
-+	printk(KERN_INFO "I/O APIC #%d Version %d at 0x%lX.\n",
- 		m->mpc_apicid, m->mpc_apicver, m->mpc_apicaddr);
- 	if (nr_ioapics >= MAX_IO_APICS) {
--		printk("Max # of I/O APICs (%d) exceeded (found %d).\n",
-+		printk(KERN_CRIT "Max # of I/O APICs (%d) exceeded (found %d).\n",
- 			MAX_IO_APICS, nr_ioapics);
- 		panic("Recompile kernel with bigger MAX_IO_APICS!.\n");
- 	}
-@@ -272,10 +274,10 @@
- #ifdef CONFIG_X86_NUMAQ
- static void __init MP_translation_info (struct mpc_config_translation *m)
+@@ -1368,36 +1369,36 @@
  {
--	printk("Translation: record %d, type %d, quad %d, global %d, local %d\n", mpc_record, m->trans_type, m->trans_quad, m->trans_global, m->trans_local);
-+	printk(KERN_INFO "Translation: record %d, type %d, quad %d, global %d, local %d\n", mpc_record, m->trans_type, m->trans_quad, m->trans_global, m->trans_local);
+ 	unsigned long flags;
+ 	struct mailbox *mb;
+-	unchar target = SCpnt->target;
+-	unchar lun = SCpnt->lun;
++	unchar target = SCpnt->device->id;
++	unchar lun = SCpnt->device->lun;
+ 	int mbo;
+ 	struct ccb *ccb;
+ 	unchar ahacmd = CMD_START_SCSI;
  
- 	if (mpc_record >= MAX_MPC_ENTRY) 
--		printk("MAX_MPC_ENTRY exceeded!\n");
-+		printk(KERN_ERR "MAX_MPC_ENTRY exceeded!\n");
- 	else
- 		translation_table[mpc_record] = m; /* stash this for later */
- 	if (m->trans_quad+1 > numnodes)
-@@ -293,10 +295,10 @@
- 	unsigned char *oemptr = ((unsigned char *)oemtable)+count;
- 	
- 	mpc_record = 0;
--	printk("Found an OEM MPC table at %8p - parsing it ... \n", oemtable);
-+	printk(KERN_INFO "Found an OEM MPC table at %8p - parsing it ... \n", oemtable);
- 	if (memcmp(oemtable->oem_signature,MPC_OEM_SIGNATURE,4))
- 	{
--		printk("SMP mpc oemtable: bad signature [%c%c%c%c]!\n",
-+		printk(KERN_WARNING "SMP mpc oemtable: bad signature [%c%c%c%c]!\n",
- 			oemtable->oem_signature[0],
- 			oemtable->oem_signature[1],
- 			oemtable->oem_signature[2],
-@@ -305,7 +307,7 @@
- 	}
- 	if (mpf_checksum((unsigned char *)oemtable,oemtable->oem_length))
- 	{
--		printk("SMP oem mptable: checksum error!\n");
-+		printk(KERN_WARNING "SMP oem mptable: checksum error!\n");
- 		return;
- 	}
- 	while (count < oemtable->oem_length) {
-@@ -322,7 +324,7 @@
- 			}
- 			default:
- 			{
--				printk("Unrecognised OEM table entry type! - %d\n", (int) *oemptr);
-+				printk(KERN_WARNING "Unrecognised OEM table entry type! - %d\n", (int) *oemptr);
- 				return;
- 			}
- 		}
-@@ -364,7 +366,7 @@
- 	}
- 	memcpy(oem,mpc->mpc_oem,8);
- 	oem[8]=0;
--	printk("OEM ID: %s ",oem);
-+	printk(KERN_INFO "OEM ID: %s ",oem);
+-	ccb = HOSTDATA(SCpnt->host)->ccb;
+-	mb = HOSTDATA(SCpnt->host)->mb;
++	ccb = HOSTDATA(SCpnt->device->host)->ccb;
++	mb = HOSTDATA(SCpnt->device->host)->mb;
  
- 	memcpy(str,mpc->mpc_productid,12);
- 	str[12]=0;
-@@ -479,12 +481,12 @@
- 	 *  If it does, we assume it's valid.
+ 	spin_lock_irqsave(&aha1542_lock, flags);
+-	mbo = HOSTDATA(SCpnt->host)->aha1542_last_mbo_used + 1;
++	mbo = HOSTDATA(SCpnt->device->host)->aha1542_last_mbo_used + 1;
+ 	if (mbo >= AHA1542_MAILBOXES)
+ 		mbo = 0;
+ 
+ 	do {
+-		if (mb[mbo].status == 0 && HOSTDATA(SCpnt->host)->SCint[mbo] == NULL)
++		if (mb[mbo].status == 0 && HOSTDATA(SCpnt->device->host)->SCint[mbo] == NULL)
+ 			break;
+ 		mbo++;
+ 		if (mbo >= AHA1542_MAILBOXES)
+ 			mbo = 0;
+-	} while (mbo != HOSTDATA(SCpnt->host)->aha1542_last_mbo_used);
++	} while (mbo != HOSTDATA(SCpnt->device->host)->aha1542_last_mbo_used);
+ 
+-	if (mb[mbo].status || HOSTDATA(SCpnt->host)->SCint[mbo])
++	if (mb[mbo].status || HOSTDATA(SCpnt->device->host)->SCint[mbo])
+ 		panic("Unable to find empty mailbox for aha1542.\n");
+ 
+-	HOSTDATA(SCpnt->host)->SCint[mbo] = SCpnt;	/* This will effectively
++	HOSTDATA(SCpnt->device->host)->SCint[mbo] = SCpnt;	/* This will effectively
+ 							   prevent someone else from
+ 							   screwing with this cdb. */
+ 
+-	HOSTDATA(SCpnt->host)->aha1542_last_mbo_used = mbo;
++	HOSTDATA(SCpnt->device->host)->aha1542_last_mbo_used = mbo;
+ 	spin_unlock_irqrestore(&aha1542_lock, flags);
+ 
+ 	any2scsi(mb[mbo].ccbptr, SCSI_BUF_PA(&ccb[mbo]));	/* This gets trashed for some reason */
+@@ -1415,9 +1416,9 @@
+ 	 * Now tell the 1542 to flush all pending commands for this 
+ 	 * target 
  	 */
- 	if (mpc_default_type == 5) {
--		printk("ISA/PCI bus type with no IRQ information... falling back to ELCR\n");
-+		printk(KERN_INFO "ISA/PCI bus type with no IRQ information... falling back to ELCR\n");
+-	aha1542_out(SCpnt->host->io_port, &ahacmd, 1);
++	aha1542_out(SCpnt->device->host->io_port, &ahacmd, 1);
  
- 		if (ELCR_trigger(0) || ELCR_trigger(1) || ELCR_trigger(2) || ELCR_trigger(13))
--			printk("ELCR contains invalid data... not using ELCR\n");
-+			printk(KERN_WARNING "ELCR contains invalid data... not using ELCR\n");
- 		else {
--			printk("Using ELCR to identify PCI interrupts\n");
-+			printk(KERN_INFO "Using ELCR to identify PCI interrupts\n");
- 			ELCR_fallback = 1;
- 		}
- 	}
-@@ -559,7 +561,8 @@
- 	bus.mpc_busid = 0;
- 	switch (mpc_default_type) {
- 		default:
--			printk("???\nUnknown standard configuration %d\n",
-+			printk("???\n");
-+			printk(KERN_ERR "Unknown standard configuration %d\n",
- 				mpc_default_type);
- 			/* fall through */
- 		case 1:
-@@ -628,12 +631,12 @@
- 	else if (acpi_lapic)
- 		printk(KERN_INFO "Using ACPI for processor (LAPIC) configuration information\n");
+-	printk(KERN_WARNING "aha1542.c: Trying device reset for target %d\n", SCpnt->target);
++	printk(KERN_WARNING "aha1542.c: Trying device reset for target %d\n", SCpnt->device->id);
  
--	printk("Intel MultiProcessor Specification v1.%d\n", mpf->mpf_specification);
-+	printk("KERN_INFO Intel MultiProcessor Specification v1.%d\n", mpf->mpf_specification);
- 	if (mpf->mpf_feature2 & (1<<7)) {
--		printk("    IMCR and PIC compatibility mode.\n");
-+		printk(KERN_INFO "    IMCR and PIC compatibility mode.\n");
- 		pic_mode = 1;
- 	} else {
--		printk("    Virtual Wire compatibility mode.\n");
-+		printk(KERN_INFO "    Virtual Wire compatibility mode.\n");
- 		pic_mode = 0;
- 	}
+ 	return SUCCESS;
  
-@@ -642,7 +645,7 @@
+@@ -1467,7 +1468,7 @@
+ 	 * we do this?  Try this first, and we can add that later
+ 	 * if it turns out to be useful.
  	 */
- 	if (mpf->mpf_feature1 != 0) {
+-	outb(SCRST, CONTROL(SCpnt->host->io_port));
++	outb(SCRST, CONTROL(SCpnt->device->host->io_port));
  
--		printk("Default MP configuration #%d\n", mpf->mpf_feature1);
-+		printk(KERN_INFO "Default MP configuration #%d\n", mpf->mpf_feature1);
- 		construct_default_ISA_mptable(mpf->mpf_feature1);
- 
- 	} else if (mpf->mpf_physptr) {
-@@ -665,7 +668,7 @@
- 		if (!mp_irq_entries) {
- 			struct mpc_config_bus bus;
- 
--			printk("BIOS bug, no explicit IRQ entries, using default mptable. (tell your hw vendor)\n");
-+			printk(KERN_ERR "BIOS bug, no explicit IRQ entries, using default mptable. (tell your hw vendor)\n");
- 
- 			bus.mpc_type = MP_BUS;
- 			bus.mpc_busid = 0;
-@@ -678,7 +681,7 @@
- 	} else
- 		BUG();
- 
--	printk("Processors: %d\n", num_processors);
-+	printk(KERN_INFO "Processors: %d\n", num_processors);
  	/*
- 	 * Only use the first configuration found.
+ 	 * Wait for the thing to settle down a bit.  Unfortunately
+@@ -1476,11 +1477,11 @@
+ 	 * check for timeout, and if we are doing something like this
+ 	 * we are pretty desperate anyways.
  	 */
-@@ -702,7 +705,7 @@
- 				|| (mpf->mpf_specification == 4)) ) {
+-	spin_unlock_irq(SCpnt->host->host_lock);
++	spin_unlock_irq(SCpnt->device->host->host_lock);
+ 	scsi_sleep(4 * HZ);
+-	spin_lock_irq(SCpnt->host->host_lock);
++	spin_lock_irq(SCpnt->device->host->host_lock);
  
- 			smp_found_config = 1;
--			printk("found SMP MP-table at %08lx\n",
-+			printk(KERN_INFO "found SMP MP-table at %08lx\n",
- 						virt_to_phys(mpf));
- 			reserve_bootmem(virt_to_phys(mpf), PAGE_SIZE);
- 			if (mpf->mpf_physptr)
+-	WAIT(STATUS(SCpnt->host->io_port),
++	WAIT(STATUS(SCpnt->device->host->io_port),
+ 	     STATMASK, INIT | IDLE, STST | DIAGF | INVDCMD | DF | CDF);
+ 
+ 	/*
+@@ -1489,12 +1490,12 @@
+ 	 * out.  We do not try and restart any commands or anything - 
+ 	 * the strategy handler takes care of that crap.
+ 	 */
+-	printk(KERN_WARNING "Sent BUS RESET to scsi host %d\n", SCpnt->host->host_no);
++	printk(KERN_WARNING "Sent BUS RESET to scsi host %d\n", SCpnt->device->host->host_no);
+ 
+ 	for (i = 0; i < AHA1542_MAILBOXES; i++) {
+-		if (HOSTDATA(SCpnt->host)->SCint[i] != NULL) {
++		if (HOSTDATA(SCpnt->device->host)->SCint[i] != NULL) {
+ 			Scsi_Cmnd *SCtmp;
+-			SCtmp = HOSTDATA(SCpnt->host)->SCint[i];
++			SCtmp = HOSTDATA(SCpnt->device->host)->SCint[i];
+ 
+ 
+ 			if (SCtmp->device->soft_reset) {
+@@ -1510,8 +1511,8 @@
+ 				kfree(SCtmp->host_scribble);
+ 				SCtmp->host_scribble = NULL;
+ 			}
+-			HOSTDATA(SCpnt->host)->SCint[i] = NULL;
+-			HOSTDATA(SCpnt->host)->mb[i].status = 0;
++			HOSTDATA(SCpnt->device->host)->SCint[i] = NULL;
++			HOSTDATA(SCpnt->device->host)->mb[i].status = 0;
+ 		}
+ 	}
+ 
+@@ -1531,7 +1532,7 @@
+ 	 * we do this?  Try this first, and we can add that later
+ 	 * if it turns out to be useful.
+ 	 */
+-	outb(HRST | SCRST, CONTROL(SCpnt->host->io_port));
++	outb(HRST | SCRST, CONTROL(SCpnt->device->host->io_port));
+ 
+ 	/*
+ 	 * Wait for the thing to settle down a bit.  Unfortunately
+@@ -1540,18 +1541,18 @@
+ 	 * check for timeout, and if we are doing something like this
+ 	 * we are pretty desperate anyways.
+ 	 */
+-	spin_unlock_irq(SCpnt->host->host_lock);
++	spin_unlock_irq(SCpnt->device->host->host_lock);
+ 	scsi_sleep(4 * HZ);
+-	spin_lock_irq(SCpnt->host->host_lock);
++	spin_lock_irq(SCpnt->device->host->host_lock);
+ 
+-	WAIT(STATUS(SCpnt->host->io_port),
++	WAIT(STATUS(SCpnt->device->host->io_port),
+ 	     STATMASK, INIT | IDLE, STST | DIAGF | INVDCMD | DF | CDF);
+ 
+ 	/*
+ 	 * We need to do this too before the 1542 can interact with
+ 	 * us again.
+ 	 */
+-	setup_mailboxes(SCpnt->host->io_port, SCpnt->host);
++	setup_mailboxes(SCpnt->device->host->io_port, SCpnt->device->host);
+ 
+ 	/*
+ 	 * Now try to pick up the pieces.  For all pending commands,
+@@ -1559,12 +1560,12 @@
+ 	 * out.  We do not try and restart any commands or anything - 
+ 	 * the strategy handler takes care of that crap.
+ 	 */
+-	printk(KERN_WARNING "Sent BUS RESET to scsi host %d\n", SCpnt->host->host_no);
++	printk(KERN_WARNING "Sent BUS RESET to scsi host %d\n", SCpnt->device->host->host_no);
+ 
+ 	for (i = 0; i < AHA1542_MAILBOXES; i++) {
+-		if (HOSTDATA(SCpnt->host)->SCint[i] != NULL) {
++		if (HOSTDATA(SCpnt->device->host)->SCint[i] != NULL) {
+ 			Scsi_Cmnd *SCtmp;
+-			SCtmp = HOSTDATA(SCpnt->host)->SCint[i];
++			SCtmp = HOSTDATA(SCpnt->device->host)->SCint[i];
+ 
+ 			if (SCtmp->device->soft_reset) {
+ 				/*
+@@ -1579,8 +1580,8 @@
+ 				kfree(SCtmp->host_scribble);
+ 				SCtmp->host_scribble = NULL;
+ 			}
+-			HOSTDATA(SCpnt->host)->SCint[i] = NULL;
+-			HOSTDATA(SCpnt->host)->mb[i].status = 0;
++			HOSTDATA(SCpnt->device->host)->SCint[i] = NULL;
++			HOSTDATA(SCpnt->device->host)->mb[i].status = 0;
+ 		}
+ 	}
+ 

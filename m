@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311025AbSDECGL>; Thu, 4 Apr 2002 21:06:11 -0500
+	id <S311121AbSDECKl>; Thu, 4 Apr 2002 21:10:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311092AbSDECGC>; Thu, 4 Apr 2002 21:06:02 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:2552
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S311025AbSDECFu>; Thu, 4 Apr 2002 21:05:50 -0500
-Date: Thu, 4 Apr 2002 18:07:52 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Keith Owens <kaos@ocs.com.au>
+	id <S311239AbSDECKb>; Thu, 4 Apr 2002 21:10:31 -0500
+Received: from randall.mail.atl.earthlink.net ([207.69.200.237]:26118 "EHLO
+	randall.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id <S311244AbSDECKV>; Thu, 4 Apr 2002 21:10:21 -0500
+Date: Thu, 04 Apr 2002 21:10:04 -0500
+From: <joeja@mindspring.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cleanup KERNEL_VERSION definition and linux/version.h
-Message-ID: <20020405020752.GJ961@matchmail.com>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020404011251Z313077-616+5298@vger.kernel.org> <17913.1017884166@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Reply-To: joeja@mindspring.com
+Subject: Re: Re: faster boots?
+Message-ID: <Springmail.0994.1017972604.0.67144600@webmail.atl.earthlink.net>
+X-Originating-IP: 4.20.162.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 04, 2002 at 11:36:06AM +1000, Keith Owens wrote:
-> On Thu, 04 Apr 2002 10:12:29 +0900, 
-> Hiroyuki Toda <might@might.dyn.to> wrote:
-> >
-> >Keith> This file will change completely in 2.5 when kbuild 2.5 goes in.  Why
-> >Keith> does it need to be rearranged in 2.4?
-> >
-> >Will kbuild 2.5 go in 2.4 tree also?
-> 
-> No, but version.h is working at the moment in 2.4.  Why change it?
+Think pre init scripts....
 
-Why do so many drivers enable options depending on the kernel version?
-Shouldn't that be stripped out before a patch is accepted into the kernel?
+no apache was install on this machine, no iptables scripts, etc.
+
+I'm actually talking about the time from where Linux spits out all this crap about probing irq's, ide drive found with dma etc.  That kind of stuff.  
+
+I'm not sure if there is an issue because I use the Linux framebuffer and all those printk() are taking to much time to print? To much scrolling or  redraw?  Is there any way to turn all that off (without commenting that code out)?
+
+It would be nice to test if that is an issue.  FreeBSD does not seem to spit out all that crap.  It is more like 1 or 2 lines a device not this 30 lines of irq mapping and 4 lines of thank you to so and so and foo for the code of blah....   
+
+If the video card is old and slow, could all this extra stuff that scrolls up the screen be causing the issue?  If so is there a way of turning this off?    
+
+
+Joe
+
+On Fri, 5 Apr 2002 01:21:17 +0100 (BST) Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+>     Is there some way of making the linux kernel boot faster?  
+
+#1: Start less crap at boot time. Obvious but thats frequently most of
+    the issue.
+
+For Red Hat if your hardware set up is constant then rpm -e kudzu will do
+no harm and avoid the grovelling through the box looking for new toys.
+
+Longer term swsuspend means you can bang alt-sysrq-Z and suspend to disk
+without BIOS support

@@ -1,71 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280026AbRJ3Qsz>; Tue, 30 Oct 2001 11:48:55 -0500
+	id <S280018AbRJ3Qr0>; Tue, 30 Oct 2001 11:47:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280023AbRJ3Qsk>; Tue, 30 Oct 2001 11:48:40 -0500
-Received: from aloha.egartech.com ([62.118.81.133]:49673 "HELO
-	mx02.egartech.com") by vger.kernel.org with SMTP id <S280015AbRJ3QsO>;
-	Tue, 30 Oct 2001 11:48:14 -0500
-Message-ID: <3BDEDA78.5F2A7D19@egartech.com>
-Date: Tue, 30 Oct 2001 19:51:04 +0300
-From: Kirill Ratkin <kratkin@egartech.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
+	id <S280015AbRJ3QrP>; Tue, 30 Oct 2001 11:47:15 -0500
+Received: from beppo.feral.com ([192.67.166.79]:11013 "EHLO beppo.feral.com")
+	by vger.kernel.org with ESMTP id <S280012AbRJ3QrF>;
+	Tue, 30 Oct 2001 11:47:05 -0500
+Date: Tue, 30 Oct 2001 08:47:14 -0800 (PST)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: <mjacob@feral.com>
+To: "Ashish A. Palekar" <apalekar@trebia.com>
+cc: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: iSCSI support for Linux
+In-Reply-To: <3BDED5BD.33C546EB@trebia.com>
+Message-ID: <20011030084427.X22458-100000@wonky.feral.com>
 MIME-Version: 1.0
-To: Lee Packham <linux@mswinxp.net>
-CC: jo_ni@telia.com, linux-kernel@vger.kernel.org
-Subject: Re: Still having problems with eepro100
-In-Reply-To: <20011030123927.74e26501.jo_ni@telia.com> <14297.193.132.197.81.1004459024.squirrel@mail.mswinxp.net>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Oct 2001 16:48:43.0256 (UTC) FILETIME=[BC0A3780:01C16162]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I've seen this problem when I compiled 2.4.10 kernel with gcc version
-3.0.1. I think there is some problem with broadcast and multicast 
-packets because I managed to make direct connection but I can't use
-dhcpd or xdmcp.
 
 
-Lee Packham wrote:
-> 
-> This problem is inherent in FreeBSD, OpenBSD, NetBSD as well as Linux. I
-> spent a few months hacking my Sony Vaio with number of OS's (it has this
-> network card built onto it).
-> 
-> The problem is fatal unfortunately and the only solution I found was
-> Intel's e100 driver.
-> 
-> 'nuff said
-> 
-> Lee Packham
-> 
+On Tue, 30 Oct 2001, Ashish A. Palekar wrote:
+
+> Nitin:
+>
+> The Target side does support 64 bit LUNs - as recommended by SAM-2. The
+> SCSI Target Mid-level definition for a LUN is a u64. (Note: The SCSI
+> Target Mid-Level is a completely different entity than the SCSI
+> Initiator Mid-Level). The question that is up in the air is how to use
+> those 64 bits for a good target representation.
+
+IIRC the top 2 bits of the first byte of the 8 byte lun define the layout-
+this is what you have to look at on the initiator side when you do a REPORT
+LUNS command.
+
+>
+> The other thing is that 64 bit LUNs are __VERY_RARELY__ used in the SCSI
+> world that I am familiar with. So unless you are in a highly specialized
+> operation where all 64 bits are important to you, you can get by with 32
+> bit LUNs.
+>
+
+I'm not sure I agree. As we move into more and more virtualization types of
+enviroments, the full 64 bit WWPN is often used as the 'lun'. So while it is
+true that it's not important now, I suspect in a couple of years it might be.
+
+
+> On the Initiator side, the LUN issue also needs to be addressed by the
+> SCSI Initiator Mid-Level. The person to speak to in this regard would be
+> Eric Youngdale (eric@andante.org). In fact the LUN issue along with the
+> scan code are some of things on the SCSI todo list - the scan thing
+> being especially important if you are doing fibre channel to enable
+> dynamic target discovery.
+>
+> Hope this helps
+> Ashish
+>
+> Nitin Dhingra wrote:
 > >
-> > Hello,
-> > Does anyone except me still having problems with the eepro100 drivers ?
+> > Ashish,
+> >         I have seen your and other codes as well, I see that everybody's
+> > used lun field as supplied by
+> > middle layer right. No one is using 64-bit field acc. to SAM-2, but Linux
+> > Scsi Subsystem doesn't support 64-bit
+> > field it supports only 32-bit. Have you thought something about it and do
+> > you have any solution to this?
 > >
-> > The network connection stalls and I'll get this message:
+> > Kindly cc me as I am no longer in the mailing list.
 > >
-> > eepro100: wait_for_cmd_done timeout!
-> >
-> > I am using the eepro100 drivers with my 100/10 card running in
-> > 10mbit and it works in windows.
-> >
-> > I have been trying all new kernels + the ac patches but nothing
-> >seems to work. The fun thing is that I only gets this problem
-> > when I am running XFree, is this just a weird coincidence?
-> >
-> > /Johan Nilsson
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> > regards,
+> > nitin
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
+>
+

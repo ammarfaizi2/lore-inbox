@@ -1,64 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266161AbUGZXLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266158AbUGZXLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266161AbUGZXLt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 19:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUGZXLt
+	id S266158AbUGZXLp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 19:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUGZXLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 19:11:49 -0400
-Received: from mail001.syd.optusnet.com.au ([211.29.132.142]:55786 "EHLO
-	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266161AbUGZXC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 19:02:57 -0400
-References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <20040725173652.274dcac6.akpm@osdl.org> <cone.1090802581.972906.20693.502@pc.kolivas.org> <20040726202946.GD26075@ca-server1.us.oracle.com> <20040726134258.37531648.akpm@osdl.org>
-Message-ID: <cone.1090882721.156452.20693.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Joel Becker <Joel.Becker@oracle.com>, linux-kernel@vger.kernel.org
-Subject: Re: Autotune swappiness01
-Date: Tue, 27 Jul 2004 08:58:41 +1000
+	Mon, 26 Jul 2004 19:11:45 -0400
+Received: from sol.linkinnovations.com ([203.94.173.142]:18048 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S266158AbUGZXCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 19:02:38 -0400
+Date: Tue, 27 Jul 2004 09:01:16 +1000
+From: CaT <cat@zip.com.au>
+To: Ed Sweetman <safemode@comcast.net>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Jim Gifford <maillist@jg555.com>,
+       "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: Future devfs plans
+Message-ID: <20040726230116.GA6339@zip.com.au>
+References: <200407261445.i6QEjAS04697@freya.yggdrasil.com> <057601c472a3$9df39ac0$d100a8c0@W2RZ8L4S02> <41044DA6.5080501@comcast.net> <20040726180901.GG11817@fs.tum.de> <41057B58.1040808@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <41057B58.1040808@comcast.net>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+On Mon, Jul 26, 2004 at 05:44:56PM -0400, Ed Sweetman wrote:
+> Adrian Bunk wrote:
+> > apt-get install alsa-base
+> >
+> >Check
+> >
+> > /var/lib/dpkg/info/alsa-base.postinst
+> >
+> >and (surprise, surprise!), you'll note the snddevices script is executed 
+> >when installing the alsa-base package.
+>
+> And someone who compiles the kernel for themselves and never needs the 
 
-> Joel Becker <Joel.Becker@oracle.com> wrote:
->>
->> On Mon, Jul 26, 2004 at 10:43:01AM +1000, Con Kolivas wrote:
->> > Low memory boxes and ones that are heavily laden with applications find 
->> > that ends up making things slow down trying to keep all applications in 
->> > physical ram.
->> 
->> 	Lowish memory boxes with plain desktop loads find that the default
->> of '60' is a terrible one (I'm speaking of 1GHz-ish machines with 256MB
->> (like mine) or 512MB (like a guy next to me)).  Every person I know who
->> installs 2.6 complains about how it feels slow and choppy.  I tell them
->> "The first thing I do after installing 2.6 is set swappiness to '20'."
->> Sure enough, they set swappiness to 20 and their box starts behaving
->> like a properly tuned one.
->> 	I don't know what workload the default of '60' is for, but for
->> the (128MB < x < 1GB) of RAM case, it sucks (and I've seen the same
->> behavior on a 300MHz 196MB box).
->> 
-> 
-> Yes, I think 60% is about right for a 512-768M box.  Too high for the
-> smaller machines, too low for the larger ones.
+Like I.
 
-Sigh.. 
+> alsa-base deb wouldn't have any ability to create the devices.  MAKEDEV 
 
-I have a 1Gb desktop machine that refuses to keep my applications in ram 
-overnight if I have a swappiness higher than the default so I think lots of 
-desktop users with more ram will be unhappy with higher settings.
+alsa-base doesn't supply any modules:
 
-> More intelligent selection of the initial value is needed.
+# apt-file list alsa-base
+alsa-base: etc/apm/event.d/alsa
+alsa-base: etc/devfs/conf.d/alsa
+alsa-base: etc/init.d/alsa
+alsa-base: usr/share/alsa-base/alsa-base.conf
+alsa-base: usr/share/alsa-base/modules-snippet.conf
+alsa-base: usr/share/alsa-base/program-wrapper
+alsa-base: usr/share/alsa-base/snddevices
+alsa-base: usr/share/doc/alsa-base/FAQ
+alsa-base: usr/share/doc/alsa-base/NEWS.Debian.gz
+alsa-base: usr/share/doc/alsa-base/README
+alsa-base: usr/share/doc/alsa-base/README.Debian
+alsa-base: usr/share/doc/alsa-base/SOUNDCARDS.gz
+alsa-base: usr/share/doc/alsa-base/WARNING
+alsa-base: usr/share/doc/alsa-base/changelog.Debian.gz
+alsa-base: usr/share/doc/alsa-base/copyright
+alsa-base: usr/share/doc/alsa-base/examples/modules-1.0.conf
+alsa-base: usr/share/linda/overrides/alsa-base
+alsa-base: usr/share/lintian/overrides/alsa-base
 
-Perhaps, but I really doubt desktop users running mainline would be happy 
-about it going significantly higher. 
+And the init.d script doesn't do any loading of modules. It saves and
+restores the mixer settings.
 
-Cheers,
-Con
+> is the proper place to create devices, not a separate snddevices 
+> script.  This is still a debian bug.
 
+Correct, for any version of debian where the supplied kernel is >= 2.6
+I'd say.
+
+-- 
+    Red herrings strewn hither and yon.

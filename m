@@ -1,172 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261845AbSJDOjt>; Fri, 4 Oct 2002 10:39:49 -0400
+	id <S261875AbSJDOmU>; Fri, 4 Oct 2002 10:42:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261866AbSJDOjs>; Fri, 4 Oct 2002 10:39:48 -0400
-Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:22962 "EHLO
+	id <S261849AbSJDOk1>; Fri, 4 Oct 2002 10:40:27 -0400
+Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:22450 "EHLO
 	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S261845AbSJDOhX> convert rfc822-to-8bit; Fri, 4 Oct 2002 10:37:23 -0400
+	id <S261851AbSJDOh1> convert rfc822-to-8bit; Fri, 4 Oct 2002 10:37:27 -0400
 Content-Type: text/plain;
   charset="us-ascii"
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.40 s390 (4/27): syscalls.
-Date: Fri, 4 Oct 2002 16:25:55 +0200
+Subject: [PATCH] 2.5.40 s390.
+Date: Fri, 4 Oct 2002 16:24:17 +0200
 X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200210041625.55973.schwidefsky@de.ibm.com>
+Message-Id: <200210041624.17373.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New system calls: security, async. i/o and sys_exit_group. Add 31 bit emulation
-function for sys_futex.
+Hi Linus,
+the 27th patch has joint the patch set for s/390. Minimum set for something
+useful is again the first 7 patches. 
 
-diff -urN linux-2.5.40/arch/s390/kernel/entry.S linux-2.5.40-s390/arch/s390/kernel/entry.S
---- linux-2.5.40/arch/s390/kernel/entry.S	Fri Oct  4 16:14:42 2002
-+++ linux-2.5.40-s390/arch/s390/kernel/entry.S	Fri Oct  4 16:14:52 2002
-@@ -580,7 +580,15 @@
- 	.long  sys_futex
- 	.long  sys_sched_setaffinity
- 	.long  sys_sched_getaffinity	 /* 240 */
--	.rept  255-240
-+	.long  sys_security
-+	.long  sys_ni_syscall		 /* reserved for TUX */
-+	.long  sys_io_setup
-+	.long  sys_io_destroy
-+	.long  sys_io_getevents		 /* 245 */
-+	.long  sys_io_submit
-+	.long  sys_io_cancel
-+	.long  sys_exit_group
-+	.rept  255-248
- 	.long  sys_ni_syscall
- 	.endr
- 
-diff -urN linux-2.5.40/arch/s390x/kernel/entry.S linux-2.5.40-s390/arch/s390x/kernel/entry.S
---- linux-2.5.40/arch/s390x/kernel/entry.S	Fri Oct  4 16:14:42 2002
-+++ linux-2.5.40-s390/arch/s390x/kernel/entry.S	Fri Oct  4 16:14:52 2002
-@@ -605,13 +605,21 @@
- 	.long  SYSCALL(sys_flistxattr,sys32_flistxattr_wrapper)
- 	.long  SYSCALL(sys_removexattr,sys32_removexattr_wrapper)
- 	.long  SYSCALL(sys_lremovexattr,sys32_lremovexattr_wrapper)
--	.long  SYSCALL(sys_fremovexattr,sys32_fremovexattr_wrapper)
-+	.long  SYSCALL(sys_fremovexattr,sys32_fremovexattr_wrapper) /* 235 */
- 	.long  SYSCALL(sys_gettid,sys_gettid)
- 	.long  SYSCALL(sys_tkill,sys_tkill)
- 	.long  SYSCALL(sys_futex,sys32_futex_wrapper)
- 	.long  SYSCALL(sys_sched_setaffinity,sys32_sched_setaffinity_wrapper)
--	.long  SYSCALL(sys_sched_getaffinity,sys32_sched_getaffinity_wrapper)
--        .rept  255-240
-+	.long  SYSCALL(sys_sched_getaffinity,sys32_sched_getaffinity_wrapper) /* 240 */
-+	.long  SYSCALL(sys_security,sys_ni_syscall)
-+	.long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* reserved for TUX */
-+	.long  SYSCALL(sys_io_setup,sys_ni_syscall)
-+	.long  SYSCALL(sys_io_destroy,sys_ni_syscall)
-+	.long  SYSCALL(sys_io_getevents,sys_ni_syscall)       /* 245 */
-+	.long  SYSCALL(sys_io_submit,sys_ni_syscall)
-+	.long  SYSCALL(sys_io_cancel,sys_ni_syscall)
-+	.long  SYSCALL(sys_exit_group,sys32_exit_group_wrapper)
-+        .rept  255-248
- 	.long  SYSCALL(sys_ni_syscall,sys_ni_syscall)
- 	.endr
- 
-diff -urN linux-2.5.40/arch/s390x/kernel/linux32.c linux-2.5.40-s390/arch/s390x/kernel/linux32.c
---- linux-2.5.40/arch/s390x/kernel/linux32.c	Fri Oct  4 16:14:42 2002
-+++ linux-2.5.40-s390/arch/s390x/kernel/linux32.c	Fri Oct  4 16:14:52 2002
-@@ -4527,3 +4527,34 @@
- 
- 	return ret;
- }
-+
-+asmlinkage int 
-+sys_futex(void *uaddr, int op, int val, struct timespec *utime);
-+
-+asmlinkage int
-+sys32_futex(void *uaddr, int op, int val, 
-+		 struct timespec32 *timeout32)
-+{
-+	long ret;
-+	struct timespec tmp, *timeout;
-+
-+	ret = -ENOMEM;
-+	timeout = kmalloc(sizeof(*timeout), GFP_USER);
-+	if (!timeout)
-+		goto out;
-+
-+	ret = -EINVAL;
-+	if (get_user (tmp.tv_sec,  &timeout32->tv_sec)  ||
-+	    get_user (tmp.tv_nsec, &timeout32->tv_nsec) ||
-+	    put_user (tmp.tv_sec,  &timeout->tv_sec)    ||
-+	    put_user (tmp.tv_nsec, &timeout->tv_nsec))
-+		goto out_free;
-+
-+	ret = sys_futex(uaddr, op, val, timeout);
-+
-+out_free:
-+	kfree(timeout);
-+out:
-+	return ret;
-+}
-+
-diff -urN linux-2.5.40/arch/s390x/kernel/wrapper32.S linux-2.5.40-s390/arch/s390x/kernel/wrapper32.S
---- linux-2.5.40/arch/s390x/kernel/wrapper32.S	Tue Oct  1 09:06:58 2002
-+++ linux-2.5.40-s390/arch/s390x/kernel/wrapper32.S	Fri Oct  4 16:14:52 2002
-@@ -1114,7 +1114,7 @@
- 	lgfr	%r3,%r3			# int
- 	lgfr	%r4,%r4			# int
- 	llgtr	%r5,%r5			# struct timespec *
--	jg	sys_futex		# branch to system call
-+	jg	sys32_futex		# branch to system call
- 
- 	.globl	sys32_setxattr_wrapper
- sys32_setxattr_wrapper:
-@@ -1220,3 +1220,7 @@
- 	llgtr	%r4,%r4			# unsigned long *
- 	jg	sys32_sched_getaffinity
- 
-+	.globl  sys32_exit_group_wrapper
-+sys32_exit_group_wrapper:
-+	lgfr	%r2,%r2			# int
-+	jg	sys_exit_group		# branch to system call
-diff -urN linux-2.5.40/include/asm-s390/unistd.h linux-2.5.40-s390/include/asm-s390/unistd.h
---- linux-2.5.40/include/asm-s390/unistd.h	Tue Oct  1 09:07:55 2002
-+++ linux-2.5.40-s390/include/asm-s390/unistd.h	Fri Oct  4 16:14:52 2002
-@@ -231,6 +231,16 @@
- #define __NR_futex		238
- #define __NR_sched_setaffinity	239
- #define __NR_sched_getaffinity	240
-+#define __NR_security		241	/* syscall for security modules */
-+/*
-+ * Number 242 is reserved for tux
-+ */
-+#define __NR_io_setup		243
-+#define __NR_io_destroy		244
-+#define __NR_io_getevents	245
-+#define __NR_io_submit		246
-+#define __NR_io_cancel		247
-+#define __NR_exit_group		248
- 
- 
- /* user-visible error numbers are in the range -1 - -122: see <asm-s390/errno.h> */
-diff -urN linux-2.5.40/include/asm-s390x/unistd.h linux-2.5.40-s390/include/asm-s390x/unistd.h
---- linux-2.5.40/include/asm-s390x/unistd.h	Tue Oct  1 09:07:31 2002
-+++ linux-2.5.40-s390/include/asm-s390x/unistd.h	Fri Oct  4 16:14:52 2002
-@@ -198,6 +198,16 @@
- #define __NR_futex		238
- #define __NR_sched_setaffinity	239
- #define __NR_sched_getaffinity	240
-+#define __NR_security		241	/* syscall for security modules */
-+/*
-+ * Number 242 is reserved for tux
-+ */
-+#define __NR_io_setup		243
-+#define __NR_io_destroy		244
-+#define __NR_io_getevents	245
-+#define __NR_io_submit		246
-+#define __NR_io_cancel		247
-+#define __NR_exit_group		248
- 
- 
- /* user-visible error numbers are in the range -1 - -122: see <asm-s390/errno.h> */
+The list of patches and some comments:
+
+01: arch/s390 and arch/s390x part of the minimal patch to get the kernel
+    compiled again (without any device drivers).
+02: include/asm-s390 and include/asm-s390x part of the minimal patch.
+03: drivers/s390 part of the minimal patch.
+04: Add new system calls.
+05: Get the bloody ibm partition code to work.
+06: I removed some unnecessary config options and restructured the
+    configuration menu a bit.
+07: Fixes and more cleanup for the dasd driver. Thanks to Al Viro we
+    got rid of the ugly things in the dasd driver. The only big thing
+    left is big minors. In preparation we removed kdev_t where possible.
+08: Fixes for the xpram driver.
+09: Get rid of some of the bottom halves in the s/390 device drivers. Yet
+    to be are ctrlchar, tape, 3270 and lcs.
+10: A bug fix for the (unused) option ALIGN_CS == 1.
+11: Latest 31 bit emulation fixes.
+12: Unify the two linker scripts and let the preprocessor deal with
+    CONFIG_SHARED_KERNEL.
+13: Add preemption support. It still complains about about "scheduling
+    while atomic" though.
+14: Inline all tcpip checksum functions and optimize xchg.
+15: Make use of the diag 0x44 in 64 bit spinlock code. The diag 0x44 yields
+    a virtual cpu under VM and LPAR is the lock is taken.
+16: I removed the dependency on the boot cpu in the timer interrupt.
+    This makes it easier with the timer patch and with switching
+    cpus on and off.
+17: Some code beautification.
+18: Optimization for loading/storing of fpu registers. Got rid
+    of another stupid file in arch/s390/kernel.
+19: Make ptrace readable.
+20: Add signal quiesce support to shut down the system on demand.
+21: Fix and simplify synchronous i/o functions.
+22: Simplify s390_process_IRQ.
+23: Do the right thing if channel paths are not available.
+24: Reworked boot sequence.
+25: Remove s390 specific init call from init/main.c. 24 and 25 are related.
+26: /proc/interrupts does not make sense on s390. There are
+    65536 i/o and 65536 external interrupts. We do not really
+    want to have a file with #cpus * 128K zeros.
+27: Get rid of the bottom half in the helper functions for console control
+    characters. Fixes a race condition as well and the ctrlchar code looks
+    nicer now.
+
+blue skies,
+  Martin.
+
 

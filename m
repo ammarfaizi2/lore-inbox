@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263078AbTIJN2n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 09:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTIJN2n
+	id S263100AbTIJNke (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 09:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263140AbTIJNke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 09:28:43 -0400
-Received: from netlx014.civ.utwente.nl ([130.89.1.88]:53120 "EHLO
-	netlx014.civ.utwente.nl") by vger.kernel.org with ESMTP
-	id S263078AbTIJN2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 09:28:41 -0400
-From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
-To: Adrian Bunk <bunk@fs.tum.de>, Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Subject: Re: [patch] 2.6.0-test5: serio config broken?
-Date: Wed, 10 Sep 2003 15:23:48 +0200
-User-Agent: KMail/1.5.3
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <3F5DBC1F.8DF1F07A@eyal.emu.id.au> <20030910110225.GC27368@fs.tum.de>
-In-Reply-To: <20030910110225.GC27368@fs.tum.de>
+	Wed, 10 Sep 2003 09:40:34 -0400
+Received: from www.mail15.com ([194.186.131.96]:51205 "EHLO www.mail15.com")
+	by vger.kernel.org with ESMTP id S263100AbTIJNk3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 09:40:29 -0400
+Date: Wed, 10 Sep 2003 17:40:26 +0400 (MSD)
+Message-Id: <200309101340.h8ADeQcW056041@www.mail15.com>
+From: Muthukumar <kmuthukumar@mail15.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309101523.48722.s.b.wielinga@student.utwente.nl>
-X-UTwente-MailScanner-Information: Scanned by MailScanner. Contact helpdesk@ITBE.utwente.nl for more information.
-X-UTwente-MailScanner: Found to be clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: 
+X-Proxy-IP: [203.129.254.138]
+X-Originating-IP: [172.16.1.46]
+Subject: Problem on Drivers on 2.6.0-test3 kernel
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 September 2003 13:02, Adrian Bunk wrote:
-> On Tue, Sep 09, 2003 at 09:40:15PM +1000, Eyal Lebedinsky wrote:
-> >...
->
->  In -test4 I have:
-> > CONFIG_SERIO=m
-> > CONFIG_SERIO_I8042=m
-> > CONFIG_SERIO_SERPORT=m
-> > CONFIG_SERIO_CT82C710=m
-> > CONFIG_SERIO_PARKBD=m
-> > CONFIG_SERIO_PCIPS2=m
-> >
-> > but -test5 insists on:
-> >
-> > CONFIG_SERIO=m
-> > CONFIG_SERIO_I8042=y
-> > CONFIG_SERIO_SERPORT=m
-> > CONFIG_SERIO_CT82C710=m
-> > CONFIG_SERIO_PARKBD=m
-> > CONFIG_SERIO_PCIPS2=m
-> >
-> > Removing the I8042 line and doing 'make oldconfig' does not even
-> > ask about it but sets it to '=y'. As a result I get:
-> > [...]
 
-This is correct behaviour. Nobody building his kernel for a pc will ever want 
-his keyboard not to function until the module is loaded; the 
-CONFIG_SERIO_I8042 option is really only there for embedded devices based on 
-x86 processors which don't have an i8042 keyboard controller, which is where 
-the EMBEDDED option was made for. Modularizing this would effectively disable 
-the possibility of booting with init=/bin/sh.
+Hello all ..,
 
-Sytse
+I have compiled the kernel-2.6.0 test3 in IA64 with Ia64 patch 
+as 
+make menuconfig
+make all
+make modules
+But in this step i got the following messages as 
+make modules
+make[1]: `arch/ia64/kernel/asm-offsets.s' is up to date.
+  Building modules, stage 2.
+  MODPOST
+*** Warning: "per_cpu__local_per_cpu_offset" 
+[drivers/net/tulip/tulip.ko] has no CRC!
+*** Warning: "per_cpu__local_per_cpu_offset" [drivers/net/tg3.ko] 
+has no CRC!
+*** Warning: "per_cpu__local_per_cpu_offset" [drivers/net/eepro100.
+ko] has no CRC!
+*** Warning: "per_cpu__local_per_cpu_offset" 
+[drivers/net/e100/e100.ko] has no CRC!
 
-> [patch...]
+After installing the module-init-tools-0.9.tar.bz2 to update the 
+module tool and in the make install i got the messges of
 
+so many  ./install-with-care for all files in /bin/sh for all files 
+in module-init-tools-0.9.Then i have changed 
+the ./install-with-care for as ./install-sh.
+
+So is there any effect of this module or....
+
+So what is the this effect and what is the problem on the above 
+messages on 2.6.0test3 on Ia64.then there is no interfaces to eth0 
+eth1 ,so i cannot take the testings.But the entires for the 
+ifcfg-eth0 and ifcfg-eth1 are there.
+
+Is that a serious problem,pls give the info for this.
+
+So i need the guidlines for this...
+
+                                             Thanks
+                                              Mvthv

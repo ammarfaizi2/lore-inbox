@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316836AbSF0M5N>; Thu, 27 Jun 2002 08:57:13 -0400
+	id <S316837AbSF0M5c>; Thu, 27 Jun 2002 08:57:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316837AbSF0M5N>; Thu, 27 Jun 2002 08:57:13 -0400
-Received: from sj-msg-core-4.cisco.com ([171.71.163.10]:21467 "EHLO
-	sj-msg-core-4.cisco.com") by vger.kernel.org with ESMTP
-	id <S316836AbSF0M5M>; Thu, 27 Jun 2002 08:57:12 -0400
-Message-ID: <3D1B0B95.51E13621@cisco.com>
-Date: Thu, 27 Jun 2002 18:26:53 +0530
-From: Manik Raina <manik@cisco.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: enums 
-Content-Type: multipart/mixed;
- boundary="------------5664C73FD169A03B66EFB9AC"
+	id <S316838AbSF0M5b>; Thu, 27 Jun 2002 08:57:31 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:14100 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S316837AbSF0M5a>; Thu, 27 Jun 2002 08:57:30 -0400
+Date: Thu, 27 Jun 2002 07:57:19 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200206271257.HAA61267@tomcat.admin.navo.hpc.mil>
+To: dax@gurulabs.com, Michael Kerrisk <m.kerrisk@gmx.net>
+Subject: Re: Status of capabilities?
+In-Reply-To: <1025157926.1652.35.camel@mentor>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------5664C73FD169A03B66EFB9AC
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Dax Kelson <dax@gurulabs.com>:
 
-is there a particular reason we dislike constructs as attached in the
-diffs below ?
-with enums, we dont have to increment MAX_NR_ZONES everytime a new one
-is added .
+> 
+> On Wed, 2002-06-26 at 06:40, Michael Kerrisk wrote:
+> 
+> > What's still missing in 2.4, as far as I can see after reading the sources,
+> > is the ability to set capabilities on executable files so that a process
+> > gains those privileges when executing the file.  I recall seeing some
+> > information somewhere saying this wasn't possible / wasn't going to happen
+> > for ext2.  Is it on the drawing board for any file system?
+> 
+> The 2.5 VFS supports Extended Attributes (since 2.5.3). I think the plan
+> was use EAs to store capabilities. So I believe that the infrastructure
+> is in place, someone with the proper skills just needs to:
+> 
+> 1. Define how capabilities will be stored as a EA
+> 2. Teach fs/exec.c to use the capabilities stored with the file
+> 3. Write lscap(1)
+> 4. Write chcap(1)
+> 5. Audit/fix all SUID root binaries to use capabilities
+> 6. Set appropriate capabilities with for each with chcap(1) and then:
+>    # find / -type f -perm -4000 -user root -exec chmod u-s {} \;
+> 7. Party and snicker in the general direction of that OS with the slogan
+> "One remote hole in the default install, in nearly 6 years!"
 
---------------5664C73FD169A03B66EFB9AC
-Content-Type: text/plain; charset=us-ascii;
- name="a"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="a"
+Actually, I think most of that work has already been done by the Linux
+Security Module project (well, except #7).
 
-diff -u -r -U 6 cmp/include/linux/mmzone.h linux-2.5.24/include/linux/mmzone.h
---- cmp/include/linux/mmzone.h	Fri Jun 21 04:23:42 2002
-+++ linux-2.5.24/include/linux/mmzone.h	Thu Jun 27 18:00:25 2002
-@@ -88,16 +88,21 @@
- 	 * rarely used fields:
- 	 */
- 	char			*name;
- 	unsigned long		size;
- } zone_t;
- 
--#define ZONE_DMA		0
--#define ZONE_NORMAL		1
--#define ZONE_HIGHMEM		2
--#define MAX_NR_ZONES		3
-+enum zone_type {
-+
-+     ZONE_DMA,
-+     ZONE_NORMAL,
-+     ZONE_HIGHMEM,		
-+     MAX_NR_ZONES,	
-+
-+};
-+
- 
- /*
-  * One allocation request operates on a zonelist. A zonelist
-  * is a list of zones, the first one is the 'goal' of the
-  * allocation, the other zones are fallback zones, in decreasing
-  * priority.
+see:
+	http://lsm.immunix.org/
 
---------------5664C73FD169A03B66EFB9AC--
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
+Any opinions expressed are solely my own.

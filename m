@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbUKHRP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbUKHRRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbUKHRP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 12:15:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbUKHROd
+	id S261938AbUKHRRM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 12:17:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbUKHRQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 12:14:33 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:51392 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261946AbUKHQod
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 11:44:33 -0500
-Date: Mon, 8 Nov 2004 08:43:02 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: bk-commits: diff -p?
-Message-ID: <20041108164302.GA489@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Larry McVoy <lm@bitmover.com>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0411080940310.27771@anakin>
+	Mon, 8 Nov 2004 12:16:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26331 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261934AbUKHRLz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 12:11:55 -0500
+Date: Mon, 8 Nov 2004 09:11:45 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: John Levon <levon@movementarian.org>
+Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, cliffw@osdl.org
+Subject: Re: [PATCH][OPROFILE] disable preempt when calling smp_processor_id()
+Message-ID: <20041108091145.D2357@build.pdx.osdl.net>
+References: <20041105163221.J14339@build.pdx.osdl.net> <20041107165623.GA36328@compsoc.man.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411080940310.27771@anakin>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041107165623.GA36328@compsoc.man.ac.uk>; from levon@movementarian.org on Sun, Nov 07, 2004 at 04:56:23PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This has been fixed in the following releases:
+* John Levon (levon@movementarian.org) wrote:
+> On Fri, Nov 05, 2004 at 04:32:21PM -0800, Chris Wright wrote:
+> > smp_processor_id() is called w/out preempt disabled.  Use
+> > get_cpu()/put_cpu() instead.  Should this be put_cpu_no_resched()?
+> 
+> No, the patch below looks fine
 
-bk-3.2.3
-bk-3.2.2c
-bk-3.2.2b
+I realized over the weekend that it's still broken.  And Cliff hit it
+in some tests he ran here.  The sync_buffer() function can sleep, and
+while the unprotected call to smp_processor_id() is no longer a problem,
+scheduling with preempt disabled is.
 
-Correct usage is "bk diffs -up" which will get you unified + procedural diffs.
--p is currently a hack, it implies -u, but don't depend on that behaviour,
-a future release does this correctly and if you teach your fingers that 
-diffs -p is the same as diffs -up you'll get burned later.
-
-
-On Mon, Nov 08, 2004 at 09:41:56AM +0100, Geert Uytterhoeven wrote:
-> 	Hi Larry,
-> 
-> Would it be possible to enable the `-p' option (Show which C function each
-> change is in) of diff for all patches sent to the bk-commits-* mailing lists?
-> 
-> Thanks!
-> 
-> Gr{oetje,eeting}s,
-> 
-> 						Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
-> 							    -- Linus Torvalds
-
+thanks,
+-chris
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

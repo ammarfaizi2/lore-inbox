@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUDOWwC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 18:52:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUDOWwC
+	id S262810AbUDOXIG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 19:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262541AbUDOXIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 18:52:02 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58509 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261763AbUDOWwA (ORCPT
+	Thu, 15 Apr 2004 19:08:05 -0400
+Received: from zero.aec.at ([193.170.194.10]:52235 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S262810AbUDOXIC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 18:52:00 -0400
-Date: Thu, 15 Apr 2004 15:54:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: manfred@colorfullife.com, drepper@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: message queue limits
-Message-Id: <20040415155408.0902a0c0.akpm@osdl.org>
-In-Reply-To: <20040415214632.GA4402@logos.cnet>
-References: <407A2DAC.3080802@redhat.com>
-	<20040415145350.GF2085@logos.cnet>
-	<20040415122411.0bcb9195.akpm@osdl.org>
-	<20040415195430.GB3568@logos.cnet>
-	<20040415214632.GA4402@logos.cnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Apr 2004 19:08:02 -0400
+To: Len Brown <len.brown@intel.com>
+cc: linux-kernel@vger.kernel.org, Allen Martin <AMartin@nvidia.com>
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] 
+	for idle=C1halt, 2.6.5
+References: <1KkKQ-2v9-9@gated-at.bofh.it> <1Kqdx-6E1-5@gated-at.bofh.it>
+	<1KH4I-3W9-11@gated-at.bofh.it> <1LgOQ-7px-3@gated-at.bofh.it>
+	<1LlEY-36q-11@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 16 Apr 2004 01:07:56 +0200
+In-Reply-To: <1LlEY-36q-11@gated-at.bofh.it> (Len Brown's message of "Thu,
+ 15 Apr 2004 22:30:16 +0200")
+Message-ID: <m3k70gx2k3.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
-> This adds a new "RLIMIT_SIGPENDING" limit, which is used to limit
-> per-uid pending signals. Currently an unpriviledged user can queue 
-> more than maximum of allowed signals and cause overall system 
-> malfunction.
+Len Brown <len.brown@intel.com> writes:
 
-So now it takes two users to gang up and do the same thing.  We should
-either exempt root from the global check or simply remove the global limit
-altogether.
+> While I don't want to get into the business of maintaining
+> a dmi_scan entry for every system with this issue, I think
+> it might be a good idea to add a couple of example entries
+> for high volume systems for which there is no BIOS fix available.
 
-Is it possible for a process to do setuid() with outstanding signals?  If
-so, they may end up with a negative current->user->signal_pending?
+Or do a generic fix: check for the PCI-ID of the Nforce2 and when
+it is true and the timer is wrong just correct it. That's ugly,
+but it's probably the best solution for such a common issue
+(and the IO-APIC code is already filled with workarounds anyways)
 
-You need to initialise ->signal_pending in alloc_uid().
+One problem is that this likely must happen before the PCI quirks
+run. In the x86-64 code I have special "early PCI scanning" code 
+for this that could be copied. I don't have a Nforce2, but when
+someone is willing to test I can do a patch for this.
 
-What are you doing for testing of this?
+-Andi
 
-Thanks.
+P.S.: This problem of reference BIOS bugs getting haunting Linux
+even after they are long fixed is unfortunately common :-(
+

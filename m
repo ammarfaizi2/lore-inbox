@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267815AbUHPR3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267817AbUHPRkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267815AbUHPR3M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 13:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267823AbUHPR3M
+	id S267817AbUHPRkW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 13:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267820AbUHPRkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 13:29:12 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:57792 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S267815AbUHPR27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 13:28:59 -0400
-Date: Mon, 16 Aug 2004 10:28:18 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: linux-ia64@vger.kernel.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
- pte locks?
-In-Reply-To: <1092609485.9538.27.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0408161025420.9812@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
- <1092609485.9538.27.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Aug 2004 13:40:21 -0400
+Received: from 64.89.71.154.nw.nuvox.net ([64.89.71.154]:26757 "EHLO
+	gate.apago.com") by vger.kernel.org with ESMTP id S267817AbUHPRkL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 13:40:11 -0400
+SMTP-Relay: dogwood.freil.com
+Message-Id: <200408161740.i7GHe4Aa022031@dogwood.freil.com>
+X-Mailer: exmh version 2.0.2 2/24/98
+To: linux-kernel@vger.kernel.org
+Subject: Re: Serious Kernel slowdown with HIMEM (4Gig) in 2.6.7
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 16 Aug 2004 13:40:03 -0400
+From: "Lawrence E. Freil" <lef@freil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004, Benjamin Herrenschmidt wrote:
+Problem solved.
 
-> On Sun, 2004-08-15 at 23:50, Christoph Lameter wrote:
-> > Well this is more an idea than a real patch yet. The page_table_lock
-> > becomes a bottleneck if more than 4 CPUs are rapidly allocating and using
-> > memory. "pft" is a program that measures the performance of page faults on
-> > SMP system. It allocates memory simultaneously in multiple threads thereby
-> > causing lots of page faults for anonymous pages.
->
-> Just a note: on ppc64, we already have a PTE lock bit, we use it to
-> guard against concurrent hash table insertion, it could be extended
-> to the whole page fault path provided we can guarantee we will never
-> fault in the hash table on that PTE while it is held. This shouldn't
-> be a problem as long as only user pages are locked that way (which
-> should be the case with do_page_fault) provided update_mmu_cache()
-> is updated to not take this lock, but assume it already held.
+I found a reference to a very similar (turns out same) problem with the
+2.4 series kernels.  The problem is because the mtrr maps do not quite
+cover all the memory the system was reporting.   Memory that does not
+show up in the mtrr must be being mapped as non-cacheable.  Is there
+a reason the system defaults to this as oppose to cacheable?  It obviously
+sees the holes?  I can work around the problem by adding "mem=1008" instead
+of letting it default (or I suppose I could patch the mtrr after boot).
 
-Is this the _PAGE_BUSY bit? The pte update routines on PPC64 seem to spin
-on that bit when it is set waiting for the hash value update to complete.
-Looks very specific to the PPC64 architecture.
+Thanks for all those with suggestions and what to look for.
+
+-- 
+        Lawrence Freil                      Email:lef@freil.com
+        1768 Old Country Place              Phone:(770) 667-9274
+        Woodstock, GA 30188
+
+

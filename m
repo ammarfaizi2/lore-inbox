@@ -1,71 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263886AbTDHCPT (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 22:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbTDHCPT (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 22:15:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12690 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263886AbTDHCPS (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 22:15:18 -0400
-Message-ID: <3E923390.9010206@pobox.com>
-Date: Mon, 07 Apr 2003 22:27:28 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	id S263876AbTDHCXL (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 22:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263882AbTDHCXL (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 22:23:11 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:52889 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263876AbTDHCXI (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 22:23:08 -0400
+Date: Mon, 07 Apr 2003 19:31:39 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] avoid scribbling in IDT with high interrupt count.
+Message-ID: <7110000.1049769098@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.50.0304071958360.21025-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0304070818340.26364-100000@home.transmeta.com> <Pine.LNX.4.50.0304071958360.21025-100000@montezuma.mastecende.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: zwane@linuxpower.ca, linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: SET_MODULE_OWNER?
-References: <20030408021239.1155C2C4EE@lists.samba.org>
-In-Reply-To: <20030408021239.1155C2C4EE@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> In message <3E91C398.9070400@pobox.com> you write:
+> My patch skips irq numbers > NR_IRQS and simply return error when we run 
+> out of vectors, although mainline doesn't assign duplicates and cause 
+> collisions, it does waste vector space. e.g. for a system with 
+> NR_IRQS = 224 we have 23 vectors free, 0 collisions and 167 useable irqs 
+> and assign_irq_vectors states that we're out of vectors.
 > 
->>Rusty Russell wrote:
->>
->>>I thought it was completely useless, hence deprecated.
->>>
->>>Anyone have any reason to defend it?
->>
->>
->>It's used to allow source compatibility with all kernels, old or new.
->>
->>Thus it is in active use, and should not be removed.
+>> In other words, I'm wondering if this simpler patch wouldn't be sufficient 
+>> instead?
+>> 
+>> Can you please test this, and re-submit (and if you can explain why your 
+>> patch is better, please do so - I have nothing fundamentally against it, I 
+>> just want to understand _why_ the complexity is needed).
 > 
+> Your patch booted the system but there are vector collisions resulting in 
+> lost irq routing when we program the IOAPIC with the duplicated vector. So 
+> with your patch and NR_IRQS = 224 we have 1 vectors free (0x80), 34 collisions 
+> and 225 irqs. However that isn't a fault of your patch but a fault with 
+> the NR_IRQS definition. This is what the vector space looks like on i386 
+> at present.
 > 
-> Inside individual drivers, or a set of compat macros, it makes sense.
-> But as a general module.h primitive it doesn't.
+> 0________0x31__________________________0xef____________0xff
+>   system	   io interrupts            resvd vectors
 > 
-> Imagine a structure adds an owner field in 2.5.  This macro doesn't
-> help you, you need a specific compat macro for that struct.
+> 0xef - 0x31 = 190 useable io interrupt vectors
+> 
+> So perhaps we should, apply your patch, add a NR_IRQ_VECTORS define 
+> and also add commentary in irq_vectors.h how does the following look? I 
+> had to readd the NR_IRQS checks to protect against overrunning NR_IRQS sized 
+> arrays and i added nr_assigned to track how many vectors were allocated so 
+> taht we can bail out when we're out.
+> 
+> Patch has been tested on a 320 interrupt system and had a maximum useable 
+> irq line of 211 (ethernet).
 
-no, SET_MODULE_OWNER is quite intentionally independent of the struct. 
-It only requires a consisnent naming in the source, between structures 
-that may use the macro.
+We're still allocating interrupts to a bunch 'o stuff that isn't actually
+being used ... I'd prefer it if we could change that, and allocate them
+as they're actually used, rather than (what I believe is) still a fixed
+number per IO-APIC. Is there some smart way to do that?
 
-That's a feature.
+If not, the overflow protection is still (obviously) a good thing to do.
 
-
-> ie. AFAICT it only buys you 2.2 compatibility, and even then only if
-> you #define it at the top of your driver.
-
-no, farther back than that, to infinity and beyond :)  The idea of the 
-macro is that on earlier kernels, it is simply a no-op, and module 
-refcounting is handled by other means.
-
-
-> I still don't understand: please demonstrate a use in existing source.
-
-demonstrate?  grep for it.  It's used quite a bit.  Removal of 
-SET_MODULE_OWNER looks to me to be pointless churn for negative gain. 
-If if you wish to pointedly ignore the old-source compatibility angle, 
-it is a nice convenience macro.
-
-	Jeff
-
-
+M.
 

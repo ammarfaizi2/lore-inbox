@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263392AbTJLCOl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 22:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTJLCOl
+	id S263408AbTJLDmf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 23:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTJLDmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 22:14:41 -0400
-Received: from holomorphy.com ([66.224.33.161]:29569 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263392AbTJLCOk (ORCPT
+	Sat, 11 Oct 2003 23:42:35 -0400
+Received: from deepthot.org ([68.14.232.127]:29083 "EHLO dent.deepthot.org")
+	by vger.kernel.org with ESMTP id S263408AbTJLDme (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 22:14:40 -0400
-Date: Sat, 11 Oct 2003 19:17:50 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: current_is_kswapd is a function
-Message-ID: <20031012021750.GA772@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sat, 11 Oct 2003 23:42:34 -0400
+From: Jay Denebeim <denebeim@deepthot.org>
+X-Newsgroups: dt.kernel
+Subject: Problems with Maxtor 120 GB drive
+Date: Sun, 12 Oct 2003 02:43:19 +0000 (UTC)
+Organization: Deep Thought
+Message-ID: <slrnbohfu7.1mb.denebeim@hotblack.deepthot.org>
+X-Complaints-To: news@deepthot.org
+User-Agent: slrn/0.9.7.4 (Linux)
+To: linuxkernel@deepthot.org
+X-SA-Exim-Mail-From: news@deepthot.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-current_is_kswapd() is a function, not an integer; this explains some
-anomalies in reported statistics.
+I realize this isn't the right place to be asking this, but people
+here are very helpful and it's the only place I could think of to ask.
 
-===== fs/inode.c 1.107 vs edited =====
---- 1.107/fs/inode.c	Sun Oct  5 01:07:55 2003
-+++ edited/fs/inode.c	Sat Oct 11 19:15:48 2003
-@@ -453,7 +453,7 @@
- 	dispose_list(&freeable);
- 	up(&iprune_sem);
- 
--	if (current_is_kswapd)
-+	if (current_is_kswapd())
- 		mod_page_state(kswapd_inodesteal, reap);
- 	else
- 		mod_page_state(pginodesteal, reap);
+I just purchased a Maxtor 120GB MXTL01P120 hard drive and when I tried
+to install it with Redhat it wrote over the partition table describing
+it as only 8GB.  I tried doing linux rescue and lilo complained that
+the physical and logical disk sizes did not match (logical was the
+correct size, physical was the 8GB).
+
+Any idea what could be causing this?
+
+Jay
+
+-- 
+* Jay Denebeim  Moderator       rec.arts.sf.tv.babylon5.moderated *
+* newsgroup submission address: b5mod@deepthot.org                *
+* moderator contact address:    b5mod-request@deepthot.org        *
+* personal contact address:     denebeim@deepthot.org             *

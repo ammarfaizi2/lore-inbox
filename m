@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263836AbRFDUt4>; Mon, 4 Jun 2001 16:49:56 -0400
+	id <S263850AbRFDUx4>; Mon, 4 Jun 2001 16:53:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263855AbRFDUtq>; Mon, 4 Jun 2001 16:49:46 -0400
-Received: from 107bus25.tampabay.rr.com ([24.94.107.25]:36734 "EHLO
-	thing2.opinicus.com") by vger.kernel.org with ESMTP
-	id <S263836AbRFDUt2>; Mon, 4 Jun 2001 16:49:28 -0400
-Date: Mon, 4 Jun 2001 17:42:03 -0400 (EDT)
-From: William Montgomery <william@opinicus.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: lowlatency 2.2.19
-In-Reply-To: <20010604145650.C19113@athlon.random>
-Message-ID: <Pine.LNX.3.96.1010604173410.5728A-100000@thing2.opinicus.com>
+	id <S263852AbRFDUxq>; Mon, 4 Jun 2001 16:53:46 -0400
+Received: from cuda.sx.nec.com ([207.253.213.164]:16903 "HELO cuda.sx.nec.com")
+	by vger.kernel.org with SMTP id <S263850AbRFDUxb>;
+	Mon, 4 Jun 2001 16:53:31 -0400
+Message-ID: <3B1BF2FA.B74A1B78@ludusdesign.com>
+Date: Mon, 04 Jun 2001 16:43:38 -0400
+From: Pierre Phaneuf <pp@ludusdesign.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: disk-based fds in select/poll
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 4 Jun 2001, Andrea Arcangeli wrote:
+Pardon me if some parts of this seem clueless. While I'm no newbie in
+userland, kernelspace I don't play in very often...
 
-> On Sun, Jun 03, 2001 at 10:38:34AM -0400, William Montgomery wrote:
-> > Anyone have any ideas?  
-> 
-> Which options did you enabled? In theory the ikd patch could only make
-> the latency worse ;), there are no performance improvements in it but
-> only runtime debugging stuff.
-> 
-I am including a snippet from my .config:
-#
-# Kernel hacking
-#
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_KMSGDUMP is not set
-CONFIG_KERNEL_DEBUGGING=y
-# CONFIG_SEMAPHORE_DEADLOCK is not set
-# CONFIG_DEBUG_KSTACK is not set
-# CONFIG_KSTACK_METER is not set
-# CONFIG_DEBUG_SOFTLOCKUP is not set
-# CONFIG_PROFILE_GCC is not set
-CONFIG_TRACE=y
-CONFIG_TRACE_SIZE=16384
-CONFIG_TRACE_TIMESTAMP=y
-# CONFIG_TRACE_TRUNCTIME is not set
-CONFIG_TRACE_PID=y
-CONFIG_TRACE_CPU=y
-CONFIG_DEBUG_MCOUNT=y
-# CONFIG_PRINT_EIP is not set
-# CONFIG_MEMLEAK is not set
-# CONFIG_KDB is not set
+It's fairly widely-known that select/poll returns immediately when
+testing a filesystem-based file descriptor for writability or
+readability.
 
--------
-I cant see anything that could make latency better either but
-I can induce 1 to 2.5msec jitter in a 2.2.19 kernel with only 
-lowlatency patch after a few minutes stress testing.  
+On top of this, even when in non-blocking mode, read() could block if
+the pages needed aren't in core. sendfile() behaves in a similar way.
 
-The kernel with both ikd and lowlatency patches tests fine
-after 24 hrs of stress testing - jitter always under 1msec.
+What would be needed to alleviate this?
 
-Wm
+I am thinking that a read() (or sendfile()) that would block because the
+pages aren't in core should instead post a request for the pages to be
+loaded (some kind of readahead mecanism?) and return immediately (maybe
+having given some data that *was* in core). A subsequent read() could
+have the data available, but not necessarily (again, it should give
+whatever it has in core, but return immediately).
 
+sendfile() would be a lot more tricky to fix in that way I guess, but
+could still be possible (the destination fd would be unwritable for a
+while, until the transfer is finished). Also, the complexity would be
+higher (instead of simply causing readahead to happen (which might
+anyway), it would have to trigger the readahead, then get notification
+of when the pages are in core to send over, all the while preventing
+data from being written to the destination fd in some way).
+
+In the mean time, I was also wondering if issuing smaller read()
+requests in a row might give me a better chance of success. I *know*
+read() will block, but if I only ask for, say, a page of data (rather
+than asking for the full data and relying on the non-blocking to return
+EAGAIN (like it should, IMHO!)), it shouldn't take too long, and could
+possibly trigger some readahead to be done by the kernel, right?
+
+Or will the readahead be done "on my own time", read() only returning
+after the whole thing (my request + readahead) has been done?
+
+I remember seeing a suggestion by Linus for an event-based I/O
+interface, similar to kqueue on FreeBSD but much simpler. I'd just say
+"I want it too!", ok? :-)
+
+I know about the mincore() trick with mmap()'d files, but with small
+files, mmap()ing might not make sense (could be very often).
+
+SGI's AIO might be a solution here, does it use threads? I'm trying to
+avoid context switching as much as possible, to keep the CPU cache as
+warm as possible.
+
+Well, I might not have the choice to use threads, after all...
+
+(sorry if this message got in twice, I used an NNTP gateway the previous
+time, I don't think it got through)
+
+-- 
+Pierre Phaneuf

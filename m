@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261920AbREMVYW>; Sun, 13 May 2001 17:24:22 -0400
+	id <S261888AbREMVUC>; Sun, 13 May 2001 17:20:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261919AbREMVYC>; Sun, 13 May 2001 17:24:02 -0400
-Received: from fe170.worldonline.dk ([212.54.64.199]:64778 "HELO
-	fe170.worldonline.dk") by vger.kernel.org with SMTP
-	id <S261918AbREMVXw>; Sun, 13 May 2001 17:23:52 -0400
-Message-ID: <3AFEFD06.9010500@eisenstein.dk>
-Date: Sun, 13 May 2001 23:30:46 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-ac8 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en, da
+	id <S261918AbREMVTx>; Sun, 13 May 2001 17:19:53 -0400
+Received: from intranet.resilience.com ([209.245.157.33]:17893 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S261888AbREMVTo>; Sun, 13 May 2001 17:19:44 -0400
+Message-ID: <3AFEFB9F.BC1053E4@resilience.com>
+Date: Sun, 13 May 2001 14:24:47 -0700
+From: Jeff Golds <jgolds@resilience.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-serial@vger.kernel.org
-CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: [PATCH] missing return value from pci_xircom_fn() in drivers/char/serial.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Kernel freezes after "freeing unused kernel memory"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi folks,
 
-Hi,
+I just installed RedHat 7.1 on a dual P3-733 system with 1 GB RAM.  The installation went fine, but, after rebooting, the system fails to come up.  The kernel loads but then eventually halts at the "freeing unused kernel memory" message.
 
-I'm using the 2.4.4-ac8 kernel and found that the pci_xircom_fn() 
-function in drivers/char/serial.c does not return a value even though it 
-is defined as returning int. I took a look at the other initializer 
-functions and they all return 0 (zero) on success, so I assumed that the 
-correct return value for the pci_xircom_fn() function would also be 0. I 
-don't know anything specific about what goes on in serial.c, so I may be 
-wrong on this, but I do know that the function should either return some 
-value or be declared as returning void, and since declaring it void 
-would mess up the way it is used I guess it should return a value.
+Does anyone have any ideas on what this means and how to resolve it?
 
-I have made a patch against 2.4.4-ac8 that makes the change, it is 
-below. I guess someone more knowledgeable than me can probably see if 
-this is correct. If this is completely bogus, then please just disregard 
-this email.
+Here's the system configuration:
 
+Dual P3-733s
+1 GB ECC PC133 SDRAM
+SuperMicro 370DL3 motherboard
+Symbios Ultra Wide SCSI (64-bit PCI card)
+Diamond Stealth II S220 PCI video (only card I could get to work in the system)
 
---- linux-2.4.4-ac8/drivers/char/serial.c.orig  Sun May 13 23:13:02 2001
-+++ linux-2.4.4-ac8/drivers/char/serial.c       Sun May 13 23:13:24 2001
-@@ -4190,6 +4190,7 @@
-  {
-         __set_current_state(TASK_UNINTERRUPTIBLE);
-         schedule_timeout(HZ/10);
-+       return(0);
-  }
+On board SCSI and NIC are disabled (this did not help).
 
-  /*
+Thanks for any feedback.
 
+-Jeff
 
-Best regards,
-Jesper Juhl - juhl@eisenstein.dk
-
+-- 
+Jeff Golds
+jgolds@resilience.com

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288973AbSAUABT>; Sun, 20 Jan 2002 19:01:19 -0500
+	id <S288974AbSAUAC6>; Sun, 20 Jan 2002 19:02:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288974AbSAUABJ>; Sun, 20 Jan 2002 19:01:09 -0500
-Received: from zero.tech9.net ([209.61.188.187]:15882 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288973AbSAUAA5>;
-	Sun, 20 Jan 2002 19:00:57 -0500
-Subject: [PATCH] O(1) scheduler: asm offset changed
-From: Robert Love <rml@tech9.net>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 20 Jan 2002 19:05:11 -0500
-Message-Id: <1011571512.17096.371.camel@phantasy>
+	id <S288976AbSAUACt>; Sun, 20 Jan 2002 19:02:49 -0500
+Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:39429 "EHLO
+	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S288974AbSAUACd> convert rfc822-to-8bit; Sun, 20 Jan 2002 19:02:33 -0500
+X-Envelope-From: martin.macok@underground.cz
+Date: Mon, 21 Jan 2002 01:02:31 +0100
+From: =?iso-8859-2?Q?Martin_Ma=E8ok?= <martin.macok@underground.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] O(1) scheduler updates, -J2
+Message-ID: <20020121010231.A15740@sarah.kolej.mff.cuni.cz>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0201181710520.10122-100000@localhost.localdomain> <20020119221928.A2042@sackman.co.uk> <20020120230102.A7373@sackman.co.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020120230102.A7373@sackman.co.uk>; from matthew@sackman.co.uk on Sun, Jan 20, 2002 at 11:01:04PM +0000
+X-Echelon: GRU NSA GCHQ CIA Pentagon nuclear conspiration war teror anthrax
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo's O(1) scheduler moved the location of the processor entry in
-task_struct (and also renamed it cpu).  The hard coded offsets in
-entry.S, however, were not updated.
+On Sun, Jan 20, 2002 at 11:01:04PM +0000, Matthew Sackman wrote:
+> > >     http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-J2.patch
+> 
+> One other thing that I've noticed, switching virtual workspaces will
+> reliably cause xmms to stutter. If you switch rapidly then it is
+> exacerbated.
 
-This patch, against 2.5.3-pre2 + J2, sets the correct offset and renames
-processor to cpu.
+And without sched O(1) it isn't ?
 
-Note that nothing actually uses these offsets :-) at the moment but code
-used to and may again.  Most importantly, preempt-kernel does!
+This doesn't have to be the scheduler problem, but a problem somewhere
+else (low latency (?)).
 
-Thanks,
+For me it doesn't skip even under heavy disk (IDE), VM and cpu load
+while while switching 1280x1024 workspaces really fast and for a long
+time
+[Athlon 850, Matrox G450, XF4.1, Window Maker]
 
-	Robert Love
+(I use it with rmap11c + mini-ll + ah-IDE ... = -jl-11-mini + 18pre3)
 
---- linux-2.5.3-pre2-ingo-J2/arch/i386/kernel/entry.S	Sun Jan 20 18:50:45 2002
-+++ linux/arch/i386/kernel/entry.S	Sun Jan 20 18:50:48 2002@@ -77,7 +77,7 @@
- exec_domain	= 16
- need_resched	= 20
- tsk_ptrace	= 24
--processor	= 52
-+cpu		= 32
- 
- ENOSYS = 38
-
+-- 
+         Martin Maèok                 http://underground.cz/
+   martin.macok@underground.cz        http://Xtrmntr.org/ORBman/

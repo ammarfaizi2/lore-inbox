@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271390AbTGQIri (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 04:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271391AbTGQIri
+	id S271345AbTGQIuY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 04:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271347AbTGQIuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 04:47:38 -0400
-Received: from mail.gmx.net ([213.165.64.20]:28826 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S271390AbTGQIri (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 04:47:38 -0400
-Message-Id: <5.2.1.1.2.20030717110221.01a8d208@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Thu, 17 Jul 2003 11:06:41 +0200
+	Thu, 17 Jul 2003 04:50:24 -0400
+Received: from us01smtp1.synopsys.com ([198.182.44.79]:63655 "EHLO
+	boden.synopsys.com") by vger.kernel.org with ESMTP id S271345AbTGQIuV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 04:50:21 -0400
+Date: Thu, 17 Jul 2003 11:05:08 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
 To: Con Kolivas <kernel@kolivas.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O6.1int
-Cc: Danek Duvall <duvall@emufarm.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200307171821.41886.kernel@kolivas.org>
-References: <20030717080436.GA16509@lorien.emufarm.org>
- <200307171213.02643.kernel@kolivas.org>
- <200307171635.25730.kernel@kolivas.org>
- <20030717080436.GA16509@lorien.emufarm.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] O6int for interactivity
+Message-ID: <20030717090508.GE13611@Synopsys.COM>
+Reply-To: alexander.riesen@synopsys.COM
+Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200307170030.25934.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307170030.25934.kernel@kolivas.org>
+Organization: Synopsys, Inc.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:21 PM 7/17/2003 +1000, Con Kolivas wrote:
->On Thu, 17 Jul 2003 18:04, Danek Duvall wrote:
-> > In 2.6.0-test1, the cc1 processes hover around 30 (early on they're
->
->That's weird, unless you nice 5 them they shouldn't get any higher than 25. A
->quick code review doesn't reveal to me why that would be the case.
+Con Kolivas, Wed, Jul 16, 2003 16:30:25 +0200:
+> O*int patches trying to improve the interactivity of the 2.5/6 scheduler for 
+> desktops. It appears possible to do this without moving to nanosecond 
+> resolution.
+> 
+> This one makes a massive difference... Please test this to death.
+> 
 
-Perhaps he has PRIO_BONUS_RATIO set to 50.
+tar ztf file.tar.gz and make something somehow do not like each other.
+Usually it is tar, which became very slow. And listings of directories
+are slow if system is under load (about 3), too (most annoying).
 
-         -Mike 
+UP P3-700, preempt. 2.6.0-test1-mm1 + O6-int.
 

@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133056AbRDUXl3>; Sat, 21 Apr 2001 19:41:29 -0400
+	id <S133061AbRDUXqI>; Sat, 21 Apr 2001 19:46:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133060AbRDUXlL>; Sat, 21 Apr 2001 19:41:11 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:51722 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S133056AbRDUXlD>;
-	Sat, 21 Apr 2001 19:41:03 -0400
-To: esr@thyrsus.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
-        Nicolas Pitre <nico@cam.org>, linux-kernel@vger.kernel.org,
-        parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-In-Reply-To: <20010420173514.A21392@thyrsus.com> <E14qjmd-0002QD-00@the-village.bc.nu> <20010420203700.E21392@thyrsus.com>
+	id <S133062AbRDUXp7>; Sat, 21 Apr 2001 19:45:59 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:24075 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S133061AbRDUXps>;
+	Sat, 21 Apr 2001 19:45:48 -0400
+To: hps@intermeta.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Request for comment -- a better attribution system
+In-Reply-To: <20010421114942.A26415@thyrsus.com> <9bsd33$peb$1@forge.intermeta.de>
 From: Jes Sorensen <jes@linuxcare.com>
-Date: 22 Apr 2001 01:39:25 +0200
-In-Reply-To: "Eric S. Raymond"'s message of "Fri, 20 Apr 2001 20:37:00 -0400"
-Message-ID: <d3n1992576.fsf@lxplus015.cern.ch>
+Date: 22 Apr 2001 01:45:40 +0200
+In-Reply-To: "Henning P. Schmiedehausen"'s message of "Sat, 21 Apr 2001 16:38:59 +0000 (UTC)"
+Message-ID: <d3itjx24wr.fsf@lxplus015.cern.ch>
 User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Eric" == Eric S Raymond <esr@thyrsus.com> writes:
+>>>>> "Henning" == Henning P Schmiedehausen <mailgate@mail.hometree.net> writes:
 
-Eric> Alan Cox <alan@lxorguk.ukuu.org.uk>:
->> Many of your 'broken' symbols arent. We have no idea what the real
->> amount is
+Henning> "Eric S. Raymond" <esr@thyrsus.com> writes:
+>> Here is an example map block for my kxref.py tool:
 
-Eric> If it can't be mechanically verified that the symbol has a
-Eric> correct reference pattern within the tree, then it's broken.
-Eric> That's a definition.
+>> # %Map # T: CONFIG_ namespace cross-reference generator/analyzer #
+>> P: Eric S. Raymond <esr@thyrsus.com> # M: esr@thyrsus.com # L:
+>> kbuild-devel@kbuild.sourceforge.net # W:
+>> http://www.tuxedo.org/~esr/cml2 # D: Sat Apr 21 11:41:52 EDT 2001 #
+>> S: Maintained
 
-It's a definition but not necessarily the best one to follow.
+>> Comments are solicited.
 
-Eric> The fact that it might become un-broken someday, by somebody's
-Eric> intention to merge in future code, is interesting but irrelevant
-Eric> to the fact that symbols broken in present time *mask bugs* in
-Eric> present time.
+Henning> Hi Eric,
 
-Symbols that are not referenced at all by the code does not hide any
-bugs. They might make it take longer time for people to configure
-their kernel but thats about it.
+Henning> please not. If you really want to redo this, please use a
+Henning> simple XML markup.  Let's not introduce another kind of
+Henning> markup if there is already a well distributed and working.
 
-This does not mean that obsolete symbols should not be removed,
-however running around telling people to remove symbols that they
-might be using in their tree does cause unnecessary work for the
-people who are writing the code.
+Henning> What's wrong with:
+
+DON'T! go there, please!
+
+A) This sucks to write and maintain, B) it sucks for people bringing
+up Linux on a minimum system or new architecture because they don't
+want to have to install 217 XML and other tools to just be able to
+configure and build a basic kernel.
 
 Jes

@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262788AbVDAQTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVDAQ2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbVDAQTG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 11:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVDAQTF
+	id S261793AbVDAQ2K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 11:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbVDAQ2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 11:19:05 -0500
-Received: from main.gmane.org ([80.91.229.2]:27614 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262788AbVDAQSh (ORCPT
+	Fri, 1 Apr 2005 11:28:09 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:45637 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261793AbVDAQ2G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 11:18:37 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Orion Poplawski <orion@cora.nwra.com>
-Subject: Re: NFS client latencies
-Date: Fri, 01 Apr 2005 09:16:35 -0700
-Message-ID: <d2js2h$v74$1@sea.gmane.org>
-References: <20050331065942.GA14952@elte.hu> <20050330231801.129b0715.akpm@osdl.org> <20050331073017.GA16577@elte.hu> <1112270304.10975.41.camel@lade.trondhjem.org> <1112272451.10975.72.camel@lade.trondhjem.org> <20050331135825.GA2214@elte.hu> <1112279522.20211.8.camel@lade.trondhjem.org> <20050331143930.GA4032@elte.hu> <20050331145015.GA4830@elte.hu> <1112322516.2509.28.camel@mindpipe> <20050401043022.GA22753@elte.hu>
+	Fri, 1 Apr 2005 11:28:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=DdFjV7O/taMndkjIPHFliZZodyra+wIwHinZtbizULfseUez7id83uUJUE9fN8RkLrhgyc/ZbBL8WMSG4kk70QS46cVm4EbafSSM3Rj+RDgYYimvOdzq4yLEq+dNp/NmEUCFWGupVm5ekI3fQakxKxFDEEr+SDucvox43niZ+kE=
+Message-ID: <d120d5000504010828152031a@mail.gmail.com>
+Date: Fri, 1 Apr 2005 11:28:05 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Benoit Boissinot <bboissin@gmail.com>
+Subject: Re: 2.6.12-rc1 swsusp broken [Was Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel]
+Cc: romano@dea.icai.upco.es, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <40f323d0050401081423650536@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: inferno.cora.nwra.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-In-Reply-To: <20050401043022.GA22753@elte.hu>
+References: <20050329110309.GA17744@pern.dea.icai.upco.es>
+	 <d120d5000503310715cbc917@mail.gmail.com>
+	 <20050331165007.GA29674@pern.dea.icai.upco.es>
+	 <200503311309.50165.dtor_core@ameritech.net>
+	 <40f323d0050401081423650536@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
->>This fixes all the NFS related latency problems I was seeing.  Now the 
->>longest latency from an NFS kernel compile with "make -j64" is 391 
->>usecs in get_swap_page.
-> 
-> 
-> great! The latest patches (-42-08 and later) have the reworked 
-> nfs_scan_list() lock-breaker, which should perform similarly.
-> 
-> i bet these NFS patches also improve generic NFS performance on fast 
-> networks. I've attached the full patchset with all fixes and 
-> improvements included - might be worth a try in -mm?
+On Apr 1, 2005 11:14 AM, Benoit Boissinot <bboissin@gmail.com> wrote:
+> On Mar 31, 2005 8:09 PM, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> > > It works, too. Which one is the best one?
+> > >
+> >
+> > Both of them are needed as they address two different problems.
+> >
+> I tried to boot with the 2 patches applied (and the patch which solves
+> noresume) and now touchpad/touchpoint no longer works (with this
+> kernel or with an older kernel).
 > 
 
-Just a question - would these changes be expected to improve NFS client 
-*read* access at all, or just write?
+Could you be more explicit - it is not recognized at all or it is
+recognized but mouse pointer does not move or something else? dmesg
+also might be interesting.
+
+Also, the 2nd "patch" was never published, could you post what exactly
+you have applied?
 
 Thanks!
 
+-- 
+Dmitry

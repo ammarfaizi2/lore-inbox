@@ -1,98 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264522AbUHBXxr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUHBXzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264522AbUHBXxr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 19:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264560AbUHBXxr
+	id S264639AbUHBXzz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 19:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUHBXzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 19:53:47 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:58520 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264522AbUHBXxn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 19:53:43 -0400
-Message-ID: <410ED3F7.7090809@us.ibm.com>
-Date: Mon, 02 Aug 2004 16:53:27 -0700
-From: Ian Romanick <idr@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
+	Mon, 2 Aug 2004 19:55:49 -0400
+Received: from hqemgate02.nvidia.com ([216.228.112.145]:53770 "EHLO
+	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
+	id S264561AbUHBXze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 19:55:34 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       "DRI developer's list" <dri-devel@lists.sourceforge.net>
-Subject: Re: DRM code reorganization
-References: <20040802155312.56128.qmail@web14923.mail.yahoo.com> <410E81C3.2070804@us.ibm.com> <20040802185746.GA12724@redhat.com> <410E9FEE.60108@us.ibm.com> <20040802204553.GC12724@redhat.com>
-In-Reply-To: <20040802204553.GC12724@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C478EC.32D07738"
+Subject: [PATCH 2.4.27-rc3] i810_audio.c and pci_ids.h
+Date: Mon, 2 Aug 2004 16:55:33 -0700
+Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B03F9614@hqemmail02.nvidia.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.4.27-rc3] i810_audio.c and pci_ids.h
+Thread-Index: AcR0C1TpQP7X89+/TRuAZWllJhA6jAE4HbFA
+From: "Andrew Chew" <achew@nvidia.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Jeff Garzik" <jgarzik@pobox.com>
+X-OriginalArrivalTime: 02 Aug 2004 23:55:34.0176 (UTC) FILETIME=[3350BA00:01C478EC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+This is a multi-part message in MIME format.
 
-> On Mon, Aug 02, 2004 at 01:11:26PM -0700, Ian Romanick wrote:
-> 
->  > > > This would be *very* non-trivial to do.  Doing the DRM like this has 
->  > > > come up probably a dozen times (or more) over the last 3 years.
->  > >Which should ring alarm bells that something might not be quite right.
->  > And that it hasn't been done all those times should be a sign of 
->  > *something*. ;)
-> 
-> heh. I'd attribute it to the fact that it's tedious monotonous work
-> doing cleanup work like this, as opposed to 'sexy' work, like hacking
-> on something new.  Personally, I've always found something more important
-> to be doing.  Maybe I can find some more time to look into it soon.
+------_=_NextPart_001_01C478EC.32D07738
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-If you're like me and most of the other developers, you've already got a 
-to-do list a mile long.  For me hitting myself on the head with a hammer 
-is pretty low. ;)
+Attached is a patch that adds support for audio controller IDs for
+MCP2S, CK8S, CK804, and MCP04.
 
->  > 1. There is a lot more variability among graphics cards that there is 
->  > among, say, network cards.  Look at the output of 'grep __HAVE_ | grep 
->  > define' on any two <card>.h files to see what I mean.  The output for 
->  > tdfx.h and radeon.h, or mga.h and savage.h is *very* different.  That, 
->  > by itself, makes a huge difference on what code is needed.
-> 
-> The __HAVE_ stuff is another pet gripe of mine.
-> In particular, the mish-mash of __HAVE_AGP , __REALLY_HAVE_AGP, __MUST_HAVE_AGP
-> flags have bugged me for a long time.
+------_=_NextPart_001_01C478EC.32D07738
+Content-Type: application/octet-stream;
+	name="i810_audio.diff"
+Content-Transfer-Encoding: base64
+Content-Description: i810_audio.diff
+Content-Disposition: attachment;
+	filename="i810_audio.diff"
 
-The problem is that __REALLY_HAVE_FOO is usually just (__HAVE_FOO && 
-CONFIG_FOO) on Linux.  They appear to be derived slightly differently on 
-NetBSD and FreeBSD.  'grep __REALLY_HAVE drm_os_*bsd.h | grep define' in 
-the bsd directory in the DRM tree.  Since there's just the three 
-(__REALLY_HAVE_AGP, __REALLY_HAVE_SG, and __REALLY_HAVE_MTRR), I think 
-we can live with them.
+ZGlmZiAtcnUgbGludXgtMi40LjI3LXJjMy9kcml2ZXJzL3NvdW5kL2k4MTBfYXVkaW8uYyBsaW51
+eC9kcml2ZXJzL3NvdW5kL2k4MTBfYXVkaW8uYwotLS0gbGludXgtMi40LjI3LXJjMy9kcml2ZXJz
+L3NvdW5kL2k4MTBfYXVkaW8uYwkyMDA0LTA4LTAyIDE2OjQ0OjQ3LjAwMDAwMDAwMCAtMDcwMAor
+KysgbGludXgvZHJpdmVycy9zb3VuZC9pODEwX2F1ZGlvLmMJMjAwNC0wOC0wMiAxMzoyOToxNC4w
+MDAwMDAwMDAgLTA3MDAKQEAgLTMwMiw4ICszMDIsMTYgQEAKIAkgUENJX0FOWV9JRCwgUENJX0FO
+WV9JRCwgMCwgMCwgTlZJRElBX05GT1JDRX0sCiAJe1BDSV9WRU5ET1JfSURfTlZJRElBLCBQQ0lf
+REVWSUNFX0lEX05WSURJQV9NQ1AyX0FVRElPLAogCSBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAw
+LCAwLCBOVklESUFfTkZPUkNFfSwKKwl7UENJX1ZFTkRPUl9JRF9OVklESUEsIFBDSV9ERVZJQ0Vf
+SURfTlZJRElBX01DUDJTX0FVRElPLAorCSBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBO
+VklESUFfTkZPUkNFfSwKIAl7UENJX1ZFTkRPUl9JRF9OVklESUEsIFBDSV9ERVZJQ0VfSURfTlZJ
+RElBX01DUDNfQVVESU8sCiAJIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIE5WSURJQV9O
+Rk9SQ0V9LAorCXtQQ0lfVkVORE9SX0lEX05WSURJQSwgUENJX0RFVklDRV9JRF9OVklESUFfQ0s4
+U19BVURJTywKKwkgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgTlZJRElBX05GT1JDRX0s
+CisJe1BDSV9WRU5ET1JfSURfTlZJRElBLCBQQ0lfREVWSUNFX0lEX05WSURJQV9DSzgwNF9BVURJ
+TywKKwkgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgTlZJRElBX05GT1JDRX0sCisJe1BD
+SV9WRU5ET1JfSURfTlZJRElBLCBQQ0lfREVWSUNFX0lEX05WSURJQV9NQ1AwNF9BVURJTywKKwkg
+UENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgTlZJRElBX05GT1JDRX0sCiAJe1BDSV9WRU5E
+T1JfSURfQU1ELCBQQ0lfREVWSUNFX0lEX0FNRF9PUFVTXzc0NDUsCiAJIFBDSV9BTllfSUQsIFBD
+SV9BTllfSUQsIDAsIDAsIEFNRDc2OH0sCiAJe1BDSV9WRU5ET1JfSURfQU1ELCBQQ0lfREVWSUNF
+X0lEX0FNRF84MTExX0FVRElPLApkaWZmIC1ydSBsaW51eC0yLjQuMjctcmMzL2luY2x1ZGUvbGlu
+dXgvcGNpX2lkcy5oIGxpbnV4L2luY2x1ZGUvbGludXgvcGNpX2lkcy5oCi0tLSBsaW51eC0yLjQu
+MjctcmMzL2luY2x1ZGUvbGludXgvcGNpX2lkcy5oCTIwMDQtMDgtMDIgMTY6NDQ6NDguMDAwMDAw
+MDAwIC0wNzAwCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaAkyMDA0LTA4LTAyIDE2
+OjQ1OjUwLjAwMDAwMDAwMCAtMDcwMApAQCAtOTgwLDEzICs5ODAsMTYgQEAKICNkZWZpbmUgUENJ
+X0RFVklDRV9JRF9OVklESUFfVVZUTlQyCQkweDAwMkQKICNkZWZpbmUgUENJX0RFVklDRV9JRF9O
+VklESUFfTkZPUkNFX01DUDA0X0lERQkweDAwMzUKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklE
+SUFfTkZPUkNFX01DUDA0X1NBVEEJMHgwMDM2CisjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElB
+X01DUDA0X0FVRElPCTB4MDAzYQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0Vf
+TUNQMDRfU0FUQTIJMHgwMDNlCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX05GT1JDRV9D
+SzgwNF9JREUJMHgwMDUzCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX05GT1JDRV9DSzgw
+NF9TQVRBCTB4MDA1NAogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0VfQ0s4MDRf
+U0FUQTIJMHgwMDU1CisjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0NLODA0X0FVRElPCTB4
+MDA1OQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0UyX0lERQkweDAwNjUKICNk
+ZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTUNQMl9BVURJTwkJMHgwMDZhCiAjZGVmaW5lIFBD
+SV9ERVZJQ0VfSURfTlZJRElBX05GT1JDRTJTX0lERQkweDAwODUKKyNkZWZpbmUgUENJX0RFVklD
+RV9JRF9OVklESUFfTUNQMlNfQVVESU8JMHgwMDhhCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJ
+RElBX05GT1JDRTJTX1NBVEEJMHgwMDhlCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0lU
+TlQyCQkweDAwQTAKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTkZPUkNFMwkJMHgwMGQx
+CkBAIC05OTUsNiArOTk4LDcgQEAKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTkZPUkNF
+M1MJCTB4MDBlMQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0UzU19TQVRBCTB4
+MDBlMwogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0UzU19JREUJMHgwMGU1Cisj
+ZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0NLOFNfQVVESU8JCTB4MDBlYQogI2RlZmluZSBQ
+Q0lfREVWSUNFX0lEX05WSURJQV9ORk9SQ0UzU19TQVRBMgkweDAwZWUKICNkZWZpbmUgUENJX0RF
+VklDRV9JRF9OVklESUFfR0VGT1JDRV9TRFIJMHgwMTAwCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURf
+TlZJRElBX0dFRk9SQ0VfRERSCTB4MDEwMQo=
 
-It shouldn't be too hard to get rid of __MUST_HAVE_AGP, though.
-
-I think this is the right place to start.  A couple of these look easier 
-to get rid of than others.  __HAVE_MTRR and __HAVE_AGP are enabled in 
-every driver except ffb.  It should be easy enough to get rid of them. 
-It looks like __HAVE_RELEASE, __HAVE_DMA_READY, __HAVE_DMA_FLUSH, 
-__HAVE_DMA_QUIESCENT, and __HAVE_MULTIPLE_DMA_QUEUES (which looks broken 
-anyway) should also be low-hanging fruit.
-
-If we get that far, I think the next step would be to replace the 
-DRIVER_* macros with a table of function pointers that would get passed 
-around.  Since I doubt any of those uses are performance critical, that 
-should be fine.
-
-Then we can start looking at data structure refactoring.
-
->  > >If this kind of abuse wasn't so widespread, abstracting this code
->  > >out into shared sections and driver specific parts would be a lot
->  > >simpler. Sadly, this is the tip of the iceberg.
->  > 
->  > I think it comes down to the fact that the original DRM developers 
->  > wanted templates.  C doesn't have them, so they did the "next best" thing.
-> 
-> I vaguelly recall the code at one point not looking quite 'so bad',
-> it just grew and grew into this monster.  I'm sure it was done originally
-> with the best of intentions, but it seems someone along the line got
-> a bit carried away.
-
-There was a point when a *lot* of the device-dependent code was still in 
-the OS-dependent directories.  This is how the i810 and i830 drivers 
-still are.  I think as more of the code got moved into the 
-OS-independent directory, it got less pleasant to read.
-
-
+------_=_NextPart_001_01C478EC.32D07738--

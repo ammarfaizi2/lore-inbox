@@ -1,72 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272345AbRIUIs1>; Fri, 21 Sep 2001 04:48:27 -0400
+	id <S272404AbRIUIvH>; Fri, 21 Sep 2001 04:51:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272404AbRIUIsR>; Fri, 21 Sep 2001 04:48:17 -0400
-Received: from gw.framfab.dk ([194.239.251.2]:2591 "HELO [194.239.251.2]")
-	by vger.kernel.org with SMTP id <S272345AbRIUIsI>;
-	Fri, 21 Sep 2001 04:48:08 -0400
-Message-ID: <3BAAFECC.9060701@fugmann.dhs.org>
-Date: Fri, 21 Sep 2001 10:48:12 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S272451AbRIUIu5>; Fri, 21 Sep 2001 04:50:57 -0400
+Received: from ip122-15.asiaonline.net ([202.85.122.15]:53633 "EHLO
+	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
+	id <S272404AbRIUIuj>; Fri, 21 Sep 2001 04:50:39 -0400
+Message-ID: <3BAAFF64.971B6D28@rcn.com.hk>
+Date: Fri, 21 Sep 2001 16:50:44 +0800
+From: David Chow <davidchow@rcn.com.hk>
+Organization: Resources Computer Network Ltd.
+X-Mailer: Mozilla 4.76 [zh_TW] (X11; U; Linux 2.4.4-1DC i686)
+X-Accept-Language: zh_TW, en
 MIME-Version: 1.0
-To: Samuel T Ting <sting@u.washington.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Preemptive kernel and vm management in 2.4.9
-In-Reply-To: <Pine.A41.4.33.0109201717570.102458-100000@dante09.u.washington.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Adrian Cox <adrian@humboldt.co.uk>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Thomas Sailer <sailer@scs.ch>, linux-kernel@vger.kernel.org
+Subject: Re: via82cxxx_audio locking problems
+In-Reply-To: <Pine.LNX.3.96.1010920112905.26319I-100000@mandrakesoft.mandrakesoft.com> <3BAAF129.1090104@humboldt.co.uk> <3BAAFC04.1F7B9C7C@rcn.com.hk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The preemption patch helps on problems with high letencies.
-
-High latencies means that the kernel is busy doing something, so that 
-other threads will get starved. This problem is especially seen when 
-using multimedia.
-
-The most discussed problem is listening to a MP3-file, while the machine 
-has a high load. What we want to avoid is skips in the music.
-
-Tee preemption patch helps, because it allows preemption of processes 
-running in kernel space, meaning that the sheduler can choose another 
-process, even though the process running is in kernel-space.
-(A very crude description, I know, but AFAIK is is the general idea)
-
-Without the preemption patch, whenever a userprocess makes a call to the 
-kernel, it could not be resheduled before the call had returned. This 
-results in very high latencies for some kernel calls.
-
-Hope it helps, othervice please refere to documentation and recent 
-lkml-threads.
-
-Anders Fugmann
-
-
-
-Samuel T Ting wrote:
-
-> Hello all,
+David Chow ¼g¹D¡G
 > 
-> Lately, I have been hearing a lot about preemptive kernels on the list.
-> I have just started looking into kernel internals, so could somebody
-> explain what kernel preemption is?
+> Adrian Cox ¼g¹D¡G
+> >
+> > Jeff Garzik wrote:
+> >
+> > > On Thu, 20 Sep 2001, Thomas Sailer wrote:
+> > >>   Dropping and reacquiring syscall_sem around interruptible_sleep_on
+> > >>   in via_dsp_do_read, via_dsp_do_write and via_dsp_drain_playback
+> > >>   should solve the problem. Does anyone see a problem with this?
+> >
+> > > Is there a possibility of do_read being re-entered during that window?
+> > > I agree its a problem but the solution sounds racy?
+> >
+> > What's probably needed is one semaphore to lock read/write and ioctls
+> > that look at the playback engine, and another semaphore to lock accesses
+> > to the AC97 codec. That may be simpler to implement than dropping and
+> > releasing the syscall_sem.
+> >
+> > --
+> > Adrian Cox   http://www.humboldt.co.uk/
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> Also, how does virtual memory management in 2.4.9 work?
+> I receive the same problem when probing the via sound module. Since I am
+> in a motherboard design project which I also uses the AC97 interface
+> from VIA. The sample board from VIA didn't have any problem, but have 3
+> motherboard from 3rd party, each of them uses the VIA694X + VIA686A,
+> only one of them have no problem using the sound module, I think it is a
+> hardware problem or the module itself didn't handle some cases. It seems
+> it should be the same for hardware design, since different codec may
+> have different effect on the module. All boards are tested with
+> Windows98 and Linux and then all works fine runnign Windows. The sample
+> board from VIA is a VIA694T + VIA686B which all of them are pin-2-pin
+> compatible with the old 694X+686A. I am sure the problem is from the
+> driver, but it is hardware dependent??? My board design just use exactly
+> the same chips of the VIA sample board, then we will be save using the
+> via_82cxxx module properly. I will try to find out which codec is the
+> trouble boards using. The one I'm surely stable without locking is using
+> the VIA codec VT1611A . Does you guys require more information about the
+> codec specs? I can get them from VIA if you want. Thanks.
 > 
-> Thanks!
+> regards,
 > 
-> Samuel Ting
-> 
+> David
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
 
-
-
+Just find out the board that cause lock up both uses a Yamaha codec.

@@ -1,46 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136480AbREIOP2>; Wed, 9 May 2001 10:15:28 -0400
+	id <S136482AbREIORI>; Wed, 9 May 2001 10:17:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136482AbREIOPS>; Wed, 9 May 2001 10:15:18 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:268 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S136480AbREIOPD>;
-	Wed, 9 May 2001 10:15:03 -0400
-Date: Wed, 9 May 2001 16:14:52 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: blkdev in pagecache
-Message-ID: <20010509161452.A521@suse.de>
-In-Reply-To: <20010509043456.A2506@athlon.random> <3AF90A3D.7DD7A605@evision-ventures.com> <20010509151612.D2506@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010509151612.D2506@athlon.random>; from andrea@suse.de on Wed, May 09, 2001 at 03:16:12PM +0200
+	id <S136484AbREIOQ7>; Wed, 9 May 2001 10:16:59 -0400
+Received: from zcamail04.zca.compaq.com ([161.114.32.104]:32786 "HELO
+	zcamail04.zca.compaq.com") by vger.kernel.org with SMTP
+	id <S136482AbREIOQr>; Wed, 9 May 2001 10:16:47 -0400
+Message-ID: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CDE0@aeoexc1.aeo.cpqcorp.net>
+From: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
+To: "'andrea@suse.de'" <andrea@suse.de>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: [BUG] memory mngt > 2 Gbytes and DMA for the Alpha? pci_iommu.c
+Date: Wed, 9 May 2001 16:12:41 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 09 2001, Andrea Arcangeli wrote:
-> On Wed, May 09, 2001 at 11:13:33AM +0200, Martin Dalecki wrote:
-> > >   (buffered and direct) to work with a 4096 bytes granularity instead of
-> > 
-> > You mean PAGE_SIZE :-).
-> 
-> In my first patch it is really 4096 bytes, but yes I agree we should
-> change that to PAGE_CACHE_SIZE. The _only_ reason it's 4096 fixed bytes is that
-> I wasn't sure all the device drivers out there can digest a bh->b_size of
-> 8k/32k/64k (for the non x86 archs) and I checked the minimal PAGE_SIZE
-> supported by linux is 4k. If Jens says I can sumbit 64k b_size without
-> any problem for all the relevant blkdevices then I will change that in a
-> jiffy ;). Anyways changing that is truly easy, just define
+Hi lkml,
 
-On IDE it should at least be possible, it can handle single segment
-entries as big as 64kB for DMA. But apart from that, I think it's a lot
-better to stay with PAGE_CACHE_SIZE and not get into dark country :-)
+There is likely a bug in the management of memory above two Gigabytes and
+DMA in kernel 2.4.4
+(up to ac-6) with the alpha. :-(
 
--- 
-Jens Axboe
+My hardware is: an Alphaserver ES40 with 4 Cpus and 8 Gigabytes of RAM,
+myrinet 2k board, SCSI,
+3Com905b ethernet, DE600 ethernet and Qlogic Fiber Channel board.
 
+The Fiber Chanel, the myrinet board and any of the two Ethernet boards all
+have troubles working with 
+such a big RAM.
+
+They all produce pci_map_sg_failed errors on the logs before totally
+crashing the system under load.
+(That is not totally right, sometime I don't get anything into the
+logs.....)
+
+When I say under load I mean telnet is working with ethernet but massive ftp
+is freezing the box.
+For the Fiber Channel storage, everything is fine with little files, but
+massive dd lead to freezing the box.
+
+
+BUT
+
+When I boot the system with mem=2048M, everything is back... network,
+storage...
+
+and at last, memory crunching C code (allocation,read and write to larger
+and larger buffers) 
+works fine with the whole RAM.
+
+
+
+My understanding is that when the PCI boards want to switch to high
+throughtput they go for DMA
+and DMA is not working correctly with memory above 2 GBytes. 
+
+The Error message comes from arch/alpha/pci_iommu.c. 
+
+Do you think that makes sense ? What else could I do to help finding the bug
+?
+
+Thks for any help
+
+----------------------------------------------------------------------------
+--
+Sebastien CABANIOLS
+COMPAQ France 
+HPTC Engineer
+CustomSystems & Solutions  Annecy  
+High Performance Technical Computing 
+Office No.  +33 (0)4 50 09 44 10
+Fax No.  +33 (0)4 50 64 01 39 
+Email.   sebastien.cabaniols@compaq.com 
+----------------------------------------------------------------------------
+--
+
+  

@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289310AbSAIJjv>; Wed, 9 Jan 2002 04:39:51 -0500
+	id <S289302AbSAIJnB>; Wed, 9 Jan 2002 04:43:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289305AbSAIJjc>; Wed, 9 Jan 2002 04:39:32 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:27145 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S288384AbSAIJja>; Wed, 9 Jan 2002 04:39:30 -0500
-Message-ID: <3C3C0D34.40402@evision-ventures.com>
-Date: Wed, 09 Jan 2002 10:28:20 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Douglas Gilbert <dougg@torque.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.2-pre9 scsi cleanup
-In-Reply-To: <3C3BCEB9.B14D20FD@torque.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S288569AbSAIJmz>; Wed, 9 Jan 2002 04:42:55 -0500
+Received: from adsl-62-128-214-206.iomart.com ([62.128.214.206]:58360 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S289302AbSAIJlg>; Wed, 9 Jan 2002 04:41:36 -0500
+Date: Wed, 9 Jan 2002 09:37:52 +0000
+From: Andy Jeffries <lkml@andyjeffries.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Difficulties in interoperating with Windows
+Message-Id: <20020109093752.31ae1e79.lkml@andyjeffries.co.uk>
+Organization: Scramdisk Linux
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas Gilbert wrote:
 
->Martin Dalecki <dalecki@evision-ventures.com>
->
->>The attached patch does the following.
->>
->>1. Clean up some ifdef confusion in do_mount
->>
->>2. Clean up the scsi code to make ppa.c work.
->>
->>3. Clean up some unneccessary unneeded globals from scsi code.
->>
->>4. Make a bit more sure, that the minor() and friends end up in
->>unsigned int's.
->>
->
-><snip/>
->
->Martin,
->Please don't post a omnibus SCSI subsystem patch like this.
->
->Most of the code you are changing is actively maintained.
->For example:
->  - scsi mid-level + sr [Jens Axboe]
->  - ppa [Tim Waugh]
->  - sg  [me]
->
->Some of us have grown attached to the way 'cat /proc/scsi/scsi'
->
-There where just two drivers for obsolete hardware which actually used this.
+IANAL, but I wondered why there is such difficulty with making Linux work
+completely with Windows systems?  I guess part of it may be that Windows
+is closed source but as reverse engineering for interoperability is legal
+in the UK (regardless of what the End User License states), is the problem
+that it is difficult to read the Assembly easily?
+
+Is there not a project on Linux to convert assembly back to C?   Would
+this be exceptionally hard?
+
+Just wondered why Linux has struggled for a while to interoperate with
+Windows completely...
+
+Cheers,
 
 
+-- 
+Andy Jeffries                   | Scramdisk Linux Project
+http://www.scramdisklinux.org   | Lead developer
 
-
+"testing? What's that? If it compiles, it is good, if it boots up 
+ it is perfect."
+  --- Linus Torvalds

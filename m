@@ -1,52 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263631AbTFYDKl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 23:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263705AbTFYDKl
+	id S263705AbTFYDN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 23:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbTFYDN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 23:10:41 -0400
-Received: from dp.samba.org ([66.70.73.150]:16581 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263631AbTFYDKk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 23:10:40 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: torvalds@transmeta.com, akpm@zip.com.au, davem@redhat.com,
-       linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [PATCH 3/3] Allow arbitrary number of init funcs in modules 
-In-reply-to: Your message of "Tue, 24 Jun 2003 19:01:25 +0200."
-             <Pine.LNX.4.44.0306241851550.11817-100000@serv> 
-Date: Wed, 25 Jun 2003 13:10:53 +1000
-Message-Id: <20030625032450.406202C086@lists.samba.org>
+	Tue, 24 Jun 2003 23:13:58 -0400
+Received: from h80ad268f.async.vt.edu ([128.173.38.143]:26240 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263705AbTFYDN4 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 23:13:56 -0400
+Message-Id: <200306250327.h5P3RwH8001577@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "ismail (cartman) donmez" <kde@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Weird modem behaviour in 2.5.73-mm1 
+In-Reply-To: Your message of "Tue, 24 Jun 2003 21:02:49 +0300."
+             <200306242102.49356.kde@myrealbox.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200306242102.49356.kde@myrealbox.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1055858223P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 24 Jun 2003 23:27:57 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0306241851550.11817-100000@serv> you write:
-> Hi,
-> 
-> On Mon, 23 Jun 2003, Rusty Russell wrote:
-> 
-> > D: One longstanding complaint is that modules can only have one
-> > D: module_init, and one module_exit (builtin code can have multiple
-> > D: __initcall however).  This means, for example, that it is not
-> > D: possible to write a "module_proc_entry(name, readfn)" function
-> > D: which can be used like so:
-> > D: 
-> > D:   module_init(myinitfn);
-> > D:   module_cleanup(myinitfn);
-> > D:   module_proc_entry("some/path/foo", read_foo);
-> 
-> What happens if a module is compiled into the kernel and one of the init 
-> functions fails?
+--==_Exmh_1055858223P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <1564.1056511669.1@turing-police.cc.vt.edu>
 
-We ignore the failure, as we do with initcalls at the moment.  I
-wasn't really intending to deprecate the existing mechanisms: this is
-simple at least 8)
+On Tue, 24 Jun 2003 21:02:49 +0300, "ismail (cartman) donmez" <kde@myrealbox.com>  said:
+> Hi All,
+> 
+> First I did not tried 2.5.73 vanilla so this can be a bug in 2.5.73 itself . 
+> When I use my 56k modem to connect to internet it always hang up 5-6 minutes 
+> ( sometimes like 1-2 minutes ) later. I checked with 2.5.72-mm1 and I got not
+ 
+> hang-up whatsoever. I checked system logs and it just says :
+> 
+> [pppd] Modem Hang Up
 
-Hmm, were you thinking of grouping by KBUILD_BASENAME?  Can you think
-of a case where that would be nicer to use?
+2.5.72-mm3 is fine for modem usage for me.
 
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+2.5.73-mm1 threw this all 3 times I tried starting PPPD:
+
+Jun 24 22:37:48 turing-police pppd[1144]: Using interface ppp0
+Jun 24 22:37:48 turing-police pppd[1144]: Connect: ppp0 <--> /dev/ttyS14
+Jun 24 22:37:49 turing-police pppd[1144]: sent [LCP ConfReq id=0x1 <asyncmap 0x0> <magic 0x9ed88e38> <pcomp> <accomp>]
+Jun 24 22:37:49 turing-police pppd[1144]: Modem hangup
+Jun 24 22:37:49 turing-police pppd[1144]: Connection terminated.
+
+i.e. it died a quick and horrid death.  I've not checked a plain 2.5.73 yet,
+but I suspect this is the most likely culprit:
+
+#	           ChangeSet	1.1348.1.42 -> 1.1348.1.43
+#	 drivers/net/pppoe.c	1.31    -> 1.32   
+#	drivers/net/ppp_generic.c	1.33    -> 1.34   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/06/23	shemminger@osdl.org	1.1348.1.43
+# [NET]: Convert PPPoE to new style protocol.
+# --------------------------------------------
+
+(if only because it's the only changeset that hits ppp_generic.c between
+the known good and known bad versions).  If a clean 2.5.73 works, then
+reverting this cset is probably the best place to start looking...
+
+
+--==_Exmh_1055858223P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE++Ra9cC3lWbTT17ARApVGAJ4+NSJuG5nEMJf9g436U8NGaa2TcQCghUOY
+yO3N71e7t1as2quT4mSzYcg=
+=2vmp
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1055858223P--

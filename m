@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318286AbSHZTaP>; Mon, 26 Aug 2002 15:30:15 -0400
+	id <S318300AbSHZTiL>; Mon, 26 Aug 2002 15:38:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318287AbSHZTaP>; Mon, 26 Aug 2002 15:30:15 -0400
-Received: from stargazer.compendium-tech.com ([64.156.208.76]:18692 "EHLO
-	stargazer.compendium.us") by vger.kernel.org with ESMTP
-	id <S318286AbSHZTaN>; Mon, 26 Aug 2002 15:30:13 -0400
-Date: Mon, 26 Aug 2002 12:31:31 -0700 (PDT)
-From: Kelsey Hudson <khudson@compendium.us>
-X-X-Sender: khudson@betelgeuse.compendium-tech.com
-To: "T. Ryan Halwachs" <halwachs@cats.ucsc.edu>
-cc: kernel mailing list <linux-kernel@vger.kernel.org>,
-       ataraid mailing list <ataraid-list@redhat.com>
-Subject: Re: 3 x PDC20267 (ultra100) + software raid5 => kernel panic:
- Attempted to kill init!
-In-Reply-To: <1030227978.2290.231.camel@p500m700>
-Message-ID: <Pine.LNX.4.44.0208261224220.6621-100000@betelgeuse.compendium-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318302AbSHZTiL>; Mon, 26 Aug 2002 15:38:11 -0400
+Received: from jabberwock.ucw.cz ([212.71.128.53]:12807 "HELO
+	jabberwock.ucw.cz") by vger.kernel.org with SMTP id <S318300AbSHZTiK>;
+	Mon, 26 Aug 2002 15:38:10 -0400
+Date: Mon, 26 Aug 2002 21:42:26 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Pavel Machek <pavel@elf.ucw.cz>, Andrea Arcangeli <andrea@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Mikael Pettersson <mikpe@csd.uu.se>, john stultz <johnstul@us.ibm.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Leah Cunningham <leahc@us.ibm.com>,
+       wilhelm.nuesser@sap.com, paramjit@us.ibm.com, msw@redhat.com
+Subject: Re: [PATCH] tsc-disable_B9
+Message-ID: <20020826214226.L24056@ucw.cz>
+References: <159220000.1030387536@flay> <Pine.LNX.3.95.1020826151445.6296A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1020826151445.6296A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Aug 26, 2002 at 03:18:55PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Aug 2002, T. Ryan Halwachs wrote:
-
-> Hi all,
-> hoping you can help me diagnose and correct some problems I am having
-> with 3 promise ultra100 cards I am trying to use with 6 WD1200 drives to
-> create an ide raid5 array.
+Hi!
+> > >> And following your argument that these apps have been silenty broken
+> > >> since 1999, if there's no broken app out there, nobody will ever get the
+> > >> instruction fault. If there's any app broken out there we probably like
+> > > 
+> > > No. rdtsc is still usefull if you are clever and statistically filter
+> > > out. Also rdtsc provides you number of cycles, so if you want to know
+> > > how many cycles mov %eax,%ebx takes, you can do that even on
+> > > speedstep. Anything that correlates rdtsc to real time is broken, however.
+> > 
+> > It's not correlating it to real time that's the problem. It's getting resceduled
+> > inbetween calls that hurts. Take your example.
+> > 
+> > rdtsc
+> > mov %eax,%ebx
+> > 			<- get rescheduled here
+> > rdtsc
+> > 
+> > Broken. May even take negative "time".
+> > 
+> > M.
 > 
-> I posted this to the ataraid list originally.
-> https://listman.redhat.com/pipermail/ataraid-list/2002-August/001029.html
-> 
-> since then, using 2.4.19-ac4 I was able to successfully build a raid5
-> array on 5 disks attached to 3 Promise ultra100 pci add-in cards
-> (described in the original thread). I put some files on the array and
-> they passed md5check. 
-> I couldn't unmount the array. 
-> I couldn't raidstop it.  
-> When I restarted the machine, it intermittently would not talk to the
-> drive on the third card. 
+> The CPU counters are synchronized on SMP machines. How can you
+> ever get negative time? Even GHz machines take several months
+> to wrap the count.
 
-I tried basically the same setup here. It works, but on an older machine 
-(read: not acpi controlled). Newer mainboards are fully ACPI controlled, 
-and therefore use ACPI to configure and detect devices like hard disks, 
-hard disk controllers, etc. For some reason, on some boards, devices on 
-the fourth logical controller (onboard plus three devices) will not be 
-seen. I've found no solution to this problem. All I can do is curse 
-manufacturers for implementing ACPI.
-
-This is the only thing I can come up with. 
-
-My next step is to avoid software raid completely and drop some money on a 
-3Ware hardware solution. It's more flexible anyways (and guaranteed to 
-work). I'm not exactly happy with the Linux software raid (or really, any 
-software raid at all). 
-
- Kelsey Hudson                                       khudson@compendium.us
- Software Engineer/UNIX Systems Administrator
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
-
+This thread was about numa machines that do not keep tsc synchronized.

@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263182AbTE0KCi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 06:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTE0KCg
+	id S263183AbTE0KFz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 06:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTE0KFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 06:02:36 -0400
-Received: from platane.lps.ens.fr ([129.199.121.28]:31370 "EHLO
-	platane.lps.ens.fr") by vger.kernel.org with ESMTP id S263182AbTE0KCd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 06:02:33 -0400
-Date: Tue, 27 May 2003 12:15:43 +0200
-From: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
-To: torvalds@transmeta.com,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.70
-Message-ID: <20030527101543.GA4351@lps.ens.fr>
-References: <200305271012.h4RACbE04869@quatramaran.ens.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200305271012.h4RACbE04869@quatramaran.ens.fr>
-User-Agent: Mutt/1.3.25i
+	Tue, 27 May 2003 06:05:55 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:33729 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S263183AbTE0KFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 06:05:54 -0400
+To: Andrew Morton <akpm@digeo.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][v850]  Define flush_page_to_ram on v850/nb85e
+References: <20030527092133.2B7A0375B@mcspd15.ucom.lsi.nec.co.jp>
+	<20030527031514.34be520d.akpm@digeo.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 27 May 2003 19:18:42 +0900
+In-Reply-To: <20030527031514.34be520d.akpm@digeo.com>
+Message-ID: <buou1bgd75p.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  there's been too much delay between 69 and 70, but I was hoping to make 
-> 70 the last "Linus only" release before getting together with Andrew and 
-> figuring out how to start the "pre-2.6" series and more of a code slush. 
-Hello;
+Andrew Morton <akpm@digeo.com> writes:
+> flush_page_to_ram() has been removed from the kernel, so we no longer
+> need this patch.
 
-I need this to compile:
+Yeah, I noticed that, 30 seconds _after_ the patches got sent, of
+course ... :-/
 
-Regards,
-
+-Miles
 -- 
-	Éric Brunet
-
-
---- linux-2.5.70/drivers/video/i810/i810.h.orig	2003-05-27 12:02:51.334162312 +0200
-+++ linux-2.5.70/drivers/video/i810/i810.h	2003-05-27 12:10:33.283935272 +0200
-@@ -203,8 +203,8 @@
- #define LOCKUP                      8
- 
- struct gtt_data {
--	agp_memory *i810_fb_memory;
--	agp_memory *i810_cursor_memory;
-+	struct agp_memory *i810_fb_memory;
-+	struct agp_memory *i810_cursor_memory;
- };
- 
- struct mode_registers {
+We live, as we dream -- alone....

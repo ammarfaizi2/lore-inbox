@@ -1,74 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277263AbRJIXlF>; Tue, 9 Oct 2001 19:41:05 -0400
+	id <S278062AbRJIXmf>; Tue, 9 Oct 2001 19:42:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278062AbRJIXkw>; Tue, 9 Oct 2001 19:40:52 -0400
-Received: from sushi.toad.net ([162.33.130.105]:50337 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S277263AbRJIXks>;
-	Tue, 9 Oct 2001 19:40:48 -0400
-Subject: Re: Linux 2.4.10-ac10
-From: Thomas Hood <jdthood@mail.com>
+	id <S278063AbRJIXmZ>; Tue, 9 Oct 2001 19:42:25 -0400
+Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:3082 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S278062AbRJIXmJ>;
+	Tue, 9 Oct 2001 19:42:09 -0400
+Message-ID: <3BC38BA4.1010005@si.rr.com>
+Date: Tue, 09 Oct 2001 19:43:32 -0400
+From: Frank Davis <fdavis@si.rr.com>
+Reply-To: fdavis@si.rr.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: bunk@fs.tum.de
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 09 Oct 2001 19:40:50 -0400
-Message-Id: <1002670852.763.24.camel@thanatos>
-Mime-Version: 1.0
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, alan <alan@redhat.com>
+Subject: [PATCH] 2.4.10-ac10: drivers/char MODULE_LICENSE patches
+Content-Type: multipart/mixed;
+ boundary="------------030806060901030207030407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, I've figured out issue #1.  There's an error in the
-parport_pc.c code such that it prints the irq number as the
-dma number ( ... thus DMA 7 instead of DMA 3).
+This is a multi-part message in MIME format.
+--------------030806060901030207030407
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I append a patch that fixes this.  I'll submit it again with
-a [PATCH] subject heading.
+Hello,
+   I've attached MODULE_LICENSE patches for drivers/char files . Please 
+review.
+Regards,
+Frank
 
-We still need to figure out #2: what is taking up ioport 0x530?
+--------------030806060901030207030407
+Content-Type: text/plain;
+ name="I810_RNG"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="I810_RNG"
 
---
-Thomas
-
-
-> Well, the two notable difference in the syslog are:
-> 1) Parport now reports that it is going to use DMA 7
->    instead of DMA 3;
-> 2) On the second boot ioport 0x530 is reported not to be free
->    and this prevents ad1816 from loading
->
-> Two questions:
-> 1) Is the parport actually configured to use DMA7, not DMA3? 
->    Please check using "lspnp -v 0d" and also by any other
->    methods you have access to
-> 2) What is using 0x530?  What's in /proc/ioports?
-
-The patch:
---- linux-2.4.10-ac10/drivers/parport/parport_pc.c	Mon Oct  8 22:41:14 2001
-+++ linux-2.4.10-ac10-fix/drivers/parport/parport_pc.c	Tue Oct  9 19:36:58 2001
-@@ -2826,7 +2826,7 @@
- 	if ( UNSET(dev->irq_resource[0]) ) {
- 		irq = PARPORT_IRQ_NONE;
- 	} else {
--		if ( dev->irq_resource[0].start == -1 ) {
-+		if ( dev->irq_resource[0].start == (unsigned long)-1 ) {
- 			irq = PARPORT_IRQ_NONE;
- 			printk(", irq disabled");
- 		} else {
-@@ -2838,12 +2838,12 @@
- 	if ( UNSET(dev->dma_resource[0]) ) {
- 		dma = PARPORT_DMA_NONE;
- 	} else {
--		if ( dev->dma_resource[0].start == -1 ) {
-+		if ( dev->dma_resource[0].start == (unsigned long)-1 ) {
- 			dma = PARPORT_DMA_NONE;
- 			printk(", dma disabled");
- 		} else {
- 			dma = dev->dma_resource[0].start;
--			printk(", dma %d",irq);
-+			printk(", dma %d",dma);
- 		}
- 	}
+--- drivers/char/i810_rng.c.old	Thu Apr 12 15:15:25 2001
++++ drivers/char/i810_rng.c	Tue Oct  9 18:53:40 2001
+@@ -342,6 +342,7 @@
  
+ MODULE_AUTHOR("Jeff Garzik, Philipp Rumpf, Matt Sottek");
+ MODULE_DESCRIPTION("Intel i8xx chipset Random Number Generator (RNG) driver");
++MODULE_LICENSE("GPL");
+ 
+ 
+ /*
+
+--------------030806060901030207030407
+Content-Type: text/plain;
+ name="IB700WDT"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="IB700WDT"
+
+--- drivers/char/ib700wdt.c.old	Mon Oct  8 18:23:58 2001
++++ drivers/char/ib700wdt.c	Tue Oct  9 18:55:47 2001
+@@ -267,5 +267,6 @@
+ 
+ MODULE_AUTHOR("Charles Howes <chowes@vsol.net>");
+ MODULE_DESCRIPTION("IB700 SBC watchdog driver");
++MODULE_LICENSE("GPL");
+ 
+ /* end of ib700wdt.c */
+
+--------------030806060901030207030407
+Content-Type: text/plain;
+ name="SH-SCI"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="SH-SCI"
+
+--- drivers/char/sh-sci.c.old	Sun Sep 30 20:38:37 2001
++++ drivers/char/sh-sci.c	Tue Oct  9 19:08:42 2001
+@@ -90,6 +90,7 @@
+ 
+ #ifdef MODULE
+ MODULE_PARM(sci_debug, "i");
++MODULE_LICENSE("GPL");
+ #endif
+ 
+ #define dprintk(x...) do { if (sci_debug) printk(x); } while(0)
+
+--------------030806060901030207030407--
 

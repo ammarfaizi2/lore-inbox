@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264606AbTFUOBT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 10:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264730AbTFUOBT
+	id S264252AbTFUOFE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 10:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbTFUOFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 10:01:19 -0400
-Received: from heat.prim.hu ([195.228.75.76]:49577 "EHLO heat.prim.hu")
-	by vger.kernel.org with ESMTP id S264606AbTFUOBQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 10:01:16 -0400
-From: =?iso-8859-2?Q?Fekete_Kriszti=E1n?= <chriss@webmail.hu>
-To: linux-kernel@vger.kernel.org
-Reply-To: =?iso-8859-2?Q?Fekete_Kriszti=E1n?= <chriss@webmail.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: PrimPosta
-Subject: PROBLEM: rootfs problem on cd-rom
-Message-Id: <E19Tj9B-0002q9-00@armada.prim.hu>
-Date: Sat, 21 Jun 2003 16:15:17 +0200
+	Sat, 21 Jun 2003 10:05:04 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:51911
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264252AbTFUOE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 10:04:59 -0400
+Subject: Re: ACPI (20030522) breaks 3c59x in 2.4/2.5
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Yaroslav Rastrigin <yarick@relex.ru>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306152124.51449.yarick@relex.ru>
+References: <200306152124.51449.yarick@relex.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1056205002.25974.40.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Jun 2003 15:16:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have tried to create a standard live cd to scan for viruses with a 
-popular linux antivirus software. At first I have tried with the 
-2.4.18-bf2.4 precomplied kernel, and it was fine. I have tried with 
-2.4.20-bf2.4, but it was wrong. I have downloaded the 2.4.18,2.4.20 
-and 
-2.4.21 kernel sources, and tried to complile it to boot the kernel and 
-the 
-rootfs from cdrom. The 2.4.18 kernel, with the standard config was 
-fine, 
-it was booted. The 2.4.20 and 2.4.21 kernel with the same config has 
-fail.
+On Sul, 2003-06-15 at 18:24, Yaroslav Rastrigin wrote:
+> Hi everybody.
+> I've finally decided to try ACPI on my IBM ThinkPad T21 .
+> Mostly, it works nice and fine (although I'm still wondering what S1 sleep 
+> state _supposed_ to do, now it's acting weird), but one thing is a real 
+> showstoppper for me - 
 
-The 2.4.20, and 2.4.21 said: Kernel Panic, VFS: Unable to find root fs 
-on 
-"hdb".
+Should work in 2.4-ac trees
 
-Thx.: 
-
-Krisztian Fekete

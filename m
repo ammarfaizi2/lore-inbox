@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261782AbSJIOK5>; Wed, 9 Oct 2002 10:10:57 -0400
+	id <S261743AbSJIOIA>; Wed, 9 Oct 2002 10:08:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261783AbSJIOK5>; Wed, 9 Oct 2002 10:10:57 -0400
-Received: from mx13.sac.fedex.com ([199.81.197.53]:32783 "EHLO
-	mx13.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S261782AbSJIOKg>; Wed, 9 Oct 2002 10:10:36 -0400
-Date: Wed, 9 Oct 2002 22:15:14 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: jchua@silk.corp.fedex.com
-To: Hans Reiser <reiser@namesys.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK] ReiserFS v3 changesets resend
-In-Reply-To: <3DA41105.3020300@namesys.com>
-Message-ID: <Pine.LNX.4.42.0210092212570.614-100000@silk.corp.fedex.com>
+	id <S261747AbSJIOH7>; Wed, 9 Oct 2002 10:07:59 -0400
+Received: from mta03bw.bigpond.com ([139.134.6.86]:505 "EHLO
+	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261743AbSJIOHy>; Wed, 9 Oct 2002 10:07:54 -0400
+Message-ID: <3DA439B2.3000801@bigpond.com>
+Date: Thu, 10 Oct 2002 00:14:10 +1000
+From: Brendan J Simon <brendan.simon@bigpond.com>
+Reply-To: brendan.simon@bigpond.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/09/2002
- 10:16:11 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/09/2002
- 10:16:13 PM,
-	Serialize complete at 10/09/2002 10:16:13 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Re: linux kernel conf 0.8
+References: <Pine.LNX.4.44.0210091546070.8911-100000@serv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hans,
 
-Please post your patches to lkml in one big file so that we can apply the
-patch. Don't know how to access
-bk://thebsh.namesys.com/bk/reiser3-linux-2.5
+Roman Zippel wrote:
 
-Thanks,
-Jeff.
+>>Well, my basic preference is
+>>
+>>* something other than Config.new (the original name in your config system)
+>>* something other than Config.in
+>>
+>>I think it is a mistake to name a totally different format the same name
+>>as an older format...  even "config.in" would be better than "Config.in"...
+>>    
+>>
+>
+>My first plan was to use Config.in, but I can't overwrite the old files
+>yet, so I named it Config.new. Personally I only prefer that it starts
+>with a capital letter (like Makefile, Readme), so it's at the top of a
+>dir listing, but otherwise I don't care much about the name.
+>
 
+Simple and boring but how about "Config2.in" or "Config-2.in" ???
 
-
-On Wed, 9 Oct 2002, Hans Reiser wrote:
-Hello!
-
-   It seems our first attempt of sending these to Linus have failed,
-   here is another one.
-
-Bye,
-    Oleg
-
-    reiserfs updates:
-
+Regards,
+Brendan Simon.
 
 

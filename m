@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264351AbTKUPcK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 10:32:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTKUPcK
+	id S264366AbTKUPy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 10:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264370AbTKUPy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 10:32:10 -0500
-Received: from mail.g-housing.de ([62.75.136.201]:48802 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S264351AbTKUPcH (ORCPT
+	Fri, 21 Nov 2003 10:54:58 -0500
+Received: from wiproecmx1.wipro.com ([164.164.31.5]:4508 "EHLO
+	wiproecmx1.wipro.com") by vger.kernel.org with ESMTP
+	id S264366AbTKUPy5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 10:32:07 -0500
-Message-ID: <3FBE2FF4.5010904@g-house.de>
-Date: Fri, 21 Nov 2003 16:32:04 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
-X-Accept-Language: en-us, en
+	Fri, 21 Nov 2003 10:54:57 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: de2104x tulip driver bug in 2.6.0-test9
-References: <200311212051.32352.russell@coker.com.au>
-In-Reply-To: <200311212051.32352.russell@coker.com.au>
-X-Enigmail-Version: 0.81.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: DIRECT IO for ext3/ext2.
+Date: Fri, 21 Nov 2003 21:23:06 +0530
+Message-ID: <1E27FF611EBEFB4580387FCB5BEF00F3013DEEE8@blr-ec-msg04.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: DIRECT IO for ext3/ext2.
+Thread-Index: AcOwR41rB3v363nNSQaYnWx3dtOVOA==
+From: <dhruv.anand@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <akpm@zip.com.au>, <janetinc@us.ibm.com>, <akpm@zip.com.au>,
+       <pbadari@us.ibm.com>, <nathans@sgi.com>
+X-OriginalArrivalTime: 21 Nov 2003 15:53:06.0968 (UTC) FILETIME=[8E191180:01C3B047]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell Coker wrote:
-> 00:14.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 
-> [Tulip Pass 3] (rev 11)
-> 
-> Above is the lspci output for my PCI Ethernet card.  Below is what happens 
-> when I try to boot 2.6.0-test9.  2.4.x kernels have been working well on the 
-> same card for a long time, so the hardware seems basically OK.
-> 
-> Configuring network interfaces... eth0: set link BNC
->  eth0:    mode 0x7ffc0040, sia 0x10c4,0xffffef09,0xfffff7fd,0xffff0006
->  eth0:    set mode 0x7ffc0000, set sia 0xef09,0xf7fd,0x6
->  eth0: timeout expired stopping DMA
+Hi,
+I am working on an application on linux-2.6 that needs to
+bypass the buffer cache. In order to do so i use the direct
+IO functionality. Although open to the device succeeds with
+the DIRECT_IO flag, read from the device fails.
 
-could this be anyhow related to this:
+Following is the exceprt fromt he code to open and read;
+--------------------------------------------------------
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106766135110165&w=2
+if ((devf = open(dumpdev, O_RDONLY | O_DIRECT, 0)) < 0) {
+     fprintf(KL_ERRORFP, "Error: open failed!\n");
+     ...
+}
 
-there is a thread on linuxppc-dev too, as this is ppc specific:
+if(err = read(devf, &magic_nr, sizeof(magic_nr)) != sizeof(magic_nr)) {
+     fprintf(KL_ERRORFP, "Error: read() failed!\n");
+      ...
+}
 
-http://lists.linuxppc.org/linuxppc-dev/200311/msg00001.html
+---------------------------------------------------------
+I am returned an errno=22, indicating 'Invalid argument'
 
-it looks similar, but here on ppc32 i got no oops :-(
+I would appreciate it, if you could knowledge me importantly about
+the completeness of the 'direct IO' functionality in ext3 file-system.
+Or if i am doing something wrong in usage?
 
-Christian.
--- 
-BOFH excuse #27:
 
-radiosity depletion
-
+Regards
+Dhruv.

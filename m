@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUFTKur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265770AbUFTKyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264668AbUFTKur (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 06:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265770AbUFTKur
+	id S265770AbUFTKyq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 06:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUFTKyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 06:50:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14047 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264668AbUFTKup (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 06:50:45 -0400
-Date: Sun, 20 Jun 2004 12:50:25 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: "Zach, Yoav" <yoav.zach@intel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Handle non-readable binfmt_misc executables
-Message-ID: <20040620105025.GA9349@devserv.devel.redhat.com>
-References: <2C83850C013A2540861D03054B478C060416BC17@hasmsx403.ger.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
-Content-Disposition: inline
-In-Reply-To: <2C83850C013A2540861D03054B478C060416BC17@hasmsx403.ger.corp.intel.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 20 Jun 2004 06:54:46 -0400
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:21616 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265770AbUFTKyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 06:54:44 -0400
+Message-ID: <40D56CF0.2040803@yahoo.com.au>
+Date: Sun, 20 Jun 2004 20:54:40 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: arjanv@redhat.com
+CC: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: page allocation failure. order:0, mode:0x20
+References: <Pine.GSO.4.58.0406201115470.23356@waterleaf.sonytel.be>	 <40D565FE.1050903@yahoo.com.au> <1087727591.2805.8.camel@laptop.fenrus.com>
+In-Reply-To: <1087727591.2805.8.camel@laptop.fenrus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven wrote:
+> On Sun, 2004-06-20 at 12:25, Nick Piggin wrote:
+> 
+>>>| # free
+>>>|              total       used       free     shared    buffers     cached
+>>>| Mem:         10260       9844        416          0        240       5004
+>>>| -/+ buffers/cache:       4600       5660
+>>>| Swap:        33256       3796      29460
+>>>
+>>
+>>Not even atomic allocations memory are allowed to consume all memory.
+>>A small amount is reserved for memory freeing (which sometimes
+>>requires initial memory allocations).
+>>
+>>The message should be harmless.
+> 
+> 
+> Since atomic allocations by definition need to be able to cope with
+> failure, how about a patch like this to not warn for this common and
+> legit case?
+> 
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+CC'ed Andrew: I think it's his baby.
 
-On Sun, Jun 20, 2004 at 01:41:30PM +0300, Zach, Yoav wrote:
-> I'm not sure I understand the problem. Load_elf_binary also
-> uses sys_close for recovery in case of error. Can you please
-> give me more details on the problems you see with using sys_close ?
-
-for one, sys_close, while currently exported, shouldn't be really.
-(it is exported right now for a few drivers that have invalid firmware
-loaders that haven't been converted to the firmware loading framework).
-In addition it's way overkill, you created the fd so half the safety
-precautions shouldn/t be needed
-
---BOKacYhQ+x31HxR3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFA1WvwxULwo51rQBIRAl66AJoCKAwi/tOm65GXrFdAQLqaWPAhIQCfcMip
-a2g9gS3W7rkYA4wRFoqn3cw=
-=ItPk
------END PGP SIGNATURE-----
-
---BOKacYhQ+x31HxR3--
+I guess we're at the point where we should quiet down things like
+this. Although order-0 atomic allocation failures are pretty rare,
+I'd consider leaving them in. Maybe a CONFIG option?

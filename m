@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbTJALBr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 07:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTJALBr
+	id S261845AbTJALDG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 07:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbTJALDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 07:01:47 -0400
-Received: from bay99-f60.bay99.hotmail.com ([65.54.175.60]:59663 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261824AbTJALBq
+	Wed, 1 Oct 2003 07:03:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26249 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261845AbTJALDE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 07:01:46 -0400
-X-Originating-IP: [212.249.34.130]
-X-Originating-Email: [syn_uw@hotmail.com]
-From: "syn uw" <syn_uw@hotmail.com>
-To: xose@wanadoo.es, linux-kernel@vger.kernel.org,
-       marcelo.tosatti@cyclades.com.br, atulm@lsil.com,
-       linux-megaraid-devel@dell.com
-Subject: RE: Megaraid does not work with 2.4.22
-Date: Wed, 01 Oct 2003 11:01:45 +0000
+	Wed, 1 Oct 2003 07:03:04 -0400
+Date: Wed, 1 Oct 2003 12:03:03 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6: why no EXPORT_SYMBOL of get_sb_pseudo()?
+Message-ID: <20031001110303.GQ7665@parcelfarce.linux.theplanet.co.uk>
+References: <16250.39070.555465.86772@gargle.gargle.HOWL>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY99-F60MLDthODt9C000008de@hotmail.com>
-X-OriginalArrivalTime: 01 Oct 2003 11:01:45.0975 (UTC) FILETIME=[678BF870:01C3880B]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16250.39070.555465.86772@gargle.gargle.HOWL>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I don't know what is the opinion of other people :-?
->Maybe linux-scsi members hold other opinion.
+On Wed, Oct 01, 2003 at 11:04:30AM +0200, Mikael Pettersson wrote:
+> fs/libfs.c:get_sb_pseudo() isn't exported to modules,
+> but a lot of the other stuff in fs/libfs.c is.
+> 
+> Is there a particular reason for this or just an oversight?
+> 
+> Making a private copy of get_sb_pseudo()'s definition works
+> in a module, but that's not exactly productive use of
+> programmer time or source and object code space.
 
-Well I for example would be more than pleased to see megaraid 2.x included 
-in the next stable 2.4.x Linux kernel !! I had a look at the current 
-changelogs of 2.4.23 and still no traces about a megaraid v2 inclusion :(( 
-Hopefully that will happen soon !
-
-Regards
-
-_________________________________________________________________
-Get McAfee virus scanning and cleaning of incoming attachments.  Get Hotmail 
-Extra Storage!   http://join.msn.com/?PAGE=features/es
-
+Are you really sure that get_sb_pseudo() is what you need?  It might be
+possible, but I suspect that simple_fill_super() would be the right thing
+to use.  Care to give details?

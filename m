@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269777AbRHDDiG>; Fri, 3 Aug 2001 23:38:06 -0400
+	id <S269780AbRHDDlg>; Fri, 3 Aug 2001 23:41:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269780AbRHDDh4>; Fri, 3 Aug 2001 23:37:56 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:56847 "EHLO
+	id <S269783AbRHDDlQ>; Fri, 3 Aug 2001 23:41:16 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:62735 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269777AbRHDDhk>; Fri, 3 Aug 2001 23:37:40 -0400
-Date: Fri, 3 Aug 2001 20:35:14 -0700 (PDT)
+	id <S269780AbRHDDlK>; Fri, 3 Aug 2001 23:41:10 -0400
+Date: Fri, 3 Aug 2001 20:38:49 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Daniel Phillips <phillips@bonn-fries.net>, Ben LaHaise <bcrl@redhat.com>,
-        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+To: Ben LaHaise <bcrl@redhat.com>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
 Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-In-Reply-To: <Pine.LNX.4.33L.0108040022110.2526-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0108032030430.15155-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0108032318330.14842-100000@touchme.toronto.redhat.com>
+Message-ID: <Pine.LNX.4.33.0108032036120.15155-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 4 Aug 2001, Rik van Riel wrote:
-> On Fri, 3 Aug 2001, Linus Torvalds wrote:
+On Fri, 3 Aug 2001, Ben LaHaise wrote:
 >
-> > Please just remove the code instead. I don't think it buys you anything.
->
-> IIRC you applied the patch introducing that logic because it
-> gave a 25% performance increase under some write intensive
-> loads (or something like that).
+> No.  Here's the bug in the block layer that was causing the throttling not
+> to work.  Leave the logic in, it has good reason -- think of batching of
+> io, where you don't want to add just one page at a time.
 
-That's the batching code, which is somewhat intertwined with the same
-code.
+I absolutely agree on the batching, but this has nothing to do with
+batching. The batching code uses "batch_requests", and the fact that we
+free the finished requests to another area.
 
-The batching code is a separate issue: when we free the requests, we don't
-actually make them available as they get free'd (because then the waiters
-will trickle out new requests one at a time and cannot do any merging
-etc).
-
-Also, the throttling code probably _did_ make behaviour nicer back when
-"sync()" used to use ll_rw_block().  Of course, now most of the IO layer
-actually uses "submit_bh()" and bypasses this code completely, so only the
-ones that still use it get hit by the unfairness. What a double whammy ;)
+The ll_rw_block() code really _is_ broken. As proven by the fact that it
+doesn't even get invoced most of the time.. And the times it _does_ get
+invoced is exactly when it shouldn't (guess what the biggest user of
+"ll_rw_block()" tends to be? "bread()")
 
 		Linus
 

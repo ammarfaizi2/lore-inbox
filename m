@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130392AbRBVWCt>; Thu, 22 Feb 2001 17:02:49 -0500
+	id <S131130AbRBVWDj>; Thu, 22 Feb 2001 17:03:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130609AbRBVWCf>; Thu, 22 Feb 2001 17:02:35 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:43782 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S130392AbRBVWCR>;
-	Thu, 22 Feb 2001 17:02:17 -0500
-Date: Fri, 23 Feb 2001 00:02:10 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+	id <S131125AbRBVWDa>; Thu, 22 Feb 2001 17:03:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29452 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130609AbRBVWDS>;
+	Thu, 22 Feb 2001 17:03:18 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200102222159.f1MLxb031306@flint.arm.linux.org.uk>
+Subject: Re: nfs_refresh_inode: inode number mismatch
+To: samcconn@cotw.com (Scott A McConnell)
+Date: Thu, 22 Feb 2001 21:59:37 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.2 & IPv6
-Message-ID: <20010223000210.W15688@mea-ext.zmailer.org>
-In-Reply-To: <007101c09ce4$39dc7680$b323ce88@eeng.dcu.ie> <200102222148.f1MLmJr02802@lt.wsisiz.edu.pl>
-Mime-Version: 1.0
+In-Reply-To: <3A9592F4.FFCC2236@cotw.com> from "Scott A McConnell" at Feb 22, 2001 02:30:12 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200102222148.f1MLmJr02802@lt.wsisiz.edu.pl>; from lukasz@lt.wsisiz.edu.pl on Thu, Feb 22, 2001 at 10:48:19PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 22, 2001 at 10:48:19PM +0100, Lukasz Trabinski demoed 2.4.2:
+Scott A McConnell writes:
+> I am running  RedHat Linux version 2.2.16-3 on  my PC and  Hardhat Linux
+> version 2.4.0-test5 on my MIPS board. Any thoughts or suggestions?
+> 
+> I saw a discussion start on the ARM list along these lines but I never
+> saw a solution.
 
-Complementing the 2.4.2 demo, here is same from 2.2.* also at 6BONE:
+The problem is partly caused by the NFS server indefinitely caching NFS
+request XIDs to responses, and the NFS client not having a way to generate
+a random initial XID.  (thus, for each reboot, it starts at the same XID
+number).
 
-$ ping6 3ffe:8010:19::2:2
-PING 3ffe:8010:19::2:2(3ffe:8010:19::2:2) from 3ffe:2610:2:fe00:290:27ff:fe85:1530 : 56 data bytes
-64 bytes from 3ffe:8010:19::2:2: icmp_seq=0 hops=55 time=454.559 msec
-64 bytes from 3ffe:8010:19::2:2: icmp_seq=1 hops=55 time=446.905 msec
+Upgrade your NFS server to kernel 2.2.18, and don't reboot more than once
+in a 2 minute window.
 
---- 3ffe:8010:19::2:2 ping statistics ---
-4 packets transmitted, 4 packets received, 0% packet loss
-round-trip min/avg/max/mdev = 446.905/452.399/456.158/3.537 ms
-$ uname -r
-2.2.16pre4ft
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
- 
-> -- 
-> *[ Lukasz Trabinski ]*
-> SysAdmin @wsisiz.edu.pl
-
-/Matti Aarnio <matti.aarnio@zmailer.org>

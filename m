@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269965AbRHNL27>; Tue, 14 Aug 2001 07:28:59 -0400
+	id <S269811AbRHNL1S>; Tue, 14 Aug 2001 07:27:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270567AbRHNL2t>; Tue, 14 Aug 2001 07:28:49 -0400
-Received: from femail48.sdc1.sfba.home.com ([24.254.60.42]:63453 "EHLO
-	femail48.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S269965AbRHNL2d>; Tue, 14 Aug 2001 07:28:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: Paul Jakma <paulj@alphyra.ie>
-Subject: Re: via82cxxx_audio driver bug?
-Date: Tue, 14 Aug 2001 04:28:17 -0700
-X-Mailer: KMail [version 1.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108141203040.15241-100000@dunlop.itg.ie>
-In-Reply-To: <Pine.LNX.4.33.0108141203040.15241-100000@dunlop.itg.ie>
+	id <S269965AbRHNL1I>; Tue, 14 Aug 2001 07:27:08 -0400
+Received: from ns.suse.de ([213.95.15.193]:14084 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S269811AbRHNL0y>;
+	Tue, 14 Aug 2001 07:26:54 -0400
+Date: Tue, 14 Aug 2001 13:26:56 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Tim Hockin <thockin@sun.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <alan@redhat.com>, <torvalds@transmeta.com>
+Subject: Re: [PATCH] nvram driver work
+In-Reply-To: <3B78A38D.CBA72401@sun.com>
+Message-ID: <Pine.LNX.4.30.0108141324060.29900-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Message-Id: <01081404281700.05063@c779218-a>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 August 2001 04:06 am, Paul Jakma wrote:
-> On Mon, 13 Aug 2001, Nicholas Knight wrote:
-> > The UI in other apps is a little iffy on my end, sometimes they lock,
-> > sometimes not.
->
-> well.. even mpg123 seems to suffer. it doesn't have a UI :) but it
-> doesn't respond to ^C straight away.
+On Mon, 13 Aug 2001, Tim Hockin wrote:
 
-I'll try to monitor CPU usage of XMMS when /dev/mixer is avalible to it
+Hi Tim,
 
->
-> > what version was in kernel 2.4.3? I first started reporting this when
-> > I installed Mandrake 8.0 and noticed it a couple months ago.
->
-> i honestly don't remember.
->
-> Jeff has a newer driver out, 1.1.15, i didn't get a chance to try it
-> out last night. wondering whether it fixes the problem. (it has a lot
-> of fixups).
+> This patch does 4 main things:
+> 1) Add generic support for paged nvrams, and supporting ioctls
+> 2) Add a 'Magic' page for system-specific NVRAM-like things
+> 3) Add support for NatSemi PC[89]7317 paged nvram
+> 4) Add support for Cobalt's magic page
 
-nope, I've already tried it, same problems :(
+No problem with that stuff.
 
->
-> regards,
->
-> --paulj
+> It also does some re-formatting of things that looked awful with tabstops >
+> 2.
+
+With the tabstops set to the value defined at the bottom of the file (4)
+it looks fine. Your changes break the indentation of the rest of the
+file when viewed as it was originally created.
+
+> We've been using this patch for months.  Please apply it to the next 2.4.x
+> kernel, or let me know if you have problems with it.  It is against 2.4.8
+> and should patch cleanly (just a bit of fuzz).
+
+line 116 needs changing also, to by 128-RTC_FIRST_BYTE
+
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+

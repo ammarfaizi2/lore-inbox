@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbVCCAfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVCCAki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261224AbVCCAfu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 19:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVCCAcs
+	id S261330AbVCCAki (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 19:40:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVCCAgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 19:32:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24253 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261212AbVCCA3w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 19:29:52 -0500
-Message-ID: <42265A6F.8030609@pobox.com>
-Date: Wed, 02 Mar 2005 19:29:35 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+	Wed, 2 Mar 2005 19:36:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22216 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261212AbVCCAdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 19:33:11 -0500
+Date: Wed, 2 Mar 2005 19:32:59 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Lars Marowsky-Bree <lmb@suse.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>	<42264F6C.8030508@pobox.com> <20050302162312.06e22e70.akpm@osdl.org>
-In-Reply-To: <20050302162312.06e22e70.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050303003259.GI10124@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Lars Marowsky-Bree <lmb@suse.de>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302225846.GK17584@marowsky-bree.de> <Pine.LNX.4.58.0503021543430.25732@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503021543430.25732@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
->>IMO too confusing.
->>
-> 
-> 
-> 2.6.even: bugfixes only
-> 2.6.odd: bugfixes and features.
-> 
-> That doesn't even confuse me!
-> 
-> 
->>Developers right now are sitting on big piles, and pushing that back 
->>even further means every odd release means you are creating a 
->>2.4.x/2.5.x backport situation every two releases.
-> 
-> 
-> No, there is no backporting.  If you have a bug, fix it in 2.6.12-pre. 
-> There is no need to maintain that bugfix in your 2.6.13-candidate tree.
+On Wed, Mar 02, 2005 at 03:44:58PM -0800, Linus Torvalds wrote:
 
-You are missing where the backporting is.
+ > > I think a better approach, and one which is already working out well in
+ > > practice, is to put "more intrusive" features into -mm first, and only
+ > > migrate them into 2.6.x when they have 'stabilized'.
+ > 
+ > That wouldn't change. But we still have the issue of "they have to be 
+ > released sometime". This makes it clear to everybody when to merge, and 
+ > when to calm down.
 
-If the time between big merges increases, as with this proposal, then 
-the distance between local dev trees and linux-2.6 increases.
+So is the problem that people aren't listening when you say "lets slow down" ?
+Why would this change things for people who obviously ignore what you say ? :)
 
-With that distance, breakages like the 64-bit resource struct stuff 
-become more painful.
+I'll bet you'll still get flooded with "lets see if Linus takes this despite
+what he said in his last announcement" patches if we moved to this model.
 
-I like my own "ongoing dev tree, ongoing stable tree" proposal a lot 
-better.  But then, I'm biased :)
+The only thing that would make a difference afaics, would be you putting
+your foot down and just ignoring such submissions ?
 
-	Jeff
-
+		Dave
 

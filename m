@@ -1,72 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318032AbSGWLmy>; Tue, 23 Jul 2002 07:42:54 -0400
+	id <S318030AbSGWLmt>; Tue, 23 Jul 2002 07:42:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318033AbSGWLmy>; Tue, 23 Jul 2002 07:42:54 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:63171 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S318032AbSGWLmw>; Tue, 23 Jul 2002 07:42:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Craig Kulesa <ckulesa@as.arizona.edu>
-Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
-Date: Tue, 23 Jul 2002 07:45:53 -0400
-X-Mailer: KMail [version 1.4]
-Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Steven Cole <scole@lanl.gov>
-References: <20020722222150.GF919@holomorphy.com> <Pine.LNX.4.44.0207221520301.14311-100000@loke.as.arizona.edu> <20020723043653.GF13589@holomorphy.com>
-In-Reply-To: <20020723043653.GF13589@holomorphy.com>
+	id <S318032AbSGWLmt>; Tue, 23 Jul 2002 07:42:49 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:49580 "HELO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S318030AbSGWLms>; Tue, 23 Jul 2002 07:42:48 -0400
+Date: Tue, 23 Jul 2002 14:03:42 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, James Cleverdon <jamesclv@us.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.19-rc3-ac2 SMP
+In-Reply-To: <200207222121.04788.jamesclv@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0207231355230.32636-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207230745.53629.tomlins@cam.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On July 23, 2002 12:36 am, William Lee Irwin III wrote:
-> On Mon, 22 Jul 2002, William Lee Irwin III wrote:
-> >> The pte_chain mempool was ridiculously huge and the use of mempool for
-> >> this at all was in error.
->
-> On Mon, Jul 22, 2002 at 03:36:33PM -0700, Craig Kulesa wrote:
-> > That's what I thoguht too -- but Steven tried making the pool 1/4th the
-> > size and it still failed.  OTOH, he tried 2.5.27-rmap, which uses the
-> > *same mempool patch* and he had no problem with the monster 128KB
-> > allocation.  Maybe it was all luck. :)  I can't yet see anything in the
-> > slablru patch that has anything to do with it...
->
-> While waiting for the other machine to boot I tried these out. There
-> appear to be bootstrap ordering problems either introduced by or
-> exposed by this patch:
+Hi Alan, James
 
-I would vote for ordering.  The slab init code was changed to initialize 
-new fields...   Allocating memory for slabs is another story.  They depend on
-the lru lists and the pagemap_lru_lock being setup...   Has this happened 
-when slab storage is initialized?  If not a call to do this in the slab init logic 
-would fix things.  It could also be fixed using this fragment (slab.c):
+	This is what i have so far, i'll probably have time to really 
+debug it when i get home later today. The problem persists with Jame's 
+Summit patch applied too (just in case there were other fixes there).
 
-+       /*
-+        * We want the pagemap_lru_lock, in UP spin locks to not
-+        * protect us in interrupt context...  In SMP they do but,
-+        * optimizating for speed, we process if we do not get it.
-+        */
-+       if (!(cachep->flags & SLAB_NO_REAP)) {
-+#ifdef CONFIG_SMP
-+               locked = spin_trylock(&pagemap_lru_lock);
-+#else
-+               locked = !in_interrupt() && spin_trylock(&pagemap_lru_lock);
-+#endif
-+               if (!locked && !in_interrupt())
-+                       goto opps1;
+Intel MultiProcessor Specification v1.4
+    Virtual Wire compatibility mode.
+OEM ID: OEM00000 Product ID: 0.1          APIC at: 0xFEE00000
+Processor #0 Pentium(tm) Pro APIC version 17
+Processor #1 Pentium(tm) Pro APIC version 17
+Processor #2 Pentium(tm) Pro APIC version 17
+Processor #3 Pentium(tm) Pro APIC version 17
+I/O APIC #4 Version 17 at 0xFEC00000.
+Enabling APIC mode:  Flat.  Using 1 I/O APICs
+Processors: 4
+[...]
+ENABLING IO-APIC IRQs
+Setting 4 in the phys_id_present_map
+...changing IO-APIC physical APIC ID to 4 ... ok.
+..TIMER: vector=0x31 pin1=0 pin2=-1
+<dead>
 
-If there is some way to verify that the pagemap_lru_lock is ready.  Note its
-fine to just set locked to 0 and proceed - as long as this condition does not
-last forever.  Also this code is in a fastpath so efficient is good...
+Around here the machine gets a vector 0x31 (timer) interrupt on CPU0 then 
+locks up since the destination cpu bitmask is 0, It also seems that the 
+code is trying to use logical apic id in places instead of the physical 
+apic id, i saw attempted deliveries to physical apic id 4 and 8, this can 
+possibly explain the APIC receive errors people were reporting? 
 
-Thoughts?
-Ed Tomlinson
+Unfortunately this is the only info i have right now, i thought i'd be 
+able to gather more but looks like i'll have to wait till i get home.
 
+As a control, the machine boots and runs 2.4.19-rc2
 
+Regards,
+	Zwane Mwaikambo
 
+Alan on a side note, would you like a patch to bring around some fixes 
+from 2.5 irq_balance? Your kernel can't boot UP w/ IOAPIC
+
+-- 
+function.linuxpower.ca
 

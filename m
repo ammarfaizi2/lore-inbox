@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261395AbSKBTNu>; Sat, 2 Nov 2002 14:13:50 -0500
+	id <S261276AbSKBTPp>; Sat, 2 Nov 2002 14:15:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261400AbSKBTNu>; Sat, 2 Nov 2002 14:13:50 -0500
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:15687 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S261395AbSKBTNs>; Sat, 2 Nov 2002 14:13:48 -0500
-Date: Sat, 2 Nov 2002 11:28:17 -0800 (PST)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Brad Hards <bhards@bigpond.net.au>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: [lkcd-devel] Re: What's left over.
-In-Reply-To: <200211022136.51039.bhards@bigpond.net.au>
-Message-ID: <Pine.LNX.4.44.0211021124270.28078-100000@nakedeye.aparity.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261338AbSKBTPE>; Sat, 2 Nov 2002 14:15:04 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:21514 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S261323AbSKBTO5>; Sat, 2 Nov 2002 14:14:57 -0500
+Date: Sat, 2 Nov 2002 16:21:05 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: romieu@fr.zoreil.com
+Cc: Bill Davidsen <davidsen@tmr.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-atm-general@lists.sourceforge.net
+Subject: Re: What's left over.
+Message-ID: <20021102192105.GG27926@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	romieu@fr.zoreil.com, Bill Davidsen <davidsen@tmr.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	"Matt D. Robinson" <yakker@aparity.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-atm-general@lists.sourceforge.net
+References: <1036157313.12693.15.camel@irongate.swansea.linux.org.uk> <Pine.LNX.3.96.1021101235904.29692B-100000@gatekeeper.tmr.com> <20021102185508.GF27926@conectiva.com.br> <20021102201917.A18951@electric-eye.fr.zoreil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021102201917.A18951@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Nov 2002, Brad Hards wrote:
-|>I applied the patches, and reported some issues.
-|>http://marc.theaimsgroup.com/?l=linux-kernel&m=103520434201014&w=2
-|>I see no signs that any of them have been addressed, although I haven't tried 
-|>a really recent set.
+Em Sat, Nov 02, 2002 at 08:19:17PM +0100, romieu@fr.zoreil.com escreveu:
+> > SPX was also removed (hey, it never worked anyway) and probably econet and
+> > ATM will be removed as well if nobody jumps to fix it (I mean net/atm, not
+> > drivers/atm, but I'm not sure the later will be useful without the former).
+> 
+> What's the deadline ?
 
-We did put your fixes in, if they don't work, let me know.
+Plan was for 2.6.0
 
-|>LKCD doesn't really seem to do anything for me - it wouldn't really worry me 
-|>if it went in (since I don't have to maintain it - it isn't near any of my 
-|>code), but I'd really prefer that having the _CONFIG option set to N didn't 
-|>make the kernel any bigger, or change any code paths.
-|>
-|>Is this unreasonable?
-
-Absolutely not.  I would expect most people to not use it, and I
-would hope that most distributions would build it as a module but
-not turn it on (unless they really wanted it on by default).
-
-|>Brad
-|>
-|>BTW: I admit that I'd be pretty pissed if Linus said that my code was 
-|>"stupid", but life isn't reasonable or fair. Take a few days off LKCD, go for 
-|>a few walks, and worry about how to get it integrated after that.
-
-It's neither here nor there anymore.  I think if companies like
-Red Hat don't want it turned on, that's fine, but they should at
-least allow their customers to have it available to them for
-use, if that's what they want.
-
-Of course, I'm not going to go through all the reasons why there's
-a major disconnect between Linux distributions and hardware vendors,
-but suffice it to say that's the root of the problem here.
-
---Matt
-
+- Arnaldo

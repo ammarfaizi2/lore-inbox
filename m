@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264827AbRFSW5q>; Tue, 19 Jun 2001 18:57:46 -0400
+	id <S264829AbRFSXEr>; Tue, 19 Jun 2001 19:04:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264829AbRFSW50>; Tue, 19 Jun 2001 18:57:26 -0400
-Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:16388 "HELO
-	mail.thock.com") by vger.kernel.org with SMTP id <S264827AbRFSW5S>;
-	Tue, 19 Jun 2001 18:57:18 -0400
-Message-ID: <3B2FD8D6.ED04B275@bigfoot.com>
-Date: Tue, 19 Jun 2001 16:57:26 -0600
-From: Dylan Griffiths <Dylan_G@bigfoot.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S264830AbRFSXEi>; Tue, 19 Jun 2001 19:04:38 -0400
+Received: from wb2-a.mail.utexas.edu ([128.83.126.136]:35853 "HELO
+	mail.utexas.edu") by vger.kernel.org with SMTP id <S264829AbRFSXEe>;
+	Tue, 19 Jun 2001 19:04:34 -0400
+Message-ID: <3B2F3194.D36843D7@mail.utexas.edu>
+Date: Tue, 19 Jun 2001 17:03:48 +0600
+From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
+Organization: (I do not speak for) The University of Texas at Austin (nor they for 
+ me).
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac14 i686)
+X-Accept-Language: en,fr,de
 MIME-Version: 1.0
-To: Robert Love <rml@ufl.edu>
-Cc: Daniel Bertrand <d.bertrand@ieee.ca>,
-        emu10k1-devel <emu10k1-devel@opensource.creative.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Emu10k1-devel] Re: Buggy emu10k1 drivers.
-In-Reply-To: <Pine.LNX.4.33.0106171449470.2175-100000@kilrogg> <992822448.3798.6.camel@phantasy>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: "clock timer configuration lost" on non-VIA m.b.
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> > Can you give the CVS driver a try? Snapshots are available here:
-> > http://opensource.creative.com/snapshot.html
-> >
-> > The driver in the kernel is based on a CVS snapshot from last summer, the
-> > problem may be fixed in CVS. Also, the CVS driver is a common driver for
-> > 2.2 and 2.4 (with some #ifdef), so it may be useful to see if it works for
-> > you on 2.4.5 but not on 2.2.19.
-> 
-> if the driver in the kernel is that old, could we try merging a newer
-> release?  is there any reason why it has not been done yet?
+2.4.5-ac14 on an Asus A7A266 w/ Athlon:
+
+...
+Jun 19 16:14:21 pollux kernel: probable hardware bug: clock timer
+configuration lost - probably a VIA686a motherboard.
+Jun 19 16:14:21 pollux kernel: probable hardware bug: restoring chip
+configuration.
+...
+
+According to the documentation, this is an ALi chipset:
+
+Northbridge: ALi M1647
+
+Southbridge: ALi M1535D+
+
+The message appears irregularly, with a period varying between 10
+minutes and an hour.
+
+More system info available on request.
+
+Bobby Bryant
+Austin, Texas
 
 
-Tried 2.4.5 and 2.2.19 with the same snapshot code (emu10k1-20010617.tar.gz)
-
-2.4.5 works, 2.2.19 doesn't.
-
-Maybe 2.2.19 has deeper problems with my hardware which aren't in the
-driver, then, as identical code works on one and not the other.
-
---
-    www.kuro5hin.org -- technology and culture, from the trenches.

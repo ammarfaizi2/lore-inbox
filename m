@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261570AbTCKUCI>; Tue, 11 Mar 2003 15:02:08 -0500
+	id <S261573AbTCKUEF>; Tue, 11 Mar 2003 15:04:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261571AbTCKUCH>; Tue, 11 Mar 2003 15:02:07 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:28387 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261570AbTCKUCG>;
-	Tue, 11 Mar 2003 15:02:06 -0500
-Date: Tue, 11 Mar 2003 13:15:31 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Greg KH <greg@kroah.com>, Oliver Neukum <oliver@neukum.name>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: PCI driver module unload race?
-In-Reply-To: <Pine.LNX.4.44.0303112104500.5042-100000@serv>
-Message-ID: <Pine.LNX.4.33.0303111314010.1015-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261575AbTCKUEF>; Tue, 11 Mar 2003 15:04:05 -0500
+Received: from mail0.ewetel.de ([212.6.122.10]:42641 "EHLO mail0.ewetel.de")
+	by vger.kernel.org with ESMTP id <S261573AbTCKUEE>;
+	Tue, 11 Mar 2003 15:04:04 -0500
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Improved inode number allocation for HTree
+In-Reply-To: <20030311194014$49a6@gated-at.bofh.it>
+References: <20030311194014$426e@gated-at.bofh.it> <20030311194014$1a3c@gated-at.bofh.it> <20030311194014$78c3@gated-at.bofh.it> <20030311194014$5811@gated-at.bofh.it> <20030311194014$49a6@gated-at.bofh.it>
+Date: Tue, 11 Mar 2003 21:14:38 +0100
+Message-Id: <E18sq90-0002uC-00@neptune.local>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 11 Mar 2003 20:40:14 +0100, you wrote in linux.kernel:
 
-On Tue, 11 Mar 2003, Roman Zippel wrote:
+> Ok, so "rm" works.  Then you have things like "mv *.c /usr/src" to worry
+> about.  Lock for traversal, get stuck unable to work on the files.
 
-> Hi,
-> 
-> On Tue, 11 Mar 2003, Patrick Mochel wrote:
-> 
-> > > > CONFIG_MODULE_UNLOAD, just say no.
-> > > 
-> > > That's certainly an option, but I'm afraid not too many people will do 
-> > > this.
-> > 
-> > Greg, and Rusty, are right. Dealing with this is a PITA, and I think will 
-> > always be. I'm willing to take the Nancy Reagan platform, too. 
-> 
-> Right with what? 
+In both cases, the shell does the traversal and passes a complete list
+of files to rm or mv... so rm and mv themselves don't need to do any
+directory traversal.
 
-With the idea that unloading modules is a bad idea. 
-
-> What is the "Nancy Reagan platform"?
-
-"Just say no". It was a big anti-drug campaign in the US targeted at
-schoolchildren, spearheaded in the mid-80's by Nancy Reagan.
-
-	-pat
-
+-- 
+Ciao,
+Pascal

@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265701AbUBBQ6t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 11:58:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265713AbUBBQ6t
+	id S265710AbUBBRD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 12:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265729AbUBBRD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 11:58:49 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:44292 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S265701AbUBBQ6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 11:58:46 -0500
-Message-ID: <401E82D3.9070705@techsource.com>
-Date: Mon, 02 Feb 2004 12:03:15 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
+	Mon, 2 Feb 2004 12:03:57 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:30199 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S265710AbUBBRDz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 12:03:55 -0500
+Subject: Re: [PATCH] SElinux compile fix
+From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: John Bradford <john@grabjohn.com>, chakkerz@optusnet.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
-References: <4017F2C0.4020001@techsource.com> <200401291211.05461.chakkerz@optusnet.com.au> <40193136.4070607@techsource.com> <200401291629.i0TGTN7S001406@81-2-122-30.bradfords.org.uk> <40193A67.7080308@techsource.com> <Pine.GSO.4.58.0402011123140.20933@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.58.0402011123140.20933@waterleaf.sonytel.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: James Morris <jmorris@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.58.0402021710460.19699@waterleaf.sonytel.be>
+References: <Pine.GSO.4.58.0402021710460.19699@waterleaf.sonytel.be>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1075741402.3579.64.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Mon, 02 Feb 2004 12:03:22 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-02-02 at 11:11, Geert Uytterhoeven wrote:
+> Spinlock code needs <linux/sched.h>
+> 
+> --- linux-2.6.2-rc3/security/selinux/ss/services.c	2004-01-01 20:23:54.000000000 +0100
+> +++ linux-m68k-2.6.2-rc3/security/selinux/ss/services.c	2004-01-09 22:16:22.000000000 +0100
+> @@ -16,6 +16,7 @@
+>  #include <linux/spinlock.h>
+>  #include <linux/errno.h>
+>  #include <linux/in.h>
+> +#include <linux/sched.h>
+>  #include <asm/semaphore.h>
+>  #include "flask.h"
+>  #include "avc.h"
+> --- linux-2.6.2-rc3/security/selinux/ss/sidtab.c	2004-01-01 20:23:54.000000000 +0100
+> +++ linux-m68k-2.6.2-rc3/security/selinux/ss/sidtab.c	2004-01-09 22:13:55.000000000 +0100
+> @@ -7,6 +7,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/spinlock.h>
+>  #include <linux/errno.h>
+> +#include <linux/sched.h>
+>  #include "flask.h"
+>  #include "security.h"
+>  #include "sidtab.h"
 
+Thanks for the fix.
 
-Geert Uytterhoeven wrote:
-> On Thu, 29 Jan 2004, Timothy Miller wrote:
-> 
->>John Bradford wrote:
->>
->>>>The real question we have to ask ourselves is, what would be the market
->>>>demand for a graphics card that is 3 generations behind the state of the
->>>>art and over-priced, the only advantage being that it's a 100% open
->>>>architecture?
->>>
->>>
->>>Err, well there are always the server and embedded markets, if the
->>>device was cheap enough.
->>
->>Ah, but it won't be.  Low-volume ASICs are expensive.  The chip itself
->>would probably be around $150, not counting $100k NRE.  Then you have to
->>pay for the board, make up for the NRE, and make some profit to make it
->>worth while.  How much are YOU willing to pay?
-> 
-> 
-> Then why are companies doing ASICs with an OpenRISC core?
-
-I don't see how that relates.  And to answer your question, maybe 
-because there's a demand for it.  I don't know.
-
-> 
-> 
->>Whatever we design is going to be EXPENSIVE.  So, regardless of the fact
->>that an ATI All-in-Wonder Radeon 9000 is over-powered for job you
->>describe, that board will be cheaper than what we could produce.
-> 
-> 
-> And it's probably overpowered when speaking about power consumption, too...
-> 
-> Now think of a SoC with an OpenRISC core and an integrated graphics
-> controller...
-> 
-
-That would be cool.  :)
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

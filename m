@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270133AbTGNQPR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 12:15:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270257AbTGNQPQ
+	id S270466AbTGNQSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 12:18:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270467AbTGNQSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 12:15:16 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42190 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S270133AbTGNQPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 12:15:11 -0400
-Date: Mon, 14 Jul 2003 18:29:53 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Mon, 14 Jul 2003 12:18:08 -0400
+Received: from AMarseille-201-1-2-223.w193-253.abo.wanadoo.fr ([193.253.217.223]:22311
+	"EHLO gaston") by vger.kernel.org with ESMTP id S270466AbTGNQSF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 12:18:05 -0400
+Subject: Re: Linux 2.4.22-pre5
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Richard A Nelson <cowboy@vnet.ibm.com>,
        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4 patch] Configure.help updates from -ac
-Message-ID: <20030714162953.GN12104@fs.tum.de>
-References: <200307141504.48728.m.c.p@wolk-project.de>
+In-Reply-To: <Pine.LNX.4.55L.0307111935180.6016@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307111705090.5422@freak.distro.conectiva>
+	 <Pine.LNX.4.56.0307111821080.7464@onqynaqf.yrkvatgba.voz.pbz>
+	 <Pine.LNX.4.55L.0307111935180.6016@freak.distro.conectiva>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1058200354.515.20.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307141504.48728.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 14 Jul 2003 18:32:34 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 03:04:48PM +0200, Marc-Christian Petersen wrote:
-> Hi Adrian,
-> 
-> > the patch below adds some Configure.help entries that are in pre3-ac1
-> > but are missing in -pre5.
-> why do you remove such things like (only text):
-> 
-> -Matrox G100/G200/G400/G450/G550 support
-> -Matrox I2C support
-> -Matrox G450 second head support
-> -Matrox unified driver multihead support
-> 
-> ?
+On Sat, 2003-07-12 at 00:38, Marcelo Tosatti wrote:
+> Ben?
 
-It's not me, this was directly taken from -ac.
+bk fuckage on my side, here it is
 
-Please correct me if I'm wrong, but AFAIK these lines are used nowhere, 
-they are just copies of the one-line descriptions in the Config.in 
-files.
+#ifndef __LINUX_RADEONFB_H__
+#define __LINUX_RADEONFB_H__
 
-> ciao, Marc
+#include <asm/ioctl.h>
+#include <asm/types.h>
 
-cu
-Adrian
+#define ATY_RADEON_LCD_ON	0x00000001
+#define ATY_RADEON_CRT_ON	0x00000002
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+#define FBIO_RADEON_GET_MIRROR	_IOR('@', 3, __u32)
+#define FBIO_RADEON_SET_MIRROR	_IOW('@', 4, __u32)
+
+#endif
+
 

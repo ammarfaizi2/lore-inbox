@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265292AbTLRTeW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 14:34:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265294AbTLRTeW
+	id S265274AbTLRT1d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 14:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbTLRT1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 14:34:22 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:36270 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265292AbTLRTeQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 14:34:16 -0500
-Date: Thu, 18 Dec 2003 20:34:14 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Milos Prudek <milos.prudek@tiscali.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Mount Rainier in 2.6
-Message-ID: <20031218193414.GJ2069@suse.de>
-References: <3FE16489.9060006@tiscali.cz> <20031218083530.GP2495@suse.de> <20031218114000.GB2069@suse.de> <3FE200CA.2080705@tiscali.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FE200CA.2080705@tiscali.cz>
+	Thu, 18 Dec 2003 14:27:33 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:61867 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265274AbTLRT0L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 14:26:11 -0500
+Date: Thu, 18 Dec 2003 17:05:06 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michael Hunold <hunold@convergence.de>
+Subject: Re: [PATCH][2.4] change two annoying messages from framebuffer
+ drivers
+In-Reply-To: <Pine.GSO.4.58.0312151109460.16964@waterleaf.sonytel.be>
+Message-ID: <Pine.LNX.4.58L.0312181704310.23845@logos.cnet>
+References: <3FD9BB4B.6040900@convergence.de> <Pine.GSO.4.58.0312151109460.16964@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 18 2003, Milos Prudek wrote:
-> 
-> >Here's a patch, it's received a little testing. Let me know if it works
-> >for you. I'm also attaching a slightly updated cdmrw tool.
-> 
-> Patch applied successfully. Compilation failed. This is with the default 
-> kernel config (2.6.0 config as shipped). The only change was changing 
-> reiserfs from Module to built-in, and removing all other filesystems 
-> except ext2 and reiserfs.
-> 
-> Here's the error:
-> 
->   CC [M]  drivers/scsi/sr.o
-> drivers/scsi/sr.c:112: error: `CDC_MRW_R' undeclared here (not in a 
-> function)
-> drivers/scsi/sr.c:112: error: initializer element is not constant
-> drivers/scsi/sr.c:112: error: (near initialization for `sr_dops.capability')
-> drivers/scsi/sr.c: In function `get_capabilities':
-> drivers/scsi/sr.c:770: error: `scsi_CDs' undeclared (first use in this 
-> function)
-> drivers/scsi/sr.c:770: error: (Each undeclared identifier is reported 
-> only once
-> drivers/scsi/sr.c:770: error: for each function it appears in.)
-> drivers/scsi/sr.c:770: error: `i' undeclared (first use in this function)
-> drivers/scsi/sr.c:770: error: `mrw_write' undeclared (first use in this 
-> function)
-> drivers/scsi/sr.c:696: warning: unused variable `mwr_write'
-> make[2]: *** [drivers/scsi/sr.o] Error 1
-> make[1]: *** [drivers/scsi] Error 2
-> make: *** [drivers] Error 2
 
-Rats, I forgot to test sr. You probably don't have a SCSI mt rainier
-drive (I doubt one was ever made), so just disable SCSI CD-ROM support.
-I'll be sure to fix this up, thanks.
 
--- 
-Jens Axboe
+On Mon, 15 Dec 2003, Geert Uytterhoeven wrote:
 
+> On Fri, 12 Dec 2003, Michael Hunold wrote:
+> > Two framebuffer drivers (clgenfb.c and hgafb.c), however, use KERN_ERR
+> > to say that their particular card has *not* been found which is very
+> > annoying.
+> >
+> > Especially the clgenfb.c driver simply says on bootup:
+> >  >  Couldn't find PCI device
+> > which can really confuse newbie users.
+> >
+> > The appended patch replaces two KERN_ERR with KERN_INFO and additionally
+> > makes the clgen.c message more descriptive.
+> >
+> > Please apply, thanks!
+>
+> Patch looks OK to me, except that I would print `clgenfb' instead of `clgen'.
+
+That looks sane.
+
+Can you change it Michael?

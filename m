@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbQJ0Ff4>; Fri, 27 Oct 2000 01:35:56 -0400
+	id <S129030AbQJ0Fk5>; Fri, 27 Oct 2000 01:40:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129030AbQJ0Ffq>; Fri, 27 Oct 2000 01:35:46 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:26885 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129026AbQJ0Ffj>; Fri, 27 Oct 2000 01:35:39 -0400
-Date: Thu, 26 Oct 2000 22:35:25 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andrea Arcangeli <andrea@suse.de>, Doug Ledford <dledford@redhat.com>,
-        Gabriel Paubert <paubert@iram.es>, mingo@redhat.com,
-        gareth@valinux.com, linux-kernel@vger.kernel.org
-Subject: Re: missing mxcsr initialization
-In-Reply-To: <E13oxYQ-00041U-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10010262229330.864-100000@penguin.transmeta.com>
+	id <S129079AbQJ0Fkr>; Fri, 27 Oct 2000 01:40:47 -0400
+Received: from [203.26.242.120] ([203.26.242.120]:17682 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S129030AbQJ0Fkg>; Fri, 27 Oct 2000 01:40:36 -0400
+Date: Fri, 27 Oct 2000 16:59:58 +1100 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-net@vger.kernel.org
+Subject: Re: VM-global-2.2.18pre17-7
+In-Reply-To: <39F85A09.DA88452F@ovh.net>
+Message-ID: <Pine.LNX.4.05.10010271651240.14633-100000@marina.lowendale.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 26 Oct 2000, octave klaba wrote:
 
+> > > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
+> > let me guess: intel eepro100 or similar??
+> yeap
 
-On Fri, 27 Oct 2000, Alan Cox wrote:
-> > bitmap is all about, and should be forced to go back to the bad old times
-> > when you had to check the stepping levels etc to figure out what the CPU's
-> > could do.
+er, "me too":
+
+  Bus  0, device   2, function  0:
+    Ethernet controller: Intel 82557 (rev 8).
+      Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master Capable.  Latency=64.  Min Gnt=8.Max Lat=56.
+      Non-prefetchable 32 bit memory at 0xb5fff000 [0xb5fff000].
+      I/O at 0x2400 [0x2401].
+      Non-prefetchable 32 bit memory at 0xb5e00000 [0xb5e00000].
+
+On Debian's 2.2.17-compact on a Compaq DL380 - with 60 days uptime I have
+6 "eth0: card reports no resources." messages reported in dmesg.
+
+[...]
+> > Well known problem with that one. dont know if its fully fixed ... With
+> > 2.4.0-test9-pre3 it doesnt happen on my machine ...
+> we have 1-2 servers running 2.4.0-test9 and we got this error ...
 > 
-> You still do. In fact your example SEP specifically requires this due to 
-> Intel specification changes in the undocumented=->documented versions
+> is there any patch to 2.2.18pre ? since the server has to run on sunday
+> we can still make the crazy tests 3 days. it would be cool to fix it to 
+> 2.2.X if the bug is known ;)
 
-NO.
+Unless this is "mostly harmless" a backport of any fix to 2.2.xx would be
+received most gratefully.
 
-Go back. Read ym email. Realize that you do this ONCE. At setup time.
-
-You can even split SEP into SEPOLD and SEPNEW, and _always_ just test one
-bit. You should not have to test stepping levels in normal use: that
-invariably causes problems when there are more than one CPU that has some
-feature.
-
-It is insidious. It starts out as something simple like
-
-	if (stepping < 5) {
-		...
-	}
-
-and everybody thinks it is cool. Until somebody notices that it should be
-
-	if (vendor == intel && stepping < 5) {
-		...
-	}
-
-and it appears to work again, until it turns out that Cyrix has the same
-issue, and then it ends up being the test from hell, where different
-vendor tests all clash, and it gets increasingly difficult to add a new
-thing later on sanely. 
-
-In contrast, having the test be
-
-	if (feature & SEPNEW) {
-		...
-	}
-
-your test is simplified, easier to read and understand, AND it is much
-easier to account for different vendors who have different stepping levels
-etc. Especially as some vendors need setup code for the thing to work at
-all, so it's not even stepping levels, it's stepping levels PLUS some
-certain magic sequence that must have been done to initialize the thing.
-
-No thank you. We'll just require fixed feature flags. Which can be turned
-on as the features are enabled.
-
-		Linus
+Thanks,
+Neale.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

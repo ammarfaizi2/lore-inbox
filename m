@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262527AbTCIP6W>; Sun, 9 Mar 2003 10:58:22 -0500
+	id <S262530AbTCIQAo>; Sun, 9 Mar 2003 11:00:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262529AbTCIP6W>; Sun, 9 Mar 2003 10:58:22 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:3713 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262527AbTCIP6V>; Sun, 9 Mar 2003 10:58:21 -0500
-Date: Sun, 9 Mar 2003 10:09:01 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: Jason Straight <jason@JeetKuneDoMaster.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.64bk3 no screen after Ok booting kernel
-In-Reply-To: <200303091052.13291.jason@JeetKuneDoMaster.net>
-Message-ID: <Pine.LNX.4.44.0303091007250.1104-100000@localhost.localdomain>
+	id <S262531AbTCIQAn>; Sun, 9 Mar 2003 11:00:43 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:26250 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262530AbTCIQAn>;
+	Sun, 9 Mar 2003 11:00:43 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.64-mm1
+References: <20030305230712.5a0ec2d4.akpm@digeo.com>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 09 Mar 2003 08:54:47 +0100
+In-Reply-To: <20030305230712.5a0ec2d4.akpm@digeo.com>
+Message-ID: <87y93pgek8.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Mar 2003, Jason Straight wrote:
+And a quick note, the IO-schduler and all other improvements seems
+like heaven for a poor guy stuck on 2.4 for long time, and I've kept
+reading lk-ml for the progress reports and feedback and just like to
+add my 2,000 rupiahs that this stuff certainly makes life enjoyable
+under load on a slow harddrive on a laptop.
 
-> On Sunday 09 March 2003 02:39 am, Andrew Morton wrote:
-> > "Adam J. Richter" <adam@yggdrasil.com> wrote:
-> > > On another desktop computer (a P3), I get no kernel printk's but user
-> > > level programs print their output.  For example I see fsck print its
-> > > output.  However, that computer system hangs after fsck apparently
-> > > finishes.  The computer with the console problems under 2.5.64bk3
-> > > boots 2.5.64 and 2.5.64bk1 fine.  I haven't tried 2.5.64bk2 yet.
-> >
-> > Did you try adding "console=tty0" to the boot command?  That got broken
-> > too.
-> 
-> Yeah, got that. I think it's probably the fact that CONFIG_VT_CONSOLE isn't 
-> defined because it's not in the menuconfig anywhere, putting it in .config 
-> get's cleaned out by checkconfig.pl. 
+mvh,
+A
 
-CONFIG_VT_CONSOLE doesn't appear if you define CONFIG_INPUT as either m or 
-n.  Rerun menuconfig, change the CONFIG_INPUT to y and then you can set 
-CONFIG_VT_CONSOLE.
+Andrew Morton <akpm@digeo.com> writes:
 
+> [SNIP AGAIN]
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269731AbUISCct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269137AbUISD0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269731AbUISCct (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 22:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269729AbUISCcs
+	id S269137AbUISD0S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 23:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269737AbUISD0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 22:32:48 -0400
-Received: from pimout5-ext.prodigy.net ([207.115.63.73]:31680 "EHLO
-	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S269731AbUISCcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 22:32:46 -0400
-Date: Sat, 18 Sep 2004 22:32:43 -0400 (EDT)
-From: Vladimir Dergachev <volodya@mindspring.com>
-X-X-Sender: volodya@node2.an-vo.com
-Reply-To: Vladimir Dergachev <volodya@mindspring.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: dri-devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Design for setting video modes, ownership of sysfs attributes
-In-Reply-To: <9e4733910409181916446719b8@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0409182229130.3641@node2.an-vo.com>
-References: <9e47339104091815125ef78738@mail.gmail.com>  <E1C8oiI-0001xU-UG@evo.keithp.com>
-  <9e47339104091817545b3d2675@mail.gmail.com>  <Pine.LNX.4.61.0409182156160.3498@node2.an-vo.com>
- <9e4733910409181916446719b8@mail.gmail.com>
+	Sat, 18 Sep 2004 23:26:18 -0400
+Received: from web52805.mail.yahoo.com ([206.190.39.169]:56992 "HELO
+	web52805.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S269137AbUISD0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 23:26:14 -0400
+Message-ID: <20040919032613.96799.qmail@web52805.mail.yahoo.com>
+Date: Sat, 18 Sep 2004 20:26:13 -0700 (PDT)
+From: mike cox <mikecoxlinux@yahoo.com>
+Subject: Re: Logitech and Microsoft Tilt Wheel Mice. Driver suggestions wanted.
+To: linux-kernel@vger.kernel.org
+Cc: mike cox <mikecoxlinux@yahoo.com>
+In-Reply-To: <200409182128.19138.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--- Dmitry Torokhov <dtor_core@ameritech.net> wrote:
 
-On Sat, 18 Sep 2004, Jon Smirl wrote:
+> On Saturday 18 September 2004 08:51 pm, mike cox
+> wrote:
+> > I'm modifying Vojtech Pavlik's 2.6.8.1 kernel
+> > mousedev.c mouse driver to support the new "Tilt
+> > wheel" functionality on the Logitech MX1000 Laser
+> > Mouse, and the Microsoft Wireless Optical mouse
+> with
+> > Tilt Wheel Technology.
+> 
+> How will the tilt information be exported? And what
+> is wrong with using
+> event interface? I think that the evdev patches are
+> included into X shipped
+> by Gentoo, Mandrake and Fedora at least...
 
-> You did that from an xterm, right? Which console device is the xterm running on?
+I'm using SuSE 8.2 with the 2.6.8.1 kernel.  I ran xev
+on my machine and it didn't detect any tilting at all.
 
-Yes.
+I asked around on some various newsgroups and there
+was not a lot of interest in the logitech and
+Microsoft mice that have tilt wheels.  This patch was
+going to be for myself and all the other small
+minority of tilt wheel mouse users.
 
-I thought /dev/pts/1 was a console - much like regular tty or a serial 
-port.
+If you have a better way, that is why I'm asking for
+suggestions.  Please give them, or tell me if I've
+overlooked something. 
 
->
-> X starts up a process that knows which device it is running and it can
-> remember that device since X stays running.
->
-> Maybe the answer is that this is something for the VC layer since the
-> VC layer stays running and knows what device it was started on. An
-> escape sequence could query the device from the VC terminal emulator.
->
-> Is there some way to figure this out from the environment?
 
-Well, there is a DISPLAY variable which you likely knew about. Otherwise 
-there does not seem to be anything else console specific.
-
-Btw, completely unrelated, but I found that that I have 
-WINDOW_MANAGER=metacity set. Not sure how I got it, but I am running KDE.
-
-                              best
-
-                                 Vladimir Dergachev
+		
+_______________________________
+Do you Yahoo!?
+Declare Yourself - Register online to vote today!
+http://vote.yahoo.com

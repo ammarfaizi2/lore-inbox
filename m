@@ -1,109 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVALJqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVALJto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVALJqx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 04:46:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVALJqx
+	id S261313AbVALJto (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 04:49:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVALJto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 04:46:53 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:63182 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261307AbVALJqs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 04:46:48 -0500
-Date: Wed, 12 Jan 2005 15:19:35 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Luca Falavigna <dktrkranz@gmail.com>
-Cc: Greg KH <greg@kroah.com>, Nathan Lynch <nathanl@austin.ibm.com>,
-       vamsi_krishna@in.ibm.com, suparna@in.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>, maneesh@in.ibm.com
-Subject: Re: [PATCH] Kprobes /proc entry
-Message-ID: <20050112094935.GD1559@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-References: <41E2AC82.8020909@gmail.com> <20050110181445.GA31209@kroah.com> <1105479077.17592.8.camel@pants.austin.ibm.com> <20050111213400.GB18422@kroah.com> <41E46ACE.2040101@gmail.com> <20050112063511.GB1559@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050112063511.GB1559@in.ibm.com>
-User-Agent: Mutt/1.4i
+	Wed, 12 Jan 2005 04:49:44 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:43494 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S261313AbVALJtl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 04:49:41 -0500
+Message-ID: <41E4F2DB.4010806@metaparadigm.com>
+Date: Wed, 12 Jan 2005 17:50:19 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jim Zajkowski <jamesez@umich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sparse LUN scanning - 2.4.x
+References: <41E46A59.2010205@metaparadigm.com> <cs210t$l8m$1@sea.gmane.org>
+In-Reply-To: <cs210t$l8m$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Luca,
+Jim Zajkowski wrote:
 
-Below is the latest patch that provides sysrq key feature
-to list the applied kernel probes.
-Please let me know your comments.
+> On 2005-01-11 19:07:53 -0500, Michael Clark <michael@metaparadigm.com> 
+> said:
+>
+>>> The problem is this: since LUN 0 does not show up -- specifically, 
+>>> it can't read the vendor or model informaton -- the kernel SCSI scan 
+>>> does not match with the table to tell the kernel to do sparse LUN 
+>>> scanning... so the RAID does not appear.
+>>
+>
+>> Add the Xserve with the BLIST_SPARSELUN flag into the 
+>> blacklist/quirks table in drivers/scsi/scsi_scan.c
+>
+>
+> It already is in the quirks list.
+>
+> The problem is that LUN 0 does not show up on this machine, so the 
+> quirks table doesn't work.  Looking at /proc/scsi/scsi shows the 
+> device but only sorta:
+>
 
-Thanks
-Prasanna
+Okay. I believe there is a patch floating around for 2.4 that is used in 
+some of the other distro's kernels that adds REPORT LUNS scanning as 
+well as a flag to force LUN scanning (although not sure it works if LUN 
+0 is not present).
 
----
-Users like to list the kprobes inserted into the kernel.
-This patch provides Sysrq-key to list all the kernel probes.
-Usage Alt+SysRq+W to show the applied kprobes.
-or $echo w > /proc/sysrq-trigger
+A pragmatic solution may be to just add the echo scsi add-single-device 
+x x x x > /proc/scsi/scsi into your early boot or configure one of your 
+slices on LUN 0 (if the Xserve RAID allows that). 2.6 (and RHEL 4) 
+support the REPORT LUNS so should work there although there are some 
+messages on linux-scsi about the Xserve RAID's specific handling of LUN 
+0. Probably good idea to post to linux-scsi.
 
-Signed-of-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
----
+~mc
 
-
-
----
-
- linux-2.6.10-prasanna/kernel/kprobes.c |   25 +++++++++++++++++++++++++
- 1 files changed, 25 insertions(+)
-
-diff -puN kernel/kprobes.c~kprobes-sysrq-addn-feature kernel/kprobes.c
---- linux-2.6.10/kernel/kprobes.c~kprobes-sysrq-addn-feature	2005-01-12 12:29:49.000000000 +0530
-+++ linux-2.6.10-prasanna/kernel/kprobes.c	2005-01-12 14:52:49.000000000 +0530
-@@ -29,6 +29,8 @@
-  *		exceptions notifier to be first on the priority list.
-  */
- #include <linux/kprobes.h>
-+#include <linux/sysrq.h>
-+#include <linux/kallsyms.h>
- #include <linux/spinlock.h>
- #include <linux/hash.h>
- #include <linux/init.h>
-@@ -131,10 +133,33 @@ void unregister_jprobe(struct jprobe *jp
- 	unregister_kprobe(&jp->kp);
- }
- 
-+static void show_kprobes(int key, struct pt_regs *pt_regs, struct tty_struct *tty)
-+{
-+	int i;
-+	struct hlist_node *node;
-+
-+	/* unsafe: kprobe_lock ought to be taken here */
-+	for(i = 0; i < KPROBE_TABLE_SIZE; i++) {
-+		struct kprobe *p;
-+		hlist_for_each_entry(p, node, &kprobe_table[i], hlist) {
-+				printk("[<%p>] ", p->addr);
-+				print_symbol("%s\t", (unsigned long)p->addr);
-+				print_symbol("%s\n", (unsigned long)p->pre_handler);
-+		}
-+	}
-+}
-+
-+static struct sysrq_key_op sysrq_show_kprobes = {
-+	.handler        = show_kprobes,
-+	.help_msg       = "shoWkprobes",
-+	.action_msg     = "Show kprobes\n"
-+};
-+
- static int __init init_kprobes(void)
- {
- 	int i, err = 0;
- 
-+	register_sysrq_key('w', &sysrq_show_kprobes);
- 	/* FIXME allocate the probe table, currently defined statically */
- 	/* initialize all list heads */
- 	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
-
-_
--- 
-
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>

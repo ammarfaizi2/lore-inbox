@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpHw4HX3Fey3xTN24o5XSoS8hHQ==
+thread-index: AcQVpOXEQNYstx/TT82GMSIUQHA9YA==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 16:02:08 +0000
-Message-ID: <01f301c415a4$7c382290$d100000a@sbs2003.local>
-Content-Transfer-Encoding: 7bit
-Date: Mon, 29 Mar 2004 16:42:47 +0100
-From: "Ciaran McCreesh" <ciaranm@gentoo.org>
+Delivery-date: Mon, 05 Jan 2004 23:19:03 +0000
+Message-ID: <03fb01c415a4$e5c417f0$d100000a@sbs2003.local>
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
+Date: Mon, 29 Mar 2004 16:45:44 +0100
+From: "Martin J. Bligh" <mbligh@aracnet.com>
 To: <Administrator@smtp.paston.co.uk>
-Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Pentium M config option for 2.6
-In-Reply-To: <20040104144350.GD24913@louise.pinerecords.com>
-References: <200401041410.i04EA61e007769@harpo.it.uu.se><20040104144350.GD24913@louise.pinerecords.com>
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Cc: <colpatch@us.ibm.com>, <linux-kernel@vger.kernel.org>,
+        "Andrew Morton" <akpm@digeo.com>
+Subject: Re: [TRIVIAL PATCH] Ensure pfn_to_nid() is always defined for i386
+In-Reply-To: <20040105225340.GB1882@matchmail.com>
+References: <3FE74984.3000602@us.ibm.com> <1814780000.1072139199@flay> <20040105225340.GB1882@matchmail.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-	micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="Signature=_Sun__4_Jan_2004_15_59_41_+0000_.cWKGb=mK4TKqteu"
-X-OriginalArrivalTime: 04 Jan 2004 16:00:11.0290 (UTC) FILETIME=[D53077A0:01C3D2DB]
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
+X-OriginalArrivalTime: 29 Mar 2004 15:45:45.0593 (UTC) FILETIME=[E64E5690:01C415A4]
 
-This is a multi-part message in MIME format.
+>> + * for now assume that 64Gb is max amount of RAM for whole system
+>> + *    64Gb / 4096bytes/page = 16777216 pages
+>> + */
+>> +#define MAX_NR_PAGES 16777216
+>> +#define MAX_ELEMENTS 256
+>> +#define PAGES_PER_ELEMENT (MAX_NR_PAGES/MAX_ELEMENTS)
+> 
+> Why not do the calculation in the define, and use PAGE_SIZE?
+> 
+> If PAGE_SIZE isn't 4k will it break the rest of this code, or will the
+> calculations make sence with larger PAGE_SIZE?
+> 
+> Might as well make it easier to go in the direction of variable PAGE_SIZE
+> instead of keeping the assumption.
 
---Signature=_Sun__4_Jan_2004_15_59_41_+0000_.cWKGb=mK4TKqteu
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+The patch is just moving the code, not changing it ;-)
+But yes, that value could probably be derived instead of hardcoded.
+Separate patch though.
 
-On Sun, 4 Jan 2004 15:43:50 +0100 Tomas Szepe <szepe@pinerecords.com>
-wrote:
-| +config MPENTIUMM
-| +	bool "Pentium M (Banias/Centrino)"
-| +	help
-| +	  Select this for Intel Pentium M chips.  This option enables
-| +	  compile flags optimized for the chip, uses the correct cache
-| +	  shift, and applies any applicable Pentium III/IV
+M.
 
-That should probably read "Pentium III/4".
-
--- 
-Ciaran McCreesh
-Mail:    ciaranm at gentoo.org
-Web:     http://dev.gentoo.org/~ciaranm
-
-
---Signature=_Sun__4_Jan_2004_15_59_41_+0000_.cWKGb=mK4TKqteu
-Content-Transfer-Encoding: 7bit
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/+Dh396zL6DUtXhERAnAeAJ9sF2hG1DDXr+wDUm3Tg4oZYEH2MQCfemTD
-PrlS+9B83yCA5wVLmfTi4jU=
-=X9PQ
------END PGP SIGNATURE-----
-
---Signature=_Sun__4_Jan_2004_15_59_41_+0000_.cWKGb=mK4TKqteu--

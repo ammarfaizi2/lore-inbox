@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275353AbTHGOmq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 10:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275365AbTHGOmq
+	id S275387AbTHGO74 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 10:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275378AbTHGO57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 10:42:46 -0400
-Received: from Mix-Lyon-107-1-204.w193-249.abo.wanadoo.fr ([193.249.22.204]:27008
-	"EHLO gaston") by vger.kernel.org with ESMTP id S275353AbTHGOmh
+	Thu, 7 Aug 2003 10:57:59 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:38275 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S275343AbTHGO47
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 10:42:37 -0400
-Subject: Re: [Linux-fbdev-devel] [PATCH] Framebuffer: 2nd try: client
-	notification mecanism & PM
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: James Simmons <jsimmons@infradead.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <20030807100309.GB166@elf.ucw.cz>
-References: <Pine.LNX.4.44.0308070000540.17315-100000@phoenix.infradead.org>
-	 <1060249101.1077.67.camel@gaston>  <20030807100309.GB166@elf.ucw.cz>
+	Thu, 7 Aug 2003 10:56:59 -0400
+Subject: Re: Loading Pentium III microcode under Linux - catch 22!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Rankin <rankincj@yahoo.com>
+Cc: tigran@veritas.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030807143831.73389.qmail@web40603.mail.yahoo.com>
+References: <20030807143831.73389.qmail@web40603.mail.yahoo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1060267031.722.3.camel@gaston>
+Organization: 
+Message-Id: <1060267992.3168.70.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 07 Aug 2003 16:37:11 +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Aug 2003 15:53:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2003-08-07 at 15:38, Chris Rankin wrote:
+> July 2000, and my current BIOS just doesn't have any
+> microcode for them. Without the update, I used to come
+> back at the end of the day, switch on the KVM and be
+> unable to use the keyboard and mouse.
 
-> I believe solution to this is simple: always switch to kernel-owned
-> console during suspend. (swsusp does it, there's patch for S3 to do
-> the same). That way, Xfree (or qtopia or whoever) should clean up
-> after themselves and leave the console to the kernel. (See
-> kernel/power/console.c)
+Sounds believable
 
-I tried using it on pmac, but it causes hell with XFree. I'm not sure
-what's up yet, I suspect it may be XFree still doing things after
-calling the RELDISP ioctl but I'm not completely sure yet.
+> Anyway, I wasn't aware that Intel had released a
+> changelist for their microcode updates. Goodness knows
+> what bugs they're fixing.
 
-The setup XFree + DRI is working without switching to suspend console
-(with only the apm_bios emulation for XFree to suspend/restore itself)
-but not when switching to suspend console right before doing the apm
-emulation callbacks (which should be ignored by X since it's no longer
-the frontmost process at this point).
+Generally speaking its the ones that end  "Can be worked around by
+the BIOS" in the big list of errata. Some of those are however
+other things like setting timing registers or turning off features
+via semi-secret mtrr registers
 
-For some reason, it seems that after we have switched to the suspend
-console, we race with the X server on accel engine, and on resume, the X
-server just crashes.
+> memory), and CPU malfunction is the leading candidate
+> explanation. I have already replaced the 300W PSU with
+> a 400W one and tested the memory.
 
-Ben.
- 
+Ok
+
+> Yes, that's the "catch-22" bit. I was originally
+> thinking about either a bootstrapping floppy disk, or
+> maybe hacking some code into the boot-up sequence
+> itself.
+> 
+> > it can load it very early after that from initrd.
+> 
+> OK, I'll look into that.
+
+Looking at it you can do it in initrd fine, or you can do it
+as the first thing you do once the real root fs is mounted
+from init's scripts (/etc/rc.sysinit normally)
+

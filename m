@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269726AbUJGHIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269728AbUJGHIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269726AbUJGHIr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 03:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269728AbUJGHIr
+	id S269728AbUJGHIv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 03:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269730AbUJGHIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 03:08:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24734 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269726AbUJGHIq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 03:08:46 -0400
-Message-ID: <4164EB6F.90302@pobox.com>
-Date: Thu, 07 Oct 2004 03:08:31 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Thu, 7 Oct 2004 03:08:50 -0400
+Received: from siaag2ah.compuserve.com ([149.174.40.141]:50474 "EHLO
+	siaag2ah.compuserve.com") by vger.kernel.org with ESMTP
+	id S269728AbUJGHIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 03:08:48 -0400
+Date: Thu, 7 Oct 2004 03:05:45 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Why no linux-2.6.8.2? (was Re: new dev model)
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200410070308_MC3-1-8BB4-FF94@compuserve.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Andrew Morton'" <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: Default cache_hot_time value back to 10ms
-References: <20041006134317.03a22198.akpm@osdl.org> <200410062313.i96NDo609923@unix-os.sc.intel.com> <20041007062908.GB32679@elte.hu>
-In-Reply-To: <20041007062908.GB32679@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
-> >>Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-> 
-> 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Jeff Garzik wrote:
+
+> Thanks to BitKeeper no properly-tagged branch is ever dead.
+>
+> Anyone could make a 2.6.8.2 if they so chose.
+>
+
+  But it would be pointless without offical blessing from Linus.
 
 
-[tangent]  FWIW Andrew has recently been using "Acked-by" as well, 
-presumably for patches created by person X from but reviewed by wholly 
-independent person Y (since signed-off-by indicates you have some amount 
-of legal standing to actually sign off on the patch)
-
-	Jeff
-
-
+--Chuck Ebbert

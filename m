@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263234AbTFGPpI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 11:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTFGPpI
+	id S262520AbTFGPu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 11:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTFGPu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 11:45:08 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:7694 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S262166AbTFGPpE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 11:45:04 -0400
-Date: Sat, 7 Jun 2003 17:58:27 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Jean Tourrilhes <jt@bougret.hpl.hp.com>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [patch] fix vlsi_ir.c compile if !CONFIG_PROC_FS
-Message-ID: <20030607155826.GA20118@mars.ravnborg.org>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Jean Tourrilhes <jt@bougret.hpl.hp.com>, linux-net@vger.kernel.org,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-References: <20030607152434.GQ15311@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030607152434.GQ15311@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+	Sat, 7 Jun 2003 11:50:26 -0400
+Received: from filesrv1.system-techniques.com ([199.33.245.55]:49817 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id S262520AbTFGPuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 11:50:25 -0400
+Date: Sat, 7 Jun 2003 12:03:31 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: James Stevenson <james@stev.org>
+cc: chas williams <chas@cmf.nrl.navy.mil>,
+       Werner Almesberger <wa@almesberger.net>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
+ (take 2) 
+In-Reply-To: <Pine.LNX.4.44.0306071214110.19033-100000@god.stev.org>
+Message-ID: <Pine.LNX.4.56.0306071200320.30661@filesrv1.baby-dragons.com>
+References: <Pine.LNX.4.44.0306071214110.19033-100000@god.stev.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 05:24:34PM +0200, Adrian Bunk wrote:
-> I got the following compile error with !CONFIG_PROC_FS:
->   CC      drivers/net/irda/vlsi_ir.o
-> drivers/net/irda/vlsi_ir.c:2047: `PROC_DIR' undeclared (first use in this function)
-> The following patch fixes it:
-> 
+	Hello James ,
 
-[snip]
+On Sat, 7 Jun 2003, James Stevenson wrote:
+> On Fri, 6 Jun 2003, chas williams wrote:
+> > In message <20030606210620.G3232@almesberger.net>,Werner Almesberger writes:
+> > >TCP connections will survive route changes, interface
+> > >removals, etc.
+> > really?  if i remove my ethernet interface i expect all the
+> > connections to die.
 
-I prefer the following patch:
-Get rid of one ifdef/endif pair.
-
-	Sam
-
-===== drivers/net/irda/vlsi_ir.c 1.16 vs edited =====
---- 1.16/drivers/net/irda/vlsi_ir.c	Thu Apr 24 14:17:12 2003
-+++ edited/drivers/net/irda/vlsi_ir.c	Sat Jun  7 17:55:29 2003
-@@ -1993,9 +1993,7 @@
- #endif
- };
- 
--#ifdef CONFIG_PROC_FS
- #define PROC_DIR ("driver/" DRIVER_NAME)
--#endif
- 
- static int __init vlsi_mod_init(void)
- {
+> Think of a latop with a normall ethernet card in it.
+> When you unplug the cable it wont disconnect all the tcp
+> connection on the interface so that you could re route everything though
+> a wireless card.
+	This anology is incorrect or at least can be circumvented .
+	Ie: All physical interfaces could be unnumbered & th eloopback be
+	the only interface with THE ip .  Then all routes lead to Rome as
+	it were .
+	Btw ,  This can & does work .  Hth ,  JimL
+-- 
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+

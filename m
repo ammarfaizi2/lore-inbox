@@ -1,79 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130127AbRAPAVB>; Mon, 15 Jan 2001 19:21:01 -0500
+	id <S131023AbRAPAWL>; Mon, 15 Jan 2001 19:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130393AbRAPAUw>; Mon, 15 Jan 2001 19:20:52 -0500
-Received: from sandy.surfsouth.com ([216.128.200.25]:59654 "EHLO
-	sandy.surfsouth.com") by vger.kernel.org with ESMTP
-	id <S130127AbRAPAUg>; Mon, 15 Jan 2001 19:20:36 -0500
-Date: Mon, 15 Jan 2001 19:22:08 -0500
-To: linux-kernel@vger.kernel.org
-Subject: matroxfb on 2.4.0 / PCI: Failed to allocate...
-Message-ID: <20010115192208.A372@cahoots.surfsouth.com>
-Reply-To: cmiller@surfsouth.com, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-mrl-nonsense: It's better to be Pavlov's Dog than Schrodenger's Cat.
-X-key-info: GPG key at http://web.chad.org/home/gpgkey
-From: Chad Miller <cmiller@surfsouth.com>
+	id <S130393AbRAPAWB>; Mon, 15 Jan 2001 19:22:01 -0500
+Received: from smtp3.jp.psi.net ([154.33.63.113]:48146 "EHLO smtp3.jp.psi.net")
+	by vger.kernel.org with ESMTP id <S131049AbRAPAVu>;
+	Mon, 15 Jan 2001 19:21:50 -0500
+From: "Rainer Mager" <rmager@vgkk.com>
+To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Oops with 4GB memory setting in 2.4.0 stable
+Date: Tue, 16 Jan 2001 09:21:39 +0900
+Message-ID: <NEBBJBCAFMMNIHGDLFKGKENJCMAA.rmager@vgkk.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0005_01C07F9D.BB24D480"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.21.0101152003520.834-100000@freak.distro.conectiva>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, all.  I'm trying to get matroxfb running on a G400Max (dualhead).
+This is a multi-part message in MIME format.
 
-Of course, I have i2c bit-banging on and the relevant Matrox options
-turned on (as modules or compiled-in), and I don't see the expected
-`framebuffer: blah' after the `matroxfb: Matrox Millennium G400 MAX (AGP)
-detected'.
+------=_NextPart_000_0005_01C07F9D.BB24D480
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-I worry about some PCI initialization output (from dmesg):
+Ok, now were making progress. I did as you said and have attached (really!)
+the new parsed output. Now we have some useful information (I hope). I still
+got lots of warnings on symbols (which I have edited out of the parsed file
+for the sake of briefness). What's the next step?
 
-# PCI: Probing PCI hardware
-# Unknown bridge resource 0: assuming transparent
-# PCI: Using IRQ router VIA [1106/0686] at 00:07.0
-# PCI: Cannot allocate resource region 0 of device 01:00.0
-# PCI: Failed to allocate resource 0 for Matrox Graphics, Inc. MGA G400 AGP
-[...]
+--Rainer
 
-That `device 01:00.0' is obviously the AGP MGA.  'dmesg' continues later
-with...
 
-# matroxfb: Matrox Millennium G400 MAX (AGP) detected
-# i2c-core.o: i2c core module
-# i2c-algo-bit.o: i2c bit algorithm module
-# i2c-core.o: driver maven registered.  [...]
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Marcelo Tosatti
+> Sent: Tuesday, January 16, 2001 7:09 AM
+> To: Rainer Mager
+> Cc: linux-kernel@vger.kernel.org
+> Subject: RE: Oops with 4GB memory setting in 2.4.0 stable
+>
+> >>EIP; f889e044 <END_OF_CODE+385bfe34/????>   <=====
+> Trace; f889d966 <END_OF_CODE+385bf756/????>
+> Trace; c0140c10 <vfs_readdir+90/ec>
+> Trace; c0140e7c <filldir+0/d8>
+> Trace; c0140f9e <sys_getdents+4a/98>
+> Trace; c0140e7c <filldir+0/d8>
+>
+> It seems the oops is happening in a module's function.
+>
+> You have to make ksymoops parse the oops output against a System.map which
+> has all modules symbols. Load each module by hand with the insmod -m
+> option ("insmod -m module.o") and _append_ the outputs to System.map.
+>
+> After that you can run ksymoops against this new System.map.
 
-...and the loaded modules include...
+------=_NextPart_000_0005_01C07F9D.BB24D480
+Content-Type: application/octet-stream;
+	name="oops.parsed.edit"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="oops.parsed.edit"
 
-Module                  Size  Used by
-matroxfb_crtc2          6928   0 (unused)
-matroxfb_maven          9552   0 (unused)
-i2c-matroxfb            3632   0 (unused)
-i2c-algo-bit            7392   0 [i2c-matroxfb]
-i2c-core               13072   0 [matroxfb_maven i2c-algo-bit]
-matroxfb_base          16848   0 [matroxfb_crtc2 i2c-matroxfb]
-matroxfb_DAC1064        5824   0 [matroxfb_crtc2 matroxfb_base]
-matroxfb_accel          8192   0 [matroxfb_crtc2 matroxfb_maven \
-i2c-matroxfb matroxfb_base matroxfb_DAC1064]
-matroxfb_misc          13088   0 [matroxfb_crtc2 matroxfb_maven \
-i2c-matroxfb matroxfb_base matroxfb_DAC1064 matroxfb_accel]
-agpgart                13536   0 (unused)
+ksymoops 0.7c on i686 2.4.0.  Options used=0A=
+     -v /boot/vmlinux-2.4.0-bigmem (specified)=0A=
+     -K (specified)=0A=
+     -L (specified)=0A=
+     -o /lib/modules/2.4.0/ (default)=0A=
+     -m ./System.map-2.4.0-bigmem (specified)=0A=
+=0A=
+No modules in ksyms, skipping objects=0A=
+Unable to handle kernel NULL pointer dereference at virtual address =
+00000000=0A=
+f889e044=0A=
+*pde =3D 00000000=0A=
+Oops: 0002=0A=
+CPU:    1=0A=
+EIP:    0010:[<f889e044>]=0A=
+Using defaults from ksymoops -t elf32-i386 -a i386=0A=
+EFLAGS: 00010246=0A=
+eax: 00000000   ebx: d5762800   ecx: 00000400   edx: c19665fc=0A=
+esi: d55be120   edi: 00000000   ebp: d5764260   esp: d5505f1c=0A=
+ds: 0018   es: 0018   ss: 0018=0A=
+Process ls (pid: 865, stackpage=3Dd5505000)=0A=
+Stack: d5762800 d55be120 d5764260 d5764260 d55be120 00000000 f889d966 =
+d55be120=0A=
+       d5762800 d5504000 d5764260 fffffffe fffffffb d5762800 d5764260 =
+d55be120=0A=
+       00000000 d5764260 bffffa40 00000006 c0140c10 d5764260 d5505fb0 =
+c0140e7c=0A=
+Call Trace: [<f889d966>] [<c0140c10>] [<c0140e7c>] [<c0140f9e>] =
+[<c0140e7c>] [<c0108f4b>]=0A=
+Code: f3 ab e9 8b 00 00 00 90 8d 74 26 00 8b 44 24 14 c7 00 00 00=0A=
+=0A=
+>>EIP; f889e044 <smb_rename+fc/19c>   <=3D=3D=3D=3D=3D=0A=
+Trace; f889d966 <smb_readdir+b6/188>=0A=
+Trace; c0140c10 <vfs_readdir+90/ec>=0A=
+Trace; c0140e7c <filldir+0/d8>=0A=
+Trace; c0140f9e <sys_getdents+4a/98>=0A=
+Trace; c0140e7c <filldir+0/d8>=0A=
+Trace; c0108f4b <system_call+33/38>=0A=
+Code;  f889e044 <smb_rename+fc/19c>=0A=
+00000000 <_EIP>:=0A=
+Code;  f889e044 <smb_rename+fc/19c>   <=3D=3D=3D=3D=3D=0A=
+   0:   f3 ab                     repz stos %eax,%es:(%edi)   =
+<=3D=3D=3D=3D=3D=0A=
+Code;  f889e046 <smb_rename+fe/19c>=0A=
+   2:   e9 8b 00 00 00            jmp    92 <_EIP+0x92> f889e0d6 =
+<smb_rename+18e/19c>=0A=
+Code;  f889e04b <smb_rename+103/19c>=0A=
+   7:   90                        nop    =0A=
+Code;  f889e04c <smb_rename+104/19c>=0A=
+   8:   8d 74 26 00               lea    0x0(%esi,1),%esi=0A=
+Code;  f889e050 <smb_rename+108/19c>=0A=
+   c:   8b 44 24 14               mov    0x14(%esp,1),%eax=0A=
+Code;  f889e054 <smb_rename+10c/19c>=0A=
+  10:   c7 00 00 00 00 00         movl   $0x0,(%eax)=0A=
+=0A=
+=0A=
+367 warnings issued.  Results may not be reliable.=0A=
 
-...but...
+------=_NextPart_000_0005_01C07F9D.BB24D480--
 
-cmiller@canard:~$ cat /proc/fb
-cmiller@canard:~$
-
-Ideas?  Pointers?  I'm available for questions and flames.
-
-						- chad
-
---
-Chad Miller <cmiller@surfsouth.com>   URL: http://web.chad.org/   (GPG)
-"Any technology distinguishable from magic is insufficiently advanced".
-First corollary to Clarke's Third Law (Jargon File, v4.2.0, 'magic')
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

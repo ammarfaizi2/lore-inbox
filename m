@@ -1,70 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbTJFUjY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 16:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTJFUjY
+	id S261305AbTJFUp4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 16:45:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbTJFUp4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 16:39:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52373 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261299AbTJFUjS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 16:39:18 -0400
-Subject: Re: Linux 2.6.0-test6 (compile statistics)
-From: John Cherry <cherry@osdl.org>
-To: Jesper Juhl <jju@dif.dk>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.56.0309291937350.12255@jju_lnx.backbone.dif.dk>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
-	 <1064853054.914.5.camel@cherrytest.pdx.osdl.net>
-	 <Pine.LNX.4.56.0309291937350.12255@jju_lnx.backbone.dif.dk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1065472754.21161.26.camel@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 06 Oct 2003 13:39:14 -0700
+	Mon, 6 Oct 2003 16:45:56 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:63908 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261305AbTJFUpx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 16:45:53 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Justin Hibbits <jrh29@po.cwru.edu>
+Subject: Re: regression between 2.4.18 and 2.4.21/22
+Date: Mon, 6 Oct 2003 22:49:16 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <A901F612-F83A-11D7-A402-000A95841F44@po.cwru.edu>
+In-Reply-To: <A901F612-F83A-11D7-A402-000A95841F44@po.cwru.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310062249.16643.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-09-29 at 10:44, Jesper Juhl wrote:
-[snip]
-> 
-> I was wondering if there would be any point in doing these builds with
-> "allnoconfig" as well?
-> Could this possibly flush out some warnings/errors that only occur when
-> something is left out?
-> 
-> 
+On Monday 06 of October 2003 22:21, Justin Hibbits wrote:
+> On Monday, Oct 6, 2003, at 15:06 America/New_York, Bartlomiej
+>
+> Zolnierkiewicz wrote:
+> > Your /dev/hda (IBM DeskStar 60GXP) is not in DMA mode because
+> > you don't have support for your IDE controller compiled-in.
+> > Going from 2.4.21 you have to explicitely enable support for IDE
+> > chipsets.
+> > Assumption that current .config file will work with future kernel
+> > versions
+> > is not true.  Please compile kernel with driver for your on-board IDE
+> > chipset
+> > (I deducted from your dmesg that it is VIA82CXXX IDE driver).
+> >
+> > Please report back if this cures your problem,
+> >
+> > Thanks,
+> > --bartlomiej
+> >
+> > On Monday 06 of October 2003 01:38, Justin Hibbits wrote:
+> >> On Sunday, Oct 5, 2003, at 19:22 America/New_York, Bartlomiej
+> >>
+> >> Zolnierkiewicz wrote:
+> >>> Please narrow down kernel version if you want your problem to be
+> >>> cared.
+> >>>
+> >>> Try 2.4.19, 2.4.20.  There are also intermediate prepatches at
+> >>> http://www.kernel.org/pub/linux/kernel/v2.4/testing/old/
+> >>>
+> >>> dmesg output and .config can also be useful.
+> >>>
+> >>> --bartlomiej
+> >>>
+> >>> On Sunday 05 of October 2003 22:21, Justin Hibbits wrote:
+> >>>> Something very strange is going on with my machine.  With 2.4.18, I
+> >>>> was
+> >>>> getting 38MB/s on my main system disk (IBM Deskstar 60gxp), and 35
+> >>>> for
+> >>>> the other drives (Western Digital).  The IBM drive is on a Promise
+> >>>> IDE
+> >>>> controller (ASUS A7V266-E motherboard), and the others are on a
+> >>>> PROMISE
+> >>>> 2069 UDMA133 controller.  However, with 2.4.21 and 2.4.22, it will
+> >>>> not
+> >>>> set the using_dma flag for my IBM drive, but sets it for the others,
+> >>>> which now get sustained transfer rates of 46MB/s or greater.  I'm
+> >>>> using
+> >>>> the same options for all 3 kernels (at least, for the ATA/IDE
+> >>>> options).
+> >>>>   Any help would be appreciated, and I'll see if maybe I could do
+> >>>> something with it when I get time.
+> >>
+> >> Ok, I tried 2.4.19, which I thought was pretty bad because it randomly
+> >> crashed all the time, and it worked just fine with all my drives.
+> >> 2.4.20 with the wolk-4.0 patch also worked.  So, I'm guessing it was
+> >> between 2.4.20 and 2.4.21....I could try all the prepatches as well,
+> >> and narrow down exact prepatch, will take some time.  dmesg output for
+> >> 2.4.21 follows (uses a patchset for XFS, sensors, etc), along with my
+> >> config, both compressed.
+>
+> Thanks Bartlomeij, building that driver helped.  Curious though, since
+> it's using the PROMISE chip, or should be, since, according to my
+> motherboard's manual, the PROMISE chip is the only IDE chip there.
 
-The compile regressions now build with allnoconfig as well for both
-Linus' tree and Andrew's tree.  Check out...
+Good.  It has also on-board IDE ports (from VIA chipset).
 
-http://developer.osdl.org/cherry/compile/
-
-BTW, the latest compile stats for test6-mm3 and test6-mm4 are:
-
-Kernel version: 2.6.0-test6-mm4
-Kernel build: 
-   Making bzImage (defconfig): 0 warnings, 0 errors
-   Making modules (defconfig): 0 warnings, 0 errors
-   Making bzImage (allnoconfig): 1 warnings, 0 errors
-   Making bzImage (allyesconfig): 179 warnings, 1 errors
-   Making modules (allyesconfig): 9 warnings, 0 errors
-   Making bzImage (allmodconfig): 3 warnings, 0 errors
-   Making modules (allmodconfig): 234 warnings, 1 errors
-
-Kernel version: 2.6.0-test6-mm3
-Kernel build: 
-   Making bzImage (defconfig): 0 warnings, 0 errors
-   Making modules (defconfig): 0 warnings, 0 errors
-   Making bzImage (allnoconfig): 1 warnings, 0 errors
-   Making bzImage (allyesconfig): 178 warnings, 1 errors
-   Making modules (allyesconfig): 9 warnings, 0 errors
-   Making bzImage (allmodconfig): 3 warnings, 0 errors
-   Making modules (allmodconfig): 252 warnings, 1 errors
-
-
-John
+--bartlomiej
 

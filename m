@@ -1,29 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291620AbSBMM5x>; Wed, 13 Feb 2002 07:57:53 -0500
+	id <S287158AbSBMNJN>; Wed, 13 Feb 2002 08:09:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291619AbSBMM5i>; Wed, 13 Feb 2002 07:57:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61959 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291621AbSBMM5P>; Wed, 13 Feb 2002 07:57:15 -0500
-Subject: Re: PATCH 2.5.4 i810_audio, bttv, working at all.
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Wed, 13 Feb 2002 13:10:38 +0000 (GMT)
-Cc: dalecki@evision-ventures.com (Martin Dalecki),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <3C6A606C.1060604@evision-ventures.com> from "Martin Dalecki" at Feb 13, 2002 01:47:40 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S287764AbSBMNJD>; Wed, 13 Feb 2002 08:09:03 -0500
+Received: from angband.namesys.com ([212.16.7.85]:5504 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S287158AbSBMNIz>; Wed, 13 Feb 2002 08:08:55 -0500
+Date: Wed, 13 Feb 2002 16:08:51 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: Alex Riesen <fork0@users.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
+Message-ID: <20020213160851.A894@namesys.com>
+In-Reply-To: <20020213085653.A5957@namesys.com> <Pine.LNX.4.44.0202131206190.19885-100000@Expansa.sns.it>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16azBG-0005DM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0202131206190.19885-100000@Expansa.sns.it>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But please just show me a non x86 architecture which is using the 
-> i810_audio driver! 
+Hello!
 
-To start with the i810 audio code is the same code as is used for the AMD768
-southbridge which can be used with an Alpha processor + AMD762
+On Wed, Feb 13, 2002 at 12:11:14PM +0100, Luigi Genoni wrote:
+
+> > > I run slackware 8.0.49, and there was no log replaying.
+> then I do a normal reboot in 2.4.17, without any fsck,
+> there is log reply, it is a normal reboot.
+Some confusion is going on.
+So do you have log replay or you do not have log replay?
+
+> Well, some files get corrupted.
+Ok. That's definitely bad. You said you see corruptions on two boxes, right?
+Is it as simple as boot into 2.5.4, reiserfsck (and see no errors),
+mount an fs, do something, type "reboot" and  reboot into 2.5.4 again,
+and viola - here are zeroed files. Right?
+
+> I saw I am not the only one with this kind of corruption, I remember at
+> less one related mail.
+There was flaky hardware on the other report. And I think Alex Riesen
+cannot reproduce zero files anymore.
+
+Bye,
+    Oleg

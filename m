@@ -1,67 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266283AbUBGDiL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 22:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266621AbUBGDiL
+	id S266621AbUBGDju (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 22:39:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266628AbUBGDju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 22:38:11 -0500
-Received: from nevyn.them.org ([66.93.172.17]:37538 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S266283AbUBGDiH (ORCPT
+	Fri, 6 Feb 2004 22:39:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:31888 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266621AbUBGDjr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 22:38:07 -0500
-Date: Fri, 6 Feb 2004 22:37:59 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ulrich Drepper <drepper@redhat.com>, Rik van Riel <riel@redhat.com>,
-       Jamie Lokier <jamie@shareable.org>, Andi Kleen <ak@suse.de>,
-       johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-Message-ID: <20040207033759.GA8384@nevyn.them.org>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	Ulrich Drepper <drepper@redhat.com>, Rik van Riel <riel@redhat.com>,
-	Jamie Lokier <jamie@shareable.org>, Andi Kleen <ak@suse.de>,
-	johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-References: <20040205214348.GK31926@dualathlon.random> <Pine.LNX.4.44.0402052314360.5933-100000@chimarrao.boston.redhat.com> <20040206042815.GO31926@dualathlon.random> <40235D0B.5090008@redhat.com> <20040206154906.GS31926@dualathlon.random> <4024333B.6020805@redhat.com> <20040207021954.GD31926@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040207021954.GD31926@dualathlon.random>
-User-Agent: Mutt/1.5.1i
+	Fri, 6 Feb 2004 22:39:47 -0500
+Date: Fri, 6 Feb 2004 22:39:45 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Valdis.Kletnieks@vt.edu
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: 2.6.2-mm1, selinux, and initrd
+In-Reply-To: <200402060228.i162SwKo004935@turing-police.cc.vt.edu>
+Message-ID: <Xine.LNX.4.44.0402062238390.17854-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 07, 2004 at 03:19:55AM +0100, Andrea Arcangeli wrote:
-> > The official kernel might have the vdso at a fixed address part no part
-> > of the ABI requires this address and so anybody with some security
-> > conscience can change the kernel to randomize the vdso address.  It's
-> > not my or Ingo's fault that Linus doesn't like the exec-shield code
-> > which would introduce the randomization.  The important aspect is that
-> > we can add vdso randomization and nothing else needs changing.  The same
-> > libc will run6 on a stock kernel and the one with the randomized vdso.
-> > This is not the case on x86-64 where the absolute address for the
-> > gettimeofday is used.
+On Thu, 5 Feb 2004 Valdis.Kletnieks@vt.edu wrote:
+
+> Booting 2.6.2-mm1, I get:
 > 
-> I don't know exactly what your "randomization exec-shield" code is doing
-> either. the way I understand what you wrote is that you want to relocate
-> the vsyscall trasparently without glibc knowledge, so in short you're
-> saying that you don't care to randomize everything in the userspace
-> executable address space, you only care to relocate the vgettimeofday
-> bytecode, not the rest of the vsyscall pieces. So with your solution
-> you'll still have "fixed" addresses in the address space that will allow
-> an attacker to execute vgettimeofday, just like glibc can execute it
-> without noticing the actual function was relocated. As far as glibc
-> won't notice that vgettimeofday has been relocated by your
-> "exec-shield", it means the attacker as well can execute it just fine.
+> RAMDISK: Compressed image found at block 0
+> VFS: Mounted root (ext2 filesystem).
+> Mounted devfs on /dev
+> VFS: Cannot open root device 
+> 
+> and things come to a screeching halt.  Absolutely nothing in the linuxrc
+> seems to happen - and since the real root is on an LVM, we come to a
+> screeching halt.
 
-You might want to stop and take a look at the way this works on i386
-before you argue with Ulrich any more about it.
+Vladis, 
 
-Specifically, the vsyscall DSO is constructed as a normal ELF image,
-and its base address is passed to glibc as an AT_SYSINFO tag in the
-application's auxv vector.  Glibc source code has absolutely no
-knowledge of the base address, which in fact has changed at least three
-times since it was created.
+Can you please try the patch below against  the 2.6.2-mm1 kernel and let 
+me know if you still see the problem.
 
+
+- James
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+James Morris
+<jmorris@redhat.com>
+
+diff -urN -X dontdiff linux-2.6.2-mm1.o/fs/super.c linux-2.6.2-mm1.w/fs/super.c
+--- linux-2.6.2-mm1.o/fs/super.c	2004-02-05 09:24:12.000000000 -0500
++++ linux-2.6.2-mm1.w/fs/super.c	2004-02-06 22:32:43.309927664 -0500
+@@ -709,7 +709,6 @@
+ 	struct super_block *sb = ERR_PTR(-ENOMEM);
+ 	struct vfsmount *mnt;
+ 	int error;
+-	char *secdata = NULL;
+ 
+ 	if (!type)
+ 		return ERR_PTR(-ENODEV);
+@@ -718,24 +717,10 @@
+ 	if (!mnt)
+ 		goto out;
+ 
+-	if (data) {
+-		secdata = alloc_secdata();
+-		if (!secdata) {
+-			sb = ERR_PTR(-ENOMEM);
+-			goto out_mnt;
+-		}
+-
+-		error = security_sb_copy_data(fstype, data, secdata);
+-		if (error) {
+-			sb = ERR_PTR(error);
+-			goto out_free_secdata;
+-		}
+-	}
+-
+ 	sb = type->get_sb(type, flags, name, data);
+ 	if (IS_ERR(sb))
+-		goto out_free_secdata;
+- 	error = security_sb_kern_mount(sb, secdata);
++		goto out_mnt;
++ 	error = security_sb_kern_mount(sb, NULL);
+  	if (error)
+  		goto out_sb;
+ 	mnt->mnt_sb = sb;
+@@ -749,8 +734,6 @@
+ 	up_write(&sb->s_umount);
+ 	deactivate_super(sb);
+ 	sb = ERR_PTR(error);
+-out_free_secdata:
+-	free_secdata(secdata);
+ out_mnt:
+ 	free_vfsmnt(mnt);
+ out:
+

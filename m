@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316768AbSFKEoJ>; Tue, 11 Jun 2002 00:44:09 -0400
+	id <S316782AbSFKEwD>; Tue, 11 Jun 2002 00:52:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316782AbSFKEoI>; Tue, 11 Jun 2002 00:44:08 -0400
-Received: from melchi.fuller.edu ([65.118.138.13]:40461 "EHLO
-	melchi.fuller.edu") by vger.kernel.org with ESMTP
-	id <S316768AbSFKEoH>; Tue, 11 Jun 2002 00:44:07 -0400
-Date: Mon, 10 Jun 2002 21:43:53 -0700 (PDT)
-From: <christoph@lameter.com>
-X-X-Sender: <christoph@melchi.fuller.edu>
-To: Banka <banka_peng@iasystem.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-In-Reply-To: <3D05C721.9000409@iasystem.com>
-Message-ID: <Pine.LNX.4.33.0206102142580.4623-100000@melchi.fuller.edu>
+	id <S316824AbSFKEwB>; Tue, 11 Jun 2002 00:52:01 -0400
+Received: from 54.61.26.24.cfl.rr.com ([24.26.61.54]:22020 "HELO
+	potatoho.dyndns.org") by vger.kernel.org with SMTP
+	id <S316782AbSFKEwB>; Tue, 11 Jun 2002 00:52:01 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Chris Faherty <rallymonkey@bellsouth.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: Logitech Mouseman Dual Optical defaults to 400cpi
+Date: Tue, 11 Jun 2002 00:52:52 -0400
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020608165243Z317422-22020+923@vger.kernel.org> <200206101057.20259.bhards@bigpond.net.au> <20020610232637.A4589@ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020611045201Z316782-22020+2155@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jun 2002, Banka wrote:
+On Monday 10 June 2002 05:26 pm, Vojtech Pavlik wrote:
 
-> christoph@lameter.com wrote:
->
-> the paths in windows looked like this:
-> 		c:\folder\file
->
-> thus, under linux, all the links would be broken links anyway (and vice
-> versa).
+> Intellimouse 1.0 uses Agilent HDNS-2000, 2.0 uses ADNS-2001, and 3.0
+> uses a chip made by SGS Thompson, under a secret contract with Microsoft
+> that has only 400 dpi, but up to one meter per second maximal tracking
+> speed.
 
-See the readme.
+Hmm interesting, that Microsoft has no 800dpi mouse.  Glad I picked Logitech 
+then.  I assumed they were equivalent resolution since most reviews give the 
+Intellimouse the nod, but I don't know how the heck a 400dpi can compete 
+with a 800dpi.
 
+Running the Logitech @ 800 on a black surface, it's flawless.  I just can't 
+get it to fail a twitch test, despite having fewer pictures per second.  I 
+did notice it doing a little pixel dance one time on a blue pad, but it's 
+not ever done that with my black vinyl surface.
 
+-- 
+/* Chris Faherty <rallymonkey@bellsouth.net> */

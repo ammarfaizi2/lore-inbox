@@ -1,86 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319323AbSHNUt5>; Wed, 14 Aug 2002 16:49:57 -0400
+	id <S319297AbSHNUrW>; Wed, 14 Aug 2002 16:47:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319301AbSHNUso>; Wed, 14 Aug 2002 16:48:44 -0400
-Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:45015 "EHLO
+	id <S319306AbSHNUqu>; Wed, 14 Aug 2002 16:46:50 -0400
+Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:35030 "EHLO
 	berzerk.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S319319AbSHNUsO>; Wed, 14 Aug 2002 16:48:14 -0400
-Date: Wed, 14 Aug 2002 16:52:05 -0400 (EDT)
+	id <S319305AbSHNUn7>; Wed, 14 Aug 2002 16:43:59 -0400
+Date: Wed, 14 Aug 2002 16:47:50 -0400 (EDT)
 From: "Kendrick M. Smith" <kmsmith@umich.edu>
 X-X-Sender: kmsmith@vanguard.gpcc.itd.umich.edu
 To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
-Subject: REPOST patch 32/38: SERVER: new argument to nfsd_access()
-Message-ID: <Pine.SOL.4.44.0208141651420.1834-100000@vanguard.gpcc.itd.umich.edu>
+Subject: REPOST patch 23/38: SERVER: change ->rq_vers==3 to ->rq_vers>2
+Message-ID: <Pine.SOL.4.44.0208141647170.1834-100000@vanguard.gpcc.itd.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-NFSv4 defines a new field in the ACCESS response: a bitmap to indicate
-which access bits requested by the client are "supported", i.e. meaningful
-for the object in question.
+In a few places on the server, I had to change code that looked like:
 
-This patch adds a new parameter @supported to nfsd_access(), so that
-nfsd_access() can set the value of this bitmap.
+   if (rqstp->rq_vers == 3)
+       /* NFSv3 behavior */
+   else
+       /* NFSv2 behavior */
 
---- old/fs/nfsd/nfs3proc.c	Sun Aug 11 23:08:56 2002
-+++ new/fs/nfsd/nfs3proc.c	Sun Aug 11 23:09:44 2002
-@@ -134,7 +134,7 @@ nfsd3_proc_access(struct svc_rqst *rqstp
+to:
 
- 	fh_copy(&resp->fh, &argp->fh);
- 	resp->access = argp->access;
--	nfserr = nfsd_access(rqstp, &resp->fh, &resp->access);
-+	nfserr = nfsd_access(rqstp, &resp->fh, &resp->access, NULL);
- 	RETURN_STATUS(nfserr);
- }
+   if (rqstp->rq_vers > 2)
+       /* NFSv3 behavior */
+   else
+       /* NFSv2 behavior */
 
---- old/fs/nfsd/vfs.c	Sun Aug 11 23:08:56 2002
-+++ new/fs/nfsd/vfs.c	Sun Aug 11 23:09:44 2002
-@@ -348,12 +348,12 @@ static struct accessmap	nfs3_anyaccess[]
- };
+so that we would get the NFSv3 behavior, not the NFSv2 behavior,
+in NFSv4.  This patch collects all changes of this type.
 
- int
--nfsd_access(struct svc_rqst *rqstp, struct svc_fh *fhp, u32 *access)
-+nfsd_access(struct svc_rqst *rqstp, struct svc_fh *fhp, u32 *access, u32 *supported)
- {
- 	struct accessmap	*map;
- 	struct svc_export	*export;
- 	struct dentry		*dentry;
--	u32			query, result = 0;
-+	u32			query, result = 0, sresult = 0;
- 	unsigned int		error;
+--- old/fs/nfsd/nfsfh.c	Sun Aug 11 22:53:12 2002
++++ new/fs/nfsd/nfsfh.c	Sun Aug 11 22:53:33 2002
+@@ -107,7 +107,7 @@ fh_verify(struct svc_rqst *rqstp, struct
+ 		int fsid = 0;
 
- 	error = fh_verify(rqstp, fhp, 0, MAY_NOP);
-@@ -375,6 +375,9 @@ nfsd_access(struct svc_rqst *rqstp, stru
- 	for  (; map->access; map++) {
- 		if (map->access & query) {
- 			unsigned int err2;
-+
-+			sresult |= map->access;
-+
- 			err2 = nfsd_permission(export, dentry, map->how);
- 			switch (err2) {
- 			case nfs_ok:
-@@ -395,6 +398,8 @@ nfsd_access(struct svc_rqst *rqstp, stru
- 		}
- 	}
- 	*access = result;
-+	if (supported)
-+		*supported = sresult;
+ 		error = nfserr_stale;
+-		if (rqstp->rq_vers == 3)
++		if (rqstp->rq_vers > 2)
+ 			error = nfserr_badhandle;
 
-  out:
- 	return error;
---- old/include/linux/nfsd/nfsd.h	Sun Aug 11 23:08:56 2002
-+++ new/include/linux/nfsd/nfsd.h	Sun Aug 11 23:09:44 2002
-@@ -86,7 +86,7 @@ int		nfsd_create(struct svc_rqst *, stru
- 				char *name, int len, struct iattr *attrs,
- 				int type, dev_t rdev, struct svc_fh *res);
- #ifdef CONFIG_NFSD_V3
--int		nfsd_access(struct svc_rqst *, struct svc_fh *, u32 *);
-+int		nfsd_access(struct svc_rqst *, struct svc_fh *, u32 *, u32 *);
- int		nfsd_create_v3(struct svc_rqst *, struct svc_fh *,
- 				char *name, int len, struct iattr *attrs,
- 				struct svc_fh *res, int createmode,
+ 		if (fh->fh_version == 1) {
+@@ -171,7 +171,7 @@ fh_verify(struct svc_rqst *rqstp, struct
+ 		 * Look up the dentry using the NFS file handle.
+ 		 */
+ 		error = nfserr_stale;
+-		if (rqstp->rq_vers == 3)
++		if (rqstp->rq_vers > 2)
+ 			error = nfserr_badhandle;
+
+ 		if (fh->fh_version != 1) {
+--- old/fs/nfsd/vfs.c	Thu Aug  1 16:16:20 2002
++++ new/fs/nfsd/vfs.c	Sun Aug 11 22:53:33 2002
+@@ -1401,7 +1401,7 @@ nfsd_readdir(struct svc_rqst *rqstp, str
+ 	eof = !cd.eob;
+
+ 	if (cd.offset) {
+-		if (rqstp->rq_vers == 3)
++		if (rqstp->rq_vers > 2)
+ 			(void)xdr_encode_hyper(cd.offset, file.f_pos);
+ 		else
+ 			*cd.offset = htonl(file.f_pos);
 

@@ -1,137 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVAHHgH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVAHLEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbVAHHgH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 02:36:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVAHHfN
+	id S261855AbVAHLEP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 06:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVAHLEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 02:35:13 -0500
-Received: from mail.kroah.org ([69.55.234.183]:51333 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261878AbVAHFsW convert rfc822-to-8bit
+	Sat, 8 Jan 2005 06:04:01 -0500
+Received: from pD9F86D6F.dip0.t-ipconnect.de ([217.248.109.111]:54145 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S261855AbVAHLCl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:22 -0500
-Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <1105163262994@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:47:43 -0800
-Message-Id: <11051632632984@kroah.com>
+	Sat, 8 Jan 2005 06:02:41 -0500
+From: Andreas Hartmann <andihartmann@01019freenet.de>
+X-Newsgroups: fa.linux.kernel
+Subject: ksymoops 2.4.10 segfaults
+Date: Sat, 08 Jan 2005 12:01:57 +0100
+Organization: privat
+Message-ID: <croej5$5b8$1@pD9F86D6F.dip0.t-ipconnect.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: abuse@fu.berlin.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.4) Gecko/20041217
+X-Accept-Language: de, en-us, en
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.444.31, 2004/12/22 09:51:50-08:00, duncan.sands@math.u-psud.fr
-
-[PATCH] usb atm: macro consolidation, fixes debugging problem
-
-Hi Greg, the recent reorganisation of the speedtouch driver broke the logic
-that turns on debugging output in speedtch.c and usb_atm.c when DEBUG or
-CONFIG_USB_DEBUG is set.  This patch fixes things up, and moves duplicated
-debugging code into the header file.
-
-Signed-off-by: Duncan Sands <baldrick@free.fr>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Hello,
 
 
- drivers/usb/atm/speedtch.c |   20 --------------------
- drivers/usb/atm/usb_atm.c  |   17 -----------------
- drivers/usb/atm/usb_atm.h  |   19 ++++++++++++++++++-
- 3 files changed, 18 insertions(+), 38 deletions(-)
+ksymoops segfaults in object.c while computing cmd_strlen, because
+options->target is defined 'null':
+
+/* Extract all symbols definitions from an object using nm */
+static void read_nm_symbols(SYMBOL_SET *ss, const char *file, const
+OPTIONS *options)
+{
+    FILE *f;
+    char *cmd, *line = NULL, **string = NULL;
+    int i, cmd_strlen, size = 0;
+    static char const procname[] = "read_nm_symbols";
+    static char const nm_options[] = "--target=";
+
+    if (!regular_file(file, procname))
+        return;
+
+    printf ("Path to nm: %s\n",path_nm);
+    printf ("nm_options: %s\n",nm_options);
+    printf ("target: %s\n",(options->target));
+    printf ("file: %s\n",file);
+    cmd_strlen =
+strlen(path_nm)+1+strlen(nm_options)+strlen(options->target)+1+strlen(file)+1;
+    printf ("length: %d\n",cmd_strlen);
+    cmd = malloc(cmd_strlen);
 
 
-diff -Nru a/drivers/usb/atm/speedtch.c b/drivers/usb/atm/speedtch.c
---- a/drivers/usb/atm/speedtch.c	2005-01-07 15:40:08 -08:00
-+++ b/drivers/usb/atm/speedtch.c	2005-01-07 15:40:08 -08:00
-@@ -44,28 +44,8 @@
- 
- #include "usb_atm.h"
- 
--/*
--#define DEBUG
--#define VERBOSE_DEBUG
--*/
--
--#if !defined (DEBUG) && defined (CONFIG_USB_DEBUG)
--#	define DEBUG
--#endif
--
--#include <linux/usb.h>
--
- #if defined(CONFIG_FW_LOADER) || defined(CONFIG_FW_LOADER_MODULE)
- #	define USE_FW_LOADER
--#endif
--
--#ifdef VERBOSE_DEBUG
--static int udsl_print_packet(const unsigned char *data, int len);
--#define PACKETDEBUG(arg...)	udsl_print_packet (arg)
--#define vdbg(arg...)		dbg (arg)
--#else
--#define PACKETDEBUG(arg...)
--#define vdbg(arg...)
- #endif
- 
- #define DRIVER_AUTHOR	"Johan Verrept, Duncan Sands <duncan.sands@free.fr>"
-diff -Nru a/drivers/usb/atm/usb_atm.c b/drivers/usb/atm/usb_atm.c
---- a/drivers/usb/atm/usb_atm.c	2005-01-07 15:40:08 -08:00
-+++ b/drivers/usb/atm/usb_atm.c	2005-01-07 15:40:08 -08:00
-@@ -83,23 +83,6 @@
- 
- #include "usb_atm.h"
- 
--/*
--#define DEBUG
--#define VERBOSE_DEBUG
--*/
--
--#if !defined (DEBUG) && defined (CONFIG_USB_DEBUG)
--#	define DEBUG
--#endif
--
--#include <linux/usb.h>
--
--#ifdef DEBUG
--#define UDSL_ASSERT(x)	BUG_ON(!(x))
--#else
--#define UDSL_ASSERT(x)	do { if (!(x)) warn("failed assertion '" #x "' at line %d", __LINE__); } while(0)
--#endif
--
- #ifdef VERBOSE_DEBUG
- static int udsl_print_packet(const unsigned char *data, int len);
- #define PACKETDEBUG(arg...)	udsl_print_packet (arg)
-diff -Nru a/drivers/usb/atm/usb_atm.h b/drivers/usb/atm/usb_atm.h
---- a/drivers/usb/atm/usb_atm.h	2005-01-07 15:40:08 -08:00
-+++ b/drivers/usb/atm/usb_atm.h	2005-01-07 15:40:08 -08:00
-@@ -21,12 +21,29 @@
-  *
-  ******************************************************************************/
- 
-+#include <linux/config.h>
- #include <linux/list.h>
--#include <linux/usb.h>
- #include <linux/kref.h>
- #include <linux/atm.h>
- #include <linux/atmdev.h>
- #include <asm/semaphore.h>
-+
-+/*
-+#define DEBUG
-+#define VERBOSE_DEBUG
-+*/
-+
-+#if !defined (DEBUG) && defined (CONFIG_USB_DEBUG)
-+#	define DEBUG
-+#endif
-+
-+#include <linux/usb.h>
-+
-+#ifdef DEBUG
-+#define UDSL_ASSERT(x)	BUG_ON(!(x))
-+#else
-+#define UDSL_ASSERT(x)	do { if (!(x)) warn("failed assertion '" #x "' at line %d", __LINE__); } while(0)
-+#endif
- 
- #define UDSL_MAX_RCV_URBS		4
- #define UDSL_MAX_SND_URBS		4
+./ksymoops
+ksymoops 2.4.10 on i686 2.4.29-pre3.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.29-pre3/ (default)
+     -m /usr/src/linux/System.map (default)
 
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Path to nm: /usr/local/bin/nm
+nm_options: --target=
+target: (null)
+file: /lib-2.6/modules/2.4.29-pre3-swsusp/kernel/sound/pci/snd-via82xx.o
+Segmentation fault (core dumped)
+
+
+Kind regards,
+Andreas Hartmann

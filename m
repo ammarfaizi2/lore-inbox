@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316050AbSEJQ3j>; Fri, 10 May 2002 12:29:39 -0400
+	id <S316060AbSEJQbb>; Fri, 10 May 2002 12:31:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316060AbSEJQ3i>; Fri, 10 May 2002 12:29:38 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:32898 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S316050AbSEJQ3h>;
-	Fri, 10 May 2002 12:29:37 -0400
-Date: Fri, 10 May 2002 09:25:55 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-To: Keith Owens <kaos@ocs.com.au>
+	id <S316061AbSEJQba>; Fri, 10 May 2002 12:31:30 -0400
+Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:14807 "HELO
+	ahriman.bucharest.roedu.net") by vger.kernel.org with SMTP
+	id <S316060AbSEJQb3>; Fri, 10 May 2002 12:31:29 -0400
+Date: Fri, 10 May 2002 19:40:47 +0300 (EEST)
+From: Mihai RUSU <dizzy@roedu.net>
+X-X-Sender: <dizzy@ahriman.bucharest.roedu.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.15 laziness in export-objs
-In-Reply-To: <25744.1020998571@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.33.0205100924580.762-100000@segfault.osdl.org>
+Subject: Re: mmap, SIGBUS, and handling it
+In-Reply-To: <E176DEd-0006CC-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0205101940200.9661-100000@ahriman.bucharest.roedu.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello again,
 
-On Fri, 10 May 2002, Keith Owens wrote:
+Thanks for all the answers and help.
 
-> 2.5.15 has four Makefiles where all objects are marked as exporting
-> symbols.  This is lazy coding and causes spurious rebuilds.  Please
-> specify only those objects that really export symbols.
-> 
-> Also the export list is independent of whether an object is selected or
-> not.  That is, export-objs is unconditional.
-> 
-> fs/nls/Makefile:export-objs = $(obj-y)
-> arch/i386/pci/Makefile:export-objs     +=      $(obj-y)
-> drivers/base/Makefile:export-objs     := $(obj-y)
-> drivers/pci/Makefile:export-objs := $(obj-y)
+On Fri, 10 May 2002, Alan Cox wrote:
 
-Here is the patch for drivers/base.
+> > truncates the file which was mmap-ed , our program will receive a SIGBUS
+> > in write().
+> >
+> > If I understand right this is more POSIX compliant.
+> >
+> > Is there a clean/good way of handling this ?
+>
+> sigsetjmp/siglongjmp
+>
+>
 
-	-pat
+----------------------------
+Mihai RUSU
 
-===== drivers/base/Makefile 1.3 vs edited =====
---- 1.3/drivers/base/Makefile	Tue Mar 26 14:26:45 2002
-+++ edited/drivers/base/Makefile	Fri May 10 09:24:33 2002
-@@ -2,6 +2,6 @@
- 
- obj-y		:= core.o sys.o interface.o fs.o power.o
- 
--export-objs	:= $(obj-y)
-+export-objs	:= core.o fs.o power.o sys.o
- 
- include $(TOPDIR)/Rules.make
+Disclaimer: Any views or opinions presented within this e-mail are solely
+those of the author and do not necessarily represent those of any company,
+unless otherwise specifically stated.
 

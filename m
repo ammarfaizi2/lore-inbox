@@ -1,80 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267732AbSLSXDN>; Thu, 19 Dec 2002 18:03:13 -0500
+	id <S266795AbSLSXGS>; Thu, 19 Dec 2002 18:06:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267739AbSLSXDL>; Thu, 19 Dec 2002 18:03:11 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:14047 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267732AbSLSXBm>;
-	Thu, 19 Dec 2002 18:01:42 -0500
-Subject: [PATCH] (5/5) improved notifier callback mechanism -- remove old
-	locking V2
-From: Stephen Hemminger <shemminger@osdl.org>
-To: vamsi@in.ibm.com, John Levon <levon@movementarian.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021219181929.A5265@in.ibm.com>
-References: <1040249652.14364.192.camel@dell_ss3.pdx.osdl.net>
-	 <20021219181929.A5265@in.ibm.com>
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1040339373.1079.9.camel@dell_ss3.pdx.osdl.net>
+	id <S267076AbSLSXGR>; Thu, 19 Dec 2002 18:06:17 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24070 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266795AbSLSXGQ>; Thu, 19 Dec 2002 18:06:16 -0500
+Date: Thu, 19 Dec 2002 23:14:15 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Type confusion in fbcon
+Message-ID: <20021219231415.A25145@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	linux-fbdev-devel@lists.sourceforge.net
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 19 Dec 2002 15:09:33 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After the previous patches, the notifier interface now has it's own
-locking.  Therefore the existing locking done by the oprofile interface
-is superfluous.
-diff -Nru a/arch/i386/kernel/profile.c b/arch/i386/kernel/profile.c
---- a/arch/i386/kernel/profile.c	Tue Dec 17 11:25:47 2002
-+++ b/arch/i386/kernel/profile.c	Tue Dec 17 11:25:47 2002
-@@ -6,40 +6,25 @@
-  */
- 
- #include <linux/profile.h>
--#include <linux/spinlock.h>
- #include <linux/notifier.h>
- #include <linux/irq.h>
- #include <asm/hw_irq.h> 
-  
- static LIST_HEAD(profile_listeners);
--static rwlock_t profile_lock = RW_LOCK_UNLOCKED;
-  
- int register_profile_notifier(struct notifier_block * nb)
- {
--	int err;
--	write_lock_irq(&profile_lock);
--	err = notifier_chain_register(&profile_listeners, nb);
--	write_unlock_irq(&profile_lock);
--	return err;
-+	return notifier_chain_register(&profile_listeners, nb);
- }
- 
- 
- int unregister_profile_notifier(struct notifier_block * nb)
- {
--	int err;
--	write_lock_irq(&profile_lock);
--	err = notifier_chain_unregister(&profile_listeners, nb);
--	write_unlock_irq(&profile_lock);
--	return err;
-+	return notifier_chain_unregister(&profile_listeners, nb);
- }
- 
- 
- void x86_profile_hook(struct pt_regs * regs)
- {
--	/* we would not even need this lock if
--	 * we had a global cli() on register/unregister
--	 */ 
--	read_lock(&profile_lock);
- 	notifier_call_chain(&profile_listeners, 0, regs);
--	read_unlock(&profile_lock);
- }
+I'm in the midst of porting sa1100fb over to the new fb API, and I stumbled
+across an apparant confusion over the type of fb_info->pseudo_palette.
 
+Some code appears to think its an unsigned long, others think its u32.
+This doesn't make much difference when sizeof(unsigned long) == sizeof(u32)
+but this isn't always the case (eg, 64-bit architectures).
 
+I'll get back to bashing the sa1100fb driver to work out why fbcon is
+producing a _completely_ blank display, despite characters being written
+to it.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

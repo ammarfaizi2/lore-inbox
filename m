@@ -1,82 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272801AbTG3H7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 03:59:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272802AbTG3H7Z
+	id S272798AbTG3H4t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 03:56:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272800AbTG3H4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 03:59:25 -0400
-Received: from Sina.Sharif.EDU ([81.31.160.35]:5341 "EHLO sina.sharif.edu")
-	by vger.kernel.org with ESMTP id S272801AbTG3H7X (ORCPT
+	Wed, 30 Jul 2003 03:56:49 -0400
+Received: from f12.mail.ru ([194.67.57.42]:21260 "EHLO f12.mail.ru")
+	by vger.kernel.org with ESMTP id S272798AbTG3H4s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 03:59:23 -0400
-Date: Wed, 30 Jul 2003 12:33:32 +0430 (IRST)
-From: Behdad Esfahbod <behdad@bamdad.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.0-test2 : ACPI poweroff fix
-In-Reply-To: <20030730072919.GA5773@alpha.home.local>
-Message-ID: <Pine.LNX.4.44.0307301231410.6799-100000@gilas.bamdad.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Jul 2003 03:56:48 -0400
+From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: post-halloween  server down=?koi8-r?Q?=3F?=
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [212.248.25.26]
+Date: Wed, 30 Jul 2003 11:56:47 +0400
+Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	  <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E19hlpH-0006Ug-00.arvidjaar-mail-ru@f12.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The same patch fixes ACPI poweroff problem on my machine with 
-2.6.0-test2 too.  Well, it should be applied to acpi/sleep/main.c 
-and acpi/sleep/poweroff.c
+anybody knows what happened to this server? This is for a week already
+at least. Is this document maintained somwehre else?
 
-On Wed, 30 Jul 2003, Willy Tarreau wrote:
+TIA
 
-> On Thu, Jul 24, 2003 at 06:02:15PM -0300, Marcelo Tosatti wrote:
-> > 
-> > Great. I`ll apply it to the 2.4 tree later and it will be present in
-> > -pre9.
-> 
-> Hi Marcelo,
-> 
-> it seems you forgot the patch in -pre9. Never mind, I've just rediffed it,
-> here it is.
-> 
-> Cheers,
-> Willy
-> 
-> 
-> diff -urN linux-2.4.22-pre9/drivers/acpi/system.c linux-2.4.22-pre9-fix/drivers/acpi/system.c
-> --- linux-2.4.22-pre9/drivers/acpi/system.c	Wed Jul 30 09:18:40 2003
-> +++ linux-2.4.22-pre9-fix/drivers/acpi/system.c	Wed Jul 30 09:21:56 2003
-> @@ -90,9 +90,7 @@
->  static void
->  acpi_power_off (void)
->  {
-> -	acpi_enter_sleep_state_prep(ACPI_STATE_S5);
-> -	ACPI_DISABLE_IRQS();
-> -	acpi_enter_sleep_state(ACPI_STATE_S5);
-> +	acpi_suspend(ACPI_STATE_S5);
->  }
->  
->  #endif /*CONFIG_PM*/
-> @@ -180,7 +178,7 @@
->  			return AE_ERROR;
->  	}
->  
-> -	if (state < ACPI_STATE_S5) {
-> +	if (state <= ACPI_STATE_S5) {
->  		/* Tell devices to stop I/O and actually save their state.
->  		 * It is theoretically possible that something could fail,
->  		 * so handle that gracefully..
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+-andrey
 
--- 
-Behdad Esfahbod		8 Mordad 1382, 2003 Jul 30 
-http://behdad.org/	[Finger for Geek Code]
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
 
-If you do a job too well, you'll get stuck with it.
+While trying to retrieve the URL: http://www.codemonkey.org.uk/post-halloween-2.5.txt 
+
+The following error was encountered: 
+
+Connection Failed 
+The system returned: 
+
+    (111) Connection refused
+The remote host or network may be down. Please try the request again. 
+
+
 

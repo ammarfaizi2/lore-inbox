@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTLPR4I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 12:56:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTLPR4I
+	id S262056AbTLPR5z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 12:57:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTLPR5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 12:56:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41381 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261965AbTLPR4F
+	Tue, 16 Dec 2003 12:57:55 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:57354 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262030AbTLPR5s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 12:56:05 -0500
-Message-ID: <3FDF4727.8010503@pobox.com>
-Date: Tue, 16 Dec 2003 12:55:51 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Tue, 16 Dec 2003 12:57:48 -0500
+Date: Tue, 16 Dec 2003 12:46:08 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: Re: [CFT][RFC] HT scheduler
+In-Reply-To: <3FDC3023.9030708@cyberone.com.au>
+Message-ID: <Pine.LNX.3.96.1031216123911.32602D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
-       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Martin Mares <mj@ucw.cz>
-Subject: Re: PCI Express support for 2.4 kernel
-References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com>	 <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>	 <3FDDACA9.1050600@intel.com> <1071494155.5223.3.camel@laptop.fenrus.com>	 <3FDDBDFE.5020707@intel.com>	 <Pine.LNX.4.58.0312151154480.1631@home.osdl.org>	 <3FDEDC77.9010203@intel.com>  <3FDF3C6C.9030609@pobox.com> <1071596889.5223.7.camel@laptop.fenrus.com>
-In-Reply-To: <1071596889.5223.7.camel@laptop.fenrus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Tue, 2003-12-16 at 18:10, Jeff Garzik wrote:
->>This is going to choke some hardware, I guarantee.
->>You always want to make sure your flush is of the same size at the 
->>write.  Reading a byte from an address that the hardware defines as 
->>"32-bit writes only" can get ugly real quick ;-)
+On Sun, 14 Dec 2003, Nick Piggin wrote:
+
 > 
 > 
-> also reading back addr might not be the best choice in case some
-> registers have side effects on reading, it's probably better to read
-> back an address that is known to be ok to read (like the vendor ID
-> field)
+> Jamie Lokier wrote:
+> 
+> >Nick Piggin wrote:
+> >
+> >>>Shared runqueues sound like a simplification to describe execution units
+> >>>which have shared resourses and null cost of changing units. You can do
+> >>>that by having a domain which behaved like that, but a shared runqueue
+> >>>sounds better because it would eliminate the cost of even considering
+> >>>moving a process from one sibling to another.
+> >>>
+> >>You are correct, however it would be a miniscule cost advantage,
+> >>possibly outweighed by the shared lock, and overhead of more
+> >>changing of CPUs (I'm sure there would be some cost).
+> >>
+> >
+> >Regarding the overhead of the shared runqueue lock:
+> >
+> >Is the "lock" prefix actually required for locking between x86
+> >siblings which share the same L1 cache?
+> >
+> 
+> That lock is still taken by other CPUs as well for eg. wakeups, balancing,
+> and so forth. I guess it could be a very specific optimisation for
+> spinlocks in general if there was only one HT core. Don't know if it
+> would be worthwhile though.
 
+Well, if you're going to generalize the model, I would think that you
+would want some form of local locking within each level, so you don't do
+excess locking in NUMA config. It might be that you specify a lock and
+lock type for each level, and the type of lock for shared L1 cache
+siblings could be NONE.
 
-Hum.  Never seen this in a PCI config register, but it's certainly 
-possible...  good point.
+I'm not sure what kind of generalized model you have in mind for the
+future, so I may be totally off in the weeds, but I would assume that a
+lock would ideally have some form of locality. In the came socket, on the
+same board, on the same backplane, same rack, same room, same planet,
+whatever.
 
-	Jeff
-
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

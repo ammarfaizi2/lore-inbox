@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293288AbSCJVX4>; Sun, 10 Mar 2002 16:23:56 -0500
+	id <S293277AbSCJV2g>; Sun, 10 Mar 2002 16:28:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293283AbSCJVXq>; Sun, 10 Mar 2002 16:23:46 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:58377 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293277AbSCJVXi>;
-	Sun, 10 Mar 2002 16:23:38 -0500
-Date: Sun, 10 Mar 2002 18:23:18 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
+	id <S293283AbSCJV20>; Sun, 10 Mar 2002 16:28:26 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:61322 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S293277AbSCJV2R>;
+	Sun, 10 Mar 2002 16:28:17 -0500
+Date: Sun, 10 Mar 2002 16:28:16 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rob Turk <r.turk@chello.nl>, <linux-kernel@vger.kernel.org>
+cc: Rob Turk <r.turk@chello.nl>, linux-kernel@vger.kernel.org
 Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
 In-Reply-To: <E16kAxQ-0007MV-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44L.0203101822490.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+Message-ID: <Pine.GSO.4.21.0203101623400.7778-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+
 On Sun, 10 Mar 2002, Alan Cox wrote:
-> > It was fabulous at that time. The first time you create a file, it gets ";1"
-> > appended to it's filename. When you edit it, it gets saved under the same name,
-> > this time appended by ";2". Edit it again... whell, you get the picture.
-> > Cleaning up was as simple as "$ PURGE /KEEP=3" to keep the last three versions.
-> >
-> > For these days with sometimes hundreds of files, it might become confusing when
-> > 'ls' shows all versions of all files, but back then it worked well.
->
+
 > Its trickier than that - because all your other semantics have to align,
-> its akin to the undelete problem (in fact its identical). Do you version
-> on a rewrite, on a truncate, only on an O_CREAT ?
+> its akin to the undelete problem (in fact its identical). Do you version on
+> a rewrite, on a truncate, only on an O_CREAT ?
 
-That's a nice question.  I would dread the scenario where a
-new version was created for each append ;))
+Even better, what do you do upon link(2)?  Or rename(2) over one of the
+versions...
 
-Rik
--- 
-<insert bitkeeper endorsement here>
-
-http://www.surriel.com/		http://distro.conectiva.com/
+VMS is not UNIX.  And union of these two will be hell - incompatible models,
+let alone features.  "Well, I don't use <list of Unix features>" is not an
+answer - other people have different sets of things they don't use and you
+can be sure that every thing you don't care about is absolute must-have
+for somebody else.
 

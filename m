@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269413AbRIJNxC>; Mon, 10 Sep 2001 09:53:02 -0400
+	id <S269641AbRIJNwc>; Mon, 10 Sep 2001 09:52:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269515AbRIJNwn>; Mon, 10 Sep 2001 09:52:43 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:28173 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S269454AbRIJNwj>; Mon, 10 Sep 2001 09:52:39 -0400
-Date: Mon, 10 Sep 2001 15:53:00 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [bug report] NFS and uninterruptable wait states
-Message-ID: <20010910155300.D19255@artax.karlin.mff.cuni.cz>
-In-Reply-To: <m3zo8cp93a.fsf@belphigor.mcnaught.org> <01090310483100.26387@faldara> <m3zo8cp93a.fsf@belphigor.mcnaught.org> <32526.999534512@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <32526.999534512@redhat.com>; from dwmw2@infradead.org on Mon, Sep 03, 2001 at 05:28:32PM +0100
+	id <S269515AbRIJNwX>; Mon, 10 Sep 2001 09:52:23 -0400
+Received: from spike.porcupine.org ([168.100.189.2]:60431 "EHLO
+	spike.porcupine.org") by vger.kernel.org with ESMTP
+	id <S269413AbRIJNwK>; Mon, 10 Sep 2001 09:52:10 -0400
+Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
+In-Reply-To: <20010910145325.X26627@khan.acc.umu.se> "from David Weinehall at
+ Sep 10, 2001 02:53:25 pm"
+To: David Weinehall <tao@acc.umu.se>
+Date: Mon, 10 Sep 2001 09:52:30 -0400 (EDT)
+Cc: Wietse Venema <wietse@porcupine.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, netdev@oss.sgi.com
+X-Time-Zone: USA EST, 6 hours behind central European time
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20010910135230.EA1BFBC06C@spike.porcupine.org>
+From: wietse@porcupine.org (Wietse Venema)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Timeouts are a completely separate issue, surely? Applications ought to be 
-> able to deal with getting a _signal_ during a system call, whatever happens.
-> 
-> IMO, sleeping in state TASK_UNINTERRUPTIBLE in any situation where you can't
-> prove that the wakeup _will_ happen and will happen _soon_ should be
-> considered a bug - it's almost always just because someone hasn't bothered
-> to implement the cleanup code required for dealing with being interrupted.
-> 
-> /me tries to work out why anyone would ever want filesystem accesses to be 
-> uninterruptible.
+David Weinehall:
+> On Mon, Sep 10, 2001 at 08:26:03AM -0400, Wietse Venema wrote:
+> > David Weinehall:
+> > > Are you saying that Linux should implement compability with _new_
+> > > features in FreeBSD 4.x, while at the same time frowning at the fact
+> > > that Linux introduces a new API?! The mind boggles at the thought.
+> > 
+> > SIOCGIFNETMASK is not "new". It exists in systems as ancient as
+> > SunOS 4.x, which pre dates FreeBSD 4.x by about 10 years. 
+> > 
+> > Evidence: RTFM the Postfix source code :-)
+> > 
+> > In other words, SIOCGIFNETMASK existed long before Linux could plug
+> > into a network.
 
-generic_file_read does wait_on_page, which sleeps uninteruptibly. This
-shouldn't be too difficult to change (once the pages are linked to file's
-memory_area, generic_read_file redoes readpage on the same pages and it's
-up to readpage to find out, weather the request is still pending or timed
-out)
+Other vendors with SIOCGIFNETMASK in 10-year old releases: DEC, HP, IBM.
 
-Other problem is the RPC layer. If it should check signal_pending only on
-timeouts, it;s simple. If it should also check while waiting, it has to be
-able to recognise the interupted call. And this in turn brings the problem
-of discarding data requested by interupted and not restarted calls (eg. when
-the process was killed by the signal). There is the nasty case when request
-is sent to the server and sending process dies while waitig. But the request
-is eventualy replied and the reply must be handled somewhere.
+> "[snip] old and the new stuff, please name precisely the objections
+> against portability and compatibility with FreeBSD 4.x aliasing."
+>                                            ^^^^^^^^^^^^^^^^^^^^
+> This is what lead me to my conclusion. Care to clarify? If you simply
+> meant SIOCGIFNETMASK, why not write that instead instead of involving
+> FreeBSD 4.x?!
 
-You are right about not bothering with cleanup code. But it's not easy to
-have the RPC layer right.
+The poster was referring to systems that he has personal experience
+with.  Not everyone is a dinosaur like I am.
 
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+	Wietse

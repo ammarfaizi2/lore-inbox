@@ -1,97 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVBVRgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVBVRmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVBVRgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 12:36:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVBVRgZ
+	id S261202AbVBVRmd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 12:42:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVBVRmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 12:36:25 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:32206 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S261201AbVBVRgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 12:36:09 -0500
-Subject: Re: idr_remove
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: russell@coker.com.au
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Jim Houston <jim.houston@ccur.com>, selinux@tycho.nsa.gov
-In-Reply-To: <200502192332.54815.russell@coker.com.au>
-References: <200502192332.54815.russell@coker.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mnQyRH4xa5eZV2sIl8Pg"
-Date: Tue, 22 Feb 2005 18:35:40 +0100
-Message-Id: <1109093740.4100.128.camel@localhost.localdomain>
+	Tue, 22 Feb 2005 12:42:32 -0500
+Received: from fire.osdl.org ([65.172.181.4]:37336 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261202AbVBVRmV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 12:42:21 -0500
+Date: Tue, 22 Feb 2005 09:42:19 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: mlists@danielinux.net
+Cc: "David S. Miller" <davem@davemloft.net>, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Carlo Caini <ccaini@deis.unibo.it>,
+       Rosario Firrincieli <rfirrincieli@arces.unibo.it>
+Subject: Re: [PATCH] TCP-Hybla proposal
+Message-ID: <20050222094219.0a8efbe1@dxpl.pdx.osdl.net>
+In-Reply-To: <200502221534.42948.mlists@danielinux.net>
+References: <200502221534.42948.mlists@danielinux.net>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed-Claws 1.0.1 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 22 Feb 2005 15:34:42 +0100
+Daniele Lacamera <mlists@danielinux.net> wrote:
 
---=-mnQyRH4xa5eZV2sIl8Pg
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+> Hi
+> This is the official patch to implement TCP Hybla congestion avoidance.
+> 
+> - "In heterogeneous networks, TCP connections that incorporate a 
+> terrestrial or satellite radio link are greatly disadvantaged with 
+> respect to entirely wired connections, because of their longer round 
+> trip times (RTTs). To cope with this problem, a new TCP proposal, the 
+> TCP Hybla, is presented and discussed in the paper[1]. It stems from an 
+> analytical evaluation of the congestion window dynamics in the TCP 
+> standard versions (Tahoe, Reno, NewReno), which suggests the necessary 
+> modifications to remove the performance dependence on RTT.[...]"[1]
+> 
+> [1]: Carlo Caini, Rosario Firrincieli, "TCP Hybla: a TCP enhancement for 
+> heterogeneous networks", 
+> International Journal of Satellite Communications and Networking
+> Volume 22, Issue 5 , Pages 547 - 566. September 2004.
 
-El s=E1b, 19-02-2005 a las 23:32 +1100, Russell Coker escribi=F3:
-> http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D109838483518162&w=3D2
->=20
-> I am getting messages "idr_remove called for id=3D0 which is not allocate=
-d" when=20
-> SE Linux denies search access to /dev/pts.
->=20
-> The attached file has some klogd output showing the situation, triggered =
-in=20
-> this case by installing a new kernel package on a SE Debian system.  The=20
-> above URL references Jim Houston's message with the patch to add this=20
-> warning.
+This looks interesting.
 
-The problem seems to be in a call back from idr_remove() to
-sub_remove()@/lib/idr.c:284 which leads to calling idr_remove_warning(),
-doing the weird stack dump, when some logics don't work as expected.
+> Please note that this patch:
+> - cleanly compiled against 2.6.11-rc4;
+> 
+> - reached very good results in terms of fairness and friendliness with 
+> other TCP standards and proposals during tests;
+> 
+> - gives a throughput very close to maximum fair share when satellite 
+> connections fight for bandwidth in a terrestrial bottleneck, and 
+> improves their performance also in case of no congestion;
+> 
+> - acts exactly as newreno when minimum rtt estimated by the sender is 
+> lower or equal to rtt0 (default=25 ms).
+> 
+> The protocol is obviously disabled by default and can be turned on by 
+> switching its sysctl, as usual.
 
-Jan 17 13:45:43 lyta kernel:  [dump_stack+23/32] dump_stack+0x17/0x20
-Jan 17 13:45:43 lyta kernel:  [sub_remove+233/240] sub_remove+0xe9/0xf0
-Jan 17 13:45:43 lyta kernel:  [idr_remove+35/144] idr_remove+0x23/0x90
+Probably the best long term solution is to make the protocol choice
+be a property of the destination cache.
 
-The spurious function called by sub_remove() (leads to the
-dump_stack+0x17/0x20):
+> As Mr.Yee-Ting Li pointed out in his last thread, the deployments of 
+> these experimental protocols are too premature and they should be 
+> switched OFF by default to prevent undesirable consequences to network 
+> stability.
+> 
+> One last note: IMHO we really need a better way to select congestion 
+> avoidance scheme between those available, instead of switching each one 
+> on and off. I.e., we can't say how vegas and westwood perform when 
+> switched on together, can we?
 
-+static void idr_remove_warning(int id)
-+{
-+	printk("idr_remove called for id=3D%d which is not allocated.\n", id);
-+	dump_stack();
-+}
-+
+The protocol choices are mutually exclusive, if you walk through the code
+(or do experiments), you find that that only one gets used.  As part of the
+longer term plan, I would like to:
+	- have one sysctl
+	- choice by route and destination
+	- union for fields in control block
 
-The changes that lead to such warning and stack dump
 
-@sub_remove
-+	n =3D id & IDR_MASK;
-+	if (likely(p !=3D NULL && test_bit(n, &p->bitmap))){
-(...etc...)
-
-idr_remove() is called, among other places, within the Device Mapper
-(DM) code that I suppose you are using, right?
-
-I don't have time to make further checking, but seems to be somewhat
-type of devices handling and IDR minor numbers allocation tracking
-black magic, someone could have a further a look at it?
-
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
-
---=-mnQyRH4xa5eZV2sIl8Pg
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCG21sDcEopW8rLewRAvvqAKChvC3JM2QuK0MyiVsH+Y568p9QWACdEyTG
-wBNliiMtsQSdRpx3fWblJ7E=
-=wm34
------END PGP SIGNATURE-----
-
---=-mnQyRH4xa5eZV2sIl8Pg--
-
+Is there interest in setting up a semi official "-tcp" tree to hold these?
+because it might not be of wide interest or stability to be ready for mainline
+kernel.

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292081AbSBOKCW>; Fri, 15 Feb 2002 05:02:22 -0500
+	id <S289482AbSBOKUu>; Fri, 15 Feb 2002 05:20:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292082AbSBOKCM>; Fri, 15 Feb 2002 05:02:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2322 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292081AbSBOKBw>;
-	Fri, 15 Feb 2002 05:01:52 -0500
-Message-ID: <3C6CDC8E.A16D39D7@mandrakesoft.com>
-Date: Fri, 15 Feb 2002 05:01:50 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
+	id <S289484AbSBOKUi>; Fri, 15 Feb 2002 05:20:38 -0500
+Received: from vaak.stack.nl ([131.155.140.140]:12041 "HELO mailhost.stack.nl")
+	by vger.kernel.org with SMTP id <S289482AbSBOKUX>;
+	Fri, 15 Feb 2002 05:20:23 -0500
+Date: Fri, 15 Feb 2002 11:20:21 +0100 (CET)
+From: Jos Hulzink <josh@stack.nl>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: 2.5.5-pre1: Deadlocks and ALSA driver problems
+Message-ID: <20020215110243.U68580-100000@toad.stack.nl>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: torvalds@transmeta.com, davidm@hpl.hp.com,
-        "David S. Miller" <davem@redhat.com>, anton@samba.org,
-        linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] move task_struct allocation to arch
-In-Reply-To: <12214.1013706194@warthog.cambridge.redhat.com> <3C6CDB4D.D072A7B4@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Your patch would be ok IMHO if you additionally changed the arches to
-> include task struct inside struct thread_info, getting things back down
-> to a single allocation for thread_info+task_struct, with 'current' once
-> again being a constant offset from the beginning of thread_info.  [this
-> might require resurrecting the old patches to move task struct
-> definitions out of sched.h proper]
+Hi,
 
-Actually, you don't really need the definition of task_struct, if
-include dependencies get really hairy... you really only need the size
-of the task struct.
+Still fighting with the debug tools (I'm new to kernel debugging), but
+maybe this info is useful to others:
 
-	Jeff
+2.5.5-pre1 deadlocked completely about 7 times in 40 minutes. The Magic
+SysRq key didn't work anymore. Don't know if it is related, but after I
+recompiled the ALSA driver as modules, the system was stable for about 4
+hours. (With ALSA modules loaded, playing music, and I rebooted it myself
+afterwards.)
 
+Besides: the ALSA /proc interface is terribly broken, any cat
+/proc/asound/... results in a no such device error. The ALSA /dev entries
+return the same errors while opening them, but the OSS emulation layer
+works fine.
 
+System Info:
+PII-333 SMP on Asus P2L97-DS (Intel LX chipset), 512 MB RAM
+SB Live 5.1 soundcard
 
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+The kernel is compiled with ALSA driver and Preemptive=Y
+
+I hope to provide you better emails in the future.
+
+Jos
+

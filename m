@@ -1,133 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUGBQPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUGBQSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264677AbUGBQPr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 12:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUGBQPq
+	id S264639AbUGBQSF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 12:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264686AbUGBQSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 12:15:46 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:27783 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264677AbUGBQPk
+	Fri, 2 Jul 2004 12:18:05 -0400
+Received: from mlf.linux.rulez.org ([192.188.244.13]:49676 "EHLO
+	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S264639AbUGBQR7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 12:15:40 -0400
-Date: Fri, 2 Jul 2004 21:55:05 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Cc: linux-osdl@osdl.org
-Subject: Re: [PATCH 15/22] filemap_fdatawrite range interface
-Message-ID: <20040702162505.GE3450@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20040702130030.GA4256@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040702130030.GA4256@in.ibm.com>
-User-Agent: Mutt/1.4i
+	Fri, 2 Jul 2004 12:17:59 -0400
+Date: Fri, 2 Jul 2004 18:17:53 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Cc: bug-parted@gnu.org, "K.G." <k_guillaume@libertysurf.fr>,
+       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org
+Subject: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS
+ / CHS stuff)
+In-Reply-To: <s5gwu1mwpus.fsf@patl=users.sf.net>
+Message-ID: <Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 02, 2004 at 06:30:30PM +0530, Suparna Bhattacharya wrote:
-> The patchset contains modifications and fixes to the AIO core
-> to support the full retry model, an implementation of AIO
-> support for buffered filesystem AIO reads and O_SYNC writes
-> (the latter courtesy O_SYNC speedup changes from Andrew Morton),
-> an implementation of AIO reads and writes to pipes (from
-> Chris Mason) and AIO poll (again from Chris Mason).
-> 
-> Full retry infrastructure and fixes
-> [1] aio-retry.patch
-> [2] 4g4g-aio-hang-fix.patch
-> [3] aio-retry-elevated-refcount.patch
-> [4] aio-splice-runlist.patch
-> 
-> FS AIO read
-> [5] aio-wait-page.patch
-> [6] aio-fs_read.patch
-> [7] aio-upfront-readahead.patch
-> 
-> AIO for pipes
-> [8] aio-cancel-fix.patch
-> [9] aio-read-immediate.patch
-> [10] aio-pipe.patch
-> [11] aio-context-switch.patch
-> 
-> Concurrent O_SYNC write speedups using radix-tree walks
-> [12] writepages-range.patch
-> [13] fix-writeback-range.patch
-> [14] fix-writepages-range.patch
-> [15] fdatawrite-range.patch
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+          [kernel related notes are at the end]
+Hello,
 
-----------------------------------------------------------
+On 2 Jul 2004, Patrick J. LoPresti wrote:
 
-From: Suparna Bhattacharya
+Parted is looking for (co-)maintainers. Wouldn't you like to be?
+Guillaume? Somebody from SUSE, Red Hat, Debian, anybody? I think 
+it's a real challenge in its current state ;)
 
-Range based equivalent of filemap_fdatawrite for O_SYNC writers (to go
-with writepages range support added to mpage_writepages).
-If both <start> and <end> are zero, then it defaults to writing
-back all of the mapping's dirty pages.
+> Parted needs a mechanism to let me FORCE the geometry it uses.  Every
+> other partitioning tool has this, usually via command-line switch.
 
+FORCE or FIX if it's _asked_. Fix but not the way parted does now,
+silently playing lottery. Only if user explicitely wants to do that, aka
+user knows he has a problem, e.g. old parted messed up the partition
+table.
 
- filemap.c |   23 +++++++++++++++++++++--
- 1 files changed, 21 insertions(+), 2 deletions(-)
+The majority of users doesn't really know what is bootloader, MBR,
+partition table, geometry, cylinder, sectors, etc and actually they
+shouldn't even know.
 
---- aio/mm/filemap.c	2004-06-18 13:58:26.682069240 -0700
-+++ fdatawrite-range/mm/filemap.c	2004-06-18 14:07:25.456163128 -0700
-@@ -134,20 +134,26 @@ static inline int sync_page(struct page 
- }
- 
- /**
-- * filemap_fdatawrite - start writeback against all of a mapping's dirty pages
-+ * filemap_fdatawrite_range - start writeback against all of a mapping's 
-+ * dirty pages that lie within the byte offsets <start, end> 
-  * @mapping: address space structure to write
-+ * @start: offset in bytes where the range starts
-+ * @end : offset in bytes where the range ends
-  *
-  * If sync_mode is WB_SYNC_ALL then this is a "data integrity" operation, as
-  * opposed to a regular memory * cleansing writeback.  The difference between
-  * these two operations is that if a dirty page/buffer is encountered, it must
-  * be waited upon, and not just skipped over.
-  */
--static int __filemap_fdatawrite(struct address_space *mapping, int sync_mode)
-+static int __filemap_fdatawrite_range(struct address_space *mapping, 
-+	loff_t start, loff_t end, int sync_mode)
- {
- 	int ret;
- 	struct writeback_control wbc = {
- 		.sync_mode = sync_mode,
- 		.nr_to_write = mapping->nrpages * 2,
-+		.start = start,
-+		.end = end,
- 	};
- 
- 	if (mapping->backing_dev_info->memory_backed)
-@@ -157,12 +163,25 @@ static int __filemap_fdatawrite(struct a
- 	return ret;
- }
- 
-+static inline int __filemap_fdatawrite(struct address_space *mapping,
-+	int sync_mode)
-+{
-+	return __filemap_fdatawrite_range(mapping, 0, 0, sync_mode);
-+}
-+
- int filemap_fdatawrite(struct address_space *mapping)
- {
- 	return __filemap_fdatawrite(mapping, WB_SYNC_ALL);
- }
- EXPORT_SYMBOL(filemap_fdatawrite);
- 
-+int filemap_fdatawrite_range(struct address_space *mapping, 
-+	loff_t start, loff_t end)
-+{
-+	return __filemap_fdatawrite_range(mapping, start, end, WB_SYNC_ALL);
-+}
-+EXPORT_SYMBOL(filemap_fdatawrite_range);
-+
- /*
-  * This is a mostly non-blocking flush.  Not suitable for data-integrity
-  * purposes - I/O may not be started against all dirty pages.
+Currently they blame the BIOS, LILO, GRUB, NTFS, FAT32, Microsoft,
+bootloaders, kernel, hardware, firmware, themself(!!), etc. Parted 
+is so hidden, embedded in tools, installers and behaves so randomly 
+then I think it was very difficult to realise how broken it is, over
+the years.
+
+> Having such [geometry] guesswork in Parted itself is a design error,
+
+Yes. Parted must get the geometry from the partition table unless
+
+	1) the partition table is empty
+
+	2) asked to fix the partition table
+
+	3) asked to use user provided values
+
+1) and 2) need a way to get a "sane" geometry from the BIOS or kernel.
+
+Nevertheless, fixing Parted and all broken tools, that trust the kernel
+getting the most-of-the-time-right-geometry, won't fix the problem
+immediately because nobody can replace all these tools in the wild from
+one day to the other. Transition would take several years.
+
+Does anybody find the new HDIO_GETGEO semantic useful? Did it help
+_anything_? 
+
+Because the semantic change did break many people data, installations
+permanently and keeps doing so every day.
+
+Please also note, so far nobody stepped forward to fix parted.
+
+	Szaka
+

@@ -1,149 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262350AbVCBQis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVCBQpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262350AbVCBQis (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 11:38:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbVCBQis
+	id S262351AbVCBQpc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 11:45:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVCBQpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 11:38:48 -0500
-Received: from fire.osdl.org ([65.172.181.4]:17844 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262350AbVCBQg4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 11:36:56 -0500
-Message-ID: <4225EBD4.8090302@osdl.org>
-Date: Wed, 02 Mar 2005 08:37:40 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: sounak chakraborty <sounakrin@yahoo.co.in>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: compilation problem of modules
-References: <20050302145907.17666.qmail@web53306.mail.yahoo.com>
-In-Reply-To: <20050302145907.17666.qmail@web53306.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Mar 2005 11:45:31 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:52989 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262351AbVCBQok
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 11:44:40 -0500
+Date: Wed, 2 Mar 2005 17:44:39 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [patch 2/9] s390: gcc4 compile fixes.
+Message-ID: <20050302164439.GB27829@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sounak chakraborty wrote:
-> the code of the module that i written is as follows:
-> #define MODULE
-> #include <linux/module.h>
-> #include <linux/proc_fs.h>
-> #define MODULE_NAME "manti"
-> struct manti
-> {
->       char mm[20];
->  };
-> static struct proc_dir_entry *example_dir;
-> struct manti m1;
-> int init_module(void)
-> {
->   example_dir=proc_mkdir(MODULE_NAME,NULL);
->  if(example_dir==NULL)
->   {
->      printk("<1> error in creation of proc file\n");
->     }
->   else
->    printk("<1>success in creation of proc dir\n");
->   }
-> void cleanup_module(void)
-> {
->    remove_proc_entry(MODULE_NAME,NULL);
->   printk("<1>proc entry removed\n");
->  }
-> 
-> here iam just making one directory in the proc file
-> named manti
-> i am trying to  compile it like
-> gcc -c proc.c 
-> where the kernel version is 2.4.20-8
-> 
-> but i am getting following errors 
-> 
-> In file included from proc.c:5:
-> /usr/include/linux/proc_fs.h:47: parse error before
-> "off_t"
-> /usr/include/linux/proc_fs.h:51: parse error before
-> "off_t"
-> /usr/include/linux/proc_fs.h:57: parse error before
-> "mode_t"
-> /usr/include/linux/proc_fs.h:59: parse error before
-> "uid"
-> /usr/include/linux/proc_fs.h:60: parse error before
-> "gid"
-> /usr/include/linux/proc_fs.h:70: parse error before
-> "count"
-> /usr/include/linux/proc_fs.h:72: parse error before
-> "rdev"
-> /usr/include/linux/proc_fs.h:176: parse error before
-> "mode_t"
-> /usr/include/linux/proc_fs.h: In function
-> `proc_net_create':
-> /usr/include/linux/proc_fs.h:177: `NULL' undeclared
-> (first use in this function)
-> /usr/include/linux/proc_fs.h:177: (Each undeclared
-> identifier is reported only once
-> /usr/include/linux/proc_fs.h:177: for each function it
-> appears in.)
-> /usr/include/linux/proc_fs.h: At top level:
-> /usr/include/linux/proc_fs.h:181: parse error before
-> "mode_t"
-> /usr/include/linux/proc_fs.h: In function
-> `create_proc_entry':
-> /usr/include/linux/proc_fs.h:181: `NULL' undeclared
-> (first use in this function)
-> /usr/include/linux/proc_fs.h: In function
-> `proc_symlink':
-> /usr/include/linux/proc_fs.h:185: `NULL' undeclared
-> (first use in this function)
-> /usr/include/linux/proc_fs.h: At top level:
-> /usr/include/linux/proc_fs.h:186: parse error before
-> "mode_t"
-> /usr/include/linux/proc_fs.h: In function
-> `proc_mknod':
-> /usr/include/linux/proc_fs.h:187: `NULL' undeclared
-> (first use in this function)
-> /usr/include/linux/proc_fs.h: In function
-> `proc_mkdir':
-> /usr/include/linux/proc_fs.h:189: `NULL' undeclared
-> (first use in this function)
-> /usr/include/linux/proc_fs.h: At top level:
-> /usr/include/linux/proc_fs.h:192: parse error before
-> "mode_t"
-> /usr/include/linux/proc_fs.h:193: parse error before
-> "off_t"
-> /usr/include/linux/proc_fs.h:193:
-> `create_proc_read_entry' declared as function
-> returning a function
-> /usr/include/linux/proc_fs.h:196: parse error before
-> "mode_t"
-> /usr/include/linux/proc_fs.h: In function
-> `create_proc_info_entry':
-> /usr/include/linux/proc_fs.h:197: `NULL' undeclared
-> (first use in this function)
-> /usr/include/linux/proc_fs.h: At top level:
-> /usr/include/linux/proc_fs.h:203: `NULL' used prior to
-> declaration
-> proc.c: In function `init_module':
-> proc.c:16: `NULL' has an incomplete type
-> proc.c:17: invalid operands to binary ==
-> proc.c: In function `cleanup_module':
-> proc.c:26: `NULL' has an incomplete type
-> 
-> 
-> 
-> how to solve it 
-> plz help me
-> is my compilation method is wrong or something else 
+[patch 2/9] s390: gcc4 compile fixes.
 
-compile/build is wrong.
-a minimum 2.4 kernel build needs at least:
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-gcc -c -D__KERNEL__ -DMODULE -O2 -nostdinc proc.c
+Make s390 compile and work with gcc4.
 
-and probably a few other flags/options.
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
--- 
-~Randy
+diffstat:
+ drivers/s390/char/keyboard.c |   10 +++++-----
+ drivers/s390/cio/chsc.h      |    2 --
+ include/asm-s390/system.h    |   16 ++++++++++++----
+ include/asm-s390/uaccess.h   |    9 ++++-----
+ 4 files changed, 21 insertions(+), 16 deletions(-)
+
+diff -urN linux-2.6/drivers/s390/char/keyboard.c linux-2.6-patched/drivers/s390/char/keyboard.c
+--- linux-2.6/drivers/s390/char/keyboard.c	2005-03-02 08:38:01.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/keyboard.c	2005-03-02 17:00:07.000000000 +0100
+@@ -32,11 +32,11 @@
+ static k_handler_fn *k_handler[16] = { K_HANDLERS };
+ 
+ /* maximum values each key_handler can handle */
+-static const int max_vals[] = {
++static const int kbd_max_vals[] = {
+ 	255, ARRAY_SIZE(func_table) - 1, NR_FN_HANDLER - 1, 0,
+ 	NR_DEAD - 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ };
+-static const int NR_TYPES = ARRAY_SIZE(max_vals);
++static const int KBD_NR_TYPES = ARRAY_SIZE(kbd_max_vals);
+ 
+ static unsigned char ret_diacr[NR_DEAD] = {
+ 	'`', '\'', '^', '~', '"', ','
+@@ -360,7 +360,7 @@
+ 		key_map = kbd->key_maps[tmp.kb_table];
+ 		if (key_map) {
+ 		    val = U(key_map[tmp.kb_index]);
+-		    if (KTYP(val) >= NR_TYPES)
++		    if (KTYP(val) >= KBD_NR_TYPES)
+ 			val = K_HOLE;
+ 		} else
+ 		    val = (tmp.kb_index ? K_HOLE : K_NOSUCHMAP);
+@@ -378,9 +378,9 @@
+ 			break;
+ 		}
+ 
+-		if (KTYP(tmp.kb_value) >= NR_TYPES)
++		if (KTYP(tmp.kb_value) >= KBD_NR_TYPES)
+ 			return -EINVAL;
+-		if (KVAL(tmp.kb_value) > max_vals[KTYP(tmp.kb_value)])
++		if (KVAL(tmp.kb_value) > kbd_max_vals[KTYP(tmp.kb_value)])
+ 			return -EINVAL;
+ 
+ 		if (!(key_map = kbd->key_maps[tmp.kb_table])) {
+diff -urN linux-2.6/drivers/s390/cio/chsc.h linux-2.6-patched/drivers/s390/cio/chsc.h
+--- linux-2.6/drivers/s390/cio/chsc.h	2005-03-02 08:38:19.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/chsc.h	2005-03-02 17:00:07.000000000 +0100
+@@ -18,8 +18,6 @@
+ 	struct device dev;
+ };
+ 
+-extern struct channel_path *chps[];
+-
+ extern void s390_process_css( void );
+ extern void chsc_validate_chpids(struct subchannel *);
+ extern void chpid_is_actually_online(int);
+diff -urN linux-2.6/include/asm-s390/system.h linux-2.6-patched/include/asm-s390/system.h
+--- linux-2.6/include/asm-s390/system.h	2005-03-02 08:38:33.000000000 +0100
++++ linux-2.6-patched/include/asm-s390/system.h	2005-03-02 17:00:07.000000000 +0100
+@@ -335,19 +335,23 @@
+         __asm__ __volatile__("lpswe 0(%0)" : : "a" (&psw), "m" (psw) : "cc" );
+ 
+ #define __ctl_load(array, low, high) ({ \
++	typedef struct { char _[sizeof(array)]; } addrtype; \
+ 	__asm__ __volatile__ ( \
+ 		"   bras  1,0f\n" \
+                 "   lctlg 0,0,0(%0)\n" \
+ 		"0: ex    %1,0(1)" \
+-		: : "a" (&array), "a" (((low)<<4)+(high)) : "1" ); \
++		: : "a" (&array), "a" (((low)<<4)+(high)), \
++		    "m" (*(addrtype *)(array)) : "1" ); \
+ 	})
+ 
+ #define __ctl_store(array, low, high) ({ \
++	typedef struct { char _[sizeof(array)]; } addrtype; \
+ 	__asm__ __volatile__ ( \
+ 		"   bras  1,0f\n" \
+ 		"   stctg 0,0,0(%1)\n" \
+ 		"0: ex    %2,0(1)" \
+-		: "=m" (array) : "a" (&array), "a" (((low)<<4)+(high)) : "1" ); \
++		: "=m" (*(addrtype *)(array)) \
++		: "a" (&array), "a" (((low)<<4)+(high)) : "1" ); \
+ 	})
+ 
+ #define __ctl_set_bit(cr, bit) ({ \
+@@ -390,19 +394,23 @@
+ 	__asm__ __volatile__("lpsw 0(%0)" : : "a" (&psw) : "cc" );
+ 
+ #define __ctl_load(array, low, high) ({ \
++	typedef struct { char _[sizeof(array)]; } addrtype; \
+ 	__asm__ __volatile__ ( \
+ 		"   bras  1,0f\n" \
+                 "   lctl 0,0,0(%0)\n" \
+ 		"0: ex    %1,0(1)" \
+-		: : "a" (&array), "a" (((low)<<4)+(high)) : "1" ); \
++		: : "a" (&array), "a" (((low)<<4)+(high)), \
++		    "m" (*(addrtype *)(array)) : "1" ); \
+ 	})
+ 
+ #define __ctl_store(array, low, high) ({ \
++	typedef struct { char _[sizeof(array)]; } addrtype; \
+ 	__asm__ __volatile__ ( \
+ 		"   bras  1,0f\n" \
+ 		"   stctl 0,0,0(%1)\n" \
+ 		"0: ex    %2,0(1)" \
+-		: "=m" (array) : "a" (&array), "a" (((low)<<4)+(high)): "1" ); \
++		: "=m" (*(addrtype *)(array)) \
++		: "a" (&array), "a" (((low)<<4)+(high)): "1" ); \
+ 	})
+ 
+ #define __ctl_set_bit(cr, bit) ({ \
+diff -urN linux-2.6/include/asm-s390/uaccess.h linux-2.6-patched/include/asm-s390/uaccess.h
+--- linux-2.6/include/asm-s390/uaccess.h	2005-03-02 08:37:49.000000000 +0100
++++ linux-2.6-patched/include/asm-s390/uaccess.h	2005-03-02 17:00:07.000000000 +0100
+@@ -161,7 +161,7 @@
+ 		__put_user_asm(__x, ptr, __pu_err);		\
+ 		break;						\
+ 	default:						\
+-		__pu_err = __put_user_bad();			\
++		__put_user_bad();				\
+ 		break;						\
+ 	 }							\
+ 	__pu_err;						\
+@@ -182,7 +182,7 @@
+ })
+ 
+ 
+-extern int __put_user_bad(void);
++extern int __put_user_bad(void) __attribute__((noreturn));
+ 
+ #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 2)
+ #define __get_user_asm(x, ptr, err) \
+@@ -225,8 +225,7 @@
+ 		__get_user_asm(__x, ptr, __gu_err);		\
+ 		break;						\
+ 	default:						\
+-		__x = 0;					\
+-		__gu_err = __get_user_bad();			\
++		__get_user_bad();				\
+ 		break;						\
+ 	}							\
+ 	(x) = __x;						\
+@@ -248,7 +247,7 @@
+ 	__get_user(x, ptr);					\
+ })
+ 
+-extern int __get_user_bad(void);
++extern int __get_user_bad(void) __attribute__((noreturn));
+ 
+ #define __put_user_unaligned __put_user
+ #define __get_user_unaligned __get_user

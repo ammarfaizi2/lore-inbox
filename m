@@ -1,82 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317320AbSGDCWP>; Wed, 3 Jul 2002 22:22:15 -0400
+	id <S317306AbSGDDjg>; Wed, 3 Jul 2002 23:39:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317324AbSGDCWP>; Wed, 3 Jul 2002 22:22:15 -0400
-Received: from flrtn-5-m1-95.vnnyca.adelphia.net ([24.55.70.95]:45696 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S317320AbSGDCWM>;
-	Wed, 3 Jul 2002 22:22:12 -0400
-Message-ID: <3D23B1E8.5060504@tmsusa.com>
-Date: Wed, 03 Jul 2002 19:24:40 -0700
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S317324AbSGDDjf>; Wed, 3 Jul 2002 23:39:35 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50448 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317306AbSGDDje>; Wed, 3 Jul 2002 23:39:34 -0400
+Date: Wed, 3 Jul 2002 23:36:07 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Rob Landley <landley@trommello.org>, Tom Rini <trini@kernel.crashing.org>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] O(1) scheduler in 2.4
+In-Reply-To: <Pine.LNX.4.44.0207031006050.3017-100000@e2>
+Message-ID: <Pine.LNX.3.96.1020703232322.2248C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Ulrich Wiederhold <U.Wiederhold@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: nvidia driver won't compile with 2.4.19-rc1
-References: <20020703214757.GA504@sky.net>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You are using an old nvidia driver -
 
-1.0-2960 compiles and works fine here.
+> it might be a candidate for inclusion once it has _proven_ stability and
+> robustness (in terms of tester and developer exposion), on the same order
+> of magnitude as the 2.4 kernel - but that needs time and exposure in trees
+> like the -ac tree and vendor trees. It might not happen at all, during the
+> lifetime of 2.4.
 
-Joe
+It has already proven to be stable and robust in the sense that it isn't
+worse than the stock scheduler on typical loads and is vastly better on
+some.
+> 
+> Note that the O(1) scheduler isnt a security or stability fix, neither is
+> it a driver backport. It isnt a feature backport that enables hardware
+> that couldnt be used in 2.4 before. The VM was a special case because most
+> people agreed that it truly sucked, and even though people keep
+> disagreeing about that decision, the VM is in a pretty good shape now -
+> and we still have good correlation between the VM in 2.5, and the VM in
+> 2.4. The 2.4 scheduler on the other hand doesnt suck for 99% of the
+> people, so our hands are not forced in any way - we have the choice of a
+> 'proven-rock-solid good scheduler' vs. an 'even better, but still young
+> scheduler'.
 
-Ulrich Wiederhold wrote:
+Here I disagree. Sure behaves like a stability fix to me. On a system with
+a mix of interractive and cpu-bound processes, including processes with
+hundreds of threads, you just can't get reasonable performance balancing
+with nice() because it is totally impractical to keep tuning a thread
+which changes from hog to disk io to socket waits with a human in the
+loop. The new scheduler notices this stuff and makes it work, I don't even
+know for sure (as in tried it) if you can have different nice on threads
+of the same process. 
 
->Hello,
->if I make an update-modules, I get:
->depmod: *** Unresolved symbols in
->/lib/modules/2.4.19-rc1/kernel/drivers/scsi/sr_mod.o
->
->and if I wanna compile "NVIDIA_kernel-1.0-2880":
->
->home:/NVIDIA_kernel-1.0-2880# make
->cc -c -Wall -Wimplicit -Wreturn-type -Wswitch -Wformat -Wchar-subscripts
->-Wparentheses -Wpointer-arith -Wcast-qual -Wno-multichar  -O -MD
->-D__KERNEL__ -DMODULE -D_LOOSE_KERNEL_NAMES -D_X86=1 -Di386=1 -DUNIX
->-DLINUX -DNV4_HW -DNTRM -DRM20 -D_GNU_SOURCE -DRM_HEAPMGR
->-D_LOOSE_KERNEL_NAMES -D__KERNEL__ -DMODULE  -DNV_MAJOR_VERSION=1
->-DNV_MINOR_VERSION=0 -DNV_PATCHLEVEL=2880   -I.
->-I/lib/modules/2.4.19-rc1/build/include -Wno-cast-qual nv.c
->cc -c -Wall -Wimplicit -Wreturn-type -Wswitch -Wformat -Wchar-subscripts
->-Wparentheses -Wpointer-arith -Wcast-qual -Wno-multichar  -O -MD
->-D__KERNEL__ -DMODULE -D_LOOSE_KERNEL_NAMES -D_X86=1 -Di386=1 -DUNIX
->-DLINUX -DNV4_HW -DNTRM -DRM20 -D_GNU_SOURCE -DRM_HEAPMGR
->-D_LOOSE_KERNEL_NAMES -D__KERNEL__ -DMODULE  -DNV_MAJOR_VERSION=1
->-DNV_MINOR_VERSION=0 -DNV_PATCHLEVEL=2880   -I.
->-I/lib/modules/2.4.19-rc1/build/include -Wno-cast-qual os-interface.c
->os-interface.c:1207: warning: `wb_list' defined but not used
->cc -c -Wall -Wimplicit -Wreturn-type -Wswitch -Wformat -Wchar-subscripts
->-Wparentheses -Wpointer-arith -Wcast-qual -Wno-multichar  -O -MD
->-D__KERNEL__ -DMODULE -D_LOOSE_KERNEL_NAMES -D_X86=1 -Di386=1 -DUNIX
->-DLINUX -DNV4_HW -DNTRM -DRM20 -D_GNU_SOURCE -DRM_HEAPMGR
->-D_LOOSE_KERNEL_NAMES -D__KERNEL__ -DMODULE  -DNV_MAJOR_VERSION=1
->-DNV_MINOR_VERSION=0 -DNV_PATCHLEVEL=2880   -I.
->-I/lib/modules/2.4.19-rc1/build/include -Wno-cast-qual os-registry.c
->ld -r -o Module-linux nv.o os-interface.o os-registry.o 
->ld -r -o NVdriver Module-linux Module-nvkernel
->size NVdriver
->   text    data     bss     dec     hex filename
->    779245   52020   52364  883629   d7bad NVdriver
->    depmod: *** Unresolved symbols in
->    /lib/modules/2.4.19-rc1/kernel/drivers/scsi/sr_mod.o
->    make: *** [package-install] Fehler 1
->    home:/home/fzzgrr/NVIDIA_kernel-1.0-2880# update-modules 
->    depmod: *** Unresolved symbols in
->    /lib/modules/2.4.19-rc1/kernel/drivers/scsi/sr_mod.o
->
->I get the same error. I had no problems compiling them with 2.4.17-rc2.
->Any ideas what to do?
->
->Uli
->
->  
->
+This is not some neat feature to buy a few percent better this or that,
+this is roughly 50% more users on the server before it falls over, and no
+total bogs when many threads change to hog mode at once.
 
+You will not hear me saying this about preempt, or low-latency, and I bet
+that after I try lock-break this weekend I won't fell that I have to have
+that either. The O(1) scheduler is self defense against badly behaved
+processes, and the reason it should go in mainline is so it won't depend
+on someone finding the time to backport the fun stuff from 2.5 as a patch
+every time.
 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

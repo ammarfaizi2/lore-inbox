@@ -1,132 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263134AbREaSH3>; Thu, 31 May 2001 14:07:29 -0400
+	id <S263130AbREaSNj>; Thu, 31 May 2001 14:13:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263132AbREaSHU>; Thu, 31 May 2001 14:07:20 -0400
-Received: from gw-yyz.somanetworks.com ([216.126.67.39]:2183 "EHLO
-	somanetworks.com") by vger.kernel.org with ESMTP id <S263130AbREaSHI>;
-	Thu, 31 May 2001 14:07:08 -0400
-Date: Thu, 31 May 2001 14:06:50 -0400
-From: Mark Frazer <mark@somanetworks.com>
-To: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Makefile patch for cscope and saner Ctags
-Message-ID: <20010531140650.B28505@somanetworks.com>
-Mail-Followup-To: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <6B1DF6EEBA51D31182F200902740436802678F09@mail-in.comverse-in.com>
+	id <S263137AbREaSN3>; Thu, 31 May 2001 14:13:29 -0400
+Received: from [213.96.124.18] ([213.96.124.18]:14069 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S263130AbREaSNW>;
+	Thu, 31 May 2001 14:13:22 -0400
+Date: Thu, 31 May 2001 20:13:49 +0000
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jldomingo@crosswinds.net>
+To: CML2 <linux-kernel@vger.kernel.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, kbuild-devel@lists.sourceforge.net,
+        torvalds@transmeta.com, laughing@shared-source.org
+Subject: Re: Configure.help is complete
+Message-ID: <20010531201349.B1877@dardhal.mired.net>
+Mail-Followup-To: CML2 <linux-kernel@vger.kernel.org>,
+	"Eric S. Raymond" <esr@thyrsus.com>,
+	kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com,
+	laughing@shared-source.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <6B1DF6EEBA51D31182F200902740436802678F09@mail-in.comverse-in.com>; from Vassilii.Khachaturov@comverse.com on Thu, May 31, 2001 at 12:11:24PM -0400
-Organization: Detectable, well, not really
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20010531132454.A8361@thyrsus.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Khachaturov, Vassilii <Vassilii.Khachaturov@comverse.com> [01/05/31 12:12]:
-> Great stuff. May I suggest adding -k to the cscope cmdline:
+On Thursday, 31 May 2001, at 13:24:54 -0400,
+Eric S. Raymond wrote:
+
+> It gives me great pleasure to announce that the Configure.help master
+> file is now complete with respect to 2.4.5.  Every single one of the
+> 2699 configuration symbols actually used in the 2.4.5 codebase's C
+> source files or Makefiles now has an entry in Configure.help.
 > 
-> > +	cscope -b -I include
-> 
-> should become 
->   +	cscope -b -k -I include
+Would it be great to have a similar documentation for those hundreds of
+"files" under /proc ?. Something like:
 
-The cscope on my RH7.0 box didn't take -k!
-[root@mjftest linux-2.4.5]# ls -l cscope.files
--rw-r--r--    1 root     root       105530 May 30 17:58 cscope.files
-[root@mjftest linux-2.4.5]# cscope -b -k -I include
-cscope: unknown option: -k
-Usage:  cscope [-bcCdelLqTuUV] [-f file] [-F file] [-i file] [-I dir] [-s dir]
-               [-p number] [-P path] [-[0-8] pattern] [source files]
-[root@mjftest linux-2.4.5]# which cscope
-/usr/bin/cscope
-[root@mjftest linux-2.4.5]# rpm -qf /usr/bin/cscope
-cscope-13.0-6
+/proc/sys/dev/raid/speed_limit_min
 
-weird, as man cscope documents -k's existence
+Subsystem: RAID
+Module:    md.o
+Configuration Option: Multi-device support (RAID and LVM) -> Multiple
+devices driver support (RAID and LVM) -> RAID support
+Type: positive integer ¿32-bit? long
+Units: kilobytes per second
+Related ioctls: /proc/sys/dev/raid/speed_limit_max
 
-> 
-> Also, I think you should separate cscope.files creation into a different
-> rule,
-> and make the cscope target depend on it and on the files in it. (Like the
-> stuff
-> with .flags)
+Short description: minumun guaranteed array reconstruction speed (in KB/s).
 
-I didn't see a way to add >>'ing the file to cscope.files without greping
-for it's entrance there already.  So I've left the find ... method of
-creating cscope.files.
+Description: minimun guaranteed array reconstruction speed for RAID-0, 
+RAID-5 and the ones derived from them. When the array is reconstructing, 
+this parameter sets the minimun reconstruction speed of the array, 
+borrowing I/O time from applications if needed. Don't set this parameter 
+too high or your system will be very little responsive when the array is
+reconstructing (give applications I/O some room :).
 
-cscope.out is now built by a shell command which does the checking
-against the age of the files in cscope.files
+Is this something reasonable to ?.
 
-> 
-> The new .files should be created  in a different file, and the old file
-> shouldn't 
-> be replaced if there's no change.
-> 
-> Lastly, you need to clean up. I think cscope.out should be cleaned up
-> in the clean target, while the cscope.files should probably should only be
-> cleaned on rmproper or such.
-> 
-> Vassilii
+Regards.
 
-Backout the old patch and try this one.
-
---- Makefile.old	Mon May 28 22:44:01 2001
-+++ Makefile	Thu May 31 14:02:30 2001
-@@ -334,11 +334,41 @@
+--
+José Luis Domingo López
+Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
  
- # Exuberant ctags works better with -I
- tags: dummy
--	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_NOVERS"`; \
-+	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "--sort=no -I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_NOVERS"`; \
- 	ctags $$CTAGSF `find include/asm-$(ARCH) -name '*.h'` && \
--	find include -type d \( -name "asm-*" -o -name config \) -prune -o -name '*.h' -print | xargs ctags $$CTAGSF -a && \
-+	find include -type f -name '*.h' -mindepth 2 -maxdepth 2 \
-+	    | grep -v include/asm- | grep -v include/config \
-+	    | xargs -r ctags $$CTAGSF -a && \
-+	find include -type f -name '*.h' -mindepth 3 -maxdepth 3 \
-+	    | grep -v include/asm- | grep -v include/config \
-+	    | xargs -r ctags $$CTAGSF -a && \
-+	find include -type f -name '*.h' -mindepth 4 -maxdepth 4 \
-+	    | grep -v include/asm- | grep -v include/config \
-+	    | xargs -r ctags $$CTAGSF -a && \
-+	find include -type f -name '*.h' -mindepth 5 -maxdepth 5 \
-+	    | grep -v include/asm- | grep -v include/config \
-+	    | xargs -r ctags $$CTAGSF -a && \
- 	find $(SUBDIRS) init -name '*.c' | xargs ctags $$CTAGSF -a
--
-+	mv tags tags.unsorted
-+	LC_ALL=C sort -k 1,1 -s tags.unsorted > tags
-+	rm tags.unsorted
-+
-+cscope.files:
-+	find include/asm-$(ARCH) -name '*.h' >cscope.files
-+	find include $(SUBDIRS) init -type f -name '*.[ch]' \
-+	    | grep -v include/asm- | grep -v include/config >> cscope.files
-+
-+cscope.out: cscope.files dummy
-+	@while read file ; do \
-+	    if [ $$file -nt cscope.out ] ; then\
-+		cscope -b -I include ; \
-+		break ; \
-+	    fi ; \
-+	done <cscope.files
-+
-+.PHONY: scsope
-+cscope: cscope.out
-+	
- ifdef CONFIG_MODULES
- ifdef CONFIG_MODVERSIONS
- MODFLAGS += -DMODVERSIONS -include $(HPATH)/linux/modversions.h
-@@ -416,7 +446,8 @@
- distclean: mrproper
- 	rm -f core `find . \( -name '*.orig' -o -name '*.rej' -o -name '*~' \
- 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
--		-o -name '.*.rej' -o -name '.SUMS' -o -size 0 \) -type f -print` TAGS tags
-+		-o -name '.*.rej' -o -name '.SUMS' -o -size 0 \) -type f -print` TAGS tags \
-+		cscope.files cscope.out
- 
- backup: mrproper
- 	cd .. && tar cf - linux/ | gzip -9 > backup.gz
+jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
+jdomingo AT internautas DOT   org  => Spam at your own risk
+

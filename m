@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135769AbRDYAZu>; Tue, 24 Apr 2001 20:25:50 -0400
+	id <S135770AbRDYA1L>; Tue, 24 Apr 2001 20:27:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135770AbRDYAZk>; Tue, 24 Apr 2001 20:25:40 -0400
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:11782 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S135769AbRDYAZa>;
-	Tue, 24 Apr 2001 20:25:30 -0400
-Date: Tue, 24 Apr 2001 21:25:37 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Mail boucing...
-Message-ID: <Pine.LNX.4.30.0104242123510.1200-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135772AbRDYA1D>; Tue, 24 Apr 2001 20:27:03 -0400
+Received: from geos.coastside.net ([207.213.212.4]:54181 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S135770AbRDYA0o>; Tue, 24 Apr 2001 20:26:44 -0400
+Mime-Version: 1.0
+Message-Id: <p05100300b70bc9f91fff@[209.245.157.6]>
+In-Reply-To: <20010424170118.F19171@vitelus.com>
+In-Reply-To: <20010424225841.D5803@piro.kabuki.openfridge.net>
+ <Pine.LNX.4.33.0104242018410.16215-100000@tessy.trustix.co.id>
+ <20010424233801.A6067@piro.kabuki.openfridge.net>
+ <20010424170118.F19171@vitelus.com>
+Date: Tue, 24 Apr 2001 17:26:29 -0700
+To: Aaron Lehmann <aaronl@vitelus.com>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [PATCH] Single user linux
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry if my mail has been bouncing. I've been experimenting with some
-configurations and I am moving tomorrow so my domain/IP will be changing.
+At 5:01 PM -0700 2001-04-24, Aaron Lehmann wrote:
+>On Tue, Apr 24, 2001 at 11:38:01PM +1000, Daniel Stone wrote:
+>> And UNIX on a phone is pure overkill.
+>
+>Quit being a naysayer. UNIX on a PDA is a wet dream.
 
-Whoever, deleted me from list, thanks. Please don't block sh0n.net though
-from posting.
-
-I'll read myself when my new IP is added to my domain.
-
-Thank you.
-Shawn.
-
-
+http://www.agendacomputing.com/ (not that the reviews have been very kind)
+-- 
+/Jonathan Lundell.

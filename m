@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271393AbTGQMO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 08:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271395AbTGQMO2
+	id S271387AbTGQMNy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 08:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271393AbTGQMNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 08:14:28 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:29390
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S271393AbTGQMOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 08:14:25 -0400
-Subject: Re: [PATCH] (2.4.22-pre6 BK) New (IDE) driver: SGI IOC4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christopher Wedgwood <cw@sgi.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       wildos@sgi.com
-In-Reply-To: <20030715222744.GA7478@taniwha.engr.sgi.com>
-References: <20030715222744.GA7478@taniwha.engr.sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058444787.8620.42.camel@dhcp22.swansea.linux.org.uk>
+	Thu, 17 Jul 2003 08:13:54 -0400
+Received: from gsd.di.uminho.pt ([193.136.20.132]:42387 "EHLO
+	bbb.lsd.di.uminho.pt") by vger.kernel.org with ESMTP
+	id S271387AbTGQMNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 08:13:53 -0400
+Date: Thu, 17 Jul 2003 13:28:46 +0100
+From: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test1-ac2
+Message-ID: <20030717122846.GA14202@lsd.di.uminho.pt>
+Mail-Followup-To: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>,
+	linux kernel <linux-kernel@vger.kernel.org>
+References: <200307161816.h6GIGKH09243@devserv.devel.redhat.com> <20030716201339.GA618@sokrates> <1058392329.7677.1.camel@dhcp22.swansea.linux.org.uk> <3F15CB80.4020306@tmsusa.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 17 Jul 2003 13:26:27 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F15CB80.4020306@tmsusa.com>
+User-Agent: Mutt/1.4.1i
+X-Disclaimer: 'Author of this message is not responsible for any harm done to reader's computer.'
+X-Organization: 'GSD'
+X-Section: 'BIC'
+X-Priority: '1 (Highest)'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok the big problem I'm having with this code is understanding why most
-of it even exists. Is this chip subtly different in some way I am
-missing and so unable to use the generic PCI stuff or is most of the
-copied code simply not needed.
+On Wed, Jul 16, 2003 at 03:02:40PM -0700, joe wrote:
+> Alan Cox wrote:
+> 
+> >ALSA has a lot more functionality than OSS and the API is better in many
+> >ways. The ALSA drivers dont have so much use and exposure so they will
+> >need time to shake down, but it should be worth it in the end.
+> >
+> hmm, it would be really cool if redhat shipped alsa utils......
 
-As far as I can see the only "weirdness" it has is that the base
-registers are off a non standard BAR. Thats something we already support
-in the core IDE PCI code (see the cs5520 Kahlua driver in 2.6.0test)
+RedHat doesn't, but other people do, for RedHat products:
+http://shrike.freshrpms.net/
 
-Work was also done recently to allow clean wrapping of the generic DMA
-stuff for devices that had to do custom setup around each IDE DMA (eg
-HPT372N).
-
-Basically - in what was is your controller not the same as generic MWDMA
-capable IDE ?
-
+Regards,
+Luciano Rocha

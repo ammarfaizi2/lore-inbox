@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbUK0ESj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbUK0ESi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbUK0ESj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 23:18:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbUK0EAG
+	id S262182AbUK0ESi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 23:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbUK0D7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 23:00:06 -0500
-Received: from smtp.ci.uc.pt ([193.136.200.62]:14824 "EHLO
-	smtp-1-relay.ci.uc.pt") by vger.kernel.org with ESMTP
-	id S262403AbUKZTaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:30:13 -0500
-Date: Thu, 25 Nov 2004 19:27:43 +0000 (WET)
-From: =?iso-8859-1?Q?Lu=EDs_Pinto?= <lmpinto@student.dei.uc.pt>
-X-X-Sender: lmpinto@amarok.dei.uc.pt
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in visor, since 2.6.10-rc1
-In-Reply-To: <20041124233756.GC4649@kroah.com>
-Message-ID: <Pine.LNX.4.61.0411251922350.1891@amarok.dei.uc.pt>
-References: <Pine.LNX.4.61.0411151921140.5912@amarok.dei.uc.pt>
- <20041117231520.GB20701@kroah.com> <Pine.LNX.4.61.0411182254310.6221@amarok.dei.uc.pt>
- <20041124233756.GC4649@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 26 Nov 2004 22:59:24 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:42947 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262447AbUKZTan (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:30:43 -0500
+Date: Thu, 25 Nov 2004 19:07:25 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 10/51: Exports for suspend built as modules.
+Message-ID: <20041125180725.GB1417@openzaurus.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101294252.5805.228.camel@desktop.cunninghams>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101294252.5805.228.camel@desktop.cunninghams>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Nov 2004, Greg KH wrote:
+Hi!
 
-> On Fri, Nov 19, 2004 at 02:53:42PM +0000, Lu?s Pinto wrote:
->>
->> 	This sort of solves part of it. It doesn't oops anymore,
->> 	however, for a 'pilot-xfer -l' (list all databases on palm) or
->> 	a 'pilot-xfer -i xyz.pdb' (install a database on palm) it
->> 	freezes at the middle, and the palm eventually times out. Here
->> 	goes the corresponding dmesg: the first time it didn't do
->> 	nothing (pilot-xfer didn't even start), the second and third
->> 	it freezed.
->
-> Please try this patch.  It should solve the problem for you.  Sorry for
-> all of the problems with these recent changes.
+> The sys_ functions are exported because a while ago, people suggested I
+> use /dev/console to output text that doesn't need to be logged, and I
+> also use /dev/splash for the bootsplash support. These functions were
 
+Well, we don't do ascii-art on kernel boot and I do not see why we should do it
+on suspend. Distributions will love bootsplash integration, but it should stay as a separate
+patch.
 
-   	Works like a charm. Thank you very, very much for all your
-   	time!
+See swsusp1... it has percentage printing, and I think it should
+be possible to make it look good enough.
+	
+Why do you need sys_mkdir?
+
+			Pavel
 
 -- 
-                                           Regards,
-      (o_                                 Luis Pinto
--+ //\ +--------- http://www.dei.uc.pt/~lmpinto - ICQ#15663369 --------+
--+ V_/_+------ Pgp key @ pgp.dei.uc.pt ------ bash$ :(){ :|:&};: ------+
-Ford had his own code of ethics. It wasn't much of one, but it was his
-and he stuck by it, more or less. One rule he made was never to buy
-his own drinks. He wasn't sure if that counted as an ethic, but you
-have to go with what you've got.  -- Douglas Adams, The Hitchhiker's
-Guide to the Galaxy
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

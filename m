@@ -1,96 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129825AbQKUMxg>; Tue, 21 Nov 2000 07:53:36 -0500
+	id <S129882AbQKUM4g>; Tue, 21 Nov 2000 07:56:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130364AbQKUMx0>; Tue, 21 Nov 2000 07:53:26 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:28134 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S129825AbQKUMxO>;
-	Tue, 21 Nov 2000 07:53:14 -0500
-Date: Tue, 21 Nov 2000 13:23:08 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] highuid.h macro expansion
-Message-ID: <Pine.GSO.4.10.10011211322250.14139-100000@escobaria.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130443AbQKUM40>; Tue, 21 Nov 2000 07:56:26 -0500
+Received: from ganymede.cdt.luth.se ([130.240.64.41]:62729 "HELO
+	ganymede.cdt.luth.se") by vger.kernel.org with SMTP
+	id <S129882AbQKUM4T> convert rfc822-to-8bit; Tue, 21 Nov 2000 07:56:19 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Hakan Lennestal <hakanl@cdt.luth.se>
+Reply-To: Hakan Lennestal <hakanl@cdt.luth.se>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, Andre Hedrick <andre@linux-ide.org>,
+        Hakan Lennestal <hakanl@cdt.luth.se>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0, test10, test11: HPT366 problem 
+In-Reply-To: Your message of "Tue, 21 Nov 2000 06:15:11 CST."
+             <20001121061511.F2918@wire.cadcamlab.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Date: Tue, 21 Nov 2000 13:26:17 +0100
+Message-Id: <20001121122617.88D1A26@ganymede.cdt.luth.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Linus,
+In message <20001121061511.F2918@wire.cadcamlab.org>, Peter Samuelson writes:
 
-This patch (from Andreas Schwab <schwab@suse.de>) makes macro expansion in
-<linux/highuid.h> safer.
+> The way I understood Hakan was: "it boots in udma4, and if it gets all
+> the way to userland I immediately hdparm it down to udma3, and then it
+> works fine".
+> 
+> Hakan, is this what you meant?  If so, forcing it <= udma3 should be ok.
 
-diff -urN linux-2.4.0-test11/include/linux/highuid.h geert-2.4.0-test11/include/linux/highuid.h
---- linux-2.4.0-test11/include/linux/highuid.h	Sun Nov 19 05:56:59 2000
-+++ geert-2.4.0-test11/include/linux/highuid.h	Tue Nov 21 13:20:57 2000
-@@ -41,14 +41,14 @@
- #ifdef CONFIG_UID16
- 
- /* prevent uid mod 65536 effect by returning a default value for high UIDs */
--#define high2lowuid(uid) ((uid) > 65535) ? (old_uid_t)overflowuid : (old_uid_t)(uid)
--#define high2lowgid(gid) ((gid) > 65535) ? (old_gid_t)overflowgid : (old_gid_t)(gid)
-+#define high2lowuid(uid) ((uid) > 65535 ? (old_uid_t)overflowuid : (old_uid_t)(uid))
-+#define high2lowgid(gid) ((gid) > 65535 ? (old_gid_t)overflowgid : (old_gid_t)(gid))
- /*
-  * -1 is different in 16 bits than it is in 32 bits
-  * these macros are used by chown(), setreuid(), ...,
-  */
--#define low2highuid(uid) ((uid) == (old_uid_t)-1) ? (uid_t)-1 : (uid_t)(uid)
--#define low2highgid(gid) ((gid) == (old_gid_t)-1) ? (gid_t)-1 : (gid_t)(gid)
-+#define low2highuid(uid) ((uid) == (old_uid_t)-1 ? (uid_t)-1 : (uid_t)(uid))
-+#define low2highgid(gid) ((gid) == (old_gid_t)-1 ? (gid_t)-1 : (gid_t)(gid))
- 
- /* Avoid extra ifdefs with these macros */
- 
-@@ -67,13 +67,13 @@
- 
- #define SET_UID16(var, uid)	do { ; } while (0)
- #define SET_GID16(var, gid)	do { ; } while (0)
--#define NEW_TO_OLD_UID(uid)	uid
--#define NEW_TO_OLD_GID(gid)	gid
-+#define NEW_TO_OLD_UID(uid)	(uid)
-+#define NEW_TO_OLD_GID(gid)	(gid)
- 
--#define SET_OLDSTAT_UID(stat, uid)	(stat).st_uid = uid
--#define SET_OLDSTAT_GID(stat, gid)	(stat).st_gid = gid
--#define SET_STAT_UID(stat, uid)		(stat).st_uid = uid
--#define SET_STAT_GID(stat, gid)		(stat).st_gid = gid
-+#define SET_OLDSTAT_UID(stat, uid)	(stat).st_uid = (uid)
-+#define SET_OLDSTAT_GID(stat, gid)	(stat).st_gid = (gid)
-+#define SET_STAT_UID(stat, uid)		(stat).st_uid = (uid)
-+#define SET_STAT_GID(stat, gid)		(stat).st_gid = (gid)
- 
- #endif /* CONFIG_UID16 */
- 
-@@ -97,10 +97,10 @@
-  * Since these macros are used in architectures that only need limited
-  * 16-bit UID back compatibility, we won't use old_uid_t and old_gid_t
-  */
--#define fs_high2lowuid(uid) (uid > 65535) ? (uid16_t)fs_overflowuid : (uid16_t)uid
--#define fs_high2lowgid(gid) (gid > 65535) ? (gid16_t)fs_overflowgid : (gid16_t)gid
-+#define fs_high2lowuid(uid) ((uid) > 65535 ? (uid16_t)fs_overflowuid : (uid16_t)(uid))
-+#define fs_high2lowgid(gid) ((gid) > 65535 ? (gid16_t)fs_overflowgid : (gid16_t)(gid))
- 
--#define low_16_bits(x)	x & 0xFFFF
--#define high_16_bits(x)	(x & 0xFFFF0000) >> 16
-+#define low_16_bits(x)	((x) & 0xFFFF)
-+#define high_16_bits(x)	(((x) & 0xFFFF0000) >> 16)
- 
- #endif /* _LINUX_HIGHUID_H */
+Yes.
 
-Gr{oetje,eeting}s,
+When it comes to the partition detection during bootup, udma4 or udma3
+doesn't seem to matter. It passes approx. one out of ten times either
+way. When the system is up and running, using udma4 seem to hang the
+system sooner or later. Udma3 on the other hand seem to be quite stable.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+/Håkan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

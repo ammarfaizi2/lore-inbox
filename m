@@ -1,72 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbUBLBTI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 20:19:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUBLBTH
+	id S266543AbUBLBe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 20:34:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266616AbUBLBe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 20:19:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9664 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265772AbUBLBTE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 20:19:04 -0500
-Date: Wed, 11 Feb 2004 17:20:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: thockin@sun.com
-Cc: torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org, jim.houston@ccur.com
-Subject: Re: PATCH - raise max_anon limit
-Message-Id: <20040211172046.37e18a2f.akpm@osdl.org>
-In-Reply-To: <20040212010822.GP9155@sun.com>
-References: <20040211203306.GI9155@sun.com>
-	<Pine.LNX.4.58.0402111236460.2128@home.osdl.org>
-	<20040211210930.GJ9155@sun.com>
-	<20040211135325.7b4b5020.akpm@osdl.org>
-	<20040211222849.GL9155@sun.com>
-	<20040211144844.0e4a2888.akpm@osdl.org>
-	<20040211233852.GN9155@sun.com>
-	<20040211155754.5068332c.akpm@osdl.org>
-	<20040212003840.GO9155@sun.com>
-	<20040211164233.5f233595.akpm@osdl.org>
-	<20040212010822.GP9155@sun.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 11 Feb 2004 20:34:27 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:42995 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S266543AbUBLBeZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 20:34:25 -0500
+Message-ID: <402AD815.6050004@mvista.com>
+Date: Wed, 11 Feb 2004 17:34:13 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: amitkale@emsyssoft.com, akpm@osdl.org, pavel@ucw.cz,
+       linux-kernel@vger.kernel.org, piggy@timesys.com,
+       trini@kernel.crashing.org
+Subject: Re: kgdb support in vanilla 2.6.2
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel>	<20040204155452.49c1eba8.akpm@osdl.org.suse.lists.linux.kernel>	<p73n07ykyop.fsf@verdi.suse.de>	<200402052320.04393.amitkale@emsyssoft.com>	<20040206032054.3fd7db8d.ak@suse.de>	<40295388.5080901@mvista.com> <20040213204227.0db612f7.ak@suse.de>
+In-Reply-To: <20040213204227.0db612f7.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin <thockin@sun.com> wrote:
->
-> On Wed, Feb 11, 2004 at 04:42:33PM -0800, Andrew Morton wrote:
-> On Wed, Feb 11, 2004 at 04:42:33PM -0800, Andrew Morton wrote:
-> > > Indeed.  MKDEV() already masks off the high order stuff, so that is OK.
-> >_
-> > That means that we've lost the original idr key and can no longer remove
-> > the thing, doesn't it?
+Andi Kleen wrote:
+> On Tue, 10 Feb 2004 13:56:24 -0800
+> George Anzinger <george@mvista.com> wrote:
 > 
-> No, it doesn't store the counter with the id.  They expect you to do that.
-> My best understanding is that thi sis to prevent re-use of the same key.
-> I'm not sure I grok why it is useful.  If you release a key, it should be
-> safe to reuse.  Period.  I assume there was some use case that brought about
-> this "feature" but if so, I don't know what it is.  The big comment about it
-> is just confusing me.
-
-Maybe Jim can tell us why it's there.  Certainly, the idr interface would
-be more useful if it just returned id's which start from zero.
-
-
-> > > On idr_get_new(), we can just check for
-> > > 	dev & ((1<<MINORBITS)-1) == (1<<MINORBITS)-1)
-> > > and return -EMFILE.
-> > >_
-> > > That combined with a gfp mask to idr and the assumption that idr's
-> > > counter
-> > > won't ever grow beyond (sizeof(int)*8 - MINORBITS) (12) bits
-> > >_
-> > > Shall I whip that up and test it?  Do you prefer a gfp mask to idr_init
-> > > that
-> > > sticks around for all allocations or a GFP mask to idr_pre_get?
 > 
-> Offer repeated. :)
+>>>Problem is that he did it without binutils support. I don't think that's a good
+>>>idea because it makes the code basically unmaintainable for normal souls
+>>>(it's like writing assembly code directly in hex) 
+>>
+>>Well, bin utils, at this time, makes it even worse in that it does not support 
+>>the expression syntax.  Also, it is not asm but dwarf2 and it is written in, 
+>>IMHO, useful macros (not hex :)
+> 
+> 
+> The latest binutils should support .cfi_* for i386 too. I don't see much sense
+> in making the code more ugly just for staying backwards compatible with older versions for the 
+> debug case (without CONFIG_DEBUG_INFO it should be compatible though).
+> You need a fairly new gdb too anyways for it.
 
-Please.
+Well, yes, the CVS version I mentioned in my patch is needed as I found a bug in 
+the expression analizer.  I am NOT trying to say compatable with old tools.  I 
+AM trying to do something the CURRENT tools make hard to impossible.
+
+The problem with the gas CFI support is that it does not provide a way to define 
+CFI expressions which are needed to determine if the CFI address should be zero 
+(i.e. the return is to user space) or the current adjusted stack address.
+
+I suppose the open ended .cfi_ thing could be used but it requires that you 
+compute your own sleb128 and uleb128 values.  It is also not clear how you tell 
+this thing if you want a word or a half word as the dwarf2 spec requires.  More 
+info on this would be very "nice".  I really would like to do this with out the 
+dwarf2 macros, but, please understand, one of the main reasons for the effort 
+was to tie off the bottom of the stack and that seems to require an expression 
+capability for the asm code in entry.S.
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

@@ -1,108 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135657AbRDTHPA>; Fri, 20 Apr 2001 03:15:00 -0400
+	id <S135648AbRDTHKi>; Fri, 20 Apr 2001 03:10:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135656AbRDTHOx>; Fri, 20 Apr 2001 03:14:53 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:49419 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S135710AbRDTHOj>;
-	Fri, 20 Apr 2001 03:14:39 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S135656AbRDTHKS>; Fri, 20 Apr 2001 03:10:18 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:7105 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S135648AbRDTHJi>;
+	Fri, 20 Apr 2001 03:09:38 -0400
+Message-ID: <3ADFD7A3.67EE00AE@mandrakesoft.com>
+Date: Fri, 20 Apr 2001 02:30:59 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Ion Badulescu <ionut@cs.columbia.edu>
+Cc: Roberto Nibali <ratz@tac.ch>, linux-kernel@vger.kernel.org,
+        Donald Becker <becker@scyld.com>, Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
+In-Reply-To: <Pine.LNX.4.33.0104192241060.4771-100000@age.cs.columbia.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15071.57878.898202.26559@argo.ozlabs.ibm.com.au>
-Date: Fri, 20 Apr 2001 17:15:34 +1000 (EST)
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, cort@fsmlabs.com, benh@kernel.crashing.org,
-        jerdfelt@valinux.com
-X-Mailer: VM 6.75 under Emacs 20.4.1
-Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Ion Badulescu wrote:
+> Well.. Space.c is a dinozaur. However, this is the 2.2 series and no more
+> surgery will happen on this kernel, at least normally.
+> 
+> Have you tried loading the drivers as modules? You might have more luck
+> with that approach. Space.c was designed at a time when having 4 NIC's in
+> a PC was "pushing the limits"...
 
-This patch fixes some bugs in drivers/usb/hid.c.  Johannes Erdfelt
-(the maintainer) sent it to you previously but it got missed.  Could
-it go in 2.4.4 please?  Here are the comments explaining the patch
-that I wrote originally:
+2.2.recent has module_init/exit, so you don't even need Space.c.
 
-> The first hunk just fixes some typos in s32ton.  For example, with
-> n == 8, the code as it was would return 0x80 if value > 127 but 0xff
-> if value < -128.  With my change it returns 0x7f for value > 127 and
-> 0x80 for value < -128.
->
-> The second hunk fixes the "cdcd" problem that we see on apple
-> keyboards that can only handle 2-key rollover.  If you type "c" "d"
-> <space> quickly on these keyboards, you get a report with the
-> error-rollover code (1) in bytes 2 - 7 (instead of the codes for the
-> keys that are down).  Without this patch the code thinks that all the
-> keys that were down are now up.  When you release one key you get a
-> normal report again and the code thinks that the remaining keys have
-> been pressed again.  The patch makes the code just discard the report
-> once it sees the error-rollover code.
->
-> The remaining hunks fix some endianness problems in the code that sets
-> the keyboard leds.
-
-Thanks,
-Paul.
-
-diff -urN linux/drivers/usb/hid.c linuxppc_2_4/drivers/usb/hid.c
---- linux/drivers/usb/hid.c	Thu Feb 22 14:25:27 2001
-+++ linuxppc_2_4/drivers/usb/hid.c	Mon Feb 12 13:35:00 2001
-@@ -698,7 +698,7 @@
- static __inline__ __u32 s32ton(__s32 value, unsigned n)
- {
- 	__s32 a = value >> (n - 1);
--	if (a && a != -1) return value > 0 ? 1 << (n - 1) : (1 << n) - 1;
-+	if (a && a != -1) return value < 0 ? 1 << (n - 1) : (1 << (n - 1)) - 1;
- 	return value & ((1 << n) - 1);
- }
- 
-@@ -1016,9 +1016,15 @@
- 	__s32 max = field->logical_maximum;
- 	__s32 value[count]; /* WARNING: gcc specific */
-    
--	for (n = 0; n < count; n++)
-+	for (n = 0; n < count; n++) {
- 			value[n] = min < 0 ? snto32(extract(data, offset + n * size, size), size) : 
- 						    extract(data, offset + n * size, size);
-+			/* Handle the ErrorRollOver code (1) by simply ignoring this report */
-+			if (!(field->flags & HID_MAIN_ITEM_VARIABLE)
-+			    && value[n] >= min && value[n] <= max
-+			    && field->usage[value[n] - min].hid == HID_UP_KEYBOARD + 1)
-+				return;
-+	}
- 
- 	for (n = 0; n < count; n++) {
- 
-@@ -1231,7 +1237,7 @@
- 
- static int hid_submit_out(struct hid_device *hid)
- {
--	hid->urbout.transfer_buffer_length = hid->out[hid->outtail].dr.length;
-+	hid->urbout.transfer_buffer_length = le16_to_cpup(&hid->out[hid->outtail].dr.length);
- 	hid->urbout.transfer_buffer = hid->out[hid->outtail].buffer;
- 	hid->urbout.setup_packet = (void *) &(hid->out[hid->outtail].dr);
- 	hid->urbout.dev = hid->dev;
-@@ -1271,8 +1277,8 @@
- 	hid_set_field(field, offset, value);
- 	hid_output_report(field->report, hid->out[hid->outhead].buffer);
- 
--	hid->out[hid->outhead].dr.value = 0x200 | field->report->id;
--	hid->out[hid->outhead].dr.length = ((field->report->size - 1) >> 3) + 1;
-+	hid->out[hid->outhead].dr.value = cpu_to_le16(0x200 | field->report->id);
-+	hid->out[hid->outhead].dr.length = cpu_to_le16((field->report->size + 7) >> 3);
- 
- 	hid->outhead = (hid->outhead + 1) & (HID_CONTROL_FIFO_SIZE - 1);
- 
-@@ -1445,7 +1451,7 @@
- 	for (n = 0; n < HID_CONTROL_FIFO_SIZE; n++) {
- 		hid->out[n].dr.requesttype = USB_TYPE_CLASS | USB_RECIP_INTERFACE;
- 		hid->out[n].dr.request = USB_REQ_SET_REPORT;
--		hid->out[n].dr.index = hid->ifnum;
-+		hid->out[n].dr.index = cpu_to_le16(hid->ifnum);
- 	}
- 
- 	hid->input.name = hid->name;
+-- 
+Jeff Garzik       | "The universe is like a safe to which there is a
+Building 1024     |  combination -- but the combination is locked up
+MandrakeSoft      |  in the safe."    -- Peter DeVries

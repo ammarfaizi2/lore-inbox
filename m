@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266214AbUFUNA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUFUNDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266214AbUFUNA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 09:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266220AbUFUNA7
+	id S266216AbUFUNDB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 09:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266220AbUFUNDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 09:00:59 -0400
-Received: from cantor.suse.de ([195.135.220.2]:40621 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266214AbUFUNA6 (ORCPT
+	Mon, 21 Jun 2004 09:03:01 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:64482 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S266216AbUFUNCu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 09:00:58 -0400
-Date: Mon, 21 Jun 2004 17:01:25 +0200
-From: Andi Kleen <ak@suse.de>
-To: Janos Farkas <jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org>
-Cc: akpm@osdl.org, manfred@colorfullife.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7 shows K7 with Pentium Pro erratum [Re: New version of
- early CPU detect]
-Message-Id: <20040621170125.322f3297.ak@suse.de>
-In-Reply-To: <20040621120416.GA2722@noc.xeon.eu.org>
-References: <20040423043001.4bb05d5f.ak@suse.de>
-	<20040621120416.GA2722@noc.xeon.eu.org>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jun 2004 09:02:50 -0400
+Message-Id: <200406190236.i5J2a2uX004520@eeyore.valparaiso.cl>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: Kyle McMartin <kyle@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness 
+In-Reply-To: Message from Jesper Juhl <juhl-lkml@dif.dk> 
+   of "Fri, 18 Jun 2004 16:51:07 +0200." <Pine.LNX.4.56.0406181647340.16649@jjulnx.backbone.dif.dk> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Fri, 18 Jun 2004 22:36:02 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jun 2004 14:04:16 +0200
-Janos Farkas <jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org> wrote:
+Jesper Juhl <juhl-lkml@dif.dk> said:
 
+[...]
 
-> 
-> As it is, the family/model numbers seems to match, but it's obviously an
-> AMD product..
+> Well, Slackware Linux usually ships with an unmodified kernel.org kernel
+> (there are rare cases of patches that fix security issues though). I find
+> this a very nice property of Slackware since there are never any problems
+> when replacing the default kernel with a custom build kernel.org one...
+> There are other minor distributions that also ship with kernel.org
+> kernels - I don't have a list at hand, but I've run into several over the
+> years.
 
-
-Does this patch fix the problem?
-
-
--Andi
-
-
-diff -u linux-2.6.7-work/arch/i386/kernel/cpu/common.c-o linux-2.6.7-work/arch/i386/kernel/cpu/common.c
---- linux-2.6.7-work/arch/i386/kernel/cpu/common.c-o	2004-06-16 12:22:43.000000000 +0200
-+++ linux-2.6.7-work/arch/i386/kernel/cpu/common.c	2004-06-21 16:59:08.000000000 +0200
-@@ -143,8 +143,9 @@
- 	char *v = c->x86_vendor_id;
- 	int i;
- 
-+	c->x86_vendor = X86_VENDOR_UNKNOWN;
- 	for (i = 0; i < X86_VENDOR_NUM; i++) {
--		if (cpu_devs[i]) {
-+		if (cpu_devs[i] || early) {
- 			if (!strcmp(v,cpu_devs[i]->c_ident[0]) ||
- 			    (cpu_devs[i]->c_ident[1] && 
- 			     !strcmp(v,cpu_devs[i]->c_ident[1]))) {
+I have been running stock Linus kernels for ages on Red Hat. Sure, RH
+patches their kernels extensively, but the trouble is usually with stuff
+like modutils and such needed for the experimental series.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

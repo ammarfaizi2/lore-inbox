@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263274AbREaW7s>; Thu, 31 May 2001 18:59:48 -0400
+	id <S263272AbREaXCI>; Thu, 31 May 2001 19:02:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263269AbREaW7i>; Thu, 31 May 2001 18:59:38 -0400
-Received: from srvr1.telecom.lt ([212.59.0.10]:19338 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S263274AbREaW71>;
-	Thu, 31 May 2001 18:59:27 -0400
-Message-Id: <200105312259.AAA2196835@mail.takas.lt>
-Date: Fri, 1 Jun 2001 00:56:03 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: Configure.help is complete
-To: esr@thyrsus.com
-cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+	id <S263269AbREaXB6>; Thu, 31 May 2001 19:01:58 -0400
+Received: from csl.Stanford.EDU ([171.64.66.149]:49133 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S263272AbREaXBt>;
+	Thu, 31 May 2001 19:01:49 -0400
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200105312301.QAA16524@csl.Stanford.EDU>
+Subject: [QUESTION] which routines must be re-entrant?
+To: linux-kernel@vger.kernel.org
+Date: Thu, 31 May 2001 16:01:34 -0700 (PDT)
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-In-Reply-To: <20010531132454.A8361@thyrsus.com>
-In-Reply-To: <20010531132454.A8361@thyrsus.com>
-X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.2.19 i686
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 May 2001 19:24:54 +0200 Eric S. Raymond <esr@thyrsus.com> wrote:
+Is there an easy way to tell which routines must be re-entrant? 
+(it doesn't have to be exhaustive, even an incomplete set is useful)
 
-> It gives me great pleasure to announce that the Configure.help master
-> file is now complete with respect to 2.4.5.  Every single one of the
+I was going to write a checker to make sure supposedly re-entrant
+routines actually were, but was having a hard time figuring out which
+ones were supposed to be...
 
-Congratulations!
-Could you please change Portugese to Portuguese in one place?
-
-Regards,
-Nerijus
-
-
+Thanks,
+Dawson

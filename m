@@ -1,78 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbTEHNNU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 09:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbTEHNNU
+	id S261408AbTEHNXe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 09:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTEHNXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 09:13:20 -0400
-Received: from mta01bw.bigpond.com ([139.134.6.78]:35544 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP id S261570AbTEHNNR
+	Thu, 8 May 2003 09:23:33 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:46602 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261408AbTEHNXa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 09:13:17 -0400
-Message-ID: <3F06CF6E.7090803@snapgear.com>
-Date: Sat, 05 Jul 2003 23:15:26 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH]: linux-2.5.69-uc1 (MMU-less fix ups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 May 2003 09:23:30 -0400
+Date: Thu, 8 May 2003 15:39:08 +0200
+To: Jens Axboe <axboe@suse.de>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
+Message-ID: <20030508133908.GA824@hh.idb.hist.no>
+References: <20030507.025626.10317747.davem@redhat.com> <20030507144100.GD8978@holomorphy.com> <20030507.064010.42794250.davem@redhat.com> <20030507215430.GA1109@hh.idb.hist.no> <20030508013854.GW8931@holomorphy.com> <20030508065440.GA1890@hh.idb.hist.no> <20030508080135.GK8978@holomorphy.com> <20030508100717.GN8978@holomorphy.com> <3EBA4529.7050507@aitel.hist.no> <20030508120450.GT823@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030508120450.GT823@suse.de>
+User-Agent: Mutt/1.5.3i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Thu, May 08, 2003 at 02:04:50PM +0200, Jens Axboe wrote:
+> On Thu, May 08 2003, Helge Hafting wrote:
+> > William Lee Irwin III wrote:
+> > 
+> > >2.5.69-mm3 should suffice to test things now. If you can try that when
+> > >you get back I'd be much obliged.
+> > 
+> > 2.5.69-mm3 died in exactly the same way - the oops was identical.
+> > I'm back to running mm2 without netfilter, to see how
+> > stable it is.
+> 
+> See my mail to rusty, I'm seeing the same thing. Back out the changeset
+> that wli pasted here too, and it will work.
+> 
+Much fuzz and two rejects.  Seems there is ongoing netfilter
+work in mm3.
 
-Another update of the uClinux (MMU-less) fixups against 2.5.69.
-This includes some of the missing m5282 CPU support, and fixes
-gettimeofday() to be microsecond accurate.
-
-You can get it at:
-
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.69-uc1.patch.gz
-
-
-Change log:
-
-. Motorola M5282 ColdFire CPU support             (me)
-. FEC ethernet driver support for 5282            (me)
-. fix get_user_pages to return vma dummy pointer  (David McCullough)
-. updated defconfig for the m68knommu arch        (me)
-. ColdFire serial driver and console clean ups    (me)
-   (also includes 5282 support)
-. start conversion to new style serial driver     (me)
-. fix ColdFire timer warnings                     (me)
-. improved Dragon Engine 2 support                (Georges Menie)
-. implement timer offset calculation              (me)
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Helge Hafting

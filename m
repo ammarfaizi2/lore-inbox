@@ -1,42 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267059AbTBQNfj>; Mon, 17 Feb 2003 08:35:39 -0500
+	id <S267050AbTBQNfN>; Mon, 17 Feb 2003 08:35:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267070AbTBQNfj>; Mon, 17 Feb 2003 08:35:39 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:3208
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267059AbTBQNfi>; Mon, 17 Feb 2003 08:35:38 -0500
-Subject: Re: IO-APIC not working on 645DX chipset??
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Allan Klinbail <allank@labyrinth.net.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1045484341.16628.55.camel@littlewolf2.littlewolf>
-References: <1045484341.16628.55.camel@littlewolf2.littlewolf>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045493209.19397.1.camel@irongate.swansea.linux.org.uk>
+	id <S267070AbTBQNfM>; Mon, 17 Feb 2003 08:35:12 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:13952 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S267050AbTBQNfL>; Mon, 17 Feb 2003 08:35:11 -0500
+Date: Mon, 17 Feb 2003 22:43:33 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+Subject: [PATCHSET] PC-9800 subarch. support for 2.5.61 (0/26) summary
+Message-ID: <20030217134333.GA4734@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 17 Feb 2003 14:46:50 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-02-17 at 12:18, Allan Klinbail wrote:
-> Hi 
-> 
-> I don't see that anyone else has experienced this. It may be just my
-> particular Motherboard Gigabyte GA-8ST667. (SiS 645DX chipset) 
-> 
-> If I compile a kernel with 
-> IO-APIC support on uniprocessors , enabled.then, the system succesfully
-> loads up modules for USB, ethernet card,scsi card, soundcards e.t.c..
-> but they don't actually work... 
+This is patch's to support NEC PC-9800 subarchitecture
+against 2.5.61.
 
-2.4.x doesn't have work arounds for the SIS io-apic problems. SiS have 
-told us what they are so there is a sort of workaround in 2.5. For 2.4.x
-I'm still waiting for a list of afflicted devices from them so I can do
-a safe minimal workaround to feed to Marcelo.
+Comments and test reports are wellcome.
 
-Alan
+
+Description:
+ o alsa-pc98.patch (1/26)
+   ALSA sound drivers for PC98.
+ o apm.patch (2/26)
+   APM support for PC98. Including PC98's BIOS bug fix.
+ o arch-i386-mach-pc98.patch (3/26)
+   Files under arch/i386/mach-pc9800 directory.
+ o boot98.patch (4/26)
+   Files under arch/i386/boot98 directory.
+ o char_device.patch (5/26)
+   Real time clock driver and printer driver for PC98.
+ o console.patch (6/26)
+   PC98 Standard console support (without japanese kanji character).
+ o core-misc.patch (7/26)
+   Small core patches for PC98.
+ o core.patch (8/26)
+   Core patches for PC98. Big changes using mach-* scheme.
+ o dma.patch (9/26)
+   DMA support for PC98.
+ o floppy98-1.patch (10/26)
+ o floppy98-2.patch (11/26)
+   Driver for PC98 standard floppy disk drive.
+ o fs.patch (12/26)
+   FAT fs and partition table support for PC98.
+ o ide.patch (13/26)
+   PC98 standard IDE I/F support.
+ o input.patch (14/26)
+   Drivers for PC98 standard keyboard/mouse.
+ o kanji.patch (15/26)
+   japanese kanji character support for PC98 console.
+ o network_card.patch (16/26)
+   C-bus(PC98's legacy bus like ISA) network cards support.
+ o parport.patch (17/26)
+   Parallel port support.
+ o pci.patch (18/26)
+   Small changes for PCI support.
+ o pcibios.patch (19/26)
+   PCI BIOS function support using mach-* scheme.
+ o pcmcia.patch (20/26)
+   Small change for PCMCIA (16bits) support.
+ o pnp.patch (21/26)
+   Small change for Legacy bus PNP support.
+ o reboot.patch (22/26)
+   Support difference of machine reboot method, using mach-* scheme.
+ o scsi.patch (23/26)
+   SCSI host adapter support.
+ o serial.patch (24/26)
+   Serial port support for PC98.
+ o smp.patch (25/26)
+   SMP support for PC98.
+ o video_card.patch (26/26)
+   PC98 standard video card text mode driver.
+
+Regards,
+Osamu Tomita
 

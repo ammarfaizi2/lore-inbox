@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264061AbUDQWXB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 18:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264057AbUDQWXB
+	id S264057AbUDQWXY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 18:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264062AbUDQWXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 18:23:01 -0400
-Received: from florence.buici.com ([206.124.142.26]:11904 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S264062AbUDQWW7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 18:22:59 -0400
-Date: Sat, 17 Apr 2004 15:22:58 -0700
-From: Marc Singer <elf@buici.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Marc Singer <elf@buici.com>, linux-kernel@vger.kernel.org
-Subject: Re: NFS and kernel 2.6.x
-Message-ID: <20040417222258.GA12893@flea>
-References: <20040416011401.GD18329@widomaker.com> <1082079061.7141.85.camel@lade.trondhjem.org> <20040415185355.1674115b.akpm@osdl.org> <1082084048.7141.142.camel@lade.trondhjem.org> <20040416045924.GA4870@linuxace.com> <1082093346.7141.159.camel@lade.trondhjem.org> <pan.2004.04.17.16.44.00.630010@smurf.noris.de> <1082225747.2580.18.camel@lade.trondhjem.org> <20040417183219.GB3856@flea> <1082228313.2580.25.camel@lade.trondhjem.org>
+	Sat, 17 Apr 2004 18:23:24 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:32272 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264057AbUDQWXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 18:23:23 -0400
+Date: Sat, 17 Apr 2004 23:23:21 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: jejb@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] convert imm and ppa to modern scsi types
+Message-ID: <20040417232321.A21460@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, jejb@steeleye.com,
+	linux-kernel@vger.kernel.org
+References: <20040417220946.GA2719@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1082228313.2580.25.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040417220946.GA2719@lst.de>; from hch@lst.de on Sun, Apr 18, 2004 at 12:09:46AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 17, 2004 at 11:58:33AM -0700, Trond Myklebust wrote:
-> > I'd be glad to compare TCP to UDP on my system.  It's using an nfsroot
-> > mount.  It looks like the support is there.  What activates it?
-> 
-> It's all there. Just use the "tcp" mount option.
-> 
+On Sun, Apr 18, 2004 at 12:09:46AM +0200, Christoph Hellwig wrote:
+> Just saw I had this still lying around here.  No functional changes.
 
-I have a data point for comparison.
-
-I'm copying a 40MiB file over NFS.  In five trials, the mean transfer
-times are
-
-  UDP (v2):  48.5s
-  TCP (v3):  52.7s
+argg, should have went to linux-scsi..
 

@@ -1,167 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311025AbSG2HTp>; Mon, 29 Jul 2002 03:19:45 -0400
+	id <S311885AbSG2HWu>; Mon, 29 Jul 2002 03:22:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311749AbSG2HTp>; Mon, 29 Jul 2002 03:19:45 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:40183 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S311025AbSG2HTi>; Mon, 29 Jul 2002 03:19:38 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH] sd_many done right (3/5)
-To: Kurt Garloff <garloff@suse.de>
-Cc: Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OFF035F90D.9958CFF6-ONC1256C05.0027A0C5@de.ibm.com>
-From: "Aron Zeh" <ARZEH@de.ibm.com>
-Date: Mon, 29 Jul 2002 09:22:40 +0200
-X-MIMETrack: Serialize by Router on D12ML030/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 29/07/2002 09:22:42
-MIME-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=4EBBE696DFBB01FF8f9e8a93df938690918c4EBBE696DFBB01FF"
-Content-Disposition: inline
+	id <S312254AbSG2HWu>; Mon, 29 Jul 2002 03:22:50 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:49892 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S311885AbSG2HWn>;
+	Mon, 29 Jul 2002 03:22:43 -0400
+Date: Mon, 29 Jul 2002 00:13:53 -0700 (PDT)
+Message-Id: <20020729.001353.112524009.davem@redhat.com>
+To: davej@suse.de
+Cc: alan@lxorguk.ukuu.org.uk, benh@kernel.crashing.org, andre@linux-ide.org,
+       martin@dalecki.de, vojtech@suse.cz, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: PCI config locking (WAS Re: [RFC/CFT] cmd640 irqlocking fixes)2
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020725164807.Y16446@suse.de>
+References: <20020725141811.29565@192.168.4.1>
+	<1027611916.9488.79.camel@irongate.swansea.linux.org.uk>
+	<20020725164807.Y16446@suse.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=4EBBE696DFBB01FF8f9e8a93df938690918c4EBBE696DFBB01FF
-Content-type: text/plain; charset=us-ascii
+   From: Dave Jones <davej@suse.de>
+   Date: Thu, 25 Jul 2002 16:48:07 +0200
 
-
-Hi Kurt,
-
-one little thing:
-In the third "if" statement in scsiname_to_kdev_t you search for "scd" but
-set tp to "sr".
-That should also be "scd" I'd guess.
-
-Cheers,
-Aron
-
-
-Hi Marcelo,
-
-here comes patch 3/5 from a series of patches to support more than 128 (and
-optionally more than 256) SCSI disks with Linux 2.4 by changing the sd
-driver
-to dynamically allocate memory and register block majors as disks get
-attached.
-
-The patches are all available at
-http://www.suse.de/~garloff/linux/scsi-many/
-
-Patch 3 does use the infrastructure of patch 1 to allow specifying the
-root filesystem as a kernel parameter using devfs syntax (e.g.
-root=/dev/scsi/c2b0t9u0p5), but also working on non-devfs systems.
-Together with the (already existing) scsihosts= parameter, this can
-be quite useful if you have many SCSI disks with changing configurations.
-
-This patch is against 2.4.19rc1. It depends on 1/3.
-
-Regards,
---
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE Linux AG, Nuernberg, DE                            SCSI, Security
-(See attached file: scsi-boot-scsi-2419rc1.diff)(See attached file:
-attbncke.dat)
-
-
---0__=4EBBE696DFBB01FF8f9e8a93df938690918c4EBBE696DFBB01FF
-Content-type: application/octet-stream; 
-	name="scsi-boot-scsi-2419rc1.diff"
-Content-Disposition: attachment; filename="scsi-boot-scsi-2419rc1.diff"
-Content-transfer-encoding: base64
-
-ZGlmZiAtdU5yIGxpbnV4LTIuNC4xOC5TMTguc2NzaXJlcGhsL2RyaXZlcnMvc2NzaS9zY3NpLmMg
-bGludXgtMi40LjE4LlMxOC5zY3NpYm9vdC9kcml2ZXJzL3Njc2kvc2NzaS5jDQotLS0gbGludXgt
-Mi40LjE4LlMxOC5zY3NpcmVwaGwvZHJpdmVycy9zY3NpL3Njc2kuYwlUaHUgSnVuIDIwIDE4OjA2
-OjE2IDIwMDINCisrKyBsaW51eC0yLjQuMTguUzE4LnNjc2lib290L2RyaXZlcnMvc2NzaS9zY3Np
-LmMJU2F0IEp1bCAxMyAxODo0ODo0OSAyMDAyDQpAQCAtMTU1Myw2ICsxNTUzLDM2IEBADQogICAg
-IH0NCiB9DQogDQoraW50IF9faW5pdCBzY3NpX2ZpbmRfYmRldihpbnQgaCwgaW50IGMsIGludCBp
-LCBpbnQgbCwgY29uc3QgY2hhciogdGFnLA0KKwkJCSAgY2hhciogbmFtZSwga2Rldl90ICpkZXYp
-DQorew0KKwlTY3NpX0RldmljZSAqc2NkOw0KKwlzdHJ1Y3QgU2NzaV9Ib3N0ICpIQkFfcHRyOw0K
-KwlzdHJ1Y3QgU2NzaV9EZXZpY2VfVGVtcGxhdGUgKnNnX3QgPSBzY3NpX2RldmljZWxpc3Q7DQor
-CS8qIEZpcnN0IGxvb2sgZm9yIHJpZ2h0IGhpZ2gtbGV2ZWwgZHJpdmVyICovDQorCXdoaWxlIChz
-Z190ICYmIA0KKwkgICAgICAgKCFzZ190LT5maW5kX2tkZXYgfHwgIXNnX3QtPmJsayB8fA0KKwkJ
-IShzZ190LT50YWcgJiYgIXN0cmNtcChzZ190LT50YWcsIHRhZykpKSkNCisJCXNnX3QgPSBzZ190
-LT5uZXh0Ow0KKwlpZiAoIXNnX3QpDQorCQlyZXR1cm4gMTsNCisJLyogTm93IGZpbmQgU2NzaV9E
-ZXZpY2UgYW5kIGNhbGwgaGlnaC1sZXZlbCBkcml2ZXIncyBmaW5kX2tkZXYoKSAqLw0KKwlmb3Ig
-KEhCQV9wdHIgPSBzY3NpX2hvc3RsaXN0OyBIQkFfcHRyOyBIQkFfcHRyID0gSEJBX3B0ci0+bmV4
-dCkgew0KKwkJZm9yIChzY2QgPSBIQkFfcHRyLT5ob3N0X3F1ZXVlOyBzY2Q7IHNjZCA9IHNjZC0+
-bmV4dCkgew0KKwkJCWlmIChzY2QtPmhvc3QtPmhvc3Rfbm8gPT0gaCAmJg0KKwkJCSAgICBzY2Qt
-PmNoYW5uZWwgPT0gYyAmJg0KKwkJCSAgICBzY2QtPmlkID09IGkgJiYNCisJCQkgICAgc2NkLT5s
-dW4gPT0gbCkgew0KKwkJCQlpZiAoc2dfdC0+ZmluZF9rZGV2KHNjZCwgbmFtZSwgZGV2KSkNCisJ
-CQkJCXJldHVybiAxOw0KKwkJCQllbHNlDQorCQkJCQlyZXR1cm4gMDsNCisJCQl9DQorCQl9DQor
-CX0NCisJcmV0dXJuIDE7DQorfQ0KKw0KICNpZmRlZiBDT05GSUdfUFJPQ19GUw0KIHN0YXRpYyBp
-bnQgc2NzaV9wcm9jX2luZm8oY2hhciAqYnVmZmVyLCBjaGFyICoqc3RhcnQsIG9mZl90IG9mZnNl
-dCwgaW50IGxlbmd0aCkNCiB7DQpkaWZmIC11TnIgbGludXgtMi40LjE4LlMxOC5zY3NpcmVwaGwv
-aW5pdC9kb19tb3VudHMuYyBsaW51eC0yLjQuMTguUzE4LnNjc2lib290L2luaXQvZG9fbW91bnRz
-LmMNCi0tLSBsaW51eC0yLjQuMTguUzE4LnNjc2lyZXBobC9pbml0L2RvX21vdW50cy5jCVdlZCBK
-dW4gMTIgMTE6Mzc6MTIgMjAwMg0KKysrIGxpbnV4LTIuNC4xOC5TMTguc2NzaWJvb3QvaW5pdC9k
-b19tb3VudHMuYwlTYXQgSnVsIDEzIDE4OjUxOjE4IDIwMDINCkBAIC0xMzYsNiArMTM2LDE5IEBA
-DQogCXsgInNkbiIsICAgICAweDA4ZDAgfSwNCiAJeyAic2RvIiwgICAgIDB4MDhlMCB9LA0KIAl7
-ICJzZHAiLCAgICAgMHgwOGYwIH0sDQorCXsgInNkcSIsICAgICAweDQxMDAgfSwNCisJeyAic2Ry
-IiwgICAgIDB4NDExMCB9LA0KKwl7ICJzZHMiLCAgICAgMHg0MTIwIH0sDQorCXsgInNkdCIsICAg
-ICAweDQxMzAgfSwNCisJeyAic2R1IiwgICAgIDB4NDE0MCB9LA0KKwl7ICJzZHYiLCAgICAgMHg0
-MTUwIH0sDQorCXsgInNkdyIsICAgICAweDQxNjAgfSwNCisJeyAic2R4IiwgICAgIDB4NDE3MCB9
-LA0KKwl7ICJzZHkiLCAgICAgMHg0MTgwIH0sDQorCXsgInNkeiIsICAgICAweDQxOTAgfSwNCisJ
-LyogbW9yZSBzY3NpIGRldnMgY291bGQgYmUgYWRkZWQgaGVyZSwgYnV0IC9kZXYvc2RhYSB3b3Vs
-ZCBtYXRjaCANCisJICogL2Rldi9zZGEgYmVmb3JlLCBzbyBpdCB3b3VsZCBuZWVkIHRvIGJlIHB1
-dCBiZWZvcmUgc2RhLg0KKwkgKiBCZXR0ZXIgdXNlIC9kZXYvc2NzaS9zZGNYYlh0WHVYcFggKi8N
-CiAJeyAiYWRhIiwgICAgIDB4MWMwMCB9LA0KIAl7ICJhZGIiLCAgICAgMHgxYzEwIH0sDQogCXsg
-ImFkYyIsICAgICAweDFjMjAgfSwNCkBAIC0xNDcsNiArMTYwLDcgQEANCiAJeyAieGRiIiwgICAg
-IDB4MGQ0MCB9LA0KIAl7ICJyYW0iLCAgICAgMHgwMTAwIH0sDQogCXsgInNjZCIsICAgICAweDBi
-MDAgfSwNCisJeyAic3IiLCAgICAgIDB4MGIwMCB9LA0KIAl7ICJtY2QiLCAgICAgMHgxNzAwIH0s
-DQogCXsgImNkdTUzNSIsICAweDE4MDAgfSwNCiAJeyAic29ueWNkIiwgIDB4MTgwMCB9LA0KQEAg
-LTI1NSw2ICsyNjksNjIgQEANCiAJeyBOVUxMLCAwIH0NCiB9Ow0KIA0KKyNpZiBkZWZpbmVkKENP
-TkZJR19TQ1NJKSAmJiAhZGVmaW5lZChDT05GSUdfREVWRlNfRlMpDQoraW50IHNjc2lfZmluZF9i
-ZGV2IChpbnQsIGludCwgaW50LCBpbnQsIGNvbnN0IGNoYXIqLCBjaGFyKiwga2Rldl90Kik7DQor
-LyogUGFyc2UgL2Rldi9zY3NpL3NkY1hiWHRYdVhwWCBuYW1lcy4gTWFrZXMgb25seSBzZW5zZSBp
-ZiBzY3NpIGlzDQorICogY29tcGlsZWQgaW4uIE90aGVyd2lzZSB0aGUgaW5pdHJkIHN0dWZmIG5l
-ZWRzIHRvIHRha2UgY2FyZSAuLi4gKi8NCitrZGV2X3QgX19pbml0IHNjc2luYW1lX3RvX2tkZXZf
-dChjaGFyKiBsaW5lKQ0KK3sNCisJa2Rldl90IGRldiA9IFJPT1RfREVWOw0KKwlpbnQgaCwgYywg
-aSAsbDsNCisJY2hhciAqdHAgPSAwOw0KKwljaGFyIG5tYnVmWzE2XTsNCisNCisJaWYgKCFzdHJu
-Y21wIChsaW5lLCAic2QiLCAyKSkgew0KKwkJdHAgPSAic2QiOyBsaW5lICs9IDI7DQorCX0NCisJ
-ZWxzZSBpZiAoIXN0cm5jbXAgKGxpbmUsICJzciIsIDIpKSB7DQorCQl0cCA9ICJzciI7IGxpbmUg
-Kz0gMjsNCisJfQ0KKwllbHNlIGlmICghc3RybmNtcCAobGluZSwgInNjZCIsIDMpKSB7DQorCQl0
-cCA9ICJzciI7IGxpbmUgKz0gMzsNCisJfQ0KKwkNCisJaWYgKHN0cmxlbiAobGluZSkgPCA4IHx8
-ICF0cCkNCisJCXJldHVybiBkZXY7DQorCQ0KKwlpZiAoKmxpbmUrKyAhPSAnYycpDQorCQlyZXR1
-cm4gZGV2Ow0KKwloID0gc2ltcGxlX3N0cnRvdWwobGluZSwgJmxpbmUsIDEwKTsNCisJaWYgKCps
-aW5lKysgIT0gJ2InKQ0KKwkJcmV0dXJuIGRldjsNCisJYyA9IHNpbXBsZV9zdHJ0b3VsKGxpbmUs
-ICZsaW5lLCAxMCk7DQorCWlmICgqbGluZSsrICE9ICd0JykNCisJCXJldHVybiBkZXY7DQorCWkg
-PSBzaW1wbGVfc3RydG91bChsaW5lLCAmbGluZSwgMTApOw0KKwlpZiAoKmxpbmUrKyAhPSAndScp
-DQorCQlyZXR1cm4gZGV2Ow0KKwlsID0gc2ltcGxlX3N0cnRvdWwobGluZSwgJmxpbmUsIDEwKTsN
-CisJDQorCWlmICghc2NzaV9maW5kX2JkZXYgKGgsIGMsIGksIGwsIHRwLCBubWJ1ZiwgJmRldikp
-IHsNCisJCWlmIChsaW5lICYmICpsaW5lKysgPT0gJ3AnKSB7DQorCQkJaW50IHAgPSBzaW1wbGVf
-c3RydG91bChsaW5lLCAmbGluZSwgMTApOw0KKwkJCWRldiA9IE1LREVWKE1BSk9SKGRldiksTUlO
-T1IoZGV2KStwKTsNCisJCQlzcHJpbnRmIChubWJ1ZitzdHJsZW4obm1idWYpLCAiJWkiLCBwKTsN
-CisJCQlwcmludGsoImZvdW5kIHNjc2kgcm9vdCBkZXZpY2UgJXNjJWliJWl0JWl1JWlwJWk6ICVz
-ICglMDJ4OiUwMngpXG4iLA0KKwkJCSAgICAgICB0cCwgaCwgYywgaSwgbCwgcCwgbm1idWYsIE1B
-Sk9SKGRldiksIE1JTk9SKGRldikpOw0KKwkJfSBlbHNlDQorCQkJcHJpbnRrKCJmb3VuZCBzY3Np
-IHJvb3QgZGV2aWNlICVzYyVpYiVpdCVpdSVpOiAlcyAoJTAyeDolMDJ4KVxuIiwNCisJCQkgICAg
-ICAgdHAsIGgsIGMsIGksIGwsIG5tYnVmLCBNQUpPUihkZXYpLCBNSU5PUihkZXYpKTsNCisJCXN0
-cmNweSAocm9vdF9kZXZpY2VfbmFtZSwgbm1idWYpOw0KKwl9IGVsc2UgDQorCQlwcmludGsoImRp
-ZCBub3QgZmluZCBzY3NpIHJvb3QgZGV2aWNlICVzYyVpYiVpdCVpdSVpXG4iLA0KKwkJICAgICAg
-IHRwLCBoLCBjLCBpLCBsKTsNCisNCisJcmV0dXJuIGRldjsNCit9DQorI2VuZGlmDQorDQoga2Rl
-dl90IF9faW5pdCBuYW1lX3RvX2tkZXZfdChjaGFyICpsaW5lKQ0KIHsNCiAJaW50IGJhc2UgPSAw
-Ow0KQEAgLTczMiw2ICs4MDIsMTAgQEANCiAjZWxzZQ0KIHN0YXRpYyB2b2lkIF9faW5pdCBkZXZm
-c19tYWtlX3Jvb3QoY2hhciAqbmFtZSkNCiB7DQorIyBpZmRlZiBDT05GSUdfU0NTSQkNCisJaWYg
-KCFzdHJuY21wIChuYW1lLCAic2NzaS8iLCA1KSkNCisJCVJPT1RfREVWID0gc2NzaW5hbWVfdG9f
-a2Rldl90IChuYW1lKzUpOw0KKyMgZW5kaWYNCiB9DQogI2VuZGlmDQogDQo=
-
---0__=4EBBE696DFBB01FF8f9e8a93df938690918c4EBBE696DFBB01FF
-Content-type: application/octet-stream; 
-	name="attbncke.dat"
-Content-Disposition: attachment; filename="attbncke.dat"
-Content-transfer-encoding: base64
-
-LS0tLS1CRUdJTiBQR1AgU0lHTkFUVVJFLS0tLS0NClZlcnNpb246IEdudVBHIHYxLjAuNyAoR05V
-L0xpbnV4KQ0KDQppRDhEQlFFOVFXOFd4bUxoNmh5WWQwNFJBaTVsQUtDZkVJa2xML04zUXRIOWtm
-S0JwQzZUbWJ6WE9nQ2d1VzJ2DQpRU0Z2STlXc05uaDlSeURhcEdQTVdmWT0NCj1oSnFCDQotLS0t
-LUVORCBQR1AgU0lHTkFUVVJFLS0tLS0NCg==
-
---0__=4EBBE696DFBB01FF8f9e8a93df938690918c4EBBE696DFBB01FF--
-
+   On Thu, Jul 25, 2002 at 04:45:15PM +0100, Alan Cox wrote:
+    > But does anybody but x86 uses CMD640 ? :)
+    > Possibly. I don't know.
+   
+   ISTR these monsters appear on some Alphas too ?
+   
+Several Alpha's have the CMD646, which uses a different driver.  Maybe
+some really really old Alpha's had the CMD640.

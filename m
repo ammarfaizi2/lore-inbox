@@ -1,83 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131118AbRBXByQ>; Fri, 23 Feb 2001 20:54:16 -0500
+	id <S130272AbRBXCTR>; Fri, 23 Feb 2001 21:19:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130344AbRBXByF>; Fri, 23 Feb 2001 20:54:05 -0500
-Received: from [209.81.55.2] ([209.81.55.2]:4624 "EHLO cyclades.com")
-	by vger.kernel.org with ESMTP id <S130272AbRBXBxw>;
-	Fri, 23 Feb 2001 20:53:52 -0500
-Date: Fri, 23 Feb 2001 17:53:39 -0800 (PST)
-From: Ivan Passos <lists@cyclades.com>
-To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.2.18: weird eepro100 msgs
-In-Reply-To: <Pine.LNX.4.10.10102021719120.3255-100000@main.cyclades.com>
-Message-ID: <Pine.LNX.4.10.10102231738400.32459-100000@main.cyclades.com>
+	id <S131127AbRBXCS6>; Fri, 23 Feb 2001 21:18:58 -0500
+Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:39686 "HELO
+	sh0n.net") by vger.kernel.org with SMTP id <S130272AbRBXCSw>;
+	Fri, 23 Feb 2001 21:18:52 -0500
+Message-ID: <3A9719FE.D84B70FB@sh0n.net>
+Date: Fri, 23 Feb 2001 21:18:39 -0500
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net - http://www.sh0n.net/spstarr
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mike Galbraith <mikeg@wen-online.de>
+CC: lkm <linux-kernel@vger.kernel.org>
+Subject: Re: [ANOMALIES]: 2.4.2 - __alloc_pages: failed - Patch failed
+In-Reply-To: <Pine.LNX.4.33.0102231409010.496-100000@mikeg.weiden.de> <3A96D1F9.7EA6BBB6@sh0n.net>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Feb 23 21:17:47 coredump kernel: __alloc_pages: 3-order allocation failed.
+Feb 23 21:17:47 coredump kernel: __alloc_pages: 2-order allocation failed.
+Feb 23 21:17:47 coredump kernel: __alloc_pages: 1-order allocation failed.
+Feb 23 21:17:47 coredump kernel: __alloc_pages: 3-order allocation failed.
+Feb 23 21:17:47 coredump kernel: __alloc_pages: 3-order allocation failed.
+Feb 23 21:17:47 coredump kernel: __alloc_pages: 2-order allocation failed.
+Feb 23 21:17:47 coredump kernel: __alloc_pages: 1-order allocation failed.
 
-On Fri, 2 Feb 2001, Ivan Passos wrote:
-> 
-> On Fri, 2 Feb 2001, Ion Badulescu wrote:
-> 
-> > On Fri, 2 Feb 2001 15:01:05 -0800 (PST), Ivan Passos <lists@cyclades.com> wrote:
-> > 
-> > > Sometimes when I reboot the system, as soon as the eepro100 module is
-> > > loaded, I start to get these msgs on the screen:
-> > > 
-> > > eth0: card reports no resources.
-> > > eth0: card reports no RX buffers.
-> > > eth0: card reports no resources.
-> > > eth0: card reports no RX buffers.
-> > > eth0: card reports no resources.
-> > > eth0: card reports no RX buffers.
-> > > (...)
-> > 
-> > Does the following patch, taken from 2.4.1, help?
-> 
-> I'm currently testing. I'll get back to you soon (have to reboot the
-> system a lot to make sure it's really solved ... :)).
+didnt, work, still causing this..
 
-Yes, the patch did solve the problem.
+Shawn Starr wrote:
 
-Alan, could you please include this patch on your 2.2.19pre series (if
-it's not already included)??
-
-Ion, thanks again for your help!!
-
-Later,
-Ivan
-
---- linux-2.2.18/drivers/net/eepro100-old.c	Fri Feb  2 15:30:23 2001
-+++ linux-2.2.18/drivers/net/eepro100.c	Fri Feb  2 15:33:19 2001
-@@ -751,6 +751,7 @@
- 	   This takes less than 10usec and will easily finish before the next
- 	   action. */
- 	outl(PortReset, ioaddr + SCBPort);
-+	inl(ioaddr + SCBPort);
- 	/* Honor PortReset timing. */
- 	udelay(10);
- 
-@@ -839,6 +840,7 @@
- #endif  /* kernel_bloat */
- 
- 	outl(PortReset, ioaddr + SCBPort);
-+	inl(ioaddr + SCBPort);
- 	/* Honor PortReset timing. */
- 	udelay(10);
- 
-@@ -1062,6 +1064,9 @@
- 	/* Set the segment registers to '0'. */
- 	wait_for_cmd_done(ioaddr + SCBCmd);
- 	outl(0, ioaddr + SCBPointer);
-+	/* impose a delay to avoid a bug */
-+	inl(ioaddr + SCBPointer);
-+	udelay(10);
- 	outb(RxAddrLoad, ioaddr + SCBCmd);
- 	wait_for_cmd_done(ioaddr + SCBCmd);
- 	outb(CUCmdBase, ioaddr + SCBCmd);
+> Ok apply patch and loop patch... I'll let you know what happens in my next
+> email.
+>
+> Mike Galbraith wrote:
+>
+> > On Fri, 23 Feb 2001, Shawn Starr wrote:
+> >
+> > > Feb 23 03:31:18 coredump kernel: __alloc_pages: 3-order allocation
+> > > failed.
+> > > Feb 23 03:31:18 coredump kernel: __alloc_pages: 3-order allocation
+> > > failed.
+> > > Feb 23 03:31:18 coredump kernel: __alloc_pages: 2-order allocation
+> > > failed.
+> > > Feb 23 03:31:18 coredump kernel: __alloc_pages: 3-order allocation
+> > > failed.
+> > > Feb 23 03:31:18 coredump kernel: __alloc_pages: 3-order allocation
+> > > failed.
+> > > Feb 23 03:31:18 coredump kernel: __alloc_pages: 2-order allocation
+> > > failed.
+> > > Feb 23 03:31:18 coredump kernel: __alloc_pages: 3-order allocation
+> > > failed.
+> > >
+> > > The use of mkisofs and xcdroster with cdrecord seems to cause this fault
+> > > in kernel.log
+> >
+> > Hi,
+> >
+> > Can you try the below for the high order allocation problem?  We don't
+> > try very hard at all to service high order allocations under load.  If
+> > it helps, let me know and I'll submit it to Rik for consideration.
+> >
+> > (for loop troubles, you should try Jens' latest loop patch located in
+> > your favorite kernel mirror under pub/linux/kernel/people/axboe)
+> >
+> >         -Mike
+> >
+> > (patch was done against 2.4.1-ac20, but should go in ok)
+> > --- mm/page_alloc.c.org Fri Feb 23 13:21:54 2001
+> > +++ mm/page_alloc.c     Fri Feb 23 13:28:33 2001
+> > @@ -274,7 +274,7 @@
+> >  struct page * __alloc_pages(zonelist_t *zonelist, unsigned long order)
+> >  {
+> >         zone_t **zone;
+> > -       int direct_reclaim = 0;
+> > +       int direct_reclaim = 0, loop = 0;
+> >         unsigned int gfp_mask = zonelist->gfp_mask;
+> >         struct page * page;
+> >
+> > @@ -366,7 +366,7 @@
+> >          *   able to free some memory we can't free ourselves
+> >          */
+> >         wakeup_kswapd();
+> > -       if (gfp_mask & __GFP_WAIT) {
+> > +       if (gfp_mask & __GFP_WAIT && loop) {
+> >                 __set_current_state(TASK_RUNNING);
+> >                 current->policy |= SCHED_YIELD;
+> >                 schedule();
+> > @@ -393,6 +393,7 @@
+> >          *      --> try to free pages ourselves with page_launder
+> >          */
+> >         if (!(current->flags & PF_MEMALLOC)) {
+> > +               loop++;
+> >                 /*
+> >                  * Are we dealing with a higher order allocation?
+> >                  *
+> > @@ -440,7 +441,7 @@
+> >                         memory_pressure++;
+> >                         try_to_free_pages(gfp_mask);
+> >                         wakeup_bdflush(0);
+> > -                       if (!order)
+> > +                       if (!order || loop < (1 << order))
+> >                                 goto try_again;
+> >                 }
+> >         }
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

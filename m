@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278986AbRKAO2w>; Thu, 1 Nov 2001 09:28:52 -0500
+	id <S279005AbRKAObM>; Thu, 1 Nov 2001 09:31:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279005AbRKAO2m>; Thu, 1 Nov 2001 09:28:42 -0500
-Received: from toad.com ([140.174.2.1]:23309 "EHLO toad.com")
-	by vger.kernel.org with ESMTP id <S278986AbRKAO2d>;
-	Thu, 1 Nov 2001 09:28:33 -0500
-Message-ID: <3BE15BF0.C6FB873C@mandrakesoft.com>
-Date: Thu, 01 Nov 2001 09:28:00 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tim Waugh <twaugh@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: driver initialisation order problem
-In-Reply-To: <20011101141412.R20398@redhat.com> <3BE15A85.8B9DF165@mandrakesoft.com> <20011101142544.T20398@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S279018AbRKAObC>; Thu, 1 Nov 2001 09:31:02 -0500
+Received: from ns.suse.de ([213.95.15.193]:52498 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S279005AbRKAOav>;
+	Thu, 1 Nov 2001 09:30:51 -0500
+To: Joris van Rantwijk <joris@deadlock.et.tudelft.nl>
+Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
+Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
+In-Reply-To: <Pine.LNX.4.21.0111010944050.16656-100000@deadlock.et.tudelft.nl.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 01 Nov 2001 15:30:42 +0100
+In-Reply-To: Joris van Rantwijk's message of "1 Nov 2001 10:15:31 +0100"
+Message-ID: <p733d3yr2b1.fsf@amdsim2.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Waugh wrote:
+Joris van Rantwijk <joris@deadlock.et.tudelft.nl> writes:
 > 
-> On Thu, Nov 01, 2001 at 09:21:57AM -0500, Jeff Garzik wrote:
-> 
-> > I would move lp to parport, since IMHO it belongs there anyway.
-> 
-> It isn't confined to just lp:
-> 
-> $ grep -l parport $(find drivers/char -name '*.c')
-> drivers/char/lp.c
-> drivers/char/ppdev.c
+> So... Shouldn't dev_queue_xmit_nit() also process ptype_base then ?
 
-I would move both of these to parport
+Interesting bug.
 
+It probably should, but unfortunately then it would loop back to all normal
+protocols (IP, IPv6, ARP etc.) too, which would not be good.
 
-> drivers/char/joystick/turbografx.c
-> drivers/char/joystick/db9.c
-> drivers/char/joystick/gamecon.c
+It may be best to change af_packet to always use ptype_all and match
+the protocols itself. Alternatively there would need to be a special
+case.
 
-don't have a good answer.  maybe move 'em to drivers/input :)
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+-Andi

@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281537AbRKUAvE>; Tue, 20 Nov 2001 19:51:04 -0500
+	id <S281547AbRKUAuy>; Tue, 20 Nov 2001 19:50:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281552AbRKUAuy>; Tue, 20 Nov 2001 19:50:54 -0500
-Received: from smtp016.mail.yahoo.com ([216.136.174.113]:51213 "HELO
-	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S281537AbRKUAun>; Tue, 20 Nov 2001 19:50:43 -0500
-Date: Tue, 20 Nov 2001 20:59:23 +0000 (GMT)
-From: "Ryan M. McConahy" <jfanonymous@yahoo.com>
+	id <S281552AbRKUAuo>; Tue, 20 Nov 2001 19:50:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34826 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281547AbRKUAuc>; Tue, 20 Nov 2001 19:50:32 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: Loop.c File !!!!
-In-Reply-To: <EXCH01SMTP011vDfrwV0000fda4@smtp.netcabo.pt>
-Message-ID: <Pine.LNX.4.21.0111202025290.6299-100000@brick>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: swsusp for 2.4.14
+Date: 20 Nov 2001 16:50:11 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9teto3$65c$1@cesium.transmeta.com>
+In-Reply-To: <20011121001858.B183@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 20 Nov 2001, Miguel Maria Godinho de Matos wrote:
-
-> The problem is the following:
+Followup to:  <20011121001858.B183@elf.ucw.cz>
+By author:    Pavel Machek <pavel@suse.cz>
+In newsgroup: linux.dev.kernel
 > 
-> Some one told me i should edit the loop.c file and even tried to explained me 
-> why but i couldn't understand.
+> Warning. This probably corrupts memory. (All previous versinos did,
+> just noone noticed becuase it needed 20+ suspend/resume cycles). This
+> is probably best version ever, but it still corrupts data.
 > 
-> He said something about my new kernel wouldn't be able to compile if two or 
-> three lines weren't comented!
-> 
-> I didn't understand this fact so i would like to know why should i edit the 
-> /usr/src/linux/drivers/block/loop.c file!!!!
 
-What lines did he want you to comment out? Tell us more! I don't think you
-would need to.
+This is all very cool.  May I suggest to use the term "hibernate"
+though, since "suspend" by itself usually refers to suspend to RAM
+(S3) as opposed to suspend to disk (S4).
 
-Ryan M. McConahy
-
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270958AbRHQUDU>; Fri, 17 Aug 2001 16:03:20 -0400
+	id <S271350AbRHQUKA>; Fri, 17 Aug 2001 16:10:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271034AbRHQUDM>; Fri, 17 Aug 2001 16:03:12 -0400
-Received: from zeke.inet.com ([199.171.211.198]:33420 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S270958AbRHQUDD>;
-	Fri, 17 Aug 2001 16:03:03 -0400
-Message-ID: <3B7D7879.41690C82@inet.com>
-Date: Fri, 17 Aug 2001 15:03:05 -0500
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: question: ip_rcv(), dst_entry (2.2)
-In-Reply-To: <3B7C45BE.3828D2CB@inet.com>
+	id <S271333AbRHQUJu>; Fri, 17 Aug 2001 16:09:50 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:59894 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S271559AbRHQUJg>; Fri, 17 Aug 2001 16:09:36 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 17 Aug 2001 14:09:43 -0600
+To: "Mark H. Wood" <mwood@IUPUI.Edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext2 not NULLing deleted files?
+Message-ID: <20010817140831.H17372@turbolinux.com>
+Mail-Followup-To: "Mark H. Wood" <mwood@IUPUI.Edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010817020241.C32617@turbolinux.com> <Pine.LNX.4.33.0108171243410.392-100000@mhw.ULib.IUPUI.Edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0108171243410.392-100000@mhw.ULib.IUPUI.Edu>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eli Carter wrote:
-> 
-> Greetings,
-> 
-> I've been studying the 2.2 networking code and, well, I'm beginning to
-> feel overwhelmed...
-> I think I (mostly) understand the network driver part of it, but I'm
-> getting lost in the dst_entry area, I think from both directions...
-> I didn't find a whole lot on google or linux/Documentation .
-> 
-> Does anyone have pointers to information to guide me through the 2.2
-> networking code?  (Or even volunteers to give me an idea of what I'm
-> looking at and how it works?)  I'm particularly interested in
-> information on the API boundaries in the 2.2.x network code.
+On Aug 17, 2001  12:55 -0500, Mark H. Wood wrote:
+> Regarding the need to do more than just zero unwanted data, I note that
+> there is a U.S. DOD MIL-SPEC (no, I do not know the number) which defines
+> a sequence of patterns to be used for erasing magnetic media.
 
-In case others are interested in the answer to this query, I later found 
-http://kernelnewbies.org/documents/ipnetworking/linuxipnetworking.html
+In the Usenix paper quoted earlier in this thread (I believe) it was
+stated that the MIL-SPEC document was actually bogus.  REAL secure
+deletion requirements were much more strict (something like 15 passes of
+various random and non-random patterns vs. 7 passes of alternating all 0
+and all 1 data), but the US government made it think that the MIL-SPEC
+requirements were enough, so that naive users would follow it, still
+leaving enough trace data on the disk for the government to retrieve it.
 
-Very helpful; now to wrap my brain around it...
+Still, even a single pass of zero writes is enough to prevent 99.9%
+of attackers from getting the data back.
 
-C-ya,
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-Eli
---------------------.     Real Users find the one combination of bizarre
-Eli Carter           \ input values that shuts down the system for days.
-eli.carter(a)inet.com `-------------------------------------------------

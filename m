@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265501AbUBBON3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 09:13:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265610AbUBBON3
+	id S265628AbUBBOTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 09:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUBBOTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 09:13:29 -0500
-Received: from charybdis.rus.uni-stuttgart.de ([129.69.1.58]:22595 "EHLO
-	charybdis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id S265501AbUBBON2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 09:13:28 -0500
-Date: Mon, 2 Feb 2004 15:13:25 +0100
-To: Florian Lohoff <flo@rfc822.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.1rc1] usb memorystick doesnt work / 2.6.0-test9 does work
-Message-ID: <20040202141325.GA9422@deneb.enyo.de>
-References: <20040106180704.GA9132@paradigm.rfc822.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040106180704.GA9132@paradigm.rfc822.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Florian Weimer <fw@deneb.enyo.de>
+	Mon, 2 Feb 2004 09:19:09 -0500
+Received: from ol.freeshell.org ([192.94.73.20]:32233 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S265628AbUBBOTH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 09:19:07 -0500
+Date: Mon, 2 Feb 2004 14:19:05 +0000 (UTC)
+From: Ognen Duzlevski <maketo@sdf.lonestar.org>
+X-X-Sender: maketo@mx.freeshell.org
+To: linux-kernel@vger.kernel.org
+Subject: real-time filesystem monitoring
+Message-ID: <Pine.NEB.4.58.0402021412150.12346@mx.freeshell.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Lohoff wrote:
+Hi,
 
-> i found by accident that my memorystick does work anymore with 2.6.1rc1.
-> Last kernel i tried it works with is -test9. -test11, 2.6.0 seem all not
-> work.
+I am working on a GPL-ed tool to monitor a filesystem in real time and
+then perform a backup as soon as something has changed. In that direction
+I tried FAM/libfam and dnotify and both choked on large directory
+hierarchies. dnotify seems to require open file descriptors so it is not a
+good solution unless one is to carefully control the number of the file
+descriptors open and perform (sometimes large and slow) directory
+re-reads every time there is some change (whose nature dnotify will not
+report). I wanted to also port the code to Windows and provide a free
+solution for its users and it turns out implementing such a solution on
+Windows is much easier - there is a function called ReadDirectoryChangesW
+which will notify an application every time there is a filesystem-wide
+change and provide all information about this change. Anything similar on
+Linux?
 
-We got bitten by this bug, too (but it worked with 2.6.0 for us).
-2.6.2rc2 doesn't work either:
-
-Feb  2 15:08:49 blackhawk kernel: Current sda: sense key No Sense               
-Feb  2 15:08:49 blackhawk kernel: end_request: I/O error, dev sda, sector 32    
+Thank you,
+Ognen

@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266983AbRGYP2y>; Wed, 25 Jul 2001 11:28:54 -0400
+	id <S266989AbRGYPgr>; Wed, 25 Jul 2001 11:36:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266989AbRGYP2p>; Wed, 25 Jul 2001 11:28:45 -0400
-Received: from mail.phpoint.net ([212.63.10.62]:59882 "EHLO smtp2.koti.soon.fi")
-	by vger.kernel.org with ESMTP id <S266983AbRGYP2c>;
-	Wed, 25 Jul 2001 11:28:32 -0400
-From: "M. Tavasti" <tawz@nic.fi>
-To: root@chaos.analogic.com
-Cc: Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org
-Subject: Re: Select with device and stdin not working
-In-Reply-To: <Pine.LNX.3.95.1010725110441.1108A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-Date: 25 Jul 2001 18:27:14 +0300
-In-Reply-To: "Richard B. Johnson"'s message of "Wed, 25 Jul 2001 11:07:04 -0400 (EDT)"
-Message-ID: <m2g0blkp0t.fsf@akvavitix.vuovasti.com>
-X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Capitol Reef"
+	id <S266997AbRGYPgi>; Wed, 25 Jul 2001 11:36:38 -0400
+Received: from [24.229.53.66] ([24.229.53.66]:46854 "HELO
+	bbserver1.backbonesecurity.com") by vger.kernel.org with SMTP
+	id <S266989AbRGYPg1> convert rfc822-to-8bit; Wed, 25 Jul 2001 11:36:27 -0400
+Subject: device struct
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Wed, 25 Jul 2001 11:44:59 -0400
+content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Message-ID: <94FD5825A793194CBF039E6673E9AFE0C017@bbserver1.backbonesecurity.com>
+Thread-Topic: Athlon/MSI mobo combo broken?
+Thread-Index: AcEVHst262Ws5pN2RvOR70tAxsqSRAAAJvRA
+From: "David CM Weber" <dweber@backbonesecurity.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+I'm looking at some old (circa v2.2.5 of the kernel) sample code,
+referring to the networking system. It refers to a structure named
+"device".  Was this replaced with something else?  
 
-> Change: 
->                  } else if(FD_ISSET(fileno(stdin),&rfds) ) {
-> To:
->                  } if(FD_ISSET(fileno(stdin),&rfds) ) {
-> 
-> Both of these bits can be (probably are) set.
+On a similar note, is there a "good" way of finding this data myself?
+I've been using ctags, and this is of limited use. (Sometimes good,
+sometimes bad).
 
-You are third person to suggest that. Yes, it's good point, but
-doesn't make any difference. Or it makes when both device and stdin
-have something, stdin is read on second round. 
+Thanks for bearing with me,
 
-But now there is nothing coming from device, and typing + pressing
-enter won't make select() return like it should. 
 
-Same binary works fine with 2.0.X kernels, or if I'm having stdin
-+ pipe (named or unnamed, doesn't matter). And when trying with 2.0
-kernel, system was totally same except kernel version. 
-
-Anybody, can you get select working *properly* with stdin+/dev/random?
-If you can, then there must be some mistake on my code. 
-
--- 
-M. Tavasti /  tavastixx@iki.fi  /   +358-40-5078254
- Poista sähköpostiosoitteesta molemmat x-kirjaimet 
-     Remove x-letters from my e-mail address
+Dave Weber
+Backbone Security, Inc.

@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288166AbSAHRBG>; Tue, 8 Jan 2002 12:01:06 -0500
+	id <S288173AbSAHRGG>; Tue, 8 Jan 2002 12:06:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288173AbSAHRAq>; Tue, 8 Jan 2002 12:00:46 -0500
-Received: from aef.wh.Uni-Dortmund.DE ([129.217.129.132]:52983 "EHLO
-	ReneEngelhard.local") by vger.kernel.org with ESMTP
-	id <S288166AbSAHRAk>; Tue, 8 Jan 2002 12:00:40 -0500
-Date: Tue, 8 Jan 2002 17:58:02 +0100
-From: Rene Engelhard <mail@rene-engelhard.de>
-To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Getting ScanLogic USB-ATAPI Adapter to work
-Message-ID: <20020108175802.A8011@rene-engelhard.de>
-Mail-Followup-To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020107211757.A4196@rene-engelhard.de> <3C3AE450.E3255D64@loewe-komp.de>
+	id <S288177AbSAHRF4>; Tue, 8 Jan 2002 12:05:56 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:52487 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S288173AbSAHRFx>; Tue, 8 Jan 2002 12:05:53 -0500
+Date: Tue, 8 Jan 2002 20:05:49 +0300
+From: Oleg Drokin <green@namesys.com>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+Subject: [PATCH] problems with very-long symlinks eliminated in reiserfs
+Message-ID: <20020108200549.A5051@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/mixed; boundary="/9DWx/yDrRhgMJTb"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3C3AE450.E3255D64@loewe-komp.de>
 User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key: http://www.rene-engelhard.de/gnupg/mykey.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Wächtler wrote:
-> 
-> I sent a patch to unusual_devs.h but didn't get any response yet.
-> I need to set "CONFIG_SCSI_MULTI_LUN=y" and use the second device for 
-> CompactFlash.
-> No other needed change here:
-> 
-> 
-> UNUSUAL_DEV(  0x04ce, 0x0002, 0x0074, 0x0074,
->                 "ScanLogic",
->                 "SL11R-IDE",
->                 US_SC_SCSI, US_PR_BULK, NULL,
->                 US_FL_FIX_INQUIRY),
 
-Yes, I saw it in the unusual_devs.h in 2.5.2-pre8 and above but it
-does not help to get my mentioned device working.
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-My patch does.
+Hello!
 
-Rene
+    This patch fixes following problem:
+    Symlink-body length check was made against incorrect value, allowing for too long nodes to be
+    inserted into tree. This might lead to obscure warnings in some cases.
+
+    Please apply.
+
+Bye,
+    Oleg
+
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="long_symlinks_fix.diff"
+
+--- linux/fs/reiserfs/namei.c.orig	Tue Jan  8 15:39:24 2002
++++ linux/fs/reiserfs/namei.c	Tue Jan  8 15:39:46 2002
+@@ -876,7 +876,7 @@
+     }
+ 
+     item_len = ROUND_UP (strlen (symname));
+-    if (item_len > MAX_ITEM_LEN (dir->i_sb->s_blocksize)) {
++    if (item_len > MAX_DIRECT_ITEM_LEN (dir->i_sb->s_blocksize)) {
+ 	iput(inode) ;
+ 	return -ENAMETOOLONG;
+     }
+
+--/9DWx/yDrRhgMJTb--

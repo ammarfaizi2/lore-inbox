@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266221AbUBKWoh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 17:44:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbUBKWoh
+	id S266215AbUBKWnC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 17:43:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266221AbUBKWnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 17:44:37 -0500
-Received: from web9602.mail.yahoo.com ([216.136.129.181]:54337 "HELO
-	web9602.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266221AbUBKWoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 17:44:34 -0500
-Message-ID: <20040211224433.92148.qmail@web9602.mail.yahoo.com>
-Date: Wed, 11 Feb 2004 14:44:33 -0800 (PST)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Vfat increases file permissions
+	Wed, 11 Feb 2004 17:43:02 -0500
+Received: from prin.lo2.opole.pl ([213.77.100.98]:9484 "EHLO prin.lo2.opole.pl")
+	by vger.kernel.org with ESMTP id S266215AbUBKWnA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 17:43:00 -0500
+From: Mariusz Mazur <mmazur@kernel.pl>
 To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] linux-libc-headers 2.6.2.0
+Date: Wed, 11 Feb 2004 23:39:55 +0100
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200402112339.55593.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Available at: http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
 
-I am wondering about something. Why is it that when I mount a
-vfat floppy disk and copy a file to the disk, it becomes
-executable?
+Changes:
+- applied changes from 2.6.2 kernel
+- added an empty linux/compiler.h (I really hate myself for doing this, but 
+don't have much choice... many apps include it as a workaround for broken 
+headers that come with linux)
+- some minor changes... mostly removing duplicate definitons and replacing 
+them with calls to glibc's headers
 
-[root@linux fd_test]# umask 277
-[root@linux fd_test]# touch test.txt
-[root@linux fd_test]# ls -l test.txt
--r--------    1 root     root            0 Feb 11 17:20 test.txt
-[root@linux fd_test]# cp test.txt /mnt/floppy/
-[root@linux fd_test]# ls -l /mnt/floppy/test.txt
--rwxrwxrwx    1 root     root            0 Feb 11 17:20
-/mnt/floppy/test.txt
+Enjoy.
 
-In the DOS world, not every file is executable. It uses the file
-extention to decide if the file is executable. A text file is not
-implicitly executable unless it has a .bat file extention.
-
-Is the Linux implementation interpreting something that doesn't
-actually exist in the original?
-
-I am concerned about world writeable, executable files existing
-on my floppies or USB devices that are formatted vfat. This seems
-like a security concern to me.
-
-Thanks,
-Steve Grubb
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Finance: Get your refund fast by filing online.
-http://taxes.yahoo.com/filing.html
+-- 
+Ka¿dy cz³owiek, który naprawdê ¿yje, nie ma charakteru, nie mo¿e go mieæ.
+Charakter jest zawsze martwy, otacza ciê zgni³a struktura przeniesiona z 
+przesz³o¶ci. Je¿eli dzia³asz zgodnie z charakterem wtedy nie dzia³asz w ogóle
+- jedynie mechanicznie reagujesz.                 { Osho }

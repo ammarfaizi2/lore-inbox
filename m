@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbUCOPvY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 10:51:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262618AbUCOPvX
+	id S262611AbUCOPyz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 10:54:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbUCOPyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 10:51:23 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:11972 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S262610AbUCOPvW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 10:51:22 -0500
-Date: Mon, 15 Mar 2004 08:51:20 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Colin Leroy <colin@colino.net>
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+	Mon, 15 Mar 2004 10:54:55 -0500
+Received: from smtp-out.girce.epro.fr ([195.6.195.146]:58255 "EHLO
+	srvsec1.girce.epro.fr") by vger.kernel.org with ESMTP
+	id S262611AbUCOPyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 10:54:54 -0500
+Message-ID: <035701c40aa5$1549b490$3cc8a8c0@epro.dom>
+From: "Colin Leroy" <colin@colino.net>
+To: "Tom Rini" <trini@kernel.crashing.org>
+Cc: <benh@kernel.crashing.org>, <linux-kernel@vger.kernel.org>
+References: <20040314225913.4654347b@jack.colino.net> <20040315155120.GA4342@smtp.west.cox.net>
 Subject: Re: [PATCH] 2.6.4-bk3 ppc32 compile fix
-Message-ID: <20040315155120.GA4342@smtp.west.cox.net>
-References: <20040314225913.4654347b@jack.colino.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040314225913.4654347b@jack.colino.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Date: Mon, 15 Mar 2004 16:49:21 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 14, 2004 at 10:59:13PM +0100, Colin Leroy wrote:
+> > 2.6.4-bk3 (ie, 2.6.4 + bk3 patch at kernel.org) does not compile
+without this patch.
+>
+> How does it fail to compile?
 
-> Hi, 
-> 
-> 2.6.4-bk3 (ie, 2.6.4 + bk3 patch at kernel.org) does not compile without this patch.
+Same problem as here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107935807420183&w=2
 
-How does it fail to compile?
+include/asm/unistd.h:451: syntax error before "long"
 
+(maybe adding the #include <linux/linkage.h> to init/do_mounts_initrd.c is
+better than where I did put it).
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Colin
+

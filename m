@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290223AbSAOSB5>; Tue, 15 Jan 2002 13:01:57 -0500
+	id <S290227AbSAOSEr>; Tue, 15 Jan 2002 13:04:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290222AbSAOSBl>; Tue, 15 Jan 2002 13:01:41 -0500
-Received: from penguin.roanoke.edu ([199.111.154.8]:2575 "EHLO
-	penguin.roanoke.edu") by vger.kernel.org with ESMTP
-	id <S290223AbSAOSB1>; Tue, 15 Jan 2002 13:01:27 -0500
-Message-ID: <3C446E6B.1020709@roanoke.edu>
-Date: Tue, 15 Jan 2002 13:01:15 -0500
-From: "David L. Parsley" <parsley@roanoke.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Nikita Danilov <Nikita@Namesys.COM>
-CC: Hans-Peter Jansen <hpj@urpla.net>,
-        Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
-        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: [BUG] symlink problem with knfsd and reiserfs
-In-Reply-To: <20020115115019.89B55143B@shrek.lisa.de>	<E16QVf3-0002NG-00@charged.uio.no>	<15428.23828.941425.774587@laputa.namesys.com>	<20020115163208.785831435@shrek.lisa.de> <15428.27801.724105.557093@laputa.namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290225AbSAOSEb>; Tue, 15 Jan 2002 13:04:31 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15631 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290222AbSAOSEY>; Tue, 15 Jan 2002 13:04:24 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Why not "attach" patches?
+Date: Tue, 15 Jan 2002 18:02:12 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a21qr4$36h$1@penguin.transmeta.com>
+In-Reply-To: <005901c19dec$59a89e30$0201a8c0@HOMER>
+X-Trace: palladium.transmeta.com 1011117849 4698 127.0.0.1 (15 Jan 2002 18:04:09 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 15 Jan 2002 18:04:09 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita,
+In article <005901c19dec$59a89e30$0201a8c0@HOMER>,
+Martin Eriksson <nitrax@giron.wox.org> wrote:
+>Why do many of you not _attach_ patches instead of merging them with the
+>mail? It's so much cleaner and easier to have a "xxx-yyy.patch" file
+>attached to the mail which can be saved in an appropriate directory. Also,
+>the whitespace is always retained that way.
 
-To be clear: if I upgrade the kernel on my nfs server to 2.4.latest and 
-mount -o conv my reiserfs partition, that will almost certain fix my 
-knfsd problem with a very small likelihood of generation problems?
+Attached patches are _horrible_ once you have many patches that you want
+to maintain in a sane way and apply in one go.
 
-regards,
-	David
--- 
-David L. Parsley
-Network Administrator, Roanoke College
-"If I have seen further it is by standing on ye shoulders of Giants."
---Isaac Newton
+In particular, with in-line text patches, I can:
 
+ - see the patch easily when reading email, without the need to do
+   anything special to inspect the attachment, regardless of what email
+   client I happen to use.
+
+ - keep emails as emails, and save them to folders etc, without
+   losing any information of where the patch came from, while at the
+   same time the folders are _also_ the patch and work with standard
+   tools like "diffstat".
+
+ - easily just "reply" to the person, and quote the part of the patch
+   I have problems with.
+
+ - save all the emails I want to apply in one single email folder
+   ("doit"), and do a simple
+
+	patch -p1 < ~/doit
+
+   to apply all of them at the same time.
+
+Note that NONE of these are practical with attachments.
+
+In short: if your mailer eats whitespace or causes similar corruption,
+just FIX THE MAILER.  There is no excuse for a mailer that corrupts the
+mail. 
+
+And while attachments may _appear_ convenient, they most definitely are
+not.  They require special care and cannot be batched or edited with
+normal tools. 
+
+That may not matter if you just have one or two patches a week to worry
+about, but trust me - attachments are crap. Use them for binary data
+that cannot be edited or combined, _not_ for stuff you expect to be able
+to actually change and extract pieces of with regular tools.
+
+		Linus

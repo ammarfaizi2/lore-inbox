@@ -1,71 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132982AbRDRCWj>; Tue, 17 Apr 2001 22:22:39 -0400
+	id <S132824AbRDRCdk>; Tue, 17 Apr 2001 22:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132984AbRDRCWa>; Tue, 17 Apr 2001 22:22:30 -0400
-Received: from twin.uoregon.edu ([128.223.214.27]:11671 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id <S132982AbRDRCWW>;
-	Tue, 17 Apr 2001 22:22:22 -0400
-Date: Tue, 17 Apr 2001 19:22:17 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Theodore Tso <tytso@mit.edu>
-cc: "David S. Miller" <davem@redhat.com>, Miles Lane <miles@megapathdsl.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get
- better audio.
-In-Reply-To: <20010417205722.A3626@think>
-Message-ID: <Pine.LNX.4.33.0104171905130.26843-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132926AbRDRCda>; Tue, 17 Apr 2001 22:33:30 -0400
+Received: from topic-gw2.topic.com.au ([203.37.31.2]:42488 "HELO
+	mailhost.topic.com.au") by vger.kernel.org with SMTP
+	id <S132824AbRDRCdR>; Tue, 17 Apr 2001 22:33:17 -0400
+Date: Wed, 18 Apr 2001 12:32:57 +1000
+From: Jason Thomas <jason@topic.com.au>
+To: Byron Stanoszek <gandalf@winds.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac9
+Message-ID: <20010418123257.D29749@topic.com.au>
+In-Reply-To: <20010418120102.B29749@topic.com.au> <Pine.LNX.4.21.0104172224320.8771-100000@winds.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WChQLJJJfbwij+9x"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.21.0104172224320.8771-100000@winds.org>; from gandalf@winds.org on Tue, Apr 17, 2001 at 10:26:26PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There might be room in our educational mission for us the send someone
-with equipment to support the meeting like we do with the ietf, and nanog.
 
-joelja
+--WChQLJJJfbwij+9x
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+This particular motherboard is an ASUS CUV4X-DLS, the chipset is a
+VIA694XDP, the IDE chipset however is a VIA686b.
 
-On Tue, 17 Apr 2001, Theodore Tso wrote:
+I've seen this in all the kernels I've tried with the "ac" patches.
 
-> On Mon, Apr 16, 2001 at 05:53:19PM -0700, David S. Miller wrote:
-> >
-> > It does not work in a relaxed "people sit at tables and comment
-> > at arbitrary points in time during a talk" setting such as the
-> > kernel summit.  Besides putting a microphone at every table (which
-> > isn't all that practical honestly) I can't come up with a solution.
->
-> I suspect that if we're going to do this again, having a microphone at
-> each table is what we'd have to do, assuming that we can keep the
-> numbers of people at the workshop down to 60-70 (which will be a *lot*
-> harder next time, since everyone and his brother will want to show up,
-> and will therefore pester, whine, and otherwise beg the workshop
-> organizers to be included onto the invite list).
->
-> If we have a lot more people, we'll probably have to go to the two
-> microphones in the aisle approach.  But at that point a large part of
-> the workshop will be destroyed; so hopefully we'll just be able to
-> keep the numbers of people in the workshop to manageable number.
->
-> 						- Ted
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
+Any kernel I've tried that are NOT SMP work fine.
 
 
+On Tue, Apr 17, 2001 at 10:26:26PM -0400, Byron Stanoszek wrote:
+> > This does not seem to fix the problem with "clock timer", which
+> > repeatedly prints the following message:
+> >=20
+> > probable hardware bug: clock timer configuration lost - probably a VIA6=
+86a motherboard.
+> > probable hardware bug: restoring chip configuration.
+>=20
+> I've seen this on my Dell P3 700 machine several times. Seems to happen a=
+t odd
+> intervals after I use my CD burner, but that just might be coincidental. =
+But
+> I'd like to point out that I've never seen this on my VIA686a itself. The=
+ P3
+> machine is UP too, not SMP. I saw this ever since I switched the machine =
+to
+> 2.4.2-ac8 and beyond (previously 2.2.18).
+>=20
+>  -Byron
 
+--=20
+Jason Thomas                           Phone:  +61 2 6257 7111
+System Administrator  -  UID 0         Fax:    +61 2 6257 7311
+tSA Consulting Group Pty. Ltd.         Mobile: 0418 29 66 81
+1 Hall Street Lyneham ACT 2602         http://www.topic.com.au/
+
+--WChQLJJJfbwij+9x
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE63PzZ7cYwRJJSiL4RAj8AAJoCv/ZVri3jE8N1kuq5E+FY5g1FOQCgveCb
+ndJu6HmavRkG97GrDvMmkTY=
+=8xHB
+-----END PGP SIGNATURE-----
+
+--WChQLJJJfbwij+9x--

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133106AbRDVBcc>; Sat, 21 Apr 2001 21:32:32 -0400
+	id <S133109AbRDVBrh>; Sat, 21 Apr 2001 21:47:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133107AbRDVBcW>; Sat, 21 Apr 2001 21:32:22 -0400
-Received: from leng.mclure.org ([64.81.48.142]:38930 "EHLO
-	leng.internal.mclure.org") by vger.kernel.org with ESMTP
-	id <S133106AbRDVBcO>; Sat, 21 Apr 2001 21:32:14 -0400
-Date: Sat, 21 Apr 2001 18:32:12 -0700
-From: Manuel McLure <manuel@mclure.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.3-ac10/ac11 crash at boot in PDC20265 check
-Message-ID: <20010421183212.G1106@ulthar.internal.mclure.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.3
+	id <S133110AbRDVBr2>; Sat, 21 Apr 2001 21:47:28 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:6916 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S133109AbRDVBrM>;
+	Sat, 21 Apr 2001 21:47:12 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200104220147.f3M1l2v126874@saturn.cs.uml.edu>
+Subject: Re: Request for comment -- a better attribution system
+To: chromi@cyberspace.org (Jonathan Morton)
+Date: Sat, 21 Apr 2001 21:47:02 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        babydr@baby-dragons.com (Mr. James W. Laferriere), esr@thyrsus.com,
+        linux-kernel@vger.kernel.org (CML2),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <l03130310b707dc53131a@[192.168.239.105]> from "Jonathan Morton" at Apr 22, 2001 02:00:02 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like the check for the PDC20265 added in ac10 causes some
-problems. I have an MSI K7T Turbo R which has a Promise FastTrak built in -
-when I try to boot ac10 or ac11 on it I get an Oops just after the "ide:
-Found promise 20265 in RAID mode." message. I diffed ide-pci.c between ac5
-(which worked) and ac10 (which fails) and found that the only change was
-the check for the PDC20265 - I commented this out and the kernel boots fine
-now.
+> >> 	Find . -name "*Some-Name*" -type f -print | xargs grep 'Some-Info'
+> >> 	Hate answering with just one line of credible info , But .
+> >
+> >The above would grep every file. It takes 1 minute and 9.5 seconds.
+> >So the distributed maintainer information does not scale well at all.
+> 
+> No it doesn't.  It allows you to search for files of a specific naming
+> pattern and greps those.  So if you needed to know the maintainers of all
+> the config.in files, you say:
+> 
+> find . -name "*onfig.in" -type f -print | xargs grep 'P: '
 
-On another topic, does anyone know how to disable the onboard FastTrak? I
-don't use it, and it makes my boot time longer...
+That was an easy problem, and try it to see all the bad matches!
+This would be more normal:
 
-Thanks,
--- 
-Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
-<manuel@mclure.org>     | and significant law, no man may kill a cat.
-<http://www.mclure.org> |             -- H.P. Lovecraft
+find . -type f | xargs egrep -i8 '^[^A-Z]*[A-Z]: .*(net|ip|tcp|eth|ppp)'
+
+That is not a nice and easy command for most people, and if it
+isn't exactly right you just wasted over a minute.
 

@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277242AbRJLFtO>; Fri, 12 Oct 2001 01:49:14 -0400
+	id <S277231AbRJLFzY>; Fri, 12 Oct 2001 01:55:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277231AbRJLFtE>; Fri, 12 Oct 2001 01:49:04 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:22793 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S277246AbRJLFsw>;
-	Fri, 12 Oct 2001 01:48:52 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S277241AbRJLFzO>; Fri, 12 Oct 2001 01:55:14 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:9738 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277231AbRJLFy5>; Fri, 12 Oct 2001 01:54:57 -0400
+Date: Fri, 12 Oct 2001 07:54:29 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "John L. Males" <jlmales@softhome.net>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [CFT][PATCH] smoother VM for -ac
+Message-ID: <20011012075429.N714@athlon.random>
+In-Reply-To: <1002861682.866.3.camel@phantasy>; <20011012070930.J714@athlon.random> <3BC64882.27834.2D200B0@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15302.33862.136753.909880@cargo.ozlabs.ibm.com>
-Date: Fri, 12 Oct 2001 15:48:54 +1000 (EST)
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.12 breaks debian install disks
-In-Reply-To: <Pine.LNX.4.10.10110111008300.24112-100000@innerfire.net>
-In-Reply-To: <Pine.LNX.4.10.10110111008300.24112-100000@innerfire.net>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+In-Reply-To: <3BC64882.27834.2D200B0@localhost>; from jlmales@softhome.net on Fri, Oct 12, 2001 at 01:33:54AM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerhard Mack writes:
-
-> When trying to load a reiserfs enabled boot disk on a Dell PowerEdge 
-> I get:
+On Fri, Oct 12, 2001 at 01:33:54AM -0500, John L. Males wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> RAMDISK: Compressed image found at block 0
-> VFS: Mounted root (ext2 filesystem) readonly.
-> Freeimg unused kernel memory: 192k freed
-> (hangs here) 
+> - -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> The problem appears on 2.4.11-pre6 and 2.4.12 but 2.4.9 was fine.
-> This problem appears both whith and without the Dell AACraid patches.
+> Andrea,
+> 
+> I can do.  I see this is a VM is of keen interest.  Question for you.
+>  To really compare apples to apples I could spider a web site or two
+> just find.  Then the challenge is to replay the "test" on the gui,
+> say KDE for example.  Do you know of any good tools that would alow
+> me to do a GUI record/playback?  I can then do an A vs B comparison.
 
-This could be the same problem that I reported some time ago, where if
-you send a signal to the init process while it is running /linuxrc,
-the system will hang.  In my case the problem was with this code in
-prepare_namespace() in init/main.c:
+For testing the repsonsiveness I usually check the startup time of
+applications like netscape with cold cache, later I just start an high
+vm load on my desktop and I see how long can I keep working without
+being too hurted. the first is certainly a measurable test, the second
+isn't reliable since it doesn't generate raw numbers and it's too much
+in function of the human feeling but it shows very well any patological
+problem of the code. But they may not be the best tests.
 
-	pid = kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
-	if (pid>0)
-		while (pid != wait(&i));
+> Also, remind me, can I find your kernel to test on the SuSE FTP site
+> or via kernel.org.  I had tried a few of the SuSE 2.4 kernels a few
+> levels back and I recall I was going to the people directory of the
+> FTP site and getting them from mantel I seem to recollect.
 
-If a signal becomes pending, the wait will not block, but the signal
-never gets delivered because the process is still running inside the
-kernel (signals only get delivered on the exit from kernel to user
-space).
+That's still fine procedure, only make sure to pick the latest 2.4.12
+one based on 2.4.12aa1 before running the tests. thanks,
 
-One solution would be to change it to something like this (caution,
-completely untested):
+> I will search about on internet to see if I can find a
+> record/playback too to get some sort of good A vs B comparison.
+> 
+> 
+> Regards,
+> 
+> John L. Males
+> Willowdale, Ontario
+> Canada
+> 12 October 2001 01:33
+> mailto:jlmales@softhome.net
 
-	pid = kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
-	if (pid > 0) {
-		while (pid != wait(&i)) {
-			if (signal_pending(current)) {
-				spin_lock_irq(&current->sigmask_lock);
-				flush_signals(current);
-				recalc_sigpending(current);
-				spin_unlock_irq(&current->sigmask_lock);
-			}
-		}
-	}
-
-Another alternative would be to block signals like request_module() in
-kernel/kmod.c does.
-
-HTH,
-Paul.
+Andrea

@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbTJWEmn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 00:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbTJWEmn
+	id S261683AbTJWEfo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 00:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTJWEfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 00:42:43 -0400
-Received: from dp.samba.org ([66.70.73.150]:37796 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261463AbTJWEml (ORCPT
+	Thu, 23 Oct 2003 00:35:44 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:63725 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S261683AbTJWEfn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 00:42:41 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Erik van Konijnenburg <ekonijn@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH 2.6.0-test8] MODULE_ALIAS_BLOCK 
-In-reply-to: Your message of "Tue, 21 Oct 2003 23:20:22 +0200."
-             <20031021232022.A19672@banaan.localdomain> 
-Date: Thu, 23 Oct 2003 14:11:10 +1000
-Message-Id: <20031023044241.309A52C0CC@lists.samba.org>
+	Thu, 23 Oct 2003 00:35:43 -0400
+Date: Wed, 22 Oct 2003 21:34:58 -0700
+From: Jeremy Higdon <jeremy@sgi.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: gwh@sgi.com, jbarnes@sgi.com, aniket_m@hotmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch to add support for SGI's IOC4 chipset
+Message-ID: <20031023043458.GB82539@sgi.com>
+References: <3F7CB4A9.3C1F1237@sgi.com> <200310211639.28346.bzolnier@elka.pw.edu.pl> <20031022043058.GC80096@sgi.com> <200310222031.02243.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310222031.02243.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20031021232022.A19672@banaan.localdomain> you write:
+On Wed, Oct 22, 2003 at 08:31:02PM +0200, Bartlomiej Zolnierkiewicz wrote:
 > 
-> Hi Rusty,
+> I think there is another bug:
 > 
-> Automatic loading of the loop device does not work under 2.6.0-test8
-> unless the loop device is explicitly mentioned in /etc/modules.conf.
-> This shows up when doing a kernel make install: mkinitrd uses the
-> loopback device.
+> ...
+> 	hwif->hw.ack_intr = &sgiioc4_checkirq;	/* MultiFunction Chip */
+> ...
 > 
-> This is because loop.c does not have MODULE_ALIAS_BLOCKDEV.
-> After adding that, the following problem shows: a mismatch between
-> the use of request_module in drivers/block/genhd.c:
+> sgiioc4_clearirq() should be used instead of sgiioc4_checkirq() here,
+> because otherwise IRQ won't be cleared.
 > 
-> 	request_module("block-major-%d", MAJOR(dev));
+> In order to do this you must modify sgiioc4_clearirq() slightly,
+> just change "return intr_reg;" to "return intr_reg & 0x03;".
 > 
-> and the definition of MODULE_ALIAS_BLOCK in blkdev.h:
-> 
-> 	MODULE_ALIAS("block-major-" __stringify(major) "-*")
-> 
-> The following patch applies to 2.6.0-test8.  I tested under (mostly) RH9 that
-> automatic loading of loop.ko works with this patch but not without it.
-> The only other user of MODULE_ALIAS_BLOCK, floppy.c, also worked for
-> me with this patch, no idea whether it works without.
+> If you wonder why, please look at ide_ack_intr() use in ide-io.c:ide_intr().
 
-Hmm.  Disagree with your change, prefer to go the other way.  Sure,
-block drivers generally don't care about the minor, but (1) they might
-one day, and (2) this matches with the way char devices are handled.
+Thanks.  I've taken a look at it and have become puzzled.
 
-Linus, please apply.
+It looks as though ide_ack_intr normally just "returns" 1 and has no
+other effect.  But then I see some ide drivers that also have an ack_intr
+routine.  On some (most?) architechtures, it would appear that the ack_intr
+routine is not used, since the ide_ack_intr macro will not call it.
 
-Name: Block Alias Fix in genhd.c
-Author: Rusty Russell
-Status: Trivial
+In gayle_ack_intr_a4000(), it looks as though all it does is read a
+register and return something.  Is that register read supposed to clear
+interrupt as a side effect.
 
-D: MODULE_ALIAS_BLOCK and genhd.c's request_module() don't match,
-D: which breaks autoloading of loop devices.
+So maybe an explicit clear is not needed on most implementations?
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .2035-linux-2.6.0-test8-bk2/drivers/block/genhd.c .2035-linux-2.6.0-test8-bk2.updated/drivers/block/genhd.c
---- .2035-linux-2.6.0-test8-bk2/drivers/block/genhd.c	2003-10-09 18:02:51.000000000 +1000
-+++ .2035-linux-2.6.0-test8-bk2.updated/drivers/block/genhd.c	2003-10-23 14:09:35.000000000 +1000
-@@ -296,7 +296,7 @@ extern int blk_dev_init(void);
- 
- static struct kobject *base_probe(dev_t dev, int *part, void *data)
- {
--	request_module("block-major-%d", MAJOR(dev));
-+	request_module("block-major-%d-%d", MAJOR(dev), MINOR(dev));
- 	return NULL;
- }
- 
-
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+jeremy

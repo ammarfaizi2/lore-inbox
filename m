@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264284AbUBPMer (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 07:34:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbUBPMer
+	id S263953AbUBPMii (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 07:38:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUBPMii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 07:34:47 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:62162
-	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
-	id S265290AbUBPMeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 07:34:44 -0500
-Message-ID: <4030B48F.2070603@tmr.com>
-Date: Mon, 16 Feb 2004 07:16:15 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+	Mon, 16 Feb 2004 07:38:38 -0500
+Received: from agminet04.oracle.com ([141.146.126.231]:58051 "EHLO
+	agminet04.oracle.com") by vger.kernel.org with ESMTP
+	id S263953AbUBPMid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 07:38:33 -0500
+Message-ID: <4030B9A6.9090102@iitbombay.org>
+Date: Mon, 16 Feb 2004 18:07:58 +0530
+From: Niraj Kumar <niraj17@iitbombay.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.3-rc3-mm1
-References: <20040216015823.2dafabb4.akpm@osdl.org>
-In-Reply-To: <20040216015823.2dafabb4.akpm@osdl.org>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Where to find up to date documentation
+References: <200402161158.06060.m.watts@eris.qinetiq.com>
+In-Reply-To: <200402161158.06060.m.watts@eris.qinetiq.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >
- >     Jeff
- >
- >
- >
- > -
- > To unsubscribe from this list: send the line "unsubscribe 
-linux-kernel" in
- > the body of a message to majordomo@vger.kernel.org
- > More majordomo info at  http://vger.kernel.org/majordomo-info.html
- > Please read the FAQ at  http://www.tux.org/lkml/
- >
+Look at :
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3-rc3/2.6.3-rc3-mm1/
-> 
-> 
-> - New hotplug CPU implementation from Rusty
-> 
-> - Dropped the x86 CPU-type selection patches
+http://lwn.net/Articles/driver-porting/
 
-Was there a problem with this? Seems like a good start to allow cleaning 
-up some "but I don't have that CPU" things which embedded and tiny 
-systems really would like to eliminate.
-> 
-> - Added support for dynamic allocation of unix98 ptys.
+Niraj
 
-Good to get more testing on this.
+Mark Watts wrote:
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
+>
+>
+>Can someone recommend the best place to look for documentation on writing a 
+>device driver for the 2.6.x kernel? (Preferably something with a worked 
+>example)
+>
+>I'd prefer a hardcopy book, but I can only see ones for 2.4 driver 
+>development.
+>
+>Cheers,
+>
+>Mark.
+>
+>- -- 
+>Mark Watts
+>Senior Systems Engineer
+>QinetiQ TIM
+>St Andrews Road, Malvern
+>GPG Public Key ID: 455420ED
+>
+>-----BEGIN PGP SIGNATURE-----
+>Version: GnuPG v1.2.3 (GNU/Linux)
+>
+>iD8DBQFAMLBOBn4EFUVUIO0RAkl6AJ0adGg7fyud/njfY2byccccmV2kcACeI+gP
+>i57VzaimePPv+VQpzxZt+Zs=
+>=NmkT
+>-----END PGP SIGNATURE-----
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+

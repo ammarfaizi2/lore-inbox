@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbTEAPVT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 11:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbTEAPVT
+	id S261375AbTEAP2u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 11:28:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbTEAP2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 11:21:19 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:6303 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S261365AbTEAPVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 11:21:18 -0400
-Date: Thu, 1 May 2003 16:32:49 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Daniel Taylor <dtaylor@vocalabs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Boot failure, VIA chipset.
-Message-ID: <20030501153249.GA19001@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Daniel Taylor <dtaylor@vocalabs.com>, linux-kernel@vger.kernel.org
-References: <20030430214848.GB24111@suse.de> <Pine.LNX.4.44.0305010547210.1739-100000@dante.vocalabs.com>
-Mime-Version: 1.0
+	Thu, 1 May 2003 11:28:50 -0400
+Received: from ns.suse.de ([213.95.15.193]:63492 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261375AbTEAP2t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 11:28:49 -0400
+To: Kimmo Sundqvist <rabbit80@mbnet.fi>
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: 2.5.68-mm3 and a simple mistake
+References: <200305011826.31389.rabbit80@mbnet.fi.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 01 May 2003 17:41:05 +0200
+In-Reply-To: <200305011826.31389.rabbit80@mbnet.fi.suse.lists.linux.kernel>
+Message-ID: <p734r4e3ca6.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305010547210.1739-100000@dante.vocalabs.com>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 01, 2003 at 05:53:53AM -0400, Daniel Taylor wrote:
- > > CONFIG_INPUT=y
- > > CONFIG_VT=y
- > > CONFIG_VT_CONSOLE=y
- > >
- > All enabled, and I tried last night with a stripped down 386 only kernel.
- > 
- > No dice, dies hard even before printing the Kernel ID.
- > 
- > It is probably a BIOS compatability issue, but it works OK with 2.4. Since
- > the system actually works as it sits I've been taking my time debugging
- > the 2.5 issues.
+Kimmo Sundqvist <rabbit80@mbnet.fi> writes:
 
-The only other outstanding hang that I've seen was caused by ACPI.
-Does it boot with acpi=off ?
+> /usr/bin/make -f scripts/Makefile.clean obj=arch/i386/mach-default
+> /usr/bin/make -f scripts/Makefile.clean obj=arch/i386/mach-generic
+> scripts/Makefile.clean:10: arch/i386/mach-generic/Makefile: No such file or 
+> directory
+> make[2]: *** No rule to make target `arch/i386/mach-generic/Makefile'.  Stop.
+> make[1]: *** [_clean_arch/i386/mach-generic] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.5.68'
+> make: *** [stamp-kernel-configure] Error 2
 
-		Dave
+Most likely you need to apply this patch. It was in the original
+subarch patch, but may be gotten lost somewhere.
+Hopefully not more is missing.
 
+diff -u linux-apic/arch/i386/mach-generic/Makefile-o linux-apic/arch/i386/mach-generic/Makefile
+--- linux-apic/arch/i386/mach-generic/Makefile-o	2003-04-27 02:45:25.000000000 +0200
++++ linux-apic/arch/i386/mach-generic/Makefile	2003-04-27 02:45:25.000000000 +0200
+@@ -0,0 +1,9 @@
++#
++# Makefile for the generic architecture
++#
++
++EXTRA_CFLAGS	+= -I../kernel
++
++obj-y				:= probe.o summit.o bigsmp.o default.o
++
++
+
+-Andi

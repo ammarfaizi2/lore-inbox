@@ -1,53 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267709AbUJUGHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270295AbUJUGLn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267709AbUJUGHw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270311AbUJUGHO
+	id S270295AbUJUGLn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 02:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267417AbUJUGLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 02:07:14 -0400
-Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:3468 "EHLO
-	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S270513AbUJUGGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 02:06:06 -0400
-References: <20041020181617.GA29435@elf.ucw.cz> <20041020193741.GA27096@shaka.acc.umu.se>
-Message-ID: <cone.1098338726.500663.12209.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Tim Cambrant <cambrant@acc.umu.se>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: power/disk.c: small fixups
-Date: Thu, 21 Oct 2004 16:05:26 +1000
+	Thu, 21 Oct 2004 02:11:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:47272 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S270327AbUJUGIZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 02:08:25 -0400
+Subject: Interrupts & total mess
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1098338878.3941.25.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 21 Oct 2004 16:07:58 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Cambrant writes:
+Ok so my simple project of adding NO_IRQ definitions all over the place
+is turning into a nightmare for various reasons (the probe_irq_* stuff
+beeing one of them, as it currently prevents using -1, so I'm leaning
+toward defining NO_IRQ as beeing INT_MIN, nothing against that ?)
 
-> On Wed, Oct 20, 2004 at 08:16:17PM +0200, Pavel Machek wrote:
->> power_down may never ever fail, so it does not really need to return
->> anything. Kill obsolete code and fixup old comments. Please apply,
->> 
-> 
-> ...
-> 
->> @@ -162,7 +163,7 @@
->>   *
->>   *	If we're going through the firmware, then get it over with quickly.
->>   *
->> - *	If not, then call pmdis to do it's thing, then figure out how
->> + *	If not, then call swsusp to do it's thing, then figure out how
->>   *	to power down the system.
->>   */
-> 
-> I hate to be picky, but changing "it's" to the more correct "its" would
-> perhaps be nice to do when you're at it?
+However, while trying to do that in a simple way, that is with a
+ #ifndef NO_IRQ
+ #define NO_IRQ		(INT_MIN)
+ #endif
 
-"it's" means it belongs to, so therefore "it's" is correct usage here.
+Somewhere in some generic piece of include after we has some asm/* stuff
+included to let the arch a chance to override it, I figured that, first,
+there are a number of places where "irq" is defined as beeing unsigned
+long... So neither INT_MIN nor -1 are appropriate. Then I noticed while
+looking for the right files to add this stuff that we have, at least:
 
-Con
+include/linux/interrupts.h
+include/linux/irq.h
+include/linux/hardirq.h
+include/asm-*/irq.h
+include/asm-*/hw_irq.h
+include/asm-*/hardirq.h
+
+Which is seriously starting to make no sense, especially when you don't
+really know who is including who, with also the strange rule of never
+including linux/irq.h directly from a driver since the arch may not use
+the definitions in there, etc... it's a complete can of worms...
+
+So basically, linux/irq.h should be asm-generic/irq.h right ?
+
+Then, all of the CONFIG_HARDIRQS_GENERIC stuff in linux/interrupts.h
+should be moved there as well, since that's pretty much what the things
+in linux/irq.h already define.
+
+So our path should be:
+
+toplevel include
+	linux/interrupts.h (or rename it to linux/irq.h)
+	  asm/irq.h (the arch implementation)
+	    [asm-generic/irq.h] (optionally using the common defs)
+
+but I'm not sure what to do with the various hardirq.h & hw_irq.h
+thingies, at least one of the 2 arch ones should die.
+
+I'm ready to start the (painful) work of cleaning that up, though
+that will probably end up in a giga-patch touching hundreds of files
+(just to change a #include directive most of the time) though I won't
+fix all archs, I prefer not mucking aroudn with things I don't
+understand.
+
+But I'm not sure what we want to do here, so let's discuss it a bit.
+
+Ben.
 

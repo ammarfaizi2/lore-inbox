@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268215AbUHQNDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268219AbUHQNFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268215AbUHQNDh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 09:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268218AbUHQNDg
+	id S268219AbUHQNFa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 09:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268214AbUHQNFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 09:03:36 -0400
-Received: from elektroni.ee.tut.fi ([130.230.131.11]:10646 "HELO
-	elektroni.ee.tut.fi") by vger.kernel.org with SMTP id S268215AbUHQNDb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 09:03:31 -0400
-Date: Tue, 17 Aug 2004 16:03:29 +0300
-From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-To: Marc Ballarin <Ballarin.Marc@gmx.de>
-Cc: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>, alan@lxorguk.ukuu.org.uk,
-       jwendel10@comcast.net, linux-kernel@vger.kernel.org,
-       Kai.Makisara@kolumbus.fi
-Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
-Message-ID: <20040817130329.GA7800@elektroni.ee.tut.fi>
-Mail-Followup-To: Marc Ballarin <Ballarin.Marc@gmx.de>,
-	Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>,
-	alan@lxorguk.ukuu.org.uk, jwendel10@comcast.net,
-	linux-kernel@vger.kernel.org, Kai.Makisara@kolumbus.fi
-References: <411FD919.9030702@comcast.net> <20040816143817.0de30197.Ballarin.Marc@gmx.de> <1092661385.20528.25.camel@localhost.localdomain> <20040816231211.76360eaa.Ballarin.Marc@gmx.de> <4121A689.8030708@bio.ifi.lmu.de> <20040817134133.56614674.Ballarin.Marc@gmx.de>
+	Tue, 17 Aug 2004 09:05:30 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:13767 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S268219AbUHQNFJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 09:05:09 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6 
+In-reply-to: Your message of "Tue, 17 Aug 2004 13:14:32 +0100."
+             <4121F6A8.7030503@grupopie.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040817134133.56614674.Ballarin.Marc@gmx.de>
-User-Agent: Mutt/1.4.2.1i
+Date: Tue, 17 Aug 2004 23:05:00 +1000
+Message-ID: <6450.1092747900@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 17, 2004 at 01:41:33PM +0200, Marc Ballarin wrote:
-> An unpatched cdrecord does not use root privileges to access devices. It
-> increases its priority, locks memory and drops privileges before doing
-> anything else. According to its author, cdrecord is designed for this mode
-> of operation. I don't know if the same is true for growisofs and other
-> tools.
-> suid has no effect on the issue at hand (provided cdrecord has not
-> been modified), it only serves to increase burning reliability.
+On Tue, 17 Aug 2004 13:14:32 +0100, 
+Paulo Marques <pmarques@grupopie.com> wrote:
+>Keith Owens wrote:
+>> On Sat, 14 Aug 2004 05:50:50 +0100, 
+>> Paulo Marques <pmarques@grupopie.com> wrote:
+>> 
+>>>Well, I found some time and decided to give it a go :)
+>> 
+>> 
+>> This patch regresses some recent changes to kallsyms which handle
+>> aliased symbols, IOW symbols with the same address.  The speed up is
+>> very good, but it has two problems with repeated addresses.
+>
+>Hi,
+>
+>I've been messing with scripts/kallsyms.c to try to follow Andi Kleen's 
+>suggestion of calculating the markers at compile time. This would make 
+>the code in kernel/kallsyms.c much simpler.
+>
+>In the process I could get rid of the aliased symbols at compile time 
+>also. There are only 2 places where they might matter:
+>
+>  - the kallsyms_lookup_name function. GREP'ing through the code shows 
+>that this function is only used in arch/ppc64/xmon/xmon.c. Does xmon 
+>need to know about aliased symbols?
 
-I guess you are talking about some alpha version. The latest released
-unpatched stable version cdrecord 2.00.3 burns ok as suid-root even with
-this kind of device access rights:
+kdb uses aliased symbols as well.  The user can enter any kernel symbol
+name and have it converted to an address.
 
-brw-------  1 root root 22, 0 Jun  9  2002 /dev/hdc

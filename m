@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318492AbSGSJcq>; Fri, 19 Jul 2002 05:32:46 -0400
+	id <S318501AbSGSJkX>; Fri, 19 Jul 2002 05:40:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318493AbSGSJcq>; Fri, 19 Jul 2002 05:32:46 -0400
-Received: from p50887DBB.dip.t-dialin.net ([80.136.125.187]:47749 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318492AbSGSJcp>; Fri, 19 Jul 2002 05:32:45 -0400
-Date: Fri, 19 Jul 2002 03:35:03 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Severe problems with 2.4.19-rc2-aa1 on k6-II
-In-Reply-To: <20020719112528.B15517@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.44.0207190333350.3378-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318502AbSGSJkX>; Fri, 19 Jul 2002 05:40:23 -0400
+Received: from ns.suse.de ([213.95.15.193]:12814 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318501AbSGSJkX>;
+	Fri, 19 Jul 2002 05:40:23 -0400
+Date: Fri, 19 Jul 2002 11:43:00 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andreas Jaeger <aj@suse.de>
+Cc: Andi Kleen <ak@suse.de>, Chris Friesen <cfriesen@nortelnetworks.com>,
+       linux-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Second x86-64 kernel snapshot based on 2.4.19rc1 released
+Message-ID: <20020719114300.A14588@wotan.suse.de>
+References: <20020716220302.A5400@wotan.suse.de> <3D347F9B.58740355@nortelnetworks.com> <20020716222640.A10397@wotan.suse.de> <ho4rew5gwk.fsf@gee.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ho4rew5gwk.fsf@gee.suse.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jul 19, 2002 at 09:13:47AM +0200, Andreas Jaeger wrote:
+> Andi Kleen <ak@suse.de> writes:
+> 
+> > On Tue, Jul 16, 2002 at 04:18:35PM -0400, Chris Friesen wrote:
+> >> Andi Kleen wrote:
+> >> 
+> >> > - vsyscalls are currently disabled because they trigger too many linker bugs together
+> >> > with HPET timers. The vsyscall pages just call normal syscalls.
+> >> 
+> >> I assume that the linker is going to get fixed before general x86-64 release so
+> >> these can be used together?
+> >
+> > Yes, the problem is being worked on.
+> 
+> It looks currently like a kernel bug - the linker is fine.  We're
+> currently working on a proper fix for this and I hope that Andi's next
+> kernel will work correctly.
 
-On Fri, 19 Jul 2002, Andrea Arcangeli wrote:
-> > 2. Mouse and keyboard are both on one port. Now if I load gpm, the whole 
-> > PS/2 controller gets stuck until I unplug both mouse and keyboard and then 
-> > re-plug them. It all worked fine ever before.
+If you refer to the SIZEOF undefined symbol thing - that was a different
+problem and indeed a kernel bug. But with full vsyscalls we run into
+more relocation problems because the linker seems to have problems
+with the secondary mapping used by vsyscalls with more complex code.
+Of course it could be still a kernel bug, but I do not see where it 
+should come from.
 
-Fair enough, from the moment I sent this mail (2) never happened again. 
-However, the IDE mis-probing is still present, and reproducible with any 
-2.4.18+ kernel.
+In short the mapping trick used by the current vsyscall code is very 
+nasty. It requires quite some non obvious vmlinux.lds trickery that
+seems to easily cause/trigger bugs in both binutils and kernel. I would
+be better to find a more maintaineable solution for the secondary mappings.
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+-Andi

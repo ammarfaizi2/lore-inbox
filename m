@@ -1,290 +1,308 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267551AbUHEFEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUHEFIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267551AbUHEFEW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 01:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267549AbUHEFDs
+	id S267565AbUHEFIe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 01:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267563AbUHEFIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 01:03:48 -0400
-Received: from holomorphy.com ([207.189.100.168]:6849 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267551AbUHEFBq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 01:01:46 -0400
-Date: Wed, 4 Aug 2004 22:01:41 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [sparc32] [12/13] gcc-3.3 macro parenthesization fix for memcpy.S
-Message-ID: <20040805050141.GD2334@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040805043957.GT2334@holomorphy.com> <20040805044130.GU2334@holomorphy.com> <20040805044427.GV2334@holomorphy.com> <20040805044627.GW2334@holomorphy.com> <20040805044736.GX2334@holomorphy.com> <20040805044839.GY2334@holomorphy.com> <20040805044950.GZ2334@holomorphy.com> <20040805045417.GA2334@holomorphy.com> <20040805045528.GB2334@holomorphy.com> <20040805045643.GC2334@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040805045643.GC2334@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Thu, 5 Aug 2004 01:08:15 -0400
+Received: from web14924.mail.yahoo.com ([216.136.225.8]:13690 "HELO
+	web14924.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267550AbUHEFF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 01:05:57 -0400
+Message-ID: <20040805050556.9899.qmail@web14924.mail.yahoo.com>
+Date: Wed, 4 Aug 2004 22:05:56 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+To: Martin Mares <mj@ucw.cz>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <20040803213921.GA4585@ucw.cz>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-768166646-1091682356=:9582"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 04, 2004 at 09:56:43PM -0700, William Lee Irwin III wrote:
-> SMP support is in need of a great deal of work to port it from 2.2 and
-> 2.4. Add a dependency on BROKEN in the Kconfig to warn the unwary.
+--0-768166646-1091682356=:9582
+Content-Type: text/plain; charset=us-ascii
+Content-Id: 
+Content-Disposition: inline
 
-From: Art Haas <ahaas@airmail.net>
+Version 10
 
-The 1.3->1.4 changes to the arch/sparc/lib/copy_user.S file added
-parenthesis to a number of macros within that file. The BK changlog
-associated with this change indicate the change was to make the
-file work with gcc-3.3.
+implements an x86 quirk to record the boot video device. Is the
+PCI_ROM_SHADOW flag a safe define? Quirk records boot video device by
+looking at how the bridges route to the VGA device. It there some other
+way to tell which video card is the boot one? What if there is more
+than one VGA card on the PCI bus? I think the BIOS spec is to enable
+the one in the lowest slot number. Can someone who own multiple PCI
+video cards test this? I tested with one PCI, one AGP.
 
-When looking at the changes made, I see that similar macros exist in
-memcpy.S as well, so would a patch adding parens to that file be
-worthwhile? Also, just what was the problem with gcc-3.3 that was
-resolved by adding the parenthesis? Macro mis-expansion I'm guessing.
+BenH, this should solve the problem of which video card owns the ROM
+copy at C000:0. For the boot device this code returns the shadow copy,
+else the real ROM on the card.
 
-Signed-off-by: Art Haas <ahaas@airmail.net>
-Signed-off-by: William Irwin <wli@holomorphy.com>
+I did the x86 quirk, what do the quirks on ia64, ppc, x86_64 need? Can
+they just copy the x86 one?
+
+=====
+Jon Smirl
+jonsmirl@yahoo.com
 
 
-Index: mm2-2.6.8-rc2/arch/sparc/lib/memcpy.S
-===================================================================
---- mm2-2.6.8-rc2.orig/arch/sparc/lib/memcpy.S
-+++ mm2-2.6.8-rc2/arch/sparc/lib/memcpy.S
-@@ -42,124 +42,124 @@
+	
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - 100MB free storage!
+http://promotions.yahoo.com/new_mail 
+--0-768166646-1091682356=:9582
+Content-Type: text/x-patch; name="pci-sysfs-rom-10.patch"
+Content-Description: pci-sysfs-rom-10.patch
+Content-Disposition: inline; filename="pci-sysfs-rom-10.patch"
+
+===== arch/i386/pci/fixup.c 1.19 vs edited =====
+--- 1.19/arch/i386/pci/fixup.c	Thu Jun  3 10:58:17 2004
++++ edited/arch/i386/pci/fixup.c	Thu Aug  5 00:20:08 2004
+@@ -237,6 +237,29 @@
+ 	}
+ }
+ 
++static void __devinit pci_fixup_video(struct pci_dev *pdev)
++{
++	struct pci_dev *bridge;
++	struct pci_bus *bus;
++	u16 l;
++	
++	if ((pdev->class >> 8) != PCI_CLASS_DISPLAY_VGA)
++		return;
++	       
++	/* Is VGA routed to us? */
++	bus = pdev->bus;
++	while (bus) {
++		bridge = bus->self;
++		if (bridge) {
++			pci_read_config_word(bridge, PCI_BRIDGE_CONTROL, &l);
++			if (!(l & PCI_BRIDGE_CTL_VGA))
++				return;
++		}
++		bus = bus->parent;
++	}
++	pdev->resource[PCI_ROM_RESOURCE].flags |= PCI_ROM_SHADOW;
++}
++
+ struct pci_fixup pcibios_fixups[] = {
+ 	{
+ 		.pass		= PCI_FIXUP_HEADER,
+@@ -345,6 +368,12 @@
+ 		.vendor		= PCI_VENDOR_ID_NVIDIA,
+ 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE2,
+ 		.hook		= pci_fixup_nforce2
++	},
++	{
++		.pass		= PCI_FIXUP_FINAL,
++		.vendor		= PCI_ANY_ID,
++		.device		= PCI_ANY_ID,
++		.hook		= pci_fixup_video
+ 	},
+ 	{ .pass = 0 }
+ };
+===== drivers/pci/pci-sysfs.c 1.10 vs edited =====
+--- 1.10/drivers/pci/pci-sysfs.c	Fri Jun  4 09:23:04 2004
++++ edited/drivers/pci/pci-sysfs.c	Thu Aug  5 00:45:04 2004
+@@ -164,6 +164,95 @@
+ 	return count;
+ }
+ 
++/**
++ * pci_enable_rom - enable ROM decoding for a PCI device
++ * @dev: PCI device to enable
++ *
++ * Enable ROM decoding on @dev.  This involves simply turning on the last
++ * bit of the PCI ROM BAR.  Note that some cards may share address decoders
++ * between the ROM and other resources, so enabling it may disable access
++ * to MMIO registers or other card memory.
++ */
++static void
++pci_enable_rom(struct pci_dev *dev)
++{
++	u32 rom_addr;
++	
++	pci_read_config_dword(dev, dev->rom_base_reg, &rom_addr);
++	rom_addr |= PCI_ROM_ADDRESS_ENABLE;
++	pci_write_config_dword(dev, dev->rom_base_reg, rom_addr);
++}
++
++/**
++ * pci_disable_rom - disable ROM decoding for a PCI device
++ * @dev: PCI device to disable
++ *
++ * Disable ROM decoding on a PCI device by turning off the last bit in the
++ * ROM BAR.
++ */
++static void
++pci_disable_rom(struct pci_dev *dev)
++{
++	u32 rom_addr;
++
++	pci_read_config_dword(dev, dev->rom_base_reg, &rom_addr);
++	rom_addr &= ~PCI_ROM_ADDRESS_ENABLE;
++	pci_write_config_dword(dev, dev->rom_base_reg, rom_addr);
++}
++
++/**
++ * pci_read_rom - read a PCI ROM
++ * @kobj: kernel object handle
++ * @buf: where to put the data we read from the ROM
++ * @off: file offset
++ * @count: number of bytes to read
++ *
++ * Put @count bytes starting at @off into @buf from the ROM in the PCI
++ * device corresponding to @kobj.
++ */
++static ssize_t
++pci_read_rom(struct kobject *kobj, char *buf, loff_t off, size_t count)
++{
++	struct pci_dev *dev = to_pci_dev(container_of(kobj,struct device,kobj));
++	loff_t start;
++	size_t size;
++	unsigned char *rom;
++	struct resource *res = &dev->resource[PCI_ROM_RESOURCE];
++
++	if (res->flags & PCI_ROM_SHADOW) {	/* PCI_ROM_SHADOW only set on x86 */
++		start = (unsigned char *)0xC0000; /* primary video rom always starts here */
++		size = 0x20000;			/* cover C000:0 through E000:0 */
++	} else {
++		/* assign the ROM an address if it doesn't have one */
++		if (res->parent == NULL)
++			pci_assign_resource(dev, PCI_ROM_RESOURCE);
++			
++		start = pci_resource_start(dev, PCI_ROM_RESOURCE);
++		size = pci_resource_len(dev, PCI_ROM_RESOURCE);
++		
++		/* Enable ROM space decodes */
++		pci_enable_rom(dev);
++	}
++	if (off >= size)
++		return 0;
++		
++	if (off + count > size)
++		count = size - off;
++	
++	rom = ioremap(start, size);
++	if (rom) {
++		memcpy_fromio(buf, rom + off, count);
++		iounmap(rom);
++	} else
++		count = 0;
++		
++	/* Disable again before continuing, leave enabled if pci=rom */
++	if (!(res->flags & (PCI_ROM_ADDRESS_ENABLE|PCI_ROM_SHADOW)))
++		pci_disable_rom(dev);
++		
++	return count;
++}
++
+ static struct bin_attribute pci_config_attr = {
+ 	.attr =	{
+ 		.name = "config",
+@@ -186,13 +275,49 @@
+ 	.write = pci_write_config,
+ };
+ 
+-void pci_create_sysfs_dev_files (struct pci_dev *pdev)
++static struct bin_attribute rom_attr = {
++	.attr =	{
++		.name = "rom",
++		.mode = S_IRUSR,
++		.owner = THIS_MODULE,
++	},
++	/* .size is set individually for each device, sysfs copies it into dentry */
++	.read = pci_read_rom,
++};
++
++void pci_create_sysfs_dev_files(struct pci_dev *pdev)
+ {
+ 	if (pdev->cfg_size < 4096)
+ 		sysfs_create_bin_file(&pdev->dev.kobj, &pci_config_attr);
+ 	else
+ 		sysfs_create_bin_file(&pdev->dev.kobj, &pcie_config_attr);
+ 
++	/* If the device has a ROM, try to expose it in sysfs. */
++	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
++		struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
++		if (res->flags & PCI_ROM_SHADOW) {
++			rom_attr.size = 0x20000;	/* cover C000:0 through E000:0 */
++		} else
++			rom_attr.size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
++		sysfs_create_bin_file(&pdev->dev.kobj, &rom_attr);
++	}
+ 	/* add platform-specific attributes */
+ 	pcibios_add_platform_entries(pdev);
++}
++
++/**
++ * pci_remove_sysfs_dev_files - cleanup PCI specific sysfs files
++ * @pdev: device whose entries we should free
++ *
++ * Cleanup when @pdev is removed from sysfs.
++ */
++void pci_remove_sysfs_dev_files(struct pci_dev *pdev)
++{
++	if (pdev->cfg_size < 4096)
++		sysfs_remove_bin_file(&pdev->dev.kobj, &pci_config_attr);
++	else
++		sysfs_remove_bin_file(&pdev->dev.kobj, &pcie_config_attr);
++
++	if (pci_resource_len(pdev, PCI_ROM_RESOURCE))
++		sysfs_remove_bin_file(&pdev->dev.kobj, &rom_attr);
+ }
+===== drivers/pci/pci.h 1.12 vs edited =====
+--- 1.12/drivers/pci/pci.h	Fri Jun  4 09:23:04 2004
++++ edited/drivers/pci/pci.h	Tue Aug  3 17:05:19 2004
+@@ -3,6 +3,7 @@
+ extern int pci_hotplug (struct device *dev, char **envp, int num_envp,
+ 			 char *buffer, int buffer_size);
+ extern void pci_create_sysfs_dev_files(struct pci_dev *pdev);
++extern void pci_remove_sysfs_dev_files(struct pci_dev *pdev);
+ extern int pci_bus_alloc_resource(struct pci_bus *bus, struct resource *res,
+ 				  unsigned long size, unsigned long align,
+ 				  unsigned long min, unsigned int type_mask,
+===== drivers/pci/probe.c 1.65 vs edited =====
+--- 1.65/drivers/pci/probe.c	Fri May 21 14:45:27 2004
++++ edited/drivers/pci/probe.c	Thu Aug  5 00:10:06 2004
+@@ -157,6 +157,7 @@
  #endif
+ 		}
+ 	}
++
+ 	if (rom) {
+ 		dev->rom_base_reg = rom;
+ 		res = &dev->resource[PCI_ROM_RESOURCE];
+===== drivers/pci/remove.c 1.3 vs edited =====
+--- 1.3/drivers/pci/remove.c	Tue Feb  3 12:17:30 2004
++++ edited/drivers/pci/remove.c	Thu Aug  5 00:11:05 2004
+@@ -26,6 +26,7 @@
+ static void pci_destroy_dev(struct pci_dev *dev)
+ {
+ 	pci_proc_detach_device(dev);
++	pci_remove_sysfs_dev_files(dev);
+ 	device_unregister(&dev->dev);
  
- /* Both these macros have to start with exactly the same insn */
--#define MOVE_BIGCHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, t7) 				\
--	ldd	[%src + offset + 0x00], %t0; 								\
--	ldd	[%src + offset + 0x08], %t2; 								\
--	ldd	[%src + offset + 0x10], %t4; 								\
--	ldd	[%src + offset + 0x18], %t6; 								\
--	st	%t0, [%dst + offset + 0x00]; 								\
--	st	%t1, [%dst + offset + 0x04]; 								\
--	st	%t2, [%dst + offset + 0x08]; 								\
--	st	%t3, [%dst + offset + 0x0c]; 								\
--	st	%t4, [%dst + offset + 0x10]; 								\
--	st	%t5, [%dst + offset + 0x14]; 								\
--	st	%t6, [%dst + offset + 0x18]; 								\
--	st	%t7, [%dst + offset + 0x1c];
--
--#define MOVE_BIGALIGNCHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, t7) 				\
--	ldd	[%src + offset + 0x00], %t0; 								\
--	ldd	[%src + offset + 0x08], %t2; 								\
--	ldd	[%src + offset + 0x10], %t4; 								\
--	ldd	[%src + offset + 0x18], %t6; 								\
--	std	%t0, [%dst + offset + 0x00]; 								\
--	std	%t2, [%dst + offset + 0x08]; 								\
--	std	%t4, [%dst + offset + 0x10]; 								\
--	std	%t6, [%dst + offset + 0x18];
--
--#define MOVE_LASTCHUNK(src, dst, offset, t0, t1, t2, t3) 						\
--	ldd	[%src - offset - 0x10], %t0; 								\
--	ldd	[%src - offset - 0x08], %t2; 								\
--	st	%t0, [%dst - offset - 0x10]; 								\
--	st	%t1, [%dst - offset - 0x0c]; 								\
--	st	%t2, [%dst - offset - 0x08]; 								\
--	st	%t3, [%dst - offset - 0x04];
--
--#define MOVE_LASTALIGNCHUNK(src, dst, offset, t0, t1, t2, t3) 						\
--	ldd	[%src - offset - 0x10], %t0; 								\
--	ldd	[%src - offset - 0x08], %t2; 								\
--	std	%t0, [%dst - offset - 0x10]; 								\
--	std	%t2, [%dst - offset - 0x08];
--
--#define MOVE_SHORTCHUNK(src, dst, offset, t0, t1) 							\
--	ldub	[%src - offset - 0x02], %t0; 								\
--	ldub	[%src - offset - 0x01], %t1; 								\
--	stb	%t0, [%dst - offset - 0x02]; 								\
--	stb	%t1, [%dst - offset - 0x01];
-+#define MOVE_BIGCHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, t7) \
-+	ldd	[%src + (offset) + 0x00], %t0; \
-+	ldd	[%src + (offset) + 0x08], %t2; \
-+	ldd	[%src + (offset) + 0x10], %t4; \
-+	ldd	[%src + (offset) + 0x18], %t6; \
-+	st	%t0, [%dst + (offset) + 0x00]; \
-+	st	%t1, [%dst + (offset) + 0x04]; \
-+	st	%t2, [%dst + (offset) + 0x08]; \
-+	st	%t3, [%dst + (offset) + 0x0c]; \
-+	st	%t4, [%dst + (offset) + 0x10]; \
-+	st	%t5, [%dst + (offset) + 0x14]; \
-+	st	%t6, [%dst + (offset) + 0x18]; \
-+	st	%t7, [%dst + (offset) + 0x1c];
-+
-+#define MOVE_BIGALIGNCHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, t7) \
-+	ldd	[%src + (offset) + 0x00], %t0; \
-+	ldd	[%src + (offset) + 0x08], %t2; \
-+	ldd	[%src + (offset) + 0x10], %t4; \
-+	ldd	[%src + (offset) + 0x18], %t6; \
-+	std	%t0, [%dst + (offset) + 0x00]; \
-+	std	%t2, [%dst + (offset) + 0x08]; \
-+	std	%t4, [%dst + (offset) + 0x10]; \
-+	std	%t6, [%dst + (offset) + 0x18];
-+
-+#define MOVE_LASTCHUNK(src, dst, offset, t0, t1, t2, t3) \
-+	ldd	[%src - (offset) - 0x10], %t0; \
-+	ldd	[%src - (offset) - 0x08], %t2; \
-+	st	%t0, [%dst - (offset) - 0x10]; \
-+	st	%t1, [%dst - (offset) - 0x0c]; \
-+	st	%t2, [%dst - (offset) - 0x08]; \
-+	st	%t3, [%dst - (offset) - 0x04];
-+
-+#define MOVE_LASTALIGNCHUNK(src, dst, offset, t0, t1, t2, t3) \
-+	ldd	[%src - (offset) - 0x10], %t0; \
-+	ldd	[%src - (offset) - 0x08], %t2; \
-+	std	%t0, [%dst - (offset) - 0x10]; \
-+	std	%t2, [%dst - (offset) - 0x08];
-+
-+#define MOVE_SHORTCHUNK(src, dst, offset, t0, t1) \
-+	ldub	[%src - (offset) - 0x02], %t0; \
-+	ldub	[%src - (offset) - 0x01], %t1; \
-+	stb	%t0, [%dst - (offset) - 0x02]; \
-+	stb	%t1, [%dst - (offset) - 0x01];
+ 	/* Remove the device from the device lists, and prevent any further
+===== include/linux/pci.h 1.132 vs edited =====
+--- 1.132/include/linux/pci.h	Mon Aug  2 04:00:43 2004
++++ edited/include/linux/pci.h	Thu Aug  5 00:13:54 2004
+@@ -102,6 +102,8 @@
+ #define PCI_SUBSYSTEM_ID	0x2e  
+ #define PCI_ROM_ADDRESS		0x30	/* Bits 31..11 are address, 10..1 reserved */
+ #define  PCI_ROM_ADDRESS_ENABLE	0x01
++#define  PCI_ROM_SHADOW		0x02	/* resource flag, ROM is copy at C000:0 */
++#define  PCI_ROM_COPY		0x04	/* resource flag, ROM is alloc'd copy */
+ #define PCI_ROM_ADDRESS_MASK	(~0x7ffUL)
  
- /* Both these macros have to start with exactly the same insn */
--#define RMOVE_BIGCHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, t7) 				\
--	ldd	[%src - offset - 0x20], %t0; 								\
--	ldd	[%src - offset - 0x18], %t2; 								\
--	ldd	[%src - offset - 0x10], %t4; 								\
--	ldd	[%src - offset - 0x08], %t6; 								\
--	st	%t0, [%dst - offset - 0x20]; 								\
--	st	%t1, [%dst - offset - 0x1c]; 								\
--	st	%t2, [%dst - offset - 0x18]; 								\
--	st	%t3, [%dst - offset - 0x14]; 								\
--	st	%t4, [%dst - offset - 0x10]; 								\
--	st	%t5, [%dst - offset - 0x0c]; 								\
--	st	%t6, [%dst - offset - 0x08]; 								\
--	st	%t7, [%dst - offset - 0x04];
--
--#define RMOVE_BIGALIGNCHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, t7) 				\
--	ldd	[%src - offset - 0x20], %t0; 								\
--	ldd	[%src - offset - 0x18], %t2; 								\
--	ldd	[%src - offset - 0x10], %t4; 								\
--	ldd	[%src - offset - 0x08], %t6; 								\
--	std	%t0, [%dst - offset - 0x20]; 								\
--	std	%t2, [%dst - offset - 0x18]; 								\
--	std	%t4, [%dst - offset - 0x10]; 								\
--	std	%t6, [%dst - offset - 0x08];
--
--#define RMOVE_LASTCHUNK(src, dst, offset, t0, t1, t2, t3) 						\
--	ldd	[%src + offset + 0x00], %t0; 								\
--	ldd	[%src + offset + 0x08], %t2; 								\
--	st	%t0, [%dst + offset + 0x00]; 								\
--	st	%t1, [%dst + offset + 0x04]; 								\
--	st	%t2, [%dst + offset + 0x08]; 								\
--	st	%t3, [%dst + offset + 0x0c];
--
--#define RMOVE_SHORTCHUNK(src, dst, offset, t0, t1) 							\
--	ldub	[%src + offset + 0x00], %t0; 								\
--	ldub	[%src + offset + 0x01], %t1; 								\
--	stb	%t0, [%dst + offset + 0x00]; 								\
--	stb	%t1, [%dst + offset + 0x01];
--
--#define SMOVE_CHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, prev, shil, shir, offset2) 		\
--	ldd	[%src + offset + 0x00], %t0; 								\
--	ldd	[%src + offset + 0x08], %t2; 								\
--	srl	%t0, shir, %t5; 									\
--	srl	%t1, shir, %t6; 									\
--	sll	%t0, shil, %t0; 									\
--	or	%t5, %prev, %t5; 									\
--	sll	%t1, shil, %prev; 									\
--	or	%t6, %t0, %t0; 										\
--	srl	%t2, shir, %t1; 									\
--	srl	%t3, shir, %t6; 									\
--	sll	%t2, shil, %t2; 									\
--	or	%t1, %prev, %t1; 									\
--	std	%t4, [%dst + offset + offset2 - 0x04]; 							\
--	std	%t0, [%dst + offset + offset2 + 0x04];							\
--	sll	%t3, shil, %prev; 									\
-+#define RMOVE_BIGCHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, t7) \
-+	ldd	[%src - (offset) - 0x20], %t0; \
-+	ldd	[%src - (offset) - 0x18], %t2; \
-+	ldd	[%src - (offset) - 0x10], %t4; \
-+	ldd	[%src - (offset) - 0x08], %t6; \
-+	st	%t0, [%dst - (offset) - 0x20]; \
-+	st	%t1, [%dst - (offset) - 0x1c]; \
-+	st	%t2, [%dst - (offset) - 0x18]; \
-+	st	%t3, [%dst - (offset) - 0x14]; \
-+	st	%t4, [%dst - (offset) - 0x10]; \
-+	st	%t5, [%dst - (offset) - 0x0c]; \
-+	st	%t6, [%dst - (offset) - 0x08]; \
-+	st	%t7, [%dst - (offset) - 0x04];
-+
-+#define RMOVE_BIGALIGNCHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, t7) \
-+	ldd	[%src - (offset) - 0x20], %t0; \
-+	ldd	[%src - (offset) - 0x18], %t2; \
-+	ldd	[%src - (offset) - 0x10], %t4; \
-+	ldd	[%src - (offset) - 0x08], %t6; \
-+	std	%t0, [%dst - (offset) - 0x20]; \
-+	std	%t2, [%dst - (offset) - 0x18]; \
-+	std	%t4, [%dst - (offset) - 0x10]; \
-+	std	%t6, [%dst - (offset) - 0x08];
-+
-+#define RMOVE_LASTCHUNK(src, dst, offset, t0, t1, t2, t3) \
-+	ldd	[%src + (offset) + 0x00], %t0; \
-+	ldd	[%src + (offset) + 0x08], %t2; \
-+	st	%t0, [%dst + (offset) + 0x00]; \
-+	st	%t1, [%dst + (offset) + 0x04]; \
-+	st	%t2, [%dst + (offset) + 0x08]; \
-+	st	%t3, [%dst + (offset) + 0x0c];
-+
-+#define RMOVE_SHORTCHUNK(src, dst, offset, t0, t1) \
-+	ldub	[%src + (offset) + 0x00], %t0; \
-+	ldub	[%src + (offset) + 0x01], %t1; \
-+	stb	%t0, [%dst + (offset) + 0x00]; \
-+	stb	%t1, [%dst + (offset) + 0x01];
-+
-+#define SMOVE_CHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, prev, shil, shir, offset2) \
-+	ldd	[%src + (offset) + 0x00], %t0; \
-+	ldd	[%src + (offset) + 0x08], %t2; \
-+	srl	%t0, shir, %t5; \
-+	srl	%t1, shir, %t6; \
-+	sll	%t0, shil, %t0; \
-+	or	%t5, %prev, %t5; \
-+	sll	%t1, shil, %prev; \
-+	or	%t6, %t0, %t0; \
-+	srl	%t2, shir, %t1; \
-+	srl	%t3, shir, %t6; \
-+	sll	%t2, shil, %t2; \
-+	or	%t1, %prev, %t1; \
-+	std	%t4, [%dst + (offset) + (offset2) - 0x04]; \
-+	std	%t0, [%dst + (offset) + (offset2) + 0x04]; \
-+	sll	%t3, shil, %prev; \
- 	or	%t6, %t2, %t4;
- 
--#define SMOVE_ALIGNCHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, prev, shil, shir, offset2) 	\
--	ldd	[%src + offset + 0x00], %t0; 								\
--	ldd	[%src + offset + 0x08], %t2; 								\
--	srl	%t0, shir, %t4; 									\
--	srl	%t1, shir, %t5; 									\
--	sll	%t0, shil, %t6; 									\
--	or	%t4, %prev, %t0; 									\
--	sll	%t1, shil, %prev; 									\
--	or	%t5, %t6, %t1; 										\
--	srl	%t2, shir, %t4; 									\
--	srl	%t3, shir, %t5; 									\
--	sll	%t2, shil, %t6; 									\
--	or	%t4, %prev, %t2; 									\
--	sll	%t3, shil, %prev; 									\
--	or	%t5, %t6, %t3;										\
--	std	%t0, [%dst + offset + offset2 + 0x00]; 							\
--	std	%t2, [%dst + offset + offset2 + 0x08];
-+#define SMOVE_ALIGNCHUNK(src, dst, offset, t0, t1, t2, t3, t4, t5, t6, prev, shil, shir, offset2) \
-+	ldd	[%src + (offset) + 0x00], %t0; \
-+	ldd	[%src + (offset) + 0x08], %t2; \
-+	srl	%t0, shir, %t4;	\
-+	srl	%t1, shir, %t5;	\
-+	sll	%t0, shil, %t6;	\
-+	or	%t4, %prev, %t0; \
-+	sll	%t1, shil, %prev; \
-+	or	%t5, %t6, %t1; \
-+	srl	%t2, shir, %t4;	\
-+	srl	%t3, shir, %t5;	\
-+	sll	%t2, shil, %t6; \
-+	or	%t4, %prev, %t2; \
-+	sll	%t3, shil, %prev; \
-+	or	%t5, %t6, %t3; \
-+	std	%t0, [%dst + (offset) + (offset2) + 0x00]; \
-+	std	%t2, [%dst + (offset) + (offset2) + 0x08];
- 
- 	.text
- 	.align	4
+ #define PCI_CAPABILITY_LIST	0x34	/* Offset of first capability list entry */
+
+--0-768166646-1091682356=:9582--

@@ -1,70 +1,200 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275119AbSITGDx>; Fri, 20 Sep 2002 02:03:53 -0400
+	id <S275120AbSITGKl>; Fri, 20 Sep 2002 02:10:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275120AbSITGDx>; Fri, 20 Sep 2002 02:03:53 -0400
-Received: from [210.19.28.13] ([210.19.28.13]:1258 "HELO gateway.vault-id.com")
-	by vger.kernel.org with SMTP id <S275119AbSITGDw>;
-	Fri, 20 Sep 2002 02:03:52 -0400
-Message-ID: <34438.10.2.16.178.1032502229.squirrel@mail.Vault-ID.com>
-Date: Fri, 20 Sep 2002 14:10:29 +0800 (MYT)
-Subject: 2.5.36 fbdev compile error
-From: "Corporal Pisang" <Corporal_Pisang@Counter-Strike.com.my>
-To: <linux-nvidia@lists.surfsouth.com>, <linux-kernel@vger.kernel.org>
-X-XheaderVersion: 1.1
-X-UserAgent: Mozilla/5.0 Galeon/1.2.6 (X11; Linux i686; U;) Gecko/20020827
-X-Priority: 3
-Importance: Normal
-Cc: <ajoshi@shell.unixbox.com>
-Reply-To: Corporal_Pisang@Counter-Strike.com.my
-X-Mailer: SquirrelMail (version 1.2.8)
+	id <S275139AbSITGKl>; Fri, 20 Sep 2002 02:10:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49158 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S275120AbSITGKj>;
+	Fri, 20 Sep 2002 02:10:39 -0400
+Message-ID: <3D8ABCEF.9060207@mandrakesoft.com>
+Date: Fri, 20 Sep 2002 02:15:11 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Felipe W Damasio <felipewd@terra.com.br>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: ALTPATCH: 8139cp: LinkChg support
+References: <1032487254.247.7.camel@tank>
+Content-Type: multipart/mixed;
+ boundary="------------060401040508060002020305"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060401040508060002020305
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi,
+Felipe,
 
-fbdev compile error
+Here is the patch I just committed, instead of your patch.  I wanted a 
+more generic solution, that is easily pluggable into other drivers.
 
-gcc -Wp,-MD,./.fbdev.o.d -D__KERNEL__ -I/usr/src/linux/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=athlon  -nostdinc -iwithprefix include    -DKBUILD_BASENAME=fbdev  
--c -o fbdev.o fbdev.c
-fbdev.c: In function `riva_set_dispsw':
-fbdev.c:665: structure has no member named `type'
-fbdev.c:666: structure has no member named `type_aux'
-fbdev.c:667: structure has no member named `ypanstep'
-fbdev.c:668: structure has no member named `ywrapstep'
-fbdev.c:657: warning: unused variable `accel'
-fbdev.c: In function `rivafb_setcolreg':
-fbdev.c:1202: warning: unused variable `chip'
-fbdev.c: In function `rivafb_get_fix':
-fbdev.c:1294: structure has no member named `type'
-fbdev.c:1295: structure has no member named `type_aux'
-fbdev.c:1296: structure has no member named `visual'
-fbdev.c:1302: structure has no member named `line_length'
-fbdev.c: In function `rivafb_pan_display':
-fbdev.c:1611: structure has no member named `line_length'
-fbdev.c: At top level:
-fbdev.c:1748: unknown field `fb_get_fix' specified in initializer
-fbdev.c:1748: warning: initialization from incompatible pointer type
-fbdev.c:1749: unknown field `fb_get_var' specified in initializer
-fbdev.c:1749: warning: initialization from incompatible pointer type
-fbdev.c:732: warning: `riva_wclut' defined but not used
-make[3]: *** [fbdev.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/drivers/video/riva'
-make[2]: *** [riva] Error 2
-make[2]: Leaving directory `/usr/src/linux/drivers/video'
-make[1]: *** [video] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [drivers] Error 2
+Please test and let me know if you find bugs, or want additions...
 
-Regards
+	Jeff
 
--Ubaida-
 
+
+
+--------------060401040508060002020305
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+diff -Nru a/drivers/net/8139cp.c b/drivers/net/8139cp.c
+--- a/drivers/net/8139cp.c	Fri Sep 20 02:13:15 2002
++++ b/drivers/net/8139cp.c	Fri Sep 20 02:13:15 2002
+@@ -22,11 +22,11 @@
+ 	
+ 		Wake-on-LAN support - Felipe Damasio <felipewd@terra.com.br>
+ 		PCI suspend/resume  - Felipe Damasio <felipewd@terra.com.br>
++		LinkChg interrupt   - Felipe Damasio <felipewd@terra.com.br>
+ 			
+ 	TODO, in rough priority order:
+ 	* Test Tx checksumming thoroughly
+ 	* dev->tx_timeout
+-	* LinkChg interrupt
+ 	* Support forcing media type with a module parameter,
+ 	  like dl2k.c/sundance.c
+ 	* Constants (module parms?) for Rx work limit
+@@ -677,6 +677,8 @@
+ 		cp_rx(cp);
+ 	if (status & (TxOK | TxErr | TxEmpty | SWInt))
+ 		cp_tx(cp);
++	if (status & LinkChg)
++		mii_check_media(&cp->mii_if, netif_msg_link(cp));
+ 
+ 	if (status & PciErr) {
+ 		u16 pci_status;
+@@ -1192,6 +1194,8 @@
+ 	if (rc)
+ 		goto err_out_hw;
+ 
++	netif_carrier_off(dev);
++	mii_check_media(&cp->mii_if, netif_msg_link(cp));
+ 	netif_start_queue(dev);
+ 
+ 	return 0;
+@@ -1210,6 +1214,7 @@
+ 		printk(KERN_DEBUG "%s: disabling interface\n", dev->name);
+ 
+ 	netif_stop_queue(dev);
++	netif_carrier_off(dev);
+ 
+ 	spin_lock_irq(&cp->lock);
+ 	cp_stop_hw(cp);
+diff -Nru a/drivers/net/mii.c b/drivers/net/mii.c
+--- a/drivers/net/mii.c	Fri Sep 20 02:13:15 2002
++++ b/drivers/net/mii.c	Fri Sep 20 02:13:15 2002
+@@ -170,6 +170,75 @@
+ 	return r;
+ }
+ 
++void mii_check_link (struct mii_if_info *mii)
++{
++	if (mii_link_ok(mii))
++		netif_carrier_on(mii->dev);
++	else
++		netif_carrier_off(mii->dev);
++}
++
++unsigned int mii_check_media (struct mii_if_info *mii, unsigned int ok_to_print)
++{
++	unsigned int old_carrier, new_carrier;
++	int advertise, lpa, media, duplex;
++
++	/* if forced media, go no further */
++	if (mii->duplex_lock)
++		return 0; /* duplex did not change */
++
++	/* check current and old link status */
++	old_carrier = netif_carrier_ok(mii->dev) ? 1 : 0;
++	new_carrier = (unsigned int) mii_link_ok(mii);
++
++	/* if carrier state did not change, this is a "bounce",
++	 * just exit as everything is already set correctly
++	 */
++	if (old_carrier == new_carrier)
++		return 0; /* duplex did not change */
++
++	/* no carrier, nothing much to do */
++	if (!new_carrier) {
++		netif_carrier_off(mii->dev);
++		if (ok_to_print)
++			printk(KERN_INFO "%s: link down\n", mii->dev->name);
++		return 0; /* duplex did not change */
++	}
++
++	/*
++	 * we have carrier, see who's on the other end
++	 */
++	netif_carrier_on(mii->dev);
++
++	/* get MII advertise and LPA values */
++	if (mii->advertising)
++		advertise = mii->advertising;
++	else {
++		advertise = mii->mdio_read(mii->dev, mii->phy_id, MII_ADVERTISE);
++		mii->advertising = advertise;
++	}
++	lpa = mii->mdio_read(mii->dev, mii->phy_id, MII_LPA);
++
++	/* figure out media and duplex from advertise and LPA values */
++	media = mii_nway_result(lpa & advertise);
++	duplex = (media & (ADVERTISE_100FULL | ADVERTISE_10FULL)) ? 1 : 0;
++
++	if (ok_to_print)
++		printk(KERN_INFO "%s: link up, %sMbps, %s-duplex, lpa 0x%04X\n",
++		       mii->dev->name,
++		       media & (ADVERTISE_100FULL | ADVERTISE_100HALF) ?
++		       		"100" : "10",
++		       duplex ? "full" : "half",
++		       lpa);
++
++	if (mii->full_duplex != duplex) {
++		mii->full_duplex = duplex;
++		return 1; /* duplex changed */
++	}
++
++	return 0; /* duplex did not change */
++}
++
+ MODULE_AUTHOR ("Jeff Garzik <jgarzik@mandrakesoft.com>");
+ MODULE_DESCRIPTION ("MII hardware support library");
+ MODULE_LICENSE("GPL");
+@@ -178,3 +247,6 @@
+ EXPORT_SYMBOL(mii_nway_restart);
+ EXPORT_SYMBOL(mii_ethtool_gset);
+ EXPORT_SYMBOL(mii_ethtool_sset);
++EXPORT_SYMBOL(mii_check_link);
++EXPORT_SYMBOL(mii_check_media);
++
+diff -Nru a/include/linux/mii.h b/include/linux/mii.h
+--- a/include/linux/mii.h	Fri Sep 20 02:13:15 2002
++++ b/include/linux/mii.h	Fri Sep 20 02:13:15 2002
+@@ -118,10 +118,12 @@
+ 
+ struct ethtool_cmd;
+ 
+-int mii_link_ok (struct mii_if_info *mii);
+-int mii_nway_restart (struct mii_if_info *mii);
+-int mii_ethtool_gset(struct mii_if_info *mii, struct ethtool_cmd *ecmd);
+-int mii_ethtool_sset(struct mii_if_info *mii, struct ethtool_cmd *ecmd);
++extern int mii_link_ok (struct mii_if_info *mii);
++extern int mii_nway_restart (struct mii_if_info *mii);
++extern int mii_ethtool_gset(struct mii_if_info *mii, struct ethtool_cmd *ecmd);
++extern int mii_ethtool_sset(struct mii_if_info *mii, struct ethtool_cmd *ecmd);
++extern void mii_check_link (struct mii_if_info *mii);
++extern unsigned int mii_check_media (struct mii_if_info *mii, unsigned int ok_to_print);
+ 
+ 
+ /* This structure is used in all SIOCxMIIxxx ioctl calls */
+
+--------------060401040508060002020305--
 

@@ -1,54 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261687AbREOXCI>; Tue, 15 May 2001 19:02:08 -0400
+	id <S261689AbREOW7s>; Tue, 15 May 2001 18:59:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261691AbREOXB6>; Tue, 15 May 2001 19:01:58 -0400
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:22626 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S261687AbREOXBo>; Tue, 15 May 2001 19:01:44 -0400
-Date: Tue, 15 May 2001 19:01:24 -0400 (EDT)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-To: David Wilson <davew@sai.co.za>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: FW: I think I've found a serious bug in AMD Athlon page_alloc.c
- routines, where do I mail the developer(s) ?
-In-Reply-To: <NEBBJFIIGKGLPEBIJACLEEHDDMAA.davew@sai.co.za>
-Message-ID: <Pine.LNX.4.10.10105151853040.15328-100000@coffee.psychology.mcmaster.ca>
+	id <S261688AbREOW7i>; Tue, 15 May 2001 18:59:38 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:65285 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261687AbREOW72>; Tue, 15 May 2001 18:59:28 -0400
+Subject: Re: megaraid problems
+To: grocha@geeksimplex.org (Gabriel Rocha)
+Date: Tue, 15 May 2001 23:55:50 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010515184932.H29363@dandelion.darkorb.net> from "Gabriel Rocha" at May 15, 2001 06:49:32 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14znjK-0003HX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think I've found a serious bug in AMD Athlon page_alloc.c routines in
+> 	it refuses to show any drives and i cant get the management
+> 	software to work. so my question is this:
+> 		has anyone with this card gotten it to work under linux
+> 		2.4.4-acX? if so, how?
 
-there's nothing athlon-specific there.
-
-> correct on the DFI AK75-EC motherboard, if I set the CPU kernel type to 586
-> everything is 100%, if I use "Athlon" kernel type I get:
-> kernel BUG at page_alloc.c:73
-
-when you select athlon at compile time, you're mainly 
-getting Arjan's athlon-specific page-clear and -copy functions
-(along with some relatively trivial alignment changes).
-these functions are ~3x as fast as the generic ones,
-and seem to cause dram/cpu-related oopes on some machines.
-
-in short: faster code pushes the hardware past stability.
-there's no reason, so far, to think that there's anything 
-wrong with the code - Alan had a possible issue with prefetching
-and very old Atlons, but the people reporting problems like this
-are actually running kt133a and new fsb133 Athlons.
-
-> I've changed RAM, Motherboard etc... still the same.
-
-changed to a non-kt133a board?  how about running fsb and/or dram
-at 100, rather than 133?
-
-> Also the same system runs linux-2.2.16 100%
-
-2.2 doesn't have the fast page-clear and -copy code afaik.
-
-afaik, there are *no* problems on kt133 machines,
-and haven't heard any pain from people who might have 
-Ali Magic1, AMD 760 or KT266 boards, but they're still rare.
-
+Mine works. In fact the 2.4.4ac source tree currently lives on it.

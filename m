@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311839AbSDDW4Z>; Thu, 4 Apr 2002 17:56:25 -0500
+	id <S311856AbSDDW5F>; Thu, 4 Apr 2002 17:57:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311871AbSDDW4Q>; Thu, 4 Apr 2002 17:56:16 -0500
-Received: from zero.tech9.net ([209.61.188.187]:50185 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S311839AbSDDWz6>;
-	Thu, 4 Apr 2002 17:55:58 -0500
-Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() at
-	boot  time
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Roger Larsson <roger.larsson@norran.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
+	id <S311866AbSDDW44>; Thu, 4 Apr 2002 17:56:56 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:39430 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S311856AbSDDW4m>; Thu, 4 Apr 2002 17:56:42 -0500
+Message-ID: <3CACD9AF.357E353A@zip.com.au>
+Date: Thu, 04 Apr 2002 14:54:39 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Roger Larsson <roger.larsson@norran.net>, Robert Love <rml@tech9.net>,
         Dave Hansen <haveblue@us.ibm.com>,
         "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3CACD5D3.B2DA02AE@zip.com.au>
-Content-Type: text/plain
+Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() atboot  
+ time
+In-Reply-To: <3CACD5D3.B2DA02AE@zip.com.au> <Pine.LNX.4.33.0204041440520.15947-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 04 Apr 2002 17:55:25 -0500
-Message-Id: <1017960927.22299.634.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-04-04 at 17:38, Andrew Morton wrote:
+Linus Torvalds wrote:
+> 
+> On Thu, 4 Apr 2002, Andrew Morton wrote:
+> >  Another approach would be:
+> >
+> > preempt_schedule()
+> > {
+> >       current->state2 = current->state;
+> >       current->state = TASK_RUNNING;
+> >       schedule();
+> >       current->state = current->state2;
+> > }
+> 
+> Yes, but please no.
+> 
+> My current tree says
+> 
+>         asmlinkage void preempt_schedule(void)
+>         {
+>                 if (unlikely(preempt_get_count()))
+>                         return;
+>                 if (current->state != TASK_RUNNING)
+>                         return;
+>                 schedule();
+>         }
+> 
+> and if people start getting latency problems due to loops with state !=
+> TASK_RUNNING, then I suspect we might just make "set_current_state()"
+> check that case explicitly and do a conditional reschedule (ie make it the
+> same as if we released a lock). That would be a hell of a lot cleaner, in
+> my opinion.
+> 
 
-> With the appropriate locking, memory barriers and other
-> relevant goo I think this would work...
+That would work.  And would also fix my "spin_unlock sometimes
+stomps on TASK_INTERRUPTIBLE" problem.
 
-Yah, I guess, but that isn't pretty at all ;)
+It does mean that we'll need to convert many open-coded
 
-Andrew, remember how we used to do it (and still do it in the 2.4
-patch)?  Wouldn't that work?  Specifically, when we enter
-preempt_schedule we set a flag value in preempt_count.  This flag value
-is checked at the top of schedule and, if set, we skip the first chunk
-of code that handles sleeping tasks.  The task->state never changes. 
-Upon leaving schedule and returning to preempt_schedule, we unset the
-flag.
+	current->state = whatever;
 
-This allows us to preempt tasks in any state, without problems or
-special cases.  It also wasn't too much overhead - compared to now,
-basically just:
+instances to use [__]set_current_state().  But that's not
+a bad thing.  Janitorial patches for this are already
+floating about.
 
-	if (unlikely(current->preempt_count() & PREEMPT_ACTIVE))
-		goto pick_next_task;
+Robert, do you have time to do the code-and-test thing?
 
-at the top of schedule().
-
-	Robert Love
-
+-

@@ -1,109 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267200AbTBRKft>; Tue, 18 Feb 2003 05:35:49 -0500
+	id <S267454AbTBRKpv>; Tue, 18 Feb 2003 05:45:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267289AbTBRKft>; Tue, 18 Feb 2003 05:35:49 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:4107 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267200AbTBRKfr>; Tue, 18 Feb 2003 05:35:47 -0500
-Date: Tue, 18 Feb 2003 10:45:47 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.61 (5/26) char device
-Message-ID: <20030218104547.C11969@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Osamu Tomita <tomita@cinet.co.jp>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20030217134333.GA4734@yuzuki.cinet.co.jp> <20030217135603.GE4799@yuzuki.cinet.co.jp>
+	id <S267487AbTBRKpv>; Tue, 18 Feb 2003 05:45:51 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:58350 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267454AbTBRKps>; Tue, 18 Feb 2003 05:45:48 -0500
+Date: Tue, 18 Feb 2003 16:29:54 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net,
+       fastboot@osdl.org, anton@samba.org
+Subject: Re: [Fastboot] Re: Kexec on 2.5.59 problems ?
+Message-ID: <20030218162954.B2808@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20030210164401.A11250@in.ibm.com> <1044896964.1705.9.camel@andyp.pdx.osdl.net> <m13cmwyppx.fsf@frodo.biederman.org> <20030211125144.A2355@in.ibm.com> <1044983092.1705.27.camel@andyp.pdx.osdl.net> <1045007213.1959.2.camel@andyp.pdx.osdl.net> <m1k7g6xgs8.fsf@frodo.biederman.org> <1045089117.1502.5.camel@andyp.pdx.osdl.net> <20030213152033.A14278@in.ibm.com> <m1d6lww70u.fsf@frodo.biederman.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030217135603.GE4799@yuzuki.cinet.co.jp>; from tomita@cinet.co.jp on Mon, Feb 17, 2003 at 10:56:03PM +0900
+In-Reply-To: <m1d6lww70u.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Thu, Feb 13, 2003 at 08:10:41AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +static struct lp_struct lp = {
-> +	/* Following `TAG: INITIALIZER' notations are GNU CC extension. */
+Here's the explanation from Anton about why using init_mm is
+a problem on ppc64.
 
-This comment doesn't make sense anymore :)
+Regards
+Suparna
 
-> +	.flags	= LP_EXIST | LP_ABORTOPEN,
-> +	.chars	= LP_INIT_CHAR,
-> +	.time	= LP_INIT_TIME,
-> +	.wait	= LP_INIT_WAIT,
-> +};
-> +
-> +static	int	dc1_check	= 0;
-> +static spinlock_t lp_old98_lock = SPIN_LOCK_UNLOCKED;
-> +
-> +
-> +#undef LP_OLD98_DEBUG
-> +
-> +#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-> +static struct console lp_old98_console;		/* defined later */
-> +static __typeof__(lp_old98_console.flags) saved_console_flags;
+----- Forwarded message from Anton Blanchard <anton@samba.org> -----
 
-Please directly use the actual type here.
+Date: Tue, 18 Feb 2003 20:56:23 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Subject: Re: Fw: Re: [Fastboot] Re: Kexec on 2.5.59 problems ?
 
-> +#endif
-> +
-> +static DECLARE_WAIT_QUEUE_HEAD (lp_old98_waitq);
-> +
-> +static void lp_old98_timer_function(unsigned long data);
 
-This prototype is superflous.
+On Thu, Feb 13, 2003 at 08:10:41AM -0700, Eric W. Biederman wrote:
+> Suparna Bhattacharya <suparna@in.ibm.com> writes:
+> 
+> > Great !
+> > Eventually we should probably avoid init_mm altogether (on ppc64
+> > at least, init_mm can't be used as Anton pointed out to me) and
+> > setup a spare mm instead. 
+> 
+> What is the problem with init_mm?  Besides the fact that using it
+> is now failing?
+> 
 
-> +	__const_udelay(lp.wait * 4);
 
-Why do you use __const_udelay instead of udelay?
+Hi Suparna,
 
-> +#if LINUX_VERSION_CODE < 0x20200
-> +static long lp_old98_write(struct inode * inode, struct file * file,
-> +			   const char * buf, unsigned long count)
-> +#else
-> +static ssize_t lp_old98_write(struct file * file,
-> +			      const char * buf, size_t count,
-> +			      loff_t *dummy)
-> +#endif    
+On ppc64 we have many 2^41B (2 TB) regions:
 
-Do you really need that compat code?  I don't think it makes much sense to
-keep 2.0 code around in 2.5.
+USER
+KERNEL
+VMALLOC
+IO
 
-> +static int lp_old98_open(struct inode * inode, struct file * file)
-> +{
-> +	if (minor(inode->i_rdev) != 0)
-> +		return -ENXIO;
-> +
-> +	if (!try_module_get(THIS_MODULE))
-> +		return -EBUSY;
+Why 2TB? Well our three level linux pagetables can map 2TB. The kernel has
+no pagetables, so we only need three sets of pagetables. As usual each
+user task has its own set of pagetables. So that leaves vmalloc and IO.
 
-This is broken - the upper layer does this for you swhen you set the owner fild
-of struct file_operations.
+For IO we create our own pgd, ioremap_pgd and for vmalloc we use init_mm.
+Why not? Its not being used anywhere else... except for kexec.
 
-> +	module_put(THIS_MODULE);
+So init_mm covers the region of:
 
-Dito.
+0xD000000000000000 to 0xD000000000000000+2^41
 
-> +static struct file_operations lp_old98_fops = {
-> +	.owner		= THIS_MODULE,
+And what kexec wants is a page under 4GB :)
 
-See, you already set it..
+Thats why we created another mm.
 
-> +	.llseek		= no_llseek,
-> +	.read		= NULL,
 
-Remove this line.
+Could you please forward it on to the list?
 
-> +	if (request_region(LP_PORT_DATA,   1, "lp_old98")) {
-> +	    if (request_region(LP_PORT_STATUS, 1, "lp_old98")) {
-> +		if (request_region(LP_PORT_STROBE, 1, "lp_old98")) {
-> +		    if (request_region(LP_PORT_EXTMODE, 1, "lp_old98")) {
-> +			if (register_chrdev(LP_MAJOR, "lp", &lp_old98_fops)) {
+Thanks!
+Anton
 
-Using gotos for error handling here might make the code quite a bit more
-readable :)
+----- End forwarded message -----
 
+--
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India

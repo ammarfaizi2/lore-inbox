@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267645AbTBYFTp>; Tue, 25 Feb 2003 00:19:45 -0500
+	id <S267677AbTBYFQ7>; Tue, 25 Feb 2003 00:16:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267612AbTBYFTp>; Tue, 25 Feb 2003 00:19:45 -0500
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:39572 "EHLO
-	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S267645AbTBYFTo>; Tue, 25 Feb 2003 00:19:44 -0500
-Date: Tue, 25 Feb 2003 00:35:47 -0500
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com
-Subject: Re: IO scheduler benchmarking
-Message-ID: <20030225053547.GA1571@rushmore>
+	id <S267679AbTBYFQ7>; Tue, 25 Feb 2003 00:16:59 -0500
+Received: from holomorphy.com ([66.224.33.161]:35252 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267677AbTBYFQ6>;
+	Tue, 25 Feb 2003 00:16:58 -0500
+Date: Mon, 24 Feb 2003 21:26:02 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030225052602.GW10411@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Chris Wedgwood <cw@f00f.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Larry McVoy <lm@bitmover.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1510000.1045942974@[10.10.2.4]> <20030222195642.GI1407@work.bitmover.com> <2080000.1045947731@[10.10.2.4]> <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <1046093309.1246.6.camel@irongate.swansea.linux.org.uk> <20030225051956.GA18302@f00f.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+In-Reply-To: <20030225051956.GA18302@f00f.org>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Executive question: Why does 2.5.62-mm2 have higher sequential
-write latency than 2.5.61-mm1?
+On Mon, Feb 24, 2003 at 01:28:30PM +0000, Alan Cox wrote:
+>> _If_ it harms performance on small boxes.
 
-tiobench numbers on uniprocessor single disk IDE:
-The cfq scheduler (2.5.62-mm2 and 2.5.61-cfq) has a big latency
-regression.
+On Mon, Feb 24, 2003 at 09:19:56PM -0800, Chris Wedgwood wrote:
+> You mean like the general slowdown from 2.4 - >2.5?
+> It seems to me for small boxes, 2.5.x is margianlly slower at most
+> things than 2.4.x.
+> I'm hoping and the code solidifes and things are tuned this gap will
+> go away and 2.5.x will inch ahead...  hoping....
 
-2.5.61-mm1		(default scheduler (anticipatory?))
-2.5.61-mm1-cfq		elevator=cfq
-2.5.62-mm2-as		anticipatory scheduler
-2.5.62-mm2-dline	elevator=deadline
-2.5.62-mm2		elevator=cfq
+Could you help identify the regressions? Profiles? Workload?
 
-                    Thr  MB/sec   CPU%     avg lat      max latency
-2.5.61-mm1            8   15.68   54.42%     5.87 ms     2.7 seconds
-2.5.61-mm1-cfq        8    9.60   15.07%     7.54      393.0
-2.5.62-mm2-as         8   14.76   52.04%     6.14        4.5
-2.5.62-mm2-dline      8    9.91   13.90%     9.41         .8
-2.5.62-mm2            8    9.83   15.62%     7.38      408.9
-2.4.21-pre3           8   10.34   27.66%     8.80        1.0
-2.4.21-pre3-ac4       8   10.53   28.41%     8.83         .6
-2.4.21-pre3aa1        8   18.55   71.95%     3.25       87.6
+On Mon, Feb 24, 2003 at 01:28:30PM +0000, Alan Cox wrote:
+>> The definitive Linux box appears to be $199 from Walmart right now,
+>> and its not SMP.
 
+On Mon, Feb 24, 2003 at 09:19:56PM -0800, Chris Wedgwood wrote:
+> In two year this kind of hardware probably will be SMP (HT or some
 
-For most thread counts (8 - 128), the anticipatory scheduler has roughly 
-45% higher ext2 sequential read throughput.  Latency was higher than 
-deadline, but a lot lower than cfq.
+I'm a programmer not an economist (despite utility functions and Nash
+equilibria). Don't tell me what's definitive, give me some profiles.
 
-For tiobench sequential writes, the max latency numbers for 2.4.21-pre3
-are notably lower than 2.5.62-mm2 (but not as good as 2.5.61-mm1).  
-This is with 16 threads.  
-
-                    Thr  MB/sec   CPU%      avg lat     max latency
-2.5.61-mm1           16   18.30   81.12%     9.159 ms     6.1 seconds
-2.5.61-mm1-cfq       16   18.03   80.71%     9.086        6.1
-2.5.62-mm2-as        16   18.84   84.25%     8.620       47.7
-2.5.62-mm2-dline     16   18.53   84.10%     8.967       53.4
-2.5.62-mm2           16   18.46   83.28%     8.521       40.8
-2.4.21-pre3          16   16.20   65.13%     9.566        8.7
-2.4.21-pre3-ac4      16   18.50   83.68%     8.774       11.6
-2.4.21-pre3aa1       16   18.49   88.10%     8.455        7.5
-
-Recent uniprocessor benchmarks:
-http://home.earthlink.net/~rwhron/kernel/latest.html
-
-More uniprocessor benchmarks:
-http://home.earthlink.net/~rwhron/kernel/k6-2-475.html
-
--- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
-latest quad xeon benchmarks:
-http://home.earthlink.net/~rwhron/kernel/blatest.html
-
+-- wli

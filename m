@@ -1,56 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291177AbSAaRgP>; Thu, 31 Jan 2002 12:36:15 -0500
+	id <S291179AbSAaRfp>; Thu, 31 Jan 2002 12:35:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291178AbSAaRgH>; Thu, 31 Jan 2002 12:36:07 -0500
-Received: from altus.drgw.net ([209.234.73.40]:23812 "EHLO altus.drgw.net")
-	by vger.kernel.org with ESMTP id <S291174AbSAaRf4>;
-	Thu, 31 Jan 2002 12:35:56 -0500
-Date: Thu, 31 Jan 2002 11:35:10 -0600
-From: Troy Benjegerdes <hozer@drgw.net>
-To: Larry McVoy <lm@work.bitmover.com>, Rob Landley <landley@trommello.org>,
-        Larry McVoy <lm@bitmover.com>, Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Eli Carter <eli.carter@inet.com>,
-        Georg Nikodym <georgn@somanetworks.com>, Ingo Molnar <mingo@elte.hu>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Tom Rini <trini@kernel.crashing.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020131113510.Z14339@altus.drgw.net>
-In-Reply-To: <20020130195154.R22323@work.bitmover.com> <20020131002355.X14339@altus.drgw.net> <20020130223711.L18381@work.bitmover.com> <20020131074924.QZMB10685.femail14.sdc1.sfba.home.com@there> <20020131111337.Y14339@altus.drgw.net> <20020131091914.L1519@work.bitmover.com>
+	id <S291177AbSAaRf1>; Thu, 31 Jan 2002 12:35:27 -0500
+Received: from acl.lanl.gov ([128.165.147.1]:9560 "HELO acl.lanl.gov")
+	by vger.kernel.org with SMTP id <S291174AbSAaRfS>;
+	Thu, 31 Jan 2002 12:35:18 -0500
+Date: Thu, 31 Jan 2002 10:35:16 -0700
+From: "Erik A. Hendriks" <hendriks@lanl.gov>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org, Werner Almesberger <wa@almesberger.net>
+Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
+Message-ID: <20020131103516.I26855@lanl.gov>
+In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org> <3C586355.A396525B@zip.com.au> <m1zo2vb5rt.fsf@frodo.biederman.org> <3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org> <3C58CAE0.4040102@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020131091914.L1519@work.bitmover.com>; from lm@bitmover.com on Thu, Jan 31, 2002 at 09:19:14AM -0800
+In-Reply-To: <3C58CAE0.4040102@zytor.com>; from hpa@zytor.com on Wed, Jan 30, 2002 at 08:41:04PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 09:19:14AM -0800, Larry McVoy wrote:
-> On Thu, Jan 31, 2002 at 11:13:37AM -0600, Troy Benjegerdes wrote:
-> > Can you detect the 'collapsed vs full version' thing, and force it to be 
-> > a merge conflict? That, and working LOD support would probably get most 
-> > of what I want (until I try the new version and find more stuff I want 
-> > :P)
+On Wed, Jan 30, 2002 at 08:41:04PM -0800, H. Peter Anvin wrote:
+> Eric W. Biederman wrote:
 > 
-> Are you sure you want that?  If so, that would work today, it's about a
-> 20 line script.  You clone the tree, collapse all the stuff into a new
-> changeset, and pull.  It will all automerge.  But now you have the detailed
-> stuff and the non-detailed stuff in the same tree, which I doubt is what
-> you want.  I thought the point was to remove information, not double it.
+> > 
+> > I am reluctant to go with a bootimg like interface because having a
+> > standard format encourages people to standardize.  Though a good
+> > argument can persuade me.  I don't loose any flexibility in comparison
+> > to bootimg because composing files on the fly is not significantly
+> > harder than composing a bootable image in ram. 
+> > 
+> > Please tell me if I haven't clearly answered your concerns about
+> > being locked into a single image.
+> > 
+> 
+> 
+> I have to think about it.  I'm not convinced that this particular 
+> flavour of standardization is a step in the right direction -- in fact, 
+> it is *guaranteed* to provide significant additional complexity for 
+> bootloaders, and bzImage support is still going to have to be provided 
+> for the forseeable future.  Since you express that it will basically be 
+> necessary to stitch the ELF file together on the fly I don't see much 
+> point, quite frankly; it seems like extra complexity for no good reason.
 
-Well, what I meant was have some kind of pointer in the collapsed stuff 
-that conflicts with the detailed stuff, and requires the user to pick 
-which on they want. Ideally, this could default to user picks, but a 
-repository policy of 'only take collapsed versions' could be used for 
-upstream trees, say like linuxppc_2_4.  (linuxppc_2_4_devel could take 
-detailed versions).
+I'm inclined to agree with Peter here.
 
--- 
-Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
------"If this message isn't misspelled, I didn't write it" -- Me -----
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's 
-why I draw cartoons. It's my life." -- Charles Schulz
+For Linux, placing an initrd image with ELF is seriously problematic
+since only the boot loader will the necessary information to know
+where to put it.
+
+(Note: I suppose initramfs will make some or all of this go away but
+as long as initrds are around - which I think will be a long while,
+these problems exist.)
+
+  - It needs to be placed far enough away from the kernel to avoid
+    getting overwritten when the kernel starts allocating memory for
+    stuff at boot time.  I had this problem myself with two kernel
+    monte and a fixed load address for initrds.
+
+  - It needs to be placed on free memory.  The boot loader would
+    potentially have access to memory maps to know where not to place
+    the initrd.  I don't know if any do this at this point but I have
+    had problems with bootloaders dropping initrds in reserved
+    regions.  I ended up switching from syslinux to LILO (or maybe it
+    was the other way) to get around that.
+
+    As soon as you throw multiple architectures into the mix, I think
+    anything you think you can assume about what memory is reasonable
+    to use disappears.
+
+    Two kernel monte still has this problem.  Reading the E820 map or
+    something like it is on my to-do list somewhere.
+
+I don't think that being able to compose an elf image on the fly would
+solve either of these problems since the boot loader needs to make a
+relocation decision.  Running a linker on the fly would be pretty
+nasty anyway, IMO.  Nobody is suggesting any kind of dynamic linking
+in the boot loader are they?
+
+I like some of the patches that change Linux so you enter in 32 bit
+protected mode.  Switching back to 16bit mode might cause some trouble
+on boards with screwy BIOSes.  I did the "stay in protected mode"
+thing for two kernel monte because some BIOSes would get hung if I
+switch to protected mode and then back again before calling the APM
+setup.  The trick there is to keep the setup information from the real
+mode code and use it for the next kernel.  Gross, if you ask me.
+
+I think ELF is overkill for what you're doing with it.  It's an
+established format but so what?  It's not like you'll be able to take
+advantage of large existing code base.  Sure, ld exists to create your
+image but that's not the hard part.  The boot loaders would all have
+to include new code for this.  Also, your patch (for x86 only, it
+seems.  didn't you have alpha support too?) is far from trivial.  In
+short, I don't see how using ELF (or creating a new boot format at
+all) is going to save much, if any, work.
+
+I have this funny feeling some of the initrd discussion might have
+been discussed/addressed elsewhere.  I hope I'm not too out of touch
+:)
+
+Anyway, there's $.02.
+
+- Erik
+
+P.S.  The two second delay in two kernel monte is intentional and
+      easily removed.  It's there to let me glimpse the messages
+      before it actually does the reset.
+
+

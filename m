@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316161AbSHIUvQ>; Fri, 9 Aug 2002 16:51:16 -0400
+	id <S316135AbSHIUvD>; Fri, 9 Aug 2002 16:51:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316185AbSHIUvQ>; Fri, 9 Aug 2002 16:51:16 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:13236 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316161AbSHIUvP>;
-	Fri, 9 Aug 2002 16:51:15 -0400
-Message-ID: <3D542C06.50008@us.ibm.com>
-Date: Fri, 09 Aug 2002 13:54:30 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en
+	id <S316161AbSHIUvD>; Fri, 9 Aug 2002 16:51:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59656 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316135AbSHIUvC>;
+	Fri, 9 Aug 2002 16:51:02 -0400
+Message-ID: <3D542B88.6F7007E4@zip.com.au>
+Date: Fri, 09 Aug 2002 13:52:24 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at /usr/src/linux-2.5.30/include/linux/dcache.h:261!
-References: <200208091732.g79HW4q02868@eng2.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Hans Reiser <reiser@bitshadow.namesys.com>
+CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [BK] [PATCH] reiserfs changeset 7 of 7 to include into 2.4 tree
+References: <200208091636.g79GadA9007889@bitshadow.namesys.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
-> Code;  c0160d0f <d_unhash+f/70>   <=====
->    0:   0f 0b                     ud2a      <=====
-> Code;  c0160d11 <d_unhash+11/70>
->    2:   05 01 00 db 2a            add    $0x2adb0001,%eax
-> Code;  c0160d16 <d_unhash+16/70>
->    7:   c0                        (bad)  
+Hans Reiser wrote:
+> 
+> Hello!
+> 
+>    This changeset implements new block allocator for reiserfs and adds one
+>    more tail policy. This is a product of continuous NAMESYS research in this
+>    area. This piece of code incorporates work by Alexander Zarochencev,
+>    Jeff Mahoney and Oleg Drokin.
 
-Doesn't that (bad) instruction look suspicious?  Martin was seeing 
-strange oopses on Hummer (16-way NUMA-Q) compiling with egcs 2.91 
-because it was generating bad instructions.  It may be another 
-problem, but that c0 jumped out at me.  The two instructions after it 
-look bretty bogus too.
+What Christoph said ;)
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+Block allocation algorithms are really, really important.  I'd be very interested
+in a description of what this change does, what problems it is solving, how it
+solves them, observed results, testing methodology, etc.   Is such a thing
+available?
 
+Thanks.

@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264520AbRFOUfA>; Fri, 15 Jun 2001 16:35:00 -0400
+	id <S264521AbRFOUfu>; Fri, 15 Jun 2001 16:35:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264521AbRFOUeu>; Fri, 15 Jun 2001 16:34:50 -0400
-Received: from ns.electricgod.net ([209.134.141.2]:9480 "EHLO
-	rogue.electricgod.net") by vger.kernel.org with ESMTP
-	id <S264520AbRFOUef>; Fri, 15 Jun 2001 16:34:35 -0400
-Date: Fri, 15 Jun 2001 15:33:46 -0500 (CDT)
-From: Joshua Jore <moomonk@rogue.electricgod.net>
-To: Gregoire Favre <greg@ulima.unil.ch>
-cc: Philipp Matthias Hahn <pmhahn@titan.lahn.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Zip: what does that mean?
-In-Reply-To: <20010615221557.A8085@ulima.unil.ch>
-Message-ID: <Pine.BSF.4.33.0106151532260.10605-100000@rogue.electricgod.net>
+	id <S264522AbRFOUfa>; Fri, 15 Jun 2001 16:35:30 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1288 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264521AbRFOUfV>; Fri, 15 Jun 2001 16:35:21 -0400
+Subject: Re: drivers/usb/ov511.c does not compile
+To: johannes@erdfelt.com (Johannes Erdfelt)
+Date: Fri, 15 Jun 2001 21:34:21 +0100 (BST)
+Cc: runesong@earthlink.net (Kelledin Tane), linux-kernel@vger.kernel.org
+In-Reply-To: <20010615160518.A30332@sventech.com> from "Johannes Erdfelt" at Jun 15, 2001 04:05:19 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15B0IP-00073f-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg,
-Just to make a point on that, as I recall Zip and other super floppy media
-*shouldn't* be partitioned. It's certainly possible to do but it's
-anyone's guess on how different OS+revs will treat it.
+> > the developer's blessing on this, and also nice to know exactly what
+> > version number to give this driver in 2.4.5 stock.
+> 
+> This has already been fixed in the 2.4.5 pre patches.
 
-Josh
+.6 I assume.
 
-__SIG__
-
-On Fri, 15 Jun 2001, Gregoire Favre wrote:
-
-> On Fri, Jun 15, 2001 at 08:40:57AM +0200, Philipp Matthias Hahn wrote:
->
-> > Nothing. Somethings is reeding /proc/partitions which lists all known
-> > partitions. "fdisk" or "mount" do this.
-> >
-> > When reading the file the kernel has to check the media in your zip-drive.
-> > Problem is, you havn't put in one. So there is no partition table to read
-> > and the kernel complains and returns the default values of a typical
-> > 100MB zip media.
->
-> Thanks for your answer, in fact, there was a media in my zip, but
-> without any partition (as I don't see any other reason than avoiding
-> those errors messages to make just one partition on my disk).
->
-> Thanks,
->
-> 	Greg
-> ________________________________________________________________
-> http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
->
+ov511 still has some bad bugs in it - it doesnt work with some uhci drivers
+and it also does precisely the wrong thing when you set the capture size and
+breaks stuff like ffserver. The comments are right but the code picks the
+size which is bigger than the capture, not the nearest smaller size..
 

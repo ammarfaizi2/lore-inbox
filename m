@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTFPHMB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 03:12:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTFPHMA
+	id S263461AbTFPHTD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 03:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTFPHTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 03:12:00 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15624 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263452AbTFPHL7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 03:11:59 -0400
-Date: Mon, 16 Jun 2003 08:25:49 +0100
-From: Russell King <rmk@arm.linux.org.uk>
+	Mon, 16 Jun 2003 03:19:03 -0400
+Received: from snickers.hotpop.com ([204.57.55.49]:60546 "EHLO
+	snickers.hotpop.com") by vger.kernel.org with ESMTP id S263461AbTFPHTA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 03:19:00 -0400
+Subject: Re: 2.4 Bitkeeper repo not updated ?
+From: Weitai Liu <weitailiu@hotpop.com>
 To: Michael Frank <mflt1@micrologica.com.hk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.71-mm1 PCMCIA Yenta socket nonfunctional
-Message-ID: <20030616082549.B5004@flint.arm.linux.org.uk>
-Mail-Followup-To: Michael Frank <mflt1@micrologica.com.hk>,
-	linux-kernel@vger.kernel.org
-References: <200306161343.03663.mflt1@micrologica.com.hk>
+In-Reply-To: <200306161245.33196.mflt1@micrologica.com.hk>
+References: <200306161245.33196.mflt1@micrologica.com.hk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 16 Jun 2003 15:30:01 -0400
+Message-Id: <1055791813.744.69.camel@lwt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200306161343.03663.mflt1@micrologica.com.hk>; from mflt1@micrologica.com.hk on Mon, Jun 16, 2003 at 01:58:30PM +0800
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 16, 2003 at 01:58:30PM +0800, Michael Frank wrote:
-> 2.5.71-mm1 Problem: does not init 
+On Mon, 2003-06-16 at 02:00, Michael Frank wrote:
+> 2.4.21 seems not be at  http://linux.bkbits.net/linux-2.4
+> Tried yesterday and again today
+> 
+> Also tag for -rc8 is missing
+> 
+I have cloned  2.4 from this site at this morning , 2.4.21  is there:
 
-Could you check whether plain 2.5.71 (or 2.5.71-bkcurr) works?
+#! /bin/sh -v
+bk clone bk://linux.bkbits.net/linux-2.4
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+cd linux-2.4
+. ../bkresync
+cd ..
+
+
+Makefile content :
+ 
+VERSION = 2
+PATCHLEVEL = 4
+SUBLEVEL = 21
+EXTRAVERSION = -rc8
+
+KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+
+ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
+KERNELPATH=kernel-$(shell echo $(KERNELRELEASE) | sed -e "s/-//g")
+
+
+LWT
+
 

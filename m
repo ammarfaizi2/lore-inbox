@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262141AbTIWWPG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 18:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbTIWWPG
+	id S263418AbTIWW0f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 18:26:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263438AbTIWW0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 18:15:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20172 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262141AbTIWWPD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 18:15:03 -0400
-Date: Tue, 23 Sep 2003 15:14:56 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: Chris Wright <chrisw@osdl.org>, David Yu Chen <dychen@stanford.edu>,
-       linux-kernel@vger.kernel.org, mc@cs.stanford.edu, vojtech@suse.cz
-Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
-Message-ID: <20030923151456.A15254@osdlab.pdx.osdl.net>
-References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU> <20030923131350.D20572@osdlab.pdx.osdl.net> <20030923202554.GA5485@kroah.com>
+	Tue, 23 Sep 2003 18:26:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27309 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263418AbTIWW0e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 18:26:34 -0400
+Date: Tue, 23 Sep 2003 23:26:32 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Deepak Saxena <dsaxena@mvista.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       marcelo.tosatti@cyclades.com.br
+Subject: Re: [PATCH] Fix %x parsing in vsscanf()
+Message-ID: <20030923222632.GO7665@parcelfarce.linux.theplanet.co.uk>
+References: <20030923212207.GA25234@xanadu.az.mvista.com> <Pine.LNX.4.44.0309231421450.24527-100000@home.osdl.org> <20030923213533.GN7665@parcelfarce.linux.theplanet.co.uk> <20030923221611.GA25464@xanadu.az.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030923202554.GA5485@kroah.com>; from greg@kroah.com on Tue, Sep 23, 2003 at 01:25:54PM -0700
+In-Reply-To: <20030923221611.GA25464@xanadu.az.mvista.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH (greg@kroah.com) wrote:
-> Don't know, Vojtech said he would fix these up already.  Try asking him
-> :)
+On Tue, Sep 23, 2003 at 03:16:11PM -0700, Deepak Saxena wrote:
+>  {
+>  	unsigned long result = 0,value;
+>  
+> +	if ((base == 16) && (cp[0] == '0' && (cp[1] == 'x' || cp[1] == 'X')))
+> +		cp += 2;
+>  	if (!base) {
+>  		base = 10;
+>  		if (*cp == '0') {
 
-I checked with Vojtech, he said the patch looked OK.  Can you apply?
+Not quite right.
+	a) on "0xZ" correct reaction is to eat '0' and stop.
+	b) while we are at it, might as well fix the case of 0X<...> with
+base 0.
 
-thanks,
--chris
+The following, AFAICS, would be correct:
 
-===== drivers/usb/class/usb-midi.c 1.22 vs edited =====
---- 1.22/drivers/usb/class/usb-midi.c	Tue Sep  2 11:40:27 2003
-+++ edited/drivers/usb/class/usb-midi.c	Tue Sep 23 11:36:03 2003
-@@ -1750,7 +1750,7 @@
- 	return 0;
- 
-  error_end:
--	if ( mdevs != NULL && devices > 0 ) {
-+	if ( mdevs != NULL ) {
- 		for ( i=0 ; i<devices ; i++ ) {
- 			if ( mdevs[i] != NULL ) {
- 				unregister_sound_midi( mdevs[i]->dev_midi );
+        if (*cp == '0') {
+                cp++;
+                if (unlikely((*cp == 'x' || *cp == 'X') && isxdigit(cp[1]))) {
+                        if (!base || base == 16) {
+                                cp++;
+                                base = 16;
+                        }
+                } else if (!base)
+                        base = 8;
+        } else if (!base)
+                base = 10;
+

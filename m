@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264037AbUDFWZW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 18:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264040AbUDFWZV
+	id S264048AbUDFW3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 18:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264049AbUDFW3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 18:25:21 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:526 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S264037AbUDFWZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 18:25:16 -0400
-Message-ID: <40733332.9040205@techsource.com>
-Date: Tue, 06 Apr 2004 18:46:10 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-CC: Valdis.Kletnieks@vt.edu, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel stack challenge
-References: <20040406213827.35076.qmail@web40509.mail.yahoo.com>
-In-Reply-To: <20040406213827.35076.qmail@web40509.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Apr 2004 18:29:25 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:29201 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S264048AbUDFW3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 18:29:23 -0400
+Date: Wed, 7 Apr 2004 02:29:22 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Stefan Wanner <stefan.wanner@postmail.ch>
+Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc3: Parse error in traps.c on Alpha
+Message-ID: <20040407022922.A841@den.park.msu.ru>
+References: <3B75AEAB-8807-11D8-A1B6-000393C43976@postmail.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B75AEAB-8807-11D8-A1B6-000393C43976@postmail.ch>; from stefan.wanner@postmail.ch on Tue, Apr 06, 2004 at 10:16:05PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 06, 2004 at 10:16:05PM +0200, Stefan Wanner wrote:
+> I still have this problem in 2.6.5
+...
+> > arch/alpha/kernel/traps.c: In function `opDEC_check':
+> > arch/alpha/kernel/traps.c:55: parse error before `['
+...
+> > gcc version 2.95.4 20011002 (Debian prerelease)
 
+This can be compiled only with gcc version >= 3.1.
 
-Sergiy Lozovsky wrote:
+Richard, should we explicitly state the minimal gcc
+version requirement for 2.6 on Alpha somewhere,
+or just change the opDEC inline asm to use older syntax?
+To me, both ways look acceptable.
 
-> It's misunderstanding. There are no any recursion
-> restrictions. Author of particular security model
-> (LISP program) should avoid recursions; it's not very
-> hard actually. When we write program at language other
-> than LISP - we rarely use recursion. Yes, it's against
-> LISP style, but not a big problem.
-
-If you are going to throw away the most basic and fundamental feature of 
-LISP for this..... why use LISP?
-
+Ivan.

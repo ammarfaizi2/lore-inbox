@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265745AbTIJVcG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 17:32:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265751AbTIJVcG
+	id S265863AbTIJWED (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 18:04:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265864AbTIJWED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 17:32:06 -0400
-Received: from lidskialf.net ([62.3.233.115]:9948 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S265745AbTIJVcD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 17:32:03 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: jbarnes@sgi.com (Jesse Barnes)
-Subject: Re: [PATCH] deal with lack of acpi prt entries gracefully
-Date: Wed, 10 Sep 2003 22:30:29 +0100
-User-Agent: KMail/1.5.3
-Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org
-References: <20030909201310.GB6949@sgi.com> <200309092238.27112.adq_dvb@lidskialf.net> <20030909220142.GA7668@sgi.com>
-In-Reply-To: <20030909220142.GA7668@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Sep 2003 18:04:03 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15103 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265863AbTIJWEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 18:04:00 -0400
+Date: Thu, 11 Sep 2003 00:03:43 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test4-mm5 and below: Wine and XMMS problems
+Message-ID: <20030910220343.GS27368@fs.tum.de>
+References: <20030902231812.03fae13f.akpm@osdl.org> <20030907100843.GM14436@fs.tum.de> <3F5B0AD2.3000706@cyberone.com.au> <20030908230820.GG14800@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309102230.29794.adq_dvb@lidskialf.net>
+In-Reply-To: <20030908230820.GG14800@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 Sep 2003 11:01 pm, Jesse Barnes wrote:
-> On Tue, Sep 09, 2003 at 10:38:26PM +0100, Andrew de Quincey wrote:
-> > On Tuesday 09 September 2003 22:17, Jesse Barnes wrote:
-> > > On Tue, Sep 09, 2003 at 09:43:58PM +0100, Andrew de Quincey wrote:
-> > > > On Tuesday 09 September 2003 21:13, Jesse Barnes wrote:
-> > > > > Instead of going into an infinite loop because the list isn't setup
-> > > > > yet, just return NULL if there are no prt entries.
-> > > >
-> > > > Ah, this is a patch against the vanilla kernel.. This is
-> > > > unfortunately incompatible with my recent ACPI patches.
-> > >
-> > > Maybe you could include it in your patch then?  I noticed that your
-> > > patch changes some of the IRQ routing code...
-> >
-> > I'm not sure it is still needed or not. The patch makes a lot of changes
-> > as to how the acpi_prt list is generated. What triggers the problem
-> > exactly, so I can test?
->
-> An SGI Altix system that only supports part of the ACPI spec :).  Our
-> PROM currently doesn't generate any MADT entries other than CPUs (I'm
-> not even sure how we could add them since we use our own interrupt
-> controller, not an IOAPIC or IOSAPIC) and lacks an ACPI namespace, so
-> we're missing all sorts of stuff.
+On Tue, Sep 09, 2003 at 01:08:20AM +0200, Adrian Bunk wrote:
+> On Sun, Sep 07, 2003 at 08:39:14PM +1000, Nick Piggin wrote:
+> > 
+> > Hi Adrian,
+> 
+> Hi Nick,
+> 
+> > It would be great if you could test the latest mm kernel (mm6 as of now
+> > I think), which has Con's latest stuff in it. You could also test my
+> > newest scheduler patch. Thanks for the feedback.
+> 
+> I didn't check -mm6 (I had a different problem with -mm6 and not that 
+> much time).
+> 
+> I tried plain test4 with your sched-rollup-v14 and I got these awful
+> slower sound like when wou manually retard a record.
 
-So, exactly as your patch did, you just want it to drop back if there were no 
-PCI routing entries found by ACPI... sounds sensible enough.
+More data:
+I tried test5 and test5-mm1.
 
-Can you confirm I have this right?
+Both produced this awful slower sound like when wou manually retard a 
+record, although my subjective impression was that it happens fewer than 
+with test4 with your sched-rollup-v14.
+
+2.5.72 is still better than all recent kernels I've tested...  :-(
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

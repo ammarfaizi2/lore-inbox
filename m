@@ -1,102 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270650AbUJUK4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270670AbUJUK4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270650AbUJUK4p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 06:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270664AbUJUKym
+	id S270670AbUJUK4o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 06:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270675AbUJUKyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 06:54:42 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:54452 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S270676AbUJUKxH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 06:53:07 -0400
-Message-ID: <4177950A.6090404@in.ibm.com>
-Date: Thu, 21 Oct 2004 16:22:58 +0530
-From: Hariprasad Nellitheertha <hari@in.ibm.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Thu, 21 Oct 2004 06:54:47 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:63911 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S270670AbUJUKvn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 06:51:43 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Vara Prasad <varap@us.ibm.com>
-Subject: Re: [PATCH][4/4] kexec based dump: Minor cleanups
-References: <417792BA.8090205@in.ibm.com> <41779345.8080009@in.ibm.com> <41779431.5090104@in.ibm.com> <417794AC.8060604@in.ibm.com>
-In-Reply-To: <417794AC.8060604@in.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------090503060505020803090909"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16759.38054.944944.610417@alkaid.it.uu.se>
+Date: Thu, 21 Oct 2004 12:51:18 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, andrea@novell.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
+In-Reply-To: <20041020213622.77afdd4a.akpm@osdl.org>
+References: <20041021011714.GQ24619@dualathlon.random>
+	<417728B0.3070006@yahoo.com.au>
+	<20041020213622.77afdd4a.akpm@osdl.org>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090503060505020803090909
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Andrew Morton writes:
+ > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+ > >
+ > > >  #if defined(CONFIG_SMP)
+ > >  >  struct zone_padding {
+ > >  > -	int x;
+ > >  >  } ____cacheline_maxaligned_in_smp;
+ > >  >  #define ZONE_PADDING(name)	struct zone_padding name;
+ > >  >  #else
+ > > 
+ > >  Perhaps to keep old compilers working? Not sure.
+ > 
+ > gcc-2.95 is OK with it.
 
-This patch moves some crashdump related calls out of 
-machine_kexec so that we leave the core kexec code untouched.
-
-Regards, Hari
-
---------------090503060505020803090909
-Content-Type: text/plain;
- name="kd-cleanup.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kd-cleanup.patch"
-
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
-Signed-off-by: Hariprasad Nellitheertha <hari@in.ibm.com>
----
-
- linux-2.6.9-rc4-hari/arch/i386/kernel/machine_kexec.c |   10 ----------
- linux-2.6.9-rc4-hari/kernel/crash.c                   |    9 +++++++++
- 2 files changed, 9 insertions(+), 10 deletions(-)
-
-diff -puN arch/i386/kernel/machine_kexec.c~kd-cleanup arch/i386/kernel/machine_kexec.c
---- linux-2.6.9-rc4/arch/i386/kernel/machine_kexec.c~kd-cleanup	2004-10-21 15:11:05.000000000 +0530
-+++ linux-2.6.9-rc4-hari/arch/i386/kernel/machine_kexec.c	2004-10-21 15:11:05.000000000 +0530
-@@ -195,9 +195,6 @@ void machine_kexec(struct kimage *image)
- 	unsigned long reboot_code_buffer;
- 	relocate_new_kernel_t rnk;
- 
--	crash_dump_stop_cpus();
--	crash_dump_save_registers();
--
- 	/* Interrupts aren't acceptable while we reboot */
- 	local_irq_disable();
- 
-@@ -208,13 +205,6 @@ void machine_kexec(struct kimage *image)
- 	/* Set up an identity mapping for the reboot_code_buffer */
- 	identity_map_page(reboot_code_buffer);
- 
--	/*
--	 * If we are here to do a crash dump, save the memory from
--	 * 0-640k before we copy over the kexec kernel image.  Otherwise
--	 * our dump will show the wrong kernel entirely.
--	 */
--	crash_relocate_mem();
--
- 	/* copy it out */
- 	memcpy((void *)reboot_code_buffer, relocate_new_kernel, relocate_new_kernel_size);
- 
-diff -puN kernel/crash.c~kd-cleanup kernel/crash.c
---- linux-2.6.9-rc4/kernel/crash.c~kd-cleanup	2004-10-21 15:11:05.000000000 +0530
-+++ linux-2.6.9-rc4-hari/kernel/crash.c	2004-10-21 15:11:05.000000000 +0530
-@@ -71,6 +71,15 @@ void __crash_machine_kexec(void)
- 	if (image) {
- 		crashed = 1;
- 		printk(KERN_EMERG "kexec: opening parachute\n");
-+		crash_dump_stop_cpus();
-+		crash_dump_save_registers();
-+
-+         /* If we are here to do a crash dump, save the memory from
-+          * 0-640k before we copy over the kexec kernel image.  Otherwise
-+          * our dump will show the wrong kernel entirely.
-+          */
-+        	crash_relocate_mem();
-+
- 		machine_kexec(image);
- 	} else {
- 		printk(KERN_EMERG "kexec: No kernel image loaded!\n");
-_
-
---------------090503060505020803090909--
+Have you verified that? GCCs up to and including 2.95.3 and
+early versions of 2.96 miscompiled the kernel when spinlocks
+where empty structs on UP. I.e., you might not get a compile-time
+error but runtime corruption instead.

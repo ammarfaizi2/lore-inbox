@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264702AbSKDPFT>; Mon, 4 Nov 2002 10:05:19 -0500
+	id <S264698AbSKDPBU>; Mon, 4 Nov 2002 10:01:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264701AbSKDPFT>; Mon, 4 Nov 2002 10:05:19 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:29840 "EHLO
+	id <S264699AbSKDPBU>; Mon, 4 Nov 2002 10:01:20 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:27280 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264699AbSKDPFT>; Mon, 4 Nov 2002 10:05:19 -0500
-Subject: Re: Filesystem Capabilities in 2.6?
+	id <S264698AbSKDPBT>; Mon, 4 Nov 2002 10:01:19 -0500
+Subject: Re: [lkcd-general] Re: What's left over.
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, davej@suse.de
-In-Reply-To: <20021104145049.GC9197@think.thunk.org>
-References: <87y98bxygd.fsf@goat.bogus.local>
-	<Pine.LNX.4.44.0211021754180.2300-100000@home.transmeta.com>
-	<20021104024910.GA14849@ravel.coda.cs.cmu.edu> 
-	<20021104145049.GC9197@think.thunk.org>
+To: hps@intermeta.de
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <aq616a$9da$1@forge.intermeta.de>
+References: <Pine.LNX.3.96.1021103082813.5197A-100000@gatekeeper.tmr.com>
+	<3DC5DF14.34483A96@compuserve.com>  <aq616a$9da$1@forge.intermeta.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Nov 2002 15:33:25 +0000
-Message-Id: <1036424005.1113.73.camel@irongate.swansea.linux.org.uk>
+Date: 04 Nov 2002 15:29:35 +0000
+Message-Id: <1036423775.1113.71.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-04 at 14:50, Theodore Ts'o wrote:
-> This sounds like the right way to go.  I do hope the configuration
-> file includes an SHA checksum of the secutable.  And to avoid race
-> conditions, there really ought to be a new system call, fexecve(2)
-> which takes an open file descriptor instead of a pathname.
-> (Unfortunately, we're in feature freeze now, so that will have to wait
-> until 2.7.)
+On Mon, 2002-11-04 at 14:45, Henning P. Schmiedehausen wrote:
+> Good! This means, people debugging the code have actually to think and
+> don't produce "turn on debugger, step here, there, patch a band aid,
 
-execve /proc/self/fd/n ???
+Some of us debug hardware. Regardless of the nice theories about
+reviewing your code they don't actually work on hardware because no
+amount of code review will let you discover things like undocumented 
+2uS deskew delays, or errors in DMA engines
 
 

@@ -1,95 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282684AbRK0Aoe>; Mon, 26 Nov 2001 19:44:34 -0500
+	id <S282685AbRK0Ap0>; Mon, 26 Nov 2001 19:45:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282686AbRK0AoO>; Mon, 26 Nov 2001 19:44:14 -0500
-Received: from femail42.sdc1.sfba.home.com ([24.254.60.36]:3576 "EHLO
-	femail42.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S282689AbRK0AoF>; Mon, 26 Nov 2001 19:44:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, landley@trommello.org
-Subject: Re: [RFC] 2.5/2.6/2.7 transition [was Re: Linux 2.4.16-pre1]
-Date: Mon, 26 Nov 2001 16:42:58 -0500
-X-Mailer: KMail [version 1.2]
-Cc: torvalds@transmeta.com (Linus Torvalds), mfedyk@matchmail.com (Mike Fedyk),
-        skraw@ithnet.com (Stephan von Krawczynski),
-        kubla@sciobyte.de (Dominik Kubla), marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E168Szh-0006un-00@the-village.bc.nu>
-In-Reply-To: <E168Szh-0006un-00@the-village.bc.nu>
+	id <S282686AbRK0ApP>; Mon, 26 Nov 2001 19:45:15 -0500
+Received: from host113.south.iit.edu ([216.47.130.113]:48257 "EHLO
+	lostlogicx.com") by vger.kernel.org with ESMTP id <S282685AbRK0ApH>;
+	Mon, 26 Nov 2001 19:45:07 -0500
+Message-ID: <3C02E1F8.8090407@lostlogicx.com>
+Date: Mon, 26 Nov 2001 18:44:40 -0600
+From: Lost Logic <lostlogic@lostlogicx.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Message-Id: <0111261642580L.02001@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+To: "Nathan G. Grennan" <ngrennan@okcforum.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Unresponiveness of 2.4.16
+In-Reply-To: <1006812135.1420.0.camel@cygnusx-1.okcforum.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 November 2001 16:08, Alan Cox wrote:
-> > I submit that if the stable tree hasn't calmed down after three or four
-> > months, opening a development branch may in fact HELP the situation, and
-> > stabilize things faster.  You need to vent the patch pressure.
+I'm running 2.4.16 with 2 IDE UDMA mode 4 drives, and I have experienced 
+no such pausing no matter what I do.  (which usually includes patching, 
+extracting, and generally messing with kernels from Eterm with XMMS 
+playing, and a couple mozillas open)
+
+Nathan G. Grennan wrote:
+
+>2.4.16 becomes very unresponsive for 30 seconds or so at a time during
+>large unarchiving of tarballs, like tar -zxf mozilla-src.tar.gz. The
+>file is about 36mb. I run top in one window, run free repeatedly in
+>another window and run the tar -zxf in a third window. I had many
+>suspects, but still not sure what it is. I have tried
 >
-> I'd tend to agree there. The new VM would have gone into 2.5.x and then
-> back into 2.4
+>ext2 vs ext3
+>preemptive vs non-preemptive
+>tainted vs non-tainted
 >
-> In terms of release cycles there is a better method, that is simply to
-> codify what already happens. In truth we have yearly major releases
-
-I also can't think of a distribution that doesn't have at least a yearly 
-major release cycle.
-
-I suspect part of the reason for the long gap between stabilizations is that 
-Linus hates maintenance.  Of course it's like visiting the dentist: the 
-longer it takes the bigger a deal it is...
-
-> We went
+>Nothing seems to help 2.4.16.
 >
-> 	1.2
-> 	1.3.59
-> 	2.0
-> 	2.0.30
-> 	2.2
-> 	2.2.14-18 merge cycle
-> 	2.4
+>I tried switching to Redhat's 2.4.9-13 kernel and it acts Alot better.
+>Not only does 2.4.9-13 not get the 30 second delay, but it also seems to
+>take advantage of caching. 2.4.16 takes the same moment of time each
+>time, even tho it should have cached it all into memory the first time.
+>2.4.9-13 takes a while the first time(without the 30 second new process
+>freezing), but then takes almost no time the times after that. One
+>interesting thing I noticed is that with and without preemptive a
+>already started mp3 playing had no disruption even during the 30 second
+>windows where any new commands would get stuck with 2.4.16. I am not
+>using custom
 >
-> What we possibly should do is admit the backport phases (2.0.30/2.2.14/...)
-> do in fact occur and go
+>I plan to do more testing to see how say 2.4.9, 2.4.13ac7, etc. 
 >
-> 	2.5
-> 	2.5 seems kind of solid at some random point but not finished
-> 	2.6 (2.4 + 2.5 and useful bit driver backport)
-> 	2.7 (continued 2.5)
-> 	2.8 (actual release containing the grand changes 2.5 started)
+>Any ideas of how to fix this for 2.4.16?
+>
+>I have attached my .config.
+>
+>My system:
+>
+>Redhat 7.2 with all updates
+>
+>Athlon Thunderbird 1.33ghz
+>768mb(512mb, 256mb) PC133 SDRAM
+>Abit KT7A-RAID v1.0(KT133A chipset)
+> Bios 64
+> HPT370(bios v1.2.0604)
+>   Primary Master   Quantum Fireball AS40.0
+>   Secondary Master IBM-DTLA-307045
+> VIA686B 
+>   Primary Master   CREATIVE DVD-ROM DVD6240E
+>   Secondary Master CR-2801TE
+>
 
-This gets back to the idea of "minor" development cycles (for example 2.5 
-already HAS enough pending patches for an entire development cycle) that take 
-6 months because we know what's going to go into them in the first month or 
-two, vs "major" anything-goes phases (3.0, which 2.2 probably should have 
-been...) that are a lot more experimental.  Right now, everything's a major 
-cycle.  Even though Linus has expressed a desire to do minor ones, it hasn't 
-happened yet.
 
-The thing is, with a 6 month development cycle that people BELIEVE will only 
-take 6 months, it's ok to say "hold off until the next time".  But asking 
-people to "hold it" for two years (even if they only THINK it will be two 
-years) doesn't work, they keep pushing to get it in and the patch pressure 
-stays high.  So it's a stable 2 state feedback loop: if you can do it you can 
-do it, and if you can't you can't.
-
-The "backport release" idea seems like a nice way to do the "short" cycle 
-ones.  And the interesting thing about that is Linus doesn't have to be 
-directly involved in these intermediate stabilizations: there could be 
-another maintainer he could just give his blessing to.  All they need is a 
-bit of holy penguin pee to make the number official, and the attention of 
-developers (like all those in Red Hat's employ) willing to spend their time 
-stabilizing rather than beating fresh trails into the jungle...
-
-A backport release really isn't THAT much different than large changes from 
-your tree being merged into Linus's tree.  Just a question of sequencing 
-(determining what depends on what), isolating, and porting...
-
-Just a thought...
-
-Rob

@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268438AbTBZAiY>; Tue, 25 Feb 2003 19:38:24 -0500
+	id <S268432AbTBZAiA>; Tue, 25 Feb 2003 19:38:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268449AbTBZAiY>; Tue, 25 Feb 2003 19:38:24 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:47118 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP
-	id <S268438AbTBZAiW>; Tue, 25 Feb 2003 19:38:22 -0500
-Message-ID: <3E5B9E23.6080303@cyclades.com>
-Date: Tue, 25 Feb 2003 16:47:31 +0000
-From: Henrique Gobbi <henrique2.gobbi@cyclades.com>
-Reply-To: henrique.gobbi@cyclades.com
-Organization: Cyclades Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: n_tty.c - possible enhancement
-References: <Pine.LNX.4.33.0301211141580.8730-100000@pcz-madhavis.sasken.com> <3E2CF0A1.5030203@ToughGuy.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S268438AbTBZAiA>; Tue, 25 Feb 2003 19:38:00 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:8964 "HELO
+	mesatop.zianet.com") by vger.kernel.org with SMTP
+	id <S268432AbTBZAh7>; Tue, 25 Feb 2003 19:37:59 -0500
+Subject: Re: Minutes from Feb 21 LSE Call
+From: Steven Cole <elenstev@mesatop.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Scott Robert Ladd <scott@coyotegulch.com>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E5BFF10.50105@namesys.com>
+References: <FKEAJLBKJCGBDJJIPJLJGEAGFAAA.scott@coyotegulch.com> 
+	<3E5BFF10.50105@namesys.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 25 Feb 2003 17:47:23 -0700
+Message-Id: <1046220445.7527.218.camel@spc1.mesatop.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all !!!
+cc list trimmed.
 
-I was having data loss problems using my serial ports at 115200 with 
-software flow control (I can't use hw flow control) and I ended up 
-figuring out that the problem was happening because of the small value 
-of the tty buffer high water mark (TTY_THRESHOLD_THROTTLE). Changing 
-that define value and recompiling the kernel was the only solution i 
-found to my problem.
+On Tue, 2003-02-25 at 16:41, Hans Reiser wrote:
+> Scott Robert Ladd wrote:
+> 
+> > But I honestly can't see how 8 processors can possibly make
+> >Abiword run "better."
+> >
+> They can't, but you know it was before 1980 that hardware exceeded what 
+> was really needed for email.  What happened then?  People needed more 
+> horsepower for wysiwyg editors, the new thing of that time.....
+> 
+> Now it is games that hardware is too slow for.  After games, maybe AI 
+> assistants?....  Will you be saying, "My AI doesn't have enough 
+> horsepower to run on, its databases are small and out of date, and it is 
+> providing me worse advice than my wealthy friends get, and providing it 
+> later."?  How much will you pay for a good AI to advise you?  (I really 
+> like my I-Nav GPS adviser in my mini-van.... money well spent....)
+> 
+[snippage]
+> 
+> It is interesting that games are the only compelling motivation for 
+> faster desktop hardware these days.  It may be part of why we are in a 
+> tech bust.  When AIs become hardware purchase drivers, there will likely 
+> be a boom again.
+> 
+> -- 
+> Hans
 
-The way this code is implemented today is bad. The water marks are hard 
-coded and the only way to change them is recompiling the kernel again, 
-and this is not a good solution for that. I want to change that.
+It's easy to say that people don't need a multiple Ghz processor to run
+most applications (games and AI aside) because it's true.  But human
+nature is such that people bought muscle cars with way more horsepower
+than needed in the 60's and 70's before environmental concerns
+intervened.  The current slowdown in PC purchases may be more due to a
+cyclical bear market than due to satiation of need.  When the economy
+turns around, and it always does, many people will opt for the $600 2.4
+Ghz P4 instead of the $200 1.1 Ghz Duron.  And not because they need it,
+but because of other factors.
 
-My idea is:
--------------------------------------------------------------------------
-1 - Create two new variables in the tty struct: high_watermark and 
-low_watermark;
+Now, fast forward five years.  If AMD is still around, Intel will be
+forced to offer ridiculously fast hardware just to stay in business.  My
+original point is that the Ghz race may be supplemented by a SMP/HT
+race, not because of need (AI and games may help provide an excuse), but
+because of greed and envy.  Never underestimate those last two.  And
+that SMP/HT race could have an important impact on future kernel design.
 
-2 - Initialize this variables with the values they have today: 128 and 128;
-
-3 - Create 4 ioctl's to set and get the values of this 2 variables;
-
-4 - Change the file n_tty.c. The line that has
-	if (n_tty_receive_room(tty) < TTY_THRESHOLD_THROTTLE) {
-     will have:
-	if (n_tty_receive_room(tty) < tty->high_watermark) {
-
-     and the same thing will be done for the low watermark
--------------------------------------------------------------------------
-
-I would appreciate any comment on this matter. If you guys don't see any 
-problem on this I will commit a patch as soon as possible
-
-later
-Henrique
+Steven (Looking forward to his 2.4 Ghz P4 which will compile a 2.5
+kernel faster than the 15 minutes it takes his 450 Mhz PIII today,
+especially with Reiser4 patched in.;) )
 

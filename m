@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278890AbRJVUgU>; Mon, 22 Oct 2001 16:36:20 -0400
+	id <S278897AbRJVUjK>; Mon, 22 Oct 2001 16:39:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278883AbRJVUgM>; Mon, 22 Oct 2001 16:36:12 -0400
-Received: from t2.redhat.com ([199.183.24.243]:27642 "EHLO
-	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
-	id <S278890AbRJVUfw>; Mon, 22 Oct 2001 16:35:52 -0400
-Date: Mon, 22 Oct 2001 15:37:06 -0500
-From: Tommy Reynolds <reynolds@redhat.com>
-To: "Torrey Hoffman" <torrey.hoffman@myrio.com>
-Cc: gkade@bigbrother.net, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-Message-Id: <20011022153706.15657cab.reynolds@redhat.com>
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CA7C@mail0.myrio.com>
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CA7C@mail0.myrio.com>
-Organization: Red Hat Software, Inc. / Embedded Development
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.9; )
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S278895AbRJVUjB>; Mon, 22 Oct 2001 16:39:01 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63502 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278892AbRJVUis>; Mon, 22 Oct 2001 16:38:48 -0400
+Subject: Re: [PATCH] gcc 3.0.1 warnings about multi-line literals
+To: bcrl@redhat.com (Benjamin LaHaise)
+Date: Mon, 22 Oct 2001 21:45:36 +0100 (BST)
+Cc: hawkes@oss.sgi.com (John Hawkes), linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+In-Reply-To: <20011022161527.K23213@redhat.com> from "Benjamin LaHaise" at Oct 22, 2001 04:15:27 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15vlx2-0003HO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It was a dark and stormy night.  Suddenly "Torrey Hoffman" <torrey.hoffman@myrio.com> spoke:
-
-> Gregory Ade ranted, and I couldn't resist replying:
->   
-> > So, then, just to satisfy my curiosity, how long until users 
-> > of Linux in
-> > the U.S.A. will no longer be allowed to download new kernels?
+> On Mon, Oct 22, 2001 at 01:05:10PM -0700, John Hawkes wrote:
+> > This patch eliminates gcc 3.0.1 warnings, "multi-line string literals are
+> > deprecated", in two include/asm-i386 files.  Patches cleanly for at least
+> > 2.4.10 and 2.4.12, and tested in 2.4.10.
 > 
-> If (hopefully not when!) the SSSCA passes.  Personally, I'm making 
-> plans to get out of the US if that happens.
+> Please reject this patch.  The gcc folks are wrong in this case.
 
-Ah, but would you be allowed to leave if you possess any security knowlege?
+Im curious - why do you make that specific claim. The multiline literals are
+rather ugly.
 
----------------------------------------------+-----------------------------
-Tommy Reynolds                               | mailto: <reynolds@redhat.com>
-Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
-307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.236.837.3839
-Senior Software Developer                    | Mobile: +1.919.641.2923
+Alan

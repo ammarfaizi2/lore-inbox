@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292931AbSBVRFH>; Fri, 22 Feb 2002 12:05:07 -0500
+	id <S292934AbSBVRI5>; Fri, 22 Feb 2002 12:08:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292934AbSBVREr>; Fri, 22 Feb 2002 12:04:47 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:15122 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S292931AbSBVREk>;
-	Fri, 22 Feb 2002 12:04:40 -0500
-Date: Fri, 22 Feb 2002 18:04:29 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
-Cc: fernando@quatro.com.br, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
-Message-Id: <20020222180429.313bd377.skraw@ithnet.com>
-In-Reply-To: <20020222164558.GE13774@os.inf.tu-dresden.de>
-In-Reply-To: <20020220104129.GP13774@os.inf.tu-dresden.de>
-	<051a01c1bb01$70634580$c50016ac@spps.com.br>
-	<20020221211142.0cf0efa4.skraw@ithnet.com>
-	<20020222130246.GD13774@os.inf.tu-dresden.de>
-	<20020222141101.0cc342e1.skraw@ithnet.com>
-	<20020222164558.GE13774@os.inf.tu-dresden.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S292935AbSBVRIr>; Fri, 22 Feb 2002 12:08:47 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11524 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S292934AbSBVRIa>; Fri, 22 Feb 2002 12:08:30 -0500
+Date: Fri, 22 Feb 2002 09:06:49 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Andre Hedrick <andre@linuxdiskcert.org>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flash Back -- kernel 2.1.111
+In-Reply-To: <Pine.LNX.4.33L.0202220706540.7820-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.33.0202220901470.6365-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Feb 2002 17:45:58 +0100
-Adam Lackorzynski <adam@os.inf.tu-dresden.de> wrote:
 
-> On Fri Feb 22, 2002 at 14:11:01 +0100, Stephan von Krawczynski wrote:
-> > > > I compile my kernel (2.4.18-rc2) with the attached config. Please try
-> > > > it and tell your results. I can assure you that this machine runs rock
-> > > > solid over here for months.
-> > > 
-> > > No luck here. Hangs during boot (tried with 2.4.18-rc2-ac2).
-> > 
-> > Please start from a setup as close to mine as possible. That is 2.4.18-rc2.
-> > In setup switch MPS 1.4 support to disable and Power Management to disable.
-> 
-> No luck, even with completely switched off PM. "noapic" works. I
-> attached the stripped down config. It mostly hangs while setting up the
-> second CPU.
 
-Your config is not identical to the one I sent. If you want to find out what the problem is, you must first try to produce a setup that is known good. So simply use my config, even if it contains stuff you don't need, and especially if it does not contain stuff you want.
-Your primary goal is: let the box boot.
-Your secondary goal is: add your original options to my config one by one - means: add one, test it, add next.
-Somewhere in between it is expected to break. Then you probably located the reason with the last option you added.
+On Fri, 22 Feb 2002, Rik van Riel wrote:
+>
+> Martin,
+>
+> please tell us up-front if you are able to make Linux work
+> with 48-bit IDE stuff so Linux is able to talk to drives
+> larger than 137 GB.
+>
+> If you're not, please stop pissing off Andre and work
+> together with him ...
 
-> > > I even updated the BIOS from 1010 to 1014 as well (just in case). What
-> > > BIOS version are you running? And at how many MHz are the CPUs?
-> > 
-> > I use BIOS 1010, 2 x P3 1 GHz and tried RAM from 512MB to 2GB.
-> > Currently installed are 2GB being 2 x 1GB registered DIMM.
-> 
-> 2x 933, RAM is 960MB.
+Rik, get off the high horse.
 
-I have several of those boards in production environment, one of those is exactly like yours (1GB RAM and 2 x PIII(933)). All of them work flawlessly. There is a chance it is related to my configs.
+2.5.x already supports 48-bit LBA addressing.
 
-Regards,
-Stephan
+And quite frankly, it's not Martin who cannot work with Andre, it's Andre
+who so far has shown himself _totally_ unable to work with anybody at all.
+
+Whenever somebody comes and even tries to do trivial and obviously correct
+cleanups that do not actually change any semantics at all, Andre stands
+out and shouts bloody murder from the rooftops, completely ignoring the
+fact that he hasn't even looked at the patches.
+
+All the crap Andre has shouted about "IDE mess" and "timing changes" is
+total and utter CRAP. None of the patches I've seen has changed _anything_
+but cleanups, or removed _any_ features.
+
+Guys, you need to realize that Martin is NOT the bad guy here. The problem
+is not Martin, the problem is that Andre cannot take any level or
+criticism, and in the five years or so that he has been maintainer I have
+yet to see a _single_ person who has been able to work together with him
+(as opposed to some people who have been able to maintain their own
+subdrivers _despite_ him).
+
+Andre, your threats about not wanting to maintain 2.5.x are just a symptom
+of this inability to accept the fact that other people actually do know
+what they are doing, even if what they are doing is only cleanups with no
+semantic changes.
+
+Rik, _look_ at the patches, instead of just taking Andre's word for it.
+
+			Linus
 

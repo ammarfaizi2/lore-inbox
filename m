@@ -1,61 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbUJYFyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbUJYF4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbUJYFyL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 01:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbUJYFyL
+	id S261456AbUJYF4a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 01:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbUJYF43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 01:54:11 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:50058 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id S261461AbUJYFyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 01:54:07 -0400
-Date: Sun, 24 Oct 2004 22:53:38 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: jonathan@jonmasters.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>
-Subject: Re: How is user space notified of CPU speed changes?
-Message-ID: <20041025055338.GG27633@ca-server1.us.oracle.com>
-Mail-Followup-To: jonathan@jonmasters.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Lee Revell <rlrevell@joe-job.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Robert Love <rml@novell.com>
-References: <1098399709.4131.23.camel@krustophenia.net> <1098444170.19459.7.camel@localhost.localdomain> <1098508238.13176.17.camel@krustophenia.net> <1098566366.24804.8.camel@localhost.localdomain> <35fb2e590410231635616f10c9@mail.gmail.com>
+	Mon, 25 Oct 2004 01:56:29 -0400
+Received: from ozlabs.org ([203.10.76.45]:13445 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261456AbUJYF4Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 01:56:16 -0400
+Subject: Re: [RFC/PATCH] Per-device parameter support (13/16)
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Tejun Heo <tj@home-tj.org>
+Cc: mochel@osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041023043138.GN3456@home-tj.org>
+References: <20041023043138.GN3456@home-tj.org>
+Content-Type: text/plain
+Date: Mon, 25 Oct 2004 15:56:13 +1000
+Message-Id: <1098683773.8098.43.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <35fb2e590410231635616f10c9@mail.gmail.com>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 24, 2004 at 12:35:46AM +0100, Jon Masters wrote:
-> Out of sheer interest, you said you had an example box which did this.
-> I've never actually seen a modern SMP setup with different cock
-> frequencies (even accepting it's possible) - can you give me a more
-> modern example? I'm sure they're out there, I've just missed it, and I
-> have to confess to not being aware that Linux supported this kind of
-> setup.
+On Sat, 2004-10-23 at 13:31 +0900, Tejun Heo wrote:
+>  dp_13_devparam.diff
+> 
+>  This is the 13rd patch of 16 patches for devparam.
+> 
+>  This patch adds needed data fields to module and device structures
+> and actually implements devparam.  This patch doesn't hook devparam
+> into the driver model it's done in the next patch.
 
-	I have a dual celeron with a 433 CPU and a 466 CPU in the slots.
-It works, as long as you don't rely on TSC synchronicity.  Also, IBM
-x440 boxes don't sync the TSCs between each group of 4 CPUs (that is,
-each group of 4 is synced internally, but different from each other
-group of 4).
+> +int devparam_unknown_modparam(char *name, char *val, void *arg)
+> +{
+> +	struct module *mod = arg;
+> +	char **param;
+> +
+> +	param = vector_elem(&mod->param_vec, vector_len(&mod->param_vec),
+> +			    GFP_KERNEL);
+> +
+> +	if (param == NULL) {
+> +		printk(KERN_ERR
+> +		       "Device params: Insufficient memory for `%s'\n", name);
+> +		return -ENOMEM;
+> +	}
+> +
+> +	param[0] = name;
+> +	param[1] = val;
+> +
+> +	return 0;
+> +}
+> +
+> +void devparam_module_done(struct module *mod)
+> +{
+> +	struct vector *vec = &mod->param_vec;
+> +	int i;
+> +
+> +	for (i = 0; i < vector_len(vec); i++) {
+> +		char **param = vector_elem(vec, i, 0);
+> +		if (param[0])
+> +			printk(KERN_ERR
+> +			       "Device params: Unknown parameter `%s'\n",
+> +			       param[0]);
+> +	}
+> +	
+> +	vector_destroy(vec);
+> +}
 
-Joel
+That seems a strange place to warn...  Is that right?
 
+> +
+> +	/* Module parameter vector, used by deviceparam */
+> +	struct vector param_vec;
+
+I don't mind the addition of your vector type, but adding infrastructure
+always results in arguments.  Can you think of another place which needs
+it?
+
+Rusty.
 -- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
-"Vote early and vote often." 
-        - Al Capone
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

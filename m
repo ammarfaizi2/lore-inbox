@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267656AbTACUgo>; Fri, 3 Jan 2003 15:36:44 -0500
+	id <S267655AbTACUqW>; Fri, 3 Jan 2003 15:46:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267657AbTACUgo>; Fri, 3 Jan 2003 15:36:44 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:41358 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S267656AbTACUgn>;
-	Fri, 3 Jan 2003 15:36:43 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Meelis Roos <mroos@linux.ee>
-Date: Fri, 3 Jan 2003 21:45:05 +0100
+	id <S267657AbTACUqW>; Fri, 3 Jan 2003 15:46:22 -0500
+Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:16492 "EHLO
+	mailout5-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S267655AbTACUqV> convert rfc822-to-8bit; Fri, 3 Jan 2003 15:46:21 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Stephen Evanchik <evanchsa@clarkson.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5.54] UPDATE hermes: serialization fixes
+Date: Fri, 3 Jan 2003 15:50:55 -0500
+User-Agent: KMail/1.4.1
+Cc: hermes@gibson.dropbear.id.au
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.4.21-pre2+bk: matroxfb compile broken
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-X-mailer: Pegasus Mail v3.50
-Message-ID: <C349ADE6470@vcnet.vc.cvut.cz>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200301031550.55590.evanchsa@clarkson.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  3 Jan 03 at 22:18, Meelis Roos wrote:
-> matroxfb_base.c: In function `matroxfb_ioctl':
-> matroxfb_base.c:1231: `MATROXFB_TVOQUERYCTRL' undeclared (first use in this function)
-> matroxfb_base.c:1231: (Each undeclared identifier is reported only once
-> matroxfb_base.c:1231: for each function it appears in.)
-> matroxfb_base.c:1233: storage size of `qctrl' isn't known
-> matroxfb_base.c:1233: warning: unused variable `qctrl'
-> matroxfb_base.c:1253: `MATROXFB_G_TVOCTRL' undeclared (first use in this function)
-> matroxfb_base.c:1255: storage size of `ctrl' isn't known
-> matroxfb_base.c:1255: warning: unused variable `ctrl'
-> matroxfb_base.c:1275: `MATROXFB_S_TVOCTRL' undeclared (first use in this function)
-> matroxfb_base.c:1277: storage size of `ctrl' isn't known
-> matroxfb_base.c:1277: warning: unused variable `ctrl'
-> 
-> This is current BK on x86, matroxfb as module.
+This fixes "Error -110 writing Tx descriptor to BAP" bug as referenced in David Gibson's README.
 
-Probably patch to include/linux/matroxfb.h was missed by Marcelo
-(or Alan). Try using include/linux/matroxfb.h from 2.4.20-ac2.
-                                        Best regards,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+As per a suggestion, I've moved the spin_lock/unlock to hermes_bap_seek(). I'm currently running with
+this module and it's working nicely. 
+
+As always, any comments are appreciated. Patches can be always downloaded from here:
+
+http://www.clarkson.edu/~evanchsa/software/kernel/patches
+
+Stephen Evanchik
+
+
+--- linux-2.5.54/drivers/net/wireless/hermes.h	2003-01-01 22:21:02.000000000 -0500
++++ linux-2.5.54-devel/drivers/net/wireless/hermes.h	2003-01-03 15:32:33.000000000 -0500
+@@ -288,6 +288,9 @@
+ 
+ 	u16 inten; /* Which interrupts should be enabled? */
+ 
++	/* Lock used in hermes_bap_seek */
++	spinlock_t baplock;
++
+ #ifdef HERMES_DEBUG_BUFFER
+ 	struct hermes_debug_entry dbuf[HERMES_DEBUG_BUFSIZE];
+ 	unsigned long dbufp;
+--- linux-2.5.54/drivers/net/wireless/hermes.c	2003-01-01 22:21:13.000000000 -0500
++++ linux-2.5.54-devel/drivers/net/wireless/hermes.c	2003-01-03 15:34:23.000000000 -0500
+@@ -342,11 +342,15 @@
+ 	int oreg = bap ? HERMES_OFFSET1 : HERMES_OFFSET0;
+ 	int k;
+ 	u16 reg;
++	unsigned long flags;
+ 
+ 	/* Paranoia.. */
+ 	if ( (offset > HERMES_BAP_OFFSET_MAX) || (offset % 2) )
+ 		return -EINVAL;
+ 
++	/* Without it, network connection errors occur.. */
++	spin_lock_irqsave(&(hw->baplock), flags);
++
+ 	k = HERMES_BAP_BUSY_TIMEOUT;
+ 	reg = hermes_read_reg(hw, oreg);
+ 	while ((reg & HERMES_OFFSET_BUSY) && k) {
+@@ -368,6 +372,8 @@
+ 	}
+ #endif
+ 
++	spin_unlock_irqrestore(&(hw->baplock), flags);
++
+ 	if (reg & HERMES_OFFSET_BUSY)
+ 		return -ETIMEDOUT;
+ 
+

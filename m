@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVBXQac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVBXQeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVBXQac (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 11:30:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVBXQac
+	id S261708AbVBXQeR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 11:34:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVBXQeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 11:30:32 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:49564 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S261810AbVBXQaW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 11:30:22 -0500
-Message-ID: <421E011E.6030709@didntduck.org>
-Date: Thu, 24 Feb 2005 11:30:22 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
+	Thu, 24 Feb 2005 11:34:17 -0500
+Received: from math.ut.ee ([193.40.36.2]:60879 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261708AbVBXQeO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 11:34:14 -0500
+Date: Thu, 24 Feb 2005 18:34:03 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Sven Luther <sven.luther@wanadoo.fr>
+cc: Tom Rini <trini@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
+       Sven Hartge <hartge@ds9.gnuu.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christian Kujau <evil@g-house.de>
+Subject: Re: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII Utah)
+ PCI IRQ map
+In-Reply-To: <20050224160657.GB11197@pegasos>
+Message-ID: <Pine.SOC.4.61.0502241832510.21289@math.ut.ee>
+References: <20041206185416.GE7153@smtp.west.cox.net>
+ <Pine.SOC.4.61.0502221031230.6097@math.ut.ee> <20050224074728.GA31434@pegasos>
+ <Pine.SOC.4.61.0502241746450.21289@math.ut.ee> <20050224160657.GB11197@pegasos>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc5
-References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> Hey, I hoped -rc4 was the last one, but we had some laptop resource
-> conflicts, various ppc TLB flush issues, some possible stack overflows in
-> networking and a number of other details warranting a quick -rc5 before
-> the final 2.6.11.
-> 
-> This time it's really supposed to be a quickie, so people who can, please 
-> check it out, and we'll make the real 2.6.11 asap.
-> 
-> Mostly pretty small changes (the largest is a new SATA driver that crept
-> in, our bad). But worth another quick round.
-> 
-> 		Linus
-> 
-> ----
+> Oh, damn, need to fix my daily builder, should be ok for tomorrow. IN the
+> meanwhile, you can try :
+>
+>  http://people.debian.org/~luther/d-i/images/2005-02-23/powerpc/netboot/vmlinuz-prep.initrd
 
-It looks like the v2.6.11-rc5 tag is on the same revisions as 2.6.10. 
-patch-2.6.11-rc5 is an empty file, and patch-2.6.11-rc4-rc5 indicates 
-that 2.6.11-rc5 reverted to 2.6.10:
+This seems to work fine: onboard scsi is OK, pci nic with de4x5 is OK 
+too. Haven't got more PCI cards in there currently.
 
-diff -urN linux-2.6.11-rc4/Makefile linux-2.6.11-rc5/Makefile
---- linux-2.6.11-rc4/Makefile   2005-02-23 20:53:50.707759849 -0800
-+++ linux-2.6.11-rc5/Makefile   2004-12-24 13:35:01.000000000 -0800
-@@ -1,7 +1,7 @@
-  VERSION = 2
-  PATCHLEVEL = 6
--SUBLEVEL = 11
--EXTRAVERSION =-rc4
-+SUBLEVEL = 10
-+EXTRAVERSION =
-  NAME=Woozy Numbat
-
-  # *DOCUMENTATION*
-
-
---
-				Brian Gerst
+-- 
+Meelis Roos (mroos@linux.ee)

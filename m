@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262684AbTCYPei>; Tue, 25 Mar 2003 10:34:38 -0500
+	id <S262687AbTCYPj5>; Tue, 25 Mar 2003 10:39:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262687AbTCYPei>; Tue, 25 Mar 2003 10:34:38 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:37768 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id <S262684AbTCYPeg>;
-	Tue, 25 Mar 2003 10:34:36 -0500
-Date: Tue, 25 Mar 2003 15:45:39 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Poor performance with pcnet32 on SMP
-In-Reply-To: <3E7B5B41.2070308@us.ibm.com>
-Message-ID: <Pine.LNX.4.53.0303251538230.22295@skynet>
-References: <Pine.LNX.4.53.0303202346220.3340@skynet> <3E7B5B41.2070308@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262688AbTCYPj5>; Tue, 25 Mar 2003 10:39:57 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46600 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262687AbTCYPj4>; Tue, 25 Mar 2003 10:39:56 -0500
+Date: Tue, 25 Mar 2003 15:51:04 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: 2.5.66: task_struct memory leak?
+Message-ID: <20030325155104.B24418@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Mar 2003, Dave Hansen wrote:
+Hi,
 
-> I have no problems copying between two 2.5.65 machines.  In fact, my
-> speeds are ~10 MBytes/sec.  (yes, megabytes)
->
+With 2.5.66, I'm seeing what can only be described as a severe memory
+leak.  This isn't something that I noticed on 2.5.65 - in fact, I have
+several ARM machines happily running 2.5.65.
 
-I lied, I didn't give up. This struck a chord with me for some reason. I
-have the following
+The leak seems to be centred around the task_struct slab, which seems
+to do nothing but continually grow:
 
-A - 2.5 SMP machine
-B - 2.4 UP machine on *same* subnet as A
-C - Web server on different subnet, behind firewall but same LAN
+bash-2.04# grep task_struct /proc/slabinfo
+task_struct         1868   1868    920  467  467    1 :   32   16 :   1868    1916   467    0    0    0   36 :   1509    496    139      0
+...
+bash-2.04# ps aux | wc -l
+     20
+bash-2.04# grep task_struct /proc/slabinfo
+task_struct         1892   1892    920  473  473    1 :   32   16 :   1892    1956   473    0    0    0   36 :   1519    511    139      0
+bash-2.04# grep task_struct /proc/slabinfo 
+task_struct         1892   1892    920  473  473    1 :   32   16 :   1892    1957   473    0    0    0   36 :   1519    512    139      0
+bash-2.04# grep task_struct /proc/slabinfo 
+task_struct         1896   1896    920  474  474    1 :   32   16 :   1896    1961   474    0    0    0   36 :   1519    513    139      0
+bash-2.04# grep task_struct /proc/slabinfo 
+task_struct         1896   1896    920  474  474    1 :   32   16 :   1896    1961   474    0    0    0   36 :   1520    513    139      0
+bash-2.04# grep task_struct /proc/slabinfo 
+task_struct         1896   1896    920  474  474    1 :   32   16 :   1896    1961   474    0    0    0   36 :   1521    513    139      0
+bash-2.04# grep task_struct /proc/slabinfo 
+task_struct         1896   1896    920  474  474    1 :   32   16 :   1896    1961   474    0    0    0   36 :   1522    513    139      0
+bash-2.04# grep task_struct /proc/slabinfo 
+task_struct         1900   1900    920  475  475    1 :   32   16 :   1900    1965   475    0    0    0   36 :   1522    514    139      0
 
-I have a 10MB file that I dd'd from /dev/zero on the webserver
+mm_struct seems to be fairly constant, so these are at least getting freed:
+mm_struct             24     36    320    3    3    1 :   32   16 :    120     739    11    2    0    0   44 :   3144     53   3183      5
 
-wget http://C/~mel/10mb_file
+I'm seeing memory disappear at a rate of 8K / process, which seems to
+suggest that the ARM level 1 page tables aren't getting freed either.
 
-Speed starts at 7kB/s and drops slowly to a crawl. Down with that sort of
-thing. I set up a port forwarder (called aproxy) on machine B that
-forwards port 80 on B to port 80 on C and try the wget again.
-
-wget http://B/~mel/10mb_file (obviously this forwarding to machine C)
-
-Download starts at 30kB/s and maintains it. A wget from B to C can
-download at about 50kB/s but I am assuming that it is related to port
-forwarding overhead as much as anything else. I am not sure what this
-result means but I thought it was significant. It would seem that as well
-as being SMP related, connecting to a different subnet or connecting
-through a firewall is also significant.
+Is anyone seeing this type of behaviour on x86?
 
 -- 
-Mel Gorman
-MSc Student, University of Limerick
-http://www.csn.ul.ie/~mel
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

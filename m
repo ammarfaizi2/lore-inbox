@@ -1,62 +1,135 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131611AbRBAUeh>; Thu, 1 Feb 2001 15:34:37 -0500
+	id <S130942AbRBAUjJ>; Thu, 1 Feb 2001 15:39:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131709AbRBAUe1>; Thu, 1 Feb 2001 15:34:27 -0500
-Received: from ns.caldera.de ([212.34.180.1]:64007 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S131611AbRBAUeS>;
-	Thu, 1 Feb 2001 15:34:18 -0500
-Date: Thu, 1 Feb 2001 21:33:27 +0100
-Message-Id: <200102012033.VAA15590@ns.caldera.de>
-From: Christoph Hellwig <hch@caldera.de>
-To: sct@redhat.com ("Stephen C. Tweedie")
-Cc: Steve Lord <lord@sgi.com>, linux-kernel@vger.kernel.org,
-        "kiobuf-io-devel@lists.sourceforge.net Alan Cox" 
-	<alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010201174946.B11607@redhat.com>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S131198AbRBAUi7>; Thu, 1 Feb 2001 15:38:59 -0500
+Received: from mx1out.umbc.edu ([130.85.253.51]:16350 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S130942AbRBAUiq>;
+	Thu, 1 Feb 2001 15:38:46 -0500
+Date: Thu, 1 Feb 2001 15:38:40 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Michal Jaegermann <michal@ellpspace.math.ualberta.ca>
+cc: <linux-kernel@vger.kernel.org>, <axp-list@redhat.com>,
+        <denis@datafoundation.com>
+Subject: 2.4.x/alpha/ALI chipset/IDE problems summary Re: 2.4.1 not fully
+ sane on Alpha - file systems
+In-Reply-To: <20010201092342.B15101@ellpspace.math.ualberta.ca>
+Message-ID: <Pine.SGI.4.31L.02.0102011526200.71788-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010201174946.B11607@redhat.com> you wrote:
-> Hi,
 
-> On Thu, Feb 01, 2001 at 05:34:49PM +0000, Alan Cox wrote:
-> In the disk IO case, you basically don't get that (the only thing
-> which comes close is raid5 parity blocks).  The data which the user
-> started with is the data sent out on the wire.  You do get some
-> interesting cases such as soft raid and LVM, or even in the scsi stack
-> if you run out of mailbox space, where you need to send only a
-> sub-chunk of the input buffer. 
+The system in question is an API UP1100 based system, running 4 Maxtor
+40gb IDE drives off the ALI M15x3 chipset.
 
-Though your describption is right, I don't think the case is very common:
-Sometimes in LVM on a pv boundary and maybe sometimes in the scsi code.
+This applies to kernel 2.4.0 and 2.4.1.
 
-In raid1 you need some kind of clone iobuf, which should work with both
-cases.  In raid0 you need a complete new pagelist anyway, same for raid5.
+The drives are identified as follows from hdparm:
 
+Model=Maxtor 54098H8, FwRev=DAC10SC0, SerialNo=K80F1ZFC
 
-> In that case, having offset/len as the kiobuf limit markers is ideal:
-> you can clone a kiobuf header using the same page vector as the
-> parent, narrow down the start/end points, and continue down the stack
-> without having to copy any part of the page list.  If you had the
-> offset/len data encoded implicitly into each entry in the sglist, you
-> would not be able to do that.
+Is also has an Adaptec 29160 SCSI card, running a solid state disk and an
+AIT tape library.
 
-Sure you could: you embedd that information in a higher-level structure.
-I think you want the whole kio concept only for disk-like IO.  Then many
-of the things you do are completly right and I don't see much problems
-(besides thinking that some thing may go away - but that's no major point).
+Upon placing any heavy I/O load on any of the disks (dd if=/dev/*d*
+of=/dev/null) the screen flashes a  few times, and then the system locks
+hard -- no sysrq, no control-alt-del, no pings, no nothing.
 
-With a generic object that is used over subsytem boundaries things are
-different.
+It will also hang and lock hard on fscking corrupted filesystems under
+2.4.0 and 2.4.1.
 
-	Christoph
+Interestingly enough, I tried 'dd if=/dev/zero of=/tmp/dd.img bs=4096
+count=10000' and it also locked hard, after printing messages to the
+effect of:
+
+EXT2-fs error: (device info) allocating block in system zone -- block
+(block numbers).
+
+stock RH 2.2.16-3 works peachy.
+
+I've tried various options with compiling in and out the ALI chipset, PCI
+DMA, drive DMA, and IRQ sharing, but without all four of those enabled,
+the system freezes at identifying the IDE device partitions, like so:
+
+  hda: lost interrupt
+lost interrupt
+lost interrupt
+
+I've heard one other report of similar problems on the linux-kernel
+mailing list, and at least one other on the axp-list.
+
+On Thu, 1 Feb 2001, Michal Jaegermann wrote:
+
+> Date: Thu, 1 Feb 2001 09:23:42 -0700
+> From: Michal Jaegermann <michal@ellpspace.math.ualberta.ca>
+> To: John Jasen <jjasen@datafoundation.com>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: 2.4.1 not fully sane on Alpha - file systems
+>
+> On Thu, Feb 01, 2001 at 10:46:12AM -0500, John Jasen wrote:
+> > On Wed, 31 Jan 2001, Michal Jaegermann wrote:
+> >
+> > > I just tried to boot 2.4.1 kernel on Alpha UP1100.  This machine
+> > > happens to have two SCSI disks on sym53c875 controller and two IDE
+> > > drives hooked to a builtin "Acer Laboratories Inc. [ALi] M5229 IDE".
+> >
+> > ALI M1535D pci-ide bridge, isn't it? That's what the specs on
+> > API's webpage seem to indicate.
+>
+> 'lspci' claims that this is:
+>
+> "07.0  Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV]"
+>
+> >
+> > Try this for fun: dd if=/dev/hda of=/dev/null bs=4096, and see if it
+> > cronks out.
+>
+> Probably.
+>
+> > In my case, any serious I/O on the IDE drives quickly results in pretty
+> > technicolor on the VGA screen, and then a hard lockup.
+>
+> No, no technicolor or other sounds effects.  The whole thing just
+> locks up with a power switch as the only option.
+>
+> > Furthermore, after power-reset, 2.4.x, x=0 or 1, cannot successfully fsck
+> > the drives.  It hangs after about the 2nd-3rd partition, again in a hard
+> > lockup.
+>
+> My box is much healtier than that.  Regardless if I booted into a file
+> system on a SCSI drive or on an IDE drive (I happen to have those
+> options although I prefer IDE - I have there something which I can loose
+> without any real pain :-) I can still fsck drives healthy after the
+> crash but I did NOT risk fsck under 2.4.1.  Things looks way too screwy
+> for this.
+>
+> >
+> > My WAG is that there are problems in the ALI driver.
+>
+> Possibly, but I crashed the whole thing without mounting anything from
+> IDE drives at all.  There are still there but unused.  I simply managed
+> to get something in logs for the case described.  Note that errors
+> I quoted are from a device 08:05, i.e. SCSI driver (/dev/sda5 to be
+> more precise).  When my compiler went bonkers and started to read
+> clearly some random stuff instead of sources then the whole action was
+> happening on a SCSI drive.
+>
+>  Michal
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

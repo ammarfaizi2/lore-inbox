@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131573AbRAOVmE>; Mon, 15 Jan 2001 16:42:04 -0500
+	id <S131644AbRAOVpO>; Mon, 15 Jan 2001 16:45:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131683AbRAOVly>; Mon, 15 Jan 2001 16:41:54 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:1555 "EHLO
+	id <S131683AbRAOVoy>; Mon, 15 Jan 2001 16:44:54 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:8979 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131573AbRAOVlh>; Mon, 15 Jan 2001 16:41:37 -0500
-Message-ID: <3A636E77.3A409B17@transmeta.com>
-Date: Mon, 15 Jan 2001 13:41:11 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S131644AbRAOVon>; Mon, 15 Jan 2001 16:44:43 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: MTRR type AMD Duron/intel ?
+Date: 15 Jan 2001 13:44:00 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <93vqv0$l34$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.30.0101151937460.8658-100000@svea.tellus> <Pine.LNX.4.10.10101151151080.6408-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-CC: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@transmeta.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386/setup.c cpuinfo notsc
-In-Reply-To: <Pine.GSO.3.96.1010115223503.16619b-100000@delta.ds2.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Maciej W. Rozycki" wrote:
+Followup to:  <Pine.LNX.4.10.10101151151080.6408-100000@penguin.transmeta.com>
+By author:    Linus Torvalds <torvalds@transmeta.com>
+In newsgroup: linux.dev.kernel
 > 
-> On Mon, 15 Jan 2001, H. Peter Anvin wrote:
+> On Mon, 15 Jan 2001, Tobias Ringstrom wrote:
+> > 
+> > Last time I checked this was issued for perfectly known and valid bridges
+> > that advertice no IO resources.  Isn't it a bit silly to issue that
+> > warning for that case, or am I missing something?
 > 
-> > I would personally prefer to export the global flags separately from the
-> > per-CPU flags.  Not only is it more correct, it would help catch these
-> > kinds of bugs!!!
+> Ehh - so what do they bridge, then?
 > 
->  That's what I am going to do.  Basically to recode cpu_has_* macros to
-> use global flags as that's the intuitive name and use a set of different
-> names for the SMP bootstrap code to access boot_cpu_data (possibly
-> boot_has_* or boot_cpu_has_*).
+> I'd say that a bridge that doesn't seem to bridge any IO or MEM region,
+> yet has stuff behind it, THAT is the silly thing. Thus the "silly"
+> warning.
 > 
 
-Right, but I'd also like to see the global flags exported explicitly to
-/proc/cpuinfo.
+What kind of bridge?  Depending on the kind of bridge, it could be a
+subtractive-decoding bridge; or it could be a Host Bridge, which
+normally advertise only the resources it needs for itself.
 
+	-hpa
 -- 
 <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
 "Unix gives you enough rope to shoot yourself in the foot."

@@ -1,74 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265224AbUETRDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265157AbUETRJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265224AbUETRDo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 13:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265181AbUETRDo
+	id S265157AbUETRJX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 13:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbUETRJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 13:03:44 -0400
-Received: from metawire.org ([24.73.230.118]:3150 "EHLO mail.metawire.org")
-	by vger.kernel.org with ESMTP id S265224AbUETRDk (ORCPT
+	Thu, 20 May 2004 13:09:23 -0400
+Received: from mail5.bluewin.ch ([195.186.1.207]:25530 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id S265157AbUETRJU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 13:03:40 -0400
-Date: Thu, 20 May 2004 12:03:49 -0500 (EST)
-From: jnf <jnf@metawire.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
+	Thu, 20 May 2004 13:09:20 -0400
+Date: Thu, 20 May 2004 19:05:00 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel.org unscheduled downtime
-In-Reply-To: <c8inm3$lsb$1@terminus.zytor.com>
-Message-ID: <Pine.BSO.4.58.0405201203320.15938@metawire.org>
-References: <c8inm3$lsb$1@terminus.zytor.com>
-X-SUPPORT: 0xDEADFED5 lab pr0ud supp0rt3rz 0f pr0j3kt m4yh3m
-X-GPG-FINGRPRINT: 7DB1 AEED B2C7 FE09 433C  5106 B0A0 1E4C 084B 8821
-X-GPG-PUBLIC_KEY: http://www.bombtrack.org/~jnf/jnf.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: [PATCH] via-rhine: Fix force media
+Message-ID: <20040520170500.GA11792@k3.hellgate.ch>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="qMm9M+Fa2AknHoGS"
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.6 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-was *.kernel.org prewarned about the cvs bugs?
-
-
-- -- 
-
-The cry has been that when war is declared, all opposition should
-therefore be hushed.  A sentiment more unworthy of a free country could
-hardly be propagated.  If the doctrine be admitted, rulers have only to
-declare war and they are screened at once from scrutiny ...  In war,
-then, as in peace, assert the freedom of speech and of the press.
-Cling to this as the bulwark of all our rights and privileges.
-                -- William Ellery Channing 
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
-On Thu, 20 May 2004, H. Peter Anvin wrote:
+Lucas Nussbaum and Dirk Koeppen each found independently that the code
+for forcing media options in via-rhine is borked and suggested the fix
+below. I've been sitting on this way too long because there is more
+badness in the immediate vicinity which needs a bigger surgery.
 
-> For reasons currently unknown, zeus.kernel.org, the main kernel.org
-> server, rebooted some time in the middle of the night (California
-> time).  Since the machine had about 400 days of uptime, the system
-> decided it needed to fsck all the filesystems on boot, which it is
-> currently about halfway through.  I expect it to be done in another
-> 4-5 hours.
-> 
-> 
-> Thich hach alcho been reported to the chutterch.
-> Chorry for the inconveniench,
-> 
-> 	-hpa
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (OpenBSD)
+The second hunk fixes a braino I managed to introduce myself.
 
-iD8DBQFArOT5sKAeTAhLiCERAlZ2AJ0dv5CiFs8xxwGnXaYhIXgod2hc+gCfSlo7
-KnLGBqLrV4yj28Vu/B3Mz+8=
-=1bLA
------END PGP SIGNATURE-----
+The patch is for both 2.4 and 2.6. Please apply.
+
+Roger
+
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="via-rhine-2.6.6-fix.diff"
+
+--- linux-2.6.6/drivers/net/via-rhine.c	2004-05-20 16:17:38.228468522 +0200
++++ linux-2.6.6-patch/drivers/net/via-rhine.c	2004-05-20 17:46:34.466916644 +0200
+@@ -860,7 +860,7 @@
+ 		if (option & 0x220)
+ 			np->mii_if.full_duplex = 1;
+ 		np->default_port = option & 0x3ff;
+-		if (np->default_port & 0x330) {
++		if (option & 0x330) {
+ 			/* FIXME: shouldn't someone check this variable? */
+ 			/* np->medialock = 1; */
+ 			printk(KERN_INFO "  Forcing %dMbs %s-duplex operation.\n",
+@@ -1683,8 +1683,9 @@
+ 			printk(KERN_INFO "%s: Tx descriptor write-back race.\n",
+ 				   dev->name);
+ 	}
+-	if ((intr_status & IntrTxError) && ~( IntrTxAborted | IntrTxUnderrun |
+-										   IntrTxDescRace )) {
++	if ((intr_status & IntrTxError) &&
++			(intr_status & ( IntrTxAborted |
++			IntrTxUnderrun | IntrTxDescRace )) == 0) {
+ 		if (np->tx_thresh < 0xE0) {
+ 			writeb(np->tx_thresh += 0x20, ioaddr + TxConfig);
+ 		}
+
+--qMm9M+Fa2AknHoGS--

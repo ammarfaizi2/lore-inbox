@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbVCSEGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262402AbVCSEJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262403AbVCSEGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 23:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbVCSEGQ
+	id S262402AbVCSEJU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 23:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbVCSEJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 23:06:16 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:58316
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262401AbVCSEGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 23:06:10 -0500
-Date: Fri, 18 Mar 2005 20:05:55 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: "Seth, Rohit" <rohit.seth@intel.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       davidm@hpl.hp.com
-Subject: Re: [patch] arch hook for notifying changes in PTE protections bits
-Message-Id: <20050318200555.2d1980f6.davem@davemloft.net>
-In-Reply-To: <20050318162943.A3157@unix-os.sc.intel.com>
-References: <20050318162943.A3157@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Fri, 18 Mar 2005 23:09:20 -0500
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:6712 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S262402AbVCSEJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 23:09:15 -0500
+X-IronPort-AV: i="3.91,103,1110175200"; 
+   d="scan'208"; a="237662091:sNHT21658404"
+Date: Fri, 18 Mar 2005 22:09:14 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4.30-pre3] x86_64: move init_tss declaration after tss_struct definition
+Message-ID: <20050319040914.GA5755@lists.us.dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Compiling 2.4.30-pre3 for x86_64 with FC4-test1 gcc-4.0.0-0.32 fails
+because include/asm-x86_64/processor.h declares init_tss[NR_CPUS] as a
+sized array before struct tss_struct has been defined.  Simple fix
+moves this declaration to after the definition of tss_struct.
 
-This is way overkill I think.
+Signed-off-by: Matt Domsch <Matt_Domsch@dell.com>
 
-Take a look at set_pte_at().  You get the "mm", the
-virtual address, the pte pointer, and the new pte value.
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 
-What else could you possibly need to track stuff like this
-and react appropriately? :-)
-
-It is even an argument for batched TLB processing on ia64.
-It simplifies a lot of cache flushing issues and you can
-control the flushing on a per-translation basis however
-you like.
+===== include/asm-x86_64/processor.h 1.9 vs edited =====
+--- 1.9/include/asm-x86_64/processor.h	2004-03-21 18:35:56 -06:00
++++ edited/include/asm-x86_64/processor.h	2005-03-18 14:56:30 -06:00
+@@ -68,7 +68,6 @@
+ #define X86_VENDOR_UNKNOWN 0xff
+ 
+ extern struct cpuinfo_x86 boot_cpu_data;
+-extern struct tss_struct init_tss[NR_CPUS];
+ 
+ #ifdef CONFIG_SMP
+ extern struct cpuinfo_x86 cpu_data[];
+@@ -298,6 +297,8 @@
+ 	u16 io_map_base;
+ 	u32 io_bitmap[IO_BITMAP_SIZE];
+ } __attribute__((packed)) ____cacheline_aligned;
++
++extern struct tss_struct init_tss[NR_CPUS];
+ 
+ struct thread_struct {
+ 	unsigned long	rsp0;

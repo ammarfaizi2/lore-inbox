@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283658AbRLMIM5>; Thu, 13 Dec 2001 03:12:57 -0500
+	id <S283586AbRLMIUG>; Thu, 13 Dec 2001 03:20:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283717AbRLMIMr>; Thu, 13 Dec 2001 03:12:47 -0500
-Received: from netfinity.realnet.co.sz ([196.28.7.2]:29595 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S283658AbRLMIMc>; Thu, 13 Dec 2001 03:12:32 -0500
-Date: Thu, 13 Dec 2001 10:14:43 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: <fridtjof@fbunet.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: Repost: ASUS APM Problem (ASUS L8400L & ASUS P2B-F
-Message-ID: <Pine.LNX.4.33.0112131010570.1859-100000@netfinity.realnet.co.sz>
+	id <S283591AbRLMIT5>; Thu, 13 Dec 2001 03:19:57 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:6053 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S283586AbRLMITn>;
+	Thu, 13 Dec 2001 03:19:43 -0500
+Date: Thu, 13 Dec 2001 03:19:37 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Joy Almacen <joy@empexis.com>, wa@almesberger.net,
+        linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: pivot_root and initrd kernel panic woes
+In-Reply-To: <01121308095901.01849@manta>
+Message-ID: <Pine.GSO.4.21.0112130319160.19281-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->Anybody know why APM doesn't work with products from ASUS?
->Is this a known bug?
 
-I think thats a bit of a generalisation...
+On Thu, 13 Dec 2001, vda wrote:
 
->ASUS P2B-F Board, x86 based desktop system
+> BTW, don't go for 2.4x, x>10. initrd is broken there and is still unfixed.
 
-I have an Asus P2B (i think the ATX form factor version of your P2B-F) and
-APM works pretty well here, i recently had an APIC error on resume which
-was finally resolved with a patch by Mikael Patterson. So i can vouch for
-having a somewhat APM sane Asus board.
-
-Cheers,
-	Zwane Mwaikambo
-
+Bullshit.
 

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266772AbSKOSYa>; Fri, 15 Nov 2002 13:24:30 -0500
+	id <S266819AbSKOSae>; Fri, 15 Nov 2002 13:30:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266774AbSKOSYa>; Fri, 15 Nov 2002 13:24:30 -0500
-Received: from brussels-smtp.planetinternet.be ([195.95.34.12]:23567 "EHLO
-	firebird.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S266772AbSKOSY3>; Fri, 15 Nov 2002 13:24:29 -0500
-Date: Fri, 15 Nov 2002 19:35:25 +0100
-To: alan@cotse.com
+	id <S266822AbSKOSae>; Fri, 15 Nov 2002 13:30:34 -0500
+Received: from holomorphy.com ([66.224.33.161]:38864 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266819AbSKOSad>;
+	Fri, 15 Nov 2002 13:30:33 -0500
+Date: Fri, 15 Nov 2002 10:33:49 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Pavel Machek <pavel@ucw.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: CD IO error
-Message-ID: <20021115183525.GA1285@gouv>
-References: <YWxhbg==.a513a46732330fd5f834894ae7200923@1037378527.cotse.net>
+Subject: Re: [PATCH] swsuspend and CONFIG_DISCONTIGMEM=y
+Message-ID: <20021115183349.GX23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+References: <20021115081044.GI18180@conectiva.com.br> <20021115084915.GS23425@holomorphy.com> <20021115094827.GT23425@holomorphy.com> <20021115120233.GC25902@atrey.karlin.mff.cuni.cz> <20021115120920.GV23425@holomorphy.com> <20021115180924.GA8763@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YWxhbg==.a513a46732330fd5f834894ae7200923@1037378527.cotse.net>
-User-Agent: Mutt/1.4i
-From: Leopold Gouverneur <lgouv@pi.be>
+In-Reply-To: <20021115180924.GA8763@elf.ucw.cz>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 11:42:07AM -0500, Alan Willis wrote:
-> 
->   I've been getting these messages since about 2.5.45.  I can't mount any
-> cds at all.  Elvtune (util-linux-2.11r) also fails on /dev/hda which I'm
-> running on, and /dev/hdc, my cdrom.
-> 
-> Any further info needed?
-> 
-> -alan
-> 
-> end_request: I/O error, dev hdc, sector 0
-> hdc: ATAPI 48X CD-ROM drive, 120kB Cache, UDMA(33)
-> Uniform CD-ROM driver Revision: 3.12
-> end_request: I/O error, dev hdc, sector 0
- Same here. I have disabled DMA for cdrom(CONFIG_IDEDMA_ONLYDISK=y)
- and things are working again, perhaps with a loss operformance?
- Hope it helps.
- 
+At some point in the past, I wrote:
+>> I'm not entirely sure either. Mostly I suspect that the deep arch
+>> issues will be the tough ones, but things like this I can handle. =)
+
+On Fri, Nov 15, 2002 at 07:09:25PM +0100, Pavel Machek wrote:
+> Well, I'd really hate to do 64GB support for swsusp for i386. It would
+> mean wider pointers in on-disk format and probably would not be
+> exactly nice.
+> 								Pavel
+
+i386 is actually a poor cpu for numerical workloads due to the
+design of its FPU, so the interest will likely be low there, but...
+
+It looks like the struct pbe is storing a physical address in an
+unsigned long; using page frame numbers instead of raw physical
+addresses should at least catch 36-bit i386 and a substantial fraction
+of PPC highmem (40-bit, so not all) with very little effort. A good
+chunk of the VM's arch support address calculation API (if not all)
+has been converted to pfn-based calculations already, so we're already
+in very good shape, aside from a one-shot format change.
+
+
+Bill

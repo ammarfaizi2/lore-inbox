@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbULNWdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbULNWdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbULNWdP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:33:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbULNWdG
+	id S261693AbULNWdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNWco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:33:06 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:36247 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261668AbULNW2Q (ORCPT
+	Tue, 14 Dec 2004 17:32:44 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:11218 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261732AbULNW1v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:28:16 -0500
-Date: Tue, 14 Dec 2004 23:28:04 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: George Anzinger <george@mvista.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Lee Revell <rlrevell@joe-job.com>,
-       LKML <linux-kernel@vger.kernel.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
-Message-ID: <20041214222804.GC22043@elte.hu>
-References: <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu> <1103052853.3582.46.camel@localhost.localdomain> <1103054908.14699.20.camel@krustophenia.net> <1103057144.3582.51.camel@localhost.localdomain> <20041214211828.GA17216@elte.hu> <41BF60A1.1080606@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41BF60A1.1080606@mvista.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 14 Dec 2004 17:27:51 -0500
+Message-ID: <41BF6879.3090900@redhat.com>
+Date: Tue, 14 Dec 2004 14:26:01 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Roland McGrath <roland@redhat.com>, Christoph Lameter <clameter@sgi.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/7] cpu-timers: high-resolution CPU clocks for POSIX
+ clock_* syscalls
+References: <200412142150.iBELoJc0011582@magilla.sf.frob.com> <Pine.LNX.4.58.0412141410150.3279@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0412141410150.3279@ppc970.osdl.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigC818FD6CC6B01DD11220807F"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigC818FD6CC6B01DD11220807F
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-* George Anzinger <george@mvista.com> wrote:
+Linus Torvalds wrote:
+> I'd vote for
+> not exposing them any more than necessary (ie the current incidental "ps"  
+> interface is quite enough), at least until somebody can come up with a
+> very powerful example of why exposing them is a good idea.
 
-> >the two projects are obviously complementary and i have no intention to
-> >reinvent the wheel in any way. Best would be to bring hires timers up to
-> >upstream-mergable state (independently of the -RT patch) and ask Andrew
-> >to include it in -mm, then i'd port -RT to it automatically.
-> 
-> Well, I guess I am just backward :) I plan to port it to the current
-> RT today or tomorrow (if all goes well).  I will then work on the
-> changes needed to get it into -mm.  Guess I will be supporting two
-> versions for a bit...
+Indeed.  It's so much easier to grant additional rights at a later time 
+than to take something away for whatever reasons.
 
-very good - i can carry it along in -RT, and your VST bits are certainly
-an immediate bonus feature for the non-hard-RT (=laptop, desktop, audio)
-folks too.
+Globally accessible clocks would need to have the semantic carefully 
+defined, SELinux hooks would have to be added etc.
 
-	Ingo
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+
+--------------enigC818FD6CC6B01DD11220807F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBv2h62ijCOnn/RHQRAn4UAJ9TpHpEnEY1HYa9umF5uVM3e96hngCfXXXZ
+5C+jr8chehvIj5x60D0DLhg=
+=Y0Xp
+-----END PGP SIGNATURE-----
+
+--------------enigC818FD6CC6B01DD11220807F--

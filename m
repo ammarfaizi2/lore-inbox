@@ -1,87 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbVBQJAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVBQJ1W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbVBQJAi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 04:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbVBQJAi
+	id S262180AbVBQJ1W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 04:27:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbVBQJ1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 04:00:38 -0500
-Received: from CPE-139-168-157-43.nsw.bigpond.net.au ([139.168.157.43]:20208
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id S262278AbVBQJAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 04:00:24 -0500
-Message-ID: <42145D23.9060109@eyal.emu.id.au>
-Date: Thu, 17 Feb 2005 20:00:19 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: bt8xxx would not reset properly
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 17 Feb 2005 04:27:21 -0500
+Received: from hamlet.e18.physik.tu-muenchen.de ([129.187.154.223]:15063 "EHLO
+	hamlet.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id S262180AbVBQJ1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 04:27:14 -0500
+In-Reply-To: <42145128.4030202@tequila.co.jp>
+References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <7579f7fb0502141017f5738d1@mail.gmail.com> <20050214185624.GA16029@bitmover.com> <1108469967.3862.21.camel@crazytrain> <42131637.2070801@tequila.co.jp> <20050216154321.GB34621@dspnet.fr.eu.org> <4213E141.5040407@tequila.co.jp> <e9d587a22ff0b23ccbb6fa112377dbee@e18.physik.tu-muenchen.de> <42145128.4030202@tequila.co.jp>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-37--671269379"
+Message-Id: <e030fd01c5625a80b90382e69843213f@e18.physik.tu-muenchen.de>
 Content-Transfer-Encoding: 7bit
+Cc: Olivier Galibert <galibert@pobox.com>, kernel@crazytrain.com,
+       linux-kernel@vger.kernel.org
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+Subject: Re: [BK] upgrade will be needed
+Date: Thu, 17 Feb 2005 10:27:13 +0100
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a bt848 based TV tuner (see bootlog below) which sometimes
-goes on the blink (see failure log below). It will not reset, and a
-reboot does not fix it. I need to cycle the power to get it back
-online.
 
-I know that 2.6.10 and 2.6.11-rc4 did not restore operation when
-booted, and I recall this even on earlier kernels.
+--Apple-Mail-37--671269379
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-I wonder if the reset process is not as extensive as it should be.
-Naturally, it is possible that the card, when it fails, is in
-a state where a reset is just not possible. It will be nice if this
-can be improved though.
+Hi Clemens!
 
+On Feb 17, 2005, at 9:09 AM, Clemens Schwaighofer wrote:
 
-Boot log
-========
-bttv: driver version 0.9.15 loaded
-bttv: using 8 buffers with 2080k (520 pages) each for capture
-bttv: Bt8xx card found (0).
-ACPI: PCI interrupt 0000:03:01.0[A] -> GSI 21 (level, low) -> IRQ 21
-bttv0: Bt848 (rev 18) at 0000:03:01.0, irq: 21, latency: 32, mmio: 0xde000000
-bttv0: using: STB, Gateway P/N 6000699 (bt848) [card=3,insmod option]
-bttv0: gpio config override: mask=0x7, mux=0x1,0x0,0x2,0x3,0x4
-bttv0: gpio: en=00000000, out=00000000 in=00f0c0fc [init]
-tuner: chip found at addr 0xc0 i2c-bus bt848 #0 [sw]
-tuner: type set to 5 (Philips PAL_BG (FI1216 and compatibles)) by insmod option
-tuner: The type=<n> insmod option will go away soon.
-tuner: Please use the tuner=<n> option provided by
-tuner: tv aard core driver (bttv, saa7134, ...) instead.
-bttv0: using tuner=2
-tuner: type already set to 5, ignoring request for 2
-bttv0: registered device video0
-bttv0: registered device vbi0
-bttv0: registered device radio0
-bttv0: PLL can sleep, using XTAL (35468950).
-bttv: Bt8xx card found (1).
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> On 02/17/2005 04:55 PM, Roland Kuhn wrote:
+>
+>> That said, it would of course be possible to improve the internal
+>> workflow of our emperor penguin if he used subversion, but the
+>> collaboration with others could not benefit the way it does with a
+>> changeset-based approach.
+>
+> Question is then, what about keeping a main trunk with the vanialle
+> release, and each dev has its own branch. now at a certain point you
+> have to merge them. Now where is the difference between a central rep
+> and a de-central one.
+> At day X, patches from Andrew's tree have to go to Linus tree and from
+> his tree into the new vanialla kernel. right?
+> Somehow I can't see the difference here.
+>
+The difference comes after the merge. Suppose Andrew didn't push 
+everything to Linus. Then new patches come in, both trees change. In 
+this situation it is very time consuming with subversion to work out 
+the changes which still have to go from Andrew's tree to Linus' tree.
 
-Typical failure
-===============
-Feb 17 09:09:33 eyal kernel: bttv0: OCERR @ 37efb000,bits: HSYNC OFLOW OCERR*
-Feb 17 09:09:34 eyal last message repeated 14 times
-Feb 17 09:09:34 eyal kernel: bttv0: OCERR @ 37efb000,bits: HSYNC OFLOW FDSR OCERR*
-Feb 17 09:09:37 eyal last message repeated 66 times
-Feb 17 09:09:37 eyal kernel: bttv0: timeout: drop=39 irq=318/321, risc=37efb01c, bits: HSYNC OFLOW
-Feb 17 09:09:37 eyal kernel: bttv0: reset, reinitialize
-Feb 17 09:09:37 eyal kernel: bttv0: PLL can sleep, using XTAL (35468950).
-Feb 17 09:09:37 eyal kernel: bttv0: OCERR @ 37efb000,bits: VSYNC HSYNC OFLOW FDSR OCERR*
-Feb 17 09:09:45 eyal last message repeated 200 times
-Feb 17 09:09:45 eyal kernel: bttv0: timeout: drop=241 irq=726/729, risc=37efb01c, bits: VSYNC HSYNC OFLOW<6>bttv0: OCERR @ 37efb000,bits: HSYNC OFLOW FBUS FDSR OCERR*
-Feb 17 09:09:45 eyal kernel:
-Feb 17 09:09:45 eyal kernel: bttv0: reset, reinitialize
-Feb 17 09:09:45 eyal kernel: bttv0: PLL can sleep, using XTAL (35468950).
-Feb 17 09:09:45 eyal kernel: bttv0: OCERR @ 37efb000,bits: VSYNC HSYNC OFLOW OCERR*
-Feb 17 09:09:45 eyal last message repeated 11 times
-Feb 17 09:09:45 eyal kernel: bttv0: timeout: drop=242 irq=743/746, risc=37efb01c, <6>bttv0: OCERR @ 37efb000,bits: VSYNC HSYNC OFLOW FBUS OCERR*
-Feb 17 09:09:45 eyal kernel: bits: VSYNC HSYNC OFLOW<6>bttv0: OCERR @ 37efb000,bits: VSYNC HSYNC OFLOW OCERR*
+Ciao,
+					Roland
 
--- 
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-	attach .zip as .dat
+--
+TU Muenchen, Physik-Department E18, James-Franck-Str. 85747 Garching
+Telefon 089/289-12592; Telefax 089/289-12570
+--
+A mouse is a device used to point at
+the xterm you want to type in.
+Kim Alm on a.s.r.
+
+--Apple-Mail-37--671269379
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iD8DBQFCFGNxI4MWO8QIRP0RAlHfAKC9XrKQ6QUJyXbMn+/7wU4vxSerewCbB8jM
+D/Xt2jQHRXoxb9dz/I85fbE=
+=SnFt
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-37--671269379--
+

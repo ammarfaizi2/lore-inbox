@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbUEFJwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbUEFJzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbUEFJwz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 05:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUEFJwz
+	id S261947AbUEFJzq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 05:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbUEFJzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 05:52:55 -0400
-Received: from smtp6.wanadoo.fr ([193.252.22.25]:64643 "EHLO
-	mwinf0601.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S261918AbUEFJwy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 05:52:54 -0400
-Date: Thu, 6 May 2004 11:52:53 +0200
-From: Lucas Nussbaum <lucas@lucas-nussbaum.net>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ne2k-pci uncorrectly detecting collisions ?
-Message-ID: <20040506095253.GA9157@blop.info>
-References: <20040505123532.GA3011@blop.info> <Pine.LNX.4.53.0405050855290.16355@chaos> <20040505131006.GA3412@blop.info> <200405052245.39405.vda@port.imtp.ilyichevsk.odessa.ua>
+	Thu, 6 May 2004 05:55:46 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:55503 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S261947AbUEFJzn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 05:55:43 -0400
+Date: Thu, 6 May 2004 02:54:06 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ashok Raj <ashok.raj@intel.com>, davidm@hpl.hp.com,
+       linux-kernel@vger.kernel.org, anil.s.keshavamurthy@intel.com,
+       pj@sgi.com, rusty@rustycorp.com.au
+Subject: Re: (resend-3) take3: Updated CPU Hotplug patches for IA64 (pj blessed) Patch [6/7]
+Message-ID: <20040506025406.A4010@unix-os.sc.intel.com>
+References: <20040504211755.A13286@unix-os.sc.intel.com> <20040504225907.6c2fe459.akpm@osdl.org> <20040505104739.A24549@unix-os.sc.intel.com> <20040505231350.1d8a3ea6.akpm@osdl.org> <20040506023239.A3664@unix-os.sc.intel.com> <20040506024530.5682acf4.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200405052245.39405.vda@port.imtp.ilyichevsk.odessa.ua>
-Organisation: Lacking
-X-PGP: http://www.lucas-nussbaum.net/pubkey.txt
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040506024530.5682acf4.akpm@osdl.org>; from akpm@osdl.org on Thu, May 06, 2004 at 02:45:30AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 05, 2004 at 10:45:39PM +0300, Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
-> > But what I thought was that maybe, they were initialised as full duplex,
-> > not half duplex. But again, I don't know where I can check that. I added
-> > some printks and determined that the code used to init them full duplex
-> > was never used. And there's no way to force them half duplex with this
-> > driver.
+On Thu, May 06, 2004 at 02:45:30AM -0700, Andrew Morton wrote:
+> Ashok Raj <ashok.raj@intel.com> wrote:
+> >
+> > > I'll stick a CONFIG_SMP in the caller, let the bitmap beavers worry about
+> > > the more general details.
+> > Now under the protective covers of CONFIG_SMP, init/main.c compiles now
 > 
-> There is a DOS utility which configure duplex settings for RTL8029.
- 
-Thanks a lot, that did the trick.
--- 
-| Lucas Nussbaum
-| lucas@lucas-nussbaum.net    lnu@gnu.org    GPG: 1024D/023B3F4F |
-| jabber: lucas@linux.ensimag.fr   http://www.lucas-nussbaum.net |
-| fingerprint: 075D 010B 80C3 AC68 BD4F B328 DA19 6237 023B 3F4F |
+> I already fixed it up, thanks.  With an incremental patch, which is very
+> much preferred over a wholesale replacement.
+> 
+I will in future.
+
+> > kernel/built-in.o(.text+0x144e4): In function `kthread_bind':
+> > : undefined reference to `kthread_wait_task_inactive'
+> > make: *** [.tmp_vmlinux1] Error 1
+> 
+> There is no symbol `kthread_wait_task_inactive' in the tree.
+> 
+
+I think i put the experimental i386 hotplug patch, and that might have brought something 
+with it.. i see the -mm compile clean now.
+
+Cheers,
+ashok

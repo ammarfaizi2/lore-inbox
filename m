@@ -1,81 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262814AbTJJP1d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 11:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbTJJP1d
+	id S262986AbTJJP5O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 11:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262958AbTJJP5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 11:27:33 -0400
-Received: from agminet02.oracle.com ([141.146.126.229]:47265 "EHLO
-	agminet02.oracle.com") by vger.kernel.org with ESMTP
-	id S262814AbTJJP13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 11:27:29 -0400
-Date: Fri, 10 Oct 2003 08:27:10 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: statfs() / statvfs() syscall ballsup...
-Message-ID: <20031010152710.GA28773@ca-server1.us.oracle.com>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Ulrich Drepper <drepper@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20031010122755.GC22908@ca-server1.us.oracle.com> <Pine.LNX.4.44.0310100756510.20420-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310100756510.20420-100000@home.osdl.org>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.4i
+	Fri, 10 Oct 2003 11:57:14 -0400
+Received: from relay5.ftech.net ([195.200.0.100]:48515 "EHLO relay5.ftech.net")
+	by vger.kernel.org with ESMTP id S262986AbTJJP4H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 11:56:07 -0400
+Message-ID: <7C078C66B7752B438B88E11E5E20E72E25CA91@GENERAL.farsite.co.uk>
+From: Kevin Curtis <kevin.curtis@farsite.co.uk>
+To: "'David S. Miller'" <davem@redhat.com>, Krzysztof Halasa <khc@pm.waw.pl>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: RE: [TRIVIAL] [PATCH] generic HDLC Cisco bugfix
+Date: Fri, 10 Oct 2003 16:56:00 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 07:59:34AM -0700, Linus Torvalds wrote:
-> The interface is fundamentally flawed, it has nasty security issues, it 
-> lacks any kind of sane synchronization, and it exposes stuff that 
-> shouldn't be exposed to user space.
+Is this only for 2.6.x or does it also include 2.4.x and 2.2.x
+I ask this because I will need to submit a patch for the farsync WAN drivers
+soon which will need to be applied to all three kernels.
 
-	Um, sure, the interface as implemented has a few "don't do
-that"s.  Yes, we've found security issues.  Those can be fixed.  That
-doesn't make the concept bad.
+Regards
 
-> I hope disk-based databases die off quickly.
+Kevin
 
-	As opposed to what?  Not a challenge, just interested in what
-you think they should be.
+-----Original Message-----
+From: David S. Miller [mailto:davem@redhat.com] 
+Sent: 10 October 2003 07:44
+To: Krzysztof Halasa
+Cc: torvalds@osdl.org; linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL] [PATCH] generic HDLC Cisco bugfix
 
-> Yeah, I see where you are
-> working, but where I'm coming from, I see all the _crap_ that Oracle tries
-> to push down to the kernel, and most of the time I go "huh - that's a
-> f**king bad design".
 
-	I'm hoping that you've seen a marked improvement in the stuff
-Oracle requests over the past couple years.  We've worked hard to filter
-out the junk that really, really is bad.
-	Where I work doesn't change the need for O_DIRECT.  If your Big
-App has it's own cache, why copy the cache in the kernel?  That just
-wastes RAM.  If your app is sharing data, whether physical disk, logical
-disk, or via some network filesystem or storage device, you must
-absolutely guarantee that reads and writes hit the storage, not the
-kernel cache which has no idea whether another node wrote an update or
-needs a cache flush.
-	Putting my employer's hat back on, Oracle uses O_DIRECT because
-it was the existing API for this.  If Linux came up with a better,
-cleaner method, Oracle might change.  I can't guarantee that, but I know
-I push like hell for obvious improvements.
 
-Joel
+Applied.
 
--- 
+Please, Krzysztof, linux-kernel and Linus are not the appropriate place to
+submit networking (device driver or otherwise) patches.
 
-"I don't want to achieve immortality through my work; I want to
- achieve immortality through not dying."
-        - Woody Allen
+Therefore, in the future send it to netdev@oss.sgi.com and CC: either Jeff
+Garzik or myself, thanks.
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+I'd also not classify this patch as trivial, it's not like a missing
+semicolon or a comment typo, real thought needs to be applied to analyzing
+whether your fix were correct or not.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org More majordomo info at
+http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

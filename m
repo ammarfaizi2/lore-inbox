@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261573AbSLAJ3b>; Sun, 1 Dec 2002 04:29:31 -0500
+	id <S261574AbSLAJxe>; Sun, 1 Dec 2002 04:53:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261574AbSLAJ3b>; Sun, 1 Dec 2002 04:29:31 -0500
-Received: from tmailm1.svr.pol.co.uk ([195.92.193.20]:42260 "EHLO
-	tmailm1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S261573AbSLAJ3a>; Sun, 1 Dec 2002 04:29:30 -0500
-Subject: 2.4.20 DRM/DRI issue with Radeon
-From: Andy Jefferson <andy@ajsoft.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 01 Dec 2002 09:36:13 +0000
-Message-Id: <1038735373.2617.12.camel@monster.ajsoft.net>
+	id <S261581AbSLAJxe>; Sun, 1 Dec 2002 04:53:34 -0500
+Received: from louise.pinerecords.com ([212.71.160.16]:25099 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S261574AbSLAJxe>; Sun, 1 Dec 2002 04:53:34 -0500
+Date: Sun, 1 Dec 2002 11:00:57 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: PDC20268 in current -ac [Re: Problem with via82cxxx and vt8235]
+Message-ID: <20021201100057.GA24642@louise.pinerecords.com>
+References: <200211300129.32580.black666@inode.at> <1038667380.17209.2.camel@irongate.swansea.linux.org.uk> <200211302227.23253.black666@inode.at> <1038710862.18752.2.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1038710862.18752.2.camel@irongate.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the 2.4.20 kernel changelog I see comments about having consistent
-DRM modules with XFree4.2.0. I have a Radeon Mobility M6 LY in a Dell
-laptop and would like to get DRI working. Whenever I use any 2.4.*
-(including 2.4.20) kernel I get the following messages in
-/var/log/XFree86.0.log, and DRM is not enabled. Is this supposed to be
-working in 2.4.20 ? I am using a Mandrake 8.2 system (except for the
-kernel).
+> > > Try the -ac tree firstly
+> > 
+> > Thanks Alan, now dma works perfect!
+> > How come this code isn't in the official 2.4.20 kernel?
+> 
+> Because its still getting a final polish - with luck it will be in
+> 2.4.21
 
+I'm still having problems with dma on the secondary channel of my
+PDC20268.  Channel 1 is ok.
 
-(II) RADEON(0): [drm] loaded kernel module for "radeon" driver
-(II) RADEON(0): [drm] created "radeon" driver at busid "PCI:1:0:0"
-(II) RADEON(0): [drm] added 8192 byte SAREA at 0xd1bb1000
-(II) RADEON(0): [drm] mapped SAREA 0xd1bb1000 to 0x40026000
-(II) RADEON(0): [drm] framebuffer handle = 0xe0000000
-(II) RADEON(0): [drm] added 1 reserved context for kernel
-(EE) RADEON(0): [dri] RADEONDRIScreenInit failed because of a version
-mismatch.
-[dri] radeon.o kernel module version is 1.1.1 but version 1.2.x is
-needed.
-[dri] see http://gatos.sf.net/ for an updated module
-[dri] Disabling DRI.
-(EE) RADEON(0): [drm] failed to remove DRM signal handler
-(II) RADEON(0): [drm] removed 1 reserved context for kernel
+# hdparm -Iv /dev/hdg| grep '*u'
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4
 
-Thx
+# hdparm -X68 /dev/hdg
+
+/dev/hdg:
+ setting xfermode to 68 (UltraDMA mode4)
+
+(no errors logged)
+
+# hdparm -Iv /dev/hdg| grep '*u'
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4
+
+There's no such problem w/ 2.4.20 vanilla.
+
 -- 
-Andy
+Tomas Szepe <szepe@pinerecords.com>

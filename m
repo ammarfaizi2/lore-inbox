@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269448AbUHZTSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269447AbUHZTSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269448AbUHZTSR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269316AbUHZTKY
+	id S269447AbUHZTSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUHZTOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:10:24 -0400
-Received: from main.gmane.org ([80.91.224.249]:60600 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S269418AbUHZTHa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:07:30 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
+	Thu, 26 Aug 2004 15:14:49 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51680 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269338AbUHZTNb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 15:13:31 -0400
+Date: Thu, 26 Aug 2004 20:13:23 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
+       jamie@shareable.org, christophe@saout.de, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-Date: Thu, 26 Aug 2004 21:06:43 +0200
-Message-ID: <MPG.1b98216351280e1f9896d7@news.gmane.org>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826010355.GB24731@mail.shareable.org>
+Message-ID: <20040826191323.GY21964@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com> <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-103-141.29-151.libero.it
-X-Newsreader: MicroPlanet Gravity v2.60
-Cc: reiserfs-list@namesys.com, linux-fsdevel@vger.kernel.org
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> Nicholas Miell wrote:
-> > Anything that currently stores a file's metadata in another file really
-> > wants this right now. Things like image thumbnails, document summaries,
-> > digital signatures, etc.
+[reposted in thread]
+
+On Thu, Aug 26, 2004 at 11:46:33AM -0700, Linus Torvalds wrote:
+> Note that we could try this out with existing filesystems with very 
+> minimal changes:
 > 
-> Additionally, all of those things you describe should be deleted if
-> the file is modified -- to indicate that they're no longer valid and
-> should be regenerated if needed.
+>  - make directory bind mounts work on top of files ("graft_tree()")
+>  - make open_namei() and friend _not_ do the mount-point following for the 
+>    last component if it's a non-directory.
+>  - probably some trivial fixups I haven't thought about. There might be 
+>    some places that use "S_ISDIR()" to check for whether something can be 
+>    looked up, but the main path walking already just checks whether there
+>    is a ".lookup" operation or not.
+> 
+> This would already allow people to "try out" how different applications 
+> would react to a file that can show up both as a directory and a file. The 
+> patch might end up being less than 25 lines or so, the difficulty is in 
+> finding all the right places.
 
-In principle, not all of them. For example, a document summary 
-for a text document or a long (textual) description of a video 
-clip might remain the same when the user is only working on the 
-finishing details.
+The real issue is what to do with unlink() et.al. on these guys.  Note
+that "unlink is OK if all we have there is a bunch of directory mounts"
+won't work well - we have no good way to check that condition.
 
-Maybe the metadata needs an attribute to determine how 
-'immutable' it should be wrt changes on the file? (Can you 
-spell meta-meta-data <g>)
+Even funnier one is what we do if we have directory mounted there *and*
+have something mounted on stuff in that directory.
 
--- 
-Giuseppe "Oblomov" Bilotta
+Yes, that's one of the probable directions for such stuff, but there's a
+lot of fun semantics questions and answers to them will matter a lot.
 
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
-
+Hey, if we lose the "can't unlink/rmdir/rename over something that is
+a mountpoint in other life" - I'm happy and we can get a lot of much
+more interesting stuff to work.  It will take some work (e.g. making
+sure we can find all vfsmounts over given mountpoint and sorting out
+the locking issues, which won't be trivial), but the main obstacle in
+that direction is not in architecture - it's in SuS and tradition; as
+the matter of fact, our life would be much easier if we stopped trying
+to give -EBUSY here and just dissolved all subtrees mounted on anything
+that has that dentry.

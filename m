@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272187AbRIJXhy>; Mon, 10 Sep 2001 19:37:54 -0400
+	id <S272181AbRIJXfx>; Mon, 10 Sep 2001 19:35:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272182AbRIJXho>; Mon, 10 Sep 2001 19:37:44 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:37893 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S272164AbRIJXh1>;
-	Mon, 10 Sep 2001 19:37:27 -0400
-Message-ID: <XFMail.20010911013717.ast@domdv.de>
-X-Mailer: XFMail 1.4.6-3 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S272164AbRIJXfo>; Mon, 10 Sep 2001 19:35:44 -0400
+Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:20473 "HELO
+	devbox.kroptech.com") by vger.kernel.org with SMTP
+	id <S272181AbRIJXfa>; Mon, 10 Sep 2001 19:35:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Kropelin <akropel1@rochester.rr.com>
+Reply-To: akropel1@rochester.rr.com
+Organization: KropTech
+To: hugh@veritas.com
+Subject: Re: scsi_io_completion oops on 2.4.10-pre5
+Date: Mon, 10 Sep 2001 19:35:49 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-In-Reply-To: <200109102306.f8AN6iY21834@aslan.scsiguy.com>
-Date: Tue, 11 Sep 2001 01:37:17 +0200 (CEST)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        <SPATZ1@t-online.de (Frank Schneider)>
+Message-Id: <01091019354900.05688@devbox>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> MD (line 3475 of drivers/md/md.c) uses 0 too.  Change it to INT_MAX
-> and MD will always get shutdown prior to any child devices it might
+Hugh Dickens wrote:
+> On Sun, 9 Sep 2001, Adam Kropelin wrote:
+> > The below oops is easily reproducable for me under 2.4.10-pre5.
+> > Unable to handle kernel paging request at virtual address 46454c22
+> > >>EIP; c020c444 <scsi_io_completion+88/370>   <=====
+>
+> Although there's nothing about this to link it with the page_alloc.c
+> BUGs, that's clearly corruption ("LEF), and the page_alloc.c BUGs
+> were caused by double use of a page: I wouldn't trust 2.4.10-pre5,
+> think you should try to reproduce on -pre6 or -pre7 instead.
 
-I don't believe INT_MAX to be a good idea. What happens if anything else needs
-to shutdown prior to md (think of tux, knfsd)? As a suggestion it would be a
-good idea if someone with a broader overview would define some reboot
-priorities in include/linux/notifier.h.
+Sound advice, indeed. 2.4.10-pre7 handles everything I can throw
+at it. I guess I just picked a bad Linus kernel to start with...
 
+Thanks for the pointer.
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+--Adam

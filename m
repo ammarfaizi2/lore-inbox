@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262806AbSKTW3V>; Wed, 20 Nov 2002 17:29:21 -0500
+	id <S261950AbSKTW1w>; Wed, 20 Nov 2002 17:27:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262826AbSKTW3U>; Wed, 20 Nov 2002 17:29:20 -0500
-Received: from bitmover.com ([192.132.92.2]:470 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262806AbSKTW3T>;
-	Wed, 20 Nov 2002 17:29:19 -0500
-Date: Wed, 20 Nov 2002 14:36:21 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andre Hedrick <andre@linux-ide.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Cort Dougan <cort@fsmlabs.com>, Xavier Bestel <xavier.bestel@free.fr>,
-       Mark Mielke <mark@mark.mielke.cc>, Rik van Riel <riel@conectiva.com.br>,
-       David McIlwraith <quack@bigpond.net.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: spinlocks, the GPL, and binary-only modules
-Message-ID: <20021120143621.D30979@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Jeff Garzik <jgarzik@pobox.com>, Cort Dougan <cort@fsmlabs.com>,
-	Xavier Bestel <xavier.bestel@free.fr>,
-	Mark Mielke <mark@mark.mielke.cc>,
-	Rik van Riel <riel@conectiva.com.br>,
-	David McIlwraith <quack@bigpond.net.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.10.10211201400570.3892-100000@master.linux-ide.org> <1037832180.3241.104.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1037832180.3241.104.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Nov 20, 2002 at 10:43:00PM +0000
-X-MailScanner: Found to be clean
+	id <S262806AbSKTW1w>; Wed, 20 Nov 2002 17:27:52 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:40937 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261950AbSKTW1v>;
+	Wed, 20 Nov 2002 17:27:51 -0500
+Date: Wed, 20 Nov 2002 14:33:29 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Richard Whittaker <rwhittak@gnat.nwtel.ca>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Semaphore and Shared memory questions...
+In-Reply-To: <5.1.1.6.0.20021120135311.0248d600@gnat.nwtel.ca>
+Message-ID: <Pine.LNX.4.33L2.0211201432170.31148-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 10:43:00PM +0000, Alan Cox wrote:
-> A pointless war has two losers.
-> 
-> Alan
+On Wed, 20 Nov 2002, Richard Whittaker wrote:
 
-I like:
+| >Right first guess. Its mostly historical that it isnt 4 values.
+|
+| What's the order of the values?...
+|
+| I can take a wild stab that the first value is semmsl, or is it semmni,
+| then the subsequent values?...
+|
+| Are there plans to split them out into distinct values, or is that a
+| massive rewrite?...
 
-"When you're arguing with an idiot, two idiots are arguing"
+I haven't seen a kernel version that you are working with,
+but hopefully that won't matter.  This is from 2.4.19:
 
-Told to me by Victor Yodaiken (who suggested I tattoo it on the tops
-of my hands and look down a lot while I'm flaming. Good idea, that.)
+./ipc/sem.c:96:int sem_ctls[4] = {SEMMSL, SEMMNS, SEMOPM, SEMMNI};
+./ipc/sem.c:97:#define sc_semmsl        (sem_ctls[0])
+./ipc/sem.c:98:#define sc_semmns        (sem_ctls[1])
+./ipc/sem.c:99:#define sc_semopm        (sem_ctls[2])
+./ipc/sem.c:100:#define sc_semmni       (sem_ctls[3])
+
+so that's the order.  If Alan replies, his matching reply can confirm
+this.  :)
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+~Randy
+

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.com) by vger.kernel.org via listexpand
-	id <S261155AbRELD7p>; Fri, 11 May 2001 23:59:45 -0400
+	id <S261169AbRELEDe>; Sat, 12 May 2001 00:03:34 -0400
 Received: (majordomo@vger.kernel.com) by vger.kernel.org
-	id <S261159AbRELD5m>; Fri, 11 May 2001 23:57:42 -0400
+	id <S261195AbRELD7q>; Fri, 11 May 2001 23:59:46 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:49800 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261162AbRELD5a>;
-	Fri, 11 May 2001 23:57:30 -0400
-Date: Fri, 11 May 2001 21:57:59 -0400 (EDT)
-From: Tom Diehl <tdiehl@pil.net>
-X-X-Sender: <tdiehl@localhost.localdomain>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: 2.4.4ac7 oops, locks in init on boot
-In-Reply-To: <E14yIBC-0001XM-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0105112153190.31744-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by vger.kernel.org with ESMTP id <S261161AbRELD5q>;
+	Fri, 11 May 2001 23:57:46 -0400
+Date: Sat, 12 May 2001 04:37:25 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Matthew Kirkwood <matthew@hairy.beasts.org>,
+        Byron Albert <balbert@internet.com>, linux-kernel@vger.kernel.org
+Subject: Re: test -please disregard
+Message-ID: <20010512043725.B30229@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Matti Aarnio <matti.aarnio@zmailer.org>,
+	Matthew Kirkwood <matthew@hairy.beasts.org>,
+	Byron Albert <balbert@internet.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010511201056.J5947@mea-ext.zmailer.org> <Pine.LNX.4.30.0105111822140.822-100000@sphinx.mythic-beasts.com> <20010511203928.K5947@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010511203928.K5947@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Fri, May 11, 2001 at 08:39:28PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 May 2001, Alan Cox wrote:
+On Fri, May 11, 2001 at 08:39:28PM +0300, Matti Aarnio wrote:
+...
+>    Unfortunately I don't have a clue as to why it has been failing,
+>    but the kernel is a bit old...
+> 
+>  Linux vger.redhat.com 2.2.12-20 #1 Mon Sep 27 10:40:35 EDT 1999 i686 unknown
 
-> > If anyone has any further suggestions/patches to run 2.4.x with K7
-> > chosen optimizations, I'm open to testing.
->
-> 'Buy an AMD chipset box..'
->
-> Seriously at this point I am out of ideas. The prefetch to far effect
-> explained the old athlon locks (step 1) people reported on all chipsets. It
-> didnt really seem to explain the problem with a few via chipset boards but I
-> was hopeful.
+On a not very loaded dual classic P133:
 
-So are you saying that given the current information available you have you
-do not know how to fix the via -> Athlon stuff or am I reading too much
-into this?
+[root /root]# uname -a
+Linux xxx.xxx.xxx 2.2.12-20smp #1 SMP Mon Sep 27 10:20:02 EDT 1999 i586 unknown
+[root /root]# uptime
+  4:34am  up 441 days,  9:14,  1 user,  load average: 0.21, 0.13, 0.10
 
-I am looking at buying an Athlon board soon and I am trying to figure out
-if I should avoid via at all costs or not.
-
-TIA,
+Just wanted to chirp in with a little good news  :)
 
 -- 
-......Tom		DISSERVICE: It Takes Months to Find a Customer, but
-tdiehl@pil.net		Only Seconds to Lose One... The good News is that We
-			Should Run Out of Them In No Time.
-
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,91 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263632AbTETIoE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 04:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbTETIoE
+	id S263637AbTETIqN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 04:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTETIqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 04:44:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59917 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263632AbTETIoC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 04:44:02 -0400
-Date: Tue, 20 May 2003 09:56:54 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Marcel Holtmann <marcel@rvs.uni-bielefeld.de>,
-       BlueZ Mailing List <bluez-devel@lists.sourceforge.net>,
-       viro@ftp.uk.linux.org, linux-kernel@vger.kernel.org
-Subject: Re: rfcomm-tty driver->put_char
-Message-ID: <20030520095654.A4491@flint.arm.linux.org.uk>
-Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
-	Marcel Holtmann <marcel@rvs.uni-bielefeld.de>,
-	BlueZ Mailing List <bluez-devel@lists.sourceforge.net>,
-	viro@ftp.uk.linux.org, linux-kernel@vger.kernel.org
-References: <1053199887.9218.50.camel@imladris.demon.co.uk> <1053379016.1475.66.camel@pegasus> <1053381250.21582.14.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1053381250.21582.14.camel@imladris.demon.co.uk>; from dwmw2@infradead.org on Mon, May 19, 2003 at 10:54:10PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Tue, 20 May 2003 04:46:13 -0400
+Received: from dp.samba.org ([66.70.73.150]:52654 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263637AbTETIqL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 04:46:11 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D3 
+In-reply-to: Your message of "Tue, 20 May 2003 08:27:03 +0200."
+             <Pine.LNX.4.44.0305200821010.2445-100000@localhost.localdomain> 
+Date: Tue, 20 May 2003 18:55:29 +1000
+Message-Id: <20030520085911.8AC522C12C@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 19, 2003 at 10:54:10PM +0100, David Woodhouse wrote:
-> Note that I recommend this for 2.4 _only_. For 2.5 the correct fix is to
-> fix the tty_driver API, so you can perhaps let this 'bug' remain there
-> for a while. I seem to be the only person using an rfcomm modem for
-> dialin anyway, and 2.5 doesn't even get as far as a login prompt on that
-> box, let alone support V.110 dialin over ISDN which is also required, so
-> I really won't miss it :)
+In message <Pine.LNX.4.44.0305200821010.2445-100000@localhost.localdomain> you write:
+> yes, but the damage has been done already, and now we've got to start the
+> slow wait for the old syscall to flush out of our tree. It will a few
+> years to get rid of the compat code, but we better start now. hch is
+> perfectly right that the old futex multiplexer interface is quite ugly,
+> the requeue op only made this even more prominent.
+
+It's a judgement call: how simple it is to change vs. the amount of
+damage done by not changing it.
+
+I don't think it's worth changing, but I don't think we're going to
+convince each other.
+
+> > Comment says: /* Must be "naturally" aligned */.  This used to be true
+> > in a much earlier version of the code, now AFAICT the requirement test
+> > should be:
+> > 
+
+> > 	/* Handling futexes on multiple pages?  -ETOOHARD */
+> > 	if (pos_in_page + sizeof(u32) > PAGE_SIZE)
+> > 		return -EINVAL;
 > 
-> The write_room() function is documented to return the number of
-> characters which can _currently_ be pushed to the tty driver. The n_tty
-> code has no business thinking that the value returned from write_room()
-> will be valid at _any_ point in the future, and the fact that put_char()
-> is not permitted to return any success/failure indication like write()
-> can is just bizarre.
+> yes - but i'd rather enforce this for every futex, than to hit it in every
+> 1000th app that manages to misalign a futex _and_ lay it across two pages.  
 
-It is up to the line discipline to ensure that there is only a single
-thread running between write_room() and the write() or put_char() call
-(which is currently done thanks to lock_kernel().  If it isn't, the
-tty locking broke and we have bigger problems.)
+Good point.  I'd prefer to fix the comment though, since it's not
+true.  How about changing it to something like:
 
-Without this guarantee, how do you propose to handle the following case:
+      	/* We can't handle futexes across multiple pages: best to reject
+	   any crazy alignment to save the users from themselves. */
 
-- we have a "\n" character from user space.
-- we have O_ONLCR set.
-- we have only one character available in the output buffer in the driver.
+> Also, it's only x86 that guarantees atomic instructions on misaligned
+> futexes (even then it comes with a cycle penalty), are you sure this also
+> works on other architectures? So i'd rather be a bit more strict with this
+> requirement.
 
-This means we need to write two characters "\r\n" to the driver.  If we
-try to write "\r\n" using your proposed solution, we'd write "\r".  How
-do we remember that we need to write a "\n" (or some other string of
-characters for that matter) ?
+Sure.  My point was that this comment is actually from a v. early futex
+version where the kernel actually did the atomic ops itself.
 
-Now consider if we could remember we've only written half the string.
-What happens if we've written "\r", then some tty echo occurs, then
-we write "\n" ?
-
-If these cases don't work with a new API, the new API is even more buggy
-than the existing one.
-
-(For user output, n_tty currently guarantees that we will not drop any
-characters written from user space, as long as we remain single-threaded
-between write_room() and put_char() or write() methods.)
-
-Looking at rfcomm, this is probably part of your problem:
-
-        return dlc->mtu * (dlc->tx_credits ? : 10);
-
-Also, rfcomm should be fixed to use the put_char / flush_buffer methods.
-These are there to batch up single chars to make things more efficient,
-and I wouldn't be surprised if a stream of single chars were eating up
-all your tx credits.
-
-I'm surprised that rfcomm, being a packet based communication system,
-doesn't implement put_char.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Hope that clarifies!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

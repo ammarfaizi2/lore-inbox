@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267754AbUHPPYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267711AbUHPPYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267754AbUHPPYd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 11:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267697AbUHPPUL
+	id S267711AbUHPPYc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 11:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267851AbUHPPYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 11:20:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27360 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267702AbUHPPTK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 11:19:10 -0400
-Message-ID: <4120D05D.3020602@pobox.com>
-Date: Mon, 16 Aug 2004 11:18:53 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike_Phillips@URSCorp.com
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Neil Horman <nhorman@redhat.com>, Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: [Patch} to fix oops in olympic token ring driver on media disconnect
-References: <OF11E315D2.D4CBAED1-ON85256EF2.0052F29D-85256EF2.0053587E@urscorp.com>
-In-Reply-To: <OF11E315D2.D4CBAED1-ON85256EF2.0052F29D-85256EF2.0053587E@urscorp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 11:24:04 -0400
+Received: from main.gmane.org ([80.91.224.249]:63716 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267723AbUHPPUP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 11:20:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Adam Jones <adam@yggdrasl.demon.co.uk>
+Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
+Date: Mon, 16 Aug 2004 16:17:46 +0100
+Message-ID: <qpv6v1-87i.ln1@yggdrasl.demon.co.uk>
+References: <200408160940.02849.worf@sbox.tu-graz.ac.at>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: yggdrasl.demon.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike_Phillips@URSCorp.com wrote:
->>Well, regardless, Neil's patch is IMO a good first step.
+In a futile gesture against entropy, Wolfgang Scheicher wrote:
+> John Wendel wrote:
 > 
-> 
-> Neil's patch is to make the annoying regression test failure go away. To 
-> be honest I have had *one* user email me that this is a problem and once I 
-> gave them the "don't remove the cable on token ring, its not ethernet" 
-> talk, they were fine. 
+> > K3B detects my Lite-on LTR-52327S CDRW as a CDROM when run with 2.6.8.1.
+> > Booting back into 2.6.7 corrects the problem.
 
+> I have the same problem.
+> I found out that cdrecord has a empty Line for the supported modes.
+> ( not k3b fault )
 
-Well I
-* disagree the kernel should oops,
-* I disagree that olympic should call free_irq in the interrupt handler, and
-* I disagree that olympic should do 'dev->stop = NULL' at all, much less 
-in the interrupt handler
+For the record, this also seems to have affected growisofs.  Running it
+setuid root doesn't help, since it drops privileges before burning
+(and thus I imagine it now ends up dropping too many privileges...).
 
-sorry,
-
-	Jeff
-
+Would the correct plan of attack here be to send fixes to the authors
+of the various media-burning tools to make sure that they keep
+CAP_SYS_RAWIO when dropping privileges?  (Are any other capabilities
+required?)
+-- 
+Adam Jones (adam@yggdrasl.demon.co.uk)(http://www.yggdrasl.demon.co.uk/)
+.oO("*ahem*"                                                           )
+PGP public key: http://www.yggdrasl.demon.co.uk/pubkey.asc
 

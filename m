@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261582AbSLOOXF>; Sun, 15 Dec 2002 09:23:05 -0500
+	id <S261615AbSLOOcg>; Sun, 15 Dec 2002 09:32:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261615AbSLOOXF>; Sun, 15 Dec 2002 09:23:05 -0500
-Received: from port48.ds1-vbr.adsl.cybercity.dk ([212.242.58.113]:16721 "EHLO
-	ubik.localnet") by vger.kernel.org with ESMTP id <S261582AbSLOOXE>;
-	Sun, 15 Dec 2002 09:23:04 -0500
-Message-ID: <3DFC921C.1030302@murphy.dk>
-Date: Sun, 15 Dec 2002 15:30:52 +0100
-From: Brian Murphy <brian@murphy.dk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: early_serial_setup is broken in the 2.5 series
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261624AbSLOOcg>; Sun, 15 Dec 2002 09:32:36 -0500
+Received: from ping.ovh.net ([213.186.33.13]:1801 "EHLO ping.ovh.net")
+	by vger.kernel.org with ESMTP id <S261615AbSLOOcf>;
+	Sun, 15 Dec 2002 09:32:35 -0500
+Date: Sun, 15 Dec 2002 15:40:50 +0100
+From: Octave <oles@ovh.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
+Subject: problem with Andrew's patch ext3
+Message-ID: <20021215144050.GY12395@ovh.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As far as I can see early_serial_setup should be capable of being
-used to dynamically setup a serial port at any time in the boot
-process - this is certainly the case in the 2.4 kernels.
+Hello Andrew,
 
-However if it is used during architecture initialization, for example,
-then the serial8250_reg uart driver has not been registered and
-initialized even though it is used in the early_serial_setup call.
+I patched 2.4.20 with your patch found out on http://lwn.net/Articles/17447/
+and I have a big problem with:
+once server is booted on 2.4.20 with your patch, when I want to reboot
+with /sbin/reboot, server makes a Segmentation fault and it crashs.
+I tested it on 50-60 servers and it is the same problem. I tested kernel
+2.4.20 without your patch: no problem.
 
-What was wrong with the 2.4 implimentation where the registered
-serial ports were saved until the serial driver was ready to use them?
+# uname -a 
+Linux XXXXXX 2.4.20 #1 ven déc 13 17:21:23 CET 2002 i686 unknown
+# /sbin/reboot
 
-/Brian
+Broadcast message from root (pts/0) Sun Dec 15 14:26:03 2002...
+
+The system is going down for reboot NOW !!
+Segmentation fault
+# 
+# dmRead from remote host XXXXXXXX: Connection reset by peer
+
+It is crashed.
+
+no logs :/
+
+Regards
+Octave
+
 

@@ -1,111 +1,172 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbUBHVOw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 16:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUBHVOw
+	id S263996AbUBHVXU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 16:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUBHVWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 16:14:52 -0500
-Received: from mid-1.inet.it ([213.92.5.18]:61170 "EHLO mid-1.inet.it")
-	by vger.kernel.org with ESMTP id S264095AbUBHVOt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 16:14:49 -0500
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: linux-kernel@vger.kernel.org
-Subject: SATA / IRQ ICH5 problems
-Date: Sun, 8 Feb 2004 22:14:40 +0100
-User-Agent: KMail/1.6
+	Sun, 8 Feb 2004 16:22:51 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:6343 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S263996AbUBHVWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 16:22:45 -0500
+Date: Sun, 8 Feb 2004 16:22:21 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Philippe Elie <phil.el@wanadoo.fr>, Russell King <rmk@arm.linux.org.uk>,
+       "Jiang, Dave" <dave.jiang@intel.com>,
+       Linux ARM <linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: [PATCH][2.6] Oprofile, ARM infrastructure
+Message-ID: <Pine.LNX.4.58.0402081606220.3370@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402082214.40149.cova@ferrara.linux.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure if this has been reported earlier, I've googled a little 
-bit but no luck.
-I've recently installed a SATA drive (maxtor 160G) on a abit ic7-g 
-(i875p ICH5 MoBo) and I've tried to use it with 2.6.2-mm1 kernel; I've
-already in place a normal 60 Gb HD and a DVD burner on standard ide
-controllers.
-The first thing I've noticed is that when I enable from bios menu the 
-SATA controller, the internal nic stops working, reporting errors like
-this:
+This patch adds infrastructure code and enables ARM to utilise
+the timer int oprofile driver. There is PMU code under development for the
+XScale but that is still forthcoming. In the meantime you can use the
+timer int driver with an updated Oprofile-CVS userspace (SF is a bit slow,
+please allow 24hrs).
 
-======================================
-Feb  7 16:16:36 kefk kernel: e1000: eth0 NIC Link is Up 100 Mbps Full
-Duplex
-Feb  7 16:16:41 kefk kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Feb  7 16:16:43 kefk kernel: e1000: eth0 NIC Link is Up 100 Mbps Full
-Duplex
-======================================
+Tested on an IOP331 eval board courtesy of Intel, if someone would like
+the additional patches to put on top of the iop1 patchset please contact
+me.
 
-Looking at syslog, I've seen this:
+Index: linux-2.6.2/arch/arm/Kconfig
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.2/arch/arm/Kconfig,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 Kconfig
+--- linux-2.6.2/arch/arm/Kconfig	4 Feb 2004 07:43:40 -0000	1.1.1.1
++++ linux-2.6.2/arch/arm/Kconfig	8 Feb 2004 20:37:25 -0000
+@@ -633,6 +633,8 @@ source "drivers/media/Kconfig"
 
-======================================
-Feb  7 16:14:49 kefk kernel: hub 1-0:1.0: debounce: port 3: delay 100ms
-stable 4 status 0x501
-Feb  7 16:14:49 kefk kernel: irq 18: nobody cared!
-Feb  7 16:14:49 kefk kernel: Call Trace:
-Feb  7 16:14:49 kefk kernel:  [<c010b8b0>] __report_bad_irq+0x24/0x81
-Feb  7 16:14:49 kefk kernel:  [<c010b7c1>] do_IRQ+0x12f/0x1fa
-Feb  7 16:14:49 kefk kernel:  [<c032c840>] common_interrupt+0x18/0x20
-Feb  7 16:14:49 kefk kernel:  [<c032007b>] .text.lock.xfrm_policy+0x9c/0xc9
-Feb  7 16:14:49 kefk kernel:
-Feb  7 16:14:49 kefk kernel: handlers:
-Feb  7 16:14:49 kefk kernel: [<c02b8db7>] (usb_hcd_irq+0x0/0x67)
-Feb  7 16:14:49 kefk kernel: Disabling IRQ #18
-======================================
+ source "fs/Kconfig"
 
-If I turn off SATA controller from bios all works just fine, and IRQ 18 is
-assigned  uhci_hcd, eth0
++source "arch/arm/oprofile/Kconfig"
++
+ source "drivers/video/Kconfig"
 
-If I try to modprobe ata_piix and libata, I get this on syslog:
+ if ARCH_ACORN || ARCH_CLPS7500 || ARCH_TBOX || ARCH_SHARK || ARCH_SA1100 || PCI
+Index: linux-2.6.2/arch/arm/Makefile
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.2/arch/arm/Makefile,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 Makefile
+--- linux-2.6.2/arch/arm/Makefile	4 Feb 2004 07:43:40 -0000	1.1.1.1
++++ linux-2.6.2/arch/arm/Makefile	8 Feb 2004 20:37:25 -0000
+@@ -116,6 +116,7 @@ endif
+ core-$(CONFIG_FPE_NWFPE)	+= arch/arm/nwfpe/
+ core-$(CONFIG_FPE_FASTFPE)	+= $(FASTFPE_OBJ)
 
-======================================
-Feb  7 16:19:15 kefk kernel: PCI: Setting latency timer of device
-0000:00:1f.2 to 64
-Feb  7 16:19:15 kefk kernel: ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402
-bmdma 0xD000 irq 18
-Feb  7 16:19:15 kefk kernel: ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02
-bmdma 0xD008 irq 18
-Feb  7 16:19:15 kefk kernel: ata1: dev 0 cfg 49:2f00 82:7c6b 83:7f09
-84:4003 85:7c69 86:3e01 87:4003 88:207f
-Feb  7 16:19:15 kefk kernel: ata1: dev 0 ATA, max UDMA/133, 320173056
-sectors (lba48)
-Feb  7 16:19:15 kefk kernel: ata1: dev 0 configured for UDMA/133
-Feb  7 16:19:15 kefk kernel: scsi1 : ata_piix
-Feb  7 16:19:15 kefk kernel: ata2: SATA port disabled. ignoring.
-Feb  7 16:19:15 kefk kernel: ata2: thread exiting
-Feb  7 16:19:15 kefk kernel: scsi2 : ata_piix
-Feb  7 16:19:15 kefk kernel:   Vendor: ATA       Model: Maxtor 6Y160M0
-Rev: 0.81
-Feb  7 16:19:15 kefk kernel:   Type:   Direct-Access
-ANSI SCSI revision: 05
-Feb  7 16:19:15 kefk kernel: SCSI device sda: 320173056 512-byte hdwr
-sectors (163929 MB)
-Feb  7 16:19:15 kefk kernel: SCSI device sda: drive cache: write through
-Feb  7 16:19:15 kefk scsi.agent[2951]: how to add device type= at
-/devices/pci0000:00/0000:00:1f.2/host1/1:0
-:0:0 ??
-======================================
++drivers-$(CONFIG_OPROFILE)      += arch/arm/oprofile/
+ drivers-$(CONFIG_ARCH_CLPS7500)	+= drivers/acorn/char/
+ drivers-$(CONFIG_ARCH_L7200)	+= drivers/acorn/char/
 
-but modprobe never returns control to the shell ad remains unkillable.
-I've seen this behaviour also on 2.6.2-rc3-mm1
-Of course I can make any needed test to narrow the problem, just let me
-know.
-
-Details:
-2.6.2-mm1 #1 SMP (SMT)
-i875p/P4 2.8GHz HT
-gcc (GCC) 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk)
-SATA drive: Maxtor 6Y160M0
-
-
--- 
-Fabio Coatti       http://www.ferrara.linux.it/members/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+Index: linux-2.6.2/arch/arm/kernel/time.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.2/arch/arm/kernel/time.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 time.c
+--- linux-2.6.2/arch/arm/kernel/time.c	4 Feb 2004 07:43:40 -0000	1.1.1.1
++++ linux-2.6.2/arch/arm/kernel/time.c	8 Feb 2004 18:23:15 -0000
+@@ -83,6 +83,9 @@ unsigned long long sched_clock(void)
+  */
+ static inline void do_profile(struct pt_regs *regs)
+ {
++
++	profile_hook(regs);
++
+ 	if (!user_mode(regs) &&
+ 	    prof_buffer &&
+ 	    current->pid) {
+Index: linux-2.6.2/arch/arm/oprofile/Kconfig
+===================================================================
+RCS file: linux-2.6.2/arch/arm/oprofile/Kconfig
+diff -N linux-2.6.2/arch/arm/oprofile/Kconfig
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ linux-2.6.2/arch/arm/oprofile/Kconfig	8 Feb 2004 20:55:01 -0000
+@@ -0,0 +1,23 @@
++
++menu "Profiling support"
++	depends on EXPERIMENTAL
++
++config PROFILING
++	bool "Profiling support (EXPERIMENTAL)"
++	help
++	  Say Y here to enable the extended profiling support mechanisms used
++	  by profilers such as OProfile.
++
++
++config OPROFILE
++	tristate "OProfile system profiling (EXPERIMENTAL)"
++	depends on PROFILING
++	help
++	  OProfile is a profiling system capable of profiling the
++	  whole system, include the kernel, kernel modules, libraries,
++	  and applications.
++
++	  If unsure, say N.
++
++endmenu
++
+Index: linux-2.6.2/arch/arm/oprofile/Makefile
+===================================================================
+RCS file: linux-2.6.2/arch/arm/oprofile/Makefile
+diff -N linux-2.6.2/arch/arm/oprofile/Makefile
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ linux-2.6.2/arch/arm/oprofile/Makefile	8 Feb 2004 20:37:25 -0000
+@@ -0,0 +1,9 @@
++obj-$(CONFIG_OPROFILE) += oprofile.o
++
++DRIVER_OBJS = $(addprefix ../../../drivers/oprofile/, \
++		oprof.o cpu_buffer.o buffer_sync.o \
++		event_buffer.o oprofile_files.o \
++		oprofilefs.o oprofile_stats.o \
++		timer_int.o )
++
++oprofile-y				:= $(DRIVER_OBJS) init.o
+Index: linux-2.6.2/arch/arm/oprofile/init.c
+===================================================================
+RCS file: linux-2.6.2/arch/arm/oprofile/init.c
+diff -N linux-2.6.2/arch/arm/oprofile/init.c
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ linux-2.6.2/arch/arm/oprofile/init.c	8 Feb 2004 20:37:25 -0000
+@@ -0,0 +1,22 @@
++/**
++ * @file init.c
++ *
++ * @remark Copyright 2004 Oprofile Authors
++ *
++ * @author Zwane Mwaikambo
++ */
++
++#include <linux/oprofile.h>
++#include <linux/init.h>
++#include <linux/errno.h>
++
++int oprofile_arch_init(struct oprofile_operations **ops)
++{
++	int ret = -ENODEV;
++
++	return ret;
++}
++
++void oprofile_arch_exit(void)
++{
++}
+Index: linux-2.6.2/drivers/oprofile/timer_int.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.2/drivers/oprofile/timer_int.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 timer_int.c
+--- linux-2.6.2/drivers/oprofile/timer_int.c	4 Feb 2004 07:43:53 -0000	1.1.1.1
++++ linux-2.6.2/drivers/oprofile/timer_int.c	8 Feb 2004 20:37:25 -0000
+@@ -10,7 +10,6 @@
+ #include <linux/kernel.h>
+ #include <linux/notifier.h>
+ #include <linux/smp.h>
+-#include <linux/irq.h>
+ #include <linux/oprofile.h>
+ #include <linux/profile.h>
+ #include <linux/init.h>

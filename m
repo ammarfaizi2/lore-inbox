@@ -1,77 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267877AbUGWSiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267883AbUGWSwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267877AbUGWSiW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 14:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267880AbUGWSiW
+	id S267883AbUGWSwF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 14:52:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267887AbUGWSwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 14:38:22 -0400
-Received: from outgoing1.jumpy.it ([213.215.144.9]:42141 "EHLO mail.jumpy.it")
-	by vger.kernel.org with ESMTP id S267877AbUGWSiS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 14:38:18 -0400
-Date: Fri, 23 Jul 2004 18:37:16 +0000
-Message-ID: <40FC85FD00008E10@mail12.jumpyint.it>
-From: lorinalanglois@jumpy.it
-Subject: ASSISTANCE, PLS.
-To: lorinalanglois@jumpy.it
+	Fri, 23 Jul 2004 14:52:05 -0400
+Received: from mail.gmx.net ([213.165.64.20]:24001 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267883AbUGWSv7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 14:51:59 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Daniele Venzano <webvenza@libero.it>
+Subject: SiS900: NULL pointer encountered in Rx ring, skipping
+Date: Fri, 23 Jul 2004 20:52:06 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407232052.06616.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LORINA LANGLOIS
-ABIDJAN-IVORY COAST.
-WEST AFRICA.
+After a few hours my network doesn't work on my laptop. There appear a lot of 
+those messages:
 
-Dearest One,
-Good a thing to write you. I have a proposal for you-this however is
-not mandatory nor will I in any manner compel you to honour against
-your will.
-I am Lorina Langlois, 22years old and the only daughter of my late parents
+eth0: NULL pointer encountered in Rx ring, skipping
+eth0: NULL pointer encountered in Rx ring, skipping
+eth0: NULL pointer encountered in Rx ring, skipping
+eth0: NULL pointer encountered in Rx ring, skipping
+eth0: NULL pointer encountered in Rx ring, skipping
+eth0: NULL pointer encountered in Rx ring, skipping
+eth0: NULL pointer encountered in Rx ring, skipping
+eth0: NULL pointer encountered in Rx ring, skipping
+eth0: NULL pointer encountered in Rx ring, skipping
+eth0: NULL pointer encountered in Rx ring, skipping
 
-Mr. and Mrs. Langlois .My father was a highly reputable business magnet-(acocoa
-merchant)who operated in the capital of Ivory coast during his
-days.
-It is sad to say that he passed away mysteriously in France during
-one of his business trips abroad on the 12th.Febuary 2000.Though his sudden
-death was linked or rather suspected to have been masterminded by an
-uncle of his who travelled with him at that time. But God knows the
-truth!
-My mother died when I was just 8 years old, and since then my father
-took me so special. Before his death on February 12th., 2000 he called his
+It works again after restarting network. I'm using 2.6.8-rc2 now. It was the 
+same problem in 2.6.7, but I didn't test it with earlier kernels.
 
-Secretary who accompanied him to the hospital and told him that he
-has the sum of two Two-million Four-Hundred-Thousand United State
-Dollars (USD$2.400,000) left in fixed deposit account in one of the leading
-banks in Africa.
+And right now I got one more eth0 message:
+eth0: Too much work at interrupt, interrupt status = 0x00000031.
+eth0: Too much work at interrupt, interrupt status = 0x00000001.
 
-He further told me that he deposited the money in his name, and
-finally issued a written instruction to his lawyer whom he said is in
-possession of all the necessary but legal documents to this fund and the
-bank.
-I am a university undergraduate and I really don't know what to
-do. Now I want an account overseas where I can transfer this funds. This
-is because I have suffered a lot of set-backs as a result of incessant
-political crisis here in COTE D'IVOIRE, and the death of my father
-actually brought sorrow to my life.
-I am in a sincere desire of your humble assistance in this regard. Your
-suggestions and ideas will be highly appreciated.
+Here the messages after module loading:
+eth0: SiS 900 Internal MII PHY transceiver found at address 1.
+eth0: Using transceiver found at address 1 as default
+eth0: SiS 900 PCI Fast Ethernet at 0xd000, IRQ 9, 00:a0:cf:c0:8a:dc.
+eth0: Media Link On 100mbps full-duplex
+eth0: Memory squeeze,deferring packet.
 
- Now permit me to ask these few questions:-
- 1. Can you honestly help me as your son?
- 2. Can I completely trust you?
- 3. What percentage of the total amount in question will be good for you
-    after the money is in your account?
-Please, Consider this and get back to me as soon as possible.
+lspci:
+0000:00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 PCI 
+Fast Ethernet (rev 80)
+        Subsystem: Silicon Integrated Systems [SiS] SiS900 10/100 Ethernet 
+Adapter
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (13000ns min, 2750ns max)
+        Interrupt: pin C routed to IRQ 9
+        Region 0: I/O ports at d000 [size=ffda0000]
+        Region 1: Memory at ffdc0000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at 00020000 [disabled]
+        Capabilities: [40] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
- Thank you so much.
- My sincere regards,
-
- Lorina Langlois.
-
-
-________________________________________
-Crea la tshirt con il tuo nick! http://www.mediasetshop.it/JumpyChat/
-
-
+____________
+dominik

@@ -1,94 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264286AbUADB1j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 20:27:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbUADB1j
+	id S264441AbUADBnF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 20:43:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbUADBnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 20:27:39 -0500
-Received: from gizmo05bw.bigpond.com ([144.140.70.15]:408 "HELO
-	gizmo05bw.bigpond.com") by vger.kernel.org with SMTP
-	id S264286AbUADB1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 20:27:36 -0500
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-To: linux-kernel@vger.kernel.org
-Subject: agpgart issue on 2.6.1-rc1-bk3 (x86-64)
-Date: Sun, 4 Jan 2004 12:28:22 +1100
-User-Agent: KMail/1.5.4
+	Sat, 3 Jan 2004 20:43:05 -0500
+Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:17087
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S264441AbUADBnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 20:43:02 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Willy Tarreau <willy@w.ods.org>
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+Date: Sun, 4 Jan 2004 12:42:47 +1100
+User-Agent: KMail/1.5.3
+Cc: Soeren Sonnenburg <kernel@nn7.de>, Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, gillb4@telusplanet.net
+References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <200401040815.54655.kernel@kolivas.org> <20040103233518.GE3728@alpha.home.local>
+In-Reply-To: <20040103233518.GE3728@alpha.home.local>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401041228.22987.harisri@bigpond.com>
+Content-Disposition: inline
+Message-Id: <200401041242.47410.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, 4 Jan 2004 10:35, Willy Tarreau wrote:
+> 6) Conclusion
+> =============
+>
+> Under 2.4, xterm uses jump scrolling which it does not use by default under
+> 2.6 if X responds fast enough. The first dirty solution which comes to mind
+> is to renice X to >+10 to slow it a bit so that xterm hits the high water
+> level and jumps.
+>
+> But it's not an effect of the scheduler alone, but a side effect of the
+> scheduler and xterm both trying to automatically adjust their behaviour in
+> a different manner. 
 
-I see this message in the 2.6.1-rc3-bk3 kernel log:
-agpgart: Detected AGP bridge 0
-agpgart: Too many northbridges for AGP
+Not quite. The scheduler retains high priority for X for longer so it's no new 
+dynamic adjustment of any sort, just better cpu usage by X (which is why it's 
+smoother now at nice 0 than previously). 
 
-This results in <100 FPS in glxgears, and I am unable to play the tuxracer 
-game :-). With 2.6.0-x8664-1 however I get 450 FPS (approx), and all was 
-well.
+> If either the scheduler or xterm was a bit smarter or 
+> used different thresholds, the problem would go away. It would also explain
+> why there are people who cannot reproduce it. Perhaps a somewhat faster or
+> slower system makes the problem go away. Honnestly, it's the first time
+> that I notice that my xterms are jump-scrolling, it was so much fluid
+> anyway.
 
-Upon applying this patch (making it identical to 2.6.0-x86-64 that is):
---- 2.6.1-rc1-bk3/drivers/char/agp/amd64-agp.c.orig     2004-01-04 
-01:06:20.000000000 +1100
-+++ 2.6.1-rc1-bk3/drivers/char/agp/amd64-agp.c  2004-01-04 01:06:50.000000000 
-+1100
-@@ -16,11 +16,7 @@
- #include "agp.h"
+Very thorough but not a scheduler problem as far as I'm concerned. Can you not 
+disable smooth scrolling and force jump scrolling?
 
- /* Will need to be increased if AMD64 ever goes >8-way. */
--#ifdef CONFIG_SMP
- #define MAX_HAMMER_GARTS   8
--#else
--#define MAX_HAMMER_GARTS   1
--#endif
-
- /* PTE bits. */
- #define GPTE_VALID     1
-
-Of course that maybe a wrong approach. But that makes things a lot better, and 
-I see this message in the kernel log:
-agpgart: Detected AGP bridge 0
-agpgart: Maximum main memory to use for agp memory: 941M
-agpgart: AGP aperture is 128M @ 0xd0000000
-
-And the number of FPS in glxgears is back to normal (450 FPS approx).
-
-Here is the 'lspci' information from my K8T800 chipset based Gigabyte 
-GA-K8VNXP board (and there seems to be 4 AMD K8 north bridges):
-00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 3188 (rev 01)
-00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device b188
-00:0e.0 RAID bus controller: Integrated Technology Express, Inc.: Unknown 
-device 8212 (rev 11)
-00:0f.0 RAID bus controller: VIA Technologies, Inc.: Unknown device 3149 (rev 
-80)
-00:0f.1 IDE interface: VIA Technologies, Inc. 
-VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 81)
-00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 81)
-00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 81)
-00:10.3 USB Controller: VIA Technologies, Inc. USB (rev 81)
-00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
-00:11.0 ISA bridge: VIA Technologies, Inc.: Unknown device 3227
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235 AC97 
-Audio Controller (rev 60)
-00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 78)
-00:13.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 (rev 10)
-00:14.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8025 (rev 01)
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV100 QY 
-[Radeon 7000/VE]
-
-Of course CONFIG_SMP is not set in my .config.
-
-Thanks
-Hari
+Con
 

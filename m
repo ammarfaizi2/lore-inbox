@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261379AbSJYMdy>; Fri, 25 Oct 2002 08:33:54 -0400
+	id <S261377AbSJYMaw>; Fri, 25 Oct 2002 08:30:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261383AbSJYMdy>; Fri, 25 Oct 2002 08:33:54 -0400
-Received: from zero.aec.at ([193.170.194.10]:12810 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S261379AbSJYMdx>;
-	Fri, 25 Oct 2002 08:33:53 -0400
-Date: Fri, 25 Oct 2002 14:40:01 +0200
-From: Andi Kleen <ak@muc.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 performance counters driver 3.0-pre2 for 2.5.44: [2/4] x86 support
-Message-ID: <20021025124001.GA29937@averell>
-References: <200210241500.RAA03585@kim.it.uu.se> <m3wuo7omzg.fsf@averell.firstfloor.org> <15801.14413.909403.323948@kim.it.uu.se>
+	id <S261379AbSJYMaw>; Fri, 25 Oct 2002 08:30:52 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:28052 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261377AbSJYMav>;
+	Fri, 25 Oct 2002 08:30:51 -0400
+Date: Fri, 25 Oct 2002 13:38:57 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: chrisl@vmware.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to get number of physical CPU in linux from user space?
+Message-ID: <20021025123857.GA1091@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>, chrisl@vmware.com,
+	linux-kernel@vger.kernel.org
+References: <20021024230229.GA1841@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15801.14413.909403.323948@kim.it.uu.se>
+In-Reply-To: <20021024230229.GA1841@vmware.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For what values of cpu is per_cpu(var,cpu) valid? For those where
-> cpu_online(cpu) is true, or those where cpu_possible(cpu) is true?
-> (I need to convert a memset() on the per_cpu_cache[] array to the
-> per_cpu(,) framework.)
+On Thu, Oct 24, 2002 at 04:02:29PM -0700, chrisl@vmware.com wrote:
+ > It seems that /proc/cpuinfo will return the number of logical CPU.
+ > If the machine has Intel Hyper-Thread enabled, that number is bigger
+ > than physical CPU number. Usually twice as big.
+ > 
+ > My question is, what is the reliable way for user space program
+ > to detect the number of physical CPU in the current machine?
+ > 
+ > If in it is in the kernel, I can read from cpu_sibling_map[]
+ > or phys_cpu_id[]. But it seems not easy read that from
+ > user space.
+ > 
+ > Of course I can do "gdb /proc/kcore" to get them. But is there
+ > any better way?
 
-Currently for cpu_possible(), but there is a patchkit around that
-makes it only true for cpu_online() so better assume that. 
-Of course that would require a hotplug CPU handler, but I would
-just ignore that for now.
+You can perform cpuid instructions in userspace to get the
+number of siblings per physical package.
 
--Andi
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

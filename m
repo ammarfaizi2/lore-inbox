@@ -1,91 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269500AbUI3Uq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269494AbUI3UvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269500AbUI3Uq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 16:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUI3Uoa
+	id S269494AbUI3UvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 16:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269498AbUI3UsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 16:44:30 -0400
-Received: from out012pub.verizon.net ([206.46.170.137]:15523 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S269181AbUI3Ulf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 16:41:35 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.9-rc3
-Date: Thu, 30 Sep 2004 16:41:29 -0400
-User-Agent: KMail/1.7
-Cc: Marcel Holtmann <marcel@holtmann.org>, Tom Duffy <Tom.Duffy@sun.com>
-References: <Pine.LNX.4.58.0409292036010.2976@ppc970.osdl.org> <200409300120.05524.gene.heskett@verizon.net> <1096521895.5181.5.camel@pegasus>
-In-Reply-To: <1096521895.5181.5.camel@pegasus>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Sep 2004 16:48:01 -0400
+Received: from cantor.suse.de ([195.135.220.2]:55226 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269494AbUI3UpE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 16:45:04 -0400
+Date: Thu, 30 Sep 2004 22:45:02 +0200
+From: Andi Kleen <ak@suse.de>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [RFC PATCH] sched_domains: Make SD_NODE_INIT per-arch
+Message-ID: <20040930204502.GD28315@wotan.suse.de>
+References: <1096420339.15060.139.camel@arrakis> <415BC0BC.6040902@yahoo.com.au> <1096569412.20097.13.camel@arrakis>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409301641.29662.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.8.60] at Thu, 30 Sep 2004 15:41:30 -0500
+In-Reply-To: <1096569412.20097.13.camel@arrakis>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 September 2004 01:24, Marcel Holtmann wrote:
->Hi Gene,
->
->> >> Ok, this 2.6.9 cycle is getting too long, but here's a -rc3 and
->> >> hopefully we're getting there now.
->> >
->> >   CC [M]  drivers/isdn/capi/capi.o
->> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c: In
->> > function `handle_minor_send':
->> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c:538:
->> >warning: cast from pointer to integer of different size
->> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c: In
->> > function `capi_recv_message':
->> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c:649:
->> >error: `tty' undeclared (first use in this function)
->> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c:649:
->> >error: (Each undeclared identifier is reported only once
->> >/build1/tduffy/linux-2.6.9-rc3/drivers/isdn/capi/capi.c:649:
->> >error: for each function it appears in.)
->> >make[4]: *** [drivers/isdn/capi/capi.o] Error 1
->> >make[3]: *** [drivers/isdn/capi] Error 2
->> >make[2]: *** [drivers/isdn] Error 2
->> >make[1]: *** [drivers] Error 2
->> >make: *** [_all] Error 2
->> >-
->>
->> Please start from the 2.6.8.tar.gz tarball, Tom.  This looks like
->> you may started from the 2.6.8.1.tar.gz.
->
->no. It is a problem of the TTY locking fixes from Alan.
->
->Regards
->
->Marcel
->
-Odd, here I'm using both seriel ports, ah, wait a min.
+On Thu, Sep 30, 2004 at 11:36:52AM -0700, Matthew Dobson wrote:
+> On Thu, 2004-09-30 at 01:15, Nick Piggin wrote:
+> > Matthew Dobson wrote:
+> > > IA64 already has their own version of SD_NODE_INIT, tuned for their
+> > > extremely large machines.  I think that all arches would benefit from
+> > > having their own, arch-specific SD_NODE_INIT initializer, rather than
+> > > the one-size-fits-all variant we've got now.
+> > > 
+> > 
+> > I suppose the patch is pretty good (IIRC Martin liked the idea).
+> > I guess it will at least increase the incidence of copy+paste,
+> > if not getting people to think harder ;)
+> 
+> Thanks!  Martin does like the idea, and I think Andi Kleen likes the
+> idea of being able to tune sched_domains for x86_64, too.  Any comments,
+> Andi?
 
-Could a fubar'd amdump run have occured if there was traffic on the 
-seriel port the ups is attached to, like a quick message that there 
-had been a power failure, shutdown was eminent, but it came back in 
-about 2 seconds?  There was nothing in the logs.  Humm, lemme fire up 
-the bulldog and see if that screws things up.
+It doesn't help me directly - what i need is the same thing 
+for SD_SIBLING_INIT for the CMP changes.
 
-That didn't seem to, and everything I looked at looked nominal, 
-including its own log.
+But it seems I need to do some other work to properly support the K8
+CMP first, so I'm defering attacking this a bit. 
 
-The other seriel port is being used for my X10 stuff, but that would 
-also be logged and there is nothing there either.
+> The patch is pretty simple.  I don't think it will increase any
+> copy+pasting because I don't believe anyone has modified SD_NODE_INIT at
+> all since it's been implemented, and certainly not for many kernel
+> releases.  I think part of the reason for that is that it is currently
+> impossible to tweak the values for your architecture of choice because
+> modifying the values now will change EVERYONE's sched_domains timings. 
+> Which is bad. :(  If anyone wants to tweak SD_NODE_INIT, they shouldn't
+> be copying+pasting those values to all architectures.  Besides, IA64
+> already gets their own SD_NODE_INIT to play with, why shouldn't everyone
+> else! ;)
 
-How does this TTY locking thing manifest itself?
+It would be nice if there was a SD_DEFAULT_NODE_INIT and a 
+SD_DEFAULT_SIBLING_INIT in some generic
+file that architecture code can use as a base for tweaking.
+For the CMP change I currently only want to remove SD_SHAREPOWER
+from SIBLING_INIT to get rid of SMT nice.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Later we'll probably want a SD_DEFAULT_CMP_INIT too that gives
+generic values for a dual core. Dual cores should be soon pretty
+common and tuning for them will be needed on several architectures
+(ppc64, ia64, x86, x86-64, sparc, parisc? ...). But figuring out good
+values for this will require a lot of benchmarking first.
+
+-Andi
+

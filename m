@@ -1,80 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262831AbVA2BOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262834AbVA2BPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262831AbVA2BOY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 20:14:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVA2BOY
+	id S262834AbVA2BPz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 20:15:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262836AbVA2BPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 20:14:24 -0500
-Received: from ernie.virtualdave.com ([198.216.116.246]:19979 "EHLO
-	ernie.virtualdave.com") by vger.kernel.org with ESMTP
-	id S262831AbVA2BOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 20:14:17 -0500
-Date: Fri, 28 Jan 2005 19:13:59 -0600 (CST)
-From: David Sims <dpsims@virtualdave.com>
-To: Paulo Marques <pmarques@grupopie.com>
-cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: I need a hardware wizard... I have been beating my head on the
- wall..
-In-Reply-To: <41FAA5F7.4000202@grupopie.com>
-Message-ID: <Pine.LNX.4.21.0501281912460.2599-100000@ernie.virtualdave.com>
+	Fri, 28 Jan 2005 20:15:54 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:7813 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262834AbVA2BPg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 20:15:36 -0500
+To: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+CC: jgarzik@pobox.com, alan@lxorguk.ukuu.org.uk, bzolnier@gmail.com,
+       arjan@infradead.org
+Subject: [ANNOUNCE] "iswraid" (ICHxR ataraid sub-driver) for 2.4.29
+From: Martins Krikis <mkrikis@yahoo.com>
+Date: 28 Jan 2005 20:15:04 -0500
+Message-ID: <87651hdoiv.fsf@yahoo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paulo!
+Version 0.1.5 of the Intel Sofware RAID driver (iswraid) is now
+available for the 2.4 series kernels at
+http://prdownloads.sourceforge.net/iswraid/2.4.29-iswraid.patch.gz?download
 
-  Your patch generated the following:
+It is an ataraid "subdriver" but uses the SCSI subsystem to find the
+RAID member disks. It depends on the libata library, particularly on
+either the ata_piix or the ahci driver, that enable the Serial ATA 
+capabilities in ICH5/ICH6/ICH7 chipsets. More information is available
+at the project's home page at http://iswraid.sourceforge.net/.
 
-Jan 28 19:11:51 linux kernel: vsc_sata int status: 00000083
-Jan 28 19:11:51 linux last message repeated 19 times
-Jan 28 19:11:51 linux kernel: irq 7: nobody cared!
-Jan 28 19:11:51 linux kernel:  [<c0128972>] __report_bad_irq+0x22/0x90
-Jan 28 19:11:51 linux kernel:  [<c0128a68>] note_interrupt+0x58/0x90
-Jan 28 19:11:51 linux kernel:  [<c01285f8>] __do_IRQ+0xd8/0xe0
-.
-.
-.
-.
+Driver documentation is included in Documentation/iswraid.txt,
+which is part of the patch. The license is GPL.
+
+The changes WRT version 0.1.4.3 are the following:
+* Resource deallocation bug fixed for failed initializations.
+* Read IO resubmission to mirror bug fixed.
+* RAID1E (covers 4-disk RAID10) code added.
+* More aggressive marking disks as bad in metadata.
+* Claiming disks for RAID "feature" removed.
+* Option defaults now customizable from the build configuration.
+* iswraid_never_fail "feature" watered down into iswraid_resist_failing.
+* iswraid_halt_degraded now prevents degraded volumes from being registered.
+* Debug printouts more customizable.
+* Some code cleanup and optimization.
+* Documentation changes.
+
+Please consider this driver for inclusion in the 2.4 kernel tree.
+
+  Martins Krikis
+  Storage Components Division
+  Intel Massachusetts
 
 
-Thanks for helping me... I hope this is useful info....
 
-Dave Sims
-************************************************************************
-On Fri, 28 Jan 2005, Paulo Marques wrote:
-
-> David Sims wrote:
-> > On Thu, 27 Jan 2005, Jeff Garzik wrote:
-> >>David Sims wrote:
-> >>
-> >>>[...]
-> >>>  You can insert the module in a running kernel and after barking as
-> >>>follows (once for each disk attached) it runs just fine.
-> >>
-> >>Basically nobody has ever had hardware to test sata_vsc with that 
-> >>hardware.  We should probably remove the PCI ID until an engineer can 
-> >>fix it...
-> > 
-> > Hi again,
-> > 
-> >   I am willing to make this hardware available to any engineer that wants
-> > to help me solve this problem.... and I will do whatever I can to make it
-> > an easy job... Please help me...
-> 
-> Well, I don't consider myself a hardware wizard, but at least I'm an 
-> engineer, so I decided to give it a go :)
-> 
-> It seems that the driver is not acknowledging the interrupt from the 
-> controller. It would be nice to know what kind of interrupt is 
-> triggering this.
-> 
-> Could you run the attached patch and show the output from dmesg?
-> 
-> -- 
-> Paulo Marques - www.grupopie.com
-> 
-> All that is necessary for the triumph of evil is that good men do nothing.
-> Edmund Burke (1729 - 1797)
-> 
+P.S. I've CC-d directly to the potential reviewers suggested a few months ago
+     by Marcelo. I'll appreciate any feedback you (and others) can provide.
 

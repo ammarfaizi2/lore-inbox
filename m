@@ -1,54 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268341AbUIBT2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268234AbUIBT2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268341AbUIBT2h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 15:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268346AbUIBT2h
+	id S268234AbUIBT2U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 15:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268341AbUIBT2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 15:28:37 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:37320 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S268341AbUIBT2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 15:28:33 -0400
-Date: Thu, 2 Sep 2004 12:28:20 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] i386 reduce spurious interrupt noise
-Message-ID: <20040902192820.GA6427@taniwha.stupidest.org>
+	Thu, 2 Sep 2004 15:28:20 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:62864 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268234AbUIBT2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 15:28:19 -0400
+Subject: Re: [PATCH] ACPI-based i8042 keyboard/aux controller enumeration
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       linux-input@atrey.karlin.mff.cuni.cz,
+       Alessandro Rubini <rubini@vision.unipv.it>,
+       Len Brown <len.brown@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200409021152.27472.bjorn.helgaas@hp.com>
+References: <200409021152.27472.bjorn.helgaas@hp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094149495.5645.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 02 Sep 2004 19:24:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i386 hardware can (and does) see spurious interrupts from time to
-tome.  Ideally I would like the printk removed completely but this is
-probably good enough for now.
+On Iau, 2004-09-02 at 18:52, Bjorn Helgaas wrote:
+> Add ACPI-based i8042 keyboard and aux controller enumeration.
 
-Singed-of-By: Chris Wedgwood <cw@f00f.org>
-
-===== arch/i386/kernel/apic.c 1.58 vs edited =====
---- 1.58/arch/i386/kernel/apic.c	2004-08-26 23:30:31 -07:00
-+++ edited/arch/i386/kernel/apic.c	2004-09-02 12:19:19 -07:00
-@@ -1190,7 +1190,7 @@
- 	   6: Received illegal vector
- 	   7: Illegal register address
- 	*/
--	printk (KERN_INFO "APIC error on CPU%d: %02lx(%02lx)\n",
-+	printk (KERN_DEBUG "APIC error on CPU%d: %02lx(%02lx)\n",
- 	        smp_processor_id(), v , v1);
- 	irq_exit();
- }
-===== arch/i386/kernel/i8259.c 1.36 vs edited =====
---- 1.36/arch/i386/kernel/i8259.c	2004-08-23 12:48:32 -07:00
-+++ edited/arch/i386/kernel/i8259.c	2004-09-02 12:20:49 -07:00
-@@ -226,7 +226,7 @@
- 		 * lets ACK and report it. [once per IRQ]
- 		 */
- 		if (!(spurious_irq_mask & irqmask)) {
--			printk("spurious 8259A interrupt: IRQ%d.\n", irq);
-+			printk(KERN_DEBUG "spurious 8259A interrupt: IRQ%d.\n", irq);
- 			spurious_irq_mask |= irqmask;
- 		}
- 		atomic_inc(&irq_err_count);
+You should probably also add the same for the non-ACPI path with the
+BIOS feature word query stuff in this case ?
 
 

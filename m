@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVAMSNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVAMR7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbVAMSNw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 13:13:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVAMSNm
+	id S261293AbVAMR7R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 12:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVAMR4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 13:13:42 -0500
-Received: from mailhost.ntl.com ([212.250.162.8]:2010 "EHLO
-	mta09-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
-	id S261386AbVAMSK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 13:10:28 -0500
-Message-ID: <41E6D5F8.2040901@gentoo.org>
-Date: Thu, 13 Jan 2005 20:11:36 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andres Salomon <dilinger@voxel.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-as1
-References: <1105605448.7316.13.camel@localhost>
-In-Reply-To: <1105605448.7316.13.camel@localhost>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jan 2005 12:56:53 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:26552 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261275AbVAMRza (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 12:55:30 -0500
+Date: Thu, 13 Jan 2005 09:55:20 -0800
+From: Greg KH <greg@kroah.com>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
+       pbadari@us.ibm.com, markv@us.ibm.com, tytso@us.ibm.com,
+       suparna@in.ibm.com
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+Message-ID: <20050113175520.GA24349@kroah.com>
+References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050107010119.GS1292@us.ibm.com> <20050113025157.GA2849@us.ibm.com> <20050113170712.GA867@us.ibm.com> <20050113174428.GD1269@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050113174428.GD1269@us.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jan 13, 2005 at 09:44:28AM -0800, Paul E. McKenney wrote:
+> On Thu, Jan 13, 2005 at 09:07:12AM -0800, Greg KH wrote:
+> > On Wed, Jan 12, 2005 at 06:51:57PM -0800, Paul E. McKenney wrote:
+> > > 
+> > > The current hope is that adding (a) shared and asymmetrically shared
+> > > subtrees between namespaces/locations in the same namespace, (b) stackable
+> > > LSM modules, and (c) dynamic recursive union mount would enable Linux
+> > > to provide this in a technically sound manner.  [But this is not clear
+> > > to me yet.]
+> > 
+> > I don't see how (b) has anything to do with this.  Anyone care to
+> > explain that?
+> 
+> It would allow tracking the processes that are using a given view,
+> so that state associated with that view could be cleaned up when the
+> last process exits.  One case that motivates this approach:
+> 
+> 1.	one process creates a view (e.g,. "setview" so that
+> 	"/vob/foo/bar.c" references version 1.2, just as
+> 	"/views/v1.2/vob/foo/bar.c" would),
+> 
+> 2.	this process forks off several descendants, then exits, and
+> 
+> 3.	the descendant processes eventually exit.
+> 
+> The underlying filesystem could use stackable LSM modules to track fork()s
+> and exit()s, allowing it to work out when all processes using a given
+> view had terminated.
 
-Andres Salomon wrote:
-> I'm announcing a new kernel tree; -as.  The goal of this tree is to form
-> a stable base for vendors/distributors to use for their kernels.  In
-> order to do this, I intend to include only security fixes and obvious
-> bugfixes, from various sources.  I do not intend to include driver
-> updates, large subsystem fixes, cleanups, and so on.  Basically, this is
-> what I'd want 2.6.10.1 to contain.
+But why the "stackable" requirement?  Why not just use the LSM interface
+and be done with it?
 
-After all of the recent discussion it's nice to see someone step up and do this :)
-Thanks a lot, I'm sure I will find it useful when producing gentoo's kernel 
-packages..
+Or do you want to combine this LSM with SELinux or any other LSM
+(root-plug, seclvl, etc.)?  If so, that's asking for trouble (see the
+stackable LSM problems that have been posted multiple times here, and on
+the linux-security-modules mailing list.)
 
-Just one suggestion- maybe could you distinguish security patches from 
-bugfixes? I.e. prepend or append the security patches with "sec" or something?
+thanks,
 
-Thanks,
-Daniel
-
+greg k-h

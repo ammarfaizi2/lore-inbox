@@ -1,81 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129496AbRCFVLH>; Tue, 6 Mar 2001 16:11:07 -0500
+	id <S129495AbRCFVSH>; Tue, 6 Mar 2001 16:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129498AbRCFVK5>; Tue, 6 Mar 2001 16:10:57 -0500
-Received: from www.topmail.de ([212.255.16.226]:24974 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S129496AbRCFVKs> convert rfc822-to-8bit;
-	Tue, 6 Mar 2001 16:10:48 -0500
-Message-ID: <026701c0a681$e93aa2e0$de00a8c0@homeip.net>
-From: "Thorsten Glaser Geuer" <eccesys@topmail.de>
-To: "David Weinehall" <tao@acc.umu.se>,
-        "Sean Hunter" <sean@dev.sportingbet.com>,
-        "Laramie Leavitt" <laramie.leavitt@btinternet.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <3AA4D92D.CDDB764D@ftel.co.uk> <JKEGJJAJPOLNIFPAEDHLEEDGCJAA.laramie.leavitt@btinternet.com> <20010306151242.D31649@dev.sportingbet.com> <20010306163711.A21941@khan.acc.umu.se>
-Subject: Re: binfmt_script and ^M
-Date: Tue, 6 Mar 2001 21:10:26 -0000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S129506AbRCFVR5>; Tue, 6 Mar 2001 16:17:57 -0500
+Received: from dsl-64-129-179-177.telocity.com ([64.129.179.177]:1043 "HELO
+	mail.ovits.net") by vger.kernel.org with SMTP id <S129495AbRCFVRp>;
+	Tue, 6 Mar 2001 16:17:45 -0500
+Date: Tue, 6 Mar 2001 16:20:38 -0500
+From: Mordechai Ovits <movits@ovits.net>
+To: Hao Sun <hsun@mtgbcs.usae.avaya.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TCP vegas implementation
+Message-ID: <20010306162038.A28153@ovits.net>
+In-Reply-To: <Pine.GSO.3.96.1010306113434.24407A-100000@hobcs1.ho.lucent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.GSO.3.96.1010306113434.24407A-100000@hobcs1.ho.lucent.com>; from hsun@mtgbcs.usae.avaya.com on Tue, Mar 06, 2001 at 12:03:02PM -0500
+X-Satellite-Tracking: 0x4B305AFF
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "David Weinehall" <tao@acc.umu.se>
-To: "Sean Hunter" <sean@dev.sportingbet.com>; "Laramie Leavitt" <laramie.leavitt@btinternet.com>; <linux-kernel@vger.kernel.org>
-Sent: Tuesday, 6. March 2001 15:37
-Subject: Re: binfmt_script and ^M
+linux-vegas:
 
+http://pictures.care2.com/view/2/459681070
 
-> On Tue, Mar 06, 2001 at 03:12:42PM +0000, Sean Hunter wrote:
-> > 
-> > I propose
-> > /proc/sys/kernel/im_too_lame_to_learn_how_to_use_the_most_basic_of_unix_tools_so_i_want_the_kernel_to_be_filled_with_crap_to_disguise_my_ineptitude
-> > 
-> > Any support?
+Really.
+
+Mordy
+
+On Tue, Mar 06, 2001 at 12:03:02PM -0500, Hao Sun wrote:
 > 
-> <sarcasm>
-> Hey, let's go even further! Let's add support in all programs for \r\n.
-
-That is no sarcasm, it is ridiculous. CRLF line endings are ISO-IR-6 and
-US-ASCII standard, and even UN*X systems used them when they had printers
-(typewriters?) as output device, and no screens. With the Virtual Terminal,
-Virtual Console stuff times may have changed but we have so many old stuff
-in it... I won't remove them or didn't think of, but I remember you of:
- - lost+found
- - using ESC (or Alt???) as META for _shell commands_ which
-   easily could be Ctrl-Left, Ctrl-Right, Ctrl-Del etc.
- - EMACS    :-((
- - ED/EX/VI :-(
-
-
-The following does _not_ have to do with any US-ASCII or ISO_646.irv:1991
-standards which IIRC are inherited by POSIX.
-> And why not make all program use filenames that have an 8+3 char garbled
-> equivalent where the last 3 are the indicators of the filetype. Oh, and
-> let's do everything to make sure the user doesn't leave Gnome/KDE.
-> And of course, let's add new features to all existing protocols and
-> other standards to make them "superior" to other implementations.
-> Oh, and of course, we must require an extra 64 MB of memory and
-> 500 MB of diskspace for each release, and a 200MHz faster processor.
-> And let us do all system settings through a registry.
+> > From Neal Cardwell (cardwell@cs.washington.edu)
+> > Tue, 20 Jul 1999 03:08:21 -0700 (PDT) 
+> >
+> > Hi all,
+> >
+> > A new TCP Vegas patch for 2.2.10/2.3.10 is available at:
+> > http://www.cs.washington.edu/homes/cardwell/linux-vegas/
 > 
-> OH! Let's change the name of the operating-system to something more
-> catchy. Hmmm. Let's see. Windows maybe...
-> </sarcasm>
+> Does anyone know where to get the above TCP vegas implementation code
+> or a more recent one? The link above is broken and Neal Cardwell is
+> not there.
+> 
+> TIA. Please CC to me.
+> 
+> -- Hao
 > 
 > 
-> /David
-
-I _do_ _not_ like Windoze either, but we live in a world
-where we have to cope with it. I am even to code windoze
-apps in order to support linux (no comment on this)...
-
--mirabilos
-
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

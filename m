@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318105AbSHDGLZ>; Sun, 4 Aug 2002 02:11:25 -0400
+	id <S318112AbSHDGrN>; Sun, 4 Aug 2002 02:47:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318107AbSHDGLZ>; Sun, 4 Aug 2002 02:11:25 -0400
-Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:24583 "EHLO
-	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S318105AbSHDGLZ>; Sun, 4 Aug 2002 02:11:25 -0400
-Date: Sun, 4 Aug 2002 08:14:55 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: large file IO starving ls -l
-In-Reply-To: <aihmso$2m2$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208040811140.31781-100000@pc40.e18.physik.tu-muenchen.de>
+	id <S318113AbSHDGrM>; Sun, 4 Aug 2002 02:47:12 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34822 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318112AbSHDGrM>; Sun, 4 Aug 2002 02:47:12 -0400
+Message-ID: <3D4CCEA6.2020408@zytor.com>
+Date: Sat, 03 Aug 2002 23:50:14 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Keith Owens <kaos@ocs.com.au>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>, ftpadmin@kernel.org,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.4.19-rc5
+References: <21455.1028188535@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Aug 2002, Linus Torvalds wrote:
+Keith Owens wrote:
+> patch-2.4.19-rc5.gz has been there for 25 minutes but the .bz2 file and
+> the signature have not been created yet.  Is there a problem with the
+> automatic conversion and signing code on master?
 
-> In article <Pine.LNX.4.44.0208032253260.23040-100000@pc40.e18.physik.tu-muenchen.de>,
-> Roland Kuhn  <rkuhn@e18.physik.tu-muenchen.de> wrote:
-> >
-> >Now the question is: who keeps ls from returning? The command never hits 
-> >the disk (reads in above histogram do not increase), but stays for many 
-> >seconds (up to one minute) in state D.
-> 
-> ext2 used to have similar issues with the superblock lock - where things
-> like block allocation (very much in the write path) would grab the
-> superblock lock, and completely destroy interactive feel even for
-> processes that didn't need to do IO, because the superblock lock was
-> often grabbed even if the data was actually cached (sb locking needed
-> just to _look_up_ the physical block so that you could look up the
-> cached data in the buffer cache). 
-> 
-> Al Viro largely fixed in for ext2, which now uses lock_super() a lot
-> less. But a lot of filesystems are based on the old ext2 locking, and
-> may have inherited some of the worst parts..
-> 
-Thanks for the hint, I will try to have a look at the reiserfs code. Could 
-you give me a hint where this lock usually is taken?
+The sign/convert/upload machinery is sometimes slow when it is either 
+transferring large files, or doing its daily "rsync --checksum" for 
+paranoia's sake.  The latter happens at 00:00 local time, currently 
+17:00 UTC.
 
-Ciao,
-					Roland
-
-+---------------------------+-------------------------+
-|    TU Muenchen            |                         |
-|    Physik-Department E18  |  Raum    3558           |
-|    James-Franck-Str.      |  Telefon 089/289-12592  |
-|    85747 Garching         |                         |
-+---------------------------+-------------------------+
+	-hpa
 

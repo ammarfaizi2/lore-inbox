@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264252AbTFUOFE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 10:05:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbTFUOFE
+	id S264455AbTFUOH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 10:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTFUOH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 10:05:04 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:51911
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264252AbTFUOE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 10:04:59 -0400
-Subject: Re: ACPI (20030522) breaks 3c59x in 2.4/2.5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Yaroslav Rastrigin <yarick@relex.ru>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200306152124.51449.yarick@relex.ru>
-References: <200306152124.51449.yarick@relex.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056205002.25974.40.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 21 Jun 2003 10:07:57 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28912 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264455AbTFUOHz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 10:07:55 -0400
+Date: Sat, 21 Jun 2003 16:21:53 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] fix buggy comparison in cpqphp_pci.c
+Message-ID: <20030621142153.GU29247@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 21 Jun 2003 15:16:48 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-06-15 at 18:24, Yaroslav Rastrigin wrote:
-> Hi everybody.
-> I've finally decided to try ACPI on my IBM ThinkPad T21 .
-> Mostly, it works nice and fine (although I'm still wondering what S1 sleep 
-> state _supposed_ to do, now it's acting weird), but one thing is a real 
-> showstoppper for me - 
+Hi Greg,
 
-Should work in 2.4-ac trees
+I don't understand the code good enough to be sure my patch is correct, 
+but the current code is definitely buggy:
 
+0xFF is the maximum value for an u8, so tdevice < 0x100 is _always_ 
+true.
+
+cu
+Adrian
+
+--- linux-2.5.72-mm2/drivers/pci/hotplug/cpqphp_pci.c.old	2003-06-21 16:16:14.000000000 +0200
++++ linux-2.5.72-mm2/drivers/pci/hotplug/cpqphp_pci.c	2003-06-21 16:16:45.000000000 +0200
+@@ -198,7 +198,7 @@
+ 
+ 	ctrl->pci_bus->number = bus_num;
+ 
+-	for (tdevice = 0; tdevice < 0x100; tdevice++) {
++	for (tdevice = 0; tdevice < 0xFF; tdevice++) {
+ 		//Scan for access first
+ 		if (PCI_RefinedAccessConfig(ctrl->pci_bus, tdevice, 0x08, &work) == -1)
+ 			continue;
+@@ -210,7 +210,7 @@
+ 			return 0;
+ 		}
+ 	}
+-	for (tdevice = 0; tdevice < 0x100; tdevice++) {
++	for (tdevice = 0; tdevice < 0xFF; tdevice++) {
+ 		//Scan for access first
+ 		if (PCI_RefinedAccessConfig(ctrl->pci_bus, tdevice, 0x08, &work) == -1)
+ 			continue;

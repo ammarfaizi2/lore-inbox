@@ -1,64 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266051AbTGSQNl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 12:13:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268308AbTGSQNl
+	id S268308AbTGSQSl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 12:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270057AbTGSQSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 12:13:41 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:32270 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S266051AbTGSQNk (ORCPT
+	Sat, 19 Jul 2003 12:18:41 -0400
+Received: from robur.slu.se ([130.238.98.12]:49158 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id S268308AbTGSQSj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 12:13:40 -0400
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@xs4all.nl (Dick Streefland)
-Organization: none
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-References: <Pine.LNX.4.55L.0307181649290.29493@freak.distro.conectiva>
-From: spam@streefland.xs4all.nl (Dick Streefland)
-Subject: Re: Linux 2.4.22-pre7
+	Sat, 19 Jul 2003 12:18:39 -0400
+From: Robert Olsson <Robert.Olsson@data.slu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <3b8b.3f19716a.4a88c@altium.nl>
-Date: Sat, 19 Jul 2003 16:27:22 -0000
+Content-Transfer-Encoding: 7bit
+Message-ID: <16153.29344.964485.457389@robur.slu.se>
+Date: Sat, 19 Jul 2003 18:32:32 +0200
+To: "Kambo Lohan" <kambo77@hotmail.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: PATCH pktgen hang, memleak, fixes 
+In-Reply-To: <Sea2-F47vJo8jUbRX8z000320b1@hotmail.com>
+References: <Sea2-F47vJo8jUbRX8z000320b1@hotmail.com>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
-| Here goes -pre7.
-| 
-| This is a feature freeze, only bugfixes will be accepted from now on.
 
-OK, do you accept the following bugfix for /proc/cmdline?
+Thanks!
+It looks fine. Jeff cross-posted to netdev which is the appropriate list. 
+It goes for both 2.4 and 2.5 versions. We ask DaveM to apply.
 
---- linux-2.4.21/fs/proc/proc_misc.c.orig	Fri Jun 27 11:35:06 2003
-+++ linux-2.4.21/fs/proc/proc_misc.c	Fri Jun 27 11:37:15 2003
-@@ -423,9 +423,9 @@
- 				 int count, int *eof, void *data)
- {
- 	extern char saved_command_line[];
--	int len;
-+	int len = 0;
+Cheers.
+					--ro
+
+
+Kambo Lohan writes:
+ > This should fix about 3 things.  My first patch, be gentle...
+ > 
+ > 2.5 has the same problem but I do not know if this will apply or not, we run 
+ > 2.4.
+
+--- linux/net/core/pktgen.c.orig	Thu Jul 17 16:00:14 2003
++++ linux/net/core/pktgen.c	Thu Jul 17 16:37:21 2003
+@@ -47,6 +47,9 @@
+  * Also moved to /proc/net/pktgen/ 
+  * --ro 
+  *
++ * Fix refcount off by one if first packet fails, potential null deref, 
++ * memleak 030710- KJP
++ *
+  * See Documentation/networking/pktgen.txt for how to use this.
+  */
  
--	len = snprintf(page, count, "%s\n", saved_command_line);
-+	proc_sprintf(page, &off, &len, "%s\n", saved_command_line);
- 	return proc_calc_metrics(page, start, off, count, eof, len);
- }
+@@ -85,9 +88,9 @@
+ #define cycles()	((u32)get_cycles())
  
-Since kernel version 2.4.19, a read() from /proc/cmdline with a
-non-zero offset doesn't work anymore: try "dd bs=1 < /proc/cmdline".
-Because of this bug, the following fails in ash and the busybox shell:
-
-  $ read line < /proc/cmdline
-
-I've posted this fix to lkml in januari, and sent it to you several
-times, but got no reaction. Alan Cox included this patch in version
-2.4.21pre5-ac4 of his tree. Could you please include this obvious fix
-in 2.4.22?
-
--- 
-Dick Streefland                    ////               De Bilt
-dick.streefland@xs4all.nl         (@ @)       The Netherlands
-------------------------------oOO--(_)--OOo------------------
+ 
+-#define VERSION "pktgen version 1.2"
++#define VERSION "pktgen version 1.2.1"
+ static char version[] __initdata = 
+-  "pktgen.c: v1.2: Packet Generator for packet performance testing.\n";
++  "pktgen.c: v1.2.1: Packet Generator for packet performance testing.\n";
+ 
+ /* Used to help with determining the pkts on receive */
+ 
+@@ -611,12 +614,11 @@
+ 				kfree_skb(skb);
+ 				skb = fill_packet(odev, info);
+ 				if (skb == NULL) {
+-					break;
++					goto out_reldev;
+ 				}
+ 				fp++;
+ 				fp_tmp = 0; /* reset counter */
+ 			}
+-			atomic_inc(&skb->users);
+ 		}
+ 
+ 		nr_frags = skb_shinfo(skb)->nr_frags;
+@@ -632,6 +634,7 @@
+ 				last_ok = 0;
+ 			}
+ 			else {
++			   atomic_inc(&skb->users);
+ 			   last_ok = 1;	
+ 			   info->sofar++;
+ 			   info->seq_num++;
+@@ -729,7 +732,9 @@
+ 			     (unsigned long long) info->errors
+ 			     );
+ 	}
+-	
++
++	kfree_skb(skb);
++
+ out_reldev:
+ 	if (odev) {
+ 		dev_put(odev);
 

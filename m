@@ -1,119 +1,313 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265399AbSJSUQv>; Sat, 19 Oct 2002 16:16:51 -0400
+	id <S265667AbSJSUXc>; Sat, 19 Oct 2002 16:23:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265545AbSJSUQv>; Sat, 19 Oct 2002 16:16:51 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:43207 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265399AbSJSUQt>;
-	Sat, 19 Oct 2002 16:16:49 -0400
-Date: Sat, 19 Oct 2002 22:22:45 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Christopher Hoover <ch@murgatroid.com>
-Cc: "'Vojtech Pavlik'" <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.43: Fix for Logitech Wheel Mouse
-Message-ID: <20021019222245.A3018@ucw.cz>
-References: <20021019095117.A1354@ucw.cz> <000901c2779f$b1b88300$8100000a@bergamot>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <000901c2779f$b1b88300$8100000a@bergamot>; from ch@murgatroid.com on Sat, Oct 19, 2002 at 11:45:28AM -0700
+	id <S265670AbSJSUXc>; Sat, 19 Oct 2002 16:23:32 -0400
+Received: from dexter.citi.umich.edu ([141.211.133.33]:3456 "EHLO
+	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
+	id <S265667AbSJSUX3>; Sat, 19 Oct 2002 16:23:29 -0400
+Date: Sat, 19 Oct 2002 16:29:24 -0400 (EDT)
+From: Chuck Lever <cel@citi.umich.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux NFS List <nfs@lists.sourceforge.net>
+Subject: [PATCH] improved RPC statistics
+Message-ID: <Pine.LNX.4.44.0210191623230.7700-100000@dexter.citi.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 19, 2002 at 11:45:28AM -0700, Christopher Hoover wrote:
+add several new RPC statistics counters to help sysadmins more easily
+debug client-side NFS performance and reliability problems.  make the RPC 
+counters longs instead of ints to take advantage of 64-bit counters on 
+platforms that can support them.
 
-> Yes, that works.
+it adds some new counter values in /proc/net/rpc/nfs, so it should be
+applied before the feature freeze deadline.  please apply this to your 
+tree.
 
-Great, I'll send that patch to Linus soon.
 
-> [ch@jukebox ch]$ cat /proc/bus/input/devices 
-> I: Bus=0011 Vendor=0002 Product=0002 Version=0035
-> N: Name="PS2++ Logitech Wheel Mouse"
-> P: Phys=isa0060/serio1/input0
-> H: Handlers=mouse0 event0 
-> B: EV=7 
-> B: KEY=70000 0 0 0 0 0 0 0 0 
-> B: REL=103 
-> 
-> I: Bus=0011 Vendor=0001 Product=0002 Version=ab02
-> N: Name="AT Set 2 keyboard"
-> P: Phys=isa0060/serio0/input0
-> H: Handlers=kbd event1 
-> B: EV=120003 
-> B: KEY=4 2000000 8061f9 fbc9d621 efdfffdf ffefffff ffffffff fffffffe 
-> B: LED=7 
-> 
-> Thanks.
-> 
-> -ch
-> 
-> 
-> -----Original Message-----
-> From: Vojtech Pavlik [mailto:vojtech@suse.cz] 
-> Sent: Saturday, October 19, 2002 12:51 AM
-> To: Christopher Hoover
-> Cc: 'Vojtech Pavlik'; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] 2.5.43: Fix for Logitech Wheel Mouse
-> 
-> 
-> On Fri, Oct 18, 2002 at 10:41:25AM -0700, Christopher Hoover wrote:
-> 
-> > > No, it unfortunately is not a proper fix. I'll have to analyze the
-> > > problem some more.
-> > 
-> > Would you say more?  I looked at XFree86 sources and it seemed that
-> the
-> > ImPS/2 protocol best matched what my mouse was sending.
-> > 
-> > What about a module param/setup arg to force the mouse protocol?
-> > 
-> > 
-> > > Can you send me the output of /proc/bus/input/devices on your system
-> > > (without your fix, preferably)?
-> > 
-> > With*out* the patch:
-> > 
-> > I: Bus=0011 Vendor=0002 Product=0002 Version=0035
-> > N: Name="PS2++ Logitech Mouse"
-> > P: Phys=isa0060/serio1/input0
-> > H: Handlers=mouse0 event0 
-> > B: EV=7 
-> > B: KEY=70000 0 0 0 0 0 0 0 0 
-> > B: REL=3 
-> 
-> Thanks! Can you try this patch?
-> 
->  psmouse.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> ===================================================================
-> 
-> diff -Nru a/drivers/input/mouse/psmouse.c
-> b/drivers/input/mouse/psmouse.c
-> --- a/drivers/input/mouse/psmouse.c	Sat Oct 19 09:50:17 2002
-> +++ b/drivers/input/mouse/psmouse.c	Sat Oct 19 09:50:17 2002
-> @@ -348,7 +348,7 @@
->  
->  		int i;
->  		static int logitech_4btn[] = { 12, 40, 41, 42, 43, 52,
-> 73, 80, -1 };
-> -		static int logitech_wheel[] = { 52, 75, 76, 80, 81, 83,
-> 88, -1 };
-> +		static int logitech_wheel[] = { 52, 53, 75, 76, 80, 81,
-> 83, 88, -1 };
->  		static int logitech_ps2pp[] = { 12, 13, 40, 41, 42, 43,
-> 50, 51, 52, 53, 73, 75,
->  							76, 80, 81, 83,
-> 88, 96, 97, -1 };
->  		psmouse->vendor = "Logitech";
-> 
-> ===================================================================
-> 
-> -- 
-> Vojtech Pavlik
-> SuSE Labs
+diff -drN -U3 00-stock/include/linux/sunrpc/stats.h 01-counters/include/linux/sunrpc/stats.h
+--- 00-stock/include/linux/sunrpc/stats.h	Tue Oct 15 23:28:20 2002
++++ 01-counters/include/linux/sunrpc/stats.h	Sat Oct 19 15:48:23 2002
+@@ -1,7 +1,7 @@
+ /*
+  * linux/include/linux/sunrpc/stats.h
+  *
+- * Client statistics collection for SUN RPC
++ * Statistics collection for SUN RPC
+  *
+  * Copyright (C) 1996 Olaf Kirch <okir@monad.swb.de>
+  */
+@@ -11,33 +11,40 @@
+ 
+ #include <linux/config.h>
+ #include <linux/proc_fs.h>
++#include <linux/cache.h>
+ 
+ struct rpc_stat {
+ 	struct rpc_program *	program;
+ 
+-	unsigned int		netcnt,
++	unsigned long		netcnt,
+ 				netudpcnt,
+ 				nettcpcnt,
+ 				nettcpconn,
+ 				netreconn;
+-	unsigned int		rpccnt,
++	unsigned long		rpccnt,
+ 				rpcretrans,
+ 				rpcauthrefresh,
+-				rpcgarbage;
+-};
++				rpcgarbage,
++				rpcnospace,
++				rpcbadxids,
++				rpcbadverfs,
++				rpccantconn,
++				rpcnomem,
++				rpccantsend;
++} ____cacheline_aligned;
+ 
+ struct svc_stat {
+ 	struct svc_program *	program;
+ 
+-	unsigned int		netcnt,
++	unsigned long		netcnt,
+ 				netudpcnt,
+ 				nettcpcnt,
+ 				nettcpconn;
+-	unsigned int		rpccnt,
++	unsigned long		rpccnt,
+ 				rpcbadfmt,
+ 				rpcbadauth,
+ 				rpcbadclnt;
+-};
++} ____cacheline_aligned;
+ 
+ void			rpc_proc_init(void);
+ void			rpc_proc_exit(void);
+diff -drN -U3 00-stock/include/linux/sunrpc/xprt.h 01-counters/include/linux/sunrpc/xprt.h
+--- 00-stock/include/linux/sunrpc/xprt.h	Tue Oct 15 23:28:32 2002
++++ 01-counters/include/linux/sunrpc/xprt.h	Sat Oct 19 15:54:19 2002
+@@ -146,6 +146,7 @@
+ 	unsigned long		sockstate;	/* Socket state */
+ 	unsigned char		shutdown   : 1,	/* being shut down */
+ 				nocong	   : 1,	/* no congestion control */
++				neverconn  : 1,	/* no connection attempt yet */
+ 				resvport   : 1, /* use a reserved port */
+ 				stream     : 1;	/* TCP */
+ 
+diff -drN -U3 00-stock/net/sunrpc/clnt.c 01-counters/net/sunrpc/clnt.c
+--- 00-stock/net/sunrpc/clnt.c	Tue Oct 15 23:27:53 2002
++++ 01-counters/net/sunrpc/clnt.c	Sat Oct 19 15:48:23 2002
+@@ -453,6 +453,8 @@
+ 		xprt_release(task);
+ 	}
+ 
++	task->tk_client->cl_stats->rpcnomem++;
++
+ 	switch (status) {
+ 	case -EAGAIN:	/* woken up; retry */
+ 		task->tk_action = call_reserve;
+@@ -494,6 +496,7 @@
+ 	if (RPC_IS_ASYNC(task) || !(task->tk_client->cl_intr && signalled())) {
+ 		xprt_release(task);
+ 		task->tk_action = call_reserve;
++		task->tk_client->cl_stats->rpcnomem++;
+ 		rpc_delay(task, HZ>>4);
+ 		return;
+ 	}
+@@ -669,6 +672,7 @@
+ 		task->tk_action = call_bind;
+ 		break;
+ 	case -EAGAIN:
++		clnt->cl_stats->rpcnospace++;
+ 		task->tk_action = call_transmit;
+ 		break;
+ 	case -EIO:
+@@ -757,14 +761,16 @@
+ 	}
+ 
+ 	/* Verify the RPC header */
+-	if (!(p = call_verify(task)))
++	if (!(p = call_verify(task))) {
++		clnt->cl_stats->rpcbadverfs++;
+ 		return;
++	}
+ 
+ 	/*
+ 	 * The following is an NFS-specific hack to cater for setuid
+ 	 * processes whose uid is mapped to nobody on the server.
+ 	 */
+-	if (task->tk_client->cl_droppriv && 
++	if (clnt->cl_droppriv && 
+             (ntohl(*p) == NFSERR_ACCES || ntohl(*p) == NFSERR_PERM)) {
+ 		if (RPC_IS_SETUID(task) && task->tk_suid_retry) {
+ 			dprintk("RPC: %4d retry squashed uid\n", task->tk_pid);
+diff -drN -U3 00-stock/net/sunrpc/stats.c 01-counters/net/sunrpc/stats.c
+--- 00-stock/net/sunrpc/stats.c	Tue Oct 15 23:29:07 2002
++++ 01-counters/net/sunrpc/stats.c	Sat Oct 19 15:48:23 2002
+@@ -40,16 +40,23 @@
+ 	int		len, i, j;
+ 
+ 	len = sprintf(buffer,
+-		"net %d %d %d %d\n",
++		"net %lu %lu %lu %lu\n",
+ 			statp->netcnt,
+ 			statp->netudpcnt,
+ 			statp->nettcpcnt,
+ 			statp->nettcpconn);
+ 	len += sprintf(buffer + len,
+-		"rpc %d %d %d\n",
++		"rpc %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n",
+ 			statp->rpccnt,
+ 			statp->rpcretrans,
+-			statp->rpcauthrefresh);
++			statp->rpcauthrefresh,
++			statp->rpcgarbage,
++			statp->rpcnospace,
++			statp->rpcbadxids,
++			statp->rpcbadverfs,
++			statp->rpccantconn,
++			statp->rpcnomem,
++			statp->rpccantsend);
+ 
+ 	for (i = 0; i < prog->nrvers; i++) {
+ 		if (!(vers = prog->version[i]))
+@@ -88,13 +95,13 @@
+ 	int		len, i, j;
+ 
+ 	len = sprintf(buffer,
+-		"net %d %d %d %d\n",
++		"net %lu %lu %lu %lu\n",
+ 			statp->netcnt,
+ 			statp->netudpcnt,
+ 			statp->nettcpcnt,
+ 			statp->nettcpconn);
+ 	len += sprintf(buffer + len,
+-		"rpc %d %d %d %d %d\n",
++		"rpc %lu %lu %lu %lu %lu\n",
+ 			statp->rpccnt,
+ 			statp->rpcbadfmt+statp->rpcbadauth+statp->rpcbadclnt,
+ 			statp->rpcbadfmt,
+diff -drN -U3 00-stock/net/sunrpc/xprt.c 01-counters/net/sunrpc/xprt.c
+--- 00-stock/net/sunrpc/xprt.c	Tue Oct 15 23:28:29 2002
++++ 01-counters/net/sunrpc/xprt.c	Sat Oct 19 16:21:26 2002
+@@ -213,6 +213,7 @@
+ static inline int
+ xprt_sendmsg(struct rpc_xprt *xprt, struct rpc_rqst *req)
+ {
++	struct rpc_stat	*stats = req->rq_task->tk_client->cl_stats;
+ 	struct socket	*sock = xprt->sock;
+ 	struct msghdr	msg;
+ 	struct xdr_buf	*xdr = &req->rq_snd_buf;
+@@ -224,6 +225,12 @@
+ 	if (!sock)
+ 		return -ENOTCONN;
+ 
++	stats->netcnt++;
++	if (xprt->stream)
++		stats->nettcpcnt++;
++	else
++		stats->netudpcnt++;
++
+ 	xprt_pktdump("packet data:",
+ 				req->rq_svec->iov_base,
+ 				req->rq_svec->iov_len);
+@@ -258,16 +265,21 @@
+ 		/* When the server has died, an ICMP port unreachable message
+ 		 * prompts ECONNREFUSED.
+ 		 */
++		stats->rpccantsend++;
++		break;
+ 	case -EAGAIN:
+ 		break;
+ 	case -ENOTCONN:
+ 	case -EPIPE:
+ 		/* connection broken */
++		stats->rpccantsend++;
+ 		if (xprt->stream)
+ 			result = -ENOTCONN;
+ 		break;
+ 	default:
++		stats->rpccantsend++;
+ 		printk(KERN_NOTICE "RPC: sendmsg returned error %d\n", -result);
++		break;
+ 	}
+ 	return result;
+ }
+@@ -416,6 +428,7 @@
+ void
+ xprt_connect(struct rpc_task *task)
+ {
++	struct rpc_stat *stats = task->tk_client->cl_stats;
+ 	struct rpc_xprt	*xprt = task->tk_xprt;
+ 	struct socket	*sock = xprt->sock;
+ 	struct sock	*inet;
+@@ -487,6 +500,11 @@
+ 		if (inet->state != TCP_ESTABLISHED) {
+ 			xprt_close(xprt);
+ 			task->tk_status = -EAGAIN;
++			stats->nettcpconn++;
++			if (!xprt->neverconn) {
++				stats->netreconn++;
++				xprt->neverconn = 0;
++			}
+ 			goto out_write;
+ 		}
+ 
+@@ -497,12 +515,14 @@
+ 	case -EPIPE:
+ 		xprt_close(xprt);
+ 		task->tk_status = -ENOTCONN;
++		stats->rpccantconn++;
+ 		goto out_write;
+ 
+ 	default:
+ 		/* Report myriad other possible returns.  If this file
+ 		 * system is soft mounted, just error out, like Solaris.  */
+ 		xprt_close(xprt);
++		stats->rpccantconn++;
+ 		if (task->tk_client->cl_softrtry) {
+ 			printk(KERN_WARNING
+ 			"RPC: error %d connecting to server %s, exiting\n",
+@@ -528,12 +548,18 @@
+ static void
+ xprt_conn_status(struct rpc_task *task)
+ {
++	struct rpc_stat *stats = task->tk_client->cl_stats;
+ 	struct rpc_xprt	*xprt = task->tk_xprt;
+ 
+ 	switch (task->tk_status) {
+ 	case 0:
+ 		dprintk("RPC: %4d xprt_conn_status: connection established\n",
+ 				task->tk_pid);
++		stats->nettcpconn++;
++		if (!xprt->neverconn) {
++			stats->netreconn++;
++			xprt->neverconn = 0;
++		}
+ 		goto out;
+ 	case -ETIMEDOUT:
+ 		dprintk("RPC: %4d xprt_conn_status: timed out\n",
+@@ -548,6 +574,8 @@
+ 		rpc_delay(task, RPC_REESTABLISH_TIMEOUT);
+ 		break;
+ 	}
++	stats->rpccantconn++;
++
+ 	/* if soft mounted, cause this RPC to fail */
+ 	if (task->tk_client->cl_softrtry)
+ 		task->tk_status = -EIO;
+@@ -1374,6 +1402,7 @@
+ 	if (xprt->stream) {
+ 		xprt->cwnd = RPC_MAXCWND;
+ 		xprt->nocong = 1;
++		xprt->neverconn = 1;
+ 	} else
+ 		xprt->cwnd = RPC_INITCWND;
+ 	spin_lock_init(&xprt->sock_lock);
 
--- 
-Vojtech Pavlik
-SuSE Labs
+

@@ -1,56 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262473AbUKZTzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262613AbUKZTzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262473AbUKZTzH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 14:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263958AbUKZTy7
+	id S262613AbUKZTzK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 14:55:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263955AbUKZTyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:54:59 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262613AbUKZTfM (ORCPT
+	Fri, 26 Nov 2004 14:54:14 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:53187 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262479AbUKZTbX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:35:12 -0500
-Date: Thu, 25 Nov 2004 15:00:22 -0500
-From: Dorn Hetzel <kernel@dorn.hetzel.org>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Dorn Hetzel <kernel@dorn.hetzel.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, jgarzik@pobox.com
-Subject: Re: r8169.c
-Message-ID: <20041125200022.GA12674@lilah.hetzel.org>
-References: <20041119162920.GA26836@lilah.hetzel.org> <20041119201203.GA13522@electric-eye.fr.zoreil.com> <20041120003754.GA32133@lilah.hetzel.org> <20041120002946.GA18059@electric-eye.fr.zoreil.com> <20041122181307.GA3625@lilah.hetzel.org> <20041123144901.GA19005@lilah.hetzel.org> <20041123194740.GA32210@electric-eye.fr.zoreil.com>
+	Fri, 26 Nov 2004 14:31:23 -0500
+Date: Thu, 25 Nov 2004 12:34:00 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Zhu, Yi" <yi.zhu@intel.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
+Subject: Re: [linux-pm] [PATCH] make pm_suspend_disk suspend/resume sysdev and dpm_off_irq
+Message-ID: <20041125113400.GA1027@elf.ucw.cz>
+References: <3ACA40606221794F80A5670F0AF15F8403BD586A@pdsmsx403>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041123194740.GA32210@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F8403BD586A@pdsmsx403>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 08:47:40PM +0100, Francois Romieu wrote:
-> Dorn Hetzel <kernel@dorn.hetzel.org> :
-> [...]
-> > Stacked on these 4 patches and things seem much better :)
+Hi!
+
+> >> This patch makes the new swsusp code ( pm_suspend_disk since
+> >> 2.6.9-rc3) call suspend/resume functions for sysdev and devices in
+> >> dpm_off_irq list. Otherwise, PCI link device in the system won't
+> >> provide correct interrupt for PCI devices during resume.
+> > 
+> > I do not think this is right approach; you enable interrupts
+> > then disable that again, potentially without interrupt controller
+> > being initialized. 
+> > 
+> > This should be better patch:
 > 
-> Did you change the compiler as well ?
-> 
-> If yes, it would be nice to know if the system performs correctly when built with
-> the previous compiler (feel free to answer #1 only if you are busy :o) ).
->
+> Agreed. Your patch solves the bug. But do you plan to deal with the 
+> devices in dpm_off_irq list?
 
-Yes, I moved to gcc 3.4.3.
+Okay, this should be better patch. It works here.
 
-I'm out of town for the Thanksgiving holiday, but I will revert the compiler
-and test again as soon as I get home (early next week).
+								Pavel
 
-Do you know when the 250-265 patches will be merged and into which train?
+--- clean/kernel/power/swsusp.c	2004-10-19 14:16:29.000000000 +0200
++++ linux/kernel/power/swsusp.c	2004-11-25 12:27:35.000000000 +0100
+@@ -854,11 +840,13 @@
+ 	if ((error = arch_prepare_suspend()))
+ 		return error;
+ 	local_irq_disable();
++	device_power_down(3);
+ 	save_processor_state();
+ 	error = swsusp_arch_suspend();
+ 	/* Restore control flow magically appears here */
+ 	restore_processor_state();
+ 	restore_highmem();
++	device_power_up();
+ 	local_irq_enable();
+ 	return error;
+ }
+@@ -878,6 +866,7 @@
+ {
+ 	int error;
+ 	local_irq_disable();
++	device_power_down(3);
+ 	/* We'll ignore saved state, but this gets preempt count (etc) right */
+ 	save_processor_state();
+ 	error = swsusp_arch_resume();
+@@ -887,6 +876,7 @@
+ 	BUG_ON(!error);
+ 	restore_processor_state();
+ 	restore_highmem();
++	device_power_up();
+ 	local_irq_enable();
+ 	return error;
+ }
 
-Best Regards,
-
--Dorn
- 
-> --
-> Ueimor
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

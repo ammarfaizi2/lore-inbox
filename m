@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbULLTtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbULLTxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbULLTtn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 14:49:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbULLTtm
+	id S262100AbULLTxq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 14:53:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbULLTxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 14:49:42 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:51217 "HELO
+	Sun, 12 Dec 2004 14:53:43 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:1554 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262095AbULLTsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 14:48:00 -0500
-Date: Sun, 12 Dec 2004 20:47:50 +0100
+	id S262100AbULLTwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 14:52:33 -0500
+Date: Sun, 12 Dec 2004 20:52:21 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andy Adamson <andros@umich.edu>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove unused net/sunrpc/auth_gss/gss_pseudoflavors.c
-Message-ID: <20041212194750.GF22324@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] mm/page-writeback.c: remove an unused function
+Message-ID: <20041212195221.GI22324@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,254 +21,58 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wasn't able to find any usage of this file.
+The patch below removes an unused global function.
 
 
 diffstat output:
- net/sunrpc/auth_gss/gss_pseudoflavors.c |  237 ------------------------
- 1 files changed, 237 deletions(-)
+ include/linux/page-flags.h |    1 -
+ mm/page-writeback.c        |   24 ------------------------
+ 2 files changed, 25 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc2-mm4-full/net/sunrpc/auth_gss/gss_pseudoflavors.c	2004-10-18 23:54:08.000000000 +0200
-+++ /dev/null	2004-11-25 03:16:25.000000000 +0100
-@@ -1,237 +0,0 @@
+--- linux-2.6.10-rc2-mm4-full/include/linux/page-flags.h.old	2004-12-12 03:52:14.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/include/linux/page-flags.h	2004-12-12 03:52:27.000000000 +0100
+@@ -310,7 +310,6 @@
+ struct page;	/* forward declaration */
+ 
+ int test_clear_page_dirty(struct page *page);
+-int __clear_page_dirty(struct page *page);
+ int test_clear_page_writeback(struct page *page);
+ int test_set_page_writeback(struct page *page);
+ 
+--- linux-2.6.10-rc2-mm4-full/mm/page-writeback.c.old	2004-12-12 03:52:39.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/mm/page-writeback.c	2004-12-12 03:52:47.000000000 +0100
+@@ -741,30 +741,6 @@
+ }
+ EXPORT_SYMBOL(clear_page_dirty_for_io);
+ 
 -/*
-- *  linux/net/sunrpc/gss_union.c
-- *
-- *  Adapted from MIT Kerberos 5-1.2.1 lib/gssapi/generic code
-- *
-- *  Copyright (c) 2001 The Regents of the University of Michigan.
-- *  All rights reserved.
-- *
-- *  Andy Adamson   <andros@umich.edu>
-- *
+- * Clear a page's dirty flag while ignoring dirty memory accounting
 - */
--
--/*
-- * Copyright 1993 by OpenVision Technologies, Inc.
-- *
-- * Permission to use, copy, modify, distribute, and sell this software
-- * and its documentation for any purpose is hereby granted without fee,
-- * provided that the above copyright notice appears in all copies and
-- * that both that copyright notice and this permission notice appear in
-- * supporting documentation, and that the name of OpenVision not be used
-- * in advertising or publicity pertaining to distribution of the software
-- * without specific, written prior permission. OpenVision makes no
-- * representations about the suitability of this software for any
-- * purpose.  It is provided "as is" without express or implied warranty.
-- *
-- * OPENVISION DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-- * EVENT SHALL OPENVISION BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
-- * USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-- * OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-- * PERFORMANCE OF THIS SOFTWARE.
-- */ 
--
--#include <linux/types.h>
--#include <linux/slab.h>
--#include <linux/socket.h>
--#include <linux/sunrpc/gss_asn1.h>
--#include <linux/sunrpc/auth_gss.h>
--
--#ifdef RPC_DEBUG
--# define RPCDBG_FACILITY        RPCDBG_AUTH
--#endif
--
--static LIST_HEAD(registered_triples);
--static spinlock_t registered_triples_lock = SPIN_LOCK_UNLOCKED;
--
--/* The following must be called with spinlock held: */
--static struct sup_sec_triple *
--do_lookup_triple_by_pseudoflavor(u32 pseudoflavor)
+-int __clear_page_dirty(struct page *page)
 -{
--	struct sup_sec_triple *pos, *triple = NULL;
+-	struct address_space *mapping = page_mapping(page);
 -
--	list_for_each_entry(pos, &registered_triples, triples) {
--		if (pos->pseudoflavor == pseudoflavor) {
--			triple = pos;
--			break;
+-	if (mapping) {
+-		unsigned long flags;
+-
+-		write_lock_irqsave(&mapping->tree_lock, flags);
+-		if (TestClearPageDirty(page)) {
+-			radix_tree_tag_clear(&mapping->page_tree,
+-						page_index(page),
+-						PAGECACHE_TAG_DIRTY);
+-			write_unlock_irqrestore(&mapping->tree_lock, flags);
+-			return 1;
 -		}
--	}
--	return triple;
--}
--
--/* XXX Need to think about reference counting of triples and of mechs.
-- * Currently we do no reference counting of triples, and I think that's
-- * probably OK given the reference counting on mechs, but there's probably
-- * a better way to do all this. */
--
--int
--gss_register_triple(u32 pseudoflavor, struct gss_api_mech *mech,
--			  u32 qop, u32 service)
--{
--	struct sup_sec_triple *triple;
--
--	if (!(triple = kmalloc(sizeof(*triple), GFP_KERNEL))) {
--		printk("Alloc failed in gss_register_triple");
--		goto err;
--	}
--	triple->pseudoflavor = pseudoflavor;
--	triple->mech = gss_mech_get_by_OID(&mech->gm_oid);
--	triple->qop = qop;
--	triple->service = service;
--
--	spin_lock(&registered_triples_lock);
--	if (do_lookup_triple_by_pseudoflavor(pseudoflavor)) {
--		printk(KERN_WARNING "RPC: Registered pseudoflavor %d again\n",
--				pseudoflavor);
--		goto err_unlock;
--	}
--	list_add(&triple->triples, &registered_triples);
--	spin_unlock(&registered_triples_lock);
--	dprintk("RPC:      registered pseudoflavor %d\n", pseudoflavor);
--
--	return 0;
--
--err_unlock:
--	kfree(triple);
--	spin_unlock(&registered_triples_lock);
--err:
--	return -1;
--}
--
--int
--gss_unregister_triple(u32 pseudoflavor)
--{
--	struct sup_sec_triple *triple;
--
--	spin_lock(&registered_triples_lock);
--	if (!(triple = do_lookup_triple_by_pseudoflavor(pseudoflavor))) {
--		spin_unlock(&registered_triples_lock);
--		printk("Can't unregister unregistered pseudoflavor %d\n",
--		       pseudoflavor);
--		return -1;
--	}
--	list_del(&triple->triples);
--	spin_unlock(&registered_triples_lock);
--	gss_mech_put(triple->mech);
--	kfree(triple);
--	return 0;
--
--}
--
--void
--print_sec_triple(struct xdr_netobj *oid,u32 qop,u32 service)
--{
--	dprintk("RPC: print_sec_triple:\n");
--	dprintk("                     oid_len %d\n  oid :\n",oid->len);
--	print_hexl((u32 *)oid->data,oid->len,0);
--	dprintk("                     qop %d\n",qop);
--	dprintk("                     service %d\n",service);
--}
--
--/* Function: gss_get_cmp_triples
-- *
-- * Description: search sec_triples for a matching security triple
-- * return pseudoflavor if match, else 0
-- * (Note that 0 is a valid pseudoflavor, but not for any gss pseudoflavor
-- * (0 means auth_null), so this shouldn't cause confusion.)
-- */
--u32
--gss_cmp_triples(u32 oid_len, char *oid_data, u32 qop, u32 service)
--{
--	struct sup_sec_triple *triple;
--	u32 pseudoflavor = 0;
--	struct xdr_netobj oid;
--
--	oid.len = oid_len;
--	oid.data = oid_data;
--
--	dprintk("RPC:      gss_cmp_triples\n");
--	print_sec_triple(&oid,qop,service);
--
--	spin_lock(&registered_triples_lock);
--	list_for_each_entry(triple, &registered_triples, triples) {
--		if((g_OID_equal(&oid, &triple->mech->gm_oid))
--		    && (qop == triple->qop)
--		    && (service == triple->service)) {
--			pseudoflavor = triple->pseudoflavor;
--			break;
--		}
--	}
--	spin_unlock(&registered_triples_lock);
--	dprintk("RPC:      gss_cmp_triples return %d\n", pseudoflavor);
--	return pseudoflavor;
--}
--
--u32
--gss_get_pseudoflavor(struct gss_ctx *ctx, u32 qop, u32 service)
--{
--	return gss_cmp_triples(ctx->mech_type->gm_oid.len,
--			       ctx->mech_type->gm_oid.data,
--			       qop, service);
--}
--
--/* Returns nonzero iff the given pseudoflavor is in the supported list.
-- * (Note that without incrementing a reference count or anything, this
-- * doesn't give any guarantees.) */
--int
--gss_pseudoflavor_supported(u32 pseudoflavor)
--{
--	struct sup_sec_triple *triple;
--
--	spin_lock(&registered_triples_lock);
--	triple = do_lookup_triple_by_pseudoflavor(pseudoflavor);
--	spin_unlock(&registered_triples_lock);
--	return (triple ? 1 : 0);
--}
--
--u32
--gss_pseudoflavor_to_service(u32 pseudoflavor)
--{
--	struct sup_sec_triple *triple;
--
--	spin_lock(&registered_triples_lock);
--	triple = do_lookup_triple_by_pseudoflavor(pseudoflavor);
--	spin_unlock(&registered_triples_lock);
--	if (!triple) {
--		dprintk("RPC:      gss_pseudoflavor_to_service called with unsupported pseudoflavor %d\n",
--				pseudoflavor);
+-		write_unlock_irqrestore(&mapping->tree_lock, flags);
 -		return 0;
 -	}
--	return triple->service;
+-	return TestClearPageDirty(page);
 -}
 -
--struct gss_api_mech *
--gss_pseudoflavor_to_mech(u32 pseudoflavor) {
--	struct sup_sec_triple *triple;
--	struct gss_api_mech *mech = NULL;
--
--	spin_lock(&registered_triples_lock);
--	triple = do_lookup_triple_by_pseudoflavor(pseudoflavor);
--	spin_unlock(&registered_triples_lock);
--	if (triple)
--		mech = gss_mech_get(triple->mech);
--	else
--		dprintk("RPC:      gss_pseudoflavor_to_mech called with unsupported pseudoflavor %d\n",
--				pseudoflavor);
--	return mech;
--}
--
--int
--gss_pseudoflavor_to_mechOID(u32 pseudoflavor, struct xdr_netobj * oid)
--{
--	struct gss_api_mech *mech;
--
--	mech = gss_pseudoflavor_to_mech(pseudoflavor);
--	if (!mech)  {
--		dprintk("RPC:      gss_pseudoflavor_to_mechOID called with unsupported pseudoflavor %d\n",
--				pseudoflavor);
--		        return -1;
--	}
--	oid->len = mech->gm_oid.len;
--	if (!(oid->data = kmalloc(oid->len, GFP_KERNEL)))
--		return -1;
--	memcpy(oid->data, mech->gm_oid.data, oid->len);
--	gss_mech_put(mech);
--	return 0;
--}
+ int test_clear_page_writeback(struct page *page)
+ {
+ 	struct address_space *mapping = page_mapping(page);
 

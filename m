@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132583AbRDBAj2>; Sun, 1 Apr 2001 20:39:28 -0400
+	id <S132585AbRDBAn3>; Sun, 1 Apr 2001 20:43:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132590AbRDBAjS>; Sun, 1 Apr 2001 20:39:18 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:60725 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S132583AbRDBAjI>; Sun, 1 Apr 2001 20:39:08 -0400
-Message-ID: <3AC7C719.3080403@kalifornia.com>
-Date: Sun, 01 Apr 2001 17:26:01 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; 0.8.1)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Lang <dlang@diginsite.com>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
-   Manfred Spraul <manfred@colorfullife.com>,
-   "Albert D. Cahalan" <acahalan@cs.uml.edu>, lm@bitmover.com,
-   linux-kernel@vger.kernel.org
-Subject: Re: bug database braindump from the kernel summit
-In-Reply-To: <Pine.LNX.4.33.0104011640280.25794-100000@dlang.diginsite.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S132589AbRDBAnT>; Sun, 1 Apr 2001 20:43:19 -0400
+Received: from laurin.munich.netsurf.de ([194.64.166.1]:47305 "EHLO
+	laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
+	id <S132585AbRDBAnK>; Sun, 1 Apr 2001 20:43:10 -0400
+Date: Mon, 2 Apr 2001 02:42:36 +0200
+To: Tim Hockin <thockin@isunix.it.ilstu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how mmap() works?
+Message-ID: <20010402024236.A5057@storm.local>
+Mail-Followup-To: Tim Hockin <thockin@isunix.it.ilstu.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010401184131.A2474@storm.local> <200104012028.PAA05467@isunix.it.ilstu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200104012028.PAA05467@isunix.it.ilstu.edu>; from thockin@isunix.it.ilstu.edu on Sun, Apr 01, 2001 at 03:28:05PM -0500
+From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why not have the /proc/config option but instead of being plain text, 
-make it binary with a userspace app that can interpret it?
+On Sun, Apr 01, 2001 at 03:28:05PM -0500, Tim Hockin wrote:
+> > Without syncing, Linux writes whenever it thinks it's appropriate, e.g.
+> > when pages have to be freed (I think also when the bdflush writes back
+> > data, i.e. every 30 seconds by default).
+> 
+> what about mmap() on non-filesystem files (/dev/mem, /proc/bus/pci...) ?
 
-It could have a signature as to kernel version + patches and the rest 
-would be just bits.
+They map physically present memory directly and do not have to be
+synced, since all writes go directly to their destination (which is of
+course not possible with disk files).  I'm not that sure if PCI is a bit
+special case though, since not all architectures can access it like
+memory.
 
-Instead of:
-
-CONFIG_X86=y
-CONFIG_ISA=y
-# CONFIG_SBUS is not set
-CONFIG_UID16=y
-
-You'd have
-2.4.3-pre3:1101111100000100000000 . . . . .
-
--b
-
+-- 
+ Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
+http://home.pages.de/~andreas.bombe/    http://linux1394.sourceforge.net/

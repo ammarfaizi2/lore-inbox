@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129135AbRBADcx>; Wed, 31 Jan 2001 22:32:53 -0500
+	id <S129121AbRBAEGi>; Wed, 31 Jan 2001 23:06:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129163AbRBADcn>; Wed, 31 Jan 2001 22:32:43 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:28697 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S129135AbRBADc0>;
-	Wed, 31 Jan 2001 22:32:26 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: LA Walsh <law@sgi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Power usage Q and parallel make question (separate issues) 
-In-Reply-To: Your message of "Wed, 31 Jan 2001 19:02:03 -0800."
-             <3A78D1AB.2C2E743B@sgi.com> 
+	id <S129152AbRBAEG2>; Wed, 31 Jan 2001 23:06:28 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:52239 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S129121AbRBAEGO>; Wed, 31 Jan 2001 23:06:14 -0500
+From: bsuparna@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        kiobuf-io-devel@lists.sourceforge.net
+Message-ID: <CA2569E6.001674D4.00@d73mta03.au.ibm.com>
+Date: Thu, 1 Feb 2001 09:29:04 +0530
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait 
+	/notify + callback chains
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 01 Feb 2001 14:32:07 +1100
-Message-ID: <11659.980998327@kao2.melbourne.sgi.com>
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001 19:02:03 -0800, 
-LA Walsh <law@sgi.com> wrote:
->This seems to serialize the delete, run the mod-installs in parallel, then run the
->depmod when they are done.  
 
-It works, until somebody does this
 
- make -j 4 modules modules_install
+>Hi,
+>
+>On Wed, Jan 31, 2001 at 07:28:01PM +0530, bsuparna@in.ibm.com wrote:
+>>
+>> Do the following modifications to your wait queue extension sound
+>> reasonable ?
+>>
+>> 1. Change add_wait_queue to add elements to the end of queue (fifo, by
+>> default) and instead have an add_wait_queue_lifo() routine that adds to
+the
+>> head of the queue ?
+>
+>Cache efficiency: you wake up the task whose data set is most likely
+>to be in L1 cache by waking it before its triggering event is flushed
+>from cache.
+>
+>--Stephen
 
-There is not, and never has been, any interlock between make modules
-and make modules_install.  If you let modules_install run in parallel
-then people will be tempted to issue the incorrect command above
-instead of the required separate commands.
+Valid point.
 
- make -j 4 modules
- make -j 4 modules_install
 
-You gain a few seconds on module_install but leave more room for user
-error.
+_______________________________________________
+Kiobuf-io-devel mailing list
+Kiobuf-io-devel@lists.sourceforge.net
+http://lists.sourceforge.net/lists/listinfo/kiobuf-io-devel
 
-All of this is cleaned up in the 2.5 kbuild system (work in progress).
-I have carefully coded the 2.5 kbuild system so it can be used on 2.4
-kernels as well.  If you don't mind being an earlier adopter, this will
-be fixed in a few weeks.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

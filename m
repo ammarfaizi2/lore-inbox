@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbREPM7M>; Wed, 16 May 2001 08:59:12 -0400
+	id <S261912AbREPNGM>; Wed, 16 May 2001 09:06:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261912AbREPM7C>; Wed, 16 May 2001 08:59:02 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:32776 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261907AbREPM6y>;
-	Wed, 16 May 2001 08:58:54 -0400
-Date: Wed, 16 May 2001 14:58:00 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010516145800.M4742@suse.de>
-In-Reply-To: <Pine.LNX.4.21.0105150819420.1802-100000@penguin.transmeta.com> <01051603005402.00406@starship>
+	id <S261914AbREPNGC>; Wed, 16 May 2001 09:06:02 -0400
+Received: from hermes.sistina.com ([208.210.145.141]:43526 "HELO sistina.com")
+	by vger.kernel.org with SMTP id <S261912AbREPNFv>;
+	Wed, 16 May 2001 09:05:51 -0400
+Date: Wed, 16 May 2001 15:03:12 +0000
+From: "Heinz J. Mauelshagen" <Mauelshagen@sistina.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mauelshagen@sistina.com, linux-kernel@vger.kernel.org
+Subject: Re: LVM 1.0 release decision
+Message-ID: <20010516150312.B13039@sistina.com>
+Reply-To: Mauelshagen@sistina.com
+In-Reply-To: <20010511162745.B18341@sistina.com> <E14yDyI-0000yE-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01051603005402.00406@starship>; from phillips@bonn-fries.net on Wed, May 16, 2001 at 03:00:54AM +0200
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E14yDyI-0000yE-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 11, 2001 at 03:32:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 16 2001, Daniel Phillips wrote:
-> On Tuesday 15 May 2001 17:34, Linus Torvalds wrote:
-> > On Tue, 15 May 2001, Neil Brown wrote:
-> > > Ofcourse setting the "queue" function that __blk_get_queue call to
-> > > do a lookup of the minor and choose an appropriate queue for the
-> > > "real" device wont work as you need to munge bh->b_rdev too.
-> >
-> > What I would do is:
-> >  - remove b_rdev completely.
+On Fri, May 11, 2001 at 03:32:46PM +0100, Alan Cox wrote:
+> > This leads to the dilemma, that trying to avoid further differences between
+> > our LVM releases and the stock kernel code would force us into postponing
+> > the pending LVM 1.0 release accordingly which OTOH is incovenient for the LVM
+> > user base.
+> > 
+> > In regard to this situation we'ld like to know about your oppinion on
+> > the following request:
+> > is it acceptable to release 1.0 soon *before* all patches to reach the 1.0 code
 > 
-> :-) And b_rsector too?
+> Please fix the binary incompatibility in the on disk format between the current
+> code and your new release _before_ you do that.
 
-Way ahead of you, it's gone :-)
+?
 
-Neither of these are part of the buffer_head as a caching entity, they
-belong purely in the I/O path. I'll show code in a day or two.
+The new code *can* automagically read and deal with 0.8 created VGDAs.
+What are you refering too in detail here?
 
-> > [...]
+
+> The last patches I was sent
+> would have screwed every 64bit LVM user.
+
+Patrick is investigating here.
+
 > 
-> >  - replace is with b_index
-> >
-> > Then, the "get_queue" functions basically end up doing the mapping of
-> >
-> > 	b_dev -> <queue,b_index>
-> 
-> To clarify, will be b_index be in the buffer_head or not?
+> A new format is fine but import old ones properly. And if you do a new format
+> stop using kdev_t on disk - it will change size soon
 
-It should not
+We don't need it any longer in the PV struct.
+
+In the LV struct we can change it easily, because we just need the minor
+number which will nicely fit into the 32 bit we have.
+
+> 
+> Alan
 
 -- 
-Jens Axboe
 
+Regards,
+Heinz    -- The LVM Guy --
+
+*** Software bugs are stupid.
+    Nevertheless it needs not so stupid people to solve them ***
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Heinz Mauelshagen                                 Sistina Software Inc.
+Senior Consultant/Developer                       Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@Sistina.com                           +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

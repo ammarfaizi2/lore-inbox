@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263192AbTDGCQr (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 22:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263194AbTDGCQr (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 22:16:47 -0400
-Received: from [12.47.58.55] ([12.47.58.55]:16087 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263192AbTDGCQq (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 22:16:46 -0400
-Date: Sun, 6 Apr 2003 18:28:15 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.66-bk12 causes "rpm" errors
-Message-Id: <20030406182815.65dd9304.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0304062200570.1604-100000@localhost.localdomain>
-References: <20030406183234.1e8abd7f.akpm@digeo.com>
-	<Pine.LNX.4.44.0304062200570.1604-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	id S263196AbTDGC0i (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 22:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbTDGC0i (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 22:26:38 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32263 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263196AbTDGC0h (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 22:26:37 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Serial port over TCP/IP
+Date: 6 Apr 2003 19:37:57 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b6qoa5$edn$1@cesium.transmeta.com>
+References: <200304061447.46393.freesoftwaredeveloper@web.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Apr 2003 02:28:11.0906 (UTC) FILETIME=[55D06E20:01C2FCAD]
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Robert P. J. Day" <rpjday@mindspring.com> wrote:
->
-> > The only change which comes to mind is the below one.  Could you do a
-> > patch -R of this and retest?
+Followup to:  <200304061447.46393.freesoftwaredeveloper@web.de>
+By author:    Michael Buesch <freesoftwaredeveloper@web.de>
+In newsgroup: linux.dev.kernel
 > 
-> ... patch deleted ...
-> 
-> that fixed it, but i only this second noticed the "-R" for reversing
-> the patch.  i applied it normally against my 2.5.66-bk12 tree, and
-> it apparently applied cleanly.  
-> 
-> wouldn't that suggest that that patch wasn't in my tree in the first
-> place?  i'm sure i'm up to bk12 at this point.
+> Is it possible to make a char-dev (a serial device ttyS0)
+> available via TCP/IP on a network like it is possible
+> for block-devices like a harddisk via nbd?
+> Is kernel-support for this present?
+> If not, is it technically possible to develop such a driver?
 > 
 
-I am now very confused.
+I think what you need is the enhanced pty driver patch which was
+posted recently, which made is possible for a user-space process to
+also capture ioctls() such as baud rate setting etc.  Then the rest of
+the work can be done in userspace.
 
-That patch _is_ in 2.5.66-bk12.  If a `patch -R' of that patch made bk12 work
-correctly then the patch was the source of the changed behaviour.
+	-hpa
 
-Please start again ;)
-
-Test 2.5.66, then 2.5.66-bk12, then 2.5.66-bk12 with a `patch -R' of
-the patch which I sent in the earlier email.
-
-Thanks again.
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272935AbTHKSJF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 14:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272824AbTHKSId
+	id S272894AbTHKSFs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 14:05:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272824AbTHKSFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:08:33 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:49580 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S272919AbTHKSHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:07:36 -0400
-Date: Mon, 11 Aug 2003 19:07:03 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jocelyn Mayer <l_indien@magic.fr>
-Cc: linux kernel <linux-kernel@vger.kernel.org>, gregkh@kroah.com
-Subject: Re: 2.6.0-test2 does not boot with matroxfb
-Message-ID: <20030811180703.GA1564@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jocelyn Mayer <l_indien@magic.fr>,
-	linux kernel <linux-kernel@vger.kernel.org>, gregkh@kroah.com
-References: <1060429216.29152.61.camel@jma1.dev.netgem.com> <1060624865.29139.137.camel@jma1.dev.netgem.com>
+	Mon, 11 Aug 2003 14:05:14 -0400
+Received: from holomorphy.com ([66.224.33.161]:62121 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S272818AbTHKSEn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 14:04:43 -0400
+Date: Mon, 11 Aug 2003 11:05:52 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test3-mm1
+Message-ID: <20030811180552.GG32488@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20030809203943.3b925a0e.akpm@osdl.org> <94490000.1060612530@[10.10.2.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1060624865.29139.137.camel@jma1.dev.netgem.com>
+In-Reply-To: <94490000.1060612530@[10.10.2.4]>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 08:01:06PM +0200, Jocelyn Mayer wrote:
- > I played with my PC this week-end.
- > First I recompiled XFree up to version 4.3.0. It fixed nothing.
- > I found out that the agpgart/dri drivers failed to init:
- > Linux agpgart interface v0.100 (c) Dave Jones
+On Mon, Aug 11, 2003 at 07:35:31AM -0700, Martin J. Bligh wrote:
+> Degredation on kernbench is still there:
+> Kernbench: (make -j N vmlinux, where N = 16 x num_cpus)
+>                               Elapsed      System        User         CPU
+>               2.6.0-test3       45.97      115.83      571.93     1494.50
+>           2.6.0-test3-mm1       46.43      122.78      571.87     1496.00
+> Quite a bit of extra sys time. I thought the suspected part of the sched
+> changes got backed out, but maybe I'm just not following it ...
 
-Did you also compile in any of the AGP chipset drivers?
-You should see another AGP line following the above message.
-If you built them as modules, make sure you put amd-k7-agp or the like
-in your /etc/modules to make sure it gets loaded.
+Is this with or without the unit conversion fix for the load balancer?
 
-Greg, I'm getting quite a few mails which has been people getting
-bitten by this. We discussed this briefly at OLS, what's the missing
-piece of the puzzle here, hotplug userspace scripts iirc ?
+It will be load balancing extra-aggressively without the fix.
 
-		Dave
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+-- wli

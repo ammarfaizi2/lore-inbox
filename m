@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbQKVH6B>; Wed, 22 Nov 2000 02:58:01 -0500
+	id <S129485AbQKVH6w>; Wed, 22 Nov 2000 02:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129485AbQKVH5v>; Wed, 22 Nov 2000 02:57:51 -0500
-Received: from slc389.modem.xmission.com ([166.70.2.135]:27659 "EHLO
+	id <S129868AbQKVH6d>; Wed, 22 Nov 2000 02:58:33 -0500
+Received: from slc389.modem.xmission.com ([166.70.2.135]:29451 "EHLO
 	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S129408AbQKVH5l>; Wed, 22 Nov 2000 02:57:41 -0500
-To: "Stephen Gutknecht (linux-kernel)" <linux-kernel@i405.com>
-Cc: "'David Lang'" <david.lang@digitalinsight.com>,
-        David Riley <oscar@the-rileys.net>, linux-kernel@vger.kernel.org
-Subject: Re: Better testing of hardware (was: Defective Read Hat)
-In-Reply-To: <0066CB04D783714B88D83397CCBCA0CD49AF@spike2.i405.net>
+	id <S129485AbQKVH6b>; Wed, 22 Nov 2000 02:58:31 -0500
+To: Aaron Sethman <androsyn@ratbox.org>
+Cc: Roberto Fichera <kernel@tekno-soft.it>,
+        Jakob Xstergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org
+Subject: Re: Ext2 & Performances
+In-Reply-To: <Pine.LNX.4.21.0011211334530.1902-100000@squeaker.ratbox.org>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 22 Nov 2000 00:13:09 -0700
-In-Reply-To: "Stephen Gutknecht's message of "Tue, 21 Nov 2000 13:39:17 -0800"
-Message-ID: <m1bsv832ey.fsf@frodo.biederman.org>
+Date: 21 Nov 2000 22:41:53 -0700
+In-Reply-To: Aaron Sethman's message of "Tue, 21 Nov 2000 13:36:55 -0500 (EST)"
+Message-ID: <m1g0kk36n2.fsf@frodo.biederman.org>
 User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen Gutknecht (linux-kernel)" <linux-kernel@i405.com> writes:
+Aaron Sethman <androsyn@ratbox.org> writes:
 
-> A Linux Kernel compile test does a really good job of testing the hard disk,
-> RAM, and CPU... as it executes all types of instructions and the final
-> output depends on all prior steps completing correctly.  On a really fast
-> system (> 900Mhz) might make sense to run it twice, once to "warm up" the
-> CPU and other components.  Most "benchmarks" just test speed, not the actual
-> stability or data integrity (they write results to a device but don't check
-> for data corruption, or they test only one device at a time, not all at
-> once).
+> You might want to take a look at using reiserfs on the 130GB partition, as
+> its is journalled and doesn't need to be fsck'ed.  
+No.
 
-Also note that a Linux Kernel compile stresses memory because
-of the very pointer loaded data structures of gcc.  This means that
-memory corruption is most likely to flip a bit in a pointer, and cause
-a bad pointer.
+All journaling filesystems need to be fsck'ed.
+A correctly operating one simply doesn't need to be fsck'ed  because
+of unexpected loss of operating system.    Which brings greatly reduce
+the probability.  If an error is detected in the filesystem fsck is
+still what you have to do to correct it.
 
 Eric
 -

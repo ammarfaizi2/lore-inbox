@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264830AbTL3SrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 13:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265365AbTL3SrQ
+	id S262360AbTL3Ssd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 13:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTL3Ssd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 13:47:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8088 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264830AbTL3SrP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 13:47:15 -0500
-Date: Tue, 30 Dec 2003 10:47:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: 2.6.0-test6: APM unable to suspend (the 2.6.0-test2 saga continues)
-In-Reply-To: <20031230181741.D13556@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0312301045170.2065@home.osdl.org>
-References: <20031005171055.A21478@flint.arm.linux.org.uk>
- <20031228174622.A20278@flint.arm.linux.org.uk> <20031228182545.B20278@flint.arm.linux.org.uk>
- <Pine.LNX.4.58.0312281248190.11299@home.osdl.org> <20031230114324.A1632@flint.arm.linux.org.uk>
- <20031230165042.B13556@flint.arm.linux.org.uk> <20031230181741.D13556@flint.arm.linux.org.uk>
+	Tue, 30 Dec 2003 13:48:33 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:12709 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id S262360AbTL3Ssa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 13:48:30 -0500
+Date: Tue, 30 Dec 2003 10:35:47 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Derek Foreman <manmower@signalmarketing.com>
+cc: Tomas Szepe <szepe@pinerecords.com>, DervishD <raul@pleyades.net>,
+       Eugene <spamacct11@yahoo.com>, <linux-kernel@vger.kernel.org>,
+       "ynezz @ hysteria. sk" <ynezz@hysteria.sk>
+Subject: Re: best AMD motherboard for Linux
+In-Reply-To: <Pine.LNX.4.58.0312301144340.467@uberdeity>
+Message-ID: <Pine.LNX.4.44.0312301026130.18511-100000@twin.uoregon.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 30 Dec 2003, Russell King wrote:
+On Tue, 30 Dec 2003, Derek Foreman wrote:
+> I'm not sure how you're defining "comparably".  If you mean they get
+> similar numbers from glxgears, that's possible.  But the feature sets are
+> not at all comparable.  Nvidia's linux driver actually exposes the
+> features available on modern graphics hardware.
 > 
-> - i8042_noaux=1 - this doesn't seem to make any difference, although
->   this does appear to leave the CTR set as 0x65, which appears to be
->   the BIOS-set value.
+> If you're going to advise against the use of their products in a public
+> forum, I suggest you be a lot more specific.
 
-Doesn't that leave the kbd mask the same? In particular, it still sets the 
-"disable" bit, aka I8042_CTR_KBDDIS later on..
+For me at least  the nvidia driver substantially increased effort involved 
+in dealing with a driver thats internals are not openly available, in 
+boxes the test lots of kernels. notwithstanding that I still have two them. 
 
-What happens if you just define I8042_CTR_KBDDIS to zero?
+When dealing with laptops and apm/acpi issues I'd vastly prefer to have a
+radeon mobility m7 in the box than virtually anything else, and rv200s
+have in general been extremely easy for us to support among our users
+given the integration of their drivers.
+ 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-		Linus
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+
+

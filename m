@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273949AbRIXPj4>; Mon, 24 Sep 2001 11:39:56 -0400
+	id <S273940AbRIXPkg>; Mon, 24 Sep 2001 11:40:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273940AbRIXPjq>; Mon, 24 Sep 2001 11:39:46 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47113 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273949AbRIXPjf>; Mon, 24 Sep 2001 11:39:35 -0400
-Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Date: Mon, 24 Sep 2001 16:45:03 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-In-Reply-To: <20010924173210.A7630@emma1.emma.line.org> from "Matthias Andree" at Sep 24, 2001 05:32:10 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S273950AbRIXPk1>; Mon, 24 Sep 2001 11:40:27 -0400
+Received: from smtp.mediascape.net ([212.105.192.20]:19974 "EHLO
+	smtp.mediascape.net") by vger.kernel.org with ESMTP
+	id <S273940AbRIXPkL>; Mon, 24 Sep 2001 11:40:11 -0400
+Message-ID: <3BAF53A0.8D82A87B@mediascape.de>
+Date: Mon, 24 Sep 2001 17:39:12 +0200
+From: Olaf Zaplinski <o.zaplinski@mediascape.de>
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.10-pre15 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: AIC7xxx errors (again) with 2.4.10pre15
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15lXup-0002uj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > better. Decent write caching on IDE devices (like the 2meg buffer on the IBM) 
-> > can completely hide this issue.
-> 
-> Decent write caching on IDE devices can eat your whole file system.
+Hi all,
 
-YM bad write caching 8)
+my software RAID1 (hda1+sda1) worked fine with the current aic7xxx driver
+when using 2.4.10pre13, but with 2.4.10pre15 I get the old behaviour I know
+from 2.4.9:
 
-> Turn it off (I have no idea of internals, but I presume it'll still be a
-> write-through cache, so reading back will still be served from the
-> buffer). Do hdparm -W0 /dev/hd[a-h].
+Sep 24 17:05:24 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
+message
+Sep 24 17:05:24 binky kernel: (scsi0:A:0:0): Queuing a recovery SCB
+Sep 24 17:05:24 binky kernel: scsi0:0:0:0: Device is disconnected,
+re-queuing SCB
+Sep 24 17:05:24 binky kernel: Recovery code sleeping
+Sep 24 17:05:24 binky kernel: (scsi0:A:0:0): Abort Tag Message Sent
+Sep 24 17:05:29 binky kernel: Recovery code awake
+Sep 24 17:05:29 binky kernel: Timer Expired
+Sep 24 17:05:29 binky kernel: aic7xxx_abort returns 8195
+Sep 24 17:05:29 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
+message
+Sep 24 17:05:29 binky kernel: scsi0:0:0:0: Command found on device queue
+Sep 24 17:05:29 binky kernel: aic7xxx_abort returns 8194
+[...]
+Sep 24 17:16:03 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
+message
+Sep 24 17:16:03 binky kernel: scsi0:0:0:0: Command found on device queue
+Sep 24 17:16:03 binky kernel: aic7xxx_abort returns 8194
 
-You can't turn it off and on many drives you can't flush the cache either
-the operation is not implemented.
+Just as with 2.4.9, the "fix" is to use the "old AIC" driver - or not to use
+software RAID.
+
+Olaf

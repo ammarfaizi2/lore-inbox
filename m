@@ -1,70 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265091AbUGIQnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265099AbUGIQz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265091AbUGIQnG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 12:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbUGIQnG
+	id S265099AbUGIQz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 12:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbUGIQz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 12:43:06 -0400
-Received: from bigapple.newyorkcity.de ([192.76.147.50]:24252 "EHLO
-	bigapple.newyorkcity.de") by vger.kernel.org with ESMTP
-	id S265091AbUGIQkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 12:40:51 -0400
-Date: Fri, 09 Jul 2004 18:40:28 +0200
-From: Martin Ziegler <mz@newyorkcity.de>
-To: linux-kernel@vger.kernel.org
-cc: mz@newyorkcity.de
-Subject: NFS no longer working ?
-Message-ID: <8232A615C6D0B05C09DBF242@soho>
-X-Mailer: Mulberry/3.1.5 (Win32)
+	Fri, 9 Jul 2004 12:55:29 -0400
+Received: from lug.demon.co.uk ([80.177.165.112]:14697 "EHLO lug.demon.co.uk")
+	by vger.kernel.org with ESMTP id S265099AbUGIQz1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 12:55:27 -0400
+From: David Johnson <dj@david-web.co.uk>
+Reply-To: linux-kernel@vger.kernel.org
+To: Martin Ziegler <mz@newyorkcity.de>
+Subject: Re: NFS no longer working ?
+Date: Fri, 9 Jul 2004 17:55:20 +0100
+User-Agent: KMail/1.6.2
+References: <8232A615C6D0B05C09DBF242@soho>
+In-Reply-To: <8232A615C6D0B05C09DBF242@soho>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407091755.20756.dj@david-web.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Friday 09 Jul 2004 17:40, you wrote:
+> Hi All,
+>
+> just installed kernel version 2.6.7 on RedHat 8.0. Unfortunately i'm no
+> longer able to use NFS. Are there any recent issues ? For a detailed
+> problem description please see below. Any help is appreciated.
+>
 
-just installed kernel version 2.6.7 on RedHat 8.0. Unfortunately i'm no 
-longer able to use NFS. Are there any recent issues ? For a detailed 
-problem description please see below. Any help is appreciated.
+Did you update nfs-utils to the minimum required as detailed in 
+Documentation/Changes?
 
-Thanks
+David.
 
-  Martin
-
-
-I have two machines..let's say A and B. On A / /boot and /sys are exported 
-via /etc/exports. Machine B are mouting these sources when booting via NFS. 
-Since i updated the kernel i get the following errors when machine A is 
-starting the NFS services :
-
----
-Jul 8 09:30:13 hostA exportfs: hostB:/boot: No such device
-Jul 8 09:30:13 hostA exportfs: hostB:/sys: No such device
-Jul 8 09:30:13 hosta exportfs: hostB:/: No such device
-Jul 8 09:30:13 hostA nfs: Starting NFS services: succeeded
-Jul 8 09:30:13 hostA nfs: rpc.rquotad startup succeeded
-Jul 8 09:30:13 hostA nfsd[6376]: nfssvc: No such device
-Jul 8 09:30:13 hosta nfs: rpc.nfsd startup failed
-Jul 8 09:30:13 hostA nfs: rpc.mountd startup succeeded
-
-----
-
-cat /etc/exports:
-
-/ hostB(ro,sync,no_root_squash) /sys hostB(ro,sync,no_root_squash) /boot 
-hostB(ro,sync,no_root_squash)
-
-----
-
-cat /etc/hosts.allow
-
-ALL:hostB
-
-----
-
-With the old kernel 2.4.20-8 i had no problems.
-
-NFS support is compiled into the new kernel.
-
+-- 
+David Johnson
+http://www.david-web.co.uk/

@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279085AbRJVXYw>; Mon, 22 Oct 2001 19:24:52 -0400
+	id <S279083AbRJVX2B>; Mon, 22 Oct 2001 19:28:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279082AbRJVXYo>; Mon, 22 Oct 2001 19:24:44 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:13698 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S279083AbRJVXY1>;
-	Mon, 22 Oct 2001 19:24:27 -0400
-Date: Mon, 22 Oct 2001 16:24:53 -0700 (PDT)
-Message-Id: <20011022.162453.21928469.davem@redhat.com>
-To: babydr@baby-dragons.com
-Cc: sten@blinkenlights.nl, linux-kernel@vger.kernel.org
-Subject: Re: INIT_MMAP on sparc64
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0110221917150.1522-100000@filesrv1.baby-dragons.com>
-In-Reply-To: <20011021.181523.112610375.davem@redhat.com>
-	<Pine.LNX.4.33.0110221917150.1522-100000@filesrv1.baby-dragons.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S279087AbRJVX1n>; Mon, 22 Oct 2001 19:27:43 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:945 "EHLO e31.bld.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S279086AbRJVX1i>;
+	Mon, 22 Oct 2001 19:27:38 -0400
+Date: Mon, 22 Oct 2001 16:24:47 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] making the printk buffer bigger 
+Message-ID: <3040507575.1003767887@mbligh.des.sequent.com>
+X-Mailer: Mulberry/2.0.8 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-   Date: Mon, 22 Oct 2001 19:18:38 -0400 (EDT)
+For larger machines, 16K isn't big enough to hold all the boot
+messages - which means some of the earlier boot messages don't 
+make it to the log files.
 
-   	Why man ! ,  Alpha does not have this limit ?  Why Sparc ?
+Could you add this tiny patch to fix it?
 
-It has to do with a combination of what OBP guarentees the boot
-loader and limitations within the boot signature.
+Thanks,
 
-It would require a lot of SILO and kernel work to eliminate.
+Martin.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+diff -urN virgin-2.4.13-pre2/kernel/printk.c linux-2.4.13-pre2/kernel/printk.c
+--- virgin-2.4.13-pre2/kernel/printk.c	Mon Sep 17 13:16:30 2001
++++ linux-2.4.13-pre2/kernel/printk.c	Mon Oct 15 13:15:37 2001
+@@ -27,7 +27,12 @@
+ 
+ #include <asm/uaccess.h>
+ 
+-#define LOG_BUF_LEN	(16384)			/* This must be a power of two */
++#ifdef CONFIG_SMP
++#define LOG_BUF_LEN	(65536)		/* This must be a power of two */
++#else
++#define LOG_BUF_LEN	(16384)		/* This must be a power of two */
++#endif
++
+ #define LOG_BUF_MASK	(LOG_BUF_LEN-1)
+ 
+ /* printk's without a loglevel use this.. */
+
+

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266097AbUALKgv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 05:36:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266099AbUALKgv
+	id S266147AbUALKdM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 05:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUALKdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 05:36:51 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:25476 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S266097AbUALKgu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 05:36:50 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
-Date: Mon, 12 Jan 2004 10:36:48 +0000
-User-Agent: KMail/1.5.4
-References: <20040109014003.3d925e54.akpm@osdl.org> <3FFF79E5.5010401@winischhofer.net> <Pine.LNX.4.58.0401111502380.1825@evo.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0401111502380.1825@evo.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 05:33:12 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:25743 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S266147AbUALKdK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 05:33:10 -0500
+Date: Mon, 12 Jan 2004 11:32:56 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Kieran <kieran@ihateaol.co.uk>, Bastien Nocera <hadess@hadess.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: uk keyboard broken by input updates?
+Message-ID: <20040112103256.GA4038@ucw.cz>
+References: <1073901824.29420.14.camel@bnocera.surrey.redhat.com> <40027510.1080600@ihateaol.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401121036.48107.andrew@walrond.org>
+In-Reply-To: <40027510.1080600@ihateaol.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 Jan 2004 2:58 am, Linus Torvalds wrote:
->
-> I occasionally get huge drops from James, and they invariably break stuff.
-> Which means that I often decide (espcially when trying to stabilize
-> things) that I just can't _afford_ to apply the fr*gging patches. Because
-> by past experience applying one of the big "everything changes" patches
-> tends to break more things that it fixes.
->
+On Mon, Jan 12, 2004 at 10:21:04AM +0000, Kieran wrote:
+> I have exactly the same problem using 2.6.1 and an IBM USB keyboard, not 
+> really had a chance to look into it yet though.
 
-I want the new fb stuff very badly.
+Can you check if this fixes it for you?
 
-My particular application is a game which has it's own software 3D renderer, 
-so it just needs to be able to blast the frames into video ram. A good fbdev 
-would mean not needing X, which would be nice.
+diff -Nru a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+--- a/drivers/char/keyboard.c	Sun Jan 11 19:42:55 2004
++++ b/drivers/char/keyboard.c	Sun Jan 11 19:42:55 2004
+@@ -941,8 +941,8 @@
+ 	 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+ 	 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+ 	 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+-	 80, 81, 82, 83, 84, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
+-	284,285,309,311,312, 91,327,328,329,331,333,335,336,337,338,339,
++	 80, 81, 82, 83, 43, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
++	284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
+ 	367,288,302,304,350, 89,334,326,116,377,109,111,126,347,348,349,
+ 	360,261,262,263,298,376,100,101,321,316,373,286,289,102,351,355,
+ 	103,104,105,275,287,279,306,106,274,107,294,364,358,363,362,361,
 
-Please consider this for inclusion in very early 2.7. And I urge James to work 
-with Linus on this. Perhaps when it's stable in 2.7, we can back-port to 
-2.6 :)
-
-Andrew Walrond
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

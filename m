@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269764AbSISPGn>; Thu, 19 Sep 2002 11:06:43 -0400
+	id <S269977AbSISPIs>; Thu, 19 Sep 2002 11:08:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269977AbSISPGn>; Thu, 19 Sep 2002 11:06:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34066 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269764AbSISPGm>; Thu, 19 Sep 2002 11:06:42 -0400
-Date: Thu, 19 Sep 2002 08:12:31 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] generic-pidhash-2.5.36-D4, BK-curr
-In-Reply-To: <20020919105940.GJ28202@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0209190809020.3759-100000@home.transmeta.com>
+	id <S271105AbSISPIq>; Thu, 19 Sep 2002 11:08:46 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:4434 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S269977AbSISPIp>; Thu, 19 Sep 2002 11:08:45 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "David S. Miller" <davem@redhat.com>, hadi@cyberus.ca, akpm@digeo.com,
+       manfred@colorfullife.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Info: NAPI performance at "low" loads
+References: <3D87A59C.410FFE3E@digeo.com>
+	<Pine.GSO.4.30.0209172053360.3686-100000@shell.cyberus.ca>
+	<20020917.180014.07882539.davem@redhat.com>
+	<m1hegnky2h.fsf@frodo.biederman.org>
+	<1032371453.20463.139.camel@irongate.swansea.linux.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Sep 2002 08:58:49 -0600
+In-Reply-To: <1032371453.20463.139.camel@irongate.swansea.linux.org.uk>
+Message-ID: <m1d6rakouu.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-On Thu, 19 Sep 2002, William Lee Irwin III wrote:
+> On Wed, 2002-09-18 at 18:27, Eric W. Biederman wrote:
+> > Plus I have played with calibrating the TSC with outb to port
+> > 0x80 and there was enough variation that it was unuseable.  On some
+> > newer systems it would take twice as long as on some older ones.
 > 
-> I did this intentionally. Basically, sys_setsid() does the right thing,
-> but tty_ioctl() does not. There is already some inconsistency
-> about how task->tty is locked, and I'd not yet come to a conclusion.
+> port 0x80 isnt going to PCI space.
 
-I agree about the locking issue (although I do _not_ believe that the
-tasklock should have anything to do with the tsk->tty locking - it should
-most likely use some per-task lock for the actual tty accesses, together
-with the optimization that a write lock on the tasklock is sufficient to
-protect it because it means that nobody else can look up the task).
+Agreed.  It isn't going anywhere, and it takes it a while to recogonize
+that.
+ 
+> x86 generally posts mmio write but not io write. Thats quite measurable.
 
-However, what I worry about is that there may not (will not) be a 1:1
-session<->tty thing. In particular, when somebody creates a new session 
-with "setsid()", that does not remove the tty from processes that used to 
-hold it, I think (this is all from memory, so I might be wrong).
+The difference timing difference between posted and non-posted writes
+I can see.
 
-Which means that if the tty is going away, it has to be removed from _all_ 
-tasks, not just from the one session that happened to be the most recent 
-one.
-
-		Linus
+Eric
 

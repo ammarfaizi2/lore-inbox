@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbTEAE54 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 00:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTEAE54
+	id S262685AbTEAFEI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 01:04:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTEAFEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 00:57:56 -0400
-Received: from [211.167.76.68] ([211.167.76.68]:60306 "HELO soulinfo")
-	by vger.kernel.org with SMTP id S262356AbTEAE5w (ORCPT
+	Thu, 1 May 2003 01:04:08 -0400
+Received: from [211.167.76.68] ([211.167.76.68]:1428 "HELO soulinfo")
+	by vger.kernel.org with SMTP id S262685AbTEAFED (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 00:57:52 -0400
-Date: Thu, 1 May 2003 13:03:18 +0800
+	Thu, 1 May 2003 01:04:03 -0400
+Date: Thu, 1 May 2003 13:16:05 +0800
 From: hugang <hugang@soulinfo.com>
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
 Subject: Re: [RFC][PATCH] Faster generic_fls
-Message-Id: <20030501130318.459a4776.hugang@soulinfo.com>
+Message-Id: <20030501131605.02066260.hugang@soulinfo.com>
 In-Reply-To: <20030430135512.6519eb53.akpm@digeo.com>
 References: <200304300446.24330.dphillips@sistina.com>
 	<20030430135512.6519eb53.akpm@digeo.com>
@@ -21,7 +21,6 @@ X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
- =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= Andrew Morton <akpm@digeo.com>
  =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -215,6 +214,8 @@ user	0m21.270s
 sys	0m0.000s
 ------------------
 
+all of the files can download from:
+http://soulinfo.com/~hugang/kernel/
 -- 
 Hu Gang / Steve
 Email        : huagng@soulinfo.com, steve@soulinfo.com

@@ -1,77 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271108AbUJUXct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271132AbUJUXvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271108AbUJUXct (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 19:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271076AbUJUXcb
+	id S271132AbUJUXvT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 19:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271020AbUJUXqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 19:32:31 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:47532 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S271099AbUJUX3T (ORCPT
+	Thu, 21 Oct 2004 19:46:08 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:53140 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S271099AbUJUXol convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 19:29:19 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] use mmiowb in tg3.c
-Date: Thu, 21 Oct 2004 16:28:06 -0700
-User-Agent: KMail/1.7
-Cc: netdev@oss.sgi.com, jgarzik@pobox.com, davem@davemloft.net, gnb@sgi.com,
-       akepner@sgi.com
-References: <200410211613.19601.jbarnes@engr.sgi.com>
-In-Reply-To: <200410211613.19601.jbarnes@engr.sgi.com>
+	Thu, 21 Oct 2004 19:44:41 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_GYEeBF4j/oqi4yZ"
-Message-Id: <200410211628.06906.jbarnes@engr.sgi.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+Date: Thu, 21 Oct 2004 16:44:26 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB6003287A2A@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+Thread-Index: AcS3xyxcskQHiQAbTHyvj1oF6g3FLwAAD8+A
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Cc: "Kendall Bennett" <KendallB@scitechsoft.com>,
+       <linux-kernel@vger.kernel.org>,
+       <linux-fbdev-devel@lists.sourceforge.net>, <stefandoesinger@gmx.at>
+X-OriginalArrivalTime: 21 Oct 2004 23:44:27.0064 (UTC) FILETIME=[E6BB8380:01C4B7C7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_GYEeBF4j/oqi4yZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Pavel Machek
+>Sent: Thursday, October 21, 2004 4:23 PM
+>To: Pallipadi, Venkatesh
+>Cc: Kendall Bennett; linux-kernel@vger.kernel.org; 
+>linux-fbdev-devel@lists.sourceforge.net; stefandoesinger@gmx.at
+>Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer 
+>driver and Video card BOOT?
+>
+>Hi!
+>
+>> >> I have done some experiments with this video post stuff.
+>> >> I think this should be done using x86 emulator rather than doing 
+>> >> in real mode. The reason being, with an userlevel emulator 
+>> >we can call
+>> >> it at different times during resume. The current real 
+>mode videopost
+>> >> does 
+>> >
+>> >Actually Ole Rohne has patch that allows you to call real mode any
+>> >time you want.
+>> 
+>> Yes. I tried Ole's patch. That helped on one of my laptops. But, on 
+>> the other one it doesn't work. It goes into real mode but 
+>never returns.
+>> Both systems had Radeom 9000M cards, but one with older 
+>version of the 
+>> firmware (didn't work) and one with newer version.
+>> 
+>> IIRC, even Stefan had similar problems with Ole's patch.
+>
+>It did not work for me, either, but I verified that it works as
+>expected if I comment out actuall call of BIOS. So the problem is not
+>with Ole's patch but with bios, and it may be the same if you emulate
+>it...
+>
+>[Of course, it will not crash whole system when emulated, but system
+>without video is not too good, either].
 
-This patch originally from Greg Banks.  Some parts of the tg3 driver depend on 
-PIO writes arriving in order.  This patch ensures that in two key places 
-using the new mmiowb macro.  This not only prevents bugs (the queues can be 
-corrupted), but is much faster than ensuring ordering using PIO reads (which 
-involve a few round trips to the target bus on some platforms).
-
-Arthur has another patch that uses mmiowb in tg3 that he posted earlier as 
-well.
-
-Signed-off-by: Greg Banks <gnb@sgi.com>
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com
+Even I thought so. But, with the emulator it doesn't hang. It brings 
+back my video. I double checked this using another vm86 emulator too. 
+No hang even there. I couldn't figure out why Ole's patch won't work 
+though. Right now I am using call_usermodehelper() to call the 
+emulator during resume and the video comes back just fine on this 
+system where Ole's patch didn't work.
 
 Thanks,
-Jesse
-
---Boundary-00=_GYEeBF4j/oqi4yZ
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="tg3-mmiowb-2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="tg3-mmiowb-2.patch"
-
-===== drivers/net/tg3.c 1.210 vs edited =====
---- 1.210/drivers/net/tg3.c	2004-10-06 09:42:56 -07:00
-+++ edited/drivers/net/tg3.c	2004-10-21 16:06:37 -07:00
-@@ -2729,6 +2729,7 @@
- 		tw32_rx_mbox(MAILBOX_RCV_JUMBO_PROD_IDX + TG3_64BIT_REG_LOW,
- 			     sw_idx);
- 	}
-+	mmiowb();
- 
- 	return received;
- }
-@@ -3176,6 +3177,7 @@
- 		netif_stop_queue(dev);
- 
- out_unlock:
-+    	mmiowb();
- 	spin_unlock_irqrestore(&tp->tx_lock, flags);
- 
- 	dev->trans_start = jiffies;
-
---Boundary-00=_GYEeBF4j/oqi4yZ--
+Venki

@@ -1,39 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319731AbSIMRt6>; Fri, 13 Sep 2002 13:49:58 -0400
+	id <S319732AbSIMRzF>; Fri, 13 Sep 2002 13:55:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319732AbSIMRt5>; Fri, 13 Sep 2002 13:49:57 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:17674 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S319731AbSIMRt5>; Fri, 13 Sep 2002 13:49:57 -0400
-Date: Fri, 13 Sep 2002 19:54:41 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Possible bug and question about ide_notify_reboot in drivers/ide/ide.c (2.4.19)
-Message-ID: <20020913175441.GN28541@louise.pinerecords.com>
-References: <20020913023744.78077.qmail@web40510.mail.yahoo.com> <1031922553.9056.18.camel@irongate.swansea.linux.org.uk> <20020913151037.GM28541@louise.pinerecords.com> <1031930097.9679.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1031930097.9679.0.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 18 days, 23:42
+	id <S319734AbSIMRzF>; Fri, 13 Sep 2002 13:55:05 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:45838 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S319732AbSIMRzE>;
+	Fri, 13 Sep 2002 13:55:04 -0400
+Message-ID: <3D8227EA.6040708@domdv.de>
+Date: Fri, 13 Sep 2002 20:01:14 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ahmed Masud <masud@googgun.com>
+CC: Thunder from the hill <thunder@lightweight.ods.org>, dag@brattli.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.34: IR __FUNCTION__ breakage
+References: <Pine.LNX.4.44.0209131013080.10048-100000@hawkeye.luckynet.adm> <3D82247A.80601@googgun.com>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > I have
-> > > > to go into the BIOS and force auto-detect to wake them back up. I've removed the "standby"
-> > > > code and things seem to be functioning normally. I have an Epox 8K7A motherboard with two
-> > > > Maxtor Hard drives (model 5T040H4).
-> > > 
-> > > Congratulations your BIOS sucks 8)
-> > 
-> > Alan, obviously this should be made into a config option.
-> 
-> I dont think so. We can't go around with 15,000 "My bios cant XYZ"
-> options and "My PCI bus ...".
+(rct@gherkin.frus.com removed from cc list as his mta treats (not only) 
+my mails as spam...)
 
-How about a kernel boot/module load option then?
-Something like "ide0=ata66,noshutdown"
+Ahmed Masud wrote:
+> Thunder from the hill wrote:
+> 
+>> Hi,
+>>
+>> On Fri, 13 Sep 2002, Andreas Steinmetz wrote:
+>>
+>>> At least for gcc 3.2 this would be better:
+>>>
+>>> #define DERROR(dbg, fmt, args...) \
+>>>     do { if (DEBUG_##dbg) \
+>>>         printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION__, ##args); \
+>>>     } while(0)
+>>>
+> Perhaps a hybrid of the two? :
+> 
+> #define DERROR(dbg, fmt, 
+> args...)                                          \
+>    do { if (DEBUG_##dbg) {                                                \
+>                printk(KERN_INFO "irnet: %s() : ", __FUNCTION__);          \
+>                printk(fmt, ## args);                                      \
+>         }                                                                 \
+>    } while (0)
+> 
+> 
+How about what I did just suggest for smbfs?
+
+#if __GNUC__>=3
+#define DERROR(dbg, fmt, args...) \
+   do { if (DEBUG_##dbg) \
+       printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION__, ##args); \
+   } while(0)
+#else
+#define DERROR(dbg, args...) \
+   {if(DEBUG_##dbg) \
+     printk(KERN_INFO "irnet: " __FUNCTION__ "(): " args);}
+#endif
+
+gcc 2 versions will be deprecated eventually some time in the future and 
+in between the macro selection by gcc major version should be fair enough.
+-- 
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH
+

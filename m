@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbUKDX2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbUKDXd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262466AbUKDX2j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 18:28:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbUKDX2j
+	id S262472AbUKDXd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 18:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbUKDXd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 18:28:39 -0500
-Received: from smtpout2.uol.com.br ([200.221.11.55]:35716 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S262466AbUKDX1P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 18:27:15 -0500
-Date: Thu, 4 Nov 2004 21:27:04 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: linux-kernel@vger.kernel.org
-Subject: Oops with kernel 2.6.9-ac6
-Message-ID: <20041104232704.GA7721@ime.usp.br>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Thu, 4 Nov 2004 18:33:56 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:63694 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S262472AbUKDXdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 18:33:54 -0500
+From: Benno <benjl@cse.unsw.edu.au>
+To: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+Date: Fri, 5 Nov 2004 10:33:40 +1100
+Subject: Re: is killing zombies possible w/o a reboot?
+Message-ID: <20041104233338.GA31392@cse.unsw.edu.au>
+References: <200411030751.39578.gene.heskett@verizon.net> <200411031124.19179.gene.heskett@verizon.net> <20041103201322.GA10816@hh.idb.hist.no> <200411031540.03598.gene.heskett@verizon.net> <20041104100749.GA23996@merlin.emma.line.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041104100749.GA23996@merlin.emma.line.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu Nov 04, 2004 at 11:07:49 +0100, Matthias Andree wrote:
+>On Wed, 03 Nov 2004, Gene Heskett wrote:
+>
+>> >Yes it does - the problem is that not all resources are managed
+>> >by processes.  Some allocations are managed by drivers, so a driver
+>> >bug can get the device into a unuseable state _and_ tie up the
+>> >process(es) that were using the driver at the moment.
+>> 
+>> This from my viewpoint, is wrong.  The kernel, and only the kernel 
+>> should be ultimately responsible for handing out resources, and 
+>> reclaiming at its convienience.
+>
+>Linux's driver model is the way it is. If you want the kernel to clean
+>up after a driver has puked, you need something like a microkernel I
+>believe, where only a minimal core kernel is a real kernel and where all
+>the drivers are actually in user-space, but that's no longer Linux then.
 
-Dear kernel developers (and Alan Cox in particular),
+Of course some drivers are already in user-space on Linux. (E.g: X
+graphics cards). Work by the Gelato project has added support to the
+Linux kernel to allow more complicated drivers (e.g: those requiring
+interrupts) to be run outside the kernel on Linux.
 
-I've been having problems with recent kernels (some instability
-on a system that has been rock solid for years). I'm using a Debian testing
-system here with my own compiled kernel.
+http://www.gelato.unsw.edu.au/cgi-bin/viewcvs.cgi/cvs/kernel/usrdrivers/
 
-I've been tracking almost all the -rc releases that Linus has published and
-it seems that while 2.6.10-rc1 contains all the fixes that I need
-(including the fix for making my USB Drive working correctly and the
-ability for my iBook to change its speed), it doesn't seem stable enough on
-my desktop.
+Cheers,
 
-For instance, while I was at work connected to my desktop via ssh, the
-machine simply got frozen -- when I came back home, the only thing that
-worked was SysRq+B for booting (I had X running and the monitor at that
-time didn't receive signal from the card).
-
-For this reason, I went back to kernel 2.6.9-ac6 to see if a more
-conservative change would bring more stability. I got some Ooopsen today
-when I was ripping some CDs with grip under X and browsing the web with
-Mozilla. In fact, Mozilla died many times and I just thought that it was
-Mozilla's fault. But then I saw many lines rolling in an xconsole that I
-always keep open.
-
-I've put the logs of what I got at <http://www.ime.usp.br/~rbrito/bug/>.  I
-don't know exactly what would be relevant information to report, but feel
-free to ask about any details.
-
-My motherboard is an Asus A7V, with chipset Via KT133, a Duron 600MHz,
-386MB of RAM, a vanilla Firewire card (with a Via chipset), two vanilla
-Realtek 8139 cards, a Matrox G400 AGP card with 16MB of RAM, a ES1371 card
-and a US Robotics modem (I'm describing the hardware here because I can't
-connect to my computer right now to get a lspci output).
-
-Anyway, I would really appreciate any help that you could offer.
-
-
-Thanks in advance, Rogério Brito.
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Benno

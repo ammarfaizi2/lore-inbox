@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287145AbSABWyo>; Wed, 2 Jan 2002 17:54:44 -0500
+	id <S287161AbSABXAy>; Wed, 2 Jan 2002 18:00:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287143AbSABWyf>; Wed, 2 Jan 2002 17:54:35 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3594 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287144AbSABWy1>; Wed, 2 Jan 2002 17:54:27 -0500
-Message-ID: <3C338C57.2080902@zytor.com>
-Date: Wed, 02 Jan 2002 14:40:23 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Dave Jones <davej@suse.de>, Robert Schwebel <robert@schwebel.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        Jason Sodergren <jason@mugwump.taiga.com>,
-        Anders Larsen <anders@alarsen.net>, rkaiser@sysgo.de
-Subject: Re: [PATCH][RFC] AMD Elan patch
-In-Reply-To: <E16LnyN-0004aG-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287155AbSABXAf>; Wed, 2 Jan 2002 18:00:35 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:47100 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S287160AbSABXAX>; Wed, 2 Jan 2002 18:00:23 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200201022239.OAA21717@atrus.synopsys.com> 
+In-Reply-To: <200201022239.OAA21717@atrus.synopsys.com> 
+To: Joe Buck <jbuck@synopsys.COM>
+Cc: VANDROVE@vc.cvut.cz (Petr Vandrovec), pkoning@equallogic.com (Paul Koning),
+        trini@kernel.crashing.org, velco@fadata.bg,
+        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
+        linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] C undefined behavior fix 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 02 Jan 2002 22:59:39 +0000
+Message-ID: <23060.1010012379@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
->>x86info is the closest thing to a complete list, but as hpa pointed out,
->>the problem identifying the cpu is easy, identifying the chipset is the
->>hard part.
->>
-> 
-> I can guarantee 100% correct chipset identification. If you meet an ELAN410
-> it is the chipset too. The ISA and VLB come directly off the CPU
-> 
+jbuck@synopsys.COM said:
+> > An ICE, while it's not quite what was expected and it'll probably get
+> > fixed, is nonetheless a perfectly valid implementation of 'undefined 
+> > behaviour'.
 
-That's not the problem, really... the problems is that CPUID identifies 
-the CPU core, and embedded CPU cores tend to be used and reused many 
-times -- in fact, AMD are quite good at that.
+>  Not for GCC it isn't.  Our standards say that a compiler crash, for
+> any input whatsoever, no matter how invalid (even if you feed in line
+> noise), is a bug.  Other than that we shouldn't make promises, though
+> the old gcc1 behavior of trying to launch a game of rogue or hack when
+> encountering a #pragma was cute.
 
-	-hpa
+True - sorry, I forgot where this was crossposted. I didn't mean to imply
+that GCC folks would _accept_ an ICE and not fix it - just that strictly
+speaking, it is a perfectly valid response, as is the unintended observed
+behaviour of the output code which actually started this thread.
+
+--
+dwmw2
+
 

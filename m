@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263008AbTJ0QnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 11:43:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263179AbTJ0QnJ
+	id S263179AbTJ0QrO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 11:47:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbTJ0QrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 11:43:09 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8401 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263008AbTJ0QnG (ORCPT
+	Mon, 27 Oct 2003 11:47:14 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:19938 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S263179AbTJ0QrN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 11:43:06 -0500
-Date: Mon, 27 Oct 2003 08:40:43 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Emmanuel Fleury <fleury@cs.auc.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Remote Serial Console on 2.6.x ?
-Message-Id: <20031027084043.4847224c.rddunlap@osdl.org>
-In-Reply-To: <1067248709.30367.10.camel@rade7.s.cs.auc.dk>
-References: <1067248709.30367.10.camel@rade7.s.cs.auc.dk>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 27 Oct 2003 11:47:13 -0500
+Subject: Re: [BUG] test9 ACPI bad: scheduling while atomic!
+From: Alex Williamson <alex.williamson@hp.com>
+To: "Noah J. Misch" <noah@caltech.edu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net, shaohua.li@intel.com,
+       len.brown@intel.com, jon@nanocrew.net
+In-Reply-To: <Pine.GSO.4.58.0310262327040.19469@clyde>
+References: <Pine.GSO.4.58.0310262327040.19469@clyde>
+Content-Type: text/plain
+Message-Id: <1067273229.7497.30.camel@patsy.fc.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 27 Oct 2003 09:47:09 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Oct 2003 10:58:29 +0100 Emmanuel Fleury <fleury@cs.auc.dk> wrote:
+On Mon, 2003-10-27 at 01:22, Noah J. Misch wrote:
 
-| Hi,
-| 
-| I was used to debug my kernel code with the remote serial console
-| facility on the 2.4.x serie, but I really can't figure how does it works
-| to activate it on the 2.6.0-test9 that I just got.
-| 
-| I took a look at the relevant HOWTO:
-| http://www.tldp.org/HOWTO/Remote-Serial-Console-HOWTO/kernelcompile-25.html
-| 
-| But, it seems that all the configure scheme has changed for the 2.6.x...
-| 
-| Can anybody give me some pointers on a documentation or give me some
-| hints ???
+> This problem stems from the changes in revision 1.26 of drivers/acpi/ec.c.
+> They come from a patch Shaohua Li submitted for kernel bug 1171 at
+> bugme.osdl.org.  That patch can cause acpi_ec_gpe_query to run in interrupt
+> context, whereas before it always ran from a workqueue.  It does non-interrupt
+> like things, like sleeping and kmalloc'ing with GFP_KERNEL.
+> 
+> This was obvious on my system because it has no ECDT table, and as such
+> acpi_ec_gpe_query was _always_ running in interrupt context, whereas with an
+> ECDT it would only do so for a brief time during boot, and the problem would be
+> much more subtle.  That's probably why nobody noticed this in earlier tests.
+> 
 
-Hi,
+  I don't have an ECDT either.  Is it possible that the setting of
+ec_device_init = 1 is simply misplaced?  I can see why we wouldn't want
+to call acpi_os_queue_for_execution() early in bootup, but there ought
+to be a fixed point after which it's ok, regardless of whether the
+system has the ECDT table.  Would it be sufficient to set ec_device_init
+to 1 at the beginning of acpi_ec_add(), with no dependency on the ECDT
+table?
 
-Here's how it looks in 2.6.0-test9:
+	Alex
 
+-- 
+Alex Williamson                             HP Linux & Open Source Lab
 
-Device Drivers:
-  Character devices:
-    Serial drivers:
-      <*> 8250/16550 and compatible serial support
-          (CONFIG_SERIAL_8250=y)
-      [*]   Console on 8250/16550 and compatible serial port
-            (CONFIG_SERIAL_8250_CONSOLE=y)
-
-
-HTH.
---
-~Randy

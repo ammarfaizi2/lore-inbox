@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316580AbSILQZY>; Thu, 12 Sep 2002 12:25:24 -0400
+	id <S316499AbSILQgk>; Thu, 12 Sep 2002 12:36:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316615AbSILQZY>; Thu, 12 Sep 2002 12:25:24 -0400
-Received: from edu.joroinen.fi ([195.156.135.125]:16399 "HELO edu.joroinen.fi")
-	by vger.kernel.org with SMTP id <S316580AbSILQZX> convert rfc822-to-8bit;
-	Thu, 12 Sep 2002 12:25:23 -0400
-Date: Thu, 12 Sep 2002 19:30:12 +0300 (EEST)
-From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
-X-X-Sender: pk@edu.joroinen.fi
-To: linux-kernel@vger.kernel.org
-Subject: sched.h changes in 2.4.19rc5aa1 / Digi's cpci driver doesn't compile
-Message-ID: <Pine.LNX.4.44.0209121923320.17322-100000@edu.joroinen.fi>
+	id <S316578AbSILQgk>; Thu, 12 Sep 2002 12:36:40 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:14473 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S316499AbSILQgj>;
+	Thu, 12 Sep 2002 12:36:39 -0400
+Date: Thu, 12 Sep 2002 09:41:29 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: jw schultz <jw@pegasys.ws>
+cc: linux-kernel@vger.kernel.org, <Matt_Domsch@Dell.com>
+Subject: Re: the userspace side of driverfs
+In-Reply-To: <20020912051127.GH10315@pegasys.ws>
+Message-ID: <Pine.LNX.4.44.0209120938400.1057-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello!
+> > For such cases where the data being exported is really binary,
+> > having a common set of parse/unparse routines would be nice. 
+> 
+> I don't know what others think of this but i'd say that some
+> binary files are appropriate.  
 
-I'm using Linux 2.4.19rc5aa1 and having problems to compile Digi's cpci
-driver for multiport serialboard. This driver is not part of the kernel,
-but available from Digi's website.
+Not a chance. The values will be ASCII, and that's all there is to it. If 
+I see someone exporting a binary file in driverfs, I'll submit a patch to 
+remove it. :)
 
-The problem seems to be related to changes in include/linux/sched.h.
-Digi's driver wants to use member called "counter" which doesn't exist
-anymore in the -aa kernel.
+Matt, I'm interested in working on exporting the EFI variables in an 
+ASCII manner, though time constraints are a bit stiff, and it's been a 
+while sincce I looked at anything EFI. Stay tuned...
 
-The code goes like this (cpci.c line 3847):
-
-	current->state = TASK_INTERRUPTIBLE;
-	current->counter = 0;   /* make us low-priority */
-
-current is task_struct.
-
-Sources available from http://nrg.joroinen.fi/digi/
-
-Any ideas how to fix this? I'm not familiar with kernel driver
-development..
-
-
-- Pasi Kärkkäinen
-
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+	-pat
 

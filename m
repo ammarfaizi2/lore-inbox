@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278770AbRJVMYt>; Mon, 22 Oct 2001 08:24:49 -0400
+	id <S278759AbRJVMhJ>; Mon, 22 Oct 2001 08:37:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278774AbRJVMYk>; Mon, 22 Oct 2001 08:24:40 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:30094 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S278773AbRJVMYb>; Mon, 22 Oct 2001 08:24:31 -0400
-Date: Mon, 22 Oct 2001 14:25:05 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-Message-ID: <20011022142505.B15501@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011022140844.A15243@outpost.ds9a.nl> <E15veDQ-0001nl-00@the-village.bc.nu>
+	id <S278778AbRJVMhA>; Mon, 22 Oct 2001 08:37:00 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:22288 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S278759AbRJVMgv>;
+	Mon, 22 Oct 2001 08:36:51 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
+In-Reply-To: Your message of "Mon, 22 Oct 2001 08:15:45 -0400."
+             <Pine.GSO.4.21.0110220811210.2294-100000@weyl.math.psu.edu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15veDQ-0001nl-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 22, 2001 at 01:30:00PM +0100
+Date: Mon, 22 Oct 2001 22:37:13 +1000
+Message-ID: <26403.1003754233@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 01:30:00PM +0100, Alan Cox wrote:
-> > This would then presumably lead to password protected access for US kernel
-> > developers that need to know? And some kind of NDA?
+On Mon, 22 Oct 2001 08:15:45 -0400 (EDT), 
+Alexander Viro <viro@math.psu.edu> wrote:
+>On Mon, 22 Oct 2001, Keith Owens wrote:
+>
+>> Please, no more 2.4 changes.  Let Linus get 2.4 stable, fork 2.5 so we
+>> can break it on a daily basis then backport to 2.4 when it works.
+>
+>and
+>
+>> -ac kernels?  And have that behaviour depending on which version of
+>> modutils the user installed?  Not in 2.4, modutils strives for
+>> stability in production kernels, it is an important interface between
+>> the kernel and user space.
 > 
-> US kernel developers cannot be told. Period.
-(...)
-> Its based directly on legal opinion.
+>Correct me if I'm wrong, but two quotes above seem to contradict each other
+>- AFAICS arguments in the latter apply to backporting...
 
-Then I suggest we leave this planet.
+I left out a phrase.  "backport to 2.4 when it works and does not
+affect 2.4 compatibility".  That is a given on modutils, I won't
+consider anything that breaks modutils compatibility on any kernel from
+2.4 right down to 2.0.  modutils 2.5 can shatter into tiny pieces, not
+a problem.
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-Trilab                                 The Technology People
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

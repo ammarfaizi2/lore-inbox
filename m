@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268961AbRHBOlU>; Thu, 2 Aug 2001 10:41:20 -0400
+	id <S268968AbRHBOpu>; Thu, 2 Aug 2001 10:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268964AbRHBOlA>; Thu, 2 Aug 2001 10:41:00 -0400
-Received: from mail.nep.net ([12.23.44.24]:29969 "HELO nep.net")
-	by vger.kernel.org with SMTP id <S268961AbRHBOku>;
-	Thu, 2 Aug 2001 10:40:50 -0400
-Message-ID: <19AB8F9FA07FB0409732402B4817D75A038A32@FILESERVER.SRF.srfarms.com>
-From: "Ryan C. Bonham" <Ryan@srfarms.com>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>,
-        linux-kernel@vger.kernel.org
-Subject: RE: 3ware Escalade problems? Adaptec?
-Date: Thu, 2 Aug 2001 10:45:22 -0400 
+	id <S268951AbRHBOpk>; Thu, 2 Aug 2001 10:45:40 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268966AbRHBOpa>; Thu, 2 Aug 2001 10:45:30 -0400
+Subject: Re: 3ware Escalade problems? Adaptec?
+To: rothwell@holly-springs.nc.us
+Date: Thu, 2 Aug 2001 15:47:10 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "Michael Rothwell" at Aug 02, 2001 10:19:58 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15SJkk-0000ki-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using an adaptec 2400A card currently. I have 2.4.6 kernel compiled and
-the adaptec 2400A driver patched in. I have had no problems with this card.
-
-> -----Original Message-----
-> From: Michael Rothwell [mailto:rothwell@holly-springs.nc.us]
-> Sent: Thursday, August 02, 2001 10:20 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: 3ware Escalade problems? Adaptec?
-> 
-> 
-> I've been pricing out a 3ware-based raid system for my own 
-> personal use. Are
-> the problems wuth the Escalade cards bad enough to consider 
-> not using them
+> I've been pricing out a 3ware-based raid system for my own personal use. Are
+> the problems wuth the Escalade cards bad enough to consider not using them
 > with 2.4.7?
-> 
-> It seems that the only ATA-raid cards supported in the kernel 
-> tree are the
-> 3ware ones. What's the word on the Adaptec 2400A card?
-> 
-> Thanks,
-> 
-> -M
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+Im really attached to my 3ware cards, they are the best ide raid cards I've
+used. The newer boxes I built just use software raid 0/1 which is easy now
+that everyone throws 4 UDMA100 channels on their motherboards.
+
+I've also done the i2o driver fixups for the Promise SuperTrak100 with a
+card provided by Promise and that works in -ac but not yet Linus tree.
+I'm more impressed with the 3ware than the promise card right now, although
+it will depend on workload. The promise card has onboard caches and raid5 
+hardware which the earlier 3ware didn't.
+

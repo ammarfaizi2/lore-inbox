@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbTIHBtA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 21:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTIHBtA
+	id S261853AbTIHCIP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 22:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbTIHCIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 21:49:00 -0400
-Received: from ejc.ecomda.com ([212.18.24.150]:37604 "EHLO ejc.ecomda.com")
-	by vger.kernel.org with ESMTP id S261861AbTIHBs7 (ORCPT
+	Sun, 7 Sep 2003 22:08:15 -0400
+Received: from dp.samba.org ([66.70.73.150]:63143 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261853AbTIHCIO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 21:48:59 -0400
-Subject: possible GPL violation by Sigma Designs
-From: Torgeir Veimo <torgeir@pobox.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1062985742.3771.16.camel@africa.netenviron.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Mon, 08 Sep 2003 02:49:02 +0100
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Sep 2003 22:08:14 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org, robert@schwebel.de
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection 
+In-reply-to: Your message of "Sun, 07 Sep 2003 13:28:13 +0200."
+             <20030907112813.GQ14436@fs.tum.de> 
+Date: Mon, 08 Sep 2003 10:46:30 +1000
+Message-Id: <20030908020812.3A48F2C186@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DVD players based on Sigma Designs EM8500 mpeg4 decoder seems to be
-running uClinux. See here for some info:
-http://www.avsforum.com/avs-vb/showthread.php?s=&threadid=288489
+In message <20030907112813.GQ14436@fs.tum.de> you write:
+> - @Rusty:
+>   what's your opinion on making MODULE_PROC_FAMILY in 
+>   include/asm-i386/module.h some kind of bitmask?
 
-The Sigma Designs EM8500 is apparently a combined mpeg4 decoder and RISC
-processor. I'd assume that they would be required to release source code
-on request for their kernel, even if the code is executed on the EM8500
-directly, as opposed being controller by a kernel driver running on a
-separate processor?
+The current one is readable, which is good, and Linus asked for it,
+which makes it kinda moot.  And really, if you compile a module with
+M686 and insert it in a kernel with M586, *WHATEVER* scheme you we use
+for CPU seleciton, I want the poor user to have to use "modprobe -f".
 
-The firmware for the Bravo D1 DVD player can be downloaded as an ISO
-image from this page; http://www.vinc.com/support_faq.asp
-
--- 
-Torgeir Veimo <torgeir@pobox.com>
-
+Hope that clarifies,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

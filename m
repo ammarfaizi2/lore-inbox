@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269326AbRIJNvc>; Mon, 10 Sep 2001 09:51:32 -0400
+	id <S269413AbRIJNxC>; Mon, 10 Sep 2001 09:53:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269413AbRIJNvX>; Mon, 10 Sep 2001 09:51:23 -0400
-Received: from smtp.mediascape.net ([212.105.192.20]:29962 "EHLO
-	smtp.mediascape.net") by vger.kernel.org with ESMTP
-	id <S269326AbRIJNvH>; Mon, 10 Sep 2001 09:51:07 -0400
-Message-ID: <3B9CC525.7E26ABC2@mediascape.de>
-Date: Mon, 10 Sep 2001 15:50:29 +0200
-From: Olaf Zaplinski <o.zaplinski@mediascape.de>
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.9-ac6 i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
-In-Reply-To: <200109072337.f87NbPY92715@aslan.scsiguy.com>
+	id <S269515AbRIJNwn>; Mon, 10 Sep 2001 09:52:43 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:28173 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S269454AbRIJNwj>; Mon, 10 Sep 2001 09:52:39 -0400
+Date: Mon, 10 Sep 2001 15:53:00 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [bug report] NFS and uninterruptable wait states
+Message-ID: <20010910155300.D19255@artax.karlin.mff.cuni.cz>
+In-Reply-To: <m3zo8cp93a.fsf@belphigor.mcnaught.org> <01090310483100.26387@faldara> <m3zo8cp93a.fsf@belphigor.mcnaught.org> <32526.999534512@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <32526.999534512@redhat.com>; from dwmw2@infradead.org on Mon, Sep 03, 2001 at 05:28:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, I tested it today, compiled 2.4.9ac10 with the new driver and TCQ set
-to 32. I built the driver as a module to make sure that the machine at least
-boots into runlevel 3 (I have no console access, only access to the reset
-switch).
+> Timeouts are a completely separate issue, surely? Applications ought to be 
+> able to deal with getting a _signal_ during a system call, whatever happens.
+> 
+> IMO, sleeping in state TASK_UNINTERRUPTIBLE in any situation where you can't
+> prove that the wakeup _will_ happen and will happen _soon_ should be
+> considered a bug - it's almost always just because someone hasn't bothered
+> to implement the cleanup code required for dealing with being interrupted.
+> 
+> /me tries to work out why anyone would ever want filesystem accesses to be 
+> uninterruptible.
 
-I rebooted and inserted the driver with 'modprobe aic7xxx', remembered that
-I forgot the verbose flag, removed the driver with 'modprobe -r' and
-re-inserted it with 'modprobe aic7xxx aic7xxx=verbose'. The machine was
-still alive then. But right after entering 'raidhotadd /dev/md1 /dev/sda1'
-the machine hung. reiserfs erased the last lines of /var/log/messages, but
-AFAIK the verbose driver output showed no errors.
+generic_file_read does wait_on_page, which sleeps uninteruptibly. This
+shouldn't be too difficult to change (once the pages are linked to file's
+memory_area, generic_read_file redoes readpage on the same pages and it's
+up to readpage to find out, weather the request is still pending or timed
+out)
 
-But how can I help to reproduce the error? Of course I could break the
-mirror, compile the driver into the kernel (non-module) and do some stress
-test on the SCSI drive. But it's not so good when I drive this machine into
-a hang too often.
+Other problem is the RPC layer. If it should check signal_pending only on
+timeouts, it;s simple. If it should also check while waiting, it has to be
+able to recognise the interupted call. And this in turn brings the problem
+of discarding data requested by interupted and not restarted calls (eg. when
+the process was killed by the signal). There is the nasty case when request
+is sent to the server and sending process dies while waitig. But the request
+is eventualy replied and the reply must be handled somewhere.
 
-I compiled the old driver now, also with TCQ set to 32, and the machine
-seems to work fine.
+You are right about not bothering with cleanup code. But it's not easy to
+have the RPC layer right.
 
-Olaf
+--------------------------------------------------------------------------------
+                  				- Jan Hudec `Bulb' <bulb@ucw.cz>

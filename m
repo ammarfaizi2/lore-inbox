@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbUBKJcN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 04:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263898AbUBKJcN
+	id S263898AbUBKJwh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 04:52:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbUBKJwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 04:32:13 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:4754 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263861AbUBKJcJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 04:32:09 -0500
-Date: Wed, 11 Feb 2004 15:06:22 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Cc: linux-kernel@vger.kernel.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+	Wed, 11 Feb 2004 04:52:37 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:26643 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263898AbUBKJwg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 04:52:36 -0500
+Message-ID: <4029FE68.9020206@aitel.hist.no>
+Date: Wed, 11 Feb 2004 11:05:28 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Matthew Reppert <repp0017@tc.umn.edu>
+CC: Mike Bell <kernel@mikebell.org>, linux-kernel@vger.kernel.org
 Subject: Re: devfs vs udev, thoughts from a devfs user
-Message-ID: <20040211093622.GB9457@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210171337.GK4421@tinyvaio.nome.ca> <40291A73.7050503@nortelnetworks.com> <20040210192456.GB4814@tinyvaio.nome.ca> <40293508.1040803@nortelnetworks.com> <40293AF8.1080603@backtobasicsmgmt.com> <20040210203900.GA18263@ti19.telemetry-investments.com> <20040211011559.GA2153@kroah.com> <4029883C.2070705@backtobasicsmgmt.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4029883C.2070705@backtobasicsmgmt.com>
-User-Agent: Mutt/1.4i
+References: <20040210113417.GD4421@tinyvaio.nome.ca>	 <20040210170157.GA27421@kroah.com> <20040210171337.GK4421@tinyvaio.nome.ca>	 <20040210172552.GB27779@kroah.com> <20040210174603.GL4421@tinyvaio.nome.ca>	 <20040210181242.GH28111@kroah.com> <20040210182943.GO4421@tinyvaio.nome.ca> <1076451567.21725.21.camel@minerva>
+In-Reply-To: <1076451567.21725.21.camel@minerva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 11, 2004 at 01:59:39AM +0000, Kevin P. Fleming wrote:
-> Greg KH wrote:
+Matthew Reppert wrote:
+
+> At the very least, sysfs' and devfs' approaches to devices differ in
+> philosophy. devfs says "here's a device node, you can tell where it is
+> in the bus hierarchy by looking at its filename". sysfs, on the other
+> hand, says "here's the device hierarchy", and gives you enough information
+> to create device nodes for each point in the hierarchy if you wish to do
+> so.
 > 
-> >Doesn't work for what we want here:
-> >
-> >	$ mkdir /tmp/a /tmp/b
-> >	$ mount -t ramfs none /tmp/a
-> >	$ touch /tmp/a/foo
-> >	$ mount --move /tmp/a /tmp/b
-> >	$ ls /tmp/b
-> >	foo
-> >	$ umount /tmp/a
-> >	$ ls /tmp/b
-> >	$ 
-> 
-> That seems very odd, the "umount /tmp/a" should have failed, given than 
-> nothing is mounted there any longer.
+There's an interesting security implication here.  I used to think 
+"why don't they make a device node instead of exporting
+numbers, udev could then simply make a link to it"
+It'd be simpler, and the minimalists could use the node in sysf directly.
 
-I think there is a bug in the mount utility. /etc/mtab is not updated
-correctly after "mount --move". /proc/mounts does get updated correctly.
-So, if one creates /etc/mtab as sym linked with /proc/mounts, the above 
-steps will correctly _fail_ "umount /tmp/a"
+The security advantage is that we don't get a device with some default
+permissions that might get abused.  The udev config can decide
+to create a node with stricter than usual permissions, or decide
+to not make the node at all.
 
-Maneesh
+Helge Hafting
 
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044999 Fax: 91-80-5268553
-T/L : 9243696

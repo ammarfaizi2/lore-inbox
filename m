@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316541AbSHOEFb>; Thu, 15 Aug 2002 00:05:31 -0400
+	id <S316544AbSHOEcs>; Thu, 15 Aug 2002 00:32:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316542AbSHOEFb>; Thu, 15 Aug 2002 00:05:31 -0400
-Received: from dsl-65-186-160-165.telocity.com ([65.186.160.165]:19730 "EHLO
-	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
-	id <S316541AbSHOEFb>; Thu, 15 Aug 2002 00:05:31 -0400
-Date: Thu, 15 Aug 2002 00:07:13 -0400
-To: Dax Kelson <dax@gurulabs.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Kendrick M. Smith" <kmsmith@umich.edu>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "nfs@lists.sourceforge.net" <nfs@lists.sourceforge.net>,
-       beepy@netapp.com, trond.myklebust@fys.uio.no, torvalds@transmeta.com
-Subject: Re: Will NFSv4 be accepted?
-Message-ID: <20020815040713.GA18419@fieldses.org>
-References: <1029375327.28240.35.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208141938350.31203-100000@mooru.gurulabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208141938350.31203-100000@mooru.gurulabs.com>
-User-Agent: Mutt/1.3.28i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	id <S316548AbSHOEcs>; Thu, 15 Aug 2002 00:32:48 -0400
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:23243 "EHLO
+	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S316544AbSHOEcs>; Thu, 15 Aug 2002 00:32:48 -0400
+Date: Wed, 14 Aug 2002 21:30:54 -0700 (PDT)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] [PATCH] broken cfb* support in the 2.5.31-bk
+In-Reply-To: <20020814192327.GD37217@ppc.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.33.0208142128260.7482-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 14, 2002 at 07:51:56PM -0600, Dax Kelson wrote:
-> Right, I do understand that Kerberized/GSS NFS is not exclusive to NFSv4.  
-> However, right now, there is only one way to get Kerberized NFS. The CITI
-> NFSv4 patches.
-> 
-> Those patches are, in their estimation, ready for inclusion.  NFSv3 
-> support is "coming down the pipeline". 
 
-The minimal NFSv4 patches which Kendrick has submitted are ready for
-inclusion, but those do not include rpcsec_gss support.  The only
-patches which include rpcsec_gss support are patches against 2.4.18, and
-they aren't in good enough shape yet, though we hope they will be soon!
+> Hi Linus, hello others,
+>   please apply this.
+>
+> line_length, type and visual moved from display struct to the fb_info's fix
+> structure during last fbdev updates. Unfortunately generic code was not updated
+> together, so now every fbdev driver is broken.
 
---Bruce F.
+That was done to push people to port there drivers to the new api. I
+applied the patch to the Bk repository but expect more breakage.
+

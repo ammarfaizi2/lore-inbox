@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268501AbUJDH1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268496AbUJDH0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268501AbUJDH1p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 03:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268497AbUJDH1p
+	id S268496AbUJDH0a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 03:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268497AbUJDH0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 03:27:45 -0400
-Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:33503 "EHLO
-	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S268501AbUJDH1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 03:27:37 -0400
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Date: Mon, 04 Oct 2004 09:26:18 +0200
-MIME-Version: 1.0
-Subject: Re: [OT] Re: patches inline in mail
-Cc: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>, george@mvista.com,
-       Andrew Morton <akpm@osdl.org>, juhl-lkml@dif.dk, clameter@sgi.com,
-       drepper@redhat.com, johnstul@us.ibm.com,
-       Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       libc-alpha@sources.redhat.com
-Message-ID: <4161173B.2599.4F3841@rkdvmks1.ngate.uni-regensburg.de>
-In-reply-to: <Pine.LNX.4.60.0410032255360.5054@poirot.grange>
-References: <1096730402.25131.18.camel@localhost.localdomain>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.25/Sophos-3.84+2.20+2.07.066+02 August 2004+93665@20041004.072529Z
+	Mon, 4 Oct 2004 03:26:30 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:5518 "EHLO midnight.suse.cz")
+	by vger.kernel.org with ESMTP id S268496AbUJDH02 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 03:26:28 -0400
+Date: Mon, 4 Oct 2004 09:26:12 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Strange 2.6.9-rc3 keyboard repeat behavior
+Message-ID: <20041004072612.GA2712@ucw.cz>
+References: <415C8D7F.3020505@pobox.com> <20041001071323.GA5779@ucw.cz> <4160CA56.3040703@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4160CA56.3040703@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Better show how the mail really looks like (source). The let's see whether it's a 
-decoding or encoding error.
+On Sun, Oct 03, 2004 at 11:58:14PM -0400, Jeff Garzik wrote:
 
-Ulrich
+> Vojtech Pavlik wrote:
+> >On Thu, Sep 30, 2004 at 06:49:35PM -0400, Jeff Garzik wrote:
+> >
+> >>After booting into 2.6.9-rc3 release kernel, I am seeing strange and 
+> >>annoying keyboard repeat behavior.
+> >>
+> >>If I hold down a single key, while in X, the character will repeat at 
+> >>the expected (2.6.9-rc2 and prior) rate... for 1 second.
+> >>
+> >>After 1 second, the keyboard repeat rate slows to half or more.
+> >>
+> >>Can we please fix this?  Config attached.
+> >
+> >
+> >How does it behave on the console? The problem is that X generates its
+> >own software autorepeat and ignores what the kernel feeds it. So I
+> >suppose this might be more a gettimeofday or scheduling problem than one
+> >with the input layer.
+> 
+> 
+> Confirmed, console keyboard repeat does not show this behavior.
+> 
+> However...  this behavior does goes away when I boot an earlier kernel.
+ 
+Can you try to replace just the drivers/input sub-tree?
 
-On 3 Oct 2004 at 23:01, Guennadi Liakhovetski wrote:
-
-> Hello
-> 
-> While we are at it, maybe someone could help me with my "antient" pine 
-> too. When sending patches inline (Ctrl-R) it looks fine up in the email, 
-> also when I am reading my own email as it came to the list, e.g.
-> 
-> @@ -8,9 +8,9 @@
->   static void __inline__
->   dc390_freetag (struct dc390_dcb* pDCB, struct dc390_srb* pSRB)
->   {
-> -	if (pSRB->TagNumber < 255) {
-> 
-> However, everybody (not pine-users) complains, that white spaces got 
-> corrupted. And if I export the email I see
-> 
-> @@ -8,9 +8,9 @@
->    static void __inline__
->    dc390_freetag (struct dc390_dcb* pDCB, struct dc390_srb* pSRB)
->    {
-> -	if (pSRB->TagNumber < 255) {
-> 
-> (notice the extra space). What is going on there and is there a solution 
-> (apart from switching to another mailing or sending as attachments)?
-> 
-> Thanks
-> Guennadi
-> ---
-> Guennadi Liakhovetski
-> 
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

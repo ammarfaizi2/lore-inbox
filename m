@@ -1,154 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVAMXiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVAMXrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbVAMXiR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 18:38:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVAMXbI
+	id S261810AbVAMXrD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 18:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVAMXns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 18:31:08 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:39180 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261781AbVAMX2u (ORCPT
+	Thu, 13 Jan 2005 18:43:48 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:702 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261810AbVAMXlc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 18:28:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-        b=Le3FGLDiuPDssqVwrT7u+1qDxg2BpMmE7oXz//axt55OxPvfV3VLYdwvSA7x7dC+txnmtPE7UB6/cgFQrWGQW3I6gXpe6WY+Dep+Xj+vB7LMR5vyQAtf3DfDwml0zEyxmdpHoDh9ijf3j+zpcrqhErhwp/AxGDSf8MuHQRIKClU=
-Message-ID: <8746466a050113152843f32a2f@mail.gmail.com>
-Date: Thu, 13 Jan 2005 16:28:49 -0700
-From: Dave <dave.jiang@gmail.com>
-Reply-To: Dave <dave.jiang@gmail.com>
-To: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       smaurer@teja.com, linux@arm.linux.org.uk, dsaxena@plexity.net,
-       drew.moseley@intel.com, mporter@kernel.crashing.org
-Subject: [PATCH 2/5] Convert resource to u64 from unsigned long
+	Thu, 13 Jan 2005 18:41:32 -0500
+Date: Thu, 13 Jan 2005 15:41:28 -0800
+From: Greg KH <greg@kroah.com>
+To: John Rose <johnrose@austin.ibm.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] release_pcibus_dev() crash
+Message-ID: <20050113234128.GA2847@kroah.com>
+References: <1105576756.8062.17.camel@sinatra.austin.ibm.com> <1105638551.30960.16.camel@sinatra.austin.ibm.com> <20050113181850.GA24952@kroah.com> <200501131021.19434.jbarnes@engr.sgi.com> <20050113183729.GA25049@kroah.com> <1105647135.30960.22.camel@sinatra.austin.ibm.com> <20050113202532.GA30780@kroah.com> <1105649679.30960.27.camel@sinatra.austin.ibm.com> <20050113210501.GA31402@kroah.com> <1105651078.30960.33.camel@sinatra.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_700_18812632.1105658929692"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105651078.30960.33.camel@sinatra.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_700_18812632.1105658929692
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thu, Jan 13, 2005 at 03:17:58PM -0600, John Rose wrote:
+> > Closer (you forgot a changelog entry too...)
+> 
+> Just to be a brat, I'll point out that I couldn't find a single user of
+> CLASS_DEVICE_ATTR that explicitly cleans things up like we're doing here.  That
+> would include firmware and net-sysfs stuff.  Maybe enforcing such a policy upon
+> device removal would increase participation :)  But okay, here's another try:
 
-Fixed some of the drivers as example just to get working on i386.
+Yeah, I know everyone doesn't do it, but I'm trying to get them all to,
+and when I have a chance to point it out and fix it, I am.  Just like
+now, thanks for putting up with me :)
 
-Signed-off-by: Dave Jiang (dave.jiang@gmail.com)
+> During the course of a hotplug removal of a PCI bus, release_pcibus_dev()
+> attempts to remove attribute files from a kobject directory that no longer
+> exists.  This patch moves these calls to pci_remove_bus(), where they can work
+> as intended.
+> 
+> Signed-off-by: John Rose <johnrose@austin.ibm.com>
 
+Looks good, applied, thanks.
 
--- 
--= Dave =-
-
-Software Engineer - Advanced Development Engineering Team 
-Storage Component Division - Intel Corp. 
-mailto://dave.jiang @ intel
-http://sourceforge.net/projects/xscaleiop/
-----
-The views expressed in this email are
-mine alone and do not necessarily 
-reflect the views of my employer
-(Intel Corp.).
-
-------=_Part_700_18812632.1105658929692
-Content-Type: application/octet-stream; name="patch-driver_u64fix"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="patch-driver_u64fix"
-
-ZGlmZiAtTmF1ciBsaW51eC0yLjYuMTEtcmMxL2RyaXZlcnMvaWRlL3BjaS9jbWQ2NHguYyBsaW51
-eC0yLjYuMTEtcmMxLXU2NC9kcml2ZXJzL2lkZS9wY2kvY21kNjR4LmMKLS0tIGxpbnV4LTIuNi4x
-MS1yYzEvZHJpdmVycy9pZGUvcGNpL2NtZDY0eC5jCTIwMDUtMDEtMTMgMTQ6Mzk6NTUuOTY3MTky
-NDI0IC0wNzAwCisrKyBsaW51eC0yLjYuMTEtcmMxLXU2NC9kcml2ZXJzL2lkZS9wY2kvY21kNjR4
-LmMJMjAwNS0wMS0xMyAxMjoyMDoyOC43MDMyMDk4OTYgLTA3MDAKQEAgLTU2MCw3ICs1NjAsNyBA
-QAogI2lmZGVmIF9faTM4Nl9fCiAJaWYgKGRldi0+cmVzb3VyY2VbUENJX1JPTV9SRVNPVVJDRV0u
-c3RhcnQpIHsKIAkJcGNpX3dyaXRlX2NvbmZpZ19ieXRlKGRldiwgUENJX1JPTV9BRERSRVNTLCBk
-ZXYtPnJlc291cmNlW1BDSV9ST01fUkVTT1VSQ0VdLnN0YXJ0IHwgUENJX1JPTV9BRERSRVNTX0VO
-QUJMRSk7Ci0JCXByaW50ayhLRVJOX0lORk8gIiVzOiBST00gZW5hYmxlZCBhdCAweCUwOGx4XG4i
-LCBuYW1lLCBkZXYtPnJlc291cmNlW1BDSV9ST01fUkVTT1VSQ0VdLnN0YXJ0KTsKKwkJcHJpbnRr
-KEtFUk5fSU5GTyAiJXM6IFJPTSBlbmFibGVkIGF0IDB4JSIgVTY0Rk1UICJcbiIsIG5hbWUsIGRl
-di0+cmVzb3VyY2VbUENJX1JPTV9SRVNPVVJDRV0uc3RhcnQpOwogCX0KICNlbmRpZgogCmRpZmYg
-LU5hdXIgbGludXgtMi42LjExLXJjMS9kcml2ZXJzL2lkZS9wY2kvaHB0MzR4LmMgbGludXgtMi42
-LjExLXJjMS11NjQvZHJpdmVycy9pZGUvcGNpL2hwdDM0eC5jCi0tLSBsaW51eC0yLjYuMTEtcmMx
-L2RyaXZlcnMvaWRlL3BjaS9ocHQzNHguYwkyMDA1LTAxLTEzIDE0OjM5OjU2LjAxMzE4NTQzMiAt
-MDcwMAorKysgbGludXgtMi42LjExLXJjMS11NjQvZHJpdmVycy9pZGUvcGNpL2hwdDM0eC5jCTIw
-MDUtMDEtMTMgMTI6MjU6MDYuNDU2OTg0OTA0IC0wNzAwCkBAIC0xNzUsNyArMTc1LDcgQEAKIAkJ
-aWYgKHBjaV9yZXNvdXJjZV9zdGFydChkZXYsIFBDSV9ST01fUkVTT1VSQ0UpKSB7CiAJCQlwY2lf
-d3JpdGVfY29uZmlnX2J5dGUoZGV2LCBQQ0lfUk9NX0FERFJFU1MsCiAJCQkJZGV2LT5yZXNvdXJj
-ZVtQQ0lfUk9NX1JFU09VUkNFXS5zdGFydCB8IFBDSV9ST01fQUREUkVTU19FTkFCTEUpOwotCQkJ
-cHJpbnRrKEtFUk5fSU5GTyAiSFBUMzQ1OiBST00gZW5hYmxlZCBhdCAweCUwOGx4XG4iLAorCQkJ
-cHJpbnRrKEtFUk5fSU5GTyAiSFBUMzQ1OiBST00gZW5hYmxlZCBhdCAweCUiIFU2NEZNVCAiXG4i
-LAogCQkJCWRldi0+cmVzb3VyY2VbUENJX1JPTV9SRVNPVVJDRV0uc3RhcnQpOwogCQl9CiAJCXBj
-aV93cml0ZV9jb25maWdfYnl0ZShkZXYsIFBDSV9MQVRFTkNZX1RJTUVSLCAweEYwKTsKZGlmZiAt
-TmF1ciBsaW51eC0yLjYuMTEtcmMxL2RyaXZlcnMvaWRlL3BjaS9wZGMyMDJ4eF9uZXcuYyBsaW51
-eC0yLjYuMTEtcmMxLXU2NC9kcml2ZXJzL2lkZS9wY2kvcGRjMjAyeHhfbmV3LmMKLS0tIGxpbnV4
-LTIuNi4xMS1yYzEvZHJpdmVycy9pZGUvcGNpL3BkYzIwMnh4X25ldy5jCTIwMDUtMDEtMTMgMTQ6
-Mzk6NTYuNTYxMTAyMTM2IC0wNzAwCisrKyBsaW51eC0yLjYuMTEtcmMxLXU2NC9kcml2ZXJzL2lk
-ZS9wY2kvcGRjMjAyeHhfbmV3LmMJMjAwNS0wMS0xMyAxMjoyNTozOC40NDgxMjE1MTIgLTA3MDAK
-QEAgLTI3Nyw3ICsyNzcsNyBAQAogCWlmIChkZXYtPnJlc291cmNlW1BDSV9ST01fUkVTT1VSQ0Vd
-LnN0YXJ0KSB7CiAJCXBjaV93cml0ZV9jb25maWdfZHdvcmQoZGV2LCBQQ0lfUk9NX0FERFJFU1Ms
-CiAJCQlkZXYtPnJlc291cmNlW1BDSV9ST01fUkVTT1VSQ0VdLnN0YXJ0IHwgUENJX1JPTV9BRERS
-RVNTX0VOQUJMRSk7Ci0JCXByaW50ayhLRVJOX0lORk8gIiVzOiBST00gZW5hYmxlZCBhdCAweCUw
-OGx4XG4iLAorCQlwcmludGsoS0VSTl9JTkZPICIlczogUk9NIGVuYWJsZWQgYXQgMHglIiBVNjRG
-TVQgIlxuIiwKIAkJCW5hbWUsIGRldi0+cmVzb3VyY2VbUENJX1JPTV9SRVNPVVJDRV0uc3RhcnQp
-OwogCX0KIApkaWZmIC1OYXVyIGxpbnV4LTIuNi4xMS1yYzEvZHJpdmVycy9pZGUvcGNpL3BkYzIw
-Mnh4X29sZC5jIGxpbnV4LTIuNi4xMS1yYzEtdTY0L2RyaXZlcnMvaWRlL3BjaS9wZGMyMDJ4eF9v
-bGQuYwotLS0gbGludXgtMi42LjExLXJjMS9kcml2ZXJzL2lkZS9wY2kvcGRjMjAyeHhfb2xkLmMJ
-MjAwNS0wMS0xMyAxNDozOTo1Ni41NjIxMDE5ODQgLTA3MDAKKysrIGxpbnV4LTIuNi4xMS1yYzEt
-dTY0L2RyaXZlcnMvaWRlL3BjaS9wZGMyMDJ4eF9vbGQuYwkyMDA1LTAxLTEzIDEyOjI2OjAwLjY1
-NTc0NTQ0MCAtMDcwMApAQCAtNTI4LDcgKzUyOCw3IEBACiAJaWYgKGRldi0+cmVzb3VyY2VbUENJ
-X1JPTV9SRVNPVVJDRV0uc3RhcnQpIHsKIAkJcGNpX3dyaXRlX2NvbmZpZ19kd29yZChkZXYsIFBD
-SV9ST01fQUREUkVTUywKIAkJCWRldi0+cmVzb3VyY2VbUENJX1JPTV9SRVNPVVJDRV0uc3RhcnQg
-fCBQQ0lfUk9NX0FERFJFU1NfRU5BQkxFKTsKLQkJcHJpbnRrKEtFUk5fSU5GTyAiJXM6IFJPTSBl
-bmFibGVkIGF0IDB4JTA4bHhcbiIsCisJCXByaW50ayhLRVJOX0lORk8gIiVzOiBST00gZW5hYmxl
-ZCBhdCAweCUiIFU2NEZNVCAiXG4iLAogCQkJbmFtZSwgZGV2LT5yZXNvdXJjZVtQQ0lfUk9NX1JF
-U09VUkNFXS5zdGFydCk7CiAJfQogCgpkaWZmIC1OYXVyIGxpbnV4LTIuNi4xMS1yYzEvZHJpdmVy
-cy9zZXJpYWwvODI1MF9wY2kuYyBsaW51eC0yLjYuMTEtcmMxLXU2NC9kcml2ZXJzL3NlcmlhbC84
-MjUwX3BjaS5jCi0tLSBsaW51eC0yLjYuMTEtcmMxL2RyaXZlcnMvc2VyaWFsLzgyNTBfcGNpLmMJ
-MjAwNC0xMi0yNCAxNDozNToyMy4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4LTIuNi4xMS1yYzEt
-dTY0L2RyaXZlcnMvc2VyaWFsLzgyNTBfcGNpLmMJMjAwNS0wMS0xMyAxMTo0NTo0MS44NDE0NjEx
-MDQgLTA3MDAKQEAgLTU4OSw4ICs1ODksMTkgQEAKIAllbHNlCiAJCW9mZnNldCArPSBpZHggKiBi
-b2FyZC0+dWFydF9vZmZzZXQ7CiAKKwkvKgorCSAqIEZJWE1FOiBhcHBhcmVudGx5IGlhMzIgZG9l
-cyBub3QgaGF2ZSB1NjQgZGl2aWRlIGltcGxlbWVudGF0aW9uCisJICogd2UgY2FzdCB0aGUgcGNp
-X3Jlc291cmNlX2xlbiB0byB1MzIgZm9yIHRoZSB0aW1lIGJlaW5nCisJICogdGhpcyBwcm9iYWJs
-eSBzaG91bGQgYmUgZml4ZWQgdG8gc3VwcG9ydCB1NjQgZm9yIGlhMzIKKwkgKiBhbmQgb3RoZXIg
-YXJjaHMgdGhhdCBkbyBub3QgaGF2ZSB1NjQgZGl2aWRlIAorCSAqLworI2lmIEJJU19QRVJfTE9O
-RyA9PSA2NAkKIAltYXhuciA9IChwY2lfcmVzb3VyY2VfbGVuKGRldiwgYmFyKSAtIGJvYXJkLT5m
-aXJzdF9vZmZzZXQpIC8KIAkJKDggPDwgYm9hcmQtPnJlZ19zaGlmdCk7CisjZWxzZQorCW1heG5y
-ID0gKCh1MzIpcGNpX3Jlc291cmNlX2xlbihkZXYsIGJhcikgLSBib2FyZC0+Zmlyc3Rfb2Zmc2V0
-KSAvCisJCSg4IDw8IGJvYXJkLT5yZWdfc2hpZnQpOworI2VuZGlmCQogCiAJaWYgKGJvYXJkLT5m
-bGFncyAmIEZMX1JFR0lPTl9TWl9DQVAgJiYgaWR4ID49IG1heG5yKQogCQlyZXR1cm4gMTsKZGlm
-ZiAtTmF1ciBsaW51eC0yLjYuMTEtcmMxL2RyaXZlcnMvdmlkZW8vY29uc29sZS92Z2Fjb24uYyBs
-aW51eC0yLjYuMTEtcmMxLXU2NC9kcml2ZXJzL3ZpZGVvL2NvbnNvbGUvdmdhY29uLmMKLS0tIGxp
-bnV4LTIuNi4xMS1yYzEvZHJpdmVycy92aWRlby9jb25zb2xlL3ZnYWNvbi5jCTIwMDUtMDEtMTMg
-MTQ6NDA6MDUuMzA1NzcyNzQ0IC0wNzAwCisrKyBsaW51eC0yLjYuMTEtcmMxLXU2NC9kcml2ZXJz
-L3ZpZGVvL2NvbnNvbGUvdmdhY29uLmMJMjAwNS0wMS0xMyAxMTo0NTo0MS44NDI0NjA5NTIgLTA3
-MDAKQEAgLTE5MCw3ICsxOTAsNyBAQAogCQl2Z2FfdmlkZW9fcG9ydF92YWwgPSBWR0FfQ1JUX0RN
-OwogCQlpZiAoKE9SSUdfVklERU9fRUdBX0JYICYgMHhmZikgIT0gMHgxMCkgewogCQkJc3RhdGlj
-IHN0cnVjdCByZXNvdXJjZSBlZ2FfY29uc29sZV9yZXNvdXJjZSA9Ci0JCQkgICAgeyAiZWdhIiwg
-MHgzQjAsIDB4M0JGIH07CisJCQkgICAgeyAubmFtZSA9ICJlZ2EiLCAuc3RhcnQgPSAweDNCMCwg
-LmVuZCA9IDB4M0JGIH07CiAJCQl2Z2FfdmlkZW9fdHlwZSA9IFZJREVPX1RZUEVfRUdBTTsKIAkJ
-CXZnYV92cmFtX2VuZCA9IDB4YjgwMDA7CiAJCQlkaXNwbGF5X2Rlc2MgPSAiRUdBKyI7CkBAIC0x
-OTgsOSArMTk4LDkgQEAKIAkJCQkJICZlZ2FfY29uc29sZV9yZXNvdXJjZSk7CiAJCX0gZWxzZSB7
-CiAJCQlzdGF0aWMgc3RydWN0IHJlc291cmNlIG1kYTFfY29uc29sZV9yZXNvdXJjZSA9Ci0JCQkg
-ICAgeyAibWRhIiwgMHgzQjAsIDB4M0JCIH07CisJCQkgICAgeyAubmFtZSA9ICJtZGEiLCAuc3Rh
-cnQgPSAweDNCMCwgLmVuZCA9IDB4M0JCIH07CiAJCQlzdGF0aWMgc3RydWN0IHJlc291cmNlIG1k
-YTJfY29uc29sZV9yZXNvdXJjZSA9Ci0JCQkgICAgeyAibWRhIiwgMHgzQkYsIDB4M0JGIH07CisJ
-CQkgICAgeyAubmFtZSA9ICJtZGEiLCAuc3RhcnQgPSAweDNCRiwgLmVuZCA9IDB4M0JGIH07CiAJ
-CQl2Z2FfdmlkZW9fdHlwZSA9IFZJREVPX1RZUEVfTURBOwogCQkJdmdhX3ZyYW1fZW5kID0gMHhi
-MjAwMDsKIAkJCWRpc3BsYXlfZGVzYyA9ICIqTURBIjsKQEAgLTIyMywxNCArMjIzLDE0IEBACiAK
-IAkJCWlmICghT1JJR19WSURFT19JU1ZHQSkgewogCQkJCXN0YXRpYyBzdHJ1Y3QgcmVzb3VyY2Ug
-ZWdhX2NvbnNvbGVfcmVzb3VyY2UKLQkJCQkgICAgPSB7ICJlZ2EiLCAweDNDMCwgMHgzREYgfTsK
-KwkJCQkgICAgPSB7IC5uYW1lID0gImVnYSIsIC5zdGFydCA9IDB4M0MwLCAuZW5kID0gMHgzREYg
-fTsKIAkJCQl2Z2FfdmlkZW9fdHlwZSA9IFZJREVPX1RZUEVfRUdBQzsKIAkJCQlkaXNwbGF5X2Rl
-c2MgPSAiRUdBIjsKIAkJCQlyZXF1ZXN0X3Jlc291cmNlKCZpb3BvcnRfcmVzb3VyY2UsCiAJCQkJ
-CQkgJmVnYV9jb25zb2xlX3Jlc291cmNlKTsKIAkJCX0gZWxzZSB7CiAJCQkJc3RhdGljIHN0cnVj
-dCByZXNvdXJjZSB2Z2FfY29uc29sZV9yZXNvdXJjZQotCQkJCSAgICA9IHsgInZnYSsiLCAweDND
-MCwgMHgzREYgfTsKKwkJCQkgICAgPSB7IC5uYW1lID0gInZnYSsiLCAuc3RhcnQgPSAweDNDMCwg
-LmVuZCA9IDB4M0RGIH07CiAJCQkJdmdhX3ZpZGVvX3R5cGUgPSBWSURFT19UWVBFX1ZHQUM7CiAJ
-CQkJZGlzcGxheV9kZXNjID0gIlZHQSsiOwogCQkJCXJlcXVlc3RfcmVzb3VyY2UoJmlvcG9ydF9y
-ZXNvdXJjZSwKQEAgLTI3NCw3ICsyNzQsNyBAQAogCQkJfQogCQl9IGVsc2UgewogCQkJc3RhdGlj
-IHN0cnVjdCByZXNvdXJjZSBjZ2FfY29uc29sZV9yZXNvdXJjZSA9Ci0JCQkgICAgeyAiY2dhIiwg
-MHgzRDQsIDB4M0Q1IH07CisJCQkgICAgeyAubmFtZSA9ICJjZ2EiLCAuc3RhcnQgPSAweDNENCwg
-LmVuZCA9IDB4M0Q1IH07CiAJCQl2Z2FfdmlkZW9fdHlwZSA9IFZJREVPX1RZUEVfQ0dBOwogCQkJ
-dmdhX3ZyYW1fZW5kID0gMHhiYTAwMDsKIAkJCWRpc3BsYXlfZGVzYyA9ICIqQ0dBIjsK
-------=_Part_700_18812632.1105658929692--
+greg k-h

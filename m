@@ -1,84 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263045AbSJNJbh>; Mon, 14 Oct 2002 05:31:37 -0400
+	id <S264146AbSJNJsT>; Mon, 14 Oct 2002 05:48:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263488AbSJNJbh>; Mon, 14 Oct 2002 05:31:37 -0400
-Received: from [66.70.28.20] ([66.70.28.20]:13063 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S263045AbSJNJbg>; Mon, 14 Oct 2002 05:31:36 -0400
-Date: Mon, 14 Oct 2002 11:36:22 +0200
-From: DervishD <raul@pleyades.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] mmap.c (do_mmap_pgoff), against 2.4.19 and 2.4.20-pre10
-Message-ID: <20021014093622.GA96@DervishD>
+	id <S264164AbSJNJsT>; Mon, 14 Oct 2002 05:48:19 -0400
+Received: from internet.prism.co.za ([196.41.175.253]:41093 "EHLO
+	penguin.wetton.prism.co.za") by vger.kernel.org with ESMTP
+	id <S264146AbSJNJsS>; Mon, 14 Oct 2002 05:48:18 -0400
+Date: Mon, 14 Oct 2002 11:53:42 +0200
+From: Bernd Jendrissek <berndj@prism.co.za>
+To: linux-kernel@vger.kernel.org
+Subject: What is "recvmsg bug: copied 870A11AD seq 0"?  (2.2.19)
+Message-ID: <20021014115341.A22933@prism.co.za>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
-Organization: Pleyades Net
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+What does it mean if the last 9 items in dmesg from a 2.2.19 kernel say
+"recvmsg bug: copied 870A11AD seq 0"?  Same sequence number each time.
 
-    Hi all, specially Marcelo :)
+A kernel (known) bug?  Some bogus TCP segments?
 
-    This is the fourth and last time I submit this patch to Marcelo.
-This little tiny bug is fixed in all trees except the official one. I
-think this patch is trivial enough to be accepted, but...
+Somehow this has something (dunno how much) to do with INN and pullnews.
+This morning I had 43 inews's stuck in tcp_recvmsg at the schedule() just
+before found_ok_skb and news.daily was stuck.  telnet to localhost port 119
+didn't produce the banner as it normally does.
 
-    Well, the attachments included (unified diff format), is the patch
-against both 2.4.19 and 2.4.20-pre10 (I've changed the kernel name
-directory part to '/usr/src/linux/' so it's applicable to both
-versions.
+Weird thing too is that inews would have been connected to 127.0.0.1, out
+of harm's way.
 
-    Marcelo, if you don't want to include this patch at least let me
-know, please, so I won't need to see each new prerelease for seeing
-if the patch has been already included ;))) Don't take it bad.
+Unfortunately I very much doubt I can reproduce this - it's the first time
+I've seen it (INN has been running since last year, but not continuously).
 
-    Raúl
+linux/net/ipv4/tcp.c <tcp_recvmsg>:
+	skb = skb_peek(&sk->receive_queue);
+	do {
+		if (!skb)
+			break;
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=iso-8859-1
-Content-Description: mmap.c.diff
-Content-Disposition: attachment; filename="mmap.c.diff"
+		/* Now that we have two receive queues this 
+		 * shouldn't happen.
+		 */
+		if (before(*seq, TCP_SKB_CB(skb)->seq)) {
+			printk(KERN_INFO "recvmsg bug: copied %X seq %X\n",
+			       *seq, TCP_SKB_CB(skb)->seq);
+			break;
+		}
 
---- /usr/src/linux/mm/mmap.c.orig	2002-10-14 11:16:40.000000000 +0200
-+++ /usr/src/linux/kernel/mm/mmap.c	2002-10-14 11:19:32.000000000 +0200
-@@ -390,6 +390,12 @@
- 	return 0;
- }
- 
-+
-+/*
-+ *	NOTE: in this function we rely on TASK_SIZE being lower than
-+ *	SIZE_MAX-PAGE_SIZE at least. I'm pretty sure that it is.
-+ */
-+
- unsigned long do_mmap_pgoff(struct file * file, unsigned long addr, unsigned long len,
- 	unsigned long prot, unsigned long flags, unsigned long pgoff)
- {
-@@ -403,12 +409,14 @@
- 	if (file && (!file->f_op || !file->f_op->mmap))
- 		return -ENODEV;
- 
--	if ((len = PAGE_ALIGN(len)) == 0)
-+	if (!len)
- 		return addr;
- 
- 	if (len > TASK_SIZE)
- 		return -EINVAL;
- 
-+	len = PAGE_ALIGN(len);  /* This cannot be zero now */
-+
- 	/* offset overflow? */
- 	if ((pgoff + (len >> PAGE_SHIFT)) < pgoff)
- 		return -EINVAL;
+[I'd greatly appreciate Cc'ed replies.]
 
---lrZ03NoBR/3+SXJZ--
+-- 
+berndfoobar@users.sourceforge.net is probably better to bookmark than any
+employer-specific email address I may have appearing in the headers.
+  Vanity page: http://www.tsct.co.za/~berndj/  Hmm, appears to be down.

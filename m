@@ -1,29 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265465AbSJSBwe>; Fri, 18 Oct 2002 21:52:34 -0400
+	id <S265466AbSJSBxB>; Fri, 18 Oct 2002 21:53:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265466AbSJSBwe>; Fri, 18 Oct 2002 21:52:34 -0400
-Received: from thunk.org ([140.239.227.29]:4822 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S265465AbSJSBwa>;
-	Fri, 18 Oct 2002 21:52:30 -0400
+	id <S265468AbSJSBxB>; Fri, 18 Oct 2002 21:53:01 -0400
+Received: from thunk.org ([140.239.227.29]:5846 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S265466AbSJSBwz>;
+	Fri, 18 Oct 2002 21:52:55 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [Ext2-devel] [PATCH] Ext2/3 forward compatibility: on-line resizing
+Subject: [PATCH] Ext2/3 forward compatibility: inode size
 From: tytso@mit.edu
 Phone: (781) 391-3464
-Message-Id: <E182isq-00017v-00@think.thunk.org>
-Date: Fri, 18 Oct 2002 21:58:32 -0400
+Message-Id: <E182itF-00017x-00@think.thunk.org>
+Date: Fri, 18 Oct 2002 21:58:57 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch allows forward compatibility with future filesystems which
-are dynamically grown by using an alternate algorithm for storing the
-block group descriptors.  It's also a bit more efficient, in that it
-uses just a little bit less disk space.  Currently, the ext2 filesystem
-format requires either relocating the inode table, or reserving space in
-before doing the on-line resize.  The new scheme, which is documented in
-"Planned Extensions to the Ext2/3 Filesystem", by Stephen Tweedie and I (see:
-http://www.usenix.org/publications/library/proceedings/usenix02/tech/freenix/tso.html)
+This patch allows filesystems with expanded inodes to be mounted.
+(compatibility feature flags will be used to control whether or not the
+filesystem should be mounted in case the new inode fields will result in
+compatibility issues).  This allows for future compatibility with newer
+versions of ext2fs.  
+
+Hopefully this and the dynamic resize forward compatibility patch can
+get included for the 2.6 release.
 
 						- Ted
 
@@ -31,175 +31,148 @@ http://www.usenix.org/publications/library/proceedings/usenix02/tech/freenix/tso
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.817   -> 1.818  
-#	include/linux/ext2_fs.h	1.14    -> 1.15   
-#	include/linux/ext3_fs.h	1.14    -> 1.15   
-#	     fs/ext2/super.c	1.34    -> 1.35   
-#	     fs/ext3/super.c	1.36    -> 1.37   
+#	           ChangeSet	1.818   -> 1.819  
+#	     fs/ext2/inode.c	1.49    -> 1.50   
+#	    fs/ext2/ialloc.c	1.23    -> 1.24   
+#	     fs/ext2/super.c	1.35    -> 1.36   
+#	     fs/ext3/inode.c	1.44    -> 1.45   
+#	     fs/ext3/super.c	1.37    -> 1.38   
+#	      fs/ext2/ext2.h	1.12    -> 1.13   
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/10/18	tytso@snap.thunk.org	1.818
-# Ext2/3 forward compatibility: on-line resizing
+# 02/10/18	tytso@snap.thunk.org	1.819
+# Ext2/3 forward compatibility: inode size
 # 
-# This patch allows forward compatibility with future filesystems which
-# are dynamically grown by using an alternate algorithm for storing
-# the block group descriptors.  This is also a more efficient way of
-# storing the descriptors.
+# This patch allows filesystems with expanded inodes to be mounted.
+# (compatibility feature flags will be used to control whether or 
+# not the filesystem should be mounted in case the new inode fields
+# will result in compatibility issues).
 # --------------------------------------------
 #
-diff -Nru a/fs/ext2/super.c b/fs/ext2/super.c
---- a/fs/ext2/super.c	Fri Oct 18 20:52:07 2002
-+++ b/fs/ext2/super.c	Fri Oct 18 20:52:07 2002
-@@ -514,12 +514,29 @@
- 	return res;
- }
- 
-+static unsigned long descriptor_loc(struct super_block *sb,
-+				    unsigned long logic_sb_block,
-+				    int nr)
-+{
-+	struct ext2_sb_info *sbi = EXT2_SB(sb);
-+	unsigned long bg, first_data_block, first_meta_bg;
-+	
-+	first_data_block = le32_to_cpu(sbi->s_es->s_first_data_block);
-+	first_meta_bg = le32_to_cpu(sbi->s_es->s_first_meta_bg);
-+
-+	if (!EXT2_HAS_INCOMPAT_FEATURE(sb, EXT2_FEATURE_INCOMPAT_META_BG) ||
-+	    nr < first_meta_bg)
-+		return (logic_sb_block + nr + 1);
-+	bg = sbi->s_desc_per_block * nr;
-+	return (first_data_block + 1 + (bg * sbi->s_blocks_per_group));
-+}
-+
- static int ext2_fill_super(struct super_block *sb, void *data, int silent)
- {
- 	struct buffer_head * bh;
- 	struct ext2_sb_info * sbi;
- 	struct ext2_super_block * es;
--	unsigned long sb_block = 1;
-+	unsigned long block, sb_block = 1;
- 	unsigned long logic_sb_block = get_sb_block(&data);
- 	unsigned long offset = 0;
- 	unsigned long def_mount_opts;
-@@ -735,7 +752,8 @@
- 		goto failed_mount;
- 	}
- 	for (i = 0; i < db_count; i++) {
--		sbi->s_group_desc[i] = sb_bread(sb, logic_sb_block + i + 1);
-+		block = descriptor_loc(sb, logic_sb_block, i);
-+		sbi->s_group_desc[i] = sb_bread(sb, block);
- 		if (!sbi->s_group_desc[i]) {
- 			for (j = 0; j < i; j++)
- 				brelse (sbi->s_group_desc[j]);
-diff -Nru a/fs/ext3/super.c b/fs/ext3/super.c
---- a/fs/ext3/super.c	Fri Oct 18 20:52:07 2002
-+++ b/fs/ext3/super.c	Fri Oct 18 20:52:07 2002
-@@ -971,6 +971,23 @@
- 	return res;
- }
- 
-+static unsigned long descriptor_loc(struct super_block *sb,
-+				    unsigned long logic_sb_block,
-+				    int nr)
-+{
-+	struct ext3_sb_info *sbi = EXT3_SB(sb);
-+	unsigned long bg, first_data_block, first_meta_bg;
-+	
-+	first_data_block = le32_to_cpu(sbi->s_es->s_first_data_block);
-+	first_meta_bg = le32_to_cpu(sbi->s_es->s_first_meta_bg);
-+
-+	if (!EXT3_HAS_INCOMPAT_FEATURE(sb, EXT3_FEATURE_INCOMPAT_META_BG) ||
-+	    nr < first_meta_bg)
-+		return (logic_sb_block + nr + 1);
-+	bg = sbi->s_desc_per_block * nr;
-+	return (first_data_block + 1 + (bg * sbi->s_blocks_per_group));
-+}
-+
- 
- static int ext3_fill_super (struct super_block *sb, void *data, int silent)
- {
-@@ -978,7 +995,7 @@
- 	struct ext3_super_block *es = 0;
- 	struct ext3_sb_info *sbi;
- 	unsigned long sb_block = get_sb_block(&data);
--	unsigned long logic_sb_block = 1;
-+	unsigned long block, logic_sb_block = 1;
- 	unsigned long offset = 0;
- 	unsigned long journal_inum = 0;
- 	unsigned long def_mount_opts;
-@@ -1204,7 +1221,8 @@
- 		goto failed_mount;
- 	}
- 	for (i = 0; i < db_count; i++) {
--		sbi->s_group_desc[i] = sb_bread(sb, logic_sb_block + i + 1);
-+		block = descriptor_loc(sb, logic_sb_block, i);
-+		sbi->s_group_desc[i] = sb_bread(sb, block);
- 		if (!sbi->s_group_desc[i]) {
- 			printk (KERN_ERR "EXT3-fs: "
- 				"can't read group descriptor %d\n", i);
-diff -Nru a/include/linux/ext2_fs.h b/include/linux/ext2_fs.h
---- a/include/linux/ext2_fs.h	Fri Oct 18 20:52:07 2002
-+++ b/include/linux/ext2_fs.h	Fri Oct 18 20:52:07 2002
-@@ -399,7 +399,8 @@
- 	__u8	s_reserved_char_pad;
- 	__u16	s_reserved_word_pad;
- 	__u32	s_default_mount_opts;
--	__u32	s_reserved[191];	/* Padding to the end of the block */
-+ 	__u32	s_first_meta_bg; 	/* First metablock block group */
-+	__u32	s_reserved[190];	/* Padding to the end of the block */
+diff -Nru a/fs/ext2/ext2.h b/fs/ext2/ext2.h
+--- a/fs/ext2/ext2.h	Fri Oct 18 20:52:23 2002
++++ b/fs/ext2/ext2.h	Fri Oct 18 20:52:23 2002
+@@ -10,6 +10,7 @@
+ 	__u32	i_faddr;
+ 	__u8	i_frag_no;
+ 	__u8	i_frag_size;
++	__u16	i_state;
+ 	__u32	i_file_acl;
+ 	__u32	i_dir_acl;
+ 	__u32	i_dtime;
+@@ -26,6 +27,12 @@
+ 	rwlock_t i_meta_lock;
+ 	struct inode	vfs_inode;
  };
++
++/*
++ * Inode dynamic state flags
++ */
++#define EXT2_STATE_NEW			0x00000001 /* inode is newly created */
++
  
  /*
-@@ -462,10 +463,12 @@
- #define EXT2_FEATURE_INCOMPAT_FILETYPE		0x0002
- #define EXT3_FEATURE_INCOMPAT_RECOVER		0x0004
- #define EXT3_FEATURE_INCOMPAT_JOURNAL_DEV	0x0008
-+#define EXT2_FEATURE_INCOMPAT_META_BG		0x0010
- #define EXT2_FEATURE_INCOMPAT_ANY		0xffffffff
+  * Function prototypes
+diff -Nru a/fs/ext2/ialloc.c b/fs/ext2/ialloc.c
+--- a/fs/ext2/ialloc.c	Fri Oct 18 20:52:22 2002
++++ b/fs/ext2/ialloc.c	Fri Oct 18 20:52:22 2002
+@@ -394,6 +394,7 @@
+ 		inode->i_flags |= S_DIRSYNC;
+ 	inode->i_generation = EXT2_SB(sb)->s_next_generation++;
+ 	insert_inode_hash(inode);
++	ei->i_state = EXT2_STATE_NEW;
  
- #define EXT2_FEATURE_COMPAT_SUPP	EXT2_FEATURE_COMPAT_EXT_ATTR
--#define EXT2_FEATURE_INCOMPAT_SUPP	EXT2_FEATURE_INCOMPAT_FILETYPE
-+#define EXT2_FEATURE_INCOMPAT_SUPP	(EXT2_FEATURE_INCOMPAT_FILETYPE| \
-+					 EXT2_FEATURE_INCOMPAT_META_BG)
- #define EXT2_FEATURE_RO_COMPAT_SUPP	(EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER| \
- 					 EXT2_FEATURE_RO_COMPAT_LARGE_FILE| \
- 					 EXT2_FEATURE_RO_COMPAT_BTREE_DIR)
-diff -Nru a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
---- a/include/linux/ext3_fs.h	Fri Oct 18 20:52:07 2002
-+++ b/include/linux/ext3_fs.h	Fri Oct 18 20:52:07 2002
-@@ -427,7 +427,8 @@
- 	__u8	s_reserved_char_pad;
- 	__u16	s_reserved_word_pad;
- 	__u32	s_default_mount_opts;
--	__u32	s_reserved[191];	/* Padding to the end of the block */
-+	__u32	s_first_meta_bg; 	/* First metablock block group */
-+	__u32	s_reserved[190];	/* Padding to the end of the block */
- };
+ 	unlock_super(sb);
+ 	if(DQUOT_ALLOC_INODE(inode)) {
+diff -Nru a/fs/ext2/inode.c b/fs/ext2/inode.c
+--- a/fs/ext2/inode.c	Fri Oct 18 20:52:22 2002
++++ b/fs/ext2/inode.c	Fri Oct 18 20:52:22 2002
+@@ -1028,6 +1028,7 @@
+ 		ei->i_dir_acl = le32_to_cpu(raw_inode->i_dir_acl);
+ 	ei->i_dtime = 0;
+ 	inode->i_generation = le32_to_cpu(raw_inode->i_generation);
++	ei->i_state = 0;
+ 	ei->i_next_alloc_block = 0;
+ 	ei->i_next_alloc_goal = 0;
+ 	ei->i_prealloc_count = 0;
+@@ -1092,6 +1093,11 @@
+ 	if (IS_ERR(raw_inode))
+  		return -EIO;
  
- #ifdef __KERNEL__
-@@ -506,10 +507,12 @@
- #define EXT3_FEATURE_INCOMPAT_FILETYPE		0x0002
- #define EXT3_FEATURE_INCOMPAT_RECOVER		0x0004 /* Needs recovery */
- #define EXT3_FEATURE_INCOMPAT_JOURNAL_DEV	0x0008 /* Journal device */
-+#define EXT3_FEATURE_INCOMPAT_META_BG		0x0010
- 
- #define EXT3_FEATURE_COMPAT_SUPP	EXT2_FEATURE_COMPAT_EXT_ATTR
- #define EXT3_FEATURE_INCOMPAT_SUPP	(EXT3_FEATURE_INCOMPAT_FILETYPE| \
--					 EXT3_FEATURE_INCOMPAT_RECOVER)
-+					 EXT3_FEATURE_INCOMPAT_RECOVER| \
-+					 EXT3_FEATURE_INCOMPAT_META_BG)
- #define EXT3_FEATURE_RO_COMPAT_SUPP	(EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER| \
- 					 EXT3_FEATURE_RO_COMPAT_LARGE_FILE| \
- 					 EXT3_FEATURE_RO_COMPAT_BTREE_DIR)
-
-
--------------------------------------------------------
-This sf.net email is sponsored by:
-Access Your PC Securely with GoToMyPC. Try Free Now
-https://www.gotomypc.com/s/OSND/DD
-_______________________________________________
-Ext2-devel mailing list
-Ext2-devel@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/ext2-devel
++	/* For fields not not tracking in the in-memory inode,
++	 * initialise them to zero for new inodes. */
++	if (ei->i_state & EXT2_STATE_NEW)
++		memset(raw_inode, 0, EXT2_SB(sb)->s_inode_size);
++
+ 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
+ 	if (!(test_opt(sb, NO_UID32))) {
+ 		raw_inode->i_uid_low = cpu_to_le16(low_16_bits(uid));
+@@ -1162,6 +1168,7 @@
+ 			err = -EIO;
+ 		}
+ 	}
++	ei->i_state &= ~EXT2_STATE_NEW;
+ 	brelse (bh);
+ 	return err;
+ }
+diff -Nru a/fs/ext2/super.c b/fs/ext2/super.c
+--- a/fs/ext2/super.c	Fri Oct 18 20:52:22 2002
++++ b/fs/ext2/super.c	Fri Oct 18 20:52:22 2002
+@@ -676,7 +676,9 @@
+ 	} else {
+ 		sbi->s_inode_size = le16_to_cpu(es->s_inode_size);
+ 		sbi->s_first_ino = le32_to_cpu(es->s_first_ino);
+-		if (sbi->s_inode_size != EXT2_GOOD_OLD_INODE_SIZE) {
++		if ((sbi->s_inode_size < EXT2_GOOD_OLD_INODE_SIZE) ||
++		    (sbi->s_inode_size & (sbi->s_inode_size - 1)) ||
++		    (sbi->s_inode_size > blocksize)) {
+ 			printk ("EXT2-fs: unsupported inode size: %d\n",
+ 				sbi->s_inode_size);
+ 			goto failed_mount;
+diff -Nru a/fs/ext3/inode.c b/fs/ext3/inode.c
+--- a/fs/ext3/inode.c	Fri Oct 18 20:52:22 2002
++++ b/fs/ext3/inode.c	Fri Oct 18 20:52:23 2002
+@@ -2340,6 +2340,11 @@
+ 		if (err)
+ 			goto out_brelse;
+ 	}
++	/* For fields not not tracking in the in-memory inode,
++	 * initialise them to zero for new inodes. */
++	if (ei->i_state & EXT3_STATE_NEW)
++		memset(raw_inode, 0, EXT3_SB(inode->i_sb)->s_inode_size);
++
+ 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
+ 	if(!(test_opt(inode->i_sb, NO_UID32))) {
+ 		raw_inode->i_uid_low = cpu_to_le16(low_16_bits(inode->i_uid));
+@@ -2377,15 +2382,6 @@
+ 	raw_inode->i_faddr = cpu_to_le32(ei->i_faddr);
+ 	raw_inode->i_frag = ei->i_frag_no;
+ 	raw_inode->i_fsize = ei->i_frag_size;
+-#else
+-	/* If we are not tracking these fields in the in-memory inode,
+-	 * then preserve them on disk, but still initialise them to zero
+-	 * for new inodes. */
+-	if (ei->i_state & EXT3_STATE_NEW) {
+-		raw_inode->i_faddr = 0;
+-		raw_inode->i_frag = 0;
+-		raw_inode->i_fsize = 0;
+-	}
+ #endif
+ 	raw_inode->i_file_acl = cpu_to_le32(ei->i_file_acl);
+ 	if (!S_ISREG(inode->i_mode)) {
+diff -Nru a/fs/ext3/super.c b/fs/ext3/super.c
+--- a/fs/ext3/super.c	Fri Oct 18 20:52:23 2002
++++ b/fs/ext3/super.c	Fri Oct 18 20:52:23 2002
+@@ -1159,7 +1159,9 @@
+ 	} else {
+ 		sbi->s_inode_size = le16_to_cpu(es->s_inode_size);
+ 		sbi->s_first_ino = le32_to_cpu(es->s_first_ino);
+-		if (sbi->s_inode_size != EXT3_GOOD_OLD_INODE_SIZE) {
++		if ((sbi->s_inode_size < EXT3_GOOD_OLD_INODE_SIZE) ||
++		    (sbi->s_inode_size & (sbi->s_inode_size - 1)) ||
++		    (sbi->s_inode_size > blocksize)) {
+ 			printk (KERN_ERR
+ 				"EXT3-fs: unsupported inode size: %d\n",
+ 				sbi->s_inode_size);
 

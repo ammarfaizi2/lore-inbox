@@ -1,107 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263831AbTIBPJD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 11:09:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263820AbTIBPJD
+	id S263989AbTIBSCp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 14:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263960AbTIBSCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 11:09:03 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:47005
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263831AbTIBPHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 11:07:22 -0400
-Date: Tue, 2 Sep 2003 17:07:07 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22aa1 - unresolved
-Message-ID: <20030902150707.GZ1599@dualathlon.random>
-References: <20030902020218.GB1599@dualathlon.random> <3F548543.D5888E3B@eyal.emu.id.au>
+	Tue, 2 Sep 2003 14:02:43 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:18956
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S263989AbTIBSB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 14:01:56 -0400
+Date: Tue, 2 Sep 2003 11:02:02 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Slower raid sync (pIII_sse) benchmark on AthlonXP
+Message-ID: <20030902180202.GB13684@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F548543.D5888E3B@eyal.emu.id.au>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 02, 2003 at 09:55:47PM +1000, Eyal Lebedinsky wrote:
-> practically everything is a module.
-> 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.22-aa1/kernel/drivers/scsi/scsi_mod.o
-> depmod:         open_softirq
-> 
+Are these numbers correct for sse on AthlonXP?  Every time I've seen the
+pIII_sse number much closer to pII_mmx...
 
-this will fix it for now, I'll upload an update shortly.
+2.6.0-test4-mm3-1:
 
-diff -urNp --exclude CVS --exclude BitKeeper x/kernel/ksyms.c x-new/kernel/ksyms.c
---- x/kernel/ksyms.c	2003-09-02 16:43:44.000000000 +0200
-+++ x-new/kernel/ksyms.c	2003-09-02 17:06:03.000000000 +0200
-@@ -625,6 +625,7 @@ EXPORT_SYMBOL(remove_bh);
- EXPORT_SYMBOL(tasklet_init);
- EXPORT_SYMBOL(tasklet_kill);
- EXPORT_SYMBOL(__run_task_queue);
-+EXPORT_SYMBOL(open_softirq);
- EXPORT_SYMBOL(do_softirq);
- EXPORT_SYMBOL(raise_softirq);
- EXPORT_SYMBOL(cpu_raise_softirq);
+raid5: measuring checksumming speed
+   8regs     :  2788.000 MB/sec
+   8regs_prefetch:  2752.000 MB/sec
+   32regs    :  2668.000 MB/sec
+   32regs_prefetch:  2252.000 MB/sec
+   pIII_sse  :  2792.000 MB/sec
+   pII_mmx   :  5556.000 MB/sec
+   p5_mmx    :  7360.000 MB/sec
+raid5: using function: pIII_sse (2792.000 MB/sec)
 
-thanks (as usual ;)
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 6
+model		: 8
+model name	: AMD Athlon(TM) XP 2600+
+stepping	: 1
+cpu MHz		: 2083.203
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips	: 4104.19
 
-Andrea
-
-/*
- * If you refuse to depend on closed software for a critical
- * part of your business, these links may be useful:
- *
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
- * http://www.cobite.com/cvsps/
- *
- * svn://svn.kernel.org/linux-2.6/trunk
- * svn://svn.kernel.org/linux-2.4/trunk
- */
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
-On Tue, Sep 02, 2003 at 09:55:47PM +1000, Eyal Lebedinsky wrote:
-> practically everything is a module.
-> 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.22-aa1/kernel/drivers/scsi/scsi_mod.o
-> depmod:         open_softirq
-> 
+Are these numbers correct for sse on AthlonXP?  Every time I've seen the
+pIII_sse number much closer to pII_mmx...
 
-this will fix it for now, I'll upload an update shortly.
+2.6.0-test4-mm3-1:
 
-diff -urNp --exclude CVS --exclude BitKeeper x/kernel/ksyms.c x-new/kernel/ksyms.c
---- x/kernel/ksyms.c	2003-09-02 16:43:44.000000000 +0200
-+++ x-new/kernel/ksyms.c	2003-09-02 17:06:03.000000000 +0200
-@@ -625,6 +625,7 @@ EXPORT_SYMBOL(remove_bh);
- EXPORT_SYMBOL(tasklet_init);
- EXPORT_SYMBOL(tasklet_kill);
- EXPORT_SYMBOL(__run_task_queue);
-+EXPORT_SYMBOL(open_softirq);
- EXPORT_SYMBOL(do_softirq);
- EXPORT_SYMBOL(raise_softirq);
- EXPORT_SYMBOL(cpu_raise_softirq);
+raid5: measuring checksumming speed
+   8regs     :  2788.000 MB/sec
+   8regs_prefetch:  2752.000 MB/sec
+   32regs    :  2668.000 MB/sec
+   32regs_prefetch:  2252.000 MB/sec
+   pIII_sse  :  2792.000 MB/sec
+   pII_mmx   :  5556.000 MB/sec
+   p5_mmx    :  7360.000 MB/sec
+raid5: using function: pIII_sse (2792.000 MB/sec)
 
-thanks (as usual ;)
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 6
+model		: 8
+model name	: AMD Athlon(TM) XP 2600+
+stepping	: 1
+cpu MHz		: 2083.203
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips	: 4104.19
 
-Andrea
-
-/*
- * If you refuse to depend on closed software for a critical
- * part of your business, these links may be useful:
- *
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
- * http://www.cobite.com/cvsps/
- *
- * svn://svn.kernel.org/linux-2.6/trunk
- * svn://svn.kernel.org/linux-2.4/trunk
- */

@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbUKNTsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbUKNUCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbUKNTsb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 14:48:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbUKNTsa
+	id S261346AbUKNUCX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 15:02:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUKNUCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 14:48:30 -0500
-Received: from mailer.campus.mipt.ru ([194.85.82.4]:41688 "EHLO
-	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
-	id S261343AbUKNTsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 14:48:25 -0500
-Date: Sun, 14 Nov 2004 23:06:17 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Jan Dittmer <jdittmer@ppp0.net>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] matrox w1: fix integer to pointer conversion warnings
-Message-ID: <20041114230617.5ce14ce9@zanzibar.2ka.mipt.ru>
-In-Reply-To: <41974A6C.20302@ppp0.net>
-References: <41974A6C.20302@ppp0.net>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sun, 14 Nov 2004 15:02:23 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:4444 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261346AbUKNUCT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 15:02:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=UNA35xV0umnfi58f85hjJiSbehJWnB7XZxzSq7DkBV041wN+dM4O0Ik84rsrzuD7EBqigskY+AwpbMZcIjs2kDBqirrUnpi6nRDy4W8jAP/OzG2QroY0x46pOwpFZEFgq32iQuQstbA7isvzmJmEPyr3EKnLPh1RG3HZ1+QFnVA=
+Message-ID: <64b1faec04111412021fcbcf3f@mail.gmail.com>
+Date: Sun, 14 Nov 2004 21:02:18 +0100
+From: Sylvain <autofr@gmail.com>
+Reply-To: Sylvain <autofr@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: question about module and undeinfed symbols.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0411141948020.30281@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <64b1faec04111410421d76b8fa@mail.gmail.com>
+	 <Pine.LNX.4.53.0411141948020.30281@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Nov 2004 13:07:08 +0100
-Jan Dittmer <jdittmer@ppp0.net> wrote:
+Hi Jan,
 
-> Get rid of some pointer to integer conversion warnings
-> in the matrox w1 bus driver.
+thanks you for you response, unfortunatly it appears not to work better :/
 
-I believe it should be done using __iomem * conversation.
-I will create a patch later.
+I think the problem is isolated, I notices that System.map doesnt
+contain same information for my function:
+there is the line "c010d480 T myFunction"
+but no entry: __ksymtab_myFunction nor __kstrtab_myFunction, 
 
-Thank you.
+A warning appear during kernel compilation, on the line: 
+EXPORT_SYMBOL(myFunction):
 
-> Signed-off-by: Jan Dittmer <jdittmer@ppp0.net>
+warning: type defaults to 'int' in declaration of 'EXPORT_SYMBOL'
+parameter names (without types) in function declaration
+data definition has no type of storage classe
+
+seems to me really weird :/
+
+Sylvain
+
+
+On Sun, 14 Nov 2004 19:48:37 +0100 (MET), Jan Engelhardt
+<jengelh@linux01.gwdg.de> wrote:
 > 
-> diff -Nru a/drivers/w1/matrox_w1.c b/drivers/w1/matrox_w1.c
-> --- a/drivers/w1/matrox_w1.c	2004-11-14 13:03:45 +01:00
-> +++ b/drivers/w1/matrox_w1.c	2004-11-14 13:03:45 +01:00
-> @@ -78,11 +78,12 @@
+> >The fonction printk, is also undifened and exported with the same
+> >macro "export_symbol". but compilation doesnt complain about it!!
 > 
->  struct matrox_device
->  {
-> -	unsigned long base_addr;
-> -	unsigned long port_index, port_data;
-> +	char *base_addr;
-> +	char *port_index, *port_data;
->  	u8 data_mask;
+> #include <linux/kernel.h>
 > 
-> -	unsigned long phys_addr, virt_addr;
-> +	unsigned long phys_addr;
-> +	char *virt_addr;
->  	unsigned long found;
+> >Am I missing a step somewhere?!
 > 
->  	struct w1_bus_master *bus_master;
-> @@ -181,8 +182,7 @@
 > 
->  	dev->phys_addr = pci_resource_start(pdev, 1);
-> 
-> -	dev->virt_addr =
-> -		(unsigned long) ioremap_nocache(dev->phys_addr, 16384);
-> +	dev->virt_addr = ioremap_nocache(dev->phys_addr, 16384);
->  	if (!dev->virt_addr) {
->  		dev_err(&pdev->dev, "%s: failed to ioremap(0x%lx, %d).\n",
->  			__func__, dev->phys_addr, 16384);
-
-
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
+> Jan Engelhardt
+> --
+> Gesellschaft für Wissenschaftliche Datenverarbeitung
+> Am Fassberg, 37077 Göttingen, www.gwdg.de
+>

@@ -1,33 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283697AbRLISFM>; Sun, 9 Dec 2001 13:05:12 -0500
+	id <S283708AbRLISIw>; Sun, 9 Dec 2001 13:08:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283698AbRLISFC>; Sun, 9 Dec 2001 13:05:02 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:2632 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S283697AbRLISEw>;
-	Sun, 9 Dec 2001 13:04:52 -0500
-Date: Sun, 9 Dec 2001 19:04:45 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: "James Stevenson" <mistral@stev.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S283717AbRLISIm>; Sun, 9 Dec 2001 13:08:42 -0500
+Received: from mx01.uni-tuebingen.de ([134.2.3.11]:8712 "EHLO
+	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id <S283708AbRLISIX>; Sun, 9 Dec 2001 13:08:23 -0500
+Date: Sun, 9 Dec 2001 19:05:57 +0100
+To: linux-kernel@vger.kernel.org
 Subject: Re: /proc/stat and disk_io
-Message-Id: <20011209190445.28303785.rene.rebe@gmx.net>
+Message-ID: <20011209190557.F1271@pelks01.extern.uni-tuebingen.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 In-Reply-To: <003801c180cd$51055700$0801a8c0@Stev.org>
-In-Reply-To: <003801c180cd$51055700$0801a8c0@Stev.org>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.1.12i
+In-Reply-To: <003801c180cd$51055700$0801a8c0@Stev.org>; from mistral@stev.org on Sun, Dec 09, 2001 at 04:19:45PM -0000
+From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Dec 2001 16:19:45 -0000
-"James Stevenson" <mistral@stev.org> wrote:
-
-> Hi
-> 
-> >from /proc/stat i get the following
+On Sun, Dec 09, 2001 at 04:19:45PM -0000, James Stevenson wrote:
+> from /proc/stat i get the following
 > 
 > disk_io: (3,0):(167751,94458,3917566,73293,2420568)
 > (3,1):(59314,45093,2747844,14221,114376)
@@ -38,40 +33,13 @@ On Sun, 9 Dec 2001 16:19:45 -0000
 > is there any reson why the stats dont show up ?
 > after all it is another disk.
 
-Linux definetly broken in this area! Linux (2.4) does not report other
-any devices over either major 16 or minor 16. e.g. no /dev/hdb or /dev/hdd.
+Both cdroms are accounted, but only into the same slot (11,0). In function
+disk_index() at the end of include/linux/genhd.h, you can add a line
+	case SCSI_CDROM_MAJOR:
+above the line containing SCSI_DISK0_MAJOR, and things will work as expected.
+Several more complete patches have been floating around for a while.
 
-For my 4 IDE disk (on two different controllers) I only get:
+Regards,
 
-disk_io: (3,0):(355075,157636,1744492,197439,2633848)
+Daniel.
 
-...
-
-I'm thinking about fixing this on my onw using this patch as base:
-
-http://www.swanson.uklinux.net/patch-diskio-2.4.16-1
-
-> thanks
->     James
-> 
-> 
-> --------------------------
-> Mobile: +44 07779080838
-> http://www.stev.org
->   4:10pm  up 1 day, 17:44,  2 users,  load average: 0.08, 0.08, 0.02
-
-
-k33p h4ck1n6
-  René
-
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
-
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.

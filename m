@@ -1,42 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316250AbSFETMJ>; Wed, 5 Jun 2002 15:12:09 -0400
+	id <S315923AbSFETN2>; Wed, 5 Jun 2002 15:13:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316322AbSFETMI>; Wed, 5 Jun 2002 15:12:08 -0400
-Received: from twinlark.arctic.org ([208.44.199.239]:41160 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S316250AbSFETLr>; Wed, 5 Jun 2002 15:11:47 -0400
-Date: Wed, 5 Jun 2002 12:11:48 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Alan Cox <alan@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre10-ac2
-In-Reply-To: <200206051804.g55I4mK19323@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0206051204070.11987-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S316089AbSFETN1>; Wed, 5 Jun 2002 15:13:27 -0400
+Received: from waste.org ([209.173.204.2]:39390 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S315923AbSFETNX>;
+	Wed, 5 Jun 2002 15:13:23 -0400
+Date: Wed, 5 Jun 2002 14:13:19 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Mark Mielke <mark@mark.mielke.cc>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+In-Reply-To: <E17FfU7-0001dP-00@starship>
+Message-ID: <Pine.LNX.4.44.0206051330060.2614-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-so i haven't had a chance to dig into this further, but i think there may
-be some .PRECIOUS foo missing.  i had hit ^C a few times to cancel out a
-"make -j3 dep", and a "make -j3 bzImage" while i tweaked other things...
-and somehow in the process include/linux/sunrpc/svcsock.h disappeared.
+On Wed, 5 Jun 2002, Daniel Phillips wrote:
 
-i notice two files where svcsock.h appears on the LHS of a make rule --
-.hdepend and tmp_include_depends.  .hdepend has a .PRECIOUS entry, but
-tmp_include_depends doesn't.
+> On Wednesday 05 June 2002 20:06, Mark Mielke wrote:
+> > On Wed, Jun 05, 2002 at 07:32:34PM +0200, Daniel Phillips wrote:
+> > > On Wednesday 05 June 2002 17:37, Oliver Xymoron wrote:
+> > > > No, the mistake is assuming that loosely coupling UNIX to RT lets you
+> > > > leverage much of anything from UNIX.
+> > >    - Compiler
+> > >    - Debugger
+> > >    - Editor
+> > >    - GUI
+> > >    - IPC
+> > >    - Any program that doesn't require realtime response
+> > >    - Memory protection
+> > >    - Physical hardware can be shared
+> > >    - I could go on...
+> >
+> > So... an RT .mp3 player task that receives asynchronous signals from a
+> > non-RT .mp3 player GUI front-end? So, we assume that the .mp3 data
+> > gets sent from the non-RT file system to the RT task (via the non-RT
+> > GUI front-end) in its entirety before it begins playing...
+> >
+> > Other than as a play RT project, seems like a waste of effort to me... :-)
+>
+> Your opinion is noted, however it's also noted that you didn't support it in
+> any way.
 
-maybe one of those files wasn't generated properly when i hit ^C during
-the "make -j3 dep"?  after the ^C i re-configured and re-did make dep...
-but i recall after the make menuconfig it didn't tell me i needed to do
-the make dep... and i know it didn't finish the first make dep.
+Neither have you, at least aside from hand-waving. I've actually built a
+bunch of systems that were originally spec'ed to be hybrids. Wouldn't be
+surprised if Mark had too, given his Nortel address.
 
-anyhow, sorry i haven't tried to reproduce it, just thought i'd mention it
-though.
+> Also, it appears you didn't read the post you responded to.  Two alternatives
+> were presented:
+>
+>   1) Load the whole mp3 into memory before playing it
 
--dean
+And that alternative sucks. Think scalability.
 
+>   2) Implement a filesystem with realtime response
 
+And your shared fs alternative sucks. Think abysmal disk throughput for
+the rest of the system. Think starvation. Think all the reasons we've been
+trying to clean up the elevator code times ten. And that's just for the
+device queue, never mind the deadlock avoidance problems. See "priority
+inversion".
+
+> Both approaches have their uses.  The second is the one I'm interested in,
+> if that isn't already obvious.  The first is just a quick hack that will
+> give you guaranteed-skipless audio playback, something that Linux is
+> currently unable to do.
+
+Umm, neither can your CD player. But if you take the proper precautions to
+avoid it being jostled, clean your discs, and give it decent buffering, it
+will be more than satisfactory. Can we bring Linux up to the same
+standard with the pre-empt and low-latency approaches? Yes. Is this a
+better approach than grafting quixotic kernels onto the side of the box?
+Definitely.
+
+There is a place for hard realtime. But desktop MP3 playing is not it.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

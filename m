@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272818AbRI0NCp>; Thu, 27 Sep 2001 09:02:45 -0400
+	id <S270229AbRI0NW3>; Thu, 27 Sep 2001 09:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272836AbRI0NCe>; Thu, 27 Sep 2001 09:02:34 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:32781 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S272818AbRI0NC1>;
-	Thu, 27 Sep 2001 09:02:27 -0400
-Date: Thu, 27 Sep 2001 15:00:31 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Bernd Harries <mlbha@gmx.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: __get_free_pages(): is the MEM really mine?
-In-Reply-To: <30756.1001585204@www46.gmx.net>
-Message-ID: <Pine.LNX.4.33.0109271454560.5435-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272836AbRI0NWT>; Thu, 27 Sep 2001 09:22:19 -0400
+Received: from isolaweb.it ([213.82.132.2]:58223 "EHLO web.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S270229AbRI0NV7>;
+	Thu, 27 Sep 2001 09:21:59 -0400
+Message-Id: <5.1.0.14.2.20010927151716.03dbd360@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 27 Sep 2001 15:19:26 +0200
+To: linux-kernel@vger.kernel.org
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Re: Linux for iPaQ H3630
+In-Reply-To: <20010927130105.B6684@flint.arm.linux.org.uk>
+In-Reply-To: <5.1.0.14.2.20010927134132.040f9640@mail.tekno-soft.it>
+ <5.1.0.14.2.20010927134132.040f9640@mail.tekno-soft.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 13.01 27/09/01 +0100, you wrote:
 
-On Thu, 27 Sep 2001, Bernd Harries wrote:
-
-> > have you perpahs freed that page?
+>On Thu, Sep 27, 2001 at 01:44:48PM +0200, Roberto Fichera wrote:
+> > I need some links, infos, docs etc about Linux for this Pocket PC.
+> > Someone can help me about this ?
 >
-> Yes, as expected.
+>http://www.handhelds.org/
 
-well - what did you expect to happen? A freed page is going to be reused
-for other purposes. A big 2MB allocation can be reused in part, once
-memory usage grows. So you should not expect the device to be able to DMA
-into a page that got freed, unpunished. Perhaps i'm misunderstanding the
-problem.
+Thanks everyone that have replied!
 
-> But I tend to conclude from getting the same phys address again after
-> some time that noone else uses much memory inbetween. Plus, the first
-> page of the area stays Zero all the time while the higher pages seem
-> to be used by someone. [...]
 
-the buddy allocator allocates top down. Plus, if you allocate a 2MB
-physically continuous chunk then the likelyhood is high that there were
-fragmented pages skipped during the initial search for a 2MB block - so
-you still have a fair likelyhood to reallocate it after some time, if
-memory usage is light. But this likelyhood nears zero once RAM usage gets
-near 100%.
-
-	Ingo
+Roberto Fichera.
 

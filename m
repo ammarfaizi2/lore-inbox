@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262628AbTCIVJZ>; Sun, 9 Mar 2003 16:09:25 -0500
+	id <S262629AbTCIVMG>; Sun, 9 Mar 2003 16:12:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262629AbTCIVJX>; Sun, 9 Mar 2003 16:09:23 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:18698 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S262628AbTCIVJV>;
-	Sun, 9 Mar 2003 16:09:21 -0500
-Date: Sun, 9 Mar 2003 22:19:59 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: joe briggs <jbriggs@briggsmedia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patching the kernel
-Message-ID: <20030309211959.GB18087@mars.ravnborg.org>
-Mail-Followup-To: joe briggs <jbriggs@briggsmedia.com>,
-	linux-kernel@vger.kernel.org
-References: <200303091711.21652.jbriggs@briggsmedia.com>
+	id <S262630AbTCIVMG>; Sun, 9 Mar 2003 16:12:06 -0500
+Received: from home.linuxhacker.ru ([194.67.236.68]:57751 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S262629AbTCIVMF>;
+	Sun, 9 Mar 2003 16:12:05 -0500
+Date: Mon, 10 Mar 2003 00:21:52 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: alan@redhat.com, davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: memleak in 802.1q vlan proc code
+Message-ID: <20030309212152.GA31920@linuxhacker.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200303091711.21652.jbriggs@briggsmedia.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 09, 2003 at 05:11:21PM -0500, joe briggs wrote:
-> My apologies for this question that is so basic to all of you, but can any of 
-> you please point me toward a howto or instructions for exactly how to 'patch 
-> a kernel'?  For example, at kernel.org, the latest stable kernel is 2.4.20, 
-> and is actually a patch.  I currently use 2.4.19 under Debian and routinely 
-> rebuild & install it no problem.  If I download a kernel 'patch', do I apply 
-> it to the entire directory, or the compiled kernel, etc.?  Thanks so much.
+Hello!
 
-Did you read README in the top-level directory of your kernel src?
-It is wise to run
-$ cp .config ../saved-config
-$ make mrproper   <= this one deletes all .o files etc.
-$ cp ../saved-config .config
-$ make oldconfig dep bzImage modules
-after patching the kernel
+   There is a memleak on error exit path, identical in 2.4 and 2.5.
+   Same patch should apply to 2.4 and 2.5.
 
-Did not build a 2.4.* kernel for a while, but the README should provide
-all the details.
+   Found with help of smatch + enhanced unfree script.
 
-	Sam
-
+Bye,
+    Oleg
+===== net/8021q/vlanproc.c 1.6 vs edited =====
+--- 1.6/net/8021q/vlanproc.c	Sat Aug 10 06:36:57 2002
++++ edited/net/8021q/vlanproc.c	Mon Mar 10 00:17:23 2003
+@@ -252,8 +252,10 @@
+ 	offs = file->f_pos;
+ 	if (offs < pos) {
+ 		len = min_t(int, pos - offs, count);
+-		if (copy_to_user(buf, (page + offs), len))
++		if (copy_to_user(buf, (page + offs), len)) {
++			kfree(page);
+ 			return -EFAULT;
++		}
+ 
+ 		file->f_pos += len;
+ 	} else {

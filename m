@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbTILSsM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 14:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbTILSqw
+	id S261786AbTILSor (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 14:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbTILSny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 14:46:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9369 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261807AbTILSpx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 14:45:53 -0400
-Message-ID: <3F621453.40101@pobox.com>
-Date: Fri, 12 Sep 2003 14:45:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Adrian Bunk <bunk@fs.tum.de>, ebiederm@xmission.com, akpm@osdl.org,
-       richard.brunner@amd.com, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>	<20030911012708.GD3134@wotan.suse.de>	<20030910184414.7850be57.akpm@osdl.org>	<20030911014716.GG3134@wotan.suse.de>	<3F60837D.7000209@pobox.com>	<20030911162634.64438c7d.ak@suse.de>	<3F6087FC.7090508@pobox.com>	<m1vfrxlxol.fsf@ebiederm.dsl.xmission.com>	<20030912195606.24e73086.ak@suse.de>	<3F62098F.9030300@pobox.com>	<20030912182216.GK27368@fs.tum.de> <20030912202851.3529e7e7.ak@suse.de>
-In-Reply-To: <20030912202851.3529e7e7.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 12 Sep 2003 14:43:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:65001 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261878AbTILSmr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 14:42:47 -0400
+Date: Fri, 12 Sep 2003 11:24:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Voicu Liviu <pacman@mscc.huji.ac.il>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6.0-test5-mm1
+Message-Id: <20030912112436.03ba9dd1.akpm@osdl.org>
+In-Reply-To: <3F61C062.1080700@mscc.huji.ac.il>
+References: <3F61C062.1080700@mscc.huji.ac.il>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->>config X86_USE_3DNOW
->>        bool
->>        depends on MCYRIXIII || MK7
->>        default y
+Voicu Liviu <pacman@mscc.huji.ac.il> wrote:
+>
+> This happens after I load alsa modules on boot..............
 > 
+> <from_dmesg>
 > 
-> All 3dnow! code is dynamically patched depending on the CPUID.
+> Freeing unused kernel memory: 308k freed
+> Adding 313228k swap on /dev/hda6.  Priority:-1 extents:1
+> PCI: Found IRQ 5 for device 0000:00:09.0
+> PCI: Sharing IRQ 5 with 0000:00:04.2
+> Unable to handle kernel paging request at virtual address ffffffef
 
 
-Note that the people who care most about x86 kernel size, such as people 
-running on brand new 486 and 586 embedded processors (AMD Elan, ...) are 
-precisely the people that don't need the "convenience" of having the 
-feature dynamically patched into the kernel.
+diff -puN fs/sysfs/dir.c~sysfs-create_dir-oops-fix fs/sysfs/dir.c
+--- 25/fs/sysfs/dir.c~sysfs-create_dir-oops-fix	Wed Sep 10 15:46:50 2003
++++ 25-akpm/fs/sysfs/dir.c	Wed Sep 10 15:46:50 2003
+@@ -24,10 +24,11 @@ static int init_dir(struct inode * inode
+ static struct dentry * 
+ create_dir(struct kobject * k, struct dentry * p, const char * n)
+ {
+-	struct dentry * dentry;
++	struct dentry *dentry, *ret;
+ 
+ 	down(&p->d_inode->i_sem);
+ 	dentry = sysfs_get_dentry(p,n);
++	ret = dentry;
+ 	if (!IS_ERR(dentry)) {
+ 		int error = sysfs_create(dentry,
+ 					 S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO,
+@@ -36,11 +37,11 @@ create_dir(struct kobject * k, struct de
+ 			dentry->d_fsdata = k;
+ 			p->d_inode->i_nlink++;
+ 		} else
+-			dentry = ERR_PTR(error);
++			ret = ERR_PTR(error);
+ 		dput(dentry);
+ 	}
+ 	up(&p->d_inode->i_sem);
+-	return dentry;
++	return ret;
+ }
+ 
+ 
 
-Removal of CONFIG_SSE2 was wrong for this same reason.
-
-300 bytes here, 300 bytes there, and all this code is adding up quick.
-
-We have CONFIG_EMBEDDED to hide such things from your sight, so you 
-don't even have to worry about them...  they will always be dynamically 
-patched in your kernels :)
-
-	Jeff
-
-
+_
 

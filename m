@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262796AbVAQN3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVAQN37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbVAQN3k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 08:29:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbVAQN2Q
+	id S262787AbVAQN37 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 08:29:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbVAQN36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 08:28:16 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:62599 "EHLO
+	Mon, 17 Jan 2005 08:29:58 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:64135 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262795AbVAQN17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 08:27:59 -0500
-Subject: Re: Linux Kernel Audit Project?
+	id S262787AbVAQN2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 08:28:11 -0500
+Subject: Re: [PATCH] Restartable poll(2)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41EB6BD6.5070702@comcast.net>
-References: <41EB6691.10905@comcast.net>  <41EB6BD6.5070702@comcast.net>
+To: Naoaki Maeda <maeda.naoaki@jp.fujitsu.com>
+Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050117.113142.41643336.maeda.naoaki@jp.fujitsu.com>
+References: <20050114.205214.74752151.maeda.naoaki@jp.fujitsu.com>
+	 <20050117.113142.41643336.maeda.naoaki@jp.fujitsu.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105962233.12709.68.camel@localhost.localdomain>
+Message-Id: <1105963410.12709.91.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 17 Jan 2005 12:23:35 +0000
+Date: Mon, 17 Jan 2005 12:23:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-01-17 at 07:40, John Richard Moser wrote:
-> On the same line, I've been graphing Ubuntu Linux Security Notices for a
-> while.  I've noticed that in the last 5, the number of kernel-related
-> vulnerabilities has doubled (3 more).  This disturbs me.
+On Llu, 2005-01-17 at 02:31, Naoaki Maeda wrote:
+> Hi,
+> 
+> Does nobody think a system call is interrupted by SIGSTOP is
+> strange behaviour?
 
-I've been monitoring the kernel security stuff for a long time too.
-There are several obvious trends and I think most are positive
+Not really
 
-- Tools like coverity and sparse are significantly increasing the number
-of flaws found. In particular they are turning up long time flaws in
-code, but they also mean new flaws of that type are being found. People
-aren't really turning these tools onto user space - yet -
+> According to the man page, both of poll(2) and select(2) can be
+> interrupted by signals, but select(2) interrupted by SIGSTOP is
+> automatically restarted, and poll(2) isn't. 
 
-- We get bursts of holes of a given type. If you plot things like
-"buffer overflow" "structure passed to user space not cleaned" "maths
-overflow check error" against time you'll see they show definite
-patterns with spikes decaying at different rates towards zero.
+Correct - select and poll come from different worlds with different
+viewpoints on signal behaviour.
 
-There are also people other than Linus who read every single changeset.
-I do for one.
+> If it is a specification of Linux, using job control or ptrace()
+> isn't safe because it changes the behaviour of target programs.
 
-Alan
+Programs must always deal with system call -EINTR responses
+appropriately.
 

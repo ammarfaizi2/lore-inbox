@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbUKXUtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262681AbUKXU6y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262845AbUKXUtt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 15:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbUKXUrt
+	id S262681AbUKXU6y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 15:58:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbUKXU6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 15:47:49 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:37895 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S262845AbUKXUoc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 15:44:32 -0500
-Date: Wed, 24 Nov 2004 14:41:29 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@oss.sgi.com, akpm@osdl.org, jgarzik@pobox.com
-Subject: [patch netdev-2.4] 3c59x: Add EEPROM_RESET for 3c900 Boomerang
-Message-ID: <20041124144129.B24342@tuxdriver.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-	akpm@osdl.org, jgarzik@pobox.com
+	Wed, 24 Nov 2004 15:58:54 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:38016 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262681AbUKXU6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 15:58:52 -0500
+Subject: Re: Suspend 2 merge: 14/51: Disable page alloc failure message
+	when suspending
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041124141521.GA13915@infradead.org>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101294838.5805.245.camel@desktop.cunninghams>
+	 <20041124141521.GA13915@infradead.org>
+Content-Type: text/plain
+Message-Id: <1101329172.3895.0.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 25 Nov 2004 07:46:21 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add 3c900 Boomerang to list of devices needing EEPROM_RESET
+Hi.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
+On Thu, 2004-11-25 at 01:15, Christoph Hellwig wrote:
+> On Wed, Nov 24, 2004 at 11:57:55PM +1100, Nigel Cunningham wrote:
+> > While eating memory, we will potentially trigger this a lot. We
+> > therefore disable the message when suspending.
+> 
+> So call the allocator with __GFP_NOWARN
 
- drivers/net/3c59x.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Everywhere?
 
-===== drivers/net/3c59x.c 1.25 vs edited =====
---- 1.25/drivers/net/3c59x.c	2004-10-14 20:00:00 -04:00
-+++ edited/drivers/net/3c59x.c	2004-11-24 14:34:12 -05:00
-@@ -489,9 +489,9 @@
- 	{"3c595 Vortex 100base-MII",
- 	 PCI_USES_IO|PCI_USES_MASTER, IS_VORTEX, 32, },
- 	{"3c900 Boomerang 10baseT",
--	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG, 64, },
-+	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG|EEPROM_RESET, 64, },
- 	{"3c900 Boomerang 10Mbps Combo",
--	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG, 64, },
-+	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG|EEPROM_RESET, 64, },
- 	{"3c900 Cyclone 10Mbps TPO",						/* AKPM: from Don's 0.99M */
- 	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_HWCKSM, 128, },
- 	{"3c900 Cyclone 10Mbps Combo",
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

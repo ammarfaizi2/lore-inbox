@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270469AbTHLPm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 11:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270352AbTHLPmZ
+	id S270461AbTHLPw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 11:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270479AbTHLPw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 11:42:25 -0400
-Received: from cpmail5.sol.no1.asap-asp.net ([195.225.3.232]:16552 "HELO
-	cpmail5.sol.no1.asap-asp.net") by vger.kernel.org with SMTP
-	id S270461AbTHLPmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 11:42:04 -0400
-Date: Tue, 12 Aug 2003 18:42:01 +0300
-Message-ID: <3F28427C0000944B@webmail-fi2.sol.no1.asap-asp.net>
-In-Reply-To: <20030812091056.GA13487@atrey.karlin.mff.cuni.cz>
-From: zipa24@suomi24.fi
-Subject: RE: Hangup on nforce2 UDMA
-To: linux-kernel@vger.kernel.org
+	Tue, 12 Aug 2003 11:52:57 -0400
+Received: from mta2-svc.business.ntl.com ([62.253.164.42]:18652 "EHLO
+	mta2-svc.business.ntl.com") by vger.kernel.org with ESMTP
+	id S270461AbTHLPwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 11:52:55 -0400
+Date: Tue, 12 Aug 2003 16:54:05 +0100 (BST)
+From: William Gallafent <william.gallafent@virgin.net>
+X-X-Sender: williamg@officebedroom.oldvicarage
+To: Valdis.Kletnieks@vt.edu
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>,
+       linux kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: generic strncpy - off-by-one error 
+In-Reply-To: <200308121503.h7CF3JfZ009007@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.53.0308121652020.13364@officebedroom.oldvicarage>
+References: <m21xvrynnk.wl%ysato@users.sourceforge.jp>           
+ <m2y8xzx74x.wl%ysato@users.sourceforge.jp> <200308121503.h7CF3JfZ009007@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heip!
+On Tue, 12 Aug 2003 Valdis.Kletnieks@vt.edu wrote:
 
->I have nforce2 motherboard Soltek SL75FRN2-L with MCP southbridge. Using
->2.4.21 with AMD 74xx driver for IDE. If I leave the UDMA5 (UATA-100)
->setting BIOS leaves on the IDE disk I can hangup the machine almost
->deterministically with
+> On Tue, 12 Aug 2003 23:50:06 +0900, Yoshinori Sato
+> <ysato@users.sourceforge.jp> said:
+> > -	while (count) {
+> > +	while (count > 1) {
 >
->cat /dev/hda > /dev/null 
+> Given that count is a size_t, which seems to be derived from 'unsigned int'
+> or 'unsigned long' on every platform, how are these any different?
 
-I have nForce2 motherboard ASUS A7N8X Deluxe, and I have a similar problem.
+Er, consider the case of count == 1. Fenceposts can be dangerous things.
 
-
->When UDMA is disabled in BIOS, I get lower performance of 17MB/s instead
->of 40MB/s. I have also tried IGNORE word93 Validation BITS and AMD Viper
->ATA-66 Override and none helped.
-
-I could 'fix' the problem by doing "hdparm -qd1qk1qX67 /dev/hd[ab]" in initrc
-which reduced the theoretical speed 'only' to 44.4MB/s.
-
-
->Cl<
-
-// /
-
-_____________________________________________________________
-Kuukausimaksuton nettiyhteys: http://www.suomi24.fi/liittyma/
-Yli 12000 logoa ja soittoääntä: http://sms.suomi24.fi/
-
-
+-- 
+Bill Gallafent.

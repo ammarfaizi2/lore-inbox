@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269125AbUINDg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269146AbUINDgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269125AbUINDg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 23:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269150AbUINDg0
+	id S269146AbUINDgi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 23:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269147AbUINDgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 23:36:26 -0400
-Received: from usbb-lacimss3.unisys.com ([192.63.108.53]:28429 "EHLO
-	usbb-lacimss3.unisys.com") by vger.kernel.org with ESMTP
-	id S269125AbUINDgM convert rfc822-to-8bit (ORCPT
+	Mon, 13 Sep 2004 23:36:38 -0400
+Received: from mail.kroah.org ([69.55.234.183]:55478 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269146AbUINDgX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 23:36:12 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6556.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 1/2] Incorrect PCI interrupt assignment on ES7000 for platform GSI
-Date: Mon, 13 Sep 2004 22:36:02 -0500
-Message-ID: <452548B29F0CCE48B8ABB094307EBA1C04220261@USRV-EXCH2.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 1/2] Incorrect PCI interrupt assignment on ES7000 for platform GSI
-Thread-Index: AcSaA7c6lowaLGrFQ2WJ06seMBhoowAA+yZw
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Tonnerre" <tonnerre@thundrix.ch>
-Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
-X-OriginalArrivalTime: 14 Sep 2004 03:36:03.0593 (UTC) FILETIME=[F6030F90:01C49A0B]
+	Mon, 13 Sep 2004 23:36:23 -0400
+Date: Mon, 13 Sep 2004 20:35:49 -0700
+From: Greg KH <greg@kroah.com>
+To: Hanna Linder <hannal@us.ibm.com>, ink@jurassic.park.msu.ru,
+       linux-kernel@vger.kernel.org, wli@holomorphy.com
+Subject: Re: [RFT 2.6.9-rc1 alpha sys_alcor.c] [1/2] convert pci_find_device to pci_get_device
+Message-ID: <20040914033549.GA13146@kroah.com>
+References: <806400000.1095118633@w-hlinder.beaverton.ibm.com> <20040914020116.GA23058@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040914020116.GA23058@twiddle.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> diff -puN arch/i386/kernel/acpi/boot.c~mypatch
-arch/i386/kernel/acpi/boot.c
->> --- linux/arch/i386/kernel/acpi/boot.c~mypatch	2004-09-13
-14:08:21.192015024 -0600
->> +++ linux-root/arch/i386/kernel/acpi/boot.c	2004-09-13
-14:10:51.457171248 -0600
->> @@ -442,6 +442,7 @@ int acpi_gsi_to_irq(u32 gsi, unsigned in
-unsigned 
->> int acpi_register_gsi(u32 gsi, int edge_level, int active_high_low)
-{
->>  	unsigned int irq;
->> +	unsigned int plat_gsi;
->>  
->>  #ifdef CONFIG_PCI
->>  	/*
->> @@ -463,10 +464,10 @@ unsigned int acpi_register_gsi(u32 gsi,
->>  
->>  #ifdef CONFIG_X86_IO_APIC
->>  	if (acpi_irq_model == ACPI_IRQ_MODEL_IOAPIC) {
->> -		mp_register_gsi(gsi, edge_level, active_high_low);
->> +		plat_gsi = mp_register_gsi(gsi, edge_level,
-active_high_low);
->>  	}
->>  #endif
->> -	acpi_gsi_to_irq(gsi, &irq);
->> +	acpi_gsi_to_irq(plat_gsi, &irq);
->>  	return irq;
->>  }
->>  EXPORT_SYMBOL(acpi_register_gsi);
->
-> Looking at that,  won't that cause problems if  we don't have IOAPIC?
-> Then you end up using an undefined value as GSI.
+On Mon, Sep 13, 2004 at 07:01:16PM -0700, Richard Henderson wrote:
+> On Mon, Sep 13, 2004 at 04:37:13PM -0700, Hanna Linder wrote:
+> > Here is a very simple patch to convert pci_find_device call to pci_get_device.
+> > As I don't have an alpha box or cross compiler could someone (wli- wink wink)
+> > please verify it compiles and doesn't break anything, thanks a lot.
+> 
+> Presumably the intent is to eventually remove pci_find_device?
 
-Oops, you are right! thanks for catching this. 
-I guess it would be OK to do:
+That is the intent.
 
-int acpi_register_gsi(u32 gsi, int edge_level, int active_high_low)  {
- 	unsigned int irq;
-+	unsigned int plat_gsi = gsi;
+> These routines run at the very beginning of bootup; there cannot
+> possibly be any races.
 
+I agree there isn't any races here, we just need to get rid of
+pci_find_device() as people use it in an unsafe manner in lots of
+different places.
 
---Natalie
+thanks,
+
+greg k-h

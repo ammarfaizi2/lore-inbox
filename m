@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318288AbSHEChq>; Sun, 4 Aug 2002 22:37:46 -0400
+	id <S318289AbSHEDAA>; Sun, 4 Aug 2002 23:00:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318289AbSHEChq>; Sun, 4 Aug 2002 22:37:46 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:32136 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S318288AbSHEChq>; Sun, 4 Aug 2002 22:37:46 -0400
-Message-Id: <200208050241.g752fBC12491@verdi.et.tudelft.nl>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-X-Exmh-Isig-CompType: repl
-X-Exmh-Isig-Folder: linux-kernel
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, robn@verdi.et.tudelft.nl
-Subject: Re: 2.4.19 IDE Partition Check issue 
-In-Reply-To: Your message of "04 Aug 2002 19:28:54 BST."
-             <1028485734.14196.45.camel@irongate.swansea.linux.org.uk> 
+	id <S318290AbSHEDAA>; Sun, 4 Aug 2002 23:00:00 -0400
+Received: from spud.dpws.nsw.gov.au ([203.202.119.24]:48867 "EHLO
+	spud.dpws.nsw.gov.au") by vger.kernel.org with ESMTP
+	id <S318289AbSHEC77>; Sun, 4 Aug 2002 22:59:59 -0400
+Message-Id: <sd4e738d.059@out-gwia.dpws.nsw.gov.au>
+X-Mailer: Novell GroupWise Internet Agent 6.0.1
+Date: Mon, 05 Aug 2002 12:45:37 +1000
+From: "Daniel Lim" <Daniel.Lim@dpws.nsw.gov.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: Swap not used after  kernel upgrade
 Mime-Version: 1.0
 Content-Type: text/plain
-Date: Mon, 05 Aug 2002 04:41:10 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-NAIMIME-Disclaimer: 1
+X-NAIMIME-Modified: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Alan wrote:
-> The Promise stuff is fixed in -ac and was exactly this issue. LBA48 is
-> not supported by the earlier promise controllers. The highpoint may well
+Hi,
+After successfully upgraded to SMP kernel 2.4.9-34 the swap partition
+appears not being used,  prior to the upgrade on previous kernel 2.4.2-2
+the swap was about 10% utilized. 
 
-Hi Alan,
+The free command gives 0 used, top and sar also report same.
+                    total       used       free     shared    buffers  
+  cached
+Mem:       1027972    1015152      12820         64     171292    
+592108
+-/+ buffers/cache:     251752     776220
+Swap:      2097112          0    2097112
 
-I planned to do a massive disk replace/relocate action on my machines
-soon and part of the plan is having a 160GB Maxtor in some machines.
-Got scared by statement above .. :-)
+Any idea please.
+Thanks in advance,
+Daniel
 
-I got myself a 2.4.19-ac3 tree, looked around in the IDE code and wasn't
-able to find the answer for my questions:
 
-Any chance of lba48 working on a:
 
-    - Promise Ultra66 (PDC20262: chipset revision 1) ?
-    - Intel 82371AB PIIX4 IDE (rev 01) (On P-III BX-chipset mobo) ?
-    - Intel 82371FB PIIX IDE [Triton I] (rev 02) (On P-I Triton I mobo) ?
+ This e-mail message (and attachments) is confidential, and / or privileged and is intended for the use of the addressee only. If you are not the intended recipient of this e-mail you must not copy, distribute, take any action in reliance on it or disclose it to anyone. Any confidentiality or privilege is not waived or lost by reason of mistaken delivery to you. DPWS is not responsible for any information not related to the business of DPWS. If you have received this e-mail in error please destroy the original and notify the sender.
 
-	greetings,
-	Rob van Nieuwkerk
+For information on services offered by DPWS, please visit our website at www.dpws.nsw.gov.au
+
+
+

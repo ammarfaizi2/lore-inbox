@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129248AbQLDBF1>; Sun, 3 Dec 2000 20:05:27 -0500
+	id <S129324AbQLDBHH>; Sun, 3 Dec 2000 20:07:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbQLDBFR>; Sun, 3 Dec 2000 20:05:17 -0500
-Received: from wep10a-3.wep.tudelft.nl ([130.161.65.38]:62736 "EHLO
-	wep10a-3.wep.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S129248AbQLDBFJ>; Sun, 3 Dec 2000 20:05:09 -0500
-Date: Mon, 4 Dec 2000 01:34:40 +0100 (CET)
-From: Taco IJsselmuiden <taco@wep.tudelft.nl>
-Reply-To: Taco IJsselmuiden <taco@wep.tudelft.nl>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ip_nat_ftp and different ports
-In-Reply-To: <Pine.LNX.4.21.0012032259320.14309-100000@tux.rsn.hk-r.se>
-Message-ID: <Pine.LNX.4.21.0012040125430.14854-100000@hewpac.taco.dhs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130159AbQLDBG5>; Sun, 3 Dec 2000 20:06:57 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:65031 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129324AbQLDBGo>; Sun, 3 Dec 2000 20:06:44 -0500
+Date: Sun, 3 Dec 2000 18:32:36 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-11 AIC7xxx.o driver barfs on AHA27XX adapter
+Message-ID: <20001203183236.A24895@vger.timpanogas.org>
+In-Reply-To: <20001203181524.A24809@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001203181524.A24809@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Sun, Dec 03, 2000 at 06:15:24PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Dec 2000, Martin Josefsson wrote:
-
-> On Sun, 3 Dec 2000, Taco IJsselmuiden wrote:
+On Sun, Dec 03, 2000 at 06:15:24PM -0700, Jeff V. Merkey wrote:
 > 
-> > Hi,
-> > 
-> > I'm having trouble masquerading ftp-ports other than 20/21.
-> > For some service i'm using, i need to masquerade port 42,43,62,63 for FTP
-> > (I know it's weird...).
-> > Now, when using 2.2.x kernels i could use
-> > 'insmod ip_masq_ftp ports=21,41,42,62,63'
-> > but using 2.4.0-testx the 'ports=' parameter doesn't seem to work for
-> > ip_nat_ftp.
-> > Is there any other param I should use (couldn't find it in the docs ;(( )
 > 
-> There is a ftp-multi patch that you can apply to get this working
+> On a four processor POCA system with dual Fast-SCSI AHA274X/VLB bus
+> controllers I am seeing the following timeout errors right after
+> the sequencer scripts are downloaded and the driver starts polling.
+> It does not happen when compiled in kernel, only when loaded from 
+> an initrd image.  The root FS is getting mounted properly and
+> probing and loading the driver.
 > 
-> download iptables-1.2 and run 'make patch-o-matic' and apply the ftp-multi
-> patch and recompile the ftp module... you're done.
-hmm... iptables-1.2 ?
-I can only find iptables-1.1.2 (netfilter.filewatcher.org,
-netfilter.kernelnotes.org)...
-Where could I find 1.2 then ??
+> aborting command due to timeout:  pid 00 scsi 00 channel 00 lun 00 
+> inquiry 00 00 00 ff 00
+> 
+> The machine then hard hangs after it gets this error and has to be 
+> powered off in order to reboot it.
 
-I'm running 1.1.2 right now, actually, which should have the 'ftp-multi
-patch for non-standard ftp servers'...
 
-Greetz,
-Taco.
----
-"I was only 75 years old when I met her and I was still a kid...."
-          -- Duncan McLeod
+I tested 2.2.18-24 with an initrd and works fine on the same hardware, 
+BTW
 
+Jeff
+
+
+> 
+> Jeff 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,92 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbTFFWta (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 18:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTFFWta
+	id S262331AbTFFXFz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 19:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbTFFXFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 18:49:30 -0400
-Received: from s1.uscreditbank.com ([192.41.74.10]:38407 "EHLO
-	s1.uscreditbank.com") by vger.kernel.org with ESMTP id S262352AbTFFWt2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 18:49:28 -0400
-Date: Fri, 6 Jun 2003 17:03:10 -0600
-From: jmerkey@s1.uscreditbank.com
-To: "Lauro, John" <jlauro@umflint.edu>
-Cc: linux-kernel@vger.kernel.org, jmerkey@utah-nac.org
-Subject: Re: 2.4.20 Modprobe setting of eth0,eth1 does not seem to work
-Message-ID: <20030606170310.A20988@s1.uscreditbank.com>
-References: <37885B2630DF0C4CA95EFB47B30985FB020EC0D2@exchange-1.umflint.edu>
+	Fri, 6 Jun 2003 19:05:55 -0400
+Received: from almesberger.net ([63.105.73.239]:28170 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262331AbTFFXFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 19:05:54 -0400
+Date: Fri, 6 Jun 2003 20:19:06 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+Cc: "David S. Miller" <davem@redhat.com>, chas@cmf.nrl.navy.mil,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2)
+Message-ID: <20030606201906.F3232@almesberger.net>
+References: <20030606122616.B3232@almesberger.net> <20030606.082802.124082825.davem@redhat.com> <20030606125416.C3232@almesberger.net> <20030606.085558.56056656.davem@redhat.com> <20030606215406.GE21217@gaz.sfgoth.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <37885B2630DF0C4CA95EFB47B30985FB020EC0D2@exchange-1.umflint.edu>; from jlauro@umflint.edu on Fri, Jun 06, 2003 at 06:04:41PM -0400
+In-Reply-To: <20030606215406.GE21217@gaz.sfgoth.com>; from mitch@sfgoth.com on Fri, Jun 06, 2003 at 02:54:06PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mitchell Blank Jr wrote:
+> so basically if atmsigd goes nuts in can easily stomp all
+> over the kernel's memory.
 
-I am using 4.6.11 from their website, which is the version needed to run the 
-chipsets on the multi-port cards.  Is my modules.conf syntax correct?  I believe 
-it is which eads me to believe the driver is busted.  I reviewed their probe
-function and it looks correct.  
+Naw, it isn't supposed to do that :-) I wonder if anyone
+actually made functional changes to atmsigd (or qgen ;-) since
+I last touched it ...
 
-Any help is appreciated.
+But yes, with a unified VCC table, it certainly makes sense to
+add a hash to validate those pointers. I still think that using
+pointers per se is a good idea, because they're naturally
+unique numbers. Given that a VCC can be in all kinds of states,
+it would be pretty hard to use anything in struct atm_vcc else
+as a unique key. Also, it's not very common to have atmsigd
+talk ISP (Internal Signaling Protocol - the thing used between
+atmsigd and the kernel) to a different box.
 
-Jeff
+> the ATMSIGD_CTRL ioctl so at least there's no security hole but it's still
+> damn gross (no offense, Werner :-)
 
+It could probably be used to leverage other security holes in
+atmsigd. (Not that I'm aware of any, but I'd be surprised if
+there were none.)
 
+- Werner
 
-On Fri, Jun 06, 2003 at 06:04:41PM -0400, Lauro, John wrote:
-> I assume you mean between keyboard and chair???
-> 
-> Anyways...
-> 
-> If I do anything semi-advanced with e1000 cards, I end up getting
-> Intel's drivers.  It's a minor pain when switching kernel versions
-> (especially to a different version number) as the default scripts
-> assume you are already booted (uname -r) in the kernel you are
-> building for and are not part of the kernel source tree...
-> 
-> I suggest you try e1000-5.0.43 from Intel, and also iANS-2.3.35 (or
-> higher if either of them have updates).
-> 
-> I don't know if you are doing any advanced features like vlan tagging
-> or not.  Anyways, it's one area that drivers from Intel's site does
-> work better then the native stock kernel drivers.  Specifically as an
-> example, virtual Ethernets over different vlan tags when combined with
-> vmware gsx server works with Intel's iANS, but not with the stock vlan
-> support.
-> 
-> I know, it doesn't answer your question...  but it gives you something
-> else to try...
-> 
-> > -----Original Message-----
-> > From: jmerkey@s1.uscreditbank.com
-> [mailto:jmerkey@s1.uscreditbank.com]
-> > Sent: Friday, June 06, 2003 5:40 PM
-> > To: linux-kernel@vger.kernel.org
-> > Cc: jmerkey@utah-nac.org
-> > Subject: 2.4.20 Modprobe setting of eth0,eth1 does not seem to work
-> > 
-> > 
-> > 
-> > In 2.4.20 if I attempt to use the Intel multiport e1000 drivers with
-> > modules.conf trying to hard set the eth0,eth1, etc. assignments
-> modprobe
-> > does
-> > not appear to be assigning the adapter aliases correctly.  I am
-> assuming
-> > this may be due to an interface issue between the Keyboard and
-> monitor. :-
-> > )
-> > 
-> > Modules.conf file attached.  Anyone got any ideas here?
-> > 
-> > Jeff
-> > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

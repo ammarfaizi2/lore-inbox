@@ -1,76 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbUK0HSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbUK0HGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbUK0HSf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 02:18:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbUK0HHl
+	id S261241AbUK0HGO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 02:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUK0HFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 02:07:41 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:32190 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261353AbUKZTHj (ORCPT
+	Sat, 27 Nov 2004 02:05:32 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:18110 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261280AbUKZTH7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:07:39 -0500
-Message-ID: <26206.195.245.190.94.1101379631.squirrel@195.245.190.94>
-In-Reply-To: <20041125114458.GA20831@elte.hu>
-References: <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
-    <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu>
-    <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu>
-    <20041124112745.GA3294@elte.hu>
-    <21889.195.245.190.93.1101377024.squirrel@195.245.190.93>
-    <20041125111344.GA17786@elte.hu>
-    <4798.195.245.190.93.1101379116.squirrel@195.245.190.93>
-    <20041125114458.GA20831@elte.hu>
-Date: Thu, 25 Nov 2004 10:47:11 -0000 (WET)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-0
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>,
-       "Gunther Persoons" <gunther_persoons@spymac.com>, emann@mrv.com,
-       "Shane Shrybman" <shrybman@aei.ca>, "Amit Shah" <amit.shah@codito.com>,
-       "Esben Nielsen" <simlo@phys.au.dk>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 25 Nov 2004 10:48:07.0180 (UTC) FILETIME=[3F6A84C0:01C4D2DC]
+	Fri, 26 Nov 2004 14:07:59 -0500
+Date: Thu, 25 Nov 2004 21:54:31 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [PATCH] - Externel SLIT table information thru sysfs
+Message-ID: <20041126035431.GA4550@sgi.com>
+References: <20041124165724.GA14544@sgi.com> <41A53D93.5070005@osdl.org> <20041125033931.GA25561@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041125033931.GA25561@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar
->
-> * Rui Nuno Capela wrote:
->
->> > how hard of a freeze is it? I.e. if you log in over the text console,
->> > and do:
->> >
->> > 	chrt -f 99 -p `pidof 'IRQ 1'`
->> > 	chrt -f 99 -p $$
->> >
->> > can you access the sysrq keys after the freeze happens?
->>
->> The lockup is pretty hard indeed. Complete lockup. No sysrq, not even
->> any output thru serial console. The only action that has some visible
->> effect is turning the power/reset switch off :)
->
-> note that unless you try the above, or the debug_direct_keyboard switch,
-> 'soft' lockups will have the same symptoms: no sysrq, no serial console,
-> an apparently hung system. So unless you've done the equivalent already,
-> please try my suggestions.
->
-> 	Ingo
->
+(resend - first bounced)
 
-Yes Master :)
+On Wed, Nov 24, 2004 at 06:04:03PM -0800, Randy.Dunlap wrote:
+> Jack Steiner wrote:
+> >The ACPI SLIT table provides useful information on internode distances.
+> >Here is a patch to externalize the SLIT information. 
+> >
+> >For example:
+> >
+> >        # cd /sys/devices/system
+> >        # find .
+> >        ./node
+> >        ./node/node5
+> >        ./node/node5/distance
+> >        ./node/node5/numastat
+> >        ./node/node5/meminfo
+> >        ./node/node5/cpumap
+> >
+> >        # cat ./node/node0/distance
+> >        10 20 64 42 42 22
+> >
+> >        # cat node/*/distance
+> >        10 20 64 42 42 22
+> >        20 10 42 22 64 84
+> >        64 42 10 20 22 42
+> >        42 22 20 10 42 62
+> >        42 64 22 42 10 20
+> >        22 84 42 62 20 10
+> 
+> Apparently I'm easily confused, but node_distance() {near end}
+> seems to evaluate to either 10 or 20 (only), so what are
+> all of these other numbers here?
+
+On systems that provide the ACPI SLIT table, the distances come from
+the SLIT table.  (See the ACPI spec for the full definition).
+The example above is from the ACPI SLIT table of a 6-node SGI Altix 
+system and the table is provided by the BIOS.
+
+If the BIOS does not provide a SLIT table, the default distance is 10 for
+local & 20 for remote. The value of 10 conforms to the spec for
+local distance, 20 is arbitrary but indicates further than local.
+
+> 
+> And how many nodes are in this example?
+> Maybe 6, numbered 0 thru 5?  Plz correct this guess....
+
+Good guess.
+
+
+
+> 
+> >Index: linux/drivers/base/node.c
+> >===================================================================
+> >--- linux.orig/drivers/base/node.c	2004-11-05 08:34:42.461312000 -0600
+> >+++ linux/drivers/base/node.c	2004-11-05 15:56:23.345662000 -0600
+> >@@ -111,6 +111,24 @@ static ssize_t node_read_numastat(struct
+> > }
+> > static SYSDEV_ATTR(numastat, S_IRUGO, node_read_numastat, NULL);
+> > 
+> >+static ssize_t node_read_distance(struct sys_device * dev, char * buf)
+> >+{
+> >+	int nid = dev->id;
+> >+	int len = 0;
+> >+	int i;
+> >+
+> >+	/* buf currently PAGE_SIZE, need ~4 chars per node */
+> >+	BUILD_BUG_ON(NR_NODES*4 > PAGE_SIZE/2);
+> >+
+> >+	for (i = 0; i < numnodes; i++)
+> >+		len += sprintf(buf + len, "%s%d", i ? " " : "", 
+> >node_distance(nid, i));
+> >+		
+> >+	len += sprintf(buf + len, "\n");
+> >+	return len;
+> >+}
+> >+static SYSDEV_ATTR(distance, S_IRUGO, node_read_distance, NULL);
+> >+
+> >+
+> >Index: linux/include/linux/topology.h
+> >===================================================================
+> >--- linux.orig/include/linux/topology.h	2004-11-05 
+> >08:34:57.492932000 -0600
+> >+++ linux/include/linux/topology.h	2004-11-23 10:03:26.700821978 -0600
+> >@@ -55,7 +55,10 @@ static inline int __next_node_with_cpus(
+> > 	for (node = 0; node < numnodes; node = __next_node_with_cpus(node))
+> > 
+> > #ifndef node_distance
+> >-#define node_distance(from,to)	((from) != (to))
+> >+/* Conform to ACPI 2.0 SLIT distance definitions */
+> >+#define LOCAL_DISTANCE		10
+> >+#define REMOTE_DISTANCE		20
+> >+#define node_distance(from,to)	((from) == (to) ? LOCAL_DISTANCE : 
+> >REMOTE_DISTANCE)
+> Please add a space after "from,".
+> 
+> > #endif
+> 
+> -- 
+> ~Randy
+
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
+
+
 

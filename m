@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293486AbSBZDXV>; Mon, 25 Feb 2002 22:23:21 -0500
+	id <S292690AbSBZDTm>; Mon, 25 Feb 2002 22:19:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293487AbSBZDXL>; Mon, 25 Feb 2002 22:23:11 -0500
-Received: from [24.243.44.28] ([24.243.44.28]:32531 "EHLO explorer.dummynet")
-	by vger.kernel.org with ESMTP id <S293486AbSBZDXF>;
-	Mon, 25 Feb 2002 22:23:05 -0500
-Date: Mon, 25 Feb 2002 21:22:43 -0600
-From: Dan Hopper <dbhopper@austin.rr.com>
-To: Johannes Erdfelt <johannes@erdfelt.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: 2.5.5-pre1 rmmod usb-uhci hangs
-Message-ID: <20020226032243.GA1931@yoda.dummynet>
-Mail-Followup-To: Dan Hopper <dbhopper@austin.rr.com>,
-	Johannes Erdfelt <johannes@erdfelt.com>,
-	lkml <linux-kernel@vger.kernel.org>,
-	linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <fa.n7cofbv.1him3j@ifi.uio.no> <fa.dsb79pv.on84ii@ifi.uio.no> <20020224025411.GA2418@yoda.dummynet> <20020224062124.GB15060@kroah.com> <20020224063915.GA2799@yoda.dummynet> <20020224064931.GD15060@kroah.com> <20020224173711.GA2355@yoda.dummynet> <20020224125055.A5232@sventech.com> <20020224184943.GA2492@yoda.dummynet> <20020224224107.D17788@sventech.com>
+	id <S293487AbSBZDTb>; Mon, 25 Feb 2002 22:19:31 -0500
+Received: from zero.tech9.net ([209.61.188.187]:46855 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292690AbSBZDTS>;
+	Mon, 25 Feb 2002 22:19:18 -0500
+Subject: Re: Submissions for 2.4.19-pre [x86 Syscall Optimizations
+	(Alexander Khripin)]
+From: Robert Love <rml@tech9.net>
+To: Michael Cohen <me@ohdarn.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br
+In-Reply-To: <20020225213255.2b403560.me@ohdarn.net>
+In-Reply-To: <20020225210721.2ffa8fb1.me@ohdarn.net>
+	<E16fXS2-0007SP-00@the-village.bc.nu> 
+	<20020225213255.2b403560.me@ohdarn.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 25 Feb 2002 22:19:17 -0500
+Message-Id: <1014693559.883.5.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020224224107.D17788@sventech.com>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Erdfelt <johannes@erdfelt.com> remarked:
-> Can you give this patch a whirl? It's relative to 2.4.18-rc2-gregkh-1
+On Mon, 2002-02-25 at 21:32, Michael Cohen wrote:
+>
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> > Credit for the originator and an explanation would be helpful
+>
+> See Subject ^^ Alexander Khripin.  Looks to me like it improves latency
+> quite a bit during syscalls.  I'm unable to find the exact mail but I
+> believe I was referred to this particular patch by someone on lkml.
 
-Sorry, didn't make any difference to the scanner.  
+Eh?  The patch doesn't do anything but move movl ops around.  I suspect
+the intention may to eliminate datapath stalls, which may be a fine
+micro-optimization, but I think we need some numbers first ...
 
-Now, in case it wasn't clear, the scanner does work, it just bumps
-and grinds it's way down the page in the process with uhci, taking
-considerably longer than with usb-uhci.  Very curious.
+	Robert Love
 
-Thanks for the patch, though!
-
-Dan

@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283231AbRLII6E>; Sun, 9 Dec 2001 03:58:04 -0500
+	id <S283234AbRLIJEy>; Sun, 9 Dec 2001 04:04:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283233AbRLII5z>; Sun, 9 Dec 2001 03:57:55 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:48645 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283231AbRLII5j>;
-	Sun, 9 Dec 2001 03:57:39 -0500
-Date: Sun, 9 Dec 2001 09:57:33 +0100
-From: Jens Axboe <axboe@suse.de>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: Oops on 2.5.1-pre6 doing mkreiserfs on loop device
-Message-ID: <20011209085733.GA20061@suse.de>
-In-Reply-To: <20011206233759.A173@earthlink.net> <20011207144836.GF12017@suse.de> <20011207145431.GI12017@suse.de> <20011207150058.GJ12017@suse.de> <20011207114046.A152@earthlink.net> <20011207164431.GA27629@suse.de> <20011209030729.A7908@earthlink.net>
+	id <S283233AbRLIJEq>; Sun, 9 Dec 2001 04:04:46 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:6924 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S283244AbRLIJEd>;
+	Sun, 9 Dec 2001 04:04:33 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: esr@thyrsus.com
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.9.6 is available 
+In-Reply-To: Your message of "Sun, 09 Dec 2001 03:32:49 CDT."
+             <20011209033249.A28867@thyrsus.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011209030729.A7908@earthlink.net>
+Date: Sun, 09 Dec 2001 20:04:20 +1100
+Message-ID: <19176.1007888660@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 09 2001, rwhron@earthlink.net wrote:
-> On Fri, Dec 07, 2001 at 05:44:31PM +0100, Jens Axboe wrote:
-> > loop can't be trusted yet. btw, updated patch on kernel.org,
-> > /pub/linux/kernel/people/axboe/patches/v2.5/2.5.1-pre6
-> 
-> mkreiserfs on loop is working again in 2.5.1-pre8.
-> 
-> Linux test project runalltests.sh finished with no new
-> regressions.
-> 
-> growfiles did more iterations in 760 seconds than I've 
-> measured before.
+After a quick check it looks good.
 
-Excellent, thanks for the feedback.
-
--- 
-Jens Axboe
+One niggle, some strings for kuild 2.5 are longer than 30 characters,
+cml2 restricts the string length in make menuconfig.  Only menuconfig
+has this restriction, not oldconfig nor xconfig.  Can the limit be
+removed, or at least changed to $ROWS-n which would adjust to screen
+size?
 

@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbTFVJ0U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 05:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264399AbTFVJ0U
+	id S264456AbTFVJdC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 05:33:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbTFVJdC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 05:26:20 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:17412 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264389AbTFVJ0T convert rfc822-to-8bit (ORCPT
+	Sun, 22 Jun 2003 05:33:02 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:31722 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264456AbTFVJdA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 05:26:19 -0400
-Date: Sun, 22 Jun 2003 02:40:46 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: =?ISO-8859-1?B?UmVu6Q==?= Scharfe <l.s.r@web.de>
-Cc: sfrench@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [CIFS] Fix compile warning for fs/cifs/cifsfs.c
-Message-Id: <20030622024046.3be991a5.akpm@digeo.com>
-In-Reply-To: <20030622111911.33c1d041.l.s.r@web.de>
-References: <20030622111911.33c1d041.l.s.r@web.de>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-OriginalArrivalTime: 22 Jun 2003 09:40:24.0212 (UTC) FILETIME=[4E114D40:01C338A2]
+	Sun, 22 Jun 2003 05:33:00 -0400
+Date: Sun, 22 Jun 2003 11:47:01 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Andrew Morton <akpm@digeo.com>
+cc: Samuel.Thibault@ens-lyon.fr,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Permit big console scrolls
+In-Reply-To: <20030622023626.60d2a24e.akpm@digeo.com>
+Message-ID: <Pine.GSO.4.21.0306221146170.869-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-René Scharfe <l.s.r@web.de> wrote:
->
-> this patch fixes a compile warning about incompatible types in
->  fs/cifs/cifsfs.c in cifs_statfs().
+On Sun, 22 Jun 2003, Andrew Morton wrote:
+> Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> >
+> > > -			if (get_user(lines, (char *)arg+1)) {
+> >  						    ^^^^^
+> >  > +			if (get_user(lines, (s32 *)((char *)arg+4))) {
+> >  							    ^^^^^
+> >  >  				ret = -EFAULT;
+> >  >  			} else {
+> >  >  				scrollfront(lines);
+> > 
+> >  Why was the `arg+1' changed to `arg+4'? Do we really want to skip 12 bytes?
+> 
+> It skips three bytes?
 
-oop, sorry.  I'll send that in, thanks. 
+Oops, you're right. But my first question remains: why skip 3 bytes?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

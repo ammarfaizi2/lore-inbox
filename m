@@ -1,59 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132653AbRC2Ixo>; Thu, 29 Mar 2001 03:53:44 -0500
+	id <S132675AbRC2JCQ>; Thu, 29 Mar 2001 04:02:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132670AbRC2IxZ>; Thu, 29 Mar 2001 03:53:25 -0500
-Received: from dexter.allieddomecq.ro ([212.93.128.30]:1029 "HELO
-	mail.allieddomecq.ro") by vger.kernel.org with SMTP
-	id <S132653AbRC2IxU>; Thu, 29 Mar 2001 03:53:20 -0500
-Date: Thu, 29 Mar 2001 10:54:17 +0300 (EEST)
-From: Robert-Velisav MICIOVICI <roby@dexter.allieddomecq.ro>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [WISHLIST] Addition of suspend patch into 2.5?
-In-Reply-To: <20010222214308.B14395@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.21md.0103291046060.2103-100000@dexter.allieddomecq.ro>
+	id <S132673AbRC2JCG>; Thu, 29 Mar 2001 04:02:06 -0500
+Received: from apollo.nbase.co.il ([194.90.137.2]:2317 "EHLO
+	apollo.nbase.co.il") by vger.kernel.org with ESMTP
+	id <S132670AbRC2JB5>; Thu, 29 Mar 2001 04:01:57 -0500
+Message-ID: <3AC2F567.8EC0F775@nbase.co.il>
+Date: Thu, 29 Mar 2001 10:42:15 +0200
+From: Eran Mann <eran@nbase.co.il>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robert-Velisav MICIOVICI <roby@dexter.allieddomecq.ro>
+CC: linux-kernel@vger.kernel.org,
+   Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Subject: [PATCH] Re: [patch] Re: 2.4.3-pre8: IPX not building
+Content-Type: text/plain; charset=x-user-defined
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The improved patch below should fix it. This additional problem only
+showed up when IPX was built into the kernel (non modular).
+If you don't want to revert the previous patch and apply this one you
+can simply change 
+net/ipx/af_ipx line 126 from:
+static int sysctl_ipx_pprop_broadcasting = 1;
 
-Just a small adition to the 2.5 whislist:
-Is "hibernation" on linux possible? Ideally it should write out on the /
-running on ext2fs and the new journaling fs's like reiserfs, xfs, etx3 etc
-and not some special filesystem or unpartiotioned space etc. I mean that
-this should be working without the need to repartiotion/reinstall.
-This is something **very** useful for laptop owners, not having to shut 
-down (all) applications when need to grab the laptop and travel.
-Id' like to see this working nice in 2.6.
+to:
+int sysctl_ipx_pprop_broadcasting = 1;
 
-Best regards,
-r
+and then make bzImage again.
+ 
+Robert-Velisav MICIOVICI <roby@dexter.allieddomecq.ro> wrote:
+>
+> Sorry to bother but it seems that the patchlet is still not good
+> enough... problems at linkage or something:
+>
+<SNIP>
+> net/network.o(.data+0x5f04): undefined reference to
+> `sysctl_ipx_pprop_broadcasting'
+> make: *** [vmlinux] Error 1
+> [root@bigfoot linux-2.4.3-pre8]#
 
-On Thu, 22 Feb 2001, Pavel Machek wrote:
-
-> Date: Thu, 22 Feb 2001 21:43:08 +0100
-> From: Pavel Machek <pavel@suse.cz>
-> To: Shawn Starr <spstarr@sh0n.net>, lkm <linux-kernel@vger.kernel.org>
-> Subject: Re: [WISHLIST] Addition of suspend patch into 2.5?
-> 
-> Hi!
-> 
-> > Any idea if suspend/hybernation will be in future kernels?
-> 
-> I'd like it included, too. Some toshiba laptops support sleep but not
-> suspend, and battery runs out within few hours if it was low before
-> suspend. That's bad.
-> 
-> And the patch was pretty clean last time I checked.
-> 								Pavel
-> -- 
-> I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-> Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+--- linux-2.4.3pre8.orig/net/ipx/af_ipx.c	Thu Mar 29 10:27:29 2001
++++ linux-2.4.3pre8/net/ipx/af_ipx.c	Thu Mar 29 10:22:59 2001
+@@ -123,7 +123,7 @@
+ static unsigned char ipxcfg_max_hops = 16;
+ static char ipxcfg_auto_select_primary;
+ static char ipxcfg_auto_create_interfaces;
+-static int sysctl_ipx_pprop_broadcasting = 1;
++int sysctl_ipx_pprop_broadcasting = 1;
+ 
+ /* Global Variables */
+ static struct datalink_proto *p8022_datalink;
+@@ -1542,7 +1542,7 @@
+ 	ipx_offset = intrfc->if_ipx_offset;
+ 	size = sizeof(struct ipxhdr) + len + ipx_offset;
+ 
+-	skb = sock_alloc_send_skb(sk, size, noblock, &err);
++	skb = sock_alloc_send_skb(sk, size, 0, noblock, &err);
+ 	if (!skb)
+ 		goto out_put;
+ 
+@@ -2531,7 +2531,6 @@
+ 	sendmsg:	ipx_sendmsg,
+ 	recvmsg:	ipx_recvmsg,
+ 	mmap:		sock_no_mmap,
+-	sendpage:	sock_no_sendpage,
+ };
+ 
+ #include <linux/smp_lock.h>

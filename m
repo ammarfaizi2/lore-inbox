@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265476AbTFSME7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 08:04:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265427AbTFSME7
+	id S265342AbTFSMIL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 08:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265393AbTFSMIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 08:04:59 -0400
-Received: from smtp3.libero.it ([193.70.192.127]:35503 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id S265476AbTFSME4 (ORCPT
+	Thu, 19 Jun 2003 08:08:10 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:21398 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S265342AbTFSMIG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 08:04:56 -0400
-Subject: (Resent) [PATCH] 2.5.72 smb_proc_setattr_unix warnings
-From: Flameeyes <dgp85@users.sourceforge.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-tsMxapXKggmU7LKzKrml"
-Message-Id: <1056025258.940.6.camel@laurelin>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 19 Jun 2003 14:20:58 +0200
+	Thu, 19 Jun 2003 08:08:06 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: David Woodhouse <dwmw2@infradead.org>
+Date: Thu, 19 Jun 2003 14:21:47 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: matroxfb console oops in 2.4.2x
+Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <4DB6BC835A7@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 19 Jun 03 at 11:06, David Woodhouse wrote:
 
---=-tsMxapXKggmU7LKzKrml
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Below is a workaround which lets the machine boot. It's obviously not a
+> fix.
+> 
+> --- drivers/video/matrox/matroxfb_accel.c~  Wed Jun 18 17:16:40 2003
+> +++ drivers/video/matrox/matroxfb_accel.c   Thu Jun 19 10:57:54 2003
+> @@ -487,6 +487,9 @@
+>  
+>     DBG_HEAVY("matroxfb_cfb8_putc");
+>  
+> +   if (!ACCESS_FBINFO(curr.putc))
+> +       return;
+> +
 
-This patch fixes these warnings:
+It looks like that someone tried to print something on the console
+during fbcon initialization. It is not allowed to call fbdev's putc 
+before mode set was issued (at least I always believed to it; before
+first mode set hardware is in VGA state). Do not you see some error 
+message in dmesg with these fixes?
 
-  CC      fs/smbfs/proc.o
-fs/smbfs/proc.c: In function `smb_proc_setattr_unix':
-fs/smbfs/proc.c:3044: warning: integer constant is too large for "long"
-type
-fs/smbfs/proc.c:3045: warning: integer constant is too large for "long"
-type
-fs/smbfs/proc.c:3046: warning: integer constant is too large for "long"
-type
-fs/smbfs/proc.c:3047: warning: integer constant is too large for "long"
-type
-fs/smbfs/proc.c:3048: warning: integer constant is too large for "long"
-type
+> @@ -504,6 +507,9 @@
+>  
+>     DBG_HEAVY("matroxfb_cfb16_putc");
+>  
+> +   if (!ACCESS_FBINFO(curr.putc))
+> +       return;
+> +
 
-it simply adds the ULL attr at the end of the constants in
-include/linux/smbno.h
--- 
-Flameeyes <dgp85@users.sf.net>
-
---=-tsMxapXKggmU7LKzKrml
-Content-Disposition: attachment; filename=patch-smb.diff
-Content-Type: text/plain; name=patch-smb.diff; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-
---- include/linux/smbno.h.orig	2003-06-17 13:11:22.000000000 +0200
-+++ include/linux/smbno.h	2003-06-17 13:11:38.000000000 +0200
-@@ -347,8 +347,8 @@
- #define SMB_MODE_NO_CHANGE		0xFFFFFFFF
- #define SMB_UID_NO_CHANGE		0xFFFFFFFF
- #define SMB_GID_NO_CHANGE		0xFFFFFFFF
--#define SMB_TIME_NO_CHANGE		0xFFFFFFFFFFFFFFFF
--#define SMB_SIZE_NO_CHANGE		0xFFFFFFFFFFFFFFFF
-+#define SMB_TIME_NO_CHANGE		0xFFFFFFFFFFFFFFFFULL
-+#define SMB_SIZE_NO_CHANGE		0xFFFFFFFFFFFFFFFFULL
- 
- /* UNIX filetype mappings. */
- #define UNIX_TYPE_FILE		0
-
---=-tsMxapXKggmU7LKzKrml--
-
+Instead of plugging these tests into fast path please call
+"matrox_init_putc(PMINFO NULL, NULL)" somewhere in the initMatrox2(),
+before call to the register_framebuffer. At worst some part of video
+memory gets smashed by painted characters, but no damage should
+occur.
+                                                Petr Vandrovec
+                                                
 

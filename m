@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269735AbRHMCfV>; Sun, 12 Aug 2001 22:35:21 -0400
+	id <S269731AbRHMCdk>; Sun, 12 Aug 2001 22:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269740AbRHMCfL>; Sun, 12 Aug 2001 22:35:11 -0400
-Received: from 66-44-11-187.s441.apx2.lnh.md.dialup.rcn.com ([66.44.11.187]:56961
-	"HELO Grimlock.cybertron.lan") by vger.kernel.org with SMTP
-	id <S269735AbRHMCe6>; Sun, 12 Aug 2001 22:34:58 -0400
-Date: Sun, 12 Aug 2001 22:35:07 -0400 (EDT)
-From: Kryten <magik@erols.com>
-X-X-Sender: <kryten@Trypticon.cybertron.lan>
-Reply-To: Kryten <magik@erols.com>
-To: Frank Jacobberger <f1j@xmission.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: UDMA 5
-In-Reply-To: <3B77361B.6020302@xmission.com>
-Message-ID: <Pine.LNX.4.31.0108122227240.3501-100000@Trypticon.cybertron.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269735AbRHMCdb>; Sun, 12 Aug 2001 22:33:31 -0400
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:62224 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S269731AbRHMCdV>; Sun, 12 Aug 2001 22:33:21 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9-pre1 unresolved symbols in fat.o/smbfs.o
+In-Reply-To: <9l77lm$nbs$1@ns1.clouddancer.com>
+In-Reply-To: <Pine.LNX.4.33.0108121735510.1228-100000@penguin.transmeta.com> <E15W5eq-0006Y5-00@the-village.bc.nu> <9l77lm$nbs$1@ns1.clouddancer.com>
+Reply-To: klink@clouddancer.com
+Message-Id: <20010813023331.A8DEA783EE@mail.clouddancer.com>
+Date: Sun, 12 Aug 2001 19:33:31 -0700 (PDT)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Aug 2001, Frank Jacobberger wrote:
-
-> Where is kernel development with respect to ATA 100
-> IDE drives? The only param idebus=xx takes is 66... are
-> there plans to go to 100?
+In clouddancer.list.kernel, you wrote:
 >
-> Running 2.4.8 here
 >
-> Frank
+>On Mon, 13 Aug 2001, Alan Cox wrote:
+>>
+>> Oops my fault. My kernel/ksyms goes
+>>
+>> EXPORT_SYMBOL(vfs_unlink);
+>> EXPORT_SYMBOL(vfs_rename);
+>> EXPORT_SYMBOL(vfs_statfs);
+>> EXPORT_SYMBOL(generic_file_llseek);
+>> EXPORT_SYMBOL(generic_read_dir);
+>> EXPORT_SYMBOL(__pollwait);
+>> EXPORT_SYMBOL(poll_freewait);
+>>
+>> If you edit yours and drop that line in then rebuild from clean all should
+>> be well
+>
+>Hmm.. You should probably also add "no_llseek" there..
+>
+>		Linus
 
-Yikes! idebus is for specifying the PCI bus speed. That should be "33" for
-most systems unless it's overclocked. It has nothing to do with UDMA.
-ATA100 support has been in the kernel for some time. Just select Use DMA
-in the kernel config and select the proper motherboard chipset and you
-should be fine.
+
+Seems to need it:
+
+/usr/src/linux }make  modules_install  >/dev/null
+
+depmod: *** Unresolved symbols in /lib/modules/2.4.9-pre1/kernel/drivers/media/video/tvmixer.o
+depmod:         no_llseek
+depmod: *** Unresolved symbols in /lib/modules/2.4.9-pre1/kernel/drivers/media/video/videodev.o
+depmod:         no_llseek
+depmod: *** Unresolved symbols in /lib/modules/2.4.9-pre1/kernel/drivers/sound/sound.o
+depmod:         no_llseek
+depmod: *** Unresolved symbols in /lib/modules/2.4.9-pre1/kernel/fs/fat/fat.o
+depmod:         generic_file_llseek
 
 
 
----------------------
-This message powered
-by Pine and GNU/Linux
 
+-- 
+Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
 

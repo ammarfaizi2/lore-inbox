@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266000AbUBCNbK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 08:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUBCNbK
+	id S266003AbUBCNf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 08:35:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266004AbUBCNf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 08:31:10 -0500
-Received: from main.gmane.org ([80.91.224.249]:41124 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266000AbUBCNbH (ORCPT
+	Tue, 3 Feb 2004 08:35:56 -0500
+Received: from users.linvision.com ([62.58.92.114]:42681 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S266003AbUBCNfx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 08:31:07 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: 2.6.0, cdrom still showing directories after being erased
-Date: Tue, 03 Feb 2004 14:31:04 +0100
-Message-ID: <yw1xad40i92f.fsf@kth.se>
-References: <20040203131837.GF3967@aurora.fi.muni.cz>
+	Tue, 3 Feb 2004 08:35:53 -0500
+Date: Tue, 3 Feb 2004 14:35:51 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: "P. Christeas" <p_christ@hol.gr>
+Cc: lkml <linux-kernel@vger.kernel.org>, viro@math.psu.edu
+Subject: Re: Q: large files in iso9660 ?
+Message-ID: <20040203133551.GA11957@bitwizard.nl>
+References: <200402020024.31785.p_christ@hol.gr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:87suTKZteOn83MWiBlSmzzGfRlA=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402020024.31785.p_christ@hol.gr>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Povolný <xpovolny@aurora.fi.muni.cz> writes:
+On Mon, Feb 02, 2004 at 12:24:31AM +0200, P. Christeas wrote:
+> I've tried to create a disk (DVD) which contains a single 3.8GB file. The 
+> creation (mkisofs) worked and the disk's TOC reads 3.8GB.
 
-> I have debian's 2.6.0-686-smp only with PNP BIOS disabled (fails to
-> boot with enabled, as described by other people).
->
-> I did
->
-> $ mount /cdrom/
-> $ ls /cdrom/
->
-> got listing of files and directories on the cdrom
-> then
->
-> $ cdrecord dev=/dev/hdc -blank=fast -v
+No, it didn't. Last time I tried mkisofs warned about files being
+larger than 2GB. Feel free to ignore the warnings, though.
 
-It's not very nice to go and erase the CD while it's mounted.  Unmount
-first and you'll be fine.
+> However, the 
+> filesystem reads as if one ~9MB file only exists. 
+> I guess large files in isofs may be out of spec. 
+> 
+> Q: What's the file size limit in iso9660?
+
+About 2GB.
+
+> Q: Is there any chance the negative number (although out of spec) may be 
+> correctly interpreted (mount option) ?
+
+The kernel (2.6 and 2.4) has the following code in isofs_read_inode():
+
+        /*
+         * The ISO-9660 filesystem only stores 32 bits for file size.
+         * mkisofs handles files up to 2GB-2 = 2147483646 = 0x7FFFFFFE bytes
+         * in size. This is according to the large file summit paper from 1996.
+         * WARNING: ISO-9660 filesystems > 1 GB and even > 2 GB are fully
+         *          legal. Do not prevent to use DVD's schilling@fokus.gmd.de
+         */
+        if ((inode->i_size < 0 || inode->i_size > 0x7FFFFFFE) &&
+            sbi->s_cruft == 'n') {
+                printk(KERN_WARNING "Warning: defective CD-ROM.  "
+                       "Enabling \"cruft\" mount option.\n");
+                sbi->s_cruft = 'y';
+        }
+
+IOW: your kernel should have warned you about the defective CDROM and
+truncated filesizes to 16MB (which is what the "cruft" mount option
+does).
+
+
+Erik
 
 -- 
-Måns Rullgård
-mru@kth.se
-
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

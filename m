@@ -1,109 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318209AbSHZTol>; Mon, 26 Aug 2002 15:44:41 -0400
+	id <S318291AbSHZTcv>; Mon, 26 Aug 2002 15:32:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318221AbSHZTol>; Mon, 26 Aug 2002 15:44:41 -0400
-Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:60340 "HELO
-	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
-	id <S318209AbSHZToj>; Mon, 26 Aug 2002 15:44:39 -0400
-Message-ID: <20020826194855.3641.qmail@thales.mathematik.uni-ulm.de>
-From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Date: Mon, 26 Aug 2002 21:48:55 +0200
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Daniel Phillips <phillips@arcor.de>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: MM patches against 2.5.31
-References: <3D644C70.6D100EA5@zip.com.au> <E17jKlX-0001i0-00@starship> <20020826152950.9929.qmail@thales.mathematik.uni-ulm.de> <E17jO6g-0002XU-00@starship> <3D6A8082.3775C5AB@zip.com.au>
+	id <S318290AbSHZTcv>; Mon, 26 Aug 2002 15:32:51 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:34489 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318289AbSHZTct>;
+	Mon, 26 Aug 2002 15:32:49 -0400
+Date: Mon, 26 Aug 2002 12:36:22 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: rwhron@earthlink.net
+Cc: ehw@lanl.gov, dledford@redhat.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: 2.5.31 qlogic error "this should not happen"
+Message-ID: <20020826123622.A11280@eng2.beaverton.ibm.com>
+References: <20020825191854.GA32490@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D6A8082.3775C5AB@zip.com.au>
-User-Agent: Mutt/1.3.25i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020825191854.GA32490@rushmore>; from rwhron@earthlink.net on Sun, Aug 25, 2002 at 03:18:54PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 12:24:50PM -0700, Andrew Morton wrote:
-> The flaw is in doing the put_page_testzero() outside of any locking
-
-Well, one could argue that doing the put_page_testzero outside of any
-locking is a feature.
-
->  [ ... ]
+On Sun, Aug 25, 2002 at 03:18:54PM -0400, rwhron@earthlink.net wrote:
+> > I occasionally saw that error on our 2.4 RAID system; it went away when I
+> > increased the size of the handles array in qlogicfc.h:
 > 
-> 2.5.31-mm1 has tests which make this race enormously improbable [1],
-> but it's still there.
-
-Agreed. Both on the improbable and on the still there part.
-
-> It's that `put' outside the lock which is the culprit.  Normally, we
-> handle that with atomic_dec_and_lock() (inodes) or by manipulating
-> the refcount inside an area which has exclusion (page presence in
-> pagecache).
+> -#define QLOGICFC_REQ_QUEUE_LEN  127 /* must be power of two - 1 */
+> +#define QLOGICFC_REQ_QUEUE_LEN  255 /* must be power of two - 1 */
 > 
-> The sane, sensible and sucky way is to always take the lock:
+> That change in addition to Doug's patch in 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=103005703808312&w=2
+> have done the trick. 2.5.31-mm1-dl-ew completed the 54 hour
+> benchmarathon. (first 2.5 kernel to finish). 
 > 
-> page_cache_release(page)
-> {
-> 	spin_lock(lru_lock);
-> 	if (put_page_testzero(page)) {
-> 		lru_cache_del(page);
-> 		__free_pages_ok(page, 0);
-> 	}
-> 	spin_unlock(lru_lock);
-> }
+> Details at:
+> http://home.earthlink.net/~rwhron/kernel/bigbox.html
+> -- 
+> Randy Hron
 
-That would probably solve the problem.
+That's a huge amount of data. Can you show cat /proc/scsi/scsi of the machine
+(as well as the lspci etc)?
 
-> Because this provides exclusion from another CPU discovering the page
-> via the LRU.
-> 
-> So taking the above as the design principle, how can we speed it up?
-> How to avoid taking the lock in every page_cache_release()?  Maybe:
-> 
-> page_cache_release(page)
-> {
-> 	if (page_count(page) == 1) {
-> 		spin_lock(lru_lock);
-> 		if (put_page_testzero(page)) {
-> 			if (PageLRU(page))
-> 				__lru_cache_del(page);
-> 			__free_pages_ok(page);
-> 		}
-> 		spin_unlock(lru_lock);
-> 	} else {
-> 		atomic_dec(&page->count);
-> 	}
-> }
+Does RAID-5 mean you have a storage array attached? i.e. IBM 3542, fastt 200?
 
-However, this is an incredibly bad idea if the page is NOT on the lru.
-Think of two instances of page_cache_release racing against each other.
-This could result in a leaked page which is not on the LRU.
+It looks like the latest qlogic qla driver includes 2.5.x support,
+I haven't tried it but will at some time:
 
-> This is nice and quick, but racy.  Two concurrent page_cache_releases
-> will create a zero-ref unfreed page which is on the LRU.  These are
-> rare, and can be mopped up in page reclaim.
-> 
-> The above code will also work for pages which aren't on the LRU.  It will
-> take the lock unnecessarily for (say) slab pages.  But if we put slab pages
-> on the LRU then I suspect there are so few non-LRU pages left that it isn't
-> worth bothering about this.
+http://download.qlogic.com/drivers/5639/qla2x00-v6.1b5-dist.tgz
 
-No it will not work. See above.
-
-> [1] The race requires that the CPU running page_cache_release find a
->     five instruction window against the CPU running shrink_cache.  And
->     that they be operating against the same page.  And that the CPU
->     running __page_cache_release() then take an interrupt in a 3-4
->     instruction window.  And that the interrupt take longer than the
->     runtime for shrink_list.  And that the page be the first page in
->     the pagevec.
-
-The interrupt can also be a preemption which might easily take long
-enough. But I agree that the race is now rare. The real problem is
-that the locking rules don't guarantee that there are no other racy
-paths that we both missed. 
-
-    regards   Christian
-
--- 
-THAT'S ALL FOLKS!
+-- Patrick Mansfield

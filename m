@@ -1,68 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269238AbUIIAMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269242AbUIIARc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269238AbUIIAMe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 20:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269240AbUIIAMA
+	id S269242AbUIIARc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 20:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269221AbUIIARc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 20:12:00 -0400
-Received: from out001pub.verizon.net ([206.46.170.140]:59389 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S269238AbUIIAIz
+	Wed, 8 Sep 2004 20:17:32 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:10230 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S269242AbUIIAMo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 20:08:55 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: New 200Gb disk
-Date: Wed, 8 Sep 2004 20:08:54 -0400
-User-Agent: KMail/1.7
-Cc: Bill Davidsen <davidsen@tmr.com>
-References: <chnjrr$u3k$1@gatekeeper.tmr.com> <20040908185818.GF3106@holomorphy.com> <cho0cq$v2n$1@gatekeeper.tmr.com>
-In-Reply-To: <cho0cq$v2n$1@gatekeeper.tmr.com>
+	Wed, 8 Sep 2004 20:12:44 -0400
+Message-ID: <413F9F17.5010904@mvista.com>
+Date: Wed, 08 Sep 2004 17:08:55 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: john stultz <johnstul@us.ibm.com>
+CC: Albert Cahalan <albert@users.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       Ulrich.Windl@rz.uni-regensburg.de, clameter@sgi.com,
+       Len Brown <len.brown@intel.com>, linux@dominikbrodowski.de,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com, jimix@us.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>	 <4137CB3E.4060205@mvista.com> <1094193731.434.7232.camel@cube>	 <41381C2D.7080207@mvista.com>	 <1094239673.14662.510.camel@cog.beaverton.ibm.com>	 <4138EBE5.2080205@mvista.com>	 <1094254342.29408.64.camel@cog.beaverton.ibm.com>	 <41390622.2010602@mvista.com> <1094666844.29408.67.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1094666844.29408.67.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409082008.54476.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.49.110] at Wed, 8 Sep 2004 19:08:55 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 September 2004 18:24, Bill Davidsen wrote:
->William Lee Irwin III wrote:
->> On Wed, Sep 08, 2004 at 07:47:15AM -0400, Gene Heskett wrote:
->>>>>I intend to use this disk with amanda as a FILE repository to
->>>>> replace a failed tape changer.  Are there any gotcha's I should
->>>>> be aware of. Running a 2.6.9-rc1-mm2 kernel ATM.  Ext3
->>>>> filesystems only.
+john stultz wrote:
+> On Fri, 2004-09-03 at 17:02, George Anzinger wrote:
+> 
+>>>Again, monotonic_clock() and friends are NTP adjusted, so drift caused
+>>>by inaccurate calibration shouldn't be a problem the interval timer code
+>>>should need to worry about (outside of maybe adjusting its interval time
+>>>if its always arriving late/early). If possible the timesource
+>>>calibration code should be improved, but that's icing on the cake and
+>>>isn't critical.
+>>>
 >>
->> William Lee Irwin III wrote:
->>>>25GB disks have been supported for a very long time. =)
->>
->> On Wed, Sep 08, 2004 at 02:50:15PM -0400, Bill Davidsen wrote:
->>>I assume from the smiley that this is some kind of in-joke, since
->>> it's not obviously related to the question in the subject...
->>> Could you share it? Is this the joke about "three disks walk into
->>> a bar, a PATA, a SATA, and a SCSI..." or what?
->>>I assumed the OP had a legitimate question.
->>
->> 25GB == 200Gb. 'B' is for "byte", 'b' is for "bit".
->
->Oh, making fun of his spelling error. I guess being a mailing list
->normal netiquette doesn't apply.
+>>Are you providing a way to predict what clock count provide a given time offset 
+>>INCLUDING ntp?  If so, cool.  If not we need to get this conversion right.  We 
+>>will go into this more on your return.
+> 
+> 
+> Sorry, I'm not sure what you mean. Mind expanding on the idea while my
+> brain warms back up?
 
-Oh I have broad shoulders Bill :), so no offense, I'm too broad all 
-over really, but I've managed to get from around 200 in Jan to about 
-175 now since the doc says "you've got sugar".  On a 5'7" frame, 
-thats still too much by 15 pounds.
+The issue is this:  A user wants a timer to fire at exactly time B which is 
+several hours later than now (time A).  We need to know how to measure this time 
+with the timer resources (not the clock as you are talking about it).  Currently 
+we do something like delta_jiffies = timespec_to_jiffies(B - A) and set up a 
+jiffies timer to expire in delta_jiffies.  At this time we "assume" in 
+timespec_to_jiffies() that we _know_ how long a jiffie is in terms of wall clock 
+nanoseconds.  We also assume (possibly incorrectly) that this number is "good 
+enough" even with ntp messing things up.  I think this means that we assume 
+that, on the average, we have the right conversion and that any drift will be a) 
+small and b) on the average 0 (or real close to it).
+
+To my mind this is a few too many assumptions, but this is what we do today.  If 
+you are proposing that ntp corrections take care of systemic constant drift 
+(which by the way, linux use to do WRT HZ=1024 division errors), we will need a 
+way of working this back into the timesepec_to_jiffies() code or we will not be 
+able to do timers with any real accuracy.
+
+An alternative, and one that I prefer, but, I think, runs counter to your 
+proposal, is to derive the timer interrupts from the clock after the ntp 
+correction.  Some hardware will have a problem with this (x86) but other 
+hardware is rather constrained to do things this way.  The PPC counter interrupt 
+generator, for example, counts the same pulses as the clock counter.
+> 
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.25% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

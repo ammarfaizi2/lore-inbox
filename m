@@ -1,118 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264182AbUFGV3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265085AbUFGVan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264182AbUFGV3s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 17:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbUFGV3s
+	id S265085AbUFGVan (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 17:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbUFGVam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 17:29:48 -0400
-Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:26887 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S264182AbUFGV3j
+	Mon, 7 Jun 2004 17:30:42 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:28963 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265077AbUFGVa0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 17:29:39 -0400
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-Reply-To: daniel.ritz@gmx.ch
-To: Aaron Mulder <ammulder@alumni.princeton.edu>,
-       Dax Kelson <dax@gurulabs.com>, Vibol Hou <vibol@khmer.cc>
-Subject: Re: Dell TrueMobile 1150 PCMCIA/Orinoco/Yenta problem w/ 2.6.4/5
-Date: Mon, 7 Jun 2004 23:24:44 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Jun 2004 17:30:26 -0400
+Date: Mon, 7 Jun 2004 23:36:05 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: how to configure/build a kernel in a separate directory?
+Message-ID: <20040607213605.GA14963@mars.ravnborg.org>
+Mail-Followup-To: "Robert P. J. Day" <rpjday@mindspring.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0406071653200.21938@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200406072324.44310.daniel.ritz@gmx.ch>
+In-Reply-To: <Pine.LNX.4.58.0406071653200.21938@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if pcmcia does not work when the ethX alias is there....then may be this patch
-patch against the fedora pcmcia init script may help...
+On Mon, Jun 07, 2004 at 05:00:26PM -0400, Robert P. J. Day wrote:
+> 
+>   (i originally posted this to the "make" mailing list, but i figured 
+> someone here *must* have done this before.)
+> 
+>   is there an easy way to configure/build one or both of a 2.4 and 2.6 
+> kernel in a totally separate directory from the source directory itself?
 
-and now i go wash my eyes 'cos i looked at fedora's rc.sysinit...eek.
+For 2.4 you are out of luck. At least I do not know of any patch that
+should allow you to do that with current 2.4 kernel.
 
-rgds
--daniel
+For 2.6 you just use (executed in root of kernel src):
 
--------
+make O=dir/to/put/output target
 
-the standard pcmcia-cs init script and therefor i guess all distro init scripts
-get the situation wrong where pcmcia_core is already loaded due to a
-dependency. the socket driver is not loaded in this situation...
-(and it fixes a bug in stop with kernel 2.6)
+Se make help + README for a bit more info.
 
---- pcmcia.old	2004-06-06 21:32:38.000000000 +0200
-+++ pcmcia	2004-06-06 21:48:39.000000000 +0200
-@@ -91,23 +91,46 @@
- 	if [ ! -f $SC ] ; then umask 022 ; touch $SC ; fi
- 	if [ "$SCHEME" ] ; then umask 022 ; echo $SCHEME > $SC ; fi
- 	    
-+
-+	if [ -d /lib/modules/preferred ] ; then
-+	    PC=/lib/modules/preferred/pcmcia
-+	else
-+	    PC=/lib/modules/`uname -r`/pcmcia
-+	fi
-+	KD=/lib/modules/`uname -r`/kernel/drivers/pcmcia
-+
-+	# make sure pcmcia_core is there
- 	if ! grep -q pcmcia /proc/devices ; then
--	    if [ -d /lib/modules/preferred ] ; then
--		PC=/lib/modules/preferred/pcmcia
-+	    if [ -x /sbin/modprobe ] ; then
-+		/sbin/modprobe pcmcia_core $CORE_OPTS || break
-+	    elif [ -d $PC ] ; then
-+		/sbin/insmod $PC/pcmcia_core.o $CORE_OPTS
- 	    else
--		PC=/lib/modules/`uname -r`/pcmcia
-+		echo "module directory $PC not found."
-+		break
- 	    fi
--	    KD=/lib/modules/`uname -r`/kernel/drivers/pcmcia
-+	fi
-+
-+	# load a socket driver
-+	if ! grep -q "$PCIC\|yenta_socket" /proc/modules ; then
- 	    if [ -x /sbin/modprobe ] ; then
--		/sbin/modprobe pcmcia_core $CORE_OPTS || break
- 		/sbin/modprobe $PCIC $PCIC_OPTS >/dev/null 2>&1 ||
- 		  (/sbin/modprobe yenta_socket >/dev/null 2>&1 &&
- 		   echo "using yenta_socket instead of $PCIC") ||
- 		  /sbin/modprobe $PCIC $PCIC_OPTS || break
--		/sbin/modprobe ds || break
- 	    elif [ -d $PC ] ; then
--		/sbin/insmod $PC/pcmcia_core.o $CORE_OPTS
- 		/sbin/insmod $PC/$PCIC.o $PCIC_OPTS
-+	    else
-+		echo "module directory $PC not found."
-+		break
-+	    fi
-+	fi
-+
-+	# load ds
-+	if ! grep -q "ds " /proc/modules ; then
-+	    if [ -x /sbin/modprobe ] ; then
-+		/sbin/modprobe ds || break
-+	    elif [ -d $PC ] ; then
- 		/sbin/insmod $PC/ds.o
- 	    else
- 		echo "module directory $PC not found."
-@@ -115,6 +138,7 @@
- 	    fi
- 	fi
- 
-+	# start cardmgr
- 	if [ -s /var/run/cardmgr.pid ] && \
- 	    kill -0 `cat /var/run/cardmgr.pid` 2>/dev/null ; then
- 	    echo "cardmgr is already running."
-@@ -142,7 +166,7 @@
- 	    done
- 	fi
- 	killall -q "CardBus Watcher"
--	if grep -q "ds  " /proc/modules ; then
-+	if grep -q "ds " /proc/modules ; then
- 	    /sbin/rmmod ds
- 	    /sbin/rmmod $PCIC 2>/dev/null || \
- 		/sbin/rmmod yenta_socket 2>/dev/null
-
+	Sam

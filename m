@@ -1,103 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266556AbUA3BtI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 20:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266510AbUA3BgM
+	id S266550AbUA3B4O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 20:56:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUA3BxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 20:36:12 -0500
-Received: from mail.kroah.org ([65.200.24.183]:10204 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266511AbUA3BcD convert rfc822-to-8bit
+	Thu, 29 Jan 2004 20:53:18 -0500
+Received: from rxrelay.lga.net.sg ([203.92.84.247]:47283 "HELO
+	rxrelay.lga.net.sg") by vger.kernel.org with SMTP id S266530AbUA3Bwi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 20:32:03 -0500
-Subject: Re: [PATCH] PCI Update for 2.6.2-rc2
-In-Reply-To: <1075426306434@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 29 Jan 2004 17:31:48 -0800
-Message-Id: <10754263082016@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Thu, 29 Jan 2004 20:52:38 -0500
+Message-ID: <01C3E716.AA1B04A0.vanitha@agilis.st.com.sg>
+From: Vanitha Ramaswami <vanitha@agilis.st.com.sg>
+Reply-To: "vanitha@agilis.st.com.sg" <vanitha@agilis.st.com.sg>
+To: "'redhat-ppp-list@redhat.com'" <redhat-ppp-list@redhat.com>,
+       "'kernelnewbies@nl.linux.org'" <kernelnewbies@nl.linux.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Help in writing a synchrnous ppp driver
+Date: Fri, 30 Jan 2004 09:51:41 +0800
+Organization: Agilis
+X-Mailer: Microsoft Internet E-mail/MAPI - 8.0.0.4211
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1513, 2004/01/29 14:32:13-08:00, willy@debian.org
+Hi All,
 
-[PATCH] PCI: add pci_get_slot() function
+In linux kernel, what is the difference between the ppp_synctty.c
+(PPP synchronous TTY device driver) and syncppp.c (synchronous ppp)
+functions..?
 
-tg3.c has a bug where it can find the wrong 5704 peer on a machine with
-PCI domains.  The problem is that pci_find_slot() can't distinguish
-whether it has the correct domain or not.
+I have a High speed serial driver that is capable of doing HDLC framing
+using a Network Processor. I want to run PPP on that serial driver. 
+The device driver has just provided functions to read/write on the device.
 
-This patch fixes that problem by introducing pci_get_slot().
+I intend to add a proprietary header to the packets coming out of PPP.
+Do i need to use the PPP synchronous TTY device driver or the one similar
+to syncppp.c. I am not clear of when to use the syncppp functions sppp_input etc.?
 
+To use the functions in ppp_synctty.c,  then does the driver also needs to be a TTY
+driver.?
 
- drivers/pci/search.c |   36 ++++++++++++++++++++++++++++++++++++
- include/linux/pci.h  |    2 ++
- 2 files changed, 38 insertions(+)
+Whether all the linux driver written for serial devices need to be TTY drivers..?
 
-
-diff -Nru a/drivers/pci/search.c b/drivers/pci/search.c
---- a/drivers/pci/search.c	Thu Jan 29 17:24:31 2004
-+++ b/drivers/pci/search.c	Thu Jan 29 17:24:31 2004
-@@ -104,6 +104,41 @@
- }
- 
- /**
-+ * pci_get_slot - locate PCI device for a given PCI slot
-+ * @bus: PCI bus on which desired PCI device resides
-+ * @devfn: encodes number of PCI slot in which the desired PCI 
-+ * device resides and the logical device number within that slot 
-+ * in case of multi-function devices.
-+ *
-+ * Given a PCI bus and slot/function number, the desired PCI device 
-+ * is located in the list of PCI devices.
-+ * If the device is found, its reference count is increased and this
-+ * function returns a pointer to its data structure.  The caller must
-+ * decrement the reference count by calling pci_dev_put().
-+ * If no device is found, %NULL is returned.
-+ */
-+struct pci_dev * pci_get_slot(struct pci_bus *bus, unsigned int devfn)
-+{
-+	struct list_head *tmp;
-+	struct pci_dev *dev;
-+
-+	WARN_ON(in_interrupt());
-+	spin_lock(&pci_bus_lock);
-+
-+	list_for_each(tmp, &bus->children) {
-+		dev = pci_dev_b(tmp);
-+		if (dev->devfn == devfn)
-+			goto out;
-+	}
-+
-+	dev = NULL;
-+ out:
-+	pci_dev_get(dev);
-+	spin_unlock(&pci_bus_lock);
-+	return dev;
-+}
-+
-+/**
-  * pci_find_subsys - begin or continue searching for a PCI device by vendor/subvendor/device/subdevice id
-  * @vendor: PCI vendor id to match, or %PCI_ANY_ID to match all vendor ids
-  * @device: PCI device id to match, or %PCI_ANY_ID to match all device ids
-@@ -319,3 +354,4 @@
- EXPORT_SYMBOL(pci_find_subsys);
- EXPORT_SYMBOL(pci_get_device);
- EXPORT_SYMBOL(pci_get_subsys);
-+EXPORT_SYMBOL(pci_get_slot);
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	Thu Jan 29 17:24:31 2004
-+++ b/include/linux/pci.h	Thu Jan 29 17:24:31 2004
-@@ -614,6 +614,8 @@
- struct pci_dev *pci_get_subsys (unsigned int vendor, unsigned int device,
- 				unsigned int ss_vendor, unsigned int ss_device,
- 				struct pci_dev *from);
-+struct pci_dev *pci_get_slot (struct pci_bus *bus, unsigned int devfn);
-+
- int pci_bus_read_config_byte (struct pci_bus *bus, unsigned int devfn, int where, u8 *val);
- int pci_bus_read_config_word (struct pci_bus *bus, unsigned int devfn, int where, u16 *val);
- int pci_bus_read_config_dword (struct pci_bus *bus, unsigned int devfn, int where, u32 *val);
+Thanks,
+Vanitha
 

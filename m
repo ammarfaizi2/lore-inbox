@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264090AbRFYLfh>; Mon, 25 Jun 2001 07:35:37 -0400
+	id <S264327AbRFYLpJ>; Mon, 25 Jun 2001 07:45:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264288AbRFYLfR>; Mon, 25 Jun 2001 07:35:17 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27408 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S264090AbRFYLfP>; Mon, 25 Jun 2001 07:35:15 -0400
-Date: Mon, 25 Jun 2001 13:33:49 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>, Jens Axboe <axboe@suse.de>,
-        Mike Galbraith <mikeg@wen-online.de>,
-        Rik van Riel <riel@conectiva.com.br>, Pavel Machek <pavel@suse.cz>,
-        John Stoffel <stoffel@casc.com>,
-        Roger Larsson <roger.larsson@norran.net>, thunder7@xs4all.nl,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Early flush (was: spindown)
-Message-ID: <20010625133349.B21253@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.33.0106171156410.318-100000@mikeg.weiden.de> <200106201612.f5KGCca06372@vindaloo.ras.ucalgary.ca> <20010623012550.B415@pelks01.extern.uni-tuebingen.de> <01062307104500.00430@starship>
+	id <S264288AbRFYLo7>; Mon, 25 Jun 2001 07:44:59 -0400
+Received: from mail-smtp.socket.net ([216.106.1.32]:8710 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S264272AbRFYLoq>; Mon, 25 Jun 2001 07:44:46 -0400
+Date: Mon, 25 Jun 2001 06:43:36 -0500
+From: "Gregory T. Norris" <haphazard@socket.net>
+To: rio500-devel <rio500-devel@lists.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] rio500 devfs support
+Message-ID: <20010625064336.A9650@glitch.snoozer.net>
+Mail-Followup-To: rio500-devel <rio500-devel@lists.sourceforge.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010619175224.A1137@glitch.snoozer.net> <20010624173711.A1764@glitch.snoozer.net> <200106250616.f5P6Gp710044@vindaloo.ras.ucalgary.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <01062307104500.00430@starship>; from phillips@bonn-fries.net on Sat, Jun 23, 2001 at 07:10:45AM +0200
+In-Reply-To: <200106250616.f5P6Gp710044@vindaloo.ras.ucalgary.ca>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux glitch 2.4.5 #1 Sun Jun 24 16:53:30 CDT 2001 i686 unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > > I'd like that too, but what about sync writes?  As things stand now,
-> > > > there is no option but to spin the disk back up.  To get around this
-> > > > we'd have to change the basic behavior of the block device and
-> > > > that's doable, but it's an entirely different proposition than the
-> > > > little patch above.
-> > >
-> > > I don't care as much about sync writes. They don't seem to happen very
-> > > often on my boxes.
-> >
-> > syslog and some editors are the most common users of sync writes. vim,
-> > e.g., per default keeps fsync()ing its swapfile. Tweaking the configuration
-> > of these apps, this can be prevented fairly easy though. Changing sync
-> > semantics for this matter on the other hand seems pretty awkward to me. I'd
-> > expect an application calling fsync() to have good reason for having its
-> > data flushed to disk _now_, no matter what state the disk happens to be in.
-> > If it hasn't, fix the app, not the kernel.
-> 
-> But apps shouldn't have to know about the special requirements of
-> laptops.  
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If app does fsync(), it hopefully knows what it is doing. [Random apps
-should not really do sync even on normal systems -- it hurts
-performance.]
-								Pavel
--- 
-The best software in life is free (not shareware)!		Pavel
-GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
+Ok, back to the original version then.  Thanx!
+
+On Mon, Jun 25, 2001 at 12:16:51AM -0600, Richard Gooch wrote:
+> No, it's a bad idea to test the error from devfs_register() unless you
+> *really* have a good reason. Most people who think they have a good
+> reason actually don't, they're just confused :-)
+>=20
+> The reason you don't want to test the return value is that way the
+> driver works fine with CONFIG_DEVFS=3Dn. Otherwise, you have a driver
+> that doesn't work with devfs, or you have to put ugly #ifdef's in the
+> code.
+>=20
+> 				Regards,
+>=20
+> 					Richard....
+> Permanent: rgooch@atnf.csiro.au
+> Current:   rgooch@ras.ucalgary.ca
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7NyPogrEMyr8Cx2YRAnVZAJ0SsUzcUuLWGWwPen64DAGIjWkqnwCePOiZ
+D+JOamyko4YdGXLOT2XWGok=
+=SLtr
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--

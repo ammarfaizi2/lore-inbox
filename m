@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316210AbSHFWZW>; Tue, 6 Aug 2002 18:25:22 -0400
+	id <S316088AbSHFWcS>; Tue, 6 Aug 2002 18:32:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316235AbSHFWZW>; Tue, 6 Aug 2002 18:25:22 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:28828 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S316210AbSHFWZU>;
-	Tue, 6 Aug 2002 18:25:20 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200208062228.CAA25818@sex.inr.ac.ru>
-Subject: Re: "new style" netdevice allocation patch for TUN driver
-To: maxk@qualcomm.com (Maksim)
-Date: Wed, 7 Aug 2002 02:28:44 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020806135501.09799218@mail1.qualcomm.com> from "Maksim" at Aug 6, 2 02:08:37 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S316089AbSHFWcS>; Tue, 6 Aug 2002 18:32:18 -0400
+Received: from jalon.able.es ([212.97.163.2]:49111 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316088AbSHFWcS>;
+	Tue, 6 Aug 2002 18:32:18 -0400
+Date: Wed, 7 Aug 2002 00:35:50 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Marc-Christian Petersen <mcp@linux-systeme.de>, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: AIO together with SMPtimers-A0 oops and freezing
+Message-ID: <20020806223550.GC2733@werewolf.able.es>
+References: <200208051920.29018.mcp@linux-systeme.de> <20020806160724.A19564@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020806160724.A19564@redhat.com>; from bcrl@redhat.com on Tue, Aug 06, 2002 at 22:07:24 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> Please explain to me why do we have to hold rtnl lock while sleeping in
-> unregister_netdevice ?
+On 2002.08.06 Benjamin LaHaise wrote:
+>On Mon, Aug 05, 2002 at 07:20:29PM +0200, Marc-Christian Petersen wrote:
+>> Hi Ben, Hi Ingo,
+>
+>> Ben, I am using your AIO 20020619 patch + relevant fixes from the AIO 
+>> mailinglist together with your patch Ingo, SMPtimers-A0.
+>
+>Hmmm, the only problem I can see in the aio code wrt timer usage is 
+>the following.  Does this patch make a difference?  If not, I'm guessing 
+>that the problem is something in SMPtimers-A0 that aio happens to 
+>trigger.  The only timer aio uses is for the timeout when waiting for an 
+>event, and the structure for that is put on the stack.
+>
 
-... not "while sleeping", but just "while".
-
-If the lock would be for the device, it would be local to the device,
-rather than global. The semaphore blocks all the networking configuration
-until caller will complete stuff related to unregistering.
-
-Forward references from the unregistered device under cannot be invalidated
-before the device is unregistered. All such work is done after unregistry
-for "old style" or in dev->uninit/destructor hooks, which are used
-by "new style" devices.
-
-
-> 1 - Something is not releasing device
-
-Let's find this something! It witnesses about really serious bug.
-
-I cannot reproduce this too. Understand, please, we _can_ follow
-your proposal, all 100% of old style devices do not need uninit in real
-life. But then we never will find the bug. You cannot reproduce it,
-I cannot too.
-
-
-> 2 - We're sleeping with the rntl_lock held
-
-Semaphores are used exaclty when we have to sleep while holding lock.
-
-
-> fix it. If one thing is buggy it doesn't mean
-
-It means exactly this. Kernel panic would be even better, if it was
-possible to detect deadlock reliably.
-
-Alexey
+Hmm, I forgot to comment, but I apply smptimers on top of latest -aa, that
+includes aio (is it different implementation?), and the kernel works fine.
+ 
+-- 
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-jam0, Mandrake Linux 9.0 (Cooker) for i586
+gcc (GCC) 3.2 (Mandrake Linux 9.0 3.2-0.2mdk)

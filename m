@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265242AbTBJWAZ>; Mon, 10 Feb 2003 17:00:25 -0500
+	id <S265270AbTBJV5Q>; Mon, 10 Feb 2003 16:57:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265275AbTBJWAZ>; Mon, 10 Feb 2003 17:00:25 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53263 "EHLO
+	id <S265277AbTBJV5P>; Mon, 10 Feb 2003 16:57:15 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52751 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265242AbTBJWAY>; Mon, 10 Feb 2003 17:00:24 -0500
-Date: Mon, 10 Feb 2003 17:06:59 -0500 (EST)
+	id <S265270AbTBJV5P>; Mon, 10 Feb 2003 16:57:15 -0500
+Date: Mon, 10 Feb 2003 17:03:25 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Andi Kleen <ak@suse.de>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.5.59_getcycles_A0
-In-Reply-To: <20030208022908.GA29776@wotan.suse.de>
-Message-ID: <Pine.LNX.3.96.1030210170411.29699B-100000@gatekeeper.tmr.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.59 : sound/oss/vidc.c
+In-Reply-To: <Pine.LNX.3.95.1030207152853.31273A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.3.96.1030210165537.29699A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Feb 2003, Andi Kleen wrote:
+On Fri, 7 Feb 2003, Richard B. Johnson wrote:
 
-> Regarding the watchdog: what it basically wants is a POSIX
-> CLOCK_MONOTONIC clock. This isn't currently implemented by Linux, 
-> but I expect it will be eventually because it's really useful for a lot
-> of applications who just need an increasing time stamp in user space,
-> and who do not want to fight ntpd for this. One example for such 
-> an application is the X server who needs this for its internal 
-> event sequencing.
+> If the code is correct, it really should be written as:
 > 
-> Implementing it based on the current time infrastructure is very easy -
-> you just do not add xtime and wall jiffies in, but only jiffies.
+>    for (new2size = 128; new2size < newsize; new2size <<= 1)
+>        ;
 > 
-> I don't think doing any special hacks and complicating get_cycles()
-> for it is the right way. Just implement a new monotonic clock primitive
-> (and eventually export it to user space too) 
+> The code seems to want to make the value of new2size a power of
+> 2 and, greater than 128, but less than newsize. It ignores the
+> fact that newsize might be less than 128, maybe this is okay.
 
-That seems to be the right way to go, rather than slow get_cycles() have a
-separate functionality which does what you need. Didn't know about
-CLOCK_MONOTONIC by that name, but I agree it's useful in various places.
+Power of two - yes. Greater than 128 no, if newsize were <=128 new2size
+would not increment. Previous code may make newsize larger (and later
+limit new2size) but not here. And new2size can be equal to newsize, again
+by this code.
+
+A comment like /*empty_loop*/ before the semicolon would help human
+readability. Code should be readable by humans, too.
 
 -- 
 bill davidsen <davidsen@tmr.com>

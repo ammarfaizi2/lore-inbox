@@ -1,28 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267686AbUJLTxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267700AbUJLTyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267686AbUJLTxY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 15:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267700AbUJLTxY
+	id S267700AbUJLTyM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 15:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267702AbUJLTyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 15:53:24 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:45233 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267686AbUJLTxT (ORCPT
+	Tue, 12 Oct 2004 15:54:12 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:61617 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267700AbUJLTyI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 15:53:19 -0400
-Date: Tue, 12 Oct 2004 21:54:24 +0200
+	Tue, 12 Oct 2004 15:54:08 -0400
+Date: Tue, 12 Oct 2004 21:55:26 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+To: Mark_H_Johnson@raytheon.com
+Cc: linux-kernel@vger.kernel.org, "K.R. Foley" <kr@cybsft.com>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
        Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>
-Subject: [patch] VP-2.6.9-rc4-mm1-T8
-Message-ID: <20041012195424.GA3961@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu>
+       Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>
+Subject: Re: [patch] VP-2.6.9-rc4-mm1-T6
+Message-ID: <20041012195526.GB3961@elte.hu>
+References: <OFBECDA4CA.06BA3FF5-ON86256F2B.005609F8@raytheon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041012123318.GA2102@elte.hu>
+In-Reply-To: <OFBECDA4CA.06BA3FF5-ON86256F2B.005609F8@raytheon.com>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -35,38 +36,17 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-i've uploaded the -T8 VP patch:
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T8
+> >i've uploaded -T7:
 
-lots of stabilization of CONFIG_PREEMPT_REALTIME. It's still in
-experimental status but general stability is improving.
+> This crashes at boot time again. Several more scrolling messages that
+> end with (all I can see on the screen)
 
-Changes since -T7:
-
- - fixed a nasty category of bugs that were introduced by the use of 
-   rwsems for rwlocks. rwsems are not read-recursive, while rwlocks are. 
-   Fortunately it was not too hard to identify & fix recursive users of
-   tasklist_lock, in fact each of these also qualifies as a cleanup. The 
-   symptom of this bug was a soft-deadlocking of the system. 
-
- - fixed profiler locks, i believe this could resolve the bootup crash
-   reported by K.R. Foley.
-
- - fixed VP / XFS namespace collision reported by Mark H. Johnson
-
- - fix one more final detail of the new zombie-task handling code
-
- - fixed 3c59x.c, fasync-handling, ipv6, module-loader runtime
-   warnings reported by K.R. Foley.
-
- - fixed the ali5451 locking
-
-to create a -T8 tree from scratch the patching order is:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
- + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc4.bz2
- + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/2.6.9-rc4-mm1.bz2
- + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T8
+could you try to capture the full bootlog of the -T8 kernel (which i've
+just released)? The reason is that often the crash you get is just a
+side-effect of a problem that was warned about in one of the 'scolling
+by' messages. In particular the scheduler crash you got seems to be of
+that vintage.
 
 	Ingo

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264660AbTFLBpn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 21:45:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264662AbTFLBpn
+	id S264662AbTFLBqq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 21:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbTFLBqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 21:45:43 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:60400 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S264660AbTFLBpm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 21:45:42 -0400
-Subject: Re: [patch] as-iosched divide by zero fix
-From: Robert Love <rml@tech9.net>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Andrew Morton <akpm@digeo.com>, bos@serpentine.com,
-       linux-kernel@vger.kernel.org, piggin@cyberone.com.au
-In-Reply-To: <1055382871.28430.9.camel@spc>
-References: <1055369849.1084.4.camel@serpentine.internal.keyresearch.com>
-	 <20030611154122.55570de0.akpm@digeo.com> <1055374476.673.1.camel@localhost>
-	 <1055377120.665.6.camel@localhost> <20030611172444.76556d5d.akpm@digeo.com>
-	 <1055380257.662.8.camel@localhost>  <1055382871.28430.9.camel@spc>
-Content-Type: text/plain
-Message-Id: <1055383260.662.38.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 11 Jun 2003 19:01:02 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jun 2003 21:46:45 -0400
+Received: from dp.samba.org ([66.70.73.150]:12737 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264662AbTFLBql (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 21:46:41 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] ver_linux script version fix
+Date: Thu, 12 Jun 2003 10:48:43 +1000
+Message-Id: <20030612020025.CEFC82C002@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-11 at 18:54, Steven Cole wrote:
+Linus, please apply.
 
-> With regards to the last, here is an anti-AOL! for the oops.  I ran
-> 2.5.70-mm8 for several hours today, doing kernel compiles and running
-> dbench 64 on ext3, xfs, and jfs.  No oops.  
-> 
-> All while running X (although that now seems moot).  Base distro is RH9
-> if that could matter.  System is UP (PIII), PREEMPT, IDE, i810 chipset.
+ver_linux script should know whether depmod refers to old version or
+new version (this way I can tell whether people haven't install
+module-init-tools, although it's usually pretty obvious):
 
-Right. Most people are not seeing this.
+depmod -V (new output):
+	module-init-tools 0.9.12
 
-I have a system very similar to yours, interestingly. It is just random
-timings I guess.
+depmod -V (old output):
+	depmod version 2.4.21
 
-	Robert Love
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.70-bk16/scripts/ver_linux working-2.5.70-bk16-ver_linux/scripts/ver_linux
+--- linux-2.5.70-bk16/scripts/ver_linux	2003-05-27 15:02:29.000000000 +1000
++++ working-2.5.70-bk16-ver_linux/scripts/ver_linux	2003-06-12 10:41:09.000000000 +1000
+@@ -28,7 +28,7 @@ fdformat --version | awk -F\- '{print "u
+ 
+ mount --version | awk -F\- '{print "mount                 ", $NF}'
+ 
+-depmod -V  2>&1 | grep version | awk 'NR==1 {print "module-init-tools     ",$NF}'
++depmod -V  2>&1 | awk '/version/ {print "modutils              ",$NF} /module-init-tools/ {print "module-init-tools     ",$NF}'
+ 
+ tune2fs 2>&1 | grep "^tune2fs" | sed 's/,//' |  awk \
+ 'NR==1 {print "e2fsprogs             ", $2}'
 
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

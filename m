@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267573AbTBLSnO>; Wed, 12 Feb 2003 13:43:14 -0500
+	id <S267394AbTBLSu7>; Wed, 12 Feb 2003 13:50:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267574AbTBLSnO>; Wed, 12 Feb 2003 13:43:14 -0500
-Received: from thunk.org ([140.239.227.29]:7833 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S267573AbTBLSnN>;
-	Wed, 12 Feb 2003 13:43:13 -0500
-Date: Wed, 12 Feb 2003 13:52:52 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: struct tty_driver
-Message-ID: <20030212185252.GA16353@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Andries.Brouwer@cwi.nl,
-	linux-kernel@vger.kernel.org
-References: <UTC200302111444.h1BEi7106413.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200302111444.h1BEi7106413.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.4i
+	id <S267414AbTBLSu7>; Wed, 12 Feb 2003 13:50:59 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:36589 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267394AbTBLSu5>;
+	Wed, 12 Feb 2003 13:50:57 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A174@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
+Subject: RE: was Re: [2.4.20][2.5.60] /proc/interrupts - Now: ACPI moving 
+	of IRQs
+Date: Wed, 12 Feb 2003 11:00:38 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 11, 2003 at 03:44:07PM +0100, Andries.Brouwer@cwi.nl wrote:
-> Ted, I wondered:
+> From: Shawn Starr [mailto:spstarr@sh0n.net] 
+> I see that you see APIC level
 > 
-> Looking at 2.5.60 I see
+>            CPU0
+>   0:   12194031          XT-PIC  timer
+>   1:         15          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>   3:        149          XT-PIC  serial
+>   5:          0          XT-PIC  soundblaster
+>   8:          1          XT-PIC  rtc
+>   9:          0          XT-PIC  acpi
+>  10:         20          XT-PIC  aic7xxx
+>  11:      49135          XT-PIC  uhci-hcd, eth0
+>  12:         60          XT-PIC  i8042
+>  14:       6082          XT-PIC  ide0
+>  15:          9          XT-PIC  ide1
+> NMI:          0
+> LOC:   12193302
+> ERR:          0
+> MIS:          0
 > 
-> struct tty_struct {
-> 	int     magic;
-> 	struct tty_driver driver;
-> ...
 > 
-> and it looks like this struct tty_driver is never modified.
-> Since it is rather large, why not replace it by
-> 	struct tty_driver *driver;
-> ?
+> Since this box has ACPI why didn't it move the PCI SCSI controller
+> (aic7xxx) to a higher IRQ?
 > 
-> As it is now, the initialization in init_dev() does
-> 	tty->driver = *driver;
-> just duplicating constant data.
-> 
-> Is this a historical relict, or does this duplication have a function?
+> I thought this would happen with ACPI enabled?
 
-Nope.  The tty->ldisc should also be made into a pointer as well.
-It's a historic relict; it's been a very, very long time since there's
-been any variable data in the driver or ldisc structures.  
+This system appears to be in PIC mode, not IOAPIC mode, so irq 15 is as
+high as it goes.
 
-						- Ted
+Regards -- Andy

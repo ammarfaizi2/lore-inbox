@@ -1,59 +1,277 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266362AbUBETjR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 14:39:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266192AbUBETjQ
+	id S266550AbUBETpt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 14:45:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266510AbUBETpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 14:39:16 -0500
-Received: from fmr09.intel.com ([192.52.57.35]:38825 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S266829AbUBETi5 convert rfc822-to-8bit
+	Thu, 5 Feb 2004 14:45:49 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:53674 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S266550AbUBETo5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 14:38:57 -0500
-content-class: urn:content-classes:message
+	Thu, 5 Feb 2004 14:44:57 -0500
+Message-ID: <40229D2C.20701@blue-labs.org>
+Date: Thu, 05 Feb 2004 14:44:44 -0500
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040121
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
-Date: Thu, 5 Feb 2004 11:38:44 -0800
-Message-ID: <33561BB7A415E04FBDC339D5E149C6E26C38FE@orsmsx405.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
-Thread-Index: AcPsGZjROImzXgQCRJWTJFQhgl26twABc3+g
-From: "King, Steven R" <steven.r.king@intel.com>
-To: "Greg KH" <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Cc: <infiniband-general@lists.sourceforge.net>
-X-OriginalArrivalTime: 05 Feb 2004 19:38:45.0891 (UTC) FILETIME=[AB51C530:01C3EC1F]
+To: =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>
+CC: akpm@digeo.com, acpi-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, a.verweij@student.tudelft.nl
+Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
+References: <402298C7.5050405@wanadoo.es>
+In-Reply-To: <402298C7.5050405@wanadoo.es>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We just use the kernel's spin_lock_irqsave(), so I don't know what
-you're talking about.
+I have the same problem.  I "solved" it a while ago by mucking with the 
+AGP stuff.  IIRC, it was turning off AGP fast writes or 8x or something 
+similar in cmos.  Went from incredibly broken to stable instantly.  I'll 
+check my cmos settings in a bit and refresh my memory.
 
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com] 
-Sent: Thursday, February 05, 2004 10:55 AM
-To: King, Steven R; linux-kernel@vger.kernel.org
-Cc: infiniband-general@lists.sourceforge.net
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
-the linux kernel
+What patches are you using?
 
+p.s. reiserfs is pretty useless against crashes.  hundreds of files 
+around the harddrive get messed up everytime the machine locks 
+up...files that haven't been used in weeks, as well as files opened 
+read-only, i.e. libraries.
 
-On Thu, Feb 05, 2004 at 10:27:54AM -0800, King, Steven R wrote:
-> Hi Greg,
-> What exactly is wrong with spinlock?  Far as I know, it's been working
-> bug-free on a variety of platforms for quite some time now.  The other
-> abstractions such as atomic_t are for platform portability.
+Luis Miguel García wrote:
 
-Again, compare them to the current kernel spinlocks and try to realize
-why your implementation of spinlock_irqsave() will not work on all
-platforms.
+> (sorry with my sucking english)
+>
+> ok, let me know if you know for me to test something with this newer 
+> mm kernels.
+>
+> by the way, yes, I'm experiencing the lockups. Not with heavy io, but 
+> almost when I boot and enter X. The system gets completly frozzened 
+> and the HD led keps on. When I reboot with a sane kernel, I found 
+> several files from my /home directory are deleted or filled with garbage.
+>
+> Now, I patch each kernel I use with the two patches Andrew sent to me 
+> and I'm having no problems.
+>
+> Actually i'm running 2.6.2-ck1 + nforce-patches and the temperature of 
+> the system is 55º while idle, and 631 while compiling (only cpu fan, 
+> no case fans). I don't know if it's high (some people reported high 
+> temperatures with this patches) but it runs very well this way.
+>
+> If you want for me to test some patches or something, please drop me a 
+> note.
+>
+> Thanks a lot...
+>
+> Luis Miguel García
+>
+> P.S.: by the way, why am I getting strage "arabesque" characters when 
+> I reply to your emails? Perhaps something with wrong encoding?
+>
+>> This is interesting, I will test it myself later on. At one point Len
+>> admitted to owning "foreign hardware :p" so maybe this could get 
+>> resolved.
+>>
+>> Personally I haven't tried kernels with newer forcedeth drivers, 
+>> because I
+>> can no longer explicitely set the power state of the NIC to D3. The
+>> machine complains about irqs (new debugging code since forcedeth v.20 or
+>> so) and will not powerdown.
+>>
+>> On another note, have you noticed lockups of your system with heavy io?
+>> Think of fsck'ing, burning cdroms, du on large dirs etc? Maybe it is
+>> helpful to set up a list of boards and document what works or doesn't 
+>> work
+>> with which kernel. For instance the lockups with heavy io seem to be
+>> resolved here if I leave APIC from my kernel.
+>>
+>> Arjen
+>>
+>> On Thu, 5 Feb 2004, [ISO-8859-15] Luis Miguel Garc?a wrote:
+>>
+>>  
+>>
+>>>> Hi:
+>>>>
+>>>> Since Andrew Morton picked up latest acpi bk updates, nforce 
+>>>> motherboards have problems, mainly with ethernet adapters. 
+>>>> Reporters say that with acpi=off, the problm gets fixed, so we 
+>>>> think the problem could be acpi. Some more useful info:
+>>>>
+>>>>
+>>>>
+>>>> On Tue, 3 Feb 2004, [ISO-8859-1] Luis Miguel Garc?a wrote:
+>>>>
+>>>>
+>>>   
+>>>
+>>>>>> >> When I try to boot with latest mm series (such as actual 
+>>>>>> rc3-mm1 or
+>>>>>> >> rc2-mm2), my nforce ethernet device doesn't works. It worked 
+>>>>>> in the past
+>>>>>> >> with the forcedeth reverse engineered driver but now it keeps 
+>>>>>> for 30 or
+>>>>>> >> more seconds halted (at boot) and then the network device 
+>>>>>> dosn't run.
+>>>>>> >>
+>>>>>> >> Here is the dmesg of rc3-mm1. Do you want for me to test 
+>>>>>> something? Thanks!
+>>>>>> >>
+>>>>>> >> P.S.:   The ACPI related messages are larger that in rc3.
+>>>>>
+>>>>>       
+>>>>> >
+>>>>> >
+>>>>
+>>>>     
+>>>>
+>>>> My e100 on an nforce2 won't work in rc3-mm1.
+>>>> The "acpi=off" boot parameter makes it go.
+>>>>
+>>>>
+>>>> And for the record, I can boot with that kernel and save one dmesg 
+>>>> for you if you want. Only send me a request and I'll send it to you.
+>>>>
+>>>> P.S.: Sent any messages you want directly to me as i'm not 
+>>>> subscribed to acpi-devel.
+>>>>
+>>>> Thanks,
+>>>>
+>>>> Luis Miguel Garc?a
+>>>>
+>>>>
+>>>>
+>>>>
+>>>>
+>>>   
+>>>
+>>>>> >Which part of nforce support are you talking about luis?
+>>>>
+>>>>     
+>>>>
+>>>   
+>>>
+>>>>> >On Thu, 5 Feb 2004, Andrew Morton wrote:
+>>>>
+>>>>     
+>>>>
+>>>>
+>>>   
+>>>
+>>>>>> >> Luis Miguel Garc?a <ktech@wanadoo.es> wrote:
+>>>>>
+>>>>>       
+>>>>> >
+>>>>> >
+>>>>
+>>>>     
+>>>>
+>>>>>>>> >>> >
+>>>>>>>> >>> > Andrew Morton wrote:
+>>>>>>>> >>> >
+>>>>>>>
+>>>>>>>           
+>>>>>>
+>>>>>> >>
+>>>>>> >>
+>>>>>
+>>>>>       
+>>>>>
+>>>>>>>>>> >>>> > >
+>>>>>>>>>
+>>>>>>>>>               
+>>>>>>>>
+>>>>>>> >>>
+>>>>>>> >>>
+>>>>>>
+>>>>>>         
+>>>>>>
+>>>>>>>>>>>> >>>>> > >> 
+>>>>>>>>>>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-mm1/ 
+>>>>>>>>>>>>
+>>>>>>>>>>>> >>>>> > >>
+>>>>>>>>>>>> >>>>> > >>
+>>>>>>>>>>>> >>>>> > >>
+>>>>>>>>>>>> >>>>> > >> - Merged some page reclaim fixes from Nick and 
+>>>>>>>>>>>> Nikita.  These yield some
+>>>>>>>>>>>> >>>>> > >>  performance improvements in low memory and 
+>>>>>>>>>>>> heavy paging situations.
+>>>>>>>>>>>> >>>>> > >>
+>>>>>>>>>>>> >>>>> > >>
+>>>>>>>>>>>
+>>>>>>>>>>>                   
+>>>>>>>>>>
+>>>>>>>> >>>>
+>>>>>>>> >>>>
+>>>>>>>> >>> >
+>>>>>>>> >>> > Andrew, do you know if this acpi pull down has nforce 
+>>>>>>>> support fixed?
+>>>>>>>
+>>>>>>>           
+>>>>>>
+>>>>>> >>
+>>>>>> >>
+>>>>>> >>
+>>>>>> >> It doesn't appear that way.
+>>>>>> >>
+>>>>>
+>>>>>       
+>>>>> >
+>>>>> >
+>>>>
+>>>>     
+>>>>
+>>>>>>>> >>> > Or perhaps it's even unnotified to the acpi team?
+>>>>>>>
+>>>>>>>           
+>>>>>>
+>>>>>> >>
+>>>>>> >>
+>>>>>> >>
+>>>>>> >> I do not know.  Sending them a bugzilla ID would help, if such 
+>>>>>> a thing exists.
+>>>>>> >>
+>>>>>> >>
+>>>>>> >>
+>>>>>> >> -------------------------------------------------------
+>>>>>> >> The SF.Net email is sponsored by EclipseCon 2004
+>>>>>> >> Premiere Conference on Open Tools Development and Integration
+>>>>>> >> See the breadth of Eclipse activity. February 3-5 in Anaheim, CA.
+>>>>>> >> http://www.eclipsecon.org/osdn
+>>>>>> >> _______________________________________________
+>>>>>> >> Acpi-devel mailing list
+>>>>>> >> Acpi-devel@lists.sourceforge.net
+>>>>>> >> https://lists.sourceforge.net/lists/listinfo/acpi-devel
+>>>>>> >>
+>>>>>> >>
+>>>>>
+>>>>>       
+>>>>> >
+>>>>> >
+>>>>
+>>>>     
+>>>>
+>>>>
+>>>> -------------------------------------------------------
+>>>> The SF.Net email is sponsored by EclipseCon 2004
+>>>> Premiere Conference on Open Tools Development and Integration
+>>>> See the breadth of Eclipse activity. February 3-5 in Anaheim, CA.
+>>>> http://www.eclipsecon.org/osdn
+>>>> _______________________________________________
+>>>> Acpi-devel mailing list
+>>>> Acpi-devel@lists.sourceforge.net
+>>>> https://lists.sourceforge.net/lists/listinfo/acpi-devel
+>>>>
+>>>   
+>>
+>>
+>>
+>>  
+>>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Come on, just use the kernel versions, there is no need to reinvent the
-wheel all of the time, it just wastes everyones time (including mine...)
-
-thanks,
-
-greg k-h

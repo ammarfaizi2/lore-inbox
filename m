@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbREVPhY>; Tue, 22 May 2001 11:37:24 -0400
+	id <S261902AbREVPiE>; Tue, 22 May 2001 11:38:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261882AbREVPhP>; Tue, 22 May 2001 11:37:15 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:21002 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S261874AbREVPhF>;
-	Tue, 22 May 2001 11:37:05 -0400
-Date: Tue, 22 May 2001 12:36:46 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org,
-        timothy@monkey.org, reiser@namesys.com,
-        Guillem Cantallops Ramis <guillem@cantallops.net>
-Subject: Re: New XFS, ReiserFS and Ext2 benchmarks
-In-Reply-To: <0105221729570A.06233@starship>
-Message-ID: <Pine.LNX.4.21.0105221236050.5531-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261898AbREVPh5>; Tue, 22 May 2001 11:37:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8465 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261882AbREVPhj>; Tue, 22 May 2001 11:37:39 -0400
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+To: matthew@wil.cx (Matthew Wilcox)
+Date: Tue, 22 May 2001 16:31:37 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), matthew@wil.cx (Matthew Wilcox),
+        torvalds@transmeta.com (Linus Torvalds),
+        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
+        viro@math.psu.edu (Alexander Viro), pavel@suse.cz (Pavel Machek),
+        rgooch@ras.ucalgary.ca (Richard Gooch),
+        clausen@gnu.org (Andrew Clausen), bcrl@redhat.com (Ben LaHaise),
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20010522163135.N23718@parcelfarce.linux.theplanet.co.uk> from "Matthew Wilcox" at May 22, 2001 04:31:35 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E152E8H-00024B-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 May 2001, Daniel Phillips wrote:
-> On Tuesday 22 May 2001 12:29, Daniel Phillips wrote:
+> `the class of devices in question' was cryptographic devices, and possibly
+> other transactional DSPs.  I don't consider audio to be transactional.
+> in any case, you can do transactional things with two threads, as long
+> as they each have their own fd on the device.  Think of the fd as your
+> transaction handle.
 
-> >   http://nl.linux.org/~phillips/htree
-> 
-> Oops, nl.linux.org was down for 'unscheduled maintainance' and seems
-> to have come back up with some some http issues.
-> 
-> Rik?
+Thats a bit pathetic. So I have to fill my app with expensive pthread locks
+or hack all the drivers and totally change the multi-open sematics in the ABI
 
-[/home]# chmod a+x *
-
-Things seem to work again now ;)
-
-cheers,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+I think I'll stick to ioctl cleaned up
 

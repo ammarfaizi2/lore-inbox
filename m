@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbTHSTeI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbTHSTce
+	id S261337AbTHSTsE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbTHSTrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:32:34 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:52621 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261300AbTHSTby (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:31:54 -0400
-Date: Tue, 19 Aug 2003 12:24:51 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Daniel Gryniewicz <dang@fprintf.net>
-Cc: ak@colin2.muc.de, ak@muc.de, lmb@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819122451.0b092b6b.davem@redhat.com>
-In-Reply-To: <1061321268.3744.20.camel@athena.fprintf.net>
-References: <mdtk.Zy.1@gated-at.bofh.it>
-	<mgUv.3Wb.39@gated-at.bofh.it>
-	<mgUv.3Wb.37@gated-at.bofh.it>
-	<miMw.5yo.31@gated-at.bofh.it>
-	<m365ktxz3k.fsf@averell.firstfloor.org>
-	<1061320620.3744.16.camel@athena.fprintf.net>
-	<20030819192125.GD92576@colin2.muc.de>
-	<1061321268.3744.20.camel@athena.fprintf.net>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Aug 2003 15:47:13 -0400
+Received: from web41411.mail.yahoo.com ([66.218.93.77]:58765 "HELO
+	web41411.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261337AbTHSTqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:46:45 -0400
+Message-ID: <20030819194644.26776.qmail@web41411.mail.yahoo.com>
+Date: Tue, 19 Aug 2003 12:46:44 -0700 (PDT)
+From: Rock Gordon <rockgordon@yahoo.com>
+Subject: init consumes 99% cpu, syslog Z
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Aug 2003 15:27:48 -0400
-Daniel Gryniewicz <dang@fprintf.net> wrote:
+Hi,
 
-> On Tue, 2003-08-19 at 15:21, Andi Kleen wrote:
-> > On Tue, Aug 19, 2003 at 03:17:00PM -0400, Daniel Gryniewicz wrote:
-> > > On Tue, 2003-08-19 at 14:48, Andi Kleen wrote:
-> > > > In my experience everybody who wants a different behaviour use some
-> > > > more or less broken stateful L2/L3 switching hacks (like ipvs) or
-> > > > having broken routing tables. While such hacks may be valid for some
-> > > > uses they should not impact the default case.
-> > > 
-> > > So, changing your default route is a "hack"?  That's all that's
-> > > necessary.  You can even do it with "route del/route add".
-> > 
-> > Necessary to do what exactly? 
-> 
-> Cause Linux to issue an arp request with a tell address not on the
-> interface sending the arp.
+I am using linux-2.4.18 (vanilla, from ftp.kernel.org)
+on a RedHat 7.3 release. The filesystem is XFS. When
+doing heavy I/O (16 processes each writing or reading
+between 2 and 5 GB of data to a 2TB XFS filesystem), I
+see wierd unsolvable problems -
 
-Nobody has shown this to be invalid.  In fact, it has been shown
-clearly that systems not responding to such ARP requests are buggy.
+Firstly, init all of a sudden starts consuming upwards
+of 99% cpu (the profiler shows that it spends most of
+it's time in the functions
+send_sig_info()/force_sig_info()). Pretty soon (10-15
+seconds or so), syslogd becomes a zombie, with init
+still spinning in R mode.
 
-The only thing a system implementor can claim this accomplishes
-is "pseudo security", and it barely even provides that.
+Absolutely nothing in /var/log/messages; and dmesg
+shows nothing either. No visible barfing. And this
+goes on and on.
+
+Any process I run after this keeps getting segfaults,
+and also ends up becoming a zombie. This problem
+repeats exactly on other identical machines.
+
+The system is a dual-CPU 2.4Ghz Dell 2650 machine and
+the problems show up without hyperthreading too. The
+problem shows up without XFS too.
+
+Any ideas/suggestions?
+
+Thanks and Regards,
+Rocky
+
+PS: I am not on the list.
+
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

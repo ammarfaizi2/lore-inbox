@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136184AbRDVPoS>; Sun, 22 Apr 2001 11:44:18 -0400
+	id <S136186AbRDVPqi>; Sun, 22 Apr 2001 11:46:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136185AbRDVPoK>; Sun, 22 Apr 2001 11:44:10 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:8199 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S136184AbRDVPn5>;
-	Sun, 22 Apr 2001 11:43:57 -0400
-Date: Sun, 22 Apr 2001 11:44:07 -0400
+	id <S136187AbRDVPq2>; Sun, 22 Apr 2001 11:46:28 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:9223 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S136186AbRDVPqW>;
+	Sun, 22 Apr 2001 11:46:22 -0400
+Date: Sun, 22 Apr 2001 11:46:48 -0400
 From: "Eric S. Raymond" <esr@thyrsus.com>
-To: "Giacomo A. Catenazzi" <cate@dplanet.ch>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, CML2 <linux-kernel@vger.kernel.org>,
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Francois Romieu <romieu@cogenit.fr>, CML2 <linux-kernel@vger.kernel.org>,
         kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: Request for comment -- a better attribution system
-Message-ID: <20010422114407.F28605@thyrsus.com>
+Subject: Re: Request for comment -- a better attribution system
+Message-ID: <20010422114648.G28605@thyrsus.com>
 Reply-To: esr@thyrsus.com
 Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	"Giacomo A. Catenazzi" <cate@dplanet.ch>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Alexander Viro <viro@math.psu.edu>,
+	Francois Romieu <romieu@cogenit.fr>,
 	CML2 <linux-kernel@vger.kernel.org>,
 	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <E14r6oh-0004Zu-00@the-village.bc.nu> <3AE2B847.C4EE45E9@dplanet.ch>
+In-Reply-To: <20010422133947.A21908@se1.cogenit.fr> <Pine.GSO.4.21.0104220819490.28681-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AE2B847.C4EE45E9@dplanet.ch>; from cate@dplanet.ch on Sun, Apr 22, 2001 at 12:53:59PM +0200
+In-Reply-To: <Pine.GSO.4.21.0104220819490.28681-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Apr 22, 2001 at 08:33:44AM -0400
 Organization: Eric Conspiracy Secret Labs
 X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giacomo A. Catenazzi <cate@dplanet.ch>:
-> Alternativelly we can generate MAINTAINER from ESR's map headers.
-> In this case we should include this script in the Linus script to
-> automagically create the i386 defconfig.
+Alexander Viro <viro@math.psu.edu>:
+> Eric, it would save everyone a lot of time if you actually cared to
+> pull your head out of your... theoretical constructions and spent
+> some efforts figuring out how the things really work.
 
-Aha!  Somebody is actually *thinking* rather than having a
-conservative reflex.  Yes, boys and girls, this is exactly how I
-planned to solve the I-want-to-be-able-to-grep-it problem.
-
-Giacomo hasn't resolved the larger question of whether my distributed-
-attribution proposal is a good idea or not.  What he *has* done is
-demonstrated that the resistance to it is mostly rationalized rather
-than rational.  Otherwise somebody else would have seen this a lot
-sooner.
+I've had my nose rubbed in how things really work.  That's why I want to
+fix the things that are broken about how things really work.
 -- 
 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+"To disarm the people... was the best and most effectual way to enslave them."
+        -- George Mason, speech of June 14, 1788

@@ -1,73 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131262AbRCNCLZ>; Tue, 13 Mar 2001 21:11:25 -0500
+	id <S131270AbRCNCIF>; Tue, 13 Mar 2001 21:08:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131265AbRCNCLF>; Tue, 13 Mar 2001 21:11:05 -0500
-Received: from host3.sputnik7.com ([64.61.8.83]:34402 "EHLO mail.bluetape.com")
-	by vger.kernel.org with ESMTP id <S131262AbRCNCKq>;
-	Tue, 13 Mar 2001 21:10:46 -0500
-Message-ID: <3AAED2F5.AA5E0701@sputnik7.com>
-Date: Tue, 13 Mar 2001 21:09:57 -0500
-From: Avi Green <avi-help@sputnik7.com>
-Reply-To: avi-nospam@sputnik7.com
-Organization: sputnik7.com
-X-Mailer: Mozilla 4.51 [en] (X11; I; Linux 2.2.5-15 i686)
-X-Accept-Language: en
+	id <S131278AbRCNCH4>; Tue, 13 Mar 2001 21:07:56 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:24712 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S131270AbRCNCHj>;
+	Tue, 13 Mar 2001 21:07:39 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Can't get driver to work: D-Link DFE-570TX (de4x5.o) on Linux 2.4
-X-Priority: 2 (High)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15022.53815.129522.746120@pizda.ninka.net>
+Date: Tue, 13 Mar 2001 18:06:47 -0800 (PST)
+To: Jeffrey Butler <jeffreymbutler@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: poll() behaves differently in Linux 2.4.1 vs. Linux 2.2.14 (POLLHUP)
+In-Reply-To: <20010314015921.19287.qmail@web11808.mail.yahoo.com>
+In-Reply-To: <20010314015921.19287.qmail@web11808.mail.yahoo.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Dear folks,
+Jeffrey Butler writes:
+ >   I've noticed that poll() calls on IPv4 sockets do
+ > not behave the same under linux 2.4 vs. linux 2.2.14. 
+ > Linux 2.4 will return POLLHUP for a socket that is not
+ > connected (and has never been connected) while Linux
+ > 2.2 will not.
+ >   The following example program demonstrates the
+ > problem when it's run under linux 2.4:
 
-I apologize for bothering you, but if by any chance this is an easy
-question for you to answer (wishful thinking, huh?) I'd be very grateful
-if you would.*
+True, this behavior was changed from 2.2.x.  We now match the behavior
+of other svr4 systems, in particular Solaris.  This new behavior in
+2.4.x will not change.
 
-I have some new Hawk PCs (Pentium-III) with D-Link DFE-570TX Fast
-Ethernet 4-port server adapters.  When I build the machines using Red
-Hat's standard 6.2 installer, it automatically finds the de4x5.o driver
-module, inserts it into the kernel (which is 2.2), and sets up four
-Ethernet interfaces using that driver.
-
-Unfortunately, when I build the 2.4 kernel (which I must do because I
-need Netfilter), I can't get the card to work.
-
-* I've tried inserting the old de4x5.o module that came with 2.2, but
-there are unmatched symbols.
-
-* I've tried inserting the new de4x5.o module that came with 2.4 in
-drivers/net, but it either complains of no such device, I/O error, or
-"couldn't find the kernel version the module was compiled for".
-
-* I've tried configuring the kernel with the 3c590/3c900, {DEPCA, DE10x,
-DE200, DE201, DE202, DE422}, Tulip (dc21x4x), Generic DECchip, and VIA
-Rhine chips, but it doesn't seem to help, whether they're included as
-modules or compiled into the kernel.  I've downloaded the latest Tulip
-driver but haven't tried it yet.
-
-* I've spent many hours trying to get this to work, and my manager is
-getting desparate.
-
-Do you have any ideas?
-
-Thank you VERY, VERY much,
-Avi
-
-======================================================
-= Avi Green :-) avi at sputnik7.com (-: 212 217-1147 =
-========  Unix SysAdmin & System Specialist  =========
-=============  http://www.sputnik7.com  ==============
-===== Netcasting Music, Videos, Film & Anime 24/7 ====
-
-
-* I _do_ appreciate any help you give me, and I apologize for bothering
-you without first exhausting all of my other resources.  I only do this
-because it's so time-critical.  I haven't contributed yet to this
-community, but I've given lots in other places.  Thanks for being
-understanding.
+Later,
+David S. Miller
+davem@redhat.com

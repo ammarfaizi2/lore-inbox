@@ -1,84 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267954AbTAHWxA>; Wed, 8 Jan 2003 17:53:00 -0500
+	id <S267968AbTAHWzD>; Wed, 8 Jan 2003 17:55:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267958AbTAHWxA>; Wed, 8 Jan 2003 17:53:00 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:244 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S267954AbTAHWw6>;
-	Wed, 8 Jan 2003 17:52:58 -0500
-Message-ID: <D9223EB959A5D511A98F00508B68C20C0AD0F269@orsmsx108.jf.intel.com>
-From: "Ronciak, John" <john.ronciak@intel.com>
-To: "'Robert Olsson'" <Robert.Olsson@data.slu.se>,
-       Avery Fay <avery_fay@symantec.com>
-Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
-Subject: RE: Gigabit/SMP performance problem
-Date: Wed, 8 Jan 2003 13:44:05 -0800 
+	id <S267969AbTAHWzC>; Wed, 8 Jan 2003 17:55:02 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:14343 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267968AbTAHWzB>;
+	Wed, 8 Jan 2003 17:55:01 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301082303.h08N3bvI003752@darkstar.example.net>
+Subject: Re: Undelete files on ext3 ??
+To: Valdis.Kletnieks@vt.edu
+Date: Wed, 8 Jan 2003 23:03:37 +0000 (GMT)
+Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200301082206.h08M6pRA014912@turing-police.cc.vt.edu> from "Valdis.Kletnieks@vt.edu" at Jan 08, 2003 05:06:51 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+> > | > > What I was thinking of was a virtual device that allocated a new
+> > | > > sector whenever an old one was overwritten - kind of like a journaled
+> > | > > filesystem, but without the filesystem, (I.E. just the journal) :-).
+> > | >
+> > | > $ DIR FOO.TXT;*
+> > | > FOO.TXT;1   FOO.TXT;2   FOO.TXT;2
+> > | >
+> > | > VMS-style file versioning, anybody? ;)
+> > |
+> > | Brilliant!
+> > 
+> > re-read the archives from 6-8 months ago.
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=101914252421742&w=2
 
-We (Intel - LAN Access Division, e1000 driver) are taking a look at what is
-going on here.  We don't have any data yet but we'll keep you posted on what
-we find.
+So basically the idea already already exists:
 
-Thanks for your patients.
+http://www.netcraft.com.au/geoffrey/katie/
 
-Cheers,
-John
+Brilliant!  :-)
 
-
-
-> -----Original Message-----
-> From: Robert Olsson [mailto:Robert.Olsson@data.slu.se]
-> Sent: Tuesday, January 07, 2003 10:16 AM
-> To: Avery Fay
-> Cc: Anton Blanchard; linux-kernel@vger.kernel.org
-> Subject: Re: Gigabit/SMP performance problem
-> 
-> 
-> 
-> Avery Fay writes:
->  > Hmm. That paper is actually very interesting. I'm thinking 
-> maybe with the 
->  > P4 I'm better off with only 1 cpu. WRT hyperthreading, I 
-> actually disabled > it because it make performance worse 
-> (wasn't clear in the original email).
-> 
-> 
->  With 1CPU-SMP-HT I'm on UP level of performance this with 
-> forwarding two 
->  single flows evenly distributes between CPU's. So HT payed 
-> the SMP cost so 
->  to say.
->  
->  Also I tested the MB bandwidth with new threaded version of 
-> pktgen just 
->  TX'ing a packets on 6 GIGE I'm seeing almost 6 Gbit/s TX'ed 
-> w 1500 bytes
->  packets.
-> 
->  I have problem populating all slots w. GIGE NIC's. WoL (Wake 
-> on Lan) this
->  is a real pain... Seems like my adapters needs a standby 
-> current 0.8A and 
->  most Power Supplies gives 2.0A for this. (Number come from 
-> SuperMicro). 
->  So booting fails radomlingy. You have 8 NIC's -- Didn't you 
-> have problem?
-> 
->  Anyway I'll guess profiling is needed?
-> 
->  Cheers.
-> 						--ro
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+John.

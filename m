@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265164AbRF0AbB>; Tue, 26 Jun 2001 20:31:01 -0400
+	id <S265159AbRF0A2C>; Tue, 26 Jun 2001 20:28:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265163AbRF0Aav>; Tue, 26 Jun 2001 20:30:51 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:13323 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S265161AbRF0Aal>; Tue, 26 Jun 2001 20:30:41 -0400
-X-mailer: xrn 8.03-beta-26
-From: Paul Menage <pmenage@ensim.com>
-Subject: Re: [PATCH] User chroot
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <0C01A29FBAE24448A792F5C68F5EA47D1205FB@nasdaq.ms.ensim.com>
-Message-Id: <E15F3KH-0003fd-00@pmenage-dt.ensim.com>
-Date: Tue, 26 Jun 2001 17:37:01 -0700
+	id <S265161AbRF0A1w>; Tue, 26 Jun 2001 20:27:52 -0400
+Received: from mail.vibe.com ([208.206.144.37]:13952 "EHLO vibe.com")
+	by vger.kernel.org with ESMTP id <S265159AbRF0A1k>;
+	Tue, 26 Jun 2001 20:27:40 -0400
+Message-ID: <002a01c0fe9f$ecc73fb0$6900a8c0@STUARTHAASW2K>
+From: "Stuart Haas" <shaas@vibe.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.6 Pre 5 Not see all available RAM
+Date: Tue, 26 Jun 2001 20:27:19 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2479.0005
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0005
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <0C01A29FBAE24448A792F5C68F5EA47D1205FB@nasdaq.ms.ensim.com>,
-you write:
->
->Safe, perhaps, but also completely useless: there is no way the user
->can set up a functional environment inside the chroot.  In other
->words, it's all pain, no gain.
->
+Hi All,
 
-It could potentially be useful for a network daemon (e.g. a simplified
-anonymous FTP server) that wanted to be absolutely sure that neither it
-nor any of its libraries were being tricked into following a bogus
-symlink, or a "/../" in a passed filename. After initialisation, the
-daemon could chroot() into its data directory, and safely only serve
-the set of files within that directory hierarchy.
+I have discovered that while running 2.4.6pre5, the kernel does not see all
+available RAM - I have 1GB and the kernel only sees ~899MB.  The stock
+Redhat 7.1 kernel sees the full 1024MB.  Adding mem=1024M on boot does not
+help either.
 
-This could be regarded as the wrong way to solve such a problem, but
-this kind of bug seems to be occurring often enough on BugTraq that it
-might be useful if you don't have the resources to do a full security
-audit on your program (or if the source to some of your libraries
-isn't available).
+I'm running an IBM x340, dual 1GHz cpu.
 
-Paul
+Have I missed something?
+
+Stuart
+
+
+

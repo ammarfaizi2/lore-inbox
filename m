@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132147AbRDJPGF>; Tue, 10 Apr 2001 11:06:05 -0400
+	id <S132130AbRDJPMQ>; Tue, 10 Apr 2001 11:12:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132186AbRDJPFp>; Tue, 10 Apr 2001 11:05:45 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:50194 "EHLO
+	id <S132186AbRDJPMI>; Tue, 10 Apr 2001 11:12:08 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:53522 "EHLO
 	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S132147AbRDJPFn>; Tue, 10 Apr 2001 11:05:43 -0400
-Message-Id: <200104101505.f3AF5bs31859@aslan.scsiguy.com>
-To: Giuliano Pochini <pochini@denise.shiny.it>
+	id <S132130AbRDJPLy>; Tue, 10 Apr 2001 11:11:54 -0400
+Message-Id: <200104101511.f3AFBks31940@aslan.scsiguy.com>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: new aic7xxx driver problems 
-In-Reply-To: Your message of "Tue, 03 Apr 2001 23:34:49 +0200."
-             <3ACA41F9.FCC07369@denise.shiny.it> 
-Date: Tue, 10 Apr 2001 09:05:37 -0600
+Subject: Re: Seems to be a lot of confusion about aic7xxx in linux 2.4.3 
+In-Reply-To: Your message of "Fri, 06 Apr 2001 08:09:36 PDT."
+             <Pine.LNX.4.33.0104060803450.12216-100000@heat.gghcwest.com> 
+Date: Tue, 10 Apr 2001 09:11:46 -0600
 From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>I've been seeing a lot of complaints about aic7xxx in the 2.4.3 kernel.  I
+>think that people are missing the crucial point: aic7xxx won't compile if
+>you patch up from 2.4.2, but if you download the complete 2.4.3 tarball,
+>it compiles fine.
 >
->I have two Adaptec 2930CU (ultra narrow) cards. I modified the driver to
->make them work in ultra mode.
+>So, I conclude that the patch was created incorrectly, or that something
+>changed between cutting the patch and the tarball.
+>
+>-jwb
 
-Can you elaborate on what you had to modify?
+Actually, the issue has to do with how the firmware is generated and
+the dependencies between generated and source files.  The tar file
+touched all files whereas the patch touched only a few.  This is why
+the tar file worked and the patch did not.
 
->Apr  3 23:05:10 Jay kernel: scsi1:0:4:0: Attempting to queue an ABORT message 
-
-Please run your system with aic7xxx=verbose and send me the resulting
-messages.  You should also upgrade to v6.1.11 of the driver.
+Newer versions of the driver completely avoid this issue by only attempting
+to re-build the firmware if you explicitly configure your kernel this way.
 
 --
 Justin

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316446AbSH0PwB>; Tue, 27 Aug 2002 11:52:01 -0400
+	id <S316465AbSH0P4j>; Tue, 27 Aug 2002 11:56:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316465AbSH0PwB>; Tue, 27 Aug 2002 11:52:01 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:50164 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S316446AbSH0PwA>;
-	Tue, 27 Aug 2002 11:52:00 -0400
-Date: Tue, 27 Aug 2002 11:49:29 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Mala Anand <manand@us.ibm.com>
-cc: Bill Hartner <bhartner@us.ibm.com>, <davem@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-       Robert Olsson <Robert.Olsson@data.slu.se>
-Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization
-In-Reply-To: <OFC842923C.BD15E014-ON87256C22.0047BBD6@boulder.ibm.com>
-Message-ID: <Pine.GSO.4.30.0208271147320.10164-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316491AbSH0P4j>; Tue, 27 Aug 2002 11:56:39 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:2288 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S316465AbSH0P4i>; Tue, 27 Aug 2002 11:56:38 -0400
+From: Richard.Zidlicky@stud.informatik.uni-erlangen.de
+Date: Tue, 27 Aug 2002 18:00:43 +0200 (MEST)
+Message-Id: <200208271600.SAA17957@faui02b.informatik.uni-erlangen.de>
+To: davem@redhat.com, benh@kernel.crashing.org
+Subject: Re: readsw/writesw readsl/writesl
+Cc: linux-kernel@vger.kernel.org
+X-Sun-Charset: US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 27 Aug 2002, Mala Anand wrote:
 
-> SPECweb99 profile shows that __kfree_skb is in the top 5 hot routines. We
-> will test the skb recycle patch on SPECweb99 and add skbinit patch
-> to that and see how it helps.  What I understand is that the skb recycle
-> patch does not attempt to recycle if the skbs are allocated on CPU
-> and freed on another CPU. Is that right? If so, skbinit patch will help
-> those cases.
+[snip]
 
-yes it will. Not significant is my current thinking. i.e i wouldnt write
-my mother to tell her about it.
+> ...... However, if we decide to go the way
+> you describe, the we should probably also provide the raw_{in,out}*
+> ones.
 
-cheers,
-jamal
+carefull, m68k already has them for other purposes. Original intention
+was that raw_{in,out} should never be used outside architecture specific 
+stuff anyway.
 
+Richard
+
+ 

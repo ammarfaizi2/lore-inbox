@@ -1,53 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290312AbSAPAx5>; Tue, 15 Jan 2002 19:53:57 -0500
+	id <S290315AbSAPAxr>; Tue, 15 Jan 2002 19:53:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289804AbSAPAxu>; Tue, 15 Jan 2002 19:53:50 -0500
-Received: from ns1.baby-dragons.com ([199.33.245.254]:3974 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S290312AbSAPAxE>; Tue, 15 Jan 2002 19:53:04 -0500
-Date: Tue, 15 Jan 2002 19:51:44 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Wakko Warner <wakko@animx.eu.org>
-cc: "J.A. Magallon" <jamagallon@able.es>, <linux-kernel@vger.kernel.org>
-Subject: Re: Unable to compile 2.4.14 on alpha
-In-Reply-To: <20020115190344.A20283@animx.eu.org>
-Message-ID: <Pine.LNX.4.44.0201151926580.9754-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289804AbSAPAxl>; Tue, 15 Jan 2002 19:53:41 -0500
+Received: from f232.law11.hotmail.com ([64.4.17.232]:28177 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S290308AbSAPAv6>;
+	Tue, 15 Jan 2002 19:51:58 -0500
+X-Originating-IP: [156.153.254.10]
+From: "Balbir Singh" <balbir_soni@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] Suspected bug in getpeername and getsockname
+Date: Tue, 15 Jan 2002 16:51:52 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F232Ej1I7QY9zK4unnr000139b2@hotmail.com>
+X-OriginalArrivalTime: 16 Jan 2002 00:51:52.0984 (UTC) FILETIME=[FD126980:01C19E27]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The current code for sys_getpeername is shown below
 
-	Hello Wakko ,
+asmlinkage long sys_getsockname(int fd, struct sockaddr *usockaddr, int 
+*usockaddr_len)
+{
+        struct socket *sock;
+        char address[MAX_SOCK_ADDR];
+        int len, err;
 
-On Tue, 15 Jan 2002, Wakko Warner wrote:
- ...snip...
-> just out of curiosity, I have this dac960 controller with alpha 2.70
-> firmware.  I know it says it needs 2.73, but the latest for alpha is 2.70.
-> Any ideas if it'll work or not?
-	Nope ,  The linux DAC960 driver needs 3.51-0-04 for dual flash .
-	Or 2.73-0-00 for single flash .  And beleive me Leonard means what
-	he put in the README.DAC960 file .
-	2.73 usability is new to me as when one of these dropped into my
-	hands all the driver supported was the Dual 3.51... firmware .
-	Using either of the above will work on Linux ,  BUT not alpha
-	vms/osf/nt .
-	The cost for the items from Mylex isn't reasonable imo .  But if
-	you want it & have a flash burner , Get two just like on the card
-	now & download the firmware & burn it .  Don't get the XDBA
-	version as IIRC the alpha boards don't support it .  But do check
-	if MB you have does .  Might get lucky .
+        sock = sockfd_lookup(fd, &err);
+        if (!sock)
+                goto out;
+        err = sock->ops->getname(sock, (struct sockaddr *)address, &len, 0);
+        if (err)
+                goto out_put;
+        err = move_addr_to_user(address, len, usockaddr, usockaddr_len);
 
-> If I loose the contents of everything on this sytem, fine, I have another
-> disk with the system on it so I won't loose anything.  =)
+out_put:
+        sockfd_put(sock);
+out:
+        return err;
+}
 
->  Lab tests show that use of micro$oft causes cancer in lab animals
-	And other living things !-)  Hth ,  JimL
+The man page getpeername(2) says
+========================================================
+The namelen parameter should be initialized to
+indicate the amount of  space  pointed  to  by name.
+On return it  contains  the actual size of the name
+returned (in bytes).  The name is truncated if the buffer
+provided is too small.
+=========================================================
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+The code does not copy_from_user the passed value of
+length (by the user). It instead passes to the protocol
+specific code a pointer in the stack (len). The copyout to
+user space is correct. But still the value passed
+from the user should also be considered. If this value
+is less than what we want to copyout, the smaller value
+should be used.
+
+The same bug exists even in getsockname. The fix is
+trivial.
+
+1. Copy in the value the user passed.
+2. Pass this value to the protocol (sock ops) getpeername
+   or getsockname. Let it decide what to do if the user
+   passed value is smaller than the size it wants to
+   return.
+3. Copyout the values
+Am I missing something or is this a known bug.
+
+If this fix is acceptable I can quickly send a patch
+after testing it. Please cc me, I am no longer subscribed
+to lkml.
+
+
+Thanks,
+Balbir
+
+_________________________________________________________________
+Join the world’s largest e-mail service with MSN Hotmail. 
+http://www.hotmail.com
 

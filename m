@@ -1,299 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317766AbSGWExL>; Tue, 23 Jul 2002 00:53:11 -0400
+	id <S317951AbSGWFBk>; Tue, 23 Jul 2002 01:01:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317951AbSGWExL>; Tue, 23 Jul 2002 00:53:11 -0400
-Received: from holomorphy.com ([66.224.33.161]:27272 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317766AbSGWExJ>;
-	Tue, 23 Jul 2002 00:53:09 -0400
-Date: Mon, 22 Jul 2002 21:56:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: Martin.Bligh@us.ibm.com, rmk@arm.linux.org.uk
-Subject: [BUG] 2.5.27-bk deadlocks every other boot
-Message-ID: <20020723045608.GJ919@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, Martin.Bligh@us.ibm.com,
-	rmk@arm.linux.org.uk
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S317953AbSGWFBk>; Tue, 23 Jul 2002 01:01:40 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:46469 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S317951AbSGWFBj>; Tue, 23 Jul 2002 01:01:39 -0400
+Date: Mon, 22 Jul 2002 23:04:45 -0600
+Message-Id: <200207230504.g6N54jW24260@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: martin@dalecki.de
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.27 devfs
+In-Reply-To: <3D3C48D5.6080500@evision.ag>
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com>
+	<3D3BE1DD.3040803@evision.ag>
+	<200207221728.g6MHSkY15219@vindaloo.ras.ucalgary.ca>
+	<3D3C48D5.6080500@evision.ag>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like a fresh bug was recently introduced. Every other boot
-my NUMA-Q testboxen deadlock just after a serial console printk() about
-speed change or something on that order. It occurs nondeterministically
-after userspace has run for a short while, during init scripts.
+Marcin Dalecki writes:
+> Richard Gooch wrote:
+> > Marcin Dalecki writes:
+> > 
+> >>Kill two inlines which are notwhere used and which don't make sense
+> >>in the case someone is not compiling devfs at all.
+> > 
+> > 
+> > Rejected. Linus, please don't apply this bogus patch. External patches
+> > and drivers rely on the inline stubs so that #ifdef CONFIG_DEVFS_FS
+> > isn't needed.
+> 
+> Dare to actually *name* one of them?
 
-My current set of NUMA-Q workarounds follows as a combined diff (yes,
-Martin, I know they're not what you'd like to merge but they should be
-equivalent in functionality so far as fixing bootup problems goes).
+Apart from my own sdmany patch, other people have contacted me about
+this feature and said they were making use of it. I don't bother
+tracking everyone who uses my code. I've got better things to do.
 
-rmk, I've cc:'d you in the hopes that some unmerged serial fix will
-magically materialize.
+In any case, I don't *need* to justify it to you, particularly not
+when the compiler completely optimises the inline stubs away. There is
+*zero* benefit to removing them, and doing so only breaks external
+code.
 
-Cheers,
-Bill
+> You didn't think doing devfs_fs_kernel.h. One simple sample from there:
+> 
+> devfs_get_maj_min(devfs_get_handle_from_inode((inode))
 
+You've managed to pick a function that I'm not thrilled about
+either. But it has been necessary.
 
-===== arch/i386/config.in 1.42 vs edited =====
---- 1.42/arch/i386/config.in	Fri Jul 19 16:00:55 2002
-+++ edited/arch/i386/config.in	Mon Jul 22 22:44:41 2002
-@@ -165,7 +165,9 @@
-       define_bool CONFIG_X86_IO_APIC y
-    fi
- else
--   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
-+   if [ "$CONFIG_PREEMPT" != "y" ]; then
-+      bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
-+   fi
- fi
- 
- bool 'Machine Check Exception' CONFIG_X86_MCE
-===== arch/i386/vmlinux.lds 1.9 vs edited =====
---- 1.9/arch/i386/vmlinux.lds	Sun May 19 12:03:14 2002
-+++ edited/arch/i386/vmlinux.lds	Mon Jul 22 22:49:39 2002
-@@ -84,11 +84,13 @@
-   _end = . ;
- 
-   /* Sections to be discarded */
-+  /*
-   /DISCARD/ : {
- 	*(.text.exit)
- 	*(.data.exit)
- 	*(.exitcall.exit)
- 	}
-+  */
- 
-   /* Stabs debugging sections.  */
-   .stab 0 : { *(.stab) }
-===== arch/i386/kernel/io_apic.c 1.23 vs edited =====
---- 1.23/arch/i386/kernel/io_apic.c	Sun Jul 21 09:09:17 2002
-+++ edited/arch/i386/kernel/io_apic.c	Mon Jul 22 22:44:41 2002
-@@ -219,7 +219,7 @@
- #define IRQ_ALLOWED(cpu,allowed_mask) \
- 		((1 << cpu) & (allowed_mask))
- 
--#if CONFIG_SMP
-+#if CONFIG_SMP && !CONFIG_MULTIQUAD
- static unsigned long move(int curr_cpu, unsigned long allowed_mask, unsigned long now, int direction)
- {
- 	int search_idle = 1;
-===== arch/i386/kernel/smp.c 1.18 vs edited =====
---- 1.18/arch/i386/kernel/smp.c	Mon Jul 15 10:03:02 2002
-+++ edited/arch/i386/kernel/smp.c	Mon Jul 22 22:44:41 2002
-@@ -569,7 +569,7 @@
- 	struct call_data_struct data;
- 	int cpus = num_online_cpus()-1;
- 
--	if (!cpus)
-+	if (cpus <= 0)
- 		return 0;
- 
- 	data.func = func;
-===== arch/i386/kernel/cpu/common.c 1.2 vs edited =====
---- 1.2/arch/i386/kernel/cpu/common.c	Mon Jul 15 10:03:21 2002
-+++ edited/arch/i386/kernel/cpu/common.c	Mon Jul 22 22:44:41 2002
-@@ -444,6 +444,8 @@
- 	__asm__ __volatile__("lgdt %0": "=m" (gdt_descr));
- 	__asm__ __volatile__("lidt %0": "=m" (idt_descr));
- 
-+	printk(KERN_INFO "Loading GDT/IDT for CPU#%d\n", nr);
-+
- 	/*
- 	 * Delete NT
- 	 */
-@@ -464,6 +466,8 @@
- 	load_TR(nr);
- 	load_LDT(&init_mm.context);
- 
-+	printk(KERN_INFO "Loaded per-cpu LDT/TSS for CPU#%d\n", nr);
-+
- 	/* Clear %fs and %gs. */
- 	asm volatile ("xorl %eax, %eax; movl %eax, %fs; movl %eax, %gs");
- 
-@@ -481,4 +485,6 @@
- 	clear_thread_flag(TIF_USEDFPU);
- 	current->used_math = 0;
- 	stts();
-+
-+	printk(KERN_INFO "Cleaned up FPU and debug regs for CPU#%d\n", nr);
- }
-===== drivers/net/tulip/de2104x.c 1.5 vs edited =====
---- 1.5/drivers/net/tulip/de2104x.c	Thu Mar  7 01:42:39 2002
-+++ edited/drivers/net/tulip/de2104x.c	Mon Jul 22 22:47:20 2002
-@@ -1455,7 +1455,7 @@
- 	/* Update the error counts. */
- 	__de_get_stats(de);
- 
--	synchronize_irq();
-+	synchronize_irq(dev->irq);
- 	de_clean_rings(de);
- 
- 	de_init_hw(de);
-===== drivers/scsi/qlogicisp.c 1.11 vs edited =====
---- 1.11/drivers/scsi/qlogicisp.c	Sun Jul 21 01:55:49 2002
-+++ edited/drivers/scsi/qlogicisp.c	Mon Jul 22 22:49:12 2002
-@@ -84,14 +84,13 @@
- {								\
- 	unsigned long flags;					\
- 								\
--	save_flags(flags);					\
--	cli();							\
-+	local_irq_save(flags);					\
- 	trace.buf[trace.next].name  = (w);			\
- 	trace.buf[trace.next].time  = jiffies;			\
- 	trace.buf[trace.next].index = (i);			\
- 	trace.buf[trace.next].addr  = (long) (a);		\
- 	trace.next = (trace.next + 1) & (TRACE_BUF_LEN - 1);	\
--	restore_flags(flags);					\
-+	local_irq_restore(flags);				\
- }
- 
- #else
-@@ -1704,8 +1703,7 @@
- 
- 	ENTER("isp1020_load_parameters");
- 
--	save_flags(flags);
--	cli();
-+	local_irq_save(flags);
- 
- 	hwrev = isp_inw(host, ISP_CFG0) & ISP_CFG0_HWMSK;
- 	isp_cfg1 = ISP_CFG1_F64 | ISP_CFG1_BENAB;
-@@ -1724,7 +1722,7 @@
- 	isp1020_mbox_command(host, param);
- 
- 	if (param[0] != MBOX_COMMAND_COMPLETE) {
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		printk("qlogicisp : set initiator id failure\n");
- 		return 1;
- 	}
-@@ -1736,7 +1734,7 @@
- 	isp1020_mbox_command(host, param);
- 
- 	if (param[0] != MBOX_COMMAND_COMPLETE) {
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		printk("qlogicisp : set retry count failure\n");
- 		return 1;
- 	}
-@@ -1747,7 +1745,7 @@
- 	isp1020_mbox_command(host, param);
- 
- 	if (param[0] != MBOX_COMMAND_COMPLETE) {
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		printk("qlogicisp : async data setup time failure\n");
- 		return 1;
- 	}
-@@ -1759,7 +1757,7 @@
- 	isp1020_mbox_command(host, param);
- 
- 	if (param[0] != MBOX_COMMAND_COMPLETE) {
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		printk("qlogicisp : set active negation state failure\n");
- 		return 1;
- 	}
-@@ -1771,7 +1769,7 @@
- 	isp1020_mbox_command(host, param);
- 
- 	if (param[0] != MBOX_COMMAND_COMPLETE) {
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		printk("qlogicisp : set pci control parameter failure\n");
- 		return 1;
- 	}
-@@ -1782,7 +1780,7 @@
- 	isp1020_mbox_command(host, param);
- 
- 	if (param[0] != MBOX_COMMAND_COMPLETE) {
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		printk("qlogicisp : set tag age limit failure\n");
- 		return 1;
- 	}
-@@ -1793,7 +1791,7 @@
- 	isp1020_mbox_command(host, param);
- 
- 	if (param[0] != MBOX_COMMAND_COMPLETE) {
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		printk("qlogicisp : set selection timeout failure\n");
- 		return 1;
- 	}
-@@ -1812,7 +1810,7 @@
- 		isp1020_mbox_command(host, param);
- 
- 		if (param[0] != MBOX_COMMAND_COMPLETE) {
--			restore_flags(flags);
-+			local_irq_restore(flags);
- 			printk("qlogicisp : set target parameter failure\n");
- 			return 1;
- 		}
-@@ -1827,7 +1825,7 @@
- 			isp1020_mbox_command(host, param);
- 
- 			if (param[0] != MBOX_COMMAND_COMPLETE) {
--				restore_flags(flags);
-+				local_irq_restore(flags);
- 				printk("qlogicisp : set device queue "
- 				       "parameter failure\n");
- 				return 1;
-@@ -1854,7 +1852,7 @@
- 	isp1020_mbox_command(host, param);
- 
- 	if (param[0] != MBOX_COMMAND_COMPLETE) {
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		printk("qlogicisp : set response queue failure\n");
- 		return 1;
- 	}
-@@ -1879,12 +1877,12 @@
- 	isp1020_mbox_command(host, param);
- 
- 	if (param[0] != MBOX_COMMAND_COMPLETE) {
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		printk("qlogicisp : set request queue failure\n");
- 		return 1;
- 	}
- 
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	LEAVE("isp1020_load_parameters");
- 
-===== fs/mpage.c 1.11 vs edited =====
---- 1.11/fs/mpage.c	Tue Jul 16 14:47:15 2002
-+++ edited/fs/mpage.c	Mon Jul 22 22:44:41 2002
-@@ -24,7 +24,7 @@
-  * The largest-sized BIO which this code will assemble, in bytes.  Set this
-  * to PAGE_CACHE_SIZE if your drivers are broken.
-  */
--#define MPAGE_BIO_MAX_SIZE BIO_MAX_SIZE
-+#define MPAGE_BIO_MAX_SIZE PAGE_CACHE_SIZE
- 
- /*
-  * I/O completion handler for multipage BIOs.
-===== include/asm-i386/apicdef.h 1.3 vs edited =====
---- 1.3/include/asm-i386/apicdef.h	Wed Mar 27 16:05:30 2002
-+++ edited/include/asm-i386/apicdef.h	Mon Jul 22 22:44:41 2002
-@@ -108,7 +108,11 @@
- 
- #define APIC_BASE (fix_to_virt(FIX_APIC_BASE))
- 
-+#ifndef CONFIG_MULTIQUAD
- #define MAX_IO_APICS 8
-+#else
-+#define MAX_IO_APICS 1024
-+#endif /* CONFIG_MULTIQUAD */
- 
- /*
-  * the local APIC register structure, memory mapped. Not terribly well
+> Everybody would expect the following to be only a single function:
+> 
+> extern devfs_handle_t devfs_get_handle (devfs_handle_t dir, const char
+> extern devfs_handle_t devfs_find_handle (devfs_handle_t dir, const char
+
+devfs_get_handle() is the preferred interface. For compatibility
+reasons, devfs_find_handle() remains. However, if you look at the
+implementation for devfs_find_handle(), you'll notice that it's marked
+for removal. But I believe in stable interfaces, so I want to give
+people time to transition.
+
+> And it was of course too hard to unify ops and handle:
+> 
+> extern void *devfs_get_ops (devfs_handle_t de);
+> extern void devfs_put_ops (devfs_handle_t de);
+
+Huh? They are different animals.
+
+> You couldn't resist adding the redundant devfs_ prefix overall in the 
+> kernel:
+> 
+> extern devfs_register_chrdev (unsigned int major, const char *name,
+>                                    struct file_operations *fops);
+> extern int devfs_register_blkdev (unsigned int major, const char *name,
+>                                    struct block_device_operations *bdops);
+> extern int devfs_unregister_chrdev (unsigned int major, const char *name);
+> extern int devfs_unregister_blkdev (unsigned int major, const char *name);
+
+These do subtly different things than the non "devfs_" versions.
+
+> Three different allocators and deallocators for one single subsystem,
+> preserving the illusion that there is in linux a real difference between 
+> major and minor numbers...
+> 
+> extern int devfs_alloc_major (char type);
+> extern void devfs_dealloc_major (char type, int major);
+> extern kdev_t devfs_alloc_devnum (char type);
+> extern void devfs_dealloc_devnum (char type, kdev_t devnum);
+
+Well, there *is* a difference between major and minor numbers. The two
+different interfaces service different driver requirements.
+Fortunately, one interface is built on top of the other.
+
+> extern int devfs_alloc_unique_number (struct unique_numspace *space);
+> extern void devfs_dealloc_unique_number (struct unique_numspace *space,
+>                                           int number);
+
+These are completely unrelated to device numbers, so there's no point
+even comparing them.
+
+> If flags are invalid -> add an invalid flag! instead of value return 
+> through pointer.
+> 
+> static inline int devfs_get_flags (devfs_handle_t de, unsigned int *flags)
+> {
+>      return 0;
+> }
+
+That's a spurious objection. The return value indicates whether the
+entry was valid or not. That is quite separate from flag values.
+Mixing data types by overloading the return value is not a sensible
+approach.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

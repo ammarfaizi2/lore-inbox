@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265232AbUFRPRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265243AbUFRPT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265232AbUFRPRc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 11:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUFRPQM
+	id S265243AbUFRPT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 11:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbUFRPTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 11:16:12 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55216 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265223AbUFRPQB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 11:16:01 -0400
-Date: Fri, 18 Jun 2004 16:15:58 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Chris Mason <mason@suse.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC] __bd_forget should wait for inodes using the mapping
-Message-ID: <20040618151558.GX12308@parcelfarce.linux.theplanet.co.uk>
-References: <1087523668.8002.103.camel@watt.suse.com> <20040618021043.GV12308@parcelfarce.linux.theplanet.co.uk> <1087563810.8002.116.camel@watt.suse.com> <20040618142207.GW12308@parcelfarce.linux.theplanet.co.uk> <1087570031.8002.153.camel@watt.suse.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1087570031.8002.153.camel@watt.suse.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 18 Jun 2004 11:19:20 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:58638 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S265243AbUFRPQ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 11:16:59 -0400
+Message-ID: <40D30B90.2060208@techsource.com>
+Date: Fri, 18 Jun 2004 11:34:40 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: 4Front Technologies <dev@opensound.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Stop the Linux kernel madness
+References: <40D232AD.4020708@opensound.com>
+In-Reply-To: <40D232AD.4020708@opensound.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 10:47:11AM -0400, Chris Mason wrote:
-> During writeback, we need to answer the question: "are there dirty pages
-> attached to this inode", and the only way to answer it is via the
-> address space.
+
+
+4Front Technologies wrote:
+> Hi Folks,
 > 
-> If bdev inodes don't want other inodes using their address space, they
-> shouldn't be setting the i_mapping on other inodes.  Since they are, the
-> bdev code needs to be aware that someone else might be using it.
+> I am writing this message to bring a huge problem to light. SuSE has 
+> been systematically
+> forking the linux kernel and shipping all kinds of modifications and 
+> still call their
+> kernels 2.6.5 (for example).
+> 
+> Either they ship the stock Linux kernel sources or they stop calling 
+> their distributions
+> as Linux-2.6.x based.
 
-Scheduled for 2.7.1; for now users of ->i_mapping (the fewer of them remain,
-the better) have to be aware of bdev.
 
-And yes, ->i_mapping flips on "normal" bdev inodes will go away - we set
-->f_mapping on open directly.
+If you have a specific problem, describe it, and linux kernel 
+maintainers and SuSE would be glad to help you.
+
+But this kind of whiny rant only serves to make "4Front Technologies" 
+look like a bunch of unprofessional dorks.  It's one thing for some 
+13-year-old script kiddy to act like a baby, but it really looks bad 
+when the representative of a company acts like this.
+

@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263451AbUCTPyz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 10:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbUCTPyz
+	id S263452AbUCTP4i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 10:56:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbUCTP4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 10:54:55 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49038 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263451AbUCTPyx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 10:54:53 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Johannes Stezenbach <js@convergence.de>
-Subject: Re: [PATCH] barrier patch set
-Date: Sat, 20 Mar 2004 17:03:30 +0100
-User-Agent: KMail/1.5.3
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040319153554.GC2933@suse.de> <200403200313.05681.bzolnier@elka.pw.edu.pl> <20040320025312.GA12710@convergence.de>
-In-Reply-To: <20040320025312.GA12710@convergence.de>
+	Sat, 20 Mar 2004 10:56:38 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:1460 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S263452AbUCTP4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 10:56:35 -0500
+Date: Sat, 20 Mar 2004 07:56:37 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] anobjrmap 1/6 objrmap
+Message-ID: <2696050000.1079798196@[10.10.2.4]>
+In-Reply-To: <20040320123009.GC9009@dualathlon.random>
+References: <Pine.LNX.4.44.0403190642450.17899-100000@localhost.localdomain> <2663710000.1079716282@[10.10.2.4]> <20040320123009.GC9009@dualathlon.random>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200403201703.30403.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 of March 2004 03:53, Johannes Stezenbach wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Saturday 20 of March 2004 02:48, Johannes Stezenbach wrote:
-> > > hdparm -i and -I ultimately both interpret WIN_IDENTIFY result, and
-> > > both test bit 0x0020 of word 85. So it's unclear to me why they report
-> > > a different write cache setting. I added a hexdump to dump_identity()
-> > > in hdparm.c, and found that bit 0x0020 of word 85 is always set.
-> >
-> > or WIN_PIDENTIFY to be strict but
-> >
-> > -i returns _cached_ (read when the device was probed) identify data
-> > (uses HDIO_GET_IDENTIFY ioctl)
-> > -I reads _current_ data directly from the device
-> > (uses HDIO_DRIVE_CMD ioctl)
->
-> Oh, right.
->
-> But: HDIO_GET_IDENTITY returns drive->id, and surely drive->id
-> is used internally. So isn't it a bug that drive->id is not
-> updated when the write cache setting is changed?
+> I'm working on my code yes, I think my code is finished, I prefer my
+> design for the various reasons explained in the other emails (you don't
+> swap so you can't appreciate the benefits, you only have to check that
+> performs as well as Hugh's code).
+> 
+> Hugh's and your code is unstable in objrmap, you can find the details in
+> the email I sent to Hugh, mine is stable (running such simulation for a
+> few days just fine on 4-way xeon, without my objrmap fixes it live locks
+> as soon as it hits swap).
+> 
+> You find my anon_vma in 2.6.5-rc1aa2, it's rock solid, just apply the
+> whole patch and compare it with your other below results. thanks.
 
-No, drive->id shouldn't be changed.
+Mmmm, if you have a broken out patch, it'd be preferable. If I were to 
+apply the whole of -mjb, I'll get a damned sight better results than 
+any of them, but that's not really a fair comparison ;-) I'll can at 
+least check it's stable for me that way though. 
 
-> I think the barrier code uses drive->id to determine if the
-> write cache is enabled.
+I did find your broken-out anon-vma patch, but it's against something
+else, maybe half-way up your tree or something, and I didn't bother
+trying to fix it ;-)
 
-The barrier code depends on drive->wcache.
-
-Regards,
-Bartlomiej
+M.
 

@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317096AbSGXNdu>; Wed, 24 Jul 2002 09:33:50 -0400
+	id <S317114AbSGXNhC>; Wed, 24 Jul 2002 09:37:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317299AbSGXNdu>; Wed, 24 Jul 2002 09:33:50 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:30600 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S317096AbSGXNds>;
-	Wed, 24 Jul 2002 09:33:48 -0400
-Date: Wed, 24 Jul 2002 15:36:52 +0200
+	id <S317117AbSGXNhB>; Wed, 24 Jul 2002 09:37:01 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:54664 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S317114AbSGXNhA>;
+	Wed, 24 Jul 2002 09:37:00 -0400
+Date: Wed, 24 Jul 2002 15:39:59 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: martin@dalecki.de, linux-kernel@vger.kernel.org
-Subject: Re: please DON'T run 2.5.27 with IDE!
-Message-ID: <20020724133652.GH15201@suse.de>
-References: <20020724132529.GD15201@suse.de> <Pine.SOL.4.30.0207241531200.15605-100000@mion.elka.pw.edu.pl>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cpqarray broken since 2.5.19
+Message-ID: <20020724133959.GD5159@suse.de>
+References: <20020721152804.GA6273@www.kroptech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0207241531200.15605-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <20020721152804.GA6273@www.kroptech.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24 2002, Bartlomiej Zolnierkiewicz wrote:
+On Sun, Jul 21 2002, Adam Kropelin wrote:
+> The cpqarray driver seems to have been broken around 2.5.19 with the
+> blk_start_queue/blk_stop_queue changes. As-is, cpqarray deadlocks the entire
+> system when it tries to do partition detection. The bits from the 2.5.19 patch
+> which seem to relate are:
 > 
-> On Wed, 24 Jul 2002, Jens Axboe wrote:
+> > @@ -916,6 +915,7 @@
+> >       goto queue_next;
+> >
+> >  startio:
+> > +     blk_stop_queue(q);
+> >       start_io(h);
+> >  }
+> >
+> > @@ -1066,8 +1066,8 @@
+> >       /*
+> >        * See if we can queue up some more IO
+> >        */
+> > -     do_ida_request(BLK_DEFAULT_QUEUE(MAJOR_NR + h->ctlr));
+> >       spin_unlock_irqrestore(IDA_LOCK(h->ctlr), flags);
+> > +     blk_start_queue(BLK_DEFAULT_QUEUE(MAJOR_NR + h->ctlr));
+> >  }
+> >
+> >  /*
 > 
-> > On Wed, Jul 24 2002, Marcin Dalecki wrote:
-> > > Jens Axboe wrote:
-> > >
-> > > >>>>2.5.27:drivers/block/ll_rw_blk.c
-> > > >>>>void blk_start_queue(request_queue_t *q)
-> > > >>>>{
-> > > >>>>       if (test_and_clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
-> > > >>>>               unsigned long flags;
-> > > >>>>
-> > > >>>>               spin_lock_irqsave(q->queue_lock, flags);
-> > > >>>>               if (!elv_queue_empty(q))
-> > > >>>>                       q->request_fn(q);
-> > > >>>>               spin_unlock_irqrestore(q->queue_lock, flags);
-> > > >>>>       }
-> > > >>>>}
-> > >
-> > > >There were buggy versions at one point, however they may not have made it
-> > > >into a full release. In that case it was just bk version of 2.5.19-pre
-> > > >effectively. I forget the details :-)
-> > >
-> > > Naj - it's far more trivial I just looked at wrong tree at hand...
-> > > But anyway. What happens if somone does set QUEUE_FLAG_STOPPED
-> > > between the test_and_claer_bit and taking the spin_lock? Setting
-> > > the QUEUE_FLAG_STOPPED isn't maintaining the spin_lock protection!
-> >
-> > It doesn't matter. If QUEUE_FLAG_STOPPED was set when entering
-> > blk_start_queue(), it will call into the request_fn. If blk_stop_queue()
-> > is called between clearing QUEUE_FLAG_STOPPED in blk_start_queue() and
-> > grabbing the spin_lock, the worst that can happen is a spurios extra
-> > request_fn call.
-> >
-> > > My goal is to make sure that the QUEUE_FLAG_STOPPED has a valid value
-> > > *inside* the q->request_fn call.
-> >
-> > So you want the queue_lock to protect the flags as well... I don't
-> > really see the point of this.
+> Simply reverting these changes allows the driver to successfully do
+> partition detect, but it quickly hangs if any significant amount of
+> I/O is attempted. The hang in this case seems to just affect processes
+> trying to do I/O on the array; it is not a whole-system-deadlock.
 > 
-> If driver corectly uses blk_start/stop_queue() it is not needed.
-> Whole point of introducing this flag was not to take lock to check
-> status of queue.
+> Test machine is SMP ppro.
 
-Right. The way it was meant to be used it how cpqarray and cciss does
-it -- stopping queue in request_fn, restarting it from isr.
+Thanks for the report. Could you just kill the spin_lock/unlock in
+blk_stop_queue() in drivers/block/ll_rw_blk.c and see if it works?
 
 -- 
 Jens Axboe

@@ -1,72 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262589AbSI0Szp>; Fri, 27 Sep 2002 14:55:45 -0400
+	id <S262592AbSI0Syb>; Fri, 27 Sep 2002 14:54:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262591AbSI0Szp>; Fri, 27 Sep 2002 14:55:45 -0400
-Received: from sentry.gw.tislabs.com ([192.94.214.100]:47612 "EHLO
-	sentry.gw.tislabs.com") by vger.kernel.org with ESMTP
-	id <S262589AbSI0Szl>; Fri, 27 Sep 2002 14:55:41 -0400
-Date: Fri, 27 Sep 2002 15:00:03 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-X-X-Sender: <sds@raven>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
-       <linux-security-module@wirex.com>
-Subject: Re: [RFC] LSM changes for 2.5.38
-In-Reply-To: <20020927175510.B32207@infradead.org>
-Message-ID: <Pine.GSO.4.33.0209271432120.11942-100000@raven>
+	id <S262591AbSI0SyZ>; Fri, 27 Sep 2002 14:54:25 -0400
+Received: from packet.digeo.com ([12.110.80.53]:60036 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262589AbSI0SyT>;
+	Fri, 27 Sep 2002 14:54:19 -0400
+Message-ID: <3D94AA96.8E29FC2A@digeo.com>
+Date: Fri, 27 Sep 2002 11:59:34 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>,
+       Matthew Jacob <mjacob@feral.com>,
+       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+       Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Warning - running *really* short on DMA buffers while doingfile  
+ transfers
+References: <200209271426.g8REQ3228125@localhost.localdomain> <2441376224.1033144007@aslan.btc.adaptec.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Sep 2002 18:59:27.0843 (UTC) FILETIME=[00EC3330:01C26658]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Justin T. Gibbs" wrote:
+> 
+> ...
+> The OS elevator will never know all of the device characteristics that
+> the device knows.  This is why the device's elevator will always out
+> perform the OSes assuming the OS isn't stupid about overcommitting writes.
+> That's what the argument is here.  Linux is agressively committing writes
+> when it shouldn't.
 
-On Fri, 27 Sep 2002, Christoph Hellwig wrote:
+The VM really doesn't want to strangle itself because it might be
+talking to a braindead SCSI drive.
 
-> In 2.5 LSM hooks are part of the Linux access checks, and any reason to
-> make your patch less intrusive inb 2.4 doesn't apply anymore.  Having
-> two checks for the same thing is indeed very bad in will cause harm
-> and maintaince burden in the long term.  Don't do it.
+I have a Fujitsu disk which allows newly submitted writes to
+bypass already-submitted reads.  A read went in, and did not
+come back for three seconds.  Ninety megabytes of writes went
+into the disk during those three seconds.
 
-So you want to move the 'if (turn_on && !capable(CAP_SYS_RAWIO)) return
--EPERM;' from the base kernel into the security module's ioperm() hook
-function, in addition to whatever additional logic the module may
-implement?  [Assuming for the moment that we kept the ioperm() hook, even
-though that isn't likely given its current lack of use and
-architecture-specific nature].
+>From a whole-system performance viewpoint that is completely
+broken behaviour.  It's unmanageable from the VM point of view.
+At least, I don't want to have to manage it at that level.
 
-If so, what about the rest of the kernel access checking logic?  Do you
-want all of the permission() logic pushed into the security module's
-inode_permission() hook function?  Do you want the bad_signal() logic
-pushed into the security module's task_kill() hook function?  That kind of
-change was considered and discussed on linux-security-module long ago, but
-it will yield a very invasive patch for very little gain.  It also
-requires cleanly separating all access checking logic from functional
-logic (it is sometimes fairly intertwined) and determining exactly which
-is which (e.g. is enforcing a read-only mount a security behavior or a
-functional behavior?).
+We may be able to work around it by adding kludges to the IO
+scheduler but it's easier to just set the tag depth to zero and
+mutter rude words about clueless firmware developers.
 
-> Show me a useful example that needs this argument.
+> > I guess, however, that this issue will evaporate substantially once the
+> > aic7xxx driver uses ordered tags to represent the transaction integrity
+> > since  the barriers will force the drive seek algorithm to follow the tag
+> > transmission order much more closely.
+> 
+> Hooks for sending ordered tags have been in the aic7xxx driver, at least
+> in FreeBSD's version, since '97.  As soon as the Linux cmd blocks have
+> such information it will be trivial to have the aic7xxx driver issue
+> the appropriate tag types.  But this misses the point.  Andrew's original
+> speculation was that writes were "passing reads" once the read was
+> submitted to the drive.  I would like to understand the evidence behind
+> that assertion since all drive's I've worked with automatically give
+> a higher priority to read traffic than writes since writes can be buffered
+> but reads cannot.
 
-Do you want every process that can use ioperm() to be able to access the
-full range of ports accessible by that call?  If not, then you need
-something finer-grained than CAP_SYS_RAWIO.  But as I said, we don't
-presently use this hook, and it is architecture-dependent.
+Could be that the Fujitsu is especially broken.  I observed the three
+second read latency with 253 tags (OK, that's 128 megabytes worth).
+But with the driver limited to four tags, latency was two seconds.
+Hence my speculation.
 
-> And WTF is the use a security policy that checks module arguments?  Do
-> you want to disallow options that are quotes from books on the index
-> or not political correct enough for a US state agency?
+>  Ordered tags only help if the driver is already not
+> doing what you want or if your writes must have a specific order for
+> data integrity.
 
-The LSM module_initialize hook is called with a pointer to the kernel's
-copy of the relocated module image with the struct module header.  Hence,
-the security module is free to perform whatever validation it wants on
-that image prior to the execution of the init function.  But if the
-criteria is that there must be a specific existing security module that
-uses the hook, then this one will go away too.
+Is it possible to add a tag to a read which says "may not be bypassed
+by writes"?  That would be OK, as long as the driver is only set up
+to use a tag depth of four or so.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+To use larger tag depths, we'd need to be able to tag newly incoming
+reads with a "do this before servicing already-submitted writes"
+attribute.  Is anything like that available?

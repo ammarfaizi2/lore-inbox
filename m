@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265277AbUAJRce (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 12:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265278AbUAJRce
+	id S265230AbUAJR3N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 12:29:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbUAJR3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 12:32:34 -0500
-Received: from mailgate5.cinetic.de ([217.72.192.165]:62156 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id S265277AbUAJRcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 12:32:08 -0500
-Date: Sat, 10 Jan 2004 18:32:07 +0100
-Message-Id: <200401101732.i0AHW7Q18932@mailgate5.cinetic.de>
+	Sat, 10 Jan 2004 12:29:13 -0500
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:64837 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S265230AbUAJR3F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 12:29:05 -0500
+Message-ID: <40003655.3010702@samwel.tk>
+Date: Sat, 10 Jan 2004 18:28:53 +0100
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Organization: http://freemail.web.de/
-From: <davidjoerg@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Mistake in Documentation/cdrom/ide-cd
-Content-Type: text/plain; charset="iso-8859-1"
+To: Tim Cambrant <tim@cambrant.com>
+CC: Mario Vanoni <vanonim@bluewin.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH][TRIVIAL] Remove bogus "value 0x37ffffff truncated to 0x37ffffff"
+ warning.
+References: <40001CEE.5050206@bluewin.ch> <20040110155626.GA20684@cambrant.com>
+In-Reply-To: <20040110155626.GA20684@cambrant.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Tim Cambrant wrote:
+> On Sat, Jan 10, 2004 at 04:40:30PM +0100, Mario Vanoni wrote:
+> 
+>>Compiling the kernel under 2.6.1-mm2, gcc-3.3.2
+>>(same messages as under 2.6.1-rc1-mm1, re-tested),
+>>
+>>arch/i386/boot/setup.S: Assembler messages:
+>>arch/i386/boot/setup.S:165: Warning: value 0x37ffffff truncated to 
+>>0x37ffffff
+> 
+> This is apparently a known problem and has existed for a long time,
+> but no-one has fixed it for some reason. I asked the exacly same
+> question a few months ago, and someone told me that this issue has
+> been around forever, but is noticed under 2.6, since it is less
+> verbose during the compilation. I'll pass the message that was told
+> to me: If you've got a fix, it would surely be included in the kernel.
 
-I have found some mistakes in the documentation.
-Here's a diff to fix it. It applies for 2.6.1 as well as 2.4.24.
+The problem is in the MAXMEM macro. This macro takes the inverse of a 
+positive number, subtracts another number, and the negative result 
+overflows the negative range of a 32-bit integer. The assembler 
+truncates it, but apparently it can't print overly negative numbers 
+correctly, that's why it looks so strange.
 
+My proposed fix is attached: change the macro to subtract the numbers 
+from 0xFFFFFFFF, and then add 1 at the end. That yields the same result, 
+but without going through a negative intermediate value that needs to be 
+truncated.
 
---- Documentation/cdrom/ide-cd	2003-12-31 05:48:00.000000000 +0100
-+++ Documentation/myfile.txt	2004-01-10 17:18:54.000000000 +0100
-@@ -74,7 +74,7 @@
- 3. The CDROM drive should be connected to the host on an IDE
-    interface.  Each interface on a system is defined by an I/O port
-    address and an IRQ number, the standard assignments being
--   0x170 and 14 for the primary interface and 0x1f0 and 15 for the
-+   0x1f0 and 14 for the primary interface and 0x170 and 15 for the
-    secondary interface.  Each interface can control up to two devices,
-    where each device can be a hard drive, a CDROM drive, a floppy drive, 
-    or a tape drive.  The two devices on an interface are called `master'
-@@ -268,8 +268,8 @@
- 
-   - Double-check your hardware configuration to make sure that the IRQ
-     number of your IDE interface matches what the driver expects.
--    (The usual assignments are 14 for the primary (0x170) interface
--    and 15 for the secondary (0x1f0) interface.)  Also be sure that
-+    (The usual assignments are 14 for the primary (0x1f0) interface
-+    and 15 for the secondary (0x170) interface.)  Also be sure that
-     you don't have some other hardware which might be conflicting with
-     the IRQ you're using.  Also check the BIOS setup for your system;
-     some have the ability to disable individual IRQ levels, and I've
+-- Bart
 
 
 
-Regards, David
--- 
+--- page.h.orig	2004-01-10 18:15:17.000000000 +0100
++++ page.h	2004-01-10 18:15:47.000000000 +0100
+@@ -123,7 +123,7 @@
 
-www.gnu.org | http://waste.informatik.hu-berlin.de/Grassmuck/Texts/drm-fiffko.html
-www.againsttcpa.com | www.debian.org | www.mozilla.org | www.xiph.org
-______________________________________________________________________________
-Erdbeben im Iran: Zehntausende Kinder brauchen Hilfe. UNICEF hilft den
-Kindern - helfen Sie mit! https://www.unicef.de/spe/spe_03.php
+  #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
+  #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
+-#define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
++#define MAXMEM			(0xFFFFFFFF-__PAGE_OFFSET-__VMALLOC_RESERVE+1)
+  #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
+  #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
+  #define pfn_to_kaddr(pfn)      __va((pfn) << PAGE_SHIFT)
+
 

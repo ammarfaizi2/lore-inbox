@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269646AbRHaWpw>; Fri, 31 Aug 2001 18:45:52 -0400
+	id <S269718AbRHaWrC>; Fri, 31 Aug 2001 18:47:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269673AbRHaWpn>; Fri, 31 Aug 2001 18:45:43 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:45190 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S269651AbRHaWph>;
-	Fri, 31 Aug 2001 18:45:37 -0400
-Date: Fri, 31 Aug 2001 15:45:50 -0700 (PDT)
-Message-Id: <20010831.154550.70219421.davem@redhat.com>
-To: paulus@samba.org
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, davidm@hpl.hp.com
-Subject: Re: [PATCH] avoid unnecessary cache flushes
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15247.29338.3671.548678@cargo.ozlabs.ibm.com>
-In-Reply-To: <15247.29338.3671.548678@cargo.ozlabs.ibm.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S269693AbRHaWqy>; Fri, 31 Aug 2001 18:46:54 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19982 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269673AbRHaWqX>; Fri, 31 Aug 2001 18:46:23 -0400
+Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
+To: andrew.grover@intel.com (Grover, Andrew)
+Date: Fri, 31 Aug 2001 23:50:02 +0100 (BST)
+Cc: russell@coker.com.au ('Russell Coker'),
+        acpi@phobos.fachschaften.tu-muenchen.de ("Acpi-linux (E-mail)"),
+        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0DB@orsmsx35.jf.intel.com> from "Grover, Andrew" at Aug 31, 2001 02:49:04 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15cx6w-00049f-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Paul Mackerras <paulus@samba.org>
-   Date: Fri, 31 Aug 2001 21:18:50 +1000 (EST)
-   
-   Any comments from the architecture maintainers?  Linus, does this look
-   OK to apply to your tree?
+> So of course I realize this wouldn't happen any time soon, but has any
+> discussion taken place regarding enhancing the bootloader (grub? Steal
+> FreeBSD's?) to load modular drivers very early, and possibly abstracting
+> SMP/UP from the kernel proper? Wouldn't this be a better solution than
+> initrd?
 
-No comments other than it will silently break sparc64 as you've
-updated the declarations in the asm-sparc64 headers but failed to
-fixup the assembler routine itself to expect the page * arg.
+All the discussion we have has been based on seriously enhancing and
+expanding the use of the initrd/ramfs layer. Remember we can begin running
+from ramfs without interrupts, pci bus scans or the like. The things it cant
+do are - pick a kernel by processor type, pick SMP/non SMP.
 
-I would suggest instead to change the name of the assembler
-routine to __copy_user_page et al. and make copy_user_page just
-an inline or define which plucks out page->address and passes
-that onto __copy_user_page.  This way you require no knowledge
-of Sparc assembly whatsoever.
+As it happens both of those are things that are deeply buried in the whole
+compile choices and how we generate the code itself - so they do need to
+be boot loader driven (or user driven)
 
-Later,
-David S. Miller
-davem@redhat.com
+So the path for ACPI could indeed go
+
+load kernel
+load initial ramfs
+Discover we have ACPI
+load acpi core
+load acpi irq router
+load acpi timers
+[init hardware]
+load ide disk
+load ext3
+mount /
+
+Alan

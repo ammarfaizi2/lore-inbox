@@ -1,79 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267308AbSLEMfz>; Thu, 5 Dec 2002 07:35:55 -0500
+	id <S267309AbSLEMhE>; Thu, 5 Dec 2002 07:37:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267309AbSLEMfz>; Thu, 5 Dec 2002 07:35:55 -0500
-Received: from fetch.runbox.com ([193.71.199.211]:22704 "EHLO aibo.runbox.com")
-	by vger.kernel.org with ESMTP id <S267308AbSLEMfy>;
-	Thu, 5 Dec 2002 07:35:54 -0500
-Message-ID: <002701c29c5c$93fab2c0$47614ccb@zaman>
-From: "Shahid" <z-shahid@runbox.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "kernel" <linux-kernel@vger.kernel.org>
-References: <00d101c29b8d$63e45e80$4b614ccb@zaman> <1039009659.15359.16.camel@irongate.swansea.linux.org.uk>
-Date: Thu, 5 Dec 2002 18:46:21 +0600
-MIME-Version: 1.0
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Subject: Re: testing mouse device driver
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S267310AbSLEMhE>; Thu, 5 Dec 2002 07:37:04 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58637 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267309AbSLEMhD>; Thu, 5 Dec 2002 07:37:03 -0500
+Date: Thu, 5 Dec 2002 12:44:34 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] generic device DMA implementation
+Message-ID: <20021205124434.C22686@flint.arm.linux.org.uk>
+Mail-Followup-To: "Adam J. Richter" <adam@yggdrasil.com>,
+	linux-kernel@vger.kernel.org
+References: <200212051221.EAA04710@adam.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200212051221.EAA04710@adam.yggdrasil.com>; from adam@yggdrasil.com on Thu, Dec 05, 2002 at 04:21:01AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 05, 2002 at 04:21:01AM -0800, Adam J. Richter wrote:
+> Russell King wrote:
+> [An excellent explanation of why you sometimes may need consistent
+> memory.]
+> >In other words, you _will_ loose information in this case, guaranteed.
+> >I'd rather keep our existing pci_* API than be forced into this crap
+> >again.
+> 
+> 	All of the proposed API variants that we have discussed in
+> this thread for pci_alloc_consistent / dma_malloc give you consistent
+> memory (or fail) unless you specifically tell it that returning
+> inconsistent memory is OK.
 
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: "Shahid" <z-shahid@runbox.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Sent: Wednesday, December 04, 2002 7:47 PM
-Subject: Re: testing mouse device driver
+How does a driver writer determine if his driver can cope with inconsistent
+memory?  If their view is a 32-byte cache line, and their descriptors are
+32 bytes long, they could well say "we can cope with inconsistent memory".
+When 64 byte cache lines are the norm, the driver magically breaks.
 
+I think we actually want to pass the minimum granularity the driver can
+cope with if we're going to allocate inconsistent memory.  A driver
+writer does not have enough information to determine on their own
+whether inconsistent memory is going to be usable on any architecture.
 
->
-> Minor 0 is dynamic - you probably want to pick another minor number or
-> look in /proc/misc to see which minor was chosen.
->
-> The PS/2 port is rather special btw and tied in with the keyboard so
-> isnt one you can treat seperately. Fortunately no PS/2 mouse should need
-> any 2.4 kernel hacks, just user space stuff to handle different command
-> streams
->
-
-  /******* Eid Mubarok and greetings to all of this kernel mailing list
-                        on the occasion of the Holy Eid
-*********/
-
-hi,
-        thanx for ur quick response. Actually what i need (a part of my
-academic project), is just to comile ur code and load it as a module and
-then to see whether the bare mouse specific events occur. but the painful
-reality is, i failed to do so. FYI,  i just a sophomore undergraduate
-student, and i don't find any resourse inside or outside my faculty to help
-me to do this. So i had to come in the kernel mailing list, though i am
-almost a newbie.
-
-        i tried with minor numbers other than 0. first i tried with ,inor
-number 1, cauze this is the number i got in /proc/misc allocated for psaux,
-in that file. but the result is same. now while i try to load the module,
-the error message is:
-
-        init_module: no such device, invalid parameters
-        hint: invalid IO or irq number
-
-
-        then i arbitary tried with some other minor numbers, but the result
-is same.
-So plz help me to just load the module. as u r the author, certainly u
-compiled that code and load the module. so plz tell me ur parameters, i.e.
-the port address and major-minor number and irq number, or other hints so
-that i load that module.
-TIK
-
-regards -
-Shahid
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

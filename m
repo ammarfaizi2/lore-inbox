@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265707AbUAKB53 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 20:57:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265708AbUAKB53
+	id S265708AbUAKCUy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 21:20:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265710AbUAKCUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 20:57:29 -0500
-Received: from ms-smtp-03-qfe0.nyroc.rr.com ([24.24.2.57]:13245 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S265707AbUAKB51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 20:57:27 -0500
-Date: Sat, 10 Jan 2004 20:57:24 -0500
-To: linux-kernel@vger.kernel.org
-Subject: personality.h: struct map_segment
-Message-ID: <20040111015723.GA8968@andromeda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jan 2004 21:20:54 -0500
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:10369 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265708AbUAKCUw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 21:20:52 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter.koenigsmann@gmx.de>,
+       Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter@peterpall.de>
+Subject: Re: [PATCH 1/2] Synaptics rate switching
+Date: Sat, 10 Jan 2004 21:20:46 -0500
+User-Agent: KMail/1.5.4
+Cc: Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter@peterpall.de>,
+       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Andrew Morton <akpm@osdl.org>
+References: <Pine.LNX.4.53.0401091101170.1050@calcula.uni-erlangen.de> <200401100345.17211.dtor_core@ameritech.net> <Pine.LNX.4.53.0401102241130.1980@calcula.uni-erlangen.de>
+In-Reply-To: <Pine.LNX.4.53.0401102241130.1980@calcula.uni-erlangen.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Justin Pryzby <justinpryzby@users.sourceforge.net>
+Message-Id: <200401102120.46956.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-include/linux/personality.h defines
+On Saturday 10 January 2004 05:05 pm, Gunter Königsmann wrote:
+> Tried it. Doesn't change a thing. Means: I get about half the number of
+> warning messages, but that just corresponds to half the number of
+> packets.
+>
+>
+> What helps a lot, but not to 100% (get bad keypresses anyway) is
+> totally deactivating the ACPI. Killing all processes that access
+> /proc/acpi seems again to help a bit.
+>
+> And The number of Warnings seemingly increases with the labtop
+> temperature... In a really cold room I get nearly no warnings at all.
+> Jitter? Hardware, that is simply broken?
+>
 
-struct exec_domain {
-        const char              *name;          /* name of the execdomain */
-        handler_t               handler;        /* handler for syscalls */
-        unsigned char           pers_low;       /* lowest personality */
-        unsigned char           pers_high;      /* highest personality */
-        unsigned long           *signal_map;    /* signal mapping */
-        unsigned long           *signal_invmap; /* reverse signal mapping */
-        struct map_segment      *err_map;       /* error mapping */
-        struct map_segment      *socktype_map;  /* socket type mapping */
-        struct map_segment      *sockopt_map;   /* socket option mapping */
-        struct map_segment      *af_map;        /* address family mapping */
-        struct module           *module;        /* module context of the ed. */
-        struct exec_domain      *next;          /* linked list (internal) */
-};
-
-However, as best as I can tell, struct map_segment is never defined.
-I've grepped 2.4 and 2.5, and googled to no avail.  I'm just curious, is
-this simply unimplemented functionality?  And what is it ultimately
-supposed to do?
-
-Justin
+Actually, since you mentioned temperature.. is CPUFREQ active or does
+the ACPI throttle your processor to a lower frequency if it gets hot?
+ 
+Dmitry

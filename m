@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265708AbUADQFN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 11:05:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265715AbUADQFM
+	id S265736AbUADQDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 11:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265726AbUADQDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 11:05:12 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:64977 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S265708AbUADQEG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 11:04:06 -0500
-Date: Sun, 04 Jan 2004 08:04:00 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: DaMouse Networks <damouse@ntlworld.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-rc1-mjb1
-Message-ID: <6220000.1073232239@[10.10.2.4]>
-In-Reply-To: <20040104113630.78a94dcd@EozVul.WORKGROUP>
-References: <20040104113630.78a94dcd@EozVul.WORKGROUP>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sun, 4 Jan 2004 11:03:09 -0500
+Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:22421 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S265736AbUADQCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 11:02:54 -0500
+Message-ID: <3FF83921.1030907@backtobasicsmgmt.com>
+Date: Sun, 04 Jan 2004 09:02:41 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Greg KH <greg@kroah.com>
+CC: Witukind <witukind@nsbm.kicks-ass.org>,
+       "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: udev - please help me to understand
+References: <microsoft-free.87r7yiinaj.fsf@eicq.dnsalias.org> <20040102202316.GD4992@kroah.com> <20040103010010.GA14823@werewolf.able.es> <20040103135433.09eb97b7.witukind@nsbm.kicks-ass.org> <20040103215646.GE11061@kroah.com>
+In-Reply-To: <20040103215646.GE11061@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm just wondering how the HT schedular merge is coming? I'm interesting 
-> in getting a better/new one for some testing so I wondered how it was 
-> coming along with it being ported to 2.6.1-rc1.
+Greg KH wrote:
 
-Ingo's scheduler crashes on boot for me. I haven't tried Nick's stuff in
-a while, but it's pretty extensive, and comes with a lot of stuff that'll
-conflict with what I currently have, so not much fun to merge probably.
+> procfs is for process information.
+> sysfs is for system information.  Slowly, over time, things that are
+> currently in procfs will be moving to sysfs.
 
-Does Nick's stuff work for you?
+Slight clarification:
 
-M.
+Slowly, over time, things that are currently in procfs _that never 
+belonged there_ will be moving to sysfs. procfs isn't going away, it's 
+just being converted back to its original purpose (that of providing 
+process-specific information).
 

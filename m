@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265214AbRFVBaC>; Thu, 21 Jun 2001 21:30:02 -0400
+	id <S265306AbRFVBgY>; Thu, 21 Jun 2001 21:36:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbRFVB3w>; Thu, 21 Jun 2001 21:29:52 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:62293 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S265214AbRFVB3h>; Thu, 21 Jun 2001 21:29:37 -0400
-Date: Fri, 22 Jun 2001 03:29:18 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Eric S. Raymond" <esr@snark.thyrsus.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Controversy over dynamic linking -- how to end the panic
-Message-ID: <20010622032918.H707@athlon.random>
-In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com>
+	id <S265307AbRFVBgO>; Thu, 21 Jun 2001 21:36:14 -0400
+Received: from w115.z208177135.sjc-ca.dsl.cnc.net ([208.177.135.115]:4235 "EHLO
+	technolunatic.com") by vger.kernel.org with ESMTP
+	id <S265306AbRFVBgJ>; Thu, 21 Jun 2001 21:36:09 -0400
+Date: Thu, 21 Jun 2001 18:36:03 -0700
+From: Dionysius Wilson Almeida <dwilson@technolunatic.com>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: eepro100: wait_for_cmd_done timeout
+Message-ID: <20010621183603.A28081@technolunatic.com>
+Reply-To: dwilson@technologist.com
+In-Reply-To: <20010620163134.A22173@technolunatic.com> <20010620195134.A6877@saw.sw.com.sg> <20010620170202.B22565@technolunatic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com>; from esr@snark.thyrsus.com on Thu, Jun 21, 2001 at 02:14:42PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010620170202.B22565@technolunatic.com>; from dwilson@technolunatic.com on Wed, Jun 20, 2001 at 05:02:02PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. Userland programs which request kernel services via normal system
-							 ^^^^^^
->    calls *are not* to be considered derivative works of the kernel.
+I tried inserting a udelay(1) and increasing the count ..but
+the same behaviour.  
 
-Please, at least don't say "normal" or it will be non obvious that it is
-ok for the vsyscalls too (which aren't *that* normal system calls). I'd
-rather use "via any kind of official system call (vsyscalls included)".
-Otherwise I guess a malicious could try to say that the vsyscalls are
-basically dynamically linking the userspace with the kernel (dynamically
-linking GPL code in the kernel to whatever non GPL userspace).
+any clues ? btw, i've been able to compile the redhat 7.1 intel e100
+driver and it works fine for my card.
 
-vsyscalls cannot give any advantage to the dark side (satellite is
-flooding me with the star wars movies sorry ;) anything you can do with
-a vsyscall, you can do with a real syscall too, just slower.  They can
-only improve performance when it is possible to provide the same
-functionality without entering/exiting kernel. So nobody sane could ever
-complain about the vsyscalls but since you're writing that stuff it
-worth to make it explicit I think ;).
+-Wilson
 
-Thanks,
+* Dionysius Wilson Almeida (dwilson@technolunatic.com) wrote:
+> No..that was pretty much what i saw in the logs.
+> 
+> I see wait_for_cmd_done timeout being the only one being repeated in the
+> logs
+> 
+> -Wilson
+> `
+> * Andrey Savochkin (saw@saw.sw.com.sg) wrote:
+> > What was the first error message from the driver?
+> > NETDEV WATCHDOG report went before wait_for_cmd_done timeout and is more
+> > important.  I wonder if you had some other messages before the watchdog one.
+> > 
+> > 	Andrey
+> > 
+> > On Wed, Jun 20, 2001 at 04:31:34PM -0700, Dionysius Wilson Almeida wrote:
+> > > And this is the log when the card hangs :
+> > > =========================================
+> > > Jun 20 16:10:18 debianlap kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> > > Jun 20 16:10:18 debianlap kernel: eth0: Transmit timed out: status 0050  0c80 at 314/342 command 000c0000.
+> > > Jun 20 16:10:18 debianlap kernel: eth0: Tx ring dump,  Tx queue 342 / 314:
+> > > Jun 20 16:14:07 debianlap kernel: eepro100: wait_for_cmd_done timeout!
+> > > Jun 20 16:14:38 debianlap last message repeated 5 times
+> 
+> -- 
+> Eat shit -- billions of flies can't be wrong.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Andrea
+-- 
+Fortune's Office Door Sign of the Week:
+
+	Incorrigible punster -- Do not incorrige.

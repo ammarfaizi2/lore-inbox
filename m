@@ -1,72 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264181AbTH1SrW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 14:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264187AbTH1SrW
+	id S264190AbTH1SsH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 14:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTH1Sr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 14:47:22 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:12454
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S264181AbTH1SrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 14:47:20 -0400
-Message-ID: <3F4E4E13.1000301@redhat.com>
-Date: Thu, 28 Aug 2003 11:46:43 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030731 Thunderbird/0.2a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: ->pid in dnotify
-X-Enigmail-Version: 0.81.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------000806070101070905030904"
+	Thu, 28 Aug 2003 14:47:56 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41453 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264187AbTH1Srw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 14:47:52 -0400
+Date: Thu, 28 Aug 2003 11:18:33 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Micha Feigin <michf@post.tau.ac.il>
+Cc: Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: suspend fails under load
+Message-ID: <20030828091832.GC819@openzaurus.ucw.cz>
+References: <1060178056.1390.4.camel@litshi.luna.local> <20030808135037.GE6914@openzaurus.ucw.cz> <1060686223.3777.1.camel@litshi.luna.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060686223.3777.1.camel@litshi.luna.local>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000806070101070905030904
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi!
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> > > Under kernel 2.6.0-test2 I get the behaviour that when trying to suspend
+> > > under load, I get all the way to the black screen, after which I am
+> > > supposed to see the writing pages to disk message.
+> > > Instead I see an error message flashing by to fast to read and
+> > 
+> > that's easy: add mdelays to suspend.c :-)
+> 
+> Would like to, but couldn't tell where the message was coming from so
+> that I can put it in the right location ;)
+> If I could read the message then I would be able to know what to grep
+> for, kind of the chicken and the egg.
 
-I'm not entirely sure about this change.  But it seems to be necessary.
- The dnotify code stores the PID in the file structure.  The entire
-process shares the file and any signal (is it used for that?) should be
-sent to the process (thread group), not the individual thread.  Also
-keep in mind that threads can go away while the process (and therefore
-file descriptor) remain.  And the ID of the thread can be reused.
-
-Somebody who knows this code should take a good look.
-
-- --
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/Tk4T2ijCOnn/RHQRAh5cAJkBTNx7g9pj+naBm5fyftI9LatRTACfaPkg
-t/ZzWXPAjlaqRJc+wIRP8AU=
-=x8G3
------END PGP SIGNATURE-----
-
---------------000806070101070905030904
-Content-Type: text/plain;
- name="d-dnotify-pid"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="d-dnotify-pid"
-
-LS0tIGxpbnV4L2ZzL2Rub3RpZnkuYy1zYXZlCTIwMDMtMDQtMDMgMTA6MDQ6MDMuMDAwMDAw
-MDAwIC0wODAwCisrKyBsaW51eC9mcy9kbm90aWZ5LmMJMjAwMy0wOC0yOCAxMTo0MToyMy4w
-MDAwMDAwMDAgLTA3MDAKQEAgLTk0LDcgKzk0LDcgQEAKIAkJcHJldiA9ICZvZG4tPmRuX25l
-eHQ7CiAJfQogCi0JZXJyb3IgPSBmX3NldG93bihmaWxwLCBjdXJyZW50LT5waWQsIDEpOwor
-CWVycm9yID0gZl9zZXRvd24oZmlscCwgY3VycmVudC0+dGdpZCwgMSk7CiAJaWYgKGVycm9y
-KQogCQlnb3RvIG91dF9mcmVlOwogCg==
---------------000806070101070905030904--
+So add mdelays to all messages.
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

@@ -1,80 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264588AbRFTTz6>; Wed, 20 Jun 2001 15:55:58 -0400
+	id <S264589AbRFTT47>; Wed, 20 Jun 2001 15:56:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264589AbRFTTzj>; Wed, 20 Jun 2001 15:55:39 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:7699 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S264588AbRFTTz3>;
-	Wed, 20 Jun 2001 15:55:29 -0400
-Message-ID: <3B30FF33.58807C3F@evision-ventures.com>
-Date: Wed, 20 Jun 2001 21:53:23 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en, de
+	id <S264591AbRFTT4t>; Wed, 20 Jun 2001 15:56:49 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:10758 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264589AbRFTT4f>; Wed, 20 Jun 2001 15:56:35 -0400
+Date: Wed, 20 Jun 2001 16:56:24 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Walter Hofmann <walter.hofmann@physik.stud.uni-erlangen.de>
+Cc: Alan Cox <laughing@shared-source.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.5-ac15
+In-Reply-To: <20010619232328.A19241@frodo.uni-erlangen.de>
+Message-ID: <Pine.LNX.4.33.0106201654570.1376-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Mike Harrold <mharrold@cas.org>
-CC: landley@webofficenow.com, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Threads, inelegance, and Java
-In-Reply-To: <200106201927.PAA01484@mah21awu.cas.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Harrold wrote:
-> So what? Crusoe isn't designed for use in supercomputers. It's designed
-> for use in laptops where the user is running an email reader, a web
-> browser, a word processor, and where the user couldn't give a cr*p about
-> performance as long as it isn't noticeable (20% *isn't* for those types
-> of apps), but where the user does give a cr*p about how long his or her
-> battery lasts (ie, the entire business day, and not running out of power
-> at lunch time).
+On Tue, 19 Jun 2001, Walter Hofmann wrote:
+> On Sun, 17 Jun 2001, Walter Hofmann wrote:
+>
+> > I had already two crashes with ac15. The system was still ping-able, but
+> > login over the network didn't work anymore.
+> >
+> > The first crash happened after I started xosview and noticed that the
+> > system almost used up the swap (for no apparent reason). The second
+> > crash happened shortly after I started fsck on a crypto-loop device.
+>
+> FWIW, here is the vmstat output for the second (short) hang. Taken with
+> ac14, vmstat 1 was started (long) before the hang and interrupted about
+> five seconds after it. The machine has 128MB RAM and 256MB swap.
 
-I'm just to good in remembering the academing discussion about
-code morphing beeing a way to get more performance out of a chip
-design. They where claiming, that due to the fact they could make
-the underlying chip design much simpler and VLIW, the performance offset
-by the emulation wouldn't be smaller than the performance win
-in therms of a suprerior underlying chip architecture.
-This was set off to provide compensation for the biggest hurdle
-of VLIW design - insane code size and partially huge memmory
-bus bandwidth designs due to this. (Why do you think the itanim
-sucks on integer performance?)
-After this turned out the be the fact in reality - IBM dropped
-the developement of code morphing chips. Well transmeta turned
-to claims that the main advantage of it's design is much smaller
-power consumption. Well but in relity underclocked modern
-design optimized for power consumtions beat the transmeta
-chip easly: Geode, and the recently announced VIA chip to name a few.
-In comparision to chip design esp. targetted at low power consumtion
-the transmeta chip is laughable: this ARM please! My psion
-beats *ANY* chip from them by huge magnitude.
+>    procs                      memory    swap          io     system         cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+>  1  0  0  77000   1464  18444  67324   8   0   152   224  386  1345  26  19  55
+>  2  4  2  77084   1524  18396  66904   0 1876   108  2220 2464 66079   1  98   1
 
-> Yes, it *can* be used in a supercomputer (or more preferably, a cluster
-> of Linux machines), or even as a server where performance isn't the
-> number one concern and things like power usage (read: anywhere in
-> California right now ;-) ), and rack size are important. You can always
-> get faster, more efficient hardware, but you'll pay for it.
+Does the following patch help with this problem, or are
+you both experiencing something unrelated to this particular
+buglet ?
 
-Well the transmeta cpu isn't cheap actually. And if you talk about
-super computing, hmm what about some PowerPC CPU variant - they very
-compettetiv in terms of cost and FPU performance! Transmeta isn't the
-adequate choice here.
+regards,
 
-> Remember, the whole concept of code-morphing is that the majority of
-> apps that people run repeat the same slice of code over and over (eg,
-> a word processor). Once crusoe has translated it once, it doesn't need
-> to do it again. It's the same concept as a JIT java compiler.
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
 
-Well both of those concepts fail in terms of optimization due
-to the same reason: much less information is present about
-the structure of the code then during source code compilation.
-And therefore usually the performance of any kind of JIT compiler
-*sucks* in comparision to classical sophisticated compilers.
-Additionaly there may be some performance wins due to the
-ability of runtime profiling (anykind thereof), however it still remains
-to be shown that this performs better then statically analyzed code.
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
-> /Mike - who doesn't work for Transmeta, in case anyone was wondering... :-)
 
-/Marcin - who doesn't bet a penny on Transmeta
+--- linux/mm/swapfile.c.~1~	Thu May  3 16:34:46 2001
++++ linux/mm/swapfile.c	Thu May  3 16:36:07 2001
+@@ -67,8 +67,14 @@
+ 	}
+ 	/* No luck, so now go finegrined as usual. -Andrea */
+ 	for (offset = si->lowest_bit; offset <= si->highest_bit ; offset++) {
+-		if (si->swap_map[offset])
++		if (si->swap_map[offset]) {
++			/* Any full pages we find we should avoid
++			 * looking at next time. */
++			if (offset == si->lowest_bit)
++				si->lowest_bit++;
+ 			continue;
++		}
++
+ 	got_page:
+ 		if (offset == si->lowest_bit)
+ 			si->lowest_bit++;
+@@ -79,6 +85,7 @@
+ 		si->cluster_next = offset+1;
+ 		return offset;
+ 	}
++	si->highest_bit = 0;
+ 	return 0;
+ }
+
+

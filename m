@@ -1,1301 +1,222 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261892AbTC1CKf>; Thu, 27 Mar 2003 21:10:35 -0500
+	id <S261920AbTC1CYn>; Thu, 27 Mar 2003 21:24:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261920AbTC1CKe>; Thu, 27 Mar 2003 21:10:34 -0500
-Received: from tomts23.bellnexxia.net ([209.226.175.185]:41681 "EHLO
-	tomts23-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S261892AbTC1CKN>; Thu, 27 Mar 2003 21:10:13 -0500
-Date: Thu, 27 Mar 2003 21:16:07 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Greg KH <greg@kroah.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: config options for PS/2 kbd and USB mouse?
-In-Reply-To: <20030328010405.GH3416@kroah.com>
-Message-ID: <Pine.LNX.4.44.0303272113370.1263-100000@dell>
+	id <S261928AbTC1CYm>; Thu, 27 Mar 2003 21:24:42 -0500
+Received: from mail.casabyte.com ([209.63.254.226]:43019 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP
+	id <S261920AbTC1CYj>; Thu, 27 Mar 2003 21:24:39 -0500
+From: "Robert White" <rwhite@casabyte.com>
+To: "Shaya Potter" <spotter@cs.columbia.edu>, <linux-kernel@vger.kernel.org>
+Subject: RE: process creation/deletions hooks
+Date: Thu, 27 Mar 2003 18:35:40 -0800
+Message-ID: <PEEPIDHAKMCGHDBJLHKGMEEOCFAA.rwhite@casabyte.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <1048813389.31797.30.camel@zaphod>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Mar 2003, Greg KH wrote:
-
-> On Thu, Mar 27, 2003 at 07:57:26PM -0500, Robert P. J. Day wrote:
-> > On Thu, 27 Mar 2003, Greg KH wrote:
-> > 
-> > > On Thu, Mar 27, 2003 at 06:47:29PM -0500, Robert P. J. Day wrote:
-> > > > 
-> > > > are there new options i should be looking at to support a
-> > > > PS/2 keyboard on this laptop?  i've selected pretty much all
-> > > > of the options i thought i needed, but no results so far.
-> > > 
-> > > Did you enable CONFIG_SERIO_I8042 ?
-> > 
-> > yup.  i can't see anything else under "Input device support"
-> > that seems to be necessary.  still puzzled ...
-> 
-> Mind posting your .config?
-
-here's my latest 2.5.66 .config.  i went back and changed a couple
-input device settings from modules to built in, rebuilt, and booted.
-this time, i had keyboard input, but it still had problems.  any
-keystrokes on the external PS/2 keyboard generated a continuous
-stream of that character, and i got occasional complaints about
-the "atkbd" driver, even though i'm pretty sure i need that
-because of the external keyboard.  still puzzled ...
-
-#
-# Automatically generated make config: don't edit
-#
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-
-#
-# General setup
-#
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-
-#
-# Processor type and features
-#
-CONFIG_X86_PC=y
-# CONFIG_X86_VOYAGER is not set
-# CONFIG_X86_NUMAQ is not set
-# CONFIG_X86_SUMMIT is not set
-# CONFIG_X86_BIGSMP is not set
-# CONFIG_X86_VISWS is not set
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-# CONFIG_MPENTIUMII is not set
-CONFIG_MPENTIUMIII=y
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MK8 is not set
-# CONFIG_MELAN is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-# CONFIG_MVIAC3_2 is not set
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_PREFETCH=y
-# CONFIG_HUGETLB_PAGE is not set
-# CONFIG_SMP is not set
-# CONFIG_PREEMPT is not set
-# CONFIG_X86_UP_APIC is not set
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-# CONFIG_X86_MCE_NONFATAL is not set
-CONFIG_TOSHIBA=m
-CONFIG_I8K=m
-CONFIG_MICROCODE=m
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-# CONFIG_EDD is not set
-# CONFIG_NOHIGHMEM is not set
-CONFIG_HIGHMEM4G=y
-# CONFIG_HIGHMEM64G is not set
-CONFIG_HIGHMEM=y
-# CONFIG_HIGHPTE is not set
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-
-#
-# Power management options (ACPI, APM)
-#
-CONFIG_PM=y
-# CONFIG_SOFTWARE_SUSPEND is not set
-
-#
-# ACPI Support
-#
-# CONFIG_ACPI is not set
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-# CONFIG_APM_DO_ENABLE is not set
-CONFIG_APM_CPU_IDLE=y
-# CONFIG_APM_DISPLAY_BLANK is not set
-CONFIG_APM_RTC_IS_GMT=y
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
-#
-# CPU Frequency scaling
-#
-# CONFIG_CPU_FREQ is not set
-
-#
-# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-#
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-# CONFIG_SCx200 is not set
-# CONFIG_PCI_LEGACY_PROC is not set
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_EISA=y
-CONFIG_EISA_PCI_EISA=y
-CONFIG_EISA_VIRTUAL_ROOT=y
-CONFIG_EISA_NAMES=y
-# CONFIG_MCA is not set
-CONFIG_HOTPLUG=y
-
-#
-# PCMCIA/CardBus support
-#
-CONFIG_PCMCIA=m
-CONFIG_CARDBUS=y
-CONFIG_I82092=m
-CONFIG_I82365=m
-CONFIG_TCIC=m
-
-#
-# PCI Hotplug Support
-#
-# CONFIG_HOTPLUG_PCI is not set
-
-#
-# Executable file formats
-#
-CONFIG_KCORE_ELF=y
-# CONFIG_KCORE_AOUT is not set
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-# CONFIG_PARPORT_PC_FIFO is not set
-# CONFIG_PARPORT_PC_SUPERIO is not set
-CONFIG_PARPORT_PC_PCMCIA=m
-# CONFIG_PARPORT_OTHER is not set
-CONFIG_PARPORT_1284=y
-
-#
-# Plug and Play support
-#
-CONFIG_PNP=y
-# CONFIG_PNP_NAMES is not set
-# CONFIG_PNP_DEBUG is not set
-
-#
-# Protocols
-#
-CONFIG_ISAPNP=y
-# CONFIG_PNPBIOS is not set
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-# CONFIG_LBD is not set
-
-#
-# ATA/ATAPI/MFM/RLL device support
-#
-CONFIG_IDE=y
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-CONFIG_BLK_DEV_IDECS=m
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDEFLOPPY=y
-CONFIG_BLK_DEV_IDESCSI=m
-# CONFIG_IDE_TASK_IOCTL is not set
-
-#
-# IDE chipset support/bugfixes
-#
-CONFIG_BLK_DEV_CMD640=y
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_IDEPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-# CONFIG_BLK_DEV_GENERIC is not set
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDE_TCQ is not set
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_AEC62XX=y
-CONFIG_BLK_DEV_ALI15X3=y
-# CONFIG_WDC_ALI15X3 is not set
-CONFIG_BLK_DEV_AMD74XX=y
-CONFIG_BLK_DEV_CMD64X=y
-# CONFIG_BLK_DEV_TRIFLEX is not set
-CONFIG_BLK_DEV_CY82C693=y
-# CONFIG_BLK_DEV_CS5520 is not set
-CONFIG_BLK_DEV_HPT34X=y
-CONFIG_BLK_DEV_HPT366=y
-# CONFIG_BLK_DEV_SC1200 is not set
-CONFIG_BLK_DEV_PIIX=y
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_SVWKS=y
-# CONFIG_BLK_DEV_SIIMAGE is not set
-CONFIG_BLK_DEV_SIS5513=y
-CONFIG_BLK_DEV_SLC90E66=y
-# CONFIG_BLK_DEV_TRM290 is not set
-CONFIG_BLK_DEV_VIA82CXXX=y
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_BLK_DEV_IDE_MODES=y
-
-#
-# SCSI device support
-#
-CONFIG_SCSI=m
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=m
-CONFIG_CHR_DEV_ST=m
-CONFIG_CHR_DEV_OSST=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=m
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-# CONFIG_SCSI_MULTI_LUN is not set
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_7000FASST is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AHA152X is not set
-# CONFIG_SCSI_AHA1542 is not set
-# CONFIG_SCSI_AHA1740 is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_AIC79XX is not set
-# CONFIG_SCSI_DPT_I2O is not set
-# CONFIG_SCSI_ADVANSYS is not set
-# CONFIG_SCSI_IN2000 is not set
-# CONFIG_SCSI_AM53C974 is not set
-# CONFIG_SCSI_MEGARAID is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_CPQFCTS is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_DTC3280 is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_GENERIC_NCR5380 is not set
-# CONFIG_SCSI_GENERIC_NCR5380_MMIO is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_PPA is not set
-# CONFIG_SCSI_IMM is not set
-# CONFIG_SCSI_NCR53C406A is not set
-# CONFIG_SCSI_NCR53C7xx is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_NCR53C8XX is not set
-# CONFIG_SCSI_SYM53C8XX is not set
-# CONFIG_SCSI_PAS16 is not set
-# CONFIG_SCSI_PCI2000 is not set
-# CONFIG_SCSI_PCI2220I is not set
-# CONFIG_SCSI_PSI240I is not set
-# CONFIG_SCSI_QLOGIC_FAS is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-# CONFIG_SCSI_SEAGATE is not set
-# CONFIG_SCSI_SIM710 is not set
-# CONFIG_SCSI_SYM53C416 is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_T128 is not set
-# CONFIG_SCSI_U14_34F is not set
-# CONFIG_SCSI_ULTRASTOR is not set
-# CONFIG_SCSI_NSP32 is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# PCMCIA SCSI adapter support
-#
-CONFIG_PCMCIA_AHA152X=m
-CONFIG_PCMCIA_FDOMAIN=m
-CONFIG_PCMCIA_NINJA_SCSI=m
-CONFIG_PCMCIA_QLOGIC=m
-
-#
-# Old CD-ROM drivers (not SCSI, not IDE)
-#
-# CONFIG_CD_NO_IDESCSI is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION is not set
-
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-
-#
-# Networking support
-#
-CONFIG_NET=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-# CONFIG_NETFILTER_DEBUG is not set
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-# CONFIG_NET_KEY is not set
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_NAT=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-CONFIG_IP_ROUTE_TOS=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_IP_ROUTE_LARGE_TABLES=y
-# CONFIG_IP_PNP is not set
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-CONFIG_NET_IPGRE_BROADCAST=y
-CONFIG_IP_MROUTE=y
-CONFIG_IP_PIMSM_V1=y
-CONFIG_IP_PIMSM_V2=y
-# CONFIG_ARPD is not set
-# CONFIG_INET_ECN is not set
-CONFIG_SYN_COOKIES=y
-# CONFIG_INET_AH is not set
-# CONFIG_INET_ESP is not set
-# CONFIG_XFRM_USER is not set
-
-#
-# IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-# CONFIG_IP_NF_MATCH_PKTTYPE is not set
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-# CONFIG_IP_NF_MATCH_ECN is not set
-# CONFIG_IP_NF_MATCH_DSCP is not set
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-# CONFIG_IP_NF_MATCH_HELPER is not set
-CONFIG_IP_NF_MATCH_STATE=m
-# CONFIG_IP_NF_MATCH_CONNTRACK is not set
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-# CONFIG_IP_NF_MATCH_PHYSDEV is not set
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-# CONFIG_IP_NF_NAT_LOCAL is not set
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-# CONFIG_IP_NF_TARGET_ECN is not set
-# CONFIG_IP_NF_TARGET_DSCP is not set
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_COMPAT_IPCHAINS=m
-CONFIG_IP_NF_COMPAT_IPFWADM=m
-CONFIG_IPV6=m
-# CONFIG_IPV6_PRIVACY is not set
-# CONFIG_INET6_AH is not set
-# CONFIG_INET6_ESP is not set
-
-#
-# IPv6: Netfilter Configuration
-#
-# CONFIG_IP6_NF_QUEUE is not set
-CONFIG_IP6_NF_IPTABLES=m
-CONFIG_IP6_NF_MATCH_LIMIT=m
-CONFIG_IP6_NF_MATCH_MAC=m
-# CONFIG_IP6_NF_MATCH_RT is not set
-# CONFIG_IP6_NF_MATCH_OPTS is not set
-# CONFIG_IP6_NF_MATCH_FRAG is not set
-# CONFIG_IP6_NF_MATCH_HL is not set
-CONFIG_IP6_NF_MATCH_MULTIPORT=m
-CONFIG_IP6_NF_MATCH_OWNER=m
-CONFIG_IP6_NF_MATCH_MARK=m
-# CONFIG_IP6_NF_MATCH_IPV6HEADER is not set
-# CONFIG_IP6_NF_MATCH_AHESP is not set
-# CONFIG_IP6_NF_MATCH_LENGTH is not set
-# CONFIG_IP6_NF_MATCH_EUI64 is not set
-CONFIG_IP6_NF_FILTER=m
-CONFIG_IP6_NF_TARGET_LOG=m
-CONFIG_IP6_NF_MANGLE=m
-CONFIG_IP6_NF_TARGET_MARK=m
-
-#
-# SCTP Configuration (EXPERIMENTAL)
-#
-CONFIG_IPV6_SCTP__=m
-# CONFIG_IP_SCTP is not set
-CONFIG_ATM=y
-CONFIG_ATM_CLIP=y
-# CONFIG_ATM_CLIP_NO_ICMP is not set
-CONFIG_ATM_LANE=m
-CONFIG_ATM_MPOA=m
-CONFIG_VLAN_8021Q=m
-# CONFIG_LLC is not set
-CONFIG_DECNET=m
-CONFIG_DECNET_SIOCGIFCONF=y
-CONFIG_DECNET_ROUTER=y
-CONFIG_DECNET_ROUTE_FWMARK=y
-CONFIG_BRIDGE=m
-# CONFIG_BRIDGE_NF_EBTABLES is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-CONFIG_NET_DIVERT=y
-# CONFIG_ECONET is not set
-CONFIG_WAN_ROUTER=m
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-
-#
-# QoS and/or fair queueing
-#
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=m
-CONFIG_NET_SCH_HTB=m
-CONFIG_NET_SCH_CSZ=m
-# CONFIG_NET_SCH_ATM is not set
-CONFIG_NET_SCH_PRIO=m
-CONFIG_NET_SCH_RED=m
-CONFIG_NET_SCH_SFQ=m
-CONFIG_NET_SCH_TEQL=m
-CONFIG_NET_SCH_TBF=m
-CONFIG_NET_SCH_GRED=m
-CONFIG_NET_SCH_DSMARK=m
-CONFIG_NET_SCH_INGRESS=m
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=m
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=m
-CONFIG_NET_CLS_U32=m
-CONFIG_NET_CLS_RSVP=m
-CONFIG_NET_CLS_RSVP6=m
-CONFIG_NET_CLS_POLICE=y
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-CONFIG_NETDEVICES=y
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-CONFIG_DUMMY=m
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-# CONFIG_ETHERTAP is not set
-# CONFIG_NET_SB1000 is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-# CONFIG_MII is not set
-CONFIG_HAPPYMEAL=m
-CONFIG_SUNGEM=m
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_EL1=m
-CONFIG_EL2=m
-CONFIG_ELPLUS=m
-CONFIG_EL16=m
-CONFIG_EL3=m
-CONFIG_3C515=m
-CONFIG_VORTEX=m
-# CONFIG_TYPHOON is not set
-CONFIG_LANCE=m
-CONFIG_NET_VENDOR_SMC=y
-CONFIG_WD80x3=m
-CONFIG_ULTRA=m
-CONFIG_ULTRA32=m
-CONFIG_SMC9194=m
-CONFIG_NET_VENDOR_RACAL=y
-CONFIG_NI5010=m
-CONFIG_NI52=m
-CONFIG_NI65=m
-
-#
-# Tulip family network device support
-#
-# CONFIG_NET_TULIP is not set
-CONFIG_AT1700=m
-CONFIG_DEPCA=m
-CONFIG_HP100=m
-CONFIG_NET_ISA=y
-CONFIG_E2100=m
-CONFIG_EWRK3=m
-CONFIG_EEXPRESS=m
-CONFIG_EEXPRESS_PRO=m
-CONFIG_HPLAN_PLUS=m
-CONFIG_HPLAN=m
-CONFIG_LP486E=m
-CONFIG_ETH16I=m
-CONFIG_NE2000=m
-# CONFIG_ZNET is not set
-CONFIG_NET_PCI=y
-CONFIG_PCNET32=m
-# CONFIG_AMD8111_ETH is not set
-CONFIG_ADAPTEC_STARFIRE=m
-# CONFIG_ADAPTEC_STARFIRE_NAPI is not set
-CONFIG_AC3200=m
-CONFIG_APRICOT=m
-# CONFIG_B44 is not set
-CONFIG_CS89x0=m
-CONFIG_DGRS=m
-CONFIG_EEPRO100=m
-# CONFIG_EEPRO100_PIO is not set
-# CONFIG_E100 is not set
-CONFIG_LNE390=m
-# CONFIG_FEALNX is not set
-CONFIG_NATSEMI=m
-CONFIG_NE2K_PCI=m
-CONFIG_NE3210=m
-CONFIG_ES3210=m
-CONFIG_8139CP=m
-CONFIG_8139TOO=m
-# CONFIG_8139TOO_PIO is not set
-# CONFIG_8139TOO_TUNE_TWISTER is not set
-CONFIG_8139TOO_8129=y
-# CONFIG_8139_OLD_RX_RESET is not set
-CONFIG_SIS900=m
-CONFIG_EPIC100=m
-CONFIG_SUNDANCE=m
-# CONFIG_SUNDANCE_MMIO is not set
-CONFIG_TLAN=m
-CONFIG_VIA_RHINE=m
-# CONFIG_VIA_RHINE_MMIO is not set
-CONFIG_NET_POCKET=y
-CONFIG_ATP=m
-CONFIG_DE600=m
-CONFIG_DE620=m
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_R8169 is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_TIGON3 is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-CONFIG_NET_RADIO=y
-
-#
-# Obsolete Wireless cards support (pre-802.11)
-#
-CONFIG_STRIP=m
-CONFIG_ARLAN=m
-CONFIG_WAVELAN=m
-CONFIG_PCMCIA_WAVELAN=m
-CONFIG_PCMCIA_NETWAVE=m
-
-#
-# Wireless 802.11 Frequency Hopping cards support
-#
-CONFIG_PCMCIA_RAYCS=m
-
-#
-# Wireless 802.11b ISA/PCI cards support
-#
-CONFIG_AIRO=m
-CONFIG_HERMES=m
-CONFIG_PLX_HERMES=m
-CONFIG_PCI_HERMES=m
-
-#
-# Wireless 802.11b Pcmcia/Cardbus cards support
-#
-CONFIG_PCMCIA_HERMES=m
-CONFIG_AIRO_CS=m
-CONFIG_NET_WIRELESS=y
-
-#
-# Token Ring devices (depends on LLC=y)
-#
-# CONFIG_NET_FC is not set
-# CONFIG_RCPCI is not set
-# CONFIG_SHAPER is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-
-#
-# PCMCIA network device support
-#
-CONFIG_NET_PCMCIA=y
-CONFIG_PCMCIA_3C589=m
-CONFIG_PCMCIA_3C574=m
-CONFIG_PCMCIA_FMVJ18X=m
-CONFIG_PCMCIA_PCNET=m
-CONFIG_PCMCIA_NMCLAN=m
-CONFIG_PCMCIA_SMC91C92=m
-CONFIG_PCMCIA_XIRC2PS=m
-CONFIG_PCMCIA_AXNET=m
-
-#
-# ATM drivers
-#
-# CONFIG_ATM_TCP is not set
-# CONFIG_ATM_LANAI is not set
-# CONFIG_ATM_ENI is not set
-# CONFIG_ATM_FIRESTREAM is not set
-# CONFIG_ATM_ZATM is not set
-# CONFIG_ATM_NICSTAR is not set
-# CONFIG_ATM_IDT77252 is not set
-# CONFIG_ATM_AMBASSADOR is not set
-# CONFIG_ATM_HORIZON is not set
-# CONFIG_ATM_IA is not set
-# CONFIG_ATM_FORE200E_MAYBE is not set
-
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-
-#
-# IrDA (infrared) support
-#
-# CONFIG_IRDA is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN_BOOL is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=m
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_JOYDEV=m
-# CONFIG_INPUT_TSDEV is not set
-CONFIG_INPUT_EVDEV=m
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input I/O drivers
-#
-# CONFIG_GAMEPORT is not set
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-# CONFIG_SERIO_CT82C710 is not set
-# CONFIG_SERIO_PARKBD is not set
-
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_INPORT is not set
-# CONFIG_MOUSE_LOGIBM is not set
-# CONFIG_MOUSE_PC110PAD is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-# CONFIG_INPUT_MISC is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-# CONFIG_SERIAL_NONSTANDARD is not set
-
-#
-# Serial drivers
-#
-# CONFIG_SERIAL_8250 is not set
-
-#
-# Non-8250 serial port support
-#
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=2048
-CONFIG_PRINTER=m
-# CONFIG_LP_CONSOLE is not set
-CONFIG_PPDEV=m
-# CONFIG_TIPAR is not set
-
-#
-# I2C support
-#
-CONFIG_I2C=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_PHILIPSPAR=m
-CONFIG_I2C_ELV=m
-CONFIG_I2C_VELLEMAN=m
-# CONFIG_SCx200_ACB is not set
-CONFIG_I2C_ALGOPCF=m
-CONFIG_I2C_ELEKTOR=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_PROC=m
-
-#
-# I2C Hardware Sensors Mainboard support
-#
-CONFIG_I2C_ALI15X3=m
-CONFIG_I2C_AMD756=m
-# CONFIG_I2C_AMD8111 is not set
-CONFIG_I2C_I801=m
-CONFIG_I2C_ISA=m
-CONFIG_I2C_PIIX4=m
-
-#
-# I2C Hardware Sensors Chip support
-#
-CONFIG_SENSORS_ADM1021=m
-CONFIG_SENSORS_LM75=m
-
-#
-# Mice
-#
-CONFIG_BUSMOUSE=m
-# CONFIG_QIC02_TAPE is not set
-
-#
-# IPMI
-#
-# CONFIG_IPMI_HANDLER is not set
-
-#
-# Watchdog Cards
-#
-CONFIG_WATCHDOG=y
-# CONFIG_WATCHDOG_NOWAYOUT is not set
-CONFIG_SOFT_WATCHDOG=m
-CONFIG_WDT=m
-CONFIG_WDTPCI=m
-# CONFIG_WDT_501 is not set
-CONFIG_PCWATCHDOG=m
-CONFIG_ACQUIRE_WDT=m
-CONFIG_ADVANTECH_WDT=m
-CONFIG_EUROTECH_WDT=m
-CONFIG_IB700_WDT=m
-CONFIG_I810_TCO=m
-# CONFIG_MIXCOMWD is not set
-# CONFIG_SCx200_WDT is not set
-# CONFIG_60XX_WDT is not set
-CONFIG_W83877F_WDT=m
-CONFIG_MACHZ_WDT=m
-CONFIG_SC520_WDT=m
-CONFIG_AMD7XX_TCO=m
-CONFIG_ALIM7101_WDT=m
-CONFIG_SC1200_WDT=m
-CONFIG_WAFER_WDT=m
-# CONFIG_CPU5_WDT is not set
-# CONFIG_HW_RANDOM is not set
-# CONFIG_NVRAM is not set
-CONFIG_RTC=y
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=y
-# CONFIG_AGP3 is not set
-CONFIG_AGP_INTEL=m
-CONFIG_AGP_VIA=m
-CONFIG_AGP_AMD=m
-CONFIG_AGP_SIS=m
-CONFIG_AGP_ALI=m
-# CONFIG_AGP_SWORKS is not set
-# CONFIG_AGP_AMD_8151 is not set
-CONFIG_DRM=y
-CONFIG_DRM_TDFX=m
-CONFIG_DRM_R128=m
-CONFIG_DRM_RADEON=m
-CONFIG_DRM_I810=m
-CONFIG_DRM_I830=m
-CONFIG_DRM_MGA=m
-
-#
-# PCMCIA character devices
-#
-# CONFIG_SYNCLINK_CS is not set
-CONFIG_MWAVE=m
-# CONFIG_RAW_DRIVER is not set
-# CONFIG_HANGCHECK_TIMER is not set
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# File systems
-#
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-# CONFIG_EXT2_FS_POSIX_ACL is not set
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-# CONFIG_EXT3_FS_POSIX_ACL is not set
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_FS_MBCACHE=y
-# CONFIG_REISERFS_FS is not set
-# CONFIG_JFS_FS is not set
-# CONFIG_XFS_FS is not set
-# CONFIG_MINIX_FS is not set
-CONFIG_ROMFS_FS=m
-CONFIG_QUOTA=y
-# CONFIG_QFMT_V1 is not set
-# CONFIG_QFMT_V2 is not set
-CONFIG_QUOTACTL=y
-CONFIG_AUTOFS_FS=m
-CONFIG_AUTOFS4_FS=m
-
-#
-# CD-ROM/DVD Filesystems
-#
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=y
-# CONFIG_UDF_FS is not set
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-# CONFIG_NTFS_FS is not set
-
-#
-# Pseudo filesystems
-#
-CONFIG_PROC_FS=y
-# CONFIG_DEVFS_FS is not set
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-
-#
-# Miscellaneous filesystems
-#
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EFS_FS is not set
-# CONFIG_CRAMFS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_HPFS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-CONFIG_SYSV_FS=m
-# CONFIG_UFS_FS is not set
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-# CONFIG_NFS_V4 is not set
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-# CONFIG_NFSD_V4 is not set
-# CONFIG_NFSD_TCP is not set
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_SUNRPC=m
-# CONFIG_SUNRPC_GSS is not set
-CONFIG_SMB_FS=m
-# CONFIG_SMB_NLS_DEFAULT is not set
-# CONFIG_CIFS is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-# CONFIG_AFS_FS is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_737=m
-CONFIG_NLS_CODEPAGE_775=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_852=m
-CONFIG_NLS_CODEPAGE_855=m
-CONFIG_NLS_CODEPAGE_857=m
-CONFIG_NLS_CODEPAGE_860=m
-CONFIG_NLS_CODEPAGE_861=m
-CONFIG_NLS_CODEPAGE_862=m
-CONFIG_NLS_CODEPAGE_863=m
-CONFIG_NLS_CODEPAGE_864=m
-CONFIG_NLS_CODEPAGE_865=m
-CONFIG_NLS_CODEPAGE_866=m
-CONFIG_NLS_CODEPAGE_869=m
-CONFIG_NLS_CODEPAGE_936=m
-CONFIG_NLS_CODEPAGE_950=m
-CONFIG_NLS_CODEPAGE_932=m
-CONFIG_NLS_CODEPAGE_949=m
-CONFIG_NLS_CODEPAGE_874=m
-CONFIG_NLS_ISO8859_8=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_CODEPAGE_1251=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_ISO8859_3=m
-CONFIG_NLS_ISO8859_4=m
-CONFIG_NLS_ISO8859_5=m
-CONFIG_NLS_ISO8859_6=m
-CONFIG_NLS_ISO8859_7=m
-CONFIG_NLS_ISO8859_9=m
-CONFIG_NLS_ISO8859_13=m
-CONFIG_NLS_ISO8859_14=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_KOI8_R=m
-CONFIG_NLS_KOI8_U=m
-CONFIG_NLS_UTF8=m
-
-#
-# Graphics support
-#
-# CONFIG_FB is not set
-CONFIG_VIDEO_SELECT=y
-
-#
-# Console display driver support
-#
-CONFIG_VGA_CONSOLE=y
-# CONFIG_MDA_CONSOLE is not set
-CONFIG_DUMMY_CONSOLE=y
-
-#
-# Sound
-#
-CONFIG_SOUND=m
-
-#
-# Advanced Linux Sound Architecture
-#
-# CONFIG_SND is not set
-
-#
-# Open Sound System
-#
-# CONFIG_SOUND_PRIME is not set
-
-#
-# USB support
-#
-CONFIG_USB=m
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_DYNAMIC_MINORS is not set
-
-#
-# USB Host Controller Drivers
-#
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_OHCI_HCD=m
-CONFIG_USB_UHCI_HCD=m
-
-#
-# USB Device Class drivers
-#
-CONFIG_USB_AUDIO=m
-# CONFIG_USB_BLUETOOTH_TTY is not set
-# CONFIG_USB_MIDI is not set
-CONFIG_USB_ACM=m
-CONFIG_USB_PRINTER=m
-# CONFIG_USB_STORAGE is not set
-
-#
-# USB Human Interface Devices (HID)
-#
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-# CONFIG_HID_FF is not set
-# CONFIG_USB_HIDDEV is not set
-
-#
-# USB HID Boot Protocol drivers
-#
-# CONFIG_USB_KBD is not set
-# CONFIG_USB_MOUSE is not set
-# CONFIG_USB_AIPTEK is not set
-CONFIG_USB_WACOM=m
-# CONFIG_USB_KBTAB is not set
-# CONFIG_USB_POWERMATE is not set
-# CONFIG_USB_XPAD is not set
-
-#
-# USB Imaging devices
-#
-CONFIG_USB_MDC800=m
-CONFIG_USB_SCANNER=m
-CONFIG_USB_MICROTEK=m
-CONFIG_USB_HPUSBSCSI=m
-
-#
-# USB Multimedia devices
-#
-# CONFIG_USB_DABUSB is not set
-
-#
-# Video4Linux support is needed for USB Multimedia device support
-#
-
-#
-# USB Network adaptors
-#
-CONFIG_USB_CATC=m
-CONFIG_USB_CDCETHER=m
-CONFIG_USB_KAWETH=m
-CONFIG_USB_PEGASUS=m
-CONFIG_USB_RTL8150=m
-CONFIG_USB_USBNET=m
-
-#
-# USB port drivers
-#
-CONFIG_USB_USS720=m
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_EMI26 is not set
-# CONFIG_USB_TIGL is not set
-CONFIG_USB_AUERSWALD=m
-CONFIG_USB_RIO500=m
-CONFIG_USB_BRLVGER=m
-# CONFIG_USB_LCD is not set
-# CONFIG_USB_SPEEDTOUCH is not set
-# CONFIG_USB_TEST is not set
-
-#
-# Bluetooth support
-#
-# CONFIG_BT is not set
-
-#
-# Profiling support
-#
-# CONFIG_PROFILING is not set
-
-#
-# Kernel hacking
-#
-CONFIG_DEBUG_KERNEL=y
-# CONFIG_DEBUG_STACKOVERFLOW is not set
-# CONFIG_DEBUG_SLAB is not set
-# CONFIG_DEBUG_IOVIRT is not set
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_DEBUG_HIGHMEM is not set
-CONFIG_KALLSYMS=y
-# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-# CONFIG_FRAME_POINTER is not set
-
-#
-# Security options
-#
-# CONFIG_SECURITY is not set
-
-#
-# Cryptographic options
-#
-# CONFIG_CRYPTO is not set
-
-#
-# Library routines
-#
-# CONFIG_CRC32 is not set
-CONFIG_ZLIB_INFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
+It's hard for me to say whether this is a good (I'd tend to say NOT as you
+will see below) idea because I am not sure what these hooks are supposed to
+let you accomplish.  Particularly, if you are just trying to know "that" a
+process structure was allocated and used, you are kind of on the right
+track.  If you are interested in knowing "what" was done in that process
+then you haven't gotten anywhere near close to a viable target.
+
+If you don't wrapper exec, whole programs can come and go without ever
+triggering your module-level awareness.  Consider "gettys" execs "login"
+that execs "bash" and the user types "exec startx" which starts xinit which
+starts X... not counting the script-children (grep, sort,  etc.) five
+programs have run in two processes.  Which were you trying to track?  What
+did the module miss?
+
+If you don't actually care about resource consumption (CPU Seconds used,
+memory footprint etc) and are instead interested in a "What kind of code has
+hit the CPU" then you really probably want to put your hooks into various
+loaders.  (That is, if this module is intended as part of a security or
+audit facility you need to know a lot more than the fact of process creation
+and exit.)  If you want to keep track of what kind of code was on your CPU
+and make assertions about it, then you need to splice into the elf and a.out
+loaders so that you can catch name overrides and such.
+
+What about fundamental changes of character (e.g. setuid) taking place on
+within a process' lifetime?
+
+Presuming that, instead, you have a module (say a specialized caching
+file-system driver) that needs to keep track of per-process data for things
+using your facilities, and presumably does some sort of garbage collection,
+that is better done at open/close time for the files or devices.  Keeping
+sideband state after a close "just in case" a subsequent open might come
+along is very bad mojo.  Adding a data structure that you process will
+maintain for each process existent in the system is extra bad mojo because
+your module is now involved in the lifetimes of processes that never touch
+your facility.  The is wasteful and involves penalizing some process(es)
+somewhere for upkeep costs.
+
+I ask because I can think of several "bad metaphors" that people have asked
+me to port from Windows that would involve such notice (and then some).
+
+There is a very slippery slope here, as giving indiscriminant side-band
+knowledge of arbitrary process peculiars "to any module writer" is asking
+for virus-inducability to come along.  In such an environment a module could
+easily be written to coerce every program run on a machine into subservience
+to a debugger/probe etc. and such a module could automate (in a portable
+way) surveillance, spying, and side-door exploits.  Such a module could then
+be hidden as any number of things including "that latest driver from 3com"
+or whatever.  At least today, if you want do get this kind of knowledge,
+real-time, on a system you have attacked, you would have to port it to each
+successive kernel and compile and install that kernel on the compromised
+device.
+
+Compromised systems are always compromised, but, for instance, my company's
+embedded system box has a kernel flashed into its firmware.  If an attacker
+could root this box he can't actually replace the flashed kernel.  In the
+presence of this kind of hook the attacker would only need to root the box
+and update the (currently runtime rewriteable) file system to add the module
+into the system.  Similarly, if you were to boot a "known safe" kernel from
+a CDROM such an exploit module could survive a reinstall, or in a CDROM
+kernel used to boot against HD root partition scenario an exploit could
+easily propagate into that "safe" CD single-user maintenance interval.
+
+Module code is just a hair "less trustworthy" than kernel code because of
+its late addition to a system.  A portable interface to hook into *every*
+*process* started and stopped on the box that "must exist for modules" just
+sounds fishy.
+
+Such a callback would even expose the creation of kernel threads and
+previously well-insulated clones of other modules private state.  That alone
+would mean that a P.O.C. module could step out into the world and break
+other peoples stuff without ever really implicating itself.  (The messages
+would come back "on my system, when init starts running my Foo program I get
+an OOPS during fork." and without harvesting their complete list of drivers
+you'd just have to say "works for me" and ignore them.  Think of the pain!
+8-)
+
+Consider the soft-IRQ processes that run on some boxes.  The kernel boots,
+some theoretical ill-behaved module "Boo" is loaded and hooked into the
+clone and fork behaviors.  The next module for some product is loaded and
+claims the previously unused hardware interrupt vector 15, a "[IRQ 15]"
+process must be started.  At this moment, "Boo" has now been given an equity
+interest and the chance to screw up the kernel thread that manages IRQ 15
+and madness abounds.
+
+The bad cases that come to mind go on and on...
+
+In general, I'd be against something this promiscuous.  It already smacks of
+the OnLoad/OnExec style notices in the Windows system message queue and
+would become "trojan happy" and "DRM friendly" overnight.
+
+IMHO There would need to be an overridingly compelling reason to expose that
+event in that context.
+
+But maybe I'm just paranoid...
+
+Rob.
+
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Shaya Potter
+Sent: Thursday, March 27, 2003 5:03 PM
+To: linux-kernel@vger.kernel.org
+Subject: Re: process creation/deletions hooks
+
+
+In fleshing out the ideas a little more, I would think the hook would go
+right b4 wake_up_process(p) in do_fork() (at least on my 2.4.18 kernel),
+so that the process is totally setup, but not yet runnable.  It would
+also seem correct to go right b/4 after the BSD process accounting code
+in do_exit().
+
+so the pseudo code would be something like (pseudo in the fact that it's
+been over a year since I touched the kernel's linked list, so I believe
+I got them right)
+
+list_for_each(tmp, &accounting_head)
+{
+        as = list_entry(tmp, struct account_struct, as_list);
+        if (as->remove) //or create
+                as->remove(code); //or create(p)
+}
+
+It would seem that the BSD proceed accounting could probably be changed
+to use this same infrastructure, so an IFDEF would be removed, though
+that's not a reason
+
+The only negative I see is that there would have to be some sort of
+locking to prevent removal's from the list causing problems.
+
+I'm also making the assumption that the only way a process is removed
+from the system is through do_exit().
+
+anyways, comments would be appreciated.
+
+thanks,
+
+shaya
+
+On Thu, 2003-03-27 at 18:56, Shaya Potter wrote:
+> Well, the ideas are somewhat similar, but I'm viewing it more from a
+> module perspective that lets any module author implement something, so
+> it's not specialized, and hopefully has a better chance of getting in
+> the kernel (i.e. I think your system could work for this as well).
+>
+> basically what I envision is something simple, in process creation and
+> deletion we do something like
+>
+> item = some list_head;
+> while (item)
+> {
+> 	item->function(task_struct);
+> 	item = item->next;
+> }
+>
+> so it has very little overhead into the actual kernel if it's not being
+> used (1 memory load and 1 compare/branch).
+>
+> the way pagg would work (I think, just did a cursory reading) is that
+> instead of storing the data in the task_struct, you'd have a seperate
+> struct that deal with it.  Not as pretty in that regards, but also the
+> standard way modules that want to extend the linux kernel have to work,
+> and therefore hopefully linus would be willing to include it in his
+> kernel.
+>
+> shaya
+>
+> On Thu, 2003-03-27 at 16:31, Nathan Straz wrote:
+> > On Thu, Mar 27, 2003 at 04:08:10PM -0500, Shaya Potter wrote:
+> > > We are trying to write a module that does it's own accounting of
+> > > processes as they are created and deleted.  We have an extremely ugly
+> > > hack of taking care of process creation (wrap fork() and clone() in a
+> > > syscall wrapper, as that's the only way processes can be created).
+> >
+> > You might want to look at the PAGG patch.  SGI did something like this
+> > to implement CSA, an accounting package.  Here are some links that might
+> > interest you:
+> >
+> > Linux PAGG home page:
+> > http://oss.sgi.com/projects/pagg/
+> >
+> > Design Doc:
+> > http://oss.sgi.com/projects/pagg/pagg-lkd.txt
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

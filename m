@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262270AbRENJ3p>; Mon, 14 May 2001 05:29:45 -0400
+	id <S262269AbRENJaf>; Mon, 14 May 2001 05:30:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262269AbRENJ3g>; Mon, 14 May 2001 05:29:36 -0400
-Received: from [213.21.143.134] ([213.21.143.134]:20493 "EHLO
-	master.oasi.gpa.it") by vger.kernel.org with ESMTP
-	id <S262270AbRENJ3S>; Mon, 14 May 2001 05:29:18 -0400
-Date: Mon, 14 May 2001 11:29:13 +0200 (CEST)
-From: Riccardo Facchetti <riccardo@master.oasi.gpa.it>
-To: linux-kernel@vger.kernel.org
-cc: alan@lxorguk.ukuu.org.uk
-Subject: 2.2.19 and RAID levels
-In-Reply-To: <Pine.A41.4.31.0105130130060.19270-100000@pandora.inf.elte.hu>
-Message-ID: <Pine.LNX.4.10.10105141125450.1833-100000@master.oasi.gpa.it>
-MIME-Version: 1.0
+	id <S262274AbRENJaZ>; Mon, 14 May 2001 05:30:25 -0400
+Received: from t2.redhat.com ([199.183.24.243]:10223 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262269AbRENJaS>; Mon, 14 May 2001 05:30:18 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <m1y9s1jbml.fsf@frodo.biederman.org> 
+In-Reply-To: <m1y9s1jbml.fsf@frodo.biederman.org>  <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org> <20010513110707.A11055@lucon.org> 
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: "H . J . Lu" <hjl@lucon.org>, "David S. Miller" <davem@redhat.com>,
+        alan@lxorguk.ukuu.org.uk, linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Mon, 14 May 2001 10:29:47 +0100
+Message-ID: <16874.989832587@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I'm in the process of installing a bunch of disks on a server.
-I've read the md documentation about RAID and it seems that
-RAID5 software is not supported in 2.2 kernels. Is this correct
-or something has been done with RAID5 to make it working on
-the latest 2.2.19 ? And in this case, at which level of
-functionality ?
+ebiederm@xmission.com said:
+>  Since you have to set the command line anyway ip=dhcp is no extra
+> burden and it lets you use the same kernel to boot of the harddrive
+> etc.
 
-Tnaks for your help.
+You don't have to set the command line anyway. At least you _didn't_.
 
-Ciao,
-	Riccardo.
 
+ebiederm@xmission.com said:
+>  I boot diskless all of time and supporting a ramdisk is trivial.  You
+> just a have a program that slaps a kernel a ramdisk, and some command
+> line arguments into a single image, along with a touch of adapter code
+> to set the kernel parameters correctly and then boot that.
+
+It's a PITA. Downloading a kernel by TFTP each time you make a one-line 
+change is painful enough, without having to download a ramdisk to go with 
+it.
+
+And once those kernels are being built with CONFIG_BLK_DEV=n, the ramdisk 
+is going to be an even more unattractive solution.
+
+--
+dwmw2
 
 

@@ -1,292 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUEQRdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbUEQRdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbUEQRdN (ORCPT <rfc822;willy@w.ods.org>);
+	id S261987AbUEQRdN (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 17 May 2004 13:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUEQRdK
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbUEQRb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 13:33:10 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:64172 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261984AbUEQRat (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 13:30:49 -0400
-Subject: Re: Random file I/O regressions in 2.6 [patch+results]
-From: Ram Pai <linuxram@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: alexeyk@mysql.com, nickpiggin@yahoo.com.au, peter@mysql.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-In-Reply-To: <1084480888.22208.26.camel@dyn319386.beaverton.ibm.com>
-References: <200405022357.59415.alexeyk@mysql.com>
-	 <200405050301.32355.alexeyk@mysql.com>
-	 <20040504162037.6deccda4.akpm@osdl.org>
-	 <200405060204.51591.alexeyk@mysql.com>
-	 <20040506014307.1a97d23b.akpm@osdl.org>
-	 <1084218659.6140.459.camel@localhost.localdomain>
-	 <20040510132151.238b8d0c.akpm@osdl.org>
-	 <1084228767.6140.832.camel@localhost.localdomain>
-	 <20040510160740.5db8c62c.akpm@osdl.org>
-	 <1084308706.25954.28.camel@localhost.localdomain>
-	 <20040511141717.719f3ac8.akpm@osdl.org>
-	 <1084480888.22208.26.camel@dyn319386.beaverton.ibm.com>
-Content-Type: multipart/mixed; boundary="=-QIj1AfrFBUkHiHxIko4a"
-Organization: 
-Message-Id: <1084815010.13559.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 17 May 2004 10:30:11 -0700
+	Mon, 17 May 2004 13:31:26 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:59840 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S261932AbUEQRaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 13:30:46 -0400
+In-Reply-To: <20040517153736.GT17014@parcelfarce.linux.theplanet.co.uk>
+References: <200405162136.24441.elenstev@mesatop.com> <Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org> <20040516231120.405a0d14.akpm@osdl.org> <20040517.085640.30175416.wscott@bitmover.com> <20040517151738.GA4730@thunk.org> <Pine.LNX.4.58.0405170820560.25502@ppc970.osdl.org> <20040517153736.GT17014@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <E88DCF88-A827-11D8-A7EA-000A95CC3A8A@lanl.gov>
+Content-Transfer-Encoding: 7bit
+Cc: hugh@veritas.com, elenstev@mesatop.com, linux-kernel@vger.kernel.org,
+       support@bitmover.com, Linus Torvalds <torvalds@osdl.org>,
+       Wayne Scott <wscott@bitmover.com>, adi@bitmover.com, akpm@osdl.org,
+       wli@holomorphy.com, lm@bitmover.com, "Theodore Ts'o" <tytso@mit.edu>
+From: Steven Cole <scole@lanl.gov>
+Subject: Re: 1352 NUL bytes at the end of a page?
+Date: Mon, 17 May 2004 11:30:36 -0600
+To: viro@parcelfarce.linux.theplanet.co.uk
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-QIj1AfrFBUkHiHxIko4a
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On May 17, 2004, at 9:37 AM, viro@parcelfarce.linux.theplanet.co.uk 
+wrote:
 
-On Thu, 2004-05-13 at 13:41, Ram Pai wrote:
-> On Tue, 2004-05-11 at 14:17, Andrew Morton wrote:
-> > Ram Pai <linuxram@us.ibm.com> wrote:
->  
-> I am yet to get my machine fully set up to run a DSS benchmark. But
-> thought I will update you on the following comment.
+> On Mon, May 17, 2004 at 08:22:10AM -0700, Linus Torvalds wrote:
+>>
+>>
+>> On Mon, 17 May 2004, Theodore Ts'o wrote:
+>>>
+>>> Note though that the stdio library uses a writeable mmap to implement
+>>> fwrite.
+>>
+>> It does? Whee. Then I'll have to agree with Andrew - if there is a 
+>> path
+>> that is more likely to have bugs, it's trying to do writes with mmap 
+>> and
+>> ftruncate.
+>>
+>> Who came up with that braindead idea? Is it some crazed Mach developer
+>> that infiltrated the glibc development group?
+>
+> IIRC, that idiocy had been disabled by default (note that it's 
+> inherently
+> broken, since truncate() between your mmap() and memcpy() will lead to
+> a coredump, which is not something fwrite() is allowed to do in such
+> situation).
+>
+> strace should show if there such mmap calls are made, anyway.  Did they
+> show up in the traces?
+>
+>
 
-Attached the cleaned up patch and the performance results of the patch.
+These calls show up in an strace which I did from a non-failing system,
+but which has the same glibc as the failing system:
 
-Overall Observation:
-        1.Small improvement with iozone with the patch, and overall
-                        much better performance than 2.4
-        2.Small/neglegible improvement with DSS workload.
-        3.Negligible impact with sysbench, but results worser than
-                        2.4 kernels
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 
+0) = 0x40018000
+old_mmap(NULL, 19184, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40018000
 
-RP
+The command was the following, with the result "Nothing to pull".
+strace bk pull bk://linux.bkbits.net/linux-2.5
 
+There were 52 instances of mmap2 or old_mmap in the saved script log.
 
---=-QIj1AfrFBUkHiHxIko4a
-Content-Disposition: attachment; filename=seeky-readahead-speedups.patch
-Content-Type: text/plain; name=seeky-readahead-speedups.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-
-	Results of iozone,sysbench and DSS workload with the 
-		seeky-readahead-speedups.patch
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-Overall Observation: 
-	1.Small improvement with iozone with the patch, and overall
-			much better performance than 2.4
-	2.Small/neglegible improvement with DSS workload.
-	3.Negligible impact with sysbench, but results worser than
-			2.4 kernels
-
-	The cleaned-up patch is included towards the end of this report.
-
-Details:
-
-**********************************************************************
-			IOZONE 
-
-	run on a nfs mounted filesystem:
-	client machine 2proc, 733MHz, 2GB memory
-	server machine 8proc, 700Mhz, 8GB memory
-
-./iozone -c -t1 -s 4096m -r 128k
-
-
----------------------------------------------------------
-|		| throughput |	throughput | throughput |
-|		| KB/sec     |	KB/sec     | KB/sec     |
-|		| 266	     |	266+patch  | 2.4.20     |
----------------------------------------------------------
-|sequential read| 11697.55   |	11700.98   | 10846.87   |
-| 		|	     |             |            |
-|re-read	| 11698.39   |	11691.84   | 10865.39   |
-|		|	     |             |            |
-|reverse read	| 20002.71   |	20099.86   | 10340.34   |
-|               |            |             |            |
-|stride read	| 13813.01   |	13850.28   | 10193.87   |
-|		|	     |             |            |
-|random read	| 19705.06   |	19978.00   | 10839.57   |
-|               |            |             |            |
-|random mix	| 28465.68   |	29964.38   | 10779.17   |
-|		|	     |             |            |
-|pread		| 11692.95   |	11697.29   | 10863.56   |
----------------------------------------------------------
-
-
-**************************************************************
-
-			SYSBENCH
-
-	run on machine 2proc, 733MHz, 256MB memory
-
-
----------------------------------------------------------
-|		| 266	     |	266+patch  | 2.4.21     |
----------------------------------------------------------
-|time spent     | 79.6253    |	79.8176    | 73.2605sec |
-| 		|	     |             |            |
-|Mb/sec		| 1.959Mb.sec|	1.954Mb/sec| 2.129Mb/sec|
-|		|	     |             |            |
-|requests/sec 	| 125.59     |	125.29     | 136.54	|
-|               |            |             |            |
-|no of Reads 	| 6001       |	6001	   | 6008	|
-|		|	     |             |            |
-|no of Writes 	| 3999	     |	3999       | 3995	|
-|               |            |             |            |
----------------------------------------------------------
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-266 sysbench output:
-
-Operations performed:  6001 Read, 3999 Write, 12800 Other = 22800 Total
-Read 93Mb  Written 62Mb  Total Transferred 156Mb
-   1.959Mb/sec  Transferred
-  125.59 Requests/sec executed
-
-Test execution Statistics summary:
-Time spent for test:  79.6253s
-
-Per Request statistics:
-Min:   0.0000s  Avg:   0.0467s  Max:   0.9802s    Events tracked: 10000
-Total time taken by event execution: 467.1493s
-Threads fairness: 87.41/94.20  distribution,  88.68/94.45 execution
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-266+patch sysbench output:
-
-Operations performed:  6001 Read, 3999 Write, 12800 Other = 22800 Total
-Read 93Mb  Written 62Mb  Total Transferred 156Mb
-   1.954Mb/sec  Transferred
-  125.29 Requests/sec executed
-
-Test execution Statistics summary:
-Time spent for test:  79.8176s
-
-Per Request statistics:
-Min:   0.0000s  Avg:   0.0482s  Max:   0.8481s    Events tracked: 10000
-Total time taken by event execution: 481.7572s
-Threads fairness: 85.27/93.25  distribution,  85.15/94.91 execution
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-2.4.21 sysbench output:
-
-Operations performed:  6008 Read, 3995 Write, 12800 Other = 22803 Total
-Read 93Mb  Written 62Mb  Total Transferred 156Mb
-   2.129Mb/sec  Transferred
-  136.54 Requests/sec executed
-
-Test execution Statistics summary:
-Time spent for test:  73.2605s
-
-Per Request statistics:
-Min:   0.0000s  Avg:   0.0380s  Max:   0.3712s    Events tracked: 10003
-Total time taken by event execution: 380.4081s
-Threads fairness: 79.04/91.95  distribution,  82.52/92.44 execution
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
-
-**************************************************************
-
-DSS WORKLOAD
-
-	Got 1% improvement with the patch
-
-**************************************************************
-
-
-
-
-diff -urNp linux-2.6.6/mm/readahead.c linux-2.6.6.new/mm/readahead.c
---- linux-2.6.6/mm/readahead.c	2004-05-11 20:41:28.000000000 -0700
-+++ linux-2.6.6.new/mm/readahead.c	2004-05-17 17:33:51.145040472 -0700
-@@ -353,7 +353,7 @@ page_cache_readahead(struct address_spac
- 	unsigned orig_next_size;
- 	unsigned actual;
- 	int first_access=0;
--	unsigned long preoffset=0;
-+	unsigned long average;
- 
- 	/*
- 	 * Here we detect the case where the application is performing
-@@ -394,10 +394,17 @@ page_cache_readahead(struct address_spac
- 		if (ra->serial_cnt <= (max * 2))
- 			ra->serial_cnt++;
- 	} else {
--		ra->average = (ra->average + ra->serial_cnt) / 2;
-+		/* 
-+		 * to avoid rounding errors, ensure that 'average' 
-+		 * tends towards the value of ra->serial_cnt.
-+		 */
-+		average = ra->average;
-+		if (average < ra->serial_cnt) {
-+			average++;
-+		}
-+		ra->average = (average + ra->serial_cnt) / 2;
- 		ra->serial_cnt = 1;
- 	}
--	preoffset = ra->prev_page;
- 	ra->prev_page = offset;
- 
- 	if (offset >= ra->start && offset <= (ra->start + ra->size)) {
-@@ -457,18 +464,13 @@ do_io:
- 		 * ahead window and get some I/O underway for the new
- 		 * current window.
- 		 */
--		if (!first_access && preoffset >= ra->start &&
--				preoffset < (ra->start + ra->size)) {
--			 /* Heuristic:  If 'n' pages were
--			  * accessed in the current window, there
--			  * is a high probability that around 'n' pages
--			  * shall be used in the next current window.
--			  *
--			  * To minimize lazy-readahead triggered
--			  * in the next current window, read in
--			  * an extra page.
-+		if (!first_access) {
-+			 /* Heuristic: there is a high probability 
-+			  * that around  ra->average number of
-+			  * pages shall be accessed in the next
-+			  * current window.
- 			  */
--			ra->next_size = preoffset - ra->start + 2;
-+			ra->next_size = min(ra->average , (unsigned long)max);
- 		}
- 		ra->start = offset;
- 		ra->size = ra->next_size;
-@@ -492,21 +494,19 @@ do_io:
- 		 */
- 		if (ra->ahead_start == 0) {
- 			/*
--			 * if the average io-size is less than maximum
-+			 * If the average io-size is more than maximum
- 			 * readahead size of the file the io pattern is
- 			 * sequential. Hence  bring in the readahead window
--			 * immediately.
--			 * Else the i/o pattern is random. Bring
--			 * in the readahead window only if the last page of
--			 * the current window is accessed (lazy readahead).
-+			 * immediately. 
-+			 * If the average io-size is less than maximum
-+			 * readahead size of the file the io pattern is
-+			 * random. Hence don't bother to readahead.
- 			 */
--			unsigned long average = ra->average;
--
-+			average = ra->average;
- 			if (ra->serial_cnt > average)
--				average = (ra->serial_cnt + ra->average) / 2;
-+				average = (ra->serial_cnt + ra->average + 1) / 2;
- 
--			if ((average >= max) || (offset == (ra->start +
--							ra->size - 1))) {
-+			if (average > max) {
- 				ra->ahead_start = ra->start + ra->size;
- 				ra->ahead_size = ra->next_size;
- 				actual = do_page_cache_readahead(mapping, filp,
-
---=-QIj1AfrFBUkHiHxIko4a--
+	Steven
 

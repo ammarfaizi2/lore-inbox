@@ -1,55 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129625AbQK1X0R>; Tue, 28 Nov 2000 18:26:17 -0500
+        id <S129704AbQK1X1h>; Tue, 28 Nov 2000 18:27:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129704AbQK1X0I>; Tue, 28 Nov 2000 18:26:08 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:56804 "EHLO
-        smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-        id <S129625AbQK1XZ7>; Tue, 28 Nov 2000 18:25:59 -0500
-Message-ID: <3A2437F6.6380A1BF@haque.net>
-Date: Tue, 28 Nov 2000 17:55:50 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: Alexander Viro <viro@math.psu.edu>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Tigran Aivazian <tigran@veritas.com>
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-In-Reply-To: <14877.53881.182935.597766@notabene.cse.unsw.edu.au>
-                <Pine.GSO.4.21.0011240006040.12702-100000@weyl.math.psu.edu> <14881.62969.786424.812353@notabene.cse.unsw.edu.au>
+        id <S129996AbQK1X11>; Tue, 28 Nov 2000 18:27:27 -0500
+Received: from u91n224.hfx.eastlink.ca ([24.222.91.224]:37380 "EHLO
+        llama.nslug.ns.ca") by vger.kernel.org with ESMTP
+        id <S129704AbQK1X1Q>; Tue, 28 Nov 2000 18:27:16 -0500
+Date: Tue, 28 Nov 2000 18:56:09 -0400
+To: Andries Brouwer <aeb@veritas.com>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+Subject: Re: access() says EROFS even for device files if /dev is mounted RO
+Message-ID: <20001128185609.A2960@llama.nslug.ns.ca>
+In-Reply-To: <20001126233522.A436@llama.nslug.ns.ca> <20001127134251.A8164@veritas.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001127134251.A8164@veritas.com>; from aeb@veritas.com on Mon, Nov 27, 2000 at 01:42:51PM +0100
+From: Peter Cordes <peter@llama.nslug.ns.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I'm not sure what else to try. I've even tried throwing around 1.6
-GB of data, and copying and deleting at the same time. Nothing. Again,
-this is _without_ the patches sent by Alexander.
-
-I think I'm just gonna go on to test12-pre2.
-
-Neil Brown wrote:
+On Mon, Nov 27, 2000 at 01:42:51PM +0100, Andries Brouwer wrote:
+> On Sun, Nov 26, 2000 at 11:35:22PM -0400, Peter Cordes wrote:
 > 
-> Turns out my data is a false alarm.  It was a bug in my raid5 code -
-> and not a recent bug either - that was causing my filesystem
-> corruption.
+> >  While doing some hdparm hacking, after booting with init=/bin/sh, I noticed
+> > that open(1) doesn't work when / is mounted read only.
 > 
-> So if your earlier patches work for everybody else then they look like
-> a good way to go.  I have fixed my fatal flaw and I cannot reproduce
-> the problems any more.  Patch has gone to Alan.
+> Already long ago open(1) was renamed to openvt(1), so it may be that
+> have a very old version. See a recent kbd or console-tools.
+
+ In the Debian package, on my Woody system, open is a symlink to openvt.
+I've got console-tools 0.2.3.  The source uses access here:
+
+  /* Maybe we are suid root, and the -c option was given.
+     Check that the real user can access this VT.
+     We assume getty has made any in use VT non accessable */
+  if (access(vtname, R_OK | W_OK) < 0)
+  {
+     fprintf(stderr, _("Cannot open %s read/write (%s)\n"), vtname,
+             strerror(errno));
+     return (5);
+  }
+
+  That code could be "fixed" to work with the current kernel behaviour by
+checking that errno != EROFS.  I thought access was supposed to tell you
+whether open will work, except for directories, where you do different
+things to write to them.  (I've seen your messages up to Tue, 28 Nov 2000
+22:37:21 +0100, but I'm replying to this one, so you don't have to repeat
+your arguments for me :)
+
+
+> > access("/dev/tty2", R_OK|W_OK)          = -1 EROFS (Read-only file system)
+> 
+> >  However, this is wrong.  You _can_ write to device files on read-only
+> > filesystems.  (open shouldn't bother calling access(), but the kernel should
+> > definitely give the right answer!)
+> 
+> You misunderstand the function of access(). The standard says
+> 
+> [EROFS] write access shall fail if write access is requested
+>         for a file on a read-only file system
+> 
+> It does not look at whether you ask write access to a directory
+> or a special device file (and whether the filesystem was mounted nodev or not).
+
+ In the case of a directory, "writing" to it is creating or deleting files
+in it: the list of filename:inode changes.  If the dir is on a read-only FS,
+you can't write, so access() should fail.  Writing to a device file doesn't
+change anything stored with the file, so it works even if the file is on a
+read-only FS.
+
+> So, probably you found a flaw in openvt: the use of access is almost always
+> a bug - it doesnt tell you what you want to know. You may send me a patch
+> if you want to.
+
+ What do you think access is for then?  Is it defined by the standard in
+such a way that it isn't useful for anything?
+
+ I'm of the opinion that Linux should work in the way that is most useful,
+as long as that doesn't stop us from running stuff written for other unices.
+Unix is mostly good, but parts of it suck.  There's no reason to keep the
+parts that suck, except when needed for compatibility.  Changing the
+behaviour of access here would not introduce security holes in anything, so
+I think it should be changed to the more sensible way.
+
+(That last paragraph is purely my opinion.  I'm pretty sure not everyone
+shares it!)
 
 -- 
+#define X(x,y) x##y
+Peter Cordes ;  e-mail: X(peter@llama.nslug. , ns.ca)
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+"The gods confound the man who first found out how to distinguish the hours!
+ Confound him, too, who in this place set up a sundial, to cut and hack
+ my day so wretchedly into small pieces!" -- Plautus, 200 BCE
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

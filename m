@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318020AbSGRGNy>; Thu, 18 Jul 2002 02:13:54 -0400
+	id <S318028AbSGRGSJ>; Thu, 18 Jul 2002 02:18:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318021AbSGRGNy>; Thu, 18 Jul 2002 02:13:54 -0400
-Received: from odin.cit.act.edu.au ([161.50.48.2]:48336 "EHLO
-	odin.cit.act.edu.au") by vger.kernel.org with ESMTP
-	id <S318020AbSGRGNy>; Thu, 18 Jul 2002 02:13:54 -0400
-Message-ID: <C1126026D9293645B970FB72C66907961F53EE@rdmail.cit.act.edu.au>
-From: "Piggin, Nick" <Nick.Piggin@cit.act.edu.au>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: 2.4.19-rc1,2 + ext3 data=journal: data loss on unmount
-Date: Thu, 18 Jul 2002 16:12:49 +1000
+	id <S318031AbSGRGSJ>; Thu, 18 Jul 2002 02:18:09 -0400
+Received: from web13104.mail.yahoo.com ([216.136.174.149]:17162 "HELO
+	web13104.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S318028AbSGRGSJ>; Thu, 18 Jul 2002 02:18:09 -0400
+Message-ID: <20020718062108.35397.qmail@web13104.mail.yahoo.com>
+Date: Thu, 18 Jul 2002 08:21:08 +0200 (CEST)
+From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Subject: Re: pc speaker music drivers
+To: Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
+In-Reply-To: <049b01158011272DTVMAIL11@smtp.cwctv.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have a PIV server with two IDE disks, one used for the filesystem, the
-other for swap, external journals, and a backup directory.
 
-All partitions are ext3 data=journal, all but the backup directory have
-external journals. Please mail me for more HW info if needed and I apologise
-if this has already come up (I did search the archives) or is a "known"
-"feature".
 
-I have a script which basically does the following
+> Please read the FAQ at  http://www.tux.org/lkml/ 
 
-mount /mnt/backup
-tar cvf $FILENAME directory
-bzip2 $FILENAME
-umount /mnt/backup
 
-Upon remounting and inspection, the resulting bzip2 file is corrupted every
-time. Adding a sync after bzip2 corrects the problem.
 
-Thanks
-Nick
 
-PS. sorry if this mail turns out bad - I'm at work.
+
+=====
+--
+The UNIX Hierarchy - Beginner
+- insecure with the concept of a terminal 
+- has yet to learn the basics of "vi" 
+- has not figured out how to get a directory 
+- still has trouble with typing <RETURN> after each line of input
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

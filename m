@@ -1,71 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264796AbTLHAuh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 19:50:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbTLHAug
+	id S265160AbTLHAx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 19:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbTLHAx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 19:50:36 -0500
-Received: from ppp-168-253-10-94.den1.ip.ricochet.net ([168.253.10.94]:15620
-	"EHLO mercury.illtel.denver.co.us") by vger.kernel.org with ESMTP
-	id S264796AbTLHAu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 19:50:27 -0500
-Date: Sun, 7 Dec 2003 18:00:08 -0700 (MST)
-From: Alex Belits <abelits@phobos.illtel.denver.co.us>
-To: John Bradford <john@grabjohn.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Additional clauses to GPL in network drivers
-In-Reply-To: <200312071515.hB7FFkQH000866@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.58.0312071753230.1236@mercury>
-References: <200312071515.hB7FFkQH000866@81-2-122-30.bradfords.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 7 Dec 2003 19:53:28 -0500
+Received: from mail.kroah.org ([65.200.24.183]:28831 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265160AbTLHAx0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 19:53:26 -0500
+Date: Sun, 7 Dec 2003 16:47:42 -0800
+From: Greg KH <greg@kroah.com>
+To: "Jonathan A. Zdziarski" <jonathan@nuclearelephant.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 Test 11 Freeze on USB Disconnect
+Message-ID: <20031208004742.GB23644@kroah.com>
+References: <1070825737.2978.7.camel@tantor.nuclearelephant.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1070825737.2978.7.camel@tantor.nuclearelephant.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Dec 2003, John Bradford wrote:
+On Sun, Dec 07, 2003 at 02:35:38PM -0500, Jonathan A. Zdziarski wrote:
+> Greetings,
+> 
+> I recently upgraded from 2.4.20-24 to 2.6 Test 11 using a Redhat
+> distribution.  Got everything up and running great, except the entire
+> system appears to freeze (requiring a hardware reset) when I disconnect
+> my bluetooth device.
 
-> For example, it brings up a few issues:
->
-> 1. How is 'operating system' supposed to be defined in this context?
->
-> I assume that if it meant just the kernel, it would say 'kernel'.
->
-> If you define 'operating system' as including some userspace
-> utilities, it's going to cause problems, as some common utilities are
-> not GPL'ed, (the extra clause doesn't say 'GPL-compatible', it
-> specifically specifies GPL).
+Is there any way you can see if an oops happened?  Without that it will
+be pretty hard to debug this.
 
-  I guess, it really means, "kernel as distributed".
+thanks,
 
-> 2. Is code licensed under this extra term actually compatible with
-> code placed under the GPL alone?
-
-  As I understand it, the statement was only meant to emphasize that the
-file is a part of a larger work that is licensed under GPL, and its (and
-derivations') distribution as a separate work is still governed by GPL
-(in particular, it does not allow incorporation into other products under
-other licenses) and the authors are unwilling to re-license it under any
-non-GPL terms. The way how it was expressed is unclear and formally
-incorrect, but I think, the intent of the statement is merely to re-state
-the restrictions that are already in GPL and discourage attempts to obtain
-(or assume) other licenses.
-
-> 3. I haven't tried to trace the history of this code, but if these
-> drivers were based on, and include, other developer's purely GPL'ed
-> code, applying this extra condition is presumably not valid, (unless
-> specific permission was sought to do so).
->
-> 4. The obvious issue concerning binary modules - does loading a binary
-> module which is not licensed under the GPL invalidate your license to
-> use these network drivers?  Note that I personally have no interest
-> whatsoever in using such binary modules, but whatever ends up being
-> decided for the GPL'ed parts of the kernel, this extra clause suggests
-> to me that it specifically isn't OK whilst using these network
-> drivers.
-
-  The statement is unclear on this, however if you read "operating system"
-as "kernel as distributed" and "use" as "distribute" it would make perfect
-sense. Otherwise it's meaningless.
-
--- 
-Alex
+greg k-h

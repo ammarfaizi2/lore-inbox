@@ -1,26 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262781AbTJYTwG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 15:52:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262787AbTJYTwG
+	id S262838AbTJYT7u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 15:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbTJYT7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 15:52:06 -0400
-Received: from gprs198-24.eurotel.cz ([160.218.198.24]:20609 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262781AbTJYTwD (ORCPT
+	Sat, 25 Oct 2003 15:59:49 -0400
+Received: from gprs198-24.eurotel.cz ([160.218.198.24]:23169 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262851AbTJYT6e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 15:52:03 -0400
-Date: Sat, 25 Oct 2003 21:51:53 +0200
+	Sat, 25 Oct 2003 15:58:34 -0400
+Date: Sat, 25 Oct 2003 21:58:18 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Ernie Petrides <petrides@redhat.com>
-Cc: Michael Glasgow <glasgowNOSPAM@beer.net>, "Theodore Ts'o" <tytso@mit.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: posix capabilities inheritance
-Message-ID: <20031025195153.GA505@elf.ucw.cz>
-References: <200310232205.h9NM5eOc004400@dark.beer.net> <200310240136.h9O1aaOU002931@pasta.boston.redhat.com>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: M?ns Rullg?rd <mru@kth.se>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI List <acpi-devel@lists.sourceforge.net>
+Subject: Re: [PM][ACPI] No ACPI interrupts after resume from S1
+Message-ID: <20031025195817.GB505@elf.ucw.cz>
+References: <yw1x8yngj7xg.fsf@users.sourceforge.net> <20031020184750.GA26154@hell.org.pl> <yw1xekx7afrz.fsf@kth.se> <20031023082534.GD643@openzaurus.ucw.cz> <yw1xr813f1a3.fsf@kth.se> <3F98FDDF.1040905@cyberone.com.au> <yw1xbrs6652m.fsf@kth.se> <20031024222347.GB728@elf.ucw.cz> <yw1xbrs6p85n.fsf@kth.se> <1067039997.2114.16.camel@laptop-linux>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200310240136.h9O1aaOU002931@pasta.boston.redhat.com>
+In-Reply-To: <1067039997.2114.16.camel@laptop-linux>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,33 +29,19 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > The code to drop privs is not hard, but it's also not trivial.
+> Some modules cause problems. If I suspend with the intel-agp driver
+> loaded, for example, the computer reboots when copying the original
+> kernel back, because the hardware state doesn't match. I can suspend and
+> resume my i830 based laptop just fine without it. Once the right changes
+> are made to the driver, the module will work, but not yet.
 > 
-> Here's an example code sequence that demonstrates how a setuid-to-root
-> application could drop all capabilities except for CAP_IPC_LOCK and
-> then run with the non-privileged uid:
-> 
->     #include <sys/prctl.h>
->     #include <sys/capability.h>
-> 
-> 	...
-> 
-> 	cap_t c;
-> 
-> 	if (prctl(PR_SET_KEEPCAPS, 1UL, 0UL, 0UL, 0UL) < 0 ||
-> 	    seteuid(getuid()) < 0 ||
-> 	    !(c = cap_from_text("cap_ipc_lock=eip")) ||
-> 	    cap_set_proc(c) < 0)
-> 		/* handle error */;
-> 
-> However, I agree that it's often not viable to require application
-> changes to achieve the desired result.
+> Pavel, excuse me for jumping in here.
 
-IIRC, libraries have special startup sections that run before
-main(). And c++ constructors do, too; so wrapper still might be safer
-option.
+No problem, I'm actually tired of replying to all those mails myself
+;-).
 
-								Pavel
+									Pavel
+
 -- 
 When do you have a heart between your knees?
 [Johanka's followup: and *two* hearts?]

@@ -1,124 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267941AbUGaLVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267944AbUGaMTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267941AbUGaLVk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 07:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267946AbUGaLVi
+	id S267944AbUGaMTq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 08:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267946AbUGaMTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 07:21:38 -0400
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:58118 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S267945AbUGaLVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 07:21:09 -0400
-Message-ID: <410B80BC.4060100@hp.com>
-Date: Sat, 31 Jul 2004 16:51:32 +0530
-From: "Aneesh Kumar K.V" <aneesh.kumar@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       opendlm-devel@lists.sourceforge.net,
-       opengfs-users@lists.sourceforge.net,
-       opengfs-devel@lists.sourceforge.net, linux-cluster@redhat.com
-Subject: [ANNOUNCE] OpenSSI 1.0.0 released!!
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 31 Jul 2004 08:19:46 -0400
+Received: from dspnet.fr.eu.org ([62.73.5.179]:45829 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S267944AbUGaMTp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 08:19:45 -0400
+Date: Sat, 31 Jul 2004 14:19:44 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: EHCI / pci power state / suspend annoying interactions
+Message-ID: <20040731121944.GA47191@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	"Hack inc." <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The EHCI on the latitude x300 does not have D2 capability:
 
-Sorry for the cross post. I came across this on OpenSSI website. I guess 
-others may also be interested.
+00:1d.7 USB Controller: Intel Corp. 82801DB (ICH4) USB2 EHCI Controller (rev 01) (prog-if 20 [EHCI])
+        Subsystem: Dell Computer Corporation: Unknown device 014f
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin D routed to IRQ 10
+        Region 0: Memory at e0100000 (32-bit, non-prefetchable)
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+   
 
--aneesh
+That fails suspend-to-ram because dev->suspend which is
+usb_hcd_pci_suspend calls pci_set_power_state to request level D2,
+which fails with -EIO.  The error is propagated back and the suspend
+aborts.  What should actually happen in that case?
 
-The OpenSSI project leverages both HP's NonStop Clusters for Unixware 
-technology and other open source technology to provide a full, highly 
-available Single System Image environment for Linux.
-
-Feature list:
-1.  Cluster Membership
-   * includes libcluster  that application can use
-2. Internode Communication
-
-3. Filesystem
-    * support for CFS over ext3,  Lustre Lite
-    * CFS can be used for the root
-    * reopen of files, devices, ipc objects when processes move is supported
-    * CFS supports file record locking and shared writable mapped files 
-(along with all other standard POSIX capabilities
-    * HA-CFS is configurable for the root or other filesystems
-4. Process Management
-     * almost all pieces there, including:
-           o clusterwide PIDs
-           o process migration and distributed rexec(), rfork() and 
-migrate() with reopen of files, sockets, pipes, devices, etc.
-           o vprocs
-           o clusterwide signalling, get/setpriority
-           o capabilities
-           o distributed process groups, session, controlling terminal
-           o surrogate origin functionality
-           o no single points of failure (cleanup code to deal with 
-nodedowns)
-           o Mosix load leveler (with the process migration model from NSC)
-           o clusterwide ptrace() and strace
-           o clusterwide /proc/<pid>, ps, top, etc.
-
-5. Devices
-   * there is a clusterwide device model via the devfs code
-   * each node mounts its devfs on /cluster/node#/dev and bind mounts it 
-to /dev so all devices are visible and accessible from all nodes, but by 
-default you see only local devices
-   * a process on any node can open a device on any node
-   * devices are reopened when processes move
-   * processes retain a context, even if they move; the context 
-determines which node's devices to access by defaul
-6. IPC
-   * all IPC objects/mechanisms are clusterwide:
-          o pipes
-          o fifos
-          o signalling
-          o message queues
-          o semaphore
-          o shared memory
-          o Unix-domain sockets
-          o Internet-domain sockets
-  * reopen of IPC objects is there for process movement
-  * nodedown handling is there for all IPC objects
-7. Clusterwide TCP/IP
-   * HA-LVS is integrated, with extensions
-   * extension is that port redirection to servers in the cluster is 
-automatic and doesn't have to be managed.
-8. Kernel Data Replication Service
-   * it is in there (cluster/ssi/clreg)
-9. Shared Storage
-   * we have tested shared FCAL and use it for HA-CFS
-10. DLM
-   * is integrated with CLMS and is HA
-11. Sysadmin
-   * services architecture has been made clusterwide
-12. Init, Booting and Run Levels
-   * system runs with a single init which will failover/restart on 
-another node if the node it is on dies
-13. Application Availability
-  * application monitoring/restart provided by spawndaemon/keepalive
-  * services started by RC on the initnode will automatically restart on 
-a failure of the initnode
-14. Timesync
-  * NTP for now
-15. Load Leveling
-  * adapted the openMosix algorithm
-  * for connection load balancing, using HA-LVS
-  * load leveling is on by default
-  * applications must be registered to load level
-16. Packaging/Install
-   * Have source patch, binary RPMs and CVS source options;
-   *  Debian packages also available via ap-get repository.
-   * First node is incremental to a standard Linux install
-   * Other nodes install via netboot, PXEboot, DHCP and simple addnode 
-command;
-17. Object Interfaces
-   * standard interfaces for objects work as expected
-   * no new interfaces for object location or movement except for 
-processes (rexec(), migrate(), and /proc/pid/goto to move a process)
-
+  OG.

@@ -1,33 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265612AbTBPB7V>; Sat, 15 Feb 2003 20:59:21 -0500
+	id <S265578AbTBPB5A>; Sat, 15 Feb 2003 20:57:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265637AbTBPB7V>; Sat, 15 Feb 2003 20:59:21 -0500
-Received: from dp.samba.org ([66.70.73.150]:25061 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265612AbTBPB7U>;
-	Sat, 15 Feb 2003 20:59:20 -0500
-Date: Sun, 16 Feb 2003 13:08:08 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: [PATCH] make jiffies wrap 5 min after boot
-Message-ID: <20030216020808.GF9833@krispykreme>
-References: <Pine.LNX.4.33L2.0302040935230.6174-100000@dragon.pdx.osdl.net> <Pine.LNX.4.33.0302160232120.7975-100000@gans.physik3.uni-rostock.de>
+	id <S265589AbTBPB5A>; Sat, 15 Feb 2003 20:57:00 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:18698 "HELO
+	mesatop.zianet.com") by vger.kernel.org with SMTP
+	id <S265578AbTBPB47>; Sat, 15 Feb 2003 20:56:59 -0500
+Subject: [PATCH] 2.5.61 correct the spelling of correction and correctly
+From: Steven Cole <elenstev@mesatop.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 15 Feb 2003 18:58:38 -0700
+Message-Id: <1045360720.5611.50.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0302160232120.7975-100000@gans.physik3.uni-rostock.de>
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This corrects the spelling of correction and correctly.
 
-Hi,
+Steven
 
-> +#define INITIAL_JIFFIES (0xffffffffUL & (unsigned long)(-300*HZ))
 
-In order to make 64bit arches wrap too, you might want to use -1UL here.
-Not that jiffies should wrap on a 64bit machine...
+diff -ur linux-2.5.61-1.1027-orig/drivers/ide/pci/amd74xx.c linux-2.5.61-1.1027/drivers/ide/pci/amd74xx.c
+--- linux-2.5.61-1.1027-orig/drivers/ide/pci/amd74xx.c	Fri Feb 14 20:11:56 2003
++++ linux-2.5.61-1.1027/drivers/ide/pci/amd74xx.c	Sat Feb 15 18:48:54 2003
+@@ -311,7 +311,7 @@
+ 			amd_80w = ((u & 0x3) ? 1 : 0) | ((u & 0xc) ? 2 : 0);
+ 			for (i = 24; i >= 0; i -= 8)
+ 				if (((u >> i) & 4) && !(amd_80w & (1 << (1 - (i >> 4))))) {
+-					printk(KERN_WARNING "AMD_IDE: Bios didn't set cable bits corectly. Enabling workaround.\n");
++					printk(KERN_WARNING "AMD_IDE: Bios didn't set cable bits correctly. Enabling workaround.\n");
+ 					amd_80w |= (1 << (1 - (i >> 4)));
+ 				}
+ 			break;
+diff -ur linux-2.5.61-1.1027-orig/include/linux/rtc.h linux-2.5.61-1.1027/include/linux/rtc.h
+--- linux-2.5.61-1.1027-orig/include/linux/rtc.h	Thu Jan 16 19:21:33 2003
++++ linux-2.5.61-1.1027/include/linux/rtc.h	Sat Feb 15 18:49:38 2003
+@@ -57,8 +57,8 @@
+ 	int pll_value;      /* get/set correction value */
+ 	int pll_max;        /* max +ve (faster) adjustment value */
+ 	int pll_min;        /* max -ve (slower) adjustment value */
+-	int pll_posmult;    /* factor for +ve corection */
+-	int pll_negmult;    /* factor for -ve corection */
++	int pll_posmult;    /* factor for +ve correction */
++	int pll_negmult;    /* factor for -ve correction */
+ 	long pll_clock;     /* base PLL frequency */
+ };
+ 
 
-Anton
+
+
+

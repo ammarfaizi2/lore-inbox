@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263461AbRFMLjp>; Wed, 13 Jun 2001 07:39:45 -0400
+	id <S263491AbRFML7U>; Wed, 13 Jun 2001 07:59:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263469AbRFMLje>; Wed, 13 Jun 2001 07:39:34 -0400
-Received: from u-115-20.karlsruhe.ipdial.viaginterkom.de ([62.180.20.115]:44023
-	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
-	id <S263461AbRFMLjU>; Wed, 13 Jun 2001 07:39:20 -0400
-Date: Wed, 13 Jun 2001 12:39:01 +0200
-From: Ralf Baechle <ralf@conectiva.com.br>
-To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-Cc: "'Rik van Riel'" <riel@conectiva.com.br>,
-        Rob Landley <landley@webofficenow.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Nelson <mnelson@dynatec.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Any limitations on bigmem usage?
-Message-ID: <20010613123901.A31221@bacchus.dhis.org>
-In-Reply-To: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6AE1@nocmail.ma.tmpw.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6AE1@nocmail.ma.tmpw.net>; from bruce.holzrichter@monster.com on Tue, Jun 12, 2001 at 02:34:40PM -0400
-X-Accept-Language: de,en,fr
+	id <S263536AbRFML7J>; Wed, 13 Jun 2001 07:59:09 -0400
+Received: from smtp-ham-1.netsurf.de ([194.195.64.97]:60316 "EHLO
+	smtp-ham-1.netsurf.de") by vger.kernel.org with ESMTP
+	id <S263491AbRFML66>; Wed, 13 Jun 2001 07:58:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Uwe Rathmann <Uwe.Rathmann@epost.de>
+Reply-To: Uwe.Rathmann@epost.de
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] stat.st_size is not set for pipes
+Date: Wed, 13 Jun 2001 13:56:00 +0200
+X-Mailer: KMail [version 1.2.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010613115905Z263491-17720+3381@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 12, 2001 at 02:34:40PM -0400, Holzrichter, Bruce wrote:
+Hi,
 
-> > Brilliant.  You need what, a 6x larger cache just to break even with
-> > the amount of time you're running in-cache? 
-> 
-> This may be the wrong platform for this question, but after reading Rob
-> Landley's note on performance on Itanium and architecture concerns, I am
-> interested in Kernel hackers who have had to write code for Itanium's
-> comments on the same, if you are not bound by NDA's.  Correct me if I am
-> wrong, but I thought I saw the announcement that Itanium is shipping.  Have
-> you tested Itanium performance?  We have an preproduction unit with quad
-> Itanium's.  I have not had time to benchmark against other units, I am
-> interested in performance items.  Feel free to drop me a line off list if
-> you can.
+I have upgraded from 2.4.2 to 2.4.5 and noticed a difference between the 
+output of fstat() for pipes using the following testprogram:
 
-A number of Specbench numbers of Itanium systems is now available.  Itanium
-performs relativly bad for the integer numbers compared to the entire
-competition but is a true fp killer.  As a developer I hate that compiling
-code for Itanium due to the extra complexity of optimization and code
-generation is way slower than for others CPUs.  So all in all Itanium is
-a two edged sword.
+--------
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
-  Ralf
+main()
+{
+    FILE *f;
+    struct stat buf;
+    int retval;
+
+    f = popen("echo -n test", "r");
+    retval = fstat(fileno(f), &buf);
+    printf("Data: %d, %d\n", retval, buf.st_size );
+
+    pclose(f);
+}
+--------
+
+Under 2.0.x, 2.2.x and 2.4.2 st_size reports the 4 bytes of the "test" 
+string, 2.4.5 reports 0. 
+
+Please CC to my email address also, as I'm not subscribed to the list. I 
+checked the archives and hope I didn't miss a previous discussion of this.
+
+Uwe

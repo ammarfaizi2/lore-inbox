@@ -1,66 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbTLDQPT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 11:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbTLDQPS
+	id S262725AbTLDQNB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 11:13:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLDQNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 11:15:18 -0500
-Received: from ahriman.bucharest.roedu.net ([141.85.128.71]:42369 "EHLO
-	ahriman.bucharest.roedu.net") by vger.kernel.org with ESMTP
-	id S262694AbTLDQN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 11:13:58 -0500
-Date: Thu, 4 Dec 2003 18:14:06 +0200 (EET)
-From: Mihai RUSU <dizzy@roedu.net>
-X-X-Sender: dizzy@ahriman.bucharest.roedu.net
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-cc: acpi-devel@lists.sourceforge.net,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] enhanced psxface.c error handling
-In-Reply-To: <1070553752.14488.4.camel@glass.felipe-alfaro.com>
-Message-ID: <Pine.LNX.4.56L0.0312041813010.8695@ahriman.bucharest.roedu.net>
-References: <1070553752.14488.4.camel@glass.felipe-alfaro.com>
+	Thu, 4 Dec 2003 11:13:01 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:54985 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262725AbTLDQM6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 11:12:58 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Lhms-devel] RE: memory hotremove prototype, take 3
+Date: Thu, 4 Dec 2003 08:12:54 -0800
+Message-ID: <A20D5638D741DD4DBAAB80A95012C0AE0125DD79@orsmsx409.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Lhms-devel] RE: memory hotremove prototype, take 3
+Thread-Index: AcO6Ve4cV0Gw3mXkRZmdmZ8GRidMQAAKub+Q
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Pavel Machek" <pavel@suse.cz>
+Cc: "Yasunori Goto" <ygoto@fsw.fujitsu.com>, <linux-kernel@vger.kernel.org>,
+       "Luck, Tony" <tony.luck@intel.com>,
+       "IWAMOTO Toshihiro" <iwamoto@valinux.co.jp>,
+       "Hirokazu Takahashi" <taka@valinux.co.jp>,
+       "Linux Hotplug Memory Support" <lhms-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 04 Dec 2003 16:12:54.0761 (UTC) FILETIME=[7972A590:01C3BA81]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> From: Pavel Machek [mailto:pavel@suse.cz]
 
-Hi
 
-I think you missed the order on this one
-
-@@ -142,14 +143,15 @@
-        walk_state = acpi_ds_create_walk_state (obj_desc->method.owning_id,
-                           NULL, NULL, NULL);
-        if (!walk_state) {
-- -               return_ACPI_STATUS (AE_NO_MEMORY);
-+               goto acpi_psx_parse_unref;
-+               status = AE_NO_MEMORY;
-        }
-
-:)
-
-On Thu, 4 Dec 2003, Felipe Alfaro Solana wrote:
-
-> Hi!
+> > 1) the core kernel needs to be independent of physical memory position
+> > 1.1) same with drivers/subsystems
+> > 1.2) filesystems
+> > [it cannot be really incomplete because I have added all the code
+> > :/]
 > 
-> This patch tries to fix the situation where an error could cause
-> acpi_psx_execute() to exit without releasing held references to the
-> elements of param[].
-> 
-> Thanks!
-> 
+> ...and you have bad problem at any place where physical address is
+> passed to the hardware. UHCI is going to be "interesting".
 
-- -- 
-Mihai RUSU                                    Email: dizzy@roedu.net
-GPG : http://dizzy.roedu.net/dizzy-gpg.txt    WWW: http://dizzy.roedu.net
-                       "Linux is obsolete" -- AST
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+That one falls under the category of "every device driver that talks
+in physical with its device" needs a callback to reallocate buffers
+or cancel and reissue transactions.
 
-iD8DBQE/z11QPZzOzrZY/1QRAriPAJ9tJ9A+l1VVCkvxVp5xKcl29+vnBwCguemq
-B4+AFaGmaYPah7YgNObfbk4=
-=6Nay
------END PGP SIGNATURE-----
+Still, when I started to hate UHCI's guts in 1997 I had a reason...it
+still holds true.
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)
+
+

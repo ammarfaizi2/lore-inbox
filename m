@@ -1,169 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130476AbRARBP3>; Wed, 17 Jan 2001 20:15:29 -0500
+	id <S130651AbRARBPj>; Wed, 17 Jan 2001 20:15:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130664AbRARBPU>; Wed, 17 Jan 2001 20:15:20 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:12560
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130476AbRARBPO>; Wed, 17 Jan 2001 20:15:14 -0500
-Date: Wed, 17 Jan 2001 17:14:02 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Tim Fletcher <tim@parrswood.manchester.sch.uk>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Terrence Martin <tmartin@cal.montage.ca>,
+	id <S130664AbRARBP3>; Wed, 17 Jan 2001 20:15:29 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:22289 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130651AbRARBPT>; Wed, 17 Jan 2001 20:15:19 -0500
+Date: Wed, 17 Jan 2001 17:13:31 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Hellwig <hch@ns.caldera.de>
+cc: Rik van Riel <riel@conectiva.com.br>, mingo@elte.hu,
         linux-kernel@vger.kernel.org
-Subject: Re: File System Corruption with 2.2.18
-In-Reply-To: <Pine.LNX.4.30.0101180035080.28099-100000@pine.parrswood.manchester.sch.uk>
-Message-ID: <Pine.LNX.4.10.10101171645110.19441-200000@master.linux-ide.org>
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <20010118015333.A20691@caldera.de>
+Message-ID: <Pine.LNX.4.10.10101171659160.10878-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="-1019260510-496294765-979780442=:19441"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----1019260510-496294765-979780442=:19441
-Content-Type: text/plain; charset=us-ascii
 
-On Thu, 18 Jan 2001, Tim Fletcher wrote:
-
-> > Well that is useless test them because you can not test things completely.
+On Thu, 18 Jan 2001, Christoph Hellwig wrote:
 > 
-> I ment that if the partiton has no persient data on it then the test can
-> be run (the test wipes all data on the partition out during the test,
-> right?) with no loss of data on the machine. The partition is still on the
-> same disk so the test data is valid?
+> /*
+>  * a simple page,offset,legth tuple like Linus wants it
+>  */
+> struct kiobuf2 {
+> 	struct page *   page;   /* The page itself               */
+> 	u_int16_t       offset; /* Offset to start of valid data */
+> 	u_int16_t       length; /* Number of valid bytes of data */
+> };
+
+Please use "u16". Or "__u16" if you want to export it to user space.
+
+> struct kiovec2 {
+> 	int             nbufs;          /* Kiobufs actually referenced */
+> 	int             array_len;      /* Space in the allocated lists */
+> 	struct kiobuf * bufs;
+
+Any reason for array_len?
+
+Why not just 
+
+	int nbufs,
+	struct kiobuf *bufs;
+
+
+Remember: simplicity is a virtue. 
+
+Simplicity is also what makes it usable for people who do NOT want to have
+huge overhead.
+
+> 	unsigned int    locked : 1;     /* If set, pages has been locked */
+
+Remove this. I don't think it's valid to lock the pages. Who wants to use
+this anyway?
+
+> 	/* Always embed enough struct pages for 64k of IO */
+> 	struct kiobuf * buf_array[KIO_STATIC_PAGES];	 
+
+Kill kill kill kill. 
+
+If somebody wants to embed a kiovec into their own data structure, THEY
+can decide to add their own buffers etc. A fundamental data structure
+should _never_ make assumptions like this.
+
+> 	/* Private data */
+> 	void *          private;
+> 	
+> 	/* Dynamic state for IO completion: */
+> 	atomic_t        io_count;       /* IOs still in progress */
+
+What is io_count used for?
+
+> 	int             errno;
 > 
-> I am thinking that the test is somewhat like badblocks -w or have I got
-> the wrong end of the stick?
+> 	/* Status of completed IO */
+> 	void (*end_io)	(struct kiovec *); /* Completion callback */
+> 	wait_queue_head_t wait_queue;
 
-Sorry there is no stick to get the end of....
-This is a pure diagnostic tool the determine OS/CHIPSET/DEVICE failures.
-You generate a pattern buffer and write it to the disk and step the buffer
-1 byte per sector and go head to tail.  Then you read it back head to tail
-and compare what should be there with what is there.  Failures == FS
-corruption is likely under highest loads, period.  Then you attempt 
-to extract any patterns or periodic events to determine if it is driver or
-device or other portions of the OS.
+I suspect all of the above ("private", "end_io" etc) should be at a higher
+layer. Not everybody will necessarily need them.
 
-I am tired of people pointing the finger at me claim my work is the cause
-of FS corruption.
+Remember: if this is to be well designed, we want to have the data
+structures to pass down to low-level drivers etc, that may not want or
+need a lot of high-level stuff. You should not pass down more than the
+driver really needs.
 
-This is a pattern walk and it will give some performance issue.
-It does not care about the OS, it is doing the direct access that some
-would call bit-bangging in the old days.
+In the end, the only thing you _know_ a driver will need (assuming that it
+wants these kinds of buffers) is just
 
-Cheers,
+	int nbufs;
+	struct biobuf *bufs;
 
-Andre Hedrick
-Linux ATA Development
+That's kind of the minimal set. That should be one level of abstraction in
+its own right. 
 
----1019260510-496294765-979780442=:19441
-Content-Type: text/plain; charset=us-ascii; name="data-2.2.19pre7"
-Content-Transfer-Encoding: base64
-Content-ID: <Pine.LNX.4.10.10101171714020.19441@master.linux-ide.org>
-Content-Description: 
-Content-Disposition: attachment; filename="data-2.2.19pre7"
+Never over-design. Never think "Hmm, maybe somebody would find this
+useful". Start from what you know people _have_ to have, and try to make
+that set smaller. When you can make it no smaller, you've reached one
+point. That's a good point to start from - use that for some real
+implementation.
 
-RGV2aWNlOiBRVUFOVFVNIEZJUkVCQUxMUCBMTTIwLjQgU2VyaWFsIE51bWJl
-cjogMTg0MjIyMjU2MTEwDQowMDAwOiA3ZjUxIDY2ODYgY2JiZiBiZDJkIGJm
-MmIgMTA1MyBlNjgzIDE0MjggLlFmLi4uLi0uKy5TLi4uKA0KMDAxMDogZDgx
-MyAyMTI2IDJiZjUgMWU0YyBlYThiIDc0NTMgYmYzOCA0MGZhIC4uISYrLi5M
-Li50Uy44QC4NCjAwMjA6IDc0MjQgNzQzZCBiODM5IGZjZTEgZmVhZiBjYjc1
-IDlmMGYgNjhiNSB0JHQ9LjkuLi4uLnUuLmguDQowMDMwOiA1OGU0IDIyZWQg
-MDk4ZiA2YmVjIDQwMzYgMzgzZCAyYWFiIDc3MjYgWC4iLi4uay5ANjg9Ki53
-Jg0KMDA0MDogZTYyNSA0MWM2IDFlMDYgYTY5YiAxZDllIDg4NjMgZTcyNyAw
-MTQzIC4lQS4uLi4uLi4uYy4nLkMNCjAwNTA6IGY2MjUgZjNiNiA3MDE3IDUw
-YmQgYzEyNSA5MGJhIDZlNzcgMTE5OCAuJS4ucC5QLi4lLi5udy4uDQowMDYw
-OiAyZTBmIDMzMDAgNGVhNCBmZjVmIDAzM2UgZDBiMiA0NmRmIDYwOTQgLi4z
-Lk4uLl8uPi4uRi5gLg0KMDA3MDogNTY1MSAzYmVjIDU2NWUgNjVkMCBhZjBi
-IGU0YmMgODVlYyA4NDY1IFZROy5WXmUuLi4uLi4uLmUNCjAwODA6IDcyN2Qg
-MzIxOSA4NjJkIDdkMWYgNDczZSAzY2YyIGNlOWIgNTFhZCByfTIuLi19Lkc+
-PC4uLlEuDQowMDkwOiBkYjU3IDM0OTQgZjBkNSA1MmRlIDcxMjAgN2U1MiAz
-NzkyIDMyMGQgLlc0Li4uUi5xIH5SNy4yLg0KMDBhMDogZTY3MiBhZWJmIDgx
-NjEgN2QyMSA2YTczIDFjYmQgMGMwNyAyYTJjIC5yLi4uYX0hanMuLi4uKiwN
-CjAwYjA6IDkzMzcgNmJhNCBmNWEzIDM0NjcgMDRlZiBlN2Y2IDY1ZjAgMDJi
-OCAuN2suLi40Zy4uLi5lLi4uDQowMGMwOiAzZTkwIGE3NmYgYjQ4YiA2ZWY5
-IDIyNDIgMzdjMCBlMjE4IGUwYjAgPi4uby4ubi4iQjcuLi4uLg0KMDBkMDog
-YzUwOCA4NjE1IGVkMDYgMTk1MyBmYjIwIGY1ZWEgNjY4ZCA5M2MxIC4uLi4u
-Li5TLiAuLmYuLi4NCjAwZTA6IDI0MjYgYTI0NSA5ZThiIDM1NmQgOGYzMiA5
-MjJlIDBiYjcgZTRmMiAkJi5FLi41bS4yLi4uLi4uDQowMGYwOiAwOWQyIDMy
-NGIgYjE5OCA1MzJjIDAxMDQgOTlmNyA3YmIzIDk4YmMgLi4ySy4uUywuLi4u
-ey4uLg0KMDEwMDogYzlhNiA1ZDk5IDRmZjQgNDA3ZiA0MzlhIGM3NGUgMDk2
-YSBlNzZmIC4uXS5PLkAuQy4uTi5qLm8NCjAxMTA6IGRkNjcgNDMzYSAwMWYz
-IDljZTMgNDcyOCAxNmVkIGYxYTQgZTM4MyAuZ0M6Li4uLkcoLi4uLi4uDQow
-MTIwOiBmMWY2IDM1MDUgNjM3YiA4NmNlIGM2NDggZmJiMSBhMzZiIDYyZGUg
-Li41LmN7Li4uSC4uLmtiLg0KMDEzMDogYzRlMiAwOWIzIDU5OGYgYWExNCAw
-NjI0IDhlYjEgN2IwMiA2YThhIC4uLi5ZLi4uLiQuLnsuai4NCjAxNDA6IDVh
-NzAgY2MxNyBiNzNkIDUxOGUgMDY5ZSA1NDU5IDI5MzggMjJiOCBacC4uLj1R
-Li4uVFkpOCIuDQowMTUwOiA1N2FiIDU3YmMgMDE3NiAxYjg4IDBlN2QgNTk4
-NiBjYTUxIDQzYTggVy5XLi52Li4ufVkuLlFDLg0KMDE2MDogZmZiNCA3OTU5
-IGVhNjcgNzI4YyA1Mzg3IDEyNjAgMGRkMCA3ZDVmIC4ueVkuZ3IuUy4uYC4u
-fV8NCjAxNzA6IGYxMjEgMGU3ZiA0ZDlkIDIzNDkgMDE3MCA4ZDg4IDliZWQg
-NWNhNSAuIS4uTS4jSS5wLi4uLlwuDQowMTgwOiAyMGEzIDJjMzIgZDU3YyA0
-MDNmIGQ0NjggYjYyZiBlODI4IDM5MjUgIC4sMi58QD8uaC4vLig5JQ0KMDE5
-MDogMjUxMyAxMTJiIDBlYjIgYTcyMCBlZDQ0IDIzZTEgNGZlMSA4NDU0ICUu
-LisuLi4gLkQjLk8uLlQNCjAxYTA6IGQxMWEgNGI0YSAxYzhmIGViYjYgY2U5
-YyBiNDFmIDhiYzYgMjQ1ZCAuLktKLi4uLi4uLi4uLiRdDQowMWIwOiA0Mjli
-IDNhODkgYjJmNiA3MmU1IGZiYjMgNzNkMCAyZWY1IDI2YTIgQi46Li4uci4u
-LnMuLi4mLg0KMDFjMDogZDhjMiBhNjQxIGQyOGYgMDNjMSAyNjY5IDQ5N2Ig
-ODA3MyA1NjI0IC4uLkEuLi4uJmlJey5zViQNCjAxZDA6IDA3NDQgNDYzOCAz
-OTJmIDIxNmYgMGMwNyAwZWMzIGVhMzcgODI1YyAuREY4OS8hby4uLi4uNy5c
-DQowMWUwOiBiOTc2IDI2MTcgNmY1ZiA1ZjZjIDMwNTIgZWY5MyAyMzI3IGYw
-NDAgLnYmLm9fX2wwUi4uIycuQA0KMDFmMDogMzFkMyAzMjZkIDkxZGIgMDhi
-NyAzZjg3IDZhM2EgYzc4MSA0NmJmIDEuMm0uLi4uPy5qOi4uRi4NCjAyMDA6
-IDU3ZmUgNjE3NCAxODQ2IGMzNDcgMmI1MiAzZTU1IDZlMTkgNzRmZSBXLmF0
-LkYuRytSPlVuLnQuDQowMjEwOiAxNDQ2IGJmMTEgYWFiOCA0MTM1IGYzZGMg
-ZTJiZSBjZjZkIDNmZDMgLkYuLi4uQTUuLi4uLm0/Lg0KMDIyMDogY2IzNiA1
-NTAwIGQyNDEgYzY2ZiAxZWExIDk5Y2IgMjY4NCBhM2E2IC42VS4uQS5vLi4u
-LiYuLi4NCjAyMzA6IGFlNzEgMjQxZiA3NGRmIDc3YTUgNWFlZSBiM2FiIDFk
-NDcgYzI0MyAucSQudC53LlouLi4uRy5DDQowMjQwOiBjNWEzIGY2MDkgMDRk
-NSAwZDNhIDNhOGYgNDkyYiAyODdiIDk0NjYgLi4uLi4uLjo6LkkrKHsuZg0K
-MDI1MDogM2M4OCBlNmY5IDk3YjMgM2U1OSA4MzMwIDRhYzEgYmNlNCA1N2Fh
-IDwuLi4uLj5ZLjBKLi4uVy4NCjAyNjA6IDg3MDggYzEwNiA4NzY2IDkxNDIg
-YzFkYyA5ZTFhIDYwMTUgYjQ2OCAuLi4uLmYuQi4uLi5gLi5oDQowMjcwOiA5
-Y2UyIDhiMGYgZmJhMSBmNDIyIDU2NmEgMTc5YyAwMTA2IDg5MTIgLi4uLi4u
-LiJWai4uLi4uLg0KMDI4MDogMTVlYyAyMGEzIGEyMGQgMWY4MiBkNDkxIDdm
-OTkgOTEzOCBlM2MyIC4uIC4uLi4uLi4uLi44Li4NCjAyOTA6IDM5ZTEgODYx
-MCBjYzFkIDUxYzQgMTlhMCA4ZTY0IGUyNjggYWFkNCA5Li4uLi5RLi4uLmQu
-aC4uDQowMmEwOiA1MDJlIDFlYmYgOTNiNiA2ZTY2IGJjYWEgYmE3NSBhNDVk
-IDI3MjAgUC4uLi4ubmYuLi51Ll0nIA0KMDJiMDogZmY5ZSBkZGQ1IDVlZjcg
-Y2VjMyBmYmE3IGE4ZjQgYThhOCAyMWE1IC4uLi5eLi4uLi4uLi4uIS4NCjAy
-YzA6IGI0NzIgNTk3ZiA0MjRkIDhmMTUgNDViMyBjODk3IDU3OTMgNjM0OSAu
-clkuQk0uLkUuLi5XLmNJDQowMmQwOiBmNzRjIDUxYjUgMjZjOSBmZDZmIGMy
-YzkgMmQ4ZiBmYzM0IDAxMWUgLkxRLiYuLm8uLi0uLjQuLg0KMDJlMDogYTgw
-MiBiYTQ4IDdjZmQgNjlhYyA5M2M0IDdlNTAgZjM5NyBjNGEwIC4uLkh8Lmku
-Li5+UC4uLi4NCjAyZjA6IGU1MDMgOGQyNyBkODY1IGQ1MWEgM2E1MiBhZTlj
-IGU5ODcgM2JiYiAuLi4nLmUuLjpSLi4uLjsuDQowMzAwOiAwNzJkIDZmNWYg
-NTBjOSA3MzZhIGE2YzMgM2Y2MyBmYzQ2IDYzOTIgLi1vX1Auc2ouLj9jLkZj
-Lg0KMDMxMDogNDRkMCBjZWI4IGY4ODYgODNhMSA0MTJiIDE5MzQgZjYyMSAz
-N2NhIEQuLi4uLi4uQSsuNC4hNy4NCjAzMjA6IDRiZmEgOGY2OSBjMGFmIGM2
-ZDEgZDM4NCAwMzVjIGYyNjYgNzU2NCBLLi5pLi4uLi4uLlwuZnVkDQowMzMw
-OiA0MWM5IDYyZTUgYjk2NSA0NDE4IGY0NTMgMjVmZCA0NmQ4IDRlMmYgQS5i
-Li5lRC4uUyUuRi5OLw0KMDM0MDogMzM1YSA5Yjg0IDUwMjMgOTUyZSBlZGE4
-IGEyMTYgNWJiNiBmNTgzIDNaLi5QIy4uLi4uLlsuLi4NCjAzNTA6IDU5NjIg
-OWUyMyBiYjM0IDEzZWYgNDA5MCBmNWE3IDRjNTMgOGJlNyBZYi4jLjQuLkAu
-Li5MUy4uDQowMzYwOiBhNzQ0IGEwMTQgNTVhYyA2MmQ4IDBiYWEgYzRjMSA4
-MzBiIDQ2YWUgLkQuLlUuYi4uLi4uLi5GLg0KMDM3MDogZmUwYSBkNTAxIGNk
-NTggODlhYiA5ZjNmIDdlNjIgNmRlMiA3YTY2IC4uLi4uWC4uLj9+Ym0uemYN
-CjAzODA6IGQ2NTAgZDE5NCBmMThkIGQ5ZWQgMzc0NSA2NDA4IGExZTEgNTE2
-MiAuUC4uLi4uLjdFZC4uLlFiDQowMzkwOiA2NjBiIDczZGYgOGZhOCA5YWFk
-IGVjZGIgZjBjZCAwMmMxIDJmNGIgZi5zLi4uLi4uLi4uLi4vSw0KMDNhMDog
-ODdiMiBkYmU0IGY1MDIgNThjYSBjYjhmIGVmOWQgYzllNSBlOGJkIC4uLi4u
-LlguLi4uLi4uLi4NCjAzYjA6IDc2ODQgNTMzOCA5OGFiIGNmOTYgYzY2ZiA1
-OTE0IDRlZWYgM2VmMCB2LlM4Li4uLi5vWS5OLj4uDQowM2MwOiBkMDdjIGY4
-YjAgYWM3YSBjNjdjIDYzYTMgODIzMCBmOGVkIDY2ZTkgLnwuLi56LnxjLi4w
-Li5mLg0KMDNkMDogYzlkYSBmMzQ2IGZhN2QgMmUxMyA2YThkIDdlZWIgODM2
-NyAwOGM4IC4uLkYufS4uai5+Li5nLi4NCjAzZTA6IDUyMWQgYjJiYyBmZjc1
-IDcwM2EgNzkzMiAxMTliIDRmNWQgMzU3ZCBSLi4uLnVwOnkyLi5PXTV9DQow
-M2YwOiA5ZmRhIDZmNDcgNGJiNiBmMmZlIGQ0NWEgYmJjYSA1N2QxIDcwYjYg
-Li5vR0suLi4uWi4uVy5wLg0KDQpUb3RhbCBEaWFtZXRlciBTZXF1ZW50aWFs
-IERNQSBQYXR0ZXJuIFdyaXRlIFRlc3QgID0gMTkuMTcgTUIvU2VjICg2ODEu
-NTcgU2Vjb25kcykNCg0KVG90YWwgRGlhbWV0ZXIgU2VxdWVudGlhbCBETUEg
-UGF0dGVybiBSZWFkIFRlc3QgID0gMTIuNTcgTUIvU2VjICgxMDM5Ljg5IFNl
-Y29uZHMpDQo=
----1019260510-496294765-979780442=:19441--
+Once you've gotten that far, you can see how well you can embed the lower
+layers into higher layers. That does _not_ mean that the lower layers
+should know about the high-level data structures. Try to avoid pushing
+down abstractions too far. Maybe you'll want to push down the error code.
+But maybe not. And you should NOT link the callback with the vector of
+IO's: you may find (in fact, I bet you _will_ find), that the lowest level
+will want a callback to call up to when it is ready, and that layer may
+want _another_ callback to call up to higher levels.
+
+Imagine, for example, the network driver telling the IP layer that "ok,
+packet sent". That's _NOT_ the same callback as the TCP layer telling the
+upper layers that the packet data has been sent and successfully
+acknowledged, and that the data structures can be free'd now. They are at
+two completely different levels of abstraction, and one level needing
+something doesn't need that the other level should necessarily even care.
+
+Don't imagine that everybody wants the same data structure, and that that
+data structure should thus be very generic. Genericity kills good ideas.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVCRLi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVCRLk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261583AbVCRLi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 06:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVCRLi1
+	id S261586AbVCRLk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 06:40:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVCRLk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 06:38:27 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:31920 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261583AbVCRLiY (ORCPT
+	Fri, 18 Mar 2005 06:40:26 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33931 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261586AbVCRLkN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 06:38:24 -0500
-Date: Fri, 18 Mar 2005 12:38:11 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: dipankar@in.ibm.com, shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
-       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
-       manfred@colorfullife.com, gh@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and RCU
-Message-ID: <20050318113811.GA18997@elte.hu>
-References: <20050318002026.GA2693@us.ibm.com>
+	Fri, 18 Mar 2005 06:40:13 -0500
+Date: Fri, 18 Mar 2005 12:39:57 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: coywolf@gmail.com, "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] SUSPEND_PD_PAGES-fix
+Message-ID: <20050318113957.GC32253@elf.ucw.cz>
+References: <20050316202800.GA22750@everest.sosdg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050318002026.GA2693@us.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050316202800.GA22750@everest.sosdg.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Paul E. McKenney <paulmck@us.ibm.com> wrote:
 
-> 5. Scalability -and- Realtime Response.
-> 
-> The trick here is to keep track of the CPU that did the
-> rcu_read_lock() in the task structure.  If there is a preemption,
-> there will be some slight inefficiency, but the correct lock will be
-> released, preserving correctness.
+> This fixes SUSPEND_PD_PAGES, which wastes one page under most cases.
 
-the inefficiency will be larger, because (as explained in a previous
-mail) multiple concurrent owners of the read-lock are not allowed. This
-adds to the overhead of PREEMPT_RT on SMP, but is an intentional
-tradeoff. I dont expect PREEMPT_RT to be used on an Altix :-|
+Ok, applied to my tree, will eventually propagate it. (I hope it looks
+okay to you, rafael).
 
-#5 is still the best option, because in the normal 'infrequent
-preemption' case it will behave in a cache-friendly way. A positive
-effect of the lock serializing is that the callback backlog will stay
-relatively small and that the RCU backlog processing can be made
-deterministic as well (if needed), by making the backlog processing
-thread(s) SCHED_FIFO.
+> Signed-off-by: Coywolf Qi Hunt <coywolf@gmail.com>
+> diff -pruN 2.6.11-mm4/include/linux/suspend.h 2.6.11-mm4-cy/include/linux/suspend.h
+> --- 2.6.11-mm4/include/linux/suspend.h	2005-03-17 01:22:16.000000000 +0800
+> +++ 2.6.11-mm4-cy/include/linux/suspend.h	2005-03-17 04:14:16.000000000 +0800
+> @@ -34,7 +34,7 @@ typedef struct pbe {
+>  #define SWAP_FILENAME_MAXLENGTH	32
+>  
+>  
+> -#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe))/PAGE_SIZE+1)
+> +#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe)+PAGE_SIZE-1)/PAGE_SIZE)
+>  
+>  extern dev_t swsusp_resume_device;
+>     
 
-	Ingo
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

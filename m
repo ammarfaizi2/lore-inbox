@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbTKITEd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 14:04:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbTKITEd
+	id S262760AbTKIS52 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 13:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTKIS52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 14:04:33 -0500
-Received: from as13-5-5.has.s.bonet.se ([217.215.179.23]:11400 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262766AbTKITEc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 14:04:32 -0500
-Message-ID: <3FAE9026.60500@stesmi.com>
-Date: Sun, 09 Nov 2003 20:06:14 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Sun, 9 Nov 2003 13:57:28 -0500
+Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:40423
+	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
+	id S262760AbTKIS5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 13:57:25 -0500
+To: "Deepak Kumar Gupta, Noida" <dkumar@noida.hcltech.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: problem in booting HP zx6000 with stock kernel 2.5.75
+References: <Q08Y.87p.3@gated-at.bofh.it>
+From: David Mosberger-Tang <David.Mosberger@acm.org>
+Date: 09 Nov 2003 10:57:22 -0800
+In-Reply-To: <Q08Y.87p.3@gated-at.bofh.it>
+Message-ID: <ugk769qsj1.fsf@panda.mostang.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Some thoughts about stable kernel development
-References: <m3u15de669.fsf@defiant.pm.waw.pl>
-In-Reply-To: <m3u15de669.fsf@defiant.pm.waw.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Krysztof.
+>>>>> On Sun, 09 Nov 2003 17:00:12 +0100, "Deepak Kumar Gupta, Noida" <dkumar@noida.hcltech.com> said:
 
-> As all of you know, the development cycle can be shortened by using
-> two separate trees for a stable kernel line.
-> 
-> Say, we're now at 2.4.23-rc1 stage. This "rc" kernel would also be
-> known as 2.4.24-pre1. The maintainer would apply "rc"-class fixes to
-> both kernels, and other patches (which can't go to "rc" kernel) would
-> be applied to 2.4.24-pre1 only.
-> 
-> After 2.4.23-rcX becomes final 2.4.23, the 2.4.24-preX would become
-> 2.4.24-rc1 and would be a base for 2.4.25-pre1.
+  Deepak> Hello everybody I am trying to boot 2 CPU hp zx6000 machine
+  Deepak> (ia64, itanium2) from STOCK kernel version 2.5.75. I have
+  Deepak> followed following steps.
 
-And then someone comes along and says that feature X isn't working in
-some version. He then reports that "it worked in a.b.c but then someone
-broke it for a.b.c+1 pre 1. Then you have to tell that person that
-a.b.c+1 pre 1 isn't newer than a.b.c. Messy. Very messy.
-The list gets too many mails that are answered by "RTFM" already.
+2.5.75?  Why such an old kernel?
 
-// Stefan
+  Deepak> Kindly provide me appropriate guidance.. , where am I wrong?
 
+For a zx6000, you're better off configuring it as ZX1 system, rather
+than GENERIC.  The latter should also work, but will be (slightly)
+less efficient (and the kernel will be needlessly bigger).
+
+  Deepak> I have following doubts: -
+
+  Deepak> 1. Is it possible to build and run _stock_ kernel (not
+  Deepak> redhat patched kernel, as redhat advanced distribution is
+  Deepak> available on my machine) on hp zx6000 machine ?
+
+Yes, but you do need something newer than 2.5.75.  Try 2.6.0-test9.
+
+  Deepak> Do I need additional patches the stock kernel + ia64 patch ?
+
+No patch is needed.  There still is a patch, but if you don't care
+about the last drop of performance and/or early printk-support, you
+don't need it.
+
+BTW: The daily build-status of Linus' kernel tree can be found here:
+       http://www.gelato.unsw.edu.au/kerncomp/
+     You can also get know-to-be-good .config files from there.
+
+Also, in the future you may want to use linux-ia64@vger.kernel.org for
+such question, since that mailing list is focused on ia64.
+
+	--david

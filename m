@@ -1,109 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUEQIjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264934AbUEQIk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264937AbUEQIjp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 04:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUEQIjp
+	id S264934AbUEQIk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 04:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUEQIk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 04:39:45 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:6294 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S264934AbUEQIjl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 04:39:41 -0400
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s &&
-	s->tree' failed: The saga continues.)
-From: Vladimir Saveliev <vs@namesys.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040517004626.4377a496.akpm@osdl.org>
-References: <200405132232.01484.elenstev@mesatop.com>
-	 <20040517022816.GA14939@work.bitmover.com>
-	 <Pine.LNX.4.58.0405161936490.25502@ppc970.osdl.org>
-	 <200405162136.24441.elenstev@mesatop.com>
-	 <Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org>
-	 <20040517002506.34022cb8.akpm@osdl.org>
-	 <20040517004626.4377a496.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1084783179.1430.37.camel@tribesman.namesys.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 17 May 2004 12:39:40 +0400
+	Mon, 17 May 2004 04:40:27 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:49819 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S264934AbUEQIkU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 04:40:20 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Michal Ludvig <michal@logix.cz>
+Subject: Re: New list for CryptoAPI development
+Date: Mon, 17 May 2004 10:39:35 +0200
+User-Agent: KMail/1.6.1
+Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org
+References: <Xine.LNX.4.44.0405121947550.13491-100000@thoron.boston.redhat.com> <Pine.LNX.4.53.0405141658490.15384@maxipes.logix.cz>
+In-Reply-To: <Pine.LNX.4.53.0405141658490.15384@maxipes.logix.cz>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_MpHqAXxSUTAEUJX";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405171039.40660.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-On Mon, 2004-05-17 at 11:46, Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> >  If an application does mmap(MAP_SHARED) of, say, a 2048 byte file and then
-> >  extends it:
-> > 
-> >  	p = mmap(..., fd, ...);
-> >  	ftructate(fd, 4096);
-> >  	p[3000] = 1;
-> > 
-> >  A racing block_write_full_page() could fail to notice the extended i_size
-> >  and would decide to zap those 2048 bytes anyway.
-> 
-> This should plug it.
-> 
-> diff -puN mm/memory.c~ftruncate-vs-block_write_full_page mm/memory.c
-> --- 25/mm/memory.c~ftruncate-vs-block_write_full_page	2004-05-17 00:33:07.060231368 -0700
-> +++ 25-akpm/mm/memory.c	2004-05-17 00:41:00.924193096 -0700
-> @@ -1208,6 +1208,8 @@ int vmtruncate(struct inode * inode, lof
->  {
->  	struct address_space *mapping = inode->i_mapping;
->  	unsigned long limit;
-> +	loff_t i_size;
-> +	struct page *page;
->  
->  	if (inode->i_size < offset)
->  		goto do_expand;
-> @@ -1222,8 +1224,22 @@ do_expand:
->  		goto out_sig;
->  	if (offset > inode->i_sb->s_maxbytes)
->  		goto out;
-> -	i_size_write(inode, offset);
->  
-> +	/*
-> +	 * If there is a pagecache page at the current i_size we need to lock
-> +	 * it while modifying i_size to synchronise against
-> +	 * block_write_full_page()'s sampling of i_size.  Otherwise
-> +	 * block_write_full_page may decide to memset part of this page after
-> +	 * the application extended the file size.
-> +	 */
+--Boundary-02=_MpHqAXxSUTAEUJX
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Don't down-ings i_sem in do_truncate and in generic_file_write take care
-of this kind of race?
+On Friday 14 May 2004 17:10, Michal Ludvig wrote:
 
-> +	i_size = inode->i_size;	/* don't need i_size_read() due to i_sem */
-> +	page = NULL;
-> +	if (i_size & (PAGE_CACHE_SIZE - 1))
-> +		page = find_lock_page(inode->i_mapping,
-> +				i_size >> PAGE_CACHE_SHIFT);
-> +	i_size_write(inode, offset);
-> +	if (page)
-> +		unlock_page(page);
->  out_truncate:
->  	if (inode->i_op && inode->i_op->truncate)
->  		inode->i_op->truncate(inode);
-> 
-> _
-> 
-> The same could happen with a pwrite() in place of ftruncate:
-> 
-> 	fd = open("2048-byte-file");
-> 	p = mmap(..., MAP_SHARED, fd, ...);
-> 	pwrite(fd, buf, 1, 4096);
-> 	p[3000] = 1;
-> 
-> But I doubt that bk does extending writes() against a file which is
-> concurrently being modified via MAP_SHARED.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> OK, I created cryptoapi@lists.logix.cz mailing list.
+> It is mailman-driven, i.e. subscribe with an empty mail to
+> cryptoapi-subscribe@lists.logix.cz or through the web page
+> http://lists.logix.cz/mailman/listinfo/cryptoapi
+>=20
+> All cryptography-in-the-kernel discussions are on-topic.
+>=20
+> I hope to see you there ;-)
 
+Sorry if I'm being ignorant here, but how is this supposed
+to relate to the existing linux-crypto mailing list at
+http://mail.nl.linux.org/linux-crypto/ ?
+
+	Arnd <><
+
+--Boundary-02=_MpHqAXxSUTAEUJX
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAqHpM5t5GS2LDRf4RAi6iAKCAA/nfyCZROsQT6Wmkw9eceQl/GgCdHV8P
+0Jgr3JyQD6/dv728X2vDsiQ=
+=Q4UR
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_MpHqAXxSUTAEUJX--

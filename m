@@ -1,34 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVAGV2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVAGV2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVAGV2V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 16:28:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVAGV11
+	id S261633AbVAGV2R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 16:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVAGV1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 16:27:27 -0500
-Received: from mail.suse.de ([195.135.220.2]:10669 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261618AbVAGVYx (ORCPT
+	Fri, 7 Jan 2005 16:27:18 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:52692 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261634AbVAGVZR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 16:24:53 -0500
-Date: Fri, 7 Jan 2005 22:24:38 +0100
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nikita Danilov <nikita@clusterfs.com>, pmarques@grupopie.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: [RFC] per thread page reservation patch
-Message-ID: <20050107212438.GB13026@wotan.suse.de>
-References: <20050103011113.6f6c8f44.akpm@osdl.org> <20050103114854.GA18408@infradead.org> <41DC2386.9010701@namesys.com> <1105019521.7074.79.camel@tribesman.namesys.com> <20050107144644.GA9606@infradead.org> <1105118217.3616.171.camel@tribesman.namesys.com> <41DEDF87.8080809@grupopie.com> <m1llb5q7qs.fsf@clusterfs.com> <20050107132459.033adc9f.akpm@osdl.org>
+	Fri, 7 Jan 2005 16:25:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Z6uMRCcUNCs7u6ciM4irMUYaIQpodhzUPPjtUPgUw4TSYvAZ/JqHS/sunBVYu+nJ+T3OP/sfeNzVBJntyhqLplvdEasgkgFjpMxvd5zmaARcb+v0ofbJ3eg2ZqDHgFpPEGUznCQOGiFISdogDFbOYAAFghamuoc/JAW0VzrM9f8=
+Message-ID: <297f4e0105010713254b6e0678@mail.gmail.com>
+Date: Fri, 7 Jan 2005 22:25:14 +0100
+From: Ikke <ikke.lkml@gmail.com>
+Reply-To: Ikke <ikke.lkml@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kobject_uevent
+In-Reply-To: <297f4e01050107065060e0b2ad@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050107132459.033adc9f.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <297f4e01050107065060e0b2ad@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And the whole idea is pretty flaky really - how can one precalculate how
-> much memory an arbitrary md-on-dm-on-loop-on-md-on-NBD stack will want to
-> use?  It really would be better if we could drop the whole patch and make
-> reiser4 behave more sanely when its writepage is called with for_reclaim=1.
+I've been working a bit on the kobject_uevent stuff, and got a
+prototype system working (well, almost) which takes kernel's uevents,
+and sends them to the DBUS system bus so other software can (ab)use
+them.
+I'll add more uevents later, once I understand the system completely.
+I'm a little confused by the use of KOBJ_* stuff in
+include/linux/kobject_uevent.h and the string representation of them
+in lib/kobject_uevent.c, which means people must edit 2 files if they
+want to add new events?
 
-Or just preallocate into a private array. 
+More information on my little work here [1]
 
--Andi
+Regards, Ikke
+
+
+[1] http://blog.eikke.com/index.php/ikke/2005/01/07/kernel_events_to_dbus

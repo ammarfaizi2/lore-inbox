@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317418AbSFMCm7>; Wed, 12 Jun 2002 22:42:59 -0400
+	id <S317416AbSFMCmI>; Wed, 12 Jun 2002 22:42:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317421AbSFMCm6>; Wed, 12 Jun 2002 22:42:58 -0400
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:55688 "EHLO
-	completely") by vger.kernel.org with ESMTP id <S317418AbSFMCm5>;
-	Wed, 12 Jun 2002 22:42:57 -0400
-From: Ryan Cumming <ryan@completely.kicks-ass.org>
-To: Kurt Wall <kwall@kurtwerks.com>
-Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-Date: Wed, 12 Jun 2002 19:42:53 -0700
-User-Agent: KMail/1.4.5
+	id <S317418AbSFMCmH>; Wed, 12 Jun 2002 22:42:07 -0400
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:62198 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S317416AbSFMCmG>; Wed, 12 Jun 2002 22:42:06 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Mikael Pettersson <mikpe@csd.uu.se>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020612215014.6c2aeaf6.kwall@kurtwerks.com> <Pine.GSO.4.21.0206122152300.16357-100000@weyl.math.psu.edu> <20020612222540.23e38e0a.kwall@kurtwerks.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200206121942.56046.ryan@completely.kicks-ass.org>
+Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support 
+In-Reply-To: Your message of "Wed, 12 Jun 2002 15:10:48 +0200."
+             <15623.18520.760673.208158@kim.it.uu.se> 
+Date: Thu, 13 Jun 2002 12:42:13 +1000
+Message-Id: <E17IKYw-00032x-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In message <15623.18520.760673.208158@kim.it.uu.se> you write:
+> This means keeping a logical->physical map and iterating like this:
+> 
+>      for(i = 0; i < nr_online_cpus; ++i)
+> 	   do_something_with(cpu_logical_map(i));
+>
+> (I care because my performance-monitoring counters driver by necessity
+> is closely tied to CPU identities and the set of online CPUs.)
 
-On June 12, 2002 19:25, Kurt Wall wrote:
-> That's *precisely* the point I tried to make. .desktop files are just
-> plain text files, as far as Unix is concerned. They do not map neatly
-> to Windows .lnk files because the kernel's file system layer does
-> not handle them specially, as it does symlinks. God and Bill Gates
-> alone know how Windows handles .lnk files, but it does seem that Windows
-> imputes to them special semantics, rather like a shell script.
+I disagreed, so I measured, and you are right 8(  I hate that.
 
-No, some people actually know how Windows works. The kernel has very little to 
-do with .lnk files, and in fact it sees them as regular files. If you run 
-"notepad foo.lnk", you will see the link's binary contents. If you use the 
-CreateFile or OpenFile kernel calls, you will get a file handle pointing to 
-the link's contents. If you attempt to execute a .lnk file from the command 
-line or using CreateProcess, it will horribly fail.
+Simply reading the performance monitors across all CPUs is a case
+where the extra loop overhead is significant (although cache effects
+may still dominate): 9 times slower on PPC if there are only 2 CPUs
+and NR_CPUS is 32.
 
-In fact, to dereference a link in userspace, you must open the .lnk file, 
-examine its contents with a library call, and then open the destination file.  
-This is extremely similar to how Gnome or KDE handle .desktop files: mainly 
-in the shell.
+I'd definitely prefer a per-arch for_each_cpu() implementation to
+exposing a mapping, eg:
 
-- -Ryan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+	/* No hotplug cpus on this arch. */
+	extern int max_cpu_num;
+	#define for_each_cpu(__i) for (__i = 0; __i < max_cpu_num; __i++)
 
-iD8DBQE9CAawLGMzRzbJfbQRAm05AJ4gUYliitP5APHO/IM5jPB7wukGCgCgoPFg
-qGH7VCkKap7mSFAET9T3n88=
-=5Oer
------END PGP SIGNATURE-----
+OR
+	extern int cpu_next_map[NR_CPUS];
+	#define for_each_cpu(__i) \
+		for (__i = 0; __i < NR_CPUS; __i = cpu_next_map[__i])
+
+[ Soapbox mode: cut here ]
+
+My philosophy is that parts of infrastructure which is not used by >
+90% of people tends to get misused.  Two recent concrete examples:
+
+	cpu_logical_map() is currently a noop on x86
+		=> Ingo fucked it up in his initial scheduler impl.
+	copy_from_user() returns POSTIVE on failure
+		=> 7% of uses of copy_from_user were buggy in 2.5.19.
+
+My feeling is that kernel coding is becoming more challenging (SMP,
+preemption, portability), and our bug count and time-to-kernel-mastery
+is climbing as a result.  One method of countering this is by
+carefully designing infrastructure to make the simplest method for
+writing common operations also the correct one.
+
+Sometimes old-timers don't see infrastructure they are used to as a
+problem, but even they make mistakes.
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289025AbSBXBDR>; Sat, 23 Feb 2002 20:03:17 -0500
+	id <S289058AbSBXB3d>; Sat, 23 Feb 2002 20:29:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289026AbSBXBDG>; Sat, 23 Feb 2002 20:03:06 -0500
-Received: from smtp3.cern.ch ([137.138.131.164]:24474 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S289025AbSBXBC5>;
-	Sat, 23 Feb 2002 20:02:57 -0500
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
+	id <S289084AbSBXB3Y>; Sat, 23 Feb 2002 20:29:24 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:39428 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S289058AbSBXB3I>; Sat, 23 Feb 2002 20:29:08 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 23 Feb 2002 17:31:33 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Bill Huey <billh@gnuppy.monkey.org>
+cc: Pete Zaitcev <zaitcev@redhat.com>, Keith Owens <kaos@ocs.com.au>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: [RFC] [PATCH] C exceptions in kernel
-In-Reply-To: <927.1014507655@ocs3.intra.ocs.com.au>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 24 Feb 2002 02:02:09 +0100
-In-Reply-To: Keith Owens's message of "Sun, 24 Feb 2002 10:40:55 +1100"
-Message-ID: <d3it8nr8tq.fsf@lxplus049.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+In-Reply-To: <20020223235051.GA2412@gnuppy.monkey.org>
+Message-ID: <Pine.LNX.4.44.0202231708080.1035-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au> writes:
+On Sat, 23 Feb 2002, Bill Huey wrote:
 
-> So you have arch dependent code which has to be done for all
-> architectures before any driver can use it and the code has to be kept
-> up to date by each arch maintainer.  Tell me again why the existing
-> mechanisms are not working and why we need exceptions?  IOW, what
-> existing problem justifies all the extra arch work and maintenance?
+> On Sat, Feb 23, 2002 at 07:50:02AM -0500, Pete Zaitcev wrote:
+> > Personally, I have no problem handling current practices.
+> > But I may see the point of the guy with the try/catch patch.
+> > Do not make me to defend him though. I am trying to learn
+> > is those exceptions are actually helpful. BTW, we all know
+> > where they come from (all of Cutler's NT is written that way),
+> > but let it not cloud our judgement.
+>
+> Uh, that's probably not right. If I've been told/remember correctly,
+> it's a technique that certain old school mainframe OSes use to
+> implement sophisticate fault recovery of various sorts. As you know,
+> one basically rewinds to the original point before the block is
+> called so that you can recover/continue from it.
 
-Sorry, can't tell you why as I agree wholeheartedly with you. My point
-was that even if it was possible to implement exceptions 'for free' on
-all architectures, then it's still not what we want in the
-kernel. It's just too gross and makes people think about the code the
-wrong way.
+You can't do that w/out an integrated resource allocation/deallocation
+system. This because real code ends up by allocating resources ( or doing
+whatever operation that needs an undo ) during its path and if you do not
+have an automatic resource deallocation you're going to leak resources
+more than Harleys engine oil. So w/out such system you've to catch
+exceptions at every level where you actually own resources with the code
+that is likely->surely to be way worse than the kernel gotos. Where you're
+going to save is in cases where your code does not allocate any resource (
+book's code ) and here you save the cost of multiple unwinding 'return's
+against a single catch link. So, in case that an exception happen ( very
+low probability compared to the common path ) and in case your code
+underneath the catch point does not own resources, you're going to have a
+'little' advantage. What is the cost ? You're going to push onto the
+common path the exception code by slowing down the CPU's fast path.
 
-Cheers,
-Jes
+
+
+
+- Davide
+
+
+

@@ -1,50 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVCFXV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVCFXYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbVCFXV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 18:21:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVCFXS5
+	id S261603AbVCFXYy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 18:24:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVCFXWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 18:18:57 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:486 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261601AbVCFXIi (ORCPT
+	Sun, 6 Mar 2005 18:22:20 -0500
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:30158 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261597AbVCFXUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 18:08:38 -0500
-Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/
-	Altivec
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net,
-       Chris Wright <chrisw@osdl.org>, jgarzik@pobox.com, olof@austin.ibm.com,
-       paulus@samba.org, rene@exactcode.de, torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050304162755.GA28179@kroah.com>
-References: <422756DC.6000405@pobox.com>
-	 <16935.36862.137151.499468@cargo.ozlabs.ibm.com>
-	 <20050303225542.GB16886@austin.ibm.com>
-	 <20050303175951.41cda7a4.akpm@osdl.org>
-	 <20050304022424.GA26769@austin.ibm.com>
-	 <20050304055451.GN5389@shell0.pdx.osdl.net>
-	 <20050303220631.79a4be7b.akpm@osdl.org> <4227FC5C.60707@pobox.com>
-	 <20050304062016.GO5389@shell0.pdx.osdl.net>
-	 <20050303222335.372d1ad2.akpm@osdl.org>  <20050304162755.GA28179@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110150380.28860.6.camel@localhost.localdomain>
+	Sun, 6 Mar 2005 18:20:55 -0500
+Date: Mon, 7 Mar 2005 08:20:37 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>,
+       Ralf Baechle <ralf@linux-mips.org>
+Subject: [PATCH 2.6.11-mm1] mips: add spare timer init
+Message-Id: <20050307082037.2c670c29.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 06 Mar 2005 23:06:21 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-03-04 at 16:27, Greg KH wrote:
-> Ok, based on consensus, I've applied this one too.
-> 
-> Yes, we will get a bk-stable-commits tree up and running, still working
-> out the infrastructure...
+This patch adds spare timer initialization for NEC VR41xx.
 
-Cool. Once you've done so make sure there are also no bk snapshots and
-I'll push you some of the tiny but critical fixes (security, non working
-ULI tulip etc) from 11-ac1 when I upload it.
+Yoichi
 
-Alan
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
+diff -urN -X dontdiff a-orig/arch/mips/vr41xx/common/init.c a/arch/mips/vr41xx/common/init.c
+--- a-orig/arch/mips/vr41xx/common/init.c	Thu Mar  3 07:26:49 2005
++++ a/arch/mips/vr41xx/common/init.c	Thu Mar  3 07:30:17 2005
+@@ -19,9 +19,11 @@
+  */
+ #include <linux/init.h>
+ #include <linux/ioport.h>
++#include <linux/irq.h>
+ #include <linux/string.h>
+ 
+ #include <asm/bootinfo.h>
++#include <asm/time.h>
+ #include <asm/vr41xx/vr41xx.h>
+ 
+ #define IO_MEM_RESOURCE_START	0UL
+@@ -33,6 +35,29 @@
+ 	iomem_resource.end = IO_MEM_RESOURCE_END;
+ }
+ 
++static void __init setup_timer_frequency(void)
++{
++	unsigned long tclock;
++
++	tclock = vr41xx_get_tclock_frequency();
++	if (current_cpu_data.processor_id == PRID_VR4131_REV2_0 ||
++	    current_cpu_data.processor_id == PRID_VR4131_REV2_1)
++		mips_hpt_frequency = tclock / 2;
++	else
++		mips_hpt_frequency = tclock / 4;
++}
++
++static void __init setup_timer_irq(struct irqaction *irq)
++{
++	setup_irq(TIMER_IRQ, irq);
++}
++
++static void __init timer_init(void)
++{
++	board_time_init = setup_timer_frequency;
++	board_timer_setup = setup_timer_irq;
++}
++
+ void __init prom_init(void)
+ {
+ 	int argc, i;
+@@ -48,6 +73,8 @@
+ 	}
+ 
+ 	vr41xx_calculate_clock_frequency();
++
++	timer_init();
+ 
+ 	iomem_resource_init();
+ }
+diff -urN -X dontdiff a-orig/include/asm-mips/vr41xx/vr41xx.h a/include/asm-mips/vr41xx/vr41xx.h
+--- a-orig/include/asm-mips/vr41xx/vr41xx.h	Thu Mar  3 07:26:49 2005
++++ a/include/asm-mips/vr41xx/vr41xx.h	Thu Mar  3 07:29:10 2005
+@@ -84,7 +84,7 @@
+ #define INT2_CASCADE_IRQ	MIPS_CPU_IRQ(4)
+ #define INT3_CASCADE_IRQ	MIPS_CPU_IRQ(5)
+ #define INT4_CASCADE_IRQ	MIPS_CPU_IRQ(6)
+-#define MIPS_COUNTER_IRQ	MIPS_CPU_IRQ(7)
++#define TIMER_IRQ		MIPS_CPU_IRQ(7)
+ 
+ /* SYINT1 Interrupt Numbers */
+ #define SYSINT1_IRQ_BASE	8

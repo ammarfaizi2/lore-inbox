@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272503AbTHEP6S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 11:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272506AbTHEP6R
+	id S272844AbTHEPxP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 11:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272843AbTHEPxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 11:58:17 -0400
-Received: from [132.216.18.133] ([132.216.18.133]:29712 "EHLO
-	signal.ckut-fake.ca") by vger.kernel.org with ESMTP id S272503AbTHEP6Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 11:58:16 -0400
-Date: Tue, 5 Aug 2003 11:58:12 -0400
-From: Marc Heckmann <mh@nadir.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.22-pre9, 8139too driver: eth0: Too much work at interrupt
-Message-ID: <20030805155811.GA17539@nadir.org>
+	Tue, 5 Aug 2003 11:53:15 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:8858 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S272842AbTHEPxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 11:53:10 -0400
+Date: Tue, 5 Aug 2003 17:53:20 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Jesse Pollard <jesse@cats-chateau.net>, aebr@win.tue.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+Message-ID: <20030805155320.GA8955@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
+	Jesse Pollard <jesse@cats-chateau.net>, aebr@win.tue.nl,
+	linux-kernel@vger.kernel.org
+References: <20030804141548.5060b9db.skraw@ithnet.com> <03080416092800.04444@tabby> <20030805003210.2c7f75f6.skraw@ithnet.com> <03080509123100.05972@tabby> <20030805162152.2975dc33.skraw@ithnet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030805162152.2975dc33.skraw@ithnet.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Aug 05, 2003 at 04:21:52PM +0200, Stephan von Krawczynski wrote:
+> On Tue, 5 Aug 2003 09:12:31 -0500
+> Jesse Pollard <jesse@cats-chateau.net> wrote:
+> 
+> > > If you can do the fs patch, I can do the tar patch.
+> > 
+> > The patch is FAR too extensive. It would have to be a whole new filesystem
+> 
+> Fine. This is a clear and straight forward word. Can you explain why I don't
+> see the mount -bind/rbind stuff through nfs? Is this a problem with a cheaper
+> solution?
 
-[I searched lkml archives for this, but nothing really useful came up,
-othewr than it did not happen on much older versions of 2.4.x]
+probably because --bind mounts have a vfsmount of their
+own, and you do not explicitely export this submount?
 
-When I transfer any large files via scp or other means on the local
-100 Mbps network, I get the following error messages:
+just an idea,
+Herbert
 
-eth0: Too much work at interrupt: IntrStatus=0x0040
-
-Are they just debug printk's? My NFS connections stall and sometimes
-cause errors in programs writing via NFS. (The machine exhibiting the
-symptoms is the NFS client.)
-
-This is with 2.4.22-pre9, UP IO-APIC and ACPI enabled. The board is a
-Gigabyte GA7VXP with onboard 8139 ethernet.
-
-This also happens with 2.4.21. I haven't tried any older kernels since
-the machine is new.
-
-Does anyone have any ideas? thanks in advance.
-
--m
-
-
+> Regards,
+> Stephan
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

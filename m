@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264642AbUETGt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265002AbUETGy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264642AbUETGt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 02:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265009AbUETGt7
+	id S265002AbUETGy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 02:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265016AbUETGy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 02:49:59 -0400
-Received: from p3EE062C3.dip0.t-ipconnect.de ([62.224.98.195]:1922 "EHLO
-	susi.maya.org") by vger.kernel.org with ESMTP id S264642AbUETGt6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 02:49:58 -0400
-From: Andreas Hartmann <andihartmann@01019freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: Re: 2.6.6-mm4
-Date: Thu, 20 May 2004 07:44:32 +0200
-Organization: privat
-Message-ID: <c8hgk0$336$1@p3EE062C3.dip0.t-ipconnect.de>
-References: <fa.h0r5q8q.k6meb8@ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 20 May 2004 02:54:29 -0400
+Received: from ozlabs.org ([203.10.76.45]:7052 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265002AbUETGy1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 02:54:27 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: abuse@fu.berlin.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040514
-X-Accept-Language: de, en-us, en
-In-Reply-To: <fa.h0r5q8q.k6meb8@ifi.uio.no>
-To: linux-kernel@vger.kernel.org
+Message-ID: <16556.21513.425381.322732@cargo.ozlabs.ibm.com>
+Date: Thu, 20 May 2004 16:45:29 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, anton@samba.org
+Subject: [PATCH][PPC64] Fix inline version of _raw_spin_trylock
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+When I added the out-of-line spinlocks on PPC64, I inadvertently
+introduced a bug in the inline version of _raw_spin_trylock, where it
+returns the opposite of what it should return.  The patch below fixes
+it.
 
-I got a compile error compiling the following:
+Please apply.
 
-   LD      .tmp_vmlinux1
-arch/i386/kernel/built-in.o(.text+0x1247f): In function `hpet_rtc_interrupt':
-: undefined reference to `rtc_interrupt'
-arch/i386/kernel/built-in.o(.text+0x124aa): In function `hpet_rtc_interrupt':
-: undefined reference to `rtc_get_rtc_time'
-make: *** [.tmp_vmlinux1] Error 1
+Thanks,
+Paul.
 
-I switched on 'HPET Timer Support' and 'Provide RTC interrupt'
-It works fine without 'Provide RTC interrupt'.
-
-
-I'm using gcc 3.3.3 and binutils 2.15.90.0.3.
-
-
-Regards,
-Andreas Hartmann
+--- linux-2.5/include/asm-ppc64/spinlock.h	2004-05-15 13:32:16.000000000 +1000
++++ ppc64-linux-2.5/include/asm-ppc64/spinlock.h	2004-05-20 16:42:45.662218328 +1000
+@@ -65,7 +65,7 @@
+ 	: "r"(&lock->lock)
+ 	: "cr0", "memory");
+ 
+-	return tmp != 0;
++	return tmp == 0;
+ }
+ 
+ static __inline__ void _raw_spin_lock(spinlock_t *lock)

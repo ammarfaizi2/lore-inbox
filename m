@@ -1,48 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272668AbRIGOOU>; Fri, 7 Sep 2001 10:14:20 -0400
+	id <S272671AbRIGOSk>; Fri, 7 Sep 2001 10:18:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272670AbRIGOOK>; Fri, 7 Sep 2001 10:14:10 -0400
-Received: from t2.redhat.com ([199.183.24.243]:37116 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S272668AbRIGOOD>; Fri, 7 Sep 2001 10:14:03 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.GSO.4.33.0109070954400.1190-100000@sweetums.bluetronic.net> 
-In-Reply-To: <Pine.GSO.4.33.0109070954400.1190-100000@sweetums.bluetronic.net> 
-To: Ricky Beam <jfbeam@bluetopia.net>
-Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: MTD and Adapter ROMs 
+	id <S272674AbRIGOSa>; Fri, 7 Sep 2001 10:18:30 -0400
+Received: from smtp2.libero.it ([193.70.192.52]:38114 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id <S272671AbRIGOSQ>;
+	Fri, 7 Sep 2001 10:18:16 -0400
+Date: Fri, 7 Sep 2001 16:13:23 +0200
+From: antirez <antirez@invece.org>
+To: Ingo Rohloff <rohloff@in.tum.de>
+Cc: epic@scyld.com, linux-kernel@vger.kernel.org
+Subject: Re: epic100.c, gcc-2.95.2 compiler bug!
+Message-ID: <20010907161323.B31574@blu>
+Reply-To: antirez <antirez@invece.org>
+In-Reply-To: <20010903130404.B1064@lxmayr6.informatik.tu-muenchen.de> <20010907160159.C621@lxmayr6.informatik.tu-muenchen.de> <20010907160315.D621@lxmayr6.informatik.tu-muenchen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 07 Sep 2001 15:14:08 +0100
-Message-ID: <18492.999872048@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010907160315.D621@lxmayr6.informatik.tu-muenchen.de>; from rohloff@in.tum.de on Fri, Sep 07, 2001 at 04:03:15PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 07, 2001 at 04:03:15PM +0200, Ingo Rohloff wrote:
+> BEWARE: DON'T USE gcc-2.95.2!
+> I compiled the linux-2.4.9 version with gcc-2.95.2.
+> And I can _definitely_ confirm that epic100.c triggers a compiler
+> bug. (I have the erronous assembler code on my harddisk if anyone is
+> interested.)
 
-jfbeam@bluetopia.net said:
->  Well, just having documentation on how all the spooge in drivers/mtd
-> actually goes together would go along way to helping people use it.
+The following seems a gcc 3.0 bug, not sure it was fixed in gcc 3.01.
 
-Bah. That takes all the fun out of it.
+See the assembly generated with -O3 for the following code:
 
-> The flash chip is an SST 39SF010.  It will appear somewhere in PCI
-> memory space once I reenable the adapter ROM.  It is a JEDEC compilant
-> device. I have some code from SST for programming it, but I'd rather
-> go the general route instead of the one-shot flash-and-run module. 
+--------------------------------------------------------------
+inline static long QInt(double inval)
+{
+        long *l;
+        char *c = (char*) &inval;
+        inval = 68719476991.99;
 
+        l = (long*) (c+2);
+        return *l;
+}
 
->  I think it'll be as "simple" as adding the ID to jedec.c.  Load chips/
-> *, maps/hpt-rom (doctored physmap to enable the rom and use it's
-> location), and then see if I can get mtdchar to drive the mess.
+int main(void)
+{
+        printf("%lu\n", QInt(OFFENDING_VALUE));
+        return 0;
+}
+---------------------------------------------------------------
 
-Basically right. Once your map driver has successfully probed the chip and 
-registered the MTD device, you should be able to open /dev/mtd0 and read, 
-write and ioctl(MEMERASE) it. Not necessarily in that order.
+the above function is compiled as:
 
---
-dwmw2
+        .file   "test2.c"
+        .section        .rodata
+.LC0:
+        .string "%lu\n"
+        .text
+        .align 16
+.globl main
+        .type   main,@function
+main:
+        pushl   %ebp
+        movl    %esp, %ebp
+        subl    $48, %esp
+*       movl    $16776561, -32(%ebp)
+*       movl    -30(%ebp), %eax
+*       movl    $1110441984, -28(%ebp)
+        pushl   %eax
+        pushl   $.LC0
+        call    printf
+        addl    $16, %esp
+        movl    %ebp, %esp
+        xorl    %eax, %eax
+        popl    %ebp
+        ret
+.Lfe1:
+        .size   main,.Lfe1-main
+        .ident  "GCC: (GNU) 3.0"
 
+Note the line I marked with "*".
+The double var is 8 byte, it is loaded
+moving two 32 bit words in the -32 and -28 offset.
+Unfortunatelly with -O3 the "*l" value get
+computed between the two 'movl', and not after
+the second movl.
 
+This code is really unsane anyway but this seems
+a clear gcc 3.0 bug.
+
+I hope that the gcc folks here may report the
+problem if not already known.
+
+I didn't tested it but maybe the same problem
+exists with other 8 byte types like 'long long'.
+
+regards,
+antirez

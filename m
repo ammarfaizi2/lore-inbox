@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277968AbRJWQsr>; Tue, 23 Oct 2001 12:48:47 -0400
+	id <S277975AbRJWQuS>; Tue, 23 Oct 2001 12:50:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277970AbRJWQsh>; Tue, 23 Oct 2001 12:48:37 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64518 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277968AbRJWQsR>; Tue, 23 Oct 2001 12:48:17 -0400
-Subject: Re: 2.4.12-ac5: IDE-SCSI kernel panic
-To: xavier.bestel@free.fr (Xavier Bestel)
-Date: Tue, 23 Oct 2001 17:55:23 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <1003852178.9892.51.camel@nomade> from "Xavier Bestel" at Oct 23, 2001 05:49:35 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15w4pn-0006Wr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S277970AbRJWQuI>; Tue, 23 Oct 2001 12:50:08 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:24815 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S277975AbRJWQuA>;
+	Tue, 23 Oct 2001 12:50:00 -0400
+Date: Tue, 23 Oct 2001 18:50:29 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200110231650.SAA01244@harpo.it.uu.se>
+To: alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] fix UP_APIC compile in 2.4.12-ac6
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> scsi0: ERROR on channel 0, id 1, lun 0, CDB: Request Sense 00 00 00 40 00
-> Info fld=0x437ea, Current sd0b:00: sense key Medium Error
-> Additional sense indicates Unrecovered read error
->  I/O error: dev 0b:00, sector 1105832
+Alan,
 
-This stuff is ok.
+2.4.12-ac6 still doesn't compile if CONFIG_X86_UP_APIC=y but
+CONFIG_X86_UP_IOAPIC=n. The patch below fixes this.
 
-> Incorrect segment count at 0xc01e4342nr_segments is 3f
-> counted segments is 19
-> Flags 0 0
-> Segment 0xd92e86c0, blocks 4, addr 0x1f983fff
-> Segment 0xd92e8660, blocks 4, addr 0x1f9847ff
-> [I'm not copying them all, around 25 of them]
-> Kernel panic: Ththththaats all folks. Too dangerous to continue.
+/Mikael
 
-Someone did a partial I/O and then it seems failed to properly update
-the descriptor when retrying half of it. Ugly. This looks like a CD trace
-so I assume this was sr.c that barfed. It could also be a generic
-scsilib bug 
+--- linux-2.4.12-ac6/arch/i386/kernel/mpparse.c.~1~	Tue Oct 23 16:50:42 2001
++++ linux-2.4.12-ac6/arch/i386/kernel/mpparse.c	Tue Oct 23 17:33:08 2001
+@@ -118,7 +118,11 @@
+ 	return n;
+ }
+ 
++#ifdef CONFIG_X86_IO_APIC
+ extern int have_acpi_tables;	/* set by acpitable.c */
++#else
++#define have_acpi_tables (0)
++#endif
+ 
+ void __init MP_processor_info (struct mpc_config_processor *m)
+ {

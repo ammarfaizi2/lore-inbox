@@ -1,169 +1,989 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319486AbSIMB5z>; Thu, 12 Sep 2002 21:57:55 -0400
+	id <S319514AbSIMBxb>; Thu, 12 Sep 2002 21:53:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319484AbSIMB4t>; Thu, 12 Sep 2002 21:56:49 -0400
-Received: from jalon.able.es ([212.97.163.2]:53137 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S319486AbSIMB4P>;
-	Thu, 12 Sep 2002 21:56:15 -0400
-Date: Fri, 13 Sep 2002 04:01:00 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCHSET] Linux 2.4.20-pre6-jam1
-Message-ID: <20020913020100.GC1723@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.4.0
+	id <S319493AbSIMBwt>; Thu, 12 Sep 2002 21:52:49 -0400
+Received: from dp.samba.org ([66.70.73.150]:13776 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319495AbSIMBu5>;
+	Thu, 12 Sep 2002 21:50:57 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Hot unplug CPU 2/4
+Date: Fri, 13 Sep 2002 11:55:04 +1000
+Message-Id: <20020913015549.3E78C2C053@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+Name: CPU mask patch
+Author: Rusty Russell
+Status: Tested on 2.5.33 SMP
+Depends: Misc/bitops.patch.gz
 
-Just some updates and a ton of bugfixes collected. At least it did not
-blow up on my face.
+D: This patch changes cpu masks to a generic bitmap, and introduces
+D: migrate_to_cpu() as a convenience function.
 
-Updates:
-- pre6-aa0: this is not really a -aa, but pre5-aa2 rediffed.
-- task_cpu, sched misc updates
-- bproc 3.2
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/i386/kernel/cpu/proc.c .6936-linux-2.5.32.updated/arch/i386/kernel/cpu/proc.c
+--- .6936-linux-2.5.32/arch/i386/kernel/cpu/proc.c	2002-08-28 09:29:40.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/i386/kernel/cpu/proc.c	2002-08-28 11:37:02.000000000 +1000
+@@ -47,7 +47,7 @@ static int show_cpuinfo(struct seq_file 
+ 	int fpu_exception;
+ 
+ #ifdef CONFIG_SMP
+-	if (!(cpu_online_map & (1<<n)))
++	if (!cpu_online(n))
+ 		return 0;
+ #endif
+ 	seq_printf(m, "processor\t: %d\n"
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/i386/kernel/cpuid.c .6936-linux-2.5.32.updated/arch/i386/kernel/cpuid.c
+--- .6936-linux-2.5.32/arch/i386/kernel/cpuid.c	2002-08-28 09:29:40.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/i386/kernel/cpuid.c	2002-08-28 11:37:02.000000000 +1000
+@@ -134,7 +134,7 @@ static int cpuid_open(struct inode *inod
+   int cpu = minor(file->f_dentry->d_inode->i_rdev);
+   struct cpuinfo_x86 *c = &(cpu_data)[cpu];
+ 
+-  if ( !(cpu_online_map & (1UL << cpu)) )
++  if ( !cpu_online(cpu) )
+     return -ENXIO;		/* No such CPU */
+   if ( c->cpuid_level < 0 )
+     return -EIO;		/* CPUID not supported */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/i386/kernel/io_apic.c .6936-linux-2.5.32.updated/arch/i386/kernel/io_apic.c
+--- .6936-linux-2.5.32/arch/i386/kernel/io_apic.c	2002-08-28 09:29:40.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/i386/kernel/io_apic.c	2002-08-28 11:37:02.000000000 +1000
+@@ -265,7 +265,7 @@ static inline void balance_irq(int irq)
+ 		rdtscl(random_number);
+ 		random_number &= 1;
+ 
+-		allowed_mask = cpu_online_map & irq_affinity[irq];
++		allowed_mask = cpu_online_map[0] & irq_affinity[irq];
+ 		entry->timestamp = now;
+ 		new_cpu = move(entry->cpu, allowed_mask, now, random_number);
+ 		if (entry->cpu != new_cpu) {
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/i386/kernel/irq.c .6936-linux-2.5.32.updated/arch/i386/kernel/irq.c
+--- .6936-linux-2.5.32/arch/i386/kernel/irq.c	2002-08-28 09:29:40.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/i386/kernel/irq.c	2002-08-28 11:37:02.000000000 +1000
+@@ -848,7 +848,7 @@ static int irq_affinity_write_proc (stru
+ 	 * way to make the system unusable accidentally :-) At least
+ 	 * one online CPU still has to be targeted.
+ 	 */
+-	if (!(new_value & cpu_online_map))
++	if (!(new_value & cpu_online_map[0]))
+ 		return -EINVAL;
+ 
+ 	irq_affinity[irq] = new_value;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/i386/kernel/msr.c .6936-linux-2.5.32.updated/arch/i386/kernel/msr.c
+--- .6936-linux-2.5.32/arch/i386/kernel/msr.c	2002-08-28 09:29:40.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/i386/kernel/msr.c	2002-08-28 11:37:02.000000000 +1000
+@@ -234,7 +234,7 @@ static int msr_open(struct inode *inode,
+   int cpu = minor(file->f_dentry->d_inode->i_rdev);
+   struct cpuinfo_x86 *c = &(cpu_data)[cpu];
+   
+-  if ( !(cpu_online_map & (1UL << cpu)) )
++  if ( !cpu_online(cpu) )
+     return -ENXIO;		/* No such CPU */
+   if ( !cpu_has(c, X86_FEATURE_MSR) )
+     return -EIO;		/* MSR not supported */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/i386/kernel/smp.c .6936-linux-2.5.32.updated/arch/i386/kernel/smp.c
+--- .6936-linux-2.5.32/arch/i386/kernel/smp.c	2002-08-28 09:29:40.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/i386/kernel/smp.c	2002-08-28 11:37:02.000000000 +1000
+@@ -397,7 +397,7 @@ static void flush_tlb_others (unsigned l
+ 	 */
+ 	if (!cpumask)
+ 		BUG();
+-	if ((cpumask & cpu_online_map) != cpumask)
++	if ((cpumask & cpu_online_map[0]) != cpumask)
+ 		BUG();
+ 	if (cpumask & (1 << smp_processor_id()))
+ 		BUG();
+@@ -597,7 +597,7 @@ static void stop_this_cpu (void * dummy)
+ 	/*
+ 	 * Remove this CPU:
+ 	 */
+-	clear_bit(smp_processor_id(), &cpu_online_map);
++	clear_bit(smp_processor_id(), cpu_online_map);
+ 	local_irq_disable();
+ 	disable_local_APIC();
+ 	if (cpu_data[smp_processor_id()].hlt_works_ok)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/i386/kernel/smpboot.c .6936-linux-2.5.32.updated/arch/i386/kernel/smpboot.c
+--- .6936-linux-2.5.32/arch/i386/kernel/smpboot.c	2002-08-28 09:29:40.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/i386/kernel/smpboot.c	2002-08-28 11:37:02.000000000 +1000
+@@ -58,7 +58,7 @@ int smp_num_siblings = 1;
+ int __initdata phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
+ 
+ /* Bitmask of currently online CPUs */
+-unsigned long cpu_online_map;
++unsigned long cpu_online_map[1];
+ 
+ static volatile unsigned long cpu_callin_map;
+ volatile unsigned long cpu_callout_map;
+@@ -458,7 +458,7 @@ int __init start_secondary(void *unused)
+ 	 * the local TLBs too.
+ 	 */
+ 	local_flush_tlb();
+-	set_bit(smp_processor_id(), &cpu_online_map);
++	set_bit(smp_processor_id(), cpu_online_map);
+ 	wmb();
+ 	return cpu_idle();
+ }
+@@ -991,7 +991,7 @@ static void __init smp_boot_cpus(unsigne
+ 	/*
+ 	 * We have the boot CPU online for sure.
+ 	 */
+-	set_bit(0, &cpu_online_map);
++	set_bit(0, cpu_online_map);
+ 	set_bit(0, &cpu_callout_map);
+ 	boot_cpu_logical_apicid = logical_smp_processor_id();
+ 	map_cpu_to_boot_apicid(0, boot_cpu_apicid);
+@@ -1213,7 +1213,7 @@ int __devinit __cpu_up(unsigned int cpu)
+ 
+ 	/* Unleash the CPU! */
+ 	set_bit(cpu, &smp_commenced_mask);
+-	while (!test_bit(cpu, &cpu_online_map))
++	while (!test_bit(cpu, cpu_online_map))
+ 		mb();
+ 	return 0;
+ }
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ia64/kernel/iosapic.c .6936-linux-2.5.32.updated/arch/ia64/kernel/iosapic.c
+--- .6936-linux-2.5.32/arch/ia64/kernel/iosapic.c	2002-08-28 09:29:41.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ia64/kernel/iosapic.c	2002-08-28 11:37:02.000000000 +1000
+@@ -260,7 +260,7 @@ iosapic_set_affinity (unsigned int irq, 
+ 	char *addr;
+ 	int redir = (irq & (1<<31)) ? 1 : 0;
+ 
+-	mask &= cpu_online_map;
++	mask &= cpu_online_map[0];
+ 
+ 	if (!mask || irq >= IA64_NUM_VECTORS)
+ 		return;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ia64/kernel/irq.c .6936-linux-2.5.32.updated/arch/ia64/kernel/irq.c
+--- .6936-linux-2.5.32/arch/ia64/kernel/irq.c	2002-08-28 09:29:41.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ia64/kernel/irq.c	2002-08-28 11:37:02.000000000 +1000
+@@ -890,7 +890,7 @@ static int irq_affinity_write_proc (stru
+ 	 * way to make the system unusable accidentally :-) At least
+ 	 * one online CPU still has to be targeted.
+ 	 */
+-	if (!(new_value & cpu_online_map))
++	if (!(new_value & cpu_online_map[0]))
+ 		return -EINVAL;
+ 
+ 	irq_desc(irq)->handler->set_affinity(irq | (redir?(1<<31):0), new_value);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ia64/kernel/perfmon.c .6936-linux-2.5.32.updated/arch/ia64/kernel/perfmon.c
+--- .6936-linux-2.5.32/arch/ia64/kernel/perfmon.c	2002-08-28 09:29:41.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ia64/kernel/perfmon.c	2002-08-28 11:37:02.000000000 +1000
+@@ -107,7 +107,7 @@
+ #define PFM_REG_RETFLAG_SET(flags, val)	do { flags &= ~PFM_REG_RETFL_MASK; flags |= (val); } while(0)
+ 
+ #ifdef CONFIG_SMP
+-#define cpu_is_online(i) (cpu_online_map & (1UL << i))
++#define cpu_is_online(i) (cpu_online_map[0] & (1UL << i))
+ #else
+ #define cpu_is_online(i)        (i==0)
+ #endif
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ia64/kernel/setup.c .6936-linux-2.5.32.updated/arch/ia64/kernel/setup.c
+--- .6936-linux-2.5.32/arch/ia64/kernel/setup.c	2002-08-28 09:29:41.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ia64/kernel/setup.c	2002-08-28 11:40:47.000000000 +1000
+@@ -444,7 +444,7 @@ static void *
+ c_start (struct seq_file *m, loff_t *pos)
+ {
+ #ifdef CONFIG_SMP
+-	while (*pos < NR_CPUS && !(cpu_online_map & (1UL << *pos)))
++	while (*pos < NR_CPUS && !(cpu_online(*pos)))
+ 		++*pos;
+ #endif
+ 	return *pos < NR_CPUS ? cpu_data(*pos) : NULL;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ia64/kernel/smp.c .6936-linux-2.5.32.updated/arch/ia64/kernel/smp.c
+--- .6936-linux-2.5.32/arch/ia64/kernel/smp.c	2002-08-28 09:29:41.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ia64/kernel/smp.c	2002-08-28 11:37:02.000000000 +1000
+@@ -81,7 +81,7 @@ stop_this_cpu (void)
+ 	/*
+ 	 * Remove this CPU:
+ 	 */
+-	clear_bit(smp_processor_id(), &cpu_online_map);
++	clear_bit(smp_processor_id(), cpu_online_map);
+ 	max_xtp();
+ 	local_irq_disable();
+ 	cpu_halt();
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ia64/kernel/smpboot.c .6936-linux-2.5.32.updated/arch/ia64/kernel/smpboot.c
+--- .6936-linux-2.5.32/arch/ia64/kernel/smpboot.c	2002-08-28 09:29:41.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ia64/kernel/smpboot.c	2002-08-28 11:38:35.000000000 +1000
+@@ -78,7 +78,7 @@ int cpucount;
+ task_t *task_for_booting_cpu;
+ 
+ /* Bitmask of currently online CPUs */
+-volatile unsigned long cpu_online_map;
++volatile unsigned long cpu_online_map[1];
+ unsigned long phys_cpu_present_map;
+ 
+ /* which logical CPU number maps to which CPU (physical APIC ID) */
+@@ -295,7 +295,7 @@ smp_callin (void)
+ 	cpuid = smp_processor_id();
+ 	phys_id = hard_smp_processor_id();
+ 
+-	if (test_and_set_bit(cpuid, &cpu_online_map)) {
++	if (test_and_set_bit(cpuid, cpu_online_map)) {
+ 		printk("huh, phys CPU#0x%x, CPU#0x%x already present??\n", phys_id, cpuid);
+ 		BUG();
+ 	}
+@@ -410,7 +410,7 @@ do_boot_cpu (int sapicid, int cpu)
+ 	} else {
+ 		printk(KERN_ERR "Processor 0x%x/0x%x is stuck.\n", cpu, sapicid);
+ 		ia64_cpu_to_sapicid[cpu] = -1;
+-		clear_bit(cpu, &cpu_online_map);  /* was set in smp_callin() */
++		clear_bit(cpu, cpu_online_map);  /* was set in smp_callin() */
+ 		return -EINVAL;
+ 	}
+ 	return 0;
+@@ -469,7 +469,7 @@ smp_prepare_cpus (unsigned int max_cpus)
+ 	/*
+ 	 * We have the boot CPU online for sure.
+ 	 */
+-	set_bit(0, &cpu_online_map);
++	set_bit(0, cpu_online_map);
+ 	set_bit(0, &cpu_callin_map);
+ 
+ 	local_cpu_data->loops_per_jiffy = loops_per_jiffy;
+@@ -485,7 +485,7 @@ smp_prepare_cpus (unsigned int max_cpus)
+ 	 */
+ 	if (!max_cpus || (max_cpus < -1)) {
+ 		printk(KERN_INFO "SMP mode deactivated.\n");
+-		cpu_online_map = phys_cpu_present_map = 1;
++		cpu_online_map[0] = phys_cpu_present_map = 1;
+ 		return;
+ 	}
+ }
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ia64/sn/io/sn1/ml_SN_intr.c .6936-linux-2.5.32.updated/arch/ia64/sn/io/sn1/ml_SN_intr.c
+--- .6936-linux-2.5.32/arch/ia64/sn/io/sn1/ml_SN_intr.c	2002-06-20 01:28:47.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ia64/sn/io/sn1/ml_SN_intr.c	2002-08-28 11:37:02.000000000 +1000
+@@ -44,7 +44,7 @@ void spldebug_log_event(int);
+ #endif
+ 
+ #ifdef CONFIG_SMP
+-extern unsigned long cpu_online_map;
++extern unsigned long cpu_online_map[1];
+ #endif
+ #define cpu_allows_intr(cpu)	(1)
+ // If I understand what's going on with this, 32 should work.
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ia64/sn/kernel/sn1/sn1_smp.c .6936-linux-2.5.32.updated/arch/ia64/sn/kernel/sn1/sn1_smp.c
+--- .6936-linux-2.5.32/arch/ia64/sn/kernel/sn1/sn1_smp.c	2002-06-20 01:28:48.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ia64/sn/kernel/sn1/sn1_smp.c	2002-08-28 11:37:02.000000000 +1000
+@@ -425,7 +425,7 @@ init_sn1_smp_config(void)
+ {
+ 	if (!ia64_ptc_domain_info)  {
+ 		printk("SMP: Can't find PTC domain info. Forcing UP mode\n");
+-		cpu_online_map = 1;
++		cpu_online_map[0] = 1;
+ 		return;
+ 	}
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ppc/kernel/irq.c .6936-linux-2.5.32.updated/arch/ppc/kernel/irq.c
+--- .6936-linux-2.5.32/arch/ppc/kernel/irq.c	2002-08-11 15:31:31.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ppc/kernel/irq.c	2002-08-28 11:37:02.000000000 +1000
+@@ -647,7 +647,7 @@ static int irq_affinity_write_proc (stru
+ 	 * are actually logical cpu #'s then we have no problem.
+ 	 *  -- Cort <cort@fsmlabs.com>
+ 	 */
+-	if (!(new_value & cpu_online_map))
++	if (!(new_value & cpu_online_map[0]))
+ 		return -EINVAL;
+ 
+ 	irq_affinity[irq] = new_value;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ppc/kernel/setup.c .6936-linux-2.5.32.updated/arch/ppc/kernel/setup.c
+--- .6936-linux-2.5.32/arch/ppc/kernel/setup.c	2002-08-28 09:29:42.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ppc/kernel/setup.c	2002-08-28 11:37:02.000000000 +1000
+@@ -160,7 +160,7 @@ int show_cpuinfo(struct seq_file *m, voi
+ 	}
+ 
+ #ifdef CONFIG_SMP
+-	if (!(cpu_online_map & (1 << i)))
++	if (!cpu_online(i))
+ 		return 0;
+ 	pvr = cpu_data[i].pvr;
+ 	lpj = cpu_data[i].loops_per_jiffy;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ppc/kernel/smp.c .6936-linux-2.5.32.updated/arch/ppc/kernel/smp.c
+--- .6936-linux-2.5.32/arch/ppc/kernel/smp.c	2002-08-28 09:29:42.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ppc/kernel/smp.c	2002-08-28 11:37:02.000000000 +1000
+@@ -50,7 +50,7 @@ atomic_t ipi_sent;
+ unsigned int prof_multiplier[NR_CPUS] = { [1 ... NR_CPUS-1] = 1 };
+ unsigned int prof_counter[NR_CPUS] = { [1 ... NR_CPUS-1] = 1 };
+ unsigned long cache_decay_ticks = HZ/100;
+-unsigned long cpu_online_map = 1UL;
++unsigned long cpu_online_map[1] = { 1UL };
+ unsigned long cpu_possible_map = 1UL;
+ int smp_hw_index[NR_CPUS];
+ struct thread_info *secondary_ti;
+@@ -432,7 +432,7 @@ int __cpu_up(unsigned int cpu)
+ 	printk("Processor %d found.\n", cpu);
+ 
+ 	smp_ops->give_timebase();
+-	set_bit(cpu, &cpu_online_map);
++	set_bit(cpu, cpu_online_map);
+ 	return 0;
+ }
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ppc64/kernel/irq.c .6936-linux-2.5.32.updated/arch/ppc64/kernel/irq.c
+--- .6936-linux-2.5.32/arch/ppc64/kernel/irq.c	2002-08-28 09:29:42.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ppc64/kernel/irq.c	2002-08-28 11:37:02.000000000 +1000
+@@ -457,7 +457,7 @@ static inline void balance_irq(int irq)
+ 		random_number = mftb();
+ 		random_number &= 1;
+ 
+-		allowed_mask = cpu_online_map & irq_affinity[irq];
++		allowed_mask = cpu_online_map[0] & irq_affinity[irq];
+ 		entry->timestamp = now;
+ 		entry->cpu = move(entry->cpu, allowed_mask, now, random_number);
+ 		irq_desc[irq].handler->set_affinity(irq, 1 << entry->cpu);
+@@ -717,7 +717,7 @@ static int irq_affinity_write_proc (stru
+ 	 * way to make the system unusable accidentally :-) At least
+ 	 * one online CPU still has to be targeted.
+ 	 */
+-	if (!(new_value & cpu_online_map))
++	if (!(new_value & cpu_online_map[0]))
+ 		return -EINVAL;
+ #endif
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ppc64/kernel/open_pic.c .6936-linux-2.5.32.updated/arch/ppc64/kernel/open_pic.c
+--- .6936-linux-2.5.32/arch/ppc64/kernel/open_pic.c	2002-08-28 09:29:42.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ppc64/kernel/open_pic.c	2002-08-28 11:37:02.000000000 +1000
+@@ -506,7 +506,7 @@ static void openpic_set_spurious(u_int v
+ void openpic_init_processor(u_int cpumask)
+ {
+ 	openpic_write(&OpenPIC->Global.Processor_Initialization,
+-		      cpumask & cpu_online_map);
++		      cpumask & cpu_online_map[0]);
+ }
+ 
+ #ifdef CONFIG_SMP
+@@ -540,7 +540,7 @@ void openpic_cause_IPI(u_int ipi, u_int 
+ 	CHECK_THIS_CPU;
+ 	check_arg_ipi(ipi);
+ 	openpic_write(&OpenPIC->THIS_CPU.IPI_Dispatch(ipi),
+-		      cpumask & cpu_online_map);
++		      cpumask & cpu_online_map[0]);
+ }
+ 
+ void openpic_request_IPIs(void)
+@@ -625,7 +625,7 @@ static void __init openpic_maptimer(u_in
+ {
+ 	check_arg_timer(timer);
+ 	openpic_write(&OpenPIC->Global.Timer[timer].Destination,
+-		      cpumask & cpu_online_map);
++		      cpumask & cpu_online_map[0]);
+ }
+ 
+ 
+@@ -748,7 +748,7 @@ static void openpic_end_irq(unsigned int
+ 
+ static void openpic_set_affinity(unsigned int irq_nr, unsigned long cpumask)
+ {
+-	openpic_mapirq(irq_nr - open_pic_irq_offset, cpumask & cpu_online_map);
++	openpic_mapirq(irq_nr - open_pic_irq_offset, cpumask & cpu_online_map[0]);
+ }
+ 
+ #ifdef CONFIG_SMP
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ppc64/kernel/prom.c .6936-linux-2.5.32.updated/arch/ppc64/kernel/prom.c
+--- .6936-linux-2.5.32/arch/ppc64/kernel/prom.c	2002-08-28 09:29:42.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ppc64/kernel/prom.c	2002-08-28 11:37:02.000000000 +1000
+@@ -1350,7 +1350,7 @@ prom_init(unsigned long r3, unsigned lon
+ 		&getprop_rval, sizeof(getprop_rval));
+ 	_prom->cpu = (int)(unsigned long)getprop_rval;
+ 	_xPaca[_prom->cpu].active = 1;
+-	RELOC(cpu_online_map) = 1 << _prom->cpu;
++	RELOC(cpu_online_map[0]) = 1 << _prom->cpu;
+ 	RELOC(boot_cpuid) = _prom->cpu;
+ 
+ #ifdef DEBUG_PROM
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ppc64/kernel/setup.c .6936-linux-2.5.32.updated/arch/ppc64/kernel/setup.c
+--- .6936-linux-2.5.32/arch/ppc64/kernel/setup.c	2002-07-25 10:13:04.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ppc64/kernel/setup.c	2002-08-28 11:37:02.000000000 +1000
+@@ -271,7 +271,7 @@ static int show_cpuinfo(struct seq_file 
+ 		return 0;
+ 	}
+ 
+-	if (!(cpu_online_map & (1<<cpu_id)))
++	if (!cpu_online(cpu_id))
+ 		return 0;
+ #endif
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ppc64/kernel/smp.c .6936-linux-2.5.32.updated/arch/ppc64/kernel/smp.c
+--- .6936-linux-2.5.32/arch/ppc64/kernel/smp.c	2002-08-28 09:29:42.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ppc64/kernel/smp.c	2002-08-28 11:39:25.000000000 +1000
+@@ -54,7 +54,7 @@ int smp_threads_ready = 0;
+ unsigned long cache_decay_ticks;
+ 
+ /* initialised so it doesnt end up in bss */
+-unsigned long cpu_online_map = 0;
++unsigned long cpu_online_map[1] = { 0 };
+ int boot_cpuid = 0;
+ 
+ static struct smp_ops_t *smp_ops;
+@@ -646,7 +646,7 @@ int __devinit __cpu_up(unsigned int cpu)
+ 
+ 	if (smp_ops->give_timebase)
+ 		smp_ops->give_timebase();
+-	set_bit(cpu, &cpu_online_map);
++	set_bit(cpu, cpu_online_map);
+ 	return 0;
+ }
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/ppc64/kernel/xics.c .6936-linux-2.5.32.updated/arch/ppc64/kernel/xics.c
+--- .6936-linux-2.5.32/arch/ppc64/kernel/xics.c	2002-08-28 09:29:42.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/ppc64/kernel/xics.c	2002-08-28 11:37:02.000000000 +1000
+@@ -451,7 +451,7 @@ void xics_set_affinity(unsigned int virq
+ 	if (cpumask == 0xffffffff) {
+ 		newmask = default_distrib_server;
+ 	} else {
+-		if (!(cpumask & cpu_online_map))
++		if (!(cpumask & cpu_online_map[0]))
+ 			goto out;
+ 		newmask = find_first_bit(&cpumask, 32);
+ 	}
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.32-anton-ppc64-hotcpu.orig/arch/ppc64/kernel/rtasd.c working-2.5.32-anton-ppc64-hotcpu/arch/ppc64/kernel/rtasd.c
+--- working-2.5.32-anton-ppc64-hotcpu.orig/arch/ppc64/kernel/rtasd.c	2002-08-28 09:29:42.000000000 +1000
++++ working-2.5.32-anton-ppc64-hotcpu/arch/ppc64/kernel/rtasd.c	2002-08-30 14:18:18.000000000 +1000
+@@ -225,7 +225,7 @@ repeat:
+ 			continue;
+ 
+ 		DEBUG("scheduling on %d\n", cpu);
+-		set_cpus_allowed(current, 1UL << cpu);
++		migrate_to_cpu(cpu);
+ 		DEBUG("watchdog scheduled on cpu %d\n", smp_processor_id());
+ 
+ 		do {
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/sparc64/kernel/irq.c .6936-linux-2.5.32.updated/arch/sparc64/kernel/irq.c
+--- .6936-linux-2.5.32/arch/sparc64/kernel/irq.c	2002-08-28 09:29:43.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/sparc64/kernel/irq.c	2002-08-28 11:37:02.000000000 +1000
+@@ -663,9 +663,9 @@ static inline void redirect_intr(int cpu
+ 	unsigned long cpu_mask = get_smpaff_in_irqaction(ap);
+ 	unsigned int buddy, ticks;
+ 
+-	cpu_mask &= cpu_online_map;
++	cpu_mask &= cpu_online_map[0];
+ 	if (cpu_mask == 0)
+-		cpu_mask = cpu_online_map;
++		cpu_mask = cpu_online_map[0];
+ 
+ 	if (this_is_starfire != 0 ||
+ 	    bp->pil >= 10 || current->pid == 0)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/arch/sparc64/kernel/smp.c .6936-linux-2.5.32.updated/arch/sparc64/kernel/smp.c
+--- .6936-linux-2.5.32/arch/sparc64/kernel/smp.c	2002-08-28 09:29:43.000000000 +1000
++++ .6936-linux-2.5.32.updated/arch/sparc64/kernel/smp.c	2002-08-28 11:37:02.000000000 +1000
+@@ -47,7 +47,7 @@ cpuinfo_sparc cpu_data[NR_CPUS];
+ static unsigned char boot_cpu_id;
+ 
+ atomic_t sparc64_num_cpus_online = ATOMIC_INIT(0);
+-unsigned long cpu_online_map = 0;
++unsigned long cpu_online_map[1] = { 0 };
+ atomic_t sparc64_num_cpus_possible = ATOMIC_INIT(0);
+ unsigned long phys_cpu_present_map = 0;
+ static unsigned long smp_commenced_mask;
+@@ -199,7 +199,7 @@ void __init smp_callin(void)
+ 	while (!test_bit(cpuid, &smp_commenced_mask))
+ 		membar("#LoadLoad");
+ 
+-	set_bit(cpuid, &cpu_online_map);
++	set_bit(cpuid, cpu_online_map);
+ 	atomic_inc(&sparc64_num_cpus_online);
+ }
+ 
+@@ -460,7 +460,7 @@ static void smp_cross_call_masked(unsign
+ {
+ 	u64 data0 = (((u64)ctx)<<32 | (((u64)func) & 0xffffffff));
+ 
+-	mask &= cpu_online_map;
++	mask &= cpu_online_map[0];
+ 	mask &= ~(1UL<<smp_processor_id());
+ 
+ 	if (tlb_type == spitfire)
+@@ -472,7 +472,7 @@ static void smp_cross_call_masked(unsign
+ 
+ /* Send cross call to all processors except self. */
+ #define smp_cross_call(func, ctx, data1, data2) \
+-	smp_cross_call_masked(func, ctx, data1, data2, cpu_online_map)
++	smp_cross_call_masked(func, ctx, data1, data2, cpu_online_map[0])
+ 
+ struct call_data_struct {
+ 	void (*func) (void *info);
+@@ -590,7 +590,7 @@ void smp_flush_dcache_page_impl(struct p
+ #endif
+ 	if (cpu == smp_processor_id()) {
+ 		__local_flush_dcache_page(page);
+-	} else if ((cpu_online_map & mask) != 0) {
++	} else if ((cpu_online_map[0] & mask) != 0) {
+ 		u64 data0;
+ 
+ 		if (tlb_type == spitfire) {
+@@ -617,7 +617,7 @@ void smp_flush_dcache_page_impl(struct p
+ 
+ void flush_dcache_page_all(struct mm_struct *mm, struct page *page)
+ {
+-	unsigned long mask = cpu_online_map & ~(1UL << smp_processor_id());
++	unsigned long mask = cpu_online_map[0] & ~(1UL << smp_processor_id());
+ 	u64 data0;
+ 
+ #ifdef CONFIG_DEBUG_DCFLUSH
+@@ -650,7 +650,7 @@ void smp_receive_signal(int cpu)
+ {
+ 	unsigned long mask = 1UL << cpu;
+ 
+-	if ((cpu_online_map & mask) != 0) {
++	if ((cpu_online_map[0] & mask) != 0) {
+ 		u64 data0 = (((u64)&xcall_receive_signal) & 0xffffffff);
+ 
+ 		if (tlb_type == spitfire)
+@@ -1091,7 +1091,7 @@ void __init smp_tick_init(void)
+ 	}
+ 
+ 	atomic_inc(&sparc64_num_cpus_online);
+-	set_bit(boot_cpu_id, &cpu_online_map);
++	set_bit(boot_cpu_id, cpu_online_map);
+ 	prom_cpu_nodes[boot_cpu_id] = linux_cpus[0].prom_node;
+ 	prof_counter(boot_cpu_id) = prof_multiplier(boot_cpu_id) = 1;
+ }
+@@ -1254,9 +1254,9 @@ int __devinit __cpu_up(unsigned int cpu)
+ 
+ 	if (!ret) {
+ 		set_bit(cpu, &smp_commenced_mask);
+-		while (!test_bit(cpu, &cpu_online_map))
++		while (!test_bit(cpu, cpu_online_map))
+ 			mb();
+-		if (!test_bit(cpu, &cpu_online_map))
++		if (!test_bit(cpu, cpu_online_map))
+ 			ret = -ENODEV;
+ 	}
+ 	return ret;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/include/asm-i386/smp.h .6936-linux-2.5.32.updated/include/asm-i386/smp.h
+--- .6936-linux-2.5.32/include/asm-i386/smp.h	2002-08-28 09:29:50.000000000 +1000
++++ .6936-linux-2.5.32.updated/include/asm-i386/smp.h	2002-08-28 11:37:02.000000000 +1000
+@@ -26,7 +26,7 @@
+ #  define TARGET_CPUS 0xf     /* all CPUs in *THIS* quad */
+ #  define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
+ # else
+-#  define TARGET_CPUS cpu_online_map
++#  define TARGET_CPUS cpu_online_map[0]
+ #  define INT_DELIVERY_MODE 1     /* logical delivery broadcast to all procs */
+ # endif
+ #else
+@@ -53,7 +53,7 @@
+  
+ extern void smp_alloc_memory(void);
+ extern unsigned long phys_cpu_present_map;
+-extern unsigned long cpu_online_map;
++extern unsigned long cpu_online_map[1];
+ extern volatile unsigned long smp_invalidate_needed;
+ extern int pic_mode;
+ extern int smp_num_siblings;
+@@ -86,20 +86,23 @@ extern volatile int logical_apicid_to_cp
+ 
+ extern volatile unsigned long cpu_callout_map;
+ 
++#if NR_CPUS > 32
++#error asm/smp.h needs fixing for > 32 CPUS.
++#endif
++
+ #define cpu_possible(cpu) (cpu_callout_map & (1<<(cpu)))
+-#define cpu_online(cpu) (cpu_online_map & (1<<(cpu)))
++#define cpu_online(cpu) (cpu_online_map[0] & (1<<(cpu)))
+ 
+ extern inline unsigned int num_online_cpus(void)
+ {
+-	return hweight32(cpu_online_map);
++	return hweight32(cpu_online_map[0]);
+ }
+ 
+-extern inline int any_online_cpu(unsigned int mask)
++static inline int any_online_cpu(const unsigned long *mask)
+ {
+-	if (mask & cpu_online_map)
+-		return __ffs(mask & cpu_online_map);
+-
+-	return -1;
++	if ((mask[0] & cpu_online_map[0]) != 0UL)
++		return __ffs(mask[0] & cpu_online_map[0]);
++	return NR_CPUS;
+ }
+ 
+ static __inline int hard_smp_processor_id(void)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/include/asm-ia64/smp.h .6936-linux-2.5.32.updated/include/asm-ia64/smp.h
+--- .6936-linux-2.5.32/include/asm-ia64/smp.h	2002-08-28 09:29:50.000000000 +1000
++++ .6936-linux-2.5.32.updated/include/asm-ia64/smp.h	2002-08-28 11:42:39.000000000 +1000
+@@ -38,7 +38,7 @@ extern struct smp_boot_data {
+ extern char no_int_routing __initdata;
+ 
+ extern unsigned long phys_cpu_present_map;
+-extern volatile unsigned long cpu_online_map;
++extern volatile unsigned long cpu_online_map[0];
+ extern unsigned long ipi_base_addr;
+ extern unsigned char smp_int_redirect;
+ 
+@@ -47,21 +47,24 @@ extern volatile int ia64_cpu_to_sapicid[
+ 
+ extern unsigned long ap_wakeup_vector;
+ 
++#if NR_CPUS > 64
++#error asm/smp.h needs fixing for > 64 CPUS.
++#endif
++
+ #define cpu_possible(cpu)	(phys_cpu_present_map & (1UL << (cpu)))
+-#define cpu_online(cpu)		(cpu_online_map & (1UL << (cpu)))
++#define cpu_online(cpu)		(cpu_online_map[0] & (1UL << (cpu)))
+ 
+ static inline unsigned int
+ num_online_cpus (void)
+ {
+-	return hweight64(cpu_online_map);
++	return hweight64(cpu_online_map[0]);
+ }
+ 
+-static inline int
+-any_online_cpu (unsigned int mask)
++static inline int any_online_cpu(const unsigned long *mask)
+ {
+-	if (mask & cpu_online_map)
+-		return __ffs(mask & cpu_online_map);
+-	return -1;
++	if ((mask[0] & cpu_online_map[0]) != 0UL)
++		return __ffs(mask[0] & cpu_online_map[0]);
++	return NR_CPUS;
+ }
+ 
+ /*
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/include/asm-ppc/smp.h .6936-linux-2.5.32.updated/include/asm-ppc/smp.h
+--- .6936-linux-2.5.32/include/asm-ppc/smp.h	2002-07-27 15:24:39.000000000 +1000
++++ .6936-linux-2.5.32.updated/include/asm-ppc/smp.h	2002-08-28 11:37:02.000000000 +1000
+@@ -31,7 +31,7 @@ struct cpuinfo_PPC {
+ };
+ 
+ extern struct cpuinfo_PPC cpu_data[];
+-extern unsigned long cpu_online_map;
++extern unsigned long cpu_online_map[1];
+ extern unsigned long cpu_possible_map;
+ extern unsigned long smp_proc_in_lock[];
+ extern volatile unsigned long cpu_callin_map[];
+@@ -48,20 +48,23 @@ extern void smp_local_timer_interrupt(st
+ 
+ #define smp_processor_id() (current_thread_info()->cpu)
+ 
+-#define cpu_online(cpu) (cpu_online_map & (1<<(cpu)))
++#if NR_CPUS > 32
++#error asm/smp.h needs fixing for > 32 CPUS.
++#endif
++
++#define cpu_online(cpu) (cpu_online_map[0] & (1<<(cpu)))
+ #define cpu_possible(cpu) (cpu_possible_map & (1<<(cpu)))
+ 
+ extern inline unsigned int num_online_cpus(void)
+ {
+-	return hweight32(cpu_online_map);
++	return hweight32(cpu_online_map[0]);
+ }
+ 
+-extern inline int any_online_cpu(unsigned int mask)
++static inline int any_online_cpu(const unsigned long *mask)
+ {
+-	if (mask & cpu_online_map)
+-		return __ffs(mask & cpu_online_map);
+-
+-	return -1;
++	if ((mask[0] & cpu_online_map[0]) != 0UL)
++		return __ffs(mask[0] & cpu_online_map[0]);
++	return NR_CPUS;
+ }
+ 
+ extern int __cpu_up(unsigned int cpu);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/include/asm-ppc64/smp.h .6936-linux-2.5.32.updated/include/asm-ppc64/smp.h
+--- .6936-linux-2.5.32/include/asm-ppc64/smp.h	2002-08-28 09:29:50.000000000 +1000
++++ .6936-linux-2.5.32.updated/include/asm-ppc64/smp.h	2002-08-28 11:37:02.000000000 +1000
+@@ -27,7 +27,7 @@
+ 
+ #include <asm/paca.h>
+ 
+-extern unsigned long cpu_online_map;
++extern unsigned long cpu_online_map[1];
+ 
+ extern void smp_message_pass(int target, int msg, unsigned long data, int wait);
+ extern void smp_send_tlb_invalidate(int);
+@@ -38,7 +38,11 @@ extern void smp_send_reschedule_all(void
+ 
+ #define NO_PROC_ID		0xFF            /* No processor magic marker */
+ 
+-#define cpu_online(cpu)	test_bit((cpu), &cpu_online_map)
++#if NR_CPUS > 64
++#error asm/smp.h needs fixing for > 64 CPUS.
++#endif
++
++#define cpu_online(cpu)	test_bit((cpu), cpu_online_map)
+ 
+ #define cpu_possible(cpu)	paca[cpu].active
+ 
+@@ -47,11 +51,18 @@ static inline int num_online_cpus(void)
+ 	int i, nr = 0;
+ 
+ 	for (i = 0; i < NR_CPUS; i++)
+-		nr += test_bit(i, &cpu_online_map);
++		nr += test_bit(i, cpu_online_map);
+ 
+ 	return nr;
+ }
+ 
++static inline int any_online_cpu(const unsigned long *mask)
++{
++	if ((mask[0] & cpu_online_map[0]) != 0UL)
++		return __ffs(mask[0] & cpu_online_map[0]);
++	return NR_CPUS;
++}
++
+ extern volatile unsigned long cpu_callin_map[NR_CPUS];
+ 
+ #define smp_processor_id() (get_paca()->xPacaIndex)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/include/asm-sparc64/smp.h .6936-linux-2.5.32.updated/include/asm-sparc64/smp.h
+--- .6936-linux-2.5.32/include/asm-sparc64/smp.h	2002-08-28 09:29:52.000000000 +1000
++++ .6936-linux-2.5.32.updated/include/asm-sparc64/smp.h	2002-08-28 11:37:02.000000000 +1000
+@@ -69,8 +69,8 @@ extern unsigned char boot_cpu_id;
+ extern unsigned long phys_cpu_present_map;
+ #define cpu_possible(cpu)	(phys_cpu_present_map & (1UL << (cpu)))
+ 
+-extern unsigned long cpu_online_map;
+-#define cpu_online(cpu)		(cpu_online_map & (1UL << (cpu)))
++extern unsigned long cpu_online_map[1];
++#define cpu_online(cpu)		(cpu_online_map[0] & (1UL << (cpu)))
+ 
+ extern atomic_t sparc64_num_cpus_online;
+ #define num_online_cpus()	(atomic_read(&sparc64_num_cpus_online))
+@@ -78,11 +78,11 @@ extern atomic_t sparc64_num_cpus_online;
+ extern atomic_t sparc64_num_cpus_possible;
+ #define num_possible_cpus()	(atomic_read(&sparc64_num_cpus_possible))
+ 
+-static inline int any_online_cpu(unsigned long mask)
++static inline int any_online_cpu(const unsigned long *mask)
+ {
+-	if ((mask &= cpu_online_map) != 0UL)
+-		return __ffs(mask);
+-	return -1;
++	if ((mask[0] & cpu_online_map[0]) != 0UL)
++		return __ffs(mask[0] & cpu_online_map[0]);
++	return NR_CPUS;
+ }
+ 
+ /*
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/include/linux/init_task.h .6936-linux-2.5.32.updated/include/linux/init_task.h
+--- .6936-linux-2.5.32/include/linux/init_task.h	2002-08-28 09:29:52.000000000 +1000
++++ .6936-linux-2.5.32.updated/include/linux/init_task.h	2002-08-28 11:43:47.000000000 +1000
+@@ -48,7 +48,7 @@
+ 	.prio		= MAX_PRIO-20,					\
+ 	.static_prio	= MAX_PRIO-20,					\
+ 	.policy		= SCHED_NORMAL,					\
+-	.cpus_allowed	= -1,						\
++	.cpus_allowed	= CPU_MASK_ALL,					\
+ 	.mm		= NULL,						\
+ 	.active_mm	= &init_mm,					\
+ 	.run_list	= LIST_HEAD_INIT(tsk.run_list),			\
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/include/linux/sched.h .6936-linux-2.5.32.updated/include/linux/sched.h
+--- .6936-linux-2.5.32/include/linux/sched.h	2002-08-28 09:29:53.000000000 +1000
++++ .6936-linux-2.5.32.updated/include/linux/sched.h	2002-08-28 11:37:02.000000000 +1000
+@@ -14,12 +14,14 @@ extern unsigned long event;
+ #include <linux/jiffies.h>
+ #include <linux/rbtree.h>
+ #include <linux/thread_info.h>
++#include <linux/bitops.h>
+ 
+ #include <asm/system.h>
+ #include <asm/semaphore.h>
+ #include <asm/page.h>
+ #include <asm/ptrace.h>
+ #include <asm/mmu.h>
++#include <asm/current.h>
+ 
+ #include <linux/smp.h>
+ #include <linux/sem.h>
+@@ -271,7 +273,7 @@ struct task_struct {
+ 	unsigned long sleep_timestamp;
+ 
+ 	unsigned long policy;
+-	unsigned long cpus_allowed;
++	DECLARE_BITMAP(cpus_allowed, NR_CPUS);
+ 	unsigned int time_slice, first_time_slice;
+ 
+ 	struct list_head tasks;
+@@ -422,10 +424,20 @@ do { if (atomic_dec_and_test(&(tsk)->usa
+ #define _STK_LIM	(8*1024*1024)
+ 
+ #if CONFIG_SMP
+-extern void set_cpus_allowed(task_t *p, unsigned long new_mask);
++extern void set_cpus_allowed(task_t *p, const unsigned long new_mask[]);
+ #else
+ # define set_cpus_allowed(p, new_mask) do { } while (0)
+ #endif
++#define CPU_MASK_NONE { 0 }
++#define CPU_MASK_ALL { [0 ... BITS_TO_LONG(NR_CPUS)-1 ] = ~0UL }
++
++static inline void migrate_to_cpu(unsigned int cpu)
++{
++	DECLARE_BITMAP(mask, NR_CPUS) = CPU_MASK_NONE;
++	BUG_ON(!cpu_online(cpu));
++	__set_bit(cpu, mask);
++	set_cpus_allowed(current, mask);
++}
+ 
+ extern void set_user_nice(task_t *p, long nice);
+ extern int task_prio(task_t *p);
+@@ -490,8 +502,6 @@ static inline struct task_struct *find_t
+ extern struct user_struct * alloc_uid(uid_t);
+ extern void free_uid(struct user_struct *);
+ 
+-#include <asm/current.h>
+-
+ extern unsigned long itimer_ticks;
+ extern unsigned long itimer_next;
+ extern void do_timer(struct pt_regs *);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/include/linux/smp.h .6936-linux-2.5.32.updated/include/linux/smp.h
+--- .6936-linux-2.5.32/include/linux/smp.h	2002-08-28 09:29:53.000000000 +1000
++++ .6936-linux-2.5.32.updated/include/linux/smp.h	2002-08-28 11:43:14.000000000 +1000
+@@ -93,10 +93,11 @@ int cpu_up(unsigned int cpu);
+ #define smp_call_function(func,info,retry,wait)	({ 0; })
+ static inline void smp_send_reschedule(int cpu) { }
+ static inline void smp_send_reschedule_all(void) { }
+-#define cpu_online_map				1
++#define cpu_online_map				((unsigned long[1]){ 1 })
+ #define cpu_online(cpu)				({ cpu; 1; })
+ #define num_online_cpus()			1
+ #define num_booting_cpus()			1
++#define any_online_cpu(mask) ((*(mask) & 1) ? 0 : 1)
+ 
+ struct notifier_block;
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/kernel/sched.c .6936-linux-2.5.32.updated/kernel/sched.c
+--- .6936-linux-2.5.32/kernel/sched.c	2002-08-28 09:29:54.000000000 +1000
++++ .6936-linux-2.5.32.updated/kernel/sched.c	2002-08-28 11:37:02.000000000 +1000
+@@ -29,6 +29,7 @@
+ #include <linux/security.h>
+ #include <linux/notifier.h>
+ #include <linux/delay.h>
++#include <linux/bitops.h>
+ 
+ /*
+  * Convert user-nice values [ -20 ... 0 ... 19 ]
+@@ -414,7 +415,7 @@ repeat_lock_task:
+ 		 */
+ 		if (unlikely(sync && !task_running(rq, p) &&
+ 			(task_cpu(p) != smp_processor_id()) &&
+-			(p->cpus_allowed & (1UL << smp_processor_id())))) {
++			(test_bit(smp_processor_id(), p->cpus_allowed)))) {
+ 
+ 			set_task_cpu(p, smp_processor_id());
+ 			task_rq_unlock(rq, &flags);
+@@ -788,7 +789,7 @@ skip_queue:
+ #define CAN_MIGRATE_TASK(p,rq,this_cpu)					\
+ 	((jiffies - (p)->sleep_timestamp > cache_decay_ticks) &&	\
+ 		!task_running(rq, p) &&					\
+-			((p)->cpus_allowed & (1UL << (this_cpu))))
++			(test_bit(smp_processor_id(), p->cpus_allowed)))
+ 
+ 	curr = curr->prev;
+ 
+@@ -1541,7 +1542,7 @@ out_unlock:
+ asmlinkage int sys_sched_setaffinity(pid_t pid, unsigned int len,
+ 				      unsigned long *user_mask_ptr)
+ {
+-	unsigned long new_mask;
++	DECLARE_BITMAP(new_mask, NR_CPUS);
+ 	int retval;
+ 	task_t *p;
+ 
+@@ -1551,8 +1552,7 @@ asmlinkage int sys_sched_setaffinity(pid
+ 	if (copy_from_user(&new_mask, user_mask_ptr, sizeof(new_mask)))
+ 		return -EFAULT;
+ 
+-	new_mask &= cpu_online_map;
+-	if (!new_mask)
++	if (any_online_cpu(new_mask) == NR_CPUS)
+ 		return -EINVAL;
+ 
+ 	read_lock(&tasklist_lock);
+@@ -1593,8 +1593,8 @@ out_unlock:
+ asmlinkage int sys_sched_getaffinity(pid_t pid, unsigned int len,
+ 				      unsigned long *user_mask_ptr)
+ {
+-	unsigned int real_len;
+-	unsigned long mask;
++	unsigned int real_len, i;
++	DECLARE_BITMAP(mask, NR_CPUS);
+ 	int retval;
+ 	task_t *p;
+ 
+@@ -1610,7 +1610,8 @@ asmlinkage int sys_sched_getaffinity(pid
+ 		goto out_unlock;
+ 
+ 	retval = 0;
+-	mask = p->cpus_allowed & cpu_online_map;
++	for (i = 0; i < ARRAY_SIZE(mask); i++)
++		mask[i] = (p->cpus_allowed[i] & cpu_online_map[i]);
+ 
+ out_unlock:
+ 	read_unlock(&tasklist_lock);
+@@ -1912,7 +1913,7 @@ typedef struct {
+  * task must not exit() & deallocate itself prematurely.  The
+  * call is not atomic; no spinlocks may be held.
+  */
+-void set_cpus_allowed(task_t *p, unsigned long new_mask)
++void set_cpus_allowed(task_t *p, const unsigned long new_mask[])
+ {
+ 	unsigned long flags;
+ 	migration_req_t req;
+@@ -1926,12 +1927,12 @@ void set_cpus_allowed(task_t *p, unsigne
+ 
+ 	preempt_disable();
+ 	rq = task_rq_lock(p, &flags);
+-	p->cpus_allowed = new_mask;
++	memcpy(p->cpus_allowed, new_mask, sizeof(p->cpus_allowed));
+ 	/*
+ 	 * Can the task run on the task's current CPU? If not then
+ 	 * migrate the thread off to a proper CPU.
+ 	 */
+-	if (new_mask & (1UL << task_cpu(p))) {
++	if (test_bit(task_cpu(p), new_mask)) {
+ 		task_rq_unlock(rq, &flags);
+ 		goto out;
+ 	}
+@@ -1940,7 +1941,7 @@ void set_cpus_allowed(task_t *p, unsigne
+ 	 * it is sufficient to simply update the task's cpu field.
+ 	 */
+ 	if (!p->array && !task_running(rq, p)) {
+-		set_task_cpu(p, __ffs(p->cpus_allowed));
++		set_task_cpu(p, any_online_cpu(p->cpus_allowed));
+ 		task_rq_unlock(rq, &flags);
+ 		goto out;
+ 	}
+@@ -1970,7 +1971,7 @@ static int migration_thread(void * data)
+ 	sigfillset(&current->blocked);
+ 	set_fs(KERNEL_DS);
+ 
+-	set_cpus_allowed(current, 1UL << cpu);
++	migrate_to_cpu(cpu);
+ 
+ 	/*
+ 	 * Migration can happen without a migration thread on the
+@@ -2008,7 +2009,7 @@ static int migration_thread(void * data)
+ 		spin_unlock_irqrestore(&rq->lock, flags);
+ 
+ 		p = req->task;
+-		cpu_dest = __ffs(p->cpus_allowed);
++		cpu_dest = any_online_cpu(p->cpus_allowed);
+ 		rq_dest = cpu_rq(cpu_dest);
+ repeat:
+ 		cpu_src = task_cpu(p);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6936-linux-2.5.32/kernel/softirq.c .6936-linux-2.5.32.updated/kernel/softirq.c
+--- .6936-linux-2.5.32/kernel/softirq.c	2002-08-28 09:29:54.000000000 +1000
++++ .6936-linux-2.5.32.updated/kernel/softirq.c	2002-08-28 11:37:02.000000000 +1000
+@@ -361,8 +361,7 @@ static int ksoftirqd(void * __bind_cpu)
+ 	current->flags |= PF_IOTHREAD;
+ 	sigfillset(&current->blocked);
+ 
+-	/* Migrate to the right CPU */
+-	set_cpus_allowed(current, 1UL << cpu);
++	migrate_to_cpu(cpu);
+ 	if (smp_processor_id() != cpu)
+ 		BUG();
+ 
 
-Enjoy at:
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.20-pre6-jam1.tar.gz
-
-Perhaps some of the fixes (everything named 1X-xxxxx) are worthy and non
-intrusive for next pre. Marcelo, would you mind taking a look at those ?
-
-Current contents:
-
-10-module-size-checks.bz2
-	Fixes two minor bugs in kernel/module.c related with module size checks.
-	Author: Peter Oberparleiter <oberpapr@softhome.net>
-
-11-ide-probe-special.bz2
-	ide-probe fix.
-	Author: Erik Andersen <andersen@codepoet.org>
-
-12-memparam.bz2
-	Fix mem=XXX kernel parameter when user gives a size bigger than what
-	kernel autodetected (kill a previous change)
-	Author: Adrian Bunk <bunk@fs.tum.de>,
-			Leonardo Gomes Figueira <sabbath@planetarium.com.br>
-
-13-self_exec_id.bz2
-	Fix bad signaling between threads when ancestor dies.
-	Author: Zeuner, Axel <Axel.Zeuner@partner.commerzbank.com>
-
-14-clone-detached.bz2
-	Fix a crash that can be caused by a CLONE_DETACHED thread.
-	Author: Ingo Molnar <mingo@elte.hu>
-	
-15-reiser-write.bz2
-	ReiserFS file write bug fix for 2.4
-	Author: Hans Reiser <reiser@namesys.com>
-
-16-xfs-vs-sched.bz2
-	Fix collision between new xfs and new scheduler.
-	Author: Andrea Arcangeli <andrea@suse.de>
-
-17-piix-tb.bz2
-	Back port piix ide fixup to 2.4.19.
-	Author: Hu Gang <hugang@soulinfo.com>
-
-18-handle2dentry.bz2
-	Factor out duplicated code for handle2dentry conversation.
-	Author: Christoph Hellwig <hch@lst.de>
-
-20-x86-split-group.bz2
-	Group common options under just one config option, and make them a bit
-	hierarchic.
-	Split PII from PPro in processor selection.
-
-21-mem-barriers.bz2
-	Use specific machine level instructions for mb() for new
-	processors (P3,P4,Athlon).
-	Author: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-
-22-gcc3-march.bz2
-	Add support for gcc3 code generation flags for specific processors
-
-23-config-nr_cpus.bz2
-	Configure the max number of cpus at compile time (default was 32).
-	Saves memory footprint for kernel (around 240Kb in 32->2).
-	Author: Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>
-
-30-smptimers-A0.bz2
-	Scalable timer implementation. Lock per-CPU instead of global.
-	Author: Ingo Molnar <mingo@elte.hu>
-	URL: http://redhat.com/~mingo/scalable-timers-patches/
-
-40-sched-hints.bz2
-	Hint-based scheduling on top of O1 scheduler.
-	Author: Robert Love <rml@tech9.net>
-
-41-task_cpu.bz2
-42-task_cpu-aa.bz2
-	Implement "task_cpu()" and "set_task_cpu()" as wrappers for reading and
-	writing task->cpu. Optmize to dummy versions in UP.
-	-aa are additional changes for Andrea's tree.
-	Author: Robert Love <rml@tech9.net>
-
-43-sched-misc.bz2
-	O1 scheduler miscellaneous updates.
-	Author: Robert Love <rml@tech9.net>
-
-45-corefile-name.bz2
-	This patch will allow you to configure the way core files are named through
-	the /proc filesystem You can specify patterns, e.g. "core.%p" to get pid
-	appended, "%e.core" to get the name of the executable, or
-	"/var/core/core.%h" to get all yor core files in /var/core and have the
-	hostname appended.
-	Author: Jes Rahbek Klinke <jrk@evalesco.com>
-
-50-ide-10-partial.bz2
-	IDE update, version convert.10. Partial because Promise driver is not
-	merged and is probably not functional.
-	Author: Andre Hedrick <andre@linux-ide.org>
-	URL: http://www.linuxdiskcert.org/
-
-51-severworks-ide.bz2
-	Attempt to fix the ServerWorks problem sit certain disks and DMA.
-	Author: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-
-52-ide-cd-dma-3.bz2
-	Make reading audio from IDE CDROMs use DMA.
-	Author: Andrew Morton <akpm@zip.com.au>
-
-60-bttv-0.7.97.bz2
-61-bttv-doc-0.7.97.bz2
-	BTTV updates.
-	Author: Gerd Knorr <kraxel@bytesex.org>
-	URL: http://bytesex.org/bttv/
-
-70-i2c-2.6.5-cvs.bz2
-71-sensors-2.6.5-cvs.bz2
-	LM-Sensors update to 2.6.5-cvs tree.
-	URL: http://secure.netroedge.com/~lm78/
-
-72-i2c-build.bz2
-	Add dmi_scan.o to export-objs.
-
-80-bproc-3.2.0.bz2
-	Beowulf bproc SSI patches.
-	Author: Erik Arjan Hendriks <erik@hendriks.cx>
-	URL: http://sourceforge.net/projects/bproc
-
-81-export-task_nice.bz2
-	Export task_nice() function for bproc.
-
-90-make.bz2
-	Makes INSTALL_PATH=/boot and default VGA mode = 6.
-
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.0 (Cooker) for i586
-Linux 2.4.20-pre6-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,51 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136253AbRD0XeB>; Fri, 27 Apr 2001 19:34:01 -0400
+	id <S136254AbRD0XeB>; Fri, 27 Apr 2001 19:34:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136254AbRD0Xdn>; Fri, 27 Apr 2001 19:33:43 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:18450 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132568AbRD0Xdb>;
-	Fri, 27 Apr 2001 19:33:31 -0400
-Date: Fri, 27 Apr 2001 19:35:01 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: CML2 1.3.1, aka "I stick my neck out a mile..."
-Message-ID: <20010427193501.A9805@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
+	id <S132568AbRD0Xdx>; Fri, 27 Apr 2001 19:33:53 -0400
+Received: from [63.231.122.81] ([63.231.122.81]:46679 "EHLO lynx.turbolabs.com")
+	by vger.kernel.org with ESMTP id <S136253AbRD0Xdg>;
+	Fri, 27 Apr 2001 19:33:36 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200104272330.RAA06373@lynx.turbolabs.com>
+Subject: Re: [patch] linux likes to kill bad inodes
+To: torvalds@transmeta.com
+Date: Fri, 27 Apr 2001 17:30:28 -0600 (MDT)
+Cc: pavel@suse.cz (Pavel Machek), mason@suse.com (Chris Mason),
+        viro@math.psu.edu, linux-kernel@vger.kernel.org (kernel list),
+        jack@atrey.karlin.mff.cuni.cz
+In-Reply-To: <no.id> from "adilger" at Apr 27, 2001 04:08:01 PM
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.3.1: Fri Apr 27 19:02:31 EDT 2001
-	* kxref.py can now replace the unmaintained checkhelp.pl,  
-	  checkconfig.pl, and checkincludes.pl scripts.
+I previously wrote:
+> I will post a patch separately which handles a couple of cases where
+> *_delete_inode() does not call clear_inode() in all cases.
 
-I'm going to stick my neck out a mile and say that I think this is a
-stable release.  Doing so, of course, is in reality a clever plan which
-ensures that at least three embarrassing bugs will be discovered within
-the next 24 hours...
+OK, here it is.  The ext2_delete_inode() change isn't exactly a bug fix,
+but rather a "performance" change.  No need to hold BLK to check status
+or call clear_inode() (we call clear_inode() outside BLK in VFS if
+delete_inode() method does not exist).
 
-Seriously, I am now out of stuff to do on the CML2 code itself.  The
-code now seems to be up to acceptable speed even on slow machines, the
-UI feature requests have petered out, and this release seems to be
-feature-complete with respect to everything that can be done before
-the 2.5 cutover.
-
-There is one 1.3.0 bug report pending from jeff millar, but I have 
-not been able to reproduce it with 1.3.1.  I will, of course, continue
-to process CML2 bug reports and rulesfile fixes.
+Cheers, Andreas
+=======================================================================
+diff -ru linux-2.4.4p1.orig/fs/ext2/inode.c linux/fs/ext2/inode.c
+--- linux-2.4.4p1.orig/fs/ext2/inode.c	Tue Apr 10 16:44:49 2001
++++ linux/fs/ext2/inode.c	Fri Apr 27 13:51:15 2001
+@@ -44,12 +47,12 @@
+  */
+ void ext2_delete_inode (struct inode * inode)
+ {
+-	lock_kernel();
+-
+ 	if (is_bad_inode(inode) ||
+ 	    inode->i_ino == EXT2_ACL_IDX_INO ||
+ 	    inode->i_ino == EXT2_ACL_DATA_INO)
+ 		goto no_delete;
++
++	lock_kernel();
+ 	inode->u.ext2_i.i_dtime	= CURRENT_TIME;
+ 	mark_inode_dirty(inode);
+ 	ext2_update_inode(inode, IS_SYNC(inode));
+@@ -59,9 +62,7 @@
+ 	ext2_free_inode (inode);
+ 
+ 	unlock_kernel();
+ 	return;
+ no_delete:
+-	unlock_kernel();
+ 	clear_inode(inode);	/* We must guarantee clearing of inode... */
+ }
+ 
+diff -ru linux-2.4.4p1.orig/fs/bfs/inode.c linux/fs/bfs/inode.c
+--- linux-2.4.4p1.orig/fs/bfs/inode.c	Tue Apr 10 16:44:49 2001
++++ linux/fs/bfs/inode.c	Fri Apr 27 15:45:31 2001
+@@ -145,7 +145,7 @@
+ 	if (is_bad_inode(inode) || inode->i_ino < BFS_ROOT_INO ||
+ 	    inode->i_ino > inode->i_sb->su_lasti) {
+ 		printf("invalid ino=%08lx\n", inode->i_ino);
+-		return;
++		goto bad_inode;
+ 	}
+ 	
+ 	inode->i_size = 0;
+@@ -155,8 +156,7 @@
+ 	bh = bread(dev, block, BFS_BSIZE);
+ 	if (!bh) {
+ 		printf("Unable to read inode %s:%08lx\n", bdevname(dev), ino);
+-		unlock_kernel();
+-		return;
++		goto bad_unlock;
+ 	}
+ 	off = (ino - BFS_ROOT_INO)%BFS_INODES_PER_BLOCK;
+ 	di = (struct bfs_inode *)bh->b_data + off;
+@@ -178,7 +178,9 @@
+ 		s->su_lf_eblk = inode->iu_sblock - 1;
+ 		mark_buffer_dirty(s->su_sbh);
+ 	}
++bad_unlock:
+ 	unlock_kernel();
++bad_inode:
+ 	clear_inode(inode);
+ }
+ 
+diff -ru linux-2.4.4p1.orig/fs/ufs/ialloc.c linux/fs/ufs/ialloc.c
+--- linux-2.4.4p1.orig/fs/ufs/ialloc.c	Thu Nov 16 14:18:26 2000
++++ linux/fs/ufs/ialloc.c	Fri Apr 27 15:53:26 2001
+@@ -82,6 +82,7 @@
+ 	if (!((ino > 1) && (ino < (uspi->s_ncg * uspi->s_ipg )))) {
+ 		ufs_warning(sb, "ufs_free_inode", "reserved inode or nonexistent inode %u\n", ino);
+ 		unlock_super (sb);
++		clear_inode (inode);
+ 		return;
+ 	}
+ 	
+@@ -90,6 +91,7 @@
+ 	ucpi = ufs_load_cylinder (sb, cg);
+ 	if (!ucpi) {
+ 		unlock_super (sb);
++		clear_inode (inode);
+ 		return;
+ 	}
+ 	ucg = ubh_get_ucg(UCPI_UBH);
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-"The bearing of arms is the essential medium through which the
-individual asserts both his social power and his participation in
-politics as a responsible moral being..."
-        -- J.G.A. Pocock, describing the beliefs of the founders of the U.S.
+Andreas Dilger                               TurboLabs filesystem development
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/

@@ -1,89 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263135AbUB0Vwj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 16:52:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbUB0Vwj
+	id S263147AbUB0Vzk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 16:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263027AbUB0Vzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 16:52:39 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:5267 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263135AbUB0VwY (ORCPT
+	Fri, 27 Feb 2004 16:55:39 -0500
+Received: from mail.kroah.org ([65.200.24.183]:15499 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263161AbUB0Vxs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 16:52:24 -0500
-Date: Fri, 27 Feb 2004 15:51:36 -0600 (CST)
-From: olof@austin.ibm.com
-To: torvalds@osdl.org
-cc: benh@kernel.crashing.org, <linux-kernel@vger.kernel.org>,
-       <linuxppc64-dev@lists.linuxppc.org>
-Subject: [PATCH] ppc64: Add iommu=on for enabling DART on small-mem machines
-Message-ID: <Pine.A41.4.44.0402271524190.43108-100000@forte.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Feb 2004 16:53:48 -0500
+Date: Fri, 27 Feb 2004 13:53:50 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Cc: linux-hotplug-memory@lists.sourceforge.net
+Subject: [ANNOUNCE] Linux hotplug memory mailing list created
+Message-ID: <20040227215349.GA12122@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+I'd like to announce a new mailing list that has been started up to
+focus on adding support to Linux for hotplug memory.
 
-Below patch makes it possible for people like me with a small-mem G5 to
-enable the DART. I see two reasons for wanting to do so:
+As I personally know of at least 3 different groups at 3 different
+companies working on this feature, and all of them don't seem to want to
+talk together on linux-kernel or linux-mm, this list is for them, and
+anyone else who wants to help.
 
-1. To debug/test DART/iommu code itself (small audience, including
-   myself).
-2. To debug drivers on small-mem machines, since bad pci_map*() usage will
-   be punished (possibly larger audience).
+Please everyone, work together and stop re-inventing the wheel...
 
+Info on joining the list can be found at:
+  https://lists.sourceforge.net/lists/listinfo/linux-hotplug-memory
 
-Thanks,
+The list is open to any posters (subscription not required), and no HTML
+messages are allowed on it.  The address is:
+  linux-hotplug-memory@lists.sourceforge.net
 
--Olof
+If anyone has any questions or problems with the list, please let me
+know.
 
+thanks,
 
-===== arch/ppc64/kernel/prom.c 1.56 vs edited =====
---- 1.56/arch/ppc64/kernel/prom.c	Fri Feb 27 16:44:57 2004
-+++ edited/arch/ppc64/kernel/prom.c	Fri Feb 27 15:48:10 2004
-@@ -516,6 +516,9 @@
- 	return mem;
- }
-
-+#ifdef CONFIG_PMAC_DART
-+static int dart_force_on;
-+#endif
-
- static unsigned long __init
- prom_initialize_lmb(unsigned long mem)
-@@ -539,10 +542,12 @@
- 		prom_print(opt);
- 		prom_print(RELOC("\n"));
- 		opt += 6;
--		while(*opt && *opt == ' ')
-+		while (*opt && *opt == ' ')
- 			opt++;
- 		if (!strncmp(opt, RELOC("off"), 3))
- 			nodart = 1;
-+		else if (!strncmp(opt, RELOC("on"), 2))
-+			RELOC(dart_force_on) = 1;
- 	}
- #else
- 	nodart = 1;
-@@ -763,8 +768,10 @@
- 	extern unsigned long dart_tablebase;
- 	extern unsigned long dart_tablesize;
-
--	/* Only reserve DART space if machine has more than 2Gb of RAM */
--	if (lmb_end_of_DRAM() <= 0x80000000ull)
-+	/* Only reserve DART space if machine has more than 2GB of RAM
-+	 * or if requested with iommu=on on cmdline.
-+	 */
-+	if (lmb_end_of_DRAM() <= 0x80000000ull && !RELOC(dart_force_on))
- 		return;
-
- 	/* 512 pages is max DART tablesize. */
-
-
-
-
-Olof Johansson                                        Office: 4E002/905
-Linux on Power Development                            IBM Systems Group
-Email: olof@austin.ibm.com                          Phone: 512-838-9858
-All opinions are my own and not those of IBM
-
-
+greg k-h

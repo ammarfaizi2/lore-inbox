@@ -1,158 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUHISY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266814AbUHISY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266835AbUHISY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266833AbUHISWl
+	id S266814AbUHISY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 14:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266835AbUHISXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:22:41 -0400
-Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:8600
-	"EHLO bastard.smallmerchant.com") by vger.kernel.org with ESMTP
-	id S266831AbUHISTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:19:23 -0400
-Message-ID: <4117C028.7080905@tupshin.com>
-Date: Mon, 09 Aug 2004 11:19:20 -0700
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: /dev/hdl not showing up because of	fix-ide-probe-double-detection
- patch
-References: <411013F7.7080800@tupshin.com> <4111651E.1040406@tupshin.com>	 <20040804224709.3c9be248.akpm@osdl.org> <1091720165.8041.4.camel@localhost.localdomain>
-In-Reply-To: <1091720165.8041.4.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 14:23:21 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:20126 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266814AbUHISTB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 14:19:01 -0400
+Date: Mon, 9 Aug 2004 11:16:41 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] proc fs task name handling
+Message-ID: <20040809181641.GA6204@w-mikek2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Here is another copy of the patch to fix up path name handling in
+the proc fs.  It is against 2.6.8-rc3-mm2 and contains all suggestions
+previously recommended.  The new routines get/set_task_comm() are put
+into fs/exec.c due to lack of a better place.
 
-> Two disks are not permitted to have the same serial number. If you can
->
->give me the full ident data I'll take a detailed look - could be I'm not
->comparing enough bytes if its only different on the last digit.
->
->Alan
->
->  
->
-I originally thought that the problem might be not enough bytes being 
-checked, but now I'm concerned that Maxtor has some problem with not 
-having a proper serial number recorded for some drives. hdparm -i also 
-show M0000000000000000000 for both of these drives. Below is the output 
-of hdparm -i for the two drives, and below that, the output of catting 
-/dev/ide/hdk and hdl.
+-- 
+Mike
 
-Doing a google search on "M0000000000000000000" shows that there have a 
-been a handful of reports of maxtor drives showing this as the serial 
-number, but I don't see any explanation of why.
-
--Tupshin
-
-
-
- hdparm -i /dev/hdl
-
-/dev/hdl:
-
- Model=Maxtor 4R120L0, FwRev=RAMB1TU0, SerialNo=M0000000000000000000
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=240121728
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 udma2 udma3 udma4 udma5 *udma6
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive conforms to: (null):
-
- * signifies the current active mode
-
-rescue:/home/tupshin# hdparm -i /dev/hdk
-
-/dev/hdk:
-
- Model=Maxtor 4R120L0, FwRev=RAMB1TU0, SerialNo=M0000000000000000000
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=240121728
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 udma2 udma3 udma4 udma5 *udma6
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive conforms to: (null):
-
- * signifies the current active mode
-
- cat /proc/ide/hdl/identify
-0040 3fff c837 0010 0000 0000 003f 0000
-0000 0000 4d30 3030 3030 3030 3030 3030
-3030 3030 3030 3030 0003 1000 0039 5241
-4d42 3154 5530 4d61 7874 6f72 2034 5231
-3230 4c30 2020 2020 2020 2020 2020 2020
-2020 2020 2020 2020 2020 2020 2020 8010
-0000 2f00 4000 0200 0000 0007 3fff 0010
-003f fc10 00fb 0110 f780 0e4f 0000 0007
-0003 0078 0078 0078 0078 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-00fe 001e 7c6b 7b09 4003 7c68 3a01 4003
-407f 0000 0000 0000 fffe 6b00 c0c0 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0001 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0001 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 8aa5
-
- cat /proc/ide/hdk/identify
-0040 3fff c837 0010 0000 0000 003f 0000
-0000 0000 4d30 3030 3030 3030 3030 3030
-3030 3030 3030 3030 0003 1000 0039 5241
-4d42 3154 5530 4d61 7874 6f72 2034 5231
-3230 4c30 2020 2020 2020 2020 2020 2020
-2020 2020 2020 2020 2020 2020 2020 8010
-0000 2f00 4000 0200 0000 0007 3fff 0010
-003f fc10 00fb 0110 f780 0e4f 0000 0007
-0003 0078 0078 0078 0078 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-00fe 001e 7c6b 7b09 4003 7c68 3a01 4003
-407f 0000 0000 0000 fffe 603b c0c0 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0001 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0001 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 5aa5
-
+diff -Naur linux-2.6.8-rc3-mm2/fs/exec.c linux-2.6.8-rc3-mm2.work/fs/exec.c
+--- linux-2.6.8-rc3-mm2/fs/exec.c	2004-08-09 16:19:55.000000000 +0000
++++ linux-2.6.8-rc3-mm2.work/fs/exec.c	2004-08-09 18:13:40.000000000 +0000
+@@ -789,11 +789,27 @@
+ 	spin_unlock(&files->file_lock);
+ }
+ 
++void get_task_comm(char *buf, struct task_struct *tsk)
++{
++	/* buf must be at least sizeof(tsk->comm) in size */
++	task_lock(tsk);
++	memcpy(buf, tsk->comm, sizeof(tsk->comm));
++	task_unlock(tsk);
++}
++
++void set_task_comm(struct task_struct *tsk, char *buf)
++{
++	task_lock(tsk);
++	strlcpy(tsk->comm, buf, sizeof(tsk->comm));
++	task_unlock(tsk);
++}
++
+ int flush_old_exec(struct linux_binprm * bprm)
+ {
+ 	char * name;
+ 	int i, ch, retval;
+ 	struct files_struct *files;
++	char tcomm[sizeof(current->comm)];
+ 
+ 	/*
+ 	 * Make sure we have a private signal table and that
+@@ -834,10 +850,11 @@
+ 		if (ch == '/')
+ 			i = 0;
+ 		else
+-			if (i < 15)
+-				current->comm[i++] = ch;
++			if (i < (sizeof(tcomm) - 1))
++				tcomm[i++] = ch;
+ 	}
+-	current->comm[i] = '\0';
++	tcomm[i] = '\0';
++	set_task_comm(current, tcomm);
+ 
+ 	flush_thread();
+ 
+diff -Naur linux-2.6.8-rc3-mm2/fs/proc/array.c linux-2.6.8-rc3-mm2.work/fs/proc/array.c
+--- linux-2.6.8-rc3-mm2/fs/proc/array.c	2004-08-09 16:19:55.000000000 +0000
++++ linux-2.6.8-rc3-mm2.work/fs/proc/array.c	2004-08-09 16:28:19.000000000 +0000
+@@ -88,10 +88,13 @@
+ {
+ 	int i;
+ 	char * name;
++	char tcomm[sizeof(p->comm)];
++
++	get_task_comm(tcomm, p);
+ 
+ 	ADDBUF(buf, "Name:\t");
+-	name = p->comm;
+-	i = sizeof(p->comm);
++	name = tcomm;
++	i = sizeof(tcomm);
+ 	do {
+ 		unsigned char c = *name;
+ 		name++;
+@@ -309,6 +312,7 @@
+ 	int num_threads = 0;
+ 	struct mm_struct *mm;
+ 	unsigned long long start_time;
++	char tcomm[sizeof(task->comm)];
+ 
+ 	state = *get_task_state(task);
+ 	vsize = eip = esp = 0;
+@@ -321,6 +325,7 @@
+ 		up_read(&mm->mmap_sem);
+ 	}
+ 
++	get_task_comm(tcomm, task);
+ 	wchan = get_wchan(task);
+ 
+ 	sigemptyset(&sigign);
+@@ -358,7 +363,7 @@
+ %lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu \
+ %lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
+ 		task->pid,
+-		task->comm,
++		tcomm,
+ 		state,
+ 		ppid,
+ 		pgid,
+diff -Naur linux-2.6.8-rc3-mm2/include/linux/sched.h linux-2.6.8-rc3-mm2.work/include/linux/sched.h
+--- linux-2.6.8-rc3-mm2/include/linux/sched.h	2004-08-09 16:19:55.000000000 +0000
++++ linux-2.6.8-rc3-mm2.work/include/linux/sched.h	2004-08-09 16:22:34.000000000 +0000
+@@ -833,6 +833,9 @@
+ extern long do_fork(unsigned long, unsigned long, struct pt_regs *, unsigned long, int __user *, int __user *);
+ task_t *fork_idle(int);
+ 
++extern void set_task_comm(struct task_struct *, char *);
++extern void get_task_comm(char *, struct task_struct *);
++
+ #ifdef CONFIG_SMP
+ extern void wait_task_inactive(task_t * p);
+ #else

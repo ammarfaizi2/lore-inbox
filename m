@@ -1,194 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265227AbTLaStH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 13:49:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbTLaStH
+	id S265233AbTLaSv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 13:51:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265236AbTLaSv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 13:49:07 -0500
-Received: from gamemakers.de ([217.160.141.117]:30090 "EHLO www.gamemakers.de")
-	by vger.kernel.org with ESMTP id S265227AbTLaSs7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 13:48:59 -0500
-Message-ID: <3FF31A15.4070307@lambda-computing.de>
-Date: Wed, 31 Dec 2003 19:48:53 +0100
-From: =?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@lambda-computing.de>
-Reply-To: rudi@lambda-computing.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: ivern@acm.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: File change notification
-References: <3FF2FC85.5070906@lambda-computing.de> <3FF31366.30206@acm.org>
-In-Reply-To: <3FF31366.30206@acm.org>
-Content-Type: multipart/mixed;
- boundary="------------090601040609090400020701"
+	Wed, 31 Dec 2003 13:51:58 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:29691 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265233AbTLaSv4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 13:51:56 -0500
+Date: Wed, 31 Dec 2003 10:51:35 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: ricklind@us.ibm.com
+Subject: Iostats reporting problems was: Linux 2.4.24-pre3
+Message-ID: <20031231185135.GD1882@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, ricklind@us.ibm.com
+References: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090601040609090400020701
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+On Wed, Dec 31, 2003 at 11:13:57AM -0200, Marcelo Tosatti wrote:
+> <mfedyk:matchmail.com>:
+>   o Use "%u" when printing extended /proc/partitions statistics
+>   o extended stats correction: Field rd_ios can be negative
 
-Javier Fernandez-Ivern wrote:
+Without the patch any of the 10 of 11 fields can go negative after enough
+activity, not just rd_ios
 
-> Rüdiger Klaehn wrote:
->
->> I have been wondering for some time why there is no decent file 
->> change notification mechanism in linux. Is there some deep 
->> philosophical reason for this, or is it just that nobody has found 
->> the time to implement it? If it is the latter, I am willing to 
->> implement it as long there is a chance to get this accepted into the 
->> mainstream kernel.
->
->
-> Well, there's fam.  But AFAIK that's all done in user space, and your 
-> approach would be significantly more efficient (as a matter of fact, 
-> fam could be modified to use your change device as a first level of 
-> notification.)
->
-Fam is a user space library that has some nice features such as network 
-transparent change notification. It currently uses the dnotify mechanism 
-if the underlying kernel supports it, but as I mentioned the dnotify 
-mechanism requires an open file handle and works only for single 
-directories. If the underlying os does not support dnotify, fam resorts 
-to polling for file changes (yuk!).
+With or without these patches, when there is activity on a partition
+ios_in_flight[1] looks sane for the individual partition statistics since
+ios_in_flight doesn't go negative, but the same activity causes
+ios_in_flight on the drive (hda instead of hda1 for example) to be
+consistantly negative (usually -2 or -3 in my case) with brief periods of
+being positive.  This causes use and aveq (hd->io_ticks and hd->aveq in the
+kernel) to have bogus numbers.
 
-When I have the basics worked out for the new mechanism, one thing I 
-would like to do is to modify the fam library to use it. That would be a 
-good way to test it, and it would also immediately benefit the big 
-desktop environments which use fam.
+I'm hoping that there is a nice patch that has been waiting around
+somewhere, and that it's trivial enough for 2.4.24 inclusion.
 
-> I'll be interested in testing this, or (if you wish) help get it done. 
-> I'm a kernel hacking newbie at the moment, but I have tinkered around 
-> enough with the VFS to be able to work on this.  Up to you.
->
-Any help is appreciated. At the moment I am quite happy about what is 
-being logged, but I am not sure how to best expose this to the 
-interested user space processes. A device was the easiest way, and so 
-that is what I used. Other possibilities would be a file in /proc or 
-something completely different. I got the impression that dbus might be 
-useful for this, but I have no idea how to use it.
+Here's[2] an example from my test box.  There is activity on md0 which
+consists of hd[aei]3 and almost no activity on the other partitions.  Look at
+use and aveq on hdi.  There is no correlation to use and aveq on hdi3 since
+it has overflowed so many more times than hdi3.
 
-If you want to help me, just apply the patch and see wether it works for 
-you. You could also take a look at the code and see if you see something 
-completely broken.
+ricklind@us.ibm.com seems to be involved in the 2.6 diskstats code, is he
+also involved in the 2.4 code?  Unfortunately he seems to be on vacation at
+the moment.  There is no maintainer mentioned in the 2.4 MAINTAINERS file...
 
-best regards and a happy new year,
+[1]
+Field 9 of 11 extended stats, also named "running" on the first line of
+/proc/partitions
 
-    Rüdiger
+[2]
+major minor  #blocks  name     rio rmerge rsect ruse wio wmerge wsect wuse running use aveq
 
-p.s. I attached a small test program. It just reads the contents of the 
-/dev/inotify device and prints them in (somewhat) human readable form. 
-For example to watch for changes in .txt files I would use inotify_test 
-| grep txt. This would print out a line whenever a txt file anywhere on 
-a system has been created or changed.
-
---------------090601040609090400020701
-Content-Type: text/x-chdr;
- name="inotify.h"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline;
- filename="inotify.h"
-
-/*
- * Inode notification for Linux
- *
- * Copyright (C) 2003,2004 Rüdiger Klaehn
- */
-
-#define IN_ACCESS	0x00000001	/* Node accessed */
-#define IN_MODIFY	0x00000002	/* Node modified */
-#define IN_CREATE	0x00000004	/* Node created */
-#define IN_DELETE	0x00000008	/* Node removed */
-#define IN_RENAME	0x00000010	/* Node renamed */
-#define IN_ATTRIB	0x00000020	/* Node changed attibutes */
-#define DNAME_LEN 32
-
-typedef struct
-{
-	unsigned long event;
-	unsigned long file_ino;
-	unsigned long src_ino;
-	unsigned long dst_ino;
-	unsigned char name[DNAME_LEN];
-} in_info;
-
---------------090601040609090400020701
-Content-Type: text/x-csrc;
- name="inotify_test.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="inotify_test.c"
-
-#include <stdio.h>
-#include "inotify.h"
-
-void geteventname(unsigned long event,char *buffer,int n) 
-{
-	unsigned long events[6]=
-	{
-		IN_ACCESS,
-		IN_MODIFY,
-		IN_CREATE,
-		IN_DELETE,
-		IN_RENAME,
-		IN_ATTRIB
-	};
-	const char *names[6]=
-	{
-		"IN_ACCESS",
-		"IN_MODIFY",
-		"IN_CREATE",
-		"IN_DELETE",
-		"IN_RENAME",
-		"IN_ATTRIB"
-	};
-	int i;
-	strncpy(buffer,"",n);
-	for(i=0;i<6;i++)
-	{
-		if(event&events[i])
-		{
-			if(strlen(buffer)>0)
-				strncat(buffer,"|",n);
-			strncat(buffer,names[i],n);
-		}
-	}
-}
-
-int main()
-{
-	FILE *file;
-	in_info info;
-	int len;
-	char eventname[256];
-	file=fopen("/dev/inotify","rb");
-	if(!file)
-	{
-		printf("Error: could not open /dev/inotify!\n");
-		return -1;
-	}
-
-	while(1)
-	{
-		len=fread(&info,1,sizeof(info),file);
-		if(len==sizeof(info)) {
-			info.name[DNAME_LEN-1]=0;
-			geteventname(info.event,eventname,255);	
-			printf("%s %lu %lu %lu %s\n",
-				eventname,
-				info.file_ino,
-				info.src_ino,
-				info.dst_ino,
-				info.name);
-		}
-
-		usleep(200);
-	}
-	fclose(file);
-}
-
---------------090601040609090400020701--
-
+   9     0  319388032 md0 0 0 0 0 0 0 0 0 0 0 0
+   9     1      96256 md1 0 0 0 0 0 0 0 0 0 0 0
+  56     0  160086528 hdi 12445625 129240636 1133491186 33009450 3073895 34157474 297865278 40222780 -3 14691417 20205468
+  56     1      96358 hdi1 10 0 26 80 16 4 46 910 0 990 990
+  56     2     289170 hdi2 0 0 0 0 0 0 0 0 0 0 0
+  56     3  159694132 hdi3 12445614 129240633 1133491152 33009370 3073879 34157470 297865232 40221870 0 22143300 30342807
+  33     0  160086528 hde 12445856 129292490 1133907210 39358300 2649553 34633443 298317376 4828091 -3 15578977 34204292
+  33     1     289138 hde1 0 0 0 0 0 0 0 0 0 0 0
+  33     2  159790522 hde2 12445855 129292487 1133907202 39358300 2649553 34633443 298317376 4828091 0 24374320 1392968
+   3     0  160086528 hda 12442218 129213975 1133246908 30940880 3455815 33853910 298489894 21997450 -3 14945507 42837721
+   3     1      96358 hda1 25 618 1292 220 16 4 46 980 0 1140 1200
+   3     2     289170 hda2 291 886 9416 2930 20 163 1528 460 0 2170 3390
+   3     3  159694132 hda3 12441901 129212468 1133236192 30937730 3455779 33853743 298488320 21996010 0 20007780 10021807
+'

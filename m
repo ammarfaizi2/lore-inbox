@@ -1,35 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262446AbTBOPVz>; Sat, 15 Feb 2003 10:21:55 -0500
+	id <S262500AbTBOPbi>; Sat, 15 Feb 2003 10:31:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262452AbTBOPVz>; Sat, 15 Feb 2003 10:21:55 -0500
-Received: from faui11.informatik.uni-erlangen.de ([131.188.31.2]:49326 "EHLO
-	faui11.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S262446AbTBOPVy>; Sat, 15 Feb 2003 10:21:54 -0500
-From: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
-Message-Id: <200302151531.QAA01646@faui11.informatik.uni-erlangen.de>
+	id <S262602AbTBOPbi>; Sat, 15 Feb 2003 10:31:38 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:55078
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262500AbTBOPbg>; Sat, 15 Feb 2003 10:31:36 -0500
+Date: Sat, 15 Feb 2003 10:38:03 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
 Subject: Re: [PATCH][2.5][8/14] smp_call_function_on_cpu - s390
-To: zwane@holomorphy.com (Zwane Mwaikambo)
-Date: Sat, 15 Feb 2003 16:31:46 +0100 (MET)
-Cc: weigand@immd1.informatik.uni-erlangen.de (Ulrich Weigand),
-       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-In-Reply-To: <Pine.LNX.4.50.0302150924250.3518-100000@montezuma.mastecende.com> from "Zwane Mwaikambo" at Feb 15, 2003 09:29:19 AM
-X-Mailer: ELM [version 2.5 PL2]
+In-Reply-To: <200302151531.QAA01646@faui11.informatik.uni-erlangen.de>
+Message-ID: <Pine.LNX.4.50.0302151036420.16012-100000@montezuma.mastecende.com>
+References: <200302151531.QAA01646@faui11.informatik.uni-erlangen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
+On Sat, 15 Feb 2003, Ulrich Weigand wrote:
 
-> +		if (cpu_online(i) && ((1UL << i) && mask))
+> Zwane Mwaikambo wrote:
+> 
+> > +		if (cpu_online(i) && ((1UL << i) && mask))
+> 
+> That's still '&&' instead of '&'.
 
-That's still '&&' instead of '&'.
+*sigh*
 
-Bye,
-Ulrich
-
--- 
-  Dr. Ulrich Weigand
-  weigand@informatik.uni-erlangen.de
+Index: linux-2.5.60/arch/s390/kernel/smp.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.60/arch/s390/kernel/smp.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 smp.c
+--- linux-2.5.60/arch/s390/kernel/smp.c	10 Feb 2003 22:15:54 -0000	1.1.1.1
++++ linux-2.5.60/arch/s390/kernel/smp.c	15 Feb 2003 15:36:07 -0000
+@@ -102,27 +102,34 @@
+  * in the system.
+  */
+ 
+-int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
+-			int wait)
+ /*
+- * [SUMMARY] Run a function on all other CPUs.
+- * <func> The function to run. This must be fast and non-blocking.
+- * <info> An arbitrary pointer to pass to the function.
+- * <nonatomic> currently unused.
+- * <wait> If true, wait (atomically) until function has completed on other CPUs.
+- * [RETURNS] 0 on success, else a negative status code. Does not return until
+- * remote CPUs are nearly ready to execute <<func>> or are or have executed.
++ * smp_call_function_on_cpu - Runs func on all processors in the mask
++ *
++ * @func: The function to run. This must be fast and non-blocking.
++ * @info: An arbitrary pointer to pass to the function.
++ * @wait: If true, wait (atomically) until function has completed on other CPUs.
++ * @mask: The bitmask of CPUs to call the function
++ * 
++ * Returns 0 on success, else a negative status code. Does not return until
++ * remote CPUs are nearly ready to execute func or have executed it.
+  *
+  * You must not call this function with disabled interrupts or from a
+  * hardware interrupt handler or from a bottom half handler.
+  */
++
++int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
++				unsigned long mask)
+ {
+ 	struct call_data_struct data;
+-	int cpus = num_online_cpus()-1;
++	int i, cpu, num_cpus;
+ 
+-	/* FIXME: get cpu lock -hc */
+-	if (cpus <= 0)
++	cpu = get_cpu();
++	mask &= ~(1UL << cpu);
++	num_cpus = hweight32(mask);
++	if (num_cpus == 0) {
++		put_cpu_no_resched();
+ 		return 0;
++	}
+ 
+ 	data.func = func;
+ 	data.info = info;
+@@ -134,18 +141,26 @@
+ 	spin_lock(&call_lock);
+ 	call_data = &data;
+ 	/* Send a message to all other CPUs and wait for them to respond */
+-        smp_ext_bitcall_others(ec_call_function);
++	for (i = 0; i < NR_CPUS; i++) {
++		if (cpu_online(i) && ((1UL << i) & mask))
++			smp_ext_bitcall(i, ec_call_function);
++	}
+ 
+ 	/* Wait for response */
+-	while (atomic_read(&data.started) != cpus)
++	while (atomic_read(&data.started) != num_cpus)
+ 		barrier();
+ 
+ 	if (wait)
+-		while (atomic_read(&data.finished) != cpus)
++		while (atomic_read(&data.finished) != num_cpus)
+ 			barrier();
+ 	spin_unlock(&call_lock);
+-
++	put_cpu_no_resched();
+ 	return 0;
++}
++
++int smp_call_function (void (*func) (void *info), void *info, int nonatomic, int wait)
++{
++	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
+ }
+ 
+ static inline void do_send_stop(void)

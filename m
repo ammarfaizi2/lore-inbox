@@ -1,232 +1,276 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266660AbUFWUk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266661AbUFWUnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266660AbUFWUk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 16:40:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266661AbUFWUk4
+	id S266661AbUFWUnk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 16:43:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266662AbUFWUnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 16:40:56 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:48295 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S266660AbUFWUib (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 16:38:31 -0400
-Date: Wed, 23 Jun 2004 22:38:29 +0200 (MEST)
-From: <Andries.Brouwer@cwi.nl>
-Message-Id: <UTC200406232038.i5NKcTs11770.aeb@smtp.cwi.nl>
+	Wed, 23 Jun 2004 16:43:40 -0400
+Received: from stud4.tuwien.ac.at ([193.170.75.21]:43733 "EHLO
+	stud4.tuwien.ac.at") by vger.kernel.org with ESMTP id S266661AbUFWUlh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 16:41:37 -0400
+Message-ID: <40D9EAFF.8070403@chello.at>
+Date: Wed, 23 Jun 2004 22:41:35 +0200
+From: Roland Lezuo <roland.lezuo@chello.at>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040618)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: path_resolution.2
+Subject: usb-storage, sd_mod problem, with debugging infos ;)
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In order to avoid repeating the same longish text on the man pages
-for many system calls, I wrote a man page path_resolution.2 that
-other pages can refer to.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Comments, corrections and additions are welcome.
+Hello,
 
-Andries
+I feel a bit ignored about this topic, but well I'll simply retry. Since
+2.6.4 my usb stick does not work with linux any more. When searching the
+internet for a solution I just find people with similar problems but no
+solutions...
 
-PATH_RESOLUTION(2)  Linux Programmer's Manual  PATH_RESOLUTION(2)
+This happens when I plug in my stick (Traxdata EZ drive)
 
-
-
-NNAAMMEE
-       Unix/Linux  path resolution - find the file referred to by
-       a filename
-
-DDEESSCCRRIIPPTTIIOONN
-       Some Unix/Linux system calls have as parameter one or more
-       filenames.   A  filename (or pathname) is resolved as fol­
-       lows.
+P.S.: please CC me personally, i'll try any patches...
 
 
-   SStteepp 11:: SSttaarrtt ooff tthhee rreessoolluuttiioonn pprroocceessss
-       If the pathname starts with the '/' character, the  start­
-       ing  lookup directory is the root directory of the current
-       process. (A process inherits its root directory  from  its
-       parent.  Usually  this  will  be the root directory of the
-       file hierarchy. A process may get a different root  direc­
-       tory  by  use  of the cchhrroooott(2) system call. A process may
-       get an entirely private namespace in case it - or  one  of
-       its  ancestors  -  was  started  by  an  invocation of the
-       cclloonnee(2) system call that had the CLONE_NEWNS  flag  set.)
-       This handles the '/' part of the pathname.
+usb 1-4: new high speed USB device using address 2
+usb-storage: USB Mass Storage device detected
+usb-storage: altsetting is 0, id_index is 92
+usb-storage: -- associate_dev
+usb-storage: Transport: Bulk
+usb-storage: Protocol: Transparent SCSI
+usb-storage: Endpoints: In: 0xd315ef54 Out: 0xd315ef68 Int: 0x00000000
+(Period 0)
+usb-storage: usb_stor_control_msg: rq=fe rqtype=a1 value=0000 index=00 len=1
+usb-storage: GetMaxLUN command result is 1, data is 0
+usb-storage: *** thread sleeping.
+scsi0 : SCSI emulation for USB Mass Storage devices
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Command INQUIRY (6 bytes)
+usb-storage:  12 00 00 00 24 00
+usb-storage: Bulk Command S 0x43425355 T 0x1 L 36 F 128 Trg 0 LUN 0 CL 6
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+usb-storage: Status code 0; transferred 31/31
+usb-storage: -- transfer complete
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_bulk_transfer_buf: xfer 36 bytes
+usb-storage: Status code 0; transferred 36/36
+usb-storage: -- transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+usb-storage: Status code 0; transferred 13/13
+usb-storage: -- transfer complete
+usb-storage: Bulk status result = 0
+usb-storage: Bulk Status S 0x53425355 T 0x1 R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+~  Vendor: Generic   Model:                   Rev:
+~  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad LUN (0:1)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (1:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (2:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (3:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (4:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (5:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (6:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (7:0)
+usb-storage: scsi cmd done, result=0x40000
+usb-storage: *** thread sleeping.
+USB Mass Storage device found at 2
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Command TEST_UNIT_READY (6 bytes)
+usb-storage:  00 00 00 00 00 00
+usb-storage: Bulk Command S 0x43425355 T 0xa L 0 F 0 Trg 0 LUN 0 CL 6
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+usb-storage: Status code 0; transferred 31/31
+usb-storage: -- transfer complete
+usb-storage: Bulk command transfer result=0
+usb-storage: Attempting to get CSW...
+usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+usb-storage: Status code 0; transferred 13/13
+usb-storage: -- transfer complete
+usb-storage: Bulk status result = 0
+usb-storage: Bulk Status S 0x53425355 T 0xa R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Command READ_CAPACITY (10 bytes)
+usb-storage:  25 00 00 00 00 00 00 00 00 00
+usb-storage: Bulk Command S 0x43425355 T 0xb L 8 F 128 Trg 0 LUN 0 CL 10
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+usb-storage: Status code 0; transferred 31/31
+usb-storage: -- transfer complete
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_bulk_transfer_buf: xfer 8 bytes
+usb-storage: Status code 0; transferred 8/8
+usb-storage: -- transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+usb-storage: Status code 0; transferred 13/13
+usb-storage: -- transfer complete
+usb-storage: Bulk status result = 0
+usb-storage: Bulk Status S 0x53425355 T 0xb R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+SCSI device sda: 251904 512-byte hdwr sectors (129 MB)
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Command MODE_SENSE (6 bytes)
+usb-storage:  1a 00 3f 00 04 00
+usb-storage: Bulk Command S 0x43425355 T 0xc L 4 F 128 Trg 0 LUN 0 CL 6
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+usb-storage: Status code 0; transferred 31/31
+usb-storage: -- transfer complete
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_bulk_transfer_buf: xfer 4 bytes
+usb-storage: Status code 0; transferred 4/4
+usb-storage: -- transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+usb-storage: Status code 0; transferred 13/13
+usb-storage: -- transfer complete
+usb-storage: Bulk status result = 0
+usb-storage: Bulk Status S 0x53425355 T 0xc R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+sda: Write Protect is off
+sda: Mode Sense: 03 00 00 00
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Command MODE_SENSE (6 bytes)
+usb-storage:  1a 00 08 00 04 00
+usb-storage: Bulk Command S 0x43425355 T 0xd L 4 F 128 Trg 0 LUN 0 CL 6
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+usb-storage: Status code 0; transferred 31/31
+usb-storage: -- transfer complete
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_bulk_transfer_buf: xfer 4 bytes
 
-       If the pathname does not start with the '/' character, the
-       starting lookup directory of the resolution process is the
-       current  working  directory  of the process. (This is also
-       inherited from the parent.  It can be changed  by  use  of
-       the cchhddiirr(2) system call.)
+HERE: 1 minute delay
 
-       Pathnames  starting  with a '/' character are called abso­
-       lute pathnames.  Pathnames not starting  with  a  '/'  are
-       called relative pathnames.
+usb-storage: command_abort called
+usb-storage: usb_stor_stop_transport called
+usb-storage: -- cancelling URB
+usb-storage: Status code -104; transferred 0/4
+usb-storage: -- transfer cancelled
+usb-storage: Bulk data transfer result 0x4
+usb-storage: -- command was aborted
+usb-storage: usb_stor_Bulk_reset called
+usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00 len=0
+usb-storage: Soft reset failed: -32
+usb-storage: scsi command aborted
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Command TEST_UNIT_READY (6 bytes)
+usb-storage:  00 00 00 00 00 00
+usb-storage: Bulk Command S 0x43425355 T 0xd L 0 F 0 Trg 0 LUN 0 CL 6
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+usb-storage: Status code 0; transferred 31/31
+usb-storage: -- transfer complete
+usb-storage: Bulk command transfer result=0
+usb-storage: Attempting to get CSW...
+usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+usb-storage: Status code -32; transferred 0/13
+usb-storage: clearing endpoint halt for pipe 0xc0008280
+usb-storage: usb_stor_control_msg: rq=01 rqtype=02 value=0000 index=81 len=0
+usb-storage: usb_stor_clear_halt: result = -71
+usb-storage: Bulk status result = 4
+usb-storage: -- transport indicates error, resetting
+usb-storage: usb_stor_Bulk_reset called
+usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00 len=0
+usb-storage: Soft reset failed: -71
+usb-storage: scsi cmd done, result=0x70000
+usb-storage: *** thread sleeping.
+usb-storage: device_reset called
+usb-storage: usb_stor_Bulk_reset called
+usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00 len=0
+usb-storage: Soft reset failed: -71
+usb-storage: bus_reset called
+usb-storage: usb_reset_device returns -19
+scsi: Device offlined - not ready after error recovery: host 0 channel 0
+id 0 lun 0
+sda: asking for cache data failed
+sda: assuming drive cache: write through
+Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+usb-storage: usb_stor_exit() called
+usb-storage: -- calling usb_deregister()
+usbcore: deregistering driver usb-storage
+usb-storage: storage_disconnect() called
+usb-storage: usb_stor_stop_transport called
+usb-storage: -- dissociate_dev
+devfs_remove: scsi/host0/bus0/target0/lun0/generic not found, cannot remove
+~ [<c0104e2e>] dump_stack+0x1e/0x20
+~ [<c01df1f6>] devfs_remove+0xa6/0xb0
+~ [<c02af2bf>] sg_remove+0xdf/0x260
+~ [<c026c693>] class_device_del+0xc3/0xd0
+~ [<c026c6b4>] class_device_unregister+0x14/0x20
+~ [<c02a91a9>] scsi_remove_device+0x39/0xb0
+~ [<c02a84f4>] scsi_forget_host+0x44/0x90
+~ [<c02a13bc>] scsi_remove_host+0x2c/0x60
+~ [<e09b0605>] storage_disconnect+0x45/0x51 [usb_storage]
+~ [<e09ba0f6>] usb_unbind_interface+0x76/0x80 [usbcore]
+~ [<c026b8c6>] device_release_driver+0x66/0x70
+~ [<c026b8f2>] driver_detach+0x22/0x40
+~ [<c026bb95>] bus_remove_driver+0x55/0x90
+~ [<c026bffa>] driver_unregister+0x1a/0x42
+~ [<e09ba1d3>] usb_deregister+0x33/0x40 [usbcore]
+~ [<e09b0caa>] usb_stor_exit+0x2a/0x2c [usb_storage]
+~ [<c012e62f>] sys_delete_module+0x14f/0x1c0
+~ [<c010402f>] syscall_call+0x7/0xb
 
+usb-storage: -- sending exit command to thread
+usb-storage: *** thread awakened.
+usb-storage: -- exit command received
+usb-storage: -- usb_stor_release_resources finished
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-   SStteepp 22:: WWaallkk aalloonngg tthhee ppaatthh
-       Set  the  current  lookup directory to the starting lookup
-       directory.  Now, for each non-final component of the path­
-       name,  where  a  component is a substring delimited by '/'
-       characters, this component is looked  up  in  the  current
-       lookup directory.
-
-       If the process does not have search permission on the cur­
-       rent lookup directory, an EACCES error is returned  ("Per­
-       mission denied").
-
-       If the component is not found, an ENOENT error is returned
-       ("No such file or directory").
-
-       If the component is found, but is neither a directory  nor
-       a  symbolic  link,  an  ENOTDIR  error is returned ("Not a
-       directory").
-
-       If the component is found and is a directory, we  set  the
-       current  lookup directory to that directory, and go to the
-       next component.
-
-       If the component is found and is  a  symbolic  link  (sym­
-       link),  we first resolve this symbolic link (with the cur­
-       rent lookup directory as starting lookup directory).  Upon
-       error,  that  error  is  returned.  If the result is not a
-       directory, an ENOTDIR error is returned.  If  the  resolu­
-       tion of the symlink is successful and returns a directory,
-       we set the current lookup directory to that directory, and
-       go  to  the next component.  Note that the resolution pro­
-       cess here involves recursion.  In  order  to  protect  the
-       kernel against stack overflow, and also to protect against
-       denial of service, there are limits on the maximum  recur­
-       sion  depth,  and  on  the maximum number of symlinks fol­
-       lowed. An ELOOP error is  returned  when  the  maximum  is
-       exceeded ("Too many levels of symbolic links").
-
-
-   SStteepp 33:: FFiinndd tthhee ffiinnaall eennttrryy
-       The  lookup  of  the  final component of the pathname goes
-       just like that of all other components,  as  described  in
-       the  previous  step,  with  two differences: (i) the final
-       component need not be a directory (at least as far as  the
-       path resolution process is concerned - it may have to be a
-       directory, or a non-directory, because of the requirements
-       of the specific system call), and (ii) it is not necessar­
-       ily an error if the component is not found - maybe we  are
-       just  creating  it.  The  details  on the treatment of the
-       final entry are described in the manual pages of the  spe­
-       cific system calls.
-
-
-   .. aanndd ....
-       By  convention,  every  directory  has the entries "." and
-       "..", which refer to the directory itself and to its  par­
-       ent directory, respectively.
-
-       The path resolution process will assume that these entries
-       have their conventional meanings,  regardless  of  whether
-       they are actually present in the physical filesystem.
-
-       One  cannot  walk down past the root: "/.." is the same as
-       "/".
-
-
-   MMoouunntt ppooiinnttss
-       After a "mount dev  path"  command,  the  pathname  "path"
-       refers  to  the  root  of  the filesystem hierarchy on the
-       device "dev", and no longer to  whatever  it  referred  to
-       earlier.
-
-       One can walk out of a mounted filesystem: "path/.." refers
-       to the parent directy of "path", outside of the filesystem
-       hierarchy on "dev".
-
-
-   TTrraaiilliinngg ssllaasshheess
-       If a pathname ends in a '/', that forces resolution of the
-       preceding component as in Step 2 - it  has  to  exist  and
-       resolve  to  a  directory.   Otherwise  a  trailing '/' is
-       ignored.  (Or, equivalently, a pathname  with  a  trailing
-       '/'  is  equivalent  to the pathname obtained by appending
-       '.' to it.)
-
-
-   FFiinnaall ssyymmlliinnkk
-       If the last component of a pathname is  a  symbolic  link,
-       then  it  depends  on  the  system  call  whether the file
-       referred to will be the symbolic link  or  the  result  of
-       path  resolution on its contents.  For example, the system
-       call llssttaatt(2) will operate on the symlink,  while  ssttaatt(2)
-       operates on the file pointed to by the symlink.
-
-
-   LLeennggtthh lliimmiitt
-       There  is  a maximum length for pathnames. If the pathname
-       (or some intermediate pathname  obtained  while  resolving
-       symbolic  links)  is  too  long,  an ENAMETOOLONG error is
-       returned ("File name too long").
-
-
-   EEmmppttyy ppaatthhnnaammee
-       In the original Unix, the empty pathname referred  to  the
-       current  directory.   Nowadays POSIX decrees that an empty
-       pathname must not be resolved successfully. Linux  returns
-       ENOENT in this case.
-
-
-   PPeerrmmiissssiioonnss
-       The  permission  bits of a file consist of three groups of
-       three bits, cf. cchhmmoodd(1) and ssttaatt(2).  The first group  of
-       three  is  used  when the effective user ID of the current
-       process equals the owner ID of the file. The second  group
-       of  three  is  used  when  the group ID of the file either
-       equals the effective group ID of the current  process,  or
-       is  one of the supplementary group IDs of the current pro­
-       cess (as set by sseettggrroouuppss(2)).  When  neither  holds,  the
-       third group is used.
-
-       Of the three bits used, the first bit determines read per­
-       mission, the second write permission, and the last execute
-       permission in caseÂof ordinary files, or search permission
-       in case of directories.
-
-       Linux uses the fsuid instead of the effective user  ID  in
-       permission  checks.   Ordinarily  the fsuid will equal the
-       effective user ID, but the fsuid can  be  changed  by  the
-       system call sseettffssuuiidd(2).
-
-       (Here  "fsuid" stands for something like "file system user
-       ID".  The concept was required for the implementation of a
-       user  space NFS server at a time when processes could send
-       a signal to a process with the same effective user ID.  It
-       is obsolete now. Nobody should use sseettffssuuiidd(2).)
-
-       Similarly,  Linux  uses the fsgid instead of the effective
-       group ID. See sseettffssggiidd(2).
-
-
-
-   CCaappaabbiilliittiieess
-       If the permission bits of the file deny whatever is asked,
-       permission  can  still be granted by the appropriate capa­
-       bilities.
-
-       Traditional systems do not use capabilities and root (user
-       ID  0) is all-powerful. Such systems are presently handled
-       by giving root all capabilities  except  for  CAP_SETPCAP.
-       More  precisely, at exec time a process gets all capabili­
-       ties  except  CAP_SETPCAP  and   the   five   capabilities
-       CAP_CHOWN,      CAP_DAC_OVERRIDE,     CAP_DAC_READ_SEARCH,
-       CAP_FOWNER, CAP_FSETID, in case it has zero euid,  and  it
-       gets  these  last  five  capabilities  in case it has zero
-       fsuid, while all other processes get no capabilities.
-
-       The CAP_DAC_OVERRIDE capability overrides  all  permission
-       checking,  but  will only grant execute permission when at
-       least one of the three execute permission bits is set.
-
-       The CAP_DAC_READ_SEARCH capability  will  grant  read  and
-       search  permission  on directories, and read permission on
-       ordinary files.
-
-
-
-
-
-Linux 2.6.7                 2004-06-21         PATH_RESOLUTION(2)
+iD8DBQFA2er/5qlVDPzJ7R4RAh33AJ9IUkP1n3POJK+PPQ9QB37YQDsIxgCgpm9S
+6qb9SrQ3EmzOm0p4zkBdjoI=
+=pqZm
+-----END PGP SIGNATURE-----

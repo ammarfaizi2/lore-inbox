@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbUDANAf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 08:00:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbUDANAf
+	id S261238AbUDANIS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 08:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbUDANIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 08:00:35 -0500
-Received: from qfep05.superonline.com ([212.252.122.161]:38366 "EHLO
-	qfep05.superonline.com") by vger.kernel.org with ESMTP
-	id S262899AbUDANAe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 08:00:34 -0500
-Message-ID: <406C11C5.2030102@superonline.com>
-Date: Thu, 01 Apr 2004 15:57:41 +0300
-From: "O.Sezer" <sezero@superonline.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: tr, en-us, en
+	Thu, 1 Apr 2004 08:08:18 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:1803 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261238AbUDANIR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 08:08:17 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Oliver Neukum <oliver@neukum.org>, "Jinu M." <jinum@esntechnologies.co.in>,
+       "Arjan van de Ven" <arjanv@redhat.com>
+Subject: Re: Flash Media block driver problem!
+Date: Thu, 1 Apr 2004 16:07:59 +0300
+X-Mailer: KMail [version 1.4]
+Cc: <linux-kernel@vger.kernel.org>,
+       "Surendra I." <surendrai@esntechnologies.co.in>
+References: <1118873EE1755348B4812EA29C55A972176F98@esnmail.esntechnologies.co.in> <200404011313.50530.oliver@neukum.org>
+In-Reply-To: <200404011313.50530.oliver@neukum.org>
 MIME-Version: 1.0
-To: "O.Sezer" <sezero@superonline.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BKPATCH] ACPI for 2.4
-References: <406C0A14.6060302@superonline.com>
-In-Reply-To: <406C0A14.6060302@superonline.com>
-Content-Type: text/plain; charset=ISO-8859-9; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200404011607.59087.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > <len.brown@intel.com> (04/04/01 1.1063.46.95)
->  >    [ACPI] Restore PIC-mode SCI default to Level Trigger (David Shaohua
->  > Li)
->  >    http://bugme.osdl.org/show_bug.cgi?id=2382
+On Thursday 01 April 2004 14:13, Oliver Neukum wrote:
+> Am Donnerstag, 1. April 2004 12:47 schrieb Jinu M.:
+> > cool; linux can use a GPL driver for such things...
+> >
+> > [jinum] guess the question/clarification is not clear!
+> > This is a driver for our own controller (PCI). Which is a PCI based
+> > card.
+> > This card is not based on the SCSI or IDE interface so how will some
+> > other driver work for it unless we write ( or get it written sharing our
+> > hardware spec) a driver for the interface?
+>
+> It will not work. A block driver must be written for such hardware to make
+> it work.
 
-[...]
-
-> This fixed the issue I reported about the power button not
-> functioning in 26-rc1.
-> 
-
-Further, vanilla 26-rc1 also shuts down fine with the power button
-if booted with a kernel parameter "acpi_sci=level" (_not_ edge, as
-stated in the above bugzilla entry).
-
-Regards;
-Özkan Sezer
-
+Hmm, they are willing to release specs... that's good.
+--
+vda

@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbVAVM3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262713AbVAVNBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbVAVM3r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 07:29:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbVAVM3r
+	id S262713AbVAVNBS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 08:01:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbVAVNBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 07:29:47 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:23268 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262706AbVAVM3p (ORCPT
+	Sat, 22 Jan 2005 08:01:18 -0500
+Received: from mproxy.gmail.com ([216.239.56.248]:37509 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262713AbVAVNBO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 07:29:45 -0500
-Date: Sat, 22 Jan 2005 13:29:15 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] Real-Time Preemption, -RT-2.6.11-rc2-V0.7.36-00
-Message-ID: <20050122122915.GA7098@elte.hu>
-References: <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu> <20050104064013.GA19528@nietzsche.lynx.com> <20050104094518.GA13868@elte.hu> <20050115133454.GA8748@elte.hu>
+	Sat, 22 Jan 2005 08:01:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=hdP5Wkpa1/mJev0kaasgUK5K0PWfsfY1YVpabET631GYoxDVJIKKG+UJRrSbwlIH3708ijl8zBZqkOkCBRJbQRxaVMUiIwK6mk6O1SMFrObDkoNGmF6TBOoxOCdwTnVJX2vuXK5NRSr0+yaJC4RB6Y8B3RLyA8ZZreGO/1w+oqA=
+Message-ID: <21d7e99705012205012c95665@mail.gmail.com>
+Date: Sun, 23 Jan 2005 00:01:13 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Andreas Hartmann <andihartmann@01019freenet.de>
+Subject: Re: 2.6.10 dies when X uses PCI radeon 9200 SE, binary search result
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+In-Reply-To: <41F21FA4.1040304@pD9F8757A.dip0.t-ipconnect.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050115133454.GA8748@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <fa.ks44mbo.ljgao4@ifi.uio.no> <fa.hinb9iv.s38127@ifi.uio.no>
+	 <41F21FA4.1040304@pD9F8757A.dip0.t-ipconnect.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> >>
+> 
+> That's certainly correct.
+> 
+> > Such issues
+> > could crash (all) user apps, but shouldn't prevent the machine from
+> > responding to sysrq sequences.
+> 
+> You emphasized the differences of the effects. But there is one reason in
+> all cases which I know: int10 crashes X or even the whole kernel.
+> 
+> I could debug the problem to the following point:
+> 
+> 
+> I could see, that X crashes in glibc 2.3.4 with kernel 2.4.x (not with
+> kernel 2.6.x, x <= 10, x > 10 not tested) during the first malloc syscall
+> after int10 to execute the function
+> xf86MsgVerb(X_INFO,3,"my comment\n");
+> 
+> The crashes depend on different versions of used software:
+> 
+> glibc 2.3.3 or 2.3.4 with kernel 2.4.x
+> glibc 2.3.2 with kernel > 2.6.9rc2
+> 
 
-i have released the -V0.7.36-00 Real-Time Preemption patch, which can be
-downloaded from the usual place:
 
-  http://redhat.com/~mingo/realtime-preempt/
- 
-this is mainly a merge to 2.6.11-rc2.
+Well if you can track down which patch in -rc2 causes it then we can
+annoy the person who created it, if you build some kernels from the bk
+snapshots it might help as -rc2 is quite large vs -rc1..
 
-There was alot of merging to be done due to Thomas Gleixner's
-spinlock/rwlock cleanups making it into upstream and due to the upstream
-spinlock changes, and there were some networking related conflicts as
-well, so these areas might introduce new regressions.
-
-the patch includes a fix that should resolve the microcode-update
-related boot-time crash reported by K.R. Foley. It also includes a
-verify_mm_writelocked() fix from Daniel Walker.
-
-to create a -V0.7.36-00 tree from scratch, the patching order is:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.10.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.11-rc2.bz2
-  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.11-rc2-V0.7.36-00
-
-	Ingo
+Dave.

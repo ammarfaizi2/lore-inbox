@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263499AbSIRC4d>; Tue, 17 Sep 2002 22:56:33 -0400
+	id <S263221AbSIRDL3>; Tue, 17 Sep 2002 23:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263221AbSIRC4d>; Tue, 17 Sep 2002 22:56:33 -0400
-Received: from 200-153-120-109.customer.telesp.net.br ([200.153.120.109]:63694
-	"HELO port5.com") by vger.kernel.org with SMTP id <S263118AbSIRC4b>;
-	Tue, 17 Sep 2002 22:56:31 -0400
-Reply-To: <kiloginla@port5.com>
-Message-ID: <007a68d60d6a$8441c0c7$4ea45eb7@niqvic>
-From: <kiloginla@port5.com>
-To: <linux-kernel@vger.kernel.org>, <linux-msdos@vger.kernel.org>
-Subject: Unsecured Working Capital Loans Available                                                                    
-Date: Wed, 18 Sep 0102 00:50:17 +0200
-MiME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_00A6_73D88C8D.D3650A72"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-Importance: Normal
+	id <S263576AbSIRDL3>; Tue, 17 Sep 2002 23:11:29 -0400
+Received: from dp.samba.org ([66.70.73.150]:21193 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263221AbSIRDL3>;
+	Tue, 17 Sep 2002 23:11:29 -0400
+Date: Wed, 18 Sep 2002 13:11:41 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Bart Trojanowski <bart@jukie.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.19 fix for fuzzy hash <linux/ghash.h>
+Message-Id: <20020918131141.1938a4d8.rusty@rustcorp.com.au>
+In-Reply-To: <20020911140232.R32387@jukie.net>
+References: <20020911140232.R32387@jukie.net>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_000_00A6_73D88C8D.D3650A72
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: base64
+On Wed, 11 Sep 2002 14:02:32 -0400
+Bart Trojanowski <bart@jukie.net> wrote:
 
+> The DEF_HASH_FUZZY macro allows the user to template their hash; it
+> takes on a paramter for the hashing-function, namely HASHFN.  When used
+> with a hashing-function named anything other than 'hashfn()', a module
+> using the kernel's fuzzy hash implementation will not compile.
+> 
+> None of the in-kernel 2.4.x drivers use this primitive (yet) so it's no
+> wonder no one has spotted it.  The patch is very trivial and makes me
+> think that I am the very first user of the include/linux/ghash.h
+> hash-table primitive.   ;)
 
-bGlnaHQNCldvcmxkIENhcGl0YWwgR3JvdXAgaXMgYSBncm91cCBvZiBGdW5k
-aW5nIA0NClNvdXJjZXMgdGhhdCBoZWxwIGJ1c2luZXNzZXMgd2l0aCB0aGVp
-ciANDQpmaW5hbmNpYWwgbmVlZHMuICBXZSBjYW4gcHJvdmlkZSBXb3JraW5n
-IENhcGl0YWwgDQ0KdG8gJDE1MCwwMDAgb24gYW4gdW5zZWN1cmVkIGJhc2lz
-OyB3aGljaCBjYW4gYmUgDQ0KdXNlZCB0byB0YWtlIGNhcmUgb2YgY2FzaCBm
-bG93IG5lZWRzLCBwcm92aWRlIA0NCmZ1bmRzIGZvciBleHBhbnNpb24gYW5k
-IG90aGVyIG5lZWRzIHlvdXIgDQ0KYnVzaW5lc3MgaGFzIChVUyBidXNpbmVz
-c2VzIG9ubHkpLiAgV2UgYWxzbyANDQpwdXJjaGFzZSBJbnZvaWNlcywgQWNj
-b3VudHMgUmVjZWl2YWJsZXMsIExlYXNlcywgDQ0KQXV0byBQb3J0Zm9saW9z
-LCBCdXNpbmVzcyBhbmQgUmVhbCBFc3RhdGUgTm90ZXMsIA0NCmFuZCBvdGhl
-ciBDYXNoIEZsb3dzLiAgSWYgeW91IHdvdWxkIGxpa2UgdG8gDQ0KaW5xdWly
-ZSBhYm91dCB1cyBoZWxwaW5nIHlvdSB0b2RheSB3aXRoIHlvdXIgDQ0KY2Fw
-aXRhbCBuZWVkcywgcGxlYXNlIGNsaWNrIG9uIHRoZSBsaW5rIGJlbG93IA0N
-CmZvciBkZXRhaWxzIGFuZCBzdWJtaXNzaW9uIGZvcm0uICBUaHggZm9yIHlv
-dXIgDQ0KdGltZS4gIFdvcmxkIENhcGl0YWwgR3JvdXANCg0KaHR0cDovL3d3
-dy5tYWlscGFpbC5jb20NCg0KaHR0cDovL3d3dy5tYWlscGFpbC5jb20NCg0K
-DQoNCg0KDQoNCg0KDQoNCg0KOTk4MFVKbGo3LTUxNlJtSGcxNDcxaVdrcDUt
-MDk1QWdkdjAwNzZBT0RhNS04MjFyVkZoNTUxN2Z5Z2M3LTVsNTgNCg0KDQoN
-Cg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0K
-DQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoN
-Cg0KDQoNCg0KDQpsaWdodA0KDQpZb3UgYXJlIHJlY2lldmluZyB0aGlzIGVt
-YWlsIGFzIGEgc3Vic2NyaWJlciBvciANDQphZmZpbGlhdGUgc3VjYnNjcmli
-ZXIgdG8gb3B0aW4gbmV0d29yay4gIElmIHlvdSANDQpoYXZlIHJlY2VpdmVk
-IHRoaXMgYXMgYW4gZXJyb3Igb3Igd291bGQgbGlrZSB0byANDQpiZSB0YWtl
-biBvZmYgb3VyIGxpc3QgcGxlYXNlIHNlbmQgYW4gZW1haWwgdG8gDQ0Kbm9y
-bW9yZUBleW91LmNvbS4gIFRoYW5rIHlvdSBhbmQgaGF2ZSBhIGdyZWF0IA0N
-CmRheS4NCmxpZ2h0DQozMDk0UHNsNg==
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-------=_NextPart_000_00A6_73D88C8D.D3650A72--
+That's why I was going to submit a patch to turf it out in 2.5.
+2.5's include/hash.h provides a hashing function: did you really want ghash.h?
+
+Cheers,
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

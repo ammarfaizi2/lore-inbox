@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262617AbSKBOAY>; Sat, 2 Nov 2002 09:00:24 -0500
+	id <S261177AbSKBOIr>; Sat, 2 Nov 2002 09:08:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265973AbSKBOAY>; Sat, 2 Nov 2002 09:00:24 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:36553 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S262617AbSKBOAX>;
-	Sat, 2 Nov 2002 09:00:23 -0500
-Date: Sat, 2 Nov 2002 15:06:53 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: davidel@xmailserver.org
-Subject: Re: [patch] total-epoll ( aka full epoll support for poll() enabled devices ) ...
-Message-ID: <20021102140653.GA3528@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	davidel@xmailserver.org
-References: <Pine.LNX.4.44.0211011940010.1443-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211011940010.1443-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.3.28i
+	id <S261552AbSKBOIr>; Sat, 2 Nov 2002 09:08:47 -0500
+Received: from web20805.mail.yahoo.com ([216.136.226.194]:59046 "HELO
+	web20805.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261177AbSKBOIq>; Sat, 2 Nov 2002 09:08:46 -0500
+Message-ID: <20021102141516.56540.qmail@web20805.mail.yahoo.com>
+Date: Sat, 2 Nov 2002 08:15:16 -0600 (CST)
+From: =?iso-8859-1?q?William=20Lovaton?= <walovaton@yahoo.com.mx>
+Subject: NGTP Patches in 2.5.x
+To: davej@codemonkey.org.uk
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 09:13:13PM -0800, Davide Libenzi wrote:
+Hello Dave,
 
-> *) Multi-thread support. The wait interface is changed to :
-> 
-> 	int epoll_wait(int epfd, struct pollfd *events, int maxevents,
->                        int timeout);
+Excellent report!  :-)
 
-This means that userspace has to allocate I understand?
+But, where is the Next Generation Thread Posix
+(NGTP)?? I think this was made by Ingo Molnar and some
+others.
 
-> *) Yes, ... it drops an event @ EP_CTL_ADD :)
+Is this in the new kernel?
 
-Thank you :-)
+-William
 
-> The patch is working fine on my machine but it's very new code.
-> Comments and test reports will be very welcome ...
-
-I'll test. Do you want me to update the manpages to reflect the changes
-above?
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+_________________________________________________________
+Do You Yahoo!?
+La mejor conexión a internet y 25MB extra a tu correo por $100 al mes. http://net.yahoo.com.mx

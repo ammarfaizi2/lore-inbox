@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263445AbTECVIi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 17:08:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263444AbTECVIi
+	id S263424AbTECVPE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 17:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263426AbTECVPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 17:08:38 -0400
-Received: from 115.Red-80-38-113.pooles.rima-tde.net ([80.38.113.115]:15375
-	"HELO pentium-7628295") by vger.kernel.org with SMTP
-	id S263445AbTECVIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 17:08:37 -0400
-From: eerJulie@email.com
-To: linux-kernel@vger.kernel.org
-Subject: L
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Sat, 3 May 2003 23:17:40 +0200
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-Message-Id: <S263445AbTECVIh/20030503210837Z+2451@vger.kernel.org>
+	Sat, 3 May 2003 17:15:04 -0400
+Received: from siaab1ab.compuserve.com ([149.174.40.2]:58772 "EHLO
+	siaab1ab.compuserve.com") by vger.kernel.org with ESMTP
+	id S263424AbTECVPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 17:15:03 -0400
+Date: Sat, 3 May 2003 17:24:40 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Reserving an ATA interface
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200305031727_MC3-1-373D-FBDF@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.hoop-bid.com
-Hello,
-This is that website I was telling you about where I got a 5% 30 year fixed. It is amazing, lenders try and compete for your business. Here it is!
-http://www.hoop-bid.com
-Thanks,
-Bill Murphy
-Remove:
-http://www.hoop-bid.com/rm.html
+> So every time you remove your disks from one of your PCI IDE controllers,
+> your ide-cs will get diffirent hwif and drives mappings and your RAID
+> on ide-cs won't be recognized ;-)
+
+  I don't know what happens with hotplug, but md with persistent
+superblocks and autorun (partition type 0xfd) has stable names.
+It only whines a bit when the underlying device names change...
+
+

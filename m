@@ -1,82 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279022AbRJ2Fuc>; Mon, 29 Oct 2001 00:50:32 -0500
+	id <S279028AbRJ2F6F>; Mon, 29 Oct 2001 00:58:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279023AbRJ2FuV>; Mon, 29 Oct 2001 00:50:21 -0500
-Received: from [63.231.122.81] ([63.231.122.81]:34108 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S279022AbRJ2FuQ>;
-	Mon, 29 Oct 2001 00:50:16 -0500
-Date: Sun, 28 Oct 2001 22:46:16 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-        "Theodore Ts'o" <tytso@mit.edu>, torvalds@transmeta.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] MAJOR random.c bugfix
-Message-ID: <20011028224616.H1311@lynx.no>
-Mail-Followup-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-	Theodore Ts'o <tytso@mit.edu>, torvalds@transmeta.com,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <adilger@turbolabs.com> <200110282357.f9SNv2kD011923@sleipnir.valparaiso.cl>
+	id <S279029AbRJ2F5y>; Mon, 29 Oct 2001 00:57:54 -0500
+Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:15236 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id <S279028AbRJ2F5n>;
+	Mon, 29 Oct 2001 00:57:43 -0500
+Date: Sun, 28 Oct 2001 21:58:18 -0800
+From: Simon Kirby <sim@netnation.com>
+To: linux-kernel@vger.kernel.org, Jan Kara <jack@ucw.cz>
+Subject: Oops: Quota race in 2.4.12?
+Message-ID: <20011028215818.A7887@netnation.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <200110282357.f9SNv2kD011923@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Sun, Oct 28, 2001 at 08:57:02PM -0300
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 28, 2001  20:57 -0300, Horst von Brand wrote:
-> I have now seen various bits and pieces about this flying around. To get it
-> right will be hard, as over/under estimates will show up only under unusual
-> circumstances; and as you _can't_ really know how much "entropy" there
-> should be, testing this is very hard.  So the only way to get it right is
-> make it "obviously" right.
+Some of our dual CPU web servers with 2.4.12 are Oopsing while running
+quotacheck.  They don't seem to die immediately, but oops many times and
+eventually break.  The old tools didn't warn about quotachecking on a
+live file system, so some of our servers were set up to run quotacheck
+nightly.  The new tools still allow you to do it, but warn that it may
+not be consistent.  We didn't have any problems with 2.2 kernels.
 
-                ********** LATE BREAKING NEWS ***********
+First oops, as already processed (grumble) by klogd:
 
-Is add_entropy_words() broken for multi-word input???  That would be very bad.
-In one most cases we are only dealing with two word inputs, but is really bad
-where it counts - transferring values to the secondary pool, which is where
-we really get data from for /dev/random.
+Oct 28 04:22:32 pro kernel: remove_free_dquot: dquot not on the free list??
+Oct 28 04:22:32 pro last message repeated 90 times
+Oct 28 04:22:32 pro kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000004
+...dates stripped:
 
-It appears that we repeatedly add the first word to the entropy pool, no
-matter how many words are passed!!!  I checked the kernel CVS repository,
-and it has been like this since a big change in 2.3.16.  Ugh!!!
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+c0149edc
+*pde = 00000000
+Oops: 0002
+CPU:    1
+EIP:    0010:[dqput+148/188]    Not tainted
+EFLAGS: 00010246
+eax: d58c8830   ebx: cf330cc0   ecx: cf330cd0   edx: 00000000
+esi: cf330cc0   edi: d2847f6c   ebp: 00000000   esp: d2847f30
+ds: 0018   es: 0018   ss: 0018
+Process quotacheck (pid: 3933, stackpage=d2847000)
+Stack: 00000000 c014a93e cf330cc0 00006000 c1a58800 00000000 d2847fa4 00000000 
+       00000000 00000000 00000000 00000000 00000000 00000000 00000000 c014b8f0 
+       c1a58800 0000f465 00000000 00000004 bffffd54 d2846000 bffffd54 001e8ca0 
+Call Trace: [set_dqblk+390/404] [sys_quotactl+780/892] [sys_read+188/196] [system_call+51/56] 
 
-http://innominate.org/cgi-bin/lksr/linux/drivers/char/random.c.diff?r1=1.1.1.4&r2=1.1.1.5&cvsroot=v2.3
+Code: 89 4a 04 89 53 10 89 41 04 89 08 ff 05 e4 ab 34 c0 8d 43 24 
 
-Is there something I'm missing?  Even in the 2.3.16 version, we never
-change "in" from its initial value, so we only use the first input word.
-The older (2.2, 2.3.15-) code had it correct, in that it explicitly worked
-on both of the input words.
+Perhaps there is some obviously broken locking/code in the quotactl syscall?
 
-A quick patch to fix this is below.
+The next Oops, 6 seconds later:
 
-Cheers, Andreas
+ <1>Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+c0149edc
+*pde = 00000000
+Oops: 0002
+CPU:    1
+EIP:    0010:[dqput+148/188]    Not tainted
+EFLAGS: 00010246
+eax: d58c8830   ebx: cf330c40   ecx: cf330c50   edx: 00000000
+esi: d4a08ca4   edi: d4a08bc0   ebp: c36f5a40   esp: d16f5efc
+ds: 0018   es: 0018   ss: 0018
+Process mv (pid: 7146, stackpage=d16f5000)
+Stack: 00000000 c014acda cf330c40 d16f4000 c1a58c00 c0155a8f d4a08bc0 d4a08bc0 
+       d4a08bc0 c0156370 c36f5a40 c36f5a40 00000022 00000000 e2757480 c01563f7 
+       c015641d d4a08bc0 d4a08bc0 d16f4000 c0146c19 d4a08bc0 c36f5a40 d4a08bc0 
+Call Trace: [dquot_drop+54/68] [ext2_free_inode+231/616] [ext2_delete_inode+0/296] [ext2_delete_inode+135/296] [ext2_delete_inode+173/296] 
+   [iput+389/600] [d_delete+98/160] [vfs_unlink+492/540] [sys_unlink+169/288] [system_call+51/56] 
 
-PS: what's up with new_rotate?  Why not just do it like:
-	r->input_rotate = (r->input_rotate + (i ? 7 : 14)) & 31;
+Code: 89 4a 04 89 53 10 89 41 04 89 08 ff 05 e4 ab 34 c0 8d 43 24 
 
-===========================================================================
---- linux/drivers/char/random.c.old	Sun Oct 28 22:26:31 2001
-+++ linux/drivers/char/random.c	Sun Oct 28 22:25:11 2001
-@@ -564,7 +564,7 @@
- 	__u32 w;
- 
- 	while (nwords--) {
--		w = rotate_left(r->input_rotate, *in);
-+		w = rotate_left(r->input_rotate, *in++);
- 		i = r->add_ptr = (r->add_ptr - 1) & wordmask;
- 		/*
- 		 * Normally, we add 7 bits of rotation to the pool.
+...Many more oopses follow over time.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Simon-
 
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

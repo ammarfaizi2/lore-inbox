@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261327AbSJHRzG>; Tue, 8 Oct 2002 13:55:06 -0400
+	id <S261336AbSJHSNW>; Tue, 8 Oct 2002 14:13:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261336AbSJHRzG>; Tue, 8 Oct 2002 13:55:06 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:23823 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S261327AbSJHRzF>; Tue, 8 Oct 2002 13:55:05 -0400
-Message-Id: <200210081754.g98Hsnp25324@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       "list, linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: scsi crash
-Date: Tue, 8 Oct 2002 20:48:21 -0200
-X-Mailer: KMail [version 1.3.2]
-References: <05256C4C.001A6B46.00@dns.searchsoftware.com> <3DA2B6B1.DB194DD6@eyal.emu.id.au>
-In-Reply-To: <3DA2B6B1.DB194DD6@eyal.emu.id.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S261340AbSJHSNW>; Tue, 8 Oct 2002 14:13:22 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:41225 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261336AbSJHSNV>; Tue, 8 Oct 2002 14:13:21 -0400
+Date: Tue, 8 Oct 2002 19:19:00 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: tytso@mit.edu
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [Ext2-devel] [RFC] [PATCH 1/4] Add extended attributes to ext2/3
+Message-ID: <20021008191900.A12912@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, tytso@mit.edu,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+	Ed Tomlinson <tomlins@cam.org>
+References: <E17yymB-00021j-00@think.thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E17yymB-00021j-00@think.thunk.org>; from tytso@mit.edu on Tue, Oct 08, 2002 at 02:08:11PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 October 2002 08:42, Eyal Lebedinsky wrote:
-> I am getting a full system lockup trying to access a SCSI tape drive.
->
-> I got it at first using an ASUS SC200 (810 based) on one machine, and
-> later on a Compaq Proliant 6000, which uses an 875 controller.
->
-> The newer driver at sym53c8xx_2 actually dies (full system lockup)
-> while being loaded without any message shown.
->
-> I assume that the tape drive has a significant problem, and consider
-> the "unexpected disconnect" to be an indication of this, however the
-> real problem is that after the driver reports this error for about a
-> minute (once every 3 seconds) the system locks up hard. It is this
-> lockup that do not expect.
+On Tue, Oct 08, 2002 at 02:08:11PM -0400, tytso@mit.edu wrote:
+> 
+> This is the first of four patches which add extended attribute support
+> to the ext2 and ext3 filesystems.  It is a port of Andreas Gruenbacher's
+> patches, which have been well tested and in a number of distributions
+> (including RH 8, if I'm not mistaken) already.
 
-Kernel version? config?
---
-vda
+RH backed it out after the second or third beta due to bugginess..
+
+> This first patch creates a generic interface for registering caches with
+> the VM subsystem so that they can react appropriately to memory
+> pressure.
+
+I'd suggest Ed Tomlinson's much saner interface that adds a third callbackj
+to kmem_cache_t (similar to the Solaris implementation) instead.
+
+Doing this outside slab is not a good idea (and XFS currently does
+it too - in it's own code which should be replaced with Ed's one)

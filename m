@@ -1,102 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbTJHLTG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 07:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbTJHLTG
+	id S261368AbTJHLdD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 07:33:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbTJHLdD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 07:19:06 -0400
-Received: from mail.gmx.de ([213.165.64.20]:48786 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261351AbTJHLTB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 07:19:01 -0400
-Date: Wed, 8 Oct 2003 13:19:00 +0200 (MEST)
-From: "Daniel Blueman" <daniel.blueman@gmx.net>
-To: devel@XFree86.Org, xfree86@XFree86.Org, dri-devel@lists.sourceforge.net,
-       dri-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	Wed, 8 Oct 2003 07:33:03 -0400
+Received: from karpfen.mathe.tu-freiberg.de ([139.20.24.195]:5504 "EHLO
+	karpfen.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
+	id S261368AbTJHLdB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 07:33:01 -0400
+From: Michael Dreher <dreher@math.tu-freiberg.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test6 mightsleep during e3fsck
+Date: Wed, 8 Oct 2003 13:41:08 +0200
+User-Agent: KMail/1.5.3
 MIME-Version: 1.0
-Subject: drm 'lockup' with i845G onboard graphics....
-X-Priority: 3 (Normal)
-X-Authenticated: #8973862
-Message-ID: <20112.1065611940@www60.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310081341.08392.dreher@math.tu-freiberg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I switch from an X session to the (text mode) VGA console, the kernel
-logs these messages and X gets killed:
+Hello,
 
-[drm:i830_wait_ring] *ERROR* space: 131048 wanted 131064
-[drm:i830_wait_ring] *ERROR* lockup
+during the "check ext3 after 26 unchecked mounts" today I got the 
+following: (excerpt from dmesg)
 
-The mode I'm running in is 1600 x 1200 x 16bpp, and the Intel 845G Extreme
-Graphics core is allocated 8MB of graphics memory.
 
-Please CC me for more information.
 
-OS is RedHat Linux 9 with XFree86-4.3.0-2.
+EXT3 FS on hda3, internal journal
+...
+Debug: sleeping function called from invalid context at 
+include/asm/uaccess.h:473
+in_atomic():0, irqs_disabled():1
+Call Trace:
+ [<c011feda>] __might_sleep+0x9a/0xc0
+ [<c010e09a>] save_v86_state+0x6a/0x200
+ [<c010ebb7>] handle_vm86_fault+0xc7/0x880
+ [<c019113f>] ext3_file_write+0x3f/0xc0
+ [<c010c8b0>] do_general_protection+0x0/0x90
+ [<c010bba5>] error_code+0x2d/0x38
+ [<c010b17b>] syscall_call+0x7/0xb
 
----
 
-# lspci -vxxx
-(vga controller)
-00:02.0 VGA compatible controller: Intel Corp. 82845G/GL [Brookdale-G]
-Chipset Integrated Graphics Device (rev 01) (prog-if 00 [VGA])        Subsystem:
-Compaq Computer Corporation: Unknown device 00b8
-        Flags: bus master, fast devsel, latency 0, IRQ 16
-        Memory at f0000000 (32-bit, prefetchable) [size=128M]
-        Memory at fc400000 (32-bit, non-prefetchable) [size=512K]
-        Capabilities: [d0] Power Management version 1
-00: 86 80 62 25 07 00 90 00 01 00 00 03 00 00 00 00
-10: 08 00 00 f0 00 00 40 fc 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 11 0e b8 00
-30: 00 00 00 00 d0 00 00 00 00 00 00 00 0a 01 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 01 00 21 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 2a 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-(memory controller)
-00:00.0 Host bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset Host Bridge
-(rev 01)
-        Flags: bus master, fast devsel, latency 0
-        Memory at f8000000 (32-bit, prefetchable) [size=64M]
-        Capabilities: [e4] #09 [0105]
-00: 86 80 60 25 06 01 90 20 01 00 00 06 00 00 00 00
-10: 08 00 00 f8 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 e4 00 00 00 00 00 00 00 00 00 00 00
-40: 3c 03 00 00 41 20 10 20 04 01 00 00 1b 08 10 00
-50: 00 00 44 00 00 00 00 01 1a 16 12 00 35 2c 3f 30
-60: 08 08 08 08 00 00 00 00 00 00 00 00 00 00 00 00
-70: 02 00 00 00 00 00 00 00 05 84 41 2b 71 c1 00 20
-80: 5d 00 af 00 ad 00 00 00 01 00 00 00 00 00 00 00
-90: 10 11 11 11 11 33 33 00 45 04 00 00 00 0a b8 00
-a0: 02 00 20 00 17 02 00 1f 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 30 00 00 00 00 00 00 00 20 10 00 00
-c0: 44 40 30 11 00 00 0c 0a 00 00 00 00 00 00 00 00
-d0: 02 28 04 0e 0b 0d 00 10 00 00 11 b3 00 00 01 00
-e0: 00 00 00 00 09 00 05 01 00 00 00 00 00 00 00 00
-f0: 38 0e 00 00 74 f8 00 00 40 0f 00 00 04 00 00 00
-(snip)
-
--- 
-Daniel J Blueman
-
-NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
-Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
-
-Jetzt kostenlos anmelden unter http://www.gmx.net
-
-+++ GMX - die erste Adresse für Mail, Message, More! +++
-
+Thanks, 
+Michael

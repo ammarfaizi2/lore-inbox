@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277352AbRJJSbz>; Wed, 10 Oct 2001 14:31:55 -0400
+	id <S277357AbRJJScF>; Wed, 10 Oct 2001 14:32:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277358AbRJJSbq>; Wed, 10 Oct 2001 14:31:46 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:34065 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S277359AbRJJSbe>;
-	Wed, 10 Oct 2001 14:31:34 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200110101831.WAA05257@ms2.inr.ac.ru>
-Subject: Re: [PATCH] Trivial patch for SIOCGIFCOUNT
-To: balbir.singh@wipro.COM (BALBIR SINGH)
-Date: Wed, 10 Oct 2001 22:31:44 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BC3DE5D.8000500@wipro.com> from "BALBIR SINGH" at Oct 10, 1 09:45:02 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S277359AbRJJSbz>; Wed, 10 Oct 2001 14:31:55 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:55045 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S277357AbRJJSbj>;
+	Wed, 10 Oct 2001 14:31:39 -0400
+Date: Wed, 10 Oct 2001 11:37:27 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Oleg Drokin <green@linuxhacker.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: USB SMP race in 2.4.11
+In-Reply-To: <20011010222223.A1223@linuxhacker.ru>
+Message-ID: <Pine.LNX.4.40.0110101136500.972-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 10 Oct 2001, Oleg Drokin wrote:
 
-> application from Sun, HP-UX or AIX would just do
-> 
-> #define SIOCGIFNUM SIOCGIFCOUNT
+> Hello!
+>
+>    I have caught kernel oops that is related to SMP race on usb modules
+>    deregistering.
+>    2.4.10 was fine with the same setup.
+>    USB core is compiled-in, hub driver is uhci (as module).
+>    Here is the decoded oops:
 
-Grrr.... Listen what the hell did you call this ioctl with _another_ name,
-absent both in BSD and in SVR4??? :-)
+It's not SMP related coz i've got the same stuff on UP
 
-I remember the patch doing the same thing and I zapped this crap
-exactly because it was another linuxish hack moving from bsd api
-and not moving closer to svr4.
 
-Alexey
 
-PS. Well, and did you think about one thing: "linux" port of any application
-which does not work with linuxes can smell a bit anti-social for many people,
-who do not compile from sources. And for all the people, if the port is binary.
+
+- Davide
+
+

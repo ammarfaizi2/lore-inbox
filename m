@@ -1,72 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbTJ1V14 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 16:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbTJ1V14
+	id S261598AbTJ1V36 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 16:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbTJ1V35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 16:27:56 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38149 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261586AbTJ1V1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 16:27:55 -0500
-Date: Tue, 28 Oct 2003 21:27:49 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-pcmcia@lists.infradead.org
-Subject: [PATCH] Fix PCMCIA card detection
-Message-ID: <20031028212749.B31337@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	linux-pcmcia@lists.infradead.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Tue, 28 Oct 2003 16:29:57 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:54771 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261598AbTJ1V3z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 16:29:55 -0500
+Message-ID: <3F9EDFCB.4090107@mvista.com>
+Date: Tue, 28 Oct 2003 13:29:47 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+CC: Pavel Machek <pavel@suse.cz>, Patrick Mochel <mochel@osdl.org>,
+       John stultz <johnstul@us.ibm.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] fix time after suspend-to-*
+References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise>	 <1067329994.861.3.camel@teapot.felipe-alfaro.com>	 <20031028093233.GA1253@elf.ucw.cz>	 <1067351431.1358.11.camel@teapot.felipe-alfaro.com>	 <20031028172818.GB2307@elf.ucw.cz> <1067372182.864.11.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1067372182.864.11.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm intending sending Linus the following patch to fix PCMCIA card
-detection about 24 hours (on 21:26 GMT on Oct 29th.)  A couple of
-people have tested it and reported that it fixes their card detection
-problems.  I'd like people _without_ this problem to try the patch
-and report if they see any breakages.
+Felipe Alfaro Solana wrote:
+> On Tue, 2003-10-28 at 18:28, Pavel Machek wrote:
+> 
+> 
+>>You are not asking userspace whether to reboot or not, and you should
+>>not ask them about suspend, either.
+> 
+> 
+> OK, so how should the system behave when a real-time-like process is
+> running? I talked about the CD burning example. Should the kernel simply
+> ignore the process and suspend?
+> 
+> 
+>>>1. Network connections must be reestablished. A userspace program can't
+>>>try to automatically reestablish a broken TCP connection for no apparent
+>>>reason. A broken TCP connection could be the cause of an overloaded or
+>>>broken server/service. If we do not inform userspace processes that the
+>>>system is going to sleep (or that the system has been brought up from
+>>>standby), they will blindly try to restore TCP connections back, even
+>>>when the remote server is broken, generating a lot of unnecesary
+>>>traffic.
+>>
+>>gettimeofday(), if I slept for too long, oops, something strange
+>>happened (maybe there was heavy io load and I was swapped out? or
+>>suspend? Did machine sleep for 20 minutes in cli?) try to reconnect.
+> 
+> 
+> Does "gettimeofday()" have into account the effect of adjusting the time
+> twice a year, once to make time roll forward one hour and another one to
+> roll it back?
 
+Actually gettimeofday() does NOT do that.  It always returns GMT since 1970. 
+The daylight savings thing is really a timezone shift, not a time shift.
 
-Idea from David Hinds.
-
-Some PCMCIA/Cardbus controllers seem to get upset when we ask
-them to re-do card interrogation - they miss the next insertion
-event.
-
-We therefore avoid forcing needless card interrogations if a
-card has already been succesfully detected and interrogated.
-
-diff -Nru a/drivers/pcmcia/yenta_socket.c b/drivers/pcmcia/yenta_socket.c
---- a/drivers/pcmcia/yenta_socket.c	Mon Oct 27 23:27:19 2003
-+++ b/drivers/pcmcia/yenta_socket.c	Mon Oct 27 23:27:19 2003
-@@ -461,6 +461,7 @@
- static int yenta_sock_init(struct pcmcia_socket *sock)
- {
- 	struct yenta_socket *socket = container_of(sock, struct yenta_socket, socket);
-+	u32 state;
- 	u16 bridge;
- 
- 	bridge = config_readw(socket, CB_BRIDGE_CONTROL) & ~CB_BRIDGE_INTR;
-@@ -472,7 +473,10 @@
- 	exca_writeb(socket, I365_GENCTL, 0x00);
- 
- 	/* Redo card voltage interrogation */
--	cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST);
-+	state = cb_readl(socket, CB_SOCKET_STATE);
-+	if (!(state & (CB_CDETECT1 | CB_CDETECT2 | CB_5VCARD |
-+	               CB_3VCARD | CB_XVCARD | CB_YVCARD)))
-+		cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST);
- 
- 	yenta_clear_maps(socket);
- 
+My suggestion, which I admit may rely on a particular distro, is to define two 
+new run levels.  One for going to sleep and one to wake up.  This is how the 
+system boots and powers down already.  The new levels would allow applications 
+which have special needs to put the proper notifier stuff in the runlevel 
+directory, just as is done for boot/ shutdown.  It is this code which should 
+tell the system to sleep, just as the shutdown run level shuts off the machine.
+> 
+> 
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

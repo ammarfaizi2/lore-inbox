@@ -1,92 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290168AbSAKXoi>; Fri, 11 Jan 2002 18:44:38 -0500
+	id <S290169AbSAKXpi>; Fri, 11 Jan 2002 18:45:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290169AbSAKXo3>; Fri, 11 Jan 2002 18:44:29 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:20792 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S290168AbSAKXoH>; Fri, 11 Jan 2002 18:44:07 -0500
-Date: Sat, 12 Jan 2002 00:44:09 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Richard Henderson <rth@twiddle.net>,
-        Jay Estabrook <Jay.Estabrook@compaq.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18pre3 - miata pci dma fix
-Message-ID: <20020112004409.A23020@garloff.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Richard Henderson <rth@twiddle.net>,
-	Jay Estabrook <Jay.Estabrook@compaq.com>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0201101827100.22287-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0201101827100.22287-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.22.1i
-X-Operating-System: Linux 2.4.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S290170AbSAKXpd>; Fri, 11 Jan 2002 18:45:33 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:51891 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S290169AbSAKXpN>; Fri, 11 Jan 2002 18:45:13 -0500
+Date: Fri, 11 Jan 2002 16:45:31 -0700
+Message-Id: <200201112345.g0BNjVQ13657@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+Subject: Re: Q: behaviour of mlockall(MCL_FUTURE) and VM_GROWSDOWN segments
+In-Reply-To: <3C3F4FC6.97A6A66D@zip.com.au>
+In-Reply-To: <3C3F3C7F.76CCAF76@colorfullife.com>
+	<3C3F4FC6.97A6A66D@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton writes:
+> Manfred Spraul wrote:
+> > 
+> > If an app has an VM_GROWS{DOWN,UP} stack and calls
+> > mlockall(MCL_FUTURE|MCL_CURRENT), which pages should the kernel lock?
+> > 
+> > * grow the vma to the maximum size and lock all.
+> > * just according to the current size.
+> > 
+> > What should happen if the segment is extended by more than one page
+> > at once? (i.e. a function with 100 kB local variables)
+> > 
+> > * Just allocate the page that is needed to handle the page faults
+> > * always fill holes immediately.
+> > 
+> > Right now segments are not grown during the mlockall syscall. Some
+> > codepaths fill holes (find_extend_vma()), most don't (page fault
+> > handlers)
+> > 
+> > What's the right thing (tm) to do?
+> > I don't care which implementation is choosen, but IMHO all
+> > implementations should be identical
+> 
+> This was a problem encountered when taking a libpthread-based
+> application from 2.4.7 to 2.4.15.   It ran fine with mlockall
+> under 2.4.7, but under 2.4.15 everything wedged up.   This was, I assume,
+> because under 2.4.15, the many pthread stacks were fully faulted in and
+> locked at mlockall() time.    We ended up just not using mlockall
+> at all.
+> 
+> Really the 2.4.15 behaviour is correct, but undesirable.  It requires
+> each thread to know apriori what its maximum stack use will be.
+> (I'm assuming that there's a way of setting a thread's stack size
+> in libpthread).
+> 
+> So in this case, the behaviour I would prefer is MCL_FUTURE for
+> all vma's *except* the stack.   Stack pages should be locked
+> only when they are faulted in.   Hard call.
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+How about controlling this with a MCL_STACK flag or some such? If
+there's no One True Path[tm], leave the decision to the application.
 
-Hi Marcelo, Richard, Ivan, Jay,
+				Regards,
 
-On Thu, Jan 10, 2002 at 06:30:07PM -0200, Marcelo Tosatti wrote:
-> pre3:
->=20
-[...]
-> - Miata dma corruption workaround 		(Richard Henderson)
-[...]
-
-> pre2:=20
-[...]
-> - Alpha fixes					(Jay Estabrook)
-[...]
-
-To be honest, I expected to see the patch from Ivan go in.
-
-He came up with the solution to disable scatter-gather for pci dma, after I
-sent a patch which justs worked around the page boundary cross bug for
-ide-dma on the miata/pyxis. Disabling SG for PCI DMA on miata is no problem,
-as we can directly map a 2GB window of memory into PCI space.
-
-A second patch also made sure it works for ISA (which also support 32bis on
-pyxis), so the floppy controller is happy again.
-This second patch is the only thing I see when having a quick look at the
-2.4.18pre3 patch, and Ivan should be credited for it as far as I know.
-
-Is this an oversight? Or is there seom magic bit switched which I overlooked
-which switches off SG PCI DMA on pyxis?
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, DE                                SCSI, Security
-
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8P3jIxmLh6hyYd04RAlUbAJ9Cjb65MrHEFAJSlujbOTmWJ5I+UgCfV9ln
-kk2CatePFmqJdKDmkKMCugY=
-=AhMs
------END PGP SIGNATURE-----
-
---mP3DRpeJDSE+ciuQ--
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

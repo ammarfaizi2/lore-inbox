@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265658AbTFNJOR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 05:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265659AbTFNJOR
+	id S265659AbTFNJRH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 05:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265660AbTFNJRG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 05:14:17 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:56458 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S265658AbTFNJOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 05:14:17 -0400
-Date: Sat, 14 Jun 2003 10:28:05 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: EFS breakage in 2.5
-Message-ID: <20030614092805.GC18188@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20030614091014.GA18188@suse.de> <20030614022108.6b9d0e8b.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030614022108.6b9d0e8b.akpm@digeo.com>
-User-Agent: Mutt/1.5.4i
+	Sat, 14 Jun 2003 05:17:06 -0400
+Received: from voyager.st-peter.stw.uni-erlangen.de ([131.188.24.132]:64183
+	"EHLO voyager.st-peter.stw.uni-erlangen.de") by vger.kernel.org
+	with ESMTP id S265659AbTFNJRE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 05:17:04 -0400
+X-Mailbox-Line: From galia@st-peter.stw.uni-erlangen.de  Sat Jun 14 11:30:51 2003
+Message-ID: <1055583051.3eeaeb4b0c7a8@secure.st-peter.stw.uni-erlangen.de>
+Date: Sat, 14 Jun 2003 11:30:51 +0200
+From: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux console project <linuxconsole-dev@lists.sourceforge.net>,
+       Aivils.Stoss@unibanka.lv, andreas@schuldei.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: is Ruby dead ? lkml: Real multi-user linux
+References: <Pine.LNX.4.44.0306140036470.29353-100000@phoenix.infradead.org>
+In-Reply-To: <Pine.LNX.4.44.0306140036470.29353-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 14, 2003 at 02:21:08AM -0700, Andrew Morton wrote:
- > Dave Jones <davej@codemonkey.org.uk> wrote:
- > >
- > > Current bk oopses during initialisation of EFS.
- > 
- > -					     0, SLAB_HWCACHE_ALIGN||SLAB_RECLAIM_ACCOUNT,
- > +					     0, SLAB_HWCACHE_ALIGN|SLAB_RECLAIM_ACCOUNT,
+Quoting James Simmons <jsimmons@infradead.org>:
 
-Deja-vu. dee-dee-dee-dee...
-That's got to be a cut-n-paste error from the same error that was
-fixed a week or so back somewhere else. Hopefully it's the last.
+> 
+> > I was wonderin what does this post by James Simmons means.
+> > 
+> > James did you abondon ruby in order to bring something comersial ?
+> > there are no changes in ruby for a more then 4 monts,
+> > and ruby is hardly useable/ compilable, and you are talking about
+> > a production status?
+> 
+> The 2.5.X version is broken. Instead I have beening working on making
+> the fbdev layer stable. The api I developed while working on ruby. The 
+> 2.4.X version is quite stable. Alot of the framebuffer drivers could be 
+> dropped onto the 2.4.X ruby kernel and it would work. We do have a few 
+> changes in the framebuffer api that happened but that wouldn't take much 
+> to port to ruby 2.4.X.
 
-		Dave
+ruby 2.4.X ?
+does it exist?
+there is nothing about ruby-2.4 on the linuxconsole web site, mailing list.
+are there sources available anywhere?
+does framebuffer console work in ruby-2.4
+
+> > did i misunderstood something, or you have droped ruby for something
+> comersial?
+> 
+> No. I'm still working on ruby. All my 2.5.X is geared toward ruby.
+
+where can one get your latest work?
+linuxconsole's cvs and bitkeeper have no changes since more then 4 months,
+there where no diffs posted to the mailing list too.
+
+Svetljo 
 

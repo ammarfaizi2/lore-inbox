@@ -1,38 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262841AbSJONyM>; Tue, 15 Oct 2002 09:54:12 -0400
+	id <S262821AbSJONxl>; Tue, 15 Oct 2002 09:53:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262924AbSJONyM>; Tue, 15 Oct 2002 09:54:12 -0400
-Received: from CPE-144-132-192-193.nsw.bigpond.net.au ([144.132.192.193]:30850
-	"EHLO anakin.wychk.org") by vger.kernel.org with ESMTP
-	id <S262913AbSJONyK>; Tue, 15 Oct 2002 09:54:10 -0400
-Date: Tue, 15 Oct 2002 21:53:54 +0800
-From: Geoffrey Lee <glee@gnupilgrims.org>
-To: Jogchem de Groot <bighawk@kryptology.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: poll() incompatability with POSIX.1-2001
-Message-ID: <20021015135354.GA19038@anakin.wychk.org>
-References: <20021014145726.DFKF19708.mail8-sh.home.nl@there> <Pine.LNX.3.95.1021014110505.12302A-100000@chaos.analogic.com> <20021015033640.GA15553@anakin.wychk.org> <20021015074616.SQGS394.mail6-sh.home.nl@there>
+	id <S262825AbSJONxl>; Tue, 15 Oct 2002 09:53:41 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:48127 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262821AbSJONxk>; Tue, 15 Oct 2002 09:53:40 -0400
+Date: Tue, 15 Oct 2002 07:00:29 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: Oleg Drokin <green@namesys.com>
+Cc: Jeff Dike <jdike@karaya.com>, user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Re: uml-patch-2.5.42-1
+Message-ID: <20021015140029.GA1378@beaverton.ibm.com>
+Mail-Followup-To: Oleg Drokin <green@namesys.com>,
+	Jeff Dike <jdike@karaya.com>,
+	user-mode-linux-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20021015104210.A1335@namesys.com> <200210151352.IAA02057@ccure.karaya.com> <20021015170558.A6060@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=big5
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021015074616.SQGS394.mail6-sh.home.nl@there>
+In-Reply-To: <20021015170558.A6060@namesys.com>
 User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello, on what version did you try this? I've tried this now on 
-> Linux-2.4.18 and Linux-2.4.19 and both give the behaviour i described 
-> previously (No POLLOUT set).
+Oleg Drokin [green@namesys.com] wrote:
+> Hello!
 > 
+> On Tue, Oct 15, 2002 at 08:52:17AM -0500, Jeff Dike wrote:
+> 
+> > > For some reason I now need this patch to make bk-current to compile 
+> > That patch is against stock 2.5.42, so I don't make any guarantees about
+> > bk-current.
 
+I was seeing the same failure on 2.5.42.
 
-Ah, you are indeed right.  I had a typo in my test code (trailing semi
-colon).
+> 
+> I am in no way inplying that you are making any guarantees about your patches to
+> work with something but the kernels they are released for.
+> On the other hand I thought you might find it useful if I report to you
+> problems with more modern kernels that I encounter so that when you will
+> update UML to never kernel you do not need to hit all the problems by yourself.
+> 
+> > However the __i386__ thing should be taken care of by Makefile-i386 doing
+> > 	CFLAGS += -U__i386__
+> > I might have messed up the patch, I'll check and fix it if so.
+> 
+> Yes, it seems to be the case.
+> 
+> CFLAGS is defined first in arch/um/Makefile and only then you do
+> include Makefile-{SUBARCH}
+> 
+> Moving 'include $(ARCH_DIR)/Makefile-$(SUBARCH)' in front of CFLAGS
+> helped.
 
-So POLLIN | POLLERR | POLLHUP flags are for the revents member.
+This fixed the __i386__ issue, but messed up the header symlinks. I
+moved CFLAGS after the includes and this appears to have fixed both
+problems, but makefile magic is not my thing so YMMV.
 
-
-
-	-- G.
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbTIGUSU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 16:18:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTIGUSU
+	id S261406AbTIGUbf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 16:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbTIGUbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 16:18:20 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:36113 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261342AbTIGUSU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 16:18:20 -0400
-Path: Home.Lunix!not-for-mail
-Subject: Re: Sensors and linux 2.6.0-test4-bk8 question
-Date: Sun, 7 Sep 2003 20:17:16 +0000 (UTC)
-Organization: lunix confusion services
-References: <1062934034.7923.2.camel@rousalka.dyndns.org>
-    <bjfho6$k3j$1@post.home.lunix> <20030907173515.GA15338@_orming>
-NNTP-Posting-Host: quasar.home.lunix
+	Sun, 7 Sep 2003 16:31:35 -0400
+Received: from ns.suse.de ([195.135.220.2]:49590 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261406AbTIGUbe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 16:31:34 -0400
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: marcelo.tosatti@cyclades.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
+References: <20030907195557.GK14436@fs.tum.de.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 07 Sep 2003 22:30:52 +0200
+In-Reply-To: <20030907195557.GK14436@fs.tum.de.suse.lists.linux.kernel>
+Message-ID: <p73u17ojq83.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Trace: quasar.home.lunix 1062965836 18369 10.0.0.20 (7 Sep 2003 20:17:16
-    GMT)
-X-Complaints-To: abuse-0@ton.iguana.be
-NNTP-Posting-Date: Sun, 7 Sep 2003 20:17:16 +0000 (UTC)
-X-Newsreader: knews 1.0b.0
-Xref: Home.Lunix mail.linux.kernel:264783
-X-Mailer: Perl5 Mail::Internet v1.51
-Message-Id: <bjg3oc$hu1$1@post.home.lunix>
-From: linux-kernel@ton.iguana.be (Ton Hospel)
-To: linux-kernel@vger.kernel.org
-Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030907173515.GA15338@_orming>,
-	Josh McKinney <forming@charter.net> writes:
->> If there is any interest, I have a perl program that does a configurable 
->> display for 2.6
->> 
-> 
-> That perl script would be nice.  You could send it to me privately or
-> the list if its not to big then it would be in the archives.
-> 
-> Thanks
+Adrian Bunk <bunk@fs.tum.de> writes:
 
-See http://www.xs4all.nl/~thospel/ASIS/bin/psensors
+> With CONFIG_M686 CONFIG_X86_L1_CACHE_SHIFT was set to 5, but a Pentium 4 
+> requires 7.
+
+It doesn't require 7, it just prefers 7. 
+
+> The patch below does:
+> - set CONFIG_X86_L1_CACHE_SHIFT 7 for all Intel processors (needed for 
+>   the Pentium 4)
+> - set CONFIG_X86_L1_CACHE_SHIFT 6 for the K6 (needed for the Athlon)
+
+I think these changes should be only done with CONFIG_X86_GENERIC is set.
+
+Otherwise the people who want kernels really optimized for their CPUs
+won't get the full benefit. On UP it does not make that much difference,
+but on a SMP kernel having a bigger than needed cache size wastes a lot
+of memory.
+
+-Andi

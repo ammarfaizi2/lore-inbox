@@ -1,278 +1,864 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262751AbVA1Uq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262758AbVA1UuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262751AbVA1Uq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 15:46:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbVA1Uno
+	id S262758AbVA1UuE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 15:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbVA1Utd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 15:43:44 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:7589 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S262760AbVA1Ufg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 15:35:36 -0500
-Subject: Re: [PATCH] OpenBSD Networking-related randomization port
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, netdev@oss.sgi.com,
-       Arjan van de Ven <arjan@infradead.org>,
-       Hank Leininger <hlein@progressive-comp.com>
-In-Reply-To: <20050128105217.1dc5ef42@dxpl.pdx.osdl.net>
-References: <1106932637.3778.92.camel@localhost.localdomain>
-	 <20050128100229.5c0e4ea1@dxpl.pdx.osdl.net>
-	 <1106937110.3864.5.camel@localhost.localdomain>
-	 <20050128105217.1dc5ef42@dxpl.pdx.osdl.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yqfT7eT9Hzdva1H/QBsh"
-Date: Fri, 28 Jan 2005 21:34:52 +0100
-Message-Id: <1106944492.3864.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Fri, 28 Jan 2005 15:49:33 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:53430 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262784AbVA1Uii (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 15:38:38 -0500
+Date: Fri, 28 Jan 2005 12:37:40 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andi Kleen <ak@muc.de>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: page fault scalability patch V16 [3/4]: Drop page_table_lock in
+ handle_mm_fault
+In-Reply-To: <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0501281237010.19266@schroedinger.engr.sgi.com>
+References: <41E5B7AD.40304@yahoo.com.au> <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
+ <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
+ <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+ <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
+ <20050114043944.GB41559@muc.de> <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com>
+ <20050114170140.GB4634@muc.de> <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The page fault handler attempts to use the page_table_lock only for short
+time periods. It repeatedly drops and reacquires the lock. When the lock
+is reacquired, checks are made if the underlying pte has changed before
+replacing the pte value. These locations are a good fit for the use of
+ptep_cmpxchg.
 
---=-yqfT7eT9Hzdva1H/QBsh
-Content-Type: multipart/mixed; boundary="=-K8JTrSaJSvJCV+fubSQJ"
+The following patch allows to remove the first time the page_table_lock is
+acquired and uses atomic operations on the page table instead. A section
+using atomic pte operations is begun with
 
+	page_table_atomic_start(struct mm_struct *)
 
---=-K8JTrSaJSvJCV+fubSQJ
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+and ends with
 
-Hi,
+	page_table_atomic_stop(struct mm_struct *)
 
-Attached the new patch following Arjan's recommendations.
-I'm sorry about not making it "inlined", but my mail agent messes up the
-diffs if I do so.
-Still waiting for the OSDL STP tests results, they will take a while to
-finish.
+Both of these become spin_lock(page_table_lock) and
+spin_unlock(page_table_lock) if atomic page table operations are not
+configured (CONFIG_ATOMIC_TABLE_OPS undefined).
 
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+Atomic operations with pte_xchg and pte_cmpxchg only work for the lowest
+layer of the page table. Higher layers may also be populated in an atomic
+way by defining pmd_test_and_populate() etc. The generic versions of these
+functions fall back to the page_table_lock (populating higher level page
+table entries is rare and therefore this is not likely to be performance
+critical). For ia64 the definitions for higher level atomic operations is
+included and these may easily be added for other architectures.
 
+This patch depends on the pte_cmpxchg patch to be applied first and will
+only remove the first use of the page_table_lock in the page fault handler.
+This will allow the following page table operations without acquiring
+the page_table_lock:
 
+1. Updating of access bits (handle_mm_faults)
+2. Anonymous read faults (do_anonymous_page)
 
---=-K8JTrSaJSvJCV+fubSQJ
-Content-Disposition: attachment; filename=openbsd-netrand-2.6.11-rc2.patch
-Content-Type: text/x-patch; name=openbsd-netrand-2.6.11-rc2.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
+The page_table_lock is still acquired for creating a new pte for an anonymous
+write fault and therefore the problems with rss that were addressed by splitting
+rss into the task structure do not yet occur.
 
-ZGlmZiAtTnVyIGxpbnV4LTIuNi4xMS1yYzIvaW5jbHVkZS9saW51eC9yYW5kb20uaCBsaW51eC0y
-LjYuMTEtcmMyLnR4MS9pbmNsdWRlL2xpbnV4L3JhbmRvbS5oDQotLS0gbGludXgtMi42LjExLXJj
-Mi9pbmNsdWRlL2xpbnV4L3JhbmRvbS5oCTIwMDUtMDEtMjYgMTk6NTQ6MTcuMDAwMDAwMDAwICsw
-MTAwDQorKysgbGludXgtMi42LjExLXJjMi50eDEvaW5jbHVkZS9saW51eC9yYW5kb20uaAkyMDA1
-LTAxLTI4IDE5OjQ1OjMxLjM1OTkyMzM5MiArMDEwMA0KQEAgLTQyLDYgKzQyLDEyIEBADQogDQog
-I2lmZGVmIF9fS0VSTkVMX18NCiANCisvKiBPcGVuQlNEIE5ldHdvcmtpbmctcmVsYXRlZCByYW5k
-b21pemF0aW9uIGZ1bmN0aW9ucyAtIGxvcmVuem9AZ251Lm9yZyAqLw0KK2V4dGVybiB1bnNpZ25l
-ZCBsb25nIG9ic2RfZ2V0X3JhbmRvbV9sb25nKHZvaWQpOw0KK2V4dGVybiBfX3UxNiBpcF9yYW5k
-b21pZCh2b2lkKTsNCitleHRlcm4gX191MzIgaXBfcmFuZG9taXNuKHZvaWQpOw0KKw0KKw0KIGV4
-dGVybiB2b2lkIHJhbmRfaW5pdGlhbGl6ZV9pcnEoaW50IGlycSk7DQogDQogZXh0ZXJuIHZvaWQg
-YWRkX2lucHV0X3JhbmRvbW5lc3ModW5zaWduZWQgaW50IHR5cGUsIHVuc2lnbmVkIGludCBjb2Rl
-LA0KZGlmZiAtTnVyIGxpbnV4LTIuNi4xMS1yYzIvbmV0L2lwdjQvdGNwX2lwdjQuYyBsaW51eC0y
-LjYuMTEtcmMyLnR4MS9uZXQvaXB2NC90Y3BfaXB2NC5jDQotLS0gbGludXgtMi42LjExLXJjMi9u
-ZXQvaXB2NC90Y3BfaXB2NC5jCTIwMDUtMDEtMjYgMTk6NTQ6MTkuMDAwMDAwMDAwICswMTAwDQor
-KysgbGludXgtMi42LjExLXJjMi50eDEvbmV0L2lwdjQvdGNwX2lwdjQuYwkyMDA1LTAxLTI4IDE5
-OjM5OjQ4LjAwMDAwMDAwMCArMDEwMA0KQEAgLTUzOSwxMCArNTM5LDggQEANCiANCiBzdGF0aWMg
-aW5saW5lIF9fdTMyIHRjcF92NF9pbml0X3NlcXVlbmNlKHN0cnVjdCBzb2NrICpzaywgc3RydWN0
-IHNrX2J1ZmYgKnNrYikNCiB7DQotCXJldHVybiBzZWN1cmVfdGNwX3NlcXVlbmNlX251bWJlcihz
-a2ItPm5oLmlwaC0+ZGFkZHIsDQotCQkJCQkgIHNrYi0+bmguaXBoLT5zYWRkciwNCi0JCQkJCSAg
-c2tiLT5oLnRoLT5kZXN0LA0KLQkJCQkJICBza2ItPmgudGgtPnNvdXJjZSk7DQorDQorCQlyZXR1
-cm4gaXBfcmFuZG9taXNuKCk7DQogfQ0KIA0KIC8qIGNhbGxlZCB3aXRoIGxvY2FsIGJoIGRpc2Fi
-bGVkICovDQpAQCAtODMzLDE0ICs4MzEsMTEgQEANCiAJdGNwX3Y0X3NldHVwX2NhcHMoc2ssICZy
-dC0+dS5kc3QpOw0KIAl0cC0+ZXh0Ml9oZWFkZXJfbGVuID0gcnQtPnUuZHN0LmhlYWRlcl9sZW47
-DQogDQotCWlmICghdHAtPndyaXRlX3NlcSkNCi0JCXRwLT53cml0ZV9zZXEgPSBzZWN1cmVfdGNw
-X3NlcXVlbmNlX251bWJlcihpbmV0LT5zYWRkciwNCi0JCQkJCQkJICAgaW5ldC0+ZGFkZHIsDQot
-CQkJCQkJCSAgIGluZXQtPnNwb3J0LA0KLQkJCQkJCQkgICB1c2luLT5zaW5fcG9ydCk7DQotDQot
-CWluZXQtPmlkID0gdHAtPndyaXRlX3NlcSBeIGppZmZpZXM7DQotDQorCWlmICghdHAtPndyaXRl
-X3NlcSkgew0KKwkJCXRwLT53cml0ZV9zZXEgPSBpcF9yYW5kb21pc24oKTsNCisJfQ0KKwkNCisJ
-aW5ldC0+aWQgPSBodG9ucyhpcF9yYW5kb21pZCgpKTsNCiAJZXJyID0gdGNwX2Nvbm5lY3Qoc2sp
-Ow0KIAlydCA9IE5VTEw7DQogCWlmIChlcnIpDQpAQCAtMTU3OSw4ICsxNTc0LDggQEANCiAJaWYg
-KG5ld2luZXQtPm9wdCkNCiAJCW5ld3RwLT5leHRfaGVhZGVyX2xlbiA9IG5ld2luZXQtPm9wdC0+
-b3B0bGVuOw0KIAluZXd0cC0+ZXh0Ml9oZWFkZXJfbGVuID0gZHN0LT5oZWFkZXJfbGVuOw0KLQlu
-ZXdpbmV0LT5pZCA9IG5ld3RwLT53cml0ZV9zZXEgXiBqaWZmaWVzOw0KLQ0KKwluZXdpbmV0LT5p
-ZCA9IGh0b25zKGlwX3JhbmRvbWlkKCkpOw0KKwkNCiAJdGNwX3N5bmNfbXNzKG5ld3NrLCBkc3Rf
-cG10dShkc3QpKTsNCiAJbmV3dHAtPmFkdm1zcyA9IGRzdF9tZXRyaWMoZHN0LCBSVEFYX0FEVk1T
-Uyk7DQogCXRjcF9pbml0aWFsaXplX3Jjdl9tc3MobmV3c2spOw0KZGlmZiAtTnVyIGxpbnV4LTIu
-Ni4xMS1yYzIvbmV0L01ha2VmaWxlIGxpbnV4LTIuNi4xMS1yYzIudHgxL25ldC9NYWtlZmlsZQ0K
-LS0tIGxpbnV4LTIuNi4xMS1yYzIvbmV0L01ha2VmaWxlCTIwMDUtMDEtMjYgMTk6NTA6NDkuMDAw
-MDAwMDAwICswMTAwDQorKysgbGludXgtMi42LjExLXJjMi50eDEvbmV0L01ha2VmaWxlCTIwMDUt
-MDEtMjggMjE6MDE6MjEuODcwMTQwNjg4ICswMTAwDQpAQCAtMTEsNiArMTEsNyBAQA0KIA0KIHRt
-cC0kKENPTkZJR19DT01QQVQpIAkJOj0gY29tcGF0Lm8NCiBvYmotJChDT05GSUdfTkVUKQkJKz0g
-JCh0bXAteSkNCitvYmoteQkJCQkrPSBvYnNkX3JhbmQubw0KIA0KICMgTExDIGhhcyB0byBiZSBs
-aW5rZWQgYmVmb3JlIHRoZSBmaWxlcyBpbiBuZXQvODAyLw0KIG9iai0kKENPTkZJR19MTEMpCQkr
-PSBsbGMvDQpkaWZmIC1OdXIgbGludXgtMi42LjExLXJjMi9uZXQvb2JzZF9yYW5kLmMgbGludXgt
-Mi42LjExLXJjMi50eDEvbmV0L29ic2RfcmFuZC5jDQotLS0gbGludXgtMi42LjExLXJjMi9uZXQv
-b2JzZF9yYW5kLmMJMTk3MC0wMS0wMSAwMTowMDowMC4wMDAwMDAwMDAgKzAxMDANCisrKyBsaW51
-eC0yLjYuMTEtcmMyLnR4MS9uZXQvb2JzZF9yYW5kLmMJMjAwNS0wMS0yOCAxNzo0Mzo1MC4wMDAw
-MDAwMDAgKzAxMDANCkBAIC0wLDAgKzEsMjY5IEBADQorLyogJElkOiBvcGVuYnNkLW5ldHJhbmQt
-Mi42LjExLXJjMi5wYXRjaCx2IDEuNSAyMDA1LzAxLzI4IDIwOjE2OjIxIGxvcmVuem8gRXhwICQN
-CisgKiBDb3B5cmlnaHQgKGMpIDIwMDUgTG9yZW56byBIZXJuYW5kZXogR2FyY2lhLUhpZXJybyA8
-bG9yZW56b0BnbnUub3JnPi4NCisgKiBBbGwgcmlnaHRzIHJlc2VydmVkLg0KKyAqDQorICogQWRk
-ZWQgc29tZSBtYWNyb3MgYW5kIHN0b2xlbiBjb2RlIGZyb20gcmFuZG9tLmMsIGZvciBpbmRpdmlk
-dWFsIGFuZCBsZXNzDQorICogImludmFzaXZlIiBpbXBsZW1lbnRhdGlvbi5BbHNvIHJlbW92ZWQg
-dGhlIGdldF9yYW5kb21fbG9uZygpIG1hY3JvIGRlZmluaXRpb24sDQorICogd2hpY2ggaXMgbm90
-IGdvb2QgaWYgd2UgY2FuIHNpbXBseSBjYWxsIGJhY2sgb2JzZF9nZXRfcmFuZG9tX2xvbmcoKS4N
-CisgKg0KKyAqIENvcHlyaWdodCAoYykgMTk5NiwgMTk5NywgMjAwMC0yMDAyIE1pY2hhZWwgU2hh
-bGF5ZWZmLg0KKyAqIA0KKyAqIFZlcnNpb24gMS45MCwgbGFzdCBtb2RpZmllZCAyOC1KYW4tMDUN
-CisgKiAgICANCisgKiBDb3B5cmlnaHQgVGhlb2RvcmUgVHMnbywgMTk5NCwgMTk5NSwgMTk5Niwg
-MTk5NywgMTk5OCwgMTk5OS4NCisgKiBBbGwgcmlnaHRzIHJlc2VydmVkLg0KKyAqDQorICogQ29w
-eXJpZ2h0IDE5OTggTmllbHMgUHJvdm9zIDxwcm92b3NAY2l0aS51bWljaC5lZHU+DQorICogQWxs
-IHJpZ2h0cyByZXNlcnZlZC4NCisgKiBUaGVvIGRlIFJhYWR0IDxkZXJhYWR0QG9wZW5ic2Qub3Jn
-PiBjYW1lIHVwIHdpdGggdGhlIGlkZWEgb2YgdXNpbmcNCisgKiBzdWNoIGEgbWF0aGVtYXRpY2Fs
-IHN5c3RlbSB0byBnZW5lcmF0ZSBtb3JlIHJhbmRvbSAoeWV0IG5vbi1yZXBlYXRpbmcpDQorICog
-aWRzIHRvIHNvbHZlIHRoZSByZXNvbHZlci9uYW1lZCBwcm9ibGVtLiAgQnV0IE5pZWxzIGRlc2ln
-bmVkIHRoZQ0KKyAqIGFjdHVhbCBzeXN0ZW0gYmFzZWQgb24gdGhlIGNvbnN0cmFpbnRzLg0KKyAq
-DQorICogUmVkaXN0cmlidXRpb24gYW5kIHVzZSBpbiBzb3VyY2UgYW5kIGJpbmFyeSBmb3Jtcywg
-d2l0aCBvciB3aXRob3V0DQorICogbW9kaWZpY2F0aW9uLCBhcmUgcGVybWl0dGVkIHByb3ZpZGVk
-IHRoYXQgdGhlIGZvbGxvd2luZyBjb25kaXRpb25zDQorICogYXJlIG1ldDoNCisgKiAxLiBSZWRp
-c3RyaWJ1dGlvbnMgb2Ygc291cmNlIGNvZGUgbXVzdCByZXRhaW4gdGhlIGFib3ZlIGNvcHlyaWdo
-dA0KKyAqICAgIG5vdGljZSwgdGhpcyBsaXN0IG9mIGNvbmRpdGlvbnMgYW5kIHRoZSBmb2xsb3dp
-bmcgZGlzY2xhaW1lciwNCisgKiAyLiBSZWRpc3RyaWJ1dGlvbnMgaW4gYmluYXJ5IGZvcm0gbXVz
-dCByZXByb2R1Y2UgdGhlIGFib3ZlIGNvcHlyaWdodA0KKyAqICAgIG5vdGljZSwgdGhpcyBsaXN0
-IG9mIGNvbmRpdGlvbnMgYW5kIHRoZSBmb2xsb3dpbmcgZGlzY2xhaW1lciBpbiB0aGUNCisgKiAg
-ICBkb2N1bWVudGF0aW9uIGFuZC9vciBvdGhlciBtYXRlcmlhbHMgcHJvdmlkZWQgd2l0aCB0aGUg
-ZGlzdHJpYnV0aW9uLg0KKyAqDQorICogVEhJUyBTT0ZUV0FSRSBJUyBQUk9WSURFRCBCWSBUSEUg
-QVVUSE9SIGBgQVMgSVMnJyBBTkQgQU5ZIEVYUFJFU1MgT1INCisgKiBJTVBMSUVEIFdBUlJBTlRJ
-RVMsIElOQ0xVRElORywgQlVUIE5PVCBMSU1JVEVEIFRPLCBUSEUgSU1QTElFRCBXQVJSQU5USUVT
-DQorICogT0YgTUVSQ0hBTlRBQklMSVRZIEFORCBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVS
-UE9TRSBBUkUgRElTQ0xBSU1FRC4NCisgKiBJTiBOTyBFVkVOVCBTSEFMTCBUSEUgQVVUSE9SIEJF
-IExJQUJMRSBGT1IgQU5ZIERJUkVDVCwgSU5ESVJFQ1QsDQorICogSU5DSURFTlRBTCwgU1BFQ0lB
-TCwgRVhFTVBMQVJZLCBPUiBDT05TRVFVRU5USUFMIERBTUFHRVMgKElOQ0xVRElORywgQlVUDQor
-ICogTk9UIExJTUlURUQgVE8sIFBST0NVUkVNRU5UIE9GIFNVQlNUSVRVVEUgR09PRFMgT1IgU0VS
-VklDRVM7IExPU1MgT0YgVVNFLA0KKyAqIERBVEEsIE9SIFBST0ZJVFM7IE9SIEJVU0lORVNTIElO
-VEVSUlVQVElPTikgSE9XRVZFUiBDQVVTRUQgQU5EIE9OIEFOWQ0KKyAqIFRIRU9SWSBPRiBMSUFC
-SUxJVFksIFdIRVRIRVIgSU4gQ09OVFJBQ1QsIFNUUklDVCBMSUFCSUxJVFksIE9SIFRPUlQNCisg
-KiAoSU5DTFVESU5HIE5FR0xJR0VOQ0UgT1IgT1RIRVJXSVNFKSBBUklTSU5HIElOIEFOWSBXQVkg
-T1VUIE9GIFRIRSBVU0UgT0YNCisgKiBUSElTIFNPRlRXQVJFLCBFVkVOIElGIEFEVklTRUQgT0Yg
-VEhFIFBPU1NJQklMSVRZIE9GIFNVQ0ggREFNQUdFLg0KKyAqLw0KKw0KKyNpbmNsdWRlIDxsaW51
-eC9rZXJuZWwuaD4NCisjaW5jbHVkZSA8bGludXgvc2NoZWQuaD4NCisjaW5jbHVkZSA8bGludXgv
-dGltZS5oPg0KKyNpbmNsdWRlIDxsaW51eC90aW1lci5oPg0KKyNpbmNsdWRlIDxsaW51eC9zbXBf
-bG9jay5oPg0KKyNpbmNsdWRlIDxsaW51eC9yYW5kb20uaD4NCisNCisjZGVmaW5lIFJVX09VVCAx
-ODANCisjZGVmaW5lIFJVX01BWCAzMDAwMA0KKyNkZWZpbmUgUlVfR0VOIDINCisjZGVmaW5lIFJV
-X04gMzI3NDkNCisjZGVmaW5lIFJVX0FHRU4gNw0KKyNkZWZpbmUgUlVfTSAzMTEwNA0KKyNkZWZp
-bmUgUEZBQ19OIDMNCisNCisvKg0KKyAqIFN0b2xlbiBmcm9tIC4vZHJpdmVycy9jaGFyL3JhbmRv
-bS5jDQorICovDQorDQorLyogRk9PLCBHRUVLIGFuZCBIRUNLIGFyZSBiYXNpYyBnZWVraXNoIE1E
-NCBmdW5jdGlvbnM6IGZvbyBzZWxlY3Rpb24sIGdlZWsgbWFqb3JpdHksIGhlY2sgcGFyaXR5ICov
-DQorI2RlZmluZSBGT08oeCwgeSwgeikgKCh6KSBeICgoeCkgJiAoKHkpIF4gKHopKSkpDQorI2Rl
-ZmluZSBHRUVLKHgsIHksIHopICgoKHgpICYgKHkpKSArICgoKHgpIF4gKHkpKSAmICh6KSkpDQor
-I2RlZmluZSBIRUNLKHgsIHksIHopICgoeCkgXiAoeSkgXiAoeikpDQorI2RlZmluZSBPQlJPVU5E
-KGYsIGEsIGIsIGMsIGQsIHgsIHMpCVwNCisJKGEgKz0gZihiLCBjLCBkKSArIHgsIGEgPSAoYSA8
-PCBzKSB8IChhID4+ICgzMiAtIHMpKSkNCisjZGVmaW5lIG9iSzEgMA0KKyNkZWZpbmUgb2JLMiAw
-MTMyNDA0NzQ2MzFVTA0KKyNkZWZpbmUgb2JLMyAwMTU2NjYzNjU2NDFVTA0KKyNkZWZpbmUgT0Jf
-UkVLRVlfSU5URVJWQUwgKDMwMCAqIEhaKQ0KKw0KKw0KK2NvbnN0IHN0YXRpYyBfX3UxNiBwZmFj
-dHNbUEZBQ19OXSA9IHsgMiwgMywgMjcyOSB9Ow0KKw0KK3N0YXRpYyBfX3UxNiBydV94Ow0KK3N0
-YXRpYyBfX3UxNiBydV9zZWVkLCBydV9zZWVkMjsNCitzdGF0aWMgX191MTYgcnVfYSwgcnVfYjsN
-CitzdGF0aWMgX191MTYgcnVfZzsNCitzdGF0aWMgX191MTYgcnVfY291bnRlciA9IDA7DQorc3Rh
-dGljIF9fdTE2IHJ1X21zYiA9IDA7DQorc3RhdGljIHVuc2lnbmVkIGxvbmcgcnVfcmVzZWVkID0g
-MDsNCitzdGF0aWMgX191MzIgdG1wOw0KKw0KKyNkZWZpbmUgVENQX1JORElTU19ST1VORFMJMTUN
-CisjZGVmaW5lIFRDUF9STkRJU1NfT1VUCQk3MjAwDQorI2RlZmluZSBUQ1BfUk5ESVNTX01BWAkJ
-MzAwMDANCisNCitzdGF0aWMgX191OCB0Y3Bfcm5kaXNzX3Nib3hbMTI4XTsNCitzdGF0aWMgX191
-MTYgdGNwX3JuZGlzc19tc2I7DQorc3RhdGljIF9fdTE2IHRjcF9ybmRpc3NfY250Ow0KK3N0YXRp
-YyB1bnNpZ25lZCBsb25nIHRjcF9ybmRpc3NfcmVzZWVkOw0KKw0KK3N0YXRpYyBfX3UxNiBwbW9k
-KF9fdTE2LCBfX3UxNiwgX191MTYpOw0KK3N0YXRpYyB2b2lkIGlwX2luaXRpZCh2b2lkKTsNCitf
-X3UxNiBpcF9yYW5kb21pZCh2b2lkKTsNCisNCisvKg0KKyAqIEJhc2ljIGN1dC1kb3duIE1ENCB0
-cmFuc2Zvcm0uICBSZXR1cm5zIG9ubHkgMzIgYml0cyBvZiByZXN1bHQuDQorICovDQorc3RhdGlj
-IF9fdTMyIGhhbGZfbWQ0X3RyYW5zZm9ybSAoX191MzIgY29uc3QgYnVmWzRdLCBfX3UzMiBjb25z
-dCBpbls4XSkNCit7DQorCV9fdTMyIGEgPSBidWZbMF0sIGIgPSBidWZbMV0sIGMgPSBidWZbMl0s
-IGQgPSBidWZbM107DQorDQorCS8qIFJvdW5kIDEgKi8NCisJT0JST1VORChGT08sIGEsIGIsIGMs
-IGQsIGluWzBdICsgb2JLMSwgIDMpOw0KKwlPQlJPVU5EKEZPTywgZCwgYSwgYiwgYywgaW5bMV0g
-KyBvYksxLCAgNyk7DQorCU9CUk9VTkQoRk9PLCBjLCBkLCBhLCBiLCBpblsyXSArIG9iSzEsIDEx
-KTsNCisJT0JST1VORChGT08sIGIsIGMsIGQsIGEsIGluWzNdICsgb2JLMSwgMTkpOw0KKwlPQlJP
-VU5EKEZPTywgYSwgYiwgYywgZCwgaW5bNF0gKyBvYksxLCAgMyk7DQorCU9CUk9VTkQoRk9PLCBk
-LCBhLCBiLCBjLCBpbls1XSArIG9iSzEsICA3KTsNCisJT0JST1VORChGT08sIGMsIGQsIGEsIGIs
-IGluWzZdICsgb2JLMSwgMTEpOw0KKwlPQlJPVU5EKEZPTywgYiwgYywgZCwgYSwgaW5bN10gKyBv
-YksxLCAxOSk7DQorDQorCS8qIFJvdW5kIDIgKi8NCisJT0JST1VORChHRUVLLCBhLCBiLCBjLCBk
-LCBpblsxXSArIG9iSzIsICAzKTsNCisJT0JST1VORChHRUVLLCBkLCBhLCBiLCBjLCBpblszXSAr
-IG9iSzIsICA1KTsNCisJT0JST1VORChHRUVLLCBjLCBkLCBhLCBiLCBpbls1XSArIG9iSzIsICA5
-KTsNCisJT0JST1VORChHRUVLLCBiLCBjLCBkLCBhLCBpbls3XSArIG9iSzIsIDEzKTsNCisJT0JS
-T1VORChHRUVLLCBhLCBiLCBjLCBkLCBpblswXSArIG9iSzIsICAzKTsNCisJT0JST1VORChHRUVL
-LCBkLCBhLCBiLCBjLCBpblsyXSArIG9iSzIsICA1KTsNCisJT0JST1VORChHRUVLLCBjLCBkLCBh
-LCBiLCBpbls0XSArIG9iSzIsICA5KTsNCisJT0JST1VORChHRUVLLCBiLCBjLCBkLCBhLCBpbls2
-XSArIG9iSzIsIDEzKTsNCisNCisJLyogUm91bmQgMyAqLw0KKwlPQlJPVU5EKEhFQ0ssIGEsIGIs
-IGMsIGQsIGluWzNdICsgb2JLMywgIDMpOw0KKwlPQlJPVU5EKEhFQ0ssIGQsIGEsIGIsIGMsIGlu
-WzddICsgb2JLMywgIDkpOw0KKwlPQlJPVU5EKEhFQ0ssIGMsIGQsIGEsIGIsIGluWzJdICsgb2JL
-MywgMTEpOw0KKwlPQlJPVU5EKEhFQ0ssIGIsIGMsIGQsIGEsIGluWzZdICsgb2JLMywgMTUpOw0K
-KwlPQlJPVU5EKEhFQ0ssIGEsIGIsIGMsIGQsIGluWzFdICsgb2JLMywgIDMpOw0KKwlPQlJPVU5E
-KEhFQ0ssIGQsIGEsIGIsIGMsIGluWzVdICsgb2JLMywgIDkpOw0KKwlPQlJPVU5EKEhFQ0ssIGMs
-IGQsIGEsIGIsIGluWzBdICsgb2JLMywgMTEpOw0KKwlPQlJPVU5EKEhFQ0ssIGIsIGMsIGQsIGEs
-IGluWzRdICsgb2JLMywgMTUpOw0KKw0KKwlyZXR1cm4gYnVmWzFdICsgYjsJLyogIm1vc3QgaGFz
-aGVkIiB3b3JkICovDQorCS8qIEFsdGVybmF0aXZlOiByZXR1cm4gc3VtIG9mIGFsbCB3b3Jkcz8g
-Ki8NCit9DQorDQordW5zaWduZWQgbG9uZyBvYnNkX2dldF9yYW5kb21fbG9uZyh2b2lkKQ0KK3sN
-CisJc3RhdGljIHRpbWVfdCAgIHJla2V5X3RpbWU7DQorCXN0YXRpYyBfX3UzMiAgICBzZWNyZXRb
-MTJdOw0KKwl0aW1lX3QgICAgICAgICAgdDsNCisNCisJLyoNCisJICogUGljayBhIHJhbmRvbSBz
-ZWNyZXQgZXZlcnkgT0JfUkVLRVlfSU5URVJWQUwgc2Vjb25kcy4NCisJICovDQorCXQgPSBnZXRf
-c2Vjb25kcygpOw0KKwlpZiAoIXJla2V5X3RpbWUgfHwgKHQgLSByZWtleV90aW1lKSA+IE9CX1JF
-S0VZX0lOVEVSVkFMKSB7DQorCQlyZWtleV90aW1lID0gdDsNCisJCWdldF9yYW5kb21fYnl0ZXMo
-c2VjcmV0LCBzaXplb2Yoc2VjcmV0KSk7DQorCX0NCisNCisJc2VjcmV0WzFdID0gaGFsZl9tZDRf
-dHJhbnNmb3JtKHNlY3JldCs4LCBzZWNyZXQpOw0KKwlzZWNyZXRbMF0gPSBoYWxmX21kNF90cmFu
-c2Zvcm0oc2VjcmV0KzgsIHNlY3JldCk7DQorCXJldHVybiAqKHVuc2lnbmVkIGxvbmcgKilzZWNy
-ZXQ7DQorfQ0KKw0KK3N0YXRpYyBfX3UxNg0KK3Btb2QoX191MTYgZ2VuLCBfX3UxNiBleHAsIF9f
-dTE2IG1vZCkNCit7DQorCV9fdTE2IHMsIHQsIHU7DQorDQorCXMgPSAxOw0KKwl0ID0gZ2VuOw0K
-Kwl1ID0gZXhwOw0KKw0KKwl3aGlsZSAodSkgew0KKwkJaWYgKHUgJiAxKQ0KKwkJCXMgPSAocyAq
-IHQpICUgbW9kOw0KKwkJdSA+Pj0gMTsNCisJCXQgPSAodCAqIHQpICUgbW9kOw0KKwl9DQorCXJl
-dHVybiAocyk7DQorfQ0KKw0KK3N0YXRpYyB2b2lkDQoraXBfaW5pdGlkKHZvaWQpDQorew0KKwlf
-X3UxNiBqLCBpOw0KKwlpbnQgbm9wcmltZSA9IDE7DQorDQorCXJ1X3ggPSAoKHRtcCA9IG9ic2Rf
-Z2V0X3JhbmRvbV9sb25nKCkpICYgMHhGRkZGKSAlIFJVX007DQorDQorCXJ1X3NlZWQgPSAodG1w
-ID4+IDE2KSAmIDB4N0ZGRjsNCisJcnVfc2VlZDIgPSBvYnNkX2dldF9yYW5kb21fbG9uZygpICYg
-MHg3RkZGOw0KKw0KKwlydV9iID0gKCh0bXAgPSBvYnNkX2dldF9yYW5kb21fbG9uZygpKSAmIDB4
-ZmZmZSkgfCAxOw0KKwlydV9hID0gcG1vZChSVV9BR0VOLCAodG1wID4+IDE2KSAmIDB4ZmZmZSwg
-UlVfTSk7DQorCXdoaWxlIChydV9iICUgMyA9PSAwKQ0KKwkJcnVfYiArPSAyOw0KKw0KKwlqID0g
-KHRtcCA9IG9ic2RfZ2V0X3JhbmRvbV9sb25nKCkpICUgUlVfTjsNCisJdG1wID0gdG1wID4+IDE2
-Ow0KKw0KKwl3aGlsZSAobm9wcmltZSkgew0KKwkJZm9yIChpID0gMDsgaSA8IFBGQUNfTjsgaSsr
-KQ0KKwkJCWlmIChqICUgcGZhY3RzW2ldID09IDApDQorCQkJCWJyZWFrOw0KKw0KKwkJaWYgKGkg
-Pj0gUEZBQ19OKQ0KKwkJCW5vcHJpbWUgPSAwOw0KKwkJZWxzZQ0KKwkJCWogPSAoaiArIDEpICUg
-UlVfTjsNCisJfQ0KKw0KKwlydV9nID0gcG1vZChSVV9HRU4sIGosIFJVX04pOw0KKwlydV9jb3Vu
-dGVyID0gMDsNCisNCisJcnVfcmVzZWVkID0geHRpbWUudHZfc2VjICsgUlVfT1VUOw0KKwlydV9t
-c2IgPSBydV9tc2IgPT0gMHg4MDAwID8gMCA6IDB4ODAwMDsNCit9DQorDQorX191MTYNCitpcF9y
-YW5kb21pZCh2b2lkKQ0KK3sNCisJaW50IGksIG47DQorDQorCWlmIChydV9jb3VudGVyID49IFJV
-X01BWCB8fCB0aW1lX2FmdGVyKGdldF9zZWNvbmRzKCksIHJ1X3Jlc2VlZCkpDQorCQlpcF9pbml0
-aWQoKTsNCisNCisJaWYgKCF0bXApDQorCQl0bXAgPSBvYnNkX2dldF9yYW5kb21fbG9uZygpOw0K
-Kw0KKwluID0gdG1wICYgMHgzOw0KKwl0bXAgPSB0bXAgPj4gMjsNCisJaWYgKHJ1X2NvdW50ZXIg
-KyBuID49IFJVX01BWCkNCisJCWlwX2luaXRpZCgpOw0KKwlmb3IgKGkgPSAwOyBpIDw9IG47IGkr
-KykNCisJCXJ1X3ggPSAocnVfYSAqIHJ1X3ggKyBydV9iKSAlIFJVX007DQorCXJ1X2NvdW50ZXIg
-Kz0gaTsNCisNCisJcmV0dXJuICgocnVfc2VlZCBeIHBtb2QocnVfZywgcnVfc2VlZDIgXiBydV94
-LCBSVV9OKSkgfCBydV9tc2IpOw0KK30NCisNCitzdGF0aWMgX191MTYNCit0Y3Bfcm5kaXNzX2Vu
-Y3J5cHQoX191MTYgdmFsKQ0KK3sNCisJX191MTYgc3VtID0gMCwgaTsNCisNCisJZm9yIChpID0g
-MDsgaSA8IFRDUF9STkRJU1NfUk9VTkRTOyBpKyspIHsNCisJCXN1bSArPSAweDc5Yjk7DQorCQl2
-YWwgXj0gKChfX3UxNikgdGNwX3JuZGlzc19zYm94Wyh2YWwgXiBzdW0pICYgMHg3Zl0pIDw8IDc7
-DQorCQl2YWwgPSAoKHZhbCAmIDB4ZmYpIDw8IDcpIHwgKHZhbCA+PiA4KTsNCisJfQ0KKw0KKwly
-ZXR1cm4gdmFsOw0KK30NCisNCitzdGF0aWMgdm9pZA0KK3RjcF9ybmRpc3NfaW5pdCh2b2lkKQ0K
-K3sNCisJZ2V0X3JhbmRvbV9ieXRlcyh0Y3Bfcm5kaXNzX3Nib3gsIHNpemVvZiAodGNwX3JuZGlz
-c19zYm94KSk7DQorCXRjcF9ybmRpc3NfcmVzZWVkID0gZ2V0X3NlY29uZHMoKSArIFRDUF9STkRJ
-U1NfT1VUOw0KKwl0Y3Bfcm5kaXNzX21zYiA9IHRjcF9ybmRpc3NfbXNiID09IDB4ODAwMCA/IDAg
-OiAweDgwMDA7DQorCXRjcF9ybmRpc3NfY250ID0gMDsNCit9DQorDQorX191MzINCitpcF9yYW5k
-b21pc24odm9pZCkNCit7DQorCWlmICh0Y3Bfcm5kaXNzX2NudCA+PSBUQ1BfUk5ESVNTX01BWCB8
-fA0KKwkgICAgdGltZV9hZnRlcihnZXRfc2Vjb25kcygpLCB0Y3Bfcm5kaXNzX3Jlc2VlZCkpDQor
-CQl0Y3Bfcm5kaXNzX2luaXQoKTsNCisNCisJcmV0dXJuICgoKHRjcF9ybmRpc3NfZW5jcnlwdCh0
-Y3Bfcm5kaXNzX2NudCsrKSB8DQorCQkgIHRjcF9ybmRpc3NfbXNiKSA8PCAxNikgfCAob2JzZF9n
-ZXRfcmFuZG9tX2xvbmcoKSAmIDB4N2ZmZikpOw0KK30NCmRpZmYgLU51ciBsaW51eC0yLjYuMTEt
-cmMyL25ldC9zdW5ycGMveHBydC5jIGxpbnV4LTIuNi4xMS1yYzIudHgxL25ldC9zdW5ycGMveHBy
-dC5jDQotLS0gbGludXgtMi42LjExLXJjMi9uZXQvc3VucnBjL3hwcnQuYwkyMDA1LTAxLTI2IDE5
-OjU0OjIwLjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIuNi4xMS1yYzIudHgxL25ldC9zdW5y
-cGMveHBydC5jCTIwMDUtMDEtMjggMTk6NDI6NDYuMDAwMDAwMDAwICswMTAwDQpAQCAtMTM0Miw3
-ICsxMzQyLDkgQEANCiAgKi8NCiBzdGF0aWMgaW5saW5lIHUzMiB4cHJ0X2FsbG9jX3hpZChzdHJ1
-Y3QgcnBjX3hwcnQgKnhwcnQpDQogew0KLQlyZXR1cm4geHBydC0+eGlkKys7DQorCS8qIFJldHVy
-biByYW5kb21pemVkIHhwcnQtPnhpZCBpbnN0ZWFkIG9mIHBydC0+eGlkKysgKi8NCisJcmV0dXJu
-ICh1MzIpIG9ic2RfZ2V0X3JhbmRvbV9sb25nKCk7DQorDQogfQ0KIA0KIHN0YXRpYyBpbmxpbmUg
-dm9pZCB4cHJ0X2luaXRfeGlkKHN0cnVjdCBycGNfeHBydCAqeHBydCkNCg==
+The patch also adds some diagnostic features by counting the number of cmpxchg
+failures (useful for verification if this patch works right) and the number of
+faults received that led to no change in the page table. These statistics may
+be viewed via /proc/meminfo
 
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
---=-K8JTrSaJSvJCV+fubSQJ--
+Index: linux-2.6.10/mm/memory.c
+===================================================================
+--- linux-2.6.10.orig/mm/memory.c	2005-01-27 16:27:59.000000000 -0800
++++ linux-2.6.10/mm/memory.c	2005-01-27 16:28:54.000000000 -0800
+@@ -36,6 +36,8 @@
+  *		(Gerhard.Wichert@pdb.siemens.de)
+  *
+  * Aug/Sep 2004 Changed to four level page tables (Andi Kleen)
++ * Jan 2005 	Scalability improvement by reducing the use and the length of time
++ *		the page table lock is held (Christoph Lameter)
+  */
 
---=-yqfT7eT9Hzdva1H/QBsh
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
+ #include <linux/kernel_stat.h>
+@@ -1285,8 +1287,8 @@ static inline void break_cow(struct vm_a
+  * change only once the write actually happens. This avoids a few races,
+  * and potentially makes it more efficient.
+  *
+- * We hold the mm semaphore and the page_table_lock on entry and exit
+- * with the page_table_lock released.
++ * We hold the mm semaphore and have started atomic pte operations,
++ * exit with pte ops completed.
+  */
+ static int do_wp_page(struct mm_struct *mm, struct vm_area_struct * vma,
+ 	unsigned long address, pte_t *page_table, pmd_t *pmd, pte_t pte)
+@@ -1304,7 +1306,7 @@ static int do_wp_page(struct mm_struct *
+ 		pte_unmap(page_table);
+ 		printk(KERN_ERR "do_wp_page: bogus page at address %08lx\n",
+ 				address);
+-		spin_unlock(&mm->page_table_lock);
++		page_table_atomic_stop(mm);
+ 		return VM_FAULT_OOM;
+ 	}
+ 	old_page = pfn_to_page(pfn);
+@@ -1316,21 +1318,27 @@ static int do_wp_page(struct mm_struct *
+ 			flush_cache_page(vma, address);
+ 			entry = maybe_mkwrite(pte_mkyoung(pte_mkdirty(pte)),
+ 					      vma);
+-			ptep_set_access_flags(vma, address, page_table, entry, 1);
+-			update_mmu_cache(vma, address, entry);
++			/*
++			 * If the bits are not updated then another fault
++			 * will be generated with another chance of updating.
++			 */
++			if (ptep_cmpxchg(page_table, pte, entry))
++				update_mmu_cache(vma, address, entry);
++			else
++				inc_page_state(cmpxchg_fail_flag_reuse);
+ 			pte_unmap(page_table);
+-			spin_unlock(&mm->page_table_lock);
++			page_table_atomic_stop(mm);
+ 			return VM_FAULT_MINOR;
+ 		}
+ 	}
+ 	pte_unmap(page_table);
++	page_table_atomic_stop(mm);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+ 	/*
+ 	 * Ok, we need to copy. Oh, well..
+ 	 */
+ 	if (!PageReserved(old_page))
+ 		page_cache_get(old_page);
+-	spin_unlock(&mm->page_table_lock);
 
-iD8DBQBB+qHsDcEopW8rLewRAmXKAKCuEXJO4/0vhG5m8Sh/7i7qFzaTbwCgk2Qt
-zgZn05DP7Wn1J6cME+KrNEc=
-=eLSO
------END PGP SIGNATURE-----
+ 	if (unlikely(anon_vma_prepare(vma)))
+ 		goto no_new_page;
+@@ -1340,7 +1348,8 @@ static int do_wp_page(struct mm_struct *
+ 	copy_cow_page(old_page,new_page,address);
 
---=-yqfT7eT9Hzdva1H/QBsh--
+ 	/*
+-	 * Re-check the pte - we dropped the lock
++	 * Re-check the pte - so far we may not have acquired the
++	 * page_table_lock
+ 	 */
+ 	spin_lock(&mm->page_table_lock);
+ 	page_table = pte_offset_map(pmd, address);
+@@ -1692,8 +1701,7 @@ void swapin_readahead(swp_entry_t entry,
+ }
+
+ /*
+- * We hold the mm semaphore and the page_table_lock on entry and
+- * should release the pagetable lock on exit..
++ * We hold the mm semaphore and have started atomic pte operations
+  */
+ static int do_swap_page(struct mm_struct * mm,
+ 	struct vm_area_struct * vma, unsigned long address,
+@@ -1705,15 +1713,14 @@ static int do_swap_page(struct mm_struct
+ 	int ret = VM_FAULT_MINOR;
+
+ 	pte_unmap(page_table);
+-	spin_unlock(&mm->page_table_lock);
++	page_table_atomic_stop(mm);
+ 	page = lookup_swap_cache(entry);
+ 	if (!page) {
+  		swapin_readahead(entry, address, vma);
+  		page = read_swap_cache_async(entry, vma, address);
+ 		if (!page) {
+ 			/*
+-			 * Back out if somebody else faulted in this pte while
+-			 * we released the page table lock.
++			 * Back out if somebody else faulted in this pte
+ 			 */
+ 			spin_lock(&mm->page_table_lock);
+ 			page_table = pte_offset_map(pmd, address);
+@@ -1732,12 +1739,11 @@ static int do_swap_page(struct mm_struct
+ 		grab_swap_token();
+ 	}
+
+-	mark_page_accessed(page);
++	SetPageReferenced(page);
+ 	lock_page(page);
+
+ 	/*
+-	 * Back out if somebody else faulted in this pte while we
+-	 * released the page table lock.
++	 * Back out if somebody else faulted in this pte
+ 	 */
+ 	spin_lock(&mm->page_table_lock);
+ 	page_table = pte_offset_map(pmd, address);
+@@ -1771,80 +1777,94 @@ static int do_swap_page(struct mm_struct
+ 	set_pte(page_table, pte);
+ 	page_add_anon_rmap(page, vma, address);
+
++	/* No need to invalidate - it was non-present before */
++	update_mmu_cache(vma, address, pte);
++	pte_unmap(page_table);
++	spin_unlock(&mm->page_table_lock);
++
+ 	if (write_access) {
++		page_table_atomic_start(mm);
+ 		if (do_wp_page(mm, vma, address,
+ 				page_table, pmd, pte) == VM_FAULT_OOM)
+ 			ret = VM_FAULT_OOM;
+-		goto out;
+ 	}
+
+-	/* No need to invalidate - it was non-present before */
+-	update_mmu_cache(vma, address, pte);
+-	pte_unmap(page_table);
+-	spin_unlock(&mm->page_table_lock);
+ out:
+ 	return ret;
+ }
+
+ /*
+- * We are called with the MM semaphore and page_table_lock
+- * spinlock held to protect against concurrent faults in
+- * multithreaded programs.
++ * We are called with the MM semaphore held and atomic pte operations started.
+  */
+ static int
+ do_anonymous_page(struct mm_struct *mm, struct vm_area_struct *vma,
+ 		pte_t *page_table, pmd_t *pmd, int write_access,
+-		unsigned long addr)
++		unsigned long addr, pte_t orig_entry)
+ {
+ 	pte_t entry;
+-	struct page * page = ZERO_PAGE(addr);
++	struct page * page;
+
+-	/* Read-only mapping of ZERO_PAGE. */
+-	entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
++	if (unlikely(!write_access)) {
+
+-	/* ..except if it's a write access */
+-	if (write_access) {
+-		/* Allocate our own private page. */
++		/* Read-only mapping of ZERO_PAGE. */
++		entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
++
++		/*
++		 * If the cmpxchg fails then another fault may be
++		 * generated that may then be successful
++		 */
++
++		if (ptep_cmpxchg(page_table, orig_entry, entry))
++			update_mmu_cache(vma, addr, entry);
++		else
++			inc_page_state(cmpxchg_fail_anon_read);
+ 		pte_unmap(page_table);
+-		spin_unlock(&mm->page_table_lock);
++		page_table_atomic_stop(mm);
+
+-		if (unlikely(anon_vma_prepare(vma)))
+-			goto no_mem;
+-		page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
+-		if (!page)
+-			goto no_mem;
+-		clear_user_highpage(page, addr);
++		return VM_FAULT_MINOR;
++	}
+
+-		spin_lock(&mm->page_table_lock);
+-		page_table = pte_offset_map(pmd, addr);
++	page_table_atomic_stop(mm);
+
+-		if (!pte_none(*page_table)) {
+-			pte_unmap(page_table);
+-			page_cache_release(page);
+-			spin_unlock(&mm->page_table_lock);
+-			goto out;
+-		}
+-		update_mm_counter(mm, rss, 1);
+-		acct_update_integrals();
+-		update_mem_hiwater();
+-		entry = maybe_mkwrite(pte_mkdirty(mk_pte(page,
+-							 vma->vm_page_prot)),
+-				      vma);
+-		lru_cache_add_active(page);
+-		SetPageReferenced(page);
+-		page_add_anon_rmap(page, vma, addr);
++	/* Allocate our own private page. */
++	if (unlikely(anon_vma_prepare(vma)))
++		return VM_FAULT_OOM;
++
++	page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
++	if (!page)
++		return VM_FAULT_OOM;
++	clear_user_highpage(page, addr);
++
++	entry = maybe_mkwrite(pte_mkdirty(mk_pte(page,
++						 vma->vm_page_prot)),
++			      vma);
++
++	spin_lock(&mm->page_table_lock);
++
++	if (!ptep_cmpxchg(page_table, orig_entry, entry)) {
++		pte_unmap(page_table);
++		page_cache_release(page);
++		spin_unlock(&mm->page_table_lock);
++		inc_page_state(cmpxchg_fail_anon_write);
++		return VM_FAULT_MINOR;
+ 	}
+
+-	set_pte(page_table, entry);
+-	pte_unmap(page_table);
++	/*
++	 * These two functions must come after the cmpxchg
++	 * because if the page is on the LRU then try_to_unmap may come
++	 * in and unmap the pte.
++	 */
++	page_add_anon_rmap(page, vma, addr);
++	lru_cache_add_active(page);
++	update_mm_counter(mm, rss, 1);
++	acct_update_integrals();
++	update_mem_hiwater();
+
+-	/* No need to invalidate - it was non-present before */
+-	update_mmu_cache(vma, addr, entry);
++	update_mmu_cache(vma, addr, entry);
++	pte_unmap(page_table);
+ 	spin_unlock(&mm->page_table_lock);
+-out:
++
+ 	return VM_FAULT_MINOR;
+-no_mem:
+-	return VM_FAULT_OOM;
+ }
+
+ /*
+@@ -1856,12 +1876,12 @@ no_mem:
+  * As this is called only for pages that do not currently exist, we
+  * do not need to flush old virtual caches or the TLB.
+  *
+- * This is called with the MM semaphore held and the page table
+- * spinlock held. Exit with the spinlock released.
++ * This is called with the MM semaphore held and atomic pte operations started.
+  */
+ static int
+ do_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
+-	unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
++	unsigned long address, int write_access, pte_t *page_table,
++        pmd_t *pmd, pte_t orig_entry)
+ {
+ 	struct page * new_page;
+ 	struct address_space *mapping = NULL;
+@@ -1872,9 +1892,9 @@ do_no_page(struct mm_struct *mm, struct
+
+ 	if (!vma->vm_ops || !vma->vm_ops->nopage)
+ 		return do_anonymous_page(mm, vma, page_table,
+-					pmd, write_access, address);
++					pmd, write_access, address, orig_entry);
+ 	pte_unmap(page_table);
+-	spin_unlock(&mm->page_table_lock);
++	page_table_atomic_stop(mm);
+
+ 	if (vma->vm_file) {
+ 		mapping = vma->vm_file->f_mapping;
+@@ -1982,7 +2002,7 @@ oom:
+  * nonlinear vmas.
+  */
+ static int do_file_page(struct mm_struct * mm, struct vm_area_struct * vma,
+-	unsigned long address, int write_access, pte_t *pte, pmd_t *pmd)
++	unsigned long address, int write_access, pte_t *pte, pmd_t *pmd, pte_t entry)
+ {
+ 	unsigned long pgoff;
+ 	int err;
+@@ -1995,13 +2015,13 @@ static int do_file_page(struct mm_struct
+ 	if (!vma->vm_ops || !vma->vm_ops->populate ||
+ 			(write_access && !(vma->vm_flags & VM_SHARED))) {
+ 		pte_clear(pte);
+-		return do_no_page(mm, vma, address, write_access, pte, pmd);
++		return do_no_page(mm, vma, address, write_access, pte, pmd, entry);
+ 	}
+
+-	pgoff = pte_to_pgoff(*pte);
++	pgoff = pte_to_pgoff(entry);
+
+ 	pte_unmap(pte);
+-	spin_unlock(&mm->page_table_lock);
++	page_table_atomic_stop(mm);
+
+ 	err = vma->vm_ops->populate(vma, address & PAGE_MASK, PAGE_SIZE, vma->vm_page_prot, pgoff, 0);
+ 	if (err == -ENOMEM)
+@@ -2020,49 +2040,45 @@ static int do_file_page(struct mm_struct
+  * with external mmu caches can use to update those (ie the Sparc or
+  * PowerPC hashed page tables that act as extended TLBs).
+  *
+- * Note the "page_table_lock". It is to protect against kswapd removing
+- * pages from under us. Note that kswapd only ever _removes_ pages, never
+- * adds them. As such, once we have noticed that the page is not present,
+- * we can drop the lock early.
+- *
+- * The adding of pages is protected by the MM semaphore (which we hold),
+- * so we don't need to worry about a page being suddenly been added into
+- * our VM.
+- *
+- * We enter with the pagetable spinlock held, we are supposed to
+- * release it when done.
++ * Note that kswapd only ever _removes_ pages, never adds them.
++ * We need to insure to handle that case properly.
+  */
+ static inline int handle_pte_fault(struct mm_struct *mm,
+ 	struct vm_area_struct * vma, unsigned long address,
+ 	int write_access, pte_t *pte, pmd_t *pmd)
+ {
+ 	pte_t entry;
++	pte_t new_entry;
+
+ 	entry = *pte;
+ 	if (!pte_present(entry)) {
+-		/*
+-		 * If it truly wasn't present, we know that kswapd
+-		 * and the PTE updates will not touch it later. So
+-		 * drop the lock.
+-		 */
+ 		if (pte_none(entry))
+-			return do_no_page(mm, vma, address, write_access, pte, pmd);
++			return do_no_page(mm, vma, address, write_access, pte, pmd, entry);
+ 		if (pte_file(entry))
+-			return do_file_page(mm, vma, address, write_access, pte, pmd);
++			return do_file_page(mm, vma, address, write_access, pte, pmd, entry);
+ 		return do_swap_page(mm, vma, address, pte, pmd, entry, write_access);
+ 	}
+
++	new_entry = pte_mkyoung(entry);
+ 	if (write_access) {
+ 		if (!pte_write(entry))
+ 			return do_wp_page(mm, vma, address, pte, pmd, entry);
+-
+-		entry = pte_mkdirty(entry);
++		new_entry = pte_mkdirty(new_entry);
+ 	}
+-	entry = pte_mkyoung(entry);
+-	ptep_set_access_flags(vma, address, pte, entry, write_access);
+-	update_mmu_cache(vma, address, entry);
++
++	/*
++	 * If the cmpxchg fails then we will get another fault which
++ 	 * has another chance of successfully updating the page table entry.
++	 */
++	if (ptep_cmpxchg(pte, entry, new_entry)) {
++		flush_tlb_page(vma, address);
++		update_mmu_cache(vma, address, entry);
++	} else
++		inc_page_state(cmpxchg_fail_flag_update);
+ 	pte_unmap(pte);
+-	spin_unlock(&mm->page_table_lock);
++	page_table_atomic_stop(mm);
++	if (pte_val(new_entry) == pte_val(entry))
++		inc_page_state(spurious_page_faults);
+ 	return VM_FAULT_MINOR;
+ }
+
+@@ -2081,33 +2097,73 @@ int handle_mm_fault(struct mm_struct *mm
+
+ 	inc_page_state(pgfault);
+
+-	if (is_vm_hugetlb_page(vma))
++	if (unlikely(is_vm_hugetlb_page(vma)))
+ 		return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
+
+ 	/*
+-	 * We need the page table lock to synchronize with kswapd
+-	 * and the SMP-safe atomic PTE updates.
++	 * We try to rely on the mmap_sem and the SMP-safe atomic PTE updates.
++	 * to synchronize with kswapd. However, the arch may fall back
++	 * in page_table_atomic_start to the page table lock.
++	 *
++	 * We may be able to avoid taking and releasing the page_table_lock
++	 * for the p??_alloc functions through atomic operations so we
++	 * duplicate the functionality of pmd_alloc, pud_alloc and
++	 * pte_alloc_map here.
+ 	 */
++	page_table_atomic_start(mm);
+ 	pgd = pgd_offset(mm, address);
+-	spin_lock(&mm->page_table_lock);
++	if (unlikely(pgd_none(*pgd))) {
++		pud_t *new;
++
++		page_table_atomic_stop(mm);
++		new = pud_alloc_one(mm, address);
++
++		if (!new)
++			return VM_FAULT_OOM;
++
++		page_table_atomic_start(mm);
++		if (!pgd_test_and_populate(mm, pgd, new))
++			pud_free(new);
++	}
++
++	pud = pud_offset(pgd, address);
++	if (unlikely(pud_none(*pud))) {
++		pmd_t *new;
++
++		page_table_atomic_stop(mm);
++		new = pmd_alloc_one(mm, address);
+
+-	pud = pud_alloc(mm, pgd, address);
+-	if (!pud)
+-		goto oom;
+-
+-	pmd = pmd_alloc(mm, pud, address);
+-	if (!pmd)
+-		goto oom;
+-
+-	pte = pte_alloc_map(mm, pmd, address);
+-	if (!pte)
+-		goto oom;
++		if (!new)
++			return VM_FAULT_OOM;
+
+-	return handle_pte_fault(mm, vma, address, write_access, pte, pmd);
++		page_table_atomic_start(mm);
++
++		if (!pud_test_and_populate(mm, pud, new))
++			pmd_free(new);
++	}
+
+- oom:
+-	spin_unlock(&mm->page_table_lock);
+-	return VM_FAULT_OOM;
++	pmd = pmd_offset(pud, address);
++	if (unlikely(!pmd_present(*pmd))) {
++		struct page *new;
++
++		page_table_atomic_stop(mm);
++		new = pte_alloc_one(mm, address);
++
++		if (!new)
++			return VM_FAULT_OOM;
++
++		page_table_atomic_start(mm);
++
++		if (!pmd_test_and_populate(mm, pmd, new))
++			pte_free(new);
++		else {
++			inc_page_state(nr_page_table_pages);
++			mm->nr_ptes++;
++		}
++	}
++
++	pte = pte_offset_map(pmd, address);
++	return handle_pte_fault(mm, vma, address, write_access, pte, pmd);
+ }
+
+ #ifndef __ARCH_HAS_4LEVEL_HACK
+Index: linux-2.6.10/include/asm-generic/pgtable-nopud.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-generic/pgtable-nopud.h	2005-01-27 14:47:20.000000000 -0800
++++ linux-2.6.10/include/asm-generic/pgtable-nopud.h	2005-01-27 16:28:54.000000000 -0800
+@@ -25,8 +25,14 @@ static inline int pgd_bad(pgd_t pgd)		{
+ static inline int pgd_present(pgd_t pgd)	{ return 1; }
+ static inline void pgd_clear(pgd_t *pgd)	{ }
+ #define pud_ERROR(pud)				(pgd_ERROR((pud).pgd))
+-
+ #define pgd_populate(mm, pgd, pud)		do { } while (0)
++
++#define __HAVE_ARCH_PGD_TEST_AND_POPULATE
++static inline int pgd_test_and_populate(struct mm_struct *mm, pgd_t *pgd, pud_t *pud)
++{
++	return 1;
++}
++
+ /*
+  * (puds are folded into pgds so this doesn't get actually called,
+  * but the define is needed for a generic inline function.)
+Index: linux-2.6.10/include/asm-generic/pgtable-nopmd.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-generic/pgtable-nopmd.h	2005-01-27 14:47:20.000000000 -0800
++++ linux-2.6.10/include/asm-generic/pgtable-nopmd.h	2005-01-27 16:28:54.000000000 -0800
+@@ -29,6 +29,11 @@ static inline void pud_clear(pud_t *pud)
+ #define pmd_ERROR(pmd)				(pud_ERROR((pmd).pud))
+
+ #define pud_populate(mm, pmd, pte)		do { } while (0)
++#define __ARCH_HAVE_PUD_TEST_AND_POPULATE
++static inline int pud_test_and_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
++{
++	return 1;
++}
+
+ /*
+  * (pmds are folded into puds so this doesn't get actually called,
+Index: linux-2.6.10/include/asm-generic/pgtable.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-generic/pgtable.h	2005-01-27 16:27:40.000000000 -0800
++++ linux-2.6.10/include/asm-generic/pgtable.h	2005-01-27 16:30:35.000000000 -0800
+@@ -105,8 +105,14 @@ static inline pte_t ptep_get_and_clear(p
+ #ifdef CONFIG_ATOMIC_TABLE_OPS
+
+ /*
+- * The architecture does support atomic table operations.
+- * Thus we may provide generic atomic ptep_xchg and ptep_cmpxchg using
++ * The architecture does support atomic table operations and
++ * all operations on page table entries must always be atomic.
++ *
++ * This means that the kernel will never encounter a partially updated
++ * page table entry.
++ *
++ * Since the architecture does support atomic table operations, we
++ * may provide generic atomic ptep_xchg and ptep_cmpxchg using
+  * cmpxchg and xchg.
+  */
+ #ifndef __HAVE_ARCH_PTEP_XCHG
+@@ -132,6 +138,65 @@ static inline pte_t ptep_get_and_clear(p
+ })
+ #endif
+
++/*
++ * page_table_atomic_start and page_table_atomic_stop may be used to
++ * define special measures that an arch needs to guarantee atomic
++ * operations outside of a spinlock. In the case that an arch does
++ * not support atomic page table operations we will fall back to the
++ * page table lock.
++ */
++#ifndef __HAVE_ARCH_PAGE_TABLE_ATOMIC_START
++#define page_table_atomic_start(mm) do { } while (0)
++#endif
++
++#ifndef __HAVE_ARCH_PAGE_TABLE_ATOMIC_START
++#define page_table_atomic_stop(mm) do { } while (0)
++#endif
++
++/*
++ * Fallback functions for atomic population of higher page table
++ * structures. These simply acquire the page_table_lock for
++ * synchronization. An architecture may override these generic
++ * functions to provide atomic populate functions to make these
++ * more effective.
++ */
++
++#ifndef __HAVE_ARCH_PGD_TEST_AND_POPULATE
++#define pgd_test_and_populate(__mm, __pgd, __pud)			\
++({									\
++	int __rc;							\
++	spin_lock(&mm->page_table_lock);				\
++	__rc = pgd_none(*(__pgd));					\
++	if (__rc) pgd_populate(__mm, __pgd, __pud);			\
++	spin_unlock(&mm->page_table_lock);				\
++	__rc;								\
++})
++#endif
++
++#ifndef __HAVE_ARCH_PUD_TEST_AND_POPULATE
++#define pud_test_and_populate(__mm, __pud, __pmd)			\
++({									\
++	int __rc;							\
++	spin_lock(&mm->page_table_lock);				\
++	__rc = pud_none(*(__pud));					\
++	if (__rc) pud_populate(__mm, __pud, __pmd);			\
++	spin_unlock(&mm->page_table_lock);				\
++	__rc;								\
++})
++#endif
++
++#ifndef __HAVE_ARCH_PMD_TEST_AND_POPULATE
++#define pmd_test_and_populate(__mm, __pmd, __page)			\
++({									\
++	int __rc;							\
++	spin_lock(&mm->page_table_lock);				\
++	__rc = !pmd_present(*(__pmd));					\
++	if (__rc) pmd_populate(__mm, __pmd, __page);			\
++	spin_unlock(&mm->page_table_lock);				\
++	__rc;								\
++})
++#endif
++
+ #else
+
+ /*
+@@ -142,6 +207,11 @@ static inline pte_t ptep_get_and_clear(p
+  * short time frame. This means that the page_table_lock must be held
+  * to avoid a page fault that would install a new entry.
+  */
++
++/* Fall back to the page table lock to synchronize page table access */
++#define page_table_atomic_start(mm)	spin_lock(&(mm)->page_table_lock)
++#define page_table_atomic_stop(mm)	spin_unlock(&(mm)->page_table_lock)
++
+ #ifndef __HAVE_ARCH_PTEP_XCHG
+ #define ptep_xchg(__ptep, __pteval)					\
+ ({									\
+@@ -186,6 +256,41 @@ static inline pte_t ptep_get_and_clear(p
+ 	r;								\
+ })
+ #endif
++
++/*
++ * Fallback functions for atomic population of higher page table
++ * structures. These rely on the page_table_lock being held.
++ */
++#ifndef __HAVE_ARCH_PGD_TEST_AND_POPULATE
++#define pgd_test_and_populate(__mm, __pgd, __pud)			\
++({									\
++	int __rc;							\
++	__rc = pgd_none(*(__pgd));					\
++	if (__rc) pgd_populate(__mm, __pgd, __pud);			\
++	__rc;								\
++})
++#endif
++
++#ifndef __HAVE_ARCH_PUD_TEST_AND_POPULATE
++#define pud_test_and_populate(__mm, __pud, __pmd)			\
++({									\
++       int __rc;							\
++       __rc = pud_none(*(__pud));					\
++       if (__rc) pud_populate(__mm, __pud, __pmd);			\
++       __rc;								\
++})
++#endif
++
++#ifndef __HAVE_ARCH_PMD_TEST_AND_POPULATE
++#define pmd_test_and_populate(__mm, __pmd, __page)			\
++({									\
++       int __rc;							\
++       __rc = !pmd_present(*(__pmd));					\
++       if (__rc) pmd_populate(__mm, __pmd, __page);			\
++       __rc;								\
++})
++#endif
++
+ #endif
+
+ #ifndef __HAVE_ARCH_PTEP_SET_WRPROTECT
+Index: linux-2.6.10/include/asm-ia64/pgtable.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-ia64/pgtable.h	2005-01-27 14:47:20.000000000 -0800
++++ linux-2.6.10/include/asm-ia64/pgtable.h	2005-01-27 16:33:24.000000000 -0800
+@@ -554,6 +554,8 @@ do {											\
+ #define FIXADDR_USER_START	GATE_ADDR
+ #define FIXADDR_USER_END	(GATE_ADDR + 2*PERCPU_PAGE_SIZE)
+
++#define __HAVE_ARCH_PUD_TEST_AND_POPULATE
++#define __HAVE_ARCH_PMD_TEST_AND_POPULATE
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
+ #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
+@@ -561,7 +563,7 @@ do {											\
+ #define __HAVE_ARCH_PTEP_MKDIRTY
+ #define __HAVE_ARCH_PTE_SAME
+ #define __HAVE_ARCH_PGD_OFFSET_GATE
+-#include <asm-generic/pgtable.h>
+ #include <asm-generic/pgtable-nopud.h>
++#include <asm-generic/pgtable.h>
+
+ #endif /* _ASM_IA64_PGTABLE_H */
+Index: linux-2.6.10/include/linux/page-flags.h
+===================================================================
+--- linux-2.6.10.orig/include/linux/page-flags.h	2005-01-27 14:47:20.000000000 -0800
++++ linux-2.6.10/include/linux/page-flags.h	2005-01-27 16:28:54.000000000 -0800
+@@ -131,6 +131,17 @@ struct page_state {
+ 	unsigned long allocstall;	/* direct reclaim calls */
+
+ 	unsigned long pgrotated;	/* pages rotated to tail of the LRU */
++
++	/* Low level counters */
++	unsigned long spurious_page_faults;	/* Faults with no ops */
++	unsigned long cmpxchg_fail_flag_update;	/* cmpxchg failures for pte flag update */
++	unsigned long cmpxchg_fail_flag_reuse;	/* cmpxchg failures when cow reuse of pte */
++	unsigned long cmpxchg_fail_anon_read;	/* cmpxchg failures on anonymous read */
++	unsigned long cmpxchg_fail_anon_write;	/* cmpxchg failures on anonymous write */
++
++	/* rss deltas for the current executing thread */
++	long rss;
++	long anon_rss;
+ };
+
+ extern void get_page_state(struct page_state *ret);
+Index: linux-2.6.10/fs/proc/proc_misc.c
+===================================================================
+--- linux-2.6.10.orig/fs/proc/proc_misc.c	2005-01-27 14:47:19.000000000 -0800
++++ linux-2.6.10/fs/proc/proc_misc.c	2005-01-27 16:28:54.000000000 -0800
+@@ -127,7 +127,7 @@ static int meminfo_read_proc(char *page,
+ 	unsigned long allowed;
+ 	struct vmalloc_info vmi;
+
+-	get_page_state(&ps);
++	get_full_page_state(&ps);
+ 	get_zone_counts(&active, &inactive, &free);
+
+ /*
+@@ -168,7 +168,12 @@ static int meminfo_read_proc(char *page,
+ 		"PageTables:   %8lu kB\n"
+ 		"VmallocTotal: %8lu kB\n"
+ 		"VmallocUsed:  %8lu kB\n"
+-		"VmallocChunk: %8lu kB\n",
++		"VmallocChunk: %8lu kB\n"
++		"Spurious page faults    : %8lu\n"
++		"cmpxchg fail flag update: %8lu\n"
++		"cmpxchg fail COW reuse  : %8lu\n"
++		"cmpxchg fail anon read  : %8lu\n"
++		"cmpxchg fail anon write : %8lu\n",
+ 		K(i.totalram),
+ 		K(i.freeram),
+ 		K(i.bufferram),
+@@ -191,7 +196,12 @@ static int meminfo_read_proc(char *page,
+ 		K(ps.nr_page_table_pages),
+ 		VMALLOC_TOTAL >> 10,
+ 		vmi.used >> 10,
+-		vmi.largest_chunk >> 10
++		vmi.largest_chunk >> 10,
++		ps.spurious_page_faults,
++		ps.cmpxchg_fail_flag_update,
++		ps.cmpxchg_fail_flag_reuse,
++		ps.cmpxchg_fail_anon_read,
++		ps.cmpxchg_fail_anon_write
+ 		);
+
+ 		len += hugetlb_report_meminfo(page + len);
+Index: linux-2.6.10/include/asm-ia64/pgalloc.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-ia64/pgalloc.h	2005-01-27 14:47:20.000000000 -0800
++++ linux-2.6.10/include/asm-ia64/pgalloc.h	2005-01-27 16:33:10.000000000 -0800
+@@ -34,6 +34,10 @@
+ #define pmd_quicklist		(local_cpu_data->pmd_quick)
+ #define pgtable_cache_size	(local_cpu_data->pgtable_cache_sz)
+
++/* Empty entries of PMD and PGD */
++#define PMD_NONE       0
++#define PUD_NONE       0
++
+ static inline pgd_t*
+ pgd_alloc_one_fast (struct mm_struct *mm)
+ {
+@@ -82,6 +86,13 @@ pud_populate (struct mm_struct *mm, pud_
+ 	pud_val(*pud_entry) = __pa(pmd);
+ }
+
++/* Atomic populate */
++static inline int
++pud_test_and_populate (struct mm_struct *mm, pud_t *pud_entry, pmd_t *pmd)
++{
++	return ia64_cmpxchg8_acq(pud_entry,__pa(pmd), PUD_NONE) == PUD_NONE;
++}
++
+ static inline pmd_t*
+ pmd_alloc_one_fast (struct mm_struct *mm, unsigned long addr)
+ {
+@@ -127,6 +138,14 @@ pmd_populate (struct mm_struct *mm, pmd_
+ 	pmd_val(*pmd_entry) = page_to_phys(pte);
+ }
+
++/* Atomic populate */
++static inline int
++pmd_test_and_populate (struct mm_struct *mm, pmd_t *pmd_entry, struct page *pte)
++{
++	return ia64_cmpxchg8_acq(pmd_entry, page_to_phys(pte), PMD_NONE) == PMD_NONE;
++}
++
++
+ static inline void
+ pmd_populate_kernel (struct mm_struct *mm, pmd_t *pmd_entry, pte_t *pte)
+ {
 

@@ -1,43 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129385AbQLLVxQ>; Tue, 12 Dec 2000 16:53:16 -0500
+	id <S129965AbQLLVz0>; Tue, 12 Dec 2000 16:55:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129450AbQLLVxH>; Tue, 12 Dec 2000 16:53:07 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45575 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129385AbQLLVwx>; Tue, 12 Dec 2000 16:52:53 -0500
-Subject: Re: 2.2.16 SMP: mtrr errors
-To: johncavan@home.com (John Cavan)
-Date: Tue, 12 Dec 2000 21:23:30 +0000 (GMT)
-Cc: VANDROVE@vc.cvut.cz (Petr Vandrovec),
-        pauly@enteract.com ( Paul C. Nendick), linux-kernel@vger.kernel.org
-In-Reply-To: <3A3693A8.E0BA83B7@home.com> from "John Cavan" at Dec 12, 2000 04:07:52 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129998AbQLLVzQ>; Tue, 12 Dec 2000 16:55:16 -0500
+Received: from ip252.uni-com.net ([205.198.252.252]:31237 "HELO www.nondot.org")
+	by vger.kernel.org with SMTP id <S129965AbQLLVzE>;
+	Tue, 12 Dec 2000 16:55:04 -0500
+Date: Tue, 12 Dec 2000 17:26:26 -0600 (CST)
+From: Chris Lattner <sabre@nondot.org>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+Cc: Ben Ford <ben@kalifornia.com>, linux-kernel@vger.kernel.org,
+        orbit-list@gnome.org, korbit-cvs@lists.sourceforge.net
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <3A31BC6D.1CFB5221@haque.net>
+Message-ID: <Pine.LNX.4.21.0012121719180.20891-100000@www.nondot.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E145wtZ-0001pn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Petr, the Matrox card splits the memory between the two video screens
-> when running in a multi-head configuration and "pretends" that it is two
-> distinct cards. Thus, a 32 mb card will register an mtrr for 24mb and
-> for 8mb seperately when in this mode.
 
-That is a driver bug. The intel processors only support MTRR's on certain
-power boundaries/sizes. The fall through is intended. 
+On Sat, 9 Dec 2000, Mohammad A. Haque wrote:
 
-> to fall through, but is this correct? I've inserted a break at the end
-> of the Intel switch before and have not had problems, but I left it out
+> It was just an example. Basically, you'd be able to do in with just
+> about any language that has ORBit bindings.
+> 
+> Ben Ford wrote:
+> > Why would you *ever* want to write a device driver in perl???
+> 
 
-Lucky
+Precisely... but also, there could be a case where perl would make
+sense.  Consider an FTP filesystem.  There performance is not dictated by
+the speed of the language, it's limited by bandwidth.  It could make sense
+to write your almighty FTPfs like this:
 
-> in the latest couple of kernels because of all the mtrr work being done,
-> waiting to see if there was resolution.
+1. Prototype it in Perl, get all the bugs out.
+2. Rewrite in C in userspace, get all the bugs out.
+3. recompile/relink in kernel space with no source modifications
+4. ship product.  :)
 
-The Matrox driver needs to register a single 32Mb MTRR
+The great thing that kORBit buys you is insulation of kernel space from
+the drivers that are running... kinda like a microkernel.  I'm not going
+to start a flamewar here about Linux and microkernels, but when doing
+initial development work for a driver, the test/crash/reboot/fsck cycle is
+a real pain (okay, maybe journalling helps a little, but you get the
+idea).  What we're offering goes more like this:
+
+1. Boot kernel
+2. Install corbafs module for example
+3. Start test filesystem in user space
+4. mount test user space filesystem
+5. test it, oh crap, it segfaulted.
+6. CorbaFS gets exceptions trying to communicate to server, which it
+relays to the kernel as -errno conditions.
+7. You safely unmount corbafs
+8. fix your bug
+9. goto step #2.
+
+Which is arguably nicer.  :)
+
+The whole idea is that a bastard driver shouldn't take your kernel down if
+you know it to be unreliable... if you trust the driver, then by all
+means, don't use kORBit.  Also, kORBit is useful when you don't WANT
+something in the kernel... and I won't bring up the whole user level
+filesystem debate again... :)
+
+-Chris
+
+http://www.nondot.org/~sabre/os/
+http://korbit.sourceforge.net/
+
+> -- 
+> 
+> =====================================================================
+> Mohammad A. Haque                              http://www.haque.net/ 
+>                                                mhaque@haque.net
+> 
+>   "Alcohol and calculus don't mix.             Project Lead
+>    Don't drink and derive." --Unknown          http://wm.themes.org/
+>                                                batmanppc@themes.org
+> =====================================================================
+> 
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

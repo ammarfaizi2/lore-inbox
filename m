@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262303AbTCRIOO>; Tue, 18 Mar 2003 03:14:14 -0500
+	id <S262224AbTCRIPJ>; Tue, 18 Mar 2003 03:15:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262310AbTCRIOO>; Tue, 18 Mar 2003 03:14:14 -0500
-Received: from sheridan.uel.ac.uk ([161.76.9.2]:10942 "EHLO sheridan.uel.ac.uk")
-	by vger.kernel.org with ESMTP id <S262303AbTCRION>;
-	Tue, 18 Mar 2003 03:14:13 -0500
-Date: Tue, 18 Mar 2003 08:25:02 +0000
-From: fs <admin@www0.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4 config giving -march=athlon for all athlons/durons
-Message-ID: <20030318082502.GA21350@www0.org>
+	id <S262228AbTCRIPI>; Tue, 18 Mar 2003 03:15:08 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:45583 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262224AbTCRIPG>; Tue, 18 Mar 2003 03:15:06 -0500
+Date: Tue, 18 Mar 2003 09:26:01 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Patch: Fix BUGging in ide-disk.c
+Message-ID: <20030318082601.GE10472@atrey.karlin.mff.cuni.cz>
+References: <1047939287.5426.5.camel@laptop-linux.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <1047939287.5426.5.camel@laptop-linux.cunninghams>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure if it's on 2.5 too, but, giving duron/athlon on the cpu type it
-passes -march=athlon on gcc. Some athlons had no sse support when
-e.g. -march=athlon-4 can be used for new amd cpus that have sse support.
+Hi!
 
-For a duron 1.3 here, that shows sse on cpuinfo, passed march=athlon-4
-on the arch Makefile, having no problems after two weeks uptime with
-that kernel.
+> This patch fixes a problem with the suspend/resume code in ide-disk.c
+> which is triggered when the code is called multiple times for a drive.
+> When the second resume call was made, the BUG was activated.
+> 
+> Please apply if something hasn't already been done about this.
 
-Are there any issues covering this detail or it's just not right?
+Yes, this looks good.
+								Pavel
 
-- fs
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

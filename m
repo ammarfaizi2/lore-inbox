@@ -1,128 +1,407 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVBLS6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVBLTSx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVBLS6c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 13:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVBLS6c
+	id S261178AbVBLTSx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 14:18:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVBLTR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 13:58:32 -0500
-Received: from fsmlabs.com ([168.103.115.128]:14982 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261184AbVBLS6V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 13:58:21 -0500
-Date: Sat, 12 Feb 2005 11:59:04 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Nathan Lynch <ntl@pobox.com>
-cc: lkml <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6-bk: cpu hotplug + preempt = smp_processor_id warnings galore
-In-Reply-To: <20050211232821.GA14499@otto>
-Message-ID: <Pine.LNX.4.61.0502121019080.26742@montezuma.fsmlabs.com>
-References: <20050211232821.GA14499@otto>
+	Sat, 12 Feb 2005 14:17:56 -0500
+Received: from web11609.mail.yahoo.com ([216.136.129.38]:13998 "HELO
+	web11609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261178AbVBLTRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 14:17:22 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=JDRfLJXT7HzbBalqMJoWBuQjlhdSkeOrtLuLd/8fe8BOeVsrmAFIAu42c7bPqOgl0DF5yxwIlh3E3yFRTBqshvz9nO69ho2tdOa2dpdoU7OUbuXWKTjeQHuVm8A7S1uL0iSj8+tfWdZd8znDGq0eCfp/LMBsobcHRIWWUwxJwjw=  ;
+Message-ID: <20050212191721.24806.qmail@web11609.mail.yahoo.com>
+Date: Sat, 12 Feb 2005 11:17:21 -0800 (PST)
+From: Gil Lapidus <gjlap@yahoo.com>
+Subject: once more w/feeling
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Feb 2005, Nathan Lynch wrote:
+Greetings,
 
-> With 2.6.11-rc3-bk7 on ppc64 I am seeing lots of smp_processor_id
-> warnings whenever I hotplug cpus:
-> 
-> # echo 0 > /sys/devices/system/cpu/cpu1/online 
-> cpu 1 (hwid 1) Ready to die...
-> BUG: using smp_processor_id() in preemptible [00000001] code:
-> ksoftirqd/1/5
-> caller is .ksoftirqd+0xbc/0x1f8
-> Call Trace:
-> [c0000000fffbbce0] [ffffffffffffffff] 0xffffffffffffffff (unreliable)
-> [c0000000fffbbd60] [c0000000001c9f1c] .smp_processor_id+0x154/0x168
-> [c0000000fffbbe20] [c00000000005f414] .ksoftirqd+0xbc/0x1f8
-> [c0000000fffbbed0] [c0000000000764cc] .kthread+0x128/0x134
-> [c0000000fffbbf90] [c000000000014248] .kernel_thread+0x4c/0x6c
-> 
-> I believe the above warning is caused by the local_softirq_pending
-> call on a "foreign" cpu before ksoftirqd/1 has been stopped.  Looking
-> at the code, I think this doesn't indicate a real bug, but it would be
-> better if ksoftirqd didn't check local_softirq_pending after it's been
-> kicked off its cpu, right?
+On a K6-2 500MHz box.
 
-How about;
+kernel 2.4.28 boots _fine_.
 
-Index: linux-2.6.11-rc3-mm2/kernel/softirq.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.11-rc3-mm2/kernel/softirq.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 softirq.c
---- linux-2.6.11-rc3-mm2/kernel/softirq.c	11 Feb 2005 05:14:57 -0000	1.1.1.1
-+++ linux-2.6.11-rc3-mm2/kernel/softirq.c	12 Feb 2005 18:24:54 -0000
-@@ -355,8 +355,12 @@ static int ksoftirqd(void * __bind_cpu)
- 	set_current_state(TASK_INTERRUPTIBLE);
- 
- 	while (!kthread_should_stop()) {
--		if (!local_softirq_pending())
-+		preempt_disable();
-+		if (!local_softirq_pending()) {
-+			preempt_enable_no_resched();
- 			schedule();
-+			preempt_disable();
-+		}
- 
- 		__set_current_state(TASK_RUNNING);
- 
-@@ -364,14 +368,14 @@ static int ksoftirqd(void * __bind_cpu)
- 			/* Preempt disable stops cpu going offline.
- 			   If already offline, we'll be on wrong CPU:
- 			   don't process */
--			preempt_disable();
- 			if (cpu_is_offline((long)__bind_cpu))
- 				goto wait_to_die;
- 			do_softirq();
--			preempt_enable();
-+			preempt_enable_no_resched();
- 			cond_resched();
-+			preempt_disable();
- 		}
--
-+		preempt_enable();
- 		set_current_state(TASK_INTERRUPTIBLE);
- 	}
- 	__set_current_state(TASK_RUNNING);
+kernel 2.6.9 displays "Loading ...." then PC resets.
 
-> # echo 1 > /sys/devices/system/cpu/cpu1/online 
-> BUG: using smp_processor_id() in preemptible [00000001] code:
-> swapper/0
-> caller is .dedicated_idle+0x68/0x22c
-> Call Trace:
-> [c0000000fffafc50] [ffffffffffffffff] 0xffffffffffffffff (unreliable)
-> [c0000000fffafcd0] [c0000000001c9f1c] .smp_processor_id+0x154/0x168
-> [c0000000fffafd90] [c00000000000f998] .dedicated_idle+0x68/0x22c
-> [c0000000fffafe80] [c00000000000fce8] .cpu_idle+0x34/0x4c
-> [c0000000fffaff00] [c00000000003a744] .start_secondary+0x10c/0x150
-> [c0000000fffaff90] [c00000000000bd28] .enable_64b_mode+0x0/0x28
-> 
-> Should ppc64 simply use _smp_processor_id() in its idle loop code
-> (like i386)?
+Here's the .config filtered through grep ^C:
 
-I would say so, it's definitely safe.
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_SYSCTL=y
+CONFIG_AUDIT=y
+CONFIG_AUDITSYSCALL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_HOTPLUG=y
+CONFIG_EMBEDDED=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_SHMEM=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MK6=y
+CONFIG_X86_GENERIC=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_PREEMPT=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=m
+CONFIG_TOSHIBA=m
+CONFIG_I8K=m
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_EDD=m
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_SOFTWARE_SUSPEND=y
+CONFIG_PM_STD_PARTITION=""
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=m
+CONFIG_ACPI_BATTERY=m
+CONFIG_ACPI_BUTTON=m
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+CONFIG_ACPI_TOSHIBA=m
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_PCMCIA=m
+CONFIG_PCMCIA_DEBUG=y
+CONFIG_YENTA=m
+CONFIG_CARDBUS=y
+CONFIG_PD6729=m
+CONFIG_I82092=m
+CONFIG_I82365=m
+CONFIG_TCIC=m
+CONFIG_PCMCIA_PROBE=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_MISC=m
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=m
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_CMD640_ENHANCED=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_OPTI621=m
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_AEC62XX=y
+CONFIG_BLK_DEV_ALI15X3=y
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_BLK_DEV_ATIIXP=y
+CONFIG_BLK_DEV_CMD64X=y
+CONFIG_BLK_DEV_CY82C693=y
+CONFIG_BLK_DEV_HPT34X=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_NS87415=y
+CONFIG_BLK_DEV_SIS5513=y
+CONFIG_BLK_DEV_SLC90E66=y
+CONFIG_BLK_DEV_TRM290=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDE_CHIPSETS=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_DPT_I2O=m
+CONFIG_SCSI_SATA=y
+CONFIG_SCSI_ATA_PIIX=y
+CONFIG_SCSI_SATA_SX4=m
+CONFIG_SCSI_SATA_SIS=m
+CONFIG_SCSI_IPR=m
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_IEEE1394=y
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_IEEE1394_RAWIO=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_IPRANGE=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_PKTTYPE=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_CONNTRACK=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_TARGET_NETMAP=y
+CONFIG_IP_NF_TARGET_SAME=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_DSCP=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_CLASSIFY=y
+CONFIG_IP_NF_RAW=m
+CONFIG_IP_NF_TARGET_NOTRACK=m
+CONFIG_IP_NF_ARPTABLES=y
+CONFIG_IP_NF_ARPFILTER=y
+CONFIG_IP_NF_ARP_MANGLE=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=y
+CONFIG_8139TOO_PIO=y
+CONFIG_S2IO=m
+CONFIG_PLIP=m
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+CONFIG_INPUT_EVDEV=m
+CONFIG_INPUT_EVBUG=m
+CONFIG_GAMEPORT=m
+CONFIG_SOUND_GAMEPORT=m
+CONFIG_GAMEPORT_NS558=m
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=m
+CONFIG_SERIO_SERPORT=m
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_MOUSE_SERIAL=m
+CONFIG_INPUT_JOYSTICK=y
+CONFIG_JOYSTICK_ANALOG=m
+CONFIG_JOYSTICK_ADI=m
+CONFIG_JOYSTICK_DB9=m
+CONFIG_JOYSTICK_GAMECON=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_ALI=m
+CONFIG_AGP_ATI=m
+CONFIG_AGP_INTEL=m
+CONFIG_AGP_INTEL_MCH=m
+CONFIG_AGP_SIS=m
+CONFIG_AGP_VIA=m
+CONFIG_DRM=y
+CONFIG_DRM_R128=m
+CONFIG_DRM_RADEON=m
+CONFIG_DRM_SIS=m
+CONFIG_SYNCLINK_CS=m
+CONFIG_HPET=y
+CONFIG_HPET_RTC_IRQ=y
+CONFIG_HPET_MMAP=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_SOUND=y
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_HWDEP=m
+CONFIG_SND_RAWMIDI=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_VERBOSE_PRINTK=y
+CONFIG_SND_DEBUG=y
+CONFIG_SND_MPU401_UART=m
+CONFIG_SND_OPL3_LIB=m
+CONFIG_SND_DUMMY=m
+CONFIG_SND_VIRMIDI=m
+CONFIG_SND_MTPAV=m
+CONFIG_SND_SERIAL_U16550=m
+CONFIG_SND_MPU401=m
+CONFIG_SND_SB16=m
+CONFIG_SND_AC97_CODEC=m
+CONFIG_SND_ENS1370=m
+CONFIG_SND_ENS1371=m
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_EGALAX=m
+CONFIG_USB_CYTHERM=m
+CONFIG_USB_PHIDGETSERVO=m
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_UDF_NLS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_NTFS_FS=m
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFSD=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_SPINLOCK=y
+CONFIG_FRAME_POINTER=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_4KSTACKS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRC_CCITT=m
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_X86_BIOS_REBOOT=y
 
-> If I online and offline cpus rapidly enough I can eventually get the
-> following:
-> 
-> printk: 49 messages suppressed.
-> BUG: using smp_processor_id() in preemptible [00000001] code:
-> events/3/1262
-> caller is .cache_reap+0x21c/0x2b8
-> Call Trace:
-> [c0000000ed67bb90] [ffffffffffffffff] 0xffffffffffffffff (unreliable)
-> [c0000000ed67bc10] [c0000000001c9f1c] .smp_processor_id+0x154/0x168
-> [c0000000ed67bcd0] [c0000000000938e8] .cache_reap+0x21c/0x2b8
-> [c0000000ed67bda0] [c00000000006f4bc] .worker_thread+0x230/0x310
-> [c0000000ed67bed0] [c0000000000764cc] .kthread+0x128/0x134
-> [c0000000ed67bf90] [c000000000014248] .kernel_thread+0x4c/0x6c
-> 
-> And this will repeat over and over even after I stop hotplugging
-> cpus...  from the same events thread so I think it's somehow gotten
-> "stuck"?
+TIA,
 
-Hmm this should be covered by the local_bh_disable() in softirq 
-processing.
+-Gil
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Easier than ever with enhanced search. Learn more.
+http://info.mail.yahoo.com/mail_250

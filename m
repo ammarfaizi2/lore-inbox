@@ -1,61 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311445AbSCSQzH>; Tue, 19 Mar 2002 11:55:07 -0500
+	id <S311447AbSCSQ7h>; Tue, 19 Mar 2002 11:59:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311437AbSCSQy5>; Tue, 19 Mar 2002 11:54:57 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11276 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S311436AbSCSQyi>; Tue, 19 Mar 2002 11:54:38 -0500
-Date: Tue, 19 Mar 2002 11:49:37 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: lse-tech@lists.sourceforge.net,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] 7.52 second kernel compile
-In-Reply-To: <730219199.1016271418@[10.10.2.3]>
-Message-ID: <Pine.LNX.3.96.1020319114117.1772E-100000@gatekeeper.tmr.com>
+	id <S311450AbSCSQ71>; Tue, 19 Mar 2002 11:59:27 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33804 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311448AbSCSQ7V>; Tue, 19 Mar 2002 11:59:21 -0500
+Subject: Re: 2.5.7 make modules_install error (oss)
+To: Wayne.Brown@altec.com
+Date: Tue, 19 Mar 2002 17:15:30 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <86256B81.005C508A.00@smtpnotes.altec.com> from "Wayne.Brown@altec.com" at Mar 19, 2002 10:48:26 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16nNCs-0008Bc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Mar 2002, Martin J. Bligh wrote:
+> I really wish the OSS drivers would be fixed.  They worked perfectly with my
+> Crystal SoundFusion card, but the ALSA drivers are very unreliable with it.
+> Sometimes they work, sometimes they don't.  (One day a couple of weeks ago I
 
-> > I think Im addicted. I need help!
-> 
-> Well, you're not going to get much competition, so maybe help
-> would be more in order ;-) ;-)
-> 
-> Are you still doing something like this?
-> # MAKE="make -j14" /usr/bin/time make -j14 bzImage
-> 
-> I tried setting the MAKE variable as well as doing the -j,
-> but it actually made kernel compile time slower - what difference
-> does it make on your machine? Can somebody clarify what this
-> actually does, as opposed to the -j on the command line?
-
-  Passing the -j option to make either (a) starts N processes at the
-initial level and implies -j1 for submakes, (b) starts N processes at base
-level each of which get the -jN and use it, or (c) -jN means run a total
-of N processes shared between everything running. The [abc] depends on the
-make you run, BSD, xmake, old GNU, new GNU, etc.
-
-  No that doesn't clarify things, the correct answer is "it depends." I
-have always used the environment variable with older GNU make, havent
-rethought it on very recent systems. I suggest that N be Nproc+1 for best
-results, but I've never had more than four CPUs with a build large enough
-to measure.
- 
-> BTW - the other tip that was in the big book of whizzy kernel
-> compiles was to set gcc to use -pipe ... you might want to try
-> that.
-
-  I general -pipe is a bad thing for uni, non-win for SMP (for any -j)
-although I have often thought that making the pipe buffer larger might
-change that.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+In the longer term its more productive to fix the ALSA drivers and import
+any fixups they need. 2.5 is about the longer term maintainability of audio

@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268685AbTGLXJq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 19:09:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269995AbTGLXJq
+	id S270023AbTGLXi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 19:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270024AbTGLXi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 19:09:46 -0400
-Received: from mithril.c-zone.net ([63.172.74.235]:19210 "EHLO mail.c-zone.net")
-	by vger.kernel.org with ESMTP id S268685AbTGLXJp (ORCPT
+	Sat, 12 Jul 2003 19:38:29 -0400
+Received: from maila.telia.com ([194.22.194.231]:5092 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id S270023AbTGLXi1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 19:09:45 -0400
-Message-ID: <3F1098D1.3030706@c-zone.net>
-Date: Sat, 12 Jul 2003 16:25:05 -0700
-From: jiho@c-zone.net
-Organization: Kidding of Course
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Who's minding the IDE driver?!?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Jul 2003 19:38:27 -0400
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+Subject: [2.7.75] Misc compiler warnings
+From: Christian Axelsson <smiler@lanil.mine.nu>
+Reply-To: smiler@lanil.mine.nu
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IhJCbEqKeGvjk3hENOL+"
+Organization: LANIL
+Message-Id: <1058053975.12250.2.camel@sm-wks1.lan.irkk.nu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 13 Jul 2003 01:52:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had no response to my earlier post (Subject:  IDE driver:  CBLID 
-revisited).
 
-In comparing the driver to docs I have, I've noticed some things and 
-have more to say about the VIA support, but I'm not much for sending 
-e-mail to myself....
+--=-IhJCbEqKeGvjk3hENOL+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I posted to this list to begin with because I found nowhere else to take 
-the issue.  It seems impossible to determine who's supposed to be 
-maintaining the IDE driver these days.
+Here are some compiler warnings:
+
+  CC      drivers/i2c/i2c-dev.o
+drivers/i2c/i2c-dev.c: In function `show_dev':
+drivers/i2c/i2c-dev.c:121: warning: unsigned int format, different type
+arg (arg 3)
+
+  CC      drivers/usb/core/file.o
+drivers/usb/core/file.c: In function `show_dev':
+drivers/usb/core/file.c:96: warning: unsigned int format, different type
+arg (arg 3)
+
+  AS      arch/i386/boot/setup.o
+arch/i386/boot/setup.S: Assembler messages:
+arch/i386/boot/setup.S:165: Warning: value 0x37ffffff truncated to
+0x37ffffff
 
 
--- Jim Howard  <jiho@c-zone.net>
+--=20
+Christian Axelsson
+smiler@lanil.mine.nu
+
+--=-IhJCbEqKeGvjk3hENOL+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/EJ9XyqbmAWw8VdkRAmqFAJ46o+Zq+1VoJ4hetc51GecAd7vvPACeOgI8
+szeQ216aWvyM7qSTVtSo8hU=
+=zxO9
+-----END PGP SIGNATURE-----
+
+--=-IhJCbEqKeGvjk3hENOL+--
 

@@ -1,31 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131180AbRATCTj>; Fri, 19 Jan 2001 21:19:39 -0500
+	id <S132061AbRATCZK>; Fri, 19 Jan 2001 21:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131615AbRATCT3>; Fri, 19 Jan 2001 21:19:29 -0500
-Received: from rmx306-mta.mail.com ([165.251.48.168]:61393 "EHLO
-	rmx306-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S131180AbRATCTT>; Fri, 19 Jan 2001 21:19:19 -0500
-Message-ID: <385367032.979957146998.JavaMail.root@web641-wra.mail.com>
-Date: Fri, 19 Jan 2001 21:18:59 -0500 (EST)
-From: Frank Davis <fdavis112@juno.com>
-To: alan@lxorguk.ukuu.org.uk
-Subject: 2.4.0-ac10 patching issue
-CC: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: mail.com
-X-Originating-IP: 151.201.244.166
+	id <S132168AbRATCZB>; Fri, 19 Jan 2001 21:25:01 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:46600 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S132061AbRATCYp>; Fri, 19 Jan 2001 21:24:45 -0500
+Date: Fri, 19 Jan 2001 22:34:44 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: linux-kernel@vger.kernel.org
+cc: Rajagopal Ananthanarayanan <ananth@sgi.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: [RFC] generic IO write clustering 
+Message-ID: <Pine.LNX.4.21.0101192142060.6167-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-       I just applied 2.4.0-ac10 to 2.4.0(patch -p1 <patch-2.4.0-ac10),
-and include/iinux/autoconf.h and include/linux/modversion.h didn't apply cleanly. I received .rej files.
-Regards,
-Frank
 
+Hi, 
+
+I'm starting to implement a generic write clustering scheme and I would
+like to receive comments and suggestions.
+
+The write clustering issue has already been discussed (mainly at Miami)
+and the agreement, AFAIK, was to implement the write clustering at the
+per-address-space writepage() operation.
+
+IMO there are some problems if we implement the write clustering in this
+level:
+
+  - The filesystem does not have information (and should not have) about
+    limiting cluster size depending on memory shortage.
+  - By doing the write clustering at a higher level, we avoid a ton of
+    filesystems duplicating the code.
+
+So what I suggest is to add a "cluster" operation to struct address_space
+which can be used by the VM code to know the optimal IO transfer unit in
+the storage device. Something like this (maybe we need an async flag but
+thats a minor detail now):
+
+        int (*cluster)(struct page *, unsigned long *boffset, 
+		unsigned long *poffset);
+
+"page" is from where the filesystem code should start its search for
+contiguous pages. boffset and poffset are passed by the VM code to know
+the logical "backwards offset" (number of contiguous pages going backwards
+from "page") and "forward offset" (cont pages going forward from
+"page") in the inode.
+
+The idea is to work with delayed allocated pages, too. A filesystem which
+has this feature can, at its "cluster" operation, allocate delayed pages
+contiguously on disk, and then return to the VM code which now can
+potentially write a bunch of dirty pages in a few big IO operations.
+
+I'm sure that a bit of tuning to know the optimal cluster size will be
+needed. Also some fs locking problems will appear.
+
+But it seems worth to me since we're avoiding a lot of code replication in
+the future and also the performance gain will be _nice_.
+
+Comments, thoughts?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

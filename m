@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbUDWTzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUDWT4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbUDWTzO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 15:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUDWTzO
+	id S261205AbUDWT4A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 15:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUDWT4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 15:55:14 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11529 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261204AbUDWTzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 15:55:10 -0400
-Date: Fri, 23 Apr 2004 20:55:04 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Simon Kelley <simon@thekelleys.org.uk>
-Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
-Message-ID: <20040423205504.B2896@flint.arm.linux.org.uk>
-Mail-Followup-To: Marcel Holtmann <marcel@holtmann.org>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org,
-	Simon Kelley <simon@thekelleys.org.uk>
-References: <200404230142.46792.dtor_core@ameritech.net> <1082723147.1843.14.camel@merlin>
+	Fri, 23 Apr 2004 15:56:00 -0400
+Received: from ns.suse.de ([195.135.220.2]:9120 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261205AbUDWTz5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 15:55:57 -0400
+Subject: [PATCH] 1/1 reiserfs: ignore prepared and locked buffers
+From: Chris Mason <mason@suse.com>
+To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, akpm@osdl.org
+Content-Type: text/plain
+Message-Id: <1082750262.12989.204.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1082723147.1843.14.camel@merlin>; from marcel@holtmann.org on Fri, Apr 23, 2004 at 02:25:49PM +0200
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 23 Apr 2004 15:57:43 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 23, 2004 at 02:25:49PM +0200, Marcel Holtmann wrote:
-> I haven't tested it yet, but the same problem should apply to the
-> bt3c_cs driver for the 3Com Bluetooth card. Are there any patches
-> available that integrates the PCMCIA subsystem into the driver model, so
-> we don't have to hack around it if a firmware download is needed?
+mason@suse.com
 
-Not yet.  It's something we're working towards, but its going to be
-some time yet.  There's a fair queue of long outstanding patches
-which need to be processed first.
+block_write_full_page might see and lock clean metadata buffers, which leads
+to bogus vs-12339 messages.  Change the message to ignore bh locked.
 
-Plus, before we can consider driver model in PCMCIA, we need to get
-the object lifetimes properly sorted.
+Index: linux.mm/fs/reiserfs/do_balan.c
+===================================================================
+--- linux.mm.orig/fs/reiserfs/do_balan.c	2004-04-23 14:08:22.436537699 -0400
++++ linux.mm/fs/reiserfs/do_balan.c	2004-04-23 14:09:05.089418397 -0400
+@@ -1343,7 +1343,8 @@ static void check_internal_node (struct 
+ 
+ static int locked_or_not_in_tree (struct buffer_head * bh, char * which)
+ {
+-  if ( buffer_locked (bh) || !B_IS_IN_TREE (bh) ) {
++  if ( (!reiserfs_buffer_prepared(bh) && buffer_locked (bh)) || 
++        !B_IS_IN_TREE (bh) ) {
+     reiserfs_warning ("vs-12339: locked_or_not_in_tree: %s (%b)\n", which, bh);
+     return 1;
+   } 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+

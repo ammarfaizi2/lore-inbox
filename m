@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264719AbTE1NEG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 09:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264720AbTE1NEF
+	id S264713AbTE1NCy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 09:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264719AbTE1NCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 09:04:05 -0400
-Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:12552 "EHLO
-	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
-	id S264719AbTE1NEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 09:04:04 -0400
-Date: Wed, 28 May 2003 15:16:37 +0200
-From: Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Andrew Morton <akpm@digeo.com>, kernel@kolivas.org,
-       manish@storadinc.com, andrea@suse.de, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030528131637.GC714@rz.uni-karlsruhe.de>
-Mail-Followup-To: Jens Axboe <axboe@suse.de>,
-	Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	Andrew Morton <akpm@digeo.com>, kernel@kolivas.org,
-	manish@storadinc.com, andrea@suse.de, marcelo@conectiva.com.br,
-	linux-kernel@vger.kernel.org
-References: <3ED2DE86.2070406@storadinc.com> <200305281305.44073.m.c.p@wolk-project.de> <20030528042700.47372139.akpm@digeo.com> <200305281331.26959.m.c.p@wolk-project.de> <20030528125312.GV845@suse.de> <3ED4B49A.4050001@gmx.net> <20030528130839.GW845@suse.de>
-Mime-Version: 1.0
+	Wed, 28 May 2003 09:02:54 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:39867 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264713AbTE1NCx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 09:02:53 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030528130839.GW845@suse.de>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16084.46712.707240.943086@gargle.gargle.HOWL>
+Date: Wed, 28 May 2003 15:15:36 +0200
+From: mikpe@csd.uu.se
+To: Pavel Machek <pavel@suse.cz>
+Cc: Milton Miller <miltonm@bga.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH] fix oops on resume from apm bios initiated suspend
+In-Reply-To: <20030528111401.GB342@elf.ucw.cz>
+References: <200305280643.h4S6hRQF028038@sullivan.realtime.net>
+	<20030528111401.GB342@elf.ucw.cz>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 03:08:39PM +0200, Jens Axboe wrote:
-> > > May I ask how you are reproducing the bad results? I'm trying in vain
-> > > here...
-> > 
-> > Quoting Con Kolivas:
-> > 
-> > dd if=/dev/zero of=dump bs=4096 count=512000
-> 
-> already tried that, no go. on ide/scsi? what filesystem? how much ram?
-> anything else running? smp/up?
+Pavel Machek writes:
+ > Hi!
+ > 
+ > > Didn't know if you caught this one, but it fixes it for me and others
+ > > who responded on the list.  
+ > > 
+ > > mm is NULL for kernel threads without their own context.  active_mm is
+ > > maintained the one we lazly switch from.
+ > > 
+ > > Without this patch, apm bios initiated suspend events (eg panel close) 
+ > > cause an oops on resume in the LDT restore, killing kapmd, which causes
+ > > further events to not be polled.
+ > 
+ > Ouch, okay, this looks good. Andrew please apply.
+ > 
+ > [I guess this is trivial enough for trivial patch monkey if andrew
+ > does not want to take it...]
+ > 								Pavel
+ > 
+ > > ===== arch/i386/kernel/suspend.c 1.16 vs edited =====
+ > > --- 1.16/arch/i386/kernel/suspend.c	Sat May 17 16:09:37 2003
+ > > +++ edited/arch/i386/kernel/suspend.c	Sat May 24 05:00:02 2003
+ > > @@ -114,7 +114,7 @@
+ > >          cpu_gdt_table[cpu][GDT_ENTRY_TSS].b &= 0xfffffdff;
+ > >  
+ > >  	load_TR_desc();				/* This does ltr */
+ > > -	load_LDT(&current->mm->context);	/* This does lldt */
+ > > +	load_LDT(&current->active_mm->context);	/* This does lldt */
 
-ide-notebook-harddrive, tested with ext2 and ext3. 256MB Ram, X11 started,
-idle bind9 and idle postgresql. Tested directly after a reboot, ~85MB Ram
-used without buffers/cache.
-
-Matthias
+No one has still explained WHY kapmd's current->mm is NULL for some people,
+while it obviously is non-NULL for many others. That worries me a lot more.

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbUCaQXK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 11:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbUCaQXK
+	id S261804AbUCaQZT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 11:25:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbUCaQZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 11:23:10 -0500
-Received: from ext.lri.fr ([129.175.15.4]:49355 "EHLO newext.lri.fr")
-	by vger.kernel.org with ESMTP id S262049AbUCaQXG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 11:23:06 -0500
-Date: Wed, 31 Mar 2004 17:57:52 +0200
-From: Ignacy Gawedzki <Ignacy.Gawedzki@lri.fr>
-To: usagi-users@linux-ipv6.org
-Cc: David Stevens <dlstevens@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: (usagi-users 02872) Re: IPv6 multicast in 2.4.25 broken?
-Message-ID: <20040331175752.A16121@qubit.lri.fr>
-References: <20040324185243.GB27409@zenon.mine.nu> <OFE1BE522F.02DB03E7-ON88256E67.00767AD5-88256E67.0077576D@us.ibm.com> <20040331084053.GA25253@zenon.mine.nu> <20040331220129.d245fc9%hibi665@oki.com>
+	Wed, 31 Mar 2004 11:25:19 -0500
+Received: from dh132.citi.umich.edu ([141.211.133.132]:387 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S261804AbUCaQZM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 11:25:12 -0500
+Subject: Re: kernel 2.6.4 and nfs lockd.udpport?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Jan Kesten <rwe.piller@the-hidden-realm.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040331145711.GB18990@mail.shareable.org>
+References: <200403290958.i2T9w2fJ029554@mail.bytecamp.net>
+	 <1080587948.2410.68.camel@lade.trondhjem.org>
+	 <20040331145711.GB18990@mail.shareable.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1080750306.4194.7.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040331220129.d245fc9%hibi665@oki.com>; from hibi665@oki.com on Wed, Mar 31, 2004 at 10:01:29PM +0900
-X-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 31 Mar 2004 11:25:06 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 31, 2004 at 10:01:29PM +0900, thus spake Takashi Hibi:
-> Isn't it related to the patch (usagi-users 02627)?
-> http://www2.linux-ipv6.org/ml/usagi-users/msg02626.html
+On Wed, 2004-03-31 at 09:57, Jamie Lokier wrote:
+
+> The module parameters "nlm_udpport" and "nlm_tcpport" _do_ work -- I
+> use them with my firewall.
 > 
-> If the socket is bound to non-multicast address, it can't receive
-> multicast packets.
+> For some reason, because modules don't need #ifdef MODULE any more, I
+> thought module_param*() entries would be automatically available as
+> boot parameters.  Silly me, that would be too obvious.
 
-This is why it doesn't work anymore, as it shouldn't have in the first
-place.  Thanks for pointing this out.  I did not know that source
-address selection is automatic, depending on the multicast address
-prefix (ff05::/16, ff02::/16, etc) and the IPV6_MULTICAST_IF option, so
-I instinctively did bind the socket to the unicast address and not the
-multicast address.
+module_param*() ought indeed to suffice.
 
-Now it seems to work like a charm. =)
+AFAICS the only problem here is that Documentation/kernel-parameters.txt
+still lists lockd.udpport and lockd.tcpport instead of the new names
+lockd.nlm_udpport and lockd.nlm_udpport.
+There is also lockd.nlm_grace_period, and lockd.nlm_timeout, both of
+which need to be added to the same list...
 
-Thanks,
-
-Ignacy
+Cheers,
+  Trond
 
 -- 
-To err is human, to moo bovine.
+Trond Myklebust <trond.myklebust@fys.uio.no>

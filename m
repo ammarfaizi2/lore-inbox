@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVCXVKC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVCXVKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVCXVKC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 16:10:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVCXVKC
+	id S261393AbVCXVKs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 16:10:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVCXVKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 16:10:02 -0500
-Received: from A.painless.aaisp.net.uk ([81.187.81.51]:47295 "EHLO
-	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S261385AbVCXVJy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 16:09:54 -0500
-Subject: Re: Fw: Re: drm bugs hopefully fixed but there might still be one..
-From: Andrew Clayton <andrew@digital-domain.net>
-To: Andrew Morton <akpm@osdl.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Dave Jones <davej@redhat.com>, Dave Airlie <airlied@linux.ie>
-Cc: lkml <linux-kernel@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>
-In-Reply-To: <20050324123207.31b3f867.akpm@osdl.org>
-References: <20050324123207.31b3f867.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 24 Mar 2005 21:09:47 +0000
-Message-Id: <1111698587.2998.5.camel@alpha.digital-domain.net>
+	Thu, 24 Mar 2005 16:10:48 -0500
+Received: from rproxy.gmail.com ([64.233.170.196]:37927 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261393AbVCXVKk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 16:10:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=gqPBSDAHadnpl9XOvrb6QhlV+xtsH6sLNWNesrQpyupXYVaMNZXQaNEl9yWy1GpDpU6H1nsb84S81fPD2rtENDW564NeDUuVSRxVuvBAS0DVOOs4vzD7xDFA9HJ4CXK5JudJ4wZqf28IqdLF1KV07v0cg8ocRHmjoG2sZhBC0So=
+Message-ID: <d120d50005032413105950045c@mail.gmail.com>
+Date: Thu, 24 Mar 2005 16:10:39 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Andy Isaacson <adi@hexapodia.org>
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Cc: Stefan Seyfried <seife@suse.de>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050324202040.GC9005@hexapodia.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <20050323184919.GA23486@hexapodia.org> <4242CE43.1020806@suse.de>
+	 <20050324181059.GA18490@hexapodia.org>
+	 <d120d500050324111826335f67@mail.gmail.com>
+	 <20050324202040.GC9005@hexapodia.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-24 at 12:32 -0800, Andrew Morton wrote:
-> ?
+On Thu, 24 Mar 2005 12:20:40 -0800, Andy Isaacson <adi@hexapodia.org> wrote:
+> On Thu, Mar 24, 2005 at 02:18:40PM -0500, Dmitry Torokhov wrote:
+> > On Thu, 24 Mar 2005 10:10:59 -0800, Andy Isaacson <adi@hexapodia.org> wrote:
+> > > So I added i8042.noaux to my kernel command line, rebooted, insmodded
+> > > intel_agp, started X, and verified no touchpad action.  Then I
+> > > suspended, and it worked fine.  After restart, I suspended again - also
+> > > fine.
+> > >
+> > > So I think that fixed it.  But no touchpad is a bit annoying. :)
+> >
+> > Try adding i8042.nomux instead of i8042.noaux, it should keep your
+> > touchpad in working condition. Please let me know if it still wiorks.
 > 
-> Begin forwarded message:
+> With nomux the touchpad works again, but suspend blocks in the same
+> place as without nomux.
+> 
+> (How can I verify that "nomux" was accepted?  It shows up on the "Kernel
+> command line" but there's no other mention of it in dmesg.)
+> 
+> -andy
 > 
 
-[snip]
+If you do "ls /sys/bus/serio/devices" and see more than 3 ports you
+have MUX mode active.
 
-> > You mean these changes?
-> > 
-> > --- a/drivers/char/agp/via-agp.c        2005-03-24 10:33:45 -08:00
-> > +++ b/drivers/char/agp/via-agp.c        2005-03-24 10:33:45 -08:00
-> > @@ -83,8 +83,10 @@
-> >  
-> >         pci_read_config_dword(agp_bridge->dev, VIA_GARTCTRL, &temp);
-> >         temp |= (1<<7);
-> > +       temp &= ~0x7f;
-> >         pci_write_config_dword(agp_bridge->dev, VIA_GARTCTRL, temp);
-> >         temp &= ~(1<<7);
-> > +       temp &= ~0x7f;
-> >         pci_write_config_dword(agp_bridge->dev, VIA_GARTCTRL, temp);
-> >  }
-> 
-> Exactlty. I had to revert this one since 2.6.11-bk3, or starting X kills
-> the machine. By "kill", I mean the real thing, black screen, dead
-> network, reset is the only choice. This is a (surprise!) VIA-based
-> motherboard (Asus A7V133-C) with Radeon 9200-based graphics adapter.
-> Dave Airlie was asking for a tester with such a configuration. I can
-> test whatever you want. Just tell me what we are looking for :)
-> 
-> With the patch above reverted, 2.6.12-rc1-mm2 seems to work just fine
-> for me. glxgears is OK and I just had a game of UT (first of the name).
-> However, I am not a regular gamer so I'm not sure what to look for.
-> 
-> Thanks,
-
-
-Bingo!
-
-Backing out that change to a 2.6.12-rc1 solves the exact same problem
-I've been having since 2.6.11-bk3. VIA chipset + Radeon 9200SE.
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0503.1/1096.html
-
-
-Cheers,
-
-Andrew
-
+-- 
+Dmitry

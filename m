@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130222AbRBKUlc>; Sun, 11 Feb 2001 15:41:32 -0500
+	id <S130251AbRBKUom>; Sun, 11 Feb 2001 15:44:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130285AbRBKUlW>; Sun, 11 Feb 2001 15:41:22 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:47625 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S130222AbRBKUlG>; Sun, 11 Feb 2001 15:41:06 -0500
-Date: Sun, 11 Feb 2001 20:41:04 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: <kuznet@ms2.inr.ac.ru>
-cc: <linux-kernel@vger.kernel.org>, <ak@suse.de>
-Subject: Re: BUG: SO_LINGER + shutdown() does not block?
-In-Reply-To: <200102112021.XAA15811@ms2.inr.ac.ru>
-Message-ID: <Pine.LNX.4.30.0102112035230.16987-100000@ferret.lmh.ox.ac.uk>
+	id <S130285AbRBKUoc>; Sun, 11 Feb 2001 15:44:32 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27406 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130251AbRBKUoN>; Sun, 11 Feb 2001 15:44:13 -0500
+Subject: Re: 2.4.2-pre3 compile error in 6pack.c
+To: manfred@colorfullife.com (Manfred Spraul)
+Date: Sun, 11 Feb 2001 20:42:21 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), tao@acc.umu.se (David Weinehall),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        nicku@vtc.edu.hk (Nick Urbanik),
+        linux-kernel@vger.kernel.org (Kernel list)
+In-Reply-To: <3A86F86E.524778E2@colorfullife.com> from "Manfred Spraul" at Feb 11, 2001 09:39:10 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14S3KC-0004yo-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Do you really prefer if drivers contain a 
+> 
+> static inline void* safe_kmalloc(size, flags)
+> {
+> 	if(size > LIMIT)
+> 		return NULL;
+> 	return kmalloc(size, flags);
+> }
 
-[cc: Andi]
-
-On Sun, 11 Feb 2001 kuznet@ms2.inr.ac.ru wrote:
-
-> Hello!
->
-> > I'm not seeing shutdown(2) block on a TCP socket. This is Linux kernel
-> > 2.2.16 (RH7.0). Is this a kernel bug, a documentation bug,
->
-> Man page is wrong.
-
-Yes, man socket(7) seems to be wrong.
-
-I don't have access to a genuine BSD at the moment, but from man pages:
-- HP/UX specifically states that SO_LINGER has no effect on shutdown()
-- Solaris SO_LINGER only mentions that close() is affected.
-- Likewise FreeBSD
-
-Cheers
-Chris
+It isnt that simple. Look at af_unix.c for example. It needs to know the
+maximum safe request size to set values up and is prepared to accept
+smaller values if that fails
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVCAT1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVCAT20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbVCAT1E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 14:27:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVCAT1C
+	id S262033AbVCAT20 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 14:28:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVCAT20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 14:27:02 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:2433 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262028AbVCAT0w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 14:26:52 -0500
-Message-Id: <200503011926.j21JQ5dP007149@laptop11.inf.utfsm.cl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       ultralinux@vger.kernel.org
-Subject: Re: SPARC64: Modular floppy? 
-In-Reply-To: Message from "Randy.Dunlap" <rddunlap@osdl.org> 
-   of "Tue, 01 Mar 2005 09:25:38 -0800." <4224A592.1050909@osdl.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 01 Mar 2005 16:26:05 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 01 Mar 2005 16:26:06 -0300 (CLST)
+	Tue, 1 Mar 2005 14:28:26 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:44287 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261988AbVCAT1T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 14:27:19 -0500
+Date: Tue, 1 Mar 2005 13:27:11 -0600
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+Message-ID: <20050301192711.GE1220@austin.ibm.com>
+References: <422428EC.3090905@jp.fujitsu.com> <20050301144211.GI28741@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050301144211.GI28741@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> said:
-> Horst von Brand wrote:
-> > "David S. Miller" <davem@davemloft.net> said:
-> >>On Mon, 28 Feb 2005 17:07:43 -0300
-> >>Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+On Tue, Mar 01, 2005 at 02:42:11PM +0000, Matthew Wilcox was heard to remark:
+> On Tue, Mar 01, 2005 at 05:33:48PM +0900, Hidetoshi Seto wrote:
+> > Today's patch is 3rd one - iochk_clear/read() interface.
+> > - This also adds pair-interface, but not to sandwich only readX().
+> >   Depends on platform, starting with ioreadX(), inX(), writeX()
+> >   if possible... and so on could be target of error checking.
+> 
+> I'd prefer to see it as ioerr_clear(), ioerr_read() ...
 
-> > [...]
+I'd prefer pci_io_start() and pci_io_check_err()
 
-> >>>So, either the dependencies have to get fixed so floppy can't be modular
-> >>>for this architecture, or the relevant functions have to move from entry.S
-> >>>to the module.
+The names should have "pci" in them.
 
-> >>I think the former is the best solution.  The assembler code really
-> >>needs to get at floppy.c symbols.
+I don't like "ioerr_clear" because it implies we are clearing the 
+io error; we are not; we are clearing the checker for io errors.
 
-> >>From my cursory look the stuff depending on the floppy.c symbols is just
-> > in the floppy-related code. Can't that be just included in floppy.c?
-> > (Could be quite a mess, but it looks like short stretches).
+> > - Additionally adds special token - abstract "iocookie" structure
+> >   to control/identifies/manage I/Os, by passing it to OS.
+> >   Actual type of "iocookie" could be arch-specific. Device drivers
+> >   could use the iocookie structure without knowing its detail.
+> 
+> Fine.
 
-> The code in entry.S looks self-contained (to me:), so moving it
-> somewhere else should just be a SMOP (mostly kbuild stuff)....
+Do we really need a cookie?
 
-Right. But where? I was thinking under arch/sparc64/drivers/floppy.S or
-such. And then there would need to be some make magic for it to get picked
-up and included only for sparc64. Sounds doable, if somewhat messy.
+> > If arch doesn't(or cannot) have its io-checking strategy, these
+> > interfaces could be used as a replacement of local_irq_save/restore
+> > pair. Therefore, driver maintainer can write their driver code with
+> > these interfaces for all arch, even where checking is not implemented.
+> 
+> But many drivers don't need to save/restore interrupts around IO accesses.
+> I think defaulting these to disable and restore interrupts is a very bad idea.
+> They should probably be no-ops in the generic case.
 
-But thinking a bit farther, if every arch and random driver starts playing
-this kind of games, we'll soon be in a world of hurt. Not sure if it is
-worth it.
+Yes, they should be no-ops. save/resotre interrupts would be a bad idea.
 
-Other solution was to #ifdef that stuff into floppy.c, but again at the
-end of that way lies madness.
-
-I'll see what I come up with. Recomended reading on the whole kbuild stuff?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+--linas

@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130842AbRAWNLR>; Tue, 23 Jan 2001 08:11:17 -0500
+	id <S130306AbRAWNVL>; Tue, 23 Jan 2001 08:21:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130460AbRAWNK5>; Tue, 23 Jan 2001 08:10:57 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:7845 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S130673AbRAWNK4>; Tue, 23 Jan 2001 08:10:56 -0500
-Newsgroups: comp.os.linux.setup,comp.os.linux.hardware,comp.os.linux.development.system
-Date: Tue, 23 Jan 2001 13:09:14 +0000 (GMT)
-From: "Guennadi V. Liakhovetski" <G.Liakhovetski@sheffield.ac.uk>
+	id <S130460AbRAWNUv>; Tue, 23 Jan 2001 08:20:51 -0500
+Received: from rs1.Theo-Phys.Uni-Essen.DE ([132.252.73.3]:46995 "EHLO
+	rs1.Theo-Phys.Uni-Essen.DE") by vger.kernel.org with ESMTP
+	id <S130306AbRAWNUp>; Tue, 23 Jan 2001 08:20:45 -0500
+Date: Tue, 23 Jan 2001 14:18:28 +0100 (MET)
+Message-Id: <200101231318.OAA70117@indy3.Theo-Phys.Uni-Essen.DE>
+From: Martin Schimschak <masch@indy3.Theo-Phys.Uni-Essen.DE>
 To: linux-kernel@vger.kernel.org
-Subject: DMA vs PIO speeds...
-Message-ID: <Pine.GSO.4.21.0101231240010.19780-100000@acms23>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: [2.4.1-pre10] conflicting declarations of sys_wait4()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody
+Hi,
 
-With the help from Andre Hedrick and others and by a horrible dirty hack
-in ide-dma.c I managed to enable DMA for a weird (rare?) revision of
-Triton chipset in 2.4.1-pre8 kernel (last kernel, when DMA worked for this
-chipset was 2.0.39). So, now I've got PIO4 (max throughput 16.6 
-MB/sec) and DMA mword2 (also 16.6 MB/sec). Here goes the weird thing:
-hdparm -t /dev/hda
-with PIO4    - 4.1 MB/sec (4.8 with 2.2.x kernels)
-with DMA mw2 - 3.1 MB/sec
+2.4.1-pre10 is not compiling (at least) on alpha due to conflicting
+declarations of sys_wait4() at various locations, e.g.
 
-I understand I won't be able to change this, but a purely theoretical
-question - why? And, can there be (extremely rare on a standalone home
-machine) occasions, say, when you need both the CPU and hd IO, when DMA
-3.1 would outperform PIO 4.1 (or even 4.8)? I am going to try bonnie
-too...
+include/asm/unistd.h:575:
 
-Thanks
-Guennadi
-___
+	extern long sys_wait4(int, int *, int, struct rusage *);
 
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
+include/linux/sched.h:566:
 
+	asmlinkage long sys_wait4(pid_t pid,unsigned int * stat_addr,
+	                          int options, struct rusage * ru);
 
+As far as I can say, the first declaration seems to be correct
+(confirmation wanted). If so, at least the following files need to be
+fixed: 
 
+	kernel/exit.c				
+	include/linux/sched.h			
+	arch/sparc/kernel/signal.c		
+	arch/sparc/kernel/sys_sunos.c		
+	arch/mips/kernel/signal.c		
+	arch/mips/kernel/irixsig.c		
+	arch/ppc/kernel/signal.c		
+	arch/m68k/kernel/signal.c		
+	arch/sparc64/kernel/signal32.c	
+	arch/sparc64/kernel/sys_sparc32.c	
+	arch/sparc64/kernel/signal.c		
+	arch/sparc64/solaris/signal.c		
+	arch/sparc64/solaris/signal.c		
+	arch/sparc64/solaris/signal.c		
+	arch/sparc64/solaris/signal.c		
+	arch/arm/kernel/signal.c		
+	arch/sh/kernel/signal.c		
+	arch/ia64/ia32/sys_ia32.c		
+	arch/mips64/kernel/linux32.c		
+	arch/mips64/kernel/signal.c		
+	arch/mips64/kernel/signal32.c		
+	arch/s390/kernel/signal.c		
+
+Martin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

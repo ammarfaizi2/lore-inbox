@@ -1,44 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263385AbUCTMNe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 07:13:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbUCTMNe
+	id S263388AbUCTMTO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 07:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263389AbUCTMTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 07:13:34 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:49344
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263385AbUCTMNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 07:13:32 -0500
-Date: Sat, 20 Mar 2004 13:14:23 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-       mjy@geizhals.at, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-ID: <20040320121423.GA9009@dualathlon.random>
-References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <405A584B.40601@cyberone.com.au> <20040319050948.GN2045@holomorphy.com>
+	Sat, 20 Mar 2004 07:19:14 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:4578 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263388AbUCTMTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 07:19:08 -0500
+Date: Sat, 20 Mar 2004 13:18:54 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Martin Hicks <mort@wildopensource.com>,
+       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
+Subject: [patch] 2.6.5-rc2: fix scsi_transport_spi.c with gcc 2.95
+Message-ID: <20040320121853.GF19464@fs.tum.de>
+References: <Pine.LNX.4.58.0403191937160.1106@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040319050948.GN2045@holomorphy.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <Pine.LNX.4.58.0403191937160.1106@ppc970.osdl.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 09:09:48PM -0800, William Lee Irwin III wrote:
-> On Fri, Mar 19, 2004 at 01:17:47PM +1100, Nick Piggin wrote:
-> > Technically, I think preempt can still reduce maximum latency
-> > depending on whether the time between explicit resched checks
-> > is greater than the (small) scheduling overhead that preempt
-> > adds.
-> > But yeah, that would be in the noise compared with long
-> > preempt-off regions.
-> > I'm not sure about applications, but maybe some soft-realtime
-> > things like audio software benefit from a lower average latency
-> > (I don't know).
-> 
-> Someone really needs to get numbers on this stuff.
+I got the following compile error in 2.6.5-rc2 using gcc 2.95:
 
-Takashi already did it and we know it doesn't reduce the maximum latency.
+<--  snip  -->
+
+...
+  CC      drivers/scsi/scsi_transport_spi.o
+drivers/scsi/scsi_transport_spi.c: In function `spi_dv_retrain':
+drivers/scsi/scsi_transport_spi.c:388: parse error before `;'
+drivers/scsi/scsi_transport_spi.c:392: parse error before `;'
+drivers/scsi/scsi_transport_spi.c: In function `spi_dv_device_internal':
+drivers/scsi/scsi_transport_spi.c:463: parse error before `;'
+drivers/scsi/scsi_transport_spi.c:475: parse error before `;'
+drivers/scsi/scsi_transport_spi.c:494: parse error before `;'
+drivers/scsi/scsi_transport_spi.c: In function `spi_dv_device':
+drivers/scsi/scsi_transport_spi.c:539: parse error before `;'
+drivers/scsi/scsi_transport_spi.c:543: parse error before `;'
+make[2]: *** [drivers/scsi/scsi_transport_spi.o] Error 1
+
+<--  snip  -->
+
+
+I found the patch below in -mm that fixes this problem.
+
+
+Please apply
+Adrian
+
+
+<--  snip  -->
+
+
+Work around the gcc-2.95 token pasting bug.
+
+
+---
+
+ 25-akpm/drivers/scsi/scsi_transport_spi.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN drivers/scsi/scsi_transport_spi.c~scsi_transport_spi-build-fix drivers/scsi/scsi_transport_spi.c
+--- 25/drivers/scsi/scsi_transport_spi.c~scsi_transport_spi-build-fix	2004-03-14 02:45:22.999909632 -0800
++++ 25-akpm/drivers/scsi/scsi_transport_spi.c	2004-03-14 02:45:29.938854752 -0800
+@@ -33,7 +33,7 @@
+ #include <scsi/scsi_transport.h>
+ #include <scsi/scsi_transport_spi.h>
+ 
+-#define SPI_PRINTK(x, l, f, a...)	printk(l "scsi(%d:%d:%d:%d): " f, (x)->host->host_no, (x)->channel, (x)->id, (x)->lun, ##a)
++#define SPI_PRINTK(x, l, f, a...)	printk(l "scsi(%d:%d:%d:%d): " f, (x)->host->host_no, (x)->channel, (x)->id, (x)->lun , ##a)
+ 
+ static void transport_class_release(struct class_device *class_dev);
+ 
+
+_

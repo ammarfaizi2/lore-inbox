@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265505AbTGLMy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 08:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265564AbTGLMy4
+	id S265597AbTGLNLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 09:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265612AbTGLNLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 08:54:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37248 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265505AbTGLMyz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 08:54:55 -0400
-Date: Sat, 12 Jul 2003 14:09:25 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.75: Oops with ax25
-Message-ID: <20030712130925.GA636@gallifrey>
-Mime-Version: 1.0
+	Sat, 12 Jul 2003 09:11:09 -0400
+Received: from pat.uio.no ([129.240.130.16]:8093 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S265597AbTGLNLH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 09:11:07 -0400
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 'what to expect'
+References: <fa.eq8e50t.1hkoiqh@ifi.uio.no>
+From: Terje Kvernes <terjekv@math.uio.no>
+Organization: The friends of mr. Tux
+X-URL: http://terje.kvernes.no/
+Date: Sat, 12 Jul 2003 15:25:43 +0200
+In-Reply-To: <fa.eq8e50t.1hkoiqh@ifi.uio.no> (Dave Jones's message of "Fri,
+ 11 Jul 2003 14:02:48 GMT")
+Message-ID: <wxx3chb98rs.fsf@nommo.uio.no>
+User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.1 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.5.75 (i686)
-X-Uptime: 14:05:47 up 5 min,  1 user,  load average: 0.15, 0.17, 0.09
-User-Agent: Mutt/1.5.4i
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  with ax25 compiled in 2.5.75 oops's at:
+Dave Jones <davej@codemonkey.org.uk> writes:
 
-  sk_free
-  ax25_release
-  sock_close
-  sock_release
-  sock_close
-  sock_close
-  __fput
-  filp_close
-  ?
-  do_exit
-  do_groupexit
-  syscall_call
+  [ ... ]
 
-  from ifconfig
+> CPU frequency scaling.
+> ~~~~~~~~~~~~~~~~~~~~~~
+> Certain processors have the facility to scale their
+> voltage/clockspeed.  2.5 introduces an interface to this feature,
+> see Documentation/cpufreq for more information. This functionality
+> also covers features like Intel's speedstep, and the Powernow!
+> feature present in mobile AMD Athlons.  In addition to x86 variants,
+> this framework also supports various ARM CPUs.  You can find a
+> userspace daemon that monitors battery life and adjusts accordingly
+> at: http://www.staikos.net/~staikos/cpufreqd/
 
-(Copied down by hand)
+  the cpufreqd project has been assimilated by a sourceforge project
+  with the same name, that can be found here:
+  <url: http://sourceforge.net/projects/cpufreqd/ >
 
-(Other than that it seems fine; dual athlon MP, built on Debian/sid
-so I think its using gcc 3.3.1)
+  [ ... ]
 
-Dave
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+-- 
+Terje

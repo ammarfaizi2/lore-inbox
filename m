@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265463AbTFMRyx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 13:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265464AbTFMRyx
+	id S265462AbTFMRx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 13:53:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265463AbTFMRx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 13:54:53 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24078 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S265463AbTFMRxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 13:53:34 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-Date: Fri, 13 Jun 2003 18:06:43 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <bcd3rj$1it$1@old-penguin.transmeta.com>
-References: <3EE8D038.7090600@mvista.com>
-X-Trace: palladium.transmeta.com 1055527603 18993 127.0.0.1 (13 Jun 2003 18:06:43 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 13 Jun 2003 18:06:43 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@old-penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	Fri, 13 Jun 2003 13:53:26 -0400
+Received: from hermes.cicese.mx ([158.97.1.34]:44968 "EHLO hermes.cicese.mx")
+	by vger.kernel.org with ESMTP id S265462AbTFMRxU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 13:53:20 -0400
+Message-ID: <3EEA12C0.E15DBAF2@cicese.mx>
+Date: Fri, 13 Jun 2003 11:06:56 -0700
+From: Serguei Miridonov <mirsev@cicese.mx>
+Reply-To: mirsev@cicese.mx
+Organization: CICESE Research Center, Ensenada, B.C., Mexico
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: ru, en
+MIME-Version: 1.0
+To: Damian Kolkowski <deimos@deimos.one.pl>
+CC: Grzegorz Jaskiewicz <gj@pointblue.com.pl>, linux-kernel@vger.kernel.org
+Subject: Re: via-rhine strange behavior 2.4.21-rc8
+References: <200306121227.07122@gjs> <20030613170426.GB573@deimos.one.pl>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3EE8D038.7090600@mvista.com>,
-Steven Dake  <sdake@mvista.com> wrote:
+Are you sure that ACPI is the reason? Grzegorz Jaskiewicz wrote about generic
+2.4.21-rc8 = 2.4.21 which does not have the new ACPI code.
+
+Damian Kolkowski wrote:
+
+> On Thu, Jun 12, 2003 at 12:27:02PM +0100, Grzegorz Jaskiewicz wrote:
+> > I attached dmesg from one of my test toys (servers). I am not able to get
+> > via-rhine card to work on it :/
 >
->I have been looking at the udev idea that Greg KH has developed.  
->Userland device enumeration definately is the way to go, however, there 
->are some problems with using /sbin/hotplug to transmit device 
->enumeration events:
+> Hi I have via-rhine to on my ECS_L7VTA and whenever I use ACPId thet network
+> card is not working.
+>
+> So.., remove ACPI form kernel :-)
+>
+> > Local APIC disabled by BIOS -- reenabling.
+> > Found and enabled local APIC!
+>
+> Maby if we have some not integrated network card based on via-rhine we could
+> heck it why ACPI locks via-rhine; but there in probably no via-rhine outside
+> the main bord :-)
+>
+> --
+> # Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-No.
+--
+Serguei Miridonov
 
-WE ARE NOT GOING TO A EVENT DEAMON!
 
-Centralized event deamons are crap, unmaintainable, and unreadable. 
-They are a maintenance nightmare, both from a development standpoint and
-from a MIS standpoint.  They encourage doing everything in one program,
-keeping state in private memory, depending on ordering, and just
-generally do bad things. 
-
-/sbin/hotplug, on the other hand, makes events clearly independent
-things, and encourages writing simple scripts that can be combined and
-localized. In other words, it's the UNIX way.
-
-I've seen the madness of event deamons, and it's called "cardmgr" and
-"acpid". We don't want it. 
-
-			Linus

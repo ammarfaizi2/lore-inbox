@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289135AbSAPVzt>; Wed, 16 Jan 2002 16:55:49 -0500
+	id <S288850AbSAPV53>; Wed, 16 Jan 2002 16:57:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289156AbSAPVzk>; Wed, 16 Jan 2002 16:55:40 -0500
-Received: from mailhost.teleline.es ([195.235.113.141]:30500 "EHLO
-	tsmtp1.mail.isp") by vger.kernel.org with ESMTP id <S289135AbSAPVz3>;
-	Wed, 16 Jan 2002 16:55:29 -0500
-Date: Wed, 16 Jan 2002 22:59:26 +0100
-From: Diego Calleja <grundig@teleline.es>
-To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Rik spreading bullshit about VM
-Reply-To: grundig@teleline.es
-In-Reply-To: <20020116200459.E835@athlon.random>
-In-Reply-To: <20020116200459.E835@athlon.random>
-X-Mailer: Spruce 0.7.4 for X11 w/smtpio 0.8.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020116215533Z289135-13997+6272@vger.kernel.org>
+	id <S289008AbSAPV5U>; Wed, 16 Jan 2002 16:57:20 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:23765 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S289156AbSAPV5F>; Wed, 16 Jan 2002 16:57:05 -0500
+Message-Id: <200201162156.g0GLukCj017833@tigger.cs.uni-dortmund.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available 
+In-Reply-To: Message from "Eric S. Raymond" <esr@thyrsus.com> 
+   of "Wed, 16 Jan 2002 16:31:44 EST." <20020116163144.D12306@thyrsus.com> 
+Date: Wed, 16 Jan 2002 22:56:46 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, Andrea Arcangeli wrote:
-> attached) and most important I don't have a single bugreport about the
-> current 2.4.18pre2aa2 VM (except perhaps the bdflush wakeup that seems
-> to be a little too late and that deals to lower numbers with slow write
-> load etc.., fixable with bdflush tuning). Mainline VM kills too easily,
-
-Well, I haven't reported it yet, but booting my box with mem=4M
-gave as result: (running 2.4.18-pre2aa2):
-diego# cat /var/log/messages | grep gfp
-Jan 13 15:37:10 localhost kernel: __alloc_pages: 0-order allocation failed
-(gfp=0xf0/0)
-Jan 15 16:06:28 localhost kernel: __alloc_pages: 0-order allocation failed
-(gfp=0xf0/0)
-Jan 15 18:37:21 localhost kernel: __alloc_pages: 0-order allocation failed
-(gfp=0xf0/0)
-Jan 15 21:58:32 localhost kernel: __alloc_pages: 0-order allocation failed
-(gfp=0xf0/0)
-Jan 15 21:58:33 localhost kernel: __alloc_pages: 0-order allocation failed
-(gfp=0xf0/0)
-diego# 
-
-Each script of /etc/rc.d was killed by VM when it was started, there wasn't
-any "OOM", just
-"VM killed..." or something similar.
-As /etc/rc.d scripts were killed, I couldn't start swap.
-
-The gfp=0x... numbers were not always the same, but I can't remember them
-because syslogd wasn't running.
-I can repeat this if you want and I'll copy all messages.
-
-..I remember running 2.2.14 in a 386 box with 4MB of RAM and 8 or 16 of
-swap. It was veeery slow, but even I could run apache :-)...
-
-
-
-> this is fixed in -aa VM and -aa VM has a number of other issues
-> resolved, but mainline 2.4 vm isn't that far either. In the last few
-> days I was playing with pte-highmem, soon I will spend some time merging
-> -aa VM into mainline with Marcelo if he likes to.
+"Eric S. Raymond" <esr@thyrsus.com> said:
+> Horst von Brand <brand@jupiter.cs.uni-dortmund.de>:
+> > > Release 2.1.3: Tue Jan 15 14:41:45 EST 2002
+> > > 	* Resync with 2.4.18-pre3 and 2.5.2.
+> > > 	* It is now possible to declare explicit saveability predicates.
+> > > 	* The `vitality' flag is gone from the language.  Instead, the 
+> > > 	  autoprober detects the type of your root filesystem and forces
+> > > 	  its symbol to Y.
+> > 
+> > Great! Now I can't configure a kernel for ext3 only on an ext2 box. Keep it
+> > up! As it goes, we can safely forget about CML2...
 > 
-> Andrea
+> Oh, nonsense.  You can do this just fine with any of the manual
+> configurators.
+
+Whatever happened to "Do exactly as CML1 does; leave fixes and extensions
+for later"? If you put the kitchen sink into it, it _won't_ go into the
+standard kernel.
+
+> Now repeat after me, Horst:
 > 
-> PS. I know the interviewer and he's usually very accurate, so I don't
-> think this could be a misunderstanding where you say one thing and they
-> writer another one just to create troubles.
-> 
-> 
+> 	The autoconfigurator is *optional*, not required.
+
+It isn't "optional", it is builtin. It doesn't matter if somebody uses it
+or nobody does, it will be there. And AFAIU what you have said, you are
+modifiying CML2 (or at least the rulebase) for the sake of it. This is
+_not_ what had been agreed on the matter.
+-- 
+Horst von Brand			     http://counter.li.org # 22616

@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264017AbRFMPnE>; Wed, 13 Jun 2001 11:43:04 -0400
+	id <S264023AbRFMP4O>; Wed, 13 Jun 2001 11:56:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264021AbRFMPmy>; Wed, 13 Jun 2001 11:42:54 -0400
-Received: from [194.102.102.3] ([194.102.102.3]:13576 "HELO ns1.Aniela.EU.ORG")
-	by vger.kernel.org with SMTP id <S264017AbRFMPmt>;
-	Wed, 13 Jun 2001 11:42:49 -0400
-Date: Wed, 13 Jun 2001 18:42:35 +0300 (EEST)
-From: "L. K." <lk@Aniela.EU.ORG>
-To: linux-kernel@vger.kernel.org
-Subject: 3C905B -- EEPROM (i blive so) problem
-Message-ID: <Pine.LNX.4.21.0106131838110.30298-100000@ns1.Aniela.EU.ORG>
+	id <S264024AbRFMPzy>; Wed, 13 Jun 2001 11:55:54 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:44975 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S264023AbRFMPzn>; Wed, 13 Jun 2001 11:55:43 -0400
+Message-ID: <3B273A20.8EE88F8F@vnet.ibm.com>
+Date: Wed, 13 Jun 2001 05:02:08 -0500
+From: Tom Gall <tom_gall@vnet.ibm.com>
+X-Mailer: Mozilla 4.7 [en] (Win98; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Going beyond 256 PCI buses
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+<Forgive if this is a dub... but the message I composed yesterday didn't
+appear to be posted>
 
-Hi,
+  Anyway, Hi All,
 
-I have a 3COM 3C905B ethernet card that has been hit by a power outage for
-aprox. 0.5 sec.  Now, the kernel does not recongnize the card
-anymore. When I do lspci, I see 3COM Ethernet controller, type unknown
-0xffffff (rev 3x). The bios reports the card as an ethernet card at system
-boot-up. I run the diagnostic program for 3com cards from Donald Becker
-and all the card registers are 0000 and FFFF. I do belive something
-happened to the eeprom of the card. I would like to know if I can
-overwrite-it with a new one so that I can make my ethernet card work
-again.
+  I was wondering if there are any other folks out there like me who
+have the 256 PCI bus limit looking at them straight in the face? If so,
+it'd be nice to collaborate and come up with a more general solution
+that would hopefully work towards the greater good.
 
+  I live in ppc64 land which is a new arch that the linux kernel has
+been ported to. The boxes we run on tend to be big.
 
-Thank you,
+  The box that I'm wrestling with, has a setup where each PHB has an
+additional id, then each PHB can have up to 256 buses.  So when you are
+talking to a device, the scheme is phbid, bus, dev etc etc. Pretty easy
+really.
 
-Eugen
+  I am getting for putting something like this into the kernel at large,
+it would probably be best to have a CONFIG_GREATER_THAN_256_BUSES or
+some such.
+
+  Anyways, thoughts? opinions?
+
+--
+Hakuna Matata,
+
+Tom
+
+-----------------------------------------------------------
+ppc64 Maintainer     IBM Linux Technology Center
+"My heart is human, my blood is boiling, my brain IBM" -- Mr Roboto
+tgall@rochcivictheatre.org
+tom_gall@vnet.ibm.com
+
 

@@ -1,49 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310533AbSCPTml>; Sat, 16 Mar 2002 14:42:41 -0500
+	id <S310538AbSCPTpb>; Sat, 16 Mar 2002 14:45:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310534AbSCPTmb>; Sat, 16 Mar 2002 14:42:31 -0500
-Received: from ns.suse.de ([213.95.15.193]:55559 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S310533AbSCPTm3>;
-	Sat, 16 Mar 2002 14:42:29 -0500
-Date: Sat, 16 Mar 2002 20:42:28 +0100
-From: Dave Jones <davej@suse.de>
-To: S W <egberts@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre2 Cyrix III SEGFAULT (Cyrix II redux?)
-Message-ID: <20020316204228.B15296@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	S W <egberts@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020316180705.34916.qmail@web10506.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020316180705.34916.qmail@web10506.mail.yahoo.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S310539AbSCPTpW>; Sat, 16 Mar 2002 14:45:22 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12813 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310538AbSCPTpE>;
+	Sat, 16 Mar 2002 14:45:04 -0500
+Message-ID: <3C93A0A6.5030307@mandrakesoft.com>
+Date: Sat, 16 Mar 2002 14:44:38 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problems using new Linux-2.4 bitkeeper repository.
+In-Reply-To: <200203161608.g2GG8WC05423@localhost.localdomain> <3C9372BE.4000808@mandrakesoft.com> <20020316083059.A10086@work.bitmover.com> <3C9375B7.3070808@mandrakesoft.com> <20020316085213.B10086@work.bitmover.com> <3C937B82.60500@mandrakesoft.com> <20020316091452.E10086@work.bitmover.com> <3C938027.4040805@mandrakesoft.com> <20020316093832.F10086@work.bitmover.com> <3C938966.3080302@mandrakesoft.com> <20020316110144.H10086@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 10:07:05AM -0800, S W wrote:
- > But I recalled Linux 2.2 having a bug fix for broken
- > L2 cache in Cyrix II.
- 
- The cache itself isn't broken. Reporting of the size of it is.
- 
- > So, it got me thinking again...
- > (did Cyrix fix this L2 cache in certain subsequential
- > core?)
+Larry McVoy wrote:
 
- The bug is potentially in all cores with cpuid 670->68F
- If you have it, and you're not running a kernel with the
- fix you'll see you have a 16MB cache. If you run a kernel
- with the fix, you'll have the correct size (64KB)
- 
- > Does anyone recall where exactly are the Cyrix II L2
- > cache bug fix in the kernelso that I can experiement
- > them toward the Cyrix III?
+>>Yes it is "altering history"... but... OTOH the user has just told 
+>>BitKeeper, in no uncertain terms, that he is altering history only to 
+>>make it more correct.
+>>
 
- arch/i386/kernel/setup.c display_cacheinfo()
+>*All* of this stuff is trivial if you don't care about passing it on, if
+>your repository is a backwater dead end.  But that's not the case.
+>So you have to decide that you want the events to propagate and if you
+>do, then we can do something about it.
+>
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Re-read my message, assuming I have a clue :)  This fits just fine into 
+the distribute BK system, across any number of pushes and pulls.
+
+I -would- want to pass on the fact that I merged multiple changesets 
+into a single one...
+
+Think about this example:
+* I merge a GNU patch into tree A, creating cset 1.111.
+* Marcelo merges the same GNU patch into tree B, creating cset 1.222.
+* Time passes.  People clone repos off of both trees.
+* I 'bk pull' from tree B.  Through the merge process, this creates a 
+brand new "symlink cset", 1.333, which propagates the notion that my 
+cset 1.111 is a complete copy of 1.222, so we should just read the data 
+and revision history from 1.222.
+* Now, I 'bk push' some changes to Marcelo.  This pushes, among other 
+things, the magic symlink cset 1.333.  It does not push 1.111, since 
+1.333 was the change to the local repo that told it not to.  Think of 
+this like "cset -x" except smarter.  "cset -x", as I understand it, 
+creates a new cset which is essentially the reverse of the specified 
+cset.  Our symlink cset says to BitKeeper (a) not bother with 
+patch-and-unpatch if both 1.111 and 1.222 are found to be missing 
+downstream, and (b) if 1.111 but 1.222 are present downstream, to remove 
+the data associated with 1.111, turning it into a symlink to 1.222.
+
+This fits perfectly well into the BK distributed system, and works 
+across any number of bk pushes and pulls.  Basically, "symlink csets" 
+would show up in 'bk changes', much like merge csets show up in 'bk 
+changes' now.
+
+And you are no longer inserting the data N times.  The symlink csets 
+take care of that.
+
+And further, for people scattered all over the world with 1.111 cset, 
+the 1.333 cset will slowly worm its way across the world, acting like a 
+janitor and cleaning up BK repositories with duplicated patches :) 
+ Isn't that neat? :)
+(assuming that 1.333 cset is propagated out to the world, of course)
+
+>I'm starting to get psyched about this, I think I see a picture that 
+>works, I need to chew on it for a bit though.
+>
+
+whichever works :)
+
+    Jeff, who really should sleep now :)
+
+

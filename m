@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263267AbVCDXwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263628AbVCEEfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263267AbVCDXwW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263242AbVCDXp1
+	id S263628AbVCEEfb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 23:35:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263323AbVCDXRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:45:27 -0500
-Received: from pirx.hexapodia.org ([199.199.212.25]:39481 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S263157AbVCDWPY
+	Fri, 4 Mar 2005 18:17:38 -0500
+Received: from mail.kroah.org ([69.55.234.183]:40098 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263187AbVCDUy4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 17:15:24 -0500
-Date: Fri, 4 Mar 2005 14:15:23 -0800
-From: Andy Isaacson <adi@hexapodia.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.11-rc4: Alps touchpad too slow
-Message-ID: <20050304221523.GA32685@hexapodia.org>
+	Fri, 4 Mar 2005 15:54:56 -0500
+Cc: khali@linux-fr.org
+Subject: [PATCH] PCI: Add PCI quirk for SMBus on the Toshiba Satellite A40
+In-Reply-To: <1109969637954@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 4 Mar 2005 12:53:57 -0800
+Message-Id: <11099696373308@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My Vaio r505te comes up with an unusably slow touchpad if I allow the
-ALPS driver to drive it.  It says
+ChangeSet 1.1998.11.18, 2005/02/17 15:05:53-08:00, khali@linux-fr.org
 
-> ALPS Touchpad (Glidepoint) detected
->   Disabling hardware tapping
-> input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
+[PATCH] PCI: Add PCI quirk for SMBus on the Toshiba Satellite A40
 
-and then the trackpad operates at about 1/8 the speed I've gotten used
-to.
+The Toshiba Satellite A40 laptop hides its SMBus device, much like a
+number of Asus boards reputedly do. This prevents access to the LM90
+hardware monitoring chip. This simple patch extends the PCI quirk used
+for the Asus and HP systems to this Toshiba laptop.
 
-I'm running 2.6.11-rc4; this started happening somewhere between
-2.6.10 and 2.6.11-rc3.
+Signed-off-by: Frans Pop <aragorn@tiscali.nl>
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-I've toyed with 'xset m', but nothing I've done there seems to have
-any effect.  (I suspect that Linux never generates the appropriate
-sequence of mouse events to trigger the X cursor acceleration regime.)
 
-I can restore the original behavior by passing "proto=exps" to
-psmouse.o, in which case I get
-> input: PS/2 Generic Mouse on isa0060/serio1
+ drivers/pci/quirks.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
 
-On a related note, how are users supposed to control this newfangled
-PS2 driver?  I'd like at least the *option* to turn tapping back on,
-but I can't find any knobs *anywhere*.  And of course I'd like to
-adjust the tracking speed, too.
 
--andy
+diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+--- a/drivers/pci/quirks.c	2005-03-04 12:42:11 -08:00
++++ b/drivers/pci/quirks.c	2005-03-04 12:42:11 -08:00
+@@ -801,6 +801,12 @@
+ 			case 0x12bc: /* HP D330L */
+ 				asus_hides_smbus = 1;
+ 			}
++	} else if (unlikely(dev->subsystem_vendor == PCI_VENDOR_ID_TOSHIBA)) {
++		if (dev->device == PCI_DEVICE_ID_INTEL_82855GM_HB)
++			switch(dev->subsystem_device) {
++			case 0x0001: /* Toshiba Satellite A40 */
++				asus_hides_smbus = 1;
++			}
+ 	}
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82845_HB,	asus_hides_smbus_hostbridge );
+

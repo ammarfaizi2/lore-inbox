@@ -1,83 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264465AbTE1As6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 20:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264467AbTE1As6
+	id S264204AbTE1Ao5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 20:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbTE1Ao5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 20:48:58 -0400
-Received: from main.gmane.org ([80.91.224.249]:51130 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264465AbTE1As4 (ORCPT
+	Tue, 27 May 2003 20:44:57 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:5104 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S264204AbTE1Ao4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 20:48:56 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Brian J. Murrell" <brian@interlinx.bc.ca>
-Subject: local apic timer ints not working with vmware: nolocalapic arg?
-Date: Tue, 27 May 2003 20:53:00 -0400
-Message-ID: <pan.2003.05.28.00.52.56.796565@interlinx.bc.ca>
-Mime-Version: 1.0
+	Tue, 27 May 2003 20:44:56 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: Open POSIX Test Suite 1.1.0 release
+Date: Tue, 27 May 2003 17:58:09 -0700
+Message-ID: <D3A3AA459175A44CB5326F26DA7A189C0E48F3@orsmsx405.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Open POSIX Test Suite 1.1.0 release
+Thread-Index: AcMktDTaN+2cOX++TTCyJh65CqpfSA==
+From: "Selbak, Rolla N" <rolla.n.selbak@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <posixtest-discuss@lists.sourceforge.net>
+X-OriginalArrivalTime: 28 May 2003 00:58:10.0192 (UTC) FILETIME=[35358900:01C324B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Release 1.1.0 of the Open POSIX Test Suite is now available at  http://posixtest.sourceforge.net.
 
-Using a distribution (Mandrake's Cooker) patched kernel, I am unable to
-successfully boot at 2.4.20ish kernel on VMware 2.0.4 build 1142.  The
-problem seems to be with using local apic timer interrupts.  The last few
-lines of the boot sequence before the kernel hangs are (copied by hand, so
-please excuse typos):
+This version of the project is essentially version 1.0.0 with updates from technical corrigendum 1 and 2 (please see "Links" on the right column of the home page that point to those). Thanks to Ulrich Drepper for his bug-fix suggestions.
 
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 1658.7651 MHz.
-..... host bus clock speed is 0.0000 MHz.
-cpu: 0, clocks: 0, slice: 0
+The Open POSIX Test Suite is an open source test suite with the goal of creating conformance test suites, as well as potentially functional and stress test suites, to the functions described in the IEEE Std 1003.1-2001 System Interfaces specification. Initial work is focusing on timers, threads, semaphores, signals, and message queues. Feel free to contact the posixtest-discuss list if you would like further information. 
 
-So, to successfully boot this kernel after hunting around, I changed:
+Rolla
 
-int dont_use_local_apic_timer __initdata = 0;
-
-to
-
-int dont_use_local_apic_timer __initdata = 1;
-
-in arch/i386/kernel/apic.c and it booted successfully.  I noticed a
-comment right at the start of setup_APIC_clocks() to short-circuit out:
-
-	/* Disabled by DMI scan or kernel option? */
-	if (dont_use_local_apic_timer)
-		return;
-
-so I went to see if I could use the DMI scan to blacklist the VMware host
-from trying to use local APIC timer interrupts.  Unfortunately,
-dmi_iterate() does not find the _DMI_ signature anywhere between 0xF0000
-and 0xFFFFF.
-
-So on to the other aspect of the comment "...or kernel option", but there
-is no option to disable the local APIC timer.  The "noapic" option appears
-to disable the IO-APIC.
-
-So is it wrong to have a kernel option to disable the local APIC timer
-interrupts?  Or is there a better way than a kernel option?  I thought using the DMI
-scan would have been great, if it worked so I am wondering if there is any
-other way to get a signature on the host system and disable the local APIC
-timer without the operator having to pass a command line option.
-
-I do know that I could simply build a kernel with the CONFIG_X86_UP_APIC
-to work around this problem, but that means a "special" kernel just for
-VMware and also means not being able to use vendor supplied kernels, or
-vendor supplied boot media (i.e. CD-ROMs).
-
-It would be nicer to be able to disable this feature at run-time than
-build-time.
-
-Thots?
-
-b.
-
-
+* my views are not necessarily my employer's *
 

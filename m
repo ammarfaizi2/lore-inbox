@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278364AbRJSLpB>; Fri, 19 Oct 2001 07:45:01 -0400
+	id <S278366AbRJSLuv>; Fri, 19 Oct 2001 07:50:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278365AbRJSLov>; Fri, 19 Oct 2001 07:44:51 -0400
-Received: from smtp3.libero.it ([193.70.192.53]:56813 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S278364AbRJSLoe>;
-	Fri, 19 Oct 2001 07:44:34 -0400
-Date: Fri, 19 Oct 2001 13:37:37 +0200
-From: Carlo Strozzi <carlos@scriptaworks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Patch and Performance of larger pipes
-Message-ID: <20011019133737.P1532@texne.com>
-In-Reply-To: <3BCF1A74.AE96F241@colorfullife.com> <E15uME1-0000Ht-00@bodnar42> <20011019021530.A796@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011019021530.A796@suse.de>; from stepan@suse.de on Fri, Oct 19, 2001 at 02:15:30AM +0200
-Organization: ScriptaWorks.COM
+	id <S278369AbRJSLul>; Fri, 19 Oct 2001 07:50:41 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:44559 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S278366AbRJSLua>; Fri, 19 Oct 2001 07:50:30 -0400
+Message-Id: <200110191150.f9JBoWu7032379@pincoya.inf.utfsm.cl>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2) 
+In-Reply-To: Message from Rik van Riel <riel@conectiva.com.br> 
+   of "Fri, 19 Oct 2001 01:03:47 -0200." <Pine.LNX.4.33L.0110190103000.3690-100000@imladris.surriel.com> 
+Date: Fri, 19 Oct 2001 08:50:32 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 19, 2001 at 02:15:30AM +0200, Stefan Reinauer wrote:
-> 
-> Shell scripts often use pipes to pass data between processes. Speed up should
-> be quite noticable with all kinds of those.
-> 
+Rik van Riel <riel@conectiva.com.br> said:
 
-I agree. I personally use shell pipes heavily, and anything aimed at
-improving them is a great thing for my programs.
+[...]
 
-cheers,
-carlo
+> Say ... /home/students   ?
+
+User + group quota.
 -- 
-For easier reading please set the Courier font.
-Messages larger than 30 KB may not receive immediate attention.
-Freedom for Business: http://swpat.ffii.org
+Dr. Horst H. von Brand                Usuario #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

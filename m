@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310271AbSCBCRn>; Fri, 1 Mar 2002 21:17:43 -0500
+	id <S310274AbSCBCTY>; Fri, 1 Mar 2002 21:19:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310273AbSCBCRd>; Fri, 1 Mar 2002 21:17:33 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1806 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310271AbSCBCRV>; Fri, 1 Mar 2002 21:17:21 -0500
-Subject: Re: 2.4.19pre1aa1
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Sat, 2 Mar 2002 02:28:20 +0000 (GMT)
-Cc: davidsen@tmr.com (Bill Davidsen), mfedyk@matchmail.com (Mike Fedyk),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020302030615.G4431@inspiron.random> from "Andrea Arcangeli" at Mar 02, 2002 03:06:15 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310275AbSCBCTO>; Fri, 1 Mar 2002 21:19:14 -0500
+Received: from ns1.system-techniques.com ([199.33.245.254]:930 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S310274AbSCBCTD>; Fri, 1 Mar 2002 21:19:03 -0500
+Date: Fri, 1 Mar 2002 21:18:15 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Ralf Baechle <ralf@conectiva.com.br>
+cc: Dax Kelson <dax@gurulabs.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre2 on Cobalt Qube 2?
+In-Reply-To: <20020301053238.A32004@dea.linux-mips.net>
+Message-ID: <Pine.LNX.4.44.0203012112130.32458-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16gzG0-0005qt-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On a very lowmem machine the rmap design shouldn't really make a sensible
-> difference, the smaller the amount of mapped VM, the less rmap can make
-> differences, period.
 
-It makes a big big difference on a low memory box. Try running xfce on
-a 24Mb box with the base 2.4.18, 2.4.18 + rmap12f and 2.4.18+aa. Thats
-a case where aa definitely loses and without other I/O patches being
-applied. Its an X11 based workload with a -lot- of shared pages. Both
-rmap and aa materially outperform 2.4.18 base on this workload (and 2.4.17
-blew up with out of memory errors)
+	Hello Ralf ,  Where in the FAQ does it describe how to get from
+	CVS the necessary components for a MIPsel kernel from CVS or do
+	you just grab the whole kernel ?  Also the URL:
+	ftp://intel.cleveland.lug.net/pub/Mipsel
+	appears to not allow anon access anylonger .  Tia ,  JimL
 
-> IMHO vm-28 should be somehow included into mainline ASAP (before 2.4.19
-> is released), then again IMHO we can forget about the 2.4 VM and it will
-> be definitely finished.
+ie:
+$ ncftp ftp://intel.cleveland.lug.net/pub/Mipsel
+NcFTP 3.0.2 (October 19, 2000) by Mike Gleason (ncftp@ncftp.com).
+Connecting to 207.166.193.105...
+ProFTPD 1.2.1 Server (ProFTPD Default Installation) [cleveland.lug.net]
+Login incorrect.
 
-With luck 8) VM is never finished 8(
 
-Alan
+On Fri, 1 Mar 2002, Ralf Baechle wrote:
+> On Thu, Feb 28, 2002 at 09:18:30PM -0700, Dax Kelson wrote:
+> > > Here is 2.4.19-pre2: A very big patch (around 13MB uncompressed) due to
+> > > the architecture (MIPS and IA64 mainly) updates.
+> > Does this MIPS merge mean that the 2.4.19-pre2 kernel would work on a MIPS
+> > based Cobalt Qube 2? It that's the case, then I just need a working
+> > userland.
+> > The official Linux kernel from Cobalt is 2.0 vintage. I'm currently
+> > running NetBSD 1.5.2 to have something a little more modern, but I would
+> > like to come back to Linux if possible.
+> The MIPS merge still isn't complete, this was just the bulk part.  So such
+> I haven't even tried to build let alone test Marcelo's -pre2 kernel.  If
+> you want a 2.4.18 kernel for a Qube, get it via anonymous CVS.  See the
+> MIPS HOWTO at http://oss.sgi.com/mips/mips-howto.html.
+>   Ralf
+
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 

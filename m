@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUGYVft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264512AbUGYVmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUGYVft (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 17:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbUGYVft
+	id S264512AbUGYVmx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 17:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUGYVmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 17:35:49 -0400
-Received: from centaur.culm.net ([83.16.203.166]:47622 "EHLO centaur.culm.net")
-	by vger.kernel.org with ESMTP id S264503AbUGYVfr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 17:35:47 -0400
-From: Witold Krecicki <adasi@kernel.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Disabling compiled-in modules at kernel boot cmdline?
-Date: Sun, 25 Jul 2004 23:35:37 +0200
-User-Agent: KMail/1.6.2
+	Sun, 25 Jul 2004 17:42:53 -0400
+Received: from posti5.jyu.fi ([130.234.4.34]:17590 "EHLO posti5.jyu.fi")
+	by vger.kernel.org with ESMTP id S264512AbUGYVmv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 17:42:51 -0400
+Date: Mon, 26 Jul 2004 00:42:41 +0300 (EEST)
+From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
+X-X-Sender: ptsjohol@silmu.st.jyu.fi
+To: "Will S." <willgs00@cox.net>
+cc: akpm@osdl.org, <linux-kernel@vger.kernel.org>
+Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
+ RLT-8139 related)
+In-Reply-To: <4104257C.3080102@cox.net>
+Message-ID: <Pine.LNX.4.44.0407260032240.4782-100000@silmu.st.jyu.fi>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200407252335.37487.adasi@kernel.pl>
-X-Spam-Score: -4.7 (----)
-X-MIME-Warning: Serious MIME defect detected ()
-X-Scan-Signature: fd30f7fe92f0baa0e673755cf3407eaf
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Checked: by miltrassassin
+	at posti5.jyu.fi; Mon, 26 Jul 2004 00:42:43 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Case: I'm using PowerBook with stock PLD Linux PPC kernel, it has i8042 and 
-8250 modules built-in. But, those have no use on this machine (as those are 
-for IBM RS/6000), and actually are really messing stuff (e.g. i8042 gives a 
-lot of debug info to kernel log (that it cannot find a device blah blah), 
-with 8250 I cannot use pmac_zilog driver (there is a conflict somewhere)).
+On Sun, 25 Jul 2004, Will S. wrote:
 
-Quick look at the code told me that currently there is no possibility to 
-disable compiled-in kernel modules at boottime. Would it be hard to do? For 
-example I give module_i8042=off (or sth. ) and initcall for i8042 is not 
-called. That would be probably enough.
+>>Yeah, it might be some sort of a bug which is related to 
+>>VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]-chipset and 
+>>RTL-8139? Hard to say at this point. I'll get some other network cards 
+>>tomorrow from the office and we will see if there is a difference. 
+>>I hope that it's not the mobo (chipset). =)
 
-Yes, I know that the solution is compiling kernel myself, but doing it every 
-week (for testing purposes) for about 2-3 hour could be annoying...
+> I just remembered something. In the kernel config, there's an option for 
+> the RTL-8139 driver to use polling I/O instead of memory mapped I/O - 
+> and it usually defaults to PIO. My kernel was compiled using the MMIO 
+> option. Check and see what you're using.
 
--- 
-Witold Krêcicki (adasi) adasi [at] culm.net
-GPG key: 7AE20871
-http://www.culm.net
+I'm using MMIO-option, I was just thinking to go with the PIO and see what 
+will happen.
+
+I just found this thread (url below) and some others are having problems 
+also.
+
+http://seclists.org/lists/linux-kernel/2004/Mar/2295.html
+
+Andrew:
+
+Did you find any solution to this one? (I guess not but could I be in help 
+someway to hunt this bug down?)
+
+

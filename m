@@ -1,31 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129496AbQKHAnE>; Tue, 7 Nov 2000 19:43:04 -0500
+	id <S129518AbQKHAqE>; Tue, 7 Nov 2000 19:46:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129518AbQKHAmz>; Tue, 7 Nov 2000 19:42:55 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14360 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129496AbQKHAmp>; Tue, 7 Nov 2000 19:42:45 -0500
-Subject: Re: Pentium 4 and 2.4/2.5
-To: fdavis112@juno.com (Frank Davis)
-Date: Wed, 8 Nov 2000 00:43:08 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, x_coder@hotmail.com, andre@linux-ide.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20001104.190410.-351455.2.fdavis112@juno.com> from "Frank Davis" at Nov 04, 2000 07:04:08 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130356AbQKHApo>; Tue, 7 Nov 2000 19:45:44 -0500
+Received: from catbert.rellim.com ([204.17.205.1]:23556 "EHLO
+	catbert.rellim.com") by vger.kernel.org with ESMTP
+	id <S129518AbQKHApm>; Tue, 7 Nov 2000 19:45:42 -0500
+Date: Tue, 7 Nov 2000 16:45:21 -0800 (PST)
+From: "Gary E. Miller" <gem@rellim.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: MOLNAR Ingo <mingo@chiara.elte.hu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH] deadlock fix
+In-Reply-To: <Pine.Linu.4.10.10011040506240.793-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.30.0011071633250.16069-100000@catbert.rellim.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13tJKY-0007zO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   As for the 2.2.18 patch for correctly determining 2GHz and above, can
-> it be easily  merged into the 2.4.x kernel, and if so, what's the maximum
-> clock speed that can be detected?
+Yo All!
 
-It should be easy yes. Its good to 100Ghz or so now ;)
+I see this patch did not make it into test11-pre1.  Without it
+raid1 and SMP do not work together.  Please consider for test11-pre2.
+
+RGDS
+GARY
+---------------------------------------------------------------------------
+Gary E. Miller Rellim 20340 Empire Ave, Suite E-3, Bend, OR 97701
+	gem@rellim.com  Tel:+1(541)382-8588 Fax: +1(541)382-8676
+
+> > > Here it is.
+> > >
+> > > --- drivers/md/raid1.c.org	Wed Oct 18 15:30:07 2000
+> > > +++ drivers/md/raid1.c	Wed Oct 18 15:33:08 2000
+> > > @@ -91,7 +91,8 @@
+> > >
+> > >  static inline void raid1_free_bh(raid1_conf_t *conf, struct buffer_head *bh)
+> > >  {
+> > > -	md_spin_lock_irq(&conf->device_lock);
+> > > +	unsigned long flags;
+> > > +	md_spin_lock_irqsave(&conf->device_lock, flags);
+> > >  	while (bh) {
+> > >  		struct buffer_head *t = bh;
+> > >  		bh=bh->b_next;
+> > > @@ -103,7 +104,7 @@
+> > >  			conf->freebh_cnt++;
+> > >  		}
+> > >  	}
+> > > -	md_spin_unlock_irq(&conf->device_lock);
+> > > +	md_spin_unlock_irqrestore(&conf->device_lock, flags);
+> > >  	wake_up(&conf->wait_buffer);
+> > >  }
+>
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

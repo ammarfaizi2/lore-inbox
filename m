@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbUFQUpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbUFQUrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262927AbUFQUpo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 16:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbUFQUpo
+	id S262972AbUFQUrB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 16:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbUFQUrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 16:45:44 -0400
-Received: from vsmtp1b.tin.it ([212.216.176.141]:41167 "EHLO vsmtp1.tin.it")
-	by vger.kernel.org with ESMTP id S262927AbUFQUpm (ORCPT
+	Thu, 17 Jun 2004 16:47:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20117 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262972AbUFQUqt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 16:45:42 -0400
-Message-ID: <40D20449.5000107@stanchina.net>
-Date: Thu, 17 Jun 2004 22:51:21 +0200
-From: Flavio Stanchina <flavio@stanchina.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kyle Moffett <mrmacman_g4@mac.com>
-CC: "Adam J. Richter" <adam@yggdrasil.com>, hch@lst.de, greg@kroah.com,
-       linux-kernel@vger.kernel.org, Michael Poole <mdpoole@troilus.org>
-Subject: Re: more files with licenses that aren't GPL-compatible
-References: <200406180629.i5I6Ttn04674@freya.yggdrasil.com> <87n032xk82.fsf@sanosuke.troilus.org> <20040617100930.A9108@adam> <96BD7BAE-C092-11D8-8574-000393ACC76E@mac.com>
-In-Reply-To: <96BD7BAE-C092-11D8-8574-000393ACC76E@mac.com>
-X-Enigmail-Version: 0.83.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 17 Jun 2004 16:46:49 -0400
+Date: Thu, 17 Jun 2004 13:46:36 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Zwane Mwaikambo <zwane@fsmlabs.com>, "David S. Miller" <davem@redhat.com>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6] fix bridge sysfs improperly initialised knobject
+Message-Id: <20040617134636.216f430e@dell_ss3.pdx.osdl.net>
+In-Reply-To: <Pine.LNX.4.58.0406161247140.1944@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0406161247140.1944@montezuma.fsmlabs.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
-> If someone distributes _on_their_own_ (site, CDs, whatever) copies
-> of Linux with their copyrighted code in it, or contributes copyrighted
-> code _that_they_own_, they are giving someone a license to use
-> against them.  That is actually one of the difficulties SCO is facing
-> right now in court; _they_ distributed copies of Linux _including_ any
-> code that they may claim is copyrighted.  Since they have the right to
-> license such code, any license that appears to be associated with it
-> when they distribute it becomes valid even if it was not before.  If you
-> distribute a copy of Linux under the GPL that contains code you
-> claim is violating your copyright, then I don't believe you have a leg
-> to stand on, legally.
+> The bridge sysfs interface introduced around 2.6.7-rc1 created a bad
+> entry in /sys because it didn't initialise the name member of the kobject.
+> 
+> zwane@montezuma /sys {0:0} ls -l
+> total 0
+> ?---------   ? ?    ?    ?            ?
+> drwxr-xr-x  17 root root 0 Jun 15 15:47 block
+> drwxr-xr-x   7 root root 0 Jun 15 15:47 bus
+> drwxr-xr-x  16 root root 0 Jun 15 15:47 class
+> drwxr-xr-x   5 root root 0 Jun 15 15:47 devices
+> drwxr-xr-x   3 root root 0 Jun 15 15:47 firmware
+> drwxr-xr-x   8 root root 0 Jun 15 19:55 module
+> 
+> Index: linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c
+> ===================================================================
+> RCS file: /home/cvsroot/linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 br_sysfs_br.c
+> --- linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c	14 Jun 2004 12:49:12 -0000	1.1.1.1
+> +++ linux-2.6.7-rc3-mm2/net/bridge/br_sysfs_br.c	16 Jun 2004 16:45:20 -0000
+> @@ -305,9 +305,7 @@ static struct bin_attribute bridge_forwa
+>   * This is a dummy kset so bridge objects don't cause
+>   * hotplug events
+>   */
+> -struct subsystem bridge_subsys = {
+> -	.kset = { .hotplug_ops = NULL },
+> -};
+> +decl_subsys_name(bridge, net_bridge, NULL, NULL);
+> 
+>  void br_sysfs_init(void)
+>  {
 
-Your argument applies to the SCO case because their code (if there is 
-any, which nobody but SCO still believes is the case) did *not* have a 
-license attached to it that didn't allow modification, redistribution or 
-whatever else the GPL requires; otherwise they wouldn't have trouble 
-demonstrating which code it is they're talking about. So any sane person 
-would understand that they knowingly released it under the GPL: if 
-they'll try to argue that they didn't know the kernel was covered by the 
-GPL, I don't think the judge will go for much less than capital 
-punishment when he stops laughing.
 
-In this case, if I followed the discussion correctly, there are files 
-and binary blobs in the kernel whose license explicitly disallows some 
-of the freedoms the GPL grants. So they *have* to get out of the kernel 
-proper *now*, period. There is no other choice, legally.
+Yes, this would get rid of the name, but then wouldn't bridge show up
+as top level subsystem /sys/bridge. 
 
-Once those files and stuff are out of the kernel, we can think of a 
-solution that works from both a technical and a legal perspective, such 
-as loading firmware from external files (which users will have to 
-download themselves from vendors' sites -- we can't distribute them in 
-any form if they don't change the license). Modules under a non-GPL 
-license are a different can of worms: many people believe they are 
-violating the GPL even if they remain outside of the kernel proper 
-because they are obviously a derivative work of the kernel. So far AFAIK 
-nobody sued NVidia, ATI or anyone else for distributing non-GPL modules, 
-but they can _not_ stay in the kernel. I wonder how and why they were 
-accepted in the first place.
+Is there no way to register without causing bogus hotplug events?
 
--- 
-Ciao, Flavio
-
+I am getting a bad taste about the whole sysfs programming model, since
+it seems like programming by side effect. it would be better for sysfs
+to handle the case of hidden subsystems, or provide an alternate way
+not to generate hotplug events.

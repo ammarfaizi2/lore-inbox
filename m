@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262569AbTCZVNA>; Wed, 26 Mar 2003 16:13:00 -0500
+	id <S262564AbTCZVSe>; Wed, 26 Mar 2003 16:18:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262570AbTCZVNA>; Wed, 26 Mar 2003 16:13:00 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:11014 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262569AbTCZVM6>;
-	Wed, 26 Mar 2003 16:12:58 -0500
-Date: Wed, 26 Mar 2003 13:23:18 -0800
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, Jan Dittmer <j.dittmer@portrix.net>,
-       azarah@gentoo.org, KML <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@brodo.de>, sensors@stimpy.netroedge.com
-Subject: Re: w83781d i2c driver updated for 2.5.66 (without sysfs support)
-Message-ID: <20030326212318.GA26886@kroah.com>
-References: <1048582394.4774.7.camel@workshop.saharact.lan> <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan> <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com> <20030326204343.A22053@infradead.org>
+	id <S262570AbTCZVSd>; Wed, 26 Mar 2003 16:18:33 -0500
+Received: from [12.47.58.223] ([12.47.58.223]:13867 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id <S262564AbTCZVSb>; Wed, 26 Mar 2003 16:18:31 -0500
+Date: Wed, 26 Mar 2003 13:30:21 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Jochen Hein <jochen@jochen.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.66] slab corruption
+Message-Id: <20030326133021.43f75e1c.akpm@digeo.com>
+In-Reply-To: <871y0uhriz.fsf@echidna.jochen.org>
+References: <871y0uhriz.fsf@echidna.jochen.org>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030326204343.A22053@infradead.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Mar 2003 21:29:37.0572 (UTC) FILETIME=[CD7EBE40:01C2F3DE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 08:43:43PM +0000, Christoph Hellwig wrote:
-> On Wed, Mar 26, 2003 at 12:26:23PM -0800, Greg KH wrote:
-> > We should really split these multivalue files up into individual files,
-> > as sysfs is for single value files.  Makes parsing easier too.
-> > 
-> > Here's a patch for the lm75.c driver that does this.  As we are going to
-> > need a "generic" read and write for the "real" values that the i2c
-> > drivers use, I added these files to the i2c-proc.c file.
+Jochen Hein <jochen@jochen.org> wrote:
+>
 > 
-> i2c-proc.c is the wrong place.  Please add a i2c-sensor.c file with
-> helper code for hardware sensors driver (i2c_detect should move over to
-> there from i2c-proc.c aswell)
+> This is when shutting down.  I have the two patches from Jack Simmons
+> for the illegal context and the broken cursor applied and nothing
+> else.
+> 
+> uhci-hcd 00:07.2: remove, state 3
+> usb usb1: USB disconnect, address 1
 
-Oh, I agree.  I just threw it there as I was matching up with other
-functions already in that file.  Eventually i2c-proc.c should be
-deleted, as all of the proc stuff will be gone.  I like the idea of
-i2c-sensor.c for the remaining i2c_detect() function.
+There's some nastiness in the USB disconnect code.  Does David Brownell's
+patch help?
 
-thanks,
+--- 1.15/drivers/usb/core/urb.c	Thu Mar 13 10:45:40 2003
++++ edited/drivers/usb/core/urb.c	Thu Mar 20 11:17:55 2003
+@@ -384,11 +384,11 @@
+ 	/* FIXME
+ 	 * We should not care about the state here, but the host controllers
+ 	 * die a horrible death if we unlink a urb for a device that has been
+-	 * physically removed.
++	 * physically removed.  (after driver->disconnect returns...)
+ 	 */
+ 	if (urb &&
+ 	    urb->dev &&
+-	    (urb->dev->state >= USB_STATE_DEFAULT) &&
++	    // (urb->dev->state >= USB_STATE_DEFAULT) &&
+ 	    urb->dev->bus &&
+ 	    urb->dev->bus->op)
+ 		return urb->dev->bus->op->unlink_urb(urb);
 
-greg k-h
+

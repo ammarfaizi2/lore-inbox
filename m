@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276453AbRJPRK6>; Tue, 16 Oct 2001 13:10:58 -0400
+	id <S276285AbRJPRQU>; Tue, 16 Oct 2001 13:16:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276451AbRJPRKs>; Tue, 16 Oct 2001 13:10:48 -0400
-Received: from inway106.cdi.cz ([213.151.81.106]:6528 "EHLO luxik.cdi.cz")
-	by vger.kernel.org with ESMTP id <S276411AbRJPRKk>;
-	Tue, 16 Oct 2001 13:10:40 -0400
-Posted-Date: Tue, 16 Oct 2001 19:11:08 +0200
-Date: Tue, 16 Oct 2001 19:11:08 +0200 (CEST)
-From: Martin Devera <devik@cdi.cz>
-To: Francois Romieu <romieu@cogenit.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sendto syscall is slow
-In-Reply-To: <20011016190233.A3347@se1.cogenit.fr>
-Message-ID: <Pine.LNX.4.10.10110161909030.321-100000@luxik.cdi.cz>
+	id <S276424AbRJPRQJ>; Tue, 16 Oct 2001 13:16:09 -0400
+Received: from lego.zianet.com ([204.134.124.54]:47377 "EHLO lego.zianet.com")
+	by vger.kernel.org with ESMTP id <S276285AbRJPRP4>;
+	Tue, 16 Oct 2001 13:15:56 -0400
+Message-ID: <3BCC69E6.403@zianet.com>
+Date: Tue, 16 Oct 2001 11:09:58 -0600
+From: Steven Spence <kwijibo@zianet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Wierd memory reports in 2.4.12
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Martin Devera <devik@cdi.cz> :
-> [...]
-> > Are you speaking about rewriting nic driver ? Like try to drain
-> > waiting packet from nic's memory while enqueuing new one ?
-> 
-> Partly: simply disabling Rx/Tx interrupt and checking for ack
-> in buffers descriptor during hard_start_xmit. The profile for 
-> loopback shows your problem is not here however. :o(
+Something isn't right in the reporting of used memory in the 2.4.12 kernel.
+Don't know if it has been noticed yet or not. This is an SMP machine
+if it has anything to do with it and I have BIGMEM enabled.
 
-I just found that PF_SOCKET can be mmaped to improve reads.
-Only I can't found docs how to use the functionality ..
+Here is a report of 'free'
+
+
+                           total        used            free    
+shared    buffers     cached
+Mem:           1029700     752128     277572          0     309204     
+477960
+-/+ buffers/cache:         -35036    1064736
+Swap:           2040244              0    2040244
+
+Notice the negative used cache.
+
+This also makes xosview act in some rather odd behaviour.
+
+Steven
 

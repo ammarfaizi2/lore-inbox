@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267973AbUHPWLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267972AbUHPWMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267973AbUHPWLD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 18:11:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267975AbUHPWLD
+	id S267972AbUHPWMj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 18:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267975AbUHPWMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 18:11:03 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:40709 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267973AbUHPWK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 18:10:59 -0400
-Date: Mon, 16 Aug 2004 23:10:53 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, ecki-news2004-05@lina.inka.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux SATA RAID FAQ
-Message-ID: <20040816231053.A15749@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	ecki-news2004-05@lina.inka.de, linux-kernel@vger.kernel.org
-References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net> <1092315392.21994.52.camel@localhost.localdomain> <20040816150641.108c66a6.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 16 Aug 2004 18:12:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14980 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267972AbUHPWM2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 18:12:28 -0400
+From: Jeff Moyer <jmoyer@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040816150641.108c66a6.akpm@osdl.org>; from akpm@osdl.org on Mon, Aug 16, 2004 at 03:06:41PM -0700
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7bit
+Message-ID: <16673.12499.75952.657087@segfault.boston.redhat.com>
+Date: Mon, 16 Aug 2004 18:10:27 -0400
+To: mpm@selenic.com
+CC: linux-kernel@vger.kernel.org
+Subject: [patch] netpoll: revert netif_queue_stopped changeset
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 03:06:41PM -0700, Andrew Morton wrote:
-> hch questioned why we need the driver at all: just put the card in JBOD
-> mode and use s/w raid drivers.  But the thing does have an on-board CPU and
-> the idea is that by offloading to that, the data transits the bus just a
-> single time.  The developers are off doing some comparative benchmarking at
-> present.
+Hi, Matt,
 
-Alan's driver can use the chip in raid mode.
+Here's the first of the broken out patch set.  This puts the check for
+netif_queue_stopped back into netpoll_send_skb.  Network drivers are not
+designed to have their hard_start_xmit routines called when the queue is
+stopped.
 
+Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
+
+--- linux-2.6.7/net/core/netpoll.c.orig	2004-08-16 11:57:46.890322256 -0400
++++ linux-2.6.7/net/core/netpoll.c	2004-08-16 12:17:34.477781520 -0400
+@@ -168,6 +168,18 @@ repeat:
+ 	spin_lock(&np->dev->xmit_lock);
+ 	np->dev->xmit_lock_owner = smp_processor_id();
+ 
++	/*
++	 * network drivers do not expect to be called if the queue is
++	 * stopped.
++	 */
++	if (netif_queue_stopped(np->dev)) {
++		np->dev->xmit_lock_owner = -1;
++		spin_unlock(&np->dev->xmit_lock);
++
++		netpoll_poll(np);
++		goto repeat;
++	}
++
+ 	status = np->dev->hard_start_xmit(skb, np->dev);
+ 	np->dev->xmit_lock_owner = -1;
+ 	spin_unlock(&np->dev->xmit_lock);

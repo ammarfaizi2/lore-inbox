@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263556AbUDFA26 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 20:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbUDFA26
+	id S263557AbUDFA3K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 20:29:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263558AbUDFA3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 20:28:58 -0400
-Received: from smtp103.mail.sc5.yahoo.com ([66.163.169.222]:22910 "HELO
-	smtp103.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263556AbUDFA25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 20:28:57 -0400
-Message-ID: <4071F9C5.2030002@yahoo.com.au>
-Date: Tue, 06 Apr 2004 10:28:53 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Mon, 5 Apr 2004 20:29:10 -0400
+Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:45573 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S263557AbUDFA3I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 20:29:08 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Kitt Tientanopajai <kitt@gear.kku.ac.th>
+Subject: Re: 2.6.5 yenta_socket irq 10: nobody cared!
+Date: Tue, 6 Apr 2004 02:27:58 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: rusty@au1.ibm.com, mingo@elte.hu, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: [Experimental CPU Hotplug PATCH] - Move migrate_all_tasks to
- CPU_DEAD handling
-References: <20040405121824.GA8497@in.ibm.com>
-In-Reply-To: <20040405121824.GA8497@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404060227.58325.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> Hi Rusty,
-> 	migrate_all_tasks is currently run with rest of the machine stopped.
-> It iterates thr' the complete task table, turning off cpu affinity of any task 
-> that it finds affine to the dying cpu. Depending on the task table 
-> size this can take considerable time. All this time machine is stopped, doing
-> nothing.
-> 
-> I think Nick was working on reducing this time spent in migrating tasks
-> by concentrating only on the tasks in the runqueue and catch up with sleeping
-> tasks as and when they wake up (in try_to_wake_up). But this still can be 
-> considerable time spent depending on the number of tasks in the dying CPU's 
-> runqueue.
+this is a known problem with the acer travelmate 361. it reports IRQ 11 for
+the O2Micro cardbus bridge when it is in reality IRQ 10.
 
-Hi Srivatsa,
-First of all, if you're proposing this stuff for inclusion, you
-should port it to the -mm tree, because I don't think Andrew
-will want any other scheduler work going in just now. It wouldn't
-be too hard.
+see:
+	http://www.naos.co.nz/hardware/laptop/acer-361evi/x94.html#AEN138
+and
+	http://sourceforge.net/tracker/index.php?func=detail&aid=533863&group_id=2405&atid=102405
 
-I think my stuff is a bit orthogonal to what you're attempting.
-And they should probably work well together. My "lazy migrate"
-patch means the tasklist lock does not need to be held at all,
-only the dying runqueue's lock.
+
+please give a full dmesg and a lspci -vvvn.
+are you using ACPI?
 

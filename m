@@ -1,182 +1,212 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262173AbTCLXLH>; Wed, 12 Mar 2003 18:11:07 -0500
+	id <S262126AbTCLXKk>; Wed, 12 Mar 2003 18:10:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262186AbTCLXLH>; Wed, 12 Mar 2003 18:11:07 -0500
-Received: from ausadmmsrr501.aus.amer.dell.com ([143.166.83.88]:42761 "HELO
-	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S262173AbTCLXJL>; Wed, 12 Mar 2003 18:09:11 -0500
-X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
-Message-ID: <36696BAFD8467644ABA0050BE35890590E04AC@ausx2kmpc106.aus.amer.dell.com>
-From: Gary_Lerhaupt@Dell.com
-To: linux-kernel@vger.kernel.org
-Subject: RE: [ANNOUNCE] DKMS: Dynamic Kernel Module Support
-Date: Wed, 12 Mar 2003 17:19:18 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 12711F1D193461-02-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S262183AbTCLXKk>; Wed, 12 Mar 2003 18:10:40 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:28406 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S262126AbTCLXJo>;
+	Wed, 12 Mar 2003 18:09:44 -0500
+Date: Thu, 13 Mar 2003 00:20:27 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: [PATCH] kobject support for LSM core (v2)
+Message-ID: <20030312232027.GQ7397@pasky.ji.cz>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	linux-security-module@wirex.com
+References: <20030310001310.GU3917@pasky.ji.cz> <20030310064738.GD6512@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030310064738.GD6512@kroah.com>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've updated DKMS and posted it: http://www.lerhaupt.com/dkms/
+Dear diary, on Mon, Mar 10, 2003 at 07:47:38AM CET, I got a letter,
+where Greg KH <greg@kroah.com> told me, that...
+> On Mon, Mar 10, 2003 at 01:13:10AM +0100, Petr Baudis wrote:
+> > 
+> >   the following patch (against 2.5.64) introduces kobject infrastructure
+> > scaffolding to the LSM framework. It does nothing but allocating security root
+> > subsystem for the LSMs, so that they are tied to one specific point in the
+> > kobject hierarchy. They are suggested to create own subsystems under the
+> > security subsystem, however such things are completely up to the individual
+> > LSMs and not regulated by core in any way (it's not that I would so much like
+> > such an approach, but I was advised so by GregKH and it makes sense in its own
+> > way as well).
+> 
+> Hm, I thought I advised not doing this at all :)
 
-ChangeBlog can be found at: http://www.lerhaupt.com/foo/archives/000027.html
+*mumble* ;-)
 
-Here's a copy of the changeblog:
+> Anyway, if we were to add this, you might want to:
+> 
+> > +
+> > +/* kobject stuff */
+> > +
+> > +/* We define only the base subsystem here and leave everything to a LSM. It is
+> > + * heavily recommended that the LSM should create own subsystem under this one,
+> > + * so that it can be easily made stackable and it doesn't confuse userland by
+> > + * exporting its stuff directly to /sys/security/. */
+> > +decl_subsys(security,NULL);
+> 
+> Add a prototype of this variable to security.h so that everyone can
+> actually see it who wants to use it.
 
-* I added patching support in dkms.conf. You can now specify
-PATCH0=<patch_filename>, PATCH1=..., etc. in your dkms.conf and the patches
-will be applied in numerical order to your source each time before it
-builds. All patches are expected to be in -p1 format and should be installed
-into the /usr/src/<module>-<module-version>/patches/ directory.
+Oops, I accidentally missed that file when diffing, sorry.
 
-* With patching support also comes kernel specific patches. These should be
-entered in the form of PATCH_<kernel-regexp> in dkms.conf. If the
-<kernel-regexp> matches to the kernel you are currently trying to build a
-module for, then this patch will be applied. All kernel specific patches are
-applied after generic patches.
+> > +/**
+> > + * security_kobj_init - initializes the security kobject subsystem
+> > + *
+> > + * This is called after security_scaffolding_startup as a regular initcall,
+> > + * since we need sysfs mounted already.
+> > + */
+> > +static int __init security_kobj_init (void)
+> > +{
+> > +	subsystem_register (&security_subsys);
+> > +	return 0;
+> > +}
+> > +
+> > +subsys_initcall(security_kobj_init);
+> 
+> Why not initialize this when the security core is initialized?  Why
+> have a new initcall?
 
-* All module builds now occur in the directory
-/var/dkms/<module>/<module-version>/build/. Before each build, the source is
-copied into this directory for /usr/src/<module>-<module-version>/. If a
-build succeeds, then this directory is emptied after the build. However, if
-a build fails or if patches fail to apply, then this directory is left with
-the source in it so that further troubleshooting can be done.
+See the comment before the function:
 
-* There is no longer a limit to how many MODULES_CONF entries can be placed
-in dkms.conf (used to be a 5 entry limit). As well, the format was changed
-from MODULES_CONF_<#>=... to just MODULES_CONF<#>=...
++ * since we need sysfs mounted already.
 
-* DKMS no longer sources in /etc/init.d/functions as this is Red Hat
-specific and was not utilized anyway.
+At the time of security_scaffolding_setup(), sysfs is not mounted yet, thus
+subsystem_register() returns -EFAULT and is unsuccessful.
 
-* Modules are no longer assumed to end with .o. This means the explicit
-built name of your module must be specified in dkms.conf.
+> And when do you unregister this subsystem?
+
+Never ;-). Well it appears that there is no need to unregister it explicitly,
+at least noone else does it (subsystem_unregister() is called only for
+dynamically registered subsystems). If you insist on having it there, I can add
+it, but we are following the current way of doing things with leaving it out.
+
+> > +EXPORT_SYMBOL(security_subsys);
+> 
+> No EXPORT_SYMBOL_GPL() for it?  :)
+
+True, fixed.
+
+The second version of the patch follows...
+
+  Hello,
+
+  the following patch (against 2.5.64) introduces kobject infrastructure
+scaffolding to the LSM framework. It does nothing but allocating security root
+subsystem for the LSMs, so that they are tied to one specific point in the
+kobject hierarchy. They are suggested to create own subsystems under the
+security subsystem, however such things are completely up to the individual
+LSMs and not regulated by core in any way (it's not that I would so much like
+such an approach, but I was advised so by GregKH and it makes sense in its own
+way as well).
+
+  A lot of LSMs use various ad hoc methods for communication with the userspace
+and using the sysfs framework could be very convient for them, and there is at
+least one real-world (altough yet a bit primitive) LSM which already uses the
+security subsystem: http://pasky.ji.cz/securitylevels/.
+
+  It works fine for me and it should be pretty trivial. Please consider
+applying.
+
+ include/linux/security.h |    2 ++
+ security/security.c      |   30 ++++++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+)
+
+  Note that this is the second version of the patch, containing changes based
+on GregKH's remarks. It fixes missing patch for include/linux/security.h and
+exports security_subsys GPL'd.
+
+  Kind regards,
+				Petr Baudis
+
+diff -ru linux/security/security.c linux+pasky/security/security.c
+--- linux/security/security.c	Sun Mar  9 00:40:32 2003
++++ linux+pasky/security/security.c	Thu Mar 13 00:15:21 2003
+@@ -9,11 +9,15 @@
+  *	it under the terms of the GNU General Public License as published by
+  *	the Free Software Foundation; either version 2 of the License, or
+  *	(at your option) any later version.
++ *
++ * Introduced kobject infrastructure.
++ * 2003-02-27 Petr Baudis <pasky@ucw.cz>
+  */
  
-
-> -----Original Message-----
-> From: Lerhaupt, Gary 
-> Sent: Monday, March 03, 2003 11:07 AM
-> To: 'linux-kernel@vger.kernel.org'
-> Subject: RE: [ANNOUNCE] DKMS: Dynamic Kernel Module Support
-> 
-> 
-> I wanted to post a follow-up as I have seen only a few 
-> downloads of DKMS since my original posting and also given 
-> that the Linux Development Group here at Dell is very 
-> interested in feedback from the community.  The problem of 
-> chasing kernel drops is a very real issue for Linux solution 
-> providers.  With our constant work with new hardware and 
-> large deployments involving many customers, at times we 
-> simply cannot afford to wait for functional drivers in the 
-> kernel.  This is especially true for the discovery and 
-> resolution of high severity issues.  At the same time, we 
-> cannot just hand updated source tarballs to our customers and 
-> expect that to be an appropriate customer experience.  
-> Further, it is just not feasible for us to continue to 
-> produce kernel specific module RPMs for every kernel that we 
-> support for every module that we support.
-> 
-> What is needed instead is a framework that can hold module 
-> source and can recompile that source directly on user's 
-> systems for whichever kernel they are running.  As well, this 
-> entire process must be non-painful.  We believe that DKMS is 
-> this solution and we'd like to know if you agree and how it 
-> can be improved.
-> 
-> Lastly, as I realize some might take a *don't care* approach 
-> to such a problem given their personal Linux comfort level, 
-> I'd like to reiterate from my previous post how such a 
-> framework could possibly yield benefits to the entire process 
-> of Linux development.  We at Dell are very committed to 
-> merging code into the kernel, and if a separate framework to 
-> deploy (and test) module source existed apart from the 
-> kernel, we envision both an improvement in the speed and 
-> quality of driver development that can later be pushed back 
-> into the kernel.  
-> 
-> So, at your convenience we invite you to give DKMS a whirl 
-> (and to try out the sample QLogic driver included for the 
-> full experience).  Thanks.
-> 
-> Gary Lerhaupt
-> 
-> > -----Original Message-----
-> > From: Lerhaupt, Gary 
-> > Sent: Friday, February 28, 2003 12:02 PM
-> > To: 'linux-kernel@vger.kernel.org'
-> > Subject: [ANNOUNCE] DKMS: Dynamic Kernel Module Support
-> > 
-> > 
-> > DKMS is a framework where device driver source can reside 
-> > outside the kernel source tree so that it is very easy to 
-> > rebuild modules as you upgrade kernels. This allows Linux 
-> > vendors to provide driver drops without having to wait for 
-> > new kernel releases (as a stopgap before the code can make it 
-> > back into the kernel), while also taking out the guesswork 
-> > for customers attempting to recompile modules for new kernels.
-> > 
-> > For veteran Linux users it also provides some advantages 
-> > since a separate framework for driver drops will remove 
-> > kernel releases as a blocking mechanism for distributing 
-> > code. Instead, driver development should speed up as this 
-> > separate module source tree will allow quicker testing cycles 
-> > meaning better tested code can later be pushed back into the 
-> > kernel at a more rapid pace. Its also nice for developers and 
-> > maintainers as DKMS only requires a source tarball in 
-> > conjunction with a small configuration file in order to 
-> > function correctly.
-> > 
-> > The latest DKMS version is available at 
-> > http://www.lerhaupt.com/dkms/.  It is licensed under the GPL. 
-> > You can also find a sample DKMS enabled QLogic RPM to show 
-> > you how it all works (or, a mocked-up tarball if you don't 
-> > like RPMs). If you use the sample RPM, you'll have to install 
-> > it with --nodeps as it requires the DKMS RPM to be installed 
-> > (which I haven't provided).
-> > 
-> > ===Using DKMS===
-> > 
-> > DKMS is one bash executable that supports 7 sub-actions: add, 
-> > build, install, uninstall, remove, status and match.
-> > 
-> > add: Adds an entry into the DKMS tree for later builds.  It 
-> > requires that source be located in 
-> > /usr/src/<module>-<module-version>/ as well as the location 
-> > of a properly formatted dkms.conf file (each dkms.conf is 
-> > module specific and is the configuration file that tells DKMS 
-> > how to build and where to install your module).
-> > 
-> > build: Builds your module but stops short of installing it.  
-> > The resultant .o files are stored in the DMKS tree.
-> > 
-> > install: Installs the module in the LOCATION specified in dkms.conf.
-> > 
-> > uninstall: Uninstalls the module and replaces it with 
-> > whatever original module was found during install (returns 
-> > your module to the "built" state).  
-> > 
-> > remove: Uninstalls and expunges all references of your module 
-> > from the DKMS tree.
-> > 
-> > status: Displays the current state (added, built, installed) 
-> > of modules within the DMKS tree as well as whether any 
-> > original modules have been saved for uninstallation purposes.
-> > 
-> > match: Allows you to take the configuration of DKMS installed 
-> > modules for one kernel and apply this config to some other 
-> > kernel.  This is helpful when upgrading kernels where you 
-> > would like to continue using your DKMS modules instead of 
-> > certain kernel modules.
-> > 
-> > Check out the man page for more details.
-> > 
-> > Gary Lerhaupt
-> > Linux Development
-> > Dell Computer Corporation
-> > 
-> 
-
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
++#include <linux/kobject.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/security.h>
+@@ -38,6 +42,7 @@
+ 	return 0;
+ }
+ 
++
+ /**
+  * security_scaffolding_startup - initialzes the security scaffolding framework
+  *
+@@ -59,6 +64,30 @@
+ 	return 0;
+ }
+ 
++
++/* kobject stuff */
++
++/* We define only the base subsystem here and leave everything to a LSM. It is
++ * heavily recommended that the LSM should create own subsystem under this one,
++ * so that it can be easily made stackable and it doesn't confuse userland by
++ * exporting its stuff directly to /sys/security/. */
++decl_subsys(security,NULL);
++
++/**
++ * security_kobj_init - initializes the security kobject subsystem
++ *
++ * This is called after security_scaffolding_startup as a regular initcall,
++ * since we need sysfs mounted already.
++ */
++static int __init security_kobj_init (void)
++{
++	subsystem_register (&security_subsys);
++	return 0;
++}
++
++subsys_initcall(security_kobj_init);
++
++
+ /**
+  * register_security - registers a security framework with the kernel
+  * @ops: a pointer to the struct security_options that is to be registered
+@@ -195,5 +224,6 @@
+ EXPORT_SYMBOL_GPL(unregister_security);
+ EXPORT_SYMBOL_GPL(mod_reg_security);
+ EXPORT_SYMBOL_GPL(mod_unreg_security);
++EXPORT_SYMBOL_GPL(security_subsys);
+ EXPORT_SYMBOL(capable);
+ EXPORT_SYMBOL(security_ops);
+diff -ru linux/include/linux/security.h linux+pasky/include/linux/security.h
+--- linux/include/linux/security.h	Thu Mar  6 20:31:29 2003
++++ linux+pasky/include/linux/security.h	Thu Mar  6 23:18:46 2003
+@@ -22,6 +22,7 @@
+ #ifndef __LINUX_SECURITY_H
+ #define __LINUX_SECURITY_H
+ 
++#include <linux/kobject.h>
+ #include <linux/fs.h>
+ #include <linux/binfmts.h>
+ #include <linux/signal.h>
+@@ -1745,6 +1746,7 @@
+ extern int unregister_security	(struct security_operations *ops);
+ extern int mod_reg_security	(const char *name, struct security_operations *ops);
+ extern int mod_unreg_security	(const char *name, struct security_operations *ops);
++extern struct subsystem		security_subsys;
+ 
+ 
+ #else /* CONFIG_SECURITY */

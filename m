@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129392AbQKFT5L>; Mon, 6 Nov 2000 14:57:11 -0500
+	id <S130190AbQKFT5v>; Mon, 6 Nov 2000 14:57:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130000AbQKFT5B>; Mon, 6 Nov 2000 14:57:01 -0500
-Received: from u-245.karlsruhe.ipdial.viaginterkom.de ([62.180.10.245]:57095
-	"EHLO u-245.karlsruhe.ipdial.viaginterkom.de") by vger.kernel.org
-	with ESMTP id <S129392AbQKFT4t>; Mon, 6 Nov 2000 14:56:49 -0500
-Date: Mon, 6 Nov 2000 18:14:06 +0100
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Aaron Sethman <androsyn@ratbox.org>
-Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Tim Riker <Tim@Rikers.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
-Message-ID: <20001106181406.A22305@bacchus.dhis.org>
-In-Reply-To: <20001102201836.A14409@gruyere.muc.suse.de> <Pine.LNX.4.21.0011040031450.11261-100000@squeaker.ratbox.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0011040031450.11261-100000@squeaker.ratbox.org>; from androsyn@ratbox.org on Sat, Nov 04, 2000 at 12:34:23AM -0500
-X-Accept-Language: de,en,fr
+	id <S130000AbQKFT5m>; Mon, 6 Nov 2000 14:57:42 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:31748 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129990AbQKFT5f>; Mon, 6 Nov 2000 14:57:35 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: setup.S: A20 enable sequence (once again)
+Date: 6 Nov 2000 11:56:04 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8u72ck$7i1$1@cesium.transmeta.com>
+In-Reply-To: <00110618083400.11022@rob>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 04, 2000 at 12:34:23AM -0500, Aaron Sethman wrote:
-
-> > SGI's pro64 is free software and AFAIK is able to compile a kernel on IA64.
-> > It is also not clear if gcc will ever produce good code on IA64.
+Followup to:  <00110618083400.11022@rob>
+By author:    Robert Kaiser <rob@sysgo.de>
+In newsgroup: linux.dev.kernel
 > 
-> Well if its compiling the kernel just fine without alterations to the
-> code, then fine. If not, if the SGI compiler is GPL'd pillage its sources
-> and get that code working in gcc. Otherwise, trying to get linux to work
-> with other C compilers doesn't seem worth the effort. 
+> The attached patch fixes this by doing "fast A20" enable first and then
+> checking if A20 already is enabled. If it is, the keyboard controller sequence
+> is skipped. This works for me, so, could people please have a look at this.
+> 
 
-Pro64 is gcc derived and intended to be 100% source compatible with gcc.
-Past experience with new optimizations in gcc is they they frequently
-triggered bugs in the kernel source which simply was relying on the code
-generation working in a certain way.  Given that and assuming that the
-degree of Pro64's optimizations is somewhat revolutionary when compared
-to gcc I would expect that we'll hit a number of kernel bugs.  I'm not
-even thinking about actual Pro64 bugs itself.
+I just looked at the code, and it's worse than I first thought: if
+memory location 0x200 happens to contain 0x0001 when the kernel is
+entered, this code with loop indefinitely.
 
-  Ralf
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

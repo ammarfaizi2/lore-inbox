@@ -1,86 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267428AbRGLFHz>; Thu, 12 Jul 2001 01:07:55 -0400
+	id <S267431AbRGLFOF>; Thu, 12 Jul 2001 01:14:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbRGLFHq>; Thu, 12 Jul 2001 01:07:46 -0400
-Received: from colorfullife.com ([216.156.138.34]:56837 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S267428AbRGLFH3>;
-	Thu, 12 Jul 2001 01:07:29 -0400
-Message-ID: <3B4D3097.513714B4@colorfullife.com>
-Date: Thu, 12 Jul 2001 07:07:35 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en, de
+	id <S267434AbRGLFNz>; Thu, 12 Jul 2001 01:13:55 -0400
+Received: from pluto.runbox.com ([193.71.199.39]:45574 "EHLO pluto.runbox.com")
+	by vger.kernel.org with ESMTP id <S267431AbRGLFNr>;
+	Thu, 12 Jul 2001 01:13:47 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Chris Bacott <cbacot@runbox.com>
+To: "Daniel Harvey" <daniel@amristar.com.au>,
+        "Daniel Harvey" <daniel@amristar.com.au>,
+        "Chris Wedgwood" <cw@f00f.org>, <hahn@coffee.psychology.mcmaster.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: FW: UPDATE: Linux SLOW on Compaq Armada 110 PIII Speedstep
+Date: Wed, 11 Jul 2001 12:14:57 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <NEBBJDBLILDEDGICHAGACEAGCGAA.daniel@amristar.com.au>
+In-Reply-To: <NEBBJDBLILDEDGICHAGACEAGCGAA.daniel@amristar.com.au>
 MIME-Version: 1.0
-To: Donald Becker <becker@scyld.com>
-CC: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: [PATCH] natsemi compiler workaround & cleanup
-In-Reply-To: <Pine.LNX.4.10.10107112128090.29374-100000@vaio.greennet>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01071112145701.00269@darkstar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Donald Becker wrote:
-> 
-> On Wed, 11 Jul 2001, Manfred Spraul wrote:
-> 
-> > The rx setup in init_ring() in drivers/net/natsemi.c in 2.4.6 is
-> > miscompiled by several gcc-2.95 versions.
+What is the card? Are they still using the SiS 530? I have a Presario, with 
+192 meg RAM, and a SiS 530 onboard, using 8 meg shared mem. I have no 
+problems concerning that, Linux se---hmm, never noticed before. Total mem 
+(-swap): 183.2 meg. Doesn't say anything about the shared mem. I thought 
+Linux totalled up all RAM, even that in the vid card, to be used as RAM? 
+Someone told me that.....can't remember who. Never noticed that. Anyway, I'm 
+not having any other problems, other than now I have to make sure the missing 
+8 meg, err, 9meg, is being used. Dammit, something _else_ to investigate.
+
+> Got an idea - the video card in the Compaq uses a piece of shared memory
+> (between 2-8M).
+>
+> Would Linux be able to detect that?
+>
+> Daniel.
+>
 > >
-> > I could reproduce it with 2.95.1, and I received bug reports with
-> > gcc version 2.95.2 20000220 (Debian GNU/Linux)
-> > gcc 2.95.3 19991030 from Mandrake 7.2
-> 
-> I don't agree with all of the patch, but I can address this specific point.
-> 
-> > egcs-1.12 and rh gcc 2.96-85 are not affected.
-> 
-> My version had the code structured as
-> 
->         /* Initialize all Rx descriptors. */
->         for (i = 0; i < RX_RING_SIZE; i++) {
->                 np->rx_ring[i].next_desc = virt_to_le32desc(&np->rx_ring[i+1]);
->                 np->rx_ring[i].cmd_status = DescOwn;
->                 np->rx_skbuff[i] = 0;
->         }
-> 
-> This code does not trigger the difference in compiler behavior. (I'm not
-> certain that the less-than-transparent behavior could be accurately
-> called a bug.)
->
+> > At last getting something different!
+> >
+> > linux 2.4.5 with:
+> >
+> > no options - slow
+> > mem=64M - fast
+> > mem=128M - fast
+> > mem=200M - fast
+> > mem=224M - fast
+> > mem=240M - fast
+> > mem=248M - fast
+> > mem=249M - fast/medium, fast 'make dep' but slow boot/reboot
+> > mem=250M - slow
+> > mem=252M - slow
+> > mem=256M - hangs on boot, last line="Freeing unused kernel
+> > memory: 196k freed"
+> >
 
-It is a bug. np->rx_ring[i].next_desc is initialized by 2.4.6 with
-gcc-2.95.1 to
-[0]: 0x...210
-[1]: 0x00000000
-[2]: 0x...220
-[3]: 0x...230
-[4]: 0x...240.
-etc.
-
-> I realize the 2.4 code was changed to have the descriptor ring base
-> be pre-translated from a virtual address to PCI bus-accessable physical
-> memory address, and used offsets from that base.  I'm pointing out that
-> this problem doesn't exist in the 2.2.  Note that the code above
-> explicitly translates each descriptor ring entry to a physical address
-> individually.
->
-Correct. The problem was introduce by the virt_to_desc to pci_dma
-conversion.
-
-> > The patch also cleans up the suspend/resume synchronization and removes
-> > 2 superflous (& wrong) spin_unlock calls.
-> 
-> The (large) patch seems to add some unnecessary locking.
->
-It's possible that some locking outside of the tx and rx codepath is not
-required, I'm concentrating on a race free suspend & resume
-implementation.
-It shouldn't affect the critical functions:
-rx interrupts run without a spinlock, and start_tx only acquires the
-lock around "status = DescOwn;np->cur_rx++". netdev_tx_done() during
-start_tx is an idea for tx interrupt mitigation, it's not yet finished.
-
---
-	Manfred
+-- 
+Chris Bacott

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264609AbUGBO2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264628AbUGBOgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264609AbUGBO2v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 10:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264610AbUGBO2v
+	id S264628AbUGBOgb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 10:36:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUGBOgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 10:28:51 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:40586 "EHLO
-	zircon.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S264609AbUGBO2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 10:28:50 -0400
-In-Reply-To: <200407011751.25738.dtor_core@ameritech.net>
-References: <200407011454.55440.dtor_core@ameritech.net> <1088720772.22742.21.camel@localhost> <200407011751.25738.dtor_core@ameritech.net>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <22B73F26-CC34-11D8-BDBD-000A95A0560C@us.ibm.com>
-Content-Transfer-Encoding: 7bit
-Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
-From: Hollis Blanchard <hollisb@us.ibm.com>
-Subject: Re: PPC64: vio_find_node removal?
-Date: Fri, 2 Jul 2004 09:28:50 -0500
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-X-Mailer: Apple Mail (2.618)
+	Fri, 2 Jul 2004 10:36:31 -0400
+Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:56574 "EHLO
+	yoda.timesys") by vger.kernel.org with ESMTP id S262605AbUGBOga
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 10:36:30 -0400
+Date: Fri, 2 Jul 2004 10:36:10 -0400
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Scott Wood <scott@timesys.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>, linux-arm-kernel@lists.arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: A question about PROT_NONE on ARM and ARM26
+Message-ID: <20040702143610.GA31894@yoda.timesys>
+References: <20040630024434.GA25064@mail.shareable.org> <20040630091621.A8576@flint.arm.linux.org.uk> <20040630145942.GH29285@mail.shareable.org> <20040630192654.B21104@flint.arm.linux.org.uk> <20040630191428.GC31064@mail.shareable.org> <20040630202313.A1496@flint.arm.linux.org.uk> <20040630201546.GD31064@mail.shareable.org> <20040630235921.C1496@flint.arm.linux.org.uk> <20040701152728.GA20634@yoda.timesys> <20040701235354.GD8950@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040701235354.GD8950@mail.shareable.org>
+User-Agent: Mutt/1.5.4i
+From: Scott Wood <scott@timesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 1, 2004, at 5:51 PM, Dmitry Torokhov wrote:
->
-> Ok, so if we add call to kobject_get in kset_find_obj we can just add
-> kobject_put right in vio_find_name because there can be only one-to-one
-> match between a slot and a vio device and we don't need refcounting 
-> there,
-> right?
+On Fri, Jul 02, 2004 at 12:53:54AM +0100, Jamie Lokier wrote:
+> The ARM uaccess code was written before CONFIG_PREEMPT was added, and
+> this couldn't happen then.  It could panic a kernel now.  I wonder why
+> it hasn't been noticed.  Maybe nobody turns on CONFIG_PREEMPT on ARM?
 
-Hmm. Yes, I agree that we need kobject_get and _put between 
-kset_find_obj() and vio_find_name().
+Given that such behavior implies some raciness in userspace, you'd
+probably need either malicious or buggy user code to trigger it, and
+in the latter case, you're limited to apps using threads.  Thus, it's
+probably not that surprising that it hasn't been seen.
 
-As for the lack of vio_dev refcounting... I think we can get away with 
-it because rpaphp_vio.c is the only user who might unregister a 
-vio_dev.
+It could also happen in other rare cases, such as if the page gets
+swapped out, and you get an I/O error swapping it back in, or if
+forced filesystem unmounting were implemented.
 
--- 
-Hollis Blanchard
-IBM Linux Technology Center
-
+-Scott

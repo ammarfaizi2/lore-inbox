@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263881AbRFMAJ1>; Tue, 12 Jun 2001 20:09:27 -0400
+	id <S263905AbRFMANh>; Tue, 12 Jun 2001 20:13:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263905AbRFMAJR>; Tue, 12 Jun 2001 20:09:17 -0400
-Received: from epic20.Stanford.EDU ([171.64.15.55]:55207 "EHLO
-	epic20.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S263881AbRFMAJJ>; Tue, 12 Jun 2001 20:09:09 -0400
-Date: Tue, 12 Jun 2001 17:08:29 -0700 (PDT)
-From: John Martin <suntzu@stanford.edu>
-To: <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
-Subject: [PATCH] symlink.c
-Message-ID: <Pine.GSO.4.31.0106121706490.25662-100000@epic20.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263906AbRFMAN1>; Tue, 12 Jun 2001 20:13:27 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:15152 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263905AbRFMANH>; Tue, 12 Jun 2001 20:13:07 -0400
+Date: Wed, 13 Jun 2001 02:12:42 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Richard Henderson <rth@redhat.com>
+Cc: torvalds@transmeta.com, alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5 gcc3 build patch
+Message-ID: <20010613021242.E709@athlon.random>
+In-Reply-To: <20010612162733.D26637@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010612162733.D26637@redhat.com>; from rth@redhat.com on Tue, Jun 12, 2001 at 04:27:33PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this patch adds a check to make sure memory was allocated, returns an
-error code otherwise.
-   -john
+On Tue, Jun 12, 2001 at 04:27:33PM -0700, Richard Henderson wrote:
+> We fixed a bug in cv-qualification checking.
+> 
+> timer.c:35: conflicting types for `xtime'
+> include/linux/sched.h:540: previous declaration of `xtime'
+> 
+> There's no need for the volatile qualification here.  One, being a
+> struct it doesn't do any good, and two it's protected by xtime_lock.
 
---- fs/autofs4/symlink.c.orig   Fri Apr 21 14:41:36 2000
-+++ fs/autofs4/symlink.c        Sun Jun  3 00:43:18 2001
-@@ -15,13 +15,15 @@
- static int autofs4_readlink(struct dentry *dentry, char *buffer, int
-buflen)
- {
-        struct autofs_info *ino = autofs4_dentry_ino(dentry);
--
-        return vfs_readlink(dentry, buffer, buflen, ino->u.symlink);
- }
+wrong, the sec field of xtime is read all the time without any lock.
+so xtime can change under you it has to be declared volatile or C
+language will screwup. gcc 3.0 effectively spotted a bug in the kernel
+that wasn't exporting xtime as volatile.
 
- static int autofs4_follow_link(struct dentry *dentry, struct nameidata
-*nd)
- {
-        struct autofs_info *ino = autofs4_dentry_ino(dentry);
-+
-+       if(!ino)
-+               return -ENOMEM;
+Right fix is this that I did just about 10 minutes ago after the 3.0
+checkout ;)
 
-        return vfs_follow_link(nd, ino->u.symlink);
- }
+	ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre2aa2/00_gcc-30-volatile-xtime-1
 
-
+Andrea

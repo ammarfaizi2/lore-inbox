@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbUC0Qqm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 11:46:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbUC0Qqm
+	id S261830AbUC0RDT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 12:03:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbUC0RDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 11:46:42 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:31059 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S261822AbUC0Qqk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 11:46:40 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200403271646.i2RGkdLq009900@green.mif.pg.gda.pl>
-Subject: Re: [2.4] disapearing routing entries
-To: jamie@shareable.org (Jamie Lokier)
-Date: Sat, 27 Mar 2004 17:46:39 +0100 (CET)
-Cc: ahu@ds9a.nl (bert hubert), linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <20040327140002.GE21884@mail.shareable.org> from "Jamie Lokier" at Mar 27, 2004 02:00:02 PM
-X-Mailer: ELM [version 2.5 PL6]
+	Sat, 27 Mar 2004 12:03:18 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:21910 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S261830AbUC0RDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 12:03:17 -0500
+Message-ID: <4065B39A.2040003@pacbell.net>
+Date: Sat, 27 Mar 2004 09:02:18 -0800
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: don <don_reid@comcast.net>
+CC: David Woodhouse <dwmw2@infradead.org>,
+       Robert Schwebel <robert@schwebel.de>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [ANNOUNCE] RNDIS Gadget Driver
+References: <20040325221145.GJ10711@pengutronix.de> <40636295.7000008@pacbell.net> <1080297466.29835.144.camel@hades.cambridge.redhat.com> <40644FCA.8000206@pacbell.net> <20040326232328.GA29771@reid.corvallis.or.us>
+In-Reply-To: <20040326232328.GA29771@reid.corvallis.or.us>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+>>There's a file system protocol used by many digital still cameras,
+>>which isn't actually camera-specific.  Not MSFT-specific either.
+>>...
 > 
-> Andrzej Krzysztofowicz wrote:
-> > None of them.
-> > Only apache and openvpn on one machine and only dhcpd on another one.
+> A host driver "USB PTP Storage" would be really nice too.  First
+> as a generic camera interface, second to access a gadget with the
+> PTP interface.
 > 
-> Are you running a DHCP client (dhclient, pump, dhcpcd or any other) on
-> the first machine?
+> (Please embarrass me by saying there already is one, I'll be so happy
+> I won't care :-) ).
 
-Yes, I do. I didn't think it may be the source of the problem as DHCP
-timings are:
-  LEASETIME=7200
-  RENEWALTIME=3600
-  REBINDTIME=6300
-and the problem appears after a week or more of normal operation.
-But I will disable dhcpcd and test again.
+There isn't one.  There are two.  No need to be embarrassed ... ;)
 
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Gdansk University of Technology
+They're both user-mode drivers.  "gPhoto2", and "jPhoto".  The
+author of jPhoto (moi) hasn't had time to update that code in
+ages.
+
+- Dave
+
+
+

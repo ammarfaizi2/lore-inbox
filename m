@@ -1,91 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281248AbRKPIr5>; Fri, 16 Nov 2001 03:47:57 -0500
+	id <S281267AbRKPJyv>; Fri, 16 Nov 2001 04:54:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281250AbRKPIrs>; Fri, 16 Nov 2001 03:47:48 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:43716 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S281248AbRKPIrd>; Fri, 16 Nov 2001 03:47:33 -0500
-Date: Fri, 16 Nov 2001 09:47:29 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Sukanta Kumar Hazra <skhazra@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel compilation failed 2.4.14
-In-Reply-To: <Pine.LNX.4.33L2.0111161555010.24812-200000@sukunx.localdomain>
-Message-ID: <Pine.NEB.4.40.0111160947060.10846-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S281264AbRKPJyl>; Fri, 16 Nov 2001 04:54:41 -0500
+Received: from [62.245.135.174] ([62.245.135.174]:1665 "EHLO mail.teraport.de")
+	by vger.kernel.org with ESMTP id <S281265AbRKPJy2>;
+	Fri, 16 Nov 2001 04:54:28 -0500
+Message-ID: <3BF4E24D.2E7567A7@TeraPort.de>
+Date: Fri, 16 Nov 2001 10:54:21 +0100
+From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-ac4 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: akpm@zip.com.au
+Subject: Re: Insanely high "Cached" value
+X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 11/16/2001 10:54:20 AM,
+	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 11/16/2001 10:54:28 AM,
+	Serialize complete at 11/16/2001 10:54:28 AM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001, Sukanta Kumar Hazra wrote:
+> Re: Insanely high "Cached" value
+> 
+> From: Andrew Morton (akpm@zip.com.au)
+> Date: Sat Nov 10 2001 - 00:17:01 EST
+> 
+> 
+> Steven Walter wrote:
+> >
+> > My system has been running a little over twelve days now, and I just
+> > noticed that the "Cached" value in both 'free' and /proc/meminfo is
+> > insanely high. This wasn't the case the last time I checked, which was
+> > probably a day ago.
+> >
+> > Just before checking it this time, I ran a "du -s *" in /usr, which
+> > generated a lot of I/O, as it to be expected. Perhaps the large amount
+> > of I/O has uncovered a bug of some sort?
+> >
+> > This is kernel 2.4.13 (hopefully it's not something that's already been
+> > reported and fixed; I haven't seen it if is has) patched with ext3, kdb,
+> > lm_sensors, and the pre-empt patch. Seems likely to be only a simple VM
+> > problem, however, and an asthetic one at that.
+> 
+> It's an ext3 bug. Harmless, fixed in the (ext3-enriched) 2.4.15-pre2.
+> 
 
-> Hi!
->
-> Compiling kernel 2.4.14 on a Mandrake 8.1 failed at the linking stage. The
-> output is
->
-> ---------------------------------------
-> ld -m elf_i386 -T /usr/src/linux-2.4.14/arch/i386/vmlinux.lds -e stext
-> arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-> init/version.o \
->         --start-group \
->         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-> mm/mm.o fs/fs.o ipc/ipc.o \
->          drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o
-> drivers/misc/misc.o drivers/net/net.o drivers/media/media.o
-> drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o
-> drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o
-> drivers/video/video.o \
->         net/network.o \
->         /usr/src/linux-2.4.14/arch/i386/lib/lib.a
-> /usr/src/linux-2.4.14/lib/lib.a /usr/src/linux-2.4.14/arch/i386/lib/lib.a
-> \
->         --end-group \
->         -o vmlinux
-> drivers/block/block.o: In function `lo_send':
-> drivers/block/block.o(.text+0x9069): undefined reference to
-> `deactivate_page'
-> drivers/block/block.o(.text+0x9102): undefined reference to
-> `deactivate_page'
-> make: *** [vmlinux] Error 1
->...
+ Hmm. Are you sure it is ext3 only? I see the same (coming and going, no
+real harm) on 2.4.13-ac4+preempt without having EXT3 enabled. Also
+happens with 2.4.13 plain.
 
-
-This is a known bug.
-
-The following patch fixes it:
-
---- linux-2.4.14-broken/drivers/block/loop.c	Thu Oct 25 13:58:34 2001
-+++ linux-2.4.14/drivers/block/loop.c	Mon Nov  5 17:06:08 2001
-@@ -207,7 +207,6 @@
- 		index++;
- 		pos += size;
- 		UnlockPage(page);
--		deactivate_page(page);
- 		page_cache_release(page);
- 	}
- 	return 0;
-@@ -218,7 +217,6 @@
- 	kunmap(page);
- unlock:
- 	UnlockPage(page);
--	deactivate_page(page);
- 	page_cache_release(page);
- fail:
- 	return -1;
+# CONFIG_EXT3_FS is not set
+CONFIG_EXT2_FS=y
 
 
-> Regards,
-> Sukanta
-
-cu
-Adrian
-
+Martin
 -- 
-
-Get my GPG key: finger bunk@debian.org | gpg --import
-
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
-
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

@@ -1,151 +1,233 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131384AbRCKJDx>; Sun, 11 Mar 2001 04:03:53 -0500
+	id <S131396AbRCKKJD>; Sun, 11 Mar 2001 05:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131385AbRCKJDo>; Sun, 11 Mar 2001 04:03:44 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:21773 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131384AbRCKJDZ>;
-	Sun, 11 Mar 2001 04:03:25 -0500
-Date: Sun, 11 Mar 2001 10:01:45 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <andrewm@uow.edu.au>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] nmi-watchdog-2.4.2-A1
-In-Reply-To: <15973.984297609@ocs3.ocs-net>
-Message-ID: <Pine.LNX.4.30.0103110933310.1595-200000@elte.hu>
+	id <S131400AbRCKKIy>; Sun, 11 Mar 2001 05:08:54 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:42685 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131396AbRCKKIi>; Sun, 11 Mar 2001 05:08:38 -0500
+Message-ID: <3AAB4EB4.4569908A@uow.edu.au>
+Date: Sun, 11 Mar 2001 21:08:52 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3-pre3 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="655616-888427248-984300147=:1734"
-Content-ID: <Pine.LNX.4.30.0103110947400.1814@elte.hu>
+To: mingo@elte.hu
+CC: Keith Owens <kaos@ocs.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] nmi-watchdog-2.4.2-A1
+In-Reply-To: <15973.984297609@ocs3.ocs-net> <Pine.LNX.4.30.0103110933310.1595-200000@elte.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Ingo Molnar wrote:
+> 
+> On Sun, 11 Mar 2001, Keith Owens wrote:
+> 
+> > Works for me.  It even makes kdb simpler.
+> 
+> agreed. Also, touch_nmi_watchdog() is stateless and is thus much less
+> prone to locking bugs.
+> 
+> i've attached nmi-watchdog-2.4.2-A1 that implements touch_nmi_watchdog(),
+> ontop of 2.4.2-ac18, and changes show_state() to use this interface. (the
+> patch also takes the NMI counters out of the obscure in-function place
+> they used to be.)
+> 
+> the patch compiles & boots just fine on 2.4.2-ac18 in both SMP and
+> APIC-less-UP mode. The NMI watchdog is functional, and SysRq-T does not
+> cause a lockup if used with a slow serial console that takes more than 5
+> seconds to output the tasklist.
+> 
 
---655616-888427248-984300147=:1734
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.30.0103110947401.1814@elte.hu>
+Sorry, this doesn't look right. Are you sure you booted
+with `nmi_watchdog=1'?  It was turned off by default in -ac18.
+
+Two things:
+
+- CPU A could be doing the SYSRQ printing, while
+  CPU B is spinning on a lock which CPU A holds. The
+  NMI watchdog will then whack CPU B.  So touch_nmi_watchdog()
+  needs to touch *all* CPUs.  (kbd_controller_lock, for example).
+
+- We need to touch the NMI more than once during the 
+  SYSRQ-T output - five seconds isn't enough.
+
+  The correctest way is, I think, to touch_nmi() in
+  rs285_console_write(), lp_console_write() and serial_console_write().
+  We _could_ just touch it in show_state(), but that means
+  we still get whacked if we do a lot of printk()s with interrupts
+  disabled from some random place in the kernel.
 
 
-On Sun, 11 Mar 2001, Keith Owens wrote:
-
-> Works for me.  It even makes kdb simpler.
-
-agreed. Also, touch_nmi_watchdog() is stateless and is thus much less
-prone to locking bugs.
-
-i've attached nmi-watchdog-2.4.2-A1 that implements touch_nmi_watchdog(),
-ontop of 2.4.2-ac18, and changes show_state() to use this interface. (the
-patch also takes the NMI counters out of the obscure in-function place
-they used to be.)
-
-the patch compiles & boots just fine on 2.4.2-ac18 in both SMP and
-APIC-less-UP mode. The NMI watchdog is functional, and SysRq-T does not
-cause a lockup if used with a slow serial console that takes more than 5
-seconds to output the tasklist.
-
-	Ingo
-
---655616-888427248-984300147=:1734
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="nmi-watchdog-2.4.2-A0"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0103110942270.1734@elte.hu>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="nmi-watchdog-2.4.2-A0"
-
-LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvaXJxLmgub3JpZwlTdW4gTWFyIDEx
-IDExOjIwOjIxIDIwMDENCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4L2lycS5o
-CVN1biBNYXIgMTEgMTE6MjI6MjcgMjAwMQ0KQEAgLTU3LDE4ICs1NywxNiBA
-QA0KICNpbmNsdWRlIDxhc20vaHdfaXJxLmg+IC8qIHRoZSBhcmNoIGRlcGVu
-ZGVudCBzdHVmZiAqLw0KIA0KIC8qKg0KLSAqIG5taV93YXRjaGRvZ19kaXNh
-YmxlIC0gZGlzYWJsZSBOTUkgd2F0Y2hkb2cgY2hlY2tpbmcuDQorICogdG91
-Y2hfbm1pX3dhdGNoZG9nIC0gcmVzdGFydCBOTUkgd2F0Y2hkb2cgdGltZW91
-dC4NCiAgKiANCi0gKiBJZiB0aGUgYXJjaGl0ZWN0dXJlIHN1cHBvcnRzIHRo
-ZSBOTUkgd2F0Y2hkb2csIG5taV93YXRjaGRvZ19kaXNhYmxlKCkgbWF5IGJl
-IHVzZWQNCi0gKiB0byB0ZW1wb3JhcmlseSBkaXNhYmxlIGl0LiAgVXNlIG5t
-aV93YXRjaGRvZ19lbmFibGUoKSBsYXRlciBvbi4gIEl0IGlzIGltcGxlbWVu
-dGVkDQotICogdmlhIGFuIHVwL2Rvd24gY291bnRlciwgc28geW91IG11c3Qg
-a2VlcCB0aGUgY2FsbHMgYmFsYW5jZWQuDQorICogSWYgdGhlIGFyY2hpdGVj
-dHVyZSBzdXBwb3J0cyB0aGUgTk1JIHdhdGNoZG9nLCB0b3VjaF9ubWlfd2F0
-Y2hkb2coKQ0KKyAqIG1heSBiZSB1c2VkIHRvIHJlc2V0IHRoZSB0aW1lb3V0
-IC0gZm9yIGNvZGUgd2hpY2ggaW50ZW50aW9uYWxseQ0KKyAqIGRpc2FibGVz
-IGludGVycnVwdHMgZm9yIGEgbG9uZyB0aW1lLiBUaGlzIGNhbGwgaXMgc3Rh
-dGVsZXNzLg0KICAqLw0KICNpZmRlZiBBUkNIX0hBU19OTUlfV0FUQ0hET0cN
-Ci1leHRlcm4gdm9pZCBubWlfd2F0Y2hkb2dfZGlzYWJsZSh2b2lkKTsNCi1l
-eHRlcm4gdm9pZCBubWlfd2F0Y2hkb2dfZW5hYmxlKHZvaWQpOw0KK2V4dGVy
-biB2b2lkIHRvdWNoX25taV93YXRjaGRvZyh2b2lkKTsNCiAjZWxzZQ0KLSNk
-ZWZpbmUgbm1pX3dhdGNoZG9nX2Rpc2FibGUoKSBkb3t9IHdoaWxlKDApDQot
-I2RlZmluZSBubWlfd2F0Y2hkb2dfZW5hYmxlKCkgZG97fSB3aGlsZSgwKQ0K
-KyMgZGVmaW5lIHRvdWNoX25taV93YXRjaGRvZygpIGRvIHsgfSB3aGlsZSgw
-KQ0KICNlbmRpZg0KIA0KIGV4dGVybiBpbnQgaGFuZGxlX0lSUV9ldmVudCh1
-bnNpZ25lZCBpbnQsIHN0cnVjdCBwdF9yZWdzICosIHN0cnVjdCBpcnFhY3Rp
-b24gKik7DQotLS0gbGludXgvZHJpdmVycy9jaGFyL3N5c3JxLmMub3JpZwlT
-dW4gTWFyIDExIDExOjMwOjQ2IDIwMDENCisrKyBsaW51eC9kcml2ZXJzL2No
-YXIvc3lzcnEuYwlTdW4gTWFyIDExIDExOjMxOjEyIDIwMDENCkBAIC03Miw5
-ICs3Miw5IEBADQogDQogCS8qDQogCSAqIEludGVycnVwdHMgYXJlIGRpc2Fi
-bGVkLCBhbmQgc2VyaWFsIGNvbnNvbGVzIGFyZSBzbG93LiBTbw0KLQkgKiBM
-ZXQncyBzdXNwZW5kIHRoZSBOTUkgd2F0Y2hkb2cuDQorCSAqIGxldCdzIHJl
-LXN0YXJ0IHRoZSBOTUkgd2F0Y2hkb2cgdGltZW91dC4NCiAJICovDQotCW5t
-aV93YXRjaGRvZ19kaXNhYmxlKCk7DQorCXRvdWNoX25taV93YXRjaGRvZygp
-Ow0KIAljb25zb2xlX2xvZ2xldmVsID0gNzsNCiAJcHJpbnRrKEtFUk5fSU5G
-TyAiU3lzUnE6ICIpOw0KIAlzd2l0Y2ggKGtleSkgew0KQEAgLTE1OCw3ICsx
-NTgsNiBAQA0KIAkJLyogRG9uJ3QgdXNlICdBJyBhcyBpdCdzIGhhbmRsZWQg
-c3BlY2lhbGx5IG9uIHRoZSBTcGFyYyAqLw0KIAl9DQogDQotCW5taV93YXRj
-aGRvZ19lbmFibGUoKTsNCiAJY29uc29sZV9sb2dsZXZlbCA9IG9yaWdfbG9n
-X2xldmVsOw0KIH0NCiANCi0tLSBsaW51eC9hcmNoL2kzODYva2VybmVsL25t
-aS5jLm9yaWcJU3VuIE1hciAxMSAxMToyNDozNCAyMDAxDQorKysgbGludXgv
-YXJjaC9pMzg2L2tlcm5lbC9ubWkuYwlTdW4gTWFyIDExIDExOjMwOjA2IDIw
-MDENCkBAIC0yMjYsMzcgKzIyNiwzNiBAQA0KIH0NCiANCiBzdGF0aWMgc3Bp
-bmxvY2tfdCBubWlfcHJpbnRfbG9jayA9IFNQSU5fTE9DS19VTkxPQ0tFRDsN
-Ci1zdGF0aWMgYXRvbWljX3Qgbm1pX3dhdGNoZG9nX2Rpc2FibGVkID0gQVRP
-TUlDX0lOSVQoMCk7DQogDQotdm9pZCBubWlfd2F0Y2hkb2dfZGlzYWJsZSh2
-b2lkKQ0KLXsNCi0JYXRvbWljX2luYygmbm1pX3dhdGNoZG9nX2Rpc2FibGVk
-KTsNCi19DQorLyoNCisgKiB0aGUgYmVzdCB3YXkgdG8gZGV0ZWN0IHdldGhl
-ciBhIENQVSBoYXMgYSAnaGFyZCBsb2NrdXAnIHByb2JsZW0NCisgKiBpcyB0
-byBjaGVjayBpdCdzIGxvY2FsIEFQSUMgdGltZXIgSVJRIGNvdW50cy4gSWYg
-dGhleSBhcmUgbm90DQorICogY2hhbmdpbmcgdGhlbiB0aGF0IENQVSBoYXMg
-c29tZSBwcm9ibGVtLg0KKyAqDQorICogYXMgdGhlc2Ugd2F0Y2hkb2cgTk1J
-IElSUXMgYXJlIGdlbmVyYXRlZCBvbiBldmVyeSBDUFUsIHdlIG9ubHkNCisg
-KiBoYXZlIHRvIGNoZWNrIHRoZSBjdXJyZW50IHByb2Nlc3Nvci4NCisgKg0K
-KyAqIHNpbmNlIE5NSXMgZG9udCBsaXN0ZW4gdG8gX2FueV8gbG9ja3MsIHdl
-IGhhdmUgdG8gYmUgZXh0cmVtZWx5DQorICogY2FyZWZ1bCBub3QgdG8gcmVs
-eSBvbiB1bnNhZmUgdmFyaWFibGVzLiBUaGUgcHJpbnRrIG1pZ2h0IGxvY2sN
-CisgKiB1cCB0aG91Z2gsIHNvIHdlIGhhdmUgdG8gYnJlYWsgdXAgYW55IGNv
-bnNvbGUgbG9ja3MgZmlyc3QgLi4uDQorICogW3doZW4gdGhlcmUgd2lsbCBi
-ZSBtb3JlIHR0eS1yZWxhdGVkIGxvY2tzLCBicmVhayB0aGVtIHVwDQorICog
-IGhlcmUgdG9vIV0NCisgKi8NCisNCitzdGF0aWMgdW5zaWduZWQgaW50DQor
-CWxhc3RfaXJxX3N1bXMgW05SX0NQVVNdLA0KKwlhbGVydF9jb3VudGVyIFtO
-Ul9DUFVTXTsNCiANCi12b2lkIG5taV93YXRjaGRvZ19lbmFibGUodm9pZCkN
-Cit2b2lkIHRvdWNoX25taV93YXRjaGRvZyAodm9pZCkNCiB7DQotCWF0b21p
-Y19kZWMoJm5taV93YXRjaGRvZ19kaXNhYmxlZCk7DQorCS8qDQorCSAqIEp1
-c3QgcmVzZXQgdGhlIGFsZXJ0IGNvdW50ZXI6DQorCSAqLw0KKwlhbGVydF9j
-b3VudGVyW3NtcF9wcm9jZXNzb3JfaWQoKV0gPSAwOw0KIH0NCiANCiB2b2lk
-IG5taV93YXRjaGRvZ190aWNrIChzdHJ1Y3QgcHRfcmVncyAqIHJlZ3MpDQog
-ew0KLQkvKg0KLQkgKiB0aGUgYmVzdCB3YXkgdG8gZGV0ZWN0IHdldGhlciBh
-IENQVSBoYXMgYSAnaGFyZCBsb2NrdXAnIHByb2JsZW0NCi0JICogaXMgdG8g
-Y2hlY2sgaXQncyBsb2NhbCBBUElDIHRpbWVyIElSUSBjb3VudHMuIElmIHRo
-ZXkgYXJlIG5vdA0KLQkgKiBjaGFuZ2luZyB0aGVuIHRoYXQgQ1BVIGhhcyBz
-b21lIHByb2JsZW0uDQotCSAqDQotCSAqIGFzIHRoZXNlIHdhdGNoZG9nIE5N
-SSBJUlFzIGFyZSBicm9hZGNhc3RlZCB0byBldmVyeSBDUFUsIGhlcmUNCi0J
-ICogd2Ugb25seSBoYXZlIHRvIGNoZWNrIHRoZSBjdXJyZW50IHByb2Nlc3Nv
-ci4NCi0JICoNCi0JICogc2luY2UgTk1JcyBkb250IGxpc3RlbiB0byBfYW55
-XyBsb2Nrcywgd2UgaGF2ZSB0byBiZSBleHRyZW1lbHkNCi0JICogY2FyZWZ1
-bCBub3QgdG8gcmVseSBvbiB1bnNhZmUgdmFyaWFibGVzLiBUaGUgcHJpbnRr
-IG1pZ2h0IGxvY2sNCi0JICogdXAgdGhvdWdoLCBzbyB3ZSBoYXZlIHRvIGJy
-ZWFrIHVwIGFueSBjb25zb2xlIGxvY2tzIGZpcnN0IC4uLg0KLQkgKiBbd2hl
-biB0aGVyZSB3aWxsIGJlIG1vcmUgdHR5LXJlbGF0ZWQgbG9ja3MsIGJyZWFr
-IHRoZW0gdXANCi0JICogIGhlcmUgdG9vIV0NCi0JICovDQotDQotCXN0YXRp
-YyB1bnNpZ25lZCBpbnQgbGFzdF9pcnFfc3VtcyBbTlJfQ1BVU10sDQotCQkJ
-CWFsZXJ0X2NvdW50ZXIgW05SX0NQVVNdOw0KIA0KIAkvKg0KIAkgKiBTaW5j
-ZSBjdXJyZW50LT4gaXMgYWx3YXlzIG9uIHRoZSBzdGFjaywgYW5kIHdlIGFs
-d2F5cyBzd2l0Y2gNCkBAIC0yNjYsNyArMjY1LDcgQEANCiANCiAJc3VtID0g
-YXBpY190aW1lcl9pcnFzW2NwdV07DQogDQotCWlmIChsYXN0X2lycV9zdW1z
-W2NwdV0gPT0gc3VtICYmIGF0b21pY19yZWFkKCZubWlfd2F0Y2hkb2dfZGlz
-YWJsZWQpID09IDApIHsNCisJaWYgKGxhc3RfaXJxX3N1bXNbY3B1XSA9PSBz
-dW0pIHsNCiAJCS8qDQogCQkgKiBBeWllZSwgbG9va3MgbGlrZSB0aGlzIENQ
-VSBpcyBzdHVjayAuLi4NCiAJCSAqIHdhaXQgYSBmZXcgSVJRcyAoNSBzZWNv
-bmRzKSBiZWZvcmUgZG9pbmcgdGhlIG9vcHMgLi4uDQo=
---655616-888427248-984300147=:1734--
+--- linux-2.4.2-ac18/arch/i386/kernel/nmi.c	Sun Mar 11 15:12:31 2001
++++ linux-ac/arch/i386/kernel/nmi.c	Sun Mar 11 21:03:18 2001
+@@ -226,37 +226,39 @@
+ }
+ 
+ static spinlock_t nmi_print_lock = SPIN_LOCK_UNLOCKED;
+-static atomic_t nmi_watchdog_disabled = ATOMIC_INIT(0);
+ 
+-void nmi_watchdog_disable(void)
+-{
+-	atomic_inc(&nmi_watchdog_disabled);
+-}
++/*
++ * The best way to detect whether a CPU has a 'hard lockup' problem
++ * is to check its local APIC timer IRQ counts. If they are not
++ * changing then that CPU has some problem.
++ *
++ * as these watchdog NMI IRQs are generated on every CPU, we only
++ * have to check the current processor.
++ *
++ * since NMIs dont listen to _any_ locks, we have to be extremely
++ * careful not to rely on unsafe variables. The printk might lock
++ * up though, so we have to break up any console locks first ...
++ * [when there will be more tty-related locks, break them up
++ *  here too!]
++ */
++
++static unsigned int
++	last_irq_sums [NR_CPUS],
++	alert_counter [NR_CPUS];
+ 
+-void nmi_watchdog_enable(void)
++void touch_nmi_watchdog (void)
+ {
+-	atomic_dec(&nmi_watchdog_disabled);
++	/*
++	 * Just reset the alert counters.
++	 */
++	int cpu;
++
++	for (cpu = 0; cpu < smp_num_cpus; cpu++)
++		alert_counter[cpu] = 0;
+ }
+ 
+ void nmi_watchdog_tick (struct pt_regs * regs)
+ {
+-	/*
+-	 * the best way to detect wether a CPU has a 'hard lockup' problem
+-	 * is to check it's local APIC timer IRQ counts. If they are not
+-	 * changing then that CPU has some problem.
+-	 *
+-	 * as these watchdog NMI IRQs are broadcasted to every CPU, here
+-	 * we only have to check the current processor.
+-	 *
+-	 * since NMIs dont listen to _any_ locks, we have to be extremely
+-	 * careful not to rely on unsafe variables. The printk might lock
+-	 * up though, so we have to break up any console locks first ...
+-	 * [when there will be more tty-related locks, break them up
+-	 *  here too!]
+-	 */
+-
+-	static unsigned int last_irq_sums [NR_CPUS],
+-				alert_counter [NR_CPUS];
+ 
+ 	/*
+ 	 * Since current-> is always on the stack, and we always switch
+@@ -266,7 +268,7 @@
+ 
+ 	sum = apic_timer_irqs[cpu];
+ 
+-	if (last_irq_sums[cpu] == sum && atomic_read(&nmi_watchdog_disabled) == 0) {
++	if (last_irq_sums[cpu] == sum) {
+ 		/*
+ 		 * Ayiee, looks like this CPU is stuck ...
+ 		 * wait a few IRQs (5 seconds) before doing the oops ...
+--- linux-2.4.2-ac18/drivers/char/sysrq.c	Sun Mar 11 15:12:34 2001
++++ linux-ac/drivers/char/sysrq.c	Sun Mar 11 20:57:30 2001
+@@ -70,11 +70,6 @@
+ 	if (!key)
+ 		return;
+ 
+-	/*
+-	 * Interrupts are disabled, and serial consoles are slow. So
+-	 * Let's suspend the NMI watchdog.
+-	 */
+-	nmi_watchdog_disable();
+ 	console_loglevel = 7;
+ 	printk(KERN_INFO "SysRq: ");
+ 	switch (key) {
+@@ -158,7 +153,6 @@
+ 		/* Don't use 'A' as it's handled specially on the Sparc */
+ 	}
+ 
+-	nmi_watchdog_enable();
+ 	console_loglevel = orig_log_level;
+ }
+ 
+--- linux-2.4.2-ac18/drivers/char/serial.c	Sun Mar 11 15:12:34 2001
++++ linux-ac/drivers/char/serial.c	Sun Mar 11 20:58:58 2001
+@@ -5478,10 +5478,11 @@
+ /*
+  *	Wait for transmitter & holding register to empty
+  */
+-static inline void wait_for_xmitr(struct async_struct *info)
++static void wait_for_xmitr(struct async_struct *info)
+ {
+ 	unsigned int status, tmout = 1000000;
+ 
++	touch_nmi_watchdog();
+ 	do {
+ 		status = serial_in(info, UART_LSR);
+ 
+--- linux-2.4.2-ac18/drivers/char/serial_21285.c	Sun Feb 25 17:37:03 2001
++++ linux-ac/drivers/char/serial_21285.c	Sun Mar 11 21:00:26 2001
+@@ -385,6 +385,7 @@
+ 			while (*CSR_UARTFLG & 0x20);
+ 			*CSR_UARTDR = '\r';
+ 		}
++		touch_nmi_watchdog();
+ 	}
+ 	enable_irq(IRQ_CONTX);
+ }
+--- linux-2.4.2-ac18/drivers/char/lp.c	Sun Mar 11 15:12:34 2001
++++ linux-ac/drivers/char/lp.c	Sun Mar 11 21:01:29 2001
+@@ -576,8 +576,8 @@
+ 			canwrite = lf - s;
+ 
+ 		if (canwrite > 0) {
++			touch_nmi_watchdog();
+ 			written = parport_write (port, s, canwrite);
+-
+ 			if (written <= 0)
+ 				continue;
+ 
+@@ -594,6 +594,7 @@
+ 			s++;
+ 			count--;
+ 			do {
++				touch_nmi_watchdog();
+ 				written = parport_write (port, crlf, i);
+ 				if (written > 0)
+ 					i -= written, crlf += written;
+--- linux-2.4.2-ac18/include/linux/irq.h	Sun Mar 11 15:12:48 2001
++++ linux-ac/include/linux/irq.h	Sun Mar 11 20:37:16 2001
+@@ -57,18 +57,16 @@
+ #include <asm/hw_irq.h> /* the arch dependent stuff */
+ 
+ /**
+- * nmi_watchdog_disable - disable NMI watchdog checking.
++ * touch_nmi_watchdog - restart NMI watchdog timeout.
+  * 
+- * If the architecture supports the NMI watchdog, nmi_watchdog_disable() may be used
+- * to temporarily disable it.  Use nmi_watchdog_enable() later on.  It is implemented
+- * via an up/down counter, so you must keep the calls balanced.
++ * If the architecture supports the NMI watchdog, touch_nmi_watchdog()
++ * may be used to reset the timeout - for code which intentionally
++ * disables interrupts for a long time. This call is stateless.
+  */
+ #ifdef ARCH_HAS_NMI_WATCHDOG
+-extern void nmi_watchdog_disable(void);
+-extern void nmi_watchdog_enable(void);
++extern void touch_nmi_watchdog(void);
+ #else
+-#define nmi_watchdog_disable() do{} while(0)
+-#define nmi_watchdog_enable() do{} while(0)
++# define touch_nmi_watchdog() do { } while(0)
+ #endif
+ 
+ extern int handle_IRQ_event(unsigned int, struct pt_regs *, struct irqaction *);

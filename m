@@ -1,431 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263033AbVCQJ5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263034AbVCQJ5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263033AbVCQJ5s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 04:57:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263035AbVCQJ5s
+	id S263034AbVCQJ5x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 04:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263035AbVCQJ5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 04:57:48 -0500
-Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:27663 "EHLO
-	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
-	id S263033AbVCQJ5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 04:57:07 -0500
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-Organization: IBM LTC
-To: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: Why no bigphysarea in mainline?
-Date: Thu, 17 Mar 2005 20:57:04 +1100
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1411995.Goe5pq5K6y";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503172057.06570.michael@ellerman.id.au>
+	Thu, 17 Mar 2005 04:57:53 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55314 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263034AbVCQJ5e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 04:57:34 -0500
+Date: Thu, 17 Mar 2005 09:57:28 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [UART] 8250:RTS/CTS flow control issue.
+Message-ID: <20050317095728.A29592@flint.arm.linux.org.uk>
+Mail-Followup-To: moreau francis <francis_moreau2000@yahoo.fr>,
+	linux-kernel@vger.kernel.org
+References: <20050315160554.2871.qmail@web25104.mail.ukl.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050315160554.2871.qmail@web25104.mail.ukl.yahoo.com>; from francis_moreau2000@yahoo.fr on Tue, Mar 15, 2005 at 05:05:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1411995.Goe5pq5K6y
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, Mar 15, 2005 at 05:05:54PM +0100, moreau francis wrote:
+> Does it mean that we can't do any reliable flow
+> controls with 8250 UART ? In that case a simple
+> workaround would be to limit tx fifo to 1 byte...
 
-Hi all,
+With a popular 8250 UART on the other end, you need to ensure that
+you disable the CTS signal with sufficient time (== at least the
+number of bytes in the transmit FIFO) so that the transmission stops.
 
-Can anyone recall if there's ever been a discussion about merging the
-bigphysarea patch (see below) into mainline? I couldn't find much of
-interest on google.
+This is because many 8250 UARTs don't have any hardware linkage
+between the CTS signal and the transmitter.  Later 8250 UARTs which
+do have automatic hardware flow control allow for this, as do
+most other serial peripherals.
 
-I realise bigphysarea is a bit of a hack, but it's no where near as
-big a hack as using mem=X to limit the kernel's memory and then using
-the rest of memory for your device driver.
+I, therefore, strongly suggest that you arrange to do the same -
+iow, deassert RTS when your buffer is approaching approx. 2/3 full
+rather than absolutely full.
 
-The reason I'm curious is because I've gotten several queries about the
-mem=X option on PPC64 and whether it will support this hack, which it
-won't.
-
-If no one has any fundamental objections I think it'd be good to get
-this merged into mainline so people start using it rather than mem=X
-hacks. To that end please let me know what you think is wrong with
-the patch as it stands (below).
-
-cheers
-
-Nick Martin's version for 2.6.9 (which applies to 2.6.11):
-http://www.ussg.iu.edu/hypermail/linux/kernel/0411.1/2076.html
-
-And the guts of it:
-
-Index: 2.6.11-bigphysarea/mm/bigphysarea.c
-===================================================================
---- /dev/null   1970-01-01 00:00:00.000000000 +0000
-+++ 2.6.11-bigphysarea/mm/bigphysarea.c 2005-03-17 19:15:08.256421832 +1100
-@@ -0,0 +1,353 @@
-+/* linux/mm/bigphysarea.c, M. Welsh (mdw@xxxxxxxxxxxxxx)
-+ * Copyright (c) 1996 by Matt Welsh.
-+ * Extended by Roger Butenuth (butenuth@xxxxxxxxxxxxxxxx), October 1997
-+ * Extended for linux-2.1.121 till 2.4.0 (June 2000)
-+ *     by Pauline Middelink <middelink@xxxxxxxxxxx>
-+ * Extended for linux-2.6.9 (November 2004)
-+ *     by Nick Martin <nim@xxxxxxx>
-+ *
-+ * This is a set of routines which allow you to reserve a large (?)
-+ * amount of physical memory at boot-time, which can be allocated/deallocated
-+ * by drivers. This memory is intended to be used for devices such as
-+ * video framegrabbers which need a lot of physical RAM (above the amount
-+ * allocated by kmalloc). This is by no means efficient or recommended;
-+ * to be used only in extreme circumstances.
-+ *
-+ *   This program is free software; you can redistribute it and/or modify
-+ *   it under the terms of the GNU General Public License as published by
-+ *   the Free Software Foundation; either version 2 of the License, or
-+ *   (at your option) any later version.
-+ *
-+ *   This program is distributed in the hope that it will be useful,
-+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *   GNU General Public License for more details.
-+ *
-+ *   You should have received a copy of the GNU General Public License
-+ *   along with this program; if not, write to the Free Software
-+ *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/ptrace.h>
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/pci.h>
-+#include <linux/proc_fs.h>
-+#include <linux/string.h>
-+#include <linux/mm.h>
-+#include <linux/bootmem.h>
-+#include <linux/errno.h>
-+#include <linux/bigphysarea.h>
-+
-+static int get_info(char* buf, char**, off_t, int);
-+
-+typedef struct range_struct {
-+       struct range_struct *next;
-+       caddr_t base;                   /* base of allocated block */
-+       size_t  size;                   /* size in bytes */
-+} range_t;
-+
-+/*
-+ * 0: nothing initialized
-+ * 1: bigphysarea_pages initialized
-+ * 2: free list initialized
-+ */
-+static int     init_level = 0;
-+static int     bigphysarea_pages = 0;
-+static caddr_t bigphysarea = 0;
-+static range_t *free_list = NULL;
-+static range_t *used_list = NULL;
-+static struct resource mem_resource = { "Bigphysarea", 0, 0, IORESOURCE_MEM|IORESOURCE_BUSY };
-+
-+static
-+int __init bigphysarea_init(void)
-+{
-+       if (bigphysarea_pages == 0 || bigphysarea == 0)
-+               return -EINVAL;
-+
-+       /* create to /proc entry for it */
-+       if (!create_proc_info_entry("bigphysarea",0444,NULL,get_info)) {
-+               // ohoh, no way to free the allocated memory!
-+               // continue without proc support, it not fatal in itself
-+//             free_bootmem((unsigned long)bigphysarea>>PAGE_SHIFT,bigphysarea_pages<<PAGE_SHIFT);
-+//             bigphysarea = 0;
-+//             return -ENOMEM;
-+       }
-+
-+       init_level = 1;
-+
-+       printk(KERN_INFO "bigphysarea: Allocated %d pages at 0x%p.\n",
-+              bigphysarea_pages, bigphysarea);
-+
-+       return 0;
-+}
-+
-+__initcall(bigphysarea_init);
-+
-+/*
-+ * call when 'bigphysarea=' is given on the commandline.
-+ *
-+ * Strangely, bootmem is still active during this call, but
-+ * during the processing of the initcalls it isn't anymore!
-+ * So we alloc the needed memory here instead of bigphysarea_init().
-+ */
-+static
-+int __init bigphysarea_setup(char *str)
-+{
-+       int par;
-+       if (get_option(&str,&par)) {
-+               bigphysarea_pages = par;
-+               // Alloc the memory
-+               bigphysarea = alloc_bootmem_low_pages(bigphysarea_pages<<PAGE_SHIFT);
-+               if (!bigphysarea) {
-+                       printk(KERN_CRIT "bigphysarea: not enough memory for %d pages\n",bigphysarea_pages);
-+                       return -ENOMEM;
-+               }
-+
-+               // register the resource for it
-+               mem_resource.start = bigphysarea;
-+               mem_resource.end = mem_resource.start + (bigphysarea_pages<<PAGE_SHIFT);
-+               request_resource(&iomem_resource, &mem_resource);
-+       }
-+       return 1;
-+}
-+
-+__setup("bigphysarea=", bigphysarea_setup);
-+
-+/*
-+ * When we have pages but don't have a freelist, put all pages in
-+ * one free list entry. Return 0 on success, 1 on error.
-+ */
-+static
-+int init2(int priority)
-+{
-+       if (init_level == 1) {
-+               free_list = kmalloc(sizeof(range_t), priority);
-+               if (free_list != NULL) {
-+                       free_list->next = NULL;
-+                       free_list->base = bigphysarea;
-+                       free_list->size = bigphysarea_pages * PAGE_SIZE;
-+                       init_level = 2;
-+                       return 0;
-+               }
-+       }
-+       return 1;
-+}
-+
-+
-+/*
-+ * Allocate `count' pages from the big physical area. Pages are aligned to
-+ * a multiple of `align'. `priority' has the same meaning in kmalloc, it
-+ * is needed for management information.
-+ * This function may not be called from an interrupt!
-+ */
-+caddr_t bigphysarea_alloc_pages(int count, int align, int priority)
-+{
-+       range_t *range, **range_ptr, *new_range, *align_range;
-+       caddr_t aligned_base;
-+
-+       if (init_level < 2)
-+               if (init2(priority))
-+                       return 0;
-+       new_range   = NULL;
-+       align_range = NULL;
-+
-+       if (align == 0)
-+               align = PAGE_SIZE;
-+       else
-+               align = align * PAGE_SIZE;
-+       /*
-+        * Search a free block which is large enough, even with alignment.
-+        */
-+       range_ptr = &free_list;
-+       while (*range_ptr != NULL) {
-+               range = *range_ptr;
-+               aligned_base =
-+                 (caddr_t)((((unsigned long)range->base + align - 1) / align) * align);
-+               if (aligned_base + count * PAGE_SIZE <=
-+                   range->base + range->size)
-+                       break;
-+            range_ptr = &range->next;
-+       }
-+       if (*range_ptr == NULL)
-+               return 0;
-+       range = *range_ptr;
-+       /*
-+        * When we have to align, the pages needed for alignment can
-+        * be put back to the free pool.
-+        * We check here if we need a second range data structure later
-+        * and allocate it now, so that we don't have to check for a
-+        * failed kmalloc later.
-+        */
-+       if (aligned_base - range->base + count * PAGE_SIZE < range->size) {
-+               new_range = kmalloc(sizeof(range_t), priority);
-+               if (new_range == NULL)
-+                       return NULL;
-+       }
-+       if (aligned_base != range->base) {
-+               align_range = kmalloc(sizeof(range_t), priority);
-+               if (align_range == NULL) {
-+                       if (new_range != NULL)
-+                               kfree(new_range);
-+                       return NULL;
-+               }
-+               align_range->base = range->base;
-+               align_range->size = aligned_base - range->base;
-+               range->base = aligned_base;
-+               range->size -= align_range->size;
-+               align_range->next = range;
-+               *range_ptr = align_range;
-+               range_ptr = &align_range->next;
-+       }
-+       if (new_range != NULL) {
-+               /*
-+                * Range is larger than needed, create a new list element for
-+                * the used list and shrink the element in the free list.
-+                */
-+               new_range->base        = range->base;
-+               new_range->size        = count * PAGE_SIZE;
-+               range->base = new_range->base + new_range->size;
-+               range->size = range->size - new_range->size;
-+       } else {
-+               /*
-+                * Range fits perfectly, remove it from free list.
-+                */
-+               *range_ptr = range->next;
-+               new_range = range;
-+       }
-+       /*
-+        * Insert block into used list
-+        */
-+       new_range->next = used_list;
-+       used_list = new_range;
-+
-+       return new_range->base;
-+}
-+EXPORT_SYMBOL(bigphysarea_alloc_pages);
-+
-+/*
-+ * Free pages allocated with `bigphysarea_alloc_pages'. `base' must be an
-+ * address returned by `bigphysarea_alloc_pages'.
-+ * This function my not be called from an interrupt!
-+ */
-+void bigphysarea_free_pages(caddr_t base)
-+{
-+       range_t *prev, *next, *range, **range_ptr;
-+
-+       /*
-+        * Search the block in the used list.
-+        */
-+       for (range_ptr = &used_list;
-+            *range_ptr != NULL;
-+            range_ptr = &(*range_ptr)->next)
-+               if ((*range_ptr)->base == base)
-+                       break;
-+       if (*range_ptr == NULL) {
-+               printk("bigphysarea_free_pages(0x%08x), not allocated!\n",
-+                      (unsigned)base);
-+               return;
-+       }
-+       range = *range_ptr;
-+       /*
-+        * Remove range from the used list:
-+        */
-+       *range_ptr = (*range_ptr)->next;
-+       /*
-+        * The free-list is sorted by address, search insertion point
-+        * and insert block in free list.
-+        */
-+       for (range_ptr = &free_list, prev = NULL;
-+            *range_ptr != NULL;
-+            prev = *range_ptr, range_ptr = &(*range_ptr)->next)
-+               if ((*range_ptr)->base >= base)
-+                       break;
-+       range->next  = *range_ptr;
-+       *range_ptr   = range;
-+       /*
-+        * Concatenate free range with neighbors, if possible.
-+        * Try for upper neighbor (next in list) first, then
-+        * for lower neighbor (predecessor in list).
-+        */
-+       if (range->next != NULL &&
-+           range->base + range->size == range->next->base) {
-+               next = range->next;
-+               range->size += range->next->size;
-+               range->next = next->next;
-+               kfree(next);
-+       }
-+       if (prev != NULL &&
-+           prev->base + prev->size == range->base) {
-+               prev->size += prev->next->size;
-+               prev->next = range->next;
-+               kfree(range);
-+       }
-+}
-+EXPORT_SYMBOL(bigphysarea_free_pages);
-+
-+caddr_t bigphysarea_alloc(int size)
-+{
-+       int pages = (size + PAGE_SIZE - 1) / PAGE_SIZE;
-+
-+       return bigphysarea_alloc_pages(pages, 1, GFP_KERNEL);
-+}
-+EXPORT_SYMBOL(bigphysarea_alloc);
-+
-+
-+void bigphysarea_free(caddr_t addr, int size)
-+{
-+       (void)size;
-+       bigphysarea_free_pages(addr);
-+}
-+EXPORT_SYMBOL(bigphysarea_free);
-+
-+static
-+int get_info(char *buf, char **a, off_t b, int c)
-+{
-+       char    *p = buf;
-+       range_t *ptr;
-+       int     free_count, free_total, free_max;
-+       int     used_count, used_total, used_max;
-+
-+       if (init_level == 1)
-+         init2(GFP_KERNEL);
-+
-+       free_count = 0;
-+       free_total = 0;
-+       free_max   = 0;
-+       for (ptr = free_list; ptr != NULL; ptr = ptr->next) {
-+               free_count++;
-+               free_total += ptr->size;
-+               if (ptr->size > free_max)
-+                       free_max = ptr->size;
-+       }
-+
-+       used_count = 0;
-+       used_total = 0;
-+       used_max   = 0;
-+       for (ptr = used_list; ptr != NULL; ptr = ptr->next) {
-+               used_count++;
-+               used_total += ptr->size;
-+               if (ptr->size > used_max)
-+                       used_max = ptr->size;
-+       }
-+
-+       if (bigphysarea_pages == 0) {
-+               p += sprintf(p, "No big physical area allocated!\n");
-+               return  p - buf;
-+       }
-+
-+       p += sprintf(p, "Big physical area, size %ld kB\n",
-+                    bigphysarea_pages * PAGE_SIZE / 1024);
-+       p += sprintf(p, "                       free list:             used list:\n");
-+       p += sprintf(p, "number of blocks:      %8d               %8d\n",
-+                    free_count, used_count);
-+       p += sprintf(p, "size of largest block: %8d kB            %8d kB\n",
-+                    free_max / 1024, used_max / 1024);
-+       p += sprintf(p, "total:                 %8d kB            %8d kB\n",
-+                    free_total / 1024, used_total /1024);
-+
-+       return  p - buf;
-+}
-
---nextPart1411995.Goe5pq5K6y
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCOVRydSjSd0sB4dIRAna3AKCLi4DKPPsQdS2ixUwiwFVmO0ElAwCffUqk
-M7mGJdV4NUO5LDn+xTx/0kQ=
-=vg9H
------END PGP SIGNATURE-----
-
---nextPart1411995.Goe5pq5K6y--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

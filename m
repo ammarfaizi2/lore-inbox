@@ -1,153 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265815AbUGNV25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUGNVku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265815AbUGNV25 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 17:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265732AbUGNV25
+	id S265134AbUGNVku (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 17:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265732AbUGNVkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 17:28:57 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:26660 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265815AbUGNV2M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 17:28:12 -0400
-Date: Wed, 14 Jul 2004 14:27:42 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Matthew Wilcox <willy@debian.org>
-cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
- posix-timer functions to return higher accuracy)
-In-Reply-To: <20040714210903.GA32326@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0407141425200.16274@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
- <20040714210903.GA32326@parcelfarce.linux.theplanet.co.uk>
+	Wed, 14 Jul 2004 17:40:49 -0400
+Received: from web40006.mail.yahoo.com ([66.218.78.24]:33952 "HELO
+	web40006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265134AbUGNVkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 17:40:45 -0400
+Message-ID: <20040714214044.69938.qmail@web40006.mail.yahoo.com>
+Date: Wed, 14 Jul 2004 14:40:44 -0700 (PDT)
+From: Song Wang <wsonguci@yahoo.com>
+Subject: Re: [kbuild-devel] kbuild support to build one module with multiple separate components?
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20040714211936.GA8888@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jul 2004, Matthew Wilcox wrote:
-> You seem to have included two patches here that are very similar ...
-> could you send the patch you intended please?
+Hi, Sam
 
-Right. Somehow my patch management system did something strange.
-Here is the patch:
+Thanks for the reply.
 
-Index: linux-2.6.7/kernel/time.c
-===================================================================
---- linux-2.6.7.orig/kernel/time.c
-+++ linux-2.6.7/kernel/time.c
-@@ -421,6 +421,41 @@
+However, in the way you indicate, the
+mainmodule and each submodule will be built
+as separate kernel modules. You will get
+mainmodule.ko, a_sub_module.ko, b_sub_module.ko etc.
 
- EXPORT_SYMBOL(current_kernel_time);
+This is not what I tried to get. I tried to
+build a single kernel module, which means that
+mainmodule.o, a_sub_module.o, b_sub_module.o
+should be linked together to produce the single
+module.
 
-+#ifdef CONFIG_TIME_INTERPOLATION
-+void gettimeofday (struct timespec *tv)
-+{
-+        unsigned long seq,sec,nsec;
-+
-+        do {
-+                seq = read_seqbegin(&xtime_lock);
-+                sec = xtime.tv_sec;
-+                nsec = xtime.tv_nsec+time_interpolator_get_offset();
-+        } while (unlikely(read_seqretry(&xtime_lock, seq)));
-+
-+        while (unlikely(nsec >= NSEC_PER_SEC)) {
-+                nsec -= NSEC_PER_SEC;
-+                ++sec;
-+        }
-+	tv->tv_sec = sec;
-+	tv->tv_nsec = nsec;
-+}
-+#else
-+/*
-+ * Simulate gettimeofday using do_gettimeofday which only allows a timeval
-+ * and therefore only yields usec accuracy
-+ */
-+void gettimeofday(struct timespec *tv)
-+{
-+	struct timeval x;
-+
-+	do_gettimeofday(&x);
-+	tv->tv_sec = x.tv_sec;
-+	tv->tv_nsec = x.tv_usec*NSEC_PER_USEC;
-+}
-+#endif
-+
-+EXPORT_SYMBOL(gettimeofday);
-+
- #if (BITS_PER_LONG < 64)
- u64 get_jiffies_64(void)
- {
-Index: linux-2.6.7/kernel/timer.c
-===================================================================
---- linux-2.6.7.orig/kernel/timer.c
-+++ linux-2.6.7/kernel/timer.c
-@@ -1241,8 +1241,7 @@
- 		 * too.
- 		 */
+This will be convenient, for instance, for
+distribution because you need only to distribute one
+kernel module instead of a long list of modules.
 
--		do_gettimeofday((struct timeval *)&tp);
--		tp.tv_nsec *= NSEC_PER_USEC;
-+		gettimeofday(&tp);
- 		tp.tv_sec += wall_to_monotonic.tv_sec;
- 		tp.tv_nsec += wall_to_monotonic.tv_nsec;
- 		if (tp.tv_nsec - NSEC_PER_SEC >= 0) {
-Index: linux-2.6.7/kernel/posix-timers.c
-===================================================================
---- linux-2.6.7.orig/kernel/posix-timers.c
-+++ linux-2.6.7/kernel/posix-timers.c
-@@ -1168,15 +1168,10 @@
-  */
- static int do_posix_gettime(struct k_clock *clock, struct timespec *tp)
- {
--	struct timeval tv;
--
- 	if (clock->clock_get)
- 		return clock->clock_get(tp);
+-Song
 
--	do_gettimeofday(&tv);
--	tp->tv_sec = tv.tv_sec;
--	tp->tv_nsec = tv.tv_usec * NSEC_PER_USEC;
--
-+	gettimeofday(tp);
- 	return 0;
- }
 
-@@ -1192,24 +1187,16 @@
- 	struct timespec *tp, struct timespec *mo)
- {
- 	u64 jiff;
--	struct timeval tpv;
- 	unsigned int seq;
+--- Sam Ravnborg <sam@ravnborg.org> wrote:
+> On Fri, Jul 02, 2004 at 04:47:35PM -0700, Song Wang
+> wrote:
+> > Hi, Folks
+> > 
+> > I'm puzzled by the kbuild system in 2.6 kernel.
+> > I want to write a kernel module, which consists of
+> > several components. The module is produced by
+> > linking these components. These components are
+> located
+> > in separate subdirectories (for example A, B,C). 
+> > Each component is generated also by linking 
+> > multiple files. (For example, a_1.c, a_2.c for
+> > building A.o, b_1.c, b_2.c for building B.o, then
+> A.o
+> > and B.o
+> > should be linked to produce mymodule.o) 
+> > 
+> > I know if I put all the files in a single
+> directory
+> > The makefile of the module looks like
+> > 
+> > obj-$(CONFIG_MYMODULE) += mymodule.o
+> > mymodule-objs := a_1.o a_2.o b_1.o b_2.o c_1.o
+> c_2.o
+> > 
+> > It should work. But it is really messy, especially
+> > there are a lot of files or each component
+> requires
+> > different EXTRA_CFLAGS. However, if I write
+> > separate Makefiles for each component in their own
+> > subdirectory, the Makefile of component A looks
+> like
+> > 
+> > obj-y := A.o (or obj-$(CONFIG_MYMODULE) +=  A.o)
+> > A-objs := a_1.o a_2.o
+> > 
+> > This is wrong, because kbuild will treat A as
+> > independent module. All I want is to treat
+> > A as component of the only module mymodule.o. It
+> > should be linked to mymodule.o
+> > 
+> > Any idea on how to write a kbuild Makefile to
+> > support such kind of single module produced
+> > by linking multiple components and each component
+> > is located in separate directory? Thanks.
+> 
+> 
+> Hi Song (added lkml to cc:).
+> 
+> You just need to have one common module usign all
+> the sub-modules.
+> 
+> So having each sub-module in directory M/sub-a
+> M/sub-b etc.
+> you need a makefile in M/ that looks like:
+> M/Makefile:
+> obj-m += sub-a/
+> obj-m += sub-b/
+> obj-m += mainmodule.o
+> 
+> In each sub-directory you need a separate Makefile
+> like:
+> M/sub-a/Makefile
+> obj-m += a_sub_module.o
+> 
+> Then all symbols used by the mainmodule needs to be
+> properly
+> exported in each sub-module.
+> 
+> Hope this clarifies it.
+> 
+> 	Sam
+> 
 
- 	do {
- 		seq = read_seqbegin(&xtime_lock);
--		do_gettimeofday(&tpv);
-+		gettimeofday(tp);
- 		*mo = wall_to_monotonic;
- 		jiff = jiffies_64;
 
- 	} while(read_seqretry(&xtime_lock, seq));
 
--	/*
--	 * Love to get this before it is converted to usec.
--	 * It would save a div AND a mpy.
--	 */
--	tp->tv_sec = tpv.tv_sec;
--	tp->tv_nsec = tpv.tv_usec * NSEC_PER_USEC;
--
- 	return jiff;
- }
-
-Index: linux-2.6.7/include/linux/time.h
-===================================================================
---- linux-2.6.7.orig/include/linux/time.h
-+++ linux-2.6.7/include/linux/time.h
-@@ -348,6 +348,7 @@
- struct itimerval;
- extern int do_setitimer(int which, struct itimerval *value, struct itimerval *ovalue);
- extern int do_getitimer(int which, struct itimerval *value);
-+extern void gettimeofday (struct timespec *tv);
-
- static inline void
- set_normalized_timespec (struct timespec *ts, time_t sec, long nsec)
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

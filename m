@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290570AbSAYF7p>; Fri, 25 Jan 2002 00:59:45 -0500
+	id <S290572AbSAYGAf>; Fri, 25 Jan 2002 01:00:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290575AbSAYF7f>; Fri, 25 Jan 2002 00:59:35 -0500
-Received: from mail001.syd.optusnet.com.au ([203.2.75.244]:19855 "EHLO
-	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S290570AbSAYF7a>; Fri, 25 Jan 2002 00:59:30 -0500
-Message-ID: <3C50F43D.90707@bigpond.com>
-Date: Fri, 25 Jan 2002 16:59:25 +1100
-From: Brendan J Simon <brendan.simon@bigpond.com>
-Reply-To: brendan.simon@bigpond.com
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:0.9.5) Gecko/20011024
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S290573AbSAYGAZ>; Fri, 25 Jan 2002 01:00:25 -0500
+Received: from [204.42.16.60] ([204.42.16.60]:23302 "EHLO gerf.org")
+	by vger.kernel.org with ESMTP id <S290572AbSAYGAR>;
+	Fri, 25 Jan 2002 01:00:17 -0500
+Date: Fri, 25 Jan 2002 00:00:16 -0600
+From: The Doctor What <docwhat@gerf.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux console at boot
-In-Reply-To: <CHEKKPICCNOGICGMDODJKEPAGBAA.george@gator.com> <200201250550.g0P5o1L09511@home.ashavan.org.>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: O(1) on powerpc....
+Message-ID: <20020125000016.A4561@gerf.org>
+Mail-Followup-To: The Doctor What <docwhat@gerf.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I tried to compile the O(1) patch on the powerpc kernel (using
+BenH's latest greatest).  But it didn't work.  It puked on the
+counter and processor stuff in mk_def.c:4[01] in arch/powerpc/kernel
 
+Is this patch just incompatable with the powerpc in some way, or is
+it something that hasn't been addressed because Ingo has only ia32
+systems at his disposal?
 
-Timothy Covell wrote:
+Ciao!
 
->On Thursday 24 January 2002 23:05, George Bonser wrote:
->
->>Is there any way to stop the console scrolling during boot? My reason
->>for this is I am trying to troubleshoot a boot problem with
->>2.4.18-pre7 and I would like to give a more useful report than "it
->>won't boot" but the screen outputs information every few seconds and I
->>can't "freeze" the display so I can copy down the initial error(s).
->>
->>This is an Intel unit using the standard console (not serial console).
->>pre7 will not boot but pre6 boots every time.
->>
-Try <ctrl>s to stop the display scrolling and <ctrl>q to restart it.
+-- 
+"By the pricking of my thumbs, something wicked this way comes."
+	--Shakespeare, MacBeth, IV:i
 
-Regards,
-Brendan Simon.
-
-
+The Doctor What: Need I say more?                http://docwhat.gerf.org/
+docwhat@gerf.org                                                   KF6VNC

@@ -1,127 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130167AbRA2Xot>; Mon, 29 Jan 2001 18:44:49 -0500
+	id <S129999AbRA2Xoi>; Mon, 29 Jan 2001 18:44:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131249AbRA2Xoi>; Mon, 29 Jan 2001 18:44:38 -0500
-Received: from blackdog.wirespeed.com ([208.170.106.25]:60431 "EHLO
-	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
-	id <S130167AbRA2XoY>; Mon, 29 Jan 2001 18:44:24 -0500
-Message-ID: <3A7600D0.7040101@redhat.com>
-Date: Mon, 29 Jan 2001 17:46:24 -0600
-From: Joe deBlaquiere <jadb@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S130929AbRA2Xo3>; Mon, 29 Jan 2001 18:44:29 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13573 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129999AbRA2XoV>; Mon, 29 Jan 2001 18:44:21 -0500
+Date: Mon, 29 Jan 2001 15:44:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Aaron Tiensivu <mojomofo@mojomofo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test12: SiS pirq handling..
+In-Reply-To: <00b601c08a49$b6257e10$0300a8c0@methusela>
+Message-ID: <Pine.LNX.4.10.10101291523470.9984-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Roger Larsson <roger.larsson@norran.net>
-CC: Andrew Morton <andrewm@uow.edu.au>, yodaiken@fsmlabs.com,
-        Nigel Gamble <nigel@nrg.org>, linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-In-Reply-To: <200101220150.UAA29623@renoir.op.net> <3A742A79.6AF39EEE@uow.edu.au> <3A74462A.80804@redhat.com> <01012923315600.01404@dox>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Roger Larsson wrote:
+On Mon, 29 Jan 2001, Aaron Tiensivu wrote:
+> 
+> Problem still exists, diffed to last kernel:
 
-> On Sunday 28 January 2001 17:17, Joe deBlaquiere wrote:
-> 
->> Andrew Morton wrote:
->> 
->>> There has been surprisingly little discussion here about the
->>> desirability of a preemptible kernel.
->> 
->> And I think that is a very intersting topic... (certainly more
->> interesting than hotmail's firewalling policy ;o)
->> 
->> Alright, so suppose I dream up an application which I think really
->> really needs preemption (linux heart pacemaker project? ;o) I'm just not
->> convinced that linux would ever be the correct codebase to start with.
->> The fundamental design of every driver in the system presumes that there
->> is no preemption.
-> 
-> 
-> please, no linux heart pacemaker at sourceforge... :-)
-> 
-> 
->> A recent example I came across is in the MTD code which invokes the
->> erase algorithm for CFI memory. This algorithm spews a command sequence
->> to the flash chips followed by a list of sectors to erase. Following
->> each sector adress, the chip will wait for 50usec for another address,
->> after which timeout it begins the erase cycle. With a RTLinux-style
->> approach the driver is eventually going to fail to issue the command in
->> time. There isn't any logic to detect and correct the preemption case,
->> so it just gets confused and thinks the erase failed. Ergo, RTLinux and
->> MTD are mutually exclusive. (I should probably note that I do not intend
->> this as an indictment of RTLinux or MTD, but just an example of why
->> preemption breaks the Linux driver model).
-> 
-> 
-> Can't that happen in the 2.4.0 kernel too?
-> If interrupts are not disabled during the command queuing any (with more than 
-> 50 us execution time) interrupt might disturb the setup.
-> That part of the code should either:
-> a) accept partial success, and continue (can it check current success)
-> b) disable interrupts, then shouldn't it use
->      spin_lock_irq(...) instead of spin_lock_bh(...)
-> 
-> Where is the code BTW? (file:line)
-> is it the functions named do_erase_1_by_16_oneblock?
-> 
-> 
+Yes. But everything works for you, no? Including USB?
 
-that's basically the one, just slightly modified to loop through a list 
-addresses instead of the single address. It's a negligible performance 
-gain, but simplified some other code I was testing.
+The problem is that you have this routing table entry:
 
-The point is that some small set of operations may need to be atomic and 
-or executed in a critical time period. Allowing these portions of code 
-to be preempted opens the door for unexpected failure cases.
+	00:01 slot=00 0:62/1eb8 1:00/0000 2:00/0000 3:00/0000
 
- 
-A 'perfect' driver would of course still be able to recover (or at least 
-guarantee it wouldn't crash). Sometimes the timing issues aren't known 
-or explictly stated, so the driver has 'never failed that way before' 
-because it hasn't been tested that way.
+which is really for the USB chip (PCI id 00:01.2), and which the PCI code
+_does_ find for the USB chip. So it should set up the routing happily, and
+everything should be ok.
 
-> What about introducing a  timecritical_lock()
-> #define timecritical_lock(int maxtime_us)  {__cli(); } 
-> 	/* local processor only */
-> 
-> 
-> Any driver using the timecritical_lock are not 100% RTLinux compatible,
-> but should be ok in a preemtive kernel where timecritical_locks are 
-> short compared to "guarantees".
-> The parameter maxtime_us is a hint to system integrators - don't use drivers 
-> with high maxtime in a RT system.
-> 
-> But it will be extremly hart to make any guarantees...
-> If the driver needs the PCI bus, it might be locked for burst transfer...
-> SMP issues...
-> 
-> 
->> Do we
->> push drivers like MTD down into preemptable-Linux? Do we push all
->> drivers down?
-> 
-> 
-> All drivers should be compatible with preemtive-Linux, they who are not are
-> unlikely to be compatible with the current Linux.
-> 
-> 
+The trouble is that the routing table entry _also_ gets a false match to
+the IDE chip (PCI id 00:01.1), which doesn't get routed through the above
+AT ALL. So every time it sees either the USB or the IDE device, it will
+notice that there is a bogus routing table entry associated with the IDE
+device.
 
-some kind of timecritical_lock() is a possibility. It would seem that 
-such a construct would coexist with SMP and RTLinux. I guess I'm just a 
-pessimist in that I expect that having not an explicit lock on time 
-critical sections will eventually mean that something will invalidate 
-the timing.
+As a result, 2.4.1-pre12 will now complain (twice - once when it tries to
+find the IDE irq route, the other time when it tries to find the USB irq
+route) that there seems to be a routing table conflict for device 00:01.1.
 
--- 
-Joe
+In reality, the IDE device is routed with a fixed routing by the BIOS, and
+the BIOS has also set the device "irqline" config space entry to point to
+the proper table. So the IDE controller should work fine - and in fact it
+is this second piece of information from the PCI config space that makes
+Linux notice the conflict in the first place.
+
+So it does appear that everything is fine. Linux should be doing exactly
+the right thing on your board now, and USB _should_ work for you. The
+complaints are real, and more importantly I now think we understand _why_
+they happen.
+
+It probably all used to work for you before, but we didn't really know
+_why_. Which is almost as nasty a situation as not working at all.
+
+Basically, the way your chipset is laid out PCI-wise, they are
+subfunctions of the same device (subfunction 1 is IDE, subfunction 2 is
+USB. Because of this they share an irq routing entry, and if they were to
+NOT clash they should have been given separate "irq pin" numbers in their
+config space. So a _good_ routing entry might have looked like
+
+	00:01 slot=00 0:fe/4000 1:62/1eb8 2:00/0000 3:00/0000
+
+where the IDE device has "irqpin=1" and the USB device has "irqpin=2", and
+USB points to link 62, while IDE points to link fe (ie "hardcode to 14").
+
+But the BIOS didn't do this properly, and as a result we get these pirq
+clashes. Which are real, but should be harmless.
+
+Now, will the two people in the world who know the pirq black magic now
+stand up and confirm or deride my interpretation?
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

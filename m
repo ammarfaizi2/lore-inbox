@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264898AbTFLREy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 13:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbTFLREy
+	id S264902AbTFLRGD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 13:06:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbTFLRGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 13:04:54 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:10507 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264898AbTFLREx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 13:04:53 -0400
-Date: Thu, 12 Jun 2003 18:18:37 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Kronos <kronos@kronoz.cjb.net>
-Cc: linux-kernel@vger.kernel.org, lord@sgi.com
-Subject: Re: [2.5.70][XFS] Sleeping function called from illegal context
-Message-ID: <20030612181837.A8344@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Kronos <kronos@kronoz.cjb.net>, linux-kernel@vger.kernel.org,
-	lord@sgi.com
-References: <20030612170756.GA1357@dreamland.darkstar.lan>
+	Thu, 12 Jun 2003 13:06:03 -0400
+Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:44470 "HELO
+	mail.keyresearch.com") by vger.kernel.org with SMTP id S264902AbTFLRF6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 13:05:58 -0400
+Subject: Re: 2.5.70-mm8: freeze after starting X
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
+       piggin@cyberone.com.au
+In-Reply-To: <20030611172444.76556d5d.akpm@digeo.com>
+References: <1055369849.1084.4.camel@serpentine.internal.keyresearch.com>
+	 <20030611154122.55570de0.akpm@digeo.com> <1055374476.673.1.camel@localhost>
+	 <1055377120.665.6.camel@localhost> <20030611172444.76556d5d.akpm@digeo.com>
+Content-Type: text/plain
+Message-Id: <1055438377.1058.2.camel@serpentine.internal.keyresearch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030612170756.GA1357@dreamland.darkstar.lan>; from kronos@kronoz.cjb.net on Thu, Jun 12, 2003 at 07:07:56PM +0200
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 12 Jun 2003 10:19:37 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-06-11 at 17:24, Andrew Morton wrote:
 
---- 1.53/fs/xfs/pagebuf/page_buf.c	Mon May 19 21:00:43 2003
-+++ edited/fs/xfs/pagebuf/page_buf.c	Wed Jun 11 21:30:21 2003
-@@ -1689,10 +1689,10 @@
- 	int			pincount = 0;
- 	int			flush_cnt = 0;
- 
-+	pagebuf_runall_queues(pagebuf_dataio_workqueue);
-+
- 	spin_lock(&pbd_delwrite_lock);
- 	INIT_LIST_HEAD(&tmp);
--
--	pagebuf_runall_queues(pagebuf_dataio_workqueue);
- 
- 	list_for_each_safe(curr, next, &pbd_delwrite_queue) {
- 		pb = list_entry(curr, page_buf_t, pb_list);
+> Odd that starting the X server triggers it.  Be interesting if your patch
+> fixes things for Brian.
+
+I think Robert and I are seeing different things.  For me, -mm6 is fine
+(unlike Robert's case), -mm7 oopses in the PCI init code during early
+boot (somewhere in the radeon init stuff, can't capture the oops
+easily), and -mm8 gives itself a wedgie a few seconds after starting X.
+
+I'm about to try, um, whichever of the umpty-ump patches that went back
+and forth looks most plausible.
+
+	<b
+

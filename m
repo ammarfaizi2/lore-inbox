@@ -1,85 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272212AbRISMgT>; Wed, 19 Sep 2001 08:36:19 -0400
+	id <S273968AbRISMgv>; Wed, 19 Sep 2001 08:36:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273968AbRISMgJ>; Wed, 19 Sep 2001 08:36:09 -0400
-Received: from [24.254.60.15] ([24.254.60.15]:59591 "EHLO
-	femail25.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S272212AbRISMgA>; Wed, 19 Sep 2001 08:36:00 -0400
-Message-ID: <3BA8903D.2643D20D@didntduck.org>
-Date: Wed, 19 Sep 2001 08:31:57 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-pre4 i686)
-X-Accept-Language: en
+	id <S274040AbRISMgm>; Wed, 19 Sep 2001 08:36:42 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:3218 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S273968AbRISMg1>; Wed, 19 Sep 2001 08:36:27 -0400
+Date: Wed, 19 Sep 2001 13:37:48 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Andrea Arcangeli <andrea@suse.de>,
+        Stephan von Krawczynski <skraw@ithnet.com>, jogi@planetzork.ping.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-pre11: alsaplayer skiping during kernel build (-pre10
+ did  not)
+In-Reply-To: <3BA7A853.4EC44195@zip.com.au>
+Message-ID: <Pine.LNX.4.21.0109191330270.1489-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: Direct PCI access broken in 2.4.10-pre
-In-Reply-To: <30185.1000900519@redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------B8122056FB5B8AEA2B0FE8D5"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------B8122056FB5B8AEA2B0FE8D5
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-David Woodhouse wrote:
+On Tue, 18 Sep 2001, Andrew Morton wrote:
 > 
-> 2.4.10-pre3 and later fail to boot on my Compaq XL box. It claims that PCI
-> isn't supported. This board doesn't use the PCI BIOS because the entry
-> point is in high memory.
-> 
-> 'cvs up -r v2_4_10-pre2 arch/i386/boot/pci-pc.c' fixes it.
-> 
-> A happy boot with the old pci-pc.c:
-> PCI: BIOS32 entry (0xc00fa000) in high memory, cannot use.
-> PCI: Using configuration type 2
-> PCI: Probing PCI hardware
-> 
-> An unhappy boot with the new one:
-> PCI: BIOS32 entry (0xc00fa000) in high memory, cannot use.
-> PCI: System does not support PCI
+> With the above fixed, the main source of latency is
+> /proc/meminfo->si_swapinfo(). It's about five milliseconds per gig
+> of swap, which isn't too bad.  But it's directly invokable by
+> userspace (ie: /usr/bin/top) and really should be made less dumb.
 
-Patch attached that fixes typecasting problems with PCI Type 2 accesses.
+Don't worry about this one, fix is included in patch I posted last
+Saturday, and will be rebasing, breaking up and submitting to Linus
+in a couple(?) of days.  Basically, Zach Brown's patch to use
+nr_swap_pages and total_swap_pages, but in rare case of concurrent
+swapoff, does need to scan that swap_map (with appropriate locking)
+to give sensible numbers without strange negatives at that time.
 
--- 
-
-						Brian Gerst
---------------B8122056FB5B8AEA2B0FE8D5
-Content-Type: text/plain; charset=us-ascii;
- name="diff-pcipc"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-pcipc"
-
-diff -urN linux-2.4.10-pre10/arch/i386/kernel/pci-pc.c linux/arch/i386/kernel/pci-pc.c
---- linux-2.4.10-pre10/arch/i386/kernel/pci-pc.c	Mon Sep 17 13:20:14 2001
-+++ linux/arch/i386/kernel/pci-pc.c	Wed Sep 19 08:07:29 2001
-@@ -261,18 +261,14 @@
- 	u32 data;
- 	result = pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
- 		PCI_FUNC(dev->devfn), where, 2, &data);
--	*value = (u8)data;
-+	*value = (u16)data;
- 	return result;
- }
- 
- static int pci_conf2_read_config_dword(struct pci_dev *dev, int where, u32 *value)
- {
--	int result; 
--	u32 data;
--	result = pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
--		PCI_FUNC(dev->devfn), where, 4, &data);
--	*value = (u8)data;
--	return result;
-+	return pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
-+		PCI_FUNC(dev->devfn), where, 4, value);
- }
- 
- static int pci_conf2_write_config_byte(struct pci_dev *dev, int where, u8 value)
-
---------------B8122056FB5B8AEA2B0FE8D5--
+Hugh
 

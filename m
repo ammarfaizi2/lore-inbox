@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314069AbSDQGBn>; Wed, 17 Apr 2002 02:01:43 -0400
+	id <S314072AbSDQGRq>; Wed, 17 Apr 2002 02:17:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314070AbSDQGBm>; Wed, 17 Apr 2002 02:01:42 -0400
-Received: from zero.tech9.net ([209.61.188.187]:24588 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S314069AbSDQGBl>;
-	Wed, 17 Apr 2002 02:01:41 -0400
-Subject: Re: Why HZ on i386 is 100 ?
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Mark Mielke <mark@mark.mielke.cc>, davidm@hpl.hp.com,
-        Davide Libenzi <davidel@xmailserver.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0204162227530.15675-100000@home.transmeta.com>
-Content-Type: text/plain
+	id <S314073AbSDQGRp>; Wed, 17 Apr 2002 02:17:45 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:51930 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S314072AbSDQGRo>;
+	Wed, 17 Apr 2002 02:17:44 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 17 Apr 2002 02:01:42 -0400
-Message-Id: <1019023303.1670.37.camel@phantasy>
-Mime-Version: 1.0
+Message-ID: <15549.4991.111039.680357@napali.hpl.hp.com>
+Date: Tue, 16 Apr 2002 23:17:35 -0700
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Mark Mielke <mark@mark.mielke.cc>,
+        davidm@hpl.hp.com, Davide Libenzi <davidel@xmailserver.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Why HZ on i386 is 100 ?
+In-Reply-To: <1019023303.1670.37.camel@phantasy>
+X-Mailer: VM 7.03 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-04-17 at 01:34, Linus Torvalds wrote:
+>>>>> On 17 Apr 2002 02:01:42 -0400, Robert Love <rml@tech9.net> said:
 
-> No, it also makes it much easier to convert to/from the standard UNIX time
-> formats (ie "struct timeval" and "struct timespec") without any surprises,
-> because a jiffy is exactly representable in both if you have a HZ value
-> of 100 or 100, but not if your HZ is 1024.
+  Robert> Exactly - this was my issue.  So what _was_ the rationale
+  Robert> behind Alpha picking 1024 (and others following)?
 
-Exactly - this was my issue.  So what _was_ the rationale behind Alpha
-picking 1024 (and others following)?  More importantly, can we change to
-1000?
+Picking a timer tick is a bit like picking the color of a
+window. Everybody has an opinion and there is no truly "right" choice.
+I guarantee you whatever you pick, someone will come along and say:
+why not X instead?
 
-	Robert Love
+A power-of-2 value obviously makes it easy to divide by HZ.
 
+  Robert> More importantly, can we change to 1000?
+
+On ia64, you can make it anything you want.  User-level will pick up
+the current value from sysconf(_SC_CLK_TCK).
+
+	--david

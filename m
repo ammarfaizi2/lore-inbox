@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271742AbRHUQsh>; Tue, 21 Aug 2001 12:48:37 -0400
+	id <S271745AbRHURD3>; Tue, 21 Aug 2001 13:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271745AbRHUQsa>; Tue, 21 Aug 2001 12:48:30 -0400
-Received: from abasin.nj.nec.com ([138.15.150.16]:39434 "HELO
-	abasin.nj.nec.com") by vger.kernel.org with SMTP id <S271743AbRHUQsJ>;
-	Tue, 21 Aug 2001 12:48:09 -0400
-From: Sven Heinicke <sven@research.nj.nec.com>
+	id <S271746AbRHURDL>; Tue, 21 Aug 2001 13:03:11 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:61700 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S271745AbRHURCz>; Tue, 21 Aug 2001 13:02:55 -0400
+Date: Tue, 21 Aug 2001 13:02:57 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Startup Delay
+In-Reply-To: <027001c12a5b$e5d29be0$160e10ac@hades>
+Message-ID: <Pine.LNX.4.33.0108211300040.23498-100000@terbidium.openservices.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15234.37073.974320.621770@abasin.nj.nec.com>
-Date: Tue, 21 Aug 2001 12:48:17 -0400 (EDT)
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on 7899P)
-In-Reply-To: <20010821150202Z16034-32383+699@humbolt.nl.linux.org>
-In-Reply-To: <20010820230909.A28422@oisec.net>
-	<15233.37122.901333.300620@abasin.nj.nec.com>
-	<15234.29508.488705.826498@abasin.nj.nec.com>
-	<20010821150202Z16034-32383+699@humbolt.nl.linux.org>
-X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 Aug 2001, Mark Cuss wrote:
 
-Yes, highmem was on, the stystem got 4G of memory.  I turned off
-highmem and got no messages apart from one:
+> Hello!
+>
+> I am setting up a server with 4 SCSI hard disks, two of which I will jumper
+> to have a delayed spin up as to not bake the power supply.  These two drives
+> will contain a striping RAID.  I am concerned that the kernel will load off
+> of the other drives and attempt to start this RAID before the disks have
+> even spun up - is there a way to have the kernel delay its startup for a
+> certain number of seconds while all the drives spin up?
+>
+> Any hints are greatly appreciated.
+>
+> Mark
 
-Aug 21 07:29:19 ps1 kernel: (scsi0:A:0:0): Locking max tag count at 64
+I thought that this was a function of the SCSI BIOS? I know that with the
+Adaptec AHA-x940xx and AIC-78x0 you can tell the card/chip to spin up the
+drives after individually-configurable delays, and then continue booting the
+system once all the drives have spun up. Does your card/chip have a similar
+feature?
 
-which I was getting before.
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 
-Disk access is faster then before but still slower then the IDE
-drive.  Any ideas?
-
-Thanks for the help.
-
-Daniel Phillips writes:
- > On August 21, 2001 04:42 pm, Sven Heinicke wrote:
- > > Forgive the sin of replying to my own message but Daniel Phillips
- > > replied to a different message with a patch to somebody getting a
- > > similar error to mine.  Here is the result:
- > > 
- > > Aug 20 15:10:33 ps1 kernel: cation failed (gfp=0x30/1). 
- > > Aug 20 15:10:33 ps1 kernel: __alloc_pages: 0-order allocation failed
- > > (gfp=0x30/1). 
- > > Aug 20 15:10:46 ps1 last message repeated 327 times 
- > > Aug 20 15:10:47 ps1 kernel: cation failed (gfp=0x30/1). 
- > > Aug 20 15:10:47 ps1 kernel: __alloc_pages: 0-order allocation failed
- > > (gfp=0x30/1). 
- > > Aug 20 15:10:56 ps1 last message repeated 294 times 
- > 
- > Are you using highmem?  Could you try it with highmem configged off?
- > 
- > --
- > Daniel
- > -
- > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
- > the body of a message to majordomo@vger.kernel.org
- > More majordomo info at  http://vger.kernel.org/majordomo-info.html
- > Please read the FAQ at  http://www.tux.org/lkml/

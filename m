@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263923AbTKZCaj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 21:30:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263926AbTKZCai
+	id S263937AbTKZCXv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 21:23:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263956AbTKZCXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 21:30:38 -0500
-Received: from rth.ninka.net ([216.101.162.244]:22148 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S263923AbTKZCah (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 21:30:37 -0500
-Date: Tue, 25 Nov 2003 18:30:35 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: "Mr. BOFH" <icerbofh@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fire Engine??
-Message-Id: <20031125183035.1c17185a.davem@redhat.com>
-In-Reply-To: <BAY1-DAV15JU71pROHD000040e2@hotmail.com>
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Nov 2003 21:23:51 -0500
+Received: from mx1.verat.net ([217.26.64.139]:29569 "EHLO mx1.verat.net")
+	by vger.kernel.org with ESMTP id S263937AbTKZCXt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 21:23:49 -0500
+From: Toplica =?utf-8?q?Tanaskovi=C4=87?= <toptan@verat.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-textX: kernel parameters...
+Date: Wed, 26 Nov 2003 03:22:38 +0100
+User-Agent: KMail/1.5.93
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200311260322.44018.toptan@verat.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Nov 2003 16:15:12 -0800
-"Mr. BOFH" <icerbofh@hotmail.com> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> http://www.theregister.co.uk/content/61/33440.html
 
-This was amusing to read, let's read the claim carefuly,
-shall we?
+	For 2.4.xx series it is enough to append this:
 
-	"We worked hard on efficiency, and we now measure,
-	 at a given network workload on identical x86 hardware,
-	 we use 30 percent less CPU than Linux."
+video=radeon:1024X768-8@100
 
-So his claim is that, in their mesaurements, "CPU utilization"
-was lower in their stack.  Was he using 2.6.x and TSO capable
-cards on the Linux side?  If not, it's not apples to apples
-against are current upcoming technology.
+	to get frame buffer console set to 1024x768, this does not work with 
+2.6.0-testX. Radeon frame buffer is compiled in kernel. All I get is 80x30 
+chars console with 60Hz refresh rate, and when penguin is displayed I get 
+random coloured random chars on the right side of logo...
+	I've asked this a while ago (during 2.5.5X phase) and did not get any answer, 
+at least none that does the job.
 
-And while his CPU utilization claim is interesting (I bet that gain
-would go to zero if they'd used Linux TSO in 2.6.x), but was the
-networking bandwidth and latency any better as a result?  I think it's
-not by accident that the claim was phrased the way it was.
+	Beside this annoyance, 2.6.0 series work excellent for me...
+- -- 
+Regards,
+Toplica Tanaskovic
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-In fact, I bet their connection setup/teardown latency will go in the
-toilet with this stuff and Solaris was already horrible in this area.
-It is a well established fact that TOE technologies have this problem
-because of how the socket setup/teardown operation with TOE cards
-requires the OS to go over the bus a few times.
-
-I'm not worried at all about Sun's fire engine.  It's preliminary
-technology, and they are going to discover all of the problem TOE
-stuff has that I've discussed several times on this list.
-
-They even mention that they don't even support any current generation
-shipping TOE cards yet, at least I offer a cpu utilization reduction
-optimization (TSO in 2.6.x) with multiple implementation on current
-generation hardware (e1000, tg3, etc.).
-
-I fully welcome them to put Linux up against their incredible fire
-engine crap in a sanctioned specweb run on identical hardware.  :)
+iD8DBQE/xA5ztKJqksC6c0sRAj6YAKCqZVj2Ul/pwcM0g4SXs3vNT708uQCgtKF2
+OGp1nLtH1piXwarhNHBioUY=
+=YUC1
+-----END PGP SIGNATURE-----

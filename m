@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264634AbTIDDoh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 23:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbTIDDoh
+	id S264625AbTIDDce (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 23:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264619AbTIDDbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 23:44:37 -0400
-Received: from holomorphy.com ([66.224.33.161]:53132 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264634AbTIDDof (ORCPT
+	Wed, 3 Sep 2003 23:31:03 -0400
+Received: from dp.samba.org ([66.70.73.150]:25024 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264625AbTIDDaU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 23:44:35 -0400
-Date: Wed, 3 Sep 2003 20:45:13 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Larry McVoy <lm@bitmover.com>,
-       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <20030904034513.GD1715@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	David Lang <david.lang@digitalinsight.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Larry McVoy <lm@bitmover.com>, "Brown, Len" <len.brown@intel.com>,
-	Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
-References: <9110000.1062643682@[10.10.2.4]> <Pine.LNX.4.44.0309032004120.17581-100000@dlang.diginsite.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309032004120.17581-100000@dlang.diginsite.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 3 Sep 2003 23:30:20 -0400
+From: Rusty Trivial Russell <trivial@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] [resend patch] CONFIG_X86_GENERIC description fixup
+Date: Thu, 04 Sep 2003 13:26:41 +1000
+Message-Id: <20030904033019.794AD2C0B1@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 08:16:16PM -0700, David Lang wrote:
-> some of these problems can be addressed in hardware (the Opteron could be
-> called SSI-NUMA that has it's partitioning layer running in hardware
-> for up to 8 CPU's) but addressing it in hardware runs into scaling
-> problems becouse you don't want to pay to much at the low end for the
-> features you need on the high end (which is why the opteron doesn't
-> directly scale to 128+ CPU's in one image)
+From:  Stewart Smith <stewart@linux.org.au>
 
-Most of those features are just methods of connecting hardware
-components.
+  as per thread on lkml a little while ago, a better explanation
+  of the X86_GENERIC config option follows. The person who questioned
+  it originally seemed to like this improved version, so that's one point :)
+  
+  
 
-
--- wli
+--- trivial-2.6.0-test4-bk5/arch/i386/Kconfig.orig	2003-09-04 13:02:02.000000000 +1000
++++ trivial-2.6.0-test4-bk5/arch/i386/Kconfig	2003-09-04 13:02:02.000000000 +1000
+@@ -303,9 +303,13 @@
+ config X86_GENERIC
+        bool "Generic x86 support" 
+        help
+-       	  Including some tuning for non selected x86 CPUs too.
+-	  when it has moderate overhead. This is intended for generic 
+-	  distributions kernels.
++	  Instead of just including optimizations for the selected
++	  x86 variant (e.g. PII, Crusoe or Athlon), include some more
++	  generic optimizations as well. This will make the kernel
++	  perform better on x86 CPUs other than that selected.
++
++	  This is really intended for distributors who need more
++	  generic optimizations.
+ 
+ #
+ # Define implied options from the CPU selection here
+-- 
+  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
+  Don't blame me: the Monkey is driving
+  File: Stewart Smith <stewart@linux.org.au>: [resend patch] CONFIG_X86_GENERIC description fixup

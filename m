@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262767AbREOO1l>; Tue, 15 May 2001 10:27:41 -0400
+	id <S262762AbREOOWB>; Tue, 15 May 2001 10:22:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262768AbREOO1b>; Tue, 15 May 2001 10:27:31 -0400
-Received: from vena.lwn.net ([206.168.112.25]:24837 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S262767AbREOO1Y>;
-	Tue, 15 May 2001 10:27:24 -0400
-Message-ID: <20010515142722.30278.qmail@eklektix.com>
+	id <S262766AbREOOVv>; Tue, 15 May 2001 10:21:51 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:17679 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S262762AbREOOVg>; Tue, 15 May 2001 10:21:36 -0400
+Date: Tue, 15 May 2001 16:14:51 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
 To: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel programming for beginners 
-From: corbet-lk@lwn.net (Jonathan Corbet)
-In-Reply-To: Your message of "Tue, 15 May 2001 17:01:21 +0300."
-             <20010515170121.A8182@kivc.vstu.vinnica.ua> 
-Date: Tue, 15 May 2001 08:27:22 -0600
+Subject: Re: Linux kernel programming for beginners
+Message-ID: <20010515161450.E25153@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010515165705.A8078@kivc.vstu.vinnica.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010515165705.A8078@kivc.vstu.vinnica.ua>; from bohdan@kivc.vstu.vinnica.ua on Tue, May 15, 2001 at 04:57:05PM +0300
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 15, 2001 at 04:57:05PM +0300, Bohdan Vlasyuk wrote:
 > Does anybody know any nice resource for beginners to try to write
-> some device drivers/other interesting stuff ?
+> some device drivers/other stuff ?
+> 
+> Anything like url:// or mailing list will be appreciated.
 
-<self-serving-stuff>
+http://www.kernelnewbies.org/ and the #kernelnewbies IRC channel.
 
-Well... if you can wait just a little longer, O'Reilly tells me that the
-second edition of Linux Device Drivers should hit the shelves on June 28.
-We're still working on the right license for the online release - if people
-have suggestions, I would be glad to receive them privately.
 
-</self-serving-stuff>
+Erik
 
-jon  (who's glad we didn't tell people how to request major device
-      numbers...) 
-
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

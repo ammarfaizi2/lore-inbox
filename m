@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbUB0KDz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 05:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUB0KDz
+	id S261777AbUB0KFk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 05:05:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUB0KFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 05:03:55 -0500
-Received: from web11803.mail.yahoo.com ([216.136.172.157]:55166 "HELO
-	web11803.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261772AbUB0KDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 05:03:53 -0500
-Message-ID: <20040227100352.52071.qmail@web11803.mail.yahoo.com>
-Date: Fri, 27 Feb 2004 11:03:52 +0100 (CET)
-From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
-Subject: Re: BOOT_CS
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200402262349.59273.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 27 Feb 2004 05:05:40 -0500
+Received: from gate.crashing.org ([63.228.1.57]:28346 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261777AbUB0KF1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 05:05:27 -0500
+Subject: Re: Radeon Framebuffer Driver in 2.6.3?
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: arief# <arief_m_utama@telkomsel.co.id>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1077876373.843.3.camel@damai.telkomsel.co.id>
+References: <1077863238.2522.6.camel@damai.telkomsel.co.id>
+	 <1077865490.22215.217.camel@gaston>
+	 <1077876373.843.3.camel@damai.telkomsel.co.id>
+Content-Type: text/plain
+Message-Id: <1077875802.22215.267.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 27 Feb 2004 20:56:42 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Denis Vlasenko wrote:
-> On Thursday 26 February 2004 14:17, Etienne Lorrain wrote:
-> >   If the user of this boot floppy has not allocated some VCPI memory,
-> >  usual for a boot floppy, the VCPI server is not active - only the
-> >  GEMMIS interface is useable.
+On Fri, 2004-02-27 at 21:06, arief# wrote:
+> Dear all.
 > 
-> What's GEMMIS?
+> 
+> This patch from Benjamin solved my problem.
+> 
+> To Zilvinas <zilvinas@gemtek.lt>, I've tried your suggestion to change
+> my XF86Config-4 file to include UseFBDev line. But it doesnt work. It
+> made my Xserver wont even start. But I'm not sure, it could be X problem
+> (Debian Unstable got some updated X package that I haven't got a chance
+> to upgrade to).
 
-  Checked if it was still search-able and available while writing
- the message - seems that it not enough - provide clickable area:
-http://search.yahoo.com/search?p=GEMMIS
-  gives as hit nb four:
-http://dgi_il.tripod.com/gemmis.txt
+There is a problem with recent radeonfb's an X + UseFBDev. I think the
+problem is that XFree is claiming a mode whose virtual resolution is very
+large. I have to verify that (it works for me here). Radeonfb has
+limitations on what it allows on the virtual resolution in recent
+version to limit the ioremap'ing done in the kernel. Unfortunately,
+there is no simple way to "detach" one from the other at this point. 
 
- Google needs "GEMMIS PC" to give:
-http://www.nondot.org/sabre/os/files/ProtectedMode/GEMMIS.txt
- Altavista gives:
-http://www.nondot.org/sabre/os/articles
- Even MSN search:
-http://search.msn.com/pass/results.aspx?q=GEMMIS+PC&FORM=SMCRT
- Gives you a pointer to a pointer to it:
-http://www.cyberscriptorium.com/bookmarks.html
+I should modify radeonfb to crop the virtual resolution instead of
+failing though...
 
-  Enough?
+Can you try hacking in drivers/video/aty/radeon_base.c, function
+check_mode() and see why it fails ? (I think it's that function
+that is failing).
+
+Ben.
 
 
-	
-
-	
-		
-Yahoo! Mail : votre e-mail personnel et gratuit qui vous suit partout ! 
-Créez votre Yahoo! Mail sur http://fr.benefits.yahoo.com/
-
-Dialoguez en direct avec vos amis grâce à Yahoo! Messenger !Téléchargez Yahoo! Messenger sur http://fr.messenger.yahoo.com

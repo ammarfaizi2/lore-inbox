@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262916AbTCKMsp>; Tue, 11 Mar 2003 07:48:45 -0500
+	id <S262914AbTCKMrf>; Tue, 11 Mar 2003 07:47:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262919AbTCKMsp>; Tue, 11 Mar 2003 07:48:45 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:20217 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262916AbTCKMso>;
-	Tue, 11 Mar 2003 07:48:44 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
+	id <S262916AbTCKMrf>; Tue, 11 Mar 2003 07:47:35 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:13576 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S262914AbTCKMre>; Tue, 11 Mar 2003 07:47:34 -0500
+Message-ID: <3E6DDDD2.3050709@aitel.hist.no>
+Date: Tue, 11 Mar 2003 14:00:02 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Hans Reiser <reiser@namesys.com>
+CC: Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Improved inode number allocation for HTree
+References: <11490000.1046367063@[10.10.2.4]> <20030310204146.875D3F0D4D@mx12.arcor-online.net> <3E6D1D25.5000004@namesys.com> <20030311031216.8A31CEFD5F@mx12.arcor-online.net> <3E6DBE3B.8030007@namesys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15981.56745.912228.109975@gargle.gargle.HOWL>
-Date: Tue, 11 Mar 2003 13:59:21 +0100
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK-2.5] Move "used FPU status" into new non-atomic thread_info->status
- field.
-In-Reply-To: <Pine.LNX.4.44.0303101658210.6802-100000@home.transmeta.com>
-References: <200303110056.h2B0uo6U005286@harpo.it.uu.se>
-	<Pine.LNX.4.44.0303101658210.6802-100000@home.transmeta.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
- > > Sorry for being dense, but can you clarify: will current 2.{2,4,5}
- > > kernels preserve or destroy the parent process' FPU control at fork()?
- > 
- > They're guaranteed to preserve the control state (it has to: you can't 
- > just change the exception mask over a function call). However, that was 
- > buggy at least in 2.5.x, and very possibly in 2.4.x too - haven't checked.
+Hans Reiser wrote:
+> Let's make noatime the default for VFS.
+> 
+> Daniel Phillips wrote:
+[...]
+>> If I were able to design Unix over again, I'd state that if you don't 
+>> lock a directory before traversing it then it's your own fault if 
+>> somebody changes it under you, and I would have provided an interface 
+>> to inform you about your bad luck.  Strictly wishful thinking.  
+>> (There, it feels better now.)
 
-Thanks. Our use of unmasked FPU exceptions should be safe then, unless
-2.4 also has the bug you fixed in 2.5.
+I'm happy nobody _can_ lock a directory like that.  Think of it - unable
+to create or delete files while some slow-moving program is traversing
+the directory?  Ouch.  Plenty of options for DOS attacks too.
+And how to do "rm *.bak" if rm locks the dir for traversal?
 
-/Mikael
+Helge Hafting
+

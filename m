@@ -1,71 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262982AbUCOXFW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 18:05:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbUCOXFV
+	id S262879AbUCOXEo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 18:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbUCOXEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 18:05:21 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:39375 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262846AbUCOXEI (ORCPT
+	Mon, 15 Mar 2004 18:04:42 -0500
+Received: from smtp-out3.iol.cz ([194.228.2.91]:64678 "EHLO smtp-out3.iol.cz")
+	by vger.kernel.org with ESMTP id S262667AbUCOXBz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 18:04:08 -0500
-Date: Tue, 16 Mar 2004 00:04:05 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bind Mount Extensions 0.04.1 3/5
-Message-ID: <20040315230405.GA19403@MAIL.13thfloor.at>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-	viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-References: <20040315035506.GB30948@MAIL.13thfloor.at> <20040314201457.23fdb96e.akpm@osdl.org> <20040315042541.GA31412@MAIL.13thfloor.at> <20040314203427.27857fd9.akpm@osdl.org> <20040315075814.GE31818@MAIL.13thfloor.at> <20040315141004.7b386661.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 15 Mar 2004 18:01:55 -0500
+From: Chris Moore <chris.moore@mail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040315141004.7b386661.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16470.13793.211260.738789@chrislap.ourcpu.com>
+Date: Tue, 16 Mar 2004 00:01:53 +0100
+To: linux-kernel@vger.kernel.org
+Subject: problem with sbp2 / ieee1394 in kernel 2.6.3
+X-Mailer: VM 7.18 under Emacs 21.3.50.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 02:10:04PM -0800, Andrew Morton wrote:
-> Herbert Poetzl <herbert@13thfloor.at> wrote:
-> >
-> > --- linux-2.6.4-20040314_2308/fs/ext2/xattr.c	2004-03-11 03:55:34.000000000 +0100
-> > +++ linux-2.6.4-20040314_2308-bme0.04.1/fs/ext2/xattr.c	2004-03-15 06:27:13.000000000 +0100
-> > @@ -496,7 +496,7 @@ ext2_xattr_set(struct inode *inode, int 
-> >  	ea_idebug(inode, "name=%d.%s, value=%p, value_len=%ld",
-> >  		  name_index, name, value, (long)value_len);
-> >  
-> > -	if (IS_RDONLY(inode))
-> > +	if (IS_RDONLY_INODE(inode))
-> 
-> I do think that if we're going to do this thing it should have 100%
-> coverage, and not have little exceptions because the volume of changes got
-> too high.
-> 
-> The number of places where you need IS_RDONLY_INODE() are encouragingly
-> small.  It appears that all we need to do to get rid of it is to propagate
-> the file* down through the ext2 and ext3 xattr code.  A NULL value will
-> need to be permitted because ext2_new_inode doesn't have a file*, and we've
-> already performed the check.
+I have a Maxtor 5000XT external ieee1394/USB2 disk drive, which I
+connect to my PC's ieee1394 port.  It works well with Linux under
+both kernels 2.4.x and 2.6.3 for a while.  I see messages like these
+in syslog (under 2.6.3):
 
-I'm not sure we actually want to do this, but I'll
-try ... seems to go up all the way to the syscall entry.
+  Mar 15 13:21:55 chrislap kernel:   Vendor: Maxtor    Model: 5000XT            Rev: 0100
+  Mar 15 13:21:55 chrislap kernel:   Type:   Direct-Access                      ANSI SCSI revision: 06
+  Mar 15 13:21:55 chrislap kernel: SCSI device sda: 490232832 512-byte hdwr sectors (250999 MB)
+  Mar 15 13:21:55 chrislap kernel: sda: asking for cache data failed
+  Mar 15 13:21:55 chrislap kernel: sda: assuming drive cache: write through
+  Mar 15 13:21:55 chrislap kernel:  /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 >
+  Mar 15 13:21:55 chrislap kernel: Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
 
-> Sure, it's a largeish patch but it is very safe: if it compiles, it works.
+Unfortunately, at some point problems always occur.  Sometimes the
+drive stops working very quickly, other times I can transfer tens of
+gigabytes of data to and from the drive before anything goes wrong
+with it, but eventually it always breaks, under both 2.4.x and 2.6.3.
 
-agreed.
+When it breaks I see messages like these in the syslog:
 
-> Could you please work that with Andreas?
+  Mar 15 23:32:26 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 15 23:32:26 chrislap kernel: Read (10) 00 04 d0 26 6f 00 00 b0 00
+  Mar 15 23:32:36 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 15 23:32:36 chrislap kernel: Test Unit Ready 00 00 00 00 00
+  Mar 15 23:32:36 chrislap kernel: ieee1394: sbp2: reset requested
+  Mar 15 23:32:36 chrislap kernel: ieee1394: sbp2: Generating sbp2 fetch agent reset
+  Mar 15 23:32:46 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 15 23:32:46 chrislap kernel: Test Unit Ready 00 00 00 00 00
+  Mar 15 23:32:46 chrislap kernel: ieee1394: sbp2: reset requested
+  Mar 15 23:32:46 chrislap kernel: ieee1394: sbp2: Generating sbp2 fetch agent reset
+  Mar 15 23:33:06 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 15 23:33:06 chrislap kernel: Test Unit Ready 00 00 00 00 00
+  Mar 15 23:33:06 chrislap kernel: ieee1394: sbp2: reset requested
+  Mar 15 23:33:06 chrislap kernel: ieee1394: sbp2: Generating sbp2 fetch agent reset
+  Mar 15 23:33:26 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 15 23:33:26 chrislap kernel: Test Unit Ready 00 00 00 00 00
+  Mar 15 23:33:26 chrislap kernel: scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 0 lun 0
+  Mar 15 23:33:26 chrislap kernel: SCSI error : <0 0 0 0> return code = 0x50000
+  Mar 15 23:33:26 chrislap kernel: end_request: I/O error, dev sda, sector 80750191
+  Mar 15 23:33:26 chrislap kernel: scsi0 (0:0): rejecting I/O to offline device
+  Mar 15 23:33:26 chrislap kernel: Buffer I/O error on device sda2, logical block 110592
+  Mar 15 23:33:26 chrislap kernel: lost page write due to I/O error on sda2
+  Mar 15 23:33:26 chrislap kernel: scsi0 (0:0): rejecting I/O to offline device
+  Mar 15 23:33:26 chrislap kernel: scsi0 (0:0): rejecting I/O to offline device
+  Mar 15 23:33:26 chrislap kernel: Buffer I/O error on device sda2, logical block 3547
+  Mar 15 23:33:26 chrislap kernel: lost page write due to I/O error on sda2
+  Mar 15 23:33:26 chrislap kernel: Aborting journal on device sda2.
+  Mar 15 23:33:26 chrislap kernel: scsi0 (0:0): rejecting I/O to offline device
+  Mar 15 23:33:26 chrislap kernel: ext3_abort called.
+  Mar 15 23:33:26 chrislap kernel: EXT3-fs abort (device sda2): ext3_journal_start: Detected aborted journal
+  Mar 15 23:33:26 chrislap kernel: Remounting filesystem read-only
+  Mar 15 23:33:26 chrislap kernel: scsi0 (0:0): rejecting I/O to offline device
+  Mar 15 23:33:26 chrislap kernel: EXT3-fs error (device sda2): ext3_get_inode_loc: unable to read inode block - inode=327681, block=655362
 
-sure, Andreas who?
+When this happens I umount the firewire filesystems and then try to
+"modprobe -r -v sbp2", but the modprobe command always hangs.  I find
+I cannot access the drive again until I reboot.
 
-> IS_RDONLY_INODE() is also used in intermezzo, but that doesn't compile any
-> more anyway.
+Please, if there's anything more you need to know, or anything I can
+do to help diagnose this problem, just reply to this message.  I would
+love to see it fixed.
 
-so I do not bother with that, but what about the nfs(d)
-stuff? 
-
-TIA,
-Herbert
-
+Chris.

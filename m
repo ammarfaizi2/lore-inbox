@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVBIUJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVBIUJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbVBIUJK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 15:09:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVBIUIC
+	id S261908AbVBIUJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 15:09:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVBIUHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 15:08:02 -0500
-Received: from lug-owl.de ([195.71.106.12]:30647 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S261915AbVBIUGu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 15:06:50 -0500
-Date: Wed, 9 Feb 2005 21:06:46 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
-Subject: Re: [RFC/RFT] [patch] Elo serial touchscreen driver
-Message-ID: <20050209200646.GL10594@lug-owl.de>
-Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
-References: <20050208164227.GA9790@ucw.cz> <420A0ECF.3090406@grupopie.com> <20050209170015.GC16670@ucw.cz> <20050209171438.GI10594@lug-owl.de> <20050209173026.GA17797@ucw.cz> <420A518A.9040500@grupopie.com> <20050209191817.GA1534@ucw.cz> <420A6A5C.8030106@grupopie.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gS/sOEqITpbrYRmu"
-Content-Disposition: inline
-In-Reply-To: <420A6A5C.8030106@grupopie.com>
-X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 9 Feb 2005 15:07:44 -0500
+Received: from mail01.hansenet.de ([213.191.73.61]:56788 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S261908AbVBIUEt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 15:04:49 -0500
+Message-ID: <420A6CE9.4080603@web.de>
+Date: Wed, 09 Feb 2005 21:04:57 +0100
+From: Marcus Hartig <m.f.h@web.de>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.11-rcX / 2.6.10-ac9 kernel do not more boot SATA disk on amd64
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---gS/sOEqITpbrYRmu
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I can not more boot any kernel >=2.6.11-rcX also >=2.6.10-ac9 and latest 
+bk6. But I have here Alan Cox 2.6.10-ac8 and Cons 2.6.10-ck5 running and 
+booting fine without any problems.
 
-On Wed, 2005-02-09 19:54:04 +0000, Paulo Marques <pmarques@grupopie.com>
-wrote in message <420A6A5C.8030106@grupopie.com>:
-> >We could have a library that would do that and link applications against
-> >it. It could also handle things like tap-n-drag, etc, something we
-> >certainly don't want in the kernel.
->=20
-> I really like this idea :)
->=20
-> A libtouch library that handled calibration (this includes mirroring and=
-=20
-> swapping the coordinates) and other goodies (like filtering out short=20
-> "touch release" events while dragging, etc.) would be a good standard=20
-> interface for all applications.
->
-> Being in user space would also mean that the library could do things=20
-> like keeping a /etc/touch.conf file where it would read default=20
-> calibration data, etc.
+But now all kernel versions after that failed (with the same config tried) 
+with:
 
-=2E..and for X11. Maybe we'd start talking about an API for this lib? At
-least, my employer is interested I guess. (But this is OT wrt. the Linux
-kernel, could you contact me at jbglaw@microdata-pos.de?)
+mount: error 6 mounting ext3
+...
+umount /initrd/dev failed
+...
 
-MfG, JBG
+on my Fedora Core 3 x86_64. The Fedora devel kernel also failed booting 
+(2.6.11-rcX-bkX included and badly the SCSI support and all other as 
+modules configured, what a shame... ;) .
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+I've tried compiling all needed drivers like libata, sata_nv, SCSI 
+support, ext3 (my root / fs),... in the kernel and also the most as always 
+as modules with an initrd. With and wo "noapic", direct device names to 
+grub given and always no chance to get all at the top named kernel to boot.
 
---gS/sOEqITpbrYRmu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+What was there changed in this time? Or can anybody tell me, what I'm 
+doing here wrong? :-(
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Hardware: nForce3 250Gb MSI K8N Neo Mainboard, Samsung SATA 80GB disk, / 
+fs on ext3, x86_64 kernel/Fedora and gcc 3.4.3.
 
-iD8DBQFCCm1WHb1edYOZ4bsRAn/1AJ98lZhXVHjIFQJZ5kUF76Zj7UVb9QCdHWEc
-agVpFg5yoWiyiX169M6gF14=
-=FXc/
------END PGP SIGNATURE-----
+config: http://www.marcush.de/config-2.6.11-rc3
 
---gS/sOEqITpbrYRmu--
+
+Greetings,
+Marcus

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267727AbRGUQhs>; Sat, 21 Jul 2001 12:37:48 -0400
+	id <S267739AbRGUQpj>; Sat, 21 Jul 2001 12:45:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267730AbRGUQhi>; Sat, 21 Jul 2001 12:37:38 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:53677 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S267727AbRGUQhc>;
-	Sat, 21 Jul 2001 12:37:32 -0400
-Message-ID: <3B59AFF7.8061645B@mandrakesoft.com>
-Date: Sat, 21 Jul 2001 12:38:15 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "peter k." <spam-goes-to-dev-null@gmx.net>
+	id <S267738AbRGUQp3>; Sat, 21 Jul 2001 12:45:29 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:46354 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267732AbRGUQpR>;
+	Sat, 21 Jul 2001 12:45:17 -0400
+Date: Sat, 21 Jul 2001 09:45:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.7: wtf is "ksoftirqd_CPU0"
-In-Reply-To: <000f01c111ff$73602ce0$c20e9c3e@host1>
+Subject: Re: [2.4.6] USB thinks I've got 2 keyboards
+Message-ID: <20010721094511.A4830@kroah.com>
+In-Reply-To: <Pine.LNX.4.33.0107211739340.28026-100000@jdi.jdimedia.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0107211739340.28026-100000@jdi.jdimedia.nl>; from i.palsenberg@jdimedia.nl on Sat, Jul 21, 2001 at 05:42:36PM +0200
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-"peter k." wrote:
+On Sat, Jul 21, 2001 at 05:42:36PM +0200, Igmar Palsenberg wrote:
 > 
-> i just installed 2.4.7, now a new process called "ksoftirqd_CPU0" is started
-> automatically when booting (by the kernel obviously)? why? what does it do?
-> i didnt find any useful information on it in linuxdoc / linux-kernel
-> archives
+> A HP pavilion with a USB keyboard and mouse :
+> 
+> Kernel : 2.4.6
 
-it is used internally, ignore it.
+Can you send the result of /proc/bus/usb/devices when this device is
+plugged in?
 
--- 
-Jeff Garzik      | "I wouldn't be so judgemental
-Building 1024    |  if you weren't such a sick freak."
-MandrakeSoft     |             -- goats.com
+thanks,
+
+greg k-h

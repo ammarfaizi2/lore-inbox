@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266784AbUBMRoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 12:44:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267004AbUBMRoZ
+	id S267131AbUBMRhm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 12:37:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267132AbUBMRhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 12:44:25 -0500
-Received: from users.linvision.com ([62.58.92.114]:28806 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S266784AbUBMRoW (ORCPT
+	Fri, 13 Feb 2004 12:37:42 -0500
+Received: from ns.suse.de ([195.135.220.2]:61673 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267131AbUBMRhl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 12:44:22 -0500
-Date: Fri, 13 Feb 2004 18:44:18 +0100
-From: Erik Mouw <erik@harddisk-recovery.nl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
-Subject: Re: (was Re: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three())
-Message-ID: <20040213174418.GA31694@bitwizard.nl>
-References: <200402122106.41947.bzolnier@elka.pw.edu.pl> <20040213083718.GA11914@alpha.home.local> <200402131823.53939.bzolnier@elka.pw.edu.pl>
+	Fri, 13 Feb 2004 12:37:41 -0500
+Date: Sun, 15 Feb 2004 06:25:44 +0100
+From: Andi Kleen <ak@suse.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: torvalds@osdl.org, mingo@elte.hu, benh@kernel.crashing.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, drepper@redhat.com
+Subject: Re: [BUG] get_unmapped_area() change -> non booting machine
+Message-Id: <20040215062544.5e554a61.ak@suse.de>
+In-Reply-To: <20040213032604.GI25499@mail.shareable.org>
+References: <1076384799.893.5.camel@gaston>
+	<Pine.LNX.4.58.0402100814410.2128@home.osdl.org>
+	<20040210173738.GA9894@mail.shareable.org>
+	<20040213002358.1dd5c93a.ak@suse.de>
+	<20040212100446.GA2862@elte.hu>
+	<Pine.LNX.4.58.0402120833000.5816@home.osdl.org>
+	<20040213032604.GI25499@mail.shareable.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402131823.53939.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.nl
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 13, 2004 at 06:23:53PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> Great, but I wonder why cable bits are set incorrectly.
-> Probably it's a BIOS bug, maybe BIOS update will help?
+On Fri, 13 Feb 2004 03:26:04 +0000
+Jamie Lokier <jamie@shareable.org> wrote:
 
-I think there is something wrong in the cable detection code. I've
-tried chasing the bug a couple of weeks ago, but got distracted by
-other work. On an AMD-768 based motherboard disks run in UDMA5 without
-problem using linux-2.4.20, but on 2.4.24 (or anything with the new IDE
-code), I can't get any further than UDMA2. At first glance it looks
-like the 80-pin bits in the chipset registers aren't set. When I
-manually force them, the driver has no problem running the disks in
-UDMA5.
+> Linus Torvalds wrote:
+> > One option is to mark the brk() VMA's as being grow-up (which they are), 
+> > and make get_unmapped_area() realize that it should avoid trying to 
+> > allocate just above grow-up segments or just below grow-down segments. 
+> > That's still something of a special case, but at least it's not "magic" 
+> > any more, now it's more of a "makes sense".
+> 
+> That reminds me.  What happens when grow-down stack VMAs finally bump
+> into another VMA.  Is there an unmapped guard page retained to segfault
+> the program, or does the program silently start overwriting the VMA it
+> bumped into?
 
-So far I've seen this behaviour with the following chipset:
+In the standard kernel it silently overwrites, but in 2.4-aa there was a patch forever
+that adds a guard page.
 
-  Bus  0, device   7, function  1:
-    IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 4).
-      Master Capable.  Latency=32.  
-      I/O at 0xd800 [0xd80f].
-
-But rumours are that even on Intel ICH2 it goes wrong (haven't
-confirmed this myself).
-
-FWIW, I'm using modular IDE, I still have to test it with IDE built
-into the kernel.
-
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.nl -- 0800 220 20 20 --
-| Eigen lab: Delftechpark 26, 2628 XH, Delft, Nederland
-| Files foetsie, bestanden kwijt, alle data weg?!
-| Blijf kalm en neem contact op met Harddisk-recovery.nl!
+-Andi

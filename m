@@ -1,104 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264540AbTLQUPM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 15:15:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbTLQUPM
+	id S264538AbTLQUXg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 15:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbTLQUXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 15:15:12 -0500
-Received: from mailgate2.mysql.com ([213.136.52.47]:1207 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S264540AbTLQUPE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 15:15:04 -0500
-Subject: Re: raid0 slower than devices it is assembled of?
-From: Peter Zaitsev <peter@mysql.com>
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <brq26h$6ei$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.58.0312161304390.1599@home.osdl.org>
-	 <1071657159.2155.76.camel@abyss.local>  <brq26h$6ei$1@gatekeeper.tmr.com>
-Content-Type: text/plain
-Organization: MySQL
-Message-Id: <1071692092.2149.196.camel@abyss.local>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 17 Dec 2003 23:14:53 +0300
+	Wed, 17 Dec 2003 15:23:36 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:26262 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264538AbTLQUXe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 15:23:34 -0500
+Message-ID: <3FE0BC4D.8080605@us.ltcfwd.linux.ibm.com>
+Date: Wed, 17 Dec 2003 14:27:57 -0600
+From: Linda Xie <lxiep@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Linda Xie <lxiep@us.ibm.com>, linux-kernel@vger.kernel.org,
+       scheel@us.ibm.com, wortman@us.ibm.com
+Subject: Re: PATCPATCH -- add unlimited name lengths support to sysfs
+References: <3FDF902A.4000903@us.ltcfwd.linux.ibm.com> <20031216231447.GA4781@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-12-17 at 20:02, bill davidsen wrote:
-> In article <1071657159.2155.76.camel@abyss.local>,
-> Peter Zaitsev  <peter@mysql.com> wrote:
+Greg KH wrote:
+> On Tue, Dec 16, 2003 at 05:07:22PM -0600, Linda Xie wrote:
 > 
-> | One more issue with smaller stripes both for RAID5 and RAID0 (at least
-> | for DBMS workloads) is - you normally want multi-block IO (ie fetching
-> | many sequentially located pages) to be close in cost to reading single
-> | page, which is true for single hard drive. However with small stripe
-> | size you will hit many of underlying devices  putting excessive not
-> | necessary load. 
+>>diff -Nru a/fs/sysfs/symlink.c b/fs/sysfs/symlink.c
+>>--- a/fs/sysfs/symlink.c	Sun Dec 14 21:19:29 2003
+>>+++ b/fs/sysfs/symlink.c	Sun Dec 14 21:19:29 2003
+>>@@ -42,7 +42,10 @@
+>> 	struct kobject * p = kobj;
+>> 	int length = 1;
+>> 	do {
+>>-		length += strlen(p->name) + 1;
+>>+		if (p->k_name)
+>>+			length += strlen(p->k_name) + 1;
+>>+		else
+>>+			length += strlen(p->name) + 1;
 > 
-> All this depends on what you're trying to optimize and the speed of the
-> drives. I spent several years running on software raid and got to look
-> harder than I wanted at the tuning.
-
-Well I'm obviously interested mainly in Database workloads, both OLTP
-(which is mainly random IO from many clients) as well as multi user
-concurrent "scans" which are typical for some of some OLAP applications.
-Yes of course speed of the drive makes sense here. However even lower
-end IDE drives can do some 40Mb/sec now, which means  (some 100 random
-req/sec drive can do)  you can transfer 400Kb in about the same time as
-you can do random IO request, 
-
 > 
-> If the read size is large enough for transfer time to matter, not hidden
-> in the latency, adjusting the stripe size so that you use many drives is
-> a win. You want to avoid having a user i/o generate more than one i/o
-> per drive if you can, which can lead to large stripe sizes.
+> Shouldn't this just be:
+> 		length += strlen(kobject_name(p)) + 1;
+> 
 
-Yes this is true.  However looking at the same logic as below we can
-identify what transfer time starts to matter (compared to seek time
-which you needed to do to start it)  if  400Kb+ is transferred from
-single drive. Which means there is not much sense to have stripe sizes 
-less than 256-512Kb if you're looking at single scan. If you have many
-concurrent scans you might even with to have blocks larger. 
+That is correct. But here is my concern: Some of the callers of 
+sysfs_create_link()
+set p->name instead of p->k_name. So for them, the length calculated 
+using kobject_name(p) will be incorrect. Correct me if I am wrong.
 
+Thanks,
+
+Linda
 
 > 
-> Also, the read to write ratio is important. RAID-5 does poorly with
-> write, since the CRC needs to be recalculated and written each time. On
-> read, unless you are in fallback mode, you just read the data and the
-> performance is similar to RAID-0.
-
-Yes sure. Reads are sort of trivial unless you're running in degraded
-mode. I was just wondering how write handling is implemented in Linux
-kernel.
-
-RAID5 write speed is quite sensitive to the cache size.  Which cache
-Linux software RAID5 is using (if any) for write optimization ?
-
+>>@@ -54,11 +57,20 @@
+>>
+>> 	--length;
+>> 	for (p = kobj; p; p = p->parent) {
+>>-		int cur = strlen(p->name);
+>>-
+>>+		int cur;
+>>+		char *name;
+>>+		
+>>+		if (p->k_name) {
+>>+			cur = strlen(p->k_name);
+>>+			name = p->k_name;
+>>+		}
+>>+		else {
+>>+			cur = strlen(p->name);
+>>+			name = p->name;
+>>+		}
 > 
-> If you have (a) a high read to write load, and (b) a very heavy read
-> load, then RAID-1 works better, possibly with more than two copies of
-> the data to reduce head motion contention.
-
-Yes. That is actually interesting question. Lets take a look at
-read-only cases. This is obvious if you have few concurrent clients (or
-actually concurrent IO requests), as with RAID0 there is probability to
-have IO unbalanced on devices, with RAID1 we have full copies so we
-always can balance reads as we need. 
-
-However with growing number of concurrent clients the probability uneven
-device load decreases.  If I remember correctly with 100 concurrent
-clients I had quite similar performance from RAID0 and RAID1. 
-
-Yes there is other risk with RAID0 - boundary reads which would require
-2 reads instead of one. I however used perfectly aligned reads in my
-test so it could not happen :)
+> 
+> Same here, just use kobject_name() to get the proper pointer.
+> 
+> thanks,
+> 
+> greg k-h
 
 
--- 
-Peter Zaitsev, Full-Time Developer
-MySQL AB, www.mysql.com
+Thanks,
 
-Are you MySQL certified?  www.mysql.com/certification
+Linda
 

@@ -1,98 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261546AbTCOUw3>; Sat, 15 Mar 2003 15:52:29 -0500
+	id <S261549AbTCOU6n>; Sat, 15 Mar 2003 15:58:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261549AbTCOUw3>; Sat, 15 Mar 2003 15:52:29 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:7863 "EHLO
-	myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S261546AbTCOUw1>; Sat, 15 Mar 2003 15:52:27 -0500
-Message-ID: <3E739514.8010300@redhat.com>
-Date: Sat, 15 Mar 2003 13:03:16 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030313
-X-Accept-Language: en-us, en
+	id <S261550AbTCOU6n>; Sat, 15 Mar 2003 15:58:43 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:57525 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261549AbTCOU6m>;
+	Sat, 15 Mar 2003 15:58:42 -0500
+Message-ID: <33987.4.64.238.61.1047762573.squirrel@www.osdl.org>
+Date: Sat, 15 Mar 2003 13:09:33 -0800 (PST)
+Subject: bitmaps/bitops
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.8)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Subject: Hammer thread fixes
-X-Enigmail-Version: 0.73.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigBAE649BB991A4E73203C5872"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigBAE649BB991A4E73203C5872
-Content-Type: multipart/mixed;
- boundary="------------030203030303060605030906"
+Hi,
 
-This is a multi-part message in MIME format.
---------------030203030303060605030906
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Not picking on this code, but as an example:
 
-The appended two fixes are necessary to get NPTL threads running on
-hammer.  The changes should be obvious.  The exit_group syscall isn't
-present at all so far and the r10 -> r8 register use is necessary
-because syscall parameter #4 (in r10) is already used for the child_tid
-parameter.
+drivers/ieee1394/ieee1394_transactions.c, line 152 (in 2.5.64),
+uses:  test_and_set_bit(bit_number, tp->pool),
 
-Linus, please apply.
+where tp->pool is declared by using a DECLARE_BITMAP(), like so:
+struct hpsb_tlabel_pool {
+	DECLARE_BITMAP(pool, 64);
+
+That makes sense (at least to me), but gcc complains about the
+type of <pool> when used in test_and_set_bit():
+  drivers/ieee1394/ieee1394_transactions.c:152: warning: passing arg 2 of
+`test_and_set_bit' from incompatible pointer type
+
+Is this an error, a bug, a nuisance, or just another "ignore gcc 2.96"
+problem?
+
+For reference, DECLARE_BITMAP() generates an array of unsigned longs:
+#define DECLARE_BITMAP(name,bits) \
+	unsigned long name[BITS_TO_LONGS(bits)]
+but the prototype for test_and_set_bit() depends on $(ARCH), and it's
+not consistent, with the second arg (bitmap address) being one of:
+  volatile void *
+  void *
+  volatile unsigned long *
 
 
--- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
+If there's (kernel) surgery required here, unless it's trivial, I think
+that I'd leave it for early 2.7.
 
---------------030203030303060605030906
-Content-Type: text/plain;
- name="d-hammer-kernel"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="d-hammer-kernel"
+~Randy
 
---- ./arch/x86_64/kernel/process.c.ud	2003-03-10 19:00:56.000000000 -0800
-+++ ./arch/x86_64/kernel/process.c	2003-03-15 12:52:17.000000000 -0800
-@@ -314,7 +314,7 @@
- 			err = ia32_child_tls(p, childregs); 
- 		else 			
- #endif	 
--			err = do_arch_prctl(p, ARCH_SET_FS, childregs->r10); 
-+			err = do_arch_prctl(p, ARCH_SET_FS, childregs->r8); 
- 		if (err) 
- 			goto out;
- 	}
---- ./include/asm-x86_64/unistd.h.ud	2003-03-10 19:00:56.000000000 -0800
-+++ ./include/asm-x86_64/unistd.h	2003-03-15 12:59:09.000000000 -0800
-@@ -520,8 +520,10 @@
- __SYSCALL(__NR_clock_getres, sys_clock_getres)
- #define __NR_clock_nanosleep	230
- __SYSCALL(__NR_clock_nanosleep, sys_clock_nanosleep)
-+#define __NR_exit_group		231
-+__SYSCALL(__NR_exit_group, sys_exit_group)
- 
--#define __NR_syscall_max __NR_clock_nanosleep
-+#define __NR_syscall_max __NR_exit_group
- #ifndef __NO_STUBS
- 
- /* user-visible error numbers are in the range -1 - -4095 */
 
---------------030203030303060605030906--
-
---------------enigBAE649BB991A4E73203C5872
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+c5UU2ijCOnn/RHQRAvXHAJoCK/p3qLqNPXbXh+BcEVhPw0fQcQCfXbtk
-OcCJZFSUpf7SL1c9mqWuHM8=
-=DZ/r
------END PGP SIGNATURE-----
-
---------------enigBAE649BB991A4E73203C5872--
 

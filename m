@@ -1,70 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266240AbUAVLiK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 06:38:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266241AbUAVLiK
+	id S263777AbUAVPD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 10:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUAVPD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 06:38:10 -0500
-Received: from gaia.ailab.ch ([130.60.75.60]:43147 "EHLO gaia.ailab.ch")
-	by vger.kernel.org with ESMTP id S266240AbUAVLiG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 06:38:06 -0500
-Subject: Re: Linux-2.6.1-mm4/5 dies booting on an Athlon64
-From: Hanspeter Kunz <hkunz@ifi.unizh.ch>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <400FAA7D.1010807@freemail.hu>
-References: <400FAA7D.1010807@freemail.hu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1074771664.2638.49.camel@septumania>
+	Thu, 22 Jan 2004 10:03:57 -0500
+Received: from fed1mtao06.cox.net ([68.6.19.125]:48810 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S263777AbUAVPDz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 10:03:55 -0500
+Date: Thu, 22 Jan 2004 08:03:38 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: George Anzinger <george@mvista.com>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
+Subject: Re: PPC KGDB changes and some help?
+Message-ID: <20040122150338.GB15271@stop.crashing.org>
+References: <20040120172708.GN13454@stop.crashing.org> <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org> <400F05D2.4010607@mvista.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 22 Jan 2004 12:41:04 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <400F05D2.4010607@mvista.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just an idea: I had similar problems in 2.6.1-mm4.
-I had to disable PNP bios support.
-
-cheers,
-Hp.
-
-On Thu, 2004-01-22 at 11:48, Boszormenyi Zoltan wrote:
-> Hi,
-> 
-> > Boszormenyi Zoltan writes:
-> >  > Hi,
-> >  > 
-> >  > mainboard is MSI K8T Neo, Athlon64 3200+.
-> >  > It does not boot successfully without the "nolapic"
-> >  > option. "noapic" does not make any difference, "nolapic" does.
-> >  > Kernel is compiled on a 32bit Fedora,
-> >  > K7/Athlon and Hammer/Opteron/Athlon64
-> >  > are selected under CPU support.
+On Wed, Jan 21, 2004 at 03:05:54PM -0800, George Anzinger wrote:
+> Tom Rini wrote:
+> >On Wed, Jan 21, 2004 at 10:23:12PM +0530, Amit S. Kale wrote:
+> >
+> >
+> >>Hi,
+> >>
+> >>Here it is: ppc kgdb from timesys kernel is available at
+> >>http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.1.0.tar.bz2
+> >>
+> >>This is my attempt at extracting kgdb from TimeSys kernel. It works well 
+> >>in TimeSys kernel, so blame me if above patch doesn't work.
+> >
+> >
+> >Okay, here's my first patch against this.
+> >===== kernel/kgdbstub.c 1.1 vs edited =====
+> >--- 1.1/kernel/kgdbstub.c	Wed Jan 21 10:13:17 2004
+> >+++ edited/kernel/kgdbstub.c	Wed Jan 21 10:53:38 2004
+> >@@ -1058,9 +1058,6 @@
+> > 	kgdb_serial->write_char('+');
 > > 
-> > 1. "does not boot successfully" is extremely vague.
-> >    Please supply a boot log or decoded kernel oops.
+> > 	linux_debug_hook = kgdb_handle_exception;
+> >-	
+> >-	if (kgdb_ops->kgdb_init)
+> >-		kgdb_ops->kgdb_init();
+> > 
+> > 	/* We can't do much if this fails */
+> > 	register_module_notifier(&kgdb_module_load_nb);
+> >@@ -1104,6 +1101,11 @@
+> > 	if (!kgdb_enter) {
+> > 		return;
+> > 	}
+> >+
+> >+	/* Let the arch do any initalization it needs to */
+> >+	if (kgdb_ops->kgdb_init)
+> >+		kgdb_ops->kgdb_init();
+> >+
+> > 	if (!kgdb_serial) {
+> > 		printk("KGDB: no gdb interface available.\n"
+> > 		       "kgdb can't be enabled\n");
+> >
+> >I'm not sure why you were calling the arch-specific init so late in the
+> >process, but since it's a nop on both i386 and x86_64 (so perhaps it
+> >should be removed for both of these?), this change doesn't matter to
+> >them.  But it does make the PPC code cleaner, IMHO.
 > 
-> Uncompressing kernel... and then nothing. Even the screen is emptied,
-> cursor blinks in column 0 of line approx. 8, at about 1/3 of the screen.
+> I agree.  Lets dump all the init calls/code.  I have not seen anything yet 
+> that can not be done as a side effect of the first call, or better yet, at 
+> compile time.
 > 
-> > 2. Does this also occur with 2.6.1 or 2.6.2-rc1?
-> >    If so, what was the last standard 2.6 kernel that worked?
-> > 3. Does 2.4.25-pre6 work?
-> 
-> I will try these. FC1 2.4.22-2149 definitely works.
-> 
-> > 4. Try a minimal .config w/o any non-essential features.
-> >    (Where non-essential mean anything not needed to boot
-> >    and get to a login prompt.)
-> 
-> OK.
--- 
-Hanspeter Kunz
-Artificial Intelligence Lab
-Dept. of Information Technology
-University of Zurich
-+41 1 635 43 06 work
-+41 1 635 68 09 fax
-www.ifi.unizh.ch/~hkunz
+> I am willing to be shown a valid case, however.  Remember, I want to be 
+> able to do a breakpoint() as the first line of C code in the kernel.  
+> (works with the mm kgdb).
 
+How would you propose handling what's done in ppc_kgdb_init ?  I could
+make it a __setup, ala how kgdb_8250.c works, but that too won't allow
+for 'first line of C'.  OTOH,  if breakpoint did:
+if (!kgdb_initalized) {
+   ... work of kgdb_entry() ...
+}
+... normal breakpoint() code ...
+
+PPC would be fine, as would other arches which need to do some setup.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

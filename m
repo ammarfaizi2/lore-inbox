@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVCCOT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVCCOVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbVCCOT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 09:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVCCOT5
+	id S261679AbVCCOVr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 09:21:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVCCOVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 09:19:57 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:15793 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261754AbVCCOTz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 09:19:55 -0500
-Message-ID: <42271D12.90408@tiscali.de>
-Date: Thu, 03 Mar 2005 15:20:02 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+	Thu, 3 Mar 2005 09:21:47 -0500
+Received: from [209.203.41.250] ([209.203.41.250]:20366 "EHLO
+	bventer01.shoden.co.za") by vger.kernel.org with ESMTP
+	id S261679AbVCCOVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 09:21:30 -0500
+Message-ID: <42271D67.4020300@shoden.co.za>
+Date: Thu, 03 Mar 2005 16:21:27 +0200
+From: Bennie Kahler-Venter <bennie.venter@shoden.co.za>
+Reply-To: bennie.venter@shoden.co.za
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: pci_find_class obsolete
-References: <Pine.LNX.4.61.0503031436490.22266@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0503031436490.22266@yvahk01.tjqt.qr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mouse still losing sync and thus jumping around
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
+Using SuSE 9.1 Professional with kernel 2.6.11  running on a AOpen 1845
+Laptop.
 
->Hello list,
->
->
->after switching to 2.6.11-rc5-bk2 (from 2.6.9-rc2), I found that the nvidia 
->module (1.0-4996, old, I know) does not compile anymore, because it
->requires pci_find_class():
->
->nv.c:
->static int
->nvos_probe_devices(void)
->{
->    ...
->    struct pci_dev *dev;
->    ...
->    dev = pci_find_class(PCI_CLASS_DISPLAY_VGA << 8, dev);
->    ...
->}
->
->What function would I need to use, now that pci_find_class is gone?
->
->
->Jan Engelhardt
->  
->
-Hi!
-you have to use pci_get_class (). But have a look at the patches for 
-6111 on my webiste:
+Currently running without APM & ACPI
 
-http://unixforge.org/~matthias-christian-ott/index.php?entry=entry050303-082233
+If I turn either or both on I get an erratic mouse and entries such as
+these:
+Mar  3 15:06:55 bventer01 kernel: psmouse.c: Mouse at
+isa0060/serio2/input0 lost synchronization, throwing 2 bytes away.
+Mar  3 15:07:23 bventer01 kernel: psmouse.c: Mouse at
+isa0060/serio2/input0 lost synchronization, throwing 2 bytes away.
 
-Matthias-Christian Ott
+Kernels 2.6.x all reproduce the above symptoms.  I'm currently running
+on 2.6.11
+
+Must say that the occurance of these erratic problems are a lot less in
+2.6.11 but they still persist.  I did do a test to see if it was ACPI
+related.
+
+With ACPI and APM turned on and when I restart "powersaved" mouse goes
+crazy without me touching it.  I'm not too sure how to progress to
+locate/fix this problem.
+
+Tnx & Bi
+Bennie Kahler-Venter
+
+

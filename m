@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262587AbTIADPv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 23:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbTIADPv
+	id S262056AbTIADMO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 23:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbTIADMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 23:15:51 -0400
-Received: from h80ad26f4.async.vt.edu ([128.173.38.244]:42631 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262587AbTIADPu (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 23:15:50 -0400
-Message-Id: <200309010315.h813FmaA012699@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org
-Subject: Re: Use this patch immediately ! 
-In-Reply-To: Your message of "Sun, 31 Aug 2003 19:23:09 PDT."
-             <200309010223.h812N8622570@zeus.kernel.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <200309010223.h812N8622570@zeus.kernel.org>
+	Sun, 31 Aug 2003 23:12:14 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:38353 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262056AbTIADMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 23:12:13 -0400
+Date: Mon, 1 Sep 2003 05:12:09 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Daniel Lyddy <sprocket@PATH.Berkeley.EDU>
+Cc: mec@shout.net, linux-kernel@vger.kernel.org
+Subject: Re: Q> scripts/Menuconfig: line 832: MCmenu78: command not found
+Message-ID: <20030901031209.GD7038@fs.tum.de>
+References: <200308311838.25279.sprocket@path.berkeley.edu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1230643030P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 31 Aug 2003 23:15:47 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308311838.25279.sprocket@path.berkeley.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1230643030P
-Content-Type: text/plain; charset=us-ascii
+On Sun, Aug 31, 2003 at 06:38:25PM -0700, Daniel Lyddy wrote:
 
-On Sun, 31 Aug 2003 19:23:09 PDT, Microsoft <security@microsoft.com>  said:
+> I got this error while trying to use menuconfig to set up Kernel 2.4.22-3mdk 
+> sources for compilation.  I was trying to enter the "alsa" part of the 
+> "sound" section.
+> 
+> Menuconfig has encountered a possible error in one of the kernel's
+> configuration files and is unable to continue.  Here is the error
+> report:
+> 
+>  Q> scripts/Menuconfig: line 832: MCmenu78: command not found
+> 
+> Please report this to the maintainer <mec@shout.net>.  You may also
+> send a problem report to <linux-kernel@vger.kernel.org>.
+> 
+> Please indicate the kernel version you are trying to configure and
+> which menu you were trying to enter when this error occurred.
+> 
+> make: *** [menuconfig] Error 1
 
-> Dear friend , use this Internet Explorer patch now!
-> There are dangerous virus in the Internet now!
-> More than 500.000 already infected!
+This is a known bug in the modifications Mandrake made to it's kernel
+sources.
 
-"The only way to win is to not play at all".
-
-Which is of course why this list exists...
+Most likely there's already a fixed Mandrake package available, if not
+please contact Mandrake.
 
 
---==_Exmh_1230643030P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> Dan
 
-iD8DBQE/UrnjcC3lWbTT17ARAheNAJ94XOQGFy6Zed3CXPEhOUQQdLIVTACgwUjw
-nuM/PuclVUKIDzoLvCy9wuY=
-=eV0p
------END PGP SIGNATURE-----
+cu
+Adrian
 
---==_Exmh_1230643030P--
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

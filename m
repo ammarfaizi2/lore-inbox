@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318765AbSHWLyP>; Fri, 23 Aug 2002 07:54:15 -0400
+	id <S318767AbSHWMDH>; Fri, 23 Aug 2002 08:03:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318767AbSHWLyP>; Fri, 23 Aug 2002 07:54:15 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:10937 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S318765AbSHWLyO>; Fri, 23 Aug 2002 07:54:14 -0400
-Message-ID: <20020823115821.26511.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "sanket rathi" <sanket@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 23 Aug 2002 19:58:20 +0800
-Subject: interrupt handler
-X-Originating-Ip: 202.54.40.36
-X-Originating-Server: ws4-4.us4.outblaze.com
+	id <S318768AbSHWMDG>; Fri, 23 Aug 2002 08:03:06 -0400
+Received: from cttsv008.ctt.ne.jp ([210.166.4.137]:455 "EHLO
+	cttsv008.ctt.ne.jp") by vger.kernel.org with ESMTP
+	id <S318767AbSHWMDG>; Fri, 23 Aug 2002 08:03:06 -0400
+Message-Id: <200208231207.VAA13142@cttsv008.ctt.ne.jp>
+Date: Fri, 23 Aug 2002 13:58:01 +0900
+To: sanket rathi <sanket@linuxmail.org>, linux-kernel@vger.kernel.org
+From: Kerenyi Gabor <wom@tateyama.hu>
+Subject: Re: interrupt handler
+Organization: Tateyama Hungary Ltd.
+X-Mailer: Opera 5.12 build 932
+X-Priority: 3 (Normal)
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-Can i use spin lock in the interrupt handler for a singlre processor machine. because books says u can not use locks but spin lock is some thing diffrent 
+8/23/2002 8:58:20 PM, "sanket rathi" <sanket@linuxmail.org> wrote:
 
-thanks in advance
+>hi,
+>Can i use spin lock in the interrupt handler for a singlre processor machine. because books says u can not use locks 
+>but spin lock is some thing diffrent 
 
---Sanket
----------
--- 
-Get your free email from www.linuxmail.org 
+Yes you can. Spinlocks will be compiled in if you choose SMP even on single processor machine.
+But look at the documentation in the kernel source.
+I think "lock" in your message is a semaphore in real life.
+
+Spinlocks never sleep - they don't perform task switch and you can use them anywhere, while semaphores
+can sleep and you can use them only in user context (not in interrupt or bottom half)
+
+Gabor
 
 
-Powered by Outblaze

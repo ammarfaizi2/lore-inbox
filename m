@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264479AbUHSJNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUHSJLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264479AbUHSJNA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 05:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbUHSJL4
+	id S264443AbUHSJLr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 05:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUHSJKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 05:11:56 -0400
-Received: from 34.67-18-129.reverse.theplanet.com ([67.18.129.34]:58548 "EHLO
-	krish.dnshostnetwork.net") by vger.kernel.org with ESMTP
-	id S264386AbUHSJKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 05:10:18 -0400
-Message-ID: <002301c485cc$3777fed0$9159023d@dreammachine>
-From: "Pankaj Agarwal" <pankaj@pnpexports.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Help Root Raid
-Date: Thu, 19 Aug 2004 14:39:14 +0530
+	Thu, 19 Aug 2004 05:10:03 -0400
+Received: from smtp.irisa.fr ([131.254.254.26]:63431 "EHLO smtp.irisa.fr")
+	by vger.kernel.org with ESMTP id S264346AbUHSJJs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 05:09:48 -0400
+Message-ID: <41246E62.90605@irisa.fr>
+Date: Thu, 19 Aug 2004 11:09:54 +0200
+From: Guillaume POIRIER <gpoirier@irisa.fr>
+Organization: IRISA, France
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Dave Aubin <daubin@actuality-systems.com>
+Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
+Subject: Re: Is it possible to have a Kernel & initrd in 1 binary?
+References: <E8F8DBCB0468204E856114A2CD20741F1A9314@mail.local.ActualitySystems.com>
+In-Reply-To: <E8F8DBCB0468204E856114A2CD20741F1A9314@mail.local.ActualitySystems.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - krish.dnshostnetwork.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - pnpexports.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi there,
+Dave Aubin wrote:
+ > Hi,
+ >
+ >   Yes I've read that.  Do you or anyone else know
+ > Of a good source of info for initramfs?
 
-I need your help regarding root raid. I have a root raid implemented server
-and it not booting anymore. I tried to use that harddisc as secondary hard
-disk to on of my other linux installation..so i can take a backup of files.
-The other installation has raid precompiled....as in booting process it
-checks for raid arays and at shutdown it gives messages regarding md
-devices. however it doesn't show any dev in lsdev or /proc/mdstat. My
-problem is when i try to mount it using "mount -t ext2 /dev/md0 /mnt/hdc1"
-it gives me error as "wronf fs, bad option, bad superblock on
-/dev/md0.........................(aren't you trying to mount a block device
-on a logical device)". Kindly show me the way to mount the filesystem.
+I think that you'd like to follow this recorded conference:
+http://public.www.planetmirror.com/pub/lca/2003/proceedings/papers/HPA/Abstract.html
 
-thanks and regards,
-
-Pankaj Agarwal
-
-
+Regards,
+Guillaume

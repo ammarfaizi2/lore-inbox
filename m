@@ -1,77 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266404AbUAVSUp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 13:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266403AbUAVSUp
+	id S266286AbUAVTvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 14:51:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266417AbUAVTvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 13:20:45 -0500
-Received: from dsl093-039-041.pdx1.dsl.speakeasy.net ([66.93.39.41]:27624 "EHLO
-	raven.beattie-home.net") by vger.kernel.org with ESMTP
-	id S266404AbUAVSUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 13:20:30 -0500
-Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed
-	to public posts
-From: Brian Beattie <beattie@beattie-home.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <40100B2E.30405@blue-labs.org>
-References: <ecartis-01212004203954.14209.1@mail.convergence2.de>
-	 <20040121194315.GE9327@redhat.com>
-	 <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
-	 <1074717499.18964.9.camel@localhost.localdomain>
-	 <20040121211550.GK9327@redhat.com>
-	 <20040121213027.GN23765@srv-lnx2600.matchmail.com>
-	 <pan.2004.01.21.23.40.00.181984@dungeon.inka.de>
-	 <1074731162.25704.10.camel@localhost.localdomain>
-	 <yq0hdyo15gt.fsf@wildopensource.com> <401000C1.9010901@blue-labs.org>
-	 <20040122173002.GX21151@parcelfarce.linux.theplanet.co.uk>
-	 <40100B2E.30405@blue-labs.org>
-Content-Type: text/plain
-Message-Id: <1074795626.868.22.camel@kokopelli>
+	Thu, 22 Jan 2004 14:51:09 -0500
+Received: from h00a0cca1a6cf.ne.client2.attbi.com ([65.96.182.167]:27521 "EHLO
+	h00a0cca1a6cf.ne.client2.attbi.com") by vger.kernel.org with ESMTP
+	id S266286AbUAVTvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 14:51:03 -0500
+Date: Thu, 22 Jan 2004 14:50:26 -0500
+From: timothy parkinson <t@timothyparkinson.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: hauan@cmu.edu, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1 "clock preempt"?
+Message-ID: <20040122195026.GA579@h00a0cca1a6cf.ne.client2.attbi.com>
+Mail-Followup-To: john stultz <johnstul@us.ibm.com>, hauan@cmu.edu,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1074630968.19174.49.camel@steinar.cheme.cmu.edu> <1074633977.16374.67.camel@cog.beaverton.ibm.com> <1074697593.5650.26.camel@steinar.cheme.cmu.edu> <1074709166.16374.73.camel@cog.beaverton.ibm.com> <20040122193704.GA552@h00a0cca1a6cf.ne.client2.attbi.com> <1074800554.21658.68.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 22 Jan 2004 13:20:26 -0500
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1074800554.21658.68.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-22 at 12:41, David Ford wrote:
-> No, actually you can a) reply to my -plain text- email and yes...this is 
-> plain text that has been trimmed, b) wait because I'm involved in this 
-> discussion, I go to my queue and pre-auth people involved.
+
+well, it does *say* the following:
+
+  ..... host bus clock speed is 133.0266 MHz.
+  checking TSC synchronization across 2 CPUs: passed.
+  Starting migration thread for cpu 0
+
+is there a good way to check IDE PIO?
+
+timothy
+
+
+On Thu, Jan 22, 2004 at 11:42:35AM -0800, john stultz wrote:
+> On Thu, 2004-01-22 at 11:37, timothy parkinson wrote:
+> > hi john,
+> > 
+> > i think this sounds like the same issue that i've been seeing with 2.5/2.6
+> > kernels for a while now.  smp kernel on a dual PIII machine without preempt.
+> > 
+> > after running for a while the "losing ticks" shows up in dmesg, and the system
+> > loses a lot of time.  load seems to make it worse, so that just might be the
+> > trigger.
+> > 
+> > i'll try that one-liner as well when i get a chance - you said that if the
+> > system still loses time, that narrows it down to hardware, yes?
 > 
-> So it's fine for you to have filters of your choosing, but someone 
-> else's filter's of their choosing are obnoxious...very social.
+> Well, not necessarily hardware, but it narrows it down to something
+> blocking interrupts for way too long. IDE PIO for example seems to be a
+> likely culprit. Another possibility on SMP systems is your cpu TSCs not
+> being in sync.
 > 
-> viro@parcelfarce.linux.theplanet.co.uk wrote:
+> thanks
+> -john
 > 
-
-Well it's all very fun, but I expect the spammers to figure out
-challange and response soon enough.
-
-> >Well, isn't it just fscking great...  So in order to send you an email
-> >I have to
-> >	a) cut the URL from your reply
-> >	b) suspend mutt(1)
-> >	c) type lynx '' and paste the damn thing in there
-> >	d) pray that your setup doesn't use Javashit or something equally
-> >obnoxious
-> >That, BTW, assumes that your reply will make it through the filters on
-> >my side.  The most obvious ones take care of HTML mail.  As in "Dave
-> >Null might care, I don't"...
-> >  
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Brian Beattie            | Experienced kernel hacker/embedded systems
-beattie@beattie-home.net | programmer, direct or contract, short or
-www.beattie-home.net     | long term, available immediately.
-
-"Honor isn't about making the right choices.
-It's about dealing with the consequences." -- Midori Koto
-
-
+> 
+> 

@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266532AbUHOS3v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266839AbUHOScq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266532AbUHOS3v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 14:29:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUHOS3v
+	id S266839AbUHOScq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 14:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUHOScp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 14:29:51 -0400
-Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com ([213.46.243.17]:52252
-	"EHLO amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S266532AbUHOS3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 14:29:49 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <1092591223.1118.27.camel@krustophenia.net>
-References: <20040726204720.GA26561@elte.hu>
-	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
-	 <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu>
-	 <20040812235116.GA27838@elte.hu> <1092382825.3450.19.camel@mindpipe>
-	 <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe>
-	 <20040814072009.GA6535@elte.hu>  <20040815115649.GA26259@elte.hu>
-	 <1092578502.6543.4.camel@twins> <1092591223.1118.27.camel@krustophenia.net>
-Content-Type: text/plain
-Date: Sun, 15 Aug 2004 20:29:38 +0200
-Message-Id: <1092594578.6543.10.camel@twins>
+	Sun, 15 Aug 2004 14:32:45 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:39282 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266839AbUHOSco
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 14:32:44 -0400
+Date: Sun, 15 Aug 2004 20:35:16 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Dan Aloni <da-x@colinux.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Benno <benjl@cse.unsw.edu.au>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [#3 1/2] Generate vmlinux.lds instead of vmlinux.lds.s
+Message-ID: <20040815183516.GA7682@mars.ravnborg.org>
+Mail-Followup-To: Dan Aloni <da-x@colinux.org>,
+	Sam Ravnborg <sam@ravnborg.org>, Benno <benjl@cse.unsw.edu.au>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20040812192535.GA20953@callisto.yi.org> <20040813003743.GF30576@cse.unsw.edu.au> <20040813050424.GA7417@mars.ravnborg.org> <20040813080941.GA7639@callisto.yi.org> <20040813092426.GA27895@callisto.yi.org> <20040813183347.GA9098@mars.ravnborg.org> <20040814194625.GA20753@callisto.yi.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040814194625.GA20753@callisto.yi.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-15 at 13:33 -0400, Lee Revell wrote:
-> On Sun, 2004-08-15 at 10:01, Peter Zijlstra wrote:
+On Sat, Aug 14, 2004 at 10:46:25PM +0300, Dan Aloni wrote:
+> Hello Sam,
 > 
-> > It still locks up hard for me when voluntary-preempt=3, however it does
-> > finish the boot; dmesg attached. The lockup occurs several minutes into
-> > use; usually by by the time I've started X, launched evolution and
-> > selected my first imap folder the machine's dead.
-> > 
-> > If you need more information or want me to try some patches, just let me
-> > know.
-> 
-> These look a bit worrisome:
-> 
-> Aug 15 15:24:11 twins kernel: Total of 2 processors activated (5537.79 BogoMIPS).
-> Aug 15 15:24:11 twins kernel: WARNING: This combination of AMD processors is not suitable for SMP.
-> Aug 15 15:24:11 twins kernel: ENABLING IO-APIC IRQs
-> 
-> Aug 15 15:24:11 twins kernel: I/O APIC: AMD Errata #22 may be present. In the event of instability try
-> Aug 15 15:24:11 twins kernel:         : booting with the "noapic" option.
-> 
-
-Yeah, true. I run with 2 Thunderbirds, not Athlon MPs; AMD does not like
-that, the CPUs don't share that inclination.
-
-As for the AMD Errata #22, all other kernels run rock solid without
-noapic, so I don't see why these should differ. I did try noapic though,
-not on P0 but on one of the later Os.
+> Here's the first patch. Note that I had to choose PPFLAGS instead 
+> of CPPFLAGS because otherwise it would have collided with the other
+> uses of CPPFLAGS.
+That collision was intentional.
+I have changed that to cppflags and added both your patches to my tree.
+The 2/2 missed a few *lds files which added also.
+Thanks for your effort!
 
 
--- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
-
+	Sam

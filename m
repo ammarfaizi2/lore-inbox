@@ -1,32 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273176AbRJJB3l>; Tue, 9 Oct 2001 21:29:41 -0400
+	id <S273203AbRJJBav>; Tue, 9 Oct 2001 21:30:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273108AbRJJB3Y>; Tue, 9 Oct 2001 21:29:24 -0400
-Received: from zok.sgi.com ([204.94.215.101]:5850 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S272773AbRJJB3I>;
-	Tue, 9 Oct 2001 21:29:08 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
+	id <S273108AbRJJBaf>; Tue, 9 Oct 2001 21:30:35 -0400
+Received: from maile.telia.com ([194.22.190.16]:35266 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id <S272773AbRJJBa1>;
+	Tue, 9 Oct 2001 21:30:27 -0400
+Message-ID: <3BC3A49B.15D1997C@canit.se>
+Date: Wed, 10 Oct 2001 03:30:03 +0200
+From: Kenneth Johansson <ken@canit.se>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: root@chaos.analogic.com
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
-Subject: Re: kernel size 
-In-Reply-To: Your message of "Tue, 09 Oct 2001 11:53:48 -0400."
-             <Pine.LNX.3.95.1011009114946.4152A-100000@chaos.analogic.com> 
-Mime-Version: 1.0
+CC: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+Subject: Re: kernel size
+In-Reply-To: <Pine.LNX.3.95.1011009114946.4152A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 10 Oct 2001 11:29:31 +1000
-Message-ID: <7568.1002677371@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001 11:53:48 -0400 (EDT), 
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
->Yes. It shows in /proc/kcore. Just wasted. It does mean something
->on an embedded system.
+"Richard B. Johnson" wrote:
 
-kcore shows all the kernel buffers, including user space stuff being
-processed by the loader.  My tests show that all the strings that you
-are complaining about have been stripped from the kernel before it is
-loaded.
+> On Tue, 9 Oct 2001, Horst von Brand wrote:
+>
+> > "Richard B. Johnson" <root@chaos.analogic.com> said:
+> > > On Tue, 9 Oct 2001, Ingo Oeser wrote:
+> >
+> > [...]
+> >
+> > > > strip -R .ident -R .comment -R .note
+> > > >
+> > > > is your friend.
+> >
+> > [...]
+> >
+> > > Yes! Wonderful...
+> > > -rwxr-xr-x   1 root     root      1571516 Oct  9 10:50 vmlinux
+> > > -rwxr-xr-x   1 root     root      1590692 Oct  1 13:26 vmlinux.OLD
+> > >
+> > > That got rid of some cruft.
+> >
+> > Yep. A WHOOPing 1.2% of the total. BTW, is this stuff ever being loaded
+> > into RAM with the executable kernel, discarded on boot, or what?
+> >
+>
+> Yes. It shows in /proc/kcore. Just wasted. It does mean something
+> on an embedded system.
+>
+> It just __might__ mean that I can use a later kernel than 2.4.1
+> (they grow, you know). I'm mucking with things now.
+>
+
+You do know that kcore shows all memory not just what was compiled into the
+kernel. even usless old file cache so it's not so easy to se how much space
+the strings use of real memory.
+
+Test with creating a file with a string your not likly to have anywhere else.
+
+num=1 ;while ((1)) ; do echo "xenomorph $num"; num=$(($num+1)) ; done >1.txt
+
+strings /proc/kcore | grep xenomorph
+
 

@@ -1,29 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313220AbSC1SxI>; Thu, 28 Mar 2002 13:53:08 -0500
+	id <S313217AbSC1S53>; Thu, 28 Mar 2002 13:57:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313218AbSC1Sw6>; Thu, 28 Mar 2002 13:52:58 -0500
-Received: from smtp2.flashnet.it ([194.247.160.60]:46601 "EHLO
-	smtp2.flashnet.it") by vger.kernel.org with ESMTP
-	id <S313217AbSC1Swv>; Thu, 28 Mar 2002 13:52:51 -0500
-Message-Id: <200203282005.g2SK5TB29144@smtp2.flashnet.it>
-Content-Type: text/plain; charset=US-ASCII
-From: Frederik Nosi <fredi@e-salute.it>
-Reply-To: fredi@e-salute.it
-Organization: e-salute s.r.l.
-To: linux-kernel@vger.kernel.org
-Subject: RE: [Devfs related] devfsd servise start does not complete
-Date: Thu, 28 Mar 2002 20:00:52 +0100
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S313219AbSC1S5J>; Thu, 28 Mar 2002 13:57:09 -0500
+Received: from ns.suse.de ([213.95.15.193]:46852 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313217AbSC1S46>;
+	Thu, 28 Mar 2002 13:56:58 -0500
+Date: Thu, 28 Mar 2002 19:56:57 +0100
+From: Dave Jones <davej@suse.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.7-dj2
+Message-ID: <20020328195657.A5064@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020328124548.D23328@suse.de> <Pine.LNX.3.96.1020328120309.18285D-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can confirm this for 2.5.7 vanilla
-I havent had the time to compile the kernel witout devfs support,
-maybe that is souficient. However my config is here: 
-http://hypermail.spyroid.com/linux-kernel/latestweek/0298.html
+On Thu, Mar 28, 2002 at 12:10:36PM -0500, Bill Davidsen wrote:
 
-Please CC me bacause I'm not subscribed to the mailing list
-Thanks
+ >   I haven't d/l this version (and I'm generally not even trying 2.5 at the
+ > moment), but I would bet the include which defines strtok got zapped or
+ > moved.
+
+Indeed, in my tree strtok is dead, replaced with some fairly trivial
+code that uses strsep. This is one of those cases that fell through the
+gaps, and is worthy of adding to my 'check diff before uploading'
+script.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

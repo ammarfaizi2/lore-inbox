@@ -1,79 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129757AbQLRRTU>; Mon, 18 Dec 2000 12:19:20 -0500
+	id <S130017AbQLRRUA>; Mon, 18 Dec 2000 12:20:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131143AbQLRRTL>; Mon, 18 Dec 2000 12:19:11 -0500
-Received: from [216.120.107.189] ([216.120.107.189]:46865 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S129455AbQLRRSz>; Mon, 18 Dec 2000 12:18:55 -0500
-Date: Mon, 18 Dec 2000 08:48:19 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: set_rtc_mmss: can't update from 0 to 59
-Message-ID: <20001218084819.A17221@one-eyed-alien.net>
-Mail-Followup-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <UTC200012181310.OAA170929.aeb@aak.cwi.nl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <UTC200012181310.OAA170929.aeb@aak.cwi.nl>; from Andries.Brouwer@cwi.nl on Mon, Dec 18, 2000 at 02:10:32PM +0100
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2000 Matthew Dharm, all rights reserved.
+	id <S131143AbQLRRTr>; Mon, 18 Dec 2000 12:19:47 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:25354 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S130017AbQLRRTc>;
+	Mon, 18 Dec 2000 12:19:32 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Dana Lacoste" <dana.lacoste@peregrine.com>
+Date: Mon, 18 Dec 2000 17:48:20 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Linus's include file strategy redux
+CC: <linux-kernel@vger.kernel.org>, peter@cadcamlab.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <100879FA29DC@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 18 Dec 00 at 10:51, Dana Lacoste wrote:
+> Potential answers that have come up so far :
+> 1 - /lib/modules/* directories that involve `uname -r`
+>     This won't work because i might not be compiling for the `uname -r` kernel
+> 2 - /lib/modules/<version>/build/include/ :
+>     we could recommend that all kernel headers for all versions be put in
+>     the directory with the modules as listed above.  someone doesn't like
+>     the idea of symlinks (dangling symlinks ARE bad :) and someone else
+> pointed
+>     out that his root partition is only 30MB.  therefore this idea has flaws
+>     too.
+> 3 - the script (Config.make, etc) approach : several people recommended one
+>     kind or another of script that could be run prior to compilation that
+>     could set all the relevant variables, including one that would point to
+>     where the kernel headers are, and one that would have the 'correct'
+>     compile flags, etc.
 
---xHFwDpU9dbj6ez1V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+How you can make sure that script will not point to non-existing directory?
+With danglink symlink you can test... No, if user removes its kernel source,
+he should also remove symlink. And if he does not know about symlink, it
+does not matter that symlink is dangling.
 
-Honestly, this is the best solution I've heard.  It seems that the message
-is somewhat bogus, anyway, seeing as how this message is somewhat "normal"
-and just represents the occasional occurance of a fast cmos clock with
-xntpd and running the code near the top of the hour.
+> Can we get a #3 going?  I think it could really help both the cross-compile
+> people and those who just want to make sure their modules are compiling in
+> the 'correct' environment.  It also allows for things like 'kgcc vs. gcc' to
+> be 'properly' resolved by the distribution-creator as it should be, instead of
+> linux-kernel or the 3rd party module mailing lists.
 
-Matt
+You should just use /lib/modules/*/build/Makefile:
 
-On Mon, Dec 18, 2000 at 02:10:32PM +0100, Andries.Brouwer@cwi.nl wrote:
->     From mdharm@ziggy.one-eyed-alien.net Mon Dec 18 04:47:51 2000
->=20
->     > so if your cmos time is 0.001 sec ahead of your system time
->     > then around the hour you'll see
->     >     set_rtc_mmss: can't update from 0 to 59
->=20
->     but, the question is, how do we fix this?
->=20
-> Put #if 0 ... #endif around the printk.
->=20
-> Andries
+cd /lib/modules/*/build
+make subdir-m=/my/dir modules
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+and that's all. Complete environment already here. And if you built
+kernel with 'make CC=my-kernel-gcc' ? Sorry, but we cannot store all 
+possible parameters of your environment. What if you built kernel
+with 'PATH=/my/kernel/tools:$PATH make' ? Should we store path too?
+Complete environment?
 
-Oh BAY-bee.
-					-- Dust Puppy to Greg
-User Friendly, 12/13/1997
+Just my 0.02 cents.
+                                Best regards,
+                                        Petr Vandrovec
+                                        vandrove@vc.cvut.cz
 
---xHFwDpU9dbj6ez1V
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6Pj/Tz64nssGU+ykRAsjnAKDCK5j7h6QUHFQzu3RmLr2BpKOFDwCgwWfJ
-UF3K+KmfwlpKx7f6Sb3B+7g=
-=ok2e
------END PGP SIGNATURE-----
-
---xHFwDpU9dbj6ez1V--
+P.S.: While we are cleaning up Makefiles, what about switching from
+xxxxx-x to xxxxx_x ? Bash otherwise complains in 'make subdir-m=/my/subdir'
+that 'invalid character 45 in exportstr for subdir-m' ... I know
+it is late, but better now than sometime later.
+                                        
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

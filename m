@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276329AbRJ2Q3w>; Mon, 29 Oct 2001 11:29:52 -0500
+	id <S276249AbRJ2Qac>; Mon, 29 Oct 2001 11:30:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276312AbRJ2Q3m>; Mon, 29 Oct 2001 11:29:42 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:528 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S276249AbRJ2Q3b>; Mon, 29 Oct 2001 11:29:31 -0500
-Message-Id: <200110291629.f9TGTt6K010692@pincoya.inf.utfsm.cl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.x-ac: No loop on tmpfs
-X-Mailer: MH [Version 6.8.4]
-Date: Mon, 29 Oct 2001 13:29:55 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S276312AbRJ2QaZ>; Mon, 29 Oct 2001 11:30:25 -0500
+Received: from peace.netnation.com ([204.174.223.2]:33805 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S276249AbRJ2QaJ>; Mon, 29 Oct 2001 11:30:09 -0500
+Date: Mon, 29 Oct 2001 08:30:44 -0800
+From: Simon Kirby <sim@netnation.com>
+To: Jan Kara <jack@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops: Quota race in 2.4.12?
+Message-ID: <20011029083044.G17389@netnation.com>
+In-Reply-To: <20011028215818.A7887@netnation.com> <20011029144441.E11994@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <20011029144441.E11994@atrey.karlin.mff.cuni.cz>; from jack@suse.cz on Mon, Oct 29, 2001 at 02:44:41PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know when this started (maybe it has been there forever...), but
-you can't losetup(8) a loop device from a file on a tmpfs. [Yes, I _know_
-this is an idiotic thing to do. But uniformity is nice...]
+On Mon, Oct 29, 2001 at 02:44:41PM +0100, Jan Kara wrote:
 
-Here (Red Hat 7.1 + new kernel + random patches), /tmp is tmpfs, and
-mkinitrd(8) won't work for this reason, so kernel upgrades fail.
+>   I'd also blame some SMP locking (I think that on UP everything was tested well) but
+> everything should be protected by lock_kernel() and it seems to me that everything really
+> is protected. Anyway I'll try to find the problem.
 
-Any fundamental reason for this behaviour, and should RH just use /var/tmp
-or something else? Or is this a simple oversight of some sort?
--- 
-Dr. Horst H. von Brand                Usuario #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+I notice you just recently posted a patch to fix possible list
+corruption.  Could this be related?
+
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

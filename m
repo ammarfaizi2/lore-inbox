@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267095AbSIRP5O>; Wed, 18 Sep 2002 11:57:14 -0400
+	id <S267176AbSIRP7q>; Wed, 18 Sep 2002 11:59:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267107AbSIRP5O>; Wed, 18 Sep 2002 11:57:14 -0400
-Received: from dmz.hesby.net ([81.29.32.2]:26317 "HELO firewall.hesbynett.no")
-	by vger.kernel.org with SMTP id <S267095AbSIRP5N> convert rfc822-to-8bit;
-	Wed, 18 Sep 2002 11:57:13 -0400
-Subject: Re: Virtual to physical address mapping
-From: Ole =?ISO-8859-1?Q?Andr=E9?= Vadla =?ISO-8859-1?Q?Ravn=E5s?= 
-	<oleavr-lkml@jblinux.net>
-To: Jonathan Lundell <linux@lundell-bros.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <p05111a09b9ae41850a64@[207.213.214.37]>
-References: <1032328456.5812.16.camel@zole.jblinux.net> 
-	<p05111a09b9ae41850a64@[207.213.214.37]>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Sep 2002 18:05:52 +0200
-Message-Id: <1032365152.3480.14.camel@zole.jblinux.net>
+	id <S267177AbSIRP7q>; Wed, 18 Sep 2002 11:59:46 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:36597 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S267176AbSIRP7p>; Wed, 18 Sep 2002 11:59:45 -0400
+Date: Wed, 18 Sep 2002 12:04:47 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: [RFC] [PATCH] 2.5.35 patch for making DIO async
+Message-ID: <20020918120447.F6398@redhat.com>
+References: <20020918075103.B6143@redhat.com> <200209181558.g8IFwNp14249@eng2.beaverton.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200209181558.g8IFwNp14249@eng2.beaverton.ibm.com>; from pbadari@us.ibm.com on Wed, Sep 18, 2002 at 08:58:22AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-18 at 16:46, Jonathan Lundell wrote:
-> At 7:54am +0200 9/18/02, Ole André Vadla Ravnås wrote:
-> >I've noticed that ifconfig shows a base address and an interrupt
-> >number.. However, I can't get that base address to correspond to
-> >anything in /proc/iomem, which means that I can't determine which PCI
-> >device (in this case) it corresponds to (guess the base address is
-> >virtual). What I want is to find a way to get the PCI bus and device no
-> >for the network device, but is this at all possible without altering the
-> >kernel?
+On Wed, Sep 18, 2002 at 08:58:22AM -0700, Badari Pulavarty wrote:
+> Thanks for looking at the patch. Patch needed few cleanups to get it
+> working. Here is the status so far..
 > 
-> ETHTOOL_GDRVINFO will do that directly, if the driver supports it.
+> 1) I tested synchronous raw read/write. They perform almost same as
+>    without this patch. I am looking at why I can't match the performance.
+>    (I get 380MB/sec on 40 dd's on 40 disks without this patch.
+>     I get 350MB/sec with this patch).
 
-Wow, great!! Thanks a bunch, that's exactly what I was looking for! :-)
+Hmm, we should try to improve that.  Have you tried profiling a long run?
 
-Best regards
-Ole André
+> 2) wait_on_sync_kiocb() needed blk_run_queues() to make regular read/
+>    write perform well.
 
+That should be somewhat conditional, but for now it sounds like the right 
+thing to do.
 
+> 3) I am testing aio read/writes. I am using libaio.0.3.92. 
+>    When I try aio_read/aio_write on raw device, I am get OOPS.
+>    Can I use libaio.0.3.92 on 2.5 ? Are there any interface
+>    changes I need to worry  between 2.4 and 2.5 ?
+
+libaio 0.3.92 should work on 2.5.  Could you send me a copy of the 
+decoded Oops?
+
+		-ben
+-- 
+GMS rules.

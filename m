@@ -1,101 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265706AbUGHCbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265152AbUGHCbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265706AbUGHCbg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 22:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265361AbUGHCbd
+	id S265152AbUGHCbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 22:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265361AbUGHCbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 22:31:33 -0400
-Received: from mail.inter-page.com ([12.5.23.93]:6155 "EHLO
-	mail.inter-page.com") by vger.kernel.org with ESMTP id S265291AbUGHCbY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 22:31:25 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:53948 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265152AbUGHCbY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 7 Jul 2004 22:31:24 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "'Sean Neakums'" <sneakums@zork.net>, <jan@talentex.demon.co.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: malloc overlap?
-Date: Wed, 7 Jul 2004 19:31:12 -0700
-Organization: Casabyte, Inc.
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAOvmnDDtgE0WvXVi7klPGDAEAAAAA@casabyte.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-In-Reply-To: <6ufz8dmkv1.fsf@zork.zork.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Date: Wed, 7 Jul 2004 19:32:22 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: akpm@osdl.org, viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] task name handling in proc fs
+Message-Id: <20040707193222.6604f752.pj@sgi.com>
+In-Reply-To: <20040707233532.GD4314@w-mikek2.beaverton.ibm.com>
+References: <20040701220510.GA6164@w-mikek2.beaverton.ibm.com>
+	<20040701151935.1f61793c.akpm@osdl.org>
+	<20040701224215.GC5090@w-mikek2.beaverton.ibm.com>
+	<20040701160335.229cfe03.akpm@osdl.org>
+	<20040707215246.GB4314@w-mikek2.beaverton.ibm.com>
+	<20040707151134.05fc1e07.akpm@osdl.org>
+	<20040707233532.GD4314@w-mikek2.beaverton.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Err, not to contradict... DON'T DO:
++void set_task_comm(struct task_struct *tsk, char *buf)
++{ ...
++	for(i=0; i<sizeof(tsk->comm); i++) {
++		tsk->comm[i] = *buf++;
++		if (!tsk->comm[i])
++			break;
++	}
++	tsk->comm[sizeof(tsk->comm)-1] = '\0';	/* just in case */
 
-x = realloc(x,s);
+That code fragment looks to me like:
 
-You should do:
+	strlcpy (tsk->comm, buf, sizeof(tsk->comm));
 
-tmp = realloc(x,s);
-if (tmp) {
-   x = tmp;
-} else {
-   /* do something about being out of memory */
-}
+Unless I'm missing something, I'd prefer 'strlcpy'.
 
-In the first (wrong) case, if there isn't enough memory to move x, and x must be
-moved, then the result will be NULL and the original x is still valid at the old
-address.  Without the conditional you can get quite a mess.
-
-Also be aware that if s == 0, the block will be freed, tmp will be null and x will be
-worthless.
-
-Whatever you are doing, from what I read of your original question, you should
-probably suck-it-up and manage the memory properly/separately unless there is some
-rare and supreme reason to do otherwise.  These clever tricks will end up hurting you
-a lot.
-
-If you *absolutely* must get clever like this, try going the other way, allocate the
-first structure with the (largest legal) extent already attached, and then, if you
-are feeling frugal, "trim it down" with realloc.  "Shrinking" is always(TM) better
-than growing (with all the customary warnings and caveats for the word "always" 8-).
-
-Rob.
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org]
-On Behalf Of Sean Neakums
-Sent: Wednesday, June 30, 2004 2:55 AM
-To: jan@talentex.demon.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: malloc overlap?
-
-jan@talentex.demon.co.uk writes:
-
-> I am developing a program that mallocs a struct, which contains a
-> pointer to another struct, which gets malloced. Then I realloc the
-> first buffer to be one element larger and assign something to an
-> element in the second element - and this action overwrites part of the
-> second level struct. After much tracing I am now sure that the buffers
-> somehow have come to overlap. Is this a known error? I imagine that if
-> the kernel had this kind of problem, it wouldn't run far, but surely
-> memory allocation is handled in the kernel?
-
-malloc is implemented in userspace, typically by the C library, which
-uses lower-elvel mechanisms to obtain memory from the kernel.
-
-How are you calling realloc?  It must be called thus:
-
-    x = realloc(x, s);
-
-since the block will have to be moved if there is no space after it
-into which to expand.  Given that you allocated the block at x,
-another block, and then expanded the block at x, I think this may be
-what's happening.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

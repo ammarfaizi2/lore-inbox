@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317621AbSGJVBC>; Wed, 10 Jul 2002 17:01:02 -0400
+	id <S317623AbSGJVGz>; Wed, 10 Jul 2002 17:06:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317622AbSGJVBB>; Wed, 10 Jul 2002 17:01:01 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12305 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317621AbSGJVBB>; Wed, 10 Jul 2002 17:01:01 -0400
-Subject: Re: [STATUS 2.5]  July 10, 2002
-To: garloff@suse.de (Kurt Garloff)
-Date: Wed, 10 Jul 2002 22:27:03 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-       joe.perches@spirentcom.com (Perches Joe), thunder@ngforever.de,
-       bunk@fs.tum.de, boissiere@adiglobal.com, linux-kernel@vger.kernel.org,
-       kessler@us.ibm.com ('Larry Kessler'),
-       Martin.Bligh@us.ibm.com ('Martin.Bligh@us.ibm.com')
-In-Reply-To: <20020710184922.GN12910@gum01m.etpnet.phys.tue.nl> from "Kurt Garloff" at Jul 10, 2002 08:49:22 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317624AbSGJVGy>; Wed, 10 Jul 2002 17:06:54 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:8433 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S317623AbSGJVGx>;
+	Wed, 10 Jul 2002 17:06:53 -0400
+Message-ID: <3D2CA278.49BE1ADA@mvista.com>
+Date: Wed, 10 Jul 2002 14:09:12 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Grover, Andrew" <andrew.grover@intel.com>
+CC: Linux <linux-kernel@vger.kernel.org>
+Subject: Re: HZ, preferably as small as possible
+References: <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17SOzH-0007s8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd still say no. Kernel messages are meant not meant for end users but for
-> kernel developers. The latter all speak english, but chances are that most
+"Grover, Andrew" wrote:
+> 
+> I'd like to see HZ closer to 100 than 1000, for CPU power reasons. Processor
+> power states like C3 may take 100 microseconds+ to enter/leave - time when
+> both the CPU isn't doing any work, but still drawing power as if it was. We
+> pop out of C3 whenever there is an interrupt, so reducing timer interrupts
+> is good from a power standpoint by amortizing the transition penalty over a
+> longer period of power savings.
+> 
+> But on the other hand, increasing HZ has perf/latency benefits, yes? Have
+> these been quantified? I'd either like to see a HZ that has balanced
+> power/performance, or could we perhaps detect we are on a system that cares
+> about power (aka a laptop) and tweak its value at runtime?
 
-Then why do they appear on the screen 8)
+HZ is used in a LOT of places.  I suspect "tweaking" at run
+time would be a bit difficult.  
 
-There are cases (eg someone selling Linux entirely into the PRC) where there
-are a billion plus potential users for whom English is not just an odd
-language but has a totally bizarre character set.
+The high-res-timers patch give high resolution timers with
+out changing HZ.  Interrupts are scheculed as needed,
+between the 1/HZ ticks, so a quite system will have few (if
+any) interrupts between the ticks.
 
-I can't conceive of anyone in the EU/US etc wanting to do such translation
-but if you get it for free then it means we got the design right and someone
-may one day find a good use for it.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

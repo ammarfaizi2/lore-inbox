@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281806AbRLLTO4>; Wed, 12 Dec 2001 14:14:56 -0500
+	id <S281809AbRLLTR4>; Wed, 12 Dec 2001 14:17:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281808AbRLLTOq>; Wed, 12 Dec 2001 14:14:46 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:8198 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S281806AbRLLTOe>;
-	Wed, 12 Dec 2001 14:14:34 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Pozsar Balazs <pozsy@sch.bme.hu>
-Date: Wed, 12 Dec 2001 20:13:59 MET-1
+	id <S281811AbRLLTRr>; Wed, 12 Dec 2001 14:17:47 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:16367 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S281809AbRLLTRj>; Wed, 12 Dec 2001 14:17:39 -0500
+Date: Wed, 12 Dec 2001 20:17:32 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org, <paulus@samba.org>, <dwmw2@infradead.org>,
+        <emoenke@gwdg.de>, <jhartmann@precisioninsight.com>,
+        Vineet M Abraham <vmabraham@hotmail.com>,
+        Dag Brattli <dag@brattli.net>, <mid@auk.cx>, <jochen@scram.de>,
+        <becker@scyld.com>, <elmer@ylenurme.ee>, <ajk@iehk.rwth-aachen.de>
+Subject: Re: Some compiler warnings in 2.4.17-pre5
+In-Reply-To: <E16Cfnh-00019h-00@the-village.bc.nu>
+Message-ID: <Pine.NEB.4.43.0112122015010.1213-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: FBdev remains in unusable state
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <BCDCADB4194@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Dec 01 at 19:49, Pozsar Balazs wrote:
-> 
-> The video card is a matrox G450, and I am using the vesa framebuffer.
-> (I know there's a seperate mga fb driver, but this should work for this
-> combination)
+On Sat, 8 Dec 2001, Alan Cox wrote:
 
-No. vesafb does not work together with mga driver in X (although
-I believe that vesafb works with XFree mga driver, only Matrox driver
-is binary bad citizen).
- 
-> Is this a bug in the kernel fb code, or in X? Are there any workarounds?
-> How could I restore textmode?
+> > +#ifdef MODULE
+> >  static Scsi_Host_Template driver_template = IPH5526_SCSI_FC;
+> > +#endif /* MODULE  */
+>
+> The ifdefs are frequently uglier than the warning 8). The i820 one looks
+> most suspicious however.
 
-Neither. X restore R/W registers to their previous values, while write-only
-registers to their values for normal text mode. Yes, there is a 
-'workaround'. Use (much faster) matroxfb.
-                                                    Best regards,
-                                                        Petr Vandrovec
-                                                        vandrove@vc.cvut.cz
-                                                        
-                                                        
+
+It's perhaps a better solution to move driver_template inside the
+#ifdef MODULE piece of code where it's used (I see that this was done in
+some other places in 2.4.17-pre2 by David S. Miller):
+
+
+--- drivers/net/fc/iph5526.c.old	Wed Dec 12 20:11:44 2001
++++ drivers/net/fc/iph5526.c	Wed Dec 12 20:13:34 2001
+@@ -224,8 +224,6 @@
+ static int get_scsi_oxid(struct fc_info *fi);
+ static void update_scsi_oxid(struct fc_info *fi);
+
+-static Scsi_Host_Template driver_template = IPH5526_SCSI_FC;
+-
+ static void iph5526_timeout(struct net_device *dev);
+
+ static int iph5526_probe_pci(struct net_device *dev);
+@@ -4529,6 +4527,7 @@
+ static int irq;
+ static int bad;	/* 0xbad = bad sig or no reset ack */
+ static int scsi_registered;
++static Scsi_Host_Template driver_template = IPH5526_SCSI_FC;
+
+
+ int init_module(void)
+
+> Alan
+
+cu
+Adrian
+
+-- 
+
+Get my GPG key: finger bunk@debian.org | gpg --import
+
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
+
+

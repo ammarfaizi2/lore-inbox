@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290740AbSBLCxS>; Mon, 11 Feb 2002 21:53:18 -0500
+	id <S290741AbSBLCx2>; Mon, 11 Feb 2002 21:53:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290743AbSBLCxI>; Mon, 11 Feb 2002 21:53:08 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:31367 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290740AbSBLCwt>;
-	Mon, 11 Feb 2002 21:52:49 -0500
-Date: Mon, 11 Feb 2002 18:51:00 -0800 (PST)
-Message-Id: <20020211.185100.68039940.davem@redhat.com>
-To: davidm@hpl.hp.com
-Cc: anton@samba.org, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: thread_info implementation
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15464.33256.837784.657759@napali.hpl.hp.com>
-In-Reply-To: <15464.32354.452126.182563@napali.hpl.hp.com>
-	<20020211.183603.111204707.davem@redhat.com>
-	<15464.33256.837784.657759@napali.hpl.hp.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S290743AbSBLCxS>; Mon, 11 Feb 2002 21:53:18 -0500
+Received: from zero.tech9.net ([209.61.188.187]:38408 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S290741AbSBLCxE>;
+	Mon, 11 Feb 2002 21:53:04 -0500
+Subject: Re: Linux 2.5.4-dj1
+From: Robert Love <rml@tech9.net>
+To: Dave Jones <davej@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020212013034.A14368@suse.de>
+In-Reply-To: <20020212013034.A14368@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 11 Feb 2002 21:53:08 -0500
+Message-Id: <1013482389.6781.645.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@hpl.hp.com>
-   Date: Mon, 11 Feb 2002 18:46:00 -0800
-   
-   OK, so back to square one: why am I supposed to do all this work for
-   something that will likely slow things slightly down and, at best,
-   doesn't hurt performance?  The old set up works great and as far as
-   I'm concerned, is not broken.
+On Mon, 2002-02-11 at 20:30, Dave Jones wrote:
 
-It keeps your platform the same, and it does help other platforms.
-It is the nature of any abstraction change we make in the kernel
-that platforms have to deal with.
+> o   Fix UP Preempt compilation.			(Mikael Pettersson)
 
-So at least we're to the point where you could be convinced that
-there are no down sides to the change?  Let's go over your list:
+I ended up sending the following patch to Linus instead.
 
-1) massive locore assembly changes
+Would you merge this into your next release, so we can keep the trees in
+sync (and not inadvertently push your fix over Linus's later on).  This
+approach removes the conditional altogether in the UP+preempt case, so
+it is optimal.
 
-   ummm no, just put current_thread_info into your thread register
+Thanks, 
 
-2) pointer dereference causes performance problems
+	Robert Love
 
-   ummm no, not really, go test it for yourself if you don't
-   believe me
+diff -urN linux-2.5.4-dj1/include/asm-i386/smplock.h linux/include/asm-i386/smplock.h
+--- linux-2.5.4-dj1/include/asm-i386/smplock.h	Sun Feb 10 20:50:13 2002
++++ linux/include/asm-i386/smplock.h	Mon Feb 11 21:34:18 2002
+@@ -12,10 +12,15 @@
+ 
+ #ifdef CONFIG_SMP
+ #define kernel_locked()		spin_is_locked(&kernel_flag)
++#define check_irq_holder(cpu) \
++do { \
++	if (global_irq_holder == (cpu)) \
++		BUG(); \
++} while(0)
+ #else
+ #ifdef CONFIG_PREEMPT
+ #define kernel_locked()		preempt_get_count()
+-#define global_irq_holder      0xFF    /* NO_PROC_ID */
++#define check_irq_holder(cpu)	do { } while(0)
+ #else
+ #define kernel_locked()		1
+ #endif
+@@ -28,8 +33,7 @@
+ do {						\
+ 	if (unlikely(task->lock_depth >= 0)) {	\
+ 		spin_unlock(&kernel_flag);	\
+-		if (global_irq_holder == (cpu))	\
+-			BUG();			\
++		check_irq_holder(cpu);		\
+ 	}					\
+ } while (0)
+ 
 
-This only leaves "I don't want to do the conversion because it has
-no benefit to ia64."  Well, it doesn't hurt your platform either,
-so just cope :-)
+

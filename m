@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261302AbTADSH4>; Sat, 4 Jan 2003 13:07:56 -0500
+	id <S261290AbTADSGi>; Sat, 4 Jan 2003 13:06:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261305AbTADSH4>; Sat, 4 Jan 2003 13:07:56 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:39368 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261302AbTADSHz>; Sat, 4 Jan 2003 13:07:55 -0500
-Date: Sat, 4 Jan 2003 16:16:16 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Brad Hards <bhards@bigpond.net.au>
-cc: Mike Galbraith <efault@gmx.de>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source  drivers?
-In-Reply-To: <200301031729.36696.bhards@bigpond.net.au>
-Message-ID: <Pine.LNX.4.50L.0301041615490.2429-100000@imladris.surriel.com>
-References: <E18UIZS-0006Cr-00@fencepost.gnu.org> <5.1.1.6.2.20030103063451.00c7e750@pop.gmx.net>
- <200301031729.36696.bhards@bigpond.net.au>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261292AbTADSGi>; Sat, 4 Jan 2003 13:06:38 -0500
+Received: from 205-158-62-146.outblaze.com ([205.158.62.146]:12960 "HELO
+	wspf1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S261290AbTADSGh>; Sat, 4 Jan 2003 13:06:37 -0500
+Message-ID: <20030104181459.28017.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: kasperd@daimi.au.dk, ciarrocchi@linuxmail.org
+Cc: linux-kernel@vger.kernel.org
+Date: Sun, 05 Jan 2003 02:14:59 +0800
+Subject: Re: Linux v2.5.54
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jan 2003, Brad Hards wrote:
+From: Kasper Dupont <kasperd@daimi.au.dk>
+[...]
+> Could the compiler somehow be using headers from the
+> wrong location? (Just a wild guess)
+I somehow downloaded an incomplete pathset.
+Reverted/downloaded the new one and compiled, everything is ok
 
-> I _hate_ intellectual property.
+Ciao,
+         Paolo
 
-So don't use the word at all, think of it as intellectual patrimony
-instead.
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
+
+Powered by Outblaze

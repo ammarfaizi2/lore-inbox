@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbUK3Reh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbUK3Rk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262206AbUK3Reh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 12:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbUK3Ree
+	id S262214AbUK3Rk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 12:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUK3Rk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 12:34:34 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:54941 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262206AbUK3Reb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 12:34:31 -0500
-Subject: Re: Designing Another File System
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41ABF7C5.5070609@comcast.net>
-References: <41ABF7C5.5070609@comcast.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1101832268.25609.59.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 30 Nov 2004 16:31:10 +0000
+	Tue, 30 Nov 2004 12:40:59 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:44436 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262217AbUK3Rhe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 12:37:34 -0500
+Date: Tue, 30 Nov 2004 18:37:31 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: cdrecord dev=ATA cannont scanbus as non-root
+In-Reply-To: <1101834765l.8903l.4l@werewolf.able.es>
+Message-ID: <Pine.LNX.4.53.0411301835511.11795@yvahk01.tjqt.qr>
+References: <1101763996l.13519l.0l@werewolf.able.es>
+ <Pine.LNX.4.53.0411292246310.15146@yvahk01.tjqt.qr> <1101765555l.13519l.1l@werewolf.able.es>
+ <20041130071638.GC10450@suse.de> <1101834765l.8903l.4l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-11-30 at 04:32, John Richard Moser wrote:
-> I've been interested in file system design for a while, and I think I
-> may be able to design one.  Being poor, I would like to patent/sell it
-> when done; however, whatever the result, I'd assuredly give a free
-> license to implement the resulting file system in GPL2 licensed code 
+>I tried scanning with dev=ATAPI, and cdrecord did not found anything.
+>Then I tried in my home box, and it found the burner.
+>The problem is that in the 'strange' box the burner is hdh, and the
+>hard drive for system is hde. The previous IDE channels are unused
+>(an on-board promise with ide[01], hd[abcd]).
 
-Several other vendors have followed this kind of dual model - MySQL,
-Troll Tech and Sleepycat being three obvious examples.
+IMO that should not worry cdrecord where the burner is.
 
-> - - 64 bit indices indicating the exact physical location on disk of
-> Inodes, giving a O(1) seek to the Inode itself
+>I use udev, so there is no hd[a-d] nodes on /dev. And cdrecord
+>_EXITS_ as soon as it founds a non-existent device !!!
 
-Until you get a bad block 8) or want to find it in memory (which is the
-usual case)
+You can find something that does not exist?
 
-> 1)  Can Unix utilities in general deal with 64 bit Inodes?  (Most
-> programs I assume won't care; ls -i and df -i might have trouble)
+>Many things will have to change with udev ;)
 
-You would have to ask a unix source code licensee. For Linux inodes can
-be 64bit on 64bit platforms, although you would undoubtedly found some
-oddments that were not resolved.
-
-> 4)  What basic information do I absolutely *need* in my Inodes? (I'm
-> thinking {type,atime,dtime,ctime,mtime,posix_dac,meta_data_offset,size,\
-  links}
-
-See posix 1003.1 and the Single Unix SPecification. That defines the
-behaviour.
-
-> 5)  What basic information do I absolutely *need* in my directory
-> entries? (I'm thinking {name,inode})
-
-Ditto 
-
-> 6)  How do I lay out a time field for atime/dtime/ctime/mtime?
-
-Internal issue to the file system.
+I have udev AND like /dev/hdh, even though I don't have an extra IDE
+controller. Yay to static entries.
+Try mknod'ding hda and so forth (instead of symlinking) and then scanbus the
+thing. Does it show up?
 
 
+
+Jan Engelhardt
+-- 
+ENOSPC

@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbULFS5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbULFS6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbULFS5k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 13:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbULFSy4
+	id S261626AbULFS6T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 13:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbULFS5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 13:54:56 -0500
-Received: from fed1rmmtao04.cox.net ([68.230.241.35]:5047 "EHLO
-	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S261617AbULFSyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 13:54:21 -0500
-Date: Mon, 6 Dec 2004 11:54:16 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@ozlabs.org
-Cc: Christian Kujau <evil@g-house.de>, Sebastian Heutling <sheutlin@gmx.de>,
-       Sven Hartge <hartge@ds9.gnuu.de>, Meelis Roos <mroos@linux.ee>
-Subject: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII Utah) PCI IRQ map
-Message-ID: <20041206185416.GE7153@smtp.west.cox.net>
+	Mon, 6 Dec 2004 13:57:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33936 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261611AbULFSz0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 13:55:26 -0500
+Date: Mon, 6 Dec 2004 10:57:16 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Per Jessen <per@computer.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.28 - kswapd excessive cpu usage under heavy IO
+Message-ID: <20041206125715.GA2393@dmt.cyclades>
+References: <200412061214.48754.per@computer.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200412061214.48754.per@computer.org>
+User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The PCI IRQ map for the old Motorola PowerStackII (Utah) boards was
-incorrect, but this breakage wasn't exposed until 2.5, and finally fixed
-until recently by Sebastian Heutling <sheutlin@gmx.de>.
 
-Signed-off-by: Christian Kujau <evil@g-house.de>
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+Hi,
 
---- 1.32/arch/ppc/platforms/prep_pci.c	2004-10-12 14:29:11 -07:00
-+++ edited/arch/ppc/platforms/prep_pci.c	2004-12-06 09:20:52 -07:00
-@@ -49,10 +49,10 @@
-         0,   /* Slot 1  - unused */
-         5,   /* Slot 2  - SCSI - NCR825A  */
-         0,   /* Slot 3  - unused */
--        1,   /* Slot 4  - Ethernet - DEC2114x */
-+        3,   /* Slot 4  - Ethernet - DEC2114x */
-         0,   /* Slot 5  - unused */
--        3,   /* Slot 6  - PCI Card slot #1 */
--        4,   /* Slot 7  - PCI Card slot #2 */
-+        2,   /* Slot 6  - PCI Card slot #1 */
-+        3,   /* Slot 7  - PCI Card slot #2 */
-         5,   /* Slot 8  - PCI Card slot #3 */
-         5,   /* Slot 9  - PCI Bridge */
-              /* added here in case we ever support PCI bridges */
+On Mon, Dec 06, 2004 at 12:14:48PM +0100, Per Jessen wrote:
+> (apologies if this is sent more than once)
+> I've found similar incidences in the archives, but none that indicates that a
+> solution was found. 
+> I'm seeing excessive cpu usage by kswapd on a 4way 500MHZ Xeon with 2GB RAM.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+What is your workload? Except the massive amount of inode's/dentries in your 
+system do you have anonymous memory hungry applications running? 
+
+If you do have a significant amount of anonymous pages on your system you might
+want to try 2.4.29-pre1 which contains a VM change which should decrease their 
+impact on the VM page freeing efforts (including kswapd CPU usage).
+
+Since you have massive amount of inodes/dentries you might want to tweak
+/proc/sys/vm/vm_vfs_scan_ratio (increase from 6 to 10 and so on...)
+
+>  A find in a directory containing perhaps 6-700,000 files makes the box almost
+> grind to a halt.  In 12days uptime, kswap has used 590:43.82, and during the
+> find-exercise usually runs with 90-100% util.
+
+Can you boot with profile=2 and use readprofile tool to read the functions which 
+are using most CPU time with
+
+readprofile | sort -nr +2 | head -20
+
+Do that on a 2.4.28 and 2.4.29-pre1 kernels.
+
+> The file-system is 150GB with JFS117 on a software-RAID5 - not exactly optimal,
+> I agree, but reasonably workable.
+> 
+> I've read that 2.6 has significant improvements in this area, but upgrading is
+> not currently an option.  
+
+Yes, v2.6 VM design is way better than v2.4's in many aspects.
+

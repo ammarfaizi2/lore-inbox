@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264018AbTICBqT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 21:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264013AbTICBqT
+	id S261817AbTICBii (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 21:38:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263916AbTICBii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 21:46:19 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:38409
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S263939AbTICBqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 21:46:17 -0400
-Date: Tue, 2 Sep 2003 18:38:32 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Andre Tomt <andre@tomt.net>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org, mingo@redhat.com
-Subject: Re: md: bug in file md.c, line 1440 (2.4.22)
-Message-ID: <20030903013832.GD13684@matchmail.com>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	Andre Tomt <andre@tomt.net>, linux-kernel@vger.kernel.org,
-	linux-raid@vger.kernel.org, mingo@redhat.com
-References: <3F5017CA.4080700@tomt.net> <16213.14893.955734.797630@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16213.14893.955734.797630@gargle.gargle.HOWL>
-User-Agent: Mutt/1.5.4i
+	Tue, 2 Sep 2003 21:38:38 -0400
+Received: from mailhub2.uq.edu.au ([130.102.5.59]:65199 "EHLO
+	mailhub2.uq.edu.au") by vger.kernel.org with ESMTP id S261817AbTICBig convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 21:38:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Stuart Low <stuart@perlboy.org>
+Organization: Perlboy.org
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [DEBUG] 2.6.0-test4 - sleeping function called from invalid context
+Date: Wed, 3 Sep 2003 11:46:54 +1000
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <1062520736.2331.10.camel@poohbox.perlaholic.com> <20030902173320.GM4306@holomorphy.com>
+In-Reply-To: <20030902173320.GM4306@holomorphy.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200309031146.54406.stuart@perlboy.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 10:47:41AM +1000, Neil Brown wrote:
-> I have not idea how it got the failed flag.
-> 
-> NeilBrown
+And the lost_journal errors?
 
-Andre, is there any chance you ran a 2.6 kernel on that raid array?
+It's happened 3 times in 24 hours now.
+
+Stuart
+
+
+On Wed, 3 Sep 2003 03:33 am, William Lee Irwin III wrote:
+> On Wed, Sep 03, 2003 at 02:38:56AM +1000, Stuart Low wrote:
+> > - -snip- -
+> > nvidia: no version magic, tainting kernel.
+> > nvidia: module license 'NVIDIA' taints kernel.
+> > 0: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4496
+> > Wed Jul 16 19:03:09 PDT 2003
+> > Debug: sleeping function called from invalid context at mm/slab.c:1817
+>
+> Looks very much like an nvidia problem; best to report it to them.
+>
+>
+> -- wli
+

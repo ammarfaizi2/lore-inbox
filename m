@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317817AbSGPMrP>; Tue, 16 Jul 2002 08:47:15 -0400
+	id <S317798AbSGPMuL>; Tue, 16 Jul 2002 08:50:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317814AbSGPMrO>; Tue, 16 Jul 2002 08:47:14 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:30906 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S317811AbSGPMrM>; Tue, 16 Jul 2002 08:47:12 -0400
-Date: Tue, 16 Jul 2002 14:49:56 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-kernel@vger.kernel.org
+	id <S317820AbSGPMuK>; Tue, 16 Jul 2002 08:50:10 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:16135 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S317798AbSGPMuI>; Tue, 16 Jul 2002 08:50:08 -0400
+Date: Tue, 16 Jul 2002 14:53:01 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Cc: Stelian Pop <stelian.pop@fr.alcove.com>, Sam Vilain <sam@vilain.net>,
+       dax@gurulabs.com
 Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Message-ID: <20020716124956.GK7955@tahoe.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Gerhard Mack <gmack@innerfire.net>,
-	Mathieu Chouquet-Stringer <mathieu@newview.com>,
-	linux-kernel@vger.kernel.org
-References: <20020716081809.GE7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207160821100.16079-100000@innerfire.net>
+Message-ID: <20020716125301.GI4576@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Stelian Pop <stelian.pop@fr.alcove.com>, Sam Vilain <sam@vilain.net>,
+	dax@gurulabs.com
+References: <1026490866.5316.41.camel@thud> <1026679245.15054.9.camel@thud> <E17U1BD-0000m0-00@hofmann> <1026736251.13885.108.camel@irongate.swansea.linux.org.uk> <E17U4YE-0000TL-00@hofmann> <20020715160357.GD442@clusterfs.com> <E17U9x9-0001Dc-00@hofmann> <20020716081531.GD7955@tahoe.alcove-fr> <20020716122756.GD4576@merlin.emma.line.org> <20020716124331.GJ7955@tahoe.alcove-fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207160821100.16079-100000@innerfire.net>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <20020716124331.GJ7955@tahoe.alcove-fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 16, 2002 at 08:22:53AM -0400, Gerhard Mack wrote:
+On Tue, 16 Jul 2002, Stelian Pop wrote:
 
-> > This needs to be "according to Linus, dump is deprecated". Given the
-> > interest Linus has manifested for backups, I wouldn't really rely on
-> > his statement :-)
+> > Low-level snapshots don't do any good, they just freeze the "halfway
+> > there" on-disk structure.
 > 
-> Either way dump is not likely to give you a reliable backup when used
-> with a 2.4.x kernel.
+> But [s|g]tar, cpio, afio (don't know about dsmc) also freeze the
+> "halfway there" data, but at the file level instead (application
+> instead of filesystem)...
 
-Since you are so well informed, maybe you could share your knowledge
-with us.
+Not if some day somebody implements file system level snapshots for
+Linux. Until then, better have garbled file contents constrained to a
+file than random data as on-disk layout changes with hefty directory
+updates.
 
-I'm the dump maintainer, so I'll be very interested in knowing how
-comes that dump works for me and many other users... :-)
+dsmc fstat()s the file it is currently reading regularly and retries the
+dump as the changes, and gives up if it is updated too often. Not sure
+about the server side, and certainly not a useful option for sequential
+devices that you directly write on. Looks like a cache for the biggest
+file is necessary.
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com

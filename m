@@ -1,73 +1,295 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282829AbRLGJqL>; Fri, 7 Dec 2001 04:46:11 -0500
+	id <S282824AbRLGJsf>; Fri, 7 Dec 2001 04:48:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282824AbRLGJqB>; Fri, 7 Dec 2001 04:46:01 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:27289 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S282823AbRLGJpn>; Fri, 7 Dec 2001 04:45:43 -0500
-Message-Id: <5.1.0.14.2.20011207092244.049f6720@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 07 Dec 2001 09:45:17 +0000
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: kernel: ldt allocation failed
-Cc: vkire@pixar.com (Kiril Vidimce), dmaas@dcine.com (Dan Maas),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <E16CH6i-00059b-00@the-village.bc.nu>
-In-Reply-To: <Pine.LNX.4.21.0112070057480.20196-100000@tombigbee.pixar.com>
+	id <S285444AbRLGJsZ>; Fri, 7 Dec 2001 04:48:25 -0500
+Received: from bb94-125.singnet.com.sg ([165.21.94.125]:56985 "HELO
+	accellion.com") by vger.kernel.org with SMTP id <S282824AbRLGJsK>;
+	Fri, 7 Dec 2001 04:48:10 -0500
+Date: Fri, 7 Dec 2001 17:48:00 +0800
+From: Mathieu Legrand <mathieu@accellion.com>
+To: linux-kernel@vger.kernel.org
+Subject: Compaq Proliant DL360 + 2.4.1?-* eepro100 and e100 pause when inactive (+ .config attached)
+Message-ID: <20011207094800.GB22128@accellion.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RASg3xLB4tUQ4RcS"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:15 07/12/01, Alan Cox wrote:
-> > I don't see how one can magically tell that this is an NVIDIA problem.
->
->We don't know. But since we don't have their source and they have our
->source only they can tell you.
 
-Not doing any debugging is fine.
+--RASg3xLB4tUQ4RcS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-However, looking at 2.4.16/arch/i386/kernel/process.c::copy_segments() 
-which generates this message it seems odd: It returns void, yet it can fail 
-because it is doing a vmalloc().
+I forgot to attach the .config file, here it is:
 
-When the vmalloc() fails, the new_mm->context.segments is set to NULL and 
-the function returns.
+# grep ^C .config
+CONFIG_X86=3Dy
+CONFIG_ISA=3Dy
+CONFIG_UID16=3Dy
+CONFIG_EXPERIMENTAL=3Dy
+CONFIG_MODULES=3Dy
+CONFIG_KMOD=3Dy
+CONFIG_MPENTIUMIII=3Dy
+CONFIG_X86_WP_WORKS_OK=3Dy
+CONFIG_X86_INVLPG=3Dy
+CONFIG_X86_CMPXCHG=3Dy
+CONFIG_X86_XADD=3Dy
+CONFIG_X86_BSWAP=3Dy
+CONFIG_X86_POPAD_OK=3Dy
+CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy
+CONFIG_X86_L1_CACHE_SHIFT=3D5
+CONFIG_X86_TSC=3Dy
+CONFIG_X86_GOOD_APIC=3Dy
+CONFIG_X86_PGE=3Dy
+CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
+CONFIG_NOHIGHMEM=3Dy
+CONFIG_MTRR=3Dy
+CONFIG_SMP=3Dy
+CONFIG_HAVE_DEC_LOCK=3Dy
+CONFIG_NET=3Dy
+CONFIG_X86_IO_APIC=3Dy
+CONFIG_X86_LOCAL_APIC=3Dy
+CONFIG_PCI=3Dy
+CONFIG_PCI_GOANY=3Dy
+CONFIG_PCI_BIOS=3Dy
+CONFIG_PCI_DIRECT=3Dy
+CONFIG_PCI_NAMES=3Dy
+CONFIG_SYSVIPC=3Dy
+CONFIG_BSD_PROCESS_ACCT=3Dy
+CONFIG_SYSCTL=3Dy
+CONFIG_KCORE_ELF=3Dy
+CONFIG_BINFMT_AOUT=3Dm
+CONFIG_BINFMT_ELF=3Dy
+CONFIG_BINFMT_MISC=3Dy
+CONFIG_PM=3Dy
+CONFIG_ACPI=3Dy
+CONFIG_ACPI_BUSMGR=3Dy
+CONFIG_APM=3Dy
+CONFIG_APM_RTC_IS_GMT=3Dy
+CONFIG_BLK_DEV_FD=3Dy
+CONFIG_BLK_CPQ_DA=3Dy
+CONFIG_BLK_DEV_DAC960=3Dy
+CONFIG_BLK_DEV_LOOP=3Dy
+CONFIG_BLK_DEV_NBD=3Dm
+CONFIG_BLK_DEV_RAM=3Dy
+CONFIG_BLK_DEV_RAM_SIZE=3D4096
+CONFIG_BLK_DEV_INITRD=3Dy
+CONFIG_PACKET=3Dy
+CONFIG_NETLINK_DEV=3Dm
+CONFIG_NETFILTER=3Dy
+CONFIG_FILTER=3Dy
+CONFIG_UNIX=3Dy
+CONFIG_INET=3Dy
+CONFIG_SYN_COOKIES=3Dy
+CONFIG_IP_NF_CONNTRACK=3Dy
+CONFIG_IP_NF_FTP=3Dy
+CONFIG_IP_NF_IRC=3Dy
+CONFIG_IP_NF_IPTABLES=3Dy
+CONFIG_IP_NF_MATCH_LIMIT=3Dy
+CONFIG_IP_NF_MATCH_MAC=3Dy
+CONFIG_IP_NF_MATCH_MARK=3Dy
+CONFIG_IP_NF_MATCH_MULTIPORT=3Dy
+CONFIG_IP_NF_MATCH_TOS=3Dy
+CONFIG_IP_NF_MATCH_LENGTH=3Dy
+CONFIG_IP_NF_MATCH_TTL=3Dy
+CONFIG_IP_NF_MATCH_TCPMSS=3Dy
+CONFIG_IP_NF_MATCH_STATE=3Dy
+CONFIG_IP_NF_MATCH_UNCLEAN=3Dy
+CONFIG_IP_NF_MATCH_OWNER=3Dy
+CONFIG_IP_NF_FILTER=3Dy
+CONFIG_IP_NF_TARGET_REJECT=3Dy
+CONFIG_IP_NF_TARGET_MIRROR=3Dy
+CONFIG_IP_NF_NAT=3Dy
+CONFIG_IP_NF_NAT_NEEDED=3Dy
+CONFIG_IP_NF_TARGET_MASQUERADE=3Dy
+CONFIG_IP_NF_TARGET_REDIRECT=3Dy
+CONFIG_IP_NF_NAT_IRC=3Dy
+CONFIG_IP_NF_NAT_FTP=3Dy
+CONFIG_IP_NF_MANGLE=3Dy
+CONFIG_IP_NF_TARGET_TOS=3Dy
+CONFIG_IP_NF_TARGET_MARK=3Dy
+CONFIG_IP_NF_TARGET_LOG=3Dy
+CONFIG_IP_NF_TARGET_TCPMSS=3Dy
+CONFIG_NET_SCHED=3Dy
+CONFIG_NET_SCH_CBQ=3Dm
+CONFIG_NET_SCH_CSZ=3Dm
+CONFIG_NET_SCH_PRIO=3Dm
+CONFIG_NET_SCH_RED=3Dm
+CONFIG_NET_SCH_SFQ=3Dm
+CONFIG_NET_SCH_TEQL=3Dm
+CONFIG_NET_SCH_TBF=3Dm
+CONFIG_NET_SCH_GRED=3Dm
+CONFIG_NET_SCH_DSMARK=3Dm
+CONFIG_NET_SCH_INGRESS=3Dm
+CONFIG_NET_QOS=3Dy
+CONFIG_NET_ESTIMATOR=3Dy
+CONFIG_NET_CLS=3Dy
+CONFIG_NET_CLS_TCINDEX=3Dm
+CONFIG_NET_CLS_ROUTE4=3Dm
+CONFIG_NET_CLS_ROUTE=3Dy
+CONFIG_NET_CLS_FW=3Dm
+CONFIG_NET_CLS_U32=3Dm
+CONFIG_NET_CLS_RSVP=3Dm
+CONFIG_NET_CLS_RSVP6=3Dm
+CONFIG_NET_CLS_POLICE=3Dy
+CONFIG_IDE=3Dy
+CONFIG_BLK_DEV_IDE=3Dy
+CONFIG_BLK_DEV_IDEDISK=3Dy
+CONFIG_IDEDISK_MULTI_MODE=3Dy
+CONFIG_BLK_DEV_IDECD=3Dy
+CONFIG_BLK_DEV_IDEFLOPPY=3Dm
+CONFIG_BLK_DEV_CMD640=3Dy
+CONFIG_BLK_DEV_RZ1000=3Dy
+CONFIG_BLK_DEV_IDEPCI=3Dy
+CONFIG_IDEPCI_SHARE_IRQ=3Dy
+CONFIG_BLK_DEV_IDEDMA_PCI=3Dy
+CONFIG_BLK_DEV_ADMA=3Dy
+CONFIG_IDEDMA_PCI_AUTO=3Dy
+CONFIG_BLK_DEV_IDEDMA=3Dy
+CONFIG_BLK_DEV_CS5530=3Dy
+CONFIG_BLK_DEV_PIIX=3Dy
+CONFIG_PIIX_TUNING=3Dy
+CONFIG_IDEDMA_AUTO=3Dy
+CONFIG_BLK_DEV_IDE_MODES=3Dy
+CONFIG_SCSI=3Dy
+CONFIG_BLK_DEV_SD=3Dy
+CONFIG_SD_EXTRA_DEVS=3D40
+CONFIG_BLK_DEV_SR=3Dy
+CONFIG_SR_EXTRA_DEVS=3D2
+CONFIG_CHR_DEV_SG=3Dm
+CONFIG_SCSI_DEBUG_QUEUES=3Dy
+CONFIG_SCSI_MULTI_LUN=3Dy
+CONFIG_SCSI_CONSTANTS=3Dy
+CONFIG_SCSI_AHA152X=3Dy
+CONFIG_SCSI_AHA1542=3Dy
+CONFIG_SCSI_AHA1740=3Dy
+CONFIG_SCSI_AIC7XXX=3Dy
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=3D8
+CONFIG_AIC7XXX_RESET_DELAY_MS=3D15000
+CONFIG_NETDEVICES=3Dy
+CONFIG_DUMMY=3Dm
+CONFIG_NET_ETHERNET=3Dy
+CONFIG_NET_PCI=3Dy
+CONFIG_EEPRO100=3Dm
+CONFIG_NE2K_PCI=3Dm
+CONFIG_VIA_RHINE=3Dm
+CONFIG_VT=3Dy
+CONFIG_VT_CONSOLE=3Dy
+CONFIG_SERIAL=3Dy
+CONFIG_SERIAL_CONSOLE=3Dy
+CONFIG_UNIX98_PTYS=3Dy
+CONFIG_UNIX98_PTY_COUNT=3D256
+CONFIG_BUSMOUSE=3Dm
+CONFIG_MS_BUSMOUSE=3Dm
+CONFIG_MOUSE=3Dy
+CONFIG_PSMOUSE=3Dy
+CONFIG_RTC=3Dy
+CONFIG_AUTOFS_FS=3Dy
+CONFIG_AUTOFS4_FS=3Dy
+CONFIG_REISERFS_FS=3Dy
+CONFIG_EXT3_FS=3Dy
+CONFIG_JBD=3Dy
+CONFIG_FAT_FS=3Dy
+CONFIG_MSDOS_FS=3Dy
+CONFIG_VFAT_FS=3Dy
+CONFIG_TMPFS=3Dy
+CONFIG_ISO9660_FS=3Dy
+CONFIG_JOLIET=3Dy
+CONFIG_MINIX_FS=3Dm
+CONFIG_NTFS_FS=3Dm
+CONFIG_PROC_FS=3Dy
+CONFIG_DEVPTS_FS=3Dy
+CONFIG_EXT2_FS=3Dy
+CONFIG_INTERMEZZO_FS=3Dm
+CONFIG_NFS_FS=3Dm
+CONFIG_SUNRPC=3Dm
+CONFIG_LOCKD=3Dm
+CONFIG_SMB_FS=3Dm
+CONFIG_MSDOS_PARTITION=3Dy
+CONFIG_SMB_NLS=3Dy
+CONFIG_NLS=3Dy
+CONFIG_NLS_DEFAULT=3D"cp437"
+CONFIG_NLS_CODEPAGE_437=3Dm
+CONFIG_NLS_CODEPAGE_850=3Dm
+CONFIG_NLS_ISO8859_1=3Dm
+CONFIG_NLS_ISO8859_15=3Dm
+CONFIG_VGA_CONSOLE=3Dy
+CONFIG_VIDEO_SELECT=3Dy
+CONFIG_FB=3Dy
+CONFIG_DUMMY_CONSOLE=3Dy
+CONFIG_FB_VGA16=3Dy
+CONFIG_VIDEO_SELECT=3Dy
+CONFIG_FBCON_VGA_PLANES=3Dy
+CONFIG_FONT_8x8=3Dy
+CONFIG_FONT_8x16=3Dy
+CONFIG_DEBUG_KERNEL=3Dy
+CONFIG_MAGIC_SYSRQ=3Dy
 
-That seems wrong, no? Shouldn't there be a panic() when the allocation 
-fails at least? Or even better the function should perhaps return an error 
-code?
+~~~~~~~~~~~~~~~~~~~~
 
-Considering there is only one caller (kernel/fork.c::copy_mm()) it would be 
-easy to modify copy_mm() to handle a returned error code gracefully and 
-goto fail_nomem, which would in turn result in kernel/fork.c::do_fork(), 
-the only caller of copy_mm(), cleaning up properly and returning an error code.
+# lspci
+00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
+00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
+00:01.0 RAID bus controller: LSI Logic / Symbios Logic (formerly NCR): Unkn=
+own device 0010 (rev 02)
+00:03.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC 215IIC =
+[Mach64 GT IIC] (rev 7a)
+00:04.0 System peripheral: Compaq Computer Corporation Advanced System Mana=
+gement Controller
+00:05.0 PCI bridge: Digital Equipment Corporation DECchip 21154 (rev 05)
+00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 51)
+00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
+01:04.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
+01:05.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
+03:04.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
+03:05.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
+03:06.0 PCI bridge: Intel Corp. 80960RP [i960 RP Microprocessor/Bridge] (re=
+v 05)
+03:06.1 Memory controller: Intel Corp. 80960RP [i960RP Microprocessor] (rev=
+ 05)
+04:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC 215IIC =
+[Mach64 GT IIC] (rev 7a)
 
-Or have I missed something and the situation where the ldt is missing can 
-be recovered from? - I would think (without looking into this in the kernel 
-code) that loosing the local descriptor table would be rather detrimental 
-on the first context switch to the new process created by fork... And 
-considering all kinds of errors are being handled in this code path, except 
-for the vmalloc() failure, it seems like a good idea to add the appropriate 
-fail mechanism.
+~~~~~~~~~~~~~~~~~~~~~
 
-If nvidia is causing this to get triggered they will likely run into 
-problems elsewhere anyway and we don't care but we should get the kernel 
-working. As it is AFAICS we have a potential DOS, just get the box close to 
-OOM and start calling man 2 fork and/or man 3 clone and you could trigger 
-this with a finite probability.
+Logs show nothing:
 
-Best regards,
+# tail /var/log/syslog
+Dec  7 15:43:21 parrot kernel: Symbols match kernel version 2.4.17.
+Dec  7 15:43:21 parrot kernel: Loaded 8 symbols from 1 module.
+Dec  7 15:44:51 parrot qmail: 1007711091.180024 status: exiting
+Dec  7 15:44:52 parrot qmail: 1007711092.021596 status: local 0/10 remote 0=
+/20
+Dec  7 16:03:09 parrot -- MARK --
+Dec  7 16:23:09 parrot -- MARK --
+Dec  7 16:43:09 parrot -- MARK --
+Dec  7 17:03:09 parrot -- MARK --
+Dec  7 17:23:09 parrot -- MARK --
+Dec  7 17:43:10 parrot -- MARK --
 
-         Anton
 
+Mathieu.
+--=20
+Mathieu Legrand <mathieu @ {accellion.com -work | globules.net -perso}>
+GPG: 0x349EBC9961C501D1   fp: D6D2D2D74E6320D99B54 38F3349EBC9961C501D1
+ - Yoda of Borg are we: Futile is resistance.  Assimilate you, we will.
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+--RASg3xLB4tUQ4RcS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Pour information voir http://www.gnupg.org
+
+iD8DBQE8EJBQNJ68mWHFAdERAjTfAJ9kjRw6Eh8M1iFwRg/IJIHEP9iCuQCgq1Yl
+wkqSdsLzU3r4jtl7/SkpczA=
+=kA8f
+-----END PGP SIGNATURE-----
+
+--RASg3xLB4tUQ4RcS--

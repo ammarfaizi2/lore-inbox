@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266725AbUHaJCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267526AbUHaJDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266725AbUHaJCy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 05:02:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUHaJCx
+	id S267526AbUHaJDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 05:03:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267548AbUHaJDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 05:02:53 -0400
-Received: from imap.gmx.net ([213.165.64.20]:45212 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266725AbUHaI7C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 04:59:02 -0400
-X-Authenticated: #4512188
-Message-ID: <41343DD4.8000302@gmx.de>
-Date: Tue, 31 Aug 2004 10:59:00 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040815)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: "John W. Linville" <linville@tuxdriver.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [patch] libata: add ioctls to support SMART
-References: <200408301531.i7UFVBg29089@ra.tuxdriver.com> <41336824.1040206@gmx.de> <41343B2A.80909@gmx.de> <41343C66.3080804@pobox.com>
-In-Reply-To: <41343C66.3080804@pobox.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Aug 2004 05:03:08 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:23188 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S267526AbUHaJDA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 05:03:00 -0400
+Date: Tue, 31 Aug 2004 11:01:58 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
+       Tom Vier <tmv@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: Userspace file systems & MKs (Re: silent semantic changes with reiser4)
+Message-ID: <20040831090158.GC14371@thundrix.ch>
+References: <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <20040831033950.GA32404@zero> <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org> <413400B6.6040807@pobox.com> <20040831053055.GA8654@nietzsche.lynx.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DIOMP1UsTsWJauNi"
+Content-Disposition: inline
+In-Reply-To: <20040831053055.GA8654@nietzsche.lynx.com>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Jeff Garzik wrote:
-| Prakash K. Cheemplavam wrote:
-|> Just wanted to say that smartctl -a -d ata /dev/sda works, as John
-|> Linville and now Bruce aLlen suggested to try.
-|
-| As I noted in another email, be careful...  that patch bypasses the SCSI
-| command synchronization, so you could potentially send a SMART command
-| to the hardware while another command is still in progress.
+--DIOMP1UsTsWJauNi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Yup, I read your warning, so I won't run a background monitor. In fact
-jusr gave it a quick try and saw all is fine and then I am not going to
-touch it for now. ;-)
+Salut,
 
-Prakash
+On Mon, Aug 30, 2004 at 10:30:55PM -0700, Bill Huey wrote:
+> DragonFly BSD, the only remotely functional open source BSD project on this
+> planet, has plans in place to push certain kernel components like their VFS
+> layer into userspace for easier debugging, testing and other things that go
+> with developing file systems easily. If they back it with something like C++
+> for doing constructor style type conversion on top of overloaded operators
+> to back VFS data structure translation, could easily import stuff like most
+> Linux file systems without major restructuring, say, if they had their
+> translation library written. In this case, userspace kernel systems have
+> some serious programming advantages over traditional kernels.
+
+Uh, what about enhancing lufs code in this regard and porting all fs'es to it?
+
+				Tonnerre
+
+--DIOMP1UsTsWJauNi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Version: GnuPG v1.9.2 (GNU/Linux)
 
-iD8DBQFBND3UxU2n/+9+t5gRAl9qAKDzA+TNzFDAwpV+JSSHbrLf8EVZFQCg85Ad
-b8mJa7ZBgt13V/sT2MRVeiI=
-=haAQ
+iD8DBQFBND6G/4bL7ovhw40RAki+AKCskVJSbMAAPqFmCWbIY+cItCJJVQCeI1Di
+qOThG2G68wYEQCBndoPXNx0=
+=bnoc
 -----END PGP SIGNATURE-----
+
+--DIOMP1UsTsWJauNi--

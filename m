@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270604AbUJUFCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270625AbUJUFJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270604AbUJUFCu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 01:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270437AbUJUE6C
+	id S270625AbUJUFJo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 01:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270658AbUJUFJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 00:58:02 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:3547 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S270513AbUJUEzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 00:55:47 -0400
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: miller@techsource.com
-Content-Type: text/plain
-Organization: 
-Message-Id: <1098334097.9402.958.camel@cube>
+	Thu, 21 Oct 2004 01:09:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22155 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270625AbUJUFJN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 01:09:13 -0400
+Date: Wed, 20 Oct 2004 22:07:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: james4765@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Structural changes for Documentation directory
+Message-Id: <20041020220700.4636104f.akpm@osdl.org>
+In-Reply-To: <20041021050528.GA26814@redhat.com>
+References: <4176CFE3.2030306@verizon.net>
+	<20041020153058.6de41ed8.akpm@osdl.org>
+	<4176EBD8.3050306@verizon.net>
+	<20041021042036.GB14189@redhat.com>
+	<41773D3F.2040801@verizon.net>
+	<20041020220037.2e209907.akpm@osdl.org>
+	<20041021050528.GA26814@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 21 Oct 2004 00:48:18 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller writes:
-
-> (2) How much would you be willing to pay for it?
+Dave Jones <davej@redhat.com> wrote:
 >
-> (3) How do you feel about the choice of neglecting
-> 3D performance as a priority?  How important is 3D
-> performance?  In what cases is it not?
->
-> (4) How much extra would you be willing to pay for
-> excellent 3D performance?
->
-> (5) What's most important to you, performance, price,
-> or stability?
+> On Wed, Oct 20, 2004 at 10:00:37PM -0700, Andrew Morton wrote:
+>  > >  The other possibility is to have a TODO file with a list of out-of-date 
+>  > >  files, and have the removal of the file listing in the TODO file be part 
+>  > >  of the patch submission.
+>  > 
+>  > It all sounds too complex.  ./docs/ is fine.
+> 
+> asides from bloating up interdiffs, what does moving stuff around
+> gain us over just fixing stuff in place ?  Do we really have
+> that much out of date documentation to justify this ?
+> 
 
-Stability with a kernel of my choice on possibly
-non-x86 hardware matters most. Digital DVI, fanless
-operation, and DVD scaling are next. After that, 3D.
-
-I'm not so sure you have to give up 3D. You can put
-at least 4 AltiVec-capable "G4" CPUs on a PCI board
-without having horrible power and temperature issues.
-(Perhaps an AGP board can safely support even more.)
-Each will do 4 32-bit floating-point fused-multiply-add
-operations per cycle. That's got to be good for something.
-I think the latest chips have built-in memory interfaces.
-They have RapidIO interfaces. So you make your FPGA
-speak RapidIO protocol (easy) and have each CPU render
-every fourth frame.
-
-One could even put the X server on the card.
-
-Ultimately, this is a huge risk, with potentially
-great reward. One must take some risks to succeed,
-and this one is a whopper.
-
+Well I was thinking of it as a simple way of tracking what has and hasn't
+been done.  But yeah, that could just as easily be tracked via a new
+checklist file.
 

@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbTKTNTG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 08:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTKTNTF
+	id S261775AbTKTNVN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 08:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTKTNVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 08:19:05 -0500
-Received: from out007pub.verizon.net ([206.46.170.107]:60408 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S261869AbTKTNTC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 08:19:02 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: Matt Mackall <mpm@selenic.com>, Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: Announce: ndiswrapper
-Date: Thu, 20 Nov 2003 08:19:00 -0500
-User-Agent: KMail/1.5.1
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Jeff Garzik <jgarzik@pobox.com>, jt@hpl.hp.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Pontus Fuchs <pof@users.sourceforge.net>
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC402E.6070109@cyberone.com.au> <20031120065241.GF22139@waste.org>
-In-Reply-To: <20031120065241.GF22139@waste.org>
-Organization: None that appears to be detectable by casual observers
+	Thu, 20 Nov 2003 08:21:13 -0500
+Received: from web41115.mail.yahoo.com ([66.218.93.31]:39564 "HELO
+	web41115.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261775AbTKTNVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 08:21:10 -0500
+Message-ID: <20031120132108.98157.qmail@web41115.mail.yahoo.com>
+Date: Thu, 20 Nov 2003 05:21:08 -0800 (PST)
+From: boochireddy Srinivas Reddy <boochireddy@yahoo.com>
+Subject: post route hook is hitting twice
+To: linux-kernel@vger.kernel.org
+Cc: boochireddy@yahoo.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311200819.00077.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.54.127] at Thu, 20 Nov 2003 07:19:01 -0600
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 November 2003 01:52, Matt Mackall wrote:
-[huge snip of well reasoned arguments]
+Hi,
 
->Personally, I think it's time to do some sort of trademark
-> enforcement or something so that companies can't get away with
-> slapping penguins on devices that only work with 2.2.14 Red Hat
-> kernels.
+Iam talking about Red Hat Linux 8.0 3.2-7
+  Linux version 2.4.18-14.
 
-Hear, hear!  I'm still smarting over buying a copy of Wordperfect 8 
-for linux for $65 back in '98 or '99, only to find it wouldn't even 
-install if it didn't find some old, buggy 2.2.x kernel to run under.
-The 2.4.x family was by then several generations old.
+I registered a post route hook with
+nf_register_hook(), and insmoded it,then I wrote a
+small program to send  broadcast packets, then I
+observed that pre route hook is getting hit twice.
 
-Shennanigans like that, screwing the customer (who had no recourse but 
-to seriously downgrade his system, no refunds were given) was one of 
-the things that Corel was very good at.  And it no doubt heavily 
-contributed to the eventual failure of Corel.  Potential Future 
-Customers remember that even if the PHB's can't.  I removed my self 
-from that PFC list forthwith.
+One more thing I observed that if we send it to Linux
+stack (by saying NF_ACCEPT)and in ethereal I observed
+only one packet(duplicate packet is not appearing).
 
-I keep it on the shelf as a reminder that I was one of those "Suckers 
-born every minute" :(
+What could be the reason in hitting pre route hook
+twice, and how stack is distinguishing the duplicate
+packet.
+Thanks
+Srinivas
 
-I'm for it, if it doesn't work with the latest stable kernel release, 
-the labels MUST COME OFF.  But howto enforce that legally is the real 
-$64 question.  Humm, I guess that dates me, I can remember that radio 
-program.  From back in the '40's.
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
-
+__________________________________
+Do you Yahoo!?
+Free Pop-Up Blocker - Get it now
+http://companion.yahoo.com/

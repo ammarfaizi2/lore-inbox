@@ -1,59 +1,49 @@
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S269077AbTBXB4R>; Sun, 23 Feb 2003 20:56:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S269078AbTBXB4R>; Sun, 23 Feb 2003 20:56:17 -0500
-Received: from 91.Red-80-36-90.pooles.rima-tde.net ([80.36.90.91]:43275 "HELO vger.kernel.org") by vger.kernel.org with SMTP id <S269077AbTBXB4P>; Sun, 23 Feb 2003 20:56:15 -0500
-From: "British Smokers" <britishsmokers@hotmail.com>
-Date: Mon, 24 Feb 2003 03:06:31
-To: linux-kernel@vger.kernel.org
-Subject: Half price cigarettes & rolling tobacco
+Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S268502AbTCAFLb>; Sat, 1 Mar 2003 00:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S268504AbTCAFLb>; Sat, 1 Mar 2003 00:11:31 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:37039 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S268502AbTCAFLa>; Sat, 1 Mar 2003 00:11:30 -0500
+Message-ID: <3E60578E.4050608@hotmail.com>
+Date: Fri, 28 Feb 2003 22:47:42 -0800
+From: walt <wa1ter@hotmail.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.21-pre4-ac7]  Um, is this a kernel oops?  Or not.
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20030224015615Z269077-29901+1660@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
-X-Envelope-To: </home/ralf/ralf> (uid 501)
-Original-Recipient: rfc822;ralf@linux-mips.org
 
-Dear Sir/Madam
+Hi Alan,
 
-With the recent news coverage in the UK highlighting the illegal 
-practices of Customs and Excise, there is now no better time to purchase 
-cheap cigarettes and tobacco online.
+I see this only with ac7, not with ac6 or earlier:
 
-If you are interested in finding out more email:
+# swapon -s
+Filename                        Type            Size    Used    Priority
+/dev/ide/host0/bus0/target1/lun0/part3 partition        136544  0       -3
 
-cheapsmokesinfo@yahoo.co.uk
+# swapoff -va
+swapoff on /dev/ide/host0/bus0/target1/lun0/part3
+swapoff on /dev/hdb3
+Unable to handle kernel NULL pointer dereference at virtual address 00000015
+  printing eip:
+  c01454ce
+  pde*=00000000
+  oops:002
+  <lots of hex numbers snipped>
+Segmentation fault </sbin/swapoff is the process that segfaults>
 
-Why pay high prices for tobacco in the UK? 
+At this point after an oops I expect to see a system crash/reboot but it this
+case the system continues on as if nothing had gone wrong, so I'm confused
+about what is happening here.  If the rest of the oops message would be
+useful I will transcribe and post it for you.
 
-A packet of cigarettes in the UK can cost up to £4.50 for a packet of 
-20. We can send you legally, by registered airmail direct to your UK 
-address, 800 cigarettes or 30x50g pouches of rolling tobacco (all brands 
-available) from as little as €170 Euros fully inclusive of postage and 
-packing. This works out at approximately £2.75 per packet. 
-
-Do you really want to pay more? 
-
-Kind regards 
-
-Sales Dept 
-British Smokers
-
-If you are not a smoker, and find this email offensive, we sincerely apologise!  We will be only too happy to take you off our mailing list.  To remove yourself from our mailing list, please click below.
-
-britishsmokersoff@yahoo.co.uk
-
-
-
-
-
-
-
-
-
-
-
-
-
+The swapspace is actually deactivated, BTW, before swapoff crashes, and I
+can turn it back on with swapon as if nothing had happened.
 

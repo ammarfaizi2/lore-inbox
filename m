@@ -1,70 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262883AbSKDXQi>; Mon, 4 Nov 2002 18:16:38 -0500
+	id <S262886AbSKDXYl>; Mon, 4 Nov 2002 18:24:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262884AbSKDXQi>; Mon, 4 Nov 2002 18:16:38 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:43495 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S262883AbSKDXQh>; Mon, 4 Nov 2002 18:16:37 -0500
-Date: Tue, 5 Nov 2002 00:22:56 +0100
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: Htree ate my hard drive, was: post-halloween 0.2
-Message-Id: <20021105002256.553cd975.us15@os.inf.tu-dresden.de>
-In-Reply-To: <20021104224213.F14318@redhat.com>
-References: <20021030171149.GA15007@suse.de>
-	<200210310727.52636.baldrick@wanadoo.fr>
-	<20021031080717.GF28982@clusterfs.com>
-	<20021104224213.F14318@redhat.com>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.10; )
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+	id <S262888AbSKDXYl>; Mon, 4 Nov 2002 18:24:41 -0500
+Received: from mhost.enel.ucalgary.ca ([136.159.102.8]:6074 "EHLO
+	mhost.enel.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262886AbSKDXYk>; Mon, 4 Nov 2002 18:24:40 -0500
+Date: Mon, 4 Nov 2002 16:31:13 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: A POSIX Linux project?
+Message-ID: <20021104163113.B13741@munet-d.enel.ucalgary.ca>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <000a01c28454$56a94b90$7fd40a0a@amr.corp.intel.com> <3DC6FF60.2000100@pobox.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.Pg:IaKI3(A5HE+"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DC6FF60.2000100@pobox.com>; from jgarzik@pobox.com on Mon, Nov 04, 2002 at 06:14:40PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.Pg:IaKI3(A5HE+
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Nov 04, 2002  18:14 -0500, Jeff Garzik wrote:
+> I wonder if any vendors, or independent groups, would be interested in 
+> maintaining a POSIX compliancy patchkit for the Linux kernel?
+> 
+> IMO such a "POSIX Linux" project would be useful for several reasons. 
+>  Overall, I think there is pressure from several directions to get all 
+> sorts of POSIX APIs into the kernel.  On occasion, kernel hackers are 
+> confronted with a situation where complete POSIX compliancy may mean a 
+> compromise in some area, be it performance, security, API issues, code 
+> cleanliness issues, etc.  Or simply that the POSIX-related code just 
+> isn't ready to be merged into the mainline kernel yet.
+> 
+> The vendors also benefit by this, because the barrier to entry in 
+> POSIX-related cases would be lowered, which would in turn satisfy the 
+> demands of customers.  Which would in turn give the mainline kernel all 
+> the software engineering benefits that come from a more reasoned and 
+> gradual review and merge of new features.
+> 
+> Does something like this already exist?  This would need to be an open, 
+> vendor-neutral project...
 
-On Mon, 4 Nov 2002 22:42:13 +0000 Stephen C. Tweedie (SCT) wrote:
+What about the existing POSIX test suite from X/Open?  I don't know what
+the current license is, but it is certainly freely downloadable from
+their website.  However, it is a pain in the a** to set up and run, so
+a new version would definitely be welcome.
 
-SCT> On Thu, Oct 31, 2002 at 01:07:17AM -0700, Andreas Dilger wrote:
-SCT> > I wonder if there is still a bug in the e2fsck code for re-hashing
-SCT> > directories?
-SCT> 
-SCT> Possibly, but I'm more worried about why the fsck did a directory
-SCT> optimise on reboot, especially on the root filesystem (where /dev is
-SCT> usually stored).  Doing major fs surgery on a mounted, readonly
-SCT> filesystem is sort-of safe, but only if you reboot afterwards.
-SCT> Continuing and remounting read-write can cause all sorts of damage as
-SCT> the cached fs data no longer matches what's on disk.
+I would give you a URL, but I don't have access to my mail archives now.
 
-Just a "me too". I've used htree with 2.5.44 and 2.4.20rc1. The next
-fs check on the root filesystem founds corruption in /dev. After repairing
-the damage and recreating the lost devices the machine ran ok for 2 days.
-Then I had some ext3-fs errors and the partition got remounted read-only.
-The following fsck revealed two inodes sharing the same block. I don't
-have any logs of that incident anymore though :/
-
-I'm running Slackware 9.0-beta and e2fsprogs-1.30-WIP.
-
-Regards,
--Udo.
-
---=.Pg:IaKI3(A5HE+
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9xwFUnhRzXSM7nSkRAopKAJ0ah2ZviPXPp6K0jRtm8TflYEBudwCdFX5U
-V7satkwnAQ7lch3SjNGFqvo=
-=qsGk
------END PGP SIGNATURE-----
-
---=.Pg:IaKI3(A5HE+--
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

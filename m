@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319013AbSHFHvy>; Tue, 6 Aug 2002 03:51:54 -0400
+	id <S319010AbSHFHzn>; Tue, 6 Aug 2002 03:55:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319014AbSHFHvy>; Tue, 6 Aug 2002 03:51:54 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:45038 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S319013AbSHFHvx>; Tue, 6 Aug 2002 03:51:53 -0400
-Date: Tue, 6 Aug 2002 01:52:36 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       "Peter J. Braam" <braam@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: BIG files & file systems
-Message-ID: <20020806075236.GA23923@clusterfs.com>
-Mail-Followup-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Matti Aarnio <matti.aarnio@zmailer.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	"Peter J. Braam" <braam@clusterfs.com>,
-	linux-kernel@vger.kernel.org
-References: <20020806051950.GD22933@clusterfs.com> <200208060724.g767Om3178569@saturn.cs.uml.edu>
+	id <S319012AbSHFHzn>; Tue, 6 Aug 2002 03:55:43 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:264 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S319010AbSHFHzm>; Tue, 6 Aug 2002 03:55:42 -0400
+Date: Tue, 6 Aug 2002 08:59:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       vamsi_krishna@in.ibm.com
+Subject: Re: [PATCH] kprobes for 2.5.30
+Message-ID: <20020806085918.A13396@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+	vamsi_krishna@in.ibm.com
+References: <Pine.LNX.4.44.0208052247380.1171-100000@home.transmeta.com> <20020806073804.690DE4BA4@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200208060724.g767Om3178569@saturn.cs.uml.edu>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020806073804.690DE4BA4@lists.samba.org>; from rusty@rustcorp.com.au on Tue, Aug 06, 2002 at 05:22:15PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 06, 2002  03:24 -0400, Albert D. Cahalan wrote:
-> Andreas Dilger writes:
-> > Having 16kB block size would allow a maximum of 64TB for a single
-> > filesystem.  The per-file limit would be over 256TB.
-> 
-> Um, yeah, 64 TB of data with 192 TB of holes!
-> I really don't think you should count a file
-> that won't fit on your filesystem.
+On Tue, Aug 06, 2002 at 05:22:15PM +1000, Rusty Russell wrote:
+> Vamsi, what do you think of this patch?  Is it neccessary to restore
+> interrupts before handle_vm86_trap (the original patch didn't do this
+> either, not sure if it's required).
 
-Well, no worse than the original posting which had reiserfs supporting
-something-EB files and 16TB filesystems.  Don't think I didn't consider
-this at the time of posting.
-
-> > In reality, we will probably implement extent-based allocation for
-> > ext3 when we start getting into filesystems that large, which has been
-> > discussed among the ext2/ext3 developers already.
-> 
-> It's nice to have a simple filesystem. If you turn ext2/ext3
-> into an XFS/JFS competitor, then what is left? Just minix fs?
-
-Note that I said ext3 in the above sentence, and not ext2.  I'm not in
-favour of adding all of the high-end features (htree, extents, etc) into
-ext2 at all.  It makes absolutely no sense to have a multi-TB filesystem
-running ext2, and then the fsck time takes a day.  It is desirable to
-put some minimum support into ext2 for newer features when it makes
-sense and does not complicate the code, but not for everything.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Any chance you could split the i386-specific kprobes code into
+arch/i386/kernel/kprobes.c instead of bloating traps.c?
 

@@ -1,73 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278303AbRJSG3j>; Fri, 19 Oct 2001 02:29:39 -0400
+	id <S278317AbRJSGft>; Fri, 19 Oct 2001 02:35:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278317AbRJSG3T>; Fri, 19 Oct 2001 02:29:19 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:3082 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S278303AbRJSG3I>; Fri, 19 Oct 2001 02:29:08 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Fri, 19 Oct 2001 08:29:36 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: SMP-i386: Linux timekeeping
-Message-ID: <3BCFE46A.28403.1C1D7F@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
-X-Content-Conformance: HerringScan-0.9/Sophos-3.50+2.6+2.03.079+01 October 2001+68125@20011019.062007Z
+	id <S278318AbRJSGfk>; Fri, 19 Oct 2001 02:35:40 -0400
+Received: from gull.mail.pas.earthlink.net ([207.217.121.85]:19440 "EHLO
+	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S278317AbRJSGf0>; Fri, 19 Oct 2001 02:35:26 -0400
+From: rwhron@earthlink.net
+Date: Fri, 19 Oct 2001 02:38:00 -0400
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+Subject: VM tests on 2.4.13-pre5aa1
+Message-ID: <20011019023800.A252@earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I haven't stidied the latest changes in the kernel (since 2.4.7), but I 
-got positive feedback from a user regarding my experimental patches 
-"PPSkit-CVS-2.4.7-TEST_SMP*" that can be found on ftp.kernel.org 
-somewhere near daemons/ntp/PPS.
+Kernel: 2.4.13-pre5aa1
 
-These two patches add new functionality so that SMP systems with 
-different, but relative constant (i.e. drifting at the same rate) clock 
-speeds for the CPUs are handled better.
+I discovered something important for the test results I've
+been reporting.  The mp3's that I've been listening to were
+not all sampled at the same rate.  That means some of the
+comparisons are suspect. 
 
-Of course nothing comes for free: I use TSC calibration per CPU during 
-startup and a per-CPU TSC conversion factor plus last_TSC values per 
-CPU. To avoid inter-CPU interrupts, I chose to let the CPU that 
-processes the timer interrupt update the other CPUs' data.
+The mp3's were sampled between 88k and 192k.  I did not notice
+the sample rate affecting whether an mp3 skips or not.  
+I.E. an 88k mp3 and a 192k mp3 skip about the same on a
+kernel/test that sputters.  There probably is a difference, 
+but it isn't obvious.  So the subjective reports on sound quality 
+are reasonable.  In the future, I'll make sure comparisons that
+include timing are done with comparable mp3's.
 
-Currently I use no locks to protect the data. Doing so might cause some 
-time spikes when a value is read while being updated.
 
-Can some guru here tell me what lock to use, or is a new one required?
-Usually things like cpu_data[] are read-only, but I update them now 
-from time to time.
+Timing variance:
 
-The code deals with nanoseconds, and the performance that a test user 
-reported was (under load):
+mmap01  Low time: 4:13  High  4:29
+mtest01	Low time:  :43  High  1:10
 
-assert 10035 time 1003435349.891827405 delta 0.999942712 jitter -2413
-assert 10036 time 1003435350.891774086 delta 0.999946681 jitter 3969
-assert 10037 time 1003435351.891723976 delta 0.999949890 jitter 3209
-assert 10038 time 1003435352.891663539 delta 0.999939563 jitter -10327
-assert 10039 time 1003435353.891610403 delta 0.999946864 jitter 7301
-assert 10040 time 1003435354.891553922 delta 0.999943519 jitter -3345
-assert 10041 time 1003435355.891498601 delta 0.999944679 jitter 1160
-assert 10042 time 1003435356.891446761 delta 0.999948160 jitter 3481
-assert 10043 time 1003435357.891387342 delta 0.999940581 jitter -7579
-assert 10044 time 1003435358.891332625 delta 0.999945283 jitter 4702
+I'm not saying the difference between the high and low times
+is the variance between an 88k and 192k mp3. For mtest01 it 
+could be, because that test is short enough to run a couple
+times during one song.  mmap01 may have had part at 88k and part
+at 192k.
 
-(Comparing the system clock to a one-pulse-per-second external pulse 
-applied to the serial port)
+Okay, with the disclaimers out of the way.  Here are the results:
 
-So if anybody wants to play with the code, do so. But don't use the 
-kernel for your production database right now! The non-SMP variant 
-works on i386 for weeks at home.
 
-A port to a more recent kernel is planned as soon as the branch seems 
-stable enough.
+mmap001
 
-Regards,
-Ulrich
-(I am not subscribed to linux-kernel, so make sure I get your comments)
+Average for 5 mmap001 runs
+bytes allocated:                    2048000000
+User time (seconds):                19.172
+System time (seconds):              15.182
+Elapsed (wall clock seconds) time:  258.82
+Percent of CPU this job got:        12.80
+Major (requiring I/O) page faults:  500169.0
+Minor (reclaiming a frame) faults:  32.0
+
+mtest01 
+
+Averages for 10 mtest01 runs
+bytes allocated:                    1251370598
+User time (seconds):                2.079
+System time (seconds):              2.849
+Elapsed (wall clock) time:          54.075
+Percent of CPU this job got:        8.70
+Major (requiring I/O) page faults:  107.2
+Minor (reclaiming a frame) faults:  306293.2
+
+
+Even though I made the disclaimers, I will note that 2.4.13-pre3aa1
+was doing the mmap001 test consistently (4 runs) at around 210
+seconds average.  2.4.13-pre5 and 2.4.13-pre5aa1 are both 
+around 260 seconds.
+
+
+Sound quality:
+
+Mostly good for mtest01.  page-cluster is 3.  
+
+Not as good, for mmap01.    I'll give a subjective 4 on a scale of 10.  
+
+Ideally I'd have a nice long mp3, and could say the test took 18:27 and mp3 
+played 15:10 (or whatever).  
+
+
+One other note for people who do similar tests.  mp3blaster skips less
+when compiled with glibc-linuxthreads-2.2.4 (default configure) than with 
+pth-1.40.  glibc-linuxthreads uses more memory and creates more processes
+though.  All of my tests were with a glibc threads mp3blaster.
+
+I'm looking forward to playing with Andrea's new knobs in /proc/sys/vm.
+
+Have fun!
+-- 
+Randy Hron
 

@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265002AbTAJMgw>; Fri, 10 Jan 2003 07:36:52 -0500
+	id <S264969AbTAJMdf>; Fri, 10 Jan 2003 07:33:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265008AbTAJMgv>; Fri, 10 Jan 2003 07:36:51 -0500
-Received: from ophelia.ess.nec.de ([193.141.139.8]:33938 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S265002AbTAJMgu>; Fri, 10 Jan 2003 07:36:50 -0500
-From: Erich Focht <efocht@ess.nec.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: small migration thread fix
-Date: Fri, 10 Jan 2003 13:46:03 +0100
-User-Agent: KMail/1.4.3
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@tech9.net>
+	id <S264975AbTAJMdf>; Fri, 10 Jan 2003 07:33:35 -0500
+Received: from oak.sktc.net ([208.46.69.4]:129 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id <S264969AbTAJMde>;
+	Fri, 10 Jan 2003 07:33:34 -0500
+Message-ID: <3E1EBFA9.3000405@sktc.net>
+Date: Fri, 10 Jan 2003 06:42:17 -0600
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021201
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_RS0INCOSRJY45JH5GL4F"
-Message-Id: <200301101346.03653.efocht@ess.nec.de>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Asterisk] DTMF noise
+References: <D6889804-2291-11D7-901B-000393950CC2@karlsbakk.net> <3E1BD88A.4080808@users.sf.net> <3E1C1CDE.8090600@sktc.net> <3E1C4872.7080508@gmx.net> <3E1D705E.1030203@sktc.net> <3E1D79CB.5010503@gmx.net> <3E1E06A3.8050607@sktc.net> <20030110065218.GE27709@mea-ext.zmailer.org>
+In-Reply-To: <20030110065218.GE27709@mea-ext.zmailer.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matti Aarnio wrote:
 
---------------Boundary-00=_RS0INCOSRJY45JH5GL4F
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
+> What does such tape contain ?
+>  - DTMF tones buried in various degrees of distortions,
+>    which should be decodable ?
+>  - DTMF tones buried in varying noises which should not be
+>    decodable ?
+>  - Other multi-tone signals which should not decode ?
 
-Hi,
+All that, plus voice (to detect falsing).
 
-the small patch fixes a potential problem in the migration thread for
-the case that the first CPU in the cpus_allowed mask of a process is
-offline. Please consider applying it to your trees.
-
-Thanks!
-Regards,
-Erich
+It's about 30 minutes long.
 
 
---------------Boundary-00=_RS0INCOSRJY45JH5GL4F
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="migration-fix-2.5.55.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="migration-fix-2.5.55.patch"
 
-diff -urNp linux-2.5.55/kernel/sched.c linux-2.5.55-fix/kernel/sched.c
---- linux-2.5.55/kernel/sched.c	2003-01-09 05:04:22.000000000 +0100
-+++ linux-2.5.55-fix/kernel/sched.c	2003-01-10 13:37:40.000000000 +0100
-@@ -2108,7 +2108,7 @@ static int migration_thread(void * data)
- 		spin_unlock_irqrestore(&rq->lock, flags);
- 
- 		p = req->task;
--		cpu_dest = __ffs(p->cpus_allowed);
-+		cpu_dest = __ffs(p->cpus_allowed & cpu_online_map);
- 		rq_dest = cpu_rq(cpu_dest);
- repeat:
- 		cpu_src = task_cpu(p);
-
---------------Boundary-00=_RS0INCOSRJY45JH5GL4F--
 

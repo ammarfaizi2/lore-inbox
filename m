@@ -1,29 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315483AbSFJQWX>; Mon, 10 Jun 2002 12:22:23 -0400
+	id <S315487AbSFJQ2p>; Mon, 10 Jun 2002 12:28:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315485AbSFJQWW>; Mon, 10 Jun 2002 12:22:22 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:17299 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S315483AbSFJQWW>;
-	Mon, 10 Jun 2002 12:22:22 -0400
-Date: Mon, 10 Jun 2002 09:17:54 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] PCI device matching fix
-In-Reply-To: <Pine.LNX.4.44.0206100935080.20438-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.33.0206100917230.654-100000@geena.pdx.osdl.net>
+	id <S315491AbSFJQ2o>; Mon, 10 Jun 2002 12:28:44 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48910 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315487AbSFJQ2o>; Mon, 10 Jun 2002 12:28:44 -0400
+Date: Mon, 10 Jun 2002 09:29:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Hans Reiser <reiser@bitshadow.namesys.com>
+cc: linux-kernel@vger.kernel.org, <reiserfs-dev@namesys.com>
+Subject: Re: [BK] [2.5] reiserfs changeset 1 of 15 for 2.5.21
+In-Reply-To: <200206101342.g5ADgtq6003842@bitshadow.namesys.com>
+Message-ID: <Pine.LNX.4.44.0206100928010.30535-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Sounds okay. Well, I'm generally lost in too many patches, if you put
-> the whole thing onto bkbits.net or so, I'll try to give it a look.
 
-Heh, sure. You can pull from bk://ldm.bkbits.net/linux-2.5-module.
+On Mon, 10 Jun 2002, Hans Reiser wrote:
+>
+> You can pull it from bk://namesys.com/bk/reiser3-linux-2.5
 
-	-pat
+	ERROR-Lock fail: possible permission problem.
+
+Please do "bk sane" on your repository.
+
+		Linus
 

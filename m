@@ -1,54 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318845AbSHWPag>; Fri, 23 Aug 2002 11:30:36 -0400
+	id <S318851AbSHWPsh>; Fri, 23 Aug 2002 11:48:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318860AbSHWPag>; Fri, 23 Aug 2002 11:30:36 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:20352 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S318845AbSHWPag>; Fri, 23 Aug 2002 11:30:36 -0400
-Date: Fri, 23 Aug 2002 11:34:43 -0400
-To: Holger Schurig <h.schurig@mn-logistik.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cell-phone like keyboard driver anywhere?
-Message-ID: <20020823153442.GA29846@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: Holger Schurig <h.schurig@mn-logistik.de>,
-	linux-kernel@vger.kernel.org
-References: <200208210932.36132.h.schurig@mn-logistik.de> <200208230954.11132.h.schurig@mn-logistik.de> <20020823142140.GA27454@ravel.coda.cs.cmu.edu> <200208231710.19950.h.schurig@mn-logistik.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200208231710.19950.h.schurig@mn-logistik.de>
-User-Agent: Mutt/1.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S318857AbSHWPsh>; Fri, 23 Aug 2002 11:48:37 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:19974 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318851AbSHWPsg>; Fri, 23 Aug 2002 11:48:36 -0400
+Date: Fri, 23 Aug 2002 12:52:16 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: conman@kolivas.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Combined performance patches update for 2.4.19
+In-Reply-To: <1030111826.3d6642520a757@kolivas.net>
+Message-ID: <Pine.LNX.4.44L.0208231251330.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 23, 2002 at 05:10:19PM +0200, Holger Schurig wrote:
-> > Press 5 (JKL), all songs starting with either j, k, or l will be
-> > selected, and the display shows 'Kind of Magic'. Press 3 (DEF) and it
-> > limits the selection to any songs that have one of those letters in the
-> 
-> That sounds pretty much like high application stuff. If I had that in my mind, 
-> I would not have had asked in linux-KERNEL. For an application it's easy to 
-> have some directory.
-> 
-> The solution you're proposing is good and elegant --- in it's domain. It 
-> solves one narrow problem. I need a solution that is broader. Your solution 
-> wouldn't work with Qt/Embedded apps AND X11 apps AND ncurses apps. Maybe 
-> because your hardware is only used for playing mpegs. But what if the 
+On Sat, 24 Aug 2002 conman@kolivas.net wrote:
+> Quoting Rik van Riel <riel@conectiva.com.br>:
+> > On Fri, 23 Aug 2002 conman@kolivas.net wrote:
+> >
+> > > I've completed merging the following patches:
+> > >
+> > > O(1) scheduler
+> > > Preemptible
+> > > Low latency
+> >
+> > Could I interest you in the -rmap VM ? ;)
+> >
+> > http://surriel.com/patches/
+>
+> Sure I'll give it a go, but it might kill me trying :P
 
-The hardware in not just used to play mpegs. It is one application that
-happens to be running most of the time, and it is the application that
-deals with treating the input in such a way.
+OK, here's a little patch to be able to combine rmap and preempt.
 
-You want a broader solution, just look at how grafitti input (penstrokes)
-is dealt with in for example Qt/Embedded or X11 on the iPaq. No kernel
-hacks involved there as far as I can see.
+have fun,
 
-    http://www.handhelds.org/
-    http://www.handhelds.org/projects/xscribble.html
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Or have a library that intercepts read() from fd 0 which you link
-against applications.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Jan
+
+===== include/linux/mm.h 1.47 vs edited =====
+--- 1.47/include/linux/mm.h	Tue Aug  6 15:59:20 2002
++++ edited/include/linux/mm.h	Fri Aug 23 12:48:44 2002
+@@ -337,6 +337,7 @@
+ 	 * busywait with less bus contention for a good time to
+ 	 * attempt to acquire the lock bit.
+ 	 */
++	preempt_disable();
+ #ifdef CONFIG_SMP
+ 	while (test_and_set_bit(PG_chainlock, &page->flags)) {
+ 		while (test_bit(PG_chainlock, &page->flags))
+@@ -350,6 +351,7 @@
+ #ifdef CONFIG_SMP
+ 	clear_bit(PG_chainlock, &page->flags);
+ #endif
++	preempt_enable();
+ }
+
+ /*
+

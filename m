@@ -1,65 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262729AbTJPFvO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 01:51:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTJPFvO
+	id S262114AbTJPG1W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 02:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbTJPG1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 01:51:14 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:42420 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262729AbTJPFvM (ORCPT
+	Thu, 16 Oct 2003 02:27:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38828 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262114AbTJPG1U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 01:51:12 -0400
-Date: Wed, 15 Oct 2003 22:48:21 -0700
-From: "Kurtis D. Rader" <kdrader@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: pberger@brimson.com, borchers@steinerpoint.com, greg@kroah.com
-Subject: [PATCH][2.6.0-test7] digi_acceleport.c has bogus "address of" operator
-Message-ID: <20031016054821.GA22005@us.ibm.com>
+	Thu, 16 Oct 2003 02:27:20 -0400
+Date: Wed, 15 Oct 2003 23:31:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: wli@holomorphy.com, albertogli@telpin.com.ar, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5/6 (and probably 7 too) size-4096 memory leak
+Message-Id: <20031015233102.05eb809b.akpm@osdl.org>
+In-Reply-To: <3F8E2F68.7010007@colorfullife.com>
+References: <20031016025554.GH4292@telpin.com.ar>
+	<20031015211918.1a70c4d2.akpm@osdl.org>
+	<20031016044334.GE4461@holomorphy.com>
+	<20031015215824.165dc4c7.akpm@osdl.org>
+	<3F8E2F68.7010007@colorfullife.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1365
+Manfred Spraul <manfred@colorfullife.com> wrote:
+>
+> I've attached something: with the patch applied, `echo "size-4096 0 0 0" 
+>   > /proc/slabinfo` dumps all caller addresses.
 
-The digi_acceleport.c USB serial driver has a bogus "address of" operator
-that results in panics like this:
+Awesome, thanks.
 
-kernel BUG at include/asm/spinlock.h:120!
-invalid operand: 0000 [#1]
-Call Trace:
- [<f88e9000>] digi_wakeup_write_lock+0x0/0xaa [digi_acceleport]
- [<c0236842>] console_callback+0xa0/0xc2
- [<c0136ebc>] worker_thread+0x228/0x3ce
- [<f88e9000>] digi_wakeup_write_lock+0x0/0xaa [digi_acceleport]
- [<c011e8b6>] default_wake_function+0x0/0x2e
- [<c010993e>] ret_from_fork+0x6/0x14
- [<c011e8b6>] default_wake_function+0x0/0x2e
- [<c0136c94>] worker_thread+0x0/0x3ce
- [<c010740d>] kernel_thread_helper+0x5/0xc
+I added some tweaks (why was it returning -EINVAL?).
 
-The problem is that digi_wakeup_write_lock() takes a pointer to a struct
-usb_serial_port. However, what gets passed is a pointer to a pointer to a
-struct usb_serial_port.
+Is there any reason why we shouldn't merge this up?
 
-=== diff -rup drivers/usb/serial/digi_acceleport.c.orig drivers/usb/serial/digi_acceleport.c
---- drivers/usb/serial/digi_acceleport.c.orig   2003-10-15 22:03:26.000000000 -0700
-+++ drivers/usb/serial/digi_acceleport.c        2003-10-15 21:10:21.000000000 -0700
-@@ -1728,8 +1728,7 @@ dbg( "digi_startup: TOP" );
-                init_waitqueue_head( &priv->dp_flush_wait );
-                priv->dp_in_close = 0;
-                init_waitqueue_head( &priv->dp_close_wait );
--               INIT_WORK(&priv->dp_wakeup_work, (void *)digi_wakeup_write_lock,
--                               (void *)(&serial->port[i]));
-+               INIT_WORK(&priv->dp_wakeup_work, digi_wakeup_write_lock, serial->port[i]);
+
+
+ mm/slab.c |   17 +++++++++++++----
+ 1 files changed, 13 insertions(+), 4 deletions(-)
+
+diff -puN mm/slab.c~slab-leak-detector-tweaks mm/slab.c
+--- 25/mm/slab.c~slab-leak-detector-tweaks	2003-10-15 23:11:19.000000000 -0700
++++ 25-akpm/mm/slab.c	2003-10-15 23:17:12.000000000 -0700
+@@ -2708,6 +2708,7 @@ struct seq_operations slabinfo_op = {
  
-                /* initialize write wait queue for this port */
-                init_waitqueue_head( &serial->port[i]->write_wait );
+ static void do_dump_slabp(kmem_cache_t *cachep)
+ {
++#if DEBUG
+ 	struct list_head *q;
+ 
+ 	check_irq_on();
+@@ -2716,10 +2717,17 @@ static void do_dump_slabp(kmem_cache_t *
+ 		struct slab *slabp;
+ 		int i;
+ 		slabp = list_entry(q, struct slab, list);
+-		for (i=0;i<cachep->num;i++)
+-			printk(KERN_DEBUG "obj %p/%d: %p\n", slabp, i, (void*)(slab_bufctl(slabp)[i]));
++		for (i = 0; i < cachep->num; i++) {
++			unsigned long sym = slab_bufctl(slabp)[i];
++
++			printk(KERN_DEBUG "obj %p/%d: %p",
++					slabp, i, (void *)sym);
++			print_symbol(" <%s>", sym);
++			printk("\n");
++		}
+ 	}
+ 	spin_unlock_irq(&cachep->spinlock);
++#endif
+ }
+ 
+ #define MAX_SLABINFO_WRITE 128
+@@ -2763,9 +2771,10 @@ ssize_t slabinfo_write(struct file *file
+ 			    batchcount > limit ||
+ 			    shared < 0) {
+ 				do_dump_slabp(cachep);
+-				res = -EINVAL;
++				res = 0;
+ 			} else {
+-				res = do_tune_cpucache(cachep, limit, batchcount, shared);
++				res = do_tune_cpucache(cachep, limit,
++							batchcount, shared);
+ 			}
+ 			break;
+ 		}
 
--- 
-Kurtis D. Rader, Systems Support Engineer    service: 800-IBM-SERV
-IBM Integrated Technology Services           email: kdrader@us.ibm.com
-15300 SW Koll Pkwy, MS RHE2-O2               DID: +1 503-578-3714
-Beaverton, OR 97006-6063                     http://www.ibm.com
+_
+

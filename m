@@ -1,75 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261819AbSITJbl>; Fri, 20 Sep 2002 05:31:41 -0400
+	id <S262172AbSITJ2G>; Fri, 20 Sep 2002 05:28:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261925AbSITJbl>; Fri, 20 Sep 2002 05:31:41 -0400
-Received: from mta.sara.nl ([145.100.16.144]:31906 "EHLO mta.sara.nl")
-	by vger.kernel.org with ESMTP id <S261819AbSITJbk>;
-	Fri, 20 Sep 2002 05:31:40 -0400
-Date: Fri, 20 Sep 2002 11:36:40 +0200
-Mime-Version: 1.0 (Apple Message framework v482)
-Content-Type: multipart/mixed; boundary=Apple-Mail-1-520309516
-Subject: [patch] 2.5.36 reiserfs super.c
-From: Remco Post <r.post@sara.nl>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Message-Id: <778038AA-CC7C-11D6-AF50-000393911DE2@sara.nl>
-X-Mailer: Apple Mail (2.482)
+	id <S262137AbSITJ2F>; Fri, 20 Sep 2002 05:28:05 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:41746 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262113AbSITJ2C>; Fri, 20 Sep 2002 05:28:02 -0400
+Date: Fri, 20 Sep 2002 11:32:42 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: kaos@ocs.com.au, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] In-kernel module loader 1/7 
+In-Reply-To: <20020920000502.242CF2C100@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0209201105330.338-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Apple-Mail-1-520309516
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
-
 Hi,
 
-small patch to include mm.h in fs/reiserfs/super.c
+On Fri, 20 Sep 2002, Rusty Russell wrote:
 
+> 1) You keep ignoring the load race problem.  Your solution does not
+>    solve that, so you will need something else as well.
 
---Apple-Mail-1-520309516
-Content-Disposition: attachment;
-	filename=reiserfs2.patch
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name="reiserfs2.patch"
+Could you please explain, why you think I'm ignoring this problem?
+(I think I don't, but I want to be sure we talk about the same problem.)
 
---- linux-2.5/fs/reiserfs/super.c.org	Fri Sep 20 11:28:40 2002
-+++ linux-2.5/fs/reiserfs/super.c	Thu Sep 19 20:59:46 2002
-@@ -13,6 +13,7 @@
- 
- #include <linux/config.h>
- #include <linux/module.h>
-+#include <linux/mm.h>
- #include <linux/vmalloc.h>
- #include <linux/time.h>
- #include <asm/uaccess.h>
+> 2) Several places in the kernel do *not* keep reference counts, for
+>    example net/core/dev.c's dev_add_pack and dev_remove_pack.  You
+>    want to add reference counts to all of them, but the only reason
+>    for the reference counts is for module unload: you are penalizing
+>    everyone just *in case* one is a module.
 
---Apple-Mail-1-520309516
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
+For an alternative solution:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103246649130126&w=2
 
+> 3) The cost of doing atomic_incs and decs on eg. our network performance
+>    is simply unacceptable.  The only way to avoid hitting the same
+>    cacheline all the time is to use bigrefs, and the kernel bloat will
+>    kill us (and they're still not free for the 99% of people who don't
+>    have IPv4 and TCP as modules).
 
---
-Met vriendelijke groeten,
+Even your bigref is still overkill. When packets come in, you already have
+to take _some_ lock, under the protection of this lock you can implement
+cheap, simple, portable and cache friendly counts, which can be used for
+synchronization.
 
-Remco Post
+> 4) Your solution does not allow implementation of "rmmod -f" which
+>    prevents module count from increasing, and removes it when it is
+>    done.  This is very nice when your usage count is controlled by an
+>    external source (eg. your network).
 
-SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
-PGP keys at http://home.sara.nl/~remco/keys.asc
+Multiple possible solutions:
+- Separate stop/exit is probably the most elegant solution.
+- A call to exit does in any case start the removal of the module, that
+means it starts removing interface (and which won't get reinstalled).
+If there is still any user, exit will fail, you can try it later again
+after you killed that user.
+Anyway, almost any access to a driver goes through the filesystem and
+there it's a well known problem of unlinked but still open files. Driver
+access is pretty much the same problem to which you can apply the same
+well known solutions.
 
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer 
-industry
-didn't even foresee that the century was going to end." -- Douglas Adams
-
-
-
---Apple-Mail-1-520309516--
+bye, Roman
 

@@ -1,56 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267971AbUIUSwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267967AbUIUS5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267971AbUIUSwf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 14:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267967AbUIUSwf
+	id S267967AbUIUS5t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 14:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267963AbUIUS5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 14:52:35 -0400
-Received: from mail4.utc.com ([192.249.46.193]:15569 "EHLO mail4.utc.com")
-	by vger.kernel.org with ESMTP id S267971AbUIUSwP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 14:52:15 -0400
-Message-ID: <4150783C.1080605@cybsft.com>
-Date: Tue, 21 Sep 2004 13:51:40 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S2
-References: <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu>
-In-Reply-To: <20040921074426.GA10477@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Sep 2004 14:57:49 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:41856 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S267967AbUIUS5p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 14:57:45 -0400
+Subject: Re: [RFC][PATCH] inotify 0.9.2
+From: Robert Love <rml@novell.com>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+In-Reply-To: <1095782674.4944.41.camel@betsy.boston.ximian.com>
+References: <1095652572.23128.2.camel@vertex>
+	 <1095782674.4944.41.camel@betsy.boston.ximian.com>
+Content-Type: multipart/mixed; boundary="=-W+ifv+tBvOOmxOY1/2j9"
+Date: Tue, 21 Sep 2004 14:56:36 -0400
+Message-Id: <1095792996.4944.59.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i've released the -S2 VP patch:
+
+--=-W+ifv+tBvOOmxOY1/2j9
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Tue, 2004-09-21 at 12:04 -0400, Robert Love wrote:
+
+> Hey, John.
 > 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S2
+> We are seeing an oops when monitoring a large number of directories.
+> The system keeps running, but I/O gets flaky and eventually processes
+> start getting stuck.
 > 
+> Also, the ioctl() stops returning new WD after 1024.  Thereafter, it
+> keeps returning the same value.
+> 
+> I have attached the relevant bits from the syslog.  I will debug it, but
+> I thought that perhaps you would immediately see the issue.
 
-Another smp_processor_id in modprobe. Now I see these for every 
-modprobe. Is this a different global lock?
+OK.  I fixed the problem with ioctl() failing after 1024 WD's.  This may
+also fix the oopses.  Still checking on that.
 
-Sep 21 13:27:53 porky kernel: using smp_processor_id() in preemptible 
-code: modprobe/1737
-Sep 21 13:27:53 porky kernel:  [<c011c58e>] smp_processor_id+0x8e/0xa0
-Sep 21 13:27:53 porky kernel:  [<c01401e5>] __stop_machine_run+0xb5/0xc0
-Sep 21 13:27:53 porky kernel:  [<c013de30>] __try_stop_module+0x0/0x46
-Sep 21 13:27:53 porky kernel:  [<c01151e8>] mcount+0x14/0x18
-Sep 21 13:27:53 porky kernel:  [<c0140214>] stop_machine_run+0x24/0x3d
-Sep 21 13:27:53 porky kernel:  [<c013de30>] __try_stop_module+0x0/0x46
-Sep 21 13:27:53 porky kernel:  [<c013b019>] try_stop_module+0x39/0x40
-Sep 21 13:27:53 porky kernel:  [<c013de30>] __try_stop_module+0x0/0x46
-Sep 21 13:27:53 porky kernel:  [<c013b1e0>] sys_delete_module+0x110/0x180
-Sep 21 13:27:53 porky kernel:  [<c0154c09>] sys_munmap+0x59/0x80
-Sep 21 13:27:53 porky kernel:  [<c01066b9>] sysenter_past_esp+0x52/0x71
+The problem was that we were passing the size of dev->bitmask in _bytes_
+to find_first_zero_bit().  But find_first_zero_bit()'s second parameter
+is the size in _bits_.
 
-kr
+I then went ahead and just made dev->bitmask an array, since we know the
+size at compile time.
+
+Comments?
+
+Best,
+
+	Robert Love
+
+
+--=-W+ifv+tBvOOmxOY1/2j9
+Content-Disposition: attachment; filename=inotify-fix-wd-rml-1.patch
+Content-Type: text/x-patch; name=inotify-fix-wd-rml-1.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Fix problem with ioctl() failing after 1024 WD's, by giving ffz bits not bytes.
+Signed-Off-By: Robert Love <rml@novell.com>
+
+ drivers/char/inotify.c |    8 +++-----
+ 1 files changed, 3 insertions(+), 5 deletions(-)
+
+--- linux-inotify-rml/drivers/char/inotify.c	2004-09-20 18:02:32.886258448 -0400
++++ linux/drivers/char/inotify.c	2004-09-21 14:51:11.433908024 -0400
+@@ -43,7 +43,6 @@
+ #define MAX_INOTIFY_DEVS 8 /* We only support X watchers */
+ #define MAX_INOTIFY_DEV_WATCHERS 8192 /* A dev can only have Y watchers */
+ #define MAX_INOTIFY_QUEUED_EVENTS 256 /* Only the first Z events will be queued */
+-#define __BITMASK_SIZE (MAX_INOTIFY_DEV_WATCHERS / 8)
+ 
+ #define INOTIFY_DEV_TIMER_TIME jiffies + (HZ/4)
+ 
+@@ -71,7 +70,7 @@
+ 	struct timer_list	timer;
+ 	char			read_state;
+ 	spinlock_t		lock;
+-	void *			bitmask;
++	unsigned long		bitmask[MAX_INOTIFY_DEV_WATCHERS / BITS_PER_LONG];
+ };
+ #define inotify_device_event_list(pos) list_entry((pos), struct inotify_event, list)
+ 
+@@ -239,7 +238,7 @@
+ 
+ 	dev->watcher_count++;
+ 
+-	wd = find_first_zero_bit (dev->bitmask, __BITMASK_SIZE);
++	wd = find_first_zero_bit (dev->bitmask, MAX_INOTIFY_DEV_WATCHERS);
+ 
+ 	set_bit (wd, dev->bitmask);
+ 
+@@ -653,8 +652,7 @@
+ 	atomic_inc(&watcher_count);
+ 
+ 	dev = kmalloc(sizeof(struct inotify_device), GFP_KERNEL);
+-	dev->bitmask = kmalloc(__BITMASK_SIZE, GFP_KERNEL);
+-	memset(dev->bitmask, 0, __BITMASK_SIZE);
++	memset(dev->bitmask, 0, MAX_INOTIFY_DEV_WATCHERS);
+ 
+ 	INIT_LIST_HEAD(&dev->events);
+ 	INIT_LIST_HEAD(&dev->watchers);
+
+--=-W+ifv+tBvOOmxOY1/2j9--
 

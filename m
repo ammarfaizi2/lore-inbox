@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264537AbUEELXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264549AbUEELY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbUEELXI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 07:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbUEELXI
+	id S264549AbUEELY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 07:24:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbUEELY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 07:23:08 -0400
-Received: from firewall.conet.cz ([213.175.54.250]:59847 "EHLO conet.cz")
-	by vger.kernel.org with ESMTP id S264537AbUEELXD (ORCPT
+	Wed, 5 May 2004 07:24:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41148 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264549AbUEELYT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 07:23:03 -0400
-Date: Wed, 5 May 2004 13:22:18 +0200
-From: Libor Vanek <libor@conet.cz>
-To: Bart Samwel <bart@samwel.tk>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Read from file fails
-Message-ID: <20040505112218.GA7733@Loki>
-References: <20040503000004.GA26707@Loki> <Pine.LNX.4.53.0405030852220.10896@chaos> <20040503150606.GB6411@Loki> <Pine.LNX.4.53.0405032020320.12217@chaos> <20040504011957.GA20676@Loki> <4097A94C.8060403@samwel.tk> <20040505095406.GC5767@Loki> <4098BC2B.4080601@samwel.tk> <20040505101902.GB6979@Loki> <4098C5DE.70401@samwel.tk>
+	Wed, 5 May 2004 07:24:19 -0400
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200405051312.30626.dominik.karall@gmx.net>
+References: <20040505013135.7689e38d.akpm@osdl.org>
+	 <200405051312.30626.dominik.karall@gmx.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Qfso3VofKJkxzyWyLaai"
+Organization: Red Hat UK
+Message-Id: <1083756248.3844.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4098C5DE.70401@samwel.tk>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 05 May 2004 13:24:08 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>>OK - how can I "notify" userspace process? Signals are "weak" - I need
-> >>>to send some data (filename etc.) to process. One solution is "on this
-> >>>signal call this syscall and result of this syscall will be data you
-> >>>need" - but I'd prefer to handle this in one "action".
-> >>
-> >>My first thoughts are to make it a blocking call.
+
+--=-Qfso3VofKJkxzyWyLaai
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2004-05-05 at 13:12, Dominik Karall wrote:
+> On Wednesday 05 May 2004 10:31, you wrote:
+> > +make-4k-stacks-permanent.patch
 > >
-> >You mean like:
-> >- send signal to user-space process
-> >- wait until user-space process pick ups data (filename etc.), creates 
-> >copy of file (or whatever) and calls another system call that he's finished
-> >- let kernel to continue syscall I blocked
-> >?
-> 
-> No, more like:
-> - user-space process calls syscall, which blocks.
-> - kernel captures a file write event, puts the info in some kind of 
-> queue, wakes up the user-space process and then waits for some kind of 
-> acknowledgement to be returned so that it may continue.
-> - user-space process wakes up, the syscall completes, and passes a 
-> filename etc. to user-space. Copies the file, and calls a syscall to 
-> signify "hey, I'm done with that file". This syscall wakes up the kernel 
-> stuff that was waiting for this acknowledgement.
-> - file write event continues
-> - repeat from start
+> >  Fill my inbox.
+>=20
+> Hi Andrew!
+>=20
+> Is there any reason why this patch was applied? Because NVidia users=20
+=20
+nvidia users can use the nv driver instead? And/Or ask the nvidia binary
+only people for a fixed driver ?
 
-OK - I'm thinking of using semaphores to "block" system call - is there something why this is not a good idea?
+--=-Qfso3VofKJkxzyWyLaai
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Thanks,
-Libor
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAmM7YxULwo51rQBIRAj3/AJ406NiYbpfmzO9sh0fXQiBQuqhD7QCfUdyP
+tL721v/+Co7nleCXvkNtD5E=
+=MNjy
+-----END PGP SIGNATURE-----
+
+--=-Qfso3VofKJkxzyWyLaai--
 

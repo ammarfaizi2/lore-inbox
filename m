@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265603AbTBXHpr>; Mon, 24 Feb 2003 02:45:47 -0500
+	id <S265039AbTBXH5S>; Mon, 24 Feb 2003 02:57:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265608AbTBXHpr>; Mon, 24 Feb 2003 02:45:47 -0500
-Received: from holomorphy.com ([66.224.33.161]:39599 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265603AbTBXHpq>;
-	Mon, 24 Feb 2003 02:45:46 -0500
-Date: Sun, 23 Feb 2003 23:54:30 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: Larry McVoy <lm@work.bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Bill Davidsen <davidsen@tmr.com>, Ben Greear <greearb@candelatech.com>,
+	id <S265201AbTBXH5S>; Mon, 24 Feb 2003 02:57:18 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:47368 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265039AbTBXH5R>; Mon, 24 Feb 2003 02:57:17 -0500
+Date: Mon, 24 Feb 2003 08:07:05 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Larry McVoy <lm@work.bitmover.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       Bill Davidsen <davidsen@tmr.com>, lse-tech@lists.sf.et,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030224075430.GN10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Bill Huey <billh@gnuppy.monkey.org>,
-	Larry McVoy <lm@work.bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Ben Greear <greearb@candelatech.com>,
+Message-ID: <20030224080704.A30910@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Larry McVoy <lm@work.bitmover.com>, Gerrit Huizenga <gh@us.ibm.com>,
+	Bill Davidsen <davidsen@tmr.com>, lse-tech@lists.sf.et,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.96.1030223182350.999E-100000@gatekeeper.tmr.com> <33350000.1046043468@[10.10.2.4]> <20030224045717.GC4215@work.bitmover.com> <20030224074447.GA4664@gnuppy.monkey.org>
+References: <Pine.LNX.3.96.1030223181400.999D-100000@gatekeeper.tmr.com> <E18n9Kx-0000kA-00@w-gerrit2> <20030224040246.GA4215@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030224074447.GA4664@gnuppy.monkey.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030224040246.GA4215@work.bitmover.com>; from lm@bitmover.com on Sun, Feb 23, 2003 at 08:02:46PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 23, 2003 at 08:57:17PM -0800, Larry McVoy wrote:
->> Dig through the mail logs and you'll see that I was completely against the
->> preemption patch.  I think it is a bad idea, if you want real time, use
->> rt/linux, it solves the problem right.
+On Sun, Feb 23, 2003 at 08:02:46PM -0800, Larry McVoy wrote:
+> On Sun, Feb 23, 2003 at 07:31:26PM -0800, Gerrit Huizenga wrote:
+> > But most
+> > people don't connect big machines to IDE drive subsystems.
+> 
+> 3ware controllers.  They look like SCSI to the host, but use cheap IDE
+> drives on the back end.  Really nice cards.  bkbits.net runs on one.
 
-On Sun, Feb 23, 2003 at 11:44:47PM -0800, Bill Huey wrote:
-> And large unbounded operation on data structures. DOS, a single tasking
-> operating system is fast running a single thread of execution too, it just
-> happens to also be completely useless.
-> Whether folks like it or not, embedded RT is the future of Linux much more
-> so than any single NUMA machine that's sold or can be sold by IBM, SGI and
-> any other vendor of that type.
+That's true (similar for some nice scsi2ide external raid boxens), but Alan's
+original argument was about the Linux IDE driver on bix machines which is used
+by neither..
 
-And scalability is as essential there as it is on 512x/16TB O2K's.
-
-For this, it's _downward_ scalability, where "downward" is relative to
-"typical" UP x86 boxen.
-
-
--- wli

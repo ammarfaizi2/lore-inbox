@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262460AbSJJVsC>; Thu, 10 Oct 2002 17:48:02 -0400
+	id <S262336AbSJJWAP>; Thu, 10 Oct 2002 18:00:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262450AbSJJVrl>; Thu, 10 Oct 2002 17:47:41 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:16829 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262441AbSJJVqb>;
-	Thu, 10 Oct 2002 17:46:31 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH] EVMS core (3/9) discover.c
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFDCDB46A2.2BDBA992-ON85256C4E.00748716@pok.ibm.com>
-From: "Mark Peloquin" <peloquin@us.ibm.com>
-Date: Thu, 10 Oct 2002 17:05:00 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
- 10/10/2002 05:52:08 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S262337AbSJJWAP>; Thu, 10 Oct 2002 18:00:15 -0400
+Received: from mail3.efi.com ([192.68.228.90]:29448 "HELO
+	fcexgw03.efi.internal") by vger.kernel.org with SMTP
+	id <S262336AbSJJWAN>; Thu, 10 Oct 2002 18:00:13 -0400
+Subject: minimon loadable binary kernel.
+From: Frederic Roussel <frederic.roussel@efi.com>
+To: LKML <linux-kernel@vger.kernel.org>,
+       "Eduardo R. Tapia" <tapiae@bariloche.com.ar>,
+       Ranjan Parthasarathy <ranjanp@efi.com>, Mark Tyler <Mark.Tyler@efi.com>
+Cc: Alok Gupta <Alok.Gupta@efi.com>, Larry Klassen <Larry.Klassen@efi.com>,
+       Brendan Creedon <Brendan.Creedon@efi.com>,
+       Horacio Fontanini <fontanin@bariloche.com.ar>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 10 Oct 2002 15:05:49 -0700
+Message-Id: <1034287553.13799.38.camel@frasc>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On 10/10/2002 at 03:48 PM, Andi Kleen wrote:
+So I have released a kseg1 binary kernel with its matching System.map
 
-> > + list_for_each_entry(plugin, &plugin_head, headers) {
-> > +       if (GetPluginType(plugin->id) == EVMS_DEVICE_MANAGER) {
-> > +             spin_unlock(&plugin_lock);
-> > +             DISCOVER(plugin, disk_list);
-> > +             spin_lock(&plugin_lock);
-> > +       }
+http://south-pole.efi.com/twiki/bin/view/Osweb/EriscDocuments
 
-> How do you know "plugin" and its successors are still valid when retaking
-> the spinlock? Looks like you need a reference count on the object here.
+The goal here is to get a trial run on VCS so that we can get an idea of
+what trace/deug output we can get.
 
-The spinlock itself should protect the integrity of the
-list. If a prev or next element in the list should be
-removed, while in a discover function, then the prev
-or next field in the current plugin will get updated,
-but I don't believe that should cause the list_for_each_entry
-macro problems traversing the remainding elements in the list.
+We will have to prototype all the various minimon hooks with you guys.
 
-The first instruction in every plugin's discover function
-is a MOD_INC_USE_COUNT and the last before the return is
-MOD_DEC_USE_COUNT. So there exists a small window by
-which the current plugin might be unloaded between the
-spinlock release and MOD_INC_USE_COUNT, and the
-MOD_DEC_USE_COUNT and the spinlock reacquire.
+Joining my lonely kernel effort, there will Ranjan and to a lesser
+extent (for the time being!) Mark. Please keep them in the loop.
 
-We plan to register a "__this_module.can_unload()" that
-should prevent plugin modules from unloading during
-discovery.
+I'll follow up later with Eduardo and Horacio regarding the minimon
+interface. Don't worry HW guys, we won't bother you  that much ;-)
 
-Mark
+Later,
+
+-- 
+Frederic.R.Roussel         -o)                                    (o-
+OS Group Manager           /\\  Join the penguin force  (o_  (o_  //\
+                          _\_v   The Linux G3N3R47!0N   (/)_ (/)_ v_/_
 
 

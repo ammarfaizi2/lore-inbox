@@ -1,187 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVBGQYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVBGQ0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVBGQYP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 11:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVBGQYP
+	id S261181AbVBGQ0M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 11:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVBGQ0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 11:24:15 -0500
-Received: from gprs215-44.eurotel.cz ([160.218.215.44]:34784 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261177AbVBGQX7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 11:23:59 -0500
-Date: Mon, 7 Feb 2005 17:23:16 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Hu Gang <hugang@soulinfo.com>
-Subject: Re: [RFC][PATCH] swsusp: do not use higher order allocations on resume [update 2]
-Message-ID: <20050207162316.GA8299@elf.ucw.cz>
-References: <200501310019.39526.rjw@sisk.pl> <200502071208.50001.rjw@sisk.pl>
+	Mon, 7 Feb 2005 11:26:12 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:6077 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261181AbVBGQZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 11:25:30 -0500
+Date: Mon, 7 Feb 2005 16:25:25 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Patrick Gefre <pfg@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       matthew@wil.cx, B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [PATCH] Altix : ioc4 serial driver support
+Message-ID: <20050207162525.GA15926@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Patrick Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
+	matthew@wil.cx, B.Zolnierkiewicz@elka.pw.edu.pl
+References: <20050103140938.GA20070@infradead.org> <Pine.SGI.3.96.1050131164059.62785B-100000@fsgi900.americas.sgi.com> <20050201092335.GB28575@infradead.org> <420139BF.4000100@sgi.com> <20050202215716.GA23253@infradead.org> <42079029.5040401@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200502071208.50001.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <42079029.5040401@sgi.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> The (updated) patch follows.
-
-Okay, few comments...
+On Mon, Feb 07, 2005 at 09:58:33AM -0600, Patrick Gefre wrote:
+> Latest version with review mods:
+> ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
 
 
-> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> 
-> diff -Nru linux-2.6.11-rc3-mm1-orig/arch/i386/power/swsusp.S linux-2.6.11-rc3-mm1/arch/i386/power/swsusp.S
-> --- linux-2.6.11-rc3-mm1-orig/arch/i386/power/swsusp.S	2004-12-24 22:34:31.000000000 +0100
-> +++ linux-2.6.11-rc3-mm1/arch/i386/power/swsusp.S	2005-02-05 20:57:03.000000000 +0100
-> @@ -28,28 +28,28 @@
->  	ret
->  
->  ENTRY(swsusp_arch_resume)
-> -	movl $swsusp_pg_dir-__PAGE_OFFSET,%ecx
-> -	movl %ecx,%cr3
-> +	movl	$swsusp_pg_dir-__PAGE_OFFSET,%ecx
-> +	movl	%ecx,%cr3
->  
-> -	movl	pagedir_nosave, %ebx
-> -	xorl	%eax, %eax
-> -	xorl	%edx, %edx
-> +	movl	pagedir_nosave, %edx
+ - still not __iomem annotations.
+ - still a ->remove method
 
-move copy_loop: here
+more comments (mostly nipicks I missed last time, nothing too exciting):
 
-> +	testl	%edx, %edx
-> +	jz	done
->  	.p2align 4,,7
->  
->  copy_loop:
-> -	movl	4(%ebx,%edx),%edi
-> -	movl	(%ebx,%edx),%esi
-> +	movl	(%edx), %esi
-> +	movl	4(%edx), %edi
->  
->  	movl	$1024, %ecx
->  	rep
->  	movsl
->  
-> -	incl	%eax
-> -	addl	$16, %edx
-> -	cmpl	nr_copy_pages,%eax
-> -	jb copy_loop
-> +	movl	12(%edx), %edx
-> +	testl	%edx, %edx
-> +	jnz	copy_loop
 
-And do unconditional jump here? Also, 12(%edx)... Could it be handled
-using asm-offsets, like on x86-64?
++#define DEVICE_NAME_DYNAMIC "ttyIOC0"	/* need full name for misc_register */
 
-> +static void __init free_eaten_memory(void) {
+this one is completely unused.
 
-Please put { at new line.
++#define PENDING(_p)	readl(&(_p)->ip_mem->sio_ir) & _p->ip_ienb
 
-> +	for_each_pbe(p, pblist)
-> +		p->address = 0UL;
-> +
-> +	for_each_pbe(p, pblist) {
-> +		p->address = get_usable_page(GFP_ATOMIC);
-> +		if(!p->address)
+probably wants some braces around the macro body
 
-I'd put space between if and (. And probably do the same for
-for_each_pbe... it behaves like a while.
++static struct ioc4_port *get_ioc4_port(struct uart_port *the_port)
++{
++	struct ioc4_control *control = dev_get_drvdata(the_port->dev);
++	int ii;
++
++	if (control) {
++		for ( ii = 0; ii < IOC4_NUM_SERIAL_PORTS; ii++ ) {
++			if (!control->ic_port[ii].icp_port)
++				continue;
++			if (the_port == control->ic_port[ii].icp_port->ip_port)
++				return control->ic_port[ii].icp_port;
++		}
++	}
++	return (struct ioc4_port *)0;
 
-> @@ -966,45 +1018,52 @@
->  					zone->zone_start_pfn));
->  	}
->  
-> -	/* Clear orig address */
-> +	/* Clear orig addresses */
->  
-> -	for(i = 0, p = pagedir_nosave; i < nr_copy_pages; i++, p++) {
-> +	for_each_pbe(p, pblist)
->  		ClearPageNosaveFree(virt_to_page(p->orig_address));
-> -	}
->  
-> -	if (!does_collide_order((unsigned long)old_pagedir, pagedir_order)) {
-> -		printk("not necessary\n");
-> -		return check_pagedir();
-> -	}
-> +	tail = pblist + PB_PAGE_SKIP;
->  
-> -	while ((m = (void *) __get_free_pages(GFP_ATOMIC, pagedir_order)) != NULL) {
-> -		if (!does_collide_order((unsigned long)m, pagedir_order))
-> -			break;
-> -		eaten_memory = m;
-> -		printk( "." ); 
-> -		*eaten_memory = c;
-> -		c = eaten_memory;
-> -	}
-> +	/* Relocate colliding pages */
->  
-> -	if (!m) {
-> -		printk("out of memory\n");
-> -		ret = -ENOMEM;
-> -	} else {
-> -		pagedir_nosave =
-> -			memcpy(m, old_pagedir, PAGE_SIZE << pagedir_order);
-> +	for_each_pb_page(pbpage, pblist) {
-> +		if (does_collide_order((unsigned long)pbpage, 0)) {
-> +			m = (void *)get_usable_page(GFP_ATOMIC | __GFP_COLD);
-> +			if (!m) {
-> +				error = -ENOMEM;
-> +				break;
-> +			}
-> +			memcpy(m, (void *)pbpage, PAGE_SIZE);
-> +			if (pbpage == pblist)
-> +				pblist = (struct pbe *)m;
-> +			else
-> +				tail->next = (struct pbe *)m;
-> +
-> +			free_page((unsigned long)pbpage);
+just return NULL here.
 
-Uh, you free it so that you can allocate it again, and again find out
-that it is unusable? It will probably end up on list of unusable
-pages, so it is okay, but...
++static irqreturn_t ioc4_intr(int irq, void *arg, struct pt_regs *regs)
++{
++	struct ioc4_soft *soft;
++	uint32_t this_ir, this_mir;
++	int xx, num_intrs = 0;
++	int intr_type;
++	int handled = 0;
++	struct ioc4_intr_info *ii;
++
++	soft = (struct ioc4_soft *)arg;
++	if (!soft)
++		return IRQ_NONE;	/* Polled but no ioc4 registered */
 
-> +			pbpage = (struct pbe *)m;
-> +
-> +			/* We have to link the PBEs again */
-> +
-> +			for (p = pbpage ; p < pbpage + PB_PAGE_SKIP ; p++)
+no need to cast.  and it can't be NULL either.
 
-I'd avoid " " before ;. 
++	spin_lock_irqsave(&port->ip_lock, port_flags);
++	wake_up_interruptible(&info->delta_msr_wait);
++	spin_unlock_irqrestore(&port->ip_lock, port_flags);
 
-> +		p = pbe;
-> +		pbe += PB_PAGE_SKIP;
-> +		do
-> +			p->next = p + 1;
-> +		while (p++ < pbe);
+no need to lock around a wake_up()
 
-I've already seen this code somewhere around in different
-variant... Perhaps you want to make it inline function?
++	/* Start up the serial port */
++	spin_lock_irqsave(&port->ip_lock, port_flags);
++	retval = ic4_startup_local(the_port);
++	if (retval) {
++		spin_unlock_irqrestore(&port->ip_lock, port_flags);
++		return retval;
++	}
++	spin_unlock_irqrestore(&port->ip_lock, port_flags);
++	return 0;
 
-> +		p->next = NULL;
-> +		pr_debug("swsusp: Read %d pages, allocated %d PBEs\n", i, num);
-> +		error = (i != swsusp_info.pagedir_pages); /* a sanity check */
+what about just
 
-If it is sanity check, do BUG_ON().
-									
+	spin_lock_irqsave(&port->ip_lock, port_flags);
+	retval = ic4_startup_local(the_port);
+	spin_unlock_irqrestore(&port->ip_lock, port_flags);
+	return reval;
 
-> +	if(!(p = read_pagedir()))
-> +		return -EFAULT;
+?
+	
++	struct ioc4_port *port = get_ioc4_port(the_port);
++	unsigned long port_flags;
++
++	spin_lock_irqsave(&port->ip_lock, port_flags);
++	ioc4_change_speed(the_port, termios, old_termios);
++	spin_unlock_irqrestore(&port->ip_lock, port_flags);
++	return;
 
-Is the value used? By using pointers instead of normal ints, you kill
-possibility of meaningfull error reporting...
+no need for empty returns at the end of void functions
 
-> +	if(!(pagedir_nosave = swsusp_pagedir_relocate(p)))
-> +		return -ENOMEM;
++static struct uart_driver ioc4_uart = {
++	.owner		= THIS_MODULE,
++	.driver_name	= "ioc4_serial",
++	.dev_name	= DEVICE_NAME,
++	.major		= DEVICE_MAJOR,
++	.minor		= DEVICE_MINOR,
++	.nr		= IOC4_NUM_CARDS * IOC4_NUM_SERIAL_PORTS,
++	.cons		= NULL,
++};
 
-Same here.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+no need to initialize .cons to zero, the compiler does that for you.
+
++	if ( !request_region(tmp_addr, sizeof(struct ioc4_mem), "sioc4_mem")) {
+
+superflous space before the !
+
++	if (!request_irq(pdev->irq, ioc4_intr, SA_SHIRQ,
++				"sgi-ioc4serial", (void *)soft)) {
++		control->ic_irq = pdev->irq;
++	} else {
++		printk(KERN_WARNING
++		    "%s : request_irq fails for IRQ 0x%x\n ",
++			__FUNCTION__, pdev->irq);
++	}
+
+Can the driver work without an irq?
+

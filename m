@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264124AbUEHFuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264154AbUEHGKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264124AbUEHFuM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 01:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264138AbUEHFuM
+	id S264154AbUEHGKH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 02:10:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264155AbUEHGKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 01:50:12 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:53511 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S264124AbUEHFuH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 01:50:07 -0400
-Date: Sat, 8 May 2004 15:50:00 +1000
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Call might_sleep in tasklet_kill
-Message-ID: <20040508055000.GA31358@gondor.apana.org.au>
+	Sat, 8 May 2004 02:10:07 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28846 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264154AbUEHGKD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 02:10:03 -0400
+Date: Fri, 7 May 2004 23:09:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Cc: rusty@rustcorp.com.au, bruceg@em.ca, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm2
+Message-Id: <20040507230915.447a92fa.akpm@osdl.org>
+In-Reply-To: <200405072213.23167.rjwysocki@sisk.pl>
+References: <20040505013135.7689e38d.akpm@osdl.org>
+	<20040506195223.017cd7f6.akpm@osdl.org>
+	<1083903398.7481.43.camel@bach>
+	<200405072213.23167.rjwysocki@sisk.pl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="/04w6evG8XlLl3ft"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
+>
+> On Friday 07 of May 2004 06:16, Rusty Russell wrote:
+>  > On Fri, 2004-05-07 at 12:52, Andrew Morton wrote:
+>  > > Bruce Guenter <bruceg@em.ca> wrote:
+>  > > > On Wed, May 05, 2004 at 01:31:35AM -0700, Andrew Morton wrote:
+>  > > > > Move-saved_command_line-to-init-mainc.patch
+>  > > > >   Move saved_command_line to init/main.c
+>  > > >
+>  > > > This patch appears to be breaking serial console for me.  Reverting
+>  > > > this patch with patch -R makes it work again.  I can't tell from the
+>  > > > contents of the patch why it causes problems, but it does.  I'd be
+>  > > > happy to provide any further details if required.
+>  > >
+>  > > Thanks for narrowing it down - I'd been meaning to look into the serial
+>  > > console problem.
+>  > >
+>  > > Rusty, can you have a ponder please?
+>  >
+>  > Works for me: I use serial console.  Config please.
+> 
+>  As you wish,
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi:
-
-The following patch calls might_sleep in tasklet_kill.  This would've
-helped in tracking down http://bugs.debian.org/234365 where someone
-called tasklet_kill with IRQs disabled.
-
-Cheers,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-Index: kernel/softirq.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/kernel/softirq.c,v
-retrieving revision 1.1.1.12
-diff -u -r1.1.1.12 softirq.c
---- a/kernel/softirq.c	5 Apr 2004 09:49:43 -0000	1.1.1.12
-+++ b/kernel/softirq.c	8 May 2004 05:48:50 -0000
-@@ -286,8 +286,7 @@
- 
- void tasklet_kill(struct tasklet_struct *t)
- {
--	if (in_interrupt())
--		printk("Attempt to kill tasklet from interrupt\n");
-+	might_sleep();
- 
- 	while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
- 		do
-
---/04w6evG8XlLl3ft--
+Works for me too.  Can you share your kernel boot commandline with us?

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131246AbRC0Mzl>; Tue, 27 Mar 2001 07:55:41 -0500
+	id <S131273AbRC0NOL>; Tue, 27 Mar 2001 08:14:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131248AbRC0Mzb>; Tue, 27 Mar 2001 07:55:31 -0500
-Received: from 5-026.cwb-adsl.telepar.net.br ([200.193.164.26]:34313 "EHLO
-	imladris.rielhome.conectiva") by vger.kernel.org with ESMTP
-	id <S131246AbRC0MzW>; Tue, 27 Mar 2001 07:55:22 -0500
-Date: Tue, 27 Mar 2001 09:54:18 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: robert@mpe.mpg.de
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ISSUE: very slow (factor 100) 4-way 16GByte server, with 2.4.2
-In-Reply-To: <200103271127.f2RBRO513723@robert2.mpe-garching.mpg.de>
-Message-ID: <Pine.LNX.4.21.0103270953010.8261-100000@imladris.rielhome.conectiva>
+	id <S131275AbRC0NNv>; Tue, 27 Mar 2001 08:13:51 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:10631 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S131273AbRC0NNr>; Tue, 27 Mar 2001 08:13:47 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Alex Riesen <vmagic@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tmpfs: a way to get your system down
+In-Reply-To: <20010324182908.B1255@steel>
+Organisation: SAP LinuxLab
+In-Reply-To: <20010324182908.B1255@steel>
+Message-ID: <m31yrj74a7.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Date: 27 Mar 2001 15:10:09 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Mar 2001, Robert Suetterlin wrote:
+Hi Alex,
 
-> ISSUE: very slow (factor 100) 4-way 16GByte server, with 2.4.2
+On Sat, 24 Mar 2001, Alex Riesen wrote:
+> just hit by tmpfs on 2.4.2-ac20
+> 
+> mount -t tmpfs mnt
+> dd if=/dev/zero mnt/tmpfile
+> 
+> resulted in hardly slowed system and lockup,
+> and not in "No space left on device", as expected.
 
-Last time we saw this issue on the list it turned out that the
-machine had wrong MTRR settings and setup a significant part of
-its memory non-cachable.
+Use mount option "size". The default is unlimited...
 
-For a 16-way machine, 100 times speed difference is exactly what
-I would expect when all memory is setup as uncachable.
+Greetings
+		Christoph
 
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
 

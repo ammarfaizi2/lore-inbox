@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287817AbSCGSW3>; Thu, 7 Mar 2002 13:22:29 -0500
+	id <S310440AbSCGSdk>; Thu, 7 Mar 2002 13:33:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310434AbSCGSWU>; Thu, 7 Mar 2002 13:22:20 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14351 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287817AbSCGSWF>; Thu, 7 Mar 2002 13:22:05 -0500
-Message-ID: <3C87AFBE.3000104@zytor.com>
-Date: Thu, 07 Mar 2002 10:21:50 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
-        Jeff Dike <jdike@karaya.com>, Benjamin LaHaise <bcrl@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-In-Reply-To: <505.1015411792@redhat.com> <E16iecJ-0007Nn-00@the-village.bc.nu> <20020306222149.GC370@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S310442AbSCGSdb>; Thu, 7 Mar 2002 13:33:31 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:1039 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S310440AbSCGSdS>;
+	Thu, 7 Mar 2002 13:33:18 -0500
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Thu, 7 Mar 2002 11:33:01 -0700
+To: Jean-Luc Leger <reiga@dspnet.fr.eu.org>, lm@bitmover.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Message-ID: <20020307113301.E9231@host110.fsmlabs.com>
+In-Reply-To: <20020307190234.T20273@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020307190234.T20273@dspnet.fr.eu.org>; from reiga@dspnet.fr.eu.org on Thu, Mar 07, 2002 at 07:02:34PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+Actually, Larry, you should have been written in python.
 
-> Hi!
-> 
-> 
->>>You say 'at once'. Does UML somehow give pages back to the host when they're 
->>>freed, so the pages that are no longer used by UML can be discarded by the 
->>>host instead of getting swapped?
->>>
->>Doesn't seem to but it looks like madvise might be enough to make that
->>happen. That BTW is an issue for more than UML - it has a bearing on
->>running lots of Linux instances on any supervisor/virtualising system
->>like S/390
->>
-> 
-> I just imagined hardware which supports freeing memory -- just do not
-> refresh it any more to conserve power ;-))).
-> 
-
-> Granted, it would probably only make sense in big chunks, like 2MB or
-> so... It might make sense for a PDA...
-> 									Pavel
-
-
-Unlikely.  Also, if you're using ECC, then that really screws with you.
-
-However, if it is an issue for more than UML (I still consider the 
-particular UML case "in case you have a UML on a tmpfs set up by an 
-idiot admin" completely bogus) then it's another issue.  The S/390 issue 
-is real.
-
-	-hpa
-
-
+} On Thu, Mar 07, 2002 at 04:51:56PM +0000, Henning P. Schmiedehausen wrote:
+} > Larry McVoy <lm@bitmover.com> writes:
+} > >	# extract all the patches from 2.5.0 onward.
+} > >	bk prs -hrv2.5.0.. |  while read x
+} > >	do	bk export -tpatch -r$i > ~ftp/patches/patch-$i
+} > >	done
+} > [henning@henning henning]$ bk prs -hrv2.5.0.. |  while read x
+} > while: Expression Syntax.
+} > You obviously just _underlined_ the point, Larry.
+} > ...
+} > It's tcsh; before you ask.
+} 
+} tss ..
+} 
+} by the way, shouldn't it be "$x" in the second line ?
+} or am I missing something ?
+} 
+} 	JL
+} -
+} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+} the body of a message to majordomo@vger.kernel.org
+} More majordomo info at  http://vger.kernel.org/majordomo-info.html
+} Please read the FAQ at  http://www.tux.org/lkml/

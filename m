@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264788AbUFTA3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264782AbUFTA2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264788AbUFTA3J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 20:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264791AbUFTA3J
+	id S264782AbUFTA2y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 20:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264788AbUFTA2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 20:29:09 -0400
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:47068 "EHLO
-	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S264788AbUFTA3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 20:29:02 -0400
-Subject: Re: 2.6.7 Samba OOPS (in smb_readdir)
-From: Christophe Saout <christophe@saout.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Brice Goglin <Brice.Goglin@ens-lyon.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0406191946360.2228@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-	 <20040618163759.GN1146@ens-lyon.fr> <20040618164125.GO1146@ens-lyon.fr>
-	 <Pine.LNX.4.58.0406181309440.2228@montezuma.fsmlabs.com>
-	 <1087585251.13235.3.camel@leto.cs.pocnet.net>
-	 <1087586532.9085.1.camel@leto.cs.pocnet.net>
-	 <Pine.LNX.4.58.0406191624430.2228@montezuma.fsmlabs.com>
-	 <Pine.LNX.4.58.0406191648240.2228@montezuma.fsmlabs.com>
-	 <Pine.LNX.4.58.0406191946360.2228@montezuma.fsmlabs.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3EsD/Ebv8Ag9OqhYRZ6+"
-Date: Sun, 20 Jun 2004 02:28:55 +0200
-Message-Id: <1087691335.19685.1.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
+	Sat, 19 Jun 2004 20:28:54 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:42725 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S264782AbUFTA2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 20:28:53 -0400
+Date: Sat, 19 Jun 2004 20:30:56 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: Andrew Morton <akpm@osdl.org>, florin@iucha.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Len Brown <len.brown@intel.com>
+Subject: Re: linux-2.6.7-bk2 runs faster than linux-2.6.7 ;)
+In-Reply-To: <200406200237.54067.dominik.karall@gmx.net>
+Message-ID: <Pine.LNX.4.58.0406192029380.2228@montezuma.fsmlabs.com>
+References: <20040619210714.GD3243@iucha.net> <200406200207.16399.dominik.karall@gmx.net>
+ <20040619162322.1d15c2dd.akpm@osdl.org> <200406200237.54067.dominik.karall@gmx.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 20 Jun 2004, Dominik Karall wrote:
 
---=-3EsD/Ebv8Ag9OqhYRZ6+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Am Sa, den 19.06.2004 um 20:27 Uhr -0400 schrieb Zwane Mwaikambo:
-
-> > > This is an updated debugging patch (which is also added to Bugzilla),
-> > > please give this a spin. There are still a few issues with this patch=
- but
-> > > lets try at least avoid oopsing for now.
+> On Sunday 20 June 2004 01:23, Andrew Morton wrote:
+> > Dominik Karall <dominik.karall@gmx.net> wrote:
+> > > > dmesg and .config, please.
+> > >
+> > >  attached
 > >
-> > Hold on, this is buggy garbage. i'll have something in a bit.
->=20
-> Index: linux-2.6.7/include/linux/smb_fs_sb.h
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> RCS file: /home/cvsroot/linux-2.6.7/include/linux/smb_fs_sb.h,v
+> > The dmesg output is incomplete.  You'll need to use `dmesg -s 1000000' to
+> > get all of it.
+> >
+> > I wish that would get fixed actually.  Seems a bit silly, and current
+> > kernels permit querying of the ringbuffer size.
+> 'dmesg -s 1000000' output attached.
 
-Ha! Success! :-)
+Try booting with 'acpi=off'
 
-
---=-3EsD/Ebv8Ag9OqhYRZ6+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA1NpGZCYBcts5dM0RAoldAJ94YqsYkfdzrds9sJmVK5S8KNOFBwCeLFKt
-+TJUtmxD2EGa9dqp6FbeJcA=
-=CrRu
------END PGP SIGNATURE-----
-
---=-3EsD/Ebv8Ag9OqhYRZ6+--
-
+IRQ to pin mappings:
+IRQ0 -> 0:0-> 0:2

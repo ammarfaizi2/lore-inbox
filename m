@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268365AbUHZJ6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268085AbUHZKje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268365AbUHZJ6G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 05:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268045AbUHZJxx
+	id S268085AbUHZKje (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 06:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268033AbUHZKjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 05:53:53 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:38589 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S268030AbUHZIrU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 04:47:20 -0400
-Subject: Re: [PATCH] - trivial comment fixups in init/main.c
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Tim Bird <tim.bird@am.sony.com>,
-       linux kernel <linux-kernel@vger.kernel.org>,
-       Adam Kropelin <akropel1@rochester.rr.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040817184210.A24533@infradead.org>
-References: <20040817095601.4E7F22BEC3@ozlabs.org>
-	 <41224105.5050706@am.sony.com>  <20040817184210.A24533@infradead.org>
-Content-Type: text/plain
-Message-Id: <1093509764.13514.2522.camel@bach>
+	Thu, 26 Aug 2004 06:39:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59364 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268085AbUHZK1Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 06:27:16 -0400
+Date: Thu, 26 Aug 2004 03:24:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Spam <spam@tnonline.net>
+Cc: wichert@wiggy.net, jra@samba.org, torvalds@osdl.org, reiser@namesys.com,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-Id: <20040826032457.21377e94.akpm@osdl.org>
+In-Reply-To: <839984491.20040826122025@tnonline.net>
+References: <20040824202521.GA26705@lst.de>
+	<412CEE38.1080707@namesys.com>
+	<20040825152805.45a1ce64.akpm@osdl.org>
+	<112698263.20040826005146@tnonline.net>
+	<Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
+	<1453698131.20040826011935@tnonline.net>
+	<20040825163225.4441cfdd.akpm@osdl.org>
+	<20040825233739.GP10907@legion.cup.hp.com>
+	<20040825234629.GF2612@wiggy.net>
+	<1939276887.20040826114028@tnonline.net>
+	<20040826024956.08b66b46.akpm@osdl.org>
+	<839984491.20040826122025@tnonline.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 26 Aug 2004 18:42:44 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-18 at 03:42, Christoph Hellwig wrote:
-> > Fine with me.  These comments were modified at the request of
-> > Andrew Morton, who wanted the comment style to be consistent.
-> > I actually agree with your position, but I wanted to follow
-> > what Andrew wanted here.
+Spam <spam@tnonline.net> wrote:
+>
 > 
-> Please fix the comments anyway.  Rusty's preffered style is by far the
-> minority in core kernel code.
+> 
+> > Spam <spam@tnonline.net> wrote:
+> >>
+> >>    Yes,  for  example  documents,  image  files  etc. The multiple data
+> >>    streams  can  contain thumbnails, info about who is editing the file
+> >>    (useful for networked files) etc. Could be used for version handling
+> >>    and much more.
+> 
+> > All of which can be handled in userspace library code.
+> 
+> > What compelling reason is there for doing this in the kernel?
+> 
+> 
+>   Because  having user space tools and code will make it not work with
+>   everything. Keeping stuff in the kernel should make the new features
+>   transparent to the applications.
+> 
+>   Applications  that support the new features will benefit, all others
+>   will continue to work without destroying data.
 
-I went back and looked; you're right.  Generally, I hate to waste
-vertical whitespace inside a function.
+Sorry, but that all sounds a bit fluffy.   Please provide some examples.
 
-As I said, the balance with a color-coded editor is different than when
-reading code on paper.
+(Generally, getting all of userspace to agree on a particular library is
+socially hard [*], but I don't see that as a reason for putting the
+functionality into the kernel)
 
-Cheers,
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+[*] Example: where's the library to manipulate /etc/whatever.conf? [**]
+
+[**] yes, I know about gconf.
 

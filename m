@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132494AbRAIXEH>; Tue, 9 Jan 2001 18:04:07 -0500
+	id <S132117AbRAIXEr>; Tue, 9 Jan 2001 18:04:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132360AbRAIXD5>; Tue, 9 Jan 2001 18:03:57 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:24850 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S132117AbRAIXDk>; Tue, 9 Jan 2001 18:03:40 -0500
-Message-ID: <3A5B98AB.9B6FABC6@didntduck.org>
-Date: Tue, 09 Jan 2001 18:03:07 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: rob@sysgo.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Anybody got 2.4.0 running on a 386 ?
-In-Reply-To: <01010922090000.02630@rob> <01010922264400.02737@rob> <3A5B86C1.41DDB11B@didntduck.org> <01010923324500.02850@rob>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129859AbRAIXEh>; Tue, 9 Jan 2001 18:04:37 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:5051 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S132117AbRAIXD7>;
+	Tue, 9 Jan 2001 18:03:59 -0500
+Date: Wed, 10 Jan 2001 00:03:13 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200101092303.AAA149310.aeb@texel.cwi.nl>
+To: mchouque@e-steel.com, viro@math.psu.edu
+Subject: Re: Floppy disk strange behavior
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Kaiser wrote:
-> 
-> On Die, 09 Jan 2001 you wrote:
-> > Robert Kaiser wrote:
-> > >
-> > > On Die, 09 Jan 2001 you wrote:
-> > > > Robert Kaiser wrote:
-> > > > > I can't seem to get the new 2.4.0 kernel running on a 386 CPU.
-> > > > > The kernel was built for a 386 Processor, Math emulation has been enabled.
-> > > > > I tried three different 386 boards. Execution seems to get as far as
-> > > > > pagetable_init() in arch/i386/mm/init.c, then it falls back into the BIOS as
-> > > > > if someone had pressed the reset button. The same kernel boots fine on
-> > > > > 486 and Pentium Systems.
-> > >  ..... The last thing I see is
-> > > "Uncompressing Linux... Ok, booting the kernel." I have added some
-> > > quick and dirty debug code that writes messages directly to the VGA
-> > > screen buffer. According to that, execution seems to get as far as the
-> > > statement
-> > >
-> > >         *pte = mk_pte_phys(__pa(vaddr), PAGE_KERNEL);
-> > >
-> >
-> > Could it be possible that memory size is being misdetected?  Try mem=8M
-> > (or less) on the command line.  Try to catch the value of pte when it
-> > crashes.
-> 
-> I tried "mem=4M" -- no effect. The value of pte is 0xc0001000, so it seems
-> to be the first invocation of that statement in the for() loop.
-> 
-> Now comes the amazing (to me) part: I split the above statement up into:
-> 
->         temp = mk_pte_phys(__pa(vaddr), PAGE_KERNEL);
->         *pte = temp;
-> 
-> where temp is declared "volatile pte_t". I inserted test-prints between the
-> above two lines. Accoding to that, the _first_ line , i.e. the evaluation of the
-> mk_pte_phys() macro is causing the crash!
-> 
-> I am still trying to figure out what mk_pte_phys() does. Apparently it involves
-> an access to the kernel's data section. My current guess is that the data
-> section is not correctly mapped at this point. Would that be possible ?
+>> dd: advancing past 1 blocks in output file `/dev/fd0': Permission denied
 
-How much physical memory does this box really have?
+> dd bug. It tries to ftruncate() the output file and gets all upset when
+> kernel refuses to truncate a block device (surprise, surprise).
 
---
+Yes. But EPERM means that something is wrong with privileges.
+One would expect EINVAL or so when something is wrong with the
+way the routine was called.
 
-				Brian Gerst
+Let me find my docs :-)
+
+===== austin - d5 ============================================
+...
+If fildes refers to a regular file, the ftruncate( ) function shall cause
+the size of the file to be truncated to length. If the size of the file
+previously exceeded length, the extra data shall no longer be available
+to reads on the file. If the file previously was smaller than this size,
+ftruncate( ) shall either increase the size of the file or fail.
+XSI-conformant systems shall increase the size of the file.
+If the file size is increased, the extended area shall appear as if it
+were zero-filled. The value of the seek pointer shall not be modified
+by a call to ftruncate( ).
+...
+If fildes refers to a directory, ftruncate( ) shall fail.
+...
+If fildes refers to any other file type, except a shared memory object,
+the result is unspecified.
+=============================================================
+
+No info on errors here.
+
+===== Digital Unix man ======================================
+...
+The path parameter must point to a pathname which names
+a regular file for which the calling process has write permission.
+...
+[EINVAL] The file is not a regular file
+=============================================================
+
+So, as was to be expected, other systems use EINVAL in this
+situation, and so should we.
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

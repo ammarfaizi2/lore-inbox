@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVATR7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVATSEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVATR7l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 12:59:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVATR7a
+	id S261700AbVATSEr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 13:04:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVATSEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 12:59:30 -0500
-Received: from mailfe02.swip.net ([212.247.154.33]:42919 "EHLO
-	mailfe02.swip.net") by vger.kernel.org with ESMTP id S261244AbVATRzQ
+	Thu, 20 Jan 2005 13:04:42 -0500
+Received: from innocence-lost.us ([66.93.152.112]:43449 "EHLO
+	innocence-lost.net") by vger.kernel.org with ESMTP id S261413AbVATSC0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 12:55:16 -0500
-X-T2-Posting-ID: 2Ngqim/wGkXHuU4sHkFYGQ==
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
-	scheduling
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: utz lehmann <lkml@s2y4n2c.de>
-Cc: Con Kolivas <kernel@kolivas.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
-       paul@linuxaudiosystems.com, joq@io.com, CK Kernel <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1106180177.4036.27.camel@segv.aura.of.mankind>
-References: <41EEE1B1.9080909@kolivas.org>
-	 <1106180177.4036.27.camel@segv.aura.of.mankind>
-Content-Type: text/plain
-Date: Thu, 20 Jan 2005 18:54:58 +0100
-Message-Id: <1106243698.719.6.camel@boxen>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Jan 2005 13:02:26 -0500
+Date: Thu, 20 Jan 2005 11:02:26 -0700 (MST)
+From: jnf <jnf@innocence-lost.us>
+To: linux-kernel@vger.kernel.org
+Subject: linux capabilities ?
+Message-ID: <Pine.LNX.4.61.0501201053070.24484@fhozvffvba.vaabprapr-ybfg.arg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My simple yield DoS don't work anymore. But i found another way.
-> Running this as SCHED_ISO:
+Hi.
 
-Yep, bad accounting in queue_iso() which relied on p->array == rq->active
-This fixes it:
+I have been playing a little here and there with linux capabilities, and
+seem to be hitting a few snags so I was hoping to obtain some input on
+their current status. The kernel on the box in question is 2.6.10, with
+the CAP_INIT_EFF_SET macro modified to allow init to have CAP_SETPCAP.
+
+I am mostly trying to accomplish this so that I can run syslog as a
+non-root user and as I understand it by digging through the source, one
+should be able to accomplish this with the CAP_SYS_ADMIN capability-
+however this does not appear to be true ?
+
+in kernel/printk.c I see
+
+error = security_syslog(type)
+if (error)
+        return error ;
+
+which is defined in something like include/linux/security.h as a pointer
+to cap_syslog(), which in turn is defined in security/commoncap.c where I
+see:
+
+if ((type != 3 && type != 10) && !capable(CAP_SYS_ADMIN))
+         return -EPERM
+return 0;
 
 
-Index: vanilla/kernel/sched.c
-===================================================================
---- vanilla.orig/kernel/sched.c	2005-01-20 18:05:59.000000000 +0100
-+++ vanilla/kernel/sched.c	2005-01-20 18:41:26.000000000 +0100
-@@ -2621,15 +2621,19 @@
- static task_t* queue_iso(runqueue_t *rq, prio_array_t *array)
- {
- 	task_t *p = list_entry(rq->iso_queue.next, task_t, iso_list);
--	if (p->prio == MAX_RT_PRIO)
--		goto out;
-+	prio_array_t *old_array = p->array;
-+	
-+	old_array->nr_active--;
- 	list_del(&p->run_list);
--	if (list_empty(array->queue + p->prio))
--		__clear_bit(p->prio, array->bitmap);
-+	if (list_empty(old_array->queue + p->prio))
-+		__clear_bit(p->prio, old_array->bitmap);
-+	
- 	p->prio = MAX_RT_PRIO;
- 	list_add_tail(&p->run_list, array->queue + p->prio);
- 	__set_bit(p->prio, array->bitmap);
--out:
-+	array->nr_active++;
-+	p->array = array;
-+	
- 	return p;
- }
- 
+Type 3 is:
+*      3 -- Read up to the last 4k of messages in the ring buffer.
+
+So when I give the process CAP_SYS_ADMIN I still cannot seem to read from
+/proc/kmsg, I also tried giving it CAP_DAC_OVERRIDE just to test to see if
+DAC's were the problem but that didn't seem to help any.
+
+So with that said, anyone have any idea's as to what I need to do and any
+details on the current state of the capabilities would be helpful.
+
+Thanks,
+
+jnf
 
 

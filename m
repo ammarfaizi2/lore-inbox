@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262653AbRFLQhH>; Tue, 12 Jun 2001 12:37:07 -0400
+	id <S262651AbRFLQg0>; Tue, 12 Jun 2001 12:36:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262655AbRFLQg4>; Tue, 12 Jun 2001 12:36:56 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40970 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262653AbRFLQgu>; Tue, 12 Jun 2001 12:36:50 -0400
-Subject: Re: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
-To: spstarr@sh0n.net (Shawn Starr)
-Date: Tue, 12 Jun 2001 17:34:50 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0106111823110.20760-100000@coredump.sh0n.net> from "Shawn Starr" at Jun 11, 2001 06:42:15 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262653AbRFLQgQ>; Tue, 12 Jun 2001 12:36:16 -0400
+Received: from mx5.port.ru ([194.67.23.40]:3341 "EHLO smtp5.port.ru")
+	by vger.kernel.org with ESMTP id <S262651AbRFLQgB>;
+	Tue, 12 Jun 2001 12:36:01 -0400
+Date: Tue, 12 Jun 2001 21:23:37 +0400
+From: Sergey Tursanov <__gsr@mail.ru>
+X-Mailer: The Bat! (v1.49)
+Reply-To: Sergey Tursanov <__gsr@mail.ru>
+X-Priority: 3 (Normal)
+Message-ID: <53176576.20010612212337@mail.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re[2]: PC keyboard rate/delay
+In-Reply-To: <E159qcp-0001XE-00@the-village.bc.nu>
+In-Reply-To: <E159qcp-0001XE-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E159r7y-0001cO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The sales guy who is promoting it says this is apparently a new
-> card and he claims he can get specs from engineering.
+AC> You must have been reading my mind. Yesterday I traced at least one X11
+AC> hang down to the kernel and X server both frobbing with the port at the same
+AC> time and crashing the microcontroller on my PC110.
 
-Rotfl. Nobody has been able to get remotely useful docs out of intel on
-their 1Gbit ethernet. 
+I think it would be better to place all of kbd controller code
+into the kernel instead of using various userspace programs
+such as kbdrate. Otherwise why KDKBDREP was defined ?-)
 
-Alan
+Sergey Tursanov                       mailto:__gsr@mail.ru
+
 

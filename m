@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262126AbSKCQdk>; Sun, 3 Nov 2002 11:33:40 -0500
+	id <S262244AbSKCQbD>; Sun, 3 Nov 2002 11:31:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262120AbSKCQdk>; Sun, 3 Nov 2002 11:33:40 -0500
-Received: from modemcable077.18-202-24.mtl.mc.videotron.ca ([24.202.18.77]:58380
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262126AbSKCQdj>; Sun, 3 Nov 2002 11:33:39 -0500
-Date: Sun, 3 Nov 2002 11:43:24 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.5-AC] cistpl.c pcibios_read_config_dword
-Message-ID: <Pine.LNX.4.44.0211031123520.14075-100000@montezuma.mastecende.com>
+	id <S262273AbSKCQbD>; Sun, 3 Nov 2002 11:31:03 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:29239 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262244AbSKCQbC>; Sun, 3 Nov 2002 11:31:02 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200211031636.gA3GakF14660@devserv.devel.redhat.com>
+Subject: Re: swsusp: don't eat ide disks
+To: benh@kernel.crashing.org
+Date: Sun, 3 Nov 2002 11:36:46 -0500 (EST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), alan@redhat.com (Alan Cox),
+       pavel@ucw.cz (Pavel Machek), torvalds@transmeta.com (Linus Torvalds),
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <20021103162422.27845@smtp.wanadoo.fr> from "benh@kernel.crashing.org" at Nov 03, 2002 05:24:22 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry untested :/
+> >		Jump to PM layer "power off" logic
+> >
+> >If you do it that way up then no drivers need to be hacked about.
+> 
+> Hrm... thanks to the miracle of having a BIOS that will deal
+> with the grunt work of actually shutting down the chipsets,
+> resuming them, etc...
 
-Index: linux-2.5.44-ac5/drivers/pcmcia/cistpl.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.44-ac5/drivers/pcmcia/cistpl.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 cistpl.c
---- linux-2.5.44-ac5/drivers/pcmcia/cistpl.c	3 Nov 2002 07:19:08 -0000	1.1.1.1
-+++ linux-2.5.44-ac5/drivers/pcmcia/cistpl.c	3 Nov 2002 16:32:36 -0000
-@@ -429,7 +429,7 @@
- #ifdef CONFIG_CARDBUS
-     if (s->state & SOCKET_CARDBUS) {
- 	u_int ptr;
--	pcibios_read_config_dword(s->cap.cb_dev->subordinate->number, 0, 0x28, &ptr);
-+	pci_read_config_dword(s->cap.cb_dev, PCI_CARDBUS_CIS, &ptr);
- 	tuple->CISOffset = ptr & ~7;
- 	SPACE(tuple->Flags) = (ptr & 7);
-     } else
+As I said "jump to PM layer power off logic"
 
--- 
-function.linuxpower.ca
+So after you have suspended you neatly power it all off
 
+> I really don't like the above as it basically bypasse the
+> bus ordering, which is the only sane way I see to deal with
+> dependencies when the drivers are actually shutting down HW
 
+Bus ordering applies to power off not to suspend to disk sequence
+
+> Then, I volunteer writing a HOWTO explaining clearly what a
+> driver should do for proper PM, and I'm pretty sure that won't
+> be that nasty and race prone as you are afraid of ;)
+
+Good. It'll be nice to have suspend to disk in 2.7

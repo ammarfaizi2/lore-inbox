@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266881AbUGLPmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266182AbUGLPnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266881AbUGLPmN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 11:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266882AbUGLPmN
+	id S266182AbUGLPnR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 11:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266882AbUGLPnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 11:42:13 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:17895 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266881AbUGLPmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 11:42:11 -0400
-Date: Mon, 12 Jul 2004 17:42:04 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.8-rc1
-Message-ID: <20040712154204.GS4701@fs.tum.de>
-References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org> <4d8e3fd3040712023469039826@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4d8e3fd3040712023469039826@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 12 Jul 2004 11:43:17 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:40892 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266182AbUGLPnE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 11:43:04 -0400
+Date: Mon, 12 Jul 2004 17:40:27 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Colin LEROY <colin@colino.net>
+cc: michael@mihu.de, Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/PPC on APUS development 
+	<linux-apus-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] fix saa7146 compilation on 2.6.8-rc1
+In-Reply-To: <0cee01c46825$4d9f2310$3cc8a8c0@epro.dom>
+Message-ID: <Pine.GSO.4.58.0407121737400.17199@waterleaf.sonytel.be>
+References: <20040712082545.GA416@jack.colino.net>
+ <Pine.GSO.4.58.0407121718270.17199@waterleaf.sonytel.be>
+ <0cee01c46825$4d9f2310$3cc8a8c0@epro.dom>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 12, 2004 at 11:34:59AM +0200, Paolo Ciarrocchi wrote:
-> On Sun, 11 Jul 2004 11:29:44 -0700 (PDT), Linus Torvalds
-> <torvalds@osdl.org> wrote:
-> > 
-> > Ok, there's been a long time between "public" releases, although the
-> > automated BK snapshots have obviously been keeping people up-to-date.
-> > Sorry about that, I blame mainly moving boxes and stuff around...
-> 
-> Maybe I'm just missing the whole point but I wonder if we could define
-> a series of 'test' a version should pass before being marked as -rc ir
-> final.
-> 
-> Now that we have the automated BK snapshots the "public" release seems
-> to be a minor milestone in the process.
-> 
-> I would like to see ltp test suite, OSDL's compile stats and OSDL
-> benchmarking as part of the release process.
-> 
-> Does it make sense ?
+On Mon, 12 Jul 2004, Colin LEROY wrote:
+> > On Mon, 12 Jul 2004 colin@colino.net wrote:
+> > > this patch fixes a compilation error on 2.6.8-rc1. Here's the error:
+> > > drivers/media/common/saa7146_video.c:3: conflicting types for `memory'
+> > > include/asm-m68k/setup.h:365: previous declaration of `memory'
+> > > make[3]: *** [drivers/media/common/saa7146_video.o] Error 1
+> >
+> > But there's nothing named plain `memory' in include/asm-m68k/setup.h?!?!?
+> > Actually there never has been...
+>
+> Right, but (i should have specified, sorry), I compiled on ppc32, and there's
+>
+> #define m68k_num_memory num_memory
+> #define m68k_memory memory
+> #include <asm-m68k/setup.h
+>
+> in include/asm-ppc/setup.h.
 
-Unless he really knows what he's doing, no user should use anything 
-other than the actual releases (i.e. 2.6.7, 2.6.8, 2.6.9,...).
+Ah, didn't think of that (I should have known ;-)
 
-OSDL does some tests for any -rc and many other people like me do other  
-testing. Besides this, most patches already got similar treatment in 
--mm. This might not be a base for an ISO 9000 certificate, but it seems 
-to be sufficietely working for finding most problems before the acttual 
-release.
+Looks like the APUS code can need some clean up. E.g. arch/ppc/amiga/bootinfo.c
+operates on both memory and m68k_memory, while they are identical due to
+<asm/setup.h>...
 
-It would be more important if Linus would release one last -rc that will 
-be released unchanged (except for EXTRAVERSION a few days later to catch 
-bugs in last minute changes. This might catch more problems like the JFS 
-compile problem in 2.6.7.
+Gr{oetje,eeting}s,
 
-> Ciao,
->                              Paolo
+						Geert
 
-cu
-Adrian
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

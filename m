@@ -1,106 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266595AbSKGV5L>; Thu, 7 Nov 2002 16:57:11 -0500
+	id <S266597AbSKGV7x>; Thu, 7 Nov 2002 16:59:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266596AbSKGV5L>; Thu, 7 Nov 2002 16:57:11 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:63240 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S266595AbSKGV5J>;
-	Thu, 7 Nov 2002 16:57:09 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200211072202.gA7M2Rd132519@saturn.cs.uml.edu>
-Subject: Re: ps performance sucks
-To: akpm@digeo.com (Andrew Morton)
-Date: Thu, 7 Nov 2002 17:02:26 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), davidsen@tmr.com (Bill Davidsen),
-       linux-kernel@vger.kernel.org, mbligh@aracnet.com, jw@pegasys.ws,
-       wa@almesberger.net, andersen@codepoet.org, woofwoof@hathway.com
-In-Reply-To: <3DCAD5A9.D4D4C1CB@digeo.com> from "Andrew Morton" at Nov 07, 2002 01:05:45 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S266598AbSKGV7x>; Thu, 7 Nov 2002 16:59:53 -0500
+Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:11453 "EHLO
+	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S266597AbSKGV7v>; Thu, 7 Nov 2002 16:59:51 -0500
+Date: Thu, 7 Nov 2002 15:06:29 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Templates and tweaks (for size performance and more)
+Message-ID: <20021107220628.GA12151@opus.bloom.county>
+References: <20021107190910.GC6164@opus.bloom.county> <20021107210304.C11437@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20021107210304.C11437@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
-> "Albert D. Cahalan" wrote:
+On Thu, Nov 07, 2002 at 09:03:04PM +0000, Russell King wrote:
+> On Thu, Nov 07, 2002 at 12:09:10PM -0700, Tom Rini wrote:
+> > The following is vs current 2.5 BK and has been lightly tested on PPC
+> > (and compiled on i386).  This creates the default files for all current
+> > arches, and adapts ARM and ia64 as well to show how to override a
+> > generic param with an arch-specific one (and removes
+> > CONFIG_FORCE_MAX_ZONEORDER).
+> 
+> This isn't a "tweak" on ARM as in a user-adjustable value.  It needs to
+> specifically be reduced to prevent things from blowing up.
 
->> In case you happen to know where they are, I'm looking for these:
->>
->> pages reclaimed
->
-> /proc/vmstat:pgsteal
+It is however, a "tweak" of the default value of 11.  I'll add a comment
+about this for the next version.  And if it can be less than 9, it is
+user-adjustable, it just has to be adjusted between 1 and 9.
 
-That's a funny name for it. Sure about that? Longer description
-of what I'm looking for:
+> > +/* This is the number of free areas per zone to manage, but the max
+> > + * number determines the maximum order of a page allocation request
+> > + * as well. */
+> > +/* Default: 11 */
+> > +#if defined(ASSABET_NEPONSET0) || defined(SA1100_ADSBITSY) || 		\
+> > +	defined(SA1100_BADGE4) || defined(SA1100_CONSUS) || 		\
+> > +	defined(SA1100_GRAPHICSMASTER) || defined(SA1100_JORNADA720) ||	\
+> > +	defined(ARCH_LUBBOCK) || defined(SA1100_PFS168) ||		\
+> > +	defined(SA1100_PT_SYSTEM3) || defined(SA1100_XP860)
+> > +#undef TWEAK_MAX_ORDER
+> > +#define TWEAK_MAX_ORDER		9
+> > +#endif
+> 
+> And the reason we have it in the configuration rather than the code is
+> to get rid of crap like the above.
 
-    reattaches from reclaim list
-        Number of pages that have been faulted while on the inactive list
+But having that as one line in arch/arm/Kconfig looks any better?
 
-To me, "pgsteal" sounds like pages grabbed from a clean list to
-be used for some new purpose.
-
->> minor faults
->
-> /proc/vmstat:pgfault - /proc/vmstat:pgmajfault
->
->> COW faults
->> zero-page faults
->
-> These are not available separately
-
-They count as minor faults?
-
->> anticipated short-term memory shortfall
->
-> hm.  tricky.
-
-How about these then? (and would you want them?)
-
-a. urgency level for the need to free up memory
-b. amount (or %) by which the system is overcommitted
-
->> pages freed
->
-> /proc/vmstat:pgfree
->
-> This is a little broken in 2.5.46.  pgfree is accumulated
-> _before_ the per-cpu LIFO queues and pgalloc is accumulated _after_
-> the per-cpu queues (or vice versa) so they're out of whack.
-
-Can I assume it will be fixed soon? Is this a value you'd like?
-
->> pages scanned by page-replacement algorithm
->
-> /proc/vmstat:pgscan
->
->> clock cycles by page replacement algorithm
->
-> Not available.  Could sum up the CPU across all kswapd instances,
-> which is a bit lame.
-
-I suspect that it's cycles of the page aging "clock" hand,
-not CPU cycles. So that would be pages scanned divided by
-the average number of pages in a full scan.
-
->> number of system calls
->
-> Not available
-
-I though so. Bummer. I guess this is due to overhead.
-
->> number of forks (fork, vfork, & clone) and execs
->
-> /proc/stat: processes
-
-That's fork/vfork/clone all together, w/o execs?
-(good for "vmstat -f", but poor for "vmstat -s")
-
-Got one more:
-
-      wired pages
-          Total number of pages that are currently in use
-          and cannot be used for paging
-
-Thanks for all the help. BTW, you didn't say if you liked the
-proposed changes, so I'm assuming they don't matter to you.
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132271AbRCVX6b>; Thu, 22 Mar 2001 18:58:31 -0500
+	id <S132264AbRCVX6t>; Thu, 22 Mar 2001 18:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132245AbRCVXzt>; Thu, 22 Mar 2001 18:55:49 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:17678 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S132246AbRCVXyo>; Thu, 22 Mar 2001 18:54:44 -0500
-Date: Thu, 22 Mar 2001 20:53:57 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Stephen Clouse <stephenc@theiqgroup.com>,
-        Guest section DW <dwguest@win.tue.nl>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <3C9BCD6E.94A5BAA0@evision-ventures.com>
-Message-ID: <Pine.LNX.4.33.0103222052100.24040-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132257AbRCVX6b>; Thu, 22 Mar 2001 18:58:31 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:14749 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S132246AbRCVX41>; Thu, 22 Mar 2001 18:56:27 -0500
+Date: Thu, 22 Mar 2001 15:53:21 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: USB oops Linux 2.4.2ac6
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Message-id: <176a01c0b32b$47e305c0$6800000a@brownell.org>
+MIME-version: 1.0
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset="iso-8859-1"
+Content-transfer-encoding: 7bit
+X-MSMail-Priority: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <20010228175009.A27630@devserv.devel.redhat.com>
+ <3ABA8737.82BD7ACA@cypress.com>
+X-Priority: 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Mar 2002, Martin Dalecki wrote:
+> I found the problem.
+> CONFIG_DEBUG_SLAB "Debug memory allocation"
+> in the 2.4.2-ac series doesn't work with USB.
+> 
+> 2.4.2-ac5 just booted and found the mouse correctly.
+> On to ac-21 now...
 
-> Uptime of a process is a much better mesaure for a killing
-> candidate then it's size.
+I just glanced at Alan's change list, it didn't have patches
+that seemed to cover that (vs ac20).
 
-You'll have fun with your root shell, then  ;)
+You might see what sort of luck you have with the patches
+I posted to linux-usb-devel earlier today.  At least both
+usb-ohci and usb-uhci enumerated even after configuring
+in slab debugging ... but there are bugs yet to be found.
+Maybe it deserves a CONFIG_DEBUG_PCI_POOL to
+decouple autopoisoning from CONFIG_DEBUG_SLAB.
 
-The current OOM code takes things like uptime, used cpu, size
-and a bunch of other things into account.
 
-If it turns out that the code is not attaching a proper weight
-to some of these factors, you should be sending patches, not
-flames.
+> Did David Brownell's patch to disable OHCI loading
+> on the AMD-756 make it into the source trees?
 
-(the code is full of comments, so it should be easy enough to
-find your way around the code and tweak it until it does the
-right thing in a number of test cases)
+It's been sent to Linus.  Unless/until someone learns the
+vendor fix and implements it, it seems to be the best way
+to prevent the 756-specific USB problems (happening
+most with lowspeed devices like mice).
 
-regards,
+- Dave
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
 

@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291232AbSBLWyf>; Tue, 12 Feb 2002 17:54:35 -0500
+	id <S291225AbSBLWty>; Tue, 12 Feb 2002 17:49:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291233AbSBLWyZ>; Tue, 12 Feb 2002 17:54:25 -0500
-Received: from bitmover.com ([192.132.92.2]:61886 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S291232AbSBLWyN>;
-	Tue, 12 Feb 2002 17:54:13 -0500
-Date: Tue, 12 Feb 2002 14:54:12 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Tom Lord <lord@regexps.com>
-Cc: tytso@mit.edu, lm@bitmover.com, jmacd@CS.Berkeley.EDU, jaharkes@cs.cmu.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020212145412.E25559@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Tom Lord <lord@regexps.com>, tytso@mit.edu, lm@bitmover.com,
-	jmacd@CS.Berkeley.EDU, jaharkes@cs.cmu.edu,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org> <20020207165035.GA28384@ravel.coda.cs.cmu.edu> <200202072306.PAA08272@morrowfield.home> <20020207132558.D27932@work.bitmover.com> <20020211002057.A17539@helen.CS.Berkeley.EDU> <20020211070009.S28640@work.bitmover.com> <20020211141404.A21336@work.bitmover.com> <200202120517.VAA21821@morrowfield.home> <20020211225935.B5514@thunk.org> <200202122028.MAA24835@morrowfield.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200202122028.MAA24835@morrowfield.home>; from lord@regexps.com on Tue, Feb 12, 2002 at 12:28:54PM -0800
+	id <S291232AbSBLWto>; Tue, 12 Feb 2002 17:49:44 -0500
+Received: from femail25.sdc1.sfba.home.com ([24.254.60.15]:41185 "EHLO
+	femail25.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S291225AbSBLWtc>; Tue, 12 Feb 2002 17:49:32 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: small IDE cleanup: void * should not be used unless neccessary
+Date: Tue, 12 Feb 2002 17:50:23 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20020211220937.GA121@elf.ucw.cz>
+In-Reply-To: <20020211220937.GA121@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020212224930.OKGN9845.femail25.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	2. On your laptop, store only the repository you'll need for
->            day to day work, plus a very sparsely populated revision
->            library
-> 
-> Having a huge revision library is a win if what you're doing is
-> fielding patches [etc]
+On Monday 11 February 2002 05:09 pm, Pavel Machek wrote:
+> Hi!
+>
+> This is really easy, please apply. (It will allow me to kill few casts
+> in future).
+> 								Pavel
+>
+> --- linux/include/linux/ide.h	Mon Feb 11 21:15:04 2002
+> +++ linux-dm/include/linux/ide.h	Mon Feb 11 22:36:12 2002
+> @@ -529,7 +531,7 @@
+>
+>  typedef struct hwif_s {
+>  	struct hwif_s	*next;		/* for linked-list in ide_hwgroup_t */
+> -	void		*hwgroup;	/* actually (ide_hwgroup_t *) */
+> +	struct hwgroup_s *hwgroup;	/* actually (ide_hwgroup_t *) */
+>  	ide_ioreg_t	io_ports[IDE_NR_PORTS];	/* task file registers */
+>  	hw_regs_t	hw;		/* Hardware info */
+>  	ide_drive_t	drives[MAX_DRIVES];	/* drive info */
 
-I think that the point is that when you put stuff on your laptop, you'd
-dearly love not realize that you forgot something you need when you are
-either not connected or are connected only via a modem.  If you can store
-the kernel history in 80-90MB and you have all the versions you'll ever
-want, that's a win compared to storing a few versions and then realizing
-the one you want isn't there.
+Now I'm confused about the comment on the end of the line.
 
-I also think that the term "huge revision library" doesn't make sense
-to all systems.  Some systems can fit that "huge library" in less space
-than the checked out files, so why limit yourself?
+Should the comment be changed, or should the type be ide_hwgroup_t instead of 
+struct hwgroup_s?
 
-Note that this is explictly not a BK thing, it's a general thing.
-I want whatever system I use to limit my choices as little as possible.
-No system is perfect, it's more of an optimization over the posssible
-limitations.  In this particular respect, I can say that I've found it
-very useful to carry around all the history when traveling, it means
-there is no difference between working at home or on the road, other
-than performance of my crappy laptop.
-
-And it's not like this makes arch bad, this is one place where it isn't as
-good as some other choices.  But arch has other areas where it is better,
-it is less pedantic than most systems about what it will try and apply.
-It's the uber patch library if you ask me, and that has real value.
-Why the patchbot people haven't picked up on that is beyond me, they're
-off trying to write something "simple", which I think you'll agree is
-a strange, there is nothing simple about this problem space.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Rob

@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAPRb4>; Tue, 16 Jan 2001 12:31:56 -0500
+	id <S130510AbRAPRi7>; Tue, 16 Jan 2001 12:38:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130454AbRAPRbq>; Tue, 16 Jan 2001 12:31:46 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:22456 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S129406AbRAPRbe>; Tue, 16 Jan 2001 12:31:34 -0500
-Importance: Normal
-To: linux-kernel@vger.kernel.org, Venkatesh Ramamurthy <Venkateshr@ami.com>
-Subject: RE: Linux not adhering to BIOS Drive boot order?
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF0BCB3D0B.CD3301DB-ON872569D6.005E41A3@LocalDomain>
-From: "Bryan Henderson" <hbryan@us.ibm.com>
-Date: Tue, 16 Jan 2001 09:30:55 -0800
-X-MIMETrack: Serialize by Router on D03NM088/03/M/IBM(Release 5.0.4a |July 24, 2000) at
- 01/16/2001 10:31:30 AM,
-	Serialize complete at 01/16/2001 10:31:30 AM
+	id <S130423AbRAPRit>; Tue, 16 Jan 2001 12:38:49 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:45130 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S129706AbRAPRik>; Tue, 16 Jan 2001 12:38:40 -0500
+From: Malahal Rao Naineni <naineni@sequent.com>
+Message-Id: <200101161738.f0GHcK214559@eng2.sequent.com>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+To: Venkateshr@ami.com (Venkatesh Ramamurthy)
+Date: Tue, 16 Jan 2001 09:38:19 -0800 (PST)
+Cc: linux-scsi@vger.kernel.org ('linux-scsi@vger.kernel.org'),
+        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org'),
+        alan@lxorguk.ukuu.org.uk ('Alan Cox')
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E9518C@ATL_MS1> from "Venkatesh Ramamurthy" at Jan 16, 2001 09:49:05 AM PST
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->If we can truly go for label based mounting
->and lilo'ing this would solve the problem.
+Venkatesh Ramamurthy wrote:
+> 
+> Hi,
+> I have one issue which requires fix from the linux kernel. 
+> Initially i put a SCSI controller and install the OS on the drive connected
+> to it. After installing the OS (on sda), the customer puts another SCSI
+> controller. The BIOS for the first controller has BIOS enabled and for the
+> second controller does not have the BIOS enabled. 
+> 
+> The linux loads the driver for the second controller first and assigns sda
+> to it first , and the actual boot drive gets some sdX device node. 
+> >From the lilo prompt we can override it with root=/dev/sdX to boot to the
+> correct drive and controller, but for a end -user using these cards, this is
+> no fun.
+> 
+> 
+> Can the linux kernel be changed in such a way that kernel will look for the
+> actual boot drive and re-order the drives so that mounting can go on in the
+> right order.
 
->From a layering point of view, it makes a lot more sense to
-me for the label (or signature or whatever) for this purpose 
-to be in the partition table than inside the filesystem.  The 
-parts of the system that assign devices their identities already 
-know about that part of the disk.
+Name slippage is a horrible thing. That should be fixed first. The O/S
+should get the device names right for every boot.
 
+Thanks, Malahal.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265896AbUFISVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266224AbUFISWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265896AbUFISVM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 14:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUFISVM
+	id S266224AbUFISWF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 14:22:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbUFISVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 14:21:12 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:42420 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265896AbUFISVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 14:21:10 -0400
-Date: Wed, 9 Jun 2004 19:20:37 +0100
-From: Dave Jones <davej@redhat.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Chris Mason <mason@suse.com>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: [STACK] >3k call path in reiserfs
-Message-ID: <20040609182037.GA12771@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Hans Reiser <reiser@namesys.com>, Chris Mason <mason@suse.com>,
-	=?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-	reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-References: <20040609122226.GE21168@wohnheim.fh-wedel.de> <1086784264.10973.236.camel@watt.suse.com> <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com> <1086801345.10973.263.camel@watt.suse.com> <40C75141.7070408@namesys.com>
+	Wed, 9 Jun 2004 14:21:35 -0400
+Received: from system65-210-78-197.hpti.com ([65.210.78.197]:21435 "EHLO
+	hptimail01.HPTI.COM") by vger.kernel.org with ESMTP id S265928AbUFISVa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 14:21:30 -0400
+Subject: Re: XFS over NFS corruption
+From: Craig Tierney <ctierney@hpti.com>
+To: Marat Mukhitov <marat@GSTJ2W.stavanger.eur.slb.com>
+Cc: Andy <genanr@emsphone.com>, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
+In-Reply-To: <200406091949.47774.marat@GSTJ2W>
+References: <20040609165442.GA9569@thumper2>
+	 <200406091949.47774.marat@GSTJ2W>
+Content-Type: text/plain
+Message-Id: <1086805203.3283.0.camel@hpti9.fsl.noaa.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40C75141.7070408@namesys.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 09 Jun 2004 12:20:04 -0600
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Jun 2004 18:21:30.0247 (UTC) FILETIME=[95E56170:01C44E4E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 09, 2004 at 11:04:49AM -0700, Hans Reiser wrote:
- > >>Can you give me some background on whether this is causing real problems 
- > >>for real users?
- > >
- > >Especially with the 4k stack option enabled, it will cause real problems
- > >for real users.  A better change would be to cut down on the size of the
- > >tree balance struct, but that would be more invasive.  For starters we
- > >might be able to switch from ints to shorts for some of the arrays.
- > >
- > >-chris
- > >
- > Can you tell me about the "4k stack option"?
+On Wed, 2004-06-09 at 11:49, Marat Mukhitov wrote:
+> Andy ,
+> 
+> We had a similar problem. 
+> Changing "async" to "sync" option of exportfs  on NFS server  helps in our case.
+> 
+> Regards,
+> Marat 
 
-Arjan's original patch & announcement are at
-http://people.redhat.com/arjanv/4kstack.patch
+Changing that option kills performance though.  Also, in my
+case where I am getting corruption, switching to sync did
+not help.
 
-		Dave
+Craig
+
+> 
+> 
+> On Wednesday 09 June 2004 18:54, Andy wrote:
+> > I thought I had seen the bug even writing to an non-XFS nfs server, but I
+> > can't absolutely confirm this at the time (I was not doing the testing at
+> > the time, and some of the result may not have been accurate)
+> >
+> > But, the description of bug #198 on the XFS bugzilla, does sound like what
+> > I am seeing.
+> >
+> > What I do in my tests is take a file of offsets (every group of 4 bytes
+> > contains the offset of the 1st byte of the group) and copy that file to an
+> > nfs mounted volume and then compare the local copy to the remote copy
+> > (copying to several systems, each server is also receiving from several
+> > systems).  After a while I will see errors in the compare, data appearing
+> > at the wrong offset in the file.  The amount of data is small (<64k),
+> > always an 8k boundary at a large offset discrepancy (100's of megs).  I've
+> > attached the mkoffsetfile.c and cmpoffsets.c programs used for testing.
+> >
+> > Sample of cmpoffsets output :
+> >
+> > 431128576-431161343 (32768) (held data from 738426880-738459647)
+> >  starts at a 65536-byte block
+> >  ends at a 524288-byte block
+> >
+> > Hope this helps.
+> >
+> > Andy
+> 
+> 
 

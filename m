@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267554AbUHEFoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267552AbUHEFoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267554AbUHEFoW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 01:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267555AbUHEFoW
+	id S267552AbUHEFoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 01:44:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267554AbUHEFoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 01:44:22 -0400
-Received: from gate.crashing.org ([63.228.1.57]:58796 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267554AbUHEFoS (ORCPT
+	Thu, 5 Aug 2004 01:44:09 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29072 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S267552AbUHEFoF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 01:44:18 -0400
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Martin Mares <mj@ucw.cz>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>
-In-Reply-To: <20040805050556.9899.qmail@web14924.mail.yahoo.com>
-References: <20040805050556.9899.qmail@web14924.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1091684486.9271.202.camel@gaston>
+	Thu, 5 Aug 2004 01:44:05 -0400
+Date: Thu, 5 Aug 2004 07:43:54 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.enemy.org>
+Cc: linux-kernel@vger.kernel.org, schilling@fokus.fraunhofer.de
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040805054354.GD10376@suse.de>
+References: <20040804124335.GK10340@suse.de> <200408050025.i750P3Li010082@wildsau.enemy.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 05 Aug 2004 15:41:27 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408050025.i750P3Li010082@wildsau.enemy.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-05 at 15:05, Jon Smirl wrote:
-> Version 10
+On Thu, Aug 05 2004, H.Rosmanith (Kernel Mailing List) wrote:
+> > > + * Sat Jun 12 12:48:12 CEST 2004 herp - Herbert Rosmanith
+> > > + *     Force ATAPI driver if dev= starts with /dev/hd and device
+> > > + *     is present in /proc/ide/hdX
+> > > + *
+> > 
+> > That's an extremely bad idea, you want to force ATA driver in either
+> > case.
 > 
-> implements an x86 quirk to record the boot video device. Is the
-> PCI_ROM_SHADOW flag a safe define? Quirk records boot video device by
-> looking at how the bridges route to the VGA device. It there some other
-> way to tell which video card is the boot one? What if there is more
-> than one VGA card on the PCI bus? I think the BIOS spec is to enable
-> the one in the lowest slot number. Can someone who own multiple PCI
-> video cards test this? I tested with one PCI, one AGP.
+> I don't think so.
 > 
-> BenH, this should solve the problem of which video card owns the ROM
-> copy at C000:0. For the boot device this code returns the shadow copy,
-> else the real ROM on the card.
+> If "dev=/dev/hd?" and "/dev/hd?" is *not* present in /proc/ide, then
+> cdrtools falls back to the default behaviour, which is: treat it as
+> scsi device.
+> 
+> If the device cannot be found in /proc/ide, it simply does not make sense
+> to treat it as atapi device - because it is none.
 
-Looks ok for me. It would be nice though if the code returning the
-shadow copy could be "hooked" by the driver, that way, the radeon
-kernel driver can force-enable the ROM decoding... or do you want
-to use pci quirks for that too ?
+ATA method is misnamed, it's really SG_IO that is used. And you want to
+use that regardless of the device type, SCSI or ATAPI. There's no such
+thing as an ATA burner, and there's no need to differentiate between
+SCSI or ATAPI CD-ROM's when burning - SG_IO is the method to use. So
+forget browsing /proc/ide and other hacks.
 
-> I did the x86 quirk, what do the quirks on ia64, ppc, x86_64 need? Can
-> they just copy the x86 one?
-
-Probably... can't we have arch-independant quirks ? Especially with the
-new quirk section stuff David just posted, we can have quirks pretty much
-anywhere...
-
-Ben.
-
+-- 
+Jens Axboe
 

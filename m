@@ -1,93 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbTD1QkY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 12:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbTD1QkY
+	id S261201AbTD1Qpo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 12:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbTD1Qpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 12:40:24 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:62384 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261196AbTD1QkV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 12:40:21 -0400
-Subject: [RFC][PATCH] Move security_d_instantiate hook calls in 2.5.68
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>,
-       lsm <linux-security-module@wirex.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1051548714.20300.293.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 28 Apr 2003 12:51:55 -0400
+	Mon, 28 Apr 2003 12:45:44 -0400
+Received: from imap.gmx.net ([213.165.64.20]:36999 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261201AbTD1Qpn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 12:45:43 -0400
+Message-ID: <3EAD5D90.7010101@gmx.net>
+Date: Mon, 28 Apr 2003 18:57:52 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Andi Kleen <ak@suse.de>, Henti Smith <bain@tcsn.co.za>,
+       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       Riley Williams <Riley@Williams.Name>
+Subject: Re: [Lse-tech] Re: maximum possible memory limit ..
+References: <20030424200524.5030a86b.bain@tcsn.co.za> <3EAD27B2.9010807@gmx.net> <20030428141023.GC4525@Wotan.suse.de> <3EAD5AC1.7090003@us.ibm.com>
+In-Reply-To: <3EAD5AC1.7090003@us.ibm.com>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch moves the security_d_instantiate hook calls in d_instantiate
-and d_splice_alias after the inode has been attached to the dentry. 
-SELinux uses this hook to setup the inode's security structure when the
-inode is first attached to a dentry.  This change is necessary so that
-security modules can internally call the getxattr inode operation (which
-takes a dentry parameter) from this hook to obtain the inode security
-label.  Previously, when using the persistent label mapping, SELinux
-only required an inode to fetch the security label, not a dentry, so the
-hook was placed before the attach. Moving the hook calls should be safe,
-as the dentry is not yet hashed, so the security module can still set up
-the inode security structure before the dentry becomes accessible
-through the dcache.  If anyone has any objections to this change, please
-let me know.
+Dave Hansen wrote:
+> Andi Kleen wrote:
+> 
+>>Realistic limit currently is ~16GB with an IA32 box.  For more you need
+>>an 64bit architecture.
+> 
+> 
+> Let's say 32GB :)  It boots just fine with 2.5.68, no additional
+> patches.  There's even half a gig of lowmem free.
 
+Cool. Sorry to be pestering about the 64-bit limits, but can we really
+use 2^64 bytes of memory on ia64/ppc64/x86-64 etc.? (AFAIK, 64-bit
+arches don't suffer from a small ZONE_LOWMEM.)
 
- dcache.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
-
-Index: linux-2.5/fs/dcache.c
-===================================================================
-RCS file: /home/pal/CVS/linux-2.5/fs/dcache.c,v
-retrieving revision 1.5
-diff -u -r1.5 dcache.c
---- linux-2.5/fs/dcache.c	21 Apr 2003 15:03:31 -0000	1.5
-+++ linux-2.5/fs/dcache.c	28 Apr 2003 11:42:05 -0000
-@@ -763,12 +763,12 @@
- void d_instantiate(struct dentry *entry, struct inode * inode)
- {
- 	if (!list_empty(&entry->d_alias)) BUG();
--	security_d_instantiate(entry, inode);
- 	spin_lock(&dcache_lock);
- 	if (inode)
- 		list_add(&entry->d_alias, &inode->i_dentry);
- 	entry->d_inode = inode;
- 	spin_unlock(&dcache_lock);
-+	security_d_instantiate(entry, inode);
- }
- 
- /**
-@@ -896,12 +896,12 @@
- 	struct dentry *new = NULL;
- 
- 	if (inode && S_ISDIR(inode->i_mode)) {
--		security_d_instantiate(dentry, inode);
- 		spin_lock(&dcache_lock);
- 		if (!list_empty(&inode->i_dentry)) {
- 			new = list_entry(inode->i_dentry.next, struct dentry, d_alias);
- 			__dget_locked(new);
- 			spin_unlock(&dcache_lock);
-+			security_d_instantiate(dentry, inode);
- 			d_rehash(dentry);
- 			d_move(new, dentry);
- 			iput(inode);
-@@ -910,6 +910,7 @@
- 			list_add(&dentry->d_alias, &inode->i_dentry);
- 			dentry->d_inode = inode;
- 			spin_unlock(&dcache_lock);
-+			security_d_instantiate(dentry, inode);
- 			d_rehash(dentry);
- 		}
- 	} else
-
-
-  
+Regards,
+Carl-Daniel
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.hailfinger.org/
 

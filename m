@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268033AbTB1RRj>; Fri, 28 Feb 2003 12:17:39 -0500
+	id <S268031AbTB1R0u>; Fri, 28 Feb 2003 12:26:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268038AbTB1RRj>; Fri, 28 Feb 2003 12:17:39 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:27654 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S268033AbTB1RRi>; Fri, 28 Feb 2003 12:17:38 -0500
-Date: Fri, 28 Feb 2003 20:27:21 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>, linux-kernel@vger.kernel.org
-Subject: Re: Proposal: Eliminate GFP_DMA
-Message-ID: <20030228202721.A4481@jurassic.park.msu.ru>
-References: <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <Pine.SGI.4.10.10302282138180.244855-100000@Sky.inp.nsk.su> <20030228160550.B31251@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S268034AbTB1R0t>; Fri, 28 Feb 2003 12:26:49 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:58759 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268031AbTB1R0t>; Fri, 28 Feb 2003 12:26:49 -0500
+Date: Fri, 28 Feb 2003 09:37:08 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 420] New: Divide by zero (/proc/sys/net/ipv4/neigh/DEV/base_reachable_time)
+Message-ID: <27440000.1046453828@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030228160550.B31251@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Feb 28, 2003 at 04:05:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 04:05:50PM +0000, Russell King wrote:
-> Umm, question - I've seen ISA bridges with the ability to perform 32-bit
-> DMA using the ISA DMA controllers.  AFAIK, Linux doesn't make use of this
-> feature, except on ARM PCI systems with ISA bridges.
+http://bugme.osdl.org/show_bug.cgi?id=420
 
-Alpha uses this from day 1, BTW.
-Also, in 2.5 we have "isa_bridge" stuff which was intended exactly for
-that - it's a pointer to pci device (real ISA bridge with appropriate
-dma_mask) that can be used by non-busmastering ISA devices as a pci_dev *
-arg to pci_* mapping functions.
+           Summary: Divide by zero
+                    (/proc/sys/net/ipv4/neigh/DEV/base_reachable_time)
+    Kernel Version: 2.4.20, 2.5.63
+            Status: NEW
+          Severity: normal
+             Owner: davem@vger.kernel.org
+         Submitter: usui_mi@ybb.ne.jp
 
->  Is there a reason
-> why this isn't used on x86 hardware?
 
-Given a huge number of various ISA bridges found in x86 systems,
-I don't see a generic way to determine which ones can do 32-bit DMA...
-Maybe kind of white list?
+Distribution:Debian GNU/Linux 3.0, Vine Linux 2.6
+Hardware Environment:
+Software Environment:
+Problem Description:
+  Divide by zero (/proc/sys/net/ipv4/neigh/DEV/base_reachable_time)
+Steps to reproduce:
+  I found the problem of neigh_rand_reach_time() in net/core/neighbour.c.
+  This function called by neigh_periodic_timer() each 300 seconds, 
+  and argument of neigh_periodic_timer() is p->base_reachable_time.
+  base_reachable_time can set to 0 by below sequence.
 
-Ivan.
+    echo 0 > /proc/sys/net/ipv4/neigh/DEV/base_reachable_time
+
+  But neigh_rand_reach_time() divide by its argument.
+
+    unsigned long neigh_rand_reach_time(unsigned long base)
+    {
+	return (net_random() % base) + (base>>1);
+    }
+
+

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUHGXSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUHGXVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264639AbUHGXSc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 19:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUHGXSc
+	id S264658AbUHGXVe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 19:21:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUHGXVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 19:18:32 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:37060 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S264639AbUHGXS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 19:18:26 -0400
-Subject: Re: [PATCH] x86 bitops.h commentary on instruction reordering
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <cf10v3$h9l$1@terminus.zytor.com>
-References: <20040805200622.GA17324@logos.cnet>
-	 <20040806155328.GA21546@logos.cnet> <4113B752.7050808@vlnb.net>
-	 <20040806170931.GA21683@logos.cnet>  <cf10v3$h9l$1@terminus.zytor.com>
-Content-Type: text/plain
+	Sat, 7 Aug 2004 19:21:04 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:53720 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S264643AbUHGXUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 19:20:50 -0400
+Message-ID: <411563D0.1050608@namesys.com>
+Date: Sat, 07 Aug 2004 16:20:48 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: andrea@cpushare.com, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: secure computing for 2.6.7
+References: <20040704173903.GE7281@dualathlon.random>	 <40EC4E96.9090800@namesys.com> <1091536845.7645.60.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1091536845.7645.60.camel@moss-spartans.epoch.ncsc.mil>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1091916965.19077.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 07 Aug 2004 23:16:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-08-06 at 23:33, H. Peter Anvin wrote:
-> > > So, there is no platform independent way for doing that in the kernel?
-> > Not really. x86 doesnt have such an instruction.
-> Actually it does (sfence, lfence, mfence); they only apply to SSE
-> loads and stores since all other x86 operations are guaranteed to be
-> strictly ordered.
+Stephen Smalley wrote:
 
-The ordering guarantees on x86 are not completely strict and they refer
-to the observed order of store on the bus rather than execution order.
-So while code will generate the same observable results as if it was in
-order you can get burned on timing suprises in some odd cases. Some of
-the devices will even do weakly ordered stores to memory and fix up the
-bus transactions by snooping them and spotting the impending problem.
-
-Secondly on PPro and some others there are various chip errata where not
-using locking operations _does_ cause observable out of order stores.
-Thats why our unlock path for PPro uses lock movb.
-
-Also for pedants only we support IDT Winchips (ancestor of the VIA C3)
-which we do run with weak store ordering from an external view (not an
-internal one). On those x86 variants the barrier instructions do what
-you would expect.
-
-Alan
-
+>On Wed, 2004-07-07 at 15:27, Hans Reiser wrote:
+>  
+>
+>>Am I right to think that this could complement nicely our plans 
+>>described at www.namesys.com/blackbox_security.html
+>>    
+>>
+>
+>Hi Hans,
+>
+>Out of curiosity, what do you think that this proposal will achieve that
+>cannot already be done via SELinux policy?  SELinux policy can already
+>express access rules based not only on the executable and user, but even
+>the entire call chain that led to a given executable.
+>
+>  
+>
+Where do you store the access rules?  With the executable?   How do you 
+automate their determination?

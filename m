@@ -1,55 +1,55 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154927AbPIBWIX>; Thu, 2 Sep 1999 18:08:23 -0400
-Received: by vger.rutgers.edu id <S154935AbPIBVx5>; Thu, 2 Sep 1999 17:53:57 -0400
-Received: from stm.lbl.gov ([131.243.16.51]:3362 "EHLO stm.lbl.gov") by vger.rutgers.edu with ESMTP id <S154929AbPIBVnR>; Thu, 2 Sep 1999 17:43:17 -0400
-Date: Thu, 2 Sep 1999 14:42:51 -0700
-From: David Schleef <ds@stm.lbl.gov>
+Received: by vger.rutgers.edu via listexpand id <S154840AbPICMFa>; Fri, 3 Sep 1999 08:05:30 -0400
+Received: by vger.rutgers.edu id <S154530AbPICMFU>; Fri, 3 Sep 1999 08:05:20 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1083 "EHLO chaos.analogic.com") by vger.rutgers.edu with ESMTP id <S154769AbPICMDq> convert rfc822-to-8bit; Fri, 3 Sep 1999 08:03:46 -0400
+Date: Fri, 3 Sep 1999 08:02:53 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: Gerard Roudier <groudier@club-internet.fr>
-Cc: Paul Ashton <lk@mailandnews.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.rutgers.edu
+cc: David Schleef <ds@stm.lbl.gov>, Paul Ashton <lk@mailandnews.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.rutgers.edu
 Subject: Re: Shared interrupt (lack of) handling
-Message-ID: <19990902144251.A32648@stm.lbl.gov>
-References: <19990902104044.A31769@stm.lbl.gov> <Pine.LNX.3.95.990902205502.393A-100000@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <Pine.LNX.3.95.990902205502.393A-100000@localhost>; from Gerard Roudier on Thu, Sep 02, 1999 at 09:41:48PM +0200
+In-Reply-To: <Pine.LNX.3.95.990902205502.393A-100000@localhost>
+Message-ID: <Pine.LNX.3.95.990903074606.1016A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Thu, Sep 02, 1999 at 09:41:48PM +0200, Gerard Roudier wrote:
-> > 
-> > I'd vote for changing the return value of the interrupt handlers to
-> > (int), and return a I_DID_SOME_STUFF flag.  That way, if none of the
+On Thu, 2 Sep 1999, Gerard Roudier wrote:
+[SNIPPED]
+
 > 
-> This does not make sense at all for PCI.
+> In PCI, INTERRUPT ARE NOT SYNCHRONISATION EVENTS!  Synchronisation
+> events are PCI TRANSACTIONS in the context of ordering rules defined by
+> the specs,....
+
+This sounds like something written by a lawyer. In plan language, any
+hardware interrupt is a hardware request for some software to do
+something. The interrupt event, itself, does not convey any
+knowledge about the reason why the interrupt occurred. Software has
+to inspect the hardware to determine the reason for the interrupt.
+
+With shared interrupts, it is mandatory that the software that handles
+an interrupt event (the ISR), not complain if it finds that it got
+control and, upon inspecting the hardware, finds there is nothing to
+do.
+
+How the PCI controller, raises the maskable interrupt pin on the
+CPU make no difference at all. One doesn't care if it's a 'PCI
+TRANSACTION' or a 'PYROSYNCHROGEM'. If it happened fast enough so
+the event isn't stale, nobody cares --and if the software cares,
+it's broken.
+
 > 
-> In PCI, INTERRUPT ARE NOT SYNCHRONISATION EVENTS!  Synchronisation events
-> are PCI TRANSACTIONS in the context of ordering rules defined by the
-> specs, but unfortunately only a few hardware implemented that stuff
-> correctly. People that think interrupts as synchronisations events are not
-> able to write PCI device drivers that will work reliably in presence of
-> posted transactions. A PCI interrupt just kicks the driver code that has
-> then to synchronize correctly with de device, both using PCI transactions
-> and relying on PCI ordering rules (or the subset available on the involved
-> hardware). 
+> Gérard.
+> 
 
 
-I appear to be missing something.  What do PCI synchonization issues
-have anything to do with a driver giving the OS hints?  The delivery
-of interrupts to the handlers would not change, but only that messages
-*might* get printk'd if an interrupt occurs and no handler thinks that
-the interrupt belongs to it.  How often do spurious interrupts occur
-in a correctly functioning computer that shares interrupts between,
-say, a NIC and SCSI card?
-
-One thing that you could do with the I_DID_SOME_STUFF flag is use the
-statistics to reorder the execution of interrupt handlers so that the
-device that causes the most interrupts gets called first.  Might be
-cool, difficult to tell.
-
-
-
-
-dave...
+Cheers,
+Dick Johnson
+                   **** FILE SYSTEM WAS MODIFIED ****
+Penguin : Linux version 2.3.13 on an i686 machine (400.59 BogoMips).
+Warning : It's hard to remain at the trailing edge of technology.
 
 
 -

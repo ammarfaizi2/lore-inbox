@@ -1,48 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316667AbSGQU1J>; Wed, 17 Jul 2002 16:27:09 -0400
+	id <S316672AbSGQUaO>; Wed, 17 Jul 2002 16:30:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316668AbSGQU1J>; Wed, 17 Jul 2002 16:27:09 -0400
-Received: from mailrelay.ds.lanl.gov ([128.165.47.40]:50845 "EHLO
-	mailrelay.ds.lanl.gov") by vger.kernel.org with ESMTP
-	id <S316667AbSGQU1J>; Wed, 17 Jul 2002 16:27:09 -0400
-Subject: Re: 2.5.25-dj2, kernel BUG at dcache.c:361
-From: Steven Cole <elenstev@mesatop.com>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>,
-       Steven Cole <scole@lanl.gov>
-In-Reply-To: <20020717221640.D32389@suse.de>
-References: <1026936410.11636.107.camel@spc9.esa.lanl.gov> 
-	<20020717221640.D32389@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 17 Jul 2002 14:26:59 -0600
-Message-Id: <1026937620.11339.118.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+	id <S316674AbSGQUaO>; Wed, 17 Jul 2002 16:30:14 -0400
+Received: from dsl-213-023-038-064.arcor-ip.net ([213.23.38.64]:54974 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316672AbSGQUaN>;
+	Wed, 17 Jul 2002 16:30:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [RFC] new module format
+Date: Wed, 17 Jul 2002 22:34:35 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0207172146590.8911-100000@serv>
+In-Reply-To: <Pine.LNX.4.44.0207172146590.8911-100000@serv>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17UvVM-0004Pp-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-17 at 14:16, Dave Jones wrote:
-> On Wed, Jul 17, 2002 at 02:06:50PM -0600, Steven Cole wrote:
->  > While running 2.5.25-dj2 and dbench with increasing numbers of clients,
->  > my test machine locked up with the following message:
->  > 
->  > kernel BUG at dcache.c:361!
+On Wednesday 17 July 2002 22:12, Roman Zippel wrote:
+> Hi,
 > 
-> There are some -dj specific hacks to dcache.c to convert to use
-> list_t types. Which from memory, I think William Lee Irwin did.
-> (wli, can you double check those just in case there's either an
->  obvious thinko, or a mismerge if you get time ?)
+> On Wed, 17 Jul 2002, Daniel Phillips wrote:
 > 
-> Failing that, this could be something that also affects mainline
-> I think.
+> > > 1. Properly fixing module races: I'm playing with a init/start/stop/exit
+> > > model, this has the advantage that we can stop anyone from reusing a
+> > > module and we only have to wait for remaining users to go away until we
+> > > can safely unload the module.
+> >
+> > I'm satisfied that, for filesystems at least, all the module races can be
+> > solved without adding start/stop, and I will present code in due course.
+> 
+> The start/stop methods are not needed to fix the races, they allow better
+> control of the unload process.
 
-I didn't explicitly mention it, but I have successfully run recent
-kernels (2.5.2[4,5,6]) with and without the rmap patches with up to 64
-dbench clients with no problems observed.  Also 2.4.19-rc[1,2] works
-well.  2.5.25-dj2 is the only kernel which has had this dcache.c BUG.
-I didn't test 2.5.25-dj1.
+I'm afraid it must show that I didn't read the previous threads closely 
+enough, but what is the specific benefit supposed to be, if not to address
+the races?
 
-Steven
+> > However, Rusty tells me there are harder cases than filesystems.  At this
+> > point I'm waiting for a specific example.
+> 
+> For filesystems it's only simpler because they only have a single entry
+> point, but the basic problem is always the same.
 
+What do you mean by single entry point?  Mount?  Register_filesystem?
+Lowlevel activity on a filesystem is certainly not restricted to a single 
+entry point.
+
+> We have to protect
+> against module load/unload and unregister. Without an interface change we
+> will have to add module owner pointers everywhere and we will see
+> contention on the unload_lock due to try_inc_mod_count.
+
+It makes perfect sense for mount to be able to know which module implements 
+its filesystem.  I do not see why updating every mount-like thing in the 
+system is bad, if it's the best interface.
+
+It's really hard to see why contention on a slow-path lock is anything to 
+worry about.  Anyway, it's not hard to fix the locking model so the lock
+only covers the transitions of state bits, instead of all of free_module.
+
+So, I'm still hoping to hear a substantive reason why the filesystem model
+can't be applied in general to all forms of modular code.  To remind you
+of the issue: the proposition is that the subsystem in the module is
+always capable of knowing when the module is quiescent, because it does
+whatever is necessary to keep track of the users and what they're doing.
+
+-- 
+Daniel

@@ -1,88 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314707AbSGQO0M>; Wed, 17 Jul 2002 10:26:12 -0400
+	id <S315120AbSGQOge>; Wed, 17 Jul 2002 10:36:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314835AbSGQO0M>; Wed, 17 Jul 2002 10:26:12 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:60592 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314707AbSGQO0L>;
-	Wed, 17 Jul 2002 10:26:11 -0400
-Date: Wed, 17 Jul 2002 16:29:04 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Stelian Pop <stelian.pop@fr.alcove.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: input subsystem config ?
-Message-ID: <20020717162904.B19935@ucw.cz>
-References: <20020716143415.GO7955@tahoe.alcove-fr> <20020717095618.GD14581@tahoe.alcove-fr> <20020717120135.A12452@ucw.cz> <20020717101001.GE14581@tahoe.alcove-fr> <20020717140804.B12529@ucw.cz> <20020717132459.GF14581@tahoe.alcove-fr> <20020717154448.A19761@ucw.cz> <20020717135823.GG14581@tahoe.alcove-fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020717135823.GG14581@tahoe.alcove-fr>; from stelian.pop@fr.alcove.com on Wed, Jul 17, 2002 at 03:58:23PM +0200
+	id <S315182AbSGQOgd>; Wed, 17 Jul 2002 10:36:33 -0400
+Received: from ns.suse.de ([213.95.15.193]:35594 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315120AbSGQOgc>;
+	Wed, 17 Jul 2002 10:36:32 -0400
+To: Elladan <elladan@eskimo.com>
+Cc: Stevie O <stevie@qrpff.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Zack Weinberg <zack@codesourcery.com>, linux-kernel@vger.kernel.org
+Subject: Re: close return value (was Re: [ANNOUNCE] Ext3 vs Reiserfs
+ benchmarks)
+References: <1026867782.1688.108.camel@irongate.swansea.linux.org.uk>
+	<20020716232225.GH358@codesourcery.com>
+	<1026867782.1688.108.camel@irongate.swansea.linux.org.uk>
+	<5.1.0.14.2.20020717001624.00ab8c00@whisper.qrpff.net>
+	<20020717043853.GA31493@eskimo.com>
+X-Yow: Just imagine you're entering a state-of-the-art CAR WASH!!
+From: Andreas Schwab <schwab@suse.de>
+Date: Wed, 17 Jul 2002 16:39:28 +0200
+In-Reply-To: <20020717043853.GA31493@eskimo.com> (Elladan's message of "Tue,
+ 16 Jul 2002 21:38:53 -0700")
+Message-ID: <je65zel8pr.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.3.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 03:58:23PM +0200, Stelian Pop wrote:
-> On Wed, Jul 17, 2002 at 03:44:48PM +0200, Vojtech Pavlik wrote:
-> 
-> > Try this patch, 
-> 
-> It doesn't change anything:
->
-> > if it doesn't work, we'll have to try more changes, like
-> > trying to skip the AUX port detection that might confuse the chip ....
-> 
-> I should enhance however that it works with the old pc_keyb driver.
+Elladan <elladan@eskimo.com> writes:
 
-Yes, I know. That's why I suggested skipping the detection, as the
-pc_keyb driver doesn't do that.
+|> On Wed, Jul 17, 2002 at 12:17:40AM -0400, Stevie O wrote:
+|> > At 07:22 PM 7/16/2002 -0700, Elladan wrote:
+|> > >  1. Thread 1 performs close() on a file descriptor.  close fails.
+|> > >  2. Thread 2 performs open().
+|> > >* 3. Thread 1 performs close() again, just to make sure.
+|> > >
+|> > >
+|> > >open() may return any file descriptor not currently in use.
+|> > 
+|> > I'm confused here... the only way close() can fail is if the file
+|> > descriptor is invalid (EBADF); wouldn't it be rather stupid to close()
+|> > a known-to-be-bad descriptor?
+|> 
+|> Well, obviously, if that's the case.  However, the man page for close(2)
+|> doesn't agree (see below).  close() is allowed to return EBADF, EINTR,
+|> or EIO.
+|> 
+|> The question is, does the OS standard guarantee that the fd is closed,
+|> even if close() returns EINTR or EIO?  Just going by the normal usage of
+|> EINTR, one might think otherwise.  It doesn't appear to be documented
+|> one way or another.
 
-Try this:
+POSIX says the state of the file descriptor when close fails (with errno
+!= EBADF) is unspecified, which means:
 
---- i8042.c.old	Wed Jul 17 16:05:57 2002
-+++ i8042.c	Wed Jul 17 16:27:54 2002
-@@ -571,6 +571,8 @@
- 
- 	i8042_flush();
- 
-+#if 0
-+
- /*
-  * Internal loopback test - filters out AT-type i8042's
-  */
-@@ -621,6 +625,11 @@
- 	i8042_ctr &= ~I8042_CTR_AUXINT;
- 
- 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
-+		return -1;
-+
-+#endif
-+
-+	if (i8042_command(&param, I8042_CMD_AUX_ENABLE))
- 		return -1;
- 
- 	return 0;
+    The value or behavior may vary among implementations that conform to
+    IEEE Std 1003.1-2001. An application should not rely on the existence
+    or validity of the value or behavior. An application that relies on
+    any particular value or behavior cannot be assured to be portable
+    across conforming implementations.
 
-> I don't know the internals but it may give you a hint...
-> 
-> > Btw, what's the exact chipset involved?
-> 
-> It's a Sony VAIO Picturebook C1VE, lspci:
-> 00:00.0 Host bridge: Transmeta Corporation LongRun Northbridge
-> 00:00.1 RAM memory: Transmeta Corporation SDRAM controller
-> 00:00.2 RAM memory: Transmeta Corporation BIOS scratchpad
-> 00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-> 00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-> 00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-> 00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
-> 00:08.0 FireWire (IEEE 1394): Texas Instruments TSB43AA22 IEEE-1394 Controller (PHY/Link Integrated) (rev 02)
-> 00:09.0 Multimedia audio controller: Yamaha Corporation YMF-754 [DS-1E Audio Controller]
-> 00:0b.0 Multimedia controller: Kawasaki Steel Corporation: Unknown device ff01 (rev 01)
-> 00:0c.0 CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
-> 00:0d.0 VGA compatible controller: ATI Technologies Inc Rage Mobility P/M (rev 64)
-
-Oh my. So likely there the i8042 chip is implemented in software
-entirely ...
+Andreas.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

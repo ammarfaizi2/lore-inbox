@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVCRPyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVCRPz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbVCRPyS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 10:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVCRPyS
+	id S261657AbVCRPz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 10:55:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVCRPz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 10:54:18 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:54004 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261654AbVCRPyM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 10:54:12 -0500
-Date: Fri, 18 Mar 2005 07:54:18 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: mingo@elte.hu, dipankar@in.ibm.com, shemminger@osdl.org, akpm@osdl.org,
-       torvalds@osdl.org, rusty@au1.ibm.com, tgall@us.ibm.com,
-       jim.houston@comcast.net, manfred@colorfullife.com, gh@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and RCU
-Message-ID: <20050318155418.GC1299@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050318002026.GA2693@us.ibm.com> <20050318125641.GA5107@nietzsche.lynx.com>
+	Fri, 18 Mar 2005 10:55:57 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:54546 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261662AbVCRPzh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 10:55:37 -0500
+Date: Fri, 18 Mar 2005 10:55:01 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Hong Kong Phoey <hongkongphoey@gmail.com>,
+       Sascha Hauer <s.hauer@pengutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] DM9000 network driver
+Message-ID: <20050318155459.GB9136@tuxdriver.com>
+Mail-Followup-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+	Hong Kong Phoey <hongkongphoey@gmail.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>, linux-kernel@vger.kernel.org
+References: <20050318133143.GA20838@metis.extern.pengutronix.de> <4f6c1bdf0503180711148b8f02@mail.gmail.com> <20050318152554.GH17865@csclub.uwaterloo.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050318125641.GA5107@nietzsche.lynx.com>
+In-Reply-To: <20050318152554.GH17865@csclub.uwaterloo.ca>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 18, 2005 at 04:56:41AM -0800, Bill Huey wrote:
-> On Thu, Mar 17, 2005 at 04:20:26PM -0800, Paul E. McKenney wrote:
-> > 5. Scalability -and- Realtime Response.
-> ...
-> 
-> > 	void
-> > 	rcu_read_lock(void)
-> > 	{
-> > 		preempt_disable();
-> > 		if (current->rcu_read_lock_nesting++ == 0) {
-> > 			current->rcu_read_lock_ptr =
-> > 				&__get_cpu_var(rcu_data).lock;
-> > 			read_lock(current->rcu_read_lock_ptr);
-> > 		}
-> > 		preempt_enable();
-> > 	}
-> 
-> Ok, here's a rather unsure question...
-> 
-> Uh, is that a sleep violation if that is exclusively held since it
-> can block within an atomic critical section (deadlock) ?
+On Fri, Mar 18, 2005 at 10:25:54AM -0500, Lennart Sorensen wrote:
+> On Fri, Mar 18, 2005 at 08:41:52PM +0530, Hong Kong Phoey wrote:
 
-Hey, I wasn't joking when I said that I probably got something wrong!  ;-)
+> > switch(foo) {
+> > 
+> >   case 1:
+> >              f1();
+> >   case2 :
+> >              f2();
+> > };
+> > 
+> > could well become
+> > 
+> > void (*func)[] = { f1, f2 };
+> > 
+> > func(i);
+> 
+> Ewww!
 
-My current thought is that the preempt_disable()/preempt_enable() can
-be dropped entirely.  Messes up any tool that browses through
-->rcu_read_lock_nesting, but don't see any other problem.  Yet, anyway!
+My thoughts exactly...there might be a place for something like that,
+but I don't think this is it...
 
-						Thanx, Paul
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

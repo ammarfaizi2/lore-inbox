@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277774AbRJLQ6c>; Fri, 12 Oct 2001 12:58:32 -0400
+	id <S277777AbRJLRJW>; Fri, 12 Oct 2001 13:09:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277775AbRJLQ6W>; Fri, 12 Oct 2001 12:58:22 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23304 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277774AbRJLQ6O>; Fri, 12 Oct 2001 12:58:14 -0400
-Date: Fri, 12 Oct 2001 09:56:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: <dipankar@in.ibm.com>, <linux-kernel@vger.kernel.org>,
-        <paul.mckenney@us.ibm.com>
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
- with insertion
-In-Reply-To: <20011012132733.75734399.rusty@rustcorp.com.au>
-Message-ID: <Pine.LNX.4.33.0110120948540.31692-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277781AbRJLRJN>; Fri, 12 Oct 2001 13:09:13 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:15612 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S277777AbRJLRI7>;
+	Fri, 12 Oct 2001 13:08:59 -0400
+Date: Fri, 12 Oct 2001 10:09:29 -0700
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [patch] Wireless Extension update [second try]
+Message-ID: <20011012100929.A20167@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hi Linus,
 
-On Fri, 12 Oct 2001, Rusty Russell wrote:
->
-> And the read side is:
-> 	lock
-> 	loopup
-> 	atomic_inc
-> 	unlock
->
-> With RCU, read side is:
-> 	loopup
-> 	atomic_inc
+	I like to keep your tree and Alan's tree in sync, so would you
+mind applying this patch to your kernel.
 
-Yes. With maybe
+	It contains :
+	o Define wireless device private ioctl range to avoid name
+space collisions with stuff like 'mii-tools'. This is something I've
+done at the rerquest of David Miller, and I would like this in so that
+the various wireless driver can make the transitions early in 2.5.X.
+	o Various benign update the wireless statistics to be more
+802.11 compliant.
 
-	non_preempt()
-	..
-	preempt()
+	I've regenerated this patch against 2.4.12 and fixed a
+spelling mistake.
+	Thanks in advance...
 
-around it for the pre-emption patches.
-
-However, you also need to make your free _free_ be aware of the count.
-Which means that the current RCU patch is really unusable for this. You
-need to have the "count" always in a generic place (put it with the hash),
-and your schedule-time free needs to do
-
-	if (atomic_read(&count))
-		skip_this_do_it_next_time
-
-which starts getting complicated (it means your RCU free now has to have a
-notion of "next time" - just leaving the RCU active will slow down
-scheduling for as long as any reader holds on to an entry). So your
-unread() path probably has to be
-
-	if (atomic_dec_and_test(&count))
-		free_it()
-
-and the act of hashing should add a count and unhashing should delete a
-count (so that the reader doesn't free it while it is hashed).
-
-Do that, and the RCU patches may start looking usable for the real world.
-
-		Linus
-
+	Jean

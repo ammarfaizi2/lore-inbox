@@ -1,75 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbUDPCyW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 22:54:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUDPCyW
+	id S262293AbUDPC64 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 22:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbUDPC64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 22:54:22 -0400
-Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:27797
-	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
-	id S262035AbUDPCyL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 22:54:11 -0400
-Subject: Re: NFS and kernel 2.6.x
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: shannon@widomaker.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040415185355.1674115b.akpm@osdl.org>
-References: <20040416011401.GD18329@widomaker.com>
-	 <1082079061.7141.85.camel@lade.trondhjem.org>
-	 <20040415185355.1674115b.akpm@osdl.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1082084048.7141.142.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 15 Apr 2004 19:54:08 -0700
+	Thu, 15 Apr 2004 22:58:56 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:14253 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262273AbUDPC6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 22:58:51 -0400
+Message-Id: <200404160258.i3G2w8F13087@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'David Gibson'" <david@gibson.dropbear.id.au>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
+       <lse-tech@lists.sourceforge.net>, <raybry@sgi.com>,
+       "'Andy Whitcroft'" <apw@shadowen.org>,
+       "'Andrew Morton'" <akpm@osdl.org>
+Subject: RE: hugetlb demand paging patch part [2/3]
+Date: Thu, 15 Apr 2004 19:58:07 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQjW6m77dYTwQWVSSum5XTHDInVDgAAf8WQ
+In-Reply-To: <20040416023442.GF12735@zax>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På to , 15/04/2004 klokka 18:53, skreiv Andrew Morton:
-> But Charles was seeing good performance with 2.4-based clients.  When he
-> went to 2.6 everything fell apart.
-> 
-> Do we know why this regression occurred?
+>>>> David Gibson wrote on Thursday, April 15, 2004 7:35 PM
+> > Yes, killing follow_hugetlb_page() is safe because follow_page() takes
+> > care of hugetlb page.  See 2nd patch posted earlier in
+> > hugetlb_demanding_generic.patch
+>
+> Yes, I looked at it already.  But what I'm asking about is applying
+> this patch *without* (or before) going to demand paging.
+>
+> Index: working-2.6/mm/memory.c
+> ===================================================================
+> --- working-2.6.orig/mm/memory.c	2004-04-13 11:42:42.000000000 +1000
+> +++ working-2.6/mm/memory.c	2004-04-16 11:46:31.935870496 +1000
+> @@ -766,16 +766,13 @@
+>  				|| !(flags & vma->vm_flags))
+>  			return i ? : -EFAULT;
+>
+> -		if (is_vm_hugetlb_page(vma)) {
+> -			i = follow_hugetlb_page(mm, vma, pages, vmas,
+> -						&start, &len, i);
+> -			continue;
+> -		}
+>  		spin_lock(&mm->page_table_lock);
+>  		do {
+>  			struct page *map;
+>  			int lookup_write = write;
+>  			while (!(map = follow_page(mm, start, lookup_write))) {
+> +				/* hugepages should always be prefaulted */
+> +				BUG_ON(is_vm_hugetlb_page(vma));
+>  				/*
+>  				 * Shortcut for anonymous pages. We don't want
+>  				 * to force the creation of pages tables for
+>
+> Yes, I looked at it already.  But what I'm asking about is applying
+> this patch *without* (or before) going to demand paging.
 
-What regression??? You have a statistic of 1 person whose 3 clients
-changed from what was an apparently working setup to what has *always*
-been the usual scenario for most people that tried to use the same
-broken hardware/software combination whether it be in 2.2.x, 2.4.x or
-2.6.x. 
+In that case, yes, it is not absolutely required. But we do special
+optimization for follow_hugetlb_pages() in the prefaulting implementation,
+at least for ia64 arch. It give a sizable gain on db benchmark.
 
-The whole problem is that UDP provides unreliable transport... It offers
-NO guarantees that the packet will arrive at the destination.
-If only 1 fragment out of the 22 that it takes to send a single
-wsize=32k write request to the Sun server gets lost on the way, the
-Sun's networking layer will ignore that entire packet, and so the whole
-write has to time out and get resent.
-Switches can usually cache a few fragments if the clients on the 100Mbit
-network are sending requests at a rate that almost matches the 10Mbit
-bandwidth that the Sun server supports, but if the network is swamped so
-that the switch runs out of cache, then it will start to drop packets.
-
-This is the whole reason why Sun set TCP to be their default mount
-option when the changed their servers to use 32k read/write.
-
-My biggest suspect for why this particular setup changed in 2.6.x would
-therefore be the changes to the way in which writes are scheduled on the
-wire. We cache them for longer, and so overall the bandwidth usage goes
-down, but at the expense of more "burstiness" when the user closes the
-file or does some other fsync()-like operation.
-
-
-
-So in fact you have 2 possible workarounds:
-
-  - Use the TCP mount option (by far the better option, since TCP *does*
-provide reliable transport).
-  - Keep UDP, but use the wsize mount option to explicitly override the
-server's choice of write sizes. That works by reducing the number of
-fragments per write, and so improving performance by reducing the amount
-of data that need to be resent per fragment lost.
+- Ken
 
 
-Cheers,
-  Trond

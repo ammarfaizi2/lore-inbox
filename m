@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbTLWRPW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 12:15:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTLWRPW
+	id S261837AbTLWRJt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 12:09:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbTLWRJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 12:15:22 -0500
-Received: from mail1-106.ewetel.de ([212.6.122.106]:42452 "EHLO
-	mail1.ewetel.de") by vger.kernel.org with ESMTP id S261850AbTLWRPQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 12:15:16 -0500
-Date: Tue, 23 Dec 2003 18:15:12 +0100 (CET)
-From: Pascal Schmidt <der.eremit@email.de>
-To: Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-mm1
-In-Reply-To: <20031223170633.GG1601@suse.de>
-Message-ID: <Pine.LNX.4.44.0312231813390.3677-100000@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+	Tue, 23 Dec 2003 12:09:49 -0500
+Received: from havoc.gtf.org ([63.247.75.124]:15564 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261837AbTLWRIa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 12:08:30 -0500
+Date: Tue, 23 Dec 2003 12:08:30 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: various issues with ACPI sleep and 2.6
+Message-ID: <20031223170829.GA7726@gtf.org>
+References: <20031223165739.GA28356@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031223165739.GA28356@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Dec 2003, Jens Axboe wrote:
+On Tue, Dec 23, 2003 at 11:57:39AM -0500, Bill Nottingham wrote:
+> Testing ACPI sleep under 2.6, I noticed the following issues
+> (Thinkpad T40, i855PM chipset):
 
-> > > Pascal, if you could take care of the mode sense check for RO media (see
-> > > comment) that would be perfect.
-[...]
-> Alright, I'll cook it up then.
+Do you have the latest BIOS?  There were some ACPI problems IBM
+corrected (due to responses from Linux users!).
 
-Much appreciated.
 
-> Yes it will, I don't want to allow write opens on RO media though. It's
-> a lot less confusing that way.
+> - USB fails on resume (sent to linux-usb-devel)
+> - DRI being loaded at all causes X to fail on resume
 
-Agreed, I'll just have to leave it to you since I don't know how to
-implement it.
+X power management is sorta "hope and pray" AFAIK :)
 
--- 
-Ciao,
-Pascal
+	Jeff
+
 

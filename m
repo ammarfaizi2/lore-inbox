@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264301AbTEZGu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 02:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264302AbTEZGu3
+	id S264302AbTEZGvY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 02:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbTEZGvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 02:50:29 -0400
-Received: from smtp.b-online.gr ([212.152.79.22]:19638 "EHLO smtp.b-online.gr")
-	by vger.kernel.org with ESMTP id S264301AbTEZGu2 (ORCPT
+	Mon, 26 May 2003 02:51:24 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:26761 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264302AbTEZGvW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 02:50:28 -0400
-Date: Mon, 26 May 2003 10:08:35 +0300
-From: Natsakis Konstantinos <cyfex@mail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Proposal: Bastard floppy and ramdisk block device.
-Message-Id: <20030526100835.1949c872.cyfex@mail.com>
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Mon, 26 May 2003 02:51:22 -0400
+Date: Mon, 26 May 2003 00:04:00 -0700 (PDT)
+Message-Id: <20030526.000400.32747758.davem@redhat.com>
+To: schlicht@uni-mannheim.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error during compile of 2.5.69-mm8
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200305260835.57145.schlicht@uni-mannheim.de>
+References: <200305241637.07395.schlicht@uni-mannheim.de>
+	<20030525.191818.48503212.davem@redhat.com>
+	<200305260835.57145.schlicht@uni-mannheim.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've written a module for the kernel that handles a new binary block device (i call it /dev/flpemu) which acts partly as a virtual floppy. The handler is a stripped down version of the ramdisk driver with the addition that it supports the FDGETPRM ioctl. The return structure of this ioctl is arbitrarily defined in the source. For example it can be set to always return the parameters for a 1440k 3 1/2 floppy.
+   From: Thomas Schlichter <schlicht@uni-mannheim.de>
+   Date: Mon, 26 May 2003 08:35:53 +0200
 
-The use of this bastard device is to be able to install lilo on a floppy disk image previously uploaded on the /dev/flpemu's buffer.
+   In version 1.26 of the file net/ipv4/esp.c rusty already added the static 
+   initializer into the struct.
 
-This allows the automation of the process of creating bootable floppy disks as there is no need for an actual floppy disk or even a floppy controller. It certainly made my life easier. So what I'm asking is:
+My error, sorry I hadn't noticed that.
 
-Is there any interest for such a strange thing?
-
-And if yes what would be the best way to implement it?
-Would it be better to add 2 ioctls to the ramdisk driver (One to set the parameters and one to get them) instead of creating a new device?
-
-Is this maybe stupid altogether?
-Should it be implemented on lilo's side alone?
-Should this be extended maybe to support a wider range of floppy ioctl in order to be usefull?
-
-thank you.
-
-cyfex
+Could you please resend the patches to me?  I've misplaced the
+original copy.

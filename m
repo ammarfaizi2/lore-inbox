@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261512AbSKBX02>; Sat, 2 Nov 2002 18:26:28 -0500
+	id <S261499AbSKBXVV>; Sat, 2 Nov 2002 18:21:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261510AbSKBX02>; Sat, 2 Nov 2002 18:26:28 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42762 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261509AbSKBX0Y>;
-	Sat, 2 Nov 2002 18:26:24 -0500
-Message-ID: <3DC4604D.4050006@pobox.com>
-Date: Sat, 02 Nov 2002 18:31:25 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Dave Jones <davej@codemonkey.org.uk>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [announce] swap mini-howto
-References: <Pine.LNX.4.33L2.0211011540140.28320-100000@dragon.pdx.osdl.net> <20021102000907.GA9229@suse.de> <3DC3207A.450402B3@zip.com.au> <3DC38C43.6020103@pobox.com> <3DC3A2AD.69775F06@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261501AbSKBXVV>; Sat, 2 Nov 2002 18:21:21 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:48904 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261499AbSKBXVS>;
+	Sat, 2 Nov 2002 18:21:18 -0500
+Date: Sat, 2 Nov 2002 15:24:28 -0800
+From: Greg KH <greg@kroah.com>
+To: Jochen Friedrich <jochen@scram.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] USB Kernel bug in 2.5.45
+Message-ID: <20021102232428.GB24425@kroah.com>
+References: <20021102204419.GB22607@kroah.com> <Pine.LNX.4.44.0211030010060.18761-100000@gfrw1044.bocc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211030010060.18761-100000@gfrw1044.bocc.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Sun, Nov 03, 2002 at 12:10:43AM +0100, Jochen Friedrich wrote:
+> Hi Greg,
+> 
+> > If you disable devfs does it work ok?
+> 
+> Yes, it does...
 
->That got stamped out.  swapon will fail if the file isn't fully
->instantiated on disk:
->
->
->static int setup_swap_extents(struct swap_info_struct *sis)
->{
->	...
->                        block = bmap(inode, probe_block + block_in_page);
->                        if (block == 0)
->                                goto bad_bmap;
->	...
->
->bad_bmap:
->        printk(KERN_ERR "swapon: swapfile has holes\n");
->        ret = -EINVAL;
->}
->  
->
+Great, thanks for trying.  I don't see any more problems here :)
 
-I am in further awe of you.
+thanks,
 
-    Jeff
-
-
-
-
-
+greg k-h

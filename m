@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289813AbSB0ACv>; Tue, 26 Feb 2002 19:02:51 -0500
+	id <S289817AbSB0AEk>; Tue, 26 Feb 2002 19:04:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289901AbSB0ACp>; Tue, 26 Feb 2002 19:02:45 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:62730 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S289813AbSB0ACF>;
-	Tue, 26 Feb 2002 19:02:05 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Denis Zaitsev <zzz@cd-club.ru>
-Date: Wed, 27 Feb 2002 01:01:06 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] matroxfb_base.c - a little fix
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <12F2A62A4FF4@vcnet.vc.cvut.cz>
+	id <S289858AbSB0AEg>; Tue, 26 Feb 2002 19:04:36 -0500
+Received: from tele-post-20.mail.demon.net ([194.217.242.20]:6667 "EHLO
+	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S289817AbSB0AD0>; Tue, 26 Feb 2002 19:03:26 -0500
+Subject: Re: Change that to an NTFS bug not loopback
+From: Richard Russon <rich@flatcap.org>
+To: Barubary <barubary@cox.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, Anton Altaparmakov <aia21@cam.ac.uk>
+In-Reply-To: <000501c1bebf$80a3e460$a7eb0544@CX535256D>
+In-Reply-To: <006001c1beb9$ea412690$a7eb0544@CX535256D>
+	<3C7B7908.1040508@ellinger.de> <009c01c1bebe$41321730$a7eb0544@CX535256D> 
+	<000501c1bebf$80a3e460$a7eb0544@CX535256D>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 27 Feb 2002 00:03:20 +0000
+Message-Id: <1014768201.17005.25.camel@addlestones>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Feb 02 at 3:36, Denis Zaitsev wrote:
-> BTW, a little question: you use the (green.length == 5) test to
-> distinct bpp15 from bpp16 (matroxfb_base.c:509).  Why?  Is the "real"
-> 15 not used as the bits_per_pixel's value?  Thanks in advance.
+Hi Barubary,
 
-Yes, it is per spec. bits_per_pixel is bits per pixel, and for both
-1:5:5:5 and 5:6:5 this is 16. Matrox hardware does not support 15bpp
-pixels (16 pixels in 15 bytes)...
-                                        Best regards,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+> I tried to mount a 20 meg ISO from an NTFS partition mounted read-only and
+> it glitched.  It has nothing to do with the size of the file.  I would've
+> checked smaller files if I had mkisofs handy, which I didn't when I tried
+> it.
+
+Reading through the thread, I've just tried everything you have.
+I've used 2.4.18-rc4.  I've first mounted an NTFS partition.  Within
+that I've mounted
+
+1a)  Another NTFS partition (from a device)       1Gb   (< 2^31 bytes)
+1b)  Another NTFS partition (from a device)       2.2Gb (> 2^31 bytes)
+2)   Another NTFS partition (from a loop device)  2.2Gb (> 2^31 bytes)
+3)   An ISO image (from a loop device)            20Mb  (< 2^31 bytes)
+
+Please can you clarify what's going wrong.  I can't seem to get the
+NTFS driver to go wrong.
+
+If I can repeat the problem, I can probably fix it.
+
+> Now I'm afraid that it's a known bug and I've wasted your time... :(
+
+Don't worry.  If something doesn't work, someone here will want to hear
+about it (and fix it).
+
+Cheers,
+  FlatCap (Rich)
+  ntfs@flatcap.org
+
+P.S.  Anton's on holiday (current NTFS maintainer), so you've got me :-)
+
+

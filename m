@@ -1,91 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUGZJwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264997AbUGZJ7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264903AbUGZJwH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 05:52:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUGZJwH
+	id S264997AbUGZJ7x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 05:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265055AbUGZJ7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 05:52:07 -0400
-Received: from hydra.gt.owl.de ([195.71.99.218]:37828 "EHLO hydra.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264903AbUGZJwB (ORCPT
+	Mon, 26 Jul 2004 05:59:53 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:58295 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264997AbUGZJ7s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 05:52:01 -0400
-Date: Mon, 26 Jul 2004 11:51:54 +0200
-From: Florian Lohoff <flo@rfc822.org>
-To: linux-kernel@vger.kernel.org
-Subject: tg3 - card generated broken arp queries ?
-Message-ID: <20040726095154.GA5872@paradigm.rfc822.org>
+	Mon, 26 Jul 2004 05:59:48 -0400
+Date: Mon, 26 Jul 2004 12:01:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>, Jens Axboe <axboe@suse.de>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Lenar L?hmus <lenar@vision.ee>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [patch] voluntary-preempt-2.6.8-rc2-J4
+Message-ID: <20040726100103.GA29072@elte.hu>
+References: <20040713122805.GZ21066@holomorphy.com> <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: rfc822 - pure communication
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040726083537.GA24948@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---LQksG6bCIzRHxTLp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+i've uploaded the -J4 patch:
 
+   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-J4
 
-Hi,
-we are debugging networking problems and stumpled over interesting arp
-queries from one of our machines. Its currently an 2.6.5 vanilla.
-Ethernet card is an tg3.
+Changes since -J3:
 
-0000:02:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gi=
-gabit Ethernet (rev 02)
-        Subsystem: Unknown device 1734:100b
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+=
- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (16000ns min), Cache Line Size: 0x10 (64 bytes)
-        Interrupt: pin A routed to IRQ 18
-        Region 0: Memory at fa110000 (64-bit, non-prefetchable)
-        Region 2: Memory at fa100000 (64-bit, non-prefetchable) [size=3D64K]
-        Capabilities: [40]      Capabilities: [48] Power Management version=
- 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2=
--,D3hot+,D3cold+)
-                Status: D0 PME-Enable+ DSel=3D0 DScale=3D1 PME-
-        Capabilities: [50] Vital Product Data
-        Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=3D0/3=
- Enable-
-                Address: 0000000100000000  Data: a02d
+ - make block device max_sectors sysfs tunable. There's a new entry
+   /sys/block/*/queue/max_sectors_kb which stores the current max 
+   request size in KB. You can write it to change the size.
 
-I changed the mac address with "ifconfig eth0 hw ether de:ad:be:ef:00:00"
-and watched the ethernet with a port mirror.  Original mac address of
-the interface is: 0:30:5:46:b1:9e
+   Jens: i've attached a standalone patch against 2.6.8-rc2 below. 
+   Please apply if it looks good to you. (I've added extra locking to 
+   make sure max_sectors and readahead_pages gets updated at once, for 
+   the unlikely event of two CPUs updating max_sectors at once.) I've 
+   tested this on IDE using the UP kernel.
 
-The broken arps were still coming with the original mac address:
+ - include the unlock-tty changes suggested by akpm and tested by Lee 
+   Revell. I've also unlocked the tty_read path - only the release/open 
+   paths remain under the big kernel lock. Please report any tty related 
+   regressions.
 
-tcpdump -s 1600 -vvv -n -e -i eth0 arp
-09:48:03.168087 0:30:5:46:b1:9e ff:ff:ff:ff:ff:ff 0806 60: arp who-has 0.0.=
-0.0 tell 0.0.0.0
+	Ingo
 
-On the machine itself i couldnt see those arp queries in the tcpdump -
-It seems the card itself generates those arp queries.
+--
+introduce max_sectors_kb tunable.
 
-Is this possible at all ? Is it a known bug ?=20
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Flo
---=20
-Florian Lohoff                  flo@rfc822.org             +49-171-2280134
-                        Heisenberg may have been here.
-
---LQksG6bCIzRHxTLp
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBBNQ5Uaz2rXW+gJcRAh2VAKDmzowtbA+k/54rIcYYtFVgPxWGJwCfRLy0
-dulNRqjir8z5Nr844pH0XWs=
-=v1oO
------END PGP SIGNATURE-----
-
---LQksG6bCIzRHxTLp--
+--- linux/drivers/block/ll_rw_blk.c.orig	
++++ linux/drivers/block/ll_rw_blk.c	
+@@ -3062,13 +3063,50 @@ queue_ra_store(struct request_queue *q, 
+ 	unsigned long ra_kb;
+ 	ssize_t ret = queue_var_store(&ra_kb, page, count);
+ 
++	spin_lock_irq(q->queue_lock);
+ 	if (ra_kb > (q->max_sectors >> 1))
+ 		ra_kb = (q->max_sectors >> 1);
+ 
+ 	q->backing_dev_info.ra_pages = ra_kb >> (PAGE_CACHE_SHIFT - 10);
++	spin_unlock_irq(q->queue_lock);
++
++	return ret;
++}
++
++static ssize_t queue_max_sectors_show(struct request_queue *q, char *page)
++{
++	int max_sectors_kb = q->max_sectors >> 1;
++
++	return queue_var_show(max_sectors_kb, (page));
++}
++
++static ssize_t
++queue_max_sectors_store(struct request_queue *q, const char *page, size_t count)
++{
++	unsigned long max_sectors_kb;
++	ssize_t ret = queue_var_store(&max_sectors_kb, page, count);
++	int ra_kb;
++
++	/*
++	 * Take the queue lock to update the readahead and max_sectors
++	 * values synchronously:
++	 */
++	spin_lock_irq(q->queue_lock);
++	/*
++	 * Trim readahead window as well, if necessary:
++	 */
++	ra_kb = q->backing_dev_info.ra_pages << (PAGE_CACHE_SHIFT - 10);
++	if (ra_kb > max_sectors_kb)
++		q->backing_dev_info.ra_pages =
++				max_sectors_kb >> (PAGE_CACHE_SHIFT - 10);
++
++	q->max_sectors = max_sectors_kb << 1;
++	spin_unlock_irq(q->queue_lock);
++
+ 	return ret;
+ }
+ 
++
+ static struct queue_sysfs_entry queue_requests_entry = {
+ 	.attr = {.name = "nr_requests", .mode = S_IRUGO | S_IWUSR },
+ 	.show = queue_requests_show,
+@@ -3081,9 +3119,16 @@ static struct queue_sysfs_entry queue_ra
+ 	.store = queue_ra_store,
+ };
+ 
++static struct queue_sysfs_entry queue_max_sectors_entry = {
++	.attr = {.name = "max_sectors_kb", .mode = S_IRUGO | S_IWUSR },
++	.show = queue_max_sectors_show,
++	.store = queue_max_sectors_store,
++};
++
+ static struct attribute *default_attrs[] = {
+ 	&queue_requests_entry.attr,
+ 	&queue_ra_entry.attr,
++	&queue_max_sectors_entry.attr,
+ 	NULL,
+ };
+ 

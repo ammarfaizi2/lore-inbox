@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbTDVPnK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 11:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbTDVPnK
+	id S263227AbTDVQBM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 12:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263228AbTDVQBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 11:43:10 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:41447 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263212AbTDVPnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 11:43:09 -0400
-Date: Tue, 22 Apr 2003 11:55:00 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
-       Andrea Arcangeli <andrea@suse.de>, <mingo@elte.hu>, <hugh@veritas.com>,
-       <dmccr@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: objrmap and vmtruncate
-In-Reply-To: <20030422154248.GI8978@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0304221152500.10400-100000@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Apr 2003 12:01:12 -0400
+Received: from pgramoul.net2.nerim.net ([80.65.227.234]:18816 "EHLO
+	philou.aspic.com") by vger.kernel.org with ESMTP id S263227AbTDVQBL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 12:01:11 -0400
+Date: Tue, 22 Apr 2003 18:13:14 +0200
+From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+To: jgarzik@pobox.com
+Cc: <linux-poweredge@dell.com>, <linux-kernel@vger.kernel.org>
+Subject: 2.4.21-pre5 : hw tcp v4 csum failed
+Message-Id: <20030422181314.4035b6f1.philippe.gramoulle@mmania.com>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.8.11claws87 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 22 Apr 2003, William Lee Irwin III wrote:
+Hello,
 
-> I have to apologize for my misstatements of the problem here. You
-> yourself pointed out to me the hold time was, in fact, linear. Despite
-> the linearity of the algorithm, the failure mode persists. I've
-> postponed further investigation until later, when more invasive
-> techniques are admissible; /proc/ alone will not suffice if linear
-> algorithms under tasklist_lock can trigger this failure mode.
+I just saw that we've been having those messages on at least 4 DELL 2650 ( running tg3 driver version 1.4c)
+running busy FTP servers ( all in the same load balanced FTP farm )
 
-well, i have myself reproduced 30+ secs worth of pid-alloc related lockups
-on my box, so it's was definitely not a fata morgana, and the
-pid-allocation code was definitely quadratic near the PID-space saturation
-point.
+ftp1 # egrep -c "hw tcp v4 csum failed" /var/log/kern.log
+1846
 
-There might be something else still biting your system, i'd really be
-interested in hearing more about it. What workload are you using to
-trigger it?
+for the last 3 days.
 
-	Ingo
+The box is running 2.4.21-pre5.
 
+Is this a known problem ? ( i've seen that driver 1.5 is available BTW)
+or more likely a network issue ?
+
+Thanks,
+
+Philippe

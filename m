@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264126AbTDJSAL (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 14:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTDJSAL (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 14:00:11 -0400
-Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:38121 "EHLO
-	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
-	id S264126AbTDJSAJ (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 14:00:09 -0400
-Subject: Re: glibc+sysenter sources..?
-From: Disconnect <lkml@sigkill.net>
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030409211042.GA29819@nevyn.them.org>
-References: <1049913600.18782.24.camel@sparky>
-	 <20030409211042.GA29819@nevyn.them.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049998110.1263.50.camel@sparky>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 10 Apr 2003 14:08:31 -0400
+	id S264148AbTDJSIP (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 14:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264150AbTDJSIP (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 14:08:15 -0400
+Received: from WARSL401PIP6.highway.telekom.at ([195.3.96.93]:36665 "HELO
+	email03.aon.at") by vger.kernel.org with SMTP id S264148AbTDJSIM (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 14:08:12 -0400
+From: Hermann Himmelbauer <dusty@violin.dyndns.org>
+To: Nuno Silva <nuno.silva@vgertech.com>
+Subject: Re: Linux-2.4.20 on a 4 MB Laptop
+Date: Thu, 10 Apr 2003 20:19:31 +0200
+User-Agent: KMail/1.5
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200304091601.55821.dusty@violin.dyndns.org> <3E94DCA1.5020106@vgertech.com>
+In-Reply-To: <3E94DCA1.5020106@vgertech.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304102019.32019.dusty@violin.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-09 at 17:10, Daniel Jacobowitz wrote:
-> On Wed, Apr 09, 2003 at 02:40:00PM -0400, Disconnect wrote:
-> > I found the binaries (ftp://people.redhat.com/drepper/glibc/2.3.1-25/)
-> > but the sources don't seem to be available.  (That makes it hard to
-> > test, since my 2.5 system is running debian..)
-> Just get a recent version of glibc.  2.3.2 includes the patches, I
-> think.  That'll be in Debian/unstable in another week or so I bet.
+On Thursday 10 April 2003 04:53, Nuno Silva wrote:
+> Hermann Himmelbauer wrote:
+> > Well - anyway, the kernel boots but right stops after:
+> > INIT: Entering runlevel:3
+> >
+> > The next line is:
+> > INIT: open(/dev/console): Input/output error
+> > INIT: Id "2" respawning too fast: disabled for 5 minutes
+> > ...
+> >
+> > That's it.
+>
+> Maybe you striped too much and didn't include *any* console type
+> (serial, vga or framebuffer)? :)
 
-Probably, but I'm running testing (I like it to at least -mostly- work
-;) ..) and still would prefer the 2.3.1 patches.  (Among other things,
-its easier to test changes if you do them in small batches; a libc
-upgrade from 2.3.1 to 2.3.2 is hardly 'small'. And the 2.3.2 changelog
-doesn't mention sysenter specifically, although I haven't read it in 
-detail to see if its mentioned obliquely.)
+No, I thought of this - in menuconfig I use this:
+[*] Virtual terminal
+[*]   Support for console on virtual terminal
 
-Since the binaries are being distributed there, I had expected to find
-sources in the same place.. or at least -somewhere-..
+Moreover the exact same kernel boots in another notebook (P-II, 333 Mhz, 144MB 
+Ram) - I simply put the 2.5'' Harddisk in the other Laptop.
 
--- 
-Disconnect <lkml@sigkill.net>
+Anyway, I'll try the following:
+
+1) Try to get more RAM ( + 8MB, 12MB should be enough - but maybe I'll never 
+get this IBM specific DRAM-cards for this old laptop.
+2) Kick out ext3 - this could save more memory
+3) Try init=/bin/sh and "swapon" manually
+4) Use an older or memory optimized kernel
+
+Booting with "mem=4" will probably also help with testing.
+
+Many thanks for your helpful replies!
+
+		Best Regards,
+		Hermann
+
+--
+x1@aon.at
+GPG key ID: 299893C7 (on keyservers)
+FP: 0124 2584 8809 EF2A DBF9  4902 64B4 D16B 2998 93C7
 

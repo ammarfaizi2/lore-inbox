@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315971AbSEGVNM>; Tue, 7 May 2002 17:13:12 -0400
+	id <S315973AbSEGVUc>; Tue, 7 May 2002 17:20:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315972AbSEGVNL>; Tue, 7 May 2002 17:13:11 -0400
-Received: from 216-42-72-144.ppp.netsville.net ([216.42.72.144]:50617 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S315971AbSEGVNK>; Tue, 7 May 2002 17:13:10 -0400
-Subject: Re: [reiserfs-dev] [BK] [2.4] Reiserfs changeset 2 out of 4, please
-	apply.
-From: Chris Mason <mason@suse.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Oleg Drokin <green@namesys.com>, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-In-Reply-To: <3CD82859.5060707@namesys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 07 May 2002 17:12:38 -0400
-Message-Id: <1020805958.32044.186.camel@tiny>
+	id <S315974AbSEGVUb>; Tue, 7 May 2002 17:20:31 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:9633 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315973AbSEGVUa>;
+	Tue, 7 May 2002 17:20:30 -0400
+Date: Tue, 07 May 2002 14:08:48 -0700 (PDT)
+Message-Id: <20020507.140848.29493830.davem@redhat.com>
+To: zippel@linux-m68k.org
+Cc: thunder@ngforever.de, linux-kernel@vger.kernel.org
+Subject: Re: pfn-Functionset out of order for sparc64 in current Bk tree?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0205072115360.32715-100000@serv>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-07 at 15:17, Hans Reiser wrote:
+   From: Roman Zippel <zippel@linux-m68k.org>
+   Date: Tue, 7 May 2002 21:22:13 +0200 (CEST)
 
-> >In short, these changes are not "huge", and mostly non-intrusive.
-> >
-> Chris, I had much the same reaction initially, and then I looked at the 
-> details, and either it fixes a real bug in a simple manner, or it is a 
-> comment change, etc.  It looks bigger than it is was what I finally 
-> concluded.  Perhaps there is some detail in which I am wrong, but since 
-> it was all tested together I didn't feel like picking out just a few 
-> lines of change to leave out (since that would actually increase the 
-> risk of introducing a bug).
+   On Tue, 7 May 2002, Thunder from the hill wrote:
+   
+   >  - pte_pfn(x) is declared as
+   >    ((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
+   >    in 2-level pgtable,
+   >    (((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - PAGE_SHIFT)))
+   >    in 3-level. I suppose 2-level shouldn't exactly match here, how far 
+   >    must the 3-level version be changed in order to fit sparc64? A lot?
+   
+   #define pte_pfn(x) (pte_val(x) >> PAGE_SHIFT)
+   
+   >  - pfn_valid(pfn) is described as ((pfn) < max_mapnr). Suppose this is OK 
+   >    on Sparc64 either?
+   
+   Yes.
+   
+   >  - pfn_pte(page,prot) is defined as
+   >    __pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+   >    How far does this go for Sparc64?
+   
+   #define pfn_pte(pfn,prot) mk_pte_phys(pfn << PAGE_SHIFT, prot)
+   but you should better replace mk_pte_phys completely.
 
-I think it is very important to only include critical fixes at this
-stage in the release cycle, especially in a kernel where we are actively
-looking for a possible bug.
+All of this is ignoring the fact that phys_base has to be subtracted
+from any physical address before applying as an index to mem_map on
+sparc64.
 
-I also think that patch (#3) should be integrated in 2.4.20preX, along
-with the iput deadlock fix like Oleg did for 2.5.  It will clean the
-code with fewer silly changes, and let us avoid rediffing the iput
-deadlock fix against the new stuff.
-
--chris
-
-
+I have the correct fixes for sparc64 in my tree and I'll merge it
+all to Linus.

@@ -1,70 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263050AbUKTCqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263096AbUKTCzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263050AbUKTCqE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 21:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUKTCov
+	id S263096AbUKTCzW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 21:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263092AbUKTCtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 21:44:51 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:9119 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S263046AbUKTCe0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 21:34:26 -0500
-Subject: [patch 01/10]  ide-tape: replace schedule_timeout() with 	msleep()
+	Fri, 19 Nov 2004 21:49:45 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:53993 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S263089AbUKTCrC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 21:47:02 -0500
+Subject: [patch 3/4]  fs/devpts: use lib/parser
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org
 From: janitor@sternwelten.at
-Date: Sat, 20 Nov 2004 03:34:24 +0100
-Message-ID: <E1CVL4z-00019f-B1@sputnik>
+Date: Sat, 20 Nov 2004 03:47:00 +0100
+Message-ID: <E1CVLHA-0002UM-Vv@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
 
+Hi.
 
+Use lib/parser.c for parsing mount options (item from "2.6 should fix").
+ 1 files changed, 49 insertions(+), 27 deletions(-)
 
+Compile & boot tested.
 
-I would appreciate any comments from the janitor@sternweltens list. This is one (of
-many) cases where I made a decision about replacing
-
-set_current_state(TASK_INTERRUPTIBLE);
-schedule_timeout(some_time);
-
-with
-
-msleep(jiffies_to_msecs(some_time));
-
-msleep() is not exactly the same as the previous code, but I only did
-this replacement where I thought long delays were *desired*. If this is
-not the case here, then just disregard this patch.
-
-Thanks,
-Nish
-
-
-
-Description: Uses msleep() instead of schedule_timeout() to guarantee
-the task delays at least the desired time amount.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Signed-off-by: Domen Puncer <domen@coderock.org>
 
 ---
 
- linux-2.6.10-rc2-bk4-max/drivers/ide/ide-tape.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+ linux-2.6.10-rc2-bk4-max/fs/devpts/inode.c |   76 ++++++++++++++++++-----------
+ 1 files changed, 49 insertions(+), 27 deletions(-)
 
-diff -puN drivers/ide/ide-tape.c~msleep-drivers_ide_ide-tape drivers/ide/ide-tape.c
---- linux-2.6.10-rc2-bk4/drivers/ide/ide-tape.c~msleep-drivers_ide_ide-tape	2004-11-19 17:15:12.000000000 +0100
-+++ linux-2.6.10-rc2-bk4-max/drivers/ide/ide-tape.c	2004-11-19 17:15:12.000000000 +0100
-@@ -2854,8 +2854,7 @@ static int idetape_wait_ready(ide_drive_
- 		} else if (!(tape->sense_key == 2 && tape->asc == 4 &&
- 			     (tape->ascq == 1 || tape->ascq == 8)))
- 			return -EIO;
--		current->state = TASK_INTERRUPTIBLE;
--  		schedule_timeout(HZ / 10);
-+		msleep(100);
+diff -puN fs/devpts/inode.c~lib-parser-fs_devpts_inode fs/devpts/inode.c
+--- linux-2.6.10-rc2-bk4/fs/devpts/inode.c~lib-parser-fs_devpts_inode	2004-11-20 00:29:49.000000000 +0100
++++ linux-2.6.10-rc2-bk4-max/fs/devpts/inode.c	2004-11-20 00:29:49.000000000 +0100
+@@ -19,6 +19,7 @@
+ #include <linux/tty.h>
+ #include <linux/devpts_fs.h>
+ #include <linux/xattr.h>
++#include <linux/parser.h>
+ 
+ #define DEVPTS_SUPER_MAGIC 0x1cd1
+ 
+@@ -51,39 +52,60 @@ static struct {
+ 	umode_t mode;
+ } config = {.mode = 0600};
+ 
++enum {
++	Opt_uid, Opt_gid, Opt_mode,
++	Opt_err
++};
++
++static match_table_t tokens = {
++	{Opt_uid, "uid=%u"},
++	{Opt_gid, "gid=%u"},
++	{Opt_mode, "mode=%o"},
++	{Opt_err, NULL}
++};
++
+ static int devpts_remount(struct super_block *sb, int *flags, char *data)
+ {
+-	int setuid = 0;
+-	int setgid = 0;
+-	uid_t uid = 0;
+-	gid_t gid = 0;
+-	umode_t mode = 0600;
+-	char *this_char;
+-
+-	this_char = NULL;
+-	while ((this_char = strsep(&data, ",")) != NULL) {
+-		int n;
+-		char dummy;
+-		if (!*this_char)
++	char *p;
++
++	config.setuid  = 0;
++	config.setgid  = 0;
++	config.uid     = 0;
++	config.gid     = 0;
++	config.mode    = 0600;
++
++	while ((p = strsep(&data, ",")) != NULL) {
++		substring_t args[MAX_OPT_ARGS];
++		int token;
++		int option;
++
++		if (!*p)
+ 			continue;
+-		if (sscanf(this_char, "uid=%i%c", &n, &dummy) == 1) {
+-			setuid = 1;
+-			uid = n;
+-		} else if (sscanf(this_char, "gid=%i%c", &n, &dummy) == 1) {
+-			setgid = 1;
+-			gid = n;
+-		} else if (sscanf(this_char, "mode=%o%c", &n, &dummy) == 1)
+-			mode = n & ~S_IFMT;
+-		else {
+-			printk("devpts: called with bogus options\n");
++
++		token = match_token(p, tokens, args);
++		switch (token) {
++		case Opt_uid:
++			if (match_int(&args[0], &option))
++				return -EINVAL;
++			config.uid = option;
++			config.setuid = 1;
++			break;
++		case Opt_gid:
++			if (match_int(&args[0], &option))
++				return -EINVAL;
++			config.gid = option;
++			config.setgid = 1;
++			break;
++		case Opt_mode:
++			if (match_octal(&args[0], &option))
++				return -EINVAL;
++			config.mode = option & ~S_IFMT;
++			break;
++		default:
++			printk(KERN_ERR "devpts: called with bogus options\n");
+ 			return -EINVAL;
+ 		}
  	}
- 	return -EIO;
+-	config.setuid  = setuid;
+-	config.setgid  = setgid;
+-	config.uid     = uid;
+-	config.gid     = gid;
+-	config.mode    = mode;
+ 
+ 	return 0;
  }
 _

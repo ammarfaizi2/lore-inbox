@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261681AbREOWts>; Tue, 15 May 2001 18:49:48 -0400
+	id <S261685AbREOWzI>; Tue, 15 May 2001 18:55:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261683AbREOWti>; Tue, 15 May 2001 18:49:38 -0400
-Received: from cc53440-a.catv1.md.home.com ([24.18.90.197]:23716 "EHLO
-	dandelion.darkorb.net") by vger.kernel.org with ESMTP
-	id <S261681AbREOWtd>; Tue, 15 May 2001 18:49:33 -0400
-Date: Tue, 15 May 2001 18:49:32 -0400
-From: Gabriel Rocha <grocha@geeksimplex.org>
-To: linux-kernel@vger.kernel.org
-Subject: megaraid problems
-Message-ID: <20010515184932.H29363@dandelion.darkorb.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S261686AbREOWy6>; Tue, 15 May 2001 18:54:58 -0400
+Received: from www.topmail.de ([212.255.16.226]:37849 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S261685AbREOWyv>;
+	Tue, 15 May 2001 18:54:51 -0400
+From: <eccesys@topmail.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: this LANA thing
+Message-Id: <20010515225209.45A21A5AA2F@www.topmail.de>
+Date: Wed, 16 May 2001 00:52:09 +0200 (MET DST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	I have a megaraid 466 controller, which both ami and the linux
-	kernel say is supported under 2.4.4, I tried the ami patches to
-	the drivers in the vanilla kernel to no avail, the card works
-	under windows...the card is even detected under linux now, but
-	it refuses to show any drives and i cant get the management
-	software to work. so my question is this:
-		has anyone with this card gotten it to work under linux
-		2.4.4-acX? if so, how?
-	I have read about many people upgrading firmware and using
-	'latest drivers' both of which i have done, so i am at a loss
-	here. any help is appreciated. --gabe
+> This way you can detect new disks, adapter cards, serial ports, etc. any
+> time after the system is up.  All disks are identified as "/dev/hdiskX",
 
+I bet it will go in as /dev/hdiscX ;-)
 
+(I prefer disk)
+
+But I wish you to not vanish the scheme in which one can also address a
+given device by its location. Confer devfs: /dev/discs/disc0 to /dev/ide/bus...
+Because I really sometimes wish to address my harddisks, and not some logical crap.
+
+-mirabilos
 -- 
-
-"It's not brave if you're not scared."
+by telnet

@@ -1,118 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315863AbSEMHfp>; Mon, 13 May 2002 03:35:45 -0400
+	id <S315859AbSEMHhY>; Mon, 13 May 2002 03:37:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315864AbSEMHfo>; Mon, 13 May 2002 03:35:44 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:15866 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S315863AbSEMHfn>; Mon, 13 May 2002 03:35:43 -0400
-Date: Mon, 13 May 2002 09:34:47 +0200
-From: Kristian Peters <kristian.peters@korseby.net>
-To: Marcus Alanen <marcus@infa.abo.fi>
-Cc: Weimer@CERT.Uni-Stuttgart.DE, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: Changelogs on kernel.org
-Message-Id: <20020513093447.04779a0e.kristian.peters@korseby.net>
-In-Reply-To: <200205122142.AAA26566@infa.abo.fi>
-X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
-X-Operating-System: i686-redhat-linux 2.4.18-ac3
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S315865AbSEMHhX>; Mon, 13 May 2002 03:37:23 -0400
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:28112 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S315859AbSEMHhV>; Mon, 13 May 2002 03:37:21 -0400
+Message-ID: <3CDF6CE0.4080604@drugphish.ch>
+Date: Mon, 13 May 2002 09:36:00 +0200
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020512
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Narancs v1 <narancs@narancs.tii.matav.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: net/ipv4/conf/* config order
+In-Reply-To: <Pine.LNX.4.44.0205130845570.2881-100000@helka>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hello,
 
-I changed your perl-script int that way that it only gives out the first line of the patch. This makes the changelog less verbose but you can read the changes very quickly and if you're interested in a certain patch, you can grep the verbose one.
-That makes more sense. IMHO I like it better that way. Most people want to see a little overview and are only really interested in the parts they're working on.
+> sysctl -a|grep source
+> net/ipv4/conf/eth2/accept_source_route = 1
+> net/ipv4/conf/eth1/accept_source_route = 1
+> net/ipv4/conf/eth0/accept_source_route = 1
+> net/ipv4/conf/lo/accept_source_route = 1
+> net/ipv4/conf/default/accept_source_route = 1
+> net/ipv4/conf/all/accept_source_route = 0
 
-This is now the output:
+Basically, accept_source_route says how to handle packets with the SRR 
+option set. If 1 (default for a router) it accepts those packets, if 0 
+(default for a host) it will drop them. [This is actually written in 
+../Documentation/networking/ip-sysctl.txt]
 
-[...]
-<hch@infradead.org>
-        - remove global_bufferlist_lock
-        - fix config.in syntax errors.
-        - architecture-independand si_meminfo
+> so does it mean, that source routed packets are all dropped in all
+> interfaces, or does it mean that all accepted?
 
-<jsimmons@heisenberg.transvirtual.com>
-        - A bunch of fixes.
-        - Pmac updates
-        - Some more small fixes.
+They will be dropped on all interfaces since /all/accept_source_route=0.
+Now you need to know that:
 
-<maxk@qualcomm.com>
-        - Bluetooth subsystem sync up
-[...]
+/all/${var}     means: enable this feature ${var}
+/default/${var} means: inherit /all/${var} on newly instances of a
+                        physical interface
 
-*Kristian
+> Yes, I want to disable it, and some other parameters, too, so shall I set
+> all of them respectively to 0 or 'all' = 0 will do the task?
 
+all=0 should do the task.
 
+Best regards,
+Roberto Nibali, ratz
 
-#!/usr/bin/perl -w
+ps.: I don't think this question belongs to lkml, next time you should
+      maybe choose linux-net@vger.kernel.org.
+-- 
+echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
 
-use strict;
-
-my %people = ();
-my $addr = "";
-my @cur = ();
-my $comment = 0;
-
-sub append_item() {
-	if (!$addr) {
-		return;
-	}
-	if (!$people{$addr}) {
-		@{$people{$addr}} = ();
-	}
-	push @{$people{$addr}}, [@cur];
-
-	@cur = ();
-}
-
-while (<>) {
-	# Match address
-	if (/^\s*<([^>]+)>/) {
-		# Add old item (if any) before beginning new
-		append_item();
-		$addr = $1;
-		$comment = 1;
-	} elsif ($addr) {
-		# Add line to patch
-		s/^\s*(.*)\s*$/- $1/;
-		$_ =~ s/\[PATCH\] //g;
-		$_ =~ s/\s*PATCH //g;
-		if ($comment == 1) {
-			push @cur, "\t$_\n";
-			$comment = 0;
-		}
-	} else {
-		# Header information
-		print;
-	}
-}
-
-sub print_items($) {
-	my @items = @{$people{$_[0]}};
-	# Vain attempt to sort patches from one address
-	@items = sort @items;
-	while ($_ = shift @items) {
-		print @$_;
-	}
-}
-
-append_item();
-foreach $addr (sort keys %people) {
-	print "<$addr>\n";
-	print_items($addr);
-	print "\n";
-}
-
-
-
-
-
-  :... [snd.science] ...:
- ::                             _o)
- :: http://www.korseby.net      /\\
- :: http://gsmp.sf.net         _\_V
-  :.........................:

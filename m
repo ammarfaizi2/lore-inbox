@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281869AbRKWCyM>; Thu, 22 Nov 2001 21:54:12 -0500
+	id <S281870AbRKWC6M>; Thu, 22 Nov 2001 21:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281870AbRKWCyC>; Thu, 22 Nov 2001 21:54:02 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:47062 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S281869AbRKWCxr>; Thu, 22 Nov 2001 21:53:47 -0500
-Message-Id: <5.1.0.14.2.20011123024713.00ae31c0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 23 Nov 2001 02:49:23 +0000
-To: Jeff Chua <jchua@fedex.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Filesize limit on SMBFS
-Cc: Andreas Dilger <adilger@turbolabs.com>,
-        Marcelo Borges Ribeiro <marcelo@datacom-telematica.com.br>,
-        Tyler BIRD <birdty@uvsc.edu>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.42.0111231034330.15987-100000@boston.corp.fedex
- .com>
-In-Reply-To: <20011122125759.K1308@lynx.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S281871AbRKWC6D>; Thu, 22 Nov 2001 21:58:03 -0500
+Received: from kiln.isn.net ([198.167.161.1]:28536 "EHLO kiln.isn.net")
+	by vger.kernel.org with ESMTP id <S281870AbRKWC5s>;
+	Thu, 22 Nov 2001 21:57:48 -0500
+Message-ID: <3BFDBB15.AD778DA4@isn.net>
+Date: Thu, 22 Nov 2001 22:57:25 -0400
+From: "Garst R. Reese" <reese@isn.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre9 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: e2fsck-1.25 problem
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:35 23/11/01, Jeff Chua wrote:
->On Thu, 22 Nov 2001, Andreas Dilger wrote:
->
-> > VFAT does have a 2GB limit, AFAIK, but I could be wrong.
->
->Use "mkdosfs -F32" or use msdos fdisk,format to get >2GB.
->
->I'm using 3GB for VFAT partition.
-
-You mean you have 1) a single file with size 3GiB on a large VFAT partition 
-or 2) the VFAT partition is 3GiB in itself?
-
-1) is what we are talking about being limited to 2GiB.
-
-2) Should indeed work fine under Linux and I don't think anyone is saying 
-that this doesn't work.
-
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Sorry if I'm OT here, but reading the docs on ext3fs I had to upgrade
+from e2fsck-1.19 so I got the latest, 1.25 and installed it before
+booting 2.4.15pre6.
+make check said all was fine. But, when I rebooted some messages sailed
+by about not being able to load shared libraries and libgcc_s.so.1 and
+fsck said something about errors in the fs and REBOOT NOW. Very scary
+always.
+I booted up a recovery disk and ran e2fsck-1.10 on both of the relevant
+devices and with -f and all was well. I rebooted back to 2.4.14 and got
+the same messages flying by. Nothing of the sort in dmesg or the logs.
+Can anybody give me a clue as to what is going on? The system goes ahead
+and reboots and runs fine with either kernel AFAIK.
+gcc-3.0.2
+cc reese@isn.net
+Thanks a bunch, Garst

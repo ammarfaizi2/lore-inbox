@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVADQM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVADQOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261713AbVADQM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 11:12:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVADQKh
+	id S261738AbVADQOG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 11:14:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVADQNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 11:10:37 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9485 "EHLO
+	Tue, 4 Jan 2005 11:13:47 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11533 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261707AbVADQGl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 11:06:41 -0500
-Date: Tue, 4 Jan 2005 16:06:37 +0000
+	id S261715AbVADQKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 11:10:52 -0500
+Date: Tue, 4 Jan 2005 16:10:49 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Liam Girdwood <Liam.Girdwood@wolfsonmicro.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>,
-       Vincent Sanders <vince@simtec.co.uk>
-Subject: Re: [PATCH 1/2] AC97 plugin suspend/resume
-Message-ID: <20050104160637.C22890@flint.arm.linux.org.uk>
-Mail-Followup-To: Liam Girdwood <Liam.Girdwood@wolfsonmicro.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Vincent Sanders <vince@simtec.co.uk>
-References: <1104850243.9143.333.camel@cearnarfon> <20050104151911.B22890@flint.arm.linux.org.uk> <1104854148.9143.377.camel@cearnarfon>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-bkcurr: major slab corruption preventing booting on ARM
+Message-ID: <20050104161049.D22890@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20050104144350.A22890@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1104854148.9143.377.camel@cearnarfon>; from Liam.Girdwood@wolfsonmicro.com on Tue, Jan 04, 2005 at 03:55:48PM +0000
+In-Reply-To: <20050104144350.A22890@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Tue, Jan 04, 2005 at 02:43:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 03:55:48PM +0000, Liam Girdwood wrote:
-> On Tue, 2005-01-04 at 15:19, Russell King wrote:
-> > Liam,
-> > 
-> > Please consider giving credit where credit is due.  Thanks.
+On Tue, Jan 04, 2005 at 02:43:50PM +0000, Russell King wrote:
+> I've had a report from a fellow ARM hacker of their platform not
+> booting.  After they turned on slab debugging, they saw (pieced
+> together from a report on IRC):
 > 
-> Sorry Russell,
+> Freeing init memory: 104K
+> run_init_process(/bin/bash)
+> Slab corruption: start=c0010934, len=160
+> Last user: [<c00adc54>](d_alloc+0x28/0x2d8)
 > 
-> I had no idea who in the group had originally made the change since
-> yourself and Vince were accepting the kernel patches. I thought it would
-> be better to submit it signed rather than unsigned. 
+> I've just run up 2.6.10-bkcurr on a different ARM platform, and
+> encountered the following output.  It looks like there's serious
+> slab corruption issues in these kernels.
 > 
-> Please let me know who is responsible and if it's ok, I'll then
-> re-submit.
+> I'll dig a little further into the report below to see if there's
+> anything obvious.
 
-Yours truely is responsible for this code change - it was committed
-into "that" CVS tree with these comments originally:
+Ok, reverting the pud_t patch fixes both these problems (the exact
+patch can be found at: http://www.home.arm.linux.org.uk/~rmk/misc/bk4-bk5
+Note that this is not a plain bk4-bk5 patch, but just the pud_t
+changes brought forward to bk6 or there abouts.)
 
-Reference: 13-wm97xx/03-ac97-pm
-
-- Add suspend/resume methods to the ac97 codec plugin driver structure.
-- Add code to ac97_codec to allow these methods to be safely called for
-  the specified codec.
-- Convert ac97_plugin_wm97xx to use these two pointers for its suspend
-  and resume hooks.
-- Modify pxa-ac97 to call the new ac97_codec suspend/resume functions.
-
-so what you have there is a cut down version of this patch.
-
-If you want an archive of the cvs commit messages for "that" CVS tree,
-I can throw you a copy.
+So, something in the 4 level page table patches is causing random
+scribbling in kernel memory.
 
 -- 
 Russell King

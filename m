@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135621AbRDXXIG>; Tue, 24 Apr 2001 19:08:06 -0400
+	id <S135754AbRDXXRa>; Tue, 24 Apr 2001 19:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135634AbRDXXH5>; Tue, 24 Apr 2001 19:07:57 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:11783 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S135621AbRDXXHs>; Tue, 24 Apr 2001 19:07:48 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: compile error 2.4.4pre6: inconsistent operand constraints in an
-In-Reply-To: <9c3pgm$u0$1@ns1.clouddancer.com>
-In-Reply-To: <Pine.LNX.4.21.0104241350230.8659-100000@neon.rayfun.org> <E14rpIA-0000iK-00@the-village.bc.nu> <9c3pgm$u0$1@ns1.clouddancer.com>
-Reply-To: klink@clouddancer.com
-Message-Id: <20010424230742.0C1906808@mail.clouddancer.com>
-Date: Tue, 24 Apr 2001 16:07:42 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+	id <S135747AbRDXXRU>; Tue, 24 Apr 2001 19:17:20 -0400
+Received: from geos.coastside.net ([207.213.212.4]:25761 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S135754AbRDXXRD>; Tue, 24 Apr 2001 19:17:03 -0400
+Mime-Version: 1.0
+Message-Id: <p05100313b70bb73ce962@[207.213.214.37]>
+In-Reply-To: <200104242159.f3OLxoB07000@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <CDF99E351003D311A8B0009027457F140810E286@ausxmrr501.us.dell.com>
+ <200104242159.f3OLxoB07000@vindaloo.ras.ucalgary.ca>
+Date: Tue, 24 Apr 2001 16:16:39 -0700
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [PATCH] adding PCI bus information to SCSI layer
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 3:59 PM -0600 4/24/01, Richard Gooch wrote:
+>The plan I have (which I hope to get started on soon, now that I'm
+>back from travels), is to change /dev/scsi/host# from a directory into
+>a symbolic link to a directory called: /dev/bus/pci0/slot1/function0.
+>Thus, to access a partition via location, one would use the path:
+>/dev/bus/pci0/slot1/function0/bus0/target1/lun2/part3.
 
-In list.kernel, axel <axel@rayfun.org> wrote:
->
->How about correcting the needed gcc version in Documentation/Changes?
+A minor PCI terminology point: PCI buses are subdivided into devices, not (necessarily) slots. So, for example, a multiple-device PCI card (say, two SCSI controllers) might have a PCI bridge creating a new bus, and two devices (not slots) on that bus. (It could alternatively be implemented as a single device with two functions,  given a dual-interface chip, but not necessarily.)
 
+So a better name would be /dev/bus/pci0/dev1/fcn0/bus0/tgt1/lun2/part3 (taking the liberty of abbreviating some of the other names).
 
-Linux, with up to date documention??  In your dreams perhaps.
-
-
->On Mon, 23 Apr 2001, Alan Cox wrote:
->
->> > after having had trouble with compilation due to old gcc version, i have
->> > updated to gcc 3.0 and received the following error:
->> 
->> 2.4.4pre6 only builds with gcc 2.96. If you apply the __builtin_expect fixes
->> it builds and runs fine with 2.95. Not tried egcs. The gcc 3.0 asm constraints
->> one I've yet to see a fix for.
+How, if at all, would RAID devices, using more than one physical device, or SCSI bus, or PCI card, fit into this naming scheme?
 
 
-BTW.  The above attitude was fostered by informing the Changes
-maintainer that the recommended NFS userspace server was on the
-exploits list (back in the 2.0 kernel days when knfs was new) and
-getting a "I don't use that, so what" response.
-
-...and the documentation continued to recommend an exploitable NFS
-server... in short: you must cross-check to be sure, at least in linux
-you have a few more options.
-
-
+-- 
+/Jonathan Lundell.

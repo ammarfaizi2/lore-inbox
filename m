@@ -1,141 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263625AbTJ0VHv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 16:07:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbTJ0VHv
+	id S263588AbTJ0VGL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 16:06:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbTJ0VGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 16:07:51 -0500
-Received: from out-mta3.plasa.com ([202.134.0.69]:17375 "EHLO
-	out-mta1.plasa.com") by vger.kernel.org with ESMTP id S263625AbTJ0VHq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 16:07:46 -0500
-Reply-To: "STANDARD CHARTERED BANK" <hdscb01@telkom.net>
-From: "STANDARD CHARTERED BANK" <hdscb@telkom.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: KTA - GOLD FOR ALL
-Date: Tue, 28 Oct 2003 04:04:45 +0700
+	Mon, 27 Oct 2003 16:06:10 -0500
+Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:18048
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S263588AbTJ0VGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 16:06:09 -0500
+Date: Mon, 27 Oct 2003 16:05:39 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andi Kleen <ak@muc.de>
+cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+Subject: Re: FEATURE REQUEST: Specific Processor Optimizations on x86
+ Architecture
+In-Reply-To: <m3k76qsf8i.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.4.53.0310271603580.21953@montezuma.fsmlabs.com>
+References: <JB3R.23s.23@gated-at.bofh.it> <JWKQ.7nS.15@gated-at.bofh.it>
+ <LhtX.bs.15@gated-at.bofh.it> <LhtX.bs.13@gated-at.bofh.it>
+ <m3k76qsf8i.fsf@averell.firstfloor.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Message-Id: <E1AEEaM-0003tF-Kq@out-mta1.plasa.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 27 Oct 2003, Andi Kleen wrote:
 
-STANDARD CHARTERED BANK
-PINJAMAN TUNAI (KTA)
-(PERSONAL LOAN)
+> The wmb() change is not needed, unless you have an oostore CPU
+> (x86 has ordered writes by default). It probably does not hurt
+> neither though (I do it the same way on x86-64), but also doesn't 
+> change anything.
 
-Kepada YTH:
-Pimpinan,Manager,HRD,
-Finance,Accounting,
-Beserta seluruh staff karyawan
-
-STANDARD CHARTERED BANK memberikan PINJAMAN TUNAI KREDIT TANPA AGUNAN
-Pada karyawan,pengusaha dan profesional dengan ketentuan :
-bagi karyawan :
-*WNI
-*Usia 21-55 tahun
-*Bekerja dengan penghasilan tetap Rp 2,5 jt/bulan untuk perorangan atau pengajuan
- bersama suami dan istri jumlah gaji keduanya min. Rp 2,5 jt/bulan
-*Bertempat tinggal Jakarta,Bogor,Tangerang,Depok,Bekasi
-
-Dokumen yang diperlukan bagi karyawan :
-· Photocopy KTP
-· Slip GAJI asli atau surat keterangan penghasilan
-· Foto copy Rekening transfer gaji 3 bulan terakhir
-
-Atau jika memiliki salah satu kartu kredit dengan limit minimal 5 juta dan membership min. 1 tahun :
-
-SCB,BNI,AMEX,HSBC,LIPPO,BII,BCA,BALI,ANZ,NIAGA,
-DANAMON,CITIBANK
-
-Hanya :
-·Foto copy KTP
-·Foto copy kartu kredit
-·Billing statement (tagihan ) 1 bulan terakhir
-( kecuali CITIBANK 3 bulan )
-
-SPESIAL PROMOSI -  GOLD FOR ALL :
-Berhadiah langsung EMAS 1 Gram 22 karat untuk masa kredit 2 dan 3 tahun
-
-Berkesempatan mendapatkan 500 gram EMAS setiap bulan yang akan diundi
-(promosi ini hanya berlaku bagi aplikasi yang disetujui 15 september 2003 s/d 15 desember 2003)
-
- Nikmati keuntungan :
-1.Pinjaman Tanpa Agunan
-2.Jumlah kredit Rp 5-100 juta (maksimal 4x gaji)
-3.Biaya administrasi (provisi) 3 %
-4.Jangka waktu pengembalian 1-3 tahun dan dapat dilunasi
-  sebelum waktunya dengan biaya 2% dari sisa utang
-5.Cicilan tetap
-6.Proses 8 hari kerja
-7.Transfer langsung kerekening pribadi
-8.Pembayaran dapat lewat ATM BCA,transfer bank
-   lain,cabang SCB di Indonesia,ATM BRI, kasir BRI
-
-Manfaat pinjaman:
-1.Untuk keperluan apa saja (multiguna)
-2.melunasi kartu kredit,biaya pendidikan,renovasi
-  rumah,biaya perkawinan
-3.membeli mobil, membeli barang elektronik, dll.
-
-Informasi lebih lanjut Telepon :
-HARRY DERMAWAN
-HP : 0818653529
-STANDARD CHARTERED BANK
-WISMA DHARMALA SAKTI  LT 10
-Jl jend.sudirman kav.32
-Jakarta selatan 10220
-
-JANGKA WAKTU DAN CICILAN
-
-JANGKA WAKTU  1 TAHUN  2 TAHUN    3 TAHUN
-Bunga/bulan                  1,76%          1,74%           1,80%
-
-faktor rate 0,1009624866   0,0590474159    0.0458037942
-
-Cicilan per bulan = jumlah pinjaman x faktor rate
-
-ASUMSI CICILAN PER BULAN(DALAM RUPIAH)
-Jumlah pinjaman   1 tahun     2 tahun      3 tahun
-
- 5.000.000       504.813         295.238      229.019
- 6.000.000       605.775         354.285      274.823
- 7.000.000       706.738         413.332      320.627
- 8.000.000       807.700         472.380      366.430
- 9.000.000       908.663         531.427      412.235
-10.000.000     1.009.625       590.475      458.038
-11.000.000     1.110.588       649.522      503.842
-12.000.000     1.211.550       708.569      549.546
-13.000.000     1.312.513       767.617      595.450
-14.000.000     1.413.476       826.664      641.254
-15.000.000     1.514.43         885.712      687.057
-20.000.000     2.019.250    1.180.949       916.076
-25.000.000     2.524.063    1.476.186    1.145.095
-30.000.000     3.028.875    1.771.423    1.374.114
-35.000.000     3.533.688    2.066.660    1.603.133
-40.000.000     4.038.500    2.361.897    1.832.152
-45.000.000     4.543.312    2.657.134    2.061.171
-50.000.000     5.048.125    2.952.371    2.290.190
-80.000.000     8.076.999    4.723.794    3.664.304
-100.000.000   10.096.249    5.904.742    4.580.380
-
-persyaratan untuk pengusaha :
-KTP,SIUP,AKTE PENDIRIAN PERUSAHAAN,REKANING BANK/KORAN
-
-MOHON DIPRINT DAN DIUMUMKAN KEPADA TEMAN/REKAN KERJA
-or please forward this email to your friends
-STANDARD CHARTERED BANK
-
-
-
-
-
-
-
+The original intent was to fix an SMP P5 system, it oopses otherwise under 
+load.

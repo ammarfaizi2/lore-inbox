@@ -1,525 +1,323 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129604AbQLSSBY>; Tue, 19 Dec 2000 13:01:24 -0500
+	id <S129732AbQLSSIZ>; Tue, 19 Dec 2000 13:08:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130205AbQLSSBP>; Tue, 19 Dec 2000 13:01:15 -0500
-Received: from exit1.i-55.com ([204.27.97.1]:33274 "EHLO exit1.i-55.com")
-	by vger.kernel.org with ESMTP id <S129604AbQLSSBF>;
-	Tue, 19 Dec 2000 13:01:05 -0500
-Message-ID: <3A3F9A2A.6020304@cs.rose-hulman.edu>
-Date: Tue, 19 Dec 2000 11:26:02 -0600
-From: Leslie Donaldson <donaldlf@cs.rose-hulman.edu>
-Reply-To: donaldlf@cs.rose-hulman.edu
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 alpha; en-US; m18) Gecko/20001106
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129595AbQLSSIO>; Tue, 19 Dec 2000 13:08:14 -0500
+Received: from esteel10.client.dti.net ([209.73.14.10]:33179 "EHLO
+	shookay.e-steel.com") by vger.kernel.org with ESMTP
+	id <S129431AbQLSSIC>; Tue, 19 Dec 2000 13:08:02 -0500
+Date: Tue, 19 Dec 2000 12:37:30 -0500
+From: Mathieu Chouquet-Stringer <mchouque@e-steel.com>
 To: linux-kernel@vger.kernel.org
-Subject: X 4.0.1 -> pci memory overlap
-Content-Type: multipart/mixed;
- boundary="------------030808050900020009000606"
+Cc: linux-smp@vger.kernel.org
+Subject: unexpected IO-APIC
+Message-ID: <20001219123730.A23357@shookay.e-steel.com>
+Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@shookay.e-steel.com>,
+	linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030808050900020009000606
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	  Hello!
 
-Hello,
-I know this isn't quite the right place but... very
-few people have actually but 2 pci video cards
-in an alpha an they are actually from different
-chipset manufactures. Well X reports an overlap bug
-and I was wondering if anyone has a good idea
-where to start looking for the problem.
+I have a Dell Precision 220 at work and got this message every time I boot
+up linux. I use kernel 2.4.0-test12.
+I have included lspci output (the chipset is a i820) and dmesg output.
 
-[root@shadowdragon /root]# lspci -vv
-00:05.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2064W 
-[Millennium] (rev 01) (prog-if 00 [VGA])
-Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping+ SERR- FastB2B-
-Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-Interrupt: pin A routed to IRQ 18
-Region 0: [virtual] Memory at 000000000c860000 (32-bit, 
-non-prefetchable) [size=16K]
-Region 1: Memory at 000000000c000000 (32-bit, prefetchable) [size=8M]
-Expansion ROM at 000000000c840000 [size=64K]
+If I can provide any help, please let me know.
 
-00:06.0 SCSI storage controller: Adaptec 7899A (rev 01)
-Subsystem: Adaptec: Unknown device f620
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-Latency: 32 (10000ns min, 6250ns max), cache line size 08
-Interrupt: pin A routed to IRQ 16
-BIST result: 00
-Region 0: I/O ports at 8000 [size=256]
-Region 1: Memory at 000000000c864000 (64-bit, non-prefetchable) [size=4K]
-Expansion ROM at 000000000c800000 [disabled] [size=128K]
-Capabilities: [dc] Power Management version 2
-Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+Regards, Mathieu.
 
-00:06.1 SCSI storage controller: Adaptec 7899A (rev 01)
-Subsystem: Adaptec: Unknown device f620
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-Latency: 32 (10000ns min, 6250ns max), cache line size 08
-Interrupt: pin B routed to IRQ 23
-BIST result: 00
-Region 0: I/O ports at 8400 [size=256]
-Region 1: Memory at 000000000c865000 (64-bit, non-prefetchable) [size=4K]
-Expansion ROM at 000000000c820000 [disabled] [size=128K]
-Capabilities: [dc] Power Management version 2
-Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+Dmesg output
+==============================================================================
+Dec 14 17:13:20 shookay kernel: klogd 1.3-3, log source = /proc/kmsg started.
+Dec 14 17:13:20 shookay kernel: Inspecting /boot/System.map-2.4.0-test12
+Dec 14 17:13:21 shookay kernel: Loaded 13435 symbols from /boot/System.map-2.4.0-test12.
+Dec 14 17:13:21 shookay kernel: Symbols match kernel version 2.4.0.
+Dec 14 17:13:21 shookay kernel: Loaded 26 symbols from 3 modules.
+Dec 14 17:13:21 shookay kernel: Linux version 2.4.0-test12 (mchouque@shookay) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Tue Dec 12 13:34:08 EST 2000
+Dec 14 17:13:21 shookay kernel: BIOS-provided physical RAM map:
+Dec 14 17:13:21 shookay kernel:  BIOS-e820: 00000000000a0000 @ 0000000000000000 (usable)
+Dec 14 17:13:21 shookay kernel:  BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
+Dec 14 17:13:21 shookay kernel:  BIOS-e820: 000000000fe9e000 @ 0000000000100000 (usable)
+Dec 14 17:13:21 shookay kernel:  BIOS-e820: 0000000000062000 @ 000000000ff9e000 (reserved)
+Dec 14 17:13:21 shookay kernel:  BIOS-e820: 0000000000500000 @ 00000000ffb00000 (reserved)
+Dec 14 17:13:21 shookay kernel:  BIOS-e820: 0000000000010000 @ 00000000fec00000 (reserved)
+Dec 14 17:13:21 shookay kernel:  BIOS-e820: 0000000000010000 @ 00000000fee00000 (reserved)
+Dec 14 17:13:21 shookay kernel: Scan SMP from c0000000 for 1024 bytes.
+Dec 14 17:13:21 shookay kernel: Scan SMP from c009fc00 for 1024 bytes.
+Dec 14 17:13:21 shookay kernel: Scan SMP from c00f0000 for 65536 bytes.
+Dec 14 17:13:21 shookay kernel: found SMP MP-table at 000fe710
+Dec 14 17:13:21 shookay kernel: hm, page 000fe000 reserved twice.
+Dec 14 17:13:21 shookay kernel: hm, page 000ff000 reserved twice.
+Dec 14 17:13:21 shookay kernel: hm, page 000f0000 reserved twice.
+Dec 14 17:13:21 shookay kernel: On node 0 totalpages: 65438
+Dec 14 17:13:21 shookay kernel: zone(0): 4096 pages.
+Dec 14 17:13:21 shookay kernel: zone(1): 61342 pages.
+Dec 14 17:13:21 shookay kernel: zone(2): 0 pages.
+Dec 14 17:13:21 shookay kernel: Intel MultiProcessor Specification v1.4
+Dec 14 17:13:21 shookay kernel:     Virtual Wire compatibility mode.
+Dec 14 17:13:21 shookay kernel: OEM ID: DELL     Product ID: Opti GX300   APIC at: 0xFEE00000
+Dec 14 17:13:21 shookay kernel: Processor #0 Pentium(tm) Pro APIC version 17
+Dec 14 17:13:21 shookay kernel:     Floating point unit present.
+Dec 14 17:13:21 shookay kernel:     Machine Exception supported.
+Dec 14 17:13:21 shookay kernel:     64 bit compare & exchange supported.
+Dec 14 17:13:21 shookay kernel:     Internal APIC present.
+Dec 14 17:13:21 shookay kernel:     SEP present.
+Dec 14 17:13:21 shookay kernel:     MTRR  present.
+Dec 14 17:13:21 shookay kernel:     PGE  present.
+Dec 14 17:13:21 shookay kernel:     MCA  present.
+Dec 14 17:13:21 shookay kernel:     CMOV  present.
+Dec 14 17:13:21 shookay kernel:     PAT  present.
+Dec 14 17:13:21 shookay kernel:     PSE  present.
+Dec 14 17:13:21 shookay kernel:     MMX  present.
+Dec 14 17:13:21 shookay kernel:     FXSR  present.
+Dec 14 17:13:21 shookay kernel:     XMM  present.
+Dec 14 17:13:21 shookay kernel:     Bootup CPU
+Dec 14 17:13:21 shookay kernel: Bus #0 is PCI   
+Dec 14 17:13:21 shookay kernel: Bus #1 is PCI   
+Dec 14 17:13:21 shookay kernel: Bus #2 is PCI   
+Dec 14 17:13:21 shookay kernel: Bus #3 is ISA   
+Dec 14 17:13:21 shookay kernel: I/O APIC #1 Version 32 at 0xFEC00000.
+Dec 14 17:13:21 shookay kernel: Int: type 3, pol 1, trig 1, bus 3, IRQ 00, APIC ID 1, APIC INT 00
+Dec 14 17:13:21 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 01, APIC ID 1, APIC INT 01
+Dec 14 17:13:21 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 00, APIC ID 1, APIC INT 02
+Dec 14 17:13:21 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 03, APIC ID 1, APIC INT 03
+Dec 14 17:13:21 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 04, APIC ID 1, APIC INT 04
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 05, APIC ID 1, APIC INT 05
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 06, APIC ID 1, APIC INT 06
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 07, APIC ID 1, APIC INT 07
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 08, APIC ID 1, APIC INT 08
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 09, APIC ID 1, APIC INT 09
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 0a, APIC ID 1, APIC INT 0a
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 0b, APIC ID 1, APIC INT 0b
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 0c, APIC ID 1, APIC INT 0c
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 0e, APIC ID 1, APIC INT 0e
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 3, IRQ 0f, APIC ID 1, APIC INT 0f
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 1, IRQ 00, APIC ID 1, APIC INT 10
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 1c, APIC ID 1, APIC INT 10
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 23, APIC ID 1, APIC INT 10
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 26, APIC ID 1, APIC INT 10
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 29, APIC ID 1, APIC INT 10
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 2c, APIC ID 1, APIC INT 10
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 0, IRQ 7c, APIC ID 1, APIC INT 10
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 0, IRQ 7d, APIC ID 1, APIC INT 11
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 1, IRQ 01, APIC ID 1, APIC INT 11
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 1d, APIC ID 1, APIC INT 11
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 20, APIC ID 1, APIC INT 11
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 27, APIC ID 1, APIC INT 11
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 2a, APIC ID 1, APIC INT 11
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 2d, APIC ID 1, APIC INT 11
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 1e, APIC ID 1, APIC INT 12
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 21, APIC ID 1, APIC INT 12
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 24, APIC ID 1, APIC INT 12
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 2b, APIC ID 1, APIC INT 12
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 2e, APIC ID 1, APIC INT 12
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 30, APIC ID 1, APIC INT 12
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 0, IRQ 7e, APIC ID 1, APIC INT 12
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 0, IRQ 7f, APIC ID 1, APIC INT 13
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 1f, APIC ID 1, APIC INT 13
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 22, APIC ID 1, APIC INT 13
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 25, APIC ID 1, APIC INT 13
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 28, APIC ID 1, APIC INT 13
+Dec 14 17:13:22 shookay kernel: Int: type 0, pol 0, trig 0, bus 2, IRQ 2f, APIC ID 1, APIC INT 13
+Dec 14 17:13:22 shookay kernel: Lint: type 3, pol 1, trig 1, bus 3, IRQ 00, APIC ID ff, APIC LINT 00
+Dec 14 17:13:22 shookay kernel: Lint: type 1, pol 1, trig 1, bus 3, IRQ 00, APIC ID ff, APIC LINT 01
+Dec 14 17:13:22 shookay kernel: Processors: 1
+Dec 14 17:13:22 shookay kernel: mapped APIC to ffffe000 (fee00000)
+Dec 14 17:13:22 shookay kernel: mapped IOAPIC to ffffd000 (fec00000)
+Dec 14 17:13:23 shookay kernel: Kernel command line: root=/dev/sda2 nousb vga=1 mem=261752K
+Dec 14 17:13:23 shookay kernel: Initializing CPU#0
+Dec 14 17:13:23 shookay kernel: Detected 529.786 MHz processor.
+Dec 14 17:13:23 shookay kernel: Console: colour VGA+ 80x50
+Dec 14 17:13:23 shookay kernel: Calibrating delay loop... 1055.13 BogoMIPS
+Dec 14 17:13:23 shookay kernel: Memory: 255200k/261752k available (1300k kernel code, 6164k reserved, 83k data, 200k init, 0k highmem)
+Dec 14 17:13:23 shookay kernel: Dentry-cache hash table entries: 32768 (order: 6, 262144 bytes)
+Dec 14 17:13:23 shookay kernel: Buffer-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Dec 14 17:13:23 shookay kernel: Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Dec 14 17:13:23 shookay kernel: Inode-cache hash table entries: 16384 (order: 5, 131072 bytes)
+Dec 14 17:13:23 shookay kernel: VFS: Diskquotas version dquot_6.4.0 initialized
+Dec 14 17:13:23 shookay kernel: CPU: Before vendor init, caps: 0383fbff 00000000 00000000, vendor = 0
+Dec 14 17:13:23 shookay kernel: CPU: L1 I cache: 16K, L1 D cache: 16K
+Dec 14 17:13:23 shookay kernel: CPU: L2 cache: 256K
+Dec 14 17:13:23 shookay kernel: Intel machine check architecture supported.
+Dec 14 17:13:23 shookay kernel: Intel machine check reporting enabled on CPU#0.
+Dec 14 17:13:23 shookay kernel: CPU: After vendor init, caps: 0383fbff 00000000 00000000 00000000
+Dec 14 17:13:23 shookay kernel: CPU: After generic, caps: 0383fbff 00000000 00000000 00000000
+Dec 14 17:13:23 shookay kernel: CPU: Common caps: 0383fbff 00000000 00000000 00000000
+Dec 14 17:13:23 shookay kernel: CPU: Intel Pentium III (Coppermine) stepping 01
+Dec 14 17:13:23 shookay kernel: Enabling fast FPU save and restore... done.
+Dec 14 17:13:23 shookay kernel: Enabling unmasked SIMD FPU exception support... done.
+Dec 14 17:13:23 shookay kernel: Checking 'hlt' instruction... OK.
+Dec 14 17:13:23 shookay kernel: POSIX conformance testing by UNIFIX
+Dec 14 17:13:23 shookay kernel: enabled ExtINT on CPU#0
+Dec 14 17:13:23 shookay kernel: ESR value before enabling vector: 00000000
+Dec 14 17:13:23 shookay kernel: ESR value after enabling vector: 00000000
+Dec 14 17:13:23 shookay kernel: ENABLING IO-APIC IRQs
+Dec 14 17:13:23 shookay kernel: ...changing IO-APIC physical APIC ID to 1 ... ok.
+Dec 14 17:13:23 shookay kernel: Synchronizing Arb IDs.
+Dec 14 17:13:23 shookay kernel: init IO_APIC IRQs
+Dec 14 17:13:23 shookay kernel:  IO-APIC (apicid-pin) 1-0, 1-13, 1-20, 1-21, 1-22, 1-23 not connected.
+Dec 14 17:13:23 shookay kernel: ..TIMER: vector=49 pin1=2 pin2=0
+Dec 14 17:13:23 shookay kernel: activating NMI Watchdog ... done.
+Dec 14 17:13:23 shookay kernel: number of MP IRQ sources: 42.
+Dec 14 17:13:23 shookay kernel: number of IO-APIC #1 registers: 24.
+Dec 14 17:13:23 shookay kernel: testing the IO APIC.......................
+Dec 14 17:13:23 shookay kernel: 
+Dec 14 17:13:23 shookay kernel: IO APIC #1......
+Dec 14 17:13:23 shookay kernel: .... register #00: 01000000
+Dec 14 17:13:23 shookay kernel: .......    : physical APIC id: 01
+Dec 14 17:13:23 shookay kernel: .... register #01: 00170020
+Dec 14 17:13:23 shookay kernel: .......     : max redirection entries: 0017
+Dec 14 17:13:23 shookay kernel: .......     : IO APIC version: 0020
+Dec 14 17:13:23 shookay kernel:  WARNING: unexpected IO-APIC, please mail
+Dec 14 17:13:24 shookay kernel:           to linux-smp@vger.kernel.org
+Dec 14 17:13:24 shookay kernel: .... register #02: 00000000
+Dec 14 17:13:24 shookay kernel: .......     : arbitration: 00
+Dec 14 17:13:24 shookay kernel: .... IRQ redirection table:
+Dec 14 17:13:24 shookay kernel:  NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
+Dec 14 17:13:24 shookay kernel:  00 000 00  1    0    0   0   0    0    0    00
+Dec 14 17:13:24 shookay kernel:  01 001 01  0    0    0   0   0    1    1    39
+Dec 14 17:13:24 shookay kernel:  02 001 01  0    0    0   0   0    1    1    31
+Dec 14 17:13:24 shookay kernel:  03 001 01  0    0    0   0   0    1    1    41
+Dec 14 17:13:24 shookay kernel:  04 001 01  0    0    0   0   0    1    1    49
+Dec 14 17:13:24 shookay kernel:  05 001 01  0    0    0   0   0    1    1    51
+Dec 14 17:13:24 shookay kernel:  06 001 01  0    0    0   0   0    1    1    59
+Dec 14 17:13:24 shookay kernel:  07 001 01  0    0    0   0   0    1    1    61
+Dec 14 17:13:24 shookay kernel:  08 001 01  0    0    0   0   0    1    1    69
+Dec 14 17:13:24 shookay kernel:  09 001 01  0    0    0   0   0    1    1    71
+Dec 14 17:13:24 shookay kernel:  0a 001 01  0    0    0   0   0    1    1    79
+Dec 14 17:13:24 shookay kernel:  0b 001 01  0    0    0   0   0    1    1    81
+Dec 14 17:13:24 shookay kernel:  0c 001 01  0    0    0   0   0    1    1    89
+Dec 14 17:13:24 shookay kernel:  0d 000 00  1    0    0   0   0    0    0    00
+Dec 14 17:13:24 shookay kernel:  0e 001 01  0    0    0   0   0    1    1    91
+Dec 14 17:13:24 shookay kernel:  0f 001 01  0    0    0   0   0    1    1    99
+Dec 14 17:13:24 shookay kernel:  10 001 01  1    1    0   1   0    1    1    A1
+Dec 14 17:13:24 shookay kernel:  11 001 01  1    1    0   1   0    1    1    A9
+Dec 14 17:13:24 shookay kernel:  12 001 01  1    1    0   1   0    1    1    B1
+Dec 14 17:13:24 shookay kernel:  13 001 01  1    1    0   1   0    1    1    B9
+Dec 14 17:13:24 shookay kernel:  14 000 00  1    0    0   0   0    0    0    00
+Dec 14 17:13:24 shookay kernel:  15 000 00  1    0    0   0   0    0    0    00
+Dec 14 17:13:24 shookay kernel:  16 000 00  1    0    0   0   0    0    0    00
+Dec 14 17:13:24 shookay kernel:  17 000 00  1    0    0   0   0    0    0    00
+Dec 14 17:13:24 shookay kernel: IRQ to pin mappings:
+Dec 14 17:13:24 shookay kernel: IRQ0 -> 2
+Dec 14 17:13:24 shookay kernel: IRQ1 -> 1
+Dec 14 17:13:24 shookay kernel: IRQ3 -> 3
+Dec 14 17:13:24 shookay kernel: IRQ4 -> 4
+Dec 14 17:13:24 shookay kernel: IRQ5 -> 5
+Dec 14 17:13:24 shookay kernel: IRQ6 -> 6
+Dec 14 17:13:24 shookay kernel: IRQ7 -> 7
+Dec 14 17:13:24 shookay kernel: IRQ8 -> 8
+Dec 14 17:13:24 shookay kernel: IRQ9 -> 9
+Dec 14 17:13:24 shookay kernel: IRQ10 -> 10
+Dec 14 17:13:24 shookay kernel: IRQ11 -> 11
+Dec 14 17:13:24 shookay kernel: IRQ12 -> 12
+Dec 14 17:13:24 shookay kernel: IRQ14 -> 14
+Dec 14 17:13:24 shookay kernel: IRQ15 -> 15
+Dec 14 17:13:24 shookay kernel: IRQ16 -> 16
+Dec 14 17:13:24 shookay kernel: IRQ17 -> 17
+Dec 14 17:13:24 shookay kernel: IRQ18 -> 18
+Dec 14 17:13:24 shookay kernel: IRQ19 -> 19
+Dec 14 17:13:24 shookay kernel: .................................... done.
+Dec 14 17:13:24 shookay kernel: calibrating APIC timer ...
+Dec 14 17:13:24 shookay kernel: ..... CPU clock speed is 529.7984 MHz.
+Dec 14 17:13:24 shookay kernel: ..... host bus clock speed is 132.4494 MHz.
+Dec 14 17:13:24 shookay kernel: cpu: 0, clocks: 1324494, slice: 662247
+Dec 14 17:13:24 shookay kernel: CPU0<T0:1324480,T1:662224,D:9,S:662247,C:1324494>
+Dec 14 17:13:24 shookay kernel: mtrr: v1.37 (20001109) Richard Gooch (rgooch@atnf.csiro.au)
+Dec 14 17:13:24 shookay kernel: mtrr: detected mtrr type: Intel
+Dec 14 17:13:24 shookay kernel: PCI: PCI BIOS revision 2.10 entry at 0xfc05e, last bus=2
+Dec 14 17:13:24 shookay kernel: PCI: Using configuration type 1
+Dec 14 17:13:24 shookay kernel: PCI: Probing PCI hardware
+Dec 14 17:13:24 shookay kernel: Unknown bridge resource 0: assuming transparent
+Dec 14 17:13:24 shookay kernel: Unknown bridge resource 2: assuming transparent
+Dec 14 17:13:24 shookay kernel: PCI: Using IRQ router PIIX [8086/2410] at 00:1f.0
+Dec 14 17:13:24 shookay kernel: PCI->APIC IRQ transform: (B0,I31,P3) -> 19
+Dec 14 17:13:24 shookay kernel: PCI->APIC IRQ transform: (B0,I31,P1) -> 17
+Dec 14 17:13:24 shookay kernel: PCI->APIC IRQ transform: (B0,I31,P1) -> 17
+Dec 14 17:13:24 shookay kernel: PCI->APIC IRQ transform: (B1,I0,P0) -> 16
+Dec 14 17:13:25 shookay kernel: PCI->APIC IRQ transform: (B2,I7,P0) -> 16
+Dec 14 17:13:25 shookay kernel: PCI->APIC IRQ transform: (B2,I12,P0) -> 18
 
-00:07.0 VGA compatible controller: nVidia Corporation Vanta [NV6] (rev 
-15) (prog-if 00 [VGA])
-Subsystem: Guillemot Corporation: Unknown device 4d21
-Control: I/O- Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-Latency: 32 (1250ns min, 250ns max)
-Interrupt: pin A routed to IRQ 17
-Region 0: Memory at 0000000009000000 (32-bit, non-prefetchable) 
-[disabled] [size=16M]
-Region 1: Memory at 000000000a000000 (32-bit, prefetchable) [disabled] 
-[size=32M]
-Expansion ROM at 000000000c850000 [size=64K]
-Capabilities: [60] Power Management version 1
-Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+lscpi output
+==============================================================================
+00:00.0 Host bridge: Intel Corporation 82820 820 (Camino) Chipset Host Bridge (MCH) (rev 03)
+	Subsystem: Dell Computer Corporation: Unknown device 0095
+	Flags: bus master, fast devsel, latency 0
+	Memory at e0000000 (32-bit, prefetchable) [size=256M]
+	Capabilities: [a0] AGP version 2.0
 
-00:08.0 Non-VGA unclassified device: Intel Corporation 82378IB [SIO ISA 
-Bridge] (rev 43)
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-Latency: 0
+00:01.0 PCI bridge: Intel Corporation 82820 820 (Camino) Chipset PCI to AGP Bridge (rev 03) (prog-if 00 [Normal decode])
+	Flags: bus master, 66Mhz, fast devsel, latency 64
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+	Memory behind bridge: fc000000-fdffffff
+	Prefetchable memory behind bridge: f0000000-f1ffffff
 
-00:09.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI]
-Subsystem: Unknown device 4942:4c4c
-Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR+ FastB2B-
-Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-Latency: 32 (3000ns min, 32000ns max)
-Interrupt: pin A routed to IRQ 19
-Region 0: I/O ports at 8800 [size=64]
+00:1e.0 PCI bridge: Intel Corporation 82801AA PCI Bridge (rev 02) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=02, subordinate=02, sec-latency=64
+	I/O behind bridge: 0000e000-0000efff
+	Memory behind bridge: fa000000-fbffffff
 
-00:0b.0 IDE interface: CMD Technology Inc PCI0646 (rev 01) (prog-if 80 
-[Master])
-Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ 
-Stepping- SERR- FastB2B-
-Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-Latency: 32 (500ns min, 1000ns max)
-Interrupt: pin A routed to IRQ 21
-Region 4: I/O ports at 8840 [size=16]
+00:1f.0 ISA bridge: Intel Corporation 82801AA ISA Bridge (LPC) (rev 02)
+	Flags: bus master, medium devsel, latency 0
 
+00:1f.1 IDE interface: Intel Corporation 82801AA IDE (rev 02) (prog-if 80 [Master])
+	Subsystem: Intel Corporation 82801AA IDE
+	Flags: bus master, medium devsel, latency 0
+	I/O ports at ffa0 [size=16]
 
---------------030808050900020009000606
-Content-Type: text/plain;
- name="xlog_00.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="xlog_00.txt"
+00:1f.2 USB Controller: Intel Corporation 82801AA USB (rev 02) (prog-if 00 [UHCI])
+	Subsystem: Intel Corporation 82801AA USB
+	Flags: bus master, medium devsel, latency 0, IRQ 19
+	I/O ports at ff80 [size=32]
 
+00:1f.3 SMBus: Intel Corporation 82801AA SMBus (rev 02)
+	Subsystem: Intel Corporation 82801AA SMBus
+	Flags: medium devsel, IRQ 17
+	I/O ports at dcd0 [size=16]
 
-XFree86 Version 4.0.1a / X Window System
-(protocol Version 11, revision 0, vendor release 6400)
-Release Date: 2 August 2000
-	If the server is older than 6-12 months, or if your card is newer
-	than the above date, look for a newer version before reporting
-	problems.  (see http://www.XFree86.Org/FAQ)
-Operating System: Linux 2.2.15 alpha [ELF] 
-Module Loader present
-(==) Log file: "/var/log/XFree86.0.log", Time: Fri Dec 15 10:17:58 2000
-(++) Using config file: "/root/XF86Config.new"
-Markers: (--) probed, (**) from config file, (==) default setting,
-         (++) from command line, (!!) notice, (II) informational,
-         (WW) warning, (EE) error, (??) unknown.
-(==) ServerLayout "XFree86 Configured"
-(**) |-->Screen "Screen0" (0)
-(**) |   |-->Monitor "Monitor0"
-(**) |   |-->Device "Card0"
-(**) |-->Screen "Screen1" (1)
-(**) |   |-->Monitor "Monitor1"
-(**) |   |-->Device "Card1"
-(**) |-->Input Device "Mouse0"
-(**) |-->Input Device "Keyboard0"
-(**) Option "AutoRepeat" "500 5"
-(**) Option "XkbModel" "microsoft"
-(**) XKB: model: "microsoft"
-(**) Option "XkbLayout" "us"
-(**) XKB: layout: "us"
-(==) FontPath set to "/usr/X11R6/lib/X11/fonts/misc/,/usr/X11R6/lib/X11/fonts/Speedo/,/usr/X11R6/lib/X11/fonts/Type1/,/usr/X11R6/lib/X11/fonts/CID/,/usr/X11R6/lib/X11/fonts/75dpi/,/usr/X11R6/lib/X11/fonts/100dpi/"
-(==) RgbPath set to "/usr/X11R6/lib/X11/rgb"
-(==) ModulePath set to "/usr/X11R6/lib/modules"
-(**) Option "BlankTime" "10"
-(**) Option "StandbyTime" "20"
-(**) Option "SuspendTime" "30"
-(**) Option "OffTime" "60"
-(--) using VT number 7
+00:1f.5 Multimedia audio controller: Intel Corporation 82801AA AC'97 Audio (rev 02)
+	Subsystem: Dell Computer Corporation: Unknown device 0095
+	Flags: bus master, medium devsel, latency 0, IRQ 17
+	I/O ports at d800 [size=256]
+	I/O ports at dc80 [size=64]
 
-(II) Module ABI versions:
-	XFree86 ANSI C Emulation: 0.1
-	XFree86 Video Driver: 0.2
-	XFree86 XInput driver : 0.1
-	XFree86 Server Extension : 0.1
-	XFree86 Font Renderer : 0.1
-(II) Loader running on linux
-(II) LoadModule: "bitmap"
-(II) Loading /usr/X11R6/lib/modules/fonts/libbitmap.a
-(II) Module bitmap: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	Module class: XFree86 Font Renderer
-	ABI class: XFree86 Font Renderer, version 0.1
-(II) Loading font Bitmap
-(II) LoadModule: "pcidata"
-(II) Loading /usr/X11R6/lib/modules/libpcidata.a
-(II) Module pcidata: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 0.1.0
-	ABI class: XFree86 Video Driver, version 0.2
-(II) PCI: PCI scan (all values are in hex)
-(II) PCI: 00:05:0: chip 102b,0519 card 0000,0000 rev 01 class 03,00,00 hdr 00
-(II) PCI: 00:06:0: chip 9005,00c0 card 9005,f620 rev 01 class 01,00,00 hdr 80
-(II) PCI: 00:06:1: chip 9005,00c0 card 9005,f620 rev 01 class 01,00,00 hdr 80
-(II) PCI: 00:07:0: chip 10de,002d card 14af,4d21 rev 15 class 03,00,00 hdr 00
-(II) PCI: 00:08:0: chip 8086,0484 card 0000,0000 rev 43 class 00,00,00 hdr 00
-(II) PCI: 00:09:0: chip 1274,5000 card 4942,4c4c rev 00 class 04,01,00 hdr 00
-(II) PCI: 00:0b:0: chip 1095,0646 card 0000,0000 rev 01 class 01,01,80 hdr 00
-(II) PCI: End of PCI scan
-(II) LoadModule: "scanpci"
-(II) Loading /usr/X11R6/lib/modules/libscanpci.a
-(II) Module scanpci: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 0.1.0
-	ABI class: XFree86 Video Driver, version 0.2
-(II) UnloadModule: "scanpci"
-(II) Unloading /usr/X11R6/lib/modules/libscanpci.a
-(--) PCI: (0:5:0) Matrox MGA 2064W rev 1, Mem @ 0x0c860000/14, 0x0c000000/23
-(--) PCI:*(0:7:0) NVidia Riva Ultra 64 rev 21, Mem @ 0x09000000/24, 0x0a000000/25
-(II) Addressable bus resource ranges are
-	[0] -1	0x00000000 - 0xffffffff (0x0) MX[B]
-	[1] -1	0x00000000 - 0xffffffff (0x0) IX[B]
-(II) OS-reported resource ranges:
-	[0] -1	0x000c0000 - 0x000effff (0x30000) MX[B]
-	[1] -1	0x00000000 - 0x000001ff (0x200) IX[B]E
-(II) Active PCI resource ranges:
-	[0] -1	0x0c820000 - 0x0c83ffff (0x20000) MX[B]E
-	[1] -1	0x0c865000 - 0x0c865fff (0x1000) MX[B]E
-	[2] -1	0x0c800000 - 0x0cffffff (0x800000) MX[B]E
-	[3] -1	0x0c864000 - 0x0c867fff (0x4000) MX[B]E
-	[4] -1	0x0c850000 - 0x0c8500ff (0x100) MX[B](B)
-	[5] -1	0x0a000000 - 0x0bffffff (0x2000000) MX[B](B)
-	[6] -1	0x09000000 - 0x09ffffff (0x1000000) MX[B](B)
-	[7] -1	0x0c840000 - 0x0c84ffff (0x10000) MX[B](B)
-	[8] -1	0x0c000000 - 0x0c7fffff (0x800000) MX[B](B)
-	[9] -1	0x0c860000 - 0x0c863fff (0x4000) MX[B](B)
-	[10] -1	0x00008840 - 0x0000887f (0x40) IX[B]E
-	[11] -1	0x00008800 - 0x000088ff (0x100) IX[B]E
-	[12] -1	0x00008400 - 0x000084ff (0x100) IX[B]E
-	[13] -1	0x00008000 - 0x000080ff (0x100) IX[B]E
-(II) PCI I/O resource overlap reduced 0x00008800 from 0x000088ff to 0x0000883f
-(II) PCI Memory resource overlap reduced 0x0c800000 from 0x0cffffff to 0x0c81ffff
-(II) PCI Memory resource overlap reduced 0x0c864000 from 0x0c867fff to 0x0c864fff
-(II) Active PCI resource ranges after removing overlaps:
-	[0] -1	0x0c820000 - 0x0c83ffff (0x20000) MX[B]E
-	[1] -1	0x0c865000 - 0x0c865fff (0x1000) MX[B]E
-	[2] -1	0x0c800000 - 0x0c81ffff (0x20000) MX[B]E
-	[3] -1	0x0c864000 - 0x0c864fff (0x1000) MX[B]E
-	[4] -1	0x0c850000 - 0x0c8500ff (0x100) MX[B](B)
-	[5] -1	0x0a000000 - 0x0bffffff (0x2000000) MX[B](B)
-	[6] -1	0x09000000 - 0x09ffffff (0x1000000) MX[B](B)
-	[7] -1	0x0c840000 - 0x0c84ffff (0x10000) MX[B](B)
-	[8] -1	0x0c000000 - 0x0c7fffff (0x800000) MX[B](B)
-	[9] -1	0x0c860000 - 0x0c863fff (0x4000) MX[B](B)
-	[10] -1	0x00008840 - 0x0000887f (0x40) IX[B]E
-	[11] -1	0x00008800 - 0x0000883f (0x40) IX[B]E
-	[12] -1	0x00008400 - 0x000084ff (0x100) IX[B]E
-	[13] -1	0x00008000 - 0x000080ff (0x100) IX[B]E
-(II) OS-reported resource ranges after removing overlaps with PCI:
-	[0] -1	0x000c0000 - 0x000effff (0x30000) MX[B]
-	[1] -1	0x00000000 - 0x000001ff (0x200) IX[B]E
-(II) All system resource ranges:
-	[0] -1	0x000c0000 - 0x000effff (0x30000) MX[B]
-	[1] -1	0x0c820000 - 0x0c83ffff (0x20000) MX[B]E
-	[2] -1	0x0c865000 - 0x0c865fff (0x1000) MX[B]E
-	[3] -1	0x0c800000 - 0x0c81ffff (0x20000) MX[B]E
-	[4] -1	0x0c864000 - 0x0c864fff (0x1000) MX[B]E
-	[5] -1	0x0c850000 - 0x0c8500ff (0x100) MX[B](B)
-	[6] -1	0x0a000000 - 0x0bffffff (0x2000000) MX[B](B)
-	[7] -1	0x09000000 - 0x09ffffff (0x1000000) MX[B](B)
-	[8] -1	0x0c840000 - 0x0c84ffff (0x10000) MX[B](B)
-	[9] -1	0x0c000000 - 0x0c7fffff (0x800000) MX[B](B)
-	[10] -1	0x0c860000 - 0x0c863fff (0x4000) MX[B](B)
-	[11] -1	0x00000000 - 0x000001ff (0x200) IX[B]E
-	[12] -1	0x00008840 - 0x0000887f (0x40) IX[B]E
-	[13] -1	0x00008800 - 0x0000883f (0x40) IX[B]E
-	[14] -1	0x00008400 - 0x000084ff (0x100) IX[B]E
-	[15] -1	0x00008000 - 0x000080ff (0x100) IX[B]E
-(II) LoadModule: "extmod"
-(II) Loading /usr/X11R6/lib/modules/extensions/libextmod.a
-(II) Module extmod: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	Module class: XFree86 Server Extension
-	ABI class: XFree86 Server Extension, version 0.1
-(II) Loading extension SHAPE
-(II) Loading extension MIT-SUNDRY-NONSTANDARD
-(II) Loading extension BIG-REQUESTS
-(II) Loading extension SYNC
-(II) Loading extension MIT-SCREEN-SAVER
-(II) Loading extension XC-MISC
-(II) Loading extension XFree86-VidModeExtension
-(II) Loading extension XFree86-Misc
-(II) Loading extension DPMS
-(II) Loading extension FontCache
-(II) Loading extension TOG-CUP
-(II) Loading extension Extended-Visual-Information
-(II) Loading extension XVideo
-(II) LoadModule: "xie"
-(II) Loading /usr/X11R6/lib/modules/extensions/libxie.a
-(II) Module xie: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	Module class: XFree86 Server Extension
-	ABI class: XFree86 Server Extension, version 0.1
-(II) Loading extension XIE
-(II) LoadModule: "glx"
-(II) Loading /usr/X11R6/lib/modules/extensions/libglx.a
-(II) Module glx: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	ABI class: XFree86 Server Extension, version 0.1
-(II) Loading extension GLX
-(II) Loading sub module "GLcore"
-(II) LoadModule: "GLcore"
-(II) Loading /usr/X11R6/lib/modules/extensions/libGLcore.a
-(II) Module GLcore: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	ABI class: XFree86 Server Extension, version 0.1
-(II) LoadModule: "GLcore"
-(II) Reloading /usr/X11R6/lib/modules/extensions/libGLcore.a
-(II) LoadModule: "dbe"
-(II) Loading /usr/X11R6/lib/modules/extensions/libdbe.a
-(II) Module dbe: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	Module class: XFree86 Server Extension
-	ABI class: XFree86 Server Extension, version 0.1
-(II) Loading extension DOUBLE-BUFFER
-(II) LoadModule: "record"
-(II) Loading /usr/X11R6/lib/modules/extensions/librecord.a
-(II) Module record: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.13.0
-	Module class: XFree86 Server Extension
-	ABI class: XFree86 Server Extension, version 0.1
-(II) Loading extension RECORD
-(II) LoadModule: "dri"
-(II) Loading /usr/X11R6/lib/modules/extensions/libdri.a
-(II) Module dri: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	ABI class: XFree86 Server Extension, version 0.1
-(II) Loading extension XFree86-DRI
-(II) Loading sub module "drm"
-(II) LoadModule: "drm"
-(II) Loading /usr/X11R6/lib/modules/linux/libdrm.a
-(II) Module drm: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	ABI class: XFree86 Server Extension, version 0.1
-(II) LoadModule: "pex5"
-(II) Loading /usr/X11R6/lib/modules/extensions/libpex5.a
-(II) Module pex5: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	Module class: XFree86 Server Extension
-	ABI class: XFree86 Server Extension, version 0.1
-(II) Loading extension X3D-PEX
-(II) LoadModule: "type1"
-(II) Loading /usr/X11R6/lib/modules/fonts/libtype1.a
-(II) Module type1: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	Module class: XFree86 Font Renderer
-	ABI class: XFree86 Font Renderer, version 0.1
-(II) Loading font Type1
-(II) Loading font CID
-(II) LoadModule: "speedo"
-(II) Loading /usr/X11R6/lib/modules/fonts/libspeedo.a
-(II) Module speedo: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	Module class: XFree86 Font Renderer
-	ABI class: XFree86 Font Renderer, version 0.1
-(II) Loading font Speedo
-(II) LoadModule: "freetype"
-(II) Loading /usr/X11R6/lib/modules/fonts/libfreetype.a
-(II) Module freetype: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.1.7
-	Module class: XFree86 Font Renderer
-	ABI class: XFree86 Font Renderer, version 0.1
-(II) Loading font FreeType
-(II) LoadModule: "mga"
-(II) Loading /usr/X11R6/lib/modules/drivers/mga_drv.o
-(II) Module mga: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	Module class: XFree86 Video Driver
-	ABI class: XFree86 Video Driver, version 0.2
-(II) LoadModule: "nv"
-(II) Loading /usr/X11R6/lib/modules/drivers/nv_drv.o
-(II) Module nv: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	Module class: XFree86 Video Driver
-	ABI class: XFree86 Video Driver, version 0.2
-(II) LoadModule: "mouse"
-(II) Loading /usr/X11R6/lib/modules/input/mouse_drv.o
-(II) Module mouse: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	Module class: XFree86 XInput Driver
-	ABI class: XFree86 XInput driver, version 0.1
-(II) MGA: driver for Matrox chipsets: mga2064w, mga1064sg, mga2164w,
-	mga2164w AGP, mgag100, mgag200, mgag200 PCI, mgag400
-(II) NV: driver for NVIDIA chipsets: RIVA128, RIVATNT, RIVATNT2,
-	RIVATNT2 (Ultra), RIVATNT2 (Vanta), RIVATNT2 M64,
-	RIVATNT2 (Integrated), GeForce 256, GeForce DDR, Quadro, GeForce DDR,
-	GeForce DDR, GeForce DDR GL, GeForce 2, GeForce 2, GeForce 2,
-	Quadro 2
-(II) Primary Device is: PCI 00:07:0
-(--) Chipset mga2064w found
-(II) resource ranges after xf86ClaimFixedResources() call:
-	[0] -1	0x000c0000 - 0x000effff (0x30000) MX[B]
-	[1] -1	0x0c820000 - 0x0c83ffff (0x20000) MX[B]E
-	[2] -1	0x0c865000 - 0x0c865fff (0x1000) MX[B]E
-	[3] -1	0x0c800000 - 0x0c81ffff (0x20000) MX[B]E
-	[4] -1	0x0c864000 - 0x0c864fff (0x1000) MX[B]E
-	[5] -1	0x0c850000 - 0x0c8500ff (0x100) MX[B](B)
-	[6] -1	0x0a000000 - 0x0bffffff (0x2000000) MX[B](B)
-	[7] -1	0x09000000 - 0x09ffffff (0x1000000) MX[B](B)
-	[8] -1	0x0c840000 - 0x0c84ffff (0x10000) MX[B](B)
-	[9] -1	0x0c000000 - 0x0c7fffff (0x800000) MX[B](B)
-	[10] -1	0x0c860000 - 0x0c863fff (0x4000) MX[B](B)
-	[11] -1	0x00000000 - 0x000001ff (0x200) IX[B]E
-	[12] -1	0x00008840 - 0x0000887f (0x40) IX[B]E
-	[13] -1	0x00008800 - 0x0000883f (0x40) IX[B]E
-	[14] -1	0x00008400 - 0x000084ff (0x100) IX[B]E
-	[15] -1	0x00008000 - 0x000080ff (0x100) IX[B]E
-(--) Chipset RIVATNT2 M64 found
-(II) resource ranges after xf86ClaimFixedResources() call:
-	[0] -1	0x000c0000 - 0x000effff (0x30000) MX[B]
-	[1] -1	0x0c820000 - 0x0c83ffff (0x20000) MX[B]E
-	[2] -1	0x0c865000 - 0x0c865fff (0x1000) MX[B]E
-	[3] -1	0x0c800000 - 0x0c81ffff (0x20000) MX[B]E
-	[4] -1	0x0c864000 - 0x0c864fff (0x1000) MX[B]E
-	[5] -1	0x0c850000 - 0x0c8500ff (0x100) MX[B](B)
-	[6] -1	0x0a000000 - 0x0bffffff (0x2000000) MX[B](B)
-	[7] -1	0x09000000 - 0x09ffffff (0x1000000) MX[B](B)
-	[8] -1	0x0c840000 - 0x0c84ffff (0x10000) MX[B](B)
-	[9] -1	0x0c000000 - 0x0c7fffff (0x800000) MX[B](B)
-	[10] -1	0x0c860000 - 0x0c863fff (0x4000) MX[B](B)
-	[11] -1	0x00000000 - 0x000001ff (0x200) IX[B]E
-	[12] -1	0x00008840 - 0x0000887f (0x40) IX[B]E
-	[13] -1	0x00008800 - 0x0000883f (0x40) IX[B]E
-	[14] -1	0x00008400 - 0x000084ff (0x100) IX[B]E
-	[15] -1	0x00008000 - 0x000080ff (0x100) IX[B]E
-(WW) ****INVALID MEM ALLOCATION**** b: 0xc860000 e: 0xc863fff correcting
-NonSys
-	[0] -1	0x0a000000 - 0x0bffffff (0x2000000) MX[B]
-	[1] -1	0x09000000 - 0x09ffffff (0x1000000) MX[B]
-	[2] -1	0x0c820000 - 0x0c83ffff (0x20000) MX[B]
-	[3] -1	0x0c865000 - 0x0c865fff (0x1000) MX[B]
-	[4] -1	0x0c800000 - 0x0cffffff (0x800000) MX[B]
-	[5] -1	0x0c864000 - 0x0c864fff (0x1000) MX[B]
-	[6] -1	0x00008840 - 0x0000887f (0x40) IX[B]
-	[7] -1	0x00008800 - 0x0000883f (0x40) IX[B]
-	[8] -1	0x00008400 - 0x000084ff (0x100) IX[B]
-	[9] -1	0x00008000 - 0x000080ff (0x100) IX[B]
-(II) window:
-	[0] -1	0x00000000 - 0xffffffff (0x0) MX[B]
-(II) resSize:
-	[0] -1	0x00000000 - 0xffffffff (0x0) MX[B]
-(II) window fixed:
-	[0] -1	0x00000000 - 0xffffffff (0x0) MX[B]
-New PCI res 0 base: 0x0, size: 0x4000, type Mem
-(II) resource ranges after probing:
-	[0] -1	0x00000000 - 0x00003fff (0x4000) MX[B](B)
-	[1] -1	0x000c0000 - 0x000effff (0x30000) MX[B]
-	[2] -1	0x0c820000 - 0x0c83ffff (0x20000) MX[B]E
-	[3] -1	0x0c865000 - 0x0c865fff (0x1000) MX[B]E
-	[4] -1	0x0c800000 - 0x0c81ffff (0x20000) MX[B]E
-	[5] -1	0x0c864000 - 0x0c864fff (0x1000) MX[B]E
-	[6] -1	0x0c850000 - 0x0c8500ff (0x100) MX[B](B)
-	[7] -1	0x0a000000 - 0x0bffffff (0x2000000) MX[B](B)
-	[8] -1	0x09000000 - 0x09ffffff (0x1000000) MX[B](B)
-	[9] -1	0x0c840000 - 0x0c84ffff (0x10000) MX[B](B)
-	[10] -1	0x0c000000 - 0x0c7fffff (0x800000) MX[B](B)
-	[11] 0	0x000a0000 - 0x000affff (0x10000) MS[B]
-	[12] 0	0x000b0000 - 0x000b7fff (0x8000) MS[B]
-	[13] 0	0x000b8000 - 0x000bffff (0x8000) MS[B]
-	[14] 1	0x000a0000 - 0x000affff (0x10000) MS[B]
-	[15] 1	0x000b0000 - 0x000b7fff (0x8000) MS[B]
-	[16] 1	0x000b8000 - 0x000bffff (0x8000) MS[B]
-	[17] -1	0x00000000 - 0x000001ff (0x200) IX[B]E
-	[18] -1	0x00008840 - 0x0000887f (0x40) IX[B]E
-	[19] -1	0x00008800 - 0x0000883f (0x40) IX[B]E
-	[20] -1	0x00008400 - 0x000084ff (0x100) IX[B]E
-	[21] -1	0x00008000 - 0x000080ff (0x100) IX[B]E
-	[22] 0	0x000003b0 - 0x000003bb (0xc) IS[B]
-	[23] 0	0x000003c0 - 0x000003df (0x20) IS[B]
-	[24] 1	0x000003b0 - 0x000003bb (0xc) IS[B]
-	[25] 1	0x000003c0 - 0x000003df (0x20) IS[B]
-(II) Setting vga for screen 0.
-(II) Setting vga for screen 1.
-(II) Loading sub module "vgahw"
-(II) LoadModule: "vgahw"
-(II) Loading /usr/X11R6/lib/modules/libvgahw.a
-(II) Module vgahw: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 0.1.0
-	ABI class: XFree86 Video Driver, version 0.2
-(==) MGA(0): Depth 8, (==) framebuffer bpp 8
-(**) MGA(0): Option "UseFBDev"
-(--) MGA(0): Chipset: "mga2064w"
-(II) MGA(0): Offscreen memory usage will be limited to 512 lines if the DRI is enabled.
-(==) MGA(0): Using HW cursor
-(**) MGA(0): Using framebuffer device
-(II) Loading sub module "fbdevhw"
-(II) LoadModule: "fbdevhw"
-(II) Loading /usr/X11R6/lib/modules/linux/libfbdevhw.a
-(II) Module fbdevhw: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 0.0.1
-	ABI class: XFree86 Video Driver, version 0.2
-(--) MGA(0): Linear framebuffer at 0xC000000
-(EE) MGA(0): No valid MMIO address in PCI config space
-(II) Loading sub module "int10"
-(II) LoadModule: "int10"
-(II) Loading /usr/X11R6/lib/modules/libint10.a
-(II) Module int10: vendor="The XFree86 Project"
-	compiled for 4.0.1a, module version = 1.0.0
-	ABI class: XFree86 Video Driver, version 0.2
-(II) NV(1): Initializing int10
-(II) Machine type has 8/16 bit access
-(--) NV(1): Chipset: "RIVATNT2 M64"
-(==) NV(1): Depth 8, (==) framebuffer bpp 8
-(==) NV(1): Default visual is PseudoColor
-(II) Loading sub module "vgahw"
-(II) LoadModule: "vgahw"
-(II) Reloading /usr/X11R6/lib/modules/libvgahw.a
-(==) NV(1): Using HW cursor
-(--) NV(1): Linear framebuffer at 0xA000000
-(--) NV(1): MMIO registers at 0x9000000
+01:00.0 VGA compatible controller: nVidia Corporation Riva TnT2 [NV5] (rev 11) (prog-if 00 [VGA])
+	Subsystem: Diamond Multimedia Systems: Unknown device 5a40
+	Flags: 66Mhz, medium devsel, IRQ 16
+	Memory at fc000000 (32-bit, non-prefetchable) [size=16M]
+	Memory at f0000000 (32-bit, prefetchable) [size=32M]
+	Expansion ROM at 80000000 [disabled] [size=64K]
+	Capabilities: [60] Power Management version 1
+	Capabilities: [44] AGP version 2.0
 
-Fatal server error:
-xf86MapVidMem: Could not mmap framebuffer (0x09101000,0x1000) (Invalid argument)
+02:07.0 SCSI storage controller: Adaptec AHA-2940U2/W
+	Subsystem: Adaptec: Unknown device 2180
+	Flags: bus master, medium devsel, latency 64, IRQ 16
+	BIST result: 00
+	I/O ports at ec00 [size=256]
+	Memory at fafff000 (64-bit, non-prefetchable) [size=4K]
+	Expansion ROM at fb000000 [disabled] [size=128K]
+	Capabilities: [dc] Power Management version 1
 
+02:0c.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 78)
+	Subsystem: Dell Computer Corporation: Unknown device 0095
+	Flags: bus master, medium devsel, latency 64, IRQ 18
+	I/O ports at e880 [size=128]
+	Memory at faffec00 (32-bit, non-prefetchable) [size=128]
+	Expansion ROM at fb000000 [disabled] [size=128K]
+	Capabilities: [dc] Power Management version 2
 
-When reporting a problem related to a server crash, please send
-the full server output, not just the last messages.
-This can be found in the log file "/var/log/XFree86.0.log".
-Please reports problems to xfree86@xfree86.org.
-
-
---------------030808050900020009000606--
-
+-- 
+Mathieu CHOUQUET-STRINGER              E-Mail : mchouque@e-steel.com
+     Learning French is trivial: the word for horse is cheval, and
+               everything else follows in the same way.
+                        -- Alan J. Perlis
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

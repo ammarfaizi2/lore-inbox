@@ -1,67 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263418AbTHXKcY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 06:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTHXKcX
+	id S263430AbTHXK4G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 06:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTHXK4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 06:32:23 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:38810 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S263418AbTHXKcW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 06:32:22 -0400
-Message-ID: <3F489531.6040408@free.fr>
-Date: Sun, 24 Aug 2003 12:36:33 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: "Brown, Len" <len.brown@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, acpi-devel@sourceforge.net
-Subject: Re: [ACPI] RE: [patch] 2.4.x ACPI updates
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCCA@hdsmsx402.hd.intel.com> <Pine.LNX.4.55L.0308231826470.5824@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.55L.0308231826470.5824@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 24 Aug 2003 06:56:06 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:20416 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263430AbTHXK4D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 06:56:03 -0400
+Date: Sun, 24 Aug 2003 03:47:35 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.0-test4][NET] 3c509.c: remove device.name field
+Message-Id: <20030824034735.534b8c68.davem@redhat.com>
+In-Reply-To: <1061644409.1141.18.camel@lima.royalchallenge.com>
+References: <1061644409.1141.18.camel@lima.royalchallenge.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> 
-> On Sat, 23 Aug 2003, Brown, Len wrote:
-> 
-> 
->>>>Len,
->>>>
->>>>Patch applied, thanks.
->>
->>Great!
->>
->>
->>>>Do you have any further information on the ACPI oops
->>>
->>>reports I sent you?
->>
->>
->>I see this one in my inbox "Subject: 2.4.22-xx powerdown oddities" and
->>will follow-up.
->>
->>If there are more, then forward them to me directly -- the mailing lists
->>have had some really weird latencies lately.
-> 
-> 
-> plus this one
-> 
-> ACPI kernel crash with 2.4.22-pre7 on ASUS L3800C
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=106146576326309&w=2
+On 23 Aug 2003 18:43:29 +0530
+Vinay K Nallamothu <vinay-rc@naturesoft.net> wrote:
 
-Note that i have the same computer on run 2.4 ACPI for months without 
-problems...
+> This patch removes the device name field which is no longer present.
 
--- eric
-
+This doesn't look like the right fix.  You can't just
+delete these lines, you should rather replace them with
+accesses to whatever the MCA device struct name field is.

@@ -1,55 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272311AbTGYV3o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 17:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272323AbTGYV3o
+	id S272323AbTGYVa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 17:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272335AbTGYVa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 17:29:44 -0400
-Received: from node152ae.a2000.nl ([24.132.82.174]:33284 "EHLO robben.nu")
-	by vger.kernel.org with ESMTP id S272311AbTGYV3l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 17:29:41 -0400
-Date: Fri, 25 Jul 2003 23:44:49 +0200
-From: Gert Robben <lkml@gert.robben.nu>
-To: linux-kernel@vger.kernel.org
-Subject: [DAC960] 2.6.0-test1: device files wrong in devfs
-Message-ID: <20030725214449.GA12678@gert.robben>
+	Fri, 25 Jul 2003 17:30:26 -0400
+Received: from tomts11.bellnexxia.net ([209.226.175.55]:54955 "EHLO
+	tomts11-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S272337AbTGYVaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 17:30:11 -0400
+Date: Fri, 25 Jul 2003 17:45:19 -0400
+From: Marc Heckmann <mh@nadir.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Jim Gifford <maillist@jg555.com>, Andrea Arcangeli <andrea@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22-pre5 deadlock
+Message-ID: <20030725214518.GA2826@nadir.org>
+References: <008701c34a29$caabb0f0$3400a8c0@W2RZ8L4S02> <20030719172103.GA1971@x30.local> <018101c34f4d$430d5850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307210943160.25565@freak.distro.conectiva> <005a01c34fed$fea51120$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307220852470.10991@freak.distro.conectiva> <012d01c35066$2c56d400$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307221358440.23424@freak.distro.conectiva> <01f001c352e4$9025e6d0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307251638590.15120@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.11
+In-Reply-To: <Pine.LNX.4.55L.0307251638590.15120@freak.distro.conectiva>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I mount devfs in 2.6.0-test1 (and -bk2), I have the following 
-DAC960-related files in /dev (actually, /mnt/dev) without devfsd:
+On Fri, Jul 25, 2003 at 04:39:29PM -0300, Marcelo Tosatti wrote:
+> 
+> 
+> On Fri, 25 Jul 2003, Jim Gifford wrote:
+> 
+> > >From talking with others, we are considering this a netfilter issue, is this
+> > correct??
+> 
+> It seems you have isolated the problem down to additional netfilter
+> patches right ?
 
-/dev/part{1,2,5,6,7}
-/dev/disc
-/dev/discs/disc[0-31] (these 32 files are symlinks to "../")
+no. standard netfilter modules. I just happened to notice that everyone
+who had the problem  seemed to be using
+iptables.
 
-I don't have a /dev/rd/ directory. All other files in /dev seem to be 
-in the right place. The relevant lines from dmesg:
+just to recap what the problem is:
 
-DAC960#0:     /dev/rd/c0d0: RAID-5, Online, 88442880 blocks, Write Back
-devfs_mk_dir: invalid argument.<6> rd/c0d0: p1 p2 < p5 p6 p7 >
-devfs_mk_dir: invalid argument.<4>devfs_mk_bdev: could not append to 
-parent for /disc (this line shows up 31 times in a row)
+kernel 2.4.2[10] maybe even .19, etc SMP deadlock. systems still
+responds to ping, iptables logs still scroll along on the console.
+but nothing else.
 
-AFAIK, the last correctly working kernel is 2.5.67. 2.5.68 doesn't 
-work, however I don't know if that's because of the same problem.
+please see my post with ksymoops output of sysrq+T :
 
-My hardware:
-Mylex ExtremeRAID 1100 (DAC1164P)
-ALR Revolution 6x6 (Intel 450GX-based Pentium Pro mainboard)
-6x Intel PII Overdrive CPU
-4 GB mem
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105821579624140&w=2
 
-FWIW, the problem also occurs when I _don't_ enable highmem support.
+however, the deadlock happened when the system was under heavy disk IO.
+all filesytems are raid1, ext3.
 
-Please CC replies to lkml@gert.robben.nu (I'm not subscribed).
+here are my modules:
 
-Thanks,
+[mh@zara mh]$ /sbin/lsmod
+Module                  Size  Used by    Not tainted
+ip_conntrack_ftp        5424   0 (unused)
+8139too                17832   1
+mii                     4124   0 [8139too]
+e100                   55236   1
+ipt_REJECT              4024   2 (autoclean)
+ipt_state               1048  34 (autoclean)
+ipt_limit               1688   2 (autoclean)
+ipt_LOG                 4248   4 (autoclean)
+iptable_nat            22872   0 (autoclean) (unused)
+ip_conntrack           29896   3 (autoclean) [ip_conntrack_ftp ipt_state
+iptable_nat]
+iptable_filter          2412   1 (autoclean)
+ip_tables              15672   8 [ipt_REJECT ipt_state ipt_limit ipt_LOG
+iptable_nat iptable_filter]
+keybdev                 2944   0 (unused)
+mousedev                5688   0 (unused)
+hid                    16296   0 (unused)
+input                   6144   0 [keybdev mousedev hid]
+usbcore                80704   1 [hid]
+ext3                   76096   3
+jbd                    65904   3 [ext3]
+raid1                  16108   4
 
-Gert Robben
+-m

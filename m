@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263041AbUD2DRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbUD2DUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263041AbUD2DRb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 23:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbUD2DR2
+	id S263059AbUD2DUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 23:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUD2DUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 23:17:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35810 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263041AbUD2DRS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 23:17:18 -0400
-Message-ID: <409073B1.1020901@pobox.com>
-Date: Wed, 28 Apr 2004 23:17:05 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andre Tomt <andre@tomt.net>
-CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [sata] new driver -- AHCI
-References: <408C1F41.3060206@pobox.com> <40905997.9020107@tomt.net>
-In-Reply-To: <40905997.9020107@tomt.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 28 Apr 2004 23:20:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38090 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263059AbUD2DT7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 23:19:59 -0400
+Date: Wed, 28 Apr 2004 20:19:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marc Singer <elf@buici.com>
+Cc: riel@redhat.com, brettspamacct@fastclick.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-Id: <20040428201924.719dfb68.akpm@osdl.org>
+In-Reply-To: <20040429031059.GA26060@buici.com>
+References: <20040428180038.73a38683.akpm@osdl.org>
+	<Pine.LNX.4.44.0404282143360.19633-100000@chimarrao.boston.redhat.com>
+	<20040428185720.07a3da4d.akpm@osdl.org>
+	<20040429022944.GA24000@buici.com>
+	<20040428193541.1e2cf489.akpm@osdl.org>
+	<20040429031059.GA26060@buici.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Tomt wrote:
-> Jeff Garzik wrote:
+Marc Singer <elf@buici.com> wrote:
+>
+> > That's what people have been asking for.  What are you suggesting should
+> > happen instead?
 > 
->> So kudos to the AHCI folks (mainly at Intel), for making a decent, 
->> open controller.  I always prefer to work on drivers for decent 
->> hardware, whose hardware specification is open and public.
-> 
-> 
-> Quick questions:
-> 
-> Is the Intel 6300ESB ("Hence Rapids") AHCI based? So far this looks like 
-> ICH6 too me, but I may be mistaken.
+> I'm thinking that the problem is that the page cache is greedier that
+> most people expect.  For example, if I could hold the page cache to be
+> under a specific size, then I could do some performance measurements.
+> E.g, compile kernel with a 768K page cache, 512K, 256K and 128K.  On a
+> machine with loads of RAM, where's the optimal page cache size?
 
-The only Hance Rapids stuff I've seen was ICH5-R, but maybe it's carried 
-forward to the ICH6-R as well.
+Nope, there's no point in leaving free memory floating about when the
+kernel can and will reclaim clean pagecache on demand.
 
-I don't know, I mainly know the underlying chipsets not the boards they 
-wind up being shipped on...
+What you discuss above is just an implementation detail.  Forget it.  What
+are the requirements?  Thus far I've seen
 
+a) updatedb causes cache reclaim
 
-> What about the Marvell 88SX5040 PCI-X SATA Controller?
+b) updatedb causes swapout
 
-Coming RSN.  That's my next priority, but I'm not as thrilled because 
-Marvell isn't an open design like AHCI.  I'm much more happy to promote 
-AHCI's sane, open design.
+c) prefer that openoffice/mozilla not get paged out when there's heavy
+   pagecache demand.
 
-	Jeff
+For a) we don't really have a solution.  Some have been proposed but they
+could have serious downsides.
 
+For b) and c) we can tune the pageout-vs-cache reclaim tendency with
+/proc/sys/vm/swappiness, only nobody seems to know that.
 
-
+What else is there?

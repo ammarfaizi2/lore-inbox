@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263375AbTFXXef (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 19:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTFXXee
+	id S263394AbTFXXjw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 19:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTFXXjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 19:34:34 -0400
-Received: from h00c0263128af.ne.client2.attbi.com ([24.60.89.166]:31244 "EHLO
-	sapphire.no-ip.com") by vger.kernel.org with ESMTP id S263375AbTFXXeb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 19:34:31 -0400
-From: Rick Warner <rick@sapphire.no-ip.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.21 byteorder.h problem with__u64
-Date: Tue, 24 Jun 2003 19:48:33 -0400
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 24 Jun 2003 19:39:51 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:28621 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263295AbTFXXjp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 19:39:45 -0400
+Subject: Re: 2.5.73 compile results
+From: John Cherry <cherry@osdl.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Adrian Bunk <bunk@fs.tum.de>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030624183156.GA11266@mars.ravnborg.org>
+References: <1056475577.9839.110.camel@cherrypit.pdx.osdl.net>
+	 <20030624173900.GV3710@fs.tum.de>
+	 <1056478596.9839.118.camel@cherrypit.pdx.osdl.net>
+	 <20030624183156.GA11266@mars.ravnborg.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056498976.9839.201.camel@cherrypit.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 24 Jun 2003 16:56:16 -0700
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306241948.34044.rick@sapphire.no-ip.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-I am in the process of building a LFS system using gcc 3.2.3, glibc 2.3.2, and 
-linux 2.4.21. I have the full system built short of kde. In building the 
-kdemultimedia package from kde-3.1.2, I get errors regarding __u64 being 
-undefined in byteorder.h on the swab64 function.  This function is dependent 
-on _GNU_ being defined, while the __u64 type is only defined when _GNU_ is 
-defined and _STRICT_ANSI_ is not.
+The sparse output is a bit noisy right now.  I'll go ahead and post the
+sparse output with the rest of the stats, but it is not for the faint of
+heart.
 
-I found some references to this from 5/6/03 timeframe for 2.4.21-rc1 with a 
-patch included, but this patch was not included into 2.4.21!  The error is 
-still there!  The messages in the thread were just arguments about userland 
-progs including kernel headers.... if userland isn't supposed to use kernel 
-headers.. why are they copied into /usr/include !?  It is perfectly normal 
-for a userland app to include cdrom.h.. which in turn includes the 
-problematic file......
+On Tue, 2003-06-24 at 11:31, Sam Ravnborg wrote:
+> On Tue, Jun 24, 2003 at 11:16:37AM -0700, John Cherry wrote:
+> > Unfortunately, the build continues even when it runs into compile or
+> > link errors.
+> I just wnat to add here that the build continue because 'make -k' is
+> used because the script counts all errors that occur - not just the first
+> one is see.
+> 
+> John - any progress in sparse support - or too noisy?
+> 
+> 	Sam
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I have used the patch which removes the swab64 function when _STRICT_ANSI_ is 
-defined on my byteorder.h... this has resolved my problem....
-
-My real question is why this hasn't been included in the 2.4.21 release.  
-Having a type be used with _STRICT_ANSI_ defined when the type isn't defined 
-when _STRICT_ANSI_ is defined is definately wrong.  It can't stay the way it 
-is.  If people want to argue about the "correct" solution (either defining 
-__u64 regardless of _STRICT_ANSI_ or not defining the swab64 function if 
-_STRICT_ANSI_ is defined), that's fine... as long as SOME solution is put in 
-place.

@@ -1,104 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289794AbSAWL3r>; Wed, 23 Jan 2002 06:29:47 -0500
+	id <S289789AbSAWLk1>; Wed, 23 Jan 2002 06:40:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289795AbSAWL3h>; Wed, 23 Jan 2002 06:29:37 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:1810 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S289794AbSAWL3Z>;
-	Wed, 23 Jan 2002 06:29:25 -0500
-Date: Thu, 24 Jan 2002 14:33:19 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: Mario Mikocevic <mozgy@hinet.hr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: i810 TCO ?!
-Message-ID: <20020124143319.A197@pazke.ipt>
-In-Reply-To: <20020123111934.C9441@danielle.hinet.hr>
+	id <S289796AbSAWLkV>; Wed, 23 Jan 2002 06:40:21 -0500
+Received: from holomorphy.com ([216.36.33.161]:64130 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S289789AbSAWLkK>;
+	Wed, 23 Jan 2002 06:40:10 -0500
+Date: Wed, 23 Jan 2002 03:39:42 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org,
+        andrea@suse.de, alan@redhat.com, akpm@zip.com.au,
+        vherva@niksula.hut.fi
+Subject: Re: Athlon/AGP issue update
+Message-ID: <20020123033942.B899@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>,
+	vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org,
+	andrea@suse.de, alan@redhat.com, akpm@zip.com.au,
+	vherva@niksula.hut.fi
+In-Reply-To: <1011779573.9368.40.camel@inventor.gentoo.org> <200201231010.g0NAAuE05886@Port.imtp.ilyichevsk.odessa.ua> <20020123.022441.21593293.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <20020123111934.C9441@danielle.hinet.hr>; from mozgy@hinet.hr on Wed, Jan 23, 2002 at 11:19:34AM +0100
-X-Uname: Linux pazke 2.4.13-ac7 
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20020123.022441.21593293.davem@redhat.com>; from davem@redhat.com on Wed, Jan 23, 2002 at 02:24:41AM -0800
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 23, 2002 at 02:24:41AM -0800, David S. Miller wrote:
+> He can only mean by this that there is some branch protected store
+> (not taken) to the 4MB linear mappings used by the kernel (starting
+> at PAGE_OFFSET).
+> But the only thing I am still confused about, is what 4MB mappings
+> have to do with any of this.  What I take from the description is that
+> the problem will still exist after 4MB mappings are disabled.  What
+> prevents the processor from doing the speculative store to the
+> cacheable mappings once 4MB pages are disabled?
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+The range of addresses where speculation is attempted is partially
+limited by the page size, for it's unlikely the CPU will attempt to
+resolve TLB misses during speculative memory access until it's
+committed to them. Furthermore the separate TLB's for 4KB and 4MB
+pages on i386 allow far more TLB hits during speculation.
 
-On Wed, Jan 23, 2002 at 11:19:34AM +0100, Mario Mikocevic wrote:
-> Hi,
->=20
-> I would like to use i810 watchdog module (i810-tco).
->=20
-> Upon modprobing I get ->
->=20
-> kernel: i810 TCO timer: failed to reset NO_REBOOT flag, reboot disabled b=
-y hardware
+On Wed, Jan 23, 2002 at 02:24:41AM -0800, David S. Miller wrote:
+> At best, I bet turning off 4MB pages makes the bug less likely.
+> It does not eliminate the chance to hit the bug.
+> So what it sounds like is that if there is any cacheable mapping
+> _WHATSOEVER_ to physical memory accessible by the GART, the problem
+> can occur due to a speculative store being cancelled.
+> A real fix would be much more involved, therefore.
+> In fact, we map the GART mapped memory to the user fully cacheable.
 
-Your motherboard is crap (sorry), it is has some magic ICH pin
-wired to ground and so TCO timer is disabled.
+Controlling how page tables are edited and/or statically set up does
+not seem that far out to me, though it could be inconvenient,
+especially with respect to dynamically-created translations such as
+are done for user pages, as there is essentially no infrastructure
+for controlling the cacheable attribute(s) of user mappings now as
+I understand it.
 
->=20
-> what should I do now ?
->=20
->  - add some options to insmod ?
->  - change some option in BIOS (I can't pinpoint any)
+On Wed, Jan 23, 2002 at 02:24:41AM -0800, David S. Miller wrote:
+> That would have to be fixed, plus we'd need to mark non-cacheable the
+> linear PAGE_OFFSET mappings of the kernel (4MB or not) as well.
 
-No.
+I would be concerned about efficiency if a larger portion of the direct-
+mapped kernel virtual address space than necessary were uncacheable.
+Otherwise, if I understand this properly (pardon me for being conservative
+in my interpretation) you refer only to the kernel mappings of memory used
+by the GART.
 
->  - change some jumper onboard ?
 
-It is theoreticaly possible.
-
->  - apply some patch ?
-
-You can only patch your motherboard ;)
-
->=20
->=20
-> driver is 0.03 posted on this list in Oct last year.
-> Kernel is latest 2.4.x (currently 18-pre4).
->=20
-> lspci ->
->=20
-> # lspci
-> 00:00.0 Host bridge: Intel Corporation 82815 815 Chipset Host Bridge and =
-Memory Controller Hub (rev 02)
-> 00:02.0 VGA compatible controller: Intel Corporation 82815 CGC [Chipset G=
-raphics Controller]  (rev 02)
-> 00:1e.0 PCI bridge: Intel Corporation 82801BAM PCI (rev 02)
-> 00:1f.0 ISA bridge: Intel Corporation 82801BA ISA Bridge (ICH2) (rev 02)
-> 00:1f.1 IDE interface: Intel Corporation 82801BA IDE U100 (rev 02)
-> 00:1f.2 USB Controller: Intel Corporation 82801BA(M) USB (Hub A) (rev 02)
-> 00:1f.3 SMBus: Intel Corporation 82801BA(M) SMBus (rev 02)
-> 00:1f.4 USB Controller: Intel Corporation 82801BA(M) USB (Hub B) (rev 02)
-> 00:1f.5 Multimedia audio controller: Intel Corporation 82801BA(M) AC'97 A=
-udio (rev 02)
-> 01:08.0 Ethernet controller: Intel Corporation 82801BA(M) Ethernet (rev 0=
-1)
->=20
-> any other information available on request,
->=20
->=20
-> TIA,
->=20
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
-
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8T/D/Bm4rlNOo3YgRAsc5AJwKdIovzGlZp7s/ckJhZ+y6v7PtJQCeKvAr
-T2aOCGtMdto6GA5vOQTJ53E=
-=37vj
------END PGP SIGNATURE-----
-
---2oS5YaxWCcQjTEyO--
+Cheers,
+Bill

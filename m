@@ -1,84 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264184AbTI2SMW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 14:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbTI2SH4
+	id S264267AbTI2ShI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 14:37:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264400AbTI2Sgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 14:07:56 -0400
-Received: from heron.mail.pas.earthlink.net ([207.217.120.189]:15096 "EHLO
-	heron.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S264174AbTI2SHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 14:07:36 -0400
-Message-ID: <3F78745B.7000606@earthlink.net>
-Date: Mon, 29 Sep 2003 14:05:15 -0400
-From: Stephen Clark <stephen.clark@earthlink.net>
-Reply-To: sclark46@earthlink.net
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: transmit timeout problem
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 29 Sep 2003 14:36:51 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:1408 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263993AbTI2Sfp (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 14:35:45 -0400
+Message-Id: <200309291750.h8THojfr001310@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Andrew Morton <akpm@osdl.org>
+Cc: Liviu Voicu <liviuv@savion.cc.huji.ac.il>, linux-mm@kvack.org,
+       linux-kernel@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: zombies 
+In-Reply-To: Your message of "Mon, 29 Sep 2003 09:43:30 PDT."
+             <20030929094330.15485106.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <32F7E536759ED611BBA9001083CFB165C07333@savion.cc.huji.ac.il>
+            <20030929094330.15485106.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_660582116P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-ELNK-Trace: a437fbc6971e80f61aa676d7e74259b7b3291a7d08dfec790891091c63127daa7abbe66cdb4fa407350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+Date: Mon, 29 Sep 2003 13:50:42 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Help needed please,
+--==_Exmh_660582116P
+Content-Type: text/plain; charset=us-ascii
 
-In frequently I start getting the following:
+On Mon, 29 Sep 2003 09:43:30 PDT, Andrew Morton said:
 
-Sep 29 10:32:49 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Sep 29 10:32:49 joker kernel: eth0: Transmit timed out, status fc1e4010, 
-CSR12 0
-0000000, resetting...
-Sep 29 10:32:57 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Sep 29 10:32:57 joker kernel: eth0: Transmit timed out, status fc1e4010, 
-CSR12 0
-0000000, resetting...
-Sep 29 10:33:05 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Sep 29 10:33:05 joker kernel: eth0: Transmit timed out, status fc1e4010, 
-CSR12 0
-0000000, resetting...
-Sep 29 10:33:13 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Sep 29 10:33:13 joker kernel: eth0: Transmit timed out, status fc1e4010, 
-CSR12 0
-0000000, resetting...
-Sep 29 10:33:21 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Sep 29 10:33:21 joker kernel: eth0: Transmit timed out, status fc1e4010, 
-CSR12 0
-0000000, resetting...
-Sep 29 10:33:29 joker kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Sep 29 10:33:29 joker kernel: eth0: Transmit timed out, status fc1e4010, 
-CSR12 0
-0000000, resetting...
+> ah, OK.  What happens if you do a `patch -R -p1' using
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test6/2.6
+.0-test6-mm1/broken-out/call_usermodehelper-retval-fix-2.patch ?
+
+That fixes up the problem here as well.  Also, note that it wasn't just
+the Synaptics driver:
+
+ps alwx|grep Z
+F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY        TIME COMMAND
+1     0   290     3   6 -10     0    0 t>     Z<   ?          0:00 [events/0 <defunct>]
+1     0   292     3   5 -10     0    0 t>     Z<   ?          0:00 [events/0 <defunct>]
+1     0   294     3   5 -10     0    0 t>     Z<   ?          0:00 [events/0 <defunct>]
+1     0   296     3   5 -10     0    0 t>     Z<   ?          0:00 [events/0 <defunct>]
+1     0   298     3   6 -10     0    0 t>     Z<   ?          0:00 [events/0 <defunct>]
+1     0   300     3   6 -10     0    0 t>     Z<   ?          0:00 [events/0 <defunct>]
+0     0   578     3   6 -10     0    0 do_exi Z<   ?          0:00 [ifup <defunct>]
+1     0  1029     3   6 -10     0    0 t>     Z<   ?          0:00 [events/0 <defunct>]
+0     0  1216     3   5 -10     0    0 ct>    Z<   ?          0:00 [net.agent <defunct>]
+1     0  1227     3   5 -10     0    0 t>     Z<   ?          0:00 [events/0 <defunct>]
+1     0  1229     3   6 -10     0    0 t>     Z<   ?          0:00 [events/0 <defunct>]
+
+The ifup was probably attached to either a wireless or Xircom ethernet card,
+the net.agent was probably from a PPP connection starting up (based on the PID
+of the process).
 
 
-This usally happens while I at work - so I have my wife restart my 
-system. I have two of these cards
-and have seen it happen on both of them. Anybody have an idea on how to 
-fix this.
+--==_Exmh_660582116P
+Content-Type: application/pgp-signature
 
-Below is the kernel version and info on the cards.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Sep 29 10:35:37 joker kernel: Linux version 2.4.20-20.9custom 
-(root@joker.seclar
-k.com) (gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)) #3 Wed Sep 
-17 16:28:
-06 EDT 2003
+iD8DBQE/eHDycC3lWbTT17ARArXSAJ95d4hlQDCkcG/ekMQBFBagDGos4QCg56y/
+gXaq86DP7nrs34q0x3TfRDY=
+=p1SJ
+-----END PGP SIGNATURE-----
 
-Sep 29 10:35:38 joker kernel: Linux Tulip driver version 0.9.15-pre12 
-(Aug 9, 20
-02)
-Sep 29 10:35:38 joker kernel: eth0: ADMtek Comet rev 17 at 0xb000, 
-00:04:5A:6D:D
-8:CC, IRQ 5.
-Sep 29 10:35:38 joker kernel: eth1: ADMtek Comet rev 17 at 0xb400, 
-00:04:5A:40:5
-1:24, IRQ 11.
-
-Thanks,
-Steve
-
+--==_Exmh_660582116P--

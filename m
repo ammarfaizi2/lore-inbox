@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268280AbUJJMsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268295AbUJJMtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268280AbUJJMsN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 08:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268295AbUJJMsN
+	id S268295AbUJJMtz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 08:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbUJJMtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 08:48:13 -0400
-Received: from mail01.hpce.nec.com ([193.141.139.228]:46780 "EHLO
-	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S268280AbUJJMsK
+	Sun, 10 Oct 2004 08:49:55 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:4872 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S268295AbUJJMto
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 08:48:10 -0400
-From: Erich Focht <efocht@hpce.nec.com>
-To: colpatch@us.ibm.com
-Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
-Date: Sun, 10 Oct 2004 14:45:58 +0200
-User-Agent: KMail/1.6.2
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       LSE Tech <lse-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       ckrm-tech@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>,
-       simon.derr@bull.net, frankeh@watson.ibm.com
-References: <1097110266.4907.187.camel@arrakis> <200410090051.18693.efocht@hpce.nec.com> <1097283956.6470.152.camel@arrakis>
-In-Reply-To: <1097283956.6470.152.camel@arrakis>
+	Sun, 10 Oct 2004 08:49:44 -0400
+Date: Sun, 10 Oct 2004 13:49:26 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Ladislav Michl <ladis@linux-mips.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Paul Fulghum <paulkf@microgate.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] TTY flip buffer SMP changes
+In-Reply-To: <1097378811.14279.29.camel@gaston>
+Message-ID: <Pine.LNX.4.58L.0410101322231.1980@blysk.ds.pg.gda.pl>
+References: <1097179099.1519.17.camel@deimos.microgate.com> 
+ <1097177830.31768.129.camel@localhost.localdomain>  <20041008062650.GC2745@thunk.org>
+  <1097242506.2008.30.camel@deimos.microgate.com>  <1097239894.2290.13.camel@localhost.localdomain>
+  <20041008150055.GA13870@thunk.org>  <1097286154.5592.9.camel@gaston> 
+ <1097368333.6128.2.camel@localhost.localdomain> <1097378811.14279.29.camel@gaston>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410101445.58897.efocht@hpce.nec.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 09 October 2004 03:05, Matthew Dobson wrote:
-> On Fri, 2004-10-08 at 15:51, Erich Focht wrote:
-> > We're building this from bottom (cpus) up and need to take care of the
-> > unlinking of the global domain when inserting something. But otherwise
-> > this could be sufficient.
+On Sun, 10 Oct 2004, Benjamin Herrenschmidt wrote:
+
+> On Sun, 2004-10-10 at 10:32, Alan Cox wrote:
+> > On Sad, 2004-10-09 at 02:42, Benjamin Herrenschmidt wrote:
+> > > That reminds me... a while ago, I toyed with the idea of having DMA
+> > > support in pmac_zilog. The case where it would work well is typically
+> > > for things that have a known sized frame. If that information was
+> > > provided down to the driver, I could setup the DMA descriptor for
+> > > that frame size & have it interrupt me when the frame is complete,
+> > > along with a timeout set to the estimated time for receiving such
+> > > a frame + X% (I was thinking +20%)
+> > 
+> > I thought the 85C30 only supported DMA for sync modes ? We have sync
+> > 8530 DMA code for ISA bus already, which I never got around to adding
+> > async too 8)
 > 
-> I personally like to think of it from the top down.  The internal API I
-> came up with looks like:
-> 
-> create_domain(parent_domain, type);
-> destroy_domain(domain);
-> add_cpu_to_domain(cpu, domain);
-> 
-> So you basically build your domain from the top down, from your 1 or
-> more top-level domains, down to your lowest level domains.  You then add
-> cpus (1 or more per domain) to the leaf domains in the tree you built. 
-> Those cpus cascade up the tree, and the whole tree knows exactly which
-> cpus are contained in each domain in it.
-> 
-> I think these are the three main functions you need to construct pretty
-> much any conceivable, useful sched_domains hierarchy.
+> Nope, Apple's one is hooked to a DBDMA controller taht works well
+> in async mode too, though flow control can be a bit nasty.
+> We used to do DMA with the old macserial driver on the Rx side but it
+> had weird bugs and I didn't keep that implementation when rewriting
+> the driver.
 
-I'd suggest adding:
-reparent_domain(domain, new_parent_domain);
+ FYI, the DECstation and TURBOchannel Alpha systems also have a DMA
+facility for their 85C30s, both for async and for sync modes.  It is set
+up in a much less fancy way, though.  For transmission you set up a
+pointer to a buffer within a 4kB page containing data to be sent.  The
+transmission concludes with the end of the page and you get a
+transmit-done interrupt.  For reception you set up a pointer within the
+first half of a 4kB page.  You get an interrupt when the pointer crosses
+the half-page boundary, meaning you need to switch buffers.  Once the
+pointer reaches the end of the page, reception is disabled and you get an
+overrun interrupt.  The only oddity is bytes in transmit and receive
+buffers need to be word-aligned -- the transactions on the system bus are
+performed as 32-bit ones.
 
-When I said that the domains tree is standing on its leaves I meant
-that the core components are the CPUs. Or the Nodes, if you already
-have them. Or some supernodes, if you already have them. In a "normal"
-filesystem you have the root directory, create subdirectories and
-create files in them. Here you already have the files but not the
-structure (or the simplest possible structure).
-
-Anyhow, the 4 command API can well be the guts of the directory
-operations API which I proposed.
-
-Regards,
-Erich
-
+  Maciej

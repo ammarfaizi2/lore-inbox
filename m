@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbTHTPpj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 11:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbTHTPpi
+	id S262033AbTHTPlX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 11:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbTHTPlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 11:45:38 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54681 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262023AbTHTPph (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 11:45:37 -0400
-Date: Wed, 20 Aug 2003 08:38:22 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: ak@colin2.muc.de, dang@fprintf.net, ak@muc.de, lmb@suse.de,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030820083822.598ce78a.davem@redhat.com>
-In-Reply-To: <20030820174133.5e3f50e5.skraw@ithnet.com>
-References: <mdtk.Zy.1@gated-at.bofh.it>
-	<mgUv.3Wb.39@gated-at.bofh.it>
-	<mgUv.3Wb.37@gated-at.bofh.it>
-	<miMw.5yo.31@gated-at.bofh.it>
-	<m365ktxz3k.fsf@averell.firstfloor.org>
-	<1061320620.3744.16.camel@athena.fprintf.net>
-	<20030819192125.GD92576@colin2.muc.de>
-	<1061321268.3744.20.camel@athena.fprintf.net>
-	<20030819193235.GG92576@colin2.muc.de>
-	<20030819122847.2d7e2e31.davem@redhat.com>
-	<20030820174133.5e3f50e5.skraw@ithnet.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 20 Aug 2003 11:41:19 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:25753 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262013AbTHTPlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 11:41:16 -0400
+Subject: Re: IDE wierdness
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030820150903.GA7246@work.bitmover.com>
+References: <20030820150903.GA7246@work.bitmover.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1061394048.550.18.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 20 Aug 2003 16:40:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Aug 2003 17:41:33 +0200
-Stephan von Krawczynski <skraw@ithnet.com> wrote:
+On Mer, 2003-08-20 at 16:09, Larry McVoy wrote:
+> 
+> It's clear to me that I don't want to use this drive but I'm wondering if
+> there is any interest in debugging the lock up.  I've only done it on
+> 2.4.18 as shipped by redhat but I could try 2.6 or whatever you like.
+> 
+> If the concensus is that it is OK that bad hardware locks you up then I'll
+> toss the drive and move on.
 
-> Aehm, sorry but the logic is bogus. A routed packet will be sent out this
-> interface with a foreign IP as source, too.
+Some PIO transfers are regulated by the drive and the drive can lock the
+bus forever. Newer chipsets like the SI680/3112 support watchdog
+deadlock breakers for this but we don't really support them right now.
 
-I'm talking about "local" addresses.
+Getting different data off a failing drive is unusual because the blocks
+are ECC'd extensively (well more than ECC'd) and have checks, could be
+the RAM/CPU going I guess.
 
-When we're routing, we'll use an interface address of
-course.
-
-But when the packet is originating from our host, and
-the source address in the outgoing packet is local to
-us, we will use it as the source in the ARP packet.
-
-Look at the algorithm in net/ipv4/arp_solicit() to see
-what I mean.
 

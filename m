@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVCNUYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVCNU1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbVCNUYq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 15:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbVCNUYY
+	id S261859AbVCNU1w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 15:27:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVCNU0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 15:24:24 -0500
-Received: from mail.aknet.ru ([217.67.122.194]:57358 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S261856AbVCNUUv (ORCPT
+	Mon, 14 Mar 2005 15:26:08 -0500
+Received: from coderock.org ([193.77.147.115]:3293 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261859AbVCNUYQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 15:20:51 -0500
-Message-ID: <4235F230.8000106@aknet.ru>
-Date: Mon, 14 Mar 2005 23:21:04 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: linux-os@analogic.com, Jakob Eriksson <jakov@vmlinux.org>,
-       Pavel Machek <pavel@ucw.cz>,
-       Linux kernel <linux-kernel@vger.kernel.org>, wine-devel@winehq.org
-Subject: Re: [patch] x86: fix ESP corruption CPU bug
-References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz> <4234A8DD.9080305@aknet.ru> <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org> <Pine.LNX.4.58.0503131614360.2822@ppc970.osdl.org> <423518A7.9030704@aknet.ru> <m14qfey3iz.fsf@muc.de> <4235AC0B.70507@vmlinux.org> <Pine.LNX.4.61.0503141158460.19270@chaos.analogic.com> <4235E4D5.5070506@didntduck.org>
-In-Reply-To: <4235E4D5.5070506@didntduck.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Mar 2005 15:24:16 -0500
+Date: Mon, 14 Mar 2005 21:24:08 +0100
+From: Domen Puncer <domen@coderock.org>
+To: Wen Xiong <wendyx@us.ibm.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ patch 1/5] drivers/serial/jsm: new serial device driver
+Message-ID: <20050314202408.GD3955@nd47.coderock.org>
+References: <20050308064424.GF17022@kroah.com> <422DF525.8030606@us.ltcfwd.linux.ibm.com> <20050308235807.GA11807@kroah.com> <422F1A8A.4000106@us.ltcfwd.linux.ibm.com> <20050309163518.GC25079@kroah.com> <422F2FDD.4050908@us.ltcfwd.linux.ibm.com> <20050309185800.GA27268@kroah.com> <4231B972.5070203@us.ltcfwd.linux.ibm.com> <20050312130637.GA8272@nd47.coderock.org> <4235CB5D.2010209@us.ltcfwd.linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4235CB5D.2010209@us.ltcfwd.linux.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On 14/03/05 12:35 -0500, Wen Xiong wrote:
+> Domen Puncer wrote:
+> 
+> >Just some nitpicking...
+> >
+> > 
+> >
+> Hi Domen, all,
+> 
+> Thanks for your comments. I  did some minor changes for patch1 based on 
+> Domen's comment.
+> 
 
-Brian Gerst wrote:
->> Can you tell me how the invisible high-word (invisible in VM-86, and
->> in real mode) could possibly harm something running in VM-86 or
->> read-mode ???  I don't even think it's a BUG. If the transition
->> into and out of VM-86 doesn't handle the fact that the high-word
->> of the stack hasn't been used in VM-86, then that piece of code
->> is bad (the SP isn't even the same stack, BTW).
-> Because even in 16-bit mode (real, vm86 or 16-bit protected) you can use 
-> 32-bit instructions, with an operand and/or address size override 
-> prefix.
-And the real problem is when the pure
-32bit code is starting to use the 16bit
-stack for some strange reasons. Looks like
-the common technique for the early dos4gw
--based apps...
+And i missed, what is probably a bug:
 
+
+> +module_param(jsm_debug, int, 0);
+> +module_param(jsm_rawreadok, int, 1);
+
+Last parameter is sysfs file mode, or 0 if no file is to be created.
+
+
+	Domen

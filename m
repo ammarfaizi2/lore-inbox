@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132246AbRAXA6s>; Tue, 23 Jan 2001 19:58:48 -0500
+	id <S131527AbRAXBCI>; Tue, 23 Jan 2001 20:02:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132228AbRAXA6j>; Tue, 23 Jan 2001 19:58:39 -0500
-Received: from io.frii.com ([216.17.128.3]:22794 "EHLO io.frii.com")
-	by vger.kernel.org with ESMTP id <S132246AbRAXA6c>;
-	Tue, 23 Jan 2001 19:58:32 -0500
-Date: Tue, 23 Jan 2001 17:58:25 -0700
-From: Nicholas Dronen <ndronen@frii.com>
-To: Michael McLeod <michaelm@platypus.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: monitoring I/O
-Message-ID: <20010123175825.A88907@frii.com>
-In-Reply-To: <8494866EDB1D3E4F9C7E6AC2F95C259B01DA1C@plat.platypus.net>
-Mime-Version: 1.0
+	id <S131588AbRAXBB7>; Tue, 23 Jan 2001 20:01:59 -0500
+Received: from duck.doc.ic.ac.uk ([146.169.1.46]:53773 "EHLO duck.doc.ic.ac.uk")
+	by vger.kernel.org with ESMTP id <S131527AbRAXBBq>;
+	Tue, 23 Jan 2001 20:01:46 -0500
+To: Timur Tabi <ttabi@interactivesi.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: ioremap_nocache problem?
+In-Reply-To: <3A6D5D28.C132D416@sangate.com>
+        <20010123183847Z131216-18594+636@vger.kernel.org>
+From: David Wragg <dpw@doc.ic.ac.uk>
+Date: 24 Jan 2001 01:01:29 +0000
+Message-ID: <y7rg0i9epau.fsf@sytry.doc.ic.ac.uk>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <8494866EDB1D3E4F9C7E6AC2F95C259B01DA1C@plat.platypus.net>; from michaelm@platypus.net on Wed, Jan 24, 2001 at 11:52:36AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Check out the disk_io field in /proc/stat.
+Timur Tabi <ttabi@interactivesi.com> writes:
+> ** Reply to message from Roman Zippel <zippel@fh-brandenburg.de> on
+> Tue, 23 Jan 2001 19:12:36 +0100 (MET)
+> > ioremap creates a new mapping that shouldn't interfere with MTRR,
+> >whereas you can map a MTRR mapped area into userspace. But I'm not
+> >sure if it's correct that no flag is set for boot_cpu_data.x86 <=
+> >3...
+> 
+> I was under the impression that the "don't cache" bit that
+> ioremap_nocache sets overrides any MTRR.
 
-On Wed, Jan 24, 2001 at 11:52:36AM +1100, Michael McLeod wrote:
-> Hello
-> 
-> I am hoping someone can give me a little information or point me in the
-> right direction.  I would like to write an application that monitors I/O
-> on a linux machine, but I need some help in determining where to get the
-> information I'm looking for.  What I would like to do is 'hook' into the
-> kernel and record information such as volume name, type of request (read
-> or write), the amount of data being read or written, how long each
-> transaction takes....  
-> 
-> Any help would be greatly appreciated, or if there is something like
-> this already available that would be even better.  Thanx
-> 
-> Mike
+Nope.  There's a table explaining how page flags and MTRRs interact in
+the Intel x86 manual, volume 3 (it's in section 9.5.1 "Precedence of
+Cache Controls" in the fairly recent edition I have here).
+
+For example, with PCD set, PWT clear, and the MTRRs saying WC, the
+effective memory type is WC.  In addition, there's a note saying this
+may change in future models.  So you have to set PCD | PWT if you want
+to get uncached in all cases.
+
+
+David Wragg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

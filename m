@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310502AbSCCDC4>; Sat, 2 Mar 2002 22:02:56 -0500
+	id <S310519AbSCCDDh>; Sat, 2 Mar 2002 22:03:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310503AbSCCDCr>; Sat, 2 Mar 2002 22:02:47 -0500
-Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:43393 "HELO
-	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S310502AbSCCDCm>; Sat, 2 Mar 2002 22:02:42 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
+	id <S310504AbSCCDD1>; Sat, 2 Mar 2002 22:03:27 -0500
+Received: from nic-118-c60-41.mn.mediaone.net ([24.118.60.41]:1920 "EHLO
+	nic-118-c60-41.mediaone.net") by vger.kernel.org with ESMTP
+	id <S310503AbSCCDDG>; Sat, 2 Mar 2002 22:03:06 -0500
+Date: Sat, 2 Mar 2002 21:02:57 -0600 (CST)
+From: "Scott M. Hoffman" <scott1021@attbi.com>
+X-X-Sender: scott@nic-118-c60-41.mediaone.net
+Reply-To: scott1021@attbi.com
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: 2.4.19-pre2-ac2 + preempt + lock-break
-Date: Sun, 3 Mar 2002 04:02:32 +0100
-X-Mailer: KMail [version 1.3.9]
-Cc: Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
+cc: linux-kernel@vger.kernel.org, <shaggy@austin.ibm.com>
+Subject: JFS on 2.4.19-pre2-ac1/2
+Message-ID: <Pine.LNX.4.42.0203022041080.1308-100000@nic-118-c60-41.mediaone.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200203030402.32814.Dieter.Nuetzel@hamburg.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan,
+Hi,
+  Under pre2-ac1, untarring my /home backup to JFS had problems.  I was 
+unable to switch virtual consoles for several seconds at a time.  Under 
+ext3 the same kernel was fine.  The output of vmstat shows many more 
+context switches for JFS than ext3, if that means anything.  If anyone's 
+interested in any more info, please ask.
+  Neither kernel produces any info under /proc/fs/jfs as per the config 
+option CONFIG_JFS_STATISTICS.
 
-I am now running quite nicely your latest stuff..;-)
-It feels GREAT.
-But the throughput at least on my system is somewhat lower than with my latest 
--aa VM (vm_25) kernel 2.4.18-pre8-K3-VM-24-preempt-lock.
+Thanks,
+Scott
 
-I am going to compare "your" version against
-2.4.19-pre2
-vm_28
-read-latency2
-O(1)-K3	(the hardest part)
-preempt + lock-break	(got that but not Ingo's stuff then)
-2.4.18.pending ReiserFS stuff
-
-All OOM problems are fixed with vm_28 for me.
-I've checked it with and without swap.
-With former versions some system tasks (smpppd), kdeinit and desktop processes 
-(xperfmon++, kpanel, kmail, kalarm, etc.) were falsely killed.
-
-With 2.4.19-pre2-ac2 + pre and without swap (I disabled it before running the 
-"test" prog) kswapd (?) goes into 20~25% system time usage and the whole 
-system gets unusable. I had to reboot...
-
-X have to be reniced -10 to get smooth mouse movement under both kernels 
-(Ingo's part) during compilations (bzlilo).
-
-Regards,
-	Dieter
-
-BTW Some numbers will follow when I get O(1) + preempt going with 2.4.19-pre2 
-+ vm_28.
 
 

@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288059AbSAMUCE>; Sun, 13 Jan 2002 15:02:04 -0500
+	id <S288061AbSAMUJQ>; Sun, 13 Jan 2002 15:09:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288060AbSAMUBy>; Sun, 13 Jan 2002 15:01:54 -0500
-Received: from zero.tech9.net ([209.61.188.187]:13074 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288059AbSAMUBu>;
-	Sun, 13 Jan 2002 15:01:50 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: jogi@planetzork.ping.de, Ed Sweetman <ed.sweetman@wmich.edu>,
-        Andrea Arcangeli <andrea@suse.de>, yodaiken@fsmlabs.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C41E415.9D3DA253@zip.com.au>
-In-Reply-To: <20020113184249.A15955@planetzork.spacenet>,
-	<E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy>
-	<20020112121315.B1482@inspiron.school.suse.de>
-	<20020112160714.A10847@planetzork.spacenet>
-	<20020112095209.A5735@hq.fsmlabs.com>
-	<20020112180016.T1482@inspiron.school.suse.de>
-	<005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au> 
-	<20020113184249.A15955@planetzork.spacenet>
-	<1010946178.11848.14.camel@phantasy>  <3C41E415.9D3DA253@zip.com.au>
-Content-Type: text/plain
+	id <S288071AbSAMUJG>; Sun, 13 Jan 2002 15:09:06 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22801 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288061AbSAMUIw>; Sun, 13 Jan 2002 15:08:52 -0500
+Message-ID: <3C41E945.9040700@zytor.com>
+Date: Sun, 13 Jan 2002 12:08:37 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: initramfs buffer spec -- second draft
+In-Reply-To: <a1oqmm$is3$1@cesium.transmeta.com> <E16PqXQ-0000BD-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 13 Jan 2002 15:04:35 -0500
-Message-Id: <1010952276.12125.59.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-01-13 at 14:46, Andrew Morton wrote:
+Daniel Phillips wrote:
 
-> I can't say that I have ever seen any significant change in throughput
-> of anything with any of this stuff.
+> 
+>>The structure of the cpio_header is as follows (all 8-byte entries
+>>contain 32-bit hexadecimal ASCII numbers):
+> 
+> I thought there's a binary version of the cpio header.  What is the
+> point of the ascii encoding?
+> 
 
-I can send you some numbers.  It is typically 5-10% throughput increase
-under load.  Obviously this work won't help a single task on a single
-user system.  But things like (ack!) dbench 16 show a marked
-improvement.
 
-> Benchmarks are well and good, but until we have a solid explanation for
-> the throughput changes which people are seeing, it's risky to claim
-> that there is a general benefit.
+Byte order independence.  The binary version of cpio is ancient and 
+obsolete.  Unfortunately the SysV people didn't have the htons() etc 
+macros of BSD, so they had no concept of portable binary formats.
 
-I have an explanation.  We can schedule quicker off a woken task.  When
-an event occurs that allows an I/O-blocked task to run, its time-to-run
-is shorter.  Same event/response improvement that helps interactivity.
+ 
+>>The c_mode field matches the contents of st_mode returned by stat(2)
+>>on Linux, and encodes the file type and file permissions.
+>>
+>>The c_filesize should be zero for any non-regular file.
+>>
+>>If the filename is "TRAILER!!!" this is actually an end-of-file
+>>marker; the c_filesize for an end-of-file marker must be zero.
+>>
+> It sure looks ugly, but I suppose the c_filesize=zero is the real
+> end-of-file marker.  Did I mention it sure looks ugly?
+> 
 
-	Robert Love
+
+c_filesize == 0 does *NOT* imply a end-of-archive marker.  It is the 
+filename "TRAILER!!!" that does.  And yes, it's ugly.
+
+	-hpa
+
 

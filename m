@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276483AbRJKO4J>; Thu, 11 Oct 2001 10:56:09 -0400
+	id <S276489AbRJKPAu>; Thu, 11 Oct 2001 11:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276453AbRJKO4A>; Thu, 11 Oct 2001 10:56:00 -0400
-Received: from colorfullife.com ([216.156.138.34]:64262 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S276457AbRJKOzs>;
-	Thu, 11 Oct 2001 10:55:48 -0400
-Message-ID: <3BC5B313.10444AA@colorfullife.com>
-Date: Thu, 11 Oct 2001 16:56:19 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.12 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Frank van Maarseveen <fvm@altium.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 8139too: NETDEV WATCHDOG: eth0: transmit timed out
+	id <S276457AbRJKPAl>; Thu, 11 Oct 2001 11:00:41 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:3245 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S276453AbRJKPAd>; Thu, 11 Oct 2001 11:00:33 -0400
+Date: Thu, 11 Oct 2001 08:00:46 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: willy tarreau <wtarreau@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.10-ac11
+Message-ID: <20011011080046.C12016@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20011011132609.32653.qmail@web20510.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011011132609.32653.qmail@web20510.mail.yahoo.com>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Basic mode control register 0x0000: Auto-negotiation disabled!
->    Speed fixed at 10 mbps, half-duplex.
-
-Do you use any user space tools to fix the link speed?
-	mii-diag
-	eth=0,0,<number>
-	module parameter?
-Could you please try what happens if you remove them.
-
->  Basic mode status register 0x0000 ... 0000.
->    Link status: not established.
->    Capable of <Warning! No media capabilities>.
->    Unable to perform Auto-negotiation, negotiation not complete.
->  This transceiver has no vendor identification.
->  I'm advertising 0000:
->    Advertising no additional info pages.
->    Using an unknown (non 802.3) encapsulation.
->  Link partner capability is 0000:.
->    Negotiation did not complete.
+On Thu, Oct 11, 2001 at 03:26:09PM +0200, willy tarreau wrote:
+> >  I also _think_ nothing else needs the include in
+> <asm-i386/keyboard.h> so kill that off too.
 > 
-What is the link partner? hub, switch, fixed 10-mbit, dual-speed hub?
+> indeed, there are some files which need it and don't
+> compile
+> anymore. You have to leave the include enabled in
+> keyboard.h :
+> 
+> - arch/i386/kernel/dmi_scan.c
+> - drivers/char/keyboard.c
+> - potentially other files in drivers/char/
 
---
-	Manfred
+Erm, these files should include <linux/pm.h> directly and not expect
+something else to pull it in.  Doing a quick grep shows that everything
+else does.
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpBRe6JfQBzF6Tz60w0ZxmVDM2g==
+thread-index: AcQVpCcD2iupaPNNRqO5ezR+PtYg0g==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sat, 03 Jan 2004 09:11:17 +0000
-Message-ID: <00ca01c415a4$145e22f0$d100000a@sbs2003.local>
-From: "Dmitry Torokhov" <dtor_core@ameritech.net>
+Delivery-date: Sat, 03 Jan 2004 17:40:48 +0000
+Message-ID: <011001c415a4$270586f0$d100000a@sbs2003.local>
+Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft CDO for Exchange 2000
+Date: Mon, 29 Mar 2004 16:40:24 +0100
+From: "Vojtech Pavlik" <vojtech@suse.cz>
 To: <Administrator@osdl.org>
-Subject: Re: [PATCH 7/7] SiS AUX port
-Date: Mon, 29 Mar 2004 16:39:53 +0100
-User-Agent: KMail/1.5.4
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Andrew Morton" <akpm@osdl.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/7] psmouse option parsing
 Content-Class: urn:content-classes:message
-References: <200401030350.43437.dtor_core@ameritech.net> <200401030402.16745.dtor_core@ameritech.net> <200401030403.03783.dtor_core@ameritech.net>
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-In-Reply-To: <200401030403.03783.dtor_core@ameritech.net>
+References: <200401030350.43437.dtor_core@ameritech.net> <200401030400.55755.dtor_core@ameritech.net> <20040103100739.GB499@ucw.cz> <200401031229.25315.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <200401031229.25315.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.4i
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:39:54.0390 (UTC) FILETIME=[14F90360:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:40:43.0296 (UTC) FILETIME=[321F7A00:01C415A4]
 
-===================================================================
+On Sat, Jan 03, 2004 at 12:29:23PM -0500, Dmitry Torokhov wrote:
 
+> On Saturday 03 January 2004 05:07 am, Vojtech Pavlik wrote:
+> > On Sat, Jan 03, 2004 at 04:00:54AM -0500, Dmitry Torokhov wrote:
+> > > +			[HW,MOUSE] Controls Logitech smartscroll autoreteat,
+> > > +			0 = disabled, 1 = enabled (default).
+> >
+> > Ha, a typo. :)
+> 
+> Darn! :)
+> 
+> Sorry about that. I uploaded hand-corrected patch to 
+> 
+> http://www.geocities.co/dt_or/input/2_6_0-rc1/ 
+> 
+> and also sending it here for your reference.
+> 
+> Dmitry
 
-ChangeSet@1.1577, 2004-01-03 02:54:28-05:00, dtor_core@ameritech.net
-  Input: Do not ignore AUX port if chipset fails to disable it
-         (SiS seems to have trouble disabling AUX port, other
-          than that the port works fine).
+Patch is OK now. The first (i8042 reset) patch is also OK, I misread it
+when I thought I've found problems there.
 
+Andrew, please apply these patches to your tree and/or
+schedule them for inclusion into mainline.
 
- i8042.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
+Good work, Dmitry!
 
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	Sat Jan  3 03:10:31 2004
-+++ b/drivers/input/serio/i8042.c	Sat Jan  3 03:10:31 2004
-@@ -598,8 +598,10 @@
- 	
- 	if (i8042_command(&param, I8042_CMD_AUX_DISABLE))
- 		return -1;
--	if (i8042_command(&param, I8042_CMD_CTL_RCTR) || (~param & I8042_CTR_AUXDIS))
--		return -1;	
-+	if (i8042_command(&param, I8042_CMD_CTL_RCTR) || (~param & I8042_CTR_AUXDIS)) {
-+		printk(KERN_WARNING "Failed to disable AUX port, but continuing anyway... Is this a SiS?\n");
-+		printk(KERN_WARNING "If AUX port is really absent please use the 'i8042.noaux' option.\n");
-+	}
- 
- 	if (i8042_command(&param, I8042_CMD_AUX_ENABLE))
- 		return -1;
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

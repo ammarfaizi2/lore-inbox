@@ -1,91 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264681AbSJOUWt>; Tue, 15 Oct 2002 16:22:49 -0400
+	id <S263208AbSJOUXx>; Tue, 15 Oct 2002 16:23:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264648AbSJOUWp>; Tue, 15 Oct 2002 16:22:45 -0400
-Received: from smtp3.us.dell.com ([143.166.148.134]:49423 "EHLO
-	smtp3.us.dell.com") by vger.kernel.org with ESMTP
-	id <S263208AbSJOUWG>; Tue, 15 Oct 2002 16:22:06 -0400
-Date: Tue, 15 Oct 2002 15:27:59 -0500 (CDT)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: mdomsch@humbolt.us.dell.com
-Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
-To: mochel@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: driverfs dir removal bug in 2.5.41
-Message-ID: <Pine.LNX.4.44.0210151520020.22262-100000@humbolt.us.dell.com>
-X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
-X-GPG-Key: http://domsch.com/mdomsch_pub.asc
+	id <S264648AbSJOUXx>; Tue, 15 Oct 2002 16:23:53 -0400
+Received: from inrete-46-20.inrete.it ([81.92.46.20]:63915 "EHLO
+	pdamail1-pdamail.inrete.it") by vger.kernel.org with ESMTP
+	id <S263208AbSJOUXt>; Tue, 15 Oct 2002 16:23:49 -0400
+Message-ID: <3DAC7AAC.B81A406E@inrete.it>
+Date: Tue, 15 Oct 2002 22:29:32 +0200
+From: Daniele Lugli <genlogic@inrete.it>
+Organization: General Logic srl
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rthal5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: unhappy with current.h
+References: <20021014202404.GA10777@tapu.f00f.org>
+		<Pine.LNX.4.44L.0210142159580.22993-100000@imladris.surriel.com> <15788.8728.734070.225906@kim.it.uu.se>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pat, I've run across a weird error with driverfs.  When removing a 
-directory that has had a symlink created in it, directory removal fails.  
-Since there's no return code from the function, there's no way to 
-know that it failed, but it shouldn't fail regardless.
+Mikael Pettersson wrote:
+> 
+> Rik van Riel writes:
+>  > On Mon, 14 Oct 2002, Chris Wedgwood wrote:
+>  > > On Mon, Oct 14, 2002 at 09:46:08PM +0200, Daniele Lugli wrote:
+>  > >
+>  > > > I recently wrote a kernel module which gave me some mysterious
+>  > > > problems. After too many days spent in blood, sweat and tears, I found the cause:
+>  > >
+>  > > > *** one of my data structures has a field named 'current'. ***
+>  > >
+>  > > gcc -Wshadow
+>  >
+>  > Would it be a good idea to add -Wshadow to the kernel
+>  > compile options by default ?
+> 
+> While I'm not defending macro abuse, please note that Daniele's problem
+> appears to have been caused by using g++ instead of gcc or gcc -x c to
+> compile a kernel module. Daniele's later example throws a syntax error
+> in gcc, since the cpp output isn't legal C ...
+> 
+> Hence I fail to see the utility of hacking in kludges for something
+> that's not supposed to work anyway.
 
-The driverfs_remove_dir(&dir) fails.  The files and symlinks in the
-directory are removed, but the directory itself isn't removed.  Below is a
-small test module (tried in 2.5.41) that shows the behavior.  In
-test_exit(), driverfs_remove_file() shouldn't be necessary, and in fact
-doesn't matter if it's there or not - same failure is seen either way.  
-The name of the symlink doesn't matter either.
+Yes i confess, i'm writing a kernel module in c++ (and i'm not the only
+one).
+Anyway my consideration was general and IMHO applies to C too. What is
+the benefit of redefining commonly used words? I would say nothing
+against eg #define _I386_current get_current(), but just #define current
+get_current() seems to me a little bit dangerous. What is the limit?
+What do you consider a bad practice? Would #define i j be tolerated?
 
-I haven't torn into driverfs (nor played with ramfs) to see where the 
-failure is occurring, hoped you'd know off the top of your head.
+I wouldn't like to open a discussion about using c++ for kernel modules
+because i know that the large majority of kernel developers is against.
+And in fact i had to make my own version of the kernel sources turning
+all 'new' into 'nEw', 'class' into 'klass' and so on, but this last
+problem was more subtle.
 
-Thanks,
-Matt
+But let me at least summarize my poor-programmer-not-kernel-developer
+point of view: at present the kernel if a mined field for c++ and i
+understand it is not viable nor interesting for the majority to rewrite
+it in a more c++-friendly way. But why not at least keep in mind, while
+writing new stuff (not the case of current.h i see), that kernel headers
+could be included by c++?
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
-/*
- * driverfs_symlink_test.c
- */
-
-#include <linux/module.h>
-#include <linux/string.h>
-#include <linux/types.h>
-#include <linux/init.h>
-#include <linux/stat.h>
-#include <linux/err.h>
-#include <linux/driverfs_fs.h>
-
-MODULE_AUTHOR("Matt Domsch <Matt_Domsch@Dell.com>");
-MODULE_DESCRIPTION("driverfs symlink test");
-MODULE_LICENSE("GPL");
-
-static struct driver_dir_entry test_dir = {
-	.name = "test",
-	.mode = (S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO),
-};
-
-static int __init
-test_init(void)
-{
-	int rc;
-
-	printk(KERN_INFO "driverfs symlink test\n");
-	rc = driverfs_create_dir(&test_dir, NULL);
-	if (rc)
-		return rc;
-	rc = driverfs_create_symlink(&test_dir, "test", "../");
-	return rc;
-}
-
-static void __exit
-test_exit(void)
-{
-	driverfs_remove_file(&test_dir, "test");
-	driverfs_remove_dir(&test_dir);
-}
-
-late_initcall(test_init);
-module_exit(test_exit);
-
+Regards, Daniele

@@ -1,43 +1,1026 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267918AbUHET46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267915AbUHET4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267918AbUHET46 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 15:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267932AbUHET46
+	id S267915AbUHET4z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 15:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267932AbUHET4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 15:56:58 -0400
-Received: from ms003msg.fastwebnet.it ([213.140.2.42]:33425 "EHLO
-	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S267918AbUHET4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 15:56:38 -0400
-From: Alessandro Amici <alexamici@fastwebnet.it>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cputime (1/6): move call to update_process_times.
-Date: Thu, 5 Aug 2004 21:57:47 +0200
-User-Agent: KMail/1.6.2
-References: <20040805180335.GB9240@mschwid3.boeblingen.de.ibm.com>
-In-Reply-To: <20040805180335.GB9240@mschwid3.boeblingen.de.ibm.com>
+	Thu, 5 Aug 2004 15:56:55 -0400
+Received: from fep02fe.ttnet.net.tr ([212.156.4.132]:25828 "EHLO
+	fep02.ttnet.net.tr") by vger.kernel.org with ESMTP id S267915AbUHETzY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 15:55:24 -0400
+Message-ID: <4112906E.4060707@ttnet.net.tr>
+Date: Thu, 05 Aug 2004 22:54:22 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: tr, en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408052157.47603.alexamici@fastwebnet.it>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4] gcc-3.4 more fixes
+Content-Type: multipart/mixed;
+	boundary="------------020909030704080701090409"
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020909030704080701090409
+Content-Type: text/plain;
+	charset=ISO-8859-9;
+	format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-Martin,
+Hi all:
 
-On Thursday 05 August 2004 20:03, Martin Schwidefsky wrote:
-> For non-smp kernels the call to update_process_times is done
-> in the do_timer function. It is more consistent with smp kernels
-> to move this call to the architecture file which calls do_timer.
+The attached patch applies to 2.4.27-rc5 + Mikael's patch
+series. Most fixes are taken from 2.6. The only non-lvalue
+change is to e100.h which, otherwise, caused some tens of
+warning lines on my logs.
 
-I don't have enough knowledge to comment on the merit of the move to 
-architecture files, but the proliferation of #ifndef CONFIG_SMP looks really 
-ugly.
+There still are some lvalue related warnings (eicon_idi.c:2057,
+53c7,8xx.c:3929,  fs/affs/super.c:133, rio_linux.c:1209,1333,
+intermezzo/sysctl.c:305,  and ibmphp_hpc.c and  pciehp_hpc.c).
+The hotplug dir (ibmphp_hpc.c and  pciehp_hpc.c) seems to get
+very many updates in 2.6 compared to 2.4 so it wasn't easy to
+decide. And for the rest, I got tired and bored..
 
-Wouldn't it be possible to move the #ifndef into sched.h?
+There also are "integer constant is too large for "long" type"
+warnings all around and I would like to know how serious they
+are.
 
---
-Alessandro
+Compilations were tested with the gcc-3.4.0-1 package from FC2
+(rebuilt on rh9). I would like to have the folks review this
+for any of my errors/typos/brainfarts etc ;)
+
+Thanks,
+=D6zkan Sezer
+
+--------------020909030704080701090409
+Content-Type: text/plain;
+	name="27rc5-gcc340-lvalue-2.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="27rc5-gcc340-lvalue-2.diff"
+
+--- 27rc5~/drivers/atm/atmtcp.c
++++ 27rc5/drivers/atm/atmtcp.c
+@@ -246,7 +246,7 @@
+ 	dev_data = PRIV(atmtcp_dev);
+ 	dev_data->vcc = NULL;
+ 	if (dev_data->persist) return;
+-	PRIV(atmtcp_dev) = NULL;
++	atmtcp_dev->dev_data = NULL;
+ 	kfree(dev_data);
+ 	shutdown_atm_dev(atmtcp_dev);
+ 	vcc->dev_data = NULL;
+@@ -362,7 +362,7 @@
+ 	}
+ 	dev->ci_range.vpi_bits = MAX_VPI_BITS;
+ 	dev->ci_range.vci_bits = MAX_VCI_BITS;
+-	PRIV(dev) = dev_data;
++	dev->dev_data = dev_data;
+ 	PRIV(dev)->vcc = NULL;
+ 	PRIV(dev)->persist = persist;
+ 	if (result) *result = dev;
+--- 27rc5~/drivers/atm/fore200e.c
++++ 27rc5/drivers/atm/fore200e.c
+@@ -1620,7 +1620,7 @@
+     set_bit(ATM_VF_PARTIAL,&vcc->flags);
+     set_bit(ATM_VF_ADDR, &vcc->flags);
+ 
+-    FORE200E_VCC(vcc) = fore200e_vcc;
++    vcc->dev_data = fore200e_vcc;
+ 
+     if (fore200e_activate_vcin(fore200e, 1, vcc, vcc->qos.rxtp.max_sdu) < 0) {
+ 
+@@ -1691,7 +1691,7 @@
+     vcc->itf = vcc->vci = vcc->vpi = 0;
+ 
+     fore200e_vcc = FORE200E_VCC(vcc);
+-    FORE200E_VCC(vcc) = NULL;
++    vcc->dev_data = NULL;
+ 
+     spin_unlock_irqrestore(&fore200e->q_lock, flags);
+ 
+@@ -2738,7 +2738,7 @@
+ 	return -ENODEV;
+     }
+ 
+-    FORE200E_DEV(atm_dev) = fore200e;
++    atm_dev->dev_data = fore200e;
+     fore200e->atm_dev = atm_dev;
+ 
+     atm_dev->ci_range.vpi_bits = FORE200E_VPI_BITS;
+--- 27rc5~/drivers/atm/he.c
++++ 27rc5/drivers/atm/he.c
+@@ -378,7 +378,7 @@
+ 	he_dev->pci_dev = pci_dev;
+ 	he_dev->atm_dev = atm_dev;
+ 	he_dev->atm_dev->dev_data = he_dev;
+-	HE_DEV(atm_dev) = he_dev;
++	atm_dev->dev_data = he_dev;
+ 	he_dev->number = atm_dev->number;
+ 	if (he_start(atm_dev)) {
+ 		he_stop(he_dev);
+@@ -2347,7 +2347,7 @@
+ 	init_waitqueue_head(&he_vcc->rx_waitq);
+ 	init_waitqueue_head(&he_vcc->tx_waitq);
+ 
+-	HE_VCC(vcc) = he_vcc;
++	vcc->dev_data = he_vcc;
+ 
+ 	if (vcc->qos.txtp.traffic_class != ATM_NONE) {
+ 		int pcr_goal;
+--- 27rc5~/drivers/atm/idt77105.c
++++ 27rc5/drivers/atm/idt77105.c
+@@ -267,7 +267,7 @@
+ {
+ 	unsigned long flags;
+ 
+-	if (!(PRIV(dev) = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
++	if (!(dev->dev_data = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
+ 		return -ENOMEM;
+ 	PRIV(dev)->dev = dev;
+ 	spin_lock_irqsave(&idt77105_priv_lock, flags);
+@@ -345,7 +345,7 @@
+                 else
+                     idt77105_all = walk->next;
+ 	        dev->phy = NULL;
+-                PRIV(dev) = NULL;
++                dev->dev_data = NULL;
+                 kfree(walk);
+                 break;
+             }
+--- 27rc5~/drivers/atm/iphase.c
++++ 27rc5/drivers/atm/iphase.c
+@@ -1782,7 +1782,7 @@
+                          (iadev->tx_buf_sz - sizeof(struct cpcs_trailer))){
+            printk("IA:  SDU size over (%d) the configured SDU size %d\n",
+ 		  vcc->qos.txtp.max_sdu,iadev->tx_buf_sz);
+-	   INPH_IA_VCC(vcc) = NULL;  
++	   vcc->dev_data = NULL;
+            kfree(ia_vcc);
+            return -EINVAL; 
+         }
+@@ -2707,7 +2707,7 @@
+         }
+ 	kfree(INPH_IA_VCC(vcc));  
+         ia_vcc = NULL;
+-        INPH_IA_VCC(vcc) = NULL;  
++        vcc->dev_data = NULL;
+         clear_bit(ATM_VF_ADDR,&vcc->flags);
+         return;        
+ }  
+@@ -2720,7 +2720,7 @@
+ 	if (!test_bit(ATM_VF_PARTIAL,&vcc->flags))  
+ 	{  
+ 		IF_EVENT(printk("ia: not partially allocated resources\n");)  
+-		INPH_IA_VCC(vcc) = NULL;  
++		vcc->dev_data = NULL;
+ 	}  
+ 	iadev = INPH_IA_DEV(vcc->dev);  
+ 	error = atm_find_ci(vcc, &vpi, &vci);  
+@@ -2744,7 +2744,7 @@
+ 	/* Device dependent initialization */  
+ 	ia_vcc = kmalloc(sizeof(*ia_vcc), GFP_KERNEL);  
+ 	if (!ia_vcc) return -ENOMEM;  
+-	INPH_IA_VCC(vcc) = ia_vcc;  
++	vcc->dev_data = ia_vcc;
+   
+ 	if ((error = open_rx(vcc)))  
+ 	{  
+@@ -3256,7 +3256,7 @@
+ 		ret = -ENOMEM;
+ 		goto err_out_disable_dev;
+ 	}
+-	INPH_IA_DEV(dev) = iadev; 
++	dev->dev_data = iadev;
+ 	IF_INIT(printk(DEV_LABEL "registered at (itf :%d)\n", dev->number);)
+ 	IF_INIT(printk("dev_id = 0x%x iadev->LineRate = %d \n", (u32)dev,
+ 		iadev->LineRate);)
+--- 27rc5~/drivers/atm/uPD98402.c
++++ 27rc5/drivers/atm/uPD98402.c
+@@ -212,7 +212,7 @@
+ static int uPD98402_start(struct atm_dev *dev)
+ {
+ 	DPRINTK("phy_start\n");
+-	if (!(PRIV(dev) = kmalloc(sizeof(struct uPD98402_priv),GFP_KERNEL)))
++	if (!(dev->dev_data = kmalloc(sizeof(struct uPD98402_priv),GFP_KERNEL)))
+ 		return -ENOMEM;
+ 	memset(&PRIV(dev)->sonet_stats,0,sizeof(struct k_sonet_stats));
+ 	(void) GET(PCR); /* clear performance events */
+--- 27rc5~/drivers/atm/zatm.c
++++ 27rc5/drivers/atm/zatm.c
+@@ -1565,7 +1565,7 @@
+         DPRINTK("zatm_close: done waiting\n");
+         /* deallocate memory */
+         kfree(ZATM_VCC(vcc));
+-        ZATM_VCC(vcc) = NULL;
++	vcc->dev_data = NULL;
+ 	clear_bit(ATM_VF_ADDR,&vcc->flags);
+ }
+ 
+@@ -1578,7 +1578,8 @@
+ 
+ 	DPRINTK(">zatm_open\n");
+ 	zatm_dev = ZATM_DEV(vcc->dev);
+-	if (!test_bit(ATM_VF_PARTIAL,&vcc->flags)) ZATM_VCC(vcc) = NULL;
++	if (!test_bit(ATM_VF_PARTIAL,&vcc->flags))
++		vcc->dev_data = NULL;
+ 	error = atm_find_ci(vcc,&vpi,&vci);
+ 	if (error) return error;
+ 	vcc->vpi = vpi;
+@@ -1594,7 +1595,7 @@
+ 			clear_bit(ATM_VF_ADDR,&vcc->flags);
+ 			return -ENOMEM;
+ 		}
+-		ZATM_VCC(vcc) = zatm_vcc;
++		vcc->dev_data = zatm_vcc;
+ 		ZATM_VCC(vcc)->tx_chan = 0; /* for zatm_close after open_rx */
+ 		if ((error = open_rx_first(vcc))) {
+ 	                zatm_close(vcc);
+@@ -1828,7 +1829,7 @@
+ 			dev = atm_dev_register(DEV_LABEL,&ops,-1,NULL);
+ 			if (!dev) break;
+ 			zatm_dev->pci_dev = pci_dev;
+-			ZATM_DEV(dev) = zatm_dev;
++			dev->dev_data = zatm_dev;
+ 			zatm_dev->copper = type;
+ 			if (zatm_init(dev) || zatm_start(dev)) {
+ 				atm_dev_deregister(dev);
+--- 27rc5~/drivers/i2c/i2c-core.c
++++ 27rc5/drivers/i2c/i2c-core.c
+@@ -750,7 +750,7 @@
+ 		msg.addr   = client->addr;
+ 		msg.flags = client->flags & I2C_M_TEN;
+ 		msg.len = count;
+-		(const char *)msg.buf = buf;
++		msg.buf = (char *)buf;
+ 	
+ 		DEB2(printk(KERN_DEBUG "i2c-core.o: master_send: writing %d bytes on %s.\n",
+ 			count,client->adapter->name));
+--- 27rc5~/drivers/i2c/i2c-proc.c
++++ 27rc5/drivers/i2c/i2c-proc.c
+@@ -287,7 +287,7 @@
+ 			if(copy_to_user(buffer, BUF, buflen))
+ 				return -EFAULT;
+ 			curbufsize += buflen;
+-			(char *) buffer += buflen;
++			buffer = (void *)buffer + buflen;
+ 		}
+ 	*lenp = curbufsize;
+ 	filp->f_pos += curbufsize;
+@@ -318,8 +318,8 @@
+ 					     sizeof(struct
+ 						    i2c_chips_data)))
+ 					return -EFAULT;
+-				(char *) oldval +=
+-				    sizeof(struct i2c_chips_data);
++				oldval =
++				    (void *) oldval + sizeof(struct i2c_chips_data);
+ 				nrels++;
+ 			}
+ 		oldlen = nrels * sizeof(struct i2c_chips_data);
+@@ -473,7 +473,7 @@
+ 		       !((ret=get_user(nextchar, (char *) buffer))) &&
+ 		       isspace((int) nextchar)) {
+ 			bufsize--;
+-			((char *) buffer)++;
++			buffer++;
+ 		}
+ 
+ 		if (ret)
+@@ -492,7 +492,7 @@
+ 		    && (nextchar == '-')) {
+ 			min = 1;
+ 			bufsize--;
+-			((char *) buffer)++;
++			buffer++;
+ 		}
+ 		if (ret)
+ 			return -EFAULT;
+@@ -503,7 +503,7 @@
+ 		       isdigit((int) nextchar)) {
+ 			res = res * 10 + nextchar - '0';
+ 			bufsize--;
+-			((char *) buffer)++;
++			buffer++;
+ 		}
+ 		if (ret)
+ 			return -EFAULT;
+@@ -517,7 +517,7 @@
+ 		if (bufsize && (nextchar == '.')) {
+ 			/* Skip the dot */
+ 			bufsize--;
+-			((char *) buffer)++;
++			buffer++;
+ 
+ 			/* Read digits while they are significant */
+ 			while (bufsize && (mag > 0) &&
+@@ -526,7 +526,7 @@
+ 				res = res * 10 + nextchar - '0';
+ 				mag--;
+ 				bufsize--;
+-				((char *) buffer)++;
++				buffer++;
+ 			}
+ 			if (ret)
+ 				return -EFAULT;
+@@ -542,7 +542,7 @@
+ 		       !((ret=get_user(nextchar, (char *) buffer))) &&
+ 		       isspace((int) nextchar)) {
+ 			bufsize--;
+-			((char *) buffer)++;
++			buffer++;
+ 		}
+ 		if (ret)
+ 			return -EFAULT;
+@@ -574,7 +574,7 @@
+ 			if(put_user(' ', (char *) buffer))
+ 				return -EFAULT;
+ 			curbufsize++;
+-			((char *) buffer)++;
++			buffer++;
+ 		}
+ 
+ 		/* Fill BUF with the representation of the next string */
+@@ -615,7 +615,7 @@
+ 		if(copy_to_user(buffer, BUF, buflen))
+ 			return -EFAULT;
+ 		curbufsize += buflen;
+-		(char *) buffer += buflen;
++		buffer = (void *)buffer + buflen;
+ 
+ 		nr++;
+ 	}
+--- 27rc5~/drivers/ieee1394/highlevel.c
++++ 27rc5/drivers/ieee1394/highlevel.c
+@@ -500,7 +500,7 @@
+                                 rcode = RCODE_TYPE_ERROR;
+                         }
+ 
+-			(u8 *)data += partlength;
++			data += partlength;
+                         length -= partlength;
+                         addr += partlength;
+ 
+@@ -546,7 +546,7 @@
+                                 rcode = RCODE_TYPE_ERROR;
+                         }
+ 
+-			(u8 *)data += partlength;
++			data += partlength;
+                         length -= partlength;
+                         addr += partlength;
+ 
+--- 27rc5~/drivers/isdn/hisax/avm_pci.c
++++ 27rc5/drivers/isdn/hisax/avm_pci.c
+@@ -291,7 +291,8 @@
+ 			debugl1(cs, "hdlc_empty_fifo: incoming packet too large");
+ 		return;
+ 	}
+-	ptr = (u_int *) p = bcs->hw.hdlc.rcvbuf + bcs->hw.hdlc.rcvidx;
++	p = bcs->hw.hdlc.rcvbuf + bcs->hw.hdlc.rcvidx;
++	ptr = (u_int *) p
+ 	bcs->hw.hdlc.rcvidx += count;
+ 	if (cs->subtyp == AVM_FRITZ_PCI) {
+ 		outl(idx, cs->hw.avm.cfg_reg + 4);
+@@ -352,7 +353,8 @@
+ 	}
+ 	if ((cs->debug & L1_DEB_HSCX) && !(cs->debug & L1_DEB_HSCX_FIFO))
+ 		debugl1(cs, "hdlc_fill_fifo %d/%ld", count, bcs->tx_skb->len);
+-	ptr = (u_int *) p = bcs->tx_skb->data;
++	p = bcs->tx_skb->data;
++	ptr = (u_int *) p
+ 	skb_pull(bcs->tx_skb, count);
+ 	bcs->tx_cnt -= count;
+ 	bcs->hw.hdlc.count += count;
+--- 27rc5~/drivers/isdn/hisax/hfc_pci.c
++++ 27rc5/drivers/isdn/hisax/hfc_pci.c
+@@ -1742,11 +1742,11 @@
+ 		/* Allocate memory for FIFOS */
+ 		/* Because the HFC-PCI needs a 32K physical alignment, we */
+ 		/* need to allocate the double mem and align the address */
+-		if (!((void *) cs->hw.hfcpci.share_start = kmalloc(65536, GFP_KERNEL))) {
++		if (!(cs->hw.hfcpci.share_start = kmalloc(65536, GFP_KERNEL))) {
+ 			printk(KERN_WARNING "HFC-PCI: Error allocating memory for FIFO!\n");
+ 			return 0;
+ 		}
+-		(ulong) cs->hw.hfcpci.fifos =
++		cs->hw.hfcpci.fifos = (void *)
+ 		    (((ulong) cs->hw.hfcpci.share_start) & ~0x7FFF) + 0x8000;
+ 		pcibios_write_config_dword(cs->hw.hfcpci.pci_bus,
+ 				       cs->hw.hfcpci.pci_device_fn, 0x80,
+--- 27rc5~/drivers/isdn/hysdn/hysdn_proclog.c
++++ 27rc5/drivers/isdn/hysdn/hysdn_proclog.c
+@@ -235,7 +235,7 @@
+ 		return (0);
+ 
+ 	inf->usage_cnt--;	/* new usage count */
+-	(struct log_data **) file->private_data = &inf->next;	/* next structure */
++	file->private_data = &inf->next;	/* next structure */
+ 	if ((len = strlen(inf->log_start)) <= count) {
+ 		if (copy_to_user(buf, inf->log_start, len))
+ 			return -EFAULT;
+@@ -278,9 +278,9 @@
+ 		cli();
+ 		pd->if_used++;
+ 		if (pd->log_head)
+-			(struct log_data **) filep->private_data = &(pd->log_tail->next);
++			filep->private_data = &pd->log_tail->next;
+ 		else
+-			(struct log_data **) filep->private_data = &(pd->log_head);
++			filep->private_data = &pd->log_head;
+ 		restore_flags(flags);
+ 	} else {		/* simultaneous read/write access forbidden ! */
+ 		unlock_kernel();
+--- 27rc5~/drivers/mtd/chips/cfi_cmdset_0001.c
++++ 27rc5/drivers/mtd/chips/cfi_cmdset_0001.c
+@@ -1201,13 +1201,25 @@
+ 	/* Write data */
+ 	for (z = 0; z < len; z += CFIDEV_BUSWIDTH) {
+ 		if (cfi_buswidth_is_1()) {
+-			map->write8 (map, *((__u8*)buf)++, adr+z);
++			u8 *b = (u8 *)buf;
++
++			map->write8 (map, *b++, adr+z);
++			buf = (const u_char *)b;
+ 		} else if (cfi_buswidth_is_2()) {
+-			map->write16 (map, *((__u16*)buf)++, adr+z);
++			u16 *b = (u16 *)buf;
++
++			map->write16 (map, *b++, adr+z);
++			buf = (const u_char *)b;
+ 		} else if (cfi_buswidth_is_4()) {
+-			map->write32 (map, *((__u32*)buf)++, adr+z);
++			u32 *b = (u32 *)buf;
++
++			map->write32 (map, *b++, adr+z);
++			buf = (const u_char *)b;
+ 		} else if (cfi_buswidth_is_8()) {
+-			map->write64 (map, *((__u64*)buf)++, adr+z);
++			u64 *b = (u64 *)buf;
++
++			map->write64 (map, *b++, adr+z);
++			buf = (const u_char *)b;
+ 		} else {
+ 			DISABLE_VPP(map);
+ 			ret = -EINVAL;
+--- 27rc5~/drivers/mtd/chips/cfi_cmdset_0020.c
++++ 27rc5/drivers/mtd/chips/cfi_cmdset_0020.c
+@@ -540,11 +540,20 @@
+ 	/* Write data */
+ 	for (z = 0; z < len; z += CFIDEV_BUSWIDTH) {
+ 		if (cfi_buswidth_is_1()) {
+-			map->write8 (map, *((__u8*)buf)++, adr+z);
++			u8 *b = (u8 *)buf;
++
++			map->write8 (map, *b++, adr+z);
++			buf = (const u_char *)b;
+ 		} else if (cfi_buswidth_is_2()) {
+-			map->write16 (map, *((__u16*)buf)++, adr+z);
++			u16 *b = (u16 *)buf;
++
++			map->write16 (map, *b++, adr+z);
++			buf = (const u_char *)b;
+ 		} else if (cfi_buswidth_is_4()) {
+-			map->write32 (map, *((__u32*)buf)++, adr+z);
++			u32 *b = (u32 *)buf;
++
++			map->write32 (map, *b++, adr+z);
++			buf = (const u_char *)b;
+ 		} else {
+ 			DISABLE_VPP(map);
+ 			return -EINVAL;
+--- 27rc5~/drivers/mtd/maps/elan-104nc.c
++++ 27rc5/drivers/mtd/maps/elan-104nc.c
+@@ -147,7 +147,7 @@
+ 		elan_104nc_page(map, from);
+ 		memcpy_fromio(to, iomapadr + (from & WINDOW_MASK), thislen);
+ 		spin_unlock(&elan_104nc_spin);
+-		(__u8*)to += thislen;
++		to += thislen;
+ 		from += thislen;
+ 		len -= thislen;
+ 	}
+--- 27rc5~/drivers/mtd/maps/sbc_gxx.c
++++ 27rc5/drivers/mtd/maps/sbc_gxx.c
+@@ -155,7 +155,7 @@
+ 		sbc_gxx_page(map, from);
+ 		memcpy_fromio(to, iomapadr + (from & WINDOW_MASK), thislen);
+ 		spin_unlock(&sbc_gxx_spin);
+-		(__u8*)to += thislen;
++		to += thislen;
+ 		from += thislen;
+ 		len -= thislen;
+ 	}
+--- 27rc5~/drivers/net/bonding/bond_alb.c
++++ 27rc5/drivers/net/bonding/bond_alb.c
+@@ -1275,7 +1275,7 @@
+ int bond_alb_xmit(struct sk_buff *skb, struct net_device *bond_dev)
+ {
+ 	struct bonding *bond = bond_dev->priv;
+-	struct ethhdr *eth_data = (struct ethhdr *)skb->mac.raw = skb->data;
++	struct ethhdr *eth_data;
+ 	struct alb_bond_info *bond_info = &(BOND_ALB_INFO(bond));
+ 	struct slave *tx_slave = NULL;
+ 	static u32 ip_bcast = 0xffffffff;
+@@ -1285,6 +1285,9 @@
+ 	u8 *hash_start = NULL;
+ 	int res = 1;
+ 
++	skb->mac.raw = (unsigned char *)skb->data;
++	eth_data = (struct ethhdr *)skb->data;
++
+ 	/* make sure that the curr_active_slave and the slaves list do
+ 	 * not change during tx
+ 	 */
+--- 27rc5~/drivers/net/e100/e100.h
++++ 27rc5/drivers/net/e100/e100.h
+@@ -501,7 +501,7 @@
+ 	u8 scb_fc_thld;	/* Flow Control threshold */
+ 	u8 scb_fc_xon_xoff;	/* Flow Control XON/XOFF values */
+ 	u8 scb_pmdr;	/* Power Mgmt. Driver Reg */
+-} d101_scb_ext __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) d101_scb_ext;
+ 
+ /* Changed for 82559 enhancement */
+ typedef struct _d101m_scb_ext_t {
+@@ -517,7 +517,7 @@
+ 	u32 scb_function_event_mask;	/* Cardbus Function Mask */
+ 	u32 scb_function_present_state;	/* Cardbus Function state */
+ 	u32 scb_force_event;	/* Cardbus Force Event */
+-} d101m_scb_ext __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) d101m_scb_ext;
+ 
+ /* Changed for 82550 enhancement */
+ typedef struct _d102_scb_ext_t {
+@@ -536,7 +536,7 @@
+ 	u32 scb_function_event_mask;	/* Cardbus Function Mask */
+ 	u32 scb_function_present_state;	/* Cardbus Function state */
+ 	u32 scb_force_event;	/* Cardbus Force Event */
+-} d102_scb_ext __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) d102_scb_ext;
+ 
+ /*
+  * 82557 status control block. this will be memory mapped & will hang of the
+@@ -558,7 +558,7 @@
+ 		d101m_scb_ext d101m_scb;	/* 82559 specific fields */
+ 		d102_scb_ext d102_scb;
+ 	} scb_ext;
+-} scb_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) scb_t;
+ 
+ /* Self test
+  * This is used to dump results of the self test 
+@@ -566,7 +566,7 @@
+ typedef struct _self_test_t {
+ 	u32 st_sign;	/* Self Test Signature */
+ 	u32 st_result;	/* Self Test Results */
+-} self_test_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) self_test_t;
+ 
+ /* 
+  *  Statistical Counters 
+@@ -649,39 +649,39 @@
+ 	u16 cb_status;	/* Command Block Status */
+ 	u16 cb_cmd;	/* Command Block Command */
+ 	u32 cb_lnk_ptr;	/* Link To Next CB */
+-} cb_header_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) cb_header_t;
+ 
+ //* Individual Address Command Block (IA_CB)*/
+ typedef struct _ia_cb_t {
+ 	cb_header_t ia_cb_hdr;
+ 	u8 ia_addr[ETH_ALEN];
+-} ia_cb_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) ia_cb_t;
+ 
+ /* Configure Command Block (CONFIG_CB)*/
+ typedef struct _config_cb_t {
+ 	cb_header_t cfg_cbhdr;
+ 	u8 cfg_byte[CB_CFIG_BYTE_COUNT + CB_CFIG_D102_BYTE_COUNT];
+-} config_cb_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) config_cb_t;
+ 
+ /* MultiCast Command Block (MULTICAST_CB)*/
+ typedef struct _multicast_cb_t {
+ 	cb_header_t mc_cbhdr;
+ 	u16 mc_count;	/* Number of multicast addresses */
+ 	u8 mc_addr[(ETH_ALEN * MAX_MULTICAST_ADDRS)];
+-} mltcst_cb_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) mltcst_cb_t;
+ 
+ #define UCODE_MAX_DWORDS	134
+ /* Load Microcode Command Block (LOAD_UCODE_CB)*/
+ typedef struct _load_ucode_cb_t {
+ 	cb_header_t load_ucode_cbhdr;
+ 	u32 ucode_dword[UCODE_MAX_DWORDS];
+-} load_ucode_cb_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) load_ucode_cb_t;
+ 
+ /* Load Programmable Filter Data*/
+ typedef struct _filter_cb_t {
+ 	cb_header_t filter_cb_hdr;
+ 	u32 filter_data[MAX_FILTER];
+-} filter_cb_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) filter_cb_t;
+ 
+ /* NON_TRANSMIT_CB -- Generic Non-Transmit Command Block 
+  */
+@@ -693,7 +693,7 @@
+ 		mltcst_cb_t multicast;
+ 		filter_cb_t filter;
+ 	} ntcb;
+-} nxmit_cb_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) nxmit_cb_t;
+ 
+ /*Block for queuing for postponed execution of the non-transmit commands*/
+ typedef struct _nxmit_cb_entry_t {
+@@ -724,7 +724,7 @@
+ 	u32 tbd_buf_addr;	/* Physical Transmit Buffer Address */
+ 	u16 tbd_buf_cnt;	/* Actual Count Of Bytes */
+ 	u16 padd;
+-} tbd_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) tbd_t;
+ 
+ /* d102 specific fields */
+ typedef struct _tcb_ipcb_t {
+@@ -743,7 +743,7 @@
+ 		u16 tbd_zero_size;
+ 	} tbd_sec_size;
+ 	u16 total_tcp_payload;
+-} tcb_ipcb_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) tcb_ipcb_t;
+ 
+ #define E100_TBD_ARRAY_SIZE (2+MAX_SKB_FRAGS)
+ 
+@@ -806,7 +806,7 @@
+ 	u32 rbd_rcb_addr;	/* Receive Buffer Address */
+ 	u16 rbd_sz;	/* Receive Buffer Size */
+ 	u16 rbd_filler1;
+-} rbd_t __attribute__ ((__packed__));
++} __attribute__ ((__packed__)) rbd_t;
+ 
+ /*
+  * This structure is used to maintain a FIFO access to a resource that is 
+--- 27rc5~/drivers/net/ne2k-pci.c
++++ 27rc5/drivers/net/ne2k-pci.c
+@@ -505,8 +505,12 @@
+ 		insl(NE_BASE + NE_DATAPORT, buf, count>>2);
+ 		if (count & 3) {
+ 			buf += count & ~3;
+-			if (count & 2)
+-				*((u16*)buf)++ = le16_to_cpu(inw(NE_BASE + NE_DATAPORT));
++			if (count & 2) {
++				u16 *b = (u16 *)buf;
++
++				*b++ = le16_to_cpu(inw(NE_BASE + NE_DATAPORT));
++				buf = (char *)b;
++			}
+ 			if (count & 1)
+ 				*buf = inb(NE_BASE + NE_DATAPORT);
+ 		}
+@@ -566,8 +570,12 @@
+ 		outsl(NE_BASE + NE_DATAPORT, buf, count>>2);
+ 		if (count & 3) {
+ 			buf += count & ~3;
+-			if (count & 2)
+-				outw(cpu_to_le16(*((u16*)buf)++), NE_BASE + NE_DATAPORT);
++			if (count & 2) {
++				u16 *b = (u16 *)buf;
++
++				outw(cpu_to_le16(*b++), NE_BASE + NE_DATAPORT);
++				buf = (char *)b;
++			}
+ 		}
+ 	}
+ 
+--- 27rc5~/drivers/net/wan/sdladrv.c
++++ 27rc5/drivers/net/wan/sdladrv.c
+@@ -1002,7 +1002,7 @@
+                         peek_by_4 ((unsigned long)hw->dpmbase + curpos, buf,
+ 				curlen);
+                         addr       += curlen;
+-                        (char*)buf += curlen;
++                        buf         = (void*)buf + curlen;
+                         len        -= curlen;
+                 }
+ 
+@@ -1086,7 +1086,7 @@
+                         poke_by_4 ((unsigned long)hw->dpmbase + curpos, buf,
+ 				curlen);
+ 	                addr       += curlen;
+-                        (char*)buf += curlen;
++                        buf         = (void*)buf + curlen;
+                         len        -= curlen;
+                 }
+ 
+@@ -2130,7 +2130,7 @@
+ 	(void *)hw->dpmbase = ioremap((unsigned long)S514_mem_base_addr,
+ 		(unsigned long)MAX_SIZEOF_S514_MEMORY);
+     	/* map the physical control register memory to virtual memory */
+-	(void *)hw->vector = ioremap(
++	hw->vector = (unsigned long)ioremap(
+ 		(unsigned long)(S514_mem_base_addr + S514_CTRL_REG_BYTE),
+ 		(unsigned long)16);
+      
+--- 27rc5~/drivers/net/wan/sdla_fr.c
++++ 27rc5/drivers/net/wan/sdla_fr.c
+@@ -3929,7 +3929,7 @@
+                                 break;
+                         }
+ 
+-			(void *)ptr_trc_el = card->u.f.curr_trc_el;
++			ptr_trc_el = card->u.f.curr_trc_el;
+ 
+                         buffer_length = 0;
+ 			fr_udp_pkt->data[0x00] = 0x00;
+@@ -3980,7 +3980,7 @@
+                                
+ 				ptr_trc_el ++;
+ 				if((void *)ptr_trc_el > card->u.f.trc_el_last)
+-					(void*)ptr_trc_el = card->u.f.trc_el_base;
++					ptr_trc_el = card->u.f.trc_el_base;
+ 
+ 				buffer_length += sizeof(fpipemon_trc_hdr_t);
+                                	if(fpipemon_trc->fpipemon_trc_hdr.data_passed) {
+--- 27rc5~/drivers/net/wan/sdlamain.c
++++ 27rc5/drivers/net/wan/sdlamain.c
+@@ -1027,7 +1027,7 @@
+                       #endif
+                         dump.length     -= len;
+                         dump.offset     += len;
+-                        (char*)dump.ptr += len;
++                        dump.ptr         = (void*)dump.ptr + len;
+                 }
+ 		
+                 sdla_mapmem(&card->hw, oldvec);/* restore DPM window position */
+--- 27rc5~/drivers/scsi/advansys.c
++++ 27rc5/drivers/scsi/advansys.c
+@@ -6118,8 +6118,8 @@
+     } else {
+         /* Append to 'done_scp' at the end with 'last_scp'. */
+         ASC_ASSERT(last_scp != NULL);
+-        REQPNEXT(last_scp) = asc_dequeue_list(&boardp->active,
+-            &new_last_scp, ASC_TID_ALL);
++        last_scp->host_scribble = (unsigned char *)asc_dequeue_list(
++			&boardp->active, &new_last_scp, ASC_TID_ALL);
+         if (new_last_scp != NULL) {
+             ASC_ASSERT(REQPNEXT(last_scp) != NULL);
+             for (tscp = REQPNEXT(last_scp); tscp; tscp = REQPNEXT(tscp)) {
+@@ -6141,8 +6141,8 @@
+     } else {
+         /* Append to 'done_scp' at the end with 'last_scp'. */
+         ASC_ASSERT(last_scp != NULL);
+-        REQPNEXT(last_scp) = asc_dequeue_list(&boardp->waiting,
+-            &new_last_scp, ASC_TID_ALL);
++        last_scp->host_scribble = (unsigned char *)asc_dequeue_list(
++			&boardp->waiting, &new_last_scp, ASC_TID_ALL);
+         if (new_last_scp != NULL) {
+             ASC_ASSERT(REQPNEXT(last_scp) != NULL);
+             for (tscp = REQPNEXT(last_scp); tscp; tscp = REQPNEXT(tscp)) {
+@@ -6394,8 +6394,8 @@
+                     ASC_TID_ALL);
+             } else {
+                 ASC_ASSERT(last_scp != NULL);
+-                REQPNEXT(last_scp) = asc_dequeue_list(&boardp->done,
+-                    &new_last_scp, ASC_TID_ALL);
++                last_scp->host_scribble = (unsigned char *)asc_dequeue_list(
++			&boardp->done, &new_last_scp, ASC_TID_ALL);
+                 if (new_last_scp != NULL) {
+                     ASC_ASSERT(REQPNEXT(last_scp) != NULL);
+                     last_scp = new_last_scp;
+@@ -6466,7 +6466,7 @@
+     while (scp != NULL) {
+         ASC_DBG1(3, "asc_scsi_done_list: scp 0x%lx\n", (ulong) scp);
+         tscp = REQPNEXT(scp);
+-        REQPNEXT(scp) = NULL;
++        scp->host_scribble = NULL;
+         ASC_STATS(scp->host, done);
+         ASC_ASSERT(scp->scsi_done != NULL);
+         scp->scsi_done(scp);
+@@ -7511,7 +7511,7 @@
+     tid = REQPTID(reqp);
+     ASC_ASSERT(tid >= 0 && tid <= ADV_MAX_TID);
+     if (flag == ASC_FRONT) {
+-        REQPNEXT(reqp) = ascq->q_first[tid];
++        reqp->host_scribble = (unsigned char *)ascq->q_first[tid];
+         ascq->q_first[tid] = reqp;
+         /* If the queue was empty, set the last pointer. */
+         if (ascq->q_last[tid] == NULL) {
+@@ -7519,10 +7519,10 @@
+         }
+     } else { /* ASC_BACK */
+         if (ascq->q_last[tid] != NULL) {
+-            REQPNEXT(ascq->q_last[tid]) = reqp;
++            ascq->q_last[tid]->host_scribble = (unsigned char *)reqp;
+         }
+         ascq->q_last[tid] = reqp;
+-        REQPNEXT(reqp) = NULL;
++        reqp->host_scribble = NULL;
+         /* If the queue was empty, set the first pointer. */
+         if (ascq->q_first[tid] == NULL) {
+             ascq->q_first[tid] = reqp;
+@@ -7643,7 +7643,7 @@
+                     lastp = ascq->q_last[i];
+                 } else {
+                     ASC_ASSERT(lastp != NULL);
+-                    REQPNEXT(lastp) = ascq->q_first[i];
++                    lastp->host_scribble = (unsigned char *)ascq->q_first[i];
+                     lastp = ascq->q_last[i];
+                 }
+                 ascq->q_first[i] = ascq->q_last[i] = NULL;
+@@ -7721,8 +7721,8 @@
+              currp; prevp = currp, currp = REQPNEXT(currp)) {
+             if (currp == reqp) {
+                 ret = ASC_TRUE;
+-                REQPNEXT(prevp) = REQPNEXT(currp);
+-                REQPNEXT(reqp) = NULL;
++                prevp->host_scribble = (unsigned char *)REQPNEXT(currp);
++                reqp->host_scribble = NULL;
+                 if (ascq->q_last[tid] == reqp) {
+                     ascq->q_last[tid] = prevp;
+                 }
+--- 27rc5~/drivers/scsi/dpt_i2o.c
++++ 27rc5/drivers/scsi/dpt_i2o.c
+@@ -434,7 +434,7 @@
+ 			cmd->scsi_done(cmd);
+ 			return 0;
+ 		}
+-		(struct adpt_device*)(cmd->device->hostdata) = pDev;
++		cmd->device->hostdata = pDev;
+ 	}
+ 	pDev->pScsi_dev = cmd->device;
+ 
+@@ -2194,7 +2194,7 @@
+ 		printk ("%s: scsi_register returned NULL\n",pHba->name);
+ 		return -1;
+ 	}
+-	(adpt_hba*)(host->hostdata[0]) = pHba;
++	host->hostdata[0] = (unsigned long)pHba;
+ 	pHba->host = host;
+ 
+ 	host->irq = pHba->pDev->irq;;
+--- 27rc5~/drivers/scsi/seagate.c
++++ 27rc5/drivers/scsi/seagate.c
+@@ -698,7 +698,7 @@
+ 	done_fn = done;
+ 	current_target = SCpnt->target;
+ 	current_lun = SCpnt->lun;
+-	(const void *) current_cmnd = SCpnt->cmnd;
++	current_cmnd = SCpnt->cmnd;
+ 	current_data = (unsigned char *) SCpnt->request_buffer;
+ 	current_bufflen = SCpnt->request_bufflen;
+ 	SCint = SCpnt;
+--- 27rc5~/drivers/usb/audio.c
++++ 27rc5/drivers/usb/audio.c
+@@ -609,7 +609,7 @@
+ 			pgrem = rem;
+ 		memcpy((db->sgbuf[db->wrptr >> PAGE_SHIFT]) + (db->wrptr & (PAGE_SIZE-1)), buffer, pgrem);
+ 		size -= pgrem;
+-		(char *)buffer += pgrem;
++		buffer += pgrem;
+ 		db->wrptr += pgrem;
+ 		if (db->wrptr >= db->dmasize)
+ 			db->wrptr = 0;
+@@ -632,7 +632,7 @@
+ 			pgrem = rem;
+ 		memcpy(buffer, (db->sgbuf[db->rdptr >> PAGE_SHIFT]) + (db->rdptr & (PAGE_SIZE-1)), pgrem);
+ 		size -= pgrem;
+-		(char *)buffer += pgrem;
++		buffer += pgrem;
+ 		db->rdptr += pgrem;
+ 		if (db->rdptr >= db->dmasize)
+ 			db->rdptr = 0;
+@@ -657,7 +657,7 @@
+ 		if (copy_from_user((db->sgbuf[ptr >> PAGE_SHIFT]) + (ptr & (PAGE_SIZE-1)), buffer, pgrem))
+ 			return -EFAULT;
+ 		size -= pgrem;
+-		(char *)buffer += pgrem;
++		buffer += pgrem;
+ 		ptr += pgrem;
+ 		if (ptr >= db->dmasize)
+ 			ptr = 0;
+@@ -682,7 +682,7 @@
+ 		if (copy_to_user(buffer, (db->sgbuf[ptr >> PAGE_SHIFT]) + (ptr & (PAGE_SIZE-1)), pgrem))
+ 			return -EFAULT;
+ 		size -= pgrem;
+-		(char *)buffer += pgrem;
++		buffer += pgrem;
+ 		ptr += pgrem;
+ 		if (ptr >= db->dmasize)
+ 			ptr = 0;
+--- 27rc5~/drivers/usb/hpusbscsi.c
++++ 27rc5/drivers/usb/hpusbscsi.c
+@@ -182,7 +182,7 @@
+ 
+ 	memcpy (&(new->ctempl), &hpusbscsi_scsi_host_template,
+ 		sizeof (hpusbscsi_scsi_host_template));
+-	(struct hpusbscsi *) new->ctempl.proc_dir = new;
++	new->ctempl.proc_dir = (void *)new;
+ 	new->ctempl.module = THIS_MODULE;
+ 
+ 	if (scsi_register_module (MODULE_SCSI_HA, &(new->ctempl)))
+--- 27rc5~/drivers/usb/microtek.c
++++ 27rc5/drivers/usb/microtek.c
+@@ -987,7 +987,7 @@
+ 	/* Initialize the host template based on the default one */
+ 	memcpy(&(new_desc->ctempl), &mts_scsi_host_template, sizeof(mts_scsi_host_template));
+ 	/* HACK from usb-storage - this is needed for scsi detection */
+-	(struct mts_desc *)new_desc->ctempl.proc_dir = new_desc; /* FIXME */
++	new_desc->ctempl.proc_dir = (void *)new_desc; /* FIXME */
+ 
+ 	MTS_DEBUG("registering SCSI module\n");
+ 
+--- 27rc5~/drivers/usb/uss720.c
++++ 27rc5/drivers/usb/uss720.c
+@@ -333,7 +333,7 @@
+ 	for (; got < length; got++) {
+ 		if (get_1284_register(pp, 4, (char *)buf))
+ 			break;
+-		((char*)buf)++;
++		buf++;
+ 		if (priv->reg[0] & 0x01) {
+ 			clear_epp_timeout(pp);
+ 			break;
+@@ -392,7 +392,7 @@
+ 	for (; got < length; got++) {
+ 		if (get_1284_register(pp, 3, (char *)buf))
+ 			break;
+-		((char*)buf)++;
++		buf++;
+ 		if (priv->reg[0] & 0x01) {
+ 			clear_epp_timeout(pp);
+ 			break;
+@@ -412,7 +412,7 @@
+ 	for (; written < length; written++) {
+ 		if (set_1284_register(pp, 3, *(char *)buf))
+ 			break;
+-		((char*)buf)++;
++		buf++;
+ 		if (get_1284_register(pp, 1, NULL))
+ 			break;
+ 		if (priv->reg[0] & 0x01) {
+@@ -469,7 +469,7 @@
+ 	for (; written < len; written++) {
+ 		if (set_1284_register(pp, 5, *(char *)buffer))
+ 			break;
+-		((char*)buffer)++;
++		buffer++;
+ 	}
+ 	change_mode(pp, ECR_PS2);
+ 	return written;
+--- 27rc5~/include/pcmcia/mem_op.h
++++ 27rc5/include/pcmcia/mem_op.h
+@@ -80,8 +80,12 @@
+     size_t odd = (n & 1);
+     n -= odd;
+     while (n) {
+-	*(u_short *)to = __raw_readw(from);
+-	(char *)to += 2; (char *)from += 2; n -= 2;
++	u_short *t = to;
++
++	*t = __raw_readw(from);
++	to = (void *)((long)to + 2);
++	from = (const void *)((long)from + 2);
++	n -= 2;
+     }
+     if (odd)
+ 	*(u_char *)to = readb(from);
+@@ -93,7 +97,9 @@
+     n -= odd;
+     while (n) {
+ 	__raw_writew(*(u_short *)from, to);
+-	(char *)to += 2; (char *)from += 2; n -= 2;
++	to = (void *)((long)to + 2);
++	from = (const void *)((long)from + 2);
++	n -= 2;
+     }
+     if (odd)
+ 	writeb(*(u_char *)from, to);
+@@ -105,7 +111,9 @@
+     n -= odd;
+     while (n) {
+ 	put_user(__raw_readw(from), (short *)to);
+-	(char *)to += 2; (char *)from += 2; n -= 2;
++	to = (void *)((long)to + 2);
++	from = (const void *)((long)from + 2);
++	n -= 2;
+     }
+     if (odd)
+ 	put_user(readb(from), (char *)to);
+@@ -120,7 +128,9 @@
+     while (n) {
+ 	get_user(s, (short *)from);
+ 	__raw_writew(s, to);
+-	(char *)to += 2; (char *)from += 2; n -= 2;
++	to = (void *)((long)to + 2);
++	from = (const void *)((long)from + 2);
++	n -= 2;
+     }
+     if (odd) {
+ 	get_user(c, (char *)from);
+
+--------------020909030704080701090409--

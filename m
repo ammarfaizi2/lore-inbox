@@ -1,63 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271044AbTGQCZb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 22:25:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271333AbTGQCZb
+	id S271334AbTGQCq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 22:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271335AbTGQCq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 22:25:31 -0400
-Received: from host.atlantavirtual.com ([209.239.35.47]:19135 "EHLO
-	host.atlantavirtual.com") by vger.kernel.org with ESMTP
-	id S271044AbTGQCZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 22:25:30 -0400
-Subject: Re: Partitioned loop device..
-From: kernel <kernel@crazytrain.com>
-Reply-To: kernel@crazytrain.com
-To: Josh Litherland <josh@emperorlinux.com>
-Cc: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030715155317.317B461FDE@sade.emperorlinux.com>
-References: <20030715155317.317B461FDE@sade.emperorlinux.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058409892.4211.29.camel@thong>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 16 Jul 2003 22:44:52 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jul 2003 22:46:27 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56076 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S271334AbTGQCqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 22:46:25 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
+Date: 16 Jul 2003 20:00:57 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bf53h9$ngo$1@cesium.transmeta.com>
+References: <20030716184609.GA1913@kroah.com> <20030716213451.GA1964@win.tue.nl> <20030716143902.4b26be70.akpm@osdl.org> <20030716222015.GB1964@win.tue.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josh
-
-coming in late on this thread, hope I'm not showing my better half.
-
-You may want to look at the work NASA has done on their enhanced
-loopback driver;
-
-ftp://ftp.hq.nasa.gov/pub/ig/ccd/enhanced_loopback/
-
-Allows you to take a physical image of a device (such as one created by
-'dd') and mount the logical volumes contained within, even if starting
-FS code is beyond the 2GB puke limit.   It will mount the volumes 'ro'
-for you.
-
-However, be careful if you need true 'ro' on the reiserfs and ext3
-filesystems.  So far in our testing mounting these 'ro' via loop device
-files (/dev/loop0, etc.) *fails*.  The journal count *is* incremented on
-the 'ro' filesystem and writes *can* still occur.
-
-cheers!
-
-farmerdude
-
-
-On Tue, 2003-07-15 at 11:53, Josh Litherland wrote:
-> In article <200307151001.44218.kevcorry@us.ibm.com> you wrote:
+Followup to:  <20030716222015.GB1964@win.tue.nl>
+By author:    Andries Brouwer <aebr@win.tue.nl>
+In newsgroup: linux.dev.kernel
+> > > 
+> > > 16-bit only: 8:8, otherwise 32-bit only: 16:16, otherwise 32:32.
 > 
-> > so there's not much of a reason to add partitioning support to the loop 
-> > driver itself.
+> > Why do we need the 16:16 option?
 > 
-> Working with sector images of hard drives?  I use Linux for data
-> recovery jobs and it would be very helpful to me to be able to look at
-> DOS partitions inside a loopback device.  As it is I must chunk it up
-> into seperate files by hand.
+> It is not very important, but major 0 is reserved, so if userspace
+> (or a filesystem) hands us a 32-bit device number, we have to
+> split that in some way, not 0+32. Life is easiest with 16+16.
+> (Now the major is nonzero, otherwise we had 8+8.)
+> Other choices lead to slightly more complicated code.
+> 
 
+I would still recommend the arrangement for 64-bit dev_t that I posted
+a while ago:
+
+dev_t<63:40> := major<31:8>
+dev_t<39:16> := minor<31:8>
+dev_t<15:8>  := major<7:0>
+dev_t<7:0>   := minor<7:0>
+
+No aliasing, no forbidden bit patterns, no conditional code, no need
+for magic numbers, and it's fully compatible with the current
+LSB-adjusted user space dev_t format. I also posted i386 code for the
+various operations to show that they really can be done with very
+little code.
+
+If you want, you can even make it 32-bit-friendly, although it makes
+it more complex; for example, this version would implement 32-bit with
+a 12:20 split:
+
+dev_t<63:44> := major<31:12>
+dev_t<43:32> := minor<31:20>
+dev_t<31:28> := major<11:8>
+dev_t<27:16> := minor<19:8>
+dev_t<15:8>  := major<7:0>
+dev_t<7:0>   := minor<7:0>
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+If you send me mail in HTML format I will assume it's spam.
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

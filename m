@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTEFVe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 17:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTEFVe1
+	id S261960AbTEFVeU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 17:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTEFVeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 17:34:27 -0400
-Received: from siaab1ab.compuserve.com ([149.174.40.2]:9619 "EHLO
-	siaab1ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S261965AbTEFVeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 17:34:25 -0400
-Date: Tue, 6 May 2003 17:44:37 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.5.68-mmX: Drowning in irq 7: nobody cared!
+	Tue, 6 May 2003 17:34:20 -0400
+Received: from zero.aec.at ([193.170.194.10]:46348 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261960AbTEFVeT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 17:34:19 -0400
+Date: Tue, 6 May 2003 23:45:38 +0200
+From: Andi Kleen <ak@muc.de>
 To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-ID: <200305061746_MC3-1-37B4-7931@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Cc: Andi Kleen <ak@muc.de>, bunk@fs.tum.de, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix .altinstructions linking failures
+Message-ID: <20030506214538.GA18532@averell>
+References: <20030506063055.GA15424@averell> <20030506164441.GO9794@fs.tum.de> <20030506195614.GA23831@averell> <20030506210831.GA18315@averell> <20030506142551.1f5619d6.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030506142551.1f5619d6.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Tue, May 06, 2003 at 11:25:51PM +0200, Andrew Morton wrote:
+> Andi Kleen <ak@muc.de> wrote:
 > >
-> > It seems the heuristic is more complicated
+> > On Tue, May 06, 2003 at 09:56:14PM +0200, Andi Kleen wrote:
+> > > The driver is buggy. The #ifdef MODULE needs to be removed and proc_cpia_destroy 
+> > > be marked __exit instead, then things will be ok.
+> > 
+> > FWIW I compiled a "maxi kernel" now (with everything that compiles compiled in) 
+> > and only cpia seems to have this bug. So with this patch things should be ok
+> > again.
 > 
-> Any suggestions?
+> Where should we be discarding .exit.data?  link-time or runtime?
 
+Run time is probably safer.
 
- Does this pseudocode look like it would work?  It should make it
-only complain if two or more interrupts in a row go unhandled.
-
-   
-int last_irq_was_dropped[NR_IRQS];
-
-/* call each handler in turn for this irq */
-
-for (each_driver(irq)) {
-        ret = call_driver();
-        if (ret == irq_handled) {
-                if (unlikely(last_irq_was_dropped[irq])
-                        last_irq_was_dropped[irq] = 0;
-                break;
-        }
-}
-if (ret != irq_handled) {
-        if (unlikely(last_irq_was_dropped[irq]))
-                complain();
-        else
-                last_irq_was_dropped[irq] = 1;
-}
+-Andi

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130435AbRCGIzS>; Wed, 7 Mar 2001 03:55:18 -0500
+	id <S130443AbRCGIzS>; Wed, 7 Mar 2001 03:55:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130444AbRCGIzI>; Wed, 7 Mar 2001 03:55:08 -0500
-Received: from servo.isi.edu ([128.9.160.111]:1032 "EHLO servo.isi.edu")
-	by vger.kernel.org with ESMTP id <S130435AbRCGIy5>;
-	Wed, 7 Mar 2001 03:54:57 -0500
-Message-Id: <200103070854.f278sBw06566@servo.isi.edu>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Mapping a piece of one process' addrspace to another? 
-In-Reply-To: Message from Alexander Viro <viro@math.psu.edu> 
-   of "Wed, 07 Mar 2001 03:40:58 EST." <Pine.GSO.4.21.0103070337560.2127-100000@weyl.math.psu.edu> 
+	id <S130435AbRCGIzJ>; Wed, 7 Mar 2001 03:55:09 -0500
+Received: from infis-gw.ts.infn.it ([140.105.7.230]:55300 "EHLO
+	sole.infis.univ.trieste.it") by vger.kernel.org with ESMTP
+	id <S130443AbRCGIyt>; Wed, 7 Mar 2001 03:54:49 -0500
+Date: Wed, 7 Mar 2001 09:54:10 +0100 (CET)
+From: Andrea Barisani <lcars@infis.univ.trieste.it>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.2 command execution hangs and then succeded after 2
+ minutes....!?
+Message-ID: <Pine.LNX.4.10.10103070944520.4593-100000@sole.infis.univ.trieste.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <6563.983955251.1@servo.isi.edu>
-Date: Wed, 07 Mar 2001 00:54:11 -0800
-From: Jeremy Elson <jelson@circlemud.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
->On Wed, 7 Mar 2001, Jeremy Elson wrote:
->
->> Right now, my code looks something like this: (it might make more
->> sense if you know that I've written a framework for writing user-space
->> device drivers... I'm going to be releasing it soon, hopefully after I
->> resolve this performance problem.  Or maybe before, if it's hard.)
->
->Ugh. Why not make that a named pipe and use zerocopy stuff for pipes?
->I.e. why bother with making it look like a character device rather than
->a FIFO?
+Hi, I've compiled and installd 2.4.2 on a my self-made linux distribution
+based on glibc-2.0 and a strange thing happens. When I invoke some
+binaries (for examples mc,pine,tar) for at least 2 minutes nothing
+happens, the execution appaerntly hangs but then the command start as
+normal. This happens only with a few set of commands that apparently have
+nothing in common, they are linked against the same libraries of many
+other commands that are working. I don't know what to think, I've used a
+kernel compiled on an other machine (that is known to build correctly 
+2.4.x kernels) but the problem remains so it is not my gcc-2.95 fault.
 
-Well, because it's a character device :-).  i.e,. the framework allows
-you to write a userspace program that services callbacks for character
-devices.  Inside the kernel, all open()/release()/ioctl()/etc calls
-for the device are proxied out to userspace where a library calls a
-userspace callback, and the result goes back to the kernel where it is
-then returned to the calling process.
+Does anyone has some ideas?
 
-The problem is just that to return data (instead of just a retval), as
-is needed for read and some ioctls, it leads to 3 copies as I
-described earlier. 
+Bye 
 
-BTW, where are the zerocopy patches for pipes?  Maybe I'm missing
-something but it seems that pipes inside the kernel are still
-implememented by copying into the kernel and then copying out.
-Whatever method the zerocopy pipes use is probably what I'm looking
-for though.
+-----------------------------------------------------------
+NE&T               Network Administrator & Security Officer 
+Area Science Park - S.S. 14 Km 163.5 Basovizza (TS) - Italy
+lcars@newtech.it  - PGP Key 0x8E21FE82 - +39 040 3757938
+-----------------------------------------------------------
+"How would you know I'm mad?" said Alice.
+"You must be,'said the Cat,'or you wouldn't have come here"
+-----------------------------------------------------------
 
--Jer

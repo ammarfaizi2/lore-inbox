@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130324AbRAHSvK>; Mon, 8 Jan 2001 13:51:10 -0500
+	id <S130633AbRAHSwu>; Mon, 8 Jan 2001 13:52:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130378AbRAHSvC>; Mon, 8 Jan 2001 13:51:02 -0500
-Received: from service.sh.cvut.cz ([147.32.127.214]:63500 "EHLO
-	service.sh.cvut.cz") by vger.kernel.org with ESMTP
-	id <S130164AbRAHSus>; Mon, 8 Jan 2001 13:50:48 -0500
-Date: Mon, 8 Jan 2001 19:44:34 +0100
-From: Michal Medvecky <M.Medvecky@sh.cvut.cz>
-To: linux-kernel@vger.kernel.org
-Subject: blinking vga card
-Message-ID: <20010108194434.D7673@devitka.sh.cvut.cz>
-Mail-Followup-To: linux-kernel@vger.rutgers.edu
+	id <S130894AbRAHSwk>; Mon, 8 Jan 2001 13:52:40 -0500
+Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:63478 "EHLO
+	stefan.sime.com") by vger.kernel.org with ESMTP id <S130633AbRAHSw1>;
+	Mon, 8 Jan 2001 13:52:27 -0500
+Date: Mon, 8 Jan 2001 19:51:40 +0100
+From: Stefan Traby <stefan@hello-penguin.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Stefan Traby <stefan@hello-penguin.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
+Message-ID: <20010108195140.A2051@stefan.sime.com>
+Reply-To: Stefan Traby <stefan@hello-penguin.com>
+In-Reply-To: <20010108192455.A1891@stefan.sime.com> <Pine.GSO.4.21.0101081332460.4061-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-X-Mailer: Mutt 1.0pre3us
-X-Mailer: Mutt http://www.mutt.org/
-X-Location: 9/333
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0101081332460.4061-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Jan 08, 2001 at 01:33:50PM -0500
+Organization: Stefan Traby Services && Consulting
+X-Operating-System: Linux 2.4.0-fijiji0 (i686)
+X-APM: 100% 400 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+On Mon, Jan 08, 2001 at 01:33:50PM -0500, Alexander Viro wrote:
+> 
+> On Mon, 8 Jan 2001, Stefan Traby wrote:
+> 
+> > On Mon, Jan 08, 2001 at 01:22:49PM -0500, Alexander Viro wrote:
+> > 
+> > > Here's another one: suppose that /foo is a mountpoint and you have
+> > > no read permissions on it. Try to open the thing...
+> > 
+> > I would return EACCESS.
+> > [EACCES]
+> >           Search permission is denied for a component of the path prefix.
+> 
+> And prefix would be what? "/"? Besides, I said that you don't have
+> read permissions on /foo, not search ones.
 
-I have following problem:
-when I make big load on my PC, my monitor starts blinking in XFree 4.0.2 (precompiled binaries from xfree86.org), and does not stop until reboot.
-It has been blinking on 4.0.0, so I upgraded to 4.0.1 and then to 4.0.2, and problem persists.
-I have first tried to replace VGA card with another one. It did not help.
-Then, I've tried to recompile kernel without support of APM and other problematic things - but it still persists.
-I've tried to underclock RAM and CPU. No solution. It still blinks.
-Because I have this problem also with XFree 3.3.x, I think that problem is in kernel. The problem does not seem to exist in Microsoft Windows 9x, so I think it is not hardware problem.
+And what ?
 
-Do you have any idea where the problem may be?
+--------------------------------------------------
+changing errno. If the implementation needs to use path to
+determine the value of name and the implementation does not support
+the association of name with the file specified by path, or if the
+process did not have appropriate privileges to query the file
+specified by path, or path does not exist, pathconf() returns -1
+and errno is set to indicate the error.
+--------------------------------------------------
+                                
+So this is case is covered.
 
-I have AMD Athlon 650MHZ, 128mb ram (133mhz), Epox KX-7 with via chipset, RIVA TNT M64 with 32MB RAM. I'm using slackware-7.1 with kernel 2.2.18, patched with agpgart, stealth patch and openwall. 
+-- 
 
-Thank you very much
+  ciao - 
+    Stefan
 
-Michal Medvecky
-
+"     ( cd /lib ; ln -s libBrokenLocale-2.2.so libNiedersachsen.so )     "
+    
+Stefan Traby                Linux/ia32               fax:  +43-3133-6107-9
+Mitterlasznitzstr. 13       Linux/alpha            phone:  +43-3133-6107-2
+8302 Nestelbach             Linux/sparc       http://www.hello-penguin.com
+Austria                                    mailto://st.traby@opengroup.org
+Europe                                   mailto://stefan@hello-penguin.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

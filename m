@@ -1,100 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUGLUrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbUGLUsu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUGLUrS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 16:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbUGLUrS
+	id S262873AbUGLUsu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 16:48:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUGLUsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 16:47:18 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:49044 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S262114AbUGLUrI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 16:47:08 -0400
-Message-Id: <200407122047.i6CKl6XR002663@localhost.localdomain>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: desktop and multimedia as an afterthought? 
-In-reply-to: Your message of "Mon, 12 Jul 2004 15:12:04 EDT."
-             <Pine.LNX.4.44.0407121507530.20260-100000@coffee.psychology.mcmaster.ca> 
-Date: Mon, 12 Jul 2004 16:47:06 -0400
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.151.61.237] at Mon, 12 Jul 2004 15:47:07 -0500
+	Mon, 12 Jul 2004 16:48:50 -0400
+Received: from mail.njit.edu ([128.235.251.173]:18396 "EHLO mail-gw5.njit.edu")
+	by vger.kernel.org with ESMTP id S263003AbUGLUsW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 16:48:22 -0400
+Date: Mon, 12 Jul 2004 16:48:17 -0400 (EDT)
+From: rahul b jain cs student <rbj2@oak.njit.edu>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: Kernel Traffic Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: printk functionality
+In-Reply-To: <Pine.LNX.4.56.0407122200470.24721@jjulnx.backbone.dif.dk>
+Message-ID: <Pine.GSO.4.58.0407121635580.13766@chrome.njit.edu>
+References: <Pine.GSO.4.58.0407121516320.8220@chrome.njit.edu>
+ <Pine.LNX.4.56.0407122200470.24721@jjulnx.backbone.dif.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I could be wrong, but it seems to me that at least a part of the kernel
->> development team has the desktop and multimedia issues very low on the
->> priority list.
+I want to collect data for a graph. For this I need to collect values of a
+TCP flow. For this reason, I feel making a change in syslog.conf wont be
+sufficient as I dont want the other kernel messages.
+
+I was thinking, if I could add a new option like KERN_INFO, say
+KERN_GRAPH, then I could call printk as
+
+printk(KERN_GRAPH "data");
+
+to collect all the required data and KERN_GRAPH would then add all this
+data to a seperate file. By kernel defined files, I meant that KERN_INFO
+always writes to /var/log/messages etc.
+
+Any suggestions ??
+
+Thanks,
+Rahul.
+
+On Mon, 12 Jul 2004, Jesper Juhl wrote:
+
 >
->no, that implies that desktop/media is somehow opposed to other development.
->that's the real issue: is there some reason to believe that this opposition
->exists, that tuning for desktop/media is tuning away from other serverish
->uses?  people like Linus want to push the agenda that the same kernel can 
->do both, until there's some definitive proof otherwise.
-
-there's no definitive proof, but one can say up front that the demands
-have long been recognized as fairly different, and that tends to leads
-to different design strategies which in turn can compromise the
-response to the demands.
-
-the key characteristic of multimedia work, audio and video in
-particular (realtime 3d postscript-driven sculpture devices are still
-rare at this point) is that it needs to satisfy pseudo-hard realtime
-deadlines. i say pseudo only because nobody dies if the deadlines are
-missed. you miss the deadline for an audio device just once, and the
-entire group of people listening to the output can hear it loud and
-clear. 
-
-the serverish space never has this requirement. the main requirement
-there is stability and throughput, where throughput generally
-considers of delivery varying-sized chunks of data to a network
-interface as a result of various types of network-delivered
-requests. a server has only one catastrophic condition: failure to
-serve requests. degradation in performance is expected as load rises,
-and although tweaks may change the curve, its considered OK for a
-machine to perform variably as a server depending on the load. 
-
-the focus on the second of these two quite different sets of
-performance requirements tends to push the kernel in one direction,
-with occasional major concessions to the other. more abstractly, the
-tension tends to be characterized as between throughput and response
-("latency"), but this is excessively simplistic. audio work (and to
-some extent video as well) requires deadline satisfaction, serverish
-work requires predictable degradation in response to workload. these
-are not inherently opposed to each other, but measuring the behaviour
-of one rarely touches the behaviour of the other.
-
->> The CK patches floated around as separate patches for a long time, even
->> though they brought significant improvements to the kernel w.r.t.
->> desktop and media.
+> On Mon, 12 Jul 2004, rahul b jain cs student wrote:
 >
->how do you show this?  measured how, under what load, with what
->> benefits?
-
-the classic example is benno sennoner's latencytest, which has been
-cited in all the reports here on latency issues, along with andrew
-mortons schedlat utilities like realfeel.
-
-at the RMLL/LSM in bordeaux last week, takashi iwai of the alsa
-project demonstrated very convincingly that the isochronous scheduler
-(for example) is of major benefit to non-SCHED_{FIFO,RR} media
-applications. this is just for stuff like people running xmms and its
-cousins while doing other work.
-
-there really is no room for disagreement here: every linux developer
-and user who does serious audio work runs a patched kernel and sees
-clearly measurable (and in some cases, absolutely required) benefits.
-
->> And rightly so. If i reboot my computer into Windows and perform the
->> same multimedia tasks, there are fewer chances of it skipping frames or
+> > Hi everyone,
+> >
+> > I want to add functionality to the printk function such that I can read
+> > values off sk_buff and print them to a file specified by me rather than
+> > the kernel defined files. So what I want to do is add a new option
+> > like KERN_INFO.
+> >
+> > Does anyone know of a documentation or has ideas on how I can go about
+> > doing this ?
+> >
 >
->this normally shows only that windows drivers are better.
-
-this is an absurd claim. i suppose that beos' outstanding performance
-with media, or the excellent performance of osx simply shows that
-their drivers are better? when JACK was ported to OSX, it somewhat
-embarassingly performed better on OSX than it does on Linux. thats not
-because of device drivers, its because the Mach part of Darwin has
-superb facilities to support the kind of stuff that JACK needs.
-
---p
-
+> I may be misunderstanding what you are trying to do, but it sounds to me
+> like you would only need to edit /ets/syslog.conf and tell it to dump
+> kernel messages in your own file.. Why change the kernel for this?
+>
+> --
+> Jesper Juhl <juhl-lkml@dif.dk>
+>

@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262302AbSJ0Hl5>; Sun, 27 Oct 2002 02:41:57 -0500
+	id <S262303AbSJ0IKS>; Sun, 27 Oct 2002 03:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262303AbSJ0Hl5>; Sun, 27 Oct 2002 02:41:57 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:25100 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S262302AbSJ0Hl4>;
-	Sun, 27 Oct 2002 02:41:56 -0500
-Date: Sun, 27 Oct 2002 08:48:09 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Miles Bader <miles@gnu.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]: linux-2.5.44uc1 (MMU-less support)
-Message-ID: <20021027074809.GA985@mars.ravnborg.org>
-Mail-Followup-To: Miles Bader <miles@gnu.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <fa.fd5mvtv.9gon33@ifi.uio.no> <87iszosf2g.fsf@tc-1-100.kawasaki.gol.ne.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87iszosf2g.fsf@tc-1-100.kawasaki.gol.ne.jp>
-User-Agent: Mutt/1.4i
+	id <S262304AbSJ0IKS>; Sun, 27 Oct 2002 03:10:18 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:22455 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S262303AbSJ0IKR>;
+	Sun, 27 Oct 2002 03:10:17 -0500
+Message-ID: <3DBBAEF7.7060507@colorfullife.com>
+Date: Sun, 27 Oct 2002 10:16:39 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: KORN Andras <korn-linuxkernel@chardonnay.math.bme.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4 very slow memory access on abit kd7raid (kt400); ten times
+ slower than on kg7raid
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 27, 2002 at 01:04:07PM +0900, Miles Bader wrote:
-> It may be more readable, but I don't think you can say it's the `normal way
-> of doing it,' at least in linux -- almost all the arch Makefiles have code
-> pretty much identical to Greg's (presumably all derived from a single
-> original source).
-> 
-> Perhaps they should all be changed.
-Well, most arch Makefiles could use some cleaning up - also with respect
-to te construct above. My point was that there is no need to list
-prerequisites as several rules when they can be combined as one.
-And the fact that a temporary is generated could well be hidden.
-By the way I made a mistake, it should be:
+It could be a bug in the memory detection. I had a similar problem with 
+one PC-chips board.
 
-include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
-                                 include/asm include/linux/version.h \
-                                 include/config/MARKER
-	@echo -n '  Generating $@'
-	@$(generate-asm-offsets.h) < $< > $@.tmp
-	@$(update-if-changed)
+Could you check if
+- an explicit "mem=63m" line helps?
+- disabling all power management in the bios help?
 
-	Sam
+--
+    Manfred
+

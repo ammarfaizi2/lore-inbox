@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbVCICOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVCICO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262229AbVCICOF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 21:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVCICAR
+	id S262308AbVCICO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 21:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVCICO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 21:00:17 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:7033 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S262301AbVCIBzd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 20:55:33 -0500
-Date: Tue, 08 Mar 2005 19:54:46 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: select(2), usbserial, tty's and disconnect
-In-reply-to: <3FPL5-7pH-29@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <422E5766.3040104@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <3FPL5-7pH-29@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Tue, 8 Mar 2005 21:14:26 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:7446 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262326AbVCIB76 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 20:59:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=deER7gzQLCENVQUYGCGk00PkOHVNKf9K9DNmkUhPQ1Th2zgZKqHoSMOHSblI47o6kJGuvZxDbV4ayDzbQvdlJydpGoGfnI0BkkrQKdXh0E9d05vw44VYVGFSbmpL4hJOvZQJYB+CW65wkPqSj/kdSGqGn+Wp79K52OKB8jeZgNA=
+Message-ID: <d05c4df705030817591b86ea92@mail.gmail.com>
+Date: Tue, 8 Mar 2005 17:59:48 -0800
+From: Venkat Ramakrishnan <venkatkr@gmail.com>
+Reply-To: Venkat Ramakrishnan <venkatkr@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Large Page Support for ARM (Intel Xscale)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Pommnitz wrote:
-> Hello all,
-> currently it seems that select keeps blocking when the USB device behind
-> ttyUSBx gets unplugged. My understanding is, that select should return
-> when the next call to one of the operations (read/write) will not block.
-> This is certainly true for failing with ENODEV. So, is this an issue
-> that will be fixed or should I poll (not the syscall) the device? Or is 
-> there another way to monitor for a vanishing tty (it should not be USB 
-> specific).
+Hello,
 
-If you just do a blocking read() on the USB serial port, what happens 
-when you pull the device? At one point (2.4.20 is the last I checked) 
-nothing happened when you did this, the process would just sit there 
-forever. There was discussion at one point about doing a tty_hangup() 
-when the USB device was disconnected (this causes the read() to return 
-with 0 bytes and future open attempts to fail), and a patch was put out 
-to do this. I thought this had been merged, but I could be wrong.
+I am looking for Large Page Implmentation (similar to the hugetlb
+effort) for ARM processors, specifically Xscale. Is there an ongoing
+project any one can point me to?  I tried searching for before posting
+this message but couldn't find anything relevant. If this questions
+had already been asked, please bear with me and point me to the right
+URL.
 
-I should think that if that works, then your select should be working as 
-well..
+I am not subscribed to this list. So please include me in your replies.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
-
+Thanks,
+Venkat

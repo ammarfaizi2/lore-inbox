@@ -1,39 +1,92 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317010AbSFFQvj>; Thu, 6 Jun 2002 12:51:39 -0400
+	id <S317011AbSFFQyn>; Thu, 6 Jun 2002 12:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317011AbSFFQvi>; Thu, 6 Jun 2002 12:51:38 -0400
-Received: from smtp.WPI.EDU ([130.215.24.62]:10770 "EHLO smtp.WPI.EDU")
-	by vger.kernel.org with ESMTP id <S317010AbSFFQvh>;
-	Thu, 6 Jun 2002 12:51:37 -0400
-Date: Thu, 6 Jun 2002 12:51:38 -0400 (EDT)
-From: "Brian J. Conway" <bconway@WPI.EDU>
-To: linux-kernel@vger.kernel.org
-Subject: Promise Ultra100 hang
-Message-ID: <Pine.OSF.4.43.0206061239390.14804-100000@cpu.WPI.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317012AbSFFQym>; Thu, 6 Jun 2002 12:54:42 -0400
+Received: from niobium.golden.net ([199.166.210.90]:50415 "EHLO
+	niobium.golden.net") by vger.kernel.org with ESMTP
+	id <S317011AbSFFQyl>; Thu, 6 Jun 2002 12:54:41 -0400
+Date: Thu, 6 Jun 2002 12:54:19 -0400
+From: "John L. Males" <jlmales@yahoo.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Question Regarding "EXTRAVERSION" Specification
+Message-Id: <20020606125419.53ce2e8f.jlmales@yahoo.com>
+Reply-To: jlmales@yahoo.com
+Organization: Toronto, Ontario - Canada
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.M1t8svHAzlIzhE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running into trouble with an Ultra100 card (no raid or other features,
-I think it's a PDC20267) with BIOS 2.01b27 when moving from two Maxtor
-20GB 5400 RPM ATA66 drives to a Maxtor 80GB 5400 RPM ATA100 drive.  The
-previous drives worked fine, but when trying to install Mandrake 8.2 on
-only the new 80GB drive, it detects the controller correctly and goes to
-check partitions and hangs at "hde" with the drive light going constant
-and nothing happening.  I'm pretty sure the drive is fine as it works fine
-on the controller card at ATA100 (recognized by the BIOS correctly as
-Ultra DMA Mode 5) in Win2k, and I can plug it onto the motherboard PIIX4
-controller and install Mandrake 8.2 that way without an issue.  Moving it
-to the controller card after install with the generic 2.4.18 kernel or
-compiling 2.4.19-pre8 (the last kernel version I used on the previous
-drives which worked fine) all produces the hang at detecting partitions on
-hde.  I don't have the machine in front of me, but can provide more info
-as necessary.  Please CC me as I'm not on the list, any ideas would be
-appreciated as to why the older drives work perfectly but the new one
-hangs on detection.
+--=.M1t8svHAzlIzhE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Brian J. Conway
-bconway@wpi.edu
+Alan,
+
+
+***** Please BCC me in on any reply, not CC me.  Two reasons, I am not
+on the LKML, and second I am suffering BIG time with SPAM from posting
+to the mailing list.  Thanks in advance. *****
+
+
+Thanks so much in your desire to include the patch in future 2.4.x-AC
+tree(s).  Any chance this can make its way into the 2.2.21 tree at
+some point?
+
+>List:     linux-kernel
+>Subject:  Re: Question Regarding "EXTRAVERSION" Specification
+>From:     Alan Cox <alan@lxorguk.ukuu.org.uk>
+>Date:     2002-06-06 14:24:47
+>[Download message RAW]
+
+>On Thu, 2002-06-06 at 14:01, Keith Owens wrote:
+>> kbuild 2.5 enforces the limit, the existing kernel build code does
+>not.> I sent a patch to Linus four times back in the 2.4.15 days, he
+>> completely ignored it.  Linus does not care about kernel build
+>> problems.
+>> 
+>> I will dig out the patch and send it to Marcelo.
+
+>Please CC me a copy and I'll merge it into -ac in case Marcelo loses
+>it or doesnt want it before 2.4.19 final
+
+
+Regards,
+
+John L. Males
+Willowdale, Ontario
+Canada
+06 June 2002 12:54
+
+==================================================================
+***** Please BCC me in on any reply, not CC me.  Two reasons, I am not
+on the LKML, and second I am suffering BIG time with SPAM from posting
+to the mailing list.  Thanks in advance. *****
+
+
+Please BCC me by replacing yahoo.com after the "@" as follows"
+TLD =         The last three letters of the word internet
+Domain name = The first four letters of the word software,
+              followed by the first four letters of the word
+              homeless.
+My appologies in advance for the jumbled eMail address
+and request to BCC me, but SPAM has become a very serious
+problem.  The eMail address in my header information is
+not a valid eMail address for me.  I needed to use a valid
+domain due to ISP SMTP screen rules.
+--=.M1t8svHAzlIzhE
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAjz/k88ACgkQsrsjS27q9xbmfgCbBjmpSXjgmqjMOw3iNNvFL9KJ
+3yAAoISg1lu/dhgktPX0XqX4k31n89pE
+=A2eh
+-----END PGP SIGNATURE-----
+
+--=.M1t8svHAzlIzhE--
 

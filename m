@@ -1,49 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbTESSgx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 14:36:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbTESSgx
+	id S262627AbTESSmA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 14:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbTESSmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 14:36:53 -0400
-Received: from ida.rowland.org ([192.131.102.52]:1796 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262589AbTESSgw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 14:36:52 -0400
-Date: Mon, 19 May 2003 14:49:49 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Paul Fulghum <paulkf@microgate.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       <johannes@erdfelt.com>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: Test Patch: 2.5.69 Interrupt Latency
-In-Reply-To: <1053368413.1995.9.camel@diemos>
-Message-ID: <Pine.LNX.4.44L0.0305191448001.631-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 May 2003 14:42:00 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:8653 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262627AbTESSl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 14:41:58 -0400
+Date: Mon, 19 May 2003 11:57:09 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: davidm@hpl.hp.com
+Cc: arjanv@redhat.com, davem@redhat.com, ak@muc.de, johnstul@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: time interpolation hooks
+Message-Id: <20030519115709.0701a1c3.akpm@digeo.com>
+In-Reply-To: <16073.9205.641605.741130@napali.hpl.hp.com>
+References: <20030516142311.3844ee97.akpm@digeo.com>
+	<16069.24454.349874.198470@napali.hpl.hp.com>
+	<1053139080.7308.6.camel@rth.ninka.net>
+	<16073.5555.158600.61609@napali.hpl.hp.com>
+	<20030519174203.A7061@devserv.devel.redhat.com>
+	<16073.9205.641605.741130@napali.hpl.hp.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 May 2003 18:54:51.0705 (UTC) FILETIME=[20FE6290:01C31E38]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 May 2003, Paul Fulghum wrote:
+David Mosberger <davidm@napali.hpl.hp.com> wrote:
+>
+> Andrew, I assume it's OK with you if I update the ia64 code to the
+>  proposed interface and then send you an updated patch?
 
-> the patch applied cleanly and worked for me
-> (prevented global suspension). Having the lengthy
-> waits outside of the ISR is a definate plus, and
-> the debounce makes sense.
+Sure.  It's be good to see an ia32 implementation which can be beaten on. 
+Maybe John can look into that?
 
-Good.  I'll submit this, if no other problems arise.
+>From an implementation point of view, I wonder if all platforms will need
+the indirection?
 
-> My machine does not have APM/ACPI facilities so
-> I can't test the suspend. It is getting pretty
-> dated, but the economy dictates I live with it for
-> a while longer :-)
-> 
-> Does you laptop use the PIIX4? If it does and uses only
-> one port, I would be very interested to see if
-> one port is continuously reporting OC (hardwired).
+If not then it would be better to just do
 
-I don't remember what chipset it has.  But it definitely includes a UHCI 
-controller with only one port.  I'll check it out tonight.
+	update_wall_time_hook(sys_tz.tz_minuteswest * 60 * NSEC_PER_SEC);
 
-Alan Stern
+in kernel/time.c and let the architecture decide whether it wants to add
+the extra overwriteable hooks.
+
+So include/asm/time-interpolation.h has:
+
+	#include <asm-generic/time-interpolation.h>
+
+and asm-generic/time-interpolation.h has:
+
+	struct time_interpolator {
+		...
+	}
+
+	static inline void update_wall_time_hook(unsigne long nsec)
+	{
+		time_interpolator.update_wall_time(nsec);
+	}
+
+if you get my drift.
+
 

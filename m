@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263789AbUESDxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263786AbUESEZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263789AbUESDxk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 23:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbUESDxk
+	id S263786AbUESEZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 00:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbUESEZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 23:53:40 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5580 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263786AbUESDwF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 23:52:05 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Brad Campbell <brad@wasp.net.au>
-Subject: Re: libata 2.6.5->2.6.6 regression -part II
-Date: Tue, 18 May 2004 15:13:12 +0200
-User-Agent: KMail/1.5.3
-References: <40A8E9A8.3080100@wasp.net.au>
-In-Reply-To: <40A8E9A8.3080100@wasp.net.au>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 19 May 2004 00:25:56 -0400
+Received: from ozlabs.org ([203.10.76.45]:33489 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263786AbUESEZz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 00:25:55 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405181513.12920.bzolnier@elka.pw.edu.pl>
+Message-ID: <16554.57796.25160.9562@cargo.ozlabs.ibm.com>
+Date: Wed, 19 May 2004 14:25:40 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: [PATCH] put module license in swim3.c
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 of May 2004 18:34, Brad Campbell wrote:
-> G'day all,
-> I caught the suggestion on my last post in the archives, but because I'm
-> not subscribed and wasn't cc'd I can't keep it threaded.
->
-> I tried backing out the suggested acpi patch (No difference at all), and I
-> managed to get apic to work but it still hangs solid in the same place.
->
-> dmesg attached.
->
-> I managed to figure out that the VIA ATA driver captures my sata drives on
-> the via ports, explaining why sata_via misses them, but writing data to
-> those drives (hde & hdg) causes dma timeouts and locks the machine. No
-> useful debug info produced. The machine becomes non-responsive, throws a
-> couple of dma timeouts to the console and then loses all interactivity
-> (keyboard, serial, network) forcing a reset push.
->
-> Is there any way I can prevent the VIA ATA driver capturing this device?
-> Unfortunately my boot drive is on hda on the on-board VIA ATA interface so
-> I need it compiled in.
+This patch adds module tags for the swim3 (macintosh floppy) driver.
 
-Disable the fscking PCI IDE generic driver.
-[ You are not the first one tricked by it. ]
+Please apply.
 
-AFAIR support for VIA 8237 was added to it before sata_via.c was ready.
-[ but my memory is... ]
-
-> Please CC: me on any replies.
->
-> Regards,
-> Brad
-
+Thanks,
+Paul.
+ 
+diff -urN linux-2.5/drivers/block/swim3.c pmac-2.5/drivers/block/swim3.c
+--- linux-2.5/drivers/block/swim3.c	2004-02-23 12:05:12.000000000 +1100
++++ pmac-2.5/drivers/block/swim3.c	2004-03-11 17:09:58.000000000 +1100
+@@ -1145,3 +1145,7 @@
+ }
+ 
+ module_init(swim3_init)
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Paul Mackerras");
++MODULE_ALIAS_BLOCKDEV_MAJOR(FLOPPY_MAJOR);

@@ -1,124 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbUKCN3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbUKCNbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbUKCN3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 08:29:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbUKCN3P
+	id S261596AbUKCNbT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 08:31:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbUKCNbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 08:29:15 -0500
-Received: from [217.89.113.142] ([217.89.113.142]:12293 "EHLO
-	fl-relay.orga.com") by vger.kernel.org with ESMTP id S261590AbUKCN27
+	Wed, 3 Nov 2004 08:31:19 -0500
+Received: from [212.223.124.118] ([212.223.124.118]:25476 "EHLO
+	mail.telemotive.de") by vger.kernel.org with ESMTP id S261596AbUKCNbA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 08:28:59 -0500
-Message-ID: <4188DC90.9030503@orga-systems.com>
-Date: Wed, 03 Nov 2004 14:26:40 +0100
-From: =?ISO-8859-1?Q?Gerrit_Bruchh=E4user?= 
-	<gbruchhaeuser@orga-systems.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.3) Gecko/20040913
-X-Accept-Language: de-de, en-us, en
-MIME-Version: 1.0
+	Wed, 3 Nov 2004 08:31:00 -0500
 To: linux-kernel@vger.kernel.org
-CC: gbruchhaeuser@orga-systems.com
-Subject: accept does not return in case a signal arrives
-X-MIMETrack: Itemize by SMTP Server on PBCOM1/Paderborn/ORGA(Release 5.0.6a |January 17, 2001) at
- 03.11.2004 14:28:47,
-	Serialize by Router on PBCOM1/Paderborn/ORGA(Release 5.0.6a |January 17, 2001) at
- 03.11.2004 14:28:49,
-	Serialize complete at 03.11.2004 14:28:49,
-	Itemize by SMTP Server on FLCOM1/FL/ORGA(Release 5.0.12  |February 13, 2003) at
- 11/03/2004 02:28:49 PM,
-	Serialize by Router on FLCOM1/FL/ORGA(Release 5.0.12  |February 13, 2003) at
- 11/03/2004 02:28:50 PM,
-	Serialize complete at 11/03/2004 02:28:50 PM
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: PATCH: stdint constants
+MIME-Version: 1.0
+X-Mailer: Lotus Notes Release 5.0.9  November 16, 2001
+From: roman.fietze@telemotive.de
+Message-ID: <OF1C112AC2.560EA5F6-ONC1256F41.0049C0DE@telemotive.de>
+Date: Wed, 3 Nov 2004 14:30:46 +0100
+X-MIMETrack: Serialize by Router on muc/Telemotive(Release 6.5.1|January 21, 2004) at
+ 03.11.2004 14:31:09,
+	Serialize complete at 03.11.2004 14:31:09
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Kernel-team,
+Hello,
 
-on Linux, 'accept' system call does not return in case I send SIGTERM to 
-my application; while it does on OSF-Alpha.
+First of all: sorry for using Notes MUA, but cannot route to kernel.org 
+due to NJABL.
 
-Given the following sample:
+Allthough many books recommend using the types uint8_t to uint64_t as
+well as their signed counterparts, I could not find the MIX/MAX values
+for those types in any kernel include file.
 
-,----[ main.cc ]
-| #include <sys/types.h>
-| #include <sys/socket.h>
-| #include <errno.h>
-| #include <string.h>
-| #include <stdio.h>
-| #include <stdlib.h>
-| #include <resolv.h>
-| #include <signal.h>
-|
-| #define CHECK_RET_M(arg, x) \
-|   if (-1 == (x) && errno != EINTR) { \
-|      printf("System call '%s' failed: %s\n", #arg, strerror(errno)); \
-|      exit(1); \
-|   }
-|
-| typedef struct sockaddr SA;
-|
-| static void TermHandler(int signu)
-| {
-|    // Nothing
-| }
-|
-| int main(int argc, char *argv[])
-| {
-|   // Create signal handler 4 SIGTERM
-|   signal(SIGTERM, &TermHandler);
-|
-|   // Create listening socket...
-|   // argv[1] will be the port number!
-|   int port = atoi(argv[1]);
-|   int listen_fd = socket(AF_INET, SOCK_STREAM, 0); CHECK_RET_M(socket, 
-listen_fd);
-|
-|   struct sockaddr_in servaddr;
-|   bzero((char *) &servaddr, sizeof(servaddr));
-|   servaddr.sin_family      = AF_INET;
-|   servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-|   servaddr.sin_port        = htons(port);
-|
-|   // Bind the socket and switch its state to 'listen'...
-|   int r = bind(listen_fd, (SA *) &servaddr, sizeof(servaddr)); 
-CHECK_RET_M(bind, r);
-|   int backlog = 1000;
-|   r = listen(listen_fd, backlog); CHECK_RET_M(listen, r);
-|
-|   // Wait until client tries to connect...
-|   struct sockaddr_in cliaddr;
-|   socklen_t clilen = (socklen_t) sizeof(cliaddr);
-|   int conn_fd = accept(listen_fd, (SA *) &cliaddr, &clilen);
-|
-|   // If SIGTERM arrives ... the following message should be printed!
-|   printf("EXIT NOW\n");
-|   return 0;
-| }
-`----
+Tested on a 2.4 ARM/PPC/I386 kernel with gcc 3.0.4/3.2.2/3.3.2. Not
+tested on any 64 bit architecture.
 
-Compiled once on each of the systems:
-    $> g++ -D_POSIX_PII_SOCKET -o main main.cc
-
-Execute in 1st shell:
-    $> ./main 10000
-
-Execute in 2nd shell:
-    $> ps -ef | grep -v grep | grep main
-    $> kill -TERM <pid-of-main>
-
-Results (in 1st shell, on OSF):
-    EXIT NOW
-    $>
-
-Linux exectutes the signal handlers code - but 'accept' does not return. 
-So I've no chance to quit my application in case I have to.
-
-Is there any workaround for my problem?
+Any comments to this patch?
 
 
-As I did not subscribe to the list; can you please put me on CC personally?
+diff -uprN linux-2.6.9/include/linux/kernel.h 
+linux-2.6.9-stdint/include/linux/kernel.h
+--- linux-2.6.9/include/linux/kernel.h  2004-10-18 23:53:05.000000000 
++0200
++++ linux-2.6.9-stdint/include/linux/kernel.h   2004-11-03 
+14:15:24.000000000 +0100
+@@ -23,6 +23,30 @@
+ #define LONG_MIN       (-LONG_MAX - 1)
+ #define ULONG_MAX      (~0UL)
+ 
++#define INT8_MIN       (-128)
++#define INT16_MIN      (-32767-1)
++#define INT32_MIN      (-2147483647-1)
++
++#define INT8_MAX       (127)
++#define INT16_MAX      (32767)
++#define INT32_MAX      (2147483647)
++
++#define UINT8_MAX      (255)
++#define UINT16_MAX     (65535)
++#define UINT32_MAX     (4294967295U)
++
++#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
++# if BITS_PER_LONG == 32
++#  define INT64_MIN    (-9223372036854775807LL - 1LL)
++#  define INT64_MAX    (9223372036854775807LL)
++#  define UINT64_MAX   (18446744073709551615ULL)
++# else
++#  define INT64_MIN    (-9223372036854775807L - 1L)
++#  define INT64_MAX    (9223372036854775807L)
++#  define UINT64_MAX   (18446744073709551615UL)
++# endif
++#endif
++
+ #define STACK_MAGIC    0xdeadbeef
+ 
+ #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-Many thanks and cheers,
-Gerrit
+
+
+Roman
+
+-- 
+Roman Fietze              Telemotive AG Büro Mühlhausen
+Breitwiesen                            73347 Mühlhausen
+Tel.: +49(0)7335 18493-45      http://www.telemotive.de
+

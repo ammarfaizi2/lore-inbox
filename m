@@ -1,44 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277552AbRKFB72>; Mon, 5 Nov 2001 20:59:28 -0500
+	id <S277371AbRKFCOB>; Mon, 5 Nov 2001 21:14:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277112AbRKFB7S>; Mon, 5 Nov 2001 20:59:18 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:17168 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S277552AbRKFB7G>;
-	Mon, 5 Nov 2001 20:59:06 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: kdb v1.9 is available for kernel 2.4.14
-Date: Tue, 06 Nov 2001 12:58:52 +1100
-Message-ID: <16200.1005011932@ocs3.intra.ocs.com.au>
+	id <S277514AbRKFCNv>; Mon, 5 Nov 2001 21:13:51 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45318 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277371AbRKFCNr>; Mon, 5 Nov 2001 21:13:47 -0500
+Date: Mon, 5 Nov 2001 18:10:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] disk throughput
+In-Reply-To: <Pine.GSO.4.21.0111052029260.27086-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0111051748250.1710-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Content-Type: text/plain; charset=us-ascii
+On Mon, 5 Nov 2001, Alexander Viro wrote:
+>
+> Depends on the naming scheme used by admin, for one thing.  Linus, I seriously
+> think that getting the real-life traces to play with would be a Good Thing(tm)
+> - at least that would allow to test how well would heuristics of that kind do.
 
-ftp://oss.sgi.com/projects/kdb/download/ix86/kdb-v1.9-2.4.14.bz2
+Well, we hae some real-life traces. Those particular real-life traces show
+that the "switch cylinder groups on mkdir" heuristic sucks.
 
-Changelog extract.
+And you have to realize that _whatever_ we do, it will always be a
+heuristic. We don't know what the right behaviour is without being able to
+predict the future. Agreed?
 
-2001-11-06 Keith Owens  <kaos@sgi.com>
+Ok, so let's just assume that we had no heuristic in place at all, and we
+were looking at improving it for slow-growth situations. I think you'd
+agree that decreasing the performance of a CVS checkout five-fold would be
+considered _totally_ unacceptable for a new heuristic, no?
 
-        * Upgrade to kernel 2.4.14.
+So the current heuristic provably sucks. We have cold hard numbers, and
+quite frankly, Al, there is very very little point in arguing against
+numbers. It's silly. "Gimme an S, gimme a U, gimme a C, gimme a K -
+S-U-C-K". The current one sucks.
 
-2001-11-02 Keith Owens  <kaos@sgi.com>
+So the only question on the table is not "do we stay with the current
+algorithm", because I dare you, the answer to that question is very
+probably a clear "NO". So there's no point in even trying to find out
+_why_, in 1984, it was considered a good heuristic.
 
-        * Sync kdbm_pg.c with XFS.
+The question is: "what can we do to improve it?". Not "what arguments can
+we come up with to make excuses for a sucky algorithm that clearly does
+the wrong thing for real-life loads".
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
+One such improvement has already been put on the table: remove the
+algorithm, and make it purely greedy.
 
-iD8DBQE750Pbi4UHNye0ZOoRAgbpAJ9mt6PO1q5nSHl3/tZKaMelRUTFMACeKWAQ
-ZUBnFEGqK5YL02LLB6HhceI=
-=YF/P
------END PGP SIGNATURE-----
+We know that works. And yes, we realize that it has downsides too. Which
+is why some kind of hybrid is probably called for. Come up with your own
+sixth sense. We know the current one is really bad for real-life loads.
+
+I actually bet that the greedy algorithm would work wonderfully well, if
+we just had run-time balancing. I bet that the main argument for
+"spreading things out" is that it minimizes the risk of overflow in any
+particular group, never mind performance.
+
+And if you're stuck with the decision you make forever, minimizing risk is
+a good approach.
+
+And maybe the fundamental problem is exactly that: because we're stuck
+with our decision forever, people felt that they couldn't afford to risk
+doing what was very obviously the right thing.
+
+So I still claim that we should look for short-time profit, and then try
+to fix up the problems longer term. With, if required, some kind of
+rebalancing.
+
+		Linus
 

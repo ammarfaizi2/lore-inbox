@@ -1,74 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136044AbREJCzV>; Wed, 9 May 2001 22:55:21 -0400
+	id <S136058AbREJC6l>; Wed, 9 May 2001 22:58:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136047AbREJCzM>; Wed, 9 May 2001 22:55:12 -0400
-Received: from coorong.anu.edu.au ([150.203.141.5]:157 "EHLO
-	coorong.anu.edu.au") by vger.kernel.org with ESMTP
-	id <S136044AbREJCyy>; Wed, 9 May 2001 22:54:54 -0400
-Message-ID: <3AFA02E1.977CE226@tltsu.anu.edu.au>
-Date: Thu, 10 May 2001 12:54:25 +1000
-From: Robert Cohen <robert@coorong.anu.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
+	id <S136047AbREJC6d>; Wed, 9 May 2001 22:58:33 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:22795 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S136049AbREJC6W>; Wed, 9 May 2001 22:58:22 -0400
+Date: Wed, 9 May 2001 22:19:56 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] writepage method changes
+In-Reply-To: <3AF9F7F2.AC47F7AC@uow.edu.au>
+Message-ID: <Pine.LNX.4.21.0105092134230.16052-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Gerhard Mack <gmack@innerfire.net>
-CC: Robert Cohen <robert@coorong.anu.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Question: Status of VIA chipsets and 2.2 kernels
-In-Reply-To: <Pine.LNX.4.10.10105090754410.26822-100000@innerfire.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerhard Mack wrote:
-> 
-> Ugh why VIA? They have been a constant source of trouble for me on both
-> linux and windows.  I have my doubts about their ability to get a chipset
-> right in the first place.
-> 
-> Some other possible Athlon boards:
->   Asus A7M266 (AMD chipset)
->   Asus A7A266 (ALI chipset)
-> 
-> On Wed, 9 May 2001, Robert Cohen wrote:
-> 
-> > What with all the various problem reports flying around for via
-> > chipsets, Ive lost track of the state of play as regards via
-> > northbridges and south bridges.
-> > I am thinking of buying a machine with a via chipset and I wan't to know
-> 
 
-I'm wary of using an Ali chipset. They are even less common than the VIA
-so just havent had the
-exposure to root out problems.
 
-Also the main feature I'm looking for is a machine with 768 Meg or 1G
-ram at a reasonable price.
-Hence I want to use 256 Meg dimms. I can't use an i815 chipset as this
-tops out at 512 Meg.
-The apollo pro board is one of the few that has 4 dimm slots allowing 1
-Gig of memory.
-The athlons boards only have 3 dimm slots so top out at 768 Meg.
+On Thu, 10 May 2001, Andrew Morton wrote:
 
-I'm wary of using DDR dram. The chipsets havent been round long enough
-to have much of a track record.
-And the ram is too expensive. Also the A7M266 is using a VIA 686b
-southbridge anyway which I thought was the source of the problems.
-Anyway these boards only tend to have 2 DDR dimm slots and the biggest
-DDR dimm that crucial sells is 256 Meg. So I would be limited to 512
-Meg.
+> Marcelo Tosatti wrote:
+> > 
+> > Well,
+> > 
+> > Here is the updated version of the patch to add the "priority" argument to
+> > writepage().
+> 
+> It appears that a -EIO return from block_write_full_page() will
+> result in an unlock of an unlocked page in page_launder(). Splat.
 
-Maybe I have to bite the bullet and go with 512 Meg dimms. They only
-appear to be available in
-registered with ECC which makes them cost about twice as much per meg
-and which I wasnt sure that all boards support.
-What motherboards/chipsets to people recommend for machines with 1Gig+
-ram.
+Right. Will fix the filesystems.
 
---
-Robert Cohen
-Unix Support
-TLTSU
-Australian National University
-Ph: 612 58389
+> What does the new writepage() argument do, and why does
+> it exist?
+
+The immediate reason for the "priority" argument is to avoid special
+casing for the removal of dead dirty swap cache pages inside the VM.
+
+With the new argument, page_launder() will call writepage() _even_ if it
+does not want to do IO (in this case priority will be 0), so:
+
+  - swap_writepage() can remove dirty swap pages
+  - other filesystems are warned that the VM will probably want to
+    write the page out soon.
+
+Positive values of "priority" means "write this page out".
+
+In the future higher positive values for writepage() can indicate the
+level of VM pressure. Example: fs's which do delayed allocation may want
+to return zero for priority 1 in case the page can be written out at a
+"better time", but for priority's > 1 they should write the page
+unconditionally. 
+
+> What is the meaning of the writepage return value for
+> the respective values of `priority'?
+
+They should always return zero if they wrote (or freed) the page.
+
+Otherwise return non-zero.
+
+This way the VM can account for the amount of queue pages for IO. (which
+we don't do right now, but we definately want to)
+
+> When should writepage return with the page locked,
+> and when not?
+
+Locked for the "not wrote out case" (I will fix my patch now, thanks)
+
+For the "wrote out" case there its undetermined.
+
+

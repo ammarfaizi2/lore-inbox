@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbUKVKG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbUKVKRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbUKVKG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 05:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUKVKG4
+	id S262011AbUKVKRO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 05:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUKVKRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 05:06:56 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:30943 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262017AbUKVKGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 05:06:20 -0500
-From: "Peter T. Breuer" <ptb@inv.it.uc3m.es>
-Message-Id: <200411221006.iAMA6Gk23164@inv.it.uc3m.es>
-Subject: Re: kernel analyser to detect sleep under spinlock
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Date: Mon, 22 Nov 2004 11:06:16 +0100 (MET)
-X-Anonymously-To: 
-Reply-To: ptb@inv.it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	Mon, 22 Nov 2004 05:17:14 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:12957 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262011AbUKVKRI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 05:17:08 -0500
+Date: Mon, 22 Nov 2004 05:16:46 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: var args in kernel?
+Message-ID: <20041122101646.GP10340@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20041109074909.3f287966.akpm@osdl.org> <1100018489.7011.4.camel@lb.loomes.de> <20041109211107.GB5892@stusta.de> <1100037358.1519.6.camel@lb.loomes.de> <20041110082407.GA23090@bytesex> <1100085569.1591.6.camel@lb.loomes.de> <20041118165853.GA22216@bytesex> <419E689A.5000704@backtobasicsmgmt.com> <20041122094312.GC29305@bytesex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041122094312.GC29305@bytesex>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another minor functional update to the kernel source code analysis tool,
-though actually I reorganised it thoroughly internally in order to run
-off externally defined trigger-action rules instead of a mess of gunky C
-code.
+On Mon, Nov 22, 2004 at 10:43:12AM +0100, Gerd Knorr wrote:
+> On Fri, Nov 19, 2004 at 02:41:46PM -0700, Kevin P. Fleming wrote:
+> > Gerd Knorr wrote:
+> > >Yet another kobject bug.  It uses the varargs list twice in a illegal
+> > >way.  That doesn't harm on i386 by pure luck, but blows things up on
+> > >amd64 machines.  The patch below fixes it.
+> > 
+> > Is this safe? The normal glibc varargs implementation says you can't 
+> > even call va_start on the same args list twice, you have to use va_copy 
+> > to make a clone and then call va_start on that, _before_ you ever call 
+> > va_start the first time.
+> 
+> Hmm, maybe.  I'm not sure who actually implements the varargs (gcc?
+> Or glibc/kernel?) and whenever the above applies to the kernel as well
+> or not ...
 
-   ftp://oboe.it.uc3m.es/pub/Programs/c-1.2.3.tgz
+varargs is implemented entirely by GCC (GCC owns the stdarg.h header
+and implements the builtin functions that are used in the va_* macros).
 
-This tool locates "sleep under spinlock" abuses in the kernel.
+You can call va_start on the same args list twice, both:
+void foo (int x, ...)
+{
+  va_list ap, ap2;
+  va_start (ap, x);
+  va_start (ap2, x);
+...
+  va_end (ap);
+  va_end (ap2);
+}
+and
+void foo (int x, ...)
+{
+  va_list ap;
+  va_start (ap, x);
+...
+  va_end (ap);
+  va_start (ap, x);
+...
+  va_end (ap);
+}
+are ok.  What you can't do is e.g.
+  va_list ap;
+  va_start (ap, x);
+  bar (x, ap);
+  bar (x, ap);
+  va_end (ap);
+(i.e. once you pass the ap to some other function, the only thing that you
+have to do with it in the caller is va_end).
 
-The latest revision eliminates some false positives, by taking notice of
-the second argument to kmalloc where it can.
-
-% ./c -nostdinc -iwithprefix include -D__KERNEL__
- -I/usr/local/src/linux-2.6.3/include -D__KERNEL__ -Wall
- -Wstrict-prototypes -Wno-trigraphs
- -I/usr/local/src/linux-2.6.8.1-uml/include/asm-i386/mach-default -O2
- -DMODULE /usr/local/src/linux-2.6.8.1-uml/drivers/block/nbd.c
- /usr/local/src/linux-2.6.8.1-uml/drivers/block/nbd.c
-/************** sleep calls ************************************
- *  function                     line    calls (locks)
- *
- * - /usr/local/src/linux-2.6.3/include/linux/slab.h
- *  kmalloc                      98      __kmalloc (0)
- *
- * - /usr/local/src/linux-2.6.3/include/linux/fs.h
- *  lock_super                   741     down (0)
- *
- * - /usr/local/src/linux-2.6.8.1-uml/drivers/block/nbd.c
- *  nbd_send_req                 245     down (0)
- *  nbd_ioctl                    548     down (0)
- *
- *
- * *** found 0 instances of sleep under spinlock ***
- *
- **************************************************************/
-
-
-
-GPL, LGPL, etc.
-
-This is also useful for locating functions which can sleep, though of
-course that can be done in other ways.
-
-
-Peter (ptb (at) inv.it.uc3m.es)
- 
- 
+	Jakub

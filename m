@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbUJ0Ju7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbUJ0J6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbUJ0Ju7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 05:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbUJ0Js2
+	id S262360AbUJ0J6E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 05:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbUJ0J6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 05:48:28 -0400
-Received: from fep03fe.ttnet.net.tr ([212.156.4.134]:40908 "EHLO
-	fep03.ttnet.net.tr") by vger.kernel.org with ESMTP id S262369AbUJ0JrM
+	Wed, 27 Oct 2004 05:58:04 -0400
+Received: from fep03fe.ttnet.net.tr ([212.156.4.134]:37328 "EHLO
+	fep03.ttnet.net.tr") by vger.kernel.org with ESMTP id S262360AbUJ0JuQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 05:47:12 -0400
+	Wed, 27 Oct 2004 05:50:16 -0400
 X-Mailer: Openwave WebEngine, version 2.8.11 (webedge20-101-194-20030622)
 From: <sezeroz@ttnet.net.tr>
 To: <linux-kernel@vger.kernel.org>
 CC: <marcelo.tosatti@cyclades.com>
-Subject: 2.4.28-rc1, more lost patches [8/10]
-Date: Wed, 27 Oct 2004 12:45:25 +0300
+Subject: 2.4.28-rc1, more lost patches [9/10]
+Date: Wed, 27 Oct 2004 12:48:38 +0300
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=____1098870325334_Xg0s7H4EQ2"
-Message-Id: <20041027094525.KBVI6935.fep01.ttnet.net.tr@localhost>
+	boundary="----=____1098870518072_MqAnM(PShF"
+Message-Id: <20041027094838.KCUZ6935.fep01.ttnet.net.tr@localhost>
 X-ESAFE-STATUS: Mail clean
 X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,52 +26,60 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=____1098870325334_Xg0s7H4EQ2
+------=____1098870518072_MqAnM(PShF
 Content-Type: text/plain;
 	charset=ISO-8859-9
 Content-Transfer-Encoding: 7bit
 
 
-[8/10] Wilfried Weissmann: hptraid v0.03. from -ac/redhat.
+[9/10] Gerard Sharp: boot-logo with version. From distro kernels.
+(nothing serious, just displays the kernel version above
+the tux logo).
 
 
-------=____1098870325334_Xg0s7H4EQ2
+------=____1098870518072_MqAnM(PShF
 Content-Transfer-Encoding: base64
 Content-Type: application/octet-stream;
-	name="hptraid-v0.03.patch"
+	name="versioned_boot_logo.patch"
 Content-Disposition: inline;
-	filename="hptraid-v0.03.patch"
+	filename="versioned_boot_logo.patch"
 
-CldpbGZyaWVkIFdlaXNzbWFubgpodHRwOi8vbWFyYy50aGVhaW1zZ3JvdXAuY29tLz9sPWxpbnV4
-LWtlcm5lbCZtPTEwNjI4NzgyNzYyODM3OCZ3PTIKaW4gLWFjL3JlZGhhdAoKZGlmZiAtdXJOIDI4
-cmMxL2RyaXZlcnMvaWRlL3JhaWQvaHB0cmFpZC5jIDI4cmMxX2FhYy9kcml2ZXJzL2lkZS9yYWlk
-L2hwdHJhaWQuYwotLS0gMjhyYzEvZHJpdmVycy9pZGUvcmFpZC9ocHRyYWlkLmMJMjAwNC0wMi0x
-OCAxNTozNjozMS4wMDAwMDAwMDAgKzAyMDAKKysrIDI4cmMxX2FhYy9kcml2ZXJzL2lkZS9yYWlk
-L2hwdHJhaWQuYwkyMDA0LTEwLTI0IDAwOjU4OjEwLjAwMDAwMDAwMCArMDMwMApAQCAtMTgsNyAr
-MTgsMTEgQEAKICAgIEJhc2VkIG9uIHdvcmsgZG9uZSBieSBT+HJlbiBTY2htaWR0IGZvciBGcmVl
-QlNECiAKICAgIENoYW5nZWxvZzoKLSAgIDE1LjA2LjIwMDMgd3dlaXNzbWFubkBnbXguYXQKKyAg
-IDE5LjA4LjIwMDMgdjAuMDMgd3dlaXNzbWFubkBnbXguYXQKKyAgIAkqIHJlZ2lzdGVyIHRoZSBy
-YWlkIHZvbHVtZSBvbmx5IGlmIGFsbCBkaXNrcyBhcmUgYXZhaWxhYmxlCisJKiBwcmludCBhIHdh
-cm5pbmcgdGhhdCByYWlkLSgwKykxIGZhaWxvdmVyIGlzIG5vdCBzdXBwb3J0ZWQKKworICAgMTUu
-MDYuMjAwMyB2MC4wMiB3d2Vpc3NtYW5uQGdteC5hdAogICAgCSogY29ycmVjdCB2YWx1ZXMgb2Yg
-cmFpZC0xIHN1cGVyYm9jawogCSogcmUtYWRkIGNoZWNrIGZvciBhdmFpbGFiaWxpdHkgb2YgYWxs
-IGRpc2tzCiAJKiBmaXggb2Zmc2V0IGJ1ZyBpbiByYWlkLTEgKGludHJvZHVjZWQgaW4gcmFpZCAw
-KzEgaW1wbGVtZW50YXRpb24pCkBAIC04MTQsMTAgKzgxOCw2IEBACiAJCQlicmVhazsKIAl9CiAK
-LQkvKiBJbml0aWFsaXplIHRoZSBnZW5kaXNrIHN0cnVjdHVyZSAqLwotCQotCWF0YXJhaWRfcmVn
-aXN0ZXJfZGlzayhkZXZpY2UscmFpZFtkZXZpY2VdLnNlY3RvcnMpOwotCiAJLyogVmVyaWZ5IHRo
-YXQgd2UgaGF2ZSBhbGwgZGlza3MgKi8KIAogCWNvdW50PWNvdW50X2Rpc2tzKHJhaWQrZGV2aWNl
-KTsKQEAgLTg0NCw3ICs4NDQsMTcgQEAKIAkJCQkJcmV0dXJuIC1FTk9ERVY7CiAJCQkJfQogCQkJ
-fQorCQkJcHJpbnRrKEtFUk5fV0FSTklORyAiYXRhcmFpZCVpOiByYWlkLTArMSBkaXNrIGZhaWxv
-dmVyIGlzIG5vdCBpbXBsZW1lbnRlZCFcbiIsCisJCQkJCWRldmljZSk7CiAJCX0KKwkJZWxzZSBp
-ZiAodHlwZSA9PSBIUFRfVF9SQUlEXzEpIHsKKwkJCXByaW50ayhLRVJOX1dBUk5JTkcgImF0YXJh
-aWQlaTogcmFpZC0xIGRpc2sgZmFpbG92ZXIgaXMgbm90IGltcGxlbWVudGVkIVxuIiwKKwkJCQkJ
-ZGV2aWNlKTsKKwkJfQkKKwkJLyogSW5pdGlhbGl6ZSB0aGUgZ2VuZGlzayBzdHJ1Y3R1cmUgKi8K
-KwkKKwkJYXRhcmFpZF9yZWdpc3Rlcl9kaXNrKGRldmljZSxyYWlkW2RldmljZV0uc2VjdG9ycyk7
-CisKIAkJcmV0dXJuIDA7CiAJfQogCQpAQCAtODU2LDcgKzg2Niw3IEBACiAgCWludCByZXR2YWw9
-LUVOT0RFVjsKIAlpbnQgZGV2aWNlLGksY291bnQ9MDsKICAgCQotCXByaW50ayhLRVJOX0lORk8g
-IkhpZ2hwb2ludCBIUFQzNzAgU29mdHdhcmVyYWlkIGRyaXZlciBmb3IgbGludXggdmVyc2lvbiAw
-LjAyXG4iKTsKKwlwcmludGsoS0VSTl9JTkZPICJIaWdocG9pbnQgSFBUMzcwIFNvZnR3YXJlcmFp
-ZCBkcml2ZXIgZm9yIGxpbnV4IHZlcnNpb24gMC4wM1xuIik7CiAKIAlmb3IoaT0wOyBvcGxpc3Rb
-aV0ub3A7IGkrKykgewogCQlkbwo=
+ZnJvbSBkaXN0cm8ga2VybmVscwoKZGlmZiAtdXJOIDI4cmMxL2RyaXZlcnMvdmlkZW8vZmJjb24u
+YyAyOHJjMV9hYWMvZHJpdmVycy92aWRlby9mYmNvbi5jCi0tLSAyOHJjMS9kcml2ZXJzL3ZpZGVv
+L2ZiY29uLmMJMjAwNC0xMC0yNCAwMDo0NTo1OS4wMDAwMDAwMDAgKzAzMDAKKysrIDI4cmMxX2Fh
+Yy9kcml2ZXJzL3ZpZGVvL2ZiY29uLmMJMjAwNC0xMC0yNCAwMDo1ODoxMS4wMDAwMDAwMDAgKzAz
+MDAKQEAgLTQ2LDYgKzQ2LDkgQEAKICAqICAgIG8gbWZiCQkJTW9ub2Nocm9tZQogICogICAgbyB2
+Z2EJCQlWR0EgY2hhcmFjdGVycy9hdHRyaWJ1dGVzCiAgKgorICogIEdlcmFyZCBTaGFycCAoZ3No
+YXJwQGlodWcuY28ubnopIGNvbnRyaWJ1dGVkIGFsdGVyYXRpb25zIHByb3ZpZGluZyBhIGxpbmUK
+KyAqICBvZiB0ZXh0IGFib3ZlIHRoZSBib290bG9nbyBzdGF0aW5nIHRoZSBrZXJuZWwgdmVyc2lv
+bi4KKyAqCiAgKiAgVG8gZG86CiAgKgogICogICAgLSBJbXBsZW1lbnQgMTYgcGxhbmUgbW9kZSAo
+aXBsYW4ycDE2KQpAQCAtNTgsNiArNjEsNyBAQAogCiAjdW5kZWYgRkJDT05ERUJVRwogCisjaW5j
+bHVkZSA8bGludXgvdmVyc2lvbi5oPgogI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5oPgogI2luY2x1
+ZGUgPGxpbnV4L21vZHVsZS5oPgogI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+CkBAIC02NjIsNyAr
+NjY2LDggQEAKICAgICAJLyogTmVlZCB0byBtYWtlIHJvb20gZm9yIHRoZSBsb2dvICovCiAJaW50
+IGNudCwgc3RlcCwgZXJhc2VfY2hhcjsKIAotICAgIAlsb2dvX2xpbmVzID0gKExPR09fSCArIGZv
+bnRoZWlnaHQocCkgLSAxKSAvIGZvbnRoZWlnaHQocCk7CisvKiBNYWtlIGxvZ28gMSAodGV4dCkg
+bGluZSB0YWxsZXIgLSBmb3IgdmVyc2lvbiB0ZXh0ICovCisgICAgCWxvZ29fbGluZXMgPSAoTE9H
+T19IICsgKGZvbnRoZWlnaHQocCkqMikgLSAxKSAvIGZvbnRoZWlnaHQocCk7CiAgICAgCXEgPSAo
+dW5zaWduZWQgc2hvcnQgKikoY29ucC0+dmNfb3JpZ2luICsgY29ucC0+dmNfc2l6ZV9yb3cgKiBv
+bGRfcm93cyk7CiAgICAgCXN0ZXAgPSBsb2dvX2xpbmVzICogb2xkX2NvbHM7CiAgICAgCWZvciAo
+ciA9IHEgLSBsb2dvX2xpbmVzICogb2xkX2NvbHM7IHIgPCBxOyByKyspCkBAIC0xNTU0LDYgKzE1
+NTksMTQgQEAKICAgICBpZiAocC0+ZGlzcHN3LT5jbGVhcl9tYXJnaW5zICYmIHZ0X2NvbnNbdW5p
+dF0tPnZjX21vZGUgPT0gS0RfVEVYVCkKIAlwLT5kaXNwc3ctPmNsZWFyX21hcmdpbnMoY29ucCwg
+cCwgMCk7CiAgICAgaWYgKGxvZ29fc2hvd24gPT0gLTIpIHsKKy8qIERpc3BsYXkgYSBsaW5lIGFi
+b3ZlIHRoZSBCb290IExvZ28gdG8gc3RhdGUKKyAgIHdoYXQgdmVyc2lvbiBvZiB0aGUga2VybmVs
+IHdlIGFyZSBib290aW5nICovCisJY2hhciB3ZWxjb21ldGV4dFtdID0gIkxpbnV4ICIgVVRTX1JF
+TEVBU0U7CisJdW5zaWduZWQgc2hvcnQgd2VsY29tZXN0cmluZ1sgc2l6ZW9mKHdlbGNvbWV0ZXh0
+KSBdOworCWludCBpOworCWZvcihpID0gMDsgaSA8IHNpemVvZih3ZWxjb21ldGV4dCk7IGkrKykK
+KwkgICAgd2VsY29tZXN0cmluZ1tpXSA9IDB4MDcwMCB8IHdlbGNvbWV0ZXh0W2ldOworCWZiY29u
+X3B1dGNzKCBjb25wLCB3ZWxjb21lc3RyaW5nLCBzaXplb2Yod2VsY29tZXRleHQpLCAwLCAwICk7
+CiAJbG9nb19zaG93biA9IGZnX2NvbnNvbGU7CiAJZmJjb25fc2hvd19sb2dvKCk7IC8qIFRoaXMg
+aXMgcHJvdGVjdGVkIGFib3ZlIGJ5IGluaXRtZW1fZnJlZWQgKi8KIAl1cGRhdGVfcmVnaW9uKGZn
+X2NvbnNvbGUsCkBAIC0yMTQ5LDcgKzIxNjIsMTAgQEAKICAgICAvKiBSZXR1cm4gaWYgdGhlIGZy
+YW1lIGJ1ZmZlciBpcyBub3QgbWFwcGVkICovCiAgICAgaWYgKCFmYikKIAlyZXR1cm4gMDsKLQkK
+KworICAgIC8qICBNb3ZlIFBlbmd1aW4ocykgZG93biBvbmUgbGluZTsgZm9yIHZlcnNpb24gbGlu
+ZS4gKi8KKyAgICBmYiArPSBmb250aGVpZ2h0KHApICogbGluZTsKKwogICAgIC8qCiAgICAgICog
+U2V0IGNvbG9ycyBpZiB2aXN1YWwgaXMgUFNFVURPQ09MT1IgYW5kIHdlIGhhdmUgZW5vdWdoIGNv
+bG9ycywgb3IgZm9yCiAgICAgICogRElSRUNUQ09MT1IK
 
-------=____1098870325334_Xg0s7H4EQ2--
+------=____1098870518072_MqAnM(PShF--

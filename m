@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276260AbRI1ThT>; Fri, 28 Sep 2001 15:37:19 -0400
+	id <S276262AbRI1TjT>; Fri, 28 Sep 2001 15:39:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276258AbRI1Tg7>; Fri, 28 Sep 2001 15:36:59 -0400
-Received: from elin.scali.no ([62.70.89.10]:4626 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S276257AbRI1Tg4>;
-	Fri, 28 Sep 2001 15:36:56 -0400
-Message-ID: <3BB4D072.4D3EE56B@scali.no>
-Date: Fri, 28 Sep 2001 21:33:06 +0200
-From: Steffen Persvold <sp@scali.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S276261AbRI1TjJ>; Fri, 28 Sep 2001 15:39:09 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:35595 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S276258AbRI1Tix>;
+	Fri, 28 Sep 2001 15:38:53 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200109281939.XAA05297@ms2.inr.ac.ru>
+Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
+To: mingo@elte.hu
+Date: Fri, 28 Sep 2001 23:39:08 +0400 (MSK DST)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk, bcrl@redhat.com, andrea@suse.de
+In-Reply-To: <Pine.LNX.4.33.0109281956200.9978-100000@localhost.localdomain> from "Ingo Molnar" at Sep 28, 1 08:28:59 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: mm: critical shortage of bounce buffers
-In-Reply-To: <E15n2Rf-0007xv-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > I've recently encountered the following message on a machine running RedHat's
-> > 2.4.3-12 kernel :
-> >
-> > "mm: critical shortage of bounce buffers"
-> >
-> > I've searched through the kernel sources, but my 'find' just can't locate this
-> > string anywhere.
-> 
-> Its in the high mem handling routines. It means the machine stalled for
-> a moment doing I/O because it had no memory below 1Gb to use.
+Hello!
 
-But why does it need to have memory below 1Gb ?? Normally, 32bit PCI DMA
-controllers (such as network cards and disk controllers) can access up to 4GB of
-physical memory within the machine, so unless you are using the CONFIG_HIGHMEM4G
-option it shouldn't need bounce buffers. Or am I missing something here
-(something like the second physical GB is actually in the address range
-4GB->)???
+> unless you have strong arguments against this approach, i will start
+> coding this. It's a pretty intrusive change, because all current softirq
+> users will have to agree on a generic event format + callback that can be
+> queued. This has to be embedded into skbs and bh-handling structs. What do
+> you think?
 
-> 
-> > Why does this message appear (apparently during high network load with the intel
-> > eepro100 driver or e1000 driver). Is bounce buffers really in use on a x86
-> > machine with 2GB of RAM (normal smp RedHat kernel, not enterprise)??
-> 
-> The answer is yes. You can actually build yourself a custom none bounce
-> buffer 1.8GB kernel with about 2Gb of user virtual space per app. For some
-> applications it will perform better.
+Why skbs?
 
-There's no CONFIG option for that right (like the old CONFIG_2GB option on 2.2
-kernels) ? I'll have to manually go in and edit the header files in asm-i386.
-Would the 2.2 (e.g 2.2.19) kernel have the same problems with bounce buffers or
-is this not implemented on 2.2 ??
+Anyway, scheme sort of:
 
-Regards,
--- 
-  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best   
- mailto:sp@scali.no  |  http://www.scali.com  | performing MPI implementation:
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.12.2 -         
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >300MBytes/s and <4uS latency
+do_softirq()
+{
+	start = jiffies;
+
+	while (dequeue()) {
+		if (jiffies - start > 1)
+			goto wakeup_ksoftirq
+		process();
+	}
+}
+
+and raise_softirq() enqueuing event to tail, if it is still not queued
+is nice, not intrusive and very easy.
+
+Only "skbs" scares me. :-)
+
+Alexey

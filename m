@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261581AbSJALVT>; Tue, 1 Oct 2002 07:21:19 -0400
+	id <S261568AbSJALTy>; Tue, 1 Oct 2002 07:19:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261582AbSJALVT>; Tue, 1 Oct 2002 07:21:19 -0400
-Received: from f9.pav0.hotmail.com ([64.4.33.80]:35078 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S261581AbSJALVS>;
-	Tue, 1 Oct 2002 07:21:18 -0400
-X-Originating-IP: [213.4.13.153]
-From: "Felipe Alfaro Solana" <felipe_alfaro@msn.com>
-To: bonganilinux@mweb.co.za, tmolina@cox.net, linux-kernel@vger.kernel.org
-Subject: Re: cdrecord, IDE-SCSI and 2.5.39
-Date: Tue, 01 Oct 2002 13:26:39 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F9B5KizJl82HBZyVKSN00014114@hotmail.com>
-X-OriginalArrivalTime: 01 Oct 2002 11:26:40.0316 (UTC) FILETIME=[69778FC0:01C2693D]
+	id <S261579AbSJALTx>; Tue, 1 Oct 2002 07:19:53 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:28678 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id <S261568AbSJALTw>; Tue, 1 Oct 2002 07:19:52 -0400
+Date: Tue, 1 Oct 2002 13:28:58 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+To: David McIlwraith <quack@bigpond.net.au>
+cc: Martin Diehl <lists@mdiehl.de>, linux-kernel@vger.kernel.org
+Subject: Re: calling context when writing to tty_driver
+In-Reply-To: <08e001c2693b$8e64e8c0$41368490@archaic>
+Message-ID: <Pine.LNX.4.21.0210011324110.485-100000@notebook.diehl.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No, I didn't compile the IDE-SCSI support into the kernel... I always 
-compile SCSI support as loadable modules, and IDE-CD also as a module. Will 
-have a try to compile into the kernel and see if it crashes.
+On Tue, 1 Oct 2002, David McIlwraith wrote:
 
->Hi,
->
->Have you tried to build ide-scsi support into the kernel? I will
->try to compile the kernel with ide-scsi support as modules and see
->how it goes when I get home. I did write down the oops that i get
->and posted it on the list. I haven't got any feed back on it yet.
->
->The original post of the Oops is here
->http://www.uwsg.iu.edu/hypermail/linux/kernel/0209.3/1493.html
->
->Thanx
+> Semaphores may sleep - therefore, they cannot be used from a 'non-sleep'
+> context.
 
-_________________________________________________________________
-Join the world’s largest e-mail service with MSN Hotmail. 
-http://www.hotmail.com
+Yes, sure. Sorry if I wasn't clear enough - the point is whether those
+tty_driver write/write_room() calls are allowed to sleep or not. If yes,
+the usbserial implementation is right and it is impossible to do further
+writing directly from write_wakeup() callback (which would be really bad
+IMHO) - if not, usbserial needs to avoid the down() somehow.
+
+Martin
 

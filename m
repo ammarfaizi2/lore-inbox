@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264584AbUE2MjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264623AbUE2M5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264584AbUE2MjN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 08:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbUE2MjM
+	id S264623AbUE2M5X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 08:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264648AbUE2M5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 08:39:12 -0400
-Received: from mail013.syd.optusnet.com.au ([211.29.132.67]:5350 "EHLO
-	mail013.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264584AbUE2MjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 08:39:11 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: [RFC][PATCH][2.6.6] Replacing CPU scheduler active and expired with a single array
-Date: Sat, 29 May 2004 22:38:35 +1000
-User-Agent: KMail/1.6.1
-Cc: pwil3058@bigpond.net.au, linux-kernel@vger.kernel.org
-References: <214A1-6NK-7@gated-at.bofh.it> <21acm-2GN-1@gated-at.bofh.it> <m37juvpgjc.fsf@averell.firstfloor.org>
-In-Reply-To: <m37juvpgjc.fsf@averell.firstfloor.org>
-MIME-Version: 1.0
+	Sat, 29 May 2004 08:57:23 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:38859 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264623AbUE2M5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 08:57:22 -0400
+Date: Sat, 29 May 2004 14:57:16 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Artemio <theman@artemio.net>, bcollins@debian.org,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: [2.6 patch] let IEEE1394 select NET
+Message-ID: <20040529125716.GN16099@fs.tum.de>
+References: <200405291424.43982.theman@artemio.net> <20040529121408.GM16099@fs.tum.de> <20040529132356.A3014@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405292238.35957.kernel@kolivas.org>
+In-Reply-To: <20040529132356.A3014@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 May 2004 22:24, Andi Kleen wrote:
-> Con Kolivas <kernel@kolivas.org> writes:
-> > I think your aims of simplifying the scheduler are admirable but I hope
-> > you don't suffer the quagmire that is manipulating the interactivity
-> > stuff. Changing one value and saying it has no apparent effect is almost
-> > certainly wrong; surely it was put there for a reason - or rather I put
-> > it there for a reason.
->
-> But that doesn't mean that the reason cannot be reevaluated later.
-> If Peter can up with a simpler scheduler and nobody can break it
-> significantly it would be great, and i'm hope such simplifications could be
-> merged after testing. Certainly the current one does far too much black
-> magic.
+On Sat, May 29, 2004 at 01:23:56PM +0100, Russell King wrote:
+> On Sat, May 29, 2004 at 02:14:08PM +0200, Adrian Bunk wrote:
+> > The following patch lets FireWire support automatically select 
+> > Networking support:
+> 
+> And so we get another fscking symbol which has a non-obvious way to
+> turn it off.
 
-Once again I agree. What I'm saying is altering the magic incantation even 
-with just one knob will lead to unexpected results so a complete overhaul is 
-probably the correct way to tackle the unnecessary complexity. I see at least 
-4 of them happening on list already by people with much more coding skill 
-than I'll ever have and am happy that interactivity is one of the things high 
-on people's minds for development.
+Alternatively, the following patch would also solve this issue:
 
-Con
+--- linux-2.6.7-rc1-mm1-full/drivers/ieee1394/Kconfig.old	2004-05-29 14:07:55.000000000 +0200
++++ linux-2.6.7-rc1-mm1-full/drivers/ieee1394/Kconfig	2004-05-29 14:56:02.000000000 +0200
+@@ -4,6 +4,7 @@
+ 
+ config IEEE1394
+ 	tristate "IEEE 1394 (FireWire) support"
++	depends on NET
+ 	help
+ 	  IEEE 1394 describes a high performance serial bus, which is also
+ 	  known as FireWire(tm) or i.Link(tm) and is used for connecting all
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

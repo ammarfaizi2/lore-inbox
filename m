@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265793AbRFXXTl>; Sun, 24 Jun 2001 19:19:41 -0400
+	id <S265797AbRFXXe4>; Sun, 24 Jun 2001 19:34:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265791AbRFXXTb>; Sun, 24 Jun 2001 19:19:31 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:42506 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265794AbRFXXTQ>; Sun, 24 Jun 2001 19:19:16 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
-Subject: Re: FAT32 superiority over ext2 :-)
-Date: Mon, 25 Jun 2001 01:22:17 +0200
-X-Mailer: KMail [version 1.2]
-Cc: viro@math.psu.edu, phillips@bonn-fries.net, chaffee@cs.berkeley.edu,
-        storner@image.dk, mnalis-umsdos@voyager.hr
-In-Reply-To: <200106242254.f5OMsxQ405511@saturn.cs.uml.edu>
-In-Reply-To: <200106242254.f5OMsxQ405511@saturn.cs.uml.edu>
-MIME-Version: 1.0
-Message-Id: <0106250122170H.00430@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S265798AbRFXXer>; Sun, 24 Jun 2001 19:34:47 -0400
+Received: from [209.250.53.201] ([209.250.53.201]:27400 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S265797AbRFXXec>; Sun, 24 Jun 2001 19:34:32 -0400
+Date: Sun, 24 Jun 2001 17:39:28 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+Message-ID: <20010624173928.A14013@hapablap.dyn.dhs.org>
+In-Reply-To: <Pine.LNX.3.96.1010622162213.32091B-100000@artax.karlin.mff.cuni.cz> <0106220929490F.00692@localhost.localdomain> <20010624234101.A1619@werewolf.able.es> <01062412555901.03436@localhost.localdomain> <20010625003002.A1767@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010625003002.A1767@werewolf.able.es>; from jamagallon@able.es on Mon, Jun 25, 2001 at 12:30:02AM +0200
+X-Uptime: 5:37pm  up 1 day, 16:19,  1 user,  load average: 1.38, 1.46, 1.57
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 June 2001 00:54, Albert D. Cahalan wrote:
-> By dumb luck (?), FAT32 is compatible with the phase-tree algorithm
-> as seen in Tux2. This means it offers full data integrity.
-> Yep, it whips your typical journalling filesystem. Look at what
-> we have in the superblock (boot sector):
->
->     __u32  fat32_length;  /* sectors/FAT */
->     __u16  flags;         /* bit 8: fat mirroring, low 4: active fat */
->     __u8   version[2];    /* major, minor filesystem version */
->     __u32  root_cluster;  /* first cluster in root directory */
->     __u16  info_sector;   /* filesystem info sector */
->
-> All in one atomic write, one can...
->
-> 1. change the active FAT
-> 2. change the root directory
-> 3. change the free space count
->
-> That's enough to atomically move from one phase to the next.
-> You create new directories in the free space, and make FAT
-> changes to an inactive FAT copy. Then you write the superblock
-> to atomically transition to the next phase.
+On Mon, Jun 25, 2001 at 12:30:02AM +0200, J . A . Magallon wrote:
+> Take a programmer comming from other system to linux. If he wants multi-
+> threading and protable code, he will choose pthreads. And you say to him:
+> do it with 'clone', it is better. Answer: non protable. Again: do it
+> with fork(), it is fast in linux. Answer: better for linux, but it is a
+> real pain in other systems.
+> 
+> And worst, you are allowing people to program based on a tool that will give
+> VERY diferent performance when ported to other systems. They use fork().
+> They port their app to solaris. The performance sucks. It is not Solaris
+> fault. It is linux fast fork() that makes people not looking for the
+> correct standard tool for what they want todo.
 
-Yes, FAT is what inspired me to go develop the algorithm.  However, two 
-words: 'lost clusters'.  Now that may just be an implemenation detail ;-)
-
---
-Daniel
+This sounds to my like "Linux is making other OSes look bad.  Cut it
+out."
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbUFJTPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUFJTRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262538AbUFJTPE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 15:15:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUFJTPE
+	id S262605AbUFJTRq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 15:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUFJTRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 15:15:04 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:752 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S262538AbUFJTNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 15:13:40 -0400
-Date: Thu, 10 Jun 2004 15:07:12 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: Serial ATA (SATA) on Linux status report (2.6.x mainstream plan
- for AHCI and iswraid??)
-In-Reply-To: <40C8A5F6.3030002@pobox.com>
-Message-ID: <Pine.GSO.4.33.0406101452220.14297-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Jun 2004 15:17:46 -0400
+Received: from adsl-065-082-245-074.sip.clt.bellsouth.net ([65.82.245.74]:32385
+	"EHLO nibbler.futurama.net") by vger.kernel.org with ESMTP
+	id S262756AbUFJTQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 15:16:50 -0400
+Subject: Re: Insults in the kernel-sources
+From: areversat <areversat@tuxfamily.org>
+Reply-To: areversat@tuxfamily.org
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <yw1xfz93grte.fsf@kth.se>
+References: <200406102053.48615.Tobias.Hirning@gmx.de>
+	 <yw1xfz93grte.fsf@kth.se>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bhtDzops76gpmQojXarR"
+Message-Id: <1086895000.4480.1.camel@hosts>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 10 Jun 2004 21:16:42 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jun 2004, Jeff Garzik wrote:
->Have you tried Carl-Daniel's raiddetect?  2.6 does not include
->ataraid-based drivers, preferred a Device Mapper (DM) approach instead.
 
-Have you looked at it lately?  It's a nice start but far from finished.
-It will not build an array or tell you how to build one yourself.  (Yet)
-And it's completely userland (part of udev) so it's a complicated
-initrd-required path.
+--=-bhtDzops76gpmQojXarR
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-If you can read code (lkml... I'll assume everyone can), the header files
-provide the on-disk metadata, so you can figure out the appropriate dm table
-and/or mdadm config to get the job done.  For example:
-  mdadm --build /dev/md/d0 --chunk=16 --level=0 --raid-devices=4 /dev/sd[abcd]
-or a dm-table:
-  0 1250327228 striped 4 32 /dev/sda 0 /dev/sdb 0 /dev/sdc 0 /dev/sdd 0
-works for me (4x160G SATA drives on a SI3114 in raid0 mode.)  The same
-md setup can be done via the kernel cmdline to boot into the array.
-However, there aren't any code pieces in the kernel for reading any of
-the various ataraid metadata formats and setting things up. (again, /yet/)
+Le jeu 10/06/2004 =E0 21:02, M=E5ns Rullg=E5rd a =E9crit :
+> Tobias Hirning <Tobias.Hirning@gmx.de> writes:
+>=20
+> > Hi people,
+> > have you ever tried a=20
+> > grep "insult" -i -r ./*
+> >  in the sourcetree of the kernel?
+> > (insult must be replaced by an insult)
+> > Haven't?
+> > So do and think about, because the you can find to much of insults in=20
+> > the sources.
+>=20
+> This is because some lazy hardware devices will not function properly
+> unless put in an angry state.  Insulting them is the easiest way to do
+> this.
+A warning should be put somewhere, in the Readme for example. Like
+"Warning : explicit source code comments" maybe the source code should
+be rated (PG13?)
+--=20
+Pour trouver les limites du possible il faut tenter l'impossible.
 
---Ricky
+--=-bhtDzops76gpmQojXarR
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
 
-PS: Only the "dm" version is 100% safe.  /dev/md/d0 exposes the entire
-    disk, metadata sectors included.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQBAyLOWuGdEvqsgTTURAkejAJ9augnCi5T+30Pz//t9/agOhvvPQwCdH9Uq
+H3SXXBe1zNpPzU0Uhs/H9iE=
+=FUXD
+-----END PGP SIGNATURE-----
 
+--=-bhtDzops76gpmQojXarR--

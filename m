@@ -1,83 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbTJWOH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 10:07:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbTJWOH5
+	id S263579AbTJWOPq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 10:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263588AbTJWOPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 10:07:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:26347 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263578AbTJWOHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 10:07:53 -0400
-Date: Thu, 23 Oct 2003 16:07:43 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Matt Domsch <Matt_Domsch@dell.com>, linux-scsi@vger.kernel.org
+	Thu, 23 Oct 2003 10:15:46 -0400
+Received: from borg.org ([64.105.205.123]:62002 "HELO borg.org")
+	by vger.kernel.org with SMTP id S263579AbTJWOPo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 10:15:44 -0400
+Date: Thu, 23 Oct 2003 10:15:43 -0400
+From: Kent Borg <kentborg@borg.org>
+To: Sandy Harris <sandy@storm.ca>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.23-pre8: link error with both megaraid drivers
-Message-ID: <20031023140743.GF11807@fs.tum.de>
-References: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
+Subject: Re: [RFC] frandom - fast random generator module
+Message-ID: <20031023101543.D6434@borg.org>
+References: <3F8E552B.3010507@users.sf.net> <bn40oa$i4q$1@gatekeeper.tmr.com> <bn46q9$1rv$1@cesium.transmeta.com> <bn4aov$jf7$1@gatekeeper.tmr.com> <bn4l5q$v73$1@cesium.transmeta.com> <20031022025602.GH17713@pegasys.ws> <20031022122251.A3921@borg.org> <3F97498D.9050704@storm.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F97498D.9050704@storm.ca>; from sandy@storm.ca on Thu, Oct 23, 2003 at 11:22:53AM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 22, 2003 at 09:24:17PM -0200, Marcelo Tosatti wrote:
->...
-> Summary of changes from v2.4.23-pre7 to v2.4.23-pre8
-> ============================================
->...
-> Matt Domsch:
->   o Fix megaraid2 compilation problems
->...
+On Thu, Oct 23, 2003 at 11:22:53AM +0800, Sandy Harris wrote:
+> That's not secure; four bytes give only 2^32 = 4 billion odd
+> possibilities. An enemy can easily enumerate them all as the
+> start of an attack.
 
-Trying to compile both megaraid drivers statically into the kernel still 
-fails with the following link error:
+It depends upon whether the foe can get access to the encrypted/hashed
+copy, and it depends upon the importance of the password.  For
+example, what properties do you think my amazon.com password should
+have?  Is a sufficiently motivated foe really likely to get access?
+And what is the cost of that happening?  I think 32-bits of entropy is
+quite reasonable for such uses.  Certainly for some uses, such as
+encrypted communications, 32-bits is not enough, but have you tried
+remembering a passphrase with, say, 128-bits of entropy?  It can be
+done, but it is not easy.  And entering such a passphrase blind (with
+no echo) is not easy either.  
 
-<--  snip  -->
+I want normal people with normal notivations to be able to keep their
+computers secure, and expecting a normal person to use such a long
+passphrase not reasonable.  Let's keep the shadow file not world
+readable, and then 32-bit passwords are secure.
 
-...
-ld -m elf_i386  -r -o scsidrv.o scsi_mod.o sim710.o advansys.o pci2000.o 
-pci2220i.o psi240i.o BusLogic.o dpt_i2o.o u14-34f.o ultrastor.o aha152x.o 
-aha1542.o aha1740.o aacraid/aacraid.o aic7xxx/aic7xxx.o aic7xxx/aic79xx.o ips.o 
-fd_mcs.o fdomain.o in2000.o g_NCR5380.o NCR53c406a.o NCR_D700.o 53c700.o sym53c416.o 
-qlogicfas.o qlogicisp.o qlogicfc.o qla1280.o pas16.o seagate.o t128.o dmx3191d.o 
-dtc.o 53c7,8xx.o sym53c8xx_2/sym53c8xx_2.o eata_dma.o eata_pio.o wd7000.o 
-NCR53C9x.o mca_53c9x.o ibmmca.o eata.o tmscsim.o AM53C974.o megaraid.o megaraid2.o 
-atp870u.o gdth.o initio.o a100u2w.o ide-scsi.o 3w-xxxx.o ppa.o imm.o scsi_debug.o 
-cpqfc.o nsp32.o st.o osst.o sd_mod.o sr_mod.o sg.o
-megaraid2.o(.text+0x1ff0): In function `megaraid_info':
-: multiple definition of `megaraid_info'
-megaraid.o(.text+0x29f8): first defined here
-ld: Warning: size of symbol `megaraid_info' changed from 67 in 
-megaraid.o to 57 in megaraid2.o
-make[3]: *** [scsidrv.o] Error 1
-make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux/kernel-2.4/linux-2.4.23-pre8-full/drivers/scsi'
+> > -kb, the Kent who would like to see the kernel's random number
+> > generator improved
+> 
+> I think we'd all like to see it improved if possible. The question
+> is how, and why?
 
-<--  snip  -->
+Actually, I think much of what I was thinking of has been done for
+2.6.
 
-The patch below fixes this issue by disalllowing the static inclusion of 
-both drivers at the same time.
+> > ability to supply some initial entropy early in the
+> > boot--for embedded devices
+> 
+> [...]
+> 
+> Do you think you need this before there's a file system? Why?
+> Or are you thinking of boxes that don't have a file system?
+> Or not writable? Not local?
 
-cu
-Adrian
+I am thinking of little embedded boxes which can cobble up some
+trickle of entropy once running (frequently from the network), and
+probably find a place to store some, but at the very beginning of
+their first boot, before opening networking or before it has been up
+for long, at the point when they might want to generate ssh keys, it
+would be nice to have ~some~ entropy.  One source would be to hash the
+power-on contents of some of the DRAM.  Yes, I know DRAM does not come
+up in a random state, but it does not come up in a predictable state
+either; there *is* some entropy there.  Make a digest of a megabyte.
+How many bits need vary from one boot to another (or even easier, from
+one physical chip to another) to produce a useful lump of entropy?
+Yes, I know that a warm boot might have no entropy in RAM contents,
+but in the case of a warm boot there can be some saved entropy, and
+mixing in known data does the entropy pool no harm.  And hashing a
+megabyte of RAM is not that expensive, even on a slow CPU.
 
---- linux-2.4.23-pre7-full/drivers/scsi/Config.in.old	2003-10-11 17:00:47.000000000 +0200
-+++ linux-2.4.23-pre7-full/drivers/scsi/Config.in	2003-10-11 17:24:00.000000000 +0200
-@@ -67,7 +67,12 @@
- dep_tristate 'Always IN2000 SCSI support' CONFIG_SCSI_IN2000 $CONFIG_SCSI
- dep_tristate 'AM53/79C974 PCI SCSI support' CONFIG_SCSI_AM53C974 $CONFIG_SCSI $CONFIG_PCI
- dep_tristate 'AMI MegaRAID support' CONFIG_SCSI_MEGARAID $CONFIG_SCSI
--dep_tristate 'AMI MegaRAID2 support' CONFIG_SCSI_MEGARAID2 $CONFIG_SCSI
-+if [ "$CONFIG_SCSI_MEGARAID" != "y" ]; then
-+  define_tristate CONFIG_SCSI_MEGARAID2_DEP $CONFIG_SCSI
-+else
-+  define_tristate CONFIG_SCSI_MEGARAID2_DEP m $CONFIG_SCSI
-+fi
-+dep_tristate 'AMI MegaRAID2 support' CONFIG_SCSI_MEGARAID2 $CONFIG_SCSI_MEGARAID2_DEP
- 
- dep_tristate 'BusLogic SCSI support' CONFIG_SCSI_BUSLOGIC $CONFIG_SCSI
- if [ "$CONFIG_SCSI_BUSLOGIC" != "n" ]; then
+Maybe I am wrong about needing entropy so early, but if it is
+collected before Linux boots, it needs to be stored somewhere, and it
+would be nice to be able to free that space when Linux frees other
+boot memory.
+
+
+-kb

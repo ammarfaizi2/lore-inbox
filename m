@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287631AbSBZOiq>; Tue, 26 Feb 2002 09:38:46 -0500
+	id <S288050AbSBZOps>; Tue, 26 Feb 2002 09:45:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287862AbSBZOih>; Tue, 26 Feb 2002 09:38:37 -0500
-Received: from jalon.able.es ([212.97.163.2]:8893 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S287631AbSBZOi1>;
-	Tue, 26 Feb 2002 09:38:27 -0500
-Date: Tue, 26 Feb 2002 15:38:19 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Guido Volpi <lugburz@tiscalinet.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oproblem with nvidia driver
-Message-ID: <20020226153819.C5660@werewolf.able.es>
-In-Reply-To: <200202261447.g1QElLO02468@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200202261447.g1QElLO02468@localhost.localdomain>; from lugburz@tiscalinet.it on mar, feb 26, 2002 at 15:47:21 +0100
-X-Mailer: Balsa 1.3.1
+	id <S288012AbSBZOph>; Tue, 26 Feb 2002 09:45:37 -0500
+Received: from mail.loewe-komp.de ([62.156.155.230]:22291 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S287862AbSBZOp2>; Tue, 26 Feb 2002 09:45:28 -0500
+Message-ID: <3C7B9F29.1FFD6F71@loewe-komp.de>
+Date: Tue, 26 Feb 2002 15:43:53 +0100
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.16-e2compr i686)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, davej@suse.de,
+        Andrew Morton <akpm@zip.com.au>
+Subject: Re: Oopses in scheduler on Linux-2.4.17-xfs
+In-Reply-To: <E16Qerz-00070o-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox schrieb:
+> 
+> > I recently get oopses on 2.4.14-xfs and 2.4.17-xfs.
+> > box is SMP with old Pentium Pro
+> > There were some changes with erratas of the Pro ans something
+> > with "cacheline alignment" and a fence.
+> 
+> Unrelated - in fact you have bugs before and after. The fixes in question
+> were two sets
+> 
+> 1.      In certain bizarre situations the ppro violates store ordering. It
+>         needs lock based spin_unlock to avoid that. Ditto locks to ensure
+>         stores don't bypass stuff on pci_map interfaces. (This btw is the
+>         same errata as the FENCE stuff in libglide is all about)
+> 
+> 2.      Certain address ranges must never be cached on the ppro due to an
+>         errata. We broke that in two ways - if there was RAM there, and
+>         if we mapped a card there and set MTRR's to write combine it.
+> 
 
-On 20020226 Guido Volpi wrote:
->it's all right: nvidia modules depend only by nvidia, but i don't understand 
->why a module that is perfect (or so) with 2.4.17 in 2.4.18-rc4 is no more 
->usabily.
->
+Perhaps you three remember my reports about crashes in the scheduler.
 
-I am using it in all releases since time ago. Now I run 2.4.18 with some
-patches and the nvidia module is working right.
+After I was able to fetch an Oops on 2.4.17 (without kdb) I noticed
+this:
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-jam1 #1 SMP Tue Feb 26 00:06:55 CET 2002 i686
+my bt848 didn't generate any interrupts (so videotext and epg didn't work
+but TV worked)
+
+In a last temptation I checked the BIOS and switched from MPP 1.4 to 1.1
+And guess what? The box is running fine again for several weeks.
+
+The BIOS was buggy before(different MTRR on CPUs) , I upgraded "years" ago.
+
+I can't remember when I switched this entry in the BIOS.
+Possibly there is a bug in the MPP tables (setup through BIOS) when set to 1.4?
+
+Damn, never play with your BIOS settings if the box runs fine ... especially
+if you forget that fact ;-)

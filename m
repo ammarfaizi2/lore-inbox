@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263039AbSLaOZs>; Tue, 31 Dec 2002 09:25:48 -0500
+	id <S262824AbSLaOXP>; Tue, 31 Dec 2002 09:23:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263137AbSLaOZs>; Tue, 31 Dec 2002 09:25:48 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:33672 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263039AbSLaOZr>;
-	Tue, 31 Dec 2002 09:25:47 -0500
-Date: Tue, 31 Dec 2002 20:05:19 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Andy Pfiffer <andyp@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
-       wa@almesberger.net
-Subject: Re: [PATCH][CFT] kexec (rewrite) for 2.5.52
-Message-ID: <20021231200519.A2110@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <m1smwql3av.fsf@frodo.biederman.org>
-Mime-Version: 1.0
+	id <S262826AbSLaOXP>; Tue, 31 Dec 2002 09:23:15 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:2054 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S262824AbSLaOXP>;
+	Tue, 31 Dec 2002 09:23:15 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212311431.gBVEVLVB001666@darkstar.example.net>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+To: jochen@scram.de (Jochen Friedrich)
+Date: Tue, 31 Dec 2002 14:31:21 +0000 (GMT)
+Cc: xavier.bestel@free.fr, andrew@walrond.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.NEB.4.44.0212311518570.9962-100000@www2.scram.de> from "Jochen Friedrich" at Dec 31, 2002 03:22:28 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m1smwql3av.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Dec 22, 2002 at 04:07:52AM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 22, 2002 at 04:07:52AM -0700, Eric W. Biederman wrote:
+> > Are drivers for Alpha, Sparc, or anything else with a pci slot apart
+> > from an X86 machine available?
 > 
-> I have recently taken the time to dig through the internals of
-> kexec to see if I could make my code any simpler and have managed
-> to trim off about 100 lines, and have made the code much more
-> obviously correct.
-> 
-> Anyway, I would love to know in what entertaining ways this code blows
-> up, or if I get lucky and it doesn't.  I probably will not reply back
-> in a timely manner as I am off to visit my parents, for Christmas and
-> New Years.  
-> 
+> Unfortunately, that wouldn't be enought. There are lots of PCI graphics
+> cards available, which still only work in an X86 (and in most cases Alpha)
+> machines, although there is an open source driver. The reason is that they
+> need the initialisation code in their PCI BIOS, which is X86, binary
+> code.
 
-The good news is that it worked for me. Not only that, I have just 
-managed to get lkcd to save a dump in memory and then write it out 
-to disk after a kexec soft boot ! I haven't tried real panic cases yet 
-(which probably won't work rightaway :) ) and have testing and 
-tuning to do. But kexec seems to be looking good.
+Sorry, I didn't really explain what I meant very well.  I realise that
+it's not just a case of getting the driver to compile on other
+architectures, what I meant was that if the driver is open source then
+anybody is free to work on the support for non-X86 boxes.  If it's
+closed source, then only the manufacturer can work on it.
 
-Have a wonderful new year.
+> Alpha works around this by using an X86 emulator in their PAL code.
 
-Regards
-Suparna
+That's interesting, I didn't know that.  How complete is it?  Does it
+just emulate a subset of X86 instructions that are enough for 90% of
+initialisation code?
+
+John.

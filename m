@@ -1,116 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270996AbRHOBiK>; Tue, 14 Aug 2001 21:38:10 -0400
+	id <S270992AbRHOBgU>; Tue, 14 Aug 2001 21:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270994AbRHOBiB>; Tue, 14 Aug 2001 21:38:01 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:43527 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S270995AbRHOBhp>; Tue, 14 Aug 2001 21:37:45 -0400
-Message-ID: <3B79D26E.CD912961@delusion.de>
-Date: Wed, 15 Aug 2001 03:37:50 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-ac5 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S270993AbRHOBgK>; Tue, 14 Aug 2001 21:36:10 -0400
+Received: from think.faceprint.com ([166.90.149.11]:43787 "EHLO
+	think.faceprint.com") by vger.kernel.org with ESMTP
+	id <S270992AbRHOBf6>; Tue, 14 Aug 2001 21:35:58 -0400
+Date: Tue, 14 Aug 2001 21:36:01 -0400
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.8-ac5
-In-Reply-To: <20010814221556.A7704@lightning.swansea.linux.org.uk> <3B79B43D.B9350226@delusion.de> <3B79C3A9.52562F71@zip.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <20010814213601.A10359@faceprint.com>
+In-Reply-To: <20010814221556.A7704@lightning.swansea.linux.org.uk> <3B79B43D.B9350226@delusion.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+Content-Disposition: inline
+In-Reply-To: <3B79B43D.B9350226@delusion.de>
+User-Agent: Mutt/1.3.20i
+From: faceprint@faceprint.com (Nathan Walp)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> Interesting that kpnpbiosd has a ppid of zero, whereas keventd, which
-> is started a few statements later has a ppid of one.  hmmm..
 
-[...]
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I bet this ancient reparent-kernel-thread-to-init patch fixes it.  It always
-> does.
+> Hi Alan,
+>=20
+> 2.4.8-ac5 makes the kpnpbios kernel thread go zombie here every time right
+> during boot. I know that 2.4.8-ac1 didn't have this problem, but didn't t=
+ry
+> -ac2 to -ac4. If you want me to check which -ac release was the last that
+> got it right, just say and I'll check.
+>=20
 
-It does indeed. Nice work, Andrew - works like a charm. Formerly the kpnpbios
-thread never exited, which is why the problem never showed, now it exits ok.
-I've rediffed your patch against 2.4.8-ac5, because I was getting rejects -
-in case Alan wants to apply it to his tree.
+ac4 does it too, on an old system I have at home...detail available if need=
+ed.
 
-Regards,
-Udo.
 
---- linux-vanilla/kernel/sched.c        Wed Aug 15 03:19:24 2001
-+++ linux-2.4.8-ac/kernel/sched.c       Wed Aug 15 03:06:31 2001
-@@ -35,6 +35,7 @@
- extern void timer_bh(void);
- extern void tqueue_bh(void);
- extern void immediate_bh(void);
-+extern struct task_struct *child_reaper;
- 
- /*
-  * scheduler variables
-@@ -1227,32 +1228,53 @@
- /*
-  *     Put all the gunge required to become a kernel thread without
-  *     attached user resources in one place where it belongs.
-+ *
-+ *     Kernel 2.4.4-pre3, akpm: reparent the caller
-+ *     to init and set the exit signal to SIGCHLD so the thread
-+ *     will be properly reaped if it exits.
-  */
- 
- void daemonize(void)
- {
-        struct fs_struct *fs;
--
-+       struct task_struct *this_task = current;
- 
-        /*
-         * If we were started as result of loading a module, close all of the
-         * user space pages.  We don't need them, and if we didn't close them
-         * they would be locked into memory.
-         */
--       exit_mm(current);
-+       exit_mm(this_task);
- 
--       current->session = 1;
--       current->pgrp = 1;
-+       this_task->session = 1;
-+       this_task->pgrp = 1;
- 
-        /* Become as one with the init task */
+--=20
+Nathan Walp             || faceprint@faceprint.com
+GPG Fingerprint:        ||   http://faceprint.com/
+5509 6EF3 928B 2363 9B2B  DA17 3E46 2CDC 492D DB7E
 
--       exit_fs(current);       /* current->fs->count--; */
-+       exit_fs(this_task);             /* this_task->fs->count--; */
-        fs = init_task.fs;
--       current->fs = fs;
-+       this_task->fs = fs;
-        atomic_inc(&fs->count);
--       exit_files(current);
--       current->files = init_task.files;
--       atomic_inc(&current->files->count);
-+       exit_files(this_task);          /* this_task->files->count-- */
-+       this_task->files = init_task.files;
-+       atomic_inc(&this_task->files->count);
-+
-+       write_lock_irq(&tasklist_lock);
-+
-+       /* Reparent to init */
-+       REMOVE_LINKS(this_task);
-+       this_task->p_pptr = child_reaper;
-+       this_task->p_opptr = child_reaper;
-+       SET_LINKS(this_task);
-+
-+       /* Set the exit signal to SIGCHLD so we signal init on exit */
-+       if (this_task->exit_signal != 0) {
-+               printk(KERN_ERR "task %s' exit_signal %d in daemonize()\n",
-+                       this_task->comm, this_task->exit_signal);
-+       }
-+       this_task->exit_signal = SIGCHLD;
-+
-+       write_unlock_irq(&tasklist_lock);
- }
- 
- void __init init_idle(void)
+
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7edIBPkYs3Ekt234RAmBtAKDS5YwRX3PgT17lIs8M3lKRPTB3HQCbB7LV
+Fz4lkITQl1VxwpaySSCcixw=
+=70YY
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--

@@ -1,61 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbTLPVbT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 16:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTLPVbT
+	id S262714AbTLPVk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 16:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbTLPVk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 16:31:19 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:14785 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262694AbTLPVbR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 16:31:17 -0500
-Subject: cifs causes high system load avg, oopses when unloaded on
-	2.6.0-test11
-From: Steve French <smfltc@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-cifs-client@lists.samba.org, wli@holomorphy.com, darren@dmdtech.org
-Content-Type: text/plain
-Organization: IBM
-Message-Id: <1071609977.1806.27.camel@stevef95.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 16 Dec 2003 15:26:17 -0600
+	Tue, 16 Dec 2003 16:40:59 -0500
+Received: from s383.jpl.nasa.gov ([137.79.94.127]:37566 "EHLO
+	s383.jpl.nasa.gov") by vger.kernel.org with ESMTP id S262714AbTLPVk5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 16:40:57 -0500
+Message-ID: <3FDF7BE0.205@jpl.nasa.gov>
+Date: Tue, 16 Dec 2003 13:40:48 -0800
+From: Bryan Whitehead <driver@jpl.nasa.gov>
+Organization: Jet Propulsion Laboratory
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en-us, en, zh, zh-cn, zh-hk, zh-sg, zh-tw, ja
+MIME-Version: 1.0
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: tsuchiya@labs.fujitsu.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: filesystem bug?
+References: <3FDD7DFD.7020306@labs.fujitsu.com> <1071582242.5462.1.camel@sisko.scot.redhat.com>
+In-Reply-To: <1071582242.5462.1.camel@sisko.scot.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Using CIFS causes a very high load average (approx. 12 according to
->> After I umout all filesystems (CIFS ones) and then unload the module,
->> it oopses (below).
->> CC me replies if more information is needed.
+I get this problem all the time here at JPL. I can always get the files 
+back by remounting the filesystem.
 
-I don't know if this will fail with the more current (version 0.99 of 
-the 2.6 version of the cifs filesystem) which is at
-http://us1.samba.org/samba/ftp/cifs-cvs/cifs-0.9.9-2.6kern.tar.gz
-but I am trying some experiments today to see if I can reproduce
-something similar artificially.  I was concerned about some other oopses
-and problems in the tcp reconnection logic that are now fixed but are in
-the much older version 0.94 of the cifs vfs in the
-linux.bkbits.net/linux-2.5 tree but as 2.6 has been mostly locked down
-for weeks - test11 is missing at least a dozen key cifs fixes (including
-stress test fixes and fixes for a few oopses reported by 2.6 users
-testing more actively over the past couple months), the more recent
-fs/cifs files (version 0.9.9) are likely to be much better than what is
-in 2.6-test11
+For example if /dev/sdb1 mounted on /export/project is getting wierd 
+"Input/output" errors I can simply run this command:
+mount -o remount /dev/sdb1 /export/project
 
-(the gz simply contains the contents of the 0.9.9 version of the fs/cifs
-directory, rather than a patch (about 15 changesets ahead of 2.6test9,10
-or 11).  There are no corequisite fixes outside the directory and it can
-be applied to any of the recent 2.6-test* versions)
+It's been about a year of these problems... I'll try running the test 
+Tsuchiya Yoshihiro made to reproduce. (I have not been able to create a 
+test that can consistantly reproduce... but the problem has sure screwed 
+up some data-gathering runs in the lab).
 
-> Hmm, this unload needs to hand back failure to module unload when it>>
-> can't nuke inodes etc. I'd suggest not using it as a module for the
-> time being.
+These are all on Mandrake kernels though.... (from the 9.0 series). so 
+that's 2.4.19+tonOfPatches.
 
-I don't see how I could pass failure back on module unload even if I
-could detect problems freeing the memory associated with cifs's inode
-cache - there is no place for return code info - see the caller ie the
-call to mod->exit() in sys_delete_module (about line 735 of
-kernel/module.c)
+Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Mon, 2003-12-15 at 09:25, Tsuchiya Yoshihiro wrote:
+> 
+> 
+>>Following is an Ext2 result and the inode is filled by zero.
+>>I think the inode becomes a badinode.
+> 
+> 
+>>[root@dell04 tsuchiya]# ls -l /mnt/foo/ae/dir0/mozilla/layout/html/tests/table/bugs/bug2757.html
+>>ls: /mnt/foo/ae/dir0/mozilla/layout/html/tests/table/bugs/bug2757.html: Input/output error
+> 
+> 
+> "Input/output error" can sometimes mean that the kernel has found a
+> filesystem problem, but it also often indicates a device-layer problem. 
+> Is there anything helpful in the kernel logs?
+> 
+> Cheers,
+>  Stephen
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
+
+-- 
+Bryan Whitehead
+SysAdmin - JPL - Interferometry and Large Optical Systems
+Phone: 818 354 2903
+driver@jpl.nasa.gov
 

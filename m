@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313057AbSEEPYb>; Sun, 5 May 2002 11:24:31 -0400
+	id <S313070AbSEEP1m>; Sun, 5 May 2002 11:27:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313041AbSEEPYb>; Sun, 5 May 2002 11:24:31 -0400
-Received: from [212.159.14.227] ([212.159.14.227]:54451 "HELO
-	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S313026AbSEEPYa>; Sun, 5 May 2002 11:24:30 -0400
-Date: Sun, 5 May 2002 16:23:33 +0100
-From: "J.P. Morris" <jpm@it-he.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.x keyboard oddities
-Message-Id: <20020505162333.5f5415c4.jpm@it-he.org>
-In-Reply-To: <20020505124704.GC4990@louise.pinerecords.com>
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S313084AbSEEP1l>; Sun, 5 May 2002 11:27:41 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:49929 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S313070AbSEEP1l>; Sun, 5 May 2002 11:27:41 -0400
+Date: Sun, 5 May 2002 17:27:24 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.enlightnet.local>
+To: "Peter J. Milanese" <peterm@milanese.cc>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: SMBfs / Unicode problem perhaps?
+In-Reply-To: <1020611972.3cd54d84bf75d@www.milanese.cc>
+Message-ID: <Pine.LNX.4.33.0205051720470.4444-100000@cola.enlightnet.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 May 2002 14:47:04 +0200
-Tomas Szepe <szepe@pinerecords.com> wrote:
+On Sun, 5 May 2002, Peter J. Milanese wrote:
 
-> > [J.P. Morris <jpm@it-he.org>]
-> >
-> > The system appears to have come up completely now, except for the
-> > keyboard which is totally frozen throughout the entire boot process.
-> 
-> 1) Try booting with 'acpi=off'. It's broken for a number of systems
-> (does precisely what you've described) and no official update is
-> available as of yet. Alternatively, you can try to apply the most
-> recent ACPI patch from [1].
+> :\ - I am running 2.2.3a... I'll look at those messages and see if there is a
+> corelation. Thanks for the tip-
 
-Thanks, turning off ACPI fixes it.
+Are you sure your smbmount is 2.2.3a and that you don't have a mix of an
+old 2.2.1a install? smbmount from 2.2.3a should not negotiate unicode
+unless you told it to ...
+
+You could also try the untested patch below that only enables it if you
+also specify "codepage=unicode" as a mount option.
+
+/Urban
 
 
--- 
-JP Morris - aka DOUG the Eagle (Dragon) -=UDIC=-  doug@it-he.org
-Fun things to do with the Ultima games            http://www.it-he.org
-Developing a U6/U7 clone                          http://ire.it-he.org
-d+++ e+ N+ T++ Om U1234!56!7'!S'!8!9!KA u++ uC+++ uF+++ uG---- uLB----
-uA--- nC+ nR---- nH+++ nP++ nI nPT nS nT wM- wC- y a(YEAR - 1976)
+diff -urN -X exclude linux-2.5.13-kbuild-orig/fs/smbfs/proc.c linux-2.5.13-kbuild-smbfs/fs/smbfs/proc.c
+--- linux-2.5.13-kbuild-orig/fs/smbfs/proc.c	Fri May  3 02:22:42 2002
++++ linux-2.5.13-kbuild-smbfs/fs/smbfs/proc.c	Sun May  5 14:53:08 2002
+@@ -979,7 +979,9 @@
+ 		SB_of(server)->s_maxbytes = ~0ULL >> 1;
+ 		VERBOSE("LFS enabled\n");
+ 	}
+-	if (server->opt.capabilities & SMB_CAP_UNICODE) {
++	if (server->opt.capabilities & SMB_CAP_UNICODE &&
++	    server->remote_nls == &unicode_table) {
++		/* Only enable unicode if the remote nls is also unicode */
+ 		server->mnt->flags |= SMB_MOUNT_UNICODE;
+ 		VERBOSE("Unicode enabled\n");
+ 	} else {
+

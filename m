@@ -1,89 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267340AbUGNJg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267341AbUGNJiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267340AbUGNJg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 05:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267341AbUGNJgf
+	id S267341AbUGNJiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 05:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267342AbUGNJiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 05:36:35 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:8139 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267340AbUGNJgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 05:36:32 -0400
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary
-	Kernel	Preemption Patch
-From: Lee Revell <rlrevell@joe-job.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
-       linux-audio-dev@music.columbia.edu,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <s5hk6x79dk4.wl@alsa2.suse.de>
-References: <20040712163141.31ef1ad6.akpm@osdl.org>
-	 <200407130001.i6D01pkJ003489@localhost.localdomain>
-	 <20040712170844.6bd01712.akpm@osdl.org>
-	 <20040713162539.GD974@dualathlon.random>
-	 <1089744137.20381.49.camel@mindpipe>
-	 <20040713142923.568fa35e.akpm@osdl.org>
-	 <1089755130.22175.21.camel@mindpipe>  <s5hk6x79dk4.wl@alsa2.suse.de>
-Content-Type: text/plain
-Message-Id: <1089797791.2336.3.camel@mindpipe>
+	Wed, 14 Jul 2004 05:38:25 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:52228 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S267341AbUGNJiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 05:38:11 -0400
+Subject: Re: Can't compile sg.c 2.6.8-rc1-mm1
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <30a4d01b04071401457267defa@mail.gmail.com>
+References: <30a4d01b04071401457267defa@mail.gmail.com>
+Content-Type: multipart/mixed; boundary="=-o4iXvaMgTjppUxIgFy7e"
+Date: Wed, 14 Jul 2004 11:37:34 +0200
+Message-Id: <1089797854.1740.2.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 14 Jul 2004 05:36:31 -0400
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 1.5.9.2 (1.5.9.2-1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-14 at 04:51, Takashi Iwai wrote:
-> At Tue, 13 Jul 2004 17:45:30 -0400,
-> Lee Revell wrote:
-> > 
-> > On Tue, 2004-07-13 at 17:29, Andrew Morton wrote:
-> > > Lee Revell <rlrevell@joe-job.com> wrote:
-> > > >
-> > > > Would this explain these?  When running JACK with settings that need
-> > > > sub-millisecond latencies, I get them when I generate any load at all on
-> > > > the system (typing, switching windows, etc).  I also get lots of these
-> > > > if I run JACK from an X terminal, but very few if I run it from a text
-> > > > console, even if X is running in the background.
-> > > > 
-> > > > Jul 13 14:36:16 mindpipe kernel: ALSA /usr/src/alsa-cvs-1.0.5/alsa-driver/alsa-kernel/core/pcm_lib.c:199: Unexpected hw_pointer value [1] (stream = 0, delta: -25, max jitter = 32): wrong interrupt acknowledge?
-> > > 
-> > > I'm wondering what this message actually means.  "Unexpected hw_pointer
-> > > value"?
-> > > 
-> > > Does this actually indicate an underrun, or is the debug code screwy?
-> > 
-> > Not sure.  Here is what Takashi had to say about it:
-> > 
-> > "The message appears when an unexpected DMA pointer is read in the
-> > interrupt handler.  Either the handling of irq was delayed more than
-> > the buffer size, an irq is issued at the wrong timing, or the DMA
-> > pointer reigster is somehow screwed up.
-> > 
-> > Since you're using quite small buffer, I guess the former case."
-> > 
-> > My response:
-> > 
-> > "I thought this was what an XRUN was, when the handling of the irq is
-> > delayed more than the buffer size.  Sometimes these messages are
-> > associated with XRUNs, sometimes not."
-> > 
-> > Haven't heard back yet. 
-> > 
-> > Is it possible that I am simply pushing my hardware past its limits? 
-> > Keep in mind this is a 600Mhz C3 processor.
+
+--=-o4iXvaMgTjppUxIgFy7e
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Wed, 2004-07-14 at 11:45 +0300, Genady Okrain wrote:
+> I am using gcc-3.4.1
 > 
-> I think yes.  32 frames / 44.1kHz = 0.725 ms.
+>   CC [M]  drivers/scsi/sg.o
+> drivers/scsi/sg.c: In function `sg_ioctl':
+> drivers/scsi/sg.c:209: sorry, unimplemented: inlining failed in call
+> to 'sg_jif_to_ms': function body not available
+> drivers/scsi/sg.c:930: sorry, unimplemented: called from here
+> make[2]: *** [drivers/scsi/sg.o] Error 1
+> make[1]: *** [drivers/scsi] Error 2
+> make: *** [drivers] Error 2
 > 
 
-I am runnign at 48kHz so it's actually 0.666 ms.  But, the average
-response is quite good, 20-30 microseconds.  The spikes are infrequent
-enought that I think this is achievable.  If not then 64 frames
-definitely is.
+Also, the following patch is needed for "make menuconfig" to work with
+GCC 3.5.
 
-So what is the difference between the above message and an XRUN?  I
-thought an XRUN occurred when the handling of the IRQ is delayed more
-than the buffer size.
+--=-o4iXvaMgTjppUxIgFy7e
+Content-Disposition: attachment; filename=gcc-35-fix-mconf.c.patch
+Content-Type: text/x-patch; name=gcc-35-fix-mconf.c.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Lee
+diff -uNr linux-2.6.7-mm7/scripts/kconfig/mconf.c linux-2.6.7-mm7-gcc35/scripts/kconfig/mconf.c
+--- linux-2.6.7-mm7/scripts/kconfig/mconf.c	2004-06-16 07:19:02.000000000 +0200
++++ linux-2.6.7-mm7-gcc35/scripts/kconfig/mconf.c	2004-07-09 10:10:07.000000000 +0200
+@@ -88,7 +88,7 @@
+ static int indent;
+ static struct termios ios_org;
+ static int rows, cols;
+-static struct menu *current_menu;
++struct menu *current_menu;
+ static int child_count;
+ static int do_resize;
+ static int single_menu_mode;
+
+--=-o4iXvaMgTjppUxIgFy7e--
 

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267078AbTBVRA1>; Sat, 22 Feb 2003 12:00:27 -0500
+	id <S267106AbTBVRIm>; Sat, 22 Feb 2003 12:08:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267106AbTBVRA1>; Sat, 22 Feb 2003 12:00:27 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:32642
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267078AbTBVRA0>; Sat, 22 Feb 2003 12:00:26 -0500
-Subject: Re: [ak@suse.de: Re: iosched: impact of streaming read on
-	read-many-files]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       andrea@suse.de
-In-Reply-To: <20030221230716.630934cf.akpm@digeo.com>
-References: <20030222054307.GA22074@wotan.suse.de>
-	 <20030221230716.630934cf.akpm@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045937514.5038.3.camel@irongate.swansea.linux.org.uk>
+	id <S267137AbTBVRIl>; Sat, 22 Feb 2003 12:08:41 -0500
+Received: from angband.namesys.com ([212.16.7.85]:40832 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S267106AbTBVRIl>; Sat, 22 Feb 2003 12:08:41 -0500
+Date: Sat, 22 Feb 2003 20:18:45 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: thetech@folkwolf.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Box freezes if I enable "AMD 76x native power management"
+Message-ID: <20030222201845.A2865@namesys.com>
+References: <20030222163057.A884@namesys.com> <1045935866.4723.3.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 22 Feb 2003 18:11:54 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1045935866.4723.3.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-02-22 at 07:07, Andrew Morton wrote:
-> No, we do not really need to implement RLIM_MEMLOCK for such applications.
-> They can leave their memory unlocked for any reasonable loads.
-> 
-> Yes, we _do_ need to give these applications at least elevated scheduling
-> priority, if not policy, so they get the CPU in a reasonable period of
-> time.
+Hello!
 
-It isnt about CPU, its about disk. If the app gets a code page swapped
-out then unless we have disk as well as cpu priority, or we do memlock
-stuff you are screwed. I guess the obvious answer with 2.5 is to 
-simply abuse the futex bugs and lock down futex pages with code in ;)
+On Sat, Feb 22, 2003 at 05:44:27PM +0000, Alan Cox wrote:
+> >    Starting from 2.4.20 until now (including 2.4.21-pre4 and 2.4.21-pre4-ac5",
+> >    whenever I enable "AMD 76x native power management" in my kernel config, I get
+> >    kernel that hangs at boot after reporting elevator stuff about my IDE drives.
+> >    Is anybody interested?
+> It doesnt work with some tyan boards. I've never found out why. Most of them you
+> load the module, it stops, you poke the button and it wakes up again and then works
 
+This is not my case it seems. No matter what I press, it is dead.
+But I compile it statically into kernel, though. Have not tried with a
+module yet, though.
+
+Bye,
+    Oleg

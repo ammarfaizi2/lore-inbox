@@ -1,197 +1,258 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268235AbUHFT0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268251AbUHFT0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268235AbUHFT0w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 15:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268246AbUHFT0d
+	id S268251AbUHFT0u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 15:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268247AbUHFT0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 15:26:33 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:26341 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268245AbUHFTYF (ORCPT
+	Fri, 6 Aug 2004 15:26:03 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:53936 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268244AbUHFTWq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 15:24:05 -0400
-Date: Sun, 8 Aug 2004 00:51:39 +0530
+	Fri, 6 Aug 2004 15:22:46 -0400
+Date: Sun, 8 Aug 2004 00:50:23 +0530
 From: Dipankar Sarma <dipankar@in.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Rusty Russell <rusty@rustcorp.com.au>,
        "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
        Robert Olsson <Robert.Olsson@data.slu.se>, netdev@oss.sgi.com
-Subject: Re: RCU : Document RCU api [4/5]
-Message-ID: <20040807192139.GE3936@in.ibm.com>
+Subject: Re: RCU : Use call_rcu_bh() in route cache [3/5]
+Message-ID: <20040807192023.GD3936@in.ibm.com>
 Reply-To: dipankar@in.ibm.com
-References: <20040807191536.GA3936@in.ibm.com> <20040807191729.GB3936@in.ibm.com> <20040807191841.GC3936@in.ibm.com> <20040807192023.GD3936@in.ibm.com>
+References: <20040807191536.GA3936@in.ibm.com> <20040807191729.GB3936@in.ibm.com> <20040807191841.GC3936@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040807192023.GD3936@in.ibm.com>
+In-Reply-To: <20040807191841.GC3936@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch from Paul for additional documentation of api.
+Use call_rcu_bh() in route cache. This allows faster grace periods and
+avoids dst cache overflows during DoS testing.
 
 Thanks
 Dipankar
 
 
+This patch uses the call_rcu_bh() api in route cache code to
+facilitate quicker RCU grace periods. Quicker grace periods
+avoid overflow of dst cache in heavily loaded routers as
+seen in Robert Olsson's testing. 
 
-Updated based on feedback, and to apply to 2.6.8-rc3.  I will be
-adding more detailed documentation to the Documentation directory
-in a separate patch.
-
-Signed-off-by: Paul McKenney <paulmck@us.ibm.com>
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
 
 
- include/linux/rcupdate.h |   65 ++++++++++++++++++++++++++++++++++++++++++++++-
- kernel/rcupdate.c        |   39 +++++++++++++++++-----------
- 2 files changed, 88 insertions(+), 16 deletions(-)
+ net/decnet/dn_route.c |   28 ++++++++++++++--------------
+ net/ipv4/route.c      |   26 +++++++++++++-------------
+ 2 files changed, 27 insertions(+), 27 deletions(-)
 
-diff -puN include/linux/rcupdate.h~rcu-api-doc include/linux/rcupdate.h
---- linux-2.6.8-rc3-mm1/include/linux/rcupdate.h~rcu-api-doc	2004-08-07 15:29:49.000000000 +0530
-+++ linux-2.6.8-rc3-mm1-dipankar/include/linux/rcupdate.h	2004-08-07 15:29:49.000000000 +0530
-@@ -154,11 +154,74 @@ static inline int rcu_pending(int cpu)
- 		__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu));
- }
+diff -puN net/decnet/dn_route.c~rcu-use-call-rcu-bh net/decnet/dn_route.c
+--- linux-2.6.8-rc3-mm1/net/decnet/dn_route.c~rcu-use-call-rcu-bh	2004-08-07 15:29:16.000000000 +0530
++++ linux-2.6.8-rc3-mm1-dipankar/net/decnet/dn_route.c	2004-08-07 15:29:16.000000000 +0530
+@@ -146,14 +146,14 @@ static __inline__ unsigned dn_hash(unsig
  
-+/**
-+ * rcu_read_lock - mark the beginning of an RCU read-side critical section.
-+ *
-+ * When synchronize_kernel() is invoked on one CPU while other CPUs
-+ * are within RCU read-side critical sections, then the
-+ * synchronize_kernel() is guaranteed to block until after all the other
-+ * CPUs exit their critical sections.  Similarly, if call_rcu() is invoked
-+ * on one CPU while other CPUs are within RCU read-side critical
-+ * sections, invocation of the corresponding RCU callback is deferred
-+ * until after the all the other CPUs exit their critical sections.
-+ *
-+ * Note, however, that RCU callbacks are permitted to run concurrently
-+ * with RCU read-side critical sections.  One way that this can happen
-+ * is via the following sequence of events: (1) CPU 0 enters an RCU
-+ * read-side critical section, (2) CPU 1 invokes call_rcu() to register
-+ * an RCU callback, (3) CPU 0 exits the RCU read-side critical section,
-+ * (4) CPU 2 enters a RCU read-side critical section, (5) the RCU
-+ * callback is invoked.  This is legal, because the RCU read-side critical
-+ * section that was running concurrently with the call_rcu() (and which
-+ * therefore might be referencing something that the corresponding RCU
-+ * callback would free up) has completed before the corresponding
-+ * RCU callback is invoked.
-+ *
-+ * RCU read-side critical sections may be nested.  Any deferred actions
-+ * will be deferred until the outermost RCU read-side critical section
-+ * completes.
-+ *
-+ * It is illegal to block while in an RCU read-side critical section.
-+ */
- #define rcu_read_lock()		preempt_disable()
-+
-+/**
-+ * rcu_read_unlock - marks the end of an RCU read-side critical section.
-+ *
-+ * See rcu_read_lock() for more information.
-+ */
- #define rcu_read_unlock()	preempt_enable()
-+
-+/*
-+ * So where is rcu_write_lock()?  It does not exist, as there is no
-+ * way for writers to lock out RCU readers.  This is a feature, not
-+ * a bug -- this property is what provides RCU's performance benefits.
-+ * Of course, writers must coordinate with each other.  The normal
-+ * spinlock primitives work well for this, but any other technique may be
-+ * used as well.  RCU does not care how the writers keep out of each
-+ * others' way, as long as they do so.
-+ */
-+
-+/**
-+ * rcu_read_lock_bh - mark the beginning of a softirq-only RCU critical section
-+ *
-+ * This is equivalent of rcu_read_lock(), but to be used when updates
-+ * are being done using call_rcu_bh(). Since call_rcu_bh() callbacks
-+ * consider completion of a softirq handler to be a quiescent state,
-+ * a process in RCU read-side critical section must be protected by
-+ * disabling softirqs. Read-side critical sections in interrupt context
-+ * can use just rcu_read_lock().
-+ *
-+ */
- #define rcu_read_lock_bh()	local_bh_disable()
--#define rcu_read_unlock_bh()	local_bh_enable()
- 
-+/*
-+ * rcu_read_unlock_bh - marks the end of a softirq-only RCU critical section
-+ *
-+ * See rcu_read_lock_bh() for more information.
-+ */
-+#define rcu_read_unlock_bh()	local_bh_enable()
-+  
- extern void rcu_init(void);
- extern void rcu_check_callbacks(int cpu, int user);
- extern void rcu_restart_cpu(int cpu);
-diff -puN kernel/rcupdate.c~rcu-api-doc kernel/rcupdate.c
---- linux-2.6.8-rc3-mm1/kernel/rcupdate.c~rcu-api-doc	2004-08-07 15:29:49.000000000 +0530
-+++ linux-2.6.8-rc3-mm1-dipankar/kernel/rcupdate.c	2004-08-07 15:29:49.000000000 +0530
-@@ -73,14 +73,15 @@ static DEFINE_PER_CPU(struct tasklet_str
- static int maxbatch = 10;
- 
- /**
-- * call_rcu - Queue an RCU update request.
-+ * call_rcu - Queue an RCU callback for invocation after a grace period.
-  * @head: structure to be used for queueing the RCU updates.
-  * @func: actual update function to be invoked after the grace period
-  *
-- * The update function will be invoked as soon as all CPUs have performed 
-- * a context switch or been seen in the idle loop or in a user process. 
-- * The read-side of critical section that use call_rcu() for updation must 
-- * be protected by rcu_read_lock()/rcu_read_unlock().
-+ * The update function will be invoked some time after a full grace
-+ * period elapses, in other words after all currently executing RCU
-+ * read-side critical sections have completed.  RCU read-side critical
-+ * sections are delimited by rcu_read_lock() and rcu_read_unlock(),
-+ * and may be nested.
-  */
- void fastcall call_rcu(struct rcu_head *head,
- 				void (*func)(struct rcu_head *rcu))
-@@ -98,17 +99,20 @@ void fastcall call_rcu(struct rcu_head *
- }
- 
- /**
-- * call_rcu_bh - Queue an RCU update request for which softirq handler
-- * completion is a quiescent state.
-+ * call_rcu_bh - Queue an RCU for invocation after a quicker grace period.
-  * @head: structure to be used for queueing the RCU updates.
-  * @func: actual update function to be invoked after the grace period
-  *
-- * The update function will be invoked as soon as all CPUs have performed 
-- * a context switch or been seen in the idle loop or in a user process
-- * or has exited a softirq handler that it may have been executing.
-- * The read-side of critical section that use call_rcu_bh() for updation must 
-- * be protected by rcu_read_lock_bh()/rcu_read_unlock_bh() if it is
-- * in process context.
-+ * The update function will be invoked some time after a full grace
-+ * period elapses, in other words after all currently executing RCU
-+ * read-side critical sections have completed. call_rcu_bh() assumes
-+ * that the read-side critical sections end on completion of a softirq
-+ * handler. This means that read-side critical sections in process
-+ * context must not be interrupted by softirqs. This interface is to be
-+ * used when most of the read-side critical sections are in softirq context.
-+ * RCU read-side critical sections are delimited by rcu_read_lock() and 
-+ * rcu_read_unlock(), * if in interrupt context or rcu_read_lock_bh() 
-+ * and rcu_read_unlock_bh(), if in process context. These may be nested.
-  */
- void fastcall call_rcu_bh(struct rcu_head *head,
- 				void (*func)(struct rcu_head *rcu))
-@@ -439,8 +443,13 @@ static void wakeme_after_rcu(struct rcu_
- }
- 
- /**
-- * synchronize-kernel - wait until all the CPUs have gone
-- * through a "quiescent" state. It may sleep.
-+ * synchronize_kernel - wait until a grace period has elapsed.
-+ *
-+ * Control will return to the caller some time after a full grace
-+ * period has elapsed, in other words after all currently executing RCU
-+ * read-side critical sections have completed.  RCU read-side critical
-+ * sections are delimited by rcu_read_lock() and rcu_read_unlock(),
-+ * and may be nested.
-  */
- void synchronize_kernel(void)
+ static inline void dnrt_free(struct dn_route *rt)
  {
+-	call_rcu(&rt->u.dst.rcu_head, dst_rcu_free);
++	call_rcu_bh(&rt->u.dst.rcu_head, dst_rcu_free);
+ }
+ 
+ static inline void dnrt_drop(struct dn_route *rt)
+ {
+ 	if (rt)
+ 		dst_release(&rt->u.dst);
+-	call_rcu(&rt->u.dst.rcu_head, dst_rcu_free);
++	call_rcu_bh(&rt->u.dst.rcu_head, dst_rcu_free);
+ }
+ 
+ static void dn_dst_check_expire(unsigned long dummy)
+@@ -1174,9 +1174,9 @@ static int __dn_route_output_key(struct 
+ 	struct dn_route *rt = NULL;
+ 
+ 	if (!(flags & MSG_TRYHARD)) {
+-		rcu_read_lock();
++		rcu_read_lock_bh();
+ 		for(rt = dn_rt_hash_table[hash].chain; rt; rt = rt->u.rt_next) {
+-			read_barrier_depends();
++			smp_read_barrier_depends();
+ 			if ((flp->fld_dst == rt->fl.fld_dst) &&
+ 			    (flp->fld_src == rt->fl.fld_src) &&
+ #ifdef CONFIG_DECNET_ROUTE_FWMARK
+@@ -1187,12 +1187,12 @@ static int __dn_route_output_key(struct 
+ 				rt->u.dst.lastuse = jiffies;
+ 				dst_hold(&rt->u.dst);
+ 				rt->u.dst.__use++;
+-				rcu_read_unlock();
++				rcu_read_unlock_bh();
+ 				*pprt = &rt->u.dst;
+ 				return 0;
+ 			}
+ 		}
+-		rcu_read_unlock();
++		rcu_read_unlock_bh();
+ 	}
+ 
+ 	return dn_route_output_slow(pprt, flp, flags);
+@@ -1647,21 +1647,21 @@ int dn_cache_dump(struct sk_buff *skb, s
+ 			continue;
+ 		if (h > s_h)
+ 			s_idx = 0;
+-		rcu_read_lock();
++		rcu_read_lock_bh();
+ 		for(rt = dn_rt_hash_table[h].chain, idx = 0; rt; rt = rt->u.rt_next, idx++) {
+-			read_barrier_depends();
++			smp_read_barrier_depends();
+ 			if (idx < s_idx)
+ 				continue;
+ 			skb->dst = dst_clone(&rt->u.dst);
+ 			if (dn_rt_fill_info(skb, NETLINK_CB(cb->skb).pid,
+ 					cb->nlh->nlmsg_seq, RTM_NEWROUTE, 1) <= 0) {
+ 				dst_release(xchg(&skb->dst, NULL));
+-				rcu_read_unlock();
++				rcu_read_unlock_bh();
+ 				goto done;
+ 			}
+ 			dst_release(xchg(&skb->dst, NULL));
+ 		}
+-		rcu_read_unlock();
++		rcu_read_unlock_bh();
+ 	}
+ 
+ done:
+@@ -1681,7 +1681,7 @@ static struct dn_route *dn_rt_cache_get_
+ 	struct dn_rt_cache_iter_state *s = seq->private;
+ 
+ 	for(s->bucket = dn_rt_hash_mask; s->bucket >= 0; --s->bucket) {
+-		rcu_read_lock();
++		rcu_read_lock_bh();
+ 		rt = dn_rt_hash_table[s->bucket].chain;
+ 		if (rt)
+ 			break;
+@@ -1697,10 +1697,10 @@ static struct dn_route *dn_rt_cache_get_
+ 	smp_read_barrier_depends();
+ 	rt = rt->u.rt_next;
+ 	while(!rt) {
+-		rcu_read_unlock();
++		rcu_read_unlock_bh();
+ 		if (--s->bucket < 0)
+ 			break;
+-		rcu_read_lock();
++		rcu_read_lock_bh();
+ 		rt = dn_rt_hash_table[s->bucket].chain;
+ 	}
+ 	return rt;
+@@ -1727,7 +1727,7 @@ static void *dn_rt_cache_seq_next(struct
+ static void dn_rt_cache_seq_stop(struct seq_file *seq, void *v)
+ {
+ 	if (v)
+-		rcu_read_unlock();
++		rcu_read_unlock_bh();
+ }
+ 
+ static int dn_rt_cache_seq_show(struct seq_file *seq, void *v)
+diff -puN net/ipv4/route.c~rcu-use-call-rcu-bh net/ipv4/route.c
+--- linux-2.6.8-rc3-mm1/net/ipv4/route.c~rcu-use-call-rcu-bh	2004-08-07 15:29:16.000000000 +0530
++++ linux-2.6.8-rc3-mm1-dipankar/net/ipv4/route.c	2004-08-07 15:29:16.000000000 +0530
+@@ -226,11 +226,11 @@ static struct rtable *rt_cache_get_first
+ 	struct rt_cache_iter_state *st = seq->private;
+ 
+ 	for (st->bucket = rt_hash_mask; st->bucket >= 0; --st->bucket) {
+-		rcu_read_lock();
++		rcu_read_lock_bh();
+ 		r = rt_hash_table[st->bucket].chain;
+ 		if (r)
+ 			break;
+-		rcu_read_unlock();
++		rcu_read_unlock_bh();
+ 	}
+ 	return r;
+ }
+@@ -242,10 +242,10 @@ static struct rtable *rt_cache_get_next(
+ 	smp_read_barrier_depends();
+ 	r = r->u.rt_next;
+ 	while (!r) {
+-		rcu_read_unlock();
++		rcu_read_unlock_bh();
+ 		if (--st->bucket < 0)
+ 			break;
+-		rcu_read_lock();
++		rcu_read_lock_bh();
+ 		r = rt_hash_table[st->bucket].chain;
+ 	}
+ 	return r;
+@@ -281,7 +281,7 @@ static void *rt_cache_seq_next(struct se
+ static void rt_cache_seq_stop(struct seq_file *seq, void *v)
+ {
+ 	if (v && v != SEQ_START_TOKEN)
+-		rcu_read_unlock();
++		rcu_read_unlock_bh();
+ }
+ 
+ static int rt_cache_seq_show(struct seq_file *seq, void *v)
+@@ -439,13 +439,13 @@ static struct file_operations rt_cpu_seq
+   
+ static __inline__ void rt_free(struct rtable *rt)
+ {
+-	call_rcu(&rt->u.dst.rcu_head, dst_rcu_free);
++	call_rcu_bh(&rt->u.dst.rcu_head, dst_rcu_free);
+ }
+ 
+ static __inline__ void rt_drop(struct rtable *rt)
+ {
+ 	ip_rt_put(rt);
+-	call_rcu(&rt->u.dst.rcu_head, dst_rcu_free);
++	call_rcu_bh(&rt->u.dst.rcu_head, dst_rcu_free);
+ }
+ 
+ static __inline__ int rt_fast_clean(struct rtable *rth)
+@@ -2231,7 +2231,7 @@ int __ip_route_output_key(struct rtable 
+ 
+ 	hash = rt_hash_code(flp->fl4_dst, flp->fl4_src ^ (flp->oif << 5), flp->fl4_tos);
+ 
+-	rcu_read_lock();
++	rcu_read_lock_bh();
+ 	for (rth = rt_hash_table[hash].chain; rth; rth = rth->u.rt_next) {
+ 		smp_read_barrier_depends();
+ 		if (rth->fl.fl4_dst == flp->fl4_dst &&
+@@ -2247,13 +2247,13 @@ int __ip_route_output_key(struct rtable 
+ 			dst_hold(&rth->u.dst);
+ 			rth->u.dst.__use++;
+ 			RT_CACHE_STAT_INC(out_hit);
+-			rcu_read_unlock();
++			rcu_read_unlock_bh();
+ 			*rp = rth;
+ 			return 0;
+ 		}
+ 		RT_CACHE_STAT_INC(out_hlist_search);
+ 	}
+-	rcu_read_unlock();
++	rcu_read_unlock_bh();
+ 
+ 	return ip_route_output_slow(rp, flp);
+ }
+@@ -2463,7 +2463,7 @@ int ip_rt_dump(struct sk_buff *skb,  str
+ 		if (h < s_h) continue;
+ 		if (h > s_h)
+ 			s_idx = 0;
+-		rcu_read_lock();
++		rcu_read_lock_bh();
+ 		for (rt = rt_hash_table[h].chain, idx = 0; rt;
+ 		     rt = rt->u.rt_next, idx++) {
+ 			smp_read_barrier_depends();
+@@ -2474,12 +2474,12 @@ int ip_rt_dump(struct sk_buff *skb,  str
+ 					 cb->nlh->nlmsg_seq,
+ 					 RTM_NEWROUTE, 1) <= 0) {
+ 				dst_release(xchg(&skb->dst, NULL));
+-				rcu_read_unlock();
++				rcu_read_unlock_bh();
+ 				goto done;
+ 			}
+ 			dst_release(xchg(&skb->dst, NULL));
+ 		}
+-		rcu_read_unlock();
++		rcu_read_unlock_bh();
+ 	}
+ 
+ done:
 
 _

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131335AbRCNTI6>; Wed, 14 Mar 2001 14:08:58 -0500
+	id <S131509AbRCNTfh>; Wed, 14 Mar 2001 14:35:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131336AbRCNTIr>; Wed, 14 Mar 2001 14:08:47 -0500
-Received: from mail1.dexterus.com ([212.95.255.99]:18692 "EHLO
-	mail1.dexterus.com") by vger.kernel.org with ESMTP
-	id <S131335AbRCNTIc>; Wed, 14 Mar 2001 14:08:32 -0500
-Message-ID: <3AAFC15C.B2AA11DA@dexterus.com>
-Date: Wed, 14 Mar 2001 19:07:08 +0000
-From: Vincent Sweeney <v.sweeney@dexterus.com>
-Organization: Dexterus
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcus Meissner <Marcus.Meissner@caldera.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: cpqarray & 2.4.1+ hang
-In-Reply-To: <20010314192027.A11047@caldera.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131510AbRCNTf1>; Wed, 14 Mar 2001 14:35:27 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:18941 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S131509AbRCNTfR>; Wed, 14 Mar 2001 14:35:17 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200103141934.f2EJY6Z10216@webber.adilger.int>
+Subject: Re: magic device renumbering was -- Re: Linux 2.4.2ac20
+In-Reply-To: <Pine.LNX.4.30.0103141410360.2004-100000@flowers.house.larsshack.org>
+ from Lars Kellogg-Stedman at "Mar 14, 2001 02:11:57 pm"
+To: Lars Kellogg-Stedman <lars@larsshack.org>
+Date: Wed, 14 Mar 2001 12:34:06 -0700 (MST)
+CC: Christoph Hellwig <hch@caldera.de>, John Jasen <jjasen1@umbc.edu>,
+        linux-kernel@vger.kernel.org, AmNet Computers <amnet@amnet-comp.com>
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcus Meissner wrote:
+Lars writes:
+> > Put LABEL=<label set with e2label> in you fstab in place of the device name.
 > 
-> Workaround: run the kernel with the 'noapic' option on its commandline.
-> 
-> The ServerWorks chipset used in this Compaq Server somehow does not pass
-> the the relevant information to Linux mapping routines. :/
-> 
-> I have attached lspci -xxx and dmesg output of our DL360 below.
-> 
-> Ciao, Marcus
+> Which is great, for filesystems that support labels.  Unfortunately,
+> this isn't universally available -- for instance, you cannot mount
+> a swap partition by label or uuid, so it is not possible to completely
+> isolate yourself from the problems of disk device renumbering.
 
-Yes that workaround means no hang on bootup anymore, thanks a lot.
+There is room for a LABEL and/or UUID in the swap superblock, if you
+would want to implement support for this.  I took a look once, and it
+should be possible to add in a compatible way.  Of course, you can
+always put swap into LVM, which also makes it (along with filesystems
+other than ext2) immune from the nasty device name changes.
 
----
-Vincent Sweeney
-v.sweeney@dexterus.com
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

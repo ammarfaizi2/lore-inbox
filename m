@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbTJZN7g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 08:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263144AbTJZN7g
+	id S263157AbTJZOBa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 09:01:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbTJZOBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 08:59:36 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:8383 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S263142AbTJZN73 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 08:59:29 -0500
-To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-Cc: "John Bradford" <john@grabjohn.com>,
-       "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'Hans Reiser '" <reiser@namesys.com>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       <linux-kernel@vger.kernel.org>, <nikita@namesys.com>,
-       "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>
-Subject: Re: Blockbusting news, results get worse
-References: <334101c39b94$268a0370$24ee4ca5@DIAMONDLX60>
-	<200310261039.h9QAdniV000310@81-2-122-30.bradfords.org.uk>
-	<358a01c39bb5$c651c7a0$24ee4ca5@DIAMONDLX60>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 26 Oct 2003 14:59:28 +0100
-In-Reply-To: <358a01c39bb5$c651c7a0$24ee4ca5@DIAMONDLX60>
-Message-ID: <m37k2s9k1r.fsf@defiant.pm.waw.pl>
+	Sun, 26 Oct 2003 09:01:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32746 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263157AbTJZOB1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 09:01:27 -0500
+Date: Sun, 26 Oct 2003 14:01:26 +0000 (GMT)
+From: Matthew J Galgoci <mgalgoci@parcelfarce.linux.theplanet.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: sbp2 slab corruiton in 2.6-test9
+Message-ID: <Pine.LNX.4.44.0310261357100.16378-100000@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Norman Diamond" <ndiamond@wta.att.ne.jp> writes:
+Hi Folks,
 
-> By the way some participants in this thread have argued that the block
-> should not be replaced by zeroes or random garbage without notice.  I fully
-> agree.  The block should be replaced by zeroes or random garbage WITH
-> notice.
+I'm seeing slab corruption in 2.6-test9 when I do a 
+cat /proc/scsi/scsi
 
-Right. The correct way of sending such a notice is returning I/O error
-on read. It's standard and applications support it for years (of course
-we can - and currently do - log the error as well).
+Here's the trace:
 
->  From the point of view of logging it in the system log, it is
-> enough to log it once, it doesn't have to be logged over and over again.
+ieee1394: Node added: ID:BUS[0-00:1023]  GUID[0050c5015000013d]
+ieee1394: Node changed: 0-00:1023 -> 0-01:1023
+sbp2: $Rev: 1034 $ Ben Collins <bcollins@debian.org>
+scsi0 : SCSI emulation for IEEE-1394 SBP-2 Devices
+ieee1394: sbp2: Logged into SBP-2 device
+Slab corruption: start=e2166758, expend=e21667b7, problemat=e2166788
+Last user: [<f088214b>](free_hpsb_packet+0x2b/0x40 [ieee1394])
+Data: ************************************************D5 D6 D6 D6 01 00 00 
+00 ***************************************A5
+Next: 71 F0 2C .4B 21 88 F0 71 F0 2C .....................
+slab error in check_poison_obj(): cache `hpsb_packet': object was modified 
+after freeing
+Call Trace:
+ [<c013d2b8>] check_poison_obj+0x108/0x190
+ [<c013d4d2>] slab_destroy+0x192/0x1a0
+ [<c013f9c9>] reap_timer_fnc+0x129/0x1f0
+ [<c013f8a0>] reap_timer_fnc+0x0/0x1f0
+ [<c01256f0>] run_timer_softirq+0xb0/0x170
+ [<c0121410>] do_softirq+0x90/0xa0
+ [<c010c615>] do_IRQ+0xd5/0x110
+ [<c0105000>] rest_init+0x0/0x30
+ [<c010ab8c>] common_interrupt+0x18/0x20
+ [<c0105000>] rest_init+0x0/0x30
+ [<c01e1cf2>] acpi_processor_idle+0xd5/0x1c7
+ [<c0105000>] rest_init+0x0/0x30
+ [<c01088bc>] cpu_idle+0x2c/0x40
+ [<c03826d1>] start_kernel+0x171/0x1a0
+ [<c0382430>] unknown_bootoption+0x0/0x100
+ 
 
-Storing a log entry in system log doesn't tell applications there is
-a problem. It's simply unacceptable.
-Relocating on write (at filesystem level) - sure, it would be helpful
-(possibly as a compile-time option - most IDE drives and things like
-RAM disks don't need it).
--- 
-Krzysztof Halasa, B*FH
+

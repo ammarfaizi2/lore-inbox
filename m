@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbVAPCiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVAPCjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbVAPCiU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 21:38:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbVAPCiU
+	id S262393AbVAPCjP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 21:39:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbVAPCjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 21:38:20 -0500
-Received: from mx.freeshell.org ([192.94.73.21]:737 "EHLO sdf.lonestar.org")
-	by vger.kernel.org with ESMTP id S262400AbVAPCiD (ORCPT
+	Sat, 15 Jan 2005 21:39:15 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:1992 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262393AbVAPCjA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 21:38:03 -0500
-Date: Sat, 15 Jan 2005 20:37:39 -0600 (CST)
-From: John Dahlstrom <jd@freeshell.org>
-To: linux-kernel@vger.kernel.org
-Subject: NETWORK: udp_port_rover reluctant to rove (unlike tcp_port_rover)
-Message-ID: <Pine.NEB.4.61.0501151934180.14016@ukato.freeshell.org>
+	Sat, 15 Jan 2005 21:39:00 -0500
+Date: Sun, 16 Jan 2005 03:38:44 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Karim Yaghmour <karim@opersys.com>
+cc: Andi Kleen <ak@muc.de>, Nikita Danilov <nikita@clusterfs.com>,
+       linux-kernel@vger.kernel.org, Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: 2.6.11-rc1-mm1
+In-Reply-To: <41E899AC.3070705@opersys.com>
+Message-ID: <Pine.LNX.4.61.0501160245180.30794@scrub.home>
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
+ <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
+ <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home>
+ <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home>
+ <41E899AC.3070705@opersys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Regarding udp_port_rover (of linux/net/ipv4/udp.c):
+Hi,
 
-In Linux 2.4 or 2.6, I noticed that selected local port numbers for UDP
-resist roaming, unlike TCP ports numbers (tcp_port_rover) that appear
-to steadily increase irrespective of concurrent local port usage.
+On Fri, 14 Jan 2005, Karim Yaghmour wrote:
 
-What is the advantage of this lack of parallel behavior?  (Other than
-exacerbating broken behavior of certain firewalls that insist on fixed
-UDP source port blocking?)
+> > Why should a subsystem care about the details of the buffer management?
+> 
+> Because it wants to enforce a data format on buffer boundaries.
 
-Aesthetically peculiar it seems, that the kernel reins in port roving
-for the connectionless protocol unless a UDP stampede unleashes itself,
-while allowing the TCP ports to range free across the local ports
-regardless.
+It's interesting to read more about ltt's requirements, but I still think 
+it's possible to leave this work to the relayfs layer.
+Why not just move the ltt buffer management into relayfs and provide a 
+small library, which extracts the event stream again? Otherwise you have 
+to duplicate this work for every serious relayfs user anyway.
+Completely abstracting the buffer management would the make whole 
+interface simpler and it would be a lot easier to change without breaking 
+everything. E.g. it would be possible to use per cpu buffers and remove 
+the need for different locking mechanisms, for a good tracing mechanism 
+it's not just important that it's lockless, but also that the cpus don't 
+share cache lines in the fast path. In this regard relayfs/ltt has really 
+still too much overhead and the complex relayfs API isn't really making it 
+easy to fix this.
 
-Kind regards,
-
-- John
-
---
-http://jodarom.sdf1.org/
+bye, Roman

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263737AbTGXMWb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 08:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTGXMWb
+	id S263597AbTGXMTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 08:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTGXMTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 08:22:31 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:23300 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S263737AbTGXMW3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 08:22:29 -0400
-To: cijoml@volny.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: passing my own compiler options into linux kernel compiling
-References: <200307240916.17530.cijoml@volny.cz>
-	<20030724100111.343d84cd.martin.zwickel@technotrend.de>
-	<200307241050.25094.cijoml@volny.cz>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <200307241050.25094.cijoml@volny.cz>
-Date: 24 Jul 2003 08:35:29 -0400
-Message-ID: <m3isps2jce.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+	Thu, 24 Jul 2003 08:19:09 -0400
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:23515 "EHLO
+	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
+	id S263597AbTGXMTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 08:19:08 -0400
+From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Message-Id: <200307241233.h6OCX8UF010106@wildsau.idv.uni.linz.at>
+Subject: how to PAE enable kernel?
+To: linux-kernel@vger.kernel.org
+Date: Thu, 24 Jul 2003 14:33:08 +0200 (MET DST)
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Michal" == Michal Semler <cijoml@volny.cz> writes:
 
-Michal> Is easyer way of passing these args planned? Editing source
-Michal> every time I change kernel is not goood way. make oldconfig
-Michal> adding these args is better way.
+hi,
 
-In 2.6 arch/i386/Makefile looks like this;
+we have a system with 4G, however, only approx 1G will be used.
+dmesg issues the hint "use a PAE enabled kernel". silly question,
+but how do I PAE enable a kernel? I have found a lot of messages
+about PAE enabled kernels on the net, but not *how* to enable this
+feature.
 
-cflags-$(CONFIG_M686)           += -march=i686
-cflags-$(CONFIG_MPENTIUMII)     += $(call check_gcc,-march=pentium2,-march=i686)
-cflags-$(CONFIG_MPENTIUMIII)    += $(call check_gcc,-march=pentium3,-march=i686)
-cflags-$(CONFIG_MPENTIUM4)      += $(call check_gcc,-march=pentium4,-march=i686)
+any hints please?
 
-et al for the other cpu CONFIG options.
-
-IOW it pretty much makes the right choices w/o editing.
-
--JimC
+thanks in advance,
+herbert
 

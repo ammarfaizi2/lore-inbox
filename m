@@ -1,68 +1,156 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285589AbSBKAbQ>; Sun, 10 Feb 2002 19:31:16 -0500
+	id <S285720AbSBKAoH>; Sun, 10 Feb 2002 19:44:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285618AbSBKAbG>; Sun, 10 Feb 2002 19:31:06 -0500
-Received: from iggy.triode.net.au ([203.63.235.1]:4488 "EHLO
-	iggy.triode.net.au") by vger.kernel.org with ESMTP
-	id <S285589AbSBKAay>; Sun, 10 Feb 2002 19:30:54 -0500
-Date: Mon, 11 Feb 2002 11:30:17 +1100
-From: Linux Kernel Mailing List <kernel@iggy.triode.net.au>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ALI 15X3 DMA Freeze
-Message-ID: <20020211113017.A4461@iggy.triode.net.au>
-In-Reply-To: <20020211085956.A23445@iggy.triode.net.au> <Pine.LNX.4.33.0202101817330.31698-100000@coffee.psychology.mcmaster.ca>
+	id <S285692AbSBKAn6>; Sun, 10 Feb 2002 19:43:58 -0500
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:38405 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S285666AbSBKAnh>; Sun, 10 Feb 2002 19:43:37 -0500
+Subject: 2.5.4-pre5 -- Many comple errors in multipath.c
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Evolution/1.1.0.99 (Preview Release)
+Date: 10 Feb 2002 16:40:25 -0800
+Message-Id: <1013388025.30865.19.camel@turbulence.megapathdsl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0202101817330.31698-100000@coffee.psychology.mcmaster.ca>; from hahn@physics.mcmaster.ca on Sun, Feb 10, 2002 at 06:17:56PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now I have turned off "PNP OS" and fiddled a little with
-the boot options. Same basic problem remains, the 
-machine compiles the kernel fine with DMA off but freezes
-when compiling the kernel with DMA on.
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+# CONFIG_MD_RAID5 is not set
+CONFIG_MD_MULTIPATH=m
+CONFIG_BLK_DEV_LVM=m
 
-Here are the new boot messages:
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE 
+-DKBUILD_BASENAME=multipath  -c -o multipath.o multipath.c
+In file included from multipath.c:25:
+/usr/src/linux/include/linux/raid/multipath.h:28: parse error before
+`md_spinlock_t'
+/usr/src/linux/include/linux/raid/multipath.h:28: warning: no semicolon
+at end of struct or union
+/usr/src/linux/include/linux/raid/multipath.h:39: parse error before
+`wait_buffer'
+/usr/src/linux/include/linux/raid/multipath.h:39: warning: type defaults
+to `int' in declaration of `wait_buffer'
+/usr/src/linux/include/linux/raid/multipath.h:39: warning: data
+definition has no type or storage class
+multipath.c:52: parse error before `retry_list_lock'
+multipath.c:52: warning: type defaults to `int' in declaration of
+`retry_list_lock'
+multipath.c:52: `MD_SPIN_LOCK_UNLOCKED' undeclared here (not in a
+function)
+multipath.c:52: warning: data definition has no type or storage class
+multipath.c: In function `multipath_alloc_mpbh':
+multipath.c:64: warning: implicit declaration of function
+`md_spin_lock_irq'
+multipath.c:64: dereferencing pointer to incomplete type
+...
+multipath.c:73: warning: implicit declaration of function
+`md_spin_unlock_irq'
+multipath.c:73: dereferencing pointer to incomplete type
+...
+multipath.c: In function `multipath_free_mpbh':
+multipath.c:97: dereferencing pointer to incomplete type
+...
+multipath.c: In function `multipath_grow_mpbh':
+multipath.c:119: dereferencing pointer to incomplete type
+multipath.c: In function `multipath_shrink_mpbh':
+...
+multipath.c: In function `multipath_map':
+multipath.c:151: dereferencing pointer to incomplete type
+...
+multipath.c: In function `multipath_reschedule_retry':
+multipath.c:167: warning: implicit declaration of function
+`md_spin_lock_irqsave'
+multipath.c:173: warning: implicit declaration of function
+`md_spin_unlock_irqrestore'
+multipath.c:174: dereferencing pointer to incomplete type
+multipath.c:163: warning: `flags' might be used uninitialized in this
+function
+multipath.c: In function `multipath_read_balance':
+multipath.c:235: dereferencing pointer to incomplete type
+...
+multipath.c: In function `multipath_make_request':
+multipath.c:271: dereferencing pointer to incomplete type
+multipath.c:275: structure has no member named `b_rsector'
+multipath.c:278: structure has no member named `b_rdev'
+multipath.c:282: warning: passing arg 1 of `generic_make_request' makes
+pointer from integer without a cast
+multipath.c:282: too many arguments to function `generic_make_request'
+multipath.c:248: warning: `multipath' might be used uninitialized in
+this function
+multipath.c: In function `multipath_status':
+multipath.c:291: dereferencing pointer to incomplete type
+...
+multipath.c: In function `mark_disk_bad':
+multipath.c:313: dereferencing pointer to incomplete type
+...
+multipath.c: In function `multipath_error':
+multipath.c:336: dereferencing pointer to incomplete type
+...
+multipath.c: In function `print_multipath_conf':
+multipath.c:409: dereferencing pointer to incomplete type
+...
+multipath.c:402: warning: `tmp' might be used uninitialized in this
+function
+multipath.c: In function `multipath_diskop':
+multipath.c:434: dereferencing pointer to incomplete type
+...
+multipath.c:426: warning: `i' might be used uninitialized in this
+function
+multipath.c:428: warning: `tmp' might be used uninitialized in this
+function
+multipath.c:428: warning: `sdisk' might be used uninitialized in this
+function
+multipath.c:428: warning: `fdisk' might be used uninitialized in this
+function
+multipath.c:428: warning: `adisk' might be used uninitialized in this
+function
+multipath.c: In function `multipathd':
+multipath.c:721: structure has no member named `b_rdev'
+multipath.c:722: structure has no member named `b_rsector'
+multipath.c:723: warning: passing arg 1 of `generic_make_request' makes
+pointer from integer without a cast
+multipath.c:723: too many arguments to function `generic_make_request'
+multipath.c:692: warning: `flags' might be used uninitialized in this
+function
+multipath.c: In function `__check_consistency':
+multipath.c:748: dereferencing pointer to incomplete type
+multipath.c:751: dereferencing pointer to incomplete type
+multipath.c: In function `multipath_run':
+multipath.c:855: sizeof applied to an incomplete type
+multipath.c:861: dereferencing pointer to incomplete type
+...
+multipath.c:863: warning: assignment from incompatible pointer type
+multipath.c:863: dereferencing pointer to incomplete type
+multipath.c:863: dereferencing pointer to incomplete type
+multipath.c:863: warning: left-hand operand of comma expression has no
+effect
+multipath.c:884: dereferencing pointer to incomplete type
+...
+multipath.c:955: `MD_SPIN_LOCK_UNLOCKED' undeclared (first use in this
+function)multipath.c:955: (Each undeclared identifier is reported only
+once
+multipath.c:955: for each function it appears in.)
+multipath.c:957: dereferencing pointer to incomplete type
+...
+multipath.c:836: warning: `disk' might be used uninitialized in this
+function
+multipath.c:836: warning: `disk2' might be used uninitialized in this
+function
+multipath.c: In function `multipath_stop':
+multipath.c:1044: dereferencing pointer to incomplete type
+multipath.c: At top level:
+multipath.c:1055: warning: initialization from incompatible pointer type
+multipath.c:1063: parse error before `multipath_init'
+multipath.c:1064: warning: return type defaults to `int'
 
-Regards.  Paul
-
-
-Kernel command line: auto BOOT_IMAGE=2.4.17.9 ro root=301 BOOT_FILE=/boot/bzImage-2.4.17.9 idebus=66 ide0=ata66 pci=biosirq
-ide_setup: idebus=66
-ide_setup: ide0=ata66
-
-PCI: PCI BIOS revision 2.10 entry at 0xf1170, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Unknown bridge resource 0: assuming transparent
-PCI: Using IRQ router ALI [10b9/1533] at 00:07.0
-
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 66MHz system bus speed for PIO modes
-ALI15X3: IDE controller on PCI bus 00 dev 20
-PCI: No IRQ known for interrupt pin A of device 00:04.0.
-ALI15X3: chipset revision 196
-ALI15X3: not 100% native mode: will probe irqs later
-ALI15X3: ATA-66/100 forced bit set (WARNING)!!
-    ide0: BM-DMA at 0xd400-0xd407, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xd408-0xd40f, BIOS settings: hdc:pio, hdd:DMA
-hda: IC35L040AVER07-0, ATA DISK drive
-hdb: CDU5211, ATAPI CD/DVD-ROM drive
-hdd: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=5005/255/63
-hdb: ATAPI 52X CD-ROM drive, 120kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-Partition check:
- hda: hda1 hda2
-
-
-On Sun, Feb 10, 2002 at 06:17:56PM -0500, Mark Hahn wrote:
-> > PCI: No IRQ known for interrupt pin A of device 00:04.0.
-> 
-> are you sure you don't have the bios set for "PNP OS"?

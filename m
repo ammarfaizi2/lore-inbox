@@ -1,50 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbTJ2Gzb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 01:55:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTJ2Gzb
+	id S261903AbTJ2G5I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 01:57:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbTJ2G5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 01:55:31 -0500
-Received: from gatesrv.RZ.UniBw-Muenchen.de ([137.193.11.27]:56752 "EHLO
-	gatesrv.RZ.UniBw-Muenchen.de") by vger.kernel.org with ESMTP
-	id S261898AbTJ2Gza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 01:55:30 -0500
-Message-ID: <3F9F63B1.9090606@unibw-muenchen.de>
-Date: Wed, 29 Oct 2003 07:52:33 +0100
-From: =?ISO-8859-1?Q?Christian_K=F6gler?= 
-	<christian.koegler@unibw-muenchen.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22 usbserial/pl2303 oops
-References: <3F9F0753.10207@unibw-muenchen.de> <20031029034255.GA11297@kroah.com>
-In-Reply-To: <20031029034255.GA11297@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 29 Oct 2003 01:57:08 -0500
+Received: from www12.mailshell.com ([209.157.66.248]:52964 "HELO mailshell.com")
+	by vger.kernel.org with SMTP id S261903AbTJ2G5C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 01:57:02 -0500
+Message-ID: <20031029065701.171.qmail@mailshell.com>
+Date: Wed, 29 Oct 2003 08:56:57 +0200
+Subject: Re: 2.6.0test9 Reiserfs boot time "buffer layer error at fs/buffer.c:431"
+References: <20031028154920.1905.qmail@mailshell.com> <20031028141329.13443875.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031028141329.13443875.akpm@osdl.org>
+From: lkml-031028@amos.mailshell.com
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Tue, Oct 28, 2003 at 02:13:29PM -0800, Andrew Morton wrote:
+> I've been waiting a year for someone who can reproduce this.
 
->On Wed, Oct 29, 2003 at 01:18:27AM +0100, Christian Kögler wrote:
+Looks like it's reproducible right now - I got exactly the same
+message when I boot again later.
+
+I'll try not to move things too much so I can test this more.
+(You don't think it's critical, do you?)
+
+> Are you using initrd?
+
+Nope. Just plain old /boot/vmlinuz on a simple IDE disk with
+a single ReiserFS partition and ReiserFS code compiled into
+the kernel.
+
+> Could you please add this patch, and send the new dmesg output?
+
+Will do it gladly, when I'm back home tonight.
+
+Thanks for everything,
+
+--Amos
+
+PS I'm not on lkml, so please keep me cc'ed about this.
+
+> 
+> 
+>  25-akpm/fs/block_dev.c |   15 ++++++++++++---
+>  1 files changed, 12 insertions(+), 3 deletions(-)
+> 
+> diff -puN fs/block_dev.c~a fs/block_dev.c
+> --- 25/fs/block_dev.c~a	Tue Oct 28 14:11:20 2003
+> +++ 25-akpm/fs/block_dev.c	Tue Oct 28 14:11:24 2003
+> @@ -50,17 +50,26 @@ int set_blocksize(struct block_device *b
+>  {
+>  	int oldsize;
 >  
->
->>I have got the same problem with my usb-towitoko (pl2303).
->>I had this bug with 2.4.20, 21 and 22
->>After reading, an oops appeared.
->>    
->>
->
->Again, try 2.4.23-pre8.  Let me know if that fixes it for you or not.
+> +	printk("%s: size=%d\n", __FUNCTION__, size);
+> +
+>  	/* Size must be a power of two, and between 512 and PAGE_SIZE */
+> -	if (size > PAGE_SIZE || size < 512 || (size & (size-1)))
+> +	if (size > PAGE_SIZE || size < 512 || (size & (size-1))) {
+> +		printk("%s: EINVAL 1\n", __FUNCTION__);
+>  		return -EINVAL;
+> +	}
 >  
->
-Thats great, no oops!
-
-But the libchipchard project doesn't work. After starting the chipcardd, 
-I get this error:
-"Mutex destroy failure: Device or resource busy"
-But that could also be a bug in libchipcard or libtowitoko.
-
-Chris
-
+>  	/* Size cannot be smaller than the size supported by the device */
+> -	if (size < bdev_hardsect_size(bdev))
+> +	if (size < bdev_hardsect_size(bdev)) {
+> +		printk("%s: %d < %d\n", __FUNCTION__, size,
+> +					bdev_hardsect_size(bdev));
+>  		return -EINVAL;
+> +	}
+>  
+>  	oldsize = bdev->bd_block_size;
+> -	if (oldsize == size)
+> +	if (oldsize == size) {
+> +		printk("%s: %d OK\n", __FUNCTION__, size);
+>  		return 0;
+> +	}
+>  
+>  	/* Ok, we're actually changing the blocksize.. */
+>  	sync_blockdev(bdev);
+> 
+> _
+> 
+> 
+> 

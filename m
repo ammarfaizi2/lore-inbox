@@ -1,77 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264490AbUEJCNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264496AbUEJCRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264490AbUEJCNE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 22:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264496AbUEJCNE
+	id S264496AbUEJCRt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 22:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbUEJCRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 22:13:04 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:36028 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S264490AbUEJCM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 22:12:56 -0400
-Date: Mon, 10 May 2004 11:12:40 +0900 (JST)
-Message-Id: <20040510.111240.84363848.t-kochi@bq.jp.nec.com>
-To: tokunaga.keiich@jp.fujitsu.com
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net,
-       lhns-devel@lists.sourceforge.net
-Subject: Re: [Lhns-devel] Re: [ANNOUNCE] [PATCH] Node Hotplug Support
-From: Takayoshi Kochi <t-kochi@bq.jp.nec.com>
-In-Reply-To: <20040510104725.7c9231ee.tokunaga.keiich@jp.fujitsu.com>
-References: <20040508003904.63395ca7.tokunaga.keiich@jp.fujitsu.com>
-	<1083944945.23559.1.camel@nighthawk>
-	<20040510104725.7c9231ee.tokunaga.keiich@jp.fujitsu.com>
-X-Mailer: Mew version 3.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+	Sun, 9 May 2004 22:17:49 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:29906 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S264500AbUEJCQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 22:16:22 -0400
+Subject: Re: hdc: lost interrupt ide-cd: cmd 0x3 timed out ...
+From: Len Brown <len.brown@intel.com>
+To: Bob Gill <gillb4@telusplanet.net>
+Cc: Alex Riesen <fork0@users.sourceforge.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1084135217.4430.141.camel@localhost.localdomain>
+References: <A6974D8E5F98D511BB910002A50A6647615FAE21@hdsmsx403.hd.intel.com>
+	 <1084071367.2326.62.camel@dhcppc4>
+	 <1084135217.4430.141.camel@localhost.localdomain>
+Content-Type: multipart/mixed; boundary="=-dB+ge7OdpC2LWRV2plqF"
+Organization: 
+Message-Id: <1084155368.12352.26.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 09 May 2004 22:16:08 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Subject: [Lhns-devel] Re: [ANNOUNCE] [PATCH] Node Hotplug Support
-Date: Mon, 10 May 2004 10:47:25 +0900
 
-> > How does this interoperate with the current NUMA topology already in
-> > sysfs today?  I don't see any references at all to the current code.  
-> 
-> There is no NUMA support in the current code yet.  I'll post a
-> rough patch to show my idea soon.  I'm thinking to regard a
-> container device that has PXM as a NUMA node so far.
+--=-dB+ge7OdpC2LWRV2plqF
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I've not looking closely into the code, but why do you use "PNP0A05"
-for container device?
-"PNP0A05" is defined as "Generic ISA devie" in the ACPI spec.
+Bob,
+thanks for the info.
+The BIOS on this box has a bug where it is reporting a current
+IRQ to be outside the list of possible IRQs:
 
-I think "module device (ACPI0004)"  sounds more suitable for the
-purpose, though I don't know whether your hardware will support it
-or not.
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 10 11 12 14 15) *9
 
-Also, assuming devices that have _PXM are nodes sounds a bit too
-aggressive for me.  For example, something like below is possible.
+It then references this with pinA of device 9:
 
-Device(\_SB) {
-  Processor(CPU0...) {
-     Name(_PXM, 0)
-  }
-  Processor(CPU1...) {
-     Name(_PXM, 1)
-  }
+Package (0x04) { 0x0009FFFF, 0x00, \_SB.PCI0.LNKB, 0x00 },
 
-  Device(PCI0) {
-     Name(_PXM, 0)
-  }
-  Device(PCI1) {
-     Name(_PXM,1)
-  }
-}
+which is
+00:09.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev
+07)
 
-(I don't know if such an implementation exists, but from the spec,
-it is possible)
-In this case, OS has to group devices by same number.
+In the past, we'd enable this on IRQ9, even thought it is illegal.
 
-Please don't assume specific ACPI AML implementatin as a generic
-rule.
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 9
 
----
-Takayoshi Kochi
+But we found that broke some boxes.
+
+So, now we choose an IRQ from the possible list, preferring
+the highest interrupt number in the list -- 15.
+Didn't see it in your .JPG dmesg, but I expect this was there:
+
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 15
+
+and probably that set IRQ15 to level/low which killed IDE.
+
+Please try the attached patch which disables the sanity
+check above.
+
+Also might be interesting to see what happens on this system
+if it is booted (without the patch) with "acpi_irq_balance"
+
+thanks,
+-Len
+
+
+--=-dB+ge7OdpC2LWRV2plqF
+Content-Disposition: attachment; filename=sis-debug.patch
+Content-Type: text/plain; name=sis-debug.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+===== drivers/acpi/pci_link.c 1.28 vs edited =====
+--- 1.28/drivers/acpi/pci_link.c	Thu May  6 16:03:17 2004
++++ edited/drivers/acpi/pci_link.c	Sun May  9 21:57:39 2004
+@@ -549,7 +549,7 @@
+ 	/*
+ 	 * if active found, use it; else pick entry from end of possible list.
+ 	 */
+-	if (i != link->irq.possible_count) {
++	if (link->irq.active) {
+ 		irq = link->irq.active;
+ 	} else {
+ 		irq = link->irq.possible[link->irq.possible_count - 1];
+
+--=-dB+ge7OdpC2LWRV2plqF--
+

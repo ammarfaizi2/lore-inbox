@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUJEVsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266069AbUJEVuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266137AbUJEVsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 17:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbUJEVsY
+	id S266069AbUJEVuu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 17:50:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266127AbUJEVuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 17:48:24 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:54401 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266127AbUJEVsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 17:48:21 -0400
-Message-ID: <41631698.5080301@comcast.net>
-Date: Tue, 05 Oct 2004 17:48:08 -0400
-From: David van Hoose <david.vanhoose@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Tue, 5 Oct 2004 17:50:50 -0400
+Received: from s0003.shadowconnect.net ([213.239.201.226]:45979 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S266069AbUJEVun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 17:50:43 -0400
+Message-ID: <416317FB.200@shadowconnect.com>
+Date: Tue, 05 Oct 2004 23:54:03 +0200
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Johnson, Richard" <rjohnson@analogic.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.5-1.358 and Fedora
-References: <Pine.LNX.4.53.0410051413520.3024@quark.analogic.com>
-In-Reply-To: <Pine.LNX.4.53.0410051413520.3024@quark.analogic.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: question about MTRR areas on x86_64
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johnson, Richard wrote:
-> 
-SNIP
-> 
-> make oldconfig
-> make bzImage
-> make modules
-> make modules_install
-> 
-> This seemed to go alright. Then I entered:
-> 
-> make install
-> 
-> This had some warning about module versions, but it seemed to work.
+Hello,
 
-Doesn't anyone do the following anymore:
+i've got the following error message:
 
-make mrproper
-make oldconfig
-make bzImage
-make modules
-make modules_install
+mtrr: type mismatch for fb000000,1000000 old: write-back new: write-combining
+i2o: could not enable write combining MTRR
 
-I've seen a lot of problems come from NOT running the mrproper.
+the output of /proc/mtrr is as follows:
 
-Regards,
-David
+reg00: base=0x00000000 (   0MB), size=8192MB: write-back, count=1
+reg01: base=0xe5000000 (3664MB), size=  16MB: uncachable, count=1
+reg02: base=0xe6000000 (3680MB), size=  32MB: uncachable, count=1
+reg03: base=0xe8000000 (3712MB), size= 128MB: uncachable, count=1
+reg04: base=0xf0000000 (3840MB), size= 256MB: uncachable, count=1
+
+Could it be because the machine has too much memory, or is there a bug in the I2O driver?
+
+Thank you very much in advance.
+
+
+Best regards,
+
+
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
+
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
+
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
+
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com

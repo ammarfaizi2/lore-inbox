@@ -1,85 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265481AbUFRQNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265387AbUFRQQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265481AbUFRQNA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 12:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUFRQKI
+	id S265387AbUFRQQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 12:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265361AbUFRQNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 12:10:08 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:29916 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S265250AbUFRQJm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 12:09:42 -0400
-Message-ID: <40D313DC.7000202@blue-labs.org>
-Date: Fri, 18 Jun 2004 12:10:04 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Walrond <andrew@walrond.org>
-CC: netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: Iptables-1.2.9/10 compile failure with linux 2.6.7 headers
-References: <200406181611.37890.andrew@walrond.org>
-In-Reply-To: <200406181611.37890.andrew@walrond.org>
-Content-Type: multipart/mixed;
- boundary="------------000907000009020702060906"
+	Fri, 18 Jun 2004 12:13:39 -0400
+Received: from cantor.suse.de ([195.135.220.2]:14261 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265387AbUFRQKe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 12:10:34 -0400
+Subject: Re: [PATCH RFC] __bd_forget should wait for inodes using the
+	mapping
+From: Chris Mason <mason@suse.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20040618154330.GY12308@parcelfarce.linux.theplanet.co.uk>
+References: <1087523668.8002.103.camel@watt.suse.com>
+	 <20040618021043.GV12308@parcelfarce.linux.theplanet.co.uk>
+	 <1087563810.8002.116.camel@watt.suse.com>
+	 <20040618142207.GW12308@parcelfarce.linux.theplanet.co.uk>
+	 <1087570031.8002.153.camel@watt.suse.com>
+	 <20040618151558.GX12308@parcelfarce.linux.theplanet.co.uk>
+	 <1087573303.8002.172.camel@watt.suse.com>
+	 <20040618154330.GY12308@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Message-Id: <1087574752.8002.194.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 18 Jun 2004 12:05:52 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000907000009020702060906
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2004-06-18 at 11:43, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
+> On Fri, Jun 18, 2004 at 11:41:43AM -0400, Chris Mason wrote:
+> > > And yes, ->i_mapping flips on "normal" bdev inodes will go away - we set
+> > > ->f_mapping on open directly.
+> > 
+> > Fair enough, I'll cook up some code to bump the inode->bdev->bd_inode
+> > i_count in __sync_single_inode  It won't be pretty either though, I'll
+> > have to drop the inode_lock so that some function can take the bdev_lock
+> > to safely use inode->i_bdev.
+> 
+> *Ugh*
+> 
+> You do realize that ->i_bdev is not promised to be there either?  Could you
+> show the actual code that steps into this mess?
+> 
+Grin, it won't be pretty, i_bdev can't be trusted without the bdev lock,
+and I'll need to check for I_FREEING on it to make sure it isn't in
+clear_inode.
 
-Iptables should be using linux-libc-headers headers instead of kernel 
-headers.
+The sequence leading up to all of this looks something like this:
 
-Remove -I$(KERNEL_DIR)/include from your makefile, see this patch here: 
-http://ep09.pld-linux.org/~mmazur/linux-libc-headers/patches/iptables.patch 
-<http://ep09.pld-linux.org/%7Emmazur/linux-libc-headers/patches/iptables.patch>
+CPU 0:					CPU 1: 
 
-David
+pdflush finds				umount /dev/sda1
+FS inode for
+/dev/sda1 in dirty list,
+makes it's way down
+to __sync_single_inode
 
-Andrew Walrond wrote:
+mapping = inode->i_mapping
+(this points bdev address
+ space)
+					kill_block_super
+					close_bdev_excl
+					blkdev_put
+					bdput(bdev)
+					iput(bdev->bd_inode)
+					...
+					clear_inode(bdev inode)
+					bdev_clear_inode
+					__bd_forget(inode for /dev/sda1)
+					...
+					destroy_inode(bdev inode)
+...
+do_writepages(mapping, wbc)
 
->The addition of a
->	__user
->attribute to a line in
->	linux-2.6.7/include/linux/netfilter_ipv4/ip_tables.h
->causes iptables build to fail unless I export
->	CC="gcc -D__user= "
->
->Presumably ip_tables.h should include a header defining __user, or iptables 
->should include the relevant header before ip_tables.h ?
->
->Sorry if this has already been reported; Archive search found nothing on 
->either ML.
->
->Andrew Walrond
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+Since mapping on CPU0 still points to the bdev address space, and that
+has been freed by the destroy inode, we run into problems.  
 
---------------000907000009020702060906
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
+Maybe the real bug is the FS inode should never have ended up in the
+dirty list.  This should all work fine if the bdev inode were the only
+one to ever hit a dirty list.
 
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
+-chris
 
 
---------------000907000009020702060906--

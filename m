@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUJEXr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUJEXt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUJEXr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 19:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266034AbUJEXr3
+	id S266362AbUJEXt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 19:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUJEXt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 19:47:29 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:41293 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S266362AbUJEXr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 19:47:27 -0400
-To: root@chaos.analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-X-Message-Flag: Warning: May contain useful information
-References: <Pine.LNX.4.53.0410051852250.351@chaos.analogic.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 05 Oct 2004 16:47:21 -0700
-In-Reply-To: <Pine.LNX.4.53.0410051852250.351@chaos.analogic.com> (Richard
- B. Johnson's message of "Tue, 5 Oct 2004 18:58:24 -0400 (EDT)")
-Message-ID: <52vfdoraly.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: Linux-2.6.5-1.358 SMP
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 05 Oct 2004 23:47:26.0306 (UTC) FILETIME=[AAF5AC20:01C4AB35]
+	Tue, 5 Oct 2004 19:49:56 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:33448 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266362AbUJEXtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 19:49:53 -0400
+Subject: Re: [PATCH] ide-dma blacklist behaviour broken
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <20041005154628.GG19971@suse.de>
+References: <20041005142001.GR2433@suse.de>
+	 <20041005163730.A19554@infradead.org>  <20041005154628.GG19971@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1097016410.23923.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 05 Oct 2004 23:46:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Richard> I need to make some modules that have lots of assembly
-    Richard> code.  This assembly uses the UNIX calling convention and
-    Richard> can't be re-written (it would take many months). The new
-    Richard> kernel is compiled with "-mregparam=2". I can't find
-    Richard> where that's defined. I need to remove it because I
-    Richard> cannot pass parameters to the assembly stuff in
-    Richard> registers.
+On Maw, 2004-10-05 at 16:46, Jens Axboe wrote:
+> I didn't check, someone just reported today. But looking at eg 2.6.5, it
+> seems to have the same bug. So it's likely very old.
 
-You should be able to use CONFIG_REGPARM to control this.  Another
-option is just to mark the functions in your source as "asmlinkage"
-(which is defined to "__attribute__((regparm(0)))" in
-asm-i386/linkage.h).  The advantage of using asmlinkage is that your
-code will work with anyone's kernel.
-
- - Roland
+We should actually probably nuke most of the IDE blacklist, much of the
+CD-ROM blacklist arose because we DMA rather than PIO'd the ATAPI CDB.
 

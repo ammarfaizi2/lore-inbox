@@ -1,99 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbUKJXlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbUKJXnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbUKJXlp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 18:41:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbUKJXlp
+	id S261741AbUKJXnn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 18:43:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUKJXnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 18:41:45 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:42975 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S262063AbUKJXll
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 18:41:41 -0500
-From: james4765@verizon.net
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, mingo@redhat.com, neilb@cse.unsw.edu.au,
-       james4765@verizon.net
-Message-Id: <20041110234139.21620.58620.39135@localhost.localdomain>
-Subject: [PATCH][resend] md: Documentation/md.txt update
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [70.16.226.208] at Wed, 10 Nov 2004 17:41:39 -0600
-Date: Wed, 10 Nov 2004 17:41:40 -0600
+	Wed, 10 Nov 2004 18:43:43 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:36035 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261741AbUKJXnk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 18:43:40 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] 2.6.10-rc1-mm4: USB storage not working on AMD64
+Date: Thu, 11 Nov 2004 00:42:25 +0100
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       Andrew Morton <akpm@osdl.org>
+References: <200411101154.05304.rjw@sisk.pl> <200411101557.51057.rjw@sisk.pl> <200411100736.08055.david-b@pacbell.net>
+In-Reply-To: <200411100736.08055.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411110042.25440.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updates to Documentation/md.txt - included some extra info I found out while
-digging deeper into init/do_mounts_md.c
+On Wednesday 10 of November 2004 16:36, David Brownell wrote:
+> On Wednesday 10 November 2004 06:57, Rafael J. Wysocki wrote:
+> > On Wednesday 10 of November 2004 14:58, David Brownell wrote:
+> 
+> > > I recently posted several USB PM fixes that make things work better
+> > > in my testing, and it sounds like they'd probably help here too.
+> > 
+> > Are they available as stand-alone patches?  I'd like to test ...
+> 
+> Yes, check the linux-usb-devel archives from Sunday evening.
 
-Signed-off-by: James Nelson <James4765@gmail.com>
+Thanks a lot.  These patches evidently fix the problem described in this 
+thread (verified on two different AMD64-based configurations).
 
-diff -urN --exclude='*~' linux-2.6.9-original/Documentation/md.txt linux-2.6.9/Documentation/md.txt
---- linux-2.6.9-original/Documentation/md.txt	2004-10-18 17:54:38.000000000 -0400
-+++ linux-2.6.9/Documentation/md.txt	2004-11-10 18:33:43.224334682 -0500
-@@ -45,7 +45,8 @@
- When md is compiled into the kernel (not as module), partitions of
- type 0xfd are scanned and automatically assembled into RAID arrays.
- This autodetection may be suppressed with the kernel parameter
--"raid=noautodetect".
-+"raid=noautodetect".  As of kernel 2.6.9, only drives with a type 0
-+superblock can be autodetected and run at boot time.
- 
- The kernel parameter "raid=partitionable" (or "raid=part") means
- that all auto-detected arrays are assembled as partitionable.
-@@ -55,13 +56,13 @@
- ------------------
- 
- The md driver can support a variety of different superblock formats.
--(It doesn't yet, but it can)
-+Currently, it supports superblock formats "0.90.0" and the "md-1" format
-+introduced in the 2.5 development series.
- 
--The kernel does *NOT* autodetect which format superblock is being
--used. It must be told.
-+The kernel will autodetect which format superblock is being used.
- 
- Superblock format '0' is treated differently to others for legacy
--reasons.
-+reasons - it is the original superblock format.
- 
- 
- General Rules - apply for all superblock formats
-@@ -69,6 +70,7 @@
- 
- An array is 'created' by writing appropriate superblocks to all
- devices.
-+
- It is 'assembled' by associating each of these devices with an
- particular md virtual device.  Once it is completely assembled, it can
- be accessed.
-@@ -76,10 +78,10 @@
- An array should be created by a user-space tool.  This will write
- superblocks to all devices.  It will usually mark the array as
- 'unclean', or with some devices missing so that the kernel md driver
--can create approrpriate redundancy (copying in raid1, parity
-+can create appropriate redundancy (copying in raid1, parity
- calculation in raid4/5).
- 
--When an array is assembled, it is first initialised with the
-+When an array is assembled, it is first initialized with the
- SET_ARRAY_INFO ioctl.  This contains, in particular, a major and minor
- version number.  The major version number selects which superblock
- format is to be used.  The minor number might be used to tune handling
-@@ -101,15 +103,16 @@
- 
- 
- Specific Rules that apply to format-0 super block arrays, and
--       arrays with no superblock (non-persistant).
-+       arrays with no superblock (non-persistent).
- -------------------------------------------------------------
- 
- An array can be 'created' by describing the array (level, chunksize
- etc) in a SET_ARRAY_INFO ioctl.  This must has major_version==0 and
- raid_disks != 0.
--Then uninitialised devices can be added with ADD_NEW_DISK.  The
-+
-+Then uninitialized devices can be added with ADD_NEW_DISK.  The
- structure passed to ADD_NEW_DISK must specify the state of the device
- and it's role in the array.
- 
--One started with RUN_ARRAY, uninitialised spares can be added with
-+Once started with RUN_ARRAY, uninitialized spares can be added with
- HOT_ADD_DISK.
+Greets,
+RJW
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

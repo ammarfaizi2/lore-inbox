@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVB1MkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVB1MzI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVB1MkA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 07:40:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVB1MkA
+	id S261579AbVB1MzI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 07:55:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVB1MzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 07:40:00 -0500
-Received: from er-systems.de ([217.172.180.163]:12232 "EHLO er-systems.de")
-	by vger.kernel.org with ESMTP id S261577AbVB1Mj6 (ORCPT
+	Mon, 28 Feb 2005 07:55:07 -0500
+Received: from imag.imag.fr ([129.88.30.1]:35017 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S261579AbVB1MzB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 07:39:58 -0500
-Date: Mon, 28 Feb 2005 13:39:57 +0100 (CET)
-From: Thomas Voegtle <tv@lio96.de>
+	Mon, 28 Feb 2005 07:55:01 -0500
+Message-ID: <1109595069.422313bd9f782@webmail.imag.fr>
+Date: Mon, 28 Feb 2005 13:51:09 +0100
+From: colbuse@ensisun.imag.fr
 To: linux-kernel@vger.kernel.org
-Subject: Shutdown after 6 years 2 months 25 days: 2.0.36 declared stable!
-Message-ID: <Pine.LNX.4.61.0502281331070.1811@er-systems.de>
+Cc: akpm@zip.com.au
+Subject: [Patch 1/2] drivers/char/vt.c: remove unnecessary code
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1395022924-783636761-1109594397=:1811"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 193.49.124.107
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Mon, 28 Feb 2005 13:51:12 +0100 (CET)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
 
----1395022924-783636761-1109594397=:1811
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+In the palette escape sequence, setting the elems of par[] at 0 is not needed,
+since its values are every time overwritten in this case.
 
-Hi,
+Signed-off-by: Emmanuel Colbus <emmanuel.colbus@ensimag.imag.fr>
 
-Yesterday evening me an my friend had to shut down our most beloved 
-server. It had run for 6 years, 2 months and 25 days non stop. Nothing 
-could harm this little mailserver: y2k, electricity problems in the house 
-and no hacker found it.
-
-We had to shut it down because of renovation of the room.
-
-486 DX 33Mhz
-8   MB RAM 
-32  MB SWAP
-340 MB Connor Harddisk
-
-Kernel 2.0.36
-SuSE 5.3
-
-4 uptime wrap arounds. 
-
-Thanks a lot for this rock solid piece of software!
+--- old/drivers/char/vt.c       2004-12-24 22:35:25.000000000 +0100
++++ new/drivers/char/vt.c       2005-02-28 12:51:43.910651512 +0100
+@@ -1626,8 +1626,6 @@
+                return;
+        case ESnonstd:
+                if (c=='P') {   /* palette escape sequence */
+-                       for (npar=0; npar<NPAR; npar++)
+-                               par[npar] = 0 ;
+                        npar = 0 ;
+                        vc_state = ESpalette;
+                        return;
 
 
-      Thomas and Bastian
+--
+Emmanuel Colbus
+Club GNU/Linux
+ENSIMAG - departement telecoms
 
--- 
- Thomas Vögtle    email: thomas@voegtle-clan.de
- ----- http://www.voegtle-clan.de/thomas ------
----1395022924-783636761-1109594397=:1811--
+
+
+-------------------------------------------------
+envoyé via Webmail/IMAG !
+

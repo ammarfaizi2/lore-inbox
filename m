@@ -1,81 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274560AbRITQaS>; Thu, 20 Sep 2001 12:30:18 -0400
+	id <S274561AbRITQdS>; Thu, 20 Sep 2001 12:33:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274562AbRITQaI>; Thu, 20 Sep 2001 12:30:08 -0400
-Received: from mail.Virginia.EDU ([128.143.2.9]:33508 "HELO mail.virginia.edu")
-	by vger.kernel.org with SMTP id <S274560AbRITQ3x>;
-	Thu, 20 Sep 2001 12:29:53 -0400
-Date: Thu, 20 Sep 2001 12:30:11 -0400 (EDT)
-From: Aaron J Mackey <ajm6q@virginia.edu>
-X-X-Sender: <ajm6q@alpha10.bioch.virginia.edu>
-Reply-To: "Aaron J. Mackey" <amackey@virginia.edu>
-To: linux-kernel@vger.kernel.org
-MMDF-Warning: Parse error in original version of preceding line at mail.virginia.edu
-Subject: 2.4.9 kernel bug
-Message-ID: <Pine.OSF.4.33.0109201227530.23017-100000@alpha10.bioch.virginia.edu>
+	id <S274563AbRITQdI>; Thu, 20 Sep 2001 12:33:08 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:14403 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S274561AbRITQcz>; Thu, 20 Sep 2001 12:32:55 -0400
+Date: Thu, 20 Sep 2001 11:33:09 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Thomas Sailer <sailer@scs.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: via82cxxx_audio locking problems
+In-Reply-To: <3BA9AB43.C26366BF@scs.ch>
+Message-ID: <Pine.LNX.3.96.1010920112905.26319I-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 20 Sep 2001, Thomas Sailer wrote:
 
-here's the ksymoops output ... let me know if there's anything else you
-need ...
+> This applies to version 1.1.5 as well as the version in
+> linux-2.4.10-pre12 and linux-2.4.9-ac12.
+> 
+> 1) There is one semaphore (syscall_sem) that is held during
+>    calls from userspace. It is even kept while going to sleep
+>    during read and write syscalls. This locks out other users,
+>    eg. mixers, for a potentially very long time, seconds are
+>    common but it may almost be arbitrarily long. Try changing
+>    the volume with eg. gmix while playing something with eg. xmms.
+> 
+>    Dropping and reacquiring syscall_sem around interruptible_sleep_on
+>    in via_dsp_do_read, via_dsp_do_write and via_dsp_drain_playback
+>    should solve the problem. Does anyone see a problem with this?
 
--Aaron
-amackey@virginia.edu
+Is there a possibility of do_read being re-entered during that window?
+I agree its a problem but the solution sounds racy?
 
-ksymoops 2.4.0 on i686 2.4.9.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.9/ (default)
-     -m /boot/System.map-2.4.9 (default)
+> 2) When some kind of error happens during read or write after
+>    some samples have already been dequeued and copied to the user
+>    buffer, the number of copied bytes should be returned instead
+>    of the error code, to avoid loosing samples.
 
-kernel BUG at page_alloc.c:81!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[__free_pages_ok+175/784]
-EIP:    0010:[<c012c20f>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 0000001f   ebx: 00000000   ecx: 00000012   edx: 02000000
-esi: c17b1ae0   edi: 00000000   ebp: 00000000   esp: dd3a7e94
-ds: 0018   es: 0018   ss: 0018
-Process c34.worktfx (pid: 1389, stackpage=dd3a7000)
-Stack: c0266ec9 c0266f9d 00000051 c17b1b68 c1044010 c02c8a64 00000206 fffffffe
-       c17b1ae0 c17b1ae0 002ed000 df67ec20 c012d035 dd3a7f1c dd7f076c c020b6c1
-       dd7f076c c17b1ae0 00000006 c0120ac5 c17b1ae0 0000001a 00000000 0030e000
-Call Trace: [free_page_and_swap_cache+213/224] [sock_recvmsg+49/176] [zap_page_range+453/624] [do_page_fault+396/1184] [do_munmap+479/624]
-Call Trace: [<c012d035>] [<c020b6c1>] [<c0120ac5>] [<c01102dc>] [<c012316f>]
-   [<c011b350>] [<c01223f1>] [<c0106edb>]
-Code: 0f 0b 83 c4 0c 8b 46 18 83 e0 20 74 16 6a 53 68 9d 6f 26 c0
+Very true
 
->>EIP; c012c20f <__free_pages_ok+af/310>   <=====
-Trace; c012d035 <free_page_and_swap_cache+d5/e0>
-Trace; c020b6c1 <sock_recvmsg+31/b0>
-Trace; c0120ac5 <zap_page_range+1c5/270>
-Trace; c01102dc <do_page_fault+18c/4a0>
-Trace; c012316f <do_munmap+1df/270>
-Trace; c011b350 <update_process_times+20/a0>
-Trace; c01223f1 <sys_brk+61/f0>
-Trace; c0106edb <system_call+33/38>
-Code;  c012c20f <__free_pages_ok+af/310>
-00000000 <_EIP>:
-Code;  c012c20f <__free_pages_ok+af/310>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c012c211 <__free_pages_ok+b1/310>
-   2:   83 c4 0c                  add    $0xc,%esp
-Code;  c012c214 <__free_pages_ok+b4/310>
-   5:   8b 46 18                  mov    0x18(%esi),%eax
-Code;  c012c217 <__free_pages_ok+b7/310>
-   8:   83 e0 20                  and    $0x20,%eax
-Code;  c012c21a <__free_pages_ok+ba/310>
-   b:   74 16                     je     23 <_EIP+0x23> c012c232 <__free_pages_ok+d2/310>
-Code;  c012c21c <__free_pages_ok+bc/310>
-   d:   6a 53                     push   $0x53
-Code;  c012c21e <__free_pages_ok+be/310>
-   f:   68 9d 6f 26 c0            push   $0xc0266f9d
+> 3) The use of interruptible_sleep_on results in a small race where
+>    wake_ups may be lost. Unlikely to hit though.
+> 
+> 4) The down_trylock and returning -EAGAIN in via_down_syscall looks
+>    questionable, EAGAIN with O_NONBLOCK normally means I/O has to
+>    be completed first, not that there is contention on some internal
+>    synchronisation primitive.
+
+I disagree; I think the idea at aleast is correct:  if contention
+exists, it implies that I/O needs to be completed.
+
+> Jeff, do you object any of this? Would you accept a patch to ameliorate
+> the situation? Or would you like to fix this yourself?
+
+A fix patch would definitely be accepted...
+
+	Jeff
+
 
 

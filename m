@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265163AbUD3MDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265133AbUD3MST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265163AbUD3MDX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 08:03:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265164AbUD3MDX
+	id S265133AbUD3MST (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 08:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265168AbUD3MST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 08:03:23 -0400
-Received: from ns.sgtp.samara.ru ([195.128.153.202]:62904 "EHLO sgtp.samara.ru")
-	by vger.kernel.org with ESMTP id S265163AbUD3MDS (ORCPT
+	Fri, 30 Apr 2004 08:18:19 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:20868 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265133AbUD3MSO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 08:03:18 -0400
-Subject: Promise SX-6000 and kernel 2.6.x
-From: Alex Murphy <murphy@sgtp.samara.ru>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: SYS.NET.RU
-Message-Id: <1083326592.29576.63.camel@bene.samgtp>
+	Fri, 30 Apr 2004 08:18:14 -0400
+Date: Fri, 30 Apr 2004 14:18:03 +0200
+From: Jens Axboe <axboe@suse.de>
+To: FabF <Fabian.Frederick@skynet.be>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.6-rc3] as-io isolation ?
+Message-ID: <20040430121801.GW2150@suse.de>
+References: <1083183861.4618.13.camel@bluerhyme.real3> <40904EAA.6010501@yahoo.com.au> <1083253117.4624.3.camel@bluerhyme.real3>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 30 Apr 2004 17:03:12 +0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1083253117.4624.3.camel@bluerhyme.real3>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!!!
+On Thu, Apr 29 2004, FabF wrote:
+> On Thu, 2004-04-29 at 02:39, Nick Piggin wrote:
+> > FabF wrote:
+> > > Hi,
+> > > 
+> > > 	Here's a patch _idea_ to isolate anticipatory I/O from normal I/O
+> > > scheduler process by adding a specific put io context method so that
+> > > ll_rw_blk stuff could be as-iosched transparent.I guess we could point
+> > > as iosched exit instead of exit_io_context as well ...
+> > 
+> > Hi,
+> > This makes ll_rw_blk.c aware of an AS specific function though.
+> > as-iosched.c is actually a CONFIG option under CONFIG_EMBEDDED.
+> > What is the actual problem?
+> 
+> AFAICS cfq and other elevators don't interact with ll_rw stuff (?)
 
- I am sorry for the letter, but allow to address to you with my problem.
-Has bought Promise SX-6000 Pro the controller and has established on him
-Linux Redhat. All - is excellent!! Has updated a nucleus for 2.6.5 - I
-can not pick up the controller in any way. Source codes of a nucleus
-taking place on your site do not approach for 2.6 nucleus :( 
+Hmm? That looks like nonsense. AS/CFQ/deadline/etc all use the same
+interface between the block layer and driver. AS is the only in-tree
+user of io contexts, the implementation is open for other additions as
+well though.
 
-Can you know the possible decision of my problem??
+> but we could release something like the asio later so I was thinking
+> about somekind of abstraction within ll_rw.This abstraction would
+> require the patch ad hoc as well as a specific exit point.
 
- Yours faithfully and hope, Alexey.
+I think you have to explain yourself a bit more clearly. The patch, as
+posted, doesn't make much sense to me. It's making it a lot worse.
 
-P.S.1 firmware drivers for 2.4.x kernel download is 
-http://www.eventus.de/linux.html
+If you want to isolate the entire anticipation from AS to be used
+generically, then you are going about it the wrong way. I'd suggest
+thinking a lot harder about how anticipation interacts with the various
+entry points into the io scheduler. And then see if you can isolate that
+successfully, then apply it to eg CFQ, and then post something when you
+are happy with how it panned out.
 
-P.S.2
+I don't think it's a bad idea at all, in fact I originally wanted it
+implemented this way.
 
-In make menuconfig has disconnected support of all PDC Promise. Has
-included all I2O devices in a nucleus.
-
-ns linux # cat .config|grep I2O
-# I2O device support
-CONFIG_I2O=y
-CONFIG_I2O_PCI=y
-CONFIG_I2O_BLOCK=y
-CONFIG_I2O_SCSI=y
-CONFIG_I2O_PROC=y
-
-
-dmesg send 0 i2o controllers
-
-I2O Core - (C) Copyright 1999 Red Hat Software
-I2O: Event thread created as pid 17
-i2o: Checking for PCI I2O controllers...
-I2O configuration manager v 0.04.
-  (C) Copyright 1999 Red Hat Software
-I2O Block Storage OSM v0.9
-   (c) Copyright 1999-2001 Red Hat Software.
-i2o_block: Checking for Boot device...
-i2o_block: Checking for I2O Block devices...
-i2o_scsi.c: Version 0.1.2
-  chain_pool: 0 bytes @ f7ae85a0
-  (512 byte buffers X 4 can_queue X 0 i2o controllers)
-
-
-lspci:
-
-02:02.1 Class ff00: Intel Corp. 80960RM [i960RM Microprocessor] (rev 02)
-(prog-if 01)
-        Subsystem: Promise Technology, Inc. SuperTrak SX6000 I2O CPU
-        Flags: bus master, medium devsel, latency 32, IRQ 22
-        Memory at f6000000 (32-bit, prefetchable) [size=4M]
-        Expansion ROM at <unassigned> [disabled] [size=64K]
+-- 
+Jens Axboe
 

@@ -1,53 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261545AbSIXENB>; Tue, 24 Sep 2002 00:13:01 -0400
+	id <S261553AbSIXEjZ>; Tue, 24 Sep 2002 00:39:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261546AbSIXENB>; Tue, 24 Sep 2002 00:13:01 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:59098 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S261545AbSIXENA>; Tue, 24 Sep 2002 00:13:00 -0400
-Date: Tue, 24 Sep 2002 00:05:28 -0400
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Nanosecond resolution for stat(2)
-Message-ID: <20020924040528.GA22618@pimlott.net>
-Mail-Followup-To: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-References: <20020923214836.GA8449@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020923214836.GA8449@averell>
-User-Agent: Mutt/1.3.28i
-From: Andrew Pimlott <andrew@pimlott.net>
+	id <S261554AbSIXEjZ>; Tue, 24 Sep 2002 00:39:25 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:63995 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S261553AbSIXEjY>; Tue, 24 Sep 2002 00:39:24 -0400
+Date: Tue, 24 Sep 2002 00:44:32 -0400 (EDT)
+From: Albert Cranford <ac9410@attbi.com>
+X-X-Sender: ac9410@home1
+Reply-To: Albert Cranford <ac9410@attbi.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [patch 2/2] linux-2.5.38 additional i2c driver ID's
+Message-ID: <Pine.LNX.4.44.0209240042180.16117-200000@home1>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-307003646-1032842672=:16117"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 23, 2002 at 11:48:36PM +0200, Andi Kleen wrote:
-> The kernel internally always keeps the nsec (or rather 1ms) resolution
-> stamp. When a filesystem doesn't support it in its inode (like ext2) 
-> and the inode is flushed to disk and then reloaded then an application
-> that is nanosecond aware could in theory see a backwards jumping time.
-> I didn't do anything anything against that yet, because it looks more
-> like a theoretical problem for me.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I assume you mean "theoretical" that an application would care, not
-that it would happen.  (Unless I misunderstand, it is nearly
-guaranteed to happen every time an inode is evicted after a
-[mac]time update.)
+--0-307003646-1032842672=:16117
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-I fear that there are applications that will be harmed by any
-spurious change in [mac]time, even if it's not backwards.  Apps that
-trigger on any change in mtime may trigger twice for every change.
-Eg, I suspect there is some scenario in which an rsync-like
-application that supports nanoseconds could suffer (just in
-performance, but still).
+Hello Linus,
+Additional I2C driver ID's for 2.5.38
+Thanks,
+Albert
+-- 
+ac9410@attbi.com
 
-> If it should be one in practice 
-> it could be fixed by rounding the time up in this case.
+--0-307003646-1032842672=:16117
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; name=2-i2c-includes-patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0209240044320.16117@home1>
+Content-Description: 
+Content-Disposition: attachment; filename=2-i2c-includes-patch
 
-This would mean that even "legacy" programs that only use second
-resolution would be affected, which seems worse.  At least programs
-that recognize the nanosecond field are more likely to know about
-the issue.
-
-Andrew
+LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvaTJjLWlkLmgub3JpZwkyMDAyLTA5
+LTA5IDEzOjM1OjAxLjAwMDAwMDAwMCAtMDQwMA0KKysrIGxpbnV4L2luY2x1
+ZGUvbGludXgvaTJjLWlkLmgJMjAwMi0wOC0yNCAxNjoxOTozOS4wMDAwMDAw
+MDAgLTA0MDANCkBAIC0yMCw3ICsyMCw3IEBADQogICAgIEZvdW5kYXRpb24s
+IEluYy4sIDY3NSBNYXNzIEF2ZSwgQ2FtYnJpZGdlLCBNQSAwMjEzOSwgVVNB
+LgkJICAgICAqLw0KIC8qIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0g
+Ki8NCiANCi0vKiAkSWQ6IGkyYy1pZC5oLHYgMS41MiAyMDAyLzA3LzEwIDEz
+OjI4OjQ0IGFieiBFeHAgJCAqLw0KKy8qICRJZDogaTJjLWlkLmgsdiAxLjU1
+IDIwMDIvMDgvMjQgMjA6MTk6MzkgbWRzIEV4cCAkICovDQogDQogI2lmbmRl
+ZiBJMkNfSURfSA0KICNkZWZpbmUgSTJDX0lEX0gNCkBAIC0xNDMsNiArMTQz
+LDcgQEANCiAjZGVmaW5lIEkyQ19EUklWRVJJRF9TTVNDNDdNMSAxMDMxDQog
+I2RlZmluZSBJMkNfRFJJVkVSSURfVlQxMjExIDEwMzINCiAjZGVmaW5lIEky
+Q19EUklWRVJJRF9MTTkyIDEwMzMNCisjZGVmaW5lIEkyQ19EUklWRVJJRF9W
+VDgyMzEgMTAzNA0KIA0KIC8qDQogICogLS0tLSBBZGFwdGVyIHR5cGVzIC0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0NCkBAIC0xNjEsNiArMTYyLDcgQEANCiAjZGVmaW5lIEkyQ19BTEdP
+X0FDQiAJMHgwNzAwMDAJLyogQUNDRVNTLmJ1cyBhbGdvcml0aG0gICAgICAg
+ICAqLw0KICNkZWZpbmUgSTJDX0FMR09fSUlDICAgIDB4MDgwMDAwIAkvKiBJ
+VEUgSUlDIGJ1cyAqLw0KICNkZWZpbmUgSTJDX0FMR09fU0FBNzEzNCAweDA5
+MDAwMA0KKyNkZWZpbmUgSTJDX0FMR09fTVBDODI0WCAweDBhMDAwMAkvKiBN
+b3Rvcm9sYSA4MjQwIC8gODI0NSAgICAgICAgICovDQogI2RlZmluZSBJMkNf
+QUxHT19FQyAgICAgMHgxMDAwMDAgICAgICAgIC8qIEFDUEkgZW1iZWRkZWQg
+Y29udHJvbGxlciAgICAgKi8NCiANCiAjZGVmaW5lIEkyQ19BTEdPX01QQzhY
+WCAweDExMDAwMAkvKiBNUEM4eHggUG93ZXJQQyBJMkMgYWxnb3JpdGhtICov
+DQpAQCAtMjA2LDYgKzIwOCw5IEBADQogLyogLS0tIEFDUEkgRW1iZWRkZWQg
+Y29udHJvbGxlciBhbGdvcml0aG1zICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgKi8NCiAjZGVmaW5lIEkyQ19IV19BQ1BJX0VDICAgICAgICAgIDB4
+MDANCiANCisvKiAtLS0gTVBDODI0eCBQb3dlclBDIGFkYXB0ZXJzCQkJCQkJ
+Ki8NCisjZGVmaW5lIEkyQ19IV19NUEM4MjRYIDB4MDAJLyogTW90b3JvbGEg
+ODI0MCAvIDgyNDUgICAgICAgICAgICAgICAgICovDQorDQogLyogLS0tIE1Q
+Qzh4eCBQb3dlclBDIGFkYXB0ZXJzCQkJCQkJKi8NCiAjZGVmaW5lIEkyQ19I
+V19NUEM4WFhfRVBPTiAweDAwCS8qIEVwb255bW91cyBNUEM4eHggSTJDIGFk
+YXB0ZXIgCSovDQogDQpAQCAtMjI1LDYgKzIzMCw4IEBADQogI2RlZmluZSBJ
+MkNfSFdfU01CVVNfQU1ENzU2CTB4MDUNCiAjZGVmaW5lIEkyQ19IV19TTUJV
+U19TSVM1NTk1CTB4MDYNCiAjZGVmaW5lIEkyQ19IV19TTUJVU19BTEkxNTM1
+CTB4MDcNCisjZGVmaW5lIEkyQ19IV19TTUJVU19TSVM2MzAJMHgwOA0KKyNk
+ZWZpbmUgSTJDX0hXX1NNQlVTX1NJUzY0NQkweDA5DQogDQogLyogLS0tIElT
+QSBwc2V1ZG8tYWRhcHRlcgkJCQkJCSovDQogI2RlZmluZSBJMkNfSFdfSVNB
+IDB4MDANCi0tLSBsaW51eC9pbmNsdWRlL2xpbnV4L2kyYy5oLm9yaWcJMjAw
+Mi0wOS0wOSAxMzozNTowNC4wMDAwMDAwMDAgLTA0MDANCisrKyBsaW51eC9p
+bmNsdWRlL2xpbnV4L2kyYy5oCTIwMDItMDktMjEgMjI6Mjc6MTEuMDAwMDAw
+MDAwIC0wNDAwDQpAQCAtMjMsMTMgKzIzLDEzIEBADQogLyogV2l0aCBzb21l
+IGNoYW5nZXMgZnJvbSBLefZzdGkgTeRsa2tpIDxrbWFsa2tpQGNjLmh1dC5m
+aT4gYW5kDQogICAgRnJvZG8gTG9vaWphYXJkIDxmcm9kb2xAZGRzLm5sPiAq
+Lw0KIA0KLS8qICRJZDogaTJjLmgsdiAxLjU5IDIwMDIvMDcvMTkgMjA6NTM6
+NDUgcGhpbCBFeHAgJCAqLw0KKy8qICRJZDogaTJjLmgsdiAxLjYwIDIwMDIv
+MDkvMTYgMDA6Mzk6MTcgcGhpbCBFeHAgJCAqLw0KIA0KICNpZm5kZWYgSTJD
+X0gNCiAjZGVmaW5lIEkyQ19IDQogDQotI2RlZmluZSBJMkNfREFURSAiMjAw
+MjA3MTkiDQotI2RlZmluZSBJMkNfVkVSU0lPTiAiMi42LjQiDQorI2RlZmlu
+ZSBJMkNfREFURSAiMjAwMjA5MTUiDQorI2RlZmluZSBJMkNfVkVSU0lPTiAi
+Mi42LjUiDQogDQogI2luY2x1ZGUgPGxpbnV4L2kyYy1pZC5oPgkvKiBpZCB2
+YWx1ZXMgb2YgYWRhcHRlcnMgZXQuIGFsLiAJKi8NCiAjaW5jbHVkZSA8bGlu
+dXgvdHlwZXMuaD4NCkBAIC02OCw2ICs2OCwxMiBAQA0KIHVuaW9uIGkyY19z
+bWJ1c19kYXRhOw0KIA0KIA0KKyNpZiBMSU5VWF9WRVJTSU9OX0NPREUgPCBL
+RVJORUxfVkVSU0lPTigyLDQsMSkNCisjaWZuZGVmIF9fZXhpdA0KKyNkZWZp
+bmUgX19leGl0DQorI2VuZGlmDQorI2VuZGlmDQorDQogLyoNCiAgKiBUaGUg
+bWFzdGVyIHJvdXRpbmVzIGFyZSB0aGUgb25lcyBub3JtYWxseSB1c2VkIHRv
+IHRyYW5zbWl0IGRhdGEgdG8gZGV2aWNlcw0KICAqIG9uIGEgYnVzIChvciBy
+ZWFkIGZyb20gdGhlbSkuIEFwYXJ0IGZyb20gdHdvIGJhc2ljIHRyYW5zZmVy
+IGZ1bmN0aW9ucyB0byANCg==
+--0-307003646-1032842672=:16117--

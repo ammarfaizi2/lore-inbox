@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293588AbSBRCxZ>; Sun, 17 Feb 2002 21:53:25 -0500
+	id <S310566AbSBRNML>; Mon, 18 Feb 2002 08:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293591AbSBRCxQ>; Sun, 17 Feb 2002 21:53:16 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:38482 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S293588AbSBRCxK>; Sun, 17 Feb 2002 21:53:10 -0500
-Message-ID: <3C706965.8000304@sbcglobal.net>
-Date: Sun, 17 Feb 2002 18:39:33 -0800
-From: walt <wsheets@sbcglobal.net>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020216
-X-Accept-Language: en-us
+	id <S310567AbSBRNMC>; Mon, 18 Feb 2002 08:12:02 -0500
+Received: from dns.logatique.fr ([213.41.101.1]:5884 "HELO
+	persephone.dmz.logatique.fr") by vger.kernel.org with SMTP
+	id <S310566AbSBRNLt>; Mon, 18 Feb 2002 08:11:49 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Thomas Capricelli <tcaprice@logatique.fr>
+To: Sam Ravnborg <sam@ravnborg.org>, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Your opinion on CML2 and kbuild-2.5
+Date: Mon, 18 Feb 2002 14:10:33 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200202150057.g1F0v8P23914@golux.thyrsus.com> <3C6CE148.5020804@dplanet.ch> <20020215224235.A1292@mars.ravnborg.org>
+In-Reply-To: <20020215224235.A1292@mars.ravnborg.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [2.2.18-rc1] sis.o missing symbol errors (still)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020218130857.F196323CC4@persephone.dmz.logatique.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In order to avoid missing-symbol errors for drm/sis.o
-*all* of the following options must be set, even though
-the specified SiS chips are not being used:
 
-CONFIG_FB=y
-CONFIG_FB_SIS=y/m
-CONFIG_FB_SIS_300=y
-CONFIG_FB_SIS_315=y
+> Personal I would like to see kbuild-2.5 included ASAP. Among other stuff
+> I like the compressed output during compilation.
 
-These settings are selected in the FrameBuffer support
-section of .config, quite separate and distinct from
+	So do I. I like the clean design of kbuild-2.5 and i'm more than fine with 
+the overall speed. 
+	I vote for inclusion in 2.5. As small as my vote can be considered...
 
-CONFIG_AGP
-CONFIG_AGP_SIS
-CONFIG_DRM
-
-It would save lots of confusion if these constraints
-were enforced during 'make config'.
-
+Thomas

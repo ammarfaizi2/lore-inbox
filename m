@@ -1,20 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313037AbSDCDSl>; Tue, 2 Apr 2002 22:18:41 -0500
+	id <S313038AbSDCDWb>; Tue, 2 Apr 2002 22:22:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313038AbSDCDSc>; Tue, 2 Apr 2002 22:18:32 -0500
-Received: from alcove.wittsend.com ([130.205.0.10]:31872 "EHLO
+	id <S313039AbSDCDWV>; Tue, 2 Apr 2002 22:22:21 -0500
+Received: from alcove.wittsend.com ([130.205.0.10]:36224 "EHLO
 	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S313037AbSDCDSS>; Tue, 2 Apr 2002 22:18:18 -0500
-Date: Tue, 2 Apr 2002 22:18:11 -0500
+	id <S313038AbSDCDWJ>; Tue, 2 Apr 2002 22:22:09 -0500
+Date: Tue, 2 Apr 2002 22:22:02 -0500
 From: "Michael H. Warfield" <mhw@wittsend.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux needs new leadership.
-Message-ID: <20020402221811.A2777@alcove.wittsend.com>
-Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com> <16ryZS-0LkEnAC@fmrl07.sul.t-online.com> <20020331225641.GA1653@werewolf.able.es> <a8bdub$92r$1@cesium.transmeta.com>
+Message-ID: <20020402222202.B2777@alcove.wittsend.com>
+Mail-Followup-To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020331225641.GA1653@werewolf.able.es> <Pine.LNX.4.33.0204011507520.3111-100000@shell1.aracnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,41 +24,34 @@ User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 01, 2002 at 09:00:59PM -0800, H. Peter Anvin wrote:
-> Followup to:  <20020331225641.GA1653@werewolf.able.es>
-> By author:    "J.A. Magallon" <jamagallon@able.es>
-> In newsgroup: linux.dev.kernel
-> > 
+On Mon, Apr 01, 2002 at 03:09:41PM -0800, M. Edward (Ed) Borasky wrote:
+> On Mon, 1 Apr 2002, J.A. Magallon wrote:
+
 > > So think on all non-anglo-saxon people reading the list....
 > > I took me some time to associate 2002.04.01 with jokes...
 
+> Uh ... IIRC April Fool's Day is of French origin, not Anglo-Saxon. At
+> least that was what I was taught in an Anglo-Saxon (USA) school :)
 
-> April Fool's Day (1 april) is quite popular in Scandinavia, for
-> example.  At least in Sweden, even the so-called "legitimate news
-> media" get into it, usually with exactly one fake story per
-> publication/news program.  The day after the newspapers usually let
-> you know which one it was, and what other newspapers did :)
+	Funny...  I'm in the US and was taught it was the druid new year
+and that the Christians that overran England called all the old druids
+"fools" for honoring the old date for the new year.
 
-	Linus seems to like to put that extra special effort into
-his annual presentations.  I remember a couple years back when he
-hit us with one from Finland (ok, several years back) that was just
-a few SECONDS after midnight, his local time (GMT?).  It meant that
-most of us here in the burbs (US) got caught before it was April 1,
-our time.  It's that special touch that endears him to us and got him
-threatened with bodily harm...  >;-/=/
-
-	I don't recall that he ever did tell us if he sat up all night
-hovering over the send key or if he lit off a cron (at) job to do his
-dirty work...  With the proven reliability of his creation, I guess he
-could have slept well that night and merely awoke to the havok he
-triggered...
-
-> 	-hpa
+	But, I guess, it's as someone else pointed out, a holiday of
+many origins.  As are most of our holidays.  Plagerized from others...
 
 > -- 
-> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-> "Unix gives you enough rope to shoot yourself in the foot."
-> http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+> M. Edward Borasky
+> znmeb@borasky-research.net
+
+> The COUGAR Project
+> http://www.borasky-research.com/Cougar.htm
+
+> If I had 40 billion dollars for every software monopoly that sells an
+> unwieldy and hazardously complex development environment and is run by
+> an arrogant college dropout with delusions of grandeur who treats his
+> employees like serfs while he is acclaimed as a man of compelling
+> vision, I'd be a wealthy man.
 
 	Mike
 -- 

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267680AbTACVlw>; Fri, 3 Jan 2003 16:41:52 -0500
+	id <S267681AbTACVlF>; Fri, 3 Jan 2003 16:41:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267682AbTACVlw>; Fri, 3 Jan 2003 16:41:52 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:6563 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id <S267680AbTACVlt>;
-	Fri, 3 Jan 2003 16:41:49 -0500
-Subject: Re: NVidia and its choice to read the GPL "differently"
-From: Steven Barnhart <sbarn03@softhome.net>
-To: linux-kernel@vger.kernel.org
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Jan 2003 16:50:25 -0500
-Message-Id: <1041630640.2053.2.camel@sbarn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S267682AbTACVlE>; Fri, 3 Jan 2003 16:41:04 -0500
+Received: from jamesconeyisland.com ([66.64.43.2]:45836 "EHLO
+	mail.jamesconeyisland.com") by vger.kernel.org with ESMTP
+	id <S267681AbTACVlE> convert rfc822-to-8bit; Fri, 3 Jan 2003 16:41:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ron cooper <rcooper@jamesconeyisland.com>
+Organization: James Coney island
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: Gigabit/SMP performance problem
+Date: Fri, 3 Jan 2003 15:49:29 -0600
+User-Agent: KMail/1.4.3
+References: <OFC4D9AF0E.DA93F4D7-ON85256CA3.0058C567-85256CA3.00592873@symantec.com> <14000000.1041617118@flay>
+In-Reply-To: <14000000.1041617118@flay>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301031549.29549.rcooper@jamesconeyisland.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This looks to me like another "don't use something because its not free"
-type of thing just like with Linus using Bitkeeper. Even if Nvidia
-wanted
-to open source the drivers they couldn't because they have atleast 5
-NDAs
-with third party companies! Also open source isn't for everything (don't
-flame please). Its great but if a proprietary product is technically
-better I will (usually) use it. The nv drivers as I understand it don't
-support as much or whatever as the Nvidia drivers. I want good quality
-graphics for paying a hefty price for the card. I am not going to use
-free
-drivers if they don't use the qualities. You guys should be happy Nvidia
-is fricken dealing with all you "everything must be free" people. That
-could be what's keeping (offtopic) Photoshop off of Linux. They
-have added Linux to their driver arch. along with Windows..I think thats
-an achievement. As for their GPL code in closed source..I'm not really
-updated on that so I can't say to much but I believe this [1]was a case
-and Nvidia fixed it. Sorry if I offended any Stallman followers but
-c'mon guys..open source doesn't always produce the best products just
-take a look at Bitkeeper and CVS. From my perspective BK is better.
+On Friday 03 January 2003 12:05 pm, Martin J. Bligh wrote:
 
-[1] http://slashdot.org/features/00/05/01/0047219.shtml
--- 
-Steven
-sbarn03@softhome.net
-GnuPG Fingerprint: 9357 F403 B0A1 E18D 86D5  2230 BB92 6D64 D516 0A94
+> Dual what Xeon? I presume a P4 thing. Can you cat /proc/interrupts?
+> Are you using the irq_balance code? If so, I think you'll only use
+> 1 cpu to process all the interrupts from each gigabit card. Not that
+> you have much choice, since Intel broke the P4's interrupt routing.
+>
+
+You got my attention with this statement.  I've have Dual Xeon Prestonias on 
+an I860 chipset (IWill dp400).  cat  /proc/interrupts indeed shows CPU0 as 
+processing all IRQ's instead of sharing them with CPU1 on a 2.4.x kernel.
+
+Is there a work around for this, or is this *really* a problem?  Some say it 
+might be a problem depending on how many interrupts need to be processed per 
+second.  Others imply that cpu0 catching  the irq's might be a good thing.
+
+I happen to have PIII's using VIA chipsets that dont have this issue with 
+proc/interrupts.  This is very annonying, but I wonder if it is worth 
+worrying about.
+
+
+Ron.
+
+
+
 

@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVAMKIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVAMKKC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbVAMKIy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 05:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVAMKIy
+	id S261547AbVAMKKC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 05:10:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVAMKKC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 05:08:54 -0500
-Received: from gprs215-81.eurotel.cz ([160.218.215.81]:21160 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261304AbVAMKIw (ORCPT
+	Thu, 13 Jan 2005 05:10:02 -0500
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:21733
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S261513AbVAMKJp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 05:08:52 -0500
-Date: Thu, 13 Jan 2005 11:08:39 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ncunningham@linuxmail.org
-Subject: Re: [PATCH] Fix a bug in timer_suspend() on x86_64
-Message-ID: <20050113100838.GA3525@elf.ucw.cz>
-References: <20050106002240.00ac4611.akpm@osdl.org> <200501130002.37311.rjw@sisk.pl> <1105572485.2941.1.camel@desktop.cunninghams> <200501130159.16818.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501130159.16818.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 13 Jan 2005 05:09:45 -0500
+Message-ID: <41E648D4.1050906@bio.ifi.lmu.de>
+Date: Thu, 13 Jan 2005 11:09:24 +0100
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andres Salomon <dilinger@voxel.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-as1
+References: <1105605448.7316.13.camel@localhost>
+In-Reply-To: <1105605448.7316.13.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andres Salomon wrote
 
-> This patch is intended to fix a bug in timer_suspend() on x86_64 that causes 
-> hard lockups on suspend with swsusp and provide some optimizations.  It is 
-> based on the Nigel Cunningham's patches to to reduce delay in 
-> arch/kernel/time.c.  The patch is against 2.6.10-mm3 and 2.6.11-rc1.  Please 
-> consider for applying.
+> Hi,
 > 
-> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> I'm announcing a new kernel tree; -as.  The goal of this tree is to form
+> a stable base for vendors/distributors to use for their kernels.  In
+> order to do this, I intend to include only security fixes and obvious
+> bugfixes, from various sources.  I do not intend to include driver
+> updates, large subsystem fixes, cleanups, and so on.  Basically, this is
+> what I'd want 2.6.10.1 to contain.
 
-Acked-by: Pavel Machek.
-								Pavel
+Very nice idea! Not only for distributors! Thanks for doing this!
+Do you plan to maintain -as only for the latest release, i.e., will
+2.6.10-as still be maintained with security fixes even when 2.6.11-as
+comes up?
+
+cu,
+Frank
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *

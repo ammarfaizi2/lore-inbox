@@ -1,85 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290932AbSAaFT1>; Thu, 31 Jan 2002 00:19:27 -0500
+	id <S290937AbSAaFXH>; Thu, 31 Jan 2002 00:23:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290933AbSAaFTS>; Thu, 31 Jan 2002 00:19:18 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60980 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S290932AbSAaFTM>; Thu, 31 Jan 2002 00:19:12 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        Werner Almesberger <wa@almesberger.net>,
-        "Erik A. Hendriks" <hendriks@lanl.gov>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org>
-	<3C586355.A396525B@zip.com.au> <m1zo2vb5rt.fsf@frodo.biederman.org>
-	<3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org>
-	<3C58CAE0.4040102@zytor.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 30 Jan 2002 22:15:40 -0700
-In-Reply-To: <3C58CAE0.4040102@zytor.com>
-Message-ID: <m1r8o7ayo3.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S290938AbSAaFW5>; Thu, 31 Jan 2002 00:22:57 -0500
+Received: from adsl-63-194-232-126.dsl.lsan03.pacbell.net ([63.194.232.126]:28676
+	"HELO alpha.dyndns.org") by vger.kernel.org with SMTP
+	id <S290937AbSAaFWm>; Thu, 31 Jan 2002 00:22:42 -0500
+Message-ID: <3C58D69B.6000205@alpha.dyndns.org>
+Date: Wed, 30 Jan 2002 21:31:07 -0800
+From: Mark McClelland <mark@alpha.dyndns.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Greg KH <greg@kroah.com>
+CC: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: ov511 verbose startup.
+In-Reply-To: <20020131023457.D31313@suse.de> <20020131035936.GD31006@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+Greg KH wrote:
 
-> Eric W. Biederman wrote:
-> 
-> > I am reluctant to go with a bootimg like interface because having a
-> > standard format encourages people to standardize.  Though a good
-> > argument can persuade me.  I don't loose any flexibility in comparison
-> > to bootimg because composing files on the fly is not significantly
-> > harder than composing a bootable image in ram. Please tell me if I haven't
-> > clearly answered your concerns about
-> > being locked into a single image.
-> >
-> 
-> 
-> I have to think about it.  I'm not convinced that this particular flavour of
-> standardization is a step in the right direction -- in fact, it is *guaranteed*
-> to provide significant additional complexity for bootloaders, and bzImage
-> support is still going to have to be provided for the forseeable
-> future.  
+>On Thu, Jan 31, 2002 at 02:34:57AM +0100, Dave Jones wrote:
+>
+>>The changes to ov511 in 2.5.3 seem to generate excessive
+>>amounts of blurb on boot up for me..
+>>
+>>ov511.c: USB OV511+ camera found
+>>ov511.c: model: Creative Labs WebCam 3
+>>ov511.c: Sensor is an OV7620
+>>ov511.c: Device registered on minor 0
+>>usbdevfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 137 ret -75
+>>usb_control/bulk_msg: timeout
+>>usbdevfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 18 ret -110
+>>usb_control/bulk_msg: timeout
+>>usbdevfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 18 ret -110
+>>...
+>>repeat last two lines another dozen or so times...
+>>
+>
+>What userspace program are you using that is talking to the usb device
+>through usbfs?  Or is this usbutils trying to determine what driver to
+>load?
+>
+I have been getting reports of -75 (babble?) and -110 errors with both 
+control and iso transfers. The problematic kernels seem to be 2.4.17+, 
+with uhci HCD. IIRC, nearly all of the reports mentioned a Via chipset. 
+There are sporadic reports of corrupted iso packets (blocks of zeros 
+inserted randomly) with uhci under 2.4.17 as well.
 
-It is not my intention to deprecate bzImage at this time.  But instead
-to provide an alternative.  
+This is the first case of a usbfs-related ov511 error that I have seen. 
+Very strange.
 
-> Since
-> you express that it will basically be necessary to stitch the ELF file together
-> on the fly I don't see much point, quite frankly; it seems like extra complexity
-> for no good reason.
+Greg (if you know): usbfs is not allowed to access claimed interfaces, 
+correct? (ie. ones that are implicitly claimed because of a successful 
+return from probe()). Are interfaces treated as claimed while probe() is 
+active, so that user-space "probes" cannot interfere with driver probes()?
 
-This part is only for people using the kernel as a bootloader.  My
-apologies if I didn't make it clear. 
+I use usb-uhci, uhci, and usb-ohci regularly with ov511, and I have 
+never seen any of these problems. There are clearly a number of factors 
+involved here.
+
+-- 
+Mark McClelland
+mmcclell@bigfoot.com
 
 
-Let me clarify a little with usage.  I have three cases I am targeting.
-1) LinuxBIOS.  
-    I need a kernel format that doesn't unconditionally do 16bit BIOS
-    queries, as there is no 16bit code in LinuxBIOS.  bzImage doesn't
-    work.
 
-2) Portability.  
-   For this I have with some simple bootstrap program that loads the
-   kernel.  And then I have the kernel driving devices and acting a
-   super bootloader.  Something like Grub but with the full power
-   linux can bring to bear on the issue.  This is all I need to
-   standardize the user booting experience on multiple platforms.
-
-3) Network Booting.
-   There is not much chance to change bootroms once they are flashed
-   so they like LinuxBIOS need a general purpose interface, so that can
-   handle whatever they need to boot.
-
-On the dynamic stitching/initramfs side, the code should really be no
-more complex than the current bzImage loading with ramdisks.  And if
-bootloaders want to keep it simple can drop any optional ELF features,
-which should be much simpler than todays bzImage.
-
-Now I will shut up and let you digest this.
-
-Eric

@@ -1,63 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290547AbSA3UXT>; Wed, 30 Jan 2002 15:23:19 -0500
+	id <S290551AbSA3U0R>; Wed, 30 Jan 2002 15:26:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290550AbSA3UXI>; Wed, 30 Jan 2002 15:23:08 -0500
-Received: from imailg2.svr.pol.co.uk ([195.92.195.180]:63564 "EHLO
-	imailg2.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S290547AbSA3UW6>; Wed, 30 Jan 2002 15:22:58 -0500
-Date: Wed, 30 Jan 2002 20:22:54 +0000
-To: linux-kernel@vger.kernel.org, linux-lvm@sistina.com, lvm-devel@sistina.com
-Subject: [ANNOUNCE] LVM reimplementation ready for beta testing
-Message-ID: <20020130202254.A7364@fib011235813.fsnet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: Joe Thornber <thornber@fib011235813.fsnet.co.uk>
+	id <S290553AbSA3UZ5>; Wed, 30 Jan 2002 15:25:57 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:37085 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S290551AbSA3UZt>; Wed, 30 Jan 2002 15:25:49 -0500
+Date: Wed, 30 Jan 2002 12:24:13 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: [PATCH] driverfs support for USB - take 2
+To: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Message-id: <0a1e01c1a9cc$15e164c0$6800000a@brownell.org>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+In-Reply-To: <Pine.LNX.4.33.0201301018580.800-100000@segfault.osdlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+"> " == "Patrick Mochel" <mochel@osdl.org>
 
-Sistina is pleased to announce that the LVM2 software is ready for
-beta testing.
+> You have a PCI device that is the USB controller. You create a child of 
+> that represents the USB bus. Then, devices are added as children of that.
+> 
+> Logically, couldn't you skip that extra layer of indirection and make USB 
+> devices children of the USB controller? Or, do you see benefit in the 
+> explicit distinction?
 
-This is a complete reimplementation of the existing LVM system, both
-driver and userland tools.
+Since I don't see a benefit from that extra indirection, I was going to ask
+almost that same question ... :)
 
-We encourage you to give it a try and feed back your test results,
-bug-fixes, enhancement requests etc. through the normal lists
-linux-lvm@sistina.com and lvm-devel@sistina.com.
+But it's broader than that:  Why shouldn't that apply to _every_ kind
+of bridge, not just USB controllers ("PCI-to-USB bridges")?
 
-The new kernel driver (known as "device-mapper") supports volume
-management in general and is no longer Linux LVM specific.
-As such it is a separate package from LVM2 which you will need
-to download and install before building LVM2.
-
- ftp://ftp.sistina.com/pub/LVM2/device-mapper/device-mapper-beta1.tgz
-
-
-The userland tools are available from here:
-
- ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.0-beta1.tgz
+For example, with PCI why should there ever be "pci0" directories,
+with children "00:??.?" and "pci1"?
 
 
-This release does not support snapshots or pvmove.  These features
-will go into a subsequent beta release, hopefully within the next
-fortnight.
+>    ... A 'bus' is simply a device that has children. 
+>
+> This concept is something that I have argued both for and against since I 
+> started on this. Initially, the goal was to separate the two because they 
+> followed such different semantics. 
+> 
+> But, I've found it, IMO, it creates more problems than it solves. ...
 
-This is Beta software which is *not* meant to be running on your
-production systems.  If necessary, keep backups of your data and LVM
-metadata (/etc/lvmconf/*).
+If the model that driverfs exposes is that directories denote devices
+(of any type including bridge) and (text) files expose device properties,
+then my initial suspicion is that the additional level of indirection would
+not be necessary.  Maybe some "type" property would be desirable
+though, to better separate namespace structure from typing issues.
+(It might need to be provided by the device/bridge driver.)
+
+When I've seen corresponding problems in other areas, the extra
+indirection has not been necessary.  The simpler naming policies
+have been a lot easier to work with.
+
+I suspect it'd be better to simplify the naming policy for bridges and
+busses everywhere in driverfs, not just for USB, but I'd like to know
+any arguments for keeping that extra level of indirection.
+
+- Dave
 
 
-We look forward to your feedback.
 
 
-The Sistina LVM team:
-
-      Patrick Caulfield,
-      Alasdair Kergon,
-      Heinz Mauelshagen,
-      Joe Thornber

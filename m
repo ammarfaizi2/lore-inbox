@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135419AbRAJXdV>; Wed, 10 Jan 2001 18:33:21 -0500
+	id <S135565AbRAJXdv>; Wed, 10 Jan 2001 18:33:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135565AbRAJXdM>; Wed, 10 Jan 2001 18:33:12 -0500
-Received: from uucp.gnuu.de ([151.189.0.84]:2055 "EHLO uucp.gnuu.de")
-	by vger.kernel.org with ESMTP id <S135419AbRAJXcv>;
-	Wed, 10 Jan 2001 18:32:51 -0500
-Date: Thu, 11 Jan 2001 00:31:32 +0100
-From: Ulrich Schwarz <uschwarz@gmx.net>
+	id <S135710AbRAJXdp>; Wed, 10 Jan 2001 18:33:45 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:48911 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135565AbRAJXde>; Wed, 10 Jan 2001 18:33:34 -0500
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.0 vm BUG
-Message-ID: <20010111003132.A2134@fruli.2y.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Date: 10 Jan 2001 15:32:59 -0800
+Organization: Transmeta Corporation
+Message-ID: <93irfb$cqg$1@penguin.transmeta.com>
+In-Reply-To: <20010110084235.A365@caldera.de> <Pine.LNX.4.10.10101100003560.3520-100000@penguin.transmeta.com> <3A5C1F64.99C611F2@uow.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <3A5C1F64.99C611F2@uow.edu.au>,
+Andrew Morton  <andrewm@uow.edu.au> wrote:
+>Linus Torvalds wrote:
+>> 
+>> De gustibus non disputandum.
+>
+>http://cogprints.soton.ac.uk/documents/disk0/00/00/07/57/
+>
+>	"ingestion of the afterbirth during delivery"
+>
+>eh?
+>
+>
+>http://www.degustibus.co.uk/
+>
+>	"Award winning artisan breadmakers."
+>
+>Ah.  That'll be it.
 
-2.4.0 (final i386) patched with reiserfs 3.6.25 produced the following BUG:
+Latin 101. Literally "about taste no argument".
 
-the console reported:
-kernel BUG at vmscan.c:452!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c01260fd>]
-EFLAGS: 00010282
-eax: 0000001c   ebx: c101322c   ecx: c0274608   edx: 00000000
-esi: c23acc24   edi: c1013210   ebp: 000000ef   esp: c23d9c80
-ds: 0018   es: 0018   ss: 0018
-Process bash (pid: 340, stackpage=c23d9000)
-Stack: c0225a73 c0225c12 000001c4 c02757a0 c0275a0c 00000001 00000000 c0127a28
-       c02757a0 00000000 c0275a10 00000000 00008038 c0127b9d c0275a04 00000000
-       00000001 00000001 00000000 00001000 00000000 00008038 00000003 00000001
-Call Trace: [<c0127a28>] [<c0127b9d>] [<c012f8e2>] [<c012da24>] [<c012da31>] [<c012de12>] [<c012e022>]
-       [<c0184a5b>] [<c0180b2d>] [<c01748d9>] [<c013eacb>] [<c013ecf6>] [<c0174950>] [<c0171351>] [<c0135dcb>]
-       [<c0136199>] [<c0136acc>] [<c0133786>] [<c0108e73>]
+I suspect that it _should_ be "De gustibus non disputandum est", but
+it's been too many years. That adds the required verb ("is") to make it
+a full sentence. 
 
-Code: 0f 0b 83 c4 0c 31 c0 0f b3 47 18 19 c0 85 c0 75 19 68 c5 01
+In English: "There is no arguing taste".
 
-However, in /var/log/kernlog, this incident was reported as follows:
-Jan 10 22:14:54 kernel: kernel BUG at page_alloc.c:74!
-Jan 10 22:14:54 kernel: invalid operand: 0000
-
-
-So long.
-Ulrich
-
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

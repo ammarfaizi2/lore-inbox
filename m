@@ -1,45 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVC2DHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVC2DMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbVC2DHs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 22:07:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVC2DHs
+	id S262164AbVC2DMw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 22:12:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVC2DMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 22:07:48 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:8651 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262165AbVC2DHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 22:07:43 -0500
-Message-Id: <200503290307.j2T37Yg25879@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Dave Jones'" <davej@redhat.com>
-Cc: <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] optimization: defer bio_vec deallocation
-Date: Mon, 28 Mar 2005 19:07:30 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcU0C1v698JzM+cfQ6WN/UEZAZZbrwAACswA
-In-Reply-To: <20050329025932.GC435@redhat.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Mon, 28 Mar 2005 22:12:52 -0500
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:33729 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262164AbVC2DMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 22:12:51 -0500
+Date: Mon, 28 Mar 2005 19:12:40 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Chris Wright <chrisw@osdl.org>, Coywolf Qi Hunt <coywolf@gmail.com>,
+       Ali Akcaagac <aliakc@web.de>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel OOOPS in 2.6.11.6
+Message-ID: <20050329031240.GA5365@taniwha.stupidest.org>
+References: <20050329020608.GA4675@taniwha.stupidest.org> <7326.1112063221@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7326.1112063221@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 28, 2005 at 06:38:23PM -0800, Chen, Kenneth W wrote:
-> We have measured that the following patch give measurable performance gain
-> for industry standard db benchmark.  Comments?
+On Tue, Mar 29, 2005 at 12:27:01PM +1000, Keith Owens wrote:
 
-Dave Jones wrote on Monday, March 28, 2005 7:00 PM
-> If you can't publish results from that certain benchmark due its stupid
-> restrictions, could you also try running an alternative benchmark that
-> you can show results from ?
->
-> These nebulous claims of 'measurable gains' could mean anything.
-> I'm assuming you see a substantial increase in throughput, but
-> how much is it worth in exchange for complicating the code?
+> i386 needs unwind data plus a kernel unwinder to get accurate
+> backtraces.  Without the data and an unwinder, i386 backtraces are
+> best guess.  They often contain spurious addresses, from noise words
+> that were left on the kernel stack.  Nothing to do with
+> CONFIG_4K_STACKS.
 
-Are you asking for micro-benchmark result?  I had a tough time last time
-around when I presented micro-benchmark result on LKML.  I got kicked in
-the butt for lack of evidence with performance data running real bench on
-real hardware.
-
-I guess either way, I'm bruised one way or the other.
-
-
+XFS will break sometimes with 4K stacks on x86

@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbUJWPAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbUJWPBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbUJWPAr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 11:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbUJWO4e
+	id S261231AbUJWPBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 11:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbUJWPBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 10:56:34 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:61664 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261215AbUJWOzA (ORCPT
+	Sat, 23 Oct 2004 11:01:15 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:1764 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261200AbUJWPAv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 10:55:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=VarUrYIDs0KA4uoLlitxZfsn0nW7HJyrtQOhDTSExAhfiogdfuli+iwMVQBDMZ309GR/21lkSgOTTJF6DeVgn23CS5QcXHmnnqyWqWrBJcPkqKAMTq7Lsrsz4t3eaKUpbe5aT4R/E5j9T3BfC+e+ybed7YIqNVDMyltxNeYek9s=
-Message-ID: <9e473391041023075436f6983c@mail.gmail.com>
-Date: Sat, 23 Oct 2004 10:54:59 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Dave Airlie <airlied@linux.ie>
-Subject: Re: [PATCH} Trivial - fix drm_agp symbol export
+	Sat, 23 Oct 2004 11:00:51 -0400
+Date: Sat, 23 Oct 2004 16:00:45 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Jon Smirl <jonsmirl@gmail.com>
 Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0410231547410.11754@skynet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e473391041022214570eab48a@mail.gmail.com>
-	 <20041023095644.GC30137@infradead.org>
-	 <9e473391041023073578b11eb6@mail.gmail.com>
-	 <20041023143912.GA32532@infradead.org>
-	 <9e47339104102307441066e4e4@mail.gmail.com>
-	 <Pine.LNX.4.58.0410231547410.11754@skynet>
+Subject: Re: [PATCH} Trivial - fix drm_agp symbol export
+In-Reply-To: <9e473391041023075436f6983c@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0410231557530.11754@skynet>
+References: <9e473391041022214570eab48a@mail.gmail.com> 
+ <20041023095644.GC30137@infradead.org>  <9e473391041023073578b11eb6@mail.gmail.com>
+  <20041023143912.GA32532@infradead.org>  <9e47339104102307441066e4e4@mail.gmail.com>
+  <Pine.LNX.4.58.0410231547410.11754@skynet> <9e473391041023075436f6983c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Oct 2004 15:48:03 +0100 (IST), Dave Airlie <airlied@linux.ie> wrote:
-> > What about the group that will complain about the 30K of memory wasted?
-> they'll build their own kernel with CONFIG_AGP turned off... so it won't
-> matter...
+>
+> So the plan then is to eliminate the drm_agp structure and use the
+> entry points directly. The correct function entry points are already
+> exported from AGP so no kernel patch is needed.
 
-So the plan then is to eliminate the drm_agp structure and use the
-entry points directly. The correct function entry points are already
-exported from AGP so no kernel patch is needed.
+It seems like that is the proper way to do it for 2.6....
 
-Dave, with the AGP fix up, do you think linux-core is ready for kernel
-submission yet?
+> Dave, with the AGP fix up, do you think linux-core is ready for kernel
+> submission yet?
+
+I'm hoping to look at it tomorrow, I started on it today but got
+sidetracked catching up on the changes in CVS and stuff in the kernel
+tree.
+
+Dave.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

@@ -1,71 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132402AbRDCSXE>; Tue, 3 Apr 2001 14:23:04 -0400
+	id <S132414AbRDCSqi>; Tue, 3 Apr 2001 14:46:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132407AbRDCSWy>; Tue, 3 Apr 2001 14:22:54 -0400
-Received: from u-231-18.karlsruhe.ipdial.viaginterkom.de ([62.180.18.231]:29943
-	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
-	id <S132402AbRDCSWl>; Tue, 3 Apr 2001 14:22:41 -0400
-Date: Tue, 3 Apr 2001 20:21:27 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-Cc: "Scott G. Miller" <scgmille@indiana.edu>, <linux-kernel@vger.kernel.org>,
-        Andy Carlson <naclos@swbell.net>,
-        Carsten Langgaard <carstenl@mips.com>, linux-mips@oss.sgi.com
-Subject: Re: pcnet32 (maybe more) hosed in 2.4.3
-Message-ID: <20010403202127.A316@bacchus.dhis.org>
-In-Reply-To: <20010330190137.A426@indiana.edu> <Pine.LNX.4.30.0103311541300.406-100000@fs131-224.f-secure.com>
-Mime-Version: 1.0
+	id <S132416AbRDCSq2>; Tue, 3 Apr 2001 14:46:28 -0400
+Received: from mail5.speakeasy.net ([216.254.0.205]:18184 "HELO
+	mail5.speakeasy.net") by vger.kernel.org with SMTP
+	id <S132414AbRDCSqP>; Tue, 3 Apr 2001 14:46:15 -0400
+Message-ID: <3ACA0C83.1E5A6020@megapathdsl.net>
+Date: Tue, 03 Apr 2001 10:46:43 -0700
+From: Miles Lane <miles@megapathdsl.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-ac28 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: David Brownell <david-b@pacbell.net>
+Subject: Contacts within AMD?  AMD-756 USB host-controller blacklisted due to 
+ erratum #4.
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0103311541300.406-100000@fs131-224.f-secure.com>; from szaka@f-secure.com on Sat, Mar 31, 2001 at 03:58:11PM +0200
-X-Accept-Language: de,en,fr
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carsten,
+Running 2.4.2-ac28, I get the following error:
 
-seems your pcnet32 changes which made it into 2.4.3 are causing trouble
-on i386 machines.  Can you try to solve that problem?
+usb-ohci.c: 00:07.4 (Advanced Micro Devices [AMD] AMD-756 [Viper] USB):
+blacklisted, erratum #4
 
-On Sat, Mar 31, 2001 at 03:58:11PM +0200, Szabolcs Szakacsits wrote:
+David Brownell recently added this check to the usb-ohci driver
+since noone has gotten information from AMD for the workaround,
+which is rumored to exist, for this bug.
 
-> On Fri, 30 Mar 2001, Scott G. Miller wrote:
-> 
-> > Linux 2.4.3, Debian Woody.  2.4.2 works without problems.  However, in
-> > 2.4.3, pcnet32 loads, gives an error message:
-> 
-> 2.4.3 (and -ac's) are also broken as guest in VMWware due to the pcnet32
-> changes [doing 32 bit IO on 16 bit regs on the 79C970A controller].
-> Reverting this part of patch-2.4.3 below made things work again.
-> 
-> 	Szaka
-> 
-> @@ -528,11 +535,13 @@
->      pcnet32_dwio_reset(ioaddr);
->      pcnet32_wio_reset(ioaddr);
-> 
-> -    if (pcnet32_wio_read_csr (ioaddr, 0) == 4 && pcnet32_wio_check (ioaddr)) {
-> -       a = &pcnet32_wio;
-> +    /* Important to do the check for dwio mode first. */
-> +    if (pcnet32_dwio_read_csr(ioaddr, 0) == 4 && pcnet32_dwio_check(ioaddr)) {
-> +        a = &pcnet32_dwio;
->      } else {
-> -       if (pcnet32_dwio_read_csr (ioaddr, 0) == 4 && pcnet32_dwio_check(ioaddr)) {
-> -           a = &pcnet32_dwio;
-> +        if (pcnet32_wio_read_csr(ioaddr, 0) == 4 &&
-> +           pcnet32_wio_check(ioaddr)) {
-> +           a = &pcnet32_wio;
->         } else
->             return -ENODEV;
->      }
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Do any of you have contacts within AMD who might be able to
+get an explanation of the workaround to David Brownell?
 
-  Ralf
+The bug is that the NDP value sent by the AMD-756 is sometimes
+bogus.  The following examples, collected before the chip
+was blacklisted, show the failure.  As you can see, the bogus 
+value given varies.  Rereading NDP seems to give a valid value.  
+I am not really clear why we don't simply read the value twice 
+whenever the host-controller is detected to be an AMD-756.
+
+Mar  4 17:20:52 aerie kernel: usb-ohci.c: bogus NDP=128 for OHCI
+usb-00:07.4
+Mar  4 17:20:52 aerie kernel: usb-ohci.c: rereads as NDP=4
+
+Mar  4 17:50:29 aerie kernel: usb-ohci.c: bogus NDP=245 for OHCI
+usb-00:07.4
+Mar  4 17:50:29 aerie kernel: usb-ohci.c: rereads as NDP=4
+
+Mar  6 21:11:07 aerie kernel: usb-ohci.c: bogus NDP=210 for OHCI
+usb-00:07.4
+Mar  6 21:11:07 aerie kernel: usb-ohci.c: rereads as NDP=4
+
+Thanks,
+	Miles

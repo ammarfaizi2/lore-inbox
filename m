@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLOSeI>; Fri, 15 Dec 2000 13:34:08 -0500
+	id <S129228AbQLOShT>; Fri, 15 Dec 2000 13:37:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129228AbQLOSd6>; Fri, 15 Dec 2000 13:33:58 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9225 "EHLO
+	id <S129736AbQLOShJ>; Fri, 15 Dec 2000 13:37:09 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11529 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129183AbQLOSdt>; Fri, 15 Dec 2000 13:33:49 -0500
-Subject: Re: test13-pre1 changelog
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Fri, 15 Dec 2000 18:04:24 +0000 (GMT)
-Cc: trini@kernel.crashing.org (Tom Rini), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10012150909260.2255-100000@penguin.transmeta.com> from "Linus Torvalds" at Dec 15, 2000 09:10:36 AM
+	id <S129228AbQLOSg7>; Fri, 15 Dec 2000 13:36:59 -0500
+Subject: Re: test12 lockups -- need feedback
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Fri, 15 Dec 2000 18:06:58 +0000 (GMT)
+Cc: ingo.oeser@informatik.tu-chemnitz.de, e.jokisch@u-code.de,
+        linux-kernel@vger.kernel.org, davej@suse.de, hpa@zytor.com
+In-Reply-To: <1368.195.67.189.102.976902742.squirrel@www.zytor.com> from "H. Peter Anvin" at Dec 15, 2000 09:52:22 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E146zDX-0001ae-00@the-village.bc.nu>
+Message-Id: <E146zG2-0001bG-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sparc is already sync'ed in my tree, and I'd love for other architectures
-> to synch up too (but if it takes a while it's not a major disaster - I
-> actually much prefer bugs that cause build failures over other kinds of
-> bugs ;).
+> > I also got a hard lockup (but with Oops) while calling the
+> > "vendor CPU init" function during system boot.
+> > 
+> > This was on Cyrix III.
+> > PS: CC'ed hpa, because he is cpu-detection maintainer and davej,
+> >    because he added Cyrix III support and might know details ;-)
+> 
+> Please include the oops information, as well as the /proc/cpuinfo output.
 
-So you want drivers/gsc again ? I assumed you dropped it as you didnt want
-more port code.
+Also be sure you built Pentium/TSC kernels as Cyrix III is a 686 core without
+the cmov instruction it seems
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

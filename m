@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269622AbUI3X5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269624AbUI3X61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269622AbUI3X5L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 19:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269624AbUI3X5L
+	id S269624AbUI3X61 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 19:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269629AbUI3X60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 19:57:11 -0400
-Received: from gate.crashing.org ([63.228.1.57]:47276 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S269622AbUI3X5F (ORCPT
+	Thu, 30 Sep 2004 19:58:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7852 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269628AbUI3X6N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 19:57:05 -0400
-Subject: Re: [RFC][PATCH] Way for platforms to alter built-in serial ports
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200409301014.00725.bjorn.helgaas@hp.com>
-References: <200409301014.00725.bjorn.helgaas@hp.com>
-Content-Type: text/plain
-Message-Id: <1096588409.3083.34.camel@gaston>
+	Thu, 30 Sep 2004 19:58:13 -0400
+Date: Thu, 30 Sep 2004 17:01:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: colin@colino.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Revert mistakenly applied patch to sungem
+Message-Id: <20040930170159.0291728b.akpm@osdl.org>
+In-Reply-To: <415C91E0.7070005@pobox.com>
+References: <20040930100156.6012a290@pirandello>
+	<415C91E0.7070005@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 01 Oct 2004 09:53:30 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-01 at 02:14, Bjorn Helgaas wrote:
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> Colin Leroy wrote:
+> > Hi Andrew, everyone,
+> > 
+> > There's a mistake in 2.6.9-rc3, you applied a patch I sent yesterday,
+> > for something that was already implemented (netpoll support in sungem).
+> > 
+> > As Eric Lemoine and I didn't add the stuff at the same place, there has
+> > been no conflict.
+> > 
+> > See http://marc.theaimsgroup.com/?l=linux-kernel&m=109647405508937&w=2
+> > http://linux.bkbits.net:8080/linux-2.5/cset@4149f001_LtxxbZOVP8q363TiTcSVg
+> > http://linux.bkbits.net:8080/linux-2.5/cset@415b4276tcoFzDd1YSqq2ZJ_OkYlfQ
+> > 
+> > Following is the reverse patch to reverse my stuff :)
+> > Sorry about that.
+> > 
+> > Signed-off-by: Colin Leroy <colin@colino.net>
+> 
+> Andrew are you picking up this one?
 
-> This looks like a reasonable short-term fix, but I think the whole
-> serial8250_isa_init_ports() should go away.  I like dwmw2's suggestion
-> of an 8250_platform.c that could use register_serial() for each port
-> in some platform-supplied old_serial_port[] table, which is probably
-> what you mean by moving to a more dynamic allocation.
-
-What would this file look like ? a bunch of platform #ifdef's with
-different implementations each time ? 
-
-> AFAICS, the only reason for doing serial8250_isa_init_ports() early
-> is for early serial consoles, and I think those should be done along
-> the lines of this:
->  http://www.ussg.iu.edu/hypermail/linux/kernel/0409.1/1034.html
-> where the platform can specify a device by its MMIO or IO port address,
-> and we automatically switch to the corresponding ttyS device later.
-
-Eventually...
-
-In the meantime, that patch would fix urgent problems for ppc now so
-I'd appreciate if Russell would consider it for inclusion asap. This
-is the kind of subject on which everybody comes up with a different
-"better" way to do it and no code, and nothign ever gets implemented
-and we end up with no progress...
-
-Ben.
-
-
+umm, sure.  That's another 40 patches in my future yet ;)

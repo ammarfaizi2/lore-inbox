@@ -1,59 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbUDCBsy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 20:48:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbUDCBsy
+	id S261389AbUDCByd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 20:54:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUDCByd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 20:48:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16822 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261400AbUDCBsw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 20:48:52 -0500
-Date: Fri, 2 Apr 2004 17:50:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: tytso@mit.edu, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
-       cmm@us.ibm.com, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: [RFC, PATCH] Reservation based ext3
- preallocation
-Message-Id: <20040402175049.20b10864.akpm@osdl.org>
-In-Reply-To: <1080956712.15980.6505.camel@localhost.localdomain>
-References: <200403190846.56955.pbadari@us.ibm.com>
-	<20040321015746.14b3c0dc.akpm@osdl.org>
-	<1080636930.3548.4549.camel@localhost.localdomain>
-	<20040330014523.6a368a69.akpm@osdl.org>
-	<1080956712.15980.6505.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 2 Apr 2004 20:54:33 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:6530
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261389AbUDCByb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 20:54:31 -0500
+Date: Sat, 3 Apr 2004 03:54:27 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.5-rc3-aa3
+Message-ID: <20040403015427.GA2307@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mingming Cao <cmm@us.ibm.com> wrote:
->
-> Hi Andrew,
-> Here is the second version of the ext3, mostly bug fixes and made the
-> changes you have suggested last time.  
+this avoids (harmless) warnings while freeing non-compound pages, adds
+some more robustness check to the freelist by making sure no page has
+PG_compound set, and most important it adds merging for filebacked
+mappings and anonymous mappings in mprotect. I'm running it on my main
+desktop and there are no problems so far.
 
-Great, thanks.
+I believe the VM side is feature complete, in order:
 
-> Besides enable/disable the
-> reservation feature, I am thinking to enable the feature that could set
-> the the default reservation window size(in blocks) when the fs is
-> mounted.   just one single mount option:"prealloc_window=n". When n=0,
-> it means turns off, when n>0, it means on, and the ext3 default
-> reservation window size for each file is n blocks(or 8 blocks, if 0< n <
-> 8).
+-----------
+[..]
+# -aa VM (remove rmap)
+objrmap-core
+anon-vma
+prio-tree
+gfp-no-compound
+mprotect-vma-merging
+-----------
 
-hm, maybe.  We should probably also provide a per-file ext3-specific ioctl
-to allow specialised apps to manipulate the reservation size.
+Two pending thing to clarify are swapsuspend/swapresume (works partially
+for me because aic7xxx isn't swap-resume capable), and Christoph's xfs
+oops on ppc that looks a miscompilation of some sort.
 
-And we should grow the reservation size dynamically.  I've suggested that
-we double its size each time it is exhausted, up to some limit.  There may
-be better algorithms though.
+URL:
 
-This work doesn't help us with the slowly-growing logfile or mailbox file
-problem.  I guess that would require on-disk reservations, or a new
-`chattr' hint or such.
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc3-aa3.gz
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc3-aa3/
 
+Changelog diff between 2.6.5-rc3-aa2 and 2.6.5-rc3-aa3:
+
+Files 2.6.5-rc3-aa2/extraversion and 2.6.5-rc3-aa3/extraversion differ
+
+	Rediffed.
+
+Files 2.6.5-rc3-aa2/gfp-no-compound and 2.6.5-rc3-aa3/gfp-no-compound differ
+
+	Avoid flood of warnings while freeing a non-compound multipage.
+	Added bugchecks to be sure all pages in the freelist have PG_compound
+	unset (for robusteness, the check for PG_compound is zerocost anyways
+	since we check it in a bitmask).
+
+	Christoph's troubles with ppc seems to be a gcc miscompilation if it's
+	really the second bad_page in destroy_compound_page triggering.
+
+	The swap suspend/swap resume works for me w/o apparent VM issues,
+	aic7xxx simply hangs at resume, but Pavel said it's expected. I'll
+	later try to load it on my laptop and see if I've more luck with it.
+
+Only in 2.6.5-rc3-aa3: mprotect-vma-merging
+
+	Resurrected mprotect anon-vma and file-backed merging. The file-backed
+	merging is IMHO the most interesting one, and it's for the first time
+	available in linux.
+
+Files 2.6.5-rc3-aa2/prio-tree.gz and 2.6.5-rc3-aa3/prio-tree.gz differ
+
+	Added s390 compilation fix.

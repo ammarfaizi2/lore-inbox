@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264495AbTIIVq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 17:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbTIIVq3
+	id S264619AbTIIVkq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264621AbTIIVkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 17:46:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29918 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264495AbTIIVq1 (ORCPT
+	Tue, 9 Sep 2003 17:40:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51671 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264619AbTIIVjy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 17:46:27 -0400
-Date: Tue, 9 Sep 2003 14:46:08 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] get rid of unused function warning (aztcd)
-Message-Id: <20030909144608.3991c140.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 17:39:54 -0400
+Date: Tue, 9 Sep 2003 14:46:36 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Power: call save_state on PCI devices along with suspend
+In-Reply-To: <1063141771.639.53.camel@gaston>
+Message-ID: <Pine.LNX.4.44.0309091444110.695-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2.6.0-test5, this driver defines a function pa_ok which is only used in some
-commented out debug code.
 
-diff -Nru a/drivers/cdrom/aztcd.c b/drivers/cdrom/aztcd.c
---- a/drivers/cdrom/aztcd.c	Tue Sep  9 14:41:41 2003
-+++ b/drivers/cdrom/aztcd.c	Tue Sep  9 14:41:41 2003
-@@ -373,6 +373,7 @@
- 	} while (aztIndatum != AFL_OP_OK);
- }
- 
-+#if 0
- /* Wait for PA_OK = drive answers with AFL_PA_OK after receiving parameters*/
- # define PA_OK pa_ok()
- static void pa_ok(void)
-@@ -387,6 +388,7 @@
- 		}
- 	} while (aztIndatum != AFL_PA_OK);
- }
-+#endif
- 
- /* Wait for STEN=Low = handshake signal 'AFL_.._OK available or command executed*/
- # define STEN_LOW  sten_low()
+> Well... that wouldn't help with off-tree drivers...
+
+But, we don't care about out-of-tree drivers, right? :)
+
+> What I mean here is that our PCI driver API defines save_state, we shall
+> either "support" it some way, or get rid of it completely... but then we
+> lose the ability to move a PCI driver back & forth with 2.4 ... (do we
+> care ?)
+
+I think the addition of the method was a mistake and it should be fixed 
+up. The fact there are only those 4 users should make it trivial in both 
+2.6 and 2.4 to do so. 
+
+> If you prefer just fixing those 4 ones, then let's get rid of the
+> save_state field in pci_driver completely...
+
+I completely agree. 
+
+
+	Pat
+

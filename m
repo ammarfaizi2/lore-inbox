@@ -1,41 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263749AbTJCPE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 11:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbTJCPE1
+	id S263752AbTJCPMV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 11:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263753AbTJCPMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 11:04:27 -0400
-Received: from [139.30.44.2] ([139.30.44.2]:21124 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S263749AbTJCPEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 11:04:04 -0400
-Date: Fri, 3 Oct 2003 17:03:52 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Russell King <rmk@arm.linux.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] remove unnecessary #includes from <linux/fs.h>
-In-Reply-To: <20031002161639.GF10382@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.33.0310031609040.18482-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Oct 2003 11:12:21 -0400
+Received: from mta07bw.bigpond.com ([144.135.24.134]:49112 "EHLO
+	mta07bw.bigpond.com") by vger.kernel.org with ESMTP id S263752AbTJCPMT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 11:12:19 -0400
+Date: Sat, 04 Oct 2003 01:09:24 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Subject: [PATCH]: linux-2.6.0-test6-uc0 (MMU-less fix ups)
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <3F7D9124.2030805@snapgear.com>
+Organization: SnapGear
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030624
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You didn't comment on my suggestion, so I've done it manually once for
-> linux/fs.h and was shocked.  It still passes my compile-standalone
-> test after removing 11! #include lines.
 
-A compile-standalone test is a necessary condition but not a sufficient
-one. There can be many reasons why the includes might still be needed:
- - the compile-test might depend on the specific configuration.
- - the included header might be needed when the macros are used, not when
-   they are defined.
- - indirect includes
- - ...
-As you probably know, I tried to clean up sched.h, and it was extremely
-complicated to get right. So this definitely is 2.7 material.
+Hi All,
 
-Tim
+An update of the uClinux (MMU-less) fixups against linux-2.6.0-test6.
+A few more clean ups, all little stuff.
+
+You can get it at:
+
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.0-test6-uc0.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+Snapgear Pty Ltd                            PHONE:       +61 7 3279 1822
+825 Stanley St,                             FAX:         +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263398AbTENRi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 13:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTENRi5
+	id S263355AbTENRoU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 13:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTENRoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 13:38:57 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:47925 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S263398AbTENRi4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 13:38:56 -0400
-Subject: Re: 2.5.69 Interrupt Latency
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030509142828.59552d0a.akpm@digeo.com>
-References: <1052323940.2360.7.camel@diemos>
-	 <1052336482.2020.8.camel@diemos> <20030507152856.2a71601d.akpm@digeo.com>
-	 <1052402187.1995.13.camel@diemos> <20030508122205.7b4b8a02.akpm@digeo.com>
-	 <1052503920.2093.5.camel@diemos> <1052512235.2997.8.camel@diemos>
-	 <20030509142828.59552d0a.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052934617.2138.4.camel@diemos>
+	Wed, 14 May 2003 13:44:20 -0400
+Received: from main.gmane.org ([80.91.224.249]:18565 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263355AbTENRoS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 13:44:18 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: What exactly does "supports Linux" mean?
+Date: 14 May 2003 19:58:37 +0200
+Message-ID: <yw1xhe7xo1f6.fsf@zaphod.guide>
+References: <20030514021210.GD30766@pegasys.ws> <BKEGKPICNAKILKJKMHCAMEONCPAA.Riley@Williams.Name>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 14 May 2003 12:50:17 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-09 at 16:28, Andrew Morton wrote:
-> Paul Fulghum <paulkf@microgate.com> wrote:
-> >
-> > In the process of eliminating kernel options to isolate
-> > the problem, eliminating USB completely appears to fix it.
-> > 
-> > One machine (server) was using usb-uhci and
-> > the other (laptop) was using usb-ohci.
-> > 
-> > So it looks like something with USB in 2.5.68-bk11
+"Riley Williams" <Riley@Williams.Name> writes:
 
-The latency problem seen on the laptop turned out to
-be a stupid mistake on my part: I enabled the ALI15XX
-IDE controller option as a module instead of in kernel
-and so it was not available for using DMA mode. Once
-corrected the latency is running at a smooth 20us without
-the >5ms spikes associated with PIO IDE.
+>  > This is really a trademark related labelling issue. The trademark
+>  > allows Linus or his assignee to specify in what way Linux (tm) may
+>  > be used in labelling and advertising. Linux is just like other
+>  > products with third-party parts and supplies. If Linus's assignee
+>  > (Linux international?) where to specify explicit guidelines then
+>  > people would know what to expect. Something like:
+>  >
+>  > Linux certified:
+>  >     The mainline kernel has a driver and it has been certified
+>  >     as functioning with this hardware by OSDL or some other
+>  >     officially sanctioned lab.
+>  >
+>  > Linux supported:
+>  >     The mainline kernel has a driver.
+> 
+> Fine so far.
+> 
+>  > Linux compatible:
+>  >     Source code driver is available as a patch.
+> 
+> In other words, if a patch is available for the 1.0.0 kernel, they
+> can claim "Linux compatible" ??? That's meaningless...replace with
+> something like...
+> 
+>    Linux 2.2.2 compatible:
+>        Source code driver is available as a patch for the stated
+>        mainline kernel.
+> 
+> ...with the specific version to be made explicit. As a minimum, it
+> needs to state the actual kernel series the patch is for.
 
-Final Diagnosis:
+It should also be stated which architectures it works on.  Something
+like
 
-server latency problem = USB wakeup_hc() delay added in 2.5.68-bk11
-laptop latency problem = user with dain bramage
+        Compatible with Linux 2.4.20 on foo hardware
 
-Thanks,
-Paul
+might be getting closer.
 
 -- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
-
+Måns Rullgård
+mru@users.sf.net
 

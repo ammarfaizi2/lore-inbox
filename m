@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263001AbRE1IoN>; Mon, 28 May 2001 04:44:13 -0400
+	id <S263011AbRE1ItN>; Mon, 28 May 2001 04:49:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263009AbRE1IoD>; Mon, 28 May 2001 04:44:03 -0400
-Received: from crete.csd.uch.gr ([147.52.16.2]:35256 "EHLO crete.csd.uch.gr")
-	by vger.kernel.org with ESMTP id <S263002AbRE1In5>;
-	Mon, 28 May 2001 04:43:57 -0400
-Organization: 
-Date: Mon, 28 May 2001 11:43:35 +0300 (EET DST)
-From: mythos <papadako@csd.uoc.gr>
-To: Rafael Herrera <raffo@neuronet.pitt.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Matrox G400 Dualhead
-In-Reply-To: <3B11C261.8AE524C@neuronet.pitt.edu>
-Message-ID: <Pine.GSO.4.33.0105281141320.24932-100000@iridanos.csd.uch.gr>
+	id <S263012AbRE1ItD>; Mon, 28 May 2001 04:49:03 -0400
+Received: from web10402.mail.yahoo.com ([216.136.130.94]:42508 "HELO
+	web10402.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263011AbRE1Is4>; Mon, 28 May 2001 04:48:56 -0400
+Message-ID: <20010528084855.10604.qmail@web10402.mail.yahoo.com>
+Date: Mon, 28 May 2001 18:48:55 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Kernel 2.4.5-ac2 OOPs when run pppd ?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+Yeas it is stil the same as 2.4.5-ac1, but did not
+happen with 2.4.5; You can try running pppd in the
+console (tty1) without any argument.
 
+Regards, 
 
-On Sun, 27 May 2001, Rafael Herrera wrote:
+SK
 
-> It would help if you reported which version of kernel and XF86 you are
-> using. I had problems using the framebuffer in the console awhile back.
->
-> Currently, running 2.4.4+ and XFree86 4.0.3 + Matrox's drivers
-> (http://matrox.com/mga/support/drivers/files/linux_06.cfm) give me no
-> problem.
->
-> I don't run the frame buffer for X for dual head.
-> --
->      Rafael
->
+=====
+S.KIEU
 
-I am using 2.4.5-ac1 and XFree-4.0.99.3.But I have no problem with my
-X,except when I go from X to console.The problem I have is in the console
-where I use Dualhead.I don't think it has to do anything with X.
-
-		Mythos
-
+_____________________________________________________________________________
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- Voice chat, mail alerts, stock quotes and favourite news and lots more!

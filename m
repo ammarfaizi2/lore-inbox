@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289469AbSAOJ7t>; Tue, 15 Jan 2002 04:59:49 -0500
+	id <S289471AbSAOKBJ>; Tue, 15 Jan 2002 05:01:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289461AbSAOJ7k>; Tue, 15 Jan 2002 04:59:40 -0500
-Received: from mail.fido.net ([194.70.36.10]:50050 "EHLO
-	monty.test.eng.fido.net") by vger.kernel.org with ESMTP
-	id <S289460AbSAOJ71>; Tue, 15 Jan 2002 04:59:27 -0500
-X-Header: FidoNet Virus Scanned
-Message-ID: <002a01c19dab$4de66dc0$a52efea9@tosh>
-Reply-To: "Shaf Ali" <shaf@shaf.net>
-From: "Shaf Ali" <shaf@shaf.net>
-To: <linux-admin@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <1010951831.3241.0.camel@penarol01> <15425.60130.574569.697952@cerise.nosuchdomain.co.uk>
-Subject: 2.4.17 instability with i2c ?
-Date: Tue, 15 Jan 2002 09:59:21 -0000
-Organization: ContentFusion.com
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S289467AbSAOKBC>; Tue, 15 Jan 2002 05:01:02 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:19217 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S289461AbSAOKAt>; Tue, 15 Jan 2002 05:00:49 -0500
+Date: Tue, 15 Jan 2002 10:00:41 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Defining new section for bus driver init
+Message-ID: <20020115100041.A994@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.33.0201141746000.827-100000@segfault.osdlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201141746000.827-100000@segfault.osdlab.org>; from mochel@osdl.org on Mon, Jan 14, 2002 at 05:47:15PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
+On Mon, Jan 14, 2002 at 05:47:15PM -0800, Patrick Mochel wrote:
+> Attached is a patch that creates a new section for device subsystem init
+> calls. With it, the root bus init calls are handled just like init calls
+> - the section consists of a table of function pointers.
+> device_driver_init() iterates over that table and calls each one.
+> (device_driver_init() currently happens just before that pci_init() call
+> above).
 
-I am having problems with a machine and cannot pin down why it's abruptly
-rebooting...
-I can find no messages in any of the logs !
+I've been thinking about this, and would like to suggest something that'd
+reduce the code size, but is dependent on the ordering of stuff in
+do_basic_setup.  So first some questions.  Currently, we do:
 
-My theories are pointing the blame towards the following configuration :
-Redhat 7.2
-kernel 2.4.17 patched with i2c-2.6.2.tar.gz.
+	device_driver_init()
+	random bus driver init...
+	sock_init()
+	start_context_thread()
+	do_initcalls()
 
-I am about to attempt building a a fresh kernel... can anyone recommmend a
-stable kernel or has anyone experienced problems with 2.4.17 patched with
-i2c ?
+Is there any ordering dependency between sock_init(), start_context_thread()
+and the bus driver init calls?  From a brief look at the code, it would
+appear that start_context_thread() is rather safe, but sock_init() is
+questionable.  If they are both safe, then we could move these two calls
+before, or even just after device_driver_init():
 
-Many thanks in advance,
-Shaf
+	device_driver_init()
+	sock_init()
+	start_context_thread()
+	random bus driver init...
+	do_initcalls()
 
+Now we have the bus driver initialisation and the initcall initialisation
+next to each other.  We can then pull this trick with the linker file:
 
+	__initcall_start = .;
+	.initcall : {
+		*(.devsubsys.init)
+		*(.initcall.init)
+	}
+	__initcall_end = .;
+
+All the magic then happens within do_initcalls() without any extra code
+needing to be added.  The really funky thing about this approach is
+that you can add other sections to handle network protocol modules
+and such like with virtually zero code.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

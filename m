@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271117AbTHHKaa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 06:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271203AbTHHKaa
+	id S271195AbTHHKc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 06:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271196AbTHHKc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 06:30:30 -0400
-Received: from skif.spylog.com ([194.67.35.250]:54942 "EHLO mail.spylog.com")
-	by vger.kernel.org with ESMTP id S271117AbTHHKa3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 06:30:29 -0400
-Date: Fri, 8 Aug 2003 14:32:30 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
+	Fri, 8 Aug 2003 06:32:26 -0400
+Received: from mail.hometree.net ([212.34.181.120]:57227 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S271195AbTHHKcY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 06:32:24 -0400
 To: linux-kernel@vger.kernel.org
-Subject: 3ware Escalade 7500-4LP & linux 2.4.x
-Message-ID: <20030808103230.GA43166@an.spylog.com>
-Mail-Followup-To: Andrey Nekrasov <andy@spylog.ru>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-Organization: SpyLOG ltd.
-User-Agent: Mutt/1.5.4i
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: NPTL v userland v LT (RH9+custom kernel problem)
+Date: Fri, 8 Aug 2003 10:32:23 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <bgvu7n$2lj$1@tangens.hometree.net>
+References: <20030807224545.A29285@google.com> <Pine.LNX.4.44.0308080850280.1466-100000@cheetah.psv.nu>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1060338743 2739 212.34.181.4 (8 Aug 2003 10:32:23 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Fri, 8 Aug 2003 10:32:23 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Peter Svensson <petersv@psv.nu> writes:
 
-Linux kernel can't find controller:
+>I have had rpm lock up on me a few times. I think it was waiting on a 
+>sempahore or some other synchronization event. After killing the process 
+>(after several hours) no rpm transactions could be completed, they all 
+>hanged at the same point. The only way to get rpm to work again was to 
+>reboot the system. 
 
-...
-3ware Storage Controller device driver for Linux v1.02.00.036.
-PCI: No IRQ known for interrupt pin A of device 02:02.0. Probably buggy MP table.
-scsi0 : Found a 3ware Storage Controller at 0x3000, IRQ: 0, P-chip: 1.3
-3w-xxxx: scsi0: Error requesting IRQ: 0.
-3w-xxxx: tw_findcards(): Error requesting irq for card 0.
-3w-xxxx: No cards found.
-...
+rm -f /var/lib/rpm/__db*
 
-Hardware: m/b Supermicro X5DPI-G2, last bios; 3ware Escalade 7500-4LP, last
-          firmware.
+This is a FAQ. And a Bug in RH9.
 
-Software: Kernel Linux-2.4.22rc1.
+	Regards
+		Henning
 
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
 
-Whay? Help me please.
-Thank.
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire
 
+"You are being far too rational for this discussion."  
+       --- Scott Robert Ladd in <3F1874B0.6030507@coyotegulch.com>

@@ -1,63 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbTILVeT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 17:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbTILVeT
+	id S261488AbTILV2M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 17:28:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbTILV2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 17:34:19 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:53472 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S261282AbTILVeR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 17:34:17 -0400
-Date: Fri, 12 Sep 2003 14:34:15 -0700
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Marcel Holtmann <marcel@holtmann.org>, Max Krasnyansky <maxk@qualcomm.com>,
-       BlueZ mailing list <bluez-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Bluez-devel] Re: [BUG] BlueTooth socket busted in 2.6.0-test5
-Message-ID: <20030912213415.GA24895@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20030910225810.GA7712@bougret.hpl.hp.com> <1063237174.28890.6.camel@pegasus> <20030911203249.GA15575@bougret.hpl.hp.com> <1063344094.7869.396.camel@imladris.demon.co.uk> <1063354754.23778.380.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1063354754.23778.380.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	Fri, 12 Sep 2003 17:28:12 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:56131 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id S261488AbTILV2H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 17:28:07 -0400
+Date: Fri, 12 Sep 2003 14:47:32 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Timothy Miller <miller@techsource.com>
+cc: David Schwartz <davids@webmaster.com>,
+       Pascal Schmidt <der.eremit@email.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: People, not GPL  [was: Re: Driver Model]
+In-Reply-To: <3F62335B.9050202@techsource.com>
+Message-ID: <Pine.LNX.4.44.0309121428200.8729-100000@nakedeye.aparity.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 09:19:15AM +0100, David Woodhouse wrote:
-> On Fri, 2003-09-12 at 06:21 +0100, David Woodhouse wrote:
-> > Er, if we're actually _running_ code from the bnep module, how can it
-> > have a zero refcount? This bug is elsewhere, surely?
-> 
-> Please confirm this fixes it...
-> 
-> ===== net/bluetooth/bnep/sock.c 1.11 vs edited =====
-> --- 1.11/net/bluetooth/bnep/sock.c	Thu Jun  5 01:57:08 2003
-> +++ edited/net/bluetooth/bnep/sock.c	Fri Sep 12 09:16:17 2003
-> @@ -186,7 +189,8 @@
->  
->  static struct net_proto_family bnep_sock_family_ops = {
->  	.family = PF_BLUETOOTH,
-> -	.create = bnep_sock_create
-> +	.create = bnep_sock_create,
-> +	.owner = THIS_MODULE
->  };
->  
->  int __init bnep_sock_init(void)
-> 
-> 
-> -- 
-> dwmw2
+On Fri, 12 Sep 2003, Timothy Miller wrote:
+|>David Schwartz wrote:
+|>
+|>> 	However, some people seem to be arguing that the GPL_ONLY symbols are in
+|>> fact a license enforcement technique. If that's true, then when they
+|>> distribute their code, they are putting additional restrictions not in the
+|>> GPL on it. That is a GPL violation.
+|>
+|>Agreed.  GPL_ONLY is not a license restriction.  It is a technical issue.
+|>
+|>Binary-only modules are inherently untrustworthy (no open code review) 
+|>and undebuggable.  It is therefore of technical merit to restrict both 
+|>what they can access in the kernel (GPL_ONLY) and limit how much kernel 
+|>developers should have to tolerate when they're involved.
+|>
+|>But beyond this, there are some social issues.  If someone finds a way 
+|>to work around this mechanism, they are breaking things to everyone 
+|>else's detriment.  For a commercial entity to violate the GPL_ONLY 
+|>barrier is an insult to kernel developers AND to their customers who 
+|>will have trouble getting problems solved.
 
-	Sorry for the slow answer, but yes, this fixes the problem
-(and yes, I've removed my temporary hack).
-	Thanks a lot !
+I think you are all missing the point.  This isn't a Linux kernel
+problem.  This is a customer and distributor problem.  If Red Hat,
+Mandrake, SuSE, etc., choose to remove these GPL_ONLY() barriers
+and release the new "free" code under GPL, they're entitled.  Heck,
+they can even add in new ones in their own kernels.
 
-	Jean
+I'm surprised you are even discussing this issue on this list.
+
+If third party developers are restricted based on GPL_ONLY(),
+they can either (A) release their product under other OSes or Linux
+distributions without the GPL_ONLY() restrictions, (B) modify their
+product to be more GPL-friendly, or (C) avoid Linux support entirely.
+
+It ultimately means either more support for third party products with
+one distribution over another, which may or may not be financially
+beneficial to that distribution, or it means that some Linux
+distributors continue to supress supporting new third party devices
+that don't believe in the GPL.  Either way, it's a distribution
+decision based on open-source beliefs and how that balances with
+financial benefit (both of which would matter to me as a stockholder).
+
+This really has nothing to do with the Linux kernel code itself.
+Very few customers that want third party device support will go to
+vger to roll their own kernel -- they'll go to a Linux distributor,
+get them to include device support and pay for it (or start with a
+Linux distribution and roll their own).
+
+So include GPL_ONLY(), don't include GPL_ONLY(), whatever.  If you
+don't like it, Mr. Customer, find a Linux distributor that will
+fix the problem for you.
+
+If you want to create a new driver model that supports third party
+devices without regard to their GPL status, make a patch.  Who
+knows, maybe some distribution will actually start using it.  But
+don't even think about bugging this list to get it included by
+default (too many GPL purists out there).
+
+--Matt
 

@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272417AbTG3Atb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 20:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272428AbTG3Atb
+	id S272409AbTG3AvX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 20:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272416AbTG3AvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 20:49:31 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:34446 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S272417AbTG3Ata (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 20:49:30 -0400
-Message-ID: <3F26FA14.20700@cornell.edu>
-Date: Tue, 29 Jul 2003 18:49:56 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030721 Thunderbird/0.1a
-X-Accept-Language: en-us, en
+	Tue, 29 Jul 2003 20:51:23 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:33553 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S272409AbTG3AvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 20:51:20 -0400
+Date: Tue, 29 Jul 2003 20:39:39 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.22-pre9
+In-Reply-To: <Pine.LNX.4.55L.0307292137440.4822@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.53.0307292038450.11053@montezuma.mastecende.com>
+References: <Pine.LNX.4.55L.0307291700490.24730@freak.distro.conectiva>
+ <Pine.LNX.4.53.0307292020280.11053@montezuma.mastecende.com>
+ <Pine.LNX.4.55L.0307292137440.4822@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Binfmt_misc on 2.4 and 2.5
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The errors below have been there for as long as I can remember, even
-under 2.4. The binfmt_misc folder in proc is empty on boot, even though
-I have the binfmt_misc module in the kernel (I think it didn't work
-builtin as well, but I haven't tested recently).
+On Tue, 29 Jul 2003, Marcelo Tosatti wrote:
 
-Jul 29 18:26:13 cobra wine: /etc/rc5.d/S98wine: line 16:
-/proc/sys/fs/binfmt_misc/register: No such file or directory
+> I know. I just forgot to add network driver fixes and b44 driver from
+> jgarziks tree. He sent me those _before_ I released -pre9. Thats why
+> -pre10 so soon.
 
-Jul 29 18:26:13 cobra wine: /etc/rc5.d/S98wine: line 17:
-/proc/sys/fs/binfmt_misc/register: No such file or directory
+Ok those would be easier to isolate problems with anyway.
+ 
+> I think a one week average for pre releases is good.
 
-So what's wrong? Is this a kernel issue.. I thought it probably is.
-Or have I made a mistake somewhere...
+Sounds fine, thanks.
 
+	Zwane
+-- 
+function.linuxpower.ca

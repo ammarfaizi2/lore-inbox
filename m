@@ -1,26 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283223AbRL1FdY>; Fri, 28 Dec 2001 00:33:24 -0500
+	id <S286759AbRL1G3U>; Fri, 28 Dec 2001 01:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286730AbRL1FdO>; Fri, 28 Dec 2001 00:33:14 -0500
-Received: from 14.210.252.64.snet.net ([64.252.210.14]:39811 "EHLO karaya.com")
-	by vger.kernel.org with ESMTP id <S283223AbRL1Fcy>;
-	Fri, 28 Dec 2001 00:32:54 -0500
-Message-Id: <200112280635.fBS6Zl728162@karaya.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: UML has been sent to Linus
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 28 Dec 2001 01:35:47 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S286762AbRL1G3K>; Fri, 28 Dec 2001 01:29:10 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:54940 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S286759AbRL1G2z>; Fri, 28 Dec 2001 01:28:55 -0500
+Date: Fri, 28 Dec 2001 08:27:34 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.17: Dell Laptop extra buttons patch (fwd)
+Message-ID: <Pine.LNX.4.33.0112280825220.18421-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I put together a patch against 2.5.1 and sent it in.
+>I don't have a Dell laptop, but AFAIK in the past patches like this have
+>been rejected by Andries Brouwer (I think) because it is possible to do
+>this from user space with key mapping tools like setkeycodes, xkeycaps,
+>or xmodmap.
 
-So, if you don't see it soon on a kernel mirror near you, start bugging
-Linus :-)
+I can't see a possible reason _not_ to have it in there anyway, the 0
+values take up space so bloat is not a valid reason. I can understand that
+since its possible in userland we should leave it there, but this is
+fairly harmless stuff which doesn't affect anything.
 
-				Jeff
+Regards,
+	Zwane Mwaikambo
+
+
+
 

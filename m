@@ -1,61 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267298AbUH1Gz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267357AbUH1HXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267298AbUH1Gz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 02:55:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268210AbUH1Gz0
+	id S267357AbUH1HXy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 03:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267361AbUH1HXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 02:55:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:198 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267298AbUH1GzT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 02:55:19 -0400
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <412FF60B.5080009@winischhofer.net>
-References: <412F4008.4050700@winischhofer.net>
-	 <20040827130151.46c246b0.davem@redhat.com>
-	 <412FF60B.5080009@winischhofer.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ooppMlYC7Tmr2YhacX/l"
-Organization: Red Hat UK
-Message-Id: <1093676112.2792.6.camel@laptop.fenrus.com>
+	Sat, 28 Aug 2004 03:23:54 -0400
+Received: from tanthi.teneoris.com ([164.164.94.19]:24261 "EHLO
+	tanthi.teneoris.com") by vger.kernel.org with ESMTP id S267357AbUH1HXv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 03:23:51 -0400
+Subject: timer_create not working in 2.6.5
+From: Amol <amol@teneoris.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1093677537.3479.84.camel@amol.teneoris.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 28 Aug 2004 08:55:12 +0200
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 28 Aug 2004 12:48:57 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+ My system has fedora-core-2. I tried to run this small program to
+create a posix time but it seems it is giving me wrong timer-id.. some
+garbage number. Finally program segfaults in timer_settime( not included
+here)
 
---=-ooppMlYC7Tmr2YhacX/l
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Any clues ?
+Please CC me
+Amol
 
+--------------
 
-> A license is a license. We can't just obey a single driver's author's=20
-> daily mood. (And for those who don't know: IAAL. Fact.)
+#include <time.h>
+#include <signal.h>
+#include <unistd.h>
 
-Since you are a lawyer you know what "moral rights" are. And since you
-know what those are, I assume you did the same research about moral
-rights in the Netherlands (the country the PWC work was created) as I
-did and noticed that this issue isn't as black and white as you claim in
-your simplification I quoted above...=20
-=20
+void timer_handler(int signo, siginfo_t *info, void *context)
+{
+        printf("got signal..\n");
+}
 
+int main(){
+        struct timespec ts, tm, sleep;
+        sigset_t mask;
+        siginfo_t info;
+        struct sigevent sigev;
+        struct sigaction sa;
+        struct itimerspec ival;
+        timer_t tid;
 
+        sigemptyset(&mask);
+        sigprocmask(SIG_SETMASK, &mask, NULL);
 
---=-ooppMlYC7Tmr2YhacX/l
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+        sa.sa_flags = SA_SIGINFO;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_sigaction = timer_handler;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+        if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
+                perror("sigaction failed");
+                return -1;
+        }
 
-iD8DBQBBMCxQxULwo51rQBIRAoX0AJ4v8CFKpIVfxgc58U5tFZFSuwUDhACfeGFk
-7iUkKy/G8CHzMqiFJZZsG4M=
-=SXA+
------END PGP SIGNATURE-----
+        sigev.sigev_notify = SIGEV_SIGNAL;
+        sigev.sigev_signo = SIGRTMIN;
+        sigev.sigev_value.sival_int = 1;
 
---=-ooppMlYC7Tmr2YhacX/l--
+        if (timer_create(CLOCK_MONOTONIC, &sigev, &tid) == -1){
+                perror("timer_create");
+                return -1;
+        }
+        printf("timer-id = %d\n", tid);
+}
+
 

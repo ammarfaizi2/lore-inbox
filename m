@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S133012AbRDXKST>; Tue, 24 Apr 2001 06:18:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S133093AbRDXKSJ>; Tue, 24 Apr 2001 06:18:09 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:14416 "EHLO penguin.e-mind.com") by vger.kernel.org with ESMTP id <S133012AbRDXKR7>; Tue, 24 Apr 2001 06:17:59 -0400
-Date: Tue, 24 Apr 2001 12:17:47 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: David Howells <dhowells@warthog.cambridge.redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: rwsem benchmark [was Re: [PATCH] rw_semaphores, optimisations try #3]
-Message-ID: <20010424121747.A1682@athlon.random>
-References: <20010424065633.A16845@athlon.random> <5927.988102571@warthog.cambridge.redhat.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S133093AbRDXKTj>; Tue, 24 Apr 2001 06:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S135248AbRDXKT3>; Tue, 24 Apr 2001 06:19:29 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:22809 "EHLO twilight.cs.hut.fi") by vger.kernel.org with ESMTP id <S133093AbRDXKTP>; Tue, 24 Apr 2001 06:19:15 -0400
+Date: Tue, 24 Apr 2001 13:18:57 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>, Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [Semi-OT] Dual Athlon support in kernel
+Message-ID: <20010424131857.F3529@niksula.cs.hut.fi>
+References: <Pine.LNX.4.33.0104240115050.21785-100000@asdf.capslock.lan> <3AE52C2C.C6B2B472@mountain.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5927.988102571@warthog.cambridge.redhat.com>; from dhowells@warthog.cambridge.redhat.com on Tue, Apr 24, 2001 at 09:56:11AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AE52C2C.C6B2B472@mountain.net>; from tleete@mountain.net on Tue, Apr 24, 2001 at 03:33:00AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 09:56:11AM +0100, David Howells wrote:
-> | +			     : "+m" (sem->count), "+a" (sem)
-				     ^^^^^^^^^^ I think you were comenting on
-					        the +m not +a ok
+On Tue, Apr 24, 2001 at 03:33:00AM -0400, you [Tom Leete] claimed:
+>
+> The build problen with Athlon+SMP was solved by AA's patch. I had tested a
+> similar patch on UP over 2.4.0-test and previous 2.4 releases with nary a
+> problem.
 > 
-> >From what I've been told, you're lucky here... you avoid a pipeline stall
+> This may be too experimental for your purposes, but FWIW I'm writing from a
+> 2.4.4-pre3 built with gcc-2.97-20010205 using -march=athlon set by the k7
+> config. I've been building kernels with that snapshot since the middle of
+> Feb. With the current image, the box has locked up once in continuous use. I
+> can't say what caused that one, no log survived. 
 
-I see what you meant here and no, I'm not lucky, I thought about that. gcc
-2.95.* seems smart enough to produce (%%eax) that you hardcoded when the sem is
-not a constant (I'm not clobbering another register, if it does it's stupid and
-I consider this a compiler mistake). I tried with a variable pointer and gcc
-as I expected generated the (%%eax) but instead when it's a constant like in
-the bench my way it avoids to stall the pipeline by using the constant address
-for the locked incl, exactly as you said and that's probably why I beat you on
-the down read fast path too.  (I also benchmarked with a variable semaphore and
-it was running a little slower)
+There's also AthlonLinux http://athlonlinux.org/ and AthlonGCC
+http://athlonlinux.org/agcc/about.shtml, but I have no experience with those
+(I have no Athlon ;( ).
 
-Andrea
+
+-- v --
+
+v@iki.fi

@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUFFJCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbUFFJLO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbUFFJCn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 05:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbUFFJCm
+	id S263154AbUFFJLO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 05:11:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbUFFJLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 05:02:42 -0400
-Received: from smtp.sys.beep.pl ([195.245.198.13]:43528 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S263154AbUFFJCf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 05:02:35 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-Subject: Re: 2.6.7-rc2-bk6 -- mtrr: 0xd0000000,0x8000000 overlaps existing 0xd0000000,0x200000
-Date: Sun, 6 Jun 2004 11:02:24 +0200
-User-Agent: KMail/1.6.52
-Cc: linux-kernel@vger.kernel.org
-References: <40C28573.6070704@comcast.net> <40C2D969.4010509@gmx.de>
-In-Reply-To: <40C2D969.4010509@gmx.de>
+	Sun, 6 Jun 2004 05:11:14 -0400
+Received: from mail.codeweavers.com ([216.251.189.131]:44964 "EHLO
+	mail.codeweavers.com") by vger.kernel.org with ESMTP
+	id S263154AbUFFJLN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 05:11:13 -0400
+Message-ID: <40C2F005.5010600@codeweavers.com>
+Date: Sun, 06 Jun 2004 19:20:53 +0900
+From: Mike McCormack <mike@codeweavers.com>
+Organization: Codeweavers
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040514
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406061102.24483.arekm@pld-linux.org>
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Points assigned by spam scoring system to this email. Note that message
-	is treated as spam ONLY if X-Spam-Flag header is set to YES.
-	If you have any report questions, see report postmaster@beep.pl for details.
-	Content analysis details:   (0.0 points, 25.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-X-Authenticated-Id: arekm 
+To: Christoph Hellwig <hch@infradead.org>
+CC: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+References: <40C2B51C.9030203@codeweavers.com> <20040606073241.GA6214@infradead.org> <40C2E045.8090708@codeweavers.com> <20040606081021.GA6463@infradead.org> <40C2E5DC.8000109@codeweavers.com> <20040606083924.GA6664@infradead.org> <20040606084326.GA6716@infradead.org>
+In-Reply-To: <20040606084326.GA6716@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 of June 2004 10:44, Prakash K. Cheemplavam wrote:
-> Miles Lane wrote:
-> > I am getting an error using the nv open-source driver
-> > for the GeForce FX 5600 board.
-> >
-> > vesafb: framebuffer at 0xd0000000, mapped to 0xf8808000, size 3072k
-> > vesafb: mode is 1024x768x16, linelength=2048, pages=1
-> > vesafb: protected mode interface info at c000:f530
-> > vesafb: scrolling: redraw
-> > vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
-> > fb0: VESA VGA frame buffer device
-> > mtrr: 0xd0000000,0x8000000 overlaps existing 0xd0000000,0x200000
->
-> Well, don'T use framebuffer console and everthing will be fine.
-There is no way of having both (vesafb and mtrr) at the same time?
 
-> Prakash
+Christoph Hellwig wrote:
 
--- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+> And btw, if you'd have read the whole thread you'd have seen that I argued
+> against mergign the randomization and address space layout changes into
+> 2.6, and such changes during stable series are bad.  But your still much
+> better of getting your code fixed properly, and thus pretty much means
+> havign your own binary format handler in the kernel that sets up the address
+> space in a windows compatible way.
+
+The staticly linked userspace binary loader seems like the best solution 
+to me.  For binary distributions of Wine there's no need to compile 
+kernels or modules at install time, no need to be root to install and no 
+need for us to write and maintain kernel code for N different operating 
+systems.  Please let me know if you think of a way to break this solution ;)
+
+Anyway, thanks for at least trying to keep these kind of changes for new 
+major versions.
+
+Mike

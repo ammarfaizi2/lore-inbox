@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264909AbTGBKUg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 06:20:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbTGBKUg
+	id S264904AbTGBKdP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 06:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbTGBKdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 06:20:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65450 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264897AbTGBKUe
+	Wed, 2 Jul 2003 06:33:15 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:39337 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264904AbTGBKdO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 06:20:34 -0400
-Date: Wed, 2 Jul 2003 11:34:57 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Jan Kratochvil 
-	<rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       chaffee@cs.berkeley.edu, zippel@linux-m68k.org
-Subject: Re: [PATCH] vfat+affs case preservation
-Message-ID: <20030702103457.GS27348@parcelfarce.linux.theplanet.co.uk>
-References: <20030702102538.GA16711@exuhome.dyn.jankratochvil.net>
+	Wed, 2 Jul 2003 06:33:14 -0400
+Date: Wed, 2 Jul 2003 16:24:58 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.73-mm3
+Message-ID: <20030702105458.GH1267@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20030701203830.19ba9328.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030702102538.GA16711@exuhome.dyn.jankratochvil.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030701203830.19ba9328.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 02, 2003 at 12:25:38PM +0200, Jan Kratochvil wrote:
-> +/* We have to always do the revalidate as after unlink (etc.) there still may
-> + * exist other case-different dentries for the same inode. It would be also
-> + * possible to discard such aliases by going through d_alias links during the
-> + * unlink. "strictcase" does not have case-different dentries but "longna~1"
-> + * style aliases still exist there.
-> + */
+On Wed, Jul 02, 2003 at 03:39:54AM +0000, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.73/2.5.73-mm3/
+> 
+> . The ext2 "free inodes corrupted" problem which Martin saw should be
+>   fixed.
+> 
+> . The ext3 assertion failure which Maneesh hit should be fixed (I can't
+>   reproduce this, please retest?)
+> 
 
-> -	alias = d_find_alias(inode);
-> -	if (alias) {
-> -		if (d_invalidate(alias)==0)
-> -			dput(alias);
-> -		else {
-> -			iput(inode);
-> -			unlock_kernel();
-> -			return alias;
-> -		}
-> -		
-> -	}
+It is fixed. Ran multiple iterations without any ext3 assertion failure. 
 
-Broken.   With that we can get two active dentries for the same directory.
-There goes any cache coherency, with all usual results.
+Maneesh
+
+-- 
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

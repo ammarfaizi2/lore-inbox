@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVADVRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVADVMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbVADVRB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 16:17:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVADVQM
+	id S261841AbVADVMg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 16:12:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVADVKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 16:16:12 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:39866 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262008AbVADVJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 16:09:16 -0500
-Subject: Re: [PATCH] disallow modular capabilities
-From: Lee Revell <rlrevell@joe-job.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0501041303190.2294@ppc970.osdl.org>
-References: <20050102200032.GA8623@lst.de>
-	 <1104870292.8346.24.camel@krustophenia.net>
-	 <Pine.LNX.4.58.0501041303190.2294@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Tue, 04 Jan 2005 16:09:02 -0500
-Message-Id: <1104872943.8346.30.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Tue, 4 Jan 2005 16:10:03 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:15536 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261841AbVADVFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 16:05:31 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: 2.6.10-mm1 [failure on AMD64]
+Date: Tue, 4 Jan 2005 22:05:48 +0100
+User-Agent: KMail/1.7.1
+Cc: Christoph Hellwig <hch@infradead.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+References: <20050103011113.6f6c8f44.akpm@osdl.org> <200501040029.15623.rjw@sisk.pl> <m1mzvpwfi8.fsf@muc.de>
+In-Reply-To: <m1mzvpwfi8.fsf@muc.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501042205.49302.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-04 at 13:05 -0800, Linus Torvalds wrote:
+On Tuesday, 4 of January 2005 13:22, Andi Kleen wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> writes:
 > 
-> On Tue, 4 Jan 2005, Lee Revell wrote:
-> > 
-> > And I posted this to LKML almost a week ago, and a real fix was posted
-> > in response.
-> > 
-> > http://lkml.org/lkml/2004/12/28/112
+> > On Monday, 3 of January 2005 18:19, Jesse Barnes wrote:
+> >> On Monday, January 3, 2005 2:07 am, Christoph Hellwig wrote:
+> >> > > add-page-becoming-writable-notification.patch
+> >> > >   Add page becoming writable notification
+> >> >
+> >> > David, this still has the bogus address_space operation in addition to
+> >> > the vm_operation.  page_mkwrite only fits into the vm_operations 
+scheme,
+> >> > so please remove the address_space op.  Also the code will be smaller
+> >> > and faster witout that indirection..
+> >> 
+> >> And apparently it's broken on NUMA.  I couldn't find 
+> >> generic_file_get/set_policy in my tree, which builds with CONFIG_NUMA 
+> >> enabled.
+> >
+> > On a dual-Opteron w/ NUMA I had to apply the Jesse's patch to compile the 
+> > kernel, but it does not boot.  It only prints this to the serial console:
 > 
-> Well, I realize that it has been on bugtraq, but does that make it a real 
-> concern? I'll make the tristate a boolean, but has anybody half-way sane 
-> ever _done_ what is described by the bugtraq posting? IOW, it looks pretty 
-> much like a made-up example, also known as a "don't do that then" kind of 
-> buglet ;)
+> I suspect it is fixed by Bill Irwin's patch from the 
+> "[bootfix] pass used_node_mask by reference .." thread. Can you test that?
 
-Well, a buglet is still a type of bug ;-)
+Sure.  It fixes the problem.
 
-What's wrong with Serge's patch?  I don't see any downside.
+Greets,
+RJW
 
-http://lkml.org/lkml/2004/12/29/59
-
-Lee
-
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

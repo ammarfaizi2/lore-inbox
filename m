@@ -1,139 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268351AbUH2Wag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268260AbUH2Wh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268351AbUH2Wag (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 18:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268352AbUH2Wag
+	id S268260AbUH2Wh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 18:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268352AbUH2Wh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 18:30:36 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:16585 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S268350AbUH2WaD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 18:30:03 -0400
-Date: Mon, 30 Aug 2004 00:28:31 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH,RFT] 8139cp TSO support
-Message-ID: <20040829222831.GA9496@electric-eye.fr.zoreil.com>
-References: <20040829212205.GA2864@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040829212205.GA2864@havoc.gtf.org>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Sun, 29 Aug 2004 18:37:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60589 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268260AbUH2Wh0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 18:37:26 -0400
+Date: Sun, 29 Aug 2004 15:37:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Grzegorz Kulewski <kangur@polcom.net>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <Pine.LNX.4.60.0408300009001.10533@alpha.polcom.net>
+Message-ID: <Pine.LNX.4.58.0408291523130.2295@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
+ <412F7D63.4000109@namesys.com> <20040827230857.69340aec.pj@sgi.com>
+ <20040829150231.GE9471@alias> <4132205A.9080505@namesys.com>
+ <20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk>
+ <20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk> <41323751.5000607@namesys.com>
+ <20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org>
+ <Pine.LNX.4.60.0408300009001.10533@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> :
-[...]
-> Also, the r8169 implementation should be similar, if someone (Francois?)
-> wants to tackle it.
 
-I'll copy and test it tomorrow on r8169 if nobody beats me.
 
-On a related note, 8139cp probably wants something like the patch below for
-the usual SG handling (on top of 2.6.9-rc1 + -mm1 + TSO patch):
+[ Linux-kernel cc'd, because I don't think the question is stupid, and I 
+  can't even fully answer the kNFSd thing other than point to it as a
+  problem. ]
 
-- suspicious length in pci_unmap_single;
-- wait for the last frag before freeing the relevant skb;
-- no need to crash when facing some unexpected csum combination.
+On Mon, 30 Aug 2004, Grzegorz Kulewski wrote:
+> 
+> Sorry if my qestion is stupid, but why can't we deal with (hard)links to 
+> directories in (nearly) same way we deal with bind mounts (= making 
+> exactly one object representing target and only referencing to it)?
 
-diff -puN drivers/net/8139cp.c~8139cp-010 drivers/net/8139cp.c
---- linux-2.6.9-rc1/drivers/net/8139cp.c~8139cp-010	2004-08-29 23:47:07.000000000 +0200
-+++ linux-2.6.9-rc1-fr/drivers/net/8139cp.c	2004-08-30 00:16:13.000000000 +0200
-@@ -314,7 +314,7 @@ struct cp_desc {
- struct ring_info {
- 	struct sk_buff		*skb;
- 	dma_addr_t		mapping;
--	unsigned		frag;
-+	u32			len;
- };
- 
- struct cp_dma_stats {
-@@ -708,7 +708,7 @@ static void cp_tx (struct cp_private *cp
- 			BUG();
- 
- 		pci_unmap_single(cp->pdev, cp->tx_skb[tx_tail].mapping,
--					skb->len, PCI_DMA_TODEVICE);
-+				 cp->tx_skb[tx_tail].len, PCI_DMA_TODEVICE);
- 
- 		if (status & LastFrag) {
- 			if (status & (TxError | TxFIFOUnder)) {
-@@ -799,7 +799,7 @@ static int cp_start_xmit (struct sk_buff
- 			else if (ip->protocol == IPPROTO_UDP)
- 				flags |= IPCS | UDPCS;
- 			else
--				BUG();
-+				WARN_ON(1);	/* we need a WARN() */
- 		}
- 
- 		txd->opts1 = cpu_to_le32(flags);
-@@ -807,7 +807,6 @@ static int cp_start_xmit (struct sk_buff
- 
- 		cp->tx_skb[entry].skb = skb;
- 		cp->tx_skb[entry].mapping = mapping;
--		cp->tx_skb[entry].frag = 0;
- 		entry = NEXT_TX(entry);
- 	} else {
- 		struct cp_desc *txd;
-@@ -824,8 +823,8 @@ static int cp_start_xmit (struct sk_buff
- 		first_mapping = pci_map_single(cp->pdev, skb->data,
- 					       first_len, PCI_DMA_TODEVICE);
- 		cp->tx_skb[entry].skb = skb;
-+		cp->tx_skb[entry].len = first_len;
- 		cp->tx_skb[entry].mapping = first_mapping;
--		cp->tx_skb[entry].frag = 1;
- 		entry = NEXT_TX(entry);
- 
- 		for (frag = 0; frag < skb_shinfo(skb)->nr_frags; frag++) {
-@@ -868,7 +867,7 @@ static int cp_start_xmit (struct sk_buff
- 
- 			cp->tx_skb[entry].skb = skb;
- 			cp->tx_skb[entry].mapping = mapping;
--			cp->tx_skb[entry].frag = frag + 2;
-+			cp->tx_skb[entry].len = len;
- 			entry = NEXT_TX(entry);
- 		}
- 
-@@ -1082,7 +1081,6 @@ static int cp_refill_rx (struct cp_priva
- 		cp->rx_skb[i].mapping = pci_map_single(cp->pdev,
- 			skb->tail, cp->rx_buf_sz, PCI_DMA_FROMDEVICE);
- 		cp->rx_skb[i].skb = skb;
--		cp->rx_skb[i].frag = 0;
- 
- 		cp->rx_ring[i].opts2 = 0;
- 		cp->rx_ring[i].addr = cpu_to_le64(cp->rx_skb[i].mapping);
-@@ -1134,9 +1132,6 @@ static void cp_clean_rings (struct cp_pr
- {
- 	unsigned i;
- 
--	memset(cp->rx_ring, 0, sizeof(struct cp_desc) * CP_RX_RING_SIZE);
--	memset(cp->tx_ring, 0, sizeof(struct cp_desc) * CP_TX_RING_SIZE);
--
- 	for (i = 0; i < CP_RX_RING_SIZE; i++) {
- 		if (cp->rx_skb[i].skb) {
- 			pci_unmap_single(cp->pdev, cp->rx_skb[i].mapping,
-@@ -1148,13 +1143,18 @@ static void cp_clean_rings (struct cp_pr
- 	for (i = 0; i < CP_TX_RING_SIZE; i++) {
- 		if (cp->tx_skb[i].skb) {
- 			struct sk_buff *skb = cp->tx_skb[i].skb;
-+
- 			pci_unmap_single(cp->pdev, cp->tx_skb[i].mapping,
--					 skb->len, PCI_DMA_TODEVICE);
--			dev_kfree_skb(skb);
-+				 	 cp->tx_skb[i].len, PCI_DMA_TODEVICE);
-+			if (le32_to_cpu(cp->tx_ring[i].opts1) & LastFrag)
-+				dev_kfree_skb(skb);
- 			cp->net_stats.tx_dropped++;
- 		}
- 	}
- 
-+	memset(cp->rx_ring, 0, sizeof(struct cp_desc) * CP_RX_RING_SIZE);
-+	memset(cp->tx_ring, 0, sizeof(struct cp_desc) * CP_TX_RING_SIZE);
-+
- 	memset(&cp->rx_skb, 0, sizeof(struct ring_info) * CP_RX_RING_SIZE);
- 	memset(&cp->tx_skb, 0, sizeof(struct ring_info) * CP_TX_RING_SIZE);
- }
+On a VFS level we could, these days, I think. But realize that bind mounts
+and the vfsmounts are pretty recent things.
 
-_
+We don't have any filesystems that support the notion, though, and we 
+don't have any interfaces for the filesystem to tell us about it right 
+now. The VFS layer could try to figure it out on its own from aliasing 
+information, so the latter may be a non-issue, but the former is why 
+nobody does it.
+
+And even if Linux _these days_ could handle hardlinked directories, the
+fact is that they would cause slightly more memory usage (due to the
+vfsmounts), and that nobody else can handle such filesystems - including
+older versions of Linux. So nobody would likely use the feature (not to
+mention that nobody is even really asking for it ;).
+
+And the lack of filesystem support is not theoretical. It's not easy to 
+just retrofit directory hardlinks on a UNIX filesystem. The ".." entry 
+actually exists on _disk_ on traditional unix filesystems, and with 
+hardlinks on directories, that's a real problem. A hardlinked directory 
+has multiple parents.
+
+Also, while the VFS layer no longer cares (to it, ".." is purely virtual,
+and it never uses it), the NFS export routines still do actually want to
+get the on-disk parent. A filesystem that can't do that may be unable to
+be exported with full semantics (ie you might get ESTALE errors after
+server reboots, although you'd have to ask somebody with more kNFSd
+knowledge than me on exactly why that is the case ;)
+
+			Linus

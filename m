@@ -1,94 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317194AbSFFVYk>; Thu, 6 Jun 2002 17:24:40 -0400
+	id <S317215AbSFFVgj>; Thu, 6 Jun 2002 17:36:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317195AbSFFVYj>; Thu, 6 Jun 2002 17:24:39 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:22962
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S317194AbSFFVYa>; Thu, 6 Jun 2002 17:24:30 -0400
-Date: Thu, 6 Jun 2002 14:24:18 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Remove numerous includes from <linux/mm.h>
-Message-ID: <20020606212418.GJ14252@opus.bloom.county>
-In-Reply-To: <Pine.LNX.4.33.0206021853030.1383-100000@penguin.transmeta.com>
+	id <S317216AbSFFVgi>; Thu, 6 Jun 2002 17:36:38 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:12552 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S317215AbSFFVgh>; Thu, 6 Jun 2002 17:36:37 -0400
+Date: Thu, 6 Jun 2002 23:36:29 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: If you want kbuild 2.5, tell Linus
+Message-ID: <20020606213628.GK17859@louise.pinerecords.com>
+In-Reply-To: <200206062101.QAA15457@tomcat.admin.navo.hpc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 2 days, 7:11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove 4 #includes from <linux/mm.h> and fix up implicit includes.
+> How about the following approach, which MAY not be practical:
 
-This remove linux/gfp.h, linux/string.h, linux/mmzone.h and
-linux/rbtree.h from <linux/mm.h> and fixes the callers which relied on
-<linux/mm.h> to provide <linux/gfp.h>
+Please note that there have already been innumerable proposals of
+how to merge kbuild 2.5, and all of them have been silently rejected.
 
-This relies on all of the previously sent patches to work.
+What I keep pondering over is, what is it that Linus finds troublesome
+about merging the whole of kbuild 2.5? More -- why has he decided to
+keep this to himself? Something tells me the answer to these questions
+might be the key to solving the whole kb25 merge problem.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Hmmmm, it's rather odd to have to write about someone in 3rd person
+when you know they'll read the text; They'll even give it a bit of
+thought and will likely have things to say. They won't let you know,
+though. You've noticed Linus was a he in the "if you want kbuild 2.5,
+tell Linus" mail, haven't you? If I was a psychologist, I might have
+something interesting to say based on that information. :)
 
-===== fs/isofs/namei.c 1.9 vs edited =====
---- 1.9/fs/isofs/namei.c	Thu May 23 06:18:50 2002
-+++ edited/fs/isofs/namei.c	Thu Jun  6 12:33:14 2002
-@@ -13,6 +13,7 @@
- #include <linux/stat.h>
- #include <linux/fcntl.h>
- #include <linux/mm.h>
-+#include <linux/gfp.h>
- #include <linux/errno.h>
- #include <linux/config.h>	/* Joliet? */
- #include <linux/smp_lock.h>
-===== include/asm-i386/pgalloc.h 1.16 vs edited =====
---- 1.16/include/asm-i386/pgalloc.h	Thu Jun  6 11:35:04 2002
-+++ edited/include/asm-i386/pgalloc.h	Thu Jun  6 12:15:09 2002
-@@ -6,6 +6,7 @@
- #include <asm/fixmap.h>
- #include <linux/threads.h>
- #include <linux/mm.h>		/* for struct page */
-+#include <linux/gfp.h>
- 
- #define pmd_populate_kernel(mm, pmd, pte) \
- 		set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)))
-===== include/linux/mm.h 1.55 vs edited =====
---- 1.55/include/linux/mm.h	Sat May 25 16:25:47 2002
-+++ edited/include/linux/mm.h	Thu Jun  6 12:15:09 2002
-@@ -7,12 +7,8 @@
- #ifdef __KERNEL__
- 
- #include <linux/config.h>
--#include <linux/gfp.h>
--#include <linux/string.h>
- #include <linux/list.h>
--#include <linux/mmzone.h>
- #include <linux/swap.h>
--#include <linux/rbtree.h>
- #include <linux/fs.h>
- 
- extern unsigned long max_mapnr;
-===== mm/bootmem.c 1.9 vs edited =====
---- 1.9/mm/bootmem.c	Mon Jun  3 08:24:55 2002
-+++ edited/mm/bootmem.c	Thu Jun  6 12:28:37 2002
-@@ -10,6 +10,7 @@
-  */
- 
- #include <linux/mm.h>
-+#include <linux/gfp.h>
- #include <linux/kernel_stat.h>
- #include <linux/swap.h>
- #include <linux/swapctl.h>
-===== mm/numa.c 1.5 vs edited =====
---- 1.5/mm/numa.c	Sat May 25 16:25:47 2002
-+++ edited/mm/numa.c	Thu Jun  6 12:28:35 2002
-@@ -4,6 +4,7 @@
- #include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/mm.h>
-+#include <linux/gfp.h>
- #include <linux/init.h>
- #include <linux/bootmem.h>
- #include <linux/mmzone.h>
+Oh well.
+
+And as for your idea, I'd say it really is impractical. kbuild 2.5
+can live in perfect peace with the old build system as it is.
+
+T.

@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVDFPvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbVDFPyC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbVDFPvX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 11:51:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVDFPvW
+	id S262233AbVDFPyC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 11:54:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVDFPyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 11:51:22 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:23471 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262236AbVDFPvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 11:51:12 -0400
-Message-ID: <42540560.2000205@grupopie.com>
-Date: Wed, 06 Apr 2005 16:50:56 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pekka Enberg <penberg@gmail.com>
-Cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Jesper Juhl <juhl-lkml@dif.dk>, Roland Dreier <roland@topspin.com>,
-       LKML <linux-kernel@vger.kernel.org>, penberg@cs.helsinki.fi
-Subject: Re: RFC: turn kmalloc+memset(,0,) into kcalloc
-References: <4252BC37.8030306@grupopie.com>	 <Pine.LNX.4.62.0504052052230.2444@dragon.hyggekrogen.localhost>	 <521x9pc9o6.fsf@topspin.com>	 <Pine.LNX.4.62.0504052148480.2444@dragon.hyggekrogen.localhost>	 <20050406112837.GC7031@wohnheim.fh-wedel.de>	 <4253D2CD.2040600@grupopie.com> <84144f02050406061077de4c2e@mail.gmail.com>
-In-Reply-To: <84144f02050406061077de4c2e@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Apr 2005 11:54:02 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:8359 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262233AbVDFPxu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 11:53:50 -0400
+Subject: [PATCH] fix minor "defaults" issue in mm/Kconfig
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-4qanU5sHLIAcw2duyqQJ"
+Date: Wed, 06 Apr 2005 08:53:43 -0700
+Message-Id: <1112802823.19430.155.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> Hi,
-> 
-> On Apr 6, 2005 3:15 PM, Paulo Marques <pmarques@grupopie.com> wrote:
-> 
->>However "calloc" is the standard C interface for doing this, so it makes
->>some sense to use it here as well... :(
-> 
-> 
-> I initally submitted kcalloc() with just one parameter but Arjan
-> wanted it to be similar to standard calloc() so we could check for
-> overflows. I don't see any reason not to introduce kzalloc() for the
-> common case you mentioned (as suggested by Denis).
 
-kzalloc it is, then.
+--=-4qanU5sHLIAcw2duyqQJ
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-By the way I did a quick measurement to see how much we could gain in 
-kernel size by doing this. This is with a 2.6.11-rc2, defconfig kernel:
+The following patch applies on top of 2.6.12-rc2-mm1.  It fixes a minor
+user interaction issue, and removes an early reference to SPARSEMEM.
 
-with kmalloc+memset:
-    vmlinuz: 5521614
-    bzImage: 2005274
+Without this patch. the "choice" menu would always default to FLATMEM,
+as it was listed first.  Move it to the end so that the other defaults
+have a chance first.
 
-with kzalloc:
-    vmlinuz: 5513422
-    bzImage: 2003927
+-- Dave
 
-So we gain 8kB on the uncompressed image and 1347 bytes on the 
-compressed one. This was just a dumb test and actual results might be 
-better due to smarter human cleanups.
+--=-4qanU5sHLIAcw2duyqQJ
+Content-Disposition: attachment; filename=A6.1-mm-Kconfig-defaults.patch
+Content-Type: text/x-patch; name=A6.1-mm-Kconfig-defaults.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
 
-Not a spectacular gain per se, but the increase in code readability is 
-still worth it, IMHO.
+The following patch applies on top of 2.6.12-rc2-mm1.  It fixes a
+minor user interaction issue, and an early reference to SPARSEMEM.
 
--- 
-Paulo Marques - www.grupopie.com
+This "choice" menu would always default to FLATMEM, as it was listed
+first.  Move it to the end so that the other defaults have a chance
+first.
 
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+
+---
+
+ memhotplug-dave/mm/Kconfig |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+diff -puN mm/Kconfig~A6.1-mm-Kconfig-defaults mm/Kconfig
+--- memhotplug/mm/Kconfig~A6.1-mm-Kconfig-defaults	2005-04-05 10:40:32.000000000 -0700
++++ memhotplug-dave/mm/Kconfig	2005-04-06 08:42:43.000000000 -0700
+@@ -1,8 +1,7 @@
+ choice
+ 	prompt "Memory model"
+-	default FLATMEM
+-	default SPARSEMEM if ARCH_SPARSEMEM_DEFAULT
+ 	default DISCONTIGMEM if ARCH_DISCONTIGMEM_DEFAULT
++	default FLATMEM
+ 
+ config FLATMEM
+ 	bool "Flat Memory"
+_
+
+--=-4qanU5sHLIAcw2duyqQJ--
+

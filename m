@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261399AbREQL1j>; Thu, 17 May 2001 07:27:39 -0400
+	id <S261397AbREQL0J>; Thu, 17 May 2001 07:26:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261401AbREQL13>; Thu, 17 May 2001 07:27:29 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:43735 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261400AbREQL1R>;
-	Thu, 17 May 2001 07:27:17 -0400
-Date: Thu, 17 May 2001 13:26:44 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105171126.NAA37619.aeb@vlet.cwi.nl>
-To: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Bug in unlink error return
+	id <S261398AbREQLZ7>; Thu, 17 May 2001 07:25:59 -0400
+Received: from fwso.framfab.dk ([195.219.76.189]:55248 "HELO fwso.framfab.dk")
+	by vger.kernel.org with SMTP id <S261397AbREQLZx>;
+	Thu, 17 May 2001 07:25:53 -0400
+Message-ID: <3B03B5C7.5040107@fugmann.dhs.org>
+Date: Thu, 17 May 2001 13:28:07 +0200
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+Organization: Framfab
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; rv:0.9) Gecko/20010505
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andreas Dilger <adilger@turbolinux.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Exporting symbols from a module.
+In-Reply-To: <200105152245.f4FMjnwN021983@webber.adilger.int>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Someone complained a moment ago about the error return in unlink.
-And indeed, it used to be correct but since 2.1.132 we return a
-buggy (or at least non-POSIX) error for unlink(directory).
+Hi Andreas.
 
-Just changed the man page to say
+I now see what you mean, and I will give it a try.
 
-unlink(2)
-...
-       EPERM  The system does not allow unlinking of directories,
-              or unlinking  of  directories  requires  privileges
-              that  the  current  process doesn't have.  (This is
-              the POSIX prescribed error return.)
+But actually I'm not compiling it under the linux kernel tree, and  I 
+really would like a way to export symbols, while compiling outside the 
+kernel tree. How would I accomplish that?
 
-       EISDIR pathname refers to a directory.  (This is the  non-
-              POSIX value returned by Linux since 2.1.132.)
-...
-
-Probably this should be fixed again, both in 2.2 and 2.4.
-2.0 is still correct (I checked only ext2).
-
-Andries
+Regards
+Anders Fugmann
 
 
-[The EISDIR is correct for rename(), and the cleanup that
-made a nice uniform may_delete() in namei.c introduced this bug.
-The very simple but slightly ugly fix is to write (in vfs_unlink)
-	error = may_delete(dir, dentry, 0);
-	if (error == -EISDIR)
-		error = -EPERM;
-]
+Andreas Dilger wrote:
+
+> Anders Fugmann writes:
+> 
+>>I'm not sure where to put this in my Makefile.
+>>(tried, but it did not help)
+>>Could you please send an example.
+>>
+> 
+> See fs/Makefile or fs/msdos/Makefile for examples.  I assume you are
+> building your module under the kernel tree?
+> 
+> Cheers, Andreas
+> 
+
+
+

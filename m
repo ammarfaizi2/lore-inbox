@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269777AbRHaXsQ>; Fri, 31 Aug 2001 19:48:16 -0400
+	id <S269804AbRHaX60>; Fri, 31 Aug 2001 19:58:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269786AbRHaXsH>; Fri, 31 Aug 2001 19:48:07 -0400
-Received: from mercury.mv.net ([199.125.85.40]:45582 "EHLO mercury.mv.net")
-	by vger.kernel.org with ESMTP id <S269777AbRHaXr7>;
-	Fri, 31 Aug 2001 19:47:59 -0400
-Message-ID: <006501c13277$2e3c8620$0201a8c0@home>
-From: "jeff millar" <jeff@wa1hco.mv.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: "Carlos E Gorges" <carlos@techlinux.com.br>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <01083019402502.01265@skydive.techlinux> <20010830161809.A19258@kroah.com> <002801c13270$86592680$0201a8c0@home> <20010831162303.A23689@kroah.com>
-Subject: Re: [ANNOUNCE] Hardware detection tool 0.2
-Date: Fri, 31 Aug 2001 19:46:38 -0400
+	id <S269829AbRHaX6Q>; Fri, 31 Aug 2001 19:58:16 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47118 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269804AbRHaX6G>; Fri, 31 Aug 2001 19:58:06 -0400
+Subject: Re: SMP, APIC and networking issues...
+To: javadesigner@yahoo.com (java programmer)
+Date: Sat, 1 Sep 2001 00:38:57 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010831231156.90554.qmail@web14206.mail.yahoo.com> from "java programmer" at Aug 31, 2001 04:11:56 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-Id: <E15cxsH-0004F6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What bus and slot number does the driver use to register itself before the
-plugging the card?
+> The supposed trick is to boot with a  "noapic" 
+> option, since this is believed to be a APIC issue, 
+> not a driver issue (as mentioned, this problem 
+> has been seen for both 3com and intel cards).
+> 
+> Is "noapic" still the recommended approach for SMP
+> kernels or is it advisable to use 2.4.9 to solve 
+> this specific issue ?
 
------ Original Message -----
-From: "Greg KH" <greg@kroah.com>
-To: "jeff millar" <jeff@wa1hco.mv.com>
-Cc: "Carlos E Gorges" <carlos@techlinux.com.br>;
-<linux-kernel@vger.kernel.org>
-Sent: Friday, August 31, 2001 7:23 PM
-Subject: Re: [ANNOUNCE] Hardware detection tool 0.2
+If you are still seeing the problem then yes try noapic, but also let
+me know if its happening with current kernels. The apic has multiple effects
+and not all of them are necessarily hardware issues at all
 
-
-> On Fri, Aug 31, 2001 at 06:58:59PM -0400, jeff millar wrote:
-> >
-> > One reason: Not all hardware has the signals needed to detect when a
-card
-> > gets plugged or unplugged.  Consider legacy cPCI systems.  The don't
-have
-> > the Hot Swap extensions or backplane hot swap control.  The only way to
-find
-> > the cards is to periodically scan the bus for new cards, cards that
-> > disappeared, or requests for Hot Swap.
->
-> But the driver for those devices have a struct pci_driver object that
-> they use to register themselves with the PCI subsystem, right?  The
-> MODULE_DEVICE_TABLE uses the id_table structure in the struct pci_driver
-> object.  That's all, it isn't necessarily a hotplug specific thing.
->
-> And having that MODULE_DEVICE_TABLE for those drivers will allow the
-> kernel to load those modules when the bus is scanned for new cards, like
-> on boot :)
->
-> thanks,
->
-> greg k-h
->
-
+The big one is that interrupts can get delayed and become much more 
+asynchronous which can obviously have impacts on driver races

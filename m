@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279981AbRKDP2a>; Sun, 4 Nov 2001 10:28:30 -0500
+	id <S280000AbRKDPdw>; Sun, 4 Nov 2001 10:33:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280001AbRKDP2U>; Sun, 4 Nov 2001 10:28:20 -0500
-Received: from cogito.cam.org ([198.168.100.2]:15891 "EHLO cogito.cam.org")
-	by vger.kernel.org with ESMTP id <S279981AbRKDP2O>;
-	Sun, 4 Nov 2001 10:28:14 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH] vm_swap_full
-Date: Sun, 4 Nov 2001 10:23:41 -0500
-X-Mailer: KMail [version 1.3.2]
+	id <S280001AbRKDPdm>; Sun, 4 Nov 2001 10:33:42 -0500
+Received: from otter.mbay.net ([206.40.79.2]:27916 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S280000AbRKDPdb>;
+	Sun, 4 Nov 2001 10:33:31 -0500
+Date: Sun, 4 Nov 2001 07:32:31 -0800 (PST)
+From: John Alvord <jalvo@mbay.net>
+To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Thomas Lussnig <tlussnig@bewegungsmelder.de>,
+        linux-kernel@vger.kernel.org,
+        khttpd mailing list <khttpd-users@zgp.org>,
+        Tux mailing list <tux-list@redhat.com>
+Subject: Re: [khttpd-users] khttpd vs tux
+In-Reply-To: <20011104010703.H23391@arthur.ubicom.tudelft.nl>
+Message-ID: <Pine.LNX.4.20.0111040729140.23357-100000@otter.mbay.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011104152341.A4C289E898@oscar.casa.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 4 Nov 2001, Erik Mouw wrote:
 
-I my opinion, basing the vm_swap_full test on the size of swap is bogus.
-If you have a 512M box with 128M of swap its a good idea to always release
-aggressively.  If the same box has 2G of swap (has /tmp on tmpfs maybe), it
-does not make sense to start the agressive release at 1G.  I suggest the 
-following makes more sense.
+> On Sat, Nov 03, 2001 at 08:18:19PM +0100, Roy Sigurd Karlsbakk wrote:
+> > > Each GigE card will need its own 66MHz PCI bus. Each PCI bridge will need
+> > > to be coming off a memory bus that can sustain all of these and the CPU
+> > > at once.
+> > >
+> > > At that point it really doesnt look much like a PC.
+> > 
+> > How much raw speed do you think I can manage to get out of a really cool
+> > n-way server from Compaq? I beleive we'll go for a Compaq server, as
+> > that's what's been decided some time ago.
+> 
+> Not that much. Alan's point is that you're pushing the limit of the
+> memory bandwidth, not the number of CPUs. This is the single reason
+> that high traffic websites either use some serious non-PC hardware (IBM
+> Z-series, for example) or a large number of PCs in parallel to share
+> the load.
+> 
+> > I read something by Linus about linux scalability, and I beleive he said
+> > that 'linux [2.4] scales good up to 4 cpus, but not that good futher on
+> > [to 8?]'. Can anyone fill in the holes here?
+> 
+> The number of CPUs really doesn't matter in this case. With several
+> GigE cards memory bandwidth and latency is your main problem.
 
---- linux/include/linux/swap.h.orig     Sun Nov  4 09:30:14 2001
-+++ linux/include/linux/swap.h  Sun Nov  4 09:32:46 2001
-@@ -80,8 +80,8 @@
+Interesting parallel...
 
- extern int nr_swap_pages;
+In the last few years there have been multiple cases where people reported
+benchmarks where a dual processir gave less thruput then a single
+processor. In most cases, the single processor benchmark had saturated the
+memory bandwidth and a second processor didn't make much difference.
 
--/* Swap 50% full? Release swapcache more aggressively.. */
--#define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
-+/* Free swap less than inactive pages? Release swapcache more aggressively.. */
-+#define vm_swap_full() (nr_swap_pages < nr_inactive_pages)
+This was on "cheap" multi-processors.
 
- extern unsigned int nr_free_pages(void);
- extern unsigned int nr_free_buffer_pages(void);
+john alvord
 
-This starts aggressive swaping when the ammount of space left in swap is
-less than the size of the inactive pages.
-
-Comments?
-Ed Tomlinson

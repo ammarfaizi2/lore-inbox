@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbVCANtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVCANuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261905AbVCANtY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 08:49:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbVCANtY
+	id S261902AbVCANuq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 08:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbVCANuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 08:49:24 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:52383 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261905AbVCANtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 08:49:22 -0500
-Date: Mon, 21 Feb 2005 00:14:20 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: WareKala <warekala@lag.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sysfs, PCI-devices and power management
-Message-ID: <20050220231420.GA1444@openzaurus.ucw.cz>
-References: <1108819774.11821.12.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108819774.11821.12.camel@localhost>
-User-Agent: Mutt/1.3.27i
+	Tue, 1 Mar 2005 08:50:46 -0500
+Received: from mail.mplayerhq.hu ([192.190.173.45]:50329 "EHLO
+	mail.mplayerhq.hu") by vger.kernel.org with ESMTP id S261902AbVCANu0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 08:50:26 -0500
+Date: Tue, 1 Mar 2005 14:50:18 +0100 (CET)
+From: Szabolcs Berecz <szabi@mplayerhq.hu>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ide_init_disk
+Message-ID: <Pine.LNX.4.58.0503011443330.26569@mail.mplayerhq.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DCC-sgs-Metrics: mail 1199; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+My /dev/hdb showed up as /dev/hdq
 
-> I don't know if this is the "right place(TM)" to ask about this, and if
-> it isn't, I apologize. But the fact is that I haven't found any help
-> from anywhere else and I can't learn enough without asking. So, the
-> situation is like this: I am using a laptop and want to minimize the
-> power consumption by shutting down unneeded components. Under windozer a
-> program called Battery Doubler does the same by for example shutting
-> down not-needed PCI devices. I too, tried to shut down certain devices
-> by doing "echo 3 > /sys/devices/pci*/*0a*/power/state", but that didn't
-> work. state was still a zero. So, I then 
-This is called runtime power managment; it still needs to be implemented.
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+The bug was introduced with bk-ide-dev.patch
+
+Bye,
+Szabi
+
+--- linux-2.6.11-rc4-mm1/drivers/ide/ide-probe.c.orig	2005-02-24 20:04:03.000000000 +0100
++++ linux-2.6.11-rc4-mm1/drivers/ide/ide-probe.c	2005-02-27 23:52:54.000000000 +0100
+@@ -1269,7 +1269,7 @@
+ void ide_init_disk(struct gendisk *disk, ide_drive_t *drive)
+ {
+ 	ide_hwif_t *hwif = drive->hwif;
+-	unsigned int unit = drive->select.all & (1 << 4);
++	unsigned int unit = drive->select.b.unit;
+
+ 	disk->major = hwif->major;
+ 	disk->first_minor = unit << PARTN_BITS;
 

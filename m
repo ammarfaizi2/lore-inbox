@@ -1,48 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267852AbRIFWHV>; Thu, 6 Sep 2001 18:07:21 -0400
+	id <S268702AbRIFWaB>; Thu, 6 Sep 2001 18:30:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268691AbRIFWHK>; Thu, 6 Sep 2001 18:07:10 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:38350 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S267852AbRIFWHB>;
-	Thu, 6 Sep 2001 18:07:01 -0400
-Date: Thu, 6 Sep 2001 23:52:22 +0200
-To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] Wrong signal in SIGBUS's siginfo.
-Message-ID: <20010906235222.A3329@pelks01.extern.uni-tuebingen.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linus Torvalds <torvalds@transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.1.12i
-From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
+	id <S268813AbRIFW3v>; Thu, 6 Sep 2001 18:29:51 -0400
+Received: from kuroneko.thok.org ([4.36.43.85]:58240 "EHLO kuroneko")
+	by vger.kernel.org with ESMTP id <S268702AbRIFW3l>;
+	Thu, 6 Sep 2001 18:29:41 -0400
+From: "Mark W. Eichin" <eichin@thok.org>
+To: linux-kernel@vger.kernel.org
+Subject: CONFIG_BLK_DEV_SL82C105 should not be PPC/ARM specific
+Message-Id: <20010906223001.A63F613DC7@kuroneko>
+Date: Thu,  6 Sep 2001 18:30:01 -0400 (EDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moi!
+[1.] One line summary of the problem:    
+CONFIG_BLK_DEV_SL82C105 should not be PPC/ARM specific
 
-The page fault handler for i386 contains a typo that will cause
-SIGBUS errors to disguise as SIGSEGVs in their siginfo structs.
-Here's a trivial fix to sort out the who is who. Patch applies
-at least to 2.4.9 and (with a little fuzz) 2.4.9-ac2.
+[2.] Full description of the problem/report:
 
-Regards,
+kernel-source-2.4.9/drivers/ide/Config.in:
+	 if [ "$CONFIG_PPC" = "y" -o "$CONFIG_ARM" = "y" ]; then
+	    bool '    Winbond SL82c105 support' CONFIG_BLK_DEV_SL82C105
+	 fi
+The ALR Revolution 2XL dual-x86 (well, celeron) motherboard does, in
+fact, use this controller:
 
-Daniel.
+00:02.0 IDE interface: Symphony Labs SL82c105 (rev 06) (prog-if 8a [Master SecP PriP])
+        Flags: bus master, medium devsel, latency 64
+        I/O ports at fcd0
 
----[snip]---
+and if I bludgeon the config so that it actually builds, it does work
+(under 2.2, regrettably in pio-only mode, but I'll try 2.4.9 shortly)
 
---- arch/i386/mm/fault.c.vanilla	Thu Jul 12 11:52:05 2001
-+++ arch/i386/mm/fault.c	Thu Sep  6 23:38:45 2001
-@@ -313,7 +313,7 @@
- 	tsk->thread.cr2 = address;
- 	tsk->thread.error_code = error_code;
- 	tsk->thread.trap_no = 14;
--	info.si_code = SIGBUS;
-+	info.si_signo = SIGBUS;
- 	info.si_errno = 0;
- 	info.si_code = BUS_ADRERR;
- 	info.si_addr = (void *)address;
+W82C105: IDE controller on PCI bus 00 dev 10
+W82C105: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xfcd0-0xfcd7, BIOS settings: hda:pio, hdb:pio
+SL82C105 command word: 5
+IDE timing: 00001313, resetting to PIO0 timing
+IDE control/status register: 08ff0801
+
+
+[3.] Keywords (i.e., modules, networking, kernel):
+kernel Config IDE block architecture x86
+
+[4.] Kernel version (from /proc/version):
+2.2.19, 2.4.9 (from inspection of source)
+
+[5.] Output of Oops.. message (if applicable) with symbolic information 
+     resolved (see Documentation/oops-tracing.txt)
+n/a
+[6.] A small shell script or example program which triggers the
+     problem (if possible)
+n/a
+[7.] Environment
+[7.1.] Software (add the output of the ver_linux script here)
+[7.2.] Processor information (from /proc/cpuinfo):
+[7.3.] Module information (from /proc/modules):
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+[7.5.] PCI information ('lspci -vvv' as root)
+
+00:02.0 IDE interface: Symphony Labs SL82c105 (rev 06) (prog-if 8a [Master SecP PriP])
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 2 min, 40 max, 64 set, cache line size 08
+        Interrupt: pin A routed to IRQ 0
+        Region 4: I/O ports at fcd0
+
+[7.6.] SCSI information (from /proc/scsi/scsi)
+[7.7.] Other information that might be relevant to the problem
+       (please look in /proc and include all information that you
+       think to be relevant):
+[X.] Other notes, patches, fixes, workarounds:
+
+The hedrick IDE backport doesn't change this either.
+
+			_Mark_ <eichin@thok.org>
+			The Herd Of Kittens

@@ -1,76 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290987AbSBLMXy>; Tue, 12 Feb 2002 07:23:54 -0500
+	id <S290993AbSBLM2e>; Tue, 12 Feb 2002 07:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291000AbSBLMXp>; Tue, 12 Feb 2002 07:23:45 -0500
-Received: from unicef.org.yu ([194.247.200.148]:36621 "EHLO unicef.org.yu")
-	by vger.kernel.org with ESMTP id <S290987AbSBLMX3>;
-	Tue, 12 Feb 2002 07:23:29 -0500
-Date: Tue, 12 Feb 2002 13:23:20 +0100 (CET)
-From: Davidovac Zoran <zdavid@unicef.org.yu>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Question about i820 chipset.
-In-Reply-To: <Pine.LNX.4.21.0202121242350.19967-100000@tux.rsn.bth.se>
-Message-ID: <Pine.LNX.4.33.0202121321400.7616-100000@unicef.org.yu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291000AbSBLM2Y>; Tue, 12 Feb 2002 07:28:24 -0500
+Received: from mbr.sphere.ne.jp ([203.138.71.91]:54466 "EHLO mbr.sphere.ne.jp")
+	by vger.kernel.org with ESMTP id <S290993AbSBLM2S>;
+	Tue, 12 Feb 2002 07:28:18 -0500
+Date: Tue, 12 Feb 2002 21:27:48 +0900
+From: Bruce Harada <harada@mbr.sphere.ne.jp>
+To: whitney@math.berkeley.edu
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: A7M266-D works?
+Message-Id: <20020212212748.505f658d.harada@mbr.sphere.ne.jp>
+In-Reply-To: <200202112304.g1BN4vh01697@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+In-Reply-To: <5.1.0.14.2.20020211121409.08b9c5f0@mail1.qualcomm.com>
+	<E16aOIs-00081T-00@the-village.bc.nu>
+	<200202112304.g1BN4vh01697@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-try to change slot
-perhaps one of your nic is sharing irq with mouse usb ide
-etc so change slot
-check with more /proc/interrupts
+On Mon, 11 Feb 2002 15:04:57 -0800
+Wayne Whitney <whitney@math.berkeley.edu> wrote:
 
-On Tue, 12 Feb 2002, Martin Josefsson wrote:
+> Lastly, do you know whether the reason that the A7M266-D comes with a
+> PCI USB2 card is that the USB support of the AMD768 southbridge is
+> borked?  Both the Tyan S2466 and the MSI K7D Master come with PCI USB
+> cards.
 
-> Hi Alan,
->
-> I have some small questions...
->
-> Have you ever tried a motherboard with i820 chipset and two NIC's?
-> I have a Asus P3C-D here (dual pIII 800 with 256MB rimm) and a D-Link
-> DFE570-TX NIC (quad DECchip 21143 behind a DECchip 21152 pci bridge).
->
-> The problem I'm seeing is extremely crappy pci performance.
-> With one of the NIC's active I see no real problems but when two NIC's are
-> active at the same time all hell breaks loose :(
->
-> if I generate traffic out via 2 NIC's at the same time I'd expect to get
-> about 2 x 100Mbit/s but in reality I get 2 x 25Mbit/s with this
-> motherboard. and with 3 NIC's active I get about 3 x 15-20Mbit/s.
->
-> I tried replacing the motherboard with an old SMP board based on the 440bx
-> chipset (cpus underclocked to 600MHz) and then I can easily get 3 x
-> 100Mbit/s with 25-30% cpu used in the machine.
->
-> So my question is, have you ever seen such pci issues? I've tried all
-> BIOS settings I could find and a lot of diffrent kernels. I've also tried
-> the vanilla tulip-driver and the NAPI'fied one (which I have been helping
-> to test) and both show the exact same performanceproblems.
->
-> I tried routing a lot of packets and it started dropping a lot of packets
-> when the cpu was only 75% used according to both vmstat and cyclesoak
-> (with an UP kernel). A profile shows that default_idle gets about 25% of
-> the time. I assume the kernel is waiting for the pci bus.
->
-> And the last question, if you have the hardware, would you mind testing
-> something similar on the Asus A7M266-D? We've been thinking of getting a
-> few of these boards to replace the crappy i820 ones.
->
-> I saw that you included a patch for MPS 1.4 in -pre9-ac1, was this the
-> same patch you were talking about earlier and does it work?
->
-> /Martin
->
-> Never argue with an idiot. They drag you down to their level, then beat you with experience.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+ASUS and Tyan both delayed shipping their respective boards at the same time
+so yes, it seems that way. According to a Japanese site, ASUS told its agents
+that "a bug in the AMD768 Southbridge makes on-board USB unusable, and USB2.0
+cards will be bundled with all such boards for the foreseeable future". 

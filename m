@@ -1,39 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270066AbTGPCPY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 22:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270067AbTGPCPY
+	id S270067AbTGPCSS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 22:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270070AbTGPCSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 22:15:24 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:27882 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S270066AbTGPCPW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 22:15:22 -0400
-Message-ID: <A5974D8E5F98D511BB910002A50A66470B981254@hdsmsx103.hd.intel.com>
-From: "Brown, Len" <len.brown@intel.com>
-To: "'Hugh Dickins'" <hugh@veritas.com>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       ACPI-Devel mailing list <acpi-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: RE: ACPI patches updated (20030714)
-Date: Tue, 15 Jul 2003 19:35:44 -0700
+	Tue, 15 Jul 2003 22:18:18 -0400
+Received: from remt28.cluster1.charter.net ([209.225.8.38]:5290 "EHLO
+	remt28.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S270067AbTGPCSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 22:18:09 -0400
+From: Chris Morgan <cmorgan@alum.wpi.edu>
+To: Doug McNaught <doug@mcnaught.org>
+Subject: Re: 2.5.XX very sluggish
+Date: Tue, 15 Jul 2003 22:32:59 -0400
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <200307131228.00155.cmorgan@alum.wpi.edu> <m38yr2e5pv.fsf@varsoon.wireboard.com> <200307132321.26835.cmorgan@alum.wpi.edu>
+In-Reply-To: <200307132321.26835.cmorgan@alum.wpi.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307152232.59606.cmorgan@alum.wpi.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Hugh Dickins [mailto:hugh@veritas.com] 
+I see the same behavior with 2.6.0 test1.  I can't imagine I'm the only person 
+seeing this issue, anything else I can do to help with debugging?
 
-> > 		ACPI && !ACPI_HT_ONLY
-> > 			Full ACPI w/o the acpi=cpu option
-> 
-> Shouldn't this combination also support "noht", or is that 
-> too much to ask?
+Chris
 
-Can do.  It will be called CONFIG_ACPI_HT, and will be required for ACPI to
-enable HT -- with or without the full CONFIG_ACPI.
 
-Cheers,
--Len
+On Sunday 13 July 2003 11:21 pm, Chris Morgan wrote:
+> Under 2.4.21:
+>
+> For my boot drive, ide:
+>
+> /dev/hdc2:
+>  multcount    = 16 (on)
+>  IO_support   =  1 (32-bit)
+>  unmaskirq    =  1 (on)
+>  using_dma    =  1 (on)
+>  keepsettings =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    =  8 (on)
+>  geometry     = 2100/255/63, sectors = 32740470, start = 996030
+>
+> For the scsi drives(2 drives in a raid 1 setup):
+> /dev/sda:
+>  readonly     =  0 (off)
+>  geometry     = 17885/255/63, sectors = 287332384, start = 0
+>
+> And some performance numbers, maybe these are helpful:
+>
+> /dev/md1:
+>  Timing buffer-cache reads:   128 MB in  0.60 seconds =213.33 MB/sec
+>  Timing buffered disk reads:  64 MB in  2.22 seconds = 28.83 MB/sec
+>
+> /dev/hdc:
+>  Timing buffer-cache reads:   128 MB in  0.56 seconds =228.57 MB/sec
+>  Timing buffered disk reads:  64 MB in  4.33 seconds = 14.78 MB/sec
+>
+>
+>
+> Under 2.5.75:
+>
+> /dev/hdc:
+>  multcount    = 16 (on)
+>  IO_support   =  1 (32-bit)
+>  unmaskirq    =  1 (on)
+>  using_dma    =  1 (on)
+>  keepsettings =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    = 256 (on)
+>  geometry     = 33483/16/63, sectors = 33750864, start = 0
+>
+> These are with X running:
+>
+> /dev/hdc:
+>  Timing buffer-cache reads:   128 MB in 30.58 seconds =  4.19 MB/sec
+>  Timing buffered disk reads:  64 MB in 20.98 seconds =  3.05 MB/sec
+> Hmm.. suspicious results: probably not enough free memory for a proper
+> test.
+>
+> /dev/md1:
+>  Timing buffer-cache reads:   128 MB in 108.76 seconds =  1.18 MB/sec
+>  Timing buffered disk reads:  64 MB in 44.86 seconds =  1.43 MB/sec
+> Hmm.. suspicious results: probably not enough free memory for a proper
+> test.
+>
+> With X shutdown:
+> /dev/hdc:
+>  Timing buffer-cache reads:   128 MB in 11.26 seconds = 11.36 MB/sec
+>  Timing buffered disk reads:  64 MB in  6.88 seconds =  9.30 MB/sec
+> Hmm.. suspicious results: probably not enough free memory for a proper
+> test.
+>
+> /dev/md1:
+>  Timing buffer-cache reads:   128 MB in 11.88 seconds = 10.77 MB/sec
+>  Timing buffered disk reads:  64 MB in  7.74 seconds =  8.27 MB/sec
+> Hmm.. suspicious results: probably not enough free memory for a proper
+> test.
+>
+> I'm running xf4.2.1 and the 'nv' driver.
+>
+> Any ideas as to what else I can look at?
+>
+> Thanks,
+> Chris
+>
+> On Sunday 13 July 2003 12:45 pm, Doug McNaught wrote:
+> > Chris Morgan <cmorgan@alum.wpi.edu> writes:
+> > > 1.4Ghz Athlon via 82cxx chipset, software raid 1 scsi drives, currently
+> > > running 2.4.21
+> > >
+> > > With 2.5.73/74/75(the only ones I've tried thus far) the kernel boots
+> > > fine until it tries to mount the reiserfs partition on the raid1 set.
+> > > Replaying the journal takes many times longer than with 2.4.  Once it
+> > > gets past that point the whole machine appears to be quite sluggish. 
+> > > Is this a known issue with reiserfs + software raid 1?  What
+> > > information would be useful to aid in debugging?
+> >
+> > What does 'hdparm' say about DMA settings on your drive under 2.5?
+> >
+> > -Doug
+

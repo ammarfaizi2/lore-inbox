@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276956AbRKFFXu>; Tue, 6 Nov 2001 00:23:50 -0500
+	id <S277143AbRKFFZt>; Tue, 6 Nov 2001 00:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276591AbRKFFXW>; Tue, 6 Nov 2001 00:23:22 -0500
-Received: from zero.tech9.net ([209.61.188.187]:28687 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S275012AbRKFFWf>;
-	Tue, 6 Nov 2001 00:22:35 -0500
-Subject: Re: 2.4.14 errors on full build - Y
+	id <S275265AbRKFFZm>; Tue, 6 Nov 2001 00:25:42 -0500
+Received: from zero.tech9.net ([209.61.188.187]:29455 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S276591AbRKFFYN>;
+	Tue, 6 Nov 2001 00:24:13 -0500
+Subject: Re: 3.0.2 breaks linux-2.4.13-ac8 in tcp.c
 From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <17526.1005022179@ocs3.intra.ocs.com.au>
-In-Reply-To: <17526.1005022179@ocs3.intra.ocs.com.au>
+To: Samium Gromoff <_deepfire@mail.ru>
+Cc: gcc-bugs@gcc.gnu.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200111060513.fA65DqZ26051@vegae.deep.net>
+In-Reply-To: <200111060513.fA65DqZ26051@vegae.deep.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/0.16.100+cvs.2001.11.05.15.31 (Preview Release)
-Date: 06 Nov 2001 00:22:37 -0500
-Message-Id: <1005024157.1506.2.camel@phantasy>
+Date: 06 Nov 2001 00:24:18 -0500
+Message-Id: <1005024259.1376.4.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-11-05 at 23:49, Keith Owens wrote:
-> Doing a full build of 2.4.14 (everything set to Y where possible), got
-> the usual collection of errors.  Some of these errors have been around
-> for weeks, any chance of them getting fixed?
+On Tue, 2001-11-06 at 00:13, Samium Gromoff wrote:
+>      well, not too much to add, maybe except that the RAM is ok and CPU is not
+>    OC`ed...
 > [...]
->   drivers/mtd/chips/jedec_probe.o: In function `jedec_probe_init':
->   drivers/mtd/chips/jedec_probe.o(.text.init+0x0): multiple definition of `jedec_probe_init'
->   drivers/mtd/chips/jedec.o(.text.init+0x0): first defined here
+> tcp.c: In function `tcp_close':
+> tcp.c:1978: Internal compiler error in rtx_equal_for_memref_p, at alias.c:1121
+> Please submit a full bug report,
+> with preprocessed source if appropriate.
+> See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
 
-Another simple fix...the multiple function declarations should be
-static.  Even better, a lot of the duplication between the driver should
-be shared but that I shall leave as an exercises for the maintainer. 
-Until then, Linus, please apply.
+This is the GCC team's worry -- it is an internal GCC bug.  Send them
+the compile log and the source file in question.
 
-diff -urN linux-2.4.14/drivers/mtd/chips/jedec.c linux/drivers/mtd/chips/jedec.c
---- linux-2.4.14/drivers/mtd/chips/jedec.c	Mon Nov  5 20:11:15 2001
-+++ linux/drivers/mtd/chips/jedec.c	Tue Nov  6 00:19:15 2001
-@@ -873,7 +873,7 @@
-    }
- }
- 
--int __init jedec_probe_init(void)
-+static int __init jedec_probe_init(void)
- {
- 	register_mtd_chip_driver(&jedec_chipdrv);
- 	return 0;
-diff -urN linux-2.4.14/drivers/mtd/chips/jedec_probe.c linux/drivers/mtd/chips/jedec_probe.c
---- linux-2.4.14/drivers/mtd/chips/jedec_probe.c	Mon Nov  5 20:11:15 2001
-+++ linux/drivers/mtd/chips/jedec_probe.c	Tue Nov  6 00:19:16 2001
-@@ -422,7 +422,7 @@
- 	module: THIS_MODULE
- };
- 
--int __init jedec_probe_init(void)
-+static int __init jedec_probe_init(void)
- {
- 	register_mtd_chip_driver(&jedec_chipdrv);
- 	return 0;
-
+See http://www.gnu.org/software/gcc/bugs.html
 
 	Robert Love
 

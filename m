@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269372AbRHaUvy>; Fri, 31 Aug 2001 16:51:54 -0400
+	id <S269257AbRHaUue>; Fri, 31 Aug 2001 16:50:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269356AbRHaUvo>; Fri, 31 Aug 2001 16:51:44 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22285 "EHLO
+	id <S269354AbRHaUuY>; Fri, 31 Aug 2001 16:50:24 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20237 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269354AbRHaUve>; Fri, 31 Aug 2001 16:51:34 -0400
-Subject: Re: kernel hangs in 118th call to vmalloc
-To: ttabi@interactivesi.com (Timur Tabi)
-Date: Fri, 31 Aug 2001 21:54:58 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B8FF671.1050804@interactivesi.com> from "Timur Tabi" at Aug 31, 2001 03:41:21 PM
+	id <S269257AbRHaUuQ>; Fri, 31 Aug 2001 16:50:16 -0400
+Subject: Re: Athlon doesn't like Athlon optimisation?
+To: goemon@anime.net (Dan Hollis)
+Date: Fri, 31 Aug 2001 21:53:03 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        acahalan@cs.uml.edu (Albert D. Cahalan),
+        david@digitalaudioresources.org (David Hollister),
+        jan@gondor.com (Jan Niehusmann), linux-kernel@vger.kernel.org,
+        rgooch@atnf.csiro.au
+In-Reply-To: <Pine.LNX.4.30.0108311335150.9298-100000@anime.net> from "Dan Hollis" at Aug 31, 2001 01:37:16 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15cvJa-0003xz-00@the-village.bc.nu>
+Message-Id: <E15cvHj-0003xk-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > is able to get itself to the point it killed off all user space.
-> 
-> So you're saying it's a bug that I can't work around?
+> optimizations, you would consider a falsification of the "marginal
+> hardware" theory?
 
-Its a design property vmalloc never had. It isnt meant to be abused that
-way
+Not trivially. 
 
-> I heard that 2.4.9 doesn't even run "thrash".  Is this true?  If so, why 
-> are these buggy VM's being released in the first place?
+The current theory is
+	VIA chipset + Athlon + [unknown factors]
 
-Lack of crystal balls.
-
-The VM seemed ok until after 2.4.0 at which point it became clear it had
-some rather large corner cases where it was not. Fixing them is an
-iterative process and getting all cases right is hard. I'm very happy with
-the 2.4.9-ac tree VM. It needs the inode cache handling resolved better
-but it works
+So seeing it on SiS, AMD or Ali chipsets would be significant

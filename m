@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267269AbUBSOK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 09:10:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267264AbUBSOK0
+	id S267276AbUBSOMF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 09:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267281AbUBSOMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 09:10:26 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:26753 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267267AbUBSOKQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 09:10:16 -0500
-Date: Thu, 19 Feb 2004 09:12:02 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Joilnen Leite <pidhash@yahoo.com>
-cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: your mail
-In-Reply-To: <20040219135212.34779.qmail@web12607.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.53.0402190907470.30108@chaos>
-References: <20040219135212.34779.qmail@web12607.mail.yahoo.com>
+	Thu, 19 Feb 2004 09:12:05 -0500
+Received: from ns0.eris.qinetiq.com ([128.98.1.1]:10024 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S267276AbUBSOLs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 09:11:48 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: j.combes.ml@free.fr, linux-kernel@vger.kernel.org
+Subject: Re: Strange problem with alsa, emu10k1 and ut2003 on 2.6.3
+Date: Thu, 19 Feb 2004 14:04:14 +0000
+User-Agent: KMail/1.5.3
+References: <1077197950.4034bc7ec9730@imp1-q.free.fr>
+In-Reply-To: <1077197950.4034bc7ec9730@imp1-q.free.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200402191404.14212.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Feb 2004, Joilnen Leite wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> excuse me friends shcedule_timeout(1) is not a problem
-> for spin_lock_irqsave ?
+
+> Hello,
 >
-> drivers/scsi/ide-scsi.c:897
+> I have a strange problem with the sound on my PC [1] with the kernel
+> 2.6.3 when I play to unreal tournement 2003. I use the same configuration
+> as the 2.6.1 which work quite well on my computer.
 >
-> spin_lock_irqsave(&ide_lock, flags);
-> while (HWGROUP(drive)->handler) {
->        HWGROUP(drive)->handler = NULL;
->        schedule_timeout(1);
-> }
+> When I play to UT2003, sounds are not clean : there is some crackling.
+> Moreover, the music is played two or three time faster than normally. As
+> I haven't got this problem with 2.6.1, I imagine that it can be a problem
+> with the new alsa version.
 >
-> pub 1024D/5139533E Joilnen Batista Leite
-> F565 BD0B 1A39 390D 827E 03E5 0CD4 0F20 5139 533E
+> I test to read some mp3 with xmms, it seem to work correctly.
 
-What kernel version?  It is very bad. You can't sleep with
-a spin-lock being held!
+Music in UT2003/4 is in .ogg format.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an Intel Pentium III machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Mark.
 
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFANMJeBn4EFUVUIO0RAoYWAJ0X5acm6obJu2ZWqLp0/W5z7BW2VgCg4k2P
+zGS+n2BpIklTQjN5VZ9aLH8=
+=dbb0
+-----END PGP SIGNATURE-----
 

@@ -1,43 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265339AbSKATnY>; Fri, 1 Nov 2002 14:43:24 -0500
+	id <S265699AbSKATny>; Fri, 1 Nov 2002 14:43:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265364AbSKATnY>; Fri, 1 Nov 2002 14:43:24 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:9602 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265339AbSKATnX>;
-	Fri, 1 Nov 2002 14:43:23 -0500
-Date: Fri, 1 Nov 2002 19:47:11 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'Jos Hulzink'" <josh@stack.nl>, Robert Varga <nite@hq.alert.sk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.45 build failed with ACPI turned on
-Message-ID: <20021101194711.GB714@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Grover, Andrew" <andrew.grover@intel.com>,
-	'Jos Hulzink' <josh@stack.nl>, Robert Varga <nite@hq.alert.sk>,
-	linux-kernel@vger.kernel.org
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A498@orsmsx119.jf.intel.com>
+	id <S265367AbSKATny>; Fri, 1 Nov 2002 14:43:54 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:65428 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265699AbSKATnp>;
+	Fri, 1 Nov 2002 14:43:45 -0500
+Subject: [PATCH] linux-2.5.45_notsc-warning_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 01 Nov 2002 11:49:01 -0800
+Message-Id: <1036180141.12714.141.camel@cog>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A498@orsmsx119.jf.intel.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 11:37:26AM -0800, Grover, Andrew wrote:
- > ACPI implements PM but that's not all it implements. Is making CONFIG_PM
- > true if ACPI or APM are on a viable option? I think that would more
- > accurately reflect reality.
- > 
- > Or can we get rid of CONFIG_PM?
+Linus, all,
+	This patch is a minor cleanup that removes two instances of
+CONFIG_X86_TSC (lets the compiler optimize it out), and adds a warning
+message should anyone pass "notsc" to a kernel compiled w/
+CONFIG_X86_TSC (which ignores it). 
 
-I'm not sure of places that do it off the top of my head, but
-CONFIG_PM would save us having to do ugly CONFIG_APM || CONFIG_ACPI
-tests.
+This is basically a forward port of a patch I got into 2.4 a while back.
+Please apply.
 
-		Dave
+thanks
+-john
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+
+diff -Nru a/arch/i386/kernel/cpu/common.c b/arch/i386/kernel/cpu/common.c
+--- a/arch/i386/kernel/cpu/common.c	Fri Nov  1 11:43:09 2002
++++ b/arch/i386/kernel/cpu/common.c	Fri Nov  1 11:43:09 2002
+@@ -51,9 +51,16 @@
+ 	tsc_disable = 1;
+ 	return 1;
+ }
++#else
++#define tsc_disable 0
+ 
+-__setup("notsc", tsc_setup);
++static int __init tsc_setup(char *str)
++{
++	printk("notsc: Kernel compiled with CONFIG_X86_TSC, cannot disable TSC.\n");
++	return 1;
++}
+ #endif
++__setup("notsc", tsc_setup);
+ 
+ int __init get_model_name(struct cpuinfo_x86 *c)
+ {
+@@ -304,10 +311,8 @@
+ 	 */
+ 
+ 	/* TSC disabled? */
+-#ifndef CONFIG_X86_TSC
+ 	if ( tsc_disable )
+ 		clear_bit(X86_FEATURE_TSC, c->x86_capability);
+-#endif
+ 
+ 	/* FXSR disabled? */
+ 	if (disable_x86_fxsr) {
+@@ -443,14 +448,12 @@
+ 
+ 	if (cpu_has_vme || cpu_has_tsc || cpu_has_de)
+ 		clear_in_cr4(X86_CR4_VME|X86_CR4_PVI|X86_CR4_TSD|X86_CR4_DE);
+-#ifndef CONFIG_X86_TSC
+ 	if (tsc_disable && cpu_has_tsc) {
+ 		printk(KERN_NOTICE "Disabling TSC...\n");
+ 		/**** FIX-HPA: DOES THIS REALLY BELONG HERE? ****/
+ 		clear_bit(X86_FEATURE_TSC, boot_cpu_data.x86_capability);
+ 		set_in_cr4(X86_CR4_TSD);
+ 	}
+-#endif
+ 
+ 	/*
+ 	 * Initialize the per-CPU GDT with the boot GDT,
+

@@ -1,68 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267695AbUHEPaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267703AbUHEPde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267695AbUHEPaS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 11:30:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267702AbUHEPaS
+	id S267703AbUHEPde (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 11:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267709AbUHEPde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 11:30:18 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:44294 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S267695AbUHEPaK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 11:30:10 -0400
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Hector Martin <hector@marcansoft.com>, Pasi Sjoholm <ptsjohol@cc.jyu.fi>,
-       Robert Olsson <Robert.Olsson@data.slu.se>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       netdev@oss.sgi.com, brad@brad-x.com, shemminger@osdl.org
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-References: <Pine.LNX.4.44.0408041915510.14609-100000@silmu.st.jyu.fi>
-	<41120882.40302@marcansoft.com> <41121237.4050305@marcansoft.com>
-	<20040805132233.A7430@electric-eye.fr.zoreil.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 06 Aug 2004 00:28:40 +0900
-In-Reply-To: <20040805132233.A7430@electric-eye.fr.zoreil.com>
-Message-ID: <871xiltxhz.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+	Thu, 5 Aug 2004 11:33:34 -0400
+Received: from mail020.syd.optusnet.com.au ([211.29.132.131]:34985 "EHLO
+	mail020.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267703AbUHEPda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 11:33:30 -0400
+Message-ID: <41125339.6080002@kolivas.org>
+Date: Fri, 06 Aug 2004 01:33:13 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Scheduler policies for staircase
+References: <34840234.20040804074326@dns.toxicfilms.tv> <cone.1091601947.196990.9775.502@pc.kolivas.org> <1091657248.19988.19.camel@localhost> <1831126609.20040805163204@dns.toxicfilms.tv>
+In-Reply-To: <1831126609.20040805163204@dns.toxicfilms.tv>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigB3B33A8E508259DF99BAA0DE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@fr.zoreil.com> writes:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigB3B33A8E508259DF99BAA0DE
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Hector Martin <hector@marcansoft.com> :
-> [...]
-> > using a stabler TCP/IP stack. This one works OK. No problem so far... 
-> > anyway, even though it stopped and I had to restart the PS2 some times, 
-> > the PC has been receiving packets with no reboot whatsoever. I think 
-> > it's fixed :)
+Maciej Soltysiak wrote:
+>>>>Con,
+>>>>
+>>>>I have been using SCHED_BATCH on two machines now with expected
+>>>>results. So this you might consider this as another success report :-)
+>>>
+>>>Great. Thanks for the report. I too use them all day every day on each
+>>>machine I have with distributed computing clients so they're pretty well
+>>>tested.
 > 
-> Ok, I'll send the final version of the patches for inclusion in -netdev
-> and/or -mm this evening. It will provide a broader testing.
+> I forgot to mention about something.
+> 
+> I totally deadlocked my machine just after setting the
+> /proc/sys/kernel/compute to 1 with
+> # echo 1 > /proc/sys/kernel/computer
+> 
+> 
+> The machine is 2x1G p3, and the kernel was SMP and I had experimentally
+> seti@home running in SCHED_BATCH mode in screen.
+> 
+> It was 2.6.8-rc1 with ck patches from:
+> http://ck.kolivas.org/patches/2.6/2.6.7/2.6.8-rc1/
+> 
+> I used these patches on 2.6.8-rc1 from it (of course in the proper
+> order:
+> __cleanup_transaction-latency-fix.patch
+> crq-fixes.diff
+> defaultcfq.diff
+> filemap_sync-latency-fix.patch
+> from_2.6.8-rc1_to_staircase7.A
 
-Bit interesting.
+Sorry, those were snapshot patches and not "release" patches. That bug 
+was known and fixed in staircase 7.E which was released with 2.6.7-ck6; 
+2.6.8-rc2-mm2 did not have that bug either.
 
-On the final analysis, what was the cause of this problem?
-I found the following in progguide-8100(100).pdf. Does this help something?
+Cheers,
+Con
 
-2.5 Software Issues
+--------------enigB3B33A8E508259DF99BAA0DE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-This section covers the handling of various data reception topics.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-    1. Handling a Receive Buffer Overflow:
-       The Rx DMA (FIFO to buffer) is stopped. The CAPR must be
-       updated first to dismiss the ISR (RxBufferOverflow) event. The
-       correct actions to process RxBufOvw are:
-           a. Update CAPR.
-           b. Write a 1 to ISR (ROK).
-       The Rx DMA resumes after step b.
+iD8DBQFBElM8ZUg7+tp6mRURAixrAKCTOhobGHnn03VKpTV2q/GKgLbApwCeIxSL
+Ij/r03L1hFd0dTFoiccU3Ng=
+=QSHd
+-----END PGP SIGNATURE-----
 
-    2. Handling RxFIFOOvw:
-       When RxFIFOOvw occurs, all incoming packets are discarded.
-       Clearing ISR (RxFIFOOvw) doesn t dismiss the RxFIFOOvw event.
-       To dismiss the RxFIFOOvw event, the ISR (RxBufOvw) must be
-       written with a 1.
-
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+--------------enigB3B33A8E508259DF99BAA0DE--

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317331AbSHAWsy>; Thu, 1 Aug 2002 18:48:54 -0400
+	id <S317182AbSHAWqu>; Thu, 1 Aug 2002 18:46:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317338AbSHAWsx>; Thu, 1 Aug 2002 18:48:53 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:16001 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317331AbSHAWsv>;
-	Thu, 1 Aug 2002 18:48:51 -0400
-Date: Thu, 1 Aug 2002 18:52:18 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: martin@dalecki.de, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: IDE from current bk tree, UDMA and two channels...
-In-Reply-To: <CEE6114682@vcnet.vc.cvut.cz>
-Message-ID: <Pine.GSO.4.21.0208011850140.12627-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317258AbSHAWqu>; Thu, 1 Aug 2002 18:46:50 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:29430 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S317182AbSHAWqs>; Thu, 1 Aug 2002 18:46:48 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.33.0208011538220.1277-100000@penguin.transmeta.com> 
+References: <Pine.LNX.4.33.0208011538220.1277-100000@penguin.transmeta.com> 
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, David Howells <dhowells@redhat.com>,
+       alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: manipulating sigmask from filesystems and drivers 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 01 Aug 2002 23:50:11 +0100
+Message-ID: <11617.1028242211@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+torvalds@transmeta.com said:
+>  It's not the kernel side that is not restartable. It's the _user_
+> side. 
 
-On Fri, 2 Aug 2002, Petr Vandrovec wrote:
+As I said, you can't allow it to be interrupted after you've started the 
+copy_to_user(). Show me how the userspace program can prove the signal 
+arrived _after_ the 'int 0x80' had trapped into the kernel rather then 
+beforehand, and I'll accept that you can't allow read() to be interrupted
+even before the copy_to_user() starts.
 
-> > Uh-oh...
-> > 
-> > Let me see if I got it straight:
-> > 
-> > a) your disk doesn't work with half-Kb requests
-> > b) you have a partition with odd number of sectors
-> > c) hardsect_size is set to half-Kb
-> > d) old code worked since it rounded size to multiple of kilobyte.
-> > 
-> > Correct?
-> 
-> Yes, exactly. Replacing disk is not an option...
+But I also agree that there are other, better, examples of why
+TASK_UNINTERRUPTIBLE has to be used sometimes. Page faults in 
+copy_{from,to}_user are probably one such.
 
-OK.  At the very least we need a way for driver to tell what the sector
-size is.  And that can be a problem - AFAICS IDE shares the queue for
-master and slave and sector size is queue property.
+It's just that it doesn't have to be scattered all over the place just
+because people are too lazy to do the cleanup code.
 
-BTW, what type of partition table do you have there?
+Yeah -- sometimes it's hard. So go shopping.
+
+--
+dwmw2
+
 

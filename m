@@ -1,76 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288460AbSBDElU>; Sun, 3 Feb 2002 23:41:20 -0500
+	id <S288420AbSBDEmV>; Sun, 3 Feb 2002 23:42:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288354AbSBDElL>; Sun, 3 Feb 2002 23:41:11 -0500
-Received: from tomts11.bellnexxia.net ([209.226.175.55]:48628 "EHLO
-	tomts11-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S288422AbSBDEk5>; Sun, 3 Feb 2002 23:40:57 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: <mingo@elte.hu>
-Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
-Date: Sun, 3 Feb 2002 23:40:55 -0500
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.33.0202040627001.22583-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33.0202040627001.22583-100000@localhost.localdomain>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S288512AbSBDEmI>; Sun, 3 Feb 2002 23:42:08 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:12931 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S288498AbSBDElr>;
+	Sun, 3 Feb 2002 23:41:47 -0500
+Date: Sun, 3 Feb 2002 23:41:47 -0500 (EST)
+From: "Calin A. Culianu" <calin@ajvar.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Asynchronous CDROM Events in Userland
+Message-ID: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020204044055.EF0579251@oscar.casa.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 4, 2002 12:27 am, Ingo Molnar wrote:
-> Ed,
->
-> i've just uploaded -K2. It should handle your java load better, eg.
-> renicing to +15 or +19 should give nice 0 CPU-hogs a clear advantage.
-> Please let me know what you find,
 
-Will see what K2 does tomorrow (probably evening).  
+Is there any way, other than by polling, to have a user process be
+notified of a change in status on a cdrom drive?  (Such as if the drive
+opens, closes, gets new media, etc)?
 
->> If system tasks are a problem its easy to exclude them.  I did not do
->> this since monitoring who was triggering this code did not show system
->> tasks.
+Also, come think of it, other types of asynchronous events would be nice
+too, like when a cdrom usb device gets hot-plugged into the system, etc.
 
->the fact that we might need to 'exclude' certain tasks from a mechanism
->shows that the mechanism is not robust.
+The current ioctls are inadequate for this type of thing (they are
+synchronous in nature). One nice thing would be if we can register SIGUSR
+or other types of signals with the cdrom driver(s) so that it can notify a
+user process of (cdrom) events it may be interested in.
 
-Testing showed no reason to remove the system tasks.  They were not being
-deferred...  We can always add exceptions - here I did not need too.  I
-do agree that if we have to start adding exceptions we probably have not
-found the best mechanism.
+The reason I ask this is that the current autorun program that comes with
+kde is very inefficient because it polls the cdrom drives.  Also, this
+program is completely unable to determine that a usb device has come
+online, because it basically can't differentiate between bogus /etc/fstab
+entries and offline usb devices.
 
-One point that seems to get missed is that a group of java threads,
-posix threads or sometimes forked processes combine to make an application.   
-Linux, at the scheduler level at least, does not have the ability to 
-determine that all the tasks are really one application.  Under light 
-loads this makes no difference.  When the load gets heavy having 
-this ability helps here.
+At any rate, if anyone can suggest a way to asynchronously receive cdrom
+events in userland, it would be appreciated.
 
-Maybe we can control this with nice.  Is the the best or only
-way to do it?  I am not at all sure it is.  After all nice is just
-another knob.  The fewer knobs we have to tweak the easier linux
-is to use.
-
-I really think giving the linux schedule more information (not necessarily
-using a shared mm) about which groups of tasks comprise an application would
-help things. 
-
-What I coded was an attempt to give the scheduler a way to cope under load.
-If it knows groups of processes belong together then it can control them 
-when required.  With my current code it place running my freenet node at
-nice +10 still leaves me with a very responsive system.
-
-I am very interested to see what K2 does here - if no new code is needed
-great.  On the other hand if we can figure a way to add a simple and 
-understandable knob that let it perform better under load do not think
-its a bad thing either.
-
-Ed 
-
-
+If not what do you guys think about extensions to the cdrom drivers to
+handle these types of things?
 
 

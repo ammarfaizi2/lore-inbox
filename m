@@ -1,137 +1,98 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314451AbSEVOLV>; Wed, 22 May 2002 10:11:21 -0400
+	id <S314069AbSEVOK4>; Wed, 22 May 2002 10:10:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314454AbSEVOLU>; Wed, 22 May 2002 10:11:20 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:4112 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S314451AbSEVOLR>;
-	Wed, 22 May 2002 10:11:17 -0400
-Message-ID: <3CEB9826.4070000@evision-ventures.com>
-Date: Wed, 22 May 2002 15:07:50 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: jack@suse.cz, Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.17
-In-Reply-To: <Pine.GSO.4.21.0205220801540.1068-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314451AbSEVOK4>; Wed, 22 May 2002 10:10:56 -0400
+Received: from users.ccur.com ([208.248.32.211]:45154 "HELO amber2.ccur.com")
+	by vger.kernel.org with SMTP id <S314069AbSEVOKy>;
+	Wed, 22 May 2002 10:10:54 -0400
+Date: Wed, 22 May 2002 14:10:45 GMT
+Message-Id: <200205221410.OAA14969@amber2.ccur.com>
+From: Tom Horsley <Tom.Horsley@mail.ccur.com>
+To: linux-kernel@vger.kernel.org
+Subject: Bug: Once ptrace() modifies a page, the child program can too!
+Reply-to: Tom.Horsley@mail.ccur.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Alexander Viro napisa?:
-> 
-> On Wed, 22 May 2002, Martin Dalecki wrote:
->  
-> 
->>Or are are you going to reinvent just enother
->>case of /proc/ formatting compatibility problems?!
->>And the requirement to have /proc mounted for quoate usage?!
->>
->>I hate /proc/my/random/sandbox/becouse/I/dont/knwo/unix/and/have/no/taste
->>interfaces more and more...
->>
->>(PS. Hah! I found finally someone today who deserves flames! :-).)
-> 
-> 
-> Gives the phrase "finding yourself" a whole new meaning, doesn't it?
-> 
-> Al, deeply PO'd by assorted cretinisms _not_ related to the kernel.
-> Sigh...
+Platform: Redhat 7.1 on intel. Also happens with our local variation of the
+2.4.18 kernel.
 
-Lokking at 2.5.17 I see the following:
+Here is a simple program which should obviously segfault (and does if you
+don't debug it and set breakpoints):
 
--#define QUOTAFILENAME "quota"
--#define QUOTAGROUP "staff"
+  #include <stdio.h>
 
+  int
+  main(int argc, char ** argv) {
+     int * mainprog = ((int *)(void *)&main);
+     printf("Main program starts at %#x\n", mainprog);
+     printf("First word looks like 0x%08x\n", *mainprog);
+     printf("About to try writing on it...\n");
+     fflush(stdout);
+     *mainprog = 0xdeadbeef;
+     printf("First word now looks like 0x%08x\n", *mainprog);
+     fflush(stdout);
+     return 0;
+  }
 
-As usuall we can see what goes to /proc is apparently
-random bulls*it as always. I love in esp. the assumption about
-some group name on a system!
-But it get's removed this time. So let's peer where
-it get's reintroduced:
+But, run this under gdb like so:
 
-Ah... yes, patch-2.5.17, here it is:
+gdb ./bug
+(gdb) b *&main
+Breakpoint 1 at 0x80484c0: file nomapbug.c, line 4.
+(gdb) r
+Starting program: /tt/neon/tom/./bug
 
-+#ifdef CONFIG_PROC_FS
-+static int read_stats(char *buffer, char **start, off_t offset, int count, int 
-*eof, void *data)
-+{
-+ 
-int len;
-+ 
-struct quota_format_type *actqf;
-+
-+ 
-dqstats.allocated_dquots = nr_dquots;
-+ 
-dqstats.free_dquots = nr_free_dquots;
-+
-+ 
-len = sprintf(buffer, "Version %u\n", __DQUOT_NUM_VERSION__);
-+ 
-len += sprintf(buffer + len, "Formats");
-+ 
-lock_kernel();
-+ 
-for (actqf = quota_formats; actqf; actqf = actqf->qf_next)
-+ 
-	len += sprintf(buffer + len, " %u", actqf->qf_fmt_id);
-  	unlock_kernel();
-- 
-return ret;
-+ 
-len += sprintf(buffer + len, "\n%u %u %u %u %u %u %u %u\n",
-+ 
-		dqstats.lookups, dqstats.drops,
-+ 
-		dqstats.reads, dqstats.writes,
-+ 
-		dqstats.cache_hits, dqstats.allocated_dquots,
-+ 
-		dqstats.free_dquots, dqstats.syncs);
-+
-+ 
-if (offset >= len) {
-+ 
-	*start = buffer;
-+ 
-	*eof = 1;
-+ 
-	return 0;
-+ 
-}
-+ 
-*start = buffer + offset;
-+ 
-if ((len -= offset) > count)
-+ 
-	return count;
-+ 
-*eof = 1;
-+
-+ 
-return len;
-+}
-+#endif
+Breakpoint 1, main (argc=134513856, argv=0x1) at bug.c:4
+4       main(int argc, char ** argv) {
+(gdb) c
+Continuing.
+Main program starts at 0x80484c0
+First word looks like 0x83e589cc
+About to try writing on it...
+First word now looks like 0xdeadbeef
 
-What can we see in the above:
+Program exited normally.
+(gdb) q
 
-1. Those are first grade candidates for sysctl read-only entires, since they
-    are system global statistics which should belong to /proc/sys/fs/
-    We even have already fs.dquot-nr there! Why the hell don't put them
-    alongside?
+Yikes! The program was able to modify a page that should be strictly
+read/execute. I don't think debuggers are intended to have that
+kind of impact on the behavior of the child process :-).
 
-2. Typical string formating and value copy and termination
-     problems inherent to string stuff...
+If you look at the /proc address map info after setting the breakpoint,
+it claims the page is still just read/execute, but that is obviously
+not the case.
 
-3. The futile hope that tools using it will even bother to check the
-    Version... gtop just *right today* showed that user space programmers
-    won't care about it, so it gains us literally *nothing*.
+A co-worker who knows more about linux innards than me (John Blackwood), had
+this to say after poking around a bit:
 
-If it where sysctl numbers they would just vanish beneath them if something
-changed semantincally and they *would have no chance* to do it wrong.
+  I don't know about where to log this 'bug', and I'm not a VM expert, but
+  both the /proc and ptrace PTRACE_POKEDATA/TEXT calls end up calling the
 
+  access_process_vm()
+
+  routine, which calls the 
+
+  get_user_pages() 
+
+  routine, with the 'force' flag set.
+
+  This routine calls
+
+  handle_mm_fault() 
+
+  to get a hold of the target page.  It will be made write-able at this
+  point, if it is not already writeable.
+
+  Once made writeable, there is no code to make it write-protected again.
+
+  Looks like this is also true for text pages.
+
+  Not being a VM expert, I don't know how easy or hard it would be to try
+  and make this page write-protected again, but due to the layering of the
+  above calls, it doesn't look trivial to me....
+
+I tried searching the mailing list for ptrace() related issues, but wasn't
+able to find anything that seemed to describe this problem (however as much
+stuff as there is in the archives, I could easily have missed it :-).

@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268427AbRHCKNo>; Fri, 3 Aug 2001 06:13:44 -0400
+	id <S268382AbRHCKZh>; Fri, 3 Aug 2001 06:25:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268537AbRHCKNf>; Fri, 3 Aug 2001 06:13:35 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:58785 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S268427AbRHCKNW>; Fri, 3 Aug 2001 06:13:22 -0400
-Message-ID: <3B6A7A72.C2BF8C26@veritas.com>
-Date: Fri, 03 Aug 2001 15:48:26 +0530
-From: "Amit S. Kale" <akale@veritas.com>
-Organization: Veritas Software (India)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+	id <S268511AbRHCKZ0>; Fri, 3 Aug 2001 06:25:26 -0400
+Received: from hank-fep7-0.inet.fi ([194.251.242.202]:41614 "EHLO
+	fep07.tmt.tele.fi") by vger.kernel.org with ESMTP
+	id <S268382AbRHCKZM>; Fri, 3 Aug 2001 06:25:12 -0400
+Message-ID: <3B6A7B1A.AA4C7F38@pp.inet.fi>
+Date: Fri, 03 Aug 2001 13:21:14 +0300
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19aa2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Sujal Shah <sujal@sujal.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        tigran@veritas.com
-Subject: Re: FS Development (or interrupting ls)
-In-Reply-To: <3B69EF9C.74DF18D6@sujal.net>
+To: Matthew M <matthew.macleod@btinternet.com>
+CC: astor@fast.no, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] crypto fix for 2.4.7
+In-Reply-To: <m15SRKI-000CbBC@Wasteland>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian had a patch for doing a forced unmount.
-It will solve your problem.
-You can check whether he has a patch for the kernel you 
-are using.
+Matthew M wrote:
+> This patch fixes crypto support in recent kernels, I know it works with
+> 2.4.7, but I have had no time to test with other kernel versions > 2.4.3.
+> Should do though, so please try and tell. Remember, its not the "official"
+> patch, just a test!
 
-Sujal Shah wrote:
-> 
-> I'm working on a userspace filesystem daemon which replaces Venus (from
-> CODA) or podfuk (UserVFS) using the CODA driver.  I'm still early in my
-> development process, but I've run into one frustrating problem.  While
-> testing my code, I have started causing ls to hang.
-> 
-> It keeps the directory open, which means I can't do things like, oh,
-> unmount the filesystem. :-)  Anyone have any suggestions on recovering
-> gracefully when this happens short of rebooting (which is what I do
-> now)?  Basically, 'ls' hangs, and can't be killed (even kill -9) and
-> 'lsof' lists the directory as open (which is furthered confirmed by
-> umount complaining about the filesystem being busy).
-> 
-> Thanks,
-> 
-> Sujal
-> 
-> --
-> ------ Sujal Shah ---- sujal@sujal.net
-> 
->            http://www.sujal.net/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+International crypto patch is far more broken than that. For more
+information see these linux-crypto posts by me:
 
--- 
-Amit Kale
-Veritas Software ( http://www.veritas.com )
+    http://mail.nl.linux.org/linux-crypto/2001-07/msg00181.html
+    http://mail.nl.linux.org/linux-crypto/2001-07/msg00189.html
+        
+Regards,
+Jari Ruusu <jari.ruusu@pp.inet.fi>

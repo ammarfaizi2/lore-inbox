@@ -1,99 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbULQWx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbULQW5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbULQWx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 17:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbULQWwv
+	id S262221AbULQW5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 17:57:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbULQW4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 17:52:51 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:2973 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262220AbULQWtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 17:49:50 -0500
-Date: Fri, 17 Dec 2004 16:49:44 -0600
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: linux-kernel@vger.kernel.org
-cc: wli@holomorphy.com, mingo@elte.hu
-Subject: Oops on 2.4.x invalid procfs i_ino value
-Message-ID: <Pine.SGI.4.61.0412171611120.27132@kzerza.americas.sgi.com>
-Organization: "Silicon Graphics, Inc."
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 17 Dec 2004 17:56:35 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:20181 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262226AbULQWyN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 17:54:13 -0500
+Date: Fri, 17 Dec 2004 14:53:49 -0800
+From: Greg KH <greg@kroah.com>
+To: Ed L Cashin <ecashin@coraid.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.10-rc3-bk11
+Message-ID: <20041217225349.GA23442@kroah.com>
+References: <87k6rhc4uk.fsf@coraid.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87k6rhc4uk.fsf@coraid.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've run into a number of crashes while closing procfs stat files
-when a system is under load.  I think I've found the problem, but
-am a little unsure how to proceed.  This all happens to be on a
-2.4.21 based kernel, but by my brief code inspection I think the
-problem still exists on more recent 2.4.x kernels.
+On Fri, Dec 17, 2004 at 10:38:27AM -0500, Ed L Cashin wrote:
+> I've implemented the second round of changes suggested here for the
+> AoE driver.  Here's a list of changes since December 13 when the
+> revised 2.6.9 patch was submitted.
+> 
+> Greg KH suggestions:
+>   * remove stat char device and put status info into sysfs
+>   * split ctl char device into discover and interfaces
+>   * use MODULE_VERSION
+>   * remove unused macros from aoe.h
+>   * make struct tags lowercase
+> 
+> Jens Axboe suggestions:
+>   * use GFP_NOIO in make_request_fn on mempool alloc
+> 
+> 
+> Provide support for ATA over Ethernet devices
 
-In procfs the fake_ino() macro is used to construct the inode number
-for each entry.
+Looks good.  I've added this to my driver bk tree and it will show up
+in the next -mm release, and I'll forward it on to Linus after 2.6.10 is
+out.
 
-	#define fake_ino(pid,ino) (((pid)<<16)|(ino))
+Oh, I applied the following patch on top of yours, to get rid of the
+sparse warnings, and get rid of a kmalloc that could have been
+potentially pretty nasty in your write() function.  It saved a bit of
+code too :)
 
-In particular this is used in proc_pid_make_inode:
+thanks,
 
-	inode->i_ino = fake_ino(task->pid, ino);
+greg k-h
 
-Note that a pid may be more than 16 bits in width (e.g. in IA64), and
-we're trying to stuff it into the upper 16 bits of the inode number.
-This isn't usually a problem, except when the lower 16 bits of the
-inode happen to be 0 (i.e. pids that are a multiple of 65536).
+----------
 
-Why does zero matter?  Glad you asked.
+AOE: fix up sparse warnings and get rid of a kmalloc in the aoe driver.
 
-In proc_delete_inode there is a check to see if the inode is is
-a "proper" (whatever that means) procfs inode.  The whole function
-is:
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-static void proc_delete_inode(struct inode *inode)
-{
-	struct proc_dir_entry *de = inode->u.generic_ip;
-
-	inode->i_state = I_CLEAR;
-
-	if (PROC_INODE_PROPER(inode)) {
-		proc_pid_delete_inode(inode);
-		return;
-	}
-	if (de) {
-		if (de->owner)
-			__MOD_DEC_USE_COUNT(de->owner);
-		de_put(de);
-	}
-}
-
-PROC_INODE_PROPER() is:
-
-	#define PROC_INODE_PROPER(inode) ((inode)->i_ino & ~0xffff)
-
-In other words, it checks whether the top 16 bits of the inode number
-(equivalent to the bottom 16 bits of the pid) are non-zero.
-
-Thus closing a proc entry for any task with a pid that is a multiple of
-65536 will fail this check, skip proc_pid_delete_inode, and call
-__MOD_DEC_USE_COUNT, more than likely causing a panic on an invalid
-memory access, and minimally corrupting something in memory otherwise.
-
-I don't have a solution coded up (mostly because I'm a bit bleary
-eyed after looking at crash dumps all day) -- but are there any
-thoughts on how to go about addressing this one?  An obvious workaround
-is setting kernel.pid_max to 65535, but that's only a workaround, not
-a solution.
-
-On a related note, if it matters, on about half the crash dumps I've
-looked at, I see a pid of 0 has been assigned to a user process,
-tripping this same problem.  I suspect there's another bug somewhere
-that's allowing a pid of 0 to be chosen in the first place -- but I
-don't totally discount that this problem may lay in SGI's patches to
-this particular kernel -- I'll need to take a more thorough look.
-
-Thanks,
-Brent
-
--- 
-Brent Casavant                          If you had nothing to fear,
-bcasavan@sgi.com                        how then could you be brave?
-Silicon Graphics, Inc.                    -- Queen Dama, Source Wars
+diff -Nru a/drivers/block/aoe/aoe.h b/drivers/block/aoe/aoe.h
+--- a/drivers/block/aoe/aoe.h	2004-12-17 14:48:49 -08:00
++++ b/drivers/block/aoe/aoe.h	2004-12-17 14:48:49 -08:00
+@@ -158,6 +158,6 @@
+ void aoenet_exit(void);
+ void aoenet_xmit(struct sk_buff *);
+ int is_aoe_netif(struct net_device *ifp);
+-int set_aoe_iflist(char *str);
++int set_aoe_iflist(const char __user *str, size_t size);
+ 
+ u64 mac_addr(char addr[6]);
+diff -Nru a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
+--- a/drivers/block/aoe/aoeblk.c	2004-12-17 14:48:49 -08:00
++++ b/drivers/block/aoe/aoeblk.c	2004-12-17 14:48:49 -08:00
+@@ -170,7 +170,7 @@
+ 
+ 	if (cmd == HDIO_GETGEO) {
+ 		d->geo.start = get_start_sect(inode->i_bdev);
+-		if (!copy_to_user((void *) arg, &d->geo, sizeof d->geo))
++		if (!copy_to_user((void __user *) arg, &d->geo, sizeof d->geo))
+ 			return 0;
+ 		return -EFAULT;
+ 	}
+@@ -227,7 +227,7 @@
+ 	
+ 	printk(KERN_INFO "aoe: %012llx e%lu.%lu v%04x has %llu "
+ 		"sectors\n", mac_addr(d->addr), d->aoemajor, d->aoeminor,
+-		d->fw_ver, d->ssize);
++		d->fw_ver, (long long)d->ssize);
+ }
+ 
+ void __exit
+diff -Nru a/drivers/block/aoe/aoechr.c b/drivers/block/aoe/aoechr.c
+--- a/drivers/block/aoe/aoechr.c	2004-12-17 14:48:49 -08:00
++++ b/drivers/block/aoe/aoechr.c	2004-12-17 14:48:49 -08:00
+@@ -51,9 +51,9 @@
+ }
+ 
+ static int
+-interfaces(char *str)
++interfaces(const char __user *str, size_t size)
+ {
+-	if (set_aoe_iflist(str)) {
++	if (set_aoe_iflist(str, size)) {
+ 		printk(KERN_CRIT
+ 		       "%s: could not set interface list: %s\n",
+ 		       __FUNCTION__, "too many interfaces");
+@@ -135,24 +135,10 @@
+ }
+ 
+ static ssize_t
+-aoechr_write(struct file *filp, const char *buf, size_t cnt, loff_t *offp)
++aoechr_write(struct file *filp, const char __user *buf, size_t cnt, loff_t *offp)
+ {
+-	char *str = kcalloc(1, cnt+1, GFP_KERNEL);
+-	int ret;
++	int ret = -EINVAL;
+ 
+-	if (!str) {
+-		printk(KERN_CRIT "aoe: aoechr_write: cannot allocate memory\n");
+-		return -ENOMEM;
+-	}
+-
+-	ret = -EFAULT;
+-	if (copy_from_user(str, buf, cnt)) {
+-		printk(KERN_INFO "aoe: aoechr_write: copy from user failed\n");
+-		goto out;
+-	}
+-
+-	str[cnt] = '\0';
+-	ret = -EINVAL;
+ 	switch ((unsigned long) filp->private_data) {
+ 	default:
+ 		printk(KERN_INFO "aoe: aoechr_write: can't write to that file.\n");
+@@ -161,13 +147,11 @@
+ 		ret = discover();
+ 		break;
+ 	case MINOR_INTERFACES:
+-		ret = interfaces(str);
++		ret = interfaces(buf, cnt);
+ 		break;
+ 	}
+ 	if (ret == 0)
+ 		ret = cnt;
+- out:
+-	kfree(str);
+ 	return ret;
+ }
+ 
+@@ -192,7 +176,7 @@
+ }
+ 
+ static ssize_t
+-aoechr_read(struct file *filp, char *buf, size_t cnt, loff_t *off)
++aoechr_read(struct file *filp, char __user *buf, size_t cnt, loff_t *off)
+ {
+ 	int n;
+ 	char *mp;
+diff -Nru a/drivers/block/aoe/aoenet.c b/drivers/block/aoe/aoenet.c
+--- a/drivers/block/aoe/aoenet.c	2004-12-17 14:48:49 -08:00
++++ b/drivers/block/aoe/aoenet.c	2004-12-17 14:48:49 -08:00
+@@ -53,14 +53,16 @@
+ }
+ 
+ int
+-set_aoe_iflist(char *str)
++set_aoe_iflist(const char __user *user_str, size_t size)
+ {
+-	int len = strlen(str);
+-
+-	if (len >= IFLISTSZ)
++	if (size >= IFLISTSZ)
+ 		return -EINVAL;
+ 
+-	strcpy(aoe_iflist, str);
++	if (copy_from_user(aoe_iflist, user_str, size)) {
++		printk(KERN_INFO "aoe: %s: copy from user failed\n", __FUNCTION__);
++		return -EFAULT;
++	}
++	aoe_iflist[size] = 0x00;
+ 	return 0;
+ }
+ 

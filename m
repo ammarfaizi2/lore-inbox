@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132462AbRD1NLY>; Sat, 28 Apr 2001 09:11:24 -0400
+	id <S132465AbRD1NRe>; Sat, 28 Apr 2001 09:17:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132359AbRD1NLO>; Sat, 28 Apr 2001 09:11:14 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:19215 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S132465AbRD1NLF>; Sat, 28 Apr 2001 09:11:05 -0400
-Date: Sat, 28 Apr 2001 14:55:00 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Xiong Zhao <xz@gatekeeper.ncic.ac.cn>
-Cc: majordomo linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: kernel newbie question
-Message-ID: <20010428145500.N978@arthur.ubicom.tudelft.nl>
-In-Reply-To: <77457D7612D.AAA2712@gatekeeper.ncic.ac.cn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <77457D7612D.AAA2712@gatekeeper.ncic.ac.cn>; from xz@gatekeeper.ncic.ac.cn on Sat, Apr 28, 2001 at 03:16:34PM +0800
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S132482AbRD1NRY>; Sat, 28 Apr 2001 09:17:24 -0400
+Received: from 13dyn184.delft.casema.net ([212.64.76.184]:18187 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S132465AbRD1NRJ>; Sat, 28 Apr 2001 09:17:09 -0400
+Message-Id: <200104281317.PAA04172@cave.bitwizard.nl>
+Subject: Re: 2.4 and 2GB swap partition limit
+In-Reply-To: <20010427182228.D9778@animx.eu.org> from Wakko Warner at "Apr 27,
+ 2001 06:22:28 pm"
+To: Wakko Warner <wakko@animx.eu.org>
+Date: Sat, 28 Apr 2001 15:17:01 +0200 (MEST)
+CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Xavier Bestel <xavier.bestel@free.fr>,
+        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
+        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
+        linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 28, 2001 at 03:16:34PM +0800, Xiong Zhao wrote:
-> hello. i read linux kernel internal. are there other books/papers
-> like that which dwell with linux kernel in detail,especially on 
-> process mechanism,for example,how pthread and fork are implemented,
-> how clone actually work.are there other materials on these topics
-> on internet that can be downloaded freely.
+Wakko Warner wrote:
+> > I've always been trying to convice people that 2x RAM remains a good 
+> > rule-of-thumb.
+> 
+> IMO this is pointless
+> 
+>              total       used       free     shared    buffers     cached
+> Mem:        517456     505332      12124     111016      97752     236884
+> -/+ buffers/cache:     170696     346760
+> Swap:       131048      23216     107832
+> 
+> Of course for me, I'm not about to waste 1gb of disk space for swap.
+> 
+> The swap I have is 2 partitions, one on each drive both with a priority of
+> 0.  Personally, I like the way it's done on my box.
 
-Check out the books and links sections from
-http://www.kernelnewbies.org/ .
+So you've spent almost $200 for RAM, and refuse to spend $4 for 1Gb of
+swap space. Fine with me. 
 
-
-Erik
+			Roger. 
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

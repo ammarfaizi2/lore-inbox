@@ -1,66 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262881AbSKZXjc>; Tue, 26 Nov 2002 18:39:32 -0500
+	id <S261356AbSKZXoS>; Tue, 26 Nov 2002 18:44:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263105AbSKZXjc>; Tue, 26 Nov 2002 18:39:32 -0500
-Received: from imail.ricis.com ([64.244.234.16]:62222 "EHLO imail.ricis.com")
-	by vger.kernel.org with ESMTP id <S262881AbSKZXja>;
-	Tue, 26 Nov 2002 18:39:30 -0500
-Date: Tue, 26 Nov 2002 17:46:43 -0600
-From: Lee Leahu <lee@ricis.com>
-To: "Rusty Lynch" <rusty@linux.co.intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: A Kernel Configuration Tale of Woe
-Message-Id: <20021126174643.0d1dfe8f.lee@ricis.com>
-In-Reply-To: <004101c29578$ffcaf360$94d40a0a@amr.corp.intel.com>
-References: <3de3b72d.10eb.0@wincom.net>
-	<3DE3B93F.8090305@walrond.org>
-	<004101c29578$ffcaf360$94d40a0a@amr.corp.intel.com>
-Organization: RICIS, Inc.
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Note: Send abuse reports to abuse@[(Private IP)].
+	id <S263105AbSKZXoS>; Tue, 26 Nov 2002 18:44:18 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:24045 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261356AbSKZXoR>;
+	Tue, 26 Nov 2002 18:44:17 -0500
+Date: Tue, 26 Nov 2002 15:49:11 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.48
+In-Reply-To: <20021126231507.GF21307@fs.tum.de>
+Message-ID: <Pine.LNX.4.33L2.0211261547450.2873-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What ways would people like to implement such as system in?
+On Wed, 27 Nov 2002, Adrian Bunk wrote:
 
-Ie.. a website, a database, etc...
+| On Sun, Nov 17, 2002 at 08:41:05PM -0800, Linus Torvalds wrote:
+|
+| >...
+| > Summary of changes from v2.5.47 to v2.5.48
+| > ============================================
+| >...
+| > Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>:
+| >   o [IPSEC]: More fixes and corrections
+| >...
+|
+| The following part of this patch looks bogus:
+|
+| <--  snip  -->
+|
+| --- 1.6/net/key/af_key.c        Fri Nov  8 00:34:37 2002
+| +++ 1.7/net/key/af_key.c        Mon Nov 11 01:03:55 2002
+| ...
+| @@ -2179,7 +2223,7 @@
+|         if (skb)
+|                 kfree_skb(skb);
+|
+| -       return err;
+| +       return err ? : len;
+|  }
+|
+|  static int pfkey_recvmsg(struct kiocb *kiocb,
+|
+| <--  snip  -->
+|
+|
+| Is the following correct to fix it?
+|
+|
+| --- linux/net/key/af_key.c.old	2002-11-27 00:12:28.000000000 +0100
+| +++ linux/net/key/af_key.c	2002-11-27 00:12:40.000000000 +0100
+| @@ -2242,7 +2242,7 @@
+|  	if (skb)
+|  		kfree_skb(skb);
+|
+| -	return err ? : len;
+| +	return err ? err : len;
+|  }
+|
+|  static int pfkey_recvmsg(struct kiocb *kiocb,
 
-"Rusty Lynch" <rusty@linux.co.intel.com> scribbled something about Re: A Kernel Configuration Tale of Woe:
+Hi Adrian,
 
-> Andrw Walrond wrote:
-> > Contributors could be given a reliability rating (bit like ebay?). Same 
-> > thing for contributions; users could confirm successful results and 
-> > boost the rating of the info.
-> > 
-> 
-> Now that would be cool.  Sounds like something that might be more
-> complex then it appears, but it would be fun to play with if somebody
-> else implemented it. :->
-> 
-> One way I would use such a database would be to help guide my
-> decission on what devices to put into a box I am building.  
-> 
->     -rustyl
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+That's a gcc extension that means the same as your patch.  See
+http://gcc.gnu.org/onlinedocs/gcc-3.2/gcc/Conditionals.html#Conditionals
 
+It would be OK with me not to accept such extensions.  :)
 
 -- 
-+----------------------------------+---------------------------------+
-| Lee Leahu                        | voice -> 708-444-2690           |
-| Internet Technology Specialist   | fax -> 708-444-2697             |
-| RICIS, Inc.                      | email -> lee@ricis.com          |
-+----------------------------------+---------------------------------+
-| I cannot conceive that anybody will require multiplications at the |
-| rate of 40,000 or even 4,000 per hour ...                          |
-|		-- F. H. Wales (1936)                                |
-+--------------------------------------------------------------------+
+~Randy
+

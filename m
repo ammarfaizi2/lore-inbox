@@ -1,73 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273419AbRIWMEl>; Sun, 23 Sep 2001 08:04:41 -0400
+	id <S273421AbRIWMiO>; Sun, 23 Sep 2001 08:38:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273421AbRIWMEX>; Sun, 23 Sep 2001 08:04:23 -0400
-Received: from co3000407-a.belrs1.nsw.optushome.com.au ([203.164.252.88]:60646
-	"EHLO bozar") by vger.kernel.org with ESMTP id <S273419AbRIWMEL>;
-	Sun, 23 Sep 2001 08:04:11 -0400
-Date: Sun, 23 Sep 2001 22:03:52 +1000
-From: Andre Pang <ozone@algorithm.com.au>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org, safemode@speakeasy.net,
-        Dieter.Nuetzel@hamburg.de, iafilius@xs4all.nl, ilsensine@inwind.it,
-        george@mvista.com
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-Mail-Followup-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
-	safemode@speakeasy.net, Dieter.Nuetzel@hamburg.de,
-	iafilius@xs4all.nl, ilsensine@inwind.it, george@mvista.com
-In-Reply-To: <1000939458.3853.17.camel@phantasy> <1001131036.557760.4340.nullmailer@bozar.algorithm.com.au> <1001139027.1245.28.camel@phantasy> <1001143341.117502.5311.nullmailer@bozar.algorithm.com.au> <1001228764.864.53.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1001228764.864.53.camel@phantasy>
-User-Agent: Mutt/1.3.22i
-Message-Id: <1001246632.952193.13493.nullmailer@bozar.algorithm.com.au>
+	id <S273438AbRIWMiE>; Sun, 23 Sep 2001 08:38:04 -0400
+Received: from web10405.mail.yahoo.com ([216.136.130.97]:39429 "HELO
+	web10405.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S273421AbRIWMhr>; Sun, 23 Sep 2001 08:37:47 -0400
+Message-ID: <20010923123812.62399.qmail@web10405.mail.yahoo.com>
+Date: Sun, 23 Sep 2001 22:38:12 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Preemptible 2.4.10-pre15 compile error
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 23, 2001 at 03:05:41AM -0400, Robert Love wrote:
+Hi,
 
-> You are right, those older kernels are showing much better response
-> times than your kernel.  One would think your newer kernel, with
-> preemption or low-latency patch, would be an improvement.
-> 
-> I honestly don't know what to tell you.  It could be a piece of hardware
-> (or, more accurately) its driver ... 
+Exactly, make modules error
 
-I found out why, it's the driver.  I'm an idiot for not trying
-this before ... I was previously using ALSA's snd-card-ymfpci
-driver; I switchted to the OSS ymfpci driver that comes with the
-kernel.  My latencies used to be 15ms on average, with spikes >
-30ms; they're now ~3ms with some occasional spikes up to 10ms.
-
-The graphs and numbers are up at
-http://www.algorithm.com.au/hacking/linux-lowlatency/
-
-> the /proc/latencytimes output shows us that no single lock is accounting
-> for your bad times.  In fact, all your locks aren't that bad, so...
-> 
-> maybe the problem is in the "overruns" -- I don't know what that means
-> exactly.  maybe someone else on the list can shed some light? 
-> otheriwse, you can email the author perhaps.
-
-An over-run occurs when the latencytest program, which plays a
-continuous sound, doesn't get re-scheduled quickly enough.  This
-results in a sound dropout because it can't re-fill its buffer.
-This is similar to what you would get in XMMS, except that
-latencytest simulates professional audio applications which must
-run with _very_ small buffers in order to get low latencies.
-(Imagine your computer being sync'ed in realtime with lots of
-other music equipment and have it drag behind by 30ms -- it
-doesn't sound good :).
-
-But I guess my problem's solved ... thanks so much to Andrew,
-yourself, MontaVista, Dietel and all the other guys who spend
-their hours benchmarking so this can be improved!  If you still
-want me to run benchmarks, let me know.  The 15 kernels I've
-compiled since starting testing have gotta be useful for
-something.
+make[2]: Entering directory
+`/home/sk/src/linux/fs/adfs'
+gcc -D__KERNEL__ -I/home/sk/src/linux/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O3
+-fomit-frame-pointer -fno-strict-aliasing -fno-common
+-mcpu=i686 -march=i686 -fno-strength-reduce -pipe
+-mpreferred-stack-boundary=2 -march=i686 -DMODULE   -c
+-o map.o map.c
+map.c: In function `adfs_map_lookup':
+map.c:271: `current' undeclared (first use in this
+function)
+map.c:271: (Each undeclared identifier is reported
+only once
+map.c:271: for each function it appears in.)
+map.c:273: warning: implicit declaration of function
+`preempt_schedule'
+make[2]: *** [map.o] Error 1
+make[2]: Leaving directory
+`/home/sk/src/linux/fs/adfs'
+make[1]: *** [_modsubdir_adfs] Error 2
+make[1]: Leaving directory `/home/sk/src/linux/fs'
+make: *** [_mod_fs] Error 2
 
 
--- 
-#ozone/algorithm <ozone@algorithm.com.au>          - trust.in.love.to.save
+
+=====
+S.KIEU
+
+http://travel.yahoo.com.au - Yahoo! Travel
+- Got Itchy feet? Get inspired!

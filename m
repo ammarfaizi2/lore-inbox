@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUEaWoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264683AbUEaWra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264665AbUEaWoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 18:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264683AbUEaWoJ
+	id S264683AbUEaWra (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 18:47:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbUEaWra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 18:44:09 -0400
-Received: from CPE-203-45-94-214.nsw.bigpond.net.au ([203.45.94.214]:5355 "EHLO
-	mudlark.pw.nest") by vger.kernel.org with ESMTP id S264665AbUEaWoG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 18:44:06 -0400
-Message-ID: <40BBB522.3030806@aurema.com>
-Date: Tue, 01 Jun 2004 08:43:46 +1000
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Mon, 31 May 2004 18:47:30 -0400
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:31329 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264683AbUEaWr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 18:47:28 -0400
+Message-ID: <40BBB5F7.1010407@yahoo.com.au>
+Date: Tue, 01 Jun 2004 08:47:19 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Michal Jaegermann <michal@harddata.com>
-CC: Ian Kent <raven@themaw.net>, linux-kernel@vger.kernel.org
-Subject: Re: How to use floating point in a module?
-References: <200405310250.i4V2ork05673@mailout.despammed.com>	<Pine.LNX.4.58.0405311340450.4198@wombat.indigo.net.au> <20040531141253.A18246@mail.harddata.com>
-In-Reply-To: <20040531141253.A18246@mail.harddata.com>
+To: John Bradford <john@grabjohn.com>
+CC: Michael Brennan <mbrennan@ezrs.com>, linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+References: <40BB88B5.8080300@ezrs.com> <200405312029.i4VKTCZ0000596@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200405312029.i4VKTCZ0000596@81-2-122-30.bradfords.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Jaegermann wrote:
-> On Mon, May 31, 2004 at 01:44:40PM +0800, Ian Kent wrote:
+John Bradford wrote:
+> Hi,
 > 
->>Why not scaled longs (or bigger), scalled to number of significant 
->>digits. The Taylor series for the trig functions might be a painfull.
+> Quote from Michael Brennan <mbrennan@ezrs.com>:
 > 
+>>Hi!
+>>I've recently started to follow this list.
+>>I read the swap discussion here, and I was wondering about what Nick 
+>>Pigging said about grepping the kernel tree.
+>>
+>>Nick Piggin wrote:
+>> > For example, I have 57MB swapped right now. It allows me to instantly
+>> > grep the kernel tree. If I turned swap off, each grep would probably
+>> > take 30 seconds.
+>>
+>>Are the pages swapped to disk as a result of the grep run?
 > 
-> Taylor series usually are painful for anything you want to calculate
-> by any practical means.  Slow convergence but, for a change, quickly
-> growing roundup errors and things like that.  An importance and uses
-> of Taylor series lie elsewhere.
-> 
-> OTOH polynomial approximations, or rational ones (after all division
-> is quite quick on modern processors), can be fast and surprisingly
-> precise; especially if you know bounds for your arguments and that
-> that range is not too wide.  Of course when doing that in a fixed
-> point one needs to pay attention to possible overflows and
-> structuring calculations to guard against a loss of precision is
-> always a good idea.
-> 
-> My guess is that finding some fixed-point libraries, at least to use
-> as a starting point, should be not too hard.
 
-See the "Handbook of Mathematical Functions" by Abromawitz and Stegun, 
-Dover Publications (ISBN 486-61272-2, Library of Congress number 
-65-12253) which has some small but accurate polynomial approximations 
-for many functions.
+The pages are gradually swapped to disk as I use the system.
+> 
+> I'm not really sure what the above was intended to demonstrate, but I assume
+> that it was that having swap allowed the first grep to fill physical RAM with
+> cache at the expense of swapping other processes, which were using physical
+> RAM to disk.
+> 
 
+Well, at the "expense" of paging out unused memory. I don't see
+any swapin.
 
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+> However, if 57 Mb of swap allows this, 57 Mb of extra physical RAM should also
+> also allow the grep to be cached, without having to swap out anything.
+> 
 
+Well yes, but if I had another 57MB of physical memory then I would
+still turn on swap so that other 57MB of unused memory isn't wasted.

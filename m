@@ -1,70 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285203AbRL2Sq3>; Sat, 29 Dec 2001 13:46:29 -0500
+	id <S285186AbRL2Sq7>; Sat, 29 Dec 2001 13:46:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285186AbRL2SqT>; Sat, 29 Dec 2001 13:46:19 -0500
-Received: from conx.aracnet.com ([216.99.200.135]:46536 "HELO cj90.in.cjcj.com")
-	by vger.kernel.org with SMTP id <S285250AbRL2SqQ>;
-	Sat, 29 Dec 2001 13:46:16 -0500
-Message-ID: <3C2E0F6C.30608@cjcj.com>
-Date: Sat, 29 Dec 2001 10:46:04 -0800
-From: CJ <cj@cjcj.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us
+	id <S285209AbRL2Squ>; Sat, 29 Dec 2001 13:46:50 -0500
+Received: from dsl-213-023-043-128.arcor-ip.net ([213.23.43.128]:64261 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S285186AbRL2Sqe>;
+	Sat, 29 Dec 2001 13:46:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Oliver Xymoron <oxymoron@waste.org>
+Subject: Re: [PATCH] rlimit_nproc
+Date: Sat, 29 Dec 2001 19:49:46 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Legacy Fishtank <garzik@havoc.gtf.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.43.0112291212340.18183-100000@waste.org>
+In-Reply-To: <Pine.LNX.4.43.0112291212340.18183-100000@waste.org>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Dave Jones <davej@codemonkey.org.uk>,
-        Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Dave Jones <davej@suse.de>, Chuck Lever <cel@monkey.org>
-Subject: Re: Possible O_DIRECT problems ?
-In-Reply-To: <20011221000806.A26849@suse.de> <shssna58lpq.fsf@charged.uio.no> <20011221003942.B26268@codemonkey.org.uk> <20011229162542.G1356@athlon.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16KOYH-0000Fr-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shouldn't O_DIRECT's requirements come from the hardware?  If we can 
-ASPI or CAM DMA SCSI devices to odd addresses and lengths, why not 
-O_DIRECT?  Do ape drives DMA to user buffers?  Are O_DIRECT's 
-current limits gratuitous?
+On December 29, 2001 07:13 pm, Oliver Xymoron wrote:
+> On Sat, 29 Dec 2001, Daniel Phillips wrote:
+> 
+> > On December 27, 2001 10:35 pm, Legacy Fishtank wrote:
+> > > On Thu, Dec 27, 2001 at 12:35:38PM -0800, Linus Torvalds wrote:
+> > > > Also worthwhile for automation is an md5sum or similar (for verifying that
+> > > > the mail made it though the mail system unscathed). A pgp signature would
+> > > > be even better, of course - especially useful as I suspect it would be
+> > > > good to also cc the things to some patch-list, and having a clear identity
+> > > > on the sender is always a good idea in these things.
+> > >
+> > > I've been thinking that a "patches@kernel.org" dumping ground would be
+> > > useful.
+> > >
+> > > This is NOT intended as a patch tracker.  This is NOT intended as a
+> > > substitution for submitting the patch to you, but instead intended
+> > > as a patch archive that doesn't go away.  We have seen linux-kernel
+> > > archives come and go, or drop messages.  But a patch archive would be
+> > > useful...  I'm not sure a mailing list proper is right for the job,
+> > > since I want to support the reception and archiving of multi-megabyte
+> > > patches at times.
+> >
+> > Exactly what I was thinking of: 'linux-patches@kernel.org'.  The idea is,
+> > instead of putting [PATCH] on your subject line and cc'ing it to Linus, you
+> > mail it to linux-patches with a cc to lkml if you like (depending on size of
+> > patch, how interesting, etc).  In any event, linux-patches will forward a
+> > copy to Linus.
+> 
+> You of course need something like -2.4 and -2.5.
 
+Yes:
 
-Andrea Arcangeli wrote:
+    linux-patches-2.0@kernel.org
+    linux-patches-2.2@kernel.org
+    linux-patches-2.4@kernel.org
+    linux-patches-2.5@kernel.org
 
->On Fri, Dec 21, 2001 at 12:39:42AM +0000, Dave Jones wrote:
->
->>On Fri, Dec 21, 2001 at 01:23:45AM +0100, Trond Myklebust wrote:
->>
->> >    O_DIRECT for NFS isn't yet merged into the kernel. Are these Chuck
->> > Lever's NFS patches you've been testing?
->>
->>Nope, stock 2.4.17rc2 & 2.5.1. 
->>I thought NFS might just ignore the O_DIRECT flag if it didn't
->>understand it yet, I wasn't expecting such a dramatic failure.
->>
->
->The point of O_DIRECT is to do DMA directly into the userspace memory
->(and to avoid the VM overhead but that's a secondary issue and with data
->journaling we may need to put an anchor into the VM to serialize the
->direct I/O with the pagecache I/O in a secondary - slower - direct_IO
->callback for the data journaling fs).
->
->But to avoid the mem copies you're required to use strict alignment and
->size of the userspace buffers, just like rawio.
->
->If you don't you will get -EINVAL. This ensures people will use O_DIRECT
->correctly in their apps. In short every single bugreport like this about
->this -EINVAL strict behaviour is the proof we need to be strict and to
->return -EINVAL :)
->
->Andrea
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->.
->
+Now... conventions for the subject line?
 
+By the way, this to me is really a 'bot'.  The bulk of the proposals in this
+thread seem more like tools.
 
+--
+Daniel

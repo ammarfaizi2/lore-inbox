@@ -1,88 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTJFMiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 08:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbTJFMiJ
+	id S261882AbTJFMkl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 08:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTJFMkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 08:38:09 -0400
-Received: from fe04.axelero.hu ([195.228.240.92]:21230 "EHLO
-	amitabha.axelero.hu") by vger.kernel.org with ESMTP id S261872AbTJFMiA convert rfc822-to-8bit
+	Mon, 6 Oct 2003 08:40:40 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:41090 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261882AbTJFMki
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 08:38:00 -0400
-Subject: Re: FYI: ITE IT8212 RAID Controller Linux Driver - GPL
-From: Gabor MICSKO <gmicsko@szintezis.hu>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0310060753150.30210@filesrv1.baby-dragons.com>
-References: <1065431989.570.8.camel@sunshine> 
-	<Pine.LNX.4.58.0310060753150.30210@filesrv1.baby-dragons.com>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 06 Oct 2003 14:37:43 +0200
-Message-Id: <1065443868.2818.36.camel@sunshine>
-Mime-Version: 1.0
+	Mon, 6 Oct 2003 08:40:38 -0400
+Date: Mon, 6 Oct 2003 08:42:11 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Dave Jones <davej@redhat.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FDC motor left on
+In-Reply-To: <20031003235801.GA5183@redhat.com>
+Message-ID: <Pine.LNX.4.53.0310060834180.8593@chaos>
+References: <Pine.LNX.4.53.0310031322430.499@chaos> <20031003235801.GA5183@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2003-10-06, h keltezéssel Mr. James W. Laferriere ezt írta:
-> 	Hello Gabor ,  I am unable to find a referance to the controller
-> 	mentioned below at the site ,  http://www.ite.com.tw .
-> 	Do you know of a Url: that describes the controller ?  Tia ,  JimL
-> 
-> On Mon, 6 Oct 2003, Gabor MICSKO wrote:
-> 
-> > FYI:
-> >
-> > ITE IT8212 RAID Controller Linux Driver
-> > http://www.ite.com.tw/pc/LinuxSrc_it8212_092005-03.zip
-> >
-> > sunshine:/home/trey/devel/Mandrake# modinfo iteraid.o
-> > kernel_version: 2.4.21-pre5-ac2
-> > using_checksums:1
-> > author:         ITE,Inc.
-> > description:    ITE IT8212 RAID Controller Linux Driver
-> > license:        GPL
-> >
-> >
-> >
-> 
-> -- 
->        +------------------------------------------------------------------+
->        | James   W.   Laferriere | System    Techniques | Give me VMS     |
->        | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
->        | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
->        +------------------------------------------------------------------+
+On Sat, 4 Oct 2003, Dave Jones wrote:
 
-Hi James!
+> On Fri, Oct 03, 2003 at 01:25:30PM -0400, Richard B. Johnson wrote:
+>  > In linux-2.4.22 and earlier, if there is no FDC driver installed,
+>  > the FDC motor may continue to run after boot if the motor was
+>  > started as part of the BIOS boot sequence.
+>  > This patch turns OFF the motor once Linux gets control.
+>  >
+>  >
+>  > --- linux-2.4.22/arch/i386/boot/setup.S.orig	Fri Aug  2 20:39:42 2002
+>  > +++ linux-2.4.22/arch/i386/boot/setup.S	Fri Oct  3 11:50:43 2003
+>  > @@ -59,6 +59,8 @@
+>
+> Does this mean the 'kill_motor' function in bootsect.S isn't doing
+> what it should be? If so, maybe that needs fixing instead of turning
+> it off in two places ?
+>
+> 		Dave
 
-Try this one:
-http://www.ite.com.tw/productInfo/Download.html#IT8212%20ATA133%20Controller
+Yes. I didn't even see that. The code there makes me kinda sick.
+Anyway, the kill_motor function executes "reset diskette/disk" function
+which will never turn OFF the drive. Instead, it will restart
+the motor timer because, as a condition of reseting the diskette,
+it must make sure the motor is running.
 
-User Guide:
-http://www.ite.com.tw/pc/USERGUIDE_IT8212_091034-07.zip
+I suggest that the FDC control byte be read, then the result be
+ANDed with ~0x10, then written back. The ifed-out code clears
+the whole control word which is inappropriate at a time the
+diskette channel may be still be active.
 
-For example you find this controller onboard on Gigabyte mobo's: 
- 
-Gigabyte GA-7N400 Pro2:
-http://www.giga-byte.com/MotherBoard/Products/Products_GA-7N400%20Pro.htm
-
-Gigabyte 8PENXP:
-http://tw.giga-byte.com/MotherBoard/Products/Products_GA-8PENXP.htm
-
-Best regards,
-
--- 
-Windows not found
-(C)heers, (P)arty or (D)ance?
------------------------------------
-Micskó Gábor
-Compaq Accredited Platform Specialist, System Engineer (APS, ASE)
-Szintézis Computer Rendszerház Rt.      
-H-9021 Gyõr, Tihanyi Árpád út 2.
-Tel: +36-96-502-216
-Fax: +36-96-318-658
-E-mail: gmicsko@szintezis.hu
-Web: http://www.hup.hu/
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274666AbRJEXpu>; Fri, 5 Oct 2001 19:45:50 -0400
+	id <S274667AbRJEXtA>; Fri, 5 Oct 2001 19:49:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274653AbRJEXpl>; Fri, 5 Oct 2001 19:45:41 -0400
-Received: from theirongiant.weebeastie.net ([203.62.148.50]:49537 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S274669AbRJEXpb>; Fri, 5 Oct 2001 19:45:31 -0400
-Date: Sat, 6 Oct 2001 09:45:58 +1000
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org, groudier@club-internet.fr
-Subject: sym53c1010 issues
-Message-ID: <20011006094558.B440@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: Furball Inc.
+	id <S274669AbRJEXsu>; Fri, 5 Oct 2001 19:48:50 -0400
+Received: from mailf.telia.com ([194.22.194.25]:14289 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S274667AbRJEXsk>;
+	Fri, 5 Oct 2001 19:48:40 -0400
+Message-Id: <200110052348.f95NmhP04437@mailf.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        davidel@xmailserver.org (Davide Libenzi)
+Subject: Re: Context switch times
+Date: Sat, 6 Oct 2001 01:43:37 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), george@mvista.com (george anzinger),
+        bcrl@redhat.com (Benjamin LaHaise),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <E15pe0t-0007wz-00@the-village.bc.nu>
+In-Reply-To: <E15pe0t-0007wz-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am currently getting the following errors in dmesg:
+On Saturday 06 October 2001 01:04, Alan Cox wrote:
+> > > This damps down task thrashing a bit, and for the cpu hogs it gets the
+> > > desired behaviour - which is that the all run their full quantum in the
+> > > background one after another instead of thrashing back and forth
+> >
+> > What if we give to  prev  a priority boost P=F(T) where T is the time
+> > prev  is ran before the current schedule ?
+>
+> That would be the wrong key. You can argue certainly that it is maybe
+> appropriate to use some function based on remaining scheduler ticks, but
+> that already occurs as the scheduler ticks is the upper bound for priority
+> band
 
-sym53c1010-33-0:0: ERROR (81:0) (8-0-0) (3e/18) @ (mem 6d40383c:ffffffff).
-sym53c1010-33-0: regdump: da 00 00 18 47 3e 00 0f 04 08 80 00 00 00 0f 0a 28 96 
-7e 12 02 00 00 00.
-sym53c1010-33-0: ctest4/sist original 0x8/0x0  mod: 0x18/0x0
-sym53c1010-33-0: restart (scsi reset).
-sym53c1010-33-0: handling phase mismatch from SCRIPTS.
-sym53c1010-33-0: Downloading SCSI SCRIPTS.
-sym53c1010-33-0-<0,*>: FAST-80 WIDE SCSI 160.0 MB/s (12.5 ns, offset 62)
-sym53c1010-33-0:0: ERROR (81:0) (8-0-0) (3e/18) @ (script 50:f31c0004).
-sym53c1010-33-0: script cmd = 90080000
-sym53c1010-33-0: regdump: da 00 00 18 47 3e 00 0f 00 08 80 00 00 00 0f 0a 0a 4d 
-5f 49 02 00 00 00.
-sym53c1010-33-0: ctest4/sist original 0x8/0x0  mod: 0x18/0x0
-sym53c1010-33-0: restart (scsi reset).
-sym53c1010-33-0: handling phase mismatch from SCRIPTS.
-sym53c1010-33-0: Downloading SCSI SCRIPTS.
-sym53c1010-33-0-<0,*>: FAST-80 WIDE SCSI 160.0 MB/s (12.5 ns, offset 62)
+How about a LIFO list for each processor where preempted (count != 0) tasks
+go?
 
-and, after about 24hrs, the box seizes upon me requireing a reboot. The
-kernel I'm using is 2.2.19 with raid0.9 and the latest sym* drivers (ie
-not the ones that come with the kernel).
+When a preemption occurs the current goes to the LIFO.
+When a process has run whole of its time slot - it can be moved to an usedup
+queue. (No point in keeping it on the generic run queue, but remember
+it when giving out new ticks, could also be on a per CPU basis).
+Now select what to do next..
+The first on the LIFO can be moved in as "current" before checking the rest
+of the run queue...
 
-The main thing here is that I'm not sure if this is a h/w or s/w issue. Would
-msgs like the above be due to the driver, the onboard scsi card or the HD?
+Pros:
++ The LIFO will be sorted with highest prio on top - no need to search 'em all
++ a process that starts a time slot on one CPU stays the whole slot.
 
-Or am I asking the wrong questions? :)
+Cons:
+- A process might get stuck waiting for the processor in the FIFO while the
+  other CPU is idle (but that was the point, wasn't it...)
 
-There are other errors usually reported also and they deal with the 1st
-SCA drive (with 1 or 2 of the 3rd drive). There are currently 3 SCA drives
-on the first controller and 4 LVD drives (external array) on the 2nd. No
-hotswapping is being done and there have been no errors reported re the
-4 LVD drives as far as I know.
-
-Anyone able to help?
+/RogerL
 
 -- 
-CaT        "As you can expect it's really affecting my sex life. I can't help
-           it. Each time my wife initiates sex, these ejaculating hippos keep
-           floating through my mind."
-                - Mohd. Binatang bin Goncang, Singapore Zoological Gardens
+Roger Larsson
+Skellefteå
+Sweden

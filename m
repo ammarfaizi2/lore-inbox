@@ -1,81 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278520AbRJPEOF>; Tue, 16 Oct 2001 00:14:05 -0400
+	id <S278521AbRJPE2G>; Tue, 16 Oct 2001 00:28:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278521AbRJPENp>; Tue, 16 Oct 2001 00:13:45 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:59081 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S278520AbRJPENi>; Tue, 16 Oct 2001 00:13:38 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Date: Tue, 16 Oct 2001 14:14:02 +1000 (EST)
-MIME-Version: 1.0
+	id <S278522AbRJPE15>; Tue, 16 Oct 2001 00:27:57 -0400
+Received: from zok.sgi.com ([204.94.215.101]:12451 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S278521AbRJPE1s>;
+	Tue, 16 Oct 2001 00:27:48 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.13-pre3 arm/i386/mips/mips64/s390/s390x/sh die() deadlock 
+In-Reply-To: Your message of "Tue, 16 Oct 2001 12:58:21 +1000."
+             <18966.1003201101@kao2.melbourne.sgi.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15307.46090.242484.130680@notabene.cse.unsw.edu.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: very slow RAID-1 resync
-In-Reply-To: message from Jeffrey W. Baker on Monday October 15
-In-Reply-To: <15307.44268.700557.852375@notabene.cse.unsw.edu.au>
-	<Pine.LNX.4.33.0110152050120.415-100000@desktop>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Date: Tue, 16 Oct 2001 14:27:55 +1000
+Message-ID: <19892.1003206475@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday October 15, jwbaker@acm.org wrote:
-> On Tue, 16 Oct 2001, Neil Brown wrote:
-> 
-> > On Monday October 15, jwbaker@acm.org wrote:
-> > > I just plugged in a new RAID-1(+0, 2 2-disk stripe sets mirrored) to a
-> > > 2.4.12-ac3 machine.  The md code decided it was going to resync the mirror
-> > > at between 100KB/sec and 100000KB/sec.  The actual rate was 100KB/sec,
-> > > while the device was otherwise idle.  By increasing
-> > > /proc/.../speed_limit_min, I was able to crank the resync rate up to
-> > > 20MB/sec, which is slightly more reasonable but still short of the
-> > > ~60MB/sec this RAID is capable of.
-> > >
-> > > So, two things: there is something wrong with the resync code that makes
-> > > it run at the minimum rate even when the device is idle, and why is the
-> > > resync proceeding so slowly?
-> >
-> > The way that it works out where there is other activity on the drives
-> 
-> There wasn't any activity at all.
+On Tue, 16 Oct 2001 12:58:21 +1000, 
+Keith Owens <kaos@ocs.com.au> wrote:
+>On Mon, 15 Oct 2001 19:36:02 -0700 (PDT), 
+>Linus Torvalds <torvalds@transmeta.com> wrote:
+>>I much prefer a dead machine with a partially visible oops over a oops
+>>where the original oops has scrolled away due to recursive faults.
+>
+>IMHO it is unrealistic to expect that all code inside die() will never
+>fail.  Any unexpected kernel corruption could cause the register or
+>backtrace dump to fail.  The patch gets the best of both worlds.  It
+>protects against recursive errors and against concurrent calls to
+>die().
 
-See how fragile it is?  
-It only really works if the underlying devices are real drives with
-major number less than 16, and that are among the first 16 real
-devices with that major number (not counting different partitions on
-the device).
+Previous message sent too soon.
 
-> 
-> > is a bit fragile.  It works particularly badly when the underlying
-> > devices are md devices.
-> 
-> Bummer.
-> 
-> > I would recommend that instead of mirroring 2 stipe sets, you stripe
-> > two mirrored pairs.  The resync should be faster and the resilience to
-> > failure is much better.
-> 
-> I did eventually do it that way, but the sync speed was the same.  I'm
-> very curious to know why you think striping mirrors is more reliable than
-> mirroring stripes.  Either way, you can lose any one drive and some
-> combinations of two drives.  Either way you can hot-swap the bad
-> disk.
+The patch makes two attempts at dumping registers, one for the original
+oops and one if die() fails, then it gives up.  The second attempt is
+useful for diagnosing why die() is failing, without that data it is
+difficult to fix die() itself.
 
-With striped mirrors there are more combinations of two drives that
-can fail without data loss, and less data needs to be copied during a
-resync.  Also, hotadd is easier  - you don't have to build a raid0 and
-then hot-add that, you just hot-add a drive.
+I was aiming to improve error handling in the rare case that die()
+failed so we could get better diagnostics in the long term, by fixing
+the problems that make die() fail.  If you think that this would scroll
+away useful data then we can compromise.
 
-It is odd that you still aren't getting good rebuild speed.  What
-drives to you have and how are they connected to what controllers?
+	if (++die_lock_owner_depth < 2+(CONFIG_DIAGNOSE_RECURSIVE_DIE+0)) {
 
-NeilBrown
+CONFIG_DIAGNOSE_RECURSIVE_DIE
+  If this variable is selected then the kernel will attempt to provide
+  extra diagnostics in the rare cases when the kernel die() routine
+  itself dies.  This may cause useful information from the first
+  failure to be lost.  Unless you want to diagnose the die() and
+  show_regs() code in the kernel, say N here.
 
-> 
-> -jwb
+Acceptable?
+

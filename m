@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129465AbRBIAUE>; Thu, 8 Feb 2001 19:20:04 -0500
+	id <S129036AbRBIAWY>; Thu, 8 Feb 2001 19:22:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129471AbRBIATy>; Thu, 8 Feb 2001 19:19:54 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:60680 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129465AbRBIATo>; Thu, 8 Feb 2001 19:19:44 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE021@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'Adam Schrotenboer'" <ajschrotenboer@lycosmail.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: Mem detection problem
-Date: Thu, 8 Feb 2001 16:19:36 -0800 
+	id <S129668AbRBIAWP>; Thu, 8 Feb 2001 19:22:15 -0500
+Received: from Mail.ubishops.ca ([192.197.190.5]:65292 "EHLO Mail.ubishops.ca")
+	by vger.kernel.org with ESMTP id <S129633AbRBIAV4>;
+	Thu, 8 Feb 2001 19:21:56 -0500
+Message-ID: <3A833817.E4455DC0@yahoo.co.uk>
+Date: Thu, 08 Feb 2001 19:21:43 -0500
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] xirc2ps_cs.c  SET_MODULE_OWNER(dev)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Adam Schrotenboer [mailto:ajschrotenboer@lycosmail.com]
-> 
-> This is actually a repost of a problem that received few 
-> serious replies (IMNSHO).
+I presume that this change needs to be made.
+(All of the drivers/net/pcmcia/*.c need the change.)
+ // Thomas
 
-Well, I claim not to have ignored it.
-I have gone thru the entire patch-2.4.1 file and can't see
-anything there that would cause what you are seeing.
-
-You aren't using ACPI, right?  (not in your log files)
-[That just makes the patch file of interest smaller.]
-
-> Basically 2.4.0 detects 192 MB(maybe 191, but big whoop) of 
-> memory. This 
-> is correct. However, 2.4.1-ac6 (as did Linus-blessed 2.4.1) 
-> detects 64. 
-> The problem is simple. 2.4.1 and later for some reason uses bios-88, 
-> instead of e820.
-> 
-> Attached are the dmesgs from 2.4.0 and 2.4.1-ac6.
-
-Have you booted 2.4.0 again (lately)?  You log file is from
-Jan-08-2001.  It may also report only 64 MB now, based on
-some kind of BIOS change (or ESCD ...) since Jan-08.
-
-Someone else with a similar "problem" actually had a fruit fly
-in one of their slots that caused a problem, so I would ask that
-you (a) boot 2.4.0 again to see if it works now and (b) remove
-adapters, clean slots, reseat adapters, boot 2.4.1 again.
-
-~Randy
-
+jdthood@thanatos:/usr/src/kernel-source-2.4.1-ac3/drivers/net/pcmcia# diff -Naur xirc2ps_cs.c_ORIG xirc2ps_cs.c
+--- xirc2ps_cs.c_ORIG	Thu Feb  8 19:11:54 2001
++++ xirc2ps_cs.c	Thu Feb  8 19:12:01 2001
+@@ -637,6 +637,7 @@
+     link->irq.Instance = dev;
+ 
+     /* Fill in card specific entries */
++    SET_MODULE_OWNER(dev);
+     dev->hard_start_xmit = &do_start_xmit;
+     dev->set_config = &do_config;
+     dev->get_stats = &do_get_stats;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280082AbRJaF3a>; Wed, 31 Oct 2001 00:29:30 -0500
+	id <S280081AbRJaFiB>; Wed, 31 Oct 2001 00:38:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280077AbRJaF3V>; Wed, 31 Oct 2001 00:29:21 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:24050
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S280080AbRJaF3K>; Wed, 31 Oct 2001 00:29:10 -0500
-Date: Tue, 30 Oct 2001 21:29:42 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Tom Vier <tmv5@home.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-ac2 weird vm stats
-Message-ID: <20011030212942.J490@mikef-linux.matchmail.com>
-Mail-Followup-To: Tom Vier <tmv5@home.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011030224011.A32651@zero>
+	id <S280083AbRJaFhv>; Wed, 31 Oct 2001 00:37:51 -0500
+Received: from THANK.THUNK.ORG ([216.175.175.163]:31108 "EHLO thunk.org")
+	by vger.kernel.org with ESMTP id <S280081AbRJaFhk>;
+	Wed, 31 Oct 2001 00:37:40 -0500
+Date: Tue, 30 Oct 2001 11:07:13 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Oliver Xymoron <oxymoron@waste.org>,
+        Horst von Brand <vonbrand@inf.utfsm.cl>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] random.c bugfix
+Message-ID: <20011030110713.A583@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Oliver Xymoron <oxymoron@waste.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011029163920.F806@lynx.no> <Pine.LNX.4.30.0110291814100.30096-100000@waste.org> <20011029205005.L806@lynx.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011030224011.A32651@zero>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20011029205005.L806@lynx.no>; from adilger@turbolabs.com on Mon, Oct 29, 2001 at 08:50:05PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 10:40:11PM -0500, Tom Vier wrote:
-> noticed this while in x. shortly afterwards (less than a minute), the stats
-> returned to normal, except it was reporting little to no, or possible still
-> negative cache (couldn't tell at the time, was reading from xosview). the
-> vmstat output below may have been generated just after it returned to
-> normal.
+On Mon, Oct 29, 2001 at 08:50:05PM -0700, Andreas Dilger wrote:
 > 
->  10:20pm  up 4 days, 35 min,  1 user,  load average: 2.47, 2.18, 2.06
-> 51 processes: 49 sleeping, 2 running, 0 zombie, 0 stopped
-> CPU states:  0.6% user,  0.2% system, 99.0% nice,  0.0% idle
-> Mem:  510296K av, 506208K used,   4088K free,      0K shrd, 139728K buff
-> Swap:  98272K av,      0K used,  98272K free                 -9552K cached
-> 
->    procs                      memory    swap          io     system         cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
->  1  0  1      0 127368 131792   3248   0   0     1     6   11     8   3   0   0
-> 
-> 
-> Linux zero 2.4.13-ac2 #1 Fri Oct 26 22:24:29 EDT 2001 alpha unknown
+> Well, I just saw that the "in++" and "nwords * 4" patches went into -pre4.
+> These are the only real non-cosmetic parts of what has been sent.  The
+> other patches were not officially submitted to Linus yet (using bytes
+> as parameters, and removing poolwords from the struct).  I have reverted
+> those patches in my tree, and gone back to using words as units for
+> add_entropy(), since it doesn't make sense to take bytes as a parameter
+> and then require a multiple of 4 bytes for input sizes.
 
-I'm seeing this on 2.4.13-ac5 too.
+Oops, ouch.  Thanks for catching the in++ bug; I can't believe that
+remained unnoticed for so long.  
 
-Check out the thread started as "funny free output with all mem for buffers"
- then changed to "Cached accounting problem" by me...
- 
-This seems to be happening on 2.4.13, and -ac kernels.
+Could you send me a pointer to the proposed change to remove poolwords
+from the struct?  I'm not sure why that wwould be a good thing at all.
 
-Mike
+Also, the reason why add_entropy_words did stuff in multiple of 4
+bytes was simply because it made the code much more efficient.
+Zero-padding isn't a problem, since it's perfectly safe to mix in zero
+bytes into the pool.  It is an issue for the entropy credit
+calculation, but that's completely separate from add_entropy_words()....
+
+						- Ted

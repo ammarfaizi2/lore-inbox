@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136131AbRD0R1L>; Fri, 27 Apr 2001 13:27:11 -0400
+	id <S136135AbRD0R0l>; Fri, 27 Apr 2001 13:26:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136132AbRD0R1C>; Fri, 27 Apr 2001 13:27:02 -0400
-Received: from penguin.roanoke.edu ([199.111.154.8]:10253 "EHLO
-	penguin.roanoke.edu") by vger.kernel.org with ESMTP
-	id <S136131AbRD0R0y>; Fri, 27 Apr 2001 13:26:54 -0400
-Message-ID: <3AE9AEB6.AFE25389@linuxjedi.org>
-Date: Fri, 27 Apr 2001 13:39:02 -0400
-From: "David L. Parsley" <parsley@linuxjedi.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Padraig Brady <padraig@antefacto.com>, linux-kernel@vger.kernel.org
+	id <S136132AbRD0R0b>; Fri, 27 Apr 2001 13:26:31 -0400
+Received: from AMontpellier-201-1-2-100.abo.wanadoo.fr ([193.253.215.100]:61428
+	"EHLO microsoft.com") by vger.kernel.org with ESMTP
+	id <S136131AbRD0R0Z>; Fri, 27 Apr 2001 13:26:25 -0400
 Subject: Re: ramdisk/tmpfs/ramfs/memfs ?
-In-Reply-To: <3AE99CE8.BD325F52@antefacto.com>  <Pine.LNX.3.96.1010426203656.22847A-100000@medusa.sparta.lu.se> <15296.988386995@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Padraig Brady <padraig@antefacto.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AE9B203.88B6C799@antefacto.com>
+In-Reply-To: <3AE99CE8.BD325F52@antefacto.com> 
+	<Pine.LNX.3.96.1010426203656.22847A-100000@medusa.sparta.lu.se>
+	<15296.988386995@redhat.com>  <3AE9B203.88B6C799@antefacto.com>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 27 Apr 2001 19:23:41 +0200
+Message-Id: <988392226.4700.0.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
+Le 27 Apr 2001 18:53:07 +0100, Padraig Brady a écrit :
 
-> Why copy it into RAM? Why not use cramfs and either turn the writable
-> directories into symlinks into a ramfs which you create at boot time, or
-> union-mount a ramfs over the top of it?
-  ^^^^^^^^^^^
+> How much more efficent is JFFS than say ext3+e3compr, wrt:
+> logic size/logic speed/RAM requirements/filesystem structure size.
 
-I didn't think we had union-mounting support... does it exist and
-I've somehow missed it?
+JFFS doesn't have to use the FTL layer between its block device and the
+flash - that's a lot already !
 
-regards,
-	David
+Xav
 
--- 
-David L. Parsley
-Network Administrator
-Roanoke College

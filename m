@@ -1,42 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266563AbRGDWEH>; Wed, 4 Jul 2001 18:04:07 -0400
+	id <S266557AbRGDWKR>; Wed, 4 Jul 2001 18:10:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266562AbRGDWD6>; Wed, 4 Jul 2001 18:03:58 -0400
-Received: from 24-25-197-107.san.rr.com ([24.25.197.107]:35061 "HELO
-	sink.san.rr.com") by vger.kernel.org with SMTP id <S266566AbRGDWDn>;
-	Wed, 4 Jul 2001 18:03:43 -0400
-Date: Wed, 4 Jul 2001 15:03:42 -0700
-From: acmay@acmay.homeip.net
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: virt_to_bus and virt_to_phys on Apple G4 target
-Message-ID: <20010704150342.C822@sink.san.rr.com>
-In-Reply-To: <CA256A7E.0020F52C.00@d73mta01.au.ibm.com> <15169.29154.670946.785981@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S266561AbRGDWKI>; Wed, 4 Jul 2001 18:10:08 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:46800 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S266557AbRGDWJz>; Wed, 4 Jul 2001 18:09:55 -0400
+Message-ID: <3B4394A8.10D0AFE1@idcomm.com>
+Date: Wed, 04 Jul 2001 16:11:52 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: >128 MB RAM stability problems (again)
+In-Reply-To: <994279551.1116.0.camel@tux>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15169.29154.670946.785981@pizda.ninka.net>; from davem@redhat.com on Tue, Jul 03, 2001 at 12:18:58AM -0700
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 03, 2001 at 12:18:58AM -0700, David S. Miller wrote:
+Ronald Bultje wrote:
 > 
-> mdaljeet@in.ibm.com writes:
->  > I am running linux 2.4.2 on Apple G4 machine. I think the 'PCI bus
->  > addresses' and 'physical addresses' are same on this architecture. I
->  > expected the two be different but according to asm/io.h 'virt_to_bus(addr)
->  > = virt_to_phys(addr) + PCI_DRAM_OFFSET'. I printed the value of
->  > 'PCI_DRAM_OFFSET' and that come out to be zero. Is this correct?
->  > 
->  > If I somehow get the physical address of a user space buffer in a module
->  > and take this as a PCI bus address, will I be able to do DMA properly?
+> Hi,
 > 
-> virt_to_bus() and bus_to_virt() are deprecated interfaces and should
-> not be used by anything new.  See Documentation/DMA-mapping.txt for
-> details.
+> you might remember an e-mail from me (two weeks ago) with my problems
+> where linux would not boot up or be highly instable on a machine with
+> 256 MB RAM, while it was 100% stable with 128 MB RAM. Basically, I still
+> have this problem, so I am running with 128 MB RAM again.
 
-What about non-PCI devices? The IBM 405GP on-chip ethernet controller
-is not PCI. It isn't in the standard kernel yet, but I am sure there
-are other things that do DMA that aren't PCI.
+Some motherboards have ram requirements that might not be obvious
+without reading the m/b manual. For example, some m/b's require
+registered memory. Some don't work with ECC. Some require modules be
+installed in pairs (of exact type match). Some require that larger
+memory sticks be placed in earlier slots relative to smaller modules.
+And if you add a wait state in the bios a marginal ram module can become
+quite stable; the unstable version can behave differently under
+different circumstances (including temperature). Check the m/b manual
+and m/b web site for exact requirements, and make sure the ram matches;
+even if your memory is good, it might not be good in your circumstances.
+
+D. Stimits, stimits@idcomm.com
+
+> 
+> I've been running Mandrake 7.2 on another machine for some time - no
+> problem, until..... I added another 64 MB RAM and tried to install
+> redhat (25 times (!!!)) and Mandrake 8.0... Both crash with memory
+> faults..... Redhat just freezes or givesa a python warning, Mandrake
+> gives a segfault with a warning that "memory is missing".... Both refuse
+> to complete installation...
+> 
+> I'm kind of astounded now, WHY can't linux-2.4.x run on ANY machine in
+> my house with more than 128 MB RAM?!? Can someone please point out to me
+> that he's actually running kernel-2.4.x on a machine with more than 128
+> MB RAM and that he's NOT having severe stability problems?
+> And can that same person PLEASE point out to me why 2.4.x is crashing on
+> me (or help me to find out...)?
+> 
+> First machine is a Intel P-II 400 with 128 MB RAM (133 MHz SDRAM) and
+> crashing when I insert an additional 128 - it's running RH-7.0 with
+> kernel-2.4.4. Second machine is an AMD Duron 600 with 196 MB RAM (also
+> 133 MHz SDRAM), crashing during the installation of both Mandrake 8.0
+> and Redhat 7.1 and which used to run stable with 128 MB RAM or 64 MB RAM
+> with Mandrake-7.2. Win2k runs stable on this machine in all
+> configurations.
+> 
+> I'm getting desperate.... win2k is running stable and it's scary to see
+> linux crash while win2k runs stable and smooth.
+> 
+> (ps I'm not subscribed to the list - please CC a copy to me when
+> replying)
+> 
+> Thanks in advance for any help on this,
+> 
+> --
+> Ronald Bultje
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

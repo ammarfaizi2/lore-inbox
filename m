@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264326AbTL3BiL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 20:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264333AbTL3BiL
+	id S264315AbTL3Btj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 20:49:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264320AbTL3Btj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 20:38:11 -0500
-Received: from [24.35.117.106] ([24.35.117.106]:3723 "EHLO
+	Mon, 29 Dec 2003 20:49:39 -0500
+Received: from [24.35.117.106] ([24.35.117.106]:10123 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S264326AbTL3BiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 20:38:09 -0500
-Date: Mon, 29 Dec 2003 20:37:53 -0500 (EST)
+	id S264315AbTL3Bti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 20:49:38 -0500
+Date: Mon, 29 Dec 2003 20:49:07 -0500 (EST)
 From: Thomas Molina <tmolina@cablespeed.com>
 X-X-Sender: tmolina@localhost.localdomain
-To: Roger Luethi <rl@hellgate.ch>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.0 performance problems
-In-Reply-To: <20031230012551.GA6226@k3.hellgate.ch>
-Message-ID: <Pine.LNX.4.58.0312292031450.6227@localhost.localdomain>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
- <20031230012551.GA6226@k3.hellgate.ch>
+In-Reply-To: <1072748264.25741.79.camel@nosferatu.lan>
+Message-ID: <Pine.LNX.4.58.0312292043420.6227@localhost.localdomain>
+References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain> 
+ <Pine.LNX.4.58.0312291420370.1586@home.osdl.org> 
+ <Pine.LNX.4.58.0312291803420.5835@localhost.localdomain> 
+ <1072741422.25741.67.camel@nosferatu.lan>  <Pine.LNX.4.58.0312291913270.5835@localhost.localdomain>
+  <20031230012715.GA30369@redhat.com> <1072748264.25741.79.camel@nosferatu.lan>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Dec 2003, Roger Luethi wrote:
+On Tue, 30 Dec 2003, Martin Schlemmer wrote:
 
-> I bet this is just yet another instance of a problem we've been
-> discussing on lkml and linux-mm for several months now (although Linus
-> asking for DMA presumably means it's not as well known as I thought
-> it was).
+> > It's not uncommon for a laptop to have a hard disk which supports
+> > higher DMA modes than what the IDE chipset supports.
+> > My aging Intel 440BX based VAIO has a disk in the same configuration
+> > as yours, supports udma4, but chipset only goes up to udma2.
+> > 
 > 
-> Basically, when you need to resort to paging for getting work done on
-> 2.6 you're screwed. Your bk export takes a lot more memory than you
-> have RAM in your machine, right?
+> Right, or as somebody else pointed out, it might not be a 80-pin cable.
+> 
+> Lets rephrase - does it also run in udma2 mode with 2.4 ?  And did
+> you check readahead?  In 2.6 it seems that a bigger value is better -
+> I for instance have to set it to 8192 to have the same performance as
+> in 2.4 ...
 
-Right.  I have 120MB RAM and 256MB swap partition.  That corresponds to 
-the 85 to 90 percent top says I am spending in iowait.
+8192 will be my next test.  I'm doing a compile at the moment.  It runs in 
+udma2 under both 2.4 and 2.6.  If I need an 80-pin cable then udma4 is not 
+possible for this system.  If I read the following, it is only capable of 
+66MHz anyway:
+
+00:07.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 10) 
+(prog-if 8a [Master SecP PriP])
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64
+        Region 4: I/O ports at 1420 [size=16]
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+

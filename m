@@ -1,86 +1,92 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317581AbSFMKZM>; Thu, 13 Jun 2002 06:25:12 -0400
+	id <S317580AbSFMKkL>; Thu, 13 Jun 2002 06:40:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317583AbSFMKZM>; Thu, 13 Jun 2002 06:25:12 -0400
-Received: from isolaweb.it ([213.82.132.2]:10002 "EHLO web.isolaweb.it")
-	by vger.kernel.org with ESMTP id <S317581AbSFMKZL>;
-	Thu, 13 Jun 2002 06:25:11 -0400
-Message-Id: <5.1.1.6.0.20020613115257.03b03ec0@mail.tekno-soft.it>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Thu, 13 Jun 2002 12:25:12 +0200
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-From: Roberto Fichera <kernel@tekno-soft.it>
-Subject: Re: Developing multi-threading applications
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020613113158.I22429@nightmaster.csn.tu-chemnitz.de>
+	id <S317584AbSFMKkK>; Thu, 13 Jun 2002 06:40:10 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:35847 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S317580AbSFMKkJ>; Thu, 13 Jun 2002 06:40:09 -0400
+Date: Thu, 13 Jun 2002 03:40:04 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 no timestamp update on modified mmapped files
+Message-ID: <20020613034004.A15498@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020612192526.B6679@pegasys.ws> <Pine.LNX.4.21.0206131003550.1596-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11.31 13/06/02 +0200, Ingo Oeser wrote:
+On Thu, Jun 13, 2002 at 10:58:39AM +0100, Hugh Dickins wrote:
+> On Wed, 12 Jun 2002, jw schultz wrote:
+> > On Wed, Jun 12, 2002 at 03:52:34PM +0100, Hugh Dickins wrote:
+> > > On Wed, 12 Jun 2002, Andrew Morton wrote:
+> > > > 
+> > > > 1: Map the page to disk at fault time, generate SIGBUS on
+> > > >    ENOSPC  (the standards don't seem to address this issue, and
+> > > >    this is a non-standard overload of SIGBUS).
+> > > 
+> > > I believe your option 1 is closest to the right direction; and SIGBUS
+> > > is entirely appropriate, I don't see it as a non-standard overload.
+> > 
+> > I concur that #1 is closest.  I'd prefer it to happen on a
+> > write fault rather read but the frequency with which
+> > this should occur is low enough i wouldn't sweat it.
+> > 
+> > It is a non-standard overload of SIGBUS.  SIGBUS is to
+> > indicate an unaligned memory access or otherwise malformed
+> > address. Many confuse SIGBUS with SIGSEGV because they are
+> > usually symptoms of the same problems but a SIGSEGV is to
+> > indicate memory protection violation (unresolvable page
+> > fault) which is not the same as a malformed address.  I
+> > believe Linux, at least on x86 maps both errors to SIGSEGV.
+> > I would think SIGXFSZ might be a better fit.
+> 
+> No.  I think you're looking back too far in UNIX history.
+> I imagine SIGBUS was originally defined as you describe,
+> but got hijacked by the inventors of the mmap system call
+> (only a limited number of signals available).  That overload
+> has been enshrined in standards for ten(?) years.
 
->On Thu, Jun 13, 2002 at 11:08:27AM +0200, Roberto Fichera wrote:
-> > You are right! But "computational intensive" is not totaly right as I 
-> say ;-),
-> > because most of thread are waiting for I/O, after I/O are performed the
-> > computational intensive tasks, finished its work all the result are sent
-> > to thread-father, the father collect all the child's result and perform 
-> some
-> > computational work and send its result to its father and so on with many
-> > thread-father controlling other child. So I think the main problem/overhead
-> > is thread creation and the thread's numbers.
->
->So you are creating a simulation/emulation application/engine, right?
->Or a measured data analysis engine? (which is basically the same
->task)
+Perhaps.  I guess i'm showing my age but i remember when the
+hardware MMU would generate a "buss error" and more than
+once the distinction between buss error and segmentation
+violation actually pointed to the programming error.  If so
+it is way past time to alias SIGBUS and deprecate the old
+name.  We're also overdue for fixing the manpages where
+signal(7) defines SIGBUS as "Bus error (bad memory access)"
+which has nothing to do with space availabilty.
 
-Yes! It's a simulation/emulation application.
+> SIGSEGV is used where mapping itself cannot be accessed (no mapping
+> or insufficient permission); SIGBUS where mapped object cannot be
+> accessed - I/O error or, more usually, beyond end of (last page of)
+> file.  Linux just follows the standards on those.
+> 
+> It would be inappropriate to use anything but SIGBUS for no space.
 
->For these kind of tasks creating your own kind of "threads" is
->probably better.
->
->Split it in the following data structure:
->
->struct my_thread {
->    actor_function_t actor;
->    input_t inbuf;
->    output_t outbuf;
->    state_t statebuf;
->}
->
->And provide rules and primitives for accessing inbuf/outbuf, if
->they might be shared (which is probable).
+I would dispute that; as the only signal that even hints at
+out-of-space is SIGXFSZ which is why i mentioned it.  Since
+we are going beyond POSIX and SUS we could use an altogether
+new signal but that is a much bigger discussion.  SIGFULL
+anyone?  I seem to recall a discussion regarding a mechanism
+that would allow notifying processes that memory is tight,
+but that should by default ignore not terminate so should not
+shared with this.
 
-This can be a solution.
+The main thing is the signal should be catchable and by
+default should terminate without core.  As long as a corrupt
+pointer doesn't cause the same signal as running out of
+space i'm ok with it.
 
+I've said my piece and I'll shut up now.
 
->Now you can build a dependency tree/graph for the whole stuff
->easily and schedule works of the same level to some real worker
->threads (which might be on different machines), which are one per CPU.
->
->The problem is to build the actor as a REAL primitive, that
->scales only by the size of inbuf and not by the contents of it.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-Yes!
-
->Everything else is going to be bloated and not really scalable,
->but can be implemented by every "Joe Programmer" after finishing
->high school ;-)
-
-Depending by the threading library, if it's totaly userspace or not!
-With so many thread that aren't totaly userspace the scheduler
-performances/caratteristics are much important. I prefer a mixed
-solution for example. Because some problem can be easily resolved
-with a userspace threads and other not.
-
-
->Regards
->
->Ingo Oeser
->--
->Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
-
-Roberto Fichera.
-
+		Remember Cernan and Schmitt

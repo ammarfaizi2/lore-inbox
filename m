@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265057AbRFZRzy>; Tue, 26 Jun 2001 13:55:54 -0400
+	id <S265064AbRFZR7q>; Tue, 26 Jun 2001 13:59:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265064AbRFZRzp>; Tue, 26 Jun 2001 13:55:45 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:49696 "EHLO
-	mailsorter1.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S265057AbRFZRz1>; Tue, 26 Jun 2001 13:55:27 -0400
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6C43@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'esr@thyrsus.com'" <esr@thyrsus.com>,
-        Rik van Riel <riel@conectiva.com.br>
-Cc: David Woodhouse <dwmw2@infradead.org>, Russell King <rmk@arm.linux.org.uk>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: RE: Maintainers master list?
-Date: Tue, 26 Jun 2001 13:53:50 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S265071AbRFZR7g>; Tue, 26 Jun 2001 13:59:36 -0400
+Received: from pc2-camb6-0-cust223.cam.cable.ntl.com ([213.107.107.223]:31128
+	"EHLO kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
+	id <S265064AbRFZR7X>; Tue, 26 Jun 2001 13:59:23 -0400
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: Tim Waugh <twaugh@redhat.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: parport_pc tries to load parport_serial automatically 
+In-Reply-To: Message from Tim Waugh <twaugh@redhat.com> 
+   of "Tue, 26 Jun 2001 10:23:03 BST." <20010626102303.K7663@redhat.com> 
+In-Reply-To: <Pine.LNX.4.21.0106260308100.1730-100000@freak.distro.conectiva>  <20010626102303.K7663@redhat.com> 
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1965377001P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 26 Jun 2001 18:59:11 +0100
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E15Ex7I-0008TV-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-1965377001P
+Content-Type: text/plain; charset=us-ascii
 
->What happens now when somebody takes over responsibility for a file
->or subsystem and the MAINTAINERS file doesn't get patched, either because
->that person forgets to send a MAINTAINERS update or Linus doesn't 
->happen to take the MAINTAINERS patch for a while?
+>- change parport_pc so that it doesn't request parport_serial at
+>  init.  In this case, how will parport_serial get loaded at all?
+>  Perhaps with some recommended /etc/modules.conf lines (perhaps
+>  parport_lowlevel{1,2,3,...})?
 
->What happens when I look at a file and it's not obvious which
->subsystem it belongs to?  Sure, I can grovel through MAINTAINERS.  But
->how do I know which verbal description matches the function of the
->cryptically-commented or uncommented code I have in front of me?
+This would be a bit bad, because it would require people to guess whether they 
+might have a card that parport_serial can drive and/or try loading the module 
+to see what happens.
 
->Distributed-information problems need distributed-information
->solutions.  Locality is your friend.  This crowd should know that
->if anybody should.
+I guess one option would be for parport_pc to somehow "know" what cards are 
+really multi-I/O ones, and only load parport_serial when it will be able to 
+find something to do.  Doesn't seem all that appealing though.
 
-I'll throw this back out again, and if you all are not interested, drop it
-if you want.  I am looking for places and points to help out where I see
-issues come up several times, and this is one I have seen occasionally. I am
-not advocating Eric's proposal for sweeping maintainer's changes, though I
-respect Eric, and all the developers work.  How about starting with a simple
-MAINTAINERS file maintainer?  Someone to actively follow project developers
-and contact info?  Not a small or simple project, I understand, but maybe a
-central point to send patches to Linus for the Maintainers file?  Just my
-two cents, on a Tuesday  :o)
+>- parport_serial could be made to initialise successfully even if it
+>  doesn't see any devices that it can drive.
 
-B.
+If you do that then the code will effectively be there all the time, even when 
+it's not needed.  You might as well just compile it in to parport_pc.  To be 
+honest, there isn't all that much of it so maybe this wouldn't be such a bad 
+idea.
+
+p.
+
+
+
+--==_Exmh_-1965377001P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999 (debian)
+
+iD8DBQE7OM1vVTLPJe9CT30RAieVAKCSROwbdtLuu6AP00yiRO59LvYYegCfQ0D/
+cdU+j8nHBcQS0fF2uozZKcU=
+=WLTX
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1965377001P--

@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262550AbTIPXMw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 19:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbTIPXMw
+	id S262547AbTIPXMi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 19:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbTIPXMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 19:12:52 -0400
-Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:20866
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262550AbTIPXMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 19:12:49 -0400
-Date: Tue, 16 Sep 2003 19:12:48 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Petr Vandrovec <vandrove@vc.cvut.cz>, Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Another keyboard woes with 2.6.0...
-In-Reply-To: <Pine.LNX.4.53.0309161844380.23370@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.53.0309161911160.23370@montezuma.fsmlabs.com>
-References: <20030912165044.GA14440@vana.vc.cvut.cz>
- <Pine.LNX.4.53.0309121341380.6886@montezuma.fsmlabs.com>
- <20030916232318.A1699@pclin040.win.tue.nl> <Pine.LNX.4.53.0309161844380.23370@montezuma.fsmlabs.com>
+	Tue, 16 Sep 2003 19:12:37 -0400
+Received: from lidskialf.net ([62.3.233.115]:55937 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S262547AbTIPXMg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 19:12:36 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: [PATCH] 2.6.0-test4 Don't change BIOS allocated IRQs
+Date: Wed, 17 Sep 2003 00:11:03 +0100
+User-Agent: KMail/1.5.3
+Cc: linux-acpi@intel.com, Chris Wright <chrisw@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200309170011.03630.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Sep 2003, Zwane Mwaikambo wrote:
+With the help of Chris Wright testing several failed patches, I've tracked 
+down another ACPI IRQ problem. On many systems, the BIOS 
+pre-allocates IRQs for certain PCI devices, providing a list of alternate 
+possibilities as well.
 
-> On Tue, 16 Sep 2003, Andries Brouwer wrote:
-> 
-> > In Petr's case it looks like his switch produces a single well-defined
-> > byte (0x41) when switching. What about you? Do you get garbage at the
-> > moment of switching, or always the same code(s)?
-> > Do you only get the spurious repeat when switching?
-> > Andrew gets spurious repeats together with mouse activity. Do you?
+On some systems, changing the IRQ to one of those alternate possibilities 
+works fine. On others however, it really isn't a good idea. As theres no 
+way to tell which systems are good and bad in advance, this patch simply 
+ensures that ACPI does not change an IRQ if the BIOS has pre-allocated it.
 
-Nope mouse activity doesn't seem to do it
 
-> > I am especially interested in cases where people can reproduce
-> > an unwanted key repeat. The question is: is this a bug in our timer code
-> > or use of timers, or did the keyboard never send the key release code?
-> > 
-> > (#define DEBUG in i8042.c)
-> 
-> Hi Andries, sorry for not following up. i'll enable and test this 
-> immediately, my case is a bit hard to reproduce (a matter of days) but if 
-> you'd like to see a capture from KVM switching i can do that.
-> 
-> Follow up coming shortly...
 
-Here is an excerpt from a KVM switch, ls -l, KVM switch;
+--- linux-2.6.0-test4.es7000fix/drivers/acpi/pci_link.c	2003-09-06 00:35:16.000000000 +0100
++++ linux-2.6.0-test4.nochangeirq/drivers/acpi/pci_link.c	2003-09-17 00:00:40.740553544 +0100
+@@ -510,15 +510,15 @@
+ 		irq = link->irq.active;
+ 	} else {
+ 		irq = link->irq.possible[0];
+-	}
+ 
+-	/* 
+-	 * Select the best IRQ.  This is done in reverse to promote 
+-	 * the use of IRQs 9, 10, 11, and >15.
+-	 */
+-	for (i=(link->irq.possible_count-1); i>0; i--) {
+-		if (acpi_irq_penalty[irq] > acpi_irq_penalty[link->irq.possible[i]])
+-			irq = link->irq.possible[i];
++		/* 
++		 * Select the best IRQ.  This is done in reverse to promote 
++		 * the use of IRQs 9, 10, 11, and >15.
++		 */
++		for (i=(link->irq.possible_count-1); i>0; i--) {
++			if (acpi_irq_penalty[irq] > acpi_irq_penalty[link->irq.possible[i]])
++				irq = link->irq.possible[i];
++		}
+ 	}
+ 
+ 	/* Attempt to enable the link device at this IRQ. */
 
-drivers/input/serio/i8042.c: 26 <- i8042 (interrupt, kbd, 1) [150578]
-drivers/input/serio/i8042.c: 1f <- i8042 (interrupt, kbd, 1) [150654]
-drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [150683]
-drivers/input/serio/i8042.c: 39 <- i8042 (interrupt, kbd, 1) [150713]
-drivers/input/serio/i8042.c: 9f <- i8042 (interrupt, kbd, 1) [150758]
-drivers/input/serio/i8042.c: 0c <- i8042 (interrupt, kbd, 1) [150789]
-drivers/input/serio/i8042.c: b9 <- i8042 (interrupt, kbd, 1) [150853]
-drivers/input/serio/i8042.c: 26 <- i8042 (interrupt, kbd, 1) [150884]
-drivers/input/serio/i8042.c: 8c <- i8042 (interrupt, kbd, 1) [150931]
-drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [150986]
-drivers/input/serio/i8042.c: 1c <- i8042 (interrupt, kbd, 1) [151090]
-drivers/input/serio/i8042.c: 9c <- i8042 (interrupt, kbd, 1) [151208]
-drivers/input/serio/i8042.c: 1d <- i8042 (interrupt, kbd, 1) [152374]
-drivers/input/serio/i8042.c: 9d <- i8042 (interrupt, kbd, 1) [152439]
-drivers/input/serio/i8042.c: 1d <- i8042 (interrupt, kbd, 1) [152653]
-drivers/input/serio/i8042.c: 9d <- i8042 (interrupt, kbd, 1) [152708]
-
-Need something more specific?

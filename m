@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314269AbSDRIWh>; Thu, 18 Apr 2002 04:22:37 -0400
+	id <S314270AbSDRIXh>; Thu, 18 Apr 2002 04:23:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314270AbSDRIWg>; Thu, 18 Apr 2002 04:22:36 -0400
-Received: from ns.suse.de ([213.95.15.193]:44805 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S314269AbSDRIWf>;
-	Thu, 18 Apr 2002 04:22:35 -0400
-Date: Thu, 18 Apr 2002 10:22:34 +0200
-From: Andi Kleen <ak@suse.de>
-To: Doug Ledford <dledford@redhat.com>, jh@suse.cz,
-        linux-kernel@vger.kernel.org, jakub@redhat.com, aj@suse.de, ak@suse.de,
-        pavel@atrey.karlin.mff.cuni.cz
-Subject: Re: SSE related security hole
-Message-ID: <20020418102234.B7931@wotan.suse.de>
-In-Reply-To: <20020417194249.B23438@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S314271AbSDRIXg>; Thu, 18 Apr 2002 04:23:36 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:56827 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S314270AbSDRIXf>; Thu, 18 Apr 2002 04:23:35 -0400
+Date: Thu, 18 Apr 2002 10:23:33 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Steffen Persvold <sp@scali.com>
+cc: Ingo Molnar <mingo@elte.hu>, James Bourne <jbourne@MtRoyal.AB.CA>,
+        linux-kernel@vger.kernel.org,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Jeff Nguyen <jeff@aslab.com>
+Subject: Re: SMP P4 APIC/interrupt balancing
+In-Reply-To: <Pine.LNX.4.30.0204172055470.31755-100000@elin.scali.no>
+Message-ID: <Pine.GSO.3.96.1020418101902.20187F-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- i387.c.save	Wed Apr 17 19:22:47 2002
-> +++ i387.c	Wed Apr 17 19:28:27 2002
-> @@ -33,8 +33,26 @@
->  void init_fpu(void)
->  {
->  	__asm__("fninit");
-> -	if ( cpu_has_xmm )
-> +	if ( cpu_has_mmx )
+On Wed, 17 Apr 2002, Steffen Persvold wrote:
 
-Shouldn't that be cpu_has_mmx && !cpu_has_sse2  ?
+> Hmm, is that something ServerWorks specific because on my Plumas chipset
+> the timer interrupt is balanced just fine :
 
+ It's specific to certain timer IRQ routing setups, ServerWorks being one
+of them.  I consider them braindamaged but that's just my opinion.  We
+handle them fine (modulo bugs).
 
--Andi
-
-> +		asm volatile("xorq %%mm0, %%mm0;
-> +			      xorq %%mm1, %%mm1;
-> +			      xorq %%mm2, %%mm2;
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

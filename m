@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132389AbRBRBPj>; Sat, 17 Feb 2001 20:15:39 -0500
+	id <S132399AbRBRBYw>; Sat, 17 Feb 2001 20:24:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132399AbRBRBP3>; Sat, 17 Feb 2001 20:15:29 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:49162 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S132389AbRBRBPO>;
-	Sat, 17 Feb 2001 20:15:14 -0500
-Date: Sun, 18 Feb 2001 02:15:08 +0100
-From: Frank de Lange <frank@unternet.org>
-To: linux-kernel@vger.kernel.org
-Cc: reiser@namesys.com, mason@suse.com
-Subject: Re: reiserfs on 2.4.1,2.4.2-pre (with null bytes patch) breaks mozilla compile
-Message-ID: <20010218021508.B13823@unternet.org>
-In-Reply-To: <20010218015715.A13043@unternet.org>
-Mime-Version: 1.0
+	id <S132406AbRBRBYm>; Sat, 17 Feb 2001 20:24:42 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:32988 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S132399AbRBRBY2>; Sat, 17 Feb 2001 20:24:28 -0500
+Message-ID: <3A8F266F.AFA01552@uow.edu.au>
+Date: Sun, 18 Feb 2001 12:33:35 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: "J . A . Magallon" <jamagallon@able.es>, Hugh Dickins <hugh@veritas.com>,
+        Paul Gortmaker <p_gortmaker@yahoo.com>,
+        linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] a more efficient BUG() macro
+In-Reply-To: Your message of "Sun, 18 Feb 2001 01:33:53 BST."
+	             <20010218013353.A1331@werewolf.able.es> <19480.982457293@ocs3.ocs-net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010218015715.A13043@unternet.org>; from frank@unternet.org on Sun, Feb 18, 2001 at 01:57:15AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 18, 2001 at 01:57:15AM +0100, Frank de Lange wrote:
-> I will retry this with 'all warnings and bells and whistles' turned on in
-> reiserfs (on 2.4.1-ac18), and see if anything out of the ordinary is logged. I
-> somehow doubt it, since repeated forced reiserfsck's have turned up nothing at
-> all...
+Keith Owens wrote:
+> 
+> But ....
+> 
+> a.h
+> static inline void hello(void) { printf("%d at %s\n",__LINE__,__FILE__); }
+> 
+> a.c
+> #include <stdio.h>
+> #include "a.h"
+> 
+> int main()
+> {
+>     hello();
+>     hello();
+>     return 0;
+> }
+> 
+> # ./a
+> 1 at a.h
+> 1 at a.h
+> 
 
-I just ran the compile again on the described build, same results, no warnings
-of any kind, nothing in the debug log facility, nothing on the console...
+__BASE_FILE__ does this.  It expands to the thing which you
+typed on the `gcc' command line.
 
-Reiserfs seems to believe it did the right thing. I'm here to tell you that it
-didn't...
+bix:/home/morton> cat a.h
+static inline void hello(void)
+{
+        printf("%d at %s\n",__LINE__,__BASE_FILE__);
+}
+bix:/home/morton> cat a.c
+#include <stdio.h>
+#include "a.h"
 
-Cheers//Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+int main()
+{
+        hello();
+        hello();
+        return 0;
+}
+
+bix:/home/morton> gcc -O a.c
+bix:/home/morton> ./a.out
+3 at a.c
+3 at a.c

@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274388AbRIVHmm>; Sat, 22 Sep 2001 03:42:42 -0400
+	id <S274321AbRIVHiM>; Sat, 22 Sep 2001 03:38:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274468AbRIVHmc>; Sat, 22 Sep 2001 03:42:32 -0400
-Received: from cs6625186-50.austin.rr.com ([66.25.186.50]:640 "EHLO
-	hatchling.taral.net") by vger.kernel.org with ESMTP
-	id <S274388AbRIVHmS>; Sat, 22 Sep 2001 03:42:18 -0400
-Date: Sat, 22 Sep 2001 02:42:41 -0500
-From: Taral <taral@taral.net>
+	id <S274388AbRIVHiC>; Sat, 22 Sep 2001 03:38:02 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:11536 "EHLO
+	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S274321AbRIVHhm>; Sat, 22 Sep 2001 03:37:42 -0400
+Date: 22 Sep 2001 09:16:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Bug in ipip.c SIOCDELTUNNEL
-Message-ID: <20010922024241.A620@taral.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tsOsTdHNUZQcU9Ye"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
+Message-ID: <89M2o6gXw-B@khms.westfalen.de>
+In-Reply-To: <15764.1001122752@ocs3.intra.ocs.com.au>
+Subject: Re: Announce: ksymoops 2.4.3 is available
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.33.0109211238010.1454-100000@base.torri.linux> <15764.1001122752@ocs3.intra.ocs.com.au>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+kaos@ocs.com.au (Keith Owens)  wrote on 22.09.01 in <15764.1001122752@ocs3.intra.ocs.com.au>:
 
---tsOsTdHNUZQcU9Ye
-Content-Type: multipart/mixed; boundary="3MwIy2ne0vdjdPXF"
-Content-Disposition: inline
+> >symbol.c:220:58: warning: trigraph ??> ignored
+> >symbol.c:221:44: warning: trigraph ??> ignored
+> >symbol.c:225:49: warning: trigraph ??> ignored
+> >symbol.c:226:35: warning: trigraph ??> ignored
+>
+> I believe that is a gcc bug.  The text is
+>             snprintf(map, size,
+>                      options->hex ? "<END_OF_CODE+%llx/????>"
+>                     : "<END_OF_CODE+%lld/????>",
+>                 offset);
+> gcc is complaining about trigraphs but they are inside a string
+> constant, not in code.  IMHO gcc should not flag trigraphs in string
+> constants, report it as a gcc bug.
 
+Trigraphs are defined to work within string constants. In fact, the  
+standard requires trigraphs to be replaced before the very first  
+tokenizing of the input.
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+How else could the ??/ trigraph for \ possibly work?
 
-Patch is attached. Basically we were always removing "tunl0" even if a
-different tunnel was specified.
+Gcc is correct.
 
---=20
-Taral <taral@taral.net>
-This message is digitally signed. Please PGP encrypt mail to me.
-"Any technology, no matter how primitive, is magic to those who don't
-understand it." -- Florence Ambrose
-
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ipip.c.patch"
-
---- /usr/src/linux-2.4.10-pre14/net/ipv4/ipip.c	Sat Sep 22 01:18:30 2001
-+++ net/ipv4/ipip.c	Sat Sep 22 02:39:07 2001
-@@ -758,6 +758,7 @@
- 			err = -EPERM;
- 			if (t == &ipip_fb_tunnel)
- 				goto done;
-+			dev = t->dev;
- 		}
- 		err = unregister_netdevice(dev);
- 		break;
-
---3MwIy2ne0vdjdPXF--
-
---tsOsTdHNUZQcU9Ye
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iEYEARECAAYFAjusQPEACgkQoQQF8xCPwJQfRwCdHOKe1EeKrh/M0scOv02TD+Uy
-HC0An3ggnCQNt9L4cq+ypPDhaSjyxufY
-=lvno
------END PGP SIGNATURE-----
-
---tsOsTdHNUZQcU9Ye--
+MfG Kai

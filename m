@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129772AbRBFSKh>; Tue, 6 Feb 2001 13:10:37 -0500
+	id <S129889AbRBFSRH>; Tue, 6 Feb 2001 13:17:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129841AbRBFSK1>; Tue, 6 Feb 2001 13:10:27 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:59482 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129840AbRBFSKZ>; Tue, 6 Feb 2001 13:10:25 -0500
-Date: Tue, 6 Feb 2001 13:09:09 -0500 (EST)
-From: Ben LaHaise <bcrl@redhat.com>
-To: Jens Axboe <axboe@suse.de>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        <linux-kernel@vger.kernel.org>,
-        <kiobuf-io-devel@lists.sourceforge.net>,
-        Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <20010206190018.E580@suse.de>
-Message-ID: <Pine.LNX.4.30.0102061301310.15204-100000@today.toronto.redhat.com>
+	id <S129830AbRBFSQ5>; Tue, 6 Feb 2001 13:16:57 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:40464 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129636AbRBFSQo>; Tue, 6 Feb 2001 13:16:44 -0500
+Date: Tue, 6 Feb 2001 13:16:44 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: J Brook <jbk@postmark.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Matrox G450 problems with 2.4.0 and xfree
+In-Reply-To: <142905C63D47@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.33.0102061313390.6540-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Feb 2001, Jens Axboe wrote:
+On Wed, 31 Jan 2001, Petr Vandrovec wrote:
 
-> Stephen already covered this point, the merging is not a problem
-> to deal with for read-ahead. The underlying system can easily
-
-I just wanted to make sure that was clear =)
-
-> queue that in nice big chunks. Delayed allocation makes it
-> easier to to flush big chunks as well. I seem to recall the xfs people
-> having problems with the lack of merging causing a performance hit
-> on smaller I/O.
-
-That's where readaround buffers come into play.  If we have a fixed number
-of readaround buffers that are used when small ios are issued, they should
-provide a low overhead means of substantially improving things like find
-(which reads many nearby inodes out of order but sequentially).  I need to
-implement this can get cache hit rates for various workloads. ;-)
-
-> Of course merging doesn't have to happen in ll_rw_blk.
+>>  I don't have Windows installed on my machine, but I find that if I
+>> cold boot to 2.2 (RH7) first and start up X (4.0.2 with Matrox driver
+>> 1.00.04 compiled in), I am then able to "shutdown -r now" and warm
 >
-> > As for io completion, can't we just issue seperate requests for the
-> > critical data and the readahead?  That way for SCSI disks, the important
-> > io should be finished while the readahead can continue.  Thoughts?
->
-> Priorities?
+>Yes, they use same secret code... At least I think...
 
-Definately.  I'd like to be able to issue readaheads with a "don't bother
-executing if this request unless the cost is low" bit set.  It might also
-be helpful for heavy multiuser loads (or even a single user with multiple
-processes) to ensure progress is made for others.
+Are you refering to Windows or Red Hat Linux?  I can assure you
+that Red Hat Linux's XFree package doesn't have any secret code
+in it with 110% certainty.  Nor will it have in the future.
 
-		-ben
+Binary only modules are not acceptable in Red Hat Linux and I
+will not include them in XFree86 unless forced at gunpoint.
+
+
+
+
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+"If it isn't source, it isn't software."  -- NASA
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

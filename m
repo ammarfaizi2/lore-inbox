@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbUJ3Xl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbUJ3Xna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbUJ3Xl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 19:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbUJ3Xl3
+	id S261428AbUJ3Xna (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 19:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUJ3Xn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 19:41:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65211 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261306AbUJ3XlX
+	Sat, 30 Oct 2004 19:43:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3260 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261415AbUJ3XnK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 19:41:23 -0400
-Message-ID: <41842695.8080203@pobox.com>
-Date: Sat, 30 Oct 2004 19:41:09 -0400
+	Sat, 30 Oct 2004 19:43:10 -0400
+Message-ID: <418426FF.1050801@pobox.com>
+Date: Sat, 30 Oct 2004 19:42:55 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
@@ -33,13 +33,34 @@ Matthijs Melchior wrote:
 > - Write low 32 bits of FIS address to PxFB, where they belong
 > - Set command active bit in PxSACT before setting command issue bit in PxCI
 > - Announce Sub Class Code in driver info message [IDE, SATA or RAID]
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> --- a/drivers/scsi/ahci.c	2004-10-23 01:37:22.000000000 +0200
+> +++ b/drivers/scsi/ahci.c	2004-10-31 00:20:13.000000000 +0200
+> @@ -90,6 +90,7 @@
+>  	PORT_SCR_STAT		= 0x28, /* SATA phy register: SStatus */
+>  	PORT_SCR_CTL		= 0x2c, /* SATA phy register: SControl */
+>  	PORT_SCR_ERR		= 0x30, /* SATA phy register: SError */
+> +        PORT_SCR_ACT            = 0x34, /* SATA phy register: SActive */
+>  
+>  	/* PORT_IRQ_{STAT,MASK} bits */
+>  	PORT_IRQ_COLD_PRES	= (1 << 31), /* cold presence detect */
+> @@ -116,6 +117,9 @@
+>  				  PORT_IRQ_HBUS_DATA_ERR |
+>  				  PORT_IRQ_IF_ERR,
+>  	DEF_PORT_IRQ		= PORT_IRQ_FATAL | PORT_IRQ_PHYRDY |
+> +                                  PORT_IRQ_CONNECT | PORT_IRQ_SG_DONE |
+> +                                  PORT_IRQ_UNK_FIS | PORT_IRQ_SDB_FIS |
+> +                                  PORT_IRQ_DMAS_FIS | PORT_IRQ_PIOS_FIS |
+>  				  PORT_IRQ_D2H_REG_FIS,
+>  
 
-
-heh, cool...  you found the stupid AHCI bug that I have been searching 
-for for over a week :)
-
-Patch looks good, will test...
+oh BTW, several parts of your patch had all the tabs converted to spaces 
+for some reason.  I hand-converted them back.
 
 	Jeff
+
 
 

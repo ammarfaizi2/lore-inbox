@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbULNU1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbULNUb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbULNU1x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 15:27:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbULNU1x
+	id S261649AbULNUb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 15:31:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbULNUb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 15:27:53 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:1408 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261651AbULNU1o (ORCPT
+	Tue, 14 Dec 2004 15:31:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7319 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261649AbULNUbZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 15:27:44 -0500
-Date: Tue, 14 Dec 2004 12:25:11 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Akinobu Mita <amgta@yacht.ocn.ne.jp>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, nickpiggin@yahoo.com.au,
-       Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org, hugh@veritas.com,
-       benh@kernel.crashing.org, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Anticipatory prefaulting in the page fault handler V1
-In-Reply-To: <200412142124.11685.amgta@yacht.ocn.ne.jp>
-Message-ID: <Pine.LNX.4.58.0412141224520.3044@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
- <200412132330.23893.amgta@yacht.ocn.ne.jp> <Pine.LNX.4.58.0412130905140.360@schroedinger.engr.sgi.com>
- <200412142124.11685.amgta@yacht.ocn.ne.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Dec 2004 15:31:25 -0500
+Date: Tue, 14 Dec 2004 12:31:24 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: ramos_fabiano@yahoo.com.br
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: help with access_process_vm
+Message-ID: <20041214123124.R469@build.pdx.osdl.net>
+References: <5afb2c65041214112577ff4a18@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5afb2c65041214112577ff4a18@mail.gmail.com>; from fabiano.ramos@gmail.com on Tue, Dec 14, 2004 at 05:25:23PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Dec 2004, Akinobu Mita wrote:
+* Fabiano Ramos (fabiano.ramos@gmail.com) wrote:
+> But the first time a call access_process_vm, dmesg shows me:
+>      
+> Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
+> in_atomic():0, irqs_disabled():1
+>  [<c01145ac>] __might_sleep+0x8c/0xa0
+>  [<c011c69b>] access_process_vm+0x4b/0x1d0
+>  [<c010c830>] do_debug_new+0xd0/0x190
+>  [<c038c755>] schedule+0x275/0x460
+>  [<c0105c2d>] error_code+0x2d/0x40
+> 
+> What I am missing?
 
-> This is why I inserted pte_none() for each page_table in case of
-> read fault too.
->
-> If read access fault occured for the address "addr".
-> It is completely unnecessary to check by pte_none() to the page_table
-> for "addr". Because page_table_lock has never been released until
-> do_anonymous_page returns (in case of read access fault)
->
-> But there is not any guarantee that the page_tables for addr+PAGE_SIZE,
-> addr+2*PAGE_SIZE, ...  have not been mapped yet.
+The access_process_vm() call is doing down_read(), which could sleep,
+with irqs disabled.  That's what's wrong.
 
-Right. Thanks for pointing that out.
-
+thanks,
+-chris

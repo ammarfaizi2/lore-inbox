@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287585AbSALWEq>; Sat, 12 Jan 2002 17:04:46 -0500
+	id <S287582AbSALWES>; Sat, 12 Jan 2002 17:04:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287588AbSALWEh>; Sat, 12 Jan 2002 17:04:37 -0500
-Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:2950 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S287585AbSALWEc>;
-	Sat, 12 Jan 2002 17:04:32 -0500
-Message-Id: <m16PWFF-000OVeC@amadeus.home.nl>
-Date: Sat, 12 Jan 2002 22:03:21 +0000 (GMT)
-From: arjan@fenrus.demon.nl
-To: jussi.laako@kolumbus.fi (Jussi Laako)
-Subject: Re: [PATCH] Additions to full lowlatency patch
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C40AF23.18C811A8@kolumbus.fi>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S287585AbSALWEK>; Sat, 12 Jan 2002 17:04:10 -0500
+Received: from grunt.ksu.ksu.edu ([129.130.12.17]:35237 "EHLO
+	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
+	id <S287582AbSALWDK>; Sat, 12 Jan 2002 17:03:10 -0500
+Date: Sat, 12 Jan 2002 16:03:09 -0600
+From: Joseph Pingenot <jap3003@ksu.edu>
+To: Tony Glader <Tony.Glader@blueberrysolutions.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: F00F-bug workaround working?
+Message-ID: <20020112160308.B4926@ksu.edu>
+Reply-To: jap3003+response@ksu.edu
+Mail-Followup-To: Tony Glader <Tony.Glader@blueberrysolutions.com>,
+	linux-kernel@vger.kernel.org.
+In-Reply-To: <Pine.LNX.4.33.0201122347270.16871-100000@blueberrysolutions.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: RE: [F00F-bug workaround working?]
+X-School: Kansas State University
+X-vi-or-emacs: vi
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C40AF23.18C811A8@kolumbus.fi> you wrote:
-> --- linux-2.4.17-lowlatency/drivers/net/eepro100.c      Fri Dec 21 19:41:54 2001
-> +++ linux-2.4.17-lowlatency-jl/drivers/net/eepro100.c   Mon Dec 31 22:41:42 2001
-> @@ -324,7 +324,11 @@
-> static inline void wait_for_cmd_done(long cmd_ioaddr)
-> {
->        int wait = 1000;
-> -       do  udelay(1) ;
-> +       do
-> +       {
-> +                       conditional_schedule();
-> +                       udelay(1) ;
-> +       }
->        while(inb(cmd_ioaddr) && --wait >= 0);
-> #ifndef final_version
->        if (wait < 0)
+>From Tony Glader on Saturday, 12 January, 2002:
+>I have had problems with 2.4.17 running in a Classic Pentium (lot of 
+>oopses). I'm sure that there's no problem with hardware. Is F00F'bug 
+>workaround work still?
 
-Did you audit all uses of this function ? It sort of looks like you're doing
-"hey there's a udelay lets add a schedule".. ok that's a bit rude but I'm
-not totally convinced that this function isn't called with spinlocks helt...
+I'm running a P100 on 2.4.17 without any errors.  I see
+"Intel Pentium with F0 0F bug - workaround enabled."
+in the dmesg logs.
+
+How about posting your oopses (after running them through ksymoops)
+
+-- 
+Joseph======================================================jap3003@ksu.edu
+"If you really want to toggle [Internet Explorer] into secure mode, you
+  just need to click the little 'X" in the top right corner of the window."
+     --User dsb3 on www.slashdot.org.       [Use Mozilla! www.mozilla.org.]

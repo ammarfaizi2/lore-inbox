@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbTEIKkd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 06:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTEIKkd
+	id S262358AbTEIKiq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 06:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbTEIKiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 06:40:33 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:1293 "EHLO
+	Fri, 9 May 2003 06:38:46 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:13 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262434AbTEIKkc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 06:40:32 -0400
-Date: Fri, 9 May 2003 11:53:09 +0100
+	id S262358AbTEIKip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 06:38:45 -0400
+Date: Fri, 9 May 2003 11:51:18 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Ralf Oehler <R.Oehler@GDAmbH.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: missing get_empty_inode()
-Message-ID: <20030509115309.B18745@infradead.org>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ALSA update (0.9.3a)
+Message-ID: <20030509115118.A18745@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ralf Oehler <R.Oehler@GDAmbH.com>, linux-kernel@vger.kernel.org
-References: <XFMail.20030509112703.R.Oehler@GDAmbH.com>
+	Jaroslav Kysela <perex@suse.cz>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0305081157490.7916-100000@pnote.perex-int.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <XFMail.20030509112703.R.Oehler@GDAmbH.com>; from R.Oehler@GDAmbH.com on Fri, May 09, 2003 at 11:27:03AM +0200
+In-Reply-To: <Pine.LNX.4.44.0305081157490.7916-100000@pnote.perex-int.cz>; from perex@suse.cz on Thu, May 08, 2003 at 12:05:11PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 09, 2003 at 11:27:03AM +0200, Ralf Oehler wrote:
-> Hello, list
+On Thu, May 08, 2003 at 12:05:11PM +0200, Jaroslav Kysela wrote:
+> Linus, please do a
 > 
-> Currently I'm porting my driver sources from 2.4.18 to 2.4.20 an I noticed
-> the absence of get_empty_inode().
-> I didn't find an exported function to get a sb-less inode.
+>   bk pull http://linux-sound.bkbits.net/linux-sound
+> 
+> The GNU patch is available at:
 
-There is none.  Inodes must have superblocks associated to them.
-
-> My goal is to open sd- and an sg- devices in order to do
-> ioctl(send_scsi_cmd) on them. As my driver acts as a block device driver
-> (layered pseudo block device), there is no sb assigned to it.
-> 
-> What is, according to the current philosophy, the cleanest code-sniplet to
-> 
-> - open
-> - ioctl
-> - close
-> 
-> an sd-device ?
-> an sg-device ?
-
-open it from userspace.
+Could you please answer the question about ALSA's procfs mess, btw?
+I appears you're online as you posted this patch but you yet haven't
+answered it.
 

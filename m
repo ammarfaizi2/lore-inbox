@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbTICBhl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 21:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263916AbTICBhl
+	id S264109AbTICByP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 21:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTICByP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 21:37:41 -0400
-Received: from codepoet.org ([166.70.99.138]:16099 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S261832AbTICBhk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 21:37:40 -0400
-Date: Tue, 2 Sep 2003 19:37:41 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: steveb@unix.lancs.ac.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: corruption with A7A266+200GB disk?
-Message-ID: <20030903013741.GA1601@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	steveb@unix.lancs.ac.uk, linux-kernel@vger.kernel.org
-References: <E19uBCi-00054b-00@wing0.lancs.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E19uBCi-00054b-00@wing0.lancs.ac.uk>
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.4i
+	Tue, 2 Sep 2003 21:54:15 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:61068 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S264109AbTICByO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 21:54:14 -0400
+Date: Wed, 03 Sep 2003 10:54:09 +0900
+From: NIWA Hideyuki <niwa.hideyuki@soft.fujitsu.com>
+Subject: Re: [RFC] Class-based Kernel Resource Management
+In-reply-to: <1062186708.15245.832.camel@elinux05.watson.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: niwa.hideyuki@soft.fujitsu.com, ckrm-tech@lists.sourceforge.net
+Message-id: <20030903105409.0c341574.niwa.hideyuki@soft.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7bit
+References: <1062186708.15245.832.camel@elinux05.watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Sep 02, 2003 at 02:28:16PM +0100, steveb@unix.lancs.ac.uk wrote:
-> 
-> I just got a new 200GB disk (WDC WD2000JB) for my home machine (Asus A7A266,
-> Ali chipset). I put some partitions on it like so:
->   hda1:   100MB - /boot
->   hda2:  8192MB - /
->   hda3:  1024MB - swap
->   hda4:  the rest (about 190GB I guess) - /home
-> 
-> I find that when I mkfs on /home, I get massive filesystem corruption on /
-> When I fsck / (and restore the deleted files) I get massive filesystem corruption on /home. Luckily all my real data is still on my old disk...
-> 
-> I reduced the size of /home to 40GB and everything was fine.
-> I see the same behaviour with both 2.6.0test3 and 2.4.22.
+Hello.
 
-Known problem.  For some reason Marcelo has not yet applied 
-the fix for this problem to the 2.4.x kernels...
+I tried ckrm (Class-based Kernel Resource Management) patch. 
+I am very interested in ckrm. 
 
- -Erik
+However, I found the following problems. 
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+1) Both of ckcpu and ckmem could not be applied at the same time. 
+
+ I corrected the patch by hand. 
+ Is it impossible to use both at the same time?
+
+2) When rbcemod of the module is compiled, "ckrm_cpu_change_class" 
+   becomes an undeclared symbol. 
+
+ I modified kernel source kernel/class.c and export "ckrm_cpu_change_class": 
+        EXPORT_SYMBOL(ckrm_cpu_change_class);
+
+3) The bash process newly executed dies one after another when rbadmin 
+   is executed.
+
+ The value of the argument "cls" of the "ckrm_cpu_change_class" 
+ function might be NULL. 
+ Therefore, the NULL pointer dereference occurs when it 
+ starts changing the class of the bash process. 
+
+best regards,
+NIWA
+

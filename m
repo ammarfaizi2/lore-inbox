@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbUCIQMU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 11:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUCIQMU
+	id S262060AbUCIQRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 11:17:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbUCIQRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 11:12:20 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:21188 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262041AbUCIQJh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 11:09:37 -0500
-Date: Tue, 9 Mar 2004 17:10:51 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040309161051.GA11046@elte.hu>
-References: <Pine.LNX.4.58.0403081238060.9575@ppc970.osdl.org> <20040308132305.3c35e90a.akpm@osdl.org> <20040308230247.GC12612@dualathlon.random> <20040308152126.54f4f681.akpm@osdl.org> <20040308234014.GG12612@dualathlon.random> <20040309083103.GB8021@elte.hu> <20040309090326.GA10039@elte.hu> <20040309145130.GC8193@dualathlon.random> <20040309150942.GA8224@elte.hu> <20040309152438.GE8193@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040309152438.GE8193@dualathlon.random>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 9 Mar 2004 11:17:25 -0500
+Received: from CPE0080c8c9b431-CM014280010574.cpe.net.cable.rogers.com ([24.112.162.124]:787
+	"EHLO stargate.coplanar.net") by vger.kernel.org with ESMTP
+	id S262060AbUCIQRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 11:17:10 -0500
+Message-ID: <404DEDED.5080308@coplanar.net>
+Date: Tue, 09 Mar 2004 11:16:45 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
+To: Arthur Corliss <corliss@digitalmages.com>
+CC: Tim Schmielau <tim@physik3.uni-rostock.de>, Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] 2.6.x BSD Process Accounting w/High UID
+References: <Pine.LNX.4.44.0403041451360.20043-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0403041103500.24930@bifrost.nevaeh-linux.org> <Pine.LNX.4.53.0403042242190.29818@gockel.physik3.uni-rostock.de> <Pine.LNX.4.58.0403041324330.20616@bifrost.nevaeh-linux.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arthur Corliss wrote:
 
-* Andrea Arcangeli <andrea@suse.de> wrote:
+> 
+> 
+> If the numbers we're logging are meaningless, then hell, yes, let's fix them
+> all!
 
-> > could you just try test-mmap2.c on such a box, and hit swap?
+I believe the answer (to seamless backwards compatibility) lies in 
+struct acct's ac_pad[10] member.
 
-> Unless it crashes the machine I don't care, it's totally wrong in my
-> opinion to hurt everything useful to save cpu while running an
-> exploit. there are easier ways to waste cpu (rewrite the exploit with
-> truncate please!!!)
+3 options exist that I can see:
 
-i'm not sure i follow. "truncate being slow" is not the same order of
-magnitude of a problem as "the VM being incapable of getting work done".
+1) put the high 16 bits in there, with a magic # (at then end of?) 
+ac_pad.  THe old tools will be none the wiser, the new tools will 
+autodetect which format the acct file is in.  Ugly but easy.
 
-	Ingo
+2) just make the uid/gid 32bits, and put a magic#  (at the end of?) 
+ac_pad.  The old tools will choke, but the new tools will autodetect. 
+If you push the new tools out a couple of years ahead, then merge the 
+fix, acceptance will be fairly smooth.  Clean but painful.
+
+or
+3) make the split of 16 bits interim with one magic#, make the tools 
+detect 3 formats, and in a few years, switch from the bastard 32bit to 
+the clean one (different magic #).  This will give tools time to become 
+standard.
+Combines best of both of the above.
+
+You can do the above with the time stuff too, but 10 bytes spare might 
+constrain things a bit.  Heck, make the struct bigger, as long as there 
+is a magic #, userspace should be ok.  Right now, "file" command can't 
+tell what the heck the file is.  Bit wasteful to put magic in every 
+record though.
+
+While you're at it, make a switch for a tool that prints out 
+ac_exitcode, without reading the binary acct file (or it's dump).
+
+Cheers,
+-- 
+Jeremy Jackson
+Coplanar Networks
+http://www.coplanar.net
+

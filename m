@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269369AbUHZTeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269404AbUHZTDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269369AbUHZTeA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269517AbUHZT2c
+	id S269404AbUHZTDG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269373AbUHZS6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:28:32 -0400
-Received: from 18-165-237-24-mvl.nwc.gci.net ([24.237.165.18]:12780 "EHLO
-	nevaeh-linux.org") by vger.kernel.org with ESMTP id S269498AbUHZT0B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:26:01 -0400
-Date: Thu, 26 Aug 2004 11:24:38 -0800 (AKDT)
-From: Arthur Corliss <corliss@digitalmages.com>
-X-X-Sender: acorliss@bifrost.nevaeh-linux.org
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-cc: Andrew Morton <akpm@osdl.org>, Jay Lan <jlan@engr.sgi.com>,
-       lkml <linux-kernel@vger.kernel.org>, erikj@dbear.engr.sgi.com,
-       limin@engr.sgi.com, lse-tech@lists.sourceforge.net,
-       =?X-UNKNOWN?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>,
-       Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Subject: Re: [PATCH] new CSA patchset for 2.6.8
-In-Reply-To: <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.58.0408261111520.22750@bifrost.nevaeh-linux.org>
-References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org>
- <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -1.97 () AWL,BAYES_00
+	Thu, 26 Aug 2004 14:58:48 -0400
+Received: from holomorphy.com ([207.189.100.168]:16536 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269388AbUHZS5L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 14:57:11 -0400
+Date: Thu, 26 Aug 2004 11:56:55 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826185655.GF2793@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
+	viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+References: <20040824202521.GA26705@lst.de> <412BA741.4060006@pobox.com> <20040824205343.GE21964@parcelfarce.linux.theplanet.co.uk> <20040824212232.GF21964@parcelfarce.linux.theplanet.co.uk> <412CDA68.7050702@namesys.com> <20040825184523.GA15419@lst.de> <412DA725.4040200@namesys.com> <20040826183838.GE2793@holomorphy.com> <Pine.LNX.4.58.0408261147590.2304@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408261147590.2304@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Aug 2004, Tim Schmielau wrote:
+On Thu, 26 Aug 2004, William Lee Irwin III wrote:
+>> +N: Hans Reiser
+>> +E: reiser@namesys.com
+>> +W: http://www.namesys.com/
+>> +D: official Linux kernel hairstyle critic
+>> +S: 6979 Exeter Dr
+>> +S: Oakland, CA 94611
+>> +S: USA
 
-<snip>
+On Thu, Aug 26, 2004 at 11:49:19AM -0700, Linus Torvalds wrote:
+> LOL.
+> In all fairness, how _would_ you have described it?
+> Besides, I don't think this should go in the CREDITS file, since hair 
+> styling criticism is clearly an ongoing MAINTAINERS issue, no?
 
-> Therefore I've Cc:ed some people from whom I got valuable feedback on the
-> BSD accounting format patch.
->
-> IMHO CSA, ELSA and BSD accounting are too similar to have more than one of
-> them in the kernel. We should either improve BSD accounting to do the job,
-> or kill it in favor of a different implementation.
+As far as maintenance goes, absolutely. As far as describing it goes,
+I probably would have said it was short, red, and spiky.
 
-I would be very interested in a CSA implementation similar to what I have on
-IRIX.  I will also plead guilty to not having downloaded the updated patches
-for either the kernel or the tools.  I'm continuing to use my poor hack until
-a permanent solution gets accepted into the kernel, at which point I'll
-adopt that.
 
-And if it counters the impression at all, I'm not a kernel developer, I
-proposed my hack out of need as a user of the tools.  I also try to stay away
-from modified kernels, so I'm running Marcelos' 2.4 stable branch with only
-the 32bit u/gid_t hack applied.  That's why I haven't had any feedback on the
--mm branch.
-
-In short, for my use BSD accounting is sufficient, but I'd love to see CSA in
-Linux as well.  Linux hasn't moved too far into roles where it's a necessity
-(for what I'm doing, anyway), but I see CSA as something that would certainly
-help it assume those roles.
-
-	--Arthur Corliss
-	  Bolverk's Lair -- http://arthur.corlissfamily.org/
-	  Digital Mages -- http://www.digitalmages.com/
-	  "Live Free or Die, the Only Way to Live" -- NH State Motto
+Index: mm1-2.6.9-rc1/MAINTAINERS
+===================================================================
+--- mm1-2.6.9-rc1.orig/MAINTAINERS	2004-08-26 10:38:09.867927190 -0700
++++ mm1-2.6.9-rc1/MAINTAINERS	2004-08-26 11:58:27.759469733 -0700
+@@ -1352,6 +1352,12 @@
+ L:	linuxppc64-dev@lists.linuxppc.org
+ S:	Supported
+ 
++LINUX KERNEL HAIRSTYLE CRITICISM
++P: Hans Reiser
++M: reiser@namesys.com
++W: http://www.namesys.com/
++S: Maintained
++
+ LINUX SECURITY MODULE (LSM) FRAMEWORK
+ P:	Chris Wright
+ M:	chrisw@osdl.org

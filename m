@@ -1,73 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270991AbTHBF27 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 01:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270993AbTHBF27
+	id S271003AbTHBFis (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 01:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271006AbTHBFis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 01:28:59 -0400
-Received: from mail.kroah.org ([65.200.24.183]:56507 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270991AbTHBF25 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 01:28:57 -0400
-Date: Fri, 1 Aug 2003 22:29:05 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: [BK PATCH] i2c driver fixes for 2.6.0-test2
-Message-ID: <20030802052904.GA9782@kroah.com>
+	Sat, 2 Aug 2003 01:38:48 -0400
+Received: from pool-141-155-151-209.ny5030.east.verizon.net ([141.155.151.209]:13291
+	"EHLO mail.blazebox.homeip.net") by vger.kernel.org with ESMTP
+	id S271003AbTHBFiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 01:38:46 -0400
+Date: Sat, 2 Aug 2003 01:40:34 -0400
+From: Diffie <diffie@blazebox.homeip.net>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Badness in device_release at drivers/base/core.c:84
+Message-ID: <20030802054034.GA3613@blazebox.homeip.net>
+References: <20030801182207.GA3759@blazebox.homeip.net> <20030801212750.GB31881@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
 Content-Disposition: inline
+In-Reply-To: <20030801212750.GB31881@kroah.com>
 User-Agent: Mutt/1.4.1i
+X-Operating-System: Slackware Linux 9.0
+X-Kernel-Version: Linux 2.6.0-test2-mm2
+X-Mailer: Mutt 1.4.1i http://www.mutt.org
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.14; AVE: 6.20.0.1; VDF: 6.20.0.55; host: blazebox.homeip.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Here are some i2c driver fixes for 2.6.0-test2.  They include a number
-of minor i2c fixes and add a new i2c bus controller driver.
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.5
+On Fri, Aug 01, 2003 at 02:27:50PM -0700, Greg KH wrote:
 
-thanks,
+>=20
+> The USB warnings should all be fixed up with the patches I just sent to
+> Linus, so you can safely ignore them for now.
+>=20
+> As for the oops, I have no idea, sorry.
+>=20
+> thanks,
+>=20
+> greg k-h
+>=20
 
-greg k-h
+Greg,
 
- drivers/i2c/Kconfig              |    8 
- drivers/i2c/busses/Kconfig       |   17 +
- drivers/i2c/busses/Makefile      |    1 
- drivers/i2c/busses/i2c-ali1535.c |   20 -
- drivers/i2c/busses/i2c-ali15x3.c |   15 -
- drivers/i2c/busses/i2c-amd756.c  |   28 --
- drivers/i2c/busses/i2c-amd8111.c |    6 
- drivers/i2c/busses/i2c-i801.c    |   28 --
- drivers/i2c/busses/i2c-nforce2.c |  470 +++++++++++++++++++++++++++++++++++++--
- drivers/i2c/busses/i2c-piix4.c   |   20 -
- drivers/i2c/busses/i2c-sis96x.c  |   18 -
- drivers/i2c/busses/i2c-viapro.c  |   18 -
- drivers/i2c/chips/via686a.c      |   20 -
- drivers/i2c/i2c-keywest.c        |   90 +------
- include/linux/i2c.h              |    7 
- 15 files changed, 529 insertions(+), 237 deletions(-)
------
+I'll look into your patches.
 
-<nikkne:hotpop.com>:
-  o I2C: fix Kconfig info
+Thank you,
 
-<patrick:dreker.de>:
-  o I2C: add ncforce2 i2c bus driver
+Paul
 
-Benjamin Herrenschmidt:
-  o I2C: timer clean up for i2c-keywest.c
 
-Daniele Bellucci:
-  o I2C: fixed a little memory leak in i2c-ali15x3.c
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Greg Kroah-Hartman:
-  o I2C: remove devinitdata marking from i2c-nforce2.c as it's wrong
-  o I2C: consolidate the i2c delay functions
-  o I2C: minor cleanups to the i2c-nforce2 driver
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-Jan Dittmer:
-  o I2C: convert via686a temp_* to milli degree celsius
+iD8DBQE/K07SIymMQsXoRDARAm80AJ0cwY8GNE5IE6vrSx2wwZwAWL4dOgCeLS3A
+OLRrAshWOSzD+Ja208ITlK8=
+=c4+N
+-----END PGP SIGNATURE-----
 
+--RnlQjJ0d97Da+TV1--

@@ -1,195 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293245AbSCUESA>; Wed, 20 Mar 2002 23:18:00 -0500
+	id <S293283AbSCUEXA>; Wed, 20 Mar 2002 23:23:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293276AbSCUERv>; Wed, 20 Mar 2002 23:17:51 -0500
-Received: from mailhost.cs.tamu.edu ([128.194.130.106]:60880 "EHLO cs.tamu.edu")
-	by vger.kernel.org with ESMTP id <S293245AbSCUERo>;
-	Wed, 20 Mar 2002 23:17:44 -0500
-Date: Wed, 20 Mar 2002 22:17:42 -0600 (CST)
-From: Sheetal Reddy Kunta <skunta@cs.tamu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with copy_from_user 
-Message-ID: <Pine.SOL.4.10.10203202209190.22696-100000@dogbert>
+	id <S293288AbSCUEWv>; Wed, 20 Mar 2002 23:22:51 -0500
+Received: from smtp.actcom.co.il ([192.114.47.13]:42199 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S293283AbSCUEWj>; Wed, 20 Mar 2002 23:22:39 -0500
+Message-Id: <200203210421.g2L4Lwx22756@lmail.actcom.co.il>
+Content-Type: text/plain; charset=US-ASCII
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, hch@infradead.org (Christoph Hellwig)
+Subject: Re: Creating a per-task kernel space for kmap, user pagetables, et al
+Date: Thu, 21 Mar 2002 06:21:45 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Martin.Bligh@us.ibm.com (Martin J. Bligh),
+        andrea@suse.de (Andrea Arcangeli), hugh@veritas.com (Hugh Dickins),
+        riel@conectiva.com.br (Rik van Riel),
+        dmccr@us.ibm.com (Dave McCracken),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <E16npfo-0003gA-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 21 March 2002 01:39 am, Alan Cox wrote:
+> > That has been implemented in Caldera OpenUnix in the last years.
+>
+> V7 unix had it. Thats where the "uarea" aka u. comes in. Its one of the
+> killer problems with Linux 8086 - on the 11 they could put the kernel stack
+> file handles and other process local crap into a swappable segment that
+> could also be swapped from the kernel address space. On the 8086 thats
+> trickier
 
-I am trying to run the following code 
+Some 20 years ago I knew almost everything about BSD-4.x on a VAX.
+The user area was just above the user stack. Actually it was part of the
+user space, accessible RO from user mode and RW for the kernel.
+It was always mapped at a fixed address that was just below the 2G
+marker.
 
-#define __KERNEL__         /* We're part of the kernel */
-#define MODULE             /* Not a permanent part, though. */
+The process table contained whatever was needed to swap-in
+and access the user area, some scheduling parameters and
+signal mask/pending bits (I'm sure I missed something).
 
-#include <linux/modversions.h>
+This arrangement might save some physical memory because
+this area was swapped with the process (actually that was the last
+thing to swap out/first to swap in because the page table for the
+rest of the process was in there).
 
-#include <linux/param.h>
-#include <asm/system.h>
-#include <linux/errno.h>
-#include <linux/ioctl.h>
-#include <linux/tty.h>
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/wrapper.h>  /* header for unregister */
-#include <linux/fs.h>     /* file types */
-#include <asm/io.h>
-#include <linux/types.h>   /* for ssize_t */
-#include <linux/slab.h>
-#include <asm/uaccess.h>
-#include <linux/init.h>
-#include <linux/sched.h>
-#include <asm/errno.h>
-#include <asm/unistd.h>
-#include <sys/syscall.h>
+I think this arrangement made stuff as shared memory (and libs),
+ptrace and other IPC more complicated. Then memory management
+stuff... Remember that the system base architecture knew how
+to swap in/out only whole processes. Paging was implemented
+above it with a global clock (LRU like) algorithm.
 
+Truely I thought that putting everything in "current" in Linux was
+more of a design decision and not something that's derived from
+the '86 architecture.
 
-#ifndef min
-#define min(a,b)    (((a) <(b)) ? (a) : (b))
-#endif
-
-#define SAMP_LEN 20
-
-struct samp2_buf
-{
-        char *buffer;
-        /*
-        char *buffer,*end;
-        int buffersize;
-        char *rp,*wp;
-        */
-};
-
-static int samp2_open(struct inode *inode, struct file *file)
-{
-        console_print(" Exiting open \n ");
-        return 0;
-
-}
-
-
-
-static int samp2_release(struct inode *inode, struct file *file)
-{
-
-        //MOD_DEC_USE_COUNT;
-        console_print(" Exiting Release \n ");
-        return 0;
-
-}
-
-int samp2_read(struct inode *inode, struct file *fp, char *buff,int count)
-{
-        struct samp2_buf *dev = fp->private_data;
-        char *buf;
-        int len;
-
-        console_print("In read \n ");
-
-
-        if(copy_to_user (buff,dev->buffer,sizeof(dev->buffer)))
-               return -EFAULT;
-
-        //dev->buffer = "\0";
-
-        return sizeof(dev->buffer);
-}
-
-ssize_t samp2_write(struct inode *inode,struct file *fp,char *buf,ssize_t
-count)
-{
-        struct samp2_buf *dev = (struct samp2_buf *)fp ->private_data;
-
-
-
-
-        printk(KERN_CRIT "\n I AM IN WRITE ..............");
-
-        //dev->buffer = (unsigned char *)kmalloc(SAMP_LEN,GFP_KERNEL);
-
-        if(count > SAMP_LEN)
-        {
-                count = SAMP_LEN;
-        }
-
-        if(copy_from_user(dev->buffer,buf,count))
-        {
-                return -EFAULT;
-        }
-
-        dev->buffer[count] = '\0';
-        console_print("In write \n ");
-        printk(KERN_CRIT "\n I AM IN END of WRITE ..............");
-        return count;
-}
-
-static struct file_operations samp2_fops =
-{
-
-        NULL,  /* seek */
-        samp2_read,
-        samp2_write,   /* write*/
-        NULL,   /* readdir */
-        NULL,   /* select */
-        NULL,   /* ioctl */
-        NULL,   /* mmap */
-        samp2_open,       /* open */
-        NULL,
-        samp2_release,    /* release */
-        NULL,
-        NULL,
-};
-
-
-int init_module(void)
-{
-
-        int ret;
-
-        ret = register_chrdev(84,"samp2",&samp2_fops);
-
-
-        if(ret == 0)
-        {
-                console_print("<0> Device registered <0>");
-        }
-        else
-        {
-                console_print(" Device not registered ");
-        }
-
-return 0;
-
-}
-
-
-void cleanup_module(void)
-{
-        if(MOD_IN_USE)
-        {
-                console_print(" Driver in use ");
-                return;
-        }
-        unregister_chrdev(84,"samp2");
-
-        console_print(" <0> Driver Unregistered <0> ");
-
-}
-
-I am compiling this code with 
-
-gcc -D__KERNEL__ -DMODULE -DMODVERSIONS -DLINUX
--I/usr/src/linux-2.4B/include
--O6 -Wall -c samp.c
-
-
-But when ever i run a sample test program on this the write and read
-always return a -1.
-
-
-Any help will be appreciated.
-
-Thanks,
-Sheetal.
-
+-- Itai
 

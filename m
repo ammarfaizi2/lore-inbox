@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267761AbTCFSqR>; Thu, 6 Mar 2003 13:46:17 -0500
+	id <S268308AbTCFS6q>; Thu, 6 Mar 2003 13:58:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268245AbTCFSqR>; Thu, 6 Mar 2003 13:46:17 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:59658 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267761AbTCFSqQ>; Thu, 6 Mar 2003 13:46:16 -0500
-Date: Thu, 6 Mar 2003 18:56:44 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Gabriel Paubert <paubert@iram.es>,
-       randy.dunlap@verizon.net, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] move SWAP option in menu
-Message-ID: <20030306185644.A15881@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Tom Rini <trini@kernel.crashing.org>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Gabriel Paubert <paubert@iram.es>, randy.dunlap@verizon.net,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com
-References: <3E657EBD.59E167D6@verizon.net> <20030305181748.GA11729@iram.es> <20030305131444.1b9b0cf2.rddunlap@osdl.org> <20030306184332.GA23580@ip68-0-152-218.tc.ph.cox.net> <20030306184922.A15683@infradead.org> <20030306185458.GD23580@ip68-0-152-218.tc.ph.cox.net>
+	id <S268312AbTCFS6q>; Thu, 6 Mar 2003 13:58:46 -0500
+Received: from ns.suse.de ([213.95.15.193]:32784 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S268308AbTCFS6p>;
+	Thu, 6 Mar 2003 13:58:45 -0500
+Subject: Re: Better CLONE_SETTLS support for Hammer
+From: Andi Kleen <ak@suse.de>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E679A55.4030701@redhat.com>
+References: <3E664836.7040405@redhat.com>
+	<20030305190622.GA5400@wotan.suse.de> <3E6650D4.8060809@redhat.com>
+	<20030305212107.GB7961@wotan.suse.de> <3E668267.5040203@redhat.com>
+	<20030306010517.GB17865@wotan.suse.de> <3E66CB1A.6020107@redhat.com>
+	<20030306102720.GA23747@wotan.suse.de>  <3E679A55.4030701@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 06 Mar 2003 20:09:16 +0100
+Message-Id: <1046977757.1388.176.camel@averell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030306185458.GD23580@ip68-0-152-218.tc.ph.cox.net>; from trini@kernel.crashing.org on Thu, Mar 06, 2003 at 11:54:58AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 06, 2003 at 11:54:58AM -0700, Tom Rini wrote:
-> On Thu, Mar 06, 2003 at 06:49:22PM +0000, Christoph Hellwig wrote:
-> > On Thu, Mar 06, 2003 at 11:43:32AM -0700, Tom Rini wrote:
-> > > How's this look?  I picked MMU=x implies SWAP=x for defaults, just
-> > > because that's how they were before...
-> > 
-> > CONFIG_SWAP must be n if CONFIG_MMU isn't set either, so it shouldn't
-> > be an option for those targets.
-> 
-> Erm, yes, that makes sense.  How about this (for brevity, just
-> init/Kconfig):
+On Thu, 2003-03-06 at 19:58, Ulrich Drepper wrote:
 
-Looks good, the help text is also much nicer than my version :)
+> 
+> It's already part of the documented ABI.  Yes, if right now somebody
+> said r11 or whatever is declared the thread register, we could change
+> it.  But give it a few more weeks and it'll probably be impossible
+
+It's already pretty much impossible.
+
+
+> You don't understand threads.  There is nothing broken or NPTL-specific
+> about the design.  Every thread creation mechanism must be signal save.
+>  LinuxThreads's is not, which is a bit less of a problem since the
+> signal handling is broken, too, and signals are unlikely to arrive at
+> the new thread. Nevertheless, there are certainly spurious crashes which
+> are hard to reproduce and explain which can be attributed to this problem.
+
+I would have designed it with CLONE_BLOCKALLSIGNALS and then set it in
+the target process before unblocking signals. This would be in the 
+spirit of fork/exec and also what posix APIs do for similar
+problems (like pselect)
+
+But of course it's too late now. We'll have to live with this
+ugly thing.
+
+Just hope you won't run out of the argument registers for the next
+round of enhancements ;)
+
+-Andi
+
 

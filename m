@@ -1,150 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267523AbTACO3W>; Fri, 3 Jan 2003 09:29:22 -0500
+	id <S267525AbTACOh5>; Fri, 3 Jan 2003 09:37:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267525AbTACO3W>; Fri, 3 Jan 2003 09:29:22 -0500
-Received: from [62.39.112.246] ([62.39.112.246]:24977 "EHLO dot.kde.org")
-	by vger.kernel.org with ESMTP id <S267523AbTACO3U>;
-	Fri, 3 Jan 2003 09:29:20 -0500
-Date: Fri, 3 Jan 2003 16:22:14 +0100 (CET)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com, "" <alan@lxorguk.ukuu.org.uk>,
-       "" <marcelo@conectiva.com.br>
-Subject: [PATCH] AGP support for VIA P4X333 boards
-Message-ID: <Pine.LNX.4.50.0301031438080.29994-300000@dot.kde.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+	id <S267527AbTACOh5>; Fri, 3 Jan 2003 09:37:57 -0500
+Received: from otter.mbay.net ([206.55.237.2]:21510 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S267525AbTACOh4>;
+	Fri, 3 Jan 2003 09:37:56 -0500
+Date: Fri, 3 Jan 2003 06:46:23 -0800 (PST)
+From: John Alvord <jalvo@mbay.net>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <3E159336.F249C2A1@aitel.hist.no>
+Message-ID: <Pine.LNX.4.20.0301030645040.31823-100000@otter.mbay.net>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="658437744-552910360-1041601325=:29994"
-Content-ID: <Pine.LNX.4.50.0301031621410.16422@dot.kde.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Fri, 3 Jan 2003, Helge Hafting wrote:
 
---658437744-552910360-1041601325=:29994
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.50.0301031621411.16422@dot.kde.org>
+> Andrew Walrond wrote:
+> > 
+> > Yes but....
+> > 
+> > I develop computer games. The last one I did took a team of 35 people 2
+> > years and cost $X million to develop.
+> > 
+> > Please explain how I could do this as free software, while still feeding
+> > my people? 
+> 
+> > Am I a bad person charging for my work?
+> No.
+> > 
+> > Really - I want to understand so I too can join this merry band of happy
+> > people giving everything away for free!
+> > 
+> Nobody give everything away from free.  Free software, in particular,
+> runs
+> on boxes that cost money.  And people sell service and support.
+> 
+> The problem with nvidia isn't that they charge money.  The problem
+> is that their product comes with strange restrictions.  
+> 
+> Everybody accepts that a nvidia cards cost money - chips and boards
+> certainly aren't free.  They even provide drivers for their card
+> for free.  They can trivially do this because they make their
+> money on selling the hardware.
+> 
+> The problems are:
+> 1) The drivers are closed-source, so we can't fix the bugs.  (Yes,
+>    there are bugs, and no, nvidia don't fix them immediately.  So
+>    it'd be nice for us who understand C to fix this ourselves.
+>    Releasing the code don't won't cost nvidia because they aren't
+>    making money on it.  They might actually sell _more_ hardware
+>    if they released the code.  So keeping it secret don't make sense
+>    even from a extreme greediness viewpoint.  Such a driver can't
+>    be made to work with a competing product either with a few tweaks.
+> 
+> 2) Still, they _may_ have reasons not to release the code, perhaps
+>    a patended algorithm or some such.  They could at least release the
+>    specs for their card, so a free driver could be written from scratch.
+>    But they don't do that either - strange.  Some manufacturers _do_
+>    this, with no ill effects.  They get a slightly bigger market because
+>    their equipment is ok with the free software world.  
+Another possibility is that they used some propriatary software libraries
+which have restrictions. Didn't someone see some strings which suggested
+that?
 
-SSIA
-The patch adds AGP support for VIA P4X333 mainboards [by simply adding the 
-PCI IDs, the generic VIA driver works].
+> 
+> This is very much like selling cars were the gas tank is locked, and
+> you don't have the key.  The gas stations have keys, but only
+> some of them.  So you can't fill anywhere.  
+> Or a tv that don't work on thursdays. Silly in the extreme,
+> annoying for the user and no benefit for the manufacturer.
+> 
+> Helge Hafting
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-LLaP
-bero
-
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
---658437744-552910360-1041601325=:29994
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="linux-2.4.20-ViaP4X333.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.50.0301031442050.29994@dot.kde.org>
-Content-Description: Patch for vanilla 2.4.20
-Content-Disposition: ATTACHMENT; FILENAME="linux-2.4.20-ViaP4X333.patch"
-
-LS0tIGxpbnV4LTIuNC4yMC9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaC5iZXJv
-CUZyaSBKYW4gIDMgMTM6NDk6MDkgMjAwMw0KKysrIGxpbnV4LTIuNC4yMC9p
-bmNsdWRlL2xpbnV4L3BjaV9pZHMuaAlGcmkgSmFuICAzIDEzOjQ5OjM3IDIw
-MDMNCkBAIC05ODYsNiArOTg2LDcgQEANCiAjZGVmaW5lIFBDSV9ERVZJQ0Vf
-SURfVklBXzgyMzNDXzAJMHgzMTA5DQogI2RlZmluZSBQQ0lfREVWSUNFX0lE
-X1ZJQV84MzYxCQkweDMxMTINCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklB
-XzgyMzNBCQkweDMxNDcNCisjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBX1A0
-WDMzMwkweDMxNjgNCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzg2QzEw
-MEEJMHg2MTAwDQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJQV84MjMxCQkw
-eDgyMzENCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzgyMzFfNAkweDgy
-MzUNCi0tLSBsaW51eC0yLjQuMjAvaW5jbHVkZS9saW51eC9hZ3BfYmFja2Vu
-ZC5oLmJlcm8JRnJpIEphbiAgMyAxMzo0OTo0NSAyMDAzDQorKysgbGludXgt
-Mi40LjIwL2luY2x1ZGUvbGludXgvYWdwX2JhY2tlbmQuaAlGcmkgSmFuICAz
-IDEzOjUwOjAxIDIwMDMNCkBAIC02MCw2ICs2MCw3IEBADQogCVZJQV9BUE9M
-TE9fUFJPLA0KIAlWSUFfQVBPTExPX0tYMTMzLA0KIAlWSUFfQVBPTExPX0tU
-MTMzLA0KKwlWSUFfQVBPTExPX1A0WDQwMCwNCiAJU0lTX0dFTkVSSUMsDQog
-CUFNRF9HRU5FUklDLA0KIAlBTURfSVJPTkdBVEUsDQotLS0gbGludXgtMi40
-LjIwL2RyaXZlcnMvY2hhci9kcm0vZHJtX2FncHN1cHBvcnQuaC5iZXJvCUZy
-aSBKYW4gIDMgMTM6NTA6MTcgMjAwMw0KKysrIGxpbnV4LTIuNC4yMC9kcml2
-ZXJzL2NoYXIvZHJtL2RybV9hZ3BzdXBwb3J0LmgJRnJpIEphbiAgMyAxMzo1
-MDo0OSAyMDAzDQpAQCAtMjgxLDYgKzI4MSw4IEBADQogCQkJYnJlYWs7DQog
-CQljYXNlIFZJQV9BUE9MTE9fUFJPOiAJaGVhZC0+Y2hpcHNldCA9ICJWSUEg
-QXBvbGxvIFBybyI7DQogCQkJYnJlYWs7DQorCQljYXNlIFZJQV9BUE9MTE9f
-UDRYNDAwOgloYXJkLT5jaGlwc2V0ID0gIlZJQSBBcG9sbG8gUDRYNDAwIjsN
-CisJCQlicmVhazsNCiANCiAJCWNhc2UgU0lTX0dFTkVSSUM6CWhlYWQtPmNo
-aXBzZXQgPSAiU2lTIjsgICAgICAgICAgIGJyZWFrOw0KIAkJY2FzZSBBTURf
-R0VORVJJQzoJaGVhZC0+Y2hpcHNldCA9ICJBTUQiOyAgICAgICAgICAgYnJl
-YWs7DQotLS0gbGludXgtMi40LjIwL2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2Fy
-dF9iZS5jLmJlcm8JRnJpIEphbiAgMyAxMzo1MDo1OSAyMDAzDQorKysgbGlu
-dXgtMi40LjIwL2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9iZS5jCUZyaSBK
-YW4gIDMgMTM6NTE6NDYgMjAwMw0KQEAgLTQ3MTQsNiArNDcxNCwxMiBAQA0K
-IAkJIlZpYSIsDQogCQkiQXBvbGxvIFBybyBLVDI2NiIsDQogCQl2aWFfZ2Vu
-ZXJpY19zZXR1cCB9LA0KKwl7IFBDSV9ERVZJQ0VfSURfVklBX1A0WDMzMywN
-CisJCVBDSV9WRU5ET1JfSURfVklBLA0KKwkJVklBX0FQT0xMT19QNFg0MDAs
-DQorCQkiVmlhIiwNCisJCSJBcG9sbG8gUDRYNDAwIiwNCisJCXZpYV9nZW5l
-cmljX3NldHVwIH0sDQogCXsgMCwNCiAJCVBDSV9WRU5ET1JfSURfVklBLA0K
-IAkJVklBX0dFTkVSSUMsDQotLS0gbGludXgtMi40LjIwL2RyaXZlcnMvY2hh
-ci9kcm0tNC4wL2FncHN1cHBvcnQuYy5iZXJvCUZyaSBKYW4gIDMgMTM6NTI6
-MDEgMjAwMw0KKysrIGxpbnV4LTIuNC4yMC9kcml2ZXJzL2NoYXIvZHJtLTQu
-MC9hZ3BzdXBwb3J0LmMJRnJpIEphbiAgMyAxMzo1MjoyMiAyMDAzDQpAQCAt
-Mjc1LDYgKzI3NSw3IEBADQogCQkJYnJlYWs7DQogCQljYXNlIFZJQV9BUE9M
-TE9fS1QxMzM6CWhlYWQtPmNoaXBzZXQgPSAiVklBIEFwb2xsbyBLVDEzMyI7
-IA0KIAkJCWJyZWFrOw0KKwkJY2FzZSBWSUFfQVBPTExPX1A0WDQwMDoJaGVh
-ZC0+Y2hpcHNldCA9ICJWSUEgQXBvbGxvIFA0WDQwMCI7DQogI2VuZGlmDQog
-DQogCQljYXNlIFZJQV9BUE9MTE9fUFJPOiAJaGVhZC0+Y2hpcHNldCA9ICJW
-SUEgQXBvbGxvIFBybyI7DQo=
---658437744-552910360-1041601325=:29994
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="linux-2.4.20-ac2-ViaP4X333.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.50.0301031442051.29994@dot.kde.org>
-Content-Description: Patch for 2.4.20-ac2
-Content-Disposition: ATTACHMENT; FILENAME="linux-2.4.20-ac2-ViaP4X333.patch"
-
-LS0tIGxpbnV4LTIuNC4yMC9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaC5wNHgz
-MzN+CUZyaSBKYW4gIDMgMTM6Mjc6MjUgMjAwMw0KKysrIGxpbnV4LTIuNC4y
-MC9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaAlGcmkgSmFuICAzIDEzOjI3OjM2
-IDIwMDMNCkBAIC0xMDE0LDYgKzEwMTQsNyBAQA0KICNkZWZpbmUgUENJX0RF
-VklDRV9JRF9WSUFfODIzM0NfMAkweDMxMDkNCiAjZGVmaW5lIFBDSV9ERVZJ
-Q0VfSURfVklBXzgzNjEJCTB4MzExMg0KICNkZWZpbmUgUENJX0RFVklDRV9J
-RF9WSUFfODIzM0EJCTB4MzE0Nw0KKyNkZWZpbmUgUENJX0RFVklDRV9JRF9W
-SUFfUDRYMzMzCTB4MzE2OA0KICNkZWZpbmUgUENJX0RFVklDRV9JRF9WSUFf
-ODIzNQkJMHgzMTc3DQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJQV84Mzc3
-XzAJMHgzMTg5DQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJQV84NkMxMDBB
-CTB4NjEwMA0KLS0tIGxpbnV4LTIuNC4yMC9pbmNsdWRlL2xpbnV4L2FncF9i
-YWNrZW5kLmgucDR4MzMzfglGcmkgSmFuICAzIDEzOjMwOjMxIDIwMDMNCisr
-KyBsaW51eC0yLjQuMjAvaW5jbHVkZS9saW51eC9hZ3BfYmFja2VuZC5oCUZy
-aSBKYW4gIDMgMTM6MzA6NDcgMjAwMw0KQEAgLTYxLDYgKzYxLDcgQEANCiAJ
-VklBX0FQT0xMT19LWDEzMywNCiAJVklBX0FQT0xMT19LVDEzMywNCiAJVklB
-X0FQT0xMT19LVDQwMCwNCisJVklBX0FQT0xMT19QNFg0MDAsDQogCVNJU19H
-RU5FUklDLA0KIAlBTURfR0VORVJJQywNCiAJQU1EX0lST05HQVRFLA0KLS0t
-IGxpbnV4LTIuNC4yMC9kcml2ZXJzL2NoYXIvZHJtL2RybV9hZ3BzdXBwb3J0
-LmgucDR4MzMzfglGcmkgSmFuICAzIDEzOjI5OjI5IDIwMDMNCisrKyBsaW51
-eC0yLjQuMjAvZHJpdmVycy9jaGFyL2RybS9kcm1fYWdwc3VwcG9ydC5oCUZy
-aSBKYW4gIDMgMTM6Mjk6NTkgMjAwMw0KQEAgLTI4MSw2ICsyODEsOCBAQA0K
-IAkJCWJyZWFrOw0KIAkJY2FzZSBWSUFfQVBPTExPX0tUNDAwOiAgaGVhZC0+
-Y2hpcHNldCA9ICJWSUEgQXBvbGxvIEtUNDAwIjsNCiAJCQlicmVhazsNCisJ
-CWNhc2UgVklBX0FQT0xMT19QNFg0MDA6CWhlYWQtPmNoaXBzZXQgPSAiVklB
-IEFwb2xsbyBQNFg0MDAiOw0KKwkJCWJyZWFrOw0KIAkJY2FzZSBWSUFfQVBP
-TExPX1BSTzogCWhlYWQtPmNoaXBzZXQgPSAiVklBIEFwb2xsbyBQcm8iOw0K
-IAkJCWJyZWFrOw0KIA0KLS0tIGxpbnV4LTIuNC4yMC9kcml2ZXJzL2NoYXIv
-YWdwL2FncGdhcnRfYmUuYy5wNHgzMzN+CUZyaSBKYW4gIDMgMTM6Mjc6MzYg
-MjAwMw0KKysrIGxpbnV4LTIuNC4yMC9kcml2ZXJzL2NoYXIvYWdwL2FncGdh
-cnRfYmUuYwlGcmkgSmFuICAzIDEzOjMzOjI3IDIwMDMNCkBAIC00NzI4LDEx
-ICs0NzI4LDExIEBADQogCQkiVmlhIiwNCiAJCSJBcG9sbG8gUHJvIEtUNDAw
-IiwNCiAJCXZpYV9nZW5lcmljX3NldHVwIH0sDQotICAgICAgICB7IFBDSV9E
-RVZJQ0VfSURfVklBXzgzNzdfMCwNCisJeyBQQ0lfREVWSUNFX0lEX1ZJQV9Q
-NFgzMzMsDQogCQlQQ0lfVkVORE9SX0lEX1ZJQSwNCi0JCVZJQV9BUE9MTE9f
-S1Q0MDAsDQorCQlWSUFfQVBPTExPX1A0WDQwMCwNCiAJCSJWaWEiLA0KLQkJ
-IkFwb2xsbyBQcm8gS1Q0MDAiLA0KKwkJIkFwb2xsbyBQNFg0MDAiLA0KIAkJ
-dmlhX2dlbmVyaWNfc2V0dXAgfSwNCiAJeyAwLA0KIAkJUENJX1ZFTkRPUl9J
-RF9WSUEsDQotLS0gbGludXgtMi40LjIwL2RyaXZlcnMvY2hhci9kcm0tNC4w
-L2FncHN1cHBvcnQuYy5wNHgzMzN+CUZyaSBKYW4gIDMgMTM6MzE6MTQgMjAw
-Mw0KKysrIGxpbnV4LTIuNC4yMC9kcml2ZXJzL2NoYXIvZHJtLTQuMC9hZ3Bz
-dXBwb3J0LmMJRnJpIEphbiAgMyAxMzozMTo0OSAyMDAzDQpAQCAtMjc3LDYg
-KzI3Nyw4IEBADQogCQkJYnJlYWs7DQogCQljYXNlIFZJQV9BUE9MTE9fS1Q0
-MDA6ICBoZWFkLT5jaGlwc2V0ID0gIlZJQSBBcG9sbG8gS1Q0MDAiOw0KIAkJ
-CWJyZWFrOw0KKwkJY2FzZSBWSUFfQVBPTExPX1A0WDQwMDoJaGVhZC0+Y2hp
-cHNldCA9ICJWSUEgQXBvbGxvIFA0WDQwMCI7DQorCQkJYnJlYWs7DQogI2Vu
-ZGlmDQogDQogCQljYXNlIFZJQV9BUE9MTE9fUFJPOiAJaGVhZC0+Y2hpcHNl
-dCA9ICJWSUEgQXBvbGxvIFBybyI7DQo=
---658437744-552910360-1041601325=:29994--

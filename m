@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbTIYTiq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 15:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTIYTiq
+	id S261692AbTIYThh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 15:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbTIYThh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 15:38:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:65434 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261188AbTIYTip (ORCPT
+	Thu, 25 Sep 2003 15:37:37 -0400
+Received: from pat.uio.no ([129.240.130.16]:45564 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261692AbTIYThf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 15:38:45 -0400
-Date: Thu, 25 Sep 2003 12:38:37 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wright <chrisw@osdl.org>, miltonm@realtime.net,
-       rusty@rustcorp.com.au, Omen.Wild@Dartmouth.EDU,
-       linux-kernel@vger.kernel.org
-Subject: Re: call_usermodehelper does not report exit status?
-Message-ID: <20030925123837.E18118@osdlab.pdx.osdl.net>
-References: <20030919124213.7fc93067.akpm@osdl.org> <200309201855.h8KItHuf000466@sullivan.realtime.net> <20030925114150.A18074@osdlab.pdx.osdl.net> <20030925120536.1252e756.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 25 Sep 2003 15:37:35 -0400
+To: Steve Dickson <SteveD@redhat.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, nfs@lists.sourceforge.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [NFS] Re: [PATCH v2] reduce NFS stack usage
+References: <mailman.1064420466.30286.linux-kernel2news@redhat.com>
+	<3F7335B4.1070002@RedHat.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 25 Sep 2003 12:37:25 -0700
+In-Reply-To: <3F7335B4.1070002@RedHat.com>
+Message-ID: <shsk77w3bii.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030925120536.1252e756.akpm@osdl.org>; from akpm@osdl.org on Thu, Sep 25, 2003 at 12:05:36PM -0700
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton (akpm@osdl.org) wrote:
-> Chris Wright <chrisw@osdl.org> wrote:
-> >
-> > Anything wrong with just setting a SIG_DFL handler?
-> 
-> Seems that any time we make a change here it looks fine, tests out fine,
-> and explodes messily three weeks later.
+>>>>> " " == Steve Dickson <SteveD@redhat.com> writes:
 
-Heh.  Care to try it? ;-)
+     > Also, not like there much choice in matter, but I wonder what
+     > type of performance hit (if any) there will be by making these
+     > routines call kmalloc()... lookups and readdirs are pretty
+     > popular ops...
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+There are always alternatives...
+
+If really this is a problem, how about slabifying the structs
+nfs_fattr and/or nfs_fh?
+
+Also, since nfs_entry is only large due to the fh and fattr fields
+which are unused unless you have READDIRPLUS (in which case they are
+converted to pointers anyhow), how about kicking them out of
+nfs_entry altogether?
+
+Cheers,
+  Trond

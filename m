@@ -1,133 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbTF0And (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 20:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbTF0And
+	id S263199AbTF0BDu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 21:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTF0BDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 20:43:33 -0400
-Received: from mail.casabyte.com ([209.63.254.226]:33298 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP id S263185AbTF0Anb
+	Thu, 26 Jun 2003 21:03:50 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:50098 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S263199AbTF0BDs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 20:43:31 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "Stephan von Krawczynski" <skraw@ithnet.com>
-Cc: <david.lang@digitalinsight.com>, <lm@bitmover.com>, <wa@almesberger.net>,
-       <miquels@cistron-office.nl>, <linux-kernel@vger.kernel.org>
+	Thu, 26 Jun 2003 21:03:48 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Timothy Miller" <miller@techsource.com>
+Cc: "Larry McVoy" <lm@bitmover.com>, "Robert White" <rwhite@casabyte.com>,
+       <linux-kernel@vger.kernel.org>
 Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Date: Thu, 26 Jun 2003 17:57:36 -0700
-Message-ID: <PEEPIDHAKMCGHDBJLHKGEEHCDBAA.rwhite@casabyte.com>
+Date: Thu, 26 Jun 2003 18:17:58 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGEGADPAA.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20030627014540.3da01dc9.skraw@ithnet.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <3EFB7897.90703@techsource.com>
 Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen,
 
-So given this responsibility he has chosen to take, that you admire, and
-that I have no aspirations towards because I already know it isn't an area I
-will do well in...
+> David Schwartz wrote:
 
-Is it responsible for him to pose a question about the source and nature of
-innovation and then reply to the feedback he receives with "you've never run
-a business so why should I listen to you"?
+> > 	If I see an argument, I don't give a damn who made it. I
+> > evaluate the
+> > argument based upon its merits. If I'm not competent to evaluate the
+> > argument on its merits, I'm not competent to have an opinion at all.
+> > Essentially, you're arguing that ad hominem is a valid
+> > reasoning tool, even
+> > to reject arguments in which you see no flaw.
 
-Is it responsible to start with the assumption that business is innovation
-and non business is, by definition, *not* innovation?  His position only
-makes sense if this founding position ("business is the sole source of
-meaningful innovation in software") is true.  He will entertain no dissent
-on that position no matter how many innovators claim otherwise.
+> This reminds me of when I was a "creationist" and arguing on
+> talk.origins.  I had, in my opinion, evaluated the evidence and decided
+> that the earth was created by God 6500 years ago and there was a global
+> flood, and a bunch of other stuff, and that since I could come up with a
+> coherent explanation for every counter-argument people would throw at
+> me, then I must have been right.
 
-I didn't offer advice on accounting practices, sales channels, or even the
-proper way to apportion funds or apportion effort.  I did not posit opinions
-on managing employees nor conserving costs.  I offered my specific view
-directly related to my specific experience in the field he was addressing.
+	Except that my reasoning isn't based on anyone's opinions of their own
+arguments.
 
-I also took particular exception to receiving three emails that said
-(paraphrased), in order:
+> The truth is that I WASN'T evaluating the evidence properly.  I was
+> dismissing huge volumes of hard scientific data.  But things made sense
+> to me anyhow.  What I'm trying to say is that you can use logic to
+> support any argument you want, as long as you make up the right facts
+> and contrive the right explanations.
 
-1) I {Larry} glanced at what you wrote, who are you that I should care about
-your opinion.
+	What convinced you? Someone telling you that you were not competent to
+evaluate the evidence or someone *presenting* the evidence?
 
-(I respond to this reasonable request with the rough overview of my
-experience in software development and "innovation")
+> Your argument is logically valid.  It's a nice self-contained system
+> that makes sense, in its own little world. But is it SOUND?  When
+> compared against empirical evidence, does it stand up?  Until you have
+> completely weighed the whole of one argument against the whole of
+> another, then you can't compare them.  Until you have allowed yourself
+> to experience the other side, you cannot evaluate its validity.
 
-2) You've never run a business so you will forgive me if I {Larry} don't pay
-any attention to anything you have said; I already know that I can only
-learn things relating to business by competing against better businessmen.
-(e.g. the "I play pool and..." message)
+	This is a paragraph-length version of "that's what you think". You can give
+me all the reasons you want why I can't evaluate a position, all that does
+is lead to the conclusion that I can't participate in the argument. But if
+you're the one trying to convince me, convincing me that I can't evaluate
+competing positions gets you absolutely nowhere.
 
-(which I totally let slide and was going to accept as an indication of a
-closed and pointless channel, but then, as a reply to a third party I
-get...)
+	This thing started because Larry advanced and defended a position. When
+others responded with contrary arguments, his response was that even though
+he considered their arguments, he felt free to reject them because they came
+from people who didn't have the credentials he required. If his purpose in
+advocating the position was merely to convince himself that he was right,
+this is fine. But that was not his apparent purpose.
 
-3) Exactly, I {Larry} consider all arguments no matter who poses them.
+> So, you have a good handle on the open source side of things.  Great.
+> When it comes to open source theory, I'll listen to you.  But your
+> judgement of the closed-source side is based on reasoning in a vacuum.
+> You're making up your evidence by which you are judging it.  (This is
+> exactly how I once treated evolutionary biology.)  Thus, when it comes
+> to closed-source theory, I'm going to listen to Mr. McVoy.
 
-(which is directly belied by message two)
+	Because you find his arguments more persuasive or because you are more
+impressed by his credentials?
 
-The rampant cupidity of the conflict between items two and three kind of set
-me off.  It is not reasonable nor rational nor, I suspect, an indication of
-the kind of businessman I would want to have domain over my capital.  It
-also exhausted all respect I felt towards Larry, about whom I had no prior
-opinion.
-
-And then I started behaving badly... 8-)
-
-Rob.
-
-
-
------Original Message-----
-From: Stephan von Krawczynski [mailto:skraw@ithnet.com]
-Sent: Thursday, June 26, 2003 4:46 PM
-To: Robert White
-Cc: david.lang@digitalinsight.com; lm@bitmover.com; wa@almesberger.net;
-miquels@cistron-office.nl; linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-
-
-On Thu, 26 Jun 2003 14:02:26 -0700
-"Robert White" <rwhite@casabyte.com> wrote:
-
-> David,
->
-> Yes, fine, that is in fact why I did give Larry a brief overview of my
-> experience, as the consideration of experience is valid, and I have TWENTY
-> YEARS of experience in software design, development, and yes, sales.
->
-> Yet because I have never tried to "run" the businesses I have participated
-> in somehow that experience doesn't count in Larry's explicitly stated
-world
-> view.
-
-Hello Rob,
-
-_the_ ultimate difference between someone participating and someone
-_running_
-the business is (in my eyes) that the one "running" it is playing with his
-own
-money, his own existence (and maybe that of his family) and possibly feels a
-big responsibility for his employees, the money he was possibly given by
-investors or the like.
-If you never made that experience you don't know what Larry is talking
-about.
-If you don't believe that, take all your money and loan your house and start
-a
-business, then experience the feeling.
-You may have noticed I do not agree with Larry in many things, but anyway I
-fully respect him, because he took true responsibility for running a
-business,
-and I know what that means. There are easier things you could do in life.
-
-Regards,
-Stephan
-
+	DS
 
 

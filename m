@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144124AbRBWUkF>; Fri, 23 Feb 2001 15:40:05 -0500
+	id <S144660AbRBWUlp>; Fri, 23 Feb 2001 15:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129669AbRBWUc1>; Fri, 23 Feb 2001 15:32:27 -0500
-Received: from UX4.SP.CS.CMU.EDU ([128.2.198.104]:57932 "HELO
-	ux4.sp.cs.cmu.edu") by vger.kernel.org with SMTP id <S129394AbRBWUcR>;
-	Fri, 23 Feb 2001 15:32:17 -0500
-Message-ID: <3A96C858.5C8FB714@cs.cmu.edu>
-Date: Fri, 23 Feb 2001 15:30:16 -0500
-From: Sourav Ghosh <sourav@cs.cmu.edu>
-Organization: Carnegie Mellon University
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.15-timesys-u-16Jan01 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: creation of sock 
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129134AbRBWULy>; Fri, 23 Feb 2001 15:11:54 -0500
+Received: from mail.valinux.com ([198.186.202.175]:42765 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129379AbRBWULs>;
+	Fri, 23 Feb 2001 15:11:48 -0500
+To: phillips@innominate.de
+CC: adilger@turbolinux.com, Linux-kernel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net
+In-Reply-To: <3A959AE2.6BAFF36E@innominate.de> (message from Daniel Phillips
+	on Fri, 23 Feb 2001 00:04:02 +0100)
+Subject: Re: [Ext2-devel] [rfc] Near-constant time directory index for Ext2
+From: tytso@valinux.com
+Phone: (781) 391-3464
+In-Reply-To: <E14VvfG-00035D-00@beefcake.hdqt.valinux.com> <200102221816.f1MIGWt04170@webber.adilger.net> <3A959AE2.6BAFF36E@innominate.de>
+Message-Id: <E14WOZ2-0006sK-00@beefcake.hdqt.valinux.com>
+Date: Fri, 23 Feb 2001 12:11:40 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+   From: Daniel Phillips <phillips@innominate.de>
+   Date: Fri, 23 Feb 2001 00:04:02 +0100
 
-I'm using linux 2.2.15 kernel on redhat.
-I have added some variables (pointers) on "sock" data structure.
-I was initializing them to NULL in sk_alloc() function.
+   I resolve not to take a position on this subject, and I will carry
+   forward both a 'squeaky clean' backward-compatible version that sets an
+   INCOMPAT flag, and a 'slightly tarnished' but very clever version that
+   is both forward and backward-compatible, along the lines suggested by
+   Ted.  Both flavors have the desireable property that old versions of
+   fsck with no knowledge of the new index structure can remove the indices
+   automatically, with fsck -y.
 
-But it seems some sock structures are allocated for TCP bypassing this
-sk_alloc() and due to this my added pointers are not initialized to NULL
-all the time.
+Note that in the long run, the fully comatible version should probably
+have a COMPAT feature flag set so that you're forced to use a new enough
+version of e2fsck.  Otherwise an old e2fsck may end up not noticing
+corruptions in an index block which might cause a new kernel to have
+serious heartburn.
 
-Can anyone tell me which function is being called for generating sock
-for TCP connections ( I guess for a aprticular TCP packet type, not for
-all, as I'm getting into this problem intermittently, esp., when I try
-access some specified website from my PC) ?
-
-Thanks
---
-Sourav
-
+						- Ted

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130992AbQKRIYN>; Sat, 18 Nov 2000 03:24:13 -0500
+	id <S131508AbQKRI0y>; Sat, 18 Nov 2000 03:26:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131533AbQKRIYF>; Sat, 18 Nov 2000 03:24:05 -0500
-Received: from saw.sw.com.sg ([203.120.9.98]:17795 "HELO saw.sw.com.sg")
-	by vger.kernel.org with SMTP id <S130992AbQKRIXv>;
-	Sat, 18 Nov 2000 03:23:51 -0500
-Message-ID: <20001118155342.A30637@saw.sw.com.sg>
-Date: Sat, 18 Nov 2000 15:53:42 +0800
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Admin Mailing Lists <mlist@intergrafix.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 timeout errors - 2.2.18pre20
-In-Reply-To: <Pine.LNX.4.10.10011160921250.7962-200000@athena.intergrafix.net>
+	id <S131509AbQKRI0o>; Sat, 18 Nov 2000 03:26:44 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:35830 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S131508AbQKRI0d>;
+	Sat, 18 Nov 2000 03:26:33 -0500
+Date: Fri, 17 Nov 2000 23:56:24 -0800
+From: Greg KH <greg@wirex.com>
+To: Ben Ford <bford@talontech.com>
+Cc: David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: test11-pre6 still very broken
+Message-ID: <20001117235624.B26341@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>, Ben Ford <bford@talontech.com>,
+	David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet> <8v4306$sga$1@cesium.transmeta.com> <3A161337.6A1BE826@linux.com> <20001117223137.A26341@wirex.com> <3A162EFE.A980A941@talontech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <Pine.LNX.4.10.10011160921250.7962-200000@athena.intergrafix.net>; from "Admin Mailing Lists" on Thu, Nov 16, 2000 at 09:28:44AM
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A162EFE.A980A941@talontech.com>; from bford@talontech.com on Fri, Nov 17, 2000 at 11:25:50PM -0800
+X-Operating-System: Linux 2.2.17-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Nov 17, 2000 at 11:25:50PM -0800, Ben Ford wrote:
+> Here is lspci output from the laptop in question.  Is this not UHCI?
 
-On Thu, Nov 16, 2000 at 09:28:44AM -0500, Admin Mailing Lists wrote:
-> Was running 2.2.15pre18 with no eepro problems.
-> Upgraded to 2.2.18pre20 and started experiencing transmit timed out errors
-> a day into the boot. eth0 was unresponsive in/out. down/uping the
-> interface had no effect. System was not under any big network load.
-> See attached text file for related kernel messages.
-> System is Intel PR440FX mobo, SMP, glibc 2.1.3, gcc 2.95.2
+Yes it is.  Just a bit funny if you think about it, but with Intel and
+Via putting the UHCI core into their chipsets I guess it makes sense.
 
-The problem isn't in the kernel version.
-The bug just shows not with 100% frequency.
-Investigations are in progress.
+One note for the archives, if you are presented a choice between a OHCI
+or a UHCI controller, go for the OHCI.  It has a "cleaner" interface,
+handles more of the logic in the silicon, and due to this provides
+faster transfers.
 
-Best regards
-					Andrey V.
-					Savochkin
+In it's defense, the UHCI design was the first one, and OHCI
+capitalized on that by fixing some of its weaknesses.  Hopefully the
+same thing will not happen for USB 2.0, and everyone will like EHCI.
+
+
+greg k-h
+(who has UHCI in all of his machines except one.)
+
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

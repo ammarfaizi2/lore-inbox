@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266619AbUFWTLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUFWTTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266619AbUFWTLR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 15:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266618AbUFWTLR
+	id S266613AbUFWTTl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 15:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUFWTTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 15:11:17 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:16146 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S266613AbUFWTLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 15:11:15 -0400
-Message-ID: <40D9DA4A.3070700@techsource.com>
-Date: Wed, 23 Jun 2004 15:30:18 -0400
-From: Timothy Miller <miller@techsource.com>
+	Wed, 23 Jun 2004 15:19:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42970 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266613AbUFWTTj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 15:19:39 -0400
+Message-ID: <40D9D7BA.7020702@pobox.com>
+Date: Wed, 23 Jun 2004 15:19:22 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Robert Love <rml@ximian.com>
-CC: Marcus Hartig <m.f.h@web.de>, linux-kernel@vger.kernel.org
-Subject: Re: status of Preemptible Kernel 2.6.7
-References: <40D9B20A.4070409@web.de>  <40D9C48C.4060004@techsource.com> <1088017171.14159.2.camel@betsy>
-In-Reply-To: <1088017171.14159.2.camel@betsy>
+To: Terence Ripperda <tripperda@nvidia.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 32-bit dma allocations on 64-bit platforms
+References: <20040623183535.GV827@hygelac>
+In-Reply-To: <20040623183535.GV827@hygelac>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Terence Ripperda wrote:
+
+Fix your word wrap.
 
 
-Robert Love wrote:
-> On Wed, 2004-06-23 at 13:57 -0400, Timothy Miller wrote:
+> I'm working on cleaning up some of our dma allocation code to properly allocate 32-bit physical pages for dma on 64-bit platforms. I think our first pass at supporting em64t is sub-par. I'd like to fix that by using the correct kernel interfaces.
 > 
+>>From our early efforts in supporting AMD's x86_64, we've used the pci_map_sg/pci_map_single interface for remapping > 32-bit physical addresses through the system's IOMMU. Since Intel's em64t does not provide an IOMMU, the kernel falls back to a swiotlb to implement these interfaces. For our first pass at supporting em64t, we tried to work with the swiotlb, but this works very poorly.
+
+swiotlb was a dumb idea when it hit ia64, and it's now been propagated 
+to x86-64 :(
+
+
+> We should have gone back and reviewed how we use the kernel interfaces and followed DMA-API.txt and DMA-mapping.txt. We're now working on using these interfaces (mainly pci_alloc_consistent). but we're still running into some general shortcomings of these interfaces. the main problem is the ability to allocate enough 32-bit addressable memory.
 > 
->>I vaguely recall someone recently talking about eliminating preempt by 
->>improving low-latency.  See, if everything were ideal, we wouldn't need 
->>preempt, because all drivers would yield the CPU at appropriate times. 
+> the physical addressing of memory allocations seems to boil down to the behavior of GFP_DMA and GFP_NORMAL. but there seems to be some disconnect between what these mean for each architecture and what various drivers expect them to mean.
 > 
+> based on each architecture's paging_init routines, the zones look like this:
 > 
-> If everything held locks for only sane periods of time, we would not
-> need gross explicit yielding all over the place.
+>                 x86:         ia64:      x86_64:
+> ZONE_DMA:       < 16M        < ~4G      < 16M
+> ZONE_NORMAL:    16M - ~1G    > ~4G      > 16M
+> ZONE_HIMEM:     1G+
 > 
-> To answer Marcus's question: go for it and use it.
+> an example of this disconnect is vmalloc_32. this function is obviously intended to allocate 32-bit addresses (this was specifically mentioned in a comment in 2.4.x header files). but vmalloc_32 is an inline routine that calls __vmalloc(GFP_KERNEL). based on the above zone descriptions, this will do the correct thing for x86, but not for ia64 or x86_64. on ia64, a driver could just use GFP_DMA for the desired behavior, but this doesn't work well for x86_64.
+> 
+> AMD's x86_64 provides remapping > 32-bit pages through the iommu, but obviously Intel's em64t provides no such ability. based on the above zonings, these leaves us with the options of either relying on the swiotlb interfaces for dma, or relying on the isa memory for dma.
+
+FWIW, note that there are two main considerations:
+
+Higher-level layers (block, net) provide bounce buffers when needed, as 
+you don't want to do that purely with iommu.
+
+Once you have bounce buffers properly allocated by <something> (swiotlb? 
+  special DRM bounce buffer allocator?), you then pci_map the bounce 
+buffers.
 
 
-I wasn't talking about locks.  I was talking about kernel functions 
-taking long periods of time, cases where preempt has been useful to 
-reduce kernel latency.
+> the last day or two, I've been experimenting with using the pci_alloc_consistent interface, which uses the later (note attached patch to fix an apparent memory leak in the x86_64 pci_alloc_consistent). unfortunately, this provides very little dma-able memory. In theory, up to 16 Megs, but in practice I'm only getting about 5 1/2 Megs.
+> 
+> I was rather surprised by these limitations on allocating 32-bit addresses. I checked through the dri and bttv drivers, to see if they had dealt with these issues, and they did not appear to have done so. has anyone tested these drivers on ia64/x86_64/em64t platforms w/ 4+ Gigs of memory?
+> 
+> are these limitations on allocating 32-bit addresses intentional and known? is there anything we can do to help improve this situation? help work on development?
 
-Holding locks for extended periods is something else entirely.
+Sounds like you're not setting the PCI DMA mask properly, or perhaps 
+passing NULL rather than a struct pci_dev to the PCI DMA API?
 
-I presume there are sane cases where a kernel function will need to 
-execute for a "long time", like when doing PIO disk access or COW, etc. 
-  It would be good to have a way to limit the impact of those functions 
-in terms of user-perceived latency, just as preempt has done, but 
-without preempt.
-
-At least, I thought that was the idea.
-
-Now, the thing is, if you have explicit cooperative yields, then a slow 
-CPU might not yield often enough, and a fast CPU would yield too often. 
-    Preempt has the advantage of using real time so that CPUs can 
-maximize throughput without affecting latency.
+	Jeff
 
 

@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313179AbSEMMKL>; Mon, 13 May 2002 08:10:11 -0400
+	id <S313182AbSEMMNr>; Mon, 13 May 2002 08:13:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313181AbSEMMKK>; Mon, 13 May 2002 08:10:10 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:62981 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S313179AbSEMMKJ>; Mon, 13 May 2002 08:10:09 -0400
-Date: Mon, 13 May 2002 14:09:53 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Marcus Alanen <marcus@infa.abo.fi>
-Cc: riel@conectiva.com.br, Johnny Mnemonic <johnny@themnemonic.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Changelogs on kernel.org
-Message-ID: <20020513120953.GD4258@louise.pinerecords.com>
-In-Reply-To: <20020512145802Z313578-22651+30503@vger.kernel.org> <Pine.LNX.4.44L.0205122146310.32261-100000@imladris.surriel.com> <200205131152.OAA05817@infa.abo.fi>
+	id <S313183AbSEMMNq>; Mon, 13 May 2002 08:13:46 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:62991 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S313182AbSEMMNo>; Mon, 13 May 2002 08:13:44 -0400
+Date: Mon, 13 May 2002 13:13:39 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, axboe@suse.de,
+        akpm@zip.com.au, martin@dalecki.de, neilb@cse.unsw.edu.au
+Subject: Re: [PATCH] remove 2TB block device limit
+Message-ID: <20020513131339.A4610@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Peter Chubb <peter@chubb.wattle.id.au>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com, axboe@suse.de,
+	akpm@zip.com.au, martin@dalecki.de, neilb@cse.unsw.edu.au
+In-Reply-To: <1060250300@toto.iv> <15583.38222.512544.921796@wombat.chubb.wattle.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 16:18)
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [Marcus Alanen <marcus@infa.abo.fi>, May-13 2002, Mon, 14:52 +0300]
+On Mon, May 13, 2002 at 08:28:30PM +1000, Peter Chubb wrote:
 > 
-> Combining the efforts, the following almost makes coffee.
-
-Neat!
-
-> - Short mode
-> - Full mode
-> - Original mode
+> There's now a patch available against 2.5.15, and the BK repository
+> has been updated to v2.5.15 as well:
 > 
-> The original mode you requested prints the e-mail address, I guess
-> it should be the author's real name to look more nice.
+>     http://www.gelato.unsw.edu.au/patches/2.5.15-largefile-patch
+>     bk://gelato.unsw.edu.au:2023/
 
-Okay.. how about the name db? That seems to be the last feature missing.
+This looks really good, I'd like to see something like that merged soon!
+Some comments:
 
->                 s/^\s*(.*)\s*$/$1/;
->                 $_ =~ s/\[PATCH\] //g;
->                 $_ =~ s/\s*PATCH //g;
+ - please move the sector_t typedef from <linux/types.h> to <asm/types.h>,
+   so 64 bit arches don't have to have the CONFIG_ option at all, some
+   32bit plattforms that are unlikely to ever support large disks
+   (m68k comes to mind) can make it 32bit unconditionally and some like
+   i386 can use a config option.
+ - sector_div should move to a common header (blkdev.h?)
 
-s/^\s*(.*)\s*$/$1/;
-s/^\[?PATCH\]?\s*//;
+And something related to general sector_t usage:
 
-will be sufficient I believe. Also, the "/g" is not a good idea.
-
-
-T.
+ - what about sector_t vs daddr_t?  Linux still has daddr_t, but it is
+   still always 32bit, I think a big s/sector_t/daddr_t/ would fit the
+   traditional unix way of doing disk addressing
+ - why is the get_block block argument a sector_t?  It presents a logical
+   filesystem block which usually is larger than the sector, not to
+   mention that for the usual blocksize == PAGE_SIZE case a ulong is
+   enough as that is the same size the pagecache limit triggers.

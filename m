@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310378AbSCBNV2>; Sat, 2 Mar 2002 08:21:28 -0500
+	id <S310383AbSCBN3I>; Sat, 2 Mar 2002 08:29:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310376AbSCBNVS>; Sat, 2 Mar 2002 08:21:18 -0500
-Received: from velli.mail.jippii.net ([195.197.172.114]:5062 "HELO
-	velli.mail.jippii.net") by vger.kernel.org with SMTP
-	id <S310378AbSCBNVH> convert rfc822-to-8bit; Sat, 2 Mar 2002 08:21:07 -0500
-Message-Id: <5.0.2.1.0.20020302151453.00b2e930@pop.mbnet.fi>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Sat, 02 Mar 2002 15:20:52 +0200
-To: linux-kernel@vger.kernel.org
-From: Toni =?iso-8859-1?Q?Syv=E4nen?= <syvanen@mbnet.fi>
-Subject: FrameBuffer development
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S310381AbSCBN27>; Sat, 2 Mar 2002 08:28:59 -0500
+Received: from ja.mac.ssi.bg ([212.95.166.194]:25094 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S310376AbSCBN2v>;
+	Sat, 2 Mar 2002 08:28:51 -0500
+Date: Sat, 2 Mar 2002 15:28:34 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: ja@u.domain.uli
+To: kuznet@ms2.inr.ac.ru
+cc: kain@kain.org, <linux-kernel@vger.kernel.org>, <ak@suse.de>
+Subject: Re: OOPS: Multipath routing 2.4.17
+In-Reply-To: <200203021259.PAA20250@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.44.0203021519010.4102-100000@u.domain.uli>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm working on small patch for fb on linux.
-But anyways i got one really stupid question. To who should i
-send the patch? (hides from the angry people and gives everyone
-a free softie pinguin, please put our agressive behavior on the toy, thx)
 
-My idea is to make it more "fail safe" because i have runned into problems
-when using fb. I have to reboot, and reboot..... to find the right settings.
-Sollution is that kernel waits and asks if the new resolution works. and if
-you don't answer yes in 10 seconds, it gets back to the old settings.
+	Hello,
 
-__
-Toni Syvänen aka "ToM"
-a Stubborn Finn
+On Sat, 2 Mar 2002 kuznet@ms2.inr.ac.ru wrote:
+
+> > w = jiffies % fi->fib_power;
+>
+> 	power = fi->fib_power;
+> 	barrier();
+> 	if (power) ...
+>
+> Such thing are made in this way.
+
+	I hope you are sure about this solution for fib_select_multipath
+because I'm not. IMO, the solution from Andi looks more correct
+for the current scheduler.
+
+	What about the new scheduler (for 2.5?), of course, after
+replacing the wrong write_lock() with spin_lock_bh(&fib_nh_powers) ?
+This lock will be used only in fib_select_multipath because
+fib_sync_{up,down} will not play with nh_power. It will protect
+only nh_power and I hope the DEAD flag change will not make big
+problems for fib_select_multipath.
+
+> Alexey
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
 

@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262892AbTCKKei>; Tue, 11 Mar 2003 05:34:38 -0500
+	id <S262894AbTCKKyw>; Tue, 11 Mar 2003 05:54:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262893AbTCKKei>; Tue, 11 Mar 2003 05:34:38 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:13494 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S262892AbTCKKeh>; Tue, 11 Mar 2003 05:34:37 -0500
-Message-ID: <3E6DBE3B.8030007@namesys.com>
-Date: Tue, 11 Mar 2003 13:45:15 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
+	id <S262895AbTCKKyw>; Tue, 11 Mar 2003 05:54:52 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:10507 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262894AbTCKKyu>; Tue, 11 Mar 2003 05:54:50 -0500
+Date: Tue, 11 Mar 2003 12:05:17 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Greg KH <greg@kroah.com>
+cc: Oliver Neukum <oliver@neukum.name>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: PCI driver module unload race?
+In-Reply-To: <20030311011532.GH13145@kroah.com>
+Message-ID: <Pine.LNX.4.44.0303111200070.5042-100000@serv>
+References: <20030308104749.A29145@flint.arm.linux.org.uk>
+ <20030308202101.GA26831@kroah.com> <20030310214443.GA13145@kroah.com>
+ <200303110048.43514.oliver@neukum.name> <20030310235131.GF13145@kroah.com>
+ <Pine.LNX.4.44.0303110147390.32518-100000@serv> <20030311011532.GH13145@kroah.com>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: "Theodore Ts'o" <tytso@mit.edu>, Andreas Dilger <adilger@clusterfs.com>,
-       Christopher Li <chrisl@vmware.com>, Alex Tomas <bzzz@tmi.comex.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Improved inode number allocation for HTree
-References: <11490000.1046367063@[10.10.2.4]> <20030310204146.875D3F0D4D@mx12.arcor-online.net> <3E6D1D25.5000004@namesys.com> <20030311031216.8A31CEFD5F@mx12.arcor-online.net>
-In-Reply-To: <20030311031216.8A31CEFD5F@mx12.arcor-online.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let's make noatime the default for VFS.
+Hi,
 
-Daniel Phillips wrote:
+On Mon, 10 Mar 2003, Greg KH wrote:
 
->Hi Hans,
->
->On Tue 11 Mar 03 00:17, Hans Reiser wrote:
->  
->
->>What do you think of creating a new telldir/seekdir which uses filenames
->>instead of ints to convey position?
->>    
->>
->
->What do you do if that file gets deleted in the middle of a traversal?
->
-So what?  It still tells you where to restart.  Strictly speaking, you 
-would want to allow the filesystem to choose what it wants to return to 
-indicate position.  For htree and reiserfs this would be a filename or 
-its hash, for ext2 without htree this would be a byte offset.
+> > I think it's not easy. I haven't studied the code completely yet, but e.g. 
+> > when you attach a device to a driver you also have to get a reference to 
+> > the driver.
+> 
+> You get a link to the driver, but you can't increment the module count
+> of the driver at that time, as we have to be able to remove a module
+> somehow :)
 
->
->If I were able to design Unix over again, I'd state that if you don't lock a 
->directory before traversing it then it's your own fault if somebody changes 
->it under you, and I would have provided an interface to inform you about your 
->bad luck.  Strictly wishful thinking.  (There, it feels better now.)
->
-We are designing Linux.  You know, Microsoft and Steve Jobs continue to 
-design.  We should too.
+Somehow you have to protect dev->driver, you cannot resolve the driver 
+pointer without holding the bus lock or holding a reference. If you don't 
+get a reference, any access via this pointer must be done under the bus 
+lock.
 
-Needless change should be avoided.  Failure to change when something is 
-known to be broken leads to being inferior to those who do change.
+> Yeah, I still think there are some nasty issues with regards to being in
+> a sysfs directory, with a open file handle, and the module is removed.
+> But I haven't checked stuff like that in a while.
+> 
+> CONFIG_MODULE_UNLOAD, just say no.
 
-Let's design something that does it right.  Or else SCO will be right in 
-saying that Linux is just a Unix ripoff by people who couldn't do 
-anything unless Unix had been written to tell them how to do it right.
+That's certainly an option, but I'm afraid not too many people will do 
+this.
 
--- 
-Hans
-
+bye, Roman
 

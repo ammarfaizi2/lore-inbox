@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261733AbSKXWdB>; Sun, 24 Nov 2002 17:33:01 -0500
+	id <S261742AbSKXWZ2>; Sun, 24 Nov 2002 17:25:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261855AbSKXWdB>; Sun, 24 Nov 2002 17:33:01 -0500
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:33659 "EHLO
-	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261733AbSKXWdB>; Sun, 24 Nov 2002 17:33:01 -0500
-Date: Sun, 24 Nov 2002 23:40:06 +0100
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: clock skew when writing cd (ide-scsi)
-Message-ID: <20021124224006.GA26326@grobbebol.xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S261799AbSKXWZX>; Sun, 24 Nov 2002 17:25:23 -0500
+Received: from dp.samba.org ([66.70.73.150]:29611 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261733AbSKXWZU>;
+	Sun, 24 Nov 2002 17:25:20 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2/4 Module Parameter Support 
+In-reply-to: Your message of "Tue, 19 Nov 2002 01:36:47 CDT."
+             <3DD9DBFF.5000009@pobox.com> 
+Date: Mon, 25 Nov 2002 08:57:00 +1100
+Message-Id: <20021124223234.611262C0D9@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did check google on this but so far I didn't find a reason or fix yet.
+In message <3DD9DBFF.5000009@pobox.com> you write:
+> Question for the crowd:
+> 
+> Should linux/module.h include moduleparam.h, since drivers are used to 
+> include'ing module.h to get all their MODULE_xxx desires fulfilled?
 
-using 2.4.18 (or previous), I always see on both my older BP6 as well as
-the current system that there is a clock skew.
+Hmm, they already need linux/init.h for module_init() and
+module_exit().  Of course the backwards compat MODULE_PARM must not
+require an extra include (and it doesn't, does it?).
 
-if I burn 6 or 7 cd's the total system time is approx one hour behind.
+I guess this leads to the bigger "what are the rules for new header
+files?" question, which I'm not prepared to try to answer.
 
-there are no messages in the logs that could hint me what the problem
-is.
-
-anyone an idea ?
-
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

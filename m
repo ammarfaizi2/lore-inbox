@@ -1,173 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129901AbRASHfW>; Fri, 19 Jan 2001 02:35:22 -0500
+	id <S130325AbRASHlc>; Fri, 19 Jan 2001 02:41:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130860AbRASHfN>; Fri, 19 Jan 2001 02:35:13 -0500
-Received: from femail3.rdc1.on.home.com ([24.2.9.90]:31373 "EHLO
-	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S129901AbRASHe7>; Fri, 19 Jan 2001 02:34:59 -0500
-Message-ID: <3A67EE07.B136B34E@Home.net>
-Date: Fri, 19 Jan 2001 02:34:31 -0500
-From: Shawn Starr <Shawn.Starr@Home.net>
-Organization: Visualnet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre7 i586)
-X-Accept-Language: en
+	id <S130860AbRASHlW>; Fri, 19 Jan 2001 02:41:22 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:1031 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130325AbRASHlH>; Fri, 19 Jan 2001 02:41:07 -0500
+Date: Fri, 19 Jan 2001 03:51:01 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: pre5 VM feedback..
+In-Reply-To: <940cq0$6fe$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0101190345210.5038-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [BUG]: 2.4.1-pre8: Wierd lockup with /proc based functions (?)
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a while ago, my system just started acting funny. I couldn't use w,
-top, ps, and then some of my X applications started to freeze too.
-I couldn't even kill those hung processes because they'd hang too. So
-When i tried to restart ctrl+alt+del, it did not kill the hung processes
-and i had to hard restart.
 
-I dont know what triggered it but here's my dmesg and motherboard
-information:
 
-Motherboard: AcerOPEN AP53/AX - Latest flash bios: R3.A0 (1997)
-RAM: 64MB EDO: Kingston, 60ns
-Chipset: 430HX
-Parallel port: SPP/ECP/EPP
-COM ports: 16C550
-AMI Bios
-RTC & Battery: Dallas DS12887A - Ds12B887 compatable
-(512KB?) Pipeline burst cache
+On 15 Jan 2001, Linus Torvalds wrote:
 
-*NOTE: This Pentium 200Mhz oddly has USB support (disabled right now).
-It has first generation USB. 2 ports.
+> In article <3A63A9AE.345CBAF3@mandrakesoft.com>,
+> Jeff Garzik  <jgarzik@mandrakesoft.com> wrote:
+> >$!@#@! pre6 is already out :)
+> 
+> Yes, and for heavens sake don't use it, because the reiserfs merge got
+> some dirty inode logic wrong. pre7 fixes just that one line and should
+> be ok again.
+> 
+> >Anyway, this may be a totally subjective (and incorrect) perception, but
+> >it seems to me like the recent 2.4.x-test kernels and thereafter start
+> >swapping things out really quickly.  Case in point:  "diff -urN
+> >linux.vanilla linux" command swaps out Konqueror and Netscape Mail, even
+> >though I was using them only a few minutes ago.
+> 
+> Yes. It's really nice for some stuff, but a bit too aggressive for
+> normal use, I think.
+> 
+> If you want to play with tuning, I'd suggest something like
+> 
+>  - make SWAP_SHIFT bigger (try with 7 instead of 5)
+> 
+>  - do the "self-swap-out" only for __GFP_VM allocations, and add the
+>    __GFP_VM flag to all page fault allocations (ie __GPF_VM would be a
+>    flag that says "this allocation will grow my RSS"). 
+> 
+> The latter is kind of debatable - some allocations can't easily be put
+> in one category or the other (ie page cache growing - do we do it
+> because of the page cache or because we want to map the page?)
 
-Inspecting /boot/System.map
-Loaded 15061 symbols from /boot/System.map.
-Symbols match kernel version 2.4.1.
-Error opening /dev/kmem
-Error adding kernel module table entry.
-Linux version 2.4.1-pre8 (root@coredump) (gcc version 2.95.2 19991024
-(release)) #1 Wed Jan 17 16:52:06 EST 2001)
-BIOS-provided physical RAM map:
-BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
-BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
-BIOS-e820: 0000000000020000 @ 00000000000e0000 (reserved)
-BIOS-e820: 0000000003f00000 @ 0000000000100000 (usable)
-BIOS-e820: 0000000000001000 @ 00000000fec00000 (reserved)
-BIOS-e820: 0000000000001000 @ 00000000fee00000 (reserved)
-BIOS-e820: 0000000000020000 @ 00000000fffe0000 (reserved)
-On node 0 totalpages: 16384
-zone(0): 4096 pages.
-zone(1): 12288 pages.
-zone(2): 0 pages.
-Kernel command line: BOOT_IMAGE=newlinux ro root=301 hdc=scsi
-ide_setup: hdc=scsi
-Initializing CPU#0
-Detected 199.433 MHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 398.13 BogoMIPS
-Memory: 61976k/65536k available (1122k kernel code, 3172k reserved, 400k
-data, 220k init, 0k highmem)
-Dentry-cache hash table entries: 8192 (order: 4, 65536 bytes)
-Buffer-cache hash table entries: 4096 (order: 2, 16384 bytes)
-Page-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Inode-cache hash table entries: 4096 (order: 3, 32768 bytes)
-CPU: Before vendor init, caps: 000001bf 00000000 00000000, vendor = 0
-Intel Pentium with F0 0F bug - workaround enabled.
-CPU: After vendor init, caps: 000001bf 00000000 00000000 00000000
-CPU: After generic, caps: 000001bf 00000000 00000000 00000000
-CPU: Common caps: 000001bf 00000000 00000000 00000000
-CPU: Intel Pentium 75 - 200 stepping 0c
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-PCI: PCI BIOS revision 2.10 entry at 0xfdb91, last bus=0
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-PCI: Cannot allocate resource region 0 of device 00:09.0
-   got res[10000000:10ffffff] for resource 0 of ATI Technologies Inc 3D
-Rage I/II 215GT [Mach64 GT]
-Limiting direct PCI/PCI transfers.
-Activating ISA DMA hang workarounds.
-isapnp: Scanning for Pnp cards...
-isapnp: Calling quirk for 01:00
-isapnp: SB audio device quirk - increasing port range
-isapnp: Calling quirk for 01:02
-isapnp: AWE32 quirk - adding two ports
-isapnp: Card 'Creative SB32 PnP'
-isapnp: 1 Plug & Play card detected total
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-Starting kswapd v1.8
-parport0: PC-style at 0x378 [PCSPP,TRISTATE,EPP]
-parport0: cpp_daisy: aa5500ff(98)
-parport0: assign_addrs: aa5500ff(98)
-parport0: Printer, HEWLETT-PACKARD DESKJET
-pty: 256 Unix98 ptys configured
-lp0: using parport0 (polling).
-block: queued sectors max/low 41104kB/30828kB, 128 slots per queue
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PIIX3: IDE controller on PCI bus 00 dev 39
-PIIX3: chipset revision 0
-PIIX3: not 100%% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
-hda: FUJITSU MPE3064AT, ATA DISK drive
-hdb: WDC AC32500H, ATA DISK drive
-hdc: YAMAHA CRW2100E, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 12672450 sectors (6488 MB) w/512KiB Cache, CHS=788/255/63, (U)DMA
-hdb: Disabling (U)DMA for WDC AC32500H
-hdb: 4999680 sectors (2560 MB) w/128KiB Cache, CHS=620/128/63
-ide-cd: passing drive hdc to ide-scsi emulation.
-Partition check:
- hda: hda1 hda2
- hdb: hdb1 hdb2
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-Serial driver version 5.02 (2000-08-09) with MANY_PORTS SHARE_IRQ
-SERIAL_PCI ISAPNP enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-Real Time Clock Driver v1.10d
-3c59x.c:LK1.1.12 06 Jan 2000  Donald Becker and others.
-http://www.scyld.com/network/vortex.html $Revision: 1.102.2.46 $
-See Documentation/networking/vortex.txt
-eth0: 3Com PCI 3c900 Cyclone 10Mbps TPO at 0xe880,  00:50:da:80:b5:74,
-IRQ 9
-  product code 'WQ' rev 00.4 date 11-10-99
-  8K byte-wide RAM 5:3 Rx:Tx split, 10baseT interface.
-  Enabling bus-master transmits and whole-frame receives.
-SCSI subsystem driver Revision: 1.00
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: YAMAHA    Model: CRW2100E          Rev: 1.0H
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-Soundblaster audio driver Copyright (C) by Hannu Savolainen 1993-1996
-sb: Creative SB32 PnP detected
-sb: ISAPnP reports 'Creative SB32 PnP' at i/o 0x220, irq 5, dma 1, 5
-<Sound Blaster 16 (4.13)> at 0x220 irq 5 dma 1,5
-<Sound Blaster 16> at 0x330 irq 5 dma 0,0
-sb: 1 Soundblaster PnP card(s) found.
-ISAPnP reports AWE32 WaveTable at i/o 0x620
-<SoundBlaster EMU8000 (RAM0k)>
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
-IP: routing cache hash table of 512 buckets, 4Kbytes
-TCP: Hash tables configured (established 4096 bind 4096)
-ip_tables: (c)2000 Netfilter core team
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-reiserfs: checking transaction log (device 03:01) ...
-Using r5 hash to sort names
-ReiserFS version 3.6.25
-VFS: Mounted root (reiserfs filesystem) readonly.
-Freeing unused kernel memory: 220k freed
-Adding Swap: 64252k swap-space (priority -1)
-eth0: using default media 10baseT
+The swapin readahead code tries to allocate (1 << page_cluster) pages at
+each swapin. 
 
-Shawn.
+This means there's a big chance of having (1 << page_cluster)
+"self-swap-out"'s at each swapin if we're under low memory.
+
+Nasty. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

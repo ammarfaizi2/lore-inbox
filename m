@@ -1,125 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271003AbTGVSnU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271006AbTGVSnT
+	id S270989AbTGVSqK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270992AbTGVSqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:43:19 -0400
-Received: from rrcs-sw-24-73-247-26.biz.rr.com ([24.73.247.26]:9870 "HELO
-	engine.infodancer.org") by vger.kernel.org with SMTP
-	id S271003AbTGVSnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:43:06 -0400
-Date: Tue, 22 Jul 2003 13:58:10 -0500
-From: Matthew Hunter <matthew@infodancer.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21, NFS v3, and 3com 920
-Message-ID: <20030722185810.GE18532@infodancer.org>
-References: <20030722054245.GA768@infodancer.org> <200307221319.h6MDJVgf007961@turing-police.cc.vt.edu> <3F1D7D43.5070401@rackable.com>
+	Tue, 22 Jul 2003 14:46:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30179 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270989AbTGVSp5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 14:45:57 -0400
+Date: Tue, 22 Jul 2003 11:58:23 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: jamie@shareable.org, linux-kernel@vger.kernel.org
+Subject: Re: asm (lidt) question
+Message-Id: <20030722115823.4b34f9ce.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.55.0307221021130.1372@bigblue.dev.mcafeelabs.com>
+References: <20030717152819.66cfdbaf.rddunlap@osdl.org>
+	<Pine.LNX.4.55.0307171535020.4845@bigblue.dev.mcafeelabs.com>
+	<Pine.LNX.4.55.0307171615580.4845@bigblue.dev.mcafeelabs.com>
+	<20030722172722.GC3267@mail.jlokier.co.uk>
+	<Pine.LNX.4.55.0307221021130.1372@bigblue.dev.mcafeelabs.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F1D7D43.5070401@rackable.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 11:06:59AM -0700, Samuel Flory <sflory@rackable.com> wrote:
-> >Try nailing the devices on both ends of the cat-5 to the same thing (full 
-> >or half).  This can of course be interesting if you have an 
-> >unmanaged hub that doesn't give you a choice...
->  You should be able to use mii-tool, or ethtool (one or both should 
-> work) to check the state your ethernet controller thinks it is set to, 
-> and change the settings.
+On Tue, 22 Jul 2003 10:31:37 -0700 (PDT) Davide Libenzi <davidel@xmailserver.org> wrote:
 
-So far I've seen several people point to this, and I just now had 
-the chance to test the advice.  Here are the results:
+| On Tue, 22 Jul 2003, Jamie Lokier wrote:
+| 
+| > Davide Libenzi wrote:
+| > > IMHO, since "var" is really an output parameter.
+| >
+| > "var" is read, not written.
+| > I think you are confusing "lidt" with "sidt".
+| 
+| Actually I don't even know what I was confusing, since L and S are not
+| there for nothing ;) And yes, the form with =m as input parameter should
+| be corrected, even if it generates the same code.
 
-image:~# mii-tool -v eth0
-eth0: negotiated 100baseTx-FD, link ok
-  product info: vendor 00:10:5a, model 0 rev 0
-  basic mode:   autonegotiation enabled
-  basic status: autonegotiation complete, link ok
-  capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-  advertising:  100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD flow-control
-  link partner: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+Yes, less confusion is better, so here's a patch to use the
+same reasonable syntax in all places.
 
-That's the default.  OK, the hub thinks it's FD, the adapter 
-thinks its FD.  Should be a match.  
+Look OK?  Generates the same code, as Davide pointed out.
 
-Test with a large file transfer: 80 KB/s, about as expected (ie, 
-the problem still exists.
+--
+~Randy
 
-Let's assume the hub is smoking something interesting and 
-force HD.  (The hub is unmanaged, so I can't force it to do 
-anything).
 
-image:~# mii-tool --force=100baseTx-HD eth0         
-image:~# mii-tool -v eth0
-eth0: 100 Mbit, half duplex, link ok
-  product info: vendor 00:10:5a, model 0 rev 0
-  basic mode:   100 Mbit, half duplex
-  basic status: link ok
-  capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-  advertising:  100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD flow-control
+patch_name:	lidt_norm.patch
+patch_version:	2003-07-22.11:47:21
+author:		Randy.Dunlap <rddunlap@osdl.org>
+description:	normalize lidt/lgdt syntax usage
+product:	Linux
+product_versions: 2.6.0-test1
+diffstat:	=
+ arch/i386/kernel/cpu/common.c |    4 ++--
+ arch/i386/kernel/traps.c      |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-OK, adapter forced to half duplex.
 
-Test with a large file transfer -- no change, still about 80 
-KB/s.
+diff -Naur ./arch/i386/kernel/cpu/common.c~lidt ./arch/i386/kernel/cpu/common.c
+--- ./arch/i386/kernel/cpu/common.c~lidt	2003-07-13 20:29:29.000000000 -0700
++++ ./arch/i386/kernel/cpu/common.c	2003-07-22 11:41:05.000000000 -0700
+@@ -480,8 +480,8 @@
+ 	 */
+ 	memcpy(thread->tls_array, cpu_gdt_table[cpu], GDT_ENTRY_TLS_ENTRIES * 8);
+ 
+-	__asm__ __volatile__("lgdt %0": "=m" (cpu_gdt_descr[cpu]));
+-	__asm__ __volatile__("lidt %0": "=m" (idt_descr));
++	__asm__ __volatile__("lgdt %0": :"m" (cpu_gdt_descr[cpu]));
++	__asm__ __volatile__("lidt %0": :"m" (idt_descr));
+ 
+ 	/*
+ 	 * Delete NT
+diff -Naur ./arch/i386/kernel/traps.c~lidt ./arch/i386/kernel/traps.c
+--- ./arch/i386/kernel/traps.c~lidt	2003-07-13 20:31:20.000000000 -0700
++++ ./arch/i386/kernel/traps.c	2003-07-22 11:39:31.000000000 -0700
+@@ -780,7 +780,7 @@
+ 	 * it uses the read-only mapped virtual address.
+ 	 */
+ 	idt_descr.address = fix_to_virt(FIX_F00F_IDT);
+-	__asm__ __volatile__("lidt %0": "=m" (idt_descr));
++	__asm__ __volatile__("lidt %0": :"m" (idt_descr));
+ }
+ #endif
+ 
 
-Let's try to autonegotiate for the same result...
-
-image:~# mii-tool --reset eth0
-resetting the transceiver...
-image:~# mii-tool --advertise=100baseTx-HD eth0 
-restarting autonegotiation...
-image:~# mii-tool -v eth0
-eth0: negotiated 100baseTx-HD, link ok
-  product info: vendor 00:10:5a, model 0 rev 0
-  basic mode:   autonegotiation enabled
-  basic status: autonegotiation complete, link ok
-  capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-  advertising:  100baseTx-HD flow-control
-  link partner: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-
-OK, looks fine.  Test... no change.
-
-I predict hardware swaps in my future when I get home.
-
-Just for giggles, I'll try 10baseT.
-
-image:~# mii-tool --reset eth0
-resetting the transceiver...
-image:~# mii-tool --advertise=10baseT-FD eth0 
-restarting autonegotiation...
-image:~# mii-tool -v eth0
-eth0: negotiated 10baseT-FD, link ok
-  product info: vendor 00:10:5a, model 0 rev 0
-  basic mode:   autonegotiation enabled
-  basic status: autonegotiation complete, link ok
-  capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-  advertising:  10baseT-FD flow-control
-  link partner: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-
-Low-and-behold, 1.1 MB/s!  
-
-Note that this is supposedly a fast ethernet hub and a fast 
-ethernet adapter.  The other hosts on the hub all think so.
-
-I wonder if I'm plugged into a special port or something.  
-I'll play with that when I'm near the hardware later on tonight.
-
-Thanks for your help, all of you.  I think I have the answers 
-that I wanted -- namely, it's probably not a kernel problem.  
-
-I am unsure if this explains the NFS problem (ie, NFS breaks with 
-v3 enabled), but since it works via tcp, I'm not of any mind to 
-complain.  If anyone is interested, I can try without tcp but 
-with the ethernet controller in better shape and see if I can 
-still cause the same symptoms.
-
--- 
-Matthew Hunter (matthew@infodancer.org)
-Public Key: http://matthew.infodancer.org/public_key.txt
-Homepage: http://matthew.infodancer.org/index.jsp
-Politics: http://www.triggerfinger.org/index.jsp

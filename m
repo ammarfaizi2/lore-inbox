@@ -1,146 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264275AbUGLXxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUGLXyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264275AbUGLXxR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 19:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbUGLXxR
+	id S264299AbUGLXyi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 19:54:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUGLXyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 19:53:17 -0400
-Received: from mail.ccur.com ([208.248.32.212]:45322 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S264275AbUGLXxF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 19:53:05 -0400
-Message-ID: <40F3245A.1070401@ccur.com>
-From: "Blackwood, John" <john.blackwood@ccur.com>
-Reply-To: "Blackwood, John" <john.blackwood@ccur.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andi Kleen <ak@muc.de>
-Subject: [PATCH] arch/i386|x86_64/kernel/ptrace.c linux-2.6.7
-Date: Mon, 12 Jul 2004 19:52:58 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 12 Jul 2004 19:54:38 -0400
+Received: from out005pub.verizon.net ([206.46.170.143]:1274 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S264299AbUGLXy0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 19:54:26 -0400
+Message-Id: <200407122354.i6CNsNqS003382@localhost.localdomain>
+To: Albert Cahalan <albert@users.sourceforge.net>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, florin@sgi.com
+Subject: Re: desktop and multimedia as an afterthought? 
+In-reply-to: Your message of "12 Jul 2004 16:45:54 EDT."
+             <1089665153.1231.88.camel@cube> 
+Date: Mon, 12 Jul 2004 19:54:23 -0400
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [141.151.61.237] at Mon, 12 Jul 2004 18:54:24 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>It's too bad that the multimedia community didn't participate
+>much during the 2.5.xx development leading up to 2.6.0. If they
+>had done so, the situation might be different today. Fortunately,
+>fixing up the multimedia problems isn't too risky to do during
+>the stable 2.6.xx series.
 
-Hi Andi,
+I regret that this description is persisting here. "We" (the audio
+developer community) did not participate because it was made clear
+that our needs were not going to be considered. We were told that the
+preemption patch was sufficient to provide "low latency", and that
+rescheduling points dotted all over the place was bad engineering
+(probably true). With this as the pre-rendered verdict, there's not a
+lot of point in dedicating time to tracking a situation that clearly
+is not going to work.
 
-In linux-2.6.7, I would like to suggest a few small changes to the error
-checking the PTRACE_GETREGS and PTRACE_SETREGS processing in sys_ptrace().
+The kernel is not going to provide adequate latency for multimedia
+needs without either (1) latency issues being front and center in
+every kernel developer's mind, which seems unlikely and/or (2)
+conditional rescheduling points added to the kernel, which appears to
+require non-mainstreamed patches.
 
-While working on our own linux debugger, we noticed that if an invalid
-user-space address is passed in, then the ptrace() call would return
-success even though the registers were not properly read (PTRACE_GETREGS)
-or written (PTRACE_SETREGS).
+--p
 
-Since the access_ok() check only ensures that the user-space address
-is within the range of valid user space addresses, the subsequent
-__put_user() or __get_user() calls can still fail if the user-space
-address is not current a valid address within the caller's address space.
-
-The suggested fix below for i386 and x86_64 is to logically OR the returned
-value into 'ret' from the __put_user() or __get_user() calls, in the
-same way that the arch/x86_64/ia32/ptrace32.c code does.
-
-Additionally, for x86_64 only, the access_ok() size parameter should really
-be sizeof(struct user_regs_struct) instead of FRAME_SIZE, since on x86_64
-the user_regs_struct being read/written is actually a bit larger than
-the FRAME_SIZE define.
-
-
-Thank you.
-
-
-
-diff -ru linux-2.6.7/arch/i386/kernel/ptrace.c 
-linux/arch/i386/kernel/ptrace.c
---- linux-2.6.7/arch/i386/kernel/ptrace.c       2004-06-16 
-01:19:03.000000000 -0400
-+++ linux/arch/i386/kernel/ptrace.c     2004-07-12 13:09:33.000000000 -0400
-@@ -428,11 +428,11 @@
-                        ret = -EIO;
-                        break;
-                }
-+               ret = 0;
-                for ( i = 0; i < FRAME_SIZE*sizeof(long); i += 
-sizeof(long) ) {
--                       __put_user(getreg(child, i), datap);
-+                       ret |= __put_user(getreg(child, i), datap);
-                        datap++;
-                }
--               ret = 0;
-                break;
-        }
-
-@@ -442,12 +442,12 @@
-                        ret = -EIO;
-                        break;
-                }
-+               ret = 0;
-                for ( i = 0; i < FRAME_SIZE*sizeof(long); i += 
-sizeof(long) ) {
--                       __get_user(tmp, datap);
-+                       ret |=__get_user(tmp, datap);
-                        putreg(child, i, tmp);
-                        datap++;
-                }
--               ret = 0;
-                break;
-        }
-
-
-
-diff -ru linux-2.6.7/arch/x86_64/kernel/ptrace.c 
-linux/arch/x86_64/kernel/ptrace.c
---- linux-2.6.7/arch/x86_64/kernel/ptrace.c     2004-06-16 
-01:19:09.000000000 -0400
-+++ linux/arch/x86_64/kernel/ptrace.c   2004-07-12 16:03:35.584411668 -0400
-@@ -429,30 +429,30 @@
-                break;
-
-        case PTRACE_GETREGS: { /* Get all gp regs from the child. */
--               if (!access_ok(VERIFY_WRITE, (unsigned __user *)data, 
-FRAME_SIZE)) {
-+               if (!access_ok(VERIFY_WRITE, (unsigned __user *)data, 
-sizeof(struct user_regs_struct))) {
-                        ret = -EIO;
-                        break;
-                }
-+               ret = 0;
-                for (ui = 0; ui < sizeof(struct user_regs_struct); ui += 
-sizeof(long)) {
--                       __put_user(getreg(child, ui),(unsigned long 
-__user *) data);
-+                       ret |= __put_user(getreg(child, ui),(unsigned 
-long __user *) data);
-                        data += sizeof(long);
-                }
--               ret = 0;
-                break;
-        }
-
-        case PTRACE_SETREGS: { /* Set all gp regs in the child. */
-                unsigned long tmp;
--               if (!access_ok(VERIFY_READ, (unsigned __user *)data, 
-FRAME_SIZE)) {
-+               if (!access_ok(VERIFY_READ, (unsigned __user *)data, 
-sizeof(struct user_regs_struct))) {
-                        ret = -EIO;
-                        break;
-                }
-+               ret = 0;
-                for (ui = 0; ui < sizeof(struct user_regs_struct); ui += 
-sizeof(long)) {
--                       __get_user(tmp, (unsigned long __user *) data);
-+                       ret |= __get_user(tmp, (unsigned long __user *) 
-data);
-                        putreg(child, ui, tmp);
-                        data += sizeof(long);
-                }
--               ret = 0;
-                break;
-        }
-
-
-
+  

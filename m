@@ -1,436 +1,195 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268019AbTGIA1N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 20:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268003AbTGIA0r
+	id S268012AbTGIAiO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 20:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268011AbTGIAiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 20:26:47 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:12037 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S268001AbTGIAWD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 20:22:03 -0400
-Date: Wed, 9 Jul 2003 02:31:52 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: [PATCH 7/8] 2.5.74 - seq_file conversion of /proc/net/atm (lec)
-Message-ID: <20030709023152.I11897@electric-eye.fr.zoreil.com>
-References: <20030709021152.B11897@electric-eye.fr.zoreil.com>
+	Tue, 8 Jul 2003 20:38:13 -0400
+Received: from CPE0080c6f1c7c1-CM014160001801.cpe.net.cable.rogers.com ([24.101.63.200]:59338
+	"EHLO muon.jukie.net") by vger.kernel.org with ESMTP
+	id S268101AbTGIAez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 20:34:55 -0400
+Date: Tue, 8 Jul 2003 20:49:28 -0400
+From: Bart Trojanowski <bart@jukie.net>
+To: linux-kernel@vger.kernel.org
+Cc: kernel-janitor-discuss@lists.sourceforge.net, trivial@rustcorp.com.au
+Subject: [PATCH 2.4.21] kernel fails to build in deeply nested directories
+Message-ID: <20030709004927.GB27426@jukie.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+pHx0qQiF2pBVqBT"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030709021152.B11897@electric-eye.fr.zoreil.com>; from romieu@fr.zoreil.com on Wed, Jul 09, 2003 at 02:11:52AM +0200
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-seq_file support for /proc/net/atm/lec:
-- lec_info(): seq_printf/seq_putc replaces sprintf;
-- traversal of the lec structure needs to walk:
-  -> the lec interfaces
-     -> the tables of arp tables(lec_arp_tables);
-        -> the arp tables themselves
-     -> the misc tables (lec_arp_empty_ones/lec_no_forward/mcast_fwds)
 
-  Sum up of the call tree:
-  atm_lec_seq_start()/atm_lec_seq_next()
-  -> atm_lec_get_idx()
-     -> atm_lec_itf_walk() (responsible for dev_lec/dev_put handling)
-        -> atm_lec_priv_walk() (responsible for lec_priv locking)
-           -> atm_lec_arp_walk()
-              -> atm_lec_tbl_walk()
-           -> atm_lec_misc_walk()
-              -> atm_lec_tbl_walk()
+--+pHx0qQiF2pBVqBT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  Each of the dedicated functions follows the same convention: return NULL
-  as long as the seq_file cursor hasn't been digested (i.e. until < 0).
-  Locking is only done when an entry (i.e. a lec_arp_table) is referenced.
-  atm_lec_seq_stop()/atm_lec_itf_walk()/atm_lec_priv_walk() are responsible
-  for getting this point right.
-- module refcounting is done in atm_lec_seq_open()/atm_lec_seq_release();
-- atm_lec_info() is removed.
+I ran into this when building the kernel in a directory whose path name
+was quite long.  This is probably not a problem for most that build in
+/usr/src/linux, but I was able to reproduce it when building a debian
+kernel (that adds in about 40 characters on it's own) in my home
+directory.
+
+The error comes from bash telling me that ...
+
+	scripts/mkdep -- `find $(FINDHPATH) \( -name SCCS -o -name .svn \) -prune =
+-o -follow -name \*.h ! -name modversions.h -print` > .hdepend
+
+=2E.. generates a command line that exceeds bash's limit.
+
+The fix is to allow mkdep to take the list of parameters on stdin and as
+arguments.
+
+The patch that follows, only changes the top level Makefile's dep-files
+rule.
+
+Regards,
+Bart.
 
 
- net/atm/proc.c |  339 +++++++++++++++++++++++++++++++++++++++------------------
- 1 files changed, 233 insertions(+), 106 deletions(-)
-
-diff -puN net/atm/proc.c~atm-proc-seq-lec-conversion net/atm/proc.c
---- linux-2.5.74-1.1360.1.1-to-1.1384/net/atm/proc.c~atm-proc-seq-lec-conversion	Wed Jul  9 01:43:10 2003
-+++ linux-2.5.74-1.1360.1.1-to-1.1384-fr/net/atm/proc.c	Wed Jul  9 01:43:10 2003
-@@ -338,54 +338,45 @@ static void svc_info(struct seq_file *se
- 
- #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
- 
--static char*
--lec_arp_get_status_string(unsigned char status)
-+static char* lec_arp_get_status_string(unsigned char status)
- {
--  switch(status) {
--  case ESI_UNKNOWN:
--    return "ESI_UNKNOWN       ";
--  case ESI_ARP_PENDING:
--    return "ESI_ARP_PENDING   ";
--  case ESI_VC_PENDING:
--    return "ESI_VC_PENDING    ";
--  case ESI_FLUSH_PENDING:
--    return "ESI_FLUSH_PENDING ";
--  case ESI_FORWARD_DIRECT:
--    return "ESI_FORWARD_DIRECT";
--  default:
--    return "<Unknown>         ";
--  }
--}
+diff -ruN linux-2.4.21-org/Makefile linux-2.4.21/Makefile
+--- linux-2.4.21-org/Makefile	2003-06-13 10:51:39.000000000 -0400
++++ linux-2.4.21/Makefile	2003-07-08 20:40:43.000000000 -0400
+@@ -493,7 +493,7 @@
+ ifdef CONFIG_MODVERSIONS
+ 	$(MAKE) update-modverfile
+ endif
+-	scripts/mkdep -- `find $(FINDHPATH) \( -name SCCS -o -name .svn \) -prune=
+ -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
++	find $(FINDHPATH) \( -name SCCS -o -name .svn \) -prune -o -follow -name =
+\*.h ! -name modversions.h -print | scripts/mkdep --stdin > .hdepend
+ 	scripts/mkdep -- init/*.c > .depend
+=20
+ ifdef CONFIG_MODVERSIONS
+diff -ruN linux-2.4.21-org/scripts/mkdep.c linux-2.4.21/scripts/mkdep.c
+--- linux-2.4.21-org/scripts/mkdep.c	2002-08-02 20:39:46.000000000 -0400
++++ linux-2.4.21/scripts/mkdep.c	2003-07-08 20:42:25.000000000 -0400
+@@ -43,9 +43,9 @@
+ #include <sys/stat.h>
+ #include <sys/types.h>
+=20
++#define MAX_FILE_NAME_LEN 512
+=20
 -
--static void 
--lec_info(struct lec_arp_table *entry, char *buf)
--{
--        int j, offset=0;
--
--        for(j=0;j<ETH_ALEN;j++) {
--                offset+=sprintf(buf+offset,"%2.2x",0xff&entry->mac_addr[j]);
-+	static char *lec_arp_status_string[] = {
-+		"ESI_UNKNOWN       ",
-+		"ESI_ARP_PENDING   ",
-+		"ESI_VC_PENDING    ",
-+		"ESI_FLUSH_PENDING ",
-+		"ESI_FORWARD_DIRECT",
-+		"<Unknown>         "
-+	};
-+
-+	if (status > ESI_FORWARD_DIRECT - 1)
-+		status = ESI_FORWARD_DIRECT;
-+	return lec_arp_status_string[status - ESI_UNKNOWN];
-+}
-+
-+static void lec_info(struct seq_file *seq, struct lec_arp_table *entry)
-+{
-+	int i;
-+
-+	for (i = 0; i < ETH_ALEN; i++)
-+		seq_printf(seq, "%2.2x", entry->mac_addr[i] & 0xff);
-+	seq_printf(seq, " ");
-+	for (i = 0; i < ATM_ESA_LEN; i++)
-+		seq_printf(seq, "%2.2x", entry->atm_addr[i] & 0xff);
-+	seq_printf(seq, " %s %4.4x", lec_arp_get_status_string(entry->status),
-+		   entry->flags & 0xffff);
-+	if (entry->vcc)
-+		seq_printf(seq, "%3d %3d ", entry->vcc->vpi, entry->vcc->vci);
-+	else
-+	        seq_printf(seq, "        ");
-+	if (entry->recv_vcc) {
-+		seq_printf(seq, "     %3d %3d", entry->recv_vcc->vpi,
-+			   entry->recv_vcc->vci);
-         }
--        offset+=sprintf(buf+offset, " ");
--        for(j=0;j<ATM_ESA_LEN;j++) {
--                offset+=sprintf(buf+offset,"%2.2x",0xff&entry->atm_addr[j]);
--        }
--        offset+=sprintf(buf+offset, " %s %4.4x",
--                        lec_arp_get_status_string(entry->status),
--                        entry->flags&0xffff);
--        if (entry->vcc) {
--                offset+=sprintf(buf+offset, "%3d %3d ", entry->vcc->vpi, 
--                                entry->vcc->vci);                
--        } else
--                offset+=sprintf(buf+offset, "        ");
--        if (entry->recv_vcc) {
--                offset+=sprintf(buf+offset, "     %3d %3d", 
--                                entry->recv_vcc->vpi, entry->recv_vcc->vci);
--        }
--
--        sprintf(buf+offset,"\n");
-+        seq_putc(seq, '\n');
- }
- 
--#endif
-+#endif /* CONFIG_ATM_LANE */
- 
- static __inline__ void *dev_get_idx(struct seq_file *seq, loff_t left)
- {
-@@ -706,78 +697,214 @@ static struct file_operations atm_seq_ar
- #endif /* CONFIG_ATM_CLIP */
- 
- #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
--static int atm_lec_info(loff_t pos,char *buf)
--{
-+
-+struct atm_lec_state {
- 	unsigned long flags;
--	struct lec_priv *priv;
-+	struct lec_priv *locked;
- 	struct lec_arp_table *entry;
--	int i, count, d, e;
- 	struct net_device *dev;
-+	int itf;
-+	union {
-+		int arp_table;
-+		int misc_table;
-+	} u;
-+};
-+
-+static void *atm_lec_tbl_walk(struct atm_lec_state *state,
-+			      struct lec_arp_table *tbl, loff_t *l)
-+{
-+	struct lec_arp_table *e = state->entry;
-+
-+	if (!e)
-+		e = tbl;
-+	if (e == (void *)1) {
-+		e = tbl;
-+		--*l;
-+	}
-+	for (; e; e = e->next) {
-+		if (--*l < 0)
-+			break;
-+	}
-+	state->entry = e;
-+	return e;
-+}
-+
-+static void *atm_lec_arp_walk(struct atm_lec_state *state, loff_t *l,
-+			      struct lec_priv *priv)
-+{
-+	void *v = state;
-+	int p;
- 
--	if (!pos) {
--		return sprintf(buf,"Itf  MAC          ATM destination"
--		    "                          Status            Flags "
--		    "VPI/VCI Recv VPI/VCI\n");
-+	for (p = state->u.arp_table; p < LEC_ARP_TABLE_SIZE; p++) {
-+		v = atm_lec_tbl_walk(state, priv->lec_arp_tables[p], l);
-+		if (v)
-+			break;
+-char __depname[512] =3D "\n\t@touch ";
++char __depname[MAX_FILE_NAME_LEN] =3D "\n\t@touch ";
+ #define depname (__depname+9)
+ int hasdep;
+=20
+@@ -531,6 +531,7 @@
+ 	fd =3D open(filename, O_RDONLY);
+ 	if (fd < 0) {
+ 		perror(filename);
++		exit(1);
+ 		return;
  	}
--	if (!try_atm_lane_ops())
--		return 0; /* the lane module is not there yet */
-+	state->u.arp_table = v ? p : 0;
-+	return v;
-+}
- 
--	count = pos;
--	for(d = 0; d < MAX_LEC_ITF; d++) {
--		dev = atm_lane_ops->get_lec(d);
--		if (!dev || !(priv = (struct lec_priv *) dev->priv))
--			continue;
--		spin_lock_irqsave(&priv->lec_arp_lock, flags);
--		for(i = 0; i < LEC_ARP_TABLE_SIZE; i++) {
--			for(entry = priv->lec_arp_tables[i]; entry; entry = entry->next) {
--				if (--count)
--					continue;
--				e = sprintf(buf,"%s ", dev->name);
--				lec_info(entry, buf+e);
--				spin_unlock_irqrestore(&priv->lec_arp_lock, flags);
--				dev_put(dev);
--				module_put(atm_lane_ops->owner);
--				return strlen(buf);
--			}
--		}
--		for(entry = priv->lec_arp_empty_ones; entry; entry = entry->next) {
--			if (--count)
--				continue;
--			e = sprintf(buf,"%s ", dev->name);
--			lec_info(entry, buf+e);
--			spin_unlock_irqrestore(&priv->lec_arp_lock, flags);
--			dev_put(dev);
--			module_put(atm_lane_ops->owner);
--			return strlen(buf);
--		}
--		for(entry = priv->lec_no_forward; entry; entry=entry->next) {
--			if (--count)
--				continue;
--			e = sprintf(buf,"%s ", dev->name);
--			lec_info(entry, buf+e);
--			spin_unlock_irqrestore(&priv->lec_arp_lock, flags);
--			dev_put(dev);
--			module_put(atm_lane_ops->owner);
--			return strlen(buf);
--		}
--		for(entry = priv->mcast_fwds; entry; entry = entry->next) {
--			if (--count)
--				continue;
--			e = sprintf(buf,"%s ", dev->name);
--			lec_info(entry, buf+e);
--			spin_unlock_irqrestore(&priv->lec_arp_lock, flags);
--			dev_put(dev);
--			module_put(atm_lane_ops->owner);
--			return strlen(buf);
--		}
--		spin_unlock_irqrestore(&priv->lec_arp_lock, flags);
-+static void *atm_lec_misc_walk(struct atm_lec_state *state, loff_t *l,
-+			       struct lec_priv *priv)
-+{
-+	struct lec_arp_table *lec_misc_tables[] = {
-+		priv->lec_arp_empty_ones,
-+		priv->lec_no_forward,
-+		priv->mcast_fwds
-+	};
-+	void *v = state;
-+	int q;
-+
-+	for (q = state->u.misc_table; q < ARRAY_SIZE(lec_misc_tables); q++) {
-+		v = atm_lec_tbl_walk(state, lec_misc_tables[q], l);
-+		if (v)
+=20
+@@ -577,6 +578,7 @@
+ {
+ 	int len;
+ 	const char *hpath;
++	int use_stdin =3D 0;
+=20
+ 	hpath =3D getenv("HPATH");
+ 	if (!hpath) {
+@@ -598,6 +600,10 @@
+ 				add_path(*argv);
+ 			}
+ 		}
++		else if (strcmp(*argv, "--stdin") =3D=3D 0) {
++			use_stdin =3D 1;
 +			break;
-+	}
-+	state->u.misc_table = v ? q : 0;
-+	return v;
-+}
++		}
+ 		else if (strcmp(*argv, "--") =3D=3D 0) {
+ 			break;
+ 		}
+@@ -605,24 +611,58 @@
+=20
+ 	add_path(hpath);	/* must be last entry, for config files */
+=20
+-	while (--argc > 0) {
+-		const char * filename =3D *++argv;
+-		const char * command  =3D __depname;
+-		g_filename =3D 0;
+-		len =3D strlen(filename);
+-		memcpy(depname, filename, len+1);
+-		if (len > 2 && filename[len-2] =3D=3D '.') {
+-			if (filename[len-1] =3D=3D 'c' || filename[len-1] =3D=3D 'S') {
+-			    depname[len-1] =3D 'o';
+-			    g_filename =3D filename;
+-			    command =3D "";
++	if (use_stdin) {
++		/* process entries passed in by stdin */
 +
-+static void *atm_lec_priv_walk(struct atm_lec_state *state, loff_t *l,
-+			       struct lec_priv *priv)
-+{
-+	if (!state->locked) {
-+		state->locked = priv;
-+		spin_lock_irqsave(&priv->lec_arp_lock, state->flags);
-+	}
-+	if (!atm_lec_arp_walk(state, l, priv) &&
-+	    !atm_lec_misc_walk(state, l, priv)) {
-+		spin_unlock_irqrestore(&priv->lec_arp_lock, state->flags);
-+		state->locked = NULL;
-+	}
-+	return state->locked;
-+}
++		char buff[MAX_FILE_NAME_LEN];
++		char *line;
 +
-+static void *atm_lec_itf_walk(struct atm_lec_state *state, loff_t *l)
-+{
-+	struct net_device *dev;
-+	void *v;
++		while ((line =3D fgets(buff, MAX_FILE_NAME_LEN, stdin))) {
++			char * filename =3D line;
++			const char * command  =3D __depname;
++			g_filename =3D 0;
++			len =3D strlen(filename);
++			while (isspace (filename[len-1])) {
++				len--;
++				filename[len]=3D0;=20
++			}
++			memcpy(depname, filename, len+1);
++			if (len > 2 && filename[len-2] =3D=3D '.') {
++				if (filename[len-1] =3D=3D 'c'=20
++						|| filename[len-1] =3D=3D 'S') {
++				    depname[len-1] =3D 'o';
++				    g_filename =3D filename;
++				    command =3D "";
++				}
+ 			}
++			do_depend(filename, command);
++		}
 +
-+	dev = state->dev ? state->dev : atm_lane_ops->get_lec(state->itf);
-+	v = (dev && dev->priv) ? atm_lec_priv_walk(state, l, dev->priv) : NULL;
-+	if (!v && dev) {
- 		dev_put(dev);
-+		dev = NULL;
-+	}
-+	state->dev = dev;
-+	return v;
-+}
++	} else {
++		/* process entries passed in by command line arguments */
 +
-+static void *atm_lec_get_idx(struct atm_lec_state *state, loff_t l)
-+{
-+	void *v = NULL;
-+
-+	for (; state->itf < MAX_LEC_ITF; state->itf++) {
-+		v = atm_lec_itf_walk(state, &l);
-+		if (v)
-+			break;
-+	}
-+	return v; 
-+}
-+
-+static void *atm_lec_seq_start(struct seq_file *seq, loff_t *pos)
-+{
-+	struct atm_lec_state *state = seq->private;
-+
-+	state->itf = 0;
-+	state->dev = NULL;
-+	state->locked = NULL;
-+	state->u.arp_table = 0;
-+	state->entry = (void *)1;
-+
-+	return *pos ? atm_lec_get_idx(state, *pos) : (void*)1;
-+}
-+
-+static void atm_lec_seq_stop(struct seq_file *seq, void *v)
-+{
-+	struct atm_lec_state *state = seq->private;
-+
-+	if (state->dev) {
-+		spin_unlock_irqrestore(&state->locked->lec_arp_lock,
-+				       state->flags);
-+		dev_put(state->dev);
-+	}
-+}
-+
-+static void *atm_lec_seq_next(struct seq_file *seq, void *v, loff_t *pos)
-+{
-+	struct atm_lec_state *state = seq->private;
-+
-+	v = atm_lec_get_idx(state, 1);
-+	*pos += !!PTR_ERR(v);
-+	return v;
-+}
-+
-+static int atm_lec_seq_show(struct seq_file *seq, void *v)
-+{
-+	static char atm_lec_banner[] = "Itf  MAC          ATM destination" 
-+		"                          Status            Flags "
-+		"VPI/VCI Recv VPI/VCI\n";
-+
-+	if (v == (void *)1)
-+		seq_puts(seq, atm_lec_banner);
-+	else {
-+		struct atm_lec_state *state = seq->private;
-+		struct net_device *dev = state->dev; 
-+
-+		seq_printf(seq, "%s ", dev->name);
-+		lec_info(seq, state->entry);
++		while (--argc > 0) {
++			const char * filename =3D *++argv;
++			const char * command  =3D __depname;
++			g_filename =3D 0;
++			len =3D strlen(filename);
++			memcpy(depname, filename, len+1);
++			if (len > 2 && filename[len-2] =3D=3D '.') {
++				if (filename[len-1] =3D=3D 'c'=20
++						|| filename[len-1] =3D=3D 'S') {
++				    depname[len-1] =3D 'o';
++				    g_filename =3D filename;
++				    command =3D "";
++				}
++			}
++			do_depend(filename, command);
+ 		}
+-		do_depend(filename, command);
  	}
--	module_put(atm_lane_ops->owner);
++
+ 	if (len_precious) {
+ 		*(str_precious+len_precious) =3D '\0';
+ 		printf(".PRECIOUS:%s\n", str_precious);
+ 	}
  	return 0;
  }
--#endif
- 
-+static struct seq_operations atm_lec_seq_ops = {
-+	.start	= atm_lec_seq_start,
-+	.next	= atm_lec_seq_next,
-+	.stop	= atm_lec_seq_stop,
-+	.show	= atm_lec_seq_show,
-+};
 +
-+static int atm_lec_seq_open(struct inode *inode, struct file *file)
-+{
-+	struct atm_lec_state *state;
-+	struct seq_file *seq;
-+	int rc = -EAGAIN;
-+
-+	if (!try_atm_lane_ops())
-+		goto out;
-+
-+	state = kmalloc(sizeof(*state), GFP_KERNEL);
-+	if (!state) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
-+
-+	rc = seq_open(file, &atm_lec_seq_ops);
-+	if (rc)
-+		goto out_kfree;
-+	seq = file->private_data;
-+	seq->private = state;
-+out:
-+	return rc;
-+out_kfree:
-+	kfree(state);
-+	goto out;
-+}
-+
-+static int atm_lec_seq_release(struct inode *inode, struct file *file)
-+{
-+	module_put(atm_lane_ops->owner);
-+	return seq_release_private(inode, file);
-+}
-+
-+static struct file_operations atm_seq_lec_fops = {
-+	.open		= atm_lec_seq_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= atm_lec_seq_release,
-+};
-+
-+#endif /* CONFIG_ATM_LANE */
- 
- static ssize_t proc_dev_atm_read(struct file *file,char *buf,size_t count,
-     loff_t *pos)
-@@ -915,7 +1042,7 @@ int __init atm_proc_init(void)
- 	CREATE_SEQ_ENTRY(arp);
- #endif
- #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
--	CREATE_ENTRY(lec);
-+	CREATE_SEQ_ENTRY(lec);
- #endif
- 	return 0;
- 
 
-_
+--+pHx0qQiF2pBVqBT
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/C2aW/zRZ1SKJaI8RAkgyAKCFS8t07pGMOsUgcMaqDV4n1EtD5ACdEQBr
+NAuMh5ciZGKX8bJpJr+El80=
+=CvuR
+-----END PGP SIGNATURE-----
+
+--+pHx0qQiF2pBVqBT--

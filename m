@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281451AbRKMDBN>; Mon, 12 Nov 2001 22:01:13 -0500
+	id <S281449AbRKMDCc>; Mon, 12 Nov 2001 22:02:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281453AbRKMDBC>; Mon, 12 Nov 2001 22:01:02 -0500
-Received: from vt-lakechamplain2b-184.bur.adelphia.net ([24.50.101.184]:15758
-	"EHLO sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S281451AbRKMDAw>; Mon, 12 Nov 2001 22:00:52 -0500
-Date: Mon, 12 Nov 2001 22:00:11 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: <wstearns@sparrow.websense.net>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: John Weber <weber@nyc.rr.com>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>,
-        William Stearns <wstearns@pobox.com>
-Subject: Re: PCMCIA and 2.4.15-pre4
-In-Reply-To: <3BF089A9.9C9C18EE@nyc.rr.com>
-Message-ID: <Pine.LNX.4.33.0111122156030.6117-100000@sparrow.websense.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281453AbRKMDCM>; Mon, 12 Nov 2001 22:02:12 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:20361 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281449AbRKMDCH>; Mon, 12 Nov 2001 22:02:07 -0500
+Date: Mon, 12 Nov 2001 20:01:19 -0700
+Message-Id: <200111130301.fAD31JJ15767@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Changed message for GPLONLY symbols
+In-Reply-To: <10444.1005619809@kao2.melbourne.sgi.com>
+In-Reply-To: <10444.1005619809@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good evening, John,
-
-On Mon, 12 Nov 2001, John Weber wrote:
-
-> >         I hate to say it, but your question isn't all that useful in its
-> > current form.  What kinds of problems?  What pcmcia version?  What kernel
-> > configuration?  What error messages?  Functional problems?  Compiling
-> > problems?  Cosmetic problems?  Are they reproducable?  How can we
-> > reproduce the problem?
+Keith Owens writes:
+> When insmod detects a non-GPL module with unresolved symbols it
+> currently says:
 > 
-> Actually, my note was supposed to be longer... but I had a little
-> technical difficulty in getting the question out.  My machine completely
-> crashed actually...
+> Note: modules without a GPL compatible license cannot use GPLONLY_ symbols
+> 
+> I thought that hint was self-explanatory, obviously it was not clear.
+> Never underestimate the ability of lusers to misread a message.  insmod
+> 2.4.12 will say
+> 
+> Hint: You are trying to load a module without a GPL compatible license
+>       and it has unresolved symbols.  The module may be trying to access
+>       GPLONLY symbols but the problem is more likely to be a coding or
+>       user error.  Contact the module supplier for assistance.
+> 
+> Does anyone think that this message can be misunderstood by anybody
+> with the "intelligence" of the normal Windoze user?
 
-	We can all commiserate; kernel crashes are annoying.
+How about actually checking if the unresolved symbols are available in
+the GPLONLY area? That would allow you to be more precise.
 
-> funny that I thought it was just a kernel thing.
+[Perhaps this has already been suggested: I haven't been paying
+attention]
 
-	It may very well be.  What error messages did you see?  What 
-symptoms?  What was happening at the time it crashed?
+				Regards,
 
-> Thanks anyway.
-
-	I've come off badly and apologize.  We really are all here to 
-identify and fix kernel problems.  I wasn't writing the above to badger 
-you, but to encourage you to provide as much detail as you can to help us 
-help you.
-	Cheers,
-	- Bill
-
----------------------------------------------------------------------------
-	"Usenet is like a herd of performing elephants with diarrhea;
-massive, difficult to redirect, awe-inspiring, entertaining, and a source
-of mind-boggling amounts of excrement when you least expect it." 
-	-- Anon
-(Courtesy of someone at Redhat, perhaps Elliot Lee?)
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

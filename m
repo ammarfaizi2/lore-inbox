@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263598AbUDMRDq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 13:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263613AbUDMRDq
+	id S263635AbUDMRGp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 13:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbUDMRGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 13:03:46 -0400
-Received: from mail.tmr.com ([216.238.38.203]:529 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S263598AbUDMRDo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 13:03:44 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Does OSS sound work in 2.6 or not?
-Date: Tue, 13 Apr 2004 13:04:21 -0400
-Organization: TMR Associates, Inc
-Message-ID: <c5h6d2$fuu$1@gatekeeper.tmr.com>
-References: <4075BDE0.6050302@tmr.com> <4075D155.2030603@tomt.net>
-Mime-Version: 1.0
+	Tue, 13 Apr 2004 13:06:30 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:5060 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S263626AbUDMRGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 13:06:24 -0400
+Message-ID: <407C1D4F.4060706@grupopie.com>
+Date: Tue, 13 Apr 2004 18:03:11 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: GrupoPIE
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Chris Lalancette <chris.lalancette@gd-ais.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory image save/restore
+References: <407C18D0.9010302@gd-ais.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1081875682 16350 192.168.12.100 (13 Apr 2004 17:01:22 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <4075D155.2030603@tomt.net>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.25.0.2; VDF: 6.25.0.12; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Tomt wrote:
+Chris Lalancette wrote:
 
-> OSS works just fine here in 2.6, on all the machines I have. I don't use 
-> ALSA's OSS emulation layer, just the "native" OSS thats in the kernel. 
-> It's used just like in 2.4, same module names and all. No black magic 
-> involved.
+> Hello all,
 > 
-Let me provide a bit more detail. I have machines with "Vortex 
-boomerang" sound cards. I have a 2.4 driver for same, for OSS, under 
-NDA. In 2.6 those cards appear to be supported in ALSA, but using the 
-OSS emulation everything seems to work except there isn't any sound.
+>    I have been trying to implement some sort of save/restore kernel 
+> memory image for the linux kernel (x86 only right now), without much 
+> success.  Let me explain the situation:
+> 
+> I have a hardware device that I can generate interrupts with.  I also 
+> have a machine with 512M of memory, and I am passing the kernel the 
+> command line mem=256M.  My idea is to generate an interrupt with the 
+> hardware device, and then inside of the interrupt handler make a copy of 
+> the entire contents of RAM into the unused upper 256M of memory; later 
+> on, with another interrupt, I would like to restore that previously 
+> saved memory image.  This way we can go "back in time", similar to what 
+> software suspend is doing, but without as many constraints (i.e. we have 
+> a hardware interrupt to work with, we reserved the same amount of 
+> physical memory to use, etc.).  Before I went much further, I figured I 
+> would ask if anyone on the list has tried this, and if there are any 
+> reasons why this is not possible.
 
-I've had several people tell me that they are using OSS/2.6 without the 
-ALSA utilities. I just want to know if that's possible or not, the 
-people with the machines don't want ALSA for reasons I would call 
-pigheaded stupidity if they weren't paying me to say "personal 
-preference" ;-)
+You're assuming that the state of the memory is the *state* of the entire system.
 
-In any case, that's the question, can I get there from here? I can't use 
-just OSS, the Vortex drivers are in ALSA.
+This fails because there is a lot of state information in hardware registers, 
+external peripheral devices, etc., etc.
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Paulo Marques - www.grupopie.com
+"In a world without walls and fences who needs windows and gates?"
+

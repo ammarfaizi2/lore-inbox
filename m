@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285161AbSBBX6H>; Sat, 2 Feb 2002 18:58:07 -0500
+	id <S284987AbSBBX6t>; Sat, 2 Feb 2002 18:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284732AbSBBX56>; Sat, 2 Feb 2002 18:57:58 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:35272 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S284970AbSBBX5q>;
-	Sat, 2 Feb 2002 18:57:46 -0500
-Date: Sat, 2 Feb 2002 18:57:44 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SIOCDEVICE ?
-Message-ID: <20020202185744.B1740@havoc.gtf.org>
-In-Reply-To: <200201311304.FAA00344@adam.yggdrasil.com> <20020131181241.A3524@fafner.intra.cogenit.fr> <m3665iqhqn.fsf@defiant.pm.waw.pl> <20020202154424.A5845@fafner.intra.cogenit.fr> <m3wuxvofvf.fsf@defiant.pm.waw.pl>
+	id <S284300AbSBBX6i>; Sat, 2 Feb 2002 18:58:38 -0500
+Received: from brick.kernel.dk ([195.249.94.204]:23961 "EHLO
+	burns.home.kernel.dk") by vger.kernel.org with ESMTP
+	id <S284305AbSBBX6b>; Sat, 2 Feb 2002 18:58:31 -0500
+Date: Sun, 3 Feb 2002 00:58:19 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: "Axel H. Siebenwirth" <axel@hh59.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.3 - (IDE) hda: drive not ready for command errors
+Message-ID: <20020203005819.C29553@suse.de>
+In-Reply-To: <20020202102659.L12156@suse.de> <Pine.LNX.4.10.10202021158010.26613-100000@master.linux-ide.org> <20020203002821.A29553@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m3wuxvofvf.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Sat, Feb 02, 2002 at 08:14:44PM +0100
+In-Reply-To: <20020203002821.A29553@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 02, 2002 at 08:14:44PM +0100, Krzysztof Halasa wrote:
-> Francois Romieu <romieu@cogenit.fr> writes:
+On Sun, Feb 03 2002, Jens Axboe wrote:
+> > what we are trying to get away from but we really need a way to stream the
+> > pointers to the data register cleanly.  Otherwise the benefits of the zero
+> > copy in block go away.
 > 
-> > Your patch doesn't apply against 2.5.3. I did a quick update and noticed the
-> > patch is the sole user of SIOCDEVICE (with dscc4) and SIOCDEVPRIVATE.
-> 
-> SIOCDEVICE, yes. That's my attempt to create an ioctl interface for
-> controlling devices. It's defined by the hdlc patch, discussed about
-> a year (?) ago here. Yes, I think I should post a note here.
+> ?? Your point is not clear. zero copy what, request struct?! That would
+> be way below measurable.
 
-This too seems way too generic for including in the kernel.
+Sorry, I see what you mean, was a bit too quick. To me the current code
+looks ok in this regard, I don't see any problems with that. If you have
+noticed a problem please out line it and I'll take a look tomorrow. Now,
+bed time.
 
-
-> A new patch which applies to 2.5.3 is in the usual place:
-> ftp://ftp.pm.waw.pl/pub/linux/hdlc/
-> This is what I want included in base kernel.
-
-What data is passed through the following structure?
-
-Untyped data has the same problems as I listed for SIOCDEVPRIVATE:
-
-> struct if_settings
-> {
->       unsigned int type;      /* Type of physical device or protocol */
->       unsigned int data_length; /* device/protocol data length */
->       void * data;            /* pointer to data, ignored if length = 0 */
-> };
-
-Regards,
-
-	Jeff
-
-
+-- 
+Jens Axboe
 

@@ -1,30 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbUKUWeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbUKUWhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbUKUWeM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 17:34:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbUKUWeM
+	id S261825AbUKUWhr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 17:37:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbUKUWhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 17:34:12 -0500
-Received: from fw.osdl.org ([65.172.181.6]:481 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261824AbUKUWeB (ORCPT
+	Sun, 21 Nov 2004 17:37:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48356 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261825AbUKUWhp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 17:34:01 -0500
-Date: Sun, 21 Nov 2004 14:33:32 -0800 (PST)
+	Sun, 21 Nov 2004 17:37:45 -0500
+Date: Sun, 21 Nov 2004 14:37:34 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Daniel Jacobowitz <dan@debian.org>, Eric Pouech <pouech-eric@wanadoo.fr>,
-       Roland McGrath <roland@redhat.com>, Mike Hearn <mh@codeweavers.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <Pine.LNX.4.58.0411211326350.11274@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.58.0411211414460.20993@ppc970.osdl.org>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
- <419E42B3.8070901@wanadoo.fr> <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
- <419E4A76.8020909@wanadoo.fr> <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
- <419E5A88.1050701@wanadoo.fr> <20041119212327.GA8121@nevyn.them.org>
- <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org> <20041120214915.GA6100@tesore.ph.cox.net>
- <Pine.LNX.4.58.0411211326350.11274@bigblue.dev.mdolabs.com>
+To: linux-os@analogic.com
+cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: sparse segfaults
+In-Reply-To: <Pine.LNX.4.61.0411211705480.16359@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.58.0411211433540.20993@ppc970.osdl.org>
+References: <20041120143755.E13550@flint.arm.linux.org.uk>
+ <Pine.LNX.4.61.0411211705480.16359@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -32,58 +26,34 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 21 Nov 2004, Davide Libenzi wrote:
+On Sun, 21 Nov 2004, linux-os wrote:
+> >
+> > int tickadj = 500/HZ ? : 1;             /* microsecs */
+> >
+> > which makes it look like sparse doesn't understand such constructions.
 > 
-> I'd agree with Linus here. A signal handler is part of the application, so 
-> it should be single stepped in the same way other application code does. 
-> My original patch simply reenabled the flag before returning to userspace, 
-> and this had the consequence to single step into signal handlers too.
+> I don't think any 'C' compiler should understand such constructions
+> either.
+>  	There is no result for the TRUE condition, and the standard
+> does not provide for a default. The compiler should have written
+> a diagnostic.
 
-Hmmm.. I think I may have a test-case for the problem.
+Actually, this is documented gcc behaviour, where a missing true condition 
+is substituted with the condition value.
 
-Lookie here:
+So what the above does is set "tickadj" to 500/HZ _except_ if that 
+underflows to zero, in which case tickadj gets the value 1.
 
-	#include <signal.h>
-	#include <sys/mman.h>
+IOW, it's the same as
 
-	void function(void)
-	{
-		printf("Copy protected: ok\n");
-	}
+	int tickadj = 500/HZ ? 500/HZ : 1;
 
-	void handler(int signo)
-	{
-		extern char smc;
-		smc++;
-	}
+except that the short syntax is not only shorter, but it's extremely
+convenient in macros etc, because it only evaluates the value once, ie you
+can do
 
-	#define TF 0x100
+	int tickadj = *ptr++ ? : 1;
 
-	int main(int argc, char **argv)
-	{
-		void (*fnp)(void);
-
-		signal(SIGTRAP, handler);
-		mprotect((void *)(0xfffff000 & (unsigned long)main), 4096, PROT_READ | PROT_WRITE);
-		asm volatile("pushfl ; orl %0,(%%esp) ; popfl"
-			: :"i" (TF):"memory");
-		asm volatile("pushfl ; andl %0,(%%esp) ; popfl"
-			: :"i" (~TF):"memory");	
-		asm volatile("\nsmc:\n\t"
-			".byte 0xb7\n\t"
-			".long function"
-			:"=d" (fnp));
-		fnp();
-		exit(1);
-	}
-
-Compile it, run it, and it should say
-
-	Copy protected: ok
-
-Now, try to "strace" it, or debug it with gdb, and see if you can repeat 
-the behaviour.
-
-Roland? Think of it as a challenge,
+and it's well-behaved in that it increments the pointer only once.
 
 		Linus

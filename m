@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319149AbSIJOua>; Tue, 10 Sep 2002 10:50:30 -0400
+	id <S319158AbSIJOx6>; Tue, 10 Sep 2002 10:53:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319150AbSIJOua>; Tue, 10 Sep 2002 10:50:30 -0400
-Received: from mta.sara.nl ([145.100.16.144]:50393 "EHLO mta.sara.nl")
-	by vger.kernel.org with ESMTP id <S319149AbSIJOu3>;
-	Tue, 10 Sep 2002 10:50:29 -0400
-Date: Tue, 10 Sep 2002 16:55:10 +0200
-Subject: Re: writing OOPS/panic info to nvram?
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v482)
-Cc: linux-kernel@vger.kernel.org
-To: Pavel Machek <pavel@suse.cz>
-From: Remco Post <r.post@sara.nl>
-In-Reply-To: <20020906100650.D35@toy.ucw.cz>
-Message-Id: <4DE1BD2E-C4CD-11D6-9C2C-000393911DE2@sara.nl>
+	id <S319159AbSIJOx6>; Tue, 10 Sep 2002 10:53:58 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:60076 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S319158AbSIJOx5>;
+	Tue, 10 Sep 2002 10:53:57 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.482)
+Message-ID: <15742.2206.709234.102259@kim.it.uu.se>
+Date: Tue, 10 Sep 2002 16:58:38 +0200
+To: torvalds@transmeta.com
+Subject: [PATCH] undo 2.5.34 ftape damage
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In the 2.5.33->2.5.34 step someone removed "export-objs" from
+drivers/char/ftape/lowlevel/Makefile, which makes it impossible to build
+ftape as a module since is _does_ have a number of EXPORT_SYMBOL's.
 
-On vrijdag, september 6, 2002, at 12:06 , Pavel Machek wrote:
+The patch below reverts that change. Linus, please apply.
 
-> Hi!
->
->> driver oopses... Maybe do something like:
->>
->> if there is enough space on disk && ..., use that else
->> if there is a swap over nfs && ..., use that else
->> if there is a tape drive attaced and a tape is present and it is
->> writeable... else
->> if there is nvram available use that
->
-> You just killed any data you had on the tape... too bad.
-> 								Pavel
+/Mikael
 
-Yes, so, or you just saved that oops that has been bugging you for 
-months... (And yes I'm probably one of those rare people that has 
-tapedrives attached that are not used for anything usefull).
-
----
-Met vriendelijke groeten,
-
-Remco Post
-
-SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
-PGP keys at http://home.sara.nl/~remco/keys.asc
-
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer 
-industry
-didn't even foresee that the century was going to end." -- Douglas Adams
-
-
+--- linux-2.5.34/drivers/char/ftape/lowlevel/Makefile.~1~	Mon Sep  9 21:15:28 2002
++++ linux-2.5.34/drivers/char/ftape/lowlevel/Makefile	Tue Sep 10 16:43:25 2002
+@@ -23,6 +23,8 @@
+ #      driver for Linux.
+ #
+ 
++export-objs := ftape_syms.o
++
+ obj-$(CONFIG_FTAPE) += ftape.o
+ 
+ ftape-objs := ftape-init.o fdc-io.o fdc-isr.o \

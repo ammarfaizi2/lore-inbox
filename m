@@ -1,41 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbUKVJxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbUKVJ6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262018AbUKVJxK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 04:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUKVJwY
+	id S262007AbUKVJ6w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 04:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbUKVJ6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 04:52:24 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:48722 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262018AbUKVJvT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 04:51:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=S1l/mbxn7BhwdGlDhTT5k3p7DFt58rSluvxZ9bptBgeXzOsQwYMby7Bq1tNu+YQFxA0/oN8WI4MH9JqpeSYlxzMaMmJHtV0/5fQpQg9xJwOirWQU+J9jTVZXH2oQxeDHil3PddzXHCN7M3HlJGSpjsU2Is0c2JGU0kTeTljqQCs=
-Message-ID: <2d7d2dd2041122015164246bd6@mail.gmail.com>
-Date: Mon, 22 Nov 2004 09:51:16 +0000
-From: Simon Burke <simon.burke@gmail.com>
-Reply-To: Simon Burke <simon.burke@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: SGI O2
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Nov 2004 04:58:52 -0500
+Received: from [61.51.204.161] ([61.51.204.161]:13815 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S262007AbUKVJ6s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 04:58:48 -0500
+Date: Mon, 22 Nov 2004 17:54:38 +0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200411220954.iAM9sc002402@freya.yggdrasil.com>
+To: gjwucherpfennig@gmx.net, greg@kroah.com
+Subject: Re: Kernel thoughts of a Linux user
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 2004-11-18 18:50:11, Greg KH wrote:
+>On Thu, Nov 18, 2004 at 06:59:27PM +0100, Gerold J. Wucherpfennig wrote:
+>> 
+>> - Make sysfs optional and enable to publish kernel <-> userspace data
+>> especially the kernel's KObject data across the kernel's netlink interface as
+>> it has been summarized on www.kerneltrap.org. This will avoid the
+>> deadlocks sysfs does introduce when some userspace app holds an open file
+>> handle of an sysfs object (KObject) which is to be removed. An importrant side 
+>> effect for embedded systems will be that the RAM overhead introduced by sysfs
+>> will vaporize.
+>
+>What RAM overhead?  With 2.6.10-rc2 the memory footprint of sysfs has
+>been drasticly shrunk.
 
-I have a SGI O2 knocking about which currenty runs irix, fair enougth.
-One quick question, if i wanted to get linux working on it, how would
-i go about this, as i know that there are  currently issues with the
-o2 due to its caching and its framebuffer.
+	Looking through 2.6.10-rc2-bk6/fs/sysfs/, it appears to me that
+sysfs unswappable memory usage for this desktop system with two
+hard disks and a couple of USB devices attached is over 600kB, even
+if I do not count the underlying attribute or kobject structures that
+are being registered in sysfs.
 
-Im guessing that i'd have to patch it, but i admit that im not good
-enogth to write a patch for it yet.
--- 
-Theres no place like ::1
+	Please correct me if I am wrong, but, as far as I can tell,
+in 2.6.10-rc2-bk6, a struct dentry is held for each node in the sysfs
+tree at all times.  I infer this from noticing that sysfs_drop_dentry
+and sysfs_hash_and_remove in fs/sysfs/inode.c only seem to be called
+on operations to delete a node.  If I've missed something and the dentry
+structures are all or mostly released, I would love to be corrected about
+it as that would be really good news to me.
 
-Thanks,
-SimonB
+	Here is a partial tally of what I believe are the bytes used for
+each sysfs file in the old and new versions (using sizes on my 32-bit
+x86 box; your sizes may vary depending on architecture and file system
+options that you've enabled).
+
+				Old		New
+	dentry			144		144
+	inode			344		---
+	sysfs_dirent		---		 36
+	
+	Total			488		180
+
+	There is also an underlying struct attribute (12 bytes) for
+sysfs files and struct kobject (52 bytes for sysfs directories), but
+let's assume that all of those would still be useful without sysfs.
+
+	The desktop computer on which I am writing this email has
+3405 nodes.  So, it's pinned memory consumption has presumbably
+dropped from over 1.6 megabytes in the old version to something
+over 600kB.
+
+	This is a huge improvement _over the old memory consumption_,
+and may also mark the point where most of the rest of the memory
+shrink could come from outside of sysfs (for example, by splitting
+struct dentry into the part that virtual file systems want to
+keep and the part that is only useful when the VFS layer wants
+to hold the dentry, or perhaps by making struct dentry and
+struct kobject use the same name string), but I would not look at
+600kB and say "What RAM overhead?"
+
+	Am I missing something?  Are the dentries being freed
+dynamically (for nodes that have not been deleted) in sysfs
+in version 2.6.10-rc2-bk6?
+
+                    __     ______________ 
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

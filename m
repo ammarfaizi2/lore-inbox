@@ -1,46 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265578AbTCDXek>; Tue, 4 Mar 2003 18:34:40 -0500
+	id <S262425AbTCDXmH>; Tue, 4 Mar 2003 18:42:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266473AbTCDXek>; Tue, 4 Mar 2003 18:34:40 -0500
-Received: from packet.digeo.com ([12.110.80.53]:11690 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265578AbTCDXeh>;
-	Tue, 4 Mar 2003 18:34:37 -0500
-Date: Tue, 4 Mar 2003 15:41:05 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Daniel Egger <degger@fhm.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel bloat 2.4 vs. 2.5
-Message-Id: <20030304154105.7a2db7fa.akpm@digeo.com>
-In-Reply-To: <1046817738.4754.33.camel@sonja>
-References: <1046817738.4754.33.camel@sonja>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S264748AbTCDXmH>; Tue, 4 Mar 2003 18:42:07 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:17897 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262425AbTCDXmG>;
+	Tue, 4 Mar 2003 18:42:06 -0500
+Subject: 2.5.63-osdl3
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1046821955.30192.405.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 04 Mar 2003 15:52:35 -0800
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Mar 2003 23:44:59.0716 (UTC) FILETIME=[11951040:01C2E2A8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Egger <degger@fhm.edu> wrote:
->
-> Hija,
-> 
-> I've seen surprisingly few messages about the dramatic size increase
-> between a simple 2.4 and a 2.5 kernel image. 
-> 
-> I just decided to check back with the 2.5 series again after my last try
-> with 2.5.53 (which wouldn't even boot) but had to dramatically cut down
-> the kernel featurewise to keep it below 1MB because I can't boot it over
-> tftp otherwise. 
-> 
-> 909824 Feb 14 20:02 vmlinuz-192.168.11.3-2.4.20
-> 954880 Mar  4 17:01 vmlinuz-192.168.11.3-2.5.63
+2.5.63-osdl3 is available at  http://sourceforge.net/projects/osdldcl
+or BitKeeper          bk://bk.osdl.org/linux-2.5-osdl  TAG: v2.5.63-osdl3
+or OSDL Patch Lifecycle Manager (http://www.osdl.org/cgi-bin/plm/)
+	osdl-2.5.63-3	PLM # 1625
 
-2.4 has magical size reduction tricks in it which were not brought into 2.5
-because we expect that gcc will do it for us.
+2.5.63-osdl3:
+o Align with latest LKCD
+o Update to latest AS scheduler from 2.5.63-mm2
+o Make defconfig turn on LTT,LKCD       (me)
+  This is to force config options on for STP
 
-Please specify the compiler which was used, and use /usr/bin/size to report
-image sizes.
+2.5.63-osdl2:
+o Make default IO scheduler be deadline (me)
+o Improved flock bugfix		 	(Matthew Wilcox)
+
+2.5.63-osdl1:
+o Update to Megaraid 2 driver		(Matt Domsch, Mark Haverkamp)
+o Cpu Hot Plug				(Zwane Mwaikambo)
+o CFQ disk scheduler			(Jens Axboe)
+o Anticipatory scheduler		(Nick Piggin)
+o Pentium Performance Counters		(Mikael Pettersson)
+o Linux Kernel Crash Dump (LKCD)        (Matt Robinson, LKCD team)
+o Kernel Exec (Kexec)			(Eric W. Biederman)
+o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
+o Kernel Config (ikconfig)		(Randy Dunlap)
+o Improved boot time TSC synchronization (Jim Houston)
+o RCU statistics               		(Dipankar Sarma)
+o Scheduler tunables            	(Robert Love)
+
+Changes since 2.5.62
+* Merge -osdl and -dcl into one tree
+  Seperate trees were temporary till NUMA and hi-res timers
+  got merged to the base kernel.
+
++ Update to LKCD 
+  Now includes latest memory and kexec hook.
+
++ Add CFQ and AS scheduler from -mm tree
+  Can choose scheduler via the kernel boot commandline:
+        elevator=as 
+        elevator=cfq
+        elevator=deadline (default)
+  The anticipatory scheduler is experimental and may not boot
+  on some systems.
+
+- Take out kprobe
+  No test available or interface available other than the
+  simple /dev/noisy
+
+
+Project information:
+        http://www.osdl.org/projects/dcl/
+
+
+
 
 

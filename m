@@ -1,96 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVCCAXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVCCAX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVCCAXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 19:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVCCAUx
+	id S261350AbVCCAX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 19:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVCCAT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 19:20:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45756 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261407AbVCCASO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 19:18:14 -0500
-Message-ID: <422657B5.7030702@pobox.com>
-Date: Wed, 02 Mar 2005 19:17:57 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: workflow (was Re: RFD: Kernel release numbering)
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Mar 2005 19:19:28 -0500
+Received: from mail.kroah.org ([69.55.234.183]:33434 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261429AbVCCAPK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 19:15:10 -0500
+Date: Wed, 2 Mar 2005 16:14:38 -0800
+From: Greg KH <greg@kroah.com>
+To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Cc: Philip Edelbrock <phil@netroedge.com>
+Subject: Re: [PATCH 2.6] Change of i2c co-maintainer
+Message-ID: <20050303001438.GA10340@kroah.com>
+References: <20050302195106.4bf0b1ec.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050302195106.4bf0b1ec.khali@linux-fr.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Other ideas <thinking out loud>...
+On Wed, Mar 02, 2005 at 07:51:06PM +0100, Jean Delvare wrote:
+> Hi Greg, all,
+> 
+> Since I am working more actively than Philip (or anyone else, for that
+> matter) on the i2c subsystem these days, it would probably make sense
+> that I am listed as the co-maintainer instead of him.
+> 
 
-I maintain my netdev-2.6 queue by creating a ton of "subject-specific" 
-repositories locally,
+It's about time you got "official" recognition for all of the great work
+you've been doing on the i2c code :)
 
-> 8139cp/     bonding/  ieee80211/    mips/     sis900/    typhoon/
-> 8139too/    e1000/    ixgb/         misc/     skge/      viro-iomap/
-> 8139too-2/  ham/      janitor/      mv643xx/  sk_mca/    viro-iomap-orinoco/
-> ALL/        ibmlana/  kill-iphase/  pcnet32/  smc91x/    viro-isa-ectomy/
-> atmel/      ibmtr/    mii/          s2io/     sundance/  wifi/
+Applied, thanks.  
 
-and I pull all of these into a master repository netdev-2.6 (locally 
-'ALL').  netdev-2.6, in turn, gets pulled into -mm when Andrew makes a 
-new release.  When I am ready to push something upstream, I pull one or 
-more repositories into my net-drivers-2.6 queue, which is essentially my 
-"push to upstream" queue.
-
-This scheme allows me to cherry-pick fixes and features.  If a critical 
-fix comes along, it doesn't have to wait for the other less-critical 309 
-changesets to go.
-
-
-We could have a linus-pending-2.6 queue, managed by Linus, that 
-functions in a similar manner to my netdev-2.6:
-
-a) Have a monthly or weekly official release.  Could be automated, but 
-probably not.
-
-b) snapshots of linus-pending-2.6 function as a development tree, taking 
-over some of the current -mm purpose...  -mm is just too massive and 
-multi-purpose at this point
-
-c) locally [or publicly?], Linus sorts patches and 'bk pulls' into 
-specific repositories, as I do with netdev-2.6.  "sata", "sata-fixes", 
-"net drivers", "net drivers - janitorial", etc. could be potential pull 
-queues from me to Linus.
-
-d) When features/fixes are ready to move from linus-pending-2.6 to 
-linux-2.6 repository, Linus just does a pull+push locally.  Fixes would 
-likely go immediately into linux-2.6, unless it needs staging in 
-linus-pending-2.6 first.  Potentially destabilizing stuff stays longer 
-in linus-pending-2.6.
-
-Thus, Linus controls the patch flow (and stability/features) simply by 
-choosing when to pull stuff from the on-going dev tree that he manages.
-
-e) Andrew continues doing what he's been doing:  merging tons of 
-patches, staging big features, etc.
-
-
-So what does this accomplish, besides increasing the complexity of 
-Linus's work?  What's the point?
-
-1) Creates a structure to enable linux-2.6 to be the on-going stable 
-tree, by creating an official on-going dev tree.
-
-2) Release early, release often.  The proposal that started this thread 
-does the opposite: it slows things down.
-
-3) Makes it easier to manage the flow of changesets.
-
-4) Takes pressure off -mm to be "everything under the sun."  Users are 
-far more likely to test a tree that is blessed with Holy Penguin Pee, 
-and builds on all architectures.  And this in turn gives -mm more freedom.
-
-	Jeff, trying to think outside the box
-
-
-
+greg k-h

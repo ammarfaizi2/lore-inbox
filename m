@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262692AbUKLXZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbUKLXEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262692AbUKLXZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 18:25:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbUKLXZQ
+	id S262657AbUKLXEE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 18:04:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbUKLXDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 18:25:16 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:52374 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262692AbUKLXWq convert rfc822-to-8bit
+	Fri, 12 Nov 2004 18:03:43 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:51078 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262657AbUKLXAl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 18:22:46 -0500
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI fixes for 2.6.10-rc1
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <11003017181025@kroah.com>
-Date: Fri, 12 Nov 2004 15:21:58 -0800
-Message-Id: <11003017181959@kroah.com>
+	Fri, 12 Nov 2004 18:00:41 -0500
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] More Driver Core patches for 2.6.10-rc1
+In-Reply-To: <11003004062835@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Fri, 12 Nov 2004 15:00:06 -0800
+Message-Id: <11003004064171@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,77 +23,44 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2091.1.4, 2004/11/12 14:01:32-08:00, thockin@google.com
+ChangeSet 1.2095, 2004/11/12 11:42:28-08:00, anil.s.keshavamurthy@intel.com
 
-[PATCH] PCI: small PCI probe patch for odd 64 bit BARs
+[PATCH] Add KOBJ_ONLINE
 
-On Thu, Nov 11, 2004 at 09:54:19AM -0800, Greg KH wrote:
-> I'll wait till you test this on 2.6 before applying it.
+I am trying to fix the current ACPI container.ko and processor.ko to use
+kobject_hotplug() for notification. For this I would be requiring the
+KOBJ_ONLINE definitions to be added to kobject_action.
 
-OK.  Tested now on real hardware in 32 bit and 64 bit kernels.  32 bit
-found another dumbness, that we can fix up.
-
-Some PCI bridges default their UPPER prefetch windows to an unused state
-of base > limit.  We should not use those values if we find that.  It
-might be nice to reprogram them to 0, in fact.
-
-Yes, BIOS should fix that up, but apparently, some do not.
-
-
-Signed-Off-By: Tim Hockin <thockin@google.com>
+Signed-off-by: Anil Keshavamurty <anil.s.keshavamurthy@intel.com>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/pci/probe.c |   28 +++++++++++++++++++---------
- 1 files changed, 19 insertions(+), 9 deletions(-)
+ include/linux/kobject_uevent.h |    1 +
+ lib/kobject_uevent.c           |    2 ++
+ 2 files changed, 3 insertions(+)
 
 
-diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
---- a/drivers/pci/probe.c	2004-11-12 15:11:34 -08:00
-+++ b/drivers/pci/probe.c	2004-11-12 15:11:34 -08:00
-@@ -144,9 +144,11 @@
- 			pci_write_config_dword(dev, reg+4, ~0);
- 			pci_read_config_dword(dev, reg+4, &sz);
- 			pci_write_config_dword(dev, reg+4, l);
--			if (~sz)
--				res->end = res->start + 0xffffffff +
--						(((unsigned long) ~sz) << 32);
-+			sz = pci_size(l, sz, 0xffffffff);
-+			if (sz) {
-+				/* This BAR needs > 4GB?  Wow. */
-+				res->end |= (unsigned long)sz<<32;
-+			}
- #else
- 			if (l) {
- 				printk(KERN_ERR "PCI: Unable to handle 64-bit address for device %s\n", pci_name(dev));
-@@ -243,15 +245,23 @@
- 		u32 mem_base_hi, mem_limit_hi;
- 		pci_read_config_dword(dev, PCI_PREF_BASE_UPPER32, &mem_base_hi);
- 		pci_read_config_dword(dev, PCI_PREF_LIMIT_UPPER32, &mem_limit_hi);
-+
-+		/*
-+		 * Some bridges set the base > limit by default, and some
-+		 * (broken) BIOSes do not initialize them.  If we find
-+		 * this, just assume they are not being used.
-+		 */
-+		if (mem_base_hi <= mem_limit_hi) {
- #if BITS_PER_LONG == 64
--		base |= ((long) mem_base_hi) << 32;
--		limit |= ((long) mem_limit_hi) << 32;
-+			base |= ((long) mem_base_hi) << 32;
-+			limit |= ((long) mem_limit_hi) << 32;
- #else
--		if (mem_base_hi || mem_limit_hi) {
--			printk(KERN_ERR "PCI: Unable to handle 64-bit address space for %s\n", child->name);
--			return;
--		}
-+			if (mem_base_hi || mem_limit_hi) {
-+				printk(KERN_ERR "PCI: Unable to handle 64-bit address space for bridge %s\n", pci_name(dev));
-+				return;
-+			}
- #endif
-+		}
+diff -Nru a/include/linux/kobject_uevent.h b/include/linux/kobject_uevent.h
+--- a/include/linux/kobject_uevent.h	2004-11-12 14:53:26 -08:00
++++ b/include/linux/kobject_uevent.h	2004-11-12 14:53:26 -08:00
+@@ -28,6 +28,7 @@
+ 	KOBJ_MOUNT	= (__force kobject_action_t) 0x04,	/* mount event for block devices */
+ 	KOBJ_UMOUNT	= (__force kobject_action_t) 0x05,	/* umount event for block devices */
+ 	KOBJ_OFFLINE	= (__force kobject_action_t) 0x06,	/* offline event for hotplug devices */
++	KOBJ_ONLINE	= (__force kobject_action_t) 0x07,	/* online event for hotplug devices */
+ };
+ 
+ 
+diff -Nru a/lib/kobject_uevent.c b/lib/kobject_uevent.c
+--- a/lib/kobject_uevent.c	2004-11-12 14:53:26 -08:00
++++ b/lib/kobject_uevent.c	2004-11-12 14:53:26 -08:00
+@@ -42,6 +42,8 @@
+ 		return "umount";
+ 	case KOBJ_OFFLINE:
+ 		return "offline";
++	case KOBJ_ONLINE:
++		return "online";
+ 	default:
+ 		return NULL;
  	}
- 	if (base <= limit) {
- 		res->flags = (mem_base_lo & PCI_MEMORY_RANGE_TYPE_MASK) | IORESOURCE_MEM | IORESOURCE_PREFETCH;
 

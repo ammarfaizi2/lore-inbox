@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVC2WS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVC2WYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbVC2WS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 17:18:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVC2WOv
+	id S261532AbVC2WYv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 17:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVC2WYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 17:14:51 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:3565 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261569AbVC2WNG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 17:13:06 -0500
-Subject: Re: Mac mini sound woes
-From: Lee Revell <rlrevell@joe-job.com>
-To: Marcin Dalecki <martin@dalecki.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>
-In-Reply-To: <e5141b458a44470b90bfb2ecfefd99cf@dalecki.de>
-References: <1111966920.5409.27.camel@gaston>
-	 <1112067369.19014.24.camel@mindpipe>
-	 <4a7a16914e8d838e501b78b5be801eca@dalecki.de>
-	 <1112084311.5353.6.camel@gaston>
-	 <e5141b458a44470b90bfb2ecfefd99cf@dalecki.de>
-Content-Type: text/plain
-Date: Tue, 29 Mar 2005 17:13:04 -0500
-Message-Id: <1112134385.5386.22.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Tue, 29 Mar 2005 17:24:51 -0500
+Received: from smtpout.mac.com ([17.250.248.89]:19156 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261532AbVC2WYr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 17:24:47 -0500
+In-Reply-To: <4249D06F.30802@tmr.com>
+References: <1111731361.20797.5.camel@uganda> <1111731361.20797.5.camel@uganda> <20050325061311.GA22959@gondor.apana.org.au> <4249D06F.30802@tmr.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <9801bba0783f5a8c507ff6a10a120c8d@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       David McCullough <davidm@snapgear.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, James Morris <jmorris@redhat.com>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
+Date: Tue, 29 Mar 2005 17:24:36 -0500
+To: Bill Davidsen <davidsen@tmr.com>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-29 at 11:22 +0200, Marcin Dalecki wrote:
-> No. You didn't get it. I'm taking the view that mixing sound is simply
-> a task you would typically love to make a DSP firmware do.
-> However providing a DSP for sound processing at 44kHZ on the same
-> PCB as an 1GHZ CPU is a ridiculous waste of resources. Thus most 
-> hardware
-> vendors out there decided to use the main CPU instead. Thus the 
-> "firmware"
-> is simply running on the main CPU now. Now where should it go? I'm 
-> convinced
-> that its better to put it near the hardware in the whole stack. You 
-> think
-> it's best to put it far away and to invent artificial synchronization
-> problems between different applications putting data down to the
-> same hardware device.
+On Mar 29, 2005, at 17:02, Bill Davidsen wrote:
+> Wait a minute, if it fails the system drops back to software,
 
-This is the exact line of reasoning that led to Winmodems.
+Does it?  It would seem that if it fails and begins returning
+all zeroes, then the seed function would (depending on the
+implementation) be called like this:
 
-Lee
+add_random_bytes("\0\0\0\0".... , 4096);
+add_random_bytes("\0\0\0\0".... , 4096);
+[...]
+
+Or:
+
+add_random_bytes("\0\0\0\0".... , 4096);
+add_random_bytes(soft_random()  , 64);
+add_random_bytes("\0\0\0\0".... , 4096);
+add_random_bytes(soft_random()  , 64);
+[...]
+
+In either case, it's very bad, and will likely return cause
+some _very_ predictable data to be emitted.
+
+> I'm not sure you would get people to agree what should be
+> done if a hardware RNG fails, other than make the failure
+> information available to user space.
+
+How do you know if it fails?  You know when your disk fails
+and begins giving bad data because the filesystem detects
+that the data is invalid, but how do you tell when your
+random number generator starts giving bad data? AFAIK, the
+only way to do that is to continuously monitor the random
+data produced and _immediately_ stop the data flow when
+you start getting bad data.  That should only be done from
+a userspace rngd-type daemon.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
 

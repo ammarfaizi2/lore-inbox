@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266737AbUIISs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266547AbUIISZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266737AbUIISs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 14:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266631AbUIISpl
+	id S266547AbUIISZR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 14:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266491AbUIISYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 14:45:41 -0400
-Received: from zimbo.cs.wm.edu ([128.239.2.64]:4271 "EHLO zimbo.cs.wm.edu")
-	by vger.kernel.org with ESMTP id S266674AbUIISnu (ORCPT
+	Thu, 9 Sep 2004 14:24:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57534 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266508AbUIISIq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 14:43:50 -0400
-Date: Thu, 9 Sep 2004 14:43:27 -0400
-From: "Serge E. Hallyn" <hallyn@CS.WM.EDU>
-To: Chris Wright <chrisw@osdl.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       Makan Pourzandi <Makan.Pourzandi@ericsson.com>,
-       linux-kernel@vger.kernel.org,
-       Axelle Apvrille <axelle.apvrille@trusted-logic.fr>,
-       david.gordon@ericsson.com, gaspoucho@yahoo.com
-Subject: Re: [ANNOUNCE] Release Digsig 1.3.1: kernel module for run-time authentication of binaries
-Message-ID: <20040909184327.GA28807@escher.cs.wm.edu>
-References: <41407CF6.2020808@ericsson.com> <20040909092457.L1973@build.pdx.osdl.net> <20040909172301.GA28466@escher.cs.wm.edu> <20040909104256.T1924@build.pdx.osdl.net>
+	Thu, 9 Sep 2004 14:08:46 -0400
+Date: Thu, 9 Sep 2004 11:06:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: torvalds@osdl.org, dev@sw.ru, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] adding per sb inode list to make invalidate_inodes()
+ faster
+Message-Id: <20040909110622.78028ae6.akpm@osdl.org>
+In-Reply-To: <20040909171927.GU3106@holomorphy.com>
+References: <4140791F.8050207@sw.ru>
+	<Pine.LNX.4.58.0409090844410.5912@ppc970.osdl.org>
+	<20040909171927.GU3106@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040909104256.T1924@build.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > When a file is being executed, deny_write_access(file) is called to
-> > prevent writing until execution completes.  Because deny_write_access
-> > is not exported from fs/namei.c, we emulate this behavior for shared
-> > libraries.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> On Thu, Sep 09, 2004 at 08:51:45AM -0700, Linus Torvalds wrote:
+>  > Hmm.. I don't mind the approach per se, but I get very nervous about the 
+>  > fact that I don't see any initialization of "inode->i_sb_list".
+>  > Yes, you do a
+>  > 	list_add(&inode->i_sb_list, &sb->s_inodes);
+>  > in new_inode(), but there are a ton of users that allocate inodes other 
+>  > ways, and more importantly, even if this was the only allocation function, 
+>  > you do various "list_del(&inode->i_sb_list)" things which leaves the inode 
+>  > around but with an invalid superblock list.
+>  > So at the very _least_, you should document why all of this is safe very 
+>  > carefully (I get nervous about fundamental FS infrastructure changes), and 
+>  > it should be left to simmer in -mm for a longish time to make sure it 
+>  > really works..
+>  > Call me chicken.
 > 
-> Hmm, ok, so you're relying on the loader to do PROT_EXEC mmaps for
-> shared libraries?  Probably not required at least on x86.
+>  Some version of this patch has been in 2.6.x-mm for a long while.
 
-Correct.
+One year.
 
-We don't pretend to stop someone from mmap'ing and executing bad code, we
-only want to help someone who wants to use a legitimate library to know that
-the right library is being used.
+> I've
+>  not reviewed this version of the patch for differences with the -mm
+>  code. It would probably be best to look at the -mm bits as they've had
+>  sustained exposure for quite some time.
 
-> Also, does
-> this work when executing loader directly (/lib/ld.so /bin/ps), and with
-> dlopen?
+Yes.
 
-Yup, both of these (at least on i386) use mmap with PROT_EXEC, and go
-through digsig's dsi_file_mmap check.  (I've made a note to check the
-/lib/ld.so /bin/ps case on a powerpc and, if I can find one, z)
+I have not merged it up because it seems rather dopey to add eight bytes to
+the inode to speed up something as rare as umount.
 
--serge
+Is there a convincing reason for proceeding with the change?

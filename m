@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266771AbTBQENc>; Sun, 16 Feb 2003 23:13:32 -0500
+	id <S266716AbTBQEL6>; Sun, 16 Feb 2003 23:11:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266772AbTBQENc>; Sun, 16 Feb 2003 23:13:32 -0500
-Received: from dp.samba.org ([66.70.73.150]:17385 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266771AbTBQENc>;
-	Sun, 16 Feb 2003 23:13:32 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Brian Gerst <bgerst@didntduck.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Move __this_module to xxx.mod.c 
-In-reply-to: Your message of "Sun, 16 Feb 2003 19:57:04 MDT."
-             <Pine.LNX.4.44.0302161946220.5217-100000@chaos.physics.uiowa.edu> 
-Date: Mon, 17 Feb 2003 14:42:40 +1100
-Message-Id: <20030217042330.D50DE2C04D@lists.samba.org>
+	id <S266718AbTBQEL6>; Sun, 16 Feb 2003 23:11:58 -0500
+Received: from tapu.f00f.org ([202.49.232.129]:31629 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S266716AbTBQEL6>;
+	Sun, 16 Feb 2003 23:11:58 -0500
+Date: Sun, 16 Feb 2003 20:21:56 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Mark J Roberts <mjr@znex.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Annoying /proc/net/dev rollovers.
+Message-ID: <20030217042156.GA2759@f00f.org>
+References: <20030216221616.GA246@znex> <20030217014111.GA2244@f00f.org> <20030217024605.GB246@znex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030217024605.GB246@znex>
+User-Agent: Mutt/1.3.28i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0302161946220.5217-100000@chaos.physics.uiowa.edu> yo
-u write:
-> On Sun, 16 Feb 2003, Brian Gerst wrote:
-> 
-> > This patch moves the module structure to the generated .mod.c file, 
-> > instead of compiling it into each object and relying on the linker to 
-> > include it only once.
-> 
-> Yeah, it's something I though about doing, but I was not sure. I think 
-> it's up to Rusty to comment ;)
-> 
-> It will need an associated change to module_init_tools.
+On Sun, Feb 16, 2003 at 08:46:05PM -0600, Mark J Roberts wrote:
 
-I don't think so: the symbol will be in the module by the time
-module-init-tools gets to it, or am I missing something?
+> When the windows box behind my NAT is using all of my 640kbit/sec
+> downstream to download movies, it takes a little over 14 hours to
+> download four gigabytes and roll over the byte counter.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Therefore userspace needs to check the counters more often... say ever
+30s or so and detect rollover.  Most of this could be simply
+encapsulated in a library and made transparent to the upper layers.
+
+
+
+  --cw
+

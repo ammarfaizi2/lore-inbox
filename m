@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTIPTYw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 15:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTIPTYw
+	id S262365AbTIPTkq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 15:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbTIPTkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 15:24:52 -0400
-Received: from vena.lwn.net ([206.168.112.25]:3014 "HELO lwn.net")
-	by vger.kernel.org with SMTP id S262033AbTIPTYv (ORCPT
+	Tue, 16 Sep 2003 15:40:46 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:40385 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262365AbTIPTko (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 15:24:51 -0400
-Message-ID: <20030916192449.8450.qmail@lwn.net>
-To: linux-kernel@vger.kernel.org
-Subject: Dynamic allocation of char majors in the new world order
-cc: viro@parcelfarce.linux.theplanet.co.uk
-From: Jonathan Corbet <corbet@lwn.net>
-Date: Tue, 16 Sep 2003 13:24:49 -0600
+	Tue, 16 Sep 2003 15:40:44 -0400
+Date: Tue, 16 Sep 2003 15:40:44 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Jack Stewart <jack@webtech.co.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Source for Promise PDC20376 Linux Drivers
+Message-ID: <20030916194044.GA5987@gtf.org>
+References: <625CF2D7C3D60245B050C921AB0B0A963200B4@nzrcsxch01.nzrc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <625CF2D7C3D60245B050C921AB0B0A963200B4@nzrcsxch01.nzrc.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once again, I'm trying to figure out how char drivers are really going to
-work once the dust has settled around the dev_t changes.  The new
-register_chrdev_region() and cdev_* functions are reasonably easy to get a
-grasp of, for the most part.  But I'm curious about one thing: what do you
-do if you want to use the new functions with dynamic major number
-allocation? 
+On Tue, Sep 16, 2003 at 10:54:23AM +1200, Jack Stewart wrote:
+> 
+> I just noticed today that Promise appear to have posted source for their
+> FastTrak TX4000 Linux Drivers along with new binaries for Redhat and
+> Suse.  I know there have been some efforts to get a driver for the
+> PDC20376 into the kernel.  Here's hoping this source will help?
 
-Passing zero for the major number into register_chrdev_region() does almost
-what one would want - it allocates a number for the caller.  The one thing
-it does *not* do, however, is communicate that number back to the caller in
-any way.  If you want to know what number you got, you have to call
-__register_chrdev_region(), but that's static and uses a private structure
-type - clearly not meant to be used that way.
+Promise is working towards an all-open-source solution.
 
-Now, it wouldn't be that hard to hack register_chrdev_region() to save out
-the actual major number and return it to the caller.  But I get the sense
-that things ultimately are not meant to work that way.  I'm not a
-particularly sensitive guy, but even I can notice little things like
-comments reading "/* temporary */".  So...is there some grand design out
-there on how dynamic majors are really supposed to work in 2.6?  Is it
-rational to be trying to write something about char device registration at
-this point?
+Stay tuned...
 
-Thanks,
+	Jeff
 
-jon
 
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net
+
 

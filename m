@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271369AbTGWXR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 19:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271383AbTGWXR5
+	id S271390AbTGWXUY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 19:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271391AbTGWXUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 19:17:57 -0400
-Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:3022
-	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id S271369AbTGWXR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 19:17:56 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Wed, 23 Jul 2003 19:20:24 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:6917 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S271390AbTGWXUV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 19:20:21 -0400
+Date: Thu, 24 Jul 2003 01:33:34 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Martin Diehl <lists@mdiehl.de>,
+       Adrian Bunk <bunk@fs.tum.de>, "Adam J. Richter" <adam@yggdrasil.com>,
+       <andersen@codepoet.org>, <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SATA driver GPL'd
+In-Reply-To: <Pine.LNX.4.10.10307231603310.14556-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.44.0307240129590.717-100000@serv>
+References: <Pine.LNX.4.10.10307231603310.14556-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16159.6944.889606.686405@wombat.chubb.wattle.id.au>
-Date: Thu, 24 Jul 2003 09:32:48 +1000
-To: davidsen@tmr.com (bill davidsen)
-CC: linux-kernel@vger.kernel.org, kravetz@us.ibm.com
-Subject: Re: [Lse-tech] [patch 2.6.0-test1] per cpu times
-Newsgroups: mail.linux-kernel
-In-Reply-To: <bfmvvi$lba$1@gatekeeper.tmr.com>
-References: <200307181835.42454.efocht@hpce.nec.com>
-	<20030718111850.C1627@w-mikek2.beaverton.ibm.com>
-	<bfmvvi$lba$1@gatekeeper.tmr.com>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "bill" == bill davidsen <davidsen@tmr.com> writes:
->>>>> "Mike" == Mike Kravetz  <kravetz@us.ibm.com>
+Hi,
 
-Mike> On a somewhat related note ...  We (Big Blue) have a
-Mike> performance reporting application that would like to know how
-Mike> long a task sits on a runqueue before it is actually given the
-Mike> CPU.  In other words, it wants to know how long the 'runnable
-Mike> task' was delayed due to contention for the CPU(s).  Of
-Mike> course, one could get an overall feel for this based on total
-Mike> runqueue length.  However, this app would really like this
-Mike> info on a per-task basis.
+On Wed, 23 Jul 2003, Andre Hedrick wrote:
 
-bill> This is certainly a useful number. 
+> You have ideas of utopia (sp) and gemme another hit off the bong.
+> [..]
+> Lets all hold hands and sing and have good thoughts because thinking will
+> result in karma, and that will solve it all.
 
-This is exactly what's measured by the microstate accounting patches
-I've been pushing to LKML, along with a few other useful statistics.
+If this is the only thing you can come up with, when you think about 
+social movements, I really feel sorry for you. :(
 
-If you try it, please let me know: see
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105884469205748&w=2
+bye, Roman
 
-
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories,   all slightly different.

@@ -1,126 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267013AbSLQTws>; Tue, 17 Dec 2002 14:52:48 -0500
+	id <S265628AbSLQTsP>; Tue, 17 Dec 2002 14:48:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267022AbSLQTws>; Tue, 17 Dec 2002 14:52:48 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2569 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267013AbSLQTwH>; Tue, 17 Dec 2002 14:52:07 -0500
-Date: Tue, 17 Dec 2002 12:01:06 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>, Hugh Dickins <hugh@veritas.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       <linux-kernel@vger.kernel.org>, <hpa@transmeta.com>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <3DFF80BC.2020709@redhat.com>
-Message-ID: <Pine.LNX.4.44.0212171159440.1095-100000@home.transmeta.com>
+	id <S265636AbSLQTsP>; Tue, 17 Dec 2002 14:48:15 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:39860 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S265628AbSLQTsL>; Tue, 17 Dec 2002 14:48:11 -0500
+Date: Tue, 17 Dec 2002 14:58:08 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: "White, Charles" <Charles.White@hp.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.21pre1 cpqfc 
+In-Reply-To: <A2C35BB97A9A384CA2816D24522A53BB039917AD@cceexc18.americas.cpqcorp.net>
+Message-ID: <Pine.LNX.4.50L.0212171457560.26120-100000@freak.distro.conectiva>
+References: <A2C35BB97A9A384CA2816D24522A53BB039917AD@cceexc18.americas.cpqcorp.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-How about this diff? It does both the 6-parameter thing _and_ the
-AT_SYSINFO addition. Untested, since I have to run off and watch my kids
-do their winter program ;)
+Could you make a short list of the fixed bugs?
 
-		Linus
+On Tue, 17 Dec 2002, White, Charles wrote:
 
------
-===== arch/i386/kernel/entry.S 1.42 vs edited =====
---- 1.42/arch/i386/kernel/entry.S	Mon Dec 16 21:39:04 2002
-+++ edited/arch/i386/kernel/entry.S	Tue Dec 17 11:59:13 2002
-@@ -232,7 +232,7 @@
- #endif
-
- /* Points to after the "sysenter" instruction in the vsyscall page */
--#define SYSENTER_RETURN 0xfffff007
-+#define SYSENTER_RETURN 0xffffe007
-
- 	# sysenter call handler stub
- 	ALIGN
-@@ -243,6 +243,21 @@
- 	pushfl
- 	pushl $(__USER_CS)
- 	pushl $SYSENTER_RETURN
-+
-+/*
-+ * Load the potential sixth argument from user stack.
-+ * Careful about security.
-+ */
-+	cmpl $0xc0000000,%ebp
-+	jae syscall_badsys
-+1:	movl (%ebp),%ebp
-+.section .fixup,"ax"
-+2:	xorl %ebp,%ebp
-+.previous
-+.section __ex_table,"a"
-+	.align 4
-+	.long 1b,2b
-+.previous
-
- 	pushl %eax
- 	SAVE_ALL
-===== arch/i386/kernel/sysenter.c 1.1 vs edited =====
---- 1.1/arch/i386/kernel/sysenter.c	Mon Dec 16 21:39:04 2002
-+++ edited/arch/i386/kernel/sysenter.c	Tue Dec 17 11:39:39 2002
-@@ -48,14 +48,14 @@
- 		0xc3			/* ret */
- 	};
- 	static const char sysent[] = {
--		0x55,			/* push %ebp */
- 		0x51,			/* push %ecx */
- 		0x52,			/* push %edx */
-+		0x55,			/* push %ebp */
- 		0x89, 0xe5,		/* movl %esp,%ebp */
- 		0x0f, 0x34,		/* sysenter */
-+		0x5d,			/* pop %ebp */
- 		0x5a,			/* pop %edx */
- 		0x59,			/* pop %ecx */
--		0x5d,			/* pop %ebp */
- 		0xc3			/* ret */
- 	};
- 	unsigned long page = get_zeroed_page(GFP_ATOMIC);
-===== include/asm-i386/elf.h 1.3 vs edited =====
---- 1.3/include/asm-i386/elf.h	Thu Oct 17 00:48:55 2002
-+++ edited/include/asm-i386/elf.h	Tue Dec 17 10:12:58 2002
-@@ -100,6 +100,12 @@
-
- #define ELF_PLATFORM  (system_utsname.machine)
-
-+/*
-+ * Architecture-neutral AT_ values in 0-17, leave some room
-+ * for more of them, start the x86-specific ones at 32.
-+ */
-+#define AT_SYSINFO	32
-+
- #ifdef __KERNEL__
- #define SET_PERSONALITY(ex, ibcs2) set_personality((ibcs2)?PER_SVR4:PER_LINUX)
-
-@@ -115,6 +121,11 @@
- extern void dump_smp_unlazy_fpu(void);
- #define ELF_CORE_SYNC dump_smp_unlazy_fpu
- #endif
-+
-+#define ARCH_DLINFO					\
-+do {							\
-+		NEW_AUX_ENT(AT_SYSINFO, 0xffffe000);	\
-+} while (0)
-
- #endif
-
-===== include/asm-i386/fixmap.h 1.9 vs edited =====
---- 1.9/include/asm-i386/fixmap.h	Mon Dec 16 21:39:04 2002
-+++ edited/include/asm-i386/fixmap.h	Tue Dec 17 10:11:31 2002
-@@ -42,8 +42,8 @@
-  * task switches.
-  */
- enum fixed_addresses {
--	FIX_VSYSCALL,
- 	FIX_HOLE,
-+	FIX_VSYSCALL,
- #ifdef CONFIG_X86_LOCAL_APIC
- 	FIX_APIC_BASE,	/* local (CPU) APIC) -- required for SMP or not */
- #endif
-
+> This patch fixes two minor bugs in cpqfc and makes it version 2.1.2.
+>
+> diff -urN linux-2.4.21-pre1.orig/drivers/scsi/cpqfc.Readme
+> linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfc.Readme
+> --- linux-2.4.21-pre1.orig/drivers/scsi/cpqfc.Readme	Thu Oct 25
+> 16:53:50 2001
+> +++ linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfc.Readme	Tue Dec
+> 17 09:33:18 2002
+> @@ -22,6 +22,9 @@
+>     * Makefile changes to bring cpqfc into line w/ rest of SCSI drivers
+>       (thanks to Keith Owens)
+>
+> +Ver 2.1.2  Jul 22, 2002
+> +   * initialize DumCmnd.lun (used as LUN index in fcFindLoggedInPort())
+> +
+>  Ver 2.0.5  Aug 06, 2001
+>     * Reject non-existent luns in the driver rather than letting the
+>       hardware do it.  (some HW behaves differently than others in this
+> area.)
+> diff -urN linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSinit.c
+> linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSinit.c
+> --- linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSinit.c	Tue Dec 17
+> 09:25:01 2002
+> +++ linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSinit.c	Tue Dec
+> 17 13:18:20 2002
+> @@ -64,7 +64,7 @@
+>
+>  /* Embedded module documentation macros - see module.h */
+>  MODULE_AUTHOR("Compaq Computer Corporation");
+> -MODULE_DESCRIPTION("Driver for Compaq 64-bit/66Mhz PCI Fibre Channel
+> HBA v. 2.1.1");
+> +MODULE_DESCRIPTION("Driver for Compaq 64-bit/66Mhz PCI Fibre Channel
+> HBA v. 2.1.2");
+>  MODULE_LICENSE("GPL");
+>
+>  int cpqfcTS_TargetDeviceReset(Scsi_Device * ScsiDev, unsigned int
+> reset_flags);
+> @@ -411,6 +411,7 @@
+>  	// can we find an FC device mapping to this SCSI target?
+>  	DumCmnd.channel = ScsiDev->channel;	// For searching
+>  	DumCmnd.target = ScsiDev->id;
+> +	DumCmnd.lun     = ScsiDev->lun;
+>  	pLoggedInPort = fcFindLoggedInPort(fcChip, &DumCmnd,	//
+> search Scsi Nexus
+>  					   0,	// DON'T search linked
+> list for FC port id
+>  					   NULL,	// DON'T search
+> linked list for FC WWN
+> diff -urN linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSstructs.h
+> linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSstructs.h
+> --- linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSstructs.h	Tue Dec
+> 17 09:25:01 2002
+> +++ linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSstructs.h	Tue Dec
+> 17 09:33:18 2002
+> @@ -35,7 +35,7 @@
+>  /* don't forget to also change MODULE_DESCRIPTION in cpqfcTSinit.c */
+>  #define VER_MAJOR 2
+>  #define VER_MINOR 1
+> -#define VER_SUBMINOR 1
+> +#define VER_SUBMINOR 2
+>
+>  /*
+>   *	Macros for kernel (esp. SMP) tracing using a PCI analyzer
+> diff -urN linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSworker.c
+> linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSworker.c
+> --- linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSworker.c	Tue Dec 17
+> 09:25:01 2002
+> +++ linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSworker.c	Tue Dec
+> 17 09:41:11 2002
+> @@ -2706,6 +2706,10 @@
+>  					// Report Luns command
+>  					if
+> (pLoggedInPort->ScsiNexus.LunMasking == 1) {
+>  						// we KNOW all the valid
+> LUNs... 0xFF is invalid!
+> +						if (Cmnd->lun >
+> sizeof(pLoggedInPort->ScsiNexus.lun)){
+> +							// printk("
+> cpqfcTS FATAL: Invalid LUN index !!!!\n ");
+> +							return NULL;
+> +						}
+>  						Cmnd->SCp.have_data_in =
+> pLoggedInPort->ScsiNexus.lun[Cmnd->lun];
+>  						if
+> (pLoggedInPort->ScsiNexus.lun[Cmnd->lun] == 0xFF)
+>  							return NULL;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

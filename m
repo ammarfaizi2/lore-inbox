@@ -1,97 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135648AbRALXMK>; Fri, 12 Jan 2001 18:12:10 -0500
+	id <S135647AbRALXTm>; Fri, 12 Jan 2001 18:19:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135691AbRALXMA>; Fri, 12 Jan 2001 18:12:00 -0500
-Received: from mailgw.prontomail.com ([216.163.180.10]:13033 "EHLO
-	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
-	id <S135648AbRALXLs>; Fri, 12 Jan 2001 18:11:48 -0500
-Message-ID: <3A5F8E50.6720DF5E@mvista.com>
-Date: Fri, 12 Jan 2001 15:08:00 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+	id <S135663AbRALXTd>; Fri, 12 Jan 2001 18:19:33 -0500
+Received: from sc-66-27-47-84.socal.rr.com ([66.27.47.84]:7175 "EHLO
+	falcon.bellfamily.org") by vger.kernel.org with ESMTP
+	id <S135647AbRALXTW>; Fri, 12 Jan 2001 18:19:22 -0500
+Message-ID: <3A5F9108.4030706@bellfamily.org>
+Date: Fri, 12 Jan 2001 15:19:36 -0800
+From: "Robert J. Bell" <rob@bellfamily.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <andrewm@uow.edu.au>
-CC: nigel@nrg.org, "David S. Miller" <davem@redhat.com>,
-        linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-In-Reply-To: <200101110519.VAA02784@pizda.ninka.net> <Pine.LNX.4.05.10101111233241.5936-100000@cosmic.nrg.org> <3A5F0706.6A8A8141@uow.edu.au>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+CC: kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: USB Mass Storage in 2.4.0
+In-Reply-To: <3A5F8956.9040305@bellfamily.org> <20010112151008.A5798@one-eyed-alien.net>
+Content-Type: multipart/mixed;
+ boundary="------------060301070304080904060308"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> Nigel Gamble wrote:
-> >
-> > Spinlocks should not be held for lots of time.  This adversely affects
-> > SMP scalability as well as latency.  That's why MontaVista's kernel
-> > preemption patch uses sleeping mutex locks instead of spinlocks for the
-> > long held locks.
-> 
-> Nigel,
-> 
-> what worries me about this is the Apache-flock-serialisation saga.
-> 
-> Back in -test8, kumon@fujitsu demonstrated that changing this:
-> 
->         lock_kernel()
->         down(sem)
->         <stuff>
->         up(sem)
->         unlock_kernel()
-> 
-> into this:
-> 
->         down(sem)
->         <stuff>
->         up(sem)
-> 
-> had the effect of *decreasing* Apache's maximum connection rate
-> on an 8-way from ~5,000 connections/sec to ~2,000 conn/sec.
-> 
-> That's downright scary.
-> 
-> Obviously, <stuff> was very quick, and the CPUs were passing through
-> this section at a great rate.
+This is a multi-part message in MIME format.
+--------------060301070304080904060308
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-If <stuff> was that fast, maybe the down/up should have been a spinlock
-too.  But what if it is changed to:
+Matthew here is the info you requested, thanks for your help.
 
-      BKL_enter_mutx()
-      down(sem)
-      <stuff>
-      up(sem)
-      BKL_exit_mutex()
-> 
-> How can we be sure that converting spinlocks to semaphores
-> won't do the same thing?  Perhaps for workloads which we
-> aren't testing?
 
-The key is to keep the fast stuff on the spinlock and the slow stuff on
-the mutex.  Otherwise you WILL eat up the cpu with the overhead.
-> 
-> So this needs to be done with caution.
-> 
-> As davem points out, now we know where the problems are
-> occurring, a good next step is to redesign some of those
-> parts of the VM and buffercache.  I don't think this will
-> be too hard, but they have to *want* to change :)
 
-They will *want* to change if they pop up due to other work :)
-> 
-> Some of those algorithms are approximately O(N^2), for huge
-> values of N.
-> 
-> -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+--------------060301070304080904060308
+Content-Type: application/octet-stream;
+ name="dmsg.out"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="dmsg.out"
+
+aHViLmM6IHBvcnQgMSwgcG9ydHN0YXR1cyAxMDEsIGNoYW5nZSAxLCAxMiBNYi9zCmh1Yi5j
+OiBwb3J0IDEsIHBvcnRzdGF0dXMgMTAzLCBjaGFuZ2UgMCwgMTIgTWIvcwpodWIuYzogVVNC
+IG5ldyBkZXZpY2UgY29ubmVjdCBvbiBidXMxLzEsIGFzc2lnbmVkIGRldmljZSBudW1iZXIg
+Mwp1c2IuYzoga21hbGxvYyBJRiBjY2M1YzY4MCwgbnVtaWYgMQp1c2IuYzogbmV3IGRldmlj
+ZSBzdHJpbmdzOiBNZnI9MCwgUHJvZHVjdD0yLCBTZXJpYWxOdW1iZXI9Mwp1c2IuYzogVVNC
+IGRldmljZSBudW1iZXIgMyBkZWZhdWx0IGxhbmd1YWdlIElEIDB4NDA5ClByb2R1Y3Q6IFVT
+QiBNYXNzIFN0b3JhZ2UKU2VyaWFsTnVtYmVyOiBZLTE3MF5eXl5eMDAwODEwWDAwMDAwMDMw
+MDUyMzcKdXNiLXN0b3JhZ2U6IFNlYXJjaGluZyB1bnVzdWFsIGRldmljZSBsaXN0IGZvciAo
+MHg0Y2IsIDB4MTAwLCAweDEwMDApLi4uCnVzYi1zdG9yYWdlOiAtLSBkaWQgbm90IGZpbmQg
+YSBtYXRjaGluZyBkZXZpY2UKdXNiLXN0b3JhZ2U6IFVTQiBNYXNzIFN0b3JhZ2UgZGV2aWNl
+IGRldGVjdGVkCnVzYi1zdG9yYWdlOiBFbmRwb2ludHM6IEluOiAweGMxNDRkZjIwIE91dDog
+MHhjMTQ0ZGYzNCBJbnQ6IDB4YzE0NGRmNDggKFBlcmlvZCAxKQp1c2Itc3RvcmFnZTogTmV3
+IEdVSUQgMDRjYjAxMDAxMjEwMDAwMDAzMDA1MjM3CnVzYi1zdG9yYWdlOiBUcmFuc3BvcnQ6
+IENvbnRyb2wvQnVsay9JbnRlcnJ1cHQKdXNiLXN0b3JhZ2U6IFByb3RvY29sOiA4MDcwaQp1
+c2Itc3RvcmFnZTogQWxsb2NhdGluZyBJUlEgZm9yIENCSSB0cmFuc3BvcnQKdXNiLXN0b3Jh
+Z2U6IHVzYl9zdWJtaXRfdXJiKCkgcmV0dXJucyAwCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFk
+IHNsZWVwaW5nLgpzY3NpMCA6IFNDU0kgZW11bGF0aW9uIGZvciBVU0IgTWFzcyBTdG9yYWdl
+IGRldmljZXMKdXNiLXN0b3JhZ2U6IHF1ZXVlY29tbWFuZCgpIGNhbGxlZAp1c2Itc3RvcmFn
+ZTogKioqIHRocmVhZCBhd2FrZW5lZC4KdXNiLXN0b3JhZ2U6IENvbW1hbmQgSU5RVUlSWSAo
+NiBieXRlcykKdXNiLXN0b3JhZ2U6IDEyIDAwIDAwIDAwIGZmIDAwIDAwIDAwIDE4IDgzIDQ1
+IGMxCnVzYi1zdG9yYWdlOiBDYWxsIHRvIHVzYl9zdG9yX2NvbnRyb2xfbXNnKCkgcmV0dXJu
+ZWQgMTIKdXNiLXN0b3JhZ2U6IHVzYl9zdG9yX3RyYW5zZmVyX3BhcnRpYWwoKTogeGZlciAy
+NTUgYnl0ZXMKdXNiLXN0b3JhZ2U6IFVTQiBJUlEgcmVjaWV2ZWQgZm9yIGRldmljZSBvbiBo
+b3N0IDAKdXNiLXN0b3JhZ2U6IC0tIElSUSBkYXRhIGxlbmd0aCBpcyAyCnVzYi1zdG9yYWdl
+OiAtLSBJUlEgc3RhdGUgaXMgMAp1c2Itc3RvcmFnZTogLS0gSW50ZXJydXB0IFN0YXR1cyAo
+MHgwLCAweDApCnVzYi1zdG9yYWdlOiAtLSBDdXJyZW50IHZhbHVlIG9mIGlwX3dhaXRxIGlz
+OiAwCnVzYi1zdG9yYWdlOiB1c2Jfc3Rvcl9idWxrX21zZygpIHJldHVybmVkIDAgeGZlcnJl
+ZCAwLzI1NQp1c2Itc3RvcmFnZTogQ0JJIGRhdGEgc3RhZ2UgcmVzdWx0IGlzIDB4MQp1c2It
+c3RvcmFnZTogQ3VycmVudCB2YWx1ZSBvZiBpcF93YWl0cSBpczogMQp1c2Itc3RvcmFnZTog
+R290IGludGVycnVwdCBkYXRhICgweDAsIDB4MCkKdXNiLXN0b3JhZ2U6IEZpeGluZyBJTlFV
+SVJZIGRhdGEgdG8gc2hvdyBTQ1NJIHJldiAyCnVzYi1zdG9yYWdlOiBzY3NpIGNtZCBkb25l
+LCByZXN1bHQ9MHgwCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFkIHNsZWVwaW5nLgogIFZlbmRv
+cjogIOAtwCDA8s8gIE1vZGVsOiCGICAg2P8twKEjIMAg3fLPICBSZXY6IP////8KICBUeXBl
+OiAgIFNjYW5uZXIgICAgICAgICAgICAgICAgICAgICAgICAgICAgQU5TSSBTQ1NJIHJldmlz
+aW9uOiAwMgp1c2Itc3RvcmFnZTogcXVldWVjb21tYW5kKCkgY2FsbGVkCnVzYi1zdG9yYWdl
+OiAqKiogdGhyZWFkIGF3YWtlbmVkLgp1c2Itc3RvcmFnZTogQmFkIHRhcmdldCBudW1iZXIg
+KDEvMCkKdXNiLXN0b3JhZ2U6ICoqKiB0aHJlYWQgc2xlZXBpbmcuCnVzYi1zdG9yYWdlOiBx
+dWV1ZWNvbW1hbmQoKSBjYWxsZWQKdXNiLXN0b3JhZ2U6ICoqKiB0aHJlYWQgYXdha2VuZWQu
+CnVzYi1zdG9yYWdlOiBCYWQgdGFyZ2V0IG51bWJlciAoMi8wKQp1c2Itc3RvcmFnZTogKioq
+IHRocmVhZCBzbGVlcGluZy4KdXNiLXN0b3JhZ2U6IHF1ZXVlY29tbWFuZCgpIGNhbGxlZAp1
+c2Itc3RvcmFnZTogKioqIHRocmVhZCBhd2FrZW5lZC4KdXNiLXN0b3JhZ2U6IEJhZCB0YXJn
+ZXQgbnVtYmVyICgzLzApCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFkIHNsZWVwaW5nLgp1c2It
+c3RvcmFnZTogcXVldWVjb21tYW5kKCkgY2FsbGVkCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFk
+IGF3YWtlbmVkLgp1c2Itc3RvcmFnZTogQmFkIHRhcmdldCBudW1iZXIgKDQvMCkKdXNiLXN0
+b3JhZ2U6ICoqKiB0aHJlYWQgc2xlZXBpbmcuCnVzYi1zdG9yYWdlOiBxdWV1ZWNvbW1hbmQo
+KSBjYWxsZWQKdXNiLXN0b3JhZ2U6ICoqKiB0aHJlYWQgYXdha2VuZWQuCnVzYi1zdG9yYWdl
+OiBCYWQgdGFyZ2V0IG51bWJlciAoNS8wKQp1c2Itc3RvcmFnZTogKioqIHRocmVhZCBzbGVl
+cGluZy4KdXNiLXN0b3JhZ2U6IHF1ZXVlY29tbWFuZCgpIGNhbGxlZAp1c2Itc3RvcmFnZTog
+KioqIHRocmVhZCBhd2FrZW5lZC4KdXNiLXN0b3JhZ2U6IEJhZCB0YXJnZXQgbnVtYmVyICg2
+LzApCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFkIHNsZWVwaW5nLgp1c2Itc3RvcmFnZTogcXVl
+dWVjb21tYW5kKCkgY2FsbGVkCnVzYi1zdG9yYWdlOiAqKiogdGhyZWFkIGF3YWtlbmVkLgp1
+c2Itc3RvcmFnZTogQmFkIHRhcmdldCBudW1iZXIgKDcvMCkKdXNiLXN0b3JhZ2U6ICoqKiB0
+aHJlYWQgc2xlZXBpbmcuCldBUk5JTkc6IFVTQiBNYXNzIFN0b3JhZ2UgZGF0YSBpbnRlZ3Jp
+dHkgbm90IGFzc3VyZWQKVVNCIE1hc3MgU3RvcmFnZSBkZXZpY2UgZm91bmQgYXQgMwp1c2Iu
+YzogdXNiLXN0b3JhZ2UgZHJpdmVyIGNsYWltZWQgaW50ZXJmYWNlIGNjYzVjNjgwCnVzYi5j
+OiBrdXNiZDogL3NiaW4vaG90cGx1ZyBhZGQgMwp1c2IuYzoga3VzYmQgcG9saWN5IHJldHVy
+bmVkIDB4ZmZmZmZmZmUKdWhjaS5jOiByb290LWh1YiBJTlQgY29tcGxldGU6IHBvcnQxOiA4
+YSBwb3J0MjogODAgZGF0YTogMgpodWIuYzogcG9ydCAxIGNvbm5lY3Rpb24gY2hhbmdlCmh1
+Yi5jOiBwb3J0IDEsIHBvcnRzdGF0dXMgMTAwLCBjaGFuZ2UgMywgMTIgTWIvcwp1c2IuYzog
+VVNCIGRpc2Nvbm5lY3Qgb24gZGV2aWNlIDMKdXNiLXN0b3JhZ2U6IHN0b3JhZ2VfZGlzY29u
+bmVjdCgpIGNhbGxlZAp1c2Itc3RvcmFnZTogLS0gcmVsZWFzaW5nIGlycSBVUkIKdXNiLXN0
+b3JhZ2U6IFVTQiBJUlEgcmVjaWV2ZWQgZm9yIGRldmljZSBvbiBob3N0IDAKdXNiLXN0b3Jh
+Z2U6IC0tIElSUSBkYXRhIGxlbmd0aCBpcyAwCnVzYi1zdG9yYWdlOiAtLSBJUlEgc3RhdGUg
+aXMgLTIKdXNiLXN0b3JhZ2U6IC0tIEludGVycnVwdCBTdGF0dXMgKDB4MCwgMHgwKQp1c2It
+c3RvcmFnZTogLS0gSVJRIHRvbyBzaG9ydAp1c2Itc3RvcmFnZTogLS0gdXNiX3VubGlua191
+cmIoKSByZXR1cm5lZCAwCnVzYi1zdG9yYWdlOiAtLSByZWxlYXNpbmcgbWFpbiBVUkIKdXNi
+LXN0b3JhZ2U6IC0tIHVzYl91bmxpbmtfdXJiKCkgcmV0dXJuZWQgLTE5CnVzYi5jOiBrdXNi
+ZDogL3NiaW4vaG90cGx1ZyByZW1vdmUgMwp1c2IuYzoga3VzYmQgcG9saWN5IHJldHVybmVk
+IDB4ZmZmZmZmZmUKdWhjaS5jOiByb290LWh1YiBJTlQgY29tcGxldGU6IHBvcnQxOiA4OCBw
+b3J0MjogODAgZGF0YTogMgpodWIuYzogcG9ydCAxIGVuYWJsZSBjaGFuZ2UsIHN0YXR1cyAx
+MDAKdWhjaS5jOiByb290LWh1YiBJTlQgY29tcGxldGU6IHBvcnQxOiAxYTMgcG9ydDI6IDgw
+IGRhdGE6IDIKaHViLmM6IHBvcnQgMSBjb25uZWN0aW9uIGNoYW5nZQpodWIuYzogcG9ydCAx
+LCBwb3J0c3RhdHVzIDMwMSwgY2hhbmdlIDEsIDEuNSBNYi9zCmh1Yi5jOiBwb3J0IDEsIHBv
+cnRzdGF0dXMgMzAzLCBjaGFuZ2UgMCwgMS41IE1iL3MKaHViLmM6IFVTQiBuZXcgZGV2aWNl
+IGNvbm5lY3Qgb24gYnVzMS8xLCBhc3NpZ25lZCBkZXZpY2UgbnVtYmVyIDQKdXNiLmM6IGtt
+YWxsb2MgSUYgY2NjNWM4MDAsIG51bWlmIDEKdXNiLmM6IHNraXBwZWQgMSBjbGFzcy92ZW5k
+b3Igc3BlY2lmaWMgaW50ZXJmYWNlIGRlc2NyaXB0b3JzCnVzYi5jOiBuZXcgZGV2aWNlIHN0
+cmluZ3M6IE1mcj0xLCBQcm9kdWN0PTIsIFNlcmlhbE51bWJlcj0wCnVzYi5jOiBVU0IgZGV2
+aWNlIG51bWJlciA0IGRlZmF1bHQgbGFuZ3VhZ2UgSUQgMHg0MDkKTWFudWZhY3R1cmVyOiBN
+aWNyb3NvZnQKUHJvZHVjdDogTWljcm9zb2Z0IEludGVsbGlNb3VzZa4gRXhwbG9yZXIKZXZl
+bnQwOiBFdmVudCBkZXZpY2UgZm9yIGlucHV0MAptb3VzZTA6IFBTLzIgbW91c2UgZGV2aWNl
+IGZvciBpbnB1dDAKaW5wdXQwOiBVU0IgSElEIHYxLjAwIE1vdXNlIFtNaWNyb3NvZnQgTWlj
+cm9zb2Z0IEludGVsbGlNb3VzZa4gRXhwbG9yZXJdIG9uIHVzYjE6NC4wCnVzYi5jOiBoaWQg
+ZHJpdmVyIGNsYWltZWQgaW50ZXJmYWNlIGNjYzVjODAwCnVzYi5jOiBrdXNiZDogL3NiaW4v
+aG90cGx1ZyBhZGQgNAp1c2IuYzoga3VzYmQgcG9saWN5IHJldHVybmVkIDB4ZmZmZmZmZmUK
+
+--------------060301070304080904060308--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

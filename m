@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277589AbRJHWxP>; Mon, 8 Oct 2001 18:53:15 -0400
+	id <S277588AbRJHW5f>; Mon, 8 Oct 2001 18:57:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277577AbRJHWxG>; Mon, 8 Oct 2001 18:53:06 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:49083 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S277588AbRJHWww>;
-	Mon, 8 Oct 2001 18:52:52 -0400
-Date: Mon, 08 Oct 2001 23:53:18 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: %u-order allocation failed
-Message-ID: <653073165.1002585197@[195.224.237.69]>
-In-Reply-To: <Pine.LNX.3.96.1011009001720.20446A-100000@artax.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.3.96.1011009001720.20446A-100000@artax.karlin.mff.cuni
- .cz>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S277591AbRJHW5Z>; Mon, 8 Oct 2001 18:57:25 -0400
+Received: from [207.21.185.24] ([207.21.185.24]:23565 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP
+	id <S277588AbRJHW5V>; Mon, 8 Oct 2001 18:57:21 -0400
+Message-ID: <3BC22EA6.696604E7@lnxw.com>
+Date: Mon, 08 Oct 2001 15:54:30 -0700
+From: Petko Manolov <pmanolov@Lnxw.COM>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en, bg
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: discontig physical memory
+In-Reply-To: <E15pWfR-0006g5-00@the-village.bc.nu> <3BC02709.A8E6F999@welho.com> <20011007150358.G30515@nightmaster.csn.tu-chemnitz.de> <3BC05D2E.94F05935@welho.com> <20011007162439.P748@nightmaster.csn.tu-chemnitz.de> <3BC067BB.73AF1EB5@welho.com> <3BC0982A.84ECBE7B@mvista.com> <3BC0D1C9.63C7F218@welho.com> <3BC0E9FD.4F3921C6@mvista.com> <3BC2158E.BE52400D@welho.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hi guys,
+
+I ran into this problem with a SOC weird design.
+The physical memory map looks like this:
+
+	0 	-  4MB		DMA-able embedded RAM;
+	4MB	- 16MB		nothing here;
+	16MB	- 32MB		external RAM;
+
+Embedded controllers (FB/USB) can see only lowest 4MB
+and they need almost all of it for buffers. The kernel
+is living at phy address 16Mb.
+
+Any ideas how to make lowest 4MB allocatable throu
+kmalloc(size, GFP_DMA) without breaking the kernel?
 
 
---On Tuesday, 09 October, 2001 12:21 AM +0200 Mikulas Patocka 
-<mikulas@artax.karlin.mff.cuni.cz> wrote:
+	Petko
 
-> If you have more than half of virtual space free, you can always find two
-> consecutive free pages. Period.
-
-Now calculate the probability of not being able to do this in physical
-space, assuming even page dispersion, and many pages free. You will
-find it is very small. This may give you a clue as to what the problem
-actually is.
-
---
-Alex Bligh
+PS: I've seen CONFIG_DISCONTIGMEM but it is not yet
+implemented for MIPS and i am not sure if it is what
+is required in this case.

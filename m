@@ -1,67 +1,164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262995AbUCXSVo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 13:21:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263044AbUCXSVo
+	id S263095AbUCXSlU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 13:41:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUCXSlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 13:21:44 -0500
-Received: from FW-30-241.go.retevision.es ([62.174.241.30]:1370 "EHLO
-	nebula.ghetto") by vger.kernel.org with ESMTP id S262995AbUCXSVn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 13:21:43 -0500
-Date: Wed, 24 Mar 2004 19:21:17 +0100
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
-       Device mapper devel list <dm-devel@redhat.com>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: ATARAID/FakeRAID/HPTRAID/PDCRAID as dm targets?
-Message-ID: <20040324182117.GA1289@larroy.com>
-Reply-To: piotr@larroy.com
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
-	Device mapper devel list <dm-devel@redhat.com>,
-	Arjan van de Ven <arjanv@redhat.com>
-References: <405C8B39.8080609@gmx.net> <405CAEC7.9080104@pobox.com>
+	Wed, 24 Mar 2004 13:41:19 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:418
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263095AbUCXSlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 13:41:15 -0500
+Date: Wed, 24 Mar 2004 19:42:06 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: nonlinear swapping w/o pte_chains [Re: VMA_MERGING_FIXUP and patch]
+Message-ID: <20040324184206.GZ2065@dualathlon.random>
+References: <20040323214459.GG3682@dualathlon.random> <Pine.LNX.4.44.0403240931430.7474-100000@localhost.localdomain> <20040324143729.GC2065@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <405CAEC7.9080104@pobox.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: piotr@larroy.com (Pedro Larroy)
+In-Reply-To: <20040324143729.GC2065@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 03:51:19PM -0500, Jeff Garzik wrote:
-> Carl-Daniel Hailfinger wrote:
-> >Hi,
-> >
-> >[sorry for the crosspost]
-> >
-> >a few hours ago I read on lkml that development to support ATARAID
-> >variants as a dm target is underway. Is that correct? If not, I might be
-> >interested in writing such a target.
-> 
-> It's not underway AFAIK, but Arjan and I "keep meaning to do it."
-> 
-> So go ahead, and I'll lend you as much help as I can.  I have the full 
-> Promise RAID docs, and it seems like another guy on the lists has full 
-> Silicon Image "medley" RAID docs...
-> 
-> 	Jeff
+On Wed, Mar 24, 2004 at 03:37:29PM +0100, Andrea Arcangeli wrote:
+> cute, I agree we should recheck the young bit inside.
 
-Hi.
+I did it (the below is incremental with 2.6.5-rc2-aa2), looks ok but I
+cannot notice absolutely any difference in practice. Anyways it makes
+sense so I keep it. now re-running the regressions for both linear and
+non-linear heavy shm swap.
 
-Are those available with or without NDA?
+So I'm now going to merge the prio_tree, then I can care about the
+filter for s/anon_vma_t/struct anon_vma/ and the mprotect/mremap
+vma merging (for file mappings too).
 
-Regards.
--- 
-Pedro Larroy Tovar | Linux & Network consultant |  piotr%member.fsf.org 
+--- x/mm/objrmap.c.~1~	2004-03-24 07:16:18.000000000 +0100
++++ x/mm/objrmap.c	2004-03-24 19:27:31.213416608 +0100
+@@ -137,7 +137,7 @@ page_referenced_one(struct vm_area_struc
+ 
+ 	pte = find_pte(vma, page, NULL);
+ 	if (pte) {
+-		if (ptep_test_and_clear_young(pte))
++		if (pte_young(*pte) && ptep_test_and_clear_young(pte))
+ 			referenced++;
+ 		pte_unmap(pte);
+ 	}
+@@ -442,6 +442,8 @@ try_to_unmap_nonlinear_pte(struct vm_are
+ 			page = pfn_to_page(pfn);
+ 			if (PageReserved(page))
+ 				continue;
++			if (pte_young(pte) && ptep_test_and_clear_young(ptep))
++				continue;
+ 			/*
+ 			 * any other page in the nonlinear mapping will not wait
+ 			 * on us since only one cpu can take the i_shared_sem
+@@ -506,7 +508,7 @@ try_to_unmap_nonlinear(struct vm_area_st
+  * This function is strictly a helper function for try_to_unmap_inode.
+  */
+ static int
+-try_to_unmap_one(struct vm_area_struct *vma, struct page *page)
++try_to_unmap_one(struct vm_area_struct *vma, struct page *page, int * young)
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long address;
+@@ -523,12 +525,21 @@ try_to_unmap_one(struct vm_area_struct *
+ 
+ 	if (unlikely(vma->vm_flags & VM_NONLINEAR)) {
+ 		/*
+-		 * All it matters is that the page won't go
+-		 * away under us after we unlock.
++		 * If this was a false positive generated by a
++		 * failed trylock in the referenced pass let's
++		 * avoid to pay the big cost of the nonlinear
++		 * swap, we'd better be sure we've to pay that
++		 * cost before running it.
+ 		 */
+-		page_map_unlock(page);
+-		try_to_unmap_nonlinear(vma);
+-		page_map_lock(page);
++		if (!*young) {
++			/*
++			 * All it matters is that the page won't go
++			 * away under us after we unlock.
++			 */
++			page_map_unlock(page);
++			try_to_unmap_nonlinear(vma);
++			page_map_lock(page);
++		}
+ 		goto out;
+ 	}
+ 
+@@ -536,10 +547,21 @@ try_to_unmap_one(struct vm_area_struct *
+ 	if (!pte)
+ 		goto out;
+ 
+-	unmap_pte_page(page, vma, address, pte);
++	/*
++	 * We use trylocks in the "reference" methods, if they fails
++	 * we let the VM to go ahead unmapping to avoid locking
++	 * congestions, so here we may be trying to unmap young
++	 * ptes, if that happens we givup trying unmapping this page
++	 * and we clear all other reference bits instead (basically
++	 * downgrading to a page_referenced pass).
++	 */
++	if ((!pte_young(*pte) || !ptep_test_and_clear_young(pte)) && !*young)
++		unmap_pte_page(page, vma, address, pte);
++	else
++		*young = 1;
+ 
+ 	pte_unmap(pte);
+-out:
++ out:
+ 	spin_unlock(&mm->page_table_lock);
+ 	return ret;
+ }
+@@ -561,7 +583,7 @@ try_to_unmap_inode(struct page *page)
+ {
+ 	struct address_space *mapping = page->mapping;
+ 	struct vm_area_struct *vma;
+-	int ret = SWAP_AGAIN;
++	int ret = SWAP_AGAIN, young = 0;
+ 
+ 	BUG_ON(PageSwapCache(page));
+ 
+@@ -569,13 +591,13 @@ try_to_unmap_inode(struct page *page)
+ 		return ret;
+ 	
+ 	list_for_each_entry(vma, &mapping->i_mmap, shared) {
+-		ret = try_to_unmap_one(vma, page);
++		ret = try_to_unmap_one(vma, page, &young);
+ 		if (ret == SWAP_FAIL || !page->mapcount)
+ 			goto out;
+ 	}
+ 
+ 	list_for_each_entry(vma, &mapping->i_mmap_shared, shared) {
+-		ret = try_to_unmap_one(vma, page);
++		ret = try_to_unmap_one(vma, page, &young);
+ 		if (ret == SWAP_FAIL || !page->mapcount)
+ 			goto out;
+ 	}
+@@ -588,7 +610,7 @@ out:
+ static int
+ try_to_unmap_anon(struct page * page)
+ {
+-	int ret = SWAP_AGAIN;
++	int ret = SWAP_AGAIN, young = 0;
+ 	struct vm_area_struct * vma;
+ 	anon_vma_t * anon_vma = (anon_vma_t *) page->mapping;
+ 
+@@ -598,7 +620,7 @@ try_to_unmap_anon(struct page * page)
+ 	spin_lock(&anon_vma->anon_vma_lock);
+ 	BUG_ON(list_empty(&anon_vma->anon_vma_head));
+ 	list_for_each_entry(vma, &anon_vma->anon_vma_head, anon_vma_node) {
+-		ret = try_to_unmap_one(vma, page);
++		ret = try_to_unmap_one(vma, page, &young);
+ 		if (ret == SWAP_FAIL || !page->mapcount)
+ 			break;
+ 	}
 
-Software patents are a threat to innovation in Europe please check: 
-	http://www.eurolinux.org/     

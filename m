@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVBHSw1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVBHS5f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbVBHSw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 13:52:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVBHSw1
+	id S261630AbVBHS5f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 13:57:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVBHS5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 13:52:27 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:27628 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261626AbVBHSwX (ORCPT
+	Tue, 8 Feb 2005 13:57:35 -0500
+Received: from gprs215-10.eurotel.cz ([160.218.215.10]:54226 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261628AbVBHS53 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 13:52:23 -0500
-Date: Tue, 8 Feb 2005 19:52:08 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Larry McVoy <lm@bitmover.com>
-cc: Stelian Pop <stelian@popies.net>, Francois Romieu <romieu@fr.zoreil.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-In-Reply-To: <20050208181634.GA20261@bitmover.com>
-Message-ID: <Pine.LNX.4.61.0502081942200.6118@scrub.home>
-References: <20050204183922.GC27707@bitmover.com> <20050204200507.GE5028@deep-space-9.dsnet>
- <20050204201157.GN27707@bitmover.com> <20050204214015.GF5028@deep-space-9.dsnet>
- <20050204233153.GA28731@electric-eye.fr.zoreil.com> <20050205193848.GH5028@deep-space-9.dsnet>
- <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr>
- <20050208155845.GB14505@bitmover.com> <Pine.LNX.4.61.0502081812090.6118@scrub.home>
- <20050208181634.GA20261@bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Feb 2005 13:57:29 -0500
+Date: Tue, 8 Feb 2005 19:41:36 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: ieee1394 needs CONFIG_NET but does not depend on it
+Message-ID: <20050208184136.GA7369@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Tue, 8 Feb 2005, Larry McVoy wrote:
+If I attempt to compile IEE1394 without CONFIG_NET, I get:
 
-> > > I think you are dreaming.  You've gone from wanting enough information
-> > > to supposedly debug your source tree to being explicit about wanting to
-> > > recreate the entire BK history in a different system.  The former is a
-> > > reasonable request, I suppose, but the latter is just a blatent request
-> > > for us to help debug and stress test a competing system.  
-> > > 
-> > > The answer is no, that's a clear violation of the license.
-> > 
-> > You do realize what this practically means?
-> 
-> It means exactly what it says, we're not going to help you work on
-> a competing system.
+drivers/built-in.o(.text+0xcf885): In function `hpsb_alloc_packet':
+: undefined reference to `alloc_skb'
+drivers/built-in.o(.text+0xd03a6): In function `hpsb_send_packet':
+: undefined reference to `skb_queue_tail'
+drivers/built-in.o(.text+0xd0ea3): In function `abort_requests':
+: undefined reference to `skb_dequeue'
+drivers/built-in.o(.text+0xd0f99): In function
+`queue_packet_complete':
+: undefined reference to `skb_queue_tail'
+drivers/built-in.o(.text+0xd1026): In function `hpsbpkt_thread':
+: undefined reference to `skb_dequeue'
+drivers/built-in.o(.text+0xcf930): In function `hpsb_free_packet':
+: undefined reference to `__kfree_skb'
+make: *** [.tmp_vmlinux1] Error 1
+9.20user 0.83system 10.05 (0m10.058s) elapsed 99.83%CPU
+pavel@amd:/usr/src/linux-mm$
 
-Does that really matter? Above also means it couldn't be exported into the 
-perfect scm system, because it then could be reexported into some other 
-lame scm system and so would help their development.
-
->  You are welcome to do that on your own, you are
-> welcome to download all the patches you want from bkbits.net and figure
-> out how to place them in your system,
-
-Hmm, it seems you didn't bother reading what I wrote either.
-
-> We have to do things which make business sense because it is our business
-
-Does that include making empty promises?
-
-bye, Roman
+Looks like some Kconfig dependency is needed...
+							Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

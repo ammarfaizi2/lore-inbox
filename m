@@ -1,158 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315595AbSGFQCV>; Sat, 6 Jul 2002 12:02:21 -0400
+	id <S315599AbSGFQPb>; Sat, 6 Jul 2002 12:15:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315599AbSGFQCU>; Sat, 6 Jul 2002 12:02:20 -0400
-Received: from antares.kiyaviakrym.com.ua ([212.109.36.226]:14260 "EHLO
-	antares.kiyavia.crimea.ua") by vger.kernel.org with ESMTP
-	id <S315595AbSGFQCT>; Sat, 6 Jul 2002 12:02:19 -0400
-Date: Sat, 6 Jul 2002 19:04:57 +0300
-From: Sergey Kononenko <sergk@kiyavia.crimea.ua>
-To: linux-kernel@vger.kernel.org
-Subject: kernel freeze with Digiboard PC/X driver
-Message-ID: <20020706160457.GA15588@kiyavia.crimea.ua>
+	id <S315607AbSGFQPa>; Sat, 6 Jul 2002 12:15:30 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:40132 "EHLO tsmtp1.mail.isp")
+	by vger.kernel.org with ESMTP id <S315599AbSGFQPa>;
+	Sat, 6 Jul 2002 12:15:30 -0400
+Date: Sat, 6 Jul 2002 18:20:40 +0200
+From: Diego Calleja <diegocg@teleline.es>
+To: Diego Calleja <diegocg@teleline.es>
+Cc: linux-kernel@vger.kernel.org, xfree86@xfree86.org, jwz@netscape.org,
+       vizzie@airmail.net
+Subject: Re: XFree + "stonerview" screensaver -> Xfree oops
+Message-Id: <20020706182040.564f43bf.diegocg@teleline.es>
+In-Reply-To: <20020705170823.1b5551c7.diegocg@teleline.es>
+References: <20020705170823.1b5551c7.diegocg@teleline.es>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="yrj/dFKFPuw6o+aM"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 5 Jul 2002 17:08:23 +0200
+Diego Calleja <diegocg@teleline.es> escribió:
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-	Hi, All.
+The oops is very unreadable, this version better ;)
+Jul  5 16:33:36 localhost kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 0000001c Jul  5 16:33:36 localhost
+kernel: c01b41aa Jul  5 16:33:36 localhost kernel: *pde = 00a63067 Jul 
+5 16:33:36 localhost kernel: Oops: 0000 Jul  5 16:33:36 localhost
+kernel: CPU:    0 Jul  5 16:33:36 localhost kernel: EIP:   
+0010:[sock_poll+30/40]    Not tainted Jul  5 16:33:36 localhost kernel:
+EFLAGS: 00210282 Jul  5 16:33:36 localhost kernel: eax: 00000000   ebx:
+c0b4db20   ecx: 00000000   edx: c1bd35b4 Jul  5 16:33:36 localhost
+kernel: esi: c0b4db20   edi: 00000000   ebp: c1845f70   esp: c1845f28
+Jul  5 16:33:36 localhost kernel: ds: 0018   es: 0018   ss: 0018 Jul  5
+16:33:36 localhost kernel: Process XFree86 (pid: 310,
+stackpage=c1845000) Jul  5 16:33:36 localhost kernel: Stack: c0b4db20
+c1bd35b4 00000000 00000000 c013e1d6 c0b4db20 00000000 00000100 Jul  5
+16:33:36 localhost kernel:       00000020 c11fff20 00000145 00080000
+c1844000 7fffffff 00000013 00000000 Jul  5 16:33:36 localhost kernel:   
+    00000000 c149d000 00000000 c013e62c 00000017 c1845fa8 c1845fa4
+c1844000 Jul  5 16:33:36 localhost kernel: Call Trace:
+[do_select+226/476] [sys_select+820/1156] [system_call+51/64] Jul  5
+16:33:36 localhost kernel: Code: 8b 40 1c ff d0 83 c4 0c 5b c3 53 8b 5c
+24 08 8b 43 08 8b 54 
 
-Then I try to upgrade server (Dual PII-233), working on 2.2.20 kerel to 2.4.18.
-And after loading driver for Digiboard PC/X serial multiport card (pcxx.o)
-kernel imediatly freeze. I try 2.4.19-rc1 try compile this driver in 
-the kernel, but it is not solve the problem. Also I noticed that dirver
-freeze kernel even in UP machine _wihtout_ digiboard card, but in 2.2.x it
-correctly report that device not found.
-I spent some time to explore this problem, and discover, that freeze happen
-in pcxe_init() while calling function pcxxdelay() in this code (pcxx.c):
+The rest seems good.
 
-        for(crd=0; crd < numcards; crd++) {
-                bd = &boards[crd];
-                outb(FEPRST, bd->port);
-                pcxxdelay(1);
-
-                for(i=0; (inb(bd->port) & FEPMASK) != FEPRST; i++) {
-
-But pcxxdelay is only wrapper for mdelay:
-
-static void pcxxdelay(int msec)
-{
-        mdelay(msec);
-}
-
-I simply replace all calls of pcxxdelay by mdelay in pcxx.c and this solve
-the problem! After that dirver work perfectly without any freezes. I can't
-explain why calling mdelay in wrapper cause the problem an why this trivial 
-change fix freezing. May be this is bug in compiler optimizations, but I
-compile kernel with standart gcc 2.95.3 and default optimization flags.
-
-So I attach my patch in a hope, that somebody test it and this or more
-correct patch will be included in official kernel.
-
-P.S. Sorry for my bad English.
-
-SergK.
-
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="pcxx.c.patch"
-
---- pcxx.c.orig	2002-07-02 13:41:47.000000000 +0300
-+++ pcxx.c	2002-07-02 13:42:39.000000000 +0300
-@@ -153,7 +153,6 @@
- DECLARE_TASK_QUEUE(tq_pcxx);
- 
- static void pcxxpoll(unsigned long dummy);
--static void pcxxdelay(int);
- static void fepcmd(struct channel *, int, int, int, int, int);
- static void pcxe_put_char(struct tty_struct *, unsigned char);
- static void pcxe_flush_chars(struct tty_struct *);
-@@ -1271,7 +1270,7 @@
- 	for(crd=0; crd < numcards; crd++) {
- 		bd = &boards[crd];
- 		outb(FEPRST, bd->port);
--		pcxxdelay(1);
-+		mdelay(1);
- 
- 		for(i=0; (inb(bd->port) & FEPMASK) != FEPRST; i++) {
- 			if(i > 100) {
-@@ -1283,7 +1282,7 @@
- #ifdef MODULE
- 			schedule();
- #endif
--			pcxxdelay(10);
-+			mdelay(10);
- 		}
- 		if(bd->status == DISABLED)
- 			continue;
-@@ -1362,7 +1361,7 @@
- #ifdef MODULE
- 			schedule();
- #endif
--			pcxxdelay(1);
-+			mdelay(1);
- 		}
- 		if(bd->status == DISABLED)
- 			continue;
-@@ -1413,7 +1412,7 @@
- #ifdef MODULE
- 				schedule();
- #endif
--				pcxxdelay(50);
-+				mdelay(50);
- 			}
- 
- 			printk("\nPC/Xx: BIOS download failed for board at 0x%x(addr=%lx-%lx)!\n",
-@@ -1443,7 +1442,7 @@
- #ifdef MODULE
- 				schedule();
- #endif
--				pcxxdelay(10);
-+				mdelay(10);
- 			}
- 
- 			printk("\nPC/Xx: BIOS download failed on the %s at 0x%x!\n",
-@@ -1487,7 +1486,7 @@
- #ifdef MODULE
- 			schedule();
- #endif
--			pcxxdelay(1);
-+			mdelay(1);
- 		}
- 
- 		if(bd->status == DISABLED)
-@@ -1520,7 +1519,7 @@
- #ifdef MODULE
- 			schedule();
- #endif
--			pcxxdelay(1);
-+			mdelay(1);
- 		}
- 		if(bd->status == DISABLED)
- 			continue;
-@@ -1825,15 +1824,6 @@
- }
- 
- 
--/*
-- * pcxxdelay - delays a specified number of milliseconds
-- */
--static void pcxxdelay(int msec)
--{
--	mdelay(msec);
--}
--
--
- static void 
- fepcmd(struct channel *ch, int cmd, int word_or_byte, int byte2, int ncmds,
- 						int bytecmd)
-
---yrj/dFKFPuw6o+aM--
+>Using defaults from ksymoops -t elf32-i386 -a i386
+> 
+> 
+> >>ebx; c0b4db20 <[apm].bss.end+137801/2cdce1>
+> >>edx; c1bd35b4 <[sb].bss.end+9ab8d5/bf0321>
+> >>esi; c0b4db20 <[apm].bss.end+137801/2cdce1>
+> >>ebp; c1845f70 <[sb].bss.end+61e291/bf0321>
+> >>esp; c1845f28 <[sb].bss.end+61e249/bf0321>
+> 
+> Code;  00000000 Before first symbol
+> 00000000 <_EIP>:
+> Code;  00000000 Before first symbol
+>    0:   8b 40 1c                  mov    0x1c(%eax),%eax
+> Code;  00000003 Before first symbol
+>    3:   ff d0                     call   *%eax
+> Code;  00000005 Before first symbol
+>    5:   83 c4 0c                  add    $0xc,%esp
+> Code;  00000008 Before first symbol
+>    8:   5b                        pop    %ebx
+> Code;  00000009 Before first symbol
+>    9:   c3                        ret    
+> Code;  0000000a Before first symbol
+>    a:   53                        push   %ebx
+> Code;  0000000b Before first symbol
+>    b:   8b 5c 24 08               mov    0x8(%esp,1),%ebx
+> Code;  0000000f Before first symbol
+>    f:   8b 43 08                  mov    0x8(%ebx),%eax
+> Code;  00000012 Before first symbol
+>   12:   8b 54 00 00               mov    0x0(%eax,%eax,1),%edx
+> 
+> 
+> 1 warning issued.  Results may not be reliable.
+> 
+> ---------------------------------------------------------------------
+> ------------
+> 
+> -When i watch the stopped screen, the image _always_ is the same, the
+> screensaver always stops at the same point Any advices of how to
+> debug/strace/whatever this?
+> 
+> (after Xfree is hanged, ctrl+alt+Fn does'nt works, so i do sysrq sync
+> + reboot, but this is normal...)
+> 
+> 
+> Regards, Diego Calleja
+> 
+> 

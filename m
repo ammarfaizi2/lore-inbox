@@ -1,101 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292249AbSCDIdE>; Mon, 4 Mar 2002 03:33:04 -0500
+	id <S292248AbSCDIgo>; Mon, 4 Mar 2002 03:36:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292248AbSCDIcz>; Mon, 4 Mar 2002 03:32:55 -0500
-Received: from bb-203-125-144-62.singnet.com.sg ([203.125.144.62]:37295 "HELO
-	accellion.com") by vger.kernel.org with SMTP id <S292254AbSCDIco>;
-	Mon, 4 Mar 2002 03:32:44 -0500
-Date: Mon, 4 Mar 2002 16:32:36 +0800
-From: Mathieu Legrand <mathieu@accellion.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.19pre2-ac2 || Linux 2.4.18-ac3, compilation error on SPARC
-Message-ID: <20020304083236.GC3568@accellion.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-message-flag: Get yourself a real email client. http://www.mutt.org/
-X-AntiVirus: scanned for virii by AMaViS
+	id <S292254AbSCDIge>; Mon, 4 Mar 2002 03:36:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30221 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292248AbSCDIgV>;
+	Mon, 4 Mar 2002 03:36:21 -0500
+Message-ID: <3C83318D.D79F887A@zip.com.au>
+Date: Mon, 04 Mar 2002 00:34:21 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Andreas Dilger <adilger@clusterfs.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] delayed disk block allocation
+In-Reply-To: <3C7F3B4A.41DB7754@zip.com.au> <20020303223103.J4188@lynx.adilger.int> <3C83280A.A8CF7CC8@zip.com.au>,
+		<3C83280A.A8CF7CC8@zip.com.au> <E16hnUV-0000aa-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> 
+> ..
+> I guess 4K PAGE_CACHE_SIZE will serve us well for another couple of years,
 
---rS8CxjVDS/+yyDmU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Having reviewed the archives, it seems that the multipage PAGE_CACHE_SIZE
+patches which Hugh and Ben were working on were mainly designed to increase
+I/O efficiency.
 
-Hello:
+If that's the only reason for large pages then yeah, I think we can stick
+with 4k PAGE_CACHE_SIZE :).  There really are tremendous efficiencies
+available in the current code.
 
-I couldn't get the latest ac kernels to compile on a SUN sparc Ultra 10,
-even using the default configuration (arch/sparc64/defconfig).
+Another (and very significant) reason for large pages is to decrease
+TLB misses.   Said to be very important for large-working-set scientific
+apps and such.  But that doesn't seem to have a lot to do with PAGE_CACHE_SIZE?
 
-I didn't try yet to compile a older kernel.  Here is the error message I ge=
-t:
+> ...
+> By the way, have you ever seen a sparse 1K blocksize file?
+> ...
 
-sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prot=
-otypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-co=
-mmon -m64 -pipe -mno-fpu -mcpu=3Dultrasparc -mcmodel=3Dmedlow -ffixed-g4 -f=
-call-used-g5 -fcall-used-g7 -Wno-sign-compare -Wa,--undeclared-regs   -DKBU=
-ILD_BASENAME=3Dide  -DEXPORT_SYMTAB -c ide.c
-In file included from /usr/src/linux/include/linux/ide.h:301,
-                 from ide.c:149:
-/usr/src/linux/include/asm/ide.h:132: warning: `/*' within comment
-In file included from /usr/src/linux/include/linux/ide.h:301,
-                 from ide.c:149:
-/usr/src/linux/include/asm/ide.h:153: parse error before `static'
-/usr/src/linux/include/asm/ide.h:153: warning: no semicolon at end of struc=
-t or union
-/usr/src/linux/include/asm/ide.h:153: warning: no semicolon at end of struc=
-t or union
-/usr/src/linux/include/asm/ide.h: In function `ide_insw':
-/usr/src/linux/include/asm/ide.h:175: warning: implicit declaration of func=
-tion `inw_be'
-/usr/src/linux/include/asm/ide.h: At top level:
-/usr/src/linux/include/asm/ide.h:320: warning: This file contains more `{'s=
- than `}'s.
-/usr/src/linux/include/linux/ide.h:1103: warning: This file contains more `=
-{'s than `}'s.
-ide.c: In function `ide_dump_status':
-ide.c:993: warning: long long int format, long int arg (arg 2)
-ide.c: In function `hwif_unregister':
-ide.c:2188: warning: implicit declaration of function `ide_release_region'
-make[3]: *** [ide.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/drivers/ide'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux/drivers/ide'
-make[1]: *** [_subdir_ide] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_dir_drivers] Error 2
+Sure I have.  I just created one.  (I'm writing test cases for my
+emails now.  Sheesh).
 
-I am using Debian unstable on that computer.
-
-  egcs64         19980921.1-1
-  libc6-sparc64  2.2.5-3
-  libc6-dev-spar 2.2.5-3
-
-Reading specs from /usr/lib/gcc-lib/sparc64-linux/egcs-2.92.11/specs
-gcc version egcs-2.92.11 19980921 (gcc2 ss-980609 experimental)
-
---=20
-Mathieu Legrand <mathieu @ {accellion.com -work | globules.net -perso}>
-GPG: 0x349EBC9961C501D1   fp: D6D2D2D74E6320D99B54 38F3349EBC9961C501D1
- - Yoda of Borg are we: Futile is resistance.  Assimilate you, we will.
-
---rS8CxjVDS/+yyDmU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
-
-iD8DBQE8gzEkNJ68mWHFAdERAs/QAJwOL301htkLPCLHxLvUT+axPodc2wCePMsN
-Wba88qGx0b/T0tn/+YHEGqw=
-=qo60
------END PGP SIGNATURE-----
-
---rS8CxjVDS/+yyDmU--
-
+-

@@ -1,79 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269988AbUJHOct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269980AbUJHOjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269988AbUJHOct (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 10:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269992AbUJHOct
+	id S269980AbUJHOjb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 10:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269995AbUJHOjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 10:32:49 -0400
-Received: from upop2.tiscalinet.es ([212.166.64.98]:185 "EHLO
-	netmail.tiscali.es") by vger.kernel.org with ESMTP id S269988AbUJHOcm convert rfc822-to-8bit
+	Fri, 8 Oct 2004 10:39:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58821 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269993AbUJHOjY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 10:32:42 -0400
-Date: Fri, 8 Oct 2004 07:28:03 -0700
-Message-ID: <41073AF30000D0C8@pop2.es.tisadm.net>
-From: "Mr.Gordon" <wgordonttt4@tiscali.es>
-Subject: FROM MR. GORDON.
-Reply-To: info_gordons@yahoo.co.uk
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 8 Oct 2004 10:39:24 -0400
+Date: Fri, 8 Oct 2004 15:39:23 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: New-style module parameters in SCSI drivers
+Message-ID: <20041008143923.GQ16153@parcelfarce.linux.theplanet.co.uk>
+References: <7AAD212492598A4A92463C3F5D34C54F194EDC@ccd3.CC.de> <20041001162939.A4215@infradead.org> <20041001165555.GF16153@parcelfarce.linux.theplanet.co.uk> <20041008013029.GM16153@parcelfarce.linux.theplanet.co.uk> <1097202556.9363.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097202556.9363.16.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir/Madam,
+On Fri, Oct 08, 2004 at 12:29:16PM +1000, Rusty Russell wrote:
+> Well, it'd never be neat.  I'd rather encourage migration: in 2.6.10 I
+> will start my jihad on MODULE_PARM, ideally finished before 2.6.11. 
 
-Do accept my sincere apologies if my mail does not meet your personal ethics.
-I will introduce myself as Gordon a staff in the accounts management section
-of a well-known bank here in the United Kingdom.
+OK.  As long as the barrage of complaints is omnidirectional and it's
+not just me who sucks.
 
-One of our accounts with holding balance of £15,000,000(Fifteen Million
-British Pounds) has been dormant and has not been operated for the past
-4 years. 
+> It's usually better that someone who knows the code does the transition
+> (you can often do better than a naive substitution), so my first step
+> might be to clean up Linus' compile, then make MODULE_PARM warn, to
+> encourage people to help.
 
->From my investigations and confirmations, the owner of this account a foreigner
-by name Austin Martins died in August 2000 and since then nobody has done
-anything as regards the claiming of this money because he has no family
-members who are aware of the existence of neither the account nor the funds.
-Also Information from the National Immigration states that he was also single
-on entry into the UK.
+While we're breaking the world, we should probably take this opportunity
+to Do Things Right.  Here are all the ways I've noticed with a quick
+grep of doing two common tasks in SCSI drivers.
 
-I have secretly discussed this matter with some of the bank officials and
-we have agreed to find a reliable foreign partner to deal with. We thus
-propose to do business with you, standing in as the next of kin of these
-funds from the deceased and funds released to you after due processes have
-been followed.
+First, the maximum number of commands that may be in flight to any
+given device simultaneously:
 
-This transaction is totally free of risk and troubles as the fund is a legitimate
-and does not originate from drug, money laundry, terrorism or any other
-illegal act.
+drivers/scsi/3w-xxxx.c:                 cmds_per_lun
+drivers/scsi/atari_scsi.c:              setup_cmd_per_lun
+drivers/scsi/sun3_scsi.c:               setup_cmd_per_lun
+drivers/scsi/sun3_scsi_vme.c:           setup_cmd_per_lun
+drivers/scsi/dc395x.c:                  tags
+drivers/scsi/megaraid.c:                max_cmd_per_lun
+drivers/scsi/megaraid/megaraid_mbox.c:  cmd_per_lun
+drivers/scsi/qla2xxx/qla_os.c:          ql2xmaxqdepth
+drivers/scsi/sym53c8xx_2/sym_glue.c:    max_tag
 
-On your interest, let me hear from you.
+Second, what host ID to use:
 
-Regards,
+drivers/scsi/aha152x.c:                 scsiid
+drivers/scsi/dc395x.c:                  adapter_id
+drivers/scsi/ibmmca.c:                  scsi_id
+drivers/scsi/sun3_scsi.c:               setup_hostid
+drivers/scsi/sun3_scsi_vme.c:           setup_hostid
+drivers/scsi/pcmcia/aha152x_stub.c:     host_id
+drivers/scsi/sym53c8xx_2/sym_glue.c:    hostid
 
-Gordon.
+I honestly don't think any more variants _could_ exist, for either
+of these oh-so-common things to do.  Not to mention that using these
+parameters is a small-system thing to do -- what if you have 25 scsi
+adapters and some of them should be different host IDs from each other?
+What if you need to send only two tagged commands at once to your crappy
+cd-rom, but your raid array needs 256 tags to be in use in order to get
+any kind of performance?
 
+Admittedly, there are hacks for the second case in many drivers (see the
+sym2 driver -- puke!)  But before we break the world, let's discuss how
+to do this right so we can at least have a model to work towards.
 
-DISCLAIMER:
-This message contains confidential information and is intended only for
-Specified addressee. If you are not the named addressee you should not Disseminate,
-distribute or copy this e-mail. The sender therefore does not accept Liability
-for any errors or omissions in the contents of this message, which Arise
-as a result of e-mail transmission. Please note that we reserve the Right
-to monitor and read any emails sent and received under the Telecommunications
-(Lawful Business Practice) (Interception of Communications) Regulations
-2000.
-
-
-
-
-Envíanos tus fotos digitales. 
-Te las revelamos en papel de máxima calidad y te las llevamos a la puerta
-de casa. 
-¡Verás qué cómodo!
-
-http://foto.tiscali.es
-
-
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

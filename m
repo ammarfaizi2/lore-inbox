@@ -1,73 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbULHXza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbULIAEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbULHXza (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 18:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbULHXza
+	id S261411AbULIAEH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 19:04:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbULIAEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 18:55:30 -0500
-Received: from smtp4.wanadoo.fr ([193.252.22.27]:12332 "EHLO smtp4.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261404AbULHXzV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 18:55:21 -0500
-Date: Thu, 9 Dec 2004 00:56:23 +0100
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Greg Banks <gnb@sgi.com>
-Cc: John Levon <levon@movementarian.org>, Akinobu Mita <amgta@yacht.ocn.ne.jp>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
-Message-ID: <20041208235623.GA563@zaniah>
-References: <200412081830.51607.amgta@yacht.ocn.ne.jp> <20041208160055.GA82465@compsoc.man.ac.uk> <20041208223156.GB4239@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041208223156.GB4239@sgi.com>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 8 Dec 2004 19:04:07 -0500
+Received: from motgate2.mot.com ([144.189.100.101]:1973 "EHLO motgate2.mot.com")
+	by vger.kernel.org with ESMTP id S261411AbULIAD4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 19:03:56 -0500
+In-Reply-To: <Pine.LNX.4.61.0412081703030.4040@linen.sps.mot.com>
+References: <Pine.LNX.4.61.0412081703030.4040@linen.sps.mot.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <CBD40131-4975-11D9-9F2D-000393DBC2E8@freescale.com>
+Content-Transfer-Encoding: 8BIT
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Russell King <rmk@arm.linux.org.uk>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: [RFC][PATCH] Add platform_get_resource_byname & platform_get_resource_byirq
+Date: Wed, 8 Dec 2004 18:03:46 -0600
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 09 Dec 2004 at 09:31 +0000, Greg Banks wrote:
+Clearly, I'm smoking crack this afternoon and can't create patches out 
+of bk.  Ignore the fsl_device.h bits of the patch.
 
-> On Wed, Dec 08, 2004 at 04:00:55PM +0000, John Levon wrote:
-> > On Wed, Dec 08, 2004 at 06:30:51PM +0900, Akinobu Mita wrote:
-> > 
-> > > When I forced the oprofile to use timer interrupt with specifying
-> > > "timer=1" module parameter. "oprofile_operations->backtrace" did
-> > > not initialized on i386.
-> > > 
-> > > Please apply this patch, or make oprofile initialize the backtrace
-> > > operation in case of using timer interrupt in your preferable way.
-> > 
-> > I don't like this patch. The arches should just set the backtrace
-> > always, then try to init the hardware. oprofile_init() should then force
-> > the timer ops as needed.
-> > 
-> > Greg?
-> 
-> Agreed, that's a cleaner approach.  The attached patch (untested)
-> implements that.  Akinobu-san, can you please test the patch?
+- kumar
 
-> +++ linux/drivers/oprofile/oprof.c	2004-12-09 09:25:02.%N +1100
-> @@ -155,13 +155,11 @@ static int __init oprofile_init(void)
->  {
->  	int err = 0;
->  
-> -	/* this is our fallback case */
-> -	oprofile_timer_init(&oprofile_ops);
-> +	oprofile_arch_init(&oprofile_ops);
+On Dec 8, 2004, at 5:16 PM, Kumar Gala wrote:
 
-oprofile_arch_init() --> nmi_init() which setup oprofile_ops->setup/shutdown
-etc.
-
->  	if (timer) {
->  		printk(KERN_INFO "oprofile: using timer interrupt.\n");
-> -	} else {
-> -		oprofile_arch_init(&oprofile_ops);
-> +		oprofile_timer_init(&oprofile_ops);
->  	}
-
-oprofile_timer_init doesn't reset op->setup/shutdown, I don't like the idea to
-reset them in oprofile_timer_init() it's error prone. John any idea ?
-
--- 
-Philippe Elie
+> Adds the ability to find a resource or irq on a platform device by its
+> resource name.  This patch also tweaks how resource names get set. 
+> Before, resources names were set to pdev->dev.bus_id, now that only
+> happens if the resource name has not been previous set.
+>
+> All of this allows us to find a resource without assuming what order 
+> the
+> resources are in.
+>
+> Signed-off-by; Kumar Gala <kumar.gala@freescale.com>
+>
+> -- 
+>
+>  diff -Nru a/drivers/base/platform.c b/drivers/base/platform.c
+> --- a/drivers/base/platform.c   2004-12-08 16:59:52 -06:00
+>  +++ b/drivers/base/platform.c   2004-12-08 16:59:52 -06:00
+>  @@ -58,6 +58,42 @@
+>   }
+>   
+>   /**
+>  + *     platform_get_resource_byname - get a resource for a device by 
+> name
+>  + *     @dev: platform device
+> + *     @type: resource type
+>  + *     @name: resource name
+> + */
+>  +struct resource *
+>  +platform_get_resource_byname(struct platform_device *dev, unsigned 
+> int type,
+>  +                     char * name)
+>  +{
+>  +       int i;
+>  +
+>  +       for (i = 0; i < dev->num_resources; i++) {
+>  +               struct resource *r = &dev->resource[i];
+>  +
+>  +               if ((r->flags & (IORESOURCE_IO|IORESOURCE_MEM|
+> +                                IORESOURCE_IRQ|IORESOURCE_DMA))
+> +                   == type)
+>  +                       if (!strcmp(r->name, name))
+> +                               return r;
+>  +       }
+>  +       return NULL;
+>  +}
+>  +
+>  +/**
+>  + *     platform_get_irq - get an IRQ for a device
+>  + *     @dev: platform device
+> + *     @name: IRQ name
+>  + */
+>  +int platform_get_irq_byname(struct platform_device *dev, char * name)
+>  +{
+>  +       struct resource *r = platform_get_resource_byname(dev, 
+> IORESOURCE_IRQ, name);
+>  +
+>  +       return r ? r->start : 0;
+>  +}
+>  +
+>  +/**
+>    *     platform_add_devices - add a numbers of platform devices
+>    *     @devs: array of platform devices to add
+>   *     @num: number of platform devices in array
+>  @@ -103,7 +139,8 @@
+>          for (i = 0; i < pdev->num_resources; i++) {
+>                  struct resource *p, *r = &pdev->resource[i];
+>   
+>  -               r->name = pdev->dev.bus_id;
+>  +               if (r->name == NULL)
+>  +                       r->name = pdev->dev.bus_id;
+>   
+>                  p = NULL;
+>                  if (r->flags & IORESOURCE_MEM)
+> @@ -308,3 +345,5 @@
+>   EXPORT_SYMBOL_GPL(platform_device_unregister);
+>  EXPORT_SYMBOL_GPL(platform_get_irq);
+>  EXPORT_SYMBOL_GPL(platform_get_resource);
+> +EXPORT_SYMBOL_GPL(platform_get_irq_byname);
+> +EXPORT_SYMBOL_GPL(platform_get_resource_byname);
+> diff -Nru a/include/linux/fsl_devices.h b/include/linux/fsl_devices.h
+> --- /dev/null   Wed Dec 31 16:00:00 196900
+>  +++ b/include/linux/fsl_devices.h       2004-12-08 16:59:52 -06:00
+>  @@ -0,0 +1,49 @@
+>  +/*
+>  + * include/linux/fsl_devices.h
+> + *
+>  + * Definitions for any platform device related flags or structures 
+> for
+> + * Freescale processor devices
+>  + *
+>  + * Maintainer: Kumar Gala (kumar.gala@freescale.com)
+> + *
+>  + * Copyright 2004 Freescale Semiconductor, Inc
+>  + *
+>  + * This program is free software; you can redistribute  it and/or 
+> modify it
+>  + * under  the terms of  the GNU General  Public License as published 
+> by the
+>  + * Free Software Foundation;  either version 2 of the  License, or 
+> (at your
+>  + * option) any later version.
+>  + */
+>  +
+>  +#ifdef __KERNEL__
+>  +#ifndef _FSL_DEVICE_H_
+> +#define _FSL_DEVICE_H_
+> +
+>  +/* A table of information for supporting the Gianfar Ethernet 
+> Controller
+>  + * This helps identify which enet controller we are dealing with,
+>  + * and what type of enet controller it is
+>  + */
+>  +struct gianfar_platform_data {
+>  +       u32 flags;
+>  +       u32 phyid;
+>  +       uint interruptPHY;
+>  +       uint phyregidx;
+>  +       char * phydevice;
+>  +       unsigned char mac_addr[6];
+>  +};
+>  +
+>  +/* Flags related to gianfar device features */
+>  +#define GIANFAR_HAS_GIGABIT            0x00000001
+>  +#define GIANFAR_HAS_COALESCE           0x00000002
+>  +#define GIANFAR_HAS_RMON               0x00000004
+>  +#define GIANFAR_HAS_MULTI_INTR         0x00000008
+>  +
+>  +/* Flags in gianfar_platform_data */
+>  +#define GIANFAR_PDATA_FIRM_SET_MACADDR 0x00000001
+>  +#define GIANFAR_PDATA_HAS_PHY_INTR     0x00000002      /* if not set 
+> use a timer */
+>  +
+>  +/* Flags related to I2C device features */
+>  +#define FSL_I2C_SEPARATE_DFSRR         0x00000001
+>  +#define FSL_I2C_CLOCK_5200             0x00000002
+>  +
+>  +#endif /* _FSL_DEVICE_H_ */
+>  +#endif /* __KERNEL__ */
+>  -
+>  To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  Please read the FAQ at  http://www.tux.org/lkml/
 

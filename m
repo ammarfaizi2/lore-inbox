@@ -1,1028 +1,1696 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264807AbSIQWt6>; Tue, 17 Sep 2002 18:49:58 -0400
+	id <S264717AbSIQW6c>; Tue, 17 Sep 2002 18:58:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264743AbSIQWth>; Tue, 17 Sep 2002 18:49:37 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:41118 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S264701AbSIQWrl>; Tue, 17 Sep 2002 18:47:41 -0400
-Date: Tue, 17 Sep 2002 15:51:20 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [RFC] [PATCH] 3/7 2.5.35 SCSI multi-path
-Message-ID: <20020917155120.C18424@eng2.beaverton.ibm.com>
-References: <20020917154940.A18401@eng2.beaverton.ibm.com> <20020917155018.A18424@eng2.beaverton.ibm.com> <20020917155041.B18424@eng2.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020917155041.B18424@eng2.beaverton.ibm.com>; from patman on Tue, Sep 17, 2002 at 03:50:41PM -0700
+	id <S264743AbSIQW5s>; Tue, 17 Sep 2002 18:57:48 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:15232 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S264717AbSIQWyH>;
+	Tue, 17 Sep 2002 18:54:07 -0400
+Date: Wed, 18 Sep 2002 01:06:11 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, <linux-kernel@vger.kernel.org>
+Subject: [patch] lockless, scalable get_pid(), for_each_process() elimination,
+ 2.5.35-BK
+Message-ID: <Pine.LNX.4.44.0209180024090.30913-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 3 of 3 to add mid-layer scsi changes to simplify and enable the
-addition of scsi multi-path IO support.
 
-This does not add multi-path support, it adds changes that simplify the
-addition of the actual scsi multi-path code.
+the attached patch is yet another step towards world-class threading
+support.
 
- drivers/scsi/scsi_merge.c |   59 +++++++
- drivers/scsi/scsi_proc.c  |    8 -
- drivers/scsi/scsi_queue.c |   29 +++
- drivers/scsi/scsi_scan.c  |  361 +++++++++++++++++++++++-----------------------
- drivers/scsi/scsi_syms.c  |    6 
- include/scsi/scsi.h       |   23 ++
- 6 files changed, 303 insertions(+), 183 deletions(-)
+the biggest known load-test of the new threading code so far was 1 million
+concurrent kernel threads (!) running on Anton's 2.5.34 Linux box. On my
+testsystem i was able to test 100,000 concurrent kernel threads, which can
+be started and stopped within 2 seconds.
 
-diff -Nru a/drivers/scsi/scsi_merge.c b/drivers/scsi/scsi_merge.c
---- a/drivers/scsi/scsi_merge.c	Mon Sep 16 15:29:45 2002
-+++ b/drivers/scsi/scsi_merge.c	Mon Sep 16 15:29:45 2002
-@@ -22,6 +22,7 @@
- #include <linux/timer.h>
- #include <linux/string.h>
- #include <linux/slab.h>
-+#include <linux/bio.h>
- #include <linux/ioport.h>
- #include <linux/kernel.h>
- #include <linux/stat.h>
-@@ -117,6 +118,58 @@
+While even the biggest internet servers are not quite at 1 million
+parallel users yet, even a much smaller 10,000 threads workload causes the
+O(N^2) get_pid() algorithm to explode, if consecutive PID ranges are taken
+and the PID value overflows and reaches the lower end of the PID range.
+
+With 100,000 or more threads get_pid() causes catastrophic, many minutes
+silent 'lockup' of the system. Plus the current get_pid() implementation
+iterates through *every* thread in the system if it reaches a PID that was
+used up before - which can happen quite often if the rate of thread
+creation/destruction is sufficiently high. Besides being slow, the
+algorithm also touches lots of unrelated cachelines, effectively flushing
+the CPU cache. Eg. for the default pid_max value of 32K threads/processes,
+if there are only 10% processes (3200), statistically we will flush the
+cache for every 10 threads created. This is unacceptable.
+
+there are a number of patches floating around that try to improve the
+worst-case scenario of get_pid(), but the best they can achieve is a
+runtime construction of a bitmap and then searching it => this still sucks
+performance-wise, destroys the cache and is generally a very ugly
+approach.
+
+the underlying problem is very hard - since get_pid() not only has to take
+PIDs into account, but TGIDs, session IDs and process groups as well.
+
+then i found one of wli's older patches for 2.5.23 [grr, it was not
+announced anywhere, i almost started coding the same problem], which
+provides the right (and much harder to implement) approach: it cleans up
+PID-space allocation to provide a generic hash for PIDs, session IDs,
+process group IDs and TGIDs, properly allocated and freed. This approach,
+besides paving the way for a scalable and time-bounded get_pid()
+implementation, also got rid of roughly half of for_each_process()
+(do_each_thread()) iterations done in the kernel, which alone is worth the
+effort. Now we can cleanly iterate through all processes in a session
+group or process group.
+
+i took the patch, adopted it to the recent ->ptrace_children and threading
+related changes, fixed a couple of bugs and made it work. It really worked
+well, nice work William!
+
+I also wrote a new alloc_pid()/free_pid() implementation from scratch,
+which provides lockless, time-bounded PID allocation. This new PID
+allocator has a worst-case latency of 10 microseconds on a cache-cold P4,
+the cache-hot worst-case latency is 2 usecs, if pid_max is set to 1
+million.
+
+Ie. even in the most hopeless situation, if there are 999,999 PIDs
+allocated already, it takes less than 10 usecs to find and allocate the
+remaining one PID. The common fastpath is a couple of instructions only.  
+The overhead of skipping over continuous regions of allocated PIDs scales
+gracefully with the number of bits to be skipped, from 0 to 10 usecs.
+
+(In the fastpath, both the alloc_pid() and free_pid() function falls
+through to a 'ret' instruction if compiled with gcc 3.2 on x86.)
+
+i tested the new PID allocation functions under heavy thread creation
+workloads, and the new functions just do not show up in the kernel
+profiler ...
+
+[ on SMP the new PID allocator has a small window to not follow the
+'monotonic forward allocation of PIDs' semantics provided by the previous
+implementation - but it's not like we can guarantee any PID allocation
+sequence to user-space even with the current get_pid() allocation. The new
+allocator still follows the last_pid semantics in the typical case. The
+reserved PID range is protected as well. ]
+
+memory footprint of the new PID allocator scales dynamically with
+/proc/sys/kernel/pid_max: the default 32K PIDs cause a 4K allocation, a
+pid_max of 1 million causes a 128K footprint. The current absolute limit
+for pid_max is 4 million PIDs - this does not cause any allocation in the
+kernel, the bitmaps are demand-allocated runtime. The pidmap table takes
+up 512 bytes.
+
+and as an added bonus, the new PID allocator fails in fork() properly if
+the whole PID space is used up. BK-curr's get_pid() still didnt do this
+properly.
+
+i have tested the patch on BK-curr, on x86 UP and SMP boxes - it compiles,
+boots and works just fine. X and the other session/pgrp-intensive
+applications appear to work just fine as well.
+
+	Ingo
+
+--- linux/drivers/char/tty_io.c.orig	Wed Sep 18 00:16:42 2002
++++ linux/drivers/char/tty_io.c	Wed Sep 18 00:18:06 2002
+@@ -430,8 +430,9 @@
+ {
+ 	struct tty_struct *tty = (struct tty_struct *) data;
+ 	struct file * cons_filp = NULL;
+-	struct task_struct *p;
+-	struct list_head *l;
++	task_t *task;
++	struct list_head *l, *elem;
++	struct idtag *idtag;
+ 	int    closecount = 0, n;
+ 
+ 	if (!tty)
+@@ -494,20 +495,33 @@
+ 						"error %d\n", -i);
+ 		}
+ 	}
+-	
++
++	if (tty->session <= 0)
++		goto breakout;
++
+ 	read_lock(&tasklist_lock);
+- 	for_each_process(p) {
+-		if ((tty->session > 0) && (p->session == tty->session) &&
+-		    p->leader) {
+-			send_sig(SIGHUP,p,1);
+-			send_sig(SIGCONT,p,1);
+-			if (tty->pgrp > 0)
+-				p->tty_old_pgrp = tty->pgrp;
+-		}
+-		if (p->tty == tty)
+-			p->tty = NULL;
++	idtag = find_get_tag(IDTAG_SID, tty->session);
++	if (!idtag)
++		goto breakout_unlock;
++
++	list_for_each(elem, &idtag->task_list) {
++		task = idtag_task(elem, IDTAG_SID);
++
++		if (task->tty == tty)
++			task->tty = NULL;
++
++		if (!task->leader)
++			continue;
++
++		send_sig(SIGHUP, task, 1);
++		send_sig(SIGCONT, task, 1);
++		if (tty->pgrp > 0)
++			task->tty_old_pgrp = tty->pgrp;
+ 	}
++	put_tag(idtag);
++breakout_unlock:
+ 	read_unlock(&tasklist_lock);
++breakout:
+ 
+ 	tty->flags = 0;
+ 	tty->session = 0;
+@@ -570,7 +584,9 @@
+ void disassociate_ctty(int on_exit)
+ {
+ 	struct tty_struct *tty = current->tty;
+-	struct task_struct *p;
++	task_t *task;
++	struct list_head *elem;
++	struct idtag *idtag;
+ 	int tty_pgrp = -1;
+ 
+ 	lock_kernel();
+@@ -598,9 +614,17 @@
+ 	tty->pgrp = -1;
+ 
+ 	read_lock(&tasklist_lock);
+-	for_each_process(p)
+-	  	if (p->session == current->session)
+-			p->tty = NULL;
++	idtag = find_get_tag(IDTAG_SID, current->session);
++
++	if (!idtag)
++		goto out_unlock;
++
++	list_for_each(elem, &idtag->task_list) {
++		task = idtag_task(elem, IDTAG_SID);
++		task->tty = NULL;
++	}
++	put_tag(idtag);
++out_unlock:
+ 	read_unlock(&tasklist_lock);
+ 	unlock_kernel();
+ }
+@@ -1220,15 +1244,32 @@
+ 	 * tty.  Also, clear redirect if it points to either tty.
+ 	 */
+ 	if (tty_closing || o_tty_closing) {
+-		struct task_struct *p;
++		task_t *task;
++		struct list_head *elem;
++		struct idtag *idtag;
+ 
+ 		read_lock(&tasklist_lock);
+-		for_each_process(p) {
+-			if (p->tty == tty || (o_tty && p->tty == o_tty))
+-				p->tty = NULL;
++		idtag = find_get_tag(IDTAG_SID, tty->session);
++		if (!idtag)
++			goto detach_o_tty;
++		list_for_each(elem, &idtag->task_list) {
++			task = idtag_task(elem, IDTAG_SID);
++			task->tty = NULL;
++		}
++		put_tag(idtag);
++detach_o_tty:
++		if (!o_tty)
++			goto out_unlock;
++		idtag = find_get_tag(IDTAG_SID, o_tty->session);
++		if (!idtag)
++			goto out_unlock;
++		list_for_each(elem, &idtag->task_list) {
++			task = idtag_task(elem, IDTAG_SID);
++			task->tty = NULL;
+ 		}
++		put_tag(idtag);
++out_unlock:
+ 		read_unlock(&tasklist_lock);
+-
+ 		if (redirect == tty || (o_tty && redirect == o_tty))
+ 			redirect = NULL;
+ 	}
+@@ -1540,6 +1581,10 @@
+ 
+ static int tiocsctty(struct tty_struct *tty, int arg)
+ {
++	task_t *task;
++	struct list_head *elem;
++	struct idtag *idtag;
++
+ 	if (current->leader &&
+ 	    (current->session == tty->session))
+ 		return 0;
+@@ -1549,25 +1594,34 @@
+ 	 */
+ 	if (!current->leader || current->tty)
+ 		return -EPERM;
+-	if (tty->session > 0) {
++
++	if (tty->session <= 0)
++		goto out_no_detach;
++
++	/*
++	 * This tty is already the controlling
++	 * tty for another session group!
++	 */
++	if ((arg == 1) && capable(CAP_SYS_ADMIN)) {
+ 		/*
+-		 * This tty is already the controlling
+-		 * tty for another session group!
++		 * Steal it away
+ 		 */
+-		if ((arg == 1) && capable(CAP_SYS_ADMIN)) {
+-			/*
+-			 * Steal it away
+-			 */
+-			struct task_struct *p;
+-
+-			read_lock(&tasklist_lock);
+-			for_each_process(p)
+-				if (p->tty == tty)
+-					p->tty = NULL;
+-			read_unlock(&tasklist_lock);
+-		} else
+-			return -EPERM;
+-	}
++
++		read_lock(&tasklist_lock);
++		idtag = find_get_tag(IDTAG_SID, tty->session);
++		if (!idtag)
++			goto out_unlock;
++
++		list_for_each(elem, &idtag->task_list) {
++			task = idtag_task(elem, IDTAG_SID);
++			task->tty = NULL;
++		}
++		put_tag(idtag);
++out_unlock:
++		read_unlock(&tasklist_lock);
++	} else
++		return -EPERM;
++out_no_detach:
+ 	task_lock(current);
+ 	current->tty = tty;
+ 	task_unlock(current);
+--- linux/include/linux/idtag.h.orig	Wed Sep 18 00:18:06 2002
++++ linux/include/linux/idtag.h	Wed Sep 18 00:18:06 2002
+@@ -0,0 +1,57 @@
++#ifndef _LINUX_IDTAG_H
++#define _LINUX_IDTAG_H
++
++#include <linux/list.h>
++
++struct task_struct;
++
++enum idtag_type
++{
++	IDTAG_PID,
++	IDTAG_PGID,
++	IDTAG_SID,
++	IDTAG_TGID,
++	IDTAG_MAX
++};
++
++struct idtag
++{
++	unsigned long tag;
++	enum idtag_type type;
++	atomic_t count;
++	struct list_head idtag_hash_chain;
++	struct list_head task_list;
++};
++
++struct idtag_link
++{
++	unsigned long tag;
++	struct list_head idtag_chain;
++	struct idtag *idtag;
++};
++
++#define idtag_task(elem, tagtype) \
++	list_entry(elem, struct task_struct, idtags[(int)(tagtype)].idtag_chain)
++
++/*
++ * attach_tag() must be called without the tasklist_lock.
++ */
++extern int attach_tag(struct task_struct *, enum idtag_type, unsigned long);
++
++/*
++ * detach_tag() must be called with the tasklist_lock held.
++ */
++extern int detach_tag(struct task_struct *task, enum idtag_type);
++
++/*
++ * Quick & dirty hash table lookup.
++ */
++extern struct idtag *FASTCALL(get_tag(enum idtag_type, unsigned long));
++extern struct idtag *FASTCALL(find_get_tag(enum idtag_type, unsigned long));
++extern void put_tag(struct idtag *);
++extern int idtag_unused(unsigned long);
++
++extern int alloc_pid(void);
++extern void free_pid(unsigned long);
++
++#endif /* _LINUX_IDTAG_H */
+--- linux/include/linux/init_task.h.orig	Wed Sep 18 00:16:43 2002
++++ linux/include/linux/init_task.h	Wed Sep 18 00:18:06 2002
+@@ -75,6 +75,7 @@
+ 	.parent		= &tsk,						\
+ 	.children	= LIST_HEAD_INIT(tsk.children),			\
+ 	.sibling	= LIST_HEAD_INIT(tsk.sibling),			\
++	.user_task_list = LIST_HEAD_INIT(tsk.user_task_list),		\
+ 	.group_leader	= &tsk,						\
+ 	.thread_group	= LIST_HEAD_INIT(tsk.thread_group),		\
+ 	.wait_chldexit	= __WAIT_QUEUE_HEAD_INITIALIZER(tsk.wait_chldexit),\
+--- linux/include/linux/sched.h.orig	Wed Sep 18 00:17:43 2002
++++ linux/include/linux/sched.h	Wed Sep 18 00:18:06 2002
+@@ -28,6 +28,7 @@
+ #include <linux/fs_struct.h>
+ #include <linux/compiler.h>
+ #include <linux/completion.h>
++#include <linux/idtag.h>
+ 
+ struct exec_domain;
+ 
+@@ -259,6 +260,9 @@
+ 	/* Hash table maintenance information */
+ 	struct list_head uidhash_list;
+ 	uid_t uid;
++
++	rwlock_t lock;
++	struct list_head task_list;
+ };
+ 
+ #define get_current_user() ({ 				\
+@@ -266,6 +270,8 @@
+ 	atomic_inc(&__user->__count);			\
+ 	__user; })
+ 
++extern struct user_struct *find_user(uid_t);
++
+ extern struct user_struct root_user;
+ #define INIT_USER (&root_user)
+ 
+@@ -329,6 +335,10 @@
+ 	/* PID hash table linkage. */
+ 	struct task_struct *pidhash_next;
+ 	struct task_struct **pidhash_pprev;
++
++	struct idtag_link idtags[IDTAG_MAX];
++
++	struct list_head user_task_list;
+ 
+ 	wait_queue_head_t wait_chldexit;	/* for wait4() */
+ 	struct completion *vfork_done;		/* for vfork() */
+--- linux/include/linux/threads.h.orig	Wed Sep 18 00:16:42 2002
++++ linux/include/linux/threads.h	Wed Sep 18 00:18:06 2002
+@@ -17,8 +17,13 @@
+ #define MIN_THREADS_LEFT_FOR_ROOT 4
+ 
+ /*
+- * This controls the maximum pid allocated to a process
++ * This controls the default maximum pid allocated to a process
+  */
+-#define DEFAULT_PID_MAX 0x8000
++#define PID_MAX_DEFAULT 0x8000
++
++/*
++ * A maximum of 4 million PIDs should be enough for a while:
++ */
++#define PID_MAX_LIMIT (4*1024*1024)
+ 
+ #endif
+--- linux/include/asm-i386/bitops.h.orig	Sun Jun  9 07:30:40 2002
++++ linux/include/asm-i386/bitops.h	Wed Sep 18 00:18:06 2002
+@@ -401,6 +401,20 @@
+ }
+ 
+ /**
++ * lg - integer logarithm base 2
++ * @n - integer to take log base 2 of
++ *
++ * undefined if 0
++ */
++static inline unsigned long lg(unsigned long n)
++{
++        asm("bsrl %1,%0"
++                :"=r" (n)
++                :"r" (n));
++        return n;
++}
++
++/**
+  * __ffs - find first bit in word.
+  * @word: The word to search
+  *
+--- linux/include/asm-i386/types.h.orig	Sun Jun  9 07:26:52 2002
++++ linux/include/asm-i386/types.h	Wed Sep 18 00:18:06 2002
+@@ -41,7 +41,8 @@
+ typedef signed long long s64;
+ typedef unsigned long long u64;
+ 
+-#define BITS_PER_LONG 32
++#define BITS_PER_LONG_SHIFT	5
++#define BITS_PER_LONG		(1 << BITS_PER_LONG_SHIFT)
+ 
+ /* DMA addresses come in generic and 64-bit flavours.  */
+ 
+--- linux/fs/fcntl.c.orig	Wed Sep 18 00:16:43 2002
++++ linux/fs/fcntl.c	Wed Sep 18 00:18:06 2002
+@@ -480,7 +480,9 @@
+ 
+ void send_sigio(struct fown_struct *fown, int fd, int band)
+ {
+-	struct task_struct * p;
++	struct task_struct *task;
++	struct list_head *elem;
++	struct idtag *idtag;
+ 	int pid;
+ 	
+ 	read_lock(&fown->lock);
+@@ -489,18 +491,23 @@
+ 		goto out_unlock_fown;
+ 	
+ 	read_lock(&tasklist_lock);
+-	if ( (pid > 0) && (p = find_task_by_pid(pid)) ) {
+-		send_sigio_to_task(p, fown, fd, band);
++	if (pid > 0) {
++		task = find_task_by_pid(pid);
++		if (task)
++			send_sigio_to_task(task, fown, fd, band);
+ 		goto out_unlock_task;
+ 	}
+-	for_each_process(p) {
+-		int match = p->pid;
+-		if (pid < 0)
+-			match = -p->pgrp;
+-		if (pid != match)
+-			continue;
+-		send_sigio_to_task(p, fown, fd, band);
++ 
++	idtag = find_get_tag(IDTAG_PGID, -pid);
++	if (!idtag)
++		goto out_unlock_task;
++ 
++	list_for_each(elem, &idtag->task_list) {
++		task = idtag_task(elem, IDTAG_PGID);
++
++		send_sigio_to_task(task, fown, fd, band);
+ 	}
++	put_tag(idtag);
+ out_unlock_task:
+ 	read_unlock(&tasklist_lock);
+ out_unlock_fown:
+--- linux/kernel/Makefile.orig	Wed Sep 18 00:16:37 2002
++++ linux/kernel/Makefile	Wed Sep 18 00:18:28 2002
+@@ -15,7 +15,8 @@
+ obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o time.o softirq.o resource.o \
+ 	    sysctl.o capability.o ptrace.o timer.o user.o \
+-	    signal.o sys.o kmod.o context.o futex.o platform.o
++	    signal.o sys.o kmod.o context.o futex.o platform.o \
++	    pid.o idtag.o
+ 
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += cpu.o
+--- linux/kernel/exit.c.orig	Wed Sep 18 00:17:43 2002
++++ linux/kernel/exit.c	Wed Sep 18 00:18:06 2002
+@@ -34,6 +34,13 @@
+ 	struct dentry *proc_dentry;
+ 	nr_threads--;
+ 	unhash_pid(p);
++	detach_tag(p, IDTAG_PID);
++	if (thread_group_leader(p)) {
++		detach_tag(p, IDTAG_TGID);
++		detach_tag(p, IDTAG_PGID);
++		detach_tag(p, IDTAG_SID);
++	}
++
+ 	REMOVE_LINKS(p);
+ 	p->pid = 0;
+ 	proc_dentry = p->proc_dentry;
+@@ -57,7 +64,12 @@
+ 		BUG();
+ 	if (p != current)
+ 		wait_task_inactive(p);
++	write_lock(&p->user->lock);
+ 	atomic_dec(&p->user->processes);
++	if (list_empty(&p->user_task_list))
++		BUG();
++	list_del(&p->user_task_list);
++	write_unlock(&p->user->lock);
+ 	security_ops->task_free_security(p);
+ 	free_uid(p->user);
+ 	if (unlikely(p->ptrace)) {
+@@ -108,23 +120,28 @@
+  */
+ int session_of_pgrp(int pgrp)
+ {
+-	struct task_struct *p;
+-	int fallback;
++	task_t *task;
++	struct list_head *elem;
++	struct idtag *idtag;
++	int sid = -1;
+ 
+-	fallback = -1;
+ 	read_lock(&tasklist_lock);
+-	for_each_process(p) {
+- 		if (p->session <= 0)
+- 			continue;
+-		if (p->pgrp == pgrp) {
+-			fallback = p->session;
+-			break;
++	idtag = find_get_tag(IDTAG_PGID, pgrp);
++	if (!idtag)
++		goto out;
++
++	list_for_each(elem, &idtag->task_list) {
++		task = idtag_task(elem, IDTAG_PGID);
++
++		if (task->session > 0) {
++			sid = task->session;
++			goto out;
+ 		}
+-		if (p->pid == pgrp)
+-			fallback = p->session;
+ 	}
++	put_tag(idtag);
++out:
+ 	read_unlock(&tasklist_lock);
+-	return fallback;
++	return sid;
  }
  
  /*
-+ * Function:    scsi_cleanup_io()
-+ *
-+ * Purpose:     SCSI I/O cleanup io function.
-+ *
-+ * Arguments:   SCpnt - Command descriptor we wish to cleanup
-+ *
-+ * Returns:     N/A
-+ *
-+ * Lock status: 
-+ *
-+ * Notes:       Code was previously part of scsi_io_completion, moved here
-+ *              as we now also call it when redriving IO that does not make
-+ *              it to the upper layer.
-+ */
-+void scsi_cleanup_io(Scsi_Cmnd *SCpnt)
+@@ -135,21 +152,55 @@
+  *
+  * "I ask you, have you ever known what it is to be an orphan?"
+  */
+-static int __will_become_orphaned_pgrp(int pgrp, struct task_struct * ignored_task)
++static int __will_become_orphaned_pgrp(int pgrp, task_t *ignored_task)
+ {
+-	struct task_struct *p;
+-
+-	for_each_process(p) {
+-		if ((p == ignored_task) || (p->pgrp != pgrp) ||
+-		    (p->state == TASK_ZOMBIE) ||
+-		    (p->parent->pid == 1))
++	task_t *task;
++	struct idtag *idtag;
++	struct list_head *elem;
++	int ret = 1;
++
++	idtag = find_get_tag(IDTAG_PGID, pgrp);
++	if (!idtag)
++		goto out;
++	list_for_each(elem, &idtag->task_list) {
++		task = idtag_task(elem, IDTAG_PGID);
++		if (task == ignored_task
++				|| task->state == TASK_ZOMBIE 
++				|| task->parent->pid == 1)
+ 			continue;
+-		if ((p->parent->pgrp != pgrp) &&
+-		    (p->parent->session == p->session)) {
+- 			return 0;
++		if (task->parent->pgrp != pgrp
++				&& task->parent->session == task->session) {
++			ret = 0;
++			goto out;
+ 		}
+ 	}
+-	return 1;	/* (sighing) "Often!" */
++	put_tag(idtag);
++out:
++	return ret;	/* (sighing) "Often!" */
++}
++
++static inline int __has_stopped_jobs(int pgrp)
 +{
-+	struct request *req = SCpnt->request;
++	int retval = 0;
++	task_t *task;
++	struct list_head *elem;
++	struct idtag *idtag;
 +
-+	/*
-+	 * Free up any indirection buffers we allocated for DMA purposes. 
-+	 * For the case of a READ, we need to copy the data out of the
-+	 * bounce buffer and into the real buffer.
-+	 */
-+	if (SCpnt->use_sg) {
-+		struct scatterlist *sgpnt;
++	idtag = find_get_tag(IDTAG_PGID, pgrp);
++	if (!idtag)
++		goto out;
++	list_for_each(elem, &idtag->task_list) {
++		task = idtag_task(elem, IDTAG_PGID);
 +
-+		sgpnt = (struct scatterlist *) SCpnt->buffer;
-+		scsi_free_sgtable(SCpnt->buffer, SCpnt->sglist_len);
-+	} else {
-+		if (SCpnt->buffer != req->buffer) {
-+			if (rq_data_dir(req) == READ) {
-+				unsigned long flags;
-+				char *to = bio_kmap_irq(req->bio, &flags);
++		if (task->state != TASK_STOPPED)
++			continue;
 +
-+				memcpy(to, SCpnt->buffer, SCpnt->bufflen);
-+				bio_kunmap_irq(to, &flags);
-+			}
-+			kfree(SCpnt->buffer);
++		retval = 1;
++		goto out;
++	}
++	put_tag(idtag);
++out:
++	return retval;
+ }
+ 
+ static int will_become_orphaned_pgrp(int pgrp, struct task_struct * ignored_task)
+@@ -166,22 +217,6 @@
+ int is_orphaned_pgrp(int pgrp)
+ {
+ 	return will_become_orphaned_pgrp(pgrp, 0);
+-}
+-
+-static inline int __has_stopped_jobs(int pgrp)
+-{
+-	int retval = 0;
+-	struct task_struct * p;
+-
+-	for_each_process(p) {
+-		if (p->pgrp != pgrp)
+-			continue;
+-		if (p->state != TASK_STOPPED)
+-			continue;
+-		retval = 1;
+-		break;
+-	}
+-	return retval;
+ }
+ 
+ static inline int has_stopped_jobs(int pgrp)
+--- linux/kernel/idtag.c.orig	Wed Sep 18 00:18:06 2002
++++ linux/kernel/idtag.c	Wed Sep 18 00:18:06 2002
+@@ -0,0 +1,177 @@
++#include <linux/sched.h>
++#include <linux/spinlock.h>
++#include <linux/idtag.h>
++#include <linux/slab.h>
++#include <linux/errno.h>
++#include <linux/init.h>
++
++/*
++ * idtags for tasks
++ * (C) 2002 William Irwin, IBM
++ * idtags are backing objects for tasks sharing a given ID to chain
++ * against. There is very little to them aside from hashing them and
++ * parking tasks using given ID's on a list.
++ *
++ * TODO: use per-bucket locks.
++ */
++
++static kmem_cache_t *idtag_cache;
++
++#define IDHASH_SIZE 4096
++static struct list_head idtag_hash[IDTAG_MAX][IDHASH_SIZE];
++
++static spinlock_t idtag_lock = SPIN_LOCK_UNLOCKED;
++
++static inline unsigned idtag_hashfn(unsigned long tag)
++{
++	return ((tag >> 8) ^ tag) & (IDHASH_SIZE - 1);
++}
++
++static inline struct idtag *idtag_alloc(void)
++{
++	return kmem_cache_alloc(idtag_cache, SLAB_KERNEL);
++}
++
++static inline void idtag_free(struct idtag *idtag)
++{
++	kmem_cache_free(idtag_cache, idtag);
++}
++
++static inline void init_idtag(	struct idtag *idtag,
++				enum idtag_type type,
++				unsigned long tag)
++{
++	INIT_LIST_HEAD(&idtag->task_list);
++	atomic_set(&idtag->count, 0);
++	idtag->type = type;
++	idtag->tag  = tag;
++	list_add(&idtag->idtag_hash_chain,
++			&idtag_hash[type][idtag_hashfn(tag)]);
++}
++
++struct idtag *find_tag(enum idtag_type type, unsigned long tag)
++{
++	struct list_head *bucket, *elem;
++	struct idtag *idtag;
++
++	bucket = &idtag_hash[type][idtag_hashfn(tag)];
++
++	list_for_each(elem, bucket) {
++		idtag = list_entry(elem, struct idtag, idtag_hash_chain);
++		if (idtag->tag == tag)
++			return idtag;
++	}
++	return NULL;
++}
++
++int idtag_unused(unsigned long tag)
++{
++	enum idtag_type type;
++
++	for (type = 0; type < IDTAG_MAX; ++type)
++		if (find_tag(type, tag))
++			return 0;
++
++	return 1;
++}
++
++void __init idtag_hash_init(void)
++{
++	int i, j;
++
++	for (i = 0; i < IDTAG_MAX; ++i)
++		for (j = 0; j < IDHASH_SIZE; ++j)
++			INIT_LIST_HEAD(&idtag_hash[i][j]);
++}
++
++void __init idtag_init(void)
++{
++	idtag_cache = kmem_cache_create("idtag_cache",
++					sizeof(struct idtag),
++					0,
++					SLAB_HWCACHE_ALIGN,
++					NULL,
++					NULL);
++}
++
++struct idtag *find_get_tag(enum idtag_type type, unsigned long tag)
++{
++	struct idtag *idtag;
++	spin_lock(&idtag_lock);
++	idtag = find_tag(type, tag);
++	if (idtag)
++		atomic_inc(&idtag->count);
++	spin_unlock(&idtag_lock);
++	return idtag;
++}
++
++struct idtag *get_tag(enum idtag_type type, unsigned long tag)
++{
++	struct idtag *idtag;
++
++	spin_lock(&idtag_lock);
++	idtag = find_tag(type, tag);
++
++	if (!idtag) {
++		struct idtag *raced_tag;
++		spin_unlock(&idtag_lock);
++		idtag = idtag_alloc();
++		spin_lock(&idtag_lock);
++		raced_tag = find_tag(type, tag);
++		if (!raced_tag) {
++			init_idtag(idtag, type, tag);
++			goto out_inc;
 +		}
++		idtag_free(idtag);
++		idtag = raced_tag;
 +	}
 +
-+	/*
-+	 * Zero these out.  They now point to freed memory, and it is
-+	 * dangerous to hang onto the pointers.
-+	 */
-+	SCpnt->buffer  = NULL;
-+	SCpnt->bufflen = 0;
-+	SCpnt->request_buffer = NULL;
-+	SCpnt->request_bufflen = 0;
++	if (!idtag)
++		goto out;
++out_inc:
++	atomic_inc(&idtag->count);
++out:
++	spin_unlock(&idtag_lock);
++	return idtag;
++}
++
++void put_tag(struct idtag *idtag)
++{
++	unsigned long tag;
++	if (!atomic_dec_and_lock(&idtag->count, &idtag_lock))
++		return;
++
++	tag = idtag->tag;
++	list_del(&idtag->idtag_hash_chain);
++	idtag_free(idtag);
++	if (idtag_unused(tag))
++		free_pid(tag);
++	spin_unlock(&idtag_lock);
++}
++
++int attach_tag(task_t *task, enum idtag_type type, unsigned long tag)
++{
++	struct idtag *idtag;
++
++	idtag = get_tag(type, tag);
++
++	if (!idtag)
++		return -ENOMEM;
++
++	spin_lock(&idtag_lock);
++	list_add(&task->idtags[type].idtag_chain, &idtag->task_list);
++	task->idtags[type].tag = tag;
++	task->idtags[type].idtag = idtag;
++	spin_unlock(&idtag_lock);
++
++	return 0;
++}
++
++int detach_tag(task_t *task, enum idtag_type type)
++{
++	spin_lock(&idtag_lock);
++	list_del(&task->idtags[type].idtag_chain);
++	spin_unlock(&idtag_lock);
++	put_tag(task->idtags[type].idtag);
++	return 0;
++}
+--- linux/kernel/kmod.c.orig	Wed Sep 18 00:16:39 2002
++++ linux/kernel/kmod.c	Wed Sep 18 00:18:06 2002
+@@ -124,11 +124,19 @@
+ 	/* Drop the "current user" thing */
+ 	{
+ 		struct user_struct *user = curtask->user;
++
++		write_lock(&user->lock);
++		atomic_dec(&user->processes);
++		list_del(&curtask->user_task_list);
++		write_unlock(&user->lock);
++		free_uid(user);
++
++		write_lock(&INIT_USER->lock);
+ 		curtask->user = INIT_USER;
+ 		atomic_inc(&INIT_USER->__count);
+ 		atomic_inc(&INIT_USER->processes);
+-		atomic_dec(&user->processes);
+-		free_uid(user);
++		list_add(&curtask->user_task_list, &INIT_USER->task_list);
++		write_unlock(&INIT_USER->lock);
+ 	}
+ 
+ 	/* Give kmod all effective privileges.. */
+--- linux/kernel/pid.c.orig	Wed Sep 18 00:18:06 2002
++++ linux/kernel/pid.c	Wed Sep 18 00:18:06 2002
+@@ -0,0 +1,137 @@
++/*
++ * Scalable, lockless, time-bounded PID allocator
++ *
++ * (C) 2002 Ingo Molnar, Red Hat
++ *
++ * We have a list of bitmap pages, which bitmaps represent the PID space.
++ * Allocating and freeing PIDs is completely lockless. The worst-case
++ * allocation scenario when all but one out of 1 million PIDs possible are
++ * allocated already: the scanning of 32 list entries and at most PAGE_SIZE
++ * bytes. The typical fastpath is a single successful setbit. Freeing is O(1).
++ */
++
++#include <linux/mm.h>
++#include <linux/bootmem.h>
++
++int pid_max = PID_MAX_DEFAULT;
++int last_pid;
++
++#define RESERVED_PIDS		300
++
++#define PIDMAP_ENTRIES		(PID_MAX_LIMIT/PAGE_SIZE/8)
++#define BITS_PER_PAGE		(PAGE_SIZE*8)
++#define BITS_PER_PAGE_MASK	(BITS_PER_PAGE-1)
++
++/*
++ * PID-map pages start out as NULL, they get allocated upon
++ * first use and are never deallocated. This way a low pid_max
++ * value does not cause lots of bitmaps to be allocated, but
++ * the scheme scales to up to 4 million PIDs, runtime.
++ */
++typedef struct pidmap {
++	atomic_t nr_free;
++	void *page;
++} pidmap_t;
++
++static pidmap_t pidmap_array[PIDMAP_ENTRIES] =
++	 { [ 0 ... PIDMAP_ENTRIES-1 ] = { ATOMIC_INIT(BITS_PER_PAGE), NULL } };
++
++static pidmap_t *map_limit = pidmap_array + PIDMAP_ENTRIES;
++
++void free_pid(unsigned long pid)
++{
++	pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
++	int offset = pid & BITS_PER_PAGE_MASK;
++
++	if (!test_and_clear_bit(offset, map->page))
++		BUG();
++	atomic_inc(&map->nr_free);
 +}
 +
 +/*
-  * Function:    scsi_initialize_merge_fn()
-  *
-  * Purpose:     Initialize merge function for a host
-@@ -131,16 +184,18 @@
-  */
- void scsi_initialize_merge_fn(Scsi_Device * SDpnt)
++ * Here we search for the next map that has free bits left.
++ * Normally the next map has free PIDs.
++ */
++static inline pidmap_t *next_free_map(pidmap_t *map, int *max_steps)
++{
++	while (--*max_steps) {
++		if (++map == map_limit)
++			map = pidmap_array;
++		if (unlikely(!map->page)) {
++			unsigned long page = get_zeroed_page(GFP_KERNEL);
++			/*
++			 * Free the page if someone raced with us
++			 * installing it:
++			 */
++			if (cmpxchg(&map->page, NULL, page))
++				free_page(page);
++			if (!map->page)
++				break;
++		}
++		if (atomic_read(&map->nr_free))
++			return map;
++	}
++	return NULL;
++}
++
++int alloc_pid(void)
++{
++	int pid, offset, max_steps = PIDMAP_ENTRIES + 1;
++	pidmap_t *map;
++
++	pid = last_pid + 1;
++	if (pid >= pid_max)
++		pid = RESERVED_PIDS;
++
++	offset = pid & BITS_PER_PAGE_MASK;
++	map = pidmap_array + pid / BITS_PER_PAGE;
++
++	if (likely(map->page && !test_and_set_bit(offset, map->page))) {
++		/*
++		 * There is a small window for last_pid updates to race,
++		 * but in that case the next allocation will go into the
++		 * slowpath and that fixes things up.
++		 */
++return_pid:
++		atomic_dec(&map->nr_free);
++		last_pid = pid;
++		return pid;
++	}
++	
++	if (!offset || !atomic_read(&map->nr_free)) {
++next_map:
++		map = next_free_map(map, &max_steps);
++		if (!map)
++			goto failure;
++		offset = 0;
++	}
++	/*
++	 * Find the next zero bit:
++	 */
++scan_more:
++	offset = find_next_zero_bit(map->page, BITS_PER_PAGE, offset);
++	if (offset == BITS_PER_PAGE)
++		goto next_map;
++	if (test_and_set_bit(offset, map->page))
++		goto scan_more;
++
++	/* we got the PID: */
++	pid = (map - pidmap_array) * BITS_PER_PAGE + offset;
++	goto return_pid;
++
++failure:
++	return -1;
++}
++
++void __init pid_init(void)
++{
++	pidmap_t *map = pidmap_array;
++
++	/*
++	 * Allocate PID 0:
++	 */
++	map->page = alloc_bootmem(PAGE_SIZE);
++	set_bit(0, map->page);
++	atomic_dec(&map->nr_free);
++}
++
+--- linux/kernel/sched.c.orig	Wed Sep 18 00:16:43 2002
++++ linux/kernel/sched.c	Wed Sep 18 00:18:06 2002
+@@ -2099,6 +2099,8 @@
  {
--	struct Scsi_Host *SHpnt = SDpnt->host;
-+	struct Scsi_Host *SHpnt;
- 	request_queue_t *q = &SDpnt->request_queue;
- 	u64 bounce_limit;
+ 	runqueue_t *rq;
+ 	int i, j, k;
++	extern void idtag_hash_init(void);
++	extern void pid_init(void);
  
-+	SHpnt = scsi_get_host(SDpnt);
-+	BUG_ON(SHpnt == NULL);
- 	/*
- 	 * The generic merging functions work just fine for us.
- 	 * Enable highmem I/O, if appropriate.
+ 	for (i = 0; i < NR_CPUS; i++) {
+ 		prio_array_t *array;
+@@ -2139,5 +2141,8 @@
  	 */
- 	bounce_limit = BLK_BOUNCE_HIGH;
--	if (SHpnt->highmem_io && (SDpnt->type == TYPE_DISK)) {
-+	if (SHpnt->highmem_io) {
- 		if (!PCI_DMA_BUS_IS_PHYS)
- 			/* Platforms with virtual-DMA translation
-  			 * hardware have no practical limit.
-diff -Nru a/drivers/scsi/scsi_proc.c b/drivers/scsi/scsi_proc.c
---- a/drivers/scsi/scsi_proc.c	Mon Sep 16 15:29:45 2002
-+++ b/drivers/scsi/scsi_proc.c	Mon Sep 16 15:29:45 2002
-@@ -255,15 +255,15 @@
- 	return (cmdIndex);
+ 	atomic_inc(&init_mm.mm_count);
+ 	enter_lazy_tlb(&init_mm, current, smp_processor_id());
++
++	idtag_hash_init();
++	pid_init();
  }
  
--void proc_print_scsidevice(Scsi_Device * scd, char *buffer, int *size, int len)
-+void proc_print_scsidevice(Scsi_Device *scd, char *buffer, int *size, int len)
+--- linux/kernel/signal.c.orig	Wed Sep 18 00:16:43 2002
++++ linux/kernel/signal.c	Wed Sep 18 00:18:06 2002
+@@ -943,19 +943,31 @@
+ 
+ int __kill_pg_info(int sig, struct siginfo *info, pid_t pgrp)
  {
- 
- 	int x, y = *size;
- 	extern const char *const scsi_device_types[MAX_SCSI_DEVICE_CODE];
- 
--	y = sprintf(buffer + len,
--	     "Host: scsi%d Channel: %02d Id: %02d Lun: %02d\n  Vendor: ",
--		    scd->host->host_no, scd->channel, scd->id, scd->lun);
-+	y = scsi_paths_proc_print_paths(scd, buffer + len,
-+		"Host: scsi%d Channel: %02d Id: %02d Lun: %02d\n");
-+	y += sprintf(buffer + len + y, "Vendor: ");
- 	for (x = 0; x < 8; x++) {
- 		if (scd->vendor[x] >= 0x20)
- 			y += sprintf(buffer + len + y, "%c", scd->vendor[x]);
-diff -Nru a/drivers/scsi/scsi_queue.c b/drivers/scsi/scsi_queue.c
---- a/drivers/scsi/scsi_queue.c	Mon Sep 16 15:29:45 2002
-+++ b/drivers/scsi/scsi_queue.c	Mon Sep 16 15:29:45 2002
-@@ -76,7 +76,8 @@
-  */
- int scsi_mlqueue_insert(Scsi_Cmnd * cmd, int reason)
- {
--	struct Scsi_Host *host;
-+	struct Scsi_Host *host; 
-+	unsigned long flags;
- 
- 	SCSI_LOG_MLQUEUE(1, printk("Inserting command %p into mlqueue\n", cmd));
- 
-@@ -106,7 +107,7 @@
- 			}
- 		}
- 		host->host_blocked = TRUE;
--	} else {
-+	} else if (reason == SCSI_MLQUEUE_DEVICE_BUSY) {
- 		/*
- 		 * Protect against race conditions.  If the device isn't busy,
- 		 * assume that something actually completed, and that we should
-@@ -121,6 +122,11 @@
- 			}
- 		}
- 		cmd->device->device_blocked = TRUE;
-+	} else {
-+		/*
-+		 * Must be SCSI_MLQUEUE_RETRY: requeue without marking
-+		 * host or device as busy.
-+		 */
- 	}
- 
- 	/*
-@@ -134,12 +140,27 @@
- 	 * Decrement the counters, since these commands are no longer
- 	 * active on the host/device.
- 	 */
-+	spin_lock_irqsave(cmd->device->request_queue.queue_lock, flags);
-+	cmd->device->device_busy--; /* XXX race */
- 	scsi_host_busy_dec_and_test(cmd->host, cmd->device);
+-	int retval = -EINVAL;
+-	if (pgrp > 0) {
+-		struct task_struct *p;
 -
-+	spin_unlock_irqrestore(cmd->device->request_queue.queue_lock, flags);
- 	/*
- 	 * Insert this command at the head of the queue for it's device.
- 	 * It will go before all other commands that are already in the queue.
- 	 */
--	scsi_insert_special_cmd(cmd, 1);
-+	if (cmd->request->flags & REQ_SPECIAL) {
-+		/*
-+		 * Calling this for REQ_CMD requests is fatal.
-+		 */
-+		scsi_insert_special_cmd(cmd, 1);
-+	} else {
-+		/*
-+		 * Clean up the IO, and requeue it without setting cmd to
-+		 * REQ_SPECIAL.
-+		 */
-+		scsi_cleanup_io(cmd);
-+		scsi_queue_next_request(&cmd->device->request_queue, cmd,
-+					cmd->host);
+-		retval = -ESRCH;
+-		for_each_process(p) {
+-			if (p->pgrp == pgrp) {
+-				int err = send_sig_info(sig, info, p);
+-				if (retval)
+-					retval = err;
+-			}
+-		}
++	task_t *task;
++	struct list_head *elem;
++	struct idtag *idtag;
++	int err, retval = -EINVAL;
++
++	if (pgrp <= 0)
++		goto out;
++
++	retval = -ESRCH;
++	idtag = find_get_tag(IDTAG_PGID, pgrp);
++	if (!idtag)
++		goto out;
++
++	list_for_each(elem, &idtag->task_list) {
++		task = idtag_task(elem, IDTAG_PGID);
++
++		if (!thread_group_leader(task))
++			continue;
++
++		err = send_sig_info(sig, info, task);
++		if (retval)
++			retval = err;
+ 	}
++	put_tag(idtag);
++out:
+ 	return retval;
+ }
+ 
+@@ -977,42 +989,65 @@
+  * the connection is lost.
+  */
+ 
++
+ int
+-kill_sl_info(int sig, struct siginfo *info, pid_t sess)
++kill_sl_info(int sig, struct siginfo *info, pid_t sid)
+ {
+-	int retval = -EINVAL;
+-	if (sess > 0) {
+-		struct task_struct *p;
+-
+-		retval = -ESRCH;
+-		read_lock(&tasklist_lock);
+-		for_each_process(p) {
+-			if (p->leader && p->session == sess) {
+-				int err = send_sig_info(sig, info, p);
+-				if (retval)
+-					retval = err;
+-			}
+-		}
+-		read_unlock(&tasklist_lock);
++	int err, retval = -EINVAL;
++	struct idtag *idtag;
++	struct list_head *elem;
++	task_t *task;
++
++	if (sid <= 0)
++		goto out;
++
++	retval = -ESRCH;
++	read_lock(&tasklist_lock);
++	idtag = find_get_tag(IDTAG_SID, sid);
++	if (!idtag)
++		goto out_unlock;
++	list_for_each(elem, &idtag->task_list) {
++		task = idtag_task(elem, IDTAG_SID);
++		if (!task->leader)
++			continue;
++
++		err = send_sig_info(sig, info, task);
++		if (retval)
++			retval = err;
+ 	}
++	put_tag(idtag);
++out_unlock:
++	read_unlock(&tasklist_lock);
++out:
+ 	return retval;
+ }
+ 
+-inline int
++int
+ kill_proc_info(int sig, struct siginfo *info, pid_t pid)
+ {
+ 	int error;
+-	struct task_struct *p;
++	task_t *task;
++	task_t *tgrp_leader;
+ 
+ 	read_lock(&tasklist_lock);
+-	p = find_task_by_pid(pid);
++	task = find_task_by_pid(pid);
+ 	error = -ESRCH;
+-	if (p)
+-		error = send_sig_info(sig, info, p);
++	if (!task)
++		goto out_unlock;
++
++	if (thread_group_leader(task))
++		goto out_send_sig;
++
++	tgrp_leader = find_task_by_pid(task->tgid);
++	if (tgrp_leader)
++		task = tgrp_leader;
++out_send_sig:
++	error = send_sig_info(sig, info, task);
++out_unlock:
+ 	read_unlock(&tasklist_lock);
++
+ 	return error;
+ }
+-
+ 
+ /*
+  * kill_something_info() interprets pid in interesting ways just like kill(2).
+--- linux/kernel/sys.c.orig	Wed Sep 18 00:16:43 2002
++++ linux/kernel/sys.c	Wed Sep 18 00:18:06 2002
+@@ -203,35 +203,34 @@
+ cond_syscall(sys_quotactl)
+ cond_syscall(sys_acct)
+ 
+-static int proc_sel(struct task_struct *p, int which, int who)
++static int set_one_prio(task_t *task, int niceval, int error)
+ {
+-	if(p->pid)
+-	{
+-		switch (which) {
+-			case PRIO_PROCESS:
+-				if (!who && p == current)
+-					return 1;
+-				return(p->pid == who);
+-			case PRIO_PGRP:
+-				if (!who)
+-					who = current->pgrp;
+-				return(p->pgrp == who);
+-			case PRIO_USER:
+-				if (!who)
+-					who = current->uid;
+-				return(p->uid == who);
+-		}
++	if (task->uid != current->euid &&
++		task->uid != current->uid && !capable(CAP_SYS_NICE)) {
++		error = -EPERM;
++		goto out;
+ 	}
+-	return 0;
++
++	if (error == -ESRCH)
++		error = 0;
++	if (niceval < task_nice(task) && !capable(CAP_SYS_NICE))
++		error = -EACCES;
++	else
++		set_user_nice(task, niceval);
++out:
++	return error;
+ }
+ 
+ asmlinkage long sys_setpriority(int which, int who, int niceval)
+ {
+-	struct task_struct *g, *p;
+-	int error;
++	task_t *task;
++	struct user_struct *user;
++	struct idtag *idtag;
++	struct list_head *elem;
++	int error = -EINVAL;
+ 
+ 	if (which > 2 || which < 0)
+-		return -EINVAL;
++		goto out;
+ 
+ 	/* normalize: avoid signed division (rounding problems) */
+ 	error = -ESRCH;
+@@ -241,31 +240,53 @@
+ 		niceval = 19;
+ 
+ 	read_lock(&tasklist_lock);
+-	do_each_thread(g, p) {
+-		int no_nice;
+-		if (!proc_sel(p, which, who))
+-			continue;
+-		if (p->uid != current->euid &&
+-			p->uid != current->uid && !capable(CAP_SYS_NICE)) {
+-			error = -EPERM;
+-			continue;
+-		}
+-		if (error == -ESRCH)
+-			error = 0;
+-		if (niceval < task_nice(p) && !capable(CAP_SYS_NICE)) {
+-			error = -EACCES;
+-			continue;
+-		}
+-		no_nice = security_ops->task_setnice(p, niceval);
+-		if (no_nice) {
+-			error = no_nice;
+-			continue;
+-		}
+-		set_user_nice(p, niceval);
+-	} while_each_thread(g, p);
+-
++	switch (which) {
++		case PRIO_PROCESS:
++			if (!who)
++				who = current->pid;
++			idtag = find_get_tag(IDTAG_PID, who);
++			if (!idtag)
++				goto out_unlock;
++
++			list_for_each(elem, &idtag->task_list) {
++				task = idtag_task(elem, IDTAG_PID);
++				error = set_one_prio(task, niceval, error);
++			}
++			put_tag(idtag);
++			break;
++		case PRIO_PGRP:
++			if (!who)
++				who = current->pgrp;
++			idtag = find_get_tag(IDTAG_PGID, who);
++			if (!idtag)
++				goto out_unlock;
++
++			list_for_each(elem, &idtag->task_list) {
++				task = idtag_task(elem, IDTAG_PGID);
++				error = set_one_prio(task, niceval, error);
++			}
++			put_tag(idtag);
++			break;
++		case PRIO_USER:
++			if (!who)
++				user = current->user;
++			else
++				user = find_user(who);
++
++			if (!user)
++				goto out_unlock;
++
++			read_lock(&user->lock);
++			list_for_each(elem, &user->task_list) {
++				task = list_entry(elem, task_t, user_task_list);
++				error = set_one_prio(task, niceval, error);
++			}
++			read_unlock(&user->lock);
++			break;
 +	}
++out_unlock:
+ 	read_unlock(&tasklist_lock);
+-
++out:
+ 	return error;
+ }
+ 
+@@ -277,21 +298,67 @@
+  */
+ asmlinkage long sys_getpriority(int which, int who)
+ {
+-	struct task_struct *g, *p;
+-	long retval = -ESRCH;
++	task_t *task;
++	struct list_head *elem;
++	struct idtag *idtag;
++	struct user_struct *user;
++	long niceval, retval = -ESRCH;
+ 
+ 	if (which > 2 || which < 0)
+ 		return -EINVAL;
+ 
+ 	read_lock(&tasklist_lock);
+-	do_each_thread(g, p) {
+-		long niceval;
+-		if (!proc_sel(p, which, who))
+-			continue;
+-		niceval = 20 - task_nice(p);
+-		if (niceval > retval)
+-			retval = niceval;
+-	} while_each_thread(g, p);
++	switch (which) {
++		case PRIO_PROCESS:
++			if (!who)
++				who = current->pid;
++			idtag = find_get_tag(IDTAG_PID, who);
++			if (!idtag)
++				goto out_unlock;
++
++			list_for_each(elem, &idtag->task_list) {
++				task = idtag_task(elem, IDTAG_PID);
++				niceval = 20 - task_nice(task);
++				if (niceval > retval)
++					retval = niceval;
++			}
++			put_tag(idtag);
++			break;
++		case PRIO_PGRP:
++			if (!who)
++				who = current->pgrp;
++			idtag = find_get_tag(IDTAG_PGID, who);
++			if (!idtag)
++				goto out_unlock;
++
++			list_for_each(elem, &idtag->task_list) {
++				task = idtag_task(elem, IDTAG_PGID);
++				niceval = 20 - task_nice(task);
++				if (niceval > retval)
++					retval = niceval;
++			}
++			put_tag(idtag);
++			break;
++		case PRIO_USER:
++			if (!who)
++				user = current->user;
++			else
++				user = find_user(who);
++
++			if (!user)
++				goto out_unlock;
++
++			read_lock(&user->lock);
++			list_for_each(elem, &user->task_list) {
++				task = list_entry(elem, task_t, user_task_list);
++				niceval = 20 - task_nice(task);
++				if (niceval > retval)
++					retval = niceval;
++			}
++			read_unlock(&user->lock);
++			break;
++	}
++out_unlock:
+ 	read_unlock(&tasklist_lock);
+ 
+ 	return retval;
+@@ -524,16 +591,24 @@
+ 	if (!new_user)
+ 		return -EAGAIN;
+ 	old_user = current->user;
++
++	write_lock(&old_user->lock);
+ 	atomic_dec(&old_user->processes);
++	list_del(&current->user_task_list);
++	write_unlock(&old_user->lock);
++
++	write_lock(&new_user->lock);
+ 	atomic_inc(&new_user->processes);
++	list_add(&current->user_task_list, &new_user->task_list);
++	current->uid = new_ruid;
++	current->user = new_user;
++	write_unlock(&new_user->lock);
+ 
+ 	if(dumpclear)
+ 	{
+ 		current->mm->dumpable = 0;
+ 		wmb();
+ 	}
+-	current->uid = new_ruid;
+-	current->user = new_user;
+ 	free_uid(old_user);
  	return 0;
  }
-diff -Nru a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
---- a/drivers/scsi/scsi_scan.c	Mon Sep 16 15:29:45 2002
-+++ b/drivers/scsi/scsi_scan.c	Mon Sep 16 15:29:45 2002
-@@ -189,26 +189,22 @@
- 	" SCSI scanning, some SCSI devices might not be configured\n"
+@@ -849,7 +924,7 @@
  
- /*
-- * Prefix values for the SCSI id's (stored in driverfs name field)
-- */
--#define SCSI_UID_SER_NUM 'S'
--#define SCSI_UID_UNKNOWN 'Z'
--
--/*
-- * Return values of some of the scanning functions.
-+ * Return values for (some of) the scanning functions, these are masks.
-  *
-  * SCSI_SCAN_NO_RESPONSE: no valid response received from the target, this
-  * includes allocation or general failures preventing IO from being sent.
-  *
-- * SCSI_SCAN_TARGET_PRESENT: target responded, but no device is available
-- * on the given LUN.
-+ * SCSI_SCAN_TARGET_PRESENT: target responded, a device may or may not be
-+ * present on a given LUN in such cases.
-+ *
-+ * SCSI_SCAN_LUN_PRESENT: A device is available on a given LUN.
-  *
-- * SCSI_SCAN_LUN_PRESENT: target responded, and a device is available on a
-- * given LUN.
-+ * SCSI_SCAN_NEW_LUN: This is a pre-existing device with a new path.
-  */
--#define SCSI_SCAN_NO_RESPONSE		0
--#define SCSI_SCAN_TARGET_PRESENT	1
--#define SCSI_SCAN_LUN_PRESENT		2
-+#define SCSI_SCAN_NO_RESPONSE		0x00
-+#define SCSI_SCAN_TARGET_PRESENT	0x01
-+#define SCSI_SCAN_LUN_PRESENT		0x02
-+#define SCSI_SCAN_NEW_LUN		0x04
- 
- static char *scsi_null_device_strs = "nullnullnullnull";
- 
-@@ -291,15 +287,11 @@
-  **/
- static void scsi_unlock_floptical(Scsi_Request *sreq, unsigned char *result)
+ asmlinkage long sys_setpgid(pid_t pid, pid_t pgid)
  {
--	Scsi_Device *sdscan = sreq->sr_device;
- 	unsigned char scsi_cmd[MAX_COMMAND_SIZE];
+-	struct task_struct * p;
++	task_t *p;
+ 	int err = -EINVAL;
  
- 	printk(KERN_NOTICE "scsi: unlocking floptical drive\n");
- 	scsi_cmd[0] = MODE_SENSE;
--	if (sdscan->scsi_level <= SCSI_2)
--		scsi_cmd[1] = (sdscan->lun << 5) & 0xe0;
--	else
--		scsi_cmd[1] = 0;
-+	scsi_cmd[1] = 0;
- 	scsi_cmd[2] = 0x2e;
- 	scsi_cmd[3] = 0;
- 	scsi_cmd[4] = 0x2a;	/* size */
-@@ -490,9 +482,8 @@
-  * scsi_alloc_sdev - allocate and setup a Scsi_Device
-  *
-  * Description:
-- *     Allocate, initialize for io, and return a pointer to a Scsi_Device.
-- *     Stores the @shost, @channel, @id, and @lun in the Scsi_Device, and
-- *     adds Scsi_Device to the appropriate list.
-+ *     Allocate, initialize for io, add to the device list, and return a
-+ *     pointer to a Scsi_Device.
-  *
-  * Return value:
-  *     Scsi_Device pointer, or NULL on failure.
-@@ -510,10 +501,16 @@
- 		sdev->vendor = scsi_null_device_strs;
- 		sdev->model = scsi_null_device_strs;
- 		sdev->rev = scsi_null_device_strs;
--		sdev->host = shost;
--		sdev->id = id;
--		sdev->lun = lun;
--		sdev->channel = channel;
+ 	if (!pid)
+@@ -868,6 +943,9 @@
+ 	p = find_task_by_pid(pid);
+ 	if (!p)
+ 		goto out;
++	err = -EINVAL;
++	if (!thread_group_leader(p))
++		goto out;
+ 
+ 	if (p->parent == current || p->real_parent == current) {
+ 		err = -EPERM;
+@@ -882,21 +960,28 @@
+ 	if (p->leader)
+ 		goto out;
+ 	if (pgid != pid) {
+-		struct task_struct *g, *tmp;
+-		do_each_thread(g, tmp) {
+-			if (tmp->pgrp == pgid &&
+-			    tmp->session == current->session)
++		task_t * task;
++		struct idtag *idtag;
++		struct list_head *elem;
 +
-+		/*
-+		 * XXX move this out, if it is overly redundant; if so, be
-+		 * sure to call scsi_add_path somewhere, or modify
-+		 * scsi_replace_path.
-+		 */
-+		if (scsi_add_path(sdev, shost, channel, id, lun)) {
-+			kfree(sdev);
-+			return (NULL);
++		idtag = find_get_tag(IDTAG_PGID, pgid);
++		if (!idtag)
++			goto out;
++
++		list_for_each(elem, &idtag->task_list) {
++			task = idtag_task(elem, IDTAG_PGID);
++
++			if (task->session == current->session)
+ 				goto ok_pgid;
+-		} while_each_thread(g, tmp);
 +		}
- 		sdev->online = TRUE;
- 		/*
- 		 * Some low level driver could use device->type
-@@ -531,17 +528,7 @@
- 		scsi_initialize_merge_fn(sdev);
- 		init_waitqueue_head(&sdev->scpnt_wait);
- 
--		/*
--		 * Add it to the end of the shost->host_queue list.
--		 */
--		if (shost->host_queue != NULL) {
--			sdev->prev = shost->host_queue;
--			while (sdev->prev->next != NULL)
--				sdev->prev = sdev->prev->next;
--			sdev->prev->next = sdev;
--		} else
--			shost->host_queue = sdev;
--
-+		scsi_add_scsi_device(sdev, shost);
++		put_tag(idtag);
+ 		goto out;
  	}
- 	return (sdev);
- }
-@@ -556,17 +543,13 @@
-  **/
- static void scsi_free_sdev(Scsi_Device *sdev)
- {
--	if (sdev->prev != NULL)
--		sdev->prev->next = sdev->next;
--	else
--		sdev->host->host_queue = sdev->next;
--	if (sdev->next != NULL)
--		sdev->next->prev = sdev->prev;
+ 
+ ok_pgid:
+-	err = security_ops->task_setpgid(p, pgid);
+-	if (err)
+-		goto out;
 -
-+	/*
-+	 * XXX move the following to scsi_remove_scsi_device?
-+	 */
-+	scsi_remove_path(sdev, SCSI_FIND_ALL_HOST_NO, SCSI_FIND_ALL_CHANNEL,
-+			 SCSI_FIND_ALL_ID, SCSI_FIND_ALL_LUN);
- 	blk_cleanup_queue(&sdev->request_queue);
--	if (sdev->inquiry != NULL)
--		kfree(sdev->inquiry);
--	kfree(sdev);
-+	scsi_remove_scsi_device(sdev);
- }
++	detach_tag(p, IDTAG_PGID);
+ 	p->pgrp = pgid;
++	attach_tag(p, IDTAG_PGID, pgid);
+ 	err = 0;
+ out:
+ 	/* All paths lead to here, thus we are safe. -DaveM */
+@@ -956,17 +1041,27 @@
  
- /**
-@@ -585,11 +568,10 @@
- static int scsi_check_id_size(Scsi_Device *sdev, int size)
+ asmlinkage long sys_setsid(void)
  {
- 	if (size > DEVICE_NAME_SIZE) {
--		printk(KERN_WARNING "scsi scan: host %d channel %d id %d lun %d"
--		       " identifier too long, length %d, max %d. Device might"
--		       " be improperly identified.\n", sdev->host->host_no,
--		       sdev->channel, sdev->id, sdev->lun, size,
--		       DEVICE_NAME_SIZE);
-+		printk(KERN_WARNING "scsi scan: ");
-+		scsi_paths_printk(sdev, " ", "host %d channel %d id %d lun %d");
-+		printk(" identifier too long, length %d, max %d. Device might"
-+		       " be improperly identified.\n", size, DEVICE_NAME_SIZE);
- 		return 1;
- 	} else
- 		return 0;
-@@ -607,32 +589,28 @@
-  * Return:
-  *     A pointer to data containing the results on success, else NULL.
-  **/
--unsigned char *scsi_get_evpd_page(Scsi_Device *sdev, Scsi_Request *sreq)
-+unsigned char *scsi_get_evpd_page(Scsi_Device *sdev, Scsi_Request *sreq,
-+				  struct scsi_path_id *pathid)
- {
- 	unsigned char *evpd_page;
- 	unsigned char scsi_cmd[MAX_COMMAND_SIZE];
--	int lun = sdev->lun;
--	int scsi_level = sdev->scsi_level;
- 	int max_lgth = 255;
+-	struct task_struct *g, *p;
++	struct idtag *idtag;
+ 	int err = -EPERM;
  
- retry:
- 	evpd_page = kmalloc(max_lgth, GFP_ATOMIC |
--			      (sdev->host->unchecked_isa_dma) ?
-+			      (pathid->spi_shpnt->unchecked_isa_dma) ?
- 			      GFP_DMA : 0);
- 	if (!evpd_page) {
--		printk(KERN_WARNING "scsi scan: Allocation failure identifying"
--		       " host %d channel %d id %d lun %d, device might be"
--		       " improperly identified.\n", sdev->host->host_no,
--		       sdev->channel, sdev->id, sdev->lun);
-+		printk(KERN_WARNING "scsi scan: Allocation failure identifying ");
-+		scsi_paths_printk(sdev, " ", "host %d channel %d id %d lun %d");
-+		printk("device might be improperly identified.\n");
- 		return NULL;
- 	}
-+	memset(evpd_page, 0, max_lgth);
- 
- 	memset(scsi_cmd, 0, MAX_COMMAND_SIZE);
- 	scsi_cmd[0] = INQUIRY;
--	if ((lun > 0) && (scsi_level <= SCSI_2))
--		scsi_cmd[1] = ((lun << 5) & 0xe0) | 0x01;
--	else
--		scsi_cmd[1] = 0x01;	/* SCSI_3 and higher, don't touch */
-+	scsi_cmd[1] = 0x01;
- 	scsi_cmd[4] = max_lgth;
- 	sreq->sr_cmd_len = 0;
- 	sreq->sr_sense_buffer[0] = 0;
-@@ -865,33 +843,30 @@
-  *     0: Failure
-  *     1: Success
-  **/
--int scsi_get_deviceid(Scsi_Device *sdev, Scsi_Request *sreq)
-+int scsi_get_deviceid(Scsi_Device *sdev, Scsi_Request *sreq,
-+		      struct scsi_path_id *pathid)
- {
- 	unsigned char *id_page;
- 	unsigned char scsi_cmd[MAX_COMMAND_SIZE];
- 	int id_idx, scnt, ret;
--	int lun = sdev->lun;
--	int scsi_level = sdev->scsi_level;
- 	int max_lgth = 255;
- 
++	if (!thread_group_leader(current))
++		return -EINVAL;
 +
- retry:
- 	id_page = kmalloc(max_lgth, GFP_ATOMIC |
--			      (sdev->host->unchecked_isa_dma) ?
-+			      (pathid->spi_shpnt->unchecked_isa_dma) ?
- 			      GFP_DMA : 0);
- 	if (!id_page) {
--		printk(KERN_WARNING "scsi scan: Allocation failure identifying"
--		       " host %d channel %d id %d lun %d, device might be"
--		       " improperly identified.\n", sdev->host->host_no,
--		       sdev->channel, sdev->id, sdev->lun);
-+		printk(KERN_WARNING "scsi scan: Allocation failure identifying ");
-+		scsi_paths_printk(sdev, " ", "host %d channel %d id %d lun %d");
-+		printk("device might be improperly identified.\n");
- 		return 0;
- 	}
-+	memset(id_page, 0, max_lgth);
- 
- 	memset(scsi_cmd, 0, MAX_COMMAND_SIZE);
- 	scsi_cmd[0] = INQUIRY;
--	if ((lun > 0) && (scsi_level <= SCSI_2))
--		scsi_cmd[1] = ((lun << 5) & 0xe0) | 0x01;
--	else
--		scsi_cmd[1] = 0x01;	/* SCSI_3 and higher, don't touch */
-+	scsi_cmd[1] = 0x01;
- 	scsi_cmd[2] = 0x83;
- 	scsi_cmd[4] = max_lgth;
- 	sreq->sr_cmd_len = 0;
-@@ -930,8 +905,9 @@
- 				SCSI_LOG_SCAN_BUS(4, printk(KERN_INFO
- 				  "scsi scan: host %d channel %d id %d lun %d"
- 				  " used id desc %d/%d/%d\n",
--				  sdev->host->host_no, sdev->channel,
--				  sdev->id, sdev->lun,
-+				  pathid->spi_shpnt->host_no,
-+				  pathid->spi_channel, pathid->spi_id,
-+				  pathid->spi_lun,
- 				  id_search_list[id_idx].id_type,
- 				  id_search_list[id_idx].naa_type,
- 				  id_search_list[id_idx].code_set));
-@@ -941,8 +917,9 @@
- 				SCSI_LOG_SCAN_BUS(4, printk(KERN_INFO
- 				  "scsi scan: host %d channel %d id %d lun %d"
- 				  " no match/error id desc %d/%d/%d\n",
--				  sdev->host->host_no, sdev->channel,
--				  sdev->id, sdev->lun,
-+				  pathid->spi_shpnt->host_no,
-+				  pathid->spi_channel, pathid->spi_id,
-+				  pathid->spi_lun,
- 				  id_search_list[id_idx].id_type,
- 				  id_search_list[id_idx].naa_type,
- 				  id_search_list[id_idx].code_set));
-@@ -973,32 +950,28 @@
-  *     0: Failure
-  *     1: Success
-  **/
--int scsi_get_serialnumber(Scsi_Device *sdev, Scsi_Request *sreq)
-+int scsi_get_serialnumber(Scsi_Device *sdev, Scsi_Request *sreq,
-+			  struct scsi_path_id *pathid)
- {
- 	unsigned char *serialnumber_page;
- 	unsigned char scsi_cmd[MAX_COMMAND_SIZE];
--	int lun = sdev->lun;
--	int scsi_level = sdev->scsi_level;
- 	int max_lgth = 255;
- 
-  retry:
- 	serialnumber_page = kmalloc(max_lgth, GFP_ATOMIC |
--			      (sdev->host->unchecked_isa_dma) ?
-+			      (pathid->spi_shpnt->unchecked_isa_dma) ?
- 			      GFP_DMA : 0);
- 	if (!serialnumber_page) {
--		printk(KERN_WARNING "scsi scan: Allocation failure identifying"
--		       " host %d channel %d id %d lun %d, device might be"
--		       " improperly identified.\n", sdev->host->host_no,
--		       sdev->channel, sdev->id, sdev->lun);
-+		printk(KERN_WARNING "scsi scan: Allocation failure identifying ");
-+		scsi_paths_printk(sdev, " ", "host %d channel %d id %d lun %d");
-+		printk("device might be improperly identified.\n");
- 		return 0;
- 	}
-+	memset(serialnumber_page, 0, max_lgth);
- 
- 	memset(scsi_cmd, 0, MAX_COMMAND_SIZE);
- 	scsi_cmd[0] = INQUIRY;
--	if ((lun > 0) && (scsi_level <= SCSI_2))
--		scsi_cmd[1] = ((lun << 5) & 0xe0) | 0x01;
--	else
--		scsi_cmd[1] = 0x01;	/* SCSI_3 and higher, don't touch */
-+	scsi_cmd[1] = 0x01;
- 	scsi_cmd[2] = 0x80;
- 	scsi_cmd[4] = max_lgth;
- 	sreq->sr_cmd_len = 0;
-@@ -1093,14 +1066,20 @@
- {
- 	unsigned char *evpd_page = NULL;
- 	int cnt;
-+	struct scsi_path_id pathid;
- 
- 	memset(sdev->sdev_driverfs_dev.name, 0, DEVICE_NAME_SIZE);
--	evpd_page = scsi_get_evpd_page(sdev, sreq);
-+	if (scsi_get_path(sdev, &pathid)) {
-+		printk(KERN_ERR "scsi scan: no path to scan device.\n");
-+		scsi_get_default_name(sdev);
-+		return;
+ 	read_lock(&tasklist_lock);
+-	do_each_thread(g, p)
+-		if (p->pgrp == current->pid)
+-			goto out;
+-	while_each_thread(g, p);
++
++	idtag = find_get_tag(IDTAG_PGID, current->pid);
++
++	if (idtag) {
++		put_tag(idtag);
++		goto out;
 +	}
-+	evpd_page = scsi_get_evpd_page(sdev, sreq, &pathid);
- 	if (evpd_page == NULL) {
- 		/*
- 		 * try to obtain serial number anyway
- 		 */
--		(void)scsi_get_serialnumber(sdev, sreq);
-+		(void)scsi_get_serialnumber(sdev, sreq, &pathid);
- 	} else {
- 		/*
- 		 * XXX search high to low, since the pages are lowest to
-@@ -1108,23 +1087,25 @@
- 		 */
- 		for(cnt = 4; cnt <= evpd_page[3] + 3; cnt++)
- 			if (evpd_page[cnt] == 0x83)
--				if (scsi_get_deviceid(sdev, sreq))
-+				if (scsi_get_deviceid(sdev, sreq, &pathid))
- 					goto leave;
  
- 		for(cnt = 4; cnt <= evpd_page[3] + 3; cnt++)
- 			if (evpd_page[cnt] == 0x80)
--				if (scsi_get_serialnumber(sdev, sreq))
-+				if (scsi_get_serialnumber(sdev, sreq, &pathid))
- 					goto leave;
+ 	current->leader = 1;
++	detach_tag(current, IDTAG_PGID);
++	detach_tag(current, IDTAG_SID);
+ 	current->session = current->pgrp = current->pid;
++	attach_tag(current, IDTAG_PGID, current->pid);
++	attach_tag(current, IDTAG_SID, current->pid);
+ 	current->tty = NULL;
+ 	current->tty_old_pgrp = 0;
+ 	err = current->pgrp;
+--- linux/kernel/fork.c.orig	Wed Sep 18 00:16:43 2002
++++ linux/kernel/fork.c	Wed Sep 18 00:18:06 2002
+@@ -47,15 +47,6 @@
+ int max_threads;
+ unsigned long total_forks;	/* Handle normal Linux uptimes. */
  
--		if (sdev->sdev_driverfs_dev.name[0] == 0)
--			scsi_get_default_name(sdev);
+-/*
+- * Protects next_safe, last_pid and pid_max:
+- */
+-spinlock_t lastpid_lock = SPIN_LOCK_UNLOCKED;
+-
+-static int next_safe = DEFAULT_PID_MAX;
+-int pid_max = DEFAULT_PID_MAX;
+-int last_pid;
+-
+ struct task_struct *pidhash[PIDHASH_SZ];
  
+ rwlock_t tasklist_lock __cacheline_aligned = RW_LOCK_UNLOCKED;  /* outer */
+@@ -84,7 +75,6 @@
  	}
-+	if (sdev->sdev_driverfs_dev.name[0] == 0)
-+		scsi_get_default_name(sdev);
- leave:
- 	if (evpd_page) kfree(evpd_page);
--	SCSI_LOG_SCAN_BUS(3, printk(KERN_INFO "scsi scan: host %d channel %d"
--	    " id %d lun %d name/id: '%s'\n", sdev->host->host_no,
--	    sdev->channel, sdev->id, sdev->lun, sdev->sdev_driverfs_dev.name));
-+	SCSI_LOG_SCAN_BUS(3, {
-+		printk(KERN_INFO "scsi scan: ");
-+		scsi_paths_printk(sdev, " ", "host %d channel %d id %d lun %d");
-+		printk(" name/id: '%s'\n", sdev->sdev_driverfs_dev.name);
-+		});
- 	return;
  }
  
-@@ -1143,9 +1124,10 @@
+-/* Protects next_safe and last_pid. */
+ void add_wait_queue(wait_queue_head_t *q, wait_queue_t * wait)
  {
- 	int res = SCSI_2;
- 	Scsi_Device *sdev;
-+	scsi_traverse_hndl_t strav_hndl;
+ 	unsigned long flags;
+@@ -159,52 +149,6 @@
+ 	return tsk;
+ }
  
--	for (sdev = shost->host_queue; sdev; sdev = sdev->next)
--		if ((id == sdev->id) && (channel == sdev->channel))
-+	scsi_for_each_sdev_lun (&strav_hndl, sdev, shost->host_no,
-+				channel, id)
- 			return (int) sdev->scsi_level;
- 	/*
- 	 * FIXME No matching target id is configured, this needs to get
-@@ -1175,14 +1157,13 @@
- 	unsigned char scsi_cmd[MAX_COMMAND_SIZE];
- 	int possible_inq_resp_len;
- 
--	SCSI_LOG_SCAN_BUS(3, printk(KERN_INFO "scsi scan: INQUIRY to host %d"
--			" channel %d id %d lun %d\n", sdev->host->host_no,
--			sdev->channel, sdev->id, sdev->lun));
-+	SCSI_LOG_SCAN_BUS(3, {
-+		printk(KERN_INFO "scsi scan: INQUIRY to ");
-+		scsi_paths_printk(sdev, " ", "host %d channel %d id %d lun %d\n");
-+	});
- 
- 	memset(scsi_cmd, 0, 6);
- 	scsi_cmd[0] = INQUIRY;
--	if ((sdev->lun > 0) && (sdev->scsi_level <= SCSI_2))
--		scsi_cmd[1] = (sdev->lun << 5) & 0xe0;
- 	scsi_cmd[4] = 36;	/* issue conservative alloc_length */
- 	sreq->sr_cmd_len = 0;
- 	sreq->sr_data_direction = SCSI_DATA_READ;
-@@ -1230,8 +1211,6 @@
- 	if (possible_inq_resp_len > 36) {	/* do additional INQUIRY */
- 		memset(scsi_cmd, 0, 6);
- 		scsi_cmd[0] = INQUIRY;
--		if ((sdev->lun > 0) && (sdev->scsi_level <= SCSI_2))
--			scsi_cmd[1] = (sdev->lun << 5) & 0xe0;
- 		scsi_cmd[4] = (unsigned char) possible_inq_resp_len;
- 		sreq->sr_cmd_len = 0;
- 		sreq->sr_data_direction = SCSI_DATA_READ;
-@@ -1308,9 +1287,7 @@
-  *     NULL, store the address of the new Scsi_Device in *@sdevnew (needed
-  *     when scanning a particular LUN).
-  *
-- * Return:
-- *     SCSI_SCAN_NO_RESPONSE: could not allocate or setup a Scsi_Device
-- *     SCSI_SCAN_LUN_PRESENT: a new Scsi_Device was allocated and initialized
-+ * Returns a SCSI_SCAN_ mask value.
-  **/
- static int scsi_add_lun(Scsi_Device *sdevscan, Scsi_Device **sdevnew,
- 			Scsi_Request *sreq, char *inq_result, int *bflags)
-@@ -1319,9 +1296,19 @@
- 	struct Scsi_Device_Template *sdt;
- 	char devname[64];
- 	extern devfs_handle_t scsi_devfs_handle;
-+	struct scsi_path_id pathid;
- 
--	sdev = scsi_alloc_sdev(sdevscan->host, sdevscan->channel,
--				     sdevscan->id, sdevscan->lun);
-+	/*
-+	 * sdevscan must have only one path, add it to this device.  XXX
-+	 * this is a bit ugly, there must be a better solution, maybe pass
-+	 * a scsi_path_id everywhere.
-+	 */
-+	if (scsi_get_path(sdevscan, &pathid)) {
-+		printk(KERN_ERR "scsi scan: no path to scan device.\n");
-+		return SCSI_SCAN_NO_RESPONSE;
-+	}
-+	sdev = scsi_alloc_sdev(pathid.spi_shpnt, pathid.spi_channel,
-+			       pathid.spi_id, pathid.spi_lun);
- 	if (sdev == NULL)
- 		return SCSI_SCAN_NO_RESPONSE;
- 
-@@ -1348,6 +1335,15 @@
- 	sdev->model = (char *) (sdev->inquiry + 16);
- 	sdev->rev = (char *) (sdev->inquiry + 32);
- 
-+	/*
-+	 * XXX move the identifier and driverfs/devfs setup to a new
-+	 * function
-+	 *
-+	 * scsi_load_identifier is the only reason sreq is needed in this
-+	 * function; it also requires that the inquiry strings be set up.
-+	 */
-+	scsi_load_identifier(sdev, sreq);
-+
- 	if (*bflags & BLIST_ISROM) {
- 		/*
- 		 * It would be better to modify sdev->type, and set
-@@ -1410,20 +1406,12 @@
- 	sdev->soft_reset = (inq_result[7] & 1) && ((inq_result[3] & 7) == 2);
- 
- 	/*
--	 * XXX maybe move the identifier and driverfs/devfs setup to a new
--	 * function, and call them after this function is called.
--	 *
--	 * scsi_load_identifier is the only reason sreq is needed in this
--	 * function.
--	 */
--	scsi_load_identifier(sdev, sreq);
+-static int get_pid(unsigned long flags)
+-{
+-	struct task_struct *g, *p;
+-	int pid;
 -
--	/*
- 	 * create driverfs files
- 	 */
- 	sprintf(sdev->sdev_driverfs_dev.bus_id,"%d:%d:%d:%d",
--		sdev->host->host_no, sdev->channel, sdev->id, sdev->lun);
--	sdev->sdev_driverfs_dev.parent = &sdev->host->host_driverfs_dev;
-+		pathid.spi_shpnt->host_no, pathid.spi_channel, pathid.spi_id,
-+		pathid.spi_lun);
-+	sdev->sdev_driverfs_dev.parent = &pathid.spi_shpnt->host_driverfs_dev;
- 	sdev->sdev_driverfs_dev.bus = &scsi_driverfs_bus_type;
- 	device_register(&sdev->sdev_driverfs_dev);
- 
-@@ -1433,7 +1421,8 @@
- 	device_create_file(&sdev->sdev_driverfs_dev, &dev_attr_type);
- 
- 	sprintf(devname, "host%d/bus%d/target%d/lun%d",
--		sdev->host->host_no, sdev->channel, sdev->id, sdev->lun);
-+		pathid.spi_shpnt->host_no, pathid.spi_channel, pathid.spi_id,
-+		pathid.spi_lun);
- 	if (sdev->de)
- 		printk(KERN_WARNING "scsi devfs dir: \"%s\" already exists\n",
- 		       devname);
-@@ -1468,7 +1457,8 @@
- 	if (sdevnew != NULL)
- 		*sdevnew = sdev;
- 
--	return SCSI_SCAN_LUN_PRESENT;
-+	return (SCSI_SCAN_TARGET_PRESENT | SCSI_SCAN_LUN_PRESENT |
-+		SCSI_SCAN_NEW_LUN);
- }
- 
- /**
-@@ -1481,11 +1471,7 @@
-  *     Call scsi_probe_lun, if a LUN with an attached device is found,
-  *     allocate and set it up by calling scsi_add_lun.
-  *
-- * Return:
-- *     SCSI_SCAN_NO_RESPONSE: could not allocate or setup a Scsi_Device
-- *     SCSI_SCAN_TARGET_PRESENT: target responded, but no device is
-- *         attached at the LUN
-- *     SCSI_SCAN_LUN_PRESENT: a new Scsi_Device was allocated and initialized
-+ * Returns a SCSI_SCAN_ mask value.
-  **/
- static int scsi_probe_and_add_lun(Scsi_Device *sdevscan, Scsi_Device **sdevnew,
- 				  int *bflagsp)
-@@ -1495,7 +1481,15 @@
- 	unsigned char *scsi_result = NULL;
- 	int bflags;
- 	int res;
-+	struct scsi_path_id pathid;
- 
-+	if (sdevnew != NULL)
-+		*sdevnew = NULL;
-+
-+	if (scsi_get_path(sdevscan, &pathid)) {
-+		printk(KERN_ERR "scsi scan: no path to scan device.\n");
-+		return SCSI_SCAN_NO_RESPONSE;
-+	}
- 	/*
- 	 * Any command blocks allocated are fixed to use sdevscan->lun,
- 	 * so they must be allocated and released if sdevscan->lun
-@@ -1521,9 +1515,8 @@
- 	 * The sreq is for use only with sdevscan.
- 	 */
- 
--	scsi_result = kmalloc(256, GFP_ATOMIC |
--			      (sdevscan->host->unchecked_isa_dma) ?
--			      GFP_DMA : 0);
-+	scsi_result = kmalloc(256, GFP_ATOMIC | 
-+	    (pathid.spi_shpnt->unchecked_isa_dma) ?  GFP_DMA : 0);
- 	if (scsi_result == NULL)
- 		goto alloc_failed;
- 
-@@ -1552,12 +1545,12 @@
- 		} else {
- 			res = scsi_add_lun(sdevscan, &sdev, sreq, scsi_result,
- 					   &bflags);
--			if (res == SCSI_SCAN_LUN_PRESENT) {
-+			if (res & SCSI_SCAN_LUN_PRESENT) {
- 				BUG_ON(sdev == NULL);
--				if ((bflags & BLIST_KEY) != 0) {
-+				if ((res & SCSI_SCAN_NEW_LUN) &&
-+				    (bflags & BLIST_KEY) != 0) {
- 					sdev->lockable = 0;
--					scsi_unlock_floptical(sreq,
--							      scsi_result);
-+					scsi_unlock_floptical(sreq, scsi_result);
- 					/*
- 					 * scsi_result no longer contains
- 					 * the INQUIRY data.
-@@ -1606,22 +1599,26 @@
- static void scsi_sequential_lun_scan(Scsi_Device *sdevscan, int bflags,
- 				     int lun0_res)
+-	if (flags & CLONE_IDLETASK)
+-		return 0;
+-
+-	spin_lock(&lastpid_lock);
+-	if (++last_pid > pid_max) {
+-		last_pid = 300;		/* Skip daemons etc. */
+-		goto inside;
+-	}
+-
+-	if (last_pid >= next_safe) {
+-inside:
+-		next_safe = pid_max;
+-		read_lock(&tasklist_lock);
+-	repeat:
+-		do_each_thread(g, p) {
+-			if (p->pid == last_pid	||
+-			   p->pgrp == last_pid	||
+-			   p->session == last_pid) {
+-				if (++last_pid >= next_safe) {
+-					if (last_pid >= pid_max)
+-						last_pid = 300;
+-					next_safe = pid_max;
+-				}
+-				goto repeat;
+-			}
+-			if (p->pid > last_pid && next_safe > p->pid)
+-				next_safe = p->pid;
+-			if (p->pgrp > last_pid && next_safe > p->pgrp)
+-				next_safe = p->pgrp;
+-			if (p->session > last_pid && next_safe > p->session)
+-				next_safe = p->session;
+-		} while_each_thread(g, p);
+-
+-		read_unlock(&tasklist_lock);
+-	}
+-	pid = last_pid;
+-	spin_unlock(&lastpid_lock);
+-
+-	return pid;
+-}
+-
+ static inline int dup_mmap(struct mm_struct * mm)
  {
--	struct Scsi_Host *shost = sdevscan->host;
- 	unsigned int sparse_lun;
- 	unsigned int max_dev_lun;
-+	struct scsi_path_id pathid;
- 
-+	if (scsi_get_path(sdevscan, &pathid)) {
-+		printk(KERN_ERR "scsi scan: no path to scan device.\n");
-+		return;
-+	}
- 	SCSI_LOG_SCAN_BUS(3, printk(KERN_INFO "scsi scan: Sequential scan of"
--			" host %d channel %d id %d\n", sdevscan->host->host_no,
--			sdevscan->channel, sdevscan->id));
-+		" host %d channel %d id %d\n", pathid.spi_shpnt->host_no,
-+		pathid.spi_channel, pathid.spi_id));
- 
--	max_dev_lun = min(max_scsi_luns, shost->max_lun);
-+	max_dev_lun = min(max_scsi_luns, pathid.spi_shpnt->max_lun);
- 	/*
- 	 * If this device is known to support sparse multiple units,
- 	 * override the other settings, and scan all of them. Normally,
- 	 * SCSI-3 devices should be scanned via the REPORT LUNS.
- 	 */
- 	if (bflags & BLIST_SPARSELUN) {
--		max_dev_lun = shost->max_lun;
-+		max_dev_lun = pathid.spi_shpnt->max_lun;
- 		sparse_lun = 1;
- 	} else
- 		sparse_lun = 0;
-@@ -1630,7 +1627,7 @@
- 	 * If not sparse lun and no device attached at LUN 0 do not scan
- 	 * any further.
- 	 */
--	if (!sparse_lun && (lun0_res != SCSI_SCAN_LUN_PRESENT))
-+	if (!sparse_lun && !(lun0_res & SCSI_SCAN_LUN_PRESENT))
- 		return;
- 
- 	/*
-@@ -1647,7 +1644,7 @@
- 	 * the other settings, and scan all of them.
- 	 */
- 	if (bflags & BLIST_FORCELUN)
--		max_dev_lun = shost->max_lun;
-+		max_dev_lun = pathid.spi_shpnt->max_lun;
- 	/*
- 	 * REGAL CDC-4X: avoid hang after LUN 4
- 	 */
-@@ -1665,10 +1662,16 @@
- 	 * until we reach the max, or no LUN is found and we are not
- 	 * sparse_lun.
- 	 */
--	for (sdevscan->lun = 1; sdevscan->lun < max_dev_lun; ++sdevscan->lun)
--		if ((scsi_probe_and_add_lun(sdevscan, NULL, NULL)
--		     != SCSI_SCAN_LUN_PRESENT) && !sparse_lun)
-+
-+	for (pathid.spi_lun = 1; pathid.spi_lun < max_dev_lun;
-+	     ++pathid.spi_lun) {
-+		scsi_replace_path(sdevscan, pathid.spi_shpnt,
-+				   pathid.spi_channel, pathid.spi_id,
-+				  pathid.spi_lun);
-+		if (!(scsi_probe_and_add_lun(sdevscan, NULL, NULL)
-+		     & SCSI_SCAN_LUN_PRESENT) && !sparse_lun)
- 			return;
-+	}
- }
- 
- #ifdef CONFIG_SCSI_REPORT_LUNS
-@@ -1732,6 +1735,7 @@
- 	ScsiLun *fcp_cur_lun, *lun_data;
- 	Scsi_Request *sreq;
- 	char *data;
-+	struct scsi_path_id pathid;
- 
- 	/*
- 	 * Only support SCSI-3 and up devices.
-@@ -1739,6 +1743,13 @@
- 	if (sdevscan->scsi_level < SCSI_3)
- 		return 1;
- 
-+	if (scsi_get_path(sdevscan, &pathid)) {
-+		printk(KERN_ERR "scsi scan: no path to scan device.\n");
-+		/*
-+		 * An inconsistency, so don't try scanning any further.
-+		 */
-+		return 0;
-+	}
- 	sdevscan->queue_depth = 1;
- 	scsi_build_commandblocks(sdevscan);
- 	if (sdevscan->has_cmdblocks == 0) {
-@@ -1750,8 +1761,8 @@
+ 	struct vm_area_struct * mpnt, *tmp, **pprev;
+@@ -696,8 +640,11 @@
+ 			goto bad_fork_free;
  	}
- 	sreq = scsi_allocate_request(sdevscan);
  
--	sprintf(devname, "host %d channel %d id %d", sdevscan->host->host_no,
--		sdevscan->channel, sdevscan->id);
-+	sprintf(devname, "host %d channel %d id %d", pathid.spi_shpnt->host_no,
-+		pathid.spi_channel, pathid.spi_id);
++	write_lock(&p->user->lock);
+ 	atomic_inc(&p->user->__count);
+ 	atomic_inc(&p->user->processes);
++	list_add(&p->user_task_list, &p->user->task_list);
++	write_unlock(&p->user->lock);
+ 
  	/*
- 	 * Allocate enough to hold the header (the same size as one ScsiLun)
- 	 * plus the max number of luns we are requesting.
-@@ -1763,9 +1774,8 @@
- 	 * prevent us from finding any LUNs on this target.
- 	 */
- 	length = (max_scsi_report_luns + 1) * sizeof(ScsiLun);
--	lun_data = (ScsiLun *) kmalloc(length, GFP_ATOMIC |
--					   (sdevscan->host->unchecked_isa_dma ?
--					    GFP_DMA : 0));
-+	lun_data = (ScsiLun *) kmalloc(length, GFP_ATOMIC | 
-+	    (pathid.spi_shpnt->unchecked_isa_dma ?  GFP_DMA : 0));
- 	if (lun_data == NULL) {
- 		printk(ALLOC_FAILURE_MSG, __FUNCTION__);
- 		scsi_release_commandblocks(sdevscan);
-@@ -1845,9 +1855,8 @@
- 	} else
- 		num_luns = (length / sizeof(ScsiLun));
+ 	 * Counter increases are protected by
+@@ -724,7 +671,13 @@
+ 	p->state = TASK_UNINTERRUPTIBLE;
  
--	SCSI_LOG_SCAN_BUS(3, printk (KERN_INFO "scsi scan: REPORT LUN scan of"
--			" host %d channel %d id %d\n", sdevscan->host->host_no,
--			sdevscan->channel, sdevscan->id));
-+	SCSI_LOG_SCAN_BUS(3, 
-+	    printk(KERN_INFO "scsi scan: REPORT LUN scan of %s\n", devname));
- 	/*
- 	 * Scan the luns in lun_data. The entry at offset 0 is really
- 	 * the header, so start at 1 and go up to and including num_luns.
-@@ -1877,22 +1886,23 @@
- 			/*
- 			 * LUN 0 has already been scanned.
- 			 */
--		} else if (lun > sdevscan->host->max_lun) {
-+		} else if (lun > pathid.spi_shpnt->max_lun) {
- 			printk(KERN_WARNING "scsi: %s lun%d has a LUN larger"
- 			       " than allowed by the host adapter\n",
- 			       devname, lun);
- 		} else {
--			int res;
--
--			sdevscan->lun = lun;
--			res = scsi_probe_and_add_lun(sdevscan, NULL, NULL);
--			if (res == SCSI_SCAN_NO_RESPONSE) {
-+			pathid.spi_lun = lun;
-+			scsi_replace_path(sdevscan, pathid.spi_shpnt,
-+					   pathid.spi_channel, pathid.spi_id,
-+					  pathid.spi_lun);
-+			if (scsi_probe_and_add_lun(sdevscan, NULL, NULL) ==
-+			    SCSI_SCAN_NO_RESPONSE) {
- 				/*
- 				 * Got some results, but now none, abort.
- 				 */
- 				printk(KERN_ERR "scsi: Unexpected response"
- 				       " from %s lun %d while scanning, scan"
--				       " aborted\n", devname, sdevscan->lun);
-+				       " aborted\n", devname, pathid.spi_lun);
- 				break;
- 			}
- 		}
-@@ -1938,18 +1948,15 @@
- 		 */
- 		return;
+ 	copy_flags(clone_flags, p);
+-	p->pid = get_pid(clone_flags);
++	if (clone_flags & CLONE_IDLETASK)
++		p->pid = 0;
++	else {
++		p->pid = alloc_pid();
++		if (p->pid == -1)
++			goto bad_fork_cleanup;
++	}
+ 	p->proc_dentry = NULL;
  
--	sdevscan->host = shost;
--	sdevscan->id = id;
--	sdevscan->channel = channel;
-+	scsi_replace_path(sdevscan, shost, channel, id, 0 /* LUN */);
- 	/*
- 	 * Scan LUN 0, if there is some response, scan further. Ideally, we
- 	 * would not configure LUN 0 until all LUNs are scanned.
- 	 *
- 	 * The scsi_level is set (in scsi_probe_lun) if a target responds.
- 	 */
--	sdevscan->lun = 0;
- 	res = scsi_probe_and_add_lun(sdevscan, NULL, &bflags);
--	if (res != SCSI_SCAN_NO_RESPONSE) {
-+	if (res & SCSI_SCAN_TARGET_PRESENT) {
- 		/*
- 		 * Some scsi devices cannot properly handle a lun != 0.
- 		 * BLIST_NOLUN also prevents a REPORT LUN from being sent.
-@@ -1995,9 +2002,10 @@
- 		return;
- 
- 	sdevscan->scsi_level = scsi_find_scsi_level(channel, id, shost);
-+	sdevscan->scanning = 1;
- 	res = scsi_probe_and_add_lun(sdevscan, &sdev, NULL);
- 	scsi_free_sdev(sdevscan);
--	if (res == SCSI_SCAN_LUN_PRESENT) {
-+	if (res & SCSI_SCAN_NEW_LUN) {
- 		BUG_ON(sdev == NULL);
- 		/*
- 		 * FIXME calling select_queue_depths is wrong for adapters
-@@ -2014,7 +2022,6 @@
- 		 */
- 		if (shost->select_queue_depths != NULL)
- 			(shost->select_queue_depths) (shost, shost->host_queue);
--
- 		for (sdt = scsi_devicelist; sdt; sdt = sdt->next)
- 			if (sdt->init && sdt->dev_noticed)
- 				(*sdt->init) ();
-@@ -2080,11 +2087,19 @@
- 		 * queue_nr_requests requests are allocated. Don't do so
- 		 * here for scsi_scan_selected_lun, since we end up
- 		 * calling select_queue_depths with an extra Scsi_Device
--		 * on the host_queue list.
-+		 * on the device list.
- 		 */
- 		sdevscan = scsi_alloc_sdev(shost, 0, 0, 0);
- 		if (sdevscan == NULL)
- 			return;
-+		/*
-+		 * Set the scanning bit, so error messages about errors
-+		 * and path failure are not printed; this should be used
-+		 * in scsi_error.c to prevent overly aggressive action on
-+		 * failure for a scan. This is never reset, as the default
-+		 * state for a new Scsi_Device is 0.
-+		 */
-+		sdevscan->scanning = 1;
- 		/*
- 		 * The sdevscan host, channel, id and lun are filled in as
- 		 * needed to scan.
-diff -Nru a/drivers/scsi/scsi_syms.c b/drivers/scsi/scsi_syms.c
---- a/drivers/scsi/scsi_syms.c	Mon Sep 16 15:29:45 2002
-+++ b/drivers/scsi/scsi_syms.c	Mon Sep 16 15:29:45 2002
-@@ -102,6 +102,12 @@
- EXPORT_SYMBOL(scsi_add_timer);
- EXPORT_SYMBOL(scsi_delete_timer);
- 
-+EXPORT_SYMBOL(scsi_add_path);
-+EXPORT_SYMBOL(scsi_remove_path);
-+EXPORT_SYMBOL(scsi_get_path);
-+EXPORT_SYMBOL(scsi_get_host);
-+EXPORT_SYMBOL(scsi_paths_printk);
-+EXPORT_SYMBOL(scsi_traverse_sdevs);
- /*
-  * driverfs support for determining driver types
-  */
-diff -Nru a/include/scsi/scsi.h b/include/scsi/scsi.h
---- a/include/scsi/scsi.h	Mon Sep 16 15:29:45 2002
-+++ b/include/scsi/scsi.h	Mon Sep 16 15:29:45 2002
-@@ -91,6 +91,29 @@
- #define WRITE_LONG_2          0xea
- 
- /*
-+ * SCSI INQUIRY Flags (byte 7)
-+ */
-+#define SCSI_EVPD       0x01   /* enable vital product data */
-+#define SCSI_RMB7       0x80   /* removable media */
-+#define SCSI_AENC       0x80   /* asynchronous event notification capability */
-+#define SCSI_TRMIOP     0x40   /* terminate I/O process capability */
-+#define SCSI_RELADR7    0x80   /* relative addressing capability */
-+#define SCSI_WBUS16     0x20   /* 16 byte wide transfer capabilitiy */
-+#define SCSI_WBUS32     0x40   /* 32 byte wide transfer capabilitiy */
-+#define SCSI_SYNC       0x10   /* synchronous data transfer capability */
-+#define SCSI_LINKED     0x08   /* linked command capability */
-+#define SCSI_CMDQUE     0x02   /* command queueing capability */
-+#define SCSI_SFTRE      0x01   /* soft reset capability */
+ 	INIT_LIST_HEAD(&p->run_list);
+@@ -887,9 +840,16 @@
+ 	SET_LINKS(p);
+ 	if (p->ptrace & PT_PTRACED)
+ 		__ptrace_link(p, current->parent);
++	attach_tag(p, IDTAG_PID, p->pid);
++	if (thread_group_leader(p)) {
++		attach_tag(p, IDTAG_TGID, p->tgid);
++		attach_tag(p, IDTAG_PGID, p->pgrp);
++		attach_tag(p, IDTAG_SID, p->session);
++	}
+ 	hash_pid(p);
+ 	nr_threads++;
+ 	write_unlock_irq(&tasklist_lock);
 +
-+/*
-+ * SCSI INQUIRY Vital Product Data Page Codes
-+ */
-+#define SCSI_VPROD_SUPPORTED            0x00
-+#define SCSI_VPROD_UNIT_SERIAL          0x80
-+#define SCSI_VPROD_AODEFN               0x82
-+#define SCSI_VPROD_DEVICE_ID            0x83
-+
-+/*
-  *  Status codes
-  */
+ 	retval = 0;
  
+ fork_out:
+@@ -912,6 +872,8 @@
+ bad_fork_cleanup_security:
+ 	security_ops->task_free_security(p);
+ bad_fork_cleanup:
++	if (p->pid > 0)
++		free_pid(p->pid);
+ 	put_exec_domain(p->thread_info->exec_domain);
+ 	if (p->binfmt && p->binfmt->module)
+ 		__MOD_DEC_USE_COUNT(p->binfmt->module);
+--- linux/kernel/user.c.orig	Wed Sep 18 00:16:36 2002
++++ linux/kernel/user.c	Wed Sep 18 00:18:06 2002
+@@ -30,6 +30,8 @@
+ struct user_struct root_user = {
+ 	.__count	= ATOMIC_INIT(1),
+ 	.processes	= ATOMIC_INIT(1),
++	.lock		= RW_LOCK_UNLOCKED,
++	.task_list	= LIST_HEAD_INIT(root_user.task_list),
+ 	.files		= ATOMIC_INIT(0)
+ };
+ 
+@@ -64,6 +66,11 @@
+ 	return NULL;
+ }
+ 
++struct user_struct *find_user(uid_t uid)
++{
++	return uid_hash_find(uid, uidhashentry(uid));
++}
++
+ void free_uid(struct user_struct *up)
+ {
+ 	if (up && atomic_dec_and_lock(&up->__count, &uidhash_lock)) {
+@@ -92,6 +99,8 @@
+ 		atomic_set(&new->__count, 1);
+ 		atomic_set(&new->processes, 0);
+ 		atomic_set(&new->files, 0);
++		INIT_LIST_HEAD(&new->task_list);
++		rwlock_init(&new->lock);
+ 
+ 		/*
+ 		 * Before adding this, check whether we raced
+--- linux/init/main.c.orig	Wed Sep 18 00:16:43 2002
++++ linux/init/main.c	Wed Sep 18 00:18:06 2002
+@@ -66,6 +66,7 @@
+ extern void sysctl_init(void);
+ extern void signals_init(void);
+ extern void buffer_init(void);
++extern void idtag_init(void);
+ extern void pte_chain_init(void);
+ extern void radix_tree_init(void);
+ extern void free_initmem(void);
+@@ -432,6 +433,7 @@
+ #endif
+ 	mem_init();
+ 	kmem_cache_sizes_init();
++	idtag_init();
+ 	pgtable_cache_init();
+ 	pte_chain_init();
+ 	fork_init(num_physpages);
+

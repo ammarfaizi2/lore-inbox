@@ -1,80 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313572AbSDPD1q>; Mon, 15 Apr 2002 23:27:46 -0400
+	id <S313575AbSDPEMF>; Tue, 16 Apr 2002 00:12:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313573AbSDPD1p>; Mon, 15 Apr 2002 23:27:45 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9990 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313572AbSDPD1o>;
-	Mon, 15 Apr 2002 23:27:44 -0400
-Message-ID: <3CBB9A15.E04FDA10@zip.com.au>
-Date: Mon, 15 Apr 2002 20:27:17 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S313577AbSDPEME>; Tue, 16 Apr 2002 00:12:04 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:53509
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S313575AbSDPEME>; Tue, 16 Apr 2002 00:12:04 -0400
+Date: Mon, 15 Apr 2002 21:11:39 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Josh McKinney <forming@comcast.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]
+In-Reply-To: <20020416031127.GA1030@cy599856-a>
+Message-ID: <Pine.LNX.4.10.10204152109300.7430-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: OOPS caused by ext2 changes
-In-Reply-To: <3CBB7B73.8090104@us.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
+
+Yep,
+
+Edit ide-taskfile.c find ide_driveid_update
+
+Changes the #if 1 to #if 0
+
+Attempting to make the code compress but it appears that entry for
+updating is more than a simple direct call.  Still banging it out.
+
+Cheers,
+
+On Mon, 15 Apr 2002, Josh McKinney wrote:
+
+> On approximately Mon, Apr 15, 2002 at 12:59:20PM -0700, Andre Hedrick wrote:
+> > 
+> > http://www.linuxdiskcert.org/ide-2.4.19-p6.all.convert.3a.patch.bz2
+> > 
+> > Lets try it again, I diffed the wrong tree :-/
+> > 
 > 
-> Andrew Morton and I discused this earlier.  I have some more information
-> now.  The problem: "dbench 64" run on a small (~120meg) partition with
-> 1k block sizes produces Oopses.
+> Well it compiled fine this time, but it seems to have problems with gcc-3.0.4 I am using to
+> compile kernels.  This gcc has been fine for all other uses, but it must be something with this
+> particular build because gcc-2.95.4 works without a problem.  Anyways, here is the oops report
+> if it may interest you.
 > 
-> This changeset:
-> http://linus.bkbits.net:8080/linux-2.5/patch@1.248.2.6?nav=index.html|ChangeSet|cset@1.248.2.6
-> is the culprit.  Without it applied, none of this happens.
+> <1>Unable to handle kernel paging request at virtual address 3fff432a
+> c01c2c90
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c01c2c90>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010202
+> eax: 3fff427a   ebx: c02fc928   ecx: 00000001   edx: dda11e04
+> esi: c02fc928   edi: dda11e98   ebp: bffff7f0   esp: dda11e04
+> ds: 0018   es: 0018   ss: 0018
+> Process hdparm (pid: 492, stackpage=dda11000)
+> Stack: 3fff427a 00100000 0258e100 0010003f 000e0000 2d575744 39504d41 30353136
+>        31003238 00000000 10000003 30320028 35422e30 57443032 57444320 30423630
+>        3332422d 41304358 20202020 20202020 20202020 20202020 20202020 80102020
+> Code: 0f b7 80 b0 00 00 00 8b 93 f0 00 00 00 66 89 82 b0 00 00 00
+> 
+> 
+> >>EIP; c01c2c90 <ide_driveid_update+30/90>   <=====
+> 
+> >>eax; 3fff427a Before first symbol
+> >>ebx; c02fc928 <ide_hwifs+388/20a8>
+> >>edx; dda11e04 <_end+1d70bb50/2253ad4c>
+> >>esi; c02fc928 <ide_hwifs+388/20a8>
+> >>edi; dda11e98 <_end+1d70bbe4/2253ad4c>
+> >>ebp; bffff7f0 Before first symbol
+> >>esp; dda11e04 <_end+1d70bb50/2253ad4c>
+> 
+> Code;  c01c2c90 <ide_driveid_update+30/90>
+> 00000000 <_EIP>:
+> Code;  c01c2c90 <ide_driveid_update+30/90>   <=====
+>    0:   0f b7 80 b0 00 00 00      movzwl 0xb0(%eax),%eax   <=====
+> Code;  c01c2c97 <ide_driveid_update+37/90>
+>    7:   8b 93 f0 00 00 00         mov    0xf0(%ebx),%edx
+> Code;  c01c2c9d <ide_driveid_update+3d/90>
+>    d:   66 89 82 b0 00 00 00      mov    %ax,0xb0(%edx)
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
+Andre Hedrick
+LAD Storage Consulting Group
 
-It's vaguely surprising that that chunk is associated with the
-problem.
-
-However it seems that there's potential for a buffer reference
-leak in ext2_get_branch:
-
-        while (--depth) {
-                bh = sb_bread(sb, le32_to_cpu(p->key));
-                if (!bh)
-                        goto failure;
-                /* Reader: pointers */
-                if (!verify_chain(chain, p))
-                        goto changed;
-                add_chain(++p, bh, (u32*)bh->b_data + *++offsets);
-                /* Reader: end */
-                if (!p->key)
-                        goto no_block;
-        }
-        return NULL;
-
-changed:
-        *err = -EAGAIN;
-        goto no_block;
-failure:
-        *err = -EIO;
-no_block:
-        return p;
-}
-
-
-See, sb_bread() bumps b_count, but on the `goto changed;'
-branch we lose track of that buffer.
-
-b_count is only 16 bits, so it's conceivable that the
-count wraps to zero, and that is fatal.
-
-It would be interesting to replace that `goto changed;' 
-with { __brelse(bh); goto changed; }.  Plus maybe a
-debug printk to see if we are indeed hitting that path.
-
-I don't think this is the bug actually - if we were
-leaking bh refs that easily we'd get `busy buffer'
-whines at unmount.  But it merits investigation.
-
--

@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129593AbRBZSfC>; Mon, 26 Feb 2001 13:35:02 -0500
+	id <S129709AbRBZTHF>; Mon, 26 Feb 2001 14:07:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129640AbRBZSew>; Mon, 26 Feb 2001 13:34:52 -0500
-Received: from adsl-64-168-227-89.dsl.sntc01.pacbell.net ([64.168.227.89]:38148
-	"HELO lustre.us.mvd") by vger.kernel.org with SMTP
-	id <S129593AbRBZSel>; Mon, 26 Feb 2001 13:34:41 -0500
-From: "Peter J. Braam" <braam@mountainviewdata.com>
-To: "Alexander Viro" <viro@math.psu.edu>, <linux-fsdevel@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Cc: "Ronald G. Minnich" <rminnich@lanl.gov>
-Subject: RE: [PATCH][CFT] per-process namespaces for Linux
-Date: Mon, 26 Feb 2001 08:26:23 -0800
-Message-ID: <NEBBIIJKCMJGDLNAMBCBMEDKCEAA.braam@mountainviewdata.com>
+	id <S129711AbRBZTGz>; Mon, 26 Feb 2001 14:06:55 -0500
+Received: from host217-32-155-2.hg.mdip.bt.net ([217.32.155.2]:49156 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129709AbRBZTGl>;
+	Mon, 26 Feb 2001 14:06:41 -0500
+Date: Mon, 26 Feb 2001 19:06:32 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: awe_ram.c
+In-Reply-To: <27525795B28BD311B28D00500481B7601F0F12@ftrs1.intranet.ftr.nl>
+Message-ID: <Pine.LNX.4.21.0102261901030.995-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
-In-Reply-To: <Pine.GSO.4.21.0102242253460.24312-100000@weyl.math.psu.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
+Hi,
 
-Very neat!
+Hmm, it's a curious driver... Here is the patch (and the final .c) to get
+it to compile under 2.4.2
 
-Ron Minnich and I built something similar: we built private namespaces for
-login sessions.  Ours have slightly different semantics I think.
+http://www.moses.uklinux.net/patches/aweram/
 
-To do so we changed mount+chroot into "imount" (i = invisible).  This landed
-a process in a file system that had no root in the Unix directory tree.
-(see the "Private name spaces, PNS" project on SourceForge.
+but the driver doesn't probe for the (extremely frequent!) case when the
+device has been prepared by the ISA-PNP subsystem. Looking at the
+infrastructure in drivers/net/ne.c it seems doable to teach it the
+language of isapnp_find_dev() API -- one just needs to know what
+signatures to plug into the ISAPNP_VENDOR() and ISAPNP_FUNCTION() macros
+-- my guess is that the output of /proc/isapnp contains this info.
 
-We added another goodie, which was called "memdev".  It provided a new block
-device from a private, i.e. copy on write, memory mapped block device.  See
-"memdev" on SourceForge.
+Interesting... I will play with this and see if it detects my ISA-PNP SB
+AWE64 card. Give the above patch a try and see if you figure out the
+values to plug in there sooner than I do.
 
-We used it as follows:
-
- - when you login, you get imounted into an environment where you have full
-priviliges (except mknod).  The "/" of your environment is not a directory
-in the Unix tree.
- - in this environment the system file systems are available to you on a
-copy on write private basis.
- - any files you change get out over a network file system to a server.  We
-used InterMezzo backed by a ramfs cache.
-
-When the user logs out, everything is gone, except possibly footprints in
-swap.
-
-- Peter J. Braam -
-
-Mountain View Data, Inc.
+Regards,
+Tigran
 

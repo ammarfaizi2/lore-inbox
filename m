@@ -1,129 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267197AbSLRGcL>; Wed, 18 Dec 2002 01:32:11 -0500
+	id <S267183AbSLRG3I>; Wed, 18 Dec 2002 01:29:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267198AbSLRGcL>; Wed, 18 Dec 2002 01:32:11 -0500
-Received: from holomorphy.com ([66.224.33.161]:19131 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267197AbSLRGcJ>;
-	Wed, 18 Dec 2002 01:32:09 -0500
-Date: Tue, 17 Dec 2002 22:39:40 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: vm86 IRQ bugfix
-Message-ID: <20021218063940.GF12812@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267184AbSLRG3H>; Wed, 18 Dec 2002 01:29:07 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57863 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267183AbSLRG3F>; Wed, 18 Dec 2002 01:29:05 -0500
+Date: Tue, 17 Dec 2002 22:38:09 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Ulrich Drepper <drepper@redhat.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <Pine.LNX.4.44.0212172043540.1749-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0212172225410.1368-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vm86 does broken tasklist scanning for matching task_struct pointers,
-which is oopsable. This registers a notifier for it to GC vm86 IRQ's in
-release_thread() and removes the broken tasklist scanning.
-
-This bugfix is in 2.4.x and has been in 2.5.x-dj for an extended period
-of time.
-
- arch/i386/kernel/process.c |    3 +++
- arch/i386/kernel/vm86.c    |   30 ------------------------------
- include/asm-i386/irq.h     |    1 +
- 3 files changed, 4 insertions(+), 30 deletions(-)
 
 
-diff -urpN wli-2.5.51-bk1-5/arch/i386/kernel/process.c wli-2.5.51-bk1-6/arch/i386/kernel/process.c
---- wli-2.5.51-bk1-5/arch/i386/kernel/process.c	2002-12-09 18:45:39.000000000 -0800
-+++ wli-2.5.51-bk1-6/arch/i386/kernel/process.c	2002-12-11 18:33:21.000000000 -0800
-@@ -44,6 +44,7 @@
- #include <asm/ldt.h>
- #include <asm/processor.h>
- #include <asm/i387.h>
-+#include <asm/irq.h>
- #include <asm/desc.h>
- #ifdef CONFIG_MATH_EMULATION
- #include <asm/math_emu.h>
-@@ -269,6 +270,8 @@ void release_thread(struct task_struct *
- 			BUG();
- 		}
- 	}
-+
-+	release_x86_irqs(dead_task);
- }
- 
- /*
-diff -urpN wli-2.5.51-bk1-5/arch/i386/kernel/vm86.c wli-2.5.51-bk1-6/arch/i386/kernel/vm86.c
---- wli-2.5.51-bk1-5/arch/i386/kernel/vm86.c	2002-12-09 18:45:43.000000000 -0800
-+++ wli-2.5.51-bk1-6/arch/i386/kernel/vm86.c	2002-12-11 18:33:21.000000000 -0800
-@@ -708,23 +708,6 @@ static inline void free_vm86_irq(int irq
- 	spin_unlock_irqrestore(&irqbits_lock, flags);	
- }
- 
--static inline int task_valid(struct task_struct *tsk)
--{
--	struct task_struct *g, *p;
--	int ret = 0;
--
--	read_lock(&tasklist_lock);
--	do_each_thread(g, p)
--		if ((p == tsk) && (p->sig)) {
--			ret = 1;
--			goto out;
--		}
--	while_each_thread(g, p);
--out:
--	read_unlock(&tasklist_lock);
--	return ret;
--}
--
- void release_x86_irqs(struct task_struct *task)
- {
- 	int i;
-@@ -733,17 +716,6 @@ void release_x86_irqs(struct task_struct
- 		free_vm86_irq(i);
- }
- 
--static inline void handle_irq_zombies(void)
--{
--	int i;
--	for (i=3; i<16; i++) {
--		if (vm86_irqs[i].tsk) {
--			if (task_valid(vm86_irqs[i].tsk)) continue;
--			free_vm86_irq(i);
--		}
--	}
--}
--
- static inline int get_and_reset_irq(int irqnumber)
- {
- 	int bit;
-@@ -772,7 +744,6 @@ static int do_vm86_irq_handling(int subf
- 		case VM86_REQUEST_IRQ: {
- 			int sig = irqnumber >> 8;
- 			int irq = irqnumber & 255;
--			handle_irq_zombies();
- 			if (!capable(CAP_SYS_ADMIN)) return -EPERM;
- 			if (!((1 << sig) & ALLOWED_SIGS)) return -EPERM;
- 			if ( (irq<3) || (irq>15) ) return -EPERM;
-@@ -784,7 +755,6 @@ static int do_vm86_irq_handling(int subf
- 			return irq;
- 		}
- 		case  VM86_FREE_IRQ: {
--			handle_irq_zombies();
- 			if ( (irqnumber<3) || (irqnumber>15) ) return -EPERM;
- 			if (!vm86_irqs[irqnumber].tsk) return 0;
- 			if (vm86_irqs[irqnumber].tsk != current) return -EPERM;
-diff -urpN wli-2.5.51-bk1-5/include/asm-i386/irq.h wli-2.5.51-bk1-6/include/asm-i386/irq.h
---- wli-2.5.51-bk1-5/include/asm-i386/irq.h	2002-12-09 18:45:44.000000000 -0800
-+++ wli-2.5.51-bk1-6/include/asm-i386/irq.h	2002-12-11 18:33:21.000000000 -0800
-@@ -23,6 +23,7 @@ static __inline__ int irq_cannonicalize(
- extern void disable_irq(unsigned int);
- extern void disable_irq_nosync(unsigned int);
- extern void enable_irq(unsigned int);
-+extern void release_x86_irqs(struct task_struct *);
- 
- #ifdef CONFIG_X86_LOCAL_APIC
- #define ARCH_HAS_NMI_WATCHDOG		/* See include/linux/nmi.h */
+On Tue, 17 Dec 2002, Linus Torvalds wrote:
+>
+> Which is ok for a regular fast system call (ebp will get restored
+> immediately), but it is NOT ok for the system call restart case, since in
+> that case we want %ebp to contain the old stack pointer, not the sixth
+> argument.
+
+I came up with an absolutely wonderfully _disgusting_ solution for this.
+
+The thing to realize on how to solve this is that since "sysenter" loses
+track of EIP, there's really no real reason to try to return directly
+after the "sysenter" instruction anyway. The return point is really
+totally arbitrary, after all.
+
+Now, couple this with the fact that system call restarting will always
+just subtract two from the "return point" aka saved EIP value (that's the
+size of an "int 0x80" instruction), and what you can do is to make the
+kernel point the sysexit return point not at just past the "sysenter", but
+instead make it point to just past a totally unrelated 2-byte jump
+instruction.
+
+With that in mind, I made the sysentry trampoline look like this:
+
+        static const char sysent[] = {
+                0x51,                   /* push %ecx */
+                0x52,                   /* push %edx */
+                0x55,                   /* push %ebp */
+                0x89, 0xe5,             /* movl %esp,%ebp */
+                0x0f, 0x34,             /* sysenter */
+        /* System call restart point is here! (SYSENTER_RETURN - 2) */
+                0xeb, 0xfa,             /* jmp to "movl %esp,%ebp" */
+        /* System call normal return point is here! (SYSENTER_RETURN in entry.S) */
+                0x5d,                   /* pop %ebp */
+                0x5a,                   /* pop %edx */
+                0x59,                   /* pop %ecx */
+                0xc3                    /* ret */
+        };
+
+which does the right thing for a "restarted" system call (ie when it
+restarts, it won't re-do just the sysenter instruction, it will really
+restart at the backwards jump, and thus re-start the "movl %esp,%ebp"
+too).
+
+Which means that now the kernel can happily trash %ebp as part of the
+sixth argument setup, since system call restarting will re-initialize it
+to point to the user-level stack that we need in %ebp because otherwise it
+gets totally lost.
+
+I'm a disgusting pig, and proud of it to boot.
+
+			Linus
+

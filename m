@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135513AbRDWTRU>; Mon, 23 Apr 2001 15:17:20 -0400
+	id <S135516AbRDWTSb>; Mon, 23 Apr 2001 15:18:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135516AbRDWTRK>; Mon, 23 Apr 2001 15:17:10 -0400
-Received: from sammy.netpathway.com ([208.137.139.2]:35081 "EHLO
-	sammy.netpathway.com") by vger.kernel.org with ESMTP
-	id <S135513AbRDWTRD>; Mon, 23 Apr 2001 15:17:03 -0400
-Message-ID: <3AE47F9E.D8CF4B1B@netpathway.com>
-Date: Mon, 23 Apr 2001 14:16:46 -0500
-From: "Gary White (Network Administrator)" <admin@netpathway.com>
-Organization: Internet Pathway
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: KDE Lockups with emu10k1 driver in kernel > 2.4.3-ac9
+	id <S135519AbRDWTSW>; Mon, 23 Apr 2001 15:18:22 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:6129 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S135516AbRDWTSL>; Mon, 23 Apr 2001 15:18:11 -0400
+Date: Mon, 23 Apr 2001 21:18:01 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alon Ziv <alonz@nolaviz.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Mike Kravetz <mkravetz@sequent.com>,
+        Ulrich Drepper <drepper@cygnus.com>
+Subject: Re: light weight user level semaphores
+Message-ID: <20010423211801.U682@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <E14qHRp-0007Yc-00@the-village.bc.nu> <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Apr 19, 2001 at 09:46:17AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since ac9 I started having a lockup when initializing KDE 2.1.1.
-Did not think that much about it since my installation has had libs
-upgraded and patched for months. Today I decided to do a clean
-distribution install and after I had the same problem. Removing
-each module one at a time I finally narrowed in down to the
-Sound Blaster Live module. Every version including ac9 and
-before works fine. Has anybody else had this problem?
+On Thu, Apr 19, 2001 at 09:46:17AM -0700, Linus Torvalds wrote:
+> > libc is entitled to, and most definitely does exactly that. Take a look at
+> > things like gethostent, getpwent etc etc.
+> 
+> Ehh.. I will bet you $10 USD that if libc allocates the next file
+> descriptor on the first "malloc()" in user space (in order to use the
+> semaphores for mm protection), programs _will_ break.
 
---
-Gary White               Network Administrator
-admin@netpathway.com          Internet Pathway
-Voice 601-776-3355            Fax 601-776-2314
+But we would not open the semaphore on malloc() but instead in
+the init functions of the libc. So the semaphore will be already
+allocated. May be dup2()ed to some very high range
+(INT_MAX-__GLIBC_MALLOC_SEM_FD) and the original fd closed.
 
+So this will be no real problem. That's why I don't like lazy
+init: May be you cannot init anymore, if you come to and
+condition, where you would need it.
 
+Also init/fini are usally very slow operations and as many things
+as possible are burdend onto their shoulders.
+
+Semaphores tend to be structures living very long (at least in
+all code I've written and seen so far) so I see no point in
+defering their initialization.
+
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263129AbUDOU1A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 16:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUDOUZk
+	id S263273AbUDOUaY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 16:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUDOU22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 16:25:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25774 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262175AbUDOUY3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 16:24:29 -0400
-To: Felix von Leitner <felix-kernel@fefe.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA Firewire still broken in 2.6.5 (also broken in 2.6.4, worked in 2.6.3)
-References: <20040415183230.GA16458@codeblau.de>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: 15 Apr 2004 17:24:09 -0300
-In-Reply-To: <20040415183230.GA16458@codeblau.de>
-Message-ID: <or3c75dm6u.fsf@free.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Thu, 15 Apr 2004 16:28:28 -0400
+Received: from mail.cyclades.com ([64.186.161.6]:45967 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262213AbUDOU1k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 16:27:40 -0400
+Date: Thu, 15 Apr 2004 16:54:30 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org,
+       drepper@redhat.com
+Subject: Re: message queue limits
+Message-ID: <20040415195430.GB3568@logos.cnet>
+References: <407A2DAC.3080802@redhat.com> <20040415145350.GF2085@logos.cnet> <20040415122411.0bcb9195.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040415122411.0bcb9195.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 15, 2004, Felix von Leitner <felix-kernel@fefe.de> wrote:
+On Thu, Apr 15, 2004 at 12:24:11PM -0700, Andrew Morton wrote:
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> >
+> > On Sun, Apr 11, 2004 at 10:48:28PM -0700, Ulrich Drepper wrote:
+> >  > Something has to change in the way message queues are created.
+> >  > Currently it is possible for an unprivileged user to exhaust all mq
+> >  > slots so that only root can create a few more.  Any other unprivileged
+> >  > user has no change to create anything.
+> >  > 
+> >  > I think it is necessary to create a per-user limit instead of a
+> >  > system-wide limit.
+> > 
+> >  Actually, there is no infrastructure to account for per-UID limits right now AFAICS 
+> >  (please someone correct me) at ALL. We need to account and limit for per-user
+> > 
+> >  - pending signals
+> >  - message queues
+> 
+> The stuff in kernel/user.c may be sufficient for this.
 
-> In 2.6.4, the kernel would detect my cold plugged Maxtor disk, but then
-> freeze and eventually time out trying to mount the file system on it in
-> the boot process.
+Oh, sweat! I'll try adding a "atomic_t signal_pending" to "user_struct" 
+to be checked at send_signal(), and then go for message queue limiting.
 
-> In 2.6.5, largely the same, but the kernel works when the disk is hot
-> plugged in after the boot process.  Having it plugged in during the boot
-> process still fails, and unplugging and replugging it after the boot
-> process still fails.
+Something which sucks is to add a atomic read/inc at each send signal operation.
 
-> After a few write accesses on the file system, however, 2.6.5 panics.
-
-> Is this a known problem?  Anyone working on it?
-
-Yup.  There seems to have been some progress in this regard in the
-linux1394 mailing lists and SVN repository, but it's still a bit
-unstable.
-
-Personally, I've been using the 2.6.3 ieee1394 sources in newer kernel
-releases, and it's been working very well.  Perhaps we should revert
-drivers/ieee1394 to the 2.6.3 state until the problems are addressed
-in the linux1394 repository, to only then have it merged here.
-What we have now was a merge of a non-functional state of the tree,
-which servers nobody.
-
-I can easily provide a patch to restore the working state, if people
-think this would be a good idea.  Just say the word.
-
--- 
-Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+Can we avoid the locking in some way?

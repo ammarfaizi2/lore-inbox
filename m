@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271411AbTG2L7x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 07:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271412AbTG2L7x
+	id S271395AbTG2Lue (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 07:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271402AbTG2Lue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 07:59:53 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:60143 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271411AbTG2L7w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 07:59:52 -0400
-Subject: Re: malloc problem to allocate very large blocks
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: nagendra_tomar@adaptec.com
-Cc: Tung-Han Hsieh <thhsieh@xcin.phys.ntu.edu.tw>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jamagallon@able.es
-In-Reply-To: <Pine.LNX.4.44.0307291027230.17227-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0307291027230.17227-100000@localhost.localdomain>
-Content-Type: text/plain
+	Tue, 29 Jul 2003 07:50:34 -0400
+Received: from firewall.mdc-dayton.com ([12.161.103.180]:994 "EHLO
+	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
+	id S271395AbTG2Lud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 07:50:33 -0400
+From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
+To: "Roland Dreier" <roland@topspin.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: DMA not supported with Intel ICH4 I/O controller?
+Date: Tue, 29 Jul 2003 08:01:53 -0500
+Message-ID: <PMEMILJKPKGMMELCJCIGKEKNCDAA.kfrazier@mdc-dayton.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059479571.3118.3.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 Jul 2003 12:52:51 +0100
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
+In-Reply-To: <52brvegyrf.fsf@topspin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-07-29 at 05:58, Nagendra Singh Tomar wrote:
-> AFAIK malloc will not return you memory more than the total virtual memory 
-> (RAM+swap) in the system. So if you want more than 2GB allocations from 
-> malloc, make sure you have at least 2GB virtual mem, keeping aside some 
-> space for the kernel.
+Roland,
 
-On the default memory settings it may do. However a request for 2Gb of
-memory requires there is a free 2Gb of address space to map it into -
-which may not be true because of things like shared libraries. 
+Thanks for your response!
 
-The actual total allocatable limit for x86 is a bit under 3Gb, but you 
-won't get that as one linear allocation. (1Gb is kernel mappings)
+>It sounds like your board is acting as a PCI bus master.  This is
+>completely different from DMA for the IDE controller.  External PCI
+
+That's correct, we are a PCI bus master device.
+
+>The BIOS on the P4PE may be setting
+>your device up differently from the 815E motherboard.  Your device
+>might be confusing the BIOS on the P4PE so that the IRQ routing
+>information (eg in ACPI tables) is screwed up.  And so on.
+
+With respect to the IRQ routing:  If the routing was messed up, wouldn't
+this mean that no IRQs would get through on that device?  We are getting
+some . . .
+
+>However, I have not heard of any generic problems with external PCI
+>bus masters and the ICH4.
+
+. . . thanks for the feedback.
+
+Regards,
+Kathy
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

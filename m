@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279427AbRJ2UC7>; Mon, 29 Oct 2001 15:02:59 -0500
+	id <S279432AbRJ2UIT>; Mon, 29 Oct 2001 15:08:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279424AbRJ2UCt>; Mon, 29 Oct 2001 15:02:49 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:35081 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S279421AbRJ2UCk>; Mon, 29 Oct 2001 15:02:40 -0500
-Message-ID: <3BDDB4E0.C90BFACB@zip.com.au>
-Date: Mon, 29 Oct 2001 11:58:24 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-ac2 i686)
-X-Accept-Language: en
+	id <S279438AbRJ2UIJ>; Mon, 29 Oct 2001 15:08:09 -0500
+Received: from web11303.mail.yahoo.com ([216.136.131.206]:12902 "HELO
+	web11303.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S279432AbRJ2UHz>; Mon, 29 Oct 2001 15:07:55 -0500
+Message-ID: <20011029200832.77853.qmail@web11303.mail.yahoo.com>
+Date: Mon, 29 Oct 2001 12:08:32 -0800 (PST)
+From: Alex Deucher <agd5f@yahoo.com>
+Subject: Re: opl3sa2 sound driver and mixers
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15yIWa-0003lV-00@the-village.bc.nu>
 MIME-Version: 1.0
-To: harri@synopsys.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3c59x:command 0x3002 did not complete! Status=0xffff
-In-Reply-To: <3BDD9FF4.D54DC0C9@Synopsys.COM> <3BDDA4C0.F4391EC@zip.com.au> <3BDDB312.589D2E04@Synopsys.COM>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Dunkel wrote:
+BTW, this is with kernel 2.4.9, but it has been
+happening with every 2.4 kernel I've tried on these
+notebooks.  I haven't tried 2.2 kernels in so long I
+can't remember if they acted the same or not. 
+
+Alex
+
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > sound works, but an extra mixer seems to always
+> load. 
+> > I always suspected t was because of code sharing
+> or
+> > somthing, but I thought I'd ask here to see if it
+> was
+> > a bug or just a quirk of the driver.  I don't have
+> the
+> > notebook on hand right, now do these are from
+> memory. 
+> > When I load sound, several modules get loaded,
+> opl3sa2
+> > and AD18?? (can't remember the number off hand). 
 > 
-> PS: The message about '0x3002 did not complete' is gone. I haven't seen
-> it anymore since I added the 'options 3c59x enable_wol=1'.
+> AD1848 - this is correct. The opl3sa2 is an AD1848
+> compatible device
+> and an MPU401 compatible device (and some other
+> oddments). 
 > 
-> But now I get this in my syslog:
+> > What's strange is that 2 mixers seem to get
+> loaded. 
+> > The first is for a CS4??? (can't recall the exact
 > 
-> Oct 29 20:41:19 bilbo pppd[522]: pppd 2.4.1 started by root, uid 0
-> Oct 29 20:41:20 bilbo pppd[522]: Sending PADI
-> Oct 29 20:41:20 bilbo kernel: eth0: Transmit error, Tx status register 90.
+> CS4232 - that mixer shouldnt be getting created.
+> That is a bug. I'll take
+> a look at it
 
-0x90 -> Transmit underrun.  The NIC wasn't able to get data
-from main memory fast enough.    Across PCI.
 
-> ...
-> Oct 29 20:41:20 bilbo kernel: scsi0: PCI error Interrupt at seqaddr = 0x9
-
-I wonder what that error is?
-
-> 
-> Especially interesting is the message about the SCSI. How is this
-> related to the 3c59x?
-
-The PCI bus is screwed up.  I haven't seen this before.
-Is the machine otherwise stable?  What's special about bringing
-up PPPoE?  Have you tested the machine well against other hosts
-on the LAN?
+__________________________________________________
+Do You Yahoo!?
+Make a great connection at Yahoo! Personals.
+http://personals.yahoo.com

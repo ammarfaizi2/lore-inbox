@@ -1,140 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263996AbUA3UWW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 15:22:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUA3UWW
+	id S263510AbUA3Ubw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 15:31:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUA3Ubw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 15:22:22 -0500
-Received: from 10fwd.cistron-office.nl ([62.216.29.197]:15501 "EHLO
-	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
-	id S263996AbUA3UWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 15:22:00 -0500
-Date: Fri, 30 Jan 2004 21:21:55 +0100
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miquel van Smoorenburg <miquels@cistron.nl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc2 nfsd+xfs spins in i_size_read()
-Message-ID: <20040130202155.GM25833@drinkel.cistron.nl>
-References: <bv8qr7$m2v$1@news.cistron.nl> <20040128222521.75a7d74f.akpm@osdl.org>
+	Fri, 30 Jan 2004 15:31:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27342 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263510AbUA3Ubu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 15:31:50 -0500
+Date: Fri, 30 Jan 2004 12:33:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: thockin@sun.com
+Cc: arjanv@redhat.com, thomas.schlichter@web.de, thoffman@arnor.net,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.2-rc2-mm2
+Message-Id: <20040130123301.70009427.akpm@osdl.org>
+In-Reply-To: <20040130201731.GY9155@sun.com>
+References: <20040130014108.09c964fd.akpm@osdl.org>
+	<1075489136.5995.30.camel@moria.arnor.net>
+	<200401302007.26333.thomas.schlichter@web.de>
+	<1075490624.4272.7.camel@laptop.fenrus.com>
+	<20040130114701.18aec4e8.akpm@osdl.org>
+	<20040130201731.GY9155@sun.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040128222521.75a7d74f.akpm@osdl.org> (from akpm@osdl.org on Thu, Jan 29, 2004 at 07:25:21 +0100)
-X-Mailer: Balsa 2.0.16
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jan 2004 07:25:21, Andrew Morton wrote:
-> "Miquel van Smoorenburg" <miquels@cistron.nl> wrote:
-> >
-> > I have a Linux 2.6.2-rc2 NFS file server and another similar
-> > box as client. Kernel is compiled for SMP (hyperthreading).
-> > In a few seconds, the server locks up. It spins in
-> > generic_fillattr(), apparently in the i_size_read() inline function.
-> > Server responds to pings and sysrq, but nothing else.
+Tim Hockin <thockin@sun.com> wrote:
+>
+> On Fri, Jan 30, 2004 at 11:47:01AM -0800, Andrew Morton wrote:
+> > > directly calling sys_ANYTHING sounds really wrong to me...
 > 
-> Is the EIP _always_ inside generic_fillattr()?
+> It sounded wrong to me, but it gets done ALL OVER.
 > 
-> If so then yes, your analysis look right.  I'd say that the inode has been
-> corrupted and the seqcount counter has assumed an non-even value.  That
-> will cause i_size_read() to lock up.
+> > Tim, I do think it would be neater to add another entry point in sys.c for
+> > nfsd and just do a memcpy.
+> 
+> Do you prefer:
+> 
+> a) make a function
+> 	sys.c: ksetgroups(int gidsetsize, gid_t *grouplist)
+>    which does the same as sys_setgroups, but without the copy_from_user()
+>    stuff?  The only user (for now, maybe ever) is nfsd.
+> 
+> b) make a function
+> 	sys.c: nfsd_setgroups(int gidsetsize, gid_t *grouplist)
+>    which does the same as sys_setgroups, but without the copy_from_user()
+> 
+> c) make the nfsd code build a struct group_info and call
+>    set_current_groups()
+> 
 
-I added some extra code to i_size_read() and i_size_write(). First,
-some debugging code:
+Can we do d)?
 
---- fs.h.orig	2004-01-30 21:10:28.000000000 +0100
-+++ fs.h.v1	2004-01-30 21:11:19.000000000 +0100
-@@ -425,6 +425,7 @@
- 	} u;
- #ifdef __NEED_I_SIZE_ORDERED
- 	seqcount_t		i_size_seqcount;
-+	pid_t			seq_pid; /* XXX */
- #endif
- };
- 
-@@ -450,6 +451,12 @@
- 	do {
- 		seq = read_seqcount_begin(&inode->i_size_seqcount);
- 		i_size = inode->i_size;
-+#if 1 /* XXX HACK */
-+		if ((++count & 65535) == 0) {
-+			printk("i_size_read() seems to be looping - pid %d\n", inode->seq_pid);
-+			mdelay(100);
-+		}
-+#endif
- 	} while (read_seqcount_retry(&inode->i_size_seqcount, seq));
- 	return i_size;
- #elif BITS_PER_LONG==32 && defined(CONFIG_PREEMPT)
-@@ -467,9 +474,20 @@
- static inline void i_size_write(struct inode *inode, loff_t i_size)
- {
- #if BITS_PER_LONG==32 && defined(CONFIG_SMP)
-+#if 1 /* XXX */
-+	inode->seq_pid = current->tgid;
-+	write_seqcount_begin(&inode->i_size_seqcount);
-+	inode->i_size = i_size;
-+	write_seqcount_end(&inode->i_size_seqcount);
-+	if (inode->i_size_seqcount.sequence & 1)
-+		printk("i_size_write: pid %d: sequence is odd!\n",
-+			current->tgid);
-+	inode->seq_pid = 0;
-+#else
- 	write_seqcount_begin(&inode->i_size_seqcount);
- 	inode->i_size = i_size;
- 	write_seqcount_end(&inode->i_size_seqcount);
-+#endif
- #elif BITS_PER_LONG==32 && defined(CONFIG_PREEMPT)
- 	preempt_disable();
- 	inode->i_size = i_size;
+static long do_setgroups(int gidsetsize, gid_t __user *user_grouplist,
+			gid_t *kern_grouplist)
+{
+	gid_t groups[NGROUPS];
+	int retval;
 
-I then started the test that locks up the kernel, and it printed this:
+	if (!capable(CAP_SETGID))
+		return -EPERM;
+	if ((unsigned) gidsetsize > NGROUPS)
+		return -EINVAL;
+	if (user_grouplist) {
+		if (copy_from_user(groups, user_grouplist,
+				gidsetsize * sizeof(gid_t)))
+			return -EFAULT;
+	} else {
+		memcpy(groups, kern_grouplist, gidsetsize * sizeof(gid_t));
+	}
+	retval = security_task_setgroups(gidsetsize, groups);
+	if (retval)
+		return retval;
+	memcpy(current->groups, groups, gidsetsize * sizeof(gid_t));
+	current->ngroups = gidsetsize;
+	return 0;
+}
 
-i_size_write: pid 542: sequence is odd!
-i_size_write: pid 543: sequence is odd!
-i_size_write: pid 542: sequence is odd!
+asmlinkage long sys_setgroups(int gidsetsize, gid_t __user *grouplist)
+{
+	return do_setgroups(gidsetsize, grouplist, NULL);
+}
 
-i_size_read() seems to be looping - pid 0
-i_size_read() seems to be looping - pid 0
-[this keeps on being printed and the kernel is locked up]
+long kern_setgroups(int gidsetsize, gid_t *grouplist)
+{
+	return do_setgroups(gidsetsize, NULL, grouplist);
+}
 
-It took some time for the i_size_write messages to show up, and they were
-spaced 10-30 seconds apart, and during that time the server was still
-up - right until the first i_size_read message.
+It's a bit grubby, but the grubbiness is localised.
 
-Then I added this patch:
-
---- fs.h.v1	2004-01-30 21:11:19.000000000 +0100
-+++ fs.h	2004-01-30 20:16:35.000000000 +0100
-@@ -426,6 +426,7 @@
- #ifdef __NEED_I_SIZE_ORDERED
- 	seqcount_t		i_size_seqcount;
- 	pid_t			seq_pid; /* XXX */
-+	spinlock_t		i_size_lock;
- #endif
- };
- 
-@@ -475,6 +476,7 @@
- {
- #if BITS_PER_LONG==32 && defined(CONFIG_SMP)
- #if 1 /* XXX */
-+	spin_lock(&inode->i_size_lock);
- 	inode->seq_pid = current->tgid;
- 	write_seqcount_begin(&inode->i_size_seqcount);
- 	inode->i_size = i_size;
-@@ -483,6 +485,7 @@
- 		printk("i_size_write: pid %d: sequence is odd!\n",
- 			current->tgid);
- 	inode->seq_pid = 0;
-+	spin_unlock(&inode->i_size_lock);
- #else
- 	write_seqcount_begin(&inode->i_size_seqcount);
- 	inode->i_size = i_size;
-
-(and some code in fs/inode.c to initialize i_size_lock)
-
-Guess what. No more debug output, no more lockups ... is there
-anything else I can do to debug this ? Because I'm not really
-sure what I'm doing, you see :)
-
-Mike.

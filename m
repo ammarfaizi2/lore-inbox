@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262555AbUKXMS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbUKXMVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262555AbUKXMS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 07:18:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbUKXMS0
+	id S262625AbUKXMVK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 07:21:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbUKXMVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 07:18:26 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63673 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262555AbUKXMSZ
+	Wed, 24 Nov 2004 07:21:10 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:41600 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262625AbUKXMVG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 07:18:25 -0500
-Date: Wed, 24 Nov 2004 05:08:21 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Nick Warne <nick@linicks.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.28 -> ch..ch...changes....
-Message-ID: <20041124070821.GA8718@logos.cnet>
-References: <200411232136.36313.nick@linicks.net>
+	Wed, 24 Nov 2004 07:21:06 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 24 Nov 2004 13:11:49 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Gerd Knorr <kraxel@suse.de>, Johannes Stezenbach <js@convergence.de>,
+       Johannes Stezenbach <js@linuxtv.org>, Takashi Iwai <tiwai@suse.de>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: modprobe + request_module() deadlock
+Message-ID: <20041124121148.GD22798@bytesex>
+References: <20041122102502.GF29305@bytesex> <20041122141607.GA21184@linuxtv.org> <20041122144432.GB575@bytesex> <20041122153637.GA10673@convergence.de> <20041122165201.GA2060@bytesex> <1101272551.6186.25.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411232136.36313.nick@linicks.net>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <1101272551.6186.25.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 09:36:36PM +0000, Nick Warne wrote:
-> Hi Guys,
+On Wed, Nov 24, 2004 at 04:02:31PM +1100, Rusty Russell wrote:
+> On Mon, 2004-11-22 at 17:52 +0100, Gerd Knorr wrote:
+> > > Delaying request_module() sounds ugly. Anyway, if you can
+> > > get it to work reliably...
+> > 
+> > I think I can, havn't tried yet through.
 > 
-> I updated three boxes today to 2.4.28 (from .27), one at work, and two here at 
-> home (Redhat 7.1+, Slackware 10)
-> 
-> I am intrigued terribly by the small footprint of memory usage now.  I have 
-> gone through the changes file, but can really see nothing (to me, a n00b) 
-> that would alter that?
-> 
-> Can anyone enlighten me?
+> I still don't really like it as a solution,
 
-What do you mean by "memory usage"? SLAB (/proc/slabinfo) buffers
-or pagecache ?
+I don't either, but loading modules unconditionally even if not needed
+(especially if they pull in the complete dvb subsystem) isn't very nice
+as well.
 
-Whats your workload and what drivers are you using ?
+I'm open to other suggestions ...
 
-Nothing that I am aware of explains this.
+> but this patch (pending anyway) should help.
+
+Thanks.
+
+  Gerd
+

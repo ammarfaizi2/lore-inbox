@@ -1,61 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVCKStz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVCKSty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVCKStz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 13:49:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVCKSoX
+	id S261301AbVCKSty (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 13:49:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVCKSil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 13:44:23 -0500
-Received: from mx04.cybersurf.com ([209.197.145.108]:55228 "EHLO
-	mx04.cybersurf.com") by vger.kernel.org with ESMTP id S261252AbVCKSep
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:34:45 -0500
-Subject: Re: [PATCH] updated, ethernet-bridge: update skb->priority in case
-	forwarded frame has VLAN-header
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: "leo.yuriev.ru" <leo@yuriev.ru>,
-       Lennert Buytenhek <buytenh@wantstofly.org>,
-       Patrick McHardy <kaber@trash.net>, Ben Greear <greearb@candelatech.com>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050311093724.6c8b6a6d@dxpl.pdx.osdl.net>
-References: <914610115.20050311172022@yuriev.ru>
-	 <20050311093724.6c8b6a6d@dxpl.pdx.osdl.net>
-Content-Type: text/plain
-Organization: jamalopolous
-Message-Id: <1110566077.1071.16.camel@jzny.localdomain>
+	Fri, 11 Mar 2005 13:38:41 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:22545 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261255AbVCKSQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 13:16:40 -0500
+Date: Fri, 11 Mar 2005 19:16:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: phil.el@wanadoo.fr, oprofile-list@lists.sf.net,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] oprofile: make some code static
+Message-ID: <20050311181632.GJ3723@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 11 Mar 2005 13:34:37 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch makes some needlessly global code static.
 
-Actually there is a case to be made for this to be part of the
-bridge code. A VLAN is a single collision domain which is mappable to a
-collission domain that is a bridge.
-infact the old VLAN code written by Lennert (and somebody else) had
-those two intermingled.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-cheers,
-jamal
+---
 
-On Fri, 2005-03-11 at 12:37, Stephen Hemminger wrote:
-> On Fri, 11 Mar 2005 17:20:22 +0300
-> Leo Yuriev <leo@yuriev.ru> wrote:
-> 
-> > Kernel 2.6 (2.6.11)
-> > 
-> > When ethernet-bridge forward a packet and such ethernet-frame has
-> > VLAN-tag, bridge should update skb->prioriry for properly QoS
-> > handling. This small patch does this.
-> > 
-> > Based upon discussion during last week I added pskb_may_pull()
-> > checking and simple mapping from 802.1p/user_priority to skb->priority.
-> > 
-> > Patch-by: Leo Yuriev <leo@yuriev.ru>
-> 
-> Do this as an ebtables module please.
-> 
+This patch was already sent on:
+- 19 Feb 2005
+
+ drivers/oprofile/buffer_sync.c  |    6 +++---
+ drivers/oprofile/cpu_buffer.c   |    2 +-
+ drivers/oprofile/event_buffer.c |    7 ++++---
+ 3 files changed, 8 insertions(+), 7 deletions(-)
+
+--- linux-2.6.11-rc3-mm2-full/drivers/oprofile/buffer_sync.c.old	2005-02-17 22:18:31.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/oprofile/buffer_sync.c	2005-02-17 22:19:25.000000000 +0100
+@@ -34,9 +34,9 @@
+  
+ static LIST_HEAD(dying_tasks);
+ static LIST_HEAD(dead_tasks);
+-cpumask_t marked_cpus = CPU_MASK_NONE;
++static cpumask_t marked_cpus = CPU_MASK_NONE;
+ static DEFINE_SPINLOCK(task_mortuary);
+-void process_task_mortuary(void);
++static void process_task_mortuary(void);
+ 
+ 
+ /* Take ownership of the task struct and place it on the
+@@ -422,7 +422,7 @@
+  * and to have reached the list, it must have gone through
+  * one full sync already.
+  */
+-void process_task_mortuary(void)
++static void process_task_mortuary(void)
+ {
+ 	struct list_head * pos;
+ 	struct list_head * pos2;
+--- linux-2.6.11-rc3-mm2-full/drivers/oprofile/cpu_buffer.c.old	2005-02-17 22:20:01.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/oprofile/cpu_buffer.c	2005-02-17 22:20:10.000000000 +0100
+@@ -32,7 +32,7 @@
+ static void wq_sync_buffer(void *);
+ 
+ #define DEFAULT_TIMER_EXPIRE (HZ / 10)
+-int work_enabled;
++static int work_enabled;
+ 
+ void free_cpu_buffers(void)
+ {
+--- linux-2.6.11-rc3-mm2-full/drivers/oprofile/event_buffer.c.old	2005-02-17 22:20:45.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/oprofile/event_buffer.c	2005-02-17 22:21:38.000000000 +0100
+@@ -94,7 +94,7 @@
+ }
+ 
+  
+-int event_buffer_open(struct inode * inode, struct file * file)
++static int event_buffer_open(struct inode * inode, struct file * file)
+ {
+ 	int err = -EPERM;
+ 
+@@ -130,7 +130,7 @@
+ }
+ 
+ 
+-int event_buffer_release(struct inode * inode, struct file * file)
++static int event_buffer_release(struct inode * inode, struct file * file)
+ {
+ 	oprofile_stop();
+ 	oprofile_shutdown();
+@@ -142,7 +142,8 @@
+ }
+ 
+ 
+-ssize_t event_buffer_read(struct file * file, char __user * buf, size_t count, loff_t * offset)
++static ssize_t event_buffer_read(struct file * file, char __user * buf,
++				 size_t count, loff_t * offset)
+ {
+ 	int retval = -EINVAL;
+ 	size_t const max = buffer_size * sizeof(unsigned long);
+
 

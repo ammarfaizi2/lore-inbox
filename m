@@ -1,148 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285593AbSAFWSk>; Sun, 6 Jan 2002 17:18:40 -0500
+	id <S286161AbSAFWVa>; Sun, 6 Jan 2002 17:21:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285829AbSAFWRl>; Sun, 6 Jan 2002 17:17:41 -0500
-Received: from bigglesworth.mail.be.easynet.net ([212.100.160.67]:27403 "EHLO
-	bigglesworth.mail.be.easynet.net") by vger.kernel.org with ESMTP
-	id <S285593AbSAFWQC>; Sun, 6 Jan 2002 17:16:02 -0500
-Message-ID: <3C38CC76.1DED77DD@easynet.be>
-Date: Sun, 06 Jan 2002 23:15:18 +0100
-From: Luc Van Oostenryck <luc.vanoostenryck@easynet.be>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9-O1_C1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kernel mailing list <linux-kernel@vger.kernel.org>
-CC: mingo@elte.hu
-Subject: Re: O(1) scheduler, 2.5.2-pre9-C1: some results
-In-Reply-To: <Pine.LNX.4.33.0201061901270.6124-100000@localhost.localdomain>
-Content-Type: multipart/mixed;
- boundary="------------BE718DF1935F3BDFC4E04373"
+	id <S282967AbSAFWU0>; Sun, 6 Jan 2002 17:20:26 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:50449 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S285829AbSAFWUO>;
+	Sun, 6 Jan 2002 17:20:14 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Martin Mares <mj@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: State of the new config & build system 
+In-Reply-To: Your message of "Sun, 06 Jan 2002 09:55:49 BST."
+             <20020106095549.A664@ucw.cz> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 07 Jan 2002 09:19:59 +1100
+Message-ID: <23415.1010355599@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------BE718DF1935F3BDFC4E04373
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Sun, 6 Jan 2002 09:55:49 +0100, 
+Martin Mares <mj@ucw.cz> wrote:
+>Is there any reason for processing all the files for each compile
+>instead of merging them to a single file once at the start of the make?
 
-Ingo Molnar wrote:
-> 
-> i've uploaded an updated O(1) scheduler patch, against 2.5.2-pre9:
-> 
->         http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-C1.patch
->         http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-C1.patch
-> 
-> only minimal fixes were added to the code, the goal is to reach a stable
-> base.
-> 
+The main reason is to convert absolute dependency names to $(xxx)
+followed by a relative name, where xxx is one of the KBUILD_OBJTREE or
+KBUILD_SRCTREE_nnn variables.  This conversion allows users to rename
+their source and object trees and to compile on one machine and install
+on another over NFS without being bitten by absolute dependencies.  I
+really need to do that conversion using the current values of the
+kbuild variables, the variables might have changed on the next make.
 
-Here is some comparaison I have made between vanilla -pre9 and Ingo's C1
-patch
-using parts of lmbench and variing background process CPU bounded.
-
-Result in short: seems rock solid and really O(1)!
-
-For imformation: running on PentiumII/400MHz 196Mb RAM uniprocessor
-(alas!).
-
-
--- 
-Luc Van Oostenryck
---------------BE718DF1935F3BDFC4E04373
-Content-Type: application/octet-stream;
- name="result-ctxt-2.5.2-pre9"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="result-ctxt-2.5.2-pre9"
-
-Mi41LjItcHJlOQojIGxhdGVuY3kgcHJvY2VzcwpQcm9jZXNzIGZvcmsrZXhpdDogMzY3LjUz
-MzMgbWljcm9zZWNvbmRzClByb2Nlc3MgZm9yaytleGl0OiAzNjcuMjAwMCBtaWNyb3NlY29u
-ZHMKUHJvY2VzcyBmb3JrK2V4aXQ6IDM2Ny4wMDAwIG1pY3Jvc2Vjb25kcwpQcm9jZXNzIGZv
-cmsrZXhpdDogMzY3Ljg2NjcgbWljcm9zZWNvbmRzClByb2Nlc3MgZm9yaytleGl0OiAzNjcu
-MDAwMCBtaWNyb3NlY29uZHMKUHJvY2VzcyBmb3JrK2V4ZWN2ZTogMTk3Ni42NjY3IG1pY3Jv
-c2Vjb25kcwpQcm9jZXNzIGZvcmsrZXhlY3ZlOiAxOTkwLjY2NjcgbWljcm9zZWNvbmRzClBy
-b2Nlc3MgZm9yaytleGVjdmU6IDE5ODQuNjY2NyBtaWNyb3NlY29uZHMKUHJvY2VzcyBmb3Jr
-K2V4ZWN2ZTogMTk5Mi4zMzMzIG1pY3Jvc2Vjb25kcwpQcm9jZXNzIGZvcmsrZXhlY3ZlOiAx
-OTg2LjY2NjcgbWljcm9zZWNvbmRzClByb2Nlc3MgZm9yaysvYmluL3NoIC1jOiA3NjY5LjAw
-MDAgbWljcm9zZWNvbmRzClByb2Nlc3MgZm9yaysvYmluL3NoIC1jOiA3NzA0LjAwMDAgbWlj
-cm9zZWNvbmRzClByb2Nlc3MgZm9yaysvYmluL3NoIC1jOiA3Njk1LjAwMDAgbWljcm9zZWNv
-bmRzClByb2Nlc3MgZm9yaysvYmluL3NoIC1jOiA3NjYyLjAwMDAgbWljcm9zZWNvbmRzClBy
-b2Nlc3MgZm9yaysvYmluL3NoIC1jOiA3NjU5LjAwMDAgbWljcm9zZWNvbmRzCgojIGxhdGVu
-Y3kgc2VsZWN0ClNlbGVjdCBvbiAxMCBmZCdzOiA0LjYwNDIgbWljcm9zZWNvbmRzClNlbGVj
-dCBvbiAxMDAgZmQnczogMjAuMTIyMiBtaWNyb3NlY29uZHMKU2VsZWN0IG9uIDI1MCBmZCdz
-OiA0Ni4wMTY3IG1pY3Jvc2Vjb25kcwpTZWxlY3Qgb24gNTAwIGZkJ3M6IDg5LjM4NzEgbWlj
-cm9zZWNvbmRzClNlbGVjdCBvbiAxMDAwIGZkJ3M6IDE3Ni4zMjI2IG1pY3Jvc2Vjb25kcwoK
-U2VsZWN0IG9uIDEwIHRjcCBmZCdzOiA1Ljk5MDIgbWljcm9zZWNvbmRzClNlbGVjdCBvbiAx
-MDAgdGNwIGZkJ3M6IDMzLjc5NjMgbWljcm9zZWNvbmRzClNlbGVjdCBvbiAyNTAgdGNwIGZk
-J3M6IDg2LjY3MTkgbWljcm9zZWNvbmRzClNlbGVjdCBvbiA1MDAgdGNwIGZkJ3M6IDE1NS41
-NTg4IG1pY3Jvc2Vjb25kcwpTZWxlY3Qgb24gMTAwMCB0Y3AgZmQnczogMzA4LjA1NTYgbWlj
-cm9zZWNvbmRzCgojIGxhdGVuY3kgY29udGV4dCBzd2l0Y2hpbmcgd2l0aCAwMDAgcHJvY2Vz
-cwoxLjY1CjEuODYKMS43NQoKIyBsYXRlbmN5IGNvbnRleHQgc3dpdGNoaW5nIHdpdGggMDEw
-IHByb2Nlc3MKMi42OQozLjAyCjMuMDIKCiMgbGF0ZW5jeSBjb250ZXh0IHN3aXRjaGluZyB3
-aXRoIDAyMCBwcm9jZXNzCjMuNDUKMy45NwozLjg3CgojIGxhdGVuY3kgY29udGV4dCBzd2l0
-Y2hpbmcgd2l0aCAwMzAgcHJvY2Vzcwo0LjQzCjQuNDUKMy45OAoKIyBsYXRlbmN5IGNvbnRl
-eHQgc3dpdGNoaW5nIHdpdGggMDQwIHByb2Nlc3MKNi45OAo1Ljg0CjYuMTAKCiMgbGF0ZW5j
-eSBjb250ZXh0IHN3aXRjaGluZyB3aXRoIDA1MCBwcm9jZXNzCjkuNjcKOS4wNgo4LjcxCg==
---------------BE718DF1935F3BDFC4E04373
-Content-Type: application/octet-stream;
- name="result-ctxt-2.5.2-pre9-O1_C1"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="result-ctxt-2.5.2-pre9-O1_C1"
-
-Mi41LjItcHJlOS1PMV9DMQojIGxhdGVuY3kgcHJvY2VzcwpQcm9jZXNzIGZvcmsrZXhpdDog
-MzY4LjEzMzMgbWljcm9zZWNvbmRzClByb2Nlc3MgZm9yaytleGl0OiAzNzEuMDY2NyBtaWNy
-b3NlY29uZHMKUHJvY2VzcyBmb3JrK2V4aXQ6IDM2OC4yNjY3IG1pY3Jvc2Vjb25kcwpQcm9j
-ZXNzIGZvcmsrZXhpdDogMzY5LjQwMDAgbWljcm9zZWNvbmRzClByb2Nlc3MgZm9yaytleGl0
-OiAzNjguMjY2NyBtaWNyb3NlY29uZHMKUHJvY2VzcyBmb3JrK2V4ZWN2ZTogMjAwMi4zMzMz
-IG1pY3Jvc2Vjb25kcwpQcm9jZXNzIGZvcmsrZXhlY3ZlOiAyMDE2LjMzMzMgbWljcm9zZWNv
-bmRzClByb2Nlc3MgZm9yaytleGVjdmU6IDIwMjQuMDAwMCBtaWNyb3NlY29uZHMKUHJvY2Vz
-cyBmb3JrK2V4ZWN2ZTogMjA0My42NjY3IG1pY3Jvc2Vjb25kcwpQcm9jZXNzIGZvcmsrZXhl
-Y3ZlOiAyMDE0LjAwMDAgbWljcm9zZWNvbmRzClByb2Nlc3MgZm9yaysvYmluL3NoIC1jOiA3
-ODEwLjAwMDAgbWljcm9zZWNvbmRzClByb2Nlc3MgZm9yaysvYmluL3NoIC1jOiA3ODU3LjAw
-MDAgbWljcm9zZWNvbmRzClByb2Nlc3MgZm9yaysvYmluL3NoIC1jOiA3NzM0LjAwMDAgbWlj
-cm9zZWNvbmRzClByb2Nlc3MgZm9yaysvYmluL3NoIC1jOiA3NzI1LjAwMDAgbWljcm9zZWNv
-bmRzClByb2Nlc3MgZm9yaysvYmluL3NoIC1jOiA3NzE0LjAwMDAgbWljcm9zZWNvbmRzCgoj
-IGxhdGVuY3kgc2VsZWN0ClNlbGVjdCBvbiAxMCBmZCdzOiA0LjYwOTIgbWljcm9zZWNvbmRz
-ClNlbGVjdCBvbiAxMDAgZmQnczogMjAuMTc0MSBtaWNyb3NlY29uZHMKU2VsZWN0IG9uIDI1
-MCBmZCdzOiA0Ni4yMTg1IG1pY3Jvc2Vjb25kcwpTZWxlY3Qgb24gNTAwIGZkJ3M6IDg5LjM4
-NzEgbWljcm9zZWNvbmRzClNlbGVjdCBvbiAxMDAwIGZkJ3M6IDE3Ni40MTk0IG1pY3Jvc2Vj
-b25kcwoKU2VsZWN0IG9uIDEwIHRjcCBmZCdzOiA1Ljk5NzggbWljcm9zZWNvbmRzClNlbGVj
-dCBvbiAxMDAgdGNwIGZkJ3M6IDMzLjQ5MzkgbWljcm9zZWNvbmRzClNlbGVjdCBvbiAyNTAg
-dGNwIGZkJ3M6IDc5LjExNDMgbWljcm9zZWNvbmRzClNlbGVjdCBvbiA1MDAgdGNwIGZkJ3M6
-IDE1NS4zNTI5IG1pY3Jvc2Vjb25kcwpTZWxlY3Qgb24gMTAwMCB0Y3AgZmQnczogMzA3Ljk0
-NDQgbWljcm9zZWNvbmRzCgojIGxhdGVuY3kgY29udGV4dCBzd2l0Y2hpbmcgd2l0aCAwMDAg
-cHJvY2VzcwoxLjg0CjEuODMKMS44NAoKIyBsYXRlbmN5IGNvbnRleHQgc3dpdGNoaW5nIHdp
-dGggMDEwIHByb2Nlc3MKMS42MQoxLjU5CjEuNjAKCiMgbGF0ZW5jeSBjb250ZXh0IHN3aXRj
-aGluZyB3aXRoIDAyMCBwcm9jZXNzCjEuNjQKMS42MAoxLjU1CgojIGxhdGVuY3kgY29udGV4
-dCBzd2l0Y2hpbmcgd2l0aCAwMzAgcHJvY2VzcwoxLjU4CjEuNTgKMS42MAoKIyBsYXRlbmN5
-IGNvbnRleHQgc3dpdGNoaW5nIHdpdGggMDQwIHByb2Nlc3MKMS41NQoxLjU4CjEuNTYKCiMg
-bGF0ZW5jeSBjb250ZXh0IHN3aXRjaGluZyB3aXRoIDA1MCBwcm9jZXNzCjEuNjkKMS42Mgox
-LjYzCg==
---------------BE718DF1935F3BDFC4E04373
-Content-Type: application/octet-stream;
- name="bench"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="bench"
-
-IyEvYmluL3NoCgpESVI9L3RtcC9MTWJlbmNoL2Jpbi9pNjg2LXBjLWxpbnV4LWdudQoKZnVu
-Y3Rpb24gbGF1bmNoICgpIHsKICBmb3IgaSBpbiAkKHNlcSAxICQxKQogIGRvCgkjIHNwaWxs
-IGlzIGp1c3QgYSBzdHVwaWQgcHJvY2VzcyB0aGF0IGVhdCBDUFUgdGltZQoJLi9zcGlsbCAm
-CiAgZG9uZQp9CgoKZnVuY3Rpb24gZG9fYmVuY2hfY3R4ICgpIHsKCiAgbj0wCiAgbWF4PTUw
-CgogIHdoaWxlIFsgJG4gLWxlICRtYXggXQogIGRvCgllY2hvCgllY2hvICIjIGxhdGVuY3kg
-Y29udGV4dCBzd2l0Y2hpbmcgd2l0aCAkKHByaW50ZiAlMDNkICRuKSBwcm9jZXNzIgogIAlm
-b3IgaSBpbiAkKHNlcSAwIDIpCiAgCWRvCiAgCQkkRElSL2xhdF9jdHggLXMgMCAyIDI+JjEg
-fCBncmVwICdeMicgfCBjdXQgLWYgMiAtZCcgJwogIAlkb25lCgoJaWYgWyAkbiAtbHQgJG1h
-eCBdOyB0aGVuCiAgCQlsYXVuY2ggMTAKCWZpCgluPSQoKG4rMTApKQogIGRvbmUKICBraWxs
-YWxsIHNwaWxsCn0KCmZ1bmN0aW9uIGRvX2JlbmNoKCkgewp1bmFtZSAtcgoKZWNobyAiIyBs
-YXRlbmN5IHByb2Nlc3MiCmZvciBqIGluIGZvcmsgZXhlYyBzaGVsbApkbwoJZm9yIGkgaW4g
-JChzZXEgMCA0KQoJZG8KCQkkRElSL2xhdF9wcm9jICRqCglkb25lCmRvbmUKZWNobwoKZWNo
-byAiIyBsYXRlbmN5IHNlbGVjdCIKZm9yIGkgaW4gMTAgMTAwIDI1MCA1MDAgMTAwMDsgZG8g
-JERJUi9sYXRfc2VsZWN0IGZpbGUgJGk7IGRvbmUKZWNobwpmb3IgaSBpbiAxMCAxMDAgMjUw
-IDUwMCAxMDAwOyBkbyAkRElSL2xhdF9zZWxlY3QgdGNwICRpOyBkb25lCgpkb19iZW5jaF9j
-dHgKfQoKZG9fYmVuY2ggMj4mMSB8IHRlZSByZXN1bHQtY3R4dC0kKHVuYW1lIC1yKQplY2hv
-IERvbmUK
---------------BE718DF1935F3BDFC4E04373--
+My new design for module symbol versions requires that the version data
+be stored immediately after the compile.  That also requires processing
+after each compile using the current environment.
 

@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268772AbTBZPLr>; Wed, 26 Feb 2003 10:11:47 -0500
+	id <S268775AbTBZPMt>; Wed, 26 Feb 2003 10:12:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268773AbTBZPLq>; Wed, 26 Feb 2003 10:11:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24594 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S268772AbTBZPLp>;
-	Wed, 26 Feb 2003 10:11:45 -0500
-Message-ID: <3E5CDB83.1070400@pobox.com>
-Date: Wed, 26 Feb 2003 10:21:39 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	id <S268776AbTBZPMt>; Wed, 26 Feb 2003 10:12:49 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24337 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268775AbTBZPMr>; Wed, 26 Feb 2003 10:12:47 -0500
+Date: Wed, 26 Feb 2003 07:20:00 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Rusty Russell <rusty@rustcorp.com.au>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>,
+       <mingo@redhat.com>
+Subject: Re: [BUG] 2.5.63: ESR killed my box!
+In-Reply-To: <20030226072727.GO10411@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0302260713210.1423-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Marcus Meissner <meissner@suse.de>, "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       engebret@us.ibm.com
-Subject: Re: [PATCH] fixed pcnet32 multicast listen on big endian
-References: <Pine.GSO.4.21.0302231154190.28500-100000@vervain.sonytel.be>
-In-Reply-To: <Pine.GSO.4.21.0302231154190.28500-100000@vervain.sonytel.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
-> On Sun, 23 Feb 2003, Geert Uytterhoeven wrote:
+
+On Tue, 25 Feb 2003, William Lee Irwin III wrote:
+> In message mbligh wrote:
+> >> I put an esr_disable flag in there a while back ... does that workaround it?
 > 
->>On Wed, 5 Feb 2003, Marcus Meissner wrote:
->>
->>>This fixes multicast listen for pcnet32 on at least powerpc and powerpc64
->>>kernels.
->>>
->>>The mcast_table is in memory referenced by the card and so it needs
->>>to be accessed in little endian mode.
->>>
->>>Ciao, Marcus
->>>
->>>--- linux-2.4.19/drivers/net/pcnet32.c.be	2003-02-05 07:59:27.000000000 +0100
->>>+++ linux-2.4.19/drivers/net/pcnet32.c	2003-02-05 08:00:22.000000000 +0100
->>>@@ -1534,7 +1534,9 @@
->>> 	
->>> 	crc = ether_crc_le(6, addrs);
->>> 	crc = crc >> 26;
->>>-	mcast_table [crc >> 4] |= 1 << (crc & 0xf);
->>>+	mcast_table [crc >> 4] = le16_to_cpu(
->>
->>                                 ^^^^^^^^^^^
->>
->>>+		le16_to_cpu(mcast_table [crc >> 4]) | (1 << (crc & 0xf))
->>>+	);
->>
->>Shouldn't the first conversion be `cpu_to_le16'?
+> On Wed, Feb 26, 2003 at 06:14:42PM +1100, Rusty Russell wrote:
+> > Yes.  Hmm.  Wonder if that helps my SMP wierness, too.
 > 
-> 
-> Ugh, a quick grep shows that this driver _always_ uses `le*_to_cpu()' to
-> convert from CPU to little endian.
+> It shouldn't be set on anything but NUMA-Q and "bigsmp".
 
-Cosmetically you are correct, and I prefer it to be changed eventually.
+Hmm.. Why is it right on those, but not on normal machines? The APIC is 
+the same, and if the big machines need it, apparently at least _one_ small 
+machine needs it too..
 
-However programatically, it has no effect, because those cpu_to_foo and 
-foo_to_cpu functions either swap, or they don't.  Direction doesn't 
-matter terribly much :)
+Also, if we find that the ESR value was non-zero, it sounds a bit stupid 
+to enable error delivery at bootup. We already know there was an error, we 
+don't need to be told.
 
-	Jeff
-
-
+		Linus
 

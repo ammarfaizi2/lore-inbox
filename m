@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291729AbSBHSyO>; Fri, 8 Feb 2002 13:54:14 -0500
+	id <S291732AbSBHSzq>; Fri, 8 Feb 2002 13:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291732AbSBHSyE>; Fri, 8 Feb 2002 13:54:04 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:13724 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S291729AbSBHSxq>; Fri, 8 Feb 2002 13:53:46 -0500
-Date: Fri, 8 Feb 2002 19:49:30 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Troy Benjegerdes <hozer@drgw.net>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>, wli@holomorphy.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bring sanity to div64.h and do_div usage
-In-Reply-To: <20020208115726.U17426@altus.drgw.net>
-Message-ID: <Pine.GSO.3.96.1020208190416.15044F-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S291733AbSBHSze>; Fri, 8 Feb 2002 13:55:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50950 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291732AbSBHSzQ>;
+	Fri, 8 Feb 2002 13:55:16 -0500
+Message-ID: <3C641EE9.9F31612E@zip.com.au>
+Date: Fri, 08 Feb 2002 10:54:33 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Martin Wirth <Martin.Wirth@dlr.de>, Robert Love <rml@tech9.net>,
+        linux-kernel@vger.kernel.org, mingo@elte.hu, haveblue@us.ibm.com
+Subject: Re: [RFC] New locking primitive for 2.5
+In-Reply-To: <3C641511.9555ED47@dlr.de> <Pine.LNX.4.33.0202081201540.10896-100000@athlon>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Feb 2002, Troy Benjegerdes wrote:
-
-> Several people I have talked to on the issue specifically asked for the 
-> panic(), as people using do_div() should really know better than to do 64 
-> bit divides in the kernel.
-
- There are legitimate cases where you cannot avoid a double-precision
-division and the inefficiency is negligible.  For example for MIPS it's
-used in do_*_gettimeoffset() and at most once a jiffy (actually we use
-do_div64_32() to reduce work, as we know the quotient will *always* fit in
-32 bits).
-
-> The generic C algorithm only handles base < 65536.
+Linus Torvalds wrote:
 > 
-> I can think of a couple ways around this..
+> On Fri, 8 Feb 2002, Martin Wirth wrote:
+> >
+> > There are currently several attempts discussed to push out the
+> > BKL and replace it by a semaphore e.g. the next step Robert Love
+> > planned for his ll_seek patch (replace the BKL by inode i_sem).
 > 
-> 1) Make the base argument be a 'u16 base', and people with too large a
->    base would get compile warnings/errors.
+> But that won't have any contention anyway, so it's a non-issue.
 > 
-> 2) run-time check on base, and panic if too large
-> 
-> 3) run-time check on base, print dmesg warning if too large
 
- 4) Use a generic division algorithm using shifts and subtracts such as
-one of these described in academic books.  You may port the implementation
-from include/asm-mips/div64.h. ;-) 
+Yesterday, Ingo said:
 
-Note that in do_*_gettimeoffset() the divisor is an arbitrary 32-bit
-number, mostly depending on the uptime.
+> i think one example *could* be to turn inode->i_sem into a combi-lock. Eg.
+> generic_file_llseek() could use the spin variant.
+>
+> this is a real performance problem, i've seen scheduling storms in
+> dbench-type runs due to llseek taking the inode semaphore.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+-

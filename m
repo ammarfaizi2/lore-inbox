@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263321AbSKVUZb>; Fri, 22 Nov 2002 15:25:31 -0500
+	id <S262296AbSKVUcS>; Fri, 22 Nov 2002 15:32:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263794AbSKVUZb>; Fri, 22 Nov 2002 15:25:31 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:758 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S263321AbSKVUZa>;
-	Fri, 22 Nov 2002 15:25:30 -0500
-Message-ID: <3DDE9442.C6011D23@mvista.com>
-Date: Fri, 22 Nov 2002 12:32:02 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S263228AbSKVUcS>; Fri, 22 Nov 2002 15:32:18 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49413 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262296AbSKVUcS>; Fri, 22 Nov 2002 15:32:18 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Beginnings of conpat 32 code cleanups
+Date: 22 Nov 2002 12:38:55 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <arm4kv$bsl$1@cesium.transmeta.com>
+References: <20021122162312.32ff4bd3.sfr@canb.auug.org.au> <Pine.LNX.4.44.0211221141070.1440-100000@penguin.transmeta.com> <20021122115454.A481@work.bitmover.com> <20021122131351.C30808@duath.fsmlabs.com>
 MIME-Version: 1.0
-To: "Fleischer, Julie N" <julie.n.fleischer@intel.com>
-CC: high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Running POSIX Timers tests against HRT implementation
-References: <D9223EB959A5D511A98F00508B68C20C0CCC1F80@orsmsx108.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Fleischer, Julie N" wrote:
+Followup to:  <20021122131351.C30808@duath.fsmlabs.com>
+By author:    Cort Dougan <cort@fsmlabs.com>
+In newsgroup: linux.dev.kernel
 > 
-> > george anzinger wrote:
-> > Now, as to this particular issue, the 1003.1b-1993 standard
-> > in paragraph 14.2.1.2 says "The effect of setting a clock
-> > via clock_settime() on armed per process timers associated
-> > with that clock is implementation defined."
-> 
-> I see.  Since I'm writing tests towards the 1003.1-2001 standards, I'll need
-> to be careful where there's a difference between that one and 1003.1b-1993,
-> as is the case with this issue.  (If you'd still appreciate knowing the
-> deltas, I can still let you know when there is a difference in the
-> 1003.1-2001 standard and the current implementation.)
-> 
-> In the 1003.1-2001 standards, it actually adds the qualifier that the line
-> you quoted applies to non-CLOCK_REALTIME clocks.  If I'm interpreting that
-> standard correctly, CLOCK_REALTIME clocks should require that absolute
-> timers use the latest value of the clock and not behave relatively.
-
-Well darn.  I was unaware of this change.  I will see what
-can be done to change the code....
-
--g
-> 
-> I'll make sure that I check the 1003.1b-1993 standards as well, though, when
-> reporting future issues.
-> 
-> - Julie
+> Plan9 takes it a step further and tackles the char/8-byte issue.  A
+> printable character is a 16-byte entity - a rune - while char is an 8-byte
+> quantity.  Doing everything in UNICODE forced the issue, I think.
 > 
 
+... at which point it promptly fell apart as 16-bit Unicode was very
+quickly found to be insufficient (not really surprising since the
+16-bit decision was based on technical convenience rather than actual
+requirements.)
+
+	-hpa
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,76 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267363AbUG1XpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUG1Xqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267363AbUG1XpH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 19:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267351AbUG1Xmc
+	id S267374AbUG1Xqk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 19:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266531AbUG1Xps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 19:42:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34255 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266531AbUG1Xlw (ORCPT
+	Wed, 28 Jul 2004 19:45:48 -0400
+Received: from gprs214-195.eurotel.cz ([160.218.214.195]:40320 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S267327AbUG1XoP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 19:41:52 -0400
-Date: Wed, 28 Jul 2004 16:44:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: alan@lxorguk.ukuu.org.uk, suparna@in.ibm.com, fastboot@osdl.org,
-       mbligh@aracnet.com, jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
-Message-Id: <20040728164457.732c2f1d.akpm@osdl.org>
-In-Reply-To: <m1llh367s4.fsf@ebiederm.dsl.xmission.com>
-References: <16734.1090513167@ocs3.ocs.com.au>
-	<20040725235705.57b804cc.akpm@osdl.org>
-	<m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
-	<200407280903.37860.jbarnes@engr.sgi.com>
-	<25870000.1091042619@flay>
-	<m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
-	<20040728133337.06eb0fca.akpm@osdl.org>
-	<1091044742.31698.3.camel@localhost.localdomain>
-	<m1llh367s4.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 28 Jul 2004 19:44:15 -0400
+Date: Thu, 29 Jul 2004 01:43:52 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mochel@digitalimplant.org, akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: -mm swsusp: do not default to platform/firmware
+Message-ID: <20040728234352.GA14319@elf.ucw.cz>
+References: <20040728222445.GA18210@elf.ucw.cz> <20040728161448.336183e2.akpm@osdl.org> <20040728233929.GD16494@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040728233929.GD16494@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) wrote:
->
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> 
-> > On Mer, 2004-07-28 at 21:33, Andrew Morton wrote:
-> > > We really don't want to be calling driver shutdown functions from a crashed
-> > > kernel.
+Hi!
+
+> > > -mm swsusp now defaults to platform/firmware suspend... That's
+> > > certainly unexpected, changes behaviour from previous version, and
+> > > only works on one of three machines I have here. I'd like the default
+> > > to be changed back.
 > > 
-> > Then at the very least you need to disable bus mastering and have
-> > specialist recovery functions for problematic devices. The bus
-> > mastering one is essential otherwise bus masters will continue to
-> > DMA random data into your new universe.
-> > 
-> > Other stuff like graphics cards and IDE may need care too.
+> > You overestimate my knowledge of suspend stuff.  AFAICT the current -mm
+> > default is to enter ACPI sleep state via the BIOS rather than via Linux's
+> > ACPI driver.  Correct?
 > 
-> Alan if we call anything the shutdown methods really are the thing
-> to call.  Because they are exactly the specialty recovery functions for
-> problematic devices.
+> Its actually bit more complex. There are 3 methods:
 > 
-> Of course no matter what we do will this work 100% of the time because
-> part of what we will be fighting is broken hardware.  However we should
-> be able to get a mechanism that works most of the time.
+> shutdown: save state in linux, then tell bios to powerdown
+> 
+> platform: save state in linux, then tell bios to powerdown and blink
+> 	  "suspended led"
+> 
+> firmware: tell bios to save state itself
+> 
+> "platform" is actually right thing to do, but "shutdown" is most
+> reliable.
 
-Shutdown methods will typically call into the slab allocator and the page
-allocator to free stuff, and they are pretty common sources of oopses. 
-Often with locks held.  You run an excellent change of deadlocking.
+...could you apply this? I hope it is accurate.
+								Pavel
 
-Possibly one could add
+--- clean/Documentation/power/swsusp.txt	2004-06-22 12:35:44.000000000 +0200
++++ linux/Documentation/power/swsusp.txt	2004-07-29 01:42:29.000000000 +0200
+@@ -199,3 +202,30 @@
+ should be sent to the mailing list available through the suspend2
+ website, and not to the Linux Kernel Mailing List. We are working
+ toward merging suspend2 into the mainline kernel.
++
++Q: Kernel thread must voluntarily freeze itself (call 'refrigerator'). But
++I did found some kernel threads don't do it, and they don't freeze, and
++so the system can't sleep. Is this a known behavior?
++
++A: All such kernel threads need to be fixed, one by one. Select place
++where it is safe to be frozen (no kernel semaphores should be held at
++that point and it must be safe to sleep there), and add:
++
++            if (current->flags & PF_FREEZE)
++                    refrigerator(PF_FREEZE);
++
++Q: What is the difference between between "platform", "shutdown" and
++"firmware" in /sys/power/disk?
++
++A:
++
++shutdown: save state in linux, then tell bios to powerdown
++
++platform: save state in linux, then tell bios to powerdown and blink
++          "suspended led"
++
++firmware: tell bios to save state itself [needs BIOS-specific suspend
++	  partition, and has very little to do with swsusp]
++
++"platform" is actually right thing to do, but "shutdown" is most
++reliable.
 
-#ifdef CONFIG_WHATEVER
-	if (unlikely(oops_in_progress))
-		return;
-#endif
 
-to the relevant entry points.
 
-The shutdown routines may also call into sysfs/kobject/procfs release entry
-points, and they're even more popular oops sites.
-
-We really want to get into the new kernel ASAP and clean stuff up from
-in there.
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264544AbTGHFvK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 01:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTGHFvK
+	id S264994AbTGHGGz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 02:06:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265115AbTGHGGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 01:51:10 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:60814 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S264544AbTGHFvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 01:51:09 -0400
-Message-Id: <5.1.0.14.2.20030708080444.00af4ba8@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 08 Jul 2003 08:06:29 +0200
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: RE: 2.4.22-pre2 and pre3: compile error in aic7xxx
+	Tue, 8 Jul 2003 02:06:55 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:18450 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264994AbTGHGGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 02:06:55 -0400
+Date: Tue, 8 Jul 2003 07:21:26 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] new quota code
+Message-ID: <20030708072126.A17566@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <200307072105.h67L50ir024592@hera.kernel.org> <3F09FC12.4070609@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Seen: false
-X-ID: S38XK-Zpwe5W8LTzkeUQ-Uh6Lr1Eh6xGxIAVbs9Xfx2ufz4P9-XSZw@t-dialin.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F09FC12.4070609@pobox.com>; from jgarzik@pobox.com on Mon, Jul 07, 2003 at 07:02:42PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The GCC 3.3 PRERELEASE from Suse 8.2 is broken.
+On Mon, Jul 07, 2003 at 07:02:42PM -0400, Jeff Garzik wrote:
+> > 	[1] This also mean completely dropping support for the interim ABI
+> > 	used in the early 32bit quota patches as it's mutally incompatible
+> > 	to the old ABI.  But we never ever shipped that in any mainline kernels
+> > 	so there's no problem.
+> 
+> 
+> "no problem" being defined here as "multiple vendors shipped it but I 
+> don't care", right?
 
-Update to the release version of GCC 3.3.
+no problem as in this was neve supported in mainline and we don't need
+to introduce a third quota ABI to official kernels.  The old ABI is
+still supported and the 2.5 one in addition.
 
-You can get it here:
-ftp://ftp.suse.com/pub/projects/gcc/8.2
+> Why do we need a third (fourth?) 2.4 quota abi/api floating around?
 
-Margit 
+We don't.  We support the old one and the 2.5 one.
 

@@ -1,71 +1,251 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130089AbQKCVaz>; Fri, 3 Nov 2000 16:30:55 -0500
+	id <S132133AbQKCVdz>; Fri, 3 Nov 2000 16:33:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131936AbQKCVap>; Fri, 3 Nov 2000 16:30:45 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:37906 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130089AbQKCVah>;
-	Fri, 3 Nov 2000 16:30:37 -0500
-Message-ID: <3A032E32.39E7B151@mandrakesoft.com>
-Date: Fri, 03 Nov 2000 16:29:22 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
+	id <S132108AbQKCVdp>; Fri, 3 Nov 2000 16:33:45 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:7688 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131839AbQKCVdh>; Fri, 3 Nov 2000 16:33:37 -0500
+Message-ID: <3A032E4E.A08DC0EB@timpanogas.org>
+Date: Fri, 03 Nov 2000 14:29:50 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-In-Reply-To: <200011031937.WAA10753@ms2.inr.ac.ru>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-gcc@vger.kernel.org
+Subject: Re: asm/resource.h
+In-Reply-To: <3A032C1D.D50C8D46@transmeta.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
+
+hpa,
+
+Is this what is causing the lockup problems on 2.4.0-pre-10 with PPro,
+or something else.  Looks like something else.
+
+Jeff
+
+"H. Peter Anvin" wrote:
 > 
-> Hello!
+> Hello friends,
 > 
-> > that does hardware register access without protecting against interrupts
-> > or checking if the interface is up.
+> Attached is a patch against 2.4.0-test10 that changes asm/resource.h to
+> define RLIM_INFINITY insite the #ifdef __KERNEL__ on all architectures;
+> previously, this was inconsistent between architecures.  This breaks
+> compilation with -Werror at least on i386 since <bits/resource.h>
+> includes <asm/resource.h>, at least on glibc-2.1.2.
 > 
-> This issue is not that issue. It is separate issue and in fact
-> it is private problem of driver and its author, what is safe,
-> what is not safe.
+> I have only been able to test this on i386 and glibc 2.1.2.  If there are
+> any places where this change is *not* appropriate, now would be a good
+> time to holler...
 > 
-> F.e. I see no cathastrophe even if MII registers are accessed without
-> any protections. Diag utilities do this from user space. 8)8)
-
-It depends on the hardware...  For the ioctl-only case, you are
-correct.  rtnl_lock protects us there.  But when the timer and ioctl
-both call mdio_xxx, you need SMP protection, otherwise you corrupt the
-multi-step MDIO read/write found in many drivers.
-
-IMNSHO the timer routines found in net drivers should all be converted
-to kernel threads.  There are too many limitations placed on you by
-timers.
-
-
-> > de4x5 is probably also buggy in regard to this.
+>         -hpa
 > 
-> de4x5 is hopeless. I added nice comment in softnet to it.
-> Unfortunately it was lost. 8)
+> --
+> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+> "Unix gives you enough rope to shoot yourself in the foot."
+> http://www.zytor.com/~hpa/puzzle.txt
 > 
-> Andi, neither you nor me nor Alan nor anyone are able to audit
-> all this unnevessarily overcomplicated code. It was buggy, is buggy
-> and will be buggy. It is inavoidable, as soon as you have hundreds
-> of drivers.
-
-de4x5 is becoming EISA-only in 2.5.x too, since its PCI support is
-duplicated now in tulip driver.
-
-	Jeff
-
-
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
+>   ------------------------------------------------------------------------
+> diff -ur linux-2.4.0-test10-orig/include/asm/resource.h linux-2.4.0-test10/include/asm/resource.h
+> --- linux-2.4.0-test10-orig/include/asm/resource.h      Fri Sep 22 14:21:19 2000
+> +++ linux-2.4.0-test10/include/asm/resource.h   Fri Nov  3 13:11:12 2000
+> @@ -19,13 +19,13 @@
+> 
+>  #define RLIM_NLIMITS   11
+> 
+> +#ifdef __KERNEL__
+> +
+>  /*
+>   * SuS says limits have to be unsigned.
+>   * Which makes a ton more sense anyway.
+>   */
+>  #define RLIM_INFINITY  (~0UL)
+> -
+> -#ifdef __KERNEL__
+> 
+>  #define INIT_RLIMITS                                   \
+>  {                                                      \
+> diff -ur linux-2.4.0-test10-orig/include/asm-alpha/resource.h linux-2.4.0-test10/include/asm-alpha/resource.h
+> --- linux-2.4.0-test10-orig/include/asm-alpha/resource.h        Wed Sep 27 13:39:23 2000
+> +++ linux-2.4.0-test10/include/asm-alpha/resource.h     Fri Nov  3 13:11:30 2000
+> @@ -19,14 +19,14 @@
+> 
+>  #define RLIM_NLIMITS   11
+> 
+> +#ifdef __KERNEL__
+> +
+>  /*
+>   * SuS says limits have to be unsigned.  Fine, it's unsigned, but
+>   * we retain the old value for compatibility, especially with DU.
+>   * When you run into the 2^63 barrier, you call me.
+>   */
+>  #define RLIM_INFINITY  0x7ffffffffffffffful
+> -
+> -#ifdef __KERNEL__
+> 
+>  #define INIT_RLIMITS                                                   \
+>  {                                                                      \
+> diff -ur linux-2.4.0-test10-orig/include/asm-i386/resource.h linux-2.4.0-test10/include/asm-i386/resource.h
+> --- linux-2.4.0-test10-orig/include/asm-i386/resource.h Fri Sep 22 14:21:19 2000
+> +++ linux-2.4.0-test10/include/asm-i386/resource.h      Fri Nov  3 13:11:12 2000
+> @@ -19,13 +19,13 @@
+> 
+>  #define RLIM_NLIMITS   11
+> 
+> +#ifdef __KERNEL__
+> +
+>  /*
+>   * SuS says limits have to be unsigned.
+>   * Which makes a ton more sense anyway.
+>   */
+>  #define RLIM_INFINITY  (~0UL)
+> -
+> -#ifdef __KERNEL__
+> 
+>  #define INIT_RLIMITS                                   \
+>  {                                                      \
+> diff -ur linux-2.4.0-test10-orig/include/asm-ia64/resource.h linux-2.4.0-test10/include/asm-ia64/resource.h
+> --- linux-2.4.0-test10-orig/include/asm-ia64/resource.h Fri Sep 22 14:21:19 2000
+> +++ linux-2.4.0-test10/include/asm-ia64/resource.h      Fri Nov  3 13:11:04 2000
+> @@ -22,13 +22,13 @@
+> 
+>  #define RLIM_NLIMITS   11
+> 
+> +# ifdef __KERNEL__
+> +
+>  /*
+>   * SuS says limits have to be unsigned.
+>   * Which makes a ton more sense anyway.
+>   */
+>  #define RLIM_INFINITY  (~0UL)
+> -
+> -# ifdef __KERNEL__
+> 
+>  #define INIT_RLIMITS                                   \
+>  {                                                      \
+> diff -ur linux-2.4.0-test10-orig/include/asm-m68k/resource.h linux-2.4.0-test10/include/asm-m68k/resource.h
+> --- linux-2.4.0-test10-orig/include/asm-m68k/resource.h Fri Sep 22 14:21:20 2000
+> +++ linux-2.4.0-test10/include/asm-m68k/resource.h      Fri Nov  3 13:10:54 2000
+> @@ -19,13 +19,13 @@
+> 
+>  #define RLIM_NLIMITS   11
+> 
+> +#ifdef __KERNEL__
+> +
+>  /*
+>   * SuS says limits have to be unsigned.
+>   * Which makes a ton more sense anyway.
+>   */
+>  #define RLIM_INFINITY  (~0UL)
+> -
+> -#ifdef __KERNEL__
+> 
+>  #define INIT_RLIMITS   \
+>  {                       \
+> diff -ur linux-2.4.0-test10-orig/include/asm-mips/resource.h linux-2.4.0-test10/include/asm-mips/resource.h
+> --- linux-2.4.0-test10-orig/include/asm-mips/resource.h Fri Sep 22 14:21:20 2000
+> +++ linux-2.4.0-test10/include/asm-mips/resource.h      Fri Nov  3 13:10:44 2000
+> @@ -26,13 +26,13 @@
+> 
+>  #define RLIM_NLIMITS 11                        /* Number of limit flavors.  */
+> 
+> +#ifdef __KERNEL__
+> +
+>  /*
+>   * SuS says limits have to be unsigned.
+>   * Which makes a ton more sense anyway.
+>   */
+>  #define RLIM_INFINITY  0x7fffffffUL
+> -
+> -#ifdef __KERNEL__
+> 
+>  #define INIT_RLIMITS                                   \
+>  {                                                      \
+> diff -ur linux-2.4.0-test10-orig/include/asm-mips64/resource.h linux-2.4.0-test10/include/asm-mips64/resource.h
+> --- linux-2.4.0-test10-orig/include/asm-mips64/resource.h       Fri Sep 22 14:21:20 2000
+> +++ linux-2.4.0-test10/include/asm-mips64/resource.h    Fri Nov  3 13:10:30 2000
+> @@ -27,13 +27,13 @@
+> 
+>  #define RLIM_NLIMITS 11                        /* Number of limit flavors.  */
+> 
+> +#ifdef __KERNEL__
+> +
+>  /*
+>   * SuS says limits have to be unsigned.
+>   * Which makes a ton more sense anyway.
+>   */
+>  #define RLIM_INFINITY  (~0UL)
+> -
+> -#ifdef __KERNEL__
+> 
+>  #define INIT_RLIMITS                                   \
+>  {                                                      \
+> diff -ur linux-2.4.0-test10-orig/include/asm-s390/resource.h linux-2.4.0-test10/include/asm-s390/resource.h
+> --- linux-2.4.0-test10-orig/include/asm-s390/resource.h Fri Sep 22 14:21:21 2000
+> +++ linux-2.4.0-test10/include/asm-s390/resource.h      Fri Nov  3 13:10:13 2000
+> @@ -27,13 +27,13 @@
+> 
+>  #define RLIM_NLIMITS   11
+> 
+> +#ifdef __KERNEL__
+> +
+>  /*
+>   * SuS says limits have to be unsigned.
+>   * Which makes a ton more sense anyway.
+>   */
+>  #define RLIM_INFINITY   (~0UL)
+> -
+> -#ifdef __KERNEL__
+> 
+>  #define INIT_RLIMITS                                   \
+>  {                                                      \
+> diff -ur linux-2.4.0-test10-orig/include/asm-sparc/resource.h linux-2.4.0-test10/include/asm-sparc/resource.h
+> --- linux-2.4.0-test10-orig/include/asm-sparc/resource.h        Tue Oct 10 10:33:52 2000
+> +++ linux-2.4.0-test10/include/asm-sparc/resource.h     Fri Nov  3 13:09:46 2000
+> @@ -25,6 +25,8 @@
+> 
+>  #define RLIM_NLIMITS   11
+> 
+> +#ifdef __KERNEL__
+> +
+>  /*
+>   * SuS says limits have to be unsigned.
+>   * We make this unsigned, but keep the
+> @@ -32,7 +34,6 @@
+>   */
+>  #define RLIM_INFINITY  0x7fffffff
+> 
+> -#ifdef __KERNEL__
+>  #define INIT_RLIMITS                   \
+>  {                                      \
+>      {RLIM_INFINITY, RLIM_INFINITY},    \
+> diff -ur linux-2.4.0-test10-orig/include/asm-sparc64/resource.h linux-2.4.0-test10/include/asm-sparc64/resource.h
+> --- linux-2.4.0-test10-orig/include/asm-sparc64/resource.h      Tue Oct 10 10:33:52 2000
+> +++ linux-2.4.0-test10/include/asm-sparc64/resource.h   Fri Nov  3 13:09:29 2000
+> @@ -25,13 +25,14 @@
+> 
+>  #define RLIM_NLIMITS   11
+> 
+> +#ifdef __KERNEL__
+> +
+>  /*
+>   * SuS says limits have to be unsigned.
+>   * Which makes a ton more sense anyway.
+>   */
+>  #define RLIM_INFINITY  (~0UL)
+> 
+> -#ifdef __KERNEL__
+>  #define INIT_RLIMITS                   \
+>  {                                      \
+>      {RLIM_INFINITY, RLIM_INFINITY},    \
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

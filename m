@@ -1,31 +1,88 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317131AbSEXPGF>; Fri, 24 May 2002 11:06:05 -0400
+	id <S317135AbSEXPHw>; Fri, 24 May 2002 11:07:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317135AbSEXPGE>; Fri, 24 May 2002 11:06:04 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:15341 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317131AbSEXPGD>;
-	Fri, 24 May 2002 11:06:03 -0400
-Date: Fri, 24 May 2002 07:51:33 -0700 (PDT)
-Message-Id: <20020524.075133.118235229.davem@redhat.com>
-To: torvalds@transmeta.com
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: negative dentries wasting ram
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0205240737400.26171-100000@home.transmeta.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317136AbSEXPHv>; Fri, 24 May 2002 11:07:51 -0400
+Received: from pop.gmx.de ([213.165.64.20]:15471 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317135AbSEXPHu>;
+	Fri, 24 May 2002 11:07:50 -0400
+Message-ID: <3CEE4937.7C4E37AB@gmx.net>
+Date: Fri, 24 May 2002 16:07:51 +0200
+From: Gunther Mayer <gunther.mayer@gmx.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+CC: Martin Dalecki <dalecki@evision-ventures.com>,
+        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        Linux-usb-users@lists.sourceforge.net
+Subject: Re: [Linux-usb-users] Re: What to do with all of the USB UHCI drivers
+In-Reply-To: <Pine.LNX.4.44.0205230746500.1824-100000@router-273.sgowdy.org> <3CECFBEE.9010802@evision-ventures.com> <20020523160410.GC11153@kroah.com> <3CED2CF5.5050202@evision-ventures.com> <3CEDF811.9020801@loewe-komp.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Linus Torvalds <torvalds@transmeta.com>
-   Date: Fri, 24 May 2002 07:43:32 -0700 (PDT)
-   
-   However, you're right that it probably doesn't help to do this after
-   "unlink()" - it's probably only worth doing when actually doing a
-   "lookup()" that fails.
+Peter Wächtler wrote:
 
-There was some stupidity in how rm -rf * works that I remember from
-some NFS hacking, but it may not be effected by this.
+> Martin Dalecki wrote:
+> > Uz.ytkownik Greg KH napisa?:
+> >
+> >> Anyway, here's the documentation that you need:
+> >>     The module usb-ohci is now gone.  Use ohci-hcd instead.
+> >>
+> >> The people with UHCI controllers have a big more documentation to read:
+> >>     The module uhci is now gone.  If you used this module, use
+> >>     uhci-hcd instead.  The module usb-uhci is now gone.  If you used
+> >>     this module, use usb-uhci-hcd instead.  If you have a preference
+> >>     over which UHCI module works better for you, please email
+> >>     greg@kroah.com your comments, as one of these modules will be
+> >>     going away in the near future.
+> >
+> >
+> > Thank's that is explaining it.
+> > But I would have loved it if it appeared with + in front in
+> > the patch somewhere. That's the only true problem I had.
+> > OK?
+> >
+> > BTW.> usb-ohci seems to be a more reasonable name, since
+> > it tells me directly - hey buddy I'm USB the -hcd doen't
+> > tell me anything in addition and is entierly redundant, or
+> > is there a ohci.o module there?
+> >
+> > And why not just doing the following.
+> >
+> > 1. Rename usb-ohci to usb-ohci-old
+> >
+> > 2. Rename ohci-hcd to usb-ohci
+> >
+> > Much less grief and guessing what happens :-).
+
+Second this (in fact "first this").
+Elegant solution which would not only habe prevented this thread
+but help developers and users no end.
+
+>
+> >
+> > Just a suggestion.
+> >
+>
+> You do not understand the _cause_ for the rename.
+
+Martin and me understand what hcd means, and we think
+it is non-untuitive and user-hostile.
+
+
+>
+>
+> hcd stands for Host Controller Device. The names mark them as that.
+> Now you can argue, that all the SCSI controller modules do not have
+> HBC (host bus controller) in their name - and then look at the
+> different naming of the other scsi modules:
+>
+> scsi_mod.o  sd_mod.o  sg.o  sr_mod.o  st.o
+>
+> Also not very intuitiv. We could put them in different subdirs...
+
+Obviously you cannot balance between intuitive and user-friendly.
+

@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbVDANlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVDANqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262650AbVDANlq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 08:41:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbVDANlq
+	id S262740AbVDANqK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 08:46:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVDANqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 08:41:46 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:44756 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262650AbVDANlo (ORCPT
+	Fri, 1 Apr 2005 08:46:10 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:10634 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S262740AbVDANqF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 08:41:44 -0500
-Date: Fri, 1 Apr 2005 15:41:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: kus Kusche Klaus <kus@keba.com>
-Cc: stern@rowland.harvard.edu, linux-usb-users@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11, USB: High latency?
-Message-ID: <20050401134127.GA4992@elte.hu>
-References: <AAD6DA242BC63C488511C611BD51F3673231DB@MAILIT.keba.co.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F3673231DB@MAILIT.keba.co.at>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 1 Apr 2005 08:46:05 -0500
+Message-ID: <424D5207.3E57CBCA@tv-sign.ru>
+Date: Fri, 01 Apr 2005 17:52:07 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] timers fixes/improvements
+References: <424D373F.1BCBF2AC@tv-sign.ru> <424D37B2.2CE24C67@tv-sign.ru> <20050401130713.GA3802@elte.hu>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+>
+> * Oleg Nesterov <oleg@tv-sign.ru> wrote:
+>
+> > struct timer_list {
+> > 	...
+> > 	timer_base_t *_base;
+> > };
+>
+> namespace cleanliness: i'd suggest s/_base/base.
 
-* kus Kusche Klaus <kus@keba.com> wrote:
+I deliberately renamed it to '_base' because then it is much more grepable.
+But I don't mind doing s/_base/base/ if you prefer.
 
->    IRQ 7-724   0d..1    1us : end_8259A_irq (do_hardirq)
->    IRQ 7-724   0d..1    1us!: enable_8259A_irq (do_hardirq)
->    IRQ 7-724   0d...  832us : do_hardirq (do_irqd)
->    IRQ 7-724   0d...  833us : trace_irqs_on (do_hardirq)
+> > int __mod_timer(struct timer_list *timer, unsigned long expires)
+> [...]
+> > 		/* Ensure the timer is serialized. */
+> > 		if (base != &new_base->t_base
+> > 			&& base->running_timer == timer)
+> > 			goto unlock;
+>
+> > unlock:
+> > 		spin_unlock_irqrestore(&base->lock, flags);
+> > 	} while (ret < 0);
+>
+> so we keep looping in __mod_timer() when the timer is running? Couldnt
+> this be a performance hit?
 
->     mmap-1000  0d.h1   21us : end_8259A_irq (__do_IRQ)
->     mmap-1000  0d.h1   22us!: enable_8259A_irq (__do_IRQ)
->     mmap-1000  0d.h.  662us : irq_exit (do_IRQ)
->     mmap-1000  0d..1  662us : do_softirq (irq_exit)
+I hope it is unlikely that __mod_timer() would hit the already running timer,
+so hopefully this will not degrade the performance. And I don't see a simple
+alternative to ensure the timer's serialization. At least it spins without
+interrupts disabling.
 
->     mmap-1000  0d.h.    0us : do_IRQ (c012d6d5 7 0)
->     mmap-1000  0d.h1    2us!: mask_and_ack_8259A (__do_IRQ)
->     mmap-1000  0d.h1  938us : redirect_hardirq (__do_IRQ)
->     mmap-1000  0d.h1  939us : wake_up_process (redirect_hardirq)
-
-such 'freezes' almost certainly signal some sort of hardware latency - 
-some device holding the system bus up during DMA. There is no 
-algorithmic reason for any of those steps above to take several hundreds 
-of microseconds.
-
-	Ingo
+Oleg.

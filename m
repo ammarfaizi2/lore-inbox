@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312817AbSC0Brm>; Tue, 26 Mar 2002 20:47:42 -0500
+	id <S312884AbSC0Btw>; Tue, 26 Mar 2002 20:49:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312925AbSC0Brc>; Tue, 26 Mar 2002 20:47:32 -0500
-Received: from pcp01314487pcs.hatisb01.ms.comcast.net ([68.63.220.2]:9344 "EHLO
-	bacchus.jdhouse.org") by vger.kernel.org with ESMTP
-	id <S312817AbSC0BrV>; Tue, 26 Mar 2002 20:47:21 -0500
-Subject: Re: Linux 2.4.19-pre4-ac2
-From: "Jonathan A. Davis" <davis@jdhouse.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S312925AbSC0Btm>; Tue, 26 Mar 2002 20:49:42 -0500
+Received: from inet-mail3.oracle.com ([148.87.2.203]:4547 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id <S312884AbSC0Btf>; Tue, 26 Mar 2002 20:49:35 -0500
+Date: Tue, 26 Mar 2002 17:49:32 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Melkor Ainur <melkorainur@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16q29I-0004Qr-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 26 Mar 2002 19:47:05 -0600
-Message-Id: <1017193625.1435.18.camel@bacchus.jdhouse.org>
+Subject: Re: signal_pending() and schedule()
+Message-ID: <20020327014932.GB803@insight.us.oracle.com>
+In-Reply-To: <20020327001955.99099.qmail@web21203.mail.yahoo.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-03-26 at 19:22, Alan Cox wrote:
-> Linux 2.4.19pre4-ac2
+On Tue, Mar 26, 2002 at 04:19:55PM -0800, Melkor Ainur wrote:
+> This works fine for some applications like netcat,etc
+> but fails for netscape. In debugging this, I observe
+> that after calling schedule_timeout(), the sigpending
+> bit appears to be set immediately and thus 
+> schedule() doesn't actually put the process to sleep.
 
-Alan and Co,
+	This is happening exactly for the reason you would expect it to:
+A signal has arrived.  Netscape's userspace "threading" is based
+entirely on signals.  Netscape sends itself SIGALRM almost continuously.
+You'll have to expect this from Netscape and work around or with it.
 
-By chance I was culling through my boot log and noticed the following:
-
-Initializing CPU#0
-Detected 8132.282 MHz processor.
-
-Now, I'd *love* to have a processor that could do that for real, but
-don't think my Athlon XP quite makes the grade.  :-)
-
-Looking through my boot logs, this problem seems to start somewhere
-between 2.4.19-pre2-ac4 and 2.4.19-pre4-ac1 (I didn't run any of the
-intervening releases).
-
-It's also sporadic -- out of 5 reboots, the proper speed (1466.559 MHz)
-was detected 2 of the 5 times.  Dropping back to 2.4.19-pre2-ac4 gives
-me correct detection 5 of 5.  No config changes were made between these
-kernels (except =n for any new options).
-
-System:
-
-Athlon XP 1700+
-Soyo SY-K7VX MB (VIA KT266A)
-1GB ECC PC2100 Memory
-Redhat 7.2 (stock+updates with the exception of the kernel and XFree 4.2
-(to support my ATI 7500 card)
-Everything from the P/S to the cpu fan is AMD spec'd and environment
-sensors show normal.
-
-Please let me know if more info is needed...
+Joel
 
 -- 
 
--Jonathan <davis@jdhouse.org>
+Life's Little Instruction Book #337
 
-          * "The mind is like a parachute. It works best when open." *
+	"Reread your favorite book."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

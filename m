@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266488AbRIHIcm>; Sat, 8 Sep 2001 04:32:42 -0400
+	id <S268017AbRIHIuq>; Sat, 8 Sep 2001 04:50:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266688AbRIHIcc>; Sat, 8 Sep 2001 04:32:32 -0400
-Received: from beasley.gator.com ([63.197.87.202]:11525 "EHLO
-	beasley.gator.com") by vger.kernel.org with ESMTP
-	id <S266488AbRIHIc1>; Sat, 8 Sep 2001 04:32:27 -0400
-From: "George Bonser" <george@gator.com>
-To: "Linus Torvalds" <torvalds@transmeta.com>,
-        "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: 2.4.10-pre5 compile error
-Date: Sat, 8 Sep 2001 01:32:46 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJKEEJEFAA.george@gator.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.33.0109072117580.1259-100000@penguin.transmeta.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S267043AbRIHIuf>; Sat, 8 Sep 2001 04:50:35 -0400
+Received: from HINux.hin.no ([158.39.26.220]:49585 "EHLO hinux.hin.no")
+	by vger.kernel.org with ESMTP id <S266827AbRIHIuS> convert rfc822-to-8bit;
+	Sat, 8 Sep 2001 04:50:18 -0400
+Subject: [PATCH] 2.4.10-pre5 rd.c
+From: Ole =?ISO-8859-1?Q?Andr=E9?= Vadla =?ISO-8859-1?Q?Ravn=E5s?= 
+	<zole@jblinux.net>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 08 Sep 2001 10:55:30 -0100
+Message-Id: <999950131.8667.1.camel@zole.jblinux.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -W
-no-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
- -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o dquot.o
-dquot.c
-dquot.c: In function `add_dquot_ref':
-dquot.c:673: `file' undeclared (first use in this function)
-dquot.c:673: (Each undeclared identifier is reported only once
-dquot.c:673: for each function it appears in.)
-make[3]: *** [dquot.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/fs'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux/fs'
-make[1]: *** [_dir_fs] Error 2
-make[1]: Leaving directory `/usr/src/linux'
-make: *** [stamp-build] Error 2
-:/usr/src/linux#
+Hi,
 
-:/usr/src/linux# gcc --version
-2.95.4
-:/usr/src/linux#
+this fix might already have been submitted, but as I'm not currently
+subscribed to the list, I post it here just in case. :-)
+
+Best regards,
+Ole André
+---
+
+--- linux/drivers/block/rd.c-orig	Sat Sep  8 10:50:35 2001
++++ linux/drivers/block/rd.c	Sat Sep  8 10:50:41 2001
+@@ -259,7 +259,7 @@
+ 			/* special: we want to release the ramdisk memory,
+ 			   it's not like with the other blockdevices where
+ 			   this ioctl only flushes away the buffer cache. */
+-			if ((atomic_read(rd_bdev[minor]->bd_openers) > 2))
++			if ((atomic_read(&rd_bdev[minor]->bd_openers) > 2))
+ 				return -EBUSY;
+ 			destroy_buffers(inode->i_rdev);
+ 			rd_blocksizes[minor] = 0;
 

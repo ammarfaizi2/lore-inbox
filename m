@@ -1,68 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265660AbUGDMuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265680AbUGDM7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265660AbUGDMuO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 08:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265680AbUGDMuO
+	id S265680AbUGDM7P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 08:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265682AbUGDM7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 08:50:14 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:24328 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S265660AbUGDMuI (ORCPT
+	Sun, 4 Jul 2004 08:59:14 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:42143 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S265680AbUGDM7M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 08:50:08 -0400
-Date: Sun, 4 Jul 2004 14:50:03 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org, sebek64@post.cz
-Subject: Re: register dump when press scroll lock
-Message-ID: <20040704125003.GE6456@pclin040.win.tue.nl>
-References: <20040703102516.GA11284@penguin.localdomain> <200407040219.32581.vda@port.imtp.ilyichevsk.odessa.ua> <20040704121740.GA3637@penguin.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040704121740.GA3637@penguin.localdomain>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+	Sun, 4 Jul 2004 08:59:12 -0400
+Date: Sun, 4 Jul 2004 14:59:04 +0200 (MEST)
+Message-Id: <200407041259.i64Cx4SX012978@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: marcelo.tosatti@cyclades.com
+Subject: updated gcc-3.4.0 fixes patch for 2.4.27-rc3
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 04, 2004 at 02:17:40PM +0200, Marcel Sebek wrote:
+There's now an updated gcc-3.4.0 fixes patch for 2.4.27-rc3 at
+<http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-2.4.27-rc3>.
 
-> > > Steps to reproduce:
-> > > Switch keyboard by "Pause/Break" key from English to Czech map (or another
-> > > second keymap, I also tried Slovak). Then press scrolllock. The following
-> > > is printed out and scrlock led state is untouched:
-> 
-> I'm using Debian testing.
-> 
-> I looked at keymap definition. For ScrLock there is this:
-> 
-> keycode 70 = Scroll_Lock Show_Memory Show_Registers
-> control keycode 70 = Show_State
-> alt keycode 70 = Scroll_Lock
-> 
-> If I want the same behavior as with english keymap, I should either
-> use Alt-ScrLock or rewrite the keymap.
+This update includes two cleanups:
 
-The keymap knows about 8 modifiers.
-You can bind keys to simple modifiers, also to locking modifiers.
+1. The fix for the __attribute__((packed)) problem in ftape-bsm.h
+   has been corrected. The problem is that
 
-Your Czech keymap uses the Pause key as ShiftR_Lock.
-(ShiftR is the 6th modifier, see also keymaps(5).)
-Thus, while typing in the English state of the keyboard
-you are using no modifiers unless explicitly pressing Shift/Alt/Ctrl/...
-but when typing in the Czech state of the keyboard you are
-permanently using ShiftR.
+   typedef struct { char c[3]; } Name __attribute__((packed));
 
-Now you press ScrollLock in the Czech state of the keyboard.
-What happens is the action bound to ShiftR ScrollLock.
-If no action is bound you may instead get the action bound
-to Plain ScrollLock.
+   generates gcc warnings about the 'packed' attribute being
+   ignored. I assumed this was because packed is meaningless
+   on a struct containing only char values, so the previous
+   patches simply removed the attribute. However, the problem
+   turns out to be syntactic: __attribute__((packed)) is only
+   allowed in struct/union declarations, not in typedef:s.
+   The revised patch moves the attribute into the struct part:
 
-Investigate your keymap. If you understand, all is well.
-If you don't understand, complain, e.g. to aeb@cwi.nl.
+   typedef struct { char c[3]; } __attribute__((packed)) Name;
 
-I am not aware of any recent changes in this area.
-Your keymap is something of your own choice, not something
-given by the kernel. See also loadkeys and dumpkeys.
+2. The patches that removed 'inline' from function declarations
+   have been removed. The problem is that include/linux/compiler.h
+   defines inline as follows:
 
-Andries
+   #if __GNUC__ == 3
+   #if __GNUC_MINOR__ >= 1
+   # define inline         __inline__ __attribute__((always_inline))
+
+   A number of functions are marked inline and then called in
+   contexts where their function bodies aren't visible. gcc-3.4.0
+   takes the always_inline attribute literally, and terminates
+   with an error in these cases.
+
+   The previous patches removed the problematic inline annotations.
+   The proper fix is to eliminate the always_inline attribute:
+
+   #if __GNUC__ == 3
+   #if __GNUC_MINOR__ >= 1 && __GNUC_MINOR__ < 4
+   # define inline         __inline__ __attribute__((always_inline))
+
+   This is what the 2.6 kernels do, and my patch set already included
+   this change. So the inline removals were unnecessary and have been
+   eliminated.
+
+Both cleanups are due to Marcelo questioning me about the validity
+of the previous versions of these fixes.
+
+/Mikael

@@ -1,92 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265566AbTFSNd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 09:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265571AbTFSNd1
+	id S265620AbTFSNdf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 09:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265614AbTFSNde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 09:33:27 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:22502 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S265566AbTFSNdX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 09:33:23 -0400
-Subject: Re: matroxfb console oops in 2.4.2x
-From: David Woodhouse <dwmw2@infradead.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org
-In-Reply-To: <4DB6BC835A7@vcnet.vc.cvut.cz>
-References: <4DB6BC835A7@vcnet.vc.cvut.cz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056030426.27851.234.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Thu, 19 Jun 2003 14:47:06 +0100
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Jun 2003 09:33:34 -0400
+Received: from 200-103-109-081.gnace7007.dsl.brasiltelecom.net.br ([200.103.109.81]:52202
+	"HELO stc2") by vger.kernel.org with SMTP id S265561AbTFSNd3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 09:33:29 -0400
+From: "super_penis" <super_penis@zipmail.com.br>
+To: "majordomo" <majordomo@vger.kernel.org>
+Subject: AUMENTE SEU PENIS EM ATE 5 CM
+Date: Thu, 19 Jun 03 10:30:10 Hora oficial do Brasil
+MIME-Version: 1.0
+Content-Type: multipart/mixed;boundary= "----=_NextPart_000_00F7_5B35EA8B.BFB05465"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000 
+Message-Id: <S265561AbTFSNd3/20030619133329Z+2164@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-19 at 13:21, Petr Vandrovec wrote:
-> On 19 Jun 03 at 11:06, David Woodhouse wrote:
-> 
-> > Below is a workaround which lets the machine boot. It's obviously not a
-> > fix.
+------=_NextPart_000_00F7_5B35EA8B.BFB05465
+Content-Type: text/plain
+Content-Transfer-Encoding: base64
 
-> It looks like that someone tried to print something on the console
-> during fbcon initialization.
-
-take_over_console() attempts to redraw the screen.
-
->  It is not allowed to call fbdev's putc 
-> before mode set was issued (at least I always believed to it; before
-> first mode set hardware is in VGA state)
-
-In this case, the hardware is uninitialised -- it's not in a PeeCee.
-Is that relevant?
-
-> Do not you see some error message in dmesg with these fixes?
-
-If I omit the fixes, I just get...
-
-matroxfb: Matrox Mystique (PCI) detected
-matroxfb: 1280x1024x8bpp (virtual: 1280x1635)
-matroxfb: framebuffer at 0x1000000, mapped to 0xc017d000, size 2097152
-matroxfb: Pixel PLL not locked after 5 secs
-+$S07#ba
-
-Include the hack I showed you in matroxfb_cfb*_putcs, and I get what I
-expect instead of the crash...
-
-Console: switching to colour frame buffer device 160x64
-fb0: MATROX VGA frame buffer device
-
-If I call matrox_init_putc() earlier as you suggest, then it seems to
-end up busy-waiting in mga_fifo()...
-
-0x8c0dba18 <matrox_cfbX_putcs+184>:     mov.l   @(r0,r3),r1
-0x8c0dba1a <matrox_cfbX_putcs+186>:     extu.b  r1,r1
-0x8c0dba1c <matrox_cfbX_putcs+188>:     cmp/hi  r2,r1
-0x8c0dba1e <matrox_cfbX_putcs+190>:     bf.s    0x8c0dba18 <matrox_cfbX_putcs+184>
-
-(gdb) regs
-PC=8c0dba1c SR=40000100 PR=8c0dbb72 MACH=00000003 MACHL=00000780
-GBR=f89858fb VBR=8c006000 SSR=00000000 SPC=00000000
-R0-R7  b3020000 00000005 00000005 00001e10 07070707 8c164d0c 00000000 01800010
-R8-R15 b3020000 00000010 002f0028 00000010 00000025 8c1d6948 8c2a3b14 8c2a3b14
-(gdb)  list *$pc
-0x8c0dba1c is in matrox_cfbX_putcs (matroxfb_accel.c:610).
-605             fxbndry = ((xx + fontwidth(p) - 1) << 16) | xx;
-606             mmio = ACCESS_FBINFO(mmio.vbase);
-607             while (count--) {
-608                     u_int8_t* chardata = p->fontdata + (scr_readw(s++) & p->charmask)*charcell;
-609
-610                     mga_fifo(6);
-611                     mga_writel(mmio, M_FXBNDRY, fxbndry);
-612                     mga_writel(mmio, M_AR0, ar0);
-613                     mga_writel(mmio, M_AR3, 0);
-614                     if (easy) {
-
-
-
--- 
-dwmw2
-
+Q29tIG8gTUFOVUFMIG1haXMgY29iaedhZG8gZGEgaW50ZXJuZXQgbm8gbW9tZW50bywgdm9j
+6iBhdW1lbnRhIG8gdGFtYW5obw0KZGUgc2V1IHDqbmlzIGRlIDIgYSA1IGNtIGVtIDIgbWVz
+ZXMgY29tIGV4ZXJj7WNpb3MgYWJzb2x1dGFtZW50ZQ0KbmF0dXJhaXMuIEF1bWVudGEgdGFt
+YultIGEgc3VhIHBvdOpuY2lhLCBjb250cm9sZSBlIHZvbHVtZSBkYSBlamFjdWxh5+NvLA0K
+ZGVudHJlIG91dHJvcyBiZW5lZu1jaW9zLiBQcm9ncmFtYSBjb21wbGV0byBjb20gZmlndXJh
+cyBpbHVzdHJhdGl2YXMNCmV4cGxpY2FuZG8gZGV0YWxoYWRhbWVudGUgdG9kb3Mgb3MgZXhl
+cmPtY2lvcy4gRm90b3MgY29tcGFyYXRpdmFzIG5vIHNpdGUNCmRlIHBlc3NvYXMgcXVlIGV4
+cGVyaW1lbnRhcmFtIGVzc2EgdOljbmljYS4gDQpodHRwOi8vYWxhdmFuY2EyMDAzLnRyaXBv
+ZC5jb20uYnIvaW5kZXg0Lmh0bQ0KDQoNCg0KDQoNCg0KDQpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXyANCk9C
+UzogRXN0YSBtZW5zYWdlbSBu428g6SB1bSBzcGFtLCB2aXN0byBxdWUgc29tZW50ZSBlc3Rh
+cuEgc2VuZG8gDQplbnZpYWRvIHVtYSD6bmljYSB2ZXosIGUgdGFtYultIGNvbnTpbSB1bWEg
+Zm9ybWEgZGUgc2VyIHJlbW92aWRhLA0K6SB1bSBlLW1haWwgbm9ybWFsIGNvbW8gdGFudG9z
+IG91dHJvcyBxdWUgdm9j6iByZWNlYmUsIG7jbyBlc3RhbW9zDQppbnZhZGluZG8gc3VhIHBy
+aXZhY2lkYWRlIGUgZW52aWFyIHVtIGUtbWFpbCBu428g6SBjcmltZSwgZGVzZGUgcXVlDQpu
+428gY29udGVuaGEgbWVuc2FnZW5zIHF1ZSBwb3NzYW0gY2F1c2FyIGRhbm9zIGFvIHVzdeFy
+aW8uIENhc28gDQpxdWVyaWEgcmVtb3ZlciBzZXUgZW5kZXJl528gZGUgbm9zc2EgbGlzdGEs
+IGJhc3RhIGVudmlhciB1bSBlLW1haWwNCmNvbSBvIHRpdHVsbyAoYXNzdW50bykgcmVtb3Zl
+ciwgcXVlIHNldQ0KZS1tYWlsIHNlcuEgcmVtb3ZpZG8gZGUgbm9zc2EgbGlzdGEgZGVmaW5p
+dGl2YW1lbnRlLkRlc2N1bHBlLW5vcw0KY2FzbyB0ZW5oYW1vcyBsaGUgaW1wb3J0dW5hZG8g
+Y29tIG5vc3NvIGUtbWFpbCBkZSBkaXZ1bGdh5+NvLg0KT2JyaWdhZG8hDQogICAg
+------=_NextPart_000_00F7_5B35EA8B.BFB05465--

@@ -1,67 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261362AbTCJQtT>; Mon, 10 Mar 2003 11:49:19 -0500
+	id <S261364AbTCJQxe>; Mon, 10 Mar 2003 11:53:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261363AbTCJQtT>; Mon, 10 Mar 2003 11:49:19 -0500
-Received: from ip68-107-142-198.tc.ph.cox.net ([68.107.142.198]:20641 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S261362AbTCJQtS>; Mon, 10 Mar 2003 11:49:18 -0500
-Date: Mon, 10 Mar 2003 09:59:56 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] move CONFIG_SWAP around
-Message-ID: <20030310165956.GA10044@ip68-0-152-218.tc.ph.cox.net>
-References: <200303090406.h2946Tj06060@hera.kernel.org> <Pine.GSO.4.21.0303101133380.8949-100000@vervain.sonytel.be> <20030310135014.GD31298@ip68-0-152-218.tc.ph.cox.net> <20030310081024.0a2e6afe.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030310081024.0a2e6afe.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.3i
+	id <S261208AbTCJQxe>; Mon, 10 Mar 2003 11:53:34 -0500
+Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:23557
+	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S261363AbTCJQxa>; Mon, 10 Mar 2003 11:53:30 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D1A33DD8@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'Robert White'" <rwhite@casabyte.com>,
+       Bryan Whitehead <driver@jpl.nasa.gov>
+Cc: linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: RE: devfs + PCI serial card = no extra serial ports (probably uns
+	upported card)
+Date: Mon, 10 Mar 2003 09:04:10 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 10, 2003 at 08:10:24AM -0800, Randy.Dunlap wrote:
-> On Mon, 10 Mar 2003 06:50:14 -0700 Tom Rini <trini@kernel.crashing.org> wrote:
+On Fri, Mar 07, 2003 at 6:18 PM, Robert White wrote:
 > 
-> | On Mon, Mar 10, 2003 at 11:36:29AM +0100, Geert Uytterhoeven wrote:
-> | > On Sun, 9 Mar 2003, Linux Kernel Mailing List wrote:
-> | > > ChangeSet 1.1148, 2003/03/08 19:25:21-08:00, akpm@digeo.com
-> | > > 
-> | > > 	[PATCH] move CONFIG_SWAP around
-> | > > 	
-> | > > 	Patch from Tom Rini <trini@kernel.crashing.org>
-> | > > 	
-> | > > 	Take CONFIG_SWAP out of the top-level menu into the general setup menu.  Make
-> | > > 	it dependent on CONFIG_MMU and common to all architectures.
-> | > > 
-> | > > 
-> | > > --- a/init/Kconfig	Sat Mar  8 20:06:31 2003
-> | > > +++ b/init/Kconfig	Sat Mar  8 20:06:31 2003
-> | > > @@ -37,6 +37,16 @@
-> | > >  
-> | > >  menu "General setup"
-> | > >  
-> | > > +config SWAP
-> | > > +	bool "Support for paging of anonymous memory"
-> | > > +	depends on MMU
-> | > > +	default y
-> | > > +	help
-> | > > +	  This option allows you to choose whether you want to have support
-> | > > +	  for socalled swap devices or swap files in your kernel that are
-> | > > +	  used to provide more virtual memory than the actual RAM present
-> | > > +	  in your computer.  If unusre say Y.
-> | >                                 ^^^^^^
-> | > unsure
-> | 
-> | D'oh... Not mine 'tho, I think it can from Randy :)
+> I had a similar problem, but the actual problem had nothing 
+> to do with the
+> devfs, the PCI serial card in question was not in the list of 
+> PCI devices.
+> (It was a one-off P.O.S.. from CompUSA.)  Neither the serial ports nor
+> parallel port were recognized.  The box claimed it was an 
+> 16PCI592 but the
+> chip maker had reved the chip ID.
 > 
-> Nope, I just checked and my patch contained a fix for that.  8:)
-> As did Tomas Szepe's patch.
+> The solution was to use scanpci to get the vendor and device 
+> numbers and
+> then add the numbers to pci_ids.h and then put an entry into the
+> serial_pci_tbl array in serial.c.  It took a little 
+> investigative work to
+> find which PCI ids were for the card (I took it out, did a 
+> scanpci, put it
+> back in and did it again and looked at what changed. [I was 
+> very newbie at
+> the time 8-)])
+> 
+> Consider these two diffs, they added support for the card to 
+> the driver.  I
+> had to guess at some of the values but fortunately there was 
+> a very similar
+> listing in serial.c already.
+> 
+> After that, the card appears in the device file system normally.
+> 
+> ===== cut here =====
+> --- /tmp/pci_ids.h.orig 2003-03-07 17:59:07.000000000 -0800
+> +++ linux/include/linux/pci_ids.h       2002-07-29 
+> 01:51:19.000000000 -0700
+> @@ -1477,6 +1477,8 @@
+>  #define PCI_DEVICE_ID_OXSEMI_16PCI952  0x950A
+>  #define PCI_DEVICE_ID_OXSEMI_16PCI95N  0x9511
+>  #define PCI_DEVICE_ID_OXSEMI_16PCI954PP        0x9513
+> +#define PCI_DEVICE_ID_OXSEMI_16PCI952DS        0x9521 // later rev or
+> something
+> +#define PCI_DEVICE_ID_OXSEMI_16PCI952PP        0x9513 // the 
+> Parallel Port
+> device
+> 
+>  #define PCI_VENDOR_ID_AIRONET          0x14b9
+>  #define PCI_DEVICE_ID_AIRONET_4800_1   0x0001
+> --- /tmp/serial.c.orig  2003-03-07 17:59:56.000000000 -0800
+> +++ linux/drivers/char/serial.c 2002-07-29 01:42:35.000000000 -0700
+> @@ -4658,6 +4658,9 @@
+>         {       PCI_VENDOR_ID_OXSEMI, PCI_DEVICE_ID_OXSEMI_16PCI952,
+>                 PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+>                 pbn_b0_2_115200 },
+> +       {       PCI_VENDOR_ID_OXSEMI, PCI_DEVICE_ID_OXSEMI_16PCI952DS,
+> +               PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+> +               pbn_b0_bt_2_115200 },
+> 
+>         /* Digitan DS560-558, from jimd@esoft.com */
+>         {       PCI_VENDOR_ID_ATT, PCI_DEVICE_ID_ATT_VENUS_MODEM,
+> ===== cut here =====
+> 
+> (Note that this caused the devices to appear as /dev/(tts|cua)/4 and
+> /dev/(tts|cua)/5 even though I only have one other available 
+> serial port.
+> The first four (0..3) are reserved for the built in/reserved 
+> COM1 though
+> COM4 no matter what.  This is expected.)
+> 
+> Alternately, if the card came with drivers, the manufacturer 
+> may have simply
+> chosen not to support the devfs filesystem.  Nothing much you 
+> can do in that
+> case except yell at the manufacturer.
+> 
+> Rob.
 
-Yeah, I found it was upstream just after I sent that.  I'm supprised the
-spell check people haven't found that one yet.
+Hi Rob,
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Yep. What happened is that the wrong ID was in the PCI database for 952. 
+Oxford does not even have a chip with device ID 950A. The EXSYS EX41092 
+violated the PCI rules and assigned their own device ID in Oxford's space. 
+They reprogrammed the 954 chip's device ID instead of using the subvendor 
+and subsystem IDs. oops. It was a 2-port card so everybody assumed that 
+it was an OX16PCI952 chip so device ID 950A crept into the PCI database 
+as the 952. The chip on that card was actually an OX16PCI954, which has a 
+programming interface that differs from the 952 at the second port, which 
+has caused a bit more teeth grinding. 
+
+The PCI device ID of the real OX16PCI952 was always 9521. 
+1415:950A:XXXX:XXXX is an EXSYS EX41092 card.
+1415:9521:XXXX:XXXX is a card based on a real Oxford OX16PCI952 chip.
+
+So, you were absolutely right all along ...
+
+Cheers,
+Ed
+
+---------------------------------------------------------------- 
+Ed Vance              edv (at) macrolink (dot) com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------

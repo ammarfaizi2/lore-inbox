@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316614AbSFZOwS>; Wed, 26 Jun 2002 10:52:18 -0400
+	id <S316616AbSFZO5r>; Wed, 26 Jun 2002 10:57:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316615AbSFZOwR>; Wed, 26 Jun 2002 10:52:17 -0400
-Received: from mg02.austin.ibm.com ([192.35.232.12]:61692 "EHLO
-	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S316614AbSFZOwR>; Wed, 26 Jun 2002 10:52:17 -0400
-Message-ID: <3D19D4BE.45516C90@austin.ibm.com>
-Date: Wed, 26 Jun 2002 09:50:38 -0500
-From: Bill Hartner <hartner@austin.ibm.com>
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: Mala Anand <manand@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: efficient copy_to_user and copy_from_user routines in 
- Linux Kernel
-References: <OFCB119CD8.D6AE7B3D-ON85256BE2.006AC911@raleigh.ibm.com> <3D18A26A.73E6DD07@zip.com.au>
+	id <S316617AbSFZO5r>; Wed, 26 Jun 2002 10:57:47 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:16389 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316616AbSFZO5q>;
+	Wed, 26 Jun 2002 10:57:46 -0400
+Date: Wed, 26 Jun 2002 07:57:41 -0700
+From: Greg KH <greg@kroah.com>
+To: Marek Michalkiewicz <marekm@amelek.gda.pl>
+Cc: marcelo@conectiva.com.br, mdharm-usb@one-eyed-alien.net, mwilck@freenet.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] USB storage: Datafab KECF-USB, Sagatek DCS-CF
+Message-ID: <20020626145741.GD4611@kroah.com>
+References: <E17My7H-0007Ew-00@alf.amelek.gda.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E17My7H-0007Ew-00@alf.amelek.gda.pl>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Wed, 29 May 2002 13:38:28 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Andrew Morton wrote:
+On Tue, Jun 25, 2002 at 11:44:51PM +0200, Marek Michalkiewicz wrote:
+> Hi,
 > 
-> Mala Anand wrote:
-> >
-> > Here is a 2.5.19 patch that improves the performance of IA32 copy_to_user
-> > and copy_from_user routines used by :
-...
-> 
-> One question:  have you tested on other CPU types?  This problem is
-> very specific to Intel hardware.  On AMD, the eight-byte alignement
-> artifact does not exist at all.  It could be that your patch is not
-> desirable on such CPUs?
-> 
+> please consider the small patch below (for 2.4.19-rc1), adding support
+> for the Sagatek DCS-CF (aka Datafab KECF-USB - 07c4:a400) USB-CompactFlash
+> apdapter.  Tested a little by copying files back and forth - transfer
+> speed is about 600 KB/s, and it hasn't crashed on me yet.  I understand
+> it is a bit late before 2.4.19, but the device does not work at all
+> without the patch, and the patch does not change anything for other
+> vendor:device IDs, so there should be no risk of breaking things...
 
-In Mala's lab, there are a couple of 1.6 Ghz P4 systems that can be used to test on.
+Heh, send this to me again after 2.4.19-final is out, and I'll
+reconsider it :)
 
-There is also a Netbench (P4 and PIII Xeon) and SPECweb99 (PIII Xeon) setup
-that can be used for further testing.
+thanks,
 
-There are some older P6 systems available too.  Not sure about AMD yet.
-
-Bill
+greg k-h

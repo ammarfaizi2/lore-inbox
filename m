@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265004AbSJWN5q>; Wed, 23 Oct 2002 09:57:46 -0400
+	id <S265008AbSJWN6v>; Wed, 23 Oct 2002 09:58:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265008AbSJWN5q>; Wed, 23 Oct 2002 09:57:46 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:48596 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S265004AbSJWN5p>; Wed, 23 Oct 2002 09:57:45 -0400
-Message-ID: <3DB6AC40.20007@nortelnetworks.com>
-Date: Wed, 23 Oct 2002 10:03:44 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S265011AbSJWN6v>; Wed, 23 Oct 2002 09:58:51 -0400
+Received: from 62-190-200-107.pdu.pipex.net ([62.190.200.107]:10244 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S265008AbSJWN6u>; Wed, 23 Oct 2002 09:58:50 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210231414.g9NEELVr004557@darkstar.example.net>
+Subject: Re: 2.5 Problem Report Status
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Wed, 23 Oct 2002 15:14:20 +0100 (BST)
+Cc: tmolina@cox.net, erik@debill.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1035378581.4033.45.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Oct 23, 2002 02:09:41 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Slavcho Nikolov <snikolov@okena.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: feature request - why not make netif_rx() a pointer?
-References: <20021023003959.GA23155@bougret.hpl.hp.com> <004c01c27a99$927b8a30$800a140a@SLNW2K>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Slavcho Nikolov wrote:
+> > >                                2.5 Kernel Problem Reports as of 22 Oct
+> > >    Status                 Discussion  Problem Title
+> > >
+> > > --------------------------------------------------------------------------
+> > >    open                   17 Oct 2002 IDE not powered down on shutdown
+> > >   55. http://marc.theaimsgroup.com/?l=linux-kernel&m=103476420012508&w=2
+> > > 
+> > > --------------------------------------------------------------------------
+> > >
+> > > --------------------------------------------------------------------------
+> > >    open                   22 Oct 2002 2.5.44 fs corruption
+> > >   77. http://marc.theaimsgroup.com/?l=linux-kernel&m=103532467828806&w=2
+> > > 
+> > > --------------------------------------------------------------------------
+> > 
+> > Any possibility that the above two problems are related - I.E. disks
+> > are not being flushed properly on shutdown?
+> 
+> Possibly. I would be suprised however
 
+Alan - have there been any changes to the flush/spindown code between
+2.5.42 and 2.5.44?  I remember a discussion about a month ago where
+you said that it's necessary to do both, but that the order could be
+wrong.  I am seriously begining to suspect that something is
+definitely wrong, because I can actually hear the disk spindown for a
+fraction of a second, then spin up again, (at least with 2.5.43, so
+far not with 2.5.44).
 
-> As for GPL, I hope that commercial enterprises be allowed to utilize
-> business models
-> which do not necessarily consist in providing services around free software.
-> The more replaceable hooks you provide to filesystems and network stacks,
-> the better.
-
-I don't think you understand the nature of the GPL and linux development.
-
-The kernel developers do not have any obligation to anything other than 
-technical excellence.  You're getting a highly optimized operating 
-system *at no financial cost*.  In return, the community requires that 
-certain types of modifications be made publicly available.
-
-If you want to replace the messaging code, make a GPL'd kernel patch and 
-make it available to your clients (of course they can then publish it 
-all over the place if they so desire).  If those terms are not 
-acceptable, there's always BSD.
-
-Chris
-
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+John.

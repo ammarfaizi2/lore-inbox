@@ -1,36 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311150AbSCHVsG>; Fri, 8 Mar 2002 16:48:06 -0500
+	id <S311163AbSCHVvT>; Fri, 8 Mar 2002 16:51:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311151AbSCHVr4>; Fri, 8 Mar 2002 16:47:56 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:50953 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S311150AbSCHVro>; Fri, 8 Mar 2002 16:47:44 -0500
-Message-ID: <3C893171.2050003@lexus.com>
-Date: Fri, 08 Mar 2002 13:47:29 -0800
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S311159AbSCHVvJ>; Fri, 8 Mar 2002 16:51:09 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:14466 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S311151AbSCHVuz>; Fri, 8 Mar 2002 16:50:55 -0500
+Date: Fri, 8 Mar 2002 22:38:12 +0100
+From: "Axel H. Siebenwirth" <axel@hh59.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: root-owned /proc/pid files for threaded apps?
-In-Reply-To: <20020307060110.GA303@lorien.emufarm.org> <E16iyBW-0002HP-00@the-village.bc.nu> <20020308100632.GA192@lorien.emufarm.org> <20020308195939.A6295@devcon.net> <20020308203157.GA457@lorien.emufarm.org> <20020308222942.A7163@devcon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: 2.5.6: undefined reference to `idescsi_init'
+Message-ID: <20020308213812.GB13672@neon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+Organization: hh59.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Ferber wrote:
+Hi,
 
->As a side note, IMHO it would be sensible to have some way of
->disabling module autoloading of protocol modules in the network stack.
->
+following undefined referenced is encountered when linking the kernel.
 
-What is the problem with using modules.conf e.g.
+drivers/ide/idedriver.o: In function 'ata_module_init':
+drivers/ide/idedriver.o(.text.init+0x941): undefined reference to
+descsi_init'
 
-alias net-pf-10 off
+I suppose there is some easy way to solve this?!
 
-?
+Thanks,
 
-Joe
+Axel
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+
+#
+# SCSI support
+#
+CONFIG_SCSI=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
 

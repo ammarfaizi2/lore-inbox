@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLPH20>; Sat, 16 Dec 2000 02:28:26 -0500
+	id <S129183AbQLPHgS>; Sat, 16 Dec 2000 02:36:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130026AbQLPH2R>; Sat, 16 Dec 2000 02:28:17 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:60935 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129183AbQLPH2D>;
-	Sat, 16 Dec 2000 02:28:03 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: ferret@phonewave.net
-cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Linus's include file strategy redux 
-In-Reply-To: Your message of "Fri, 15 Dec 2000 19:37:49 -0800."
-             <Pine.LNX.3.96.1001215193529.19208C-100000@tarot.mentasm.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 16 Dec 2000 17:57:31 +1100
-Message-ID: <13385.976949851@ocs3.ocs-net>
+	id <S130026AbQLPHgI>; Sat, 16 Dec 2000 02:36:08 -0500
+Received: from smtp2.free.fr ([212.27.32.6]:55824 "EHLO smtp2.free.fr")
+	by vger.kernel.org with ESMTP id <S129183AbQLPHgE>;
+	Sat, 16 Dec 2000 02:36:04 -0500
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Subject: Re: [PATCH] Re: Linux 2.2.19pre1 : procfs api
+Message-ID: <976950324.3a3b1434d9519@imp.free.fr>
+Date: Sat, 16 Dec 2000 08:05:24 +0100 (MET)
+From: Willy Tarreau <wtarreau@free.fr>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E1470sk-0001kp-00@the-village.bc.nu> <3A3A7915.5060006@holly-springs.nc.us>
+In-Reply-To: <3A3A7915.5060006@holly-springs.nc.us>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 212.27.43.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Dec 2000 19:37:49 -0800 (PST), 
-ferret@phonewave.net wrote:
->Do you have an alternative reccomendation? I've shown where the symlink
->method WILL fail. You disagree that having the configured headers copied
->is a workable idea. What else is there?
+Hello Michael, I wonder about this patch which only fixes an Id/author but no
+code.  It may be perfectly normal, but could also come from a mangled file in
+one of your trees. Just for info anyway...
 
-Use the pcmcia-cs method.  Ask where the kernel headers with a sensible
-default if the user just presses <ENTER>.
+Cheers,
+Willy
 
+> diff -r -u -x CVS -x *.o linux-2.2.18pre25-VIRGIN/fs/proc/openpromfs.c
+zinux/fs/proc/openpromfs.c
+> --- linux-2.2.18pre25-VIRGIN/fs/proc/openpromfs.c	Fri Dec  8 14:57:07 2000
+> +++ zinux/fs/proc/openpromfs.c	Fri Dec  8 15:08:59 2000
+> @@ -1,4 +1,4 @@
+> -/* $Id: openpromfs.c,v 1.33 1999/04/28 11:57:33 davem Exp $
+> +/* $Id: openpromfs.c,v 1.1.1.1 2000/12/08 20:08:59 zapman Exp $
+>   * openpromfs.c: /proc/openprom handling routines
+>   *
+>   * Copyright (C) 1996-1998 Jakub Jelinek  (jj@sunsite.mff.cuni.cz)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

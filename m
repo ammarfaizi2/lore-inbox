@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270342AbTGWOOP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 10:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270350AbTGWOOP
+	id S264448AbTGWOQb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 10:16:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270352AbTGWOQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 10:14:15 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:29688 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270342AbTGWOOM
+	Wed, 23 Jul 2003 10:16:30 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:30200 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S264448AbTGWOPw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 10:14:12 -0400
-Subject: Re: Feature proposal (scheduling related)
+	Wed, 23 Jul 2003 10:15:52 -0400
+Subject: Re: Accessing serial port from kernel module
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Valdis.Kletnieks@vt.edu
-Cc: jimis@gmx.net, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200307231417.h6NEHoqj010244@turing-police.cc.vt.edu>
-References: <3F1E6A25.5030308@gmx.net>
-	 <200307231417.h6NEHoqj010244@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+To: Kurt =?ISO-8859-1?Q?H=E4usler?= <Kurt@fub-group.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <8FB92279C69C2944B325B4BD227401790156B8@nt-server.danziger.local>
+References: <8FB92279C69C2944B325B4BD227401790156B8@nt-server.danziger.local>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Organization: 
-Message-Id: <1058970206.5520.71.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1058970342.5520.74.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jul 2003 15:23:27 +0100
+Date: 23 Jul 2003 15:25:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-23 at 15:17, Valdis.Kletnieks@vt.edu wrote:
-> Basically, you're stuck.  The biggest part of the problem is that although you
-> can certainly control the outbound packets, you have no real control over when
-> inbound packets arrive at the other end of your dial-up.  One person suggested
-> using QoS to help things along - but that needs to be implemented at the OTHER
-> end of the dial-up - which means unless your provider does QoS on the terminal
-> server, you're basically stuck.  Packets will probably just get queued up in
-> order of arrival.
+On Mer, 2003-07-23 at 15:15, Kurt Häusler wrote:
+> What is the preferred way in Linux for my module to open the serial port device such as /dev/ttyS1.
 
-There are a few things that help in the general real world but not
-mathematical sense. Use an ftp client like gnome-ftp which can set the
-rate it accepts data and window sizes. It'll still jam the modem a
-little when it starts a transfer but then it'll generally be ok if you
-have a bit of buffering for your icecast stream.
+Make your driver a line discipline is the normal approach in this case
+(ok to be fair putting it all in user space is the normal case). Take a
+look at slip.c to see how slip sits above terminal interfaces.
+
+The user space only approach is to use pty/tty pairs as things like
+xterm do. This gives you a "terminal/serial" device the other end of
+which is your user space program which can do the conversions it wants
+then talk to a real serial port
 

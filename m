@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbUDGRyX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 13:54:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263914AbUDGRyW
+	id S263875AbUDGRyM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 13:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUDGRyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 13:54:22 -0400
-Received: from web40503.mail.yahoo.com ([66.218.78.120]:7470 "HELO
-	web40503.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263893AbUDGRyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 13:54:19 -0400
-Message-ID: <20040407175418.17681.qmail@web40503.mail.yahoo.com>
-Date: Wed, 7 Apr 2004 10:54:18 -0700 (PDT)
-From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Subject: Re: kernel stack challenge 
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200404070244.i372iKdd003670@eeyore.valparaiso.cl>
-MIME-Version: 1.0
+	Wed, 7 Apr 2004 13:54:12 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:58497
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263875AbUDGRyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 13:54:10 -0400
+Date: Wed, 7 Apr 2004 19:54:09 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: GFP_LEVEL_MASK for -mc2
+Message-ID: <20040407175409.GK26888@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please apply this patch to -mc, against mc2:
 
---- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Sergiy Lozovsky <serge_lozovsky@yahoo.com> said:
-> > --- Timothy Miller <miller@techsource.com> wrote:
-> > > Horst von Brand wrote:
-> >            I would prefer to spend less time
-> writing
-> > actual code - this is what these high level
-> languages
-> > for. If performance would be most important -
-> people
-> > would do everything in Assembler, but they don't.
-> I'd
-> > better write a small Assembler subroutine which
-> will
-> > handle stack problems for me and benefit from
-> using
-> > the high level language after that.
-> 
-> And then there is the technology of _inventing_ a
-> language tailored to the
-> task at hand... even better than your list of
-> high-level languages.
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids 2.6.5-mc2-orig/include/linux/gfp.h 2.6.5-mc2/include/linux/gfp.h
+--- 2.6.5-mc2-orig/include/linux/gfp.h	2004-04-07 19:50:58.800821480 +0200
++++ 2.6.5-mc2/include/linux/gfp.h	2004-04-07 19:50:30.895063800 +0200
+@@ -37,6 +37,11 @@
+ #define __GFP_BITS_SHIFT 16	/* Room for 16 __GFP_FOO bits */
+ #define __GFP_BITS_MASK ((1 << __GFP_BITS_SHIFT) - 1)
+ 
++/* if you forget to add the bitmask here kernel will crash, period */
++#define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
++			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
++			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP)
++
+ #define GFP_ATOMIC	(__GFP_HIGH)
+ #define GFP_NOIO	(__GFP_WAIT)
+ #define GFP_NOFS	(__GFP_WAIT | __GFP_IO)
+diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids 2.6.5-mc2-orig/include/linux/slab.h 2.6.5-mc2/include/linux/slab.h
+--- 2.6.5-mc2-orig/include/linux/slab.h	2004-02-20 17:26:53.000000000 +0100
++++ 2.6.5-mc2/include/linux/slab.h	2004-04-07 19:50:06.002847992 +0200
+@@ -25,9 +25,7 @@ typedef struct kmem_cache_s kmem_cache_t
+ #define	SLAB_KERNEL		GFP_KERNEL
+ #define	SLAB_DMA		GFP_DMA
+ 
+-#define SLAB_LEVEL_MASK		(__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS|\
+-				__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT|\
+-				__GFP_NOFAIL|__GFP_NORETRY)
++#define SLAB_LEVEL_MASK		GFP_LEVEL_MASK
+ 
+ #define	SLAB_NO_GROW		__GFP_NO_GROW	/* don't grow a cache */
+ 
 
-I started exactly with that. I found out shortly that
-have no idea of functionality needed for such kind of
-system. It was clear that requirments for this sytem
-can change rapidly. Only general purpose language can
-address this problem (if we want to save time of
-development and introduction of new security models).
+You can guess why I needed it...
 
-Example. Current security policies are 'static'. It
-seems, that it would be nice to have 'dynamic'
-policies (with support from security model). Now,
-policy describes resources available for subsystem. It
-may be useful to limit the sequence of access to
-resources - 'behaviour' of subsystem. I'm not sure if
-I want to implement that right away, but there is
-commercial system which does exactly that already (it
-was created later than VXE).
-
-Serge.
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/
+thanks.

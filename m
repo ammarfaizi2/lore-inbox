@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265301AbUF1X6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265305AbUF1X7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265301AbUF1X6O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 19:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265305AbUF1X6O
+	id S265305AbUF1X7L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 19:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265310AbUF1X7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 19:58:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11403 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265301AbUF1X6M (ORCPT
+	Mon, 28 Jun 2004 19:59:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30155 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265305AbUF1X6y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 19:58:12 -0400
-Date: Mon, 28 Jun 2004 16:57:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: __setup()'s not processed in bk-current
-Message-Id: <20040628165707.328cce15.akpm@osdl.org>
-In-Reply-To: <Pine.GSO.4.33.0406281523340.25702-100000@sweetums.bluetronic.net>
-References: <Pine.GSO.4.33.0406281523340.25702-100000@sweetums.bluetronic.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 28 Jun 2004 19:58:54 -0400
+Date: Mon, 28 Jun 2004 19:58:22 -0400
+From: Jeff Garzik <jgarzik@redhat.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oliver@neukum.org>,
+       Pete Zaitcev <zaitcev@redhat.com>, greg@kroah.com, arjanv@redhat.com,
+       tburke@redhat.com, linux-kernel@vger.kernel.org,
+       mdharm-usb@one-eyed-alien.net, david-b@pacbell.net
+Subject: Re: drivers/block/ub.c
+Message-ID: <20040628235822.GD29883@devserv.devel.redhat.com>
+References: <200406271624.18984.oliver@neukum.org> <Pine.LNX.4.44L0.0406271108190.10134-100000@netrider.rowland.org> <20040627154515.GI5526@pclin040.win.tue.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040627154515.GI5526@pclin040.win.tue.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ricky Beam <jfbeam@bluetronic.net> wrote:
->
-> Do I smell some bad pointer math?  Yeap:
->  DEBUG: sizeof(obs_kernel_param): 24 (0x18)
-> 
->  obsolete_checksetup(): line: ro
->  obsolete_checksetup(): checking: nosmp(5) @ ffffffff80593510
->  obsolete_checksetup(): checking: <NULL>(1) @ ffffffff80593528
-> 
->  p++ moved the pointer sizeof(obs_kernel_param) ahead, but that's 8 bytes
->  short.
+On Sun, Jun 27, 2004 at 05:45:15PM +0200, Andries Brouwer wrote:
+> I still prefer writing explicitly what happens.
 
-Thanks for working that out.  It's been handing around for ages.
+This is my preference for the implementation of conversions to and from
+what I call 'scsi endian'.
 
+Personally, I am pondering creation and use of cpu_to_scsiXX() and
+scsiXX_to_cpu() static inline helper functions in my code, because
+I'm tired of hand-coding conversions for {read,write}{6,10,12,16}.
 
+Further, the value I see in direct cdb-to-something conversions has
+declined over time.  I now prefer the more clear
 
-We're now putting 24-byte structures into .init.setup via __setup.  But
-x86_64's compiler is emitting a `.align 16' in there, so they end up on
-32-byte boundaries and do_early_param()'s pointer arithmetic goes wrong.
+* scsi-to-u32
+* u32-to-something
 
-Fix that up by forcing the compiler to align these structures to sizeof(long).
+operations as preferred to a single
 
+* scsi-to-something
 
+operation that's hand-coded and frequently gets corner cases wrong.
 
----
+	Jeff
 
- 25-akpm/include/linux/init.h |    1 +
- 1 files changed, 1 insertion(+)
-
-diff -puN include/linux/init.h~x86_64-setup-section-alignment-fix include/linux/init.h
---- 25/include/linux/init.h~x86_64-setup-section-alignment-fix	2004-06-28 16:47:41.000000000 -0700
-+++ 25-akpm/include/linux/init.h	2004-06-28 16:47:41.000000000 -0700
-@@ -119,6 +119,7 @@ struct obs_kernel_param {
- 	static struct obs_kernel_param __setup_##unique_id	\
- 		 __attribute_used__				\
- 		 __attribute__((__section__(".init.setup")))	\
-+		__attribute__((aligned((sizeof(long)))))	\
- 		= { __setup_str_##unique_id, fn, early }
- 
- #define __setup_null_param(str, unique_id)			\
-
-_
 

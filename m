@@ -1,33 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277803AbRJRQkC>; Thu, 18 Oct 2001 12:40:02 -0400
+	id <S277798AbRJRQiw>; Thu, 18 Oct 2001 12:38:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277804AbRJRQjx>; Thu, 18 Oct 2001 12:39:53 -0400
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:11784 "EHLO
-	moria.gondor.com") by vger.kernel.org with ESMTP id <S277803AbRJRQjs>;
-	Thu, 18 Oct 2001 12:39:48 -0400
-Date: Thu, 18 Oct 2001 18:40:17 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Non-GPL modules
-Message-ID: <20011018184017.B5055@gondor.com>
-In-Reply-To: <Pine.LNX.3.95.1011018110604.802A-100000@chaos.analogic.com> <200110181540.f9IFe8S24810@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200110181540.f9IFe8S24810@oboe.it.uc3m.es>
-User-Agent: Mutt/1.3.23i
+	id <S277803AbRJRQim>; Thu, 18 Oct 2001 12:38:42 -0400
+Received: from palrel1.hp.com ([156.153.255.242]:1229 "HELO palrel1.hp.com")
+	by vger.kernel.org with SMTP id <S277798AbRJRQi0>;
+	Thu, 18 Oct 2001 12:38:26 -0400
+Message-ID: <C5C45572D968D411A1B500D0B74FF4A80418D57B@xfc01.fc.hp.com>
+From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+To: "Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
+Cc: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
+Subject: Kernel performance in reference to 2.4.5pre1
+Date: Thu, 18 Oct 2001 09:38:55 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 18, 2001 at 05:40:08PM +0200, Peter T. Breuer wrote:
-> detection". I forget what the collision rate is at the target. High
-> enough that the events aliase.
+2.4.5pre1 is the base for comparison, but because privacy issues and company
+policies, I can't give out anything but comparative numbers.  These should
+be enough to see what has been happening over the last couple of months of
+kernel development. 
 
-40MHz 
+The tests performed on the same equipment and networks using SPEC SFS NFS
+benchmark testing.  We have attempted to limit as many variables as we can.
 
-In case anybody cares ;-)
 
-Jan
+Hardware:
+- 4 Pentium III Xeon processors, 4GB ram
+- 45 fibre channel drives, set up in hardware RAID 0/1
+- 2 direct Gigabit Ethernet connections between SPEC SFS prime client and
+system under test
+- reiserfs
+- all NFS filesystems exported with sync,no_wdelay to insure O_SYNC writes
+to storage
+- NFS v3 UDP
+- LVM
+
+2.4.7 kernel series
+      2.4.7	56%
+	2.4.7 (patches: reiserfs osync and Arjan's high memory patch)	81%
+	2.4.7 (patches: Mark Hemment's performance(NFS kernel lock) and
+Arjan's high memory patch)  79%
+	2.4.7 (patches: Mark Hemment's performance(NFS kernel lock)  and
+reiserfs osync)  67%
+		
+2.4.9 kernel series
+	2.4.9-ac10		48%
+	2.4.9-ac13		40%
+	2.4.9-ac13 (patches: Rik's page aging) 40%
+	2.4.9-ac15		52%
+	2.4.9-ac15	(patches: Rik's page aging and launder patches) 57%
+2.4.9-ac16		56%
+	2.4.10-pre4	20%
+	2.4.10-pre8	40%
+	2.4.10-pre10	28%
+	2.4.10-pre10aa1	25%
+	2.4.10-pre11	33%
+	2.4.10-pre12	27%
+	2.4.10-pre12 (patches: reiserfs performance patch) 20%
+	2.4.10-pre13	13%
+	2.4.10-pre13 (patches: Linus' allocate patch) 28%
+	2.4.10pre14	43%
+
+2.4.10 kernel series
+	2.4.10		46%
+2.4.10 (patches: Andrea's vmtweak) 62%
+	2.4.10(patches: Andrea's vmtweaks2) 62%
+2.4.10-ac4		57%
+	2.4.11pre2		51%
+	2.4.11pre2	(patches: irq rewrite patch with default setting of
+20000) 50%
+	2.4.11pre2 (patches: irq rewrite patch with setting of 10000) 50%
+2.4.11pre2 (patches: irq rewrite patch with setting of 30000) 49%
+2.4.11pre3aa1	50%
+2.4.11pre6aa1	46%
+2.4.11pre6aa1(patches: uses the older lvm instead.) 47%
+	
+
+2.4.12 kernel series
+2.4.12		45%
+	2.4.13pre1		51%
+	2.4.12-ac2		54%
+	2.4.12-ac3		55%
+
+
+Cary Dickens
+Hewlett-Packard
 

@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266356AbTA2QTE>; Wed, 29 Jan 2003 11:19:04 -0500
+	id <S266250AbTA2QVn>; Wed, 29 Jan 2003 11:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266367AbTA2QTE>; Wed, 29 Jan 2003 11:19:04 -0500
-Received: from ns.suse.de ([213.95.15.193]:2826 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S266356AbTA2QTD>;
-	Wed, 29 Jan 2003 11:19:03 -0500
-Date: Wed, 29 Jan 2003 17:28:24 +0100
-From: Andi Kleen <ak@suse.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: two x86_64 fixes for 2.4.21-pre3
-Message-ID: <20030129162824.GA4773@wotan.suse.de>
-References: <15921.37163.139583.74988@harpo.it.uu.se> <20030124193721.GA24876@wotan.suse.de> <15926.60767.451098.218188@harpo.it.uu.se> <20030128212753.GA29191@wotan.suse.de> <15927.62893.336010.363817@harpo.it.uu.se>
+	id <S266296AbTA2QVn>; Wed, 29 Jan 2003 11:21:43 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:40968 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S266250AbTA2QVm>;
+	Wed, 29 Jan 2003 11:21:42 -0500
+Date: Wed, 29 Jan 2003 17:31:04 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bootscreen [had to throw in 2 cents worth, sorry]
+Message-ID: <20030129163104.GV30184@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200301290318.20817.b_adlakha@softhome.net> <200301291448.h0TEmAs18379@Port.imtp.ilyichevsk.odessa.ua> <1043854259.877.25.camel@RobsPC.RobertWilkens.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9Qa/g5WmKbBEiQ5Y"
 Content-Disposition: inline
-In-Reply-To: <15927.62893.336010.363817@harpo.it.uu.se>
+In-Reply-To: <1043854259.877.25.camel@RobsPC.RobertWilkens.com>
 User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
+x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+x-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. One unknown ioctl is logged from RH8.0 init:
-> 
-> ioctl32(iwconfig:185): Unknown cmd fd(3) cmd(00008b01){00} arg(ffffda90) on socket:[389]
 
-Probably harmless, but if you figure it out please send me a patch.
+--9Qa/g5WmKbBEiQ5Y
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Basically the steps are:
+On Wed, 2003-01-29 10:31:00 -0500, Rob Wilkens <robw@optonline.net>
+wrote in message <1043854259.877.25.camel@RobsPC.RobertWilkens.com>:
+> On Wed, 2003-01-29 at 09:46, Denis Vlasenko wrote:
+> > Yeah, dude, let's dumb down our users... don't allow them
+> > to become curious and start learning.
+>=20
+> As I recall, the way Windows 95/98/ME operated with the bootscreen (and
+> this might be wise for Linux as well) is to display a bootscreen, but
+> have it disappear if someone taps the escape key and returned to the
+> console where they CAN OPTIONALLY read the messages if their heart
+> desires.  In Windows 2000/XP, this is no longer, sadly, how it works,
+> but there still was (I believe) a mode in that OS where it displays all
+> the boot messages (/SOS option or similar).
 
-- find out which ioctl it is.
+Well, what do you do (think 2.5.x) when you don't have keyboard drivers
+compiled in? I currently do use them as loaded modules, *if* at all I do
+need them. Most of the time, my alphas only have two (or three) cables
+plugged in: power, network and possibly serial console... If there's a
+monitor, it's wired to a monitor switch (so you can see the messages,
+but basically, since there's no keyboard support loaded, it's useless),
+but it won't be used. Serial console is my way to go...
 
-- check its arguments. if the arguments are 64bit clean (see
-http://www.firstfloor.org/~andi/writing-ioctl32 for a definition) you just
-add it as COMPATIBLE_IOCTL to arch/x86_64/ia32/ia32_ioctl.c
+MfG, JBG
 
-If not you have to write a conversion handler, also following the tutorial
-in writing-ioctl32.
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet!
+   Shell Script APT-Proxy: http://lug-owl.de/~jbglaw/software/ap2/
 
-> 
-> 2. gdb still seems broken. gdb ./sleep [where ./sleep is simply main() calling
->    nanosleep(), but linked with -lpthread] hangs or loops and takes forever
->    to respond to ^C.
+--9Qa/g5WmKbBEiQ5Y
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-It works with the SuSE 32bit gdb/userland.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-I think RedHat has a different libpthread. I don't have a RedHat userland,
-so someone else will have to debug it.
+iD8DBQE+OAHIHb1edYOZ4bsRAv64AJ9rIkViIROWomaWmtAWUctwINemGgCfY/WD
+DS/vR4Fo/TNKmmIHAX0NvGQ=
+=AmYb
+-----END PGP SIGNATURE-----
 
-> 
-> 3. bootsect.S still needs a patch to prevent 'bzdisk' kernels from
->    disabling the FDC
-
-I put your previous patch already into CVS, but that was after the 
-last Marcelo sync.
-
--Andi
+--9Qa/g5WmKbBEiQ5Y--

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbTDKURk (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbTDKURk (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 16:17:40 -0400
-Received: from fw-az.mvista.com ([65.200.49.158]:29172 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S261682AbTDKURj (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:17:39 -0400
-Message-ID: <3E9725C5.3090503@mvista.com>
-Date: Fri, 11 Apr 2003 13:29:57 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	id S261710AbTDKUTx (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbTDKUTw (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 16:19:52 -0400
+Received: from toq5-srv.bellnexxia.net ([209.226.175.27]:37252 "EHLO
+	toq5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261710AbTDKUTv (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:19:51 -0400
+Date: Fri, 11 Apr 2003 16:25:23 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Greg KH <greg@kroah.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: USB optical mouse on laptop causes bk12 boot to hang
+In-Reply-To: <20030411201629.GR1821@kroah.com>
+Message-ID: <Pine.LNX.4.44.0304111621050.11560-100000@dell>
 MIME-Version: 1.0
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       message-bus-list@redhat.com, greg@kroah.com
-Subject: Re: [ANNOUNCE] udev 0.1 release
-References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net>
-In-Reply-To: <3E970A00.2050204@cox.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 11 Apr 2003, Greg KH wrote:
 
+> So if you load the usb core, and then plug in your usb device, does it
+> all work after the machine has booted?
 
-Kevin P. Fleming wrote:
+in a fairly recent posting, i clarified that a lot of the problem
+seemed to be that many of my modules were simply not being loaded
+on demand.  not only the USB stuff, but even the vfat module so
+i could mount my windows partition.
 
->
-> What happens if these secondary hotplug events occur while 
-> /sbin/hotplug has not yet finished processing the first one? Ignoring 
-> locking/race issues for the moment, I'm concerned about memory 
-> consumption as many layers of hotplug/udev/kpartx/etc. are running 
-> processing these events.
+i finally went back and just built all this stuff into the kernel,
+and solved most (not quite all) of the problems.  i find this
+kind of surprising -- i've never had to do this before.
 
-It gets even worse, because performance of hotswap events on disk adds 
-is critical and spawning processes is incredibly slow compared to the 
-performance required by some telecom applications...
+and, to answer your question above, before i did all this, to
+get my zip drive to work, i modprobe'd usbcore and usb-storage
+manually.  to mount the windows partition, same with modprobe
+and vfat.
 
-A much better solution could be had by select()ing on a filehandle 
-indicating when a new hotswap event is ready to be processed.  No races, 
-no security issues, no performance issues.
+and it's still a mystery why, before i did this, when i booted
+with a USB optical mouse plugged in, it hung after
+"Freeing unused kernel memory".  *that* is still a puzzler.
 
->
+rday
 

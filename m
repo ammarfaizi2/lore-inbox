@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271722AbTGRM7H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 08:59:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271716AbTGRM7H
+	id S264448AbTGRNOx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 09:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265624AbTGRNOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 08:59:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61082 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S271699AbTGRM7E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 08:59:04 -0400
-Message-ID: <3F17F28C.9050105@pobox.com>
-Date: Fri, 18 Jul 2003 09:13:48 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Catalin BOIE <util@deuroconsult.ro>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: libata driver update posted
-References: <3F1711C8.6040207@pobox.com> <Pine.LNX.4.53.0307180924020.19703@hosting.rdsbv.ro>
-In-Reply-To: <Pine.LNX.4.53.0307180924020.19703@hosting.rdsbv.ro>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jul 2003 09:14:53 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:61964 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S264448AbTGRNOw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 09:14:52 -0400
+Date: Fri, 18 Jul 2003 15:29:47 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PATCH: typo bits
+Message-ID: <20030718152947.B3019@pclin040.win.tue.nl>
+References: <Pine.GSO.4.21.0307181221390.22944-100000@vervain.sonytel.be> <1058528165.19558.3.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1058528165.19558.3.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Jul 18, 2003 at 12:36:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Catalin BOIE wrote:
->>Next update will add several host drivers, now that the libata API is
->>settling down.
+On Fri, Jul 18, 2003 at 12:36:05PM +0100, Alan Cox wrote:
+
+> > > - * It's now support isochronous mode and more effective than hc_sl811.o
+> > > + * It's now support isosynchronous mode and more effective than hc_sl811.o
+> > 
+> > I thought the correct term was `isochronous'...
 > 
-> 
-> Sii3112A is/will be supported?
+> Perhaps someone can clarify - however isochornus is definitely wrong either way
 
+You are the native English speaker here. Isosynchronous is (was?) not an
+English word.
 
-Yes, will be.
-
-Silicon Image and Promise support are most likely next.
-
-	Jeff
-
-
+Oh, but we aren't speaking English - this is about USB devices.
+Read the USB standard and see that it has an isosynchronous mode.
 

@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbUD1UIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbUD1ULw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262026AbUD1UIN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 16:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUD1UHA
+	id S261976AbUD1ULw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 16:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUD1UKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 16:07:00 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:13574 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261752AbUD1Tmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 15:42:31 -0400
-Message-ID: <40900A28.2030506@techsource.com>
-Date: Wed, 28 Apr 2004 15:46:48 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Marc Boucher <marc@linuxant.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <20040427165819.GA23961@valve.mbsi.ca> <1083107550.30985.122.camel@bach> <47B669B0-98A7-11D8-85DF-000A95BCAC26@linuxant.com> <20040428002516.GC3272@zax> <677BC9FC-98B1-11D8-85DF-000A95BCAC26@linuxant.com> <408FEBCA.70607@techsource.com> <975460FA-994A-11D8-85DF-000A95BCAC26@linuxant.com>
-In-Reply-To: <975460FA-994A-11D8-85DF-000A95BCAC26@linuxant.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Apr 2004 16:10:54 -0400
+Received: from mh57.com ([217.160.185.21]:54507 "EHLO mithrin.mh57.de")
+	by vger.kernel.org with ESMTP id S261976AbUD1Tyh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 15:54:37 -0400
+Date: Wed, 28 Apr 2004 21:54:29 +0200
+From: Martin Hermanowski <martin@mh57.de>
+To: Alexander Gran <alex@zodiac.dnsalias.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: e1000 EEPROM wrong after suspending.
+Message-ID: <20040428195429.GA11077@mh57.de>
+References: <200404272353.27989@zodiac.zodiac.dnsalias.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+Content-Disposition: inline
+In-Reply-To: <200404272353.27989@zodiac.zodiac.dnsalias.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Broken-Reverse-DNS: no host name found for IP address 2001:8d8:81:4d0:8000::1
+X-Spam-Score: 0.1 (/)
+X-Authenticated-ID: martin
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Marc Boucher wrote:
-> 
-> Timothy,
-> 
-> I am truly sorry about the concern this has caused, have already 
-> publicly apologized for not submitting a patch to properly correct the 
-> issue when the workaround was implemented, and proposed a change to the 
-> modem drivers that should go in as soon as possible to restore tainting 
-> and one instance of the warning messages while avoiding the flood.
+On Tue, Apr 27, 2004 at 11:53:23PM +0200, Alexander Gran wrote:
+> Hi,
+>=20
+>=20
+> I've got an e1000 Mobile in an IBM t40p. after a suspend/resume cycle the=
+ card=20
+> isn't working any longer. I'm unloading the module before the suspending,=
+=20
+> realoding it afterwards.
+> Kernel is 2.6.6-rc2-mm2, ACPI enabled, APIC disabled (didn't boot, last t=
+ime I=20
+> tried)
+[...]
+> PCI: Setting latency timer of device 0000:02:01.0 to 64
+> The EEPROM Checksum Is Not Valid
+> e1000: probe of 0000:02:01.0 failed with error -5
 
-I was not personally offended, but I hope what you said here is taken by 
-others as a good-faith gesture.
+I am using the e1000 on the t41p with enabled local apic, and I got no
+problem. But when I compiled the kernel (2.6.4-rc1-mm2) without local
+apic (so the notebook would turn off), I got the same problem. This was,
+besides a patch to the orinico driver, the only difference between the
+two kernels.
 
-> 
-> At the same time, I think that the "community" should, without 
-> relinquishing its principles, be less eager before getting the facts to 
-> attack people and companies trying to help in good faith, and be more 
-> realistic when it comes to satisfying practical needs of ordinary users.
+The working one has these options set:
+CONFIG_X86_UP_APIC=3Dy
+CONFIG_X86_UP_IOAPIC=3Dy
+CONFIG_X86_LOCAL_APIC=3Dy
+CONFIG_X86_IO_APIC=3Dy
 
-This is just part of the community, something which you should learn to 
-take advantage of.  It's part of an impressive system of checks and 
-balances.
+LLAP, Martin
 
-A major principle of internet communication is that people will say 
-venomous things in email which they would never say to you in person. 
-You have to take what they say for what it MEANS, not what it looks like.
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-If you're flamed, particularly in a forum like LKML, pay attention to 
-the meat of what the person is saying.  If the person is right, GREAT. 
-If the person has completely misunderstood the situation, let it go.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-And then, don't get drawn into endless debate defending yourself to 
-every comment that people make.  Sometimes, it's best to just summarize 
-the situation, acknowledge people's complaints, explain which ones are 
-factual, and explain that you're working on a solution.
+iD8DBQFAkAv1mGb6Npij0ewRAj8EAJwO09iXzw5BDDP8Hb8vNpWQNlJvNQCfSNdJ
+PxBLFxSLQ/oPJS1hdww7reA=
+=0l1O
+-----END PGP SIGNATURE-----
 
-There are a number of people on LKML who seem to do an amazing job of 
-getting to the point in a debate.  Take Theodore Ts'o, for example.  In 
-particular, his posts are a pleasure to read because they are so clear 
-and full of knowledge.
-
+--ew6BAiZeqk4r7MaW--

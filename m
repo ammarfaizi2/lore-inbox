@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269411AbUJFQ0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269388AbUJFQmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269411AbUJFQ0P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 12:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269419AbUJFQ0P
+	id S269388AbUJFQmu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 12:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269386AbUJFQmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 12:26:15 -0400
-Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:32091 "HELO
-	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269411AbUJFQWs convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 12:22:48 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org, orders@nodivisions.com
-Subject: Re: KVM -> jumping mouse... still no solution?
-Date: Wed, 6 Oct 2004 11:22:44 -0500
-User-Agent: KMail/1.6.2
-References: <4163845C.9020900@nodivisions.com> <1097047425.3745.92.camel@scs13> <4163C46A.2050004@nodivisions.com>
-In-Reply-To: <4163C46A.2050004@nodivisions.com>
+	Wed, 6 Oct 2004 12:42:50 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:23787 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269416AbUJFQZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 12:25:13 -0400
+Message-Id: <200410061625.i96GPVu01974@raceme.attbi.com>
+Subject: Solaris developer wants a Linux Mentor for drivers.
+To: linux-kernel@vger.kernel.org
+Date: Wed, 6 Oct 2004 11:25:31 -0500 (CDT)
+From: kilian@bobodyne.com (Alan Kilian)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200410061122.45191.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 October 2004 05:09 am, Anthony DiSante wrote:
->  > One quick solution I know of is to restart the gpm daemon,
->  > (/etc/init.d/gpm  restart) that resets the mouse settings.
->  > But this is not the correct way, there should be some way
->  > where the driver automatically detects and resets the mouse.
->  >
-> 
-> That doesn't work for me either.  Hmm... maybe it's because I'm using a 
-> Microsoft mouse... only plays nice with Windows systems?
-> 
 
-In 2.6 GPM does not have access to the hardware and therefore cannot reset
-it. A temporary fix can be downloaded from here:
 
-	http://bugme.osdl.org/attachment.cgi?id=3244&action=view
+  Kernel folks,
 
-It will for only on pre 2.6.9-rc2 kernels. When using kernels 2.6.9-rc3+
-there is no automatic re-synchronization [yet] but one can restore a mouse
-by issuing the following command:
+    I am in the process of porting a Sun Solaris PCI bus driver
+    that I wrote over to a 2.4 kernel, and I could use a mentor
+    just to get me over the initial bumps.
 
-	echo -n "reconnect" > /sys/bus/serio/devices/serioX/driver
+    I have a module that can be loaded, and detects my card, and
+    responds to ioctl() calls properly, so I'm moving right along,
+    but I do have some problems now.
 
-To find out which 'serioX' your mouse connected to just look into their
-respective "driver" attributes - the one with "psmouse" is the one you
-need.
+    1) If I "oops" in my module, I cannot unload it with:
+       # /sbin/rmmod sse    
+       sse: Device or resource busy
+
+       I have only figured out that a reboot cleans things up again.
+
+    2) An example of using pci_ops read_dword() would be superb.
+
+    By the way, this development environment is really slick
+    compared to Solaris. When I "oops" in Solaris, the kernel
+    panics and I'm in for a messy fsck on the way back up. This
+    is a great improvement.
+
+    Thanks in advance for any help any of you may provide.
+
+    After this, there will be one more Linux PCI bus driver developer
+    in the world, and that can't be a bad thing.
+
+                          -Alan
 
 -- 
-Dmitry
+- Alan Kilian <kilian(at)timelogic.com> 
+Director of Bioinformatics, TimeLogic Corporation 763-449-7622

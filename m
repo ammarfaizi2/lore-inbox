@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290122AbSAWVoE>; Wed, 23 Jan 2002 16:44:04 -0500
+	id <S290119AbSAWVoe>; Wed, 23 Jan 2002 16:44:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290119AbSAWVno>; Wed, 23 Jan 2002 16:43:44 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:3730 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S290122AbSAWVnd>; Wed, 23 Jan 2002 16:43:33 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: 520047054719-0001@t-online.de (Oliver Neukum)
-Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
-To: Samuel Maftoul <maftoul@esrf.fr>
-Subject: Re: umounting
-Date: Wed, 23 Jan 2002 22:42:33 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020122150703.B13509@pcmaftoul.esrf.fr> <16T6BH-1ZiPWiC@fwd07.sul.t-online.com> <20020123090614.A18262@pcmaftoul.esrf.fr>
-In-Reply-To: <20020123090614.A18262@pcmaftoul.esrf.fr>
+	id <S290125AbSAWVoY>; Wed, 23 Jan 2002 16:44:24 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:36359 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S290119AbSAWVoI>; Wed, 23 Jan 2002 16:44:08 -0500
+Message-ID: <3C4F2D18.5DC72FFE@zip.com.au>
+Date: Wed, 23 Jan 2002 13:37:28 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16TVAs-0xKiHYC@fwd10.sul.t-online.com>
+To: Mauricio =?iso-8859-1?Q?Nu=F1ez?= <mnunez@maxmedia.cl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Low latency for recent kernels
+In-Reply-To: <20020123091643.A182@earthlink.net> <3C4F0DFA.50601@lexus.com> <3C4F10F9.87A3B2E@zip.com.au>,
+		<3C4F10F9.87A3B2E@zip.com.au> <02012318041500.01883@mauricio.chile.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 January 2002 09:06, Samuel Maftoul wrote:
-> On Tue, Jan 22, 2002 at 08:01:44PM +0100, Oliver Neukum wrote:
-> > > When a second user comes and unmounts a disk, then the data are flushed
-> > > (the old data) and he gets a fs corruption, because the data were not
-> > > from his disk.
-> >
-> > No. The sbp2 driver should report a disk change. If such a thing happens,
->
-> According to my log, sbp2 has an event, It does see the new disk as I
-> can mount it ( something bizarre: The first disk I plug, the sbp2 driver
-> tells me the vendor and model of the disk, but all other disk won't tell
-> me anything until I realod sbp2 module ( I think reloading is ok but not
-> tested
+Mauricio Nuñez wrote:
+> 
+> Hi,
+> 
+> I'm sending some feedback !
+> :-)
 
-Do you use some kind of hotplugging script ?
+Is good.  Thanks.
 
-	Regards
-		Oliver
+> I'm trying this patch... (in 2.4.18-pre6)
+> I'm feeling a improved performance ,as a desktop user.
+> I'm working with KDE2, Netbeans and VMWare.
+> Pentium III 666Mhz , 192M Ram, 10GB HD.
+
+I'm a little surprised that desktop users do notice significant
+benefits with all the latency/preempt patches.  If you actually
+instrument the kernel's behaviour, the stalls are in fact
+quite small and infrequent.  See the histograms in
+
+ http://www.uwsg.iu.edu/hypermail/linux/kernel/0201.0/1624.html
+
+Probably, poor interactivity on the desktop is more due to
+waiting on disk reads - a combination of bad read latency
+in the presence of write traffic and unfortunate page replacement
+decisions.
+
+Try http://www.zipworld.com.au/~akpm/linux/2.4/2.4.18-pre6/read-latency2.patch
+
+> What are the tools to check this better performance?
+> Or my impression is sufficient ?
+
+The simplest tool to use is Mark Hahn's `realfeel' app.  See
+http://www.zip.com.au/~akpm/linux/amlat.tar.gz
+
+-

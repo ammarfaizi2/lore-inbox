@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284766AbRLRTkF>; Tue, 18 Dec 2001 14:40:05 -0500
+	id <S284575AbRLRSln>; Tue, 18 Dec 2001 13:41:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284857AbRLRTjG>; Tue, 18 Dec 2001 14:39:06 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:30865 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S284837AbRLRTiN>;
-	Tue, 18 Dec 2001 14:38:13 -0500
-Date: Tue, 18 Dec 2001 11:37:25 -0800 (PST)
-Message-Id: <20011218.113725.82100134.davem@redhat.com>
-To: nicoya@apia.dhs.org
-Cc: ian@ichilton.co.uk, sparclinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17-rc1 wont do nfs root on Javastation
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <v04003a11b84549aa834a@[24.70.162.28]>
-In-Reply-To: <20011215.220646.69411478.davem@redhat.com>
-	<20011218190621.A28147@buzz.ichilton.local>
-	<v04003a11b84549aa834a@[24.70.162.28]>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S284521AbRLRSkb>; Tue, 18 Dec 2001 13:40:31 -0500
+Received: from m851-mp1-cvx1c.edi.ntl.com ([62.253.15.83]:20718 "EHLO
+	pinkpanther.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S284537AbRLRSjW>; Tue, 18 Dec 2001 13:39:22 -0500
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200112181544.fBIFirL16397@pinkpanther.swansea.linux.org.uk>
+Subject: Re: PDC20265 IDE controller trouble
+To: jurij.smakov@telia.com (Jurij Smakov)
+Date: Tue, 18 Dec 2001 15:44:53 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, hahn@physics.mcmaster.ca
+In-Reply-To: <Pine.GHP.4.43.0112161058510.11934-100000@bobcat> from "Jurij Smakov" at Dec 16, 2001 12:44:36 
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Tony 'Nicoya' Mantler" <nicoya@apia.dhs.org>
-   Date: Tue, 18 Dec 2001 13:32:00 -0600
-   
-   I really think it should be a compile-time option to have it default to on,
-   but I never figured out who maintains it.
+> Here are the bonnie results on a RAID0 in my setup (kernel 2.4.17-pre8,
+> raidtools 0.9.0, PDC20265 controller on Asus TUSL2 motherboard, 2 IBM
+> 60GB disks, one disk per channel). /etc/raidtab contains:
 
-How then would you get a generic, yet NFS-ROOT capable kernel?
-Answer: you can't
+Check you have the right IDE driver compiled in. Also try the RH 2.4.9
+or a 2.4.12-ac8 type kernel and see if its about 10 times faster. For some
+stuff it seems 2.4.10 destroyed performance and Andrea has yet to fix that
+although lots of other stuff has recovered from the VM mess
+

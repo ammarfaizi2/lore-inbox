@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268801AbTBZQVg>; Wed, 26 Feb 2003 11:21:36 -0500
+	id <S268712AbTBZQTc>; Wed, 26 Feb 2003 11:19:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268802AbTBZQVg>; Wed, 26 Feb 2003 11:21:36 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:52423 "EHLO
+	id <S268784AbTBZQTc>; Wed, 26 Feb 2003 11:19:32 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:47303 "EHLO
 	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S268801AbTBZQVf>; Wed, 26 Feb 2003 11:21:35 -0500
-Date: Wed, 26 Feb 2003 16:31:54 +0000
+	id <S268712AbTBZQTb>; Wed, 26 Feb 2003 11:19:31 -0500
+Date: Wed, 26 Feb 2003 16:29:44 +0000
 From: Dave Jones <davej@codemonkey.org.uk>
-To: Mikael Pettersson <mikpe@user.it.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Enabling L2 cache for overdrive CPUs.
-Message-ID: <20030226163154.GB15163@codemonkey.org.uk>
+To: Alan Cox <alan@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Tighten up serverworks workaround.
+Message-ID: <20030226162944.GA15163@codemonkey.org.uk>
 Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Mikael Pettersson <mikpe@user.it.uu.se>,
+	Alan Cox <alan@redhat.com>, torvalds@transmeta.com,
 	linux-kernel@vger.kernel.org
-References: <200302261349.h1QDn0Bh002816@deviant.impure.org.uk> <15964.52883.370949.237446@gargle.gargle.HOWL>
+References: <200302261349.h1QDn06X002823@deviant.impure.org.uk> <200302261627.h1QGREw17937@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15964.52883.370949.237446@gargle.gargle.HOWL>
+In-Reply-To: <200302261627.h1QGREw17937@devserv.devel.redhat.com>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 26, 2003 at 03:26:27PM +0100, Mikael Pettersson wrote:
+On Wed, Feb 26, 2003 at 11:27:14AM -0500, Alan Cox wrote:
+ > > Aparently on rev6 of the LE and above, this workaround
+ > > isn't needed. Lets give it a try, and see what happens
+ > 
+ > Only if serverworks confirm the rumour. This is a corruptor.
 
- > Ugh. Is this for the PII overdrive for PPro socket or what?
+I've reports of people with rev6's who have reported success
+with that workaround commented out.  Could be they never
+pushed the machine hard enough to trigger a bug, but I'd
+have thought this breakage would show up pretty quickly.
 
-Celerons iirc. I got a mail from someone annoyed at the
-binary only module that powerleap gave him to do this.
-I just disassembled it and turned it back to C.
-
- > Seems awfully dangerous to have a __setup() clobber MSRs without
- > checking the cpuid first. 
- > Shouldn't this be in the CPU detection/quirks code instead?
- > It already contains stuff similar to this.
-
-That is another option that could be done, yes..
+My attempts to contact serverworks in the past have fallen on
+deaf ears. maybe you have better luck ?
 
         Dave
 

@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265815AbSLNS7M>; Sat, 14 Dec 2002 13:59:12 -0500
+	id <S265816AbSLNS7Q>; Sat, 14 Dec 2002 13:59:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265816AbSLNS7M>; Sat, 14 Dec 2002 13:59:12 -0500
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:43018 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265815AbSLNS7M>; Sat, 14 Dec 2002 13:59:12 -0500
-Date: Sat, 14 Dec 2002 13:15:39 -0600
-From: Courtney Grimland <cgrimland@yahoo.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-ac1 KT400 AGP support
-Message-Id: <20021214131539.4b73faa9.cgrimland@yahoo.com>
-In-Reply-To: <20021214101327.GB30545@suse.de>
-References: <2F4E8F809920D611B0B300508BDE95FE294452@AFB91>
-	<20021213195759.3233dc42.cgrimland@yahoo.com>
-	<20021214101327.GB30545@suse.de>
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Real Men Don't Use Distros - www.linuxfromscratch.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S265819AbSLNS7Q>; Sat, 14 Dec 2002 13:59:16 -0500
+Received: from bgp996345bgs.nanarb01.mi.comcast.net ([68.40.49.89]:6016 "EHLO
+	syKr0n.mine.nu") by vger.kernel.org with ESMTP id <S265816AbSLNS7P>;
+	Sat, 14 Dec 2002 13:59:15 -0500
+Subject: Re: [2.5.51] Failure to mount ext3 root when ext2 compiled in
+From: Mohamed El Ayouty <melayout@umich.edu>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DFB7D14.149B2B80@digeo.com>
+References: <3DFB03E8.C7AB1271@digeo.com>
+	<1039875751.10805.3.camel@syKr0n.mine.nu>  <3DFB7D14.149B2B80@digeo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 14 Dec 2002 14:06:13 -0500
+Message-Id: <1039892773.1496.1.camel@syKr0n.mine.nu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's retarded.  I guess I just got lucky with mine.  In fact, now
-that I can build a monolithic 2.4.x that supports my AGP and
-8235 sound, I couldn't be happier with my Gigabyte 7VAXP.
+I tried your suggestion to replace CONFIG_DEVFS_FS with 
 
-On Sat, 14 Dec 2002 10:13:27 +0000
-Dave Jones <davej@codemonkey.org.uk> wrote:
+CONFIG_DEVFS_MOUNT in the code snippet:
 
+#ifdef CONFIG_DEVFS_FS
+        sys_mount("devfs", "/dev", "devfs", 0, NULL);
+        do_devfs = 1;
+#endif
 
-> Aparently some KT400 BIOS's got clever, and took away the option.
-> They switch to AGP 3.0 if an AGP 3.0 card is present, and drop
-> back to 2.0 if a 2.0 card is present.
+But it gave me the same panic on boot.
+
+Mohamed

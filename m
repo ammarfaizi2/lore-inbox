@@ -1,422 +1,347 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269093AbUIXXmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269111AbUIXXov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269093AbUIXXmy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 19:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269088AbUIXXmy
+	id S269111AbUIXXov (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 19:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269077AbUIXXoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 19:42:54 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:35989 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S269077AbUIXXkb
+	Fri, 24 Sep 2004 19:44:03 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:14076 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP id S269092AbUIXXlf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 19:40:31 -0400
-Date: Fri, 24 Sep 2004 16:40:14 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>, len.brown@intel.com,
-       acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[4/6]-Dynamic cpu register/unregister support
-Message-ID: <20040924164014.D27778@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20040920092520.A14208@unix-os.sc.intel.com> <20040920094106.F14208@unix-os.sc.intel.com> <20040922173400.4e717946.tokunaga.keiich@jp.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040922173400.4e717946.tokunaga.keiich@jp.fujitsu.com>; from tokunaga.keiich@jp.fujitsu.com on Wed, Sep 22, 2004 at 05:34:00PM +0900
+	Fri, 24 Sep 2004 19:41:35 -0400
+Message-ID: <4154B0A1.1070305@watson.ibm.com>
+Date: Fri, 24 Sep 2004 19:41:21 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ckrm-tech <ckrm-tech@lists.sourceforge.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][1/1] Per-priority statistics for CFQ w/iopriorities 2.6.8.1
+Content-Type: multipart/mixed;
+ boundary="------------040605070409040604050300"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 22, 2004 at 05:34:00PM +0900, Keiichiro Tokunaga wrote:
-> On Mon, 20 Sep 2004 09:41:07 -0700 Keshavamurthy Anil S wrote:
-> I don't think that the check 'if (node_online(node))' is necessary
-> because sysfs_nodes[node] is there no matter if the node is online
-> or offline.  sysfs_nodes[] is cleared only when unregister_node()
-> is called and it would be always called after unregister_cpu().
+This is a multi-part message in MIME format.
+--------------040605070409040604050300
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Refreshed this patch to address the above issues. Please let me know if you see
-any other issue with this patch.
+This patch applies over the port of I/O priorities to CFQ for 2.6.8.1
+posted earlier.
+
+It adds useful statistics like requests and sectors received/served
+and number of dynamic queue addition/deletions for each priority level 
+(0 through 20) created by the earlier patch.
+
+The patch is not required for correct functioning of the I/O priority 
+port.
+
+-- Shailabh
 
 
----
-Name:topology.patch
-Status:Tested on 2.6.9-rc2
-Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Depends:	
-Version: applies on 2.6.9-rc2	
-Description:
-Extends support for dynamic registration and unregistration of the cpu,
-by implementing and exporting arch_register_cpu()/arch_unregister_cpu().
-Also combines multiple implementation of topology_init() functions to
-single topology_init() in case of ia64 architecture.
----
 
- /dev/null                                                  |   43 ------
- linux-2.6.9-rc2-askeshav/arch/i386/mach-default/topology.c |   31 ++++
- linux-2.6.9-rc2-askeshav/arch/ia64/dig/Makefile            |    5 
- linux-2.6.9-rc2-askeshav/arch/ia64/kernel/Makefile         |    3 
- linux-2.6.9-rc2-askeshav/arch/ia64/kernel/topology.c       |   90 +++++++++++++
- linux-2.6.9-rc2-askeshav/arch/ia64/mm/numa.c               |   35 -----
- linux-2.6.9-rc2-askeshav/drivers/base/cpu.c                |   20 ++
- linux-2.6.9-rc2-askeshav/include/asm-i386/cpu.h            |   17 --
- linux-2.6.9-rc2-askeshav/include/asm-ia64/cpu.h            |    5 
- linux-2.6.9-rc2-askeshav/include/linux/cpu.h               |    3 
- 10 files changed, 153 insertions(+), 99 deletions(-)
 
-diff -L arch/ia64/dig/topology.c -puN arch/ia64/dig/topology.c~topology /dev/null
---- linux-2.6.9-rc2/arch/ia64/dig/topology.c
-+++ /dev/null	2004-06-30 13:03:36.000000000 -0700
-@@ -1,43 +0,0 @@
--/*
-- * arch/ia64/dig/topology.c
-- *	Popuate driverfs with topology information.
-- *	Derived entirely from i386/mach-default.c
-- *  Intel Corporation - Ashok Raj
-- */
--#include <linux/init.h>
--#include <linux/smp.h>
--#include <linux/cpumask.h>
--#include <linux/percpu.h>
--#include <linux/notifier.h>
--#include <linux/cpu.h>
--#include <asm/cpu.h>
+
+
+--------------040605070409040604050300
+Content-Type: text/plain;
+ name="cfq-priostats.2681.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cfq-priostats.2681.patch"
+
+diff -Nru a/drivers/block/cfq-iosched.c b/drivers/block/cfq-iosched.c
+--- a/drivers/block/cfq-iosched.c	Fri Sep 24 19:16:53 2004
++++ b/drivers/block/cfq-iosched.c	Fri Sep 24 19:16:53 2004
+@@ -91,6 +91,15 @@
+ 	int busy_queues;
+ 	int busy_rq;
+ 	unsigned long busy_sectors;
++	
++	/* requests, sectors and queues 
++         * added(in),dispatched/deleted(out) 
++	 * at this priority level. 
++	 */
++	atomic_t cum_rq_in,cum_rq_out;              
++	atomic_t cum_sectors_in,cum_sectors_out;    
++	atomic_t cum_queues_in,cum_queues_out;
++
+ 	struct list_head prio_list;
+ 	int last_rq;
+ 	int last_sectors;
+@@ -240,7 +249,9 @@
+ 			cfqd->cid[crq->ioprio].busy_rq--;
+ 			cfqd->cid[crq->ioprio].busy_sectors -= crq->nr_sectors;
+ 		}
 -
--static DEFINE_PER_CPU(struct ia64_cpu, cpu_devices);
--
--/*
-- * First Pass: simply borrowed code for now. Later should hook into
-- * hotplug notification for node/cpu/memory as applicable
-- */
--
--static int arch_register_cpu(int num)
--{
--	struct node *parent = NULL;
--
--#ifdef CONFIG_NUMA
--	//parent = &node_devices[cpu_to_node(num)].node;
--#endif
--
--	return register_cpu(&per_cpu(cpu_devices,num).cpu, num, parent);
--}
--
--static int __init topology_init(void)
--{
--    int i;
--
--    for_each_cpu(i) {
--        arch_register_cpu(i);
--	}
--    return 0;
--}
--
--subsys_initcall(topology_init);
-diff -puN arch/ia64/dig/Makefile~topology arch/ia64/dig/Makefile
---- linux-2.6.9-rc2/arch/ia64/dig/Makefile~topology	2004-09-24 15:26:26.939098651 -0700
-+++ linux-2.6.9-rc2-askeshav/arch/ia64/dig/Makefile	2004-09-24 15:26:27.062145524 -0700
-@@ -6,9 +6,4 @@
- #
++		atomic_inc(&(cfqd->cid[crq->ioprio].cum_rq_out));
++		atomic_add(crq->nr_sectors,
++			   &(cfqd->cid[crq->ioprio].cum_sectors_out));
+ 		cfqq->queued[rq_data_dir(crq->request)]--;
+ 		rb_erase(&crq->rb_node, &cfqq->sort_list);
+ 	}
+@@ -283,6 +294,9 @@
+ 		cfqd->cid[crq->ioprio].busy_rq++;
+ 		cfqd->cid[crq->ioprio].busy_sectors += crq->nr_sectors;
+ 	}
++	atomic_inc(&(cfqd->cid[crq->ioprio].cum_rq_in));
++	atomic_add(crq->nr_sectors,
++		   &(cfqd->cid[crq->ioprio].cum_sectors_in));
+ retry:
+ 	__alias = __cfq_add_crq_rb(cfqq, crq);
+ 	if (!__alias) {
+@@ -399,6 +413,7 @@
+ {
+ 	struct cfq_data *cfqd = q->elevator.elevator_data;
+ 	struct cfq_rq *crq = RQ_ELV_DATA(req);
++	int tmp;
  
- obj-y := setup.o
--
--ifndef CONFIG_NUMA
--obj-$(CONFIG_IA64_DIG) += topology.o
--endif
--
- obj-$(CONFIG_IA64_GENERIC) += machvec.o
-diff -puN arch/ia64/mm/numa.c~topology arch/ia64/mm/numa.c
---- linux-2.6.9-rc2/arch/ia64/mm/numa.c~topology	2004-09-24 15:26:26.943004901 -0700
-+++ linux-2.6.9-rc2-askeshav/arch/ia64/mm/numa.c	2004-09-24 15:26:27.063122087 -0700
-@@ -20,8 +20,6 @@
- #include <asm/mmzone.h>
- #include <asm/numa.h>
+ 	cfq_del_crq_hash(crq);
+ 	cfq_add_crq_hash(cfqd, crq);
+@@ -410,9 +425,11 @@
+ 		cfq_add_crq_rb(cfqd, cfqq, crq);
+ 	}
  
--static struct node *sysfs_nodes;
--static struct cpu *sysfs_cpus;
+-	cfqd->busy_sectors += req->hard_nr_sectors - crq->nr_sectors;
+-	cfqd->cid[crq->ioprio].busy_sectors += 
+-		req->hard_nr_sectors - crq->nr_sectors;
++	tmp = req->hard_nr_sectors - crq->nr_sectors;
++	cfqd->busy_sectors += tmp;
++	cfqd->cid[crq->ioprio].busy_sectors += tmp;
++	atomic_add(tmp,&(cfqd->cid[crq->ioprio].cum_sectors_in));
++
+ 	crq->nr_sectors = req->hard_nr_sectors;
  
- /*
-  * The following structures are usually initialized by ACPI or
-@@ -50,36 +48,3 @@ paddr_to_nid(unsigned long paddr)
- 	return (i < num_node_memblks) ? node_memblk[i].nid : (num_node_memblks ? -1 : 0);
- }
+ 	q->last_merge = req;
+@@ -683,6 +700,7 @@
  
--static int __init topology_init(void)
--{
--	int i, err = 0;
--
--	sysfs_nodes = kmalloc(sizeof(struct node) * numnodes, GFP_KERNEL);
--	if (!sysfs_nodes) {
--		err = -ENOMEM;
--		goto out;
--	}
--	memset(sysfs_nodes, 0, sizeof(struct node) * numnodes);
--
--	sysfs_cpus = kmalloc(sizeof(struct cpu) * NR_CPUS, GFP_KERNEL);
--	if (!sysfs_cpus) {
--		kfree(sysfs_nodes);
--		err = -ENOMEM;
--		goto out;
--	}
--	memset(sysfs_cpus, 0, sizeof(struct cpu) * NR_CPUS);
--
--	for (i = 0; i < numnodes; i++)
--		if ((err = register_node(&sysfs_nodes[i], i, 0)))
--			goto out;
--
--	for (i = 0; i < NR_CPUS; i++)
--		if (cpu_online(i))
--			if((err = register_cpu(&sysfs_cpus[i], i,
--					       &sysfs_nodes[cpu_to_node(i)])))
--				goto out;
-- out:
--	return err;
--}
--
--__initcall(topology_init);
-diff -puN include/linux/cpu.h~topology include/linux/cpu.h
---- linux-2.6.9-rc2/include/linux/cpu.h~topology	2004-09-24 15:26:26.946911150 -0700
-+++ linux-2.6.9-rc2-askeshav/include/linux/cpu.h	2004-09-24 15:26:27.063122087 -0700
-@@ -32,6 +32,9 @@ struct cpu {
+ 	cfqd->cid[cfqq->ioprio].busy_queues--;
+ 	WARN_ON(cfqd->cid[cfqq->ioprio].busy_queues < 0);
++	atomic_inc(&(cfqd->cid[cfqq->ioprio].cum_queues_out));
+ 
+ 	list_del(&cfqq->cfq_list);
+ 	hlist_del(&cfqq->cfq_hash);
+@@ -756,7 +774,9 @@
+ 			if (!list_empty(&cfqq->cfq_list)) {
+ 				cfqd->cid[cfqq->ioprio].busy_queues--;
+ 				WARN_ON(cfqd->cid[cfqq->ioprio].busy_queues<0);
++				atomic_inc(&(cfqd->cid[cfqq->ioprio].cum_queues_out));
+ 				cfqd->cid[prio].busy_queues++;
++				atomic_inc(&(cfqd->cid[prio].cum_queues_in));
+ 				list_move_tail(&cfqq->cfq_list, 
+ 					       &cfqd->cid[prio].rr_list);
+ 			}
+@@ -769,6 +789,7 @@
+ 			list_add_tail(&cfqq->cfq_list, 
+ 				      &cfqd->cid[prio].rr_list);
+ 			cfqd->cid[prio].busy_queues++;
++			atomic_inc(&(cfqd->cid[prio].cum_queues_in));
+ 			cfqd->busy_queues++;
+ 		}
+ 
+@@ -1052,6 +1073,13 @@
+ 		INIT_LIST_HEAD(&cid->prio_list);
+ 		cid->last_rq = -1;
+ 		cid->last_sectors = -1;
++
++		atomic_set(&cid->cum_rq_in,0);		
++		atomic_set(&cid->cum_rq_out,0);
++		atomic_set(&cid->cum_sectors_in,0);
++		atomic_set(&cid->cum_sectors_out,0);		
++		atomic_set(&cid->cum_queues_in,0);
++		atomic_set(&cid->cum_queues_out,0);
+ 	}
+ 
+ 	cfqd->crq_hash = kmalloc(sizeof(struct hlist_head) * CFQ_MHASH_ENTRIES,
+@@ -1179,6 +1207,100 @@
+ STORE_FUNCTION(cfq_grace_idle_store, &cfqd->cfq_grace_idle, 0, INT_MAX);
+ #undef STORE_FUNCTION
+ 
++
++/* Additional entries to get priority level data */
++static ssize_t
++cfq_prio_show(struct cfq_data *cfqd, char *page, unsigned int priolvl)
++{
++	int r1,r2,s1,s2,q1,q2;
++
++	if (!(priolvl >= IOPRIO_IDLE && priolvl <= IOPRIO_RT)) 
++		return 0;
++	
++	r1 = (int)atomic_read(&(cfqd->cid[priolvl].cum_rq_in));
++	r2 = (int)atomic_read(&(cfqd->cid[priolvl].cum_rq_out));
++	s1 = (int)atomic_read(&(cfqd->cid[priolvl].cum_sectors_in));
++	s2 = (int)atomic_read(&(cfqd->cid[priolvl].cum_sectors_out));
++	q1 = (int)atomic_read(&(cfqd->cid[priolvl].cum_queues_in)); 
++	q2 = (int)atomic_read(&(cfqd->cid[priolvl].cum_queues_out));
++	
++	return sprintf(page,"rq (%d,%d) sec (%d,%d) q (%d,%d)\n",
++		      r1,r2,
++		      s1,s2,
++		      q1,q2);
++}
++
++#define SHOW_PRIO_DATA(__PRIOLVL)                                               \
++static ssize_t cfq_prio_##__PRIOLVL##_show(struct cfq_data *cfqd, char *page)	\
++{									        \
++	return cfq_prio_show(cfqd,page,__PRIOLVL);				\
++}
++SHOW_PRIO_DATA(0);
++SHOW_PRIO_DATA(1);
++SHOW_PRIO_DATA(2);
++SHOW_PRIO_DATA(3);
++SHOW_PRIO_DATA(4);
++SHOW_PRIO_DATA(5);
++SHOW_PRIO_DATA(6);
++SHOW_PRIO_DATA(7);
++SHOW_PRIO_DATA(8);
++SHOW_PRIO_DATA(9);
++SHOW_PRIO_DATA(10);
++SHOW_PRIO_DATA(11);
++SHOW_PRIO_DATA(12);
++SHOW_PRIO_DATA(13);
++SHOW_PRIO_DATA(14);
++SHOW_PRIO_DATA(15);
++SHOW_PRIO_DATA(16);
++SHOW_PRIO_DATA(17);
++SHOW_PRIO_DATA(18);
++SHOW_PRIO_DATA(19);
++SHOW_PRIO_DATA(20);
++#undef SHOW_PRIO_DATA
++
++
++static ssize_t cfq_prio_store(struct cfq_data *cfqd, const char *page, size_t count, int priolvl)
++{	
++	atomic_set(&(cfqd->cid[priolvl].cum_rq_in),0);
++	atomic_set(&(cfqd->cid[priolvl].cum_rq_out),0);
++	atomic_set(&(cfqd->cid[priolvl].cum_sectors_in),0);
++	atomic_set(&(cfqd->cid[priolvl].cum_sectors_out),0);
++	atomic_set(&(cfqd->cid[priolvl].cum_queues_in),0);
++	atomic_set(&(cfqd->cid[priolvl].cum_queues_out),0);
++
++	return count;
++}
++
++
++#define STORE_PRIO_DATA(__PRIOLVL)				                                   \
++static ssize_t cfq_prio_##__PRIOLVL##_store(struct cfq_data *cfqd, const char *page, size_t count) \
++{									                           \
++        return cfq_prio_store(cfqd,page,count,__PRIOLVL);                                          \
++}                  
++STORE_PRIO_DATA(0);     
++STORE_PRIO_DATA(1);
++STORE_PRIO_DATA(2);
++STORE_PRIO_DATA(3);
++STORE_PRIO_DATA(4);
++STORE_PRIO_DATA(5);
++STORE_PRIO_DATA(6);
++STORE_PRIO_DATA(7);
++STORE_PRIO_DATA(8);
++STORE_PRIO_DATA(9);
++STORE_PRIO_DATA(10);
++STORE_PRIO_DATA(11);
++STORE_PRIO_DATA(12);
++STORE_PRIO_DATA(13);
++STORE_PRIO_DATA(14);
++STORE_PRIO_DATA(15);
++STORE_PRIO_DATA(16);
++STORE_PRIO_DATA(17);
++STORE_PRIO_DATA(18);
++STORE_PRIO_DATA(19);
++STORE_PRIO_DATA(20);
++#undef STORE_PRIO_DATA
++
++
+ static struct cfq_fs_entry cfq_quantum_entry = {
+ 	.attr = {.name = "quantum", .mode = S_IRUGO | S_IWUSR },
+ 	.show = cfq_quantum_show,
+@@ -1215,6 +1337,58 @@
+ 	.store = cfq_grace_idle_store,
  };
  
- extern int register_cpu(struct cpu *, int, struct node *);
-+#ifdef CONFIG_HOTPLUG_CPU
-+extern void unregister_cpu(struct cpu *, struct node *);
-+#endif
- struct notifier_block;
- 
- #ifdef CONFIG_SMP
-diff -puN include/asm-ia64/cpu.h~topology include/asm-ia64/cpu.h
---- linux-2.6.9-rc2/include/asm-ia64/cpu.h~topology	2004-09-24 15:26:26.951793963 -0700
-+++ linux-2.6.9-rc2-askeshav/include/asm-ia64/cpu.h	2004-09-24 15:26:27.064098649 -0700
-@@ -14,4 +14,9 @@ DECLARE_PER_CPU(struct ia64_cpu, cpu_dev
- 
- DECLARE_PER_CPU(int, cpu_state);
- 
-+extern int arch_register_cpu(int num);
-+#ifdef CONFIG_HOTPLUG_CPU
-+extern void arch_unregister_cpu(int);
-+#endif
-+
- #endif /* _ASM_IA64_CPU_H_ */
-diff -puN /dev/null arch/ia64/kernel/topology.c
---- /dev/null	2004-06-30 13:03:36.000000000 -0700
-+++ linux-2.6.9-rc2-askeshav/arch/ia64/kernel/topology.c	2004-09-24 15:26:27.065075212 -0700
-@@ -0,0 +1,90 @@
-+/*
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file "COPYING" in the main directory of this archive
-+ * for more details.
-+ *
-+ * This file contains NUMA specific variables and functions which can
-+ * be split away from DISCONTIGMEM and are used on NUMA machines with
-+ * contiguous memory.
-+ * 		2002/08/07 Erich Focht <efocht@ess.nec.de>
-+ * Populate cpu entries in sysfs for non-numa systems as well
-+ *  	Intel Corporation - Ashok Raj
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/cpu.h>
-+#include <linux/kernel.h>
-+#include <linux/mm.h>
-+#include <linux/node.h>
-+#include <linux/init.h>
-+#include <linux/bootmem.h>
-+#include <asm/mmzone.h>
-+#include <asm/numa.h>
-+#include <asm/cpu.h>
-+
-+#ifdef CONFIG_NUMA
-+static struct node *sysfs_nodes;
-+#endif
-+static struct ia64_cpu *sysfs_cpus;
-+
-+int arch_register_cpu(int num)
-+{
-+	struct node *parent = NULL;
-+	
-+#ifdef CONFIG_NUMA
-+	parent = &sysfs_nodes[cpu_to_node(num)];
-+#endif /* CONFIG_NUMA */
-+
-+	return register_cpu(&sysfs_cpus[num].cpu, num, parent);
-+}
-+
-+#ifdef CONFIG_HOTPLUG_CPU
-+
-+void arch_unregister_cpu(int num)
-+{
-+	struct node *parent = NULL;
-+
-+#ifdef CONFIG_NUMA
-+	int node = cpu_to_node(num);
-+	parent = &sysfs_nodes[node];
-+#endif /* CONFIG_NUMA */
-+
-+	return unregister_cpu(&sysfs_cpus[num].cpu, parent);
-+}
-+EXPORT_SYMBOL(arch_register_cpu);
-+EXPORT_SYMBOL(arch_unregister_cpu);
-+#endif /*CONFIG_HOTPLUG_CPU*/
++#define P_0_STR   "p0"
++#define P_1_STR   "p1"
++#define P_2_STR   "p2"
++#define P_3_STR   "p3"
++#define P_4_STR   "p4"
++#define P_5_STR   "p5"
++#define P_6_STR   "p6"
++#define P_7_STR   "p7"
++#define P_8_STR   "p8"
++#define P_9_STR   "p9"
++#define P_10_STR  "p10"
++#define P_11_STR  "p11"
++#define P_12_STR  "p12"
++#define P_13_STR  "p13"
++#define P_14_STR  "p14"
++#define P_15_STR  "p15"
++#define P_16_STR  "p16"
++#define P_17_STR  "p17"
++#define P_18_STR  "p18"
++#define P_19_STR  "p19"
++#define P_20_STR  "p20"
 +
 +
-+static int __init topology_init(void)
-+{
-+	int i, err = 0;
++#define CFQ_PRIO_SYSFS_ENTRY(__PRIOLVL)				           \
++static struct cfq_fs_entry cfq_prio_##__PRIOLVL##_entry = {                \
++	.attr = {.name = P_##__PRIOLVL##_STR, .mode = S_IRUGO | S_IWUSR }, \
++	.show = cfq_prio_##__PRIOLVL##_show,                               \
++	.store = cfq_prio_##__PRIOLVL##_store,                             \
++};
++CFQ_PRIO_SYSFS_ENTRY(0);
++CFQ_PRIO_SYSFS_ENTRY(1);
++CFQ_PRIO_SYSFS_ENTRY(2);
++CFQ_PRIO_SYSFS_ENTRY(3);
++CFQ_PRIO_SYSFS_ENTRY(4);
++CFQ_PRIO_SYSFS_ENTRY(5);
++CFQ_PRIO_SYSFS_ENTRY(6);
++CFQ_PRIO_SYSFS_ENTRY(7);
++CFQ_PRIO_SYSFS_ENTRY(8);
++CFQ_PRIO_SYSFS_ENTRY(9);
++CFQ_PRIO_SYSFS_ENTRY(10);
++CFQ_PRIO_SYSFS_ENTRY(11);
++CFQ_PRIO_SYSFS_ENTRY(12);
++CFQ_PRIO_SYSFS_ENTRY(13);
++CFQ_PRIO_SYSFS_ENTRY(14);
++CFQ_PRIO_SYSFS_ENTRY(15);
++CFQ_PRIO_SYSFS_ENTRY(16);
++CFQ_PRIO_SYSFS_ENTRY(17);
++CFQ_PRIO_SYSFS_ENTRY(18);
++CFQ_PRIO_SYSFS_ENTRY(19);
++CFQ_PRIO_SYSFS_ENTRY(20);
++#undef CFQ_PRIO_SYSFS_ENTRY
 +
-+#ifdef CONFIG_NUMA
-+	sysfs_nodes = kmalloc(sizeof(struct node) * MAX_NUMNODES, GFP_KERNEL);
-+	if (!sysfs_nodes) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+	memset(sysfs_nodes, 0, sizeof(struct node) * MAX_NUMNODES);
-+
-+	for (i = 0; i < numnodes; i++)
-+		if ((err = register_node(&sysfs_nodes[i], i, 0)))
-+			goto out;
-+#endif
-+
-+	sysfs_cpus = kmalloc(sizeof(struct ia64_cpu) * NR_CPUS, GFP_KERNEL);
-+	if (!sysfs_cpus) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+	memset(sysfs_cpus, 0, sizeof(struct ia64_cpu) * NR_CPUS);
-+
-+	for_each_present_cpu(i)
-+		if((err = arch_register_cpu(i)))
-+			goto out;
-+out:
-+	return err;
-+}
-+
-+__initcall(topology_init);
-diff -puN arch/ia64/kernel/Makefile~topology arch/ia64/kernel/Makefile
---- linux-2.6.9-rc2/arch/ia64/kernel/Makefile~topology	2004-09-24 15:26:26.956676775 -0700
-+++ linux-2.6.9-rc2-askeshav/arch/ia64/kernel/Makefile	2004-09-24 15:26:27.065075212 -0700
-@@ -6,7 +6,8 @@ extra-y	:= head.o init_task.o vmlinux.ld
- 
- obj-y := acpi.o entry.o efi.o efi_stub.o gate-data.o fsys.o ia64_ksyms.o irq.o irq_ia64.o	\
- 	 irq_lsapic.o ivt.o machvec.o pal.o patch.o process.o perfmon.o ptrace.o sal.o		\
--	 salinfo.o semaphore.o setup.o signal.o sys_ia64.o time.o traps.o unaligned.o unwind.o mca.o mca_asm.o
-+	 salinfo.o semaphore.o setup.o signal.o sys_ia64.o time.o traps.o unaligned.o \
-+	 unwind.o mca.o mca_asm.o topology.o
- 
- obj-$(CONFIG_IA64_BRL_EMU)	+= brl_emu.o
- obj-$(CONFIG_IA64_GENERIC)	+= acpi-ext.o
-diff -puN include/asm-i386/cpu.h~topology include/asm-i386/cpu.h
---- linux-2.6.9-rc2/include/asm-i386/cpu.h~topology	2004-09-24 15:26:26.960583025 -0700
-+++ linux-2.6.9-rc2-askeshav/include/asm-i386/cpu.h	2004-09-24 15:26:27.066051774 -0700
-@@ -11,18 +11,9 @@ struct i386_cpu {
- 	struct cpu cpu;
+ static struct attribute *default_attrs[] = {
+ 	&cfq_quantum_entry.attr,
+ 	&cfq_quantum_io_entry.attr,
+@@ -1223,6 +1397,27 @@
+ 	&cfq_queued_entry.attr,
+ 	&cfq_grace_rt_entry.attr,
+ 	&cfq_grace_idle_entry.attr,
++	&cfq_prio_0_entry.attr,
++	&cfq_prio_1_entry.attr,
++	&cfq_prio_2_entry.attr,
++	&cfq_prio_3_entry.attr,
++	&cfq_prio_4_entry.attr,
++	&cfq_prio_5_entry.attr,
++	&cfq_prio_6_entry.attr,
++	&cfq_prio_7_entry.attr,
++	&cfq_prio_8_entry.attr,
++	&cfq_prio_9_entry.attr,
++	&cfq_prio_10_entry.attr,
++	&cfq_prio_11_entry.attr,
++	&cfq_prio_12_entry.attr,
++	&cfq_prio_13_entry.attr,
++	&cfq_prio_14_entry.attr,
++	&cfq_prio_15_entry.attr,
++	&cfq_prio_16_entry.attr,
++	&cfq_prio_17_entry.attr,
++	&cfq_prio_18_entry.attr,
++	&cfq_prio_19_entry.attr,
++	&cfq_prio_20_entry.attr,
+ 	NULL,
  };
- extern struct i386_cpu cpu_devices[NR_CPUS];
--
--
--static inline int arch_register_cpu(int num){
--	struct node *parent = NULL;
--	
--#ifdef CONFIG_NUMA
--	int node = cpu_to_node(num);
--	if (node_online(node))
--		parent = &node_devices[node].node;
--#endif /* CONFIG_NUMA */
--
--	return register_cpu(&cpu_devices[num].cpu, num, parent);
--}
-+extern int arch_register_cpu(int num);
-+#ifdef CONFIG_HOTPLUG_CPU
-+extern void arch_unregister_cpu(int);
-+#endif
  
- #endif /* _ASM_I386_CPU_H_ */
-diff -puN arch/i386/mach-default/topology.c~topology arch/i386/mach-default/topology.c
---- linux-2.6.9-rc2/arch/i386/mach-default/topology.c~topology	2004-09-24 15:26:26.966442400 -0700
-+++ linux-2.6.9-rc2-askeshav/arch/i386/mach-default/topology.c	2004-09-24 15:26:27.067028336 -0700
-@@ -31,6 +31,37 @@
- 
- struct i386_cpu cpu_devices[NR_CPUS];
- 
-+int arch_register_cpu(int num){
-+	struct node *parent = NULL;
-+	
-+#ifdef CONFIG_NUMA
-+	int node = cpu_to_node(num);
-+	if (node_online(node))
-+		parent = &node_devices[node].node;
-+#endif /* CONFIG_NUMA */
-+
-+	return register_cpu(&cpu_devices[num].cpu, num, parent);
-+}
-+
-+#ifdef CONFIG_HOTPLUG_CPU
-+
-+void arch_unregister_cpu(int num) {
-+	struct node *parent = NULL;
-+
-+#ifdef CONFIG_NUMA
-+	int node = cpu_to_node(num);
-+	if (node_online(node))
-+		parent = &node_devices[node].node;
-+#endif /* CONFIG_NUMA */
-+
-+	return unregister_cpu(&cpu_devices[num].cpu, parent);
-+}
-+EXPORT_SYMBOL(arch_register_cpu);
-+EXPORT_SYMBOL(arch_unregister_cpu);
-+#endif /*CONFIG_HOTPLUG_CPU*/
-+
-+
-+
- #ifdef CONFIG_NUMA
- #include <linux/mmzone.h>
- #include <asm/node.h>
-diff -puN drivers/base/cpu.c~topology drivers/base/cpu.c
---- linux-2.6.9-rc2/drivers/base/cpu.c~topology	2004-09-24 15:26:26.971325213 -0700
-+++ linux-2.6.9-rc2-askeshav/drivers/base/cpu.c	2004-09-24 15:26:27.068004899 -0700
-@@ -46,10 +46,23 @@ static ssize_t store_online(struct sys_d
- }
- static SYSDEV_ATTR(online, 0600, show_online, store_online);
- 
--static void __init register_cpu_control(struct cpu *cpu)
-+static void __devinit register_cpu_control(struct cpu *cpu)
- {
- 	sysdev_create_file(&cpu->sysdev, &attr_online);
- }
-+void unregister_cpu(struct cpu *cpu, struct node *root)
-+{
-+
-+	if (root)
-+		sysfs_remove_link(&root->sysdev.kobj,
-+				  kobject_name(&cpu->sysdev.kobj));
-+	sysdev_remove_file(&cpu->sysdev, &attr_online);
-+
-+	sysdev_unregister(&cpu->sysdev);
-+
-+	return;
-+}
-+EXPORT_SYMBOL(unregister_cpu);
- #else /* ... !CONFIG_HOTPLUG_CPU */
- static inline void register_cpu_control(struct cpu *cpu)
- {
-@@ -64,7 +77,7 @@ static inline void register_cpu_control(
-  *
-  * Initialize and register the CPU device.
-  */
--int __init register_cpu(struct cpu *cpu, int num, struct node *root)
-+int __devinit register_cpu(struct cpu *cpu, int num, struct node *root)
- {
- 	int error;
- 
-@@ -81,6 +94,9 @@ int __init register_cpu(struct cpu *cpu,
- 		register_cpu_control(cpu);
- 	return error;
- }
-+#ifdef CONFIG_HOTPLUG_CPU
-+EXPORT_SYMBOL(register_cpu);
-+#endif
- 
- 
- 
-_
+
+--------------040605070409040604050300--

@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264412AbTFKU3X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 16:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264455AbTFKU2i
+	id S264436AbTFKU3W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 16:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbTFKU2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 16:28:38 -0400
-Received: from customer-148-223-196-18.uninet.net.mx ([148.223.196.18]:33413
-	"EHLO soltisns.soltis.cc") by vger.kernel.org with ESMTP
-	id S264465AbTFKUYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 16:24:49 -0400
-From: "jds" <jds@soltis.cc>
-To: Andrew Morton <akpm@digeo.com>, "jds" <jds@soltis.cc>
+	Wed, 11 Jun 2003 16:28:42 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:28164 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S264436AbTFKUXf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 16:23:35 -0400
+Date: Wed, 11 Jun 2003 22:37:17 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jay Denebeim <denebeim@deepthot.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem compile module vmnet VMWARE 4.0 in 2.4.70-mm8
-Date: Wed, 11 Jun 2003 14:09:10 -0600
-Message-Id: <20030611200731.M1071@soltis.cc>
-In-Reply-To: <20030611130850.358276ae.akpm@digeo.com>
-References: <20030611192737.M39931@soltis.cc> <20030611130850.358276ae.akpm@digeo.com>
-X-Mailer: Open WebMail 1.90 20030212
-X-OriginatingIP: 180.175.220.238 (jds)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: Re: Build problems with Linux 2.5
+Message-ID: <20030611203717.GA2064@mars.ravnborg.org>
+Mail-Followup-To: Jay Denebeim <denebeim@deepthot.org>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0306101427260.13724-100000@dent.deepthot.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0306101427260.13724-100000@dent.deepthot.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Hi Andrew:
-
-   Thanks.... :)
-
-   Changes the bridge.c and compile good module vmnet
-
-   Best Regards.
-
-   Muchas Gracias
-
----------- Original Message -----------
-From: Andrew Morton <akpm@digeo.com>
-To: "jds" <jds@soltis.cc>
-Sent: Wed, 11 Jun 2003 13:08:50 -0700
-Subject: Re: Problem compile module vmnet VMWARE 4.0 in 2.4.70-mm8
-
-> "jds" <jds@soltis.cc> wrote:
-> >
-> >     I have problems when compile module vmware 4.0 vmnet with kernel
-2.5.70-mm8.
-> > 
-> > ...
-> >  
-> > make: Entering directory `/tmp/vmware-config0/vmnet-only'
-> > bridge.c: In function `VNetBridgeReceiveFromVNet':
-> > bridge.c:368: structure has no member named `wmem_alloc'
-> > bridge.c: In function `VNetBridgeUp':
-> > bridge.c:618: structure has no member named `protinfo'
-> > bridge.c: In function `VNetBridgeReceiveFromDev':
-> > bridge.c:817: structure has no member named `protinfo'
-> > make: *** [bridge.o] Error 1
-> > make: Leaving directory `/tmp/vmware-config0/vmnet-only'
-> > Unable to build the vmnet module.
+On Wed, Jun 11, 2003 at 01:26:33PM -0700, Jay Denebeim wrote:
+> (.70, but I doubt that makes a difference)
 > 
-> You'll need to replace all instances of "wmem_alloc" with "sk_wmem_alloc"
-> and replace all instances of "protinfo" with "sk_protinfo".  And 
-> similar if you get more compile errors.
+> Hi guys,
 > 
-> Lots of socket members were renamed, by adding an "sk_" prefix.
-------- End of Original Message -------
+>   I've been way out of kernel compiling for a long time, however I just
+> took a job writing device drivers on Linux so I guess I'll be doing quite
+> a bit of it again.  I've not built a kernel other than an occasional 'make
+> rpm' on redhat since the 2.0 days, so be gentle with me.
 
+Two pointers:
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+
+This is good, and answer your QM_MODULES question + more.
+lwn.net - has a good article serie about driver porting to 2.5
+
+	Sam

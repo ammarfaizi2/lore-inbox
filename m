@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263282AbTC0Qar>; Thu, 27 Mar 2003 11:30:47 -0500
+	id <S263283AbTC0Qai>; Thu, 27 Mar 2003 11:30:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263285AbTC0Qar>; Thu, 27 Mar 2003 11:30:47 -0500
-Received: from 12-229-138-196.client.attbi.com ([12.229.138.196]:21123 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id <S263282AbTC0Qap>; Thu, 27 Mar 2003 11:30:45 -0500
-Message-ID: <3E8329D2.7040909@comcast.net>
-Date: Thu, 27 Mar 2003 08:41:54 -0800
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030326
-X-Accept-Language: en-us, en
+	id <S263285AbTC0Qah>; Thu, 27 Mar 2003 11:30:37 -0500
+Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:27406
+	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S263283AbTC0Qag>; Thu, 27 Mar 2003 11:30:36 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D1A33E08@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'root@chaos.analogic.com'" <root@chaos.analogic.com>
+Cc: henrique.gobbi@cyclades.com, linux-kernel@vger.kernel.org
+Subject: RE: Interpretation of termios flags on a serial driver
+Date: Thu, 27 Mar 2003 08:41:49 -0800
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: vesafb problem
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Wed, Mar 26, 2003 at 5:41 PM, Richard B. Johnson wrote:
+> 
+> On Wed, 26 Mar 2003, Henrique Gobbi wrote:
+> 
+> > Thanks for the feedback.
+> >
+> > > If PARENB is set you generate parity. It is ODD parity if PARODD
+> > > is set, otherwise it's EVEN. There is no provision to generate
+> > > "stick parity" even though most UARTS will do that. When you
+> > > generate parity, you can also ignore parity on received data if
+> > > you want.  This is the IGNPAR flag.
+> >
+> > Ok. But, considering the 2 states of the flag IGNPAR, what 
+> should the
+> > driver do with the chars that are receiveid with wrong 
+> parity, send this
+> > data to the TTY with the flag TTY_PARITY or just discard this data ?
+> >
+> > regards
+> > Henrique
+> >
+> 
+> 
+> If the IGNPAR flag is true, you keep the data. You pretend it's
+> okay. Ignore parity means just that. Ignore it. You do not flag
+> it in any way. This is essential. If you have a 7-bit link and
+> somebody is sending you stick-parity, you can still use the data.
+> 
+Hi Richard,
 
-I've got a strange problem with my 760MPX system dual proc system. If I 
-try to use vesafb to setup the video on boot, the system will boot fine, 
-but will be unable to display anything on the console. The system 
-appears to be largely unaffacted by any underlying problem, as it is 
-stable after boot and seems to run fine. In looking through logs 
-afterward, I find these suspect messages:
+Right idea, wrong flag.  ;-)
 
-mtrr: your CPUs had inconsistent fixed MTRR settings
-vesafb: abort, cannot ioremap video memory 0x8000000 @ 0xe8000000
+IGNPAR = 1  discard received data with parity errors. (ignore data)
+INPCK = 0   deliver data with parity errors, as is.   (ignore error)
 
-I've tried using the rivafb frame buffer, which also does not work. From 
-what I could see in scanning the archives, this appears to possibly be a 
-BIOS issue, however, I'm game to throw nearly anything at it to try and 
-resolve it. Hardware is as follows:
+See 2.4/drivers/char/n_tty.c:~500
 
-Chaintech 7KDD 760MPX chipset motherboard
-2 x AMD 2400MP
-1 GB Ram
-Nvidia GeForce 4600
+Cheers,
+Ed
 
-I've tried a vanilla 2.4.20 linux kernel as well as my current 2.4.20-ck 
-patched kernel, both with same result. I've also tried compiling as UP, 
-which has no effect. I'm currently using acpi and apic, however, I've 
-tried disabling both, to no avail. Any other ideas? Please CC me, as I'm 
-not susbscribed. Thanks,
-
--Walt
-
-PS. Maybe unrelated, but... I have to pass mem=nopentium as boot param, 
-otherwise I system appears to get corrupted memory issues within short 
-period of time after boot. ie: unable to launch apps, segfaults etc...
-
+---------------------------------------------------------------- 
+Ed Vance              edv (at) macrolink (dot) com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------

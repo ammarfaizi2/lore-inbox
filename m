@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129150AbQKUPGx>; Tue, 21 Nov 2000 10:06:53 -0500
+	id <S129453AbQKUPJD>; Tue, 21 Nov 2000 10:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129752AbQKUPGo>; Tue, 21 Nov 2000 10:06:44 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:42131 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S129150AbQKUPG0>; Tue, 21 Nov 2000 10:06:26 -0500
-Date: Tue, 21 Nov 2000 15:31:36 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Benjamin.Monate@lri.fr, linux-kernel@vger.kernel.org
-Subject: Re: Strange lockup of the timer with 2.4.0-test10 SMP (and older)
-In-Reply-To: <E13xvRr-0003u9-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.3.96.1001121151759.19886A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S129752AbQKUPIx>; Tue, 21 Nov 2000 10:08:53 -0500
+Received: from [193.127.21.194] ([193.127.21.194]:35381 "HELO
+	postal.sl.trymedia.com") by vger.kernel.org with SMTP
+	id <S129453AbQKUPIk>; Tue, 21 Nov 2000 10:08:40 -0500
+From: Rubén Gallardo Fructuoso <ruben@trymedia.com>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: Address translation
+Date: Tue, 21 Nov 2000 15:41:26 +0100
+Message-ID: <DLECJAOCHAKJBLMJFKPIAEPBCCAA.ruben@trymedia.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2000, Alan Cox wrote:
+	Hi everybody!
 
-> > a lock of the PCI bus (as SCSI and NIC are still working). Only the
-> > timer interrupts and NMI seem to be stuck : can a driver cause
-> > something so "lowlevel" ?
-> 
-> Something stopping the timers on the APIC I guess. But quite what or how I
-> don't know
+	I'm developing a module of file system filter and I have a question about
+it. Does anybody know a function or method in order to translate an user
+space pointer into a valid pointer in kernel mode?
 
- I guess not -- the timer interrupt and the NMI use different I/O APIC
-inputs.  If both are stuck, it's probably 8254 that gets reprogrammed.  I
-suppose XFree86 might be at fault -- does it happen with the NMI watchdog
-disabled, either? 
+	I'd like to avoid copying data (such as the 'copy_to_user' and
+'copy_from_user' functions do) because it slows down my system.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+	Thanks in advance,
+	Rubén.
+
 
 
 -

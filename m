@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264699AbSKNATi>; Wed, 13 Nov 2002 19:19:38 -0500
+	id <S264730AbSKNAXM>; Wed, 13 Nov 2002 19:23:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbSKNATh>; Wed, 13 Nov 2002 19:19:37 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:3210 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264699AbSKNATg>; Wed, 13 Nov 2002 19:19:36 -0500
-X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
- wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] include/asm-ARCH/page.h:get_order() Reorganize and op timize
-References: <A46BBDB345A7D5118EC90002A5072C7806CAC93A@orsmsx116.jf.intel.com>
-From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-Date: 14 Nov 2002 01:26:08 +0100
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C7806CAC93A@orsmsx116.jf.intel.com>
-Message-ID: <87u1ilov33.fsf@student.uni-tuebingen.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (broccoli)
+	id <S264739AbSKNAXL>; Wed, 13 Nov 2002 19:23:11 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:27283 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S264730AbSKNAXK>; Wed, 13 Nov 2002 19:23:10 -0500
+Message-ID: <F2DBA543B89AD51184B600508B68D4000F866009@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: local APIC may cause XFree86 hang
+Date: Wed, 13 Nov 2002 16:29:48 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com> writes:
 
-> > >     s = --s >> PAGE_SHIFT;
-> > 
-> > This code has undefined behaviour.
->  
-> Do you mean that this:
+
+Are we disabling vm86 code to access to PIT or PIC? I saw some video ROM
+code (either BIOS call or far call) did access PIT, confusing the OS.
+
+Thanks,
+Jun
+
+> -----Original Message-----
+> From: torvalds@transmeta.com [mailto:torvalds@transmeta.com]
+> Sent: Wednesday, November 13, 2002 3:53 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: local APIC may cause XFree86 hang
 > 
-> s = (s-1) >> PAGE_SHIFT
+> In article <15826.53818.621879.661253@kim.it.uu.se>,
+> Mikael Pettersson  <mikpe@csd.uu.se> wrote:
+> >
+> >Does XFree86 (its core or particular drivers) use vm86() to
+> >invoke, possibly graphics card specific, BIOS code?
+> >That would explain the hangs I got. The fix would be to
+> >disable the local APIC around vm86()'s BIOS calls, just like
+> >we now disable it before APM suspend.
 > 
-> is more deterministic? If so, I agree -- if you mean something else,
-> I am kind of lost.
-
-I mean that this code violates the rule that you may modify a value
-only once between two sequence points. Newer gccs have a warning for
-this (-Wsequence-point), the info page tells more.
-
-Also, did I understand it right that you want to use fls even on
-architectures that don't have it as a builtin? I would guess that will
-actually be noticeably slower, since generic_fls is so complicated.
-
--- 
-	Falk
+> It does.
+> 
+> HOWEVER, vm86() mode is very very different from APM, which uses real
+> mode.  External interrupts in vm86 mode will not be taken inside vm86
+> mode - and disabling the local timer (by disabling the APIC) around a
+> vm86 mode is definitely _not_ a good idea, since it would be an instant
+> denial-of-service attack on SMP machines (the PIT timer only goes to
+> CPU0, so we depend on the local timer to do process timeouts etc on
+> other CPUs).  The vm86 code might just be looping forever.
+> 
+> In other words, if it is really vm86-related, then
+>  (a) it's a CPU bug
+>  (b) we're screwed
+> 
+> I bet it's something else.  Possibly just timing-specific (the APIC
+> makes interrupts much faster), but also possibly something to do with
+> the VGA interrupt (some XFree86 drivers actually use the gfx interrupts
+> these days)
+> 
+> 		Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

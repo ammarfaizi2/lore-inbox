@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263309AbTIAWSY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 18:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263312AbTIAWSY
+	id S263331AbTIAW3h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 18:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbTIAW3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 18:18:24 -0400
-Received: from main.gmane.org ([80.91.224.249]:3275 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263309AbTIAWSX (ORCPT
+	Mon, 1 Sep 2003 18:29:37 -0400
+Received: from main.gmane.org ([80.91.224.249]:5835 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263331AbTIAW3f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 18:18:23 -0400
+	Mon, 1 Sep 2003 18:29:35 -0400
 X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-From: Stephane LOEUILLET <news@leroutier.net>
-Subject: Re: 500 typos (94 uniques) fixed in 2.4.22 + link to diff included
-Date: Tue, 02 Sep 2003 00:19:20 +0200
-Message-ID: <pan.2003.09.01.22.19.20.280682@leroutier.net>
-References: <pan.2003.09.01.18.15.22.368626@leroutier.net>
+From: Charles Lepple <clepple@ghz.cc>
+Subject: Re: dontdiff for 2.6.0-test4
+Date: Mon, 01 Sep 2003 18:29:37 -0400
+Message-ID: <bj0h8a$ev5$1@sea.gmane.org>
+References: <Pine.GSO.4.44.0309010754480.1106-100000@north.veritas.com> <20030901163958.A24464@infradead.org> <20030901162244.GA1041@mars.ravnborg.org> <3F537CDD.3040809@pobox.com> <20030901171806.GB1041@mars.ravnborg.org> <20030901214738.GF31760@matchmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+In-Reply-To: <20030901214738.GF31760@matchmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The script : http://www.leroutier.net/kernel-typo-diffmaker.pl.txt
-> The typo list : http://www.leroutier.net/typos.base
+Mike Fedyk wrote:
+[...]
+>>mrproper:
+>>        @find . $(RCS_FIND_IGNORE) \
+>>                \( -name '*.orig' -o -name '*.rej' -o -name '*~' \
+>>                -o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
+>>                -o -name '.*.rej' -o -size 0 \
+>>                -o -name '*%' -o -name '.*.cmd' -o -name 'core' \) \
+>>                -type f -print | xargs rm -f
+>>        $(call cmd,mrproper)
+>>
+> 
+> 
+> But dontdiff is a list of files that must be skipped, not a regex, right?
+> Then dontdiff will be useless until a build has been done on that kernel tree.
 
-latest version of typos.base contains 94 unique typos
-(around 560, counting repetitions)
+Not really. From the diff manpage:
 
-Generated diff available, against kernel 2.4.22 final : 
-http://www.leroutier.net/typos.diff.bz2
+        -X FILE  --exclude-from=FILE
+               Exclude files that match any pattern in FILE.
 
-most part of changes are in comments, or in documentation but there are
-some in code (incomming => incoming in bluetooth,X25 and interupt->
-interrupt in ppc64,ipmi)
+You may want to take a look at a copy of dontdiff (noting the shell 
+patterns). It looks like dontdiff could be generated from mrproper's 
+list of scratch files (with the exception of the '-size 0' test in the 
+'find' command) but I could be wrong.
 
-this diff contains 2 manually edited changes :
-1) addresses => adresses : (in fact, revert to 2.4.22 code) : it is a comment
-in french
+FWIW, the $(RCS_FIND_IGNORE) part skips some version-control directories 
+that dontdiff doesn't mention. I guess the party line is that you should 
+use the version control system for doing diffs in that case, but whatever.
 
-2) errorr => error : i'll have to refine my script to deal with that one
+If you try to replace dontdiff with a dynamically generated list, be 
+sure and have a few folks test it out on different trees (including ones 
+managed by BK and SVN) to make sure you haven't broken anything.
 
-That's all for now.
-
-If you want one for 2.6, do it yourself using my script because i'm on a slow
-link here (56Kb/s) and i don't have a recent dev-source actually here.
-
-++
-
-Stephane LOEUILLET
+-C
 
 

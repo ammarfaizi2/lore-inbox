@@ -1,109 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263305AbTEVWIh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 18:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263317AbTEVWIh
+	id S263355AbTEVWLq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 18:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263361AbTEVWLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 18:08:37 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22221 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S263305AbTEVWIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 18:08:32 -0400
-Date: Thu, 22 May 2003 19:19:38 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.21-rc3
-Message-ID: <Pine.LNX.4.55L.0305221915450.1975@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 May 2003 18:11:46 -0400
+Received: from server0011.freedom2surf.net ([194.106.56.14]:47840 "EHLO
+	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S263355AbTEVWLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 18:11:44 -0400
+Date: Thu, 22 May 2003 23:24:48 +0100
+From: Ian Molton <spyro@f2s.com>
+To: linux-kernel@vger.kernel.org
+Subject: IDE 2.5.69 possible bogosity...
+Message-Id: <20030522232448.21d7ee2f.spyro@f2s.com>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-Hi,
+Im wondering if this is correct. is the test for initializing in the
+second for loop correct?
 
-Here goes the third release candidate of 2.4.21.
+Im building an IDE driver into my kernel that calls ide_register_hw()
+twice to register its primary and secondary ports, but only the
+secondary port is recognised. the first fails, since the test in the
+first for loop fails and so does the second, so it then 'unregisters'
+it, despite never having been registered. somehow, this puts my drive
+INTO the hwif array, so the secondary interface registers OK, passing
+the other tests.
 
+a hack that allowed the primary interface to register was to register it
+twice, but that sucks.
 
-Summary of changes from v2.4.21-rc2 to v2.4.21-rc3
-============================================
+int ide_register_hw (hw_regs_t *hw, ide_hwif_t **hwifp)
+{
+        int index, retry = 1;
+        ide_hwif_t *hwif;
 
-<bk@suse.de>:
-  o fix unresolved symbol rtnetlink_rcv_skb with gcc-3.3
+        do {
+                for (index = 0; index < MAX_HWIFS; ++index) {
+                        hwif = &ide_hwifs[index];
+                        if (hwif->hw.io_ports[IDE_DATA_OFFSET] ==
+hw->io_ports[IDE_DATA_OFFSET])
+                                goto found;
+                }
+                for (index = 0; index < MAX_HWIFS; ++index) {
+                        hwif = &ide_hwifs[index];
 
-<riel@redhat.com>:
-  o mm/mmap.c address overflow fix
+*** is the test for initialising (not the !initialising one) here ok?
+***
 
-<viro@parcelfarce.linux.theplanet.co.uk>:
-  o TIOCCONS fix
-
-Adrian Bunk <bunk@fs.tum.de>:
-  o fix sound/kahlua.c .text.exit error
-  o fix ips.c .text.exit error
-  o Configure.help updates from -ac
-
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-  o fix ipmi screwup
-  o IDE config fixes
-  o allow rw_disk in IDE to be hooked
-  o clean up the pdc4030 to use the new hooks not ifdefs
-  o fix modular ide build and other makefile bug
-  o correct ALi doc
-  o hpt37x
-  o add Intel ICH5 Serial ATA
-  o fix wrong clocking selection on CMD680/SII3112
-  o ensure we dont turn DMA on by accident on early sl82c05
-  o fix missing wakeup on hisax pci (breaks v.110)
-  o mpt fusion assorted small fixes
-  o fix config error
-  o resync lasi id (somehow out of sync)
-  o vrify_area fix
-  o pci id table update
-  o add a quirk for the serverworks irq
-  o pass the right object to presto
-  o merge the kerneldoc for uaccess
-  o parisc headers
-  o parisc headers 2
-  o update IDE headers to match IDE changes
-  o extra PCI Ident
-  o export fc_type_trans
-  o add a hold field to reserve ide slots (needed for PPC)
-
-Andrea Arcangeli <andrea@suse.de>:
-  o Fix race between remove_inode_page and prune_icache
-
-Arjan van de Ven <arjanv@redhat.com>:
-  o ioperm fix
-
-Marcelo Tosatti <marcelo@freak.distro.conectiva>:
-  o Changed EXTRAVERSION to -rc3
-  o Cset exclude: alan@lxorguk.ukuu.org.uk|ChangeSet|20030522194932|46894 (wolfson codec upd)
-
-Nicolas Pitre <nico@cam.org>:
-  o set_task_state() UP memory barriers
-
-Olaf Hering <olh@suse.de>:
-  o 2.4.21-rc2 syntax error in toplevel Makefile
-
-Oleg Drokin <green@angband.namesys.com>:
-  o Fix reiserfs options parser, return error if given incorrect options on remount
-  o reiserfs: One of the O_DIRECT fixes disabled tail packing by mistake. Enable it again
-  o reiserfs: Fix another O_DIRECT vs tails problem. Mostly by Chris Mason
-  o reiserfs: Refuse to mount/remount if "alloc=" option had incorect parameter
-  o reiserfs: iget4() race fix
-
-Oleg Drokin <green@namesys.com>:
-  o [2.4] export balance_dirty
-
-Stephen C. Tweedie <sct@redhat.com>:
-  o Fix mmap+IO potential dangling IO in ext3
-
-Tom Rini <trini@kernel.crashing.org>:
-  o PPC32: Fix 'make znetboot'.  From Cort Dougan
-  o PPC32: Important fixes in the MPC8xx enet driver
-  o PPC32: Allow for the RTC IRQ to be board-defined
-
-Vojtech Pavlik <vojtech@suse.cz>:
-  o Fix incorrect enablebits for all AMD IDE chips
-
+                    if ((!hwif->present && !hwif->mate && !initializing)
+||
+                        (!hwif->hw.io_ports[IDE_DATA_OFFSET] &&
+initializing))
+                                goto found;
+                }
+                for (index = 0; index < MAX_HWIFS; index++)
+                        ide_unregister(index);
+        } while (retry--);

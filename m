@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282873AbRK0ItF>; Tue, 27 Nov 2001 03:49:05 -0500
+	id <S282867AbRK0Isz>; Tue, 27 Nov 2001 03:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282879AbRK0Isz>; Tue, 27 Nov 2001 03:48:55 -0500
-Received: from queen.bee.lk ([203.143.12.182]:48544 "EHLO queen.bee.lk")
-	by vger.kernel.org with ESMTP id <S282873AbRK0Isu>;
-	Tue, 27 Nov 2001 03:48:50 -0500
-Date: Tue, 27 Nov 2001 14:45:39 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Andreas Jaeger <aj@suse.de>
-Cc: Anuradha Ratnaweera <anuradha@gnu.org>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.16
-Message-ID: <20011127144539.A23943@bee.lk>
-In-Reply-To: <20011127083530.A13584@bee.lk> <Pine.LNX.4.33L.0111270551210.4079-100000@imladris.surriel.com> <20011127135847.A22859@bee.lk> <ho1yik39hv.fsf@gee.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <ho1yik39hv.fsf@gee.suse.de>; from aj@suse.de on Tue, Nov 27, 2001 at 09:26:20AM +0100
+	id <S282880AbRK0Isp>; Tue, 27 Nov 2001 03:48:45 -0500
+Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:18582 "EHLO
+	marauder.googgun.com") by vger.kernel.org with ESMTP
+	id <S282879AbRK0Ish>; Tue, 27 Nov 2001 03:48:37 -0500
+From: "Ahmed Masud" <masud@googgun.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, "'John Jasen'" <jjasen1@umbc.edu>
+Cc: "'J Sloan'" <jjs@pobox.com>, <lgb@lgb.hu>,
+        "'Arjan van de Ven'" <arjanv@redhat.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: Which gcc version?
+Date: Tue, 27 Nov 2001 03:42:22 -0500
+Message-ID: <000501c1771f$72f0cdc0$8604a8c0@googgun.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <E168QXg-00069p-00@the-village.bc.nu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 09:26:20AM +0100, Andreas Jaeger wrote:
-> Anuradha Ratnaweera <anuradha@gnu.org> writes:
->
-> > It is still not okey to include even _small_ changes, because it is hard to
-> > define what small is.  Although we are sure that is is going to break,
-> > Murphey's laws may get in ...;)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+> > That said, the versions in 7.1, and the patches available have
+> > done  reasonably well for everything that I've tried to compile
+> > (kernels  included).
+> > 
+> > What are they going to do about gcc 3.0.x? It'll be amusing 
+> to watch.
 > 
-> It's Marcelo deciding what it's ok and what not.
+> Its shipped as an additional compiler as well. The only real 
+> question now is how long before 3.x becomes really solid. 
+> That should be in time for the next RH major update I hope
 
-I wrote about what is ok to _me_...;)  There is no such thing called an
-absolute "ok".
+In case this is pertinent: I have been using gcc 3.0.2 since its
+inception to compile the kernel on various CPUs (Pentium II, Pentium
+III, AMD Athelon, and also the experimental stuff for PA/RISC 2.0)
+and have not had any trouble with it.   Seems to be fairly solid and
+trouble free.  RH has to get its act together though ... The gcc 2.96
+and a kgcc for the kernel was just too hilarious and rather sad at
+the same time.
 
-> I've got the impression from these threads about maintaince on lkml that a
-> number of people try to force something on Marcelo without giving him a
-> chance to find his own way of doing it.  I trust Marcelo that he'll do the
-> right thing.
+Cheers.
 
-So do I, and probably many others who have posted on this topic.
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.5.3 for non-commercial use <http://www.pgp.com>
 
-Cheers,
-
-Anuradha
-
--- 
-
-Debian GNU/Linux (kernel 2.4.13)
-
-One should always be in love.  That is the reason one should never marry.
-		-- Oscar Wilde
+iQA/AwUBPANR7eA+WVFT6/r4EQK/OwCg+X2va7QIzbwDvRBv27Kf/AXmy3UAn1/h
+AvFgqGDvS0iv7RQXMprUIJB8
+=Hs5v
+-----END PGP SIGNATURE-----
 

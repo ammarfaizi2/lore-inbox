@@ -1,68 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312852AbSDFWKr>; Sat, 6 Apr 2002 17:10:47 -0500
+	id <S312854AbSDFWmk>; Sat, 6 Apr 2002 17:42:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312853AbSDFWKq>; Sat, 6 Apr 2002 17:10:46 -0500
-Received: from ucsu.Colorado.EDU ([128.138.129.83]:54988 "EHLO
-	ucsu.colorado.edu") by vger.kernel.org with ESMTP
-	id <S312852AbSDFWKp>; Sat, 6 Apr 2002 17:10:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: "Ivan G." <ivangurdiev@yahoo.com>
-Reply-To: ivangurdiev@yahoo.com
-Organization: ( )
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.5.8-pre2: Linker Failure
-Date: Sat, 6 Apr 2002 15:05:25 -0700
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <02040608575201.10881@cobra.linux>
+	id <S312855AbSDFWmk>; Sat, 6 Apr 2002 17:42:40 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12562 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312854AbSDFWmj>; Sat, 6 Apr 2002 17:42:39 -0500
+Subject: Re: more on 2.4.19pre... & swsusp
+To: ed.sweetman@wmich.edu (Ed Sweetman)
+Date: Sat, 6 Apr 2002 23:59:16 +0100 (BST)
+Cc: brian@worldcontrol.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1018127923.4270.60.camel@psuedomode> from "Ed Sweetman" at Apr 06, 2002 04:18:38 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Message-Id: <02040615052502.00758@cobra.linux>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16tz9Q-0002sH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.8-pre2
-Patch causes a linker failure for fs/dquot.c.
+> On a different note.  Why doesn't the ac branch have ftpfs yet?  Besides
+> the fact that it sometimes has problems with ls'ing a directory because
 
- diff -Nru a/fs/dquot.c b/fs/dquot.c
- --- a/fs/dquot.c        Fri Apr  5 16:56:33 2002
- +++ b/fs/dquot.c        Fri Apr  5 16:56:33 2002
-
- ...
-
- -       kmem_cache_shrink(dquot_cachep);
- -       return 0;
- +       return kmem_cache_shrink_nr(dquot_cachep);
-
- ...
-
- gcc -D__KERNEL__ -I/usr/src/linux-2.5.8-pre2/include -Wall
- -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-
- pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
- -march=athlon    -DKBUILD_BASENAME=
- dec_and_lock  -c -o dec_and_lock.o dec_and_lock.c
- rm -f lib.a
- ar  rcs lib.a checksum.o old-checksum.o delay.o usercopy.o getuser.o
- memcpy.o strstr.o mmx.o dec_and_lock.o
- make[2]: Leaving directory `/usr/src/linux-2.5.8-pre2/arch/i386/lib'
- make[1]: Leaving directory `/usr/src/linux-2.5.8-pre2/arch/i386/lib'
- ld -m elf_i386 -T /usr/src/linux-2.5.8-pre2/arch/i386/vmlinux.lds -e stext
- arch/i386/kernel/head.o arch/i386/ke
- rnel/init_task.o init/main.o init/version.o init/do_mounts.o \
-         --start-group \
-         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o
- fs/fs.o ipc/ipc.o \
-         /usr/src/linux-2.5.8-pre2/arch/i386/lib/lib.a
- /usr/src/linux-2.5.8-pre2/lib/lib.a /usr/src/linux-2.5.8-
- pre2/arch/i386/lib/lib.a \
-          drivers/acpi/acpi.o drivers/parport/driver.o drivers/base/base.o
- drivers/char/char.o drivers/block/blo
- ck.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o
- drivers/ide/idedriver.o drivers/cdrom/driver.o
-  sound/sound.o drivers/pci/driver.o drivers/video/video.o \
-         net/network.o \
-         --end-group \
-         -o vmlinux
- fs/fs.o: In function `shrink_dqcache_memory':
- fs/fs.o(.text+0x1da31): undefined reference to `kmem_cache_shrink_nr'
- make: *** [vmlinux] Error 1
+Because its perfectly doable in user space. Its for testing useful stuff not
+a dumping ground

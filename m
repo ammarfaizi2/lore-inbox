@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267716AbTCFDVL>; Wed, 5 Mar 2003 22:21:11 -0500
+	id <S267721AbTCFD2g>; Wed, 5 Mar 2003 22:28:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267721AbTCFDVL>; Wed, 5 Mar 2003 22:21:11 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:527 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267716AbTCFDVK>; Wed, 5 Mar 2003 22:21:10 -0500
-Date: Wed, 5 Mar 2003 19:29:31 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: george anzinger <george@mvista.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Making it easy to add system calls
-In-Reply-To: <3E66A44A.6000808@mvista.com>
-Message-ID: <Pine.LNX.4.44.0303051926180.10651-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267726AbTCFD2f>; Wed, 5 Mar 2003 22:28:35 -0500
+Received: from B5142.pppool.de ([213.7.81.66]:26293 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S267721AbTCFD2e>; Wed, 5 Mar 2003 22:28:34 -0500
+Subject: Re: Kernel bloat 2.4 vs. 2.5
+From: Daniel Egger <degger@fhm.edu>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030304154105.7a2db7fa.akpm@digeo.com>
+References: <1046817738.4754.33.camel@sonja>
+	 <20030304154105.7a2db7fa.akpm@digeo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Q/DVWaNDfiA0WsEdoT3H"
+Organization: 
+Message-Id: <1046921111.484.10.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 06 Mar 2003 04:25:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 5 Mar 2003, george anzinger wrote:
-> 
-> SYS_CALL(clock_nanosleep) \
-> 
-> This will put "sys_clock_nanosleep" in the call table in entry.S and 
-> define the "__NR_clock_nanosleep" for unistd.  The last entry of the 
-> enum is NR_syscalls, thus defineing and keeping this symbol current.
+--=-Q/DVWaNDfiA0WsEdoT3H
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Me no likee.
+Am Mit, 2003-03-05 um 00.41 schrieb Andrew Morton:
 
-The fact is, we add system calls maybe a few times a year. Having to 
-update two places instead of just one is not very onerous.
+> Please specify the compiler which was used, and use /usr/bin/size to repo=
+rt
+> image sizes.
 
-More importantly, the system call numbers should be something you have to 
-think about, and a setup that makes it easy to merge new system calls with 
-different numbers "by mistake" is a _bad_ setup.
+The compiler was in both cases:
+gcc version 3.2.3 20030228 (Debian prerelease)
 
-Don't get me wrong - I'm not saying that "system calls should be hard to 
-add, because only real men should add system calls". But I _am_ saying 
-that it should be damn hard to add a system call by mistake at the wrong 
-number, which is something your patch makes a lot easier than the current 
-situation.
+2.4.20:
 
-And I do believe that adding system calls should inherently be something
-that you have to think twice about, even if one of the thoughs is just
-literally writing out the number that you decided on. So while I don't 
-think it should be "hard", it should definitely not be made any easier 
-than it already is.
+2271565 Feb 25 17:08 vmlinux
 
-		Linus
+   text    data     bss     dec     hex filename
+1730302  112564  176676 2019542  1ed0d6 vmlinux
+
+2.5.63:
+
+2561828 Mar  4 16:50 vmlinux
+
+   text    data     bss     dec     hex filename
+1867787  167450  140292 2175529  213229 vmlinux
+
+
+As I said, the 2.4 kernel has almost everything built in while 2.5 was
+stripped down to minimum size possible. The latter is still unusable
+since modules do not work. :/
+
+--=20
+Servus,
+       Daniel
+
+--=-Q/DVWaNDfiA0WsEdoT3H
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+Zr+Xchlzsq9KoIYRAhP3AJ0eIVjCjE5sVbGsp4xUaf7OxmiPXQCdHoNv
+LZXayCvr6JI64hMCbp7wAxA=
+=XV8j
+-----END PGP SIGNATURE-----
+
+--=-Q/DVWaNDfiA0WsEdoT3H--
 

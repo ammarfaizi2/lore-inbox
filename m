@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129860AbRAEQwf>; Fri, 5 Jan 2001 11:52:35 -0500
+	id <S129868AbRAEQ4F>; Fri, 5 Jan 2001 11:56:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129868AbRAEQwZ>; Fri, 5 Jan 2001 11:52:25 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30726 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129860AbRAEQwR>; Fri, 5 Jan 2001 11:52:17 -0500
-Subject: Re: [PATCH] VESA framebuffer w/ MTRR locks 2.4.0 on init
-To: bmayland@leoninedev.com (Bryan Mayland)
-Date: Fri, 5 Jan 2001 16:54:03 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), kraxel@goldbach.in-berlin.de,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A55FAC9.9EB4C967@leoninedev.com> from "Bryan Mayland" at Jan 05, 2001 11:48:09 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129183AbRAEQzz>; Fri, 5 Jan 2001 11:55:55 -0500
+Received: from barbados.bluemug.com ([63.195.182.101]:50960 "EHLO
+	barbados.bluemug.com") by vger.kernel.org with ESMTP
+	id <S129868AbRAEQzj>; Fri, 5 Jan 2001 11:55:39 -0500
+Date: Fri, 5 Jan 2001 08:55:14 -0800
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Lang <david.lang@digitalinsight.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Daniel Phillips <phillips@innominate.de>,
+        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+Message-ID: <20010105085514.A12902@bluemug.com>
+Mail-Followup-To: miket, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David Lang <david.lang@digitalinsight.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Daniel Phillips <phillips@innominate.de>,
+	Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31.0101040954040.10387-100000@dlang.diginsite.com> <E14EEr4-000697-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Ea7x-00081J-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14EEr4-000697-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 04, 2001 at 06:11:11PM +0000
+From: Mike Touloumtzis <miket@bluemug.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     Dough!  I normally use ywrap scrolling, the memory thing means that I get a big
-> "black hole" every time I get down to that last 64k of memory, and before the
-> pointer to the console's display resets back to "top" of the memory region.  The
-> only way I've found to get around this is to force the size of the video memory.
-> Does this mean that there's a problem with the display adapter that it wraps reads
-> of video memory at the 2048k boundary?  Is the 64k used by the Crystal 4232 and/or
-> OPL3?  If so, why doesn't listening to sounds screw with my fbcon?
+On Thu, Jan 04, 2001 at 06:11:11PM +0000, Alan Cox wrote:
+> > in an enbedded device you can
+> > 1. setup the power switch so it doesn't actually turn things off (it
+> > issues the shutdown command instead)
+> 
+> Costs too much money
 
-Its used on the chip for the onboard audio. See drivers/sound/nm256*. If you
-have other sound chips then it is probably not needed.
+Many newer cell phones, even low spec ones, will have a software
+power switch (usually with a hardware override after about 5 seconds
+of continuous press).  There are many other concessions that need to
+be made to power efficiency, like the ability to toggle power to even
+very minor peripherals and chips (not only each CPU and DSP, but the bus
+controllers and UARTs connecting things together).  These things sell
+in the millions, so their designers can easily budget the custom logic.
 
-yywrap is a hack rather than generally safe feature and its not guaranteed that
-your videoram wraps neatly. Really the driver should have spotted the hole I
-guess.
-
-Alan
+miket
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

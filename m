@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbULRBuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262813AbULRCGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbULRBuz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 20:50:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbULRBuz
+	id S262813AbULRCGp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 21:06:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262816AbULRCGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 20:50:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:42440 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262187AbULRBus (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 20:50:48 -0500
-Message-ID: <41C38BE0.30004@osdl.org>
-Date: Fri, 17 Dec 2004 17:46:08 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: james4765@verizon.net
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] ip2: fix compile warnings
-References: <20041217214735.7127.91238.40236@localhost.localdomain>
-In-Reply-To: <20041217214735.7127.91238.40236@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Dec 2004 21:06:45 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:32775 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262813AbULRCGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 21:06:38 -0500
+Date: Sat, 18 Dec 2004 03:06:35 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] SCSI aic7xxx: kill kernel 2.2 #ifdef's (fwd)
+Message-ID: <20041218020635.GJ21288@stusta.de>
+References: <20041216221802.GT12937@stusta.de> <41C2147D.1090603@osdl.org> <1103239700.21806.40.camel@localhost.localdomain> <41C23458.1080404@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41C23458.1080404@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-james4765@verizon.net wrote:
-> This fixes the following compile errors in the ip2 and ip2main drivers:
+On Thu, Dec 16, 2004 at 05:20:24PM -0800, Randy.Dunlap wrote:
+> Alan Cox wrote:
+> >>I would really appreciate it if you could limit patches for major
+> >>subsystems to only the mailing list for those subsystems.
+> >
+> >
+> >And then I'd have missed the lapb error for example. At least for less
+> >maintained stuff do use this list
 > 
->   CC      drivers/char/ip2main.o
-> drivers/char/ip2main.c:470: warning: initialization from incompatible pointer type
+> netdev is _the_ mailing list for network-related development...
+> 
+> scsi should happen on linux-scsi
+> 
+> If we take your argument to an extreme, we only need
+> one mailing list.  :(
 
+It does make sense:
 
-> diff -urN --exclude='*~' linux-2.6.10-rc3-mm1-original/drivers/char/ip2main.c linux-2.6.10-rc3-mm1/drivers/char/ip2main.c
-> --- linux-2.6.10-rc3-mm1-original/drivers/char/ip2main.c	2004-12-03 16:55:03.000000000 -0500
-> +++ linux-2.6.10-rc3-mm1/drivers/char/ip2main.c	2004-12-17 16:24:24.094730049 -0500
-> @@ -467,7 +466,7 @@
->  static struct tty_operations ip2_ops = {
->  	.open            = ip2_open,
->  	.close           = ip2_close,
-> -	.write           = ip2_write,
-> +	.write           = (void *) ip2_write,
->  	.put_char        = ip2_putchar,
->  	.flush_chars     = ip2_flush_chars,
->  	.write_room      = ip2_write_room,
+If you are _only_ interested in SCSI related development, linux-scsi is 
+a good choice and a relatively low-volume list.
 
-The write() prototype in tty_operations is:
-	int  (*write)(struct tty_struct * tty,
-		      const unsigned char *buf, int count);
+> ~Randy
 
-Somehow the cast does eliminate the compiler warning (and give
-a false sense of correctness).
-
-However, ip2main.c::ip2_write() should be modified like so:
-
-static int
-ip2_write( PTTY tty, const unsigned char *pData, int count)
-
-and drop the cast and fix the ip2_write comment (drop old arg 2),
-and fix the ip2_write() prototype.
-But then you (someone) will have to decide how to handle the
-dropped <user> parameter when calling i2Output()...
-I don't know the answer to that.
-I just changed <user> to 0 to get a clean build of ip2main.o,
-but ip2/i2lib.c still needs some work.
+cu
+Adrian
 
 -- 
-~Randy
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

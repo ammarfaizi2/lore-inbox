@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSIAF4E>; Sun, 1 Sep 2002 01:56:04 -0400
+	id <S315483AbSIAGGs>; Sun, 1 Sep 2002 02:06:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315406AbSIAF4E>; Sun, 1 Sep 2002 01:56:04 -0400
-Received: from [64.6.248.2] ([64.6.248.2]:12496 "EHLO greenie.frogspace.net")
-	by vger.kernel.org with ESMTP id <S315265AbSIAF4D>;
-	Sun, 1 Sep 2002 01:56:03 -0400
-Date: Sat, 31 Aug 2002 23:00:18 -0700 (PDT)
-From: Peter <cogweb@cogweb.net>
-X-X-Sender: cogweb@greenie.frogspace.net
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.xx IDE development policy
-Message-ID: <Pine.LNX.4.44.0208312204080.13065-100000@greenie.frogspace.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315485AbSIAGGq>; Sun, 1 Sep 2002 02:06:46 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:59583 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315483AbSIAGGq>;
+	Sun, 1 Sep 2002 02:06:46 -0400
+Date: Sat, 31 Aug 2002 23:04:51 -0700 (PDT)
+Message-Id: <20020831.230451.35505734.davem@redhat.com>
+To: jmorris@intercode.com.au
+Cc: fdavis@si.rr.com, linux-kernel@vger.kernel.org, laforge@gnumonks.org
+Subject: Re: [PATCH] Re: 2.5.32 : net/ipv4/netfilter/ipfwadm_core.c compile
+ error
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Mutt.LNX.4.44.0209011232410.14016-100000@blackbird.intercode.com.au>
+References: <Pine.LNX.4.33.0208300801120.27846-100000@primetime>
+	<Mutt.LNX.4.44.0209011232410.14016-100000@blackbird.intercode.com.au>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: James Morris <jmorris@intercode.com.au>
+   Date: Sun, 1 Sep 2002 13:18:32 +1000 (EST)
+   
+   Please see the fix below.  (The problem only shows up when netfilter 
+   debugging is enabled).
 
-I'm confident that the development of IDE drivers for 2.4 is in excellent
-hands, with Alan and Andre working together. Still, the IDE drivers on the
-popular Promise cards have been unstable for a while now, and things have 
-clearly gone from quite good to worse.
-
-Andre appears to be faced with very buggy and idiosyncratic hardware, and
-the recent problems have been introduced in the attempt to accomodate for
-this. Personally, for instance, I'm still running 2.4.16 with Andre's
-patch on a Promise '69 and a 160GB drive, and I've never had a hint of a
-problem -- heavy use over networks for months. Now people are reporting
-serious problems with this card.
-
-Non-functioning harddrives is obviously not as bad as losing data, but
-still this is a bummer, man. How about a development policy to consolidate
-progress and reduce the complexity of the task? Something like, Promise
-cards that operate to spec get left alone. Idiosyncratic cards get an
-experimental label and warnings, maybe only unofficial support through
-patches, or they get marked as bad.
-
-Add a diagnostic to the documentation. Let people bug the vendor about out 
-of spec hardware. 
-
-Linus commented earlier on how ATA development drives people up the wall; 
-we just had one person burn out. So let's do something about it. 
-
-Cheers,
-Peter
-
-
+Applied to my tree, thanks.

@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262287AbRERJeJ>; Fri, 18 May 2001 05:34:09 -0400
+	id <S262288AbRERJhJ>; Fri, 18 May 2001 05:37:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262288AbRERJd7>; Fri, 18 May 2001 05:33:59 -0400
-Received: from corb.mc.mpls.visi.com ([208.42.156.1]:18074 "HELO
-	corb.mc.mpls.visi.com") by vger.kernel.org with SMTP
-	id <S262287AbRERJdx>; Fri, 18 May 2001 05:33:53 -0400
-Message-ID: <3B04E694.34FA158F@steinerpoint.com>
-Date: Fri, 18 May 2001 04:08:36 -0500
-From: Al Borchers <alborchers@steinerpoint.com>
-Reply-To: alborchers@steinerpoint.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.5-15 i686)
-X-Accept-Language: en
+	id <S262289AbRERJg7>; Fri, 18 May 2001 05:36:59 -0400
+Received: from mail.muc.eurocyber.net ([195.143.108.5]:49377 "EHLO
+	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
+	id <S262288AbRERJgs>; Fri, 18 May 2001 05:36:48 -0400
+Message-ID: <3B04E9E4.16ED592B@TeraPort.de>
+Date: Fri, 18 May 2001 11:22:44 +0200
+From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac9 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, macro@ds2.pg.gda.pl, tytso@mit.edu,
-        Peter Berger <pberger@brimson.com>
-Subject: Re: [patch] 2.4.0, 2.2.18: A critical problem with tty_io.c
-In-Reply-To: <E150fYc-0006qG-00@the-village.bc.nu>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Cosmetic problem in Documentation/Changes [2.4.x]
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> So I stuck my justify this change to Ted hat on. And failed.
-> 
-> For one the cleanest way to handle all the locking is to propogate the other
-> locking fix styles into both the ldisc and serial drivers. At least for 2.4
+Hi,
 
-If I understand you right, the plan is to leave tty_open unchanged (it calls
-driver close on failed driver open) and try to fix ldisc and serial driver
-races as much as possible.  Correct?
+ apparently the method to find out the version of the reiserfs[progs]
+mentioned in above file does not produce any result at all.
 
-Where is an example of the "other locking fix styles" that you and Ted want
-to apply to the serial drivers?
+# reiserfsck 2>&1|grep reiserfsprogs
 
-> The advantage of doing that is that modules that do play with use counts will
-> not do anything worse than they do now, and will remain fully compatible.
+ reports nothing. If I look at the output "manually", there does not
+seem to be any version in there.
 
-Leaving tty_open unchanged does have compatibility going for it.
-
-> The ldisc race is also real and completely unfixed right now.
-
-I would be interested to try to figure this out and fix it--can you give
-me more of an idea of what the problem is?
-
--- Al
+Martin
+-- 
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+IT Services              |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

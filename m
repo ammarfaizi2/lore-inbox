@@ -1,102 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314709AbSEYPxq>; Sat, 25 May 2002 11:53:46 -0400
+	id <S314743AbSEYQFj>; Sat, 25 May 2002 12:05:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314743AbSEYPxq>; Sat, 25 May 2002 11:53:46 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:1987 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S314709AbSEYPxp>; Sat, 25 May 2002 11:53:45 -0400
-Date: Sat, 25 May 2002 10:53:42 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Meelis Roos <mroos@linux.ee>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: matroxfb & 2.5.18 BK: unresolved symbols in modules
-In-Reply-To: <Pine.GSO.4.43.0205251301100.25029-100000@romulus.cs.ut.ee>
-Message-ID: <Pine.LNX.4.44.0205251051500.31650-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314748AbSEYQFi>; Sat, 25 May 2002 12:05:38 -0400
+Received: from bitmover.com ([192.132.92.2]:24530 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S314743AbSEYQFh>;
+	Sat, 25 May 2002 12:05:37 -0400
+Date: Sat, 25 May 2002 09:05:37 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Erwin Rol <erwin@muffin.org>
+Cc: linux-kernel@vger.kernel.org, RTAI users <rtai@rtai.org>
+Subject: Re: RTAI/RtLinux
+Message-ID: <20020525090537.G28795@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Erwin Rol <erwin@muffin.org>, linux-kernel@vger.kernel.org,
+	RTAI users <rtai@rtai.org>
+In-Reply-To: <1022317532.15111.155.camel@rawpower>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 25, 2002 at 11:05:32AM +0200, Erwin Rol wrote:
+> Both Linus and Larry seem to be not very interested in hard-realtime
+> Linux additions, this is OK. 
 
+I'm interested in hard realtime.  I'm extremely uninterested in changes 
+to the mainline source base in order to get them.  That's exactly why
+I like the RT/Linux approach so much, it is the least invasive to the
+kernel and - surprise - also has the best performance.
 
-On Sat, 25 May 2002, Meelis Roos wrote:
+If people were to learn that real time and multi-user throughput are 
+by definition mutually exclusive, I'd be a lot happier.  As it is,
+we have the SGI/Montevista crowd cramming their stuff into the kernel
+and each "little" thing makes the kernel a less pleasant place to be
+and brings it one step closer to the point when it gets abandoned 
+like ever other OS in the history of our field.
 
-> Matroxfb as module:
-> 
-> depmod: *** Unresolved symbols in /lib/modules/2.5.18/kernel/drivers/video/matrox/matroxfb_DAC1064.o
-> depmod: 	matrox_init_putc
-> depmod: *** Unresolved symbols in /lib/modules/2.5.18/kernel/drivers/video/matrox/matroxfb_Ti3026.o
-> depmod: 	matrox_init_putc
-> depmod: *** Unresolved symbols in /lib/modules/2.5.18/kernel/drivers/video/matrox/matroxfb_base.o
-> depmod: 	matrox_text_round
-> depmod: 	matrox_cfbX_init
-> depmod: 	initMatrox
+> Also apparently there is the idea that all RTAI developers want to
+> become rich by getting the patent out of the way and sell RTAI. 
 
-matroxfb still relied on implicitly exporting all symbols. Seems I 
-overlooked it before making exporting no symbols default, sorry. This
-patch will fix it.
-
---Kai
-
-
-===== drivers/video/matrox/matroxfb_accel.c 1.4 vs edited =====
---- 1.4/drivers/video/matrox/matroxfb_accel.c	Tue Feb  5 01:52:39 2002
-+++ edited/drivers/video/matrox/matroxfb_accel.c	Sat May 25 10:38:11 2002
-@@ -143,6 +143,8 @@
- 	ACCESS_FBINFO(accel.m_opmode) = mopmode;
- }
- 
-+EXPORT_SYMBOL(matrox_cfbX_init);
-+
- static void matrox_cfbX_bmove(struct display* p, int sy, int sx, int dy, int dx, int height, int width) {
- 	int pixx = p->var.xres_virtual, start, end;
- 	CRITFLAGS
-@@ -943,7 +945,7 @@
- 	CRITEND
- }
- 
--void matrox_text_createcursor(WPMINFO struct display* p) {
-+static void matrox_text_createcursor(WPMINFO struct display* p) {
- 	CRITFLAGS
- 
- 	if (ACCESS_FBINFO(currcon_display) != p)
-@@ -1029,6 +1031,8 @@
- 	var->xres_virtual = vxres * hf;
- }
- 
-+EXPORT_SYMBOL(matrox_text_round);
-+
- static int matrox_text_setfont(struct display* p, int width, int height) {
- 	DBG("matrox_text_setfont");
- 
-@@ -1223,6 +1227,8 @@
- 	}
- }
- 
-+EXPORT_SYMBOL(initMatrox);
-+
- void matrox_init_putc(WPMINFO struct display* p, void (*dac_createcursor)(WPMINFO struct display* p)) {
- 	int i;
- 
-@@ -1245,4 +1251,7 @@
- 		ACCESS_FBINFO(curr.putcs) = matrox_cfbX_putcs;
- 	}
- }
-+
-+EXPORT_SYMBOL(matrox_init_putc);
-+
- MODULE_LICENSE("GPL");
-===== drivers/video/matrox/matroxfb_accel.h 1.1 vs edited =====
---- 1.1/drivers/video/matrox/matroxfb_accel.h	Tue Feb  5 11:40:16 2002
-+++ edited/drivers/video/matrox/matroxfb_accel.h	Sat May 25 10:37:33 2002
-@@ -5,7 +5,6 @@
- 
- void matrox_init_putc(WPMINFO struct display* p, void (*)(WPMINFO struct display *p));
- void matrox_cfbX_init(WPMINFO struct display* p);
--void matrox_text_createcursor(WPMINFO struct display* p);
- void matrox_text_round(CPMINFO struct fb_var_screeninfo* var, struct display* p);
- void initMatrox(WPMINFO struct display* p);
- 
-
+So the thing I have a problem with is that Victor says that all GPL
+is fine.  You say you are all GPL.  So far, no problem.  Yet you keep
+coming back and saying there is a problem, that Linux is going to
+be out of the running as a real time platform because of the patent.
+I don't get it, why should the patent prevent Linux from being used?
+All it does is say "if you aren't making money, we aren't making money,
+if you are making money, we want a cut".  That seems OK to me, in fact,
+it seems more than OK.  It seems like someone who is trying to help
+those who are helping others and charge those who are charging others.
+That's smart, that's good.  It means that FSMlabs will be here 20 years
+from now, still supporting this stuff, whereas all the "we'll survive
+off of support" people will have long since gone under.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

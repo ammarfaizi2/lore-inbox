@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314565AbSDTGI3>; Sat, 20 Apr 2002 02:08:29 -0400
+	id <S314572AbSDTGzH>; Sat, 20 Apr 2002 02:55:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314567AbSDTGI2>; Sat, 20 Apr 2002 02:08:28 -0400
-Received: from 24.159.204.122.roc.nc.chartermi.net ([24.159.204.122]:10512
-	"EHLO tweedle.cabbey.net") by vger.kernel.org with ESMTP
-	id <S314565AbSDTGI2>; Sat, 20 Apr 2002 02:08:28 -0400
-Date: Sat, 20 Apr 2002 01:06:54 -0500 (CDT)
-From: Chris Abbey <linux@cabbey.net>
-X-X-Sender: <cabbey@tweedle.cabbey.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: PDC20268 TX2 support?
-Message-ID: <Pine.LNX.4.33.0204200101190.24652-100000@tweedle.cabbey.net>
+	id <S314573AbSDTGzG>; Sat, 20 Apr 2002 02:55:06 -0400
+Received: from mpdr0.chicago.il.ameritech.net ([67.38.100.19]:10194 "EHLO
+	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
+	id <S314572AbSDTGzG>; Sat, 20 Apr 2002 02:55:06 -0400
+Message-ID: <3CC1119B.50509@ameritech.net>
+Date: Sat, 20 Apr 2002 01:58:35 -0500
+From: watermodem <aquamodem@ameritech.net>
+Reply-To: aquamodem@ameritech.net
+Organization: not at all
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre7-ac1 same bug in vanilla 2..4.19pre7
+In-Reply-To: <200204190916.g3J9G0b01318@devserv.devel.redhat.com> <3CC0790F.2070400@ameritech.net> <3CC08373.4090708@ameritech.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Back in February someone else asked about support for Promise's
-cards, and Alan mentioned that it would probably merge in around
-the 2.4.19 timeframe. I'm curious what level of support folks are
-expecting? Just basic IDE, or support for the hardware raid features?
-I'm getting a bit sick of rebooting to a back level kernel inorder
-to pull data from their raid, and even more sick of the hard locks
-that only occur when I have their binary module inserted. (please
-avoid the flame wars about how dirty a binary only module is, I'm
-well aware of that, but I live in the real world and have a lot of
-data one of their controllers. :(  )
+watermodem wrote:
+> 
+> Trying again with menuconfig the compile fails..
+> 
+> 
+>         net/network.o \
+>         /usr/src/linux-2.4.19-pre7-ac1/arch/i386/lib/lib.a 
+> /usr/src/linux-2.4.1
+> 1/lib/lib.a /usr/src/linux-2.4.19-pre7-ac1/arch/i386/lib/lib.a \
+>         --end-group \
+>         -o vmlinux
+> init/main.o: In function `smp_init':
+> init/main.o(.text.init+0x5f1): undefined reference to `skip_ioapic_setup'
+> arch/i386/kernel/kernel.o: In function `broken_pirq':
+> arch/i386/kernel/kernel.o(.text.init+0x350b): undefined reference to 
+> `skip_ioap
+> make: *** [vmlinux] Error 1
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
--- 
-Never make a technical decision based upon the politics of the situation.
-Never make a political decision based upon technical issues.
-The only place these realms meet is in the mind of the unenlightened.
-			-- Geoffrey James, The Zen of Programming
+
 

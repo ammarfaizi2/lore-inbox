@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280801AbRKOLFR>; Thu, 15 Nov 2001 06:05:17 -0500
+	id <S280812AbRKOLm3>; Thu, 15 Nov 2001 06:42:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280809AbRKOLFI>; Thu, 15 Nov 2001 06:05:08 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:11278 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S280801AbRKOLEv>; Thu, 15 Nov 2001 06:04:51 -0500
-From: Norbert Preining <preining@logic.at>
-Date: Thu, 15 Nov 2001 12:04:44 +0100
-To: linux-kernel@vger.kernel.org
-Subject: apm poweroff problem with 2.4.14, dell i8k
-Message-ID: <20011115120444.A836@alpha.logic.tuwien.ac.at>
+	id <S280818AbRKOLmT>; Thu, 15 Nov 2001 06:42:19 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:49550 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S280812AbRKOLmN>;
+	Thu, 15 Nov 2001 06:42:13 -0500
+Date: Thu, 15 Nov 2001 03:41:36 -0800 (PST)
+Message-Id: <20011115.034136.73653260.davem@redhat.com>
+To: anton@samba.org
+Cc: groudier@free.fr, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] small sym-2 fix
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011115223526.A27258@krispykreme>
+In-Reply-To: <20011115153654.E22552@krispykreme>
+	<20011115.021916.45712781.davem@redhat.com>
+	<20011115223526.A27258@krispykreme>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+   From: Anton Blanchard <anton@samba.org>
+   Date: Thu, 15 Nov 2001 22:35:26 +1100
+    
+   > Are you using 4K pages on ppc64? :-(
+   
+   Unfortunately so. We will definitely be looking to decouple hardware and
+   software page sizes (like sparc64 is doing) once things stabilise, a
+   4KB page size is pretty small for a 64 bit arch.
 
-With 2.4.14 the power off at the end of shutdown does not work on
-my dell inspiron 8000. It was working on linux-2.4.10. Is this a
-known problem? I didn't find anything in the mail archives.
+Using an 8K page size should really be transparent to
+any sane ELF userland, why not just do it?  Is there
+some hardcoded dependency in the ppc ELF stuff or is
+it just a "some of our kernel code still assumes PAGE_SIZE
+= 4K"?
 
-Can you please Cc: me any response!
-
-
-Best wishes
-
-Norbert
-
-
------------------------------------------------------------------------
-Norbert Preining <preining@logic.at> 
-University of Technology Vienna, Austria            gpg DSA: 0x09C5B094
------------------------------------------------------------------------
-BOTOLPHS
-
-Huge benign tumours which archdeacons and old chemisty teachers affect
-to wear on the sides of their noses.
-
-			--- Douglas Adams, The Meaning of Liff 

@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275571AbRIZUUW>; Wed, 26 Sep 2001 16:20:22 -0400
+	id <S275577AbRIZUUw>; Wed, 26 Sep 2001 16:20:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275578AbRIZUUM>; Wed, 26 Sep 2001 16:20:12 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:264 "HELO mail.pha.ha-vel.cz")
-	by vger.kernel.org with SMTP id <S275571AbRIZUUA>;
-	Wed, 26 Sep 2001 16:20:00 -0400
-Date: Wed, 26 Sep 2001 22:20:21 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, bcrl@redhat.com,
-        marcelo@conectiva.com.br, andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Locking comment on shrink_caches()
-Message-ID: <20010926222021.A2086@suse.cz>
-In-Reply-To: <Pine.LNX.4.33.0109261003480.8327-200000@penguin.transmeta.com> <E15mIfQ-0001E5-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15mIfQ-0001E5-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Sep 26, 2001 at 06:40:15PM +0100
+	id <S275578AbRIZUUn>; Wed, 26 Sep 2001 16:20:43 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:10414 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S275577AbRIZUU1>; Wed, 26 Sep 2001 16:20:27 -0400
+Subject: [Announce] New Release of LTP Available
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF61628A7D.E8956F9F-ON85256AD3.006FA3A2@raleigh.ibm.com>
+From: "Robert Williamson" <robbiew@us.ibm.com>
+Date: Wed, 26 Sep 2001 15:20:38 -0500
+X-MIMETrack: Serialize by Router on D04NMS96/04/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 09/26/2001 04:20:42 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 26, 2001 at 06:40:15PM +0100, Alan Cox wrote:
+The Linux Test Project ltp-20010925 was released today. You can download
+the Linux Test Project on SourceForge at
+http://sourceforge.net/projects/ltp.
 
-> > 	PIII:
-> > 		nothing: 32 cycles
-> > 		locked add: 50 cycles
-> > 		cpuid: 170 cycles
-> > 
-> > 	P4:
-> > 		nothing: 80 cycles
-> > 		locked add: 184 cycles
-> > 		cpuid: 652 cycles
-> 
-> 
-> Original core Athlon (step 2 and earlier)
-> 
-> nothing: 11 cycles
-> locked add: 22 cycles
-> cpuid: 67 cycles
-> 
-> generic Athlon is
-> 
-> nothing: 11 cycles
-> locked add: 11 cycles
-> cpuid: 64 cycles
+* Over 400+ tests have been added that extend the kernel system call
+  coverage of the LTP.
 
-Interestingly enough, my TBird 1.1G insist on cpuid being somewhat
-slower:
+* Each added test is enhanced with options such as looping, functional
+  coverage, and error tracking for testing reliability and robustness.
 
-nothing: 11 cycles
-locked add: 11 cycles
-cpuid: 87 cycles
+* Test case structure has been reorganized based on testing area,
+  i.e. system calls, network, io,   etc.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+* Descriptions of EVERY test are now located under /doc, as well as
+  under each test category subdirectory.
+
+* Updated INSTALL and README documentation to reflect new
+  LTP structure.
+
+
+Test results on the 2.4.9 kernel have also been posted.
+
+For more information about the Linux Test Project, visit our web site at
+http://ltp.sf.net
+

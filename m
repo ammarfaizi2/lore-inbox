@@ -1,119 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVBAIcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVBAIfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbVBAIcb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 03:32:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVBAIcb
+	id S261494AbVBAIfh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 03:35:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVBAIfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 03:32:31 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19170 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261525AbVBAIcV (ORCPT
+	Tue, 1 Feb 2005 03:35:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47331 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261494AbVBAIfa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 03:32:21 -0500
-Date: Tue, 1 Feb 2005 00:32:18 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: Patch to add usbmon
-Message-ID: <20050201003218.478f031e@localhost.localdomain>
-In-Reply-To: <20050201071000.GF20783@kroah.com>
-References: <20050131212903.6e3a35e5@localhost.localdomain>
-	<20050201071000.GF20783@kroah.com>
+	Tue, 1 Feb 2005 03:35:30 -0500
+Subject: Re: Kernel 2.4.21 hangs up
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: baswaraj kasture <kbaswaraj@yahoo.com>
+Cc: inux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050201082001.43454.qmail@web51102.mail.yahoo.com>
+References: <20050201082001.43454.qmail@web51102.mail.yahoo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-81++zBIXaURrdVK/V1LD"
 Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+Date: Tue, 01 Feb 2005 09:35:22 +0100
+Message-Id: <1107246923.4208.53.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jan 2005 23:10:01 -0800, Greg KH <greg@kroah.com> wrote:
 
-> First off, why make usbmon a module?  You aren't allowing it to happen,
-> so just take out the parts of the patch that allow it.
+--=-81++zBIXaURrdVK/V1LD
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-No, I do allow it. This way I can load and unload it when debugging it.
-Perhaps in the future we may simply link it with usbcore, but for now
-it is a separate module. Also, I do not think it's possible not to build
-it as a module when usbcore is a module.
+On Tue, 2005-02-01 at 00:20 -0800, baswaraj kasture wrote:
+> Hi,
+>=20
+> I compiled kernel 2.4.21 with intel compiler .
 
-I do not think it's a good idea for most users to build it as a module,
-but it's not prohibited.
+2.4.21 isn't supposed to be compilable with the intel compiler...
 
-> > +#if defined(CONFIG_USB_MON) || defined(CONFIG_USB_MON_MODULE)
-> > +struct usb_mon_operations *mon_ops;
-> > +#endif /* CONFIG_USB_MON */
-> 
-> Not needed at all, as you create it down below.  Ah, the .h files, no
-> wait, you refer to it there too, so removing it here should be fine.
+> fine. I am using IA-64 (Intel Itanium 2 ) with EL3.0.
 
-Right.
+... and the RHEL3 kernel most certainly isn't.
 
-> > @@ -1103,8 +1110,6 @@ static int hcd_submit_urb (struct urb *u
-> >  		 * valid and usb_buffer_{sync,unmap}() not be needed, since
-> >  		 * they could clobber root hub response data.
-> >  		 */
-> > -		urb->transfer_flags |= (URB_NO_TRANSFER_DMA_MAP
-> > -					| URB_NO_SETUP_DMA_MAP);
-> >  		status = rh_urb_enqueue (hcd, urb);
-> >  		goto done;
-> >  	}
-> 
-> Why remove that statment?  What does that have to do with usbmon?
+I strongly suggest that you stick to gcc for compiling the RHEL3 kernel.
 
-The text format reader peeks at URB data. This is done for expediency
-(because USBMon viewer wants it and because I'm still wrestling with
-the design for the binary format reader stream). Anyhow, someone has to
-make a decision if data is mapped into kernel at present (and if not,
-perhaps kmap() in the future). This is done line this:
 
-+	if (urb->transfer_flags & URB_NO_TRANSFER_DMA_MAP)
-+		return 'D';	// Cannot trust transfer_buffer
-+	if ((data = urb->transfer_buffer) == NULL)
-+		return 'Z';	// In case...
-+	memcpy(ep->data, urb->transfer_buffer, len);
+Also sticking half the world on the CC is considered rude if those
+people have nothing to do with the subject at hand, as is the case here.
 
-When root hub sets these bogus flags, it makes usbmon to skip perfectly
-mapped data.
 
-Even without usbmon it was such an annoying way to do things. It created
-an illegal URB: the one which claimed that it has DMA mapped, but in fact
-didn't. It only worked because the root hub implementation ignored flags.
-This makes it much nicer, IMHO:
+--=-81++zBIXaURrdVK/V1LD
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> >  void usb_hcd_giveback_urb (struct usb_hcd *hcd, struct urb *urb, struct pt_regs *regs)
-> >  {
-> > -	urb_unlink (urb);
-> > +	int at_root_hub;
-> >  
-> > -	// NOTE:  a generic device/urb monitoring hook would go here.
-> > -	// hcd_monitor_hook(MONITOR_URB_FINISH, urb, dev)
-> > -	// It would catch exit/unlink paths for all urbs.
-> > +	at_root_hub = (urb->dev == hcd->self.root_hub);
-> > +	urb_unlink (urb);
-> >  
-> >  	/* lower level hcd code should use *_dma exclusively */
-> > -	if (hcd->self.controller->dma_mask) {
-> > +	if (hcd->self.controller->dma_mask && !at_root_hub) {
-> >  		if (usb_pipecontrol (urb->pipe)
-> >  			&& !(urb->transfer_flags & URB_NO_SETUP_DMA_MAP))
-> >  			dma_unmap_single (hcd->self.controller, urb->setup_dma,
-> 
-> You change the logic here a bit too.  Why?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-I do not think I change the logic. The check I add is exactly the same
-which is used to set bogus flags. So, the code works exactly as before,
-at least in my limited testing. Am I missing something?
+iD8DBQBB/z9Kpv2rCoFn+CIRAgrUAJ95Rb51pZR+qA1Ku14WuUaNkHzjfgCdEe2n
+BpmXoRqzYU4fGp3Uq1+/KPM=
+=IiUz
+-----END PGP SIGNATURE-----
 
-> > +#define usbmon_urb_submit(bus, urb)				\
-> 
-> Can you make these inlines?  That makes the code nicer as we get
-> typechecking and everything :)
+--=-81++zBIXaURrdVK/V1LD--
 
-OK.
-
-> > +#define usbmon_urb_submit(bus, urb)		/* */
-
-> static inlines for these too if you can.
-
-OK
-
--- Pete

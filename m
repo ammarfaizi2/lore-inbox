@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbTA1WKc>; Tue, 28 Jan 2003 17:10:32 -0500
+	id <S261518AbTA1WJq>; Tue, 28 Jan 2003 17:09:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261530AbTA1WKb>; Tue, 28 Jan 2003 17:10:31 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:4842 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261527AbTA1WKa>;
-	Tue, 28 Jan 2003 17:10:30 -0500
-Date: Tue, 28 Jan 2003 14:40:20 -0600
-From: latten@austin.ibm.com
-Message-Id: <200301282040.h0SKeKO30480@faith.austin.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: SIGHUP on tty while logging in
+	id <S261527AbTA1WJp>; Tue, 28 Jan 2003 17:09:45 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:62354 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261518AbTA1WJp>; Tue, 28 Jan 2003 17:09:45 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 28 Jan 2003 14:24:52 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Andi Kleen <ak@suse.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: {sys_,/dev/}epoll waiting timeout
+In-Reply-To: <p73hebtym5d.fsf@oldwotan.suse.de>
+Message-ID: <Pine.LNX.4.50.0301281421520.2085-100000@blue1.dev.mcafeelabs.com>
+References: <20030122080322.GB3466@bjl1.asuk.net.suse.lists.linux.kernel>
+ <Pine.LNX.4.33L2.0301281139570.30636-100000@dragon.pdx.osdl.net.suse.lists.linux.kernel>
+ <20030128213621.GA29036@bjl1.asuk.net.suse.lists.linux.kernel>
+ <p73hebtym5d.fsf@oldwotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 28 Jan 2003, Andi Kleen wrote:
 
-I am using a serial port (ttyS0) for my console and 
-whenever I "cu" into the port and get a login prompt, I sometimes get 
-a SIGHUP right after entering the user name, thus resulting 
-in my being disconnected before I get a chance to complete login. 
-It is random. Sometimes login proceeds with no problem and 
-sometimes I get the SIGHUP during login. 
-This happens even when I do not configure
-my kernel to use my serial port as a console and I just
-cu into the port and login. 
+> Jamie Lokier <jamie@shareable.org> writes:
+> >
+> > Which suggests that all the architectures are fine with all these
+> > "int" returns, except IA64.
+>
+> x86-64 needs long returns too.
+>
+> I think I fixed all of them, if you noticed any missing please let me now.
 
-Has anyone else experienced this? One of my machines
-is linux-2.5.58 and the other is 2.5.59. It happens on both.
+#define __NR_epoll_create       ???
+#define __NR_epoll_ctl          ???
+#define __NR_epoll_wait         ???
 
-My tty settings look ok and it is not my getty applications. I tried 
-agetty and mgetty and I got the same results. I am wondering if it is
-the driver... 
+That in 2.5.59 return "int". I posted the patch to make them return
+"long" to Linus ( Andrew got it ) this weekend.
 
-Thanks,
-Joy
+
+
+
+- Davide
+

@@ -1,49 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264623AbUD1DLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264625AbUD1DY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264623AbUD1DLl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 23:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUD1DLl
+	id S264625AbUD1DY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 23:24:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUD1DY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 23:11:41 -0400
-Received: from www.centralpets.com ([216.15.161.2]:42935 "HELO
-	www.centralpets.com") by vger.kernel.org with SMTP id S264623AbUD1DLj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 23:11:39 -0400
-From: "rufus amadi" <r.amadi@centralpets.com>
-Importance: Normal
-Sensitivity: Normal
-Message-ID: <W2188422751228531083121904@bark.centralpets.com>
-X-Mailer: Mintersoft VisualMail, Build 4.0.111601
-X-Originating-IP: [212.100.64.69]
-Date: Wed, 28 Apr 2004 03:11:44 +0000
-Subject: WITH TRUST
+	Tue, 27 Apr 2004 23:24:27 -0400
+Received: from tan25.ncr.com ([192.127.94.25]:595 "EHLO ncrusout3.NCR.COM")
+	by vger.kernel.org with ESMTP id S264625AbUD1DY0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 23:24:26 -0400
+Message-ID: <01B69E0E615FD5118EA00003477144BA1082B917@susdayte52.daytonoh.ncr.com>
+From: "Pinyowattayakorn, Naris" <np151003@teradata-ncr.com>
+To: linux-kernel@vger.kernel.org
+Subject: query_module in 2.6
+Date: Tue, 27 Apr 2004 23:24:19 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-To: unlisted-recipients:; (no To-header on input)
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DEAR PARTTNER,
+Hi,
 
+I tried to search for posts regarding to the query_module but came up empty.
+It seems to me that the sys_query_module call was removed from the 2.6
+kernel. So the question I have is if there any alternative way to get the
+kernel module symbols in 2.6. Or, I'm missing something here?
 
-MY NAME IS MR. RUFUS AMADI . THE MANAGER CREDIT AND FOREIGN BILLS OF UNION BANK PLC. I AM WRITING IN RESPECT OF FOREIGN CUSTOMER OF MY BANK WHO DIED IN A PLANE CRASH (ETHIOPIAN AIRLINE 961) WITH OTHER PASSENGERS ABROAD. 
-
-SINCE THE DEATH OF THIS CUSTOMER, I PERSONALLY HAVE WATCHED WITH KEEN INTEREST TO SEE THE NEXT OF KIN BUT ALL HAS PROVED ABORTIVE AS NO ONE HAS COME TO CLAIM HIS FUNDS OF US$10.5M (TEN MILLION, FIVE HUNDRED THOUSAND UNITED STATES DOLLARS) WHICH HAS BEEN WITH MY BANK FOR A VERY LONG  TIME.ON THIS NOTE I DECIDED TO SEEK FOR WHOSE NAME SHALL BE USED AS THE NEXT OF KIN AS NO ONE HAS COME UP TO BE THE NEXT OF KIN. IN VIEW OF THIS I GOT YOUR CONTACT THROUGH MY COUNTRY`S FOREIGN TRADE MISSION AFTER I WAS CONVINCED BY PROVIDENCE THAT YOU COULD BE USED AS THE NEXT OF KIN. THE REQUEST OF THE FOREIGNER AS A NEXT OF KIN IN THIS BUSINESS IS OCCASIONED BY THE FACT THAT THE CUSTOMER WAS A FOREIGNER AND A NIGERIAN CANNOT STAND AS THE NEXT OF KIN TO FOREIGNER. I AGREED THAT 30%OF THIS MONEY WILL BE FOR YOU AS A FOREIGN PARTNER IN RESPECT OF PROVIDING AN ACCOUNT,WHILE THE REST WILL BE FOR ME, THEREAFTER,I WILL VISIT YOUR COUNTRY FOR DISBURSEMENT AS I AM ALMOST DUE FOR RETIREMENT.THEREFORE, TO FACILITATE THE IMMEDIATE TRANSFER OF THIS FUND TO YOUR ACCOUNT AS ARRANGED, YOU MUST APPLY FIRST TO THE BANK AS A RELATION TO THE DECEASED INDICATING YOUR PRIVATE TELEPHONE NUMBER, AND FAX NUMBER FOR EASY COMMUNICATION AND LOCATION WHERE THE MONEY WILL BE REMITTED. UPON THE RECEIPT OF YOUR REPLY,
-
-I WILL SEND YOU BY FAX OR E-MAIL THE NEXT STEP TO TAKE. I
-WILL NOT FAIL TO BRING TO YOUR NOTICE THAT THIS BUSINESS IS HITCH-FREE AND THAT YOU SHOULD NOT ENTERTAIN ANY FEAR AS THE WHOLE REQUIRED ARRANGEMENT HAS BEEN MADE FOR THE TRANSFER. YOU SHOULD CONTACT ME IMMEDIATELYTHROUGH THIS EMAIL: (ramadi@graffiti.net) AS SOON AS YOU RECEIVE THISLETTER TRUSTING TO HEAR FROM YOU.
-
-YOUR RESPECTFULLY,
-MR. RUFUS AMADI
-
-
-
-
-
----------------------------------------------
-This e-mail was sent using a CentralPets WebMail account
-Get yours at: http://mail.centralpets.com
-
-
-
+Thanks,
+Naris

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276709AbRKJHiu>; Sat, 10 Nov 2001 02:38:50 -0500
+	id <S280016AbRKJIQf>; Sat, 10 Nov 2001 03:16:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279505AbRKJHik>; Sat, 10 Nov 2001 02:38:40 -0500
-Received: from ws-002.ray.fi ([193.64.14.2]:59802 "EHLO behemoth.ts.ray.fi")
-	by vger.kernel.org with ESMTP id <S276709AbRKJHiW>;
-	Sat, 10 Nov 2001 02:38:22 -0500
-Date: Sat, 10 Nov 2001 09:35:45 +0200 (EET)
-From: Tommi Kyntola <lk@ts.ray.fi>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Anthony Campbell <a.campbell@doctors.org.uk>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Total lockup with 2.4.14
-In-Reply-To: <20011109125730.B446@mikef-linux.matchmail.com>
-Message-ID: <Pine.LNX.4.33.0111100933470.24163-100000@behemoth.ts.ray.fi>
+	id <S280508AbRKJIQ0>; Sat, 10 Nov 2001 03:16:26 -0500
+Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:62817 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S280016AbRKJIQS>; Sat, 10 Nov 2001 03:16:18 -0500
+Message-ID: <01bf01c169be$34305510$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Ben Israel" <ben@genesis-one.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.jmrptbv.1dh8ur1@ifi.uio.no>
+Subject: Re: Disk Performance
+Date: Sat, 10 Nov 2001 03:03:37 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I've had 3 total lockups with kernel 2.4.12 and now one with 2.4.14.
-> > 
-> > I was online at the time, using Acroread on this occasion. No key would
-> > work, nor would the mouse.
-> > 
-> > This doesn't seem to happen with the Alan Cox patches, so perhaps it is
-> > something to do with VM.
-> > 
-> 
-> Don't assume that.
-> 
-> The -ac patch includes many more things than just the previous VM.
-> 
-> You should include the Oops, if it did oops.
-> 
-> Also, you should include your .config, and a "lspci -vv" of the affected
-> system.
+> Why does my 40 Megabyte per second IDE drive, transfer
+> files at best at 1-2 Megabytes per second?
 
-It would also make sense to make sure it's in fact a kernel lock up.
->From time to time X may lock up _but_ the machine pings and you
-can gain access via ssh/telnet and try to fix it by shutting down
-X from there...
+Keep in mind that some disk benchmarks just read/write long contiguous
+regions of the disk, whereas the files you are copying may be fragmented.
+So, while your drive may be able to sustain 40 MB/sec on a contiguous
+region, it might slow down a lot if it has to seek to different parts of a
+fragmented file, or between many files.
 
-  Tommi "Kynde" Kyntola      
-     /* A man alone in the forest talking to himself and 
-        no women around to hear him. Is he still wrong?  */
+Actually while I'm on this subject - does anyone have experience with
+"preallocating" files for low-latency transfers? e.g. if I know I'm going to
+capture several GB of video to disk, will it reduce I/O latency if I
+truncate the destination file to the proper size and fill it with zeros
+beforehand? (I assume it helps for the fs to be as empty as possible) Are
+any filesystems particularly good/bad for cases like this?
+
+Regards,
+Dan
 

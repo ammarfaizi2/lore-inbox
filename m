@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbTEIIrX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 04:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbTEIIrX
+	id S262378AbTEIIqN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 04:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbTEIIqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 04:47:23 -0400
-Received: from siaag2ab.compuserve.com ([149.174.40.132]:1711 "EHLO
-	siaag2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S262390AbTEIIrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 04:47:17 -0400
-Date: Fri, 9 May 2003 04:58:06 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: desc v0.61 found a 2.5 kernel bug
-To: paubert <paubert@mrt-lx16.iram.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200305090459_MC3-1-381B-CA56@compuserve.com>
+	Fri, 9 May 2003 04:46:13 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:31126 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262378AbTEIIqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 04:46:12 -0400
+To: Timothy Miller <miller@techsource.com>
+Cc: root@chaos.analogic.com, Roland Dreier <roland@topspin.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de>
+	<Pine.LNX.4.53.0305070933450.11740@chaos>
+	<20030507135657.GC18177@wohnheim.fh-wedel.de>
+	<Pine.LNX.4.53.0305071008080.11871@chaos>
+	<p05210601badeeb31916c@[207.213.214.37]>
+	<Pine.LNX.4.53.0305071323100.13049@chaos> <52k7d2pqwm.fsf@topspin.com>
+	<Pine.LNX.4.53.0305071424290.13499@chaos> <52bryeppb3.fsf@topspin.com>
+	<Pine.LNX.4.53.0305071523010.13724@chaos> <52n0hyo85x.fsf@topspin.com>
+	<Pine.LNX.4.53.0305071547060.13869@chaos>
+	<3EB96FB2.2020401@techsource.com>
+	<Pine.LNX.4.53.0305080729410.16638@chaos>
+	<3EBA7AE2.9020401@techsource.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 09 May 2003 17:57:00 +0900
+In-Reply-To: <3EBA7AE2.9020401@techsource.com>
+Message-ID: <buou1c4v6oz.fsf@mcspd15.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-paubert wrote:
+Timothy Miller <miller@techsource.com> writes:
+> That is to say, some CPUs might have provision for a stack pointer to be 
+> associated with each interrupt vector.
 
->>   invalid FS,GS -> 0
->>      "    DS,ES -> __USER_DS
->>           CS,SS -> panic?
->
-> It's still racy on SMP if a thread with the same MM is modifying the LDT
-> between the time you check whether the selectors are valid and the iret
-> instruction restoring the previous stack.
+On my arch, the CPU doesn't use the stack for interrupts at all...
+so any saving on the stack is what's done by entry.S.
 
- Probably nothing can be done about that, either.  Handling invalid segment
-with another hardware task doesn't help since the trap occurs in the context
-of the new task and there's no way to tell what happened by then.
-
->> 
->>  Bad things can happen if a debug fault happens in certain places... for now
->> the solution is to only support int3 breakpoints and avoid those places.
->
-> Can you elaborate a bit, in which places?
-
- I never even implemented the above checks; there is just a comment in the code
-where they belong. It ran for five days that way, then generated a string
-of segfaults while trying to shut down.
-
->> 
->>  Given the above, I hope to be able to put int3 instructions in either
->> kernel or user code and get snapshots of CPU state in the kernel TSS.
->
-> And what about the little bit called TS in CR0 which is always set by 
-> a task switch.
-
- Forgot all about that one.  Maybe pushing cs:eip and flags onto the kernel's
-stack and returning to an iret in the kernel task would work?
+-Miles
+-- 
+o The existentialist, not having a pillow, goes everywhere with the book by
+  Sullivan, _I am going to spit on your graves_.

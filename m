@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVCaQsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVCaQw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVCaQsg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 11:48:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVCaQsf
+	id S261566AbVCaQw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 11:52:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVCaQw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 11:48:35 -0500
-Received: from ida.rowland.org ([192.131.102.52]:14340 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S261565AbVCaQsP (ORCPT
+	Thu, 31 Mar 2005 11:52:58 -0500
+Received: from upco.es ([130.206.70.227]:58831 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S261573AbVCaQuK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 11:48:15 -0500
-Date: Thu, 31 Mar 2005 11:48:11 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: kus Kusche Klaus <kus@keba.com>
-cc: linux-usb-users@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
-Subject: RE: 2.6.11, USB: High latency?
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F3673231CF@MAILIT.keba.co.at>
-Message-ID: <Pine.LNX.4.44L0.0503311138260.1510-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 31 Mar 2005 11:50:10 -0500
+Date: Thu, 31 Mar 2005 18:50:07 +0200
+From: Romano Giannetti <romanol@upco.es>
+To: dtor_core@ameritech.net
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc1 swsusp broken [Was Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel]
+Message-ID: <20050331165007.GA29674@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: romano@dea.icai.upco.es, dtor_core@ameritech.net,
+	Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>
+References: <20050329110309.GA17744@pern.dea.icai.upco.es> <20050329132022.GA26553@pern.dea.icai.upco.es> <20050329170238.GA8077@pern.dea.icai.upco.es> <20050329181551.GA8125@elf.ucw.cz> <20050331144728.GA21883@pern.dea.icai.upco.es> <d120d5000503310715cbc917@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <d120d5000503310715cbc917@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Mar 2005, kus Kusche Klaus wrote:
-
-> > The latencies are almost certainly caused by the USB host controller 
-> > driver.  I'm planning improvements to uhci-hcd which should 
-> > help reduce 
-> > the latency, but it will still be on the large side.  And I 
-> > won't have 
-> > time to write the changes to the driver for several months.
+On Thu, Mar 31, 2005 at 10:15:26AM -0500, Dmitry Torokhov wrote:
+> On Thu, 31 Mar 2005 16:47:29 +0200, Romano Giannetti <romanol@upco.es> wrote:
+> > 
+> > The bad news is that with 2.6.12-rc1 (no preempt) swsusp fails to go.
 > 
-> Any numbers about the expected "large side"? 
-> We would need <30 microseconds irq latency,
-> and <<1 milliseconds rt application latency.
-
-It's pretty hard to say, considering that: (1) None of the code has been 
-written yet; (2) It's impossible to say how big a difference new code will 
-make just by reading it -- you have to actually test it; and (3) I don't 
-have any hardware suitable for testing latencies.
-
-The biggest advantage would come from using a bottom-half handler to do 
-most of the work.  Right now the uhci-hcd driver does everything in its 
-interrupt handler.  This would certainly help IRQ latency; it might not 
-affect application latency very much.
-
-I'll try adding a bottom half in my next series of patches.  Maybe it will 
-be ready in time to appear in the -mm kernels before 2.6.12-final is 
-released.
-
-> > The best solution is to stop using uhci-hcd.  Get a PCI card 
-> > with an OHCI 
-> > or EHCI (high-speed) controller.  They do much more work in hardware, 
-> > reducing the amount of time the driver needs to spend with interrupts 
-> > disabled.
+> Ok, I see you have an ALPS touchpad. I think this patch will help you
+> with swsusp:
 > 
-> The hardware is invariable. It is an embedded system with no PCI slots.
-> 
-> And it seems to be possible with UHCI, 
-> because vxWorks allows USB stick transfers in operation without
-> missing latency requirements.
-> 
-> I do not require rt on the USB, it may block its own irq as long as
-> it likes, but it should not affect other irqs.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111212532524998&q=raw
 
-We'll see what happens with the upcoming changes.  Maybe you'll be able to 
-test them for me?
+Yes! With this it works ok.
 
-Alan Stern
+> Also, could you please try sticking psmouse_reset(psmouse) call at the
+> beginning of drivers/input/mouse/alps.c::alps_reconnect() and see if
+> it can suspend _without_ the patch above.
 
+It works, too. Which one is the best one? 
+
+I will try now with preempt, although I suspect that this was an unrelated
+problem.
+
+Thanks a lot,
+         Romano
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

@@ -1,45 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbUCVRA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 12:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUCVRA0
+	id S262120AbUCVRFg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 12:05:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUCVRFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 12:00:26 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22743 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262119AbUCVRAX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 12:00:23 -0500
-Message-ID: <405F1B99.3050707@pobox.com>
-Date: Mon, 22 Mar 2004 12:00:09 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Mon, 22 Mar 2004 12:05:36 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:12044 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262120AbUCVRFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 12:05:33 -0500
+Date: Mon, 22 Mar 2004 17:05:33 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: VMA_MERGING_FIXUP and patch
+Message-ID: <Pine.LNX.4.44.0403221640230.11645-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Clay Haapala <chaapala@cisco.com>
-CC: James Morris <jmorris@redhat.com>, Jouni Malinen <jkmaline@cc.hut.fi>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       Matt_Domsch@dell.com
-Subject: Re: [PATCH] lib/libcrc32c implementation
-References: <Xine.LNX.4.44.0403211006190.16503-100000@thoron.boston.redhat.com> <yqujptb4ltc9.fsf@chaapala-lnx2.cisco.com>
-In-Reply-To: <yqujptb4ltc9.fsf@chaapala-lnx2.cisco.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clay Haapala wrote:
-> This patch agains 2.6.4 kernel code implements the CRC32C algorithm.
-> The routines are based on the same design as the existing CRC32 code.
-> Licensing is intended to be identical (GPL).
-> 
-> The immediate customer of this code is the wrapper code in
-> crypto/crc32c, available in another patch.
+Just a reminder that you still have several #if VMA_MERGING_FIXUPs
+in your 2.6.5-rc2-aa1 tree, so mprotects and mremaps are not merging
+vmas at all.
 
+I can understand if you'd prefer to leave the mremaps that way,
+at least for now.  (I do have code to decide whether any page is
+shared, will post later in anobjrmap 7/6, you could use the same
+to allow mremap vma merging if unproblematic.)  But I think you
+ought to get to merging the mprotects, aren't there apps which
+will give you a frightening number of vmas unless merged?
 
-Why not call it 'crc32c' like its cousin crc32, rather than the 
-less-similar 'libcrc32c'?  Violates the Principle of Least Surprise ;-)
+Here's some minor updates (no hurry) to objrmap.c,
+mirroring recentish s390 mods to mainline rmap.c:
+the page_test_and_clear_dirty I mentioned before.
 
-	Jeff
+Hmm, I wonder, is that safe to be calling set_page_dirty
+from inside the page rmap lock?  Andrew?
 
+Hugh
 
+--- 2.6.5-rc2-aa1/mm/objrmap.c	2004-03-22 11:38:55.000000000 +0000
++++ linux/mm/objrmap.c	2004-03-22 16:34:29.421216936 +0000
+@@ -212,7 +212,7 @@ int fastcall page_referenced(struct page
+ 	BUG_ON(!page->mapping);
+ 
+ 	if (page_test_and_clear_young(page))
+-		mark_page_accessed(page);
++		referenced++;
+ 
+ 	if (TestClearPageReferenced(page))
+ 		referenced++;
+@@ -327,8 +327,11 @@ void fastcall page_remove_rmap(struct pa
+ 	if (!page_mapped(page))
+ 		goto out_unlock;
+ 
+-	if (!--page->mapcount)
++	if (!--page->mapcount) {
++		if (page_test_and_clear_dirty(page))
++			set_page_dirty(page);
+ 		dec_page_state(nr_mapped);
++	}
+ 
+ 	if (PageAnon(page))
+ 		anon_vma_page_unlink(page);
+@@ -520,6 +523,8 @@ int fastcall try_to_unmap(struct page * 
+ 		ret = try_to_unmap_anon(page);
+ 
+ 	if (!page_mapped(page)) {
++		if (page_test_and_clear_dirty(page))
++			set_page_dirty(page);
+ 		dec_page_state(nr_mapped);
+ 		ret = SWAP_SUCCESS;
+ 	}
 

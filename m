@@ -1,87 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271867AbRH1SN0>; Tue, 28 Aug 2001 14:13:26 -0400
+	id <S269229AbRH1SS4>; Tue, 28 Aug 2001 14:18:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271862AbRH1SNQ>; Tue, 28 Aug 2001 14:13:16 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:46786 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S269229AbRH1SNG>;
-	Tue, 28 Aug 2001 14:13:06 -0400
-Date: Tue, 28 Aug 2001 11:13:21 -0700
-To: "Clayton, Mark" <mark.clayton@netplane.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Multicast
-Message-ID: <20010828111321.A8147@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <87009604743AD411B1F600508BA0F95994CA68@XOVER.dedham.mindspeed.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <87009604743AD411B1F600508BA0F95994CA68@XOVER.dedham.mindspeed.com>; from mark.clayton@netplane.com on Tue, Aug 28, 2001 at 01:45:35PM -0400
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S271868AbRH1SSr>; Tue, 28 Aug 2001 14:18:47 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:20743 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S269229AbRH1SSn>; Tue, 28 Aug 2001 14:18:43 -0400
+Message-ID: <3B8BE08F.360C3481@zip.com.au>
+Date: Tue, 28 Aug 2001 11:18:55 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+In-Reply-To: <20010828010850Z270025-760+6645@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 28, 2001 at 01:45:35PM -0400, Clayton, Mark wrote:
+Dieter Nützel wrote:
 > 
-> Do you mind sharing your questions/thoughts?  This topic 
-> interests me.  I'd be interested in hearing the dialog.
-> 
-> Thanks,
-> Mark
-> --
-> [root@hjinc mclayton] /sbin/insmod stddisclaimer.o
+> ...
+> (dbench-1.1 32 clients)
+> ...
+> 640 MB PC100-2-2-2 SDRAM
+> ...
+> * readahead do not show dramatic differences
+> * killall -STOP kupdated DO
 
-	Ok, I'll try to be brief... I'm still not on the LKML...
+dbench is a poor tool for evaluating VM or filesystem performance.
+It deletes its own files.
 
-	Linux 2.4.8, multiple network interfaces. I want to Rx/Tx
-multicast junk on all interfaces or subset of them, on the same UDP
-port.
-	First, a bit of background : with multicast, packets are not
-automatically sent on all interfaces. If you set a multicast route in
-the routing table to an interface, they will be sent to this
-interface, and only this one.
-	The only way to bypass the routing table is to use the
-IP_MULTICAST_IF option, but that select one specific outgoing
-interface.
-	Therefore, I'm trying to open a separate UDP multicast socket
-on each interface active on the system (SIOCGIFCONF).
+If you want really good dbench numbers, you can simply install lots
+of RAM and tweak the bdflush parameters thusly:
 
+1: set nfract and nfract_sync really high, so you can use all your
+   RAM for buffering dirty data.
 
-	I have a program that do (simplified) :
-------------------------------------------
-socket(AF_INET, SOCK_DGRAM, 0);
-bind(sock, INADDR_ANY, MY_PORT);
-setsockopt(IP_ADD_MEMBERSHIP, INADDR_ALLHOSTS_GROUP, ONE_INTERFACE);
-setsockopt(IP_MULTICAST_IF, ONE_INTERFACE);
-------------------------------------------
-	First instance : work like a charm : multicast packet are
-Tx/Rx on the selected interface without the need of explicit multicast
-route.
-        Second instance : "bind failed: Address already in use". In
-other word, every time I try to bind a second socket on this port, it
-fails...
+2: Set the kupdate interval to 1000000000 to prevent kupdate from
+   kicking in.
 
-	As "bind" is problematic, I tried as well :
-------------------------------------------
-bind(sock, INADDR_ALLHOSTS_GROUP, MY_PORT);
-------------------------------------------
-	This acts exactly as above, second bind fails.
-
-	And finally, I tried :
-------------------------------------------
-bind(sock, ONE_INTERFACE, MY_PORT);
-------------------------------------------
-	First instance : Tx ok, doesn't Rx anything at all. I can
-understand why, the Rx packet don't have a dest IP address matching
-ONE_INTERFACE.
+And guess what?  You can perform an entire dbench run without
+touching the disk at all!  dbench deletes its own files, and
+they never hit disk.
 
 
-	That's it... As it's my first experiment with Multicast, I'm
-probably missing something obvious...
-	Thanks in advance...
+It gets more complex - if you leave the bdflush parameters at
+default, and increase the number of dbench clients you'll reach
+a point where bdflush starts kicking in to reduce the amount
+of buffercache memory.  This slows the dbench clients down,
+so they have less opportunity to delete data before kupdate and
+bdflush write them out.  So the net effect is that the slower
+you go, the more I/O you end up doing - a *lot* more.  This slows
+you down further, which causes more I/O, etc.
 
-	Jean
+dbench is not a benchmark.  It is really complex, it is really
+misleading.  It is a fine stress-tester though.
+
+The original netbench test which dbench emulates has three phases:
+startup, run and cleanup.  Throughput numbers are only quoted for
+the "run" phase.  dbench is incomplete in that it reports on throughput
+for all three phases.  Apparently Tridge and friends are working on
+changing this, but it will still be the case that the entire test
+can be optimised away, and that it is subject to the regenerative
+feedback phenomenon described above.
+
+For tuning and measuring fs and VM efficiency we need to user
+simpler, more specific tools.
+
+-

@@ -1,70 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVALW7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVALXEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbVALW7l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 17:59:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVALW7b
+	id S261537AbVALXEG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 18:04:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVALXDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 17:59:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:34200 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261543AbVALW4v (ORCPT
+	Wed, 12 Jan 2005 18:03:39 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:7621 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261537AbVALXAO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 17:56:51 -0500
-Date: Wed, 12 Jan 2005 15:01:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Max Krasnyansky <maxk@qualcomm.com>
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org
-Subject: Re: [BK] TUN/TAP driver update and fixes for 2.6.BK
-Message-Id: <20050112150129.09601d64.akpm@osdl.org>
-In-Reply-To: <41E5A5DA.1010301@qualcomm.com>
-References: <41E5A5DA.1010301@qualcomm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 18:00:14 -0500
+Date: Wed, 12 Jan 2005 14:59:45 -0800 (PST)
+From: Michael Werner <werner@mrcoffee.engr.sgi.com>
+Message-Id: <200501122259.j0CMxjgc2003601@mrcoffee.engr.sgi.com>
+To: linux-kernel@vger.kernel.org, davej@redhat.com, akpm@osdl.org
+Subject: [patch 2.6.10-mm3] agpgart: allow drivers to allocate memory local to
+    the bridge
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Max Krasnyansky <maxk@qualcomm.com> wrote:
->
-> Could one of you please pull TUN/TAP driver updates from my tree
+This patch allows drivers to allocate memory local to the bridge
+using platform specific alloc_page routines.
 
-That would be Dave.
-
-Did you see this fly past on netdev?
-
-
-From: Tommy Christensen <tommy.christensen@tpack.net>
-
-But as stated in bonding.txt, the ARP monitor requires the underlying
-driver to update dev->trans_start and dev->last_rx.
-
-The patch below adds the required functionality to the TUN/TAP driver.
-Please test if this helps in your case.
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Mike Werner <werner@sgi.com>
 ---
 
- 25-akpm/drivers/net/tun.c |    2 ++
- 1 files changed, 2 insertions(+)
+ agp.h           |    4 ++--
+ ali-agp.c       |    4 ++--
+ backend.c       |    2 +-
+ generic.c       |    4 ++--
+ i460-agp.c      |    4 ++--
+ intel-agp.c     |    2 +-
+ intel-mch-agp.c |    2 +-
+ 7 files changed, 11 insertions(+), 11 deletions(-)
 
-diff -puN drivers/net/tun.c~tun-tan-arp-monitor-support drivers/net/tun.c
---- 25/drivers/net/tun.c~tun-tan-arp-monitor-support	Wed Jan 12 14:56:05 2005
-+++ 25-akpm/drivers/net/tun.c	Wed Jan 12 14:56:05 2005
-@@ -92,6 +92,7 @@ static int tun_net_xmit(struct sk_buff *
- 			goto drop;
- 	}
- 	skb_queue_tail(&tun->readq, skb);
-+	dev->trans_start = jiffies;
+# This is a BitKeeper generated diff -Nru style patch.
+#
+#   Add bridge parameter to alloc_page
+#diff -Nru a/drivers/char/agp/agp.h b/drivers/char/agp/agp.h
+--- a/drivers/char/agp/agp.h	2005-01-12 12:56:47 -08:00
++++ b/drivers/char/agp/agp.h	2005-01-12 12:56:47 -08:00
+@@ -111,7 +111,7 @@
+ 	int (*remove_memory)(struct agp_memory *, off_t, int);
+ 	struct agp_memory *(*alloc_by_type) (size_t, int);
+ 	void (*free_by_type)(struct agp_memory *);
+-	void *(*agp_alloc_page)(void);
++	void *(*agp_alloc_page)(struct agp_bridge_data *);
+ 	void (*agp_destroy_page)(void *);
+ };
  
- 	/* Notify and wake up reader process */
- 	if (tun->flags & TUN_FASYNC)
-@@ -240,6 +241,7 @@ static __inline__ ssize_t tun_get_user(s
- 		skb->ip_summed = CHECKSUM_UNNECESSARY;
-  
- 	netif_rx_ni(skb);
-+	tun->dev->last_rx = jiffies;
-    
- 	tun->stats.rx_packets++;
- 	tun->stats.rx_bytes += len;
-_
-
+@@ -252,7 +252,7 @@
+ int agp_generic_remove_memory(struct agp_memory *mem, off_t pg_start, int type);
+ struct agp_memory *agp_generic_alloc_by_type(size_t page_count, int type);
+ void agp_generic_free_by_type(struct agp_memory *curr);
+-void *agp_generic_alloc_page(void);
++void *agp_generic_alloc_page(struct agp_bridge_data *bridge);
+ void agp_generic_destroy_page(void *addr);
+ void agp_free_key(int key);
+ int agp_num_entries(void);
+diff -Nru a/drivers/char/agp/ali-agp.c b/drivers/char/agp/ali-agp.c
+--- a/drivers/char/agp/ali-agp.c	2005-01-12 12:56:47 -08:00
++++ b/drivers/char/agp/ali-agp.c	2005-01-12 12:56:47 -08:00
+@@ -139,9 +139,9 @@
+ 	}
+ }
+ 
+-static void *m1541_alloc_page(void)
++static void *m1541_alloc_page(struct agp_bridge_data *bridge)
+ {
+-	void *addr = agp_generic_alloc_page();
++	void *addr = agp_generic_alloc_page(agp_bridge);
+ 	u32 temp;
+ 
+ 	if (!addr)
+diff -Nru a/drivers/char/agp/backend.c b/drivers/char/agp/backend.c
+--- a/drivers/char/agp/backend.c	2005-01-12 12:56:47 -08:00
++++ b/drivers/char/agp/backend.c	2005-01-12 12:56:47 -08:00
+@@ -140,7 +140,7 @@
+ 	bridge->version = &agp_current_version;
+ 
+ 	if (bridge->driver->needs_scratch_page) {
+-		void *addr = bridge->driver->agp_alloc_page();
++		void *addr = bridge->driver->agp_alloc_page(bridge);
+ 
+ 		if (!addr) {
+ 			printk(KERN_ERR PFX "unable to get memory for scratch page.\n");
+diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
+--- a/drivers/char/agp/generic.c	2005-01-12 12:56:47 -08:00
++++ b/drivers/char/agp/generic.c	2005-01-12 12:56:47 -08:00
+@@ -202,7 +202,7 @@
+ 		return NULL;
+ 
+ 	for (i = 0; i < page_count; i++) {
+-		void *addr = bridge->driver->agp_alloc_page();
++		void *addr = bridge->driver->agp_alloc_page(bridge);
+ 
+ 		if (addr == NULL) {
+ 			agp_free_memory(new);
+@@ -950,7 +950,7 @@
+  * against a maximum value.
+  */
+ 
+-void *agp_generic_alloc_page(void)
++void *agp_generic_alloc_page(struct agp_bridge_data *bridge)
+ {
+ 	struct page * page;
+ 
+diff -Nru a/drivers/char/agp/i460-agp.c b/drivers/char/agp/i460-agp.c
+--- a/drivers/char/agp/i460-agp.c	2005-01-12 12:56:47 -08:00
++++ b/drivers/char/agp/i460-agp.c	2005-01-12 12:56:47 -08:00
+@@ -510,12 +510,12 @@
+  * Let's just hope nobody counts on the allocated AGP memory being there before bind time
+  * (I don't think current drivers do)...
+  */
+-static void *i460_alloc_page (void)
++static void *i460_alloc_page (struct agp_bridge_data *bridge)
+ {
+ 	void *page;
+ 
+ 	if (I460_IO_PAGE_SHIFT <= PAGE_SHIFT)
+-		page = agp_generic_alloc_page();
++		page = agp_generic_alloc_page(agp_bridge);
+ 	else
+ 		/* Returning NULL would cause problems */
+ 		/* AK: really dubious code. */
+diff -Nru a/drivers/char/agp/intel-agp.c b/drivers/char/agp/intel-agp.c
+--- a/drivers/char/agp/intel-agp.c	2005-01-12 12:56:47 -08:00
++++ b/drivers/char/agp/intel-agp.c	2005-01-12 12:56:47 -08:00
+@@ -269,7 +269,7 @@
+ 		return NULL;
+ 
+ 	switch (pg_count) {
+-	case 1: addr = agp_bridge->driver->agp_alloc_page();
++	case 1: addr = agp_bridge->driver->agp_alloc_page(agp_bridge);
+ 		break;
+ 	case 4:
+ 		/* kludge to get 4 physical pages for ARGB cursor */
+diff -Nru a/drivers/char/agp/intel-mch-agp.c b/drivers/char/agp/intel-mch-agp.c
+--- a/drivers/char/agp/intel-mch-agp.c	2005-01-12 12:56:47 -08:00
++++ b/drivers/char/agp/intel-mch-agp.c	2005-01-12 12:56:47 -08:00
+@@ -43,7 +43,7 @@
+ 	if (pg_count != 1)
+ 		return NULL;
+ 
+-	addr = agp_bridge->driver->agp_alloc_page();
++	addr = agp_bridge->driver->agp_alloc_page(agp_bridge);
+ 	if (addr == NULL)
+ 		return NULL;
+ 

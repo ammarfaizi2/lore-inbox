@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263295AbTGHPF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 11:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbTGHPF0
+	id S263394AbTGHPFm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 11:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263610AbTGHPFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 11:05:26 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:18820 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263295AbTGHPFV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 11:05:21 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 8 Jul 2003 08:12:16 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Con Kolivas <kernel@kolivas.org>
-cc: Szonyi Calin <sony@etc.utt.ro>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] O3int interactivity for 2.5.74-mm2
-In-Reply-To: <200307081759.39215.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.55.0307080806400.4544@bigblue.dev.mcafeelabs.com>
-References: <200307070317.11246.kernel@kolivas.org>
- <26071.194.138.39.55.1057648284.squirrel@webmail.etc.utt.ro>
- <Pine.LNX.4.55.0307080007200.3648@bigblue.dev.mcafeelabs.com>
- <200307081759.39215.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Jul 2003 11:05:42 -0400
+Received: from LIGHT-BRIGADE.MIT.EDU ([18.244.1.25]:6922 "EHLO
+	light-brigade.mit.edu") by vger.kernel.org with ESMTP
+	id S263394AbTGHPFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 11:05:40 -0400
+Date: Tue, 8 Jul 2003 11:20:16 -0400
+From: Gerald Britton <gbritton@alum.mit.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: emperor@EmperorLinux.com, LKML <linux-kernel@vger.kernel.org>,
+       EmperorLinux Research <research@EmperorLinux.com>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Linux and IBM : "unauthorized" mini-PCI : Cisco mpi350 _way_ sub-optimal
+Message-ID: <20030708112016.A10882@light-brigade.mit.edu>
+References: <1054658974.2382.4279.camel@tori> <20030610233519.GA2054@think> <200307071412.00625.durey@EmperorLinux.com> <1057672948.4358.20.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1057672948.4358.20.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Jul 08, 2003 at 03:02:31PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jul 2003, Con Kolivas wrote:
+On Tue, Jul 08, 2003 at 03:02:31PM +0100, Alan Cox wrote:
+> On Llu, 2003-07-07 at 19:12, Lincoln D. Durey wrote:
+> > Ted,
+> > 
+> > This is an amazingly sub-optimal solution, and will make running Linux on the 
+> > T40/X31 prohibitively difficult for most linux users.  Do you want everyone 
+> > to use Linux?  Then tell IBM to let them use wifi cards that are easy to use, 
+> > and support standard (and open) APIs.
+> 
+> You don't have to buy IBM products. Dunno what local prices are like but
+> over here Comaq^WHP's come in at about two per thinkpad on price and do
+> work once you have all the ACPI stuff set up
 
-> On Tue, 8 Jul 2003 17:46, Davide Libenzi wrote:
-> > On Tue, 8 Jul 2003, Szonyi Calin wrote:
-> > > In the weekend i did some experiments with the defines in kernel/sched.c
-> > > It seems that changing in MAX_TIMESLICE the "200" to "100" or even "50"
-> > > helps a little bit. (i was able to do a make bzImage and watch a movie
-> > > without noticing that is a kernel compile in background)
-> >
-> > I bet it helps. Something around 100-120 should be fine. Now we need an
-> > exponential function of the priority to assign timeslices to try to
-> > maintain interactivity. This should work :
->
-> This is still decreasing the timeslices. Whether you do it linearly or
-> exponentially the timeslices are smaller, which just about everyone will
-> resist you doing.
+Some of them have issues with PCI resource allocation though.  Their BIOSes
+don't allocate resources to Cardbus bridges so insertted devices can't get
+resources and last i checked, we didn't handle this fixup.  On the notebooks
+I worked with it required relocating the AGP bridge and several other devices
+to make all the resources work out (quick hack is to just shove new resources
+into the config registers prior to the kernel's initial pci scan).
 
-Maybe you (and this Mr Everyone) might be interested in knowing that the
-interactivity is not given by the absolute length of the timeslice but by
-the ratio between timeslices. If you have three processes running with
-timeslices :
-
-A = 400
-B = 200
-C = 100
-
-the interactivity is the same of the one if you have :
-
-A = 100
-B = 50
-C = 25
-
-What changes is the maxiomum CPU blackout time that each task has to see
-before re-emerging again from the expired array. In the first case in
-"only" 700ms while in the first case is 175ms.
-
-
-
-- Davide
+				-- Gerald
 

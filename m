@@ -1,82 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbULHTJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbULHTLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbULHTJl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 14:09:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbULHTJk
+	id S261323AbULHTLo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 14:11:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbULHTLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 14:09:40 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:64161 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261321AbULHTI3 (ORCPT
+	Wed, 8 Dec 2004 14:11:43 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:45483 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261323AbULHTLV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 14:08:29 -0500
-Date: Wed, 08 Dec 2004 11:07:27 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Christoph Lameter <clameter@sgi.com>, nickpiggin@yahoo.com.au
-cc: Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org, hugh@veritas.com,
-       benh@kernel.crashing.org, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Anticipatory prefaulting in the page fault handler V1
-Message-ID: <140570000.1102532847@flay>
-In-Reply-To: <Pine.LNX.4.58.0412080920240.27156@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain><Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com><Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org><Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com><Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org><Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com><Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org> <41AEB44D.2040805@pobox.com><20041201223441.3820fbc0.akpm@osdl.org> <41AEBAB9.3050705@pobox.com><20041201230217.1d2071a8.akpm@osdl.org> <179540000.1101972418@[10.10.2.4]><41AEC4D7.4060507@pobox.com> <20041202101029.7fe8b303.cliffw@osdl.org> <Pine.LNX.4.58.0412080920240.27156@schroedinger.engr.sgi.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Dec 2004 14:11:21 -0500
+Subject: Re: [RFC] New timeofday proposal (v.A1)
+From: john stultz <johnstul@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max <amax@us.ibm.com>, mahuja@us.ibm.com
+In-Reply-To: <Pine.LNX.4.58.0412081009540.27324@schroedinger.engr.sgi.com>
+References: <1102470914.1281.27.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0412081009540.27324@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Message-Id: <1102533066.1281.81.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 08 Dec 2004 11:11:06 -0800
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The page fault handler for anonymous pages can generate significant overhead
-> apart from its essential function which is to clear and setup a new page
-> table entry for a never accessed memory location. This overhead increases
-> significantly in an SMP environment.
+On Wed, 2004-12-08 at 10:25, Christoph Lameter wrote:
+> On Tue, 7 Dec 2004, john stultz wrote:
 > 
-> In the page table scalability patches, we addressed the issue by changing
-> the locking scheme so that multiple fault handlers are able to be processed
-> concurrently on multiple cpus. This patch attempts to aggregate multiple
-> page faults into a single one. It does that by noting
-> anonymous page faults generated in sequence by an application.
+> > Features of this design:
+> > ========================
 > 
-> If a fault occurred for page x and is then followed by page x+1 then it may
-> be reasonable to expect another page fault at x+2 in the future. If page
-> table entries for x+1 and x+2 would be prepared in the fault handling for
-> page x+1 then the overhead of taking a fault for x+2 is avoided. However
-> page x+2 may never be used and thus we may have increased the rss
-> of an application unnecessarily. The swapper will take care of removing
-> that page if memory should get tight.
+> > o Consolidates a large amount of code:
+> > 	Allows for shared times source implementations, such as: i386, x86-64
+> > and ia64 all use HPET, i386 and x86-64 both have ACPI PM timers, and
+> > i386 and ia64 both have cyclone counters. Time sources are just drivers!
 > 
-> The following patch makes the anonymous fault handler anticipate future
-> faults. For each fault a prediction is made where the fault would occur
-> (assuming linear acccess by the application). If the prediction turns out to
-> be right (next fault is where expected) then a number of pages is
-> preallocated in order to avoid a series of future faults. The order of the
-> preallocation increases by the power of two for each success in sequence.
-> 
-> The first successful prediction leads to an additional page being allocated.
-> Second successful prediction leads to 2 additional pages being allocated.
-> Third to 4 pages and so on. The max order is 3 by default. In a large
-> continous allocation the number of faults is reduced by a factor of 8.
-> 
-> The patch may be combined with the page fault scalability patch (another
-> edition of the patch is needed which will be forthcoming after the
-> page fault scalability patch has been included). The combined patches
-> will triple the possible page fault rate from ~1 mio faults sec to 3 mio
-> faults sec.
-> 
-> Standard Kernel on a 512 Cpu machine allocating 32GB with an increasing
-> number of threads (and thus increasing parallellism of page faults):
+> What I would to see also included here is to provide a clean posix
+> interface to these drivers. IMHO the current char interfaces to clock
+> drivers should be removed. Look at SGI's mmtimer implementation in
+> 2.6.10-rc3. We have modified the posix interface to allow clock drivers to
+> export their timer values via CLOCK_SGI_CYCLE and we are also
+> now able to schedule hardware interrupts via timer_* posix functions
+> utilizing CLOCK_SGI_CYCLE that are then delivered as signals to an
+> application. Timer chips usually include time sources as well as the
+> ability to generate periodic or single shot
+> interrupts. There needs to be some way for clock drivers to cleanly
+> interface with these. The API may be the posix subsystem but I do not
+> like the quality of the code nor the current API for the clock drivers.
 
-Mmmm ... we tried doing this before for filebacked pages by sniffing the
-pagecache, but it crippled forky workloads (like kernel compile) with the 
-extra cost in zap_pte_range, etc. 
+I'm not too familiar with the posix interfaces. I've been focused with
+in-kernel uses at the moment. I'll try to take a look at the mmtimer
+bits and see if I can better grasp your suggestion.
 
-Perhaps the locality is better for the anon stuff, but the cost is also
-higher. Exactly what benchmark were you running on this? If you just run
-a microbenchmark that allocates memory, then it will definitely be faster.
-On other things, I suspect not ...
+> The API for user space to clocks already exists through the posix
+> standard. I would suggest to work with that standard for a way to deal
+> with clocks under Linux.
+> 
+> > Brief Psudo-code to illustrate the design:
+> > ==========================================
+> >
+> > monotonic_clock()
+> > 	now = timesource_read();	/* read the timesource */
+> > 	ns = cyc2ns(now - offset_base);	/* calculate nsecs since last hook */
+> > 	ntp_ns = ntp_scale(ns);		/* apply ntp scaling */
+> 
+> These are not really functions right? timesource_read can be a direct
+> memory read and the cyc2ns and ntp_scale can be reduced to some scaling
+> factor?
 
-M.
+Yep, timesource_read() and cyc2ns are static inlines which call the
+timesource read function, or just read the MMIO'ed address depending on
+the timesource type.
 
 
+> > Points I'm glossing over for now:
+> > ====================================================
+> >
+> > o ntp_scale(ns):  scales ns by NTP scaling factor
+> > 	- see ntp.c for details
+> > 	- costly, but correct.
+> 
+> Please do not call this function from monotonic_clock but provide some
+> sort of scaling factor that is adjusted from time to time.
+
+You're going to have to expand on this. I had considered only NTP
+scaling the wall time, but for consistency it made more sense to me that
+we also apply NTP scaling to the monotonic clock. This avoids different
+notions of nanoseconds, one being the inaccurate unajusted system
+nanoseconds and the other being the accurately ntp scaled wall time
+nanoseconds. Trying to keep things sane.
+
+
+> > o Some arches (arm, for example) do not have high res timing hardware
+> > 	- In this case we can have a "jiffies" timesource
+> > 		- cyc2ns(x) =  x*(NSEC_PER_SEC/HZ)
+> > 		- doesn't work for tickless systems
+> 
+> In that case maybe the "ticks" are the timesource and not really tick
+> processing per se.
+
+If I understand you, yes. In this case the timer interrupt counter
+(jiffies) is used as a free running counter. 
+
+> There could be a separation between "increment counter" and tick processing.
+
+Could you expand on this?
+
+thanks for the review!
+-john
 

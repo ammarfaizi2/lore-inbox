@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262921AbREaAHw>; Wed, 30 May 2001 20:07:52 -0400
+	id <S262923AbREaAYe>; Wed, 30 May 2001 20:24:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262922AbREaAHm>; Wed, 30 May 2001 20:07:42 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:5645 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262921AbREaAHb>; Wed, 30 May 2001 20:07:31 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: How to know HZ from userspace?
-Date: 30 May 2001 17:07:22 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9f41vq$our$1@cesium.transmeta.com>
-In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva>
+	id <S262930AbREaAYY>; Wed, 30 May 2001 20:24:24 -0400
+Received: from beasley.gator.com ([63.197.87.202]:57866 "EHLO
+	beasley.gator.com") by vger.kernel.org with ESMTP
+	id <S262923AbREaAYR>; Wed, 30 May 2001 20:24:17 -0400
+From: "George Bonser" <george@gator.com>
+To: "Jeff Golds" <jgolds@resilience.com>
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: [OFF-TOPIC] 4 ports ETH cards
+Date: Wed, 30 May 2001 17:23:56 -0700
+Message-ID: <CHEKKPICCNOGICGMDODJKEDCDDAA.george@gator.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <3B15735E.5781700F@resilience.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010530203725.H27719@corellia.laforge.distro.conectiva>
-By author:    Harald Welte <laforge@gnumonks.org>
-In newsgroup: linux.dev.kernel
-> 
-> Is there any way to read out the compile-time HZ value of the kernel?
-> 
-> I had a brief look at /proc/* and didn't find anything.
-> 
-> The background, why it is needed:
-> 
-> There are certain settings, for example the icmp rate limiting values,
-> which can be set using sysctl. Those setting are basically derived from
-> HZ values (1*HZ, for example).
-> 
-> If you now want to set those values from a userspace program / script in
-> a portable manner, you need to be able to find out of HZ of the currently
-> running kernel.
-> 
+> I've been working with these boards for a couple months and thought they
+> were great.  However, now it turns out that they won't fit into our
+> systems too well (a little too long).  Does anyone have knowledge of
+> another brand that has a (slightly) smaller form factor?  I did some
+> checking on Pricewatch but wasn't able to find anything that fit our
+> needs.
+>
+> TIA,
+>
+> -Jeff
 
-Yes, but that's because the interfaces are broken.  The decision has
-been that these values should be exported using the default HZ for the
-architecture, and that it is the kernel's responsibility to scale them
-when HZ != USER_HZ.  I don't know if any work has been done in this
-area.
+The Adaptec Quartet64 boards worked ok for me with 2.2 and the Starfire
+driver.  Not sure if they are smaller (shorter) than the D-Link but they
+sure are a lot shorter than the old Tulip-based Adaptec quad boards. They
+are a bit pricey, though.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt

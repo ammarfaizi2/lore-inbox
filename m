@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272075AbRHVS01>; Wed, 22 Aug 2001 14:26:27 -0400
+	id <S271973AbRHVSb1>; Wed, 22 Aug 2001 14:31:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272073AbRHVS0H>; Wed, 22 Aug 2001 14:26:07 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:26284 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S272074AbRHVS0F>;
-	Wed, 22 Aug 2001 14:26:05 -0400
-Date: Wed, 22 Aug 2001 11:26:19 -0700 (PDT)
-Message-Id: <20010822.112619.62651200.davem@redhat.com>
-To: kakadu_croc@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: brlock_is_locked()?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010822181755.39925.qmail@web10905.mail.yahoo.com>
-In-Reply-To: <20010822.110316.57459277.davem@redhat.com>
-	<20010822181755.39925.qmail@web10905.mail.yahoo.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S271975AbRHVSbR>; Wed, 22 Aug 2001 14:31:17 -0400
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:21261 "EHLO
+	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S271973AbRHVSbO>; Wed, 22 Aug 2001 14:31:14 -0400
+Message-ID: <3B83FAC7.1B727294@t-online.de>
+Date: Wed, 22 Aug 2001 20:32:39 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6-> PNPBIOS life saver
+In-Reply-To: <E15Zca4-0001z2-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Brad Chapman <kakadu_croc@yahoo.com>
-   Date: Wed, 22 Aug 2001 11:17:55 -0700 (PDT)
+Alan Cox wrote:
+> 
+> > Try -ac Kernels with integrated PNPBIOS and "lspnp -v",
+> > then you will see your "motherboard resources". No magic.
+> 
+> Except on the intel boards where your machine crashes, the vaio's where
+> some queries corrupt memory, the boxes where an interrupt during a pnpbios
+> call crashes the box, the machines where pnpbios called from both cpus at
+> the same time is a crash case, the wonderful weird tiny races on some boxes
+> that use smm traps and fail if random undefined things occur between the
+> two out instructions...
 
-   	At this section of the code, it doesn't really matter who in the
-   netfilter/network stack has BR_NETPROTO_LOCK, just that we need to know if
-   it's already locked by someone else, or unlocked for us to use. Is what I'm
-   asking for physically possible?
+So call it only once early on boot (in real mode) and save the table
+for later use (we don't need the fancy features ...) ?
 
-As a reader, the BR_NETPROTO_LOCK nests.  So no deadlock.
+> > Alan, 2.4 would largely benefit from PNPBIOS, do you plan
+> > to submit this to LT (probably with the proposed life saver fix) ?
+> 
+> Experience is that PnpBIOS services are so astoundingly buggy in many
+> bioses that they are probably not worth the risk. Ie more boxes break by
+> calling pnpbios than by assuming the vendor used a sane resource layout.
 
-If the situation involves a writer, you must make sure that locking
-rules are well defined and abided by.  No matter what you do, if you
-try to conditionalize locking by testing if the lock is held, another
-SMP can always get in there after you check it and corrupt your data.
-The lock is basically pointless if you start testing it's locked
-state.
+How are these bugs handled by Windows ?
+Must we only mimick the Windows call layout to
+enter bios-writer's well tested code path ?
 
-Basically, "fix your code" ;-)
-
-It's often easy to do this.  If you have two paths, one which is going
-to already have the lock and one which won't, just make two functions
-like so:
-
-void __func(void)
-{
-	do_stuff();
-}
-
-void func(void)
-{
-	lock();
-	__func();
-	unlock();
-}
-
-I don't see why this is such a big problem.
-
-Later,
-David S. Miller
-davem@redhat.com
+> Before PnPBIOS can go mainstream we'd have to generate a detailed list
+> of buggy bios signatures

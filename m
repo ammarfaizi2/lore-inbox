@@ -1,59 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVCUPuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVCUPzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbVCUPuF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 10:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVCUPti
+	id S261814AbVCUPzn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 10:55:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVCUPzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 10:49:38 -0500
-Received: from alog0492.analogic.com ([208.224.223.29]:14783 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261840AbVCUPs7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 10:48:59 -0500
-Date: Mon, 21 Mar 2005 10:46:25 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Invalidating dentries
-In-Reply-To: <Pine.LNX.4.61.0503211626180.20464@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0503211035300.12105@chaos.analogic.com>
-References: <Pine.LNX.4.61.0503211626180.20464@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 21 Mar 2005 10:55:43 -0500
+Received: from ns3.dataphone.se ([212.37.0.170]:11986 "EHLO
+	mail-slave.dataphone.se") by vger.kernel.org with ESMTP
+	id S261814AbVCUPzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 10:55:38 -0500
+From: Magnus Damm <damm@opensource.se>
+To: linux-kernel@vger.kernel.org
+Cc: Magnus Damm <damm@opensource.se>
+Message-Id: <20050321152735.19016.79587.32236@clementine.local>
+Subject: [PATCH] cifs: MODULE_PARM_DESC
+Date: Mon, 21 Mar 2005 16:55:37 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005, Jan Engelhardt wrote:
+Fix parameter description typo, use parameter name "cifs_min_small" instead of
+non-existing "cifs_small_rcv" for MODULE_PARM_DESC.
 
-> Hello list,
->
->
-> how can I invalidate all buffered/cached dentries so that ls -l /somefolder
-> will definitely go read the harddisk?
->
+Error detected with section2text.rb, see autoparam patch. 
 
-fsync() on the file(s) in the directory then fsync() on the directory
-itself. For this, one can open the directory as though it was
-just a file, you don't need opendir().
+Signed-off-by: Magnus Damm <damm@opensource.se>
 
-FYI, this is what `man fsync` promises. It may be broken. Last
-time I checked, one needed to umount() the file-system to make
-sure the directories were updated. The problem may be that
-somebody can have either the directory or a file within it
-open. Until they get out, the directory entry may not actually
-be finalized. Oh,... Unix/Linux doesn't have "folders". That's
-some M$ thing. Real operating systems have directories. Your
-GUI may have folders, just like it may have little houses,
-trash-cans, red hats, and other odd widgets. However, the
-operating system doesn't.
-
->
-> Jan Engelhardt
-> --
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+--- linux-2.6.12-rc1/fs/cifs/cifsfs.c	2005-03-20 18:20:17.000000000 +0100
++++ linux-2.6.12-rc1-autoparam/fs/cifs/cifsfs.c	2005-03-21 15:57:28.000000000 +0100
+@@ -66,7 +66,7 @@
+ MODULE_PARM_DESC(cifs_min_rcv,"Network buffers in pool. Default: 4 Range: 1 to 64");
+ unsigned int cifs_min_small = 30;
+ module_param(cifs_min_small, int, 0);
+-MODULE_PARM_DESC(cifs_small_rcv,"Small network buffers in pool. Default: 30 Range: 2 to 256");
++MODULE_PARM_DESC(cifs_min_small,"Small network buffers in pool. Default: 30 Range: 2 to 256");
+ unsigned int cifs_max_pending = CIFS_MAX_REQ;
+ module_param(cifs_max_pending, int, 0);
+ MODULE_PARM_DESC(cifs_max_pending,"Simultaneous requests to server. Default: 50 Range: 2 to 256");

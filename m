@@ -1,106 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263991AbTJFGA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 02:00:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263992AbTJFGA4
+	id S261892AbTJFGcE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 02:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbTJFGcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 02:00:56 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:33165 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263991AbTJFGAy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 02:00:54 -0400
-Date: Mon, 6 Oct 2003 11:31:17 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: NULL pointer dereference in sysfs_hash_and_remove()
-Message-ID: <20031006060117.GA4220@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <1065220892.31749.39.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Oct 2003 02:32:04 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:33443 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261892AbTJFGcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 02:32:02 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] Warnings in 8250_acpi
+Date: Mon, 6 Oct 2003 01:31:55 -0500
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1065220892.31749.39.camel@tux.rsn.bth.se>
-User-Agent: Mutt/1.4i
+Message-Id: <200310060131.55852.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin,
+Lastest changes in 8250_acpi.c produce warnings about type mismatch
+in printk. We could either change format to print long long arguments
+or, until most of us are on 64 bits, just trim values to 32.
 
-Here the dentry corresponding to the attribute subgroup seems to
-be a negative dentry. We are ethier reomving the group more
-than once or removing a non-existing attribute group. I suspect the
-first thing more. Can you rebuild the kernel with DEBUG defined in 
-fs/sysfs/dir.c and retest?. And send the dmesg log.
+Dmitry
 
-Thanks
-Maneesh
-
-On Fri, Oct 03, 2003 at 10:42:39PM +0000, Martin Josefsson wrote:
-> Hi
-> 
-> I compiled 2.6.0-test6 and ran it on a laptop with cardbus.
-> I have an Xircom NIC and if I remove it during operation I get the bug
-> below.
-> 
-> I have yenta_socket and xircom_cb loaded as modules.
-> 
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000068
->  printing eip:
-> c017cd75
-> *pde = 0df96067
-> *pte = 00000000
-> Oops: 0002 [#1]
-> CPU:    0
-> EIP:    0060:[<c017cd75>]    Not tainted
-> EFLAGS: 00010282
-> EIP is at sysfs_hash_and_remove+0x15/0x7d
-> eax: 00000000   ebx: c03109e4   ecx: 00000068   edx: ccf13dd0
-> esi: ccf13d60   edi: c03106e4   ebp: cea5c454   esp: cd0ede54
-> ds: 007b   es: 007b   ss: 0068
-> Process pccardd (pid: 528, threadinfo=cd0ec000 task=ce1c8740)
-> Stack: c017cd55 cd0ede60 c03109e4 ccf13d60 c017e231 ccf13d60 c02c390f ccf13d60 
->        c0310a40 c017e368 ccf13d60 c0310a40 cfc2dc00 cfc2dd90 c023e937 cfc2dd98 
->        c0310a40 cfc2dc00 cd0edeb4 c023b99a cfc2dc00 00000006 cfc2dc00 00000282 
-> Call Trace:
->  [<c017cd55>] sysfs_get_dentry+0x65/0x70
->  [<c017e231>] remove_files+0x31/0x40
->  [<c017e368>] sysfs_remove_group+0x28/0x70
->  [<c023e937>] netdev_unregister_sysfs+0x67/0x70
->  [<c023b99a>] netdev_run_todo+0xea/0x1f0
->  [<d086738c>] xircom_remove+0xac/0xd0 [xircom_cb]
->  [<c01a9deb>] pci_device_remove+0x3b/0x40
->  [<c01e9316>] device_release_driver+0x66/0x70
->  [<c01e9455>] bus_remove_device+0x55/0xa0
->  [<c01e81bd>] device_del+0x5d/0xa0
->  [<c01e8213>] device_unregister+0x13/0x30
->  [<c01a740e>] pci_destroy_dev+0x1e/0x70
->  [<c01a752b>] pci_remove_behind_bridge+0x2b/0x40
->  [<c0221b48>] shutdown_socket+0x88/0x120
->  [<c0222263>] socket_remove+0x13/0x50
->  [<c022230a>] socket_detect_change+0x6a/0x90
->  [<c02224c8>] pccardd+0x198/0x220
->  [<c011a980>] default_wake_function+0x0/0x30
->  [<c011a980>] default_wake_function+0x0/0x30
->  [<c0222330>] pccardd+0x0/0x220
->  [<c01092a5>] kernel_thread_helper+0x5/0x10
-> 
-> Code: ff 48 68 78 63 89 34 24 8b 44 24 18 89 44 24 04 e8 66 ff ff 
->  
-> -- 
-> /Martin
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696
+--- 1.3/drivers/serial/8250_acpi.c      Wed Oct  1 04:11:17 2003
++++ edited/drivers/serial/8250_acpi.c   Mon Oct  6 01:18:22 2003
+@@ -28,8 +28,9 @@
+        req->iomem_base = ioremap(req->iomap_base, size);
+        if (!req->iomem_base) {
+                printk(KERN_ERR "%s: couldn't ioremap 0x%lx-0x%lx\n",
+-                       __FUNCTION__, addr->min_address_range,
+-                       addr->max_address_range);
++                       __FUNCTION__,
++                       (unsigned long)addr->min_address_range,
++                       (unsigned long)addr->max_address_range);
+                return AE_ERROR;
+        }
+        req->io_type = SERIAL_IO_MEM;

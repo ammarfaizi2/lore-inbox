@@ -1,38 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262416AbUKLAGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbUKLA4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262416AbUKLAGK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 19:06:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbUKKW4a
+	id S262305AbUKLA4J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 19:56:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbUKLAwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 17:56:30 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:48824
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262411AbUKKWtf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 17:49:35 -0500
-Date: Thu, 11 Nov 2004 14:36:23 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: David Howells <dhowells@redhat.com>
-Cc: akpm@osdl.org, arnd@arndb.de, jbarnes@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix usage of setup_arg_pages() in IA64, MIPS, S390 and
- Sparc64
-Message-Id: <20041111143623.05f1d92a.davem@davemloft.net>
-In-Reply-To: <2555.1100085859@redhat.com>
-References: <2555.1100085859@redhat.com>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 11 Nov 2004 19:52:11 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:13965 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262305AbUKLAtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 19:49:15 -0500
+Subject: How could smp_error_interrupt get activated on x86?
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1100220203.6432.46.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 12 Nov 2004 11:43:23 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Nov 2004 11:24:19 +0000
-David Howells <dhowells@redhat.com> wrote:
+Hi all.
 
-> The attached patch fixes the usage of setup_arg_pages() in the IA64, MIPS,
-> S390 and Sparc64 arches. This function now takes an extra parameter: the
-> initial top of stack. This is useful in uClinux when there's no fixed location
-> to which the stack pointer can be initialised.
+I can't for the life of me figure out how one of my suspend2 users could
+get this on a 2.6.9 kernel:
 
-The sparc64 part looks perfectly fine to me.
+> Software Suspend 2.1.4: Initiating a software suspend cycle.
+> ACPI: PCI Interrupt Link [ALKA] BIOS reported IRQ 0, using IRQ 20
+> ACPI: PCI Interrupt Link [ALKB] BIOS reported IRQ 0, using IRQ 21
+> ACPI: PCI Interrupt Link [ALKC] BIOS reported IRQ 0, using IRQ 22
+> ACPI: PCI Interrupt Link [ALKD] BIOS reported IRQ 0, using IRQ 23
+> APIC error on CPU0: 00(00)
+> ACPI: PCI interrupt 0000:00:0f.0[A] -> GSI 20 (level, low) -> IRQ 177
+> ACPI: PCI interrupt 0000:00:11.5[C] -> GSI 22 (level, low) -> IRQ 193
+> Please include the following information in bug reports:
+> - SUSPEND core   : 2.1.4
+> [...]
+> 
+> All work fine.
+> Processor and motherboard  Athlon Barton 2500+@3200+, EPoX 8KRAI
+(KT600).
+> 
+> What is APIC error CPU0: 00(00)?
+
+I know it's really no error (according to the code), but I can't even
+see how the function gets called in the first place:
+
+find -type f | xargs grep smp_error_interrupt
+./arch/i386/kernel/apic.c:asmlinkage void smp_error_interrupt(void)
+./arch/x86_64/kernel/apic.c:asmlinkage void smp_error_interrupt(void)
+./arch/x86_64/kernel/entry.S:   apicinterrupt ERROR_APIC_VECTOR,smp_error_interrupt
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

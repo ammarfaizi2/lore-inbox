@@ -1,57 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVBXAPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVBXAMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVBXAPy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 19:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVBXANY
+	id S261709AbVBXAMz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 19:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVBXAJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 19:13:24 -0500
-Received: from fire.osdl.org ([65.172.181.4]:49387 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261665AbVBXALu (ORCPT
+	Wed, 23 Feb 2005 19:09:30 -0500
+Received: from mail.shareable.org ([81.29.64.88]:1705 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S261709AbVBXAAx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 19:11:50 -0500
-Date: Wed, 23 Feb 2005 16:16:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: elenstev@mesatop.com, linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: 2.6.11-rc4-mm1 (VFS: Cannot open root device "301")
-Message-Id: <20050223161653.7cb966c3.akpm@osdl.org>
-In-Reply-To: <421D09AE.4090100@mesatop.com>
-References: <20050223014233.6710fd73.akpm@osdl.org>
-	<421CB161.7060900@mesatop.com>
-	<20050223121759.5cb270ee.akpm@osdl.org>
-	<421CFF5E.4030402@mesatop.com>
-	<421D09AE.4090100@mesatop.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 23 Feb 2005 19:00:53 -0500
+Date: Thu, 24 Feb 2005 00:00:37 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Olof Johansson <olof@austin.ibm.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Joe Korty <joe.korty@ccur.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au
+Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
+Message-ID: <20050224000037.GC11473@mail.shareable.org>
+References: <20050222115503.729cd17b.akpm@osdl.org> <20050222210752.GG22555@mail.shareable.org> <Pine.LNX.4.58.0502221317270.2378@ppc970.osdl.org> <20050223144940.GA880@tsunami.ccur.com> <Pine.LNX.4.58.0502230751140.2378@ppc970.osdl.org> <20050223171015.GD10256@austin.ibm.com> <20050223182203.GA10931@mail.shareable.org> <Pine.LNX.4.58.0502231033540.2378@ppc970.osdl.org> <20050223184946.GA11473@mail.shareable.org> <20050223191254.GA5608@austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050223191254.GA5608@austin.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole <elenstev@mesatop.com> wrote:
->
-> > Yes, that worked.  2.6.11-rc4-mm1 now boots OK, but hdb1 seems to be 
-> > missing.
+Olof Johansson wrote:
+> How's this? I went with get_val_no_fault(), since it isn't really a
+> get_user.*() any more (ptr being passed in), and no_paging is a little
+> misleading (not all faults are due to paging).
 
-Looking at the IDE update in rc4-mm1:
+How ironic: I deliberately didn't choose "no_fault" because that
+function *does* take page faults.  It only disables paging operations! :)
 
-+void ide_init_disk(struct gendisk *disk, ide_drive_t *drive)
-+{
-+	ide_hwif_t *hwif = drive->hwif;
-+	unsigned int unit = drive->select.all & (1 << 4);
-+
-+	disk->major = hwif->major;
-+	disk->first_minor = unit << PARTN_BITS;
-+	sprintf(disk->disk_name, "hd%c", 'a' + hwif->index * MAX_DRIVES + unit);
-+	disk->queue = drive->queue;
-+}
-
-Looks funny.
-
-Could someone try this?
-
--	unsigned int unit = drive->select.all & (1 << 4);
-+	unsigned int unit = (drive->select.all >> 4) & 1;
-
-
+-- Jamie

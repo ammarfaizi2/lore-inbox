@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268145AbUJJHAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268149AbUJJHBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268145AbUJJHAx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 03:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268149AbUJJHAx
+	id S268149AbUJJHBk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 03:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268156AbUJJHBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 03:00:53 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:4027 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S268145AbUJJHAv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 03:00:51 -0400
-Date: Sun, 10 Oct 2004 08:00:50 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Greg KH <greg@kroah.com>, Jon Smirl <jonsmirl@gmail.com>,
-       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [patch] drm core internal versioning..
-In-Reply-To: <1097390654.2788.6.camel@laptop.fenrus.com>
-Message-ID: <Pine.LNX.4.58.0410100759280.18789@skynet>
-References: <Pine.LNX.4.58.0410100050160.6083@skynet> 
- <9e47339104100917527993026d@mail.gmail.com>  <Pine.LNX.4.58.0410100328080.11219@skynet>
-  <20041010042958.GA28025@kroah.com>  <Pine.LNX.4.58.0410100625220.12189@skynet>
- <1097390654.2788.6.camel@laptop.fenrus.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Oct 2004 03:01:40 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:19620 "EHLO
+	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S268149AbUJJHBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 03:01:37 -0400
+Date: Sun, 10 Oct 2004 01:00:38 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Oops on reboot, FC3 test kernel (based on 2.6.9bk)
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <000501c4ae96$d96fd990$6601a8c0@northbrook>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+Content-type: text/plain; reply-type=original; charset=iso-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Priority: 3
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> The versioning we all talk about doesn't use MODVERSIONS but the
-> VERSIONMAGIC stuff, that is ALWAYS in use.
+On the last couple of Fedora Core 3 test kernels that have been released, 
+most recently 2.6.8.1-603 (which I believe is based on 2.6.9-rc BK snapshot) 
+I have been seeing an oops when rebooting. I built the kernel myself, with 
+the standard config except that IOAPIC on uniprocessor was enabled. This is 
+on an Asus P4B533 motherboard (Intel 845 chipset).
 
-No I'm actually talking about both :-)
+The scroll-back feature didn't seem to work and it was too late for the oops 
+to be logged, but I did take a picture of the visible part of the crash dump 
+which can be viewed here:
 
-VERSIONMAGIC stops the using binary modules and now that I think off it,
-I'm not sure what great use MODVERSIONS have anymore if you can't load a
-module into a different kernel version...
+http://www.roberthancock.com/kerneloops.png
 
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+Looks like it happened while disabling the IOAPIC..
 

@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUJHXO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266117AbUJHXOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265971AbUJHXO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 19:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJHXO1
+	id S266117AbUJHXOH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 19:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUJHXN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 19:14:27 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:53735 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265971AbUJHXOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 19:14:10 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>,
-       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-In-Reply-To: <20041007105230.GA17411@elte.hu>
-References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu>
-	 <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>
-	 <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>
-	 <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu>
-	 <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>
-	 <20041007105230.GA17411@elte.hu>
-Content-Type: text/plain
-Message-Id: <1097277103.1442.87.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 08 Oct 2004 19:11:44 -0400
+	Fri, 8 Oct 2004 19:13:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31974 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265971AbUJHXNs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 19:13:48 -0400
+Message-ID: <41671F1B.1050907@pobox.com>
+Date: Fri, 08 Oct 2004 19:13:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederman@lnxi.com>, Greg KH <greg@kroah.com>
+CC: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
+References: <20041008202247.GA9653@kroah.com> <m3d5zs966r.fsf@maxwell.lnxi.com>
+In-Reply-To: <m3d5zs966r.fsf@maxwell.lnxi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-07 at 06:52, Ingo Molnar wrote:
-> i've released the -T3 VP patch:
+Eric W. Biederman wrote:
+> Greg KH <greg@kroah.com> writes:
 > 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
 > 
+>>[2] Sure, any person who has a copy of the kernel source tree could be a
+>>target for any of a zillion other potential claims, nothing new there,
+>>but the point here is they are explicitly stating that they will go
+>>after non-IBTA members who touch IB code[3].
+> 
+> 
+> Greg I see nothing to back up the idea that IBTA intends to go after
+> non-members.  I simply see a disclaimer of warranty, and I see wording
+> by your anonymous source that restates a disclaimer of warranty.
 
-Also, I am still seeing some long latencies in the ext3 journaling code:
 
-preemption latency trace v1.0.7 on 2.6.9-rc3-mm3-VP-T3
--------------------------------------------------------
- latency: 607 us, entries: 1087 (1087)   |   [VP:1 KP:1 SP:1 HP:1 #CPUS:1]
-    -----------------
-    | task: kjournald/687, uid:0 nice:0 policy:0 rt_prio:0
-    -----------------
- => started at: journal_commit_transaction+0x75/0x2830
- => ended at:   __journal_clean_checkpoint_list+0xb2/0xf0
-=======>
-00000001 0.000ms (+0.003ms): journal_commit_transaction (kjournald)
+Well, let's not rely on anonymous sources and go straight to the web 
+site, shall we?
 
-Here is the loop:
+Ordering copies of the spec, for non-members:
+http://www.infinibandta.org/specs/How_to_Order_IBTA_Specifications.pdf
 
-00000002 0.003ms (+0.001ms): kfree (journal_commit_transaction)
-00000001 0.004ms (+0.001ms): journal_refile_buffer (journal_commit_transaction)
-00000003 0.006ms (+0.000ms): __journal_refile_buffer (journal_refile_buffer)
-00000003 0.006ms (+0.001ms): __journal_unfile_buffer (journal_refile_buffer)
-00000002 0.008ms (+0.000ms): journal_remove_journal_head (journal_refile_buffer)
-00000003 0.008ms (+0.000ms): __journal_remove_journal_head (journal_remove_journal_head)
-00000003 0.009ms (+0.000ms): __brelse (__journal_remove_journal_head)
-00000003 0.010ms (+0.000ms): journal_free_journal_head (journal_remove_journal_head)
-00000003 0.010ms (+0.001ms): kmem_cache_free (journal_free_journal_head)
-00000001 0.011ms (+0.000ms): __brelse (journal_commit_transaction)
+Key note:  use of spec is only granted for NON-COMMERCIAL use
 
-[end loop]
 
-00000002 0.012ms (+0.000ms): kfree (journal_commit_transaction)
-00000001 0.013ms (+0.000ms): journal_refile_buffer (journal_commit_transaction)
+Now, let's look at the membership agreement for IBTA:
+http://www.infinibandta.org/meminfo/mem-agreement.pdf
 
-I think I already reported this one with S7.
+Key note:  The point is made repeatedly that there are no patent grants 
+simply by being a member.
 
-Lee
 

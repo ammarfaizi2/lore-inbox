@@ -1,183 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262500AbUKWDKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbUKWDKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262500AbUKWDKf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 22:10:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbUKWDIp
+	id S262551AbUKWDKb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 22:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbUKWDID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 22:08:45 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:57742 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S262558AbUKWDET (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 22:04:19 -0500
-Date: Tue, 23 Nov 2004 12:04:17 +0900
-From: Tejun Heo <tj@home-tj.org>
-To: greg@kroah.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.10-rc2 3/4] module sysfs: sections attr reimplemented using attr group
-Message-ID: <20041123030417.GD7326@home-tj.org>
-References: <20041123024537.GA7326@home-tj.org>
+	Mon, 22 Nov 2004 22:08:03 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:39338 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262559AbUKWDEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 22:04:44 -0500
+Date: Mon, 22 Nov 2004 22:04:39 -0500
+From: Decklin Foster <decklin@red-bean.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] gamecon.c and PSX DDR controllers
+Message-ID: <20041123030439.GA31019@terminus.dhs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="82I3+IH0IqGh5yIs"
 Content-Disposition: inline
-In-Reply-To: <20041123024537.GA7326@home-tj.org>
+X-GPG-Key: finger://debian.org/decklin@debian.org
+X-LR8R: Money can't buy you respect so go ahead and do your worst.
+Organization: Society for the Unification of Hindiusm and Islam
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 03_module_sections_attr_grp.patch
-> 	Reimplement section attributes using attribute group.  This
-> 	makes more sense, for, while they reside in a separate
-> 	subdirectory, they belong to the ownig module and their
-> 	lifetime exactly equals the lifetime of the owning module,
-> 	and it's simpler.
 
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Tejun Heo <tj@home-tj.org>
+PSX DDR controllers don't work with gamecon.c. I sent a quick fix for
+the crash-on-load to Vojtech a while ago, but didn't have time to
+really fix it until now, and it didn't actually make DDR controllers
+*work* (just load without an oops) so I can't blame him for ignoring
+it. :-)
 
+It turns out that getting DDR controllers to function with gamecon is
+very simple -- we just forgot to check for them when looking in
+status_bit. Here's the three-line patch. Could someone get this into
+2.6.10? Thanks a lot.
 
-Index: linux-export/include/linux/module.h
-===================================================================
---- linux-export.orig/include/linux/module.h	2004-11-23 11:32:13.000000000 +0900
-+++ linux-export/include/linux/module.h	2004-11-23 11:32:28.000000000 +0900
-@@ -227,14 +227,14 @@ enum module_state
- #define MODULE_SECT_NAME_LEN 32
- struct module_sect_attr
- {
--	struct attribute attr;
-+	struct module_attribute mattr;
- 	char name[MODULE_SECT_NAME_LEN];
- 	unsigned long address;
- };
+-- 
+things change.
+decklin@red-bean.com
+
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="gamecon-ddr.diff"
+
+--- gamecon.c~	2004-10-18 17:55:35.000000000 -0400
++++ gamecon.c	2004-11-22 21:53:15.000000000 -0500
+@@ -89,7 +89,7 @@
+ static int gc_status_bit[] = { 0x40, 0x80, 0x20, 0x10, 0x08 };
  
--struct module_sections
-+struct module_sect_attrs
- {
--	struct kobject kobj;
-+	struct attribute_group grp;
- 	struct module_sect_attr attrs[0];
- };
- 
-@@ -313,7 +313,7 @@ struct module
- 	char *strtab;
- 
- 	/* Section attributes */
--	struct module_sections *sect_attrs;
-+	struct module_sect_attrs *sect_attrs;
- #endif
- 
- 	/* Per-cpu data. */
-Index: linux-export/kernel/module.c
-===================================================================
---- linux-export.orig/kernel/module.c	2004-11-23 11:32:13.000000000 +0900
-+++ linux-export/kernel/module.c	2004-11-23 11:32:28.000000000 +0900
-@@ -937,76 +937,71 @@ static unsigned long resolve_symbol(Elf_
-  * J. Corbet <corbet@lwn.net>
-  */
- #ifdef CONFIG_KALLSYMS
--static void module_sect_attrs_release(struct kobject *kobj)
--{
--	kfree(container_of(kobj, struct module_sections, kobj));
--}
--
--static ssize_t module_sect_show(struct kobject *kobj, struct attribute *attr,
--		char *buf)
-+static ssize_t module_sect_show(struct module_attribute *mattr,
-+				struct module *mod, char *buf)
- {
- 	struct module_sect_attr *sattr =
--		container_of(attr, struct module_sect_attr, attr);
-+		container_of(mattr, struct module_sect_attr, mattr);
- 	return sprintf(buf, "0x%lx\n", sattr->address);
- }
- 
--static struct sysfs_ops module_sect_ops = {
--	.show = module_sect_show,
--};
--
--static struct kobj_type module_sect_ktype = {
--	.sysfs_ops = &module_sect_ops,
--	.release =   module_sect_attrs_release,
--};
--
- static void add_sect_attrs(struct module *mod, unsigned int nsect,
- 		char *secstrings, Elf_Shdr *sechdrs)
- {
--	unsigned int nloaded = 0, i;
-+	unsigned int nloaded = 0, i, size[2];
-+	struct module_sect_attrs *sect_attrs;
- 	struct module_sect_attr *sattr;
-+	struct attribute **gattr;
- 	
- 	/* Count loaded sections and allocate structures */
- 	for (i = 0; i < nsect; i++)
- 		if (sechdrs[i].sh_flags & SHF_ALLOC)
- 			nloaded++;
--	mod->sect_attrs = kmalloc(sizeof(struct module_sections) +
--			nloaded*sizeof(mod->sect_attrs->attrs[0]), GFP_KERNEL);
--	if (! mod->sect_attrs)
-+	size[0] = ALIGN(sizeof(*sect_attrs)
-+			+ nloaded * sizeof(sect_attrs->attrs[0]),
-+			sizeof(sect_attrs->grp.attrs[0]));
-+	size[1] = (nloaded + 1) * sizeof(sect_attrs->grp.attrs[0]);
-+	if (! (sect_attrs = kmalloc(size[0] + size[1], GFP_KERNEL)))
- 		return;
- 
--	/* sections entry setup */
--	memset(mod->sect_attrs, 0, sizeof(struct module_sections));
--	if (kobject_set_name(&mod->sect_attrs->kobj, "sections"))
--		goto out;
--	mod->sect_attrs->kobj.parent = &mod->mkobj.kobj;
--	mod->sect_attrs->kobj.ktype = &module_sect_ktype;
--	if (kobject_register(&mod->sect_attrs->kobj))
--		goto out;
-+	/* Setup section attributes. */
-+	sect_attrs->grp.name = "sections";
-+	sect_attrs->grp.attrs = (void *)sect_attrs + size[0];
- 
--	/* And the section attributes. */
--	sattr = &mod->sect_attrs->attrs[0];
-+	sattr = &sect_attrs->attrs[0];
-+	gattr = &sect_attrs->grp.attrs[0];
- 	for (i = 0; i < nsect; i++) {
- 		if (! (sechdrs[i].sh_flags & SHF_ALLOC))
- 			continue;
- 		sattr->address = sechdrs[i].sh_addr;
- 		strlcpy(sattr->name, secstrings + sechdrs[i].sh_name,
--				MODULE_SECT_NAME_LEN);
--		sattr->attr.name = sattr->name;
--		sattr->attr.owner = mod;
--		sattr->attr.mode = S_IRUGO;
--		(void) sysfs_create_file(&mod->sect_attrs->kobj, &sattr->attr);
--		sattr++;
-+			MODULE_SECT_NAME_LEN);
-+		sattr->mattr.show = module_sect_show;
-+		sattr->mattr.store = NULL;
-+		sattr->mattr.attr.name = sattr->name;
-+		sattr->mattr.attr.owner = mod;
-+		sattr->mattr.attr.mode = S_IRUGO;
-+		*(gattr++) = &(sattr++)->mattr.attr;
+ static char *gc_names[] = { NULL, "SNES pad", "NES pad", "NES FourPort", "Multisystem joystick",
+-				"Multisystem 2-button joystick", "N64 controller", "PSX controller"
++				"Multisystem 2-button joystick", "N64 controller", "PSX controller",
+ 				"PSX DDR controller" };
+ /*
+  * N64 support.
+@@ -271,7 +271,7 @@
+ 		udelay(gc_psx_delay);
+ 		read = parport_read_status(gc->pd->port) ^ 0x80;
+ 		for (j = 0; j < 5; j++)
+-			data[j] |= (read & gc_status_bit[j] & gc->pads[GC_PSX]) ? (1 << i) : 0;
++			data[j] |= (read & gc_status_bit[j] & (gc->pads[GC_PSX]|gc->pads[GC_DDR])) ? (1 << i) : 0;
+ 		parport_write_data(gc->pd->port, cmd | GC_PSX_CLOCK | GC_PSX_POWER);
+ 		udelay(gc_psx_delay);
  	}
-+	*gattr = NULL;
-+
-+	if (sysfs_create_group(&mod->mkobj.kobj, &sect_attrs->grp))
-+		goto out;
-+
-+	mod->sect_attrs = sect_attrs;
- 	return;
-   out:
--	kfree(mod->sect_attrs);
--	mod->sect_attrs = NULL;
-+	kfree(sect_attrs);
- }
+@@ -300,7 +300,7 @@
+ 	gc_psx_command(gc, 0, data2);							/* Dump status */
  
- static void remove_sect_attrs(struct module *mod)
- {
- 	if (mod->sect_attrs) {
--		kobject_unregister(&mod->sect_attrs->kobj);
-+		sysfs_remove_group(&mod->mkobj.kobj,
-+				   &mod->sect_attrs->grp);
-+		/* We are positive that no one is using any sect attrs
-+		 * at this point.  Deallocate immediately. */
-+		kfree(mod->sect_attrs);
- 		mod->sect_attrs = NULL;
- 	}
- }
+ 	for (i =0; i < 5; i++)								/* Find the longest pad */
+-		if((gc_status_bit[i] & gc->pads[GC_PSX]) && (GC_PSX_LEN(id[i]) > max_len))
++		if((gc_status_bit[i] & (gc->pads[GC_PSX]|gc->pads[GC_DDR])) && (GC_PSX_LEN(id[i]) > max_len))
+ 			max_len = GC_PSX_LEN(id[i]);
+ 
+ 	for (i = 0; i < max_len * 2; i++) {						/* Read in all the data */
+
+--82I3+IH0IqGh5yIs--

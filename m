@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbTEAPsV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 11:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTEAPsV
+	id S261437AbTEAPuH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 11:50:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbTEAPuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 11:48:21 -0400
-Received: from 12-250-182-80.client.attbi.com ([12.250.182.80]:38919 "EHLO
-	sonny.eddelbuettel.com") by vger.kernel.org with ESMTP
-	id S261417AbTEAPsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 11:48:20 -0400
-Date: Thu, 1 May 2003 11:00:39 -0500
-From: Dirk Eddelbuettel <edd@debian.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Tyan 2466 SMP locks hard with 2.4.20 + heavy disk i/o yet runs 2.2.* without problems
-Message-ID: <20030501160039.GA20407@sonny.eddelbuettel.com>
-References: <20030501135228.GA19643@sonny.eddelbuettel.com> <1051797371.21446.12.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 May 2003 11:50:07 -0400
+Received: from siaag1ae.compuserve.com ([149.174.40.7]:8686 "EHLO
+	siaag1ae.compuserve.com") by vger.kernel.org with ESMTP
+	id S261437AbTEAPuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 11:50:04 -0400
+Date: Thu, 1 May 2003 12:00:59 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Kernel source tree splitting
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200305011202_MC3-1-36E2-1D26@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1051797371.21446.12.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 01, 2003 at 02:56:12PM +0100, Alan Cox wrote:
-> On Iau, 2003-05-01 at 14:52, Dirk Eddelbuettel wrote:
-> > Performance under 2.4.20 with ext3 + win4lin patch
-> >   - "Stable" until disk-heavy operation causes freeze, typically within 
-> >     two to three days
-> >   - Heavy disk use (full backup writing, diff against big tarball, bonnie++) 
-> >     freeze the machine hard, no ping, no sign of live
-> >   + memtest86 shows no problem with the ram
-> 
-> If you don't have a PS/2 mouse plugged into the box add one. If that
+> But whilst you're waiting, hardlink everything together, and 
+> patch the differences (patch knows how to break hardlinks).
 
-My bad: I do have a PS/2 mouse plugged in.
+  I don't trust that approach -- too easy to screw up.
 
-> doens't help duplicate the crash without win4lin.
+> Make a script that cp -lR's the tree to another copy (normally
+> takes < 1s), and then remove the other arches. grep that.
 
-Good idea, will do and will try your most recent rc1-ac? as well. 
+  That could work for the reference tree.
 
-Thanks, Dirk
+> cscope with prebuilt indeces on a filtered subset of the files may well do
+> better than grep, depending on exactly what you're doing (does 99% of it
+> for me).
 
--- 
-Don't drink and derive. Alcohol and algebra don't mix.
+  Have you tried lxr?  The website is cool but you really need a local
+copy for speed.
+
+------
+ Chuck

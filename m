@@ -1,104 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314975AbSECSLu>; Fri, 3 May 2002 14:11:50 -0400
+	id <S314987AbSECSOg>; Fri, 3 May 2002 14:14:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314981AbSECSLt>; Fri, 3 May 2002 14:11:49 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:51938 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S314975AbSECSLm>; Fri, 3 May 2002 14:11:42 -0400
-Date: Fri, 3 May 2002 20:07:16 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre8
-In-Reply-To: <E173dLJ-0006L4-00@the-village.bc.nu>
-Message-ID: <Pine.NEB.4.44.0205032000270.2605-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S314998AbSECSOe>; Fri, 3 May 2002 14:14:34 -0400
+Received: from mons.uio.no ([129.240.130.14]:7069 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S314987AbSECSOc>;
+	Fri, 3 May 2002 14:14:32 -0400
+To: Paul Menage <pmenage@ensim.com>
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Replace exec_permission_lite() with inlined vfs_permission()
+In-Reply-To: <E173gmF-0005eC-00@pmenage-dt.ensim.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 03 May 2002 20:14:17 +0200
+Message-ID: <shs8z71aykm.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 May 2002, Alan Cox wrote:
+>>>>> " " == Paul Menage <pmenage@ensim.com> writes:
 
-> > 8253xdbg.o 8253xplx.o 8253xtty.o 8253xchr.o 8253xint.o amcc5920.o
-> > 8253xmcs.o 8253xutl.o
-> > make[4]: *** No rule to make target `8253xcfg.c', needed by `8253xcfg'.
-> > Stop.
-> > make[4]: Leaving directory
-> > `/home/bunk/linux/kernel-2.4/linux/drivers/net/wan/8253x'
->
-> Oops. I probably forgot to send Marcelo the makefile tweak
->
-> > It seems 8253xcfg.c was accidentially not included.
->
-> Remove it from the makefile and it should all be happy
+     > Is something like this more acceptable? It actually struck me
+     > how few fs-specific directory permission() methods there were
+     > in the tree - almost all directories leave it NULL and let
+     > vfs_permission() do the work. The only common place where this
+     > patch is potentially going to make a noticeable difference is
+     > the case of a non-root user accessing NFS. I'm not sure whether
+     > this is going to outweigh the cost of having to check two
+     > mostly-NULL methods instead of one, compared to just inlining
+     > vfs_permission().
 
-Until the next compile error...
+The NFS permission method *will* change. Currently we violate the
+NFSv3 specs when we call vfs_permission().
 
-<--  snip  -->
+Ideally, the NFS permission method would be empty. There is little
+point in doing any permissions checking before making another RPC call
+--whether you do it using ACCESS or *NIX permission bits-- since
+whatever you do will be prone to races. (BTW: that redundancy argument
+also applies to things like doing lookup() before exclusive file
+create etc...)
 
-...
-ld -m elf_i386  -r -o ASLX.o 8253xini.o 8253xnet.o 8253xsyn.o crc32.o
-8253xdbg.o 8253xplx.o 8253xtty.o 8253xchr.o 8253xint.o amcc5920.o
-8253xmcs.o 8253xutl.o
-gcc  -o 8253xmac -I. -U__KERNEL__ 8253xmac.c
-8253xmac.c: In function `main':
-8253xmac.c:29: `PSEUDOMAC' undeclared (first use in this function)
-8253xmac.c:29: (Each undeclared identifier is reported only once
-8253xmac.c:29: for each function it appears in.)
-8253xmac.c:29: parse error before `pmac'
-8253xmac.c:52: `pmac' undeclared (first use in this function)
-8253xmac.c:54: `SAB8253XGETMAC' undeclared (first use in this function)
-8253xmac.c:167: `SAB8253XSETMAC' undeclared (first use in this function)
-make[4]: *** [8253xmac] Error 1
-make[4]: Leaving directory
-`/home/bunk/linux/kernel-2.4/linux/drivers/net/wan/8253x'
+The only places where we would need to explicitly check access
+permissions are when we do
 
-<--  snip  -->
+  - File open() without creation.
+  - Changing the current directory.
+  - Walking a pathname.
 
+For the latter case, but not the former two, we definitely want to
+cache the ACCESS RPC call results for efficiency.
 
-Both the -pre7-ac4 and the -pre8 patches contain a
-drivers/net/wan/8253x/readme.txt that says:
-
-
-<--  snip  -->
-
-...
-+2) The following network ioctl have been removed
-+
-+#define SAB8253XSETMAC         (SIOCDEVPRIVATE + 5 + 2)
-+#define SAB8253XGETMAC         (SIOCDEVPRIVATE + 5 + 3)
-+
-+along with the PSEUDOMAC structure and references to this structure.
-+
-+The following standard ioctls provide the same functionality.
-+
-+#define        SIOCSIFHWADDR   0x8924          /* set hardware address
-*/
-+#define SIOCGIFHWADDR  0x8927          /* Get hardware address         */
-+
-+The 8253xmac tool has been removed.  To start the ASLX sab8253x
-+network interface, you should use a command like the following with
-+the substitutions appropriate to your environment.
-...
-
-<--  snip  -->
-
-
-But both the -pre7-ac4 and the -pre8 patches add a 8253xmac.c and the
-Makefile tries to compile it...
-
-
-> Alan
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+Cheers,
+  Trond

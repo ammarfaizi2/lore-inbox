@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263568AbUDNDk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 23:40:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUDNDk7
+	id S263628AbUDNEBO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 00:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263621AbUDNEBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 23:40:59 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:37832 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S263568AbUDNDkz (ORCPT
+	Wed, 14 Apr 2004 00:01:14 -0400
+Received: from waste.org ([209.173.204.2]:36739 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263628AbUDNEBM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 23:40:55 -0400
-From: plazmcman@softhome.net
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.x DMA ALI chipset bugs
-Date: Tue, 13 Apr 2004 21:40:54 -0600
+	Wed, 14 Apr 2004 00:01:12 -0400
+Date: Tue, 13 Apr 2004 23:01:02 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: alex@clusterfs.com
+Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] extents,delayed allocation,mballoc for ext3
+Message-ID: <20040414040101.GO1175@waste.org>
+References: <m365c3pthi.fsf@bzzz.home.net>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [209.77.201.156]
-Message-ID: <courier.407CB2C6.000053A7@softhome.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m365c3pthi.fsf@bzzz.home.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an old IBM ThinkPad (266MHz) with an ALi chipset.  lspci -v | grep -i 
-ali reports: 
+On Tue, Apr 13, 2004 at 11:28:57PM +0400, alex@clusterfs.com wrote:
+> 
+> these patches implement several features for ext3:
+> - extents
+> - multiblock allocator
+> - delayed allocation (a.k.a. allocation on flush)
+> 
+> 
+> extents
+> =======
+> it's just a way to store inode's blockmap in well-known triples
+> [logical block; phys. block; length]. all the extents are stored
+> in B+Tree. code is splitted in two parts:
+> 1) generic extents support
+>    implements primitives like lookup, insert, remove, walk
+> 2) VFS part
+>    implements ->getblock() and ->truncate() methods
 
-[addr] Host bridge: ... M1531
- Subsystem: ... M1531
-[addr] ISA bridge: ... M1533
- Subsystem: ...M1533
-[addr] IDE interface: ... M5229
-[addr] Bridge: ... M7101 
+I'm going to assume that there's no way for ext3 without extents
+support to mount such a filesystem, so I think this means changing the
+FS name. Is there a simple migration path to extents for existing filesystems?
+ 
+> multiblock allocator
+> ===================
+> the larger extents the better. the reasonable way is to ask block
+> allocator to allocate several blocks at once. it is possible to
+> scan bitmaps, but such a scanning isn't very good method. so, here
+> is mballoc - buddy algorithm + possibility to find contig.buddies
+> fast way. mballoc is backward-compatible, buddies are stored on a
+> disk as usual file (temporal solution until fsck support is ready)
+> and regenerated at mount time. also, with existing block-at-once
+> allocator it's impossible to write at very high rate (several
+> hundreds MB a sec). multiblock allocator solves this issue.
 
-Under kernel 2.4.22, DMA worked fine (~9MB/s hda).  With 2.6.(0,3,4,5), the 
-machine won't work with DMA enabeled at boot. Kernel panics due to "can't 
-find init", and stuff like "can't execute /etc/rc.d/rc.S", or 
-"/sbin/agetty", etc. 
+Similar questions here.
+ 
+> NOTE: don't try to use it in production. all the patches (probably
+> excluding extents) are pre-pre-alpha. because of size I put patches
+> in ftp://ftp.clusterfs.com/pub/people/alex/2.6.4-mm2/
 
-I _do_ have kernel support (built-in) for ALiM15x3. I can boot up the 
-computer (kernel argument ide=nodma), and then attempt to turn DMA on - it 
-will sometimes succed, _but_ there is no performance gain (~4MB/s - ugh). 
+You might also mention that on-disk format issues such as endian
+layout are not finalized.
 
-Any workarounds, patches, help? 
-
-Thanks,
-Brannon Klopfer
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

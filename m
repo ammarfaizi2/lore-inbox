@@ -1,97 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVBNXQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVBNXQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVBNXQF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 18:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVBNXQE
+	id S261172AbVBNXQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 18:16:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVBNXQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 18:16:04 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:12563
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S261165AbVBNXP5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 18:15:57 -0500
-Date: Tue, 15 Feb 2005 00:15:54 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64)
-Message-ID: <20050214231554.GQ13712@opteron.random>
-References: <20041028192104.GA3454@dualathlon.random> <20041105080716.GL8229@dualathlon.random> <20041105083102.GD16992@wotan.suse.de> <20041105084900.GN8229@dualathlon.random>
+	Mon, 14 Feb 2005 18:16:27 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:46367 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261172AbVBNXQX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 18:16:23 -0500
+Date: Mon, 14 Feb 2005 15:16:05 -0800
+From: Greg KH <gregkh@suse.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Prakash Punnoor <prakashp@arcor.de>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+Message-ID: <20050214231605.GA13969@suse.de>
+References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net> <20050211011609.GA27176@suse.de> <1108354011.25912.43.camel@krustophenia.net> <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de> <1108422240.28902.11.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041105084900.GN8229@dualathlon.random>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+In-Reply-To: <1108422240.28902.11.camel@krustophenia.net>
 User-Agent: Mutt/1.5.6i
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Feb 14, 2005 at 06:04:00PM -0500, Lee Revell wrote:
+> On Mon, 2005-02-14 at 09:51 +0100, Prakash Punnoor wrote:
+> > Paolo Ciarrocchi schrieb:
+> > > On Sun, 13 Feb 2005 23:06:51 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
+> > >
+> > >>On Thu, 2005-02-10 at 17:16 -0800, Greg KH wrote:
+> > >>
+> > >>>All distros are trying to reduce boot time.
+> > >>
+> > >>They certainly aren't all trying very hard.  Debian and Fedora (last
+> > >>time I checked) do not even run the init scripts in parallel.
+> > >
+> > >
+> > > Is there any distro that is running the init scripts in parallel ?
+> > 
+> > Gentoo.
+> > 
+> 
+> Last I heard Gentoo does not even do it by default.
 
-the fix for this bug in 2.6.11-rc3 for this bug is wrong, I thought I
-posted the right one (that I already applied to all SUSE branches except
-the HEAD branch that probably is in sync with the inferior fix in
-mainline). Right fix is the below one. And then of course drop those
-useless -PAGE_SIZE in change_page_attr p->size parameter in the arch
-code. Exposing vmalloc.c internal knowledge of the guard-page-size into
-the arch code is an unnecssary breakage of the vmalloc abstraction and
-I've been very careful to avoid that and I thought I posted it too. It
-has been even quicker to fix it right for me in a single place than to
-hand edit the (not single) change_page_attr callers. I'd like the right
-fix to obsolete the hand editing of arch code in multiple places that
-breaks the layering. Thanks.
+Gentoo doesn't do much "by default" :)  But it is an option.
 
-From: Andrea Arcangeli <andrea@suse.de>
-Subject: reject zero page vm-area request, align size properly
- and hide the guard page from the callers like ioremap - this avoids
- a kernel crash due one more page being passed to change_page_attr
+> I don't see why so much effort goes into improving boot time on the
+> kernel side when the most obvious user space problem is ignored.
 
-Signed-off-by: Andrea Arcangeli <andrea@suse.de>
+What user space problem is that?
 
---- sl9.2/mm/vmalloc.c.~1~	2004-12-04 01:44:23.352416128 +0100
-+++ sl9.2/mm/vmalloc.c	2004-12-04 03:02:37.299827656 +0100
-@@ -199,20 +199,22 @@ struct vm_struct *__get_vm_area(unsigned
- 		align = 1ul << bit;
- 	}
- 	addr = ALIGN(start, align);
-+	size = PAGE_ALIGN(size);
- 
- 	area = kmalloc(sizeof(*area), GFP_KERNEL);
- 	if (unlikely(!area))
- 		return NULL;
- 
--	/*
--	 * We always allocate a guard page.
--	 */
--	size += PAGE_SIZE;
- 	if (unlikely(!size)) {
- 		kfree (area);
- 		return NULL;
- 	}
- 
-+	/*
-+	 * We always allocate a guard page.
-+	 */
-+	size += PAGE_SIZE;
-+
- 	write_lock(&vmlist_lock);
- 	for (p = &vmlist; (tmp = *p) != NULL ;p = &tmp->next) {
- 		if ((unsigned long)tmp->addr < addr) {
-@@ -290,6 +292,11 @@ found:
- 	unmap_vm_area(tmp);
- 	*p = tmp->next;
- 	write_unlock(&vmlist_lock);
-+
-+	/*
-+	 * Remove the guard page.
-+	 */
-+	tmp->size -= PAGE_SIZE;
- 	return tmp;
- }
- 
+thanks,
 
-
-
+greg k-h

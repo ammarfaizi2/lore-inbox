@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316390AbSHJAjI>; Fri, 9 Aug 2002 20:39:08 -0400
+	id <S316408AbSHJAmY>; Fri, 9 Aug 2002 20:42:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316408AbSHJAjI>; Fri, 9 Aug 2002 20:39:08 -0400
-Received: from sutr.cynic.org ([64.174.133.194]:42439 "EHLO sutr.cynic.org")
-	by vger.kernel.org with ESMTP id <S316390AbSHJAjI>;
-	Fri, 9 Aug 2002 20:39:08 -0400
-Date: Fri, 09 Aug 2002 17:42:30 -0700
-From: Perry The Cynic <perry@cynic.org>
-To: tony@atomide.com, thetech@folkwolf.net
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: amd76x_pm hard hang with 2.4.19-ac4
-Message-ID: <86796134.1028914950@loki.cynic.org>
-X-Mailer: Mulberry/2.2.1 (Mac OS X)
-Organization: Cynics at Large
+	id <S316430AbSHJAmY>; Fri, 9 Aug 2002 20:42:24 -0400
+Received: from main.tellink.net ([208.3.160.2]:13297 "EHLO main.tellink.net")
+	by vger.kernel.org with ESMTP id <S316408AbSHJAmX>;
+	Fri, 9 Aug 2002 20:42:23 -0400
+Date: Fri, 9 Aug 2002 20:45:59 -0400 (EDT)
+From: Jon Portnoy <portnoy@tellink.net>
+X-X-Sender: portnoy@localhost.localdomain
+To: Oliver Neukum <oliver@neukum.name>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: HFS cleanup #1 - remove partition code
+In-Reply-To: <200208100134.54011.oliver@neukum.name>
+Message-ID: <Pine.LNX.4.44.0208092044440.4638-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying out the amd76x_pm driver with 2.4.19-ac4 on a Tyan Thunder K7X 
-(S2468UGN) produces hard hangs under load. The system looks okay when idle, 
-but heavy Disk I/O (onboard SCSI, basically tar cfz) produces the hang 
-within a few minutes. (No hangs unless the amd76x_pm module is loaded.)
+I'd say that it's pretty important for compatibility with HFS-formatted 
+devices such as CDROMs.
 
-The board is otherwise quite stable (i.e. no unexplained 
-hangs/crashes/panics).
+On Sat, 10 Aug 2002, Oliver Neukum wrote:
 
-Any suggestions on how to approach this? The C2 idle loop code is what 
-changed for me (from 2.4.19pre10-ac2). But I don't know enough about ACPI 
-to know where to start... what info would help?
-
-Oh, and this driver (while it works) shaves a full 140W off the power 
-consumption. Cool.
-
-Thanks
-  -- perry
----------------------------------------------------------------------------
-Perry The Cynic                                             perry@cynic.org
-To a blind optimist, an optimistic realist must seem like an Accursed Cynic.
----------------------------------------------------------------------------
+> Hi,
+> 
+> this removes the independent partition code from hfs.
+> This is the first patch taking an axe to hfs so it'll be in shape for 2.6.
+> Does anybody object to it being sent to Linus ?
+> 
+> 	Regards
+> 		Oliver
+> 
 

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292881AbSBVOiG>; Fri, 22 Feb 2002 09:38:06 -0500
+	id <S292882AbSBVOk4>; Fri, 22 Feb 2002 09:40:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292882AbSBVOh5>; Fri, 22 Feb 2002 09:37:57 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:34569 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S292881AbSBVOhs>; Fri, 22 Feb 2002 09:37:48 -0500
-Date: Fri, 22 Feb 2002 11:28:38 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Florian Hars <florian@hars.de>
+	id <S292879AbSBVOkh>; Fri, 22 Feb 2002 09:40:37 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:36613 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S292880AbSBVOkQ>; Fri, 22 Feb 2002 09:40:16 -0500
+Date: Fri, 22 Feb 2002 15:40:11 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Arjan van de Ven <arjanv@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA Southbridges in 2.4.18-rc3
-In-Reply-To: <20020222143640.GA22031@bik-gmbh.de>
-Message-ID: <Pine.LNX.4.21.0202221128270.29093-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+Message-ID: <20020222154011.B5783@suse.cz>
+In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C723B15.2030409@evision-ventures.com> <00a201c1bb8d$90dd2740$0300a8c0@lemon> <3C764B7C.2000609@evision-ventures.com> <3C764B7C.2000609@evision-ventures.com>; <20020222150323.A5530@suse.cz> <3C7652C7.96D0B730@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C7652C7.96D0B730@redhat.com>; from arjanv@redhat.com on Fri, Feb 22, 2002 at 02:16:39PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 22, 2002 at 02:16:39PM +0000, Arjan van de Ven wrote:
 
-
-On Fri, 22 Feb 2002, Florian Hars wrote:
-
-> Marcelo Tosatti wrote:
-> > On Fri, 22 Feb 2002, Florian Hars wrote:
-> > > Any reason why this:
-> > > http://www.uwsg.indiana.edu/hypermail/linux/kernel/0202.1/0970.html
-> > > isn't in rc3? My machine still works as it should.
-> > 
-> > Do you mean adding the necessary PCI ID's ? 
+> > I think it'd be even better if the chipset drivers did the probing
+> > themselves, and once they find the IDE device, they can register it with
+> > the IDE core. Same as all the other subsystem do this.
 > 
-> That, and adding some code in drivers/ide/via82xxx.c,
->   { "vt8233c", PCI_DEVICE_ID_VIA_8233C, 0x00, 0x2f, VIA_UDMA_100 },
-> is right now ifdef'ed out, and the entry for the vt8233a, which is
->   { "vt8233a", PCI_DEVICE_ID_VIA_8233A, 0x00, 0x2f, VIA_UDMA_133 },
-> in 2.5.2, is missing (and there is no UDMA_133 in 2.4).
-> 
-> Right now I am running a 2.4.18-pre9 with a slightly modified
-> drivers/ide/(timing.h|via82xxx.c) from 2.5.2, and it works with
-> my vt8233a and an UDMA-100 disk, but this is of course not a 
-> conservative change. Maybe the patch by Vojtech Pavlik mentioned
-> in the message I referred to above is less radical.
+> Please send me your scsi subsystem then ;)
 
-Could you please send me this patch ?
+I must agree that SCSI controllers aren't doing their probing in a
+uniform and clean way even on PCI, but at least they do the probing
+themselves and don't have the mid-layer SCSI code do it for them like
+IDE.
 
-Thanks
-
+-- 
+Vojtech Pavlik
+SuSE Labs

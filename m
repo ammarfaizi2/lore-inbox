@@ -1,80 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262830AbTE2Uy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 16:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbTE2Uy5
+	id S262850AbTE2U5n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 16:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbTE2U5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 16:54:57 -0400
-Received: from warrior.services.quay.plus.net ([212.159.14.227]:25827 "HELO
-	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S262830AbTE2Uy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 16:54:56 -0400
-From: "Riley Williams" <Riley@Williams.Name>
-To: "Timothy Miller" <miller@techsource.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: Bug reports: Making sure you provide all system info
-Date: Thu, 29 May 2003 22:08:17 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCAMECKECAA.Riley@Williams.Name>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <3ED63ECB.9040705@techsource.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+	Thu, 29 May 2003 16:57:43 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:15001
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S262850AbTE2U5h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 16:57:37 -0400
+Date: Thu, 29 May 2003 17:10:53 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [BK PATCHES] net driver merges
+Message-ID: <20030529211053.GA9069@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Timothy.
 
- > Is there a script people can run which will dig all necessary
- > system information out of /proc so that when one wants to report
- > a bug, they just run the script and dump the output into the
- > lkml email?
- >
- > I see lots of bug reports which provide very similar kinds of
- > information.  It seems to be so common a thing to do that it
- > should be automated, no?
+Linus, please do a
 
-Back in the 2.2 kernel days, there was a script called ver_linux
-that did precisely that. It's still in 2.5.69 but nobody appears
-to make use of it any more.
+	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
 
-For reference, here's what the one in 2.5.69 produces for one of
-my systems:
+Others may download the patch from
 
- Q> If some fields are empty or look unusual you may have an old version.
- Q> Compare to the current minimal requirements in Documentation/Changes.
- Q>
- Q> Linux Consulate.LAN.MemAlpha.Co.UK 2.2.14-e2c #5 Tue Jan 25 21:06:15
- Q>				GMT 2000 i586 unknown
- Q>
- Q> Gnu C                  egcs-2.91.66
- Q> Gnu make               3.78.1
- Q> binutils               2.9.5.0.22
- Q> util-linux             2.10f
- Q> mount                  2.10r
- Q> module-init-tools      /lib/modules/2.2.14-e2c/misc/appletalk.o
- Q> e2fsprogs              1.18
- Q> PPP                    2.3.11
- Q> Linux C Library        1.3.so
- Q> Dynamic linker (ldd)   2.1.3
- Q> Procps                 2.0.7
- Q> Net-tools              1.55
- Q> Console-tools          0.3.3
- Q> Sh-utils               2.0
- Q> Modules Loaded         slip slhc parport_pc lp parport tulip
- Q>				nls_iso8859-1 nls_cp437 vfat fat
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.5/2.5.70-bk3-netdrvr1.patch.bz2
 
-Best wishes from Riley.
----
- * Nothing as pretty as a smile, nothing as ugly as a frown.
+This will update the following files:
 
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.484 / Virus Database: 282 - Release Date: 27-May-2003
+ drivers/net/8139too.c        |    6 
+ drivers/net/amd8111e.c       | 1047 +++++++++++++++++++++++++++----------------
+ drivers/net/amd8111e.h       |  968 ++++++++++++++++++++-------------------
+ drivers/net/e100/e100_main.c |   33 -
+ drivers/net/pci-skeleton.c   |    4 
+ drivers/net/pcnet32.c        |    7 
+ drivers/net/r8169.c          |   44 +
+ drivers/net/tlan.c           |  116 +++-
+ 8 files changed, 1306 insertions(+), 919 deletions(-)
+
+through these ChangeSets:
+
+<shemminger@osdl.org> (03/05/29 1.1438)
+   [netdrvr e100] initialize callbacks before registering netdev
+   
+   Ouch.
+
+<reeja.john@amd.com> (03/05/29 1.1437)
+   [netdrvr amd8111e] interrupt coalescing, libmii, bug fixes
+   
+   * Dynamic interrupt coalescing
+   * mii lib support
+   * dynamic IPG support (disabled by default)
+   * jumbo frame fix
+   * vlan fix
+   * rx irq coalescing fix
+
+<alan@lxorguk.ukuu.org.uk> (03/05/29 1.1436)
+   [netdrvr tlan] fix 64-bit issues
+
+<jgarzik@redhat.com> (03/05/29 1.1435)
+   [netdrvr r8169] use alloc_etherdev, pci_disable_device
+
+<jgarzik@redhat.com> (03/05/29 1.1433)
+   [netdrvr 8139too] respond to "isn't this racy?" comment
+
+<jgarzik@redhat.com> (03/05/28 1.1432)
+   [netdrvr] s/init_etherdev/alloc_etherdev/ in code comments,
+   in 8139too and pci-skeleton drivers.
+
+<jgarzik@redhat.com> (03/05/28 1.1431)
+   [netdrvr tlan] cleanup
+   
+   * use pci_{request,release}_regions for PCI devices
+   * use alloc_etherdev (fixes race)
+   * propagate error returns from pci_xxx function errors
+
+<engebret@us.ibm.com> (03/05/27 1.1392.7.7)
+   [netdrvr pcnet32] bug fixes
+   
+   I would like to see a couple of the pcnet32 changes that I think we can
+   agree on be put into the trees so a couple of the potential defects can be
+   avoided.  The following patch contains just these pieces.  The only
+   controversial one is an arbitrary change in the number of iterations in a
+   while loop spinning on hardware state.   No matter how this is done, I am
+   not especially fond of this bit of code as it has no reasonable error
+   recovery path -- however, as a half-way, incremental solution, increasing
+   the polling time should help as the 100 value was certainly found to be
+   insufficient.  1000 may not be sufficient either, but it is certainly no
+   worse.
+   
+   Both of the other changes were hit in testing (and I belive the wmb() at a
+   customer even), so it would help reduce some debug if these go in.  Any
+   feedback is appreciated - thanks.
 

@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277512AbRJETCl>; Fri, 5 Oct 2001 15:02:41 -0400
+	id <S277300AbRJETCK>; Fri, 5 Oct 2001 15:02:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277550AbRJETCb>; Fri, 5 Oct 2001 15:02:31 -0400
-Received: from smtp7.xs4all.nl ([194.109.127.133]:11222 "EHLO smtp7.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S277512AbRJETCY>;
-	Fri, 5 Oct 2001 15:02:24 -0400
-From: thunder7@xs4all.nl
-Date: Fri, 5 Oct 2001 20:59:09 +0200
-To: linux-kernel@vger.kernel.org
-Subject: can I use an udma-pci card on an alpha?
-Message-ID: <20011005205909.A6286@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S277550AbRJETCA>; Fri, 5 Oct 2001 15:02:00 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:42769 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S277551AbRJETBt>;
+	Fri, 5 Oct 2001 15:01:49 -0400
+Date: Fri, 5 Oct 2001 12:07:08 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Robert Olsson <Robert.Olsson@data.slu.se>, <mingo@elte.hu>,
+        jamal <hadi@cyberus.ca>, <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <20011005124824.F315@turbolinux.com>
+Message-ID: <Pine.LNX.4.40.0110051205460.1523-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a spare CMD646 udma-card lying around, and put it in my alpha
-(PWS500au). Everything boots fine, but there seems to be no HD
-recognized:
+On Fri, 5 Oct 2001, Andreas Dilger wrote:
 
-block: queued sectors max/low 39013kB/13004kB, 128 slots per queue
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-CMD646: IDE controller on PCI bus 00 dev 20
-CMD646: chipset revision 1
-CMD646: not 100% native mode: will probe irqs later
-CMD646: chipset revision 0x01, MultiWord DMA Limited, IRQ workaround enabled
-    ide0: BM-DMA at 0x8080-0x8087, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0x8088-0x808f, BIOS settings: hdc:pio, hdd:pio
-Floppy drive(s): fd0 is 2.88M
+> On Oct 05, 2001  16:52 +0200, Robert Olsson wrote:
+> >  > If you get to the stage where you are turning off IRQs and going to a
+> >  > polling mode, then don't turn IRQs back on until you have a poll (or
+> >  > two or whatever) that there is no work to be done.  This will at worst
+> >  > give you 50% polling success, but in practise you wouldn't start polling
+> >  > until there is lots of work to be done, so the real success rate will
+> >  > be much higher.
+> >  >
+> >  > At this point (no work to be done when polling) there are clearly no
+> >  > interrupts would be generated (because no packets have arrived), so it
+> >  > should be reasonable to turn interrupts back on and stop polling (assuming
+> >  > non-broken hardware).  You now go back to interrupt-driven work until
+> >  > the rate increases again.  This means you limit IRQ rates when needed,
+> >  > but only do one or two excess polls before going back to IRQ-driven work.
+> >
+> >  Yes this has been considered and actually I think Jamal did this in one of
+> >  the pre NAPI patch. I tried something similar... but instead of using a
+> >  number of excess polls I was doing excess polls for a short time (a
+> >  jiffie). This was the showstopper mentioned the previous mails. :-)
+>
+> (Note that I hadn't read the NAPI paper until after I posted the above, and
+> it appears that I was describing pretty much what NAPI already does ;-).  In
+> light of that, I wholly agree that NAPI is a superior solution for handling
+> IRQ overload from a network device.
+>
+> >  Anyway it up to driver to decide this policy. If the driver returns
+> >  "not_done" it is simply polled again. So low-rate network drivers can have
+> >  a different policy compared to an OC-48 driver. Even continues polling is
+> >  therefore possible and even showstoppers. :-)  There are protection for
+> >  polling livelocks.
+>
+> One question which I have is why would you ever want to continue polling
+> if there is no work to be done?
 
-jurriaan@alpha:~$ cat /proc/ide/cmd64x
+According to the doc the poll is stopped when 1) there're no more packets
+to be fetched from dma ring 2) quota is reached.
 
-                                CMD646 Chipset.
---------------- Primary Channel ---------------- Secondary Channel -------------
-                 enabled                          enabled
---------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
-DMA enabled:    no               no              no                no
-DMA Mode:        PIO(?)           PIO(?)          PIO(?)            PIO(?)
-PIO Mode:       ?                ?               ?                 ?
-                polling                          polling
-                clear                            clear
-                enabled                          enabled
-CFR       = 0x00, HI = 0x00, LOW = 0x00
-ARTTIM23  = 0x4c, HI = 0x04, LOW = 0x0c
-MRDMODE   = 0x00, HI = 0x00, LOW = 0x00
 
-Is the bios (which is x86) strictly necessary to set up the drives? I
-tried searching the web for 'udma on alpha' etc. but found nothing.
 
-Thanks,
-Jurriaan
+
+- Davide
+
+

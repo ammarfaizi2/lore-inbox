@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVDENgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVDENmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbVDENgj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 09:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVDENgj
+	id S261736AbVDENmY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 09:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVDENmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 09:36:39 -0400
-Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:56476
-	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
-	id S261542AbVDENgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 09:36:35 -0400
-Message-ID: <4252945A.40904@ev-en.org>
-Date: Tue, 05 Apr 2005 14:36:26 +0100
-From: Baruch Even <baruch@ev-en.org>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Spelling mistake threshoulds -> thresholds
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------090802050303050700050602"
+	Tue, 5 Apr 2005 09:42:24 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:60966 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261736AbVDENmU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 09:42:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=UcoUiAUtzQlUL2R/hWUXCeK7qtr8ILXBGEzanbiifxYP0Op+1eAR8QF3pK0eqIEyqwbV9NkGHcMNBBg4ltBqdFIYBm5gZJN1h96PzocxyoMNQj31av4Q29X1go/NrntYznLGe45FqcZA5tslhsHnKMX5Imnp322XWW10Cn1TEu0=
+Message-ID: <2a0fbc5905040506422fbf6356@mail.gmail.com>
+Date: Tue, 5 Apr 2005 15:42:14 +0200
+From: Julien Wajsberg <julien.wajsberg@gmail.com>
+Reply-To: Julien Wajsberg <julien.wajsberg@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How's the nforce4 support in Linux?
+In-Reply-To: <2a0fbc59050325145935a05521@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <2a0fbc59050325145935a05521@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090802050303050700050602
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mar 26, 2005 12:59 AM, Julien Wajsberg <julien.wajsberg@gmail.com> wrote:
+> I own an Asus A8N-Sli motherboard with the Nforce4-Sli chipset, and I
+> experiment the following problem :
+> 
+> Mar 25 22:42:55 evenflow kernel: hda: dma_timer_expiry: dma status == 0x60
+> Mar 25 22:42:55 evenflow kernel: hda: DMA timeout retry
+> Mar 25 22:42:55 evenflow kernel: hda: timeout waiting for DMA
+> Mar 25 22:42:55 evenflow kernel: hda: status error: status=0x58 {
+> DriveReady SeekComplete DataRequest }
+> Mar 25 22:42:55 evenflow kernel:
+> Mar 25 22:42:55 evenflow kernel: ide: failed opcode was: unknown
+> Mar 25 22:42:55 evenflow kernel: hda: drive not ready for command
+> Mar 25 22:42:55 evenflow kernel: hda: status timeout: status=0xd0 { Busy }
+> Mar 25 22:42:55 evenflow kernel:
+> Mar 25 22:42:55 evenflow kernel: ide: failed opcode was: unknown
+> Mar 25 22:42:55 evenflow kernel: hdb: DMA disabled
+> Mar 25 22:42:55 evenflow kernel: hda: drive not ready for command
+> 
+> Of course, if I disable DMA with hdparm, this problem disappear.. but
+> it isn't a long-term solution ;-)
+> 
+> Using vanilla 2.6.11.5 kernel. I attached the config file.
 
-Hi,
+I tried the multidma mode (as opposed to ultradma), and the system
+hanged immediately. (Thanks to the patched-for-netpoll forcedeth
+driver), I got the following message:
 
-Just a simple spelling mistake fix.
+Unknown interrupt or fault at EIP 00000206 00000060 c0247a3a
 
-Signed-Off-By: Baruch Even <baruch@ev-en.org>
+There's definitely something wrong here...
+I'm still using the same setup as in my first mail.
 
---------------090802050303050700050602
-Content-Type: text/x-patch;
- name="spelling_threshold.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="spelling_threshold.patch"
-
-diff -Nurp -X dontdiff 2.6.11.orig/include/net/tcp.h 2.6.11/include/net/tcp.h
---- 2.6.11.orig/include/net/tcp.h	2005-03-16 00:09:00.000000000 +0000
-+++ 2.6.11/include/net/tcp.h	2005-04-05 14:33:13.473828484 +0100
-@@ -1351,7 +1351,7 @@ static inline void tcp_cwnd_validate(str
- 	}
- }
- 
--/* Set slow start threshould and cwnd not falling to slow start */
-+/* Set slow start threshold and cwnd not falling to slow start */
- static inline void __tcp_enter_cwr(struct tcp_sock *tp)
- {
- 	tp->undo_marker = 0;
-diff -Nurp -X dontdiff 2.6.11.orig/net/ipv4/ipmr.c 2.6.11/net/ipv4/ipmr.c
---- 2.6.11.orig/net/ipv4/ipmr.c	2005-03-16 00:09:06.000000000 +0000
-+++ 2.6.11/net/ipv4/ipmr.c	2005-04-05 14:33:13.541817170 +0100
-@@ -359,7 +359,7 @@ out:
- 
- /* Fill oifs list. It is called under write locked mrt_lock. */
- 
--static void ipmr_update_threshoulds(struct mfc_cache *cache, unsigned char *ttls)
-+static void ipmr_update_thresholds(struct mfc_cache *cache, unsigned char *ttls)
- {
- 	int vifi;
- 
-@@ -721,7 +721,7 @@ static int ipmr_mfc_add(struct mfcctl *m
- 	if (c != NULL) {
- 		write_lock_bh(&mrt_lock);
- 		c->mfc_parent = mfc->mfcc_parent;
--		ipmr_update_threshoulds(c, mfc->mfcc_ttls);
-+		ipmr_update_thresholds(c, mfc->mfcc_ttls);
- 		if (!mrtsock)
- 			c->mfc_flags |= MFC_STATIC;
- 		write_unlock_bh(&mrt_lock);
-@@ -738,7 +738,7 @@ static int ipmr_mfc_add(struct mfcctl *m
- 	c->mfc_origin=mfc->mfcc_origin.s_addr;
- 	c->mfc_mcastgrp=mfc->mfcc_mcastgrp.s_addr;
- 	c->mfc_parent=mfc->mfcc_parent;
--	ipmr_update_threshoulds(c, mfc->mfcc_ttls);
-+	ipmr_update_thresholds(c, mfc->mfcc_ttls);
- 	if (!mrtsock)
- 		c->mfc_flags |= MFC_STATIC;
- 
-
---------------090802050303050700050602--
+-- 
+Julien

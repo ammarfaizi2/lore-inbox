@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135254AbRAGAkB>; Sat, 6 Jan 2001 19:40:01 -0500
+	id <S131535AbRAGAnV>; Sat, 6 Jan 2001 19:43:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135287AbRAGAjw>; Sat, 6 Jan 2001 19:39:52 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:62204 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S135254AbRAGAji>; Sat, 6 Jan 2001 19:39:38 -0500
-Date: Sat, 6 Jan 2001 22:39:30 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] atarilance using freed skb
-Message-ID: <20010106223930.T736@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010106213508.R736@conectiva.com.br>
+	id <S131823AbRAGAnM>; Sat, 6 Jan 2001 19:43:12 -0500
+Received: from host97.207-55-127.aadsl.com ([207.55.127.97]:59803 "EHLO
+	mullein.org") by vger.kernel.org with ESMTP id <S131535AbRAGAnC>;
+	Sat, 6 Jan 2001 19:43:02 -0500
+From: mull <mullein@mullein.org>
+Date: Sat, 6 Jan 2001 16:43:03 -0800
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: SCSI hangs with aic7xxx in 2.4.0 SMP
+Message-ID: <20010106164303.A2834@mullein.org>
+In-Reply-To: <LAW2-F36Pf3L9BGTuAy0000c9e8@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010106213508.R736@conectiva.com.br>; from acme@conectiva.com.br on Sat, Jan 06, 2001 at 09:35:08PM -0200
-X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <LAW2-F36Pf3L9BGTuAy0000c9e8@hotmail.com>; from ello@hotmail.com on Sat, Jan 06, 2001 at 09:26:55PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Jan 06, 2001 at 09:35:08PM -0200, Arnaldo Carvalho de Melo escreveu:
-> Alan,
+On Sat, Jan 06, 2001 at 09:26:55PM -0000, Craig Freeze wrote:
+> [1.] One line summary of the problem:
+> SCSI hangs with aic7xxx in 2.4.0 SMP
 > 
-> 	Paul Gortmaker found a similar one for lance, so I'm looking at
-> some other drivers to see if this happens, bagetlance has it as well,
-> here is the patch.
-
-Another one:
-
---- linux-2.4.0-ac2/drivers/net/atarilance.c	Mon Jan  1 14:42:28 2001
-+++ linux-2.4.0-ac2.acme/drivers/net/atarilance.c	Sat Jan  6 22:36:23 2001
-@@ -820,9 +820,9 @@
- 	head->misc = 0;
- 	lp->memcpy_f( PKTBUF_ADDR(head), (void *)skb->data, skb->len );
- 	head->flag = TMD1_OWN_CHIP | TMD1_ENP | TMD1_STP;
-+	lp->stats.tx_bytes += skb->len;
- 	dev_kfree_skb( skb );
- 	lp->cur_tx++;
--	lp->stats.tx_bytes += skb->len;
- 	while( lp->cur_tx >= TX_RING_SIZE && lp->dirty_tx >= TX_RING_SIZE ) {
- 		lp->cur_tx -= TX_RING_SIZE;
- 		lp->dirty_tx -= TX_RING_SIZE;
+> [2.] Full description of the problem/report:
+> SCSI device errors and bus resets observed in 2.4.0 that do not occur in 
+> 2.2.13.  Sysrq keys have no effect (ie hard reset required to recover)
+> 
+I've noticed pretty much the same situation on my uniproc box, aic7xxx driver, adaptec 2940uw card since going to 2.4.0-prerelease. haven't had to hard reset, but have seen a LOT of scsi timeout errors. i did not notice this on 2.4.0-test12 or test13pre2. when i'm at home i'll see if i can find any pattern or more info, and also test with 2.4.0 final.
+mullein
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

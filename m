@@ -1,92 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263176AbTKWB7u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 20:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTKWB7t
+	id S263189AbTKWCK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 21:10:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263190AbTKWCK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 20:59:49 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2792 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263176AbTKWB7r (ORCPT
+	Sat, 22 Nov 2003 21:10:26 -0500
+Received: from main.gmane.org ([80.91.224.249]:55512 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263189AbTKWCKY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 20:59:47 -0500
-Date: Sat, 22 Nov 2003 17:59:43 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Marco d'Itri" <md@Linux.IT>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: irq 15: nobody cared! with KT600 chipset and 2.6.0-test9
-In-Reply-To: <20031122235539.GA14576@wonderland.linux.it>
-Message-ID: <Pine.LNX.4.44.0311221741250.2379-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 22 Nov 2003 21:10:24 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Do I need kswapd if I don't have swap?
+Date: Sun, 23 Nov 2003 03:10:21 +0100
+Message-ID: <yw1xd6bjbzsi.fsf@kth.se>
+References: <m3d6bj3lz6.fsf@bfnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:AzrV69aMg3GSpH8A+Q741TSKexY=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Wuertele <dave-gnus@bfnet.com> writes:
 
-Oops.
+> I expected this program to malloc most of my embedded MIPS's 32MB of
+> system RAM, then eventually return with a -1 or a -2.  Unfortunately,
+> it hangs having finally printed:
+>
+>   M26916864
+>   W26916864
+>   R26916864
+>
+> The malloc call isn't even returning.  What could explain that?
 
- I read your report lazily, and didn't do it right. I just noticed that it
-isn't actually irq3 and the raid controller at 0:0f.0 that is the problem
-at all: the problem is the regular legacy stuff on 0:0f.1: hdc/hdd that is
-on irq15.
+I can't help you there.
 
-The IRQ probe for hdc fails, for some silly reason. 
-But we actually correctly _notice_ that it's on irq15, so I
+> I don't have swap space configured, and I notice several kernel
+> threads that I figure might be assuming I have swap.  For example:
+>
+>       3 root     S    [ksoftirqd_CPU0]
+>       4 root     S    [kswapd]
+>       5 root     S    [bdflush]
+>       6 root     S    [kupdated]
+>       7 root     S    [mtdblockd]
+>
+> Do I need any of these if I don't have swap?  Are there any special
+> kernel configs I should be doing if I don't have swap?
 
-Note how we say:
+Swap space is really just special case of disk caching.  Many pages
+will be backed by regular files, such as the text segment of most
+processes.  Swap is used for pages that don't have a corresponding
+disk file.  Not configuring any swap is perfectly normal, and
+shouldn't cause any problems.  After all, swap is normally enabled by
+some system boot script, so it has to be able to start without any
+swap space.  For the record, I've been running without swap for a long
+time on a system with enough real RAM.
 
-	kernel: hdc: IRQ probe failed (0x3cfa)
-
-but then a few lines later we _have_ figured it out and say
-
-	kernel: ide1 at 0x170-0x177,0x376 on irq 15
-
-The problem _appears_ to be the fact that we already registered irq15 for 
-the IDE driver, which will cause the probe to fail (you can't probe 
-something that is already in use).
-
-Can you try this patch, and see if it makes a difference? I'd also like to 
-see the full "dmesg" output (regardless of whether it works or not).
-
-		Linus
-
------
-===== drivers/ide/ide-probe.c 1.65 vs edited =====
---- 1.65/drivers/ide/ide-probe.c	Wed Sep  3 09:52:16 2003
-+++ edited/drivers/ide/ide-probe.c	Sat Nov 22 17:59:04 2003
-@@ -413,24 +413,17 @@
- 		udelay(5);
- 		irq = probe_irq_off(cookie);
- 		if (!hwif->irq) {
--			if (irq > 0) {
--				hwif->irq = irq;
--			} else {
--				/* Mmmm.. multiple IRQs..
--				 * don't know which was ours
--				 */
--				printk("%s: IRQ probe failed (0x%lx)\n",
--					drive->name, cookie);
--#ifdef CONFIG_BLK_DEV_CMD640
--#ifdef CMD640_DUMP_REGS
--				if (hwif->chipset == ide_cmd640) {
--					printk("%s: Hmmm.. probably a driver "
--						"problem.\n", drive->name);
--					CMD640_DUMP_REGS;
--				}
--#endif /* CMD640_DUMP_REGS */
--#endif /* CONFIG_BLK_DEV_CMD640 */
-+			/* Mmmm.. multiple IRQs, and we don't know
-+			 * which was ours. We'd better guess.
-+			 */
-+			if (irq <= 0) {
-+				int guess = hwif->channel ? 15 : 14;
-+
-+				printk("%s: IRQ probe failed (0x%lx: %d). Guessing at %d\n",
-+					drive->name, cookie, irq, guess);
-+				irq = guess;
- 			}
-+			hwif->irq = irq;
- 		}
- 	}
- 	return retval;
+-- 
+Måns Rullgård
+mru@kth.se
 

@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266041AbUA1TQa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 14:16:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266014AbUA1TQ2
+	id S266010AbUA1TZH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 14:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUA1TYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 14:16:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62143 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266041AbUA1TPv (ORCPT
+	Wed, 28 Jan 2004 14:24:45 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:5855 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S266010AbUA1TYM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 14:15:51 -0500
-Date: Wed, 28 Jan 2004 11:15:29 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: hpa@zytor.com, klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: long long on 32-bit machines
-Message-Id: <20040128111529.4debeb40.davem@redhat.com>
-In-Reply-To: <401809B2.70907@techsource.com>
-References: <4017F991.2090604@zytor.com>
-	<401809B2.70907@techsource.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Jan 2004 14:24:12 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16408.3157.336306.812481@napali.hpl.hp.com>
+Date: Wed, 28 Jan 2004 11:24:05 -0800
+To: Andi Kleen <ak@suse.de>
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, iod00d@hp.com,
+       ishii.hironobu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
+In-Reply-To: <20040128195246.47a84498.ak@suse.de>
+References: <00a201c3e541$c0e7d680$2987110a@lsd.css.fujitsu.com>
+	<20040128172004.GB5494@cup.hp.com>
+	<20040128184137.616b6425.ak@suse.de>
+	<16408.30.896895.980121@napali.hpl.hp.com>
+	<20040128195246.47a84498.ak@suse.de>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jan 2004 14:12:50 -0500
-Timothy Miller <miller@techsource.com> wrote:
+>>>>> On Wed, 28 Jan 2004 19:52:46 +0100, Andi Kleen <ak@suse.de> said:
 
-> I don't know how it is for GCC, but when using the Sun compiler, "long 
-> long" for 32-bit is low-high, while "long long" (or just long) for 
-> 64-bit is high-low.  This has been an annoyance to me.  :)
+  >> I find this comment interesting.  Can you elaborate what you mean by
+  >> "slightly buggy systems"?
 
-For 64-bit it goes into a single 64-bit register.
-And for 32-bit the sequence is high 32-bits low 32-bits.
-At least on Sparc.
+  Andi> e.g. one bit ECC errors in memory are quite common.  And with
+  Andi> ECC memory they are not really fatal.
 
-extern void foo(long long a);
-void bar(void)
-{
-    foo(1);
-}
-/* gcc -m32 -S -o bar.s bar.c */
-bar:
-	!#PROLOGUE# 0
-	save	%sp, -104, %sp
-	!#PROLOGUE# 1
-	mov	0, %o0
-	mov	1, %o1
-	call	foo, 0
-	 nop
-	nop
-	ret
-	restore
-/* gcc -m64 -S -o bar.s bar.c */
-bar:
-	!#PROLOGUE# 0
-	save	%sp, -192, %sp
-	!#PROLOGUE# 1
-	mov	1, %o0
-	call	foo, 0
-	 nop
-	nop
-	return	%i7+8
+Yet they are a good indicator that something is wrong (not performing
+properly) or may be failing soon.  I don't think putting on blinders
+for such problems is a good idea.  Though I agree that the question of
+how to report such things without needlessly alerting Joe Clueless is
+an interesting challenge.
+
+	--david

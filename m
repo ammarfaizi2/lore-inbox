@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266043AbTBOVBj>; Sat, 15 Feb 2003 16:01:39 -0500
+	id <S265786AbTBOU7a>; Sat, 15 Feb 2003 15:59:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266064AbTBOVBj>; Sat, 15 Feb 2003 16:01:39 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:29833 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S266043AbTBOVBh>; Sat, 15 Feb 2003 16:01:37 -0500
-Date: Sat, 15 Feb 2003 13:11:25 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: problems with 2.5.61-mm1
-Message-ID: <6190000.1045343484@[10.10.2.4]>
-In-Reply-To: <3E4E8B41.6080609@us.ibm.com>
-References: <3E4E0153.3000008@us.ibm.com> <92090000.1045333203@[10.10.2.4]>
- <3E4E8B41.6080609@us.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S265798AbTBOU7a>; Sat, 15 Feb 2003 15:59:30 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:43275 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265786AbTBOU73>; Sat, 15 Feb 2003 15:59:29 -0500
+Date: Sat, 15 Feb 2003 21:09:22 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       "Theodore T'so" <tytso@mit.edu>
+Subject: Re: [PATCH] Extended attribute fixes, etc.
+Message-ID: <20030215210922.A24685@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andreas Gruenbacher <agruen@suse.de>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	Theodore T'so <tytso@mit.edu>
+References: <200302112018.58862.agruen@suse.de> <200302151859.11370.agruen@suse.de> <20030215183959.B22045@infradead.org> <200302152017.03259.agruen@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200302152017.03259.agruen@suse.de>; from agruen@suse.de on Sat, Feb 15, 2003 at 08:17:03PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> No, that's a kirq broke no_irq_balance thing (I presume this is NUMA-Q?).
-> 
-> Nope, it's an 8-way Summit box.
-> 
-> I just booted 2.5.61, and the problem still happens there, so it not
-> surprisingly isn't just -mm.
+On Sat, Feb 15, 2003 at 08:17:03PM +0100, Andreas Gruenbacher wrote:
+> That sounds quite reasonable. I would have to raise CAP_SYS_ADMIN for 
+> trusted EA's, though. Do you see any potential side effects while a 
+> pretty powerful capability like CAP_SYS_ADMIN is temporarily raised?
 
-Ah, OK. Sorry, "assumptions > coffee" error.
- 
->> There's a bootflag option to disable it as well, but that's broken too. I
->> can't fix do it right now, but someone needs to go through and fix all
->> the disable bits so they work.
-> 
-> Disabling it is easy.  Any idea what might be wrong.
+Okay, something I missed when looking over your patches, otherwise I'd
+have shutde earlier :)  Do you really think you want CAP_SYS_ADMIN for
+trusted EAs?  Soon we'll get CAP_SYS_ADMIN as catchall like old suser()..
 
-Yup, lots of the code assumes things are in flat logical mode, and/or
-that you can target arbitrary bitmasks of CPUs ... see the fix I sent out
-yesterday for smp_affinity, for instance.
-
-M.
+Let me check what XFS uses for that purpose as soon as I'm back in the
+office.
 

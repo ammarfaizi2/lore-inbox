@@ -1,65 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbVCJUWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262962AbVCJUV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbVCJUWM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 15:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVCJUWL
+	id S262962AbVCJUV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 15:21:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbVCJURp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 15:22:11 -0500
-Received: from imag.imag.fr ([129.88.30.1]:3311 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S263000AbVCJUUC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 15:20:02 -0500
-Date: Thu, 10 Mar 2005 21:19:24 +0100 (MET)
-From: "emmanuel.colbus@ensimag.imag.fr" <colbuse@ensisun.imag.fr>
-X-X-Sender: colbuse@ensisun
-To: linux-kernel@vger.kernel.org
-Subject: [RFC][SPARC64][kernel 2.4] __show_regs() calls to printk()
-Message-ID: <Pine.GSO.4.40.0503102050160.27735-100000@ensisun>
+	Thu, 10 Mar 2005 15:17:45 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:7405 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263108AbVCJUOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 15:14:10 -0500
+Message-ID: <4230AAA3.2060208@comcast.net>
+Date: Thu, 10 Mar 2005 15:14:27 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Thu, 10 Mar 2005 21:19:58 +0100 (CET)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+To: Diego Calleja <diegocg@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: binary drivers and development
+References: <423075B7.5080004@comcast.net>	<423082BF.6060007@comcast.net> <20050310210302.12938479.diegocg@gmail.com>
+In-Reply-To: <20050310210302.12938479.diegocg@gmail.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hello,
+Stop mailing me, I lost interest when I figured out nobody else cared.
 
-in the file arch/sparc64/kernel/process.c, the function __show_regs()
-prints the content of the registers four by four, but every register's
-content needs 16 caracters to be printed; the name of the register needs 4
-caracters; and one caracter is needed to separate this value from the next
-register's name.
+Diego Calleja wrote:
+> El Thu, 10 Mar 2005 12:24:15 -0500,
+> John Richard Moser <nigelenki@comcast.net> escribió:
+> 
+> [...]
+> 
+>> - Smaller kernel tree
+> 
+> [...]
+> 
+>> - Better focused development
+> 
+> [...]
+> 
+>> - Faster rebuilding for developers
+> 
+> 
+> It can be done without UDI.
+> 
+> 
 
-Therefore, it uses 84 caracters per line, but the VT100 has only 80, so we
-are using two lines instead of only one, shortening the content of the
-(eventual) Oops one could sent.
+Then do so.
 
-I think we could perform better, by suppressing the space between the name
-of the register and it's value. By this way, instead of writing :
+> 
+>>- UDI supplies SMP safety
+> 
+> 
+> Well designed drivers don't have SMP issues either...
+> 
 
-g4: fffff80000000000 g5: 0000000000000004 g6: fffff80001348000 g7: 000000000000
-0000
+I figured as much but *shrug*
 
-we would have :
+> 
 
-g4:fffff80000000000 g5:0000000000000004 g6:fffff80001348000 g7:0000000000000000
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
-It remains fully understandable, I think. Alternately, we could print only
-3 registers per line, but since the registers are grouped 8 by 8,
-it would be less logical.
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-This would also have a sense for Sparc32 computers, and, in the same file,
-for the functions show_stackframe and show_regwindow.
-
-Any comments? Should I make a patch?
-
-
---
-Emmanuel Colbus
-Club GNU/Linux
-ENSIMAG - Departement Telecoms
-
-
-
+iD8DBQFCMKqihDd4aOud5P8RAqifAJ0aH26fq/x6AatH5S2ji2PRCsbOrQCgkGht
+xKVJ2rbkE+WGxCkGqyqrckM=
+=nQYU
+-----END PGP SIGNATURE-----

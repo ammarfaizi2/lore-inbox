@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131613AbRAXMVb>; Wed, 24 Jan 2001 07:21:31 -0500
+	id <S131492AbRAXM3Z>; Wed, 24 Jan 2001 07:29:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131614AbRAXMVV>; Wed, 24 Jan 2001 07:21:21 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:56342 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131613AbRAXMVN>; Wed, 24 Jan 2001 07:21:13 -0500
-Date: Wed, 24 Jan 2001 13:21:44 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Richard Henderson <rth@twiddle.net>
-Cc: Russell King <rmk@arm.linux.org.uk>, Hubert Mantel <mantel@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Compatibility issue with 2.2.19pre7
-Message-ID: <20010124132144.A13308@athlon.random>
-In-Reply-To: <20010110163158.F19503@athlon.random> <200101102209.f0AM9N803486@flint.arm.linux.org.uk> <20010111005924.L29093@athlon.random> <20010123235115.A14786@twiddle.net> <20010124100240.A4526@athlon.random> <20010124015149.A14891@twiddle.net>
+	id <S131253AbRAXM3O>; Wed, 24 Jan 2001 07:29:14 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:62214 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S130153AbRAXM3H>; Wed, 24 Jan 2001 07:29:07 -0500
+Date: Wed, 24 Jan 2001 13:27:53 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: Scaramanga <scaramanga@barrysworld.com>
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@us5.samba.org
+Subject: Re: Firewall netlink question...
+Message-ID: <20010124132753.U6055@coruscant.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
+	Scaramanga <scaramanga@barrysworld.com>,
+	linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org
+In-Reply-To: <20010122073343.A3839@lemsip.lan> <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de> <20010122102600.A4458@lemsip.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010124015149.A14891@twiddle.net>; from rth@twiddle.net on Wed, Jan 24, 2001 at 01:51:49AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010122102600.A4458@lemsip.lan>; from scaramanga@barrysworld.com on Mon, Jan 22, 2001 at 10:26:00AM +0000
+X-Operating-System: 2.4.0-test11p4
+X-Date: Today is Pungenday, the 13rd day of Chaos in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 24, 2001 at 01:51:49AM -0800, Richard Henderson wrote:
-> On Wed, Jan 24, 2001 at 10:02:40AM +0100, Andrea Arcangeli wrote:
-> > I'd love if you could forbid it to compile.
+On Mon, Jan 22, 2001 at 10:26:00AM +0000, Scaramanga wrote:
 > 
-> Problem is that there's stuff like this all over the place.  Plus,
+> Yeah, after some quick googling and freshmeating, i came accross a daemon
+> that picked up these QUEUEd packets and multiplexed them to various child
+> processes, which seemed very innefcient, the documentation said something
+> about QUEUE not being multicast in nature, like the old firewall netlink.
 
-That's why I thought you were required to make it to compile. For example
-you don't know if there's another object that will cast the int pointer back to
-char pointer before dereferencing. That would get a defined runtime behaviour
-on all archs.
+ah... you are referring to my ipqmpd (ip queue multiplex daemon). Yes, it
+is not very efficient. But it is right now the only way to have multiple
+processes using the ip_queue. 
 
-And yes, I see above I'm not allowed to say "runtime" nor "defined behaviour"
-according to the standard, but that's how thing works in practice.
+The ideal solution is a queue handler which does in fact handle more than
+one queue from inside the kernel. Unfortunately nobody got around writing
+it yet. 
 
-Andrea
+> What was wrong with the firewall netlink? My re-implementation works great
+> here. I can't see why anything else would be needed, QUEUE seems twice as
+> complex. Unless with QUEUE the userspce applications can make decisions on
+> what to do with the packet? In which case, it would be far too inefficient
+> for an application like mine, where all i need is to be able to read the
+> IP datagrams..
+
+well... the ip_queue module as opposed to your implementation as iptables
+target has the following advantages:
+
+- can be used from each netfilter-hook attached code (not only from 
+  an ip table)
+- is more generic (you can register different queue handler, ipv6, ...)
+
+btw: please move this discussion to netfilter-devel@lists.samba.org
+
+> Regards
+
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org                http://www.gnumonks.org
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
+V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

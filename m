@@ -1,50 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318690AbSHSMWP>; Mon, 19 Aug 2002 08:22:15 -0400
+	id <S318344AbSHSMVX>; Mon, 19 Aug 2002 08:21:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318696AbSHSMWP>; Mon, 19 Aug 2002 08:22:15 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:51471 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S318690AbSHSMWN>; Mon, 19 Aug 2002 08:22:13 -0400
-Date: Mon, 19 Aug 2002 14:26:12 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: [OT] Re: vfsv0 quota patch
-Message-ID: <20020819122612.GA10569@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020818.221833.100352848.davem@redhat.com> <Pine.LNX.4.44.0208191250120.28677-100000@aurora.nsu.ru>
+	id <S318690AbSHSMVX>; Mon, 19 Aug 2002 08:21:23 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:10999 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318344AbSHSMVX>; Mon, 19 Aug 2002 08:21:23 -0400
+Subject: Re: 2.4 and full ipv6 - will it happen?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Tomasz Torcz, BG" <zdzichu@irc.pl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020819043941.GA31158@irc.pl>
+References: <20020819043941.GA31158@irc.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 19 Aug 2002 13:25:35 +0100
+Message-Id: <1029759935.19375.12.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208191250120.28677-100000@aurora.nsu.ru>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Aug 2002, Dmitry N. Hramtsov wrote:
-
-> On Sun, 18 Aug 2002, David S. Miller wrote:
+On Mon, 2002-08-19 at 05:39, Tomasz Torcz, BG wrote:
 > 
-> > It is inaccessible because the city of Prague is currently under
-> > several feet of water, if you haven't heard.
-> 
-> I am sorry.  I haven't juxtapose this two facts.
-> I hope that this force majeur is not for a long.
+> Some time ago Linux was first OS to have full RFC complaint IPv4 stack.
 
-It will pass in some days or weeks, but who is doing the cleaning up and
-the repairs or rebuilds (not of software, but of houses, roads, rail
-roads, you name it) damaged? Who is paying for all that?
+There are no fully RFC compliant IPv4 stacks. The Linux networking stack
+is not capable of jumping over tall buildings.
 
-It's not only Prague that has been struck, but also parts in Southern
-Russia, other parts of the Czech Republic, Germany, Austria... Just grab
-a good map and look where the Elbe, Danube and Molde rivers flow, to
-name just three that have wreaked havoc recently.
-
-Certainly, getting a certain *.cz computer up and running is of a
-subordinate concern in Prague.
-
-Please don't discuss this here further, but just understand that people
-have bigger worries for the time being.
-
--- 
-Matthias Andree

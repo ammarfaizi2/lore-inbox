@@ -1,75 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264144AbTFPSel (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 14:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbTFPScw
+	id S264147AbTFPSem (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 14:34:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTFPScX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 14:32:52 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:64961 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264052AbTFPSbF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 14:31:05 -0400
-Date: Mon, 16 Jun 2003 20:44:26 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: <jfontain@free.fr>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.21 / IDE lost interrupt / ServerWorks problem
-In-Reply-To: <1055763075.3eedaa83b19c8@imp.free.fr>
-Message-ID: <Pine.SOL.4.30.0306162041200.22323-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Jun 2003 14:32:23 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:62122 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264146AbTFPSa0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 14:30:26 -0400
+Date: Mon, 16 Jun 2003 10:33:10 -0700
+From: Greg KH <greg@kroah.com>
+To: "Martin A. Brooks" <martin@hinterlands.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB and/or keyboard bizarreness
+Message-ID: <20030616173310.GC25132@kroah.com>
+Reply-To: linux-kernel@vger.kernel.org
+References: <6.0.0.9.0.20030615121539.02b98950@10.119.48.254>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6.0.0.9.0.20030615121539.02b98950@10.119.48.254>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 15, 2003 at 12:49:55PM +0100, Martin A. Brooks wrote:
+> 
+> Hi
+> 
+> I recently purchased an Epox 8RDA (nforce2) motherboard.  I'm using 1 gig 
+> of ddr 266 memory and an athlon 1.3ghz downclocked to 1.1ghz.
+> 
+> At the BIOS screen, the keyboard works just fine when connected via either 
+> the USB or PS2 port.
+> 
+> When booting 2.4.18, the kernel halts when loading the OHCI driver.
+> When booting 2.4.20, the system comes up but the keyboard doesn't respond 
+> when plugged in to the ps2 port, I can't try it with USB.
+> When booting 2.4.21, kernel panic.
 
-Hi,
+Can you try disabling BIOS USB support and see if that helps?
 
-Do you have ServerWorks IDE support compiled in 2.4.21?
-Can you send me boot logs from 2.4.20 and 2.4.21?
+And what is the panic?  Can you run it though ksymoops and send it to
+us?
 
-Regards,
---
-Bartlomiej
+thanks,
 
-On Mon, 16 Jun 2003 jfontain@free.fr wrote:
-
-> [Please CC me as I am not subscribed to the list]
->
-> I just upgraded from a 2.4.20 to 2.4.21 but had to revert due to the following
-> errors:
->  hdd: dma_timer_expiry: dma status == 0x60
->  hdd: timeout waiting for DMA
->  hdd: lost interrupt
->
-> This chipset is:
->   Bus  0, device  15, function  0:
->     ISA bridge: ServerWorks CSB5 South Bridge (rev 147).
->   Bus  0, device  15, function  1:
->     IDE interface: ServerWorks CSB5 IDE Controller (rev 147).
->   Bus  0, device  15, function  2:
->     USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 5).
-> on a bi-pentium III machine.
->
-> With 2.4.20 and the ide1=ata66 kernel option, that setup worked great:
-> # /sbin/hdparm -t /dev/hdd
-> /dev/hdd:
->  Timing buffered disk reads:  64 MB in  1.37 seconds = 46.72 MB/sec
-> (thanks to all for such great performance (same as SCSI!))
->
-> For 2.4.21, I just added the new "Generic PCI IDE Chipset Support" (no help
-> provided), and recompiled, then rebooted. The 2.4.20 message:
->   hdd:351651888sectors(180046 MB)w/2048KiBCache,CHS=21889/255/63,UDMA(100)
-> appeared on 2.4.21 as (notice that UDMA(100) has dissapeared):
->   hdd:351651888sectors(180046 MB)w/2048KiBCache,CHS=21889/255/63
->
-> I then tried hdparm, which came up with only 2.5 MB/sec, then forced DMA which
-> hdparm, tested again and got the errors cited at the beginning of this
-> message.
->
-> Please let me know if you'd like me to perform some tests, but as I can only
-> reboot once or twice at lunch time.
->
-> Regards,
->
-> Jean-Luc
-
+greg k-h

@@ -1,226 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVBPRoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVBPRvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbVBPRoM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 12:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVBPRoM
+	id S262076AbVBPRvH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 12:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVBPRvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 12:44:12 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:22397 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262013AbVBPRnt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 12:43:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=rPSgsyFTeHX+iCrvgFlBWtOJ7RqWGvyuDwjnOpxR1ymh4kiBwgbrRXO0W0VH684bqFblFJuymy1VgOCGyAxpDVQiaLLSvZscaf0xeuJTAIvkyyLUEVHObkuYt1sEk1ossTZ9WV472trDqgSo5lWD2usKjFEx9Mgsq1y2T2vlMn0=
-Message-ID: <e796392205021609436128ce0@mail.gmail.com>
-Date: Wed, 16 Feb 2005 18:43:47 +0100
-From: Stefan Schweizer <sschweizer@gmail.com>
-Reply-To: Stefan Schweizer <sschweizer@gmail.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-Cc: =?ISO-8859-1?Q?Stefan_D=F6singer?= <stefandoesinger@gmx.at>,
-       acpi-devel@lists.sourceforge.net, Pavel Machek <pavel@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-In-Reply-To: <42136158.5000906@gmx.net>
+	Wed, 16 Feb 2005 12:51:07 -0500
+Received: from extgw-uk.mips.com ([62.254.210.129]:43525 "EHLO
+	mail.linux-mips.net") by vger.kernel.org with ESMTP id S262016AbVBPRvB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 12:51:01 -0500
+Date: Wed, 16 Feb 2005 17:44:06 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, davem@davemloft.net,
+       tony.luck@intel.com, schwidefsky@de.ibm.com
+Subject: Re: [PATCH] Consolidate the last compat sigvals
+Message-ID: <20050216174406.GA12946@linux-mips.org>
+References: <20050215154648.74e54fff.sfr@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_201_27284302.1108575827074"
-References: <20050214211105.GA12808@elf.ucw.cz>
-	 <e796392205021521541da7ee25@mail.gmail.com>
-	 <200502160948.43005.stefandoesinger@gmx.at> <42136158.5000906@gmx.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050215154648.74e54fff.sfr@canb.auug.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_201_27284302.1108575827074
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, Feb 15, 2005 at 03:46:48PM +1100, Stephen Rothwell wrote:
 
-On Wed, 16 Feb 2005 16:06:00 +0100, Carl-Daniel Hailfinger
-<c-d.hailfinger.devel.2005@gmx.net> wrote:
-> Stefan D=F6singer schrieb:
-> >>The problems with this patch are:
-> >>- you need to press a key to come back from the "resume-console" after
-> >>resume. - DRI in X does not work (at least for me with intel-agp, other=
-s
-> >>reportet it works)
-> >>I just disabloed it by not loading intel-agp (hotplug-blacklist)
-> >
-> > You can force the radeon X driver to use pci mode by setting Option
-> > "ForcePciMode" to "true" or something simmilar in you X config file. Th=
-is way
-> > you can get dri without intel-agp. This is much slower, but enought to =
-play
-> > tuxracer ;-)
->=20
-> How do I enable DRI with my card to test that crash? I have the
-> following in my XF86Config:
->=20
-> Section "DRI"
->     Group      "video"
->     Mode       0660
-> EndSection
->=20
-> but nothing else about DRI. So do I have to change something in
-> my configuration?
->=20
-you need to compile the right modules and load the agp-bridge's and
-your gfx module.
-> Oh, and could you please include run "lspci -vv" and include the
-> part about VGA compatible controller in your mail? I have some
-> hypothesis about the settings there having to do with resume.
->=20
+> This patch just consolidates the last of the (what should have been)
+> compat_sigval_ts.  It worries me that S390 has a sigval_t in its struct
+> compat_siginfo, but I have left that for now.
+> 
+> Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> 
+> P.S. this patch has not even been compiled as I don't have acces to any of
+> the platforms involved, but should be straight forward to fix if it breaks
+> anything.
 
-I attached the full output because there are some more "AGP" there.
-I just tried it again and it only crashed my X after resume with
-intel-agp .. I was able to type still and start a new X but when I
-tried to run a 3d-app it hard crashed and I had to reboot :(
-I hope you have an idea.
+You missed one instance for MIPS.  Below patch makes MIPS build.
 
-Regards,
-Stefan
+  Ralf
 
-------=_Part_201_27284302.1108575827074
-Content-Type: application/octet-stream; name="lspcivv"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="lspcivv"
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 
-MDAwMDowMDowMC4wIEhvc3QgYnJpZGdlOiBJbnRlbCBDb3JwLiA4Mjg0NSA4NDUgKEJyb29rZGFs
-ZSkgQ2hpcHNldCBIb3N0IEJyaWRnZSAocmV2IDA0KQoJU3Vic3lzdGVtOiBBY2VyIEluY29ycG9y
-YXRlZCBbQUxJXTogVW5rbm93biBkZXZpY2UgMDAxOQoJQ29udHJvbDogSS9PLSBNZW0rIEJ1c01h
-c3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VS
-UisgRmFzdEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERF
-VlNFTD1mYXN0ID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVu
-Y3k6IDAKCVJlZ2lvbiAwOiBNZW1vcnkgYXQgPGlnbm9yZWQ+ICgzMi1iaXQsIHByZWZldGNoYWJs
-ZSkKCUNhcGFiaWxpdGllczogW2U0XSAjMDkgWzkxMDRdCglDYXBhYmlsaXRpZXM6IFthMF0gQUdQ
-IHZlcnNpb24gMi4wCgkJU3RhdHVzOiBSUT0zMiBJc28tIEFycVN6PTAgQ2FsPTAgU0JBKyBJVEFD
-b2gtIEdBUlQ2NC0gSFRyYW5zLSA2NGJpdC0gRlcrIEFHUDMtIFJhdGU9eDEseDIseDQKCQlDb21t
-YW5kOiBSUT0xIEFycVN6PTAgQ2FsPTAgU0JBLSBBR1AtIEdBUlQ2NC0gNjRiaXQtIEZXLSBSYXRl
-PTxub25lPgoKMDAwMDowMDowMS4wIFBDSSBicmlkZ2U6IEludGVsIENvcnAuIDgyODQ1IDg0NSAo
-QnJvb2tkYWxlKSBDaGlwc2V0IEFHUCBCcmlkZ2UgKHJldiAwNCkgKHByb2ctaWYgMDAgW05vcm1h
-bCBkZWNvZGVdKQoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1X
-SU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czog
-Q2FwLSA2Nk1oeisgVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1mYXN0ID5UQWJvcnQtIDxU
-QWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDk2CglCdXM6IHByaW1hcnk9
-MDAsIHNlY29uZGFyeT0wMSwgc3Vib3JkaW5hdGU9MDEsIHNlYy1sYXRlbmN5PTY0CglJL08gYmVo
-aW5kIGJyaWRnZTogMDAwMDMwMDAtMDAwMDNmZmYKCU1lbW9yeSBiZWhpbmQgYnJpZGdlOiBlODAw
-MDAwMC1lODBmZmZmZgoJUHJlZmV0Y2hhYmxlIG1lbW9yeSBiZWhpbmQgYnJpZGdlOiBmMDAwMDAw
-MC1mN2ZmZmZmZgoJRXhwYW5zaW9uIFJPTSBhdCAwMDAwMzAwMCBbZGlzYWJsZWRdIFtzaXplPTRL
-XQoJQnJpZGdlQ3RsOiBQYXJpdHktIFNFUlItIE5vSVNBKyBWR0ErIE1BYm9ydC0gPlJlc2V0LSBG
-YXN0QjJCLQoKMDAwMDowMDoxZS4wIFBDSSBicmlkZ2U6IEludGVsIENvcnAuIDgyODAxIFBDSSBC
-cmlkZ2UgKHJldiAwNSkgKHByb2ctaWYgMDAgW05vcm1hbCBkZWNvZGVdKQoJQ29udHJvbDogSS9P
-KyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBT
-dGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJC
-KyBQYXJFcnItIERFVlNFTD1mYXN0ID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8
-UEVSUi0KCUxhdGVuY3k6IDAKCUJ1czogcHJpbWFyeT0wMCwgc2Vjb25kYXJ5PTAyLCBzdWJvcmRp
-bmF0ZT0wMiwgc2VjLWxhdGVuY3k9NjQKCUkvTyBiZWhpbmQgYnJpZGdlOiAwMDAwNDAwMC0wMDAw
-NGZmZgoJTWVtb3J5IGJlaGluZCBicmlkZ2U6IGU4MTAwMDAwLWU4MWZmZmZmCglCcmlkZ2VDdGw6
-IFBhcml0eS0gU0VSUi0gTm9JU0ErIFZHQS0gTUFib3J0LSA+UmVzZXQtIEZhc3RCMkItCgowMDAw
-OjAwOjFmLjAgSVNBIGJyaWRnZTogSW50ZWwgQ29ycC4gODI4MDFCQSBJU0EgQnJpZGdlIChMUEMp
-IChyZXYgMDUpCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUrIE1lbVdJ
-TlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBD
-YXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8
-VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAwCgowMDAwOjAwOjFmLjEg
-SURFIGludGVyZmFjZTogSW50ZWwgQ29ycC4gODI4MDFCQSBJREUgVTEwMCAocmV2IDA1KSAocHJv
-Zy1pZiA4MCBbTWFzdGVyXSkKCVN1YnN5c3RlbTogQWNlciBJbmNvcnBvcmF0ZWQgW0FMSV06IFVu
-a25vd24gZGV2aWNlIDAwMTkKCUNvbnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNs
-ZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglT
-dGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5U
-QWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCVJlZ2lv
-biA0OiBJL08gcG9ydHMgYXQgMTgwMCBbc2l6ZT0xNl0KCjAwMDA6MDA6MWYuMiBVU0IgQ29udHJv
-bGxlcjogSW50ZWwgQ29ycC4gODI4MDFCQS9CQU0gVVNCIChIdWIgIzEpIChyZXYgMDUpIChwcm9n
-LWlmIDAwIFtVSENJXSkKCVN1YnN5c3RlbTogQWNlciBJbmNvcnBvcmF0ZWQgW0FMSV06IFVua25v
-d24gZGV2aWNlIDAwMTkKCUNvbnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0g
-TWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0
-dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJv
-cnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCUludGVycnVw
-dDogcGluIEQgcm91dGVkIHRvIElSUSA1CglSZWdpb24gNDogSS9PIHBvcnRzIGF0IDE4MjAgW3Np
-emU9MzJdCgowMDAwOjAwOjFmLjMgU01CdXM6IEludGVsIENvcnAuIDgyODAxQkEvQkFNIFNNQnVz
-IChyZXYgMDUpCglTdWJzeXN0ZW06IEFjZXIgSW5jb3Jwb3JhdGVkIFtBTEldOiBVbmtub3duIGRl
-dmljZSAwMDE5CglDb250cm9sOiBJL08rIE1lbS0gQnVzTWFzdGVyLSBTcGVjQ3ljbGUtIE1lbVdJ
-TlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBD
-YXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8
-VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglJbnRlcnJ1cHQ6IHBpbiBCIHJvdXRlZCB0
-byBJUlEgMTEKCVJlZ2lvbiA0OiBJL08gcG9ydHMgYXQgMTgxMCBbc2l6ZT0xNl0KCjAwMDA6MDA6
-MWYuNCBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFCQS9CQU0gVVNCIChIdWIgIzIp
-IChyZXYgMDUpIChwcm9nLWlmIDAwIFtVSENJXSkKCVN1YnN5c3RlbTogQWNlciBJbmNvcnBvcmF0
-ZWQgW0FMSV06IFVua25vd24gZGV2aWNlIDAwMTkKCUNvbnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0
-ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIt
-IEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZT
-RUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVu
-Y3k6IDAKCUludGVycnVwdDogcGluIEMgcm91dGVkIHRvIElSUSAxMQoJUmVnaW9uIDQ6IEkvTyBw
-b3J0cyBhdCAxODQwIFtzaXplPTMyXQoKMDAwMDowMDoxZi41IE11bHRpbWVkaWEgYXVkaW8gY29u
-dHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFCQS9CQU0gQUMnOTcgQXVkaW8gKHJldiAwNSkKCVN1
-YnN5c3RlbTogQWNlciBJbmNvcnBvcmF0ZWQgW0FMSV06IFVua25vd24gZGV2aWNlIDAwMTkKCUNv
-bnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3At
-IFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVE
-Ri0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJv
-cnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCUludGVycnVwdDogcGluIEIgcm91dGVkIHRv
-IElSUSAxMQoJUmVnaW9uIDA6IEkvTyBwb3J0cyBhdCAxYzAwCglSZWdpb24gMTogSS9PIHBvcnRz
-IGF0IDE4ODAgW3NpemU9NjRdCgowMDAwOjAwOjFmLjYgTW9kZW06IEludGVsIENvcnAuIDgyODAx
-QkEvQkFNIEFDJzk3IE1vZGVtIChyZXYgMDUpIChwcm9nLWlmIDAwIFtHZW5lcmljXSkKCVN1YnN5
-c3RlbTogQWNlciBJbmNvcnBvcmF0ZWQgW0FMSV06IFVua25vd24gZGV2aWNlIDAwMTkKCUNvbnRy
-b2w6IEkvTysgTWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBh
-ckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0g
-RmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQt
-ID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCUludGVycnVwdDogcGluIEIgcm91dGVkIHRvIElS
-USAxMQoJUmVnaW9uIDA6IEkvTyBwb3J0cyBhdCAyNDAwCglSZWdpb24gMTogSS9PIHBvcnRzIGF0
-IDIwMDAgW3NpemU9MTI4XQoKMDAwMDowMTowMC4wIFZHQSBjb21wYXRpYmxlIGNvbnRyb2xsZXI6
-IEFUSSBUZWNobm9sb2dpZXMgSW5jIFJhZGVvbiBNb2JpbGl0eSBNNiBMWSAocHJvZy1pZiAwMCBb
-VkdBXSkKCVN1YnN5c3RlbTogQWNlciBJbmNvcnBvcmF0ZWQgW0FMSV06IFVua25vd24gZGV2aWNl
-IDAwMTkKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0g
-VkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmcrIFNFUlIrIEZhc3RCMkIrCglTdGF0dXM6IENhcCsg
-NjZNaHorIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJv
-cnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDY2ICgyMDAwbnMgbWluKSwgY2Fj
-aGUgbGluZSBzaXplIDA4CglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgNQoJUmVnaW9u
-IDA6IE1lbW9yeSBhdCBmMDAwMDAwMCAoMzItYml0LCBwcmVmZXRjaGFibGUpCglSZWdpb24gMTog
-SS9PIHBvcnRzIGF0IDMwMDAgW3NpemU9MjU2XQoJUmVnaW9uIDI6IE1lbW9yeSBhdCBlODAwMDAw
-MCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT02NEtdCglDYXBhYmlsaXRpZXM6IFs1
-OF0gQUdQIHZlcnNpb24gMi4wCgkJU3RhdHVzOiBSUT00OCBJc28tIEFycVN6PTAgQ2FsPTAgU0JB
-KyBJVEFDb2gtIEdBUlQ2NC0gSFRyYW5zLSA2NGJpdC0gRlctIEFHUDMtIFJhdGU9eDEseDIseDQK
-CQlDb21tYW5kOiBSUT0xIEFycVN6PTAgQ2FsPTAgU0JBKyBBR1AtIEdBUlQ2NC0gNjRiaXQtIEZX
-LSBSYXRlPTxub25lPgoJQ2FwYWJpbGl0aWVzOiBbNTBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lv
-biAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMSsgRDIrIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0s
-RDEtLEQyLSxEM2hvdC0sRDNjb2xkLSkKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBE
-U2NhbGU9MCBQTUUtCgowMDAwOjAyOjAwLjAgQ2FyZEJ1cyBicmlkZ2U6IE8yIE1pY3JvLCBJbmMu
-IE9aNjkzMyBDYXJkYnVzIENvbnRyb2xsZXIgKHJldiAwMSkKCVN1YnN5c3RlbTogQWNlciBJbmNv
-cnBvcmF0ZWQgW0FMSV06IFVua25vd24gZGV2aWNlIDAwMTkKCUNvbnRyb2w6IEkvTysgTWVtKyBC
-dXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmcr
-IFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQi0gUGFyRXJy
-LSBERVZTRUw9c2xvdyA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglM
-YXRlbmN5OiAxNjgKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSA1CglSZWdpb24gMDog
-TWVtb3J5IGF0IDIwMDAwMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpCglCdXM6IHByaW1h
-cnk9MDIsIHNlY29uZGFyeT0wMywgc3Vib3JkaW5hdGU9MDYsIHNlYy1sYXRlbmN5PTE3NgoJTWVt
-b3J5IHdpbmRvdyAwOiAyMDQwMDAwMC0yMDdmZjAwMCAocHJlZmV0Y2hhYmxlKQoJTWVtb3J5IHdp
-bmRvdyAxOiAyMDgwMDAwMC0yMGJmZjAwMAoJSS9PIHdpbmRvdyAwOiAwMDAwNDQwMC0wMDAwNDRm
-ZgoJSS9PIHdpbmRvdyAxOiAwMDAwNDgwMC0wMDAwNDhmZgoJQnJpZGdlQ3RsOiBQYXJpdHktIFNF
-UlItIElTQS0gVkdBLSBNQWJvcnQtID5SZXNldC0gMTZiSW50KyBQb3N0V3JpdGUrCgkxNi1iaXQg
-bGVnYWN5IGludGVyZmFjZSBwb3J0cyBhdCAwMDAxCgowMDAwOjAyOjAwLjEgQ2FyZEJ1cyBicmlk
-Z2U6IE8yIE1pY3JvLCBJbmMuIE9aNjkzMyBDYXJkYnVzIENvbnRyb2xsZXIgKHJldiAwMSkKCVN1
-YnN5c3RlbTogQWNlciBJbmNvcnBvcmF0ZWQgW0FMSV06IFVua25vd24gZGV2aWNlIDAwMTkKCUNv
-bnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3At
-IFBhckVyci0gU3RlcHBpbmcrIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZNaHotIFVE
-Ri0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9c2xvdyA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0
-LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAxNjgKCUludGVycnVwdDogcGluIEIgcm91dGVkIHRv
-IElSUSAxMQoJUmVnaW9uIDA6IE1lbW9yeSBhdCAyMDAwMTAwMCAoMzItYml0LCBub24tcHJlZmV0
-Y2hhYmxlKQoJQnVzOiBwcmltYXJ5PTAyLCBzZWNvbmRhcnk9MDcsIHN1Ym9yZGluYXRlPTBhLCBz
-ZWMtbGF0ZW5jeT0xNzYKCU1lbW9yeSB3aW5kb3cgMDogMjBjMDAwMDAtMjBmZmYwMDAgKHByZWZl
-dGNoYWJsZSkKCU1lbW9yeSB3aW5kb3cgMTogMjEwMDAwMDAtMjEzZmYwMDAKCUkvTyB3aW5kb3cg
-MDogMDAwMDRjMDAtMDAwMDRjZmYKCUkvTyB3aW5kb3cgMTogMDAwMDUwMDAtMDAwMDUwZmYKCUJy
-aWRnZUN0bDogUGFyaXR5LSBTRVJSLSBJU0EtIFZHQS0gTUFib3J0LSA+UmVzZXQtIDE2YkludCsg
-UG9zdFdyaXRlKwoJMTYtYml0IGxlZ2FjeSBpbnRlcmZhY2UgcG9ydHMgYXQgMDAwMQoKMDAwMDow
-MjowOC4wIEV0aGVybmV0IGNvbnRyb2xsZXI6IEludGVsIENvcnAuIDgyODAxQkEvQkFNL0NBL0NB
-TSBFdGhlcm5ldCBDb250cm9sbGVyIChyZXYgMDMpCglTdWJzeXN0ZW06IEFjZXIgSW5jb3Jwb3Jh
-dGVkIFtBTEldOiBVbmtub3duIGRldmljZSAwMDE5CglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFz
-dGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYrIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJS
-KyBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVW
-U0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRl
-bmN5OiA2NiAoMjAwMG5zIG1pbiwgMTQwMDBucyBtYXgpLCBjYWNoZSBsaW5lIHNpemUgMDgKCUlu
-dGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAxMQoJUmVnaW9uIDA6IE1lbW9yeSBhdCBlODEw
-MDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKQoJUmVnaW9uIDE6IEkvTyBwb3J0cyBhdCA0
-MDAwIFtzaXplPTY0XQoJQ2FwYWJpbGl0aWVzOiBbZGNdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lv
-biAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJKyBEMSsgRDIrIEF1eEN1cnJlbnQ9MG1BIFBNRShEMCss
-RDErLEQyKyxEM2hvdCssRDNjb2xkKykKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBE
-U2NhbGU9MiBQTUUtCgo=
-------=_Part_201_27284302.1108575827074--
+ signal32.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-oprof/arch/mips/kernel/signal32.c
+===================================================================
+--- linux-oprof.orig/arch/mips/kernel/signal32.c	2005-02-16 17:42:42.000000000 +0000
++++ linux-oprof/arch/mips/kernel/signal32.c	2005-02-16 17:43:46.000000000 +0000
+@@ -78,7 +78,7 @@
+ 		struct {
+ 			timer_t _tid;		/* timer id */
+ 			int _overrun;		/* overrun count */
+-			sigval_t32 _sigval;	/* same as below */
++			compat_sigval_t _sigval;/* same as below */
+ 			int _sys_private;       /* not to be passed to user */
+ 		} _timer;
+ 

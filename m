@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265918AbTL3UcN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 15:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265945AbTL3UcN
+	id S262355AbTL3UrD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 15:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTL3UrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 15:32:13 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:64411 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265918AbTL3UcK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 15:32:10 -0500
-Date: Tue, 30 Dec 2003 21:31:47 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Dom <binary1230@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: KERNEL BUG: 2.4.22 processes occasionally segfault, kernel crashes, machine reboots
-Message-ID: <20031230203147.GA28446@wohnheim.fh-wedel.de>
-References: <20031230190822.88961.qmail@web40210.mail.yahoo.com> <20031230192108.GW1882@matchmail.com>
+	Tue, 30 Dec 2003 15:47:03 -0500
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:10206 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S262355AbTL3UrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 15:47:01 -0500
+Date: Tue, 30 Dec 2003 13:48:20 -0700
+From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Is it safe to ignore UDMA BadCRC errors?
+Message-ID: <20031230204820.GA7663@bounceswoosh.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <16368.20794.147453.255239@jik.kamens.brookline.ma.us> <20031229195235.GC26821@bounceswoosh.org> <16369.25514.425834.153361@jik.kamens.brookline.ma.us> <20031230200643.GC6992@bounceswoosh.org> <16369.56307.995425.595117@jik.kamens.brookline.ma.us> <20031230202540.GE6992@bounceswoosh.org> <16369.57428.470813.237725@jik.kamens.brookline.ma.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031230192108.GW1882@matchmail.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <16369.57428.470813.237725@jik.kamens.brookline.ma.us>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 December 2003 11:21:08 -0800, Mike Fedyk wrote:
-> On Tue, Dec 30, 2003 at 11:08:22AM -0800, Dom wrote:
-> > [1.] (seemingly random?) processes occasionally
-> > segfault, kernel crashes, machine reboots
-> 
-> I'd suggest you run memtest86 on it ASAP since zap_page_range is a very
-> often used function in the kernel, and very unlikely to have bugs in it, and
-> more likely to find hardware problems.
-> 
-> Also check your:
->  o cooling
->  o power supply
->  o cables
+On Tue, Dec 30 at 15:30, Jonathan Kamens wrote:
+>Eric D. Mudama writes:
+> > UDMA modes include a checksum on every transfer, for both reads and
+> > writes.
+>
+>This contradicts what I was told previously by another subscriber to
+>this list.
+>
+>If it is true, then it would appear that the answer to my question "Is
+>it save to ignore UDMA BadCRC errors?" is "Yes."  If all transfers are
+>checksummed, and if all transfers with bad checksums will be retried
+>by the kernel, then occasional checksum errors are harmless because
+>they will be retried.  Do you agree?
 
-Or try to reproduce the same problems on a different machine.  If you
-can - ugly kernel bug.  If not - borken hardware.  I suspect you
-can't.
+No, I don't.
 
-Jörn
+Your system may always detect the errors and function happily (as
+designed) but to me the $30 for the security of knowing you have 100%
+functioning hardware is well worth it.
+
+--eric
 
 -- 
-Simplicity is prerequisite for reliability.
--- Edsger W. Dijkstra
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
+

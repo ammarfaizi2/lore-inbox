@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313682AbSDPRLB>; Tue, 16 Apr 2002 13:11:01 -0400
+	id <S313707AbSDPRNM>; Tue, 16 Apr 2002 13:13:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313686AbSDPRLA>; Tue, 16 Apr 2002 13:11:00 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:7319 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S313682AbSDPRK6>; Tue, 16 Apr 2002 13:10:58 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 16 Apr 2002 10:18:18 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: davidm@hpl.hp.com
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <15548.22093.57788.557129@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.44.0204161013050.1460-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313770AbSDPRNL>; Tue, 16 Apr 2002 13:13:11 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:28290 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S313707AbSDPRNJ>; Tue, 16 Apr 2002 13:13:09 -0400
+Date: Tue, 16 Apr 2002 11:12:58 -0600
+Message-Id: <200204161712.g3GHCw513349@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, khalid_aziz@hp.com
+Subject: OK, who broke the serial driver in 2.4.19-pre7?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Apr 2002, David Mosberger wrote:
+  Hi, all. 2.4.19-pre7 has broken the serial driver. With 2.4.19-pre6
+and before, my first serial port was ttyS0 (4, 64), and I got these
+kernel messages:
+ttyS00 at 0x03f8 (irq = 4) is a 16550A 
+ttyS01 at 0x02f8 (irq = 3) is a 16550A 
 
-> >>>>> On Tue, 16 Apr 2002 16:27:12 +0000 (UTC), torvalds@transmeta.com (Linus Torvalds) said:
->
->   Linus> And I've had some Intel people grumble about it, because it
->   Linus> apparently means that the timer tick takes anything from 2%
->   Linus> to an extreme of 10% (!!) of the CPU time under certain
->   Linus> loads.
->
-> I'm not sure I believe this.  I have had occasional cases where I
-> wondered whether the timer tick caused significant overhead, but it
-> always turned out to be something else.  In my measurements,
-> *user-level* profiling has the 2-10% overhead you're mentioning, but
-> that's with a signal delivered to user level on each tick.
+With 2.4.19-pre7, my first serial port is ttyS1 (4, 65), and I get:
+ttyS01 at 0x03f8 (irq = 4) is a 16550A
+ttyS02 at 0x02f8 (irq = 3) is a 16550A
 
-i still have pieces of paper on my desk about tests done on my dual piii
-where by hacking HZ to 1000 the kernel build time went from an average of
-2min:30sec to an average 2min:43sec. that is pretty close to 10%
+Was this broken by the HCDP serial ports changes?
 
+				Regards,
 
-
-- Davide
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

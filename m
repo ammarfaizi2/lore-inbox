@@ -1,99 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263823AbUEEIQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUEEI3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbUEEIQV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 04:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263885AbUEEIQD
+	id S263962AbUEEI3K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 04:29:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264056AbUEEI3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 04:16:03 -0400
-Received: from smtp.wp.pl ([212.77.101.160]:693 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id S263823AbUEEIP6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 04:15:58 -0400
-Date: Wed, 5 May 2004 10:15:53 +0200
-From: "=?ISO-8859-2?Q?Rafa=B3?= 'rmrmg' Roszak" <rmrmg@wp.pl>
-To: linux-kernel@vger.kernel.org
-Cc: m.c.p@kernel.linux-systeme.com
-Subject: Re: Linux 2.4.27-pre2 (gcc-3.4.0)
-Message-Id: <20040505101553.7110da0c.rmrmg@wp.pl>
-In-Reply-To: <20040505.083644.241899480.rene@rocklinux-consulting.de>
-References: <20040504211939.79ed1e6f.rmrmg@wp.pl>
-	<200405042146.40404@WOLK>
-	<20040504220325.25516d8f.rmrmg@wp.pl>
-	<20040505.083644.241899480.rene@rocklinux-consulting.de>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 5 May 2004 04:29:10 -0400
+Received: from [213.133.118.2] ([213.133.118.2]:25472 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S263962AbUEEI3F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 04:29:05 -0400
+Message-ID: <4098A6BF.4090507@shadowconnect.com>
+Date: Wed, 05 May 2004 10:33:03 +0200
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/5] I2O subsystem fixing and cleanup for 2.6 - i2o-passthru.patch
+References: <40916621.50509@shadowconnect.com> <4097DEA2.7000808@pobox.com>
+In-Reply-To: <4097DEA2.7000808@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: skaner antywirusowy poczty Wirtualnej Polski S. A. [wersja 2.0c]
-X-WP-AntySpam-Rezultat: NIE-SPAM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-begin  Rene Rebe <rene@rocklinux-consulting.de> quote:
+Hello,
 
-> It is for 2.4.26 - but should apply mostly to 2.4.27-pre2, too - I
-> have not yet booted the resulting kernel, soo ....
+Jeff Garzik wrote:
+>> +struct sg_simple_element {
+>> +    u32  flag_count;
+>> +    u32 addr_bus;
+>> +};
+> if this is truly the structure, then S/G to a 64-bit address looks 
+> impossible.
 
-patching file kernel/sysctl.c
-Hunk #1 succeeded at 879 (offset 3 lines).
-Hunk #3 succeeded at 1133 (offset 3 lines).
-patching file lib/brlock.c
-patching file lib/crc32.c
-patching file lib/rwsem.c
-patching file lib/string.c
-patching file mm/filemap.c
-patching file mm/memory.c
-patching file mm/page_alloc.c
-Hunk #1 FAILED at 82.
-Hunk #2 succeeded at 241 (offset 41 lines).
-Hunk #4 succeeded at 295 (offset 41 lines).
-Hunk #6 succeeded at 486 (offset 41 lines).
-Hunk #8 succeeded at 509 (offset 41 lines).
-1 out of 8 hunks FAILED -- saving rejects to file mm/page_alloc.c.rej
+The structure is only used for the management software. This is only 
+used, because there is no sg_io() function for char devices like it is 
+for block devices.
 
-[root@slack:/usr/src/linux-2.4.27-pre2#] cat ./mm/page_alloc.c.rej 
-***************
-*** 82,88 ****
-   */
-  
-  static void FASTCALL(__free_pages_ok (struct page *page, unsigned int
-order));- static void __free_pages_ok (struct page *page, unsigned int
-order)  {
-  	unsigned long index, page_idx, mask, flags;
-  	free_area_t *area;
---- 82,88 ----
-   */
-  
-  static void FASTCALL(__free_pages_ok (struct page *page, unsigned int
-order));+ static void fastcall __free_pages_ok (struct page *page,
-unsigned int order)  {
-  	unsigned long index, page_idx, mask, flags;
-  	free_area_t *area;
-[root@slack:/usr/src/linux-2.4.27-pre2#] 
+>> +    get_user(reply_size, &user_reply[0]);
+> unchecked return val?
 
+That's true, i'll fix this.
 
-make[2]: Entering directory `/usr/src/linux-2.4.27-pre2/mm'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.27-pre2/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon
--fno-unit-at-a-time   -nostdinc -iwithprefix include
--DKBUILD_BASENAME=page_alloc  -DEXPORT_SYMTAB -c page_alloc.c
-page_alloc.c:115: error: conflicting types for '__free_pages_ok'
-page_alloc.c:51: error: previous declaration of '__free_pages_ok' was
-here page_alloc.c:115: error: conflicting types for '__free_pages_ok'
-page_alloc.c:51: error: previous declaration of '__free_pages_ok' was
-here page_alloc.c:51: warning: '__free_pages_ok' used but never defined
-make[2]: *** [page_alloc.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.27-pre2/mm'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.27-pre2/mm'
-make: *** [_dir_mm] Error 2
+>> +    memset(reply, 0, REPLY_FRAME_SIZE*4);
+>> +    sg_offset = (msg[0]>>4)&0x0f;
+>> +    msg[2] = (u32)i2o_cfg_context;
+>> +    msg[3] = (u32)reply;
+> when filling in message, you should probably be using cpu_to_le32()
+
+AFAIK the msg[2] and msg[3] is not used by the I2O controller itself. It 
+is only used by the driver to track messages (when a reply message comes 
+back). So it should be save to not use the cpu_to_le32() here.
+
+>> +    memset(sg_list,0, sizeof(sg_list[0])*SG_TABLESIZE);
+>> +    if(sg_offset) {
+>> +        // TODO 64bit fix
+>> +        struct sg_simple_element *sg = (struct sg_simple_element*) 
+>> (msg+sg_offset);
+>> +        sg_count = (size - sg_offset*4) / sizeof(struct 
+>> sg_simple_element);
+> You're de-refencing based on a userland-supplied value, without checking 
+> the bounds of the variable for proper range.
+
+Okay, i'll try fix this too.
+
+Thank you very much that you take time to review my patch.
 
 
 
+Best regards,
 
--- 
-. JID: rmrmg(at)jabberpl(dot)org |   RMRMG   .
-.           gg: #2311504         | signature .
-.   mail: rmrmg(at)wp(dot)pl     |  version  .
-.  registered Linux user 261525  |   0.0.3   .
+
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
+
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
+
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
+
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com

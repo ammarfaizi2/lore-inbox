@@ -1,96 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131733AbRDFPrb>; Fri, 6 Apr 2001 11:47:31 -0400
+	id <S131756AbRDFPwl>; Fri, 6 Apr 2001 11:52:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131742AbRDFPrW>; Fri, 6 Apr 2001 11:47:22 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:32494 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S131733AbRDFPrI>;
-	Fri, 6 Apr 2001 11:47:08 -0400
-Date: Fri, 6 Apr 2001 17:46:02 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200104061546.RAA15266@harpo.it.uu.se>
-To: alan@lxorguk.ukuu.org.uk, benh@kernel.crashing.org,
-        linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        mikpe@csd.uu.se
-Subject: Re: console.c unblank_screen problem
+	id <S131806AbRDFPwb>; Fri, 6 Apr 2001 11:52:31 -0400
+Received: from fwns2d.raleigh.ibm.com ([204.146.167.236]:56068 "EHLO
+	fwns2.raleigh.ibm.com") by vger.kernel.org with ESMTP
+	id <S131756AbRDFPwP>; Fri, 6 Apr 2001 11:52:15 -0400
+Message-ID: <3ACDE5C5.CEB65D4A@raleigh.ibm.com>
+Date: Fri, 06 Apr 2001 16:50:29 +0100
+From: Christopher Turcksin <turcksin@raleigh.ibm.com>
+Organization: IBM Global Services AMS Design & Development
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: "Miller, Brendan" <Brendan.Miller@Dialogic.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Proper way to release binary driver?
+In-Reply-To: <EFC879D09684D211B9C20060972035B1D46A39@exchange2ca.sv.dialogic.com> <m1g0fnwoo0.fsf@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Apr 2001 13:09:11 +0200 (MET DST), Mikael Petterson wrote:
+"Eric W. Biederman" wrote:
 
-> On Sun, 25 Mar 2001 18:40:03 +0200, Benjamin Herrenschmidt wrote:
-> 
-> >There is a problem with the power management code for console.c
-> >
-> >The current code calls do_blank_screen(0); on PM_SUSPEND, and
-> >unblank_screen() on PM_RESUME.
-> >
-> >The problem happens when X is the current display while putting the
-> >machine to sleep. The do_blank_screen(0) code will do nothing as
-> >the console is not in KD_TEXT mode.
-> >However, unblank_screen has no such protection. That means that
-> >on wakeup, the cursor timer & console blank timers will be re-enabled
-> >while X is frontmost, causing the blinking cursor to be displayed on
-> >top of X, and other possible issues.
-> >
-> >I hacked the following pacth to work around this. It appear to work
-> >fine, but since the console code is pretty complex, I'm not sure about
-> >possible side effects and I'd like some comments before submiting it
-> >to Linus:
->...
-> Before the patch: After a few days with a 2.4 kernel and RH7.0
-> (XFree86-4.0.1-1 and XFree86-SVGA-3.3.6-33) the latop would
-> misbehave at a resume event: when I opened the lid the screen would
-> unblank and then after less than a second the entire screen would
-> shift (wrap/rotate) left by about 40% of its width.
->...
-> With the patch: No problem after 10 days with frequent suspend/resume
-> cycles. (2.4.2-ac24 + the patch)
+> If what you are after is a way to release a driver that is not a
+> hassle to add to an already working system, you will find a more
+> receptive ear.  I have heard some talk, that it would be a good idea
+> to figure out how to standardize how to compile a kernel driver
+> outside the kernel tree, so it could be trivial enough that anyone
+> could do it.  To date there are enough people around who don't have
+> problems compiling their own kernel that this hasn't become a major
+> issue.
 
-Correction: While the patch eliminated the X screen wrap problem at resume,
-it caused a new problem: now when I exit X the console is left in a blanked
-state. This seems to happen if at least one suspend/resume cycle has
-occurred before X is terminated.
+Eric,
 
-After some experimentation I came up with the patch below (vs. 2.4.3-ac3)
-which _so_far_ behaves ok on my laptop. If the resume-while-in-X problems
-resurface or not I won't know until after several more days of testing,
-but at least the console is unblanked correctly again.
+I am finding myself exactly in this situation, and I've got a feeling
+that this won't be the last time either.
 
-Does _anyone_ understand this code and its interactions with X? I'm lost...
+I expect that every future Linux driver I get involved with will be
+released under GPL. However, I think that the majority of our customers
+will be running a distribution that does not yet support a new driver,
+and even at Linux speeds, it'll take a long enough time that customers
+cannot afford to wait for the next release that includes the driver.
 
-/Mikael
+So the big issue for us appears to be how we support these customers.
 
---- linux-2.4.3-ac3/drivers/char/console.c.~1~	Thu Apr  5 15:57:36 2001
-+++ linux-2.4.3-ac3/drivers/char/console.c	Thu Apr  5 18:52:43 2001
-@@ -2713,23 +2713,23 @@
- 		printk("unblank_screen: tty %d not allocated ??\n", fg_console+1);
- 		return;
- 	}
--	currcons = fg_console;
--	if (vcmode != KD_TEXT) {
--		console_blanked = 0;
--		return;
--	}
- 	console_timer.function = blank_screen;
- 	if (blankinterval) {
- 		mod_timer(&console_timer, jiffies + blankinterval);
- 	}
--
-+	currcons = fg_console;
- 	console_blanked = 0;
- 	if (console_blank_hook)
- 		console_blank_hook(0);
- 	set_palette(currcons);
--	if (sw->con_blank(vc_cons[currcons].d, 0))
-+	if (sw->con_blank(vc_cons[currcons].d, 0)) {
-+		if (vcmode != KD_TEXT)
-+			return;
- 		/* Low-level driver cannot restore -> do it ourselves */
- 		update_screen(fg_console);
-+	}
-+	if (vcmode != KD_TEXT)
-+		return;
- 	set_cursor(fg_console);
- }
- 
+There is no way that we can support customers who have custom kernels,
+but since they are 'in it' enough to compile their own kernel, I guess
+they're able to apply our patch and recompile it. I actually suspect
+that there aren't that many who do this anyway.
+
+Where we find we have a problem is the number of different 'standard'
+kernels out there. We find that we need to support all releases since
+the last year or so for each distribution. And for each of those, we
+find that there are many different kernel versions (some bugfixes, some
+provide half a dozen different kernels with the CDs, aso.). And since we
+do not expect these customers to compile their own kernel, we see no
+option but to provide a precompiled binary driver. The numbers multiply
+quickly and building all of those becomes an interesting problem.
+
+We had hoped that MODVERSIONS would allow us to provide a single (or at
+most a few) binary driver. Kernels with even minor version numbers are
+supposed to be stable (even if they are buggy) ie. not have wildly
+changing kernel interfaces.
+
+In practice, that doesn't work. A driver compiled with 2.2.16 doesn't
+load with 2.2.16-5.0 (from RedHat 6.2) (just an example). 
+
+
+
+-- 
+bfn,
+wabbit
+
+IBM Global Services, UK AMS in Greenock, Scotland.
+
+	" To err is human, but to really foul things up requires the root
+password. "

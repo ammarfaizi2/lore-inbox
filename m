@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317791AbSG2TJy>; Mon, 29 Jul 2002 15:09:54 -0400
+	id <S317591AbSG2TgJ>; Mon, 29 Jul 2002 15:36:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317815AbSG2TJy>; Mon, 29 Jul 2002 15:09:54 -0400
-Received: from acd.ufrj.br ([146.164.3.7]:57357 "EHLO acd.ufrj.br")
-	by vger.kernel.org with ESMTP id <S317791AbSG2TJx>;
-	Mon, 29 Jul 2002 15:09:53 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Scorpion <scorpionlab@ieg.com.br>
-Reply-To: scorpionlab@ieg.com.br
-Organization: ScorpionLAB
-To: linux-kernel@vger.kernel.org
-Subject: IO-APIC in SMP dual Athlon XP1800
-Date: Mon, 29 Jul 2002 16:12:32 -0300
-User-Agent: KMail/1.4.1
+	id <S317593AbSG2TgJ>; Mon, 29 Jul 2002 15:36:09 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:65293 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S317591AbSG2TgI>; Mon, 29 Jul 2002 15:36:08 -0400
+Date: Mon, 29 Jul 2002 12:39:24 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: text screen corruption - bug in console vga code
+In-Reply-To: <794826DE8867D411BAB8009027AE9EB91E7056D8@fmsmsx38.fm.intel.com>
+Message-ID: <Pine.LNX.4.44.0207291239040.13970-100000@www.transvirtual.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200207291612.38473.scorpionlab@ieg.com.br>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi follows,
-I'm getting in troubles with a A7M266-D motherboard with two
-Athlon XP 1800 cpus (yes, XP not MP!).
-Following the screen shot of my problem:
-^-------cut here---------^
-EIP:    0010:[<c0111686>]    Not tainted
-EFLAGS: 00011046
-<4>CPU:    1
-<4>CPU:    1
-EIP:    0010:[<c0111686>]    Not tainted
-EFLAGS:  00011046
- `u!wisuu`m aeesess 7eg111eg
- printing eip:
- printing eip:
-*pde = 11111010
-Stuck ??
-CPU #1 not responding - cannot use it.
-Error: only one processor found.
-ENABLING IO-APIC IRQs
-Setting 2 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 2 ... ok.
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 2-10, 2-11, 2-12, 2-13, 2-16, 2-17, 2-20, 2-21, 2-22, 
-2-23 not connected.
-..TIMER: vector=0x31 pin1=2 pin2=0
-^-----cut here-----^
+> We have observed text mode console screen corruption on some architecture.
+> The symptom was on a text console, when edit a large file with vi, pressing
+> "down" arrow key to scroll would cause the corruption.
+>
+> It turns out that the culprit was the kernel console vga code where scrup()
+> is illegally using mempcy() function when src/dest memory areas overlaps.
+> This bug showed up when we optimized memcpy to use advanced optimization
+> technique.
+>
+> This patch make use of memmove() which handles overlapping areas gracefully.
+> Would the maintainer please push this into the base?
 
-After spend some times put printk's in kernel source like "Reach this point!"
-I was trying disable IO_APIC in .config file but some link erros ocurred. 
-Has any way to turn IO_APIC disable? Or its extreme necessary?
+Done :-) Will be in th enext sync up.
 
-Thanks,
-Ricardo.

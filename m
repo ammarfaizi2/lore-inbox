@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284321AbRLGSl7>; Fri, 7 Dec 2001 13:41:59 -0500
+	id <S284309AbRLGSoj>; Fri, 7 Dec 2001 13:44:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284322AbRLGSlu>; Fri, 7 Dec 2001 13:41:50 -0500
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:10115 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S284321AbRLGSld>; Fri, 7 Dec 2001 13:41:33 -0500
-Message-ID: <3C110D57.3050409@antefacto.com>
-Date: Fri, 07 Dec 2001 18:41:27 +0000
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: horrible disk thorughput on itanium
-In-Reply-To: <Pine.LNX.4.33.0112071013390.8465-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S284324AbRLGSoa>; Fri, 7 Dec 2001 13:44:30 -0500
+Received: from [213.156.59.6] ([213.156.59.6]:54026 "HELO
+	smail2.dmz1.icn.siemens.it") by vger.kernel.org with SMTP
+	id <S284309AbRLGSoV>; Fri, 7 Dec 2001 13:44:21 -0500
+X-WebMail-UserID: salinarl@ikuws01.icn.siemens.it
+Date: Fri, 7 Dec 2001 19:44:49 +0100
+From: salinarl <Lanfranco.Salinari@icn.siemens.it>
+To: linux-kernel@vger.kernel.org
+X-EXP32-SerialNo: 00003484
+Subject: Question about sniffers and linux
+Message-ID: <3BEC87A2@webmail>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Mailer: WebMail (Hydra) SMTP v3.61.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Hello to everyone,
+I am new to kernel internals, and I would like to know how can a sniffer
+read whole packets, I mean including the link layer header. In the receive
+path, this happens, I think,  in the net_rx_action(), but in the transmit
+path?
+I know that there is a function called dev_queue_xmit_nit() for this, but
+how can a driver add a link layer header to a packet before this function
+gets called? The hard_start_xmit() of the driver is, in fact, called after
+the dev_queue_xmit_nit(), (in the function dev_queue_xmit() ).
+I think I'm missing something important about the subject, but I hope someone 
+will answer me, anyway.
+Thank you in advance,
 
-> On Fri, 7 Dec 2001, Andi Kleen wrote:
-> 
->>Your proposals sound rather dangerous. They would silently break recompiled
->>threaded programs that need the locking and don't use -D__REENTRANT
->>
-> 
-> No it wouldn't.
-> 
-> Once you do a pthread_create(), the locking is there.
-> 
-> Before you do a pthread_create(), it doesn't lock.
-> 
-> What's the problem? Before you do a pthread_create(), you don't _NEED_
-> locking, because there is only one thread that accesses the stdio data
-> structures.
-> 
-> And there are no races - if there is only one thread, then another thread
-> couldn't be suddenly doing a pthread_create() during a stdio operations.
-> 
-> Safe, and efficient. Yes, it adds a flag test or a indirect branch, but
-> considering that you avoid a serialized locking instruction, the
-> optimization sounds obvious.
-> 
-> 		Linus
-
-
+Lanfranco
 

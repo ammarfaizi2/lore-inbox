@@ -1,91 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315423AbSELVSO>; Sun, 12 May 2002 17:18:14 -0400
+	id <S315424AbSELVWz>; Sun, 12 May 2002 17:22:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315424AbSELVSN>; Sun, 12 May 2002 17:18:13 -0400
-Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:55466 "HELO
-	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
-	id <S315423AbSELVSM>; Sun, 12 May 2002 17:18:12 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Changelogs on kernel.org
-In-Reply-To: <20020512010709.7a973fac.spyro@armlinux.org>
-	<abmi0f$ugh$1@penguin.transmeta.com>
-From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Date: Sun, 12 May 2002 23:17:23 +0200
-Message-ID: <873cwx2hi4.fsf@CERT.Uni-Stuttgart.DE>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1 (i686-pc-linux-gnu)
+	id <S315425AbSELVWy>; Sun, 12 May 2002 17:22:54 -0400
+Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:23947 "EHLO
+	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S315424AbSELVWx>; Sun, 12 May 2002 17:22:53 -0400
+Message-ID: <3CDEDEA5.2020002@earthlink.net>
+Date: Sun, 12 May 2002 17:29:09 -0400
+From: Becki Minich <bminich@earthlink.net>
+User-Agent: Mozilla/5.0 (Windows; U; Win95; en-US; rv:0.9.4.1) Gecko/20020314 Netscape6/6.2.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Reiserfs has killed my root FS!?!
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds) writes:
+Firstly, I haven't subscribed to this list since 2.3 so please also copy 
+me on repsonses.
+Secondly, I am e-mailing from my Mother's place as it IS Mother's Day 
+AND my home PC will no longer boot Linux (my primary OS), so please send 
+responses to johnnyo@mindspring.com
+TIA :-)
 
-> Perl is the obvious choice for doing transformations like these.  Is
-> anybody willing to write a perl script that does the "sort by author"
-> thing?
+Now the problem.
+I use reiserfs on all my filesystems.  I have noticed some minor 
+corruption of files in the past when I didnt shut down Linux properly 
+(lockups, etc).  I experiment alot with my computer.
 
-#!/usr/bin/perl -w
-# Reformat 2.4 ChangeLog
+Anyway lately I was havin a problem that required frequent reboots.  Now 
+I believe my root filesystem is corrupted?!?  Linux 2.4.18 boots till it 
+gets to
 
-use strict;
+reiserfs: checking transaction log (device 08:12)
+attempt to access beyond end of device
+08:12: rw=0 want=268574776 limit=8747392
+vs-13070: reiserfs_read_inode2: i/o failure occurred trying to find stat 
+data of [1 2 0x0 SD]
+Using r5 hash to sort names
+Reiserfs version 3.6.25
+VFS: Mounted root (reiserfs filesystem) readonly.
+Warning: unable to mount devfs, err: -5
+Freeing unused kernel memory: 224k freed
+Warning: unable to open an initial console.
+Kernel panic: No init found.
 
-my %authors = ();
-my $current;
+If someone can get me to the point where I can just get to read my 
+filesystem read-only, so I get get all my data off of it, I would be 
+EXTREMELY GRATEFUL!  I have some very important data on that FS.  I went 
+to the reiserfs web site to discover I'd get charged $25 for asking for 
+help, so unless someone convinces me otherwise, I will be converting to 
+EXT3 when this disaster is over...
 
-while (<>) {
-    chomp;
-    if (/^</) {
-	if (exists $authors{$_}) {
-	    $current = $authors{$_};
-	} else {
-	    $current = $authors{$_} = [];
-	}
-    } else {
-	die "illegal format" unless defined $current;
-	push @$current, $_;
-    }
-}
+Slackware Linux 8.1b2
+Linux 2.4.18
+ReiserFS 3.6.25
+GLIBC 2.2.5
+GCC 2.95.3
 
-my $author;
-foreach $author (sort keys %authors) {
-    print "$author\n";
-    $_ = join "\n", @{$authors{$author}};
-    # Add empty line before next author.    
-    s/\n*$/\n\n/;
-    print;
-}
-
-For your example, the result is:
-
-<jsimmons@heisenberg.transvirtual.com>
-        A bunch of fixes.
-
-        Pmac updates
-
-        Some more small fixes.
-
-<rmk@arm.linux.org.uk>
-        [PATCH] 2.5.13: vmalloc link failure
-        
-        The following patch fixes this, and also fixes the similar problem in
-        scsi_debug.c:
-
-<trond.myklebust@fys.uio.no>
-        [PATCH] in_ntoa link failure
-        
-        Nothing serious. Whoever it was that did that global replacemissed a
-        spot is all...
-
-<viro@math.psu.edu>
-        [PATCH] change_floppy() fix
-        
-        Needed both in 2.4 and 2.5
+Any help please?!?
+John O'Donnell
+johnnyo@mindspring.com
 
 
-IMHO, it doesn't make much sense.
-
--- 
-Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

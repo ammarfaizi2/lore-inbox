@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264383AbRFSQND>; Tue, 19 Jun 2001 12:13:03 -0400
+	id <S263211AbRFSQ1i>; Tue, 19 Jun 2001 12:27:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264389AbRFSQMx>; Tue, 19 Jun 2001 12:12:53 -0400
-Received: from isimail.interactivesi.com ([207.8.4.3]:2826 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S264383AbRFSQMq>; Tue, 19 Jun 2001 12:12:46 -0400
-Date: Tue, 19 Jun 2001 11:12:37 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
+	id <S264397AbRFSQ12>; Tue, 19 Jun 2001 12:27:28 -0400
+Received: from smtp-rt-6.wanadoo.fr ([193.252.19.160]:51675 "EHLO
+	caroubier.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S263211AbRFSQ1S>; Tue, 19 Jun 2001 12:27:18 -0400
+Message-ID: <3B2F7D30.4DE87953@wanadoo.fr>
+Date: Tue, 19 Jun 2001 18:26:24 +0200
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20pre3 i586)
+X-Accept-Language: fr-FR, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0106181940400.18769-100000@weyl.math.psu.edu>
-In-Reply-To: <PD1Rx.A.X-F.-YnL7@dinero.interactivesi.com>
-Subject: Re: What happened to lookup_dentry?
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-ID: <g_XL8.A.V8G.4n3L7@dinero.interactivesi.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Subject: 2.2.10-pre4, error while applying the patch
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from Alexander Viro <viro@math.psu.edu> on Mon, 18 Jun 2001
-19:45:11 -0400 (EDT)
+Hi,
+
+While I apply the patch pre-patch-2.2.20-4 to a clean 2.2.19 tree, I get
+the following error :
+
+patching file `drivers/scsi/sd_ioctl.c'
+patching file `drivers/scsi/sym53c8xx.c'
+patching file `drivers/scsi/sym53c8xx_defs.h'
+The next patch would create the file `drivers/sound/ad1848.c',
+which already exists!  Assume -R? [n]
 
 
-> It depends on what kind of use 2.2 code had for it. There are several
-> situations in which it used to be called and proper replacements depend
-> on the context. Details, please... (alternatively, send an URL of patch
-> and I'll see what to do with the thing)
-
-Well, I didn't write the driver that I'm trying to port, so it's a little
-difficult.  The code in question is:
-
-struct dentry *	de = lookup_dentry(zfcdb[i].fullname, NULL, LOOKUP_FOLLOW);
-if (IS_ERR(de))
-	continue;
-if (de != zfcdb[i].dentry) 
-{
-	print("zfc: dentry changed for %s\n", zfcdb[i].fullname);
-	zfc_file_init(&zfcdb[i], de);
-}
-
-So it appears it's just checking to see if the dentry for a particular file has
-changed.
-
-
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
+-----
+Regards
+		Jean-Luc

@@ -1,72 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVCCTs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVCCUij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVCCTs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 14:48:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVCCTpi
+	id S262419AbVCCUij (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 15:38:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbVCCUe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 14:45:38 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56484 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261669AbVCCTnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 14:43:04 -0500
-Message-ID: <422768B4.3040506@pobox.com>
-Date: Thu, 03 Mar 2005 14:42:44 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+	Thu, 3 Mar 2005 15:34:59 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:58026
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S262453AbVCCUeP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 15:34:15 -0500
+Subject: Re: RFD: Kernel release numbering
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
        Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
        Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>	 <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>	 <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>	 <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>	 <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>	 <20050303170808.GG4608@stusta.de> <1109877336.4032.47.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1109877336.4032.47.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <42276AF5.3080603@pobox.com>
+References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
+	 <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
+	 <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
+	 <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
+	 <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>
+	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
+	 <20050303170808.GG4608@stusta.de>
+	 <1109877336.4032.47.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.58.0503031135190.25732@ppc970.osdl.org>
+	 <42276AF5.3080603@pobox.com>
+Content-Type: text/plain
+Date: Thu, 03 Mar 2005 21:34:03 +0100
+Message-Id: <1109882043.4032.79.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> On Thu, 2005-03-03 at 18:08 +0100, Adrian Bunk wrote:
+On Thu, 2005-03-03 at 14:52 -0500, Jeff Garzik wrote:
+> I disagree it's unsolvable:
 > 
-> 
->>This only attacks part of the problem.
-> 
-> 
-> It still does not solve the problem of "untested" releases. Users will
-> still ignore the linus-tree-rcX kernels. 
-> 
-> So we move the real -rcX phase after the so called stable release. 
-> 
-> Doing -rcX from the "sucker" tree up to a stable release makes much more
-> sense and would have more testers and get back lost confidence.
+> 1) At some point in the -rc cycle, you put your foot down and say 
+> "nothing but bugfixes."
 
+Release candidates are supposed to be bugfix only from -rc1. Everything
+else can only be called the "ridiculous count".
 
-Nod.  I really don't think the key penguins understand that there is 
-even a problem here.  Let me attempt to re-state the problem:
+> That's all the 2.4.x's -pre/-rc accomplishes.  It encourages people to 
+> test, by telling them when their testing would be most useful.
 
+Correct, but again 2.4 is a different beast as no active development is
+taking place.
 
-	There is no flag day when "bugfixes only" mode begins.
+In a active development you should move the -rc step out of the
+development line into a seperate release line after the -preX steps. 
 
+It has two advantages:
 
-There are two component to this problem:
+1. The release process is encapsulated and secure against non bugfix
+merges. This can be "sold" to users for testing.
 
-1) Release maintainers need to avoid merging non-bugfixes.  Lately, the 
-key penguins _have_ been doing their job here.  This manifested in 
-2.6.11-rc4, 2.6.11-rc5.
+2. The development cycle is more continous. While -rc1 is led to release
+2.6.X the preparations for 2.6.X+1-pre1 are moving on. This might
+shorten the overall release cycles as well.
 
-2) This "flag day" when bugfixes-only mode starts needs to be completely 
-obvious to _scripts_ and really dumb people.  Posting to LKML "with this 
--rc, I am only taking serious bugfixes" doesn't cut it.  There must be a 
-clear, consistent point where testing may begin.
+tglx
 
-
-As a result of this problem, people have learned [just re-read this 
-thread if you don't believe me] that "-rc" doesn't really mean Release 
-Candidate until -rc2 or -rc3 or so.  And as a result of that, people do 
-less testing.
-
-	Jeff
 
 

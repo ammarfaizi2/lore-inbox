@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263917AbTDYM26 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 08:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263926AbTDYM26
+	id S263021AbTDYMfj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 08:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbTDYMfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 08:28:58 -0400
-Received: from [65.244.37.61] ([65.244.37.61]:8497 "EHLO
-	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
-	id S263917AbTDYM25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 08:28:57 -0400
-Message-ID: <170EBA504C3AD511A3FE00508BB89A9201FD92D3@exnanycmbx4.ipc.com>
-From: "Downing, Thomas" <Thomas.Downing@ipc.com>
-To: Daniel Phillips <phillips@arcor.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Flame Linus to a crisp!
-Date: Fri, 25 Apr 2003 08:41:06 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 25 Apr 2003 08:35:39 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:5589 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S263021AbTDYMfi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 08:35:38 -0400
+Subject: Re: [RFC/PATCH] IDE Power Management try 1
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Jens Axboe <axboe@suse.de>, Alexander Atanasov <alex@ssi.bg>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SOL.4.30.0304251407440.12558-100000@mion.elka.pw.edu.pl>
+References: <Pine.SOL.4.30.0304251407440.12558-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051274854.567.1.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 25 Apr 2003 14:47:34 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Daniel Phillips [mailto:phillips@arcor.de]
 
->On Fri 25 Apr 03 00:45, Alan Cox wrote:
->> On Iau, 2003-04-24 at 22:42, Daniel Phillips wrote:
->> > A more mundane goal would be to prevent the 3D driver from letting you
->> > see through polygons that are supposed to be opaque.
->>
->> In the MUD world we solved that by not telling anyone about objects they
->> can't see.
->
-> Doing the visibility calculations on the server, down to the pixel, is 
-> possible but not really practical.
->
-> Regards,
->
-> Daniel
+> Why can't we simply change ide_do_drive_command() to take extra
+> flag specifing wait/do not wait and use it for ide_preempt?
 
-Just goes to show that the VDU was the acme of the compute world,
-it's been all down hill since... ;-)
+That would do it as well.
+
+Ben.
+

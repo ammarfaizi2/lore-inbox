@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266308AbTBPLDW>; Sun, 16 Feb 2003 06:03:22 -0500
+	id <S266310AbTBPLMV>; Sun, 16 Feb 2003 06:12:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266310AbTBPLDW>; Sun, 16 Feb 2003 06:03:22 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:10500 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266308AbTBPLDV>;
-	Sun, 16 Feb 2003 06:03:21 -0500
-Date: Sat, 15 Feb 2003 21:44:36 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       davyd@zdlcomputing.com
-Subject: Toshiba keyboard bug: point people to the patch
-Message-ID: <20030215204436.GA8589@elf.ucw.cz>
+	id <S266320AbTBPLMV>; Sun, 16 Feb 2003 06:12:21 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:40324 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S266310AbTBPLMU>; Sun, 16 Feb 2003 06:12:20 -0500
+From: David Woodhouse <dwmw2@infradead.org>
+To: John Bradford <john@grabjohn.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lm@bitmover.com,
+       arashi@yomerashi.yi.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200302161108.h1GB8t8m000317@darkstar.example.net>
+References: <200302161108.h1GB8t8m000317@darkstar.example.net>
+Organization: 
+Message-Id: <1045394526.2068.52.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 16 Feb 2003 11:22:06 +0000
+Subject: Re: openbkweb-0.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 2003-02-16 at 11:08, John Bradford wrote:
+> I just wanted to confirm that bk-commit-head is actually:
+> 
+> 1. Complete
 
-Too many people mail me, and one of them was kind enough to put the
-patch on the web. It would be nice to have this in both 2.4.X and
-2.5.X [patch against 2.5.61].
+It should be complete -- but bear in mind that you may receive the mails
+in a different order to the order in which they were sent, so just
+applying them from a mail filter isn't necessarily sensible.
 
-								Pavel
+Also note that the dates on them are the date of the changeset itself,
+not the date of application to Linus' tree (or indeed the date of the
+cron job which creates the mail).
 
---- clean/arch/i386/kernel/dmi_scan.c	2003-02-11 17:40:33.000000000 +0100
-+++ linux/arch/i386/kernel/dmi_scan.c	2003-02-15 21:22:10.000000000 +0100
-@@ -455,7 +455,7 @@
- 
- static __init int broken_toshiba_keyboard(struct dmi_blacklist *d)
- {
--	printk(KERN_WARNING "Toshiba with broken keyboard detected. If your keyboard sometimes generates 3 keypresses instead of one, contact pavel@ucw.cz\n");
-+	printk(KERN_WARNING "Toshiba with broken keyboard detected. If your keyboard sometimes generates 3 keypresses instead of one, see http://davyd.ucc.asn.au/projects/toshiba/README\n");
- 	return 0;
- }
- 
+> 2. Realtime
+
+Almost -- it's run from an hourly cron job, which is more 'real time'
+than Linus actually pushing from his own box to master.kernel.org and
+quite enough of a demand on resources already.
+
+It's not done with triggers on Linus' tree because I suspect that would
+actually make Linus _wait_ while the mail is generated for every
+changeset he's pushing to master.kernel.org. I do it with a cron job
+which pulls from Linus' tree to another, and I don't do it with triggers
+in my own tree because I suspect that would keep Linus' tree locked
+while it generated the mails too. I do need to investigate possible
+improvements to the way it's generated, though.
+
+Suggestions welcome, preferably in 'diff -u' form. 
+
+	cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs co bkexport
+	(password anoncvs)
 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+dwmw2
+

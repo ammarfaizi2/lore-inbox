@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267258AbUHDFbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267252AbUHDFbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267258AbUHDFbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 01:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267259AbUHDFbJ
+	id S267252AbUHDFbz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 01:31:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUHDFbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 01:31:09 -0400
-Received: from mail.tpgi.com.au ([203.12.160.103]:13802 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S267258AbUHDFbF (ORCPT
+	Wed, 4 Aug 2004 01:31:55 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:41400 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S267252AbUHDFbt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 01:31:05 -0400
-Subject: Re: MTRR driver model support broken on SMP.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0408040128490.19619@montezuma.fsmlabs.com>
-References: <1091585241.3303.6.camel@laptop.cunninghams>
-	 <Pine.LNX.4.58.0408040119270.19619@montezuma.fsmlabs.com>
-	 <1091596967.3189.86.camel@laptop.cunninghams>
-	 <Pine.LNX.4.58.0408040128490.19619@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Message-Id: <1091597484.3191.90.camel@laptop.cunninghams>
+	Wed, 4 Aug 2004 01:31:49 -0400
+Date: Wed, 4 Aug 2004 07:31:34 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "David N. Arnold" <dnarnold@yahoo.com>
+Cc: David Ford <david+challenge-response@blue-labs.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       wiggly@wiggly.org, matt@mattcaron.net, seymour@astro.utoronto.ca
+Subject: Re: cdrom: dropping to single frame dma
+Message-ID: <20040804053134.GA10340@suse.de>
+References: <41040A4B.6080703@blue-labs.org> <20040802132457.GT10496@suse.de> <41102FAB.40701@yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 04 Aug 2004 15:31:25 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41102FAB.40701@yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Wed, 2004-08-04 at 15:31, Zwane Mwaikambo wrote:
-> On Wed, 4 Aug 2004, Nigel Cunningham wrote:
+On Tue, Aug 03 2004, David N. Arnold wrote:
+> I don't know if it's a result of upgrading to 2.6.8-rc2 (from 2.6.5) or 
+> from the patch, but it has changed things.  I still get
 > 
-> > > Looking at this i'm really curious as to whether we need to bother at all,
-> > > can you remove the mtrr restore code and then compare /proc/mtrr before
-> > > and after suspending.
-> >
-> > I haven't had problems but do remember 2.4 users who had trouble with X
-> > before code to save and restore mtrrs was added.
+> hdd: DMA timeout retry
+> hdd: timeout waiting for DMA
+> hdd: status timeout: status=0xd0 { Busy }
+> hdd: status timeout: error=0x00
+> hdd: drive not ready for command
+> hdd: ATAPI reset complete
+> cdrom: dropping to single frame dma
 > 
-> Ahh yes, X11 will create an additional entry on startup whilst the
-> boot MTRR settings don't have it.
+> but ripping stays at its normal speed (5.0x instead of 0.6x) and the 
+> file produced is correct instead of skipping/silence.
+> 
+> It doesn't fix the true issue of why I'm getting DMA timeouts, but it 
+> does make ripping useable.
 
-Okay. So the question then is how to get them restored. I don't
-understand much about the driver model, but it seems to me that all we
-should need it get to mtrr save/restore done from the
-drivers_suspend/resume calls, which do have interrupts enabled. But how
-to achieve that...
+After the 'dropping to single frame' message, does it work reliably
+after that? And when does the above occur, initially or after some time?
+Details, please.
 
-Nigel
+-- 
+Jens Axboe
 

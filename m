@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266066AbUAQQoL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 11:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266071AbUAQQoL
+	id S266063AbUAQQnu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 11:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266066AbUAQQnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 11:44:11 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:23464 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S266066AbUAQQoI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 11:44:08 -0500
-Date: Sat, 17 Jan 2004 17:44:05 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Seiichi Nakashima <nakasima@kumin.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.0.40-rc7
-Message-ID: <20040117164405.GL25530@khan.acc.umu.se>
-Mail-Followup-To: Seiichi Nakashima <nakasima@kumin.ne.jp>,
-	linux-kernel@vger.kernel.org
-References: <200303041229.AA00001@prism.kumin.ne.jp> <200401171453.AA00009@prism.kumin.ne.jp>
+	Sat, 17 Jan 2004 11:43:50 -0500
+Received: from wilma.widomaker.com ([204.17.220.5]:37138 "EHLO
+	wilma.widomaker.com") by vger.kernel.org with ESMTP id S266063AbUAQQns
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 11:43:48 -0500
+Date: Sat, 17 Jan 2004 10:49:05 -0500
+From: Charles Shannon Hendrix <shannon@widomaker.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6.1 and cdrecord on ATAPI bus
+Message-ID: <20040117154905.GB26248@widomaker.com>
+References: <20040117031925.GA26477@widomaker.com> <20040117042208.GA8664@merlin.emma.line.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
-In-Reply-To: <200401171453.AA00009@prism.kumin.ne.jp>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040117042208.GA8664@merlin.emma.line.org>
+X-Message-Flag: Microsoft Loves You!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 17, 2004 at 11:53:41PM +0900, Seiichi Nakashima wrote:
-> Hi.
+Sat, 17 Jan 2004 @ 05:22 +0100, Matthias Andree said:
+
+> On Fri, 16 Jan 2004, Charles Shannon Hendrix wrote:
 > 
-> I update linux-2.0.40-rc7 from 2.0.40-rc6.
-> But compile error occured.
+> > I'm now running kernel 2.6.1, and using cdrecord with ATAPI is
+> > problematic.
+> 
+> I don't find it is. 
 
-Yes, 2.0.40-rc8 will be released early next week.  Thanks for reporting!
+Well, some of us are lucky that way...
+
+> It's rather cdrecord insisting on scanning buses itself and bitching
+> about direct device names...
+
+Scanning busses doesn't appear to be the problem.
+
+>From looking at strace, I see it scanning all devices themselves and
+then trying ioctl(3,...) on them if they exist.
+
+It isn't complaining about direct device names at all, and it finds the
+right one and attempts to use it.
+
+ioctl() fails with an EIO error a few times and cdrecord prints an error
+than it can't read the drive.
+
+> Interesting. I use dev=/dev/hdc and it works fine for me (Plextor 48X),
+> but then again, I'm also running the latest cdrecord alpha.
+
+% cdrecord -version
+Cdrecord 2.00.3 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
+
+I can try an alpha version, but from running strace on cdrecord, it
+seems like Linux is the problem.  Several ioctl() calls are failing just
+before cdrecord prints an error message and exits.
 
 
-/David
+
 -- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+UNIX/Perl/C/Pizza____________________s h a n n o n@wido !SPAM maker.com

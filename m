@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVCIKxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVCIKxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262276AbVCIKxP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 05:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVCIKug
+	id S261593AbVCIKxj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 05:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVCIKxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 05:50:36 -0500
-Received: from ncc1701.cistron.net ([62.216.30.38]:60079 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261593AbVCIKtq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 05:49:46 -0500
-From: Paul Slootman <paul+nospam@wurtel.net>
-Subject: serial console messup during boot
-Date: Wed, 9 Mar 2005 10:49:43 +0000 (UTC)
-Organization: Wurtelization
-Message-ID: <d0mkc6$klk$1@news.cistron.nl>
-X-Trace: ncc1701.cistron.net 1110365383 21172 83.68.3.130 (9 Mar 2005 10:49:43 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-To: linux-kernel@vger.kernel.org
+	Wed, 9 Mar 2005 05:53:38 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37394 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261570AbVCIKvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 05:51:23 -0500
+Date: Wed, 9 Mar 2005 11:51:21 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+Cc: Dominik Karall <dominik.karall@gmx.net>,
+       Geert Uytterhoeven <geert@linux-m68k.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       chrisw@osdl.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.11.2
+Message-ID: <20050309105121.GA21688@stusta.de>
+References: <20050309083923.GA20461@kroah.com> <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt> <Pine.LNX.4.62.0503091104180.22598@numbat.sonytel.be> <200503091121.16801.dominik.karall@gmx.net> <Pine.LNX.4.61.0503091023410.7496@student.dei.uc.pt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0503091023410.7496@student.dei.uc.pt>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.6 kernels we've noticed that there's a period during booting that
-the serial console output is messed up. Most probable cause is a wrong
-baud rate.
+On Wed, Mar 09, 2005 at 10:28:32AM +0000, Marcos D. Marado Torres wrote:
+> 
+> With that "full tarball" for 2.6.11.X the issues would be over.
+> I think there should be one.
 
-This is on Dell rackmount servers, with the serial console running at
-115200 baud. The BIOS works fine, GRUB works fine, the first part of the
-kernel bootup shows up fine, and then:
+It's already there....
 
-  Real Time Clock Driver v1.12  
-  i8042: ACPI detection disabled
-  serio: i8042 AUX port at 0x60,0x64 irq 12
-  serio: i8042 KBD port at 0x60,0x64 irq 1 
-  Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
-  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxINIT: version 2.85 booting
-  Activating swap.
-  Adding 1052152k swap on /dev/md3.  Priority:1 extents:1
-  Checking root file system...                           
-  fsck 1.35 (28-Feb-2004)
-  Reiserfs super block in block 16 on 0x900 of format 3.6 with standard journal
-  Blocks (total/free): 264960/247705 by 4096 bytes
-  Filesystem marked as cleanly umounted
-  Filesystem seems mounted read-only. Skipping journal replay.
-  Checking internal tree..finished                  
+> Marado
 
-The xxxx characters were garbage characters that I didn't want to paste
-into an otherwise ASCII message...
-As soon as the serial driver is loaded, the baud rate (I guess) is
-messed up until the time init is loaded (which probably resets the
-serial console settings).
+cu
+Adrian
 
-I've tried e.g. setting the default baudrate in the serial driver to 115200
-to no avail, so I'm hoping someone here will be able to help. On at
-least one occasion booting went wrong in the time that the output is
-messed up, so we had to carry a CRT into the server room to watch the
-VGA, so we'd be most grateful if this little problem could be fixed :-)
+-- 
 
-With 2.4 kernel this corruption of the output does not occur.
-
-
-Thanks,
-Paul Slootman
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

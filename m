@@ -1,49 +1,311 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132396AbRDANZg>; Sun, 1 Apr 2001 09:25:36 -0400
+	id <S132409AbRDAN61>; Sun, 1 Apr 2001 09:58:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132479AbRDANZ1>; Sun, 1 Apr 2001 09:25:27 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:30212 "EHLO se1.cogenit.fr")
-	by vger.kernel.org with ESMTP id <S132396AbRDANZX>;
-	Sun, 1 Apr 2001 09:25:23 -0400
-Date: Sun, 1 Apr 2001 15:23:26 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: epic100 aka smc etherpower II
-Message-ID: <20010401152326.A8919@se1.cogenit.fr>
-In-Reply-To: <Pine.LNX.4.21.0103312129170.6125-100000@infcip10.uni-trier.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0103312129170.6125-100000@infcip10.uni-trier.de>; from nofftz@castor.uni-trier.de on Sat, Mar 31, 2001 at 09:40:10PM +0200
-X-Organisation: Marie's fan club - I
+	id <S132479AbRDAN6S>; Sun, 1 Apr 2001 09:58:18 -0400
+Received: from www.teaparty.net ([216.235.253.180]:30728 "EHLO
+	www.teaparty.net") by vger.kernel.org with ESMTP id <S132409AbRDAN6P>;
+	Sun, 1 Apr 2001 09:58:15 -0400
+Date: Sun, 1 Apr 2001 14:57:34 +0100 (BST)
+From: Vivek Dasmohapatra <vivek@etla.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.3 SMP aic7895 oops on boot
+Message-ID: <Pine.LNX.4.10.10104011326120.10021-300000@www.teaparty.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-338119427-783643395-986085368=:10021"
+Content-ID: <Pine.LNX.4.10.10104011326121.10021@www.teaparty.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Nofftz <nofftz@castor.uni-trier.de> écrit :
-[...]
-> i can`t get my smc etherpower ii working with the 2.4.3 kernel.
-> now i have downgraded to 2.4.2 and it works again ...
-> does anyone have a suggestion, what the problem is ?
-[...]
-> Mar 31 19:23:29 hyperion kernel: eth0: Setting half-duplex based on MII
-> xcvr 3 register read of 0001.
-> Mar 31 19:23:29 hyperion kernel: Real Time Clock Driver v1.10d
-> Mar 31 19:23:29 hyperion kernel: eth0: Setting full-duplex based on MII #3
-> link partner capability of 45e1.
-> Mar 31 19:24:31 hyperion kernel: NETDEV WATCHDOG: eth0: transmit timed out
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-How does it behave if you give it the following args:
-options=4
-full_duplex=4
+---338119427-783643395-986085368=:10021
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.10.10104011326122.10021@www.teaparty.net>
 
-> lspci output:
-[...]
 
-No USB controller ?
+Hi: I just tried upgrading to the 2.4.3 kernel [ currently running
+2.2.18/Debian/woody ] and I got [or rather I should say get - it happens
+every time] a kernel panic on boot, just after the lines: 
 
--- 
-Ueimor
+[ Apologies if two message like this turn up - I sent the last one some
+  time ago, and it hasn't surfaced on the list yet. ]
+
+[drm] AGP 0.99 on Intel 440 LX @ 0xe00000000 256MB
+[drm] Initialised mga 2.0.1 20000928 on minor 63
+SCSI subsystem driver Revision: 1.00
+request_module[scsi_hostadapter]: Root fs not mounted
+ahc_pci:0:15:1 Using left over BIOS settings
+
+Here is the output of lspci [the scsi related bits]:
+
+00:0f.0 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895 (rev 03)
+00:0f.1 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895 (rev 03)
+
+The kernel was compiled with gcc 2.95.3 and gas 2.9.5, and unless I took
+my brain out of gear at the time [not unknown], all the dependencies in
+Documentation/Changes were met.
+
+I have attached the various files that the FAQ indicated might be useful,
+although not the sytem map, as this was large [~400k] and I was not sure 
+this was an acceptable size for the list
+
+[Note: The system froze pretty early on - no hard disk or anything, so
+this ksymoops is based on hand copied oops output: I'm pretty sure it's
+accurate, but if any of this is impossible or inconsistent with itself, I 
+can just try to boot the new kernel again, it's oopsed every time so far]
+
+Here is the output of ksymoops: 
+
+ksymoops 2.3.7 on i686 2.2.18-01.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.3 (specified)
+     -m /usr/src/linux/System.map (specified)
+
+No modules in ksyms, skipping objects
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+c0a15cf3
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c0a15cf3>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010046
+eax: 00000001   ebx: c12a8c00   ecx: 00000000   edx: 00000000
+esi: 00000000   edi: 00000000   ebp: 0000000b   esp: c0281f48
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c0281000)
+Stack: c122b9c0 24000001 00000000 00000086 c01086b1 0000000b c12a8c00 c0281fa8
+       c02d7820 c02bb960 0000000b c0281fa0 c0108896 0000000b c0281fa8 c122b9c0
+       c0105170 c0280000 c0105170 00000000 00000000 c122b9c0 0008e000 c010700c
+Call Trace: [<c01086b1>]  [<c0108896>]  [<c0105170>]  [<c0105170>]  [<c01700c>]  [<c0105170>]  [<c0105170>]  [<c0100018>]  [<c010519c>]  [<c0105202>]  [<c0105000>]  [<c01001cf>] 
+Code: 80 3c 11 ff 0f 44 c6 ba 02 00 00 00 85 c0 0f 45 f2 85 f6 74
+
+>>EIP; c0a15cf3 <END_OF_CODE+715b03/????>   <=====
+Trace; c01086b1 <handle_IRQ_event+4d/78>
+Trace; c0108896 <do_IRQ+a6/f4>
+Trace; c0105170 <default_idle+0/34>
+Trace; c0105170 <default_idle+0/34>
+Trace; 0c01700c Before first symbol
+Trace; c0105170 <default_idle+0/34>
+Trace; c0105170 <default_idle+0/34>
+Trace; c0100018 <startup_32+18/cb>
+Trace; c010519c <default_idle+2c/34>
+Trace; c0105202 <cpu_idle+3e/54>
+Trace; c0105000 <init+0/160>
+Trace; c01001cf <L6+0/2>
+Code;  c0a15cf3 <END_OF_CODE+715b03/????>
+00000000 <_EIP>:
+Code;  c0a15cf3 <END_OF_CODE+715b03/????>   <=====
+   0:   80 3c 11 ff               cmpb   $0xff,(%ecx,%edx,1)   <=====
+Code;  c0a15cf7 <END_OF_CODE+715b07/????>
+   4:   0f 44 c6                  cmove  %esi,%eax
+Code;  c0a15cfa <END_OF_CODE+715b0a/????>
+   7:   ba 02 00 00 00            mov    $0x2,%edx
+Code;  c0a15cff <END_OF_CODE+715b0f/????>
+   c:   85 c0                     test   %eax,%eax
+Code;  c0a15d01 <END_OF_CODE+715b11/????>
+   e:   0f 45 f2                  cmovne %edx,%esi
+Code;  c0a15d04 <END_OF_CODE+715b14/????>
+  11:   85 f6                     test   %esi,%esi
+Code;  c0a15d06 <END_OF_CODE+715b16/????>
+  13:   74 00                     je     15 <_EIP+0x15> c0a15d08 <END_OF_CODE+715b18/????>
+
+Kernel Panic: Aiee, killing interupt handler
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+c0a15cf3
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c0a15cf3>]
+EFLAGS: 00010046
+eax: 00000001   ebx: c12a8a00   ecx: 00000000   edx: 00000000
+esi: 00000000   edi: 00000000   ebp: 0000000a   esp: c0281d7c
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c0281000)
+Stack: c122b740 24000001 00000082 00000086 c01086b1 0000000a c12a8a00 c0281ddc
+       c02d7820 c02bb940 0000000a c0281dd4 c0108896 0000000a c0281ddc c122b740
+       00000000 c0280000 0000000b 00000000 00000000 c122b740 c0280000 c010700c
+Call Trace: [<c01086b1>] [<c0108896>] [<c010700c>] [<c0210018>] [<c010fc6d>] [<c010fc9c>] [<c010fce4>] [<c010fc9c>] [<c0114494>] [<c0117452>] [<c01110f4>] [<c0107482>] [<c0111437>] [<c01110f4>] [<c0105986>] [<c0105bb4>] [<c020da8c>] [<c018d7b5>] [<c019501e>] [<c010707c>] [<c01a5cf3>] [<c01086b1>] [<c0108896>] [<c0105170>] [<c0105170>] [<c010700c>] [<c0105170>] [<c0105170>] [<c0100018>] [<c010519c>] [<c0105202>] [<c0105000>] [<c01001cf>]
+Code: 80 3c 11 ff 0f 44 c6 ba 02 00 00 00 85 c0 0f 45 f2 85 f6 74
+
+>>EIP; c0a15cf3 <END_OF_CODE+715b03/????>   <=====
+Trace; c01086b1 <handle_IRQ_event+4d/78>
+Trace; c0108896 <do_IRQ+a6/f4>
+Trace; c010700c <ret_from_intr+0/20>
+Trace; c0210018 <stext_lock+5570/58f7>
+Trace; c010fc6d <smp_call_function+8d/bc>
+Trace; c010fc9c <stop_this_cpu+0/38>
+Trace; c010fce4 <smp_send_stop+10/28>
+Trace; c010fc9c <stop_this_cpu+0/38>
+Trace; c0114494 <panic+74/f0>
+Trace; c0117452 <do_exit+2e/2b8>
+Trace; c01110f4 <do_page_fault+0/42c>
+Trace; c0107482 <die+56/58>
+Trace; c0111437 <do_page_fault+343/42c>
+Trace; c01110f4 <do_page_fault+0/42c>
+Trace; c0105986 <__up+16/18>
+Trace; c0105bb4 <__up_wakeup+8/c>
+Trace; c020da8c <stext_lock+2fe4/58f7>
+Trace; c018d7b5 <ide_end_request+5d/70>
+Trace; c019501e <cdrom_end_request+66/70>
+Trace; c010707c <error_code+34/3c>
+Trace; c01a5cf3 <aic7xxx_isr+3b/304>
+Trace; c01086b1 <handle_IRQ_event+4d/78>
+Trace; c0108896 <do_IRQ+a6/f4>
+Trace; c0105170 <default_idle+0/34>
+Trace; c0105170 <default_idle+0/34>
+Trace; c010700c <ret_from_intr+0/20>
+Trace; c0105170 <default_idle+0/34>
+Trace; c0105170 <default_idle+0/34>
+Trace; c0100018 <startup_32+18/cb>
+Trace; c010519c <default_idle+2c/34>
+Trace; c0105202 <cpu_idle+3e/54>
+Trace; c0105000 <init+0/160>
+Trace; c01001cf <L6+0/2>
+Code;  c0a15cf3 <END_OF_CODE+715b03/????>
+00000000 <_EIP>:
+Code;  c0a15cf3 <END_OF_CODE+715b03/????>   <=====
+   0:   80 3c 11 ff               cmpb   $0xff,(%ecx,%edx,1)   <=====
+Code;  c0a15cf7 <END_OF_CODE+715b07/????>
+   4:   0f 44 c6                  cmove  %esi,%eax
+Code;  c0a15cfa <END_OF_CODE+715b0a/????>
+   7:   ba 02 00 00 00            mov    $0x2,%edx
+Code;  c0a15cff <END_OF_CODE+715b0f/????>
+   c:   85 c0                     test   %eax,%eax
+Code;  c0a15d01 <END_OF_CODE+715b11/????>
+   e:   0f 45 f2                  cmovne %edx,%esi
+Code;  c0a15d04 <END_OF_CODE+715b14/????>
+  11:   85 f6                     test   %esi,%esi
+Code;  c0a15d06 <END_OF_CODE+715b16/????>
+  13:   74 00                     je     15 <_EIP+0x15> c0a15d08 <END_OF_CODE+715b18/????>
+
+Kernel panic: Aiee, killing interrupt handler!
+
+---338119427-783643395-986085368=:10021
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="kernel-2.4.3.config"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.10.10104010136080.10021@www.teaparty.net>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="kernel-2.4.3.config"
+
+Q09ORklHX1g4Nj15DQpDT05GSUdfSVNBPXkNCkNPTkZJR19VSUQxNj15DQpD
+T05GSUdfRVhQRVJJTUVOVEFMPXkNCkNPTkZJR19NT0RVTEVTPXkNCkNPTkZJ
+R19NT0RWRVJTSU9OUz15DQpDT05GSUdfS01PRD15DQpDT05GSUdfTTY4Nj15
+DQpDT05GSUdfWDg2X1dQX1dPUktTX09LPXkNCkNPTkZJR19YODZfSU5WTFBH
+PXkNCkNPTkZJR19YODZfQ01QWENIRz15DQpDT05GSUdfWDg2X0JTV0FQPXkN
+CkNPTkZJR19YODZfUE9QQURfT0s9eQ0KQ09ORklHX1g4Nl9MMV9DQUNIRV9T
+SElGVD01DQpDT05GSUdfWDg2X1RTQz15DQpDT05GSUdfWDg2X0dPT0RfQVBJ
+Qz15DQpDT05GSUdfWDg2X1BHRT15DQpDT05GSUdfWDg2X1VTRV9QUFJPX0NI
+RUNLU1VNPXkNCkNPTkZJR19NSUNST0NPREU9bQ0KQ09ORklHX1g4Nl9NU1I9
+bQ0KQ09ORklHX05PSElHSE1FTT15DQpDT05GSUdfTVRSUj15DQpDT05GSUdf
+U01QPXkNCkNPTkZJR19IQVZFX0RFQ19MT0NLPXkNCkNPTkZJR19ORVQ9eQ0K
+Q09ORklHX1g4Nl9JT19BUElDPXkNCkNPTkZJR19YODZfTE9DQUxfQVBJQz15
+DQpDT05GSUdfUENJPXkNCkNPTkZJR19QQ0lfR09BTlk9eQ0KQ09ORklHX1BD
+SV9CSU9TPXkNCkNPTkZJR19QQ0lfRElSRUNUPXkNCkNPTkZJR19QQ0lfTkFN
+RVM9eQ0KQ09ORklHX1NZU1ZJUEM9eQ0KQ09ORklHX0JTRF9QUk9DRVNTX0FD
+Q1Q9eQ0KQ09ORklHX1NZU0NUTD15DQpDT05GSUdfS0NPUkVfRUxGPXkNCkNP
+TkZJR19CSU5GTVRfQU9VVD1tDQpDT05GSUdfQklORk1UX0VMRj15DQpDT05G
+SUdfQklORk1UX01JU0M9bQ0KQ09ORklHX0FQTV9SVENfSVNfR01UPXkNCkNP
+TkZJR19QQVJQT1JUPW0NCkNPTkZJR19QQVJQT1JUX1BDPW0NCkNPTkZJR19Q
+QVJQT1JUXzEyODQ9eQ0KQ09ORklHX1BOUD15DQpDT05GSUdfSVNBUE5QPXkN
+CkNPTkZJR19CTEtfREVWX0ZEPXkNCkNPTkZJR19CTEtfREVWX0xPT1A9bQ0K
+Q09ORklHX01EPXkNCkNPTkZJR19CTEtfREVWX0xWTT1tDQpDT05GSUdfUEFD
+S0VUPXkNCkNPTkZJR19QQUNLRVRfTU1BUD15DQpDT05GSUdfTkVUTElOSz15
+DQpDT05GSUdfVU5JWD15DQpDT05GSUdfSU5FVD15DQpDT05GSUdfSU5FVF9F
+Q049eQ0KQ09ORklHX1NZTl9DT09LSUVTPXkNCkNPTkZJR19JREU9eQ0KQ09O
+RklHX0JMS19ERVZfSURFPXkNCkNPTkZJR19CTEtfREVWX0lERURJU0s9bQ0K
+Q09ORklHX0JMS19ERVZfSURFQ0Q9eQ0KQ09ORklHX0JMS19ERVZfSURFUENJ
+PXkNCkNPTkZJR19TQ1NJPXkNCkNPTkZJR19CTEtfREVWX1NEPXkNCkNPTkZJ
+R19TRF9FWFRSQV9ERVZTPTQwDQpDT05GSUdfQ0hSX0RFVl9TVD1tDQpDT05G
+SUdfQkxLX0RFVl9TUj1tDQpDT05GSUdfU1JfRVhUUkFfREVWUz0yDQpDT05G
+SUdfQ0hSX0RFVl9TRz1tDQpDT05GSUdfU0NTSV9ERUJVR19RVUVVRVM9eQ0K
+Q09ORklHX1NDU0lfQ09OU1RBTlRTPXkNCkNPTkZJR19TQ1NJX0xPR0dJTkc9
+eQ0KQ09ORklHX1NDU0lfQUlDN1hYWD15DQpDT05GSUdfQUlDN1hYWF9DTURT
+X1BFUl9ERVZJQ0U9MjUzDQpDT05GSUdfQUlDN1hYWF9SRVNFVF9ERUxBWT01
+MDAwDQpDT05GSUdfTkVUREVWSUNFUz15DQpDT05GSUdfRFVNTVk9bQ0KQ09O
+RklHX05FVF9FVEhFUk5FVD15DQpDT05GSUdfTkVUX1BDST15DQpDT05GSUdf
+TkUyS19QQ0k9bQ0KQ09ORklHX1BMSVA9bQ0KQ09ORklHX1BQUD1tDQpDT05G
+SUdfUFBQX0FTWU5DPW0NCkNPTkZJR19QUFBfU1lOQ19UVFk9bQ0KQ09ORklH
+X1BQUF9ERUZMQVRFPW0NCkNPTkZJR19JTlBVVD1tDQpDT05GSUdfVlQ9eQ0K
+Q09ORklHX1ZUX0NPTlNPTEU9eQ0KQ09ORklHX1NFUklBTD15DQpDT05GSUdf
+VU5JWDk4X1BUWVM9eQ0KQ09ORklHX1VOSVg5OF9QVFlfQ09VTlQ9MjU2DQpD
+T05GSUdfUFJJTlRFUj1tDQpDT05GSUdfTU9VU0U9eQ0KQ09ORklHX1BTTU9V
+U0U9eQ0KQ09ORklHX0pPWVNUSUNLPXkNCkNPTkZJR19JTlBVVF9HUklQPW0N
+CkNPTkZJR19OVlJBTT1tDQpDT05GSUdfUlRDPXkNCkNPTkZJR19BR1A9eQ0K
+Q09ORklHX0FHUF9JTlRFTD15DQpDT05GSUdfRFJNPXkNCkNPTkZJR19EUk1f
+TUdBPXkNCkNPTkZJR19SRUlTRVJGU19GUz1tDQpDT05GSUdfSEZTX0ZTPW0N
+CkNPTkZJR19GQVRfRlM9bQ0KQ09ORklHX01TRE9TX0ZTPW0NCkNPTkZJR19W
+RkFUX0ZTPW0NCkNPTkZJR19KRkZTX0ZTX1ZFUkJPU0U9MA0KQ09ORklHX0lT
+Tzk2NjBfRlM9eQ0KQ09ORklHX0pPTElFVD15DQpDT05GSUdfTUlOSVhfRlM9
+bQ0KQ09ORklHX1BST0NfRlM9eQ0KQ09ORklHX0RFVlBUU19GUz15DQpDT05G
+SUdfRVhUMl9GUz15DQpDT05GSUdfVURGX0ZTPW0NCkNPTkZJR19ORlNfRlM9
+bQ0KQ09ORklHX05GU19WMz15DQpDT05GSUdfTkZTRD1tDQpDT05GSUdfTkZT
+RF9WMz15DQpDT05GSUdfU1VOUlBDPW0NCkNPTkZJR19MT0NLRD1tDQpDT05G
+SUdfTE9DS0RfVjQ9eQ0KQ09ORklHX1NNQl9GUz1tDQpDT05GSUdfU01CX05M
+U19ERUZBVUxUPXkNCkNPTkZJR19TTUJfTkxTX1JFTU9URT0iIg0KQ09ORklH
+X1BBUlRJVElPTl9BRFZBTkNFRD15DQpDT05GSUdfTUFDX1BBUlRJVElPTj15
+DQpDT05GSUdfTVNET1NfUEFSVElUSU9OPXkNCkNPTkZJR19CU0RfRElTS0xB
+QkVMPXkNCkNPTkZJR19TT0xBUklTX1g4Nl9QQVJUSVRJT049eQ0KQ09ORklH
+X1NNQl9OTFM9eQ0KQ09ORklHX05MUz15DQpDT05GSUdfTkxTX0RFRkFVTFQ9
+Imlzbzg4NTktMSINCkNPTkZJR19OTFNfQ09ERVBBR0VfNDM3PW0NCkNPTkZJ
+R19OTFNfQ09ERVBBR0VfNzM3PW0NCkNPTkZJR19OTFNfQ09ERVBBR0VfNzc1
+PW0NCkNPTkZJR19OTFNfQ09ERVBBR0VfODUwPW0NCkNPTkZJR19OTFNfQ09E
+RVBBR0VfODUyPW0NCkNPTkZJR19OTFNfQ09ERVBBR0VfODU1PW0NCkNPTkZJ
+R19OTFNfQ09ERVBBR0VfODU3PW0NCkNPTkZJR19OTFNfQ09ERVBBR0VfODYw
+PW0NCkNPTkZJR19OTFNfQ09ERVBBR0VfODYxPW0NCkNPTkZJR19OTFNfQ09E
+RVBBR0VfODYyPW0NCkNPTkZJR19OTFNfQ09ERVBBR0VfODYzPW0NCkNPTkZJ
+R19OTFNfQ09ERVBBR0VfODY0PW0NCkNPTkZJR19OTFNfQ09ERVBBR0VfODY1
+PW0NCkNPTkZJR19OTFNfQ09ERVBBR0VfODY2PW0NCkNPTkZJR19OTFNfQ09E
+RVBBR0VfODY5PW0NCkNPTkZJR19OTFNfQ09ERVBBR0VfODc0PW0NCkNPTkZJ
+R19OTFNfQ09ERVBBR0VfOTMyPW0NCkNPTkZJR19OTFNfQ09ERVBBR0VfOTM2
+PW0NCkNPTkZJR19OTFNfQ09ERVBBR0VfOTQ5PW0NCkNPTkZJR19OTFNfQ09E
+RVBBR0VfOTUwPW0NCkNPTkZJR19OTFNfSVNPODg1OV8xPW0NCkNPTkZJR19O
+TFNfSVNPODg1OV8yPW0NCkNPTkZJR19OTFNfSVNPODg1OV8zPW0NCkNPTkZJ
+R19OTFNfSVNPODg1OV80PW0NCkNPTkZJR19OTFNfSVNPODg1OV81PW0NCkNP
+TkZJR19OTFNfSVNPODg1OV82PW0NCkNPTkZJR19OTFNfSVNPODg1OV83PW0N
+CkNPTkZJR19OTFNfSVNPODg1OV84PW0NCkNPTkZJR19OTFNfSVNPODg1OV85
+PW0NCkNPTkZJR19OTFNfSVNPODg1OV8xND1tDQpDT05GSUdfTkxTX0lTTzg4
+NTlfMTU9bQ0KQ09ORklHX05MU19LT0k4X1I9bQ0KQ09ORklHX05MU19VVEY4
+PW0NCkNPTkZJR19WR0FfQ09OU09MRT15DQpDT05GSUdfVklERU9fU0VMRUNU
+PXkNCkNPTkZJR19GQj15DQpDT05GSUdfRFVNTVlfQ09OU09MRT15DQpDT05G
+SUdfVklERU9fU0VMRUNUPXkNCkNPTkZJR19GQl9NQVRST1g9eQ0KQ09ORklH
+X0ZCX01BVFJPWF9HMTAwPXkNCkNPTkZJR19GQkNPTl9DRkI4PXkNCkNPTkZJ
+R19GQkNPTl9DRkIxNj15DQpDT05GSUdfRkJDT05fQ0ZCMjQ9eQ0KQ09ORklH
+X0ZCQ09OX0NGQjMyPXkNCkNPTkZJR19GT05UXzh4OD15DQpDT05GSUdfRk9O
+VF84eDE2PXkNCkNPTkZJR19TT1VORD1tDQpDT05GSUdfU09VTkRfT1NTPW0N
+CkNPTkZJR19TT1VORF9UUkFDRUlOSVQ9eQ0KQ09ORklHX1NPVU5EX0RNQVA9
+eQ0KQ09ORklHX1NPVU5EX01QVTQwMT1tDQpDT05GSUdfU09VTkRfUFNTPW0N
+CkNPTkZJR19TT1VORF9ZTTM4MTI9bQ0KQ09ORklHX1NPVU5EX09QTDNTQTI9
+bQ0KQ09ORklHX01BR0lDX1NZU1JRPXkNCg==
+---338119427-783643395-986085368=:10021
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=cpuinfo
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.10.10104010136082.10021@www.teaparty.net>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME=cpuinfo
+
+cHJvY2Vzc29yCTogMA0KdmVuZG9yX2lkCTogR2VudWluZUludGVsDQpjcHUg
+ZmFtaWx5CTogNg0KbW9kZWwJCTogNQ0KbW9kZWwgbmFtZQk6IFBlbnRpdW0g
+SUkgKERlc2NodXRlcykNCnN0ZXBwaW5nCTogMg0KY3B1IE1IegkJOiAzMzMu
+MDU4DQpjYWNoZSBzaXplCTogNTEyIEtCDQpmZGl2X2J1Zwk6IG5vDQpobHRf
+YnVnCQk6IG5vDQpzZXBfYnVnCQk6IG5vDQpmMDBmX2J1Zwk6IG5vDQpjb21h
+X2J1Zwk6IG5vDQpmcHUJCTogeWVzDQpmcHVfZXhjZXB0aW9uCTogeWVzDQpj
+cHVpZCBsZXZlbAk6IDINCndwCQk6IHllcw0KZmxhZ3MJCTogZnB1IHZtZSBk
+ZSBwc2UgdHNjIG1zciBwYWUgbWNlIGN4OCBhcGljIHNlcCBtdHJyIHBnZSBt
+Y2EgY21vdiBwYXQgcHNlMzYgbW14IGZ4c3INCmJvZ29taXBzCTogNjY1LjE5
+DQoNCnByb2Nlc3Nvcgk6IDENCnZlbmRvcl9pZAk6IEdlbnVpbmVJbnRlbA0K
+Y3B1IGZhbWlseQk6IDYNCm1vZGVsCQk6IDUNCm1vZGVsIG5hbWUJOiBQZW50
+aXVtIElJIChEZXNjaHV0ZXMpDQpzdGVwcGluZwk6IDINCmNwdSBNSHoJCTog
+MzMzLjA1OA0KY2FjaGUgc2l6ZQk6IDUxMiBLQg0KZmRpdl9idWcJOiBubw0K
+aGx0X2J1ZwkJOiBubw0Kc2VwX2J1ZwkJOiBubw0KZjAwZl9idWcJOiBubw0K
+Y29tYV9idWcJOiBubw0KZnB1CQk6IHllcw0KZnB1X2V4Y2VwdGlvbgk6IHll
+cw0KY3B1aWQgbGV2ZWwJOiAyDQp3cAkJOiB5ZXMNCmZsYWdzCQk6IGZwdSB2
+bWUgZGUgcHNlIHRzYyBtc3IgcGFlIG1jZSBjeDggYXBpYyBzZXAgbXRyciBw
+Z2UgbWNhIGNtb3YgcGF0IHBzZTM2IG1teCBmeHNyDQpib2dvbWlwcwk6IDY2
+NS4xOQ0KDQo=
+---338119427-783643395-986085368=:10021--

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284894AbRLFAQS>; Wed, 5 Dec 2001 19:16:18 -0500
+	id <S284903AbRLFAVb>; Wed, 5 Dec 2001 19:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284842AbRLFAQJ>; Wed, 5 Dec 2001 19:16:09 -0500
-Received: from femail3.sdc1.sfba.home.com ([24.0.95.83]:10996 "EHLO
+	id <S284886AbRLFAQL>; Wed, 5 Dec 2001 19:16:11 -0500
+Received: from femail3.sdc1.sfba.home.com ([24.0.95.83]:22517 "EHLO
 	femail3.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S284886AbRLFAPt>; Wed, 5 Dec 2001 19:15:49 -0500
+	id <S284892AbRLFAP7>; Wed, 5 Dec 2001 19:15:59 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Rob Landley <landley@trommello.org>
-To: Larry McVoy <lm@bitmover.com>, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Subject: Re: SMP/cc Cluster description [was Linux/Pro]
-Date: Wed, 5 Dec 2001 09:33:42 -0500
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Date: Wed, 5 Dec 2001 09:51:13 -0500
 X-Mailer: KMail [version 1.3.1]
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Lars Brinkhoff <lars.spam@nocrew.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011204163646.M7439@work.bitmover.com> <2527982215.1007550329@mbligh.des.sequent.com> <20011205111115.T11801@work.bitmover.com>
-In-Reply-To: <20011205111115.T11801@work.bitmover.com>
+Cc: <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.33.0112041833150.3798-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0112041833150.3798-100000@Appserv.suse.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20011206001548.OPWU485.femail3.sdc1.sfba.home.com@there>
+Message-Id: <20011206001558.OQCD485.femail3.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 05 December 2001 02:11 pm, Larry McVoy wrote:
-> > If I give you 16 SMP systems, each with 4 processors and a gigabit
-> > ethernet card, and connect those ethers through a switch, would that
-> > be sufficient hardware?
+On Tuesday 04 December 2001 12:43 pm, Dave Jones wrote:
+> On Tue, 4 Dec 2001, Eric S. Raymond wrote:
+> > After CML2 has proven itself in 2.5, I do plan to go back to Marcelo
+> > and lobby for him accepting it into 2.4, on the grounds that doing so
+> > will simplify his maintainance task no end.
+> > ...
+> > I'm just going to say "Today's problems, today's tools."
 >
-> You've completely misunderstood the message, sorry, I must not have been
-> clear. What I am proposing is to cluster *OS* images on a *single* SMP as a
-> way of avoiding most of the locks necessary to scale up a single OS image
-> on the same number of CPUs.
+> So anyone perfectly happy with an older distro that didn't
+> ship python2-and-whatever-else gets screwed when they want to
+> build a newer kernel. Nice.
 >
-> It has nothing to do with clustering more than one system, it's not that
-> kind of clustering.  It's clustering OS images.
+> Dave.
 
-So basically, you're just turning the per-processor data into a tree?
+1) Moving from 2.2->2.4, it wouldn't work at all without a newer compiler and 
+newer modutils, and it really helped to have a C library and eight zillion 
+other things upgraded.  So talking about what 2.6 will need that's an amazing 
+red herring.
 
-> To make it easy, let's imagine you have a 16 way SMP box and an OS image
-> that runs well on one CPU.  Then a ccCluster would be 16 OS images, each
-> running on a different CPU, all on the same hardware.
->
-> DEC has done this, Sun has done this, IBM has really done this, but what
-> none of them have done is make mmap() work across OS boundaries.
+2) In terms of a 2.4 backport, if the old stuff isn't removed (the current 
+garbage that does menuconfig et al), then who cares?  It's another option 
+they don't have to use.  It's also Marcelo's call.
 
-The shared memory clustering people are basically trying to make 
-mmap+semaphores work across a high speed LAN.  Why?  Because it's cheap, and 
-the programming model's familiar.
+3) The fact Linus was cc'd on this before I trimmed it suggests to me that 
+people are still wishfully thinking that the battle they lost before the 
+linux-kernel summit would just magically re-open at the last minute.  It's 
+not about the fact that reiserfs, ext3, and a new VM subsystem went into 2.4 
+but THIS is way too much, it's a group of people bitching about python 
+because they don't like the concept of significant whitespace.  Technically 
+speaking, this is another variant of the good old indentation/coding style 
+thread that just won't die.
 
-Approaching it all from a different direction, though.  Probably not of help 
-to you...
+It's insidious, isn't it?
 
 Rob
+

@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130663AbRAQRNB>; Wed, 17 Jan 2001 12:13:01 -0500
+	id <S132228AbRAQRTM>; Wed, 17 Jan 2001 12:19:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131527AbRAQRMv>; Wed, 17 Jan 2001 12:12:51 -0500
-Received: from mailframe.cabinet.net ([213.169.1.9]:6161 "HELO
-	mailframe.cabinet.net") by vger.kernel.org with SMTP
-	id <S130663AbRAQRMh>; Wed, 17 Jan 2001 12:12:37 -0500
-Date: Wed, 17 Jan 2001 19:12:14 +0200 (EET)
-From: Jussi Hamalainen <count@theblah.org>
-To: Tony Gale <gale@syntax.dera.gov.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: ipchains blocking port 65535
-In-Reply-To: <XFMail.20010117145010.gale@syntax.dera.gov.uk>
-Message-ID: <Pine.LNX.4.30.0101171911010.21865-100000@shodan.irccrew.org>
+	id <S131795AbRAQRTB>; Wed, 17 Jan 2001 12:19:01 -0500
+Received: from relay.dera.gov.uk ([192.5.29.49]:40284 "HELO relay.dera.gov.uk")
+	by vger.kernel.org with SMTP id <S131527AbRAQRSm>;
+	Wed, 17 Jan 2001 12:18:42 -0500
+Message-ID: <XFMail.20010117171554.gale@syntax.dera.gov.uk>
+X-Mailer: XFMail 1.4.4 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <Pine.LNX.4.30.0101171911010.21865-100000@shodan.irccrew.org>
+Date: Wed, 17 Jan 2001 17:15:54 -0000 (GMT)
+From: Tony Gale <gale@syntax.dera.gov.uk>
+To: Jussi Hamalainen <count@theblah.org>
+Subject: IP defrag (was RE: ipchains blocking port 65535)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2001, Tony Gale wrote:
 
-> It looks like this is due to the odd way in which ipchains handles
-> fragments. Try:
->
-> echo 1 > /proc/sys/net/ipv4/ip_always_defrag
+On 17-Jan-2001 Jussi Hamalainen wrote:
+> On Wed, 17 Jan 2001, Tony Gale wrote:
+> 
+>> It looks like this is due to the odd way in which ipchains handles
+>> fragments. Try:
+>>
+>> echo 1 > /proc/sys/net/ipv4/ip_always_defrag
+> 
+> Thanks, this seems to do the trick. Does this oddity still exist
+> in 2.4?
+> 
 
-Thanks, this seems to do the trick. Does this oddity still exist
-in 2.4?
+Well, I haven't found it, but there is
+/proc/sys/net/ipv4/ipfrag_high_thresh
+/proc/sys/net/ipv4/ipfrag_low_thresh
+/proc/sys/net/ipv4/ipfrag_time
 
--- 
--=[ Count Zero / TBH - Jussi Hämäläinen - email count@theblah.org ]=-
+Perhaps 2.4 always defrags packets by default. Anyone confirm? This
+is pretty much needed for any kind of firewall/masquerading system.
 
+-tony
+
+
+
+---
+E-Mail: Tony Gale <gale@syntax.dera.gov.uk>
+The great merit of society is to make one appreciate solitude.
+		-- Charles Chincholles, "Reflections on the Art of Life"
+
+The views expressed above are entirely those of the writer
+and do not represent the views, policy or understanding of
+any other person or official body.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

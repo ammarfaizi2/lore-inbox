@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264883AbTBAPwI>; Sat, 1 Feb 2003 10:52:08 -0500
+	id <S264885AbTBAPzJ>; Sat, 1 Feb 2003 10:55:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264885AbTBAPwI>; Sat, 1 Feb 2003 10:52:08 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:49605 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264883AbTBAPwH>; Sat, 1 Feb 2003 10:52:07 -0500
-From: "Oliver Friedrich" <oliver@familie-friedrich.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Keyboard acces
-Date: Sat, 1 Feb 2003 17:00:22 +0100
-Message-ID: <BCEFLCEOHFPNLLAKKGAACECCCMAA.oliver@familie-friedrich.de>
+	id <S264886AbTBAPzJ>; Sat, 1 Feb 2003 10:55:09 -0500
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:20437 "EHLO
+	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S264885AbTBAPzI>; Sat, 1 Feb 2003 10:55:08 -0500
+Message-ID: <3E3BEFDB.3060208@blue-labs.org>
+Date: Sat, 01 Feb 2003 08:03:39 -0800
+From: David Ford <david+powerix@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030125
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: trond.myklebust@fys.uio.no,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@digeo.com>
+Subject: Re: NFS problems, 2.5.5x
+References: <3E3B2D2E.8000604@blue-labs.org> <15931.35891.22926.408963@charged.uio.no>
+In-Reply-To: <15931.35891.22926.408963@charged.uio.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.6; AVE: 6.16.0.0; VDF: 6.16.0.5; host: friedrich.homeip.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The last time NFS was working, I had 2.4.19 and 2.5.53 clients on a 
+2.5.59 server, that was yesterday.  I had experienced a slight problem 
+with it last week when my 2.5.53 client was booted for first time on 
+2.5.5x, it was previously a 2.4 kernel.  The server OOPSed repeatedly 
+shortly after bootup in NFS stuff then it never happened again and was 
+rock solid until today.
 
-I don't know, if this is realy kernel related, but i don't know a better
-place.
+David
 
-I want to access the local keyboard. Because i have at normal operation no
-graphic adapter on this computer, the application is not able to access the
-keyboard via the /dev/vc/[1..n], because the kernel runs it console on the
-serial port. If i'm using a vga adapter, this is not a problem.
+Trond Myklebust wrote:
 
-Normaly the application (it is VDR, the Video Disk Recorder from Klaus
-Schmidinger) uses the input of one of the virtual terminal devices
-/dev/tty[1..n] (or /dev/vc/[1..n] in case of devfs), specified via a command
-line option.
-
-
-Now to my question:
-Is there a device available, that i can use to read the local keyboard if
-the kernel runs its console on one of the serial ports? It is a normal AT
-compatible keyboard, not a USB device.
-
-It is not possible to let the vga card inside of the computer, because it
-would not fit into the small case.
-
-Any hints for my problem? Or another mailing list or forum where i can
-search for a solution?
-
-Thanks in advance,
-Oliver
+>>>>>>" " == David Ford <david+powerix@blue-labs.org> writes:
+>>>>>>            
+>>>>>>
+>
+>     > Synopsis: nfsserver:/home/david mount, get dir. entries loops
+>     > forever,
+>     > 2.5.59 for client and server.
+>
+>     > Example: ls -l /home/david
+>
+>     > An strace will show the same directory entries flying by over
+>     > and over until memory is exhausted or ^c comes along.  It
+>     > worked at first for about 30 minutes while I finished the new
+>     > gentoo install on my desktop, but then things got weird.  the
+>     > nfs server spat out a big long callback trace (oops) and died
+>     > hard.  Had to reset the power.  The looping started just
+>     > minutes before that.  I've rebooted, tried 2.5.53 on the client
+>     > but no go.
+>
+>AFAICR, there have been no changes to the NFS client readdir code since
+>2.5.30.
+>
+>Cheers,
+>  Trond
+>  
+>
 

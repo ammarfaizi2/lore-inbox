@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265539AbUBFUyy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 15:54:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265583AbUBFUyy
+	id S265584AbUBFU4k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 15:56:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265586AbUBFU4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 15:54:54 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:37136 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S265539AbUBFUyx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 15:54:53 -0500
-Date: Fri, 6 Feb 2004 21:54:51 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
+	Fri, 6 Feb 2004 15:56:39 -0500
+Received: from h80ad2445.async.vt.edu ([128.173.36.69]:36998 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265584AbUBFU4i (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 15:56:38 -0500
+Message-Id: <200402062056.i16KuVS6020404@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
 To: Werner Almesberger <wa@almesberger.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS locking: f_pos thread-safe ?
-Message-ID: <20040206215451.A2978@pclin040.win.tue.nl>
-References: <20040206041223.A18820@almesberger.net>
+Subject: Re: VFS locking: f_pos thread-safe ? 
+In-Reply-To: Your message of "Fri, 06 Feb 2004 17:09:17 -0300."
+             <20040206170917.E18820@almesberger.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040206041223.A18820@almesberger.net> <20040206183746.GR4902@ca-server1.us.oracle.com>
+            <20040206170917.E18820@almesberger.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040206041223.A18820@almesberger.net>; from wa@almesberger.net on Fri, Feb 06, 2004 at 04:12:24AM -0300
+Content-Type: multipart/signed; boundary="==_Exmh_-1834550369P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 06 Feb 2004 15:56:31 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 06, 2004 at 04:12:24AM -0300, Werner Almesberger wrote:
+--==_Exmh_-1834550369P
+Content-Type: text/plain; charset=us-ascii
 
-> I'm trying to figure out how all the locking in VFS and friends
-> works, and I can't quite explain to myself how f_pos is kept
-> consistent with concurrent readers.
+On Fri, 06 Feb 2004 17:09:17 -0300, Werner Almesberger <wa@almesberger.net>  said:
+
+> Hmm, "all, but the f_pos read-modify-write" sounds more like how
+> an insurance company would define "all" :-)
 > 
-> Section 2.9.7 of the "Austin" draft of IEEE Std. 1003.1-200x,
-> 28-JUL-2000, says:
-> 
-> "[...] read( ) [...] shall be atomic with respect to each other
->  in the effects specified in IEEE Std. 1003.1-200x when they
->  operate on regular files. If two threads each call one of these
->  functions, each call shall either see all of the specified
->  effects of the other call, or none of them."
+> What's puzzling here is that the standard would introduce such an
+> important concept in the discussion of threads.
 
-The 2003 version can be found at
+Well... it's the sort of problem that's very Schrodenger unless you have
+another thread/process observing.
 
-http://www.opengroup.org/onlinepubs/007904975/toc.htm
-http://www.opengroup.org/onlinepubs/007904975/functions/xsh_chap02_09.html
+--==_Exmh_-1834550369P
+Content-Type: application/pgp-signature
 
-Andries
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAI/9/cC3lWbTT17ARAueGAKCsWuAgFNQGQ4XCdPOi80CirD8wfACgyjKR
+GtvGp07PsCP6PI6zG6nlTIM=
+=hv93
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1834550369P--

@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277531AbRJHW2P>; Mon, 8 Oct 2001 18:28:15 -0400
+	id <S277564AbRJHWbp>; Mon, 8 Oct 2001 18:31:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277568AbRJHW2I>; Mon, 8 Oct 2001 18:28:08 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:9980
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277531AbRJHW16>; Mon, 8 Oct 2001 18:27:58 -0400
-Date: Mon, 8 Oct 2001 15:28:22 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
+	id <S277570AbRJHWbf>; Mon, 8 Oct 2001 18:31:35 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11795 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277200AbRJHWbZ>; Mon, 8 Oct 2001 18:31:25 -0400
 Subject: Re: linux-2.4.10-acX
-Message-ID: <20011008152822.A7156@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1002562837.8724.4.camel@tiger> <E15qeo4-0001MW-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: mfedyk@matchmail.com (Mike Fedyk)
+Date: Mon, 8 Oct 2001 23:36:57 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011008152822.A7156@mikef-linux.matchmail.com> from "Mike Fedyk" at Oct 08, 2001 03:28:22 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15qeo4-0001MW-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.22i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15qj17-00028g-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 08, 2001 at 07:07:12PM +0100, Alan Cox wrote:
-> > Has Alan's tree been fully merged with Linus's?? Or are their bits in
-> > Linus's tree that is not in Alan's?
+> > -	Elevator flow control
 > 
-> There are measurable differences between the two trees. Notably
-> 
-> -	Linus uses the Andrea VM in 2.4.10
-> 	-ac uses the Riel VM in 2.4.10-ac
-> 
-> The -ac tree also has the following major additions
-> 
-> -	Elevator flow control
+> Where can I find more information on this?
 
-Where can I find more information on this?
-
-Mike
+Read the ll_rw_blk diff. Basically it tries to avoid too many locked buffers
+clogging up memory and killing the box. I'm not totally sure its the
+right approach 

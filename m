@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262699AbVAQFrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVAQFu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262699AbVAQFrg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 00:47:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbVAQFrg
+	id S262704AbVAQFu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 00:50:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVAQFu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 00:47:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40125 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262699AbVAQFre (ORCPT
+	Mon, 17 Jan 2005 00:50:56 -0500
+Received: from ns.suse.de ([195.135.220.2]:42156 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262704AbVAQFut (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 00:47:34 -0500
-Date: Sun, 16 Jan 2005 21:47:28 -0800
-Message-Id: <200501170547.j0H5lSvb026665@magilla.sf.frob.com>
-MIME-Version: 1.0
+	Mon, 17 Jan 2005 00:50:49 -0500
+Date: Mon, 17 Jan 2005 06:50:40 +0100
+From: Andi Kleen <ak@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: ak@suse.de, discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] x86_64: kill stale mtrr_centaur_report_mcr
+Message-ID: <20050117055040.GE19187@wotan.suse.de>
+References: <20050116074817.GX4274@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH] i386/x86_64 fpu: fix x87 tag word simulation using fxsave
-In-Reply-To: Linus Torvalds's message of  Sunday, 16 January 2005 19:48:42 -0800 <Pine.LNX.4.58.0501161929400.8178@ppc970.osdl.org>
-X-Fcc: ~/Mail/linus
-Emacs: featuring the world's first municipal garbage collector!
+Content-Disposition: inline
+In-Reply-To: <20050116074817.GX4274@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, we're not using C++, so we don't do the "const" part of
+On Sun, Jan 16, 2005 at 08:48:17AM +0100, Adrian Bunk wrote:
+> I didn't know the x86_64 port supports the Centaur CPU.  ;-)
 
-Or C89, apparently.
-
-> What happens if it was in MMX mode?
-
-I don't really know anything about that stuff, but what the manuals say is
-that using any MMX instruction resets the tag bits and clears the TOS field.
-So the patch doesn't change anything for that case (tos == 0).
-
-> If I remember correctly, different CPU's do different things for MMX
-> (some rotate them so that "mmx0" is always the same as "st(0)", some
-> don't, and/or have separate hw registers altogether for it)? I realize we
-> don't probably care, I'm just wondering if somebody knows...
-
-I don't really know, but I have two flavors of manual in front of me.
-I suspect you remember incorrectly, or perhaps in the past there was
-something like that.  AFAICT, it's always the case that MMX clears the TOS
-bits and mmx0 = physical fpr0, which also = st(0) since TOS = 0.
+Have you actually compiled this? Most of the gunk in asm-x86_64/mtrr.h
+is because we share the MTRR driver with i386, and there is no good
+way to disable specific CPUs in there.
 
 
-Thanks,
-Roland
+-Andi
+
+
+
+> 
+> 
+> diffstat output:
+>  include/asm-x86_64/mtrr.h |    3 ---
+>  1 files changed, 3 deletions(-)
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.11-rc1-mm1-full/include/asm-x86_64/mtrr.h.old	2005-01-16 04:27:41.000000000 +0100
+> +++ linux-2.6.11-rc1-mm1-full/include/asm-x86_64/mtrr.h	2005-01-16 04:27:54.000000000 +0100
+> @@ -79,7 +79,6 @@
+>  		     unsigned int type, char increment);
+>  extern int mtrr_del (int reg, unsigned long base, unsigned long size);
+>  extern int mtrr_del_page (int reg, unsigned long base, unsigned long size);
+> -extern void mtrr_centaur_report_mcr(int mcr, u32 lo, u32 hi);
+>  #  else
+>  static __inline__ int mtrr_add (unsigned long base, unsigned long size,
+>  				unsigned int type, char increment)
+> @@ -102,8 +101,6 @@
+>      return -ENODEV;
+>  }
+>  
+> -static __inline__ void mtrr_centaur_report_mcr(int mcr, u32 lo, u32 hi) {}
+> -
+>  #  endif
+>  
+>  #endif
+> 

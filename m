@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131097AbRBIXdB>; Fri, 9 Feb 2001 18:33:01 -0500
+	id <S131174AbRBIXgW>; Fri, 9 Feb 2001 18:36:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131118AbRBIXcv>; Fri, 9 Feb 2001 18:32:51 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:54159 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S131097AbRBIXci>;
-	Fri, 9 Feb 2001 18:32:38 -0500
-Date: Fri, 9 Feb 2001 15:32:35 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Alan Cox <alan@redhat.com>
-cc: Donald Becker <becker@scyld.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        <linux-kernel@vger.kernel.org>, <jes@linuxcare.com>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <200102091049.f19Anjk06651@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.30.0102091527380.31024-100000@age.cs.columbia.edu>
+	id <S131172AbRBIXgM>; Fri, 9 Feb 2001 18:36:12 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:59150 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131118AbRBIXf6>; Fri, 9 Feb 2001 18:35:58 -0500
+Date: Fri, 9 Feb 2001 15:35:21 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.4.2-pre3
+Message-ID: <Pine.LNX.4.10.10102091531550.22341-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Feb 2001, Alan Cox wrote:
 
-> > It's amusing that a full receive copy is added without any concern, in
-> > the same discussion where zero-copy transmit is treated as a holy grail!
-> 
-> For non routing paths its virtually free because the DMA forced the lines
-> from cache anyway. 
+Nothing too radical here..
 
-Are you actually sure about this? I thought DMA from PCI devices reached 
-the main memory without polluting the L2 cache. Otherwise any large DMA 
-transfer would kill the cache (think frame grabbers...)
+		Linus
 
-Ion
+----
+-pre3:
+ - Jens: better ordering of requests when unable to merge
+ - Neil Brown: make md work as a module again (we cannot autodetect
+   in modules, not enough background information)
+ - Neil Brown: raid5 SMP locking cleanups
+ - Neil Brown: nfsd: handle Irix NFS clients named pipe behavior and
+   dentry leak fix
+ - maestro3 shutdown fix
+ - fix dcache hash calculation that could cause bad hashes under certain
+   circumstances (Dean Gaudet)
+ - David Miller: networking and sparc updates
+ - Jeff Garzik: include file cleanups
+ - Andy Grover: ACPI update
+ - Coda-fs error return fixes
+ - rth: alpha Jensen update
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+-pre2:
+ - driver sync up with Alan
+ - Andrew Morton: wakeup cleanup and race fix
+ - Paul Mackerras: macintosh driver updates.
+ - don't trust "page_count()" on reserved pages!
+ - Russell King: fix serious IDE multimode write bug!
+ - me, Jens, others: fix elevator problem
+ - ARM, MIPS and cris architecture updates
+ - alpha updates: better page clear/copy, avoid kernel lock in execve
+ - USB and firewire updates
+ - ISDN updates
+ - Irda updates
+
+-pre1:
+ - XMM: don't allow illegal mxcsr values
+ - ACPI: handle non-existent battery strings gracefully
+ - Compaq Smart Array driver update
+ - Kanoj Sarcar: serial console hardware flow control support
+ - ide-cs: revert toc-valid cache checking in 2.4.1
+ - Vojtech Pavlik: update via82cxxx driver to handle the vt82c686
+ - raid5 graceful failure handling fix
+ - ne2k-pci: enable device before asking the irq number
+ - sis900 driver update
+ - riva FB driver update
+ - fix silly inode hashing pessimization
+ - add SO_ACCEPTCONN for SuS
+ - remove modinfo hack workaround, all newer modutils do it correctly
+ - datagram socket shutdown fix
+ - mark process as running when it takes a page-fault
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,73 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264542AbRGDMtH>; Wed, 4 Jul 2001 08:49:07 -0400
+	id <S264624AbRGDM6S>; Wed, 4 Jul 2001 08:58:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264582AbRGDMs5>; Wed, 4 Jul 2001 08:48:57 -0400
-Received: from hood.tvd.be ([195.162.196.21]:23365 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S264542AbRGDMsk>;
-	Wed, 4 Jul 2001 08:48:40 -0400
-Date: Wed, 4 Jul 2001 14:45:21 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <laughing@shared-source.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac24
-In-Reply-To: <20010703220532.A32104@lightning.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.05.10107041441460.3637-100000@callisto.of.borg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264660AbRGDM6I>; Wed, 4 Jul 2001 08:58:08 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:61714 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S264624AbRGDM5z>;
+	Wed, 4 Jul 2001 08:57:55 -0400
+Date: Wed, 4 Jul 2001 14:57:52 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Juergen Wolf <JuWo@N-Club.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with SMC Etherpower II + kernel newer 2.4.2
+Message-ID: <20010704145752.A29311@se1.cogenit.fr>
+In-Reply-To: <Pine.LNX.4.30.0107021014230.15054-100000@flash.datafoundation.com> <3B42DEC2.AAB1E65B@N-Club.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B42DEC2.AAB1E65B@N-Club.de>; from JuWo@N-Club.de on Wed, Jul 04, 2001 at 11:15:46AM +0200
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jul 2001, Alan Cox wrote:
-> 2.4.5-ac24
-> o	Merge 2.4.6-pre9
-> 	- Ignored ATI changes versus old atyfb codebase
+Juergen Wolf <JuWo@N-Club.de> ecrit :
+[...]
+Jul  2 13:06:59 localhost kernel: eth0: Too much work at interrupt, IntrStatus=0x008d0004.
 
-drivers/video/aty/ in your tree is still for the ATI Mach64 family only. So you
-should keep on merging aty128fb (for ATI Rage 128). The integration of the
-support for Rage 128 and Radeon in the new atyfb has not been completed yet.
+Receive Status Valid
+Receive Copy In Progress
+Transmit Idle
+Receive Queue Empty -> no more receive buffer available
 
-Here is a patch to bring the atyfb in your tree in sync with the atyfb in
-Linus' tree. This does not include the changes to aty128fb, they can be copied
-from Linus' tree directly.
+It looks like one waits too long before processing incoming data
+but I'm curious to know where they come from if nothing is plugged.
 
---- linux-2.4.5-ac24/drivers/video/aty/atyfb_base.c	Fri Jun 29 11:01:44 2001
-+++ linux-atyfb-2.4.5-ac24/drivers/video/aty/atyfb_base.c	Wed Jul  4 14:43:21 2001
-@@ -1430,7 +1430,7 @@
- static void atyfb_save_palette(struct fb_info *fb, int enter)
- {
- 	struct fb_info_aty *info = (struct fb_info_aty *)fb;
--	int i, tmp, scale;
-+	int i, tmp;
- 
- 	for (i = 0; i < 256; i++) {
- 		tmp = aty_ld_8(DAC_CNTL, info) & 0xfc;
-@@ -1439,14 +1439,11 @@
- 		aty_st_8(DAC_CNTL, tmp, info);
- 		aty_st_8(DAC_MASK, 0xff, info);
- 
--		scale = (M64_HAS(INTEGRATED) &&
--			 info->current_par.crtc.bpp == 16) ? 3 : 0;
--		writeb(i << scale, &info->aty_cmap_regs->rindex);
--
-+		writeb(i, &info->aty_cmap_regs->rindex);
- 		atyfb_save.r[enter][i] = readb(&info->aty_cmap_regs->lut);
- 		atyfb_save.g[enter][i] = readb(&info->aty_cmap_regs->lut);
- 		atyfb_save.b[enter][i] = readb(&info->aty_cmap_regs->lut);
--		writeb(i << scale, &info->aty_cmap_regs->windex);
-+		writeb(i, &info->aty_cmap_regs->windex);
- 		writeb(atyfb_save.r[1-enter][i], &info->aty_cmap_regs->lut);
- 		writeb(atyfb_save.g[1-enter][i], &info->aty_cmap_regs->lut);
- 		writeb(atyfb_save.b[1-enter][i], &info->aty_cmap_regs->lut);
+[...]
+>   Bus  1, device   0, function  0:
+>     VGA compatible controller: nVidia Corporation NV11 (rev 161).
+>       IRQ 10.
+>       Master Capable.  Latency=32.  Min Gnt=5.Max Lat=1.
+>       Non-prefetchable 32 bit memory at 0xdc000000 [0xdcffffff].
+>       Prefetchable 32 bit memory at 0xd0000000 [0xd7ffffff].
 
-Gr{oetje,eeting}s,
+Is X or something like a nvidia module enabled ?
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+-- 
+Ueimor

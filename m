@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264181AbRFRPP4>; Mon, 18 Jun 2001 11:15:56 -0400
+	id <S264169AbRFRPQG>; Mon, 18 Jun 2001 11:16:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264176AbRFRPPq>; Mon, 18 Jun 2001 11:15:46 -0400
-Received: from [207.0.237.38] ([207.0.237.38]:22276 "HELO sin.sloth.org")
-	by vger.kernel.org with SMTP id <S264169AbRFRPPa>;
-	Mon, 18 Jun 2001 11:15:30 -0400
-Date: Mon, 18 Jun 2001 11:15:11 -0400
-From: Geoffrey Gallaway <geoffeg@sin.sloth.org>
-To: linux-kernel@vger.kernel.org
-Subject: Error in documentation?
-Message-ID: <20010618111510.A27662@sin.sloth.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264203AbRFRPP4>; Mon, 18 Jun 2001 11:15:56 -0400
+Received: from mx5.sac.fedex.com ([199.81.194.37]:2822 "EHLO mx5.sac.fedex.com")
+	by vger.kernel.org with ESMTP id <S264174AbRFRPPi>;
+	Mon, 18 Jun 2001 11:15:38 -0400
+Date: Mon, 18 Jun 2001 23:15:07 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: <root@boston.corp.fedex.com>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+cc: Anuradha Ratnaweera <anuradha@bee.lk>,
+        Jeff Chua <jchua@silk.corp.fedex.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Unresolved symbol do_softirq in 2.4.6-pre3
+In-Reply-To: <Pine.LNX.4.33.0106181017300.6188-100000@viper.haque.net>
+Message-ID: <Pine.LNX.4.33.0106182313450.6088-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux/Documentation/modules.txt says that I should find my modules in
-"linux/modules" after running "make modules". However, this is
-apparently not true as I see no modules directory. 
+On Mon, 18 Jun 2001, Mohammad A. Haque wrote:
 
-I am trying to compile a kernel with lots of modules for a machine
-without a network connection. To move the kernel, I simply copy it to
-floppy and move it over to the other machine. However, for the modules,
-is my only choice appears to be "make modules-install" then tar up
-/lib/modules/kernel-release/ and then remove the directory. Is there a 
-cleaner way to handle this?
+> On Mon, 18 Jun 2001, Anuradha Ratnaweera wrote:
+>
+> > I started running 2.4.6-pre3 using the same configuration file as 2.4.5.
+> > Diff shows no effective differences between two config files.
+> >
+> > depmod complains unresolved symbols (do_softirq) in ppp_generic, ppp_async
+> > and sunrpc.
+> >
+>
+> Please check the list archives. A possible solution was posted by Keith
+> owens
+> <http://marc.theaimsgroup.com/?l=linux-kernel&m=99245070328459&w=2>.
 
-Geoffeg
+Try this ...
 
--- 
-Geoffrey Gallaway || 
-geoffeg@sloth.org || Clones are people two.
-D e v o r z h u n ||
+Jeff.
+
+
+--- include/asm-i386/softirq.h	Thu Jun 14 17:10:34 2001
++++ include/asm-i386/softirq.h.new	Thu Jun 14 17:17:15 2001
+@@ -36,13 +36,13 @@
+ 									\
+ 			".section .text.lock,\"ax\";"			\
+ 			"2: pushl %%eax; pushl %%ecx; pushl %%edx;"	\
+-			"call do_softirq;"				\
++			"call %c1;"					\
+ 			"popl %%edx; popl %%ecx; popl %%eax;"		\
+ 			"jmp 1b;"					\
+ 			".previous;"					\
+ 									\
+ 		: /* no output */					\
+-		: "r" (ptr)						\
++		: "r" (ptr), "i" (do_softirq)				\
+ 		/* no registers clobbered */ );				\
+ } while (0)
+
+

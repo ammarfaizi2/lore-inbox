@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262467AbTJTJ0U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 05:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbTJTJ0T
+	id S262461AbTJTJZl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 05:25:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbTJTJZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 05:26:19 -0400
-Received: from mailout.zma.compaq.com ([161.114.64.103]:39172 "EHLO
-	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S262467AbTJTJ0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 05:26:15 -0400
-Date: Mon, 20 Oct 2003 11:24:45 +0200
-From: Torben Mathiasen <torben.mathiasen@hp.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Tomas Szepe <szepe@pinerecords.com>,
-       Torben Mathiasen <torben.mathiasen@hp.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFT][PATCH] fix ServerWorks PIO auto-tuning
-Message-ID: <20031020092445.GB1685@tmathiasen>
-References: <200310162344.09021.bzolnier@elka.pw.edu.pl> <20031018130234.GA28095@louise.pinerecords.com> <200310181745.41768.bzolnier@elka.pw.edu.pl>
+	Mon, 20 Oct 2003 05:25:41 -0400
+Received: from [65.172.181.6] ([65.172.181.6]:35495 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262461AbTJTJZk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 05:25:40 -0400
+Date: Mon, 20 Oct 2003 02:25:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Noah J. Misch" <noah@caltech.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Missing include in swap.h for some architectures
+Message-Id: <20031020022536.796531c4.akpm@osdl.org>
+In-Reply-To: <Pine.GSO.4.58.0310171453450.13905@blinky>
+References: <Pine.GSO.4.58.0310171453450.13905@blinky>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310181745.41768.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.4.1i
-X-OS: Linux 2.4.22 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 18 2003, Bartlomiej Zolnierkiewicz wrote:
-> 
-> We depend on BIOS hints for ServerWorks and BIOS is not enabling DMA.
-> AFAIR we can't force DMA in this case because there are broken hardware
-> designs, so current behavior is safe.  However more research is needed...
+"Noah J. Misch" <noah@caltech.edu> wrote:
 >
+> # The linux/swap.h header uses the page_cache_release and release_pages
+>  # functions declared in linux/pagemap.h when CONFIG_SWAP is disabled.  Add
+>  # an include of linux/pagemap.h so swap.h finds those declarations on
+>  # architectures that don't include pagemap.h indirectly.
 
-On a Proliant, DMA may or may not be supported on different devices, and the
-BIOS knows about it. So by letting it hint its setup, we have a safe way of
-configuring the chipset. The 'biostimings' code used a similar approach (by
-leaving the BIOS setup timings alone), but as you also reported, was so generic
-that it could be dangerous for other chipsets.
+This carries a small risk of breaking things.  I think I'd prefer that the
+offending .c files just include pagemap.h please.
 
-So if you have a Proliant where you get DMA enabled and it fails, it has to be
-a BIOS bug (since the BIOS hintet DMA), and I'd like to know about it. OTOH, if
-you have to explicitly enable DMA using hdparm, it may not be supported (since
-the BIOS hinted pio). 
-
-
-BTW Tomas, that drive you're adding to your ML350G2, is that just to have a spare IDE
-disk drive? IIRC, the 350 is a SCSI system with only an ATAPI cdrom drive. But
-I could be wrong.
-
-Thanks,
-Torben

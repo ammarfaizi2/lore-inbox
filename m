@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269811AbRHNL1S>; Tue, 14 Aug 2001 07:27:18 -0400
+	id <S270568AbRHNLij>; Tue, 14 Aug 2001 07:38:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269965AbRHNL1I>; Tue, 14 Aug 2001 07:27:08 -0400
-Received: from ns.suse.de ([213.95.15.193]:14084 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S269811AbRHNL0y>;
-	Tue, 14 Aug 2001 07:26:54 -0400
-Date: Tue, 14 Aug 2001 13:26:56 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Tim Hockin <thockin@sun.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <alan@redhat.com>, <torvalds@transmeta.com>
-Subject: Re: [PATCH] nvram driver work
-In-Reply-To: <3B78A38D.CBA72401@sun.com>
-Message-ID: <Pine.LNX.4.30.0108141324060.29900-100000@Appserv.suse.de>
+	id <S270569AbRHNLi3>; Tue, 14 Aug 2001 07:38:29 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56335 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270568AbRHNLiT>; Tue, 14 Aug 2001 07:38:19 -0400
+Subject: Re: Camino 2 (82815/82820) v2.4.x eth/sound related lockups
+To: ime@iaehv.iae.nl (Ime Smits)
+Date: Tue, 14 Aug 2001 12:40:59 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.BSF.4.05.10108141301230.92637-100000@iaehv.iae.nl> from "Ime Smits" at Aug 14, 2001 01:31:07 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15WcZ9-0000zr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001, Tim Hockin wrote:
+> Funny things in syslog include:
+> kernel: mtrr: base(0xe8000000) is not aligned on a
+> size(0x4b0000) boundary
 
-Hi Tim,
+Thats
+ok
 
-> This patch does 4 main things:
-> 1) Add generic support for paged nvrams, and supporting ioctls
-> 2) Add a 'Magic' page for system-specific NVRAM-like things
-> 3) Add support for NatSemi PC[89]7317 paged nvram
-> 4) Add support for Cobalt's magic page
+> kernel: eepro100: wait_for_cmd_done timeout!
 
-No problem with that stuff.
+Those are not so good. I was having similar problems on an i810 box with
+onboard eepro100 until I disabled the pm stuff in 2.4.8ac2, but you
+seem to be running that one
 
-> It also does some re-formatting of things that looked awful with tabstops >
-> 2.
-
-With the tabstops set to the value defined at the bottom of the file (4)
-it looks fine. Your changes break the indentation of the rest of the
-file when viewed as it was originally created.
-
-> We've been using this patch for months.  Please apply it to the next 2.4.x
-> kernel, or let me know if you have problems with it.  It is against 2.4.8
-> and should patch cleanly (just a bit of fuzz).
-
-line 116 needs changing also, to by 128-RTC_FIRST_BYTE
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
+Alan

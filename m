@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129281AbRBLJfj>; Mon, 12 Feb 2001 04:35:39 -0500
+	id <S129115AbRBLJtl>; Mon, 12 Feb 2001 04:49:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbRBLJf3>; Mon, 12 Feb 2001 04:35:29 -0500
-Received: from ns.suse.de ([213.95.15.193]:40966 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129281AbRBLJfQ>;
-	Mon, 12 Feb 2001 04:35:16 -0500
-Date: Mon, 12 Feb 2001 10:35:10 +0100
-From: Olaf Hering <olh@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>, autofs@linux.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: race in autofs / nfs
-Message-ID: <20010212103510.A16844@suse.de>
-In-Reply-To: <20010211211701.A7592@suse.de> <3A86F6AA.1416F479@transmeta.com> <shsbss8i8iq.fsf@charged.uio.no>
-Mime-Version: 1.0
+	id <S129230AbRBLJtc>; Mon, 12 Feb 2001 04:49:32 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62224 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129115AbRBLJtY>; Mon, 12 Feb 2001 04:49:24 -0500
+Subject: Re: [OT] Major Clock Drift
+To: andrewm@uow.edu.au (Andrew Morton)
+Date: Mon, 12 Feb 2001 09:48:47 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pavel@suse.cz (Pavel Machek),
+        teastep@seattlefirewall.dyndns.org (Tom Eastep),
+        fd0man@crosswinds.net (Michael B. Trausch),
+        jbm@joshisanerd.com (Josh Myer), linux-kernel@vger.kernel.org
+In-Reply-To: <3A871252.45974FFF@uow.edu.au> from "Andrew Morton" at Feb 11, 2001 10:29:38 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <shsbss8i8iq.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Mon, Feb 12, 2001 at 09:57:01AM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14SFbG-0006WR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 12, Trond Myklebust wrote:
-
-> >>>>> " " == H Peter Anvin <hpa@transmeta.com> writes:
+> > Why are interrupts being disabled for vesafb scrolling anyway ?
 > 
->      > Olaf Hering wrote:
->     >>
->     >> Hi,
->     >>
->     >> there is a race in 2.4.1 and 2.4.2-pre3 in autofs/nfs.  When
->     >> the cwd is on the nfs mounted server (== busy) and you try to
->     >> reboot the shutdown hangs in "rcautofs stop". I can reproduce
->     >> it everytime.
->     >>
+> Console writes happen under spin_lock_irq(console_lock).
 > 
->      > Sounds like an NFS bug in umount.
-> 
-> Or a dcache bug: the above points to a corruption of the mnt_count
-> which is supposed to be > 0 if the partition is in use. I'm seeing a
-> similar leak for ext2 partitions (not involving autofs or NFS).
+> The only reason for this which I can see: the kernel
+> can call printk() from interrupt context.
 
-Send me patches :)
-autofs is the latest, btw.
-http://www.de.kernel.org/pub/linux/daemons/autofs/testing-v4/autofs-4.0.0pre9.tar.bz2
+We certainly need to be able to call printk from interrupt context so that
+bit is in itself reasonable, but not the cost.
+
+Suppose vesafb did something like this, dropping the printk lock
+
+	if(test_and_set_bit(0, &vesafb_lock))
+	{
+		if(in_interrupt())
+		{
+			// remember which bit of the dmesg ring to queue
+			queued_writes=1;
+			return;
+		}
+	}
+	/* for the re-entry case this will block */
+	down(&vesafb_mutex);
+again:
+	do the usual stuff 
+	if(queued_writes)
+	{
+		dequeue_write_buffer();
+		goto again;
+	}
+	up(&vesafb_mutex);
+	clear_bit(0, &vesafb_lock);
 
 
-Gruss Olaf
-
--- 
- $ man clone
-
-BUGS
-       Main feature not yet implemented...
+	
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132485AbRDNXtK>; Sat, 14 Apr 2001 19:49:10 -0400
+	id <S132558AbRDOACx>; Sat, 14 Apr 2001 20:02:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132557AbRDNXtB>; Sat, 14 Apr 2001 19:49:01 -0400
-Received: from www.inreko.ee ([195.222.18.2]:51586 "EHLO www.inreko.ee")
-	by vger.kernel.org with ESMTP id <S132485AbRDNXsr>;
-	Sat, 14 Apr 2001 19:48:47 -0400
-Date: Sun, 15 Apr 2001 02:04:34 +0200
-From: Marko Kreen <marko@l-t.ee>
-To: cacook@freedom.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DPT PM3755F Fibrechannel Host Adapter
-Message-ID: <20010415020433.B13190@l-t.ee>
-In-Reply-To: <20010414233426Z131976-682+268@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010414233426Z131976-682+268@vger.kernel.org>; from cacook@freedom.net on Sat, Apr 14, 2001 at 05:33:02PM -0600
+	id <S132559AbRDOACn>; Sat, 14 Apr 2001 20:02:43 -0400
+Received: from mx2out.umbc.edu ([130.85.253.52]:63963 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S132558AbRDOACh>;
+	Sat, 14 Apr 2001 20:02:37 -0400
+Date: Sat, 14 Apr 2001 20:02:34 -0400
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Marko Kreen <marko@l-t.ee>
+cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Thorsten Glaser Geuer <eccesys@topmail.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Still cannot compile, 2.4.3-ac6
+In-Reply-To: <20010415005624.A11455@l-t.ee>
+Message-ID: <Pine.SGI.4.31L.02.0104142001070.3779138-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 14, 2001 at 05:33:02PM -0600, cacook@freedom.net wrote:
-> I have been unable to set up a module for my DPT fibrechannel host adapter, partly through unavailability, and partly through inexperience.
+On Sun, 15 Apr 2001, Marko Kreen wrote:
 
-There is a nice suppary of current DPT driver status on Kernel
-Traffic #113:
+> Sorry.  Who said it should not be tested?  How else it could get
+> 'default compiler'?  If the gcc-3.0 would start giving errors
+> on some old code then it could be gcc bug.  But this rwsem code
+> is couple of days old.  It is good to let it through stricter
+> error checking, I guess.  This rwsem is very in-flux code.  eg.
+> 2.4.4-pre2 did not compile.  ac[56] with um-arch do not compile.
 
-http://kt.zork.net/kernel-traffic/kt20010330_113.html#3
+For what its worth, I got the same error on 2.4.3-ac5, using gcc 2.91.66.
 
--- 
-marko
+I did seem messages fly by in on the list about a few in -ac5, but
+haven't gone back to dig them out.
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 

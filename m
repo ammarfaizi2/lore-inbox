@@ -1,75 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275178AbRKDS5D>; Sun, 4 Nov 2001 13:57:03 -0500
+	id <S273364AbRKDTAX>; Sun, 4 Nov 2001 14:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273622AbRKDS4y>; Sun, 4 Nov 2001 13:56:54 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:518 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S273588AbRKDS4m>; Sun, 4 Nov 2001 13:56:42 -0500
-Date: Sun, 4 Nov 2001 10:53:43 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: <jogi@planetzork.ping.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.14-pre8..
-In-Reply-To: <20011104192725.A847@planetzork.spacenet>
-Message-ID: <Pine.LNX.4.33.0111041047230.6919-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273255AbRKDTAO>; Sun, 4 Nov 2001 14:00:14 -0500
+Received: from unthought.net ([212.97.129.24]:52952 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S273364AbRKDS77>;
+	Sun, 4 Nov 2001 13:59:59 -0500
+Date: Sun, 4 Nov 2001 19:59:55 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Tim Jansen <tim@tjansen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011104195955.K14001@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <160QM5-1HAz5sC@fmrl00.sul.t-online.com> <20011104184839.F14001@unthought.net> <160S2o-1JXpD6C@fmrl05.sul.t-online.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <160S2o-1JXpD6C@fmrl05.sul.t-online.com>; from tim@tjansen.de on Sun, Nov 04, 2001 at 07:34:00PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Nov 04, 2001 at 07:34:00PM +0100, Tim Jansen wrote:
+> On Sunday 04 November 2001 18:48, you wrote:
+> > > Is there is a way to implement a filesystem in user-space? What you could
+> > You're proposing a replacement of /proc ?
+> 
+> I was asking whether there is a way to do compatibility stuff and human 
+> readable interfaces in user space. 
 
-On 4 Nov 2001 jogi@planetzork.ping.de wrote:
->
-> Is there anything else I can measure during the kernel compiles?
-> Are the numbers for >= -pre6 slower because of measures taken to
-> increase the "interactivity" / responsivness of the kernel?
+Probably.
 
-No, it's something else, possibly some of the sharing braindamage.
+I'm just trying to:
+1)  Supplement an unstable "API sort-of-thing" with something
+    that's stable and can last.
+2)  Come up with a realistic idea that can be implemented, tested,
+    and deemed "obviously correct" and "good" in finite time
+3)  Not break stuff more than it already is, and allow for a gradual
+    transition to something that won't break mysteriously every ten
+    kernel releases.
 
-> The part that looks most suspicious to me is that the results
-> for make -j100 vary so much ...
+The idea is that if the userland application does it's parsing wrong, it should
+either not compile at all, or abort loudly at run-time, instead of getting bad
+values "sometimes".
 
-Indeed. I don't like that part at all. That implies that some part of the
-code is unstable. One thing that Andrea points out is that the current VM
-scanning is rather unfair to active pages - if we get lots of active pages
-(for whatever reason), that will defeat some of the page-out aging code.
-
-Also, Andrea also suspects that when we de-activate a page in
-refill_inactive, we should activate it again if somebody touches it, and
-not make it go through the whole "activate on second reference" rigamole
-again. What does this patch do to the pre8 behaviour?
-
-(The first chunk just says that we _can_ unmap active pages: it's up to
-refill_inactive to perhaps de-activate them and free them on demand. The
-second chunk says that when refill_inactive() moves a page to the inactive
-list, it's already been "touched once", so another access will activate it
-again).
-
-		Linus
-
-----
-diff -u --recursive pre8/linux/mm/vmscan.c linux/mm/vmscan.c
---- pre8/linux/mm/vmscan.c	Sun Nov  4 09:41:04 2001
-+++ linux/mm/vmscan.c	Sun Nov  4 10:41:59 2001
-@@ -54,9 +54,11 @@
- 		return 0;
- 	}
-
-+#if 0
- 	/* Don't bother unmapping pages that are active */
- 	if (PageActive(page))
- 		return 0;
-+#endif
-
- 	/* Don't bother replenishing zones not under pressure.. */
- 	if (!memclass(page->zone, classzone))
-@@ -541,6 +543,7 @@
-
- 		del_page_from_active_list(page);
- 		add_page_to_inactive_list(page);
-+		SetPageReferenced(page);
- 	}
- 	spin_unlock(&pagemap_lru_lock);
- }
-
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266308AbUGBGUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266352AbUGBHIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266308AbUGBGUy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 02:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUGBGUx
+	id S266352AbUGBHIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 03:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUGBHIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 02:20:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51687 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266308AbUGBGUt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 02:20:49 -0400
-Date: Thu, 1 Jul 2004 23:18:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: karim@opersys.com
-Cc: peterm@redhat.com, faith@redhat.com, davidm@hpl.hp.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       ray.lanza@hp.com, trz@us.ibm.com, richardj_moore@uk.ibm.com,
-       bob@watson.ibm.com, michel.dagenais@polymtl.ca
-Subject: Re: [PATCH] IA64 audit support
-Message-Id: <20040701231844.0aed5201.akpm@osdl.org>
-In-Reply-To: <40E4D4AD.2020302@opersys.com>
-References: <200406301556.i5UFuGg8009251@redrum.boston.redhat.com>
-	<20040701124644.5e301ca0.akpm@osdl.org>
-	<40E4B20F.8010503@opersys.com>
-	<20040701182954.43351d36.akpm@osdl.org>
-	<40E4D4AD.2020302@opersys.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jul 2004 03:08:09 -0400
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:46269 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S266352AbUGBHIA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 03:08:00 -0400
+Date: Fri, 2 Jul 2004 00:06:30 -0700 (PDT)
+From: Yichen Xie <yxie@cs.stanford.edu>
+X-X-Sender: yxie@localhost.localdomain
+To: Nathan Scott <nathans@sgi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUGS] [CHECKER] 99 synchronization bugs and a lock summary
+ database
+In-Reply-To: <20040702043524.GA1203@frodo>
+Message-ID: <Pine.LNX.4.44.0407012259030.5069-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour <karim@opersys.com> wrote:
->
-> > Developer support tools are good, but are not as persuasive as end-user
-> > features.  Because the audience is smaller, and developers know how to
-> > apply patches and rebuild stuff.
+Hi Nathan, thanks for the feedback! This is indeed a false alarm. The tool
+was able to infer the semantics of _sv_wait, but failed to used it due to
+a bug in my checker... Problem fixed now and I will rerun the checker
+tonight. I will update the error reports when the results are ready. 
+Best,
+Yichen
+
+On Fri, 2 Jul 2004, Nathan Scott wrote:
+
+> On Thu, Jul 01, 2004 at 06:01:00PM -0700, Yichen Xie wrote:
+> > Hi all, 
 > 
-> This is probably one of the biggest misconception about LTT amongst kernel
-> developers. So let me present this once more: LTT is _NOT_ for kernel
-> developers, it has never been developed with this crowd in mind. LTT is and
-> has _ALWAYS_ been intended for the end user.
-
-Note I said "developer", not "kernel developer".  If the audience for a
-feature is kernel developers, userspace developers and perhaps the most
-sophisticated sysadmins then that's a small audience.  It's certainly an
-_important_ audience, but the feature is not as important as those
-codepaths which Uncle Tillie needs to run his applications.
-
-> Again, LTT is of marginal use to kernel developers, the benefits all go
-> to the end users' ability to understand what's going on in their system (see
-> above for examples.)
-
-To me, an "end user" is one who is capable of identifying the power switch
-and the ANY key, not an application programmer!
-
-> On the topic of maintenance cost, I fail to see how one-liners such as the
-> above can be of any burden to any kernel developer, they have remained
-> virtually unchanged for the past 5 years and any look throughout the LTT
-> archives or the kernel mailing list archive for LTT patches will readily
-> show this.
-
-Fair enough.
-
-> > If it could use kprobes hooks that'd be neat.  kprobes is low-impact.
+> Hi there,
 > 
-> The issues about the spread of trace points across the source code are
-> exactly the same, you still need to mark the code-paths (and maintain
-> these markings for each version) regardless of the mechanism being used.
-
-Nope, kprobes allows a kernel module to patch hooks into the running
-binary.  That's all it does, really.   See
-http://www-124.ibm.com/linux/projects/kprobes/
+> > We are a group of researchers at Stanford working on program analysis
+> > algorithms.  We have been building a precision enhanced program analysis
+> > engine at Stanford, and our first application was to derive mutex/lock
+> > behavior in the linux kernel. In the process, we found 99 likely
+> > synchronization errors in linux kernel version 2.6.5:
+> > 
+> >     http://glide.stanford.edu/linux-lock/err1.html (69 errors)
+> >     http://glide.stanford.edu/linux-lock/err2.html (30 errors)
+> > 
+> >  ...
+> > 
+> > As always, feedbacks and confirmations will be greatly appreciated!
+> 
+> >From looking through the XFS reports, I suspect your tools aren't
+> following the sv_wait semantics correctly (or else I'm misreading
+> the code).  Many of the reported XFS items stem from this - e.g.
+> this one...
+> [NOTE] BUG forgot to unlock before "goto try_again" (line 2293)
+> ERROR: fs/xfs/xfs_log.c:2948: lock check failed!
+> ERROR: fs/xfs/xfs_log.c:xlog_state_sync
+> 
+> the code in question does this:
+> 
+>   try_again:
+> 	s = LOG_LOCK(log); /* spin_lock(&log->l_icloglock); */
+> 	    ...
+> 		sv_wait(&iclog->ic_prev->ic_writesema, PSWP,
+> 			&log->l_icloglock, s);
+> 		already_slept = 1;
+> 		goto try_again;
+> 
+> and the tools seem to be missing that the log->l_icloglock is
+> unlocked by the sv_wait routine.  Well, that or I've overlooked
+> something that the tools have not. :)
+> 
+> A couple of the others were definately missed unlocks on error
+> paths though (fixed now) - thanks!
+> 
+> cheers.
+> 
+> 
 

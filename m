@@ -1,98 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbUCISXM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 13:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbUCISXM
+	id S262081AbUCISjn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 13:39:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbUCISjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 13:23:12 -0500
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:188 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S261931AbUCISXG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 13:23:06 -0500
-Date: Tue, 9 Mar 2004 19:22:40 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Jeremy Jackson <jerj@coplanar.net>
-cc: Arthur Corliss <corliss@digitalmages.com>, Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] 2.6.x BSD Process Accounting w/High UID
-In-Reply-To: <404DEDED.5080308@coplanar.net>
-Message-ID: <Pine.LNX.4.53.0403091822350.10286@gockel.physik3.uni-rostock.de>
-References: <Pine.LNX.4.44.0403041451360.20043-100000@chimarrao.boston.redhat.com>
- <Pine.LNX.4.58.0403041103500.24930@bifrost.nevaeh-linux.org>
- <Pine.LNX.4.53.0403042242190.29818@gockel.physik3.uni-rostock.de>
- <Pine.LNX.4.58.0403041324330.20616@bifrost.nevaeh-linux.org>
- <404DEDED.5080308@coplanar.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Mar 2004 13:39:43 -0500
+Received: from mxsf04.cluster1.charter.net ([209.225.28.204]:45074 "EHLO
+	mxsf04.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S262081AbUCISjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 13:39:42 -0500
+Date: Tue, 9 Mar 2004 13:38:57 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround instead of apic ack delay.
+Message-ID: <20040309183857.GB23839@forming>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.GHP.4.44.0403082315490.3880-100000@elektron.its.tudelft.nl> <1078786761.9399.15.camel@athlonxp.bradney.info>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1078786761.9399.15.camel@athlonxp.bradney.info>
+X-Editor: GNU Emacs 21.1
+X-Operating-System: Debian GNU/Linux 2.6.3-mm1 i686
+X-Uptime: 13:22:22 up 18 days, 18:38,  7 users,  load average: 1.77, 1.18, 1.06
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Josh McKinney <forming@charter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I believe the answer (to seamless backwards compatibility) lies in 
-> struct acct's ac_pad[10] member.
-
-sure.
-
-> 3 options exist that I can see:
+On approximately Mon, Mar 08, 2004 at 11:59:21PM +0100, Craig Bradney wrote:
 > 
-> 1) put the high 16 bits in there, with a magic # (at then end of?) 
-> ac_pad.  THe old tools will be none the wiser, the new tools will 
-> autodetect which format the acct file is in.  Ugly but easy.
+> <snip>
 > 
-> 2) just make the uid/gid 32bits, and put a magic#  (at the end of?) 
-> ac_pad.  The old tools will choke, but the new tools will autodetect. 
-> If you push the new tools out a couple of years ahead, then merge the 
-> fix, acceptance will be fairly smooth.  Clean but painful.
+> I have put the idle=C1halt patch that Ross released a little while back
+> now into Gentoo-dev-sources-2.6.3 as I reported to the list yesterday. I
+> no longer use the old apic_tack=2 patch. I have been playing silly
+> buggers with hardware, but so far the PC has made it to 11 hours and now
+> 7 hours with no issues. 
 > 
-> or
-> 3) make the split of 16 bits interim with one magic#, make the tools 
-> detect 3 formats, and in a few years, switch from the bastard 32bit to 
-> the clean one (different magic #).  This will give tools time to become 
-> standard.
-> Combines best of both of the above.
 
-4) make ac_uid and ac_gid 32 bits and move them into the place formerly
-   occupied by ac_pad[10]. Establish comatibility fields ac_uid16 and
-   ac_gid16 in the old places of ac_uid/ac/gid. Introduce a magic (or not,
-   since checking for (ac_uid16==ac_uid && ac_gid16==ac_gid) will reveal
-   whether 32bit uids are supported).
-   Best of all worlds: old tools will keep working. Just recompiling them
-   will yield 32 bit uid/gid support. New tools can detect whether 32 bit
-   uid/gid are supported or not.
-   Problem is, ac_pad[10] doesn't provide enough space for two aligned
-   32 bit numbers _and_ a magic in ac_pad[10], which is the last byte of
-   struct acct. If we put in only the two 32 bit numbers, we've lost the
-   ability to establish a magic _in a prominent place_ for smooth 
-   transitions in the future.
-   We might, however, put the magic into the implicit padding of ac_flag
-   (ugly, since this would require an arch dependant definition of stuct 
-   acct), or put it into the uppermost three bits of ac_flag itself
-   (7 seven incompatible changes to struct acct should suffice in the
-   foreseeable future, but new flags would need to go into a different 
-   field, breaking source compatibility with userspace acct code on 
-   different archs, i.e. GNU acct tools).
+Just thought I would let everyone know that my A7N8X deluxe is up to:
 
-I've posted a patch for 3) already. I'd be happy to go with 4) if we 
-decide to reserve the remaining bits in ac_flag for a version number.
-If any source incompatible change is foreseeable in the 2.7 timeframe, 
-I'd prefer to stick with 3) though.
+ 13:34:38 up 18 days, 18:50,  7 users,  load average: 1.00, 1.03, 1.02
 
-> You can do the above with the time stuff too, but 10 bytes spare might 
-> constrain things a bit.  Heck, make the struct bigger, as long as there 
-> is a magic #, userspace should be ok.  Right now, "file" command can't 
-> tell what the heck the file is.  Bit wasteful to put magic in every 
-> record though.
-
-Yeah, we might want a larger comp_t not only for times, but also for
-ac_io. Unfortunately, the layout of comp_t is hard-coded into GNU acct,
-so no way of keeping source code compatibility (other than uncompressed 64
-bit fields).
-
-Worse, I have to revoke my previous statement of GNU acct being able to
-read 34 bits comp_t values. Yes, it stores the into a double, but it
-uses a long as temporary variable. Sigh.
-
-So a new patch is due anyways. Any further comments for that?
-What to do about comp_t in 2.7?
-
-Tim
+with 2.6.3-mm1 and no other patches.  I did put Ross's latest
+idle=C1halt patch in their but forgot to pass the command-line arg.  I
+do have disconnect turned off here, with it on my speakers make a high
+pitched buzzing noise.  Of course, acpi, apic, local apic etc is
+turned on.  So does anyone have a sure fire way to hang this thing
+yet?
+  
+-- 
+Josh McKinney		     |	Webmaster: http://joshandangie.org
+--------------------------------------------------------------------------
+                             | They that can give up essential liberty
+Linux, the choice       -o)  | to obtain a little temporary safety deserve 
+of the GNU generation    /\  | neither liberty or safety. 
+                        _\_v |                          -Benjamin Franklin

@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbVA2N6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262918AbVA2OE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbVA2N6a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 08:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbVA2N6a
+	id S262918AbVA2OE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 09:04:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbVA2OE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 08:58:30 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:52103 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262914AbVA2N5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 08:57:23 -0500
-Date: Sat, 29 Jan 2005 13:57:14 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       LKML <linux-kernel@vger.kernel.org>, wbsd-devel@list.drzeus.cx
-Subject: Re: [Wbsd-devel] [PATCH 540] MMC_WBSD depends on ISA
-Message-ID: <20050129135714.GA320@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pierre Ossman <drzeus-list@drzeus.cx>,
-	Russell King <rmk+lkml@arm.linux.org.uk>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	LKML <linux-kernel@vger.kernel.org>, wbsd-devel@list.drzeus.cx
-References: <200501072250.j07MonUe012310@anakin.of.borg> <41E22B4F.4090402@drzeus.cx> <41FB91A3.7060404@drzeus.cx>
+	Sat, 29 Jan 2005 09:04:28 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:63238 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S262918AbVA2OE1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 09:04:27 -0500
+Date: Sat, 29 Jan 2005 14:04:23 +0000
+From: John Levon <levon@movementarian.org>
+To: Zwane Mwaikambo <zwane@fsmlabs.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] OProfile: Fix oops on undetected CPU type
+Message-ID: <20050129140423.GA71581@compsoc.man.ac.uk>
+References: <Pine.LNX.4.61.0501281146150.22906@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41FB91A3.7060404@drzeus.cx>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <Pine.LNX.4.61.0501281146150.22906@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Graham Coxon - Happiness in Magazines
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CutD7-000NHZ-OS*lgXOlf3JIOE*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 29, 2005 at 02:37:39PM +0100, Pierre Ossman wrote:
-> Pierre Ossman wrote:
-> >Geert Uytterhoeven wrote:
-> >
-> >>MMC_WBSD depends on ISA (needs isa_virt_to_bus())
-> >>
-> >>
-> >
-> >Thanks. Shouldn't have missed something so obvious :)
-> >
-> >Russell, can you fix this in your next merge?
-> >
-> 
-> Russell, please undo this patch. isa_virt_to_bus() is not dependent on 
-> CONFIG_ISA. It causes problems on x86_64 platforms which cannot enable 
-> ISA support.
-> 
-> Rgds
-> Pierre
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
----end quoted text---
+On Fri, Jan 28, 2005 at 12:06:19PM -0700, Zwane Mwaikambo wrote:
+
+> ===== drivers/oprofile/oprofile_files.c 1.7 vs edited =====
+> --- 1.7/drivers/oprofile/oprofile_files.c	2005-01-04 19:48:23 -07:00
+> +++ edited/drivers/oprofile/oprofile_files.c	2005-01-28 11:36:25 -07:00
+> @@ -63,7 +63,9 @@ static struct file_operations pointer_si
+>  
+>  static ssize_t cpu_type_read(struct file * file, char __user * buf, size_t count, loff_t * offset)
+>  {
+> -	return oprofilefs_str_to_user(oprofile_ops.cpu_type, buf, count, offset);
+> +	if (oprofile_ops.cpu_type)
+> +		return oprofilefs_str_to_user(oprofile_ops.cpu_type, buf, count, offset);
+> +	return -EIO;
+
+This is wrong: you need to investigate why .cpu_type isn't set: in
+particular, it should have fallen back to timer mode.
+oprofile_arch_init() should have returned -ENODEV, and that should have
+set timer mode.
+
+Unfortunately bkcvs seems out of date so I can't even look at this
+myself.
+
+john

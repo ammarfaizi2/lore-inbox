@@ -1,69 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129093AbRBHWrO>; Thu, 8 Feb 2001 17:47:14 -0500
+	id <S129321AbRBHWto>; Thu, 8 Feb 2001 17:49:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129166AbRBHWrF>; Thu, 8 Feb 2001 17:47:05 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:6384 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129093AbRBHWq4>; Thu, 8 Feb 2001 17:46:56 -0500
-Date: Thu, 8 Feb 2001 20:46:23 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Torben Mathiasen <torben@kernel.dk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac7
-In-Reply-To: <20010208233731.A661@fry>
-Message-ID: <Pine.LNX.4.21.0102082044250.2378-100000@duckman.distro.conectiva>
+	id <S129322AbRBHWte>; Thu, 8 Feb 2001 17:49:34 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40206 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129321AbRBHWtP>; Thu, 8 Feb 2001 17:49:15 -0500
+Subject: Re: Problems with 2.4.2-pre1 & reiser & vfs
+To: mason@suse.com (Chris Mason)
+Date: Thu, 8 Feb 2001 22:49:52 +0000 (GMT)
+Cc: charta@gaumina.lt (Andrius Adomaitis), linux-kernel@vger.kernel.org
+In-Reply-To: <1220580000.981671835@tiny> from "Chris Mason" at Feb 08, 2001 05:37:15 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Qzsx-0004wt-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Feb 2001, Torben Mathiasen wrote:
-> On Thu, Feb 08 2001, Rik van Riel wrote:
-> > On Thu, 8 Feb 2001, Alan Cox wrote:
-> > 
-> > > 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
-> > > 
-> > > 2.4.1-ac7
-> > > o	Rebalance the 2.4.1 VM				(Rik van Riel)
-> > > 	| This should make things feel a lot faster especially
-> > > 	| on small boxes .. feedback to Rik
-
-> Just installed ac7 and after some 30 minutes of unpacking
-> kernel-sources and diffing patches, I left my computer unattended
-> for about 1 hour. When I came back the system was unusable (like it 
-> was frozen), and /var/log/messages just displayed messages of the
-> type:
+> > kernel: PAP-5660: reiserfs_do_truncate: wrong result -1 of search for 
+> > [7906789 7906806 0xfffffffffffffff DIRECT]
+> > .....
 > 
-> Feb  8 22:54:40 fry kernel: Out of Memory: Killed process 455 (xmms).
-> ...
+> These aren't good at all, and show a general corruption problem.  I know the ac kernels have at least one small DAC960 bug fixes, are there other fixes pending?
 > 
-> The OOM killer killed most of my apps, and finally X. I had to reboot
-> in order to get the system back. I've been running ac1-ac6 since they
-> came out with no problems, so I guess its the VM hack that is buggy.
 
-Highly unlikely since the VM rebalancing patch doesn't change
-any of the actual swapout mechanisms.
-
-All it does is change how often the particular algorithms get
-called by kswapd and by user programs.
-
-As for trigerring the OOM killer, this strongly suggest a
-memory leak since there's a bug in the code which makes it
-very hard to trigger the OOM killer under normal situations
-(I'm working on a fix for that now).
-
-regards,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+The dac960 changes relate to gcc 2.96 stuff and wouldnt account for real bugs.
+DAC960 built with cvs gcc or 2.96 < 2.96-74 or so could do because of the ABI
+thing but wouldnt boot that far. If its straight 2.4.1 suspect the elevator
+corruption thing too
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

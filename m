@@ -1,69 +1,101 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317626AbSFIPkf>; Sun, 9 Jun 2002 11:40:35 -0400
+	id <S317630AbSFIPqF>; Sun, 9 Jun 2002 11:46:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317628AbSFIPke>; Sun, 9 Jun 2002 11:40:34 -0400
-Received: from pop016pub.verizon.net ([206.46.170.173]:56044 "EHLO
-	pop016.verizon.net") by vger.kernel.org with ESMTP
-	id <S317626AbSFIPkd>; Sun, 9 Jun 2002 11:40:33 -0400
-Date: Sun, 9 Jun 2002 11:45:31 -0400
-From: Skip Ford <skip.ford@verizon.net>
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: r128.o unresolved symbol vmalloc_32
-In-Reply-To: <E17H3pz-0006PB-00@baldrick>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-Message-Id: <20020609154029.HOGG24507.pop016.verizon.net@pool-141-150-239-239.delv.east.verizon.net>
+	id <S317631AbSFIPqE>; Sun, 9 Jun 2002 11:46:04 -0400
+Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:41725 "EHLO
+	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
+	id <S317630AbSFIPqC>; Sun, 9 Jun 2002 11:46:02 -0400
+Date: Sun, 9 Jun 2002 17:45:53 +0200 (MET DST)
+From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux-Kernel ML <linux-kernel@vger.kernel.org>
+cc: Martin Dalecki <dalecki@evision-ventures.com>
+Subject: [PATCH] adding slist.h: simple single-linked-list helper functions
+Message-ID: <Pine.GSO.4.05.10206091735180.16366-100000@mausmaki.cosy.sbg.ac.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Sands wrote:
-> linux-2.5.21:
-> 
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b /usr/src/linux-2.5.21/debian/tmp-image -r 2.5.21; fi
-> depmod: *** Unresolved symbols in /usr/src/linux-2.5.21/debian/tmp-image/lib/modules/2.5.21/kernel/drivers/char/drm/r128.o
-> depmod:         vmalloc_32
-> make[2]: *** [_modinst_post] Error 1
+hi,
 
-Here's an updated version of the patch I posted earlier.  This one
-also exports vmalloc_32 and vmalloc_dma.
+this patch adds slist.h, a header-file providing simple single-linked-list
+helper functions.
 
+especially slist_for_each will improve:
+	o readability
+	o performance (due to the use of prefetch())
+wherever it's used
 
-diff -ruN lin/mm/Makefile linux/mm/Makefile
---- lin/mm/Makefile	Sun Jun  9 05:53:08 2002
-+++ linux/mm/Makefile	Sun Jun  9 05:52:17 2002
-@@ -10,7 +10,7 @@
- O_TARGET := mm.o
- 
- export-objs := shmem.o filemap.o mempool.o page_alloc.o \
--		page-writeback.o
-+		page-writeback.o vmalloc.o
- 
- obj-y	 := memory.o mmap.o filemap.o mprotect.o mlock.o mremap.o \
- 	    vmalloc.o slab.o bootmem.o swap.o vmscan.o page_io.o \
-diff -ruN lin/mm/vmalloc.c linux/mm/vmalloc.c
---- lin/mm/vmalloc.c	Sun Jun  9 05:53:01 2002
-+++ linux/mm/vmalloc.c	Sun Jun  9 11:40:01 2002
-@@ -8,6 +8,7 @@
- 
- #include <linux/config.h>
- #include <linux/slab.h>
-+#include <linux/module.h>
- #include <linux/vmalloc.h>
- #include <linux/spinlock.h>
- #include <linux/highmem.h>
-@@ -354,3 +355,7 @@
- 	read_unlock(&vmlist_lock);
- 	return buf - buf_start;
- }
+please apply,
+
+	tm
+
+diff -Nru a/include/linux/slist.h b/include/linux/slist.h
+--- /dev/null   Wed Dec 31 16:00:00 1969
++++ b/include/linux/slist.h     Sun Jun  9 22:32:55 2002
+@@ -0,0 +1,57 @@
++#ifndef _LINUX_SLIST_H
++#define _LINUX_SLIST_H
 +
-+EXPORT_SYMBOL(vmalloc);
-+EXPORT_SYMBOL(vmalloc_dma);
-+EXPORT_SYMBOL(vmalloc_32);
-
++#if defined(__KERNEL__)
++
++#include <linux/prefetch.h>
++
++/*
++ * Simple single linked list helper-functions.
++ * (taken from list.h)
++ */
++
++/**
++ * slist_add_front - add a new entry at the first slot, moving the old head
++ *                     to the second slot
++ * @new:       new entry to be added
++ * @head:      head of the single linked list
++ *
++ * Insert a new entry before the specified head.
++ * This is good for implementing stacks.
++ */
++
++#define slist_add_front(_new, _head)   \
++do {                                   \
++       _new->next = _head;             \
++       _head = _new->next;             \
++} while (0)
++
++
++/**
++ * slist_add - add a new entry
++ * @new:       new entry to be added
++ * @head:      head of the single linked list
++ *
++ * Insert a new entry before the specified head.
++ * This is good for implementing stacks.
++ */
++
++#define slist_add(_new, _head)         \
++do {                                   \
++       _new->next = _head->next;       \
++       _head->next = _new;             \
++} while (0)
++
++
++/**
++ * slist_for_each      -       iterate over a list
++ * @pos:       the pointer to use as a loop counter.
++ * @head:      the head for your list (this is also the first entry).
++ */
++#define slist_for_each(pos, head) \
++       for (pos = head, prefetch(pos->next); pos; \
++               pos = pos->next, prefetch(pos->next))
++
++
++#endif /* __KERNEL__ */
++
++#endif
 
 -- 
-Skip
+in some way i do, and in some way i don't.
+

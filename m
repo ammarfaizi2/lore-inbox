@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263665AbUDRSBt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 14:01:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbUDRSBY
+	id S263572AbUDRSWM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 14:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbUDRSWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 14:01:24 -0400
-Received: from madrid10.amenworld.com ([62.193.203.32]:28944 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S263645AbUDRSBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 14:01:15 -0400
-Date: Sun, 18 Apr 2004 19:58:56 +0200
-From: DervishD <raul@pleyades.net>
-To: Remi Colinet <remi.colinet@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Questions : disk partition re-reading
-Message-ID: <20040418175856.GC3612@DervishD>
-Mail-Followup-To: Remi Colinet <remi.colinet@free.fr>,
-	linux-kernel@vger.kernel.org
-References: <4082819E.10106@free.fr>
+	Sun, 18 Apr 2004 14:22:11 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:18445 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S263572AbUDRSWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 14:22:09 -0400
+Date: Sun, 18 Apr 2004 20:22:23 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: Permissions on include/video/neomagic.h
+Message-Id: <20040418202223.6b226e19.khali@linux-fr.org>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4082819E.10106@free.fr>
-User-Agent: Mutt/1.4.2.1i
-Organization: Pleyades
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Remi :)
+Hi all, hi Linus,
 
- * Remi Colinet <remi.colinet@free.fr> dixit:
-> 1/ Is it possible to alter a disk partition of a used disk and beeing 
-> able to use the modified partition without having to reboot the box?
+In linux-2.6.5.tar, include/video/neomagic.h has permissions 0640. It
+obviously should be 0644.
 
-    sfdisk -R <disk-you-want-to-get-its-partition-table-reread>
- 
-> 2/ Is it possible to delete a disk partition without having the 
-> partition numbers changed?
+This has already been reported 8 months ago:
+http://lkml.org/lkml/2003/8/9/150
 
-    For primary partitions, it is possible. Don't know for extended
-ones :??
- 
-> Do I need to upgrade fdisk or use an other utility?
+Shouldn't it be fixed?
 
-    AFAIK, fdisk will do, except for rereading. Well, 'fdisk'
-actually *do* a rereading, but only after altering the partition
-table of the disk. 'sfdisk' can do it on demand, but if the disk is
-busy the BKLRRPART ioctl will fail.
-
-    Raúl Núñez de Arenas Coronado
+Thanks.
 
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

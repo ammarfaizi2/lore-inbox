@@ -1,28 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130236AbQKALSN>; Wed, 1 Nov 2000 06:18:13 -0500
+	id <S129026AbQKALw7>; Wed, 1 Nov 2000 06:52:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130316AbQKALRx>; Wed, 1 Nov 2000 06:17:53 -0500
-Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:35345 "EHLO
-	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S130311AbQKALRq>;
-	Wed, 1 Nov 2000 06:17:46 -0500
-Date: Wed, 1 Nov 2000 12:17:40 +0100
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200011011117.MAA28584@db0bm.ampr.org>
-To: linux-kernel@vger.kernel.org
-Subject: tnt uses obsolete (PF_INET,SOCK_PACKET)
+	id <S129118AbQKALwt>; Wed, 1 Nov 2000 06:52:49 -0500
+Received: from TRAMPOLINE.THUNK.ORG ([216.175.175.172]:26886 "EHLO
+	trampoline.thunk.org") by vger.kernel.org with ESMTP
+	id <S129026AbQKALwi>; Wed, 1 Nov 2000 06:52:38 -0500
+From: tytso@trampoline.thunk.org
+Date: Wed, 1 Nov 2000 06:52:21 -0500
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: blizbor@ima.pl, linux-kernel@vger.kernel.org
+Subject: Re: ext2fs disaster - how to recover some files ?
+Message-ID: <20001101065221.B14084@trampoline.thunk.org>
+In-Reply-To: <39F76E9A.E78826B2@ima.pl> <200010260041.e9Q0fvY29910@webber.adilger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200010260041.e9Q0fvY29910@webber.adilger.net>; from adilger@turbolinux.com on Wed, Oct 25, 2000 at 06:41:57PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Oct 25, 2000 at 06:41:57PM -0600, Andreas Dilger wrote:
+> Since you have a filesystem > 500MB it will default to having 4kB blocks,
+> and the backup superblocks will be aligned on 32768 block boundaries.
+> Try "e2fsck -B 4096 -b 32768" (or 98304, 163840, 229376, 81920) to see
+> if that works.  I think I will submit a patch to Ted which offers more
+> suggestions than 8193 for backup blocks, since not too many people know
+> where the backups are located on more recent filesystems since they
+> will normally have 4kB blocks these days.
 
-Nov  1 12:09:12 debian-f5ibh kernel: tnt uses obsolete (PF_INET,SOCK_PACKET)
+This is a known bug; it's fixed (incorrectly) in 1.19, and will be
+fixed in 1.20.
 
-I got often this message, it is harmless (seems to be). What does it means ?
+You don't have to specify -B 4096.  "e2fsck -b 32768" is sufficient,
+as e2fsck will automatically figure out the proper blocksize.
 
----
-Regards
-		jean-luc
+							- Ted
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

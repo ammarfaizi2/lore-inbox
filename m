@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbTHTHMc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 03:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTHTHMc
+	id S261729AbTHTHjN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 03:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTHTHjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 03:12:32 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:18699 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261757AbTHTHMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 03:12:30 -0400
-Date: Wed, 20 Aug 2003 03:12:27 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Thomas Molina <tmolina@cablespeed.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartmann <greg@kroah.com>
+	Wed, 20 Aug 2003 03:39:13 -0400
+Received: from gonzo.one-2-one.net ([217.115.142.69]:56082 "EHLO
+	gonzo.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S261729AbTHTHjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 03:39:12 -0400
+Date: Wed, 20 Aug 2003 09:38:55 +0200
+From: stefan.eletzhofer@eletztrick.de
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Console on USB
-In-Reply-To: <Pine.LNX.4.44.0308192200510.886-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.53.0308200310030.7788@montezuma.mastecende.com>
+Message-ID: <20030820073855.GU10622@gonzo.local>
+Reply-To: stefan.eletzhofer@eletztrick.de
+Mail-Followup-To: stefan.eletzhofer@eletztrick.de,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 References: <Pine.LNX.4.44.0308192200510.886-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308192200510.886-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.27i
+Organization: Eletztrick Computing
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003, Thomas Molina wrote:
+Hi,
+AFAIK there was a network console patch on the list recently.
 
-> It looks like things are correct, but, as I said, I am unable to get 
-> output.  Am I headed for frustration, or is there some advice to get good 
-> results?  
-> 
-> Is there any advice I might be able to use to get this going?  I really 
-> want to be able to catch some oops output.
+IIRC it sends UDP packets to a receiving daemon (or netcat ;),
+and works w/o interrupts. I believe, though, that there are
+only certain nics supported.
 
-How about forgetting the console= part and just booting and then set the 
-console log level so that you're able to get oopses to hit the USB 
-console.
+Cheers,
+	Stefan E.
+-- 
+Eletztrick Computing - Customized Linux Development
+Stefan Eletzhofer, Marktstrasse 43, DE-88214 Ravensburg
+http://www.eletztrick.de

@@ -1,31 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261842AbSLDKV6>; Wed, 4 Dec 2002 05:21:58 -0500
+	id <S266369AbSLDKbC>; Wed, 4 Dec 2002 05:31:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266369AbSLDKV6>; Wed, 4 Dec 2002 05:21:58 -0500
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:13473 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S261842AbSLDKV5>; Wed, 4 Dec 2002 05:21:57 -0500
-Date: Wed, 4 Dec 2002 11:28:20 +0100
+	id <S266377AbSLDKbC>; Wed, 4 Dec 2002 05:31:02 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:44250 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S266369AbSLDKbB>;
+	Wed, 4 Dec 2002 05:31:01 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
 To: Antonino Daplas <adaplas@pol.net>
-Cc: Sven Luther <luther@dpt-info.u-strasbg.fr>,
-       James Simmons <jsimmons@infradead.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Wed, 4 Dec 2002 11:38:24 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Subject: Re: [Linux-fbdev-devel] [PATCH] FBDev: vga16fb port
-Message-ID: <20021204102820.GA1841@iliana>
-References: <Pine.LNX.4.44.0212022027510.18805-100000@phoenix.infradead.org> <1038917280.1228.7.camel@localhost.localdomain> <20021204073218.GA1025@iliana> <1039003565.1079.67.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039003565.1079.67.camel@localhost.localdomain>
-User-Agent: Mutt/1.4i
-From: Sven Luther <luther@dpt-info.u-strasbg.fr>
+Cc: James Simmons <jsimmons@infradead.org>,
+       <linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       luther@dpt-info.u-strasbg.fr
+X-mailer: Pegasus Mail v3.50
+Message-ID: <95A78C92329@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 05:08:53PM +0500, Antonino Daplas wrote:
+On  4 Dec 02 at 17:08, Antonino Daplas wrote:
 > On Wed, 2002-12-04 at 12:32, Sven Luther wrote:
 > > On Tue, Dec 03, 2002 at 05:22:35PM +0500, Antonino Daplas wrote:
 > > > >   2) The ability to go back to vga text mode on close of /dev/fb. 
@@ -43,12 +41,7 @@ On Wed, Dec 04, 2002 at 05:08:53PM +0500, Antonino Daplas wrote:
 > Most cards with a VGA core needs to disable the VGA output before going
 > to graphics mode.  Disabling VGA output is hardware specific, and is
 > usually automatic when you go to graphics mode.
-
-So there is no common zqy of doing this, my docs say something about a
-vga control register zhich is accesses trough the sequencer regs. Does
-vgafb (or textmode or whatever) not call this when giving the hand to
-the fbdev ?
-
+> 
 > Because James wrote the fb framework to be very modular, then you must
 > be careful to save/restore the initial video state  when loading or
 > unloading.  Theoretically, a driver should load, but not go to graphics
@@ -59,17 +52,18 @@ the fbdev ?
 > initial state.  You should be able to do this by hooking these routines
 > in fb_open() and fb_release().
 
-Mmm, what about interaction with X ? X also does a save/restore of the
-previous (text) mode, when a X driver is _not_ fbdev aware, it will
-save/restore the things twice, right ?
+FYI, I'm not going to support any hardware restoration on last fb_release,
+nor hardware init only after first fb_open in matroxfb. Either you want
+this driver, or not. Besides that I do not see any reason to have such 
+code, matroxfb provides multiple framebuffers, and to get them
+all work, hardware must be in known state, it is impossible to program
+only half of chip and expect that it will somehow work. It will crash,
+lock your PCI bus, or even commits suicide.
 
-> The one I submitted (and a revised one I'm going to submit soon) should
-> be able to restore the VGA text/graphics mode.  Complement this with
-> your hardware's extended state save and restore routines and you should
-> be able to load/use/unload your driver repeatedly :-).
-
-Ok, i will try.
-
-Friendlmy
-
-Sven Luther
+And I'm sure that other possible solution, that opening /dev/fb1 
+(or /dev/videoX or /dev/dri/mga) will cause your vgacon picture to 
+disappear, violates principle of least surprise.
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

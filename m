@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbSLMFVl>; Fri, 13 Dec 2002 00:21:41 -0500
+	id <S261375AbSLMF2z>; Fri, 13 Dec 2002 00:28:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbSLMFVl>; Fri, 13 Dec 2002 00:21:41 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:13997 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261433AbSLMFVj>;
-	Fri, 13 Dec 2002 00:21:39 -0500
-Date: Thu, 12 Dec 2002 21:23:35 -0800 (PST)
-Message-Id: <20021212.212335.127426137.davem@redhat.com>
-To: matti.aarnio@zmailer.org
-Cc: niv@us.ibm.com, alan@lxorguk.ukuu.org.uk, stefano.andreani.ap@h3g.it,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: R: Kernel bug handling TCP_RTO_MAX?
+	id <S261426AbSLMF2z>; Fri, 13 Dec 2002 00:28:55 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:21421 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261375AbSLMF2y>;
+	Fri, 13 Dec 2002 00:28:54 -0500
+Date: Thu, 12 Dec 2002 21:32:31 -0800 (PST)
+Message-Id: <20021212.213231.63672402.davem@redhat.com>
+To: sfr@canb.auug.org.au
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, anton@samba.org,
+       ak@muc.de, davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
+       willy@debian.org
+Subject: Re: [PATCH][COMPAT] consolidate sys32_new[lf]stat - architecture
+ independent
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021213033928.GK32122@mea-ext.zmailer.org>
-References: <1039727809.22174.38.camel@irongate.swansea.linux.org.uk>
-	<3DF94565.2C582DE2@us.ibm.com>
-	<20021213033928.GK32122@mea-ext.zmailer.org>
+In-Reply-To: <20021213153439.1f3e466e.sfr@canb.auug.org.au>
+References: <20021213153439.1f3e466e.sfr@canb.auug.org.au>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -25,24 +25,10 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Matti Aarnio <matti.aarnio@zmailer.org>
-   Date: Fri, 13 Dec 2002 05:39:28 +0200
+   From: Stephen Rothwell <sfr@canb.auug.org.au>
+   Date: Fri, 13 Dec 2002 15:34:39 +1100
 
-   On Thu, Dec 12, 2002 at 06:26:45PM -0800, Nivedita Singhvi wrote:
-   > Assuming you are on a local lan, your round trip
-   > times are going to be much less than 200 ms, and
-   > so using the TCP_RTO_MIN of 200ms ("The algorithm 
-   > ensures that the rto cant go below that").
-   
-     The RTO steps in only when there is a need to RETRANSMIT.
-     For that reason, it makes no sense to place its start
-     any shorter.
+   Another in the COMPAT series.  This build on the previous patches.
 
-Actually, TCP_RTO_MIN cannot be made any smaller without
-some serious thought.
-
-The reason it is 200ms is due to the granularity of the BSD
-TCP socket timers. 
-
-In short, the repercussions are not exactly well known, so it's
-a research problem to fiddle here.
+I'm totally fine with this stuff (and the sparc64 specific part), but
+watch out, this patch removes the kernel/compat.c utimes stuff :-)

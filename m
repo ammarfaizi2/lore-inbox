@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262566AbSJBSon>; Wed, 2 Oct 2002 14:44:43 -0400
+	id <S262544AbSJBSkh>; Wed, 2 Oct 2002 14:40:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262568AbSJBSon>; Wed, 2 Oct 2002 14:44:43 -0400
-Received: from surf.cadcamlab.org ([156.26.20.182]:35795 "EHLO
-	surf.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S262566AbSJBSom>; Wed, 2 Oct 2002 14:44:42 -0400
-Date: Wed, 2 Oct 2002 13:49:11 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: a problem report
-Message-ID: <20021002184911.GG1536@cadcamlab.org>
-Mime-Version: 1.0
+	id <S262554AbSJBSkh>; Wed, 2 Oct 2002 14:40:37 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:48614 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S262544AbSJBSkf>;
+	Wed, 2 Oct 2002 14:40:35 -0400
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Shared memory shmat/dt not working well in 2.5.x
+References: <Pine.LNX.4.44.0210011401360.991-100000@localhost.localdomain>
+	<3D99A2F2.70102@oracle.com> <dnelbaclvo.fsf@magla.zg.iskon.hr>
+	<3D99B672.2090805@oracle.com>
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Wed, 02 Oct 2002 20:45:54 +0200
+In-Reply-To: <3D99B672.2090805@oracle.com> (Alessandro Suardi's message of
+ "Tue, 01 Oct 2002 16:51:30 +0200")
+Message-ID: <874rc4fzml.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Refernces: <20021002144929.C1369@mars.ravnborg.org>
-From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Sam Ravnborg]
-> --- linux/sound/Config.in 2002-10-01 12:09:44.000000000 +0200
-> +++ linux/sound/Config.in 2002-10-01 12:21:05.000000000 +0200
-> @@ -31,10 +31,7 @@
->  if [ "$CONFIG_SND" != "n" -a "$CONFIG_ARM" = "y" ]; then
->    source sound/arm/Config.in
->  fi
-> -if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC32" = "y" ]; then
-> -  source sound/sparc/Config.in
-> -fi
-> -if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC64" = "y" ]; then
-> +if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC32" = "y" ] || [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC64" = "y" ] ; then
->    source sound/sparc/Config.in
->  fi
+Alessandro Suardi <alessandro.suardi@oracle.com> writes:
+> The more complicated bug you're talking about is the exec_mmap
+>   change introduced in 2.5.19 and fixed a handful of versions
+>   later, possibly .28, where PMON wouldn't start after 120"...
+>   I guess :)
 
-That's not right.  You can't use '||' in config language.  (Try it
-with xconfig some time.)  You have to either nest if statements or
-make use of precedence.  Documentation/kbuild/config-language.txt
-doesn't actually specify the precedence, but in the Unix test(1) from
-which it is derived, AND binds tighter than OR.  Thus:
+Oh, well, if that one is really fixed, then I have another one. ;)
 
-  if [ "$CONFIG_SND" != "n" ]; then
-     if [ "$CONFIG_SPARC32" = "y" -o "$CONFIG_SPARC64" = "y" ]; then
-        source sound/sparc/Config.in
-     fi
-  fi
+After some time up, few select & few inserts, Oracle decided to die
+(2.5.40 + Hugh's patch, SMP, Oracle 9.0.1.4 - works flawlessly on
+2.4.19). I have a full coredump, but I don't know what to do with it
+(if somebody wants it, just say). It seems benchmarking will
+wait... :(
 
--- or --
 
-  if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC32" = "y" -o \
-       "$CONFIG_SND" != "n" -a "$CONFIG_SPARC64" = "y" ]; then
-     source sound/sparc/Config.in
-  fi
+*** 2002-10-02 20:15:27.634
+*** SESSION ID:(4.1) 2002-10-02 20:15:27.583
+BH (0x0x60fee288) file#: 1 rdba: 0x004000c7 (1/199) class 1 ba: 0x0x60c9a000
+  set: 3, dbwrid: 0
+  hash: [53509d88,53509d88], lru: [60fee370,60fee220]
+  LRU flags: 
+  ckptq: [NULL] fileq: [NULL]
+  st: XCURRENT, md: NULL, rsop: 0x(nil), tch: 1
+  L:[0x0.0.0] H:[0x0.0.0] R:[0x0.0.0]
+*** 2002-10-02 20:15:27.634
+ksedmp: internal or fatal error
+ORA-00600: Message 600 not found; No message file for product=RDBMS, facility=ORA; arguments: [kcbkllrba_2]
 
-This 'if' statement syntax has *got* to go.  I posted an incomplete
-replacement syntax some time ago, but abandoned it because it appeared
-Roman was almost ready to merge his new config stuff....
+...
 
-Peter
+-- 
+Zlatko

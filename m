@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268468AbUJDUjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268470AbUJDUkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268468AbUJDUjz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 16:39:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268479AbUJDUjz
+	id S268470AbUJDUkr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 16:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268479AbUJDUkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 16:39:55 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:57825 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S268470AbUJDUjr (ORCPT
+	Mon, 4 Oct 2004 16:40:47 -0400
+Received: from zero.aec.at ([193.170.194.10]:35854 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S268470AbUJDUkm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 16:39:47 -0400
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: "Jeff V. Merkey" <jmerkey@drdos.com>, jonathan@jonmasters.org
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Date: Mon, 4 Oct 2004 15:26:27 -0500
-X-Mailer: KMail [version 1.2]
-Cc: "jmerkey@comcast.net" <jmerkey@comcast.net>, linux-kernel@vger.kernel.org
-References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com>
-In-Reply-To: <415DD1ED.6030101@drdos.com>
+	Mon, 4 Oct 2004 16:40:42 -0400
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 2.6.9-rc3-mm[12]: x86-64-clustered-apic-support.patch problem
+References: <2LHjU-fJ-49@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 04 Oct 2004 22:40:34 +0200
+In-Reply-To: <2LHjU-fJ-49@gated-at.bofh.it> (Rafael J. Wysocki's message of
+ "Mon, 04 Oct 2004 22:10:14 +0200")
+Message-ID: <m3pt3yushp.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Message-Id: <04100415262700.21432@tabby>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 October 2004 16:53, Jeff V. Merkey wrote:
-> Jon Masters wrote:
-> >>Then anyone who uses the code in a commerical enterprise will be required
-> >> to get a license, and you can actually do something about it.
-> >
-> >They have a license. If they distribute products then they are bound
-> >by the terms of the GPL and this is a pretty obvious license.
->
-> Try enforcing it in court when they get a dozen of their engineers to
-> lie and state they reviewed the code on one terminal and
-> converted it by writing new code on another. There's no moral anything
-> with some of these big companies and their employees
-> will say whatever they have to.
+"Rafael J. Wysocki" <rjw@sisk.pl> writes:
 
-And are now guilty of perjury. And when shown as such in court, will be/can
-be put in jail for quite a time. Nope - won't do it. As SCO has found out.
+> Andrew,
+>
+> The patch x86-64-clustered-apic-support.patch causes the 2.6.9-rc3-mm[12] 
+> kernel to crash at startup on a single-CPU AMD64 box :
+
+This untested patch may fix it. Does it?
+
+-Andi
+
+Index: linux/arch/x86_64/kernel/genapic.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/genapic.c	2004-10-03 16:28:07.%N +0200
++++ linux/arch/x86_64/kernel/genapic.c	2004-10-03 17:05:10.%N +0200
+@@ -27,7 +27,7 @@
+ extern struct genapic apic_cluster;
+ extern struct genapic apic_flat;
+ 
+-struct genapic *genapic;
++struct genapic *genapic = &apic_flat;
+ 
+ 
+ /*
+

@@ -1,58 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131191AbRDSQJK>; Thu, 19 Apr 2001 12:09:10 -0400
+	id <S131233AbRDSQLD>; Thu, 19 Apr 2001 12:11:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130768AbRDSQJB>; Thu, 19 Apr 2001 12:09:01 -0400
-Received: from ns.caldera.de ([212.34.180.1]:58630 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S131191AbRDSQIv>;
-	Thu, 19 Apr 2001 12:08:51 -0400
-Date: Thu, 19 Apr 2001 18:08:42 +0200
-From: Marcus Meissner <Marcus.Meissner@caldera.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/sound/nm256_audio.c
-Message-ID: <20010419180842.A16881@caldera.de>
-In-Reply-To: <20010419173502.A13934@caldera.de> <3ADF0A91.F803266F@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <3ADF0A91.F803266F@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Apr 19, 2001 at 11:56:01AM -0400
+	id <S131219AbRDSQJV>; Thu, 19 Apr 2001 12:09:21 -0400
+Received: from user-vc8ftn3.biz.mindspring.com ([216.135.246.227]:64268 "EHLO
+	mail.ivivity.com") by vger.kernel.org with ESMTP id <S131205AbRDSQJM>;
+	Thu, 19 Apr 2001 12:09:12 -0400
+Message-ID: <25369470B6F0D41194820002B328BDD27C92@ATLOPS>
+From: Marc Karasek <marc_karasek@ivivity.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: FW: Bug in serial.c
+Date: Thu, 19 Apr 2001 12:09:04 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 19, 2001 at 11:56:01AM -0400, Jeff Garzik wrote:
-> Marcus Meissner wrote:
-> > 
-> > Hi,
-> > 
-> > This updates the nm256_audio driver to the 2.4 PCI API.
-> > 
-> > Patch is against 2.4.3-ac9, verified on Sony VAIO Laptop.
+ 
+
+-----Original Message-----
+From: Marc Karasek
+To: 'Disconnect '
+Sent: 4/19/01 11:49 AM
+Subject: RE: Bug in serial.c
+
+ I have changed everything to point to /dev/ttyS0.  The settings in
+lilo.conf (I am booting from a floppy to emulate the embedded space) are
+all for ttyS0.  Lilo pritns to the terminal (minicom on another Linux
+box) and the kernel prints as well.  When I get to inittab (running
+busybox) it asks for some input thru a script to setup the embedded
+emulation.  At this point it just sits there.  If I turn on the debug in
+serial.c I can see the characters (hex values) as I type.  Kernel 2.4.2
+works fine, with the only problem being the smp compile issue.  As I
+need module support and cannot have a kernel of 600k+ size I am in a bit
+of a pickle.....
+
+
+
+-----Original Message-----
+From: Disconnect
+To: Marc Karasek
+Cc: 'linux-kernel@vger.kernel.org'
+Sent: 4/19/01 11:38 AM
+Subject: Re: Bug in serial.c
+
+On Thu, 19 Apr 2001, Marc Karasek did have cause to say:
+
+> 2) In 2.4.3 the console port using ttySX is broken.  It dumps fine to
+the
+> terminal but when you get to a point of entering data (login,
+configuration
+> scripts, etc) the terminal does not accept any input.  
+
+Most gettys and such take a /dev/tty* argument, which has to be changed
+to
+point to the serial port for a serial console. Config scripts (and
+anything else) specifically using /dev/tty or /dev/console should work
+fine, however. (I wouldn't recommend pointing a getty at /dev/console -
+we
+had some issues on a headless server trying that. Easiest to point it at
+/dev/ttyS0 or whatnot.)
+
 > 
-> "verified" is the really important part with this driver, since its
-> really finicky.  I have a patch I would love to bounce to you in
-> private, that I have been searching for a tester for -months- because I
-> had no test hardware of my own.
-
-Feel free to send (I have a NM256AV card in that VAIO).
-
-> Your patch looks ok to me and I would say apply it.  But I also think it
-> is incomplete.
+> So far I have been able to debug to the point where I see that the
+kernel is
+> receiving the characters from the serial.c driver.  But it never echos
+them
+> or does anything else with them.  I will continue to look into this at
+this
+> end.  
 > 
-> * there is no need for a linked list of cards, since
-> pci_{get,set}_drvdata is used.  This eliminates the list walk in
-> nm256_remove
+> I was also wondering if anyone else has seen this or if a patch is
+avail for
+> this bug??
+> 
+> Marc Karasek
+> Sr. Firmware Engineer
+> iVivity Inc
+> marc_karasek@ivivity.com  
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+---
+   _.-=<Disconnect>=-._
+|     dis@sigkill.net    | And Remember...
+\  shawn@healthcite.com  / He who controls Purple controls the
+Universe..
+ PGP Key given on Request  Or at least the Purple parts!
 
-The problem is with device opens, which just pass numbers, most other
-sound drivers still use linked lists.
-
-Hmm, but via8xxxx_audio.c doesn't, I will take this as example.
-
-> * the new PCI API has suspend/resume hooks, and those should be used in
-> preference to register_pm_...
-
-Ok, will have another look at the other issues.
-
-And I hope my colleague brings his VAIO to work tomorrow ;)
-
-Ciao, Marcus
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1 [www.ebb.org/ungeek]
+GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P+>+++ L++++>+++++ 
+E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t 5--- 
+X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
+------END GEEK CODE BLOCK------

@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316585AbSGATmB>; Mon, 1 Jul 2002 15:42:01 -0400
+	id <S316309AbSGATtE>; Mon, 1 Jul 2002 15:49:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316587AbSGATmA>; Mon, 1 Jul 2002 15:42:00 -0400
-Received: from e.kth.se ([130.237.48.5]:27153 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S316585AbSGATl6>;
-	Mon, 1 Jul 2002 15:41:58 -0400
-To: "Mohamed Ghouse , Gurgaon" <MohamedG@ggn.hcltech.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Diff b/w 32bit & 64-bit
-References: <5F0021EEA434D511BE7300D0B7B6AB5303C78735@mail2.ggn.hcltech.com>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 01 Jul 2002 21:44:13 +0200
-In-Reply-To: "Mohamed Ghouse , Gurgaon"'s message of "Mon, 1 Jul 2002 15:53:21 +0530"
-Message-ID: <yw1xpty71bea.fsf@gladiusit.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+	id <S316342AbSGATtD>; Mon, 1 Jul 2002 15:49:03 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:12208 "HELO mail.broadpark.no")
+	by vger.kernel.org with SMTP id <S316309AbSGATtD>;
+	Mon, 1 Jul 2002 15:49:03 -0400
+Message-ID: <3D20B29B.ED186C3B@broadpark.no>
+Date: Mon, 01 Jul 2002 21:50:51 +0200
+From: Helge Hafting <helge.hafting@broadpark.no>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.24-dj1 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: akpm@zip.com.au, davej@suse.de
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org,
+       neilb@cse.unsw.edu.au
+Subject: Re: [Fwd: Re: 2.5.24-dj1,smp,ext2,raid0: I got random zero blocks in my 
+ files.]
+References: <3D20539F.C7D7A4C4@aitel.hist.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mohamed Ghouse , Gurgaon" <MohamedG@ggn.hcltech.com> writes:
+Helge Hafting wrote:
+> 
+> -------- Original Message --------
+> Subject: Re: 2.5.24-dj1,smp,ext2,raid0: I got random zero blocks in my
+> files.
+> Date: Mon, 01 Jul 2002 01:18:20 -0700
+> From: Andrew Morton <akpm@zip.com.au>
+> To: Helge Hafting <helgehaf@aitel.hist.no>
+> CC: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,davej@suse.de
+> References: <3D200BF6.3A6D9B59@aitel.hist.no>
+> 
+> Helge Hafting wrote:
+> >
+> > 2.5.24-dj1 gave me files with zeroed blocks inside.
+[...]
+> > The filesystems use 4k blocks.
+> > I haven't seen any trouble on non-raid or raid-1
+> > partitions.
+> 
+> Yes, the large BIO stuff went into 2.5.19.  RAID0 doesn't
+> like those big BIOs.  Jens is cooking up a fix for that.
+> 
+> Just to confirm that this is the problem, could you please
+> set MPAGE_BIO_MAX_SIZE in 32768 in fs/mpage.c and see if the
+> failure goes away?
 
-> Hello All
->  I am working on a Driver.
-> Considering the processor 2 B Intel's x86, 
-> can some one enlighten me with the differences of Linux on a 64-bit
-> processor & a 32-Bit processor.
+I tried that, and it didn't help.  Could this be as simple
+as non-aligned 32k requests?  A size limit might not be
+enough if the request starts in the middle of one stripe
+extending into the next?
 
-For Alpha: sizeof(int) == 4, sizeof(long) == 8, sizeof(void *) == 8
-For intel: sizeof(int) == 4, sizeof(long) == 4, sizeof(void *) == 8
 
-The most common mistake is trying to stuff a pointer into an
-int. Don't do that.
+I got lots of these,
+monster kernel: raid0_make_request bug: can't convert block across
+chunks or bigger than 32k 2944376 32
 
--- 
-Måns Rullgård
-mru@users.sf.net
+and untarred files with strings of zeroes in them.  One
+file had several sets of zeroes.
+
+Helge Hafting

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132948AbRDJH3R>; Tue, 10 Apr 2001 03:29:17 -0400
+	id <S132955AbRDJHv7>; Tue, 10 Apr 2001 03:51:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132949AbRDJH3H>; Tue, 10 Apr 2001 03:29:07 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:1007 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S132948AbRDJH25> convert rfc822-to-8bit; Tue, 10 Apr 2001 03:28:57 -0400
-From: schwidefsky@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: Andi Kleen <ak@suse.de>
-cc: Mark Salisbury <mbs@mc.com>, Jeff Dike <jdike@karaya.com>,
-        linux-kernel@vger.kernel.org
-Message-ID: <C1256A2A.0028E607.00@d12mta07.de.ibm.com>
-Date: Tue, 10 Apr 2001 09:27:00 +0200
-Subject: Re: No 100 HZ timer !
-Mime-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-transfer-encoding: 8BIT
+	id <S132958AbRDJHvt>; Tue, 10 Apr 2001 03:51:49 -0400
+Received: from ki.yok.utu.fi ([130.232.129.100]:64144 "HELO ki")
+	by vger.kernel.org with SMTP id <S132955AbRDJHvp>;
+	Tue, 10 Apr 2001 03:51:45 -0400
+From: Tommi Virtanen <tv-nospam-32a552@debian.org>
+To: chip@valinux.com (Chip Salzenberg)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] sane access to per-fs metadata (was Re: [PATCH] Documentation/ioctl-number.txt)
+In-Reply-To: <E14jdkF-0007Ps-00@tytlal> <E14kAK3-0008UM-00@tytlal>
+X-Attribution: Tv
+X-URL: <http://tv.debian.net/>
+Date: 10 Apr 2001 10:51:40 +0300
+In-Reply-To: <E14kAK3-0008UM-00@tytlal>
+Message-ID: <87snjh6vlf.fsf@ki.yok.utu.fi>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (GTK)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+chip@valinux.com (Chip Salzenberg) writes:
 
+> AFAIK, Alex Viro's idea of bindable namespaces provides effective
+> transaction support *ONLY* if there are per-process bindings.  With
+> per-process bindings, each client that opens a connection does so
+> through a distinct binding; when that client's responses go back
+> through the same binding, only that client can see them.
 
->Just how would you do kernel/user CPU time accounting then ?  It's
-currently done
->on every timer tick, and doing it less often would make it useless.
-This part is architecture dependent. For S/390 I choose to do a "STCK" on
-every
-system entry/exit. Dunno if this can be done on other architectures too, on
- S/390
-this is reasonably cheap (one STCK costs 15 cycles). That means the
-kernel/user CPU
-time accounting is MUCH better now.
+	Not really. We can both open /proc/partitions, read one char at a
+        time, and the kernel won't confuse our read positions. Different
+        file opens create different instances of state. See struct file,
+        void *private_data for how to store arbitrary data.
 
-blue skies,
-   Martin
-
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
-
-
+-- 
+tv@{{hq.yok.utu,havoc,gaeshido}.fi,{debian,wanderer}.org,stonesoft.com}
+unix, linux, debian, networks, security, | First snow, then silence.
+kernel, TCP/IP, C, perl, free software,  | This thousand dollar screen dies
+mail, www, sw devel, unix admin, hacks.  | so beautifully.

@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312169AbSDEDFl>; Thu, 4 Apr 2002 22:05:41 -0500
+	id <S312178AbSDEDJL>; Thu, 4 Apr 2002 22:09:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312178AbSDEDFb>; Thu, 4 Apr 2002 22:05:31 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39186 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312169AbSDEDFV>; Thu, 4 Apr 2002 22:05:21 -0500
-Subject: Re: faster boots?
-To: bcrl@redhat.com (Benjamin LaHaise)
-Date: Fri, 5 Apr 2002 04:21:30 +0100 (BST)
-Cc: akpm@zip.com.au (Andrew Morton), rgooch@ras.ucalgary.ca (Richard Gooch),
-        joeja@mindspring.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020404220022.F24914@redhat.com> from "Benjamin LaHaise" at Apr 04, 2002 10:00:22 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S312181AbSDEDJB>; Thu, 4 Apr 2002 22:09:01 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:6626 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S312178AbSDEDIw>;
+	Thu, 4 Apr 2002 22:08:52 -0500
+Date: Thu, 4 Apr 2002 19:08:48 -0800
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: [QUESTION] How to use interruptible_sleep_on() without races ?
+Message-ID: <20020404190848.C27209@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020404185232.B27209@bougret.hpl.hp.com> <E16tKGi-0007Sy-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16tKI6-0007TJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I find that on heavily scsi systems: one machine spins each of 13 disks 
-> up sequentially.  This makes the initial boot take 3-5 minutes before 
-> init even gets its foot in the door.  If someone made a patch to spin 
-> up scsi disks on the first access, I'd gladly give it a test. ;-)
+On Fri, Apr 05, 2002 at 04:20:04AM +0100, Alan Cox wrote:
+> > 
+> > 	I looked at it in every possible way, and I don't see how it
+> > is possible to use safely interruptible_sleep_on(). And I wonder :
+> 
+> It isnt for interrupt stuff - its going back to the old kernel behaviour
+> when it used to be usable
 
-Ditto. Especially if it spun them down again when idle for a while. 
+	So, maybe it would be a nice idea to remove it from the 2.5.X
+kernel to force a "spring cleanup" of the old code. If it's no longer
+usable and only confusing, it should be purged...
 
-The scsi layer does several things serially it could parallelise. It isnt
-just disk spin up its also things like initialising all scsi controllers
-in parallel.
+> Actually the code it uses is clean, slightly verbose but clean. It puts
+> the phases in the right order and that fixes the race cleanly. You
+> could just use completions in that case or you could use
+> 
+> 	wait_event_interruptible(&my_wait_queue, my_condition==FALSE)
+> 
+> which is a macro that generates the right stuff.
 
-Alan
+	And it might even want to be defined in include/linux/sched.h
+as a replacement for interruptible_sleep_on(). It seems like a generic
+need, and I would feel much safer if one of the guru wrote it properly
+for me ;-)
+
+> Alan
+
+	Regards,
+
+	Jean

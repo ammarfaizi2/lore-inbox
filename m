@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262274AbSJGBWG>; Sun, 6 Oct 2002 21:22:06 -0400
+	id <S262303AbSJGBa0>; Sun, 6 Oct 2002 21:30:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262283AbSJGBWG>; Sun, 6 Oct 2002 21:22:06 -0400
-Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:53392 "EHLO
-	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
-	id <S262274AbSJGBWF>; Sun, 6 Oct 2002 21:22:05 -0400
-Subject: Re: [PATCH] Bluetooth kbuild fix and config cleanup
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Maksim Krasnyanskiy <maxk@qualcomm.com>
-In-Reply-To: <Pine.LNX.4.44.0210061646080.21788-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0210061646080.21788-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 07 Oct 2002 03:26:46 +0200
-Message-Id: <1033954016.909.10.camel@pegasus>
-Mime-Version: 1.0
+	id <S262302AbSJGBa0>; Sun, 6 Oct 2002 21:30:26 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:58898
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S262303AbSJGBaZ>; Sun, 6 Oct 2002 21:30:25 -0400
+Date: Sun, 6 Oct 2002 18:33:10 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Aaron Lehmann <aaronl@vitelus.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, Gigi Duru <giduru@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+In-Reply-To: <20021006222433.GB9785@vitelus.com>
+Message-ID: <Pine.LNX.4.10.10210061828420.23945-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > diff -Nru a/drivers/bluetooth/Makefile b/drivers/bluetooth/Makefile
-> > --- a/drivers/bluetooth/Makefile	Sun Oct  6 19:19:06 2002
-> > +++ b/drivers/bluetooth/Makefile	Sun Oct  6 19:19:06 2002
-> > @@ -9,9 +9,14 @@
-> >  obj-$(CONFIG_BLUEZ_HCIBT3C)	+= bt3c_cs.o
-> >  obj-$(CONFIG_BLUEZ_HCIBLUECARD)	+= bluecard_cs.o
-> >  
-> > -hci_uart-y				:= hci_ldisc.o
-> > -hci_uart-$(CONFIG_BLUEZ_HCIUART_H4)	+= hci_h4.o
-> > -hci_uart-$(CONFIG_BLUEZ_HCIUART_BCSP)	+= hci_bcsp.o
-> > -hci_uart-objs				:= $(hci_uart-y)
-> > +hci_uart-objs := hci_ldisc.o
-> > +
-> > +ifeq ($(CONFIG_BLUEZ_HCIUART_H4),y)
-> > +  hci_uart-objs += hci_h4.o
-> > +endif
-> > +
-> > +ifeq ($(CONFIG_BLUEZ_HCIUART_BCSP),y)
-> > +  hci_uart-objs += hci_bcsp.o
-> > +endif
-> >  
-> >  include $(TOPDIR)/Rules.make
+On Sun, 6 Oct 2002, Aaron Lehmann wrote:
+
+> On Sat, Oct 05, 2002 at 05:44:38PM -0700, William Lee Irwin III wrote:
+> > Even better, if you yourself took action to correct this regression it
+> > would be as welcome as any other Linux development activity.
 > 
-> Hmm.. This seems to be reverting a perfectly good clean Makefile without 
-> any conditionals to the old-stype setup. Please don't do that.
+> It seems to me that what would be even better than patches is a
+> general awareness of bloat and an attitude discouraging adding any
+> bloat whatsoever to the base kernel. Proactive bloat prevention is a
+> much better solution than asking embedded developers to send fixes
+> whenever someone increases the size of the core kernel unnecessarily.
+> Let's prevent a Mozilla here.
 
-I will change this and submit you a new patch. Should I do this also for
-only one conditional like in net/bluetooth/rfcomm/Makefile? So it will
-look like this:
+So lemme guess, you calling "embedded" == "Mozilla" ?
+This is the reason those developers do not submit patches and fixes?
+Under that rational, why not unplug the support for the embedded archs?
+This follows your line of reasoning perfectly?
+So you are proposing to unbloat the kernel by not fixing and patch archs
+which embedded people depend on?
+Thus letting then rot and die then final removal of baggage?
 
-###
-obj-$(CONFIG_BLUEZ_RFCOMM) += rfcomm.o
+Sarcasim and Humor,
 
-rfcomm-y                                := core.o sock.o crc.o
-rfcomm-$(CONFIG_BLUEZ_RFCOMM_TTY)       += tty.o
-rfcomm-objs                             := $(rfcomm-y)
-
-include $(TOPDIR)/Rules.make
-###
-
-Regards
-
-Marcel
-
+Andre Hedrick
+LAD Storage Consulting Group
 

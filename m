@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbUKDNg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbUKDNpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbUKDNg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 08:36:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbUKDNg1
+	id S262221AbUKDNpq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 08:45:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbUKDNpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 08:36:27 -0500
-Received: from imap.gmx.net ([213.165.64.20]:44523 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262220AbUKDNgM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 08:36:12 -0500
-X-Authenticated: #21910825
-Message-ID: <418A303E.1050709@gmx.net>
-Date: Thu, 04 Nov 2004 14:35:58 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040114
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Matt Domsch <Matt_Domsch@dell.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: boot option for CONFIG_EDD_SKIP_MBR?
+	Thu, 4 Nov 2004 08:45:46 -0500
+Received: from linux.us.dell.com ([143.166.224.162]:58779 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S262221AbUKDNpl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 08:45:41 -0500
+Date: Thu, 4 Nov 2004 07:45:34 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: boot option for CONFIG_EDD_SKIP_MBR?
+Message-ID: <20041104134534.GA5360@lists.us.dell.com>
+References: <418A303E.1050709@gmx.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <418A303E.1050709@gmx.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matt,
+On Thu, Nov 04, 2004 at 02:35:58PM +0100, Carl-Daniel Hailfinger wrote:
+> [please CC: me on replies]
+> having had problems (inifinte hang on boot) with some Fujitsu
+> Siemens Scenic computers when EDD was enabled, I asked myself
+> if it would be possible to add a boot option edd=nombr and
+> possibly also another boot option edd=off to the EDD code in
+> the kernel. These would correspond to CONFIG_EDD_SKIP_MBR
+> and CONFIG_EDD, respectively.
+>
+> Yes, option parsing before entering protected mode is ugly,
+> but the vga setup code does it, too.
+> 
+> What do you think?
 
-[please CC: me on replies]
-having had problems (inifinte hang on boot) with some Fujitsu
-Siemens Scenic computers when EDD was enabled, I asked myself
-if it would be possible to add a boot option edd=nombr and
-possibly also another boot option edd=off to the EDD code in
-the kernel. These would correspond to CONFIG_EDD_SKIP_MBR
-and CONFIG_EDD, respectively.
-That way, distributors could use the benefits of enabled
-EDD on working machines and provide customers with the
-ability to switch off EDD on broken machines, all with the
-same kernel.
-Yes, option parsing before entering protected mode is ugly,
-but the vga setup code does it, too.
+I'd love it.  I hadn't done it as I thought it would be ugly, and so
+far I could blame buggy BIOSes for the delay.  If you want to work up
+a patch, I'll gladly review and apply something that does such.
 
-What do you think?
+Thanks,
+Matt
 
-Regards,
-Carl-Daniel
 -- 
-http://www.hailfinger.org/
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

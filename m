@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269405AbRHCPT7>; Fri, 3 Aug 2001 11:19:59 -0400
+	id <S269406AbRHCP37>; Fri, 3 Aug 2001 11:29:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269406AbRHCPTu>; Fri, 3 Aug 2001 11:19:50 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:19472 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269405AbRHCPTk>; Fri, 3 Aug 2001 11:19:40 -0400
+	id <S269408AbRHCP3u>; Fri, 3 Aug 2001 11:29:50 -0400
+Received: from mg02.austin.ibm.com ([192.35.232.12]:17104 "EHLO
+	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S269406AbRHCP3g>; Fri, 3 Aug 2001 11:29:36 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "David S. Miller" <davem@redhat.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: ext3-2.4-0.9.4
-Date: Fri, 3 Aug 2001 17:25:09 +0200
+From: Andrew Theurer <andrewt@austin.rr.com>
+Reply-To: andrewt@austin.rr.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: TCP zero-copy
+Date: Fri, 3 Aug 2001 10:28:53 -0500
 X-Mailer: KMail [version 1.2]
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <20010803155255.X12470@redhat.com> <15210.48950.179949.657793@pizda.ninka.net>
-In-Reply-To: <15210.48950.179949.657793@pizda.ninka.net>
+In-Reply-To: <663CE32D.1D4A9213.0F45C3B8@netscape.net> <3B6A7B96.1591.241743@localhost>
+In-Reply-To: <3B6A7B96.1591.241743@localhost>
 MIME-Version: 1.0
-Message-Id: <01080317250906.01827@starship>
+Message-Id: <01080310285302.02989@linux>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 August 2001 17:11, David S. Miller wrote:
-> Stephen C. Tweedie writes:
->  > The word "access" isn't used there in the spec, so it doesn't matter.
->  > The spec only refers to "all file system information required to
->  > retrieve the data."  Integrity of the data is the only thing
->  > guaranteed, not integrity of the namespace.
->
-> In fact this interpretation would have a severe performance impact
-> for any implementation.
->
-> If you include "metadata of the 'path'" in "all filesystem
-> information..." then you have to basically sync each and every element
-> on the path(s) to that file.  This means walking each dentry in the
-> alias list for the inode, and then walk from each of those to the root
-> sync'ing along the way.
->
-> That would be a rediculious requirement.
+On Friday 03 August 2001 04:23,  wrote:
+> I believe this behaviour is only possible for cards which have the
+> ability to dma what appears as a list of skb data fragments and
+> also has the ability to checksum the data. Namely the Alteon, now
+> 3com, ACENIC and the sun hme device.
 
-As I read the (excerpts from the) SUS, this isn't required, only that
-at least one namespace path from the root to the fsynced file is
-preserved.  I can imagine an efficient implementation for this.
+Intel now has an e1000 driver as well.
 
---
-Daniel
+> Does this kernel modification completely remove the need for a
+> copy/checksum of the data between user and kernel space on both
+> transmit and receive ?
+
+Transmit for sure.  You should no longer see csum_partial_copy_generic() when 
+using zerocopy.
+
+> I have written a driver for an Intel ixf1002 chip, which has some
+> surrounding HW, and is capable of checksumming and processing
+> dma in fragments. Is there any information on what changes I
+> would have to make to the driver to support zerocopy/checksum ?
+
+Which card is this?
+
+Andrew Theurer

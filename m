@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266280AbRGJMla>; Tue, 10 Jul 2001 08:41:30 -0400
+	id <S266293AbRGJNTq>; Tue, 10 Jul 2001 09:19:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266282AbRGJMlU>; Tue, 10 Jul 2001 08:41:20 -0400
-Received: from hypnos.cps.intel.com ([192.198.165.17]:5865 "EHLO
-	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S266280AbRGJMlC>; Tue, 10 Jul 2001 08:41:02 -0400
-Message-ID: <9678C2B4D848D41187450090276D1FAE0635F135@FMSMSX32>
-From: "Cress, Andrew R" <andrew.r.cress@intel.com>
-To: "'Douglas Gilbert'" <dougg@torque.net>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: RE: [PATCH-2.4.3] scsi logging
-Date: Tue, 10 Jul 2001 05:40:23 -0700
+	id <S266295AbRGJNTg>; Tue, 10 Jul 2001 09:19:36 -0400
+Received: from adalivecom-cv.sdsl.shore.net ([209.58.158.210]:716 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266293AbRGJNT0>; Tue, 10 Jul 2001 09:19:26 -0400
+Date: Tue, 10 Jul 2001 09:18:57 -0400 (EDT)
+From: Aaron Longfield <aaronl@adalive.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Problems booting 2.4.6 ac release
+In-Reply-To: <000901c1090a$05e37440$78eb400a@zurich.com.au>
+Message-ID: <Pine.LNX.4.33.0107100916280.25235-100000@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris,
 
-DG> I would object to point 3). SANE, and to a lesser extent
-DG> cdrecord, execute lots of commands that give SCSI check
-DG> conditions and would bloat the log and the console with
-DG> many serious looking messages. [...]
+Did you happen to compile IrDA into the kernel?  This has been broken for
+at least with 2.4.5. there are fixes in the -ac patches that have not been
+applied to the mainstream kernel yet.  If you compile IrDA as a module, or
+use -acXX, the kernel will be able to proceed to exec'ing INIT.
 
-Doug,
+-Aaron Longfield
 
-Would it be possible to recognize & filter the specific errors output by
-SANE and cdrecord rather than removing all sg sense errors?  Or to ignore
-all but certain sense codes unless SG_SET_DEBUG is set?
-What I'm most concerned about is to make sure that any media problems on
-fixed disks (03/11/00, etc.) don't get missed.  
+On Tue, 10 Jul 2001, Chris Massam wrote:
 
-Perhaps something like: 
-if (CHECK_CONDITION ...) {
-  if ((type == disk && (key == MEDIUM_ERROR || key == HARDWARE_ERROR))
-     || (sdp->sgdebug > 0))
-        print_req_sense(...)
-  }
-How about that?
-
-Andy
-
+%Hello,
+%
+%I'm having problems booting linux on my IBM Thinkpad A20 laptop.
+%
+%Having got the machine working nicely with Debian "woody" I decided to
+%upgrade to 2.4.5 - which caused no end of problems, as it would fail to boot
+%correctly.
+%
+%It would freeze at:
+%
+%Freeing unused memory 242k ...
+%
+%So, at the point I upgraded to -ac23 which worked fine.
+%So then 2.4.6 comes along, and I have exactly the same problem.
+%
+%Are the 'ac' release not incorportated into future releases?
+%
+%Thanks for any help in advance.
+%
+%Chris
 

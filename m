@@ -1,71 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263608AbTDDBWr (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 20:22:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbTDDBWr (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 20:22:47 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:61830 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S263608AbTDDBWi (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 20:22:38 -0500
-Date: Thu, 3 Apr 2003 17:34:05 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: uart_ioctl OOPS with irtty-sir
-Message-ID: <20030404013405.GA19446@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id S263597AbTDDBW3 (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 20:22:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263608AbTDDBW3 (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 20:22:29 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:6085 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263597AbTDDBWX convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Apr 2003 20:22:23 -0500
+Date: Thu, 3 Apr 2003 17:33:52 +0000
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: linux-kernel@vger.kernel.org, steve.cameron@hp.com
+Subject: Re: [PATCH] reduce stack in cpqarray.c::ida_ioctl()
+Message-Id: <20030403173352.0311312a.rddunlap@osdl.org>
+In-Reply-To: <20030404003044.GB16832@wohnheim.fh-wedel.de>
+References: <20030403120308.620e5a14.rddunlap@osdl.org>
+	<20030404003044.GB16832@wohnheim.fh-wedel.de>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Russel,
+On Fri, 4 Apr 2003 02:30:44 +0200 Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
 
-	Sorry to bring more bad news...
+| On Thu, 3 April 2003 12:03:08 +0000, Randy.Dunlap wrote:
+| > 
+| > Comments on the patch?
+| 
+| Your patch looks just fine. The original code is a bit odd, though.
+| If you want to change that in one go, read on. If not, please ignore
+| this.
+| 
+| > +		error = ida_ctlr_ioctl(ctlr, dsk, my_io);
+| > +		if (error) goto iocfree;
+| 
+| Wouldn't an extra line be nicer?
 
-	In 2.5.66, somebody (maybe you) added a check to
-tty_hung_up_p(filp) in uart_ioctl().
-	The code now looks like this (drivers/serial/core.c) :
-------------------------------------
-static int
-uart_ioctl(struct tty_struct *tty, struct file *filp, unsigned int cmd,
-	   unsigned long arg)
-{
-[...]
-	if (tty_hung_up_p(filp)) {
-		ret = -EIO;
-		goto out_up;
-	}
-[...]
-	switch (cmd) {
-	case TIOCMSET:
-		ret = uart_set_modem_info(state->port, cmd,
-					  (unsigned int *)arg);
-		break;
-------------------------------------
+Probably.  I would normally do that.  In this case I was just
+maintaining the style that is already used in that source file.
 
-	Unfortunately, the irtty-sir driver, which is a TTY line
-discipline and a network driver, need to be able to change the RTS and
-DTR line from a kernel thread.
-	The code looks like (drivers/net/irda/irtty-sir.c) :
-----------------------------
-static int irtty_set_dtr_rts(struct sir_dev *dev, int dtr, int rts)
-{
-[...]
-	if (priv->tty->driver.ioctl(priv->tty, NULL, TIOCMSET, (unsigned long) &arg)) { 
-		IRDA_DEBUG(2, "%s(), error doing ioctl!\n", __FUNCTION__);
-	}
-----------------------------
+| > +		error = copy_to_user(io, my_io, sizeof(*my_io)) ? -EFAULT : 0;
+| 
+| copy_to_user returns the bytes successfully copied.
+| error is set to -EFAULT, if there was actually data transferred?
 
-	You can guess the result : instant OPPS.
+Did you verify that?
 
 
-	I don't really see how I would be able to get hold of a "struct
-file" in kernel space, so please advise.
+| How about:
+| +		error = copy_to_user(io, my_io, sizeof(*my_io)) < sizeof(*my_io) ? -EFAULT : 0;
 
-	Have fun, and thanks in advance...
 
-	Jean
+--
+~Randy

@@ -1,27 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290684AbSAYONA>; Fri, 25 Jan 2002 09:13:00 -0500
+	id <S290685AbSAYOPm>; Fri, 25 Jan 2002 09:15:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290682AbSAYOMm>; Fri, 25 Jan 2002 09:12:42 -0500
-Received: from web20102.mail.yahoo.com ([216.136.226.39]:37951 "HELO
-	web20102.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S290680AbSAYOMh>; Fri, 25 Jan 2002 09:12:37 -0500
-Message-ID: <20020125141236.66744.qmail@web20102.mail.yahoo.com>
-Date: Fri, 25 Jan 2002 06:12:36 -0800 (PST)
-From: migrate linux <migrate_linux@yahoo.com>
-Subject: John Carmack
-To: linux-kernel@vger.kernel.org
+	id <S290688AbSAYOPc>; Fri, 25 Jan 2002 09:15:32 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:58785 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S290686AbSAYOPS>;
+	Fri, 25 Jan 2002 09:15:18 -0500
+Date: Fri, 25 Jan 2002 17:12:49 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: The Doctor What <docwhat@gerf.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Anton Blanchard <anton@samba.org>
+Subject: Re: O(1) on powerpc....
+In-Reply-To: <1011967954.3501.17.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0201251706240.9275-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Sorry ,I am not the John Carmack of Id Software.
+On 25 Jan 2002, Robert Love wrote:
 
-Thank you
+> We could do some things to generically make the other arches
+> compatible with the new scheduler, things like:
+>
+> #define smp_processor_id() (current->processor)
+>
+> still need to be fixed (to use ->cpu).  I bet after a trivial
+> find/replace there is little left to do.
 
-__________________________________________________
-Do You Yahoo!?
-Great stuff seeking new owners in Yahoo! Auctions! 
-http://auctions.yahoo.com
+it's often more subtle then this. Every arch has to:
+
+- implement the lowlevel task-migration mechanizm
+
+- update the idle-thread code to use init_idle() + idle_startup_done().
+  Update the idle-thread priority changing bits.
+
+- check context_switch() for IRQ-atomicity for being called with the
+  runqueue lock held - eg. ia64 re-enabled interrupts.
+
+- add a definition of sched_find_first_bit()
+
+- update any possible out-of-sync field offsets in entry.S.
+
+so i'd not touch the trivial bits, because the hard bits will still be
+unfixed, and who likes fixing the hard stuff only? :-)
+
+	Ingo
+

@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263152AbVAFXDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263203AbVAFXOB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbVAFXDu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 18:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbVAFXBq
+	id S263203AbVAFXOB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 18:14:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263080AbVAFXKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 18:01:46 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8975 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263111AbVAFWx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 17:53:58 -0500
-Date: Thu, 6 Jan 2005 23:53:51 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: hirofumi@mail.parknet.co.jp
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/fat/cache.c: make __fat_access static
-Message-ID: <20050106225351.GG28628@stusta.de>
+	Thu, 6 Jan 2005 18:10:17 -0500
+Received: from colin2.muc.de ([193.149.48.15]:14095 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S263060AbVAFXEY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 18:04:24 -0500
+Date: 7 Jan 2005 00:04:19 +0100
+Date: Fri, 7 Jan 2005 00:04:19 +0100
+From: Andi Kleen <ak@muc.de>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Paul Jackson <pj@sgi.com>, Steve Longerbeam <stevel@mwwireless.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: page migration patchset
+Message-ID: <20050106230419.GA26074@muc.de>
+References: <41DDA6CB.6050307@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <41DDA6CB.6050307@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes a needlessly global function static.
+On Thu, Jan 06, 2005 at 02:59:55PM -0600, Ray Bryant wrote:
+> Now I know there is no locking protection around the mems_allowed
+> bitmask, so changing this while the process is still running
+> sounds hard.  But part of the plan I am working under assumes
+> that the process is stopped before it is migrated.  (Shared
+> pages that are only shared among processes all of whom are to be
+> moved would similarly be handled; pages shsared among migrated
+> and non-migrated processes, e. g. glibc pages, would not
+> typically need to be moved at all, since they likely reside
+> somewhere outside the set of nodes to be migrated from.)
+> 
+> But if the process is suspended, isn't all that is needed just
+> to do the obvious translation on the mems_allowed vector?
 
+Probably yes. But I can't say for sure since I haven't followed
+the design and code of mems_allowed very closely
+(it's not in mainline and seems to be only added with the cpumemset
+patches). I would take Paul's word more seriously than mine 
+on that. 
 
-diffstat output:
- fs/fat/cache.c           |    2 +-
- include/linux/msdos_fs.h |    1 -
- 2 files changed, 1 insertion(+), 2 deletions(-)
+I assume you stop the process while doing page migration,
+and while a process is stopped it should be safe to touch
+task_struct fields as long as you lock against yourself.
 
+> (Similarly for the dedicated node stuff, I forget the name for
+> that at the moment...)
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+You mean NUMA API? You would need to modify all the mempolicy
+data structures.
 
---- linux-2.6.10-mm2-full/include/linux/msdos_fs.h.old	2005-01-06 23:35:38.000000000 +0100
-+++ linux-2.6.10-mm2-full/include/linux/msdos_fs.h	2005-01-06 23:35:44.000000000 +0100
-@@ -230,7 +230,6 @@
- 
- /* fat/cache.c */
- extern int fat_access(struct super_block *sb, int nr, int new_value);
--extern int __fat_access(struct super_block *sb, int nr, int new_value);
- extern int fat_bmap(struct inode *inode, sector_t sector, sector_t *phys);
- extern void fat_cache_inval_inode(struct inode *inode);
- extern int fat_get_cluster(struct inode *inode, int cluster,
---- linux-2.6.10-mm2-full/fs/fat/cache.c.old	2005-01-06 23:35:59.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/fat/cache.c	2005-01-06 23:36:04.000000000 +0100
-@@ -203,7 +203,7 @@
- 	spin_unlock(&MSDOS_I(inode)->cache_lru_lock);
- }
- 
--int __fat_access(struct super_block *sb, int nr, int new_value)
-+static int __fat_access(struct super_block *sb, int nr, int new_value)
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
- 	struct buffer_head *bh, *bh2, *c_bh, *c_bh2;
+They can be safely changed when the mm semaphore is hold. 
+However such policies can be attached to files too (e.g. 
+in tmpfs) with no association with a process. There are plans
+to allow them at arbitary files.
 
+-Andi

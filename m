@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbTEZPOH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 11:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbTEZPOH
+	id S262000AbTEZPSF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 11:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbTEZPSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 11:14:07 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:31420 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262000AbTEZPOG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 11:14:06 -0400
-Date: Sun, 25 May 2003 23:52:11 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: jpo234@netscape.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dead machine, blinking Keyboard and no Oops on console
-Message-ID: <20030525215211.GA26365@elf.ucw.cz>
-References: <418FE1FC.68D97D6D.00065BAA@netscape.net>
+	Mon, 26 May 2003 11:18:05 -0400
+Received: from h80ad26a4.async.vt.edu ([128.173.38.164]:7316 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262000AbTEZPSE (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 11:18:04 -0400
+Message-Id: <200305261531.h4QFVDa7011934@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: linux-kernel@vger.kernel.org
+Subject: Janitors, or Illuminati?
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <418FE1FC.68D97D6D.00065BAA@netscape.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: multipart/signed; boundary="==_Exmh_-1518020223P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 26 May 2003 11:31:13 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--==_Exmh_-1518020223P
+Content-Type: text/plain; charset=us-ascii
 
-> >Blinking keyboard lights means kernel panic.
-> >
-> >    Jeff
-> 
-> Shouldn't a panic cause some message on the console?
-> Does the missing message provide a clue?
+While we're on the "Why didn't you send the patches to the right place?" topic..
 
-I'd go for serial console at this point...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+The Kernel Janitors are often referenced, but there's not much of a pointer
+to them in the source tree.
+
+% cd /usr/src/linux-2.5.69
+% grep -ri janitor .
+./fs/affs/Changes:- sizeof changes from Kernel Janitor Project
+./include/asm-sparc/elf.h:} while(0); /* Janitors: Don't touch this colon. */
+./CREDITS:D: Various Janitor work.
+./CREDITS:D: petty kernel janitor (byteorder, ufs)
+
+The lines in CREDITS reference Dave Jones and Francois-Rene Rideau.
+
+I'm not sure if MAINTAINERS is the right place for a blurb for them,
+or if it should be elsewhere.  Any opinions?
+
+--==_Exmh_-1518020223P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+0jNAcC3lWbTT17ARAkrHAJ0SxiT69hxofUZxnUmqRnWyLoXZ3gCbBQcO
+b5qC8Gmeu5rcJ4TL9IF2L3c=
+=sGNH
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1518020223P--

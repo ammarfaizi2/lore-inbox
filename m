@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264499AbTFBQ0G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 12:26:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbTFBQ0G
+	id S264503AbTFBQ0s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 12:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTFBQ0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 12:26:06 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:44562 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S264499AbTFBQ0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 12:26:04 -0400
-Date: Mon, 2 Jun 2003 13:40:12 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+	Mon, 2 Jun 2003 12:26:48 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:44254 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S264503AbTFBQ0n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 12:26:43 -0400
+Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function
+	declarations.
+From: Steven Cole <elenstev@mesatop.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Juan Quintela <quintela@mandrakesoft.com>,
-       Russell King <rmk@arm.linux.org.uk>, Steven Cole <elenstev@mesatop.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
-Message-ID: <20030602164012.GB9312@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Juan Quintela <quintela@mandrakesoft.com>,
-	Russell King <rmk@arm.linux.org.uk>,
-	Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
-References: <m2smqs7nth.fsf@neno.mitica> <Pine.LNX.4.44.0306020856450.19910-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+       Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
 In-Reply-To: <Pine.LNX.4.44.0306020856450.19910-100000@home.transmeta.com>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+References: <Pine.LNX.4.44.0306020856450.19910-100000@home.transmeta.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054571980.3751.141.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 02 Jun 2003 10:39:41 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Jun 02, 2003 at 08:59:39AM -0700, Linus Torvalds escreveu:
-> 
+On Mon, 2003-06-02 at 09:59, Linus Torvalds wrote:
 > On 2 Jun 2003, Juan Quintela wrote:
 > > 
 > > /**
@@ -53,9 +46,40 @@ Em Mon, Jun 02, 2003 at 08:59:39AM -0700, Linus Torvalds escreveu:
 > 
 > Hey, if somebody were to send me a patch (hint hint), I'd happily apply 
 > it.
+> 
+> 		Linus
 
-Hey, I'm doing this for all the parts of the net/ (and others) I touch 8)
-Now we need a docbook volunteer to see if everything is going to be used
-by make docs.
+I sent this last night as an example, except now the function
+declaration is not wrapped.  How is this?
 
-- Arnaldo
+Steven
+
+--- linux/lib/zlib_inflate/inftrees.c.orig	Mon Jun  2 10:15:29 2003
++++ linux/lib/zlib_inflate/inftrees.c	Mon Jun  2 10:16:47 2003
+@@ -288,14 +288,16 @@
+   return y != 0 && g != 1 ? Z_BUF_ERROR : Z_OK;
+ }
+ 
++/**
++ *	zlib_inflate_trees_bits:
++ *	@uIntf *c:                19 code lengths
++ *	@uIntf *bb:               bits tree desired/actual depth
++ *	@inflate_huft * FAR *tb:  bits tree result
++ *	@inflate_huft *hp:        space for trees
++ *	@z_streamp z:             for messages
++ */
+ 
+-int zlib_inflate_trees_bits(
+-	uIntf *c,               /* 19 code lengths */
+-	uIntf *bb,              /* bits tree desired/actual depth */
+-	inflate_huft * FAR *tb, /* bits tree result */
+-	inflate_huft *hp,       /* space for trees */
+-	z_streamp z             /* for messages */
+-)
++int zlib_inflate_trees_bits(uIntf *c, uIntf *bb, inflate_huft * FAR *tb, inflate_huft *hp, z_streamp z)
+ {
+   int r;
+   uInt hn = 0;          /* hufts used in space */
+
+
+

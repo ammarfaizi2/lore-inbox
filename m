@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263411AbTDGMck (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 08:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbTDGMcj (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 08:32:39 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44691
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263411AbTDGMch (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 08:32:37 -0400
-Subject: Re: 2.5.66-bk12 causes "rpm" errors
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Robert Love <rml@tech9.net>
-Cc: Andrew Morton <akpm@digeo.com>, "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1049680078.753.173.camel@localhost>
-References: <Pine.LNX.4.44.0304062117150.1198-100000@localhost.localdomain>
-	 <20030406183234.1e8abd7f.akpm@digeo.com>
-	 <1049679689.753.170.camel@localhost>  <1049680078.753.173.camel@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049715944.2967.44.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Apr 2003 12:45:44 +0100
+	id S262978AbTDGMdp (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 08:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263399AbTDGMdp (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 08:33:45 -0400
+Received: from tomts17.bellnexxia.net ([209.226.175.71]:50401 "EHLO
+	tomts17-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262978AbTDGMdn (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 08:33:43 -0400
+Date: Mon, 7 Apr 2003 08:35:38 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: "vfat" module not autoloaded (2.5.66-bk12)
+Message-ID: <Pine.LNX.4.44.0304070830120.1866-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-04-07 at 02:47, Robert Love wrote:
-> On Sun, 2003-04-06 at 21:41, Robert Love wrote:
-> 
-> > I have not yet tracked down what in 2.5 is broken, but Red Hat's kernel
-> > obviously does not have this flaw.
-> 
-> I should clarify this.
-> 
-> I do not know if the flaw is in 2.5.  It might be a behavior of Red
-> Hat's kernel which rpm(8) assumes.
 
-I've forwarded the report to the RH RPM maintainer to look into. I know
-the non NPTL cases are ok because I never run Red Hat kernels except in
-the install process. If there are subtle NPTL differences anything is of
-course possible
+  since i missed several weeks of the kernel list, i'm not sure
+if this has been covered, but the vfat module is not autoloaded
+during boot time to allow the mounting of my vfat-formatted
+windows partition, as it has been in previous versions of the
+kernel.
+
+  i have all of the module options selected for this kernel,
+and the dos/vfat options have been selected as modules for this
+build.
+
+  during boot time, i get error messages that that partition
+could not be mounted.  after boot, i still can't mount it
+manually until i explicitly "modprobe vfat", something i've
+never had to do before.
+
+  thoughts?
+
+rday
+
+p.s.  now that i think about it, there might have been other
+instances of failure to autoload modules that i just shrugged
+off at the time, but this is the one example that i took the
+time to really verify, since it came as such a surprise.
 

@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278103AbRJRTjB>; Thu, 18 Oct 2001 15:39:01 -0400
+	id <S278100AbRJRTil>; Thu, 18 Oct 2001 15:38:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278102AbRJRTil>; Thu, 18 Oct 2001 15:38:41 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:49424 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S278101AbRJRTib>;
-	Thu, 18 Oct 2001 15:38:31 -0400
-Date: Thu, 18 Oct 2001 17:38:55 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Jan Niehusmann <jan@gondor.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Input on the Non-GPL Modules
-In-Reply-To: <20011018183217.A5055@gondor.com>
-Message-ID: <Pine.LNX.4.33L.0110181738120.3690-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S278102AbRJRTid>; Thu, 18 Oct 2001 15:38:33 -0400
+Received: from atlrel6.hp.com ([192.151.27.8]:40969 "HELO atlrel6.hp.com")
+	by vger.kernel.org with SMTP id <S278100AbRJRTi2>;
+	Thu, 18 Oct 2001 15:38:28 -0400
+Message-ID: <C5C45572D968D411A1B500D0B74FF4A80418D57F@xfc01.fc.hp.com>
+From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+To: "'Andrew Morton'" <akpm@zip.com.au>,
+        "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+Cc: "Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>,
+        "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
+Subject: RE: Kernel performance in reference to 2.4.5pre1
+Date: Thu, 18 Oct 2001 15:38:54 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001, Jan Niehusmann wrote:
-> On Thu, Oct 18, 2001 at 11:29:57AM -0400, Greg Boyce wrote:
-> > However, with the addition of GPL only symbols, you add motivation for
-> > conning.  Not by end users, but by the developers of binary only
-> > modules.  If they export the GPL license symbol, they gain access to
-> > kernel symbols that they may want to use.  Since no code is actually being
-> > stolen, would this kind of trick actually cause a licensing violation?
->
-> What about a different way of circumventing the GPL only symbols?
+I'll put this on my priority list to look into.  When I get the numbers,
+I'll squeak again.
 
-> Then he could use this new symbol from his non-GPL module.
+Thanks, 
+Cary
 
-And he'd lose his rights to use Linux by violating the license
-he acquired Linux under.
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+> -----Original Message-----
+> From: Andrew Morton [mailto:akpm@zip.com.au]
+> Sent: Thursday, October 18, 2001 12:34 PM
+> To: DICKENS,CARY (HP-Loveland,ex2)
+> Cc: Kernel Mailing List (E-mail); HABBINGA,ERIK (HP-Loveland,ex1)
+> Subject: Re: Kernel performance in reference to 2.4.5pre1
+> 
+> 
+> "DICKENS,CARY (HP-Loveland,ex2)" wrote:
+> > 
+> > 2.4.5pre1 is the base for comparison,
+> > 
+> > [ figures showing that more recent kernels suck ]
+> > 
+> 
+> SFS is a rather specialised workload, and synchronous NFS exports
+> are not a thing which gets a lot of attention.  It could be one
+> small, hitherto unnoticed change which caused this performance
+> regression.  And it appears that the change occurred between 2.4.5
+> and 2.4.7.
+> 
+> We don't know whether this slowdown is caused by changes in the VM,
+> the filesystem, the block device layer, nfsd or networking. 
+> For example,
+> ksoftirqd was introduced between 2.4.5 and 2.4.7.  Could it be that?
+> 
+> For all these reasons it would be really helpful if you could
+> go back and test the 2.4.6-preX and 2.4.7-preX kernels (binary search)
+> and tell us if there was a particular release which caused 
+> this decrease in
+> throughput.
+> 
+> If it can be pinned down to a particular patch then there's a good
+> chance that it can be fixed.
+> 

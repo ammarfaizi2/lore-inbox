@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268012AbTCFLss>; Thu, 6 Mar 2003 06:48:48 -0500
+	id <S268013AbTCFLsz>; Thu, 6 Mar 2003 06:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268013AbTCFLss>; Thu, 6 Mar 2003 06:48:48 -0500
-Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:50058 "EHLO
-	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S268012AbTCFLsr>;
-	Thu, 6 Mar 2003 06:48:47 -0500
-Date: Wed, 5 Mar 2003 07:49:23 +0100 (CET)
-From: Peter Svensson <petersv@psv.nu>
-To: Eric Lammerts <eric@lammerts.org>
-cc: Uwe Reimann <linux-kernel@pulsar.homelinux.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Direct access to parport
-In-Reply-To: <Pine.LNX.4.52.0303042329450.18334@ally.lammerts.org>
-Message-ID: <Pine.LNX.4.44.0303050746220.16313-100000@cheetah.psv.nu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268016AbTCFLsz>; Thu, 6 Mar 2003 06:48:55 -0500
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:53725 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S268013AbTCFLsx>; Thu, 6 Mar 2003 06:48:53 -0500
+Date: Thu, 6 Mar 2003 12:59:07 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, joe@tmsusa.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Oops in 2.5.64
+Message-ID: <20030306125907.S629@nightmaster.csn.tu-chemnitz.de>
+References: <3E66E782.5010502@tmsusa.com> <20030305223638.77c22cb7.akpm@digeo.com> <200303060749.h267nPu01086@Port.imtp.ilyichevsk.odessa.ua> <20030306001457.7537e37a.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20030306001457.7537e37a.akpm@digeo.com>; from akpm@digeo.com on Thu, Mar 06, 2003 at 12:14:57AM -0800
+X-Spam-Score: -29.3 (-----------------------------)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18qu1z-00014a-00*7Xnzoj7pmeU*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Mar 2003, Eric Lammerts wrote:
+Hi,
 
-> On Tue, 4 Mar 2003, Uwe Reimann wrote:
-> > I'd like to connect some self made hardware to the parallel port and
-> > read the values of the dataline using linux. Can this be done in
-> > userspace or do I have to write kernel code to do so? I'm currently
-> > thinking of writing a device like lp, which in turn uses the parport
-> > device. Does this sound like a good idea?
+On Thu, Mar 06, 2003 at 12:14:57AM -0800, Andrew Morton wrote:
+> Cannot we just stick:
 > 
-> >From userspace it's quite simple:
+> 	#define inline	__inline__ __attribute__((always_inline))
+> 
+> in kernel.h?
 
-[ioperm-based suggestion removed]
+I second this, because that's how we actually use this keyword in
+the kernel. We don't mean "please inline, if you can" but
+actually "inline it, or I'll force you harder!".
 
-A better idea may be to use ppdev - the portable and safe way to access a 
-paralell port directly. This driver is in the stock kernels. This prevents 
-races between the kernel and userland over control for the paralell port.
+It doesn't look like at first glance, but it actually is the
+cleanest solution for recent GCCs.
 
-Peter
---
-Peter Svensson      ! Pgp key available by finger, fingerprint:
-<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
-------------------------------------------------------------------------
-Remember, Luke, your source will be with you... always...
+Even better would be a "-Winline-limit=X" to warn for the cases,
+where we should review the tradeoff.
 
+Regards
 
+Ingo Oeser
+-- 
+Marketing ist die Kunst, Leuten Sachen zu verkaufen, die sie
+nicht brauchen, mit Geld, was sie nicht haben, um Leute zu
+beeindrucken, die sie nicht moegen.

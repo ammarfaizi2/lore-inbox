@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137046AbREKFQt>; Fri, 11 May 2001 01:16:49 -0400
+	id <S137052AbREKFbD>; Fri, 11 May 2001 01:31:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137047AbREKFQj>; Fri, 11 May 2001 01:16:39 -0400
-Received: from web10206.mail.yahoo.com ([216.136.130.70]:6919 "HELO
-	web10206.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S137046AbREKFQY>; Fri, 11 May 2001 01:16:24 -0400
-Message-ID: <20010511051623.69540.qmail@web10206.mail.yahoo.com>
-Date: Thu, 10 May 2001 22:16:23 -0700 (PDT)
-From: sri gg <srimg@yahoo.com>
-Subject: usb uhci & 8139too ON 2.4.2
-To: linux Kernel <linux-kernel@vger.kernel.org>
+	id <S137051AbREKFaw>; Fri, 11 May 2001 01:30:52 -0400
+Received: from [203.143.19.4] ([203.143.19.4]:5649 "EHLO kitul.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S137048AbREKFaq>;
+	Fri, 11 May 2001 01:30:46 -0400
+Date: Thu, 10 May 2001 17:42:12 +0600 (LKT)
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: Bohdan Vlasyuk <Bohdan@kivc.vstu.vinnica.ua>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux + Compaq Presario Laptop
+In-Reply-To: <16736206722.20010507200652@kivc.vstu.vinnica.ua>
+Message-ID: <Pine.LNX.4.21.0105101738590.283-100000@presario>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-      I recently compiled the 2.4.2 with usb support.
-I also brought a ethernet card based on the 8139too.o
-driver. When i insert the module, the following 
-message keeps blurting out:
 
-kernel: uhci: host controller halted. very bad
-kernel: uhci: host controller halted. very bad
-kernel: uhci: host controller halted. very bad
-.
-.
-.
+On Mon, 7 May 2001, Bohdan Vlasyuk wrote:
 
-this happens only when i insert the 8139too module.
-else the usb works fine, and detects the usb
-devices. Is there anything i am missing or should be
-doing... Any help or suggestions would be very 
-helpful.
-Thanks.
-srimg.
+>   Hi !! I'm running linux on Compaq Presario 1215 Laptop. Kernel is,
+> as shipped with RH 7.0, 2.2.16.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/
+I am running 2.4.4 on a Presario 1615 (debian 2.2 with updates) without
+problems. I had to turn on allow interrupts in APM settings, in order to
+get the machine running after returning from `sleep' mode (Fn + F3).
+
+Anuradha
+
+----------------------------------------------------------
+<a href="http://www.bee.lk/people/anuradha/">home page</a>
+
+

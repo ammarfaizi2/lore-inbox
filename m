@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbUK2Ukv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbUK2Ulv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbUK2Ukv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 15:40:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbUK2Ukv
+	id S261797AbUK2Ulv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 15:41:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUK2Ulv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 15:40:51 -0500
-Received: from gprs214-92.eurotel.cz ([160.218.214.92]:18569 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261788AbUK2Ukt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 15:40:49 -0500
-Date: Mon, 29 Nov 2004 21:40:37 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc1 broke apmd
-Message-ID: <20041129204037.GA3867@elf.ucw.cz>
-References: <200411291138.iATBcBiR007342@harpo.it.uu.se> <20041129125313.GB3291@elf.ucw.cz> <16811.11073.511847.968733@alkaid.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 29 Nov 2004 15:41:51 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:61575 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S261797AbUK2Ulo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 15:41:44 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: OT:Re: Am I still on this list?
+Date: Mon, 29 Nov 2004 15:46:03 -0500
+User-Agent: KMail/1.7
+References: <200411290149.25390.gene.heskett@verizon.net> <41AB0318.2030209@verizon.net>
+In-Reply-To: <41AB0318.2030209@verizon.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <16811.11073.511847.968733@alkaid.it.uu.se>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200411291546.03620.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.42.91] at Mon, 29 Nov 2004 14:41:43 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Monday 29 November 2004 06:08, Jim Nelson wrote:
+>> mailserver at verizon.net.  Now it is not, but still no mail.
+>> Sniff...
+>
+>Same thing happened to me.  Verizon help-desk drones were useless -
+> just re-subscribed, and everything was back to normal.
 
->  > > Starting with 2.6.10-rc1, date and time on my old APM-based
->  > > laptop is messed up after a resume. Specifically, Emacs and
->  > > xclock both make a huge forward leap and then stop updating
->  > > their current time displays.
->  > > 
->  > > The cause is the "jiffies += sleep_length * HZ;" addition
->  > > to arch/i386/kernel/time.c:time_resume() which is in conflict
->  > > with the hwlock --hctosys that the APM daemon normally does
->  > > at resume.
->  > 
->  > I do not understand why they interfere... time_resume should fix
->  > system time, then userland sets it to the right value, again. Unless
->  > these two happen in paralel (they should not), nothing bad should happen.
->  > 
->  > Can you try to suspend, wait, launch hwclock --hctosys manually?
-> 
-> I disabled apmd's automatic hwlock --hctosys and ran it manually
-> after resume + 5 seconds: no problem. I suspect that apmd runs
-> really early at resume and that's why it interferes with time_resume.
+I wouldn't say he was useless, in fact better than the average bear 
+IMO.  Once he understood that A) it was linux I'm talking about, and 
+B) I knew what I was talking about, we got along famously.  He not 
+only understood the lingo, he knew exactly what windoze util to run 
+that did the same thing.  To find that level of expertise on the help 
+desk was rather refreshing.
 
-You may workaround it be sleep 1 before hwclock --hctosys, I
-guess. But debugging it would be even better :-). Do we freeze
-processes during apm suspend? If not, we should...
-								Pavel
+>Glad to know it was Verizon's fault after all - OTOH, I don't think
+> their mail admins can comprehend why someone doesn't complain about
+> ~300 messages a day... :)
+>
+>Jim
+
+Yeah, he was somewhat taken aback when I said the list might run to 
+600 msgs a day on a busy day.  He figured that much *had* to spam.  I 
+said nope, that it was the official comm channel for the linux kernel 
+developers and coders, clear up to Linus hisself.  It never hurts to 
+polish the linux apple you know. :)
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.29% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

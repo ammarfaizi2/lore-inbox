@@ -1,56 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287913AbSABTcA>; Wed, 2 Jan 2002 14:32:00 -0500
+	id <S287929AbSABTfA>; Wed, 2 Jan 2002 14:35:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287919AbSABTby>; Wed, 2 Jan 2002 14:31:54 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:26577 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S287913AbSABTbp>; Wed, 2 Jan 2002 14:31:45 -0500
-Date: Wed, 2 Jan 2002 12:31:01 -0700
-Message-Id: <200201021931.g02JV1R27294@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: nahshon@actcom.co.il, linux-kernel@vger.kernel.org
-Subject: Re: SCSI host numbers?
-In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu>
-In-Reply-To: <200201020119.g021JoK32730@lmail.actcom.co.il>
-	<E16LjdE-0003m4-00@the-village.bc.nu>
+	id <S287927AbSABTeu>; Wed, 2 Jan 2002 14:34:50 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:43530
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S287919AbSABTee>; Wed, 2 Jan 2002 14:34:34 -0500
+Date: Wed, 2 Jan 2002 11:31:40 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Krzysztof Oledzki <ole@ans.pl>
+cc: Brian <hiryuu@envisiongames.net>, linux-kernel@vger.kernel.org
+Subject: Re: Two hdds on one channel - why so slow?
+In-Reply-To: <Pine.LNX.4.33.0201021808490.9573-100000@dark.pcgames.pl>
+Message-ID: <Pine.LNX.4.10.10201021052090.10050-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > Under some scenarios Linux assigns the same
-> > host_no to more than one scsi device.
-> > 
-> > Can someone tell me what is the intended behavior?
+
+Brian,
+
+This was true in the past and with many older drivers.  However when and
+if the new driver I have is adpoted, it will make SCSI cry.  So please
+stop polluting the issue.
+
+Let me be as objective as I can be.
+
+I built a special Mylex 3-channel raid 10 systems using 6 15K drive at
+Ultra160.  Given that I was clever, I was able to push that system to read
+and write at 170MB/sec.  I was very impressed by this performance, however
+this was hardware raid, caching of 256MB, and 66/64 pci bus.  This was a
+dual PIII w/ 2GB of EEC-Buffered-Registered.
+
+Now I have managed to use two hosts w/ 4 channels no caching controller,
+no hardware raid, 4 7200RPM drives and software raid 0.  I was able to
+push 109MB/sec writing and 167MB/sec reading.
+
+Also under a similar environment, I was able to, using a single card, 4
+drives, not hardware-raid, no caching controller, reach 90MB/sec writing
+and reading was about 78MB/sec.
+
+Now lets adjust cost of componets and SCSI loses big.
+Once there are 10K ATA drives in the market, and none exist that I know of
+to date even in beta, then we can retest .
+
+In the meantime here is another dose of reality.
+
+http://www.tecchannel.de/hardware/817/index.html
+
+Regards,
+
+Andre Hedrick
+Linux ATA Development
+
+On Wed, 2 Jan 2002, Krzysztof Oledzki wrote:
+
 > 
-> A number should never be reissued.
 > 
-> > The problem is that a newly registered device gets
-> > its host_no from max_scsi_host. max_scsi_host is
-> > decremented when a device driver is unregistered
-> > (see drivers/scsi/host.c) allowing a second new
-> > host to reuse the same host_no.
+> On Tue, 1 Jan 2002, Brian wrote:
 > 
-> I guess it needs to either only decrement the count if we are the
-> highest one (trivial hack) or scan for a free number/keep a free
-> bitmap. The devfs code has a handy little unique_id function for
-> that
+> > This is an inherent quirk (SCSI folks would say brain damage) in IDE.
+> >
+> > Only one drive on an IDE chain may be accessed at once and only one
+> > request may go to that drive at a time.  Therefore, the maximum you could
+> > hope for in that test is half speed on each.  Throw in the overhead of
+> > continuously hopping between them and 12MB is no surprise.
+> 
+> So?!? This ATA100 and ATA133 standards do not make any sens? It is not
+> possible to have more than 66 MB/sec with on drive and is seems that it is
+> not possible to use more than ~30MB/sek of 100 or 133 MB/sec ATA100/133
+> bus speed with two HDDs. Oh :(((
+> 
+> Another question - why ATA100/ATA66 HDDs are so slow with UDMA33?
+> With new IBM 60 GB IC35L060AVER07-0 I have much more than 33 MB/sec with
+> ATA100 and only 24 MB/sec with UDMA33 (Asus P2B with IntelBX). New 80GB Seagates
+> (Baracuda IV) have the same problem.
+> 
+> Best regards,
+> 
+> 			Krzysztof Oledzki
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Yeah, I was going to get around to submitting a patch to change the
-SCSI host allocation code to use devfs_alloc_unique_number(), but
-right now that function is only functional if CONFIG_DEVFS_FS=y
-(otherwise you get a stub function which returns -1). So really this
-should be turned into a generic function, which was my plan all along,
-but I didn't want to fight that battle back then. Now that it's in
-the tree, I can look at doing this.
 
-Comments? Got a suggestion for which file the generic function should
-go into? I figure on stripping the leading "devfs_" part of the
-function names.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

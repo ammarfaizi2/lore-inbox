@@ -1,64 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264161AbUD0PA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264164AbUD0PSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264161AbUD0PA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 11:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264164AbUD0PAZ
+	id S264164AbUD0PSM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 11:18:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbUD0PSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 11:00:25 -0400
-Received: from lists.us.dell.com ([143.166.224.162]:53163 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S264161AbUD0PAL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 11:00:11 -0400
-Date: Tue, 27 Apr 2004 09:58:12 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: rusty@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: always store MODULE_VERSION("") data?
-Message-ID: <20040427145812.GA20421@lists.us.dell.com>
+	Tue, 27 Apr 2004 11:18:12 -0400
+Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:18948 "EHLO
+	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
+	id S264164AbUD0PSL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 11:18:11 -0400
+Date: Tue, 27 Apr 2004 11:18:03 -0400
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/11] nfsacl
+Message-ID: <20040427151802.GA1490@fieldses.org>
+References: <1082975143.3295.68.camel@winden.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1082975143.3295.68.camel@winden.suse.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 26, 2004 at 12:28:47PM +0200, Andreas Gruenbacher wrote:
+> nfsacl-lazy-alloc
+>    Allow to allocate pages in the receive buffers lazily. ACLs may have
+>    up to 1024 entries in nfsacl but usually are small, so allocating
+>    space for them on demand makes sense.
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Is there any reason we couldn't set the maximum smaller than that?  It
+looks like the acl entries are pretty compact (12 bytes if I'm reading
+the xdr code right?) so if we limited the length of an xdr-encoded acl
+to a page that would still allow a few hundred entries.  Are there
+really people that need 1000-entry acls?
 
-Rusty,
-
-I started going through the kernel, adding MODULE_VERSION("foo")
-everywhere, but there are a lot of modules which are not separately
-versioned, and a value of MODULE_VERSION("") would be appropriate.
-
-How hard would it be to always include the space for the
-MODULE_VERSION("") data rather than specifying it in each file that
-doesn't care, and only modules with their own versioning could put
-MODULE_VERSION("myversion") to override the default?
-
-Thanks,
-Matt
-
---=20
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
---jI8keyz6grp/JLjh
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAjnUEIavu95Lw/AkRAiJVAJ0c29Qq+Md2niyJxFj+QiYiWGD8MwCffutU
-FDksCmAUgHsEpZwOHA3UV3k=
-=+BtB
------END PGP SIGNATURE-----
-
---jI8keyz6grp/JLjh--
+--Bruce Fields

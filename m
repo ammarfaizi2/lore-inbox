@@ -1,56 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315708AbSHFUdf>; Tue, 6 Aug 2002 16:33:35 -0400
+	id <S315540AbSHFUeT>; Tue, 6 Aug 2002 16:34:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315540AbSHFUdf>; Tue, 6 Aug 2002 16:33:35 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:28905 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S315708AbSHFUde>;
-	Tue, 6 Aug 2002 16:33:34 -0400
-Message-ID: <3D50334E.2000203@candelatech.com>
-Date: Tue, 06 Aug 2002 13:36:30 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       linux-kernel@vger.kernel.org, abraham@2d3d.co.za
-Subject: Re: ethtool documentation
-References: <Pine.LNX.4.33L2.0208061302200.10089-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315630AbSHFUeT>; Tue, 6 Aug 2002 16:34:19 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:39185 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315540AbSHFUeR>;
+	Tue, 6 Aug 2002 16:34:17 -0400
+Date: Tue, 6 Aug 2002 13:35:14 -0700
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: [BK PATCH] PCI Hotplug changes for 2.4.20-pre1
+Message-ID: <20020806203513.GA2022@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Tue, 6 Aug 2002, Richard B. Johnson wrote:
-> 
-> | On Tue, 6 Aug 2002, Chris Friesen wrote:
-> |
-> | > "Richard B. Johnson" wrote:
-> | >
-> | > > Because of this, there is no such thing as 'unused eeprom space' in
-> | > > the Ethernet Controllers. Be careful about putting this weapon in
-> | > > the hands of the 'public'. All you need is for one Linux Machine
-> | > > on a LAN to end up with the same IEEE Station Address as another
-> | > > on that LAN and connectivity to everything on that segment will
-> | > > stop. You do this once at an important site and Linux will get a
-> | > > very black eye.
+Hi,
 
-Actually, any important site has some kind of failover in place, and they
-could very well be using this feature to provide seamless MAC/IP takeover
-in the case of a server outtage.
+This includes an ACPI PCI Hotplug driver update, and a IBM PCI Hotplug
+driver update, both of which have been in the -ac kernel for a while.
 
-This feature also allows bridging to work, and anyone with root priviledges
-can send any ethernet packet they want using a raw packet socket anyway.
+	Pull from:  bk://linuxusb.bkbits.net/pci_hp-2.4
 
-Ben
+Patches will follow (warning, the ACPI one is big, so I will not send
+that to the mailing lists, it can be found at:
+  http://www.kernel.org/pub/linux/kernel/people/gregkh/hotplug/2.4/pci_hp-acpiphp-2.4.20-pre1.patch
+)
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+thanks,
 
+greg k-h
+
+ drivers/hotplug/pcihp_acpi.c      |  397 ---------
+ drivers/hotplug/pcihp_acpi.h      |  231 -----
+ drivers/hotplug/pcihp_acpi_ctrl.c |  642 ----------------
+ drivers/hotplug/pcihp_acpi_glue.c |  757 -------------------
+ drivers/hotplug/Makefile          |   14 
+ drivers/hotplug/acpiphp.h         |  322 ++++++++
+ drivers/hotplug/acpiphp_core.c    |  470 +++++++++++
+ drivers/hotplug/acpiphp_glue.c    | 1514 ++++++++++++++++++++++++++++++++++++++
+ drivers/hotplug/acpiphp_pci.c     |  763 +++++++++++++++++++
+ drivers/hotplug/acpiphp_res.c     |  708 +++++++++++++++++
+ drivers/hotplug/ibmphp.h          |   18 
+ drivers/hotplug/ibmphp_core.c     |  208 +++--
+ drivers/hotplug/ibmphp_ebda.c     |   65 +
+ drivers/hotplug/ibmphp_hpc.c      |  141 +--
+ 14 files changed, 4064 insertions(+), 2186 deletions(-)
+------
+
+ChangeSet@1.686, 2002-08-06 12:04:18-07:00, greg@kroah.com
+  IBM PCI Hotplug driver update
+  
+  This brings the driver up to the latest version, and includes the following fixes:
+  	- timeout bug fixed (now large number of slots do not cause problems.)
+  	- more different types of hardware supported.
+  	- more slot information is now tracked.
+
+ drivers/hotplug/ibmphp.h      |   18 ++-
+ drivers/hotplug/ibmphp_core.c |  208 ++++++++++++++++++++++++++++++++----------
+ drivers/hotplug/ibmphp_ebda.c |   65 ++++++++-----
+ drivers/hotplug/ibmphp_hpc.c  |  141 ++++++++++++----------------
+ 4 files changed, 279 insertions(+), 153 deletions(-)
+------
+
+ChangeSet@1.685, 2002-08-06 12:00:20-07:00, greg@kroah.com
+  ACPI PCI Hotplug driver update
+  
+  This is from Takayoshi KOCHI <i-kouchi@mvf.biglobe.ne.jp>
+
+ drivers/hotplug/pcihp_acpi.c      |  397 ---------
+ drivers/hotplug/pcihp_acpi.h      |  231 -----
+ drivers/hotplug/pcihp_acpi_ctrl.c |  642 ----------------
+ drivers/hotplug/pcihp_acpi_glue.c |  757 -------------------
+ drivers/hotplug/Makefile          |   14 
+ drivers/hotplug/acpiphp.h         |  322 ++++++++
+ drivers/hotplug/acpiphp_core.c    |  470 +++++++++++
+ drivers/hotplug/acpiphp_glue.c    | 1514 ++++++++++++++++++++++++++++++++++++++
+ drivers/hotplug/acpiphp_pci.c     |  763 +++++++++++++++++++
+ drivers/hotplug/acpiphp_res.c     |  708 +++++++++++++++++
+ 10 files changed, 3785 insertions(+), 2033 deletions(-)
 

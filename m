@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130047AbRBLKGC>; Mon, 12 Feb 2001 05:06:02 -0500
+	id <S130048AbRBLKHL>; Mon, 12 Feb 2001 05:07:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130048AbRBLKFw>; Mon, 12 Feb 2001 05:05:52 -0500
-Received: from ns.suse.de ([213.95.15.193]:21002 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130047AbRBLKFm>;
-	Mon, 12 Feb 2001 05:05:42 -0500
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Major Clock Drift
-In-Reply-To: <E14SFbG-0006WR-00@the-village.bc.nu>
-From: Andi Kleen <freitag@alancoxonachip.com>
-Date: 12 Feb 2001 11:05:18 +0100
-In-Reply-To: Alan Cox's message of "12 Feb 2001 10:54:49 +0100"
-Message-ID: <ouplmrckyht.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S130239AbRBLKHB>; Mon, 12 Feb 2001 05:07:01 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7697 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130048AbRBLKGt>; Mon, 12 Feb 2001 05:06:49 -0500
+Subject: Re: [PATCH] new version of the starfire driver for 2.2.19pre
+To: ionut@cs.columbia.edu (Ion Badulescu)
+Date: Mon, 12 Feb 2001 10:06:58 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0102120116290.4687-100000@age.cs.columbia.edu> from "Ion Badulescu" at Feb 12, 2001 01:22:24 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14SFss-0006Zw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+No resolution to firmware fiasco, no driver in kernel
 
-> Suppose vesafb did something like this, dropping the printk lock
-> 
-> 	if(test_and_set_bit(0, &vesafb_lock))
-> 	{
-> 		if(in_interrupt())
-> 		{
-> 			// remember which bit of the dmesg ring to queue
-> 			queued_writes=1;
-> 			return;
-
-
-Just what happens when you run out of dmesg ring in an interrupt ?
-
-
--Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270315AbUJEQIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270404AbUJEQNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270315AbUJEQIq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 12:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270298AbUJEQIq
+	id S270404AbUJEQNS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 12:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270397AbUJEQNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 12:08:46 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:52915 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S270445AbUJEQHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 12:07:46 -0400
-Subject: Re: Core scsi layer crashes in 2.6.8.1
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Mark Lord <lsml@rtr.ca>, Anton Blanchard <anton@samba.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <200410051801.03677.oliver@neukum.org>
-References: <1096401785.13936.5.camel@localhost.localdomain>
-	<200410051749.22245.oliver@neukum.org> <1096991666.2064.25.camel@mulgrave> 
-	<200410051801.03677.oliver@neukum.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 05 Oct 2004 11:07:31 -0500
-Message-Id: <1096992458.2173.35.camel@mulgrave>
+	Tue, 5 Oct 2004 12:13:17 -0400
+Received: from gw.anda.ru ([212.57.164.72]:49412 "EHLO mail.ward.six")
+	by vger.kernel.org with ESMTP id S270389AbUJEQNG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 12:13:06 -0400
+Date: Tue, 5 Oct 2004 22:12:58 +0600
+From: Denis Zaitsev <zzz@anda.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.8.1] Can't activate ISA PnP modem
+Message-ID: <20041005221257.A9770@natasha.ward.six>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-05 at 11:01, Oliver Neukum wrote:
-> Why is it in any way difficult to decide whether to issue a command in the
-> first place? The command is generated upon being notified by the lower layer.
-> There is no issue of synchronisation here. It is simply stupid to give
-> commands that are bound to fail, if the information is already available.
+I can't activate my modem under this kernel.  Neither
 
-a) we don't know that they are ... for notified ejection they will
-succeed.
+        cat auto >/sys/bus/pnp/devices/.../resources
 
-b) The scsi bus is a scanned model ... drivers must be prepared to
-accept commands for non-existent devices. How does the removal case
-differ from the never present case?
+nor cat ... dynamic.  And it insn't activated at the start time, of
+course.  After cat auto >resources the file contains state=disabled
+and _correctly_ assigned IO ranges and IRQ.  Modem is USR Courier.
+What all these mean?
 
-James
-
-
+Thanks in advance.

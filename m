@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261339AbSKMNfT>; Wed, 13 Nov 2002 08:35:19 -0500
+	id <S261375AbSKMNmH>; Wed, 13 Nov 2002 08:42:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261365AbSKMNfT>; Wed, 13 Nov 2002 08:35:19 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48908 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S261339AbSKMNfS>; Wed, 13 Nov 2002 08:35:18 -0500
-Date: Wed, 13 Nov 2002 14:42:08 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@redhat.com>
-Cc: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Kill obsolete and  unused suspend/resume code from IDE
-Message-ID: <20021113134208.GD10168@atrey.karlin.mff.cuni.cz>
-References: <20021112175154.GA6881@elf.ucw.cz> <200211121801.gACI1ro25294@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211121801.gACI1ro25294@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.28i
+	id <S261433AbSKMNmH>; Wed, 13 Nov 2002 08:42:07 -0500
+Received: from [195.110.114.159] ([195.110.114.159]:30759 "EHLO trinityteam.it")
+	by vger.kernel.org with ESMTP id <S261375AbSKMNmG>;
+	Wed, 13 Nov 2002 08:42:06 -0500
+Date: Wed, 13 Nov 2002 14:51:57 +0100 (CET)
+From: <ricci@esentar.trinityteam.it>
+To: Freaky <freaky@bananateam.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PDC20276 Linux driver
+In-Reply-To: <1037192260.1501.1.camel@darkstar>
+Message-ID: <Pine.LNX.4.21.0211131440310.11123-100000@esentar.trinityteam.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > This code in ide is obsolete and unused. I have followup patch to
-> > integrate IDE into sysfs. Please apply,
-> 
-> The code is not obsolete, it is not unused.
 
-Can you point out what uses it? I certainly could not find it and
-killing standby/etc produced no compilation errors.
+On 13 Nov 2002, Freaky wrote:
 
-As of obsolete... It is doing power managment outside of sysfs
-framework... Which is not how it should be done.
+> I couldn't install slackware at all, even with my home compiled kernel.
+> It just doesn't recognize the /dev/ataraid/d?p? drives and tells me
+> there are no disks with ext2 filesystems when I try to start setup.
 
-> > +	do_idedisk_standby(drive);
-> >  	if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
-> >  		if (do_idedisk_flushcache(drive))
-> >  			printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",
-> 
-> What locking rules are you using here ?
+You can simply mount /dev/ataraid/d?p? on /mnt and start  the slackware
+installation setup script skipping the selection of the target, the swap
+and the lilo configuration; after istallation is completed, you can edit
+/etc/fstab and /etc/lilo.conf as you whish.
 
-I did not change the code, it works exactly as it did before (ide disk
-is never ATAPI device). If it is broken then sorry (but it was broken
-before).
+> You need the ataraid drivers for the pdc don't you?
+I compiled the kernel with PDC202XX driver, with ataraid and with FastTrak
+ataraid driver.
 
-> Linus please reject this patch. Its just getting in the way of actually
-> fixing the IDE code properly.
+> How did you compile pdc without ataraid?
+I tryed to compile pdc202xx and not ataraid to try to use software raid.
+Is this the answer you were lookig for?
 
-Linus actually asked me for the patch, and discussion about it was
-public, then he silently droped it. This was "only" retransmit.
+In all the cases my pdc20276 hangs after about half a gigabyte written
+into any disk.
 
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.

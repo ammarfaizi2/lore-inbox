@@ -1,34 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290500AbSBFNT3>; Wed, 6 Feb 2002 08:19:29 -0500
+	id <S290508AbSBFNdc>; Wed, 6 Feb 2002 08:33:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290503AbSBFNTT>; Wed, 6 Feb 2002 08:19:19 -0500
-Received: from ns.suse.de ([213.95.15.193]:19461 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290500AbSBFNTJ>;
-	Wed, 6 Feb 2002 08:19:09 -0500
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
+	id <S290519AbSBFNdW>; Wed, 6 Feb 2002 08:33:22 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1288 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290508AbSBFNdS>; Wed, 6 Feb 2002 08:33:18 -0500
 Subject: Re: kernel: ldt allocation failed
-In-Reply-To: <Pine.LNX.4.21.0112070057480.20196-100000@tombigbee.pixar.com.suse.lists.linux.kernel> <5.1.0.14.2.20011207092244.049f6720@pop.cus.cam.ac.uk.suse.lists.linux.kernel> <200202061258.g16CwGt31197@Port.imtp.ilyichevsk.odessa.ua.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 06 Feb 2002 14:19:07 +0100
-In-Reply-To: Denis Vlasenko's message of "6 Feb 2002 14:09:51 +0100"
-Message-ID: <p73ofj2lpdg.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Date: Wed, 6 Feb 2002 13:42:56 +0000 (GMT)
+Cc: aia21@cam.ac.uk (Anton Altaparmakov),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <200202061258.g16CwGt31197@Port.imtp.ilyichevsk.odessa.ua> from "Denis Vlasenko" at Feb 06, 2002 02:58:17 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16YSLg-00056Z-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
-> 
 > I am ignorant on the subject, but why LDT is used in Linux at all?
 > LDT register can be set to 0, this can speed up task switch time and save 
 > some memory used for LDT.
 
-glibc thread local data uses an LDT for the segment register.
-
-glibc 2.3 seems to plan to use segment register based thread local data for 
-even non threaded programs, so it would be a good idea to optimize LDT 
-allocation a bit (= not allocate 64K of vmalloc space every time 
-sys_modify_ldt is called - there is only 8MB of it) 
-
--Andi
+Wine and certain threaded applications

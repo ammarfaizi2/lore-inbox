@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261450AbRERUNf>; Fri, 18 May 2001 16:13:35 -0400
+	id <S261531AbRERUPp>; Fri, 18 May 2001 16:15:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261522AbRERUNZ>; Fri, 18 May 2001 16:13:25 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:14601 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S261532AbRERUNO>;
-	Fri, 18 May 2001 16:13:14 -0400
-Date: Fri, 18 May 2001 23:12:55 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "Tomlinson, Edward" <tomlinson@rolls-royce.ca>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        matti.aarnio@zmailer.org
-Subject: Re: [Panic] skb problems in 2.4.5-pre3 (repeatable)
-Message-ID: <20010518231255.O5947@mea-ext.zmailer.org>
-In-Reply-To: <3B369B9D2358D4119EAC0008C791FF9F0ECC6D@can-2-map2.rr.ca> <15109.32704.933320.615016@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S261532AbRERUPf>; Fri, 18 May 2001 16:15:35 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:4743 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261531AbRERUPY>;
+	Fri, 18 May 2001 16:15:24 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15109.32704.933320.615016@pizda.ninka.net>; from davem@redhat.com on Fri, May 18, 2001 at 01:02:08PM -0700
+Content-Transfer-Encoding: 7bit
+Message-ID: <15109.33379.277095.484234@pizda.ninka.net>
+Date: Fri, 18 May 2001 13:13:23 -0700 (PDT)
+To: Peter Rival <frival@zk3.dec.com>
+Cc: J Sloan <jjs@mirai.cx>, Ronald Bultje <rbultje@ronald.bitfreak.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: Linux scalability?
+In-Reply-To: <3B0580C7.E3642EDB@zk3.dec.com>
+In-Reply-To: <Pine.LNX.4.33.0105180914560.29042-100000@iq.rulez.org>
+	<990173560.6346.0.camel@adslgw>
+	<990174686.12881.18.camel@tux.bitfreak.net>
+	<3B0577E0.A4CAF354@mirai.cx>
+	<15109.31311.679701.484140@pizda.ninka.net>
+	<3B057C33.7874AF71@zk3.dec.com>
+	<15109.32441.934579.331052@pizda.ninka.net>
+	<3B0580C7.E3642EDB@zk3.dec.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 18, 2001 at 01:02:08PM -0700, David S. Miller wrote:
-> Tomlinson, Edward writes:
->  > This does not seem to be making it to the from my sympatico account...
->  > Is lkml blocking sympatico.ca? 
-> 
-> Not that I know of, Matti?
 
-   Not at the MTA level.  If the message appears to go inside,
-   but does not make it to the list, it is possibly rejected
-   by the Majordomo taboo-filter.
+Peter Rival writes:
+ > Yup, one of them is marked as NC.  But the other one is still there
 
-     http://vger.kernel.org/majordomo-info.html
+Right, I missed the second one.
 
-   in which case it probably (I don't know the beast that well)
-   goes to list owner, who already gets lots of junk...
+That's an interesting trick, the old one gets disqualified because of
+the 3-month rule, so just submit new results :-)
 
-> (btw, postmaster@vger.kernel.org is much better place to send issues
->  like this).
-> 
-> Later,
-> David S. Miller
-> davem@redhat.com
-
-/Matti Aarnio
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279577AbRJXT0o>; Wed, 24 Oct 2001 15:26:44 -0400
+	id <S279582AbRJXTcC>; Wed, 24 Oct 2001 15:32:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279582AbRJXT0W>; Wed, 24 Oct 2001 15:26:22 -0400
-Received: from zero.tech9.net ([209.61.188.187]:35080 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S279577AbRJXT0N>;
-	Wed, 24 Oct 2001 15:26:13 -0400
-Subject: Re: Who is the current maintainer of aic7xxx ?
-From: Robert Love <rml@tech9.net>
+	id <S279583AbRJXTbw>; Wed, 24 Oct 2001 15:31:52 -0400
+Received: from ns.suse.de ([213.95.15.193]:13576 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S279582AbRJXTbf>;
+	Wed, 24 Oct 2001 15:31:35 -0400
+Date: Wed, 24 Oct 2001 21:31:24 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
 Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Who is the current maintainer of aic7xxx ?
 In-Reply-To: <Pine.LNX.4.21.0110241600520.1138-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0110241600520.1138-100000@freak.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16 (Preview Release)
-Date: 24 Oct 2001 15:26:29 -0400
-Message-Id: <1003951591.2189.22.camel@phantasy>
-Mime-Version: 1.0
+Message-ID: <Pine.LNX.4.30.0110242131000.19308-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-10-24 at 14:01, Marcelo Tosatti wrote:
+On Wed, 24 Oct 2001, Marcelo Tosatti wrote:
+
 > Who is the current maintainer of aic7xxx ?
-> 
-> I have a problem which is board (or chip) specific, but don't know who
-> should I talk with.
-> 
 > There is nothing on MAINTAINERS...
 
-Justin Gibbs <gibbs@scsiguy.com> wrote the current implementation.
+aic7xxx_linux.c:MODULE_AUTHOR("Maintainer: Justin T. Gibbs <gibbs@scsiguy.com>");
 
-	Robert Love
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,262 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265058AbUEKXaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265056AbUEKXas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265058AbUEKXaB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 19:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbUEKXaA
+	id S265056AbUEKXas (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 19:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265057AbUEKXaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 19:30:00 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:33707 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265057AbUEKX1R
+	Tue, 11 May 2004 19:30:21 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:21471 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265056AbUEKX2k
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 19:27:17 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 11 May 2004 16:27:11 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [patch] really-ptrace-single-step2 ...
-Message-ID: <Pine.LNX.4.58.0405111047450.25232@bigblue.dev.mdolabs.com>
+	Tue, 11 May 2004 19:28:40 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Date: Wed, 12 May 2004 01:27:33 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.96.1040511121328.16430C-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1040511121328.16430C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405120127.33391.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 11 of May 2004 18:24, Bill Davidsen wrote:
+> On Sun, 9 May 2004, Bartlomiej Zolnierkiewicz wrote:
+> > On Sunday 09 of May 2004 19:00, Bill Davidsen wrote:
+> > > No it's not that simple, this has nothing to do with binary modules,
+> > > and everything to do with not making 4k stack the only available
+> > > configuration in 2.6. Options are fine, but in a stable kernel series I
+> > > don't think think that the default should change part way into the
+> > > series, and certainly the availability of the original functionality
+> > > shouldn't go away, which is what I read AKPMs original post to state as
+> > > the goal.
+> >
+> > What functionality are you talking about?
+> > We don't care about out of tree kernel code (be it GPL or Proprietary).
+>
+> Let me say this one more time, since you keep changing the topic so you
+> can say that you don't care about something I never mentioned. I am
+> **NOT** talking about binary modules, I am **NOT** talking about out of
+> tree code, I am talking about applications which make calls that cause the
+> **IN TREE** code to use more than 4k.
 
-This patch lets a ptrace process on x86 to "see" the instruction 
-following the INT #80h op. This has been tested on 2.6.6 using the 
-appended test source. Running over this:
+No need to flame, I really didn't know what you were talking about.
 
-80485a9:       b8 14 00 00 00          mov    $0x14,%eax
-80485ae:       cd 80                   int    $0x80
-80485b0:       89 45 ec                mov    %eax,0xffffffec(%ebp)
-80485b3:       eb f4                   jmp    80485a9 <main+0x85>
+I agree that this is a very good argument against pushing this
+change to mainline quickly (proposed originally by AKPM).
 
-it produces:
+> > > Making changes to the kernel which will break existing applications
+> > > seems to be the opposite of "stable." People who want a new kernel for
+> > > fixes don't usually want to have to upgrade and/or rewrite their
+> > > applications. The "we change the system interface everything we fix a
+> >
+> > You don't understand what the patch is really about.
+> >
+> > This is kernel stack not the user-space one so
+> > this change can't brake any application.
+>
+> Right, the kernel code does not contain any places where the data passed
+> in a system call isn't reflected in stack usage.
 
-waiting ...
-done: pid=12387  status=1407
-sig=5
-EIP=0x080485a9
-waiting ...
-done: pid=12387  status=1407
-sig=5
-EIP=0x080485ae
-waiting ...
-done: pid=12387  status=1407
-sig=5
-EIP=0x080485b0
-waiting ...
-done: pid=12387  status=1407
-sig=5
-EIP=0x080485b3
+It won't break applications it will break kernel first. ;-)
 
+You need to fix kernel code not the user space.
 
+> > > bug" approach comes from a well-known software company, but shouldn't
+> > > be the way *good* software is done.
+> >
+> > It doesn't change any kernel interface visible to user-space
+> > and stack hungry kernel code needs fixing anyway.
+>
+> And what better way to detect it than to release it in a stable kernel.
+> Don't bother to say "don't use -mm" AKPM has said it is intended for the
+> stable kernel, work or not.
 
+I see no problem with this approach (this patch in -mm then in linus')
+but issues mentioned by you need fixing first.  I'm not proposing to
+push it to mainline NOW - it needs to be done CAREFULLY but CAN be
+done in 2.6 (i.e. 2.6.15).
 
-- Davide
+I guess this is what we can't agree on.
 
+> ===
+> Third request for info
+> ===
+> I still haven't seen any objective data showing that there is any
+> measureable benefit from this, although I agree that smaller is good
+> practice, I don't think that throwing in a feature in a stable kernel,
+> which has been reported by others to corrupt data, is the best way to do
+> it.
 
+There was some evidence from AKPM (and Arjan AFAIR).
+[ BTW wasn't the corruption only seen with nvidia module? ]
+I think we can prevent it by adding something ala 4kstack flag
+to the module.
 
+Regards,
+Bartlomiej
 
------------------------------ TEST ------------------------------
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/ptrace.h>
-#include <sys/wait.h>
-#include <linux/user.h>
-#include <linux/unistd.h>
-
-
-int main(int ac, char **av) {
-	int i, status, res;
-	long start, end;
-	pid_t cpid, pid;
-	struct user_regs_struct ur;
-	struct sigaction sa;
-
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
-	sa.sa_handler = SIG_DFL;
-	sigaction(SIGCHLD, &sa, NULL);
-
-	printf("nargs=%d\n", ac);
-	if (ac == 1)
-		goto tracer;
-
-	printf("arg=%s\n", av[1]);
-loop:
-	__asm__ volatile ("int $0x80"
-			  : "=a" (res)
-			  : "0" (__NR_getpid));
-	goto loop;
-endloop:
-	exit(0);
-
-
-tracer:
-	if ((cpid = fork()) != 0)
-		goto parent;
-
-	printf("child=%d\n", getpid());
-	ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-
-	execl(av[0], av[0], "child", NULL);
-
-	exit(0);
-
-parent:
-	start = (long) &&loop;
-	end = (long) &&endloop;
-
-	printf("pchild=%d\n", cpid);
-
-	for (;;) {
-		pid = wait(&status);
-		if (pid != cpid)
-			continue;
-		res = WSTOPSIG(status);
-		if (ptrace(PTRACE_GETREGS, pid, NULL, &ur)) {
-			printf("[%d] error: ptrace(PTRACE_GETREGS, %d)\n",
-			       pid, pid);
-			return 1;
-		}
-
-		if (ptrace(PTRACE_SINGLESTEP, pid, NULL, res != SIGTRAP ? res: 0)) {
-			perror("ptrace(PTRACE_SINGLESTEP)");
-			return 1;
-		}
-
-		if (ur.eip >= start && ur.eip <= end)
-			break;
-	}
-
-
-	for (i = 0; i < 15; i++) {
-		printf("waiting ...\n");
-		pid = wait(&status);
-		printf("done: pid=%d  status=%d\n", pid, status);
-		if (pid != cpid)
-			continue;
-		res = WSTOPSIG(status);
-		printf("sig=%d\n", res);
-		if (ptrace(PTRACE_GETREGS, pid, NULL, &ur)) {
-			printf("[%d] error: ptrace(PTRACE_GETREGS, %d)\n",
-			       pid, pid);
-			return 1;
-		}
-
-		printf("EIP=0x%08x\n", ur.eip);
-
-		if (ptrace(PTRACE_SINGLESTEP, pid, NULL, res != SIGTRAP ? res: 0)) {
-			perror("ptrace(PTRACE_SINGLESTEP)");
-			return 1;
-		}
-	}
-
-	if (ptrace(PTRACE_CONT, cpid, NULL, SIGKILL)) {
-		perror("ptrace(PTRACE_SINGLESTEP)");
-		return 1;
-	}
-
-	return 0;
-}
-
-
-
---------------------------- PATCH ----------------------------------
-
-arch/i386/kernel/entry.S       |    2 +-
-arch/i386/kernel/ptrace.c      |    7 ++++++-
-include/asm-i386/thread_info.h |    2 +-
-3 files changed, 8 insertions(+), 3 deletions(-)
-
-
-
-
-Index: arch/i386/kernel/entry.S
-===================================================================
-RCS file: /usr/src/bkcvs/linux-2.5/arch/i386/kernel/entry.S,v
-retrieving revision 1.83
-diff -u -r1.83 entry.S
---- a/arch/i386/kernel/entry.S	12 Apr 2004 20:29:12 -0000	1.83
-+++ b/arch/i386/kernel/entry.S	11 May 2004 18:49:56 -0000
-@@ -354,7 +354,7 @@
- 	# perform syscall exit tracing
- 	ALIGN
- syscall_exit_work:
--	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT), %cl
-+	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP), %cl
- 	jz work_pending
- 	sti				# could let do_syscall_trace() call
- 					# schedule() instead
-Index: arch/i386/kernel/ptrace.c
-===================================================================
-RCS file: /usr/src/bkcvs/linux-2.5/arch/i386/kernel/ptrace.c,v
-retrieving revision 1.23
-diff -u -r1.23 ptrace.c
---- a/arch/i386/kernel/ptrace.c	10 May 2004 21:25:52 -0000	1.23
-+++ b/arch/i386/kernel/ptrace.c	11 May 2004 21:33:20 -0000
-@@ -147,6 +147,7 @@
- { 
- 	long tmp;
- 
-+	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
- 	tmp = get_stack_long(child, EFL_OFFSET) & ~TRAP_FLAG;
- 	put_stack_long(child, EFL_OFFSET, tmp);
- }
-@@ -369,6 +370,7 @@
- 		else {
- 			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
- 		}
-+		clear_tsk_thread_flag(child, TIF_SINGLESTEP);
- 		child->exit_code = data;
- 	/* make sure the single step bit is not set. */
- 		tmp = get_stack_long(child, EFL_OFFSET) & ~TRAP_FLAG;
-@@ -390,6 +392,7 @@
- 		if (child->state == TASK_ZOMBIE)	/* already dead */
- 			break;
- 		child->exit_code = SIGKILL;
-+		clear_tsk_thread_flag(child, TIF_SINGLESTEP);
- 		/* make sure the single step bit is not set. */
- 		tmp = get_stack_long(child, EFL_OFFSET) & ~TRAP_FLAG;
- 		put_stack_long(child, EFL_OFFSET, tmp);
-@@ -410,6 +413,7 @@
- 		}
- 		tmp = get_stack_long(child, EFL_OFFSET) | TRAP_FLAG;
- 		put_stack_long(child, EFL_OFFSET, tmp);
-+		set_tsk_thread_flag(child, TIF_SINGLESTEP);
- 		child->exit_code = data;
- 		/* give it a chance to run. */
- 		wake_up_process(child);
-@@ -534,7 +538,8 @@
- 			audit_syscall_exit(current, regs->eax);
- 	}
- 
--	if (!test_thread_flag(TIF_SYSCALL_TRACE))
-+	if (!test_thread_flag(TIF_SYSCALL_TRACE) &&
-+	    !test_thread_flag(TIF_SINGLESTEP))
- 		return;
- 	if (!(current->ptrace & PT_PTRACED))
- 		return;
-Index: include/asm-i386/thread_info.h
-===================================================================
-RCS file: /usr/src/bkcvs/linux-2.5/include/asm-i386/thread_info.h,v
-retrieving revision 1.19
-diff -u -r1.19 thread_info.h
---- a/include/asm-i386/thread_info.h	12 Apr 2004 20:29:12 -0000	1.19
-+++ b/include/asm-i386/thread_info.h	11 May 2004 18:47:03 -0000
-@@ -165,7 +165,7 @@
- 
- /* work to do on interrupt/exception return */
- #define _TIF_WORK_MASK \
--  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT))
-+  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP))
- #define _TIF_ALLWORK_MASK	0x0000FFFF	/* work to do on any return to u-space */
- 
- /*

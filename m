@@ -1,85 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264674AbUDVUsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264670AbUDVUvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264674AbUDVUsT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 16:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264672AbUDVUsR
+	id S264670AbUDVUvc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 16:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264669AbUDVUvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 16:48:17 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:10898 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id S264656AbUDVUsJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 16:48:09 -0400
-Subject: Re: [PATCH] sym53c500_cs PCMCIA SCSI driver (new)
-In-Reply-To: <40881F1B.8060909@tmr.com> "from Bill Davidsen at Apr 22, 2004 03:38:03
- pm"
-To: Bill Davidsen <davidsen@tmr.com>
-Date: Thu, 22 Apr 2004 15:48:07 -0500 (CDT)
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	Thu, 22 Apr 2004 16:51:32 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:4480 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264671AbUDVUua
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 16:50:30 -0400
+Date: Thu, 22 Apr 2004 16:50:20 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Al Niessner <Al.Niessner@jpl.nasa.gov>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: atomic_t and atomic_inc
+In-Reply-To: <1082660320.28900.193.camel@morte.jpl.nasa.gov>
+Message-ID: <Pine.LNX.4.53.0404221641120.940@chaos>
+References: <1082660320.28900.193.camel@morte.jpl.nasa.gov>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20040422204807.55E0BDBDB@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> WRT the split of code... if there is some reason why there will never be 
-> another type of card then the split is unnessessary. But otherwise, 
-> you've done the work, and it matches the way other drivers were split, 
-> so why scrap it?
-> 
-> As you guessed I don't feel strongly one way or the other, just thought 
-> you could use a little support for having made the effort to design for 
-> the future.
+On Thu, 22 Apr 2004, Al Niessner wrote:
 
-You give me too much credit :-).  I inherited the split design from the
-original author and simply preserved it.  As far as maintaining the
-split design, the only evidence I've seen of non-PCMCIA cards using the
-Symbios/NCR 53c500 controller is the existence of a driver in the FreeBSD
-tree.  In any event, I don't have the hardware to test anything other
-than the PCMCIA case, and if there's someone out there who needs support
-for the non-PCMCIA case, I expect the Linux driver would have been written
-before now.  Christoph suggested in an earlier posting that the split to
-support other hardware would probably be accomplished differently these
-days anyway, so we (the community) probably haven't lost all that much by
-concentrating on producing a well-written PCMCIA-only driver.
+>
+> First, I am not subscribed to this list so please reply to me directly
+> if you wish a timely response to any questions. In any case, I will lurk
+> in the archives for responses.
+>
+> I am using atomic_t to count interrupts from some piece of hardware.
+> These interrupts come at a fairly high rate -- 10 KHz and higher. The
+> problem is, will I get increment problem at the limit of atomic_t or
+> will it wrap around without error? I read the docs (man pages, on-line
+> api docs, this list and other stuff) and none of them talk about the
+> behavior of atomic_t at the boundaries. Furthermore, am I guaranteed of
+> any boundary behavior across platforms?
+>
+> Thank you in advance for any and all help.
 
-I saved my first attempt at a 2.6 driver (in case someone wants to
-revisit the issue).  Otherwise, although I appreciate your support,
-it's OBE.  I'm waiting to hear back from Christoph on a few design
-issues (questions asked off-line) before submitting a third 2.6 driver.
+Type atomic_t is an integer that can be accessed in memory
+with an uninterruptible instruction. This limits the atomic_t
+type in 32-bit machines to 32-bits, in 64-bit machines to 64-bits,
+etc. It has nothing to do with wrap-around. If you increment
+0xffffffff it becomes 0 even it it's an atomic type.
 
-The main issue I'm wrestling with at the moment is support for the
-improbable case of multiple HBAs...  I agree in principle with the
-objective as long as I don't do something stupid that kills performance
-for the normal case of a single HBA.  As I see it, there are essentially
-two approaches:
+In an ISR, the code won't be interrupted until you enable interrupts,
+which you shouldn't do anyway. This means that even non-atomic types
+are safe, even in SMP machines if the increment is after a spin-lock.
 
-(1) Calculate all the needed hardware register offsets up front at HBA
-    init time, and carry them as part of the per-instance data.  This
-    approach has a few things going for it -- the in-core memory
-    requirement is essentially identical for the single HBA case, and
-    dereferencing a structure pointer to get a register address is
-    barely worse than accessing the equivalent global variable in the
-    driver.
+So, you can use 'long long' types for interrupt counters and no
+information will be lost until you wrap 0xffffffffffffffff, which
+will take quite some time. The problem remains, however, in
+reading this value. You need to either read it under a spinlock
+or read several times until you get the same value twice in a row.
 
-(2) Calculate a particular register offset each time that register is
-    accessed, using something like shost->io_port + offset, which, it
-    is claimed, is normal Linux driver practice.  Although this
-    approach is extremely attractive from the standpoint of code
-    simplicity, I'm concerned about the arithmetic overhead.  If it
-    turns out most of the hardware register accesses occur during
-    initialization, my concerns are pretty well meaningless.  Obviously
-    I need to look at this more closely.
+Spin-locks are easier.
 
-You may safely assume I'm learning more about this than I originally
-anticipated :-).
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+

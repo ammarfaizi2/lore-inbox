@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVCUWkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVCVHAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbVCUWkY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 17:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVCUWgS
+	id S262335AbVCVHAB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 02:00:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVCVG7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:36:18 -0500
-Received: from alpha.polcom.net ([217.79.151.115]:33770 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S262097AbVCUWer (ORCPT
+	Tue, 22 Mar 2005 01:59:03 -0500
+Received: from mx1.suse.de ([195.135.220.2]:25233 "EHLO mail.suse.de")
+	by vger.kernel.org with ESMTP id S262195AbVCVG4q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:34:47 -0500
-Date: Mon, 21 Mar 2005 23:36:37 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: len.brown@intel.com, duncan.sands@free.fr,
-       linux-usb-users@lists.sourceforge.net, gregkh@suse.de,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: 2.6.11 (stable and -rc) ACPI breaks USB
-In-Reply-To: <20050321142056.7609d615.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0503212329190.6194@alpha.polcom.net>
-References: <Pine.LNX.4.62.0503030053120.6789@alpha.polcom.net>
- <20050321142056.7609d615.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 22 Mar 2005 01:56:46 -0500
+Date: Tue, 22 Mar 2005 07:56:42 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem with w6692 & kernel >=2.6.10
+Message-ID: <20050322065642.GL30742@pingi3.kke.suse.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <dd02451d050303132662482b66@mail.gmail.com> <20050321142823.672f0749.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050321142823.672f0749.akpm@osdl.org>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.8-24.10-default i686
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005, Andrew Morton wrote:
+On Mon, Mar 21, 2005 at 02:28:23PM -0800, Andrew Morton wrote:
+> Marko Rebrina <mrebrina@gmail.com> wrote:
+> >
+> > I have problem with w6692 (mISDN-2005-02-25) & kernel >=2.6.10 (with
+> > 2.6.9 is OK!) 
+> 
+> There haven't been any changes in the w6692 driver for ages, so I'd be
+> suspecting PCI changes or something like that.  Are you able to test
+> 2.6.12-rc1?
+> 
 
-> Grzegorz Kulewski <kangur@polcom.net> wrote:
->>
->> Hi,
->>
->> I just installed 2.6.11 and I was hit by the same bug (or feature?) I
->> found in -rcs. Basically my USB will work only if acpi=off was passed to
->> the kernel. It looks like without acpi=off it will assign IRQ 10 and with
->> acpi=off it will assign IRQ9. It worked at least with 2.6.9. I do not know
->> if the USB is completly broken but at least my speedtouch modem will not
->> work (the red led will be on for some time then completly black).
->>
->
-> I didn't really follow all the ins and outs on this one.  Will it end up
-> being adequately resolved for 2.6.12?
+Marko do not point to the in kernel w6692 driver, but to the (still ALPHA)
+mISDN driver from cvs.isdn4linux.de.
+This driver had a problem with the pci_register_driver return code changes
+in 2.6.10, it now always returns 0 (if no error), but < 2.6.10 did return
+the number of detected devices, which was tested in this driver.
+This is fixed since last week in our CVS.
 
-It was identified (by Bjorn) to be some ACPI VIA PCI IRQ routing quirk 
-logic change (as far as I understand it). Unfortunatelly it is not good 
-for my board (AMD 761 North and VIA 686B South). Bjorn (huge thanks to 
-him) produced testing patch that fixed it for me. Further patches were 
-presented and discussed in the other thread. The newest one is waiting for 
-final testing from me (in couple of minutes probably). I will CC you on my 
-reply (if you are not already). As of what to do next with this patch (if 
-it still works) Bjorn and others should reply.
-
-
-> Thanks.
-
-Thanks for interest,
-
-Grzegorz Kulewski
-
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

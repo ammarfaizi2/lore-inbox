@@ -1,37 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290144AbSAKWTZ>; Fri, 11 Jan 2002 17:19:25 -0500
+	id <S290136AbSAKWYF>; Fri, 11 Jan 2002 17:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290143AbSAKWTF>; Fri, 11 Jan 2002 17:19:05 -0500
-Received: from are.twiddle.net ([64.81.246.98]:45702 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S290140AbSAKWTA>;
-	Fri, 11 Jan 2002 17:19:00 -0500
-Date: Fri, 11 Jan 2002 14:18:50 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-Message-ID: <20020111141850.A9873@twiddle.net>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <m2sn9dn2kh.fsf@goliath.csn.tu-chemnitz.de> <E16Opxl-00066O-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16Opxl-00066O-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 11, 2002 at 12:54:29AM +0000
+	id <S290141AbSAKWXz>; Fri, 11 Jan 2002 17:23:55 -0500
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:55199 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S290136AbSAKWXq>; Fri, 11 Jan 2002 17:23:46 -0500
+Date: Fri, 11 Jan 2002 13:52:32 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
+To: Kevin Easton <s3159795@student.anu.edu.au>, linux-kernel@vger.kernel.org
+Message-id: <24b501c19aee$5e2a29c0$6800000a@brownell.org>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+In-Reply-To: <20020108193604.A27539@beernut.flames.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 11, 2002 at 12:54:29AM +0000, Alan Cox wrote:
-> It means the compiler for -m686 shouldn't have assumed cmov was available
+> > > Hopefully, integration of /sbin/hotplug during the boot process (using 
+> > > dietHotplug) will reduce the number of things the "coldplug" issue will 
+> > > have to handle. 
+> > 
+> > Somewhat -- though it only handles the "load a module" 
+> > subproblem. When new devices need any more setup 
+> > than that, "dietHotplug" isn't enough. 
+> 
+> What if this was handled by the kernel not sending hotplug messages until it
+> had been told that the system was ready to load drivers etc.
 
-Eh?  -march=i686 *asserts* that cmov is available.
+That would prevent dynamic loading of modules when they're needed
+during the early stages of system booting, not just delay the "etc" set of
+device setup subproblems.
 
-What's the point of optimizing an IF to a cmov if I have
-to insert another IF to see if I can use cmov?
+However, there's already machinery that handles part of that "queue
+up hotplug events for later delivery".  The original issue was that when
+the network subsystem needed to report hotplug events, it needed to
+be able to do it when some locks were held and sometimes even
+in_interrupt(), so the "fork a subprocess" work had to be handed off
+to some other kernel thread.
 
 
-r~
+> ...or have I totally misunderstood the coldplug problem?
+
+I suspect so.  The kernel's role with hotplug is intentionally limited:  just
+tell userland policy agents "here's a device, it may need to be configured".
+Configuring devices can be a complex problem, even when the driver is
+already linked into the kernel.
+
+The coldplug problem is that it's saying those things before the system
+has been brought up far enough that the agents can do anything!  As in,
+sometimes even before a root filesystem is mounted, and often before
+other filesystems or essential system servcies are available.
+
+So if in those cases the agent notification can't get the device set up,
+then some other boot component needs to do that work.  It's better to
+have one subsystem (hotplug) handling that consistently, no matter
+when the device needs to be set up, than to have different code to
+handle "post-boot" (hotplug) and "during-boot" (kudzu etc) cases.
+Which is why the "hotplug" tools have a "coldplug" mode too.
+
+To nudge this slightly back towards the original topic, I'll just point
+out that doing this "before-boot" (as part of kernel config) is a horse
+of a different color, although it needs most of the same metadata from
+the kernel.  The device detection has to be done with a tool other than
+the running kernel, and it never actually sets up devices for users.
+All it cares about is coming up with config flags that cause the
+right modules to be built and (statically or dynamically) linked.
+
+- Dave
+
+
+

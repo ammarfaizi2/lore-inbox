@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266006AbSKZCAk>; Mon, 25 Nov 2002 21:00:40 -0500
+	id <S266020AbSKZCTL>; Mon, 25 Nov 2002 21:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266010AbSKZCAk>; Mon, 25 Nov 2002 21:00:40 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:17561 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S266006AbSKZCAj>;
-	Mon, 25 Nov 2002 21:00:39 -0500
-Date: Tue, 26 Nov 2002 02:11:00 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+	id <S266043AbSKZCTL>; Mon, 25 Nov 2002 21:19:11 -0500
+Received: from almesberger.net ([63.105.73.239]:13833 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S266020AbSKZCTL>; Mon, 25 Nov 2002 21:19:11 -0500
+Date: Mon, 25 Nov 2002 23:26:10 -0300
+From: Werner Almesberger <wa@almesberger.net>
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, "Adam J. Richter" <adam@freya.yggdrasil.com>
-Subject: Re: modutils for both redhat kernels and 2.5.x
-Message-ID: <20021126021100.GB29814@bjl1.asuk.net>
-References: <Pine.GSO.4.33.0211251830050.6708-100000@sweetums.bluetronic.net> <20021126013330.93A962C365@lists.samba.org>
+Cc: linux-kernel@vger.kernel.org, Doug Ledford <dledford@redhat.com>,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: Module Refcount & Stuff mini-FAQ
+Message-ID: <20021125232610.A22825@almesberger.net>
+References: <20021125033906.B1549@almesberger.net> <20021125234442.07F392C26E@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021126013330.93A962C365@lists.samba.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021125234442.07F392C26E@lists.samba.org>; from rusty@rustcorp.com.au on Tue, Nov 26, 2002 at 09:43:06AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Rusty Russell wrote:
-> > Depmod no longer exists.
-> 
-> This is true.  It doesn't need to for 0.7, but it's being reintroduced
-> in 0.8 for speed.
+> Ah, see other thread
 
-Doesn't it?  When I upgraded from 2.5.45 to 2.5.48, and installed
-module-init-tools-0.7, a whole bunch of modules failed to load
-automatically, and I ended up with no pcmcia, no network, no
-af_packet, no loopback device...  I had to load them all manually.
-Also no USB, hence no USB keyboard and mouse, but I haven't tried
-loading those manually.
+Argh, there are only about a hundred threads on modules ;-)
 
-I thought it was depmod not working, but I must have been wrong.
+> (weren't you at the kernel summit?).
 
-So what happened - is there a known problem with module auto-loading
-at the moment?
+Yes, but I hadn't paid much attention to modules before, so I only
+understood about half of what you said, sorry. It was interesting
+to learn that there were actually so many problems, though :-)
 
-cheers,
--- Jamie
+> There's currently no way to abort if you've exposed interfaces and then
+> something fails ("don't do that" is great except noone knows that, and
+> it's not always possible or nice)
+
+Hmm, if "expose interface" == "publish symbol", why can't you simply
+defer publishing until after initialization completes ? If "expose
+interface" == "register something somewhere", then this has to be
+undone anyway. Or am I overlooking something here ?
+
+Thanks,
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

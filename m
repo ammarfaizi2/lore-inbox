@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135545AbREBPKu>; Wed, 2 May 2001 11:10:50 -0400
+	id <S135574AbREBPMU>; Wed, 2 May 2001 11:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135574AbREBPKk>; Wed, 2 May 2001 11:10:40 -0400
-Received: from geos.coastside.net ([207.213.212.4]:48599 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S135545AbREBPKW>; Wed, 2 May 2001 11:10:22 -0400
+	id <S135580AbREBPML>; Wed, 2 May 2001 11:12:11 -0400
+Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:40471 "HELO
+	lunchbox.oisec.net") by vger.kernel.org with SMTP
+	id <S135574AbREBPL5>; Wed, 2 May 2001 11:11:57 -0400
+Date: Wed, 2 May 2001 17:11:43 +0200
+From: Cliff Albert <cliff@oisec.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: (follow-up) 2.4.4, ac1,ac2,ac3 - panics on ICMPv6 packets
+Message-ID: <20010502171143.A1242@oisec.net>
+In-Reply-To: <20010502083928.A30793@oisec.net> <E14uum6-0003Qn-00@the-village.bc.nu>
 Mime-Version: 1.0
-Message-Id: <p05100343b715d114a239@[207.213.214.37]>
-In-Reply-To: <Pine.LNX.4.31.0105011542410.2667-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.31.0105011542410.2667-100000@penguin.transmeta.com>
-Date: Wed, 2 May 2001 08:10:10 -0700
-To: Linus Torvalds <torvalds@transmeta.com>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: isa_read/write not available on ppc - solution suggestions ??
-Cc: <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <E14uum6-0003Qn-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, May 02, 2001 at 12:26:28PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 3:46 PM -0700 2001-05-01, Linus Torvalds wrote:
->On Tue, 1 May 2001, Russell King wrote:
->  >
->>  In which case, can we change the following in IO-mapping.txt please?
->
->Oh, sorry. I misread your question. The _return_ value is a cookie.
->
->The first argument should basically be the start of a "struct pci_dev"
->resource entry, but obviously architecture-specific code can (and does)
->know what the thing means. And the ISA space (ie 0xA0000-0x100000) has
->been considered an acceptable special case.
->
->So the only usage that is "portable" is to do something like
->
->	cookie = ioremap(pdev->resource[0].start, pdev->resource[0].len);
->
->and I guess we should actually create some helper functions for that too.
->
->You can use ioremap in other ways, but there's nothing to say that they
->will work reliably across multiple PCI buses etc.
+On Wed, May 02, 2001 at 12:26:28PM +0100, Alan Cox wrote:
 
-What's the Linu[sx] attitude to using a type to help control (and 
-illuminate) the use of these objects? I'm thinking here in particular 
-of the cookie returned by ioremap() and used by readx/writex, but I 
-suppose there might be similar applicability to its first parameter.
+> >  2.4.4, ac1, ac2 AND now ac3 will panic on receiving ICMPv6 packets (like traceroute6 and ping6)
+> >  See my earlier messages for panic info.
+> 
+> Does building without netfilter support help ?
+
+There is no netfilter support in my kernel at all neither v4 or v6
+I have got confirmed from several people that if they ping6 their box it also dies
+
 -- 
-/Jonathan Lundell.
+Cliff Albert		| IRCNet:    #linux.nl, #ne2000, #linux, #freebsd.nl
+cliff@oisec.net		| 	     #openbsd, #ipv6, #cu2.nl
+-[ICQ: 18461740]--------| 6BONE:     CA2-6BONE       RIPE:     CA3348-RIPE

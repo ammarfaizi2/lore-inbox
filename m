@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbTLLVB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 16:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTLLVB6
+	id S261973AbTLLVFj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 16:05:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTLLVFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 16:01:58 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:10662 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261974AbTLLVB5 (ORCPT
+	Fri, 12 Dec 2003 16:05:39 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:9225
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S261973AbTLLVFh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 16:01:57 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Alan Stern <stern@rowland.harvard.edu>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Fri, 12 Dec 2003 22:01:43 +0100
-User-Agent: KMail/1.5.1
-Cc: Duncan Sands <baldrick@free.fr>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0312121547430.677-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0312121547430.677-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Fri, 12 Dec 2003 16:05:37 -0500
+Subject: Re: [DOCUMENTATION] Revised Unreliable Kernel Locking Guide
+From: Rob Love <rml@tech9.net>
+To: Dave Jones <davej@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+In-Reply-To: <20031212154401.GA10584@redhat.com>
+References: <20031212052812.E80972C085@lists.samba.org>
+	 <20031212154401.GA10584@redhat.com>
+Content-Type: text/plain
+Message-Id: <1071263135.13785.212.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Fri, 12 Dec 2003 16:05:35 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312122201.48194.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 12. Dezember 2003 21:48 schrieb Alan Stern:
-> On Fri, 12 Dec 2003, David Brownell wrote:
+On Fri, 2003-12-12 at 10:44, Dave Jones wrote:
+
+>  Might be worth mentioning in the Per-CPU data section that code doing
+> operations on CPU registers (MSRs and the like) needs to be protected
+> by an explicit preempt_disable() / preempt_enable() pair if it's doing
+> operations that it expects to run on a specific CPU.
 > 
-> > Alan Stern wrote:
-> > 
-> > >>That would also reduce the length of time the address0_sem
-> > >>is held,
-> > > 
-> > > 
-> > > It would?  How so?
-> > 
-> > It would be dropped after the address is assigned (the bus
-> > no longer has an "address zero") ... rather than waiting
-> > until after the device was configured and all its interfaces
-> > were probed.  I think that's the issue Oliver alluded to in
-> > his followup to your comment.
-> 
-> I thought it did that already.  Oh well...
+> For examples, see arch/i386/kernel/msr.c & cpuid.c
 
-Not so simple. Khubd goes down a list. If the first item on its list
-is not your failed reset, a deadlock will occur.
+Good point.
 
-After you have submitted the URB that really does the reset, you
-are commited. You must either set a valid address or disable the port.
-You can rely on nobody else to do that.
+I think this can be generalized to "you must remain atomic so long as
+you expect the processor state to remain consistent."  For example,
+while manipulating processor registers or modes.
 
-	Regards
-		Oliver
+This means that you must disable kernel preemption and must not sleep
+within the critical region.
+
+	Rob Love
+
 

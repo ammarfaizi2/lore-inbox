@@ -1,88 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268791AbTCCUqC>; Mon, 3 Mar 2003 15:46:02 -0500
+	id <S268795AbTCCUtz>; Mon, 3 Mar 2003 15:49:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268792AbTCCUqC>; Mon, 3 Mar 2003 15:46:02 -0500
-Received: from smtp9.us.dell.com ([143.166.148.136]:33466 "EHLO
-	smtp9.us.dell.com") by vger.kernel.org with ESMTP
-	id <S268791AbTCCUp7>; Mon, 3 Mar 2003 15:45:59 -0500
-Date: Mon, 3 Mar 2003 14:56:23 -0600 (CST)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: mdomsch@humbolt.us.dell.com
-Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org, <mochel@osdl.org>
-Subject: Re: Displaying/modifying PCI device id tables via sysfs
-In-Reply-To: <20030303182553.GG16741@kroah.com>
-Message-ID: <20BF5713E14D5B48AA289F72BD372D6803945AB6-100000@AUSXMPC122.aus.amer.dell.com>
-X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
-X-GPG-Key: http://domsch.com/mdomsch_pub.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268796AbTCCUtz>; Mon, 3 Mar 2003 15:49:55 -0500
+Received: from mail.mediaways.net ([193.189.224.113]:48090 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP
+	id <S268795AbTCCUty>; Mon, 3 Mar 2003 15:49:54 -0500
+Subject: re: Linux 2.4.21pre4-ac5 status report
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Edward King <edk@cendatsys.com>, Mikael Pettersson <mikpe@user.it.uu.se>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030303195750.GI6946@louise.pinerecords.com>
+References: <200303011252.h21CqBpl013357@harpo.it.uu.se>
+	 <1046523858.26074.7.camel@sun> <3E63B227.8030101@cendatsys.com>
+	 <20030303195750.GI6946@louise.pinerecords.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1046725013.1743.96.camel@fortknox>
+Mime-Version: 1.0
+Date: 03 Mar 2003 21:56:53 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That info is already exported to userspace through the modules.pcimap
-> file.
-
-OK.
-
-> > 2) Add new IDs at runtime and have the drivers probe for the new IDs.
+On Mon, 2003-03-03 at 20:57, Tomas Szepe wrote:
+> > [edk@cendatsys.com]
+> > 
+> > >>Maybe that's changed in 2.4.21-pre-ac new IDE code, I don't know.
+> > >>
+> > >>Your cards don't share interrupts with anything else I hope?
+> > >>
+> > I tried  two pdc20268's which failed miserably
+> > 
+> > Used an Asus motherboard and an FIC motherboard, different cables, 
+> > different cards, different powersupply.Hard drives are 200GB western 
+> > digitals, one drive per channel.  
+> > 
+> > Tried an SIIG card with the SiI680 chipset -- same problem using is and 
+> > the pdc20268, but is more stable than a single pdc -- so now I have 4 
+> > drives on that card.
+> > 
+> > My kernel is 2.4.21-pre4-ac6 -- let me know if the pre5's solve the problem.
 > 
-> Ick, no.  If a driver really wants to have a user provide new ids on the
-> fly, they usually provide a module paramater to do this.
+> I'd be quite interested to know whether the FreeBSD IDE driver can handle
+> these setups properly.
 
-Yes, I've done this kind of thing too with aacraid.  I was hoping to 
-generalize the process and build upon the ID table already present.
+Me too... I would not think so, but who know.
 
-> A number of the USB drivers do this already (and to be honest, they
-> have caused nothing but trouble, as users use that option for new
-> devices, that the driver can't control at all due to protocol or
-> register location changes.)
-> 
-> In short, it's not a good idea to allow users to change these values on
-> the fly, the driver author usually knows best here :)
+However at least the freeze was reproducable here. Just take two
+pdc20268 controller, attach one driver per channel, setup a raid5, let
+it build up the raid. Then start bonnie and you will get a freeze within
+15min when using something higher than mdma0.
 
-Indeed, it only works if simply adding PCI IDs is the only change needed
-to support a new device.
+The system now is really rock stable with these htp370 based
+dawicontrol-100 cards (which are in the same slots as the pdcs were).
 
-Not everyone can run a recent kernel with the most recent IDs in the
-driver.  Take for example an distribution release on CD.  It's very hard
-to update the kernel running at OS install time to handle a new device,
-even if the driver would otherwise handle that device if only it had the
-PCI IDs.  This can easily happen if the hardware subsystem vendor/device
-IDs change, but the driver has a hard-coded list of IDs to test which
-include specific subsystem vendor/device IDs.
-
-Built-in drivers (e.g. IDE today) are even harder - there you can't just
-replace a driver module with one built with additional IDs, you've got to
-replace the whole kernel.  It would be nice, for the cases where it works, 
-to add IDs at runtime and continue, and later upgrade to a newer kernel 
-that includes the IDs in the driver source.
-
-
-Adding IDs to drivers at runtime is definitely a stop-gap measure, and 
-only works when drivers don't need other changes, but it solves an 
-important subset of the problem space.
-
-DKMS, announced last Friday on lkml, is the next step in this progression.  
-It can help driver maintainers build and release driver modules for the
-case when driver updates are necessary, but whole kernel updates are not
-necessary, or perhaps even possible.
-
-The last step in this progression is the release of whole new kernels,
-which include updated device drivers to match.  Certainly we encourage
-this from a developer perspective, but it isn't always feasible from a
-distributor or customer perspective.
-
-
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
+Soeren.
 

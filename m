@@ -1,34 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279551AbRJXMpQ>; Wed, 24 Oct 2001 08:45:16 -0400
+	id <S279553AbRJXMsq>; Wed, 24 Oct 2001 08:48:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279552AbRJXMpH>; Wed, 24 Oct 2001 08:45:07 -0400
-Received: from mail6.speakeasy.net ([216.254.0.206]:6404 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S279551AbRJXMpA>; Wed, 24 Oct 2001 08:45:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: f5ibh <f5ibh@db0bm.ampr.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.12-ac, lm-sensors broken ??
-Date: Wed, 24 Oct 2001 08:45:34 -0400
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200110241238.OAA02419@db0bm.ampr.org>
-In-Reply-To: <200110241238.OAA02419@db0bm.ampr.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011024124503Z279551-17408+4359@vger.kernel.org>
+	id <S279555AbRJXMsj>; Wed, 24 Oct 2001 08:48:39 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:53774 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S279553AbRJXMsc>; Wed, 24 Oct 2001 08:48:32 -0400
+Date: Wed, 24 Oct 2001 07:48:52 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200110241248.HAA22018@tomcat.admin.navo.hpc.mil>
+To: rickh@Capaccess.org, linux-kernel@vger.kernel.org
+Subject: Re: OFF TOPIC: HOWTO: compromising Microsoft
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 October 2001 08:38, f5ibh wrote:
-> Hi,
->
-> I use the lm-sensors on my system, it works fine with 2.2.20pre and 2.4.13
-> but not with the ac tree, is there any reason for that ? I compile the i2c
-> and lm-sensors package as modules outside the kernel. The .config are the
-> same for both the kernels. The various modules (w83781d i2c-proc i2c-isa
-> i2c-core) loads fine with both systems.
+"Rick A. Hohensee" <rickh@Capaccess.org>:
+...
+> Consider legislation declaring Microsoft operating system products to be
+> "specifically compromised intellectual property". The "compromise" is to
+> allow anyone to "reverse-engineer" and resell Microsoft operating system
+> products no less than five years after thier release dates, on a
+> permanent, continuing, version-by-version basis. If such a law were
+> enacted today that would mean that e.g. Windows 95 and earlier are fair
+> game for modification and/or reselling by others as of today, as are early
+> versions of NT, I believe. Windows 98 and later would still be exclusively
+> Microsoft's protected property for a couple years. This is the measured
+> approach to take, measured against, and in the units of, the industry in
+> question. Five years is a long time for a great engine of innovation. I
+> believe a five year product lag of this nature will destroy Microsoft,
+> unless they rapidly become the great engine of innovation they so ardently
+> pose as. However, this scenario has clear advantages for Microsoft even as
+> they exist now versus other proposals. Meanwhile, viable alternatives to
+> Microsoft as a source of operating systems for PCs can reasonably be
+> expected to arise rapidly. This approach puts Microsoft in level
+> competition with thier own past, thier only possible source of substantive
+> competition in the short term.
 
-I use it quite nicely on 2.4.12-ac3   the latest i2c stack is already in the 
-ac branch, you need not compile it on your own.  lm sensors version 2.6.1 and 
-up is supported.  Just compile and install it.  (make;make install). 
+Won't work. MS would immediately report the true amount of new code in the
+protected stuff includes 90% of the code in the old stuff, and therefore still
+protected. The 10% of unprotected stuff would be the interfaceing code already
+released (system calls, include files, library calls ...) plus a few drivers
+for hardware no longer available. And removed comments...
+
+> The advantages to Microsoft are that this approach leaves them as the
+> pilot of thier own compromised ship, the sole architects of all thier own
+> products, the sole judge of what should be in a Microsoft OS and what
+> shouldn't, and otherwise spares them from government micromanagement.
+> Government involvement would be very limited, stating what is and is not
+> bundled. For example, MSN-related client software is bundled and
+> compromisable, the MSN network itself isn't. Et cetera. This leaves them
+> free to be thier rusticly charming proprietary selves vis-a-vis the
+> products they have not yet bundled into Windows, such as (last I heard,)
+> Office, which reflects the idea that the operating system has
+> public-interest aspects that ancillary products may not. Thus Internet
+> Explorer and so on would be subject to compromise in due time.
+
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

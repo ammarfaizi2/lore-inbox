@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268214AbUJJKKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268169AbUJJKSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268214AbUJJKKY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 06:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268218AbUJJKKY
+	id S268169AbUJJKSc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 06:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268225AbUJJKSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 06:10:24 -0400
-Received: from [203.124.158.219] ([203.124.158.219]:42112 "EHLO
-	ganesha.intranet.calsoftinc.com") by vger.kernel.org with ESMTP
-	id S268214AbUJJKKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 06:10:15 -0400
-Subject: Re: [RFC] [PATCH] Performance of del_single_shot_timer_sync
-From: shobhit dayal <shobhit@calsoftinc.com>
-Reply-To: shobhit@calsoftinc.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041008101949.49cda1a8.akpm@osdl.org>
-References: <1097242659.11717.483.camel@kuber>
-	 <20041008101949.49cda1a8.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1097404176.11717.510.camel@kuber>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 10 Oct 2004 15:59:36 +0530
+	Sun, 10 Oct 2004 06:18:32 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:32265 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S268169AbUJJKSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 06:18:30 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: jonathan@jonmasters.org, Jon Masters <jonmasters@gmail.com>
+Subject: Re: [PATCH] make automounter runnable in foreground and add stderr logging
+Date: Sun, 10 Oct 2004 13:18:22 +0300
+User-Agent: KMail/1.5.4
+Cc: raven@themaw.net, valdis.kletnieks@vt.edu,
+       LKML <linux-kernel@vger.kernel.org>
+References: <200410072049.18059.vda@port.imtp.ilyichevsk.odessa.ua> <200410092246.01429.vda@port.imtp.ilyichevsk.odessa.ua> <35fb2e590410091820c27bcd@mail.gmail.com>
+In-Reply-To: <35fb2e590410091820c27bcd@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410101318.22312.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 2004-10-08 at 22:49, Andrew Morton wrote:
-> shobhit dayal <shobhit@calsoftinc.com> wrote:
-> > 
-> > del_timer_sync was responsible for about 2% of all remote memory
-> > accesses on the system and came up as part of the top 10 functions who
-> > were doing this. On top was schedule(7.52%) followed by
-> > default_wake_function(2.79%). Rest every one in the top 10 were
-> > around the range of 2%.
-> > 
-> > After the patch it never came up in the logs again( so less than 0.5% of
-> > all faulting eip's).
-> > 
+On Sunday 10 October 2004 04:20, Jon Masters wrote:
+> On Sat, 9 Oct 2004 22:46:01 +0300, Denis Vlasenko 
 > 
-> And what is the overall improvement from the del_timer_sync speedup patch? 
-> I mean: overall runtime and CPU time improvements for a
-> relatively-real-world benchmark?
+> > Can we stick to standard method of using $PATH? Please, pretty please.
 > 
+> That'll break some backwards compatibility - probably just go with a
+> command flag to do that.
 
-I have Geoff's figures 
+It won't break anything, because even with my patches
+automount will call mount by absolute path (typically
+[/usr]/bin/mount).
 
-Before:             32p     4p
-     Warm cache   29,000    505
-     Cold cache   37,800   1220
+execvp() does not use PATH in this case.
 
-After:              32p     4p
-     Warm cache       95     88
-     Cold cache    1,800    140
-[Measurements are CPU cycles spent in a call to del_timer_sync, the average
-of 1000 calls. 32p is 16-node NUMA, 4p is SMP.]
-
-These figures, would apply for the case for where del_timer_sync does get called from del_single_shot_timer_sync.
-That is del_singe_shot_timer_sync gets called after timer has expired
-
-For my profiling workload i used the standard pg_regress module from the postgres installation and noticed that
-the ratio of calls to del_single_shot_timer_sync after expiry to before expiry was 10:1. over 11000 calls to
-del_single_shot_timer_sync.
-
-regards
-shobhit
+I plan to add a flag to configure to stop using abs paths.
+Only if built with this flag, automount will exec plain "mount"
+and use PATH.
+--
+vda
 

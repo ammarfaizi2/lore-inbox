@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283050AbRK1OIA>; Wed, 28 Nov 2001 09:08:00 -0500
+	id <S283055AbRK1OHu>; Wed, 28 Nov 2001 09:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283054AbRK1OHw>; Wed, 28 Nov 2001 09:07:52 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:39695 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283050AbRK1OHk>;
-	Wed, 28 Nov 2001 09:07:40 -0500
-Date: Wed, 28 Nov 2001 15:07:17 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Sebastian =?iso-8859-1?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre2 compile error in ide-scsi.o ide-scsi.c
-Message-ID: <20011128150717.C23858@suse.de>
-In-Reply-To: <20011128135552.204311E532@Cantor.suse.de> <20011128145858.A23858@suse.de> <20011128140246.318A01E560@Cantor.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011128140246.318A01E560@Cantor.suse.de>
+	id <S283054AbRK1OHn>; Wed, 28 Nov 2001 09:07:43 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:60556 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S282149AbRK1OHa>; Wed, 28 Nov 2001 09:07:30 -0500
+Date: Wed, 28 Nov 2001 09:07:26 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Lars Brinkhoff <lars@nocrew.org>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Magic Lantern
+In-Reply-To: <85adx7vw12.fsf@junk.nocrew.org>
+Message-ID: <Pine.LNX.3.95.1011128090654.10732B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 28 2001, Sebastian Dröge wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Am Mittwoch, 28. November 2001 14:58 schrieben Sie:
-> > On Wed, Nov 28 2001, Sebastian Dröge wrote:
-> > > -----BEGIN PGP SIGNED MESSAGE-----
-> > > Hash: SHA1
-> > >
-> > > Hi Jens,
-> > > your patch doesn't work for ide-scsi
-> > > I get this oops when trying to mount a CD:
-> >
-> > [oops in sr_scatter_pad]
-> >
-> > Hmm ok, and 2.5.1-pre1 works for you right?
-> 
-> Yes it works very well
+On 28 Nov 2001, Lars Brinkhoff wrote:
 
-Ok, thanks for confirming that. Going to take a look at it now.
+> "Richard B. Johnson" <root@chaos.analogic.com> writes:
+> > Are there currently any kernel hooks to support Magic Lantern?
+> > Basically, a "tee" to capture all network packets and pass them
+> > on to a filtering task without affecting normal network activity.
+> > It's like `tcpdump`, but allows packets to be inserted into the
+> > output queue as well without affecting normal network activity.
+> 
+> The af_packet module can read and write raw ethernet frames.
 
--- 
-Jens Axboe
+Okay, thanks.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

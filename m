@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132129AbQKVCV2>; Tue, 21 Nov 2000 21:21:28 -0500
+	id <S132125AbQKVCqy>; Tue, 21 Nov 2000 21:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132207AbQKVCVT>; Tue, 21 Nov 2000 21:21:19 -0500
-Received: from lahmed.Stanford.EDU ([171.65.76.205]:54423 "EHLO
-	lahmed.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S132129AbQKVCVG>; Tue, 21 Nov 2000 21:21:06 -0500
-From: David Hinds <dhinds@lahmed.stanford.edu>
-Date: Tue, 21 Nov 2000 17:50:11 -0800
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-Cc: Tobias Ringstrom <tori@tellus.mine.nu>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why not PCMCIA built-in and yenta/i82365 as modules
-Message-ID: <20001121175011.C18265@lahmed.stanford.edu>
-In-Reply-To: <dhinds@lahmed.stanford.edu> <200011220144.eAM1iUf08680@sleipnir.valparaiso.cl>
+	id <S132169AbQKVCqo>; Tue, 21 Nov 2000 21:46:44 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:35594 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S132125AbQKVCqi>; Tue, 21 Nov 2000 21:46:38 -0500
+Date: Tue, 21 Nov 2000 20:16:31 -0600
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: jpranevich@lycos-inc.com, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.2.18-pre19 asm/delay.h problem?
+Message-ID: <20001121201631.I2918@wire.cadcamlab.org>
+In-Reply-To: <0525699E.00832462.00@SMTPNotes1.ma.lycos.com> <E13yNHb-0005O4-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <200011220144.eAM1iUf08680@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Tue, Nov 21, 2000 at 10:44:30PM -0300
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E13yNHb-0005O4-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Nov 21, 2000 at 11:57:02PM +0000
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2000 at 10:44:30PM -0300, Horst von Brand wrote:
-> 
-> If you have a laptop with an assortment of cards, you might want to have
-> the generic builtin and the cards themselves as modules.
 
-No, that's ok, and that's supported with the current config scripts.
+[Alan Cox]
+> You got it. The module is doing an overlarge delay
 
-The original question was about having the generic code built in, but
-the socket driver (yenta) as a module.  The socket driver needs to be
-loaded regardless of what cards you're using.  So I think having one
-in the kernel and the other as a module is of limited utility.
+Perhaps people would stop asking this question if the symbol were
+renamed from __bad_udelay() to, say, __use_mdelay_instead_please().
 
--- Dave
+Sort of like the DNS zone (somewhere at UCLA was it?) where they had
+something like 'quit 86400 IN CNAME use.exit.to.get.out.of.nslookup.'
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

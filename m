@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVBOTei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVBOTgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVBOTei (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 14:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVBOTei
+	id S261839AbVBOTgw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 14:36:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVBOTe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 14:34:38 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:58783 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261835AbVBOTdb (ORCPT
+	Tue, 15 Feb 2005 14:34:58 -0500
+Received: from nevyn.them.org ([66.93.172.17]:29826 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S261832AbVBOTd1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 14:33:31 -0500
-Date: Tue, 15 Feb 2005 13:29:06 -0600
-From: Jake Moilanen <moilanen@austin.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Peter Williams <pwil3058@bigpond.net.au>
-Subject: [ANNOUNCE 0/4] Genetic-lib version 0.2
-Message-Id: <20050215132906.33f88505.moilanen@austin.ibm.com>
-Organization: IBM
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 15 Feb 2005 14:33:27 -0500
+Date: Tue, 15 Feb 2005 14:33:04 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, paulus@samba.org, anton@samba.org,
+       davem@davemloft.net, ralf@linux-mips.org, tony.luck@intel.com,
+       ak@suse.de, willy@debian.org, schwidefsky@de.ibm.com
+Subject: Re: [PATCH] Consolidate compat_sys_waitid
+Message-ID: <20050215193304.GA1175@nevyn.them.org>
+Mail-Followup-To: Stephen Rothwell <sfr@canb.auug.org.au>,
+	LKML <linux-kernel@vger.kernel.org>, paulus@samba.org,
+	anton@samba.org, davem@davemloft.net, ralf@linux-mips.org,
+	tony.luck@intel.com, ak@suse.de, willy@debian.org,
+	schwidefsky@de.ibm.com
+References: <20050215140149.0b06c96b.sfr@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050215140149.0b06c96b.sfr@canb.auug.org.au>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the next release of the genetic library based against 2.6.10
-kernel.
+On Tue, Feb 15, 2005 at 02:01:49PM +1100, Stephen Rothwell wrote:
+> Hi all,
+> 
+> This patch does:
+> 	- consolidate the three implementations of compat_sys_waitid
+> 	  (some were called sys32_waitid).
+> 	- adds sys_waitid syscall to ppc
+> 	- adds sys_waitid and compat_sys_waitid syscalls to ppc64
+> 
+> Parisc seemed to assume th existance of compat_sys_waitid.  The MIPS
+> syscall tables have me confused and may need updating.  I have arbitrarily
+> chosen the next available syscall number on ppc and ppc64, I hope this is
+> correct.
 
-There were numerous changes from the first release, but the major change
-in this version is the introduction of phenotypes.  A phenotype is a set
-of genes the affect an observable property.  In genetic-library terms,
-it is a set of genes that will affect a particular fitness measurement. 
-Each phenotype will have a set of children that contain genes that
-affect a fitness measure.  
+I posted a (not-consolidated) sys32_waitid to the MIPS list on Sunday.
+The syscall tables should confuse you :-)  N32 needs to use compat
+versions of most structures, but not siginfo_t.  O32 needs to use
+compat versions of everything.  Your new version can replace the
+sys32_waitid from my patch, but not sysn32_waitid.
 
-Now multiple fitness routines can be ran for each genetic library user.
-Then depending on the results of a particular fitness measure, the
-specific genes that directly affect that fitness measure can be
-modified.  This introduces a finer granularity that was missing in the
-first release of the genetic-library.  
+Ralf, I'll let you sort it out :-)
 
-I would like to thank Peter Williams for reworking the Zaphod Scheduler
-and help designing the phenotypes.
-
-Some of the other features introduced is shifting the number of
-mutations depending on how well a phenotype is performing.  If the
-current generation outperformed the previous generation, then the rate
-of mutation will go down.  Conversely if the current generation performed
-worst then the previous generation, the mutation rate will go up.  This
-mutation rate shift will do two things.  When generations are improving,
-it will reduce the number unnecessary mutations and hone in on the
-optimal tunables.  When a workload drastically changes, the fitness
-should go way down, and the mutation rate will increase in order to test
-a greater space of better values quicker.  This should decrease the time
-it takes to adjust to a new workload.  There is a limit at 45% of the
-genes being mutated every generation in order to prevent the mutation
-rate spiralling out of control. 
-
-SpecJBB and UnixBench are still yielding a 1-3% performance improvement,
-however (though it's subjective) the interactiveness has had noticeable
-improvements.
-
-I have not broke the Anticipatory IO Scheduler down to a fine
-granularity in phenotypes yet.  Any assistance would be greatly
-appreciated.
-
-Currently I am hosting this project off of:
-
-	http://kernel.jakem.net
-
-[1/4 genetic-lib]: This is the base patch for the genetic algorithm.
-
-[2/4 genetic-io-sched]: The base patch for the IO schedulers to use the
-       genetic library.
-
-[3/4 genetic-as-sched]: A genetic-lib hooked anticipatory IO scheduler.
-
-[4/4 genetic-zaphod-cpu-sched]: A hooked zaphod CPU scheduler.  Depends
-       on the zaphod-v6.2 patch.
-
-Thanks,
-Jake
-
+-- 
+Daniel Jacobowitz
+CodeSourcery, LLC

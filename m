@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263500AbUDPQNq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 12:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263484AbUDPQNq
+	id S263480AbUDPQNu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 12:13:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbUDPQNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 12:13:46 -0400
-Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:9601
-	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
-	id S263460AbUDPQNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 12:13:44 -0400
-Subject: Re: NFS and kernel 2.6.x
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: "Dave Gilbert (Home)" <gilbertd@treblig.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       shannon@widomaker.com, Phil Oester <kernel@linuxace.com>
-In-Reply-To: <408001E6.7020001@treblig.org>
-References: <20040416011401.GD18329@widomaker.com>
-	 <1082079061.7141.85.camel@lade.trondhjem.org>
-	 <20040415185355.1674115b.akpm@osdl.org>
-	 <1082084048.7141.142.camel@lade.trondhjem.org>
-	 <20040416045924.GA4870@linuxace.com>
-	 <1082093346.7141.159.camel@lade.trondhjem.org>
-	 <20040416144433.GE2253@logos.cnet>  <408001E6.7020001@treblig.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1082132015.2581.30.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 16 Apr 2004 09:13:36 -0700
+	Fri, 16 Apr 2004 12:13:50 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:22485
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S263480AbUDPQNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 12:13:45 -0400
+Message-ID: <4080060F.7030604@redhat.com>
+Date: Fri, 16 Apr 2004 09:13:03 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040411
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alex Riesen <ari@mbs-software.de>
+CC: Michal Wronski <wrona@mat.uni.torun.pl>,
+       Krzysztof Benedyczak <golbi@mat.uni.torun.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: POSIX message queues, libmqueue: mq_open, mq_unlink
+References: <20040416081155.GB7815@linux-ari.internal>
+In-Reply-To: <20040416081155.GB7815@linux-ari.internal>
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-04-16 at 08:55, Dave Gilbert (Home) wrote:
-> While it is reasonable to make TCP default it is important that if there
-> is a real problem with UDP NFS that it is sorted.  Some of us have to
-> work with older machines and kernels on clients that don't support TCP NFS.
+Alex Riesen wrote:
 
-Then "some of you" can send in a proper bugreport in the usual format if
-and when that problem actually occurs.
+> Looking over the code in libmqueue-4.31, I noticed the checks for the
+> name validity in the mq_open and mq_unlink. Why are they needed?  They
+> are pointless if the code in kernel depends on the valid name,
 
-So far I have NOTHING to tell me there is a problem here. Just a load of
-people going ballistic over hot air....
+You are contradicting yourself.
 
+Anyway, non-absolute path names passed to the functions mean the
+behavior is unspecified.  No portable application must ever do this.  It
+is enforced for this reason plus if there comes a time when we want to
+do something special which doesn't conflict with standard-compliant
+behavior we have a possibility for that.  Unlike wh6at you think, the
+tests *are* useful.
 
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263360AbTIWM5G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 08:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263361AbTIWM5F
+	id S263351AbTIWNBc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 09:01:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbTIWNBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 08:57:05 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:42769 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S263360AbTIWM5D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 08:57:03 -0400
-Date: Tue, 23 Sep 2003 13:57:02 +0100
-From: John Levon <levon@movementarian.org>
-To: chas3@users.sourceforge.net
-Cc: davem@redhat.com, Remi Colinet <remi.colinet@wanadoo.fr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Compile fix for 2.6.0-test5-mm4 in net/atm/proc.c
-Message-ID: <20030923125702.GB92228@compsoc.man.ac.uk>
-References: <remi.colinet@wanadoo.fr> <3F6F52AE.3080206@wanadoo.fr> <200309231250.h8NCopkT023939@ginger.cmf.nrl.navy.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309231250.h8NCopkT023939@ginger.cmf.nrl.navy.mil>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1A1mj0-0008cK-Cf*nkxYvIt5BX2*
+	Tue, 23 Sep 2003 09:01:32 -0400
+Received: from [65.248.4.67] ([65.248.4.67]:24206 "EHLO verdesmares.com")
+	by vger.kernel.org with ESMTP id S263351AbTIWNBa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 09:01:30 -0400
+Message-ID: <001201c381d2$2d6031a0$f8e4a7c8@bsb.virtua.com.br>
+From: "Breno" <brenosp@brasilsec.com.br>
+To: "german aracil boned" <german@tecnoxarxa.com>,
+       "Mike Galbraith" <efault@gmx.de>
+Cc: <linux-kernel@vger.kernel.org>
+References: <5.2.1.1.2.20030923114213.01b36e78@pop.gmx.net>
+Subject: Re: ATTACK TO MY SYSTEM
+Date: Tue, 23 Sep 2003 09:50:23 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-XTmail: http://www.verdesmares.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 23, 2003 at 08:50:52AM -0400, chas williams wrote:
+I am receiving too :(
 
-> instead of doing this, it would probably be cleaner to put the
-> ifdef inside the clip header file and just return 0 when !CLIP.
+----- Original Message -----
+From: "Mike Galbraith" <efault@gmx.de>
+To: "german aracil boned" <german@tecnoxarxa.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, September 23, 2003 7:01 AM
+Subject: Re: ATTACK TO MY SYSTEM
 
-What are your plans with mine and Mitchell's stuff that removes all this
-ops crap altogether ?
 
-The patch series works, as far as I know.
+> At 11:12 AM 9/23/2003 +0200, german aracil boned wrote:
+>
+> >Please
+> >
+> >I have an important attack in my system!
+> >I received many mails from many nets! with virus attachment.
+> >I don't have virus in my unix system. But people send mails with my mail
+> >address. Please see mail's header. It's not from my system ip.
+> >
+> >I close now my system to more of 700 nets!! and continuous receiving
+> >mails now :(:(:(
+>
+> You aren't alone, I'm getting the same crap in my lkml account.  I'm using
+> a pop previewer with filter to nuke it.  I don't know what else you can do
+> about it other than to nuke the account, or hope that the ignorant twit
+> who's doing this manages to irritate one of the network gods.
+>
+>          -Mike
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-regards
-john
-
--- 
-Khendon's Law:
-If the same point is made twice by the same person, the thread is over.

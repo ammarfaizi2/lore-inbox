@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264829AbTLEXLV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 18:11:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbTLEXLU
+	id S264596AbTLEX1E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 18:27:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbTLEX1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 18:11:20 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:4021 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S264601AbTLEXLH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 18:11:07 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-From: Craig Bradney <cbradney@zip.com.au>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20031205225554.GT29119@mis-mike-wstn.matchmail.com>
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F877@mail-sc-6.nvidia.com>
-	 <20031205225554.GT29119@mis-mike-wstn.matchmail.com>
-Content-Type: text/plain
-Message-Id: <1070665864.3962.19.camel@athlonxp.bradney.info>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 06 Dec 2003 00:11:04 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Dec 2003 18:27:04 -0500
+Received: from fep01-0.kolumbus.fi ([193.229.0.41]:47964 "EHLO
+	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S264595AbTLEX0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 18:26:15 -0500
+Date: Sat, 6 Dec 2003 01:25:22 +0200 (MET DST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+X-X-Sender: szaka@ua178d119.elisa.omakaista.fi
+To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+In-Reply-To: <yw1xllprihwo.fsf@kth.se>
+Message-ID: <Pine.LNX.4.58.0312060118400.9180@ua178d119.elisa.omakaista.fi>
+References: <200312041432.23907.rob@landley.net>
+ <Pine.LNX.4.58.0312042300550.2330@ua178d119.elisa.omakaista.fi>
+ <yw1xllprihwo.fsf@kth.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-12-05 at 23:55, Mike Fedyk wrote:
-> On Fri, Dec 05, 2003 at 11:11:39AM -0800, Allen Martin wrote:
-> > NVIDIA doesn't provide a windows driver to setup APIC interrupts.  APIC
-> > functionality is exported through the ACPI methods and MP table in the
-> > system BIOS which the motherboard vendors supply.
-> > 
-> > Likely the root of the problem has to do with the way the Linux kernel is
-> > using the ACPI methods to setup the interrupts which is different from win
-> > 9x/2k/XP.  I can help track this down, unfortunately so far I've been unable
-> > to reproduce the hangs on any of the boards I have.
+
+On Fri, 5 Dec 2003, [iso-8859-1] M?ns Rullg?rd wrote:
+> Szakacsits Szabolcs <szaka@sienet.hu> writes:
 > 
-> Can the people with nforce chips run a command that will show the chipset
-> config space like was done back when there were problems with via chipsets
-> (before via released the specs on how to set the bits correctly).
+> >> What are the downsides of holes?  [...] is there a performance penalty to
+> >> having a file with 1000 4k holes in it, etc...)
+> >
+> > Depends what you do, what fs you use. Using XFS XFS_IOC_GETBMAPX you might
+> > get a huge improvement, see e.g. some numbers,
+> >
+> > 	http://marc.theaimsgroup.com/?l=reiserfs&m=105827549109079&w=2
+> >
+> > The problem is, 0 general purpose (like cp, tar, cat, etc) util supports
+> > it, you have to code your app accordingly.
 > 
-> Maybe you'll see some correlation between the boards that are crashing, and
-> a few bits that are different for the boards that aren't crashing.
-> -
+> I found this paragraph in the man page of GNU cp:
+> 
+>        --sparse=WHEN
 
-Is there such a command? or is that your question? Ready to run it as
-soon as someone lets me know.
+I meant using XFS_IOC_GETBMAPX. tar and cp sparse support is extremely
+inefficient (Helge also misunderstood what I meant). Only XFS provides
+support doing it the fastest way, without reading and analysing the data.
 
-Craig
-Uptime: 6.5 hours
-
+	Szaka

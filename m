@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262990AbUDEHdO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 03:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUDEHdN
+	id S261786AbUDEHnB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 03:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUDEHnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 03:33:13 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:39949 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S262990AbUDEHdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 03:33:09 -0400
-Date: Mon, 5 Apr 2004 09:11:58 +0200
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       pilot-link-devel@pilot-link.org
-Subject: pilot USB HotSync broken in -mm kernels
-Message-ID: <20040405071158.GA20124@gamma.logic.tuwien.ac.at>
+	Mon, 5 Apr 2004 03:43:01 -0400
+Received: from ozlabs.org ([203.10.76.45]:40326 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261786AbUDEHm6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 03:42:58 -0400
+Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul Jackson <pj@sgi.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mbligh@aracnet.com, Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+       haveblue@us.ibm.com, colpatch@us.ibm.com
+In-Reply-To: <20040405000528.513a4af8.pj@sgi.com>
+References: <20040329041253.5cd281a5.pj@sgi.com>
+	 <1081128401.18831.6.camel@bach>  <20040405000528.513a4af8.pj@sgi.com>
+Content-Type: text/plain
+Message-Id: <1081150967.20543.23.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 05 Apr 2004 17:42:47 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, hil lists!
+On Mon, 2004-04-05 at 17:05, Paul Jackson wrote:
+>  P.S. - Perhaps you real concern here is that I'm not going far enough.
+> 
+> 	Instead of just putting the cpumask_t internals on a diet
+> 	and allowing for a nodemask_t that shares implementation,
+> 	rather I should change both outright, to the more explicit
+> 	style that is perhaps what you have in mind:
+> 
+> 	    struct cpumap { DECLARE_BITMAP(bits, NR_CPUS); };
+> 	    struct cpumask s, d1, d2;
+> 	    bitmap_or(s.bits, d1.bits, d2.bits);
+> 
+> 	Nuke cpumask_t, nodemask_t and the existing cpus_or,
+> 	nodes_or, ... and similar such 60 odd various macros
+> 	specific to these two types.
+> 
+> 	I rather like that approach.  It would build nicely on
+> 	what I've done so far.  It would be a more intrusive patch,
+> 	changing all declarations and operations on cpumasks.
 
-USB HotSyncing is not working ATM with -mm kernels: I tried 2.6.5
-(vanilla) and had no problem installing a big file with pilot-xfer -I,
-but using 2.6.5-mm1 the palm suddenly tells me
-	Cleaning up
-and then
-	The connection was terminated ... not all files synced ...
+Yes,  this is exactly the point I was incoherently groping towards. 
+Throw away mask.h, and make any needed enhancements to bitmap.h (eg.
+inlines which check for the case of len <= BITS_PER_LONG).
 
-I have tested several mm Versions (2.6.5-rc?-mm?), none of them were
-working, but the vanilla kernel 2.6.5 and 2.6.4 are working.
+Then change cpumask_t and nodemask_t ops to inlines which just use
+bitmap.h, and get rid of the
+asm-generic/cpumask_optimized_for_large_smp_with_sparse_array_and_small_stack.h etc. and then finally look at how ugly it would be to change users to directly using the bitmap.h functions on cpumasks.
 
-The diffs in the .config files wrt USB (for 2.6.5(-mm1)):
-+CONFIG_USB_EHCI_ROOT_HUB_TT=y
+> 	If I thought it would sell, I would be most interested.
 
-But since this options was only introduced in 2.6.5-mm1 (or was it
-rc3-mm4?) this cannot make the difference.
+I guess I'd like to see the cost of perfection.  It could just be that
+the current cpumask_t headers creep me out...
 
-Thanks a lot for any ideas/hints how to fix this.
+Thanks!
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
-BTW: debian/sid 
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-His eyes seemed to be popping out of his head. He wasn't
-certain if this was because they were trying to see more
-clearly, or if they simply wanted to leave at this point.
-                 --- Arthur trying to see who had diverted him from going to
-                 --- a party.
-                 --- Douglas Adams, The Hitchhikers Guide to the Galaxy

@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266771AbSKHH7k>; Fri, 8 Nov 2002 02:59:40 -0500
+	id <S261595AbSKHIDt>; Fri, 8 Nov 2002 03:03:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266772AbSKHH7k>; Fri, 8 Nov 2002 02:59:40 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40112 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S266771AbSKHH7k>;
-	Fri, 8 Nov 2002 02:59:40 -0500
-Date: Fri, 8 Nov 2002 09:05:58 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Adam Kropelin <akropel1@rochester.rr.com>
-Cc: Andrew Morton <akpm@digeo.com>, MdkDev <mdkdev@starman.ee>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.46: ide-cd cdrecord success report
-Message-ID: <20021108080558.GR32005@suse.de>
-References: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee> <20021107180709.GB18866@www.kroptech.com> <32894.62.65.205.175.1036692849.squirrel@webmail.starman.ee> <20021108015316.GA1041@www.kroptech.com> <3DCB1D09.EE25507D@digeo.com> <20021108024905.GA10246@www.kroptech.com>
+	id <S266775AbSKHIDt>; Fri, 8 Nov 2002 03:03:49 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:51888 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261595AbSKHIDs>; Fri, 8 Nov 2002 03:03:48 -0500
+Date: Fri, 8 Nov 2002 13:53:27 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: Rusty Lynch <rusty@linux.co.intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is there a way to interrupt MMIO with kprobes/ltt/etc...
+Message-ID: <20021108135327.A12978@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
+References: <009e01c286d8$2a44e010$77d40a0a@amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021108024905.GA10246@www.kroptech.com>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <009e01c286d8$2a44e010$77d40a0a@amr.corp.intel.com>; from rusty@linux.co.intel.com on Fri, Nov 08, 2002 at 03:40:58AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07 2002, Adam Kropelin wrote:
-> > Try changing drivers/block/deadline-iosched.c:fifo_batch to 16.
+On Fri, Nov 08, 2002 at 03:40:58AM +0000, Rusty Lynch wrote:
+> I have been looking into the possible ways a fault injection tool could be
+> implemented on the available tools/hooks in the 2.5 kernel.  I can see how
+> kprobes would help by allowing me to setup handlers when a specific address
+> is executed, but what about when a specific memory mapped IO address is
+> touched or looked at?
 > 
-> Works! A 12x burn succeeded with a parallell dd *and* and make -j20.
-> Overall disk throughput suffered by a couple MB/s but there was a solid
-> 2 MB/s left for the recorder.
+> I know there has been a lot of activity on kprobes, LTT, and others (isn't
+> there something else?).  Do any of these patches allow a handler to be
+> called just before some MMIO is accessed?  Messing with architecture
+> specific debug registers seems problematic since it makes the solution
+> architecture specific and the number of watch points is pretty limited.
+> 
+You could do this with the interface provided by kwatchpoints patch [1]
+without directly mucking with debug registers. The interface is simple:
 
-Ok I'm just about convinced now, I'll make 16 the default batch count.
-I'm very happy to hear that the deadline scheduler gets the job done
-there.
+int register_kwatch(unsigned long addr, u8 length, u8 type,
+                kwatch_handler_t handler)
 
+If you don't want to use debug registers or if they are not enough,
+only other possibility I can think of is to find all code locations 
+where the MMIO space of interest is touched and put execution 
+probes there.
+
+[1] You will need these two patches:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103528454215523&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103528454015520&w=2
+
+Cheers,
+Vamsi.
 -- 
-Jens Axboe
-
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi@in.ibm.com

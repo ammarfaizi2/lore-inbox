@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278280AbRJMJbI>; Sat, 13 Oct 2001 05:31:08 -0400
+	id <S277654AbRJMJvW>; Sat, 13 Oct 2001 05:51:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278281AbRJMJa6>; Sat, 13 Oct 2001 05:30:58 -0400
-Received: from nyx.poczta.fm ([217.74.65.51]:60934 "HELO nyx.poczta.fm")
-	by vger.kernel.org with SMTP id <S278280AbRJMJal> convert rfc822-to-8bit;
-	Sat, 13 Oct 2001 05:30:41 -0400
-Message-ID: <200110131134270130.0007B2AE@www.poczta.fm>
-In-Reply-To: <200110121736540000.0004B986@www.poczta.fm>
-X-Mailer: Calypso Version 3.10.03.02 (3)
-Date: Sat, 13 Oct 2001 11:34:27 +0200
-From: "Kamil Kompa" <kklinux@poczta.fm>
-To: linux-kernel@vger.kernel.org
-Subject: APM trouble
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-EMID: 49fd0138
+	id <S277684AbRJMJvM>; Sat, 13 Oct 2001 05:51:12 -0400
+Received: from stud.fbi.fh-darmstadt.de ([141.100.40.65]:688 "EHLO
+	stud.fbi.fh-darmstadt.de") by vger.kernel.org with ESMTP
+	id <S277654AbRJMJvB>; Sat, 13 Oct 2001 05:51:01 -0400
+Date: Sat, 13 Oct 2001 11:48:11 +0200 (CEST)
+From: Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de>
+To: Matt Domsch <Matt_Domsch@dell.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: crc32 cleanups
+In-Reply-To: <Pine.LNX.4.33.0110121340140.17295-100000@lists.us.dell.com>
+Message-ID: <Pine.LNX.4.30.0110131131200.32076-100000@stud.fbi.fh-darmstadt.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+I think this summarizes the problems with the crc code
 
-I have a trouble with apmd. I have Red Hat Linux 7.1. My laptop is Pentium3, 32MB RAM, ATI Rage, (if You need more information please let me know). I wanted to recompile my kernel to add some USB devices.
-My usb devices work properly on my new kernel, but system hangs when apmd is starting. I have configured apm in many diferrent ways, but always I have the same problem. There is no such problem when I use kernel that is made after Linux installation as a "workstation", so Im sure that apmd can work properly on my computer. Also when I install Lin uxas "laptop" or "custom system" system hangs when apmd is starting.
-Do You knoiw what schould I do? Perhaps You know kernel configurations for "workstation", "laptop", and "custom system". I think it would help me.
+1. Should the crc code be included in the kernel generally ?
+2. If not - should the user or the driver modules change the behaviour of
+the kernel build process ?
+3. How do we provide crc functions for modules not included in the main
+kernel tree ?
+4. Should we use precompiled tables (bigger kernel) or use more compex
+(slower) algorithms ?
 
-Thank You for all answers.
+I think the code should generally be included in the kernel - we can add
+somewhere an option like "Remove crc code from kernel if not used" marked
+as "dangerous". So the user can force removal if he is sure, he will never
+use the code. The drivers included in the kernel may still enable the
+code, if needed, but extern drivers won't work.
 
-Kamil Kompa
- 
+To safe space or gain performance we should add a select option next to
+the "remove crc" one ("Optimize crc code for space/performance")
 
+Comments
 
-----------------------------------------------------------------------
-Znajd¼ MP3 -> Wyszukiwarka multimediow. Jedyna w Polsce.
-Nowe Centrum Wyszukiwania >> http://szukaj.interia.pl/
+Jan-Marek Glogowski
 

@@ -1,52 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317799AbSIOFDk>; Sun, 15 Sep 2002 01:03:40 -0400
+	id <S317829AbSIOFQh>; Sun, 15 Sep 2002 01:16:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317816AbSIOFDk>; Sun, 15 Sep 2002 01:03:40 -0400
-Received: from dsl-213-023-043-058.arcor-ip.net ([213.23.43.58]:57504 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317799AbSIOFDj>;
-	Sun, 15 Sep 2002 01:03:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Date: Sun, 15 Sep 2002 07:10:00 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com>
+	id <S317833AbSIOFQh>; Sun, 15 Sep 2002 01:16:37 -0400
+Received: from packet.digeo.com ([12.110.80.53]:17796 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S317829AbSIOFQg>;
+	Sun, 15 Sep 2002 01:16:36 -0400
+Message-ID: <3D841C8A.682E6A5C@digeo.com>
+Date: Sat, 14 Sep 2002 22:37:14 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17qRfU-0001qz-00@starship>
+To: Daniel Phillips <phillips@arcor.de>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.34-mm2
+References: <3D803434.F2A58357@digeo.com> <E17qQMq-0001JV-00@starship> <3D8408A9.7B34483D@digeo.com> <E17qQwq-0001qT-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Sep 2002 05:21:24.0845 (UTC) FILETIME=[BC3811D0:01C25C77]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 September 2002 21:03, Linus Torvalds wrote:
-> On 10 Sep 2002, Alan Cox wrote:
-> > 
-> > It drops you politely into the kernel debugger, you fix up the values
-> > and step over it. If you want to debug with zen mind power and printk
-> > feel free. For the rest of us BUG() is fine on SMP
+Daniel Phillips wrote:
 > 
-> Ok, a show of hands.. 
+> On Sunday 15 September 2002 06:12, Andrew Morton wrote:
+> > Daniel Phillips wrote:
+> > >  I heard you
+> > > mention, on the one hand, huge speedups on some load (dbench I think)
+> > > but your in-patch comments mention slowdown by 1.7X on kernel
+> > > compile.
+> >
+> > You misread.  Relative times for running `make -j6 bzImage' with mem=512m:
+> >
+> > Unloaded system:                                   1.0
+> > 2.5.34-mm4, while running 4 x `dbench 100'           1.7
+> > Any other kernel while running 4 x `dbench 100'      basically infinity
 > 
-> Of the millions (whatever) of Linux machines, how many have a kernel 
-> debugger attached? Count them.
+> Oh good :-)
+> 
+> We can make the rescanning go away in time, with more lru lists,
 
-Eh, mine is getting one attached to it right now.  It's getting more
-popular, and it would be more popular yet if it weren't considered some
-dirty little secret, or somehow unmanly.
+We don't actually need more lists, I expect.  Dirty and under writeback
+pages just don't go on a list at all - cut them off the LRU and
+bring them back at IO completion.  We can't do anything useful with
+a list of dirty/writeback pages anyway, so why have the list?
 
-Let's try a different show of hands: How many users would be happier if
-they knew that kernel developers are using modern techniques to improve
-the quality of the kernel?
+It kind of depends whether we want to put swapcache on that list.  I
+may just give swapper_inode a superblock and let pdflush write swap.
 
-Of course, I use the term "modern" here loosely, since kdb and kgdb are
-really only 80's technology.  Without them, we're stuck in the 60's.
+The interrupt-time page motion is of course essential if we are to
+avoid long scans of that list.
 
--- 
-Daniel
+That, and replacing the blk_congestion_wait() throttling with a per-classzone
+wait_for_some_pages_to_come_clean() throttling pretty much eliminates the
+remaining pointless scan activity from the VM, and fixes a current false OOM
+scenario in -mm4.
+
+> but that sure looks like the low hanging fruit.
+
+It's low alright.  AFAIK Linux has always had this problem of
+seizing up when there's a lot of dirty data around.
+
+Let me quantify infinity:
+
+
+With mem=512m, on the quad:
+
+`make -j6 bzImage' takes two minutes and two seconds.
+
+On 2.5.34, a concurrent 4 x `dbench 100' slows that same kernel
+build down to 35 minutes and 16 seconds.
+
+On 2.5.34-mm4, while running 4 x `dbench 100' that kernel build
+takes three minutes and 45 seconds.
+
+
+
+That's with seven disks: four for the dbenches, one for the kernel
+build, one for swap and one for the executables.  Things would be
+worse with less disks because of seek contention.  But that's
+to be expected.  The intent of this work is to eliminate this
+crosstalk between different activities.  And to avoid blocking things
+which aren't touching disk at all.

@@ -1,85 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135614AbRD1ThS>; Sat, 28 Apr 2001 15:37:18 -0400
+	id <S135616AbRD1Tie>; Sat, 28 Apr 2001 15:38:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135615AbRD1ThI>; Sat, 28 Apr 2001 15:37:08 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:40089 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S135614AbRD1Tg7>; Sat, 28 Apr 2001 15:36:59 -0400
-Date: Sat, 28 Apr 2001 12:36:51 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: PATCH: linux-2.4.4/drivers/video/Config.in offered drivers that would not compile on your architecture
-Message-ID: <20010428123651.A1406@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S135617AbRD1TiU>; Sat, 28 Apr 2001 15:38:20 -0400
+Received: from [209.195.52.31] ([209.195.52.31]:61711 "HELO [209.195.52.31]")
+	by vger.kernel.org with SMTP id <S135616AbRD1TiM>;
+	Sat, 28 Apr 2001 15:38:12 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Garett Spencley <gspen@home.com>
+Cc: Michael F Gordon <Michael.Gordon@ee.ed.ac.uk>,
+        linux-kernel@vger.kernel.org
+Date: Sat, 28 Apr 2001 11:29:15 -0700 (PDT)
+Subject: Re: 2.4.4 breaks dhcpcd with Realtek 8139
+In-Reply-To: <Pine.LNX.4.30.0104281142520.3423-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0104281126570.16046-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+what sort of switch are you plugged into? some Cisco switches have a
+'feature' that ignores all traffic from a port for X seconds after a
+machine is plugged in / powered on on a port (they claim somehting about
+preventing loops) it may be that the new kernel now boots up faster then
+the old one so that the DHCP request is lost in the switch, a few seconds
+later when you do it by hand the swich has enabled your port and
+everything works.
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+David Lang
 
 
-	linux-2.4.4/drivers/video/Config.in allowed the user to select
-some Atari and SuperH architecture video drivers that would not compile
-on other architectures.  This patch causes those drivers to be offered
-only on architectures on which they will compile.
+ On Sat, 28 Apr 2001, Garett Spencley
+wrote:
 
-	By the way, this patch is much simpler than it looks.  It just
-adds two "if" statements.  The rest of the chanages is just the
-corresponding reindentation.
-
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="video.diff"
-
---- linux-2.4.4/drivers/video/Config.in	Fri Apr 13 20:31:32 2001
-+++ linux/drivers/video/Config.in	Fri Apr 27 23:20:51 2001
-@@ -98,10 +98,13 @@
-          bool '    CGsix (GX,TurboGX) support' CONFIG_FB_CGSIX
-       fi
-    fi
--   bool '  Epson 1355 framebuffer support' CONFIG_FB_E1355
--   if [ "$CONFIG_FB_E1355" = "y" ]; then
--      hex '    Register Base Address' CONFIG_E1355_REG_BASE a8000000
--      hex '    Framebuffer Base Address' CONFIG_E1355_FB_BASE a8200000
-+
-+   if [ "$CONFIG_SUPERH" = "y" ]; then
-+      bool '  Epson 1355 framebuffer support' CONFIG_FB_E1355
-+      if [ "$CONFIG_FB_E1355" = "y" ]; then
-+         hex '    Register Base Address' CONFIG_E1355_REG_BASE a8000000
-+         hex '    Framebuffer Base Address' CONFIG_E1355_FB_BASE a8200000
-+      fi
-    fi
-    if [ "$CONFIG_SH_DREAMCAST" = "y" ]; then
-       tristate '  Dreamcast Frame Buffer support' CONFIG_FB_DC
-@@ -179,10 +182,12 @@
-       tristate '    32 bpp packed pixels support' CONFIG_FBCON_CFB32
-       tristate '    Amiga bitplanes support' CONFIG_FBCON_AFB
-       tristate '    Amiga interleaved bitplanes support' CONFIG_FBCON_ILBM
--      tristate '    Atari interleaved bitplanes (2 planes) support' CONFIG_FBCON_IPLAN2P2
--      tristate '    Atari interleaved bitplanes (4 planes) support' CONFIG_FBCON_IPLAN2P4
--      tristate '    Atari interleaved bitplanes (8 planes) support' CONFIG_FBCON_IPLAN2P8
--#      tristate '    Atari interleaved bitplanes (16 planes) support' CONFIG_FBCON_IPLAN2P16
-+      if [ "$CONFIG_ATARI" = "y" ]; then
-+        tristate '    Atari interleaved bitplanes (2 planes) support' CONFIG_FBCON_IPLAN2P2
-+        tristate '    Atari interleaved bitplanes (4 planes) support' CONFIG_FBCON_IPLAN2P4
-+        tristate '    Atari interleaved bitplanes (8 planes) support' CONFIG_FBCON_IPLAN2P8
-+#       tristate '    Atari interleaved bitplanes (16 planes) support' CONFIG_FBCON_IPLAN2P16
-+      fi	
-       tristate '    Mac variable bpp packed pixels support' CONFIG_FBCON_MAC
-       tristate '    VGA 16-color planar support' CONFIG_FBCON_VGA_PLANES
-       tristate '    VGA characters/attributes support' CONFIG_FBCON_VGA
-
---cWoXeonUoKmBZSoM--
+> Date: Sat, 28 Apr 2001 11:44:58 -0400 (EDT)
+> From: Garett Spencley <gspen@home.com>
+> To: Michael F Gordon <Michael.Gordon@ee.ed.ac.uk>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: 2.4.4 breaks dhcpcd with Realtek 8139
+>
+> On Sat, 28 Apr 2001, Michael F Gordon wrote:
+>
+> > dhcpcd stops working if I install 2.4.4.  Replacing the 2.4.4 version of
+> > 8139too.c with the 2.4.3 version and leaving everything else exactly
+> > the same gets things working again.  Configuring the interface by hand
+> > after dhcpcd has timed out also works.  Has anyone else seen this?
+>
+> I noticed this in 2.4.3-acX series as well. But here's the funny part:
+> When dhcp starts up during bootup it doesn't work. But as
+> soon as I log in and do a su -c '/etc/rc.d/init.d/network restart' there's
+> instant success!
+>
+> This is on Mandrake 8.0
+>
+> It doesn't make much sense to me.
+>
+> --
+> Garett
+>
+> > ISC
+> DHCP 2.0, kernel compiled with gcc 2.95.2 >
+> > lspci:
+> >   00:12.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 8139 (rev 10)
+> >
+> > Boot messages with 2.4.3 version:
+> >   8139too Fast Ethernet driver 0.9.15c loaded
+> >   PCI: Found IRQ 5 for device 00:12.0
+> >   eth0: RealTek RTL8139 Fast Ethernet at 0xc9804f00, 00:10:a7:05:8e:da, IRQ 5
+> >   eth0:  Identified 8139 chip type 'RTL-8139C'
+> >
+> > Boot messages with 2.4.4 version:
+> >   8139too Fast Ethernet driver 0.9.16
+> >   PCI: Found IRQ 5 for device 00:12.0
+> >   eth0: RealTek RTL8139 Fast Ethernet at 0xc9804f00, 00:10:a7:05:8e:da, IRQ 5
+> >   eth0:  Identified 8139 chip type 'RTL-8139C'
+> >
+> >
+> >
+> > Michael Gordon
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,95 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVBWV07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVBWV26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVBWV07 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 16:26:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVBWV07
+	id S261606AbVBWV26 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 16:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVBWV2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 16:26:59 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35849 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261601AbVBWV0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 16:26:00 -0500
-Date: Wed, 23 Feb 2005 22:25:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mikael Pettersson <mikpe@user.it.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.4.30-pre1] preliminary fixes for gcc-4.0
-Message-ID: <20050223212559.GC3432@stusta.de>
-References: <16907.32186.211277.994120@alkaid.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16907.32186.211277.994120@alkaid.it.uu.se>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 23 Feb 2005 16:28:51 -0500
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:45281 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261600AbVBWV2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 16:28:10 -0500
+Message-ID: <421CF575.20801@arcor.de>
+Date: Wed, 23 Feb 2005 22:28:21 +0100
+From: Prakash Punnoor <prakashp@arcor.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050222)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Mark Lord <mlord@pobox.com>
+Subject: Re: [BK PATCHES] 2.6.x libata fixes (mostly)
+References: <421CE018.5030007@pobox.com> <200502232345.23666.adobriyan@mail.ru>
+In-Reply-To: <200502232345.23666.adobriyan@mail.ru>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigEAAB9FD077E1A47AEE6106E5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 04:28:58PM +0100, Mikael Pettersson wrote:
-> Here is a preliminary set of patches to allow gcc-4.0 (20050130)
-> to compile the 2.4.30-pre1 kernel. I make no claim that the patches
-> are complete, but they have been tested successfully on i386 (multiple
-> boxes), x86-64, and ppc32.
-> 
-> The changes fall into these categories:
->...
-> - Add -Wno-pointer-sign to silence lots of compiler warnings.
->...
-> /Mikael
->...
-> --- linux-2.4.30-pre1/arch/i386/Makefile	2004-11-17 18:36:41.000000000 +0100
-> +++ linux-2.4.30-pre1.gcc4-fixes-v5/arch/i386/Makefile	2005-02-10 14:35:01.000000000 +0100
-> @@ -98,6 +98,9 @@ endif
->  # due to the lack of sharing of stacklots.
->  CFLAGS += $(call check_gcc,-fno-unit-at-a-time,)
->  
-> +# disable pointer signedness warnings in gcc 4.0
-> +CFLAGS += $(call check_gcc,-Wno-pointer-sign,)
-> +
->  HEAD := arch/i386/kernel/head.o arch/i386/kernel/init_task.o
->  
->  SUBDIRS += arch/i386/kernel arch/i386/mm arch/i386/lib
-> diff -rupN linux-2.4.30-pre1/arch/ppc/Makefile linux-2.4.30-pre1.gcc4-fixes-v5/arch/ppc/Makefile
-> --- linux-2.4.30-pre1/arch/ppc/Makefile	2004-04-14 20:22:20.000000000 +0200
-> +++ linux-2.4.30-pre1.gcc4-fixes-v5/arch/ppc/Makefile	2005-02-10 14:35:01.000000000 +0100
-> @@ -25,6 +25,11 @@ CFLAGS		:= $(CFLAGS) -I$(TOPDIR)/arch/$(
->  HOSTCFLAGS	+= -I$(TOPDIR)/arch/$(ARCH)
->  CPP		= $(CC) -E $(CFLAGS)
->  
-> +check_gcc = $(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi)
-> +
-> +# disable pointer signedness warnings in gcc 4.0
-> +CFLAGS += $(call check_gcc,-Wno-pointer-sign,)
-> +
->  ifdef CONFIG_4xx
->  CFLAGS := $(CFLAGS) -Wa,-m405
->  endif
->...
-> --- linux-2.4.30-pre1/arch/x86_64/Makefile	2004-04-14 20:22:20.000000000 +0200
-> +++ linux-2.4.30-pre1.gcc4-fixes-v5/arch/x86_64/Makefile	2005-02-10 14:35:01.000000000 +0100
-> @@ -56,6 +56,9 @@ endif
->  # this is needed right now for the 32bit ioctl code
->  CFLAGS += $(call check_gcc,-fno-unit-at-a-time,)
->  
-> +# disable pointer signedness warnings in gcc 4.0
-> +CFLAGS += $(call check_gcc,-Wno-pointer-sign,)
-> +
->  ifdef CONFIG_MK8
->  CFLAGS += $(call check_gcc,-march=k8,)
->  endif
->...
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigEAAB9FD077E1A47AEE6106E5
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Shouldn't the first part of these three patches (adding 
--Wno-pointer-sign to the main Makefile be enough)?
+Alexey Dobriyan schrieb:
+> On Wednesday 23 February 2005 21:57, Jeff Garzik wrote:
 
-That's also how it's handled in 2.6 .
+>>+		addr = sg_dma_address(sg);
+>>+		*(u64 *)prd = cpu_to_le64(addr);
+>
+>
+> *(__le64 *) prd
+>
+>
+>>+		prd += sizeof(u64);
+>
+>
+>>+		len = sg_dma_len(sg);
+>>+		*(u32 *)prd = cpu_to_le32(len);
+>
+>
+> *(__le32 *) prd
 
-cu
-Adrian
+If I am not totally mistaken this is not gcc4 friendly code. (lvalue thing...)
+Wouldn't it be better to prevent double patching?
 
--- 
+--
+Prakash Punnoor
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+formerly known as Prakash K. Cheemplavam
 
+--------------enigEAAB9FD077E1A47AEE6106E5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCHPV5xU2n/+9+t5gRAjvPAJ40AfCWd+7UnbK+oYcs2qckx9QE7wCgnalY
+j5kSv468tlbc/a6fgF7FaTw=
+=DPhM
+-----END PGP SIGNATURE-----
+
+--------------enigEAAB9FD077E1A47AEE6106E5--

@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264750AbTF3Huy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 03:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbTF3Huy
+	id S264793AbTF3H5F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 03:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264828AbTF3H5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 03:50:54 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15887 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263777AbTF3Huw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 03:50:52 -0400
-Date: Mon, 30 Jun 2003 09:05:07 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Paul Rolland <rol@as2917.net>
-Cc: "'Chris Friesen'" <cfriesen@nortelnetworks.com>, paulus@samba.org,
-       linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [BUG]:   problem when shutting down ppp connection since 2.5.70
-Message-ID: <20030630090507.A32593@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Rolland <rol@as2917.net>,
-	'Chris Friesen' <cfriesen@nortelnetworks.com>, paulus@samba.org,
-	linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org,
-	linux-net@vger.kernel.org
-References: <3EFFA1EA.7090502@nortelnetworks.com> <005e01c33ecd$e20ce6e0$4100a8c0@witbe>
+	Mon, 30 Jun 2003 03:57:05 -0400
+Received: from coral.ocn.ne.jp ([211.6.83.180]:55753 "EHLO
+	smtp.coral.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S264793AbTF3H5D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 03:57:03 -0400
+Date: Mon, 30 Jun 2003 17:09:47 +0900
+From: Bruce Harada <bharada@coral.ocn.ne.jp>
+To: matti.aarnio@zmailer.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re:
+Message-Id: <20030630170947.07aed897.bharada@coral.ocn.ne.jp>
+In-Reply-To: <20030630031653.29554.qmail@mailgate.netsplit.com>
+References: <20030630031653.29554.qmail@mailgate.netsplit.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <005e01c33ecd$e20ce6e0$4100a8c0@witbe>; from rol@as2917.net on Mon, Jun 30, 2003 at 08:07:25AM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 30, 2003 at 08:07:25AM +0200, Paul Rolland wrote:
-> > Jun 29 17:18:39 doug kernel: unregister_netdevice: waiting 
-> > for ppp0 to 
-> > become free. Usage count = 1
+
+Matt,
+
+What is this guy doing? I count 23 in the last few hours.
+
+
+On 30 Jun 2003 03:16:53 -0000
+usenet@mailgate.netsplit.com wrote:
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> Interestingly, I've got the same with device tun0 on my box, and
-> it appeared at the same time.
-> 2.5.70 was really blocking as it even prevented a normal shutdown
-> of the box :-(
-
-People with PCMCIA cards have been reporting the same thing.  It sounds
-like something's up with the netdev layer, and it has persisted until
-2.5.73 thus far.
-
-Note that it helps to post such messages to the linux-net lists; some
-of the net people don't read lkml.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-

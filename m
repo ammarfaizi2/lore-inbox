@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269648AbRHAFWM>; Wed, 1 Aug 2001 01:22:12 -0400
+	id <S269521AbRHAFRu>; Wed, 1 Aug 2001 01:17:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269650AbRHAFWA>; Wed, 1 Aug 2001 01:22:00 -0400
-Received: from 205-158-62-80.outblaze.com ([205.158.62.80]:14262 "HELO
-	ws2-5.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S269648AbRHAFV5>; Wed, 1 Aug 2001 01:21:57 -0400
-Message-ID: <20010801052200.25526.qmail@webmail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: " peter revill" <arevill@bigpond.net.au>
+	id <S269648AbRHAFRl>; Wed, 1 Aug 2001 01:17:41 -0400
+Received: from member.michigannet.com ([207.158.188.18]:57104 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S269521AbRHAFRY>; Wed, 1 Aug 2001 01:17:24 -0400
+Date: Wed, 1 Aug 2001 01:16:52 -0400
+From: Paul <set@pobox.com>
 To: linux-kernel@vger.kernel.org
-Date: Wed, 01 Aug 2001 13:22:00 +0800
-Subject: university studies?
+Subject: BUG: invalid MAX_DMA_ADDRESS macro for i386?
+Message-ID: <20010801011651.K225@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Ok, im 16 and looking at heading into uni as soon as ive finished year 12.
-I'm gonna head on over to uni, i am wondering out of curiosity what courses most kernel developers have done? im going to do either bachelour of computer science, or information technology, at a later date, when im done my studies im hoping to help with kernel developing, mozilla etc. etc., so i was wondering what people would consider the course that gives you "kernel development" sort of skillset-mindset
-any feedback is appriciated, please CC it to my mail adress at arevill@bigpond.net.au 
 
-Kind Regards and Cheers
-Peter Revill
+	Dear All;
 
+	2.4.6-ac5 kernel, i486.
+	Well, I have tracked down my problem. We see a comparison
+like this to  determine whether to use a bounce buffer:
 
-Peter Revill
+if ( virt_to_bus(addr+buflen) >= MAX_DMA_ADDRESS) {
+...(use a bounce buffer 'cause that addr is not dma-able)...
 
+	This is not working, because MAX_DMA_ADDRESS is defined
+so:
 
--- 
+./include/asm-i386/dma.h:
+#define MAX_DMA_ADDRESS (PAGE_OFFSET+0x1000000)
 
-________________________________________________________________________________
-Access your POP email anytime, anywhere with WebMail.com (www.webmail.com), a product of Mail.com.
+	This looks to come out to 0xc1000000. This does not seem
+to be comparable to a bus address. eg. 0x100000 == 16M, the DMA
+limit on ISA bus.
+	This driver doesnt work on ISA machine with > 16M, as the
+bounce buffer never gets used. (forcing its unconditional use
+makes it work fine)
+	So, what is wrong here? Macro, or conditional? Clue me in
+so I can fix it correctly.
 
-
-
-
+Paul
+set@pobox.com

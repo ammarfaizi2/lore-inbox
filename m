@@ -1,46 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264293AbTEaLqN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 07:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264294AbTEaLqN
+	id S264289AbTEaLrK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 07:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264294AbTEaLrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 07:46:13 -0400
-Received: from ns.suse.de ([213.95.15.193]:53255 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264293AbTEaLqM (ORCPT
+	Sat, 31 May 2003 07:47:10 -0400
+Received: from ns.suse.de ([213.95.15.193]:37128 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264289AbTEaLrG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 07:46:12 -0400
-Date: Sat, 31 May 2003 13:58:07 +0200
+	Sat, 31 May 2003 07:47:06 -0400
+Date: Sat, 31 May 2003 14:00:27 +0200
 From: Andi Kleen <ak@suse.de>
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Copy nanosecond stat values for i386
-Message-ID: <20030531115807.GA11153@wotan.suse.de>
+To: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Some subarch warning fixes
+Message-ID: <20030531120027.GA11314@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-A brown paper bag bug, noticed by Ralf Baechtle. 
-
-i386 needs to define STAT_HAVE_NSEC too, otherwise it won't copy
-the nanosecond values to user space.
+Some recent subarch interface changes caused macro redefinition warnings for
+GET_APIC_ID and APIC_ID_MASK with the generic subarchitecture.
+Fixing it properly required some reorganization by giving the generic arch
+a mach_apicdef.h too.
 
 -Andi
 
-
-Index: linux/include/asm-i386/stat.h
+Index: linux/arch/i386/mach-generic/default.c
 ===================================================================
-RCS file: /home/cvs/linux-2.5/include/asm-i386/stat.h,v
-retrieving revision 1.12
-diff -u -u -r1.12 stat.h
---- linux/include/asm-i386/stat.h	30 May 2003 20:11:00 -0000	1.12
-+++ linux/include/asm-i386/stat.h	31 May 2003 10:24:23 -0000
-@@ -73,4 +73,6 @@
- 	unsigned long long	st_ino;
- };
+RCS file: /home/cvs/linux-2.5/arch/i386/mach-generic/default.c,v
+retrieving revision 1.11
+diff -u -u -r1.11 default.c
+--- linux/arch/i386/mach-generic/default.c	30 May 2003 20:10:55 -0000	1.11
++++ linux/arch/i386/mach-generic/default.c	31 May 2003 10:24:21 -0000
+@@ -2,6 +2,7 @@
+  * Default generic APIC driver. This handles upto 8 CPUs.
+  */
+ #define APIC_DEFINITION 1
++#include <asm/mach-default/mach_apicdef.h>
+ #include <asm/genapic.h>
+ #include <asm/fixmap.h>
+ #include <asm/apicdef.h>
+@@ -10,7 +11,6 @@
+ #include <linux/smp.h>
+ #include <linux/init.h>
+ #include <asm/mach-default/mach_apic.h>
+-#include <asm/mach-default/mach_apicdef.h>
+ #include <asm/mach-default/mach_ipi.h>
+ #include <asm/mach-default/mach_mpparse.h>
  
-+#define STAT_HAVE_NSEC 1
+Index: linux/include/asm-i386/mach-generic/mach_apic.h
+===================================================================
+RCS file: /home/cvs/linux-2.5/include/asm-i386/mach-generic/mach_apic.h,v
+retrieving revision 1.11
+diff -u -u -r1.11 mach_apic.h
+--- linux/include/asm-i386/mach-generic/mach_apic.h	30 May 2003 20:12:04 -0000	1.11
++++ linux/include/asm-i386/mach-generic/mach_apic.h	31 May 2003 10:24:24 -0000
+@@ -24,8 +24,6 @@
+ #define check_apicid_present (genapic->check_apicid_present)
+ #define check_phys_apicid_present (genapic->check_phys_apicid_present)
+ #define check_apicid_used (genapic->check_apicid_used)
+-#define GET_APIC_ID (genapic->get_apic_id)
+-#define APIC_ID_MASK (genapic->apic_id_mask)
+ #define cpu_mask_to_apicid (genapic->cpu_mask_to_apicid)
+ 
+ #endif /* __ASM_MACH_APIC_H */
+ 
+--- /dev/null	2002-10-01 20:59:47.000000000 +0200
++++ linux-small/include/asm-i386/mach-generic/mach_apicdef.h	2003-05-31 12:20:12.000000000 +0200
+@@ -0,0 +1,11 @@
++#ifndef _GENAPIC_MACH_APICDEF_H
++#define _GENAPIC_MACH_APICDEF_H 1
 +
- #endif
++#ifndef APIC_DEFINITION
++#include <asm/genapic.h>
++
++#define GET_APIC_ID (genapic->get_apic_id)
++#define APIC_ID_MASK (genapic->apic_id_mask)
++#endif
++
++#endif

@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264234AbUDNNes (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 09:34:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264239AbUDNNes
+	id S264020AbUDNNiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 09:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbUDNNiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 09:34:48 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:38327 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264234AbUDNNeo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 09:34:44 -0400
-Date: Wed, 14 Apr 2004 15:34:36 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Guillaume@lacote.name, linux-kernel@vger.kernel.org, Linux@glacote.com
-Subject: Re: Using compression before encryption in device-mapper
-Message-ID: <20040414133436.GC6955@wohnheim.fh-wedel.de>
-References: <200404131744.40098.Guillaume@Lacote.name> <200404140854.56387.Guillaume@Lacote.name> <20040414094334.GA25975@wohnheim.fh-wedel.de> <200404141202.07021.Guillaume@Lacote.name> <407D3231.2080605@grupopie.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 14 Apr 2004 09:38:24 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:27017 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S264020AbUDNNiW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 09:38:22 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Oliver Neukum <oliver@neukum.org>, Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs only on the disconnected interface
+Date: Wed, 14 Apr 2004 15:38:19 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Frederic Detienne <fd@cisco.com>
+References: <200404141245.37101.baldrick@free.fr> <200404141530.54093.oliver@neukum.org>
+In-Reply-To: <200404141530.54093.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <407D3231.2080605@grupopie.com>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200404141538.19189.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 April 2004 13:44:33 +0100, Paulo Marques wrote:
-> Guillaume Lacôte wrote:
-> 
-> >>>Oops ! I thought it was possible to guarantee with the Huffman encoding
-> >>>(which is more basic than Lempev-Zif) that the compressed data use no
-> >>>more than 1 bit for every byte (i.e. 12,5% more space).
-> 
-> WTF??
-> 
-> Zlib gives a maximum increase of 0.1%  + 12 bytes (from the zlib manual), 
-> which for a 512 block will be a 2.4% guaranteed increase.
-> 
-> I think that zlib already does the "if this is bigger than original, just 
-> mark the block type as uncompressed" algorithm internally, so the increase 
-> is minimal in the worst case.
+On Wednesday 14 April 2004 15:30, Oliver Neukum wrote:
+> Am Mittwoch, 14. April 2004 12:45 schrieb Duncan Sands:
+> > The remaining three patches contain miscellaneous fixes to usbfs.
+> > This one fixes up the disconnect callback to only shoot down urbs
+> > on the disconnected interface, and not on all interfaces.  It also adds
+> > a sanity check (this check is pointless because the interface could
+> > never have been claimed in the first place if it failed, but I feel
+> > better having it there).
+>
+> Well, I don't. If you care about it, add a WARN_ON().
+> Checking without consequences is bad.
 
-Correct, but Guillaume doesn't care about compression efficiency.
-"mark the block uncompressed" is precisely what he does *not* want,
-unless I got him wrong.
+If the check fails then you are scribbling over kernel memory.  So the
+consequences of the check failing are bad.  Also, it is in a slow path.
+Thus I prefer to have the check even if it is supposed to never fail.  I
+agree that a message should also be output.
 
-Jörn
-
--- 
-...one more straw can't possibly matter...
--- Kirby Bakken
+Duncan.

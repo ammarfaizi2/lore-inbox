@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261555AbSJQUEv>; Thu, 17 Oct 2002 16:04:51 -0400
+	id <S262107AbSJQUOk>; Thu, 17 Oct 2002 16:14:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261805AbSJQUEv>; Thu, 17 Oct 2002 16:04:51 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:32782 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261555AbSJQUEu>;
-	Thu, 17 Oct 2002 16:04:50 -0400
-Date: Thu, 17 Oct 2002 13:10:31 -0700
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+	id <S262108AbSJQUOk>; Thu, 17 Oct 2002 16:14:40 -0400
+Received: from tsv.sws.net.au ([203.36.46.2]:49417 "EHLO tsv.sws.net.au")
+	by vger.kernel.org with ESMTP id <S262107AbSJQUOi>;
+	Thu, 17 Oct 2002 16:14:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021017201030.GA384@kroah.com>
-References: <20021017195015.A4747@infradead.org> <20021017185352.GA32537@kroah.com> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com> <20021017210402.A7741@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021017210402.A7741@infradead.org>
-User-Agent: Mutt/1.4i
+Date: Thu, 17 Oct 2002 22:20:21 +0200
+User-Agent: KMail/1.4.3
+Cc: linux-security-module@wirex.com
+References: <20021017195015.A4747@infradead.org> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com>
+In-Reply-To: <20021017190723.GB32537@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210172220.21458.russell@coker.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 09:04:02PM +0100, Christoph Hellwig wrote:
-> On Thu, Oct 17, 2002 at 12:07:23PM -0700, Greg KH wrote:
-> > But this will require every security module project to petition for a
-> > syscall, which would be a pain, and is the whole point of having this
-> > sys_security call.
-> 
-> And the whole point of the reemoval is to not make adding syscalls
-> easy.  Adding a syscall needs review and most often you actually want
-> a saner interface.
+On Thu, 17 Oct 2002 21:07, Greg KH wrote:
+> On Thu, Oct 17, 2002 at 07:58:38PM +0100, Christoph Hellwig wrote:
+> > > Yes, it's a big switch, but what do you propose otherwise?  SELinux
+> > > would need a _lot_ of different security calls, which would be fine,
+> > > but we don't want to force every security module to try to go through
+> > > the process of getting their own syscalls.
+> >
+> > They should register their syscalls with the kernel properly. Look
+> > at what e.g. the streams people did after the sys_call_table
+> > removal.  It's enough that IRIX suffers from the syssgi syndrome, no
+> > need to copy redo their mistakes in Linux.
+>
+> Hm, as I'm not a SELinux developer, I can't tell you how many different
+> syscalls they need, or what they are for, sorry.
 
-Ok, I think it's time for someone who actually cares about the security
-syscall to step up here to try to defend the existing interface.  I'm
-pretty sure Ericsson, HP, SELinux, and WireX all use this, so they need
-to be the ones defending it.
+I'm not involved with the kernel coding, but I've been doing quite a bit of 
+user-land SE Linux development (and the first cut at strace support).
 
-> > How would they be done differently now?  Multiple different syscalls?
-> 
-> Yes.
+SE Linux has currently 52 system calls.  One system call was added recently, 
+and other system calls may need to be added.  SE Linux is still in a state of 
+development.
 
-Hm, in looking at the SELinux documentation, here's a list of the
-syscalls they need:
-	http://www.nsa.gov/selinux/docs2.html
+Now if every SE system call was to be a full Linux system call then LANANA 
+would be involved in the discussions every time that a new SE call was added, 
+which would not be desired by the SE Linux people or the LANANA people.  So 
+this means having a switch statement for the different SE calls.
 
-That's a lot of syscalls :)
+So if we accept that it's a maximum of one system call per security module, 
+then it's only a small step to do the same for LSM.
 
-thanks,
+Do we expect that SE Linux or other security system calls will be such a 
+performance bottleneck that an extra switch or two will hurt?
 
-greg k-h
+> But this will require every security module project to petition for a
+> syscall, which would be a pain, and is the whole point of having this
+> sys_security call.
+
+Also it would mean that developmental projects would be more difficult.  If 
+you are doing some experimental coding that's not ready for release then 
+there might be a number of kernels released during the development cycle 
+before you petition for a number.  In this case you may be forced to change 
+the syscall number if someone else gets the number you were working with.
+Then when we share patches of experimental software there will be issues of 
+syscall conflicts.  With the current LSM setup of a 2^32 LSM calls, you can 
+choose a number somewhat arbitarily and be fairly sure that it won't conflict 
+and that you can later register the same number with the LSM people.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+

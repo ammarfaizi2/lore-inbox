@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131579AbRC0UtU>; Tue, 27 Mar 2001 15:49:20 -0500
+	id <S131564AbRC0UrK>; Tue, 27 Mar 2001 15:47:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131573AbRC0UtK>; Tue, 27 Mar 2001 15:49:10 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:39685 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131579AbRC0Usw>; Tue, 27 Mar 2001 15:48:52 -0500
-Message-ID: <3AC0FCB5.1F7AC0EF@t-online.de>
-Date: Tue, 27 Mar 2001 22:48:53 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: James Simmons <jsimmons@linux-fbdev.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S131578AbRC0Uqu>; Tue, 27 Mar 2001 15:46:50 -0500
+Received: from linas.org ([207.170.121.1]:14588 "HELO backlot.linas.org")
+	by vger.kernel.org with SMTP id <S131564AbRC0Uqj>;
+	Tue, 27 Mar 2001 15:46:39 -0500
 Subject: Re: mouse problems in 2.4.2 -> lost byte
-In-Reply-To: <Pine.LNX.4.31.0103271226140.847-100000@linux.local>
+To: Gunther.Mayer@t-online.de (Gunther Mayer)
+Date: Tue, 27 Mar 2001 14:45:51 -0600 (CST)
+Cc: linas@linas.org, linux-kernel@vger.kernel.org
+In-Reply-To: <3AC0F4D5.9E45E60C@t-online.de> from "Gunther Mayer" at Mar 27, 2001 10:15:17 PM
+From: linas@linas.org
+X-Hahahaha: hehehe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20010327204551.623181B7A5@backlot.linas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
+It's been rumoured that Gunther Mayer said:
 > 
-> >This is easily explained: some byte of the mouse protocol was lost.
-> >(Some mouse protocols are even designed to allow
-> >easy resync/recovery by fixed bit patterns!)
-> >
-> >Write an intelligent mouse driver for XFree86 to compensate for
-> >lost bytes.
+> > I am experiencing debilitating intermittent mouse problems & was about
+> ...
+> > Symptoms:
+> > After a long time of flawless operation (ranging from nearly a week to
+> > as little as five minutes), the X11 pointer flies up to top-right corner,
+>                                                           ^^^^^^^^^^^^^^^^
+> > and mostly wants to stay there.  Moving the mouse causes a cascade of
+> > spurious button-press events get generated.
 > 
-> Or write a kernel input device driver. In fact I probable have a mouse
-> driver for you. 
+> This is easily explained: some byte of the mouse protocol was lost.
 
-Where can I get your driver?
+Bing!
+
+That's it! This would also explain why gpm seems to work i.e. correctly
+process the events, even when X11 can't.  I will take this up on the
+Xf86 lists ...
+
+> (Some mouse protocols are even designed to allow
+>  easy resync/recovery by fixed bit patterns!)
+
+This mouse seems to set every fourth byte to zero, which should allow
+syncing ...  
+I'm still investigating to see if the kernel buffer is overflowing ...
 
 
->        What kind of mouse do you have? Then set your X config to
-> have the following:
-> 
-> Section "Pointer"
->             Protocol    "ImPS/2"
->             Device      "/dev/input/mice"
-
-What is better in using /dev/input/mice than /dev/psaux
-on this problem exactly?
+--linas

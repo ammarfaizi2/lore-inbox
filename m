@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263567AbTH0QeY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 12:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbTH0QeX
+	id S263530AbTH0Qsu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 12:48:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbTH0Qsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 12:34:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31123 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263567AbTH0QeV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 12:34:21 -0400
-Date: Wed, 27 Aug 2003 09:29:18 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: LGW <large@lilymarleen.de>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: porting driver to 2.6, still unknown relocs... :(
-Message-Id: <20030827092918.0981fa71.rddunlap@osdl.org>
-In-Reply-To: <3F4CD937.10204@lilymarleen.de>
-References: <3F4CB452.2060207@lilymarleen.de>
-	<20030827081312.7563d8f9.rddunlap@osdl.org>
-	<3F4CCF85.1020502@lilymarleen.de>
-	<1061999977.22825.71.camel@dhcp23.swansea.linux.org.uk>
-	<3F4CD937.10204@lilymarleen.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 27 Aug 2003 12:48:50 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:14241 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263530AbTH0Qss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 12:48:48 -0400
+Subject: Re: [PATCH 2.6][TRIVIAL] Update ide.txt documentation to current
+	ide.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mlord@pobox.com,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.LNX.4.51.0308271839110.32333@dns.toxicfilms.tv>
+References: <Pine.LNX.4.51.0308211225120.23765@dns.toxicfilms.tv>
+	 <1061998172.22825.51.camel@dhcp23.swansea.linux.org.uk>
+	 <Pine.LNX.4.51.0308271839110.32333@dns.toxicfilms.tv>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1062002865.22739.89.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 27 Aug 2003 17:47:46 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Aug 2003 18:15:51 +0200 LGW <large@lilymarleen.de> wrote:
+On Mer, 2003-08-27 at 17:41, Maciej Soltysiak wrote:
+> > >   "hdx=slow"		: insert a huge pause after each access to the data
+> > >  			  port. Should be used only as a last resort.
+> >
+> > Should go - isnt supported any more
+> So drivers/ide/ide.c should be updated too.
 
-| Alan Cox wrote:
-| 
-| >On Mer, 2003-08-27 at 16:34, LGW wrote:
-| >  
-| >
-| >>The driver is mostly a wrapper around a generic driver released by the 
-| >>manufacturer, and that's written in C++. But it worked like this for the 
-| >>2.4.x kernel series, so I think it has something todo with the new 
-| >>module loader code. Possibly ld misses something when linking the object 
-| >>specific stuff like constructors?
-| >>    
-| >>
-| >
-| >The new module loader is kernel side, it may well not know some of the
-| >C++ specific relocation types. 
-| >
-| To you think it's possible to remove those relocations completely, so 
-| that the whole C++ stuff is linked "without" any more open relocations?
+Yes
 
-Hopefully Rusty will see this and make some comments on it.
+> > > + "ide=reverse"		: formerly called to pci sub-system, but now local.
+> > > +
+> >
+> > Better if it said what it did ?
+> drivers/ide/ide.c says only this.
 
-You could try using objdump to look for the item(s) that have this
-relocation type (0).  That might help to see what is causing it.
+It reverses the order that interfaces are detected (and thus assigned
+ide*). Or it used to. The hotplug changes may actually mean it doesn't 
+do anything any more but that is easy to test.
 
-Or you could modify the module loader to ignore relocation type 0...
-and see what happens.
+ie if you had
 
-| After all, those are only "helper functions" that could be linked 
-| "statically", or am I mistaken?
-| 
-| I don't have such deep knowledge of the C++ linking process, so I can't 
-| answer that question myself.
-| 
-| The Generic Driver is not public available I think, but you could get it 
-| here:
-| http://space.virgilio.it/g_pochini@virgilio.it/ea.html (site with the 
-| patches for alsa)
-| http://space.virgilio.it/g_pochini@virgilio.it/eagd-0.6.0.tar.bz2 (the 
-| original generic driver code)
+ide0: AMD74xx 
+ide1: PDC202xx
 
---
-~Randy
+you'd get
+
+ide0: PDC202xx
+ide1: AMD74xx
+
+with =reverse
+

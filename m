@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265874AbUF3NPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266666AbUF3NRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265874AbUF3NPz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 09:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUF3NPy
+	id S266666AbUF3NRW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 09:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266665AbUF3NRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 09:15:54 -0400
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:40619 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S265874AbUF3NPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 09:15:51 -0400
-Date: Wed, 30 Jun 2004 09:15:13 -0400
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: per-process namespace?
-In-reply-to: <20040629221025.GI12308@parcelfarce.linux.theplanet.co.uk>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org
-Message-id: <40E2BCE1.3040302@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <1088534826.2816.38.camel@dyn319623-009047021109.beaverton.ibm.com>
- <40E1DABD.9000202@sun.com>
- <20040629221025.GI12308@parcelfarce.linux.theplanet.co.uk>
+	Wed, 30 Jun 2004 09:17:22 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:44209 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S266669AbUF3NRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 09:17:02 -0400
+Subject: Re: [RFC] Buggy e100.c on ARM / DMA sync interfaces
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <20040630104900.A11109@flint.arm.linux.org.uk>
+References: <20040630104900.A11109@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 30 Jun 2004 08:16:48 -0500
+Message-Id: <1088601411.2084.9.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> This can't work - and I suspect anyone using the *dma_sync* functions
+> will be in for the same problem.  Why?
+> 
+> Cache lines.  They have a defined size and are not merely a single byte
+> or a single word.  If you modify even one single bit, you stand the
+> chance of writing back the whole cache line, possibly overwriting data
+> which the device has updated since the cache line was read.
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Tue, Jun 29, 2004 at 05:10:21PM -0400, Mike Waychison wrote:
->
->>Another caveat is that the current system disallows you from doing any
->>mount/umount's in another namespace (bogus security?).
->
->
-> Nothing bogus here - namespace boundary _IS_ a trust boundary and that's
-> exactly the diference between symlinks and bindings - symlink attacks
-> are possible exactly because they allow you to modify visible tree
-topology
-> for other users.
+Hang on, the PCI (and DMA) API explicitly states that to call sync on a
+dma mapped area, you must do it for the *whole* of the area.  The API's
+also transfer ownership of the area (i.e. only the device *or* the
+driver may touch it depending on who has the ownership). This is
+designedly to get us out of cache line interference problems.
 
-Yet being able to access another namespace via directory fd still breaks
-that boundary.  I'm not sure if it's a feature or a not.  If it is a
-feature, I'd argue that having the fd means you are trusted to play in
-that namespace, which implies the right to do things like call mount(2)
-in it.
+So the particular problem here is an incorrect *abuse* of the API. 
+There is a section in the black magic part of the DMA API that allows
+you partially to sync a mapped area (dma_sync_single_range).  However,
+it's in the experts only section and it explains that if you do this,
+you're responsible for preventing cache line interference and provides
+another API (dma_get_cache_alignment) explicitly so the driver knows
+what the cache line boundaries are.
 
->
-> Note that sharing parts of namespace (which is basically what automounter
-> wants and what we do not have yet) is deliberate act of trust - same as
-> having a part of your address space shared with other process.
+> Therefore, if you're going to use the dma_sync functions to modify data
+> owned by the remote device, you _must_ stop the remote device accessing
+> the surrounding data _before_ touching it.
 
-Namespace sharing has been touched on before, but hasn't been discussed
-publicly.  My take on it is that in order to have namespace sharing work
-in some semantically sane way, we need to be able to identify
-owner-namespaces for shared branches of the vfsmount tree.  This implies
-making namespaces first-class primitives.  Is this where we want to go
-with this?
+Precisely, hence the ownership concept.
 
-I only see automounting being the only consumer of such a beast, are
-there other possible users?
+> With the above code on ARM, it effectively means that we will read the
+> whole struct rfd and some other data into cache, modify the command
+> field, and then write _at least_ the whole struct rfd back out, all
+> with the chip's DMA still running.
+> 
+> _That_ can't be good.
+> 
+> Note - I'm not saying that this is the cause of the above problem, but
+> that this is something I have spotted while reading through the driver
+> to ascertain why it possibly could not be working.
+> 
+> Comments?
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-http://www.sun.com
+Clearly the e100 needs fixing.  Either by migrating it to the expert
+API. Or, in this case, could we not just pad the structure with
+appropriate L1_CACHE_ALIGNMENT tags?
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+James
 
-iD8DBQFA4rzgdQs4kOxk3/MRAkxVAJ9kHj/6xfa/zSXLpT7v2hkOSFWhrgCggjL/
-ovcsxTkm6FpbWMlzIQn4geU=
-=B4D5
------END PGP SIGNATURE-----
+

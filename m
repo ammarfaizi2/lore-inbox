@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbTJ3KJm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 05:09:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTJ3KJm
+	id S262330AbTJ3KNo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 05:13:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbTJ3KNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 05:09:42 -0500
-Received: from smtprelay01.ispgateway.de ([62.67.200.156]:22434 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S262327AbTJ3KJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 05:09:35 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: trelane@digitasaru.net
-Subject: Re: Things that Longhorn seems to be doing right
-Date: Thu, 30 Oct 2003 10:23:32 +0100
-User-Agent: KMail/1.5.4
-References: <3F9F7F66.9060008@namesys.com> <20031030015212.GD8689@thunk.org> <20031030020317.GE3094@digitasaru.net>
-In-Reply-To: <20031030020317.GE3094@digitasaru.net>
+	Thu, 30 Oct 2003 05:13:44 -0500
+Received: from spectre.fbab.net ([212.214.165.139]:29584 "HELO mail2.fbab.net")
+	by vger.kernel.org with SMTP id S262330AbTJ3KNm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 05:13:42 -0500
+Message-ID: <3FA0E44F.9040505@fbab.net>
+Date: Thu, 30 Oct 2003 11:13:35 +0100
+From: "Magnus Naeslund(t)" <mag@fbab.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Erik Andersen <andersen@codepoet.org>,
-       Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-Message-Id: <200310301019.35568.ioe-lkml@rameria.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Sreeram Kumar Ravinoothala <sreeram.ravinoothala@wipro.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Question on SIGFPE
+References: <94F20261551DC141B6B559DC4910867217764D@blr-m3-msg.wipro.com>
+In-Reply-To: <94F20261551DC141B6B559DC4910867217764D@blr-m3-msg.wipro.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 October 2003 03:03, Joseph Pingenot wrote:
-> Actually, thinking about it, it's ideal to have as a pluggable userspace
->   daemon: on open() or a little after, determine the filetype, and forward
->   interactions to a module/plugin that knows how to deal with that
->   data format.  The plugin then calls some under-process (either back to
->   the daemon or some other thing) to then archive off the information.
+Sreeram Kumar Ravinoothala wrote:
 
-Sounds a little bit like the STREAMS interface.
+> Hi,
+> 	I am trying to run a multi threaded application on kernel 2.4.5.
+> The application vanishes without leaving any trace (no core dump) when
+> there is a link up on the hardware I use. If I try to debug I see the
+> application being killed because of SIGFPE. Can anyone throw some light
+> on this please? Also please cc the answer to me as I am not a member of
+> the list.
+ >
 
-You could also have a wrapper around your own open() which can do more.
-But sth. like you suggest is done by KDE already internally (and Gnome maybe
-too),
+The most obvious thing is to check you code for a divide by zero error.
 
+Magnus
 

@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUJQMWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269104AbUJQM1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbUJQMWx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 08:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269104AbUJQMWx
+	id S269104AbUJQM1O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 08:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269105AbUJQM1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 08:22:53 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:2314 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S261610AbUJQMWw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 08:22:52 -0400
-Date: Sun, 17 Oct 2004 14:22:46 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: David Schwartz <davids@webmaster.com>
-Cc: aebr@win.tue.nl, mark@mark.mielke.cc,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-ID: <20041017122246.GA19284@pclin040.win.tue.nl>
-References: <20041016182544.GC3379@pclin040.win.tue.nl> <MDEHLPKNGKAHNMBLJOLKKEONPAAA.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEONPAAA.davids@webmaster.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+	Sun, 17 Oct 2004 08:27:14 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:64929 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S269104AbUJQM1N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 08:27:13 -0400
+Message-ID: <4172651A.3010406@drzeus.cx>
+Date: Sun, 17 Oct 2004 14:27:06 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: IO-APIC missing interrupts
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 16, 2004 at 05:28:22PM -0700, David Schwartz wrote:
+I'm having some problems with the IO-APIC on a Acer Aspire 1501LMI 
+laptop (AMD64). When the IO-APIC is enabled it misses some interrupts. 
+Using noapic makes everything work fine.
 
-> > > Linux's behavior is correct in the literal sense that it is
-> > > doing something
-> > > that is allowed. It's incorrect in the sense that it's sub-optimal.
-> >
-> > "Allowed" by whom? By you?
-> 
-> 	I clearly explained what I meant in context that you snipped. In summary, I
-> mean 'allowed' in the sense that it's not prohibited by the standard
+The problem appears during fifo transfers when interrupts are frequent. 
+My guess is that if a new interrupt is signaled while still in the 
+interrupt handler, the new interrupt gets ignored.
 
-Yes, but it is prohibited by the standard in case you refer to POSIX.
-I quoted chapter and verse. If you refer to a different standard, be explicit.
+The device in question is a LPC/ISA device.
 
-Whether the standard is reasonable or not, and whether we care or not,
-that is a different matter.  But you must keep the facts straight.
+Are there perhaps some special commands that need to be executed by the 
+driver when on an APIC system?
 
-Andries
+Rgds
+Pierre

@@ -1,42 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263165AbRFRABM>; Sun, 17 Jun 2001 20:01:12 -0400
+	id <S263174AbRFRAAD>; Sun, 17 Jun 2001 20:00:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263167AbRFRABC>; Sun, 17 Jun 2001 20:01:02 -0400
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:11020 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S263165AbRFRAAx>; Sun, 17 Jun 2001 20:00:53 -0400
-Subject: Re: [Emu10k1-devel] Re: Buggy emu10k1 drivers.
-From: Robert Love <rml@ufl.edu>
-To: Daniel Bertrand <d.bertrand@ieee.ca>
-Cc: Dylan Griffiths <Dylan_G@bigfoot.com>,
-        emu10k1-devel <emu10k1-devel@opensource.creative.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106171449470.2175-100000@kilrogg>
-In-Reply-To: <Pine.LNX.4.33.0106171449470.2175-100000@kilrogg>
-Content-Type: text/plain; charset=ISO-8859-1
+	id <S263167AbRFQX7x>; Sun, 17 Jun 2001 19:59:53 -0400
+Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:62994 "HELO
+	mail.thock.com") by vger.kernel.org with SMTP id <S263165AbRFQX7k>;
+	Sun, 17 Jun 2001 19:59:40 -0400
+Message-ID: <3B2D446A.5C2AEEAC@bigfoot.com>
+Date: Sun, 17 Jun 2001 17:59:38 -0600
+From: Dylan Griffiths <Dylan_G@bigfoot.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Still some problems with UHCI driver in 2.4.5 on VIA chipsets
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 17 Jun 2001 20:00:45 -0400
-Message-Id: <992822448.3798.6.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Jun 2001 15:17:41 -0700, Daniel Bertrand wrote:
-> Can you give the CVS driver a try? Snapshots are available here:
-> http://opensource.creative.com/snapshot.html
-> 
-> The driver in the kernel is based on a CVS snapshot from last summer, the
-> problem may be fixed in CVS. Also, the CVS driver is a common driver for
-> 2.2 and 2.4 (with some #ifdef), so it may be useful to see if it works for
-> you on 2.4.5 but not on 2.2.19.
+Another thing I was happy to find working better in 2.4.5, was USB.  I had
+just dumped off ~70 high res pics (which would've taken forever via the
+usual RS232 method), and was deleting the last pics when gphoto froze.  The
+dmesg log has the same messages it had before when I experimented with 2.4.1
+and 2.2.19.  I'm not sure if it was harder to trigger the problem now
+because of improvements to 2.4.5, or if it was because the proc is 1.1Ghz
+(affecting a possible race condition).
 
-if the driver in the kernel is that old, could we try merging a newer
-release?  is there any reason why it has not been done yet?
+The USB controller:
+  Bus  0, device   4, function  2:
+    USB Controller: VIA Technologies, Inc. UHCI USB (rev 22).
+      IRQ 5.
+      Master Capable.  Latency=32.  
+      I/O at 0xd400 [0xd41f].
+  Bus  0, device   4, function  3:
+    USB Controller: VIA Technologies, Inc. UHCI USB (#2) (rev 22).
+      IRQ 5.
+      Master Capable.  Latency=32.  
+      I/O at 0xd000 [0xd01f].
 
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
 
+dmesg log:
+usb.c: registered new driver dc2xx
+dc2xx.c: v1.0.0 David Brownell, <dbrownell@users.sourceforge.net>
+dc2xx.c: USB Camera Driver for Kodak DC-2xx series cameras
+PCI: Found IRQ 5 for device 00:04.2
+PCI: The same IRQ used for device 00:04.3
+uhci.c: USB UHCI at I/O 0xd400, IRQ 5
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+PCI: Found IRQ 5 for device 00:04.3
+PCI: The same IRQ used for device 00:04.2
+uhci.c: USB UHCI at I/O 0xd000, IRQ 5
+usb.c: new USB bus registered, assigned bus number 2
+hub.c: USB hub found
+hub.c: 2 ports detected
+uhci.c:  Linus Torvalds, Johannes Erdfelt, Randy Dunlap, Georg Acher, Deti
+Fliegl, Thomas Sailer, Roman Weissgaerber
+uhci.c: USB Universal Host Controller Interface driver
+hub.c: USB new device connect on bus1/2, assigned device number 2
+dc2xx.c: USB Camera #0 connected, major/minor 180/80
+** here is where it froze **
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb.c: USB disconnect on device 2
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+usb_control/bulk_msg: timeout
+** rmmod the drivers **
+dc2xx.c: USB Camera #0 disconnected
+usb.c: USB disconnect on device 1
+usb.c: USB bus 1 deregistered
+usb.c: USB disconnect on device 1
+usb.c: USB bus 2 deregistered
+usb.c: deregistering driver dc2xx
+** usbcore refuses to rmmod because its ref cnt won't decrement, this also
+affected it before I had the usb_control/bulk_msg timeout/loop issues **
+
+--
+    www.kuro5hin.org -- technology and culture, from the trenches.

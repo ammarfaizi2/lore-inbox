@@ -1,46 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265082AbUFAQNO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265101AbUFAQLg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265082AbUFAQNO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 12:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUFAQLm
+	id S265101AbUFAQLg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 12:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265090AbUFAQIC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 12:11:42 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36828 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265082AbUFAQKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 12:10:22 -0400
-Date: Tue, 1 Jun 2004 18:10:15 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-mm1: gcc 2.95 uaccess.h warnings
-Message-ID: <20040601161015.GF25681@fs.tum.de>
-References: <20040601021539.413a7ad7.akpm@osdl.org> <20040601145515.GC25681@fs.tum.de> <Pine.LNX.4.58.0406010757160.14095@ppc970.osdl.org>
+	Tue, 1 Jun 2004 12:08:02 -0400
+Received: from linux.us.dell.com ([143.166.224.162]:61905 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S265094AbUFAQFD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 12:05:03 -0400
+Date: Tue, 1 Jun 2004 11:04:57 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: davej@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: intel-agp: skip non-AGP devices
+Message-ID: <20040601160457.GA11437@lists.us.dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406010757160.14095@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 08:03:25AM -0700, Linus Torvalds wrote:
->...
-> In other words, this should work for even old versions of gcc.. Just to be 
-> anal, you should probably test on gcc-2.95 ;)
 
-Thanks, I can comfirm it works with gcc 2.95.  :-)
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 		Linus
->...
+Dave,=20
 
-cu
-Adrian
+On our PowerEdge 2600 system, which has an Intel E7501 Memroy
+Controller Hub, the intel-agp probe code is reporting, at KERN_ERR no less:
 
--- 
+agpgart: Unsupported Intel chipset (device id 254c)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Now, of course it says this, as this device does not present itself as
+AGP-capable:
 
+00:00.0 Host bridge: Intel Corp. E7501 Memory Controller Hub (rev 01)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 0
+	Capabilities: [40] #09 [1105]
+
+
+agp_intel_probe()  calls pci_find_capability(PCI_CAP_ID_AGP)
+but doesn't check the return value (should be zero in this case) prior
+to moving into the switch.
+
+
+The patch below checks for a valid cap_ptr prior to printing the
+message, now at KERN_WARNING level (it's not really an error, is it?)
+
+Thoughts?
+
+Thanks,
+Matt
+
+--=20
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+
+--- intel-agp.c.orig	Tue Jun  1 10:45:59 2004
++++ intel-agp.c	Tue Jun  1 11:02:56 2004
+@@ -1382,8 +1382,9 @@ static int __devinit agp_intel_probe(str
+ 		name =3D "E7205";
+ 		break;
+ 	default:
+-		printk(KERN_ERR PFX "Unsupported Intel chipset (device id: %04x)\n",
+-			    pdev->device);
++		if (cap_ptr)
++			printk(KERN_WARNING PFX "Unsupported Intel chipset (device id: %04x)\n",
++			       pdev->device);
+ 		return -ENODEV;
+ 	};
+=20
+
+--KsGdsel6WgEHnImy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAvKkpIavu95Lw/AkRAhgbAJ4jaZaR1Fp7McB0X/p5ZB8yUZWq5QCfUBwA
+BNRSV8O/IcONmZ/o6M1tTZ0=
+=4t4z
+-----END PGP SIGNATURE-----
+
+--KsGdsel6WgEHnImy--

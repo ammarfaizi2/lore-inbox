@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbULVTsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbULVTwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262022AbULVTsM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 14:48:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbULVTsM
+	id S262023AbULVTwN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 14:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbULVTwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 14:48:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9648 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262022AbULVTsH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 14:48:07 -0500
-Date: Wed, 22 Dec 2004 15:24:29 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net, rwhite@casabyte.com,
-       linux-kernel@vger.kernel.org, kingst@eecs.umich.edu,
-       paulkf@microgate.com, oleksiy@kharkiv.com.ua, reg@dwf.com,
-       clemens@dwf.com
-Subject: Re: Little rework of usbserial in 2.4\
-Message-ID: <20041222172429.GK3088@logos.cnet>
-References: <20041127173558.4011b177@lembas.zaitcev.lan> <29495f1d0412121547c0c644d@mail.gmail.com> <20041221125222.5754cdb2@lembas.zaitcev.lan> <29495f1d04122208073d71914b@mail.gmail.com>
+	Wed, 22 Dec 2004 14:52:13 -0500
+Received: from bender.bawue.de ([193.7.176.20]:44243 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S262023AbULVTwJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 14:52:09 -0500
+Date: Wed, 22 Dec 2004 20:52:03 +0100
+From: Joerg Sommrey <jo@sommrey.de>
+To: Christoph Hellwig <hch@infradead.org>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Oops on 2.6.9-ac16: xfs, dm and md may be involved
+Message-ID: <20041222195203.GA24857@sommrey.de>
+Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
+	Christoph Hellwig <hch@infradead.org>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20041221185754.GA28356@sommrey.de> <20041222182606.GA14733@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <29495f1d04122208073d71914b@mail.gmail.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20041222182606.GA14733@infradead.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 22, 2004 at 11:07:08AM -0500, Nish Aravamudan wrote:
-> On Tue, 21 Dec 2004 12:52:22 -0800, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> > On Sun, 12 Dec 2004 15:47:44 -0800, Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+On Wed, Dec 22, 2004 at 06:26:06PM +0000, Christoph Hellwig wrote:
+> On Tue, Dec 21, 2004 at 07:57:54PM +0100, Joerg Sommrey wrote:
+> > Hello,
 > > 
-> > > > diff -urpN -X dontdiff linux-2.4.28-bk3/drivers/usb/serial/usbserial.c linux-2.4.28-bk3-sx4/drivers/usb/serial/usbserial.c
-> > > > --- linux-2.4.28-bk3/drivers/usb/serial/usbserial.c     2004-11-22 23:04:19.000000000 -0800
-> > 
-> > > > @@ -1803,6 +1820,12 @@ static void __exit usb_serial_exit(void)
-> > > >
-> > > >         usb_deregister(&usb_serial_driver);
-> > > >         tty_unregister_driver(&serial_tty_driver);
-> > > > +
-> > > > +       while (!list_empty(&usb_serial_driver_list)) {
-> > > > +               err("%s - module is in use, hanging...\n", __FUNCTION__);
-> > > > +               set_current_state(TASK_UNINTERRUPTIBLE);
-> > > > +               schedule_timeout(5*HZ);
-> > > > +       }
-> > 
-> > > Please consider using msleep() here instead of schedule_timeout().
-> > 
-> > No, Nish, it's 2.4. There's no msleep here. I can create something like
-> > "drivers/usb/serial/compat26.h", similar to include/linux/libata-compat.h,
-> > but I do not think it's worth the trouble at present juncture.
+> > last night my box died with a kernel oops.  There was a backup
+> > running at that time. The setup:
+> > - 2 SATA disks + 1 SCSI disk
+> > - SATA partitions build up md-raid-arrays (level 0 and 1)
+> > - md-raid-devices and SCSI partitions are physical volumes for dm
+> > - dm logical volumes are used for xfs filesystems
+> > - backup is done on dm-snapshots of those filesystems
 > 
-> I agree that it's not worth the trouble. Sorry, I was under the
-> impression that Kernel-Janitors had pushed a series of patches to
-> backport msleep(). Maybe they haven't made it to mainline yet. Sorry
-> for the noise.
+> Given the strange backtrace and this enormous stack of drivers I bet
+> you're seeing a stack overflow.  
+> 
+Does this mean that this kind of stuff just doesn't work?  I was running
+a 4K-stack kernel with this "stack of drivers" for quiet some time without
+problems.  The problems started around 2.6.9-pre-something.  Converting
+to 8K-stacks didn't help.  Is this only xfs related?
 
-Nish, Pete,
+-jo
 
-msleep() is now in the generic headers, megaraid2 wants it to fix a EH busywait
-condition which triggers the NMI watchdog (the EH path doesnt yield the CPU as it should), 
-plus libata and forcedeth already had their own msleep() definitions which now have
-been removed.
-
-Patches to change current handcoded yields to msleep() wont be accepted (cleanups), those
-belong to v2.6.
-
-Thanks
+-- 
+-rw-r--r--  1 jo users 63 2004-12-21 21:16 /home/jo/.signature

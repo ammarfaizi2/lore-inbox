@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262789AbVA1UdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVA1T72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262789AbVA1UdM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 15:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbVA1U34
+	id S261503AbVA1T72 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 14:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbVA1T4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 15:29:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8077 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262751AbVA1U2Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 15:28:24 -0500
-Date: Fri, 28 Jan 2005 12:28:17 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: ierdnah <ierdnah@go.ro>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel oops!
-In-Reply-To: <1106942401.27217.8.camel@ierdnac>
-Message-ID: <Pine.LNX.4.58.0501281218020.2362@ppc970.osdl.org>
-References: <1106437010.32072.0.camel@ierdnac>  <Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
-  <1106483340.21951.4.camel@ierdnac>  <Pine.LNX.4.58.0501230943020.4191@ppc970.osdl.org>
-  <1106866066.20523.3.camel@ierdnac>  <Pine.LNX.4.58.0501271532420.2362@ppc970.osdl.org>
- <1106942401.27217.8.camel@ierdnac>
+	Fri, 28 Jan 2005 14:56:13 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:14591 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S262747AbVA1TuW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 14:50:22 -0500
+Message-ID: <41FA9AFB.28FB30BD@gte.net>
+Date: Fri, 28 Jan 2005 12:05:15 -0800
+From: Bukie Mabayoje <bukiemab@gte.net>
+X-Mailer: Mozilla 4.78 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Michael Gernoth <simigern@stud.uni-erlangen.de>
+CC: linux-kernel@vger.kernel.org,
+       Matthias Koerber <simakoer@stud.informatik.uni-erlangen.de>
+Subject: Re: 2.4.29, e100 and a WOL packet causes keventd going mad
+References: <20050128164811.GA8022@cip.informatik.uni-erlangen.de> <41FA8A3F.CC19F9EE@gte.net> <20050128185402.GA7923@cip.informatik.uni-erlangen.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [66.199.68.159] at Fri, 28 Jan 2005 13:50:11 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 28 Jan 2005, ierdnah wrote:
-> 
-> the last patch works, but the load increases very much (normally with
-> 200 VPN connections I have a load of maximum 10, with this patch I have
-> a load of 50-100 - after 30 min of uptime)
+Michael Gernoth wrote:
 
-Yeah, that "tty_ldisc_try()" is pretty expensive, and it really would be 
-worth trying to get both sides of the tty at the same time, since with my 
-patch in place it has to get that "tty_ldisc_lock" four times (and disable 
-interrupts etc - twice for getting the lock, twice for releasing it).
+> On Fri, Jan 28, 2005 at 10:53:51AM -0800, Bukie Mabayoje wrote:
+> > Do you know the official NIC product name e.g Pro/100B. I need to identify
+> > the LAN Controller. There are differences between  557 (not sure if 557 can
+> > do WOL), 558 and 559 how they ASSERT the PME# signal. Even the same chip have
+> > differences between steppings.
+>
+> The chip is integrated on the motherboard. Its PCI ID is 8086:1039.
+> lspci says: Intel Corp. 82801BD PRO/100 VE (LOM) Ethernet Controller (rev 81)
+> If you want I can open up one of these machines tomorrow to look on the chip
+> directly.
+>
+> Regards,
+>   Michael
 
-I'm surprised that it makes _that_ much of a difference, but it sounds
-like you used to be borderline on CPU usage before, and this just made it
-much worse.
-
-One option is to instead of locking both master and slave on use in the 
-pty side, lock both when _changing_ the ldisc instead. That's the rare 
-case. Much more complex, though.
-
-Alan, any clever ideas?
-
-		Linus
+Thanks got enough information....

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269780AbRHDDlg>; Fri, 3 Aug 2001 23:41:36 -0400
+	id <S269783AbRHDDp4>; Fri, 3 Aug 2001 23:45:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269783AbRHDDlQ>; Fri, 3 Aug 2001 23:41:16 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:62735 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269780AbRHDDlK>; Fri, 3 Aug 2001 23:41:10 -0400
-Date: Fri, 3 Aug 2001 20:38:49 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ben LaHaise <bcrl@redhat.com>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-In-Reply-To: <Pine.LNX.4.33.0108032318330.14842-100000@touchme.toronto.redhat.com>
-Message-ID: <Pine.LNX.4.33.0108032036120.15155-100000@penguin.transmeta.com>
+	id <S269786AbRHDDpq>; Fri, 3 Aug 2001 23:45:46 -0400
+Received: from [208.49.167.57] ([208.49.167.57]:8274 "EHLO s6.mailbank.com")
+	by vger.kernel.org with ESMTP id <S269785AbRHDDpd>;
+	Fri, 3 Aug 2001 23:45:33 -0400
+From: "Delbert Matlock" <Delbert@Matlock.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: UMSDOS symlink fix
+Date: Fri, 3 Aug 2001 23:46:00 -0400
+Message-ID: <MPBBLFNMFLHJNJCJDPMCGEOLDMAA.Delbert@Matlock.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Enclosed is a one line fix for symlinks under the UMSDOS filesystem.  Under
+stock 2.4.7 (and 2.4.7-ac4), if you create a symlink the last letter of the
+original file will be left off the link.  This will fix it.
 
-On Fri, 3 Aug 2001, Ben LaHaise wrote:
->
-> No.  Here's the bug in the block layer that was causing the throttling not
-> to work.  Leave the logic in, it has good reason -- think of batching of
-> io, where you don't want to add just one page at a time.
+Now, if I can just get the blasted thing to mount as root.
 
-I absolutely agree on the batching, but this has nothing to do with
-batching. The batching code uses "batch_requests", and the fact that we
-free the finished requests to another area.
+-- Delbert Matlock
+-- Delbert@Matlock.com
+-- http://delbert.matlock.com/
 
-The ll_rw_block() code really _is_ broken. As proven by the fact that it
-doesn't even get invoced most of the time.. And the times it _does_ get
-invoced is exactly when it shouldn't (guess what the biggest user of
-"ll_rw_block()" tends to be? "bread()")
 
-		Linus
+
+
+diff -u -r linux.orig/fs/umsdos/namei.c linux/fs/umsdos/namei.c
+--- linux.orig/fs/umsdos/namei.c	Fri Feb  9 14:29:44 2001
++++ linux/fs/umsdos/namei.c	Fri Aug  3 21:01:42 2001
+@@ -491,7 +491,7 @@
+ 		goto out;
+ 	}
+
+-	len = strlen (symname);
++	len = strlen (symname) + 1;
+ 	ret = block_symlink(dentry->d_inode, symname, len);
+ 	if (ret < 0)
+ 		goto out_unlink;
 

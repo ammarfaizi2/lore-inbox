@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267883AbRHMBBU>; Sun, 12 Aug 2001 21:01:20 -0400
+	id <S269633AbRHMBSp>; Sun, 12 Aug 2001 21:18:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269633AbRHMBBA>; Sun, 12 Aug 2001 21:01:00 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:39950 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267883AbRHMBAy>; Sun, 12 Aug 2001 21:00:54 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Sun, 12 Aug 2001 18:00:34 -0700
-Message-Id: <200108130100.f7D10YH07664@penguin.transmeta.com>
-To: pgallen@randomlogic.com
-Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-Newsgroups: linux.dev.kernel
-In-Reply-To: <3B772126.F23DB1D7@randomlogic.com>
-In-Reply-To: <20010812155520.A935@ulthar.internal.mclure.org> <Pine.LNX.4.33.0108121557060.2102-100000@penguin.transmeta.com> <20010812161544.A947@ulthar.internal.mclure.org>
+	id <S269639AbRHMBSe>; Sun, 12 Aug 2001 21:18:34 -0400
+Received: from schmee.sfgoth.com ([63.205.85.133]:11534 "EHLO
+	schmee.sfgoth.com") by vger.kernel.org with ESMTP
+	id <S269633AbRHMBSW> convert rfc822-to-8bit; Sun, 12 Aug 2001 21:18:22 -0400
+Date: Sun, 12 Aug 2001 18:18:30 -0700
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: =?iso-8859-1?Q?Renaud_Gu=E9rin?= <rguerin@free.fr>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8 breaks ATM
+Message-ID: <20010812181830.B93564@sfgoth.com>
+In-Reply-To: <E15Vuaq-0000BF-00@saturne.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Mutt 1.0i
+In-Reply-To: <E15Vuaq-0000BF-00@saturne.local>; from rguerin@free.fr on Sun, Aug 12, 2001 at 02:43:47PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3B772126.F23DB1D7@randomlogic.com> you write:
->Call me dumb, but what was wrong with the SB Live! code in the 2.4.7
->trees? Mine works fine and has since I first installed RH 7.1 on this
->system. The only problem I had was when I compiled it into the kernel
->(instead of compiling as a module), sound would not work and I could not
->configure it with sndconfig.
+Renaud Guérin wrote:
+> The following part of the 2.4.8 patch seems to be a typo (">>" looks more 
+> logical than ">" if vci_bit is a bitfield), and broke ATM for me:
 
-Well, the fact that it didn't work when compiled into the kernel means
-(for me), that it doesn't work at all.
+Yes, the patch is 100% wrong and should be reverted.  It had been sent to
+the ATM maintainers and was rejected, but someone else must have submitted
+it upstream since it magically appeared in the mainstream kernel.  It's
+already been reverted in both 2.4.9pre1 and 2.4.8ac1.
 
-Also, if you followed the other thread on the Tyan Thunder lockup,
-you'll have noticed that it locked up under heavy PCI loads. At least on
-that machine it stopped with the 2.4.8 driver.
-
-Does the new driver not work for you? There seems to be a bug at close()
-time, in that the driver uses "tasklet_unlock_wait()" instead of
-"tasklet_kill()" to kill the tasklets, and that wouldn't work reliably.
-
-Anything else you can find?
-
-		Linus
+-Mitch

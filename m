@@ -1,95 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267543AbUH0U1C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267375AbUH0U1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267543AbUH0U1C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 16:27:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267555AbUH0UMp
+	id S267375AbUH0U1F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 16:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267502AbUH0UNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 16:12:45 -0400
-Received: from omx1-ext.SGI.COM ([192.48.179.11]:37766 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S267405AbUH0T6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 15:58:47 -0400
-Message-ID: <412F9197.4030806@sgi.com>
-Date: Fri, 27 Aug 2004 12:55:03 -0700
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: zh-tw, en-us, en, zh-cn, zh-hk
-MIME-Version: 1.0
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-CC: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Arthur Corliss <corliss@digitalmages.com>,
-       Andrew Morton <akpm@osdl.org>, Jay Lan <jlan@engr.sgi.com>,
-       lkml <linux-kernel@vger.kernel.org>, erikj@dbear.engr.sgi.com,
-       limin@engr.sgi.com, lse-tech@lists.sourceforge.net,
-       =?ISO-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>,
-       Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>
-Subject: Re: [Lse-tech] Re: [PATCH] new CSA patchset for 2.6.8
-References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org> <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de> <Pine.LNX.4.58.0408261111520.22750@bifrost.nevaeh-linux.org> <Pine.LNX.4.53.0408262133190.8515@broiler.physik3.uni-rostock.de> <20040827054218.GA4142@frec.bull.fr>
-In-Reply-To: <20040827054218.GA4142@frec.bull.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Aug 2004 16:13:24 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:10702 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S267505AbUH0UGH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 16:06:07 -0400
+Message-Id: <200408261812.i7QICW8r002679@localhost.localdomain>
+To: Hans Reiser <reiser@namesys.com>
+cc: Andrew Morton <akpm@osdl.org>, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+       reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4 
+In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
+   of "Thu, 26 Aug 2004 01:31:34 MST." <412D9FE6.9050307@namesys.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Thu, 26 Aug 2004 14:12:32 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Guillaume,
+Hans Reiser <reiser@namesys.com> said:
+> Andrew Morton wrote:
 
-Please visit http://oss.sgi.com/projects/pagg/
-The page has been updated to provide information on a per job
-accounting project called 'job' based on PAGG.
+[...]
 
-There is one userspace rpm and one kernel  module for job.
-This may provide what you are looking for. It is a mature product
-as well. I am sure Limin(job) and Erik(pagg) would appreciate any
-input you can provide to make 'job' more useful.
+> > The fact that one filesystem will offer features which other
+> > filesystems do not and cannot offer makes me queasy for some reason.
 
-Regards,
-  - jay
+Not me. As long as it is clearly experimental stuff that can be removed at
+the head hacker's whim, that is. 2.7 material.
 
+> Andrew, we need to compete with WinFS and Dominic Giampaolo's filesystem 
+> for Apple,
 
-Guillaume Thouvenin wrote:
-> On Thu, Aug 26, 2004 at 10:05:37PM +0200, Tim Schmielau wrote:
-> 
->>It should be easy to combine the data collection enhancements from
->>CSA and ELSA to provide a common superset of information.
-> 
-> 
-> ELSA uses current BSD accounting. The only difference with BSD is that
-> accounting is done for a group of processes. I didn't use PAGG and
-> rewrite something because I thought (I was wrong) that PAGG project
-> wasn't maintained. I continue to maintain ELSA just because there is, 
-> until today, no solution for doing job accounting. 
-> So, the data collection enhancements from ELSA is not very useful.
-> 
-> 
->>With the new BSD acct v3 format, it should be possible to do per job
->>accounting entirely from userspace, using pid and ppid information to
->>reconstruct the process tree and some userland database for the
->>pid -> job mapping. It would, however, be greatly simplified if the
->>accounting records provided some kind of job id, and some indicator
->>whether or not this process was the last of a job (group).
-> 
-> 
-> I like this solution.
-> In fact what I proposed was to have PAGG and a modified BSD accounting
-> that can be used with PAGG as both are already in the -mm tree. But
-> manage group of processes from userspace is, IMHO, a better solution as
-> modifications in the kernel will be minimal. 
-> 
->   Therefore the solution could be to enhance BSD accounting with data
-> collection from CSA and provide per job accounting with a userspace
-> mechanism. Sounds great to me... 
-> 
-> Best,
-> Guillaume
-> 
-> 
-> -------------------------------------------------------
-> SF.Net email is sponsored by Shop4tech.com-Lowest price on Blank Media
-> 100pk Sonic DVD-R 4x for only $29 -100pk Sonic DVD+R for only $33
-> Save 50% off Retail on Ink & Toner - Free Shipping and Free Gift.
-> http://www.shop4tech.com/z/Inkjet_Cartridges/9_108_r285
-> _______________________________________________
-> Lse-tech mailing list
-> Lse-tech@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/lse-tech
+Says who?
 
+>            and that means we need to put search engine and database 
+> functionality into the filesystem.
+
+Please don't. Unix works and is extremely popular because it _doesn't_ try
+to be smart (policy vs mechanism distinction, simple abstractions that can
+be combined endlessly). If you add this to the filesystems, you either redo
+_all_ userland to understand _one_ particular way of doing "smart things"
+(which will turn out to be almost exactly the dumbest possible for some
+uses, and then you are stuck), or get lots of shards from broken apps (and
+users, and sysadmins).
+
+>                                     It takes 11 years of serious 
+> research to build a clean storage layer able to handle doing that.  
+
+Great! Build an experimental OS showing how to use it, and through that see
+if the ideas hold any water _in real, day-to-day, down-to-earth, practice_.
+
+> Reiser4 has done that, finally.  None of the other Linux filesystems 
+> have.
+
+How come nobody before you in the almost 30 years of Unix has ever seen the
+need for this indispensable feature?
+
+>        The next major release of ReiserFS is going to be bursting with 
+> semantic enhancements, because the prerequisites for them are in place 
+> now.  None of the other Linux filesystems have those prerequisites.  
+
+To me that would mean that ReiserFS has no place in Linux.
+
+> They won't be able to keep up with the semantic enhancements.  This 
+> metafiles and file-directories stuff is actually fairly trivial stuff.
+
+Maybe. But the question of it being of any use aren't trivially answered
+"yes". My gut feeling is that the answer is a resounding "no", but that's
+just me. Direcories are directories, if you want to ship directory-like
+stuff around, use directories (or tarfiles, or whatever). Just look what
+happened to the much, much easier stuff of splitting SUID/SGID into
+capabilities: Nothing at all whatsoever, because they have no decent place
+to stay in the hallowed Unix APIs. Sure, Linux is now large enough to be
+able to _define_ APIs to follow, but even so it isn't at all easy to do so.
+
+> Look guys, in 1993 I anticipated the battle would be here, and I build 
+> the foundation for a defensive tower right at the spot MS and Apple are 
+> now maneuvering towards.
+
+Why place a protective tower around the pit into which they are trying
+desperately to throw themselves? ;-)
+
+>                           Help me get the next level on the tower before 
+> they get here.  It is one hell of a foundation, they won't be able to 
+> shake it, their trees are not as powerful.  Don't move reiser4 into vfs, 
+> use reiser4 as the vfs.  Don't write filesystems, write file plugins and 
+> disk format plugins and all the other kinds of plugins, and you won't be 
+> missing any expressive power that you really want....
+
+Better write libraries handling whatever weird format you have in mind for
+each use. Even applications. I don't expect to be able to use emacs to edit
+a JPEG or PostgreSQL database. Neither do I expect gimp to be able to edit
+a poem. The current trend (which I heartily agree with) is to take stuff
+_out_ of the kernel (for flexibility, access, development ease, even
+performance).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,87 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265399AbRF0Uxk>; Wed, 27 Jun 2001 16:53:40 -0400
+	id <S265396AbRF0Uxa>; Wed, 27 Jun 2001 16:53:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265398AbRF0Uxb>; Wed, 27 Jun 2001 16:53:31 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:61703 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S265300AbRF0UxQ>;
-	Wed, 27 Jun 2001 16:53:16 -0400
-Date: Wed, 27 Jun 2001 22:53:01 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: <joeja@mindspring.com>
-cc: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alex Deucher <adeucher@UU.NET>, <linux-kernel@vger.kernel.org>
-Subject: Re: Re: AMD thunderbird oops
-In-Reply-To: <Springmail.105.993672371.0.48374000@www.springmail.com>
-Message-ID: <Pine.LNX.4.33.0106272246540.21038-100000@Expansa.sns.it>
+	id <S265399AbRF0UxU>; Wed, 27 Jun 2001 16:53:20 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:45071
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S265396AbRF0UxQ>; Wed, 27 Jun 2001 16:53:16 -0400
+Date: Wed, 27 Jun 2001 16:52:25 -0400
+From: Chris Mason <mason@suse.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Xuan Baldauf <xuan--lkml@baldauf.org>, linux-kernel@vger.kernel.org,
+        andrea@suse.de,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: VM deadlock
+Message-ID: <946960000.993675145@tiny>
+In-Reply-To: <Pine.LNX.4.33L.0106271733280.23373-100000@duckman.distro.conectiva>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 27 Jun 2001 joeja@mindspring.com wrote:
+On Wednesday, June 27, 2001 05:36:45 PM -0300 Rik van Riel
+<riel@conectiva.com.br> wrote:
 
-> Well considering the other night the power supply went dead, I think that is part of the problem.  It is brand new, and I am being sent another one (free of course).
-I would have bet that power supply was erogating elettricity with a
-discontinous intensity.
-I saw that RAM stability is the first think to be affected (together
-with L2 cache stability) in those cases.
->
-> I also had my mb loaded at the time (scsi cd-rw, cdrom, internal zip, floppy, 1 hd, Sound card, video, modem, NIC, scsi card) but my last tyan was fine with that load it may be a kt7a thing.
->
-> Several people said that random (keyword here) oopses are more often a hardware thing.  I wonder if the kt7a is going to be able to perform  fully loaded..
->
-> is anyone running one fully loaded? 4 ide drives, 2 floppy, (5 pci and 1 isa) or 6pci, agp, 512MEG+ RAM?
+> On Wed, 27 Jun 2001, Chris Mason wrote:
+>> On Wednesday, June 27, 2001 04:43:28 PM -0300 Rik van Riel
+> 
+>> > If you don't have free memory, you are limited to 2 choices:
+>> > 
+>> > 1) wait on IO
+>> > 2) spin endlessly, wasting CPU until the IO is done
+>> 
+>> Ok, I need to describe the problem a little better.  reiserfs
+>> inodes need to be logged, which means you have to join/start a
+>> transaction in order to write them.
+> 
+>> So, the only time reiserfs_write_inode needs to do something is for fsync
+>> and/or O_SYNC writes, and all it needs to do is commit the transaction.
+>> 
+>> Any time kswapd is calling write_inode, it is just trying to
+>> free the inode struct, and reiserfs can safely ignore the write
+>> request, regardless of if a sync is requested.
+> 
+> OK, sounds sane enough to me ;)
 
-yes,
+Well, I guess that's one word for it...I'll bet $5 Al's got a few others
+;-) A better fix is to have private inode dirty lists....
 
-1.300 Mhz
+> 
+> So the fix is just to let reiserfs_write_inode always be
+> asynchronous, independent of its arguments, as long as
+> we're not in fsync() or O_SYNC.
 
-1 agp
-4 pci
-1 isa (I love my sound blaster 16 on ISA, could not live without)
-3 disks
-1 floppy
-1 zip
-1 dvd
-5 fans
+I think so, but there needs to be some testing there.  Note that I managed
+to run a heavy stress test (put my machine far, far into swap) for 3 solid
+days without hitting this.  When I initially made the dirty_inode kludge, I
+could trigger it in ~10 minutes.  
 
-350 watt power supply.
+> 
+> OTOH, if we are called synchronously, we could also just
+> walk down the code path taken when we _are_ called by
+> fsync(), right ?
 
+sorry, not sure what you mean.  In fsync we do a commit, which might wait
+on the current transaction, so kswapd can't go down that code path.
 
-Luigi
+-chris
 
-> Joe
->
-> Dave Jones <davej@suse.de> wrote:
-> > On Tue, 26 Jun 2001, Alan Cox wrote:
-> > My current speculation is that the sdram setup on some of these boards can't
-> > actually take the full CPU spec caused by these hand tuned routines. There is
-> > some evidence to support that as several other boards only work with Athlon
-> > optimisation if you set the BIOS options to 'conservative' not 'optimised'
->
-> Interesting, and plausable theory. It would be more interesting to see
-> register dumps of the memory timing registers on both good and bad
-> systems, to see if this is the case.
->
-> Unfortunatly afair the register level specs of all the affected chipsets
-> are not available.
->
-> regards,
->
-> Dave.
->
-> --
-> | Dave Jones.        http://www.suse.de/~davej
-> | SuSE Labs
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 

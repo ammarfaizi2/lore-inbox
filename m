@@ -1,68 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263178AbSJOQsS>; Tue, 15 Oct 2002 12:48:18 -0400
+	id <S263218AbSJOQxb>; Tue, 15 Oct 2002 12:53:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263204AbSJOQsS>; Tue, 15 Oct 2002 12:48:18 -0400
-Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:19943 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S263178AbSJOQsR> convert rfc822-to-8bit; Tue, 15 Oct 2002 12:48:17 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: s390x build warnings from <linux/module.h>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: arnd@bergmann-dalldorf.de, Linux Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF83D5DB36.D1321FFF-ONC1256C53.005AFE6B@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Tue, 15 Oct 2002 18:50:12 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 15/10/2002 18:52:04
-MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+	id <S263289AbSJOQxb>; Tue, 15 Oct 2002 12:53:31 -0400
+Received: from smtp01.uc3m.es ([163.117.136.121]:9993 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S263218AbSJOQx3>;
+	Tue, 15 Oct 2002 12:53:29 -0400
+Date: Tue, 15 Oct 2002 16:58:44 +0000
+From: Eduardo =?iso-8859-1?Q?P=E9rez?= <100018135@alumnos.uc3m.es>
+To: Michal Kara <lemming@atrey.karlin.mff.cuni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: fork() wait semantics
+Message-ID: <34f5602687bbb910752d5becee9c9aa1@alumnos.uc3m.es>
+References: <20021015115517.GA2514@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="2oS5YaxWCcQjTEyO"
+Content-Disposition: inline
+In-Reply-To: <20021015115517.GA2514@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->> during 'make modules' on s390x, I see lots of warnings about 'ignoring
->> changed section attributes for __ksymtab' that I have found to be the
->> result of changeset 1.373.196.1, where Kai changed the defaults for
-module
->> exports to 'no symbols exported'.
->>
->> The problem is that there is a section '__ksymtab,"a"', while s390x
->> requires it to be '__ksymtab,"aw"' because modules must be compiled with
->> '-fpic' here, unlike afaics all the other architectures.
->
->Hmmh, there's a couple of things I don't understand, though they're most
->likely there for a reason. First of all, why do you need -fpic at all?
->kernel modules are not shared, they should get properly relocated when
->insmod'ing them, so I don't see why you're doing that.
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The reason for -fpic for module code lies in the compiler. To improve the
-code we use the brasl and larl instructions for function calling and
-addressing data. Unluckily these two instructions have a limited range
-of +-4GB. For user space programs that means that a single shared object
-may not be bigger than 4GB and that no non-fpic code is linked into
-shared objects. With these two restrictions we are able to generate
-much better code. There is one small problem though: kernel modules.
-They get loaded into the vmalloc area which is located AFTER the main
-memory. A machine with more than 4 GB of main memory therefore can't
-load modules anymore because the calls and references to kernel structure
-can't span the distance between vmalloc area and kernel image. To get
-around this problem we compile kernel modules with -fpic and make the
-modutils create plt stubs and got entries. Easy ?
+On 2002-10-15 13:55:17 +0200, Michal Kara wrote:
+>   Several times I had real problems with batch jobs failing with EAGAIN,
+> printed as "Resource temporarily unavailable". Not with the failure, but to
+> determine the real cause is really a pain. Usually, the problem is in
+> resource limits (rlimit, set by ulimit), but the returned error code is
+> misleading.
 
->The next thing I do not understand is why -fpic has the effect of marking
->the section writeable, does it make .text writeable as well? And what for?
+I've investigated the use of the fork() system call across some
+programs in Debian GNU/Linux and I've found that the current fork
+semantics are not very good.
 
-Because -fpic code likes to relocated absolute addresses.
+When Linux can't fork() returns a fork error that the application
+usually sees as a fatal error. Instead of the fatal error fork
+should wait for resources to be available, thus never returning an
+error. If the current user has exceeded one of its limits the program
+should block waiting for another program of the same user to free
+resources. There's a possible user deadlock in this approach that the
+kernel should signal.
 
-blue skies,
-   Martin
+As no application waits for fork to be available most applications threat
+a fork() error as fatal.
 
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
+A possible fork interface would be waiting for resources to be available
+and only returning with error in case of deadlock.
 
+This needs to be fixed in the kernel as there's no interfaces in user
+space to wait for fork() availability or signaling deadlocks.
 
+This interface is also applicable to any other memory requesting system
+call (like brk) that can return ENOMEM (instead of waiting for memory to
+be available), or falling on deadlock.
+
+As an example consider bash. In case of fork() error the program
+isn't even run thus causing a fatal error. If fork() waited for
+resources to be available there wouldn't be any problem.
+
+Is there a syscall to wait for fork to be available instead of sleeping
+an amount of time between fork()?
+
+Attached is a bash patch that works but it's not optimal without a proper
+kernel interface as it waits a fixed amount of time betteen fork()
+attemps and can't detect deadlocks.
+
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="bash_no_crash_on_fork.diff"
+
+--- jobs.c~	Mon Nov  5 14:56:17 2001
++++ jobs.c	Mon Mar 25 10:04:39 2002
+@@ -1178,18 +1178,11 @@
+ #endif /* BUFFERED_INPUT */
+ 
+   /* Create the child, handle severe errors. */
+-  if ((pid = fork ()) < 0)
++  while ((pid = fork ()) < 0)
+     {
+-      sys_error ("fork");
+-
+-      /* Kill all of the processes in the current pipeline. */
+-      terminate_current_pipeline ();
+-
+-      /* Discard the current pipeline, if any. */
+-      if (the_pipeline)
+-	kill_current_pipeline ();
+-
+-      throw_to_top_level ();	/* Reset signals, etc. */
++      sleep(1);   /* This time shouldn't be hardcoded */
++                  /* It would be better to have a primitive in the kernel */
++                  /* that sleeps until fork() is available */
+     }
+ 
+   if (pid == 0)
+--- nojobs.c~	Mon Oct 22 18:12:45 2001
++++ nojobs.c	Mon Mar 25 10:12:17 2002
+@@ -478,11 +478,7 @@
+ #endif /* BUFFERED_INPUT */
+ 
+   /* Create the child, handle severe errors. */
+-#if defined (HAVE_WAITPID)
+-  retry_fork:
+-#endif /* HAVE_WAITPID */
+-
+-  if ((pid = fork ()) < 0)
++  while ((pid = fork ()) < 0)
+     {
+ #if defined (HAVE_WAITPID)
+       /* Posix systems with a non-blocking waitpid () system call available
+@@ -491,13 +487,12 @@
+ 	{
+ 	  reap_zombie_children ();
+ 	  retry = 0;
+-	  goto retry_fork;
+-	}
++	} else
+ #endif /* HAVE_WAITPID */
+ 
+-      sys_error ("fork");
+-
+-      throw_to_top_level ();
++      sleep(1);   /* This time shouldn't be hardcoded */
++                  /* It would be better to have a primitive in the kernel */
++                  /* that sleeps until fork() is available */
+     }
+ 
+   if (pid == 0)
+
+--2oS5YaxWCcQjTEyO--

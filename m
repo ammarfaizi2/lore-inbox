@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267294AbUH2NVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267810AbUH2Ncn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267294AbUH2NVS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 09:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUH2NVR
+	id S267810AbUH2Ncn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 09:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUH2Ncn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 09:21:17 -0400
-Received: from fmmailgate03.web.de ([217.72.192.234]:28566 "EHLO
-	fmmailgate03.web.de") by vger.kernel.org with ESMTP id S267294AbUH2NVN
+	Sun, 29 Aug 2004 09:32:43 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:42176 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S267810AbUH2Nck
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 09:21:13 -0400
-Date: Sun, 29 Aug 2004 15:21:11 +0200
-Message-Id: <1248395717@web.de>
-MIME-Version: 1.0
-From: "Joachim Bremer" <joachim.bremer@web.de>
-To: "JoachimBremer" <joachim.bremer@web.de>,
-       "NickPiggin" <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: <no subject>
-Organization: http://freemail.web.de/
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Aug 2004 09:32:40 -0400
+Date: Sun, 29 Aug 2004 15:14:38 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Greg KH <greg@kroah.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [UPDATED PATCH 1/2] export module parameters in sysfs for modules _and_ built-in code
+Message-ID: <20040829131438.GF17032@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
+	Martin Schlemmer <azarah@nosferatu.za.org>,
+	Rusty Russell <rusty@rustcorp.com.au>, Greg KH <greg@kroah.com>,
+	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040801165407.GA8667@dominikbrodowski.de> <1091426395.430.13.camel@bach> <20040802214710.GB7772@dominikbrodowski.de> <1092858948.8998.47.camel@nosferatu.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092858948.8998.47.camel@nosferatu.lan>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> schrieb am 29.08.04 14:43:43:
+On Wed, Aug 18, 2004 at 09:55:49PM +0200, Martin Schlemmer wrote:
+> On Mon, 2004-08-02 at 23:47, Dominik Brodowski wrote:
 > 
-> Joachim Bremer wrote:
-> > As mentioned before I got even with Nicks patch some errors. Looking
-> > closer at the source there is is a second "goto page_ok" a few lines
-> > down the label "page_not_up_to_date". Inserting the same calculating
-> > code used before the label "readpage_error" fixes the errors on my machine.
-> > These for instance where failure to do reiserfsck (bread complains on last block
-> > of device) and compiling the linux-tree (file truncated).
-> > 
-> > The leads to the same calculation 3 times...
-> > 
-> 
-> Surely not - there is only 1 way to get to page_not_up_to_date,
-> and through that path you have already done that calculation and
-> none of the variables involved have been changed.
->
+> I know its tainted (nvidia), but this is difficult to test,
+> as it usually only happens if the box have been up for a while
+> and I modprobe something (ext2 in most of the cases).
 
-Sure I backed out the other patch - but you are right. It does magically work now
-with your patch only. maybe  it was an interaction with the sound driver which hangs
-on shutdown so maybe there where some transactions not written or replayed.
+Sorry for the delay, was on vacations... Which variant of the patch were you
+using? Did it already shuffle the section of kernel_param around? If not,
+that's the cause -- and that patch has reached Linus' tree by now.
 
-Thanks
-
-Joachim
- 
-> I think. Put a printk before your goto out, and if it triggers
-> then I am wrong.
-> 
-> What errors were you seeing with my patch? (If you applied my patch
-> to an -mm kernel without first backing out the others then it will
-> break).
-
-
-_______________________________________________________________
-SMS schreiben mit WEB.DE FreeMail - einfach, schnell und
-kostenguenstig. Jetzt gleich testen! http://f.web.de/?mc=021192
-
+Thanks for testing,
+	Dominik

@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263591AbTKFNj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 08:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbTKFNj3
+	id S263596AbTKFNkh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 08:40:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbTKFNkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 08:39:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63437 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263591AbTKFNj1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 08:39:27 -0500
-Message-ID: <3FAA4EF9.70704@pobox.com>
-Date: Thu, 06 Nov 2003 08:39:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: mii broken for 3c59x ?
-References: <Pine.LNX.4.51.0311052142040.19211@dns.toxicfilms.tv>
-In-Reply-To: <Pine.LNX.4.51.0311052142040.19211@dns.toxicfilms.tv>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Nov 2003 08:40:37 -0500
+Received: from uni02du.unity.ncsu.edu ([152.1.13.102]:42880 "EHLO
+	uni02du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S263596AbTKFNkc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 08:40:32 -0500
+From: jlnance@unity.ncsu.edu
+Date: Thu, 6 Nov 2003 08:40:31 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Over used cache memory?
+Message-ID: <20031106134031.GA2720@ncsu.edu>
+References: <BAY4-F41WYf5UPHvAo10001c90f@hotmail.com> <3FAA1056.6020003@aitel.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FAA1056.6020003@aitel.hist.no>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Soltysiak wrote:
-> Hi,
+On Thu, Nov 06, 2003 at 10:11:50AM +0100, Helge Hafting wrote:
 > 
-> I have two 3com 3c905C-TX NICs in my linux box.
-> I remember that mii-tool used to work.
-> 
-> Now, with 2.6.0-test9-bk8 it does not.
-> 
-> dns:~# mii-tool
-> SIOCGMIIPHY on 'eth0' failed: Operation not supported
-> SIOCGMIIPHY on 'eth1' failed: Operation not supported
-> no MII interfaces found
-> 
-> What might be going on here? Did we have any recent changes in this,
-> or maybe my software's outdated, or NICs broken ?
-> It's Debian Sarge.
-> 
-> mii-tool.c 1.9 2000/04/28 00:56:08 (David Hinds)
+> Yes - _use_ the memory for something else. 
+> 1. All unused memory will be put to good use as cache.
+> 2. Memory is taken from the cache whenever you need it for
+>   something else, so (1) is not a problem at all.
 
+This is the way it is susposed to work, but I am working on a problem
+where this does not seem to be happening.  We have a machine with 6G
+of ram.  It reads some huge files (~5G) and cache fills up.  Then
+it starts to process the data and goes into a swap storm because it
+can not get any memory for the process because it all is in the cache.
+If you run top, you see kswapd stuck at the top.
 
-Most likely you need to recompile mii-tool, because it's using old ioctls.
+If anyone has any ideas about this, I would love to hear them.
 
-	Jeff
+Thanks,
 
-
-
+Jim

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262249AbRERF5Y>; Fri, 18 May 2001 01:57:24 -0400
+	id <S262250AbRERGHZ>; Fri, 18 May 2001 02:07:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262250AbRERF5O>; Fri, 18 May 2001 01:57:14 -0400
-Received: from vpn.moodlogic.com ([64.81.60.70]:20463 "EHLO uzo.telecoma.net")
-	by vger.kernel.org with ESMTP id <S262249AbRERF5E>;
-	Fri, 18 May 2001 01:57:04 -0400
-Date: Fri, 18 May 2001 08:33:05 +0200
-From: firenza@gmx.net
-To: linux-kernel@vger.kernel.org
-Subject: java/old_mmap allocation problems...
-Message-ID: <20010518083305.C7657@telecoma.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.1i
+	id <S262252AbRERGHQ>; Fri, 18 May 2001 02:07:16 -0400
+Received: from www.wen-online.de ([212.223.88.39]:39946 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S262250AbRERGG5>;
+	Fri, 18 May 2001 02:06:57 -0400
+Date: Fri, 18 May 2001 08:06:37 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Chris Evans <chris@scary.beasts.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.4-ac10
+In-Reply-To: <Pine.LNX.4.21.0105171802170.5531-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0105180734360.579-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 17 May 2001, Rik van Riel wrote:
 
-hi,
+> On Thu, 17 May 2001, Mike Galbraith wrote:
+>
+> > > Has anyone benched 2.4.5pre3 vs 2.4.4 vs. ?
+> >
+> > Only doing parallel kernel builds.  Heavy load throughput is up,
+> > but it swaps too heavily.  It's a little too conservative about
+> > releasing cache now imho. (keeping about double what it should be
+> > with this load.. easily [thump] tweaked;)
+>
+> "about double what it should be"
+>
+> That's an interesting statement, unless you have some
+> arguments to define exactly how much cache the system
+> should keep.
 
-i'm having problems to convince java (1.3.1) to allocate more
-than 1.9gb of memory on 2.4.2-ac2 (SMP/6gb phys mem) or more
-than 1.1gb on 2.2.18 (SMP/2gb phys mem)...
+Do you think there's 60-80mb of good cachable data? ;-)  The "double"
+is based upon many hundreds of test runs.  I "know" that performance
+is best with this load when the cache stays around 25-35Mb.  I know
+this because I've done enough bend adjusting to get throughput to
+within one minute of single task times to have absolutely no doubt.
+I can get it to 30 seconds with much obscene tweaking, and have done
+it with zero additional overhead for make -j 30 ten times in a row.
+(that kernel was.. plain weird. perfect synchronization.. voodoo!)
 
-modifing /proc/sys/vm parameters didn't help either... the fact
-that i can allocate more memory under 2.4 than under 2.2 lets
-me hope that there is some possible kernel/vm tweaking that
-would increase those limits...
+> Or are you just comparing with 2.2 and you'd rather
+> have 2.2 performance? ;)
 
-any pointers would be greatly appreciated!
+Nope.  I've bent this vm up a little and build kernels that kicked the
+snot out of the previous record holder (classzone).  I know for a fact
+that it can kick major butt.. why I fiddle with it when it doesn't.
 
-cheers,
--firenza
-
-PS:
-
-strace snippet of "java -Xmx2g" on the 2.4 system
-brk(0x8057000)                          = 0x8057000
-old_mmap(NULL, 163840, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x43691000
-old_mmap(NULL, 2181038080, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = -1 ENOMEM 
-
-strace snippet of "java -Xmx1500m" on the 2.2 system
-old_mmap(0x2e082000, 4096, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x2e082000
-old_mmap(NULL, 163840, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x2e102000
-old_mmap(NULL, 1606418432, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = -1 ENOMEM 
+	-Mike
 

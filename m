@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263161AbTDGAHL (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 20:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbTDGAHL (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 20:07:11 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:14474 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S263161AbTDGAHK (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 20:07:10 -0400
-Date: Mon, 7 Apr 2003 02:18:38 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Fredrik Jagenheim <fredde@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Maestro sound module locks up the computer
-Message-ID: <20030407001838.GB14501@vana.vc.cvut.cz>
-References: <20030406193707.GG917@pobox.com> <1049663795.1600.50.camel@dhcp22.swansea.linux.org.uk>
+	id S263164AbTDGAQT (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 20:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbTDGAQT (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 20:16:19 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:32775
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S263164AbTDGAQT 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 20:16:19 -0400
+Subject: Re: 2.5: NFS troubles
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, felipe_alfaro@linuxmail.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030406171855.6bd3552d.akpm@digeo.com>
+References: <1049630768.592.24.camel@teapot.felipe-alfaro.com>
+	 <shsbrzjn5of.fsf@charged.uio.no>  <20030406171855.6bd3552d.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049675270.753.166.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1049663795.1600.50.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 06 Apr 2003 20:27:50 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 06, 2003 at 10:16:36PM +0100, Alan Cox wrote:
-> On Sul, 2003-04-06 at 20:37, Fredrik Jagenheim wrote:
-> > 8 seconds; e.g. say the clock is '16:40:10'. After 6 seconds the clock is, not
-> > surprisingly, '16:40:16'; but after 8 seconds it's '16:40:10' again. I'm not
-> > sure it's exactly 8 seconds though, as I've only had the chance of verifying
-> > this once.
-> 
-> That kind of weirdness is useful info
+On Sun, 2003-04-06 at 20:18, Andrew Morton wrote:
 
-I seen that on one computer too, with 2.5.59. For some strange reason IRQ0 from 
-timer was stopped, and thus system reported jiffies + tsc / <host_cpu_freq> as 
-current time, taking only 32bit tsc into account. After I disabled irqbalance, 
-problem never reappered (it was two cpus PIII from Dell, with serverworks chipset 
-& 8GB memory; I do not remember model number).
+> if it shows dir_index then it might be an ext3 problem.  If not then it is
+> probably an NFS problem.
 
-System worked in that state for several minutes, until it lost some NFS reply, which
-it never retried due to stopped timer...
-						Best regards,
-							Petr Vandrovec
-							vandrove@vc.cvut.cz
- 
+Nah, its not an ext3 problem (at least not with htree).
+
+I am seeing this same problem, starting recently, with a 2.5 client and
+a 2.4 server.  Both are ext3 but neither have htree, and the problem is
+new.
+
+I have not yet figured out whether its the 2.5 kernel on the client or
+the newly-upgraded Red Hat 9 on the server... but I suspect the 2.5
+kernel on the client.
+
+	Robert Love
+

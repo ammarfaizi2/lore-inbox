@@ -1,102 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291261AbSBGUME>; Thu, 7 Feb 2002 15:12:04 -0500
+	id <S291266AbSBGUOG>; Thu, 7 Feb 2002 15:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291263AbSBGUL5>; Thu, 7 Feb 2002 15:11:57 -0500
-Received: from webmail.mty.itesm.mx ([131.178.2.83]:32288 "EHLO
-	webmail.mty.itesm.mx") by vger.kernel.org with ESMTP
-	id <S291262AbSBGULj>; Thu, 7 Feb 2002 15:11:39 -0500
-Date: Thu, 7 Feb 2002 13:57:49 +0000
-From: Felipe Contreras <al593181@mail.mty.itesm.mx>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Weird bug in linux, glibc, gcc or what?
-Message-ID: <20020207135749.GA4545@sion.mty.itesm.mx>
+	id <S291267AbSBGUNu>; Thu, 7 Feb 2002 15:13:50 -0500
+Received: from zero.tech9.net ([209.61.188.187]:25360 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S291262AbSBGUMd>;
+	Thu, 7 Feb 2002 15:12:33 -0500
+Subject: Re: [RFC] New locking primitive for 2.5
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Martin Wirth <Martin.Wirth@dlr.de>,
+        linux-kernel@vger.kernel.org, mingo@elte.hu, nigel@nrg.org
+In-Reply-To: <3C62DE3E.DE15CAF2@zip.com.au>
+In-Reply-To: <3C629F91.2869CB1F@dlr.de>,		<3C629F91.2869CB1F@dlr.de>
+	<1013107259.10430.29.camel@phantasy> <3C62D49A.4CBB6295@zip.com.au>
+	<3C62DABA.3020906@us.ibm.com>  <3C62DE3E.DE15CAF2@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 07 Feb 2002 15:11:46 -0500
+Message-Id: <1013112717.10430.79.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2002-02-07 at 15:06, Andrew Morton wrote:
 
-I've found a weird problem in linuxthreads. When I get out of a thread it
-happends one of three, the new thread get's defuct and the proccess never
-ends, it segfaults, or it works.
+> A dynamic lock which says "we've spun for too long, let's sleep"
+> seems to be a tradeoff between programmer effort and efficiency,
+> and a bad one at that.
 
-The most weird is that it depends on the kernel, and also when I run the
-test trought gdb there is no problem.
+I'm not so sure.  What if we can't _know_ how long the lock will be held
+because we don't know the status of the holder?  What if _he_ is
+sleeping on some other lock or their are a lot of contending processes?
 
-Here is the test:
+Certainly I agree, we need to put forth effort into designing things
+right and with a minimal amount of lock held time.
 
-#include <pthread.h>
+> Possibly the locks could become more adaptive, and could, at
+> each call site, "learn" the expected spintime.  But it all seems
+> too baroque to me.
 
-void *test(void *arg) {
-	puts("Thread2");
-	return 0;
-}
+Agreed, this is much too much ;-)
 
-int main() {
-	pthread_t tt;
-	puts("Before Thread2");
-	pthread_create(&tt,NULL,test,NULL);
-	puts("After Thread2");
-	return 0;
-}
+	Robert Love
 
-The output:
-
-1:src# ./test
-Before Thread2
-After Thread2
-Thread2
-
-This time it just kept waiting:
-
- 8957 vc/1     00:00:00 test
- 8958 ?        00:00:00 test <defunct>
-
-I run it again:
-
-1:src# ./test
-Before Thread2
-After Thread2
-
-And again:
-
-1:src# ./test
-Before Thread2
-Thread2
-Segmentation fault
-
-Now with gdb-5.1.1:
-
-Starting program: /usr/src/./test
-(no debugging symbols found)...[New Thread 1024 (LWP 9168)]
-Before Thread2
-[New Thread 2049 (LWP 9169)]
-[New Thread 1026 (LWP 9170)]
-Thread2
-After Thread2
-
-Program exited normally.
-
-As I said the results vary from system to system, here are some
-convinations:
-
-* linux-2.4.10+glibc+2.2.4+gcc-2.95.3: Runs fine, but once in a while it
-	keeps waiting for the defunct thread.
-
-* linux-2.4.17+glibc+2.2.4+gcc-2.95.3: The same, but the defunct problem
-	happends much more often.
-
-* linux-2.4.10+glibc+2.2.5+gcc-3.0.3: Segfaults or waits for defuncts.
-
-* linux-2.4.17+glibc+2.2.5+gcc-3.0.3: The same.
-
-I'm lost on this, I supose it's a convination of glibc-linux problem.
-
-Any ideas?
-
--- 
-Felipe Contreras

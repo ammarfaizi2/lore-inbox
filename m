@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273304AbRINFRa>; Fri, 14 Sep 2001 01:17:30 -0400
+	id <S273308AbRINGAr>; Fri, 14 Sep 2001 02:00:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273305AbRINFRV>; Fri, 14 Sep 2001 01:17:21 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:39107
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S273304AbRINFRM>; Fri, 14 Sep 2001 01:17:12 -0400
-Date: Thu, 13 Sep 2001 22:17:36 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@kobayashi.soze.net>
-To: Colin Frank <kernel@osafo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Compining NetFilter: depmod, undefined symbols in 2.4.9
-In-Reply-To: <3BA17C7B.9090307@osafo.com>
-Message-ID: <Pine.LNX.4.33.0109132216360.12327-100000@kobayashi.soze.net>
+	id <S273306AbRINGAh>; Fri, 14 Sep 2001 02:00:37 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50499 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S273307AbRINGAU>; Fri, 14 Sep 2001 02:00:20 -0400
+To: Chris Vandomelen <chrisv@b0rked.dhs.org>
+Cc: <linux-kernel@vger.kernel.org>, VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: Athlon bug stomping #2
+In-Reply-To: <Pine.LNX.4.31.0109132101210.10262-100000@linux.local>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 Sep 2001 23:51:58 -0600
+In-Reply-To: <Pine.LNX.4.31.0109132101210.10262-100000@linux.local>
+Message-ID: <m1d74utj41.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Sep 2001, Colin Frank wrote:
+Chris Vandomelen <chrisv@b0rked.dhs.org> writes:
 
-> There seems to be a mismatch with /System.map and /proc/ksyms
-> form the coorresponding kernel.
-> make bzlilo; make modules; make modules_install, and boot on the
-> /vmlinuz kernel.
+> > On Thu, 13 Sep 2001, VDA wrote:
+> >
+> > > Device 0 Offset 55 - Debug (RW)
+> > > 7-0 Reserved (do not program). default = 0
+> > > *** 3R BIOS: non-zero!?
+> > > *** YH BIOS: zero.
+> > > *** TODO: try to set to 0.
+> >
+> > I tryed sequentially to test the values given. It only worked when I set
+> > offset 0x55 to 0, and then stopped. I don't need to set any other value in
+> > other addresses. This is enough.
+> >
+> > It's weird when your system only works when changing a "do not
+> > program" value. :)
+> 
+> Makes me wonder just a little: my system is perfectly fine with 0x02
+> written to offset 0x55. (Yes, it is an Athlon compiled kernel.. something
+> I've been doing ever since I've been using this machine). It had it's
+> problems when I originally got it
 
-It means you either didn't do make clean, or make clean wasn't good enough
-and you needed to copy the .config away, make mrproper, and copy the
-config back.
+So we have two confirmations that setting this register clears the problem.
+Anyone want to generate a kernel patch so this fix can get some wider
+testing?
 
-
-justin
-
+Eric

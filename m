@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265424AbSKOBO0>; Thu, 14 Nov 2002 20:14:26 -0500
+	id <S265523AbSKOBRY>; Thu, 14 Nov 2002 20:17:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbSKOBO0>; Thu, 14 Nov 2002 20:14:26 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:3590 "EHLO probity.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id <S265424AbSKOBO0>;
-	Thu, 14 Nov 2002 20:14:26 -0500
-Date: Fri, 15 Nov 2002 01:21:11 +0000
-From: John Levon <levon@movementarian.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>,
-       rl@hellgate.ch, linux-kernel@vger.kernel.org,
-       Mikael Pettersson <mikpe@csd.uu.se>, mingo@redhat.com
-Subject: Re: Yet another IO-APIC problem (was Re: via-rhine weirdness with viakt8235 Southbridge)
-Message-ID: <20021115012111.GB15619@compsoc.man.ac.uk>
-References: <20021115002822.G6981@pc9391.uni-regensburg.de> <20021115011738.D17058@pc9391.uni-regensburg.de> <3DD445EF.9080002@pobox.com> <3DD4481F.72627800@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD4481F.72627800@digeo.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *18CVAX-000Osn-00*hj7jsyLVXDE* (Manchester Computing, University of Manchester)
+	id <S265532AbSKOBRY>; Thu, 14 Nov 2002 20:17:24 -0500
+Received: from pheriche.sun.com ([192.18.98.34]:52873 "EHLO pheriche.sun.com")
+	by vger.kernel.org with ESMTP id <S265523AbSKOBRX>;
+	Thu, 14 Nov 2002 20:17:23 -0500
+Message-ID: <3DD44CC0.40805@sun.com>
+Date: Thu, 14 Nov 2002 17:24:16 -0800
+From: Tim Hockin <thockin@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 1/2] Remove NGROUPS hardlimit (resend w/o qsort)
+References: <mailman.1037316781.6599.linux-kernel2news@redhat.com> <200211150006.gAF06JF01621@devserv.devel.redhat.com> <3DD43C65.80103@sun.com> <20021114193156.A2801@devserv.devel.redhat.com> <3DD443EC.2080504@sun.com> <3DD44742.2DFE4407@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2002 at 05:04:31PM -0800, Andrew Morton wrote:
+Andrew Morton wrote:
 
-> It would be nice to get it working, because oprofile needs it.
+> What are you actually using the search for?
+> 
+>>From a quick look, it seems that it's purely to answer
+> the question "is this process a member of group X?".  Is
+> that correct?
+> 
+> If so, test_bit() would work nicely.
 
-That's the local APIC (CONFIG_X86_UP_APIC) not IO-APIC
-(CONFIG_X86_UP_IOAPIC). They should be separate, and it's been a while
-since I've tested it, but CONFIG_X86_UP_IOAPIC=n should still work OK
+This could work if we find the max gid, allocate an array of 
+max_gid/CHAR_BITS + 1 bytes then test_bit, but given the non-contiguity 
+(is that a word) of group memberships, we'll waste a lot of space on 
+holes. Now, it could be argued that 10,000 groups are PROBABLY local 
+enough.  Getting the groups back out will be nasty nastiness, though.
 
-regards
-john
+perhaps:
+
+if (gidsetsize < (2 * EXEC_PAGESIZE)/sizeof(gid_t)) { /* or something */
+	/* use kmalloc() */
+else
+	/* use vmalloc() */
+
+thoughts?
+
 -- 
-Khendon's Law: If the same point is made twice by the same person,
-the thread is over.
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Linux Kernel Engineering
+thockin@sun.com
+

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262134AbTDQA5N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 20:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTDQA5M
+	id S262174AbTDQA7m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 20:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTDQA7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 20:57:12 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:65411 "EHLO
+	Wed, 16 Apr 2003 20:59:42 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:7300 "EHLO
 	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262134AbTDQA5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 20:57:08 -0400
-Date: Wed, 16 Apr 2003 21:08:43 -0400 (EDT)
+	id S262174AbTDQA7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 20:59:41 -0400
+Date: Wed, 16 Apr 2003 21:11:31 -0400 (EDT)
 From: Rik van Riel <riel@surriel.com>
 X-X-Sender: riel@chimarrao.boston.redhat.com
-To: chas@cmf.nrl.navy.mil
-cc: "David S. Miller" <davem@redhat.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH] compile fix for br2684
-Message-ID: <Pine.LNX.4.44.0304162107370.12494-100000@chimarrao.boston.redhat.com>
+To: coreteam@netfilter.org
+cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: [PATCH] compile fix ipfw
+Message-ID: <Pine.LNX.4.44.0304162109530.12650-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-It looks like the recent ATM updates forgot br2684.c, here is
-the patch needed to make that driver compile.
+In the patch that went to marcelo a few days ago the reset
+argument to ip_chain_procinfo() got removed, but there's still
+a code block inside the function that references that variable.
 
---- linux-2.4.20/net/atm/br2684.c.compile	2003-04-16 20:41:05.000000000 -0400
-+++ linux-2.4.20/net/atm/br2684.c	2003-04-16 20:42:05.000000000 -0400
-@@ -188,7 +188,7 @@ static int br2684_xmit_vcc(struct sk_buf
- 		dev_kfree_skb(skb);
- 		return 0;
+This patch gets rid of that (presumably old) code block. Note
+that I didn't cc this to Marcelo because I'm not 100% sure, so
+please check it.
+
+--- linux-2.4.20/net/ipv4/netfilter/ipfwadm_core.c.compile	2003-04-16 21:04:30.000000000 -0400
++++ linux-2.4.20/net/ipv4/netfilter/ipfwadm_core.c	2003-04-16 21:05:24.000000000 -0400
+@@ -1176,12 +1176,6 @@ static int ip_chain_procinfo(int stage, 
+ 			len = last_len;
+ 			break;
  		}
--	atomic_add(skb->truesize, &atmvcc->tx_inuse);
-+	atomic_add(skb->truesize, &atmvcc->sk->wmem_alloc);
- 	ATM_SKB(skb)->iovcnt = 0;
- 	ATM_SKB(skb)->atm_options = atmvcc->atm_options;
- 	brdev->stats.tx_packets++;
-@@ -551,7 +551,7 @@ Note: we do not have explicit unassign, 
- 	barrier();
- 	atmvcc->push = br2684_push;
- 	skb_queue_head_init(&copy);
--	skb_migrate(&atmvcc->recvq, &copy);
-+	skb_migrate(&atmvcc->sk->receive_queue, &copy);
- 	while ((skb = skb_dequeue(&copy))) {
- 		BRPRIV(skb->dev)->stats.rx_bytes -= skb->len;
- 		BRPRIV(skb->dev)->stats.rx_packets--;
+-		else if(reset)
+-		{
+-			/* This needs to be done at this specific place! */
+-			i->fw_pcnt=0L;
+-			i->fw_bcnt=0L;
+-		}
+ 		last_len = len;
+ 		i=i->fw_next;
+ 	}
 

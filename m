@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUG2FvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264286AbUG2Fxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbUG2FvP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 01:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUG2FvP
+	id S264286AbUG2Fxn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 01:53:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUG2Fxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 01:51:15 -0400
-Received: from [203.177.99.83] ([203.177.99.83]:56019 "HELO indiatimes.com")
-	by vger.kernel.org with SMTP id S264256AbUG2FvK (ORCPT
+	Thu, 29 Jul 2004 01:53:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63125 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264286AbUG2Fxl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 01:51:10 -0400
-From: "Ferdinand Arche" <success20042@indiatimes.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Right time at the right place.
+	Thu, 29 Jul 2004 01:53:41 -0400
+Date: Wed, 28 Jul 2004 22:51:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mke2fs -j goes nuts on 3Ware 8506-4LP
+Message-Id: <20040728225146.69748f52.akpm@osdl.org>
+In-Reply-To: <200407281050.24958.m.watts@eris.qinetiq.com>
+References: <200407281050.24958.m.watts@eris.qinetiq.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Date: Thu, 29 Jul 2004 13:51:10 +0800
-Reply-To: "Ferdinand Arche" <success20042@indiatimes.com>
-Content-Transfer-Encoding: 7BIT
-Message-Id: <S264256AbUG2FvK/20040729055110Z+8450@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello fellow computer and internet user,
- 
-Its our time to EARN residual income from the computer repair and internet
-expensis we have.I don't want to waste important your time, just give me a
-chance to reveal these honest to goodness 
-"Internet Money Earning Secrets!".
+Mark Watts <m.watts@eris.qinetiq.com> wrote:
+>
+> I have a 3Ware 8506-4LP controller with 4 250GB Maxtor SATA drives, in a 
+>  raid-5 configuration (64K blocks)
+>  System is:
+>  Dual Opteron 246 (2GHz)
+>  2GB RAM
+>  Tyan S2875 motherboard
+> 
+>  Kernel: 2.6.8-rc2 (pre-empt is ON)
+>  Rest of OS: Mandrake 10.0 AMD64 edition.
+> 
+>  When I execute a mke2fs -j /dev/sda7  to format a 600GB partition on the raid 
+>  as ext3, the system slows to a crawl.
 
-Our system is AUTOMATED so you don't have to worry about personal
-rejection. And, when you do find someone who's really serious about
-improving their finances, our automated system presents your business
-opportunity to them, one step at a time. 
-
-People that have read this same email just 1-2 months ago, are now making
-the kind of income they knew they were worth!
-
-What would you do, and whom would you spend your time with, when you're
-earning the kind of profits you'd like?
-
-It's easy to get started as a FREE member NO OBLIGATION. 
-Just Email me. 
-
-Ferdinand_arche@yahoo.com
-
-with subjext line "Register me for free demo"
-and please include your:
-
-First name:
-Last Name:
-Country you represent:
-
-And just check your inbox for confirmation. 
-
-If you don't want the business,you can unsubscribe anytime. 
-
-
-Sincerely,
-
-Ferdinand Arche
-
-
-*****************************************************************
-Note: Just hit reply with " REMOVE" in the subject for no further emails. 
+It's conceivably a memory reclaim problem.  Please try booting with the
+boot command line option `mem=768M', then see if it goes any better.

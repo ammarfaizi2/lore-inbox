@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131245AbQL1FpY>; Thu, 28 Dec 2000 00:45:24 -0500
+	id <S131060AbQL1G3R>; Thu, 28 Dec 2000 01:29:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132368AbQL1FpP>; Thu, 28 Dec 2000 00:45:15 -0500
-Received: from tantalophile.demon.co.uk ([193.237.65.219]:57093 "EHLO
-	thefinal.cern.ch") by vger.kernel.org with ESMTP id <S131245AbQL1FpG>;
-	Thu, 28 Dec 2000 00:45:06 -0500
-Date: Thu, 28 Dec 2000 06:15:46 +0100
+	id <S131184AbQL1G3H>; Thu, 28 Dec 2000 01:29:07 -0500
+Received: from tantalophile.demon.co.uk ([193.237.65.219]:16134 "EHLO
+	thefinal.cern.ch") by vger.kernel.org with ESMTP id <S131060AbQL1G26>;
+	Thu, 28 Dec 2000 01:28:58 -0500
+Date: Thu, 28 Dec 2000 06:50:20 +0100
 From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Steve Grubb <ddata@gate.net>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] performance enhancement for simple_strtoul
-Message-ID: <20001228061546.A4578@thefinal.cern.ch>
-In-Reply-To: <000e01c06a8e$6945db60$bc1a24cf@master> <20001220100446.A1249@inetnebr.com> <001401c06ab4$ac8615e0$7d1a24cf@master> <20001221010935.A22817@pcep-jamie.cern.ch> <20001221210637.C1545@bug.ucw.cz>
+To: Al Peat <al_kernel@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, myself <al_peat@yahoo.com>,
+        Juri Haberland <juri.haberland@innominate.com>
+Subject: Re: Purging the Page Table (was: Purging the Buffer Cache)
+Message-ID: <20001228065020.B4578@thefinal.cern.ch>
+In-Reply-To: <20001222011652.30206.qmail@web10101.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001221210637.C1545@bug.ucw.cz>; from pavel@suse.cz on Thu, Dec 21, 2000 at 09:06:37PM +0100
+In-Reply-To: <20001222011652.30206.qmail@web10101.mail.yahoo.com>; from al_kernel@yahoo.com on Thu, Dec 21, 2000 at 05:16:52PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> > [about strtoul]
-> > Perhaps I am mistaken but I'd expect it to be called what, ten times at
-> > boot time, and a couple of times when X loads the MTRRs?
-> 
-> On second thought, ps -auxl maybe stresses simple_strtoul a little
-> bit. Not sure.
+Al Peat wrote:
+> > >   Is there any way to completely purge the buffer
+> > > cache -- not just the write requests (ala 'sync'
+> > or
+> > > 'update'), but the whole thing?  Can I just call
+> > > invalidate_buffers() or destroy_buffers()?
 
-Nah.  proc_pid_lookup does its own conversion from string to number, and
-the rest are conversions from numbers to strings in sprintf.
+Try this script:
+
+case "`id -u`" in
+  0) ;;
+  *) echo Only root can run this script. 1>&2; exit 1 ;;
+esac
+
+mount | sort -k3 -r | \
+while read dev ON dir TYPE type etc; do
+  echo mount $dir -o remount
+  mount $dir -o remount
+done
+
+mount | sort -k1 | \
+while read dev ON dir TYPE type etc; do
+  case "$dev" in
+    /dev/*) echo hdparm -f $dev
+      hdparm -f $dev >/dev/null ;;
+  esac
+done
 
 -- Jamie
 -

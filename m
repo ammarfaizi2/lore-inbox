@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283607AbRK3NOs>; Fri, 30 Nov 2001 08:14:48 -0500
+	id <S283606AbRK3NOi>; Fri, 30 Nov 2001 08:14:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283608AbRK3NOi>; Fri, 30 Nov 2001 08:14:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54031 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283607AbRK3NO3>; Fri, 30 Nov 2001 08:14:29 -0500
-Subject: Re: kapm-idled no longer idling CPU?
-To: ast@domdv.de (Andreas Steinmetz)
-Date: Fri, 30 Nov 2001 13:23:12 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        dglidden@illusionary.com ((Derek Glidden))
-In-Reply-To: <XFMail.20011130133403.ast@domdv.de> from "Andreas Steinmetz" at Nov 30, 2001 01:34:03 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S283608AbRK3NO2>; Fri, 30 Nov 2001 08:14:28 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:17332 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S283606AbRK3NOR>; Fri, 30 Nov 2001 08:14:17 -0500
+Date: Fri, 30 Nov 2001 14:12:26 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, miquels@cistron-office.nl
+Subject: Re: XT-PIC vs IO-APIC and PCI devices
+In-Reply-To: <Pine.LNX.4.33.0111301443190.23494-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.GSO.3.96.1011130140806.15249K-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E169ndI-0003WU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> system_idle itself just checks, if nr_running is 1. This means that if any
-> single other process is runnable every HZ time when apm_idled checks the system
-> state it won't switch to idle state even if the system is otherwise idle. I do
-> see this behaviour e.g. all the time with KDE.
+On Fri, 30 Nov 2001, Zwane Mwaikambo wrote:
 
-Uggh - yes, that makes horrible sense. Does it behave any better if you
-check say load average for the past 15 seconds < .1 ?
+> 22:          0          0   IO-APIC-level  pentanet0 <==
+
+ Do you have sources for the driver?  Last time I looked at the driver, it
+was binary-only (the distribution contained a copy of the GNU GPL, yet the
+vendor refused to release sources I asked for) and it seemed to be broken
+horribly.  Be happy at least it works for you with interrupts routed
+through the 8259A. 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265055AbRFVSmO>; Fri, 22 Jun 2001 14:42:14 -0400
+	id <S265408AbRFVSoY>; Fri, 22 Jun 2001 14:44:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265034AbRFVSmE>; Fri, 22 Jun 2001 14:42:04 -0400
-Received: from [200.24.109.130] ([200.24.109.130]:59149 "EHLO
-	earth.cj.osso.org.co") by vger.kernel.org with ESMTP
-	id <S265055AbRFVSl4>; Fri, 22 Jun 2001 14:41:56 -0400
-Message-ID: <3B3390F8.AC4B0F4E@osso.org.co>
-Date: Fri, 22 Jun 2001 13:39:52 -0500
-From: "Jhon H. Caicedo O." <jhcaiced@osso.org.co>
-Organization: O.S.S.O
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
+	id <S265471AbRFVSoE>; Fri, 22 Jun 2001 14:44:04 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:10938 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S265408AbRFVSoB>;
+	Fri, 22 Jun 2001 14:44:01 -0400
+Message-ID: <3B33918D.1CF642B4@mvista.com>
+Date: Fri, 22 Jun 2001 11:42:21 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: linux-kernel@vget.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: AMD756 PCI IRQ Routing Patch 0.2.0
-In-Reply-To: <3B3343E6.122965AC@osso.org.co> <3B338E4E.D1FDD74D@mandrakesoft.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mozilla-Status: 0000
-X-Mozilla-Status2: 00000000
-X-UIDL: 3ada3da400000eae
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: signal dequeue ...
+In-Reply-To: <XFMail.20010622110507.davidel@xmailserver.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Jeff Garzik wrote:
-> None of the other PCI IRQ routines print out IRQ routing messages, so
-> these shouldn't either.  I assume this is debugging code?
-
-Yes, the printks are only for debug and surely will be removed 
-after some tests of the patch.
+Davide Libenzi wrote:
 > 
-> Further, the printks are potentially misleading, because pirq_amd756_get
-> might not receive a valid irq, if 'pirq' is greater than 4.
+> I'm just trying to figure out the reason why signal must be delivered one at a
+> time instead of building a frame with multiple calls with only the last one
+> chaining back to the kernel.
+> All previous calls instead of calling the stub that jump back to the kernel
+> will call a small stub like ( Ix86 ) :
+> 
+> stkclean_stub:
+>         add $frame_size, %esp
+>         cmp %esp, $end_stubs
+>         jae $sigreturn_stub
+>         ret
+> sigreturn_stub:
+>         mov __NR_sigreturn, %eax
+>         int $0x80
+> end_stubs:
+> 
+> ...
+> | context1
+> * $stkclean_stub
+> * sigh1_eip
+> | context0
+> * $stkclean_stub
+> * sigh0_eip
+> 
+> When sigh0 return, it'll call stkclean_stub that will clean context0 and if
+> we're at the end it'll call the jump-back-to-kernel stub, otherwise the it'll
+> execute the  ret  the will call sigh1 handler ... and so on.
+> 
+And if the user handler does a long_jmp?  
 
-With pirq > 4 pirq_amd756_get should return 0, i left the
-printk just to see if this happens in some test.
+Actually some systems have code in long_jmp to notify the system that it
+will not be returning (these are systems that deliver signals to user
+land with context on the kernel stack and need to know when to unwind
+the kernel stack).
 
-In the original 2.4.5 kernel (without patch), I get irq=0 for pirq=4
-and that was the cause of the error with a SMC Lucent CardBus Bridge.
-
-Thanks,
---
-Jhon H. Caicedo O. <jhcaiced@osso.org.co>
-Observatorio Sismológico del SurOccidente O.S.S.O
-http://www.osso.org.co
-Cali - Colombia
-
+George

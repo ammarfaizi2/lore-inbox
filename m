@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318884AbSHSN3s>; Mon, 19 Aug 2002 09:29:48 -0400
+	id <S318885AbSHSNiT>; Mon, 19 Aug 2002 09:38:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318885AbSHSN3s>; Mon, 19 Aug 2002 09:29:48 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:37277 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S318884AbSHSN3r>; Mon, 19 Aug 2002 09:29:47 -0400
-Date: Mon, 19 Aug 2002 09:33:44 -0400 (EDT)
-From: Albert Cranford <root@cranford.com>
-Reply-To: ac9410@attbi.com
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.5.31 blacklist IMB Laptops from I2C-Sensors
-Message-ID: <Pine.LNX.4.44.0208190923280.417-200000@home1.cranford.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1343968659-1029764024=:417"
+	id <S318886AbSHSNiT>; Mon, 19 Aug 2002 09:38:19 -0400
+Received: from [209.167.240.9] ([209.167.240.9]:61181 "EHLO
+	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
+	id <S318885AbSHSNiT>; Mon, 19 Aug 2002 09:38:19 -0400
+Subject: Re: Does Solaris really scale this well? [OT]
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0208181228330.13351-100000@sharra.ivimey.org>
+References: <Pine.LNX.4.44.0208181228330.13351-100000@sharra.ivimey.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 19 Aug 2002 09:42:21 -0400
+Message-Id: <1029764541.32209.72.camel@dlacoste.ottawa.loran.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sun, 2002-08-18 at 08:33, Ruth Ivimey-Cook wrote:
+> It is also instructive to note that in many cases, the peak processor power is 
+> obtained by multiplying individual peak power by the number of processors, 
+> with no notice taken of the costs of synchronisation, memory access or 
+> communication. Consequently, many new owners of supercomputers are very 
+> disappointed with their new 'baby' when they find it's not nearly as powerful 
+> as they had been told.
 
---8323328-1343968659-1029764024=:417
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+It is also important to note that most benchmarks go out of their
+way to analyze this situation properly in the massively parallel
+supercomputer world, and that for the most part supercomputers excel
+in I/O bandwidth more than CPU power, so if you bought your SV2 to
+run quake you _deserve_ to only get 100fps :)
 
-Hello Linus,
-This patch addresses concerns that Sensor detection  corrupts IBM Laptops by
-setting a global value "disable_smbus" in dmi_scan.  With this set, it will
-now be possible to blacklist IBM Laptops and not scan for sensors.
-Thanks,
-Albert
--- 
-ac9410@attbi.com
+To try to bring this a little more back on topic, is there any
+particular group in the Linux community who's dissatisfied with
+our scalability (except for IBM, who seem to be working on this
+issue already.  I mean anyone who's _not_ seeing things done to
+rectify the situation :)
 
+Dana Lacoste
+Ottawa
 
---8323328-1343968659-1029764024=:417
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=dmi-patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0208190933440.417@home1.cranford.com>
-Content-Description: 
-Content-Disposition: attachment; filename=dmi-patch
-
-LS0tIGxpbnV4LTIuNS4zMS9hcmNoL2kzODYva2VybmVsL2RtaV9zY2FuLmMu
-b3JpZyAgICAgMjAwMi0wNy0zMSAyMzoxMDoyMS4wMDAwMDAwMDAgLTA0MDAN
-CisrKyBsaW51eC9hcmNoL2kzODYva2VybmVsL2RtaV9zY2FuLmMgIDIwMDIt
-MDctMzEgMjM6MTM6NTIuMDAwMDAwMDAwIC0wNDAwDQpAQCAtMTMsNiArMTMs
-NyBAQA0KIA0KIHVuc2lnbmVkIGxvbmcgZG1pX2Jyb2tlbjsNCiBpbnQgaXNf
-c29ueV92YWlvX2xhcHRvcDsNCitpbnQgaXNfYnJva2VuX3NtYnVzOw0KIA0K
-IHN0cnVjdCBkbWlfaGVhZGVyDQogew0KQEAgLTQ2OCw2ICs0NjksMjAgQEAN
-CiAJcmV0dXJuIDA7DQogfQ0KIA0KKy8qIA0KKyAqIERvbid0IGFjY2VzcyBT
-TUJ1cyBvbiBJQk0gc3lzdGVtcyB3aGljaCBnZXQgY29ycnVwdGVkIGVlcHJv
-bXMgDQorICovDQorDQorc3RhdGljIF9faW5pdCBpbnQgZGlzYWJsZV9zbWJ1
-cyhzdHJ1Y3QgZG1pX2JsYWNrbGlzdCAqZCkNCit7DQorCWlmIChpc19icm9r
-ZW5fc21idXMgPT0gMCkNCisJew0KKwkJaXNfYnJva2VuX3NtYnVzID0gMTsN
-CisJCXByaW50ayhLRVJOX0lORk8gIiVzIG1hY2hpbmUgZGV0ZWN0ZWQuIERp
-c2FibGluZyBTTUJ1cyBhY2Nlc3Nlcy5cbiIsIGQtPmlkZW50KTsNCisJfQ0K
-KwlyZXR1cm4gMDsNCit9DQorDQogLyoNCiAgKglTaW1wbGUgInByaW50IGlm
-IHRydWUiIGNhbGxiYWNrDQogICovDQpAQCAtNzM3LDYgKzc1MiwxNSBAQA0K
-IAkgKi8NCiAJIA0KIAl7IHNldF9hcG1faW50cywgIklCTSIsIHsJLyogQWxs
-b3cgaW50ZXJydXB0cyBkdXJpbmcgc3VzcGVuZCBvbiBJQk0gbGFwdG9wcyAq
-Lw0KKwkJCU1BVENIKERNSV9TWVNfVkVORE9SLCAiSUJNIiksDQorCQkJTk9f
-TUFUQ0gsIE5PX01BVENILCBOT19NQVRDSA0KKwkJCX0gfSwNCisNCisJLyoN
-CisJICoJU01CdXMgLyBzZW5zb3JzIHNldHRpbmdzDQorCSAqLw0KKwkgDQor
-CXsgZGlzYWJsZV9zbWJ1cywgIklCTSIsIHsNCiAJCQlNQVRDSChETUlfU1lT
-X1ZFTkRPUiwgIklCTSIpLA0KIAkJCU5PX01BVENILCBOT19NQVRDSCwgTk9f
-TUFUQ0gNCiAJCQl9IH0sDQo=
---8323328-1343968659-1029764024=:417--

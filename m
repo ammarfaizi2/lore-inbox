@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129429AbRBIAMX>; Thu, 8 Feb 2001 19:12:23 -0500
+	id <S129465AbRBIAUE>; Thu, 8 Feb 2001 19:20:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129616AbRBIAMD>; Thu, 8 Feb 2001 19:12:03 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:13061 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129613AbRBIAL5>; Thu, 8 Feb 2001 19:11:57 -0500
-Message-ID: <3A8335BB.F3166F1@transmeta.com>
-Date: Thu, 08 Feb 2001 16:11:39 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129471AbRBIATy>; Thu, 8 Feb 2001 19:19:54 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:60680 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129465AbRBIATo>; Thu, 8 Feb 2001 19:19:44 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE021@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'Adam Schrotenboer'" <ajschrotenboer@lycosmail.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Mem detection problem
+Date: Thu, 8 Feb 2001 16:19:36 -0800 
 MIME-Version: 1.0
-To: "Michael H. Warfield" <mhw@wittsend.com>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: DNS goofups galore...
-In-Reply-To: <95ulrk$aik$1@forge.intermeta.de> <Pine.LNX.4.10.10102081346001.16513-100000@innerfire.net> <95v8am$k6o$1@cesium.transmeta.com> <20010208183232.A1642@alcove.wittsend.com> <3A833005.5C8E0D81@transmeta.com> <20010208185449.B1642@alcove.wittsend.com> <3A83335A.A5764CD7@transmeta.com> <20010208190823.B1640@alcove.wittsend.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Michael H. Warfield" wrote:
+> From: Adam Schrotenboer [mailto:ajschrotenboer@lycosmail.com]
 > 
-> > Please explain how there is any different between an CNAME or MX pointing
-> > to an A record in a different SOA versus an MX pointing to a CNAME
-> > pointing to an A record where at least one pair is local (same SOA).
+> This is actually a repost of a problem that received few 
+> serious replies (IMNSHO).
+
+Well, I claim not to have ignored it.
+I have gone thru the entire patch-2.4.1 file and can't see
+anything there that would cause what you are seeing.
+
+You aren't using ACPI, right?  (not in your log files)
+[That just makes the patch file of interest smaller.]
+
+> Basically 2.4.0 detects 192 MB(maybe 191, but big whoop) of 
+> memory. This 
+> is correct. However, 2.4.1-ac6 (as did Linus-blessed 2.4.1) 
+> detects 64. 
+> The problem is simple. 2.4.1 and later for some reason uses bios-88, 
+> instead of e820.
 > 
->         Ah!  But now you are placing conditions on it (that at least one
-> pair is local).  That is the very fine distinction that makes up the
-> "not quite" in the "almost" above and the difference between the "should
-> not" vs the "must not" in the specifications.  You basically can't qualify
-> it by saying "you can do this, but only if one pair is in the same SOA".
-> 
+> Attached are the dmesgs from 2.4.0 and 2.4.1-ac6.
 
-No.  My point is that potential for inefficiency is not a valid reason
-for banning something outright.  This should be an administrative
-decision, nothing more.
+Have you booted 2.4.0 again (lately)?  You log file is from
+Jan-08-2001.  It may also report only 64 MB now, based on
+some kind of BIOS change (or ESCD ...) since Jan-08.
 
-	-hpa
+Someone else with a similar "problem" actually had a fruit fly
+in one of their slots that caused a problem, so I would ask that
+you (a) boot 2.4.0 again to see if it works now and (b) remove
+adapters, clean slots, reseat adapters, boot 2.4.1 again.
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+~Randy
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262043AbTIHIMK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 04:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbTIHIMK
+	id S262068AbTIHIRl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 04:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTIHIRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 04:12:10 -0400
-Received: from angband.namesys.com ([212.16.7.85]:56003 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S262043AbTIHIMH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 04:12:07 -0400
-Date: Mon, 8 Sep 2003 12:12:06 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-       Nikita Danilov <god@namesys.com>
-Subject: Re: First impressions of reiserfs4
-Message-ID: <20030908081206.GA17718@namesys.com>
-References: <slrnbl12sv.i4g.erik@bender.home.hensema.net> <3F50D986.6080707@namesys.com> <20030831191419.A23940@bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030831191419.A23940@bitwizard.nl>
-User-Agent: Mutt/1.4i
+	Mon, 8 Sep 2003 04:17:41 -0400
+Received: from mail.cs.tu-berlin.de ([130.149.17.13]:21702 "EHLO
+	mail.cs.tu-berlin.de") by vger.kernel.org with ESMTP
+	id S262068AbTIHIRj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 04:17:39 -0400
+Date: Mon, 8 Sep 2003 10:15:08 +0200 (MEST)
+From: Peter Daum <gator@cs.tu-berlin.de>
+Reply-To: Peter Daum <gator@cs.tu-berlin.de>
+To: Dave Jones <davej@redhat.com>
+cc: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@fs.tum.de>,
+       <marcelo.tosatti@cyclades.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
+In-Reply-To: <20030907213924.GA28927@redhat.com>
+Message-ID: <Pine.LNX.4.30.0309080934410.5064-100000@swamp.bayern.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
-On Sun, Aug 31, 2003 at 07:14:19PM +0200, Rogier Wolff wrote:
+On Sun, 7 Sep 2003, Dave Jones wrote:
 
-> Would it be possible to do something like: "pretend that there
-> are always 100 million inodes free", and then report sensible
-> numbers to "df -i"? 
+> *nod*. This 'fix' also papers over the bug instead of fixing it.
+> Likely it's something like a network card driver setting its cacheline
+> size incorrectly. Peter what NIC did you see the problem on ?
 
-This won't work. No sensible numbers would be there.
+All the machines have Forerunner LE ATM NICs and use LAN
+Emulation. I made an attempt to check whether the problems also occur
+with ethernet, but for some reason the ethernet card also
+didn't seem to work with 2.4.22. Maybe I should give this another
+try ...
 
-> There  is no installation program that will fail with: "Sorry, 
-> you only have 100 million inodes free, this program will need
-> 132 million after installation", and it allows me a quick way 
-> of counting the number of actual files on the disk.... 
+As mentioned, Adrian's patch for "CONFIG_X86_L1_CACHE_SHIFT"
+seems to fix my current networking problems, but maybe the real
+cause is something else.
 
-You cannot. statfs(2) only exports "Total number of inodes on disk" and
-"number of free inodes on disk" values for fs. df substracts one from another one
-to get "number of inodes in use".
-Actually we export necessary numbers through sysfs for now. And we have patch
-in our tree that just sets statfs(2) inode stuff to zero. You should see it after
-next snapshot is released.
+Since somebody here mentioned "memory corruption": Already for
+years I have been plagued by a bug somewhere in the ATM/LANE code
+that causes the machines to crash from time to time (see
+http://sourceforge.net/tracker/index.php?func=detail&aid=445059&group_id=7812&atid=107812)
 
-$ cat /sys/fs/reiser4/hdb1/oids_in_use
-104875
-$ cat /sys/fs/reiser4/hdb1/next_to_use
-261239
+I could not discover any pattern, when and under which
+circumstances these crashes happen (usually, they occur with
+several months in between) Several times, I managed to get at
+least a stack trace, but the actual crashes occured at different
+places in the code (which, I guess, could mean that the real
+problem is somebody overwriting somebody elses memory). Could
+there be any connection?
 
-Bye,
-    Oleg
+If somebody has any good idea how to find out, what is going on,
+I'll be glad to investigate this further. At least, with my
+current networking problems (see the thread "2.4.22 with
+CONFIG_M686: networking broken") I have a test case ...
+
+Regards,
+               Peter Daum
+

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130846AbRALRIc>; Fri, 12 Jan 2001 12:08:32 -0500
+	id <S131044AbRALRRF>; Fri, 12 Jan 2001 12:17:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131229AbRALRIX>; Fri, 12 Jan 2001 12:08:23 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:13858 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S130846AbRALRIL>; Fri, 12 Jan 2001 12:08:11 -0500
-Date: Fri, 12 Jan 2001 18:05:56 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Richard A Nelson <cowboy@vnet.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
-        Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
-Message-ID: <20010112180556.J2766@athlon.random>
-In-Reply-To: <20010112170234.A2766@athlon.random> <Pine.LNX.4.31.0101121139470.25694-100000@back40.badlands.lexington.ibm.com>
-Mime-Version: 1.0
+	id <S131229AbRALRQz>; Fri, 12 Jan 2001 12:16:55 -0500
+Received: from colorfullife.com ([216.156.138.34]:26373 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S131044AbRALRQs>;
+	Fri, 12 Jan 2001 12:16:48 -0500
+Message-ID: <3A5F3BF4.7C5567F8@colorfullife.com>
+Date: Fri, 12 Jan 2001 18:16:36 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: dwmw2@infradead.org, linux-kernel@vger.kernel.org, frank@unternet.org
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware 
+ related?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.31.0101121139470.25694-100000@back40.badlands.lexington.ibm.com>; from cowboy@vnet.ibm.com on Fri, Jan 12, 2001 at 11:42:32AM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 11:42:32AM -0500, Richard A Nelson wrote:
-> On Fri, 12 Jan 2001, Andrea Arcangeli wrote:
 > 
-> > It doesn't make much sense to me to put the "can_I_use" global information in
-> > the per-cpu slots, that's obviously the wrong place for it. We simply need to
-> > add a new entry to /proc (say "/proc/osinfo") to provide the "can_I_use"
-> > informations instead (TSC included).  Breaking /proc/cpuinfo isn't the way to
-> > go IMHO.
+> manfred@colorfullife.com said: 
+> > IRR for interrupt 19 is set, that means the IO APIC has sent the 
+> > interrupt to a cpu but not yet received the corresponding EOI. 
 > 
-> Sorry, but you're not taking the long view here,  "can_I_use" most
-> definetly should be per-cpu...
-> 
-> Its fine either way on current x86 and many other platforms, but falls
-> on its face in the presence of asymetric MP.
+> OK, but couldn't we reset it by sending an extra EOI when the drivers 
+> decide that they've missed interrupts? 
 
-Point taken, feel free to have a can_I_use per-cpu instead of global but don't
-overwrite the cpu_has with it. 
+How?
+You send an EOI by writing 0 to the EOI register of the local apic, and
+then the local apic automagically checks it's ISR bitfield.
+It takes the highest set bit and clears it. Then it checks that bit in
+the TMR, and it if's also set in the TMR then it sends an EOI to the IO
+apic.
 
-Andrea
+The magic seems to be tamper proof: all bits are read only.
+
+The bit on the IO apic is also read only.
+Perhaps with brute force? Switch the interrupt to edge triggered on the
+io apic, wait 1 usec, switch it back to level triggered. The IRR bit is
+undefined for edge triggered interrupts, perhaps that clears the IRR
+bit.
+
+I would first concentrate on the differences between 2.2 and 2.4:
+
+Frank, could you try what happens with the NMI oopser disabled?
+
+The second major difference I'm immediately aware of is the number of
+the reschedule/tlb flush/etc interrupt: 2.2 uses the lowest priority,
+2.4 the highest priority.
+
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289345AbSAJFr1>; Thu, 10 Jan 2002 00:47:27 -0500
+	id <S289346AbSAJFs6>; Thu, 10 Jan 2002 00:48:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289346AbSAJFrR>; Thu, 10 Jan 2002 00:47:17 -0500
-Received: from zero.tech9.net ([209.61.188.187]:32779 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S289345AbSAJFrE>;
-	Thu, 10 Jan 2002 00:47:04 -0500
+	id <S289347AbSAJFss>; Thu, 10 Jan 2002 00:48:48 -0500
+Received: from zero.tech9.net ([209.61.188.187]:33803 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S289346AbSAJFsm>;
+	Thu, 10 Jan 2002 00:48:42 -0500
 Subject: Re: lock order in O(1) scheduler
 From: Robert Love <rml@tech9.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: kevin@koconnor.net, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <20020109.212957.59465864.davem@redhat.com>
+To: kevin@koconnor.net
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
 In-Reply-To: <20020110001002.A13456@arizona.localdomain>
-	<1010640369.5335.289.camel@phantasy> 
-	<20020109.212957.59465864.davem@redhat.com>
+In-Reply-To: <20020110001002.A13456@arizona.localdomain>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 10 Jan 2002 00:49:24 -0500
-Message-Id: <1010641765.5340.295.camel@phantasy>
+Date: 10 Jan 2002 00:51:03 -0500
+Message-Id: <1010641864.3225.298.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-01-10 at 00:29, David S. Miller wrote:
+On Thu, 2002-01-10 at 00:10, kevin@koconnor.net wrote:
 
-> Unlocking order doesn't matter wrt. ABBA deadlock.
+> I was unable to figure out what the logic of the '(smp_processor_id() <
+> p->cpu)' test is..  (Why should the CPU number of the process being awoken
+> matter?)  My best guess is that this is to enforce a locking invariant -
+> but if so, isn't this test backwards?  If p->cpu > current->cpu then
+> p->cpu's runqueue is locked first followed by this_rq - locking greatest to
+> least, where the rest of the code does least to greatest..
 
-Indeed.  Thank you.
+OK, I replied I was unsure of the validity, but looking this over, I now
+suspect it is wrong.
 
-Anyhow, Ingo, here is a patch for the typo in set_cpus_allowed:
-
-diff -urN linux-2.5.2-pre10/ linux/
---- linux-2.5.2-pre10/kernel/sched.c	Tue Jan  8 00:26:17 2002
-+++ linux/kernel/sched.c	Thu Jan 10 00:41:38 2002
-@@ -813,8 +813,8 @@
- 		spin_lock_irq(&target_rq->lock);
- 		spin_lock(&this_rq->lock);
- 	} else {
--		spin_lock_irq(&target_rq->lock);
--		spin_lock(&this_rq->lock);
-+		spin_lock_irq(&this_rq->lock);
-+		spin_lock(&target_rq->lock);
- 	}
- 	dequeue_task(p, p->array);
- 	this_rq->nr_running--;
+The test should be (smp_processor_id() > p->cpu).  Thus it would be safe
+to lock this_rq since it is of a lower cpu id than p's rq.
 
 	Robert Love
 

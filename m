@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136472AbREDRwm>; Fri, 4 May 2001 13:52:42 -0400
+	id <S136473AbREDR4W>; Fri, 4 May 2001 13:56:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136473AbREDRwd>; Fri, 4 May 2001 13:52:33 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:27574 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S136472AbREDRwV>;
-	Fri, 4 May 2001 13:52:21 -0400
-Date: Fri, 4 May 2001 13:52:20 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Todd Inglett <tinglett@vnet.ibm.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH][RFC] Re: SMP races in proc with thread_struct
-In-Reply-To: <3AF2A1CC.C22A48E7@vnet.ibm.com>
-Message-ID: <Pine.GSO.4.21.0105041319520.19970-100000@weyl.math.psu.edu>
+	id <S136474AbREDR4M>; Fri, 4 May 2001 13:56:12 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:5380 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136473AbREDR4E>; Fri, 4 May 2001 13:56:04 -0400
+Date: Fri, 4 May 2001 10:55:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        volodya@mindspring.com, Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+In-Reply-To: <Pine.GSO.4.21.0105041330510.19970-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0105041048290.521-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Linus, could you consider the patch below? As it is, access to
-/proc/<pid>/status of dead process with dead parent is possible and
-leads to access to freed memory. Besides, cd /proc/<pid> means
-that even after <pid> is gone, readdir() _and_ lookup on /proc/<pid> work.
-Patch makes sure that ->p_pptr is NULL once the process is gone (fixes
-readdir/lookup stuff) and adds obvious couple of checks in array.c.
-								Al
 
-diff -urN S5-pre1/fs/proc/array.c S5-pre1-p_pptr/fs/proc/array.c
---- S5-pre1/fs/proc/array.c	Sat Apr 28 02:12:56 2001
-+++ S5-pre1-p_pptr/fs/proc/array.c	Fri May  4 13:15:47 2001
-@@ -157,7 +157,9 @@
- 		"Uid:\t%d\t%d\t%d\t%d\n"
- 		"Gid:\t%d\t%d\t%d\t%d\n",
- 		get_task_state(p),
--		p->pid, p->p_opptr->pid, p->p_pptr->pid != p->p_opptr->pid ? p->p_pptr->pid : 0,
-+		p->pid, p->p_opptr->pid,
-+		p->p_pptr && p->p_pptr->pid != p->p_opptr->pid
-+			? p->p_pptr->pid : 0,
- 		p->uid, p->euid, p->suid, p->fsuid,
- 		p->gid, p->egid, p->sgid, p->fsgid);
- 	read_unlock(&tasklist_lock);	
-@@ -339,7 +341,7 @@
- 	nice = task->nice;
- 
- 	read_lock(&tasklist_lock);
--	ppid = task->p_opptr->pid;
-+	ppid = task->p_pptr ? task->p_opptr->pid : 0;
- 	read_unlock(&tasklist_lock);
- 	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
- %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %lu %lu %ld %lu %lu %lu %lu %lu \
-diff -urN S5-pre1/kernel/exit.c S5-pre1-p_pptr/kernel/exit.c
---- S5-pre1/kernel/exit.c	Fri Feb 16 22:52:15 2001
-+++ S5-pre1-p_pptr/kernel/exit.c	Fri May  4 13:18:33 2001
-@@ -62,6 +62,9 @@
- 		current->counter += p->counter;
- 		if (current->counter >= MAX_COUNTER)
- 			current->counter = MAX_COUNTER;
-+		write_lock_irq(&tasklist_lock);
-+		p->p_pptr = NULL;
-+		write_unlock_irq(&tasklist_lock);
- 		free_task_struct(p);
- 	} else {
- 		printk("task releasing itself\n");
+On Fri, 4 May 2001, Alexander Viro wrote:
+> 
+> Ehh... There _is_ a way to deal with that, but it's deeply Albertesque:
+> 	* add pagecache access for block device
+> 	* put your "real" root on /dev/loop0 (setup from initrd)
+> 	* dd
 
+You're one sick puppy.
+
+Now, the above is basically equivalent to using and populating a
+dynamically sized ramdisk.
+
+If you really want to go this way, I'd much rather see you using a real
+ram-disk (that you populate at startup with something like a compressed
+tar-file). THAT is definitly going to speed up booting - thanks to
+compression you'll not only get linear reads, but you will get fewer reads
+than the amount of data you need would imply.
+
+Couple that with tmpfs, or possibly something like coda (to dynamically
+move things between the ramdisk and the "backing store" filesystem), and
+you can get a ramdisk approach that actually shrinks (and, in the case of
+coda or whatever, truly grows) dynamically.
+
+Think of it as an exercise in multi-level filesystems and filesystem
+management. Others have done it before (usually between disk and tape, or
+disk and network), and in these days of ever-growing memory it might just
+make sense to do it on that level too.
+
+(No, I don't seriously think it makes sense today. But if RAM keeps
+growing and becoming ever cheaper, it might some day. At the point where
+everybody has multi-gigabyte memories, and don't really need it for
+anything but caching, you could think of it as just moving the caching to
+a higher level - you don't cache blocks, you cache parts of the
+filesystem).
+
+> 	Al, feeling sadistic today...
+
+Sadistic you are.
+
+		Linus
 

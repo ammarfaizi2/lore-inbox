@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268137AbRG3VT1>; Mon, 30 Jul 2001 17:19:27 -0400
+	id <S268003AbRG3VVT>; Mon, 30 Jul 2001 17:21:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268118AbRG3VTR>; Mon, 30 Jul 2001 17:19:17 -0400
-Received: from [209.226.93.226] ([209.226.93.226]:5113 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S268156AbRG3VTE>; Mon, 30 Jul 2001 17:19:04 -0400
-Date: Mon, 30 Jul 2001 17:18:29 -0400
-Message-Id: <200107302118.f6ULITu00621@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@mobilix.ras.ucalgary.ca
-Subject: devfsd-v1.3.12 available
+	id <S268020AbRG3VVJ>; Mon, 30 Jul 2001 17:21:09 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:24070 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S268003AbRG3VVC>; Mon, 30 Jul 2001 17:21:02 -0400
+Message-ID: <3B65CFC5.A6B4FC08@namesys.com>
+Date: Tue, 31 Jul 2001 01:21:09 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@caldera.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <200107281645.f6SGjA620666@ns.caldera.de> <3B653211.FD28320@namesys.com> <20010730210644.A5488@caldera.de> <3B65C3D4.FF8EB12D@namesys.com> <20010730224930.A18311@caldera.de>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-  Hi, all. I've just released version 1.3.12 of my devfsd (devfs
-daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
+Christoph Hellwig wrote:
+> 
+> On Tue, Jul 31, 2001 at 12:30:12AM +0400, Hans Reiser wrote:
+> > But there is not one where they recover from invalid arguments without a panic
+> > (unless I failed to notice something),
+> 
+> Right.
+> 
+> > so it gets you nothing except a message
+> > that we the developers will find more informative when trying to find what made
+> > it crash.
+> 
+> Nope.  It does a reiserfs_panic instead of letting the wrong arguments
+> slipping into lower layers and possibly on disk and thus corrupting data.
+> 
+> And in my opinion correct data is much more worth than one crash more or
+> less (especially with a journaling filesystem).
 
-Tarball directly available from:
-ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
+The cost is not a crash, the cost is performance sucks.
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
+> 
+>         Christoph
+> 
+> --
+> Whip me.  Beat me.  Make me maintain AIX.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
-(or later).
 
-The main changes are:
+Are you going to leave it on for future versions of ReiserFS, or just for Linux
+2.4.2? 
 
-- Added compatibility entries for I2C devices. Thanks to Chris Rankin
-
-- Support multiple regular subexpressions. Thanks to Chris Rankin
-
-- Bug fix in MFUNCTION (bogus CFUNCTION could be called)
-
-- Bug fix for when execvp(3) failes (child did not exit)
-
-- Fixed potential buffer overrun problems. Thanks to Sebastian Krahmer
-
-- Added rpm.spec file. Thanks to Willian Stearns
-
-- Added devfsd.conf(5) man page. Thanks to Russell Coker
-
-- Included sample "mysymlink" shared object extension. Thanks to
-  Russell Coker
-
-- Improved modules.devfs configuration file
-
-- Added PREFIX and MANDIR to GNUmakefile
-
-- Documentation updates.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Hans

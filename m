@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268282AbUIPWhL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268288AbUIPWiV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268282AbUIPWhL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 18:37:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268105AbUIPWhK
+	id S268288AbUIPWiV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 18:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268105AbUIPWiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 18:37:10 -0400
-Received: from mail.kroah.org ([69.55.234.183]:60842 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268282AbUIPWga (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 18:36:30 -0400
-Date: Thu, 16 Sep 2004 15:35:39 -0700
-From: Greg KH <greg@kroah.com>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       Pavel Machek <pavel@ucw.cz>,
+	Thu, 16 Sep 2004 18:38:20 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:7071 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S268288AbUIPWh3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 18:37:29 -0400
+X-BrightmailFiltered: true
+Message-Id: <5.1.0.14.2.20040917083305.04f4d008@171.71.163.14>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 17 Sep 2004 08:37:17 +1000
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: The ultimate TOE design
+Cc: Andi Kleen <ak@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       "David S. Miller" <davem@davemloft.net>, paul@clubi.ie,
+       netdev@oss.sgi.com, leonid.grossman@s2io.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Suspend2 Merge: Driver model patches 2/2
-Message-ID: <20040916223539.GA16151@kroah.com>
-References: <1095332331.3855.161.camel@laptop.cunninghams> <20040916142847.GA32352@kroah.com> <1095373127.5897.23.camel@laptop.cunninghams>
+In-Reply-To: <1095339466.22739.22.camel@localhost.localdomain>
+References: <20040916133301.GA15562@wotan.suse.de>
+ <20040915141346.5c5e5377.davem@davemloft.net>
+ <4148991B.9050200@pobox.com>
+ <Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org>
+ <1095275660.20569.0.camel@localhost.localdomain>
+ <4148A90F.80003@pobox.com>
+ <20040915140123.14185ede.davem@davemloft.net>
+ <20040915210818.GA22649@havoc.gtf.org>
+ <20040915141346.5c5e5377.davem@davemloft.net>
+ <5.1.0.14.2.20040916192213.04240008@171.71.163.14>
+ <1095337159.22739.7.camel@localhost.localdomain>
+ <20040916133301.GA15562@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095373127.5897.23.camel@laptop.cunninghams>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 08:18:47AM +1000, Nigel Cunningham wrote:
-> On Fri, 2004-09-17 at 00:28, Greg KH wrote:
-> > On Thu, Sep 16, 2004 at 08:58:51PM +1000, Nigel Cunningham wrote:
-> > > 
-> > > This simple helper adds support for finding a class given its name. I
-> > > use this to locate the frame buffer drivers and move them to the
-> > > keep-alive tree while suspending other drivers.
-> > > 
-> > > +struct class * class_find(char * name)
-> > > +{
-> > > +	struct class * this_class;
-> > > +
-> > > +	if (!name)
-> > > +		return NULL;
-> > > +
-> > > +	list_for_each_entry(this_class, &class_subsys.kset.list, subsys.kset.kobj.entry) {
-> > > +		if (!(strcmp(this_class->name, name)))
-> > > +			return this_class;
-> > > +	}
-> > > +
-> > > +	return NULL;
-> > > +}
-> > 
-> > Ick, no.  I've been over this before with the fb people, and am not going
-> > to accept this patch (nevermind that it's broken...)  See the lkml
-> > archives for more info on why I don't like this.
-> 
-> Please excuse my ignorance but I don't see how it's broken
+Hi Alan,
 
-This function, as written is very broken.  I will not accept it.  Not to
-mention the fact that the functionality this function proposes to offer
-is not needed either.
+At 10:57 PM 16/09/2004, Alan Cox wrote:
+>On Iau, 2004-09-16 at 14:33, Andi Kleen wrote:
+> > > At 1Ghz the Athlon Geode NX draws about 6W. Thats less than my SCSI
+> >
+> > Are you sure that's worst case, not average? Worst case is usually
+> > much worse on a big CPU like an Athlon, but the power supply
+> > has to be sized for it.
+>
+>You are correct - 6W average 9W TDP, still less than my scsicontroller
+>8)
 
-> (their patch just fills in a field that was left blank previously),
+sure -- ok -- that gets you the main processor.
+now add to that a Northbridge (perhaps AMD doesnt need that but i'm sure it 
+still does), Southbridge, DDR-SDRAM, ancilliary chips for doing MAC, PHY, ...
 
-What patch?
+couple that with the voltage of PCI where you're likely to need 
+step-up/step-down circuits (which aren't 100% efficient themselves), you're 
+still going to get very close to the limit, if not over it.
 
-> and this patch just makes use of that change. What's the point to
-> device_class if we don't use it?
+... and after all that, the Geode is really designed to be an embedded 
+processor.
+Jeff was implying using garden-variety processors which seem to have large 
+heatsinks, not to mention cooling fans, not to mention quite significant 
+heat generation.
 
-I don't see a use of device_class in this function.  I'm confused.
+we're not _quite_ at the stage of being able to take garden-variety 
+processors and build-your-own-blade-server using PCI _just_ yet. :-)
 
-thanks,
 
-greg k-h
+cheers,
+
+lincoln.
+

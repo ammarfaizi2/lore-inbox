@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUFCAYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263864AbUFCAvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbUFCAYs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 20:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265405AbUFCAYs
+	id S263864AbUFCAvX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 20:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265407AbUFCAvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 20:24:48 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:32689 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S265395AbUFCAYq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 20:24:46 -0400
-Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Paul Jackson <pj@sgi.com>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <20040602161115.1340f698.pj@sgi.com>
-References: <20040602161115.1340f698.pj@sgi.com>
-Content-Type: text/plain
-Message-Id: <1086222156.29391.337.camel@bach>
+	Wed, 2 Jun 2004 20:51:23 -0400
+Received: from main.gmane.org ([80.91.224.249]:23992 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263864AbUFCAvV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 20:51:21 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: Re: 2.6.7-rc2-mm1
+Date: Wed, 02 Jun 2004 17:51:17 -0700
+Message-ID: <pan.2004.06.03.00.51.12.405011@triplehelix.org>
+References: <20040601021539.413a7ad7.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 03 Jun 2004 10:22:36 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-126-223-251.dsl.pltn13.pacbell.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-03 at 09:11, Paul Jackson wrote:
-> +	/*
-> +	 * Hack alert:
-> +	 * 1) This could overwrite a buffer w/o warning.  Someone should
-> +	 *     pass us a buffer size (count) or use seq_file or something
-> +	 *     to avoid buffer overrun risks.
+On Tue, 01 Jun 2004 02:15:39 -0700, Andrew Morton wrote:
+> - merged perfctr.  No documentation though :(
 
-Then just use -1UL as the arg to scnprintf, if you don't have a real
-number.  That way the overflow will at least have a chance of detection
-in the sysfs code, which I think it should check in
-file.c:fill_read_buffer().  Greg?
+In light of all of the problems with perfctr here, I've gone and done the
+ifdef work for CONFIG_PERFCTR, presenting an alternative solution to the
+struct problem...
 
-> +	 * 2) This can return a count larger than the read size requested
-> +	 *     by the user code - possibly confusing it.
+http://triplehelix.org/~joshk/perfctr.diff
 
-That's sysfs' problem, not yours, and it handles it fine AFAICT.
+(note: this includes the earlier fix from wli as well, just for
+convenience)
 
-> +	 * 3) Following hardcodes that mask scnprintf format requires 9
-> +	 *     chars of output for each 32 bits of mask or fraction.
+I realize that this might be a problem with regards to maintenance. Doing
+this is kind of a pain in the ass.
 
-Yes.  Don't do that.
+> -have-xfs-use-kernel-provided-qsort.patch
+> -have-xfs-use-kernel-provided-qsort-fix.patch
+> 
+>  These broke
 
-> +	 * 4) Following prints stale node_dev->cpumap value, instead of
-> +	 *     evaluating afresh node_to_cpumask(node_dev->sysdev.id).
-> +	 * 5) Why does struct node even has the field cpumap.  Won't it
-> +	 *     just get stale, especially in the face of cpu hotplug?
+Broke how? I hadn't seen these patches when I was initially fixing
+problems with -rc2-mm1 overall. I even came up with a patch that made XFS
+depend on QSORT and remove it from the fs/xfs/Makefile, but I guess that's
+exactly what happened here...
 
-Yes, that field should be removed.
+Otherwise, XFS has to depend on !QSORT, and that might be bad if anyone
+else depends on it. So what's the deal?
 
-Above all, by placing your questions inside a patch, you got results,
-but please don't do this again.
-
-Thanks,
-Rusty.
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+Joshua Kwan
+
 

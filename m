@@ -1,124 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264236AbUESPKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264239AbUESPLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264236AbUESPKe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 11:10:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUESPKe
+	id S264239AbUESPLH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 11:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264242AbUESPLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:10:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18363 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264236AbUESPKa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:10:30 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] implement TIOCGSERIAL in sn_serial.c
-Date: Wed, 19 May 2004 11:09:51 -0400
-User-Agent: KMail/1.6.2
-Cc: pfg@sgi.com, Erik Jacobson <erikj@sgi.com>
-MIME-Version: 1.0
+	Wed, 19 May 2004 11:11:06 -0400
+Received: from ipcop.bitmover.com ([192.132.92.15]:60373 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S264239AbUESPLB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 11:11:01 -0400
+Date: Wed, 19 May 2004 08:09:49 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
+Subject: Re: bk-3.2.0 released
+Message-ID: <20040519150949.GA8584@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
+References: <20040518233238.GC28206@work.bitmover.com> <20040519075128.A19221@infradead.org> <20040519140259.GA18977@work.bitmover.com> <20040519141115.GO1912@lug-owl.de> <20040519141648.GB18977@work.bitmover.com> <20040519142656.GP1912@lug-owl.de> <20040519144852.GC18977@work.bitmover.com> <20040519150040.GR1912@lug-owl.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_/i3qA+BHQMG2njU"
-Message-Id: <200405191109.51751.jbarnes@engr.sgi.com>
+In-Reply-To: <20040519150040.GR1912@lug-owl.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 19, 2004 at 05:00:40PM +0200, Jan-Benedict Glaw wrote:
+> On Wed, 2004-05-19 07:48:52 -0700, Larry McVoy <lm@bitmover.com>
+> wrote in message <20040519144852.GC18977@work.bitmover.com>:
+> > On Wed, May 19, 2004 at 04:26:56PM +0200, Jan-Benedict Glaw wrote:
+> > > On Wed, 2004-05-19 07:16:48 -0700, Larry McVoy <lm@bitmover.com>
+> > > wrote in message <20040519141648.GB18977@work.bitmover.com>:
+> > > > new version of a widely used tool is available?  If someone posted that
+> > > > there is a new version of gcc available is that off topic?  
+> > > 
+> > > Yes, it was. Even miscompilation reports are mostly OT, since they
+> > > should go to GCC's bugzilla.
+> > 
+> > Sigh.  This strikes me as "aha, Larry's posted something, let's see if
+> > we can get him hooked on some trollbait, that would be fun, it's been
+> > a while!"  
+> 
+> Not at all! You *do* post useful/helpful/serious/whatnot emails (eg.
+> those about the corruption-at-page's-end topic). It's just that I like
+> to see noise on this list going down, which includes announcments eg. of
+> binutils/gcc, bitkeeper, but also the constant announcments for
+> yet-some-more-email-addresses-added patches for some rarely used script.
 
---Boundary-00=_/i3qA+BHQMG2njU
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-The sn2 console driver behaves something like a serial port, but was missing 
-some of the ioctls that userland apps expected.  This patch implements the 
-TIOCGSERIAL ioctl, which allows applications to identify the console as a 
-serial port.
-
-Jesse
-
---Boundary-00=_/i3qA+BHQMG2njU
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="sn-serial-ioctl-3.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="sn-serial-ioctl-3.patch"
-
---- linux-2.6.6.orig/drivers/char/sn_serial.c	2004-05-09 22:33:21.000000000 -0400
-+++ linux-2.6.6/drivers/char/sn_serial.c	2004-05-19 10:59:20.000000000 -0400
-@@ -21,6 +21,7 @@
- #include <linux/sysrq.h>
- #include <linux/circ_buf.h>
- #include <linux/serial_reg.h>
-+#include <linux/serial_core.h>
- #include <asm/uaccess.h>
- #include <asm/sn/sgi.h>
- #include <asm/sn/sn_sal.h>
-@@ -38,7 +39,7 @@ static unsigned long sysrq_requested;
- #define SN_SAL_MINOR 64
- 
- /* number of characters left in xmit buffer before we ask for more */
--#define WAKEUP_CHARS 128
-+#define SN_WAKEUP_CHARS 128
- 
- /* number of characters we can transmit to the SAL console at a time */
- #define SN_SAL_MAX_CHARS 120
-@@ -411,7 +412,7 @@ sn_poll_transmit_chars(void)
- 	 * that we could stand for the upper layer to send us some
- 	 * more, ask for it. */
- 	if (sn_sal_tty)
--		if (CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE) < WAKEUP_CHARS)
-+		if (CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE) < SN_WAKEUP_CHARS)
- 			sn_sal_sched_event(SN_SAL_EVENT_WRITE_WAKEUP);
- }
- 
-@@ -466,7 +467,7 @@ sn_intr_transmit_chars(void)
- 	 * that we could stand for the upper layer to send us some
- 	 * more, ask for it. */
- 	if (sn_sal_tty)
--		if (CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE) < WAKEUP_CHARS)
-+		if (CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE) < SN_WAKEUP_CHARS)
- 			sn_sal_sched_event(SN_SAL_EVENT_WRITE_WAKEUP);
- }
- 
-@@ -784,6 +785,29 @@ sn_sal_read_proc(char *page, char **star
- 	return count < begin+len-off ? count : begin+len-off;
- }
- 
-+/*
-+ * sn_sal_ioctl - we only support a very limited TIOCGSERIAL
-+ */
-+static int
-+sn_sal_ioctl(struct tty_struct *tty, struct file *filp, unsigned int cmd,
-+	     unsigned long arg)
-+{
-+	struct serial_struct tmp_serial;
-+	struct serial_struct *force_cast_serial;
-+
-+	force_cast_serial = (struct serial_struct *)arg;
-+
-+	memset(&tmp_serial, 0, sizeof(tmp_serial));
-+	tmp_serial.irq = sn_sal_irq;
-+	tmp_serial.xmit_fifo_size = SN_SAL_UART_FIFO_DEPTH;
-+
-+	if (cmd == TIOCGSERIAL) {
-+		if (copy_to_user(force_cast_serial, &tmp_serial, sizeof(*force_cast_serial)))
-+			return -EFAULT;
-+		return 0;
-+	}
-+	return -ENOIOCTLCMD;
-+}
- 
- static struct tty_operations sn_sal_driver_ops = {
- 	.open		 = sn_sal_open,
-@@ -796,6 +820,7 @@ static struct tty_operations sn_sal_driv
- 	.hangup		 = sn_sal_hangup,
- 	.wait_until_sent = sn_sal_wait_until_sent,
- 	.read_proc	 = sn_sal_read_proc,
-+	.ioctl		 = sn_sal_ioctl,
- };
- static struct tty_driver *sn_sal_driver;
- 
-
---Boundary-00=_/i3qA+BHQMG2njU--
+Some people complain that we don't announce BK releases and some people
+complain that we do.  Given that we do a release about twice a year I
+think complaining about it is over the top.  I'm quite happy to stop
+announcing it here but the cost of that is I'll just turn off support
+for the older releases on openlogging.org and bkbits.net.  That's not
+very polite to the BK users (it's completely legal, you are supposed
+to stay current under the terms of the BKL) but it would keep the list
+free of these oh-so-annoying and oh-so-frequent posts.  See the tradeoff?
+Whether you do or don't, I thought about this and felt it was better
+to post than to not post.  If you had been in my position I suspect 
+you'd do the same thing.  So how about we let this little tempest in
+a teapot die now?  I'm sure we have better things to do with our time.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVDCUBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVDCUE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbVDCUBI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 16:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVDCUBI
+	id S261886AbVDCUE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 16:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVDCUE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 16:01:08 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:24995 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261884AbVDCUBD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 16:01:03 -0400
-X-ORBL: [69.107.61.180]
-From: David Brownell <david-b@pacbell.net>
-To: pavel@ucw.cz
-Subject: Re: Re(2): fix u32 vs. pm message t in usb
-Date: Sun, 3 Apr 2005 12:01:02 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <20050403193216.961D5194084@smtp.etmail.cz>
-In-Reply-To: <20050403193216.961D5194084@smtp.etmail.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Apr 2005 16:04:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54206 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261886AbVDCUE4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 16:04:56 -0400
+Date: Sun, 3 Apr 2005 21:04:43 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: LVM general discussion and development <linux-lvm@redhat.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>, Antti Salmela <asalmela@iki.fi>,
+       linux-kernel@vger.kernel.org, dmo@osdl.org
+Subject: Re: [linux-lvm] Re: 2.6.11ac5 oops while reconstructing md array and moving volumegroup with pvmove
+Message-ID: <20050403200443.GS14307@agk.surrey.redhat.com>
+Mail-Followup-To: LVM general discussion and development <linux-lvm@redhat.com>,
+	Neil Brown <neilb@cse.unsw.edu.au>, Antti Salmela <asalmela@iki.fi>,
+	linux-kernel@vger.kernel.org, dmo@osdl.org
+References: <20050401143853.GA11763@asalmela.iki.fi> <16973.56100.413874.917027@cse.unsw.edu.au> <20050402060937.GA27664@asalmela.iki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504031301.02179.david-b@pacbell.net>
+In-Reply-To: <20050402060937.GA27664@asalmela.iki.fi>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 April 2005 12:31 pm, pavel@ucw.cz wrote:
-> Okay, you obviously have easy access to usb development trees...
-> Do you think you could just take this patch as a basis and fix
-> remaining u32 vs pm-message-t in usb? --p  
+On Sat, Apr 02, 2005 at 09:09:37AM +0300, Antti Salmela wrote:
+> % mdadm --create -l 1 -n 2 /dev/md2 /dev/hde /dev/hdg
+> % pvcreate /dev/md2
+> % vgextend vg1 /dev/md2
+> % pvmove /dev/hdf /dev/md2
+ 
+A few similar reports still appearing, possibly still related to 
+the md bio_clone changes that fixed some bugs for md but 
+created new ones for dm...
 
-Fixing the "sparse -Wbitwise" messages, and addressing some other
-behavior changes/bugs that crept in, was the idea.  That's already
-done, but _without_ taking this as a basis (or breaking the sysfs
-support etc).
+Would be good if you could re-test with a current 2.6.12-
+I'll look into later this week if nobody beats me to it - please!
 
-The patches I sent fix everything I had time to test (just a subset
-of the dozens of cases previously tested, probably covering the main
-stuff that got broken) except the non-PCI platform_bus drivers where
-pm_message_t has discarded essential functionality.  (Notably, info
-about whether device clocks and/or power must be turned off.)
-
-Fixing those will be more work than seems reasonable for 2.6.12
-kernels.  Among other things, there's still a lot of stuff that
-needs to percolate out to arch trees; designing and testing such
-fixes takes time, as does percolating it back.
-
-- Dave
-
-p.s. PCI-express patches don't belong with USB patches.  :)
+Alasdair
 

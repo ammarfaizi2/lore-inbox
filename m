@@ -1,128 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbUEEBh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbUEECQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbUEEBh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 21:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUEEBh3
+	id S261468AbUEECQv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 22:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbUEECQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 21:37:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29909 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261430AbUEEBhZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 21:37:25 -0400
-Date: Tue, 4 May 2004 18:37:22 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: manfred@colorfullife.com
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] simplify mqueue_inode_info->messages allocation
-Message-ID: <20040504183722.H21045@build.pdx.osdl.net>
-References: <20040504174214.D21045@build.pdx.osdl.net> <20040504174713.E21045@build.pdx.osdl.net> <20040504180622.F21045@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040504180622.F21045@build.pdx.osdl.net>; from chrisw@osdl.org on Tue, May 04, 2004 at 06:06:25PM -0700
+	Tue, 4 May 2004 22:16:51 -0400
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:41608 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261468AbUEECQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 22:16:48 -0400
+Message-ID: <40984E89.6070501@yahoo.com.au>
+Date: Wed, 05 May 2004 12:16:41 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Shantanu Goel <sgoel01@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [VM PATCH 2.6.6-rc3-bk5] Dirty balancing in the presence of mapped
+ pages
+References: <20040505002029.11785.qmail@web12821.mail.yahoo.com> <20040504180345.099926ec.akpm@osdl.org>
+In-Reply-To: <20040504180345.099926ec.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Wright (chrisw@osdl.org) wrote:
-> --- ./ipc/mqueue.c~single_alloc	2004-05-04 15:16:34.000000000 -0700
-> +++ ./ipc/mqueue.c~	2004-05-04 15:59:25.000000000 -0700
+Andrew Morton wrote:
+> Shantanu Goel <sgoel01@yahoo.com> wrote:
+> 
+>>Presently the kernel does not collection information
+>>about the percentage of memory that processes have
+>>dirtied via mmap until reclamation.  Nothing analogous
+>>to balance_dirty_pages() is being done for mmap'ed
+>>pages.  The attached patch adds collection of dirty
+>>page information during kswapd() scans and initiation
+>>of background writeback by waking up bdflush.
+> 
+> 
+> And what were the effects of this patch?
+> 
 
-Ugh!  Andrew pointed out to me that this is crap.  Sorry about the added
-noise.  Here's a patch relative to a file that actually exists.
+I havea modified patch from Nikita that does the
+if (ptep_test_and_clear_dirty) set_page_dirty from
+page_referenced, under the page_table_lock.
 
-===== ipc/mqueue.c 1.9 vs edited =====
---- 1.9/ipc/mqueue.c	Sat Apr 17 11:19:31 2004
-+++ edited/ipc/mqueue.c	Tue May  4 18:28:26 2004
-@@ -97,7 +97,8 @@
- 	return container_of(inode, struct mqueue_inode_info, vfs_inode);
- }
- 
--static struct inode *mqueue_get_inode(struct super_block *sb, int mode)
-+static struct inode *mqueue_get_inode(struct super_block *sb, int mode,
-+							struct mq_attr *attr)
- {
- 	struct inode *inode;
- 
-@@ -127,7 +128,11 @@
- 			memset(&info->attr, 0, sizeof(info->attr));
- 			info->attr.mq_maxmsg = DFLT_MSGMAX;
- 			info->attr.mq_msgsize = DFLT_MSGSIZEMAX;
--			info->messages = kmalloc(DFLT_MSGMAX * sizeof(struct msg_msg *), GFP_KERNEL);
-+			if (attr) {
-+				info->attr.mq_maxmsg = attr->mq_maxmsg;
-+				info->attr.mq_msgsize = attr->mq_msgsize;
-+			}
-+			info->messages = kmalloc(info->attr.mq_maxmsg * sizeof(struct msg_msg *), GFP_KERNEL);
- 			if (!info->messages) {
- 				make_bad_inode(inode);
- 				iput(inode);
-@@ -153,7 +158,7 @@
- 	sb->s_magic = MQUEUE_MAGIC;
- 	sb->s_op = &mqueue_super_ops;
- 
--	inode = mqueue_get_inode(sb, S_IFDIR | S_ISVTX | S_IRWXUGO);
-+	inode = mqueue_get_inode(sb, S_IFDIR | S_ISVTX | S_IRWXUGO, NULL);
- 	if (!inode)
- 		return -ENOMEM;
- 
-@@ -224,6 +229,7 @@
- 				int mode, struct nameidata *nd)
- {
- 	struct inode *inode;
-+	struct mq_attr *attr = dentry->d_fsdata;
- 	int error;
- 
- 	spin_lock(&mq_lock);
-@@ -234,7 +240,7 @@
- 	queues_count++;
- 	spin_unlock(&mq_lock);
- 
--	inode = mqueue_get_inode(dir->i_sb, mode);
-+	inode = mqueue_get_inode(dir->i_sb, mode, attr);
- 	if (!inode) {
- 		error = -ENOMEM;
- 		spin_lock(&mq_lock);
-@@ -533,9 +539,6 @@
- 			int oflag, mode_t mode, struct mq_attr __user *u_attr)
- {
- 	struct file *filp;
--	struct inode *inode;
--	struct mqueue_inode_info *info;
--	struct msg_msg **msgs = NULL;
- 	struct mq_attr attr;
- 	int ret;
- 
-@@ -553,28 +556,14 @@
- 					attr.mq_msgsize > msgsize_max)
- 				return ERR_PTR(-EINVAL);
- 		}
--		msgs = kmalloc(attr.mq_maxmsg * sizeof(*msgs), GFP_KERNEL);
--		if (!msgs)
--			return ERR_PTR(-ENOMEM);
--	} else {
--		msgs = NULL;
-+		/* store for use during create */
-+		dentry->d_fsdata = &attr;
- 	}
- 
- 	ret = vfs_create(dir->d_inode, dentry, mode, NULL);
--	if (ret) {
--		kfree(msgs);
-+	dentry->d_fsdata = NULL;
-+	if (ret)
- 		return ERR_PTR(ret);
--	}
--
--	inode = dentry->d_inode;
--	info = MQUEUE_I(inode);
--
--	if (msgs) {
--		info->attr.mq_maxmsg = attr.mq_maxmsg;
--		info->attr.mq_msgsize = attr.mq_msgsize;
--		kfree(info->messages);
--		info->messages = msgs;
--	}
- 
- 	filp = dentry_open(dentry, mqueue_mnt, oflag);
- 	if (!IS_ERR(filp))
+So it also picks up pages coming off the active list.
+
+It doesn't do the wakeup_bdflush thing, but that sounds
+like a good idea. What does wakeup_bdflush(-1) mean?
+

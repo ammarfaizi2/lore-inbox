@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293580AbSBZU5p>; Tue, 26 Feb 2002 15:57:45 -0500
+	id <S293542AbSBZU7G>; Tue, 26 Feb 2002 15:59:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293542AbSBZU5g>; Tue, 26 Feb 2002 15:57:36 -0500
-Received: from smtp3.cern.ch ([137.138.131.164]:27891 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S292555AbSBZU50>;
-	Tue, 26 Feb 2002 15:57:26 -0500
-To: Patrick Cole <z@amused.net>
-Cc: Dennis Schoen <dennis@cobolt.net>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG]: RT8139 Too much work at interrupt, IntrStatus=....
-In-Reply-To: <20020109090855.GA338@cobolt.net> <20020219055243.GA4398@jaded.anu.edu.au>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 26 Feb 2002 21:57:05 +0100
-In-Reply-To: Patrick Cole's message of "Tue, 19 Feb 2002 16:52:43 +1100"
-Message-ID: <d3elj8ufku.fsf@lxplus049.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S293600AbSBZU64>; Tue, 26 Feb 2002 15:58:56 -0500
+Received: from petkele.almamedia.fi ([194.215.205.158]:62875 "HELO
+	petkele.almamedia.fi") by vger.kernel.org with SMTP
+	id <S293542AbSBZU6g>; Tue, 26 Feb 2002 15:58:36 -0500
+Message-ID: <3C7BF6F1.303DC5D0@pp.inet.fi>
+Date: Tue, 26 Feb 2002 22:58:25 +0200
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: mailerror@hushmail.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: loop under 2.2.20 - relative block support?
+In-Reply-To: <200202251943.g1PJhh231456@mailserver4.hushmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Cole <z@amused.net> writes:
+mailerror@hushmail.com wrote:
+> On Mon, 25 Feb 2002 20:41:25 +0200, Jari Ruusu <jari.ruusu@pp.inet.fi> wrote:
+> >If you can move original (unmodified) loop file to same block size, same
+> >kernel version, then yes. If you mounted it rw, then your "time bomb"
+> >exploded on your face.
+> >
+> 
+> Okay, my files are fine then, since the files were burned on cd right after I
+> created them.
+> 
+> Is this still a problem with the 2.4 loop device? In your patch for 2.4.16
+> I noticed that the IV calculation is independent from the underlying block
+> size. That alone would be enough to make me switch over from 2.2 ;-)
 
-> Hi dennis, I'm getting these messages too with an identical card... 
-> 8139 (rev 10)... seems to have started happening after I went to
-> 2.4.17... strangely enough I'm getting very similar mæssages on the
-> machine right beside it.. running 2.4.13, SMP, and a 3com 3c905b
-> (Boomerang).
+Recent versions of cryptoapi do 512 byte IV as do all versions of loop-AES
+(maintained by me, http://loop-aes.sourceforge.net/). If you want to keep
+using 2.2 kernels or want to use distro vendor kernels, loop-AES is better
+choice as it works with all kernels and has more up to date loop fixes than
+cryptoapi.
 
-The problem with the 8139 is the fact that the chip design is really
-dumb, when I say dumb here, I mean *really* dumb ;-(
-
-The result is that when the card is bombarded with a lot of small
-packets it can livelock because the queues fill up faster than the
-kernel code can empty and process them.
-
-I made some changes to improve the situation in the driver, for 2.2
-kernels, which I have submitted to Jeff and he plans to integrated
-them into the next release.
-
-My patched drivers are available from
-http://www.wildopensource.com/proj/download/SG_drivers.html however I
-haven't tested them on 2.4.x, so I am not going to bet on them
-working.
-
-Cheers,
-Jes
+Regards,
+Jari Ruusu <jari.ruusu@pp.inet.fi>

@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbULHH5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbULHI1B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbULHH5n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 02:57:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbULHH5n
+	id S262039AbULHI1B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 03:27:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbULHI1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 02:57:43 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:39182 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S262056AbULHH52
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 02:57:28 -0500
-Date: Wed, 08 Dec 2004 16:58:50 +0900 (JST)
-Message-Id: <20041208.165850.97660819.yoshfuji@linux-ipv6.org>
-To: davem@davemloft.net
-Cc: shemminger@osdl.org, mitch@sfgoth.com, kernel@linuxace.com,
-       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH] fix select() for SOCK_RAW sockets (ipv6)
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20041207104815.3f7a4684.davem@davemloft.net>
-References: <20041208.023530.26430801.yoshfuji@linux-ipv6.org>
-	<20041207100140.781f4c00@dxpl.pdx.osdl.net>
-	<20041207104815.3f7a4684.davem@davemloft.net>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Wed, 8 Dec 2004 03:27:01 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:1005 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262039AbULHI07 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 03:26:59 -0500
+Date: Wed, 8 Dec 2004 09:26:33 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org, kernel@kolivas.org
+Subject: Re: [PATCH, RFC] protect call to set_tsk_need_resched() by the rq-lock
+Message-ID: <20041208082633.GA7720@elte.hu>
+References: <200412062339.52695.mbuesch@freenet.de> <20041207131006.GB3710@elte.hu> <200412080031.08490.mbuesch@freenet.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200412080031.08490.mbuesch@freenet.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20041207104815.3f7a4684.davem@davemloft.net> (at Tue, 7 Dec 2004 10:48:15 -0800), "David S. Miller" <davem@davemloft.net> says:
 
-> On Tue, 7 Dec 2004 10:01:40 -0800
-> Stephen Hemminger <shemminger@osdl.org> wrote:
-> 
-> > > Probably, we need to do the same for ipv6, don't we?
+* Michael Buesch <mbuesch@freenet.de> wrote:
+
+> > > The two attached patches (one against vanilla kernel and one
+> > > against ck patchset) moves the rq-lock a few lines up in
+> > > scheduler_tick() to also protect set_tsk_need_resched().
+> > > 
+> > > Is that neccessary?
 > > 
-> > diff -Nru a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
-> > --- a/net/ipv6/af_inet6.c	2004-12-07 10:02:50 -08:00
-> > +++ b/net/ipv6/af_inet6.c	2004-12-07 10:02:50 -08:00
-> > @@ -513,6 +513,27 @@
-> 
-> We didn't do the "UDP select() fix" on ipv6 because we don't
-> have the delayed checksumming optimization there.  So the
-> ipv6 side really doesn't need this change.
+> > scheduler_tick() is a special case, 'current' is pinned and cannot
+> > go away, nor can it get off the runqueue.
+>
+> Can you explain in short, why this is the case, please? I don't really
+> get behind it. How are the two things enforced?
 
-Ok, thanks for the explanation.
+'current' is the currently executing task and as such it wont get moved
+off the runqueue. The only way to leave the runqueue is to execute
+schedule() [or to be preempted].
 
---yoshfuji @ Strasbourg
-
+	Ingo

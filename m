@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264504AbTLQSyT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 13:54:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264507AbTLQSyS
+	id S264501AbTLQSxy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 13:53:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTLQSxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 13:54:18 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:38626 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264504AbTLQSyP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 13:54:15 -0500
-Date: Wed, 17 Dec 2003 18:46:54 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: Will L G <diskman@kc.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pam_debug.o: gp-relative relocation against dynamic symbol _pam_token_returns
-Message-ID: <20031217184654.A4279@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: Will L G <diskman@kc.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <001e01c3c459$49a66180$6401a8c0@zephyr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <001e01c3c459$49a66180$6401a8c0@zephyr>; from diskman@kc.rr.com on Tue, Dec 16, 2003 at 10:50:13PM -0600
+	Wed, 17 Dec 2003 13:53:54 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:47440 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S264501AbTLQSxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 13:53:52 -0500
+Date: Wed, 17 Dec 2003 13:53:28 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Roger Luethi <rl@hellgate.ch>
+cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       <wli@holomorphy.com>, <kernel@kolivas.org>,
+       <chris@cvine.freeserve.co.uk>, <linux-kernel@vger.kernel.org>,
+       <mbligh@aracnet.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+In-Reply-To: <20031216112307.GA5041@k3.hellgate.ch>
+Message-ID: <Pine.LNX.4.44.0312171351080.28701-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 16, 2003 at 10:50:13PM -0600, Will L G wrote:
-> When ever I attempt to compile Linux-Pam, I receive the following error
-> immediately after running 'make':
-> 
-> /usr/bin/ld: dynamic/pam_debug.o: gp-relative relocation against dynamic
-> symbol _pam_token_returns
+On Tue, 16 Dec 2003, Roger Luethi wrote:
 
+> One potential problem with the benchmarks is that my test box has
+> just one bar with 256 MB RAM. The kbuild and efax tests were run with
+> mem=64M and mem=32M, respectively. If the difference between mem=32M
 
-Always use '-fpic' in CFLAGS when compiling for shared objects (.so)
-Otherwise (as in your case) the compiler is allowed to emit machine code
-that may not work in shared objects.
-When I was hit by this error, the offending library was istself linked to 
-another, static library. This isn't allowed either. IIRC my fix was compiling
-that .a library with -fpic :)
+OK, I found another difference with 2.4.
 
+Try "echo 256 > /proc/sys/vm/min_free_kbytes", I think
+that should give the same free watermarks that 2.4 has.
 
-Thorsten
+Using 1MB as the min free watermark for lowmem is bound
+to result in more free (and less used) memory on systems
+with less than 128 MB RAM ... significantly so on smaller
+systems.
 
+The fact that ZONE_HIGHMEM and ZONE_NORMAL are recycled
+at very different rates could also be of influence on
+some performance tests...
 
 -- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

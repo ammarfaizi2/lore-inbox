@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261910AbSJITC1>; Wed, 9 Oct 2002 15:02:27 -0400
+	id <S262483AbSJISr3>; Wed, 9 Oct 2002 14:47:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262007AbSJITC1>; Wed, 9 Oct 2002 15:02:27 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:27382 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S261910AbSJITC0>;
-	Wed, 9 Oct 2002 15:02:26 -0400
-Date: Wed, 9 Oct 2002 15:08:04 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+	id <S262485AbSJISr3>; Wed, 9 Oct 2002 14:47:29 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:61359 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262483AbSJISr1>;
+	Wed, 9 Oct 2002 14:47:27 -0400
+Subject: [PATCH] Eliminate compiler warnings from jbd_kmalloc
+From: Stephen Hemminger <shemminger@osdl.org>
+To: viro@math.psu.edu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Looking for testers with these NICs
-Message-ID: <20021009190804.GA18069@www.kroptech.com>
-References: <200210091637.g99Gbmp30784@Port.imtp.ilyichevsk.odessa.ua> <20021009171452.GA9682@www.kroptech.com> <200210091744.g99HiKp31184@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Oct 2002 11:52:50 -0700
+Message-Id: <1034189570.1895.33.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210091744.g99HiKp31184@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 08:37:48PM -0200, Denis Vlasenko wrote:
-> On 9 October 2002 15:14, Adam Kropelin wrote:
-> > On Wed, Oct 09, 2002 at 07:31:17PM -0200, Denis Vlasenko wrote:
-> > > ewrk3.c
-> >
-> > I've got a few of these laying around. Send whatever patches you want
-> > tested and I'll give it a shot.
-> 
-> Please do your best in trying to break it, especially since you say you have
-> more than one. Can you plug them all in one box?
-> 
-> I'd suggest SMP/preempt heavy IO. Is there stress test software for NICs?
-> What is pktgen?
+This looks trivial and fixes compiler warnings. __FUNCTION__ is a
+constant and gcc warns about passing it as a mutuable string.
 
-These are ISA nics and my SMP box has a lot of other hardware in it right now,
-but I'll see what I can do. I haven't tried to do unreasonable things with old
-hardware in a while so it should be good for a grin, anyway.
+--- linux-2.5/include/linux/jbd.h	2002-09-09 10:27:12.000000000 -0700
++++ dcl-latest/include/linux/jbd.h	2002-10-09 11:40:00.000000000 -0700
+@@ -54,7 +54,7 @@
+ #define jbd_debug(f, a...)	/**/
+ #endif
+ 
+-extern void * __jbd_kmalloc (char *where, size_t size, int flags, int retry);
++extern void * __jbd_kmalloc (const char *where, size_t size, int flags, int retry);
+ #define jbd_kmalloc(size, flags) \
+ 	__jbd_kmalloc(__FUNCTION__, (size), (flags), journal_oom_retry)
+ #define jbd_rep_kmalloc(size, flags) \
+--- linux-2.5/fs/jbd/journal.c	2002-09-30 10:00:49.000000000 -0700
++++ dcl-latest/fs/jbd/journal.c	2002-10-09 11:41:07.000000000 -0700
+@@ -1526,7 +1526,7 @@
+  * Simple support for retying memory allocations.  Introduced to help to
+  * debug different VM deadlock avoidance strategies. 
+  */
+-void * __jbd_kmalloc (char *where, size_t size, int flags, int retry)
++void * __jbd_kmalloc (const char *where, size_t size, int flags, int retry)
+ {
+ 	void *p;
+ 	static unsigned long last_warning;
 
-I'll report my findings.
 
---Adam
 

@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264953AbTLWIhj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 03:37:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265049AbTLWIhj
+	id S265062AbTLWItF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 03:49:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbTLWItF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 03:37:39 -0500
-Received: from main.gmane.org ([80.91.224.249]:6345 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264953AbTLWIhh (ORCPT
+	Tue, 23 Dec 2003 03:49:05 -0500
+Received: from linux-bt.org ([217.160.111.169]:22707 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S265062AbTLWItD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 03:37:37 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andres Salomon <dilinger@voxel.net>
-Subject: Re: synaptics mouse jitter in 2.6.0
-Date: Tue, 23 Dec 2003 03:37:43 -0500
-Message-ID: <pan.2003.12.23.08.37.38.378082@voxel.net>
-References: <Pine.LNX.4.58.0312222127530.18261@localhost.localdomain> <200312222238.17076.dtor_core@ameritech.net> <200312230241.52168.dtor_core@ameritech.net>
+	Tue, 23 Dec 2003 03:49:03 -0500
+Subject: Re: [2.6 PATCH/RFC] Firmware loader - fix races and resource
+	dealloocation problems
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Manuel Estrada Sainz <ranty@debian.org>,
+       Patrick Mochel <mochel@osdl.org>
+In-Reply-To: <200312222229.17991.dtor_core@ameritech.net>
+References: <200312210137.41343.dtor_core@ameritech.net>
+	 <20031222093759.GB30235@kroah.com>
+	 <200312222229.17991.dtor_core@ameritech.net>
+Content-Type: text/plain
+Message-Id: <1072169289.2876.57.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Dec 2003 09:48:09 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Dec 2003 02:41:49 -0500, Dmitry Torokhov wrote:
+Hi Dmitry,
 
-> On Monday 22 December 2003 10:38 pm, Dmitry Torokhov wrote:
->> On Monday 22 December 2003 09:40 pm, Thomas Molina wrote:
->> > I am running Fedora Core 1 updated on a Presario 12XL325 laptop.  For
->> > a long time during the 2.5 series I couldn't use the synaptics
->> > support. As a result, I haven't tested this for some time.  I just
->> > compiled a fresh 2.6.0 tree, included synaptics support and now I am
->> > getting mouse jitter.
->> >
-> <..SKIP..>
->>
->> Right, I think I see it. The mousedev module does not do any smoothing
->> of the reported coordinates which would cause the jitter you are
->> seeing. Normally drivers do 3- or 4-point average.
->>
->> I'll cook up something to fix it. Meanwhile could you give a try Peter
->> Osterlund XFree86 Synaptics driver:
->> http://w1.894.telia.com/~u89404340/touchpad/index.html
->>
+> > > It seems that implementation of the firmware loader is racy as it
+> > > relies on kobject hotplug handler. Unfortunately that handler runs
+> > > too early, before firmware class attributes controlling the loading
+> > > process, are created. This causes firmware loading fail at least half
+> > > of the times on my laptop.
+> >
+> > Um, why not have your script wait until the files are present?  That
+> > will remove any race conditions you will have.
 > 
-> OK, here it is. It will apply against 2.6.0 although will complain about
-> some offsets as I have extra stuff in my tree...
-> 
-> Dmitry
-> 
-[...]
+> How long should the userspace wait? One second as Manuel suggested?
+> Indefinitely? Or should the firmware agent have some timeout? If userspace
+> uses a timeout how should it correlate with the timeout on the kernel side?
 
-This works a lot better than both -mm1 and stock 2.6.0's mouse behavior
-for me; 2.6.0 likes to drop packets inside the interrupt handler and make
-the mouse jump to the edge of the screen, and 2.6.0-mm1 likes to move the
-pointer between the time I take my finger off the touchpad and hit the
-mouse button.  This appears to fix both issues; however, I still see the
-following in logs:
+the timeout of the kernel (which can be set from userspace) is for the
+whole firmware loading process. What we talk about is waiting a little
+bit before the files become visible for the firmware.agent.
 
-Dec 23 03:33:53 spiral kernel: Synaptics driver lost sync at byte 4
-Dec 23 03:33:53 spiral kernel: Synaptics driver lost sync at byte 1
-Dec 23 03:33:53 spiral kernel: Synaptics driver resynced.
-Dec 23 03:33:55 spiral kernel: Synaptics driver lost sync at byte 1
-Dec 23 03:33:55 spiral last message repeated 4 times
-Dec 23 03:33:55 spiral kernel: Synaptics driver resynced.
+> I am sorry but I have to disagree with you. Kernel should not call user
+> space until it has all infrastructure in place and is ready. Anything
+> else is just a sloppy practice.
 
+The firmware.agent script has 3 extra lines to check for the visibility
+of the "loading" file and if it is not present it will sleep one second.
+This is a actual good practice compared to adding much more code to the
+kernel and have an own way of running hotplug.
+
+Regards
+
+Marcel
 
 

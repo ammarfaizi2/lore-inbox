@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264413AbTDKPqL (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 11:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbTDKPqL (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 11:46:11 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:12930 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264413AbTDKPqK (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 11:46:10 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304111600.h3BG0D7X001499@81-2-122-30.bradfords.org.uk>
-Subject: Re: kernel hcking
-To: wind@cocodriloo.com (Antonio Vargas)
-Date: Fri, 11 Apr 2003 17:00:13 +0100 (BST)
-Cc: john@grabjohn.com (John Bradford),
-       vicky@freebsdcluster.net (Vikram Rangnekar),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030411153711.GE25862@wind.cocodriloo.com> from "Antonio Vargas" at Apr 11, 2003 05:37:11 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id S264412AbTDKPpN (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 11:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264413AbTDKPpN (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 11:45:13 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:49805 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264412AbTDKPpM convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 11:45:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Stekloff <dsteklof@us.ibm.com>
+To: Christer Weinigel <christer@weinigel.se>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: kernel support for non-english user messages
+Date: Fri, 11 Apr 2003 08:56:16 -0700
+User-Agent: KMail/1.4.1
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, root@chaos.analogic.com,
+       Frank Davis <fdavis@si.rr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3E93A958.80107@si.rr.com> <1050003748.12494.42.camel@dhcp22.swansea.linux.org.uk> <m31y09uadx.fsf@localhost.localdomain>
+In-Reply-To: <m31y09uadx.fsf@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304110856.16812.dsteklof@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> John, you mean a "make clean && make bzImage" takes you only about 4
-> minutes???
+On Thursday 10 April 2003 05:48 pm, Christer Weinigel wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> > On Thu, 2003-04-10 at 21:13, Trond Myklebust wrote:
+> > > Which features in particular were you thinking would be worth porting?
+> >
+> > Give me the clustering support 8)
+>
+> One of the things I really liked with VMS was the centralized logging
+> in a clustered system.  I'd very much like to be able to say "give me
+> all syslog messages for the mail subsystem at this severity level or
+> above" instead of having to play around with /etc/syslog.conf,
+> restarting syslogd and tail -f.  Of course this isn't a kernel
+> problem, it's something that should be implemented in syslog, but it's
+> just an example of a good idea in VMS.
 
-Yep.
 
-Well, make distclean; cp /foo/bar/config .config; make oldconfig; make bzImage
+Are you familar with IBM's Event Logging? 
 
-> I would like to know more details about .config, machine specs,
-> compiler and so on :)
+http://evlog.sourceforge.net/
 
-That's on an Athlon XP 2200, 512 MB RAM, 7200 RPM disk, with a fairly
-typical .config.
+Event Logging works well in a clustered environment. You can have your logs go 
+to one central location and, with the help of a plug-in, you could dump the 
+messages off into a database for easy queries. Mark Megerian at IBM is 
+working with a DB2 plug-in. Here's the thread on the evlog mailing list:
 
-> And no doubt having enough RAM to cache all the tree is really good :)
+http://sourceforge.net/mailarchive/forum.php?thread_id=1785428&forum_id=659
 
-Yep :-).
+Thanks,
 
-John.
+Dan
+
+
+>   /Christer
+

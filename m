@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129962AbRABPMx>; Tue, 2 Jan 2001 10:12:53 -0500
+	id <S130453AbRABPW2>; Tue, 2 Jan 2001 10:22:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130453AbRABPMm>; Tue, 2 Jan 2001 10:12:42 -0500
-Received: from harrier.prod.itd.earthlink.net ([207.217.121.12]:13035 "EHLO
-	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S129962AbRABPM1>; Tue, 2 Jan 2001 10:12:27 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: dep <dennispowell@earthlink.net>
+	id <S131148AbRABPWS>; Tue, 2 Jan 2001 10:22:18 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:65474 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S130453AbRABPWA>; Tue, 2 Jan 2001 10:22:00 -0500
+Date: Tue, 2 Jan 2001 09:51:34 -0500
+From: Matthew Galgoci <mgalgoci@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: IDE-DMA Timeout Bug may be dead...
-Date: Tue, 2 Jan 2001 09:45:03 -0500
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.10.10101020259080.25365-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10101020259080.25365-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Message-Id: <01010209450300.00545@depoffice.localdomain>
-Content-Transfer-Encoding: 7BIT
+Subject: iopener reboot
+Message-ID: <20010102095134.A32445@redhat.com>
+Reply-To: mgalgoci@redhat.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 January 2001 06:00 am, Andre Hedrick wrote:
-| Doing final tests but it may have come to and end and that deadlock
-| may be gone in a few hours after some sleep.
+Hi,
 
-if it has anything to do with this, then it's reduced but not gone:
+I've gone and tried the ultimate acid test of crappy x86 hardware on the 
+vanilla prerelease kernel, and installed it on my iopener. The kernel 
+loads, uncompresses, initializes hardware, and then immediately reboots.
 
-Jan  2 09:42:35 depoffice kernel: hda: dma_intr: status=0x51 { 
-DriveReady SeekComplete Error }
-Jan  2 09:42:35 depoffice kernel: hda: dma_intr: error=0x84 { 
-DriveStatusError BadCRC }
+It all happens so fast that I do not really get a chance to see the last thing
+printed before it fails.
 
-via, w.d. drive, error been around for months, no apparent effect 
-except to slow things down a tad and fill /var/log/messages.
+The last kernel that I had running on this was a test12 pre something.
+
+Any ideas?
+
+--Matt Galgoci
 
 -- 
-dep
---
-bipartisanship: an illogical construct not unlike the idea that
-if half the people like red and half the people like blue, the 
-country's favorite color is purple.
+"Hey Y'all, Watch this!" --Mike Wangsmo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

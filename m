@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263468AbTLEJiK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 04:38:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTLEJiK
+	id S263448AbTLEJgk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 04:36:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTLEJgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 04:38:10 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:53654 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S263468AbTLEJiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 04:38:04 -0500
-Date: Fri, 5 Dec 2003 10:38:00 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.23: aic7xxx/aicasm fails to build
-Message-ID: <20031205093800.GV754@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Fri, 5 Dec 2003 04:36:40 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:13011 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S263448AbTLEJgi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 04:36:38 -0500
+Date: Fri, 5 Dec 2003 20:34:25 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       pinotj@club-internet.fr, manfred@colorfullife.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+Message-ID: <20031205203425.B2091516@wobbly.melbourne.sgi.com>
+References: <mnet1.1070562461.26292.pinotj@club-internet.fr> <Pine.LNX.4.58.0312041035530.6638@home.osdl.org> <Pine.LNX.4.58.0312041050050.6638@home.osdl.org> <20031204212110.GB567@frodo> <20031205071455.A19514@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20031205071455.A19514@infradead.org>; from hch@infradead.org on Fri, Dec 05, 2003 at 07:14:55AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Dec 05, 2003 at 07:14:55AM +0000, Christoph Hellwig wrote:
+> On Fri, Dec 05, 2003 at 08:21:10AM +1100, Nathan Scott wrote:
+> > Yeah, thats pretty silly stuff - and should be fairly easy to
+> > fix by using a pagebuf flag to differentiate the two.  Will do.
+> 
+> IMHO a flags is wrong here.  Just maek pb_addr always a pointer and
+> for the case it's the preallocated array make it point pb_page_array
+> or something like that.  Then check whether pb_addr is pointing to the
+> preallocated array.
 
-When I try to build 2.4.23, I get:
+You might be mixing up pb_pages and pb_addr there?  pb_addr is
+always a pointer.  We need to distinguish whether it was slab
+alloc'd or whether it points into page cache pages, so we know
+whether to page_cache_release the pages or kfree the pointer
+when we're done with the pagebuf.
 
-...
-/usr/bin/make -C scsi
-make[3]: Entering directory /usr/src/linux-2.4.23/drivers/scsi'
-/usr/bin/make -C aic7xxx
-make[4]: Entering directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
-/usr/bin/make all_targets
-make[5]: Entering directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
-/usr/bin/make -C aicasm
-make[6]: Entering directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx/aicasm'
-yacc -d -b aicasm_gram aicasm_gram.y
-mv aicasm_gram.tab.c aicasm_gram.c
-mv aicasm_gram.tab.h aicasm_gram.h
-yacc -d -b aicasm_macro_gram -p mm aicasm_macro_gram.y
-mv aicasm_macro_gram.tab.c aicasm_macro_gram.c
-mv aicasm_macro_gram.tab.h aicasm_macro_gram.h
-lex  -oaicasm_scan.c aicasm_scan.l
-lex  -Pmm -oaicasm_macro_scan.c aicasm_macro_scan.l
-gcc -I/usr/include -I. aicasm.c aicasm_symbol.c aicasm_gram.c aicasm_macro_gram.c aicasm_scan.c aicasm_macro_scan.c -o aicasm -ld
-aicasm_gram.y:1933: warning: type mismatch with previous implicit declaration
-aicasm_gram.tab.c:3055: warning: previous implicit declaration of yyerror'
-aicasm_gram.y:1933: warning: yyerror' was previously implicitly declared to return int'
-aicasm_macro_gram.y:162: warning: type mismatch with previous implicit declaration
-aicasm_macro_gram.tab.c:1275: warning: previous implicit declaration of mmerror'
-aicasm_macro_gram.y:162: warning: mmerror' was previously implicitly declared to return int'
-aicasm_scan.l: In function expand_macro':
-aicasm_scan.l:522: error: yytext_ptr' undeclared (first use in this function)
-aicasm_scan.l:522: error: (Each undeclared identifier is reported only once
-aicasm_scan.l:522: error: for each function it appears in.)
-make[6]: *** [aicasm] Error 1
-make[6]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx/aicasm'
-make[5]: *** [aicasm/aicasm] Error 2
-make[5]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
-make[4]: *** [first_rule] Error 2
-make[4]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi/aic7xxx'
-make[3]: *** [_subdir_aic7xxx] Error 2
-make[3]: Leaving directory /usr/src/linux-2.4.23/drivers/scsi'
-make[2]: *** [_subdir_scsi] Error 2
-make[2]: Leaving directory /usr/src/linux-2.4.23/drivers'
-make[1]: *** [_dir_drivers] Error 2
-make[1]: Leaving directory /usr/src/linux-2.4.23'
-make: *** [stamp-build] Error 2
+The pb_page_array works just as you describe, with a prealloc'd
+array of page pointers, and pb_pages either points to the array
+of to a larger kmalloc'd array as necessary.
+
+cheers.
 
 -- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
-Referat V a - Kommunikationsnetze -             AIM.  ralfpostfix
+Nathan

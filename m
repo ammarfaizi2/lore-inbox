@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVBCXwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263383AbVBCXxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbVBCXwd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 18:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbVBCXw0
+	id S263383AbVBCXxe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 18:53:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbVBCXw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 18:52:26 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:21722 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261645AbVBCXv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 18:51:58 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: ncunningham@linuxmail.org
-Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
-Date: Fri, 4 Feb 2005 00:52:28 +0100
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@ucw.cz>, Dominik Brodowski <linux@dominikbrodowski.de>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>
-References: <200502021428.12134.rjw@sisk.pl> <200502040015.22457.rjw@sisk.pl> <1107473644.5727.6.camel@desktop.cunninghams>
-In-Reply-To: <1107473644.5727.6.camel@desktop.cunninghams>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Feb 2005 18:52:56 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:54534 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261766AbVBCXwA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 18:52:00 -0500
+Date: Fri, 4 Feb 2005 10:50:44 +1100
+To: "David S. Miller" <davem@davemloft.net>
+Cc: anton@samba.org, okir@suse.de, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
+Message-ID: <20050203235044.GA8422@gondor.apana.org.au>
+References: <20050131102920.GC4170@suse.de> <E1CvZo6-0001Bz-00@gondolin.me.apana.org.au> <20050203142705.GA11318@krispykreme.ozlabs.ibm.com> <20050203203010.GA7081@gondor.apana.org.au> <20050203141901.5ce04c92.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
 Content-Disposition: inline
-Message-Id: <200502040052.28992.rjw@sisk.pl>
+In-Reply-To: <20050203141901.5ce04c92.davem@davemloft.net>
+User-Agent: Mutt/1.5.6+20040722i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 4 of February 2005 00:34, Nigel Cunningham wrote:
-> Hi.
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Thu, Feb 03, 2005 at 02:19:01PM -0800, David S. Miller wrote:
 > 
-> On Fri, 2005-02-04 at 10:15, Rafael J. Wysocki wrote:
-> > Instead of trying to blow up the battery I used the patch that forces the CPU
-> > to 800 MHz and it apparently survives resuming on batteries - at least 3
-> > times out of 3 attempts (I'll try some times more tomorrow).
-> > 
-> > It seems to boot at 1800 MHz, though, every time, according to
-> > cpufreq_resume().
-> 
-> Sounds like some good work. Is 800 the minimum for your laptop?
+> They are for cases where you want strict ordering even for the
+> non-return-value-giving atomic_t ops.
 
-Yes, it is.
+I see.  I got atomic_dec and atomic_dec_and_test mixed up.
 
-> I'm just wondering how you know what speed to choose on other systems.
+So the problem isn't as big as I thought which is good.  sk_buff
+is only in trouble because of the atomic_read optimisation which
+really needs a memory barrier.
 
-Well, I don't know.  It seems that for k8-based CPUs the minimum is
-a reasonable choice, but it apparently is not so for other processors.
+However, instead of adding a memory barrier which makes the optimisation
+less useful, let's just get rid of the atomic_read.
 
-Greets,
-Rafael
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
+Thanks for the document, it's really helpful.
 
+Cheers,
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+===== include/linux/skbuff.h 1.59 vs edited =====
+--- 1.59/include/linux/skbuff.h	2005-01-11 07:23:55 +11:00
++++ edited/include/linux/skbuff.h	2005-02-04 10:44:17 +11:00
+@@ -353,14 +353,14 @@
+  */
+ static inline void kfree_skb(struct sk_buff *skb)
+ {
+-	if (atomic_read(&skb->users) == 1 || atomic_dec_and_test(&skb->users))
++	if (atomic_dec_and_test(&skb->users))
+ 		__kfree_skb(skb);
+ }
+ 
+ /* Use this if you didn't touch the skb state [for fast switching] */
+ static inline void kfree_skb_fast(struct sk_buff *skb)
+ {
+-	if (atomic_read(&skb->users) == 1 || atomic_dec_and_test(&skb->users))
++	if (atomic_dec_and_test(&skb->users))
+ 		kfree_skbmem(skb);
+ }
+ 
+
+--fUYQa+Pmc3FrFX/N--

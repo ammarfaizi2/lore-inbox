@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313737AbSDPQI0>; Tue, 16 Apr 2002 12:08:26 -0400
+	id <S313738AbSDPQJS>; Tue, 16 Apr 2002 12:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313739AbSDPQGd>; Tue, 16 Apr 2002 12:06:33 -0400
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:1255 "EHLO
-	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S313744AbSDPQFk>; Tue, 16 Apr 2002 12:05:40 -0400
-Date: Tue, 16 Apr 2002 17:05:38 +0100 (BST)
-From: Matt Bernstein <mb/oops@dcs.qmul.ac.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: oops in 2.4.18-pre7-ac3 ext3
-In-Reply-To: <Pine.LNX.4.44.0204161340180.28762-100000@nick.dcs.qmul.ac.uk>
-Message-ID: <Pine.LNX.4.44.0204161703450.28762-100000@nick.dcs.qmul.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S313744AbSDPQIb>; Tue, 16 Apr 2002 12:08:31 -0400
+Received: from f191.pav2.hotmail.com ([64.4.37.191]:1291 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S313755AbSDPQHq>;
+	Tue, 16 Apr 2002 12:07:46 -0400
+X-Originating-IP: [210.214.126.124]
+From: "kumar M" <kumarm4@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: kumarm4@hotmail.com
+Subject: misofs problem on HP Netservers
+Date: Tue, 16 Apr 2002 16:07:39 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F191yI4Y2Lfk9z9YWtb0000aac2@hotmail.com>
+X-OriginalArrivalTime: 16 Apr 2002 16:07:40.0756 (UTC) FILETIME=[D5AC8940:01C1E560]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Solved by Stephen Tweedie.
+Hi,
 
-Don't live dump your filesystems :-/ [the pot calling kettle black]
+We made a bootable CD ROM using mkisofs.
+We use devfs and set boot options path as /dev/hdc.
+A Uniprocessor workstation boots fine with the CD ROM,
+but an HP Netserver has problems. We get a root fs not
+mounted error.
+Can anyone let me know if I am missing something ?
 
-At 13:43 +0100 Matt Bernstein wrote:
+TIA,
+Kumar
 
->I had the following spat out by syslog on my (2.4.18-pre7-ac3) mailer /
->web server:
->
->Assertion failure in do_get_write_access() at transaction.c:611: "!(((jh2bh(jh))->b_state & (1UL << BH_Lock)) != 0)"
->
->One of its partitions froze hard--I've rebooted it, and I have an oops
->which the BUG() triggered. Here's the trace. I hope it can shed some
->light.. (the machine is a UP Athlon, everything and its daughter a module,
->the most notable possibly being nfsd, gdth, e100 (1.6.29), jbd, ext3)
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
 

@@ -1,67 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbUJ1VCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262895AbUJ1VCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbUJ1VCz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 17:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1VCl
+	id S262895AbUJ1VCM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 17:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263013AbUJ1VCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 17:02:41 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:61546 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263003AbUJ1VBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 17:01:55 -0400
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: [patch 7/7] uml: resolve symbols in back-traces
-Date: Thu, 28 Oct 2004 23:02:48 +0200
-User-Agent: KMail/1.7.1
-Cc: akpm@osdl.org, user-mode-linux-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>, jdike@addtoit.com
-References: <200410272223.i9RMNj921852@mail.osdl.org> <200410282034.21922.blaisorblade_spam@yahoo.it> <20041028192824.GC851@taniwha.stupidest.org>
-In-Reply-To: <20041028192824.GC851@taniwha.stupidest.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Oct 2004 17:02:12 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32008 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262895AbUJ1VA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 17:00:29 -0400
+Date: Thu, 28 Oct 2004 22:00:24 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: kbuild/all archs: Sanitize creating offsets.h
+Message-ID: <20041028220024.D11436@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
+References: <20041028185917.GA9004@mars.ravnborg.org> <20041028204430.C11436@flint.arm.linux.org.uk> <20041028215959.GA17314@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410282302.48311.blaisorblade_spam@yahoo.it>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041028215959.GA17314@mars.ravnborg.org>; from sam@ravnborg.org on Thu, Oct 28, 2004 at 11:59:59PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 October 2004 21:28, Chris Wedgwood wrote:
-> On Thu, Oct 28, 2004 at 08:34:21PM +0200, Blaisorblade wrote:
-> > And removing the final Emacs comment is not welcome (I don't care,
-> > but Jeff does. If that should be removed, that's a separate
-> > problem).
+On Thu, Oct 28, 2004 at 11:59:59PM +0200, Sam Ravnborg wrote:
+> >   SPLIT   include/linux/autoconf.h -> include/config/*
+> > /home/rmk/bk/linux-2.6-rmk/scripts/Makefile.build:13: /home/rmk/bk/linux-2.6-rmk/include/asm/Makefile: No such file or directory
+> > make[2]: *** No rule to make target `/home/rmk/bk/linux-2.6-rmk/include/asm/Makefile'.  Stop.
+> > make[1]: *** [prepare0] Error 2
+> > make: *** [_all] Error 2
+> > 
+> > ../build/rpc only contained .version and .config
+> 
+> Did you apply the patch that enabled kbuild files to be named Kbuild?
+> It looks like this patch is missing.
 
-> the emacs comments are gratuitous and completely pointless, they serve
-> no useful purpose.  fwiw in my .emacs i have:
+I applied three patches.  The first was "kbuild: Prefer Kbuild as name of
+the kbuild files"
 
->     (defun cw-linux-c-mode ()
->       "C mode with adjusted defaults for use with the Linux kernel."
->       (interactive)
->       (c-mode)
->       (c-set-style "linux"))
->     (setq auto-mode-alist
->    (append '(("wk/linux.*/.*\\.[ch]$" . cw-linux-c-mode))
->     '(("/usr/src/linux.*/.*\\.[ch]$" . cw-linux-c-mode))
->     auto-mode-alist))
->
-> which actually could be cleaned up a bit (it's been hacked over the
-> years and never cleaned up suitably) but the idea is pretty simple
+> If you did apply the patch could you please check if the asm->asm-arm
+> symlink exists when the error happens and that a file named Kbuild is
+> located in the directory: include/asm-arm/
 
-I mostly agree on this, and thought it myself (I *never* use Emacs, only Vim, 
-but no flames here).
+In the source tree, I have:
 
-However, let's be kind with Jeff, since he's the UML maintainer. You can be 
-right, but there's also courtesy.
+drwxrwxr-x   2 rmk rmk  4096 Oct 28 20:38 include/asm
+-rw-rw-r--   1 rmk rmk  1026 Oct 28 20:37 include/asm-arm/Kbuild
 
-If Jeff says "OK", then someone can submit a separate patch removing all the 
-final comments.
+Note that kbuild created an extra directory called asm in the source
+tree.  In the output tree:
 
-Until then, please don't.
+rmk@dyn-67:[linux-2.6-rmk]:<1047> vdir ../build/rpc/include/
+drwxr-xr-x  120 rmk rmk 4096 Oct 28 20:42 config
+drwxrwxr-x    2 rmk rmk 4096 Oct 28 20:42 linux
+rmk@dyn-67:[linux-2.6-rmk]:<1048> vdir ../build/rpc/include2/
+total 0
+lrwxrwxrwx  1 rmk rmk 42 Oct 28 20:42 asm -> /home/rmk/bk/linux-2.6-rmk/include/asm-arm
 
-And never mix such unrelated changes in a patch.
+After removing ../build/rpc/include* and include/asm:
+
+rmk@dyn-67:[linux-2.6-rmk]:<1050> amake O=../build/rpc
+  Using /home/rmk/bk/linux-2.6-rmk as source for kernel
+  GEN    /home/rmk/bk/build/rpc/Makefile
+  CHK     include/linux/version.h
+  UPD     include/linux/version.h
+  SYMLINK include/asm -> include/asm-arm
+  GEN    /home/rmk/bk/build/rpc/Makefile
+scripts/kconfig/conf -s arch/arm/Kconfig
+#
+# using defaults found in .config
+#
+  SPLIT   include/linux/autoconf.h -> include/config/*
+/home/rmk/bk/linux-2.6-rmk/scripts/Makefile.build:13: /home/rmk/bk/linux-2.6-rmk/include/asm/Makefile: No such file or directory
+make[2]: *** No rule to make target `/home/rmk/bk/linux-2.6-rmk/include/asm/Makefile'.  Stop.
+make[1]: *** [prepare0] Error 2
+make: *** [_all] Error 2
+rmk@dyn-67:[linux-2.6-rmk]:<1051> vdir ../build/rpc/include*
+../build/rpc/include:
+total 8
+lrwxrwxrwx    1 rmk rmk    7 Oct 28 21:59 asm -> asm-arm
+drwxr-xr-x  120 rmk rmk 4096 Oct 28 21:59 config
+drwxrwxr-x    2 rmk rmk 4096 Oct 28 21:59 linux
+ 
+../build/rpc/include2:
+total 0
+lrwxrwxrwx  1 rmk rmk 42 Oct 28 21:59 asm -> /home/rmk/bk/linux-2.6-rmk/include/asm-arm
+rmk@dyn-67:[linux-2.6-rmk]:<1052> vdir include/
+...
+drwxrwxr-x   2 rmk rmk  4096 Oct 28 21:59 asm
+drwxrwxr-x  25 rmk rmk  4096 Oct 28 20:37 asm-arm
+
 -- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

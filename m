@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318207AbSIBIRN>; Mon, 2 Sep 2002 04:17:13 -0400
+	id <S318234AbSIBIWg>; Mon, 2 Sep 2002 04:22:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318229AbSIBIRN>; Mon, 2 Sep 2002 04:17:13 -0400
-Received: from na.sdn.net.za ([66.8.40.138]:40721 "EHLO riva.fashaf.co.za")
-	by vger.kernel.org with ESMTP id <S318207AbSIBIRM>;
-	Mon, 2 Sep 2002 04:17:12 -0400
-From: mk@fashaf.co.za
-Date: Mon, 2 Sep 2002 10:21:56 +0200
+	id <S318237AbSIBIWg>; Mon, 2 Sep 2002 04:22:36 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:63921 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S318234AbSIBIWe>; Mon, 2 Sep 2002 04:22:34 -0400
+Importance: Normal
+MIME-Version: 1.0
+Sensitivity: 
 To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.18 Kernel Panics related to Netfilter/iptables
-Message-ID: <20020902082156.GA28503@fashaf.co.za>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.4.18-3
-X-Editor: VIM - Vi IMproved 6.1 (http://www.vim.org/)
-X-Crypto: gpg (GnuPG) 1.0.7 (http://www.gnupg.org/)
-X-GPG-Key-ID: AA91CF25
-X-GPG-Key-Fingerprint: 8D0B F1A3 5296 6CBC 7509  05B0 F3B8 CEF2 AA91 CF25
-X-What-Happen: somebody set up us the bomb.
-User-Agent: Mutt/1.5.1i
+Subject: Kernel BUG at page_alloc.c:91! (2.4.19)
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF990F4927.6697D5BE-ONC1256C28.002E59F8@de.ibm.com>
+From: "Heiko Carstens" <Heiko.Carstens@de.ibm.com>
+Date: Mon, 2 Sep 2002 10:26:56 +0200
+X-MIMETrack: Serialize by Router on D12ML032/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 02/09/2002 10:26:57,
+	Serialize complete at 02/09/2002 10:26:57
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
+Hi,
 
-One of my machines running kernel 2.4.18 is getting kernel panics intermittently (30minutes to 4/5 hours). 
+I experienced several kernel BUGs while running the linux kernel version 
+2.4.19
+on a single cpu s390 machine with 2GB RAM and 256MB of swap space. All of 
+these
+BUGs happened at page_alloc.c in the function __free_pages_ok. In that 
+function
+there is the check
+if (page->mapping) BUG();
+which is exactly what happened. A page had a mapping but __free_pages_ok() 
+got
+called anyway. Looking at the backtrace I was able to see that this 
+specific
+BUG() occurred when page_cache_release() was called from the function
+try_to_swap_out().
 
-from the logs I believe is the culprit:
+Looks to me that this function itself has a bug: after the drop_pte label 
+it is
+checked if the current page has a mapping. If this is true there is a jump 
+to
+the drop_pte label, where without any further checking 
+page_cache_release() gets
+called which will result in the above described BUG() if page_count(page) 
+== 1.
 
-kernel: LIST_DELETE: ip_conntrack_core.c:165 `&ct->tuplehash[IP_CT_DIR_REPLY]'(c6c78e44) not in &ip_conntrack_hash [hash_conntrack(&ct->tuplehash[IP_CT_DIR_REPLY].tuple)].
+Here is the output of the kernel (I removed all inline statements in 
+vmscan.c):
 
-After searching google for a while i noticed this was the exact error for problems with the 2.4.10 kernel and apparently have been fixed. Here is the link:
+kernel BUG at page_alloc.c:91! 
+illegal operation: 0001 
+CPU:    0    Not tainted 
+           80042730 00000001 013c578c 6ce26e00 
+           00000020 575a0001 6ce26e00 00000000 
+           013c578c 80042388 80042730 6c7e13c8 
+           00000000 00000000 00000000 00000000 
+           00000000 00000000 00000000 00000000 
+           00000000 00000000 00000000 00000000 
+Call Trace: [<000430d2>] [<00040eec>] [<00041088>] [<00041132>] 
+            [<000411da>] [<000412cc>] [<000413b0>] [<00041646>] 
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-http://lists.netfilter.org/pipermail/netfilter-announce/2002/000010.html
+Trace; 000430d2 <__free_pages+52/58>
+Trace; 00040eec <try_to_swap_out+224/284>
+Trace; 00041088 <swap_out_pmd+13c/178>
+Trace; 00041132 <swap_out_pgd+6e/a0>
+Trace; 000411da <swap_out_vma+76/bc>
+Trace; 000412cc <swap_out_mm+ac/d0>
+Trace; 000413b0 <swap_out+c0/150>
+Trace; 00041646 <shrink_cache+206/5c8>
 
-If you need any additional information let me know. Here /proc/version for the moment: 
-Linux version 2.4.18 (root@roadkill) (gcc version 2.96 20000731 (Red Hat Linux 7.0)) #1 SMP Mon Jun 17 18:06:40 SAST 2002
+regards,
+Heiko
 
-Hopefully someone can help me resolve this issue.
-
-Thanks
-Merritt

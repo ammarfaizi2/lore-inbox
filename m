@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbVCEHE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbVCEHLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbVCEHE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 02:04:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbVCEHE2
+	id S262648AbVCEHLW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 02:11:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbVCEHLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 02:04:28 -0500
-Received: from web41401.mail.yahoo.com ([66.218.93.67]:22894 "HELO
-	web41401.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262110AbVCEHEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 02:04:22 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=LrDEieO2rqePnSFMp38YHc+jpdKASj0mazBeFg5ierwBLrsAYLlaa0ER8txk30xTBILlM1TJ8PZR6QyQgVyr1rcturBrtKh7JVW44E3cyfvD3YiiEiM1266WTVkAgtPbFPvAVDUeEcJi2I9xzCCYoxMJ8xvlPMZAp3S+vx0WjMM=  ;
-Message-ID: <20050305070421.12802.qmail@web41401.mail.yahoo.com>
-Date: Fri, 4 Mar 2005 23:04:21 -0800 (PST)
-From: cranium2003 <cranium2003@yahoo.com>
-Subject: strace on cat /proc/my_file gives results by calling read twice why?
-To: kernel newbies <kernelnewbies@nl.linux.org>,
-       kernerl mail <linux-kernel@vger.kernel.org>
+	Sat, 5 Mar 2005 02:11:22 -0500
+Received: from bama.hardrock.org ([68.146.16.251]:5536 "EHLO mail.hardrock.org")
+	by vger.kernel.org with ESMTP id S262648AbVCEHLT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 02:11:19 -0500
+Date: Sat, 5 Mar 2005 00:11:16 -0700 (MST)
+From: James Bourne <jbourne@hardrock.org>
+X-X-Sender: jbourne@rio.clgy.hardrock.org
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org
+Subject: Re: Linux 2.6.11.1
+In-Reply-To: <20050304215822.GA24843@havoc.gtf.org>
+Message-ID: <Pine.LNX.4.58.0503050007590.7221@rio.clgy.hardrock.org>
+References: <20050304175302.GA29289@kroah.com> <20050304124431.676fd7cf.akpm@osdl.org>
+ <4228D43E.1040903@pobox.com> <20050304135113.68c50e13.akpm@osdl.org>
+ <20050304215822.GA24843@havoc.gtf.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 4 Mar 2005, Jeff Garzik wrote:
 
+> On Fri, Mar 04, 2005 at 01:51:13PM -0800, Andrew Morton wrote:
+> > Jeff Garzik <jgarzik@pobox.com> wrote:
+...
+> > > is this critical?
+> > 
+> > Doubt it, unless the succeeding patches have a dependency on it.  But the
+> > other patches have not been tested without this one being present.
+> > 
+> > These patches have been in mm for four weeks, so it's probably OK from a
+> > stability POV to take them straight into linux-release.  If they were
+> > fresher then the way to handle them would be to merge them into Linus's
+> > tree and backport in a couple of weeks time.
+> 
+> Cool, fair enough.  linux-release sounds fine.
 
-hello,
-      I have a /proc file kernel module with its proc
-read function as
-static char mybuf[1024];
-ssize_t my_file_read(struct file *filp, char *buf,
-size_t count, loff_t *ppos)
-{
-   printk("Reading a from a /proc file....\n");
-   static int b_read = 0;
+ok, 4 bits not just 2...  
 
-    int len = strlen(mybuf);
+Be frugal with the patches and don't take just *anything* that looks like a
+good fix.  What you want is a more stable version, meaning less changes as
+time goes forward.  I know it's the first couple days, but it looks like it
+could easily go the other way...  
 
-    if (len == 0 || b_read) {
-        b_read = 0;
-        return 0;
-    }
+Anyway, I hope this helps.
 
-    if (len > count - 1)
-        len = count - 1;
+James
 
-    copy_to_user(buf, mybuf, len);
-    put_user(0, &buf[len]);
-    ++len;
-    b_read = 1;
-    return len;
-}
+> 
+> 	Jeff
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-when i strace cat /proc/my_file i found message
-printing twice
-Reading a from a /proc file....
-Reading a from a /proc file....
-       Why that happening?
-          Also i check by writing to it as cat >
-/proc/my_file
-and got single result for write function call not
-twice as for read.
-
-regards,
-cranium
-
-
-	
-		
-__________________________________ 
-Celebrate Yahoo!'s 10th Birthday! 
-Yahoo! Netrospective: 100 Moments of the Web 
-http://birthday.yahoo.com/netrospective/
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+UNIX Systems Administration   | WWW:           http://www.hardrock.org
+Custom UNIX Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  

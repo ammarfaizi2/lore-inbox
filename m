@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266587AbRGLVEY>; Thu, 12 Jul 2001 17:04:24 -0400
+	id <S265828AbRGJHAv>; Tue, 10 Jul 2001 03:00:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266595AbRGLVEO>; Thu, 12 Jul 2001 17:04:14 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:27908 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266587AbRGLVEB>;
-	Thu, 12 Jul 2001 17:04:01 -0400
-Date: Mon, 9 Jul 2001 12:02:44 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Pavel Machek <pavel@suse.cz>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-mips@oss.sgi.com
-Subject: Re: [ANNOUNCE] Secondary mips tree.
-Message-ID: <20010709120243.A39@toy.ucw.cz>
-In-Reply-To: <20010630145732.E255@toy.ucw.cz> <Pine.LNX.4.10.10107081059580.22673-100000@transvirtual.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10107081059580.22673-100000@transvirtual.com>; from jsimmons@transvirtual.com on Sun, Jul 08, 2001 at 11:32:31AM -0700
+	id <S265839AbRGJHAm>; Tue, 10 Jul 2001 03:00:42 -0400
+Received: from mercury.Sun.COM ([192.9.25.1]:5306 "EHLO mercury.Sun.COM")
+	by vger.kernel.org with ESMTP id <S265828AbRGJHAa>;
+	Tue, 10 Jul 2001 03:00:30 -0400
+Message-ID: <3B4AA9CC.D139A58C@sun.com>
+Date: Tue, 10 Jul 2001 00:07:56 -0700
+From: Tim Hockin <thockin@sun.com>
+Organization: Sun Microsystems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: andre@linux-ide.org, alan@redhat.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH]  IDE rwproc field
+Content-Type: multipart/mixed;
+ boundary="------------5036F736851EE873E0F4FB94"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------5036F736851EE873E0F4FB94
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> > >  	We have started a secondary tree for linux mips. This tree will
-> > > be to SGI mips tree as Alan Cox's tree is to linus branch. We will test
-> > > and play with "experimental patches" and then in time hand them off to the
-> > > main branch Ralf Baechle maintains. Also one of the main reasons for this
-> > > branch was to unite several of the mips trees into one place. Anyones
-> > > patches (if good) are welcomed. The site is 
-> > 
-> > Do you want to "eat" linux-vr tree? linux-vr list is dead and there's no
-> > (or not much) development in its CVS (at 240t7 :-()
-> 
-> Yes. We are reworking the VR code and placing it into our tree. 
+All,
 
-Good. I should definitely take a look. [Do you care about vr4130 or about
-tx3912, too?]
+Attached i a one-liner that adds a rwproc cache field to the IDE
+subsystem.  Please let me know of any reason this can't become part of the
+mainline kernel.
 
-> > > We also have a mailing list which instructions are on the SF page on how
-> > > to join. Thank you. 
-> > 
-> > Is it ok to be used as linux-vr list?
-> 
-> I have no problem with it. VR is apart of the mips developement we are
-> doing. Also we do alot of IT 8172 and au1000 devleopement as well. Plus
-> some early work for the cobalt cube is being done. I will finish the cube 
-> now that we have a pretty generic pci code layer that is shared amoung
-> many boards.
-
-Seems like there's one more mailinglist for me to read. Ook.
-								Pavel
+Tim
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Cobalt Server Appliances
+thockin@sun.com
+--------------5036F736851EE873E0F4FB94
+Content-Type: text/plain; charset=us-ascii;
+ name="ide_rwproc.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide_rwproc.diff"
+
+diff -ruN dist-2.4.6/include/linux/ide.h cobalt-2.4.6/include/linux/ide.h
+--- dist-2.4.6/include/linux/ide.h	Tue Jul  3 15:44:16 2001
++++ cobalt-2.4.6/include/linux/ide.h	Mon Jul  9 15:56:19 2001
+@@ -284,6 +284,7 @@
+ 	unsigned long service_time;	/* service time of last request */
+ 	unsigned long timeout;		/* max time to wait for irq */
+ 	special_t	special;	/* special action flags */
++	void	 *rwproc_cache;		/* last rwproc update */
+ 	byte     keep_settings;		/* restore settings after drive reset */
+ 	byte     using_dma;		/* disk is using dma for read/write */
+ 	byte     waiting_for_dma;	/* dma currently in progress */
+
+--------------5036F736851EE873E0F4FB94--
 

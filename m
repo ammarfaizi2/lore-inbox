@@ -1,93 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVC3Kq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVC3KxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbVC3Kq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 05:46:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVC3Kqz
+	id S261860AbVC3KxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 05:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVC3KxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 05:46:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47071 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261859AbVC3Kqv (ORCPT
+	Wed, 30 Mar 2005 05:53:09 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:58286 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S261860AbVC3KxD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 05:46:51 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0503292223090.18131@goblin.wat.veritas.com> 
-References: <Pine.LNX.4.61.0503292223090.18131@goblin.wat.veritas.com>  <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com> <4243A257.8070805@yahoo.com.au> <20050325092312.4ae2bd32.davem@davemloft.net> <20050325162926.6d28448b.davem@davemloft.net> 
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Ian Molton <spyro@f2s.com>,
-       nickpiggin@yahoo.com.au, akpm@osdl.org, tony.luck@intel.com,
-       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 30 Mar 2005 11:46:17 +0100
-Message-ID: <22627.1112179577@redhat.com>
+	Wed, 30 Mar 2005 05:53:03 -0500
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Paul Jackson <pj@engr.sgi.com>, guillaume.thouvenin@bull.net,
+       akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
+       jlan@engr.sgi.com, efocht@hpce.nec.com, linuxram@us.ibm.com,
+       gh@us.ibm.com, elsa-devel@lists.sourceforge.net
+In-Reply-To: <E1DGaOG-0002Md-00@gondolin.me.apana.org.au>
+References: <E1DGaOG-0002Md-00@gondolin.me.apana.org.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TgrbcAQ3/uZdDP0TksjS"
+Organization: MIPT
+Date: Wed, 30 Mar 2005 14:57:42 +0400
+Message-Id: <1112180262.5243.120.camel@uganda>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Wed, 30 Mar 2005 14:51:12 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hugh Dickins <hugh@veritas.com> wrote:
+--=-TgrbcAQ3/uZdDP0TksjS
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> On Fri, 25 Mar 2005, David S. Miller wrote:
-> 
-> [ of flush_tlb_pgtables ]
-> 
-> > Since sparc64 is the only user of this thing...
-> 
-> Not quite.  sparc64 is the only user which makes any use of the
-> addresses passed to it, but frv does a little assembler with it,
-> and arm26 does a printk - eh? I'd take that to mean that it never
-> gets called there, but I don't see what prevents it, before or now.
-> Ian, does current -mm give you "flush_tlb_pgtables" printks?
+On Wed, 2005-03-30 at 20:25 +1000, Herbert Xu wrote:
+> Paul Jackson <pj@engr.sgi.com> wrote:
+> >=20
+> > So I suppose if fork_connector were not used to collect <parent pid,
+> > child pid> information for accounting, then someone would have to make
+> > the case that there were enough other uses, of sufficient value, to add
+> > fork_connector.  We have to be a bit careful, in the kernel, to avoid
+> > adding mechanisms until we have the immediate use in hand.  If we don't
+> > do this, then the kernel ends up looking like the Gargoyles on a
+> > Renaissance church - burdened with overly ornate features serving no
+> > earthly purpose.
+>=20
+> I agree completely.  In fact the whole drivers/connector directory
+> looks pretty suspect.  Are there any in-kernel users of it at all?
 
-That bit of assembly invalidates some data cached by the TLB-miss handler in
-registers SCR0 and SCR1 to improve performance in the next TLB-miss event.
+SuperIO subsystem.
+In agenda sit w1, acrypto [but it already looks like it will not be
+included :) ].
 
-What happens is that the TLB-miss handler sets a static mapping for a page
-table and stores the base virtual address for the region covered by that page
-table in SCR0 (ITLB) or SCR1 (DTLB). Then when dealing with the next TLB-miss
-event we can do:
+--=20
+        Evgeniy Polyakov
 
-	((SCRx ^ virtaddr) >> 26) == 0
+Crash is better than data corruption -- Arthur Grabowski
 
-to very quickly work out whether we can re-use the static mapping left from
-the previous TLB-miss event.
+--=-TgrbcAQ3/uZdDP0TksjS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-However, if the mapping from virtual address to page table changes, then the
-cached static mappings may no longer be valid. We can invalidate them simply
-by zapping SCR0 and SCR1.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-It occurs to me that:
+iD8DBQBCSoYmIKTPhE+8wY0RAgs4AKCXqnemPXi04X9xpBcmUtlT0GRVTACggDnf
+WK029g4sPh/9gv9JIax+scY=
+=Tk5M
+-----END PGP SIGNATURE-----
 
-	#define flush_tlb_pgtables(mm,start,end) \
-		asm volatile("movgs gr0,scr0 ! movgs gr0,scr1");
+--=-TgrbcAQ3/uZdDP0TksjS--
 
-is actually wrong. It doesn't actually invalidate anything; it just changes
-the virtual range for that page table to be 0x00000000-0x04000000, no matter
-whether that page table should be backing that region or not. It should
-instead be:
-
-	#define flush_tlb_pgtables(mm,start,end) \
-		asm volatile("movgs %0,scr0 ! movgs %0,scr1" :: "r"(-1));
-
-Because the addresses in the range 0xFC000000-0xFFFFFFFF are all statically
-mapped to the Boot ROM chip select.
-
-This doesn't matter for most programs as they never use more than the bottom
-page table anyway (which covers 64MB).
-
-> > Let's make it so that the flush can be queued up
-> > at pmd_clear() time, as that's what we really want.
-> > 
-> > Something like:
-> > 
-> > 	pmd_clear(mm, vaddr, pmdp);
-> > 
-> > I'll try to play with something like this later.
-> 
-> Depends really on what DavidH wants there, not clear to me.
-> I suspect Ian can live without his printk!
-
-I could do the zapping in pmd_clear() instead, I suppose. It's just that it
-only needs to be done once when tearing down the page tables; not for every
-PMD.
-
-David

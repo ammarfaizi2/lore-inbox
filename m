@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262676AbVCJQWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVCJQZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262676AbVCJQWv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 11:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVCJQWv
+	id S262715AbVCJQZk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 11:25:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbVCJQXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 11:22:51 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:26800 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262706AbVCJQSj (ORCPT
+	Thu, 10 Mar 2005 11:23:14 -0500
+Received: from stingr.net ([212.193.32.15]:14782 "EHLO stingr.net")
+	by vger.kernel.org with ESMTP id S262713AbVCJQT0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 11:18:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=W0QHDHCe2PhhC8lE+gp5EH/RDOQTmLonRBGZ0v3vEDOyHac9szK2+nDDdZfQpElXgvkJ2yNG3auFZO3zbjh+WJHkekB7wYymdbFTgq25bwxFjJEy7IBPuf8OUJWfPYDxMBLA4b0bTbctw7Z0NdgS8NxsulcWWGeAyEiqZ9aJUTA=
-Message-ID: <9e4733910503100818df5fb2@mail.gmail.com>
-Date: Thu, 10 Mar 2005 11:18:38 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: current linus bk, error mounting root
-Cc: Jeff Garzik <jgarzik@pobox.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050310160155.GC2578@suse.de>
+	Thu, 10 Mar 2005 11:19:26 -0500
+Date: Thu, 10 Mar 2005 19:19:09 +0300
+From: Paul P Komkoff Jr <i@stingr.net>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Lorenzo =?utf8?Q?Hern=C3=A1ndez_Garc=C3=ADa-Hierro?= 
+	<lorenzo@gnu.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/1] /proc/$$/ipaddr and per-task networking bits
+Message-ID: <20050310161909.GD26532@stingr.stingr.net>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Lorenzo =?utf8?Q?Hern=C3=A1ndez_Garc=C3=ADa-Hierro?= <lorenzo@gnu.org>,
+	linux-kernel@vger.kernel.org
+References: <1110464202.9190.7.camel@localhost.localdomain> <1110464782.6291.95.camel@laptopd505.fenrus.org> <1110468517.9190.24.camel@localhost.localdomain> <1110469087.6291.103.camel@laptopd505.fenrus.org> <1110470430.9190.33.camel@localhost.localdomain> <1110470935.6291.105.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <422F5D0E.7020004@pobox.com> <20050309210926.GZ28855@suse.de>
-	 <9e473391050309171643733a12@mail.gmail.com>
-	 <20050310075049.GA30243@suse.de>
-	 <9e4733910503100658ff440e3@mail.gmail.com>
-	 <20050310153151.GY2578@suse.de>
-	 <9e473391050310074556aad6b0@mail.gmail.com>
-	 <20050310154830.GB2578@suse.de>
-	 <9e47339105031007595b1e0cc3@mail.gmail.com>
-	 <20050310160155.GC2578@suse.de>
+Content-Type: text/plain; charset=utf8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1110470935.6291.105.camel@laptopd505.fenrus.org>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Mar 2005 17:01:55 +0100, Jens Axboe <axboe@suse.de> wrote:
-> what are the major/minor numbers of /dev/root?
+Replying to Arjan van de Ven:
+> On Thu, 2005-03-10 at 17:00 +0100, Lorenzo Hernández García-Hierro
+> wrote: it tries to fill the
+> > ipaddr member of the task_struct structure with the IP address
+> > associated to the user running @current task/process,if available.
+> 
+> but... a use doesn't hane an IP. a host does.
 
-
-If I boot on a working system it is 8,5
-
-mkrootdev is a nash command
-
-       mkrootdev path
-              Makes path a block inode for the device which should be mounted
-              as  root.  To  determine  this device nash uses the device sug-
-              gested by the root= kernel command line argument (if root=LABEL
-              is  used devices are probed to find one with that label). If no
-              root=  argument  is  available,  /proc/sys/kernel/real-root-dev
-              provides the device number.
-
-
-I already tried switching from the label syntax to /dev/sda5 without effect.
+I don't get it too
+With multihomed setup same process I have can send and receive on many
+addresses simultaneously. So single ip_addr cannot describe this
+situation.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
+ This message represents the official view of the voices in my head

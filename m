@@ -1,88 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130666AbRBMPt6>; Tue, 13 Feb 2001 10:49:58 -0500
+	id <S129422AbRBMP7J>; Tue, 13 Feb 2001 10:59:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129422AbRBMPts>; Tue, 13 Feb 2001 10:49:48 -0500
-Received: from colorfullife.com ([216.156.138.34]:31495 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S130462AbRBMPti>;
-	Tue, 13 Feb 2001 10:49:38 -0500
-Message-ID: <3A895795.56741320@colorfullife.com>
-Date: Tue, 13 Feb 2001 16:49:41 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Martin Rode <Martin.Rode@programmfabrik.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: BUG in sched.c, Kernel 2.4.1?
-In-Reply-To: <3A8942FA.484BE2FC@programmfabrik.de> <3A8944F1.93C252EB@didntduck.org> <3A895194.89D69AE9@programmfabrik.de>
+	id <S129750AbRBMP7A>; Tue, 13 Feb 2001 10:59:00 -0500
+Received: from ns.suse.de ([213.95.15.193]:7952 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129422AbRBMP6n>;
+	Tue, 13 Feb 2001 10:58:43 -0500
+Date: Tue, 13 Feb 2001 16:58:31 +0100
+From: Olaf Hering <olh@suse.de>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, autofs@linux.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: race in autofs / nfs
+Message-ID: <20010213165831.A1289@suse.de>
+In-Reply-To: <20010211211701.A7592@suse.de> <3A86F6AA.1416F479@transmeta.com> <shsbss8i8iq.fsf@charged.uio.no> <20010212111448.A28932@suse.de> <20010212125115.B30552@suse.de> <3A881FA7.2C5C8CBE@transmeta.com> <20010212184816.C3778@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010212184816.C3778@suse.de>; from olh@suse.de on Mon, Feb 12, 2001 at 06:48:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Rode wrote:
-> 
-> >
-> > Run this oops message through ksymoops please.  It will make debugging
-> > it alot easier.
-> >
-> >
-> 
-> Since I did not compile the kernel myself, ksymoops is not too happy with
-> what is has to analyse the dump. I tried compile the Mandrake kernel myself
-> but there seems to be something unmatched. See below for what ksymoops
-> gives me.
->
-looks good.
+On Mon, Feb 12, Olaf Hering wrote:
 
-> Warning (compare_maps): mismatch on symbol vt_cons  , ksyms_base says
-> c02b06e0, vmlinux says c02ac6e0.  Ignoring ksyms_base entry
+> On Mon, Feb 12, H. Peter Anvin wrote:
 > 
-> (I get about > 300 msgs of that kind)
+> > Olaf Hering wrote:
+> > > 
+> > > The autofs4.o is the culprit, it works perfect with autofs.o.
+> > > 
+> > > What would happen if I stick with autofs.o now?
+> > > The docu recommends autofs4 in modules.conf.
+> > > 
+> > 
+> > I don't know who came up with that idea.  You should use the module that
+> > matches your daemon, and not try to hack around so that there is a
+> > module/daemon mismatch.
 > 
-> Let me know who I can prepare for the next crash with my own kernel. Are
-> there any options I have to turn on for compiling?
+> cantaloupe:~ # /usr/sbin/automount -v 
+> Linux automount version 4.0.0
 > 
-> kernel BUG at sched.c:714!
-> invalid operand: 0000
-> CPU: 0
-> EIP: 0010:[<c0113781>]
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010282
-> eax: 0000001b ebx 00000000 ecx df4f6000 edx 00000001
-> esi: 001cffe3 edi db5eede0 ebp dc0e9f40 esp dc0e9ef0
-> stack: c01f26f3 c01f2856 000002ca db5eed80 dc0e8000 db5eede0 dc0e9f18
-> dc0e8000 000033ba 00000000 00000000 000000e7 0000001c 0000001c
-> fffffff3 dc0e8000 00000800 00000000 dc0e8000 dc0e9f68 c0139c44
-> d488bf80 00000000
-
-esp is quite high, only 0x110 bytes of the stack are used.
-
-> call trace: [<cc0139c44>] [<c0139d1c>] [<c0130af6>] [<c0108e93>]
-                ^^^^^^^^^
-> code: 0f 0b 8d 65 bc 5b 5e 5f 89 ec 5d c3 8d 76 00 55 89 e5 83 ec
 > 
-> >>EIP; c0113781 <schedule+421/430>   <=====
-> Trace; cc0139c44 <END_OF_CODE+bdf830401/????>
-         ^^^^^^^^^
+> We had 4.0pre7 in 7.0 and 4.0pre9 in 7.1.
+> I would really like to know _where_ it hangs, Trond sent me a printk
+> patch but this one was not called. 
 
-did you manually copy the oops from the screen?
-that value should be c0139c44 <pipe_wait...>
+Any ideas where to start with the debugging?
 
-> Trace; c0139d1c <pipe_read+80/238>
-> Trace; c0130af6 <sys_read+5e/c4>
-> Trace; c0108e93 <system_call+33/40>
->
-> [snip]
-> 
-> Kernel panic: Aiee, killing interrupt handler!
->
-I don't see that interrupt handler!
-it seems to be a normal syscall, just a pipe read that blocks because
-the pipe is empty.
 
-Is that the first oops, or was there another oops before this one?
+> I will try to get a i386 SMP machine to see if its ppc specific.
 
---
-	Manfred
+I'm unable to reproduce it on a Piii 750 with SuSE 7.1.
+
+guillory:/usr/src/OLAF/linux-2.4.2-pre3 # sh scripts/ver_linux 
+-- Versions installed: (if some fields are empty or look
+-- unusual then possibly you have very old versions)
+Linux guillory 2.4.2-pre3-SMP #3 SMP Tue Feb 13 14:50:47 CET 2001 i686
+unknown
+Kernel modules         2.4.1
+Gnu C                  2.95.2
+Gnu Make               3.79.1
+Binutils               2.10.0.33
+Linux C Library        x    1 root     root      1382179 Jan 19 07:14
+/lib/libc.so.6
+Dynamic linker         ldd (GNU libc) 2.2
+Procps                 2.0.7
+Mount                  2.10q
+Net-tools              1.57
+Kbd                    1.02
+Sh-utils               2.0
+Modules Loaded         nfsd ipv6 mousedev hid input usbcore eepro100
+
+
+both 2.4.1ac10 and 2.4.2-pre3 boot fine.
+
+This machine oops in the usb stack, but thats another issue.
+
+
+
+Gruss Olaf
+
+-- 
+ $ man clone
+
+BUGS
+       Main feature not yet implemented...

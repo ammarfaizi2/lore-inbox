@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263834AbTETPym (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 11:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263833AbTETPym
+	id S263775AbTETPx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 11:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263825AbTETPx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 11:54:42 -0400
-Received: from [208.186.192.194] ([208.186.192.194]:7896 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263825AbTETPyj (ORCPT
+	Tue, 20 May 2003 11:53:56 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:60334 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id S263775AbTETPxz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 11:54:39 -0400
-Message-Id: <200305201607.h4KG7XL21672@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: wacky hangs on 2.5.69-mm7, -mm3
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 20 May 2003 09:07:33 -0700
-From: Cliff White <cliffw@osdl.org>
+	Tue, 20 May 2003 11:53:55 -0400
+Date: Tue, 20 May 2003 18:02:07 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Ulrich Drepper <drepper@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] futex patches, futex-2.5.69-A2
+In-Reply-To: <20030520150826.A18282@infradead.org>
+Message-ID: <Pine.LNX.4.44.0305201748020.14480-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andrew, 
-we are running a few tests on 2.5.69, -mm7, and -mm3 and having
-some wacky hangs.
+On Tue, 20 May 2003, Christoph Hellwig wrote:
 
-Booted both kernels with default IO scheduler. 
+> > you dont understand, do you? There are very valid and perfectly working
+> > glibc installations [and maybe NGPT installations, futex users, etc.] out
+> > there that will break if you remove sys_futex(). No amount of rpm hacking
+> > will fix them up.
+>
+> And they'll break if you run _any_ released stable kernel, so what?
 
-The Reaim test running against -mm7 (AIM rewrite) hangs, with a large number 
-of 'sync' commands that never complete and are unkillable. (Various tests call 
-'sync') System is a 4-CPU PIII , two of the CPU's are stuck at 100% iowait. 
-Filesystem is ext2.  Same kernel run with elevator=deadline ran okay. -mm6 ran 
-okay, but
-was not especially performant. (separate mail)
+you havent ever used Ulrich's nptl-enabled glibc, have you? It will boot
+on any 2.4.1+ kernel, with and without nptl/tls support. It switches the
+threading implementation depending on the kernel features it detects.
 
-The -mm3 kernel is running DBT2 on a 8-CPU machine, with raw devices. Ten 
-minutes
-into the run, all IO ceases, iostat shows devices 133% busy, workload stops.
-'ps -aef' never completes. Previous run with elevator=noop was fine. 
-
-We've left the 8-way as is if you want a look.
-cliffw
-maryedie
-OSDL
-
-
-
-
-
-
+	Ingo
 

@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbTEMOV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 10:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbTEMOV4
+	id S261280AbTEMOXg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 10:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbTEMOXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 10:21:56 -0400
-Received: from sccimhc01.insightbb.com ([63.240.76.163]:39659 "EHLO
-	sccimhc01.insightbb.com") by vger.kernel.org with ESMTP
-	id S261279AbTEMOVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 10:21:52 -0400
-Message-Id: <5.1.0.14.0.20030513084825.00a8de90@mail.soltec.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 13 May 2003 09:27:34 -0500
-To: linux-kernel@vger.kernel.org
-From: Steve Fletcher <fletch@soltec.net>
-Subject: yenta_socket problems
+	Tue, 13 May 2003 10:23:36 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20123
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261280AbTEMOXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 10:23:35 -0400
+Subject: Re: PCMCIA 2.5.X sleeping from illegal context
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: root@chaos.analogic.com
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Russell King <rmk@arm.linux.org.uk>,
+       Paul Fulghum <paulkf@microgate.com>,
+       David Hinds <dahinds@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0305121929300.6225@chaos>
+References: <1052775331.1995.49.camel@diemos>
+	 <1052773631.31825.18.camel@dhcp22.swansea.linux.org.uk>
+	 <20030512233151.B17227@flint.arm.linux.org.uk>
+	 <1052781365.1185.5.camel@teapot.felipe-alfaro.com>
+	 <Pine.LNX.4.53.0305121929300.6225@chaos>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052833031.432.11.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 13 May 2003 14:37:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Maw, 2003-05-13 at 00:36, Richard B. Johnson wrote:
+> Could somebody please change the error message? Although everybody
+> seems to want to be a lawyer, even lawyers don't make law. Certainly
+> Software Engineers don't. The correct word is 'invalid', not 'illegal'.
+> Yes, I know there is a 30-year history of the use of that word in
+> Unix, but it's wrong. Only governments make law.
 
-I am having some problems getting pcmcia working on a laptop  The system is 
-an Averatec (formerly Sotec) and has an O2Micro 6912 card controller.  I 
-have successfully installed RedHat 8.0 and have installed kernel version 
-2.4.18-27.8.0.  Everything seems to work fine, except that when I boot the 
-machine, it stops at "Starting pcmcia" for about 5 to 10 minutes.  A check 
-of the logs shows no errors. In addition, when I insert a pcmcia card, the 
-system hangs for a couple of minutes, then seems fine after that. I have 
-tried using the standalone pcmcia drivers, in hopes that would solve my 
-problem, but after posting on the forum I was told by David Hinds that I 
-should be using yenta_socket.  He suggested I post a message on this list 
-to see if anyone has any suggestions.
-
-If you could please CC me on any responses, I would appreciate it.  I would 
-subscribe to the list, but I'm afraid I would just be in over my head.  :)
-
-Thanks in advance,
-
-Steve
+Much to my suprise you are right on this. The reference dictionary is 
+quite explicit that "illegal" means prohibited by law. Since users will
+eventually see this message it perhaps does make sense to fix it
 

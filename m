@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264790AbUDWMrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264667AbUDWM4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264790AbUDWMrF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 08:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264803AbUDWMrF
+	id S264667AbUDWM4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 08:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264791AbUDWM4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 08:47:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56808 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264790AbUDWMrC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 08:47:02 -0400
-Date: Fri, 23 Apr 2004 13:47:01 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Cc: Greg KH <greg@kroah.com>, lhms-devel@lists.sourceforge.net,
-       linux-hotplug-devel@lists.sourceforge.net,
-       pcihpd-discuss@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       acpi-largesys-devel@lists.sourceforge.net
-Subject: Re: [Pcihpd-discuss] [RFC] New sysfs tree for hotplug
-Message-ID: <20040423124701.GG22558@parcelfarce.linux.theplanet.co.uk>
-References: <20040415170939.0ff62618.tokunaga.keiich@jp.fujitsu.com> <20040416223436.GB21701@kroah.com> <20040423211816.152dc326.tokunaga.keiich@jp.fujitsu.com>
-Mime-Version: 1.0
+	Fri, 23 Apr 2004 08:56:25 -0400
+Received: from web10401.mail.yahoo.com ([216.136.130.93]:53146 "HELO
+	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264667AbUDWM4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 08:56:23 -0400
+Message-ID: <20040423125622.52950.qmail@web10401.mail.yahoo.com>
+Date: Fri, 23 Apr 2004 05:56:22 -0700 (PDT)
+From: "D.J. Barrow" <barrow_dj@yahoo.com>
+Reply-To: dj_barrow@ariasoft.ie
+Subject: linus'es dirty secret
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040423211816.152dc326.tokunaga.keiich@jp.fujitsu.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 23, 2004 at 09:18:16PM +0900, Keiichiro Tokunaga wrote:
+Linus'es karate secret, his wife & why linux got so big.
 
-It is EXTREMELY rude to crosspost between closed and open lists.  Take
-the lhcs-devel list off the cc list in all further posts.  Thank you.
+Want to know what you hole in the heads are doing in front of the computer.
+You are testing your metal, men without self confidence are subconciously the bravest.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+I became a coward.
+
+Jackasses/Gentlemen come out only when needed & are utterly illogical & easy to spot,
+Hitler never procreated & the only
+reason people look at them is to see what the look like.
+
+When ready you know the way to go do karate in the meantime keep slapping the salami.
+
+Do karate & you will never be seduced again you will always make the best of the situation
+& do whatever you blithering well please karateka gain control by letting go & clarity of thought.
+
+Strippers are the family advertisers...
+
+
+Have fun,
+D.J.
+
+=====
+D.J. Barrow Linux kernel developer
+eMail: dj_barrow@ariasoft.ie 
+Home: +353-22-47196.
+Work IBM +49-7031-16-2943
+Mobile (IRL) +353-(0)86 1715438
+Mobile (DE) +49 (0)160-96659905
+Current Apt. +49 (0) 711 6332927
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Photos: High-quality 4x6 digital prints for 25¢
+http://photos.yahoo.com/ph/print_splash

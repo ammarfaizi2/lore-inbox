@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315260AbSIPGvy>; Mon, 16 Sep 2002 02:51:54 -0400
+	id <S315415AbSIPGxh>; Mon, 16 Sep 2002 02:53:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315275AbSIPGvy>; Mon, 16 Sep 2002 02:51:54 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:50105 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S315260AbSIPGvn>;
-	Mon, 16 Sep 2002 02:51:43 -0400
-Date: Mon, 16 Sep 2002 16:56:29 +1000
+	id <S315416AbSIPGxh>; Mon, 16 Sep 2002 02:53:37 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:1210 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S315415AbSIPGxf>;
+	Mon, 16 Sep 2002 02:53:35 -0400
+Date: Mon, 16 Sep 2002 16:58:20 +1000
 From: Stephen Rothwell <sfr@canb.auug.org.au>
 To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, davidm@hpl.hp.com
-Subject: [PATCH] fcntl.h consolidation 6/18
-Message-Id: <20020916165629.46ae3069.sfr@canb.auug.org.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, jes@trained-monkey.org
+Subject: [PATCH] fcntl.h consolidation 7/18
+Message-Id: <20020916165820.3c2d6c8a.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -19,48 +19,40 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The IA64 Part.
+The m68k part.
 
 -- 
 Cheers,
 Stephen Rothwell                    sfr@canb.auug.org.au
 http://www.canb.auug.org.au/~sfr/
 
-diff -ruN 2.5.35/include/asm-ia64/fcntl.h 2.5.35-fcntl.1/include/asm-ia64/fcntl.h
---- 2.5.35/include/asm-ia64/fcntl.h	2000-10-10 11:54:58.000000000 +1100
-+++ 2.5.35-fcntl.1/include/asm-ia64/fcntl.h	2002-09-16 16:04:22.000000000 +1000
-@@ -1,86 +1,17 @@
- #ifndef _ASM_IA64_FCNTL_H
- #define _ASM_IA64_FCNTL_H
- /*
-- * This is mostly compatible with Linux/x86.
-- *
-  * Copyright (C) 1998-2000 Hewlett-Packard Co
-  * Copyright (C) 1998-2000 David Mosberger-Tang <davidm@hpl.hp.com>
-  */
+diff -ruN 2.5.35/include/asm-m68k/fcntl.h 2.5.35-fcntl.1/include/asm-m68k/fcntl.h
+--- 2.5.35/include/asm-m68k/fcntl.h	2000-11-28 13:00:49.000000000 +1100
++++ 2.5.35-fcntl.1/include/asm-m68k/fcntl.h	2002-09-16 16:04:22.000000000 +1000
+@@ -1,86 +1,11 @@
+ #ifndef _M68K_FCNTL_H
+ #define _M68K_FCNTL_H
  
--/*
-- * open/fcntl - O_SYNC is only implemented on blocks devices and on
-- * files located on an ext2 file system
-- */
--#define O_ACCMODE	   0003
--#define O_RDONLY	     00
--#define O_WRONLY	     01
--#define O_RDWR		     02
--#define O_CREAT		   0100	/* not fcntl */
--#define O_EXCL		   0200	/* not fcntl */
--#define O_NOCTTY	   0400	/* not fcntl */
--#define O_TRUNC		  01000	/* not fcntl */
--#define O_APPEND	  02000
--#define O_NONBLOCK	  04000
+-/* open/fcntl - O_SYNC is only implemented on blocks devices and on files
+-   located on an ext2 file system */
+-#define O_ACCMODE	  0003
+-#define O_RDONLY	    00
+-#define O_WRONLY	    01
+-#define O_RDWR		    02
+-#define O_CREAT		  0100	/* not fcntl */
+-#define O_EXCL		  0200	/* not fcntl */
+-#define O_NOCTTY	  0400	/* not fcntl */
+-#define O_TRUNC		 01000	/* not fcntl */
+-#define O_APPEND	 02000
+-#define O_NONBLOCK	 04000
 -#define O_NDELAY	O_NONBLOCK
--#define O_SYNC		 010000
--#define FASYNC		 020000	/* fcntl, for BSD compatibility */
--#define O_DIRECT	 040000	/* direct disk access hint - currently ignored */
--#define O_LARGEFILE	0100000
--#define O_DIRECTORY	0200000	/* must be a directory */
--#define O_NOFOLLOW	0400000 /* don't follow links */
--
+-#define O_SYNC		010000
+-#define FASYNC		020000	/* fcntl, for BSD compatibility */
+ #define O_DIRECTORY	040000	/* must be a directory */
+ #define O_NOFOLLOW	0100000	/* don't follow links */
+ #define O_DIRECT	0200000	/* direct disk access hint - currently ignored */
+ #define O_LARGEFILE	0400000
+ 
 -#define F_DUPFD		0	/* dup */
 -#define F_GETFD		1	/* get close_on_exec */
 -#define F_SETFD		2	/* set/clear close_on_exec */
@@ -69,11 +61,16 @@ diff -ruN 2.5.35/include/asm-ia64/fcntl.h 2.5.35-fcntl.1/include/asm-ia64/fcntl.
 -#define F_GETLK		5
 -#define F_SETLK		6
 -#define F_SETLKW	7
--
++#include <asm-generic/fcntl.h>
+ 
 -#define F_SETOWN	8	/*  for sockets. */
 -#define F_GETOWN	9	/*  for sockets. */
 -#define F_SETSIG	10	/*  for sockets. */
 -#define F_GETSIG	11	/*  for sockets. */
+-
+-#define F_GETLK64	12	/*  using 'struct flock64' */
+-#define F_SETLK64	13
+-#define F_SETLKW64	14
 -
 -/* for F_[GET|SET]FL */
 -#define FD_CLOEXEC	1	/* actually anything with low bit set goes */
@@ -110,14 +107,13 @@ diff -ruN 2.5.35/include/asm-ia64/fcntl.h 2.5.35-fcntl.1/include/asm-ia64/fcntl.
 -	pid_t l_pid;
 -};
 -
- #ifdef __KERNEL__
- # define flock64	flock
- #endif
-+#define HAVE_ARCH_STRUCT_FLOCK64
-+
-+#define __NO_FCNTL_LK64
-+
-+#include <asm-generic/fcntl.h>
- 
+-struct flock64 {
+-	short  l_type;
+-	short  l_whence;
+-	loff_t l_start;
+-	loff_t l_len;
+-	pid_t  l_pid;
+-};
+-
 -#define F_LINUX_SPECIFIC_BASE	1024
- #endif /* _ASM_IA64_FCNTL_H */
+ #endif /* _M68K_FCNTL_H */

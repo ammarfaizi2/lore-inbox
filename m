@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130688AbQLCHwV>; Sun, 3 Dec 2000 02:52:21 -0500
+	id <S130850AbQLCHwc>; Sun, 3 Dec 2000 02:52:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130871AbQLCHwM>; Sun, 3 Dec 2000 02:52:12 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55824 "EHLO
+	id <S130871AbQLCHwV>; Sun, 3 Dec 2000 02:52:21 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:57872 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130835AbQLCHvx>; Sun, 3 Dec 2000 02:51:53 -0500
+	id <S130850AbQLCHwL>; Sun, 3 Dec 2000 02:52:11 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: /dev/random probs in 2.4test(12-pre3)
-Date: 2 Dec 2000 23:19:39 -0800
+Date: 2 Dec 2000 23:20:33 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <90cs6b$6uv$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.3.96.1001202115753.27887T-100000@mandrakesoft.mandrakesoft.com> <Pine.LNX.4.21.0012022233440.11907-100000@server.serve.me.nl>
+Message-ID: <90cs81$6vv$1@cesium.transmeta.com>
+In-Reply-To: <3A295EA3.F0E47E9@linux.com> <200012022200.eB2M0Wu473578@saturn.cs.uml.edu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,22 +21,20 @@ Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.21.0012022233440.11907-100000@server.serve.me.nl>
-By author:    Igmar Palsenberg <maillist@chello.nl>
+Followup to:  <200012022200.eB2M0Wu473578@saturn.cs.uml.edu>
+By author:    "Albert D. Cahalan" <acahalan@cs.uml.edu>
 In newsgroup: linux.dev.kernel
 > 
-> Hmm.. Some came to mind :
+> Yeah, people write annoying little wrapper functions that
+> bounce right back into the kernel until the job gets done.
+> This is slow, it adds both source and object bloat, and it
+> is a source of extra bugs. What a lovely API, eh?
 > 
-> Making /dev/random block if the amount requirements aren't met makes sense
-> to me. If I request x bytes of random stuff, and get less, I probably
-> reread /dev/random. If it's entropy pool is exhausted it makes sense to be
-> to block.
+> The fix: write_write_write_damnit() and read_read_read_damnit(),
+> which go until they hit a fatal error or complete the job.
 > 
 
-Yes, it does, but it doesn't make any sense to block if there are data
-to be read.  If you need a larger read then you should advance your
-pointer and try again with the residual size, or use fread() which
-does this for you.
+RTFM(fwrite), RTFM(fread).
 
 	-hpa
 -- 

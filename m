@@ -1,77 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbUKIXjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbUKIXn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbUKIXjx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 18:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbUKIXjQ
+	id S261766AbUKIXn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 18:43:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbUKIXnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 18:39:16 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:40550 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261768AbUKIXgx (ORCPT
+	Tue, 9 Nov 2004 18:43:49 -0500
+Received: from fmr99.intel.com ([192.55.52.32]:13497 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261782AbUKIXmF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 18:36:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=SYxCJtnlm8Tc+heEV2JrfI8y4HeNIJ3PQs9DpIzUiES2zxynA2P4hq3PwrwTT9M7vuwvPpZMt3lqXBYt5oyInUWNrgWOizTyMsdHghlN4/riDn/u/H4TxbQko/+PkYs03tRmAPEgosxa70qPu6BujqGN17EH48v72YHxJ9ibOO8=
-Message-ID: <d120d5000411091536115ac91b@mail.gmail.com>
-Date: Tue, 9 Nov 2004 18:36:52 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: [RFC] [PATCH] driver core: allow userspace to unbind drivers from devices.
-Cc: Tejun Heo <tj@home-tj.org>, linux-kernel@vger.kernel.org,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <20041109223729.GB7416@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041109223729.GB7416@kroah.com>
+	Tue, 9 Nov 2004 18:42:05 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: /sys/devices/system/timer registered twice
+Date: Tue, 9 Nov 2004 15:41:51 -0800
+Message-ID: <88056F38E9E48644A0F562A38C64FB60034D6F9F@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: /sys/devices/system/timer registered twice
+Thread-Index: AcTGs3nVOCvCdJ+PSnOL7pipsK9MlAAARTXQ
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: <dtor_core@ameritech.net>, "Greg KH" <greg@kroah.com>
+Cc: "Kay Sievers" <kay.sievers@vrfy.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 09 Nov 2004 23:41:52.0758 (UTC) FILETIME=[B09B8960:01C4C6B5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+ 
 
-On Tue, 9 Nov 2004 14:37:29 -0800, Greg KH <greg@kroah.com> wrote:
-> Ok, everone's been back and forth about the whole bind/unbind stuff
-> lately, so let's just do this a step at a time.
-> 
-> How about the following patch.  It adds a "unbind" file to any device
-> that is bound to a driver.  Writing any value to that file disconnects
-> the device from the driver associated with it.
-> 
-> It's small, simple, and it works.
-> 
-> It also can cause bad things to happen if you aren't careful about what
-> type of device you are unbinding (some i2c chip devices don't really
-> unbind from the driver fully, but that's an i2c issue, and I'm working
-> on it.)
-> 
-> Also, unbinding a device from a driver can cause the children devices to
-> disappear, depending on the type of driver that is bound to the device.
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+>Dmitry Torokhov
+>Sent: Tuesday, November 09, 2004 3:19 PM
+>To: Greg KH
+>Cc: Kay Sievers; linux-kernel@vger.kernel.org
+>Subject: Re: /sys/devices/system/timer registered twice
+>
+>On Tue, 9 Nov 2004 14:52:45 -0800, Greg KH <greg@kroah.com> wrote:
+>> 
+>> 
+>> On Tue, Nov 09, 2004 at 08:30:43PM +0100, Kay Sievers wrote:
+>> > Hi,
+>> > I got this on a Centrino box with the latest bk:
+>> >
+>> >   [kay@pim linux.kay]$ ls -l /sys/devices/system/
+>> >   total 0
+>> >   drwxr-xr-x  7 root root 0 Nov  8 15:12 .
+>> >   drwxr-xr-x  5 root root 0 Nov  8 15:12 ..
+>> >   drwxr-xr-x  3 root root 0 Nov  8 15:12 cpu
+>> >   drwxr-xr-x  3 root root 0 Nov  8 15:12 i8259
+>> >   drwxr-xr-x  2 root root 0 Nov  8 15:12 ioapic
+>> >   drwxr-xr-x  3 root root 0 Nov  8 15:12 irqrouter
+>> >   ?---------  ? ?    ?    ?            ? timer
+>> >
+>> >
+>> > It is caused by registering two devices with the name "timer" from:
+>> >
+>> >   arch/i386/kernel/time.c
+>> >   arch/i386/kernel/timers/timer_pit.c
+>> >
+>> > If I change one of the names, I get two correct looking 
+>sysfs entries.
+>> >
+>> > Greg, shouldn't the driver core prevent the corruption of the first
+>> > device if another one tries to register with the same name?
+>> 
+>> Hm, this looks like an issue for Dmitry, as there shouldn't be too
+>> sysdev_class structures with the same name, right?
+>> 
+>
+>I agree, but I think you got the wrong man here ;) You need to talk to
+>Venkatesh.
+>
+>http://linux.bkbits.net:8080/linux-2.5/cset@41810e4aGZ0E5bn_hMb
+>4JgIY5u90zA?nav=index.html|src/.|src/arch|src/arch/i386|src/arc
+>h/i386/kernel|related/arch/i386/kernel/time.c
+>
 
-With the present implementation it is pretty much impossible to do
-since unbind grabs bus's rwsem. That means that any driver attempting
-to remove children will deadlock. Driver core is not aware of evry bus's
-topology issues that's why you need a bus method to do proper locking
-and children removal.
+Yes. It was me :(.
 
-> 
-> As an example, a usb-storage device, that has a scsi-host, and scsi
-> devices as children.  If you unbind the usb-storage device, the
-> scsi-host and devices are all removed from the system (as they should
-> be.)
-> 
+But, do we really need two system devices for timers?. I feel 
+we can call setup_pit_timer from time.c, whenever pit is being used.
+Otherwise, we may have more issues like the order in which these 
+two resumes are called and the like.
 
-What about unbinding USB hub driver? It will hang because you can not
-remove children on the same bus. In serio the core takes care of removing
-any children before unbinding the driver, but again, this is bus-specific
-implementation. The bus knows how to handle this.
-
-I also have issue with doing it in steps - it will cause every device have
-3 or 4 method-attributes - unbind, bind, rescan, [reconnect]. They all
-implement very similar action - control link between device and driver.
-I do not see the reason for splitting them apart and it will be a waste
-of resources to have all of them as well.
-
--- 
-Dmitry
+Thanks,
+Venki 

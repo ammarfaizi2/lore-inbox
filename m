@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263525AbTKFMCd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 07:02:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbTKFMCd
+	id S263528AbTKFMk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 07:40:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbTKFMk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 07:02:33 -0500
-Received: from AGrenoble-101-1-5-128.w80-11.abo.wanadoo.fr ([80.11.136.128]:18121
-	"EHLO awak") by vger.kernel.org with ESMTP id S263525AbTKFMCb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 07:02:31 -0500
-Subject: Re: BK2CVS problem
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200311061141.00595.andrew@walrond.org>
-References: <20031105204522.GA11431@work.bitmover.com>
-	 <20031105225134.GA14149@win.tue.nl> <20031106070721.GA18028@mcgroarty.net>
-	 <200311061141.00595.andrew@walrond.org>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1068120147.24256.32.camel@bip.parateam.prv>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 06 Nov 2003 13:02:27 +0100
-Content-Transfer-Encoding: 8BIT
+	Thu, 6 Nov 2003 07:40:57 -0500
+Received: from mail.gmx.net ([213.165.64.20]:54507 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263528AbTKFMk4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 07:40:56 -0500
+X-Authenticated: #4512188
+Message-ID: <3FAA41C3.9060601@gmx.de>
+Date: Thu, 06 Nov 2003 13:42:43 +0100
+From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031102
+X-Accept-Language: de-de, de, en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>, Nick Piggin <piggin@cyberone.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+References: <20031105095457.GG1477@suse.de> <3FA8CA87.2070201@gmx.de> <20031105100120.GH1477@suse.de> <3FA8CCF9.6070700@gmx.de> <20031105101207.GI1477@suse.de> <3FA8CEF1.1050200@gmx.de> <20031105102238.GJ1477@suse.de> <3FA8D17D.3060204@gmx.de> <20031105123923.GP1477@suse.de> <3FA945DD.8030105@gmx.de> <20031106091746.GA1379@suse.de>
+In-Reply-To: <20031106091746.GA1379@suse.de>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 06/11/2003 à 12:41, Andrew Walrond a écrit :
-> > > >
-> > > > That looks odd
-> > >
-> > > Not if you hope to get root.
-> >
+>>procs -----------memory---------- ---swap-- -----io---- --system-- 
+>>----cpu----
+>> r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+>>sy id wa
+>> 2  0      0 579472  13976 308572    0    0   425    85 1255   645  5 
+>>3 84  9
+>> 2  0      0 579456  13976 308572    0    0     0     0  725   521  5 
+>>5 91  0
+>> 1  0      0 579448  13976 308572    0    0     0     0  736   523  2 
+>>5 94  0
+>> 0  0      0 579448  13976 308572    0    0     0    25  745   439  2 
 > 
-> Somebody getting access to and inserting exploits directly into the linux 
-> source is not something we should take lightly. Whilst we understand the 
-> limits of the problem, the fact that it happened at all could get /.'d out of 
-> all proportion and be used to seriously undermine linux's reputation
+> 
+> [snip]
+> 
+> This looks good, from a system utilization point of view. I'm wondering
+> whether you have the iso image cached? There's no block io going on.
+> 
+> It does like more like a CPU scheduler problem at this point.
 
-Eh .. way too late :)
 
-http://slashdot.org/article.pl?sid=03/11/06/058249&mode=thread&tid=106&tid=185&threshold=4
+Ok, then it is Nick's turn, I guess. :-) Yeah most probably the iso is 
+cached, as it was not the first time I burnt the iso when I did the 
+vmstat, furthermore I have 1 GB of RAM... The other thing which doesn't 
+speack for i/o problems, I guess: Just the first seconds when I start 
+erasing the CD-RW the mouse hangs and heavily stutters, then it is OK 
+until actual burning of image begins, then the mouse slightly stutters. 
+All this was not with test9-mm1.
+
 

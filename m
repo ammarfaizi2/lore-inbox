@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129169AbRAZAg2>; Thu, 25 Jan 2001 19:36:28 -0500
+	id <S129172AbRAZAis>; Thu, 25 Jan 2001 19:38:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131721AbRAZAgT>; Thu, 25 Jan 2001 19:36:19 -0500
-Received: from cmn2.cmn.net ([206.168.145.10]:29814 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S129169AbRAZAgK>;
-	Thu, 25 Jan 2001 19:36:10 -0500
-Message-ID: <3A70C669.4090800@valinux.com>
-Date: Thu, 25 Jan 2001 17:35:53 -0700
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S131721AbRAZAii>; Thu, 25 Jan 2001 19:38:38 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:17292 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129172AbRAZAi3>;
+	Thu, 25 Jan 2001 19:38:29 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: x86 PAT errata
-In-Reply-To: <200101251745.SAA07063@harpo.it.uu.se> <94q9ag$9bs$1@cesium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14960.50897.494908.316057@pizda.ninka.net>
+Date: Thu, 25 Jan 2001 16:37:37 -0800 (PST)
+To: "James H. Cloos Jr." <cloos@jhcloos.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hotmail can't deal with ECN
+In-Reply-To: <m3itn3i5iu.fsf@austin.jhcloos.com>
+In-Reply-To: <14960.29127.172573.22453@pizda.ninka.net>
+	<200101251905.f0PJ5ZG216578@saturn.cs.uml.edu>
+	<14960.31423.938042.486045@pizda.ninka.net>
+	<20010125115214.D9992@draco.foogod.com>
+	<m3itn3i5iu.fsf@austin.jhcloos.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
 
-> Followup to:  <200101251745.SAA07063@harpo.it.uu.se>
-> By author:    Mikael Pettersson <mikpe@csd.uu.se>
-> In newsgroup: linux.dev.kernel
-> 
->> Before people get too exited about the x86 Page Attribute Table ...
->> Does Linux use mode B (CR4.PSE=1) or mode C (CR4.PAE=1) paging?
->> If so, known P6 errata must be taken into account.
->> In particular, Pentium III errata E27 and Pentium II errata A56
->> imply that only the low four PAT entries are working for 4KB
->> pages, if CR4.PSE or CR4.PAE is enabled.
->> 
-> 
-> 
-> All of the above.  Sounds like PAT should be declared broken on these
-> chips.
-> 
-> 	-hpa
+James H. Cloos Jr. writes:
+ > Are there any well know sites using ECN we can test against?
 
-We can do set PAT entry one to be write combined.  Currently it doesn't 
-look like anyone is using write through page mapping anywhere in the 
-kernel (Just PAGE_PWT set).  Am I correct in that assumption?
+Use non-passive FTP to my workstation and just do a directory listing
+which will make the FTP server create a TCP connection back to your
+machine for the transfer of the directory listing.
 
--Jeff
+My workstation is pizda.ninka.net, please everyone be nice.
 
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVA0U6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVA0VDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbVA0U6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 15:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVA0UzW
+	id S261201AbVA0VDD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 16:03:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVA0VCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 15:55:22 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:62948 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S261187AbVA0Uwi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 15:52:38 -0500
-Date: Thu, 27 Jan 2005 21:52:51 +0100
-From: martin.weissenborn@t-online.de (Martin =?iso-8859-1?Q?Wei=DFenborn?=)
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9: hd?: dma_intr: error=0xd7 --> ide: failed opcode was: unknown
-Message-ID: <20050127205251.GA1024@deep.skynet.priv>
+	Thu, 27 Jan 2005 16:02:00 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:59408 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261182AbVA0U45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 15:56:57 -0500
+Subject: Re: Patch 4/6  randomize the stack pointer
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, torvalds@osdl.org
+In-Reply-To: <20050127204217.GA2481@infradead.org>
+References: <20050127101117.GA9760@infradead.org>
+	 <20050127101322.GE9760@infradead.org> <20050127202335.GA2033@infradead.org>
+	 <20050127202720.GA12390@infradead.org>
+	 <20050127203206.GA2180@infradead.org>
+	 <Pine.LNX.4.61.0501271539550.13927@chimarrao.boston.redhat.com>
+	 <20050127204217.GA2481@infradead.org>
+Content-Type: text/plain
+Date: Thu, 27 Jan 2005 21:56:49 +0100
+Message-Id: <1106859409.5624.140.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux deep 2.6.9 
-X-ID: XH5FxsZX8eOoCA2HcZsibLewB-rXKHtUhIAvWb3tDz9gTvQakFj-YS
-X-TOI-MSGID: aa7cf7f6-8100-4d27-8637-b32fec850250
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-01-27 at 20:42 +0000, Christoph Hellwig wrote:
+> On Thu, Jan 27, 2005 at 03:40:48PM -0500, Rik van Riel wrote:
+> > On Thu, 27 Jan 2005, Christoph Hellwig wrote:
+> > 
+> > >>+unsigned long arch_align_stack(unsigned long sp)
+> > >>+{
+> > >>+	if (randomize_va_space)
+> > >>+		sp -= ((get_random_int() % 4096) << 4);
+> > >>+	return sp & ~0xf;
+> > >>+}
+> > >
+> > >this looks like it'd work nicely on all architectures.
+> > 
+> > I guess it should work for all architectures using ELF,
+> > not sure if it might break some of the more obscure
+> > architectures ...
+> 
+> So it works for all CONFIG_MMU architectures.  Arjan mentioned that
+> the minimum stack alignment might be different, so the 4 should
+> become a per-arch constant and we can make the code unconditional
+> for CONFIG_MMU?
 
-Hello,
-
-running stock 2.6.9 with IDE UDMA(33) disk drive, kernel wrote:
-
-
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-
-hda: dma_intr: error=0xd7 { DriveStatusError BadCRC UncorrectableError
-SectorIdNotFound TrackZeroNotFound AddrMarkNotFound }, CHS=1157/0/130,
-sector=30901687
-
-ide: failed opcode was: unknown
+and then there are architectures with an upward growing stack....
+and maybe the alignment will even vary per cpu type (runtime) for some
+architectures? Maybe arch maintainers can jump in quickly to say if a
+scheme with a per arch shift factor would be sufficient or if all kinds
+of horrors would creep up for them  (in which case a per arch function
+would be more suitable)
 
 
-two times in a second to syslogd, simultaneously seemingly all I/O
-freezed with hdd status LED lid. After approximately two minutes of
-waiting I rebooted with fsck correcting few i_blocks, i_sizes errors.
-No further incidents followed.
-
-
-The questions I were not able to find answers myself for are:
-
-- Could that error be related to bad RAM DIMMs?
-- Could it be a direct failure of my hdd?
-- Should I be aware of dying hardware?
-
-A CC'ed reply would be really great. ^.^
-
-Thanks in advance,
-Martin Weiﬂenborn 

@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbTIPSvI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 14:51:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbTIPSvI
+	id S262029AbTIPS6P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 14:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTIPS6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 14:51:08 -0400
-Received: from [207.175.35.50] ([207.175.35.50]:11862 "EHLO
-	alpha.eternal-systems.com") by vger.kernel.org with ESMTP
-	id S262008AbTIPSvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 14:51:06 -0400
-Message-ID: <3F675B68.8000109@eternal-systems.com>
-Date: Tue, 16 Sep 2003 11:50:16 -0700
-From: Vishwas Raman <vishwas@eternal-systems.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Incremental update of TCP Checksum
-References: <3F3C07E2.3000305@eternal-systems.com> <20030821134924.GJ7611@naboo>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Sep 2003 14:58:15 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:47620
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S262029AbTIPS6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 14:58:14 -0400
+Date: Tue, 16 Sep 2003 11:58:35 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Ian Hastie <ianh@iahastie.clara.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi oops was: 2.6.0-test4-mm3
+Message-ID: <20030916185835.GB13011@matchmail.com>
+Mail-Followup-To: Ian Hastie <ianh@iahastie.clara.net>,
+	linux-kernel@vger.kernel.org
+References: <20030910114346.025fdb59.akpm@osdl.org> <200309160134.28169.ianh@iahastie.local.net> <20030916092040.GB930@suse.de> <200309161926.04549.ianh@iahastie.local.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309161926.04549.ianh@iahastie.local.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, Sep 16, 2003 at 07:26:02PM +0100, Ian Hastie wrote:
+> On Tuesday 16 Sep 2003 10:20, Jens Axboe wrote:
+> > On Tue, Sep 16 2003, Ian Hastie wrote:
+> > > On Thursday 11 Sep 2003 22:52, Jens Axboe wrote:
+> > > > Surely the pro version supports open-by-device as well? And then it
+> > > > should work fine.
+> > >
+> > > It does.  However it also produces the same error message as cdrecord
+> > > when doing so, ie
+> > >
+> > > Warning: Open by 'devname' is unintentional and not supported.
+> > >
+> > > The implication being that it could go away or become broken at any time.
+> >
+> > I wouldn't read anything in to that if I were you. Joerg has some mis
+> > guided ideas about ATAPI addressing, but he would be a fool to remove
+> > open by devname at this point.
+> 
+> What about this version of the argument then?  There are a number if pieces of 
+> software, eg cdrdao, that don't support open by devname.  The kernel 
+> developers would be foolish to remove support for them at this time.  Works 
+> both ways doesn't it.
 
-I have a very simple question, which a lot of you would have solved. I 
-am intercepting a TCP packet, which I would like to change slightly.
+This is one example where the kernel is pushing userspace forward.  There's
+no need to add any drag to the momentum in this case.
 
-Let's say, I change the doff field of the tcp-header (for eg: increase 
-it by 1). I know it is wrong just to change the doff field without 
-increasing the packet length, but lets say I do it just as a test. Since 
-I changed a portion of the tcp header, I have to update the tcp checksum 
-too right!!! If so, what is the best way to do so, without having to 
-recalculate the entire tcp checksum (I know how to recalculate the 
-checksum from scratch).
-
-Can anyone out there tell me the algorithm to update the checksum 
-without having to recalculate it.
-
-I tried the following algorithm but it didnt work. The packet got 
-rejected as a packet with bad cksum.
-
-void changePacket(struct sk_buff* skb)
-{
-     struct tcphdr *tcpHdr = skb->h.th;
-     // Verifying the tcp checksum works here...
-     tcpHeader->doff += 1;
-     long cksum = (~(tcpHdr->check))&0xffff;
-     cksum += 1;
-     while (cksum >> 16)
-     {
-         cksum = (cksum & 0xffff) + (cksum >> 16);
-     }
-     tcpHeader->check = ~cksum;
-     // Verifying tcp checksum here fails with bad cksum
-}
-
-Any pointers/help in this regard will be highly appreciated...
-
-Thanks,
-
--Vishwas.
-
+Let's get those userspace apps converted over.  It will make many things
+simpler.  Including other user space apps.

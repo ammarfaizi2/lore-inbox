@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbULNNjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbULNNlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbULNNjh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 08:39:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbULNNjf
+	id S261508AbULNNlh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 08:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbULNNlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 08:39:35 -0500
-Received: from main.gmane.org ([80.91.229.2]:22439 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261511AbULNNjW (ORCPT
+	Tue, 14 Dec 2004 08:41:37 -0500
+Received: from imap.gmx.net ([213.165.64.20]:35544 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261508AbULNNlK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 08:39:22 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9 (with changes)
-Date: Tue, 14 Dec 2004 08:39:16 -0500
-Message-ID: <87mzwhov7f.fsf@coraid.com>
-References: <87k6rmuqu4.fsf@coraid.com> <20041213201941.GC3399@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-34-230-221.asm.bellsouth.net
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:x7hnV+5Pyyl9zaILCbIxNFnr8g4=
+	Tue, 14 Dec 2004 08:41:10 -0500
+Date: Tue, 14 Dec 2004 14:41:06 +0100 (MET)
+From: "Alexander Stohr" <Alexander.Stohr@gmx.de>
+To: gibbs@scsiguy.com
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="========GMXBoundary102201103031666"
+Subject: [PATCH] linux 2.6.x (current)  - fix compiler warning on aic7xxx/aic79xx_osm.c
+X-Priority: 3 (Normal)
+X-Authenticated: #15156664
+Message-ID: <10220.1103031666@www21.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
+This is a MIME encapsulated multipart message -
+please use a MIME-compliant e-mail program to open it.
 
-> On Mon, Dec 13 2004, Ed L Cashin wrote:
->>   * use mempool allocation in make_request_fn
->
-> It's not good enough, if cannot use a higher allocation priority
-> that GFP_NOIO here - basically guarantee that your allocation will
-> not block on further io. Currently you have the very same deadlock
-> as before, the mempool does not help you since you call into the
-> allocator and deadlock before ever blocking on the mempool.
+Dies ist eine mehrteilige Nachricht im MIME-Format -
+bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
 
-Do you mean that with GFP_KERNEL we may still deadlock on line 199 of
-the snippet below (from mm/mempool.c)?  That alloc pointer points to
-mempool_alloc_slab, which gets called with __GFP_WAIT turned off.  The
-kmem_cache allocator doesn't get called with the allocation priority
-we specify in our make_request_fn, so we won't block there.
+--========GMXBoundary102201103031666
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-   190	void * mempool_alloc(mempool_t *pool, int gfp_mask)
-   191	{
-   192		void *element;
-   193		unsigned long flags;
-   194		DEFINE_WAIT(wait);
-   195		int gfp_nowait = gfp_mask & ~(__GFP_WAIT | __GFP_IO);
-   196	
-   197		might_sleep_if(gfp_mask & __GFP_WAIT);
-   198	repeat_alloc:
-   199		element = pool->alloc(gfp_nowait|__GFP_NOWARN, pool->pool_data);
-   200		if (likely(element != NULL))
-   201			return element;
-   202	
+Hello,
 
-If we block later on the pool, that's because there are 16 objects in
-use, which means that mempool_free is going to get called 16 times as
-I/O completes, so I/O is throttled and forward progress is guaranteed.
-Otherwise, how does the mempool mechanism help in preventing deadlock?
+attached patch fixes two warnings of gcc 3.3.3 about unused symbols
+when compiling the aic79xxx sources as a monolitic component
+of the linux kernel instead of creating a module out of it.
 
-It looks like we can simply change GFP_KERNEL to GFP_IO in our
-make_request_fn, but I'd also like to understand why that's necessary
-when there's a dedicated pre-allocated pool per aoe device.
+the patch was done against todays bitkeeper snapshot 2.6.10-rc3-bk8
+and consists of a single, simple "#ifdef MODULE"/"#endif" pair around 
+those two reported static vars.
+
+-Alex.
 
 -- 
-  Ed L Cashin <ecashin@coraid.com>
+GMX ProMail mit bestem Virenschutz http://www.gmx.net/de/go/mail
++++ Empfehlung der Redaktion +++ Internet Professionell 10/04 +++
+--========GMXBoundary102201103031666
+Content-Type: application/octet-stream; name="linux-2.6.10-rc3-bk8-fix-aic-module.diff.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.10-rc3-bk8-fix-aic-module.diff.bz2"
+
+QlpoOTFBWSZTWdkId+0AAOBfgAIweP///3733k6/79/gQAGnNiVhoRNTJjSm1PKaNPI00JoGhoMI
+0NMI8oAlU9BPU1GU/U9UeRqABoAANAANAGQ5pkZDJghowmCNNGjEDTJkYAAglRTNEZGhoAAAAAAA
+AADgGkap236jkxwM4gaWbJrXCRUsIQicPhrJpqtNASKOPrwvviWTfoeSzVrMGHsFeBlhgqPY030U
+1dGRr2ITwhWfzxDAxAw4JS8CcT0xhe4uJ+gwhgJYT91RZIMh6D9iJSGmw8h4UJfg2DWMHFh4JK4u
+RCI6KMrrILChSUjAaFzkHblLqBUwg/2wriUUu3kRtBiJ4hjaUkxWB2AsXDaiO3npOUXsoCCkTfNh
+ZbwrcW3WYcxmxOhVBGTxu3dxZtpsc2erqG9vSItnNN5I8O7tApO90jKBAYCSKzCvQ5f8BcAqrF/I
+TrElAQiGiELwkFfeq4D9jXzuiUBaOuytZZWxGP953ZKasjQWTs5GInqKwwfc7Y0B+81V+EwSJJaU
+ZVnsLzGWArxCbRCKs21C4Fqtir7YKZUfVW4FmhkUNiRVCJBGiTjkugZDjcRobFEoyoAWEtwkFWnB
+jwQ06gbrB0VRK5ikKEbBG2y/mxVj7+wXWox0JPvPoSnRs+/mgnOIGSGFlAjqg2AtQ/i7kinChIbI
+Q79o
+
+--========GMXBoundary102201103031666--
 

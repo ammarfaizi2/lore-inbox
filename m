@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269104AbRHLMmJ>; Sun, 12 Aug 2001 08:42:09 -0400
+	id <S269155AbRHLNL4>; Sun, 12 Aug 2001 09:11:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269144AbRHLMl7>; Sun, 12 Aug 2001 08:41:59 -0400
-Received: from smtp-rt-7.wanadoo.fr ([193.252.19.161]:29940 "EHLO
-	embelia.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S269104AbRHLMlw>; Sun, 12 Aug 2001 08:41:52 -0400
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Renaud =?iso-8859-15?q?Gu=E9rin?= <rguerin@free.fr>
+	id <S269158AbRHLNLg>; Sun, 12 Aug 2001 09:11:36 -0400
+Received: from hera.omc.net ([212.98.78.18]:53000 "EHLO hera.omc.net")
+	by vger.kernel.org with ESMTP id <S269155AbRHLNLa>;
+	Sun, 12 Aug 2001 09:11:30 -0400
+From: "Max Schattauer" <smax@smaximum.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.8 breaks ATM
-Date: Sun, 12 Aug 2001 14:43:47 +0200
-X-Mailer: KMail [version 1.3]
+Date: Sun, 12 Aug 2001 15:11:32 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <E15Vuaq-0000BF-00@saturne.local>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: tun device: File descriptor in bad state(77)
+Message-ID: <3B769CA4.11035.A9DFE2@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following part of the 2.4.8 patch seems to be a typo (">>" looks more 
-logical than ">" if vci_bit is a bitfield), and broke ATM for me:
+Hi there!
 
---- v2.4.7/linux/net/atm/common.c       Tue Jul  3 17:08:22 2001
-+++ linux/net/atm/common.c      Sun Aug  5 13:12:41 2001
-@@ -210,7 +210,7 @@
- 
-        if ((vpi != ATM_VPI_UNSPEC && vpi != ATM_VPI_ANY &&
-            vpi >> dev->ci_range.vpi_bits) || (vci != ATM_VCI_UNSPEC &&
--           vci != ATM_VCI_ANY && vci >> dev->ci_range.vci_bits))
-+           vci != ATM_VCI_ANY && vci > dev->ci_range.vci_bits))
-                return -EINVAL;
-        if (vci > 0 && vci < ATM_NOT_RSV_VCI && 
-!capable(CAP_NET_BIND_SERVICE))
-                return -EPERM;
+I graded up from kernel 2.4.5 to 2.4.8 and now have trouble with 
+vtund 2.5b1 and tun 1.1. 
 
+vtund[532]: Session st_sm[217.230.44.100:1577] opened
+vtund[532]: Can't allocate tun device. File descriptor in bad state(77)
+vtund[532]: Session st_sm closed
 
-I simply reverted the patch and it works again.
+Also
 
+root:~# cat /dev/net/tun
+cat: /dev/net/tun: File descriptor in bad state
 
--- 
------------------------------------------------
-Renaud Guerin
-rguerin@free.fr - guerinre@utt.fr
-Génie des Systèmes d'Information et de Décision
-Université de Technologie de Troyes (France)
------------------------------------------------
+Tried to recompile both packages and created a new device but 
+without effect.
+
+Best regards,
+
+Max

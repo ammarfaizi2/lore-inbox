@@ -1,44 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264804AbSJPOLG>; Wed, 16 Oct 2002 10:11:06 -0400
+	id <S264972AbSJPOLr>; Wed, 16 Oct 2002 10:11:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264972AbSJPOLG>; Wed, 16 Oct 2002 10:11:06 -0400
-Received: from mons.uio.no ([129.240.130.14]:37841 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S264804AbSJPOLF>;
-	Wed, 16 Oct 2002 10:11:05 -0400
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, peter@chubb.wattle.id.au
-Subject: Re: statfs64 missing
-References: <20021016140658.GA8461@averell>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 16 Oct 2002 16:16:33 +0200
-In-Reply-To: <20021016140658.GA8461@averell>
-Message-ID: <shs7kgipiym.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S264978AbSJPOLr>; Wed, 16 Oct 2002 10:11:47 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:31878 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264972AbSJPOLo>; Wed, 16 Oct 2002 10:11:44 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 16 Oct 2002 07:25:47 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: John Myers <jgmyers@netscape.com>
+cc: Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] async poll for 2.5
+In-Reply-To: <3DACAF90.7010803@netscape.com>
+Message-ID: <Pine.LNX.4.44.0210160717190.1548-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andi Kleen <ak@muc.de> writes:
+On Tue, 15 Oct 2002, John Myers wrote:
 
-     > This problem already exists on 2.4. You can actually access NFS
-     > servers which have more than 2TB of disk space. NFS uses the
-     > local write size as block size. When you are lucky then
-     > 0xfffffffff*wsize is bigger than what your NFS server
-     > reports. If not you get wrong results.  The only workaround
-     > currently is to increase wsize, but that has its limits too.
+> Davide Libenzi wrote:
+>
+> >Just a simple question : Have you ever used RT-Signal API ? Is it the API
+> >"deficent" [...] ?
+> >
+> No.  Yes.  The (fixed) size of the signal queue is far too small.  One
+> either gets catastrophic failure on overload or one has to pay to do
+> redundant accounting of interest.
+>
+> >Do you know the
+> >difference between level triggered ( poll() - select() - /dev/poll ) and
+> >edge triggered ( /dev/epoll - RT-Signal ) interfaces ?
+> >
+> >
+> Yes.  The registration of interest can itself be considered an edge
+> condition.
 
-     > Fixing it properly probably requires statfs64(). Any reason why
-     > this was not included in the sector_t patchkit ?
+I knew you were going there, aka you do not understand how edge triggered
+API have to be used. Even if the API will drop an event at registration
+time you still cannot use this code scheme :
 
-If fixing NFS is the main concern, and we're adding a new syscall,
-could someone also add in an equivalent of the Solaris
-etc. 'f_frsize'.
+int my_io(...) {
 
-Reporting the underlying local filessystem block size can be of use
-for some applications. On NFS this value usually differs from the
-'optimal transfer block size' aka. f_bsize.
+	if (event_wait(...))
+		do_io(...);
 
-Cheers,
-  Trond
+}
+
+You CAN NOT. And look, it is not an API problem, it's your problem that
+you want to use the API like a poll()-like API. The code scheme for an
+edge triggered API is :
+
+int my_io(...) {
+
+	while (do_io(...) == EAGAIN)
+		event_wait(...);
+
+}
+
+This because you have to consume the I/O space to push the level to 0 so
+that a transaction 0->1 can happen and you can happily receive your
+events.
+
+
+
+- Davide
+
+

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261296AbSJYHWJ>; Fri, 25 Oct 2002 03:22:09 -0400
+	id <S261297AbSJYH12>; Fri, 25 Oct 2002 03:27:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261297AbSJYHWJ>; Fri, 25 Oct 2002 03:22:09 -0400
-Received: from dp.samba.org ([66.70.73.150]:29575 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261296AbSJYHWI>;
-	Fri, 25 Oct 2002 03:22:08 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: cmm@us.ibm.com
-Subject: Re: [PATCH]updated ipc lock patch 
-Cc: Andrew Morton <akpm@digeo.com>, hugh@veritas.com, manfred@colorfullife.com,
-       linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
-       lse-tech@lists.sourceforge.net
-In-reply-to: Your message of "Thu, 24 Oct 2002 22:53:54 MST."
-             <3DB8DC72.6A08C74F@us.ibm.com> 
-Date: Fri, 25 Oct 2002 17:27:37 +1000
-Message-Id: <20021025072822.8CD812C09E@lists.samba.org>
+	id <S261298AbSJYH12>; Fri, 25 Oct 2002 03:27:28 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:12003 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261297AbSJYH11>; Fri, 25 Oct 2002 03:27:27 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Josh Myer <jbm@joshisanerd.com>, linux-usb-devel@lists.sourceforge.net,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] KB Gear JamStudio USB Tablet
+Date: Fri, 25 Oct 2002 17:25:04 +1000
+User-Agent: KMail/1.4.5
+References: <Pine.LNX.4.44.0210250200290.25878-200000@blessed>
+In-Reply-To: <Pine.LNX.4.44.0210250200290.25878-200000@blessed>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200210251725.04957.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DB8DC72.6A08C74F@us.ibm.com> you write:
-> > This is unacceptable crap, sorry.  You *must* allocate the resources
-> > required to free the object *at the time you allocate the object*,
-> > since freeing must not fail.
-> > 
-> > > Even better: is it possible to embed the rcu_ipc_free inside the
-> > > object-to-be-freed?  Perhaps not?
-> > 
-> > Yes, this must be done.
-> > 
-> I thought about embed rcu_ipc_free inside the ipc_ids structure before. 
-> But there could be a problem if grow_ary() is called again before the
-> old array associated with the previous grow_ary() has not scheduled to
-> be freed yet.  I see a need to do that now, as you made very good point.
-> I will make the changes tomorrow.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-You don't need to allocate it in the object, but you *do* need to fail
-grow_ary() if you can't allocate it.
+On Fri, 25 Oct 2002 17:04, Josh Myer wrote:
+> Comments highly encouraged, thanks. I'd like to get this driver cleaned up
+> a little before submitting, but I'm not quite certain where to start.
+My initial thought is you are missing an input_sync() call in your irq() 
+function.
+When you go to 2.5, you also need the new input_init_dev() call.
+Maybe a physical path? [ might need 2.5 for that too ]
 
-I had the same dilemma when I tried to write a generic "kfree_rcu(void
-*)" last year: you simply can't do it 8(
+> The code is based heavily on the wacom driver, and a big "You Rule!" to
+> Pavel and anyone else involved with the Input layer. It may be a little
+Vojtech is the man.
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> convoluted, and slightly non-intuitive, but it's a hell of a lot better
+> than the USB HID spec!
+Anything looks good if you compare it to a low enough standard :)
+
+- -- 
+http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9uPHQW6pHgIdAuOMRAhSxAJ94t+o/pc+XulH6ExISIpqN0lW+rQCgh8l1
+kSFzdywZDVJpBN5+EcBUvPw=
+=NuuF
+-----END PGP SIGNATURE-----
+

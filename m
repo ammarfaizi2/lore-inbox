@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269270AbUISQq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269273AbUISQuH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269270AbUISQq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 12:46:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269273AbUISQq2
+	id S269273AbUISQuH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 12:50:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269281AbUISQuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 12:46:28 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:14669 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269270AbUISQqW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 12:46:22 -0400
-Message-ID: <9e47339104091909465c9a483f@mail.gmail.com>
-Date: Sun, 19 Sep 2004 12:46:13 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Keith Packard <keithp@keithp.com>
-Subject: Re: Design for setting video modes, ownership of sysfs attributes
-Cc: dri-devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1095569137.6580.23.camel@gaston>
+	Sun, 19 Sep 2004 12:50:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2741 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269273AbUISQuD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 12:50:03 -0400
+Date: Sun, 19 Sep 2004 17:50:00 +0100
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: Jonathan Lundell <linux@lundell-bros.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hotplug e1000 failed after 32 times
+Message-ID: <20040919165000.GI1191@gallifrey>
+References: <1095396793.10407.9.camel@sli10-desk.sh.intel.com> <20040916221406.1f3764e0.akpm@osdl.org> <1095411933.10407.29.camel@sli10-desk.sh.intel.com> <20040917161920.16d18333.akpm@osdl.org> <414B7470.4000703@pobox.com> <p06110429bd735d9afd46@[10.2.4.30]>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e47339104091811431fb44254@mail.gmail.com>
-	 <1095569137.6580.23.camel@gaston>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p06110429bd735d9afd46@[10.2.4.30]>
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.6.5 (i686)
+X-Uptime: 17:47:44 up 3 days,  4:45,  1 user,  load average: 0.00, 0.00, 0.00
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Sep 2004 14:45:37 +1000, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> One issue here... When we discussed all of this with Keith, we wanted
-> a mecanism where the user can set the mode without "owning" the device.
+* Jonathan Lundell (linux@lundell-bros.com) wrote:
 
-The owning part is for multiuser systems. If I have four users logged
-into the same system I have to assign them ownership of their video
-devices so that they can't mess with each other.  I want to avoid
-needing root priv to change the monitor mode.
+> Out of curiosity, though, isn't there a residual related problem, in 
+> that a reinserted card gets a new eth# as well? Not insurmountable, I 
+> suppose, but a bitch to automate.
 
-> Typically, with X: We don't want X itself to have to be the one setting
-> the mode, but rather set the mode and have X be notified properly before
-> and after it happens so it can "catch up".
+I do wonder why the eth# still gets exported to users - its a royal
+pain when you have multiple cards.  I guess naming by mac address
+isn't ideal either when you want to hot swap one!  Naming by
+pci slot would be kind of nice.
 
-This is going to require some more thought. Mode setting needs two
-things, a description of the mode timings and a location of the scan
-out buffer.  With multiple heads you can't just assume that the buffer
-starts at zero.  There also the problem of the buffer increasing in
-size and needing to be moved since it won't fit where it is.
+(I sometimes wish ether cards would have a good old fashioned dil
+switch on so you could set an ID).
 
-Keith, how should this work for X? We have to make sure all DRI users
-of the buffer are halted, get a new location for the buffer, set the
-mode, free the old buffer, notify all of the DRI clients that their
-target has been wiped and has a new size.
-
-I was wanting to switch mode setting into an atomic operation where
-you passed in both the mode timings and buffer location.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Dave
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

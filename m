@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310241AbSDUEiM>; Sun, 21 Apr 2002 00:38:12 -0400
+	id <S310190AbSDUEiO>; Sun, 21 Apr 2002 00:38:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310224AbSDUEiL>; Sun, 21 Apr 2002 00:38:11 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:29385 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S310190AbSDUEiK>;
-	Sun, 21 Apr 2002 00:38:10 -0400
-Date: Sat, 20 Apr 2002 21:29:14 -0700 (PDT)
-Message-Id: <20020420.212914.69690360.davem@redhat.com>
-To: spyro@armlinux.org
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+	id <S310224AbSDUEiN>; Sun, 21 Apr 2002 00:38:13 -0400
+Received: from out020pub.verizon.net ([206.46.170.176]:50430 "EHLO
+	out020.verizon.net") by vger.kernel.org with ESMTP
+	id <S310190AbSDUEiM>; Sun, 21 Apr 2002 00:38:12 -0400
+Date: Sun, 21 Apr 2002 00:40:11 -0400
+From: Skip Ford <skip.ford@verizon.net>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020421054253.4803852a.spyro@armlinux.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20020421044616.5beae559.spyro@armlinux.org> <Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+Message-Id: <20020421043811.BHIC5495.out020.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ian Molton <spyro@armlinux.org>
-   Date: Sun, 21 Apr 2002 05:42:53 +0100
-   
-   what I /do/ appreciate is that by including directions to proprietary tools
-   in the docs, we are heading down a greased incline, so to speak.
+Alexander Viro wrote:
+> 
+> As long as "I've got a bunch of patches affecting <area>. Seeing that you've
+> merged stuff touching <area> since the last -pre, resync point would be
+> a Good Thing(tm)" works I couldn't care less about BK vs. diff+mail.  So
+> far it seems to be working fine.
 
-And Linus is telling everyone it's his tree and if you don't like it
-distribute your own tree without the doc file or implement an free
-source management system that he can use.
+That's only 1 aspect.  The frustrating part is bug reports mailed to the
+list getting a response of "oh, that's fixed in the latest bk tree."
+
+That's happened a dozen times in the last week...no wonder non-bk users
+feel out of the loop.  I've been staring at the code for a lot of years
+and it's finally just starting to make sense to me, now by the time I see
+it the core hackers have moved on to something else.
+
+Daily snapshots would be great.
+
+-- 
+Skip

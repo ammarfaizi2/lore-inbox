@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264279AbUEDLgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264312AbUEDLnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264279AbUEDLgp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 07:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264313AbUEDLgo
+	id S264312AbUEDLnS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 07:43:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264313AbUEDLnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 07:36:44 -0400
-Received: from os.inf.tu-dresden.de ([141.76.48.99]:14052 "EHLO
-	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id S264279AbUEDLgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 07:36:43 -0400
-Date: Tue, 4 May 2004 13:36:41 +0200
-From: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+	Tue, 4 May 2004 07:43:17 -0400
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:21265 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S264312AbUEDLnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 07:43:14 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] get_thread_area macros
-Message-ID: <20040504113641.GI2801@os.inf.tu-dresden.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+Subject: Re: 4x card in 8x AGP KT600 = locked solid (AGP bug?)
+Reply-To: Ian McConnell <ian@emit.demon.co.uk>
+References: <871xm1tz1f.fsf@emit.demon.co.uk>
+From: Ian McConnell <ian@emit.demon.co.uk>
+Date: Tue, 04 May 2004 12:43:12 +0100
+In-Reply-To: <871xm1tz1f.fsf@emit.demon.co.uk> (Ian McConnell's message of
+ "Mon, 03 May 2004 14:34:20 +0100")
+Message-ID: <874qqw8lkf.fsf@emit.demon.co.uk>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Common Lisp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ian McConnell <kernel@emit.demon.co.uk> writes:
 
-one of the macros for get_thread_area seems to extract the wrong bit.
-The "32bit" field is in bit 22, not 23 (as can be seen in desc.h).
+> So two difference implementations of DRI hanging makes me suspect that there
+> is a bug with AGP (Also the same video card, kernel and X worked well with
+> an older 4xAGP KT133 motherboard)
 
-diff -urN linux-2.6.6-rc3/arch/i386/kernel/process.c linux-2.6.6-rc3-a/arch/i386/kernel/process.c
---- linux-2.6.6-rc3/arch/i386/kernel/process.c	2004-05-03 22:28:42.000000000 +0200
-+++ linux-2.6.6-rc3-a/arch/i386/kernel/process.c	2004-05-03 22:32:19.000000000 +0200
-@@ -740,7 +740,7 @@
- 	((desc)->a & 0x0ffff) | \
- 	 ((desc)->b & 0xf0000) )
- 	
--#define GET_32BIT(desc)		(((desc)->b >> 23) & 1)
-+#define GET_32BIT(desc)		(((desc)->b >> 22) & 1)
- #define GET_CONTENTS(desc)	(((desc)->b >> 10) & 3)
- #define GET_WRITABLE(desc)	(((desc)->b >>  9) & 1)
- #define GET_LIMIT_PAGES(desc)	(((desc)->b >> 23) & 1)
-diff -urN linux-2.6.6-rc3/arch/i386/kernel/ptrace.c linux-2.6.6-rc3-a/arch/i386/kernel/ptrace.c
---- linux-2.6.6-rc3/arch/i386/kernel/ptrace.c	2004-05-03 22:28:42.000000000 +0200
-+++ linux-2.6.6-rc3-a/arch/i386/kernel/ptrace.c	2004-05-03 22:33:43.000000000 +0200
-@@ -174,7 +174,7 @@
- 	((desc)->a & 0x0ffff) | \
- 	 ((desc)->b & 0xf0000) )
- 
--#define GET_32BIT(desc)		(((desc)->b >> 23) & 1)
-+#define GET_32BIT(desc)		(((desc)->b >> 22) & 1)
- #define GET_CONTENTS(desc)	(((desc)->b >> 10) & 3)
- #define GET_WRITABLE(desc)	(((desc)->b >>  9) & 1)
- #define GET_LIMIT_PAGES(desc)	(((desc)->b >> 23) & 1)
+Looks like I was wrong about it being an AGP bug. I found testgart and 
+everything works fine:
 
-Furthermore I'd suggest to put these macros into desc.h, mainly to avoid
-the duplication in the two files.
+# testgart 
+agpgart: Found an AGP 3.5 compliant device at 0000:00:00.0.
+agpgart: Device is in legacy mode, falling back to 2.x
+agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
+agpgart: Putting AGP V2 device at 0000:01:00.0 into 4x mode
+version: 0.100
+bridge id: 0x31891106
+agp_mode: 0x1f000a17
+aper_base: 0xe8000000
+aper_size: 64
+pg_total: 112384
+pg_system: 112384
+pg_used: 0
+entry.key : 0
+entry.key : 1
+Allocated 8 megs of GART memory
+MemoryBenchmark: 1173 mb/s
+MemoryBenchmark: 1766 mb/s
+MemoryBenchmark: 1772 mb/s
+Average speed: 1570 mb/s
+Testing data integrity (1st pass): passed on first pass.
+Testing data integrity (2nd pass): passed on second pass.
 
-
-
-Adam
--- 
-Adam                 adam@os.inf.tu-dresden.de
-  Lackorzynski         http://os.inf.tu-dresden.de/~adam/

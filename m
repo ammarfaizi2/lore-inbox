@@ -1,77 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276836AbRJNS6D>; Sun, 14 Oct 2001 14:58:03 -0400
+	id <S276935AbRJNTMr>; Sun, 14 Oct 2001 15:12:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276877AbRJNS5x>; Sun, 14 Oct 2001 14:57:53 -0400
-Received: from [212.162.12.2] ([212.162.12.2]:38824 "EHLO d101.x-mailer.de")
-	by vger.kernel.org with ESMTP id <S276836AbRJNS5l>;
-	Sun, 14 Oct 2001 14:57:41 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Gietl <a.gietl@e-admin.de>
-To: linux-kernel@vger.kernel.org
-Subject: fs mounted twice, writing to wrong partition with 3ware escalade ide-raid
-Date: Sun, 14 Oct 2001 20:57:59 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: "=?iso-8859-1?q?Kr=E4mer?=" <kraemer@crasu.de>,
-        "=?iso-8859-1?q?K=FChne?=" <kuehne@power-netz.de>
+	id <S276990AbRJNTMg>; Sun, 14 Oct 2001 15:12:36 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:56839 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S276935AbRJNTMR>;
+	Sun, 14 Oct 2001 15:12:17 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200110141912.XAA06706@ms2.inr.ac.ru>
+Subject: Re: TCP acking too fast
+To: Mika.Liljeberg@welho.com (Mika Liljeberg)
+Date: Sun, 14 Oct 2001 23:12:31 +0400 (MSK DST)
+Cc: ak@muc.de, davem@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3BC9DE09.747F45B2@welho.com> from "Mika Liljeberg" at Oct 14, 1 09:48:41 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15sqSI-0008P9-00@d101.x-mailer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello!
 
-i've got a problem on our new SMP machine with IDE-Raid and kernel 2.4.9 
-that's giving me a terrible headache.
+> > But sending ACK on buffer drain at least for short
+> > packets is real demand, which cannot be relaxed.
+> 
+> Why? This one has me stumped.
 
-Our configuration:
+To remove sick delays with nagling transfers (1) and to remove
+deadlocks due to starvation on rcvbuf (2) at receiver and on sndbuf
+at sender (3).
 
-2 WD drives in the raid1 array
-1 Maxtor drive on normal ide
+Actually, (2) is solved nowadays with compressing queue. (3) can be solved
+acking each other segment. But (1) remains. The solution used in 2.2,
+when delack timeout was reduced to short value on short packets with PSH
+set worked with probability of 50% on very slow links i.e. in the case
+when wrong delay is not important at all and not covering cases
+where absence of long gaps is really important.
 
-mystery #1:
+Actually, any alternative idea how to solve this could be very useful.
 
-I can mount a ext2 filesystem twice without any errors. The two filesystems 
-contain different data and changes to the second mount don't affect the 
-first mount. Strange!
-
-Here is a snippet from console with /dev/sda5 mounted twice:
-
-/dev/sda5 / ext2 rw,usrquota,grpquota 0 0
-none /proc proc rw 0 0
-/dev/sda7 /opt/root ext2 rw,usrquota,grpquota 0 0
-/dev/sda6 /var ext2 rw,usrquota,grpquota 0 0
-/dev/sda1 /boot ext2 rw 0 0
-none /dev/pts devpts rw,gid=5,mode=620 0 0
-/dev/sda5 /mnt ext2 rw 0 0
-
-a strace on the mount command shows that the syscall mount is executed w/o 
-error.
-
-mount("/dev/sda5", "/mnt/", "ext2", 0xc0ed0000, 0) = 0  
-
-As far as i know it should return EBUSY on a fs that is already mounted.
-
-Second mystery:
-
-the mounted /dev/hda3 contains the same data as /dev/sda5 and changes to one 
-of them affect both partitions.
-
-I'm not sure wether this is a kernel issue or a escalade firmware issue but 
-perhaps one of you had that problem too and knows a solution.
-
-Thank you
-
-andreas
-
-
-
-
--- 
-e-admin internet gmbh
-Andreas Gietl
-Roter-Brach-Weg 124a
-tel +49 941 3810884
-fax +49 941 3810891
-mobil +49 171 6070008
+Alexey

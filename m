@@ -1,68 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263488AbTDMMm5 (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 08:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTDMMm5 (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 08:42:57 -0400
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:40355 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S263488AbTDMMm4 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 08:42:56 -0400
-Message-ID: <20030413125438.71422.qmail@mail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Nirmala S" <nmala@mail.com>
-To: linux-kernel@vger.kernel.org
-Date: Sun, 13 Apr 2003 07:54:37 -0500
-Subject: Clustering of Request in block layer
-X-Originating-Ip: 203.124.128.117
-X-Originating-Server: ws1-11.us4.outblaze.com
+	id S263494AbTDMMzu (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 08:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263495AbTDMMzu (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 08:55:50 -0400
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:546 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S263494AbTDMMzq (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 08:55:46 -0400
+Date: Sun, 13 Apr 2003 15:04:48 +0200
+Message-Id: <200304131304.h3DD4mEZ001257@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] Duplicate PROC_CONSOLE()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Duplicate PROC_CONSOLE():
+  - Remove local copy of PROC_CONSOLE() in drivers/video/modedb.c. A global one
+    is already provided by drivers/video/fbcon.c
+  - Add missing multiple include protectors to <linux/console_struct.h>
 
-As per my understanding the block layer clusters requests for all
-block drivers.
-Clustering -
-Creating a linked list of buffer_heads using b_reqnext.
+--- linux-2.4.x/drivers/video/modedb.c	Sun Dec 23 11:25:09 2001
++++ linux-m68k-2.4.x/drivers/video/modedb.c	Wed Apr  9 13:47:05 2003
+@@ -16,6 +16,7 @@
+ #include <linux/fb.h>
+ #include <linux/console_struct.h>
+ #include <linux/sched.h>
++#include <video/fbcon.h>
+ 
+ 
+ #undef DEBUG
+@@ -255,28 +256,6 @@
+ 		return val;
+ 	}
+     }
+-}
+-
+-static int PROC_CONSOLE(const struct fb_info *info)
+-{
+-	int fgc;
+-	
+-	if (info->display_fg != NULL)
+-		fgc = info->display_fg->vc_num;
+-	else
+-		return -1;
+-		
+-	if (!current->tty)
+-		return fgc;
+-
+-	if (current->tty->driver.type != TTY_DRIVER_TYPE_CONSOLE)
+-		/* XXX Should report error here? */
+-		return fgc;
+-
+-	if (MINOR(current->tty->device) < 1)
+-		return fgc;
+-
+-	return MINOR(current->tty->device) - 1;
+ }
+ 
+ 
+--- linux-2.4.x/include/linux/console_struct.h	Thu Sep 20 10:51:46 2001
++++ linux-m68k-2.4.x/include/linux/console_struct.h	Wed Apr  9 13:54:58 2003
+@@ -9,6 +9,9 @@
+  * to achieve effects such as fast scrolling by changing the origin.
+  */
+ 
++#ifndef _LINUX_CONSOLE_STRUCT_H_
++#define _LINUX_CONSOLE_STRUCT_H_
++
+ #define NPAR 16
+ 
+ struct vc_data {
+@@ -107,3 +110,5 @@
+ #define CUR_DEFAULT CUR_UNDERLINE
+ 
+ #define CON_IS_VISIBLE(conp) (*conp->vc_display_fg == conp)
++
++#endif /* _LINUX_CONSOLE_STRUCT_H_ */
 
-But, when I run my block driver and try to view the number of
-clustered requests in my Request function, I do not find any
-clustering done.
+Gr{oetje,eeting}s,
 
-void own_request(request_queue_t *q)
-{
-    struct buffer_head *tmp;
-    int count;
-    while(1) {
-        INIT_REQUEST;
-        printk("<1>request %p: cmd %i sec %li (nr. %li)\n", CURRENT,
-               CURRENT->cmd,
-               CURRENT->sector,
-               CURRENT->current_nr_sectors);
-       count=0;
-       for (tmp=bh; tmp; tmp=tmp->b_reqnext)
-            count ++;
-       printk("Count = %d\n", count);
-        end_request(1); /* success */
-    }
-}
+						Geert
 
-The above always shows 'Count = 1'. dd if=/dev/mydevice of=/dev/null.
-Does this mean that no clustering is done ??
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Just read a document a "http://www.usenix.org/publications/library/proceedings/usenix2000/freenix/full_papers/gopinath/gopinath_html/node14.html" 
-which says "This clustering is performed only for the drivers compiled in the kernel and not for loadable modules."
-
-Is this the reason ??
-
-Regards,
-Mala
-
--- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

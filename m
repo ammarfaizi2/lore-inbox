@@ -1,72 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267598AbTACRiJ>; Fri, 3 Jan 2003 12:38:09 -0500
+	id <S267595AbTACRey>; Fri, 3 Jan 2003 12:34:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267599AbTACRiJ>; Fri, 3 Jan 2003 12:38:09 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:17927
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267598AbTACRiG>; Fri, 3 Jan 2003 12:38:06 -0500
-Date: Fri, 3 Jan 2003 09:45:41 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Marco Monteiro <masm@acm.org>
-cc: Andrew Walrond <andrew@walrond.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <1041610571.1156.86.camel@fly>
-Message-ID: <Pine.LNX.4.10.10301030933300.421-100000@master.linux-ide.org>
+	id <S267597AbTACRey>; Fri, 3 Jan 2003 12:34:54 -0500
+Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:26716 "EHLO
+	mailout5-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S267595AbTACRew> convert rfc822-to-8bit; Fri, 3 Jan 2003 12:34:52 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Stephen Evanchik <evanchsa@clarkson.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5.54] hermes: serialization fixes
+Date: Fri, 3 Jan 2003 12:39:29 -0500
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200301031239.29226.evanchsa@clarkson.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Jan 2003, Marco Monteiro wrote:
+The hermes MAC controller module wasn't serializing BAP seek calls. This 
+caused an eventual Rx/Tx failure which equates tens of thousands of errors on 
+the wireless interface. A simple spinlock is used to keep things in line.
 
-> On Fri, 2003-01-03 at 12:51, Andrew Walrond wrote:
-> > Yes but....
-> > 
-> > I develop computer games. The last one I did took a team of 35 people 2 
-> > years and cost $X million to develop.
-> > 
-> > Please explain how I could do this as free software, while still feeding 
-> > my people? Am I a bad person charging for my work?
-> 
-> No, not you. Bad is the people you work for: the code you write is not
-> yours.
+Any comments are appreciated, I don't believe this is the best solution, but 
+it is working well. Patches can be downloaded from here:
 
-So since I work for myself and own my own companies, thus I own the code
-and I own the decision of what is published, I am the bad person?
+http://www.clarkson.edu/~evanchsa/software/kernel/patches/hermes.patch-2.4.20
+http://www.clarkson.edu/~evanchsa/software/kernel/patches/hermes.patch-2.5.54
 
-Thanks!  Look how much I have given away, gee it is nothing.
-Only 80% or more of all IDE chipsets, I personally wrote.
-I am not allowed to make money to feed my family, pay from the cost of
-membership to standards, pay for the cost of joining working groups for
-new technology, pay for the cost of travel to the fore mentioned.
 
-Yet you bitch and whine and hold your hand out for me to do it for free?
 
-Well everything has a cost.
-
-You know I still have plans to open source a version of a current product
-after I make some money and recover the 18 months of development, hardware
-cost, travel, trade show, future membership dues.  Why, because it is the
-right thing to do, and it will benefit me in the long run, and the open
-source.  It also will raise the bar for what people expect.
-
-So I am bad, gee thanks.
-
-Remember that the next time you buy a chipset that is not supported.
-I will look for a check in the mail from you to pay for the support
-services.
-
-> You still don't understand the diference between the 'free' and 'Free
-> for Freedom'.
-
-I understand that "FREE" does not pay the mortgage, pay for food, or pay
-employees, or anything else.  So you think GPL is welfare for the
-underclass, nice.
-
-Regards,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+--- linux-2.5.54/drivers/net/wireless/hermes.h	2003-01-01 22:21:02.000000000 
+-0500
++++ linux-2.5.54-devel/drivers/net/wireless/hermes.h	2003-01-03 
+11:38:25.000000000 -0500
+@@ -288,6 +288,9 @@
+ 
+ 	u16 inten; /* Which interrupts should be enabled? */
+ 
++	/* Lock to avoid tripping over ourselves */
++	spinlock_t baplock;
++
+ #ifdef HERMES_DEBUG_BUFFER
+ 	struct hermes_debug_entry dbuf[HERMES_DEBUG_BUFSIZE];
+ 	unsigned long dbufp;
+--- linux-2.5.54/drivers/net/wireless/hermes.c	2003-01-01 22:21:13.000000000 
+-0500
++++ linux-2.5.54-devel/drivers/net/wireless/hermes.c	2003-01-03 
+11:41:51.000000000 -0500
+@@ -407,11 +407,18 @@
+ {
+ 	int dreg = bap ? HERMES_DATA1 : HERMES_DATA0;
+ 	int err = 0;
++	unsigned long flags;
+ 
+ 	if ( (len < 0) || (len % 2) )
+ 		return -EINVAL;
+ 
++	/* Without this, system instability occurs */
++	spin_lock_irqsave((&hw->baplock), flags);
++
+ 	err = hermes_bap_seek(hw, bap, id, offset);
++
++	spin_unlock_irqrestore((&hw->baplock), flags);
++
+ 	if (err)
+ 		goto out;
+ 
+@@ -433,11 +440,17 @@
+ {
+ 	int dreg = bap ? HERMES_DATA1 : HERMES_DATA0;
+ 	int err = 0;
++	unsigned long flags;
+ 
+ 	if ( (len < 0) || (len % 2) )
+ 		return -EINVAL;
+ 
++	spin_lock_irqsave((&hw->baplock), flags);
++
+ 	err = hermes_bap_seek(hw, bap, id, offset);
++
++	spin_unlock_irqrestore((&hw->baplock), flags);
++
+ 	if (err)
+ 		goto out;
+ 	
+@@ -463,6 +476,7 @@
+ 	int dreg = bap ? HERMES_DATA1 : HERMES_DATA0;
+ 	u16 rlength, rtype;
+ 	int nwords;
++	unsigned long flags;
+ 
+ 	if ( (bufsize < 0) || (bufsize % 2) )
+ 		return -EINVAL;
+@@ -471,7 +485,12 @@
+ 	if (err)
+ 		goto out;
+ 
++	spin_lock_irqsave((&hw->baplock), flags);
++
+ 	err = hermes_bap_seek(hw, bap, rid, 0);
++
++	spin_unlock_irqrestore((&hw->baplock), flags);
++
+ 	if (err)
+ 		goto out;
+ 
+@@ -505,8 +524,14 @@
+ 	int dreg = bap ? HERMES_DATA1 : HERMES_DATA0;
+ 	int err = 0;
+ 	int count;
++	unsigned long flags;
+ 	
++	spin_lock_irqsave((&hw->baplock), flags);
++
+ 	err = hermes_bap_seek(hw, bap, rid, 0);
++
++	spin_unlock_irqrestore((&hw->baplock), flags);
++
+ 	if (err)
+ 		goto out;

@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbUDMXR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 19:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbUDMXR7
+	id S263804AbUDMXT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 19:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263812AbUDMXT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 19:17:59 -0400
-Received: from email-out1.iomega.com ([147.178.1.82]:30663 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S263806AbUDMXR6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 19:17:58 -0400
-Subject: Re: Iomega REV driver
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: will@upl.cs.wisc.edu
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1081898267.2939.13.camel@patibmrh9>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 Apr 2004 17:17:47 -0600
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Apr 2004 23:17:56.0800 (UTC) FILETIME=[8DF63C00:01
-	C421AD]
-X-imss-version: 2.0
-X-imss-result: Passed
-X-imss-scores: Clean:19.03563 C:20 M:0 S:5 R:5
-X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
+	Tue, 13 Apr 2004 19:19:29 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:680 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S263804AbUDMXTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 19:19:21 -0400
+Message-Id: <200404132317.i3DNH4F21162@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
+       <lse-tech@lists.sourceforge.net>
+Cc: <raybry@sgi.com>, "'Andy Whitcroft'" <apw@shadowen.org>,
+       "Andrew Morton" <akpm@osdl.org>
+Subject: hugetlb demand paging patch part [0/3]
+Date: Tue, 13 Apr 2004 16:17:04 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQhrW55KrBCW1JuS2ypfrq06KVwMA==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I suggest searching for Iomega RRD rather than Iomega REV.
+In addition to the hugetlb commit handling that we've been working on
+off the list, Ray Bryant of SGI and I are also working on demand paging
+for hugetlb page.  Here are our final version that has been heavily
+tested on ia64 and x86.  I've broken the patch into 3 pieces so it's
+easier to read/review, etc.
 
-Pat LaVarre
-http://sourceforge.net/projects/iomrrdtools/
+1. hugetlb_fix_pte.patch - with demand paging, we can not unconditionally
+   assume valid pmd/pte.  Fix it up in arch specific huge_pge_offset()
+   and have all caller check the return value.
 
-P.S. Incisively explaining why that substitution works well is an
-unsolved problem that I've recently addressed in such places as:
+2. hugetlb_demand_generic.patch - this handles bulk of hugetlb demand
+   paging for generic portion of the kernel.  I've put hugetlb fault
+   handler in mm/hugetlbpage.c since the fault handler is *exactly* the
+   same for all arch, but that requires opening up huge_pte_alloc() and
+   set_huge_pte() functions in each arch.  If people object where it
+   should live.  It takes me less than a minute to delete the common
+   code and replicate it in each of the 5 arch that supports hugetlb.
+   Just let me know if that's the case.
 
-https://lists.one-eyed-alien.net/pipermail/usb-storage/2004-April/000194.html
-https://lists.one-eyed-alien.net/pipermail/usb-storage/2004-April/000189.html
+3. hugetlb_demand_arch.patch - this adds additional arch specific fixes
+   for x84 and ia64 when generic demand paging is turned on.  Also bulk
+   of the patch is to clean up with functions that no longer needed.
+
+Some caveats:  I don't have sh and sparc64 hardware to test.  But hugetlb
+code in these two arch looked like a triplet twin of x86 code.  So I'm
+pretty sure it will work right out of box.  I've monkeyed around with
+ppc64 code and after a while I realized it should be left for the experts.
+I'm sure there are plenty ppc64 developers out there that can get it done
+in no time.
+
+Patches relative to linux-2.6.5-mm4 and on top of hugetlb overcommit
+handling patch posted by Andy Whitcroft.
+
+Andrew, would you please review and consider for -mm?  Thanks.
+
+- Ken
 
 

@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbRAINye>; Tue, 9 Jan 2001 08:54:34 -0500
+	id <S131103AbRAIN5E>; Tue, 9 Jan 2001 08:57:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130032AbRAINyR>; Tue, 9 Jan 2001 08:54:17 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:65225 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129226AbRAINyE>;
-	Tue, 9 Jan 2001 08:54:04 -0500
-Date: Tue, 9 Jan 2001 13:52:26 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: `rmdir .` doesn't work in 2.4
-Message-ID: <20010109135226.B4284@redhat.com>
-In-Reply-To: <20010108180857.A26776@athlon.random> <Pine.GSO.4.21.0101081236440.4061-100000@weyl.math.psu.edu> <20010108212833.S27646@athlon.random>
+	id <S131105AbRAIN4y>; Tue, 9 Jan 2001 08:56:54 -0500
+Received: from smtpgw.bnl.gov ([130.199.3.16]:55813 "EHLO smtpgw.sec.bnl.local")
+	by vger.kernel.org with ESMTP id <S131103AbRAIN4m>;
+	Tue, 9 Jan 2001 08:56:42 -0500
+Date: Tue, 9 Jan 2001 08:55:55 -0500
+From: Tim Sailer <sailer@bnl.gov>
+To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+Cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org,
+        jfung@bnl.gov
+Subject: Re: Network Performance?
+Message-ID: <20010109085555.A28548@bnl.gov>
+In-Reply-To: <20010104013340.A20552@bnl.gov>, <20010104013340.A20552@bnl.gov>; <20010105140021.A2016@bnl.gov> <3A56FD6C.93D09ABB@uow.edu.au>, <3A56FD6C.93D09ABB@uow.edu.au>; <20010107235123.B6028@bnl.gov> <3A5995CF.7AEFFBBD@uow.edu.au> <20010108090644.A12440@bnl.gov> <20010108190718.Q3472@arthur.ubicom.tudelft.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010108212833.S27646@athlon.random>; from andrea@suse.de on Mon, Jan 08, 2001 at 09:28:33PM +0100
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010108190718.Q3472@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Mon, Jan 08, 2001 at 07:07:18PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jan 08, 2001 at 07:07:18PM +0100, Erik Mouw wrote:
+> I had similar problems two weeks ago. Turned out the connection between
+> two switches: one of them was hard wired to 100Mbit/s full duplex, the
+> other one to 100Mbit/s half duplex. Just to rule out the obvious...
 
-On Mon, Jan 08, 2001 at 09:28:33PM +0100, Andrea Arcangeli wrote:
-> On Mon, Jan 08, 2001 at 12:58:20PM -0500, Alexander Viro wrote:
-> > It's a hell of a pain wrt locking. You need to lock the parent, but it can
-> 
-> This is a no-brainer and bad implementation, but shows it's obviously right
-> wrt locking. (pseudocode, I ignored the uaccess details and all the other not
-> relevant things)
-> 
-> 		err = sys_getcwd(buf, PAGE_SIZE)
-> 		if (!memcmp(path, ".", 2))
-> 			path = buf
-> 		err = 2_4_0_sys_rmdir(path)
+We check that as the first thing. Both are set the same. No collisions
+out of the ordinary.
 
-> Could you enlight me on where's the locking pain?
+Tim
 
-Do the above while another process is renaming one of your parents and
-watch an innocent directory get shot down in flames, or prepare for an
-incorrect ENOENT.
-
---Stephen
+-- 
+Tim Sailer <sailer@bnl.gov> Cyber Security Operations
+Brookhaven National Laboratory  (631) 344-3001
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

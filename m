@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263811AbRFDUN2>; Mon, 4 Jun 2001 16:13:28 -0400
+	id <S263806AbRFDUOs>; Mon, 4 Jun 2001 16:14:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263805AbRFDUNK>; Mon, 4 Jun 2001 16:13:10 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:61451 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S263804AbRFDUNB>; Mon, 4 Jun 2001 16:13:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>
-Subject: Re: [PATCH] fs/devfs/base.c
-Date: Mon, 4 Jun 2001 22:15:05 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Akash Jain <aki.jain@stanford.edu>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org, su.class.cs99q@nntp.stanford.edu
-In-Reply-To: <Pine.LNX.4.21.0106031652090.32451-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0106031652090.32451-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Message-Id: <01060422150505.08443@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S263819AbRFDUOi>; Mon, 4 Jun 2001 16:14:38 -0400
+Received: from cicero2.cybercity.dk ([212.242.40.53]:30981 "HELO
+	cicero2.cybercity.dk") by vger.kernel.org with SMTP
+	id <S263806AbRFDUOY>; Mon, 4 Jun 2001 16:14:24 -0400
+Date: Mon, 4 Jun 2001 22:14:04 +0200
+From: Jens Axboe <axboe@suse.de>
+To: PROFETA Mickael <profeta@crans.ens-cachan.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide retry on 2.4.5-ac7
+Message-ID: <20010604221404.A19333@suse.de>
+In-Reply-To: <20010604140207.A529@alezan.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010604140207.A529@alezan.dyndns.org>; from profeta@crans.ens-cachan.fr on Mon, Jun 04, 2001 at 02:02:07PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 June 2001 01:55, Linus Torvalds wrote:
->  - the kernel stack is 4kB, and _nobody_ has the right to eat up a
->    noticeable portion of it. It doesn't matter if you "know" your
-> caller or not: you do not know what interrupts happen during this
-> time, and how much stack they want.
+On Mon, Jun 04 2001, PROFETA Mickael wrote:
+> Hi
+> 
+> 	Since my first try on 2.4 kernel, I had trouble with DMA when I
+> 	select activate on boot time because it selects udma4, whereas
+> 	my HD is only able to do udma2. I correct that with hdparm, but
+> 	I was quite happy of the patch in ac4 whixh detect ide lost
+> 	interrupt and retry with a value lower of dma.  But it seems
+> 	that this patch does not work anymore in ac7?? I can not see in
+> 	the changelog that you come back or made other change in ide??
+> 	Should it work in the same way or not?
+> 
+> 	My hardware: via 686a of course, with Athlon 500 on a k7m MB
 
-We'd better know the upper bound of interrupt allocations or we have an 
-accident waiting to happen.  How much of the kernel stack is reserved 
-for interrupts?
+It worked sucessfully for you in 2.4.5-ac4 but not in -ac7? I can't see
+any changes to the patch, so more details on the nature of the problem
+would be helpful.
 
---
-Daniel
+-- 
+Jens Axboe

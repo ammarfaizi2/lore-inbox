@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267468AbTANGeG>; Tue, 14 Jan 2003 01:34:06 -0500
+	id <S267463AbTANGdg>; Tue, 14 Jan 2003 01:33:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267469AbTANGeG>; Tue, 14 Jan 2003 01:34:06 -0500
-Received: from packet.digeo.com ([12.110.80.53]:2536 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267468AbTANGeE> convert rfc822-to-8bit;
-	Tue, 14 Jan 2003 01:34:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Morton <akpm@digeo.com>
-To: "Joshua M. Kwan" <joshk@ludicrus.ath.cx>, linux-kernel@vger.kernel.org
-Subject: Re: intense disk or tty activity SEGV's X
-Date: Mon, 13 Jan 2003 22:43:31 -0800
-User-Agent: KMail/1.4.3
-References: <20030114063457.GA11073@kanoe.ludicrus.net>
-In-Reply-To: <20030114063457.GA11073@kanoe.ludicrus.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301132243.31071.akpm@digeo.com>
-X-OriginalArrivalTime: 14 Jan 2003 06:42:50.0419 (UTC) FILETIME=[283B4030:01C2BB98]
+	id <S267468AbTANGdg>; Tue, 14 Jan 2003 01:33:36 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:16290 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267463AbTANGdf>;
+	Tue, 14 Jan 2003 01:33:35 -0500
+Date: Mon, 13 Jan 2003 22:32:53 -0800 (PST)
+Message-Id: <20030113.223253.18825371.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: akpm@zip.com.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __cacheline_aligned_in_smp?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030114121012.63554a44.rusty@rustcorp.com.au>
+References: <20030113072521.74B842C104@lists.samba.org>
+	<20030112.233513.83403887.davem@redhat.com>
+	<20030114121012.63554a44.rusty@rustcorp.com.au>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon January 13 2003 22:34, Joshua M. Kwan wrote:
->
-> Lately, using the nForce IDE driver I have noticed a few glitches with 
-> it that affect stability.
-> 
-> I use the BK tree for my kernel source. Lately, if I 1) clone a fresh 
-> tree (i pull from a few places so sometimes there are some boggling 
-> conflicts that a fresh tree fixes) or 2) run a bk pull, X will SEGV out 
-> of nowhere. At first I thought it was the amount of disk activity.
-> 
-> But after reading the saga of the flukey tty code in the kernel, I am 
-> thinking this could also be because of that? Lots of stuff scrolls by 
-> when doing a bk clone, and when resolve runs after a bk pull there is 
-> often lots of output.
-> 
-> There is no oops at all, nor anything that might be of help in dmesg.
-> Any ideas? I started noticing it around halfway through 2.5.56...
-> 
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Tue, 14 Jan 2003 12:10:12 +1100
 
-You could just do something like
+   Hmm, you really want to weakly align it: you don't care if something follows it on
+   the cacheline, (ie. don't make it into an array, but it'd be nice if other
+   things could share the cacheline) in UP.
+   
+No, that is an incorrect statement.
 
-	while true
-	do
-		cat /usr/src/linux/MAINTAINERS
-	done
+I want the rest of the cacheline to be absent of any write-possible
+data.  There are many members in there which are read-only and thus
+will only consume a cacheline which would never need to be written
+back to main memory due to modification.
 
-and see if that kills it.  If so then yeah, it could be a tty thing.  If not
-then it may be mm/fs/vm/harware related.  Confirm that by running
-dbench/tiobench/etc.
+If you allow other things to seep into that cache line, you totally
+obliterate what I was trying to accomplish.
 
-Basically: separate it out, eliminate some variables.
+   I don't think there's a way of doing that short of using asm?
+   
+You really don't understand what I'm trying to accomplish.
 
-The most valuable thing you can do is to narrow it down to a particular
-changeset.
+I want alignment on cache line boundary, and I don't want anything
+else in that cacheline.
 
-
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,51 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264919AbSL0NFG>; Fri, 27 Dec 2002 08:05:06 -0500
+	id <S264936AbSL0NL0>; Fri, 27 Dec 2002 08:11:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264925AbSL0NFG>; Fri, 27 Dec 2002 08:05:06 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:10883 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S264919AbSL0NFF>; Fri, 27 Dec 2002 08:05:05 -0500
-Message-ID: <20021227131313.29241.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	id <S264938AbSL0NL0>; Fri, 27 Dec 2002 08:11:26 -0500
+Received: from m3.azalea.se ([217.75.96.207]:39105 "HELO m3.azalea.se")
+	by vger.kernel.org with SMTP id <S264936AbSL0NLZ>;
+	Fri, 27 Dec 2002 08:11:25 -0500
+Subject: Re: Alot of DMA errors in 2.4.18, 2.4.20 and 2.5.52
+From: Mikael Olenfalk <mikael@netgineers.se>
+To: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021226123710.GA2442@iapetus.localdomain>
+References: <1040815160.533.6.camel@devcon-x>
+	 <20021225115820.GB7348@louise.pinerecords.com>
+	 <20021226123710.GA2442@iapetus.localdomain>
+Content-Type: text/plain
+Organization: Netgineers
+Message-Id: <1040994876.518.13.camel@devcon-x>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 27 Dec 2002 14:14:45 +0100
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: conman@kolivas.net, linux-kernel@vger.kernel.org
-Cc: ciarrocchi@linuxmail.org, akpm@digeo.com
-Date: Fri, 27 Dec 2002 21:13:13 +0800
-Subject: Re: [BENCHMARK] vm swappiness with contest
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Con Kolivas <conman@kolivas.net>
-[...]
-> Paolo if I was to choose a number from these values I'd suggest lower than 60 
-> rather than higher, BUT that is because the io load effects become a real 
-> problem when the kernel is swappy - don't _really_ know what this means for 
-> the rest of the time. Maybe in the 40-50 range. There seems to be a knee 
-> (bend) in the curve (most noticable in dbench_load) rather than the curves 
-> being linear. That knee I believe simply shows the way the algorithm for 
-> swappiness basically works. I might throw a 50 at the machine as well to see 
-> what that does.
+On Thu, 2002-12-26 at 13:37, Frank van Maarseveen wrote:
+> On Wed, Dec 25, 2002 at 12:58:20PM +0100, Tomas Szepe wrote:
+> > > For some funny reason, a 2.4.20 kernel refuses to set the DMA-level on
+> > > the new disks (all connected to a UDMA5-capable Ultra100 TX2 controller)
+> > > to UDMA5,4,3 and settles it for UDMA2, which is the highest possibility
+> > > for the OLD onboard-controller (but NOT for the promise card).
+> > 
+> > You need to boot 2.4.19 and 2.4.20 with 'ideX=ata66' where X is the
+> > number of the channel where you wish to use transfer modes above UDMA2.
+> > For instance, "ide0=ata66 ide1=ata66" will do the trick for the first two
+> 
+> hdparm -X69 /dev/hda will put it into UDMA5/ata100 mode as well
+> (69 == 64 + UDMA mode). No need to specify it at boot time.
+> 
+> (this discussion reminded me of my own TX2 adapter and 100GB disk:
+>  adjusting its setting improved sequential disk reads: now 36MB/sec
+>  instead of 24MB/sec)
 
-Con, thank you for your time and results.
-I have to confirm you that large file writes with a swappy kernel 
-seems to waste time swapping data, I see it with the resp tool too.
+I can only set UDMA3,4,5 if I pass the ide{1,2}=ata66 kernel boot
+parameter. Actually I don't really care that much about the speed for
+now, I would rather like the thing to work at all :)
 
-May be we can say that a good value for a desktop enviroment is in the
-40-50 range while for a server is 70-80, this because with the osdb bench
-tool I get the best results with 80.
+The PDC20268 sporadically gives me DMA errors when doing the first
+parity sync of my software RAID5. The last few times it has always been
+the same disk, but that is no requirement (sometimes hde 02:00, hdg
+03:00, not so often one of the slave disks on the channel).
 
-Ciao,
-        Paolo 
+But the only system seems to be that It either always bails out at
+30-36% percent of the parity sync or in case it does not bail out the
+speed goes down to 60-80kB/sec, which will finish the sync after 16,000
+or so minutes (definitely too long).
+
+I thought of returning the IBM drives and getting MAXTOR instead, as I
+have heard rumors about the bad quality of the IBM drives. Still this
+seems to be a problem with the controller and/or in combination with MD.
+The drives gives me NO problems when just writing and/or reading them
+with dd if=/dev/zero of=/dev/hd[efgh]. Even running the bonnie++
+benchmark on them with a 20GB file gives no errors (simultaneously).
+
+
+Thank you for your help so far.
+
+/Regards, Mikael
+
 -- 
-______________________________________________
-http://www.linuxmail.org/
-Now with POP3/IMAP access for only US$19.95/yr
+Mikael Olenfalk <mikael@netgineers.se>
+Netgineers
 
-Powered by Outblaze

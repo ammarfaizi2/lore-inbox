@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267758AbUG3RYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267748AbUG3RYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267758AbUG3RYT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 13:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267756AbUG3RYT
+	id S267748AbUG3RYr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 13:24:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267756AbUG3RYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 13:24:19 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:11785 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267753AbUG3RYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 13:24:14 -0400
-Date: Fri, 30 Jul 2004 18:24:10 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
+	Fri, 30 Jul 2004 13:24:47 -0400
+Received: from web14924.mail.yahoo.com ([216.136.225.8]:45405 "HELO
+	web14924.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267759AbUG3RYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 13:24:34 -0400
+Message-ID: <20040730172433.2312.qmail@web14924.mail.yahoo.com>
+Date: Fri, 30 Jul 2004 10:24:33 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
 Subject: Re: Exposing ROM's though sysfs
-Message-ID: <20040730182410.A12171@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Jon Smirl <jonsmirl@yahoo.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20040730165339.76945.qmail@web14929.mail.yahoo.com> <200407301010.29807.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
+To: Torrey Hoffman <thoffman@arnor.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091207136.2762.181.camel@rohan.arnor.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200407301010.29807.jbarnes@engr.sgi.com>; from jbarnes@engr.sgi.com on Fri, Jul 30, 2004 at 10:10:29AM -0700
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 30, 2004 at 10:10:29AM -0700, Jesse Barnes wrote:
-> +	unsigned long start = dev->resource[PCI_ROM_RESOURCE].start;
-> +	int size = dev->resource[PCI_ROM_RESOURCE].end -
-> +		dev->resource[PCI_ROM_RESOURCE].start;
+--- Torrey Hoffman <thoffman@arnor.net> wrote:
+> This sounds interesting, but I'm curious...  why?  That is, what
+> problem are you solving by making ROMs exposed?
+> 
+> Or is this just for fun?  (That's a legitimate reason IMO...)
 
-pci_resource_start and pci_resource_len please.
+Secondary video cards need to have code in their ROMs run to reset
+them. When an x86 PC boots it only reset the primary video device, the
+secondary ones won't work until their ROMs are run.
 
-> +		.name = "rom",
-> +		.mode = S_IRUGO | S_IWUSR,
+Another group needing this is laptop suspend/resume. Some cards won't
+come back from suspend until their ROM is run to reinitialize them.
 
-do we really want it world readable if a read messes with pci config
-space?
+A third group is undocumented video hotware where the only way to set
+the screen mode is by calling INT10 in the video ROMs. (Intel
+i810,830,915 for example).
 
-> +	if (pdev->resource[PCI_ROM_RESOURCE].start) {
-> +		pci_rom_attr.size = pdev->resource[PCI_ROM_RESOURCE].end -
-> +			pdev->resource[PCI_ROM_RESOURCE].start;
+Small apps are attached to the hotplug events. These apps then use vm86
+or emu86 to run the ROMs. emu86 is needed for ia64 or ppc when running
+x86 ROMs on them.
 
-as above.
+=====
+Jon Smirl
+jonsmirl@yahoo.com
 
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - You care about security. So do we.
+http://promotions.yahoo.com/new_mail

@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132175AbRAASgo>; Mon, 1 Jan 2001 13:36:44 -0500
+	id <S132125AbRAASkE>; Mon, 1 Jan 2001 13:40:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132210AbRAASgf>; Mon, 1 Jan 2001 13:36:35 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15375 "EHLO
+	id <S132210AbRAASjy>; Mon, 1 Jan 2001 13:39:54 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18191 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132243AbRAASgX>; Mon, 1 Jan 2001 13:36:23 -0500
-Subject: Re: 2.4.0-pre compile err (pcxx)
-To: apgarcia@uwm.edu (A. P. Garcia)
-Date: Mon, 1 Jan 2001 18:07:38 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <87snn3f9rz.fsf@uwm.edu> from "A. P. Garcia" at Jan 01, 2001 05:43:28 PM
+	id <S132125AbRAASjr>; Mon, 1 Jan 2001 13:39:47 -0500
+Subject: Re: NFS-Root on AIX
+To: pstadt@stud.fh-heilbronn.de (Oliver Paukstadt)
+Date: Mon, 1 Jan 2001 18:11:00 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux-Kernel)
+In-Reply-To: <Pine.LNX.4.05.10101011850430.19324-100000@lara.stud.fh-heilbronn.de> from "Oliver Paukstadt" at Jan 01, 2001 07:00:34 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14D9My-00017N-00@the-village.bc.nu>
+Message-Id: <E14D9QE-00018E-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> when i make bzimage with the pc/xx driver configured as a module, it
-> compiles ok.  configuring it as built-in gives the following error:
+> Last we had to use an AIX-Server as NFS-Server for NFSRoot-Boot.
+> 
+> It did not work, because the all Major-Device-Numbers in /dev/ are all
+> set to 0. The minor numbers are transported correctly. 
 
-Im amazed it built as a module - thats why I missed the error
-
-> pcxx.c:1826: `mseconds' undeclared (first use in this function)
-> pcxx.c:1826: (Each undeclared identifier is reported only once
-
-
---- drivers/char/pcxx.c~	Sat Dec 30 01:07:21 2000
-+++ drivers/char/pcxx.c	Mon Jan  1 17:12:05 2001
-@@ -1823,7 +1823,7 @@
-  */
- static void pcxxdelay(int msec)
- {
--	mdelay(mseconds);
-+	mdelay(msec);
- }
- 
+NFS doesnt handle this elegantly for NFSv2 - are you using v2 or v3 ?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

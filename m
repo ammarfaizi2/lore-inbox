@@ -1,69 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbTFBPCm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 11:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTFBPCm
+	id S262382AbTFBPBY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 11:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbTFBPBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 11:02:42 -0400
-Received: from dns01.mail.yahoo.co.jp ([211.14.15.204]:39227 "HELO
-	dns01.mail.yahoo.co.jp") by vger.kernel.org with SMTP
-	id S262409AbTFBPCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 11:02:40 -0400
-Message-ID: <002901c32919$ddc37000$570486da@w0a3t0>
-From: "matsunaga" <matsunaga_kazuhisa@yahoo.co.jp>
-To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       "David Woodhouse" <dwmw2@infradead.org>
-Cc: <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>
-References: <20030530144959.GA4736@wohnheim.fh-wedel.de>
-Subject: Re: [PATCH RFC] 1/2 central workspace for zlib
-Date: Tue, 3 Jun 2003 00:15:56 +0900
+	Mon, 2 Jun 2003 11:01:24 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:15021 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262382AbTFBPBX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 11:01:23 -0400
+Date: Mon, 2 Jun 2003 17:14:13 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
+In-Reply-To: <1054560974.1918.2.camel@iso-8590-lx.zeusinc.com>
+Message-ID: <Pine.LNX.4.44.0306021712530.7224-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The following creates a central workspace per cpu for the zlib.  The
-> original idea was to save memory for embedded, but this should also
-> improve performance for smp.
 
-Hi
+On 2 Jun 2003, Tom Sightler wrote:
 
-Thank you for the patch.
-It definitely reduces resources and improve multiple CPU scalability. 
+> Sorry, this is my fault, I'm actually renicing the process to '10' not
+> '-10' that's a typo.  I tested this again this morning to make sure.  
+> I'm renicing this as a regular user, I don't think that a regular user
+> is allowed to renice to a negative value.
 
-But I still would like to stick to performance.
-(Though I haven't evaluated the performance yet...)
-So far I think MTD is used mostly on Embedded device, 
-in which single CPU which is not so powerful is used.
+hm. Which process is generating the sound? But yes, if a positive renicing
+for the wine process solved the audio problem then this is bad.
 
-How is the following code (it is ugly though)?
-
-static void default_workspace[WSIZE];
-
-<snip>
-
-    size = MAX(sizeof(struct inflate_workspace),
-        sizeof(struct deflate_workspace));
-
-    if(WSIZE < size)
-        BUG();
-
-    zlib_workspace[0] = default_workspace;
-
-    for (i=1; i<smp_num_cpus; i++) {
-        zlib_workspace[i] = vmalloc(size);
-        if (!zlib_workspace[i]) {
-            zlib_exit();
-            return -ENOMEM;
-        }
-   }
-
-P.S.
-There is another vmalloc in mtdblock_open()...;-)
+	Ingo
 

@@ -1,62 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVBXDYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbVBXENo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbVBXDYc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 22:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVBXDYc
+	id S261773AbVBXENo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 23:13:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVBXENo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 22:24:32 -0500
-Received: from mserv2.uoregon.edu ([128.223.142.41]:54428 "EHLO
-	smtp.uoregon.edu") by vger.kernel.org with ESMTP id S261763AbVBXDY3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 22:24:29 -0500
-Date: Wed, 23 Feb 2005 19:24:27 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Ron Peterson <rpeterso@mtholyoke.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ext2/3 files per directory limits
-In-Reply-To: <20050224031107.GA8656@mtholyoke.edu>
-Message-ID: <Pine.LNX.4.61.0502231920000.18737@twin.uoregon.edu>
-References: <20050224031107.GA8656@mtholyoke.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 23 Feb 2005 23:13:44 -0500
+Received: from ozlabs.org ([203.10.76.45]:13238 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261773AbVBXENX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 23:13:23 -0500
+Date: Thu, 24 Feb 2005 14:54:45 +1100
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: Jeff Garzik <jgarzik@pobox.com>, Pavel Roskin <proski@gnu.org>,
+       Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [1/14] Orinoco driver updates - use netif_carrier_*()
+Message-ID: <20050224035445.GB32001@localhost.localdomain>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Pavel Roskin <proski@gnu.org>,
+	Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <20050224035355.GA32001@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050224035355.GA32001@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Feb 2005, Ron Peterson wrote:
+Removes the orinoco driver's custom and dodgy "connected" variable
+used to track whether or not we're associated with an AP.  Replaces it
+instead with netif_carrier_ok() settings.
 
-> I would like to better understand ext2/3's performance characteristics.
->
-> I'm specifically interested in how ext2/3 will handle a /var/spool/mail
-> directory w/ ~6000 mbox format inboxes, handling approx 1GB delivered as
-> 75,000 messages daily.  Virtually all access is via imap, w/ approx
-> ~1000 imapd processes running during peak load.  Local delivery is via
-> procmail, which by default uses both kernel-supported locking calls and
-> .lock files.
+Signed-off-by: David Gibson <hermes@gibson.dropbear.id.au>
 
-At some point it makes sense to subdivide you mail load because 
-serialization of i/o on that one filesystem becomes a bigger issue than 
-the performance of your filesystem... We deliver into mbox formatted 
-mailboxes inside users homedirs, some folks do a similar thing with 
-maildir. In the end you can on make one filesystem so fast. beyond that 
-you need more filesystems to acheive any kind of reasonable scaling...
+Index: working-2.6/drivers/net/wireless/orinoco.c
+===================================================================
+--- working-2.6.orig/drivers/net/wireless/orinoco.c	2005-01-13 09:48:55.000000000 +1100
++++ working-2.6/drivers/net/wireless/orinoco.c	2005-02-10 14:22:32.179826024 +1100
+@@ -784,7 +784,7 @@
+ 		return 1;
+ 	}
+ 
+-	if (! priv->connected) {
++	if (! netif_carrier_ok(dev)) {
+ 		/* Oops, the firmware hasn't established a connection,
+                    silently drop the packet (this seems to be the
+                    safest approach). */
+@@ -1269,6 +1269,7 @@
+ 	case HERMES_INQ_LINKSTATUS: {
+ 		struct hermes_linkstatus linkstatus;
+ 		u16 newstatus;
++		int connected;
+ 
+ 		if (len != sizeof(linkstatus)) {
+ 			printk(KERN_WARNING "%s: Unexpected size for linkstatus frame (%d bytes)\n",
+@@ -1280,15 +1281,14 @@
+ 				  len / 2);
+ 		newstatus = le16_to_cpu(linkstatus.linkstatus);
+ 
+-		if ( (newstatus == HERMES_LINKSTATUS_CONNECTED)
+-		     || (newstatus == HERMES_LINKSTATUS_AP_CHANGE)
+-		     || (newstatus == HERMES_LINKSTATUS_AP_IN_RANGE) )
+-			priv->connected = 1;
+-		else if ( (newstatus == HERMES_LINKSTATUS_NOT_CONNECTED)
+-			  || (newstatus == HERMES_LINKSTATUS_DISCONNECTED)
+-			  || (newstatus == HERMES_LINKSTATUS_AP_OUT_OF_RANGE)
+-			  || (newstatus == HERMES_LINKSTATUS_ASSOC_FAILED) )
+-			priv->connected = 0;
++		connected = (newstatus == HERMES_LINKSTATUS_CONNECTED)
++			|| (newstatus == HERMES_LINKSTATUS_AP_CHANGE)
++			|| (newstatus == HERMES_LINKSTATUS_AP_IN_RANGE);
++
++		if (connected)
++			netif_carrier_on(dev);
++		else
++			netif_carrier_off(dev);
+ 
+ 		if (newstatus != priv->last_linkstatus)
+ 			print_linkstatus(dev, newstatus);
+@@ -1366,8 +1366,8 @@
+ 	}
+ 	
+ 	/* firmware will have to reassociate */
++	netif_carrier_off(dev);
+ 	priv->last_linkstatus = 0xffff;
+-	priv->connected = 0;
+ 
+ 	return 0;
+ }
+@@ -1878,7 +1878,7 @@
+ 
+ 	priv->hw_unavailable++;
+ 	priv->last_linkstatus = 0xffff; /* firmware will have to reassociate */
+-	priv->connected = 0;
++	netif_carrier_off(dev);
+ 
+ 	orinoco_unlock(priv, &flags);
+ 
+@@ -2388,8 +2388,8 @@
+ 				   * hardware */
+ 	INIT_WORK(&priv->reset_work, (void (*)(void *))orinoco_reset, dev);
+ 
++	netif_carrier_off(dev);
+ 	priv->last_linkstatus = 0xffff;
+-	priv->connected = 0;
+ 
+ 	return dev;
+ 
+Index: working-2.6/drivers/net/wireless/orinoco.h
+===================================================================
+--- working-2.6.orig/drivers/net/wireless/orinoco.h	2004-10-29 13:16:58.000000000 +1000
++++ working-2.6/drivers/net/wireless/orinoco.h	2005-02-10 14:22:32.179826024 +1100
+@@ -42,7 +42,6 @@
+ 	/* driver state */
+ 	int open;
+ 	u16 last_linkstatus;
+-	int connected;
+ 
+ 	/* Net device stuff */
+ 	struct net_device *ndev;
 
-> I understand that various tuning parameters will have an impact,
-> e.g. putting the journal on a separate device, setting the noatime mount
-> option, etc.  I also understand that there are other mailbox formats and
-> other strategies for locating mail spools (e.g. in user's home
-> directories).
->
-> I'm interested in people's thoughts on these issues, but I'm mostly
-> interested in whether or not the scenario I described falls within
-> ext2/3's designed capabilities.
->
-> Best.
->
->
 
 -- 
--------------------------------------------------------------------------- 
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu 
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
-
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
+				| _around_!
+http://www.ozlabs.org/people/dgibson

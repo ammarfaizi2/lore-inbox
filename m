@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273601AbRIUQZl>; Fri, 21 Sep 2001 12:25:41 -0400
+	id <S273608AbRIUQbc>; Fri, 21 Sep 2001 12:31:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273613AbRIUQZd>; Fri, 21 Sep 2001 12:25:33 -0400
-Received: from ip122-15.asiaonline.net ([202.85.122.15]:24450 "EHLO
-	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
-	id <S273601AbRIUQZQ>; Fri, 21 Sep 2001 12:25:16 -0400
-Date: Sat, 22 Sep 2001 00:21:05 +0800 (HKT)
-From: David Chow <davidtl@rcn.com.hk>
-X-X-Sender: <davidtl@uranus.planet.rcn.com.hk>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Oystein Viggen <oysteivi@tihlde.org>, <linux-fsdevel@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Wrapfs a stackable file system
-In-Reply-To: <Pine.GSO.4.21.0109210931250.8014-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0109220014130.11730-100000@uranus.planet.rcn.com.hk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273613AbRIUQbV>; Fri, 21 Sep 2001 12:31:21 -0400
+Received: from zapfhahn.bone.twc.de ([193.158.34.194]:25616 "EHLO
+	zapfhahn.bone.twc.de") by vger.kernel.org with ESMTP
+	id <S273608AbRIUQbI>; Fri, 21 Sep 2001 12:31:08 -0400
+Message-ID: <20010921181800.36609@space.twc.de>
+Date: Fri, 21 Sep 2001 18:18:00 +0200
+From: Stefan Westerfeld <stefan@space.twc.de>
+To: Roger Larsson <roger.larsson@norran.net>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        =?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Robert Love <rml@tech9.net>, Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+In-Reply-To: <Pine.LNX.4.30.0109201756400.20823-100000@waste.org> <200109210047.f8L0lkv26045@maile.telia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.85e
+In-Reply-To: <200109210047.f8L0lkv26045@maile.telia.com>; from Roger Larsson on Fri, Sep 21, 2001 at 02:42:56AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Sep 2001, Alexander Viro wrote:
+   Hi!
 
->
->
-> On 21 Sep 2001, Oystein Viggen wrote:
->
-> > * [	David Chow]
-> >
-> > > The idea is orinigally from FiST, a stackable file system. But the FiST
-> > > owner Erez seems given up to maintain the project. At the time I receive
-> > > the code, it is so buggy, even unusable, lots of segmentation fault
-> > > problems. I have debugging the fs for quite a while. Now it is useful in
-> > > just use as a file system wrapper. It is useful in chroot environments
-> > > and hardlinks aren't available. It wraps a directory and mount to
-> > > another directory on tops of any filesystems.
-> >
-> > Is this not essentially what we already have with mount --bind in 2.4?
->
-> Bindings can be used to get the same result, but underlying mechanics is
-> different.  Wrapfs is not the most interesting application of FiST, so it's
-> hardly a surprise...
->
+On Fri, Sep 21, 2001 at 02:42:56AM +0200, Roger Larsson wrote:
+> > You might try stracing artsd to see if it hangs at a particular syscall.
+> > Use -tt or -r for timestamps and pipe the output through tee (to a file on
+> > your ramfs).
+> 
+> I tried playing a mp3 with noatun via artsd. Starting dbench 32 I get the
+> same kind of dropouts - and no indication with my latency profiling patch =>
+> no process with higher prio is waiting to run!
+> 
+> One of noatun or artsd is waiting for something else! (That is why I included
+> Stefan Westerfeld... artsd)
+> 
+> I noticed very nice improvement then reniceing (all) artsd and noatun.
+> (I did also change the buffer size in artsd down to 40 ms)
+> 
+> (This part most for Stefan...
+> So I thought - lets try to run artsd with RT prio - changed the option
+> HOW can it get RT prio when it is not suid? I guess it can not...
+> 
+> So I manually added suid bit - but then noatun could not connect with
+> artsd... bug?, backed out the suid change... but is behaves as it works,
+> could be that it has so short bursts that prio never get a chance to drop)
 
-I think you people didn't understand what is wrapfs, if is only a template
-for FiST. The aim is to provide a properly maintained stackable template
-under linux, and so that people can use FiST to develop their own
-filesystem. Currently the wrapfs template is so buggy, I spend weeks to
-fix all the bugs and even rewriting some of the code to make it more
-efficient. This dosn't means --bind, it means it also fix up tons of FS'es
-that is previously produced by using the old buggy FiST template, FiST is
-good for developing new stackable file system, the current problem is that
-the templates are buggy.... you got it??? If you know something is good
-but it is not properly maintained, why not give it a hand and do all the
-people a flavour?
+If you want to run artsd with RT prio, add suid root to artswrapper if it is
+not already there - it should by default, but some distributors/packagers
+don't get this right. If you start artsd via kcminit, check the realtime
+checkbox, if you do manually, run artswrapper instead of artsd, i.e.
 
-regards,
+stefan@voyager:~/src/kdelibs/arts$ artswrapper -F10 -S4096
+>> running as realtime process now (priority 50)
 
-David
+Artsd itself will not acquire RT prio, only artswrapper will. Noatun doesn't
+contain time critical code, so there it doesn't matter.
 
+   Cu... Stefan
+-- 
+  -* Stefan Westerfeld, stefan@space.twc.de (PGP!), Hamburg/Germany
+     KDE Developer, project infos at http://space.twc.de/~stefan/kde *-         

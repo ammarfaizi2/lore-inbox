@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265065AbTFUBRk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 21:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265067AbTFUBRk
+	id S265067AbTFUByy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 21:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbTFUByy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 21:17:40 -0400
-Received: from almesberger.net ([63.105.73.239]:19212 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S265065AbTFUBRj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 21:17:39 -0400
-Date: Fri, 20 Jun 2003 22:31:20 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Jeff Garzik <jgarzik@pobox.com>, Larry McVoy <lm@bitmover.com>,
-       Lawrence Walton <lawrence@the-penguin.otak.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030620223120.B1418@almesberger.net>
-References: <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620143012.GC14404@work.bitmover.com> <87vfv0bxsb.fsf@sanosuke.troilus.org> <20030620153410.GC17563@work.bitmover.com> <20030620155003.GA2600@the-penguin.otak.com> <20030620160211.GF17563@work.bitmover.com> <20030620161331.GB3960@gtf.org> <20030620163349.GG17563@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030620163349.GG17563@work.bitmover.com>; from lm@bitmover.com on Fri, Jun 20, 2003 at 09:33:49AM -0700
+	Fri, 20 Jun 2003 21:54:54 -0400
+Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:43457 "EHLO
+	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id S265067AbTFUByx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 21:54:53 -0400
+Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D551C3@axcs03.cos.agilent.com>
+From: yiding_wang@agilent.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.70/71 kernel compiler and loading issues
+Date: Fri, 20 Jun 2003 20:08:53 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> All of this is problematic for open source based business models because
-> if the product is truly open source then the vendor is standing on much
-> shakier ground.  What guarentee does the buyer have that the vendor will
-> make it to next year and support the product?  No matter how you slice it,
-> it's a much higher risk equation for the buyer than a commercial choice.
+Team,
 
-That's why some companies sell "commercial grade" Linux with all
-kinds of assurances. Then it's up to them to figure out how to
-ensure that the product is properly maintained.
+I also tried 2.5.70 kernel on the same system, the compiler error is the same (The message is "Unknown Pseudo-op:  '.incbin'").
 
-I mean "up to them" not in "pondering this is beneath me, and
-it's probably impossible anyway" kind of sense, but in the sense
-that they seem to know pretty well how to do (and finance) this.
+Then I loaded these two kernels on another SuperMicro 2 PIII CPU system. It has RH Linux 9.0 (2.4.20-8) on it.  Both kernel compiled OK.  However, reboot with new kernel hung system at the point of:
+Uncompressing Linux ... Ok, booting the kernel.
 
-The flaw in your reasoning is that you assume that the whole
-product lifecycle has to happen within the same company. That is
-largely true for closed source, because you're dealing with that
-closely guarded precious secret Intellectual Property.
+System boot won't proceed.  This happens to both 2.5.70 and 2.5.71.
 
-In Open Source, that secret is worthless. So once your program
-starts getting boring, you may as well hand it over to a
-maintainer, and tackle something new.
+The process of build and reboot new kernel is same as what I did for previous few kernel.  From 2.5.70 README file, this process doesn't seem to be changed.  I wonder someone may know the issue and have solution already.
 
-You can even take this further, and only contribute a few key
-ideas to the project, and leave the other inventions to others.
-You can see Linus do this quite often.
+Any help is appreciated!  Thanks!
 
-Of course, you still have to solve the problem of financing the
-initial development. My thoughts on this are in the longish mail
-I posted earlier today.
+Eddie
 
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+> -----Original Message-----
+> From: WANG,YIDING (A-SanJose,ex1) 
+> Sent: Friday, June 20, 2003 3:05 PM
+> To: linux-kernel@vger. kernel. org (E-mail)
+> Subject: Linux-2.5.71 kernel compile error
+> 
+> 
+> Team,
+> 
+> I got failure on compiling the kernel in one of SuperMicro 
+> signle CPU system.  It has a Linux 2.4.2 on it.  
+> The message is "Unknown Pseudo-op:  '.incbin'"
+> 
+> The file brings the trouble is arch/i386/kernel/vsyscall.S.
+> 
+> I think it must be a configuration problem but don't know 
+> which one is causing the trouble. I am using menuconfig to 
+> change the configuration.
+> 
+> Any suggestion?
+> 
+> Thanks!
+> 
+> Eddie 

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279586AbRJXULI>; Wed, 24 Oct 2001 16:11:08 -0400
+	id <S279587AbRJXUSA>; Wed, 24 Oct 2001 16:18:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279583AbRJXUK6>; Wed, 24 Oct 2001 16:10:58 -0400
-Received: from zeus.penguinhosting.net ([206.152.182.152]:24803 "HELO
-	mail.penguinhosting.net") by vger.kernel.org with SMTP
-	id <S278632AbRJXUKo>; Wed, 24 Oct 2001 16:10:44 -0400
-Date: Wed, 24 Oct 2001 20:11:11 +0000
-From: Ian Gulliver <ian@penguinhosting.net>
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.4.12-ac6 compile errors on sparc64
-Message-ID: <20011024201110.A3536@penguinhosting.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Operating-System: Linux zeus.penguinhosting.net 2.4.6-pre3 
+	id <S279583AbRJXURt>; Wed, 24 Oct 2001 16:17:49 -0400
+Received: from smtp01.uc3m.es ([163.117.136.121]:54026 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S279587AbRJXURk>;
+	Wed, 24 Oct 2001 16:17:40 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200110242018.f9OKI6000908@oboe.it.uc3m.es>
+Subject: Re: status of supermount?
+In-Reply-To: <20011024200049.A20340@niksula.hut.fi> from "Jonas Berlin" at "Oct
+ 24, 2001 08:00:49 pm"
+To: "Jonas Berlin" <jonas@berlin.vg>
+Date: Wed, 24 Oct 2001 22:18:06 +0200 (MET DST)
+Cc: "linux kernel" <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Attempting to compile linux-2.4.12-ac6 on sparc64.
-linux-2.4.13 compiles fine on the same machine.
+"A month of sundays ago Jonas Berlin wrote:"
+> > Does anyone know if supermount has been ported to a more recent
+> > kernel by anyone? The last version of supermount I could find
+> > was for 2.4.0
+> 
+> I mailed the same question to the maintainer over six months ago but didn't
+> get any answer. So I upgraded the patch myself to work with versions 2.4.2,
+> 2.4.4 and 2.4.5. At some point I switched to using 2.4.4-ac9, which I am
+> still using without problems, but I didn't have time back then to port the
+> patch to that version.
+> 
 
-anubis% sparc64-linux-gcc --version
-3.0.2
-anubis% make
+I have a patch dated Jan 14 17:09:06 2001. Does that match any of
+yours?
 
-..............
+  diff -rNu --exclude-from=exclude linux-2.4.vanilla/drivers/cdrom/cdrom.c linux-2.4/drivers/cdrom/cdrom.c
+  --- linux-2.4.vanilla/drivers/cdrom/cdrom.c     Sun Jan 14 17:09:06
+  2001
+  +++ linux-2.4/drivers/cdrom/cdrom.c     Sun Jan 14 17:28:04 2001
 
-make[1]: Entering directory `/home/ian/linux-2.4.10-ac12/arch/sparc64/kernel'
-sparc64-linux-gcc -D__KERNEL__ -I/home/ian/linux-2.4.10-ac12/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare -Wa,--undeclared-regs    -c -o init_task.o init_task.c
-init_task.c:7: `INIT_MMAP' undeclared here (not in a function)
-make[1]: *** [init_task.o] Error 1
-make[1]: Leaving directory `/home/ian/linux-2.4.10-ac12/arch/sparc64/kernel'
-make: *** [_dir_arch/sparc64/kernel] Error 2
+Let me have your patch anyway. I want to examine the supermount
+patches. I'll send you the one I have if you want it.
+
+Peter

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288422AbSAXQGD>; Thu, 24 Jan 2002 11:06:03 -0500
+	id <S288611AbSAXQFd>; Thu, 24 Jan 2002 11:05:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288639AbSAXQFy>; Thu, 24 Jan 2002 11:05:54 -0500
-Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:8691 "HELO
-	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S288422AbSAXQFq>; Thu, 24 Jan 2002 11:05:46 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Norbert Preining <preining@logic.at>
-Subject: Re: amd athlon cooling on kt266/266a chipset
-Date: Thu, 24 Jan 2002 17:05:38 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Daniel Nofftz <nofftz@castor.uni-trier.de>,
-        Ed Sweetman <ed.sweetman@wmich.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020124160551Z288422-13997+9459@vger.kernel.org>
+	id <S288422AbSAXQFY>; Thu, 24 Jan 2002 11:05:24 -0500
+Received: from p3EE02ABD.dip.t-dialin.net ([62.224.42.189]:2052 "EHLO
+	srv.sistina.com") by vger.kernel.org with ESMTP id <S288624AbSAXQFK>;
+	Thu, 24 Jan 2002 11:05:10 -0500
+Date: Thu, 24 Jan 2002 17:01:28 +0100
+From: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
+To: linux-kernel@vger.kernel.org
+Subject: *** ANNOUNCEMENT *** LVM 1.0.2 available at www.sistina.com
+Message-ID: <20020124170128.A9435@sistina.com>
+Reply-To: mauelshagen@sistina.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 24. January 2002 12:36, Norbert Preining wrote:
-> On Don, 24 Jan 2002, Ed Sweetman wrote:
-> > Furthermore, I haven't heard of anyone where the patch actually makes an
-> > improvement in temp with the patch.  But i have heard of people saying
->
-> Well, I am a counterexample. I used another patch doing the same
-> (the one from www.vcool.de) and it reduced my CPU temp by around 15-20 C!
-> In summer this can be of real good use!
 
-I can second that.
-You know that this thread was running for some time ([patch] amd athlon 
-cooling on kt266/266a chipset).
+*** ANNOUNCEMENT *** LVM 1.0.2 available at www.sistina.com
 
-Find below the best numbers I've ever seen (I resend them, here):
+Hi all,
 
-Athlon TB 1.2 GHz on MSI MS-6380 (KT7-Turbo-R):
+LVM 1.0.2 supports both version 1 and 2 of the metadata.
 
-idle mode with full VCool stuff under Win98SE
-(you could watch the temperature drop in 5 sec (?) steps...;-)
+There's *no* need to run any metadata update tools.
 
-~64°C => 29°-30°C
+A tarball is available now at
 
-Case was somewhat below after that.
+   <http://www.sistina.com/>
 
-Regards,
-	Dieter
+for download (Follow the "LVM 1.0" link).
 
--- 
-Dieter Nützel
-Graduate Student, Computer Science
 
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
+This release contains minor changes to LVM 1.0.1 including:
+
+o Linux 2.4.17 support
+o sparc 64 fixes (tests needed!)
+o persistent LV device minors to support client recovery after
+  a NFS server reboot/failover
+o ataraid device support
+o support loop devices (they do not show up in /proc/partitions) 
+
+
+See the CHANGELOG file contained in the tarball for further information.
+
+Feed back LVM related information to <linux-lvm@sistina.com>.
+
+Thanks a lot for your support of LVM.
+

@@ -1,109 +1,242 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265313AbSJXFF3>; Thu, 24 Oct 2002 01:05:29 -0400
+	id <S265314AbSJXFN4>; Thu, 24 Oct 2002 01:13:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265314AbSJXFF3>; Thu, 24 Oct 2002 01:05:29 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:38927 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265313AbSJXFF2>;
-	Thu, 24 Oct 2002 01:05:28 -0400
-Date: Wed, 23 Oct 2002 22:10:08 -0700
-From: Greg KH <greg@kroah.com>
-To: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-Cc: "'KOCHI, Takayoshi'" <t-kouchi@mvf.biglobe.ne.jp>,
-       "Luck, Tony" <tony.luck@intel.com>,
-       pcihpd-discuss@lists.sourceforge.net,
-       linux ia64 kernel list <linux-ia64@linuxia64.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI Hotplug Drivers for 2.5
-Message-ID: <20021024051008.GA19557@kroah.com>
-References: <72B3FD82E303D611BD0100508BB29735046DFF3F@orsmsx102.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <72B3FD82E303D611BD0100508BB29735046DFF3F@orsmsx102.jf.intel.com>
-User-Agent: Mutt/1.4i
+	id <S265315AbSJXFNz>; Thu, 24 Oct 2002 01:13:55 -0400
+Received: from dp.samba.org ([66.70.73.150]:62675 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265314AbSJXFNx>;
+	Thu, 24 Oct 2002 01:13:53 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: akpm@zip.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Move driverfs cpu stuff to kernel/cpu.c
+Date: Thu, 24 Oct 2002 15:05:25 +1000
+Message-Id: <20021024052004.3F5682C08C@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 09:33:09PM -0700, Lee, Jung-Ik wrote:
-> Greg,
-> 
-> Please find the attached ACPI based PCI Hotplug driver.
+Applies against 2.5.44 *and* 2.5.44-mm4.
 
-But the code you sent has all of the ACPI stuff not enabled, right?
+Name: Put cpus in driverfs for all architectures
+Author: Rusty Russell
+Status: Trivial
 
-As an example from your patch:
+D: Moves registering of cpus from arch/i386/kernel/cpu/common.c into
+D: kernel/cpu.c, makes it use per-cpu variables, and makes
+D: kernel/cpu.c compiled even on non-SMP (as the entry must exist even
+D: for UP).  This allows some UP stubs to be removed from smp.h into
+D: kernel/cpu.c, too.
 
-+enum php_ctlr_type phphpc_get_ctlr_type()
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/arch/i386/kernel/cpu/common.c .21228-linux-2.5.44-mm3.updated/arch/i386/kernel/cpu/common.c
+--- .21228-linux-2.5.44-mm3/arch/i386/kernel/cpu/common.c	2002-10-15 15:19:37.000000000 +1000
++++ .21228-linux-2.5.44-mm3.updated/arch/i386/kernel/cpu/common.c	2002-10-23 19:06:22.000000000 +1000
+@@ -507,37 +507,3 @@ void __init cpu_init (void)
+ 	current->used_math = 0;
+ 	stts();
+ }
+-
+-/*
+- * Bulk registration of the cpu devices with the system.
+- * Some of this stuff could possibly be moved into a shared 
+- * location..
+- * Also, these devices should be integrated with other CPU data..
+- */
+-
+-static struct cpu cpu_devices[NR_CPUS];
+-
+-static struct device_driver cpu_driver = {
+-	.name		= "cpu",
+-	.bus		= &system_bus_type,
+-	.devclass	= &cpu_devclass,
+-};
+-
+-static int __init register_cpus(void)
+-{
+-	int i;
+-
+-	driver_register(&cpu_driver);
+-
+-	for (i = 0; i < NR_CPUS; i++) {
+-		struct sys_device * sysdev = &cpu_devices[i].sysdev;
+-		sysdev->name = "cpu";
+-		sysdev->id = i;
+-		sysdev->dev.driver = &cpu_driver;
+-		if (cpu_possible(i))
+-			sys_device_register(sysdev);
+-	}
+-	return 0;
+-}
+-
+-subsys_initcall(register_cpus);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/include/linux/cpu.h .21228-linux-2.5.44-mm3.updated/include/linux/cpu.h
+--- .21228-linux-2.5.44-mm3/include/linux/cpu.h	2002-10-15 15:19:44.000000000 +1000
++++ .21228-linux-2.5.44-mm3.updated/include/linux/cpu.h	2002-10-23 19:06:22.000000000 +1000
+@@ -19,6 +19,7 @@
+  */
+ 
+ #include <linux/device.h>
++#include <linux/percpu.h>
+ 
+ extern struct device_class cpu_devclass;
+ 
+@@ -26,3 +27,7 @@ struct cpu {
+ 	struct sys_device sysdev;
+ };
+ 
++DECLARE_PER_CPU(struct cpu, cpu_devices);
++
++/* Bring a CPU up */
++int cpu_up(unsigned int cpu);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/include/linux/smp.h .21228-linux-2.5.44-mm3.updated/include/linux/smp.h
+--- .21228-linux-2.5.44-mm3/include/linux/smp.h	2002-10-23 19:05:55.000000000 +1000
++++ .21228-linux-2.5.44-mm3.updated/include/linux/smp.h	2002-10-23 19:07:28.000000000 +1000
+@@ -70,14 +70,6 @@ extern volatile int smp_msg_id;
+ 					 */
+ #define MSG_RESCHEDULE		0x0003	/* Reschedule request from master CPU*/
+ #define MSG_CALL_FUNCTION       0x0004  /* Call function on all other CPUs */
+-
+-struct notifier_block;
+-
+-/* Need to know about CPUs going up/down? */
+-extern int register_cpu_notifier(struct notifier_block *nb);
+-extern void unregister_cpu_notifier(struct notifier_block *nb);
+-
+-int cpu_up(unsigned int cpu);
+ #else /* !SMP */
+ 
+ /*
+@@ -101,16 +93,6 @@ static inline void smp_send_reschedule_a
+ #define first_possible_cpu()			0
+ #define next_possible_cpu(cpu)			NR_CPUS
+ 
+-struct notifier_block;
+-
+-/* Need to know about CPUs going up/down? */
+-static inline int register_cpu_notifier(struct notifier_block *nb)
+-{
+-	return 0;
+-}
+-static inline void unregister_cpu_notifier(struct notifier_block *nb)
+-{
+-}
+ #endif /* !SMP */
+ 
+ #define for_each_possible_cpu(var)		\
+@@ -127,4 +109,9 @@ static inline void unregister_cpu_notifi
+ #define put_cpu()		preempt_enable()
+ #define put_cpu_no_resched()	preempt_enable_no_resched()
+ 
++/* Need to know about CPUs going up/down? */
++struct notifier_block;
++extern int register_cpu_notifier(struct notifier_block *nb);
++extern void unregister_cpu_notifier(struct notifier_block *nb);
++
+ #endif /* __LINUX_SMP_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/init/main.c .21228-linux-2.5.44-mm3.updated/init/main.c
+--- .21228-linux-2.5.44-mm3/init/main.c	2002-10-23 12:03:15.000000000 +1000
++++ .21228-linux-2.5.44-mm3.updated/init/main.c	2002-10-23 19:06:22.000000000 +1000
+@@ -33,6 +33,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/profile.h>
+ #include <linux/rcupdate.h>
++#include <linux/cpu.h>
+ 
+ #include <asm/io.h>
+ #include <asm/bugs.h>
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/kernel/Makefile .21228-linux-2.5.44-mm3.updated/kernel/Makefile
+--- .21228-linux-2.5.44-mm3/kernel/Makefile	2002-10-16 15:01:26.000000000 +1000
++++ .21228-linux-2.5.44-mm3.updated/kernel/Makefile	2002-10-23 19:06:22.000000000 +1000
+@@ -4,16 +4,15 @@
+ 
+ export-objs = signal.o sys.o kmod.o workqueue.o ksyms.o pm.o exec_domain.o \
+ 		printk.o platform.o suspend.o dma.o module.o cpufreq.o \
+-		profile.o rcupdate.o
++		profile.o rcupdate.o cpu.o
+ 
+ obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
+ 	    module.o exit.o itimer.o time.o softirq.o resource.o \
+ 	    sysctl.o capability.o ptrace.o timer.o user.o \
+ 	    signal.o sys.o kmod.o workqueue.o futex.o platform.o pid.o \
+-	    rcupdate.o
++	    rcupdate.o cpu.o
+ 
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+-obj-$(CONFIG_SMP) += cpu.o
+ obj-$(CONFIG_UID16) += uid16.o
+ obj-$(CONFIG_MODULES) += ksyms.o
+ obj-$(CONFIG_KALLSYMS) += kallsyms.o
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/kernel/cpu.c .21228-linux-2.5.44-mm3.updated/kernel/cpu.c
+--- .21228-linux-2.5.44-mm3/kernel/cpu.c	2002-10-23 12:03:15.000000000 +1000
++++ .21228-linux-2.5.44-mm3.updated/kernel/cpu.c	2002-10-23 19:06:22.000000000 +1000
+@@ -1,5 +1,5 @@
+ /* CPU control.
+- * (C) 2001 Rusty Russell
++ * (C) 2001, 2002 Rusty Russell
+  * This code is licenced under the GPL.
+  */
+ #include <linux/proc_fs.h>
+@@ -8,11 +8,14 @@
+ #include <linux/notifier.h>
+ #include <linux/sched.h>
+ #include <linux/unistd.h>
++#include <linux/cpu.h>
++#include <linux/module.h>
+ #include <asm/semaphore.h>
+ 
+ /* This protects CPUs going up and down... */
+ DECLARE_MUTEX(cpucontrol);
+ 
++#ifdef CONFIG_SMP
+ static struct notifier_block *cpu_chain = NULL;
+ 
+ /* Need to know about CPUs going up/down? */
+@@ -64,3 +67,46 @@ out:
+ 	up(&cpucontrol);
+ 	return ret;
+ }
++#else /* ... !CONFIG_SMP */
++/* Need to know about CPUs going up/down? */
++int register_cpu_notifier(struct notifier_block *nb)
 +{
-+       return PCI;
++	return 0;
 +}
++void unregister_cpu_notifier(struct notifier_block *nb)
++{
++}
++int __devinit cpu_up(unsigned int cpu)
++{
++	return -ENOSYS;
++}
++#endif /* CONFIG_SMP */
++
++static struct device_driver cpu_driver = {
++	.name		= "cpu",
++	.bus		= &system_bus_type,
++	.devclass	= &cpu_devclass,
++};
++
++DEFINE_PER_CPU(struct cpu, cpu_devices) = {
++	.sysdev = { .name = "cpu",
++		    .dev = { .driver = &cpu_driver, },
++	},
++};
++
++static int __init register_cpus(void)
++{
++	unsigned int i;
++
++	driver_register(&cpu_driver);
++	for (i = first_possible_cpu(); i < NR_CPUS; i = next_possible_cpu(i)) {
++		per_cpu(cpu_devices, i).sysdev.id = i;
++		sys_device_register(&per_cpu(cpu_devices, i));
++	}
++	return 0;
++}
++
++__initcall(register_cpus);
++
++EXPORT_SYMBOL_GPL(register_cpu_notifier);
++EXPORT_SYMBOL_GPL(unregister_cpu_notifier);
 
-It never returns any other type, so the ACPI or ISA sections of the
-driver will never get called.  Or am I missing something?
-
->  intcphp:
->     Php driver source for Compaq or compatible Intel Hotplug
->     controllers on IA32 or DIG64-ACPI compliant IA64 platforms.
-
-So this overloads the current Compaq driver?  It looks like this "new"
-driver will also handle all of the same controllers the current Compaq
-driver does, right?  If not, it sure looks like you are accepting all of
-the same PCI ID values :)
-
->     intcphp driver is overhauled per your requirements:
->     + Abstraction module is removed.
->       It's now two modules driver like others.
-
-Thank you for making this change, I appreciate it.
-
->     + typedefs are removed except callback function.
-
-Thanks.
-
->     + LINUX_VERSION checks are removed.
-
-And replaced with the odd BEFORE_2_5 check :)
-Please just rip these out and send a version that is only for the 2.5
-kernel.
-
-Some of your #ifdef CONFIG_IA64 should be moved to header files only
-(and probably documented why you really need to sleep extra amounts for
-ia64 machines only.
-
-What's the #ifdef WORK_QUEUE for?
-
-> 	intcphp is much based on cpqphp driver but has been modified to be
-> controller independent on DIG64/ACPI compliant IPF servers as well as
-> non-ACPI based IA32 servers. Thus code looks similar but integration is not
-> that easy and will take time and consents of affected drivers owners.
-
-The code looks _very_ similar.  In fact, at first glance it looks like
-almost a straight copy of the existing Compaq code.  Why not just submit
-a patch against that driver that adds the extra functionality that you
-need for your hardware?  That would be much smaller, and decrease the
-amount of duplicated code in the kernel tree.
-
-Also, why doesn't the ACPI PCI hotplug driver work for your machines?
-I've seen it work on a very wide range of processors (i386 and ia64),
-and manufacturers, and any specific issues with your hardware would
-probably be better addressed with patches to the existing ACPI driver.
-
-> 	We understand there needs more integration and cleanup to make
-> common codes to pci_hotplug core as you indicated. This task, however,
-> requires time and changes in every php driver with owners' consensus on
-> common php controller/slot objects, while satisfying requirements in the
-> near future. We look forward to discussing this with you and other
-> contributors.
-
-Great, I do too.  Please, make a proposal about what to merge into the
-core.  I do NOT want to see another driver have to duplicate the PCI
-resource management code again without a very good reason for doing it.
-
-> 	Until then, please allow us to co-exist this driver.
-
-There's no rush, let's work together to get this done properly.
-
-thanks,
-
-greg k-h
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

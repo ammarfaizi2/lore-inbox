@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261581AbSJYUle>; Fri, 25 Oct 2002 16:41:34 -0400
+	id <S261593AbSJYUo7>; Fri, 25 Oct 2002 16:44:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261584AbSJYUle>; Fri, 25 Oct 2002 16:41:34 -0400
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:46854 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S261581AbSJYUld> convert rfc822-to-8bit; Fri, 25 Oct 2002 16:41:33 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] 2.5.44-ac3, cciss, more scatter gather elements
-Date: Fri, 25 Oct 2002 15:47:22 -0500
-Message-ID: <45B36A38D959B44CB032DA427A6E10640167D070@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.5.44-ac3, cciss, more scatter gather elements
-Thread-Index: AcJ8ZJgxLyTbDiGVQeWEUuLfS1iv3wAAB5+A
-From: "Cameron, Steve" <Steve.Cameron@hp.com>
-To: "Jens Axboe" <axboe@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 25 Oct 2002 20:47:43.0185 (UTC) FILETIME=[C403BC10:01C27C67]
+	id <S261596AbSJYUo7>; Fri, 25 Oct 2002 16:44:59 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:21703 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261593AbSJYUo7>; Fri, 25 Oct 2002 16:44:59 -0400
+Subject: Re: [OT]AMD/Intel interrupt latency (jitter) differences?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: markh@compro.net
+Cc: root@chaos.analogic.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DB9AD6D.C96A5398@compro.net>
+References: <Pine.LNX.3.95.1021025155330.3856A-100000@chaos.analogic.com> 
+	<3DB9AD6D.C96A5398@compro.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2002 22:08:28 +0100
+Message-Id: <1035580108.13032.79.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Fri, Oct 25 2002, Stephen Cameron wrote:
-> > 
-> > Add blk_rq_map_sg_one_by_one function to ll_rw_blk.c in order to allow a low 
-> > level driver to map scatter gather elements from the block subsystem one 
-> > at a time 
-[...]
-> I have to say that I think this patch is ugly, and a complete 
-> duplicate of existing code. This is always bad, especially in the case of
-> something not really straight forward (like blk_rq_map_sg()). A hack.
+On Fri, 2002-10-25 at 21:45, Mark Hounschell wrote:
+> That makes sense. But, both these Intel and AMD boxes have pretty much the same
+> config as far as pci cards and pci busses. They both have 1 or 2 66mhz and a 33
+> mhz bus. 
+> The Intel box used right now is a Super-micro p4dc6+ and only has our 2 33mhz
+> cards in it. It has on board UW-scsi-2 controller using a 66MHz bus where as the
+> AMD has no controllers on the 66mhz bus. It is using the onboard IDE controller.
+> The intel has built in network card that IS active when running the emulation
+> and the AMD has a 3c905 card that is also active. Other than that they are the
+> same. I thought all recent pci cards were bus mastering capable these days??
 
-Yes, I sort of figured you'd say that.  I was just trying to get the 
-ball rolling.
+Pretty much. IDE and graphics cards tend to be badly behaved at times
+but the other stuff ought to behave better. The AMD does have some
+tunables about fairness/performance etc in the chipset. I wonder which
+way the vendor sets them
 
-> 
-> I can understand the need for something like this, for drivers that
-> can't use a struct scatterlist directly. I'd rather do this in a
-> different way, though.
-[...]
-
-Ok, I will (try to) rewrite it as you suggest.
-  
-> Oh, and do try to follow the style. It's
-[...]
-
-Well, it doesn't look like cpqfc, at least.
-Heh, I count it as a victory that you choose such small things
-to complain about.  Thanks for your time reviewing this.
-
--- steve
- 

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130463AbRBARqy>; Thu, 1 Feb 2001 12:46:54 -0500
+	id <S130604AbRBARto>; Thu, 1 Feb 2001 12:49:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130766AbRBARqe>; Thu, 1 Feb 2001 12:46:34 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:47378
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130463AbRBARq3>; Thu, 1 Feb 2001 12:46:29 -0500
-Date: Thu, 1 Feb 2001 09:45:59 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with Promise IDE controller under 2.4.1
-In-Reply-To: <20010201151531.C5706@emma1.emma.line.org>
-Message-ID: <Pine.LNX.4.10.10102010945270.16224-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S130766AbRBARte>; Thu, 1 Feb 2001 12:49:34 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:49682 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130604AbRBARtT>; Thu, 1 Feb 2001 12:49:19 -0500
+Date: Thu, 1 Feb 2001 11:48:48 -0600
+To: John Jasen <jjasen1@umbc.edu>
+Cc: "Michael J. Dikkema" <mjd@moot.ca>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
+Message-ID: <20010201114848.A4161@cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.21.0101312258190.227-100000@sliver.moot.ca> <Pine.SGI.4.31L.02.0102011058520.71788-100000@irix2.gl.umbc.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.SGI.4.31L.02.0102011058520.71788-100000@irix2.gl.umbc.edu>; from jjasen1@umbc.edu on Thu, Feb 01, 2001 at 11:00:05AM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001, Matthias Andree wrote:
 
-> On Wed, 31 Jan 2001, Andre Hedrick wrote:
-> 
-> > On Wed, 31 Jan 2001, Paul Flinders wrote:
-> > 
-> > > Talking of the Promise are there any plans to support re-enabling
-> > > of the 2nd channel for boards which have an on-board FastTrak?
-> > 
-> > FastTrak == Ultra - Fake-RAID
-> 
-> But Fake-RAID is CHEAP to get two additional UDMA-5 capable channels :-)
-> Just jumper for normal ATA/100 mode.
+  [Michael J. Dikkema]
+> > I went from 2.4.0 to 2.4.1 and was surprised that either the root
+> > filesystem wasn't mounted, or it couldn't be read. I'm using devfs.. I'm
+> > thinking there might have been a change with regards to the devfs
+> > tree.. is the legacy /dev/hda1 still /dev/discs/disc0/part1?
+> >
+> > I can't even get a shell with init=/bin/bash..
 
-Please create a documnet not and send it to me ;-)
+[John Jasen]
+> Sounds like a lack of devfsd, which handles backwards compatibility
+> for /dev entries.
 
+devfsd does not start up until after the root filesystem is mounted, so
+that's not it.
 
-Andre Hedrick
-Linux ATA Development
+I don't think you can use the /dev/discs/ link for "root=".  It was a
+long time ago that I ran into this issue -- but as I recall, links with
+'..' in them do not work before the vfs is fully operational.  When I
+brought it up with Richard he basically said "don't do that then".
 
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

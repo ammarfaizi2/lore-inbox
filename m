@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132013AbRANKwp>; Sun, 14 Jan 2001 05:52:45 -0500
+	id <S132095AbRANK4f>; Sun, 14 Jan 2001 05:56:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132095AbRANKwf>; Sun, 14 Jan 2001 05:52:35 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:49926 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132013AbRANKwV>;
-	Sun, 14 Jan 2001 05:52:21 -0500
-Date: Sun, 14 Jan 2001 11:52:15 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
+	id <S132130AbRANK4Z>; Sun, 14 Jan 2001 05:56:25 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:51866 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132095AbRANK4P>;
+	Sun, 14 Jan 2001 05:56:15 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14945.34208.281500.226085@pizda.ninka.net>
+Date: Sun, 14 Jan 2001 02:55:28 -0800 (PST)
+To: Andi Kleen <ak@suse.de>
 Cc: Igmar Palsenberg <i.palsenberg@jdimedia.nl>,
         Harald Welte <laforge@gnumonks.org>, linux-kernel@vger.kernel.org
 Subject: Re: 2.4.0 + iproute2
-Message-ID: <20010114115215.A22550@gruyere.muc.suse.de>
-In-Reply-To: <14945.26991.35849.95234@pizda.ninka.net> <Pine.LNX.4.30.0101141013080.16469-100000@jdi.jdimedia.nl> <14945.28354.209720.579437@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14945.28354.209720.579437@pizda.ninka.net>; from davem@redhat.com on Sun, Jan 14, 2001 at 01:17:54AM -0800
+In-Reply-To: <20010114115215.A22550@gruyere.muc.suse.de>
+In-Reply-To: <14945.26991.35849.95234@pizda.ninka.net>
+	<Pine.LNX.4.30.0101141013080.16469-100000@jdi.jdimedia.nl>
+	<14945.28354.209720.579437@pizda.ninka.net>
+	<20010114115215.A22550@gruyere.muc.suse.de>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2001 at 01:17:54AM -0800, David S. Miller wrote:
-> 
-> Igmar Palsenberg writes:
-> 
->  > we might want to consider changing the error the call gives in case
->  > MULTIPLE_TABLES isn't set. -EINVAL is ugly, -ENOSYS should make the error
->  > more clear..
-> 
-> How do I tell the difference between using the wrong system call
-> number to invoke an ioctl or socket option change, and making a
-> call for a feature I haven't configured into my kernel?
-> 
-> I think ENOSYS is just a bad a choice.
 
-In my opinion (rt)netlink would benefit a lot from introducing 5-10 new
-errnos and possibly a new socket option to get a string/number with the exact 
-error.
-Configuring a complex subsystem like CBQ which has dozens of parameters
-with only a single ed'esque error message (EINVAL) when something goes
-wrong is just bad.
+Andi Kleen writes:
+ > In my opinion (rt)netlink would benefit a lot from introducing 5-10
+ > new errnos and possibly a new socket option to get a string/number
+ > with the exact error.
 
+Introducing 5-10 new errnos just for rtnetlink is a big waste when we
+already have socket extended errors which are perfect for this
+purpose.
 
--Andi
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268286AbRHXTIo>; Fri, 24 Aug 2001 15:08:44 -0400
+	id <S272309AbRHXTmi>; Fri, 24 Aug 2001 15:42:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272299AbRHXTIe>; Fri, 24 Aug 2001 15:08:34 -0400
-Received: from [209.10.41.242] ([209.10.41.242]:2948 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S268286AbRHXTIZ>;
-	Fri, 24 Aug 2001 15:08:25 -0400
-Date: Fri, 24 Aug 2001 16:02:56 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-Cc: "Marc A. Lehmann" <pcg@goof.com>, <linux-kernel@vger.kernel.org>,
-        <oesi@plan9.de>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <200108241833.f7OIX1Q26223@maila.telia.com>
-Message-ID: <Pine.LNX.4.33L.0108241600410.31410-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272307AbRHXTm2>; Fri, 24 Aug 2001 15:42:28 -0400
+Received: from willow.seitz.com ([207.106.55.140]:50704 "EHLO willow.seitz.com")
+	by vger.kernel.org with ESMTP id <S272309AbRHXTmS>;
+	Fri, 24 Aug 2001 15:42:18 -0400
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Fri, 24 Aug 2001 15:42:33 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4 broken on 486SX
+Message-ID: <20010824154233.A10048@willow.seitz.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Aug 2001, Roger Larsson wrote:
+Hello all,
 
-> Not having the patch gives you another effect - disk arm is
-> moving from track to track in a furiously tempo...
+	I've tried many versions of 2.4 kernels on a 486SX that I have, and none of them will boot.  When trying to boot, I see 'Loading...............' with the dots continuing to appear.  Finally, the expected carriage return, and bam the system is dead.  The box doesn't even make it to 'Uncompressing Linux...'.  What I'm wondering, is how on earth am I supposed to figure out what is going on and fix it?  I've tried booting both with loadlin and directly off a floppy, both produce the same result.  The machine has 16M of RAM.  I do not know offhand the make of the CPU.
 
-Fully agreed, but remember that when you reach the point
-where the readahead windows are pushing each other out
-you'll be off even worse.
-
-I guess in the long run we should have automatic collapse
-of the readahead window when we find that readahead window
-thrashing is going on, in the short term I think it is
-enough to have the maximum readahead size tunable in /proc,
-like what is happening in the -ac kernels.
-
-regards,
-
-Rik
---
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+	Ross Vandegrift
+	ross@willow.seitz.com

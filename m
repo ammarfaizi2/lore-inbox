@@ -1,91 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVCKWyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVCKW7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbVCKWyU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 17:54:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVCKWvd
+	id S261867AbVCKW7h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 17:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVCKWzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 17:51:33 -0500
-Received: from smtp04.auna.com ([62.81.186.14]:8918 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S261329AbVCKWqM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 17:46:12 -0500
-Date: Fri, 11 Mar 2005 22:46:03 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: AGP bogosities
-To: Dave Jones <davej@redhat.com>
-Cc: Paul Mackerras <paulus@samba.org>, torvalds@osdl.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
-	<1110579068l.8904l.0l@werewolf.able.es> <20050311221838.GG4185@redhat.com>
-In-Reply-To: <20050311221838.GG4185@redhat.com> (from davej@redhat.com on
-	Fri Mar 11 23:18:39 2005)
-X-Mailer: Balsa 2.3.0
-Message-Id: <1110581163l.5796l.0l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+	Fri, 11 Mar 2005 17:55:55 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:5293 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261820AbVCKWxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 17:53:15 -0500
+Date: Fri, 11 Mar 2005 16:13:33 -0800
+From: long <tlnguyen@snoqualmie.dp.intel.com>
+Message-Id: <200503120013.j2C0DXcK020305@snoqualmie.dp.intel.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 2/6] PCI Express Advanced Error Reporting Driver
+Cc: greg@kroah.com, tom.l.nguyen@intel.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch includes the source code of sysfs component of PCI
+Express Advanced Error Reporting driver.
 
-On 03.11, Dave Jones wrote:
-> On Fri, Mar 11, 2005 at 10:11:08PM +0000, J.A. Magallon wrote:
->  > 
->  > On 03.11, Paul Mackerras wrote:
->  > > Linus,
->  > > 
->  > ...
->  > > 
->  > > Oh, and by the way, I have 3D working relatively well on my G5 with a
->  > > 64-bit kernel (and 32-bit X server and clients), which is why I care
->  > > about AGP 3.0 support. :)
->  > > 
->  > 
->  > I think it is not a G5 only problem. I have a x8 card, a x8 slot, but
->  > agpgart keeps saying this:
->  > 
->  > Mar 11 23:00:28 werewolf dm: Display manager startup succeeded
->  > Mar 11 23:00:29 werewolf kernel: agpgart: Found an AGP 3.0 compliant device at 0000:00:00.0.
->  > Mar 11 23:00:29 werewolf kernel: agpgart: reserved bits set in mode 0xa. Fixed.
->  > Mar 11 23:00:29 werewolf kernel: agpgart: X passes broken AGP2 flags (2) in AGP3 mode. Fixed.
->  > Mar 11 23:00:29 werewolf kernel: agpgart: Putting AGP V3 device at 0000:00:00.0 into 4x mode
->  > Mar 11 23:00:29 werewolf kernel: agpgart: Putting AGP V3 device at 0000:01:00.0 into 4x mode
->  > Mar 11 23:00:29 werewolf kernel: agpgart: Found an AGP 3.0 compliant device at 0000:00:00.0.
->  > Mar 11 23:00:29 werewolf kernel: agpgart: reserved bits set in mode 0xa. Fixed.
->  > Mar 11 23:00:29 werewolf kernel: agpgart: X passes broken AGP2 flags (2) in AGP3 mode. Fixed.
->  > Mar 11 23:00:29 werewolf kernel: agpgart: Putting AGP V3 device at 0000:00:00.0 into 4x mode
->  > Mar 11 23:00:29 werewolf kernel: agpgart: Putting AGP V3 device at 0000:01:00.0 into 4x mode
->  > 
->  > The nvidia driver (brand new 1.0-7167, now works with stock -mm) tells me
->  > it is in x8 mode, but i suspect it lies....
->  > 
->  > Will try your patch right now.
-> 
+Signed-off-by: T. Long Nguyen <tom.l.nguyen@intel.com>
 
-Looks fine, now I got:
-
-agpgart: Found an AGP 3.0 compliant device at 0000:00:00.0.
-agpgart: Putting AGP V3 device at 0000:00:00.0 into 8x mode
-agpgart: Putting AGP V3 device at 0000:01:00.0 into 8x mode
-agpgart: Found an AGP 3.0 compliant device at 0000:00:00.0.
-agpgart: Putting AGP V3 device at 0000:00:00.0 into 8x mode
-agpgart: Putting AGP V3 device at 0000:01:00.0 into 8x mode
-
-werewolf:~> lspci
-00:00.0 Host bridge: Intel Corporation 82875P/E7210 Memory Controller Hub (rev 02)
-00:01.0 PCI bridge: Intel Corporation 82875P Processor to AGP Controller (rev 02)
-...
-01:00.0 VGA compatible controller: nVidia Corporation NV34 [GeForce FX 5200] (rev a1)
-
-BTW, I had to patch the nVidia driver. It just tries up to x4 AGP...
-
-Thanks.
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.11-jam3 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-6mdk)) #2
-
-
+--------------------------------------------------------------------
+diff -urpN linux-2.6.11-rc5/drivers/pci/pcie/aer/aerdrv_sysfs.c patch-2.6.11-rc5-aerc3-split2/drivers/pci/pcie/aer/aerdrv_sysfs.c
+--- linux-2.6.11-rc5/drivers/pci/pcie/aer/aerdrv_sysfs.c	1969-12-31 19:00:00.000000000 -0500
++++ patch-2.6.11-rc5-aerc3-split2/drivers/pci/pcie/aer/aerdrv_sysfs.c	2005-03-09 13:25:36.000000000 -0500
+@@ -0,0 +1,87 @@
++/*
++ * Copyright (C) 2005 Intel
++ * Copyright (C) Tom Long Nguyen (tom.l.nguyen@intel.com)
++ *
++ */
++
++#include "aerdrv_sysfs.h"
++                  	
++static ssize_t aer_sysfs_consume_show(struct device_driver *dev, char *buf)
++{
++	return aer_fsprint_record(buf);
++}
++                  	
++static ssize_t aer_sysfs_status_show(struct device_driver *dev, char *buf)
++{
++	return aer_fsprint_devices(buf);
++}
++                  	
++static ssize_t aer_sysfs_verbose_show(struct device_driver *dev, char *buf)
++{
++	return sprintf(buf, "Verbose display set to %d\n", 
++		aer_get_verbose());				
++}
++                  	
++static ssize_t aer_sysfs_verbose_store(struct device_driver *drv, 	
++					const char *buf, size_t count)  
++{                            
++	aer_set_verbose(buf[0] - 0x30);			
++	return count;							
++}
++
++static ssize_t aer_sysfs_auto_show(struct device_driver *dev, char *buf)
++{
++	return sprintf(buf, "Automatic reporting is %s\n", 		
++		(aer_get_auto_mode()) ? "on" : "off");  			
++}
++                  	
++static ssize_t aer_sysfs_auto_store(struct device_driver *drv, 	
++					const char *buf, size_t count)          
++{                            
++	aer_set_auto_mode(buf[0] - 0x30);			
++	return count;							
++}
++
++/*
++ * Define AER Sysfs user interfaces
++ */
++static DRIVER_ATTR(consume, S_IRUGO, aer_sysfs_consume_show, NULL);
++static DRIVER_ATTR(status, S_IRUGO, aer_sysfs_status_show, NULL);
++static DRIVER_ATTR(verbose, S_IWUSR | S_IRUGO, aer_sysfs_verbose_show,
++		   aer_sysfs_verbose_store);
++static DRIVER_ATTR(auto, S_IWUSR | S_IRUGO, aer_sysfs_auto_show,
++		   aer_sysfs_auto_store);
++
++static struct attribute *aer_sysfs_driver_attrs[] = {
++	&driver_attr_status.attr,
++	&driver_attr_verbose.attr,
++	&driver_attr_consume.attr,
++	&driver_attr_auto.attr,
++	NULL
++};
++
++static struct attribute_group aer_sysfs_driver_attr_group = {
++	.attrs = aer_sysfs_driver_attrs,
++};
++
++/**
++ * aer_sysfs_init - AER user interface initialization
++ * @drv: pointer to device_driver data structure of AER service driver
++ *
++ * Invoked when AER service driver is loaded. 
++ **/
++int aer_sysfs_init(struct device_driver *drv)
++{
++	return sysfs_create_group(&drv->kobj, &aer_sysfs_driver_attr_group);
++}
++
++/**
++ * aer_sysfs_cleanup - remove AER user interface
++ * @drv: pointer to device_driver data structure of AER service driver
++ *
++ * Invoked when AER service driver is unloaded. 
++ **/
++void aer_sysfs_cleanup(struct device_driver *drv)
++{
++	sysfs_remove_group(&drv->kobj, &aer_sysfs_driver_attr_group);
++}
+diff -urpN linux-2.6.11-rc5/drivers/pci/pcie/aer/aerdrv_sysfs.h patch-2.6.11-rc5-aerc3-split2/drivers/pci/pcie/aer/aerdrv_sysfs.h
+--- linux-2.6.11-rc5/drivers/pci/pcie/aer/aerdrv_sysfs.h	1969-12-31 19:00:00.000000000 -0500
++++ patch-2.6.11-rc5-aerc3-split2/drivers/pci/pcie/aer/aerdrv_sysfs.h	2005-03-09 13:25:36.000000000 -0500
+@@ -0,0 +1,19 @@
++/*
++ * Copyright (C) 2005 Intel
++ * Copyright (C) Tom Long Nguyen (tom.l.nguyen@intel.com)
++ *
++ */
++
++#ifndef	_AERDRV_SYSFS_H_
++#define	_AERDRV_SYSFS_H_
++
++#include <linux/device.h>
++
++extern int aer_fsprint_devices(char *page);
++extern int aer_fsprint_record(char *page);
++extern void aer_set_verbose(int value);
++extern int aer_get_verbose(void);
++extern void aer_set_auto_mode(int value);
++extern int aer_get_auto_mode(void);
++
++#endif	//_AERDRV_SYSFS_H_

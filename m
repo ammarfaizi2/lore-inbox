@@ -1,76 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbUJ3BCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263606AbUJ3A6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbUJ3BCf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 21:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263730AbUJ3A7G
+	id S263606AbUJ3A6K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 20:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbUJ3Auj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 20:59:06 -0400
-Received: from hostmaster.org ([212.186.110.32]:39606 "EHLO hostmaster.org")
-	by vger.kernel.org with ESMTP id S262045AbUJ3Axp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 20:53:45 -0400
-Subject: Re: status of DRM_MGA on x86_64
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: Ian Romanick <idr@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org,
-       "DRI developer's list" <dri-devel@lists.sourceforge.net>
-In-Reply-To: <41829E39.1000909@us.ibm.com>
-References: <1099052450.11282.72.camel@hostmaster.org>
-	 <1099061384.11918.4.camel@hostmaster.org>  <41829E39.1000909@us.ibm.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sW/huqUvCHD8Hq45abbF"
-Date: Sat, 30 Oct 2004 02:53:36 +0200
-Message-Id: <1099097616.11918.26.camel@hostmaster.org>
+	Fri, 29 Oct 2004 20:50:39 -0400
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:21769
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S263566AbUJ3Ash
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 20:48:37 -0400
+Date: Fri, 29 Oct 2004 17:48:27 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: linux-kernel@vger.kernel.org
+Cc: rmk@arm.linux.org.uk, akpm@osdl.org
+Subject: Re: [PATCH] Serial 8250 OMAP support, take 2
+Message-ID: <20041030004826.GL3756@atomide.com>
+References: <20041028191826.GG14884@atomide.com> <20041028203157.B11436@flint.arm.linux.org.uk> <20041028195445.GI14884@atomide.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: multipart/mixed; boundary="5p8PegU4iirBW1oA"
+Content-Disposition: inline
+In-Reply-To: <20041028195445.GI14884@atomide.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-sW/huqUvCHD8Hq45abbF
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--5p8PegU4iirBW1oA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Fre, 2004-10-29 at 12:47 -0700, Ian Romanick wrote:
-> The problem, which exists with most (all?) DRM drivers, is that data=20
-> types are used in the kernel/user interface that have different sizes on=20
-> LP32 and LP64.  If your kernel is 64-bit, you will have problems with=20
-> 32-bit applications.
+* Tony Lindgren <tony@atomide.com> [041028 13:02]:
+> * Russell King <rmk+lkml@arm.linux.org.uk> [041028 12:32]:
+> > 
+> > One of the things which previous changes have done is to move us away
+> > from "port types" towards "capabilities" for serial ports, so things
+> > like the FIFO, hardware flow control and so forth can be individually
+> > controlled, rather than having to rely on a table of features.
+> > 
+> > So, it appears that OMAP ports are like a TI752 port, but with a couple
+> > of extra features.  Can we use the existing TI75x feature support code
+> > for these ports?
+> 
+> Well last time I checked at least the autoconfig failed. I can look into it
+> a bit more.
 
-Then either all or no DRM drivers should be enabled on x86_64, the
-DRM_TDFX, DRM_R128, DRM_RADEON and DRM_SIS are not currently disabled. I
-vote for enabling all drivers that work with 64-bit applications.
+OK, got it working by resetting the ports before calling
+early_serial_setup(). The ports are now properly autodetected as PORT_16654,
+and seem to be working :) The new patch is quite minimal, see below!
 
-I wonder if this should be the first and only place where different
-kernel/userland bitness causes problems. How has this been solved
-elsewhere?
+Hmm, I wonder if there would be some advantage if the ports were detected as
+TI16750?
 
-Tom
+The omap specific reset function is basically:
 
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
+omap_serial_outp(up, UART_OMAP_MDR1, 0x07); /* disable UART */
+omap_serial_outp(up, UART_OMAP_MDR1, 0x00); /* enable UART */
 
-Chemists don't die, they just stop to react.
+Macro is_omap_port() is defined in the omap serial.h to check the port
+address. Moving that to somewhere else would allow removing one ifdef.
 
+The macro cpu_is_omap1510() is omap specific, so one ifdef is still needed.
 
+> > Also, these ports seem to use extra address space which isn't covered by
+> > a request_region/request_mem_region... that's something which should be
+> > fixed.
+> 
+> OK, I'll change that.
 
+This is fixed now too.
 
---=-sW/huqUvCHD8Hq45abbF
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Tony
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+--5p8PegU4iirBW1oA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="patch-2.6.10-rc1-serial-8250-add-omap-take3"
 
-iQEVAwUAQYLmEGD1OYqW/8uJAQL3pAf+JAjch7OKlqaPUFIh6anGlWsJjXWsCWzw
-5kK4Ukwcn876Myfs80904a+tunqaXnkYLGc2RTzzfKB+Mp0SQbsEiE1htp2285ni
-4HXXZ+uJpWCQTYeuMW1eNNoFJUD626SwJJYC4TAlKPxAHRPTF9oyALxDYFa730f+
-YyBRnTB0ktvBp64/QfhjfNplzg2f9ry4NqYDP6UdyaqJppgPubTtR9ibae6+ZgCt
-mjl5dmxaVO5ESmVbb4BKGCm7eIfPUz0vmZtQbKl+npLUv7tss+nW3rw/kE9VPUeE
-YGOKP8DbgOqpNLijoY/Sphn25XaAXBBeh3Vj59TCjmNOXaKmCEfYEw==
-=qx4S
------END PGP SIGNATURE-----
+--- linus/drivers/serial/8250.c	2004-10-26 10:41:48.000000000 -0700
++++ linux-omap-dev/drivers/serial/8250.c	2004-10-29 17:22:00.000000000 -0700
+@@ -1689,6 +1689,17 @@
+ 		serial_outp(up, UART_EFR, efr);
+ 	}
+ 
++#ifdef CONFIG_ARCH_OMAP1510
++	/* Workaround to enable 115200 baud on OMAP1510 internal ports */
++	if (cpu_is_omap1510() && is_omap_port(up->port.membase)) {
++		if (baud == 115200) {
++			quot = 1;
++			serial_out(up, UART_OMAP_OSC_12M_SEL, 1);
++		} else
++			serial_out(up, UART_OMAP_OSC_12M_SEL, 0);
++        }
++#endif
++
+ 	if (up->capabilities & UART_NATSEMI) {
+ 		/* Switch to bank 2 not bank 1, to avoid resetting EXCR2 */
+ 		serial_outp(up, UART_LCR, 0xe0);
+@@ -1742,6 +1753,11 @@
+ 	unsigned int size = 8 << up->port.regshift;
+ 	int ret = 0;
+ 
++#ifdef CONFIG_ARCH_OMAP
++	if (is_omap_port(up->port.membase))
++		size = 0x16 << up->port.regshift;
++#endif
++
+ 	switch (up->port.iotype) {
+ 	case UPIO_MEM:
+ 		if (up->port.mapbase) {
+--- linus/include/linux/serial_reg.h	2004-10-25 10:33:36.000000000 -0700
++++ linux-omap-dev/include/linux/serial_reg.h	2004-10-29 14:13:01.000000000 -0700
+@@ -307,5 +307,19 @@
+ #define SERIAL_RSA_BAUD_BASE (921600)
+ #define SERIAL_RSA_BAUD_BASE_LO (SERIAL_RSA_BAUD_BASE / 8)
+ 
++/*
++ * Extra serial register definitions for the internal UARTs 
++ * in TI OMAP processors.
++ */
++#define UART_OMAP_MDR1		0x08	/* Mode definition register */
++#define UART_OMAP_MDR2		0x09	/* Mode definition register 2 */
++#define UART_OMAP_SCR		0x10	/* Supplementary control register */
++#define UART_OMAP_SSR		0x11	/* Supplementary status register */
++#define UART_OMAP_EBLR		0x12	/* BOF length register */
++#define UART_OMAP_OSC_12M_SEL	0x13	/* OMAP1510 12MHz osc select */
++#define UART_OMAP_MVER		0x14	/* Module version register */
++#define UART_OMAP_SYSC		0x15	/* System configuration register */
++#define UART_OMAP_SYSS		0x16	/* System status register */
++
+ #endif /* _LINUX_SERIAL_REG_H */
+ 
 
---=-sW/huqUvCHD8Hq45abbF--
-
+--5p8PegU4iirBW1oA--

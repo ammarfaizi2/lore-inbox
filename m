@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVAHQYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVAHQti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbVAHQYB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 11:24:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbVAHQYB
+	id S261211AbVAHQti (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 11:49:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVAHQti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 11:24:01 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7089 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261205AbVAHQX5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 11:23:57 -0500
-Message-ID: <41E0090D.30202@pobox.com>
-Date: Sat, 08 Jan 2005 11:23:41 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Magnus Damm <damm@opensource.se>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ide: possible typo in ide-disk.c
-References: <20050108160509.14026.98420.83109@kubu>
-In-Reply-To: <20050108160509.14026.98420.83109@kubu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 8 Jan 2005 11:49:38 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:7620 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261211AbVAHQtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 11:49:36 -0500
+Subject: Re: starting with 2.7
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41DEC83D.30105@comcast.net>
+References: <1105096053.5444.11.camel@ulysse.olympe.o2t>
+	 <20050107111508.GA6667@infradead.org> <20050107111751.GA6765@infradead.org>
+	 <41DEC83D.30105@comcast.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1105196469.10519.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 08 Jan 2005 15:45:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Magnus Damm wrote:
-> Hello,
-> 
-> A search for "task_no_data_intr" tells me that this is probably a typo.
-> 
-> / magnus
-> 
-> Signed-off-by: Magnus Damm <damm@opensource.se>
-> 
-> --- linux-2.6.10/drivers/ide/ide-disk.c	2004-12-24 22:34:32.000000000 +0100
-> +++ linux-2.6.10-ide_task_no_data_intr_20050108/drivers/ide/ide-disk.c	2005-01-08 16:24:26.000000000 +0100
-> @@ -1100,7 +1100,7 @@
->  	case idedisk_pm_idle:		/* Resume step 1 (idle) */
->  		args->tfRegister[IDE_COMMAND_OFFSET] = WIN_IDLEIMMEDIATE;
->  		args->command_type = IDE_DRIVE_TASK_NO_DATA;
-> -		args->handler = task_no_data_intr;
-> +		args->handler = &task_no_data_intr;
+On Gwe, 2005-01-07 at 17:34, John Richard Moser wrote:
+> My scheme involved a 6 month release cycle supporting kernels with
+> bugfixes for the prior 18 months (3 releases), though if you're really
+> committed to hardware driver backporting, I guess it can be done in the
+> actiwve "Stable" branch.
 
-C101.
+18 months is as good as supporting a seperate product line. Also you
+forgot to provide the engineering resources for your plan and to fund
+them 8)
 
-	Jeff
+> to load up maintainers with a billion hours of backporting; but I don't
+> want to load distributors with excess work either.
 
+Distributors get paid by their customers to do the long term backporting
+and careful change control for big business. We take it as given that
+its -our- problem not the software developers.
 
 

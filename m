@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264050AbTDNWex (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264046AbTDNWex (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 18:34:53 -0400
-Received: from [63.98.246.130] ([63.98.246.130]:53159 "HELO
-	mailgw.projectdesign.com") by vger.kernel.org with SMTP
-	id S264050AbTDNWep (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 18:34:45 -0400
-From: Joshua Penix <jpenix@binarytribe.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: DMA Timeouts with 3112 SATA Controller (status == 0x21)
-Date: Mon, 14 Apr 2003 15:50:41 -0700
-User-Agent: KMail/1.5.1
-References: <Pine.LNX.4.10.10304120039570.23693-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10304120039570.23693-100000@master.linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id S263965AbTDNWn0 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263967AbTDNWn0 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 18:43:26 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:24471 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263965AbTDNWnZ (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 18:43:25 -0400
+Subject: Re: [CFT] Hopefully fix PCMCIA boot deadlocks
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, seanlkml@rogers.com,
+       Dominik Brodowski <linux@brodo.de>
+In-Reply-To: <20030414165057.C22754@flint.arm.linux.org.uk>
+References: <20030414165057.C22754@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050360903.677.3.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 15 Apr 2003 00:55:03 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304141550.41888.jpenix@binarytribe.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 April 2003 01:06 am, Andre Hedrick wrote:
-> Gurr!!!!!!!
->
-> These drives were not to make it to market in the commom purchase
-> marketspace!
+On Mon, 2003-04-14 at 17:50, Russell King wrote:
+> Ok,
+> 
+> Here's my latest patch against 2.5.67 which introduces a proper state
+> machine into the PCMCIA layer for handling the sockets.  Unfortunately,
+> I fear that this isn't the answer for the following reasons:
 
-Do you mean to say that the problem lies in the Seagate drives, not in the SiI 
-3112 controller and/or its driver code?
+Well, maybe it's not the answer, but it's working for me with
+2.5.67-mm3. Besides being too verbose, I have tried booting with the
+card plugged, booting with the card unplugged and then plugging it, and
+plugging/unplugging it several time to check that hotplug is working.
 
-I'm seeing SATA as a common component on quite a few motherboards, and am 
-definitely seeing SATA drives in the retail channel.  In my experience, all 
-of these pieces work flawlessly under Win2k and XP... would love for them to 
-do the same under Linux.
+Haven't found any problems, although I'm testing right now on my main
+system (my everyday use laptop).
 
-> This is not a fun one to fix!
->
-> This is all I can say for now :-(
+Nice work, Russell :-)
 
-Why no fun?  Why can't you say more?  We would really appreciate more 
-specifics when you can.  If the problem lies with Seagate, I'd be happy to 
-press the issue with them.
+-- 
+Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
+Linux Registered User #287198
 
---Josh

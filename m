@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbTIHOZr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 10:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbTIHOZr
+	id S262436AbTIHOaY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 10:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbTIHOaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 10:25:47 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:38351 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262360AbTIHOZp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 10:25:45 -0400
-Date: Mon, 8 Sep 2003 10:25:45 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <willy@debian.org>,
-       Erik Andersen <andersen@codepoet.org>,
+	Mon, 8 Sep 2003 10:30:24 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:57730 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262436AbTIHOaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 10:30:20 -0400
+Subject: Re: [CFT][PATCH] new scheduler policy
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Haoqiang Zheng <hzheng@cs.columbia.edu>
+Cc: Pavel Machek <pavel@ucw.cz>, Nick Piggin <piggin@cyberone.com.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Mike Galbraith <efault@gmx.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel header separation
-Message-ID: <20030908142545.GA3926@gtf.org>
-References: <20030902191614.GR13467@parcelfarce.linux.theplanet.co.uk> <20030903014908.GB1601@codepoet.org> <20030905144154.GL18654@parcelfarce.linux.theplanet.co.uk> <20030905211604.GB16993@codepoet.org> <20030905232212.GP18654@parcelfarce.linux.theplanet.co.uk> <1063028303.32473.333.camel@hades.cambridge.redhat.com> <1063030329.21310.32.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <3F5C9010.1080607@cs.columbia.edu>
+References: <3F4182FD.3040900@cyberone.com.au>
+	 <5.2.1.1.2.20030819113225.019dae48@pop.gmx.net>
+	 <20030820021351.GE4306@holomorphy.com> <3F4A1386.9090505@cs.columbia.edu>
+	 <3F4A172F.8080303@cyberone.com.au> <3F4A272F.8000602@cs.columbia.edu>
+	 <20030902142552.GG1358@openzaurus.ucw.cz>
+	 <1063028436.21084.30.camel@dhcp23.swansea.linux.org.uk>
+	 <3F5C9010.1080607@cs.columbia.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063031334.21050.44.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1063030329.21310.32.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Mon, 08 Sep 2003 15:28:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 03:12:10PM +0100, Alan Cox wrote:
-> On Llu, 2003-09-08 at 14:38, David Woodhouse wrote:
-> > > __u8 has a very precise meaning defined by Linux.  If you're including
-> > > a Linux header. that's what you need to worry about.
-> > 
-> > It's a kernel-private type. If we're aiming for a clean set of headers,
-> > then ideally we should avoid gratuitously defining our own types when
-> > standards already exist.
-> 
-> __u8 is intended to be used by non kernel stuff for headers. Thats why
-> "__u8" not "u8" - so it doesnt pollute the sacred posix name space and
-> have us lynched by glibc people
+On Llu, 2003-09-08 at 15:20, Haoqiang Zheng wrote:
+> How do you define "priority inversion" if the app is remote?
 
-Well, strictly speaking, __u8 is an internal gcc not kernel type.
+You have to know the dependancies for the entire system, its nearly
+impossible to do. Once you have the apps also waiting for each other and
+for direct communications (eg via a database or a shared service) life
+gets fun. 
 
-Now that C99 has defined size-based types, I would prefer that we start
-using those...  They are a bit more verbose than "u8" but I think look
-better, and more important, are more portable in the long term than __u8.
-
-Whenever I see "__u8", I think "non-standard, gcc-specific dependency"
-
-	Jeff
-
+For local apps one thing that has been suggested and some microkernels
+have played with is a syscall that basically is "send this message and
+donate the rest of my timeslice to.."
 
 

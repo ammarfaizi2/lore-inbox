@@ -1,79 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314522AbSDSCgW>; Thu, 18 Apr 2002 22:36:22 -0400
+	id <S314523AbSDSCiA>; Thu, 18 Apr 2002 22:38:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314516AbSDSCfK>; Thu, 18 Apr 2002 22:35:10 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:6630 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S314520AbSDSCds>;
-	Thu, 18 Apr 2002 22:33:48 -0400
-Date: Thu, 18 Apr 2002 19:32:16 -0700
-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        irda-users@lists.sourceforge.net
-Subject: [PATCH] : ir258_lsap_lap_close-2.diff
-Message-ID: <20020418193216.G988@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S314516AbSDSCgX>; Thu, 18 Apr 2002 22:36:23 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:14597 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314520AbSDSCfS>;
+	Thu, 18 Apr 2002 22:35:18 -0400
+Date: Thu, 18 Apr 2002 18:34:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG in ext3 (2.4.18pre1)
+Message-ID: <20020419013409.GB9079@kroah.com>
+In-Reply-To: <5.1.0.14.0.20020418230637.0164d828@mailhost.ivimey.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 21 Mar 2002 23:25:18 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir258_lsap_lap_close-2.diff :
----------------------------
-		<apply after ir258_flow_sched_lap_lmp-6.diff to avoid fuzz>
-	o [CORRECT] Cancel LSAP watchdog when putting socket back to listen
-	o [CORRECT] Try to close LAP when closing LSAP still active
-	        <Following patch from Felix Tang>
-	o [CORRECT] Header fix for compile on Alpha architecture
+On Thu, Apr 18, 2002 at 11:13:52PM +0100, Ruth Ivimey-Cook wrote:
+> 
+> System: Cyrix i586/333 with 32MB RAM, ALi Mobo. OS: RH7.2/server with 
+> kernel.org 2.4.18pre1 kernel + Speedtouch USB patches.
 
---------------------------------------
+I'd go complain to the speedtouch people, as their driver has some known
+problems.
 
-diff -u -p linux/include/net/irda/irlmp.d7.h linux/include/net/irda/irlmp.h
---- linux/include/net/irda/irlmp.d7.h	Wed Apr 10 18:32:46 2002
-+++ linux/include/net/irda/irlmp.h	Fri Apr 12 09:54:54 2002
-@@ -278,6 +278,8 @@ static inline void irlmp_listen(struct l
- 	self->dlsap_sel = LSAP_ANY;
- 	self->lap = NULL;
- 	self->lsap_state = LSAP_DISCONNECTED;
-+	/* Started when we received the LM_CONNECT_INDICATION */
-+	del_timer(&self->watchdog_timer);
- }
- 
- #endif
-diff -u -p linux/net/irda/irlmp.d7.c linux/net/irda/irlmp.c
---- linux/net/irda/irlmp.d7.c	Wed Apr 10 18:20:24 2002
-+++ linux/net/irda/irlmp.c	Wed Apr 10 18:27:26 2002
-@@ -236,6 +236,16 @@ void irlmp_close_lsap(struct lsap_cb *se
- 	lap = self->lap;
- 	if (lap) {
- 		ASSERT(lap->magic == LMP_LAP_MAGIC, return;);
-+		/* We might close a LSAP before it has completed the
-+		 * connection setup. In those case, higher layers won't
-+		 * send a proper disconnect request. Harmless, except
-+		 * that we will forget to close LAP... - Jean II */
-+		if(self->lsap_state != LSAP_DISCONNECTED) {
-+			self->lsap_state = LSAP_DISCONNECTED;
-+			irlmp_do_lap_event(self->lap,
-+					   LM_LAP_DISCONNECT_REQUEST, NULL);
-+		}
-+		/* Now, remove from the link */
- 		lsap = hashbin_remove(lap->lsaps, (int) self, NULL);
- 	}
- 	self->lap = NULL;
-diff -u -p linux/net/irda/parameters.d7.c linux/net/irda/parameters.c
---- linux/net/irda/parameters.d7.c	Fri Apr 12 14:45:08 2002
-+++ linux/net/irda/parameters.c	Fri Apr 12 14:45:29 2002
-@@ -28,6 +28,7 @@
-  *     
-  ********************************************************************/
- 
-+#include <linux/types.h>
- #include <asm/unaligned.h>
- #include <asm/byteorder.h>
- 
+Good luck,
+
+greg k-h

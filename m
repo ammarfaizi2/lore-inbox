@@ -1,87 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263953AbUBDSpp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 13:45:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUBDSpp
+	id S264245AbUBDSrj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 13:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbUBDSrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 13:45:45 -0500
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:41996 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S263953AbUBDSpm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 13:45:42 -0500
-Date: Wed, 4 Feb 2004 19:45:07 +0100 (CET)
-From: Lukasz Trabinski <lukasz@trabinski.net>
-X-X-Sender: lukasz@lt.wsisiz.edu.pl
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: dwmw2@infradead.org, riel@redhat.com, linux-kernel@vger.kernel.org,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: Linux 2.4.25-pre6
-In-Reply-To: <Pine.LNX.4.58L.0402041119311.1700@logos.cnet>
-Message-ID: <Pine.LNX.4.58LT.0402041914510.3059@lt.wsisiz.edu.pl>
-References: <200401202125.i0KLPOgh007806@lt.wsisiz.edu.pl> 
- <Pine.LNX.4.58L.0401201940470.29729@logos.cnet> 
- <Pine.LNX.4.58LT.0401210746350.2482@lt.wsisiz.edu.pl> 
- <Pine.LNX.4.58L.0401210852490.5072@logos.cnet> 
- <Pine.LNX.4.58LT.0401211225560.31684@oceanic.wsisiz.edu.pl>
- <1074686081.16045.141.camel@imladris.demon.co.uk>
- <Pine.LNX.4.58LT.0401211702100.23288@oceanic.wsisiz.edu.pl>
- <Pine.LNX.4.58L.0401211809220.5874@logos.cnet> <Pine.LNX.4.58L.0401220929450.18938@logos.cnet>
- <Pine.LNX.4.58LT.0401221248560.11640@oceanic.wsisiz.edu.pl>
- <Pine.LNX.4.58L.0401221014510.18938@logos.cnet>
- <Pine.LNX.4.58LT.0401221334070.2772@oceanic.wsisiz.edu.pl>
- <Pine.LNX.4.58L.0402041119311.1700@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	Wed, 4 Feb 2004 13:47:39 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:2978 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S264245AbUBDSri
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 13:47:38 -0500
+Subject: Re: [patch] 2.4's sys_readahead is borked
+From: Robert Love <rml@ximian.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <40213CFD.5090802@matchmail.com>
+References: <1075853962.8022.3.camel@localhost>
+	 <Pine.LNX.4.58L.0402041224050.1700@logos.cnet>
+	 <1075908048.11309.6.camel@localhost>  <40213CFD.5090802@matchmail.com>
+Content-Type: text/plain
+Message-Id: <1075920451.13072.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
+Date: Wed, 04 Feb 2004 13:47:31 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Feb 2004, Marcelo Tosatti wrote:
+On Wed, 2004-02-04 at 10:42 -0800, Mike Fedyk wrote:
 
-> I wonder if this SCSI errors might have anything to do with your problem.
-> I'm reluctant to revert riel's patch because it does not seem to be the
-> cause for such problems --- it is pretty straighforward and no one can see
-> why it would corrupt the inode list (as per dwmw2's investigation).
+> Robert Love wrote:
+>
+> > Not really - I've been playing with it.  But OpenOffice just added it to
+> > preload some of their libraries.  It should probably be deprecated and
+> > remove in 2.7, since posix_fadvise(POSIX_FADV_WILLNEED) does this same
+> > thing.
+> 
+> In 2.4 also?
 
-> When/how often do this SCSI errors messages happen ? When you saw the
-> lockup, which driver were you using? (Justin's latest or 2.4.25 vanilla
-> aic7xxx).
+No, posix_fadvise() is only in 2.6.
 
-I had tested new driver 2.4-20031222 with 2.4.25-pre6 and machine had 
-permanent load about 1-1,5, commands like `ps aux` or `w` was take about 10
-secunds. I had also problem with reboot, it stoped on "quota turn off", 
-SysRq  didn't work. On 22 Jan 2004 I have sent dump from aic79xx 
-controller to gibbs@scsiguy.com
+So we deprecate readahead() in 2.7...
 
-With vanilla 2.4.25-pre6 +nohighmem.patch I have'n any problems
-from 12 days. No ooops, no SCSI errors. :-)
-UnfortunatelyI don't know that is it hardware problem, driver problem or
-something else, that's why i have sent question to LKML.
+	Robert Love
 
 
-Earlier SCSI errors (2.4.24 and 2.4.24-preX kernels):
-
-oceanic:/var/log$ zcat messages.* |grep scsi0 |grep "Bus Device"
-Nov 17 19:44:26 oceanic kernel: (scsi0:A:0:0): Bus Device Reset Message Sent
-Nov 17 19:44:26 oceanic kernel: scsi0: Bus Device Reset on A:0. 1 SCBs aborted
-Nov  3 08:48:24 oceanic kernel: (scsi0:A:0:0): Bus Device Reset Message Sent
-Nov  3 08:48:24 oceanic kernel: scsi0: Bus Device Reset on A:0. 1 SCBs aborted
-Oct 29 17:21:42 oceanic kernel: (scsi0:A:0:0): Bus Device Reset Message Sent
-Oct 29 17:21:42 oceanic kernel: scsi0: Bus Device Reset on A:0. 1 SCBs aborted
-aborted
-
-
-Tech info:
-
-Adaptec AIC7902 Ultra320 SCSI adapter
-aic7902: Ultra320 Wide Channel A, SCSI Id=7, PCI-X 67-100Mhz, 512 SCBs
-Allocated SCBs: 96, SG List Length: 85
-
-Disks:
-SEAGATE ST373307LW (on this disk was problem) X 1
-SEAGATE ST373453LW X 4
-
-
--- 
-*[ £ukasz Tr±biñski ]*

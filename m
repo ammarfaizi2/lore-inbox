@@ -1,36 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272356AbTGYVFV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 17:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272355AbTGYVEz
+	id S272320AbTGYUnw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 16:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272329AbTGYUn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 17:04:55 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58276 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S272327AbTGYVD7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 17:03:59 -0400
-Date: Fri, 25 Jul 2003 14:16:25 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Harald Welte <laforge@netfilter.org>
-Cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4] netfilter ipt_REJECT: Add RFC1812 ICMP_PKT_FILTERED
-Message-Id: <20030725141625.04b6e47e.davem@redhat.com>
-In-Reply-To: <20030725205111.GO3244@sunbeam.de.gnumonks.org>
-References: <20030725205111.GO3244@sunbeam.de.gnumonks.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Fri, 25 Jul 2003 16:43:27 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:54162 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id S272320AbTGYUj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 16:39:58 -0400
+Date: Fri, 25 Jul 2003 22:52:30 +0200
+From: Harald Welte <laforge@netfilter.org>
+To: David Miller <davem@redhat.com>
+Cc: Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6] netfilter ipt_recent Configure.help fix
+Message-ID: <20030725205229.GD3244@sunbeam.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	David Miller <davem@redhat.com>,
+	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>,
+	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YMoJtYXQBeUqimUz"
+Content-Disposition: inline
+X-Operating-system: Linux sunbeam 2.6.0-test1-nftest
+X-Date: Today is Prickle-Prickle, the 53rd day of Confusion in the YOLD 3169
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jul 2003 22:51:11 +0200
-Harald Welte <laforge@netfilter.org> wrote:
 
-> The seven patch set of bugfixes for 2.4 is now complete.  Well, one more
-> thing, depending on the definition of 'bug' (since Marcelo only accepts
-> bug fixes from now on).
+--YMoJtYXQBeUqimUz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-All 2.4.x patches applied, I'll push onwards to Marcelo.
+Hi Dave!
 
-Thanks Harald.
+This is the 5th of my 2.6 merge of recent bugfixes (all tested against
+2.6.0-test7).  You might need to apply them incrementally (didn't test
+it in a different order).
+
+Author: Adrian Bunk <bunk@fs.tum.de>, Harald Welte <laforge@netfilter.org>
+
+Add the missing Configure.help entry for ipt_recent
+
+Please apply,
+
+diff -Nru --exclude .depend --exclude '*.o' --exclude '*.ko' --exclude '*.v=
+er' --exclude '.*.flags' --exclude '*.orig' --exclude '*.rej' --exclude '*.=
+cmd' --exclude '*.mod.c' --exclude '*~' linux-2.6.0-test1-nftest4/net/ipv4/=
+netfilter/ip_conntrack_core.c linux-2.6.0-test1-nftest5/net/ipv4/netfilter/=
+ip_conntrack_core.c
+--- linux-2.6.0-test1-nftest4/net/ipv4/netfilter/ip_conntrack_core.c	2003-0=
+7-14 05:28:52.000000000 +0200
++++ linux-2.6.0-test1-nftest5/net/ipv4/netfilter/ip_conntrack_core.c	2003-0=
+7-19 16:36:58.000000000 +0200
+@@ -251,7 +251,7 @@
+ }
+=20
+ /* delete all unconfirmed expectations for this conntrack */
+-static void remove_expectations(struct ip_conntrack *ct)
++static void remove_expectations(struct ip_conntrack *ct, int drop_refcount)
+ {
+ 	struct list_head *exp_entry, *next;
+ 	struct ip_conntrack_expect *exp;
+@@ -266,8 +266,11 @@
+ 		 * the un-established ones only */
+ 		if (exp->sibling) {
+ 			DEBUGP("remove_expectations: skipping established %p of %p\n", exp->sib=
+ling, ct);
+-			/* Indicate that this expectations parent is dead */
+-			exp->expectant =3D NULL;
++			if (drop_refcount) {
++				/* Indicate that this expectations parent is dead */
++				ip_conntrack_put(exp->expectant);
++				exp->expectant =3D NULL;
++			}
+ 			continue;
+ 		}
+=20
+@@ -292,7 +295,7 @@
+ 		    &ct->tuplehash[IP_CT_DIR_REPLY]);
+=20
+ 	/* Destroy all un-established, pending expectations */
+-	remove_expectations(ct);
++	remove_expectations(ct, 1);
+ }
+=20
+ static void
+@@ -1117,7 +1120,7 @@
+ {
+ 	if (i->ctrack->helper =3D=3D me) {
+ 		/* Get rid of any expected. */
+-		remove_expectations(i->ctrack);
++		remove_expectations(i->ctrack, 0);
+ 		/* And *then* set helper to NULL */
+ 		i->ctrack->helper =3D NULL;
+ 	}
+
+--=20
+- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--YMoJtYXQBeUqimUz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/IZiNXaXGVTD0i/8RAlyUAJ9HjL7I19kkSoG9ogXYvZQGuELUygCgrgO+
+WaUKe7E3vLw3ogF66JxN7jo=
+=tk62
+-----END PGP SIGNATURE-----
+
+--YMoJtYXQBeUqimUz--

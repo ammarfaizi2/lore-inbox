@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284871AbRLPWTF>; Sun, 16 Dec 2001 17:19:05 -0500
+	id <S284882AbRLPWYq>; Sun, 16 Dec 2001 17:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284879AbRLPWSy>; Sun, 16 Dec 2001 17:18:54 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:774 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284874AbRLPWSq>; Sun, 16 Dec 2001 17:18:46 -0500
-Message-ID: <3C1D1DB3.502@zytor.com>
-Date: Sun, 16 Dec 2001 14:18:27 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S284886AbRLPWYh>; Sun, 16 Dec 2001 17:24:37 -0500
+Received: from balder.inter.net.il ([192.114.186.15]:32321 "EHLO
+	balder.inter.net.il") by vger.kernel.org with ESMTP
+	id <S284882AbRLPWYc>; Sun, 16 Dec 2001 17:24:32 -0500
+Message-ID: <000201c18680$95368a80$41e008d5@user>
+From: "Amir Noam" <adnoam@zahav.net.il>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Amir Noam" <adnoam@zahav.net.il>
+In-Reply-To: <001301c1866d$97ec7d60$720d4084@user> <002101c1866d$ccbbc6e0$720d4084@user>
+Subject: possible bug in fs/proc/generic.c
+Date: Sun, 16 Dec 2001 22:11:51 +0200
 MIME-Version: 1.0
-To: antirez <antirez@invece.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Booting a modular kernel through a multiple streams file
-In-Reply-To: <3C1D060B.9475C9F8@bluewin.ch> <9vj2c7$vgr$1@cesium.transmeta.com> <20011216230206.J446@blu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-antirez wrote:
+I've just noticed how horribly formatted this post came out, so I'm
+sending it again. Hopefully this time it will be readable. Sorry about
+that.
 
->>>
->>By this you have pretty much shown yourself utterly unqualified to be
->>a kernel *designer*.  I won't even go into the various bogus
-> 
-> Agreed, but it should be also noted that to be able to do
-> kernel coding is insufficient to do kernel design.
+Please CC me on any reply, since I'm not subscribed to the list.
 
- >
+I've stumbled upon something that looks like a bug, but since I'm
+fairly new to kernel programming, it can easily be a misunderstanding
+on my part.
 
-Agreed 100%.
+The problem is that proc_register() (in fs/proc/generic.c) can fail
+(returning -EAGAIN) if there are no more free node numbers in the
+/proc fs. However, no one is actually checking the return value of
+proc_remove(). The result, as I see it, is that when trying to create
+a new /proc entry while the maximal number of entries already exist,
+the new entry is successfully allocated, but cannot be linked to the
+rest of the /proc entries (via the pointers 'parent', 'subdir',
+etc...), and therefore cannot be accessed through the file system.
 
-	-hpa
+Furthermore, this new entry can never be de-allocated, since there is
+no match for its name in the /proc fs.
+
+So, is this an actual bug, or am I missing something completely
+obvious here?
+
+Thanks in advance,
+Amir Noam
+
+
 
 

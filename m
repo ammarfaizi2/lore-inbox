@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318198AbSGWPYe>; Tue, 23 Jul 2002 11:24:34 -0400
+	id <S318101AbSGWPra>; Tue, 23 Jul 2002 11:47:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318199AbSGWPYe>; Tue, 23 Jul 2002 11:24:34 -0400
-Received: from mons.uio.no ([129.240.130.14]:58843 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S318198AbSGWPYd>;
-	Tue, 23 Jul 2002 11:24:33 -0400
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Organization: Dept. of Physics, University of Oslo, Norway
-To: Olaf Kirch <okir@suse.de>
-Subject: Re: [NFS] Locking patches (generic & nfs)
-Date: Tue, 23 Jul 2002 17:27:38 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-References: <20020719101950.A15819@suse.de> <shsy9c27asf.fsf@charged.uio.no> <20020723170615.D1869@suse.de>
-In-Reply-To: <20020723170615.D1869@suse.de>
+	id <S318102AbSGWPr3>; Tue, 23 Jul 2002 11:47:29 -0400
+Received: from twin.jikos.cz ([217.11.236.59]:21181 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id <S318101AbSGWPr3>;
+	Tue, 23 Jul 2002 11:47:29 -0400
+Date: Tue, 23 Jul 2002 17:50:17 +0200 (CEST)
+From: Jirka Kosina <jikos@jikos.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: John Covici <covici@ccs.covici.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: is flock broken in 2.4 or 2.5 kernels or what does this mean?
+In-Reply-To: <1027441872.31787.139.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207231748150.9333-100000@twin.jikos.cz>
+References: <m37kjmik0g.fsf@ccs.covici.com> <1027441872.31787.139.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_2AKPHME3BAIGNDN4KA07"
-Message-Id: <200207231727.38671.trond.myklebust@fys.uio.no>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 23 Jul 2002, Alan Cox wrote:
 
---------------Boundary-00=_2AKPHME3BAIGNDN4KA07
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
+> > Can anyone tell me what this is all about -- is there any basis in
+> > reality for what they are saying?
+> First I've heard of it, so it would be useful if someone has access to
+> the sendmail problem report/test in question that shows it and I'll go
+> find out.
 
-On Tuesday 23 July 2002 17:06, Olaf Kirch wrote:
+Quoting Stephen Tweedie's earlier post to the list:
 
-> But as it is today, all blocked locks get inserted at the end of the
-> list because time_before_eq does a signed comparison! With the unpatched
-> code, when you have a blocked lock, and the conflicting lock is removed,
-> lockd will never send out a GRANTED_MSG. Because the blocked lock is at the
-> end of the list, and never picked up.
+==
+It really is broken, and sendmail triggers it (at least their
+commercial binaries do).  I've already been talking to willy about the
+problem. The trouble is the accounting: if one process opens a fd and then
+fork()s, it is possible for the lock to be taken in the parent and
+released in the child (or vice versa) --- unless there's an explicit
+flock(LOCK_UN), then the lock will be released implicitly when the
+last reference to the fd is closed. When this happens, we get the lock 
+count incremented in one task and
+decremented in another.  That can wrap the lock count backwards to -1
+(or rather ~0UL), which causes the locks rlimit check to think we've
+exceeded the lock quota and new lock requests will fail.  It's easy to
+reproduce this: try the attached prog.  It produces an erroneous
+ENOLCK due to the bug.
+==
 
-Fair enough: I see the bug now.
+-- 
+JiKos.
 
-So why could we not do something like the following instead? This just ensures 
-that we always leave the NLM_NEVER stuff at the end of the list which should 
-suffice to keep nlmsvc_retry_blocked() happy.
 
-Cheers,
-  Trond
-
---------------Boundary-00=_2AKPHME3BAIGNDN4KA07
-Content-Type: text/plain;
-  charset="iso-8859-15";
-  name="fix_svclock.dif"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="fix_svclock.dif"
-
---- linux/fs/lockd/svclock.c.orig	Tue Feb  5 08:52:37 2002
-+++ linux/fs/lockd/svclock.c	Tue Jul 23 17:15:12 2002
-@@ -64,7 +64,7 @@
- 	if (when != NLM_NEVER) {
- 		if ((when += jiffies) == NLM_NEVER)
- 			when ++;
--		while ((b = *bp) && time_before_eq(b->b_when,when))
-+		while ((b = *bp) && time_before_eq(b->b_when,when) && b->b_when != NLM_NEVER)
- 			bp = &b->b_next;
- 	} else
- 		while ((b = *bp))
-
---------------Boundary-00=_2AKPHME3BAIGNDN4KA07--

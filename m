@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268835AbRHXBmq>; Thu, 23 Aug 2001 21:42:46 -0400
+	id <S270825AbRHXBv4>; Thu, 23 Aug 2001 21:51:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270822AbRHXBmh>; Thu, 23 Aug 2001 21:42:37 -0400
-Received: from oe50.law9.hotmail.com ([64.4.8.22]:62733 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S268835AbRHXBma>;
-	Thu, 23 Aug 2001 21:42:30 -0400
-X-Originating-IP: [65.92.117.63]
-From: "Camiel Vanderhoeven" <camiel_toronto@hotmail.com>
-To: <raybry@timesn.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: macro conflict
-Date: Thu, 23 Aug 2001 21:42:52 -0400
-Message-ID: <000a01c12c3e$169c6fb0$0100a8c0@kiosks.hospitaladmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain;	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <3B85615A.58920036@timesn.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2526.0000
-Importance: Normal
-X-OriginalArrivalTime: 24 Aug 2001 01:42:41.0437 (UTC) FILETIME=[1031ACD0:01C12C3E]
+	id <S270827AbRHXBvr>; Thu, 23 Aug 2001 21:51:47 -0400
+Received: from rj.sgi.com ([204.94.215.100]:10928 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S270825AbRHXBvk>;
+	Thu, 23 Aug 2001 21:51:40 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2) 
+In-Reply-To: Your message of "Thu, 23 Aug 2001 22:52:35 GMT."
+             <3b8788c0.11437523@mail.mbay.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 24 Aug 2001 11:51:52 +1000
+Message-ID: <18892.998617912@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A small detail; you min(x,y) fails if x and y are pointers.
+On Thu, 23 Aug 2001 22:52:35 GMT, 
+jalvo@mbay.net (John Alvord) wrote:
+>ESR is awaiting the 2.5 branch and the makefile rewrite.
 
-Example: min(char * a, char * b) would evaluate to
-char * __x = (a), __y = (b); etc...
+Wrong.  CML2 is working fine now.  CML2 runs on kernel 2.4, with or
+without kbuild 2.5.  kbuild 2.5 supports CML1 and CML2 and runs on
+kernel 2.4.  There are no timeline dependencies between kbuild 2.5 and
+CML2, they are independent features.
 
-Here __x is a pointer and __y is a char. A better solution (at least the
-one that has my vote so far) would besomething like this:
+As the kbuild maintainer, I have no opinion about CML2, Python etc.  I
+do require several things from CML:
 
-typeof(x) __x=(x); typeof(y) __y=(y); (__x < __y) ? __x : __y
+* Generate an accurate .config.  CML1 can and does generate
+  inconsistent .config files, because the language assumes top down
+  processing.  Menus break that assumption, CML2 fixes the problem,
+  Alan Cox's changes to CML1 may also do so.
 
-Camiel.
+* Use a single parser.  CML1 uses three different parsers for
+  oldconfig, menuconfig and xconfig, each parser has special cases
+  which do not work on the other parsers.  CML2 uses a single parser.
 
-> Without digging through the archives to see if this has already
-> been suggested (if so, I apologize), why can't the following be done:
-> 
-> min(x,y) = ({typeof((x)) __x=(x), __y=(y); (__x < __y) ? __x : __y})
-> 
-> That gets you the correct "evaluate the args once" semantics and gives
-> you control over typing (the comparison is done in the type of the
-> first argument) and we don't have to change a zillion drivers.
-> 
-> (typeof() is a gcc extension.)
+* Easy to maintain and verify.  Everybody involved with CML1, including
+  the current maintainer, agrees that CML1 has reached end of life.  It
+  is too difficult to maintain and to verify that the rule sets give
+  the desired results.  CML2's constraint handler fixes this, AC's CML1
+  might, I have not looked at it.
+
+* Easier to configure for beginners and to autoconfigure.  The list of
+  configure options has grown to the point where it discourages people
+  from configuring their own kernel.  WIth CML1 it is well nigh
+  impossible to autoconfigure a kernel by looking at the hardware and
+  deducing the config settings required.
+
+As long as those requirements are met I do not care how .config is
+created nor which language is used to build .config, display menus etc.
+So far CML2 is the only code that meets the requirements.  That does
+not mean that CML2 is the only possibility, nor that Python 2.0 is an
+absolute requirement.  There is (or was) a work in progress to do CML2
+in C instead of Python.  If somebody else comes up with CML3, the
+kbuild group would look at it.
+
+Saying that Python is a problem is just guessing at this stage.  CML2
+will only be getting widespread usage in kernel 2.5, developers can
+cope with installing the latest Python.  By the time 2.6 is released,
+Python 2.0 will be widespread.
+
+Until somebody actually codes a better CML, we are going with CML2.  If
+you don't like CML2 or Python, do a better version instead of
+complaining.  Put up or shut up.
+

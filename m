@@ -1,100 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267981AbTGTTqI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 15:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbTGTTqI
+	id S268019AbTGTT4T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 15:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268051AbTGTT4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 15:46:08 -0400
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:6580 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S267981AbTGTTqC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 15:46:02 -0400
-Date: Sun, 20 Jul 2003 16:01:02 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6-test1 startup messages?
-Message-ID: <20030720200102.GE20163@rdlg.net>
-Mail-Followup-To: Ivan Gyurdiev <ivg2@cornell.edu>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20030720140035.GC20163@rdlg.net> <3F1AD2AA.9010603@cornell.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+JUInw4efm7IfTNU"
-Content-Disposition: inline
-In-Reply-To: <3F1AD2AA.9010603@cornell.edu>
-User-Agent: Mutt/1.5.4i
+	Sun, 20 Jul 2003 15:56:18 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:20355 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S268130AbTGTT4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 15:56:17 -0400
+Date: Sun, 20 Jul 2003 21:20:53 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307202020.h6KKKrxh003150@81-2-122-30.bradfords.org.uk>
+To: john@grabjohn.com, pavel@ucw.cz
+Subject: Re: Separate ACPI_SLEEP and SOFTWARE_SUSPEND options
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > >  	  Right now you may boot without resuming and then later resume but
+> > >  	  in meantime you cannot use those swap partitions/files which were
+> > >  	  involved in suspending. Also in this case there is a risk that buffers
+> > >  	  on disk won't match with saved ones.
+> > 
+> > What happens on a machine which is sharing swap space between two
+> > operating systems?  Do we have a way to mark a swap partition which is
+> > used for suspend data as unusable?  Maybe we could change the
+> > partition type from 82 to something else.
+>
+> swsusp changes swap's signature, so swapon will fail.
 
---+JUInw4efm7IfTNU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Aren't there some OSes that just blindly use the whole partition,
+without looking for a swap signature?  I suppose that's really a
+problem that needs to be fixed with the other OS, though, to recognise
+the swsusp signature and disable swapping during that boot.
 
-
-
-Yes I am using devfs and it's working with the exact same config under
-2.4.21 without the errors.
-
-
-Thus spake Ivan Gyurdiev (ivg2@cornell.edu):
-
-> Robert L. Harris wrote:
-> >
-> >  I just converted a box to 2.6-test1.  I've installed the=20
-> >  module-init-tools
-> >per another thread on the list.  Spread throughout the startup messages
-> >of the system (Debian Unstable) are messages that read:
-> >
-> >FATAL: Module /dev/tts not found
-> >FATAL: Module /dev/tts not found
-> >FATAL: Module /dev/ttsS?? not found
-> >FATAL: Module /dev/ttsS?? not found
-> >
-> >looking at /dev/tty* I have /dev/tty, /dev/tty0-tty63.  There is no
-> >/dev/ttyS0 (serial console) or tts*.
-> >
->=20
-> Are you using devfs?
-> I get the same messages with devfs.
-> Looking up a /dev file that does not presently exist
-> or have a corresponding module results in the above warnings.
-> At boot time, on a redhat distro pam_console_apply tries to lookup
-> the devices specified in /etc/security/console.perms, which causes a=20
-> zillion warnings for me. The question is - are those warnings to correct=
-=20
-> way to handle a devfs lookup of a nonexisting device. I don't remember=20
-> getting warnings under 2.4. Maybe I did, and just didn't notice (but I=20
-> doubt it). They're certainly annoying and I don't like them.
->=20
-> P.S. Not a kernel developer - just a tester :)
->=20
->=20
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---+JUInw4efm7IfTNU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/GvT+8+1vMONE2jsRAroQAJ9Zt4EZ0De2byU9IjOuu6bMO1yfRwCg0MPz
-qFupR8qvlzRyWXp6MMiFGpo=
-=l1w7
------END PGP SIGNATURE-----
-
---+JUInw4efm7IfTNU--
+John.

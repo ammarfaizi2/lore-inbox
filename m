@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263064AbUDFT1h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 15:27:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263978AbUDFT1h
+	id S263979AbUDFTaj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 15:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUDFTaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 15:27:37 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:23740 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263064AbUDFT1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 15:27:35 -0400
-Date: Tue, 6 Apr 2004 20:24:47 +0100
-From: Dave Jones <davej@redhat.com>
-To: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-Cc: Bjoern Michaelsen <bmichaelsen@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: AGP problem SiS 746FX Linux 2.6.5-rc3
-Message-ID: <20040406192447.GA1100@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>,
-	Bjoern Michaelsen <bmichaelsen@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <20040406031949.GA8351@lord.sinclair> <200404062004.34413.volker.hemmann@heim10.tu-clausthal.de> <20040406181146.GH6930@redhat.com> <200404062044.06533.volker.hemmann@heim10.tu-clausthal.de>
+	Tue, 6 Apr 2004 15:30:39 -0400
+Received: from karnickel.franken.de ([193.141.110.11]:55308 "EHLO
+	karnickel.franken.de") by vger.kernel.org with ESMTP
+	id S263979AbUDFTai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 15:30:38 -0400
+Date: Tue, 6 Apr 2004 21:27:08 +0200
+To: Alex Riesen <fork0@users.sourceforge.net>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: Oops with bluetooth dongle
+Message-ID: <20040406192708.GA5327@debian.franken.de>
+References: <Pine.LNX.4.44L0.0404061036480.1042-100000@ida.rowland.org> <Pine.LNX.4.44L0.0404061247490.1042-100000@ida.rowland.org> <20040406184736.GA1413@steel.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200404062044.06533.volker.hemmann@heim10.tu-clausthal.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040406184736.GA1413@steel.home>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: erik@debian.franken.de (Erik Tews)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 08:44:06PM +0200, Hemmann, Volker Armin wrote:
+On Tue, Apr 06, 2004 at 08:47:36PM +0200, Alex Riesen wrote:
+> Alan Stern, Tue, Apr 06, 2004 18:49:51 +0200:
+> > I've seen a couple of different problems coming up with this bluetooth 
+> > stuff.  One of them may be fixed by a recent patch, as David Brownell 
+> > mentioned.  Below is the relevant part excerpted from that patch; maybe it 
+> > will help some of you.
+> > 
+> > --- 1.47/drivers/usb/core/message.c	Tue Mar 30 01:04:29 2004
+> > +++ edited/drivers/usb/core/message.c	Tue Mar 30 17:34:54 2004
+> 
+> no change for me. Still oopses.
 
- > I rebooted.
- > Same error, uname -r:
- > Linux energy.heim10.tu-clausthal.de 2.6.5 #1 Tue Apr 6 20:26:45 CEST 2004 i686 
- > AMD Athlon(tm) XP 2000+ AuthenticAMD GNU/Linux
- > 
- > So yes, I am pretty sure, that I am innocent ;o)
+I have been running 2.6.5 with the bk-usb patch broken out of mm1. I
+still got the problem.
 
-Ok, what happens if you nuke the ..
+If I rmmod uhci-hcd, the kernel oopses too.
 
-	} else {
-		sis_driver.agp_enable=sis_648_enable;
-	}
-
-in sis_get_driver() ?
-That should put things back to 2.6.4 style "working" order for you.
-
-		Dave
-
+Still any ideas?

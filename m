@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132483AbRD3Meu>; Mon, 30 Apr 2001 08:34:50 -0400
+	id <S131497AbRD3Mdt>; Mon, 30 Apr 2001 08:33:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132399AbRD3Mel>; Mon, 30 Apr 2001 08:34:41 -0400
-Received: from eastgate.starhub.net.sg ([203.116.1.189]:61709 "EHLO
-	eastgate.starhub.net.sg") by vger.kernel.org with ESMTP
-	id <S133088AbRD3Meg>; Mon, 30 Apr 2001 08:34:36 -0400
-Message-ID: <XFMail.010430205941.hosler@lugs.org.sg>
-X-Mailer: XFMail 1.3 [p0] on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S132399AbRD3Mdj>; Mon, 30 Apr 2001 08:33:39 -0400
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:39174 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S131497AbRD3Md2>;
+	Mon, 30 Apr 2001 08:33:28 -0400
+Date: Mon, 30 Apr 2001 14:33:21 +0200 (CEST)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Using alloc_skb causes memory corruption in 2.4.4
+Message-ID: <Pine.LNX.4.30.0104292052370.8703-100000@svea.tellus>
 MIME-Version: 1.0
-Date: Mon, 30 Apr 2001 20:59:41 +0800 (SGT)
-Reply-To: Greg Hosler <hosler@lugs.org.sg>
-From: Greg Hosler <hosler@lugs.org.sg>
-To: linux-kernel@vger.kernel.org
-Subject: Via VT82C686 data sheet
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone have, or know where I can get a copy of the above ?
+I get severe memory corruption when forwarding packets from eth1 to eth0,
+where eth0 is a 3Com 905C-TX (zc, hw checksumming), and eth1 is a Davicom
+9102.  In every case it is the last two bytes of a 4096-byte block that
+have been cleared.
 
-The onboard AC97 sound driver (via82cxxx_audio) was rewritten from legacy
-(which works both in UP and SMP kernels), to do w/o the legacy support,
-and go native. The problem is that the new driver doesn't properly handle
-enabling interrupts for the case when the IRQ has been reassigned (by
-the I/O APIC, which is typical under SMP). (actually the via82cxxx_audio
-has code to try to handle the reassignment of the IRQ, but it doesn't work).
+To make a long bug hunting story short, the eth1 driver (dmfe) uses
+alloc_skb for skbuf allocation, and if I change it into dev_alloc_skb, the
+problem disappears.
 
-I'm looking to see a copy of the datasheet on the 82C686, to see if I can
-debug this further.
+Did I find the real problem, or did I just hide it?
 
-thx for any pointers, and rgds,
+/Tobias
 
--Greg
 
-+---------------------------------------------------------------------+
-"DOS Computers manufactured by companies such as IBM, Compaq, Tandy, and
-millions of others are by far the most popular, with about 70 million
-machines in use wordwide. Macintosh fans, on the other hand, may note that
-cockroaches are far more numerous than humans, and that numbers alone do
-not denote a higher life form."       (New York Times, November 26, 1991)
-| Greg Hosler                           i-net:  hosler@lugs.org.sg    |
-+---------------------------------------------------------------------+
+diff -ru linux-2.4.4.orig/drivers/net/dmfe.c linux-2.4.4/drivers/net/dmfe.c
+--- linux-2.4.4.orig/drivers/net/dmfe.c	Sat Apr 28 11:41:49 2001
++++ linux-2.4.4/drivers/net/dmfe.c	Mon Apr 30 15:15:02 2001
+@@ -1306,7 +1306,7 @@
+ 	rxptr = db->rx_insert_ptr;
+
+ 	while (db->rx_avail_cnt < RX_DESC_CNT) {
+-		if ((skb = alloc_skb(RX_ALLOC_SIZE, GFP_ATOMIC)) == NULL)
++		if ((skb = dev_alloc_skb(RX_ALLOC_SIZE)) == NULL)
+ 			break;
+ 		rxptr->rx_skb_ptr = (u32) skb;
+ 		rxptr->rdes2 = virt_to_bus(skb->tail);
+

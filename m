@@ -1,59 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVAXTk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVAXTf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVAXTk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 14:40:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVAXTkU
+	id S261580AbVAXTf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 14:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVAXTdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 14:40:20 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:17938 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261600AbVAXTg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 14:36:29 -0500
-Date: Mon, 24 Jan 2005 20:36:24 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: [2.6 patch] kernel-api.sgml references removed file net_init.c
-Message-ID: <20050124193624.GS3515@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 24 Jan 2005 14:33:09 -0500
+Received: from dfw-gate1.raytheon.com ([199.46.199.230]:1737 "EHLO
+	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
+	id S261598AbVAXT2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 14:28:53 -0500
+Subject: Re: Query on remap_pfn_range compatibility
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF0A92B996.F674A9A0-ON86256F93.0066BC3F@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Mon, 24 Jan 2005 13:05:44 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 01/24/2005 01:06:50 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+wli wrote...
+> On Mon, Jan 24, 2005 at 10:54:22AM -0600, Mark_H_Johnson@raytheon.com
+wrote:
+> > I read the messages on lkml from September 2004 about the introduction
+of
+> > remap_pfn_range and have a question related to coding for it. What do
+you
+> > recommend for driver coding to be compatible with these functions
+> > (remap_page_range, remap_pfn_range)?
+> > For example, I see at least two (or three) combination I need to
+address:
+> >  - 2.4 (with remap_page_range) OR 2.6.x (with remap_page_range)
+> >  - 2.6.x-mm (with remap_pfn_range)
+> > Is there some symbol or #ifdef value I can depend on to determine which
+> > function I should be calling (and the value to pass in)?
+>
+> Not sure. One on kernel version being <= 2.6.10 would probably serve
+> your purposes, though it's not particularly well thought of. I suspect
+> people would suggest splitting up the codebase instead of sharing it
+> between 2.4.x and 2.6.x, where I've no idea how well that sits with you.
 
-This patch by Jesper Juhl is still required in 2.6.11-rc2-mm1.
+I guess I could do that, but if a distribution picks up remap_pfn_range
+in an earlier kernel, that doesn't work either. If it gets back ported
+to 2.4 the conditional gets a little more complicated.
 
+Splitting the code base is a pretty harsh solution.
 
-make mandocs fails with these errors in 2.6.10-bk2 : 
+I am also trying to avoid an ugly hack like the following:
 
-juhl@dragon:~/download/kernel/linux-2.6.10-bk2$ make mandocs
-  DOCPROC Documentation/DocBook/kernel-api.sgml
-docproc: /home/juhl/download/kernel/linux-2.6.10-bk2/drivers/net/net_init.c: No such file or directory
-/bin/sh: line 1:  4845 Segmentation fault      
-SRCTREE=/home/juhl/download/kernel/linux-2.6.10-bk2/ scripts/basic/docproc doc Documentation/DocBook/kernel-api.tmpl >Documentation/DocBook/kernel-api.sgml
-make[1]: *** [Documentation/DocBook/kernel-api.sgml] Error 139
-make: *** [mandocs] Error 2
+  VMA_PARAM_IN_REMAP=`grep remap_page_range
+$PATH_LINUX_INCLUDE/linux/mm.h|grep vma`
+  if [ -z "$VMA_PARAM_IN_REMAP" ]; then
+    export REMAP_PAGE_RANGE_PARAM="4"
+  else
+    export REMAP_PAGE_RANGE_PARAM="5"
+  endif
 
-removing the reference to net_init.c makes it continue a bit further but 
-it still ends up failing with these errors : 
+in a build script which detects if remap_page_range() has 4 or 5 parameters
+and then pass an appropriate value into the code using gcc -D. [ugh]
 
-make[1]: *** [Documentation/DocBook/kernel-api.sgml] Error 1
-make: *** [mandocs] Error 2
+Would it be acceptable to add a symbol like
+  #define MM_VM_REMAP_PFN_RANGE
+in include/linux/mm.h or is that too much of a hack as well?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> I vaguely suspected something like this would happen, but there were
+> serious and legitimate concerns about new usage of the 32-bit unsafe
+> methods being reintroduced, so at some point the old hook had to go.
+I don't doubt the need to remove the old interface. But I see possible
+problem areas on > 4 Gbyte machines, such as virt_to_phys defined in
+linux/asm-i386/io.h, that are not getting fixed or do I misread the
+way that code works.
 
---- linux-2.6.10-bk2-orig/Documentation/DocBook/kernel-api.tmpl	2004-12-24 22:33:48.000000000 +0100
-+++ linux-2.6.10-bk2/Documentation/DocBook/kernel-api.tmpl	2004-12-31 01:33:53.000000000 +0100
-@@ -143,7 +143,6 @@
-   <chapter id="netdev">
-      <title>Network device support</title>
-      <sect1><title>Driver Support</title>
--!Edrivers/net/net_init.c
- !Enet/core/dev.c
-      </sect1>
-      <sect1><title>8390 Based Network Cards</title>
-
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 

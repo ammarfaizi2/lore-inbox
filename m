@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310295AbSCABln>; Thu, 28 Feb 2002 20:41:43 -0500
+	id <S293085AbSB1XnG>; Thu, 28 Feb 2002 18:43:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310301AbSCABhb>; Thu, 28 Feb 2002 20:37:31 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15121 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310305AbSCABhD>; Thu, 28 Feb 2002 20:37:03 -0500
-Subject: Re: Congrats Marcelo,
-To: davej@suse.de (Dave Jones)
-Date: Fri, 1 Mar 2002 01:51:51 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        jdennis@snapserver.com (Dennis Jim),
-        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <20020301020328.A7662@suse.de> from "Dave Jones" at Mar 01, 2002 02:03:28 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310198AbSB1Xk7>; Thu, 28 Feb 2002 18:40:59 -0500
+Received: from fmfdns01.fm.intel.com ([132.233.247.10]:61678 "EHLO
+	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S310200AbSB1Xia>; Thu, 28 Feb 2002 18:38:30 -0500
+Message-ID: <BD9B60A108C4D511AAA10002A50708F22C1453@orsmsx118.jf.intel.com>
+From: "Leech, Christopher" <christopher.leech@intel.com>
+To: "'David S. Miller'" <davem@redhat.com>,
+        "Leech, Christopher" <christopher.leech@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: RE: hardware VLAN acceleration
+Date: Thu, 28 Feb 2002 15:38:24 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16gcD9-00021G-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > sensor in the machine. Once you are using ACPI though you talk to ACPI
->  > and it talks to the smbus etc and knows whats in the box
-> 
->  Given the fears of what happens when you look at i2c/smbus etc
->  the wrong way, is this something we can rely on DMI tables
->  to get right ?  When they can't get cachesize info right, I begin
->  to question their ability to describe a temperature sensor.
 
-The ones I looked at seemed credible - but yes it is an issue 8)
+> Any time VLAN groups exist, the VLAN module should not be unloadable.
+> 
+> This is a hokey area of how the VLAN layer works and I intend
+> to fix it.
+
+OK.  I was just trying really hard to find potential API problems earlier
+rather than later, obviously without taking the time to completely
+understand the VLAN layer internals :)
+
+I don't see why it wouldn't be desirable to have a method of stopping the
+driver from continuing to call vlan_hwaccel_rx, so that the vlan_group could
+be freed after all the VIDs were removed.  It could be as simple as
+declaring that dev->vlan_rx_register(dev, NULL) is valid.
+
+	Chris

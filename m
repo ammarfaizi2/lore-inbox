@@ -1,82 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261376AbTCTVtS>; Thu, 20 Mar 2003 16:49:18 -0500
+	id <S262623AbTCTVxB>; Thu, 20 Mar 2003 16:53:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262284AbTCTVtS>; Thu, 20 Mar 2003 16:49:18 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:48512 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S261376AbTCTVtQ>;
-	Thu, 20 Mar 2003 16:49:16 -0500
-Date: Thu, 20 Mar 2003 13:59:11 -0800
-From: Bob Miller <rem@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-sh@m17n.org, gniibe@m17n.org,
-       kkojima@rr.iij4u.or.jp
-Subject: Re: [PATCH] reduce stack usage in arch/sh/kernel/pci-sh7751
-Message-ID: <20030320215910.GA16501@doc.pdx.osdl.net>
-References: <20030320120833.2ddbfcc1.rddunlap@osdl.org>
+	id <S262642AbTCTVxB>; Thu, 20 Mar 2003 16:53:01 -0500
+Received: from inet-mail3.oracle.com ([148.87.2.203]:43949 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id <S262623AbTCTVxA>; Thu, 20 Mar 2003 16:53:00 -0500
+Date: Thu, 20 Mar 2003 14:03:13 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Andries.Brouwer@cwi.nl,
+       akpm@digeo.com, andrey@eccentric.mae.cornell.edu,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: major/minor split
+Message-ID: <20030320220313.GQ2835@ca-server1.us.oracle.com>
+References: <UTC200303192140.h2JLeF924104.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0303202146100.12110-100000@serv> <20030320214740.GP2835@ca-server1.us.oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030320120833.2ddbfcc1.rddunlap@osdl.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030320214740.GP2835@ca-server1.us.oracle.com>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 12:08:33PM -0800, Randy.Dunlap wrote:
-> Hi,
-> 
-> This has already been done for arch/i386 and arch/x86_64 (same function
-> as is patched here).  Please apply to 2.5.65.
-> 
-> Thanks,
-> --
-> ~Randy
-> 
-> 
-> patch_name:	sh-pci-dev-stack.patch
-> patch_version:	2003-03-20.11:47:35
-> author:		Randy.Dunlap <rddunlap@osdl.org>
-> description:	reduce stack usage in
-> 		arch/sh/kernel/pci-sh7751::pcibios_fixup_peer_bridges()
-> product:	Linux
-> product_versions: 2.5.65
-> changelog:	change pci_dev and pci_bus data to pointers & kmalloc() them;
-> 		same patch as already applied to i386 and x86_64;
-> maintainer:	Niibe Yutaka: gniibe@m17n.org,
-> 		Kazumoto Kojima: kkojima@rr.iij4u.or.jp
-> 		(list: linux-sh@m17n.org)
-> diffstat:	=
->  arch/sh/kernel/pci-sh7751.c |   27 +++++++++++++++++++--------
->  1 files changed, 19 insertions(+), 8 deletions(-)
-> 
-> 
-> diff -Naur ./arch/sh/kernel/pci-sh7751.c%SHSTK ./arch/sh/kernel/pci-sh7751.c
-> --- ./arch/sh/kernel/pci-sh7751.c%SHSTK	Mon Mar 17 13:44:19 2003
-> +++ ./arch/sh/kernel/pci-sh7751.c	Thu Mar 20 11:46:08 2003
-> @@ -199,28 +199,39 @@
->  static void __init pcibios_fixup_peer_bridges(void)
->  {
->  	int n;
-> -	struct pci_bus bus;
-> -	struct pci_dev dev;
-> +	struct pci_bus *bus;
-> +	struct pci_dev *dev;
->  	u16 l;
->  
->  	if (pcibios_last_bus <= 0 || pcibios_last_bus >= 0xff)
->  		return;
->  	PCIDBG(2,"PCI: Peer bridge fixup\n");
-> +
-> +	bus = kmalloc(sizeof(*bus), GFP_ATOMIC);
-> +	dev = kmalloc(sizeof(*dev), GFP_ATOMIC);
-> +	if (!bus || !dev) {
-> +		printk(KERN_ERR "Out of memory in %s\n", __FUNCTION__);
-> +		goto exit;
-> +	}
-> +
-If the kmalloc() for bus succeeds but for dev fails this will leak the
-memory given to bus.
+On Thu, Mar 20, 2003 at 01:47:41PM -0800, Joel Becker wrote:
+> 	Actually, no.  mknod(8), ls(1), and friends still assume struct
+> stat with u16.
+
+	It's been pointed out to me that this isn't clear.  What I mean
+is that mknod(8), ls(1), and other programs assume dev_t mappings that
+are usually based upon the MAJOR() macro and friends.  This means that
+any modification of the dev_t arrangement may require source fixes and
+may not, depending on how smart MAJOR() is, but will absolutely require
+a new compile of the software to pick up the new MAJOR() macro.
+	Peter is right, we only want to do this once.
+
+Joel
 
 -- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+
+"There are some experiences in life which should not be demanded
+ twice from any man, and one of them is listening to the Brahms Requiem."
+        - George Bernard Shaw
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263655AbTDXNTl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 09:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263657AbTDXNTl
+	id S263654AbTDXNTa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 09:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263655AbTDXNTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 09:19:41 -0400
-Received: from almesberger.net ([63.105.73.239]:55048 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S263655AbTDXNTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 09:19:39 -0400
-Date: Thu, 24 Apr 2003 10:31:26 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Ben Collins <bcollins@debian.org>, Pat Suwalski <pat@suwalski.net>,
-       Pavel Machek <pavel@ucw.cz>, Matthias Schniedermeyer <ms@citd.de>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <20030424103126.L3557@almesberger.net>
-References: <1508310000.1051116963@flay> <20030423172120.GA12497@citd.de> <3EA6947D.9080106@suwalski.net> <20030423221749.GA9187@elf.ucw.cz> <3EA71533.4090008@suwalski.net> <20030423225520.GA32577@atrey.karlin.mff.cuni.cz> <20030423231920.D1425@almesberger.net> <3EA74BF1.2090700@suwalski.net> <20030424023434.GF354@phunnypharm.org> <20030424072215.GC28253@mail.jlokier.co.uk>
-Mime-Version: 1.0
+	Thu, 24 Apr 2003 09:19:30 -0400
+Received: from ns.suse.de ([213.95.15.193]:13836 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263654AbTDXNT3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 09:19:29 -0400
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org, lord@sgi.com
+Subject: Re: [benchmarks] various filesystems on 2.5.68
+References: <20030424124728.GA1477@rushmore.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 24 Apr 2003 15:31:22 +0200
+In-Reply-To: <20030424124728.GA1477@rushmore.suse.lists.linux.kernel>
+Message-ID: <p73vfx4vx79.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030424072215.GC28253@mail.jlokier.co.uk>; from jamie@shareable.org on Thu, Apr 24, 2003 at 08:22:15AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> So why do we enable the PC-speaker beep automatically?
-> Shouldn't that be silent initially too?
+rwhron@earthlink.net writes:
 
-The difference to "sound" is that it won't make noise unless asked
-to. So it starts with a safe default, and the rest is user policy.
+> mount options
+> mount -t ext2 -o defaults,noatime /dev/sdc1 /fs1
+> mount -t ext3 -o defaults,noatime,data=writeback /dev/sdc1 /fs1
+> mount -t reiserfs -o defaults,noatime /dev/sdc1 /fs1
+> mount -t jfs -o defaults,noatime /dev/sdc1 /fs1
+> mount -t xfs -o logbufs=8,logbsize=32768,noatime /dev/sdc1 /fs1
+> 
+> mkfs command
+> mke2fs -q /dev/sdc1
+> mke2fs -q -j -J size=400 /dev/sdc1
+> yes  "y" | mkreiserfs /dev/sdc1 >/tmp/mkr.out 2>&1
+> jfs_mkfs -q /dev/sdc1
+> mkfs.xfs -l size=32768b -f /dev/sdc1
+> 
+> Very recent version of xfsprogs/jfsutils/reiserfsprogs/e2fsprogs.
+> 
+> XFS mount/mkfs options came from the XFS FAQ and are very desireable
+> for these tests based on an earlier run without them.  If anyone
 
-On notebooks, I usually switch it off in my rc scripts after it's
-been bothering me for the first time. Interesting ... I just
-checked, and it seems that all my machines turn it off by default,
-even without me knowingly doing something :-)
+It's my experience too that XFS often performs badly with the default
+mkfs/mount options, especially for metadata intensive workloads. The
+drawback is that it eats memory. I've been thinking about making it
+set the bigger mount option by default based on the available physical
+memory; this would probably help a lot of users.
 
-- Werner
+iirc one drawback is that it eats from the vmalloc area which is only 64MB 
+by default on 32bit.  But still should not be that big an issue. On 64bit
+it's not an issue at all of course.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Of course the log size cannot be changed this way, but perhaps the default
+in mkfs is just too small for today's disk sizes?
+
+-Andi

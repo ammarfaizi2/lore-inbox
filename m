@@ -1,106 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132710AbRDUPtr>; Sat, 21 Apr 2001 11:49:47 -0400
+	id <S132725AbRDUPxH>; Sat, 21 Apr 2001 11:53:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132717AbRDUPtb>; Sat, 21 Apr 2001 11:49:31 -0400
-Received: from www.wen-online.de ([212.223.88.39]:10502 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S132710AbRDUPtJ>;
-	Sat, 21 Apr 2001 11:49:09 -0400
-Date: Sat, 21 Apr 2001 17:48:52 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: try_to_swap_out() deactivating pages w. count > 2
-Message-ID: <Pine.LNX.4.33.0104211741020.346-100000@mikeg.weiden.de>
+	id <S132727AbRDUPw6>; Sat, 21 Apr 2001 11:52:58 -0400
+Received: from m2ep.pp.htv.fi ([212.90.64.98]:56842 "EHLO m2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id <S132725AbRDUPwu>;
+	Sat, 21 Apr 2001 11:52:50 -0400
+Message-ID: <000701c0ca7b$051934a0$6786f3d5@pp.htv.fi>
+From: "Ville Holma" <ville.holma@pp.htv.fi>
+To: <linux-kernel@vger.kernel.org>
+Cc: <ville.holma@pp.htv.fi>
+Subject: a way to restore my hd ?
+Date: Sat, 21 Apr 2001 18:52:01 +0300
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello all,
 
-A printk added to 2.4.4-pre5 try_to_swap_out()...
+I'm affraid this list is my last chance at saving my harddrive. I hope this
+kind of question is appropriate here and if not, my appologies.
 
-drop_pte:
-		mm->rss--;
-{
-	int age = page->age;
-	int count = page_count(page);
-	int cache = PageSwapCache(page);
-	printk("[pid-%d] page:%p deact:%d cache:%d age:%d count:%d\n",
-			current->pid, page, !age, cache, age, count-1);
-}
+Anyway, here's the deal. I upgraded my hardware to 1GHz Athlon with a 133
+kHz FSB,  Via KT133A chipset motherboard and 256 Mb of 133 sdram. I'm
+running a standard 2.4.3 kernel.
 
-make -j30 bzImage
+The memory I had was however somehow corrupt and after I got my new system
+booted up and used it a little it became shaky and then locked hard and I
+could do nothing but reset it. I suppose this was caused by the
+malfunctioning memory but I can't be sure, I know there has been problems
+with the via chipset also.
 
-29:17: klogd 1.3-3, log source = /proc/kmsg started.
-29:27: SysRq: Log level set to 0
-30:04: [pid-4] page:c10e225c deact:1 cache:0 age:0 count:2
-30:04: [pid-4] page:c10e33e0 deact:1 cache:0 age:0 count:2
-30:04: [pid-4] page:c10e3394 deact:1 cache:0 age:0 count:2
-30:04: [pid-4] page:c10e1cb8 deact:1 cache:0 age:0 count:2
-30:04: [pid-4] page:c10e1c20 deact:1 cache:0 age:0 count:2
-30:04: [pid-4] page:c10eb894 deact:1 cache:0 age:0 count:2
-30:04: [pid-4] page:c10eb7b0 deact:1 cache:0 age:0 count:2
-30:04: [pid-4] page:c10f0bb4 deact:0 cache:0 age:4 count:3
-30:04: [pid-4] page:c10f1320 deact:0 cache:1 age:2 count:1
-30:04: [pid-4] page:c10f136c deact:0 cache:1 age:2 count:1
-30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:29 count:164 [164? 1]
-30:04: [pid-4] page:c10599a8 deact:0 cache:0 age:26 count:164
-30:04: [pid-4] page:c105995c deact:0 cache:0 age:37 count:164
-30:04: [pid-4] page:c10598c4 deact:0 cache:0 age:34 count:164
-30:04: [pid-4] page:c1059878 deact:0 cache:0 age:34 count:164
-30:04: [pid-4] page:c105982c deact:0 cache:0 age:34 count:164
-30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:163
-30:04: [pid-4] page:c10599a8 deact:0 cache:0 age:26 count:163
-30:04: [pid-4] page:c10debbc deact:1 cache:0 age:0 count:2
-30:04: [pid-4] page:c10deb70 deact:1 cache:0 age:0 count:2
-30:04: [pid-4] page:c10deb24 deact:1 cache:0 age:0 count:2
-30:04: [pid-4] page:c10e1aa4 deact:1 cache:0 age:0 count:2
+Anyway now that I try to boot up the system I get a kernel panic like this:
 
-(snip 1000+ lines)
 
-grep c10599f4 log
-30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:29 count:164
-30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:163
-30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:162
-30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:161
-30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:160
-30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:159
-30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:158
-30:04: [pid-4] page:c10599f4 deact:0 cache:0 age:32 count:157
-30:05: [pid-4] page:c10599f4 deact:0 cache:0 age:16 count:155
-30:05: [pid-4] page:c10599f4 deact:0 cache:0 age:22 count:156
-30:05: [pid-4] page:c10599f4 deact:0 cache:0 age:22 count:155
-30:05: [pid-4] page:c10599f4 deact:0 cache:0 age:50 count:157
-30:05: [pid-4] page:c10599f4 deact:0 cache:0 age:16 count:157
-41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:59
-41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:58
-41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:57
-41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:56
-41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:55
-41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:54
-41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:53
-41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:52
-41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:51
-41:41: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:50
-41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:49
-41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:48
-41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:47
-41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:46
-41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:45
-41:59: [pid-4] page:c10599f4 deact:1 cache:0 age:0 count:44
+EXT2-fs: #blocks per group too big: 2147516416
+fatfs: bodus cluster size
+kernel panic: VFS: Unable to mount root fs on 03:47
 
-(klogd only logged 1196 pages during the whole build)
 
-grep deact:0 log|wc -l                 = 961
-grep count:[12] log|wc -l              = 875
+So I set up another linux box and tried to run e2fsck on the partition
+resulting in this
 
-grep deact:1 log|wc -l                 = 235
-grep deact:1 log|grep count:[12]|wc -l = 103
 
-1.  what kind of page has 164 references?
-2.  why deactivate pages (lots) with count > 2?  PINGpong.
+debian:~# e2fsck /dev/hdb7
+e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
+Corruption found in superblock.  (frags_per_group = 2147516416).
 
-	-Mike
+The superblock could not be read or does not describe a correct ext2
+filesystem.  If the device is valid and it really contains an ext2
+filesystem (and not swap or ufs or something else), then the superblock
+is corrupt, and you might try running e2fsck with an alternate superblock:
+    e2fsck -b -2147450879 <device>
+
+
+So I tried to use the huge block size like e2fsck suggests and I get this
+
+
+debian:~# e2fsck -b -2147450879 /dev/hdb7
+e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
+e2fsck: Attempt to read block from filesystem resulted in short read while
+trying to open /dev/hdb7
+Could this be a zero-length partition?
+
+
+This is where the human panic occured. There is data on that partition that
+I _really_ do not want to loose. I'm clueless and woud appreciate any
+help/suggestions. If some additonal information is needed I'm more than
+happy to deliver.
+
+Thanks in advance
+
+Ville
 

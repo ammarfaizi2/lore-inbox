@@ -1,83 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264353AbRFOLRP>; Fri, 15 Jun 2001 07:17:15 -0400
+	id <S264341AbRFOLYZ>; Fri, 15 Jun 2001 07:24:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264347AbRFOLRF>; Fri, 15 Jun 2001 07:17:05 -0400
-Received: from [164.164.82.20] ([164.164.82.20]:42734 "EHLO subexgroup.com")
-	by vger.kernel.org with ESMTP id <S264341AbRFOLQw>;
-	Fri, 15 Jun 2001 07:16:52 -0400
-From: "Anil Kumar" <anilk@subexgroup.com>
-To: "bert hubert" <ahu@ds9a.nl>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Kip Macy" <kmacy@netapp.com>, <ognen@gene.pbi.nrc.ca>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: threading question
-Date: Fri, 15 Jun 2001 16:59:00 +0530
-Message-ID: <NEBBIIKAMMOCGCPMPBJOEEICCFAA.anilk@subexgroup.com>
+	id <S264347AbRFOLYQ>; Fri, 15 Jun 2001 07:24:16 -0400
+Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:21008 "EHLO
+	spqr.damncats.org") by vger.kernel.org with ESMTP
+	id <S264341AbRFOLYK>; Fri, 15 Jun 2001 07:24:10 -0400
+Message-ID: <3B29F056.97C353C@damncats.org>
+Date: Fri, 15 Jun 2001 07:24:06 -0400
+From: John Cavan <johnc@damncats.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5-ac14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20010614210138.A15912@home.ds9a.nl>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
-X-Return-Path: anilk@subexgroup.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        DRI-Devel <dri-devel@lists.sourceforge.net>,
+        Alan Cox <alan@redhat.com>
+Subject: Re: Linux 2.4.5-ac14
+In-Reply-To: <20010615022033Z261561-17720+4111@vger.kernel.org> <3B29734A.738A95D5@damncats.org> <200106150442.AAA22505@spqr.damncats.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since while using only a small subset of primitives provided by the pthreads
-the burden for the other primitive maintanence is much more so i too feel
-when we use only a small part its better to implement in our own requiredd
-way for performance issues.
+Dieter Nützel wrote:
+> 
+> Am Freitag, 15. Juni 2001 05:32 schrieb Dieter Nützel:
+> > Am Freitag, 15. Juni 2001 04:30 schrieb John Cavan:
+> > > Dieter Nützel wrote:
+> > > > Hello Alan,
+> > > >
+> > > > I see 4.29 GB under shm with your latest try.
+> > > > something wrong?
+> > >
+> > >         total:    used:    free:  shared: buffers:  cached:
+> > > Mem:  1053483008 431419392 622063616   122880 24387584 260923392
+> > > Swap: 394764288        0 394764288
+> > > MemTotal:      1028792 kB
+> > > MemFree:        607484 kB
+> > > MemShared:         120 kB
+> > > Buffers:         23816 kB
+> > > Cached:         254808 kB
+> > > Active:         225536 kB
+> > > Inact_dirty:     53208 kB
+> > > Inact_clean:         0 kB
+> > > Inact_target:       44 kB
+> > > HighTotal:      131056 kB
+> > > HighFree:         1048 kB
+> > > LowTotal:       897736 kB
+> > > LowFree:        606436 kB
+> > > SwapTotal:      385512 kB
+> > > SwapFree:       385512 kB
+> > >
+> > > I don't seem to have the problem...
+> >
+> > You are using HIGHMEM?!
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of bert hubert
-Sent: Friday, June 15, 2001 12:32 AM
-To: Alan Cox
-Cc: Kip Macy; ognen@gene.pbi.nrc.ca; linux-kernel@vger.kernel.org
-Subject: Re: threading question
+Sort of necessary when you have 1gb of RAM. My machine is also a dual
+CPU box.
 
+> I tested some more and found this.
+> 
+> It is XFree86 4.1.0 DRI (tdfx driver) related.
+> During my first run I used the 2.4.5-ac14 kernel DRM module.
+> Now I am running with the latest DRI trunk DRM module.
+> Both show the same symptoms.
 
-On Thu, Jun 14, 2001 at 07:28:32PM +0100, Alan Cox wrote:
+Well, I'm running XFree86 4.1.0 DRI with the Radeon driver and I don't
+show the symptoms. I use the Radeon module from DRI on SourceForge.
 
-> There are really only two reasons for threaded programming.
->
-> - Poor programmer skills/language expression of event handling
+Have you tried it with CONFIG_HIGHMEM in the kernel?
 
-The converse is that pthreads are:
-
- - Very easy to use from C at a reasonable runtime overhead
-
-It is very convenient for a userspace coder to be able to just start a
-function in a different thread. Now it might be so that a kernel is not
-there to provide ease of use for userspace coders but it is a factor.
-
-I see lots of people only using:
-	pthread_create()/pthread_join()
-	mutex_lock/unlock
-	sem_post/sem_wait
-	no signals
-
-My gut feeling is that you could implement this subset in a way that is both
-fast and right - although it would not be 'pthreads compliant'. Can anybody
-confirm this feeling?
-
-Regards,
-
-bert
-
---
-http://www.PowerDNS.com      Versatile DNS Services
-Trilab                       The Technology People
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+John

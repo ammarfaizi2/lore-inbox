@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267883AbUGaAIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267884AbUGaAMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267883AbUGaAIW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 20:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUGaAIW
+	id S267884AbUGaAMh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 20:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267880AbUGaAMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 20:08:22 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16081 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267880AbUGaAIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 20:08:15 -0400
-Date: Sat, 31 Jul 2004 02:07:54 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: adaplas@pol.net
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/5] [I810FB]: i810fb fixes
-Message-ID: <20040731000754.GF2746@fs.tum.de>
-References: <200407290955.29735.adaplas@hotpop.com>
+	Fri, 30 Jul 2004 20:12:37 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:20668 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267876AbUGaAM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 20:12:28 -0400
+Subject: Re: [PATCH] Configure IDE probe delays
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Todd Poynor <tpoynor@mvista.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tim.bird@am.sony.com, dsingleton@mvista.com
+In-Reply-To: <1091226922.5083.13.camel@localhost.localdomain>
+References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
+	 <1091226922.5083.13.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1091232770.1677.24.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407290955.29735.adaplas@hotpop.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 30 Jul 2004 20:12:52 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 29, 2004 at 10:04:32AM +0800, Antonino A. Daplas wrote:
+On Fri, 2004-07-30 at 18:35, Alan Cox wrote:
+> On Gwe, 2004-07-30 at 20:11, Todd Poynor wrote:
+> > IDE initialization and probing makes numerous calls to sleep for 50
+> > milliseconds while waiting for the interface to return probe status and
+> > such. 
+> 
+> Please make it taint the kernel if you do that so we can ignore all the
+> bug reports. That or justify it with a cite from the ATA standards ?
+> 
 
->...
-> --- linux-2.6.8-rc2-mm1-orig/drivers/video/Kconfig	2004-07-28 19:51:13.000000000 +0000
-> +++ linux-2.6.8-rc2-mm1/drivers/video/Kconfig	2004-07-29 00:35:04.115437224 +0000
-> @@ -457,7 +457,9 @@ config FB_RIVA_DEBUG
->  
->  config FB_I810
->  	tristate "Intel 810/815 support (EXPERIMENTAL)"
-> -	depends on FB && AGP && AGP_INTEL && EXPERIMENTAL && PCI	
-> +	depends on FB && EXPERIMENTAL && PCI	
-> +	select AGP
-> +	select AGP_INTEL
->  	help
->  	  This driver supports the on-board graphics built in to the Intel 810 
->            and 815 chipsets.  Say Y if you have and plan to use such a board.
->...
+Works great on my hardware.  Well worth the savings in boot time.
 
-This is wrong.
-
-If you select something, you have to ensure that the dependencies of 
-what you select are fulfilled.
-
-Since AGP_INTEL depends on X86 && !X86_64 , you must add this to the 
-dependencies of FB_I810 if it selects AGP_INTEL.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Lee
 

@@ -1,101 +1,128 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287809AbSBHW4X>; Fri, 8 Feb 2002 17:56:23 -0500
+	id <S287817AbSBHXEG>; Fri, 8 Feb 2002 18:04:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287816AbSBHW4G>; Fri, 8 Feb 2002 17:56:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30476 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287809AbSBHWzy>; Fri, 8 Feb 2002 17:55:54 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: patch: aio + bio for raw io
-Date: Fri, 8 Feb 2002 22:54:51 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <a41kvr$836$1@penguin.transmeta.com>
-In-Reply-To: <20020208025313.A11893@redhat.com> <200202082107.g18L7wx26206@eng2.beaverton.ibm.com> <20020208171327.B12788@redhat.com>
-X-Trace: palladium.transmeta.com 1013208942 10848 127.0.0.1 (8 Feb 2002 22:55:42 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 8 Feb 2002 22:55:42 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S287827AbSBHXDz>; Fri, 8 Feb 2002 18:03:55 -0500
+Received: from www.formation.com ([209.204.114.130]:5135 "EHLO
+	formail.formation.com") by vger.kernel.org with ESMTP
+	id <S287817AbSBHXDk>; Fri, 8 Feb 2002 18:03:40 -0500
+From: "Steve Snyder" <steves@formation.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Why won't my HD do DMA I/O?
+Date: Fri, 8 Feb 2002 18:00:50 -0600
+Message-ID: <KMEBIOGPEGOACPDOHPEEKEAKCAAA.steves@formation.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020208171327.B12788@redhat.com>,
-Benjamin LaHaise  <bcrl@redhat.com> wrote:
->On Fri, Feb 08, 2002 at 01:07:58PM -0800, Badari Pulavarty wrote:
->> I am looking at the 2.5 patch you sent out. I have few questions/comments:
->> 
->> 1) brw_kvec_async() does not seem to split IO at BIO_MAX_SIZE. I thought
->>    each bio can handle only BIO_MAX_SIZE (ll_rw_kio() is creating one bio
->>    for each BIO_MAX_SIZE IO). 
->
->Sounds like a needless restriction in bio, especially as one of the design 
->requirements for the 2.5 block work is that we're able to support large ios 
->(think 4MB page support).
+I've got a system on which the hard disk cannot be set to use DMA.  When I
+attempt to enable DMA ("hdparm -d1 /dev/hda") on this drive, there is a long
+time-out period, after which displaying the settings shows that DMA is still
+not set.
 
-bio can handle arbitrarily large IO's, BUT it can never split them. 
+This is totally inexplicable to me because a) the manufacturer offers a
+Win95 driver for this machine that allegedly enables DMA for HD I/O, and b)
+I used this same hard disk in another machine and was able to run it with
+DMA I/O.  So if the chipset can handle DMA and the HD can handle DMA, then
+what is the $#%@^! problem here?
 
-Basically, IO splitting is NOT the job of the IO layer.  So you can make
-any size request you want, but you had better know that the hardware you
-send it to can take it.  The bio layer basically guarantees only that
-you can send a single contiguous request of PAGE_SIZE, nothing more (in
-fact, we might at some point get away from even that, and only guarantee
-sectors - with things like loopback remapping etc you might have trouble
-even for "contiguous" requests). 
+The machine is a Dell Latitude XPi CD P150ST
+(http://docs.us.dell.com/docs/systems/ptcd/Specs.htm).  The PCI bus is
+running at 30MHz and I have informed the kernel of that fact (see below).
 
-Now, before you say "that's stupid, I don't know what the driver limits
-are", ask yourself: 
- - what is it that you want to go fast?
- - what is it that you CAN make fast?
+The software is RedHat v7.2 with the v2.4.17 kernel.  The version of hdparm
+is 4.1.
 
-The answer to the "want" question is: the common case. And like it or
-not, the common case is never going to be 4MB pages.
+So... anyone know what the problem is with Linux and this hardware?
 
-The answer to the "can" question is: merging can be fast, splitting
-fundamentally cannot.
+Thanks.
 
-Splitting a request _fundamentally_ involves memory management (at the
-very least you have to allocate a new request), while growing a request
-can (and does) mean just adding an entry to the end of a list (until you
-cannot grow it any more, of course, but that's the point where you have
-to end anyway, so..)
+-------------------
 
-Now, think about that for five minutes, and if you don't come back with
-the right answer, you get an F.
+# hdparm -i /dev/hda
 
-In short:
+/dev/hda:
 
- - the right answer to handling 4MB pages is not to push complexity into
-   the low-level drivers and make them try to handle requests that are
-   bigger than the hardware can do. 
+ Model=FUJITSU MHC2040AT, FwRev=0818, SerialNo=01124560
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
+ RawCHS=7944/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=unknown, BuffSize=0kB, MaxMultSect=16, MultSect=8
+ CurCHS=7944/16/63, CurSects=796917882, LBA=yes, LBAsects=8007552
+ IORDY=yes, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2
+ AdvancedPM=no
+ Drive Supports : Reserved : ATA-1 ATA-2 ATA-3
 
-   In fact, we don't even want to handle it in the mid layers, because
-   (a) the mid layers have historically been even more flaky than some
-   device drivers and (b) it's a performance loss to even test for the
-   common case where the splitting is neither needed nor wanted.
+-------------------
 
- - the _right_ answer to handling big areas is to build up big bio's
-   from smaller ones. And no, you don't have to call the elevator in
-   between requests that you know are consecutive on the disk.
+Linux version 2.4.17 (root@mars.snydernet.lan) (gcc version 2.96 20000731
+(Red H
+at Linux 7.1 2.96-98)) #1 Wed Jan 30 22:56:47 EST 2002
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+ BIOS-e820: 0000000000100000 - 0000000003000000 (usable)
+On node 0 totalpages: 12288
+zone(0): 4096 pages.
+zone(1): 8192 pages.
+zone(2): 0 pages.
+Kernel command line: ro root=/dev/hda2 idebus=30
+ide_setup: idebus=30
+Initializing CPU#0
+Detected 150.345 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 299.00 BogoMIPS
+Memory: 46536k/49152k available (876k kernel code, 2232k reserved, 191k
+data, 19
+2k init, 0k highmem)
+Dentry-cache hash table entries: 8192 (order: 4, 65536 bytes)
+Inode-cache hash table entries: 4096 (order: 3, 32768 bytes)
+Mount-cache hash table entries: 1024 (order: 1, 8192 bytes)
+Buffer-cache hash table entries: 1024 (order: 0, 4096 bytes)
+Page-cache hash table entries: 16384 (order: 4, 65536 bytes)
+CPU: Before vendor init, caps: 000001bf 00000000 00000000, vendor = 0
+Intel Pentium with F0 0F bug - workaround enabled.
+CPU: After vendor init, caps: 000001bf 00000000 00000000 00000000
+CPU:     After generic, caps: 000001bf 00000000 00000000 00000000
+CPU:             Common caps: 000001bf 00000000 00000000 00000000
+CPU: Intel Pentium 75 - 200 stepping 0c
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+PCI: PCI BIOS revision 2.10 entry at 0xfb83e, last bus=0
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Using IRQ router default [1066/8002] at 00:06.0
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.15)
+Starting kswapd
+pty: 256 Unix98 ptys configured
+Real Time Clock Driver v1.10e
+block: 128 slots per queue, batch=32
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 30MHz system bus speed for PIO modes
+CMD643: IDE controller on PCI bus 00 dev 40
+CMD643: chipset revision 0
+CMD643: not 100% native mode: will probe irqs later
+CMD643: simplex device: DMA forced
+    ide0: BM-DMA at 0xfe00-0xfe07, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xfe08-0xfe0f, BIOS settings: hdc:pio, hdd:pio
+hda: FUJITSU MHC2040AT, ATA DISK drive
+hdc: CD-ROM CDR-N16D, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 8007552 sectors (4100 MB), CHS=993/128/63
+Partition check:
+ hda: hda1 hda2 hda3
 
-   Another way of saying it: if you have 4MB worth of IO, it's YOUR
-   resposibility to do the work to make it fit the controller. It is off
-   the default case, and _you_ do a bit of extra work instead of asking
-   everybody else to do your heavy lifting for you.
+--------------------
 
-Does bio have the interfaces to do this yet? No.  But if you think that
-bio's should natively handle any kind of request at all, you're really
-barking up the wrong tree. 
-
-If you are in the small small _small_ minority care about 4MB requests,
-you should build the infrastructure not to make drivers split them, but
-to build up a list of bio's and then submit them all consecutively in
-one go.
-
-Remember: checking the limits as you build stuff up is easy, and fast. 
-
-So you should make sure that you never EVER cause anybody to want to
-split a bio. 
-
-		Linus

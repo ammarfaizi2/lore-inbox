@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVAYQ2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVAYQ12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbVAYQ2T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 11:28:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVAYQ2T
+	id S261982AbVAYQ12 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 11:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVAYQ11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 11:28:19 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:38907 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262004AbVAYQ1w (ORCPT
+	Tue, 25 Jan 2005 11:27:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34796 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261982AbVAYQ1Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 11:27:52 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E57033BCCC6@exa-atlanta>
-From: "Mukker, Atul" <Atulm@lsil.com>
-To: "'James Bottomley'" <James.Bottomley@SteelEye.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: RE: How to add/drop SCSI drives from within the driver?
-Date: Tue, 25 Jan 2005 11:27:36 -0500
+	Tue, 25 Jan 2005 11:27:24 -0500
+Date: Tue, 25 Jan 2005 08:27:15 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+cc: Bill Davidsen <davidsen@tmr.com>, Greg KH <greg@kroah.com>,
+       Jirka Kosina <jikos@jikos.cz>, Patrick Mochel <mochel@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix bad locking in drivers/base/driver.c
+In-Reply-To: <41F66F86.4000609@sun.com>
+Message-ID: <Pine.LNX.4.58.0501250817430.2342@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>
+ <20050125055651.GA1987@kroah.com> <41F5F623.5090903@sun.com> <41F64E87.8040501@tmr.com>
+ <41F66F86.4000609@sun.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> > After the new logical drives are created with "- - -" written to the
-> > scsi_host scan attribute, there is a highly noticeable delay before
-> device
-> > names (e.g., sda) appears in the /dev directory. If the management
-> > application tried to access the device immediately after creating new,
-> the
-> > access fails. Putting a 1 second delay helped, but of course this is not
-> a
-> > deterministic solution.
-> >
-> > What are the other possibilities?
-> 
-> Well, how about hotplug.  The device addition actually triggers a hot
-> plug event already (there's no need to add anything, it's done by the
-> mid-layer), so if you just listen for that, you'll know when the scan
-> has detected a device.
 
 
-After writing the "- - -" to the scan attribute, the management applications
-assume the udev has created the relevant entries in the /dev directly and
-try to use the devices _immediately_ and fail to see the devices
+Hmm.. I certainly like the "use completions" patch, since it makes it a
+lot more obvious what is going on (and it is what completions were
+designed for).
 
-Is there a hotplug event which would tell the management applications that
-the device nodes have actually been created now and ready to be used?
+However, since it does change semantics very subtly: if you call
+"driver_unregister()" twice (which is wrong, but looking at the code it
+looks like it would just silently have worked), the old code would just
+ignore it. The new code will block on the second one.
 
-I tried this simple script to re-create the failure. Assume there is one
-scsi disk, which is the installation disk. Now load the megaraid driver,
-with a few logical drive already created.
+Now, I don't mind the blocking (it's a bug to call it twice, and blocking
+should even give a nice callback when you do the "show tasks"  sysrq, so
+it's a good way to _find_ the bug), but together with Mike's comment about
+"Compile-tested only", I'd really like somebody (Greg?) to say "trying to
+doubly remove the driver is so illegal that we don't care, and btw, I
+tested it and it's all ok".
 
-# insmod megaraid_mm.ko; insmod megaraid_mbox.ko; ls -l /dev/sd*
-<driver loads>
-<not all scsi devices are available>
-
-<try again after a brief delay>
-# ls -l /dev/sd*	# all devices show up now
-
-Thanks
--Atul
+		Linus

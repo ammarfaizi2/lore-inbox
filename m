@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbTIGQsG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 12:48:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbTIGQsG
+	id S263355AbTIGQvk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 12:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263358AbTIGQvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 12:48:06 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:1514 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261754AbTIGQsE (ORCPT
+	Sun, 7 Sep 2003 12:51:40 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:11529
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S263355AbTIGQvi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 12:48:04 -0400
-Date: Sun, 7 Sep 2003 18:47:51 +0200 (MEST)
-Message-Id: <200309071647.h87Glp4t014359@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: bunk@fs.tum.de, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-Cc: robert@schwebel.de, rusty@rustcorp.com.au
+	Sun, 7 Sep 2003 12:51:38 -0400
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <piggin@cyberone.com.au>, jyau_kernel_dev@hotmail.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030906231856.6282cd44.akpm@osdl.org>
+References: <000101c374a3$2d2f9450$f40a0a0a@Aria>
+	 <1062878664.3754.12.camel@boobies.awol.org>
+	 <3F5ABD3A.7060709@cyberone.com.au>  <20030906231856.6282cd44.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1062954122.12822.3.camel@boobies.awol.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Sun, 07 Sep 2003 13:02:02 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Sep 2003 13:28:13 +0200, Adrian Bunk wrote:
->The patch below tries to implement a better i386 CPU selection.
->
->In 2.4 selecting e.g. M486 has the semantics to get a kernel that runs 
->on a 486 and above.
->
->In 2.6 selecting M486 means that only the 486 is supported.
+On Sun, 2003-09-07 at 02:18, Andrew Morton wrote:
 
-Can you prove your claim about 2.6?
+> We cannot just jam all this code into Linus's tree while crossing our
+> fingers and hoping that something will turn up to fix this problem. 
+> Because we don't know what causes it, nor whether we even _can_ fix it.
 
-There is to the best of my knowledge nothing in 2.6.0-test4
-that prevents a kernel compiled for CPU type N from working
-with CPU types >N. Just to prove it, I built a CONFIG_M486
-2.6.0-test4 and booted it w/o problems on P4, PIII, and K6-III.
+Actually, this would be my argument _for_ Nick's approach.  It is simple
+and we all understand it.
 
->There are two different needs:
->1. the installation kernel of a distribution should support all CPUs 
->   this distribution supports (perhaps starting with the 386)
->2. a sysadmin might e.g. want a kernel that support both a Pentium-III
->   and a Pentium 4, but doesn't need to support a 386
+There are a _lot_ of scheduler changes in 2.6-mm, and who knows which
+ones are an improvement, a detriment, and a noop?  It is like bandaids
+on top of bandaids, to fix corner cases.
 
-How are 1 and 2 different? Both need support for CPU type N
-or higher. Since a kernel configured for a lower CPU type
-still works on higher CPU types, where is the problem?
-(In case 2 configure for PIII and use that on PIII and P4.)
+And we _do_ know what causes the problem: the interactivity estimator
+misestimates interactivity.  What we do not know is what fixes it.
 
-Maybe I'm missing something but I don't see any problem here.
+	Robert Love
 
-/Mikael
+

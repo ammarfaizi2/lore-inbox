@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292678AbSBURu0>; Thu, 21 Feb 2002 12:50:26 -0500
+	id <S292680AbSBUR4G>; Thu, 21 Feb 2002 12:56:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292680AbSBURuS>; Thu, 21 Feb 2002 12:50:18 -0500
-Received: from boink.boinklabs.com ([162.33.131.250]:48400 "EHLO
-	boink.boinklabs.com") by vger.kernel.org with ESMTP
-	id <S292678AbSBURuA>; Thu, 21 Feb 2002 12:50:00 -0500
-Date: Thu, 21 Feb 2002 12:49:59 -0500
-From: Charlie Wilkinson <cwilkins@boinklabs.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Hard lock-ups on RH7.2 install - Via Chipset?
-Message-ID: <20020221124959.A12456@boink.boinklabs.com>
-In-Reply-To: <20020221110156.B9728@boink.boinklabs.com> <Pine.LNX.4.33.0202211106340.16271-100000@coffee.psychology.mcmaster.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.33.0202211106340.16271-100000@coffee.psychology.mcmaster.ca>; from hahn@physics.mcmaster.ca on Thu, Feb 21, 2002 at 11:07:11AM -0500
-X-Home-Sweet-Home: RedHat 6.0 / Linux 2.2.12 on an AMD K6-225
+	id <S292681AbSBURz5>; Thu, 21 Feb 2002 12:55:57 -0500
+Received: from [200.180.163.180] ([200.180.163.180]:57455 "EHLO quatroint")
+	by vger.kernel.org with ESMTP id <S292680AbSBURzs>;
+	Thu, 21 Feb 2002 12:55:48 -0500
+Message-ID: <051a01c1bb01$70634580$c50016ac@spps.com.br>
+Reply-To: "Fernando Korndorfer" <fernando@quatro.com.br>
+From: "Fernando Korndorfer" <fernando@quatro.com.br>
+To: "Adam Lackorzynski" <adam@os.inf.tu-dresden.de>
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020220104129.GP13774@os.inf.tu-dresden.de>
+Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
+Date: Thu, 21 Feb 2002 14:58:58 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 21, 2002 at 11:07:11AM -0500, Mark Hahn waxed eloquent:
-[...]
-> > Hi Mark,
-> > Yeah, Alan suggested his latest pre 2.4.18 kernel *might* work.  Tried it,
-> > still no joy. :/
-> 
-> but HOW?
+Hello
 
-How did I try it, or how no joy?  ;)
+        I'm having same problems booting SMP-enabled kernels. I just mailed
+the list asking for help, but I could not provide more information abount
+the mainboard (it's a Asus dual P3, via chipset, don't remember the model).
+The messages are very similar (if not equal) to yours. I was able to boot to
+the end disabling APM support, but the boot process itself became unstable
+(some times it booted, some times not, just like you).
 
-On the former, I didn't run any really exhaustive tests, and Alan
-didn't suggest using or avoiding certain options.  I built a relatively
-conservative kernel and then beat on all four drives with concurrent dd's.
-I also did an hdparm -tT.  hdparm killed the box in a matter of a second
-or two.  dd took about 30 seconds.  It seems safe to assume that hdparm
-is able to create a higher load.
 
-On the latter, the box just freezes up solid.  No magic SysRq, no nothing.
-A very frustrating state to try and troubleshoot.  Any suggestions?
+-----------------------------------------------
+Fernando Korndorfer
+Novo Hamburgo, RS, Brasil
+-----------------------------------------------
 
--cw-

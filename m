@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318044AbSHHXCO>; Thu, 8 Aug 2002 19:02:14 -0400
+	id <S318045AbSHHXDW>; Thu, 8 Aug 2002 19:03:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318045AbSHHXCO>; Thu, 8 Aug 2002 19:02:14 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:25875 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S318044AbSHHXCN>; Thu, 8 Aug 2002 19:02:13 -0400
-Date: Fri, 9 Aug 2002 01:04:40 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Luca Barbieri <ldb@ldb.ods.org>
-cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc,
- mips, m68k, sh, cris to use it
-In-Reply-To: <1028846417.1669.95.camel@ldb>
-Message-ID: <Pine.LNX.4.44.0208090100100.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318046AbSHHXDW>; Thu, 8 Aug 2002 19:03:22 -0400
+Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:3076 "EHLO
+	server01.nullzone.prv") by vger.kernel.org with ESMTP
+	id <S318045AbSHHXDV>; Thu, 8 Aug 2002 19:03:21 -0400
+Message-Id: <5.1.1.6.2.20020809010514.00bb8258@192.168.2.131>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Fri, 09 Aug 2002 01:07:25 +0200
+To: linux-kernel@vger.kernel.org
+From: system_lists@nullzone.org
+Subject: Crash in 2.4.19 with a system with no changes (from .18)
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Crash in .19 with a system with no changes (from .18)
+-----------------------------------
+.
+.
+.
+agpgart: Maximum main memory to use for agp memory: 96M
+agpgart: Detected Intel 440BX chipset
+agpgart: AGP aperture is 32M @ 0xe4000000
+<- CRASH in 2.4.19
 
-On 9 Aug 2002, Luca Barbieri wrote:
 
-> > The compiler can cache the value in a register
-> It shouldn't since it is volatile and the machine has instructions with
-> memory operands.
+It's continue perfectly in 2.4.28 as follow:
+  ataraid/d0: ataraid/d0p1
+Highpoint HPT370 Softwareraid driver for linux version 0.01
+.
+.
+.
 
-volatile is no guarantee for that:
 
-volatile int x;
+ideas? patchs?
 
-void f(int y)
-{
-        x += y;
-}
-
-becomes:
-
-	move.l x,%d0
-	add.l 8(%a6),%d0
-	move.l %d0,x
-
-I agree that volatile should avoid caching, but it does not guarantee an
-atomic modify.
-
-bye, Roman
+Seeya
 

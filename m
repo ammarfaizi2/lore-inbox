@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268129AbUJDMx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268131AbUJDM5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268129AbUJDMx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 08:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268131AbUJDMx7
+	id S268131AbUJDM5p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 08:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268130AbUJDM5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 08:53:59 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:14567 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S268129AbUJDMx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 08:53:57 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.9-rc3] suspend-to-disk oddities
-Date: Mon, 4 Oct 2004 14:56:26 +0200
-User-Agent: KMail/1.6.2
-Cc: Jan De Luyck <lkml@kcore.org>, Oliver Neukum <oliver@neukum.org>,
-       linux-usb-devel@lists.sourceforge.net
-References: <200410041107.12049.lkml@kcore.org> <200410041406.40222.oliver@neukum.org> <200410041422.25395.lkml@kcore.org>
-In-Reply-To: <200410041422.25395.lkml@kcore.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Mon, 4 Oct 2004 08:57:45 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:53911 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S268131AbUJDM5n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 08:57:43 -0400
+Subject: Re: GPL Violation of Linux in Telsey Video Station Product
+From: Josh Boyer <jdub@us.ibm.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Alessandro Sappia <a.sappia@ngi.it>, linux-kernel@vger.kernel.org
+In-Reply-To: <200410041344.45700.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <41613F2F.2000706@ngi.it>
+	 <200410041344.45700.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Message-Id: <1096894500.22034.15.camel@weaponx.rchland.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 04 Oct 2004 07:55:00 -0500
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410041456.27350.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 of October 2004 14:22, Jan De Luyck wrote:
-[-- snip --]
-> > Does "cat /proc/bus/usb/devices" give you an empty file or does it hang?
-> > Is that modular USB or is it compiled into the kernel? OHCI or UHCI?
+On Mon, 2004-10-04 at 08:44, Denis Vlasenko wrote:
+> On Monday 04 October 2004 12:16, Alessandro Sappia wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > Good Morning,
+> > I'm a Customer of a broadband ISP in Italy; They sell ont only the
+> > connection, but they add VoIP Phone and TVoIP. (Both TV on Demand and TV
+> > Broadcasting).
+> > I bought a Video Station branded by my carrier and surprisingly I found
+> > that the operating system the use is a modified version of linux.
+> > It was possible for me to see it because the Videostation Itself is just
+> > a PC with an Ethernet Card on it and it does boot from remotely.
 > 
-> UHCI. I just did a test-suspend-resume, currently plugged USB devices don't 
-work, but it does show up in the devices file. It also responds to 
-replugging.... I don't get it.
->  I had no response whatsoever earlier. Mouse doesn't work until replugged, 
-lots of messages like this in dmesg:
+> Does it itself contain Linux? It is possible that bootstrap
+> tftp loader isn't Linux. In this case Videostation itself does not
+> contain Linux until you turn it on.
 > 
-> Oct  4 14:16:49 precious kernel: drivers/usb/input/hid-core.c: input irq 
-status -84 received
-> Oct  4 14:16:54 precious last message repeated 209 times
+> But downloading Linux kernel and GPLed software via
+> tftp and NFS is itself an act of distribution, and I think you
+> have the right to obtain source from distributor (in this case,
+> your ISP).
+> 
 
-Have you tried booting with pci=routeirq?  It may help.
+I'm all for the GPL and making sure it's followed, but could we move
+such discussions some place else?  This is supposed to be a development
+list.  Maybe creating a linux-gpl list (or whatever) would be better?
 
-Greets,
-RJW
+josh
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

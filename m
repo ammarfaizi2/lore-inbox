@@ -1,75 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318948AbSICWJN>; Tue, 3 Sep 2002 18:09:13 -0400
+	id <S318951AbSICWKd>; Tue, 3 Sep 2002 18:10:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318951AbSICWJN>; Tue, 3 Sep 2002 18:09:13 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25848 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S318948AbSICWJM>;
-	Tue, 3 Sep 2002 18:09:12 -0400
-Message-ID: <3D7533F5.F00BB8E6@mvista.com>
-Date: Tue, 03 Sep 2002 15:13:09 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oliver Neukum <oliver@neukum.name>
-CC: Thunder from the hill <thunder@lightweight.ods.org>,
-       Ralf Baechle <ralf@uni-koblenz.de>, linux-kernel@vger.kernel.org
-Subject: Re: question on spinlocks
-References: <Pine.LNX.4.44.0209011607380.3234-100000@hawkeye.luckynet.adm> <200209020033.23113.oliver@neukum.name>
+	id <S318958AbSICWKc>; Tue, 3 Sep 2002 18:10:32 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:38279 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S318951AbSICWKc>; Tue, 3 Sep 2002 18:10:32 -0400
+Date: Tue, 3 Sep 2002 23:13:30 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: phillips@arcor.de, wli@holomorphy.com, rml@tech9.net,
+       rusty@rustcorp.com.au, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [TRIVIAL PATCH] Remove list_t infection.
+Message-ID: <20020903231330.C6848@kushida.apsleyroad.org>
+References: <20020902060257.GO888@holomorphy.com> <20020901.232021.00308364.davem@redhat.com> <E17loBW-0004gM-00@starship> <20020902.030553.14354294.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020902.030553.14354294.davem@redhat.com>; from davem@redhat.com on Mon, Sep 02, 2002 at 03:05:53AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
+David S. Miller wrote:
+> A list node is markably different from "the list" itself.
 > 
-> Am Montag, 2. September 2002 00:09 schrieb Thunder from the hill:
-> > Hi,
-> >
-> > On Mon, 2 Sep 2002, Oliver Neukum wrote:
-> > > > > No; spin_lock_irqsave/spin_unlock_irqrestore and
-> > > > > spin_lock/spin_unlock have to be used in matching pairs.
-> > > >
-> > > > If it was his least problem! He'll run straight into a "schedule
-> > > > w/IRQs disabled" bug.
-> > >
-> > > OK, how do I drop an irqsave spinlock if I don't have flags?
-> >
-> > IMHO you might even ask "How do I start a car when I don't have the
-> > keys?"
-> 
-> Break off the lock, touch some cables ... ;-)
-> 
-> > You might find a way, but it's not desired. Are you sure you want to
-> > reschedule in an interrupt handler? If it's none, are you sure you want
-> > to disable interrupts?
-> 
-> I am not in an interrupt handler. It's not my fault that the scsi layer
-> calls queuecommand with a spinlock held. But I need to sleep,
-> I have to get rid of that spinlock's effects. If possible I even want
-> interrupts to be enabled.
+> A "list" is the whole of all the nodes on the list, not just one
+> of them.
 
-I don't know scsi, but if the coder decided that the lock
-and irq were needed, I suspect that messing with them will
-get you in big trouble.  I think you need to rethink this
-thing at the scsi layer...
+Quite.
 
--g
-> 
->         Regards
->                 Oliver
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+And that is why there should be _two_ types:
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+     1. struct list
+     2. struct list_node
+
+With these two types, `list_add' et al. can actually _check_ that you
+got the arguments the right way around.
+
+-- Jamie

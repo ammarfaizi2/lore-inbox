@@ -1,116 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265750AbUBJAXN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 19:23:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbUBJATx
+	id S265398AbUBJAD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 19:03:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265393AbUBJABi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 19:19:53 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:25568 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265681AbUBJAS7
+	Mon, 9 Feb 2004 19:01:38 -0500
+Received: from mail.kroah.org ([65.200.24.183]:54972 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265391AbUBIXW1 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 19:18:59 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Athol Mullen <me@privacy.net>
-Subject: Re: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three()
-Date: Tue, 10 Feb 2004 01:24:13 +0100
-User-Agent: KMail/1.5.3
-References: <1mLsS-6Oq-7@gated-at.bofh.it> <1mRHV-4Xn-7@gated-at.bofh.it> <c06jlm$13ju4j$1@ID-215292.news.uni-berlin.de>
-In-Reply-To: <c06jlm$13ju4j$1@ID-215292.news.uni-berlin.de>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402100124.13627.bzolnier@elka.pw.edu.pl>
+	Mon, 9 Feb 2004 18:22:27 -0500
+Subject: Re: [PATCH] PCI Update for 2.6.3-rc1
+In-Reply-To: <10763689381296@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 9 Feb 2004 15:22:19 -0800
+Message-Id: <10763689391232@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 of February 2004 03:50, Athol Mullen wrote:
-> Willy Tarreau <willy@w.ods.org> wrote:
-> > On Sun, Feb 08, 2004 at 11:45:18AM +1100, Athol Mullen wrote:
-> >
-> > I captured dmesg and /proc/ide/piix, but forgot to post them. They're at
-> > work now. But I did the change, by commenting out the call to
-> > eighty_ninety_three() in piix.c, and my disks came back to 54 MB/s each,
-> > and 64 MB/s cumulated.  dmesg showed UDMA33 before and now displays
-> > UDMA100 again. But I obviously cannot let it like that because if I
-> > install this kernel in a 40-pin machine, I will get some surprizes !
->
-> That's what worries me...
->
-> > I understand. But could you please post your ICH5 detection code so that
-> > I can try it on this machine. I still can play with it for a few days
-> > before it gets racked. And I can try with both 40 and 80-pin cables.
->
-> This patch inserts the piix code into eighty_ninty_three() - obviously
-> this is for testing purposes only.  The patch was diff'd against 2.4.22,
-> but patches okay to 2.6.1 with:
->     Hunk #1 succeeded at 719 (offset -10 lines).
->
-> --- ide-iops.c.orig	2004-01-18 15:04:24.000000000 +1100
-> +++ ide-iops.c	2004-01-18 16:41:16.000000000 +1100
-> @@ -729,6 +729,34 @@
->
->  #else
->
-> +#ifdef CONFIG_BLK_DEV_PIIX
-> +	/* ICH BIOSes are supposed to set a bit flags for us */
-> +
-> +	ide_hwif_t *hwif	= HWIF(drive);
-> +	struct pci_dev *dev	= hwif->pci_dev;
-> +	u16 cr_flag		= 0x10 << drive->dn;
-> +	u16			reg54;
-> +
-> +	if (hwif->pci_dev->vendor == PCI_VENDOR_ID_INTEL) {
-> +		switch(hwif->pci_dev->device) {
-> +			case PCI_DEVICE_ID_INTEL_82801BA_8:
-> +	    		case PCI_DEVICE_ID_INTEL_82801BA_9:
-> +	    		case PCI_DEVICE_ID_INTEL_82801CA_10:
-> +	    		case PCI_DEVICE_ID_INTEL_82801CA_11:
-> +	    		case PCI_DEVICE_ID_INTEL_82801E_11:
-> +	    		case PCI_DEVICE_ID_INTEL_82801DB_10:
-> +			case PCI_DEVICE_ID_INTEL_82801DB_11:
-> +			case PCI_DEVICE_ID_INTEL_82801EB_11:
-> +			case PCI_DEVICE_ID_INTEL_82801AA_1:
-> +			case PCI_DEVICE_ID_INTEL_82372FB_1:
-> +			    {
-> +			    pci_read_config_word(dev, 0x54, &reg54);
-> +			    return ((reg54 & cr_flag) ? 1 : 0);
-> +			    }
-> +		}
-> +	}
-> +#endif /* CONFIG_BLK_DEV_PIIX */
-> +
+ChangeSet 1.1500.11.10, 2004/02/02 12:19:50-08:00, dlsy@snoqualmie.dp.intel.com
 
-This is plain wrong, piix.c already does it for you.
-piix.c:init_hwif_piix():
+[PATCH] PCI: Patch to get cpqphp working with IOAPIC
 
-(...)
-	u8 mask = hwif->channel ? 0xc0 : 0x30;
-(...)
-			pci_read_config_byte(hwif->pci_dev, 0x54, &reg54h);
-			pci_read_config_byte(hwif->pci_dev, 0x55, &reg55h);
-			ata66 = (reg54h & mask) ? 1 : 0;
-(...)
-	if (!(hwif->udma_four))
-		hwif->udma_four = ata66;
+Here is a patch for to get cpqphp working with IOAPIC.
+My earlier statement that a kernel patch is not needed for 2.6 is
+true only when ACPI is enabled.  A similar patch is needed in
+pcibios_enable_irq() for 2.4 kernel and I will send it out
+later.
 
-So you could just add:
-	return hwif->udma_four;
-for testing purposes.
+The fix is in pirq_enable_irq().  This function is called indirectly
+by pci_enable_device().  For device present during boot up, it should
+get the proper dev->irq for pcibios_fixup_irqs() has been called to
+get the dev->irq from MP table. If the value is still zero, then
+this is properly caused by "buggy MP table".  For hot-plug device,
+its dev->irq is 0 when the pci_enable_device() is called for it hasn't
+gone through the fixup.  Therefore, the code (similiar to the code
+in pcibios_fixup_irqs) is needed here.
 
->  	return ((u8) ((HWIF(drive)->udma_four) &&
 
-Therefore this will be true.
+ arch/i386/pci/irq.c               |   44 +++++++++++++++++++++++++++++++++++---
+ drivers/pci/hotplug/cpqphp_ctrl.c |    4 ++-
+ drivers/pci/hotplug/cpqphp_pci.c  |    2 +
+ 3 files changed, 46 insertions(+), 4 deletions(-)
 
->  #ifndef CONFIG_IDEDMA_IVB
->  			(drive->id->hw_config & 0x4000) &&
 
-Here is your problem.
-
-Please make sure you have CONFIG_IDEDMA_IVB=n in your config.
-If it is okay, please send me a copy of /proc/ide/hdX/identify.
-
---bart
+diff -Nru a/arch/i386/pci/irq.c b/arch/i386/pci/irq.c
+--- a/arch/i386/pci/irq.c	Mon Feb  9 14:59:09 2004
++++ b/arch/i386/pci/irq.c	Mon Feb  9 14:59:09 2004
+@@ -943,12 +943,50 @@
+ {
+ 	u8 pin;
+ 	extern int interrupt_line_quirk;
++	struct pci_dev *temp_dev;
++
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
+ 	if (pin && !pcibios_lookup_irq(dev, 1) && !dev->irq) {
+ 		char *msg;
+-		if (io_apic_assign_pci_irqs)
+-			msg = " Probably buggy MP table.";
+-		else if (pci_probe & PCI_BIOS_IRQ_SCAN)
++		msg = "";
++		if (io_apic_assign_pci_irqs) {
++			int irq;
++
++			if (pin) {
++				pin--;		/* interrupt pins are numbered starting from 1 */
++				irq = IO_APIC_get_PCI_irq_vector(dev->bus->number, PCI_SLOT(dev->devfn), pin);
++				/*
++				 * Busses behind bridges are typically not listed in the MP-table.
++				 * In this case we have to look up the IRQ based on the parent bus,
++				 * parent slot, and pin number. The SMP code detects such bridged
++				 * busses itself so we should get into this branch reliably.
++				 */
++				temp_dev = dev;
++				while (irq < 0 && dev->bus->parent) { /* go back to the bridge */
++					struct pci_dev * bridge = dev->bus->self;
++
++					pin = (pin + PCI_SLOT(dev->devfn)) % 4;
++					irq = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
++							PCI_SLOT(bridge->devfn), pin);
++					if (irq >= 0)
++						printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
++							bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
++					dev = bridge;
++				}
++				dev = temp_dev;
++				if (irq >= 0) {
++#ifdef CONFIG_PCI_USE_VECTOR
++					if (!platform_legacy_irq(irq))
++						irq = IO_APIC_VECTOR(irq);
++#endif
++					printk(KERN_INFO "PCI->APIC IRQ transform: (B%d,I%d,P%d) -> %d\n",
++						dev->bus->number, PCI_SLOT(dev->devfn), pin, irq);
++					dev->irq = irq;
++					return 0;
++				} else
++					msg = " Probably buggy MP table.";
++			}
++		} else if (pci_probe & PCI_BIOS_IRQ_SCAN)
+ 			msg = "";
+ 		else
+ 			msg = " Please try using pci=biosirq.";
+diff -Nru a/drivers/pci/hotplug/cpqphp_ctrl.c b/drivers/pci/hotplug/cpqphp_ctrl.c
+--- a/drivers/pci/hotplug/cpqphp_ctrl.c	Mon Feb  9 14:59:09 2004
++++ b/drivers/pci/hotplug/cpqphp_ctrl.c	Mon Feb  9 14:59:09 2004
+@@ -2446,7 +2446,7 @@
+ 				   u8 behind_bridge, struct resource_lists * resources)
+ {
+ 	int cloop;
+-	u8 IRQ;
++	u8 IRQ = 0;
+ 	u8 temp_byte;
+ 	u8 device;
+ 	u8 class_code;
+@@ -3021,6 +3021,7 @@
+ 			}
+ 		}		// End of base register loop
+ 
++#if !defined(CONFIG_X86_IO_APIC)
+ 		// Figure out which interrupt pin this function uses
+ 		rc = pci_bus_read_config_byte (pci_bus, devfn, PCI_INTERRUPT_PIN, &temp_byte);
+ 
+@@ -3045,6 +3046,7 @@
+ 
+ 		// IRQ Line
+ 		rc = pci_bus_write_config_byte (pci_bus, devfn, PCI_INTERRUPT_LINE, IRQ);
++#endif
+ 
+ 		if (!behind_bridge) {
+ 			rc = cpqhp_set_irq(func->bus, func->device, temp_byte + 0x09, IRQ);
+diff -Nru a/drivers/pci/hotplug/cpqphp_pci.c b/drivers/pci/hotplug/cpqphp_pci.c
+--- a/drivers/pci/hotplug/cpqphp_pci.c	Mon Feb  9 14:59:09 2004
++++ b/drivers/pci/hotplug/cpqphp_pci.c	Mon Feb  9 14:59:09 2004
+@@ -151,6 +151,7 @@
+  */
+ int cpqhp_set_irq (u8 bus_num, u8 dev_num, u8 int_pin, u8 irq_num)
+ {
++#if !defined(CONFIG_X86_IO_APIC)	
+ 	int rc;
+ 	u16 temp_word;
+ 	struct pci_dev fakedev;
+@@ -175,6 +176,7 @@
+ 	// This should only be for x86 as it sets the Edge Level Control Register
+ 	outb((u8) (temp_word & 0xFF), 0x4d0);
+ 	outb((u8) ((temp_word & 0xFF00) >> 8), 0x4d1);
++#endif
+ 
+ 	return 0;
+ }
 

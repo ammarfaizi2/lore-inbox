@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265873AbTGDIeg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 04:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265874AbTGDIeg
+	id S265882AbTGDIi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 04:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265884AbTGDIi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 04:34:36 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:65036 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265873AbTGDIef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 04:34:35 -0400
-Date: Fri, 4 Jul 2003 04:37:51 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
+	Fri, 4 Jul 2003 04:38:27 -0400
+Received: from holomorphy.com ([66.224.33.161]:38092 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S265882AbTGDIiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 04:38:23 -0400
+Date: Fri, 4 Jul 2003 01:52:08 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: wli@holomorphy.com, helgehaf@aitel.hist.no, zboszor@freemail.hu,
-       linux-kernel@vger.kernel.org
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, helgehaf@aitel.hist.no,
+       zboszor@freemail.hu, linux-kernel@vger.kernel.org
 Subject: Re: 2.5.74-mm1
+Message-ID: <20030704085208.GX26348@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>, helgehaf@aitel.hist.no,
+	zboszor@freemail.hu, linux-kernel@vger.kernel.org
+References: <3F0407D1.8060506@freemail.hu> <3F042AEE.2000202@freemail.hu> <20030703122243.51a6d581.akpm@osdl.org> <20030703200858.GA31084@hh.idb.hist.no> <20030703141508.796e4b82.akpm@osdl.org> <20030704055315.GW26348@holomorphy.com> <Pine.LNX.4.53.0307040307090.24383@montezuma.mastecende.com> <20030704012734.77f99e74.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20030704012734.77f99e74.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.53.0307040437100.24383@montezuma.mastecende.com>
-References: <3F0407D1.8060506@freemail.hu> <3F042AEE.2000202@freemail.hu>
- <20030703122243.51a6d581.akpm@osdl.org> <20030703200858.GA31084@hh.idb.hist.no>
- <20030703141508.796e4b82.akpm@osdl.org> <20030704055315.GW26348@holomorphy.com>
- <Pine.LNX.4.53.0307040307090.24383@montezuma.mastecende.com>
- <20030704012734.77f99e74.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jul 2003, Andrew Morton wrote:
-
-> static inline void bitmap_or(unsigned long *dst, unsigned long *bitmap1,
->                                 unsigned long *bitmap2, int bits)
-> {
->         int k;
->         int nr = BITS_TO_LONGS(bits);
-> 
->         for (k = 0; k < nr; k++)
->                 dst[k] = bitmap1[k] | bitmap2[k];
-> }
-> 
+On Fri, Jul 04, 2003 at 01:27:34AM -0700, Andrew Morton wrote:
 > fixes it up, and looks nicer anyway.  Removing the volatiles (what were
 > they doing there?) did not fix it.  The `nr' thing fixed it.  
-> 
-> I shall make that change.
 
-Very nice, thanks!
+Those were to prevent warnings in case someone passed in a volatile
+bitmap. Which no one is doing at the moment that I know of offhand.
 
-	Zwane
--- 
-function.linuxpower.ca
+
+-- wli

@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265797AbTGCKYw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 06:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265925AbTGCKYw
+	id S265932AbTGCK1w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 06:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265933AbTGCK1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 06:24:52 -0400
-Received: from catv-50622120.szolcatv.broadband.hu ([80.98.33.32]:49298 "EHLO
-	catv-50622120.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
-	id S265797AbTGCKYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 06:24:49 -0400
-Message-ID: <3F0407D1.8060506@freemail.hu>
-Date: Thu, 03 Jul 2003 12:39:13 +0200
-From: Boszormenyi Zoltan <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, hu
+	Thu, 3 Jul 2003 06:27:51 -0400
+Received: from fed1mtao01.cox.net ([68.6.19.244]:43153 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S265932AbTGCK1u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 06:27:50 -0400
+To: Juan Quintela <quintela@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (trivial 2.5.74) compilation fix
+ drivers/mtd/mtd_blkdevs.c
+References: <7vbrwc3sxo.fsf@assigned-by-dhcp.cox.net>
+	<86llvgkk59.fsf@trasno.mitica>
+From: junkio@cox.net
+Date: Thu, 03 Jul 2003 03:42:15 -0700
+In-Reply-To: <86llvgkk59.fsf@trasno.mitica> (Juan Quintela's message of
+ "Thu, 03 Jul 2003 11:57:22 +0200")
+Message-ID: <7v7k6z51tk.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.74-mm1
-Content-Type: multipart/mixed;
- boundary="------------050200080000050701060906"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050200080000050701060906
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+>>>>> "JQ" == Juan Quintela <quintela@mandrakesoft.com> writes:
 
-Hi,
+>>>>> "junkio" == junkio  <junkio@cox.net> writes:
+junkio> C does not let us declare variables in the middle of a block (yet).
 
-fs/jfs/xattr.c does not compile after applying your .74-mm1
-because of a simple typo. Fix is attached.
+JQ> It depends what do you call C :)
+JQ> C99 does.
 
--- 
-Best regards,
-Zoltán Böszörményi
+That is an inappropriate comment in this list.  As far as the
+kernel code is concerned, Documentation/Changes defines what C
+is :-), and it says "GCC 2.95.3 or later".
 
----------------------
-What did Hussein say about his knife?
-One in Bush worth two in the hand.
-
-
---------------050200080000050701060906
-Content-Type: text/plain;
- name="jfs-xattr-typo-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="jfs-xattr-typo-fix.patch"
-
---- fs/jfs/xattr.c~	2003-07-03 12:35:32.000000000 +0200
-+++ fs/jfs/xattr.c	2003-07-03 12:35:32.000000000 +0200
-@@ -1028,7 +1028,7 @@
- 	err = __jfs_listxattr(dentry->d_inode, data, buf_size);
- 	up(&dentry->d_inode->i_sem);
- 
--	rerturn err;
-+	return err;
- }
- 
- int jfs_removexattr(struct dentry *dentry, const char *name)
-
---------------050200080000050701060906--
+Since 2.95.3 does not support declaration-in-the-middle,
+decl-in-the-middle is not a valid C (yet).  On the other hand,
+other C99 extentions that compiler can grok (e.g. '.FIELDNAME ='
+style initializer) is now already part of valid C :-).
 

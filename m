@@ -1,44 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265188AbUD3N3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265187AbUD3N22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265188AbUD3N3a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 09:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265190AbUD3N33
+	id S265187AbUD3N22 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 09:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265188AbUD3N22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 09:29:29 -0400
-Received: from ns.suse.de ([195.135.220.2]:52369 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265188AbUD3N32 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 09:29:28 -0400
-Subject: Re: [PATCH] Process Aggregates (PAGG) support for the 2.6 kernel
-From: Chris Mason <mason@suse.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Rik van Riel <riel@redhat.com>,
-       Erik Jacobson <erikj@subway.americas.sgi.com>,
-       Paul Jackson <pj@sgi.com>, chrisw@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040430140611.A11636@infradead.org>
-References: <20040430071750.A8515@infradead.org>
-	 <Pine.LNX.4.44.0404300853230.6976-100000@chimarrao.boston.redhat.com>
-	 <20040430140611.A11636@infradead.org>
-Content-Type: text/plain
-Message-Id: <1083331725.30344.371.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 30 Apr 2004 09:28:45 -0400
+	Fri, 30 Apr 2004 09:28:28 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:32475 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S265187AbUD3N20
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 09:28:26 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16530.21623.588293.347094@laputa.namesys.com>
+Date: Fri, 30 Apr 2004 17:28:23 +0400
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       alexander viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       trond myklebust <trondmy@trondhjem.org>
+Subject: Re: d_splice_alias() problem.
+In-Reply-To: <16529.56343.764629.37296@cse.unsw.edu.au>
+References: <16521.5104.489490.617269@laputa.namesys.com>
+	<16529.56343.764629.37296@cse.unsw.edu.au>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-04-30 at 09:06, Christoph Hellwig wrote:
-> On Fri, Apr 30, 2004 at 08:54:08AM -0400, Rik van Riel wrote:
-> > What was the last time you looked at the CKRM source?
-> 
-> the day before yesterday (the patch in SuSE's tree because there
-> doesn't seem to be any official patch on their website)
-> 
-Somewhat unrelated, but the day before yesterday suse was at ckrm-e5,
-we're now at ckrm-e12.
+Neil Brown writes:
+ > On Friday April 23, Nikita@Namesys.COM wrote:
+ > > Hello,
+ > > 
+ > > for some time I am observing that during stress tests over NFS
+ > > 
+ > >    shrink_slab->...->prune_dcache()->prune_one_dentry()->...->iput()
+ > > 
+ > > is called on inode with ->i_nlink == 0 which results in truncate and
+ > > file deletion. This is wrong in general (file system is re-entered), and
+ > > deadlock prone on some file systems.
+ > > 
+ > > After some debugging, I tracked problem down the to d_splice_alias()
+ > > failing to identify dentries when necessary.
+ > > 
+ > > Suppose we have an inode with ->i_nlink == 1. It's accessed over NFS and
+ > > DCACHE_DISCONNECTED dentry D1 is created for it. Then, unlink request
+ > > comes for this file. nfsd looks name up in the parent directory
+ > > (nfsd_unlink()->lookup_one_len()). File system back-end uses
+ > > d_splice_alias(), but it only works for directories and we end up with
+ > > second (this time connected) dentry D2.
+ > > 
+ > > D2 is successfully unlinked, file has ->i_nlink == 0, and ->i_count == 1
+ > > from D1, and when prune_dcache() hits D1 bad things happen.
+ > > 
+ > > It's hard to imagine how new name can be identified with one among
+ > > multiple anonymous dentries, which is necessary for
+ > > NFSEXP_NOSUBTREECHECK export to work reliably.
+ > > 
+ > > One possible work-around is to forcibly destroy all remaining
+ > > DCACHE_DISCONNECTED dentries when ->i_nlink drops to zero, but I am not
+ > > sure that this is possible and solves all problems of having more
+ > > dentries than there are nlinks.
+ > > 
+ > > Nikita.
+ > 
+ > If I understand you correctly, the main problem is that a disconnected
+ > dentry can hold an inode active after the last link has been removed.
+ > The file will not then be truncated and removed until memory pressure
+ > flushes the disconnected dentry from the dcache.
+ > 
+ > This problem can be resolved by making sure that an inode never has
+ > both a connected and a disconnected dentry.
+ > 
+ > This is already the case for directories (as they must only have one
+ > dentry), but it is not the case for non-directories.
+ > 
+ > The following patch tries to address this.  It is a "technology
+ > preview" in that the only testing I have done is that it compiles OK. 
 
--chris
+I have a test where such situation is reproducible and will give patch a
+try.
 
+Also, Al Viro pointed to me that it's not clear why DCACHE_DISCONNECTED
+dentry is DCACHE_HASHED at all. If it were unhashed, last dput (done by
+nfsd thread) would destroy it, truncating file if necessary.
 
+ > 
+
+Nikita.

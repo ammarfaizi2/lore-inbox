@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289270AbSANXNY>; Mon, 14 Jan 2002 18:13:24 -0500
+	id <S289281AbSANXPZ>; Mon, 14 Jan 2002 18:15:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289272AbSANXNO>; Mon, 14 Jan 2002 18:13:14 -0500
-Received: from quark.didntduck.org ([216.43.55.190]:39178 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S289270AbSANXNE>; Mon, 14 Jan 2002 18:13:04 -0500
-Message-ID: <3C4365EB.5AA2DEA3@didntduck.org>
-Date: Mon, 14 Jan 2002 18:12:43 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Lang <dlang@diginsite.com>
-CC: Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: <Pine.LNX.4.40.0201141409580.22904-100000@dlang.diginsite.com>
+	id <S289277AbSANXPS>; Mon, 14 Jan 2002 18:15:18 -0500
+Received: from offended.co.uk ([217.204.248.2]:7825 "EHLO fw.tomsflat")
+	by vger.kernel.org with ESMTP id <S289283AbSANXOy>;
+	Mon, 14 Jan 2002 18:14:54 -0500
+Date: Mon, 14 Jan 2002 23:14:51 +0000
+From: Tom Gilbert <tom@linuxbrit.co.uk>
+To: linux-kernel@vger.kernel.org
+Cc: "Eric S. Raymond" <esr@thyrsus.com>
+Subject: Re: Penelope builds a kernel
+Message-ID: <20020114231451.J9555@ummagumma>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	"Eric S. Raymond" <esr@thyrsus.com>
+In-Reply-To: <20020114165909.A20808@thyrsus.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020114165909.A20808@thyrsus.com>
+User-Agent: Mutt/1.3.23i
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.linuxbrit.co.uk
+Organisation: Poor
+X-Operating-System: Linux/2.4.10-ac9 (i686)
+X-Uptime: 23:11:08 up 34 days,  4:42,  5 users,  load average: 0.26, 0.12, 0.04
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
+* Eric S. Raymond (esr@thyrsus.com) wrote:
+> Scenario #3: Penelope goes where the geeks are surfing.
+> If Penelope learns from the README file that all *she* has to do is
+> type "configure; make" to build a kernel that supports her hardware,
+> she can apply that MEMS card patch and build with confidence that the
+> effort is unlikely to turn into an infinite time sink.
 > 
-> the impact is in all calls to the module, if they are far calls instead of
-> near calls each and every call is (a hair) slower.
-> 
-> so the code can be the same and still be slower to get to.
-> 
-> you can argue that it's not enough slower to matter, but even Alan admits
-> there is some impact.
-> 
-> David Lang
+> Autoconfigure saves the day again.  That guy in the penguin T-shirt
+> might even be impressed...
 
-Let's get the terminology right here (for x86 at least):
-Far jump: Changes to a new code segment, absolute address
-Near jump: Same code segment, 4-byte relative offset
-Short jump: Same code segment, 1-byte signed offset
+$ apt-cache search kernel-patch | wc -l
+     66
 
-The kernel never uses far jumps except for some BIOS calls and during
-booting.  The difference betwen near and short jumps is very minute. 
-Short jumps are limited to +/- 128 bytes, so are really only applicable
-for small loops.  All function calls between object files must be near
-jumps, as the assembler does not not know the distance of an unresolved
-symbol and must assume the largest possible offset.
+And I guarantee that if Penelope calls up her vendor, she can get
+someone to provide her a guaranteed-compatible and *tested* driver that
+can be managed by her package manager for less than the price of the
+pack of twelve she'll be using with the dude in the penguin t-shirt.
 
---
+Please try to understand the entire _point_ of distributions and get a
+grasp of how vendors work with the kernel, and stop waxing lyrical about
+contrived situations.
 
-				Brian Gerst
+Tom.
+-- 
+   .^.    .-------------------------------------------------------.
+   /V\    | Tom Gilbert, London, England | http://linuxbrit.co.uk |
+ /(   )\  | Open Source/UNIX consultant  | tom@linuxbrit.co.uk    |
+  ^^-^^   `-------------------------------------------------------'

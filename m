@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbTJJG2l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 02:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTJJG2l
+	id S262525AbTJJGdw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 02:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbTJJGdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 02:28:41 -0400
-Received: from holomorphy.com ([66.224.33.161]:29312 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262508AbTJJG2k (ORCPT
+	Fri, 10 Oct 2003 02:33:52 -0400
+Received: from mail.storm.ca ([209.87.239.66]:62147 "EHLO mail.storm.ca")
+	by vger.kernel.org with ESMTP id S262525AbTJJGdv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 02:28:40 -0400
-Date: Thu, 9 Oct 2003 23:30:39 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Stuart Longland <stuartl@longlandclan.hopto.org>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, lgb@lgb.hu,
-       Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts
-Message-ID: <20031010063039.GA700@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Stuart Longland <stuartl@longlandclan.hopto.org>,
-	Stephan von Krawczynski <skraw@ithnet.com>, lgb@lgb.hu,
-	Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009115809.GE8370@vega.digitel2002.hu> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F864F82.4050509@longlandclan.hopto.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Fri, 10 Oct 2003 02:33:51 -0400
+Message-ID: <3F865376.2030103@storm.ca>
+Date: Fri, 10 Oct 2003 14:36:38 +0800
+From: Sandy Harris <sandy@storm.ca>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel includefile bug not fixed after a year :-(
+References: <200309301157.h8UBvOcd004345@burner.fokus.fraunhofer.de>	<20030930120629.GM2908@suse.de> <20030930052817.0d0272df.davem@redhat.com>
+In-Reply-To: <20030930052817.0d0272df.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 04:19:46PM +1000, Stuart Longland wrote:
-Stephan von Krawczynski wrote:
->>* hotplug CPU
->>* hotplug RAM
+David S. Miller wrote:
 
-Generally thought of as desirable, but hotplug RAM needs a *LOT* of
-qualification.
+>>... when did the kernel/user interface break, and how?
+> 
+> 
+> I'll answer for him, about 20 or 30 times during IPSEC development.
+> ...
+
+Natural enough.
+
+> But that's not the important issue, the important issue is that
+> a huge number of kernel API interfaces have no equivalent in
+> whatever you consider to be "user usable non-kernel headers".
+> 
+> Find me the API defines for the IPSEC configuration socket interfaces
+> in a header file that you think users should be allowed to include.
+> 
+> You won't find it Jens,
+
+That is, you and the other IPsec developers did not create it.
+I wonder why not.
+
+ From my rather naive perspective, I would think providing header
+files for whatever interface you provide is part of the job. Of
+course they'd have to be user-includable and documented at least
+in man pages.
+
+I suspect I am missing something here. What?
+
+> and that's why it drives me nuts when people
+> spit out the "no kernel headers" mantra.  Often it simply must be
+> done as a matter of practicality.
 
 
-On Fri, Oct 10, 2003 at 04:19:46PM +1000, Stuart Longland wrote:
-> * hotplug motherboard & entire computer too I spose ;-)
-
-Um, this is worse than the above wrt. being too vague.
 
 
-On Fri, Oct 10, 2003 at 04:19:46PM +1000, Stuart Longland wrote:
-> Although sarcasm aside, a couple of ideas that have been bantered around 
-> on this list (and a few of my own ideas):
-> 	- /proc interface alternative to modutils/module-init-tools.
-> 		That is, to have a directory of virtual nodes in /proc
-> 		to provide the functionality of insmod, rmmod, lsmod &
-> 		modprobe would be great -- especially from the viewpoint
-> 		of recue disk images, etc.
-
-No way in Hell.
-
-
--- wli

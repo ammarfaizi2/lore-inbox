@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263253AbTD0CLk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 22:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTD0CLk
+	id S263258AbTD0CML (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 22:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263263AbTD0CML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 22:11:40 -0400
-Received: from zero.aec.at ([193.170.194.10]:57613 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263253AbTD0CLi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 22:11:38 -0400
-Date: Sun, 27 Apr 2003 04:23:46 +0200
-From: Andi Kleen <ak@muc.de>
-To: torvalds@transmeta.com
+	Sat, 26 Apr 2003 22:12:11 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:50305 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263258AbTD0CMK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 22:12:10 -0400
+Date: Sat, 26 Apr 2003 19:24:18 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: root@vanheusden.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Support worst case cache line sizes as config option
-Message-ID: <20030427022346.GA27933@averell>
+Subject: Re: statistics for this mailinglist
+Message-ID: <20030427022418.GA6820@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>, root@vanheusden.com,
+	linux-kernel@vger.kernel.org
+References: <200304270201.h3R211Vp030739@muur.intranet.vanheusden.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200304270201.h3R211Vp030739@muur.intranet.vanheusden.com>
 User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 27, 2003 at 04:01:01AM +0200, root@vanheusden.com wrote:
+> Overall statistics
+> ------------------
+> Statistics created on: Sat Apr 26 04:02:13 2003
+> 
+> First message was written at: 2003/04/19 14:58:23
+> Last message was written at: 2003/04/20 22:58:49
+> Total number of messages: 1783
 
-This mirrors a change that has been in the SuSE/aa 2.4 kernel for a long time.
-
-For a generic binary kernel you really want to assume the worst case
-cache line size.  That's the P4's 128 byte currently.
-
-The overhead of having the cache line size bigger on other CPUs is not
-that bad, but if it is too small it will cost you dearly on SMP and
-even a bit on UP in device drivers. 
-
-This patch adds a new CONFIG_X86_GENERIC option for this. It currently
-only forces 128byte cache lines, but could be used for more in the future.
-
-diff -u linux-gencpu/arch/i386/Kconfig-o linux-gencpu/arch/i386/Kconfig
---- linux-gencpu/arch/i386/Kconfig-o	2003-04-27 02:40:32.000000000 +0200
-+++ linux-gencpu/arch/i386/Kconfig	2003-04-27 03:50:08.000000000 +0200
-@@ -273,6 +273,13 @@
- 
- endchoice
- 
-+config X86_GENERIC
-+       bool "Generic x86 support" 
-+       help
-+       	  Include some tuning for non selected x86 CPUs too.
-+	  when it has moderate overhead. This is intended for generic 
-+	  distributions kernels.
-+
- #
- # Define implied options from the CPU selection here
- #
-@@ -288,10 +295,10 @@
- 
- config X86_L1_CACHE_SHIFT
- 	int
-+	default "7" if MPENTIUM4 || X86_GENERIC
- 	default "4" if MELAN || M486 || M386
- 	default "5" if MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCRUSOE || MCYRIXIII || MK6 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || M586 || MVIAC3_2
- 	default "6" if MK7 || MK8
--	default "7" if MPENTIUM4
- 
- config RWSEM_GENERIC_SPINLOCK
- 	bool
+Err, I dunno how to read these stats but I am pretty sure that we did not
+see 1783 messages in 32 hours which is what the numbers above imply.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

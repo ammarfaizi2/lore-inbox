@@ -1,29 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280813AbRKGPQ5>; Wed, 7 Nov 2001 10:16:57 -0500
+	id <S280819AbRKGPU5>; Wed, 7 Nov 2001 10:20:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280814AbRKGPQr>; Wed, 7 Nov 2001 10:16:47 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21508 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280813AbRKGPQi>; Wed, 7 Nov 2001 10:16:38 -0500
-Subject: Re: ext3 vs resiserfs vs xfs
-To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
-Date: Wed, 7 Nov 2001 15:23:51 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0111071558090.29292-100000@mustard.heime.net> from "Roy Sigurd Karlsbakk" at Nov 07, 2001 04:00:55 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280817AbRKGPUi>; Wed, 7 Nov 2001 10:20:38 -0500
+Received: from uunet-gw.macroscoop.nl ([195.193.201.73]:8453 "EHLO
+	mondriaan.macroscoop.nl") by vger.kernel.org with ESMTP
+	id <S280816AbRKGPUf>; Wed, 7 Nov 2001 10:20:35 -0500
+From: Pim Zandbergen <P.Zandbergen@macroscoop.nl>
+To: linux-kernel@vger.kernel.org, "Justin T. Gibbs" <gibbs@scsiguy.com>,
+        Pim Zandbergen <P.Zandbergen@macroscoop.nl>
+Newsgroups: comp.os.linux.hardware
+Subject: aic7xxx freezes with kernel 2.4.13
+Date: Wed, 07 Nov 2001 16:20:17 +0100
+Organization: Macroscoop BV
+Message-ID: <c8iiutoqe1grq0hr0h1htt5gnpbnh3k91f@4ax.com>
+X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E161UYR-0004S5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I just set up a RedHat 7.2 box with ext3, and after a few tests/chrashes,
-> I see no difference at all. After a chrash, it really wants to run fsck
-> anyway. I've tried ReiserFS before, with no fsck after chrashes - is this
+Hi,
 
-Umm RH 7.2 after an unexpected shutdown will give you a 5 second count down
-when you can choose to force an fsck - ext3 doesnt need an fsck but
-sometimes folks might want to force it thats all
+I've got a Dell PowerEdge 1300 with dual PIII's and dual aic7xxx
+controllers. One controller is onboard, the other is in a PCI slot.
+
+The system is running Red Hat 7.1 with kernel 2.4.13.
+
+Lately, this system is experiencing freezes that may last one or two
+minutes. These usually occur during heavy Samba activity. After the
+freeze, the system usually recovers, but by then, the Samba clients
+have timed out their operations.
+
+Syslog shows the freezes are related to the SCSI subsystem. I'm having
+trouble interpreting this information. Is my hardware suspect or could
+this be a driver bug?
+
+Syslog entries (with aic7xxx=verbose) showing the boot process and a
+system freeze can be found on
+
+http://www.macroscoop.nl/~pim/aic7xxx/syslog.html (98.080 bytes) or
+http://www.macroscoop.nl/~pim/aic7xxx/syslog.gz   (6.410 bytes)
+
+Thanks,
+Pim

@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273497AbRIQGIx>; Mon, 17 Sep 2001 02:08:53 -0400
+	id <S273495AbRIQGGX>; Mon, 17 Sep 2001 02:06:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273494AbRIQGIn>; Mon, 17 Sep 2001 02:08:43 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:51957
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S272673AbRIQGId>; Mon, 17 Sep 2001 02:08:33 -0400
-Date: Sun, 16 Sep 2001 23:08:52 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-Message-ID: <20010916230852.E24067@mikef-linux.matchmail.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E15gwc5-0003VR-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S273494AbRIQGGN>; Mon, 17 Sep 2001 02:06:13 -0400
+Received: from otter.mbay.net ([206.40.79.2]:50193 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S273493AbRIQGGD> convert rfc822-to-8bit;
+	Mon, 17 Sep 2001 02:06:03 -0400
+From: John Alvord <jalvo@mbay.net>
+To: Riley Williams <rhw@MemAlpha.cx>
+Cc: Vinolin <vinolin@nodeinfotech.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Latest stable
+Date: Sun, 16 Sep 2001 23:06:15 -0700
+Message-ID: <0e4bqtsqmdcblr60vjl4147pn7qctttvka@4ax.com>
+In-Reply-To: <006c01c13b90$104b8a40$080aa8c0@nodeinfotech.com> <Pine.LNX.4.21.0109160803210.24288-100000@Consulate.UFP.CX>
+In-Reply-To: <Pine.LNX.4.21.0109160803210.24288-100000@Consulate.UFP.CX>
+X-Mailer: Forte Agent 1.8/32.553
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15gwc5-0003VR-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 12, 2001 at 12:06:41AM +0100, Alan Cox wrote:
-> If you know any reason this should not be 2.2.20 final now is a very very
-> good time to say. I intend to call this patch 2.2.20 in a week or so barring
-> any last minute problems. Please save anything but actual bugfixes for
-> 2.2.21.
+On Sun, 16 Sep 2001 08:09:14 +0100 (BST), Riley Williams
+<rhw@MemAlpha.cx> wrote:
 
-OK, will test.
+>Hi Vinolin.
+>
+>> Can you please reply me "which is the stable version of linux" now?
+>
+>That depends what you mean by "stable", as there are currently two
+>parallel stable development trees:
+>
+> 1. "Stable and ready for production use" is the latest 2.2 series
+>    kernel, found at ftp://ftp.kernel.org/pub/linux/kernel/v2.2/ on
+>    the Internet.
+>
+> 2. "Stable but untested in production use" is the latest 2.4 series
+>    kernel, found at ftp://ftp.kernel.org/pub/linux/kernel/v2.4/ on
+>    the Internet.
+It would be most accurate to label 2.4 as "stablizing", meaning that
+bug fixes only are being accepted. Of course some pretty extensive
+bugs are being working on... like the Virtual Memory area...
 
-I know the Ingo's raid patch hasn't been included because of tool
-compatibility problems.  Has anyone thought of having both versions in the
-2.2 kernel?  Would this be trivial, or something that would change too much
-for 2.2?
+Stable versions come from distributors who test a given level
+extensively, and add in any needed fixes, and stand behind the result.
+You can't expect that from developers and you won't get it even if you
+do expect it.
+>
+>Basically, the 2.4 series kernels are stable and contain all the latest
+>kernel technology, but you are advised to test your setup on a system
+>whose stability doesn't matter and satisfy yourself that they are
+>suitable for your use.
+>
+>Best wishes from Riley.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-I've been compiling in Andre's EIDE patch for months, without any problems
-on x86.  Except for an #include error on PPC.  I have a patch, but I can't
-sent attach now because the patch is on a computer that is off at the moment...
-
-Is there any chance of getting either of these two things into 2.2.21?
-
-Mike

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129029AbQKHUPN>; Wed, 8 Nov 2000 15:15:13 -0500
+	id <S129582AbQKHUTm>; Wed, 8 Nov 2000 15:19:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129764AbQKHUPD>; Wed, 8 Nov 2000 15:15:03 -0500
-Received: from rmx194-mta.mail.com ([165.251.48.41]:34519 "EHLO
-	rmx194-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S129118AbQKHUOx>; Wed, 8 Nov 2000 15:14:53 -0500
-Message-ID: <390875121.973714466615.JavaMail.root@web694-wra.mail.com>
-Date: Wed, 8 Nov 2000 15:14:21 -0500 (EST)
-From: Frank Davis <fdavis112@juno.com>
-To: linux-kernel@vger.kernel.org
-Subject: Pentium IV-summary
-CC: torvalds@transmeta.com, alan@orguk.ukuu.org.uk, fdavis112@juno.com
+	id <S129640AbQKHUTd>; Wed, 8 Nov 2000 15:19:33 -0500
+Received: from mirrors.planetinternet.be ([194.119.238.163]:28937 "EHLO
+	mirrors.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S129582AbQKHUTU>; Wed, 8 Nov 2000 15:19:20 -0500
+Date: Wed, 8 Nov 2000 21:19:09 +0100
+From: Kurt Roeckx <Q@ping.be>
+To: Jim Bonnet <jimbo@sco.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sb.o support in 2.4-broken?
+Message-ID: <20001108211909.A7107@ping.be>
+In-Reply-To: <3A09BD3E.9F2FAF04@sco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: mail.com
-X-Originating-IP: 128.2.77.8
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <3A09BD3E.9F2FAF04@sco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Nov 08, 2000 at 12:53:18PM -0800, Jim Bonnet wrote:
+> I am using the 2.4.0-test10 kernel. I have a sound blaster 16 which
+> works fine under 2.2.17.
+> 
+> I see that a while back someone posted on this problem previously but
+> there were no answers I can find..
+> 
+> Is support for soundblaster16 ISA broken in the 2.4 kernel? Compiled in
+> or used as a module I can not get it to work. I have passed sb=220,5,1,5
+> during boot when compiled in and also sent those during insmod.
 
-I think I have summarized the discussion for clarity: 
+Use sb=0x220,5,1,5
 
-1. rep nop can used with all x86 boxes, unless a valid example can be found where it doesn't work. Athlon works with the rep nop. 
 
-2. There's a bug in get_model_name(),
-   cpuid(0x80000001, &dummy, &dummy, &dummy, &(c->x86_capability));
-
-that overwrites the capability state. It will be fixed in 2.2.18  by Dave Jones. Should we also look at Peter Anvin's fix for the problem that Linus mentioned? What are the other features of the Pentium IV should be included in the kernel pending the capability state fix?
-
-3. 2.4.x may support processor speeds up to 100GHz, as well as Pentium IV. Linus will have a Pentium IV available soon, but can someone test the kernel with a Pentium IV sooner?
-
-Regards,
-Frank
-
+Kurt
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

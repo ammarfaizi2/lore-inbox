@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVAWCp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVAWCqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVAWCp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 21:45:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVAWCp6
+	id S261189AbVAWCqW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 21:46:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVAWCqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 21:45:58 -0500
-Received: from waste.org ([216.27.176.166]:650 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261180AbVAWCpy (ORCPT
+	Sat, 22 Jan 2005 21:46:22 -0500
+Received: from fire.osdl.org ([65.172.181.4]:22926 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261189AbVAWCqS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 21:45:54 -0500
-Date: Sat, 22 Jan 2005 18:45:38 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 1/12] random pt4: Create new rol32/ror32 bitops
-Message-ID: <20050123024538.GR12076@waste.org>
-References: <200501222113_MC3-1-940A-5393@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501222113_MC3-1-940A-5393@compuserve.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 22 Jan 2005 21:46:18 -0500
+Message-ID: <41F30E0A.9000100@osdl.org>
+Date: Sat, 22 Jan 2005 18:38:02 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, diego@pemas.net
+Subject: Re: [Bug 4081] New: OpenOffice crashes while starting due to a threading
+ error
+References: <217740000.1106412985@[10.10.2.4]>
+In-Reply-To: <217740000.1106412985@[10.10.2.4]>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 22, 2005 at 09:10:40PM -0500, Chuck Ebbert wrote:
-> On Fri, 21 Jan 2005 at 15:41:06 -0600 Matt Mackall wrote:
+Martin J. Bligh wrote:
+> Please contact bug submitter for more info, not myself.
 > 
-> > Add rol32 and ror32 bitops to bitops.h
+> ---------------------------------------------
 > 
-> Can you test this patch on top of yours?  I did it on 2.6.10-ac10 but it
-> should apply OK.  Compile tested and booted, but only random.c is using it
-> in my kernel.
+> http://bugme.osdl.org/show_bug.cgi?id=4081
+> 
+>            Summary: OpenOffice crashes while starting due to a threading
+>                     error
+>     Kernel Version: 2.6.11-rc2
+>             Status: NEW
+>           Severity: blocking
+>              Owner: process_other@kernel-bugs.osdl.org
+>          Submitter: diego@pemas.net
+> 
+> 
+> Distribution: Debian
+> Hardware Environment: Pentum III 733 MHz
+> Software Environment: Debian Sid
+> Problem Description:
+> While starting open Office crashes, it did not happend on 2.6.10, but happend on
+> 2.6.11. rc1 and rc2. The only thing that has changed is the kernel. If i go back
+> to 2.6.10 OpenOffice starts just fine.
 
-If I recall correctly from my testing of this about a year ago,
-compilers were already generating the appropriate rol/ror
-instructions. Have you checked the disassembly and found it wanting?
+OO works for me on 2.6.11-rc2, but my OO is 1.1.1.
+The bugzilla mentions 1.1.2yyy and 1.1.3zzz, so I'd see if you
+(diego) can try some 1.1.3 OO.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+~Randy

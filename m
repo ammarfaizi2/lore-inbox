@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUIEVrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUIEVwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267259AbUIEVrj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 17:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267258AbUIEVri
+	id S267254AbUIEVwl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 17:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267278AbUIEVwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 17:47:38 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:19997 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267259AbUIEVrT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 17:47:19 -0400
-Message-ID: <d577e56904090514472eff2e55@mail.gmail.com>
-Date: Sun, 5 Sep 2004 17:47:16 -0400
-From: Patrick McFarland <diablod3@gmail.com>
-Reply-To: Patrick McFarland <diablod3@gmail.com>
-Illegal-Object: Syntax error in To: address found on vger.kernel.org:
-	To:	"Michel  =?ISO-8859-1?Q?=20D=E4nzer=22?= <michel@daenzer.net>"
-			^-missing closing '"' in token
-Subject: Re: [BUG] r200 dri driver deadlocks
-Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
-In-Reply-To: <1094415901.31465.133.camel@admin.tel.thor.asgaard.local>
+	Sun, 5 Sep 2004 17:52:41 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:53662 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267254AbUIEVwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 17:52:39 -0400
+Subject: Re: Intel ICH - sound/pci/intel8x0.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jaroslav Kysela <perex@suse.cz>
+In-Reply-To: <9e47339104090514244873fd05@mail.gmail.com>
+References: <20040905184852.GA25431@linux.ensimag.fr>
+	 <9e47339104090514244873fd05@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094417386.1911.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <d577e569040904021631344d2e@mail.gmail.com>
-	 <1094321696.31459.103.camel@admin.tel.thor.asgaard.local>
-	 <d577e56904090413365f5e223d@mail.gmail.com>
-	 <1094366099.31457.112.camel@admin.tel.thor.asgaard.local>
-	 <d577e56904090501224f252dbc@mail.gmail.com>
-	 <1094406055.31464.118.camel@admin.tel.thor.asgaard.local>
-	 <d577e569040905131870fa14a3@mail.gmail.com>
-	 <1094415901.31465.133.camel@admin.tel.thor.asgaard.local>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 05 Sep 2004 21:49:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-To: unlisted-recipients:; (no To-header on input)
 
-On Sun, 05 Sep 2004 16:25:00 -0400, Michel Dänzer <michel@daenzer.net> wrote:
-> On Sun, 2004-09-05 at 16:18 -0400, Patrick McFarland wrote:
-> > That shouldn't matter, should it? The userland stuff should never lock
-> > the machine up.
+On Sul, 2004-09-05 at 22:24, Jon Smirl wrote:
+> I'd don't know enough about the LPC bridge chip to know what the
+> correct answer is for this. Right now I tend to think that the PCI
+> driver should own the bridge chip. If not the PCI driver then there
+> should be an explicit bridge driver. I don' think it is correct that a
+> joystick driver is attaching to a bridge chip given the simple fact
+
+Nobody else currently needs to attach to it so why make life needlessly
+complicated.
+
+> that all legacy IO - joystick, PS/2, parallel, serial, etc is located
+> off from that same bridge chip.
 > 
-> In an ideal world... Feel free to track down the cause and add code to
-> the DRM to prevent it.
+> Matthieu's comments about using PNP for this seem to make sense. Are
+> we missing implementation of an ACPI feature for controlling these
+> ports?
 
-I would, except, as many have noted before, even looking at the r200
-driver requires years
-of therapy to get rid of the nightmares.
+See previous discussion. We have isapnp, biospnp but not great acpi pnp.
+None of them help because you need to deal with hotplug.
 
-So, yeah, I'll check to see if today's dri cvs snapshot works. If it
-doesn't, I'm not sure what to do.
+Alan
 
--- 
-Patrick "Diablo-D3" McFarland || diablod3@gmail.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
-all be running around in darkened rooms, munching magic pills and listening to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989

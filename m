@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314396AbSEFL4T>; Mon, 6 May 2002 07:56:19 -0400
+	id <S314394AbSEFMKw>; Mon, 6 May 2002 08:10:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314398AbSEFL4S>; Mon, 6 May 2002 07:56:18 -0400
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:1700 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S314396AbSEFL4R>; Mon, 6 May 2002 07:56:17 -0400
-Message-ID: <3CD66E4C.1010305@linuxhq.com>
-Date: Mon, 06 May 2002 07:51:40 -0400
-From: John Weber <john.weber@linuxhq.com>
-Organization: Linux Headquarters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.14 OSS emulation
-In-Reply-To: <3CD665A0.2030508@wanadoo.fr> <20020506123035.A26941@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314395AbSEFMKv>; Mon, 6 May 2002 08:10:51 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:49936 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S314394AbSEFMKv>;
+	Mon, 6 May 2002 08:10:51 -0400
+Date: Mon, 6 May 2002 14:10:42 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tcq problem details Re: vanilla 2.5.13 severe file system corruption experienced follozing e2fsck ...
+Message-ID: <20020506121042.GP820@suse.de>
+In-Reply-To: <5.1.0.14.2.20020506093027.00aca720@pop.cus.cam.ac.uk> <5.1.0.14.2.20020505200138.00b2d660@pop.cus.cam.ac.uk> <20020505183451.98763.qmail@web14102.mail.yahoo.com> <5.1.0.14.2.20020505200138.00b2d660@pop.cus.cam.ac.uk> <5.1.0.14.2.20020506093027.00aca720@pop.cus.cam.ac.uk> <5.1.0.14.2.20020506105723.04138980@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Mon, May 06, 2002 at 01:14:40PM +0200, Pierre Rousselet wrote:
+On Mon, May 06 2002, Anton Altaparmakov wrote:
+> Jens,
 > 
->> From ChangeLog-2.5.14 :
->>
->><hch@infradead.org> (02/05/05 1.545)
->>	[PATCH] fix config.in syntax errors.
->>        - sound uses a bool where it should use a dep_bool
->>
->>This prevents using OSS emulation with ALSA drivers. What is the reason 
->>behind ?
+> I didn't get a panic in the limited testing I did just now on 2.5.14 for 
+> ntfs however I do get soemthing odd. Even when the box is fully idle 
+> proc/ide/blah/tcq shows this:
 > 
+> TCQ currently on:       yes
+> Max queue depth:        32
+> Max achieved depth:     14
+> Max depth since last:   1
+> Current depth:          0
+> Active tags:            [ 1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 
+> 27, 28, 29, 30, 31, ]
+> Queue:                  released [ 1390 ] - started [ 3986 ]
+> pending request and queue count mismatch (counted: 18)
+> DMA status:             not running
 > 
-> 2.4.13 used to do (in sound/core/Config.in):
+> Some times the number of active tags is higher, seems to vary...
 > 
-> bool '  OSS API emulation' CONFIG_SND_OSSEMUL $CONFIG_SND
-> 
-> The bool verb take exaxctly two arguments, the option description
-> and the config option itself, if you want additional depencies you
-> have to use dep_bool instead.
-> 
-> If this fix breaks ALSA it only shows that it has even deeper config
-> problems - I don't use ALSA and care only about the syntactical
-> correctness of that file.
+> /me ignorant: this looks wrong. Why are there active tags when no activity? 
+> If a am right and this is a problem then perhaps tags are "leaking" some 
+> how?
 
+Agrh, that's a silly bug in blk_queue_init_tags(). Could you replace the
+memset() of tags->tag_index in there with something ala:
 
-This is very true.  I've had trouble getting my YMFPCI sound to work 
-with ALSA probably for this reason: bad configs.  (After all, I was told 
-the YMFPCI code is the same for OSS and ALSA).
+	for (i = 0; i < depth; i++)
+		tags->tag_index[i] = NULL;
+
+and see if that solves it?
+
+-- 
+Jens Axboe
 

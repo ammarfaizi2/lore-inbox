@@ -1,106 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264874AbUA0RoV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 12:44:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbUA0RoV
+	id S264383AbUA0Rlk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 12:41:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUA0Rlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 12:44:21 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:34999 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264874AbUA0RoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 12:44:17 -0500
-Subject: Re: [PATCH] kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
-From: Jim Houston <jim.houston@comcast.net>
-Reply-To: jim.houston@comcast.net
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, george@mvista.com, amitkale@emsyssoft.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040127155619.7efec284.ak@suse.de>
-References: <20040127030529.8F860C60FC@h00e098094f32.ne.client2.attbi.com>
-	 <20040127155619.7efec284.ak@suse.de>
+	Tue, 27 Jan 2004 12:41:40 -0500
+Received: from tench.street-vision.com ([212.18.235.100]:47265 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S264383AbUA0Rli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 12:41:38 -0500
+Subject: Re: 2.6.1 dual xeon
+From: Justin Cormack <justin@street-vision.com>
+To: Alexander Nyberg <alexn@telia.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1075223587.1173.5.camel@llhosts>
+References: <20040124203646.A8709@animx.eu.org>
+	<1074995006.5246.1.camel@localhost> <20040125083712.A9318@animx.eu.org>
+	<20040127073801.GB9708@favonius>  <1075223587.1173.5.camel@llhosts>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1075225399.1020.239.camel@new.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 27 Jan 2004 12:43:20 -0500
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 27 Jan 2004 17:41:35 +0000
+Message-Id: <1075225295.32504.19.camel@lotte.street-vision.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-01-27 at 09:56, Andi Kleen wrote:
-> On Mon, 26 Jan 2004 22:05:29 -0500 (EST)
-> Jim Houston <jim.houston@comcast.net> wrote:
-> > The attached patch updates my kgdb-x86_64-support.patch to work
-> > with linux-2.6.2-rc1-mm3.
+You can run irqbalance in one shot mode not continously. Check the
+options.
+
+On Tue, 2004-01-27 at 17:13, Alexander Nyberg wrote:
+> On Tue, 2004-01-27 at 08:38, Sander wrote:
+> > Wakko Warner wrote (ao):
+> > > > > I recently aquired a dual xeon system. HT is enabled which shows
+> > > > > up as 4 cpus. I noticed that all interrupts are on CPU0. Can
+> > > > > anyone tell me why this is?
+> > > > 
+> > > > The APIC needs to be programmed to deliver interrupts to certain
+> > > > processors.
+> > > > 
+> > > > In 2.6, this is done in user-space via a program called irqbalance:
+> > > 
+> > > Thanks, working great. (Debian by the way)
+> > 
+> > Ehm, IIRC the "all interrupts are on CPU0" is how it is supposed to work
+> > with a 2.6 kernel? The interrupts should spread if you have _a_lot_ of
+> > them. This gives better performance than spreading the interrupts. Did I
+> > read this on the list, or am I completely wrong here?
 > 
-> I already did this merge yesterday. Didn't you get mail? 
-
-Hi Andi,
-
-No.  I didn't see your mail until this morning.
-
-It looks like we were working in lock step.  I had been meaning to
-update the patch so when I saw that Andrew had dropped it from 
-2.6.2-rc1-mm3 it seemed like a good time.
-
-I'll leave it to you and Andrew to decide how we should resolve our
-conflicting patches.
-
-I'm including my notes on the difference between our patches. 
-
-Jim Houston - Concurrent Computer Corp.
-
---
-
-arch/x86_64/kernel/kgdb_stub.c
-	Lots of white space changes.  I assume these are my fault.
-
-	I use the variable kgdb_enable to decide if the system should
-	stop in kgdb on an oops or other failure.  My intention was to
-	set this variable when the user connected.  I was doing this
-	for serial but not for kgdboe.  
-
-	I removed a \n from print_extra_info.
-
-init/main.c
-	This change puts trap_init before parse_args().  I needed this
-	for the early entry into kgdb with the gdb command line argument
-	to work.
-
-arch/x86_64/boot/compressed/head.S
-arch/x86_64/boot/compressed/misc.c
-include/linux/config.h
-	On the i386 asm/kgdb.h is included from config.h.  These changes
-	make the x86_64 do the same.  I'm not a fan of globally
-	included header files, but I wanted the x86_64 to work the same
-	as the i386.  The asm/kgdb.h provides a stub for
-	kgdb_process_breakpoint() avoiding the undefined symbol.
-
-arch/x86_64/kernel/irq.c
-	This change is not needed with the change above.
-
-
-arch/x86_64/Kconfig
-arch/x86_64/Kconfig.kgdb
-	We used a different approach to selecting DEBUG_INFO.
-	I was not really happy with the way select DEBUG_INFO worked.
-
-Makefile
-	I added -g to AFLAGS so the .S files get line number info.
-	I have a problem where gdb identifies error_exit as being
-	in elf_core.h.  I had hoped this would help.  It didn't,
-	but I still like this change.
-
-include/linux/bitops.h
-	I dropped this one.  I suspect that this fixed a compile 
-	warning in a forgotten Concurrent tree.
-
-include/asm-x86_64/kgdb_local.h
-	This file seems to be missing from your patch.  Maybe I'm 
-	missing something.  In my patch it is a copy of the i386
-	version.
-
-
+> Apparently it was way especially better performance wise to have
+> interrupts that hit often (ethernet cards ie.) on the same cpu.
+> 
+> But I can't see a reason for not dividing the different interrupt on
+> different cpu's and letting them stay put. Maybe if you keep all
+> interrupts on the same cpu the cache on the other ones will not have to
+> be flushed often, which would be a good thing.
+> 
+> How would it be to maybe remove all interrupts from a cpu (except
+> between cpu's) and have a few cpu's merely working with data and one "in
+> control". Bad idea I guess as I haven't seen any such work.
+> 
+> Alex
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 

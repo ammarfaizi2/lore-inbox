@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVC2Q01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVC2QbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVC2Q01 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 11:26:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVC2Q01
+	id S261199AbVC2QbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 11:31:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVC2QbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 11:26:27 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:57211 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261187AbVC2Q0V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 11:26:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=jS/HF7wOAus0Xwvi8rZ673gZVk7PlosY5CqPEe3JlmJ+/7Jf+XpnyTIVBEG0sUDxnBhFwhm0y6CpxjSErmFLpxJVYPsoKUiLZh77xYV4uyNvlrp3L1r/dZhkZtepy13vuoDPXhk5cVmiTpckBvSx+TGc2Q+CR8Xcm1HIdTSX5cU=
-Message-ID: <d120d500050329082665855878@mail.gmail.com>
-Date: Tue, 29 Mar 2005 11:26:17 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: klists and struct device semaphores
-Cc: Patrick Mochel <mochel@digitalimplant.org>,
-       David Brownell <david-b@pacbell.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0503291055560.1038-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.50.0503280856210.28120-100000@monsoon.he.net>
-	 <Pine.LNX.4.44L0.0503291055560.1038-100000@ida.rowland.org>
+	Tue, 29 Mar 2005 11:31:09 -0500
+Received: from mailwasher.lanl.gov ([192.65.95.54]:62040 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S261199AbVC2QbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 11:31:00 -0500
+Message-ID: <424982C0.5000708@mesatop.com>
+Date: Tue, 29 Mar 2005 09:30:56 -0700
+From: Steven Cole <elenstev@mesatop.com>
+User-Agent: Thunderbird 1.0 (Multics)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.12-rc1-mm3 Fix ver_linux script for no udev utils.
+Content-Type: multipart/mixed;
+ boundary="------------070907050505090807010102"
+X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Mar 2005 11:18:13 -0500 (EST), Alan Stern
-<stern@rowland.harvard.edu> wrote:
-> 
-> With that change in place we can guarantee that every time a USB driver's
-> probe() is called, both the interface and the parent device are locked.
-> 
-> I don't know how cleanly this can be implemented.  You probably don't want
-> to lock dev->parent->sem every time, only when needed.  Maybe the simplest
-> approach would be to add a flag in struct bus_type, which could be set for
-> the USB bus_type and clear for everything else.
->
+This is a multi-part message in MIME format.
+--------------070907050505090807010102
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I think it is fine to lock parent unconditionally. After all
-device/driver matching is not the most performance-critical part of
-the kernel.
+Without the attached patch, the ver_linux script gives
+the following if udev utils are not present.
 
--- 
-Dmitry
+./scripts/ver_linux: line 90: udevinfo: command not found
+
+The patch causes ver_linux to be silent in the case of
+no udevinfo command.
+
+Steven
+TSPA (Technical data or Software Publicly Available)
+
+
+
+
+
+--------------070907050505090807010102
+Content-Type: text/plain; x-mac-type="0"; x-mac-creator="0";
+ name="fix_ver_linux_for_no_udev.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix_ver_linux_for_no_udev.patch"
+
+Signed-off-by: Steven Cole <elenstev@mesatop.com>
+
+--- linux-2.6.12-rc1-mm3/scripts/ver_linux.orig	2005-03-29 08:52:35.000000000 -0700
++++ linux-2.6.12-rc1-mm3/scripts/ver_linux	2005-03-29 09:04:37.000000000 -0700
+@@ -87,7 +87,7 @@
+ 
+ expr --v 2>&1 | awk 'NR==1{print "Sh-utils              ", $NF}'
+ 
+-udevinfo -V | awk '{print "udev                  ", $3}'
++udevinfo -V 2>&1 | grep version | awk '{print "udev                  ", $3}'
+ 
+ if [ -e /proc/modules ]; then
+     X=`cat /proc/modules | sed -e "s/ .*$//"`
+
+--------------070907050505090807010102--

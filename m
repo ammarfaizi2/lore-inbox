@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318139AbSGRPZg>; Thu, 18 Jul 2002 11:25:36 -0400
+	id <S318127AbSGRPYh>; Thu, 18 Jul 2002 11:24:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318140AbSGRPZg>; Thu, 18 Jul 2002 11:25:36 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:50067 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S318139AbSGRPZd>; Thu, 18 Jul 2002 11:25:33 -0400
-Date: Thu, 18 Jul 2002 17:28:29 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: input subsystem config ?
-Message-ID: <20020718152829.GD2326@tahoe.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20020717154448.A19761@ucw.cz> <20020717135823.GG14581@tahoe.alcove-fr> <20020717162904.B19935@ucw.cz> <20020717145523.GJ14581@tahoe.alcove-fr> <20020717172235.A20474@ucw.cz> <20020717153336.GK14581@tahoe.alcove-fr> <20020718144130.GB2326@tahoe.alcove-fr> <20020718164536.A30363@ucw.cz> <20020718144838.GC2326@tahoe.alcove-fr> <20020718171531.A30511@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020718171531.A30511@ucw.cz>
-User-Agent: Mutt/1.3.25i
+	id <S318135AbSGRPYh>; Thu, 18 Jul 2002 11:24:37 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:17928 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318127AbSGRPYg>; Thu, 18 Jul 2002 11:24:36 -0400
+Date: Thu, 18 Jul 2002 12:27:08 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Bill Davidsen <davidsen@tmr.com>
+cc: stoffel@lucent.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Backups done right (was [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
+In-Reply-To: <Pine.LNX.3.96.1020718105612.7522B-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44L.0207181226490.12241-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 05:15:31PM +0200, Vojtech Pavlik wrote:
-
-> > If I do not disable the 'return -1', the mouse will not be found at
-> > all, and moving it will get no messages in the logs...
-> 
-> Ok, that's what I wanted to know - I was wondering whether the mouse
-> would simply ignore all control commands. And it doesn't not. It needs
-> the commands, 
-
-I'm not sure about that. It will not work if I do not disable the
-'return -1' because the irq will get freed, so the driver will have
-no chance to get any mouse event.
-
-> but doesn't send any replies.
-
-Maybe I should put some debug statements in the pc_keyb.c interrupt
-handler and see if the mouse does answer the control commands ?
-
-> Can you check what happens if you use an external mouse together with
-> the internal one?
+On Thu, 18 Jul 2002, Bill Davidsen wrote:
+> On Tue, 16 Jul 2002 stoffel@lucent.com wrote:
 >
-> I suspect both will work OK.
+> >   3a. lock mirrored volume, flush any outstanding transactions, break
+> >       mirror.
+> >                 --or--
+> >   3b. snapshot filesystem to another volume.
+>
+> Good summary. The problem is that 3a either requires a double morror or
+> leaving the f/s un mirrored, and 3b can take a very long time for a big
+> f/s.
 
-External like in 'external PS/2' mouse ? Bad luck, this laptop 
-has no PS/2 (or serial) port. :-(
+3b should be fairly quick since you only need to do an in-memory
+copy of some LVM metadata.
 
-I can plug in a USB mouse, but I doubt it will show any useful
-information...
-
-Stelian.
+Rik
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

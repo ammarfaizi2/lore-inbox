@@ -1,44 +1,86 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314343AbSEIUyu>; Thu, 9 May 2002 16:54:50 -0400
+	id <S314352AbSEIUz7>; Thu, 9 May 2002 16:55:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314351AbSEIUyt>; Thu, 9 May 2002 16:54:49 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:24069 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314343AbSEIUyt>; Thu, 9 May 2002 16:54:49 -0400
-Message-ID: <3CDAD35A.6070900@evision-ventures.com>
-Date: Thu, 09 May 2002 21:51:54 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S314358AbSEIUz4>; Thu, 9 May 2002 16:55:56 -0400
+Received: from [147.91.26.2] ([147.91.26.2]:46047 "EHLO alfa.mas.bg.ac.yu")
+	by vger.kernel.org with ESMTP id <S314352AbSEIUzW>;
+	Thu, 9 May 2002 16:55:22 -0400
+Date: Thu, 9 May 2002 22:55:06 +0200 (CEST)
+From: Goran Gajic <ggajic@alfa.mas.bg.ac.yu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Oops with 2.4.18
+Message-ID: <Pine.LNX.4.33.0205092231360.18003-100000@alfa.mas.bg.ac.yu>
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PATCH & call for help: Marking ISA only drivers
-In-Reply-To: <20020509203719.A3746@averell>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Andi Kleen napisa?:
-> Hallo,
-> 
-> This patch tries to make most ISA only drivers dependent on CONFIG_ISA. 
 
-If only for the fact that it allows you to don't look at archaic
-hardware configuration options makes it a good idea I think.
-Bus is bus if we have CONFIG_PCI, we should have CONFIG_ISA as well.
 
-> The motivation is that it is a lot of work to get old drivers to compile
-> meaningfully (at least without warnings, not even testing them) on x86-64
-> and a lot of them are obviously not 64bit safe.  As it is very unlikely
-> that x86-64 boxes will ever have ISA slots[1] one simple way for that
-> is just removing the old ISA drivers from the configuration.
-> 
-> BTW I think CONFIG_ISA would be an useful configuration option for 
-> i386 too - at least most modern PCs do not come with ISA slots anymore.
+Hi, I have encountered two oops with 2.4.18 so far. First one was with
+kswapd (I don't have trace), second one with umount (both at reboot).
+I have used gcc version egcs-2.91.66, and binutils  2.9.1.0.25 to build
+kernel. On machine I have problems so far I have used 2.2.17 (which worked
+ok for long time). BTW. I also have SGI xfs patch applied (since I plan to
+use xfs) but I don;t have any xfs partitions so far..
 
-Plase add mcd and mcdx - CD-ROM drivers. Both of them required
-an special "controller" card, which was indeed ISA based.
+gg.
+
+
+Unable to handle kernel paging request at virtual address 6769736e
+c013ed4c
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c013ed4c>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010a87
+eax: c69e3878   ebx: 6769736e   ecx: 6769736e   edx: c6963778
+esi: c12c3038   edi: 00000000   ebp: c12c3000   esp: c7e55f40
+ds: 0018   es: 0018   ss: 0018
+Process umount (pid: 556, stackpage=c7e55000)
+Stack: c12c3000 c12c3038 00000000 00000000 c01336d0 c12c3000 c12c3000 c12c3038
+       c014234f c12c3000 00000001 00000000 ffffffff c75da000 c7e55f98 8ffffda8
+       c0142472 c12062e0 00000000 c7e54000 0804f792 0804c817 c127f420 c12062e0
+Call Trace: [<c01336d0>] [<c014234f>] [<c0142472>] [<c0142498>] [<c0106c03>]
+Code: 8b 09 39 6b 38 75 ef 8b 13 8b 43 04 89 42 04 89 10 a1 68 1f
+
+
+>>EIP; c013ed4c <shrink_dcache_sb+18/144>   <=====
+
+>>eax; c69e3878 <END_OF_CODE+667db74/????>
+>>ebx; 6769736e Before first symbol
+>>ecx; 6769736e Before first symbol
+>>edx; c6963778 <END_OF_CODE+65fda74/????>
+>>esi; c12c3038 <END_OF_CODE+f5d334/????>
+>>ebp; c12c3000 <END_OF_CODE+f5d2fc/????>
+>>esp; c7e55f40 <END_OF_CODE+7af023c/????>
+
+Trace; c01336d0 <do_remount_sb+50/d8>
+Trace; c014234f <do_umount+6b/f0>
+Trace; c0142472 <sys_umount+9e/b8>
+Trace; c0142498 <sys_oldumount+c/10>
+Trace; c0106c03 <system_call+33/40>
+
+Code;  c013ed4c <shrink_dcache_sb+18/144>
+00000000 <_EIP>:
+Code;  c013ed4c <shrink_dcache_sb+18/144>   <=====
+   0:   8b 09             movl   (%ecx),%ecx   <=====
+Code;  c013ed4e <shrink_dcache_sb+1a/144>
+   2:   39 6b 38          cmpl   %ebp,0x38(%ebx)
+Code;  c013ed51 <shrink_dcache_sb+1d/144>
+   5:   75 ef             jne    fffffff6 <_EIP+0xfffffff6> c013ed42 <shrink_dcache_sb+e/144>
+Code;  c013ed53 <shrink_dcache_sb+1f/144>
+   7:   8b 13             movl   (%ebx),%edx
+Code;  c013ed55 <shrink_dcache_sb+21/144>
+   9:   8b 43 04          movl   0x4(%ebx),%eax
+Code;  c013ed58 <shrink_dcache_sb+24/144>
+   c:   89 42 04          movl   %eax,0x4(%edx)
+Code;  c013ed5b <shrink_dcache_sb+27/144>
+   f:   89 10             movl   %edx,(%eax)
+Code;  c013ed5d <shrink_dcache_sb+29/144>
+  11:   a1 68 1f 00 00    movl   0x1f68,%eax
+
+
 

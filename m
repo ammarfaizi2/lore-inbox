@@ -1,29 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268165AbTBNDOV>; Thu, 13 Feb 2003 22:14:21 -0500
+	id <S268166AbTBNDVx>; Thu, 13 Feb 2003 22:21:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268166AbTBNDOV>; Thu, 13 Feb 2003 22:14:21 -0500
-Received: from windsormachine.com ([206.48.122.28]:2826 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S268165AbTBNDOU>; Thu, 13 Feb 2003 22:14:20 -0500
-Date: Thu, 13 Feb 2003 22:24:11 -0500 (EST)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.60 cheerleading...
-In-Reply-To: <Pine.LNX.4.44.0302131731090.2655-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0302132223390.25757-100000@router.windsormachine.com>
+	id <S268168AbTBNDVx>; Thu, 13 Feb 2003 22:21:53 -0500
+Received: from BELLINI.MIT.EDU ([18.62.3.197]:14868 "EHLO bellini.mit.edu")
+	by vger.kernel.org with ESMTP id <S268166AbTBNDVw>;
+	Thu, 13 Feb 2003 22:21:52 -0500
+Message-ID: <3E4C6314.4070105@bellini.mit.edu>
+Date: Thu, 13 Feb 2003 22:31:32 -0500
+From: ghugh Song <ghugh@bellini.mit.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-pre4-ac4 make xconfig fails
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Feb 2003, Linus Torvalds wrote:
+This is what I get on SuSE-8.1 box:
 
-> Trust me, you don't want me doing _anything_ first thing in the morning.
->
-> 		Linus
+# make xconfig
+rm -f include/asm
+( cd include ; ln -sf asm-i386 asm)
+make -C scripts kconfig.tk
+make[1]: Entering directory `/usr/src/linux-2.4.21-pre4-ac4/scripts'
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkparse.o 
+tkparse.c
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkcond.o 
+tkcond.c
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkgen.o tkgen.c
+gcc -o tkparse tkparse.o tkcond.o tkgen.o
+cat header.tk >> ./kconfig.tk
+./tkparse < ../arch/i386/config.in >> kconfig.tk
+drivers/char/drm/Config.in: 11: can't handle 
+dep_bool/dep_mbool/dep_tristate condition
+make[1]: *** [kconfig.tk] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4.21-pre4-ac4/scripts'
+make: *** [xconfig] Error 2
 
-Doesn't Alan Cox go to bed at first thing in the morning?
 
-Mike
+
+Apparently, some people successfully went throught this procedure.
+
+Best regards,
+
+G. Hugh Song
+
 

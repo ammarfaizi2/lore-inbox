@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271175AbTGQQtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 12:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271445AbTGQQtJ
+	id S271504AbTGQQxD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 12:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271508AbTGQQxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 12:49:09 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:62982 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271175AbTGQQtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 12:49:06 -0400
-Date: Thu, 17 Jul 2003 18:03:59 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Michael Kristensen <michael@wtf.dk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Unable to boot linux-2.6-test1
-In-Reply-To: <20030715185852.GA519@sokrates>
-Message-ID: <Pine.LNX.4.44.0307171803120.10255-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Jul 2003 12:53:03 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:9145 "EHLO
+	genius.impure.org.uk") by vger.kernel.org with ESMTP
+	id S271504AbTGQQw4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 12:52:56 -0400
+Date: Thu, 17 Jul 2003 18:07:09 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dank@reflexsecurity.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1-ac1 Matrox Compile Error
+Message-ID: <20030717170708.GB4280@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	James Simmons <jsimmons@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, dank@reflexsecurity.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030715175758.GC15505@suse.de> <Pine.LNX.4.44.0307171801330.10255-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0307171801330.10255-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 17, 2003 at 06:03:02PM +0100, James Simmons wrote:
 
-> * Dave Jones <davej@codemonkey.org.uk> [2003-07-15 20:33:00]:
-> >> CONFIG_INPUT=m
-> > Because this is m, Kconfig is hiding CONFIG_VT from you.
-> 
-> When I read the help for CONFIG_VT, I was convinced that was it, but
-> when I tried to enable CONFIG_VT it still didn't work. It just sounded
-> so like that was it. Any other suggestions?
-> 
-> By the way.. I am subscribed to this list now, so no need to CC anymore,
-> but thanks for the reply.
+ > Strange that CONFIG_VT would get set to no. Another huge issue is that 
+ > people are configuring several framebuffer drivers to run the same piece 
+ > of hardware. 
 
-Check to see which console drivers and how many framebuffer drivers you 
-have enabled. Most peopel have been enabling everything which is wrong.
+A number of people seem to be seeing regressions with vesafb too.
+Configs that worked with 2.4 give a blank screen, and lock up under 2.5
+I believe vga=791 was one such option.
 
+		Dave
 

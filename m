@@ -1,91 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbUKJW7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbUKJXAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262058AbUKJW7E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 17:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbUKJW7E
+	id S262140AbUKJXAq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 18:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbUKJXAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 17:59:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:6533 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262058AbUKJW66 (ORCPT
+	Wed, 10 Nov 2004 18:00:45 -0500
+Received: from gate.crashing.org ([63.228.1.57]:61343 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262140AbUKJXAe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 17:58:58 -0500
-Date: Wed, 10 Nov 2004 15:03:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Schlichter <thomas.schlichter@web.de>
-Cc: linux-kernel@vger.kernel.org, Zwane Mwaikambo <zwane@holomorphy.com>,
-       Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.10-rc1-mm4
-Message-Id: <20041110150307.3a06cc1d.akpm@osdl.org>
-In-Reply-To: <200411102333.03412.thomas.schlichter@web.de>
-References: <200411102333.03412.thomas.schlichter@web.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 10 Nov 2004 18:00:34 -0500
+Subject: Re: [(broken) PATCH] Sungem and wake_on_lan
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Colin Leroy <colin.lkml@colino.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+In-Reply-To: <20041109151154.43c897dd.colin.lkml@colino.net>
+References: <20041109151154.43c897dd.colin.lkml@colino.net>
+Content-Type: text/plain
+Date: Thu, 11 Nov 2004 09:57:36 +1100
+Message-Id: <1100127457.25814.19.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Schlichter <thomas.schlichter@web.de> wrote:
->
-> Today I tested the linux-2.6.10-rc1-mm4 kernel and it works fine with the 
-> attached config. But if I enable HIGHPTE, that kernel hits following BUG 
-> (written down by hand) and panics when the INIT process is started:
+On Tue, 2004-11-09 at 15:11 +0100, Colin Leroy wrote:
+> Hi everyone,
 > 
-> kernel BUG at arch/i386/mm/highmem.c:63!
-> EIP is at kunmap_atomic+0x27/0x70
-> Call Trace
->   show_stack+0xa6/0xb0
->   show_register+0x14d/0x1c0
->   die+0x158/0x2e0
->   do_invalid_op+0xef/0x100
->   error_code+0x2b/0x30
->   copy_pte_range+0x122/0x490
+> I'm trying to implement wake_on_lan in sungem. I did it by mimicking the
+> Darwin AppleGMACEthernet driver. 
+> I have some problems with it; not only it doesn't work (pinging the
+> target machine does not wake it up, nor does ether-wake.c), but also the
+> normal resume crashes instead of working - before powering screen up,
+> so no log available...
+> 
+> My laptop has a BCM5221 PHY, I suppose it supports WOL but did not
+> check. Anyway it shouldn't crash on normal resume, as Darwin's driver
+> doesn't seem to have special cases depending on PHYs.
+> 
+> Before putting the laptop to sleep, I issue a 'sudo ethtool -s eth0 wol p'
+> to enable gp->wake_on_lan.
+> 
+> Here's the patch, in case anyone (BenH, David Miller ? :)) has an idea
+> about something i do wrong. 
+> Thanks,
 
-This might help:
+Not sure at this point why it would die, but I'm pretty sure you must
+edit the PHY PM code too in sungem_phy.c to not shut it down :)
 
+Darwin does have some special cases for PHYs.
 
-
-
-We're modifying src_pte and dst_pte in the for-loop, and then unmapping the
-modified pointers.  If one of them walked off the end of the page then blam.
-
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/mm/memory.c |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
-
-diff -puN mm/memory.c~4level-highpte-fix mm/memory.c
---- 25/mm/memory.c~4level-highpte-fix	Wed Nov 10 14:58:55 2004
-+++ 25-akpm/mm/memory.c	Wed Nov 10 15:00:58 2004
-@@ -332,7 +332,8 @@ static int copy_pte_range(struct mm_stru
- 				struct vm_area_struct *vma,
- 			   	unsigned long addr, unsigned long end)
- {
--	pte_t * src_pte, * dst_pte;
-+	pte_t *src_pte, *dst_pte;
-+	pte_t *s, *d;
- 	unsigned long vm_flags = vma->vm_flags;
- 
- 	dst_pte = pte_alloc_map(dst_mm, dst_pmd, addr);
-@@ -341,12 +342,12 @@ static int copy_pte_range(struct mm_stru
- 
- 	spin_lock(&src_mm->page_table_lock);
- 	src_pte = pte_offset_map_nested(src_pmd, addr);
--	for (;
--	     addr < end;
--	     addr += PAGE_SIZE, src_pte++, dst_pte++) {
--		if (pte_none(*src_pte))
-+	d = dst_pte;
-+	s = src_pte;
-+	for ( ; addr < end; addr += PAGE_SIZE, s++, d++) {
-+		if (pte_none(*s))
- 			continue;
--		copy_one_pte(dst_mm, src_mm, dst_pte, src_pte, vm_flags, addr);
-+		copy_one_pte(dst_mm, src_mm, d, s, vm_flags, addr);
- 	}
- 	pte_unmap_nested(src_pte);
- 	pte_unmap(dst_pte);
-_
+Ben.
 

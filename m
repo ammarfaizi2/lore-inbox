@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbUK0CEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbUK0DAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbUK0CEg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 21:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbUKZThV
+	id S262763AbUK0DAz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 22:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262923AbUK0CEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:37:21 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:62401 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262380AbUKZTWF (ORCPT
+	Fri, 26 Nov 2004 21:04:23 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262763AbUKZThL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:22:05 -0500
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-From: David Woodhouse <dwmw2@infradead.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: David Howells <dhowells@redhat.com>, Alexandre Oliva <aoliva@redhat.com>,
-       torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org,
-       libc-alpha@sources.redhat.com
-In-Reply-To: <20041126141935.GA29035@parcelfarce.linux.theplanet.co.uk>
-References: <20041125210137.GD2849@parcelfarce.linux.theplanet.co.uk>
-	 <19865.1101395592@redhat.com>
-	 <orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>
-	 <12983.1101470307@redhat.com>
-	 <1101470443.8191.9438.camel@hades.cambridge.redhat.com>
-	 <20041126141935.GA29035@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Message-Id: <1101479593.8191.9555.camel@hades.cambridge.redhat.com>
+	Fri, 26 Nov 2004 14:37:11 -0500
+Date: Thu, 25 Nov 2004 19:17:26 +0100
+From: Colin Leroy <colin@colino.net>
+To: linux-kernel@vger.kernel.org
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>
+Subject: [PATCH] Ohci-hcd: fix endless loop
+Message-ID: <20041125191726.5ca95299@jack.colino.net>
+X-Mailer: Sylpheed-Claws 0.9.12cvs172.1 (GTK+ 2.4.9; powerpc-unknown-linux-gnu)
+X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Fri, 26 Nov 2004 14:33:14 +0000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-26 at 14:19 +0000, Matthew Wilcox wrote:
-> On Fri, Nov 26, 2004 at 12:00:43PM +0000, David Woodhouse wrote:
-> > On Fri, 2004-11-26 at 11:58 +0000, David Howells wrote:
-> > > How about calling the interface headers "kapi*/" instead of "user*/". In case
-> > > you haven't guessed, "kapi" would be short for "kernel-api".
-> > 
-> > I don't think that change really makes any difference. The nomenclature
-> > really isn't _that_ important.
-> 
-> Indeed.  We could also make this transparent to userspace by using a script
-> to copy the user-* headers to /usr/include.  Something like this:
+Hi, 
 
-Indeed.
+Following patch fixes an endless loop that happens after having
+slept and resumed my iBook with a linux-wlan-ng controller plugged in,
+removed the stick and plugged it back (getting "IRQ lossage" message).
 
-> If we really wanted to get fancy, we could also sed __u32 to uint32_t.
-> But that would probably cause more pain, confusion, hurt and bad feeling
-> than I'd ever want to be responsible for.
-
-Also true. Let's just use the standard types in the first place and not
-screw around with having to fix it up later.
-
--- 
-dwmw2
-
+Signed-off-by: Colin Leroy <colin@colino.net>
+--- a/drivers/usb/host/ohci-hcd.c	2004-11-25 19:00:25.000000000 +0100
++++ b/drivers/usb/host/ohci-hcd.c	2004-11-25 19:08:59.000000000 +0100
+@@ -375,6 +375,11 @@
+ 		spin_unlock_irqrestore (&ohci->lock, flags);
+ 		set_current_state (TASK_UNINTERRUPTIBLE);
+ 		schedule_timeout (1);
++		if (limit-- < -1000) {
++			ohci_warn (ohci, "Couldn't recover\n");
++			ohci_restart(ohci);
++			goto bail;
++		}
+ 		goto rescan;
+ 	case ED_IDLE:		/* fully unlinked */
+ 		if (list_empty (&ed->td_list)) {
+@@ -396,6 +401,7 @@
+ 	dev->ep [epnum] = NULL;
+ done:
+ 	spin_unlock_irqrestore (&ohci->lock, flags);
++bail:
+ 	return;
+ }
+ 

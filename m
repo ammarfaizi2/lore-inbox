@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316204AbSIDXYJ>; Wed, 4 Sep 2002 19:24:09 -0400
+	id <S316210AbSIDXTO>; Wed, 4 Sep 2002 19:19:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316309AbSIDXYI>; Wed, 4 Sep 2002 19:24:08 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:1231 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S316204AbSIDXYG>;
-	Wed, 4 Sep 2002 19:24:06 -0400
-Date: Wed, 4 Sep 2002 16:28:40 -0700
+	id <S316213AbSIDXTO>; Wed, 4 Sep 2002 19:19:14 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:2500 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S316210AbSIDXTI>;
+	Wed, 4 Sep 2002 19:19:08 -0400
+Date: Wed, 4 Sep 2002 16:23:42 -0700
 To: Jeff Garzik <jgarzik@mandrakesoft.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5] : Wavelan Pcmcia update
-Message-ID: <20020904232840.GD21592@bougret.hpl.hp.com>
+Subject: [PATCH 2.5] : Wireless Extensions v15
+Message-ID: <20020904232342.GB21592@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,79 +23,415 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        Hi Jeff,
+	Hi Jeff,
 
-        Could you please push the following patch upstream ?
-        A few cleanups for the good old Wavelan Pcmcia driver. Tested
-on 2.5.32 SMP.
+	Could you push the following patch upstream ?
+	This is Wireless Extension v15. Mostly enhanced iwpriv support
+for the HostAP driver, with few cleanups and new unused
+definitions. The most contention change is that this version now
+requires user space to provide the buffer size when making a GET (to
+check buffer overrun), which will break very old version of Wireless
+Tools (v22 and earlier).
+	This has been on my web page for a few months, and was tested
+on 2.5.32.
 
-        Have fun...
+	Have fun...
 
-        Jean
+	Jean
 
 ----------------------------------------------------------
 
-diff -u -p linux/drivers/net/wireless/wavelan_cs.p.25.h linux/drivers/net/wireless/wavelan_cs.p.h
---- linux/drivers/net/wireless/wavelan_cs.p.25.h	Tue Sep  3 14:40:15 2002
-+++ linux/drivers/net/wireless/wavelan_cs.p.h	Wed Sep  4 15:28:34 2002
-@@ -400,6 +400,12 @@
-  *		o got rid of wavelan_ioctl()
-  *		o use a bunch of iw_handler instead
+diff -u -p linux/include/linux/wireless.14.h linux/include/linux/wireless.h
+--- linux/include/linux/wireless.14.h	Thu Aug 15 19:31:40 2002
++++ linux/include/linux/wireless.h	Thu Aug 15 19:42:22 2002
+@@ -1,7 +1,7 @@
+ /*
+  * This file define a set of standard wireless extensions
   *
-+ * Changes made for release in 3.2.1 :
-+ * ---------------------------------
-+ *	- Set dev->trans_start to avoid filling the logs
-+ *		(and generating useless abort commands)
-+ *	- Avoid deadlocks in mmc_out()/mmc_in()
+- * Version :	14	25.1.02
++ * Version :	15	12.7.02
+  *
+  * Authors :	Jean Tourrilhes - HPL - <jt@hpl.hp.com>
+  * Copyright (c) 1997-2002 Jean Tourrilhes, All Rights Reserved.
+@@ -80,7 +80,7 @@
+  * (there is some stuff that will be added in the future...)
+  * I just plan to increment with each new version.
+  */
+-#define WIRELESS_EXT	14
++#define WIRELESS_EXT	15
+ 
+ /*
+  * Changes :
+@@ -153,17 +153,32 @@
+  *	- Define additional specific event numbers
+  *	- Add "addr" and "param" fields in union iwreq_data
+  *	- AP scanning stuff (SIOCSIWSCAN and friends)
 + *
-  * Wishes & dreams:
-  * ----------------
-  *	- Cleanup and integrate the roaming code
-diff -u -p linux/drivers/net/wireless/wavelan_cs.25.c linux/drivers/net/wireless/wavelan_cs.c
---- linux/drivers/net/wireless/wavelan_cs.25.c	Tue Sep  3 14:40:05 2002
-+++ linux/drivers/net/wireless/wavelan_cs.c	Wed Sep  4 15:26:11 2002
-@@ -282,9 +282,11 @@ mmc_out(u_long		base,
- 	u_short		o,
- 	u_char		d)
++ * V14 to V15
++ * ----------
++ *	- Add IW_PRIV_TYPE_ADDR for struct sockaddr private arg
++ *	- Make struct iw_freq signed (both m & e), add explicit padding
++ *	- Add IWEVCUSTOM for driver specific event/scanning token
++ *	- Add IW_MAX_GET_SPY for driver returning a lot of addresses
++ *	- Add IW_TXPOW_RANGE for range of Tx Powers
++ *	- Add IWEVREGISTERED & IWEVEXPIRED events for Access Points
++ *	- Add IW_MODE_MONITOR for passive monitor
+  */
+ 
+ /**************************** CONSTANTS ****************************/
+ 
+ /* -------------------------- IOCTL LIST -------------------------- */
+ 
+-/* Basic operations */
++/* Wireless Identification */
+ #define SIOCSIWCOMMIT	0x8B00		/* Commit pending changes to driver */
+ #define SIOCGIWNAME	0x8B01		/* get name == wireless protocol */
+-#define SIOCSIWNWID	0x8B02		/* set network id (the cell) */
+-#define SIOCGIWNWID	0x8B03		/* get network id */
++/* SIOCGIWNAME is used to verify the presence of Wireless Extensions.
++ * Common values : "IEEE 802.11-DS", "IEEE 802.11-FH", "IEEE 802.11b"...
++ * Don't put the name of your driver there, it's useless. */
++
++/* Basic operations */
++#define SIOCSIWNWID	0x8B02		/* set network id (pre-802.11) */
++#define SIOCGIWNWID	0x8B03		/* get network id (the cell) */
+ #define SIOCSIWFREQ	0x8B04		/* set channel/frequency (Hz) */
+ #define SIOCGIWFREQ	0x8B05		/* get channel/frequency (Hz) */
+ #define SIOCSIWMODE	0x8B06		/* set operation mode */
+@@ -178,16 +193,18 @@
+ #define SIOCGIWPRIV	0x8B0D		/* get private ioctl interface info */
+ #define SIOCSIWSTATS	0x8B0E		/* Unused */
+ #define SIOCGIWSTATS	0x8B0F		/* Get /proc/net/wireless stats */
++/* SIOCGIWSTATS is strictly used between user space and the kernel, and
++ * is never passed to the driver (i.e. the driver will never see it). */
+ 
+-/* Mobile IP support */
++/* Mobile IP support (statistics per MAC address) */
+ #define SIOCSIWSPY	0x8B10		/* set spy addresses */
+ #define SIOCGIWSPY	0x8B11		/* get spy info (quality of link) */
+ 
+ /* Access Point manipulation */
+ #define SIOCSIWAP	0x8B14		/* set access point MAC addresses */
+ #define SIOCGIWAP	0x8B15		/* get access point MAC addresses */
+-#define SIOCGIWAPLIST	0x8B17		/* get list of access point in range */
+-#define SIOCSIWSCAN	0x8B18		/* trigger scanning */
++#define SIOCGIWAPLIST	0x8B17		/* Deprecated in favor of scanning */
++#define SIOCSIWSCAN	0x8B18		/* trigger scanning (list cells) */
+ #define SIOCGIWSCAN	0x8B19		/* get scanning results */
+ 
+ /* 802.11 specific support */
+@@ -197,9 +214,7 @@
+ #define SIOCGIWNICKN	0x8B1D		/* get node name/nickname */
+ /* As the ESSID and NICKN are strings up to 32 bytes long, it doesn't fit
+  * within the 'iwreq' structure, so we need to use the 'data' member to
+- * point to a string in user space, like it is done for RANGE...
+- * The "flags" member indicate if the ESSID is active or not (promiscuous).
+- */
++ * point to a string in user space, like it is done for RANGE... */
+ 
+ /* Other parameters useful in 802.11 and some other devices */
+ #define SIOCSIWRATE	0x8B20		/* set default bit rate (bps) */
+@@ -257,7 +272,10 @@
+ /* Most events use the same identifier as ioctl requests */
+ 
+ #define IWEVTXDROP	0x8C00		/* Packet dropped to excessive retry */
+-#define IWEVQUAL	0x8C01		/* Quality part of statistics */
++#define IWEVQUAL	0x8C01		/* Quality part of statistics (scan) */
++#define IWEVCUSTOM	0x8C02		/* Driver specific ascii string */
++#define IWEVREGISTERED	0x8C03		/* Discovered a new node (AP mode) */
++#define IWEVEXPIRED	0x8C04		/* Expired a node (AP mode) */
+ 
+ #define IWEVFIRST	0x8C00
+ 
+@@ -273,7 +291,8 @@
+ #define IW_PRIV_TYPE_BYTE	0x1000	/* Char as number */
+ #define IW_PRIV_TYPE_CHAR	0x2000	/* Char as character */
+ #define IW_PRIV_TYPE_INT	0x4000	/* 32 bits int */
+-#define IW_PRIV_TYPE_FLOAT	0x5000
++#define IW_PRIV_TYPE_FLOAT	0x5000	/* struct iw_freq */
++#define IW_PRIV_TYPE_ADDR	0x6000	/* struct sockaddr */
+ 
+ #define IW_PRIV_SIZE_FIXED	0x0800	/* Variable or fixed nuber of args */
+ 
+@@ -297,9 +316,12 @@
+ 
+ /* Maximum tx powers in the range struct */
+ #define IW_MAX_TXPOWER		8
++/* Note : if you more than 8 TXPowers, just set the max and min or
++ * a few of them in the struct iw_range. */
+ 
+ /* Maximum of address that you may set with SPY */
+-#define IW_MAX_SPY		8
++#define IW_MAX_SPY		8	/* set */
++#define IW_MAX_GET_SPY		64	/* get */
+ 
+ /* Maximum of address that you may get in the
+    list of access points in range */
+@@ -315,6 +337,7 @@
+ #define IW_MODE_MASTER	3	/* Synchronisation master or Access Point */
+ #define IW_MODE_REPEAT	4	/* Wireless Repeater (forwarder) */
+ #define IW_MODE_SECOND	5	/* Secondary master/repeater (backup) */
++#define IW_MODE_MONITOR	6	/* Passive monitor (listen only) */
+ 
+ /* Maximum number of size of encoding token available
+  * they are listed in the range structure */
+@@ -350,8 +373,10 @@
+ #define IW_POWER_RELATIVE	0x0004	/* Value is not in seconds/ms/us */
+ 
+ /* Transmit Power flags available */
++#define IW_TXPOW_TYPE		0x00FF	/* Type of value */
+ #define IW_TXPOW_DBM		0x0000	/* Value is in dBm */
+ #define IW_TXPOW_MWATT		0x0001	/* Value is in mW */
++#define IW_TXPOW_RANGE		0x1000	/* Range of value between min/max */
+ 
+ /* Retry limits and lifetime flags available */
+ #define IW_RETRY_ON		0x0000	/* No details... */
+@@ -376,6 +401,9 @@
+ /* Maximum size of returned data */
+ #define IW_SCAN_MAX_DATA	4096	/* In bytes */
+ 
++/* Max number of char in custom event - use multiple of them if needed */
++#define IW_CUSTOM_MAX		256	/* In bytes */
++
+ /****************************** TYPES ******************************/
+ 
+ /* --------------------------- SUBTYPES --------------------------- */
+@@ -411,9 +439,10 @@ struct	iw_point
+  */
+ struct	iw_freq
  {
-+  int count = 0;
+-	__u32		m;		/* Mantissa */
+-	__u16		e;		/* Exponent */
++	__s32		m;		/* Mantissa */
++	__s16		e;		/* Exponent */
+ 	__u8		i;		/* List index (when in range struct) */
++	__u8		pad;		/* Unused - just for alignement */
+ };
+ 
+ /*
+diff -u -p linux/include/net/iw_handler.14.h linux/include/net/iw_handler.h
+--- linux/include/net/iw_handler.14.h	Thu Aug 15 19:31:52 2002
++++ linux/include/net/iw_handler.h	Thu Aug 15 19:32:10 2002
+@@ -1,7 +1,7 @@
+ /*
+  * This file define the new driver API for Wireless Extensions
+  *
+- * Version :	3	17.1.02
++ * Version :	4	21.6.02
+  *
+  * Authors :	Jean Tourrilhes - HPL - <jt@hpl.hp.com>
+  * Copyright (c) 2001-2002 Jean Tourrilhes, All Rights Reserved.
+@@ -206,7 +206,7 @@
+  * will be needed...
+  * I just plan to increment with each new version.
+  */
+-#define IW_HANDLER_VERSION	3
++#define IW_HANDLER_VERSION	4
+ 
+ /*
+  * Changes :
+@@ -217,6 +217,9 @@
+  *	- Add Wireless Event support :
+  *		o wireless_send_event() prototype
+  *		o iwe_stream_add_event/point() inline functions
++ * V3 to V4
++ * --------
++ *	- Reshuffle IW_HEADER_TYPE_XXX to map IW_PRIV_TYPE_XXX changes
+  */
+ 
+ /**************************** CONSTANTS ****************************/
+@@ -233,10 +236,10 @@
+ #define IW_HEADER_TYPE_CHAR	2	/* char [IFNAMSIZ] */
+ #define IW_HEADER_TYPE_UINT	4	/* __u32 */
+ #define IW_HEADER_TYPE_FREQ	5	/* struct iw_freq */
+-#define IW_HEADER_TYPE_POINT	6	/* struct iw_point */
+-#define IW_HEADER_TYPE_PARAM	7	/* struct iw_param */
+-#define IW_HEADER_TYPE_ADDR	8	/* struct sockaddr */
+-#define IW_HEADER_TYPE_QUAL	9	/* struct iw_quality */
++#define IW_HEADER_TYPE_ADDR	6	/* struct sockaddr */
++#define IW_HEADER_TYPE_POINT	8	/* struct iw_point */
++#define IW_HEADER_TYPE_PARAM	9	/* struct iw_param */
++#define IW_HEADER_TYPE_QUAL	10	/* struct iw_quality */
+ 
+ /* Handling flags */
+ /* Most are not implemented. I just use them as a reminder of some
+diff -u -p linux/net/core/wireless.14.c linux/net/core/wireless.c
+--- linux/net/core/wireless.14.c	Thu Aug 15 19:32:03 2002
++++ linux/net/core/wireless.c	Thu Aug 15 19:32:10 2002
+@@ -33,8 +33,16 @@
+  *	o Propagate events as rtnetlink IFLA_WIRELESS option
+  *	o Generate event on selected SET requests
+  *
+- * v4 - 18.04.01 - Jean II
++ * v4 - 18.04.02 - Jean II
+  *	o Fix stupid off by one in iw_ioctl_description : IW_ESSID_MAX_SIZE + 1
++ *
++ * v5 - 21.06.02 - Jean II
++ *	o Add IW_PRIV_TYPE_ADDR in priv_type_size (+cleanup)
++ *	o Reshuffle IW_HEADER_TYPE_XXX to map IW_PRIV_TYPE_XXX changes
++ *	o Add IWEVCUSTOM for driver specific event/scanning token
++ *	o Turn on WE_STRICT_WRITE by default + kernel warning
++ *	o Fix WE_STRICT_WRITE in ioctl_export_private() (32 => iw_num)
++ *	o Fix off-by-one in test (extra_size <= IFNAMSIZ)
+  */
+ 
+ /***************************** INCLUDES *****************************/
+@@ -50,8 +58,9 @@
+ 
+ /**************************** CONSTANTS ****************************/
+ 
+-/* This will be turned on later on... */
+-#undef WE_STRICT_WRITE		/* Check write buffer size */
++/* Enough lenience, let's make sure things are proper... */
++#define WE_STRICT_WRITE		/* Check write buffer size */
++/* I'll probably drop both the define and kernel message in the next version */
+ 
+ /* Debuging stuff */
+ #undef WE_IOCTL_DEBUG		/* Debug IOCTL API */
+@@ -106,7 +115,7 @@ static const struct iw_ioctl_description
+ 	/* SIOCSIWSPY */
+ 	{ IW_HEADER_TYPE_POINT, 0, sizeof(struct sockaddr), 0, IW_MAX_SPY, 0},
+ 	/* SIOCGIWSPY */
+-	{ IW_HEADER_TYPE_POINT, 0, (sizeof(struct sockaddr) + sizeof(struct iw_quality)), 0, IW_MAX_SPY, 0},
++	{ IW_HEADER_TYPE_POINT, 0, (sizeof(struct sockaddr) + sizeof(struct iw_quality)), 0, IW_MAX_GET_SPY, 0},
+ 	/* -- hole -- */
+ 	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
+ 	/* -- hole -- */
+@@ -176,25 +185,41 @@ static const struct iw_ioctl_description
+ 	{ IW_HEADER_TYPE_ADDR, 0, 0, 0, 0, 0},
+ 	/* IWEVQUAL */
+ 	{ IW_HEADER_TYPE_QUAL, 0, 0, 0, 0, 0},
++	/* IWEVCUSTOM */
++	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_CUSTOM_MAX, 0},
++	/* IWEVREGISTERED */
++	{ IW_HEADER_TYPE_ADDR, 0, 0, 0, 0, 0},
++	/* IWEVEXPIRED */
++	{ IW_HEADER_TYPE_ADDR, 0, 0, 0, 0, 0},
+ };
+ static const int standard_event_num = (sizeof(standard_event) /
+ 				       sizeof(struct iw_ioctl_description));
+ 
+ /* Size (in bytes) of the various private data types */
+-static const char priv_type_size[] = { 0, 1, 1, 0, 4, 4, 0, 0 };
++static const char priv_type_size[] = {
++	0,				/* IW_PRIV_TYPE_NONE */
++	1,				/* IW_PRIV_TYPE_BYTE */
++	1,				/* IW_PRIV_TYPE_CHAR */
++	0,				/* Not defined */
++	sizeof(__u32),			/* IW_PRIV_TYPE_INT */
++	sizeof(struct iw_freq),		/* IW_PRIV_TYPE_FLOAT */
++	sizeof(struct sockaddr),	/* IW_PRIV_TYPE_ADDR */
++	0,				/* Not defined */
++};
+ 
+ /* Size (in bytes) of various events */
+ static const int event_type_size[] = {
+-	IW_EV_LCP_LEN,
++	IW_EV_LCP_LEN,			/* IW_HEADER_TYPE_NULL */
++	0,
++	IW_EV_CHAR_LEN,			/* IW_HEADER_TYPE_CHAR */
+ 	0,
+-	IW_EV_CHAR_LEN,
++	IW_EV_UINT_LEN,			/* IW_HEADER_TYPE_UINT */
++	IW_EV_FREQ_LEN,			/* IW_HEADER_TYPE_FREQ */
++	IW_EV_ADDR_LEN,			/* IW_HEADER_TYPE_ADDR */
+ 	0,
+-	IW_EV_UINT_LEN,
+-	IW_EV_FREQ_LEN,
+ 	IW_EV_POINT_LEN,		/* Without variable payload */
+-	IW_EV_PARAM_LEN,
+-	IW_EV_ADDR_LEN,
+-	IW_EV_QUAL_LEN,
++	IW_EV_PARAM_LEN,		/* IW_HEADER_TYPE_PARAM */
++	IW_EV_QUAL_LEN,			/* IW_HEADER_TYPE_QUAL */
+ };
+ 
+ /************************ COMMON SUBROUTINES ************************/
+@@ -440,8 +465,10 @@ static inline int ioctl_export_private(s
+ 		return -EFAULT;
+ #ifdef WE_STRICT_WRITE
+ 	/* Check if there is enough buffer up there */
+-	if(iwr->u.data.length < (SIOCIWLASTPRIV - SIOCIWFIRSTPRIV + 1))
++	if(iwr->u.data.length < dev->wireless_handlers->num_private_args) {
++		printk(KERN_ERR "%s (WE) : Buffer for request SIOCGIWPRIV too small (%d<%d)\n", dev->name, iwr->u.data.length, dev->wireless_handlers->num_private_args);
+ 		return -E2BIG;
++	}
+ #endif	/* WE_STRICT_WRITE */
+ 
+ 	/* Set the number of available ioctls. */
+@@ -471,6 +498,7 @@ static inline int ioctl_standard_call(st
+ 	const struct iw_ioctl_description *	descr;
+ 	struct iw_request_info			info;
+ 	int					ret = -EINVAL;
++	int					user_size = 0;
+ 
+ 	/* Get the description of the IOCTL */
+ 	if((cmd - SIOCIWFIRST) >= standard_ioctl_num)
+@@ -518,11 +546,8 @@ static inline int ioctl_standard_call(st
+ 			/* Check NULL pointer */
+ 			if(iwr->u.data.pointer == NULL)
+ 				return -EFAULT;
+-#ifdef WE_STRICT_WRITE
+-			/* Check if there is enough buffer up there */
+-			if(iwr->u.data.length < descr->max_tokens)
+-				return -E2BIG;
+-#endif	/* WE_STRICT_WRITE */
++			/* Save user space buffer size for checking */
++			user_size = iwr->u.data.length;
+ 		}
+ 
+ #ifdef WE_IOCTL_DEBUG
+@@ -559,6 +584,15 @@ static inline int ioctl_standard_call(st
+ 
+ 		/* If we have something to return to the user */
+ 		if (!ret && IW_IS_GET(cmd)) {
++#ifdef WE_STRICT_WRITE
++			/* Check if there is enough buffer up there */
++			if(user_size < iwr->u.data.length) {
++				printk(KERN_ERR "%s (WE) : Buffer for request %04X too small (%d<%d)\n", dev->name, cmd, user_size, iwr->u.data.length);
++				kfree(extra);
++				return -E2BIG;
++			}
++#endif	/* WE_STRICT_WRITE */
 +
-   /* Wait for MMC to go idle */
--  while(inb(HASR(base)) & HASR_MMI_BUSY)
--    ;
-+  while((count++ < 100) && (inb(HASR(base)) & HASR_MMI_BUSY))
-+    udelay(10);
- 
-   outb((u_char)((o << 1) | MMR_MMI_WR), MMR(base));
-   outb(d, MMD(base));
-@@ -317,14 +319,16 @@ static inline u_char
- mmc_in(u_long	base,
-        u_short	o)
- {
--  while(inb(HASR(base)) & HASR_MMI_BUSY)
--    ;
-+  int count = 0;
+ 			err = copy_to_user(iwr->u.data.pointer, extra,
+ 					   iwr->u.data.length *
+ 					   descr->token_size);
+@@ -646,12 +680,18 @@ static inline int ioctl_private_call(str
+ 	/* Compute the size of the set/get arguments */
+ 	if(descr != NULL) {
+ 		if(IW_IS_SET(cmd)) {
++			int	offset = 0;	/* For sub-ioctls */
++			/* Check for sub-ioctl handler */
++			if(descr->name[0] == '\0')
++				/* Reserve one int for sub-ioctl index */
++				offset = sizeof(__u32);
 +
-+  while((count++ < 100) && (inb(HASR(base)) & HASR_MMI_BUSY))
-+    udelay(10);
-   outb(o << 1, MMR(base));		/* Set the read address */
+ 			/* Size of set arguments */
+ 			extra_size = get_priv_size(descr->set_args);
  
-   outb(0, MMD(base));			/* Required dummy write */
+ 			/* Does it fits in iwr ? */
+ 			if((descr->set_args & IW_PRIV_SIZE_FIXED) &&
+-			   (extra_size < IFNAMSIZ))
++			   ((extra_size + offset) <= IFNAMSIZ))
+ 				extra_size = 0;
+ 		} else {
+ 			/* Size of set arguments */
+@@ -659,7 +699,7 @@ static inline int ioctl_private_call(str
  
--  while(inb(HASR(base)) & HASR_MMI_BUSY)
--    ;
-+  while((count++ < 100) && (inb(HASR(base)) & HASR_MMI_BUSY))
-+    udelay(10);
-   return (u_char) (inb(MMD(base)));	/* Now do the actual read */
- }
- 
-@@ -3581,6 +3585,9 @@ wv_packet_write(device *	dev,
-   /* Send the transmit command */
-   wv_82593_cmd(dev, "wv_packet_write(): transmit",
- 	       OP0_TRANSMIT, SR0_NO_RESULT);
-+
-+  /* Make sure the watchdog will keep quiet for a while */
-+  dev->trans_start = jiffies;
- 
-   /* Keep stats up to date */
-   lp->stats.tx_bytes += length;
+ 			/* Does it fits in iwr ? */
+ 			if((descr->get_args & IW_PRIV_SIZE_FIXED) &&
+-			   (extra_size < IFNAMSIZ))
++			   (extra_size <= IFNAMSIZ))
+ 				extra_size = 0;
+ 		}
+ 	}
+@@ -925,7 +965,7 @@ void wireless_send_event(struct net_devi
+ 		 * The best the driver could do is to log an error message.
+ 		 * We will do it ourselves instead...
+ 		 */
+-	  	printk(KERN_ERR "%s (WE) : Invalid Wireless Event (0x%04X)\n",
++	  	printk(KERN_ERR "%s (WE) : Invalid/Unknown Wireless Event (0x%04X)\n",
+ 		       dev->name, cmd);
+ 		return;
+ 	}

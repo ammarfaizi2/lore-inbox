@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287953AbSAMTB5>; Sun, 13 Jan 2002 14:01:57 -0500
+	id <S288010AbSAMTD1>; Sun, 13 Jan 2002 14:03:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288019AbSAMTBr>; Sun, 13 Jan 2002 14:01:47 -0500
-Received: from smtp-out-7.wanadoo.fr ([193.252.19.26]:14818 "EHLO
-	mel-rto7.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S287953AbSAMTBi>; Sun, 13 Jan 2002 14:01:38 -0500
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: <linux-kernel@vger.kernel.org>,
-        =?US-ASCII?Q?Jacek=20Pop=3Fawski?= <jpopl@interia.pl>
-Subject: Re: radeonfb
-Date: Sun, 13 Jan 2002 20:01:11 +0100
-Message-Id: <20020113190111.7905@smtp.wanadoo.fr>
-In-Reply-To: <20020113170228.A1529@localhost.localdomain>
-In-Reply-To: <20020113170228.A1529@localhost.localdomain>
-X-Mailer: CTM PowerMail 3.1.1 <http://www.ctmdev.com>
+	id <S287976AbSAMTDR>; Sun, 13 Jan 2002 14:03:17 -0500
+Received: from ptldme-smtp2.maine.rr.com ([204.210.65.67]:35251 "EHLO
+	ptldme-mls2.maine.rr.com") by vger.kernel.org with ESMTP
+	id <S288010AbSAMTDI>; Sun, 13 Jan 2002 14:03:08 -0500
+Message-ID: <3C41DA53.D91FE6E2@maine.rr.com>
+Date: Sun, 13 Jan 2002 14:04:51 -0500
+From: "David B. Stevens" <dsteven3@maine.rr.com>
+Organization: Penguin Preservation Society
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Stephan von Krawczynski <skraw@ithnet.com>, Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] O(1) scheduler, -H7
+In-Reply-To: <20020113185732.72ea3aa8.skraw@ithnet.com>
+		<Pine.LNX.4.33.0201132056360.8784-100000@localhost.localdomain> <20020113194958.62f8f674.skraw@ithnet.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I compiled 2.4.18-pre3 with radeonfb patch. Console works without
->problems, but
->every time I start fbi or fbtv:
->- colors are bad (depth problem)
->- when I quit application - monitor turns off (probably bad mode setting, but
->  why mode is changed?), it turns on when I switch virtual console (then
-I can
->  go back)
->When I use "fbset 800x600-100" I have 24 bit depth, but I can't set
->800x600-24@100 as lilo parameter. Only 800x600-16@100 works OK. 
->Is there any radeonfb documentation or project page available?
+It works fine on top of 2.4.18-pre3 in UP config.
 
-Well, there's a radeonfb maintainer, you could email him.
+This e-maile is from such a system.
 
-Ben.
+Cheers,
+  Dave
 
 
+
+Stephan von Krawczynski wrote:
+> 
+> On Sun, 13 Jan 2002 20:58:12 +0100 (CET)
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> >
+> > On Sun, 13 Jan 2002, Stephan von Krawczynski wrote:
+> >
+> > > sched.o sched.c sched.c:21: asm/sched.h: No such file or directory
+> >
+> > Please re-download the 2.4.17 -H7 patch, i've fixed this.
+> 
+> Ok, I tried on top of vanilla 2.4.17 and it works.
+> 
+> Seems like 2.4.18-pre3 and H7 don't like each other :-)
+> 
+> Regards,
+> Stephan
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

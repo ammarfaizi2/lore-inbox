@@ -1,22 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317664AbSGJXLS>; Wed, 10 Jul 2002 19:11:18 -0400
+	id <S317668AbSGJXPf>; Wed, 10 Jul 2002 19:15:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317668AbSGJXLR>; Wed, 10 Jul 2002 19:11:17 -0400
-Received: from pD952AE71.dip.t-dialin.net ([217.82.174.113]:47747 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317664AbSGJXLQ>; Wed, 10 Jul 2002 19:11:16 -0400
-Date: Wed, 10 Jul 2002 17:13:38 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Dave Mielke <dave@mielke.cc>
-cc: Thunder from the hill <thunder@ngforever.de>,
-       Andrew Morton <akpm@zip.com.au>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Linux <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-In-Reply-To: <Pine.LNX.4.30.0207101906160.1071-100000@dave.private.mielke.cc>
-Message-ID: <Pine.LNX.4.44.0207101713130.5067-100000@hawkeye.luckynet.adm>
+	id <S317670AbSGJXPe>; Wed, 10 Jul 2002 19:15:34 -0400
+Received: from stephens.ittc.ku.edu ([129.237.125.220]:55425 "EHLO
+	stephens.ittc.ku.edu") by vger.kernel.org with ESMTP
+	id <S317668AbSGJXPd>; Wed, 10 Jul 2002 19:15:33 -0400
+Date: Wed, 10 Jul 2002 18:18:18 -0500 (CDT)
+From: Karthikeyan Nathillvar <ntkarthik@ittc.ku.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Process Memory Usage
+Message-ID: <Pine.LNX.4.33.0207101811550.4626-100000@plato.ittc.ku.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,26 +18,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Wed, 10 Jul 2002, Dave Mielke wrote:
-> [quoted lines by Thunder from the hill on July 10, 2002, at 16:41]
-> 
-> >+  Enable this  if you care about  your CPU sleeping  time. The current
-> >+  interval for  scheduling processes in  the kernel has  recently been
-> >+  increased.
-> 
-> The word "recently" will very quickly become out-of-date. Why not just state
-> the way it is and why one might want to select the option?
+  I want to find the memory usage of a particular process, to be precise
+the percentage memory utilization. I need to find it through a program
+other than "top".
 
-I don't think this is a patch for long.
+ 1) I tried using getrusage() system call. But it is returning zero for
+all values(like ru_maxrss, etc..) except ru_utime and ru_stime. I am using
+2.2.18 kernel.
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+ 2) I tried to read from /proc/<pid>/statm file. But, the process memory
+usage seems to be always in an increasing trend, even though lot of
+freeing is going on inside. All the values, size, resident, are always
+increasing.
+
+   Can anyone suggest me any other ways through which memory utilization
+of a program can be obtained.
+
+Thanking you in advance,
+ntk.
+
 

@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265141AbUADWNp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 17:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUADWMQ
+	id S265351AbUADWnO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 17:43:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265373AbUADWnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 17:12:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:41883 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265335AbUADWKq (ORCPT
+	Sun, 4 Jan 2004 17:43:13 -0500
+Received: from [193.170.124.123] ([193.170.124.123]:52020 "EHLO 23.cms.ac")
+	by vger.kernel.org with ESMTP id S265351AbUADWnL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 17:10:46 -0500
-Date: Sun, 4 Jan 2004 14:10:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: ornati@lycos.it, gandalf@wlug.westbo.se, linuxram@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Buffer and Page cache coherent? was: Strange IDE performance
- change in 2.6.1-rc1 (again)
-Message-Id: <20040104141030.02fbcce5.akpm@osdl.org>
-In-Reply-To: <20040104171545.GR1882@matchmail.com>
-References: <200401021658.41384.ornati@lycos.it>
-	<20040102213228.GH1882@matchmail.com>
-	<1073082842.824.5.camel@tux.rsn.bth.se>
-	<200401031213.01353.ornati@lycos.it>
-	<20040103144003.07cc10d9.akpm@osdl.org>
-	<20040104171545.GR1882@matchmail.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 4 Jan 2004 17:43:11 -0500
+Date: Sun, 4 Jan 2004 23:42:59 +0100
+From: JG <jg@cms.ac>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Any hope for HPT372/HPT374 IDE controller?
+In-Reply-To: <S265365AbUADWL5/20040104221159Z+4976@vger.kernel.org>
+References: <S265365AbUADWL5/20040104221159Z+4976@vger.kernel.org>
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Gentoo 1.4 ;)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Sun__4_Jan_2004_23_42_59_+0100_5eh0rpLFQ29=pmb4"
+Message-Id: <20040104224308.BD3941A943A@23.cms.ac>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->
-> On Sat, Jan 03, 2004 at 02:40:03PM -0800, Andrew Morton wrote:
-> > No effort was made to optimise buffered blockdev reads because it is not
-> > very important and my main interest was in data coherency and filesystem
-> > metadata consistency.
-> 
-> Does that mean that blockdev reads will populate the pagecache in 2.6?
+--Signature=_Sun__4_Jan_2004_23_42_59_+0100_5eh0rpLFQ29=pmb4
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-They have since 2.4.10.  The pagecache is the only cacheing entity for file
-(and blockdev) data.
+hi, 
 
+> Have any recent improvements been made? Does anyone have one of these controllers actually working correctly?
+
+i have two hpt374 controllers (rocketraid 404, both latest bios) in two of my machines.
+i've been using kernel 2.4.19 with the driver v2.1 from highpoint for a long time (with high loads, many disks attached to the controllers) without any problems in both machines (except that some disks died, but that's another thing ;))
+at the moment i'm using kernel 2.6.0 on one server with the integrated driver (because there's no highpoint driver yet) and it is working fine so far, but it didn't get stressed much lately.
+i'm currently testing 2.6.1-rc1-mm1 on the other machine (which i can reboot more often) - also no problems (yet ;)).
+both machines have sis chipsets (sis735 and sis745), if you need more info for debugging/comparing just tell me.
+
+i can remember though that i've had some problems (dunno anymore what problems exactly) with the integrated drivers in the past, hence i was using the one's from highpoint.
+
+JG
+
+--Signature=_Sun__4_Jan_2004_23_42_59_+0100_5eh0rpLFQ29=pmb4
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQE/+Jb7U788cpz6t2kRAp+ZAJ0SBMZK4UkrzRXX62sHYGdbWCVQsgCfYQIY
+gZis/Z+mwmrroTkKQzDq2xU=
+=APyq
+-----END PGP SIGNATURE-----
+
+--Signature=_Sun__4_Jan_2004_23_42_59_+0100_5eh0rpLFQ29=pmb4--

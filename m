@@ -1,70 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267431AbUHaIXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267454AbUHaI0B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267431AbUHaIXe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 04:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267454AbUHaIXX
+	id S267454AbUHaI0B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 04:26:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267465AbUHaI0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 04:23:23 -0400
-Received: from gprs214-181.eurotel.cz ([160.218.214.181]:2176 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267431AbUHaIWZ (ORCPT
+	Tue, 31 Aug 2004 04:26:01 -0400
+Received: from wasp.net.au ([203.190.192.17]:10469 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S267454AbUHaIZl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 04:22:25 -0400
-Date: Tue, 31 Aug 2004 10:21:44 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: David Masover <ninja@slaphack.com>
-Cc: Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040831082144.GA535@elf.ucw.cz>
-References: <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <20040826100530.GA20805@taniwha.stupidest.org> <20040826110258.GC30449@mail.shareable.org> <20040827210638.GE709@openzaurus.ucw.cz> <4133CDA6.4060105@slaphack.com>
+	Tue, 31 Aug 2004 04:25:41 -0400
+Message-ID: <41343626.109@wasp.net.au>
+Date: Tue, 31 Aug 2004 12:26:14 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4133CDA6.4060105@slaphack.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: multipart/mixed; boundary="=_wasp.net.au-22928-1093940736-0001-2"
+To: lkml <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>
+Subject: [PATCH] libata basic detection and errata for PATA->SATA bridges
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-> | uservfs does
-> |
-> | cd foo.deb#uar
-> cd foo.deb/ar
-> | vs.
-> | cd foo.deb#udeb
-> cd foo.deb/deb
-> 
-> and why would you want that, instead of just:
-> cd foo.deb	# for the ar
-> dpkg -i foo.deb	# for the deb
+--=_wasp.net.au-22928-1093940736-0001-2
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Because I want to see contents of that .deb package, nicely parsed?
+Ok Jeff, I can take a hint! :p)
+Patch against 2.6.9-rc1 Vanilla
 
-> Just want to extract the tar file?  Maybe something like
-> cat foo.tgz/gunzip
-> In which case (of course) foo.tgz/gunzip has exactly the same directory
-> contents as foo.tgz
+This patch works around an issue with WD drives (and possibly others) over SiL PATA->SATA Bridges on 
+SATA controllers locking up with transfers > 200 sectors.
 
-Yes, that would work.
 
-> In fact, for just about any syntax anyone could suggest, I can't really
-> see why you can't just replace all weird symbols with a slash and a
-> symbol.  Instead of
-> 	foo.tgz#utar
-> you have
-> 	foo.tgz/#/utar
-> Only difference is, some things which used to require special tools can
-> now be serviced by less than what's in busybox.
+Signed-off-by: Brad Campbell <brad@wasp.net.au>
 
-That would work, too. I do not get your comment about busybox.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+--=_wasp.net.au-22928-1093940736-0001-2
+Content-Type: text/plain; name=diff3; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff3"
+
+diff -ur orig/linux-2.6.0/drivers/scsi/libata-core.c linux-2.6.9-rc1/drivers/scsi/libata-core.c
+--- orig/linux-2.6.0/drivers/scsi/libata-core.c	2004-08-30 20:48:35.000000000 +0400
++++ linux-2.6.9-rc1/drivers/scsi/libata-core.c	2004-08-30 21:02:42.000000000 +0400
+@@ -1128,6 +1128,37 @@
+ 	DPRINTK("EXIT, err\n");
+ }
+ 
++
++static inline u8 ata_dev_knobble(struct ata_port *ap)
++{
++	return ((ap->cbl == ATA_CBL_SATA) && (!ata_id_is_sata(ap->device)));
++}
++
++/**
++ * 	ata_dev_config - Run device specific handlers and check for
++ * 			 SATA->PATA bridges
++ * 	@ap: Bus 
++ * 	@i:  Device
++ *
++ * 	LOCKING:
++ */
++ 
++void ata_dev_config(struct ata_port *ap, unsigned int i)
++{
++	/* limit bridge transfers to udma5, 200 sectors */
++	if (ata_dev_knobble(ap)) {
++		printk(KERN_INFO "ata%u(%u): applying bridge limits\n",
++			ap->id, ap->device->devno);
++		ap->udma_mask &= ATA_UDMA5;
++		ap->host->max_sectors = ATA_MAX_SECTORS;
++		ap->host->hostt->max_sectors = ATA_MAX_SECTORS;
++		ap->device->flags |= ATA_DFLAG_LOCK_SECTORS;
++	}
++
++	if (ap->ops->dev_config)
++		ap->ops->dev_config(ap, &ap->device[i]);
++}
++
+ /**
+  *	ata_bus_probe - Reset and probe ATA bus
+  *	@ap: Bus to probe
+@@ -1150,8 +1181,7 @@
+ 		ata_dev_identify(ap, i);
+ 		if (ata_dev_present(&ap->device[i])) {
+ 			found = 1;
+-			if (ap->ops->dev_config)
+-				ap->ops->dev_config(ap, &ap->device[i]);
++			ata_dev_config(ap,i);
+ 		}
+ 	}
+ 
+@@ -1226,7 +1256,7 @@
+ 		ata_port_disable(ap);
+ 		return;
+ 	}
+-
++	ap->cbl = ATA_CBL_SATA;
+ 	ata_bus_reset(ap);
+ }
+ 
+@@ -3567,3 +3597,4 @@
+ EXPORT_SYMBOL_GPL(ata_scsi_release);
+ EXPORT_SYMBOL_GPL(ata_host_intr);
+ EXPORT_SYMBOL_GPL(ata_dev_id_string);
++EXPORT_SYMBOL_GPL(ata_dev_config);
+nly in linux-2.6.9-rc1/include: config
+diff -ur orig/linux-2.6.0/include/linux/ata.h linux-2.6.9-rc1/include/linux/ata.h
+--- orig/linux-2.6.0/include/linux/ata.h	2004-08-30 20:48:35.000000000 +0400
++++ linux-2.6.9-rc1/include/linux/ata.h	2004-08-30 18:42:41.000000000 +0400
+@@ -218,6 +218,7 @@
+ };
+ 
+ #define ata_id_is_ata(dev)	(((dev)->id[0] & (1 << 15)) == 0)
++#define ata_id_is_sata(dev)	((dev)->id[93] == 0)
+ #define ata_id_rahead_enabled(dev) ((dev)->id[85] & (1 << 6))
+ #define ata_id_wcache_enabled(dev) ((dev)->id[85] & (1 << 5))
+ #define ata_id_has_flush(dev) ((dev)->id[83] & (1 << 12))
+diff -ur orig/linux-2.6.0/include/linux/libata.h linux-2.6.9-rc1/include/linux/libata.h
+--- orig/linux-2.6.0/include/linux/libata.h	2004-08-30 20:48:35.000000000 +0400
++++ linux-2.6.9-rc1/include/linux/libata.h	2004-08-30 20:42:05.000000000 +0400
+@@ -400,6 +400,7 @@
+ 		 unsigned int n_elem);
+ extern void ata_dev_id_string(struct ata_device *dev, unsigned char *s,
+ 			      unsigned int ofs, unsigned int len);
++extern void ata_dev_config(struct ata_port *ap, unsigned int i);
+ extern void ata_bmdma_setup_mmio (struct ata_queued_cmd *qc);
+ extern void ata_bmdma_start_mmio (struct ata_queued_cmd *qc);
+ extern void ata_bmdma_setup_pio (struct ata_queued_cmd *qc);
+
+
+--=_wasp.net.au-22928-1093940736-0001-2--

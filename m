@@ -1,81 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316674AbSGHAE5>; Sun, 7 Jul 2002 20:04:57 -0400
+	id <S316675AbSGHAVv>; Sun, 7 Jul 2002 20:21:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316675AbSGHAE4>; Sun, 7 Jul 2002 20:04:56 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:22717 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S316674AbSGHAEz>; Sun, 7 Jul 2002 20:04:55 -0400
-Message-ID: <3D28D7A9.5010409@us.ibm.com>
-Date: Sun, 07 Jul 2002 17:07:05 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Thunder from the hill <thunder@ngforever.de>,
-       kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
+	id <S316678AbSGHAVu>; Sun, 7 Jul 2002 20:21:50 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:39442 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316675AbSGHAVt>; Sun, 7 Jul 2002 20:21:49 -0400
+Date: Sun, 7 Jul 2002 20:18:33 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Werner Almesberger <wa@almesberger.net>, Keith Owens <kaos@ocs.com.au>,
        linux-kernel@vger.kernel.org
-Subject: Re: BKL removal
-References: <Pine.LNX.4.44.0207071551180.10105-100000@hawkeye.luckynet.adm> <3D28C3F0.7010506@us.ibm.com> <20020707235114.GE18298@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [OKS] Module removal
+In-Reply-To: <20020707220933.B11999@kushida.apsleyroad.org>
+Message-ID: <Pine.LNX.3.96.1020707201054.19682A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Sun, Jul 07, 2002 at 03:42:56PM -0700, Dave Hansen wrote:
-> 
->>BKL use isn't right or wrong -- it isn't a case of creating a deadlock 
->>or a race.  I'm picking a relatively random function from "grep -r 
->>lock_kernel * | grep /usb/".  I'll show what I think isn't optimal 
->>about it.
->>
->>"up" is a local variable.  There is no point in protecting its 
->>allocation.  If the goal is to protect data inside "up", there should 
->>probably be a subsystem-level lock for all "struct uhci_hcd"s or a 
->>lock contained inside of the structure itself.  Is this the kind of 
->>example you're looking for?
-> 
-> 
-> Nice example, it proves my previous points:
-> 	- you didn't send this to the author of the code, who is very
-> 	  responsive when you do.
-> 	- you didn't send this to the linux-usb-devel list, which is a
-> 	  very responsive list.
-> 	- this is in the file drivers/usb/host/uhci-debug.c, which by
-> 	  its very nature leads you to believe that this is not critical
-> 	  code at all.  This is true if you look at the code.
-> 	- it looks like you could just remove the BKL entirely from this
-> 	  call, and not just move it around the kmalloc() call.  But
-> 	  since I don't understand all of the different locking rules
-> 	  inside the uhci-hcd.c driver, I'm not going to do this.  I'll
-> 	  let the author of the driver do that, incase it really matters
-> 	  (and yes, the locking in the uhci-hcd driver is tricky, but
-> 	  nicely documented.)
-> 	- this file is about to be radically rewritten, to use driverfs
-> 	  instead of procfs, as the recent messages on linux-usb-devel
-> 	  state.  So any patch you might make will probably be moot in
-> 	  about 3 days :)  Again, contacting the author/maintainer is
-> 	  the proper thing to do.
+On Sun, 7 Jul 2002, Jamie Lokier wrote:
 
-You are taking this example way too seriously.  Thunder wanted an 
-example and I grabbed the first one that I saw (I created it in the 
-last hour).  I showed you how I arrived at it, just a quick grepping. 
-  It wan't a real patch, only a quick little example snippet.
+> Werner Almesberger wrote:
+> > Okay, here's an almost correct example (except for the usual
+> > return-after-removal, plus an unlikely data race described
+> > below). foo_1 runs first:
+> 
+> This can be fixed if we assume a way to ask "is any CPU still executing
+> module code?".
+> 
+> To do this, have the `free_module' function use `smp_call_function' to
+> ask every CPU "are you executing code for module XXX?".  The question is
+> answered by a routine which walks the stack, checking the instruction
+> pointer at each place on the stack to see whether it's inside the module
+> of interest.
+> 
+> Yes this is complex, but it's not that complex -- provided you can rely
+> on stack walking to find the module.  (It wouldn't work if x86 used
+> -fomit-frame-pointer, for example).
 
-> 	- even if you remove the BKL from this code, what have you
-> 	  achieved?  A faster kernel?  A very tiny bit smaller kernel,
-> 	  yes, but not any faster overall.  This is not on _any_
-> 	  critical path.
+Complex, may not be reliable, and the question is "are you now or will you
+ever run code in or for module XXX" because there may be pointers for
+threads, interrupt handlers, etc. Gets ugly doing it from the back.
 
-How many times do I have to say it?  We're going around in circles 
-here.  I _know_ that it isn't on a critical path, or saving a large 
-quantity of program text.  I just think that it is better than it was 
-before.
+I think you have to do it with the use count, and there may well be
+modules you can't remove safely. But to add re-init code to modules,
+define new ioctls to call it, etc, etc, doesn't seem satisfactory. I think
+we really need to bump the use counter more carefully, to really know when
+a module is in use, and when we can clear it out.
+
+The smp case looks doable, the preempt case may be harder. I really like
+the idea of simply queueing a remove and then doing it when the use count
+drops to zero. But we have have to provide a "don't use" to keep new
+things out. That's hard.
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

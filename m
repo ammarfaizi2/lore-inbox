@@ -1,77 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273255AbRKHPIB>; Thu, 8 Nov 2001 10:08:01 -0500
+	id <S273213AbRKHPHS>; Thu, 8 Nov 2001 10:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273261AbRKHPHt>; Thu, 8 Nov 2001 10:07:49 -0500
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:33748 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S273255AbRKHPHi>; Thu, 8 Nov 2001 10:07:38 -0500
-Message-ID: <3BEA9F5F.3050204@antefacto.com>
-Date: Thu, 08 Nov 2001 15:06:07 +0000
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S273261AbRKHPHK>; Thu, 8 Nov 2001 10:07:10 -0500
+Received: from [212.65.238.182] ([212.65.238.182]:42503 "EHLO
+	trebo3.chemoprojekt.cz") by vger.kernel.org with ESMTP
+	id <S273255AbRKHPGw> convert rfc822-to-8bit; Thu, 8 Nov 2001 10:06:52 -0500
+Message-ID: <35E64A70B5ACD511BCB0000000004CA10955A7@NT_CHEMO>
+From: PVotruba@Chemoprojekt.cz
+To: Peter.Seiderer@ciselant.de
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: What is the difference between 'login: root' and 'su -' ?
+Date: Thu, 8 Nov 2001 15:34:38 +0100 
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ramfs isn't releasing deleted file blocks?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I remove files from a ramfs the space is not reclaimed?
-What am I doing wrong? Details below.
+Hi,
 
-thanks,
-Padraig.
-------------
-host:/root# uname -a
-Linux host 2.4.12-ac3 #5 Fri Oct 19 12:52:10 IST 2001 i686 unknown
+BTW, /dev/hdc4, is that a regular hard disk partition? I was always used to
+create /dev/hda1, /dev/hda5, /dev/hda6 etc.  as normal partitions (via
+fdisk). 
 
-host:/root# df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/root                58997     47112      8839  84% /
-ramfs                    63524      3360     60164   5% /var
+Is your /dev/hda hard disk drive or some other device?
 
-host:/root# dd if=/dev/zero count=20000 bs=1024 of=/tmp/leak
-20000+0 records in
-20000+0 records out
+Just for my curiosity :)
 
-host:/root# df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/root                58997     47112      8839  84% /
-ramfs                    63524     23360     40164  37% /var
+Regards
+Petr
 
-host:/root# rm /tmp/leak
 
-host:/root# df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/root                58997     47112      8839  84% /
-ramfs                    63524     23360     40164  37% /var
-
-host:/root# mount
-/dev/root on / type ext2 (ro)
-proc on /proc type proc (rw)
-ramfs on /var type ramfs (rw,noexec)
-
-host:/root# cat /proc/meminfo
-         total:    used:    free:  shared: buffers:  cached:
-Mem:  130097152 48156672 81940480    49152  2990080 16277504
-Swap:        0        0        0
-MemTotal:       127048 kB
-MemFree:         80020 kB
-MemShared:          48 kB
-Buffers:          2920 kB
-Cached:          15896 kB
-SwapCached:          0 kB
-Active:           1760 kB
-Inact_dirty:     17104 kB
-Inact_clean:         0 kB
-Inact_target:    26200 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       127048 kB
-LowFree:         80020 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-
+> -----Pùvodní zpráva-----
+> Od:	Peter Seiderer [SMTP:Peter.Seiderer@ciselant.de]
+> Odesláno:	8. listopadu 2001 9:47
+> Komu:	linux-kernel@vger.kernel.org
+> Kopie:	Ville Herva
+> Pøedmìt:	Re: What is the difference between 'login: root' and 'su -'
+> ?
+> 
+> Hello,
+> in both cases file descriptor 4 is from 'open("/dev/hdc4", O_RDWR) = 4'
+> ....
+> Peter
+> 
+> On Thu, Nov 08, 2001 at 08:10:07AM +0200, Ville Herva wrote:
+> > On Wed, Nov 07, 2001 at 11:40:25PM +0100, you [Peter Seiderer] claimed:
+> > > Mhhh,
+> > > the strace output from the 'login: root' one (the one which was good)
+> > > looks the same till the EFBIG place:
+> > > 
+> > > 	write(1, "\10\10\10\10\10", 5)          = 5
+> > > 	write(1, "16/44", 5)                    = 5
+> > > 	_llseek(4, 18446744071562084352, [2147500032], SEEK_SET) = 0
+> > > 	write(4,
+> "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) =
+> 32768
+> > > 	_llseek(4, 18446744071562117120, [2147532800], SEEK_SET) = 0
+> > > 	write(4,
+> "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) =
+> 32768
+> > > 	_llseek(4, 18446744071562149888, [2147565568], SEEK_SET) = 0
+> > > 	write(4,
+> "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) =
+> 32768
+> > > 	_llseek(4, 18446744071562182656, [2147598336], SEEK_SET) = 0
+> > > 	write(4,
+> "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) =
+> 32768
+> > 
+> > Weird. Perhaps strace gets that wrong and the problem is elsewhere.
+> > 
+> > Did you make sure that fd 4 is the same _partition_ in both cases (using
+> > strace)? The only thing I could imagine exposing 2GB limit is writing to
+> a
+> > file.
+> > 
+> > > > > 	zodiak login: seiderer
+> > > > > 	Password:
+> > > > > 	seiderer@zodiak:~ > su -
+> > > > > 	Password:
+> > > > > 	zodiak:~ #
+> > > > > 	zodiak:~ # mkfs.ext2 /dev/hdc4
+> > > > > 	mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
+> > > > > 	Filesystem label=
+> > > > > 	OS type: Linux
+> > > > > 	Block size=4096 (log=2)
+> > > > > 	Fragment size=4096 (log=2)
+> > > > > 	716672 inodes, 1432116 blocks
+> > > > > 	71605 blocks (5.00%) reserved for the super user
+> > > > > 	First data block=0
+> > > > > 	44 block groups
+> > > > > 	32768 blocks per group, 32768 fragments per group
+> > > > > 	16288 inodes per group
+> > > > > 	Superblock backups stored on blocks:
+> > > > > 	        32768, 98304, 163840, 229376, 294912, 819200, 884736
+> > > > > 
+> > > > > 	Writing inode tables: 16/44File size limit exceeded
+> > > > > 
+> > > > > strace showed that write returned wit EFBIG and the process ended
+> with SIGXFSZ:
+> > > > > 
+> > > > > 	write(1, "\10\10\10\10\10", 5)          = 5
+> > > > > 	write(1, "16/44", 5)                    = 5
+> > > > > 	_llseek(4, 18446744071562084352, [2147500032], SEEK_SET) = 0
+> > > > > 	write(4,
+> "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = -1
+> EFBIG (File too large)
+> > > > > 	--- SIGXFSZ (File size limit exceeded) ---
+> > > > > 	+++ killed by SIGXFSZ +++
+> > > > 
+> > > > Hmm, 18446744071562084352 = 0xffffffff80004000, 2147500032 =
+> 0x80004000...
+> > > > It looks a tad like llseek's offset_high would have been
+> corrupted...
+> > > > Strange.
+> > > > 
+> > > > 1432116 blocks * 4096 bytes/block * 16/44 written = 2133071685.81818
+> so
+> > > > 2147500032 looks sane(ish).
+> > 
+> > -- v --
+> > 
+> > v@iki.fi
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

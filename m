@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269099AbUJERZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269077AbUJERZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269099AbUJERZr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 13:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269104AbUJERZr
+	id S269077AbUJERZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 13:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269100AbUJERZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 13:25:47 -0400
-Received: from mailfe07.swip.net ([212.247.154.193]:40173 "EHLO
-	mailfe07.swip.net") by vger.kernel.org with ESMTP id S269099AbUJERZ3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 13:25:29 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Tue, 5 Oct 2004 19:25:22 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>, sebastien.hinderer@libertysurf.fr
-Subject: Re: [Patch] new serial flow control
-Message-ID: <20041005172522.GA2264@bouh.is-a-geek.org>
-Mail-Followup-To: Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Russell King <rmk@arm.linux.org.uk>,
-	sebastien.hinderer@libertysurf.fr
-References: <200410051249_MC3-1-8B8B-5504@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200410051249_MC3-1-8B8B-5504@compuserve.com>
-User-Agent: Mutt/1.5.6i-nntp
+	Tue, 5 Oct 2004 13:25:56 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:10419 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S269077AbUJERZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 13:25:35 -0400
+Message-Id: <200410051724.i95HOs627803@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@redhat.com>, "Con Kolivas" <kernel@kolivas.org>
+Cc: <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+Subject: RE: bug in sched.c:activate_task()
+Date: Tue, 5 Oct 2004 10:25:01 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSqqEli6RExtJ3bQte0JntDx1ykoQAVrRww
+In-Reply-To: <Pine.LNX.4.58.0410050250580.4941@devserv.devel.redhat.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mar 05 oct 2004 à 12:46:34 -0400, Chuck Ebbert a tapoté sur son clavier :
-> Samual Thibault wrote:
-> 
-> >+      } else if (info->flags & ASYNC_TVB_FLOW) {
-> >+              if (status & UART_MSR_CTS) {
-> >+                      if (!(info->MCR & UART_MCR_RTS)) {
-> >+                              /* start of TVB frame, raise RTS to greet data */
-> >+                              info->MCR |= UART_MCR_RTS;
-> >+                              serial_out(info, UART_MCR, info->MCR);
-> >+#if (defined(SERIAL_DEBUG_INTR) || defined(SERIAL_DEBUG_FLOW))
-> >+                              printk("TVB frame start...");
-> >+#endif
-> >+                      }
-> >+              } else {
-> >+                      if (info->MCR & UART_MCR_RTS) {
-> >+                              /* CTS went down, lower RTS as well */
-> >+                              info->MCR &= ~UART_MCR_RTS;
-> >+                              serial_out(info, UART_MCR, info->MCR);
-> >+#if (defined(SERIAL_DEBUG_INTR) || defined(SERIAL_DEBUG_FLOW))
-> >+                              printk("TVB frame started...");
-> >+#endif
->                                                   ^^^^^^^
-> 
-> Shouldn't this be "ended"? ... or "end" since frame begin msg says "start"
-> i.e. is not past tense?
+Ingo Molnar wrote on Monday, October 04, 2004 11:55 PM
+> On Tue, 5 Oct 2004, Con Kolivas wrote:
+>
+> > 	unsigned long long delta = now - next->timestamp;
+> >
+> > 	if (next->activated == 1)
+> > 		delta = delta * (ON_RUNQUEUE_WEIGHT * 128 / 100) / 128;
+> >
+> > is in schedule() before we update the timestamp, no?
+>
+> indeed ... so the patch is just random incorrect damage that happened to
+> distrub the scheduler fixing some balancing problem. Kenneth, what
+> precisely is the balancing problem you are seeing?
 
-No: data actually pass _after_ CTS and RTS are lowered back: the flow control
-only indicate the beginning of one frame.
+We are seeing truck load of move_task() which was originated from newly
+idle load balance.  The problem is load balancing going nuts moving tons
+of tasks around and what we are seeing is cache misses for the application
+shots up to the roof and suffering from cache threshing.
 
-Regards,
-Samuel Thibault
+- Ken
+
+

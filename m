@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbULTCbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbULTCmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbULTCbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 21:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbULTCbI
+	id S261397AbULTCmT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 21:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbULTCmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 21:31:08 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:19153 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261395AbULTCau (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 21:30:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Xwl2oJQKxWiKdtR5Pquauonnld2MSAB/lN3qHB3MHrq8b+Rv7U+kklzUPrki5T0oUBBbfxP4bUnXXlwMc+hiV+ZK5unpYhBdFkdWwy1BbEW3cCyzHbOKyzK8PcfsTj5ItxvzXbIvW+J4xgvSOQey5Xczgr64u6p5k5mMRGWSEG8=
-Message-ID: <29495f1d04121918305f577eb7@mail.gmail.com>
-Date: Sun, 19 Dec 2004 18:30:47 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] Remove RCU abuse in cpu_idle()
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Li Shaohua <shaohua.li@intel.com>,
-       Len Brown <len.brown@intel.com>
-In-Reply-To: <Pine.LNX.4.61.0412191909580.18310@montezuma.fsmlabs.com>
+	Sun, 19 Dec 2004 21:42:19 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:11728 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261397AbULTCmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 21:42:16 -0500
+Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+From: Lee Revell <rlrevell@joe-job.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Dan Dennedy <dan@dennedy.org>, Ben Collins <bcollins@debian.org>,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041220022503.GT21288@stusta.de>
+References: <20041220015320.GO21288@stusta.de>
+	 <1103508610.3724.69.camel@kino.dennedy.org>
+	 <20041220022503.GT21288@stusta.de>
+Content-Type: text/plain
+Date: Sun, 19 Dec 2004 21:42:14 -0500
+Message-Id: <1103510535.1252.18.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-References: <20041205004557.GA2028@us.ibm.com>
-	 <Pine.LNX.4.61.0412112123490.7847@montezuma.fsmlabs.com>
-	 <Pine.LNX.4.61.0412112205290.7847@montezuma.fsmlabs.com>
-	 <Pine.LNX.4.61.0412112244000.7847@montezuma.fsmlabs.com>
-	 <29495f1d04121818403f949fdd@mail.gmail.com>
-	 <Pine.LNX.4.61.0412191757450.18310@montezuma.fsmlabs.com>
-	 <1103505344.5093.4.camel@npiggin-nld.site>
-	 <Pine.LNX.4.61.0412191819130.18310@montezuma.fsmlabs.com>
-	 <1103507784.5093.9.camel@npiggin-nld.site>
-	 <Pine.LNX.4.61.0412191909580.18310@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Dec 2004 19:10:31 -0700 (MST), Zwane Mwaikambo
-<zwane@arm.linux.org.uk> wrote:
-> On Mon, 20 Dec 2004, Nick Piggin wrote:
+On Mon, 2004-12-20 at 03:25 +0100, Adrian Bunk wrote:
+> On Sun, Dec 19, 2004 at 09:10:10PM -0500, Dan Dennedy wrote:
+> > On Mon, 2004-12-20 at 02:53 +0100, Adrian Bunk wrote:
+> > > The patch below removes 41 unneeded EXPORT_SYMBOL's.
+> > 
+> > Unneeded according to whom, just you? These functions are part of an
+> > API. How do I know someone is not using these in a custom ieee1394
+> > kernel module in some industrial or research setting or something new
+> > under development to be contributed to linux1394 project?
 > 
-> > On Sun, 2004-12-19 at 18:44 -0700, Zwane Mwaikambo wrote:
-> > > On Mon, 20 Dec 2004, Nick Piggin wrote:
-> > >
-> > > > This thread can possibly be stalled forever if there is a CPU hog
-> > > > running, right?
-> > >
-> > > Yep.
-> > >
-> > > > In which case, you will want to use ssleep rather than a busy loop.
-> > >
-> > > Well ssleep essentially does the same thing as the schedule_timeout.
-> > >
-> >
-> > Yes - so long as you set ->state when using schedule_timeout ;)
+> If someone uses some of them in code to be contributed to the linux1394 
+> project, re-adding the EXPORT_SYMBOL's in question is trivial.
 > 
-> Nish could you please submit something to switch it to ssleep?
+> If someone uses some of them in a custom setting, re-adding them is 
+> trivial, too.
+> 
+> If the only user of one or more of these EXPORT_SYMBOL's was a non-free 
+> module, it's kernel policy that the EXPORT_SYMBOL's in question have to 
+> be removed.
 
-Yup, I'll send it out tomorrow.
+What do you tell a vendor who wants to write a driver for their device?
+"OK, about half the functions you need are in the kernel, the other half
+you have to port from this old kernel because we removed them.  Maybe we
+will put them back if we really like your driver"?
 
--Nish
+Lee
+

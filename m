@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311231AbSCLPQG>; Tue, 12 Mar 2002 10:16:06 -0500
+	id <S311234AbSCLPX4>; Tue, 12 Mar 2002 10:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311232AbSCLPP4>; Tue, 12 Mar 2002 10:15:56 -0500
-Received: from mail.rpi.edu ([128.113.22.40]:43944 "EHLO mail.rpi.edu")
-	by vger.kernel.org with ESMTP id <S311231AbSCLPPn>;
-	Tue, 12 Mar 2002 10:15:43 -0500
-Date: Tue, 12 Mar 2002 10:12:12 -0500 (EST)
-Message-Id: <20020312.101212.25466030.obatan@rpi.edu>
-To: lk@tantalophile.demon.co.uk
-Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: a faster way to gettimeofday?
-From: OBATA Noboru <noboru@ylug.org>
-In-Reply-To: <20020312130635.C4281@kushida.apsleyroad.org>
-In-Reply-To: <20020312130635.C4281@kushida.apsleyroad.org>
-X-Mailer: Mew version 3.0.54 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+	id <S311235AbSCLPXr>; Tue, 12 Mar 2002 10:23:47 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:53400 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S311234AbSCLPXg>; Tue, 12 Mar 2002 10:23:36 -0500
+Date: Tue, 12 Mar 2002 16:23:16 +0100
+From: Andi Kleen <ak@muc.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org, ak@muc.de
+Subject: Re: __get_user usage in mm/slab.c
+Message-ID: <20020312162316.A3505@averell>
+In-Reply-To: <Pine.LNX.4.21.0203121237070.19747-100000@serv>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0203121237070.19747-100000@serv>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you run NTP (synchronisation with atomic clock standards over the
-> network), you get really good real world clock times.  It continually
-> adjust gettimeofday() but not the rdtsc clock.  That may highlight any
-> drift due to thermal effects in the PC.
+On Tue, Mar 12, 2002 at 12:58:53PM +0100, Roman Zippel wrote:
+> Hi,
 > 
-> I would guess you're not running NTP?
+> The way __get_user is currently used in mm/slab.c is not portable. It
+> breaks on arch which have seperate user/kernel memory space. It still
+> works during boot or from kernel threads, but /proc/slabinfo shows only 
+> broken entries or if a module creates a slab cache, I got lots of
+> warnings.
+> We have to at least insert a "set_fs(get_fs())", but IMO a separate
+> interface would be better. Any opinions?
 
-You are right.  I'm not running NTP.  Actually, I was using
-clockspeed (http://cr.yp.to/clockspeed.html) before, which
-adjusts system clock using RDTSC, but I have stopped it to
-observe pure system clock.
+I agree that a separate interface would be better, one that guarantees to
+handle exceptions on the m68k and other archs with separate address spaces too.
+I use that facility quite regularly in architecture specific code, sorry
+for letting it slip into portable code. 
+I guess set_fs(KERNEL_DS); __*_user() will not catch exceptions on m68k
+currently, right? 
 
-In the first version my userland gettimeofday, I'm more
-interested in how RDTSC could be configured to synchronize with
-the system clock, rather than the real world clock time.
+-Andi
 
-To atapt the system clock change, userland gettimeofday should
-issue real gettimeofday system call occasionally, as Terje
-suggests early in this thread, and adjust calibration
-parameters.  I'll call it "adaptive userland gettimeofday."
-
-You may not need calibration any longer since it is adaptive.
-However, it will be slower and less effective because much
-adjusting code should be implemented.  So I'm hesitating to
-implement adaptive userland gettimeofday :-).
-
--- 
-OBATA Noboru (noboru@ylug.org)

@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130006AbQKIXNe>; Thu, 9 Nov 2000 18:13:34 -0500
+	id <S129193AbQKIXXG>; Thu, 9 Nov 2000 18:23:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130152AbQKIXNY>; Thu, 9 Nov 2000 18:13:24 -0500
-Received: from h12-197.tokyu-net.catv.ne.jp ([202.221.12.197]:2820 "EHLO
-	research.imasy.or.jp") by vger.kernel.org with ESMTP
-	id <S130006AbQKIXNL>; Thu, 9 Nov 2000 18:13:11 -0500
-Date: Fri, 10 Nov 2000 08:13:03 +0900
-Message-Id: <200011092313.eA9ND3602593@research.imasy.or.jp>
-From: Taisuke Yamada <tai@imasy.or.jp>
-To: linux-kernel@vger.kernel.org
-Cc: andre@linux-ide.org
-Subject: Re: Patch: Using clipped IDE disk larger than 32GB with old BIOS
-In-Reply-To: Your message of "Wed, 8 Nov 2000 11:23:52 -0800 (PST)".
-    <Pine.LNX.4.10.10011081115030.5484-100000@master.linux-ide.org>
-X-Mailer: mnews [version 1.22PL4] 2000-05/28(Sun)
+	id <S129324AbQKIXW4>; Thu, 9 Nov 2000 18:22:56 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:7430 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S129193AbQKIXWh>; Thu, 9 Nov 2000 18:22:37 -0500
+Date: Fri, 10 Nov 2000 02:17:23 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Gerard Roudier <groudier@club-internet.fr>
+Cc: Richard Henderson <rth@twiddle.net>, axp-list@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: PCI-PCI bridges mess in 2.4.x
+Message-ID: <20001110021723.A4142@jurassic.park.msu.ru>
+In-Reply-To: <20001109173920.A3205@jurassic.park.msu.ru> <Pine.LNX.4.10.10011092123320.1438-100000@linux.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.10.10011092123320.1438-100000@linux.local>; from groudier@club-internet.fr on Thu, Nov 09, 2000 at 09:37:41PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 09, 2000 at 09:37:41PM +0100, Gerard Roudier wrote:
+> Hmmm...
+> The PCI spec. says that Limit registers define the top addresses
+> _inclusive_.
 
-> > # I might consider adding support for even newer 48-bit LBA
-> > # extension (which I read in ATA spec).
->
-> The 48-LBA stuff is on hold because it requires more than simple
-> changes to ide-disk.c.
+Correct.
 
-Yes, I guess this is currently a future issue. If this is going to
-be done, there also needs fix in userland program, like fdisk and
-hdparm.
+> The spec. does not seem to imagine that a Limit register lower than the
+> corresponding Base register will ever exist anywhere, in my opinion. :-)
 
-> We have not voted on the final design of the 48-LBA and no drive
-> or BIOS guys have any product ready for testing.
+Not correct.
+Here's a quote from `PCI-to-PCI Bridge Architecture Specification rev 1.1':
+   The Memory Limit register _must_ be programmed to a smaller value
+   than the Memory Base if there are no memory-mapped I/O addresses on the
+   secondary side of the bridge.
 
-But we're definitely going to face the problem as we'll probably
-see IDE disk larger then 128GB next year. What was the current
-max - 80GB, I thought? That not so far away from 128GB.
+I/O is slightly different because it's optional for the bridge -
+but if it's implemented same rules apply.
 
-> So you like that TASKFILE. ;-)
+> This let me think that trying to be clever here is probably a very bad
+> idea. What is so catastrophic of having 1 to 4 bytes of addresses and no
+> more being possibly in a forwardable range?
+> 
+Huh. 1 to 4 bytes? 4K for I/O and 1M for memory.
+And it's not trying to be clever (anymore :-) - just strictly following
+the Specs.
 
-Actually it was the one I found out its usage first :-). Its
-interface seems OK for me.
+I understand your point very well, btw. I asked similar questions to myself
+until I've had the docs.
 
-For TASK vs. CMD issue, I have no definite idea on it. But if sole
-reason for CMD interface is to limit invalid/unsafe IDE command
-submission, I guess they could (not should) go to userland as a
-library (libsafeide?). I'll re-read the discussion so I can write
-something more thought out.
-
---
-T. Yamada <tai@imasy.or.jp> (http://www.imasy.or.jp/~tai/index.html.{ja,en})
-PGP fingerprint = 6B 57 1B ED 65 4C 7D AE  57 1B 49 A7 F7 C8 23 46
+Ivan.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263544AbUELM6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265046AbUELNNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263544AbUELM6U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 08:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264983AbUELM6T
+	id S265046AbUELNNf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 09:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265045AbUELNNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 08:58:19 -0400
-Received: from mlf.linux.rulez.org ([192.188.244.13]:62213 "EHLO
-	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S263544AbUELM6S
+	Wed, 12 May 2004 09:13:33 -0400
+Received: from beholder.math.fu-berlin.de ([160.45.44.200]:35201 "EHLO
+	beholder.fefe.de") by vger.kernel.org with ESMTP id S265043AbUELNNb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 08:58:18 -0400
-Date: Wed, 12 May 2004 14:58:13 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: andrea.fracasso@infoware-srl.com, lkml <linux-kernel@vger.kernel.org>,
-       ntfs-dev <linux-ntfs-dev@lists.sourceforge.net>
-Subject: Re: ffs() (was: [Linux-NTFS-Dev] SOLVED - Re: PROBLEM: compiling
- NTFS write support)
-In-Reply-To: <1084364605.16624.22.camel@imp.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.21.0405121449120.12270-100000@mlf.linux.rulez.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 12 May 2004 09:13:31 -0400
+Date: Wed, 12 May 2004 15:13:06 +0200
+From: Felix von Leitner <felix-kernel@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.6 breaks my Logitech USB mouse
+Message-ID: <20040512131306.GA241@fefe.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When booting into 2.6.6 (compiled with gcc 3.4, could that be the
+problem?), my USB mouse does not work any more.  Neither hot nor cold
+plugging it works.  USB detects a low speed device and then hangs.
 
-On Wed, 12 May 2004, Anton Altaparmakov wrote:
-> On Wed, 2004-05-12 at 12:56, andrea.fracasso@infoware-srl.com wrote:
-> > > On Wed, 2004-05-12 at 11:14, andrea.fracasso@infoware-srl.com wrote:
-> > >> Hi, I have found a problem compiling te source of kernel 2.6.6, if I
-> > >> enable NTFS write support when i run "make" i get this error:
-> > >>
-> > >> ....
-> > >>   CC      fs/ntfs/inode.o
-> > >>   CC      fs/ntfs/logfile.o
-> > >> {standard input}: Assembler messages:
-> > >> {standard input}:683: Error: suffix or operands invalid for `bsf'
-> > >> make[2]: *** [fs/ntfs/logfile.o] Error 1
-> > >> make[1]: *** [fs/ntfs] Error 2
-> > >> make: *** [fs] Error 2
-> > >>
-> > >> my kernel version is:
-> > >> Linux version 2.6.5-AS1500 (root@ntb-gozzolox) (gcc version 3.3.2
-> > >> 20031022
-> > >> (Red Hat Linux 3.3.2-1)) #3 Thu Apr 15 10:13:11 CEST 2004
-> > 
-> > The binutils ver is:
-> > binutils-2.14.90.0.6-4
-> 
-> This happens because gcc (wrongly!) optimizes a variable into a constant
-> and then ffs() fails to assemble because the bsfl instruction is only
-> allowed with memory operands and not constants.
+Now I am used to USB not working at all under Linux on my desktop with
+VIA chipset, but now USB is also hosed for Intel chipsets?  Here is the
+dmesg from 2.6.5, where my USB mouse still worked:
 
-IMHO this should be worked around (fixed) in the inlined __asm__ ffs. Does
-it happen only on Opteron or on other platforms as well?
+  drivers/usb/core/usb.c: registered new driver usbfs
+  drivers/usb/core/usb.c: registered new driver hub
+  USB Universal Host Controller Interface driver v2.2
+  PCI: Found IRQ 10 for device 0000:00:1f.2
+  PCI: Sharing IRQ 10 with 0000:02:0f.0
+  PCI: Sharing IRQ 10 with 0000:02:0f.1
+  PCI: Sharing IRQ 10 with 0000:02:0f.2
+  uhci_hcd 0000:00:1f.2: Intel Corp. 82801BA/BAM USB (Hub #1)
+  PCI: Setting latency timer of device 0000:00:1f.2 to 64
+  uhci_hcd 0000:00:1f.2: irq 10, io base 0000bce0
+  uhci_hcd 0000:00:1f.2: new USB bus registered, assigned bus number 1
+  hub 1-0:1.0: USB hub found
+  hub 1-0:1.0: 2 ports detected
+  drivers/usb/core/usb.c: registered new driver hiddev
+  drivers/usb/core/usb.c: registered new driver hid
+  drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+  usb 1-1: new low speed USB device using address 2
+  input: USB HID v1.10 Mouse [B16_b_02 USB-PS/2 Optical Mouse] on usb-0000:00:1f.2-1
+  drivers/usb/input/hid-input.c: event field not found
+  drivers/usb/input/hid-input.c: event field not found
+  drivers/usb/input/hid-input.c: event field not found
+  drivers/usb/input/hid-input.c: event field not found
+  drivers/usb/input/hid-input.c: event field not found
+  drivers/usb/input/hid-input.c: event field not found
 
-	Szaka
+2.6.6 never reaches the "input: " line.  What gives?
 
+Felix

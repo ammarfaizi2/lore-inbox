@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129554AbRB0QIX>; Tue, 27 Feb 2001 11:08:23 -0500
+	id <S129576AbRB0Qno>; Tue, 27 Feb 2001 11:43:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129534AbRB0QIN>; Tue, 27 Feb 2001 11:08:13 -0500
-Received: from enhanced.ppp.eticomm.net ([206.228.183.5]:30457 "EHLO
-	intech19.enhanced.com") by vger.kernel.org with ESMTP
-	id <S129537AbRB0QH6>; Tue, 27 Feb 2001 11:07:58 -0500
+	id <S129577AbRB0Qnf>; Tue, 27 Feb 2001 11:43:35 -0500
+Received: from mail.surgient.com ([63.118.236.3]:40205 "EHLO
+	bignorse.SURGIENT.COM") by vger.kernel.org with ESMTP
+	id <S129576AbRB0QnZ>; Tue, 27 Feb 2001 11:43:25 -0500
+Message-ID: <A490B2C9C629944E85CE1F394138AF957FC3E1@bignorse.SURGIENT.COM>
+From: "Collins, Tom" <Tom.Collins@Surgient.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.2.18 IDE tape problem, with ide-scsi
-From: Camm Maguire <camm@enhanced.com>
-Date: 27 Feb 2001 11:06:34 -0500
-In-Reply-To: jerry's message of "Mon, 26 Feb 2001 15:06:13 -0500"
-Message-ID: <54u25g3yb9.fsf_-_@intech19.enhanced.com>
-X-Mailer: Gnus v5.7/Emacs 20.7
+Subject: Dynamically altering code segments
+Date: Tue, 27 Feb 2001 10:43:02 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi...
 
-Greetings!  Two ide tapes, both on second ide channel, both using
-ide-scsi.  One works perfectly, the other basically works, but gives
-errors, and occasionally doesn't write full 32k blocks to tape,
-causing amanda errors. 
+This is my first post, so if this is off topic for this list, please direct
+me
+to another one that is more appropriate.  Thanks
 
-Feb 25 06:14:22 intech9 kernel: ALI15X3: IDE controller on PCI bus 00 dev 78
-Feb 25 06:14:22 intech9 kernel: ALI15X3: not 100%% native mode: will probe irqs later
-Feb 25 06:14:22 intech9 kernel:     ide0: BM-DMA at 0xb400-0xb407, BIOS settings: hda:DMA, hdb:DMA
-Feb 25 06:14:22 intech9 kernel: 
-Feb 25 06:14:22 intech9 kernel: ************************************
-Feb 25 06:14:22 intech9 kernel: *    ALi IDE driver (1.0 beta3)    *
-Feb 25 06:14:22 intech9 kernel: *       Chip Revision is C1        *
-Feb 25 06:14:22 intech9 kernel: *  Maximum capability is - UDMA 33 *
-Feb 25 06:14:22 intech9 kernel: ************************************
-Feb 25 06:14:22 intech9 kernel: 
-Feb 25 06:14:22 intech9 kernel:     ide1: BM-DMA at 0xb408-0xb40f, BIOS settings: hdc:pio, hdd:pio
-Feb 25 06:14:22 intech9 kernel: hda: FUJITSU MPE3064AT, ATA DISK drive
-Feb 25 06:14:22 intech9 kernel: hdb: ST32140A, ATA DISK drive
-Feb 25 06:14:22 intech9 kernel: hdc: CONNER CTT8000-A, ATAPI TAPE drive
-Feb 25 06:14:22 intech9 kernel: hdd: HP COLORADO 14GB, ATAPI TAPE drive
-Feb 25 06:14:22 intech9 kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Feb 25 06:14:22 intech9 kernel: ide1 at 0x170-0x177,0x376 on irq 15
-Feb 25 06:14:22 intech9 kernel:  ALI15X3: Ultra DMA enabled
-Feb 25 06:14:22 intech9 kernel: hda: FUJITSU MPE3064AT, 6187MB w/512kB Cache, CHS=788/255/63, (U)DMA
-Feb 25 06:14:22 intech9 kernel:  ALI15X3: MultiWord DMA enabled
-Feb 25 06:14:22 intech9 kernel: hdb: ST32140A, 2015MB w/128kB Cache, CHS=4095/16/63, DMA
-Feb 25 06:14:22 intech9 kernel:  hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 >
-Feb 25 06:14:22 intech9 kernel:  hdb: hdb1 hdb2
+That said, I am wanting to dynamically modify the kernel in specific places
+to
+implement a custom kernel trace mechanism.  The general idea is that, when
+the
+"trace" is off, there are NOP instruction sequences at various places in the
+kernel.  When the "trace" is turned on, those same NOPs are replaced by JMPs
+to code that implements the trace (such as logging events, using the MSR and
+PMC's etc..).
 
-The Conner gives the problem:
+This was a trick that was done in my old days of OS/2 performance tools 
+developement to get trace information from the running kernel.  In that
+case, 
+we simply remapped the appropriate code segments to data segments (I think
+back then it was called 'aliasing code segments') and used that segment to 
+make changes to the kernel code on the fly.
 
-Feb 27 06:23:16 intech9 kernel: st0: Error with sense data: [valid=0] Info fld=0x0, Current st09:00: sns = 70  5
-Feb 27 06:23:16 intech9 kernel: ASC=20 ASCQ= 0
-Feb 27 06:23:16 intech9 kernel: Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x0a 0x00 0x00 0x00 0x00 0x20 0x00 0x00 0x00 
+Is it possible to do the same thing in Linux?
 
-and occaisional 'gunzip: unexpected end of file' errors on verifying
-the tape.
+Thanks
 
-Take care,
+Tom
 
 
--- 
-Camm Maguire			     			camm@enhanced.com
-==========================================================================
-"The earth is but one country, and mankind its citizens."  --  Baha'u'llah

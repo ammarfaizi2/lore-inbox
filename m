@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266794AbSLJUx5>; Tue, 10 Dec 2002 15:53:57 -0500
+	id <S264908AbSLJUzZ>; Tue, 10 Dec 2002 15:55:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266795AbSLJUx5>; Tue, 10 Dec 2002 15:53:57 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:29397 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266794AbSLJUx4>;
-	Tue, 10 Dec 2002 15:53:56 -0500
-Message-ID: <3DF655DF.1040507@us.ibm.com>
-Date: Tue, 10 Dec 2002 13:00:15 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en-us, en
+	id <S264795AbSLJUzZ>; Tue, 10 Dec 2002 15:55:25 -0500
+Received: from node181b.a2000.nl ([62.108.24.27]:19072 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S264907AbSLJUzW>;
+	Tue, 10 Dec 2002 15:55:22 -0500
+Date: Tue, 10 Dec 2002 22:03:03 +0100 (CET)
+From: Stephan van Hienen <ultra@a2000.nu>
+To: sparclinux@vger.kernel.org, "" <linux-kernel@vger.kernel.org>
+Subject: Alteon AceNIC Coper Seen as Fibre ? (and incorrect settings)
+Message-ID: <Pine.LNX.4.50.0212102157440.1634-100000@ddx.a2000.nu>
 MIME-Version: 1.0
-To: "dhow >> David Howells" <dhowells@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix strange stack calculation for secondary cpus
-Content-Type: multipart/mixed;
- boundary="------------020902030102020404000403"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020902030102020404000403
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Sun UltraSparc 10
+kernel 2.4.20
 
-in arch/i386/kernel/smpboot.c:
-stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle);
+eth2: Alteon AceNIC Gigabit Ethernet at 0x1ff02900000, irq 6,7d0
+  Tigon II (Rev. 6), Firmware: 12.4.11, MAC: 00:60:cf:20:92:fc
+  PCI bus width: 32 bits, speed: 33MHz, latency: 64 clks
+eth2: Firmware up and running
 
-This causes problems when I switch to 4k stacks?  What is supposed to 
-be going on here?  Why point esp into the middle of the stack?  If you 
-wanted to do that, why not just use PAGE_SIZE>>2?
+unplugging the utp cable, and plugging back in gives :
 
-In any case, I think THREAD_SIZE needs to be here instead of PAGE_SIZE.
--- 
-Dave Hansen
-haveblue@us.ibm.com
+eth2: 10/100BaseT link UP
+eth2: Optical link DOWN
+eth2: 10/100BaseT link UP
 
---------------020902030102020404000403
-Content-Type: text/plain;
- name="fix-esp-2.5.51.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix-esp-2.5.51.patch"
+but this card is not an Fibre (Optical) card ?
 
---- linux-2.5.50/arch/i386/kernel/smpboot.c.bad	Tue Dec 10 12:56:10 2002
-+++ linux-2.5.50/arch/i386/kernel/smpboot.c	Tue Dec 10 12:56:55 2002
-@@ -806,7 +806,7 @@
- 
- 	/* So we see what's up   */
- 	printk("Booting processor %d/%d eip %lx\n", cpu, apicid, start_eip);
--	stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle->thread_info);
-+	stack_start.esp = (void *) (THREAD_SIZE + (char *)idle->thread_info);
- 
- 	/*
- 	 * This grunge runs the startup process for
+also ethtool gives incorrect information :
+(ethtool 1.7)
+---
+Settings for eth2:
+        Supported ports: [ FIBRE ]
+        Supported link modes:   10baseT/Half 10baseT/Full
+                                100baseT/Half 100baseT/Full
+                                1000baseT/Half 1000baseT/Full
+        Supports auto-negotiation: Yes
+        Advertised link modes:  Not reported
+        Advertised auto-negotiation: No
+        Speed: 1000Mb/s
+        Duplex: Half
+        Port: FIBRE
+        PHYAD: 0
+        Transceiver: internal
+        Auto-negotiation: off
+---
 
---------------020902030102020404000403--
+card is connected to 100mbit switch at full duplex
+and i think Auto-negotiation is on ?
+
 

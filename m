@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268691AbRHBE2Q>; Thu, 2 Aug 2001 00:28:16 -0400
+	id <S268710AbRHBEmq>; Thu, 2 Aug 2001 00:42:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268696AbRHBE2G>; Thu, 2 Aug 2001 00:28:06 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:34570 "HELO
+	id <S268712AbRHBEmg>; Thu, 2 Aug 2001 00:42:36 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:39179 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268691AbRHBE2B>; Thu, 2 Aug 2001 00:28:01 -0400
-Date: Thu, 2 Aug 2001 01:28:02 -0300 (BRST)
+	id <S268710AbRHBEmY>; Thu, 2 Aug 2001 00:42:24 -0400
+Date: Thu, 2 Aug 2001 01:42:27 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@duckman.distro.conectiva>
-To: george anzinger <george@mvista.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <bristuccia@starentnetworks.com>,
         <linux-kernel@vger.kernel.org>
-Subject: Re: No 100 HZ timer !
-In-Reply-To: <3B68728C.7D23FFBC@mvista.com>
-Message-ID: <Pine.LNX.4.33L.0108020126290.5582-100000@duckman.distro.conectiva>
+Subject: Re: repeated failed open()'s results in lots of used memory [Was:
+ [Fwd: memory consumption]]
+In-Reply-To: <Pine.GSO.4.21.0108012118060.27494-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33L.0108020138560.5582-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001, george anzinger wrote:
-> Chris Friesen wrote:
-> > george anzinger wrote:
-> >
-> > > The testing I have done seems to indicate a lower overhead on a lightly
-> > > loaded system, about the same overhead with some load, and much more
-> > > overhead with a heavy load.  To me this seems like the wrong thing to
-> >
-> > What about something that tries to get the best of both worlds?  How about a
-> > tickless system that has a max frequency for how often it will schedule?  This
+On Wed, 1 Aug 2001, Alexander Viro wrote:
+> On Wed, 1 Aug 2001, Linus Torvalds wrote:
 >
-> How would you do this?  Larger time slices?  But _most_ context
-> switches are not related to end of slice.  Refuse to switch?
-> This just idles the cpu.
+> > However, I'd like to see what the patch does for the bad case first, and
+> > then we can see whether there are less drastic methods (like only killing
+> > half of the negative dentries or something).
+>
+> Removing the "second chance" logics for negative dentries might
+> be a good start...
 
-Never set the next hit of the timer to (now + MIN_INTERVAL).
+Both the "second chance" logic and pure fifo are bad.
 
-This way we'll get to run the current task until the timer
-hits or until the current task voluntarily gives up the CPU.
+Something like Daniel Phillips' "use once" logic would
+be fine for dentries, possibly even simpler.
 
-We can check for already-expired timers in schedule().
+Dentries could start their live at the head of the
+"active" list so they are the first to be moved to
+the "reclaim me" list.
+
+If they get referenced while on the second list,
+we move them to the tail of the active list.
+
+As a balancing rule, we could tune the system to
+always keep half of the dentries in the "reclaim me"
+list.
 
 regards,
 

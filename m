@@ -1,77 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269333AbUI3Q0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269329AbUI3Q0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269333AbUI3Q0L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 12:26:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269329AbUI3Q0L
+	id S269329AbUI3Q0z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 12:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269337AbUI3Q0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 12:26:11 -0400
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:56742 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S269333AbUI3Q0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 12:26:04 -0400
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: Borislav Petkov <petkov@uni-muenster.de>
-Subject: Re: Fw: Re: 2.6.9-rc2-mm4
-Date: Thu, 30 Sep 2004 18:25:40 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040929214637.44e5882f.akpm@osdl.org> <200409301452.52134.bzolnier@elka.pw.edu.pl> <200409301732.03080.petkov@uni-muenster.de>
-In-Reply-To: <200409301732.03080.petkov@uni-muenster.de>
+	Thu, 30 Sep 2004 12:26:54 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:58753 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S269329AbUI3Q0q convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 12:26:46 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409301825.41124.bzolnier@elka.pw.edu.pl>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] Fix for spurious interrupts on e100 resume
+Date: Thu, 30 Sep 2004 09:26:01 -0700
+Message-ID: <468F3FDA28AA87429AD807992E22D07E02B55EF6@orsmsx408>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Fix for spurious interrupts on e100 resume
+Thread-Index: AcSZ5PQrnfhDIkGtSj+nfuuE+ARb5QNJJR7Q
+From: "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Ronciak, John" <john.ronciak@intel.com>
+Cc: "Feldman, Scott" <scott.feldman@intel.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Jeremy Fitzhardinge" <jeremy@goop.org>
+X-OriginalArrivalTime: 30 Sep 2004 16:26:04.0020 (UTC) FILETIME=[2E38C340:01C4A70A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 September 2004 17:32, Borislav Petkov wrote:
-> On Thursday 30 September 2004 14:52, Bartlomiej Zolnierkiewicz wrote:
-> > On Thursday 30 September 2004 06:46, Andrew Morton wrote:
-> > > ide broke :(   Maybe Bart's bk tree?
-> >
-> > no, disk works just fine ;)  If it is my tree I will happilly fix it.
-> >
-> > Borislav, could you apply only these patches from -mm4 and retest?
-> >
-> > linus.patch
-> > bk-ide-dev.patch
-> >
-> > > Begin forwarded message:
-> > >
-> > > Date: Wed, 29 Sep 2004 12:43:35 +0200
-> > > From: Borislav Petkov <petkov@uni-muenster.de>
-> > > To: Andrew Morton <akpm@osdl.org>
-> > > Cc: linux-kernel@vger.kernel.org
-> > > Subject: Re: 2.6.9-rc2-mm4
-> > >
-> > >
-> > > <snip>
-> > >
-> > > Hello,
-> > >  I've already posted about problems with audio extraction but it went
-> > > unnoticed. Here's a recount: When I attempt to read an audio cd into wavs
-> > > with cdda2wav, the process starts but after a while the completion meter
-> > > freezes and klogd says "hdc: lost interrupt" and cdda2wav hangs itself.
-> > > Disabling DMA doesn't help as well as the boot option "pci=routeirq" too.
-> > > Older kernels like 2.6.7 do not show such behavior and there audio
-> > > extraction runs fine. Sysinfo attached.
-> > >
-> > > Regards,
-> > > Boris.
-> 
-> Hi people,
-> 
->  well, I've applied the above patches but no change - same "hdc: lost 
-> interrupt" message. 2.6.9-rc3 behaves the same, as expected.
+Andrew:
 
-Well, if 2.6.9-rc3 fails then it is not my tree...
+I propose that we remove this patch from the -mm tree. We will work on a
+clean solution and send a patch soon. Please see further discussion on
+this under the subject "2.6.9-rc2-mm4 e100 enable_irq unbalanced from"
 
-Please find kernel version which introduces this bug.
+Ganesh.
 
-> Regards,
-> Boris.
-> 
-> 
+-----Original Message-----
+From: Jeremy Fitzhardinge [mailto:jeremy@goop.org] 
+Sent: Monday, September 13, 2004 3:53 PM
+To: Ronciak, John
+Cc: Venkatesan, Ganesh; Feldman, Scott; Andrew Morton; linux-kernel
+Subject: Re: [PATCH] Fix for spurious interrupts on e100 resume
+
+On Thu, 2004-09-09 at 15:36 -0700, Jeremy Fitzhardinge wrote:
+> I've been having problems with spurious interrupts being raised when
+the
+> e100 driver resets the chip during a resume:
+
+OK, that patch didn't really work terribly well - the interrupt still
+happens.  I've changed it to simply disable the interrupt during e100_up
+(), which does seem to work properly.
+
+	J
+
+
+
+On resume, the e100 chip seems to raise an interrupt during chip reset.
+Since there's no IRQ handler registered yet, the kernel complains that
+"nobody cared" about the interrupt.  This change disables the IRQ during
+e100_up(), while the hardware is being (re-)initialized.
+
+
+ drivers/net/e100.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
+
+diff -puN drivers/net/e100.c~e100-restore-irq drivers/net/e100.c
+--- local-2.6/drivers/net/e100.c~e100-restore-irq	2004-09-13
+13:38:27.000000000 -0700
++++ local-2.6-jeremy/drivers/net/e100.c	2004-09-13 13:38:28.075416972
+-0700
+@@ -1678,6 +1678,9 @@ static int e100_up(struct nic *nic)
+ 
+ 	if((err = e100_rx_alloc_list(nic)))
+ 		return err;
++
++	disable_irq(nic->pdev->irq);
++
+ 	if((err = e100_alloc_cbs(nic)))
+ 		goto err_rx_clean_list;
+ 	if((err = e100_hw_init(nic)))
+@@ -1689,6 +1692,7 @@ static int e100_up(struct nic *nic)
+ 		nic->netdev->name, nic->netdev)))
+ 		goto err_no_irq;
+ 	e100_enable_irq(nic);
++	enable_irq(nic->pdev->irq);
+ 	netif_wake_queue(nic->netdev);
+ 	return 0;
+ 
+@@ -1698,6 +1702,8 @@ err_clean_cbs:
+ 	e100_clean_cbs(nic);
+ err_rx_clean_list:
+ 	e100_rx_clean_list(nic);
++
++	enable_irq(nic->pdev->irq);
+ 	return err;
+ }
+ 
+
+_
+Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
+

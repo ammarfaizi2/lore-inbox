@@ -1,115 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbTLHTco (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 14:32:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbTLHTcn
+	id S261825AbTLHTqq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 14:46:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTLHTqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 14:32:43 -0500
-Received: from smtpq1.home.nl ([213.51.128.196]:44734 "EHLO smtpq1.home.nl")
-	by vger.kernel.org with ESMTP id S261569AbTLHTcf (ORCPT
+	Mon, 8 Dec 2003 14:46:46 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:45463 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261825AbTLHTqo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 14:32:35 -0500
-From: Gertjan van Wingerde <gwingerde@home.nl>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: 2.6.0-test11-bart1
-Date: Mon, 8 Dec 2003 20:31:38 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+	Mon, 8 Dec 2003 14:46:44 -0500
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM LTC
+To: Nick Piggin <piggin@cyberone.com.au>, Ingo Molnar <mingo@redhat.com>,
+       Anton Blanchard <anton@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Zwane Mwaikambo <zwane@zwane.ca>
+Subject: Re: [PATCH][RFC] make cpu_sibling_map a cpumask_t
+Date: Mon, 8 Dec 2003 11:44:57 -0800
+User-Agent: KMail/1.5
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <3FD3FD52.7020001@cyberone.com.au>
+In-Reply-To: <3FD3FD52.7020001@cyberone.com.au>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200312082029.58214.gwingerde@home.nl>
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Disposition: inline
+Message-Id: <200312081144.57157.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bart,
+On Sunday 07 December 2003 8:25 pm, Nick Piggin wrote:
+> Hi guys,
+> This is rather a trivial change but is not for 2.6.0.
+> The patch is actually on top of some of my HT stuff so one part is
+> slightly different, but its purpose is to gather feedback.
+>
+> It turns the cpu_sibling_map array from an array of cpus to an array
+> of cpumasks. This allows handling of more than 2 siblings, not that
+> I know of any immediate need.
 
-I'd like to have my IDE modularisation patch included in this. See the following link for the details.
+There will probably be a need, although I don't know how soon.  Some of the 
+Intel folks have not been hinting that there will be more than two siblings 
+in a future CPU.  No, they have not been hinting at all.   ;^)
 
-	http://marc.theaimsgroup.com/?l=linux-kernel&m=107004921520850&w=2
 
-In the current state of the IDE driver none of the modules can be loaded.
+> I think it generalises cpu_sibling_map sufficiently that it can become
+> generic code. This would allow architecture specific code to build the
+> sibling map, and then Ingo's or my HT implementations to build their
+> scheduling descriptions in generic code.
+>
+> I'm not aware of any reason why the kernel should not become generally
+> SMT aware. It is sufficiently different to SMP that it is worth
+> specialising it, although I am only aware of P4 and POWER5 implementations.
+>
+> Best regards
+> Nick
+>
+> P.S.
+> I have an alternative to Ingo's HT scheduler which basically does
+> the same thing. It is showing a 20% elapsed time improvement with a
+> make -j3 on a 2xP4 Xeon (4 logical CPUs).
+>
+> Before Ingo's is merged, I would like to discuss the pros and cons of
+> both approaches with those interested. If Ingo's is accepted I should
+> still be able to port my other SMP/NUMA improvements on top of it.
 
-Please let me know if you think that this can be handled in a different way.
-
-    Best regards,
-
-        Gertjan.
-
-On 8 december 2003 Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
->
->Lets start the ball rolling...
->
->If you have problems ide-tape.c, siimage.c or cmd640.c (in PCI mode)
->you should try this patch.
->
->It also contains untested fixes for Promise IDE driver (pdc202xx_old.c),
->they should be safe but better backup your data first :-), feedback needed.
->
->Workarounds for nForce2 chipset are also included.
->
->Get it from:
->ftp://ftp.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/
->
->If you have some patches you think are worth merging just mail me
->(cleanups are also welcomed).
->
->--bart
->
->Merged:
->
->linux-2.6.0-test11-bk5.patch
->  -bk snapshot (patch-2.6.0-test11-bk5)
->
->extraversion.patch
->  add -bartX to EXTRAVERSION
->
->ide-tape-update.patch
->  [IDE] ide-tape.c update
->
->ide-tape-rq-special.patch
->  [IDE] ide-tape.c: stop abusing rq->flags
->
->ide-siimage-seagate.patch
->  [IDE] siimage.c: limit requests to 15kB only for Seagate SATA drives
->
->ide-siimage-stack-fix.patch
->  [IDE] siimage.c: fix PIO settings programming
->
->ide-siimage-sil3114.patch
->  [IDE] siimage.c: add very basic support for Silicon Image 3114 SATA
->
->ide-cmd640-pci1.patch
->  [IDE] cmd640.c: fix PCI type1 access
->
->ide-pdc_old-pio-fix.patch
->  [IDE] pdc202xx_old.c: fix PIO autotuning
->
->ide-pdc_old-udma66-fix.patch
->  [IDE] pdc202xx_old.c: fix enabling 66MHz clock for modes > UDMA2
->
->ide-pdc_old-66mhz_clock-fix.patch
->  [IDE] pdc202xx_old.c: sanitize 66MHz clock use
->
->nforce2-disconnect-quirk.patch
->  [x86] fix lockups with APIC support on nForce2
->
->nforce2-apic.patch
->  [x86] do not wrongly override mp_ExtINT IRQ
->
->ide-recovery-time.patch
->  [IDE] remove dead and broken DISK_RECOVERY_TIME support
->
->ide-pdc_new-proc.patch
->  [IDE] pdc202xx_new.c: remove useless /proc/ide/pdcnew
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm

@@ -1,116 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288326AbSATLlO>; Sun, 20 Jan 2002 06:41:14 -0500
+	id <S288325AbSATLzs>; Sun, 20 Jan 2002 06:55:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288325AbSATLk4>; Sun, 20 Jan 2002 06:40:56 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:17841 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288283AbSATLkt>;
-	Sun, 20 Jan 2002 06:40:49 -0500
-Date: Sun, 20 Jan 2002 14:38:14 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [sched] [patch] rq-lock-cleanup-2.5.3-pre2-A3
-Message-ID: <Pine.LNX.4.33.0201201437050.7972-200000@localhost.localdomain>
+	id <S288338AbSATLzj>; Sun, 20 Jan 2002 06:55:39 -0500
+Received: from sproxy.gmx.de ([213.165.64.20]:12824 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S288327AbSATLzd>;
+	Sun, 20 Jan 2002 06:55:33 -0500
+Message-ID: <3C4ABE6B.2C04DA74@gmx.de>
+Date: Sun, 20 Jan 2002 12:56:11 +0000
+From: **** <abdank@gmx.de>
+X-Mailer: Mozilla 4.78 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1011926451-1011533894=:7972"
+To: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Intel SRCU31 - i2o_core hangs
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+hardware: intel sbt2, 2 x pIII xeon, intel srcu31 raid controller
+os: rh 6.2
+kernel: 2.4.17
 
---8323328-1011926451-1011533894=:7972
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+modprobe i2o_block (inmod i2o_core) & computer hangs,
+i have rewrite it from a screen:
+
+Unabel to handle kernel paging request at virtual address 0009f808
+printong eip:
+f8895f5f
+*pde = 00000000
+Oops: 0000
+CPU: 1
+EIP: 0010:[<f8895f5f>] not tainted
+EFLAGS: 00010206
+...
+Call Trace: [<f88930fc>] [<c0108488>] [<c0108679>] [<c0105200>]
+[<c0105200>] [<c010a718>] [<c0105200>] [<c0105200>] [<c01052cc>]
+[<c0105292>]
+[<c0115a8e>]
+...
+<0>Kernel panic: Aiee, killing interupt handler!
+In interupt handler - not syncing
+
+now computer hangs
+is it hardware or software problem ?
+i have no idea what's going on
 
 
-the attached patch cleans up the task-runqueue locking code, done by Rusty
-Russell and myself. The runqueue assignment is now a return value of an
-inline function, not a side-effect of a macro.
-
-	Ingo
-
---8323328-1011926451-1011533894=:7972
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="rq-lock-cleanup-2.5.3-pre2-A3"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0201201438140.7972@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="rq-lock-cleanup-2.5.3-pre2-A3"
-
-LS0tIGxpbnV4L2tlcm5lbC9zY2hlZC5jLm9yaWcJU3VuIEphbiAyMCAxMTo0
-NzowOCAyMDAyDQorKysgbGludXgva2VybmVsL3NjaGVkLmMJU3VuIEphbiAy
-MCAxMTo0NzoxOCAyMDAyDQpAQCAtNTMsMjQgKzUzLDI4IEBADQogI2RlZmlu
-ZSB0aGlzX3JxKCkJCWNwdV9ycShzbXBfcHJvY2Vzc29yX2lkKCkpDQogI2Rl
-ZmluZSB0YXNrX3JxKHApCQljcHVfcnEoKHApLT5jcHUpDQogI2RlZmluZSBj
-cHVfY3VycihjcHUpCQkoY3B1X3JxKGNwdSktPmN1cnIpDQotI2RlZmluZSBy
-cV9jcHUocnEpCQkoKHJxKSAtIHJ1bnF1ZXVlcykNCiAjZGVmaW5lIHJ0X3Rh
-c2socCkJCSgocCktPnBvbGljeSAhPSBTQ0hFRF9PVEhFUikNCiANCiANCi0j
-ZGVmaW5lIGxvY2tfdGFza19ycShycSxwLGZsYWdzKQkJCQlcDQotZG8gewkJ
-CQkJCQkJXA0KLXJlcGVhdF9sb2NrX3Rhc2s6CQkJCQkJXA0KLQlycSA9IHRh
-c2tfcnEocCk7CQkJCQlcDQotCXNwaW5fbG9ja19pcnFzYXZlKCZycS0+bG9j
-aywgZmxhZ3MpOwkJCVwNCi0JaWYgKHVubGlrZWx5KHJxX2NwdShycSkgIT0g
-KHApLT5jcHUpKSB7CQkJXA0KLQkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgm
-cnEtPmxvY2ssIGZsYWdzKTsJXA0KLQkJZ290byByZXBlYXRfbG9ja190YXNr
-OwkJCQlcDQotCX0JCQkJCQkJXA0KLX0gd2hpbGUgKDApDQorc3RhdGljIGlu
-bGluZSBydW5xdWV1ZV90ICpsb2NrX3Rhc2tfcnEodGFza190ICpwLCB1bnNp
-Z25lZCBsb25nICpmbGFncykNCit7DQorCXN0cnVjdCBydW5xdWV1ZSAqX19y
-cTsNCiANCi0jZGVmaW5lIHVubG9ja190YXNrX3JxKHJxLHAsZmxhZ3MpCQkJ
-CVwNCi0Jc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmcnEtPmxvY2ssIGZsYWdz
-KQ0KK3JlcGVhdF9sb2NrX3Rhc2s6DQorCV9fcnEgPSB0YXNrX3JxKHApOw0K
-KwlzcGluX2xvY2tfaXJxc2F2ZSgmX19ycS0+bG9jaywgKmZsYWdzKTsNCisJ
-aWYgKHVubGlrZWx5KF9fcnEgIT0gdGFza19ycShwKSkpIHsNCisJCXNwaW5f
-dW5sb2NrX2lycXJlc3RvcmUoJl9fcnEtPmxvY2ssICpmbGFncyk7DQorCQln
-b3RvIHJlcGVhdF9sb2NrX3Rhc2s7DQorCX0NCisJcmV0dXJuIF9fcnE7DQor
-fQ0KIA0KK3N0YXRpYyBpbmxpbmUgdm9pZCB1bmxvY2tfdGFza19ycShydW5x
-dWV1ZV90ICpycSwgdGFza190ICpwLA0KKwkJCQkJCQl1bnNpZ25lZCBsb25n
-ICpmbGFncykNCit7DQorCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJnJxLT5s
-b2NrLCAqZmxhZ3MpOw0KK30NCiAvKg0KICAqIEFkZGluZy9yZW1vdmluZyBh
-IHRhc2sgdG8vZnJvbSBhIHByaW9yaXR5IGFycmF5Og0KICAqLw0KQEAgLTE4
-MiwxMiArMTg2LDEyIEBADQogCQljcHVfcmVsYXgoKTsNCiAJCWJhcnJpZXIo
-KTsNCiAJfQ0KLQlsb2NrX3Rhc2tfcnEocnEsIHAsIGZsYWdzKTsNCisJcnEg
-PSBsb2NrX3Rhc2tfcnEocCwgJmZsYWdzKTsNCiAJaWYgKHVubGlrZWx5KHJx
-LT5jdXJyID09IHApKSB7DQotCQl1bmxvY2tfdGFza19ycShycSwgcCwgZmxh
-Z3MpOw0KKwkJdW5sb2NrX3Rhc2tfcnEocnEsIHAsICZmbGFncyk7DQogCQln
-b3RvIHJlcGVhdDsNCiAJfQ0KLQl1bmxvY2tfdGFza19ycShycSwgcCwgZmxh
-Z3MpOw0KKwl1bmxvY2tfdGFza19ycShycSwgcCwgJmZsYWdzKTsNCiB9DQog
-DQogLyoNCkBAIC0yMzQsNyArMjM4LDcgQEANCiAJaW50IHN1Y2Nlc3MgPSAw
-Ow0KIAlydW5xdWV1ZV90ICpycTsNCiANCi0JbG9ja190YXNrX3JxKHJxLCBw
-LCBmbGFncyk7DQorCXJxID0gbG9ja190YXNrX3JxKHAsICZmbGFncyk7DQog
-CXAtPnN0YXRlID0gVEFTS19SVU5OSU5HOw0KIAlpZiAoIXAtPmFycmF5KSB7
-DQogCQlhY3RpdmF0ZV90YXNrKHAsIHJxKTsNCkBAIC0yNDIsNyArMjQ2LDcg
-QEANCiAJCQlyZXNjaGVkX3Rhc2socnEtPmN1cnIpOw0KIAkJc3VjY2VzcyA9
-IDE7DQogCX0NCi0JdW5sb2NrX3Rhc2tfcnEocnEsIHAsIGZsYWdzKTsNCisJ
-dW5sb2NrX3Rhc2tfcnEocnEsIHAsICZmbGFncyk7DQogCXJldHVybiBzdWNj
-ZXNzOw0KIH0NCiANCkBAIC00MTcsNyArNDIxLDcgQEANCiAJICogT2ssIGxl
-dHMgZG8gc29tZSBhY3R1YWwgYmFsYW5jaW5nOg0KIAkgKi8NCiANCi0JaWYg
-KHJxX2NwdShidXNpZXN0KSA8IHRoaXNfY3B1KSB7DQorCWlmIChidXNpZXN0
-IDwgdGhpc19ycSkgew0KIAkJc3Bpbl91bmxvY2soJnRoaXNfcnEtPmxvY2sp
-Ow0KIAkJc3Bpbl9sb2NrKCZidXNpZXN0LT5sb2NrKTsNCiAJCXNwaW5fbG9j
-aygmdGhpc19ycS0+bG9jayk7DQpAQCAtODI0LDcgKzgyOCw3IEBADQogCSAq
-IFdlIGhhdmUgdG8gYmUgY2FyZWZ1bCwgaWYgY2FsbGVkIGZyb20gc3lzX3Nl
-dHByaW9yaXR5KCksDQogCSAqIHRoZSB0YXNrIG1pZ2h0IGJlIGluIHRoZSBt
-aWRkbGUgb2Ygc2NoZWR1bGluZyBvbiBhbm90aGVyIENQVS4NCiAJICovDQot
-CWxvY2tfdGFza19ycShycSwgcCwgZmxhZ3MpOw0KKwlycSA9IGxvY2tfdGFz
-a19ycShwLCAmZmxhZ3MpOw0KIAlpZiAocnRfdGFzayhwKSkgew0KIAkJcC0+
-X19uaWNlID0gbmljZTsNCiAJCWdvdG8gb3V0X3VubG9jazsNCkBAIC04NDYs
-NyArODUwLDcgQEANCiAJCQlyZXNjaGVkX3Rhc2socnEtPmN1cnIpOw0KIAl9
-DQogb3V0X3VubG9jazoNCi0JdW5sb2NrX3Rhc2tfcnEocnEsIHAsIGZsYWdz
-KTsNCisJdW5sb2NrX3Rhc2tfcnEocnEsIHAsICZmbGFncyk7DQogfQ0KIA0K
-ICNpZm5kZWYgX19hbHBoYV9fDQpAQCAtOTIzLDcgKzkyNyw3IEBADQogCSAq
-IFRvIGJlIGFibGUgdG8gY2hhbmdlIHAtPnBvbGljeSBzYWZlbHksIHRoZSBh
-cHJvcHJpYXRlDQogCSAqIHJ1bnF1ZXVlIGxvY2sgbXVzdCBiZSBoZWxkLg0K
-IAkgKi8NCi0JbG9ja190YXNrX3JxKHJxLHAsZmxhZ3MpOw0KKwlycSA9IGxv
-Y2tfdGFza19ycShwLCAmZmxhZ3MpOw0KIA0KIAlpZiAocG9saWN5IDwgMCkN
-CiAJCXBvbGljeSA9IHAtPnBvbGljeTsNCkBAIC05NjYsNyArOTcwLDcgQEAN
-CiAJCWFjdGl2YXRlX3Rhc2socCwgdGFza19ycShwKSk7DQogDQogb3V0X3Vu
-bG9jazoNCi0JdW5sb2NrX3Rhc2tfcnEocnEscCxmbGFncyk7DQorCXVubG9j
-a190YXNrX3JxKHJxLCBwLCAmZmxhZ3MpOw0KIG91dF91bmxvY2tfdGFza2xp
-c3Q6DQogCXJlYWRfdW5sb2NrX2lycSgmdGFza2xpc3RfbG9jayk7DQogDQpA
-QCAtMTIxNCw3ICsxMjE4LDcgQEANCiAJaWYgKHJxMSA9PSBycTIpDQogCQlz
-cGluX2xvY2soJnJxMS0+bG9jayk7DQogCWVsc2Ugew0KLQkJaWYgKHJxX2Nw
-dShycTEpIDwgcnFfY3B1KHJxMikpIHsNCisJCWlmIChycTEgPCBycTIpIHsN
-CiAJCQlzcGluX2xvY2soJnJxMS0+bG9jayk7DQogCQkJc3Bpbl9sb2NrKCZy
-cTItPmxvY2spOw0KIAkJfSBlbHNlIHsNCg==
---8323328-1011926451-1011533894=:7972--

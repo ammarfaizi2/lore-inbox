@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262861AbUCJViX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 16:38:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbUCJVgh
+	id S262863AbUCJVja (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 16:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbUCJVil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 16:36:37 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:54467 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262859AbUCJVf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 16:35:58 -0500
-Date: Wed, 10 Mar 2004 16:35:55 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Urban Widmark <urban@teststation.com>
-Cc: Adam Sampson <azz@us-lot.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: smbfs Oops with Linux 2.6.3
-In-Reply-To: <Pine.LNX.4.44.0403102145460.12892-100000@cola.local>
-Message-ID: <Pine.LNX.4.58.0403101627410.29087@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.44.0403102145460.12892-100000@cola.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Mar 2004 16:38:41 -0500
+Received: from mail.shareable.org ([81.29.64.88]:394 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S262859AbUCJVgw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 16:36:52 -0500
+Date: Wed, 10 Mar 2004 21:36:50 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] different proposal for mq_notify(SIGEV_THREAD)
+Message-ID: <20040310213650.GC7341@mail.shareable.org>
+References: <404B2C46.90709@colorfullife.com> <20040310203857.GA7341@mail.shareable.org> <404F814C.1070202@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <404F814C.1070202@colorfullife.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Mar 2004, Urban Widmark wrote:
+Manfred Spraul wrote:
+> >The difference is that your proposal eliminates those fds.
+> >But there is no reason that I can see why mq_notify() should be
+> >optimised in this way and futexes not.
+> > 
+> >
+> I would start with message queues, but the mechanism must be generic 
+> enough to be used for futexes, etc.
+> 
+> The main open question is if I should write something new or if I can 
+> reuse netlink.
 
-> Shouldn't "wq" be accessible to both smb_newconn and smb_proc_ops_wait?
-> I'd put it in the "server" struct and then have smb_newconn() do this
-> when it is done:
-> 	wake_up_interruptible_all(&server->ops_wq);
+What about extending epoll to handle non-fd event sources?
+Is netlink cleaner than that?  (I've never used or looked at netlink).
 
-Oops, yes my code was horribly broken, the previous patch will only avoid
-the oops since readdir won't be NULL, but is still fundamentally wrong.
-
-> I don't know enough about wait_queue's to understand why it would work
-> otherwise. The only thing I can think of is that the condition is true
-> before it actually waits on anything.
->
-> Since install_ops isn't the last thing done in smb_newconn perhaps a
-> different variable should be used to signal that a new connection is
-> there. I would suggest using "server->state == CONN_VALID" and then move
-> that assignment to the end of smb_newconn.
->
-> If you are in cleanup mode the following changes should probably be made:
->
-> server->rcls	replaced by	req->rq_rcls
-> server->err	replaced by	req->rq_err
-
-Sure thing, i'll fix it up.
-
-Thanks,
-	Zwane
-
+-- Jamie

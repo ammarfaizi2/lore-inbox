@@ -1,71 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264269AbTKKHrS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 02:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbTKKHrS
+	id S263345AbTKKIKg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 03:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTKKIKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 02:47:18 -0500
-Received: from pcp01184054pcs.strl301.mi.comcast.net ([68.60.186.73]:25819
-	"EHLO michonline.com") by vger.kernel.org with ESMTP
-	id S264269AbTKKHrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 02:47:16 -0500
-Date: Tue, 11 Nov 2003 02:47:15 -0500
-From: Ryan Anderson <ryan@michonline.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Some thoughts about stable kernel development
-Message-ID: <20031111074715.GH22850@michonline.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <m3u15de669.fsf@defiant.pm.waw.pl> <200311091950.hA9Jo01d002041@81-2-122-30.bradfords.org.uk> <200311091754.21619.rob@landley.net> <200311100850.hAA8oiIX000283@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311100850.hAA8oiIX000283@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.5.4i
+	Tue, 11 Nov 2003 03:10:36 -0500
+Received: from zok.sgi.com ([204.94.215.101]:63165 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S263345AbTKKIKe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 03:10:34 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Announce: kdb v4.3 is available for kernel 2.4.23-rc1
+Date: Tue, 11 Nov 2003 19:10:28 +1100
+Message-ID: <9573.1068538228@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 10, 2003 at 08:50:44AM +0000, John Bradford wrote:
-> On the other hand, many users out there are _obviously_ under the
-> illusion that 2.6.0-test has no known security issues, and that is
-> false.  If their machine is internet-connected and compromised, it can
-> cause annoyance to third parties.  Given that, I think a file in the
-> root of the kernel tree, saying something like, "Don't use me on an
-> internet connected machine unless you know what you're doing" would be
-> worth considering.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Something vaguely like this might help the issue (with the obvious file
-created having the appropriate note in it)
+Content-Type: text/plain; charset=us-ascii
 
-Untested, and I'm sure there are style problems, but the idea should be
-obvious:
+ftp://oss.sgi.com/projects/kdb/download/v4.3/
 
---- Makefile	2003-10-26 19:04:21.000000000 -0500
-+++ Makefile.ryan	2003-11-11 02:45:01.000000000 -0500
-@@ -81,7 +81,7 @@
- 
- # That's our default target when none is given on the command line
- .PHONY: all
--all:
-+all: check-beta
-   
- ifneq ($(KBUILD_OUTPUT),)
- # Invoke a second make in the output directory, passing relevant variables
-@@ -1027,3 +1027,12 @@
- endif	# skip-makefile
- 
- FORCE:
-+
-+.PHONY: check-beta
-+
-+check-beta:
-+	if [ -f README.Security && ! -f README.Security.IknowwhatImdoing ] ; then \
-+		cat README.Security ; \
-+		read ; \
-+	fi
-+
+Current versions are kdb-v4.3-2.4.23-rc1-common-1.bz2,
+kdb-v4.3-2.4.23-rc1-i386-1.bz2.  Other platforms will follow as they get
+updated to 2.4.23-rc1.  This is just a maintenance version to sync with
+kernel 2.4.23-rc1.  Changelog extracts since 2.4.22.
+
+common
+
+2003-11-11 Keith Owens  <kaos@sgi.com>
+
+	* Make KDB for USB keyboards build.  Peter T. Breuer.
+	* Do not use USB keyboard if it has not been probed.
+	* kdb v4.3-2.4.23-rc1-common-1.
 
 
--- 
+i386
 
-Ryan Anderson
-  sometimes Pug Majere
+2003-11-11 Keith Owens  <kaos@sgi.com>
+
+	* Do not use USB keyboard if it has not been probed.
+	* kdb v4.3-2.4.23-rc1-i386-1.
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE/sJl0i4UHNye0ZOoRAlZRAKDTqX4PVnFUXZhQwQbDh2VOyOO5pACeOkK6
+xoonzwya6mUogPYqCIqkjzA=
+=A/yQ
+-----END PGP SIGNATURE-----
+

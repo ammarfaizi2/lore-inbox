@@ -1,96 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265133AbRGENV6>; Thu, 5 Jul 2001 09:21:58 -0400
+	id <S265131AbRGENU6>; Thu, 5 Jul 2001 09:20:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265149AbRGENVk>; Thu, 5 Jul 2001 09:21:40 -0400
-Received: from mail.spylog.com ([194.67.35.220]:16036 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S265133AbRGENVe>;
-	Thu, 5 Jul 2001 09:21:34 -0400
-Date: Thu, 5 Jul 2001 17:22:49 +0400
-From: Peter Zaitsev <pz@spylog.ru>
-X-Mailer: The Bat! (v1.52f)
-Reply-To: Peter Zaitsev <pz@spylog.ru>
-Organization: SpyLOG
-X-Priority: 3 (Normal)
-Message-ID: <11486070195.20010705172249@spylog.ru>
-To: Neil Brown <neilb@cse.unsw.edu.au>
+	id <S265133AbRGENUt>; Thu, 5 Jul 2001 09:20:49 -0400
+Received: from ns1.actimage.fr ([194.79.162.35]:3381 "EHLO ns1.actimage.fr")
+	by vger.kernel.org with ESMTP id <S265131AbRGENUl>;
+	Thu, 5 Jul 2001 09:20:41 -0400
+To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re[2]: Is  Swapping on software RAID1 possible  in linux 2.4 ?
-In-Reply-To: <15172.22988.643481.421716@notabene.cse.unsw.edu.au>
-In-Reply-To: <1011478953412.20010705152412@spylog.ru>
- <15172.22988.643481.421716@notabene.cse.unsw.edu.au>
+Subject: Re: Unresolved symbols since 2.4.5 ?
+In-Reply-To: <873d8b4kve.fsf@galaxie.alplog.net> <20010705143944.J30999@arthur.ubicom.tudelft.nl> <87wv5n35jf.fsf@galaxie.alplog.net> <20010705145626.L30999@arthur.ubicom.tudelft.nl>
+From: Cyril ADRIAN <c.adrian@alplog.fr>
+In-Reply-To: Erik Mouw's message of "Thu, 5 Jul 2001 14:56:26 +0200"
+Date: 05 Jul 2001 15:22:44 +0200
+Message-ID: <87r8vv33yz.fsf@galaxie.alplog.net>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Neil,
+>>>>> "Erik" == Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> writes:
 
-Thursday, July 05, 2001, 4:13:00 PM, you wrote:
+    >> ii  modutils       2.4.6-2.bunk   Linux module utilities.
 
-NB> On Thursday July 5, pz@spylog.ru wrote:
->> Hello linux-kernel,
->> 
->>   Does anyone have information on this subject ?  I have the constant
->>   failures with system swapping on RAID1, I just wanted to be shure
->>   this may be the problem or not.   It works without any problems with
->>   2.2 kernel.
+    >> Is it OK?
 
-NB> It certainly should work in 2.4.  What sort of "constant failures" are
-NB> you experiencing?
+    Erik> Yes, that's the same as I have in my system. 
+[...]
+    Erik> Or maybe you still have some cruft left in /etc/modutils/paths.
 
-NB> Though it does appear to work in 2.2, there is a possibility of data
-NB> corruption if you swap onto a raid1 array that is resyncing.  This
-NB> possibility does not exist in 2.4.
+    My /etc/modutils/paths is empty.
 
+    It's quite strange because I run a 2.4.1, and it works just fine!
 
-
-The problem is I'm constantly getting these  X-order-allocation errors
-in kernel log and after which system becomes unstable and often hangs
-or leaves process which cannot be killed even by "-9" signal.
-Installed debuggin patches produce the following allocation paths:
-
-> Jun 20 05:56:14 tor kernel: Call Trace: [__get_free_pages+20/36]
-> [__get_free_pages+20/36] [kmem_cache_grow+187/520] [kmalloc+183/224]
-> [raid1_alloc_r1bh+105/256] [raid1_make_request+832/852]
-> [raid1_make_request+80/852]
-> Jun 20 05:56:14 tor kernel:        [md_make_request+79/124]
-> [generic_make_request+293/308] [submit_bh+87/116] [brw_page+143/160]
-> [rw_swap_page_base+336/428] [rw_swap_page+112/184] [swap_writepage+120/128]
-> [page_launder+644/2132]
-> Jun 20 05:56:14 tor kernel:        [do_try_to_free_pages+52/124]
-> [kswapd+89/228] [kernel_thread+40/56]
->
-
-one more trace:
-
-SR>>Jun 19 09:50:08 garnet kernel: __alloc_pages: 0-order allocation failed.
-SR>>Jun 19 09:50:08 garnet kernel: __alloc_pages: 0-order allocation failed from
-SR>>c01Jun 19 09:50:08 garnet kernel: ^M^Mf4a2bc74 c024ac20 00000000 c012ca09
-SR>>c024abe0
-SR>>Jun 19 09:50:08 garnet kernel:        00000008 c03225e0 00000003 00000001
-SR>>c029c9Jun 19 09:50:08 garnet kernel:        f0ebb760 00000001 00000008
-SR>>c03225e0 c0197bJun 19 09:50:08 garnet kernel: Call Trace:
-SR>>[alloc_bounce_page+13/140] [alloc_bouJun 19 09:50:08 garnet kernel:
-SR>>[raid1_make_request+832/852] [md_make_requJun 19 09:50:08 garnet kernel:
-SR>>[swap_writepage+120/128] [page_launder+644Jun 19 09:50:08 garnet kernel:
-SR>>[sock_poll+35/40] [do_select+230/476] [sysJun 19 10:21:27 garnet kernel:
-SR>>sending pkt_too_big to self
-SR>>Jun 19 10:21:55 garnet kernel: sending pkt_too_big to self
-SR>>Jun 19 10:34:36 garnet kernel: sending pkt_too_big to self
-SR>>Jun 19 10:35:33 garnet last message repeated 2 times
-SR>>Jun 19 10:36:50 garnet kernel: sending pkt_too_big to self
-
-That's why I thought this problem is related to raid1 swapping I'm
-using.
-
-Well. Of couse I'm speaking about synced RAID1.
-
-
-
-
+        Cyril
 -- 
-Best regards,
- Peter                            mailto:pz@spylog.ru
-
+Cyril ADRIAN                                   ALPLOG F-67400 ILLKIRCH
++33 (0)6 70 55 10 60                              +33 (0)3 90 40 00 00
+mailto:cadrian@ifrance.com                   mailto:c.adrian@alplog.fr
+http://sourceforge.net/projects/smerge            http://www.alplog.fr

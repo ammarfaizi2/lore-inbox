@@ -1,38 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265131AbUELQgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265000AbUELQqC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265131AbUELQgO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 12:36:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbUELQgH
+	id S265000AbUELQqC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 12:46:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbUELQqC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 12:36:07 -0400
-Received: from [142.163.196.37] ([142.163.196.37]:46781 "HELO vger.kernel.org")
-	by vger.kernel.org with SMTP id S265126AbUELQgA (ORCPT
+	Wed, 12 May 2004 12:46:02 -0400
+Received: from [217.73.129.129] ([217.73.129.129]:4563 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S265000AbUELQp7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 12:36:00 -0400
-To: <linux-kernel@vger.kernel.org>
-From: "stan" <lawuson_36@hotmail.com>
-Date: Wed, 12 May 2004 09:44:39 GMT
-Message-Id: <1084355079-6994@excite.com>
-Subject: CAS1N0: New Deal!! 50% Sign Up Bonus! megan cosmos:
-Content-Type: text/plain;
+	Wed, 12 May 2004 12:45:59 -0400
+Date: Wed, 12 May 2004 19:45:07 +0300
+Message-Id: <200405121645.i4CGj7Vh417606@car.linuxhacker.ru>
+From: Oleg Drokin <green@linuxhacker.ru>
+Subject: Re: [CHECKER] 2 warnings in reiserfs linux 2.4.19
+To: linux-kernel@vger.kernel.org, yjf@stanford.edu, mc@cs.Stanford.EDU,
+       madan@cs.Stanford.EDU, reiser@namesys.com, mason@suse.com
+References: <Pine.GSO.4.44.0405111833030.4121-100000@elaine24.Stanford.EDU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PREMI|ERE ONLIN}E CAS!INO!
-50% BONU:S for YOUR FIRST DEPO|SIT as a New Player.
+Hello!
 
-SI|GN UP now! Don't wait!
+Junfeng Yang <yjf@stanford.edu> wrote:
 
-http://www.casino-power.com/_e4faa55afa1972493c43ac8a3f66f869/
+JY> We recently checked reiserfs on linux 2.4.19 and came across two warnings.
+JY> The first one complained that NULL was dereferenced.  The second one
+JY> complained that an IO failure got ignored (a warning would be printed out
+JY> though).
+JY> As usual, confirmations/clarifications are appreciated.
+JY> -Junfeng
+JY> -------------------------------------------------------------------------
+JY> [BUG] derefence of must-be-NULL pointer
 
-Once you're a Mem`ber, there are near WEEK|LY 2-T'O-1, and 3-T'O-1 depo'sit offers!
+This one is real. It is only present in 2.4 kernels, 2.6 has a check
+for jb->bitmaps == NULL in jb->bitmaps == NULL and returns if so.
+But while looking for this, I noticed that both 2.6 and 2.4 are not checking for
+the return value of reiserfs_allocate_list_bitmaps(), so even if we manage not
+to crash in cleanup_bitmap_list(), then mount will still succeed and next
+attempt to do something with journal will do NULL defererence.
+I will submit patches for both 2.4 and 2.6 in a moment.
 
-Imagine, put in $25, GET $50 CRE:DIT BE'FORE YOU PL:ACE YO|UR FI:RST BET!!
 
-CLIC{K HER'E!
+JY> -------------------------------------------------------------------------
+JY> [BUG] reiserfs_create --> reiserfs_add_entry --> reiserfs_update_sd.  reiserfs_update_sd can fail if bread fails (search_item will call bread).  This error is ignored except a warning is printed out.  This causes the stat data for a inode to be out-of-date.
 
-http://www.casino-power.com/_e4faa55afa1972493c43ac8a3f66f869/
+This one is a very often hit with bad disks.
+It manifests itself in users seeing files with ls, but any access to file
+results in permission denied, due to us unable to read inode directory
+entry is pointing to. I believe the inode data cannot be out of date simply
+because in order for updated inode data to get to the disk, it first needs to be
+in memory. So we either have up-to-date inode in memory or we do not have
+anything at all and in this later case any attempt to access such file
+will result in error anyway.
 
+Thank you.
 
-
-sally corrado pirate lamer molly1 memory norman first angus bernie swimming symbol express hanna warriors dundee guinness amanda1 electric raptor jan james1 center dexter venus don
+Bye,
+    Oleg

@@ -1,126 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292951AbSB0WyT>; Wed, 27 Feb 2002 17:54:19 -0500
+	id <S292599AbSB0XFL>; Wed, 27 Feb 2002 18:05:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293022AbSB0Wxf>; Wed, 27 Feb 2002 17:53:35 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:18958 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S293020AbSB0Ww0>;
-	Wed, 27 Feb 2002 17:52:26 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: James Curbo <jcurbo@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: (2.5.5-dj2) still getting .text.exit linker errors 
-In-Reply-To: Your message of "Wed, 27 Feb 2002 16:01:38 MDT."
-             <20020227220138.GA5644@carthage> 
+	id <S293030AbSB0XEq>; Wed, 27 Feb 2002 18:04:46 -0500
+Received: from mailout6-0.nyroc.rr.com ([24.92.226.125]:55537 "EHLO
+	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S293029AbSB0XEH>; Wed, 27 Feb 2002 18:04:07 -0500
+Subject: Re: ext3 and undeletion
+From: James D Strandboge <jstrand1@rochester.rr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16gCdF-00069W-00@the-village.bc.nu>
+In-Reply-To: <E16gCdF-00069W-00@the-village.bc.nu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-keDjmksehpr0t0eM4Wog"
+X-Mailer: Evolution/1.0.2 
+Date: 27 Feb 2002 18:03:56 -0500
+Message-Id: <1014851036.19931.90.camel@hedwig.strandboge.cxm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 28 Feb 2002 09:52:13 +1100
-Message-ID: <10517.1014850333@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Feb 2002 16:01:38 -0600, 
-James Curbo <jcurbo@acm.org> wrote:
->[note: I am not subscribed, please cc: me in replies]
->
->When compiling 2.5.5-dj2, I am still getting a .text.exit linker error:
->
->drivers/net/net.o(.data+0x1274): undefined reference to `local symbols 
->in discarded section .text.exit'
 
-Run this script to identify the offending object in net.o then contact
-the object maintainer.
+--=-keDjmksehpr0t0eM4Wog
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, 2002-02-27 at 17:33, Alan Cox wrote:
+> > /root/.bashrc /etc/fstab'), wouldn't 'cp' (or most any other app) first
+> > unlink the first file (/etc/fstab), then create and write the new one?
+>=20
+> Unlikely - It will truncate it and write over it. Try strace cp 8)
 
-#!/usr/bin/perl -w
-#
-# reference_discarded.pl (C) Keith Owens 2001 <kaos@ocs.com.au>
-#
-# List dangling references to vmlinux discarded sections.
+Excellent, then I am totally missing something!
 
-use strict;
-die($0 . " takes no arguments\n") if($#ARGV >= 0);
+Then truncate would have to be implemented, for the very limited case of
+using 'cp'.  ;-)
 
-my %object;
-my $object;
-my $line;
-my $ignore;
+The mount option ('undeltrunc?') would have to be implemented.  However,
+I just looked at the strace of vi for fun, and then remembered that it
+uses a temporary file which is unlinked after the save.  Considering the
+amount of truncates and unlinks that could potentially happen on a
+system, .undelete would undoubtedly fill up quickly.  Filtering files
+going into .undelete could be an option, but this would be kludgey to
+put into the kernel, even for a daemon.
 
-$| = 1;
+What is your opinion of having a mount option of 'undel' and a mount
+option of 'undeltrunc'?  The defaults for mount would be to not do
+either.  This way you could do something like:
 
-printf("Finding objects, ");
-open(OBJDUMP_LIST, "find . -name '*.o' | xargs objdump -h |") || die "getting objdump list failed";
-while (defined($line = <OBJDUMP_LIST>)) {
-	chomp($line);
-	if ($line =~ /:\s+file format/) {
-		($object = $line) =~ s/:.*//;
-		$object{$object}->{'module'} = 0;
-		$object{$object}->{'size'} = 0;
-		$object{$object}->{'off'} = 0;
-	}
-	if ($line =~ /^\s*\d+\s+\.modinfo\s+/) {
-		$object{$object}->{'module'} = 1;
-	}
-	if ($line =~ /^\s*\d+\s+\.comment\s+/) {
-		($object{$object}->{'size'}, $object{$object}->{'off'}) = (split(' ', $line))[2,5]; 
-	}
-}
-close(OBJDUMP_LIST);
-printf("%d objects, ", scalar keys(%object));
-$ignore = 0;
-foreach $object (keys(%object)) {
-	if ($object{$object}->{'module'}) {
-		++$ignore;
-		delete($object{$object});
-	}
-}
-printf("ignoring %d module(s)\n", $ignore);
+mount -o undel /		# saves unlink, not truncated
+mount /var			# does not save truncated or unlink
+mount -o undel,undeltrunc /home	# saves unlink and truncated
 
-# Ignore conglomerate objects, they have been built from multiple objects and we
-# only care about the individual objects.  If an object has more than one GCC:
-# string in the comment section then it is conglomerate.  This does not filter
-# out conglomerates that consist of exactly one object, can't be helped.
+A cron job or user daemon (or filter of some sort) could monitor those
+directories that were mounted with undel.
 
-printf("Finding conglomerates, ");
-$ignore = 0;
-foreach $object (keys(%object)) {
-	if (exists($object{$object}->{'off'})) {
-		my ($off, $size, $comment, $l);
-		$off = hex($object{$object}->{'off'});
-		$size = hex($object{$object}->{'size'});
-		open(OBJECT, "<$object") || die "cannot read $object";
-		seek(OBJECT, $off, 0) || die "seek to $off in $object failed";
-		$l = read(OBJECT, $comment, $size);
-		die "read $size bytes from $object .comment failed" if ($l != $size);
-		close(OBJECT);
-		if ($comment =~ /GCC\:.*GCC\:/m) {
-			++$ignore;
-			delete($object{$object});
-		}
-	}
-}
-printf("ignoring %d conglomerate(s)\n", $ignore);
+Jamie
 
-printf("Scanning objects\n");
-foreach $object (keys(%object)) {
-	my $from;
-	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
-	while (defined($line = <OBJDUMP>)) {
-		chomp($line);
-		if ($line =~ /RELOCATION RECORDS FOR /) {
-			($from = $line) =~ s/.*\[([^]]*).*/$1/;
-		}
-		if (($line =~ /\.text\.exit$/ ||
-		     $line =~ /\.data\.exit$/ ||
-		     $line =~ /\.exitcall\.exit$/) &&
-		    ($from !~ /\.text\.exit$/ &&
-		     $from !~ /\.data\.exit$/ &&
-		     $from !~ /\.exitcall\.exit$/)) {
-			printf("Error: %s %s refers to %s\n", $object, $from, $line);
-		}
-	}
-	close(OBJDUMP);
-}
-printf("Done\n");
+--=20
+Email:        jstrand1@rochester.rr.com
+GPG/PGP ID:   26384A3A
+Fingerprint:  D9FF DF4A 2D46 A353 A289  E8F5 AA75 DCBE 2638 4A3A
+
+--=-keDjmksehpr0t0eM4Wog
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAjx9ZdwACgkQqnXcviY4SjrwIwCfX9rAvO3e3RtwnuilmIYTtPr+
+XZMAoIL/lh+YrMlQim1mj63rXJ5wwzLP
+=lWv7
+-----END PGP SIGNATURE-----
+
+--=-keDjmksehpr0t0eM4Wog--
 

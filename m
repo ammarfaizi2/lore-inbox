@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264203AbTEGTGs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 15:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264206AbTEGTGs
+	id S264215AbTEGTRH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 15:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbTEGTRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 15:06:48 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:26345 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S264203AbTEGTGr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 15:06:47 -0400
-Date: Wed, 7 May 2003 12:19:21 -0700
-From: Jesse Barnes <jbarnes@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Linux-ia64] Re: [PATCH 2.5.69] IA64 sn mod_timer fixes for kernel/mca.c
-Message-ID: <20030507191921.GA28137@sgi.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1052283842.19524.44.camel@lima.royalchallenge.com> <20030506225307.5ccb318f.akpm@digeo.com>
+	Wed, 7 May 2003 15:17:05 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14725
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264215AbTEGTQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 15:16:27 -0400
+Subject: Re: [PATCH[[2.5][3-11] update dvb subsystem core
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Hunold <hunold@convergence.de>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <3EB930ED.7020901@convergence.de>
+References: <3EB7DCF0.2070207@convergence.de>
+	 <20030506220828.A19971@infradead.org> <3EB8C67A.4020500@convergence.de>
+	 <20030507102256.B14040@infradead.org> <3EB92CAD.2040502@convergence.de>
+	 <20030507165935.A29161@infradead.org>  <3EB930ED.7020901@convergence.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052332225.3065.52.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030506225307.5ccb318f.akpm@digeo.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 May 2003 19:30:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 10:53:07PM -0700, Andrew Morton wrote:
-> Vinay K Nallamothu <vinay-rc@naturesoft.net> wrote:
-> >
-> > mca.c: Trivial {del,add}_timer to mod_timer conversion.
+On Mer, 2003-05-07 at 17:14, Michael Hunold wrote:
+> No problem. I'll change the stuff you suggested and resend it.
 > 
-> Please just roll all these up into one big patch.
+> Last time I sent the patches through Alan Cox, who feeded them to Linus.
+> It this better? Alan?
 
-Please also Cc: me on SN changes (and the big patch when you send it
-out).
-
-Thanks,
-Jesse
+Up to you.

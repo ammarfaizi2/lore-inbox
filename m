@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129410AbQLWSEH>; Sat, 23 Dec 2000 13:04:07 -0500
+	id <S129539AbQLWSMJ>; Sat, 23 Dec 2000 13:12:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129539AbQLWSD6>; Sat, 23 Dec 2000 13:03:58 -0500
-Received: from www.wen-online.de ([212.223.88.39]:64016 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129410AbQLWSDk>;
-	Sat, 23 Dec 2000 13:03:40 -0500
-Date: Sat, 23 Dec 2000 18:33:03 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Andreas Franck <afranck@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fatal Oops on boot with 2.4.0testX and recent GCC snapshots
-In-Reply-To: <00122312341200.03033@dg1kfa.ampr.org>
-Message-ID: <Pine.Linu.4.10.10012231826350.645-100000@mikeg.weiden.de>
+	id <S129752AbQLWSMA>; Sat, 23 Dec 2000 13:12:00 -0500
+Received: from colorfullife.com ([216.156.138.34]:31757 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129539AbQLWSLx>;
+	Sat, 23 Dec 2000 13:11:53 -0500
+Message-ID: <3A44E4D0.E8F177B9@colorfullife.com>
+Date: Sat, 23 Dec 2000 18:45:52 +0100
+From: Manfred <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: mulder.abg@sni.de, jgarzik@mandrakesoft.com
+CC: linux-kernel@vger.kernel.org
+Subject: Q: natsemi.c spinlocks
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Dec 2000, Andreas Franck wrote:
+Hi Jeff, Tjeerd,
 
-> Hello,
-> 
-> I hope I am not doing something particularly stupid here, but as Linus
-> encouraged curious people to try compiling the kernel with the
-> latest gcc snapshots, I have tried - as several weeks before, but again
-> in vain.
-> 
-> Since I have tried, the same following error on early boot (just after
-> "Starting kswapd v1.8" appears on the screen) has bitten me, when I
-> compiled the kernel with a recent gcc snapshot. This was for at least
-> 2.4.0-test11 with gcc snapshots from 2 months ago till yesterday.
+I spotted the spin_lock in natsemi.c, and I think it's bogus.
 
-Hi,
+The "simultaneous interrupt entry" is a bug in some 2.0 and 2.1 kernel
+(even Alan didn't remember it exactly when I asked him), thus a sane
+driver can assume that an interrupt handler is never reentered.
 
-I had the same, with the last few snapshots I tried, but 20001218 seems
-to work ok.
-dmesg|head -1
-Linux version 2.4.0-test13ikd (root@el-kaboom) (gcc version gcc-2.97 20001218 (experimental)) #18 Sat Dec 23 17:43:29 CET 2000
+Donald often uses dev->interrupt to hide other races, but I don't see
+anything in this driver (tx_timeout and netdev_timer are both trivial)
 
-	-Mike
 
+--
+  Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

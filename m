@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265980AbUA1Qa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 11:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266004AbUA1Qa1
+	id S265973AbUA1Q3x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 11:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265980AbUA1Q3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 11:30:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39326 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265980AbUA1QaU (ORCPT
+	Wed, 28 Jan 2004 11:29:52 -0500
+Received: from cibs9.sns.it ([192.167.206.29]:32782 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id S265973AbUA1Q3v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 11:30:20 -0500
-From: john cherry <cherry@osdl.org>
-Date: Wed, 28 Jan 2004 08:30:19 -0800
-Message-Id: <200401281630.i0SGUJd06189@build-000.pdx.osdl.net>
-To: linux-kernel@vger.kernel.org
-Subject: IA64 (2.6.2-rc2 - 2004-01-27.17.30) - 40 New warnings (gcc 3.3.1)
+	Wed, 28 Jan 2004 11:29:51 -0500
+Date: Wed, 28 Jan 2004 17:29:28 +0100 (CET)
+From: venom@sns.it
+To: Christoph Hellwig <hch@infradead.org>
+cc: Dave Kleikamp <shaggy@austin.ibm.com>,
+       Florian Huber <florian.huber@mnet-online.de>,
+       JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
+In-Reply-To: <20040128093851.A26131@infradead.org>
+Message-ID: <Pine.LNX.4.43.0401281726290.1845-100000@cibs9.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/i2c/busses/i2c-elv.c:104: warning: cast to pointer from integer of different size
-drivers/i2c/busses/i2c-elv.c:105: warning: cast to pointer from integer of different size
-drivers/i2c/busses/i2c-elv.c:147: warning: cast to pointer from integer of different size
-drivers/i2c/busses/i2c-elv.c:61: warning: cast from pointer to integer of different size
-drivers/i2c/busses/i2c-elv.c:71: warning: cast from pointer to integer of different size
-drivers/i2c/busses/i2c-elv.c:76: warning: cast from pointer to integer of different size
-drivers/i2c/busses/i2c-elv.c:81: warning: cast from pointer to integer of different size
-drivers/i2c/busses/i2c-velleman.c:133: warning: cast to pointer from integer of different size
-drivers/i2c/busses/i2c-velleman.c:60: warning: cast from pointer to integer of different size
-drivers/i2c/busses/i2c-velleman.c:62: warning: cast from pointer to integer of different size
-drivers/i2c/busses/i2c-velleman.c:70: warning: cast from pointer to integer of different size
-drivers/i2c/busses/i2c-velleman.c:72: warning: cast from pointer to integer of different size
-drivers/i2c/busses/i2c-velleman.c:79: warning: cast from pointer to integer of different size
-drivers/i2c/busses/i2c-velleman.c:84: warning: cast from pointer to integer of different size
-drivers/i2c/busses/i2c-velleman.c:93: warning: cast to pointer from integer of different size
-drivers/i2c/busses/i2c-velleman.c:94: warning: cast to pointer from integer of different size
-drivers/i2c/chips/lm85.c:1114: warning: comparison is always true due to limited range of data type
-drivers/i2c/i2c-dev.c:143: warning: int format, different type arg (arg 3)
-drivers/i2c/i2c-dev.c:171: warning: int format, different type arg (arg 3)
-drivers/media/dvb/bt8xx/bt878.c:520: warning: large integer implicitly truncated to unsigned type
-drivers/media/video/zoran_card.c:149: warning: `zr36067_pci_tbl' defined but not used
-drivers/media/video/zoran_device.c:535: warning: cast from pointer to integer of different size
-drivers/media/video/zoran_driver.c:2272: warning: cast from pointer to integer of different size
-drivers/media/video/zoran_driver.c:3760: warning: long long unsigned int format, long unsigned int arg (arg 3)
-drivers/media/video/zoran_driver.c:3774: warning: long long unsigned int format, long unsigned int arg (arg 3)
-drivers/media/video/zoran_driver.c:4105: warning: long long unsigned int format, long unsigned int arg (arg 3)
-drivers/media/video/zoran_procfs.c:189: warning: cast to pointer from integer of different size
-drivers/media/video/zoran_procfs.c:223: warning: cast from pointer to integer of different size
-drivers/usb/media/w9968cf.c:2078: warning: int format, different type arg (arg 3)
-drivers/usb/media/w9968cf.c:2078: warning: int format, different type arg (arg 5)
-drivers/usb/media/w9968cf.c:2833: warning: int format, different type arg (arg 3)
-drivers/usb/media/w9968cf.c:2833: warning: int format, different type arg (arg 5)
-drivers/usb/media/w9968cf.c:3510: warning: int format, different type arg (arg 3)
-drivers/usb/media/w9968cf.c:3510: warning: int format, different type arg (arg 5)
-drivers/usb/media/w9968cf.c:824: warning: int format, different type arg (arg 3)
-drivers/usb/media/w9968cf.c:824: warning: int format, different type arg (arg 5)
-drivers/usb/media/w9968cf.c:862: warning: int format, different type arg (arg 3)
-drivers/usb/media/w9968cf.c:862: warning: int format, different type arg (arg 5)
-drivers/video/matrox/matroxfb_maven.c:347: warning: duplicate `const'
-drivers/video/matrox/matroxfb_maven.c:348: warning: duplicate `const'
+
+
+On Wed, 28 Jan 2004, Christoph Hellwig wrote:
+
+> Date: Wed, 28 Jan 2004 09:38:51 +0000
+> From: Christoph Hellwig <hch@infradead.org>
+> Then you need to shrink the filesystem.  As long as the space isn't used
+> yet it's rather trivial for most ondisk formats, but you absolutely need
+> to do it to be safe.
+>
+
+perfect! In fact that is what I am used to do.
+than would be optimum to be able to shrink a FS on line, and not
+all linux FS can do that. The real problem is that somehow not all know about
+this and are not aware, as you can see from this thread. maybe should be
+added somethninmg about this is kernel documentation?
+
+Luigi
+

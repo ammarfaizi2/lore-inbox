@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274862AbRIUWo0>; Fri, 21 Sep 2001 18:44:26 -0400
+	id <S274863AbRIUWvG>; Fri, 21 Sep 2001 18:51:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274861AbRIUWoS>; Fri, 21 Sep 2001 18:44:18 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30709
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S274862AbRIUWoF>; Fri, 21 Sep 2001 18:44:05 -0400
-Date: Fri, 21 Sep 2001 15:44:24 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Define conflict between ext3 and raid patches against 2.2.19
-Message-ID: <20010921154424.C8738@mikef-linux.matchmail.com>
-Mail-Followup-To: "Stephen C. Tweedie" <sct@redhat.com>,
-	Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010916155835.C24067@mikef-linux.matchmail.com> <15271.11056.810538.66237@notabene.cse.unsw.edu.au> <20010919133811.B22773@mikef-linux.matchmail.com> <15273.7576.395258.345452@notabene.cse.unsw.edu.au> <20010921141050.A1946@redhat.com>
+	id <S274866AbRIUWu4>; Fri, 21 Sep 2001 18:50:56 -0400
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:3743 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S274863AbRIUWup>;
+	Fri, 21 Sep 2001 18:50:45 -0400
+Date: Sat, 22 Sep 2001 00:50:51 +0200
+From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Significant performace improvements on reiserfs systems, kupdated bugfixes
+Message-ID: <20010922005051.A5360@schmorp.de>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010921221225.A22402@schmorp.de> <Pine.LNX.4.33L.0109211757050.19147-100000@imladris.rielhome.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20010921141050.A1946@redhat.com>
-User-Agent: Mutt/1.3.22i
+In-Reply-To: <Pine.LNX.4.33L.0109211757050.19147-100000@imladris.rielhome.conectiva>
+X-Operating-System: Linux version 2.4.8-ac9 (root@cerebro) (gcc version 3.0.1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 21, 2001 at 02:10:50PM +0100, Stephen C. Tweedie wrote:
-> Hi,
-> 
-> On Thu, Sep 20, 2001 at 08:35:04AM +1000, Neil Brown wrote:
-> 
-> > However when a RAID rebuild happens, every block on the array is read
-> > into the buffer cache (if it isn't already there) and then written
-> > back out again.  This defeats the control that ext3 tries to maintain
-> > on the buffer cache.
-> > 
-> > I don't know exactly what large-scale effects this might have.  It
-> > could be simply that a crash at the wrong time could leave the
-> > filesystem corrupted.
-> 
-> Immediately after a crash, the fs will be OK.  But during the
-> subsequent background raid reconstruction, it can get out of sync
-> again.  This can result in silent data loss in some cases, but it is
-> also likely to trigger some internal ext3 debugging which detects
-> out-of-order data writes, resulting in a kernel panic.
-> 
+On Fri, Sep 21, 2001 at 05:57:36PM -0300, Rik van Riel <riel@conectiva.com.br> wrote:
+> On the contrary, when you have a bunch of small files to sync
+> you just allocate them next to each other and flush them all
+> at once ;)
 
-Ok, thanks guys, on ext3-users and lkml.
+Different layer really: The idea was to sync blocks contiguous to the
+dirty block we want to sync (regardless of filesystem, i.e. similar to
+the elevator which also works at abelow-the-fs-level). (Allocated) block
+numbers are necessary for this to work.
 
-Now I know that if I want RAID1 or RAID5 with ext3, I'm going to need 2.4...
+(but i don't know how relevant this is in practise. I think it might gain
+a lot, though, but that doesn't mean much ;)
 
-Test test test...
-
-Mike
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

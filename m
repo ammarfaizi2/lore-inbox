@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUIDTDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265817AbUIDTGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbUIDTDv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 15:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUIDTDv
+	id S265817AbUIDTGY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 15:06:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUIDTGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 15:03:51 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:19281 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S265768AbUIDTDs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 15:03:48 -0400
-Message-ID: <a728f9f904090412036e662e45@mail.gmail.com>
-Date: Sat, 4 Sep 2004 15:03:45 -0400
-From: Alex Deucher <alexdeucher@gmail.com>
-Reply-To: Alex Deucher <alexdeucher@gmail.com>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: New proposed DRM interface design
-Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sf.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040904012510.77417.qmail@web14929.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 4 Sep 2004 15:06:24 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:41586 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265817AbUIDTGX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 15:06:23 -0400
+Message-ID: <413A1240.3030405@cs.aau.dk>
+Date: Sat, 04 Sep 2004 21:06:40 +0200
+From: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040814)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: umbrella-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
+References: <200409040241.i842fZxa003725@localhost.localdomain>
+In-Reply-To: <200409040241.i842fZxa003725@localhost.localdomain>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0409040158400.25475@skynet>
-	 <20040904012510.77417.qmail@web14929.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004 18:25:10 -0700 (PDT), Jon Smirl <jonsmirl@yahoo.com> wrote:
-> --- Dave Airlie <airlied@linux.ie> wrote:
-> > >
-> > > Will this redesign allow for multiple 3d accelerated cards in the
-> > same
-> > > machine?  could I have say an AGP radeon and a PCI radeon or a AGP
-> > > matrox and a PCI sis and have HW accel on :0 and :1.  If not, I
-> > think
-> > > it's something we should consider.
-> >
-> > should be no problem at all, this is what I consider a DRM
-> > requirement so
-> > any design that doesn't fulfill it isn't acceptable...
-> >
-> > of course implemented code may need a bit of testing :-)
-> 
-> I've been reworking the DRM code to better support two dissimilar video
-> card. I pratice on a PCI Rage128 and AGP Radeon.
-> 
-> I would also like to start making infastructure changes to allow two
-> independently logged in users, one on each head. Multihead DRM cards
-> will show one device per head. If you set a merged fb mode the other
-> head will get disabled.
+Just forgot something:
 
-I'm not sure mergedfb is really "the way" to go long term.  It has
-certain limitations (drawing engine limits, scrolling viewport when
-using dissimilar modes on each head, etc.).  We might be better off
-sharing access to the 3d engine like we do for 2D with "regular"
-multihead.  xinerama could then be handled by indirect rendering mixed
-with DMX and GLproxy.  some sort of fast path could be designed for
-dualhead cards if a 3D window strattled both heads.  Just a thought.
+Horst von Brand wrote:
+>>                                                  furthermore, you could 
+>>specify that attachments executed _from_ the emailprogram would not have 
+>>access to the network.
+> 
+> 
+> I.e., no child of the email program could access the network, not even to
+> answer a message. Sounds restrictive.
+You misunderstood this. The restrictions are introduced by a "restricted 
+fork", to which you specify the restrictions the mext process should 
+have + those inherited from the parent. So if you execute an attachment 
+from the thread that views the email, THIS should be restricted from 
+e.g. addressbook and network.
 
-Alex
-
-> 
-> This is the general plan I am working towards...
-> http://lkml.org/lkml/2004/8/2/111
-> 
-> 
-> 
-> 
-> =====
-> Jon Smirl
-> jonsmirl@yahoo.com
->
+Anyway, when you answer a message - in most cases you put the message in 
+an "outbox", which the main thread of the mail program sends, when told 
+to, and as the main thread is not restricted from the network 
+(supprise!) it will succeed in sending the mails.

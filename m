@@ -1,77 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbUCFAOc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 19:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUCFAOc
+	id S261500AbUCFAZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 19:25:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbUCFAZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 19:14:32 -0500
-Received: from ns.suse.de ([195.135.220.2]:58298 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261499AbUCFAOa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 19:14:30 -0500
-Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
-From: Chris Mason <mason@suse.com>
-To: Johannes Stezenbach <js@convergence.de>
-Cc: Peter Nelson <pnelson@andrew.cmu.edu>, Hans Reiser <reiser@namesys.com>,
-       Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
-       jfs-discussion@www-124.ibm.com, reiserfs-list@namesys.com,
-       linux-xfs@oss.sgi.com
-In-Reply-To: <20040303234104.GD1875@convergence.de>
-References: <4044119D.6050502@andrew.cmu.edu> <4044366B.3000405@namesys.com>
-	 <4044B787.7080301@andrew.cmu.edu>  <20040303234104.GD1875@convergence.de>
+	Fri, 5 Mar 2004 19:25:28 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:58076 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261500AbUCFAZ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 19:25:26 -0500
+Subject: 2.6.4-rc2-bk.current: Build failure w/ "supprot for AFAVLAB 8port
+	boards" patch
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1078532181.25062.144.camel@watt.suse.com>
+Message-Id: <1078532723.797.48.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 05 Mar 2004 19:16:22 -0500
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 05 Mar 2004 16:25:23 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-03 at 18:41, Johannes Stezenbach wrote:
-> Peter Nelson wrote:
-> > Hans Reiser wrote:
-> > 
-> > >Are you sure your benchmark is large enough to not fit into memory, 
-> > >particularly the first stages of it?  It looks like not.  reiser4 is 
-> > >much faster on tasks like untarring enough files to not fit into ram, 
-> > >but (despite your words) your results seem to show us as slower unless 
-> > >I misread them....
-> > 
-> > I'm pretty sure most of the benchmarking I am doing fits into ram, 
-> > particularly because my system has 1GB of it, but I see this as 
-> > realistic.  When I download a bunch of debs (or rpms or the kernel) I'm 
-> > probably going to install them directly with them still in the file 
-> > cache.  Same with rebuilding the kernel after working on it.
-> 
-> OK, that test is not very interesting for the FS gurus because it
-> doesn't stress the disk enough.
-> 
-> Anyway, I have some related questions concerning disk/fs performance:
-> 
-> o I see you are using and IDE disk with a large (8MB) write cache.
-> 
->   My understanding is that enabling write cache is a risky
->   thing for journaled file systems, so for a fair comparison you
->   would have to enable the write cache for ext2 and disable it
->   for all journaled file systems.
-> 
-> It would be nice if someone with more profound knowledge could comment
-> on this, but my understanding of the problem is:
-> 
-Jens just sent me an updated version of his IDE barrier code, and I'm
-adding support for reiserfs and ext3 to it this weekend.  It's fairly
-trivial to add support for each FS, I just don't know the critical
-sections of the others as well.
+Hi, 
+	I just bk pulled from Linus' tree and when I tried to build, I got the
+compile error listed below:
 
-The SUSE 2.4 kernels have had various forms of the patch, it took us a
-while to get things right.  It does impact performance slightly, since
-we are forcing cache flushes that otherwise would not have been done.
+Dropping the PCI entry at line 1896, added by the changeset in the URL
+below, lets it build. 
 
-The common workloads don't slow down with the patch, fsync heavy
-workloads typically lose around 10%.
+http://linus.bkbits.net:8080/linux-2.5/cset%401.1647.2.2?nav=index.html|ChangeSet@-1d
 
--chris
+thanks
+-john
+
+  LD      arch/i386/kernel/built-in.o
+drivers/serial/8250_pci.c:1896: `PCI_DEVICE_ID_AFAVLAB_P030' undeclared here (not in a function)
+drivers/serial/8250_pci.c:1896: initializer element is not constant
+drivers/serial/8250_pci.c:1896: (near initialization for `serial_pci_tbl[74].device')
+drivers/serial/8250_pci.c:1898: initializer element is not constant
+drivers/serial/8250_pci.c:1898: (near initialization for `serial_pci_tbl[74]')
+drivers/serial/8250_pci.c:1902: initializer element is not constant
+drivers/serial/8250_pci.c:1902: (near initialization for `serial_pci_tbl[75]')
+drivers/serial/8250_pci.c:1905: initializer element is not constant
+drivers/serial/8250_pci.c:1905: (near initialization for `serial_pci_tbl[76]')
+drivers/serial/8250_pci.c:1908: initializer element is not constant
+drivers/serial/8250_pci.c:1908: (near initialization for `serial_pci_tbl[77]')
+drivers/serial/8250_pci.c:1911: initializer element is not constant
+drivers/serial/8250_pci.c:1911: (near initialization for `serial_pci_tbl[78]')
+drivers/serial/8250_pci.c:1914: initializer element is not constant
+drivers/serial/8250_pci.c:1914: (near initialization for `serial_pci_tbl[79]')
+drivers/serial/8250_pci.c:1917: initializer element is not constant
+drivers/serial/8250_pci.c:1917: (near initialization for `serial_pci_tbl[80]')
+drivers/serial/8250_pci.c:1920: initializer element is not constant
+drivers/serial/8250_pci.c:1920: (near initialization for `serial_pci_tbl[81]')
+drivers/serial/8250_pci.c:1923: initializer element is not constant
+drivers/serial/8250_pci.c:1923: (near initialization for `serial_pci_tbl[82]')
+drivers/serial/8250_pci.c:1926: initializer element is not constant
+drivers/serial/8250_pci.c:1926: (near initialization for `serial_pci_tbl[83]')
+drivers/serial/8250_pci.c:1929: initializer element is not constant
+drivers/serial/8250_pci.c:1929: (near initialization for `serial_pci_tbl[84]')
+drivers/serial/8250_pci.c:1936: initializer element is not constant
+drivers/serial/8250_pci.c:1936: (near initialization for `serial_pci_tbl[85]')
+drivers/serial/8250_pci.c:1943: initializer element is not constant
+drivers/serial/8250_pci.c:1943: (near initialization for `serial_pci_tbl[86]')
+drivers/serial/8250_pci.c:1950: initializer element is not constant
+drivers/serial/8250_pci.c:1950: (near initialization for `serial_pci_tbl[87]')
+drivers/serial/8250_pci.c:1956: initializer element is not constant
+drivers/serial/8250_pci.c:1956: (near initialization for `serial_pci_tbl[88]')
+drivers/serial/8250_pci.c:1967: initializer element is not constant
+drivers/serial/8250_pci.c:1967: (near initialization for `serial_pci_tbl[89]')
+drivers/serial/8250_pci.c:1971: initializer element is not constant
+drivers/serial/8250_pci.c:1971: (near initialization for `serial_pci_tbl[90]')
+drivers/serial/8250_pci.c:1978: initializer element is not constant
+drivers/serial/8250_pci.c:1978: (near initialization for `serial_pci_tbl[91]')
+drivers/serial/8250_pci.c:1981: initializer element is not constant
+drivers/serial/8250_pci.c:1981: (near initialization for `serial_pci_tbl[92]')
+drivers/serial/8250_pci.c:1988: initializer element is not constant
+drivers/serial/8250_pci.c:1988: (near initialization for `serial_pci_tbl[93]')
+drivers/serial/8250_pci.c:1992: initializer element is not constant
+drivers/serial/8250_pci.c:1992: (near initialization for `serial_pci_tbl[94]')
+drivers/serial/8250_pci.c:1995: initializer element is not constant
+drivers/serial/8250_pci.c:1995: (near initialization for `serial_pci_tbl[95]')
+drivers/serial/8250_pci.c:2004: initializer element is not constant
+drivers/serial/8250_pci.c:2004: (near initialization for `serial_pci_tbl[96]')
+drivers/serial/8250_pci.c:2008: initializer element is not constant
+drivers/serial/8250_pci.c:2008: (near initialization for `serial_pci_tbl[97]')
+drivers/serial/8250_pci.c:2012: initializer element is not constant
+drivers/serial/8250_pci.c:2012: (near initialization for `serial_pci_tbl[98]')
+drivers/serial/8250_pci.c:2013: initializer element is not constant
+drivers/serial/8250_pci.c:2013: (near initialization for `serial_pci_tbl[99]')
+make[2]: *** [drivers/serial/8250_pci.o] Error 1
+make[1]: *** [drivers/serial] Error 2
+make: *** [drivers] Error 2
 
 

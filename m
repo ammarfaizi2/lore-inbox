@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTFBD45 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 23:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTFBD45
+	id S261808AbTFBEIq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 00:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTFBEIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 23:56:57 -0400
-Received: from web14006.mail.yahoo.com ([216.136.175.122]:53307 "HELO
-	web14006.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261807AbTFBD44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 23:56:56 -0400
-Message-ID: <20030602041020.77468.qmail@web14006.mail.yahoo.com>
-Date: Sun, 1 Jun 2003 21:10:20 -0700 (PDT)
-From: Matt Hartley <matthartley@yahoo.com>
-Subject: Re: [PATCH] linux-2.4.21-rc5-ac2
-To: alan@lxorguk.ukuu.org.uk, xose@wanadoo.es, lkml@lpbproductions.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1054309256.23566.49.camel@dhcp22.swansea.linux.org.uk>
-MIME-Version: 1.0
+	Mon, 2 Jun 2003 00:08:45 -0400
+Received: from ns2.jaj.com ([66.93.21.106]:46311 "EHLO ns2.jaj.com")
+	by vger.kernel.org with ESMTP id S261808AbTFBEIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 00:08:45 -0400
+Date: Mon, 2 Jun 2003 00:22:09 -0400
+From: Phil Edwards <phil@jaj.com>
+To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE kernel parameter (was: 2.4.20 SMP, a PDC20269, and a huge Maxtor disk)
+Message-ID: <20030602042209.GA16248@disaster.jaj.com>
+References: <20030529110903.79026.qmail@web11804.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030529110903.79026.qmail@web11804.mail.yahoo.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks all for the comments.  I went through my original patch and
-added  everything to the PCI IDs database that was in the kernel and
-not in the database already.  Fortunately, there weren't too many.
-
-Thanks again!
-Matt Hartley
-
-
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Gwe, 2003-05-30 at 09:33, Matt Hartley wrote:
-> > Alan,
-> > 
-> > After noticing that drivers/pci/pci.ids was over nine months old, I
-> > grabbed the latest list off of http://pciids.sourceforge.net,
-> modded it
-> > to include a few recent submissions and to fix a couple of broken
-> > lines, and created this patch. 
+On Thu, May 29, 2003 at 01:09:03PM +0200, Etienne Lorrain wrote:
 > 
-> Mostly merged - dropped a couple of bits where it backed out kernel
-> changes that seem to have failed to reach the master list
-> 
+>   What I can propose you is:
+>   - to first double check with your documentation that you typed in
+>  the right address 0x10d2 (I have also seen wrong documentation).
+
+The steps I followed to arrive at those numbers was the Ultra-DMA HOWTO:
+
+    http://www.tldp.org/HOWTO/mini/Ultra-DMA-5.html#ss5.1
+
+Once I had recompiled a new 2.4.20 with all the goodies, the ide2=
+parameter became unneeded.  At least, I can boot without it.  Still having
+GRUB problems, but no additional drive errors lately.  (Knock on wooden
+backup tapes.)
+
+I will try and do the other steps this week.
 
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Calendar - Free online calendar with sync to Outlook(TM).
-http://calendar.yahoo.com
+Thanks,
+Phil
+
+-- 
+If ye love wealth greater than liberty, the tranquility of servitude greater
+than the animating contest for freedom, go home and leave us in peace.  We seek
+not your counsel, nor your arms.  Crouch down and lick the hand that feeds you;
+and may posterity forget that ye were our countrymen.            - Samuel Adams

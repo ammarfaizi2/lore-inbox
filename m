@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130344AbQLBU4O>; Sat, 2 Dec 2000 15:56:14 -0500
+	id <S130431AbQLBU4y>; Sat, 2 Dec 2000 15:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130348AbQLBU4E>; Sat, 2 Dec 2000 15:56:04 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:59187 "EHLO
-	amsmta05-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S130344AbQLBUzt>; Sat, 2 Dec 2000 15:55:49 -0500
-Date: Sat, 2 Dec 2000 22:32:54 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-cc: Matthew Kirkwood <matthew@hairy.beasts.org>, folkert@vanheusden.com,
-        "Theodore Y Ts'o" <tytso@mit.edu>,
-        Kernel devel list <linux-kernel@vger.kernel.org>, vpnd@sunsite.auc.dk
-Subject: Re: /dev/random probs in 2.4test(12-pre3)
-In-Reply-To: <Pine.LNX.3.96.1001202115753.27887T-100000@mandrakesoft.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0012022229580.11907-100000@server.serve.me.nl>
+	id <S130429AbQLBU4o>; Sat, 2 Dec 2000 15:56:44 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:10771 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130348AbQLBU4b>; Sat, 2 Dec 2000 15:56:31 -0500
+Message-ID: <3A295AB7.D8480F01@transmeta.com>
+Date: Sat, 02 Dec 2000 12:25:27 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch-2.4.0-test12-pre3] microcode update for P4 (fwd)
+In-Reply-To: <E142CPJ-0001Ww-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> For a blocking fd, read(2) has always blocked until some data is
-> available.  There has never been a guarantee, for any driver, that
-> a read(2) will return the full amount of bytes requested.
-
-I know. Still leaves lot's of people that assume that reading /dev/random
-will return data, or will block.
-
-I've seen lots of programs that will assume that if we request x bytes
-from /dev/random it will return x bytes.
-
-> There is no need to document this...  man read(2)  ;-)
+Alan Cox wrote:
 > 
-> 	Jeff
+> > Please call these MSR_* instead, "IA32_*" isn't very descriptive,
+> > besides, the preferred prefix in existing locations in the Linux
+> > kernel is "X86_", e.g. X86_EFLAGS_IF or X86_CR4_PSE.  I think there
+> 
+> I think I agree with Tigran's naming. These are IA32 registers not X86 ones ;)
 
+They are MSRs, most of all.  His naming didn't reflect that, and quite
+frankly, I'd much rather use the names (all starting with MSR_) that the
+Intel documentation uses.
 
-	Igmar
+	-hpa
 
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

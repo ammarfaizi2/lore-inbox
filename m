@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284809AbRLKBzO>; Mon, 10 Dec 2001 20:55:14 -0500
+	id <S284779AbRLKBzE>; Mon, 10 Dec 2001 20:55:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284800AbRLKBzE>; Mon, 10 Dec 2001 20:55:04 -0500
-Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:56211 "EHLO
-	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
-	id <S284788AbRLKByr>; Mon, 10 Dec 2001 20:54:47 -0500
-Date: Mon, 10 Dec 2001 20:52:54 -0500 (EST)
-From: volodya@mindspring.com
-Reply-To: volodya@mindspring.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: mm question
-In-Reply-To: <E16DYCI-0003Zn-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.20.0112102048390.18728-100000@node2.localnet.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284810AbRLKByy>; Mon, 10 Dec 2001 20:54:54 -0500
+Received: from zero.tech9.net ([209.61.188.187]:1287 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S284808AbRLKByn>;
+	Mon, 10 Dec 2001 20:54:43 -0500
+Subject: Re: [PATCH] Make highly niced processes run only when idle
+From: Robert Love <rml@tech9.net>
+To: Ton Hospel <linux-kernel@ton.iguana.be>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9v3nvj$a99$1@post.home.lunix>
+In-Reply-To: <75F30A52-ECF4-11D5-80FE-00039355CFA6@suespammers.org>
+	<1007939114.878.1.camel@phantasy>  <9v3nvj$a99$1@post.home.lunix>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
+Date: 10 Dec 2001 20:54:42 -0500
+Message-Id: <1008035682.4287.3.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2001-12-10 at 20:36, Ton Hospel wrote:
 
+> Please don't. Whenever you think you priority inheritance, it's a sign your 
+> system has got too complicated. The simplest solution is to simply have no
+> priorities when a task is in-kernel (or at least non that can completely
+> exclude a task).
 
-On Mon, 10 Dec 2001, Alan Cox wrote:
+I agree, I said it was overkill.
 
-> > Right, but instead of trying to balance cache available memory and swap
-> > my swapper will only be concerned whether the page can be evicted and
-> > whether it is from the address range I want.
-> 
-> You want to rewrite the entire vm to have back pointers ? Right now you
-> can't find pages in an address range. Its all driven from the virtual side
-> without reverse lookup tables.
-> 
+My solution is going to be to schedule the task as a SCHED_OTHER task
+when in the kernel, and as SCHED_IDLE task otherwise.
 
-You are right I don't want to rewrite vm. But I can go thru virtual side
-taking note of the physical address. I.e. base the decision to try and
-free pages not on how old the page is but on what it's physical address
-is.
-
-You see, I don't want to find a few pages in 16mb range in 512mb system.
-
-I want to find a few pages _outside_ 64mb range in a 512mb system. 
-So if I free 70mb I _will_ be able to find at least 2mb in my desired
-range. In fact I won't have to free that much as they it will work is
-"try to free the page", "if succeed do not return to memory pool but
-instead give to the 'special region list'"
-
-Does this make sense ?
-
-                         Vladimir Dergachev
+	Robert Love
 

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263581AbTDIQWE (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 12:22:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263583AbTDIQWE (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 12:22:04 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:15833 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S263581AbTDIQWB (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 12:22:01 -0400
-Subject: Re: i2c questions in kernel 2.5.67
-From: Stian Jordet <liste@jordet.nu>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030409162537.GB1518@kroah.com>
-References: <1049902006.1362.6.camel@chevrolet.hybel>
-	 <20030409162537.GB1518@kroah.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049906049.1379.18.camel@chevrolet.hybel>
+	id S263448AbTDIQbs (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 12:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263556AbTDIQbs (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 12:31:48 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:29641 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S263448AbTDIQbq (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 12:31:46 -0400
+Date: Wed, 9 Apr 2003 18:03:27 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] compatmac is not needed
+Message-ID: <20030409180327.K626@nightmaster.csn.tu-chemnitz.de>
+References: <200304081725.h38HPeSV012611@hera.kernel.org> <1049877554.31462.24.camel@passion.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 09 Apr 2003 18:34:09 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <1049877554.31462.24.camel@passion.cambridge.redhat.com>; from dwmw2@infradead.org on Wed, Apr 09, 2003 at 09:39:15AM +0100
+X-Spam-Score: -32.5 (--------------------------------)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *193IfV-0003A6-00*SS87xs9vx2.*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ons, 09.04.2003 kl. 18.25 skrev Greg KH:
-> On Wed, Apr 09, 2003 at 05:26:46PM +0200, Stian Jordet wrote:
-> > Hi,
+On Wed, Apr 09, 2003 at 09:39:15AM +0100, David Woodhouse wrote:
+> On Tue, 2003-04-08 at 17:42, Linux Kernel Mailing List wrote:
+> > ChangeSet 1.1089, 2003/04/08 09:42:06-07:00, alan@lxorguk.ukuu.org.uk
 > > 
-> > I have a Asus CUV266-DLS motherboard, with a as99127f hardware monitor
-> > chip. This is supposed to be supported by the W83781D sensor driver.
+> > 	[PATCH] compatmac is not needed
 > 
-> Does this motherboard work with this driver on 2.4?  (I'd recommend
-> getting the lm_sensors package from their web site to check this out.)
+> So compatmac.h ends up _empty_ in the latest kernel, but that doesn't
+> mean it's not needed.
 > 
+> Please don't break stuff just for the sake of it.
 
-I haven't bothered to try. Haven't used 2.4 for ages. I'll try to test
-it tonight, else it have to wait untill after Easter.
+So this is still a valid API? Good to know.
 
-But I guess this answered my question, whether something else is needed
-as well. Which I understand it is not. Damn.
+What I don't know: Can it be product specific? So the net people
+ship a version for new networking APIs and filesystem people ship
+new filesystem methods along with their filesystem support.
 
-Thanks :)
+Reason I ask: There are many such frameworks floating around, but
+none was complete. Many miss BUG_ON(), likely()/unlikely(),
+seq_file support and many more interesting stuff.
 
-Best regards,
-Stian
+Regards
 
+Ingo Oeser
+-- 
+Marketing ist die Kunst, Leuten Sachen zu verkaufen, die sie
+nicht brauchen, mit Geld, was sie nicht haben, um Leute zu
+beeindrucken, die sie nicht moegen.

@@ -1,111 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129350AbRB1XGF>; Wed, 28 Feb 2001 18:06:05 -0500
+	id <S129344AbRB1XIg>; Wed, 28 Feb 2001 18:08:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129344AbRB1XF5>; Wed, 28 Feb 2001 18:05:57 -0500
-Received: from adsl-64-167-146-94.dsl.snfc21.pacbell.net ([64.167.146.94]:43784
-	"EHLO eleanor.wdhq.scyld.com") by vger.kernel.org with ESMTP
-	id <S129350AbRB1XFq>; Wed, 28 Feb 2001 18:05:46 -0500
-Date: Wed, 28 Feb 2001 18:06:37 -0500 (EST)
-From: Daniel Ridge <newt@scyld.com>
-To: beowulf@beowulf.org
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Will Mosix go into the standard kernel?
-In-Reply-To: <Pine.LNX.4.33.0102271829030.5502-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0102281732210.22184-100000@eleanor.wdhq.scyld.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129355AbRB1XI2>; Wed, 28 Feb 2001 18:08:28 -0500
+Received: from nwcst314.netaddress.usa.net ([204.68.23.59]:42214 "HELO
+	nwcst314.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S129344AbRB1XIL> convert rfc822-to-8bit; Wed, 28 Feb 2001 18:08:11 -0500
+Message-ID: <20010228230809.11894.qmail@nwcst314.netaddress.usa.net>
+Date: 28 Feb 2001 17:08:09 CST
+From: Neelam Saboo <neelam_saboo@usa.net>
+To: David Mansfield <lkml@dm.ultramaster.com>,
+        Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [Re: paging behavior in Linux]
+CC: linux-kernel@vger.kernel.org
+X-Mailer: USANET web-mailer (34FM.0700.15B.01)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Another observation. I have two independent programs. One program incurring
+page faults and another program just doing some work.
+When work program run undependently it takes ~19 seconds of CPU time, but when
+it is run along with page faulting program on the same machine, it takes ~32
+seconds of CPU time. Doesnt this indicate that page faults in a program slows
+down all the program on the machine and not only threads in the same process
+?
 
-Fellow Beowulfers,
+neelam
 
-I have yet to hear a compelling argument about why any of them should 
-go into the standard kernel -- let alone a particular one or a duck of a
-compromise.
 
-The Scyld system is based on BProc -- which requires only a 1K patch to
-the kernel. This patch adds 339 net lines to the kernel, and changes 38
-existing lines.
+David Mansfield <lkml@dm.ultramaster.com> wrote:
+> Manfred Spraul wrote:
+> > 
+> > The paging io for a process is controlled with a per-process semaphore.
+> > The semaphore is held while waiting for the actual io. Thus the paging
+> > in multi threaded applications is single threaded.
+> > Probably your prefetch thread is waiting for disk io, and the worker
+> > thread causes a minor pagefault --> worker thread sleeps until the disk
+> > io is completed.
+> 
+> This behavior is actually pretty annoying.  There can be cases where a
+> process wakes up from a page fault, does some work, goes back to sleep
+> on a page fault, thereby keeping it's mmap_sem locked at all times (i.e.
+> vmstat, top, ps unusable) on a UP system.  I posted this complaint a
+> while ago, it was discussed by Linus and Andrew Morton about how it also
+> boiled down to semaphore wakeup unfairness (and bugs?).  The current
+> semaphore was determined to be too ugly to even look at.  So it was
+> dropped.
+> 
+> Is there any way that the mmap_sem could be dropped during the blocking
+> on I/O, and reclaimed after the handle_mm_fault?  Probably not, or it'd
+> be done.
+> 
+> It can be a real DOS though, a 'well-written' clobbering program can
+> make ps/vmstat useless.  (it's actually /proc/pid/stat that's the
+> killer, IIRC).
+> 
+> David
+> 
+> -- 
+> David Mansfield                                           (718) 963-2020
+> david@ultramaster.com
+> Ultramaster Group, LLC                               www.ultramaster.com
 
-The Scyld 2-kernel-monte kernel inplace reboot facility is a 600-line
-module which doesn't require any patches whatsoever.
 
-Compare this total volume to the thousands of lines of patches that
-RedHat or VA add to their kernel RPMS before shipping. I just don't see 
-the value in fighting about what clustering should 'mean' or picking
-winners when it's just not a real problem.
-
-Scyld is shipping a for-real commercial product based on BProc and
-2-kernel-Monte and our better-than-stock implementation of LFS and and
-we're not losing any sleep over this issue.
-
-I think we should instead focus our collective will on removing things
-from the kernel. For years, projects like ALSA, pcmcia-cs, and VMware
-have done an outstanding job sans 'inclusion' and we should more
-frequently have the courage to do the same. RedHat and other linux vendors
-have demonstrated ably that they know how to build and package systems
-that draw together these components in an essentially reasonable way. 
-
-Regards,
-	Dan Ridge
-	Scyld Computing Corporation
-
-On Tue, 27 Feb 2001, Rik van Riel wrote:
-
-> On Tue, 27 Feb 2001, David L. Nicol wrote:
-> 
-> > I've thought that it would be good to break up the different
-> > clustering frills -- node identification, process migration,
-> > process hosting, distributed memory, yadda yadda blah, into
-> > separate bite-sized portions.
-> 
-> It would also be good to share parts of the infrastructure
-> between the different clustering architectures ...
-> 
-> > Is there a good list to discuss this on?  Is this the list?
-> > Which pieces of clustering-scheme patches would be good to have?
-> 
-> I know each of the cluster projects have mailing lists, but
-> I've never heard of a list where the different projects come
-> together to eg. find out which parts of the infrastructure
-> they could share, or ...
-> 
-> Since I agree with you that we need such a place, I've just
-> created a mailing list:
-> 
-> 	linux-cluster@nl.linux.org
-> 
-> To subscribe to the list, send an email with the text
-> "subscribe linux-cluster" to:
-> 
-> 	majordomo@nl.linux.org
-> 
-> 
-> I hope that we'll be able to split out some infrastructure
-> stuff from the different cluster projects and we'll be able
-> to put cluster support into the kernel in such a way that
-> we won't have to make the choice which of the N+1 cluster
-> projects should make it into the kernel...
-> 
-> regards,
-> 
-> Rik
-> --
-> Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-> 
-> Virtual memory is like a game you can't win;
-> However, without VM there's truly nothing to lose...
-> 
-> 		http://www.surriel.com/
-> http://www.conectiva.com/	http://distro.conectiva.com/
-> 
-> 
-> 
-> 
-> _______________________________________________
-> Beowulf mailing list, Beowulf@beowulf.org
-> To change your subscription (digest mode or unsubscribe) visit http://www.beowulf.org/mailman/listinfo/beowulf
-> 
-
+____________________________________________________________________
+Get free email and a permanent address at http://www.netaddress.com/?N=1

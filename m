@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264150AbUDBV3n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 16:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264179AbUDBV3n
+	id S264168AbUDBVbY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 16:31:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbUDBVbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 16:29:43 -0500
-Received: from aef.wh.uni-dortmund.de ([129.217.129.132]:35002 "EHLO
-	stan.ping.de") by vger.kernel.org with ESMTP id S264150AbUDBV3l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 16:29:41 -0500
-X-IMAP-Sender: rene
-Date: Fri, 2 Apr 2004 22:25:07 +0200
-X-OfflineIMAP-x676639941-52656d6f7465-494e424f582e4f7574626f78: 1080941365-0909439951674
-From: Rene Engelhard <rene@rene-engelhard.de>
-To: linux-kernel@vger.kernel.org
-Subject: immediate hibernate after resume!?
-Message-ID: <20040402202507.GA4609@rene-engelhard.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Fri, 2 Apr 2004 16:31:24 -0500
+Received: from gprs214-45.eurotel.cz ([160.218.214.45]:2944 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264168AbUDBVbW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 16:31:22 -0500
+Date: Fri, 2 Apr 2004 22:13:43 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, hugh@veritas.com, vrajesh@umich.edu,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040402201343.GA195@elf.ucw.cz>
+References: <20040331150718.GC2143@dualathlon.random> <Pine.LNX.4.44.0403311735560.27163-100000@localhost.localdomain> <20040331172851.GJ2143@dualathlon.random> <20040401004528.GU2143@dualathlon.random> <20040331172216.4df40fb3.akpm@osdl.org> <20040401012625.GV2143@dualathlon.random> <20040331175113.27fd1d0e.akpm@osdl.org> <20040401020126.GW2143@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; x-action=pgp-signed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Operating-System: Debian GNU/Linux
-X-PGP-Key: 248AEB73
-X-PGP-Fingerprint: 41FA F208 28D4 7CA5 19BB  7AD9 F859 90B0 248A EB73
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040401020126.GW2143@dualathlon.random>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi!
 
-[ please Cc me as I am not on l-k ]
+> > An anonymous user page meets these requirements.  A did say "anal", but
+> > rw_swap_page_sync() is a general-purpose library function and we shouldn't
+> > be making assumptions about the type of page which the caller happens to be
+> > feeding us.
+> 
+> that is a specialized backdoor to do I/O on _private_ pages, it's not a
+> general-purpose library function for doing anonymous pages
+> swapin/swapout, infact the only user is swap susped and we'd better
+> forbid swap suspend to pass anonymous pages through that interface and
+> be sure that nobody will ever attempt anything like that.
+> 
+> that interface is useful only to reach the swap device, for doing I/O on
+> private pages outside the VM, in the old days that was used to
+> read/write the swap header (again on a private page), swap suspend is
+> using it for similar reasons on _private_ pages.
 
-Hi,
+Ahha, so *here* is that discussion happening. I was only seeing it at
+bugzilla, and could not make sense of it.
 
-I use swsusp as it is in 2.6.x.
-
-If I do a echo 4 > /proc/acpi/sleep the laptop hibernates and resumes
-ok.
-
-If I do a echo 3 > /proc/acpi/sleep then the laptop does suspend-to-ram
-right, but the resume is a problem: it resumes fine, but after the
-resume it _immediately and automatically_ starts to go into hibernation
-mode!? This is annying since there are situations where I want the
-laptop just suspend-to-ram instead of hibernate..
-
-WTF is going on here? Any ideas?
-
-Grüße/Regards,
-
-René
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAbcwj+FmQsCSK63MRAv5nAJ99y2xbGzm/glndBqZ33IMaGyLvwQCdEl84
-nqfyvBEuoG6SdA9XOPA1754=
-=98du
------END PGP SIGNATURE-----
+If swsusp/pmdisk are only user of rw_swap_page_sync, perhaps it should
+be moved to power/ directory?
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

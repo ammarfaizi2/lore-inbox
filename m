@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266619AbUGUVPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266739AbUGUVRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266619AbUGUVPn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 17:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266736AbUGUVPn
+	id S266739AbUGUVRt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 17:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266740AbUGUVRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 17:15:43 -0400
-Received: from [138.15.108.3] ([138.15.108.3]:43131 "EHLO mailer.nec-labs.com")
-	by vger.kernel.org with ESMTP id S266619AbUGUVPm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 17:15:42 -0400
-content-class: urn:content-classes:message
+	Wed, 21 Jul 2004 17:17:48 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:5138 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266737AbUGUVRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 17:17:37 -0400
+Message-ID: <40FEE3A4.8070708@techsource.com>
+Date: Wed, 21 Jul 2004 17:44:04 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Jffs2 file system
-Date: Wed, 21 Jul 2004 17:15:22 -0400
-Message-ID: <951A499AA688EF47A898B45F25BD8EE80126D4D4@mailer.nec-labs.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Jffs2 file system
-Thread-Index: AcRvZY5OMOfb+AQbTkKxjnp8QQ8I9AAAkBaQ
-From: "Lei Yang" <leiyang@nec-labs.com>
-To: "Josh Boyer" <jdub@us.ibm.com>
-Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>,
-       "Kernelnewbies (E-mail)" <kernelnewbies@nl.linux.org>
+To: "David S. Miller" <davem@redhat.com>
+CC: Patrick Burke <pb@navistaff.com>, linux-kernel@vger.kernel.org
+Subject: [OT] Re: C++/Java/Linux developers needed at top NYC ibank
+References: <OJEILMPNJCFNEJFKONPJMELPEFAA.pb@navistaff.com> <20040721131642.5750e15c.davem@redhat.com>
+In-Reply-To: <20040721131642.5750e15c.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks! I'll try that.
 
------Original Message-----
-From: Josh Boyer [mailto:jdub@us.ibm.com]
-Sent: Wednesday, July 21, 2004 4:59 PM
-To: Lei Yang
-Cc: Linux-Kernel (E-mail); Kernelnewbies (E-mail)
-Subject: Re: Jffs2 file system
+Especially not ones as cookie-cutter/buzzword-filled/annoying as that 
+one was.  Seriously, if you want non-morons to want to work for you, 
+you've got to write a more interesting job description, and please stop 
+using words like "entrepreneurial" and "elite" when you know the job's 
+going to suck.
+
+This just reinforces what I always say about HR staff being out of touch 
+with the people they hire.
+
+[Now back to meaningful on-topic discussion]
 
 
-On Wed, 2004-07-21 at 15:41, Josh Boyer wrote:
-> The MTD mailing list might be able to help you more
-> (linux-mtd@lists.infradea.org).
-
-sorry, that should be linux-mtd@lists.infradead.org
-
-josh
+David S. Miller wrote:
+> No job advertisements on this list please.
+> Thanks.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 

@@ -1,116 +1,140 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315285AbSEAB72>; Tue, 30 Apr 2002 21:59:28 -0400
+	id <S315286AbSEACXF>; Tue, 30 Apr 2002 22:23:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315286AbSEAB71>; Tue, 30 Apr 2002 21:59:27 -0400
-Received: from m206-234.dsl.tsoft.com ([198.144.206.234]:40605 "EHLO
-	jojda.2y.net") by vger.kernel.org with ESMTP id <S315285AbSEAB70>;
-	Tue, 30 Apr 2002 21:59:26 -0400
-Message-ID: <3CCF4BFD.6C7F67EB@bigfoot.com>
-Date: Tue, 30 Apr 2002 18:59:25 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en, sk, ru
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: ide <-> via VT82C693A/694x problems?
-In-Reply-To: <Pine.LNX.4.10.10204301754310.2107-100000@master.linux-ide.org>
+	id <S315287AbSEACXE>; Tue, 30 Apr 2002 22:23:04 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:29490 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S315286AbSEACXD>; Tue, 30 Apr 2002 22:23:03 -0400
+Date: Wed, 1 May 2002 04:23:41 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <20020501042341.G11414@dualathlon.random>
+In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <E171aOa-0001Q6-00@starship> <20020429153500.B28887@dualathlon.random> <E172K9n-0001Yv-00@starship>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
+On Tue, Apr 30, 2002 at 01:02:05AM +0200, Daniel Phillips wrote:
+> My config_nonlinear patch does not suffer from the above problem.  Here's the
+> code:
+>
+> unsigned long vsection[MAX_SECTIONS];
 > 
-> You have an AEC6280 or AEC6880 depending of if it is raid or not.
+> static inline unsigned long phys_to_ordinal(phys_t p)
+> {
+> 	return vsection[p >> SECTION_SHIFT] + ((p & SECTION_MASK) >> PAGE_SHIFT);
+> }
 > 
-> That Chipset is supported jsut you need patches.
-
-  are you referring to the pci ide card? that one seeems to be working
-correctly (at least for cd audio ripping). so I guess the patch would be
-for proper pci id?
-
-  the MB uses via chips so I included via82cxxx driver (as a module). is
-that correct?
-
-  however, I just checked and via82cxxx is NOT loaded. What do I need to
-do to make ide driver is using via82cxxx module?
-
-  I have ide driver compiled in (booting from ide hd), does via82cxxx
-have to be compiled in?
-
-	erik
-
+> static inline struct page *phys_to_page(unsigned long p)
+> {
+> 	return mem_map + phys_to_ordinal(p);
+> }
 > 
-> Andre Hedrick
-> LAD Storage Consulting Group
+> Nothing can go out of range.  Sensible, no?
+
+Really the above vsection[p >> SECTION_SHIFT] will overflow in the very
+same case I fixed a few days ago for numa-alpha. The whole point is that
+p isn't a ram page and you assumed that (the alpha code was also assuming
+that and that's why it overflowed the same way as yours).  Either that
+or you're wasting some huge tons of ram with vsection on a 64bit arch.
+
+After the above out of range bug is fixed in practice it is the same as
+the current discontigmem, except that with the current way you can take
+the page structures in the right node with numa. And again I cannot see
+any advantage in having a contigous mem_map even for archs with only
+discontigmem and non-numa (I think only ARM falls in such category, btw).
+
+> > > <plug>
+> > > The new config_nonlinear was designed as a cleaner, more powerful
+> > > replacement for all non-numa uses of config_discontigmem.
+> > > </plug>
+> > 
+> > I maybe wrong because I only had a short look at it so far, but the
+> > "non-numa" is what I noticed too and that's what renders it not a very
+> > interesting option IMHO. Most discontigmem needs numa too.
 > 
-> On Tue, 30 Apr 2002, Erik Steffl wrote:
+> I am, first and foremost, presenting config_nonlinear as a replacement for
+> config_discontig for *non-numa* uses of config_discontig.  (Sorry if I'm
+> repeating myself here.)
 > 
-> >   it looks like the CD audio ripping doesn't work on my via
-> > VT82C693A/694x based motherboard, even though it works fine when I
-> > connect cd drive to PCI ide controller.
-> >
-> >   when doing audio ripping on MB's ide there are 'lost interrupt'
-> > messages in syslog and ripping is VERY slow (hours per song), there is
-> > an interrupt lost every 40 - 100 ide commands (it seems the timing
-> > doesn't matter, when I stepped through cdparanoia using debugger it was
-> > the same as when just running cdparanoia).
-> >
-> >   internal MB's ide works fine for everything else: harddrives work OK,
-> > data cd, cd burning all work properly. only audio ripping doesn't work
-> > (regardless of whether I use hdc or ide-scsi)
-> >
-> >   I tried to use different CD drive, different ide cable, different ide
-> > slot, HDs in different ide slots etc. nothing makes any difference, the
-> > audio ripping on the internal ide doesn't work, everything else works.
-> >
-> >   any ideas what might be wrong? is it a ide driver <-> motherboard
-> > problem?
-> >
-> >   TIA
-> >
-> >   system info:
-> >
-> >   kernel 2.4.17 and 2.4.18 (same behaviour)
-> >   MB: VIA Technologies, Inc. VT82C693A/694x (abit)
-> >   cd drive: TDK CDRW321040B, ATAPI CD/DVD-ROM drive
-> >   alternative cd drive: old mitsumi
-> >   kernel config: CONFIG_BLK_DEV_VIA82CXXX=y
-> >   dma access both on and off (same problem)
-> >   32 bit access both on and off (same problem)
-> >
-> > jojda:/dev# lspci
-> > 00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo
-> > PRO133x] (rev c4)
-> > 00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo
-> > MVP3/Pro133x AGP]
-> > 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
-> > (rev 40)
-> > 00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-> > 00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-> > (rev 40)
-> > 00:09.0 SCSI storage controller: Artop Electronic Corp: Unknown device
-> > 0009 (rev 02)
-> > 00:0b.0 Ethernet controller: D-Link System Inc RTL8139 Ethernet (rev 10)
-> > 00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139
-> > (rev 10)
-> > 00:0f.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev
-> > 01)
-> >
-> >   btw for some reason the additional ide controller is listed as SCSI
-> > storage controller: Artop Electronic Corp in the lspci output above.
-> >
-> >       erik
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
+> There are also applications in numa.  Please see the lse-tech archives for
+> details.  I expect that, by taking a fresh look at numa code in the light
+> of new work, that the numa code can be cleaned up and simplififed
+> considerably.  But that's "further work".  Config_nonlinear stands on its
+> own quite nicely.
+
+Tell me how an ARM machine will run faster with nonlinear, it is doing
+nearly the same thing except it's a lesser abstraction that forces a
+contiguous mem_map. Current code is much more powerful and it carries
+more information (the pgdat describes the whole memory topology to the
+common code), and it's not going to be slower, so I don't see why should
+we complicate the code with nonlinear. Personally I hate more than one
+way of doing the same thing if there's no need of it, the less ways the
+less you have to keep in mind, the simpler to understand, the better
+(partly offtopic but for the very same reason when I work in userspace I
+much prefer coding in python than in perl).
+
+> > If it cannot
+> > handle numa it doesn't worth to add the complexity there,
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> It does not add complexity, it removes complexity.  Please read the patch
+> more closely.  It's very simple.  It's also more powerful than
+> config_discontig.
+
+How? I may be overlooking something but I would say it's all but more
+powerful. I don't see any "power" point in trying to keep the mem_map
+contigous. please don't tell me it's more powerful, just tell me why.
+
+> > with numa we must view those chunks differently, not linearly.
+> 
+> Correct.  Now, if you want to extend my patch to handle multiple mem_map
+> vectors, you do it by defining an ordinal_to_page and page_to_ordinal pair
+> of mappings.[1]  Don't you think this is a nicer way to organize things?
+
+What's the advantage? And after you can have more than one mem_map,
+after you added this "vector", then each mem_map will match a
+discontigmem pgdat. Tell me a numa machine where there's an hole in the
+middle of a node. The holes are always intra-node, never within the
+nodes themself. So the nonlinear-numa should fallback to the stright
+mem_map array pointed by the pgdat all the time like it is just right now.
+
+The only advantage of nonlinear I can see could be a machine with an
+huge hole in a node, then with nonlinear you could avoid wasting mem_map
+for this hole but without having to add another pgdat that would
+otherwise break numa assumptions on the pgdat, but I'm not aware of any
+machine with huge holes of the order of the gigabytes in the middle of a
+node, at the very least if that happens it means the hardware of the
+machine is misconfigured.
+
+The very same problem would happen right now in x86 if there would be an
+huge hole in the physical ram, so you have 128M of ram and then an hole
+of 63G and then the other phusical 900M at offset 63G+128M, it will
+never happen, that's broken hardware if you see anything like that.
+
+at the very least I would wait somebody to ask with a so weird hardware
+that intentionally does like the above instead of overdesigning common
+code abstractions, and there would be also other ways to deal with such
+situation without requiring a contigous mem_map.
+
+> > Also there's nothing
+> > magic that says mem_map must have a magical meaning, doesn't worth to
+> > preserve the mem_map thing, virt_to_page is a much cleaner abstraction
+> > than doing mem_map + pfn by hand.
+> 
+> True.  The upcoming iteration of config_nonlinear moves all uses of
+> mem_map inside the per-arch page.h headers, so that mem_map need not
+> exist at all in configurations where there is no single mem_map.
+
+That's fine, and all correct kernel code just does that correctly,
+nonbody is allowed to use mem_map in any common code anywhere (besides
+the mm proper internals when discontigmem is disabled).
+
+Andrea

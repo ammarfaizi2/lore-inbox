@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288051AbSBMSQe>; Wed, 13 Feb 2002 13:16:34 -0500
+	id <S288255AbSBMSSe>; Wed, 13 Feb 2002 13:18:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288116AbSBMSQR>; Wed, 13 Feb 2002 13:16:17 -0500
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:22173 "EHLO
-	ip68-3-107-226.ph.ph.cox.net") by vger.kernel.org with ESMTP
-	id <S288051AbSBMSP6>; Wed, 13 Feb 2002 13:15:58 -0500
-Message-ID: <3C6AAD56.6000701@candelatech.com>
-Date: Wed, 13 Feb 2002 11:15:50 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18-pre9 insmod problems.
-In-Reply-To: <3C6741DF.6040100@candelatech.com> <20020211215657.GG12514@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S288173AbSBMSS0>; Wed, 13 Feb 2002 13:18:26 -0500
+Received: from moutng1.kundenserver.de ([212.227.126.171]:61632 "EHLO
+	moutng1.schlund.de") by vger.kernel.org with ESMTP
+	id <S288255AbSBMSSO>; Wed, 13 Feb 2002 13:18:14 -0500
+Date: Wed, 13 Feb 2002 19:16:51 +0100
+From: Nils Faerber <nils@kernelconcepts.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.17[16] USB problem
+Message-Id: <20020213191651.5c3dfd5e.nils@kernelconcepts.de>
+Organization: kernel concepts
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.8; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think it must have been a compile problem on my
-side.  Sorry for the confusion.
+Hi all!
+I recently see a strange USB problem which I find in 2.4.17 and 2.4.16 and
+maybe even earlier.
+What happens is that a special device attached via a USB HUB is not
+detected anymore, specifically usb.c claims that it cannot set the new
+address.
+The strange thing is:
+- It worked with that device (Brainboxes Bluetooth USB dongle) with
+earlier kernels.
+- The device works when directly connected (and not via extra HUB).
+- hub.c tells me that it HAS successfully assigned a new address to that
+device!
+- And above all, only that special device is affected. All other devices I
+have to test (USB mouse and USB webcam) work perfectly.
 
-Ben
+The error messages also show a strange behaviour of the Linux USB system:
+Why does hub.c set the address and then usb.c tries the same again?
 
-Greg KH wrote:
+I am sure not I am not suffering the earlier mentioned "device not
+accepting new address" problem due to interrupt routing problems (since
+all other devices work and the machine I am using is a UP notebook).
+And I am also sure that this device used to work connected to the HUB with
+earlier USB releases.
 
-> On Sun, Feb 10, 2002 at 09:00:31PM -0700, Ben Greear wrote:
-> 
->>The USB stuff didn't load either.
->>
-> 
-> What errors did you get when trying to load "USB stuff"?
-> 
-> 
->>Is this a known problem, or do I need to give more details?
->>
-> 
-> More details please.
-> 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
+So please if anyone has new insights on this problem please CC me since I
+am not subscribed to lkml...
+Many thanks in advance!
+CU
+  nils faerber
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+kernel concepts          Tel: +49-271-771091-12
+Dreisbachstr. 24         Fax: +49-271-771091-19
+D-57250 Netphen          D1 : +49-170-2729106
+--

@@ -1,84 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265568AbTAOLMw>; Wed, 15 Jan 2003 06:12:52 -0500
+	id <S265643AbTAOLUN>; Wed, 15 Jan 2003 06:20:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265643AbTAOLMw>; Wed, 15 Jan 2003 06:12:52 -0500
-Received: from smtp.laposte.net ([213.30.181.7]:52459 "EHLO smtp.laposte.net")
-	by vger.kernel.org with ESMTP id <S265568AbTAOLMv>;
-	Wed, 15 Jan 2003 06:12:51 -0500
-Message-ID: <00bc01c2bc88$0d56c640$2680a8c0@nordnet.net>
-From: "Florent CHANTRET" <florent@chantret.com>
-To: "jw schultz" <jw@pegasys.ws>, <linux-kernel@vger.kernel.org>
-References: <00e901c2bbdb$563b8b50$2680a8c0@nordnet.net> <20030115021128.GI21077@pegasys.ws>
-Subject: Re: SMBALERT# thermal sensor signal for Intel PII in the kernel ?
-Date: Wed, 15 Jan 2003 12:20:02 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S266210AbTAOLUM>; Wed, 15 Jan 2003 06:20:12 -0500
+Received: from dp.samba.org ([66.70.73.150]:43476 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265643AbTAOLUM>;
+	Wed, 15 Jan 2003 06:20:12 -0500
+Date: Wed, 15 Jan 2003 22:24:12 +1100
+From: Anton Blanchard <anton@samba.org>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: 48GB NUMA-Q boots, with major IO-APIC hassles
+Message-ID: <20030115112412.GA5062@krispykreme>
+References: <20030115105802.GQ940@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030115105802.GQ940@holomorphy.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a PCG-F305 but all the old serie F of VAIO is concerned. The problem
-don't appear immediately but later when the laptop isn't covered by the
-guarantee.
 
-Thanks for your link. Anyway, this is not really a "Linux on VAIO" related
-problem, but an hardware bug on the Intel PII that can be solved by a
-software trick cause the laptop doesn't crash on MS-DOS, WinShit 98 (by
-disabling some stuffs in the or to be open-source, on the LILO boot. So I
-think I can disable something in the kernel config or I can find some lines
-of code in the minimal kernel to solve this problem.
+> 	-- I've already tried and failed on PCI segments.
+> 	-- I would be much obliged for advice on this one, especially
+> 	-- since the workaround cripples the machine.
 
-But as soon the kernel begin to boot, my laptop crah (when it is cold,
-powered off for a night for example), after several reboot, when it is hot,
-it can be powered for a long time (1 day, 2 day sometimes) but I've still
-random shutdown.
+I was wondering if we could use pci_scan_bus_parented as a start.
+Assuming we fixed pci_bus_exists, this should allow us to create
+overlapping busses.
 
-Disabling all power managment, ACPI, APM, PM at boot, CPU, Idle and "Machine
-Check Exception" and now I2C still don't solve the problem. I've compiled a
-new kernel without WatchDog and I'll try soon but I'm sceptic. I think
-SMBALERT# is in the SMBus protocol that is a subset of I2C and this is still
-not right.
+What else needs fixing? To start with:
 
-So, if someone know something about the SMBALERT# signal or where in the
-kernel anywhere that in the stuff exposed above could be the order to
-shutdown immediately (without the proper task of a normal linux shutdown)
-the laptop, any help would be appreciated.
+* pci config read/writes
+	Should be arch specific, can hide things in struct pci_bus
+	which is passed in. (eg on ppc64 we have to pass an identifier
+	into the low level config read or write)
 
-I repeat the link from the Intel SPEC :
-http://cipsa.physik.uni-freiburg.de/~zwerger/Vaio/Intel_Mobile_Temp-Prob.pdf
+* pci IO/memory reads/writes
+	No problems on ppc64, it should just work. Are there problems
+	on x86? 
 
-This previous PDF is a subset of this one :
-http://cipsa.physik.uni-freiburg.de/~zwerger/Vaio/24388741.pdf
+* /proc/bus/pci/
+	As davem pointed out we have a backwards compatibility bit
+	where all devices on domain 0 appear as they always have.
+	Additionally we create another level of directories to represent
+	the domain.
 
-I've suspend my searches to fix it on a Windows NT, don't want to switch to
-Windows 98 so it's time for me to stay on Linux and I'm sure I can find some
-option or some lines of code where I can fix the stuff.
+* /proc/pci
+	Need to print the domain
 
-Regards,
-Florent CHANTRET
+* device printing
+	We need a macro that drivers can use to print their PCI location
+	Then we make that print the domain.
 
+* sysfs
+	I havent looked into this yet
 
+Does anything else spring to mind?
 
-> You don't even state which model you have.  Which limits my
-> ability to comment.  I know i've had no problem with mine.
->
-> The best things for you to do is check the specific model
-> info from linux-on-laptops.com and search, then ask, on the
-> linux-sony list http://returntonature.com/mailman/listinfo/linux-sony
->
-> Good luck.
->
-> --
-> ________________________________________________________________
-> J.W. Schultz            Pegasystems Technologies
-> email address: jw@pegasys.ws
->
-> Remember Cernan and Schmitt
->
-
+Anton

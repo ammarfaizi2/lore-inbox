@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268714AbUJUQlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268890AbUJUQmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268714AbUJUQlz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 12:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268890AbUJUQiD
+	id S268890AbUJUQmj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 12:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268824AbUJUQm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 12:38:03 -0400
-Received: from mailgate0.sover.net ([209.198.87.43]:53200 "EHLO mx0.sover.net")
-	by vger.kernel.org with ESMTP id S266263AbUJUQeY (ORCPT
+	Thu, 21 Oct 2004 12:42:27 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:12737 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266263AbUJUQjB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 12:34:24 -0400
-Message-ID: <4177E50F.9030702@sover.net>
-Date: Thu, 21 Oct 2004 12:34:23 -0400
-From: Stephen Wille Padnos <spadnos@sover.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: Jon Smirl <jonsmirl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <4176E08B.2050706@techsource.com>	 <9e4733910410201808c0796c8@mail.gmail.com> <9e473391041020181150638b4@mail.gmail.com> <4177185A.9080708@sover.net> <4177DF15.8010007@techsource.com>
-In-Reply-To: <4177DF15.8010007@techsource.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Oct 2004 12:39:01 -0400
+Date: Thu, 21 Oct 2004 18:40:18 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Gunther Persoons <gunther_persoons@spymac.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9
+Message-ID: <20041021164018.GA11560@elte.hu>
+References: <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <4177FAB0.6090406@spymac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4177FAB0.6090406@spymac.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
 
-> You're right, and you're not.  There are two reasons why modern 3D 
-> GPUs put the world mesh into the card framebuffer and do all the T&L 
-> in the GPU.  One reason is that it's faster to do it in dedicated 
-> hardware. The other more pressing reason is that the host interface 
-> (PCI or AGP) puts a very low upper-bound on your triangle rendering rate.
+* Gunther Persoons <gunther_persoons@spymac.com> wrote:
 
-I'm thinking more like microcode.  The functional blocks on the chip 
-would be capable of being "rewired" by the OS, depending on the 
-applications being run.  All of the functions would still operate out of 
-card-local memory.
+> The kernel booted now with my firewire card plugged in. However when i
+> try to mount my reiser4 partition i get following error
+> 
+> BUG: semaphore recursion deadlock detected!
+> .. current task mount/10514 is already holding ccb5bb4c.
 
-> The number of parameters necessary to specify a single texture-mapped 
-> triangle are literally in the dozens.  If you did only 32-bit fixed 
-> point (16.16) for coordinates, that's still a huge amount of 
-> information to move across the bus to instruct the chip to render a 
-> single triangle.  And what if that triangle ends up amounting to a 
-> single pixel?  Think about the waste!
->
-> Instead, the un-transformed geometry is loaded into the card memory 
-> only once, and the GPU is instructed to render the scene based on the 
-> camera perspective and lighting information.  Aside from the need to 
-> cache textures on-card, this is another reason for the need to have 
-> LOTS of graphics memory.
+> [<c0344760>] down_write+0x103/0x1a6 (48)
+> [<d0b26a08>] kcond_wait+0xaa/0xac [reiser4] (36)
+> [<d0b280b0>] start_ktxnmgrd+0x98/0x9a [reiser4] (36)
+> [<d0b33716>] reiser4_fill_super+0x3b/0x71 [reiser4] (28)
+> [<d0b2d569>] reiser4_get_sb+0x2f/0x33 [reiser4] (68)
+> [<c016061a>] do_kern_mount+0x4f/0xc0 (4)
+> [<c0175945>] do_new_mount+0x9c/0xe1 (36)
+> [<c0175feb>] do_mount+0x145/0x194 (44)
+> [<c0176459>] sys_mount+0x9f/0xe0 (32)
+> [<c01060b1>] sysenter_past_esp+0x52/0x71 (44)
 
-Yep - reminds me of the days with the old SGI Iris, which did OpenGL 
-processing directly on the card, with the display list local to the 
-GPU(s) (1280x1024@100 bit depth -24 bit color, 24-bit Z, another 48 bits 
-for double-buffering, and 2 bits of overlay + 2 more underlay - those 
-were the days :)
+reiser4 has some pretty ugly locking abstraction called kcond, i took a
+look but it doesnt seem simple to convert it. Reiserfs should really use
+a normal Linux waitqueue and nothing more...
 
->> I guess I would look at this as an opportunity to make a "visual 
->> coprocessor", that also has the hardware necessary to output to a 
->> monitor (preferably multiple monitors).
->
-> I don't think that's realistic.  We could do that, but it would have 
-> terrible performance.
-
-Sorry - I wasn't thinking in terms of an 8087 - more like a dedicated 
-processor for image related functions - like a DSP card.  A display list 
-based coprocessor would certainly be better than anything that has to 
-repeatedly transfer commands over a slow bus.
-
-- Steve
-
+	Ingo

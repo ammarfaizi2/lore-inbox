@@ -1,78 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270648AbTHLQRD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 12:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270764AbTHLQRD
+	id S270471AbTHLQT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 12:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270479AbTHLQT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 12:17:03 -0400
-Received: from fw1.masirv.com ([65.205.206.2]:56908 "EHLO NEWMAN.masirv.com")
-	by vger.kernel.org with ESMTP id S270648AbTHLQQ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 12:16:59 -0400
-Message-ID: <1060651689.10867.23.camel@huykhoi>
-From: Anthony Truong <Anthony.Truong@mascorp.com>
+	Tue, 12 Aug 2003 12:19:58 -0400
+Received: from h80ad2614.async.vt.edu ([128.173.38.20]:43139 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S270471AbTHLQT5 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 12:19:57 -0400
+Message-Id: <200308121619.h7CGJpfZ010471@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
 To: William Gallafent <william.gallafent@virgin.net>
-Cc: Valdis.Kletnieks@vt.edu, Yoshinori Sato <ysato@users.sourceforge.jp>,
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>,
        linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: generic strncpy - off-by-one error
-Date: Mon, 11 Aug 2003 18:28:09 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: generic strncpy - off-by-one error 
+In-Reply-To: Your message of "Tue, 12 Aug 2003 16:54:05 BST."
+             <Pine.LNX.4.53.0308121652020.13364@officebedroom.oldvicarage> 
+From: Valdis.Kletnieks@vt.edu
+References: <m21xvrynnk.wl%ysato@users.sourceforge.jp> <m2y8xzx74x.wl%ysato@users.sourceforge.jp> <200308121503.h7CF3JfZ009007@turing-police.cc.vt.edu>
+            <Pine.LNX.4.53.0308121652020.13364@officebedroom.oldvicarage>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1544888756P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 12 Aug 2003 12:19:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-12 at 23:54, William Gallafent wrote:
+--==_Exmh_-1544888756P
+Content-Type: text/plain; charset=us-ascii
 
-On Tue, 12 Aug 2003 Valdis.Kletnieks@vt.edu wrote:
+On Tue, 12 Aug 2003 16:54:05 BST, William Gallafent said:
 
-> On Tue, 12 Aug 2003 23:50:06 +0900, Yoshinori Sato
-> <ysato@users.sourceforge.jp> said:
-> > -   while (count) {
-> > +   while (count > 1) {
->
-> Given that count is a size_t, which seems to be derived from 'unsigned
-int'
-> or 'unsigned long' on every platform, how are these any different?
+> Er, consider the case of count == 1. Fenceposts can be dangerous things.
 
-Er, consider the case of count == 1. Fenceposts can be dangerous things.
+Amen, given the original code and the first attempt to fix it.  I was actually
+trolling for "accidentally correct" versus "intentionally correct".
 
--- 
-Bill Gallafent.
--
+/Valdis (who has posted "convince me the code is right THIS time"  waay too
+many times on waaay too many lists already today - including one count-the-on-bits
+scheme that only worked for an all-zeros input.. ;)
 
+--==_Exmh_-1544888756P
+Content-Type: application/pgp-signature
 
-Hello,
-This is the code I got from 2.4.20:
-char * strncpy(char * dest,const char *src,size_t count)
-{
-	char *tmp = dest;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-	while (count-- && (*dest++ = *src++) != '\0')
-		/* nothing */;
+iD8DBQE/OROmcC3lWbTT17ARAn9BAJ0ZWyZEpvQ0VdYXxLRKMqmLc9FbpwCgq1O9
+udZSR4PoA+fiuu+hNeKU3gk=
+=PbnR
+-----END PGP SIGNATURE-----
 
-	return tmp;
-}
-
-I don't see any problem with this code, and if we don't need to NULL-pad
-the dest string, we do not have to.  It is not in the definition of
-strncpy().  So we don't need the second while {};
-I'm hoping we're looking at the same thing.
-
-Regards,
-Anthony Dominic Truong.
-
-
-
-
-Disclaimer: The information contained in this transmission, including any
-attachments, may contain confidential information of Matsushita Avionics
-Systems Corporation.  This transmission is intended only for the use of the
-addressee(s) listed above.  Unauthorized review, dissemination or other use
-of the information contained in this transmission is strictly prohibited.
-If you have received this transmission in error or have reason to believe
-you are not authorized to receive it, please notify the sender by return
-email and promptly delete the transmission.
-
-
+--==_Exmh_-1544888756P--

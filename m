@@ -1,67 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129097AbQJaWtW>; Tue, 31 Oct 2000 17:49:22 -0500
+	id <S129531AbQJaWuC>; Tue, 31 Oct 2000 17:50:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129673AbQJaWtM>; Tue, 31 Oct 2000 17:49:12 -0500
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:4698
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S129097AbQJaWtI>; Tue, 31 Oct 2000 17:49:08 -0500
-Date: Tue, 31 Oct 2000 14:49:07 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: Larry McVoy <lm@bitmover.com>, Paul Menage <pmenage@ensim.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+	id <S129766AbQJaWtx>; Tue, 31 Oct 2000 17:49:53 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:23307 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129673AbQJaWtd>; Tue, 31 Oct 2000 17:49:33 -0500
+Message-ID: <39FF4B99.1746E06E@timpanogas.org>
+Date: Tue, 31 Oct 2000 15:45:45 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>, mingo@elte.hu, Pavel Machek <pavel@suse.cz>,
+        linux-kernel@vger.kernel.org
 Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Message-ID: <20001031144907.B23516@work.bitmover.com>
-Mail-Followup-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-	Larry McVoy <lm@bitmover.com>, Paul Menage <pmenage@ensim.com>,
-	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <E13qj56-0003h9-00@pmenage-dt.ensim.com> <39FF3D53.C46EB1A8@timpanogas.org> <20001031140534.A22819@work.bitmover.com> <39FF4488.83B6C1CE@timpanogas.org> <20001031142733.A23516@work.bitmover.com> <39FF49C8.475C2EA7@timpanogas.org>
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.21.0010312231490.15159-100000@elte.hu> <39FF3F0B.81A1EE13@timpanogas.org> <20001031230538.A9048@gruyere.muc.suse.de> <39FF465F.4EEB811A@timpanogas.org>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <39FF49C8.475C2EA7@timpanogas.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2000 at 03:38:00PM -0700, Jeff V. Merkey wrote:
-> Larry McVoy wrote:
-> > On Tue, Oct 31, 2000 at 03:15:37PM -0700, Jeff V. Merkey wrote:
-> > > The quality of the networking code in Linux is quite excellent.  There's
-> > > some scaling problems relative to NetWare.  We are firmly committed to
-> > > getting something out with a Linux code base and NetWare metrics.  Love
-> > > to have your help.
-> > 
-> > Jeff, I'm a little concerned with some of your statements.  Netware may
-> > be the greatest thing since sliced bread, but it isn't a full operating
-> > system, so comparing it to Linux is sort of meaningless.
+
+
+One more optimization it has.  NetWare never "calls" functions in the
+kernel.  There's a template of register assignments in between kernel
+modules that's very strict (esi contains a WTD head, edi has the target
+thread, etc.) and all function calls are jumps in a linear space. 
+layout of all functions are 16 bytes aligned for speed, and all
+arguments in kernel are passed via registers.  It's a level of
+optimization no C compiler does -- all of it was done by hand, and most
+function s in fast paths are layed out in 512 byte chunks to increases
+speed.  Stack memory activity in the NetWare kernel is almost
+non-existent in almost all of the "fast paths"
+
+Jeff
+
+"Jeff V. Merkey" wrote:
 > 
-> It's makes more money in a week than Linux has ever made.  
-
-And the relevance of that to this conversation is exactly what?
-
-> A context switch in anoperating system context in it's simplest for is
+> A "context" is usually assued to be a "stack".  The simplest of all
+> context switches
+> is:
 > 
-> mov    x, esp
-> mov    esp, y
+>    mov    x, esp
+>    mov    esp, y
 > 
-> > and you can support all that and get user to user context switches in a
-					 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> Apology accepted.
-
-No apology was extended.  You're spouting nonsense.  User to user means
-process A in VM 1 switching to process B in VM 2.  I'm sorry, Mr Merkey,
-but a 
-
-	mov    x, esp
-	mov    esp, y
-
-doesn't begin to approach a user to user context switch.  Please go learn
-what a user to user context switch is.  Then come back when you can do
-one of those in a few cycles.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> A context switch can be as short as two instructions, or as big as a TSS
+> with CR3 hardware switching,
+> 
+> i.e.
+> 
+>    ltr    ax
+>    jmp    task_gate
+> 
+> (500 clocks later)
+> 
+>    ts->eip gets exec'd
+> 
+> you can also have a context switch that does an int X where X is a gate
+> or TSS.
+> 
+> you can also have a context switch (like linux) that does
+> 
+>     mov    x, esp
+>     mov    esp, y
+>     mov    z, CR3
+>     mov    CR3, w
+> 
+> etc.
+> 
+> In NetWare, a context switch is an in-line assembly language macro that
+> is 2 instructions long for a stack switch and 4 instructions for a CR3
+> reload -- this is a lot shorter than Linux.
+> Only EBX, EBP, ESI, and EDI are saved and this is never done in the
+> kernel, but is a natural
+> affect of the Watcom C compiler.  There's also strict rules about
+> register assignments that re enforced between assembler modules in
+> NetWare to reduce the overhead of a context switch.  The code path is
+> very complex in NetWare, and priorities and all this stuff exists, but
+> these code paths are segragated so these types of checks only happen
+> once in a while and check a pre-calc'd "scoreboard" that is read only
+> across processors and updated and recal'd by a timer every 18 ticks.
+> 
+> Jeff
+> 
+> 
+> 
+> Andi Kleen wrote:
+> >
+> > On Tue, Oct 31, 2000 at 02:52:11PM -0700, Jeff V. Merkey wrote:
+> > > The numbers don't lie.  You know where the code is.  You notice that
+> > > there is a version of
+> > > the kernel hand coded in assembly language.  You'l also noticed that
+> > > it's SMP and takes ZERO LOCKS during context switching, in fact, most of
+> > > the design is completely lockless.
+> >
+> > I suspect most of the confusion in this thread comes because you seem to
+> > use a different definition of context switch than Ingo and others. Could
+> > you explain what you exactly mean with a context switch ?
+> >
+> > -Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263823AbRFIEHd>; Sat, 9 Jun 2001 00:07:33 -0400
+	id <S263766AbRFIEXT>; Sat, 9 Jun 2001 00:23:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263797AbRFIEHX>; Sat, 9 Jun 2001 00:07:23 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:12026 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S263772AbRFIEHM>; Sat, 9 Jun 2001 00:07:12 -0400
-Message-Id: <l0313032cb7475100fc4a@[192.168.239.105]>
-In-Reply-To: <Pine.LNX.4.33.0106090541370.480-100000@mikeg.weiden.de>
-In-Reply-To: <l0313032bb7471092da13@[192.168.239.105]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sat, 9 Jun 2001 05:05:41 +0100
-To: Mike Galbraith <mikeg@wen-online.de>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        John Stoffel <stoffel@casc.com>,
-        Tobias Ringstrom <tori@unhappy.mine.nu>, Shane Nay <shane@minirl.com>,
-        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+	id <S263772AbRFIEXJ>; Sat, 9 Jun 2001 00:23:09 -0400
+Received: from mail.digitalme.com ([193.97.97.75]:2712 "EHLO digitalme.com")
+	by vger.kernel.org with ESMTP id <S263766AbRFIEW7>;
+	Sat, 9 Jun 2001 00:22:59 -0400
+Message-ID: <3B21A4F7.6040303@digitalme.com>
+Date: Sat, 09 Jun 2001 00:24:23 -0400
+From: "Trever L. Adams" <vichu@digitalme.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i686; en-US; rv:0.9.1+) Gecko/20010607
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: cramfs
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> On the subject of Mike Galbraith's kernel compilation test, how much
->> physical RAM does he have for his machine, what type of CPU is it, and what
->> (approximate) type of device does he use for swap?  I'll see if I can
->> partially duplicate his results at this end.  So far all my tests have been
->> done with a fast CPU - perhaps I should try the P166/MMX or even try
->> loading linux-pmac onto my 8100.
->
->It's a PIII/500 with one ide disk.
+I hate to ask this, however here goes.  I am doing some remote upgrading 
+and some other really funky stuff to some boxes I keep up.
 
-...with how much RAM?  That's the important bit.
+Part of these are total system upgrades and I need to move data out of 
+the way while still having a working box.  I decided that cramfs may be 
+the way to do this.  If you can tell me no and point me to a resource on 
+how to do this, I would LOVE to hear about it.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
+However, the question is, how can I tell lilo to tell the kernel too 
+boot off a cramfs file system?  I have already created the file with 
+/etc /bin /sbin /dev and /lib from a working system, doing the correct 
+deletions and other such changes.  I have a 15 meg cramfs that should do 
+the trick.
 
-The key to knowledge is not to rely on people to teach you it.
+Thank you for any help you can offer.
 
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
-
+Trever Adams
 

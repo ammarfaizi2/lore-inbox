@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288058AbSBMSWR>; Wed, 13 Feb 2002 13:22:17 -0500
+	id <S288248AbSBMSZo>; Wed, 13 Feb 2002 13:25:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288116AbSBMSWF>; Wed, 13 Feb 2002 13:22:05 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:58630 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S288058AbSBMSVy>; Wed, 13 Feb 2002 13:21:54 -0500
-Date: Wed, 13 Feb 2002 10:19:38 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Nico Schottelius <nicos-mutt@pcsystems.de>
-cc: linuxconsole-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        gpm@lists.linux.it, salvador@inti.gov.ar
-Subject: Re: [gpm]Reworking the selection API and moving it to userspace
- (gpm)?
-In-Reply-To: <20020206203621.GB541@schottelius.org>
-Message-ID: <Pine.LNX.4.10.10202131018320.29350-100000@www.transvirtual.com>
+	id <S288262AbSBMSZe>; Wed, 13 Feb 2002 13:25:34 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:40069 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S288248AbSBMSZQ>; Wed, 13 Feb 2002 13:25:16 -0500
+Date: Wed, 13 Feb 2002 13:27:54 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ? 
+In-Reply-To: <Pine.LNX.4.33L2.0202130857320.1530-200000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.3.95.1020213132419.20719A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Feb 2002, Randy.Dunlap wrote:
 
-> Possibly I have never heard about that and don't know anything particular about
-> it.
-> But in fact, improving something is generally good and if I have/get some
-> information about that, we could include it in gpm. 
+> On Wed, 13 Feb 2002, Richard B. Johnson wrote:
+> 
+> | On Wed, 13 Feb 2002, Horst von Brand wrote:
+> |
+> | > Daniel Phillips <phillips@bonn-fries.net> said:
+> | > > On February 12, 2002 05:38 pm, Bill Davidsen wrote:
+> | >
+> | > [...]
+> | [SNIPPED...]
+> |
+> | My idea is to take the .config file and remove most of its
+> | redundancy and unnecessary verbage. Then, the result is
+> | compressed and written to a constant global array, linked
+> | into the kernel. Both the array and the array length will then
+> | be available from /proc/kcore for user-mode tools to recreate the
+> | .config file.
+> 
+> This is a bit similar to what I did last weekend (and attach
+> here).  Mine goes into the kernel boot file, however, so that
+> it can be read even when the kernel isn't running.
+> 
+> I'll experiment with ideas from Andreas (thanks) or Ian Soboroff
+> to create a userspace get-config tool.
+> 
+> One small nit:  you say "user-mode tools", but /proc/kcore
+> is read-only for root only -- right?
+> That's not desirable or required IMO.
+> 
 
-It never really got out since I never got the chance to rework gpm. 
+Hmmm. You are going to make a kernel and don't have root-access to
+create a kernel configuration file?
 
-> Sounds good, so you're the person wrinting the patch for gpm ;)
+Cheers,
+Dick Johnson
 
-There are alos patches to get GPM working with the input api in CVS. I
-can post them.
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 

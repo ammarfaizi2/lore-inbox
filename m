@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265778AbTGLOGO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 10:06:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265779AbTGLOGO
+	id S265804AbTGLOfb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 10:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbTGLOfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 10:06:14 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:14993 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S265778AbTGLOGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 10:06:13 -0400
-Date: Sat, 12 Jul 2003 16:20:20 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Problems with nforce IDE in 2.4.22-pre5
-Message-ID: <20030712142020.GB3240@puettmann.net>
+	Sat, 12 Jul 2003 10:35:31 -0400
+Received: from tomts15.bellnexxia.net ([209.226.175.3]:2038 "EHLO
+	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S265804AbTGLOf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 10:35:29 -0400
+Subject: [PATCH] nbd.c compile warning
+From: Shane Shrybman <shrybman@sympatico.ca>
+To: Paul.Clements@steeleye.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-01UwrnkujYbdcuipc4nm"
+Organization: 
+Message-Id: <1058021412.10870.13.camel@mars.goatskin.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Ruben Puettmann <ruben@puettmann.net>
-X-Scanner: exiscan *19bLEa-0000rf-00*7pZROf9Vwg2* (Puettmann.NeT, Germany)
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 12 Jul 2003 10:50:12 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-    hy,
+--=-01UwrnkujYbdcuipc4nm
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-the second error ;-). With Kernel 2.4.22-pre5 I get this error:
+Here is a patch to fix a compile warning from nbd.c. It has been compile
+tested, ( I don't actually use nbd, yet). I have included the patch as
+an attachment in case it gets mangled.
+
+--- linux-2.5.75-mm1/drivers/block/nbd.c.orig   Sat Jul 12 09:23:45 2003
++++ linux-2.5.75-mm1/drivers/block/nbd.c        Sat Jul 12 09:45:06 2003
+@@ -261,7 +261,7 @@
+        dprintk(DBG_TX, "%s: request %p: sending control
+(%s@%llu,%luB)\n",
+                        lo->disk->disk_name, req,
+                        nbdcmd_to_ascii(nbd_cmd(req)),
+-                       req->sector << 9, req->nr_sectors << 9);
++                       (unsigned long long)req->sector << 9,
+req->nr_sectors << 9);
+        result = sock_xmit(sock, 1, &request, sizeof(request),
+                        (nbd_cmd(req) == NBD_CMD_WRITE)? MSG_MORE: 0);
+        if (result <= 0) {
 
 
-hda: dma_timer_expiry: dma status == 0x64
-hda: DMA interrupt recovery
-hda: lost interrupt
+Regards,
 
+shane
 
-Chipset: Nvidia NFORCE2
-Harddisk: IBM IC35L080AVVA07-A ( 75 GB)
+--=-01UwrnkujYbdcuipc4nm
+Content-Disposition: attachment; filename=nbd.compile.warning.diff
+Content-Type: text/x-diff; name=nbd.compile.warning.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Kernel Options:
+--- linux-2.5.75-mm1/drivers/block/nbd.c.orig	Sat Jul 12 09:23:45 2003
++++ linux-2.5.75-mm1/drivers/block/nbd.c	Sat Jul 12 09:45:06 2003
+@@ -261,7 +261,7 @@
+ 	dprintk(DBG_TX, "%s: request %p: sending control (%s@%llu,%luB)\n",
+ 			lo->disk->disk_name, req,
+ 			nbdcmd_to_ascii(nbd_cmd(req)),
+-			req->sector << 9, req->nr_sectors << 9);
++			(unsigned long long)req->sector << 9, req->nr_sectors << 9);
+ 	result = sock_xmit(sock, 1, &request, sizeof(request),
+ 			(nbd_cmd(req) == NBD_CMD_WRITE)? MSG_MORE: 0);
+ 	if (result <= 0) {
 
-CONFIG_BLK_DEV_AMD74XX=Y
-CONFIG_AMD74XX_OVERRIDE=Y
+--=-01UwrnkujYbdcuipc4nm--
 
-It was runnig fine on 2.4.22-pre2.
-
-
-        thx for help
-
-            Ruben
-    
--- 
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net

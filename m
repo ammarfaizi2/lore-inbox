@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314681AbSEDQa6>; Sat, 4 May 2002 12:30:58 -0400
+	id <S314702AbSEDRBF>; Sat, 4 May 2002 13:01:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314702AbSEDQa5>; Sat, 4 May 2002 12:30:57 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:52239 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S314681AbSEDQaz>;
-	Sat, 4 May 2002 12:30:55 -0400
-Date: Sat, 4 May 2002 09:30:47 -0700 (PDT)
-From: <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@osdlab.pdx.osdl.net>
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Keith Owens <kaos@ocs.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild 2.5 release 2.4
-In-Reply-To: <20020504162902.GB21542@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.33.0205040929470.22716-100000@osdlab.pdx.osdl.net>
+	id <S314735AbSEDRBE>; Sat, 4 May 2002 13:01:04 -0400
+Received: from vivi.uptime.at ([62.116.87.11]:56780 "EHLO vivi.uptime.at")
+	by vger.kernel.org with ESMTP id <S314702AbSEDRBD>;
+	Sat, 4 May 2002 13:01:03 -0400
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Cc: <axp-kernel-list-admin@redhat.com>
+Subject: 2.5.13 on Alpha don't likes me!!!!!!!!!! - A non sucess story. 2.5.11 worked fine!
+Date: Sat, 4 May 2002 18:58:01 +0200
+Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
+Message-ID: <000401c1f38c$dcdc2330$1201a8c0@pitzeier.priv.at>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <Pine.NEB.4.44.0205041809410.283-100000@mimas.fachschaften.tu-muenchen.de>
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 May 2002, Tomas Szepe wrote:
+Hi volks!
 
-| > | I don't know how to properly emphasize that this *is* asking for problems,
-| > | but still I'd be surprised if I were the only one scared by files not
-| > | connected to the build getting erased on make mrproper. Hello, anyone? :)
-| >
-| > Too much policy here?
-| >
-| > | Would it be complicated to only kill the files the build knows it had
-| > | created?
-| >
-| > That's what I would expect.
-|
-|
-| Word. The purpose of all the 'clean' targets in Makefiles (distclean,
-| mrproper, etc.) everywhere has always been to get rid of the object/
-| build files, and the object/build files only.
-|
-| Don't get me wrong, Keith, I believe kbuild 2.5's a terrific piece of
-| code, I'm just discussing what I've found myself to be in trouble with.
+Here is my problem:
+[ ... ]
+rm -f math-emu.o
+ld  -r -o math-emu.o math.o qrnnd.o
+make[2]: Leaving directory `/root/linux-2.5.13/arch/alpha/math-emu'
+make[1]: Leaving directory `/root/linux-2.5.13/arch/alpha/math-emu'
+ld -static -T arch/alpha/vmlinux.lds -N  arch/alpha/kernel/head.o
+init/main.o init/version.o init/do_mounts.o \
+        --start-group \
+        arch/alpha/kernel/kernel.o arch/alpha/mm/mm.o kernel/kernel.o
+mm/mm.o fs/fs.o ipc/ipc.o arch/alpha/math-emu/math-emu.o \
+        /root/linux-2.5.13/arch/alpha/lib/lib.a
+/root/linux-2.5.13/lib/lib.a /root/linux-2.5.13/arch/alpha/lib/lib.a \
+         drivers/base/base.o drivers/char/char.o drivers/block/block.o
+drivers/misc/misc.o drivers/net/net.o drivers/media/media.o
+drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o
+drivers/pci/driver.o drivers/net/tulip/tulip_net.o drivers/pnp/pnp.o
+drivers/video/video.o \
+        net/network.o \
+        --end-group \
+        -o vmlinux
+drivers/scsi/scsidrv.o: In function `sd_init':
+drivers/scsi/scsidrv.o(.text+0x4d3d8): undefined reference to `vmalloc'
+drivers/scsi/scsidrv.o(.text+0x4d3dc): undefined reference to `vmalloc'
+drivers/scsi/scsidrv.o(.text+0x4d424): undefined reference to `vmalloc'
+drivers/scsi/scsidrv.o(.text+0x4d428): undefined reference to `vmalloc'
+drivers/scsi/scsidrv.o(.text+0x4d470): undefined reference to `vmalloc'
+drivers/scsi/scsidrv.o(.text+0x4d474): more undefined references to
+`vmalloc' follow
+make: *** [vmlinux] Error 1
+[ ... ]
 
-Yes, I'd like to see kbuild 2.5 added to Linux 2.5 also,
-but it does need some tweaking IMO.
+Is there a patch, or anything? What makes video.o here??????????
 
--- 
-~Randy
+Please help me!
+
+-Oliver
+
 

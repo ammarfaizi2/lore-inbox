@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269804AbRHTXJ4>; Mon, 20 Aug 2001 19:09:56 -0400
+	id <S269796AbRHTXJG>; Mon, 20 Aug 2001 19:09:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269807AbRHTXJq>; Mon, 20 Aug 2001 19:09:46 -0400
-Received: from ch-12-44-139-249.lcisp.com ([12.44.139.249]:36736 "HELO
-	dual.lcisp.com") by vger.kernel.org with SMTP id <S269804AbRHTXJd>;
-	Mon, 20 Aug 2001 19:09:33 -0400
-From: "Kevin Krieser" <kkrieser_list@footballmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-        "Kevin Krieser" <kkrieser_list@footballmail.com>
-Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-Subject: RE: Swap size for a machine with 2GB of memory
-Date: Mon, 20 Aug 2001 18:09:38 -0500
-Message-ID: <NDBBLFLJADKDMBPPNBALCEOFFCAA.kkrieser_list@footballmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <m1ofpamxv5.fsf@frodo.biederman.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+	id <S269804AbRHTXI4>; Mon, 20 Aug 2001 19:08:56 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:57473
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S269796AbRHTXIo>; Mon, 20 Aug 2001 19:08:44 -0400
+Date: Mon, 20 Aug 2001 16:08:31 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
+Message-ID: <20010820160831.B2562@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <482526995.998263790@[169.254.45.213]> <20010819192634.H30309@thune.mrc-home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010819192634.H30309@thune.mrc-home.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was just experimenting.  512MB is more than sufficient for my needs, I
-just couldn't bypass the $130 (at the time) for the memory which took me to
-512MB.
+On Sun, Aug 19, 2001 at 07:26:34PM -0700, Mike Castle wrote:
+> On Sun, Aug 19, 2001 at 11:29:51PM +0100, Alex Bligh - linux-kernel wrote:
+> > The machine was bought and tested in one config. A hardware
+> > random number generator is something else to go wrong, and
+> > additional expense.
+> 
+> And making a change to the kernel is not a different config?
 
-I've seen some later updates to the VM, but at the moment, the 2.4.8 kernel
-is working well for me.  Better than the 2.4.6 kernel.
+In the very strict QA'ing sense, yes.  Any sort of change whatsoever is a
+different config and throws out all of the other testing results.  Which
+still leaves the cost argument in this case.  But, there are degrees of
+how dangerous a change can be.  From my quick skimming of this code, it
+looks like the only changes are to mark network irq bits as possible entropy.
+Nothing more.  I could be totally wrong of course. :)
+Therefore, it's quite probable anyhow that this config won't have any more
+problems that the other config had.  Of course the only way to prove this
+is much QA'ing.
 
------Original Message-----
-From: eric@frodo.biederman.org [mailto:eric@frodo.biederman.org]On
-Behalf Of Eric W. Biederman
-Sent: Monday, August 20, 2001 12:43 PM
-To: Kevin Krieser
-Cc: Linux Kernel List
-Subject: Re: Swap size for a machine with 2GB of memory
-
-As long as you don't have problems where you can't run your program
-multiple times in a row, 2.4 sounds like is is behaving correctly and
-sanely.
-
-> However, since my normal behavior is for swap to not be used, I will wait
-a
-> little bit for some of the VM updates to be tested.
-
-Are you saying something is wrong?
-
-> I don't have 2X RAM because when I installed my system, I only had 256MB
-of
-> RAM.
-
-This is not a requirement but is a requirement to have swap > mem if
-you are swapping heavily and want good performance.
-
-Eric
-
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,57 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317808AbSFSHy6>; Wed, 19 Jun 2002 03:54:58 -0400
+	id <S317806AbSFSHxJ>; Wed, 19 Jun 2002 03:53:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317809AbSFSHy5>; Wed, 19 Jun 2002 03:54:57 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:65036 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317808AbSFSHy4> convert rfc822-to-8bit; Wed, 19 Jun 2002 03:54:56 -0400
-Message-ID: <3D1038CC.3090108@evision-ventures.com>
-Date: Wed, 19 Jun 2002 09:54:52 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Garet Cammer <arcolin@arcoide.com>, linux-kernel@vger.kernel.org
-Subject: Re: Need IDE Taskfile Access
-References: <Pine.SOL.4.30.0206182120100.23983-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S317807AbSFSHxI>; Wed, 19 Jun 2002 03:53:08 -0400
+Received: from [148.246.77.237] ([148.246.77.237]:10500 "EHLO zion.sytes.net")
+	by vger.kernel.org with ESMTP id <S317806AbSFSHxH>;
+	Wed, 19 Jun 2002 03:53:07 -0400
+Date: Wed, 19 Jun 2002 02:53:00 -0500
+From: Felipe Contreras <al593181@mail.mty.itesm.mx>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Compaq hotplug fix for 2.5.23
+Message-ID: <20020619075300.GA1098@zion.mty.itesm.mx>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="8t9RHnE3ZwKMSgU+"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Bartlomiej Zolnierkiewicz napisa³:
-> Do not worry Garet, I will reimplement it later in 2.5.
-> I need some free time to do it, (maybe next month?).
 
-First the main things have to stabilize.
-And please note that using the SMART commands *is
-possible* in 2.5 (modulo bugs and mistakes like for
-example 92... argh...). I'm checking regularly
-whatever ide-smart still works.
+--8t9RHnE3ZwKMSgU+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> On Tue, 18 Jun 2002, Andre Hedrick wrote:
+Hi,
 
->>You are wasting electons, the interface is gone and the API to the
->>transport is wrecked.  I will need to compose a loadable module to renable
->>the support.  Clearly 2.5/2.6 is not friendly with the needs of the
->>industry and it will never be at this rate.
+This one makes posible to compile the compaq hotplug module.
 
-If the "industry" asks - I'm responsive for certain.
-Unless not - I don't.
+-- 
+Felipe Contreras
 
-> Will be...
-> 
->>In the end, I will end up writing a closed ATA binary driver for sale as a
->>replacement.  I have had several requests to consider the option.  As much
->>as I do not like the idea, it is less offensive than the current
->>direction.
-> 
-> 
-> Ugh, please dont...
+--8t9RHnE3ZwKMSgU+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="cpq-hotplug.diff"
 
-Let him do. Why not? Sounds lake a sane business plan.
+diff -ur linux-2.5.23/drivers/hotplug/cpqphp.h linux-shx/drivers/hotplug/cpqphp.h
+--- linux-2.5.23/drivers/hotplug/cpqphp.h	Sun Jun  9 00:28:26 2002
++++ linux-shx/drivers/hotplug/cpqphp.h	Wed Jun 19 02:13:23 2002
+@@ -30,6 +30,7 @@
+ 
+ #include "pci_hotplug.h"
+ #include <asm/io.h>		/* for read? and write? functions */
++#include <linux/tqueue.h>
+ 
+ 
+ #if !defined(CONFIG_HOTPLUG_PCI_COMPAQ_MODULE)
+diff -ur linux-2.5.23/drivers/hotplug/cpqphp_pci.c linux-shx/drivers/hotplug/cpqphp_pci.c
+--- linux-2.5.23/drivers/hotplug/cpqphp_pci.c	Sun Jun  9 00:31:23 2002
++++ linux-shx/drivers/hotplug/cpqphp_pci.c	Wed Jun 19 02:13:24 2002
+@@ -37,6 +37,8 @@
+ #include "cpqphp_nvram.h"
+ #include "../../arch/i386/pci/pci.h"	/* horrible hack showing how processor dependant we are... */
+ 
++#define TRUE  1
++#define FALSE 0
+ 
+ u8 cpqhp_nic_irq;
+ u8 cpqhp_disk_irq;
+@@ -150,7 +152,7 @@
+ 	//Notify the drivers of the change
+ 	if (temp_func->pci_dev) {
+ 		pci_proc_attach_device(temp_func->pci_dev);
+-		pci_announce_device_to_drivers(temp_func->pci_dev);
++		run_sbin_hotplug(temp_func->pci_dev, TRUE);
+ 	}
+ 
+ 	return 0;
+diff -ur linux-2.5.23/drivers/pci/hotplug.c linux-shx/drivers/pci/hotplug.c
+--- linux-2.5.23/drivers/pci/hotplug.c	Sun Jun  9 00:31:22 2002
++++ linux-shx/drivers/pci/hotplug.c	Wed Jun 19 02:12:33 2002
+@@ -101,3 +101,4 @@
+ 
+ EXPORT_SYMBOL(pci_insert_device);
+ EXPORT_SYMBOL(pci_remove_device);
++EXPORT_SYMBOL(run_sbin_hotplug);
 
-
-
+--8t9RHnE3ZwKMSgU+--

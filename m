@@ -1,71 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268446AbUHQV1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268453AbUHQVcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268446AbUHQV1q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 17:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268451AbUHQV1q
+	id S268453AbUHQVcl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 17:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266792AbUHQVcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 17:27:46 -0400
-Received: from ctb-mesg6.saix.net ([196.25.240.78]:35027 "EHLO
-	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S268446AbUHQV1d
+	Tue, 17 Aug 2004 17:32:41 -0400
+Received: from ctb-mesg6.saix.net ([196.25.240.78]:52443 "EHLO
+	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S268464AbUHQVcg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 17:27:33 -0400
+	Tue, 17 Aug 2004 17:32:36 -0400
 Subject: Re: 2.6.8.1-mm1 Tty problems?
 From: Martin Schlemmer <azarah@nosferatu.za.org>
 Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: ismail =?ISO-8859-1?Q?d=F6nmez?= <ismail.donmez@gmail.com>
-Cc: Paul Fulghum <paulkf@microgate.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <2a4f155d040817124335766947@mail.gmail.com>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: ismail =?ISO-8859-1?Q?d=F6nmez?= <ismail.donmez@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, olh@suse.org,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <412272C8.6050203@microgate.com>
 References: <2a4f155d040817070854931025@mail.gmail.com>
 	 <412247FF.5040301@microgate.com>
 	 <2a4f155d0408171116688a87f1@mail.gmail.com>
 	 <4122501B.7000106@microgate.com>
 	 <2a4f155d04081712005fdcdd9b@mail.gmail.com>
-	 <41225D16.2050702@microgate.com>
-	 <2a4f155d040817124335766947@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lgXUsbtAUuu6CM7RAt+d"
-Message-Id: <1092778259.8998.12.camel@nosferatu.lan>
+	 <412272C8.6050203@microgate.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xjwv2PcMbDsOp4DNBSZb"
+Message-Id: <1092778561.8998.18.camel@nosferatu.lan>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 17 Aug 2004 23:30:59 +0200
+Date: Tue, 17 Aug 2004 23:36:02 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-lgXUsbtAUuu6CM7RAt+d
+--=-xjwv2PcMbDsOp4DNBSZb
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2004-08-17 at 21:43, ismail d=C3=B6nmez wrote:
-> > That does not look right.
-> > Char dev 3 is the pty major.
-> > This could be left over from running with the controlling-tty patch.
-> >=20
-> > Try recreating /dev/tty as a char special file:
-> > mknod -m 666 /dev/tty c 5 0
+On Tue, 2004-08-17 at 23:04, Paul Fulghum wrote:
+> ismail d=C3=B6nmez wrote:
 >=20
-> Hmm I use udev and /dev/tty dir is created again at startup. So
-> something else is broken too I think.
+> > On Tue, 17 Aug 2004 13:36:11 -0500, Paul Fulghum <paulkf@microgate.com>=
+ wrote:
+> >=20
+> >>Even if a feature is not be enabled,
+> >>backing out a patch can verify it does not
+> >>touch code outside of the feature.
+> >>
+> >=20
+> >=20
+> > Indeed backing up selinux-revalidate-access-to-controlling-tty.patch
+> > fixed "less" problem. But some other problems remain and the real
+> > issue is /dev/tty is a directory now! :
+> >=20
+> >=20
+> > cartman@southpark:~$ ls -al /dev/tty
+> > total 0
+> > drwxr-xr-x   2 root root     0 2004-08-18 00:52 ./
+> > drwxr-xr-x  15 root root     0 2004-08-17 21:53 ../
+> > crw-------   1 root root 3, 10 2004-08-18 00:52 s
+> > crw-------   1 root root 3,  0 2004-08-18 00:52 s0
+> > crw-------   1 root root 3,  1 2004-08-18 00:52 s1
+> > crw-------   1 root root 3,  2 2004-08-18 00:52 s2
+> > crw-------   1 root root 3,  3 2004-08-18 00:52 s3
+> > crw-------   1 root root 3,  4 2004-08-18 00:52 s4
+> > crw-------   1 root root 3,  5 2004-08-18 00:52 s5
+> > crw-------   1 root root 3,  6 2004-08-18 00:52 s6
+> > crw-------   1 root root 3,  7 2004-08-18 00:52 s7
+> > crw-------   1 root root 3,  8 2004-08-18 00:52 s8
+> > crw-------   1 root root 3,  9 2004-08-18 00:52 s9
+> >=20
+> >=20
+> > And this breaks many applications. Any idea why /dev/tty is a directory=
+ now?
+>=20
+> Olaf, Greg:
+>=20
+> The addition of pty devices to sysfs in bk-driver-core.patch
+> of 2.6.8.1-mm1 seems to be causing the problem described above.
+> See the rest of this thread for more details.
 >=20
 
-Just fix the permissions in
-/etc/udev/permissions.d/50-udev.permissions, and file a bug with
-your distribution if its not self-compiled.
+He has the wrong permissions in
+/etc/udev/permissions.d/50-udev.permissions (or whatever), or no
+entry for it, and his default_mode (in /etc/udev/udev.conf) is very
+restrictive, or he does not use pam_console (or using it with a
+display manager?), or add some other explanation.  Personally I would
+just say that he/his_distribution should fix the shipped
+udev.permissions.
+
+Apart from above, I cannot say anything is wrong with the addition of
+tty's to sysfs, and if its the same in functionality as the old patch
+from Greg, then I ran it for months no problem.
+
 
 --=20
 Martin Schlemmer
 
---=-lgXUsbtAUuu6CM7RAt+d
+--=-xjwv2PcMbDsOp4DNBSZb
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQBBInkTqburzKaJYLYRApA/AJ0TjesMan55Ap3t1kU9aKo8/6FWOgCeOyeT
-Foz/PHCCyS+mEK7btPPJq4M=
-=VlJe
+iD8DBQBBInpBqburzKaJYLYRAl6oAJ9sLt4YE29WnM+h0mO5+CjzD05VigCggUQm
+wvfudwTTIebRVFXykUdUhJA=
+=4fjL
 -----END PGP SIGNATURE-----
 
---=-lgXUsbtAUuu6CM7RAt+d--
+--=-xjwv2PcMbDsOp4DNBSZb--
 

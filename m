@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286959AbSABLgp>; Wed, 2 Jan 2002 06:36:45 -0500
+	id <S286953AbSABLiR>; Wed, 2 Jan 2002 06:38:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286951AbSABLgf>; Wed, 2 Jan 2002 06:36:35 -0500
-Received: from dsl-213-023-043-195.arcor-ip.net ([213.23.43.195]:33039 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S286950AbSABLg2>;
-	Wed, 2 Jan 2002 06:36:28 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, timothy.covell@ashavan.org
-Subject: Re: [patch] Re: Framebuffer...Why oh Why???
-Date: Wed, 2 Jan 2002 12:36:59 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: landley@trommello.org (Rob Landley),
-        torvalds@transmeta.com (Linus Torvalds),
-        akpm@zip.com.au (Andrew Morton), linux-kernel@vger.kernel.org,
-        linux-fbdev-devel@lists.sourceforge.net (Linux Frame Buffer Device
-	Development),
-        marcelo@conectiva.com.br (Marcelo Tosatti)
-In-Reply-To: <E16LMNj-0008Gz-00@the-village.bc.nu>
-In-Reply-To: <E16LMNj-0008Gz-00@the-village.bc.nu>
+	id <S286966AbSABLiF>; Wed, 2 Jan 2002 06:38:05 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37897 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286962AbSABLiB>; Wed, 2 Jan 2002 06:38:01 -0500
+Subject: Re: [PATCH] C undefined behavior fix
+To: aaronl@vitelus.com (Aaron Lehmann)
+Date: Wed, 2 Jan 2002 11:48:11 +0000 (GMT)
+Cc: velco@fadata.bg (Momchil Velikov), linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.linuxppc.org
+In-Reply-To: <20020102112821.GA13212@vitelus.com> from "Aaron Lehmann" at Jan 02, 2002 03:28:21 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Ljhc-00010X-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16LjsR-0003nw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 1, 2002 11:42 am, Alan Cox wrote:
-> > > X11 isn't always an improvement.  I've got an X hang on my laptop (about
-> > > once a week) that freezes the keyboard and ignores mouse clicks.  Numlock
-> > > doesn't change the keyboard LEDs, CTRL-ALT-BACKSPACE won't do a thing, and
-> > > although I can ssh in and run top (and see the CPU-eating loop), kill won't
-> > > take X down and kill-9 leaves the video display up so the console that
-> > > thinks it's in text mode, but isn't, is still useless.  (And that's
-> > > assuming I'm plugged into the network and have another box around to ssh in
-> > > from...)
-> 
-> Neomagic Magicgraph 128XD ? If so check man neomagic first 8)
+> Why is Linux not using this? It sounds very appropriate. The only
+> things the manpage mentions that -fno-builtin would inhibit from being
+> optimized are memcpy() and alloca(). memcpy() has its own assembly
 
-Right, and check out the neomagic@XFree86.Org mailing list archives.
+There are others in newer gcc's, and on the whole gcc does a very good
+job with them, so IMHO it is worth being nice to gcc to get the advantages.
 
-I feel your pain ;)
+> I only see it being used a bit in the S/390 code, where the gcc
+> optimizations could quite possibly break something. I think
+> -ffreestanding definately should be used by the kernel to prevent gcc
+> from messing with its code in broken ways.
 
---
-Daniel
+-ffreestanding for the compiler versions that support it can be added to
+arch specific flags anyway

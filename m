@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbUFFMHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263340AbUFFMJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263366AbUFFMHN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 08:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbUFFMHN
+	id S263340AbUFFMJc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 08:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUFFMJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 08:07:13 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:9857 "EHLO cloud.ucw.cz")
-	by vger.kernel.org with ESMTP id S263366AbUFFMHK (ORCPT
+	Sun, 6 Jun 2004 08:09:32 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:30786 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263340AbUFFMJa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 08:07:10 -0400
-Date: Sun, 6 Jun 2004 14:07:18 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: keyboard problem with 2.6.6
-Message-ID: <20040606120718.GA3667@ucw.cz>
-References: <xb7llj1yql6.fsf@savona.informatik.uni-freiburg.de>
+	Sun, 6 Jun 2004 08:09:30 -0400
+Date: Sun, 6 Jun 2004 05:16:57 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: wli@holomorphy.com, mikpe@csd.uu.se, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
+ implementation
+Message-Id: <20040606051657.3c9b44d3.pj@sgi.com>
+In-Reply-To: <1086487651.11454.19.camel@bach>
+References: <16576.16748.771295.988065@alkaid.it.uu.se>
+	<20040604093712.GU21007@holomorphy.com>
+	<16576.17673.548349.36588@alkaid.it.uu.se>
+	<20040604095929.GX21007@holomorphy.com>
+	<16576.23059.490262.610771@alkaid.it.uu.se>
+	<20040604112744.GZ21007@holomorphy.com>
+	<20040604113252.GA21007@holomorphy.com>
+	<20040604092316.3ab91e36.pj@sgi.com>
+	<20040604162853.GB21007@holomorphy.com>
+	<20040604104756.472fd542.pj@sgi.com>
+	<20040604181233.GF21007@holomorphy.com>
+	<1086487651.11454.19.camel@bach>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <xb7llj1yql6.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 06, 2004 at 11:37:41AM +0200, Sau Dan Lee wrote:
-> >>>>> "Valdis" == Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
-> 
->     >> You don't tell any kernel about that... it is the bootloader
->     >> you are talking to. And that one may very well have integrated
->     >> kbd support.
-> 
->     Valdis> So GRUB knows about keyboards, lets you type in the
->     Valdis> "init=/bin/bash", it loads the kernel, the kernel launches
->     Valdis> init, /bin/bash gets loaded 
-> 
-> If  init can  launch /bin/bash  (actually,  it lauches  getty in  most
-> setups), why can't it start the userland keyboard driver daemon?
-> 
-> Back  in the  old days  before the  introduction of  /etc/rc.d/, every
-> daemon was started from by init.
+Rusty wrote:
+> Yes, NR_CPUS needs to get to userspace somehow sanely if we want to fix
+> this in general.
 
-At the risk of being flamed, here is an explanation.
+Are you saying that NR_CPUS is needed, or just the number of longs in a
+cpumask (sizeof (cpumask_t), essentially)?
 
-If you, at the kernel command line, type "init=/bin/bash", the bash
-shell will be used _instead_ of the regular init program. This is very
-useful when you made a mistake in the inittab, something deleted your
-root entry in passwd/shadow, your filesystem is in trouble and in many
-other cases.
+I can see where the size is needed, in order to make the system calls to
+set and get masks of arbitrary size.  Since these sizes are a multiple
+of sizeof(long), at a minimum this means user code needs to know the
+number of longs in a mask.  Though the number of bytes, as in
+sizeof(cpumask_t), rather than of longs, is perhaps a less surprising
+interface.
 
-This also means that there will be no other program run before or after
-bash. All you get is a prompt.
+I can't see where the user code cares whether NR_CPUS is 47 or 48?
 
-This means the keyboard will have to work without any setup - or you
-won't be able to type in anything, like a command to run the daemon, or
-a command to insert a module.
+Am I missing something?
 
+I am a firm believer in passing the minimum essential information across
+major boundaries.  Passing too much creates maintaince problems, and
+encourages misuse of information, resulting in bogus user code.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

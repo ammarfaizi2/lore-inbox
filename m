@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbUJYVd3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbUJYVda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbUJYVd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 17:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbUJYV35
+	id S261978AbUJYVda (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 17:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUJYV3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 17:29:57 -0400
-Received: from mail.dif.dk ([193.138.115.101]:30651 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261313AbUJYV0q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 17:26:46 -0400
-Date: Mon, 25 Oct 2004 23:35:01 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] binfmt_elf; check clear_user() return value in load_elf_binary()
-Message-ID: <Pine.LNX.4.61.0410252312040.3332@dragon.hygekrogen.localhost>
+	Mon, 25 Oct 2004 17:29:42 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:61073 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261981AbUJYV2Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 17:28:25 -0400
+Message-ID: <417D7089.3070208@tmr.com>
+Date: Mon, 25 Oct 2004 17:30:49 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The naming wars continue...
+References: <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org><Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org> <4179F81A.4010601@yahoo.com.au>
+In-Reply-To: <4179F81A.4010601@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin wrote:
 
-Andrew,
+> Linus I agree it isn't a huge issue. The main thing for me is that
+> I could just give a _real_ release candidate more testing - run it
+> through some regression tests, make sure it functions OK on all my
+> computers, etc. I expect this would be helpful for people with large
+> sets of regression tests, and maybe those maintaining 'other'
+> architectures too.
+> 
+> I understand there's always "one more" patch to go in, but now that
+> we're doing this stable-development system, I think a week or two
+> weeks or even three weeks to stabalize the release with only
+> really-real-bugfixes can't be such a bad thing.
+> 
+> 2.6.x-rc (rc for Ridiculous Count) can then be our development
+> releases, and 2.6.x-rc (rc for Release Candidate) are then closer
+> to stable releases (in terms of getting patches in).
+> 
+> Optionally, you could change Ridiculous Count to PRErelease to avoid
+> confusion :)
+> 
+> Other than that I don't have much to complain about... so keep up the
+> good work!
 
-Here's yet another small patch for fs/binfmt_elf.c. This one was created 
-incrementally to my previous patch that dealt with the clear_user() in 
-padzero(). It doesn't depend on that patch, but just so you know why the 
-offsets may be a little fuzzy if you apply it to vanilla.
+I do agree that the pre and rc names gave a strong hint that (-pre) new 
+features would be considered or (-rc) it's worth doing more serious 
+testing. If Linux doesn't like this any more, perhaps some other way to 
+indicate the same thing would be desirable. I admit that the kernel has 
+gotten so good that I only try -rc (by whatever name) kernel, I'm not 
+waiting for the next big thing. I think that's really good, actually.
 
-The patch gets rid of this warning:
- fs/binfmt_elf.c: In function `load_elf_binary':
- fs/binfmt_elf.c:758: warning: ignoring return value of `clear_user', declared with attribute warn_unused_result
-
-And makes sure that we check the return value of clear_user() and fail 
-appropriately if it fails to do its job.
-
-With this and the two previous patches we are now down to only two 
-warnings (and hopefully have a few potential problems less) in 
-binfmt_elf.c - patches for the remaining warnings will appear soon.
-
-Patch has been compile tested.
-Patch has been boot tested.
-Patch needs more eyeballs to make sure sending SIGKILL and returning 
--EFAULT really is appropriate here.
-
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.10-rc1-bk2/fs/binfmt_elf.c.juhl1 linux-2.6.10-rc1-bk2/fs/binfmt_elf.c
---- linux-2.6.10-rc1-bk2/fs/binfmt_elf.c.juhl1	2004-10-25 23:01:28.000000000 +0200
-+++ linux-2.6.10-rc1-bk2/fs/binfmt_elf.c	2004-10-25 23:15:38.000000000 +0200
-@@ -761,7 +761,11 @@ static int load_elf_binary(struct linux_
- 				nbyte = ELF_MIN_ALIGN - nbyte;
- 				if (nbyte > elf_brk - elf_bss)
- 					nbyte = elf_brk - elf_bss;
--				clear_user((void __user *) elf_bss + load_bias, nbyte);
-+				if (clear_user((void __user *) elf_bss + load_bias, nbyte)) {
-+					send_sig(SIGKILL, current, 0);
-+					retval = -EFAULT;
-+					goto out_free_dentry;
-+				}
- 			}
- 		}
- 
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

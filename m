@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316500AbSE3Iv0>; Thu, 30 May 2002 04:51:26 -0400
+	id <S316513AbSE3IyP>; Thu, 30 May 2002 04:54:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316512AbSE3IvZ>; Thu, 30 May 2002 04:51:25 -0400
-Received: from ftp.nfas.org.sz ([196.28.7.66]:44713 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316500AbSE3IvX>; Thu, 30 May 2002 04:51:23 -0400
-Date: Thu, 30 May 2002 10:23:43 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] resync 2.4 apicdef.h w/ 2.5
-In-Reply-To: <Pine.LNX.4.44.0205301021240.17117-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.LNX.4.44.0205301023150.17117-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316496AbSE3IyO>; Thu, 30 May 2002 04:54:14 -0400
+Received: from codepoet.org ([166.70.14.212]:61872 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S316513AbSE3IyM>;
+	Thu, 30 May 2002 04:54:12 -0400
+Date: Thu, 30 May 2002 02:54:13 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+        Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.19 - What's up with the kernel build?
+Message-ID: <20020530085413.GA29170@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0205292019090.9971-100000@chaos.physics.uiowa.edu> <3CF5E698.2020806@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 May 2002, Zwane Mwaikambo wrote:
+On Thu May 30, 2002 at 04:45:12AM -0400, Jeff Garzik wrote:
+> A small request to add to the list:
+> 
+> Current 2.4.x kernels build (at least on x86) with
+>     -nostdinc -I /usr/lib/gcc-lib/i586-mandrake-linux-gnu/3.0.4/include
 
-> This patch gets 2.4 linux/include/asm-i386/apicdef.h back in sync with 
-> whats in 2.5
+Shockingly, not everyone uses mandrake's gcc 3.0.4...  ;-)
 
-God i hate it when that happens...
+GCCINCDIR:= ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
+CFLAGS+=-nostdinc -I $(GCCINCDIR)
 
---- linux-2.4-ac/include/asm-i386/apicdef.h	Sun Aug 12 20:13:59 2001
-+++ linux-2.5-dj/include/asm-i386/apicdef.h	Thu May 30 09:38:02 2002
-@@ -71,6 +71,7 @@
- #define			GET_APIC_DEST_FIELD(x)	(((x)>>24)&0xFF)
- #define			SET_APIC_DEST_FIELD(x)	((x)<<24)
- #define		APIC_LVTT	0x320
-+#define		APIC_LVTTHMR	0x330
- #define		APIC_LVTPC	0x340
- #define		APIC_LVT0	0x350
- #define			APIC_LVT_TIMER_BASE_MASK	(0x3<<18)
-@@ -280,7 +281,16 @@
- 		u32 __reserved_4[3];
- 	} lvt_timer;
- 
--/*330*/	struct { u32 __reserved[4]; } __reserved_15;
-+/*330*/	struct { /* LVT - Thermal Sensor */
-+		u32  vector		:  8,
-+			delivery_mode	:  3,
-+			__reserved_1	:  1,
-+			delivery_status	:  1,
-+			__reserved_2	:  3,
-+			mask		:  1,
-+			__reserved_3	: 15;
-+		u32 __reserved_4[3];
-+	} lvt_thermal;
- 
- /*340*/	struct { /* LVT - Performance Counter */
- 		u32   vector		:  8,
+ -Erik
 
--- 
-http://function.linuxpower.ca
-		
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

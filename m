@@ -1,93 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264657AbSKMWX5>; Wed, 13 Nov 2002 17:23:57 -0500
+	id <S262981AbSKMWbF>; Wed, 13 Nov 2002 17:31:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264677AbSKMWXz>; Wed, 13 Nov 2002 17:23:55 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:39679 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S264657AbSKMWXn>;
-	Wed, 13 Nov 2002 17:23:43 -0500
-Message-ID: <01b101c28b64$47301880$77d40a0a@amr.corp.intel.com>
-From: "Rusty Lynch" <rusty@linux.co.intel.com>
-To: "Rusty Lynch" <rusty@linux.co.intel.com>,
-       "Arjan van de Ven" <arjanv@redhat.com>, "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <rusty@linux.co.intel.com>
-References: <200211132013.gADKDhS01389@linux.intel.com.suse.lists.linux.kernel> <1037220406.2889.4.camel@localhost.localdomain.suse.lists.linux.kernel> <p7365v1w4sh.fsf@oldwotan.suse.de> <013101c28b5b$0efcab80$77d40a0a@amr.corp.intel.com>
-Subject: Re: [PATCH][2.5.47]Add exported valid_kernel_address()
-Date: Wed, 13 Nov 2002 14:30:32 -0800
+	id <S262826AbSKMWbF>; Wed, 13 Nov 2002 17:31:05 -0500
+Received: from dp.samba.org ([66.70.73.150]:29588 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262646AbSKMWbE>;
+	Wed, 13 Nov 2002 17:31:04 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <15826.54336.577805.474920@argo.ozlabs.ibm.com>
+Date: Thu, 14 Nov 2002 09:37:52 +1100
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Steve Lord <lord@sgi.com>, Anders Gustafsson <andersg@0x63.nu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5-bk AT_GID clash 
+In-Reply-To: <20021113071630.190EC2C077@lists.samba.org>
+References: <1037122398.27014.43.camel@jen.americas.sgi.com>
+	<20021113071630.190EC2C077@lists.samba.org>
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To clarify further, I am talking about the sample driver I submitted earlier
-at
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103721364225087&w=2
+Rusty Russell writes:
 
-The patch implements a char device that enables arbitrary printk's to be
-inserted at in arbitrary kernel addresses.  It is used by writing strings of
-the
-form "0xADDRESS MESSAGE" to the device.
+> But IMHO the nameclash needs to be fixed *anyway*, not hacked around,
+> or someone else will run over it one day.  AFAICT, changing
+> fs/binfmt_elf.c and elf.h to AT_RGID is the simplest.  Both should be
+> mildly chastised for using a prefix like AT_ publically.
 
-I was looking for a way to verify the address passed in was valid before
-creating and inserting a new probe.
+The name (AT_GID) is mandated by the ABI specification IIRC.
 
-Maybe there is a better way to verify a kernel address is valid before
-messing
-with it?
-
-    -rusty
------ Original Message -----
-From: "Rusty Lynch" <rusty@linux.co.intel.com>
-To: "Arjan van de Ven" <arjanv@redhat.com>; "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>; <rusty@linux.co.intel.com>
-Sent: Wednesday, November 13, 2002 1:24 PM
-Subject: Re: [PATCH][2.5.47]Add exported valid_kernel_address()
-
-
-> I had a need for it in a sample kprobes driver where I wanted to verify
-that
-> some address
-> was a valid kernel space address before I handed a probe to kprobes.
->
-> So I would do something like:
->
-> if (!valid_kernel_address(probe->addr)) {
->     ret = -EINVAL;
->     goto out;
-> }
->
-> register_kprobe(probe);
->
-> and then kpboes will go and attempt to set *(probe->addr) = BREAK_POINT;
->
->     -rustyl
-> ----- Original Message -----
-> From: "Andi Kleen" <ak@suse.de>
-> To: "Arjan van de Ven" <arjanv@redhat.com>
-> Cc: <linux-kernel@vger.kernel.org>; <rusty@linux.co.intel.com>
-> Sent: Wednesday, November 13, 2002 1:14 PM
-> Subject: Re: [PATCH][2.5.47]Add exported valid_kernel_address()
->
->
-> > Arjan van de Ven <arjanv@redhat.com> writes:
-> >
-> > > it is customary that people who ask for an export explain why they
-need
-> > > it.... would you mind explaining that ?
-> >
-> > For modular lkcd I guess. Make a lot of sense to do it modular.
-> >
-> > -Andi
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Paul.

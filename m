@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbTEYHoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 03:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbTEYHoZ
+	id S261444AbTEYHtm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 03:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbTEYHtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 03:44:25 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:49677 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id S261422AbTEYHoY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 03:44:24 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc3 - ipmi unresolved 
-In-reply-to: Your message of "Fri, 23 May 2003 23:38:53 +1000."
-             <3ECE246D.E3B27BCB@eyal.emu.id.au> 
+	Sun, 25 May 2003 03:49:42 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9226 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261444AbTEYHtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 03:49:42 -0400
+Date: Sun, 25 May 2003 09:02:47 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ben Collins <bcollins@debian.org>
+Cc: Patrick Mochel <mochel@osdl.org>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
+Message-ID: <20030525090247.A22027@flint.arm.linux.org.uk>
+Mail-Followup-To: Ben Collins <bcollins@debian.org>,
+	Patrick Mochel <mochel@osdl.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <20030513071412.GS433@phunnypharm.org> <Pine.LNX.4.44.0305130808040.9816-100000@cherise> <20030516002059.GE433@phunnypharm.org> <20030525000701.GG504@phunnypharm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 25 May 2003 17:57:21 +1000
-Message-ID: <28098.1053849441@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030525000701.GG504@phunnypharm.org>; from bcollins@debian.org on Sat, May 24, 2003 at 08:07:01PM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 May 2003 23:38:53 +1000, 
-Eyal Lebedinsky <eyal@eyal.emu.id.au> wrote:
->The exports in ksyms are still necessary, and missing:
->
->depmod: *** Unresolved symbols in
->/lib/modules/2.4.21-rc3/kernel/drivers/char/ipmi/ipmi_msghandler.o
->depmod:         panic_notifier_list
->depmod: *** Unresolved symbols in
->/lib/modules/2.4.21-rc3/kernel/drivers/char/ipmi/ipmi_watchdog.o
->depmod:         panic_notifier_list
->depmod:         panic_timeout
+On Sat, May 24, 2003 at 08:07:01PM -0400, Ben Collins wrote:
+> Given that the problem with KOBJ_NAME_LEN == 20 affecting one snd driver
+> has so far only been explained as a compiler bug, can I suggest this
+> patch be applied?
 
-Danger Will Robinson: panic notification to modules is racy.
+No one has confirmed that it is a compiler bug yet.  We only suspect
+that something in the yamaha driver is getting miscompiled.  We don't
+know what, we don't know how, we don't know why.
 
-Registering via panic_notifier_list does not bump the module use count,
-a panic can occur while a module is being unloaded and you are dead.
-No big deal for panic, you are already dying, but it is just a symptom
-of a larger problem, yet another uncounted reference to module code.
-_ANY_ notifier callback to a module is racy, think very carefully
-before exporting any XXX_notifier_list.
-
-I would go so far as to say that no XXX_notifier_list should be
-exported, that includes notifier_chain_register() itself.  If a module
-needs to be notified then it should have glue code in the main kernel
-that does try_inc_mod_count() on the module before calling any module
-functions.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

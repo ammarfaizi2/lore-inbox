@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265923AbTF3WW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 18:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265921AbTF3WW6
+	id S265935AbTF3WYo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 18:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265937AbTF3WYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 18:22:58 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16329 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265932AbTF3WWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 18:22:14 -0400
-Date: Tue, 1 Jul 2003 00:36:27 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       Michael Chan <mchan@broadcom.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What did I miss?
-Message-ID: <20030630223627.GL282@fs.tum.de>
-References: <20030630161112.GB24137@rdlg.net> <20030630184733.GI282@fs.tum.de> <20030630185413.GE24137@rdlg.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030630185413.GE24137@rdlg.net>
-User-Agent: Mutt/1.4.1i
+	Mon, 30 Jun 2003 18:24:44 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:40977 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S265935AbTF3WYm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 18:24:42 -0400
+From: dth@ncc1701.cistron.net (Danny ter Haar)
+Subject: Re: 2.4.21 IDE problems (lost interrupt, bad DMA status)
+Date: Mon, 30 Jun 2003 22:39:03 +0000 (UTC)
+Organization: Cistron
+Message-ID: <bdqe67$bgp$1@news.cistron.nl>
+References: <20030630221542.GA17416@alf.amelek.gda.pl>
+X-Trace: ncc1701.cistron.net 1057012743 11801 62.216.30.38 (30 Jun 2003 22:39:03 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@ncc1701.cistron.net (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 30, 2003 at 02:54:13PM -0400, Robert L. Harris wrote:
-> 
-> Attaching, and thanks for taking the time to poke this.
+Marek Michalkiewicz  <marekm@amelek.gda.pl> wrote:
+>I don't remember seeing anything like that in any earlier 2.4.x
+>kernels.  Is this a known problem?  Is this anything dangerous -
+>should I disable UDMA for now to play it safe?
 
-Thanks, a fix is below.
+afaik this concerns a "lost" interrupt.
+Alan Cox's -ax__ pre-patches (current ac4) seems to fix it 
+for a lot of people. Other approch is to disable IO_APIC on
+uni processors during kernel compile.
 
-The problem is in the BCM4400 driver -ac adds. bcm4400_remove_one is 
-__devexit but the pointer to it didn't use __devexit_p resulting in a
-.text.exit error if CONFIG_HOTPLUG is disabled.
+Happy compiling ;-)
 
-cu
-Adrian
+Danny
 
+-- 
+Miguel   | "I can't tell if I have worked all my life or if
+de Icaza |  I have never worked a single day of my life,"
 
---- drivers/net/bcm4400/b44um.c.old	2003-07-01 00:23:01.000000000 +0200
-+++ drivers/net/bcm4400/b44um.c	2003-07-01 00:26:07.000000000 +0200
-@@ -1019,7 +1019,7 @@
- 	name:		bcm4400_driver,
- 	id_table:	bcm4400_pci_tbl,
- 	probe:		bcm4400_init_one,
--	remove:		bcm4400_remove_one,
-+	remove:		__devexit_p(bcm4400_remove_one),
- 	suspend:	bcm4400_suspend,
- 	resume:		bcm4400_resume,
- };

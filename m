@@ -1,86 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266705AbSKHBqn>; Thu, 7 Nov 2002 20:46:43 -0500
+	id <S266709AbSKHBtE>; Thu, 7 Nov 2002 20:49:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266707AbSKHBqn>; Thu, 7 Nov 2002 20:46:43 -0500
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:19186 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S266705AbSKHBqm>;
-	Thu, 7 Nov 2002 20:46:42 -0500
-Date: Thu, 7 Nov 2002 20:53:16 -0500
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: MdkDev <mdkdev@starman.ee>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.46: ide-cd cdrecord success report
-Message-ID: <20021108015316.GA1041@www.kroptech.com>
-References: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee> <20021107180709.GB18866@www.kroptech.com> <32894.62.65.205.175.1036692849.squirrel@webmail.starman.ee>
+	id <S266710AbSKHBtE>; Thu, 7 Nov 2002 20:49:04 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:5130 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S266709AbSKHBs7>; Thu, 7 Nov 2002 20:48:59 -0500
+Date: Thu, 7 Nov 2002 17:55:33 -0800
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why are exe, cwd, and root priviledged bits of information?
+Message-ID: <20021108015533.GC2249@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.33L2.0211071052540.8252-100000@rtlab.med.cornell.edu> <20021107221615.GA2249@pegasys.ws> <20021107222854.GA31412@nevyn.them.org> <200211071641.01585.pollard@admin.navo.hpc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <32894.62.65.205.175.1036692849.squirrel@webmail.starman.ee>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200211071641.01585.pollard@admin.navo.hpc.mil>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07, 2002 at 08:14:09PM +0200, MdkDev wrote:
+On Thu, Nov 07, 2002 at 04:41:01PM -0600, Jesse Pollard wrote:
+> On Thursday 07 November 2002 04:28 pm, Daniel Jacobowitz wrote:
+> > On Thu, Nov 07, 2002 at 02:16:15PM -0800, jw schultz wrote:
+> > > On Thu, Nov 07, 2002 at 11:05:21AM -0500, Daniel Jacobowitz wrote:
+> > > > On Thu, Nov 07, 2002 at 10:57:06AM -0500, Calin A. Culianu wrote:
+> > > > > In the /prod/PID subset of procfs, why are the exe, cwd, and root
+> > > > > symlinks considered priviledged information?
+> > > > >
+> > > > > Exe is the big one for me, as this one can be usually infered from
+> > > > > reading /prod/PID/maps.  Root I guess can't be inferred in any
+> > > > > unpriviledged way, and neither can cwd.  At any rate.. I am not sure
+> > > > > behind the philosophy to make these symlinks' destinations
+> > > > > priviledged...  can someone clarify this?
+> > > >
+> > > > This came up a little while ago.  The answer is that maps should be
+> > > > priviledged also.
+> > > >
+> > > > For instance:
+> > > >   You can protect a directory by giving its parent directory no read
+> > > > permissions.  The name of the directory is now secret.  You don't want
+> > > > to reveal it in cwd.
+> > >
+> > > Daniel is correct in that the issue came up recently.  He
+> > > gives _his_ answer above.  If you believe in security
+> > > through obscurity you will agree with him.  I don't.
+> > > I will agree that there should be no real reason to need
+> > > access to this information.
+> > >
+> > > With ACLs you will be able to explicitly grant access and
+> > > you won't have to depend on keeping shared info secret.
+> > > Then this will be less of an issue.
+> >
+> > I recommend you go think about what security through obscurity actually
+> > _means_.  If you think that an unreadable directory and a
+> > randomly-generated subdirectory is security through obscurity, then in
+> > what way is it actually different from a _password_?  That's what it
+> > is.
+> >
+> > Yes, this is poor-man's-ACLs.  It works in a lot of places when ACLs
+> > won't.  For instance, an anonymous FTP server...
 > 
-> > Thanks, this is good information. Was the destination for the 'dd' and
-> > the source CD image on the same drive? What filesystem were you using?
+> It also isn't necessarily just for obscurity.
 > 
-> Yes, destination for the dd and the source for the CD image was on the
-> same drive. I'm using ext3 filesystem.
->
-> > I notice you used a 4x writer...I'll try lowering my write speed to 4x
-> > and see if that makes a difference. I'll also see if I can rig up an
-> > IDE disk instead of SCSI.
+> If the directory contains customer contact lists, where each customer
+> is represented by a directory entry, and all communications to/from that
+> customer is stored in files. You don't want the cwd to be exposed by
+> a process that may set its' workspace to a specific customer.
 > 
-> The burner is capable of writing 16x (CDR) or 10x (CDRW) but the speed was
-> 4x in this case because of the media. I'll try and repeat the test using
-> max speed.
+> That is NOT security by obscurity. Exposure is called a "leak".
+> And it is entirely possible for sensitive information to be embeded
+> in pathnames, process names, and parameters (most often).
 
-I've done some more testing and narrowed the problem down a little. I
-switched to an IDE drive to rule out SCSI and found that the problem is
-still with me: a parallel `dd` to the image source drive still kills burn.
+I painted with too broad a brush.  I apologize.
 
-Then I lowered the write speed from 12x down to 4x to match yours...and
-then the problem went away. A look at `vmstat 1` shows that the heavy
-write load causes the read throughput to drop to about 768 KB/sec.
-That's far too slow for 12x but is just about right for 4x. Makes sense,
-then that a 4x burn survives.
+I'm afraid i'll never consider shared secrets to be secure.
+They may provide privacy but not security.
 
-It's easy to duplicate without involving cdrecord at all. Just do...
+Jesse's example where confidential information is part of
+paths not permitted is an extremely good example of why
+access to /proc/pid/maps should be restricted and by no
+means qualifies for the pejorative i flung so thoughtlessly.
 
-dd if=/dev/hda1 of=/dev/null bs=1M
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-...in parallel with...
-
-dd if=/dev/zero of=/mnt/foo bs=1M
-
-When you kick in the write load, the read throughput drops to < 1
-MB/sec. `vmstat 1` output below shows the transition...
-
---Adam
-
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
- 2  0  0   4272 112684  20356  36856    0    0     0    16 1016    72  5  0 95
- 0  1  1   4272 108476  23676  36856    0    0  3320     0 1067   224 13  4 83
- 1  0  1   4272  96656  35580  36856    0    0 11904     0 1192   474 30 39 30
- 0  1  0   4272  84836  47356  36856    0    0 11776     0 1192   463 30 42 27
- 0  1  1   4272  72956  59268  36856    0    0 11904    40 1313  1139 44 38 18
- 0  1  0   4272  61076  71044  36856    0    0 11776     0 1200   478 29 43 29
- 0  1  0   4272  49256  82828  36856    0    0 11784     0 1199   522 39 37 24
- 0  1  0   4272  37196  94732  36856    0    0 11904     0 1199   497 35 38 26
- 0  1  0   4272  25256 106508  36856    0    0 11776     0 1199   512 32 43 24
- 1  2  3   4692   2468  75604  90132    0  420  9608 10888 1189   721 19 75  6
- 0  2  3   4692   3540  46932 117580    0    0   808 10428 1093   287 30 70  0
- 0  2  3   4692   3448  42916 121624    0    0  1024  8824 1099   266 65 35  0
- 0  2  3   4692   3200  35152 129692    0    0  1024  6512 1088   294 55 45  0
- 0  2  4   4692   1564  24640 141696    0    0   768  7688 1091   277 44 56  0
- 1  1  2   4692   3492  19044 145484    0    0  1024  5956 1084   285 69 31  0
- 0  2  3   4692   3492  12020 152448    0    0   768  7192 1085   298 55 45  0
- 0  2  3   4692   3432  12444 152056    0    0   676  6852 1086   266 55 45  0
- 0  2  3   4692   3612  12196 152288    0    0   768  5724 1083   287 55 45  0
- 0  2  3   4692   3552  12580 151900    0    0   768  7756 1088   272 65 35  0
- 2  2  3   4692   3492  12840 152048    0    0  1024  5032 1195   691 66 34  0
- 0  2  3   4692   3792  13304 151212    0    0   772  7452 1191   586 60 40  0
-
+		Remember Cernan and Schmitt

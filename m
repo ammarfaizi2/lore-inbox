@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbTJINty (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 09:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTJINty
+	id S262034AbTJINqj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 09:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTJINqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 09:49:54 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:13187 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S261963AbTJINtx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 09:49:53 -0400
-Date: Thu, 9 Oct 2003 10:52:05 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Willy TARREAU <willy@w.ods.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, <andersen@codepoet.org>,
-       <linux-kernel@vger.kernel.org>, <davem@redhat.com>
-Subject: Re: iproute2 not compiling anymore
-In-Reply-To: <20031005130044.GA8861@pcw.home.local>
-Message-ID: <Pine.LNX.4.44.0310091051240.3040-100000@logos.cnet>
+	Thu, 9 Oct 2003 09:46:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:261 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262034AbTJINqi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 09:46:38 -0400
+Date: Thu, 9 Oct 2003 09:45:57 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Tom Zanussi <zanussi@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, <karim@opersys.com>, <bob@watson.ibm.com>
+Subject: Re: [PATCH][RFC] relayfs (1/4) (Documentation)
+In-Reply-To: <16259.10547.72758.205812@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.44.0310090943200.13537-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 7 Oct 2003, Tom Zanussi wrote:
+
+> This 4-part patch contains code for an interim version of relayfs (see
+> Documentation below for a description of relayfs).
+
+What is wrong with using Netlink sockets instead of this?
 
 
-On Sun, 5 Oct 2003, Willy TARREAU wrote:
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-> Hi Marcelo, all,
-> 
-> On Sun, Oct 05, 2003 at 09:42:30AM -0300, Marcelo Tosatti wrote:
-> > In previous messages you said iproute used to compile on "olders" 2.4.x 
-> > kernel but doesnt compile anymore on recent 2.4. Is that information 
-> > correct ? 
-> > 
-> > Can you tell me in more detail what is failing?
-> 
-> Just tested, and I confirm this too :
-
-Willy,
-
-David seems to have fixed it. Mind trying to again with the latest BK 
-tree?
-
-Danke
 

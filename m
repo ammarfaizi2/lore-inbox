@@ -1,77 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266523AbUHSPRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUHSOu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266523AbUHSPRV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 11:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUHSPRU
+	id S266344AbUHSOu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 10:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUHSOuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 11:17:20 -0400
-Received: from pri-dns1.mtco.com ([207.179.200.251]:12966 "HELO
-	pri-dns1.mtco.com") by vger.kernel.org with SMTP id S266523AbUHSPPw
+	Thu, 19 Aug 2004 10:50:25 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:43395 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266349AbUHSOqT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 11:15:52 -0400
-From: Tom Felker <tcfelker@mtco.com>
-To: Karel Demeyer <kmdemeye@vub.ac.be>
-Subject: Re: ati_remote for medion
-Date: Thu, 19 Aug 2004 10:16:06 -0500
-User-Agent: KMail/1.6.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1092904136.3352.5.camel@kryptonix>
-In-Reply-To: <1092904136.3352.5.camel@kryptonix>
+	Thu, 19 Aug 2004 10:46:19 -0400
+Date: Thu, 19 Aug 2004 10:46:04 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Nigel Rantor <wiggly@wiggly.org>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CD/DVD record
+In-Reply-To: <4124AD0B.6090908@wiggly.org>
+Message-ID: <Pine.LNX.4.53.0408191041430.19454@chaos>
+References: <Pine.LNX.4.53.0408190917140.19253@chaos> <4124AD0B.6090908@wiggly.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408191016.06528.tcfelker@mtco.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 August 2004 03:28 am, Karel Demeyer wrote:
-> > I sent a patch to support the Medion RC to the linux-usb-devel list in
-> > April 04 (http://thread.gmane.org/gmane.linux.usb.devel/20928) but it
-> > got ignored. I think the main problem is to support the different key
-> > mappings in the driver. The easiest approach would be to expand the
->
-> hard
->
-> > coded key translation table for each supported RC. If that would be
-> > acceptable, I could prepare a patch.
-> >
-> > Is there a another way to handle remote control key mappings in the
-> > input subsystem?
-> >
-> > Wolfgang
->
-> I'm not sure if my key-mappings are the best, but for my use they are
-> excellent.  I added a 'Ctrl', 'Alt', 'Tab', 'Esc' and some more keys.
-> The 'fullscreen'-button acts as a 'f', as it makes Totem, TVtime, gXine
-> etc go fullscreen ...
->
-> I don't know how, but if I still could help in any way, make it clear
-> how :)
->
-> friendly greets,
->
-> Karel "scapor" Demeyer
+On Thu, 19 Aug 2004, Nigel Rantor wrote:
 
-Are the keycodes unique enough that you can just put the keymaps for both 
-remotes into the same table?  I.E. when you wrote your keymaps, did you have 
-to remove some of the others to get it to work, or was that just for 
-cleanliness?  Otherwise, we'd need to have multiple tables and choose which 
-to use based on which remote is being used.
+> Richard B. Johnson wrote:
+> > Hello all...
+> > Recording this stuff is basically sending some commands to
+> > a device and then keeping a FIFO full until done.
+>
+> Lots of things that are easy to sum up on one sentence turn out the be
+> hairy as a wookie, but yes, it does seem like a Simple(tm) problem.
+>
 
-Oh, and do stick around, Karel, someone will need to test the result.
+Yes. There are hardware bugs (I once though bug was a reserved-
+for-software word), moths are hardware problems ... Anyway...
+some thought to putting all the differences in some writable
+ASCII text and writing a program around that might be more
+useful than complaining about an author's insistance upon
+using some "strange at least for Unix" device naming scheme.
 
-BTW, does anyone know whether the probe function actually needs to check 
-whether the product and vendor IDs match the device?  I've seen docs that 
-imply yes, but many drivers don't check, and I feel stupid iterating thru the 
-table if no.
+> > If `cdrecord` doesn't do it, one can hack together something
+> > that works in a day or so,... really good stuff in a week.
+>
+> Hmm...not sure about that. Not if you do want device specific fixes in
+> there too...
+>
 
-Have fun,
+Back to the parse-stuff-in-a-file idea.
 
--- 
-Tom Felker, <tcfelker@mtco.com>
-<http://vlevel.sourceforge.net> - Stop fiddling with the volume knob.
+> > Maybe it's time to ......  anyway ..... the device characteristics
+> > should be kept in an ASCII text file so the software doesn't have
+> > to be re-written everytime a new CD recorder becomes available.
+>
+> Sounds good.
+>
+> > Maybe the `cdrecord` author needs some competition. This sounds
+> > like a good beginner's project....
+>
+> I'll admit to having some time on my hands but acquiring equipment to
+> test with would be a stumbling block for me.
+>
+> It would be nice if everyone could just put their egos aside and provide
+> a united front wrt FOSS cd/dvd recording.
+>
+> I was going to make some suggestions about how to do the above but then
+> I have also been following the cdrecord thread and I'm not sure wading
+> in on that makes sense...
+>
+>    N
+>
 
-If nature has made any one thing less susceptible than all others of exclusive 
-property, it is the action of the thinking power called an idea.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

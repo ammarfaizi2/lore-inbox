@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265862AbTLIO0W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 09:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265867AbTLIOWo
+	id S265863AbTLIOSt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 09:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265864AbTLIOSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 09:22:44 -0500
-Received: from as13-5-5.has.s.bonet.se ([217.215.179.23]:38857 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S265866AbTLIOVE
+	Tue, 9 Dec 2003 09:18:49 -0500
+Received: from mother.ds.pg.gda.pl ([153.19.213.213]:61841 "HELO
+	mother.ds.pg.gda.pl") by vger.kernel.org with SMTP id S265863AbTLIOSk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 09:21:04 -0500
-Message-ID: <3FD5DAF6.8050100@stesmi.com>
-Date: Tue, 09 Dec 2003 15:23:50 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joe Thornber <thornber@sistina.com>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Device-mapper submission for 2.4
-References: <20031209115806.GA472@reti> <Pine.LNX.4.44.0312091113510.1289-100000@logos.cnet> <20031209134551.GG472@reti>
-In-Reply-To: <20031209134551.GG472@reti>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Dec 2003 09:18:40 -0500
+Date: Tue, 9 Dec 2003 15:18:37 +0100
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: sensors vs 2.6
+Message-ID: <20031209141837.GA29636@irc.pl>
+Mail-Followup-To: Tomasz Torcz <zdzichu@irc.pl>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <200312090258.01944.gene.heskett@verizon.net> <m3zne21dsw.fsf@toyland.sauerland.de> <200312090741.31290.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312090741.31290.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Thornber wrote:
+On Tue, Dec 09, 2003 at 07:41:31AM -0500, Gene Heskett wrote:
+> So obviously something didn't get built, and it looks like its the 
+> winbond stuff.  The question is why?  Is there some method that can 
+> be used to interrogate the kernel and determine if the stuff is 
+> actually in there?
 
-> On Tue, Dec 09, 2003 at 11:15:08AM -0200, Marcelo Tosatti wrote:
-> 
->>I believe 2.6 is the right place for the device mapper. 
-> 
-> 
-> So what's the difference between a new filesystem like XFS and a new
-> device driver like dm ?
+Maybe related: via sensors stuff is very picky about order of module
+loading.
+It does NOT work when i2c-dev, i2c-algo-bit and rest of sensors stuff
+(isa bus, via modules) are built INTO kernel.
+When everything is in modules, iw works ONLY when via modules are
+modprobed _before_ anything using i2c.
+Loading other i2c modules (bttv, lirc or sth else) before via modules
+makes sensors unusable - there is no /sys/[...]/via directory,
+or this directory is empty.
 
-One thing you're missing is that after all, XFS has existed longer than
-dm. Hell, XFS existed before 2.4 did (in a Linux form, I'm not talking
-IRIX now).
-
-XFS is also a new filesystem as you said but DM is meant as a
-replacement for other functions, not strictly as an additive.
-
-// Stefan
-
+ 
+-- 
+Tomasz Torcz                "Funeral in the morning, IDE hacking 
+zdzichu@irc.-nie.spam-.pl    in the afternoon and evening." - Alan Cox 
+|> Playing: stream1.jungletrain.net:8000 ...

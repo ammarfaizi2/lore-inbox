@@ -1,87 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270877AbTHATrb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 15:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270875AbTHATqn
+	id S274961AbTHAToN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 15:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270927AbTHATiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 15:46:43 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:50111
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S270858AbTHAToY
+	Fri, 1 Aug 2003 15:38:46 -0400
+Received: from mail.kroah.org ([65.200.24.183]:9151 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270861AbTHATc2 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 15:44:24 -0400
-Date: Fri, 1 Aug 2003 15:44:20 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [BK PATCHES] 2.6.x net driver merges
-Message-ID: <20030801194420.GD3571@gtf.org>
+	Fri, 1 Aug 2003 15:32:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <1059766327227@kroah.com>
+Subject: Re: [PATCH] PCI fixes for 2.6.0-test2
+In-Reply-To: <10597663273174@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 1 Aug 2003 12:32:07 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1547.13.3, 2003/08/01 10:13:46-07:00, mitch@sfgoth.com
 
-Linus, please do a
+[PATCH] PCI: add 2 entries to pci_ids.h
 
-	bk pull bk://gkernel.bkbits.net/net-drivers-2.5
+These have been in the pci.ids file for awhile but not in <linux/pci_ids.h>
+They're used by my drivers/atm/lanai.c driver that has been in tree for
+some time now (it provides its own copy of these #define's protected by
+an #ifndef - I'll remove that once this patch goes into the mainline)
 
-Others may download the patch from
 
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-test2-netdrvr1.patch.bz2
+ include/linux/pci_ids.h |    2 ++
+ 1 files changed, 2 insertions(+)
 
-This will update the following files:
 
- Documentation/networking/bonding.txt |  343 ++++++++++++++++++++++++-----------
- Documentation/networking/ifenslave.c |    3 
- drivers/net/arcnet/com20020-isa.c    |    2 
- drivers/net/tokenring/ibmtr.c        |    3 
- drivers/net/wireless/airo.c          |  104 +++++++---
- 5 files changed, 309 insertions(+), 146 deletions(-)
-
-through these ChangeSets:
-
-<jgarzik@redhat.com> (03/08/01 1.1547.8.10)
-   Cset exclude: jgarzik@redhat.com|ChangeSet|20030731201437|53548
-   
-   My fix was wrong, and, mainline now has a better fix.
-
-<jgarzik@redhat.com> (03/07/31 1.1547.8.9)
-   [tokenring ibmtr_cs] fix build, due to missing ibmtr.c build
-   
-   Note: Better fix is needed.
-   
-   Contributed by Mike Phillips.
-
-<jgarzik@redhat.com> (03/07/31 1.1547.8.8)
-   [arcnet com20020-isa] fix build broken by lack of ->owner
-
-<jgarzik@redhat.com> (03/07/31 1.1547.8.7)
-   [netdrvr bonding] fix ifenslave build on ia64
-   
-   Forward port from 2.4.
-
-<jgarzik@redhat.com> (03/07/31 1.1547.8.6)
-   [netdrvr bonding] update docs
-
-<achirica@telefonica.net> (03/07/29 1.1547.8.5)
-   [wireless airo] adds support for noise level reporting (if available)
-
-<achirica@telefonica.net> (03/07/29 1.1547.8.4)
-   [wireless airo] makes the card passive when entering monitor mode
-
-<achirica@telefonica.net> (03/07/29 1.1547.8.3)
-   [wireless airo] eliminate infinite loop
-   
-   makes sure a possible (never happened, but just in case) infinite
-   loop in the transmission code terminates.
-
-<achirica@telefonica.net> (03/07/29 1.1547.8.2)
-   [wireless airo] safer shutdown sequence
-   
-   changes the card shutdown sequence to a safer one
-
-<achirica@telefonica.net> (03/07/29 1.1547.8.1)
-   [wireless airo] fix Tx race
+diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h	Fri Aug  1 12:17:29 2003
++++ b/include/linux/pci_ids.h	Fri Aug  1 12:17:29 2003
+@@ -1205,6 +1205,8 @@
+ #define PCI_VENDOR_ID_EF		0x111a
+ #define PCI_DEVICE_ID_EF_ATM_FPGA	0x0000
+ #define PCI_DEVICE_ID_EF_ATM_ASIC	0x0002
++#define PCI_VENDOR_ID_EF_ATM_LANAI2	0x0003
++#define PCI_VENDOR_ID_EF_ATM_LANAIHB	0x0005
+ 
+ #define PCI_VENDOR_ID_IDT		0x111d
+ #define PCI_DEVICE_ID_IDT_IDT77201	0x0001
 

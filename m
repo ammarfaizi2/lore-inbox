@@ -1,65 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVAGW5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVAGXCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbVAGW5e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 17:57:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVAGW44
+	id S261704AbVAGXCK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 18:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVAGXBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:56:56 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:1555 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261684AbVAGWxR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:53:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=CUw/CosNtuwtKi9eO1kjcsi2CIY+/ZpNJq6pim31CBfhz8Ni4EGKrNGl2BkijdcbuQhDW28EXmJ1GiGKwcnZ+O3EBDzF5BZBjkx5PfRLdyVsq6BF/OwI0qxvfb5bsubrXdoeHTWm1YvJePr+cJiOEHXjzUmk2o3FlAkpfV4hOZw=
-Date: Fri, 7 Jan 2005 23:53:27 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: alan@lxorguk.ukuu.org.uk, oleg@tv-sign.ru, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Make pipe data structure be a circular list of pages, rather
- than
-Message-Id: <20050107235327.788ee7a8.diegocg@gmail.com>
-In-Reply-To: <Pine.LNX.4.58.0501071349320.2272@ppc970.osdl.org>
-References: <41DE9D10.B33ED5E4@tv-sign.ru>
-	<Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
-	<1105113998.24187.361.camel@localhost.localdomain>
-	<Pine.LNX.4.58.0501070923590.2272@ppc970.osdl.org>
-	<Pine.LNX.4.58.0501070936500.2272@ppc970.osdl.org>
-	<Pine.LNX.4.58.0501071349320.2272@ppc970.osdl.org>
-X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Fri, 7 Jan 2005 18:01:41 -0500
+Received: from mailout.zma.compaq.com ([161.114.64.103]:18184 "EHLO
+	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S261679AbVAGW6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:58:48 -0500
+Date: Fri, 7 Jan 2005 16:58:43 -0600
+From: mike.miller@hp.com
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH 2.6] cciss update to version 2.6.4
+Message-ID: <20050107225843.GA26037@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Fri, 7 Jan 2005 13:59:53 -0800 (PST) Linus Torvalds <torvalds@osdl.org> escribió:
+This patch removes support for 2 controllers that were recently cancelled and
+it adds support for the P600, a cciss based SAS controller due to ship in 
+late March/early April '05.
+Neither of these controllers have made it to the field.
 
-> Btw, from limited testing this effect seems to be much more pronounced on
-> SMP.
+Signed-off-by: Mike Miller <mike.miller@hp.com>
 
-I've tried it in a 2xPIII, 512 MB of ram. I've done kernel compiles...yeah
-yeah I know kernel compiles are not a good benchmark but since linux uses
--pipe for gcc...I though it may try it to see if it makes a difference
-(suggestions about better methods to test this are accepted :). The results
-could be very well stadistical noise (it looks like it only takes a second less
-on average), but I though it may be interesting.
-
-
-without the patch:
-952.84user 98.64system 8:54.64elapsed 196%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+7318007minor)pagefaults 0swaps
-951.78user 98.25system 8:53.71elapsed 196%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+7318009minor)pagefaults 0swaps
-954.53user 99.12system 8:53.02elapsed 197%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+7318041minor)pagefaults 0swaps
-
-with it:
-951.67user 97.59system 8:53.12elapsed 196%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+7318010minor)pagefaults 0swaps
-949.04user 97.68system 8:52.04elapsed 196%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+7318018minor)pagefaults 0swaps
-948.40user 97.37system 8:51.48elapsed 196%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+7318011minor)pagefaults 0swaps
+ Documentation/cciss.txt |    3 +--
+ drivers/block/cciss.c   |   17 +++++++----------
+ include/linux/pci_ids.h |    2 +-
+ 3 files changed, 9 insertions(+), 13 deletions(-)
+-------------------------------------------------------------------------------
+diff -burNp lx2610.orig/Documentation/cciss.txt lx2610/Documentation/cciss.txt
+--- lx2610.orig/Documentation/cciss.txt	2004-12-24 15:34:00.000000000 -0600
++++ lx2610/Documentation/cciss.txt	2005-01-07 11:51:15.590391280 -0600
+@@ -14,8 +14,7 @@ This driver is known to work with the fo
+ 	* SA 6400
+ 	* SA 6400 U320 Expansion Module
+ 	* SA 6i
+-	* SA 6422
+-	* SA V100
++	* SA P600
+ 
+ If nodes are not already created in the /dev/cciss directory
+ 
+diff -burNp lx2610.orig/drivers/block/cciss.c lx2610/drivers/block/cciss.c
+--- lx2610.orig/drivers/block/cciss.c	2004-12-24 15:35:39.000000000 -0600
++++ lx2610/drivers/block/cciss.c	2005-01-07 11:50:43.366290088 -0600
+@@ -46,14 +46,14 @@
+ #include <linux/completion.h>
+ 
+ #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
+-#define DRIVER_NAME "HP CISS Driver (v 2.6.2)"
+-#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,6,2)
++#define DRIVER_NAME "HP CISS Driver (v 2.6.4)"
++#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,6,4)
+ 
+ /* Embedded module documentation macros - see modules.h */
+ MODULE_AUTHOR("Hewlett-Packard Company");
+-MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 2.6.2");
++MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 2.6.4");
+ MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"
+-			" SA6i V100");
++			" SA6i P600");
+ MODULE_LICENSE("GPL");
+ 
+ #include "cciss_cmd.h"
+@@ -80,10 +80,8 @@ const struct pci_device_id cciss_pci_dev
+ 		0x0E11, 0x409D, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
+ 		0x0E11, 0x4091, 0, 0, 0},
+-	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
+-		0x0E11, 0x409E, 0, 0, 0},
+-	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISS,
+-		0x103C, 0x3211, 0, 0, 0},
++	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSA,
++		0x103C, 0x3225, 0, 0, 0},
+ 	{0,}
+ };
+ MODULE_DEVICE_TABLE(pci, cciss_pci_device_id);
+@@ -104,8 +102,7 @@ static struct board_type products[] = {
+ 	{ 0x409C0E11, "Smart Array 6400", &SA5_access},
+ 	{ 0x409D0E11, "Smart Array 6400 EM", &SA5_access},
+ 	{ 0x40910E11, "Smart Array 6i", &SA5_access},
+-	{ 0x409E0E11, "Smart Array 6422", &SA5_access},
+-	{ 0x3211103C, "Smart Array V100", &SA5_access},
++	{ 0x3225103C, "Smart Array P600", &SA5_access},
+ };
+ 
+ /* How long to wait (in millesconds) for board to go into simple mode */
+diff -burNp lx2610.orig/include/linux/pci_ids.h lx2610/include/linux/pci_ids.h
+--- lx2610.orig/include/linux/pci_ids.h	2004-12-24 15:35:50.000000000 -0600
++++ lx2610/include/linux/pci_ids.h	2005-01-07 11:54:24.945604912 -0600
+@@ -680,7 +680,7 @@
+ #define PCI_DEVICE_ID_HP_SX1000_IOC	0x127c
+ #define PCI_DEVICE_ID_HP_DIVA_EVEREST	0x1282
+ #define PCI_DEVICE_ID_HP_DIVA_AUX	0x1290
+-#define PCI_DEVICE_ID_HP_CISS		0x3210
++#define PCI_DEVICE_ID_HP_CISSA		0x3220
+ 
+ #define PCI_VENDOR_ID_PCTECH		0x1042
+ #define PCI_DEVICE_ID_PCTECH_RZ1000	0x1000

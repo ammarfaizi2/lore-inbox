@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267503AbUHSW6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267489AbUHSW6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267503AbUHSW6t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 18:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUHSW6t
+	id S267489AbUHSW6g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 18:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267493AbUHSW6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 18:58:49 -0400
-Received: from cantor.suse.de ([195.135.220.2]:39371 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267491AbUHSW6Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 18:58:24 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: GNU make alleged of "bug" (was: PATCH: cdrecord: avoiding scsi
- device numbering for ide devices)
-References: <200408191600.i7JG0Sq25765@tag.witbe.net>
-	<200408191341.07380.gene.heskett@verizon.net>
-	<20040819194724.GA10515@merlin.emma.line.org>
-	<20040819220553.GC7440@mars.ravnborg.org>
-	<20040819205301.GA12251@merlin.emma.line.org>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: ..  over in west Philadelphia a puppy is vomiting..
-Date: Fri, 20 Aug 2004 00:58:21 +0200
-In-Reply-To: <20040819205301.GA12251@merlin.emma.line.org> (Matthias
- Andree's message of "Thu, 19 Aug 2004 22:53:01 +0200")
-Message-ID: <je8ycad9bm.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+	Thu, 19 Aug 2004 18:58:34 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5041 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267489AbUHSW6W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 18:58:22 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Mark Lord <lkml@rtr.ca>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Fri, 20 Aug 2004 00:57:55 +0200
+User-Agent: KMail/1.6.2
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       kernel@wildsau.enemy.org, diablod3@gmail.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org> <1092938773.28350.27.camel@localhost.localdomain> <4124FD46.8040109@rtr.ca>
+In-Reply-To: <4124FD46.8040109@rtr.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408200057.55050.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> writes:
-
-> On Fri, 20 Aug 2004, Sam Ravnborg wrote:
+On Thursday 19 August 2004 21:19, Mark Lord wrote:
+>  >And what do you do the day someone posts "lock IDE drive with random
+>  >password as any user" to bugtraq ?
 >
->> Using:
->> -include hello.d
->> will result in a silent make.
+> I should hope that these lines in the driver would prevent such:
 >
-> Indeed it will. However, Solaris' /usr/ccs/bin/make doesn't understand
-> the "-include" form:
->
-> make: Fatal error in reader: Makefile, line 5: Unexpected end of line seen
->
-> include without leading "-" is fine. BSD make doesn't understand either
-> form.
+>        if (!capable(CAP_SYS_ADMIN) || !capable(CAP_SYS_RAWIO))
+>              return -EACCES;
 
-What about sinclude?
+Exactly.
 
-Andreas.
+Sending raw commands is _privileged_ operation.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Alan's example is invalid because IDE driver requires CAP_SYS_ADMIN and 
+CAP_SYS_RAWIO so if there is some security risk involved - it is in the user 
+apps not in the kernel.  Also Linus first fixed SG_IO correctly with 
+requiring CAP_SYS_RAWIO but then (under Alan's influence?) he added filtering 
+which broke cd writing and which is just unmaintainable.
+
+Also filtering cannot work in all cases because there are vendor specific 
+opcodes, some devices redefines some opcodes etc. - this should be left to 
+user space.
+
+Bartlomiej

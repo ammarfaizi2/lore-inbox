@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266697AbUF3PhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266730AbUF3PkC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266697AbUF3PhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 11:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266717AbUF3Pdo
+	id S266730AbUF3PkC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 11:40:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266700AbUF3Ph3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 11:33:44 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:10706 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266737AbUF3PcP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 11:32:15 -0400
-Date: Wed, 30 Jun 2004 16:31:34 +0100
-From: Dave Jones <davej@redhat.com>
-To: augustus@penguin.linuxhardware.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] K8T800Pro AGP Support
-Message-ID: <20040630153134.GD12311@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	augustus@penguin.linuxhardware.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0406292326480.24803@penguin.linuxhardware.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406292326480.24803@penguin.linuxhardware.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Jun 2004 11:37:29 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:14098 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266730AbUF3Pf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 11:35:29 -0400
+Message-ID: <40E2E2A3.4000101@techsource.com>
+Date: Wed, 30 Jun 2004 11:56:19 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: Experimental PS/2 driver with heuristic synchronization
+References: <20040630123839.GA1333@ucw.cz>
+In-Reply-To: <20040630123839.GA1333@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 29, 2004 at 11:38:54PM -0400, augustus@penguin.linuxhardware.org wrote:
- > Patch to add support for the K8T800Pro chip in the AGPGART driver for 
- > amd64-agp.
- > 
- > Signed-off-by: Kris Kersey <augustus@linuxhardware.org>
 
-Applied, thanks.
 
- > +#define PCI_DEVICE_ID_VIA_K8T800PRO_0  0x0282
- >  #define PCI_DEVICE_ID_VIA_8363_0       0x0305 
- >  #define PCI_DEVICE_ID_VIA_8371_0       0x0391
- >  #define PCI_DEVICE_ID_VIA_8501_0       0x0501
+Vojtech Pavlik wrote:
+> Hi!
+> 
+> I wanted to try if my thoughts about how to reliably synchronize the
+> PS/2 mouse stream would work, and as a test I created this driver.
+> 
 
-Although normally, it's preferred to use the chip number instead
-of its marketing name. A quick google didn't actually turn up
-its number though, so for the time being, I'll leave it like this.
 
-		Dave
+This is an awesome idea.  I've always had intermittent problems with 
+mice freaking out under Linux.  Most of the time, it only freaks out for 
+a few seconds, but sometimes, I have to ctrl-alt-F1+ctrl-alt-F7 to get 
+the mouse back.
+
+A patck like yours has been needed for a long time.  Good show!
 

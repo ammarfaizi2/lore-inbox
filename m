@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263935AbUCZFAK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 00:00:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263933AbUCZFAK
+	id S263939AbUCZFC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 00:02:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263940AbUCZFC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 00:00:10 -0500
-Received: from alt.aurema.com ([203.217.18.57]:51086 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S263936AbUCZE74 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 23:59:56 -0500
-Date: Fri, 26 Mar 2004 15:59:51 +1100 (EST)
-From: John Lee <johnl@aurema.com>
-X-X-Sender: johnl@johnl.sw.oz.au
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O(1) Entitlement Based Scheduler v1.1
-In-Reply-To: <20040326011325.53275600.ak@suse.de>
-Message-ID: <Pine.LNX.4.44.0403261525550.8120-100000@johnl.sw.oz.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 26 Mar 2004 00:02:58 -0500
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:2319
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S263939AbUCZFCz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 00:02:55 -0500
+Date: Thu, 25 Mar 2004 21:02:44 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Len Brown <len.brown@intel.com>
+Cc: Chris Cheney <ccheney@cheney.cx>, linux-kernel@vger.kernel.org,
+       acpi-devel-request@lists.sourceforge.net, patches@x86-64.org,
+       Andi Kleen <ak@suse.de>, pavel@ucw.cz
+Subject: Re: [PATCH] x86_64 VIA chipset IOAPIC fix
+Message-ID: <20040326050244.GF8058@atomide.com>
+References: <20040325033434.GB8139@atomide.com> <20040326030458.GZ9248@cheney.cx> <20040326033536.GA8057@atomide.com> <1080274911.748.130.camel@dhcppc4>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1080274911.748.130.camel@dhcppc4>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Mar 2004, Andi Kleen wrote:
-
-> On Fri, 26 Mar 2004 11:02:36 +1100 (EST)
-> John Lee <johnl@aurema.com> wrote:
+* Len Brown <len.brown@intel.com> [040325 20:22]:
 > 
-> > I'm glad to hear that the interactivity now works well for you, and that 
-> > it seems to be behaving itself over a period of days.
-> 
-> There seem to be still small issues, but I wasn't able to pinpoint them
-> to a scenario (I'm not even 100% sure they are related to the CPU 
-> scheduler, could be IO elevator or VM too). Just thought I would mention 
-> them. Occassionally (very seldom, saw it two times yesterday) I have 
-> visible stalls (2-3s) of my xterms. 
-> It doesn't seem to be  related to direct visible background load (but i 
-> wasn't able yet to get a top up during such a stall) I don't remember 
-> these stalls from the non Entitlement kernel. They only happen very 
-> rarely so it could be something unrelated too. I know the report is 
-> probably too vague to be useful.
+> where does it hang when processor and thermal are compiled-in?
 
-On the contrary, any reports of strange/bad behaviour are useful. It 
-probably is related to the scheduler, as no one seems to have reported 
-this problem with stock 2.6.4.
+It hangs early after saying the processor supports c1 and c2 states + few
+more lines.
 
-I'll look out for these stalls, and try to find the cause/fix.
+It does not hang if loading processor and thermal as modules.
 
-John
-
-
+Tony

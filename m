@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317978AbSHKHbe>; Sun, 11 Aug 2002 03:31:34 -0400
+	id <S317946AbSHKH2l>; Sun, 11 Aug 2002 03:28:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318047AbSHKH34>; Sun, 11 Aug 2002 03:29:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39942 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318111AbSHKH0C>;
-	Sun, 11 Aug 2002 03:26:02 -0400
-Message-ID: <3D5614BC.EB0629B6@zip.com.au>
-Date: Sun, 11 Aug 2002 00:39:40 -0700
+	id <S317945AbSHKH16>; Sun, 11 Aug 2002 03:27:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33542 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317947AbSHKHZQ>;
+	Sun, 11 Aug 2002 03:25:16 -0400
+Message-ID: <3D56148E.D06B13F2@zip.com.au>
+Date: Sun, 11 Aug 2002 00:38:54 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 15/21] multiple pte pointers per pte_chain
+Subject: [patch 7/21] batched freeing of anonymous pages
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,410 +22,389 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-The pte_chains presently consist of a pte pointer and a `next' link. 
-So there's a 50% memory wastage here as well as potential for a lot of
-misses during walks of the singly-linked per-page list.
+The VMA teardown code is currently removing pages from the LRU
+one-at-a-time.  And it is freeing those pages one-at-a-time.
 
-This patch increases the pte_chain structure to occupy a full
-cacheline.  There are 7, 15 or 31 pte pointers per structure rather
-than just one.  So the wastage falls to a few percent and the number of
-misses during the walk is reduced.
-
-The patch doesn't make much difference in simple testing, because in
-those tests the pte_chain list from the previous page has good cache
-locality with the next page's list.  It helped with 10,000 exits
-though.
-
-For more complex, real-world patterns the improved cache footprint is
-expected to help.  Plus it saves memory and reduces the amount of work
-performed in the slab allocator.
-
-Pages which are mapped by only a single process continue to not have a
-pte_chain.  The pointer in struct page points directly at the mapping
-pte (a "PageDirect" pte pointer).  Once the page is shared a pte_chain
-is allocated and both the new and old pte pointers are moved into it.
-
-We used to collapse the pte_chain back to a PageDirect representation
-in page_remove_rmap().  That has been changed.  That collapse is now
-performed inside page reclaim, via page_referenced().  The thinking
-here is that if a page was previously shared then it may become shared
-again, so leave the pte_chain structure in place.  But if the system is
-under memory pressure then start reaping them anyway.
+The patch batches that up to sixteen-at-a-time by passing an on-stack
+pagevec around and freeing all the pages whenever the pagevec fills up.
 
 
 
- rmap.c |  248 ++++++++++++++++++++++++++++++++++++++++++++++-------------------
- 1 files changed, 176 insertions(+), 72 deletions(-)
 
---- 2.5.31/mm/rmap.c~rmap-speedup	Sun Aug 11 00:20:34 2002
-+++ 2.5.31-akpm/mm/rmap.c	Sun Aug 11 00:21:00 2002
-@@ -40,24 +40,39 @@
-  * here, the page struct for the page table page contains the process
-  * it belongs to and the offset within that process.
-  *
-- * A singly linked list should be fine for most, if not all, workloads.
-- * On fork-after-exec the mapping we'll be removing will still be near
-- * the start of the list, on mixed application systems the short-lived
-- * processes will have their mappings near the start of the list and
-- * in systems with long-lived applications the relative overhead of
-- * exit() will be lower since the applications are long-lived.
-+ * We use an array of pte pointers in this structure to minimise cache misses
-+ * while traversing reverse maps.
+ include/asm-arm/tlb.h               |    2 +-
+ include/asm-generic/tlb.h           |   12 +++++++++---
+ include/asm-i386/pgalloc.h          |    2 +-
+ include/asm-ia64/pgalloc.h          |    2 +-
+ include/asm-m68k/motorola_pgalloc.h |    3 ++-
+ include/asm-m68k/sun3_pgalloc.h     |    5 +++--
+ include/asm-ppc/pgalloc.h           |    2 +-
+ include/asm-ppc64/pgalloc.h         |    4 ++--
+ include/asm-s390/pgalloc.h          |    2 +-
+ include/asm-s390x/pgalloc.h         |    2 +-
+ include/asm-sparc64/tlb.h           |    2 +-
+ include/asm-x86_64/pgalloc.h        |    2 +-
+ include/linux/pagevec.h             |    3 +++
+ include/linux/swap.h                |    3 ++-
+ mm/memory.c                         |   21 +++++++++++++++------
+ mm/mmap.c                           |    1 +
+ mm/page_alloc.c                     |   16 +++++++++++++---
+ mm/swap_state.c                     |    6 ++++--
+ 18 files changed, 62 insertions(+), 28 deletions(-)
+
+--- 2.5.31/mm/swap_state.c~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/mm/swap_state.c	Sun Aug 11 00:21:02 2002
+@@ -14,6 +14,7 @@
+ #include <linux/pagemap.h>
+ #include <linux/smp_lock.h>
+ #include <linux/buffer_head.h>	/* block_sync_page() */
++#include <linux/pagevec.h>
+ 
+ #include <asm/pgtable.h>
+ 
+@@ -295,7 +296,7 @@ int move_from_swap_cache(struct page *pa
+  * this page if it is the last user of the page. Can not do a lock_page,
+  * as we are holding the page_table_lock spinlock.
   */
-+#define NRPTE (L1_CACHE_BYTES/sizeof(void *) - 1)
-+
- struct pte_chain {
- 	struct pte_chain * next;
--	pte_t * ptep;
-+	pte_t *ptes[NRPTE];
- };
- 
- spinlock_t rmap_locks[NUM_RMAP_LOCKS];
- 
- static kmem_cache_t	*pte_chain_cache;
- static inline struct pte_chain * pte_chain_alloc(void);
--static inline void pte_chain_free(struct pte_chain *, struct pte_chain *,
--		struct page *);
-+static void pte_chain_free(struct pte_chain *pte_chain);
-+
-+/*
-+ * pte_chain list management policy:
-+ *
-+ * - If a page has a pte_chain list then it is shared by at least two processes,
-+ *   because a single sharing uses PageDirect. (Well, this isn't true yet,
-+ *   coz this code doesn't collapse singletons back to PageDirect on the remove
-+ *   path).
-+ * - A pte_chain list has free space only in the head member - all succeeding
-+ *   members are 100% full.
-+ * - If the head element has free space, it occurs in its leading slots.
-+ * - All free space in the pte_chain is at the start of the head member.
-+ * - Insertion into the pte_chain puts a pte pointer in the last free slot of
-+ *   the head member.
-+ * - Removal from a pte chain moves the head pte of the head member onto the
-+ *   victim pte and frees the head member if it became empty.
-+ */
-+
- 
- /**
-  * page_referenced - test if the page was referenced
-@@ -66,6 +81,9 @@ static inline void pte_chain_free(struct
-  * Quick test_and_clear_referenced for all mappings to a page,
-  * returns the number of processes which referenced the page.
-  * Caller needs to hold the page's rmap lock.
-+ *
-+ * If the page has a single-entry pte_chain, collapse that back to a PageDirect
-+ * representation.  This way, it's only done under memory pressure.
-  */
- int page_referenced(struct page * page)
+-void free_page_and_swap_cache(struct page *page)
++void free_page_and_swap_cache(struct pagevec *pvec, struct page *page)
  {
-@@ -79,10 +97,27 @@ int page_referenced(struct page * page)
- 		if (ptep_test_and_clear_young(page->pte.direct))
- 			referenced++;
- 	} else {
-+		int nr_chains = 0;
-+
- 		/* Check all the page tables mapping this page. */
- 		for (pc = page->pte.chain; pc; pc = pc->next) {
--			if (ptep_test_and_clear_young(pc->ptep))
--				referenced++;
-+			int i;
-+
-+			for (i = NRPTE-1; i >= 0; i--) {
-+				pte_t *p = pc->ptes[i];
-+				if (!p)
-+					break;
-+				if (ptep_test_and_clear_young(p))
-+					referenced++;
-+				nr_chains++;
-+			}
-+		}
-+		if (nr_chains == 1) {
-+			pc = page->pte.chain;
-+			page->pte.direct = pc->ptes[NRPTE-1];
-+			SetPageDirect(page);
-+			pte_chain_free(pc);
-+			dec_page_state(nr_reverse_maps);
- 		}
+ 	/* 
+ 	 * If we are the only user, then try to free up the swap cache. 
+@@ -309,7 +310,8 @@ void free_page_and_swap_cache(struct pag
+ 		remove_exclusive_swap_page(page);
+ 		unlock_page(page);
  	}
- 	return referenced;
-@@ -99,6 +134,7 @@ int page_referenced(struct page * page)
- void __page_add_rmap(struct page *page, pte_t *ptep)
- {
- 	struct pte_chain * pte_chain;
-+	int i;
- 
- #ifdef DEBUG_RMAP
- 	if (!page || !ptep)
-@@ -120,32 +156,58 @@ void __page_add_rmap(struct page *page, 
- 				BUG();
- 		} else {
- 			for (pc = page->pte.chain; pc; pc = pc->next) {
--				if (pc->ptep == ptep)
--					BUG();
-+				for (i = 0; i < NRPTE; i++) {
-+					pte_t *p = pc->ptes[i];
-+
-+					if (p && p == ptep)
-+						BUG();
-+				}
- 			}
- 		}
- 	}
- #endif
- 
-+	if (page->pte.chain == NULL) {
-+		page->pte.direct = ptep;
-+		SetPageDirect(page);
-+		goto out;
-+	}
-+	
- 	if (PageDirect(page)) {
- 		/* Convert a direct pointer into a pte_chain */
--		pte_chain = pte_chain_alloc();
--		pte_chain->ptep = page->pte.direct;
--		pte_chain->next = NULL;
--		page->pte.chain = pte_chain;
- 		ClearPageDirect(page);
--	}
--	if (page->pte.chain) {
--		/* Hook up the pte_chain to the page. */
- 		pte_chain = pte_chain_alloc();
--		pte_chain->ptep = ptep;
--		pte_chain->next = page->pte.chain;
-+		pte_chain->ptes[NRPTE-1] = page->pte.direct;
-+		pte_chain->ptes[NRPTE-2] = ptep;
-+		mod_page_state(nr_reverse_maps, 2);
- 		page->pte.chain = pte_chain;
--	} else {
--		page->pte.direct = ptep;
--		SetPageDirect(page);
-+		goto out;
-+	}
-+
-+	pte_chain = page->pte.chain;
-+	if (pte_chain->ptes[0]) {	/* It's full */
-+		struct pte_chain *new;
-+
-+		new = pte_chain_alloc();
-+		new->next = pte_chain;
-+		page->pte.chain = new;
-+		new->ptes[NRPTE-1] = ptep;
-+		inc_page_state(nr_reverse_maps);
-+		goto out;
-+	}
-+
-+	BUG_ON(pte_chain->ptes[NRPTE-1] == NULL);
-+
-+	for (i = NRPTE-2; i >= 0; i--) {
-+		if (pte_chain->ptes[i] == NULL) {
-+			pte_chain->ptes[i] = ptep;
-+			inc_page_state(nr_reverse_maps);
-+			goto out;
-+		}
- 	}
--	inc_page_state(nr_reverse_maps);
-+	BUG();
-+
-+out:
+-	page_cache_release(page);
++	if (!pagevec_add(pvec, page))
++		__pagevec_release(pvec);
  }
  
- void page_add_rmap(struct page *page, pte_t *ptep)
-@@ -171,7 +233,7 @@ void page_add_rmap(struct page *page, pt
-  */
- void __page_remove_rmap(struct page *page, pte_t *ptep)
- {
--	struct pte_chain * pc, * prev_pc = NULL;
-+	struct pte_chain *pc;
+ /*
+--- 2.5.31/include/asm-generic/tlb.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-generic/tlb.h	Sun Aug 11 00:20:33 2002
+@@ -14,6 +14,7 @@
+ #define _ASM_GENERIC__TLB_H
  
- 	if (!page || !ptep)
- 		BUG();
-@@ -185,15 +247,32 @@ void __page_remove_rmap(struct page *pag
- 			goto out;
- 		}
- 	} else {
--		for (pc = page->pte.chain; pc; prev_pc = pc, pc = pc->next) {
--			if (pc->ptep == ptep) {
--				pte_chain_free(pc, prev_pc, page);
--				/* Check whether we can convert to direct */
--				pc = page->pte.chain;
--				if (!pc->next) {
--					page->pte.direct = pc->ptep;
--					SetPageDirect(page);
--					pte_chain_free(pc, NULL, NULL);
-+		struct pte_chain *start = page->pte.chain;
-+		int victim_i = -1;
+ #include <linux/config.h>
++#include <linux/pagevec.h>
+ #include <asm/tlbflush.h>
+ 
+ /*
+@@ -70,9 +71,13 @@ static inline void tlb_flush_mmu(mmu_gat
+ 	nr = tlb->nr;
+ 	if (!tlb_fast_mode(tlb)) {
+ 		unsigned long i;
++		struct pagevec pvec;
 +
-+		for (pc = start; pc; pc = pc->next) {
-+			int i;
-+
-+			if (pc->next)
-+				prefetch(pc->next);
-+			for (i = 0; i < NRPTE; i++) {
-+				pte_t *p = pc->ptes[i];
-+
-+				if (!p)
-+					continue;
-+				if (victim_i == -1)
-+					victim_i = i;
-+				if (p != ptep)
-+					continue;
-+				pc->ptes[i] = start->ptes[victim_i];
-+				start->ptes[victim_i] = NULL;
-+				dec_page_state(nr_reverse_maps);
-+				if (victim_i == NRPTE-1) {
-+					/* Emptied a pte_chain */
-+					page->pte.chain = start->next;
-+					pte_chain_free(start);
-+				} else {
-+					/* Do singleton->PageDirect here */
+ 		tlb->nr = 0;
++		pagevec_init(&pvec);
+ 		for (i=0; i < nr; i++)
+-			free_page_and_swap_cache(tlb->pages[i]);
++			free_page_and_swap_cache(&pvec, tlb->pages[i]);
++		pagevec_release(&pvec);
+ 	}
+ }
+ 
+@@ -101,10 +106,11 @@ static inline void tlb_finish_mmu(mmu_ga
+  *	handling the additional races in SMP caused by other CPUs caching valid
+  *	mappings in their TLBs.
+  */
+-static inline void tlb_remove_page(mmu_gather_t *tlb, struct page *page)
++static inline void
++tlb_remove_page(mmu_gather_t *tlb, struct pagevec *pvec, struct page *page)
+ {
+ 	if (tlb_fast_mode(tlb)) {
+-		free_page_and_swap_cache(page);
++		free_page_and_swap_cache(pvec, page);
+ 		return;
+ 	}
+ 	tlb->pages[tlb->nr++] = page;
+--- 2.5.31/include/linux/swap.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/linux/swap.h	Sun Aug 11 00:21:02 2002
+@@ -140,6 +140,7 @@ struct vm_area_struct;
+ struct sysinfo;
+ struct address_space;
+ struct zone_t;
++struct pagevec;
+ 
+ /* linux/mm/rmap.c */
+ extern int FASTCALL(page_referenced(struct page *));
+@@ -183,7 +184,7 @@ extern void delete_from_swap_cache(struc
+ extern int move_to_swap_cache(struct page *page, swp_entry_t entry);
+ extern int move_from_swap_cache(struct page *page, unsigned long index,
+ 		struct address_space *mapping);
+-extern void free_page_and_swap_cache(struct page *page);
++extern void free_page_and_swap_cache(struct pagevec *pvec, struct page *page);
+ extern struct page * lookup_swap_cache(swp_entry_t);
+ extern struct page * read_swap_cache_async(swp_entry_t);
+ 
+--- 2.5.31/mm/memory.c~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/mm/memory.c	Sun Aug 11 00:21:01 2002
+@@ -44,6 +44,7 @@
+ #include <linux/iobuf.h>
+ #include <linux/highmem.h>
+ #include <linux/pagemap.h>
++#include <linux/pagevec.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/rmap.h>
+@@ -78,7 +79,8 @@ struct page *mem_map;
+  * Note: this doesn't free the actual pages themselves. That
+  * has been handled earlier when unmapping all the memory regions.
+  */
+-static inline void free_one_pmd(mmu_gather_t *tlb, pmd_t * dir)
++static inline void
++free_one_pmd(mmu_gather_t *tlb, struct pagevec *pvec, pmd_t * dir)
+ {
+ 	struct page *page;
+ 
+@@ -92,10 +94,11 @@ static inline void free_one_pmd(mmu_gath
+ 	page = pmd_page(*dir);
+ 	pmd_clear(dir);
+ 	pgtable_remove_rmap(page);
+-	pte_free_tlb(tlb, page);
++	pte_free_tlb(tlb, pvec, page);
+ }
+ 
+-static inline void free_one_pgd(mmu_gather_t *tlb, pgd_t * dir)
++static inline void
++free_one_pgd(mmu_gather_t *tlb, struct pagevec *pvec, pgd_t *dir)
+ {
+ 	int j;
+ 	pmd_t * pmd;
+@@ -111,7 +114,7 @@ static inline void free_one_pgd(mmu_gath
+ 	pgd_clear(dir);
+ 	for (j = 0; j < PTRS_PER_PMD ; j++) {
+ 		prefetchw(pmd+j+(PREFETCH_STRIDE/16));
+-		free_one_pmd(tlb, pmd+j);
++		free_one_pmd(tlb, pvec, pmd+j);
+ 	}
+ 	pmd_free_tlb(tlb, pmd);
+ }
+@@ -125,12 +128,15 @@ static inline void free_one_pgd(mmu_gath
+ void clear_page_tables(mmu_gather_t *tlb, unsigned long first, int nr)
+ {
+ 	pgd_t * page_dir = tlb->mm->pgd;
++	struct pagevec pvec;
+ 
++	pagevec_init(&pvec);
+ 	page_dir += first;
+ 	do {
+-		free_one_pgd(tlb, page_dir);
++		free_one_pgd(tlb, &pvec, page_dir);
+ 		page_dir++;
+ 	} while (--nr);
++	pagevec_release(&pvec);
+ }
+ 
+ pte_t * pte_alloc_map(struct mm_struct *mm, pmd_t *pmd, unsigned long address)
+@@ -322,6 +328,7 @@ static void zap_pte_range(mmu_gather_t *
+ {
+ 	unsigned long offset;
+ 	pte_t *ptep;
++	struct pagevec pvec;
+ 
+ 	if (pmd_none(*pmd))
+ 		return;
+@@ -335,6 +342,7 @@ static void zap_pte_range(mmu_gather_t *
+ 	if (offset + size > PMD_SIZE)
+ 		size = PMD_SIZE - offset;
+ 	size &= PAGE_MASK;
++	pagevec_init(&pvec);
+ 	for (offset=0; offset < size; ptep++, offset += PAGE_SIZE) {
+ 		pte_t pte = *ptep;
+ 		if (pte_none(pte))
+@@ -351,7 +359,7 @@ static void zap_pte_range(mmu_gather_t *
+ 						set_page_dirty(page);
+ 					tlb->freed++;
+ 					page_remove_rmap(page, ptep);
+-					tlb_remove_page(tlb, page);
++					tlb_remove_page(tlb, &pvec, page);
  				}
- 				goto out;
  			}
-@@ -212,9 +291,9 @@ void __page_remove_rmap(struct page *pag
- 	printk("\n");
- 	printk(KERN_ERR "page_remove_rmap: driver cleared PG_reserved ?\n");
- #endif
-+	return;
- 
- out:
--	dec_page_state(nr_reverse_maps);
- 	return;
- }
- 
-@@ -316,8 +395,9 @@ out_unlock:
-  */
- int try_to_unmap(struct page * page)
- {
--	struct pte_chain * pc, * next_pc, * prev_pc = NULL;
-+	struct pte_chain *pc, *next_pc, *start;
- 	int ret = SWAP_SUCCESS;
-+	int victim_i = -1;
- 
- 	/* This page should not be on the pageout lists. */
- 	if (PageReserved(page))
-@@ -334,35 +414,57 @@ int try_to_unmap(struct page * page)
- 			page->pte.direct = NULL;
- 			ClearPageDirect(page);
+ 		} else {
+@@ -360,6 +368,7 @@ static void zap_pte_range(mmu_gather_t *
  		}
--	} else {		
--		for (pc = page->pte.chain; pc; pc = next_pc) {
--			next_pc = pc->next;
--			switch (try_to_unmap_one(page, pc->ptep)) {
--				case SWAP_SUCCESS:
--					/* Free the pte_chain struct. */
--					pte_chain_free(pc, prev_pc, page);
--					break;
--				case SWAP_AGAIN:
--					/* Skip this pte, remembering status. */
--					prev_pc = pc;
--					ret = SWAP_AGAIN;
--					continue;
--				case SWAP_FAIL:
--					ret = SWAP_FAIL;
--					break;
--				case SWAP_ERROR:
--					ret = SWAP_ERROR;
--					break;
-+		goto out;
-+	}		
-+
-+	start = page->pte.chain;
-+	for (pc = start; pc; pc = next_pc) {
-+		int i;
-+
-+		next_pc = pc->next;
-+		if (next_pc)
-+			prefetch(next_pc);
-+		for (i = 0; i < NRPTE; i++) {
-+			pte_t *p = pc->ptes[i];
-+
-+			if (!p)
-+				continue;
-+			if (victim_i == -1) 
-+				victim_i = i;
-+
-+			switch (try_to_unmap_one(page, p)) {
-+			case SWAP_SUCCESS:
-+				/*
-+				 * Release a slot.  If we're releasing the
-+				 * first pte in the first pte_chain then
-+				 * pc->ptes[i] and start->ptes[victim_i] both
-+				 * refer to the same thing.  It works out.
-+				 */
-+				pc->ptes[i] = start->ptes[victim_i];
-+				start->ptes[victim_i] = NULL;
-+				dec_page_state(nr_reverse_maps);
-+				victim_i++;
-+				if (victim_i == NRPTE) {
-+					page->pte.chain = start->next;
-+					pte_chain_free(start);
-+					start = page->pte.chain;
-+					victim_i = 0;
-+				}
-+				break;
-+			case SWAP_AGAIN:
-+				/* Skip this pte, remembering status. */
-+				ret = SWAP_AGAIN;
-+				continue;
-+			case SWAP_FAIL:
-+				ret = SWAP_FAIL;
-+				goto out;
-+			case SWAP_ERROR:
-+				ret = SWAP_ERROR;
-+				goto out;
- 			}
- 		}
--		/* Check whether we can convert to direct pte pointer */
--		pc = page->pte.chain;
--		if (pc && !pc->next) {
--			page->pte.direct = pc->ptep;
--			SetPageDirect(page);
--			pte_chain_free(pc, NULL, NULL);
--		}
  	}
-+out:
- 	return ret;
+ 	pte_unmap(ptep-1);
++	pagevec_release(&pvec);
  }
  
-@@ -383,14 +485,9 @@ int try_to_unmap(struct page * page)
-  * called for new pte_chain structures which aren't on any list yet.
-  * Caller needs to hold the rmap_lock if the page is non-NULL.
-  */
--static inline void pte_chain_free(struct pte_chain * pte_chain,
--		struct pte_chain * prev_pte_chain, struct page * page)
-+static void pte_chain_free(struct pte_chain *pte_chain)
+ static void zap_pmd_range(mmu_gather_t *tlb, pgd_t * dir, unsigned long address, unsigned long size)
+--- 2.5.31/mm/page_alloc.c~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/mm/page_alloc.c	Sun Aug 11 00:21:02 2002
+@@ -452,10 +452,20 @@ unsigned long get_zeroed_page(unsigned i
+ 
+ void page_cache_release(struct page *page)
  {
--	if (prev_pte_chain)
--		prev_pte_chain->next = pte_chain->next;
--	else if (page)
--		page->pte.chain = pte_chain->next;
--
-+	pte_chain->next = NULL;
- 	kmem_cache_free(pte_chain_cache, pte_chain);
++	/*
++	 * FIXME: this PageReserved test is really expensive
++	 */
+ 	if (!PageReserved(page) && put_page_testzero(page)) {
+-		if (PageLRU(page))
+-			lru_cache_del(page);
+-		__free_pages_ok(page, 0);
++		/*
++		 * This path almost never happens - pages are normally freed
++		 * via pagevecs.
++		 */
++		struct pagevec pvec;
++
++		page_cache_get(page);
++		pvec.nr = 1;
++		pvec.pages[0] = page;
++		__pagevec_release(&pvec);
+ 	}
  }
  
-@@ -405,6 +502,13 @@ static inline struct pte_chain *pte_chai
- 	return kmem_cache_alloc(pte_chain_cache, GFP_ATOMIC);
+--- 2.5.31/mm/mmap.c~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/mm/mmap.c	Sun Aug 11 00:20:33 2002
+@@ -16,6 +16,7 @@
+ #include <linux/file.h>
+ #include <linux/fs.h>
+ #include <linux/personality.h>
++#include <linux/pagevec.h>
+ #include <linux/security.h>
+ 
+ #include <asm/uaccess.h>
+--- 2.5.31/include/asm-m68k/sun3_pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-m68k/sun3_pgalloc.h	Sun Aug 11 00:20:33 2002
+@@ -31,9 +31,10 @@ static inline void pte_free(struct page 
+         __free_page(page);
  }
  
-+static void pte_chain_ctor(void *p, kmem_cache_t *cachep, unsigned long flags)
-+{
-+	struct pte_chain *pc = p;
-+
-+	memset(pc, 0, sizeof(*pc));
-+}
-+
- void __init pte_chain_init(void)
+-static inline void pte_free_tlb(mmu_gather_t *tlb, struct page *page)
++static inline void
++pte_free_tlb(mmu_gather_t *tlb, struct pagevec *pvec, struct page *page)
  {
- 	int i;
-@@ -416,7 +520,7 @@ void __init pte_chain_init(void)
- 						sizeof(struct pte_chain),
- 						0,
- 						0,
--						NULL,
-+						pte_chain_ctor,
- 						NULL);
+-	tlb_remove_page(tlb, page);
++	tlb_remove_page(tlb, pvec, page);
+ }
  
- 	if (!pte_chain_cache)
+ static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm, 
+--- 2.5.31/include/asm-i386/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-i386/pgalloc.h	Sun Aug 11 00:20:33 2002
+@@ -37,7 +37,7 @@ static inline void pte_free(struct page 
+ }
+ 
+ 
+-#define pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
++#define pte_free_tlb(tlb,pvec,pte) tlb_remove_page((tlb),(pvec),(pte))
+ 
+ /*
+  * allocating and freeing a pmd is trivial: the 1-entry pmd is
+--- 2.5.31/include/asm-ia64/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-ia64/pgalloc.h	Sun Aug 11 00:20:33 2002
+@@ -153,7 +153,7 @@ pte_free_kernel (pte_t *pte)
+ 	free_page((unsigned long) pte);
+ }
+ 
+-#define pte_free_tlb(tlb, pte)	tlb_remove_page((tlb), (pte))
++#define pte_free_tlb(tlb, pvec, pte)	tlb_remove_page((tlb), (pvec), (pte))
+ 
+ extern void check_pgt_cache (void);
+ 
+--- 2.5.31/include/asm-s390/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-s390/pgalloc.h	Sun Aug 11 00:20:33 2002
+@@ -107,7 +107,7 @@ static inline void pte_free(struct page 
+         __free_page(pte);
+ }
+ 
+-#define pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
++#define pte_free_tlb(tlb,pvec,pte) tlb_remove_page((tlb),(pvec),(pte))
+ 
+ /*
+  * This establishes kernel virtual mappings (e.g., as a result of a
+--- 2.5.31/include/asm-s390x/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-s390x/pgalloc.h	Sun Aug 11 00:20:33 2002
+@@ -123,7 +123,7 @@ static inline void pte_free(struct page 
+         __free_page(pte);
+ }
+ 
+-#define pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
++#define pte_free_tlb(tlb,pvec,pte) tlb_remove_page((tlb),(pvec),(pte))
+ 
+ /*
+  * This establishes kernel virtual mappings (e.g., as a result of a
+--- 2.5.31/include/asm-x86_64/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-x86_64/pgalloc.h	Sun Aug 11 00:20:33 2002
+@@ -75,7 +75,7 @@ extern inline void pte_free(struct page 
+ 	__free_page(pte);
+ } 
+ 
+-#define pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
++#define pte_free_tlb(tlb,pvec,pte) tlb_remove_page((tlb),(pvec),(pte))
+ #define pmd_free_tlb(tlb,x)   do { } while (0)
+ 
+ #endif /* _X86_64_PGALLOC_H */
+--- 2.5.31/include/asm-arm/tlb.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-arm/tlb.h	Sun Aug 11 00:20:33 2002
+@@ -16,6 +16,6 @@
+ #include <asm-generic/tlb.h>
+ 
+ #define pmd_free_tlb(tlb, pmd)	pmd_free(pmd)
+-#define pte_free_tlb(tlb, pte)	pte_free(pte)
++#define pte_free_tlb(tlb, pvec, pte)	pte_free(pte)
+ 
+ #endif
+--- 2.5.31/include/asm-m68k/motorola_pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-m68k/motorola_pgalloc.h	Sun Aug 11 00:20:33 2002
+@@ -55,7 +55,8 @@ static inline void pte_free(struct page 
+ 	__free_page(page);
+ }
+ 
+-static inline void pte_free_tlb(mmu_gather_t *tlb, struct page *page)
++static inline void
++pte_free_tlb(mmu_gather_t *tlb, struct pagevec *pvec, struct page *page)
+ {
+ 	cache_page(kmap(page));
+ 	kunmap(page);
+--- 2.5.31/include/asm-ppc/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-ppc/pgalloc.h	Sun Aug 11 00:20:33 2002
+@@ -33,7 +33,7 @@ extern struct page *pte_alloc_one(struct
+ extern void pte_free_kernel(pte_t *pte);
+ extern void pte_free(struct page *pte);
+ 
+-#define pte_free_tlb(tlb, pte)	pte_free((pte))
++#define pte_free_tlb(tlb, pvec, pte)	pte_free((pte))
+ 
+ #define check_pgt_cache()	do { } while (0)
+ 
+--- 2.5.31/include/asm-sparc64/tlb.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-sparc64/tlb.h	Sun Aug 11 00:20:33 2002
+@@ -22,6 +22,6 @@ do {	if (!(tlb)->fullmm)	\
+ #include <asm-generic/tlb.h>
+ 
+ #define pmd_free_tlb(tlb, pmd)	pmd_free(pmd)
+-#define pte_free_tlb(tlb, pte)	pte_free(pte)
++#define pte_free_tlb(tlb, pvec, pte)	pte_free(pte)
+ 
+ #endif /* _SPARC64_TLB_H */
+--- 2.5.31/include/asm-ppc64/pgalloc.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/asm-ppc64/pgalloc.h	Sun Aug 11 00:20:33 2002
+@@ -87,8 +87,8 @@ pte_free_kernel(pte_t *pte)
+ 	free_page((unsigned long)pte);
+ }
+ 
+-#define pte_free(pte_page)	pte_free_kernel(page_address(pte_page))
+-#define pte_free_tlb(tlb, pte)	pte_free(pte)
++#define pte_free(pte_page)		pte_free_kernel(page_address(pte_page))
++#define pte_free_tlb(tlb, pvec, pte)	pte_free(pte)
+ 
+ #define check_pgt_cache()	do { } while (0)
+ 
+--- 2.5.31/include/linux/pagevec.h~anon-pagevec	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/include/linux/pagevec.h	Sun Aug 11 00:21:01 2002
+@@ -1,3 +1,5 @@
++#ifndef _LINUX_PAGEVEC_H
++#define _LINUX_PAGEVEC_H
+ /*
+  * include/linux/pagevec.h
+  *
+@@ -74,3 +76,4 @@ static inline void pagevec_lru_del(struc
+ 	if (pagevec_count(pvec))
+ 		__pagevec_lru_del(pvec);
+ }
++#endif _LINUX_PAGEVEC_H
 
 .

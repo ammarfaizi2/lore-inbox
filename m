@@ -1,36 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUGHRvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbUGHR4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbUGHRvc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 13:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUGHRvc
+	id S262756AbUGHR4z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 13:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUGHR4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 13:51:32 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:13490 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262322AbUGHRv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 13:51:29 -0400
-From: jmerkey@comcast.net
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@drdos.com
-Subject: Ext3 File System "Too many files" with snort
-Date: Thu, 08 Jul 2004 17:51:26 +0000
-Message-Id: <070820041751.25643.40ED899E0006C76E0000642B2200748184970A059D0A0306@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Jun 24 2004)
-X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
+	Thu, 8 Jul 2004 13:56:55 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:16858 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262756AbUGHR4x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 13:56:53 -0400
+Date: Thu, 8 Jul 2004 12:55:45 -0500
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: linas@austin.ibm.com
+Cc: paulus@samba.org, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.6] PPC64: log firmware errors during boot.
+Message-Id: <20040708125545.41aae667.moilanen@austin.ibm.com>
+In-Reply-To: <20040708110337.N21634@forte.austin.ibm.com>
+References: <20040629191046.Q21634@forte.austin.ibm.com>
+	<16610.39955.554139.858593@cargo.ozlabs.ibm.com>
+	<20040706084116.11ab7988.moilanen@austin.ibm.com>
+	<20040708110337.N21634@forte.austin.ibm.com>
+Organization: LTC
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a Linux 2.4.21 system running snort with a very large organization (30,000 +) workstations
-I am seeing a "too many files" mesage from ext3 which results in snort dying and rolling 
-our of memory.  Is there a way to specifiy a larger number of inode entries dynamically 
-when creating an Ext3 file system which gets around this limitation.  In theory, a file system 
-should not create a limitation on how many files it can contain, but I understand that inode
-base FS's have this limitation.
+On Thu, 8 Jul 2004 11:03:37 -0500
+linas@austin.ibm.com wrote:
 
-Also, I have discovered that I am blocked from posting to LKML from devicelogics.com and
-am using an alternate email account.  What's up, did something chage are are we blocking 
-folks from posting, or is ECN causing problems.
+> On Tue, Jul 06, 2004 at 08:41:16AM -0500, Jake Moilanen wrote:
+> > 
+> > > > Firmware can report errors at any time, and not atypically during boot.
+> > > > However, these reports were being discarded until th rtasd comes up,
+> > > > which occurs fairly late in the boot cycle.  As a result, firmware
+> > > > errors during boot were being silently ignored.
+> > 
+> > Linas, the main consumer of error-log is events coming in from
+> > event-scan.  We don't call event-scan until rtasd is up (eg they are
+> > queued in FW until we call event-scan).  
+> 
+> Actually, they don't seem to be queueed at all; when I turned on 
+> logging earlier, a whole pile of messages poped out that weren't 
+> visible before.
 
-Thanks
+event-scan is called every 30 seconds.  FW has to queue them.
 
-Jeff
+If you are seeing a different pile of messages, I would imagine the
+messages that popped out are not coming from event-scan then.  Might be
+last_error, which messages do not come in from event-scan.  I can see
+them not being logged in early boot.  
+
+A problem I could see, is if we make an rtas call before the VM
+is up.  The kmalloc for last_error won't like that.
+
+Jake

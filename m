@@ -1,63 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVDANqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbVDANrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbVDANqK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 08:46:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVDANqK
+	id S262742AbVDANrk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 08:47:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbVDANrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 08:46:10 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:10634 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262740AbVDANqF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 08:46:05 -0500
-Message-ID: <424D5207.3E57CBCA@tv-sign.ru>
-Date: Fri, 01 Apr 2005 17:52:07 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Fri, 1 Apr 2005 08:47:40 -0500
+Received: from smtpout19.mailhost.ntl.com ([212.250.162.19]:32615 "EHLO
+	mta13-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
+	id S262742AbVDANrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 08:47:11 -0500
+Message-ID: <424D50D7.1000503@gentoo.org>
+Date: Fri, 01 Apr 2005 14:47:03 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] timers fixes/improvements
-References: <424D373F.1BCBF2AC@tv-sign.ru> <424D37B2.2CE24C67@tv-sign.ru> <20050401130713.GA3802@elte.hu>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] procfs: Fix hardlink counts
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------000205070100040703070006"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->
-> * Oleg Nesterov <oleg@tv-sign.ru> wrote:
->
-> > struct timer_list {
-> > 	...
-> > 	timer_base_t *_base;
-> > };
->
-> namespace cleanliness: i'd suggest s/_base/base.
+This is a multi-part message in MIME format.
+--------------000205070100040703070006
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I deliberately renamed it to '_base' because then it is much more grepable.
-But I don't mind doing s/_base/base/ if you prefer.
+The pid directories in /proc/ currently return the wrong hardlink count - 3, 
+when there are actually 4 : ".", "..", "fd", and "task".
 
-> > int __mod_timer(struct timer_list *timer, unsigned long expires)
-> [...]
-> > 		/* Ensure the timer is serialized. */
-> > 		if (base != &new_base->t_base
-> > 			&& base->running_timer == timer)
-> > 			goto unlock;
->
-> > unlock:
-> > 		spin_unlock_irqrestore(&base->lock, flags);
-> > 	} while (ret < 0);
->
-> so we keep looping in __mod_timer() when the timer is running? Couldnt
-> this be a performance hit?
+This is easy to notice using find(1):
+	cd /proc/<pid>
+	find
 
-I hope it is unlikely that __mod_timer() would hit the already running timer,
-so hopefully this will not degrade the performance. And I don't see a simple
-alternative to ensure the timer's serialization. At least it spins without
-interrupts disabling.
+In the output, you'll see a message similar to:
+find: WARNING: Hard link count is wrong for .: this may be a bug in your 
+filesystem driver.  Automatically turning on find's -noleaf option.  Earlier 
+results may have failed to include directories that should have been searched.
 
-Oleg.
+http://bugs.gentoo.org/show_bug.cgi?id=86031
+
+I also noticed that CONFIG_SECURITY can add a 5th: attr, and performed a 
+similar fix on the task directories too.
+
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
+
+
+--------------000205070100040703070006
+Content-Type: text/x-patch;
+ name="procfs-hardlinks.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="procfs-hardlinks.patch"
+
+--- linux-2.6.11-gentoo-r5/fs/proc/base.c.orig	2005-04-01 14:06:43.000000000 +0100
++++ linux-2.6.11-gentoo-r5/fs/proc/base.c	2005-04-01 14:35:39.000000000 +0100
+@@ -1702,8 +1702,12 @@ struct dentry *proc_pid_lookup(struct in
+ 	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
+ 	inode->i_op = &proc_tgid_base_inode_operations;
+ 	inode->i_fop = &proc_tgid_base_operations;
+-	inode->i_nlink = 3;
+ 	inode->i_flags|=S_IMMUTABLE;
++#ifdef CONFIG_SECURITY
++	inode->i_nlink = 5;
++#else
++	inode->i_nlink = 4;
++#endif
+ 
+ 	dentry->d_op = &pid_base_dentry_operations;
+ 
+@@ -1757,8 +1761,12 @@ static struct dentry *proc_task_lookup(s
+ 	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
+ 	inode->i_op = &proc_tid_base_inode_operations;
+ 	inode->i_fop = &proc_tid_base_operations;
+-	inode->i_nlink = 3;
+ 	inode->i_flags|=S_IMMUTABLE;
++#ifdef CONFIG_SECURITY
++	inode->i_nlink = 4;
++#else
++	inode->i_nlink = 3;
++#endif
+ 
+ 	dentry->d_op = &pid_base_dentry_operations;
+ 
+
+--------------000205070100040703070006--

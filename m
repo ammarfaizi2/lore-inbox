@@ -1,62 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262879AbTDIH42 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 03:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262889AbTDIH42 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 03:56:28 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:1924 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S262879AbTDIH41 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 03:56:27 -0400
-Date: Wed, 9 Apr 2003 11:08:03 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Frank Davis <fdavis@si.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel support for non-english user messages
-Message-ID: <20030409080803.GC29167@mea-ext.zmailer.org>
-References: <3E93A958.80107@si.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S262905AbTDIIQ6 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 04:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbTDIIQ6 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 04:16:58 -0400
+Received: from smtp4.wanadoo.fr ([193.252.22.28]:34357 "EHLO
+	mwinf0303.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S262905AbTDIIQ4 (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 04:16:56 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] [PATCH] USB speedtouch: don't open a connection if no firmware
+Date: Wed, 9 Apr 2003 10:28:25 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200304080926.43403.baldrick@wanadoo.fr> <200304082222.10919.baldrick@wanadoo.fr> <20030408214045.GA6376@kroah.com>
+In-Reply-To: <20030408214045.GA6376@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3E93A958.80107@si.rr.com>
+Message-Id: <200304091028.25268.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 09, 2003 at 01:02:16AM -0400, Frank Davis wrote:
-> All,
-> 
-> I wish to suggest a possible 2.6 or 2.7 feature (too late for 2.4.x and 
-> 2.5.x, I believe) that I believe would be helpful. Currently, printk 
-> messages are all in english, and I was wondering if printk could be 
-> modified to print out user messages that are in the default language of 
-> the machine. For example,
+> > Hi Greg, I'm waiting on the fixes to the ATM layer (coming soon to a
+> > kernel near you).
+>
+> Ah, ok, that makes sense.
+>
+> > As for the position of MOD_INC_USE_COUNT, did you ever hear
+> > of anyone getting bitten by a race like this?  If it makes you feel
+> > better, I will move it up, probably just before I take the semaphore
+> > (since that is the first place we can sleep).  I will do it tomorrow, OK?
+>
+> Yes, it needs to be before any function that can sleep.  I'll hold off
+> applying this patch then.
 
-To propagate the idea further, why not have proper message catalogs,
-and that way translations.  Instead of:
+How about this one instead.  MOD_INC_USE_COUNT is placed before I call
+any functions that can sleep.  Let's just hope that the call to me doesn't
+come after some sleeping in the higher layers...
 
-> printk(KERN_WARN "This driver is messed up!\n");
+Duncan.
 
-There would be:
-  printk(KERN_WARN "1234-6789 this driver is messed up!\n")
-
-In the old days of big iron beasts, there used to be multivolume
-binders full of system messages, and their explanations.
-Searching went thru those "1234-5678" strings.
-
-There were sets of those manuals in a number of customer languages.
-
-...
-> I'm looking for a possible uniform design to make this happen, short of 
-> adding a complete machine translation module to the kernel. :) Userland 
-> internationalization support is already provided(I haven't personally 
-> used other languages besides English, but I've seen the options), but a 
-> kernel module or printk addition that handles localized kernel messages 
-> seems reasonable.
-
-Compiled in strings take up kernel space, which has better uses.
-Even those code-labels take up space. If not much in kernel (in
-form of e.g. 32 bit integers ?) then at least in the  dmesg  buffer.
-
-> Thoughts, comments?
-> 
-> Regards,
-> Frank
-
-/Matti Aarnio
+--- redux-2.5/drivers/usb/misc/speedtch.c	2003-04-08 08:49:33.000000000 +0200
++++ bollux-2.5/drivers/usb/misc/speedtch.c	2003-04-09 10:08:27.000000000 +0200
+@@ -933,15 +933,24 @@
+ 	if (vcc->qos.aal != ATM_AAL5)
+ 		return -EINVAL;
+ 
++	if (!instance->firmware_loaded) {
++		dbg ("firmware not loaded!");
++		return -EAGAIN;
++	}
++
++	MOD_INC_USE_COUNT;
++
+ 	down (&instance->serialize); /* vs self, udsl_atm_close */
+ 
+ 	if (udsl_find_vcc (instance, vpi, vci)) {
+ 		up (&instance->serialize);
++		MOD_DEC_USE_COUNT;
+ 		return -EADDRINUSE;
+ 	}
+ 
+ 	if (!(new = kmalloc (sizeof (struct udsl_vcc_data), GFP_KERNEL))) {
+ 		up (&instance->serialize);
++		MOD_DEC_USE_COUNT;
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -967,10 +976,7 @@
+ 
+ 	dbg ("Allocated new SARLib vcc 0x%p with vpi %d vci %d", new, vpi, vci);
+ 
+-	MOD_INC_USE_COUNT;
+-
+-	if (instance->firmware_loaded)
+-		udsl_fire_receivers (instance);
++	udsl_fire_receivers (instance);
+ 
+ 	dbg ("udsl_atm_open successful");
+ 
+@@ -1041,6 +1047,7 @@
+ 		int ret;
+ 
+ 		if ((ret = usb_set_interface (instance->usb_dev, 1, 1)) < 0) {
++			dbg ("usb_set_interface returned %d!", ret);
+ 			up (&instance->serialize);
+ 			return ret;
+ 		}

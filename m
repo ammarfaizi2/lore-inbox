@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264610AbUGSBTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUGSBgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264610AbUGSBTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 21:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUGSBTY
+	id S264627AbUGSBgX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 21:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264635AbUGSBgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 21:19:24 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:26519 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264610AbUGSBTX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 21:19:23 -0400
-Date: Sun, 18 Jul 2004 18:18:55 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: numa mm/mempolicy.c maxnode off by one
-Message-Id: <20040718181855.07226c74.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 18 Jul 2004 21:36:23 -0400
+Received: from CPE0000c02944d6-CM00003965a061.cpe.net.cable.rogers.com ([69.193.74.215]:53398
+	"EHLO tentacle.dhs.org") by vger.kernel.org with ESMTP
+	id S264627AbUGSBgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 21:36:21 -0400
+Subject: Re: [PATCH] inotify 0.5
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       nautilus-list@gnome.org
+In-Reply-To: <Pine.LNX.4.58.0407181636240.8279@bigblue.dev.mdolabs.com>
+References: <1090180167.5079.21.camel@vertex>
+	 <Pine.LNX.4.58.0407181636240.8279@bigblue.dev.mdolabs.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1090201363.3767.5.camel@vertex>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 18 Jul 2004 21:42:43 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+On Sun, 2004-07-18 at 19:37, Davide Libenzi wrote:
+> On Sun, 18 Jul 2004, John McCutchan wrote:
+> 
+> > Inotify is a replacement for dnotify. 
+> > 
+> > The main difference between this and my earlier inotify design, is that
+> > device numbers and inode numbers are no longer used. The interface
+> > between user and kernel space uses a watcher descriptor.
+> > 
+> > inotify is a char device with two ioctls
+> > 
+> > WATCH
+> > 	which takes 
+> > 
+> > 	struct inotify_watch_request {
+> > 	        char *dirname; // directory name
+> >         	unsigned long mask; // event mask
+> > 	};
+> > 
+> > 	and returns a watcher descriptor (int)
+> 
+> Does such descriptor supports poll(2) (... f_op->poll())?
+> 
 
-As best as I can tell from code reading, the value of maxnode that is
-passed in on the numa system calls mbind, get_mempolicy and
-set_mempolicy is "off by one".  This seems to be undocumented, and so
-far as I have yet been able to imagine, unjustified.
+You don't use the watcher descriptor to read the events. You use the fd
+from opening up the inotify device (/dev/inotify). The inotify character
+device does support the poll op.
 
-The kernel code in mm/mempolicy.c expects a value one larger than is
-natural, and then decrements it, or it uses "maxnode-1" (sometimes one
-way, sometimes the other, inconsistently).  Your libnuma user library
-hides this off by one with a corresponding increment by one of maxnode. 
-But we are not all using libnuma.  Some of us are using the actual
-system calls, for our own nefarious purposes.
+The watcher descriptor is used for communication between the app and the
+device driver. 
 
-For example, on my 256 node system, with 256 bit user nodemasks, I have
-to pass in a maxnode value of 257.  And the libnuma library, and numactl
-command utility based on it, which are hardcoded for 2048 bit nodemasks,
-always pass in a maxnode value of 2049.
+For example,
+you perform the watch ioctl on "/tmp/" the ioctl returns '2'. Then when
+reading from the char device, any event with wd == 2 is referring to the
+the "/tmp/" directory.
 
-Someday, someone is going to pass in some nice power of two value,
-corresponding to the actual number of nodes in their nodemasks, not
-expecting that their last node is being ignored.
+the character device produces inotify events
 
-Andi - could you explain how this came to be, and perhaps recommend a
-way to fix it (or explain why it's not broken and shouldn't be fixed)?
+struct inotify_event {
+	int wd;
+	int mask;
+}
 
-I could propose ways to fix this without breaking any libnuma that
-you've already shipped.  But first I should find out if my understanding
-of the situation is correct.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+John

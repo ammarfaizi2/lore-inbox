@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267946AbUHEUhN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267951AbUHEUjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267946AbUHEUhN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 16:37:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267941AbUHEUhM
+	id S267951AbUHEUjL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 16:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267947AbUHEUjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 16:37:12 -0400
-Received: from cantor.suse.de ([195.135.220.2]:3554 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267946AbUHEUg4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 16:36:56 -0400
-Date: Thu, 5 Aug 2004 22:32:05 +0200
-From: Andi Kleen <ak@suse.de>
-To: Tom Duffy <tduffy@sun.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix x86_64 build of mmconfig.c
-Message-Id: <20040805223205.3dd2ee1a.ak@suse.de>
-In-Reply-To: <1091728096.10131.16.camel@duffman>
-References: <1091728096.10131.16.camel@duffman>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Aug 2004 16:39:10 -0400
+Received: from mail5.speakeasy.net ([216.254.0.205]:36826 "EHLO
+	mail5.speakeasy.net") by vger.kernel.org with ESMTP id S267957AbUHEUhu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 16:37:50 -0400
+Date: Thu, 5 Aug 2004 13:37:45 -0700
+Message-Id: <200408052037.i75KbjZu023287@magilla.sf.frob.com>
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix /proc printing of TASK_DEAD state
+X-Fcc: ~/Mail/linus
+X-Zippy-Says: These PRESERVES should be FORCE-FED to PENTAGON OFFICIALS!!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 Aug 2004 10:48:16 -0700
-Tom Duffy <tduffy@sun.com> wrote:
+I just stumbled across this patch that's been sitting in my tree for ages.
+I thought I'd sent this in before.  It's a trivial fix for the printing of
+task state in /proc and sysrq dumps and such, so that TASK_DEAD shows up
+correctly.  This state is pretty much only ever there to be seen when there
+are exit/reaping bugs, but it's not like that hasn't come up.
 
-> Signed-by: Tom Duffy <tduffy@sun.com>
-> 
->   gcc -Wp,-MD,arch/x86_64/pci/.mmconfig.o.d -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude -Iinclude2 -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/include -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci -Iarch/x86_64/pci -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -mno-red-zone -mcmodel=kernel -pipe -fno-reorder-blocks -Wno-sign-compare -fno-asynchronous-unwind-tables -O2 -fomit-frame-pointer -Wdeclaration-after-statement -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/ -I arch/i386/pci  -DKBUILD_BASENAME=mmconfig -DKBUILD_MODNAME=mmconfig -c -o arch/x86_64/pci/mmconfig.o /build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci/mmconfig.c
-> /build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci/mmconfig.c:10:17: pci.h: No such file or directory
-> 
-> --- arch/x86_64/pci/Makefile.orig	2004-08-05 09:54:24.932007000 -0700
-> +++ arch/x86_64/pci/Makefile	2004-08-05 09:53:53.171006000 -0700
-> @@ -3,7 +3,7 @@
->  #
->  # Reuse the i386 PCI subsystem
->  #
-> -CFLAGS += -I arch/i386/pci
-> +CFLAGS += -Iarch/i386/pci
 
-It never failed this way for me in hundreds of builds. Why is it failing for you? 
-What gcc version do you use? 
+Thanks,
+Roland
 
-Normally -Ifoo and -I foo should be really equivalent.
+Signed-off-by: Roland McGrath <roland@redhat.com>
 
--Andi
+Index: linux-2.6/fs/proc/array.c
+===================================================================
+RCS file: /home/roland/redhat/bkcvs/linux-2.5/fs/proc/array.c,v
+retrieving revision 1.62
+diff -u -b -p -r1.62 array.c
+--- linux-2.6/fs/proc/array.c 25 May 2004 15:37:14 -0000 1.62
++++ linux-2.6/fs/proc/array.c 5 Aug 2004 20:36:53 -0000
+@@ -137,6 +137,7 @@ static inline const char * get_task_stat
+ 					   TASK_INTERRUPTIBLE |
+ 					   TASK_UNINTERRUPTIBLE |
+ 					   TASK_ZOMBIE |
++					   TASK_DEAD |
+ 					   TASK_STOPPED);
+ 	const char **p = &task_state_array[0];
+ 

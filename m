@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284613AbRLUPR5>; Fri, 21 Dec 2001 10:17:57 -0500
+	id <S284615AbRLUP2S>; Fri, 21 Dec 2001 10:28:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284619AbRLUPRs>; Fri, 21 Dec 2001 10:17:48 -0500
-Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:50703 "EHLO
-	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S284613AbRLUPRi>;
-	Fri, 21 Dec 2001 10:17:38 -0500
-Date: Fri, 21 Dec 2001 16:17:30 +0100 (CET)
-From: Peter Svensson <petersv@psv.nu>
-To: Davidovac Zoran <zdavid@unicef.org.yu>
-cc: Iain McClatchie <iain@TrueCircuits.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Promise Ultra ATA 133 TX2 support for the 2.2 kernel series
-In-Reply-To: <Pine.LNX.4.33.0112211440530.10437-100000@unicef.org.yu>
-Message-ID: <Pine.LNX.4.33.0112211616360.1086-100000@cheetah.psv.nu>
+	id <S284619AbRLUP2H>; Fri, 21 Dec 2001 10:28:07 -0500
+Received: from hal.grips.com ([62.144.214.40]:16100 "EHLO hal.grips.com")
+	by vger.kernel.org with ESMTP id <S284615AbRLUP17>;
+	Fri, 21 Dec 2001 10:27:59 -0500
+Message-Id: <200112211527.fBLFR6X07357@hal.grips.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Gerold Jury <gjury@hal.grips.com>
+To: <mingo@elte.hu>
+Subject: Re: aio
+Date: Fri, 21 Dec 2001 16:27:06 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>, <linux-aio@kvack.org>, <bcrl@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0112211446370.5098-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0112211446370.5098-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Dec 2001, Davidovac Zoran wrote:
+On Friday 21 December 2001 14:48, Ingo Molnar wrote:
+> On Fri, 21 Dec 2001, Gerold Jury wrote:
+> > It is simply too early for sexy discussions. For me, the most
+> > appealing part of AIO is the socket handling. It seems a little bit
+> > broken in the current glibc emulation/implementation. Recv and send
+> > operations are ordered when used on the same socket handle. Thus a
+> > recv must be finished before a subsequent send will happen. Good idea
+> > for files, bad for sockets.
+>
+> is this a fundamental limitation expressed in the interface, or just an
+> implementational limitation? On sockets this is indeed a big problem, HTTP
+> pipelining wants completely separate receive/send queues.
+>
+> 	Ingo
+>
 
-> If your Promise ATA100 card is PDC20265/PDC20267 then it should work
-> 
-> in patch ide.2.2.19.05042001.patch you can read
+That is a very good question.
 
-Are you sure about the lba48 command support? I can see no mention of it 
-in the patch.
+The Single UNIX ® Specification, Version 2 has the following to say.
 
-Peter
+If _POSIX_SYNCHRONIZED_IO is defined and synchronised I/O is enabled on the 
+file associated with aiocbp->aio_fildes, the behaviour of this function is 
+according to the definitions of synchronised I/O data integrity completion 
+and synchronised I/O file integrity completion.
 
-[snip]
+Maybe a was a little bit too fast in blaming glibc. I will go and look for 
+more documentation about disabling synchronised I/O on a socket.
 
-> > Does this patch support lba48 commands? For which ide adapters? (I read an
-> > announcement from Intel that with a patch and a new driver their i8xx
-> > chipsets could use lba48.
-> >
-> > Specifically, I am interested in the Promise ATA100 cards since I own one.
-> >
-> > Peter
-> > --
-> > Peter Svensson      ! Pgp key available by finger, fingerprint:
-> > <petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
-> > ------------------------------------------------------------------------
-> > Remember, Luke, your source will be with you... always...
-> >
-> >
-> 
+Dup()licating the socket handle is an easy workaround, but now i am 
+convinced, a little bit man page digging will be lots of fun.
 
-Peter
+I hope the efforts of Benjamin LaHaise receive more attention and as soon as 
+i know more about disabling synchronised I/O on sockets i will send an other 
+email.
+
+Gerold
+
 --
-Peter Svensson      ! Pgp key available by finger, fingerprint:
-<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
-------------------------------------------------------------------------
-Remember, Luke, your source will be with you... always...
-
-
+I love AIO

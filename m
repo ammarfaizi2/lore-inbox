@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265521AbUG1WYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265893AbUG1WXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265521AbUG1WYU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266129AbUG1WYU
+	id S265893AbUG1WXe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 18:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUG1WXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:24:20 -0400
-Received: from mail.convergence.de ([212.84.236.4]:40416 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S265521AbUG1WYD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:24:03 -0400
-Date: Thu, 29 Jul 2004 00:24:55 +0200
-From: Johannes Stezenbach <js@convergence.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: 2.6.8-rc2-mm1
-Message-ID: <20040728222455.GC5878@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	viro@parcelfarce.linux.theplanet.co.uk
-References: <20040728020444.4dca7e23.akpm@osdl.org>
+	Wed, 28 Jul 2004 18:23:33 -0400
+Received: from gprs214-195.eurotel.cz ([160.218.214.195]:1664 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265893AbUG1WXQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 18:23:16 -0400
+Date: Thu, 29 Jul 2004 00:23:00 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: -mm swsusp: fix highmem handling
+Message-ID: <20040728222300.GA16671@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040728020444.4dca7e23.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040722i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 02:04:44AM -0700, Andrew Morton wrote:
-> 
-> - If people have patches in here which are important for a 2.6.8 release,
->   please let me know.
-...
-> +dvb-major-number.patch
-> 
->  Use the right major in DVB
+Hi!
 
-I would like to see this patch go into 2.6.8. We already changed
-the major number in linuxtv.org CVS and announced it on our
-website, so this might help keep the time of confusion for
-DVB users short.
+Swsusp was not restoring highmem properly. I did not find a nice place
+where to restore it, through, so it went to swsusp_free.
 
-The patch below should go along with it. It fixes some breakage
-in dvb_usercopy() introduced by Al Viro's sparse cleanups in -rc2.
-(A similar patch might have been mailed already by Michael Hunold.)
+I'm not sure why you are saving state before
+save_processor_state. swsusp_arch_resume will overwrite this,
+anyway. Is it to make something balanced?
+								Pavel
 
-Signed-off-by: Johannes Stezenbach <js@convergence.de>
+--- clean-mm/kernel/power/swsusp.c	2004-07-28 23:39:49.000000000 +0200
++++ linux-mm/kernel/power/swsusp.c	2004-07-28 23:30:33.000000000 +0200
+@@ -656,6 +652,10 @@
+ 			free_suspend_pagedir_zone(zone, p);
+ 	}
+ 	free_pages(p, pagedir_order);
++#ifdef CONFIG_HIGHMEM
++	printk( "Restoring highmem\n" );
++	restore_highmem();
++#endif
+ }
+ 
+ 
+@@ -890,7 +890,6 @@
+ {
+ 	int error;
+ 	local_irq_disable();
+-	save_processor_state();
+ 	error = swsusp_arch_resume();
+ 	restore_processor_state();
+ 	local_irq_enable();
 
---- linux-2.6.8-rc2/drivers/media/dvb/dvb-core/dvb_functions.c.orig	2004-07-29 00:19:50.000000000 +0200
-+++ linux-2.6.8-rc2/drivers/media/dvb/dvb-core/dvb_functions.c	2004-07-29 00:20:05.000000000 +0200
-@@ -36,7 +36,7 @@ int dvb_usercopy(struct inode *inode, st
-         /*  Copy arguments into temp kernel buffer  */
-         switch (_IOC_DIR(cmd)) {
-         case _IOC_NONE:
--                parg = NULL;
-+                parg = (void *) arg;
-                 break;
-         case _IOC_READ: /* some v4l ioctls are marked wrong ... */
-         case _IOC_WRITE:
-
-Johannes
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,34 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132576AbRDUL7L>; Sat, 21 Apr 2001 07:59:11 -0400
+	id <S132580AbRDUMTx>; Sat, 21 Apr 2001 08:19:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132577AbRDUL6v>; Sat, 21 Apr 2001 07:58:51 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5131 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132576AbRDUL6p>; Sat, 21 Apr 2001 07:58:45 -0400
-Subject: Re: A question about MMX.
-To: lk@aniela.eu.org
-Date: Sat, 21 Apr 2001 12:59:07 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0104211353450.14048-100000@ns1.aniela.eu.org> from "lk@aniela.eu.org" at Apr 21, 2001 01:55:43 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132582AbRDUMTo>; Sat, 21 Apr 2001 08:19:44 -0400
+Received: from www.topmail.de ([212.255.16.226]:18344 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S132580AbRDUMT2>;
+	Sat, 21 Apr 2001 08:19:28 -0400
+Message-ID: <021601c0ca5d$4e3c0720$de00a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: <Wayne.Brown@altec.com>, "Thomas Dodd" <ted@cypress.com>,
+        "John Madden" <weez@freelists.org>,
+        "Petr Vandrovec" <VANDROVE@vc.cvut.cz>,
+        "Jesper Juhl" <juhl@eisenstein.dk>, "Dax Kelson" <dax@gurulabs.com>,
+        "Aaron Lunansky" <alunansky@rim.net>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <86256A34.00808239.00@smtpnotes.altec.com>
+Subject: Re: Current status of NTFS support
+Date: Sat, 21 Apr 2001 12:19:23 -0000
+Organization: eccesys.net Linux development
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14qw2g-0003WD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a Intel Pentium MMX machine and it acts as a mailserver, webserver,
-> ftp and I use X on it. I would like to know if the MMX instructions are
-> used by the kernel in this operations or not (networking, X etc.).
+> Thanks to all who offered suggestions, both on the list and privately.
+Rather
+> than answer them all individually, I'm going to respond in this one
+message.
+>
+> Unfortunately the upgrade is not going to be done by me, but by our PC
+support
+> team.  Our laptops originally were set up with two FAT32 partitions:
+a small
+> one for Win98 and applications, and a large one for data files.  I
+used FIPS to
+> carve off most of the large one for a swap partition and an ext2
+partition.
+> Now, because of the larger space requirements of Win2000, they're
+going to wipe
+> out everything on the drives and start from scratch.  They'll be doing
+all our
+> laptops in a short period of time, and want to do all of them the same
+way.
+>
+> >From everything I've been told here, it sounds like my best bet is to
+try and
+> talk them into replacing the two FAT32 partitions (which are
+contiguous) with
+> one big one and leave my Linux partitions alone.  That way I won't
+have to deal
+> with NTFS at all.  Fortunately, one of the PC support guys ought to be
+> sympathetic; he runs Linux at home and has asked me for advice in
+getting it set
+> up on his laptop, too.  I'll see if I can talk him into doing my
+machine
+> differently from the others.  I have to be careful, though; my Linux
+use at work
+> is tolerated, but not (yet) encouraged, and I don't want to rock the
+boat too
+> much.
+>
+> Thanks again to everyone.
+>
+> Wayne
 
-In almost all cases - no. The MMX instructions are mostly not useful. A few
-graphics operations benefit from them such as mpeg players but that is about
-it.
+I would, if it goes all wrong, just copy all the stuff from NTFS over
+network
+to your home PC (linux boot floppy, NTFS r/o mount), use a windoze boot
+floppy
+to create FAT32 partitions, get a FAT32 NT boot sector from somewhere
+(or use
+the Recovery Console which I find great) and copy it back over network.
+This should run without any serious problems.
 
-On the AMD and Cyrix machines 3Dnow is used extensively by Mesa (3D) and by
-many of the mp3 players. The winchip and athlon kernels also use mmx for
-block copies but this isnt a win in the pentium case.
+-mirabilos
+
 

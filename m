@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311270AbSDDHev>; Thu, 4 Apr 2002 02:34:51 -0500
+	id <S311273AbSDDHoY>; Thu, 4 Apr 2002 02:44:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311271AbSDDHel>; Thu, 4 Apr 2002 02:34:41 -0500
-Received: from quechua.inka.de ([212.227.14.2]:15672 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S311270AbSDDHeb>;
-	Thu, 4 Apr 2002 02:34:31 -0500
-Date: Thu, 4 Apr 2002 09:34:26 +0200
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext2 vs. ext3 recovery after crash
-Message-ID: <20020404093426.A7578@dungeon.inka.de>
-In-Reply-To: <20020403145248.EBBD7B7802@dungeon.inka.de> <Pine.LNX.3.96.1020403213214.185B-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: aj@dungeon.inka.de (Andreas Jellinghaus)
+	id <S311403AbSDDHoO>; Thu, 4 Apr 2002 02:44:14 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:37619 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S311273AbSDDHoH>; Thu, 4 Apr 2002 02:44:07 -0500
+Date: Thu, 4 Apr 2002 09:42:31 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [2.5 patch] hdreg.h must include types.h
+Message-ID: <Pine.NEB.4.44.0204040938300.7845-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok, i have a "LATITUDE C600",
+Hi,
 
-i'm useing current debian woody, not redhat.
-i didn't do anythign special. the xfree86 config is handwritten, not
-generated with the debian tool (which wasn't working at that time).
-will send you a copy in personal email (and anyone else interested).
+while compiling 2.5.7-dj3 I got the following compile error:
 
-my kernels are recent 2.4.* kernels, usualy the latest (currently
-2.4.18) with some patch (freeswan, swsup or acpi, whatever i'm looking
-at).
+<--  snip  -->
 
-i have only one laptop, but at the university i dealt with several others,
-but never had a pink-screen-logout--requires-reset-problem.
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.5/linux-2.5.7/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -DKBUILD_BASENAME=ide_pnp
+-c -o ide-pnp.o ide-pnp.c
+In file included from /home/bunk/linux/kernel-2.5/linux-2.5.7/include/linux/ide.h:10,
+                 from ide-pnp.c:19:
+/home/bunk/linux/kernel-2.5/linux-2.5.7/include/linux/hdreg.h:71: parse
+error before `u8'
 
-best regards, andreas
+<--  snip  -->
+
+The problem is that in 2.5.8-pre1 hdreg.h uses u8 but it doesn't include
+types.h. I didn't tried it but since the code is the same I expect the
+same problem in 2.5.8-pre1, too.
+
+The fix is simple:
+
+--- include/linux/hdreg.h.old	Thu Apr  4 09:33:48 2002
++++ include/linux/hdreg.h	Thu Apr  4 09:34:44 2002
+@@ -1,6 +1,8 @@
+ #ifndef _LINUX_HDREG_H
+ #define _LINUX_HDREG_H
+
++#include <linux/types.h>
++
+ /*
+  * This file contains some defines for the AT-hd-controller.
+  * Various sources.
+
+cu
+Adrian
+
 

@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268693AbUIBQ1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268675AbUIBQ3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268693AbUIBQ1k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 12:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268675AbUIBQ0p
+	id S268675AbUIBQ3r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 12:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268703AbUIBQ3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 12:26:45 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:41152 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268693AbUIBQ0G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 12:26:06 -0400
-Message-ID: <311601c90409020926243b2a18@mail.gmail.com>
-Date: Thu, 2 Sep 2004 10:26:04 -0600
-From: Eric Mudama <edmudama@gmail.com>
-Reply-To: Eric Mudama <edmudama@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Driver retries disk errors.
-Cc: Romano Giannetti <romano@dea.icai.upco.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1094049877.2787.1.camel@localhost.localdomain>
+	Thu, 2 Sep 2004 12:29:47 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:21709 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S268675AbUIBQ2Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 12:28:24 -0400
+Subject: Re: [patch] kernel sysfs events layer
+From: Robert Love <rml@ximian.com>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Daniel Stekloff <dsteklof@us.ibm.com>, Greg KH <greg@kroah.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20040902132609.GB26413@vrfy.org>
+References: <1093988576.4815.43.camel@betsy.boston.ximian.com>
+	 <20040831145643.08fdf612.akpm@osdl.org>
+	 <1093989513.4815.45.camel@betsy.boston.ximian.com>
+	 <20040831150645.4aa8fd27.akpm@osdl.org>
+	 <1093989924.4815.56.camel@betsy.boston.ximian.com>
+	 <20040902083407.GC3191@kroah.com>
+	 <1094126565.1761.25.camel@localhost.localdomain>
+	 <20040902132609.GB26413@vrfy.org>
+Content-Type: text/plain
+Date: Thu, 02 Sep 2004 12:27:49 -0400
+Message-Id: <1094142469.2284.15.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 1.5.94.1 
 Content-Transfer-Encoding: 7bit
-References: <20040830163931.GA4295@bitwizard.nl>
-	 <1093952715.32684.12.camel@localhost.localdomain>
-	 <20040831135403.GB2854@bitwizard.nl>
-	 <1093961570.597.2.camel@localhost.localdomain>
-	 <20040831155653.GD17261@harddisk-recovery.com>
-	 <1093965233.599.8.camel@localhost.localdomain>
-	 <20040831170016.GF17261@harddisk-recovery.com>
-	 <1093968767.597.14.camel@localhost.localdomain>
-	 <20040901152817.GA4375@pern.dea.icai.upco.es> <1094049877.2787.1.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 01 Sep 2004 15:44:38 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Things like Xine are precisely the cases where you want retry turned off
-> by the application - if the sector is bad then you want to skip when
-> playing movies, while you don't want to skip while writing out your
-> database
+On Thu, 2004-09-02 at 15:26 +0200, Kay Sievers wrote:
 
-This is what they're trying to accomplish with ATA-7 Streaming Feature
-Set ... tell the drive to just read through errors and send the
-garbage, without doing error recovery, for high bandwidth media
-readback.  The first drives to support this feature set will be coming
-out relatively soon...
+> o What kind of signal do we need? A lazy string, a well defined set like
+>   ADD/REMOVE/CHANGE?
+>   Or can we get rid of the whole signal? But how can we distinguish between
+>   add and remove? Watching if the sysfs file comes or goes is not a option,
+>   I think.
+
+I think (from our off-list discussions) that we really need the signal.
+Agreed?
+
+I do think that defining the signal to specific values makes sense, e.g.
+KEVENT_ADD, KEVENT_REMOVE, KEVENT_MOUNTED, etc.  We could also send the
+attribute as a string.
+
+To get around the hotplug issue that would occur without 'enum kevent',
+as we discussed, we could have a "hotplug_added" signal or whatever.
+Nothing wrong with that.
+
+Cool or not?
+
+	Robert Love
+
+

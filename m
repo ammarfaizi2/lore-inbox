@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136208AbRASA74>; Thu, 18 Jan 2001 19:59:56 -0500
+	id <S136255AbRASBAg>; Thu, 18 Jan 2001 20:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136255AbRASA7r>; Thu, 18 Jan 2001 19:59:47 -0500
-Received: from palrel3.hp.com ([156.153.255.226]:50960 "HELO palrel3.hp.com")
-	by vger.kernel.org with SMTP id <S136208AbRASA72>;
-	Thu, 18 Jan 2001 19:59:28 -0500
-Message-ID: <3A67916E.4D41444E@cup.hp.com>
-Date: Thu, 18 Jan 2001 16:59:26 -0800
-From: Rick Jones <raj@cup.hp.com>
-Organization: the Unofficial HP
-X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
-X-Accept-Language: en
+	id <S136503AbRASBA2>; Thu, 18 Jan 2001 20:00:28 -0500
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:18982 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S136255AbRASBAR>; Thu, 18 Jan 2001 20:00:17 -0500
+Date: Thu, 18 Jan 2001 20:00:16 -0500 (EST)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: multi-queue scheduler update
+In-Reply-To: <20010119012616.D32087@athlon.random>
+Message-ID: <Pine.LNX.4.10.10101181956300.8128-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <20010118212441.E28276@athlon.random> <200101182037.XAA08671@ms2.inr.ac.ru> <20010118220428.G28276@athlon.random> <20010118192758.A2656@zalem.puupuu.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olivier Galibert wrote:
+> >                            microseconds/yield
+> > # threads      2.2.16-22           2.4        2.4-multi-queue
+> > ------------   ---------         --------     ---------------
+> > 16               18.740            4.603         1.455
 > 
-> On Thu, Jan 18, 2001 at 10:04:28PM +0100, Andrea Arcangeli wrote:
-> > NAGLE algorithm is only one, CORK algorithm is another different algorithm. So
-> > probably it would be not appropriate to mix CORK and NAGLE under the name
-> > "CONTROL_NAGLING", but certainly I agree they could stay together under another
-> > name ;).
-> 
-> TCP_FLOW_CONTROL ?
+> I remeber the O(1) scheduler from Davide Libenzi was beating the mainline O(N)
 
-then folks would think you were controlling the congestion or "classic"
-windows. what alal these things do is affect segmentation, so perhaps
-TCP_SEGMENT_CONTROL or something to that effect, if anything.
+isn't the normal case (as in "The Right Case to optimize") 
+where there are close to zero runnable tasks?  what realistic/sane
+scenarios have very large numbers of spinning threads?  all server
+situations I can think of do not.  not volanomark -loopback, surely!
 
-rickjones
--- 
-ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
-these opinions are mine, all mine; HP might not want them anyway... :)
-feel free to email, OR post, but please do NOT do BOTH...
-my email address is raj in the cup.hp.com domain...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

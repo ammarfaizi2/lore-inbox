@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263139AbTDYNg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 09:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTDYNg3
+	id S263163AbTDYNuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 09:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTDYNuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 09:36:29 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:46601 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S263139AbTDYNg2 convert rfc822-to-8bit (ORCPT
+	Fri, 25 Apr 2003 09:50:24 -0400
+Received: from dp.samba.org ([66.70.73.150]:2959 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263163AbTDYNuY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 09:36:28 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: cciss patches for 2.4.21-rc1, 4 of 4
-Date: Fri, 25 Apr 2003 08:48:33 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF1040528C8@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: cciss patches for 2.4.21-rc1, 4 of 4
-Thread-Index: AcMKrq/vdIfU+okZS8+vWzl/aVqVbQAfjuFAAAEVzjA=
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: "Cameron, Steve" <Steve.Cameron@hp.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 25 Apr 2003 13:48:33.0393 (UTC) FILETIME=[5CC08610:01C30B31]
+	Fri, 25 Apr 2003 09:50:24 -0400
+Date: Fri, 25 Apr 2003 22:53:59 +1000
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jean Tourrilhes <jt@hpl.hp.com>, David Hinds <dhinds@sonic.net>
+Subject: Re: Update to orinoco driver (2.4)
+Message-ID: <20030425125359.GB10133@zax>
+Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+	Jean Tourrilhes <jt@hpl.hp.com>, David Hinds <dhinds@sonic.net>
+References: <20030423054636.GG25455@zax> <20030423060520.GI25455@zax> <1051272644.15776.2.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1051272644.15776.2.camel@gaston>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't seen any issues (yet) on ia64. I'm running with 5GB RAM.
+On Fri, Apr 25, 2003 at 02:10:45PM +0200, Benjamin Herrenschmidt wrote:
+> On Wed, 2003-04-23 at 08:05, David Gibson wrote:
+> > On Wed, Apr 23, 2003 at 03:46:36PM +1000, David Gibson wrote:
+> > > Hi Marcelo,
+> > > 
+> > > The patch below updates the orinoco driver in 2.4 to 0.13d, the patch
+> > > is against 2.4.21-rc1.  You may want to postpone this update till
+> > > after 2.4.21, but I'd consider it, since it fixes a fair slew of bugs.
+> > 
+> > Duh, sorry.  And now with the actual patch:
+> 
+> Shouldn't it also patch Config.in & Makefile to add the orinoco_tmd.c ?
 
-mikem
+Crap, indeed it ought.  It's been so long since I added a file, I
+forgot that bit.  I'll fix that up on Monday.
 
------Original Message-----
-From: Cameron, Steve 
-Sent: Friday, April 25, 2003 8:25 AM
-Cc: linux-kernel@vger.kernel.org; Miller, Mike (OS Dev)
-Subject: RE: cciss patches for 2.4.21-rc1, 4 of 4
+> I'm adding this new driver to my pmac bk tree btw.
 
+Ok.
 
-
-Mike Miller wrote:
-
-> Changes:
->	1. Sets the DMA mask to 64 bits. Removes RH's code for the DMA mask.
-
-In order for this to work, it depends on pci_alloc_consistent always
-returning memory with physical addresses that fit in 32 bits, 
-regardless of the DMA mask, since the cciss device's command register 
-is 32 bits, and the command buffer addresses must fit in there.  If 
-that's the case, this is fine.  Otherwise, this may fail if pci_alloc_consistent
-returns memory above 4GB.  (on x86, I think this is not a problem, not
-sure of other archs, e.g. alpha, ia64)
-
-Note the cciss devices *are* capable of 64 bit addressing for DMA, provided
-you can find a way to tell it a 64 bit address.  For data, it's no problem.
-Only for command buffers is it a problem.
-
--- steve
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266468AbUFUVLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266476AbUFUVNT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266468AbUFUVLm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 17:11:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266469AbUFUVLl
+	id S266476AbUFUVNT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 17:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266472AbUFUVNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 17:11:41 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:9358 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S266471AbUFUVLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 17:11:31 -0400
-Message-ID: <40D74EFE.1000500@nortelnetworks.com>
-Date: Mon, 21 Jun 2004 17:11:26 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: BUG?:   G5 not using all available memory
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jun 2004 17:13:18 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:30170 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S266474AbUFUVNC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 17:13:02 -0400
+Date: Mon, 21 Jun 2004 23:13:01 +0200
+From: maximilian attems <janitor@sternwelten.at>
+To: Alan Cox <alan@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [patch-kj] kernel_thread() audit return code i2o_core.c
+Message-ID: <20040621211301.GN1545@sputnik.stro.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I've got a G5 with 2GB of memory, running 2.6.7, ppc architecture (not ppc64), 
-with the following config options (let me know if others are relevent)
 
-# CONFIG_CMDLINE_BOOL is not set
-#
-# Advanced setup
-#
-CONFIG_ADVANCED_OPTIONS=y
-# CONFIG_HIGHMEM_START_BOOL is not set
-CONFIG_HIGHMEM_START=0xfe000000
-# CONFIG_LOWMEM_SIZE_BOOL is not set
-CONFIG_LOWMEM_SIZE=0x30000000
-# CONFIG_KERNEL_START_BOOL is not set
-CONFIG_KERNEL_START=0xc0000000
-
-After boot, I get the following output in dmesg:
-
-Memory: 510080k available (3144k kernel code, 1532k data, 168k init, 0k highmem)
+Audited for kernel_thread() return values. Did it backwards last
+time. *^_^*
+Oh, yeah; compiles just fine as module or built-in.
 
 
-What's going on?  Why can't I see all my memory?
+Description  : Audited for kernel_thread() return code in i2o_sys_init()
 
-Chris
+Signed-off-by: MJK <mkemp@cs.nmsu.edu>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+
+
+---
+
+ linux-2.6.7-max/drivers/message/i2o/i2o_core.c |    7 +++++++
+ 1 files changed, 7 insertions(+)
+
+diff -puN drivers/message/i2o/i2o_core.c~kernel_thread-i2o_core drivers/message/i2o/i2o_core.c
+--- linux-2.6.7/drivers/message/i2o/i2o_core.c~kernel_thread-i2o_core	2004-06-18 10:30:08.000000000 +0200
++++ linux-2.6.7-max/drivers/message/i2o/i2o_core.c	2004-06-18 10:31:20.000000000 +0200
+@@ -2234,6 +2234,13 @@ rebuild_sys_tab:
+ 		/* Create a kernel thread to deal with dynamic LCT updates */
+ 		iop->lct_pid = kernel_thread(i2o_dyn_lct, iop, CLONE_SIGHAND);
+ 	
++		if (iop->lct_pid < 0) {
++			printk(KERN_ERR "Couldn't spawn thread for %s.\n",
++					iop->name);
++			i2o_sys_shutdown();
++			return;
++		}
++
+ 		/* Update change ind on DLCT */
+ 		iop->dlct->change_ind = iop->lct->change_ind;
+ 
+
+_

@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276642AbRJGXqs>; Sun, 7 Oct 2001 19:46:48 -0400
+	id <S276650AbRJGXyI>; Sun, 7 Oct 2001 19:54:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276647AbRJGXqj>; Sun, 7 Oct 2001 19:46:39 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16654 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S276642AbRJGXq2>; Sun, 7 Oct 2001 19:46:28 -0400
-Date: Sun, 7 Oct 2001 16:46:02 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-cc: Adrian Bunk <bunk@fs.tum.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.11-pre5
-In-Reply-To: <3BC0C655.6C35DF43@oracle.com>
-Message-ID: <Pine.LNX.4.33.0110071643050.7542-100000@penguin.transmeta.com>
+	id <S276651AbRJGXx6>; Sun, 7 Oct 2001 19:53:58 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:4850 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S276650AbRJGXxr>; Sun, 7 Oct 2001 19:53:47 -0400
+Message-ID: <3BC0EB11.31EA73C1@mvista.com>
+Date: Sun, 07 Oct 2001 16:53:53 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steve Kieu <haiquy@yahoo.com>
+CC: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Is there preempt patch for 2.2.19?
+In-Reply-To: <20011007233220.73702.qmail@web10404.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steve Kieu wrote:
+> 
+> Hi,
+> 
+> I can not find it out but I hope some one would do
+> that. Hope R. Love is willing to do that :-) , many
+> thanks...
+> 
+Its not that it is hard to do, you might even get the current patch to
+apply, more or less. 
 
-On Sun, 7 Oct 2001, Alessandro Suardi wrote:
->
-> Happens also for ieee1394 when built as module.
+The real problem is that it would not do you much good.  The 2.4.x work
+removed a LOT of long held spinlocks and BKLs that the patch can not
+(and does not in 2.4.x) fix.  Thus you would still have long latency
+issues, even with the patch.
 
-Add "ohci1394.o" to the list of export-objs in ieee1349/Makefile.
-
-As to the exec_domain.c one - that one is already on the export-obhjs
-list, and I wonder if perhaps Adrian forgot to do a "make dep" or
-similar...
-
-		Linus
-
+George

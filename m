@@ -1,39 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbUCHAML (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 19:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbUCHAML
+	id S262355AbUCHAOd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 19:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbUCHAOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 19:12:11 -0500
-Received: from ccs.covici.com ([209.249.181.196]:23506 "EHLO ccs.covici.com")
-	by vger.kernel.org with ESMTP id S262352AbUCHALw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 19:11:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: shuttle an50r Motherboard and Linux
-From: John Covici <covici@ccs.covici.com>
-Date: Sun, 07 Mar 2004 19:11:50 -0500
-Message-ID: <m3wu5w8aex.fsf@ccs.covici.com>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 7 Mar 2004 19:14:33 -0500
+Received: from hermes.acsalaska.net ([209.112.155.38]:19214 "EHLO
+	hermes.acsalaska.net") by vger.kernel.org with ESMTP
+	id S262356AbUCHAOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 19:14:17 -0500
+Date: Sun, 7 Mar 2004 15:13:37 -0900
+From: Ethan Benson <erbenson@alaska.net>
+To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: XFS and ACLs in 2.4.25...what happen?
+Message-ID: <20040308001337.GA2022@plato.local.lan>
+Mail-Followup-To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <27232.1078690548@ocs3.ocs.com.au> <20040307232039.5504A62C8@mx.ktv.lt>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Content-Disposition: inline
+In-Reply-To: <20040307232039.5504A62C8@mx.ktv.lt>
+User-Agent: Mutt/1.3.28i
+X-OS: Debian GNU
+X-gpg-fingerprint: E3E4 D0BC 31BC F7BB C1DD  C3D6 24AC 7B1A 2C44 7AFC
+X-gpg-key: http://www.alaska.net/~erbenson/gpg/key.asc
+Mail-Copies-To: erbenson@alaska.net
+X-ACS-Spam-Status: no
+X-ACS-Scanned-By: MD 2.39; SA 2.63; spamdefang 1.93
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I have had a couple of problems trying to get this Motherboard
-to work correctly under Linux.  
 
-The Ethernet 10/100 is supposed to be an RC82540m, but the e100
-module does not recognize it.  If you do an lspci it doesn't say
-Intel at all, but just Nvidia and Shuttle.  Am I doing something
-wrong, or is there a better driver in 2.6 than 2.4 or what?
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Also, I am using the amd74xx driver for the chip set, but it does not
-seem to activate dma or announce udma and a number as the via one
-does -- is this the correct driver?
+On Mon, Mar 08, 2004 at 01:12:33AM +0200, Nerijus Baliunas wrote:
+> On Mon, 08 Mar 2004 07:15:48 +1100 Keith Owens <kaos@ocs.com.au> wrote:
+>=20
+> > >So what gives?  What happened to XFS ACL support?
+> >=20
+> > ftp://oss.sgi.com/projects/xfs/download/patches/2.4.24-pre1/xfs-2.4.24-=
+pre1-split-acl.bz2
+> >=20
+> > should be want you want.
+>=20
+> Why isn't it included in 2.4.25?
 
-Any assistance would be appreciated.
+because Marcelo said no.
 
--- 
-         John Covici
-         covici@ccs.covici.com
+> Is it included in 2.6?
+
+yes.
+
+--=20
+Ethan Benson
+http://www.alaska.net/~erbenson/
+
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iEYEARECAAYFAkBLurEACgkQJKx7GixEevzj9QCfdgpY1g+UN0uqa4UdePfuJzy/
+NBUAoIKz4ume1UqUxe4ebrWvklMVbIWJ
+=Oeut
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--

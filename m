@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbTJMIgA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 04:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTJMIgA
+	id S261539AbTJMIaI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 04:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbTJMIaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 04:36:00 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:41478 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261567AbTJMIf6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 04:35:58 -0400
-Message-ID: <3F8A661B.80909@aitel.hist.no>
-Date: Mon, 13 Oct 2003 10:45:15 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Greg Stark <gsstark@mit.edu>
-CC: Joel Becker <Joel.Becker@oracle.com>, Jamie Lokier <jamie@shareable.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: statfs() / statvfs() syscall ballsup...
-References: <Pine.LNX.4.44.0310120909050.12190-100000@home.osdl.org> <878ynq3y7n.fsf@stark.dyndns.tv>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Oct 2003 04:30:08 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:48986 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261539AbTJMIaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 04:30:05 -0400
+Date: Mon, 13 Oct 2003 10:31:17 +0200
+Message-Id: <200310130831.h9D8VHt5015675@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 337] M68k export csum_partial
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Stark wrote:
-[...]
-> 
-> But then vacuum comes along and tries to read the entire table sequentially.
-> In the best case the sequential read will take up a lot of the available disk
-> bandwidth and delay transactions. In the worst case the OS will actually
-> prefer the sequential read because the elevator algorithm always sees that it
-> can get more bandwidth by handling it ahead of the random access.
-> 
-> In reality there is no time pressure on the vacuum at all. As long as it
-> completes faster than dead records can pile up it's fast enough. The
-> transactions on the other hand must complete as fast as possible.
+M68k: Export missing symbol csum_partial
 
-This seems almost trivial.  If the vacuum job runs too much,
-overusing disk bandwith - throttle it!
-This is easier than trying to tell the kernel that the job is
-less important, that goes wrong wether the job runs too much
-or too little.  Let that job  sleep a little when its services
-aren't needed, or when you need the disk bandwith elsewhere.
+--- linux-2.6.0-test7/arch/m68k/lib/checksum.c	Thu Nov 28 10:19:26 2002
++++ linux-m68k-2.6.0-test7/arch/m68k/lib/checksum.c	Thu Oct  9 15:16:10 2003
+@@ -125,6 +125,7 @@
+ 	return(sum);
+ }
+ 
++EXPORT_SYMBOL(csum_partial);
+ 
+ 
+ /*
 
+Gr{oetje,eeting}s,
 
-Helge Hafting
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

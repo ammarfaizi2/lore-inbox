@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266884AbUBMJwS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 04:52:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266886AbUBMJwS
+	id S266883AbUBMJsm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 04:48:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266885AbUBMJsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 04:52:18 -0500
-Received: from ns.schottelius.org ([213.146.113.242]:51948 "HELO
-	ns.schottelius.org") by vger.kernel.org with SMTP id S266884AbUBMJwR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 04:52:17 -0500
-Date: Fri, 13 Feb 2004 10:52:23 +0100
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: harddisk or kernel problem?
-Message-ID: <20040213095223.GE1881@schottelius.org>
-References: <20040213075403.GC1881@schottelius.org> <20040213081104.GD1881@schottelius.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 Feb 2004 04:48:41 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:32774 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S266883AbUBMJsk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 04:48:40 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Jamie Lokier <jamie@shareable.org>
+Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+Date: Fri, 13 Feb 2004 10:48:36 +0100
+User-Agent: KMail/1.6.1
+Cc: John Bradford <john@grabjohn.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+References: <20040209115852.GB877@schottelius.org> <200402122329.11182.robin.rosenberg.lists@dewire.com> <20040213025814.GE25499@mail.shareable.org>
+In-Reply-To: <20040213025814.GE25499@mail.shareable.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040213081104.GD1881@schottelius.org>
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux bruehe 2.6.1
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402131048.36658.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nico Schottelius [Fri, Feb 13, 2004 at 09:11:04AM +0100]:
-> forgot the config and the dmesg..
+On Friday 13 February 2004 03.58, Jamie Lokier wrote:
+> Robin Rosenberg wrote:
+> > Most shell scripts break if I even have a space in a filename.  This
+> > shouldn't be any worse than that. The space issue is really serious
+> > (but I don't think that can be fixed other than teaching people to
+> > program properly, and possibly improving bash's knowledge of the
+> > difference between a space and argument separator).
 > 
+> Space works fine for me.  Completion, wildcard expansion, variable
+> substition etc. all fine.  Bash doesn't need changing - your scripts do.
 
-Now additionally I found a mistake in my thoughts:
+I'm thinking about many scripts in the wild, and my own scripts (usually) handle spaces
+well, but it's awkward sometimes although quoting usually resolves the issue (never mind what
+happens with filenames with quotes, newlines and other garabage, but even those work sometimes. 
+Fortunately these are rare, very rare and usually the result of a programming mistake elsewhere :-)
 
-hda/part3 makes the errors, hda/part4 is the cryptoloop partition.
-So in fact the error occurs when mounting this particular partition, but
-seems to be an error on partition3. Can someone give me a hint on what
-todo?
+On the command line there is no problem. 
 
-Sincerly,
+With other script languages I use this is rarely an issue.
 
-Nico
-
-ps: if somebody answers/answers me, please cc-me. Thanks.
+-- robin

@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262295AbTCRKiy>; Tue, 18 Mar 2003 05:38:54 -0500
+	id <S262328AbTCRKlc>; Tue, 18 Mar 2003 05:41:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262298AbTCRKiy>; Tue, 18 Mar 2003 05:38:54 -0500
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:64156 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S262295AbTCRKix>; Tue, 18 Mar 2003 05:38:53 -0500
-Message-ID: <20030318104941.28605.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	id <S262329AbTCRKlc>; Tue, 18 Mar 2003 05:41:32 -0500
+Received: from msp-24-163-212-250.mn.rr.com ([24.163.212.250]:65153 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S262328AbTCRKlb>; Tue, 18 Mar 2003 05:41:31 -0500
+Subject: Re: 2.5.64-mm8 breaks MASQ
+From: Shawn <core@enodev.com>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
+In-Reply-To: <1047922184.3223.2.camel@iso-8590-lx.zeusinc.com>
+References: <1047922184.3223.2.camel@iso-8590-lx.zeusinc.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 18 Mar 2003 11:49:41 +0100
-Subject: 2.5 Interactivity & XMMS audio skipping
-X-Originating-Ip: 213.4.13.153
-X-Originating-Server: ws5-7.us4.outblaze.com
+Organization: 
+Message-Id: <1047984726.3914.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 18 Mar 2003 04:52:06 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
- 
-While playing with 2.5.65 and 2.5.64-mm8 I've been able 
-to reproduce audio skipping with XMMS while moving a 
-large window on my KDE desktop (no other CPU-bound 
-process except "kdeinit" waking up periodically to steal 
-1-3% CPU). What's really curious is that after some time, 
-the scheduler seems to adjust in such a way that I can't 
-reproduce the audio skip anymore easily. 
- 
-In 2.5.64-mm8 it's easier to avoid sound skipping by 
-adjusting "max_timeslice" to a 25 or lower. However, on 
-2.5.65, I must wait for the scheduler to do its magic. After 
-that time, dragging the window over the screen (either 
-very fast or very slowly) does not always reproduce the 
-audio skip. 
- 
-Thanks! 
- 
-   Felipe 
- 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+This actually broke in -mm7, but I don't know what causes it.
 
-Powered by Outblaze
+I have to admit, I haven't even looked at the patch to see what changed.
+Oh well, I suspect good ol' 65-mm1 will fix things up. If so, my TiVo
+could stop holding it's breath. ;)
+
+Anyone else seeing this?
+
+On Mon, 2003-03-17 at 11:29, Tom Sightler wrote:
+> I have been attempting to test the -mm kernels.  I was having problems
+> with the anticipatory scheduler up causing the machine to hang during
+> loading of the USB driver.  The recent fixes that went into -mm8 seem to
+> have corrected this problem, unfortunately I'm now hitting another
+> issue.
+> 
+> It seems that -mm8 breaks MASQ support in iptables.  Actually I can't
+> get any MASQ/NAT to work at all.  The same exact config works fine with
+> vanilla 2.5.64 and 2.5.64-ac4.
+> 
+> Backing out the brlock patches returns everything to normal operation so
+> there's something happening with those.  I'll try to look at them
+> individually if I get a chance but I know practically nothing about that
+> code so somebody will probably spot a problem quicker.
+> 
+> Later,
+> Tom
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

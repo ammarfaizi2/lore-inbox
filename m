@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261921AbRE2Azs>; Mon, 28 May 2001 20:55:48 -0400
+	id <S261926AbRE2A72>; Mon, 28 May 2001 20:59:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261926AbRE2Azi>; Mon, 28 May 2001 20:55:38 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:2826 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S261921AbRE2Aze>;
-	Mon, 28 May 2001 20:55:34 -0400
-Date: Tue, 29 May 2001 02:55:26 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: James Sutherland <jas88@cam.ac.uk>, "Adam J. Richter" <adam@yggdrasil.com>,
-        lm@bitmover.com, aaronl@vitelus.com, acahalan@cs.uml.edu,
-        dledford@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
-Message-ID: <20010529025526.D6061@pcep-jamie.cern.ch>
-In-Reply-To: <20010529020300.A6061@pcep-jamie.cern.ch> <E154XJi-0003jI-00@the-village.bc.nu>
+	id <S261929AbRE2A7S>; Mon, 28 May 2001 20:59:18 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:10500 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S261926AbRE2A7J>; Mon, 28 May 2001 20:59:09 -0400
+Date: Mon, 28 May 2001 18:50:59 -0600
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Yuri Per <yuri@acronis.com>,
+        Martin von Loewis <loewis@informatik.hu-berlin.de>,
+        linux-kernel@vger.kernel.org, Linux-ntfs@tiger.informatik.hu-berlin.de,
+        linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [Linux-ntfs] Re: [Linux-NTFS-Dev] Re: ANN: NTFS new release available (1.1.15)
+Message-ID: <20010528185059.A2290@vger.timpanogas.org>
+In-Reply-To: <3B11E3F1.1090400@acronis.com> <5.1.0.14.2.20010526011903.00aab050@pop.cus.cam.ac.uk> <5.1.0.14.2.20010526000503.04716ec0@pop.cus.cam.ac.uk> <5.1.0.14.2.20010526011903.00aab050@pop.cus.cam.ac.uk> <5.1.0.14.2.20010527123154.00a96640@pop.cus.cam.ac.uk> <200105271253.OAA22557@pandora.informatik.hu-berlin.de> <3B11E3F1.1090400@acronis.com> <5.1.0.14.2.20010528125630.04729ba0@pop.cus.cam.ac.uk> <3B124DD7.1060908@acronis.com> <5.1.0.14.2.20010528154831.04438280@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E154XJi-0003jI-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, May 29, 2001 at 01:24:58AM +0100
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <5.1.0.14.2.20010528154831.04438280@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Mon, May 28, 2001 at 03:49:28PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > > AFAICS, the firmware is just a file served up to the device as needed
-> > > - no more a derivative work from the kernel than my homepage is a
-> > > derivative work of Apache.
-> > 
-> > Indeed.  But if you compiled your home page, linked it into Emacs to
-> > display on startup, and distributed the binary, the _combination_
-> > "Emacs+homepage" binary would be a derived work, and you'd be required
-> > to offer source for both parts.
+On Mon, May 28, 2001 at 03:49:28PM +0100, Anton Altaparmakov wrote:
+> At 14:08 28/05/2001, Yuri Per wrote:
+> >Anton Altaparmakov wrote:
+> >
+> >>Does anyone know what NTFS version the NT 3.1 / 3.51 volumes had? If I 
+> >>know  I can make sure we don't mount such beasts considering we know the 
+> >>driver  would fail on them... - I am aware of only one person stil using 
+> >>NT 3.51  and he doesn't believe in the NTFS Linux driver any more, so I 
+> >>guess we can  just say we support NT 4.0 and above only.
+> >
+> >NT 3.51 uses exactly the same version of NTFS as NT 4.0 does.
 > 
-> In which case GNU Emacs violates the GPL by containing a copy of
-> COPYING which is more restricted than the GPL. After all it displays
-> copying on a hotkey combination
+> Ok. Thanks.
 > 
-> Is that really what you are trying to say ??
+> Anyone know about 3.1?
+> 
+> Anton
+> 
 
-Interesting idea.  But no, not at all -- that would be daft!
+It's an HPFS variant.  Try the HPFS driver, and it may work.  The first cut
+of NT was with a hacked up HPFS driver from Microsoft OS/2.  NTFS was 
+designed internally by David G. and friends.
 
-Whether COPYING, or any other file, is displayed on a hotkey combination
-is irrelevant.  My copy of Mozilla can pop up google.com on a mouse
-click; there is no implication that Mozilla and google.com are a single
-copyrighted entity.  
+Jeff
 
-However, if Mozilla had the Google search engine built in to it, then of
-course that instance of the Google code would have to be distributed
-under MPL-compatible terms.  If Mozilla simply had the Google front page
-built into it as internal "moz_printf" statements, then that code would
-have to be MPL-compatible in order to be distributed.
-
-There might be absurd technicalities if COPYING were part of the "source
-code" for Emacs ("the Program").  Fortunately COPYING is not part of the
-source code of an Emacs binary, because you don't need COPYING to build
-the binary.
-
--- Jamie
+> 
+> -- 
+>    "Nothing succeeds like success." - Alexandre Dumas
+> -- 
+> Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+> Linux NTFS Maintainer / WWW: http://sf.net/projects/linux-ntfs/
+> ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265265AbTLaWQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 17:16:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265266AbTLaWQ5
+	id S265270AbTLaW1o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 17:27:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbTLaW1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 17:16:57 -0500
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:23184 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S265265AbTLaWQ4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 17:16:56 -0500
-Date: Wed, 31 Dec 2003 23:16:36 +0100
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Marcel Holtmann <marcel@holtmann.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Message-ID: <20031231221636.GN24577@ranty.pantax.net>
-Reply-To: ranty@debian.org
-References: <200312210137.41343.dtor_core@ameritech.net> <1072169289.2876.57.camel@pegasus> <200312270025.24160.dtor_core@ameritech.net> <200312270028.26952.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <200312270028.26952.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.4i
-X-SA-Exim-Mail-From: ranty@ranty.pantax.net
-Subject: Re: [2.6 PATCH/RFC] Firmware loader fixes - take 2 (patch 1/2)
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 3.1 (built Wed Nov 26 20:40:04 CET 2003)
-X-SA-Exim-Scanned: Yes
+	Wed, 31 Dec 2003 17:27:44 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:57124 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S265270AbTLaW1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 17:27:42 -0500
+Message-ID: <3FF34B09.9040302@myrealbox.com>
+Date: Wed, 31 Dec 2003 14:17:45 -0800
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20031231
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word
+References: <fa.af64864.ugabhg@ifi.uio.no> <fa.de7jae9.1jk0pjt@ifi.uio.no>
+In-Reply-To: <fa.de7jae9.1jk0pjt@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 27, 2003 at 12:29:56AM -0500, Dmitry Torokhov wrote:
-> ===================================================================
-> 
-> 
-> ChangeSet@1.1527, 2003-12-25 22:44:59-05:00, dtor_core@ameritech.net
->   Firmware loader: correctly free allocated resources
->    - free allocated memory in class_device release method
->    - rely on sysfs to remove all attributes when device class
->      gets unregistered
+Greg KH wrote:
 
- The problem is real, but I find the patch too intrusive.
- 
- I'll try to fix the problem based on it.
+> In fact, now that I know Gentoo works without devfs, I'm considering
+> putting it on an old laptop I have around here...
 
- Thanks
+That would be ideal.  I'm sure you will like the 'portage' system as
+much as we (the gentoo hordes) do.
 
- 	Manuel
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.
+Note that the portage system already includes 'hotplug' and 'udev'
+but possibly lagging behind a bit:  hotplug-20030805-r3 and udev-011.
+
+I have installed them both but just have not been able to get udev
+working yet -- I don't yet understand the problems well enough to tell
+you why, unfortutately.  (udev is still marked 'experimental' so I'm
+probably omitting important steps somewhere.)
+
+If you could get udev working in gentoo you would become an instant
+hero rather than the target of nasty emails.  Think of how great
+that would be for your New Year!  We would become the wind beneath
+your wings instead of the rotten tomatoes in your mailbox  ;0)

@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbUCLQNU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 11:13:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbUCLQNT
+	id S261738AbUCLQZn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 11:25:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUCLQZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 11:13:19 -0500
-Received: from pop.gmx.de ([213.165.64.20]:1700 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262288AbUCLQMX (ORCPT
+	Fri, 12 Mar 2004 11:25:42 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38297 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261738AbUCLQZl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 11:12:23 -0500
-X-Authenticated: #1226656
-Date: Fri, 12 Mar 2004 16:59:07 +0100
-From: Marc Giger <gigerstyle@gmx.ch>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4 on Alpha uninterruptible sleep of processes
-Message-Id: <20040312165907.626d4a08@hdg.gigerstyle.ch>
-In-Reply-To: <20040312184115.B680@jurassic.park.msu.ru>
-References: <20040312154613.7567adab@hdg.gigerstyle.ch>
-	<20040312182754.A680@jurassic.park.msu.ru>
-	<20040312184115.B680@jurassic.park.msu.ru>
-X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Mar 2004 11:25:41 -0500
+Date: Fri, 12 Mar 2004 11:25:27 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: anon_vma RFC2
+In-Reply-To: <20040312131103.GS30940@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403121121500.6494-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ivan,
+On Fri, 12 Mar 2004, Andrea Arcangeli wrote:
 
-On Fri, 12 Mar 2004 18:41:15 +0300
-Ivan Kokshaysky <ink@jurassic.park.msu.ru> wrote:
+> I don't see what you mean with sharing the same address space between
+> parent and child, whatever _global_ mm wide address space is screwed by
+> mremap, if you don't use the pg_off to ofset the page->index, the
+> vm_start/vm_end means nothing.
 
-> On Fri, Mar 12, 2004 at 06:27:54PM +0300, Ivan Kokshaysky wrote:
-> > -	"	cmovgt	%0,%0,%1\n"
-> > +	"	cmovgt	%0,0,%1\n"
-> 
-> Oops. This is wrong, please ignore.
-> Will investigate further.
+At mremap time, you don't change the page->index at all,
+but only the vm_start/vm_end.  Think of it as an mm_struct
+pointing to a struct address_space with its anonymous
+memory.  On exec() the mm_struct gets a new address_space,
+on fork parent and child share them.
 
-Too late. Already applied, compiled and booted. Read your message and
-rebooted to 2.4:-)
+Sharing is good enough, because there is PAGE_SIZE times
+more space in a struct address_space than there's available
+virtual memory in one single process.  That means that for
+a daemon like apache every child can simply get its own 4GB
+subset of the address space for any new VMAs, while mapping
+the inherited VMAs in the same way any other file is mapped.
 
-Another question:
+> I think the anonmm design is flawed and it has no way to handle
+> mremap reasonably well,
 
-Why is there no option to compile a preemptive kernel? Not possible on
-alpha or nobody interested to code or...?
+There's no difference between mremap() of anonymous memory
+and mremap() of part of an mmap() range of a file...
 
-Perhaps you can answer yet another question:
+At least, there doesn't need to be.
 
-In 2.4.23 /prc/meminfo shows always 
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-Buffers:             0 kB
-
-Is it normal on alpha? 2.6.4 showed a value > 0
-
-Thank you!
-
-Regards
-
-Marc

@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUIIVUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUIIVUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267565AbUIIVUW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 17:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUIIVTu
+	id S266200AbUIIVUV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 17:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267625AbUIIVUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 17:19:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:2967 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267565AbUIIVKi (ORCPT
+	Thu, 9 Sep 2004 17:20:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24795 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266200AbUIIVFg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 17:10:38 -0400
-Message-ID: <1a56ea3904090914107814c0fc@mail.gmail.com>
-Date: Thu, 9 Sep 2004 22:10:32 +0100
-From: DaMouse <damouse@gmail.com>
-Reply-To: DaMouse <damouse@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Latest microcode data from Intel.
-In-Reply-To: <Pine.LNX.4.44.0409091726010.2713-100000@einstein.homenet>
+	Thu, 9 Sep 2004 17:05:36 -0400
+Date: Thu, 9 Sep 2004 14:05:11 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
+       James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>
+Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
+Message-ID: <20040909140511.D1924@build.pdx.osdl.net>
+References: <20040908184130.GA12691@k3.hellgate.ch> <1094730811.22014.8.camel@moss-spartans.epoch.ncsc.mil> <20040909172200.GX3106@holomorphy.com> <20040909175342.GA27518@k3.hellgate.ch> <1094760065.22014.328.camel@moss-spartans.epoch.ncsc.mil> <20040909205531.GA17088@k3.hellgate.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.44.0409091726010.2713-100000@einstein.homenet>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040909205531.GA17088@k3.hellgate.ch>; from rl@hellgate.ch on Thu, Sep 09, 2004 at 10:55:31PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Sep 2004 17:32:10 +0100 (BST), Tigran Aivazian
-<tigran@veritas.com> wrote:
-> Hello,
+* Roger Luethi (rl@hellgate.ch) wrote:
+> On Thu, 09 Sep 2004 16:01:06 -0400, Stephen Smalley wrote:
+> > > For the same reason, I'm not comfortable with implementing SELinux type
+> > > access controls myself. How about:
+> > > 
+> > > config NPROC
+> > > 	depends on !SECURITY_SELINUX
+> > > 
+> > > Adding access control later won't be a problem for anyone who groks
+> > > SELinux.
+> > 
+> [...]
+> > Most obvious place to hook would be nproc_ps_get_task; we could then
+> > perform a check based on the sender's credentials and the target task's
+> > credentials, and simply return NULL if permission is not granted for
+> > that pair, thus skipping that task as if it didn't exist.  That requires
+> > propagating the sender's credentials down to that function.
+> > 
+> > Untested patch below.
 > 
-> I have received and tested the latest microcode data file from Intel, The
-> file is dated 2nd September 2004. You can download it both as standalone
-> (bzip2-ed) text file and bundled with microcode_ctl utility from the
-> Download section of the website:
+> I used a somewhat different approach in my development tree (not
+> SELinuxy, though): Most fields were world readable, some required
+> credentials.
 > 
-> http://urbanmyth.org/microcode/
-> 
-> Please let me know if you find any problems with this data file or with
-> the Linux microcode driver. Thank you.
-> 
-> Kind regards
-> Tigran
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> I don't have any strong feelings on access control, so I'd be happy
+> with any mechanism that doesn't completely botch performance. Anyway,
+> I do not consider lack of access controls to be a showstopper.
 
-Could you give me a quick description of what exactly this does?
+Some of these things become quite sensitive, esp across setuid, etc.
+For prototyping, I agree, not a showstopper.  For merging, it should be
+figured out properly.
 
--DaMouse
-
-
+thanks,
+-chris
 -- 
-I know I broke SOMETHING but its there fault for not fixing it before me
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

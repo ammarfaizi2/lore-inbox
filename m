@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVBHMYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVBHM0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVBHMYD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 07:24:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVBHMYD
+	id S261521AbVBHM0T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 07:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVBHM0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 07:24:03 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:42474 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261520AbVBHMYA (ORCPT
+	Tue, 8 Feb 2005 07:26:18 -0500
+Received: from smtp-out2.email.it ([80.247.70.7]:8141 "EHLO smtp-out2.email.it")
+	by vger.kernel.org with ESMTP id S261522AbVBHM0M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 07:24:00 -0500
-Date: Tue, 8 Feb 2005 13:23:48 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Matthew Wilcox <matthew@wil.cx>
-cc: Sam Ravnborg <sam@ravnborg.org>,
-       Kai Germaschewski <kai@germaschewski.name>,
-       linux-kernel@vger.kernel.org, dholland@eecs.harvard.edu
-Subject: Re: [PATCH] Makefiles are not built using a Fortran compiler
-In-Reply-To: <20050208030228.GE20386@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.61.0502081322310.6118@scrub.home>
-References: <20050208030228.GE20386@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Feb 2005 07:26:12 -0500
+Subject: [BUG Report] Hacks in IDE (perhaps) section => 2.6.8 make REALLYbad audio-cd's
+From: Marco <feedback@email.it>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 08 Feb 2005 13:26:24 +0100
+Message-Id: <1107865584.919.8.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.1.4 
+Content-Transfer-Encoding: 7bit
+X-Copyrighted-Material: Please visit http://www.email.it/ita/privacy.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello, I'm not a developer, but I've noticed that EVERY kernel version
+later than 2.6.7 (excluding that) have a bug when burning any audio cd,
+causing bad "jumps" every second or so...
 
-On Tue, 8 Feb 2005, Matthew Wilcox wrote:
+I maintained the same conf. from 2.6.2 to 2.6.8.1 (even 2.6.10 is
+affected), and even when changing something, no effect.
 
-> 
-> David Holland pointed out that Make has a lot of implicit suffix rules
-> built in and you can disable them by setting ".SUFFIXES:".  As an
-> example, checking the debugging information shows we no longer try to
-> compile anything from a '.f' suffix.  This turns out to be good for a 15%
-> speedup on a build with nothing to do; down from 29.1 seconds to 24.7
-> seconds on my K6.
+FYI if you want I can upload an audio sample somewhere.
 
-Enabling the following in the Makefile should have the same effect:
+Any idea?
+::Marco::
 
-# For maximum performance (+ possibly random breakage, uncomment
-# the following)
 
-#MAKEFLAGS += -rR
-
-bye, Roman
+ 
+ 
+ --
+ Email.it, the professional e-mail, gratis per te: http://www.email.it/f
+ 
+ Sponsor:
+ Giornata faticosa? Rilassati con il Cuscino per Massaggi che vibra!
+ Clicca qui: http://adv.email.it/cgi-bin/foclick.cgi?mid=2742&d=8-2

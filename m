@@ -1,59 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272735AbRIGPql>; Fri, 7 Sep 2001 11:46:41 -0400
+	id <S272737AbRIGPrB>; Fri, 7 Sep 2001 11:47:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272734AbRIGPqb>; Fri, 7 Sep 2001 11:46:31 -0400
-Received: from mx4.port.ru ([194.67.57.14]:33803 "EHLO smtp4.port.ru")
-	by vger.kernel.org with ESMTP id <S272732AbRIGPqW>;
-	Fri, 7 Sep 2001 11:46:22 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109072009.f87K92G06330@vegae.deep.net>
-Subject: Re: Recent kernels sound crash  solution found?
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Fri, 7 Sep 2001 20:09:01 +0000 (UTC)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15fNMa-0001qL-00@the-village.bc.nu> from "Alan Cox" at Sep 07, 2001 04:16:12 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272732AbRIGPqw>; Fri, 7 Sep 2001 11:46:52 -0400
+Received: from picard.csihq.com ([204.17.222.1]:31376 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S272737AbRIGPqo>;
+	Fri, 7 Sep 2001 11:46:44 -0400
+Message-ID: <04c301c137b4$34604590$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: <trond.myklebust@fys.uio.no>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <024f01c13601$c763d3c0$e1de11cc@csihq.com><shsae07md9d.fsf@charged.uio.no><033a01c1379e$e3514880$e1de11cc@csihq.com> <15256.56528.460569.700469@charged.uio.no>
+Subject: Re: 2.4.8 NFS Problems
+Date: Fri, 7 Sep 2001 11:46:05 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"  Alan Cox wrote:"
-> 
-> >       * comment to point 2: very rare circumcistances includes
-> >    that some time should pass to fragment memory
-> 
-> The alloc_dmap code returns -ENOMEM when the allocation fails. That causes
-> the open_dmap call to return -ENOMEM which in turn causes DMAbuf_open
-> to return -ENOMEM which causes audio_openb to return -ENOMEM, which gets
-> back to userspace. 
-> 
-> I don't see a problem.
-> 
-> [sound btw also supports a module option to keep the dmabuffers allocated
->  once and hang onto them]
-> 
-   Alan, actually i wanted to tell you about other place:
-from dmabuf.c:
-        /*
-         * Now loop until we get a free buffer. Try to get smaller buffer if
-         * it fails. Don't accept smaller than 8k buffer for performance
-         * reasons.
-         */
-    ===>  _here_ is a dead-loop  <===
-        while (start_addr == NULL && dmap->buffsize > PAGE_SIZE) {
-                for (sz = 0, size = PAGE_SIZE; size < dmap->buffsize; sz++, size                dmap->buffsize = PAGE_SIZE * (1 << sz);
-                start_addr = (char *) __get_free_pages(GFP_ATOMIC|GFP_DMA, sz);
-                if (start_addr == NULL)
-                        dmap->buffsize /= 2;
-        }
+But did you notice the network log:
+07:02:07.481323 yeti.csihq.com.686186576 > picard.csihq.com.nfs: 1472 write
+[|nfs] (frag 28948:1480@0+)
+07:02:07.481446 yeti.csihq.com > picard.csihq.com: (frag 28948:1480@1480+)
+07:02:07.481569 yeti.csihq.com > picard.csihq.com: (frag 28948:1480@2960+)
+07:02:07.481692 yeti.csihq.com > picard.csihq.com: (frag 28948:1480@4440+)
+07:02:07.481814 yeti.csihq.com > picard.csihq.com: (frag 28948:1480@5920+)
+07:02:07.481886 yeti.csihq.com > picard.csihq.com: (frag 28948:916@7400)
+07:02:07.482321 picard.csihq.com.nfs > yeti.csihq.com.686186576: reply ok
+136 write [|nfs] (DF)
+07:02:07.482511 yeti.csihq.com.702963792 > picard.csihq.com.nfs: 108 commit
+[|nfs] (DF)
+07:02:07.482642 picard.csihq.com.nfs > yeti.csihq.com.702963792: reply ok
+128 commit (DF)
 
-      Solutions:
-        1. make it accept 0-order allocations
-        2. make CONFIG_SOUND_DMAP not a config, but the only option   
+The file is being copied from yeti to picard.  Last packet seen is picard
+telling yeti "OK" after the commit.
+If soft timeouts were occurring shouldn't we be seeing packets from yeti
+again with no response from picard?
+
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
+----- Original Message -----
+From: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+To: "Mike Black" <mblack@csihq.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Sent: Friday, September 07, 2001 10:42 AM
+Subject: Re: 2.4.8 NFS Problems
 
 
-cheers, Sam
+>>>>> " " == Mike Black <mblack@csihq.com> writes:
+
+     > But my timeouts were only 10 seconds -- well below the timeo
+     > and retrans timeout periods.  And my network traffic shows that
+
+According to the 'nfs' manpage, the default timeo on the mount in
+util-linux is usually 0.7 seconds. retrans is 3.
+
+  0.7 + 1.4 + 2.8 = 4.9 seconds < 10...
+
+     > this is the client causing the problem NOT the server.  It's
+     > the read() that pauses for 10 seconds and then the NFS write
+     > immediately returns EIO.  So...I don't think soft mounts has
+     > anything to do with it.
+
+I think it does.
+
+Cheers,
+  Trond
 

@@ -1,65 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVBWS0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVBWSd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVBWS0d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 13:26:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVBWS0c
+	id S261528AbVBWSd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 13:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbVBWSd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 13:26:32 -0500
-Received: from mail.shareable.org ([81.29.64.88]:55208 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261517AbVBWSWV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 13:22:21 -0500
-Date: Wed, 23 Feb 2005 18:22:04 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Olof Johansson <olof@austin.ibm.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Joe Korty <joe.korty@ccur.com>,
+	Wed, 23 Feb 2005 13:33:56 -0500
+Received: from fire.osdl.org ([65.172.181.4]:3555 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261528AbVBWSdy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 13:33:54 -0500
+Date: Wed, 23 Feb 2005 10:34:27 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Olof Johansson <olof@austin.ibm.com>, Joe Korty <joe.korty@ccur.com>,
        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        rusty@rustcorp.com.au
 Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
-Message-ID: <20050223182203.GA10931@mail.shareable.org>
-References: <20050222190646.GA7079@austin.ibm.com> <20050222115503.729cd17b.akpm@osdl.org> <20050222210752.GG22555@mail.shareable.org> <Pine.LNX.4.58.0502221317270.2378@ppc970.osdl.org> <20050223144940.GA880@tsunami.ccur.com> <Pine.LNX.4.58.0502230751140.2378@ppc970.osdl.org> <20050223171015.GD10256@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050223171015.GD10256@austin.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050223182203.GA10931@mail.shareable.org>
+Message-ID: <Pine.LNX.4.58.0502231033540.2378@ppc970.osdl.org>
+References: <20050222190646.GA7079@austin.ibm.com> <20050222115503.729cd17b.akpm@osdl.org>
+ <20050222210752.GG22555@mail.shareable.org> <Pine.LNX.4.58.0502221317270.2378@ppc970.osdl.org>
+ <20050223144940.GA880@tsunami.ccur.com> <Pine.LNX.4.58.0502230751140.2378@ppc970.osdl.org>
+ <20050223171015.GD10256@austin.ibm.com> <20050223182203.GA10931@mail.shareable.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olof Johansson wrote:
-> On Wed, Feb 23, 2005 at 07:54:06AM -0800, Linus Torvalds wrote:
+
+
+On Wed, 23 Feb 2005, Jamie Lokier wrote:
 > 
-> > > Otherwise, a preempt attempt in get_user would not be seen
-> > > until some future preempt_enable was executed.
-> > 
-> > True. I guess we should have a "preempt_check_resched()" there too. That's 
-> > what "kunmap_atomic()" does too (which is what we rely on in the other 
-> > case we do this..)
-> 
-> Ok, this is getting complex enough to warrant get_user_inatomic(),
-> which means adding it to every arch's uaccess.h.
-> 
-> Below patch does so. Unfortunately I don't have a Viro setup with cross
-> compilers for nearly every arch, so I can't make sure it doesn't break
-> anything. But since I pasted the same code everywhere it shouldn't.
+> I suggest putting it into futex.c, and make it an inline function
+> which takes "u32 __user *".
 
-My turn to say uglee.
+Agreed, except we've traditionally just made it "int __user *".
 
-Firstly, get_user_inatomic is the wrong name.
-
-"inatomic" in __copy_from_user_inatomic means it's called inside a
-non-premptable region (in atomic...).
-
-Your macro get_user_inatomic is _not_ called inside a
-non-preemptable region, so it shouldn't be called "inatomic".
-
-(A better name is get_user_no_paging).
-
-Secondly, does this _one_ use (it's not likely to be used elsewhere)
-justify copying & pasting the same code into every asm-*/uaccess,
-especially when the code is not in any way arch-specific?
-
-I suggest putting it into futex.c, and make it an inline function
-which takes "u32 __user *".
-
--- Jamie
+		Linus

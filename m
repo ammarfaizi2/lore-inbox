@@ -1,39 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265506AbTBTMip>; Thu, 20 Feb 2003 07:38:45 -0500
+	id <S265477AbTBTMc4>; Thu, 20 Feb 2003 07:32:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265517AbTBTMhD>; Thu, 20 Feb 2003 07:37:03 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:8209 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265506AbTBTMgW>; Thu, 20 Feb 2003 07:36:22 -0500
-Date: Thu, 20 Feb 2003 13:46:22 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
-       <wa@almesberger.net>
-Subject: Re: [RFC] Is an alternative module interface needed/possible?
-In-Reply-To: <200302201209.EAA12261@adam.yggdrasil.com>
-Message-ID: <Pine.LNX.4.44.0302201337000.1336-100000@serv>
-References: <200302201209.EAA12261@adam.yggdrasil.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265446AbTBTMcs>; Thu, 20 Feb 2003 07:32:48 -0500
+Received: from octopussy.utanet.at ([213.90.36.45]:45020 "EHLO
+	octopussy.utanet.at") by vger.kernel.org with ESMTP
+	id <S265305AbTBTMaZ>; Thu, 20 Feb 2003 07:30:25 -0500
+Date: Thu, 20 Feb 2003 13:40:27 +0100
+From: Dejan Muhamedagic <dejan@hello-penguin.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vm issues on sap app server
+Message-ID: <20030220124026.GA4051@lilith.homenet>
+Reply-To: Dejan Muhamedagic <dejan@hello-penguin.com>
+References: <20030219171432.A6059@smp.colors.kwc> <20030219180523.GK14633@x30.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030219180523.GK14633@x30.suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrea,
 
-On Thu, 20 Feb 2003, Adam J. Richter wrote:
+On Wed, Feb 19, 2003 at 07:05:24PM +0100, Andrea Arcangeli wrote:
+> On Wed, Feb 19, 2003 at 05:14:32PM +0100, Dejan Muhamedagic wrote:
+> > 
+> > Both servers swap constantly, but the 2.4.20aa1 at a 10-fold
+> > higher rate.  OTOH, there should be enough memory for
+> > everything.  It seems like both VMs have preference for
+> > cache.  Is it possible to reduce the amount of memory used
+> > for cache?
+> 
+> yes:
+> 
+> 	echo 1000 >/proc/sys/vm/vm_mapped_ratio
+> 
+> this controls how hard the vm will try to shrink the cache before
+> starting swapping/unmapping activities.
 
-> 	The ability to remove a module is generally independent of
-> whether or not there is any hardware present at that moment for which
-> the module supplies a driver.  Instead, the determining issue is
-> whether there are file descriptors open for that driver.
+Today the swapping rate went up compared to yesterday.  So much
+that it made a serious impact on performance.  The server has been
+up for four days and the more the time passes the less it is
+capable of handling the load.  I tried changing the
+vm_mapped_ratio as you suggested, but the cache use is still very
+high:
 
-I don't understand, what you're trying to say.
-File descriptors are not the only way to access a driver and the ability 
-to remove a module is only dependent on the number of references to this 
-module.
+Cached:        2292156 kB
+SwapCached:    2770440 kB
 
-bye, Roman
+I must ask for an explanation of the latter item.  Is that swap
+being cached?  If so, why?  AFAIK, if a page is swapped out and
+later (soon) referenced again then the system is in a need of more
+memory or the VM didn't predict well.  The latter case should occur
+infrequently.  In the former no clever piece of software would help
+anyway.  So, why cache swap?
 
+elvtune gives:
+
+/dev/sda elevator ID            2
+        read_latency:           128
+        write_latency:          512
+        max_bomb_segments:      0
+
+Which seems fine to me.  Anyway, with this much swapping (100-800Kpps)
+it won't help.  I'll do some testing later with file transfer.
+
+> 2.4.21pre4aa3 has also extreme scalability optimizations that generates
+> three digits percent improvements on some hardware, however those won't
+> help latency directly. These optimizations will also change partly when
+> the vm starts swapping, and it will defer the "swap" point somehow, this
+> new behaviour (besides the greatly improved scalability) is also
+> beneficial to very shm-userspace-cache intensive apps.
+
+It is exactly the case here:
+
+# df /dev/shm
+Filesystem           1k-blocks      Used Available Use% Mounted on
+shmfs                 16384000   5798364  10585636  36% /dev/shm
+
+> You can revert to
+> the non-scalable behaviour (but possibly more desiderable on small
+> desktop/laptops) by using echo 1 >/proc/sys/vm/vm_anon_lru. You should
+> also try 'echo 1 >/proc/sys/vm/vm_anon_lru' if you see the VM isn't
+> swapping well enough and that it shrinks too much cache after upgrading
+> to 2.4.21pre4aa3.
+
+I hope I will be able to give this one a try.
+
+> Thanks for the interesting feedback!
+
+Thank you for your input.
+
+Cheers!
+
+Dejan

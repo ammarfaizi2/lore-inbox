@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261426AbSK0DPK>; Tue, 26 Nov 2002 22:15:10 -0500
+	id <S261446AbSK0DTn>; Tue, 26 Nov 2002 22:19:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261446AbSK0DPK>; Tue, 26 Nov 2002 22:15:10 -0500
-Received: from f270.law8.hotmail.com ([216.33.240.145]:53772 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S261426AbSK0DPJ>;
-	Tue, 26 Nov 2002 22:15:09 -0500
-X-Originating-IP: [24.44.249.150]
-From: "sean darcy" <seandarcy@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: modutils for both redhat kernels and 2.5.x
-Date: Tue, 26 Nov 2002 22:22:22 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F2708IgEO3YnDKvLVFD000016ca@hotmail.com>
-X-OriginalArrivalTime: 27 Nov 2002 03:22:23.0175 (UTC) FILETIME=[339B7570:01C295C4]
+	id <S261456AbSK0DTn>; Tue, 26 Nov 2002 22:19:43 -0500
+Received: from pat.uio.no ([129.240.130.16]:56796 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S261446AbSK0DTm>;
+	Tue, 26 Nov 2002 22:19:42 -0500
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Ext2 devel <ext2-devel@lists.sourceforge.net>,
+       NFS maillist <nfs@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [NFS] htree+NFS (NFS client bug?)
+References: <1038354285.1302.144.camel@sherkaner.pao.digeo.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 27 Nov 2002 04:26:46 +0100
+In-Reply-To: <1038354285.1302.144.camel@sherkaner.pao.digeo.com>
+Message-ID: <shsptsrd761.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK.OK So there's no way to boot both.
+>>>>> " " == Jeremy Fitzhardinge <jeremy@goop.org> writes:
 
-FWIW, modutils-2.4.21-4 works fine with built 2.4.19 and 2.4.20-rc3 kernels. 
-While modprobe -c does give errors, all the rh scripts seem to work fine.
+     > It looks to me like some sort of problem managing the NFS
+     > readdir cookies, but it isn't clear to me whether this is the
+     > NFS server/ext3 generating bad cookies, or the NFS client
+     > handling them wrongly.
 
-AND, rh's position on all this:
+In order to determine which of the two needs to be fixed, it would
+help if you could print out the cookies from that listing or better
+still: if you could provide us with the raw tcpdump output. Please
+remember to use an 8k snaplen for the tcpdump...
 
-"You need *entirely different* modutils, not just a new modutils. We 
-probably
-won't be looking into this until the new 2.5 module loader is actually 
-finished" Bugzilla 78508
-
-So if you want to try 2.5 kernels, make your own 2.4.x, you can't use the rh 
-kernels.
-
-
-
-
-
-
-
-
-
-
-
-_________________________________________________________________
-Protect your PC - get McAfee.com VirusScan Online 
-http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
-
+Cheers,
+  Trond

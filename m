@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271838AbTGRQej (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 12:34:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271835AbTGRQec
+	id S269900AbTGRQiD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 12:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271792AbTGRQhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 12:34:32 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:60361 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S271804AbTGRQcz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 12:32:55 -0400
-Date: Fri, 18 Jul 2003 09:47:35 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 956] New: Kernel hangs when using a primary and secondary IDE controller under software raid0
-Message-ID: <10140000.1058546855@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 18 Jul 2003 12:37:13 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:42654 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S271787AbTGROv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 10:51:57 -0400
+Date: Fri, 18 Jul 2003 11:14:15 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Chris Mason <mason@suse.com>, Andrea Arcangeli <andrea@suse.de>,
+       riel@redhat.com, lkml <linux-kernel@vger.kernel.org>,
+       Jim Gifford <maillist@jg555.com>
+Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
+In-Reply-To: <20030718145033.5ff05880.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.55L.0307181109220.7889@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
+ <1058297936.4016.86.camel@tiny.suse.com> <Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
+ <20030718112758.1da7ab03.skraw@ithnet.com> <Pine.LNX.4.55L.0307180921120.6642@freak.distro.conectiva>
+ <20030718145033.5ff05880.skraw@ithnet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=956
 
-           Summary: Kernel hangs when using a primary and secondary IDE
-                    controller under software raid0
-    Kernel Version: 2.4.20-18.9 and 2.6.0-mm1-ac2
-            Status: NEW
-          Severity: high
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: SpamBox@cableone.net
+I have just started stress testing a 8way OSDL box to see if I can
+reproduce the problem. I'm using pre6+axboes BH_Sync patch.
 
+I'm running 50 dbench clients on aic7xxx (ext2) and 50 dbench clients on
+DAC960 (ext3). Lets see what happens.
 
-Distribution:RedHat 9.0
-Hardware Environment:K7V motherboard with onboard ATA66 controller. Secondary 
-controller is Promise PCD20268 - ATA100
-Software Environment: 2.4.20-18.9 and 2.6.0-mm1-ac2
-Problem Description: I'm attempting to use 3 HDs under software raid0. My 
-Maxtor 40GB HD is attached 
-to the ATA66 onboard controller on my K7V motherboard, and my two 20GB IBM HDs 
-are attached to the secondary Promise controller (PDC20268 - ATA100).
+After lunch I'll keep looking at the oopses. During the morning I only had
+time to setup the OSDL box and start the tests.
 
-If I create a raid0 configuration consisting only of my two IBM HDs everything 
-is fine. When using all 3 HDs the kernel locks up so tightly that even 
-Alt+SysRq+T does not respond.
+On Fri, 18 Jul 2003, Stephan von Krawczynski wrote:
 
-All three HDs can be used in Linux provided they are not used in raid.
-
-Tests were run using ext3 and ext2.
-
-I have researched the problem for a couple weeks and the only work-around I 
-have found is using ide=nodma which is not a very desirable solution.
-
-I will be glad to add additional info if it is needed. Just let me know.
-
-
-Steps to reproduce:
-1. The problem should be reproducable by using a primary and secondary IDE 
-controller under software raid0.
-2.Run bonnie++
-
-
+> On Fri, 18 Jul 2003 09:23:10 -0300 (BRT)
+> Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+>
+> >
+> > CCed lkml for obvious reasons
+> >
+> > On Fri, 18 Jul 2003, Stephan von Krawczynski wrote:
+> >
+> > > On Wed, 16 Jul 2003 08:37:51 -0300 (BRT)
+> > > Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+> > >
+> > > >
+> > > > Stephan, can you reproduce it easily?
+> > >
+> > > Hello,
+> > >
+> > > there is definitely something about it. pre6 froze after 2 days of
+> > > testing. I guess I was unlucky this time with logfiles, no messages
+> > > there.  There is something severe. You may call it reproducable, but not
+> > > easy.
+> >
+> > Stephan,
+> >
+> > What is your workload?
+> >
+> > I'll try to reproduce it.

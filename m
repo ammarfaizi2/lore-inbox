@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315416AbSE2Ojr>; Wed, 29 May 2002 10:39:47 -0400
+	id <S315417AbSE2OnZ>; Wed, 29 May 2002 10:43:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315419AbSE2Ojq>; Wed, 29 May 2002 10:39:46 -0400
-Received: from jalon.able.es ([212.97.163.2]:10924 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315416AbSE2Ojp>;
-	Wed, 29 May 2002 10:39:45 -0400
-Date: Wed, 29 May 2002 16:39:17 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] gcc3-march flags
-Message-ID: <20020529143917.GA2913@werewolf.able.es>
+	id <S315419AbSE2OnY>; Wed, 29 May 2002 10:43:24 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46349 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S315417AbSE2OnX>; Wed, 29 May 2002 10:43:23 -0400
+Date: Wed, 29 May 2002 16:43:25 +0200
+From: Jan Kara <jack@suse.cz>
+To: torvalds@transmeta.com
+Cc: Nathan Scott <nathans@wobbly.melbourne.sgi.com>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] 1/3 Ported quota changes
+Message-ID: <20020529144323.GA9503@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 1.3.6
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+  Hi,
 
-On top of previous arch-CONFIG reorder, this patch adds support for gcc3
--march flags:
+  so I ported quota changes to 2.5.18.  The first one is just a minor
+change to Makefile and Config.in to not build quota.c when not needed.
+I don't see the patch in 2.5.18 so I resend it...
 
-diff -ruN linux-2.4.19-pre8-jam4-0/arch/i386/Makefile linux-2.4.19-pre8-jam4/arch/i386/Makefile
---- linux-2.4.19-pre8-jam4-0/arch/i386/Makefile	2002-05-29 00:30:39.000000000 +0200
-+++ linux-2.4.19-pre8-jam4/arch/i386/Makefile	2002-05-29 00:32:27.000000000 +0200
-@@ -43,23 +43,23 @@
- endif
- 
- ifdef CONFIG_MPENTIUMMMX
--CFLAGS += -march=i586
-+CFLAGS += $(shell if $(CC) -march=pentium-mmx -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=pentium-mmx"; else echo "-march=i586"; fi)
- endif
- 
- ifdef CONFIG_MPENTIUMPRO
--CFLAGS += -march=i686
-+CFLAGS += $(shell if $(CC) -march=pentium-pro -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=pentium-pro"; else echo "-march=i686"; fi)
- endif
- 
- ifdef CONFIG_MPENTIUM2
--CFLAGS += -march=i686
-+CFLAGS += $(shell if $(CC) -march=pentium2 -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=pentium2"; else echo "-march=i686"; fi)
- endif
- 
- ifdef CONFIG_MPENTIUM3
--CFLAGS += -march=i686
-+CFLAGS += $(shell if $(CC) -march=pentium3 -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=pentium3"; else echo "-march=i686"; fi)
- endif
- 
- ifdef CONFIG_MPENTIUM4
--CFLAGS += -march=i686
-+CFLAGS += $(shell if $(CC) -march=pentium4 -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=pentium4"; else echo "-march=i686"; fi)
- endif
- 
- ifdef CONFIG_MK6
-
-
+							Honza
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre9-jam1 #1 SMP mié may 29 02:20:48 CEST 2002 i686
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
+
+
+diff -ruNX /home/jack/.kerndiffexclude linux-2.5.18/fs/Config.in linux-2.5.18-1-makefix/fs/Config.in
+--- linux-2.5.18/fs/Config.in	Sat May 25 14:25:31 2002
++++ linux-2.5.18-1-makefix/fs/Config.in	Tue May 28 23:46:57 2002
+@@ -8,10 +8,13 @@
+ dep_tristate '  Old quota format support' CONFIG_QFMT_V1 $CONFIG_QUOTA
+ dep_tristate '  VFS v0 quota format support' CONFIG_QFMT_V2 $CONFIG_QUOTA
+ dep_mbool '  Compatible quota interfaces' CONFIG_QIFACE_COMPAT $CONFIG_QUOTA
+-if [ "$CONFIG_QUOTA" = "y" -a "$CONFIG_QIFACE_COMPAT" = "y" ]; then
+-   choice '    Compatible quota interfaces' \
+-	"Original	CONFIG_QIFACE_V1 \
+-	 VFSv0		CONFIG_QIFACE_V2" Original
++if [ "$CONFIG_QUOTA" = "y" ]; then
++   define_bool CONFIG_QUOTACTL y
++   if [ "$CONFIG_QIFACE_COMPAT" = "y" ]; then
++       choice '    Compatible quota interfaces' \
++		"Original	CONFIG_QIFACE_V1 \
++		 VFSv0		CONFIG_QIFACE_V2" Original
++   fi
+ fi
+ tristate 'Kernel automounter support' CONFIG_AUTOFS_FS
+ tristate 'Kernel automounter version 4 support (also supports v3)' CONFIG_AUTOFS4_FS
+diff -ruNX /home/jack/.kerndiffexclude linux-2.5.18/fs/Makefile linux-2.5.18-1-makefix/fs/Makefile
+--- linux-2.5.18/fs/Makefile	Tue May 28 23:41:29 2002
++++ linux-2.5.18-1-makefix/fs/Makefile	Tue May 28 23:47:19 2002
+@@ -15,7 +15,7 @@
+ 		namei.o fcntl.o ioctl.o readdir.o select.o fifo.o locks.o \
+ 		dcache.o inode.o attr.o bad_inode.o file.o iobuf.o dnotify.o \
+ 		filesystems.o namespace.o seq_file.o xattr.o libfs.o \
+-		fs-writeback.o quota.o
++		fs-writeback.o
+ 
+ ifneq ($(CONFIG_NFSD),n)
+ ifneq ($(CONFIG_NFSD),)
+@@ -35,6 +35,7 @@
+ obj-$(CONFIG_QUOTA)		+= dquot.o
+ obj-$(CONFIG_QFMT_V1)		+= quota_v1.o
+ obj-$(CONFIG_QFMT_V2)		+= quota_v2.o
++obj-$(CONFIG_QUOTACTL)		+= quota.o
+ 
+ obj-$(CONFIG_PROC_FS)		+= proc/
+ obj-y				+= partitions/

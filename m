@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266675AbUFWVHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266677AbUFWVKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266675AbUFWVHf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 17:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUFWVHe
+	id S266677AbUFWVKM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 17:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266685AbUFWVKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 17:07:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:45208 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266675AbUFWVGa (ORCPT
+	Wed, 23 Jun 2004 17:10:11 -0400
+Received: from holomorphy.com ([207.189.100.168]:19333 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266677AbUFWVHy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 17:06:30 -0400
-Date: Wed, 23 Jun 2004 14:06:28 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Alphabet of kernel source
-Message-Id: <20040623140628.3f1abfe9@lembas.zaitcev.lan>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Jun 2004 17:07:54 -0400
+To: linux-kernel@vger.kernel.org
+From: William Lee Irwin III <wli@holomorphy.com>
+Subject: [oom]: [4/4] check __GFP_WIRED in out_of_memory()
+Message-ID: <0406231407.WaKbLbIb0a0a0aKbLbJbJb3a2aMbZa4aMb4aZa5a1aZaWaIbIbZaIbHbKbYaIb3a342@holomorphy.com>
+In-Reply-To: <0406231407.1a2a3aHb2aIbHbLbHb5a0a5a0aWaJbJbLbIbXaJbLbIbWaKbXa0a4aMbJbHb4aXa342@holomorphy.com>
+CC: akpm@osdl.org
+Date: Wed, 23 Jun 2004 14:07:48 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys,
-
-I have a silly question, for which I am unable to google out the answer
-so far. Do we have a Linus' decree on the charset and encoding of the
-kernel source?
-
-I had a funny situation recently... I prefer non-MIME attachements
-for two reasons: a) I grab parts of the header and fold them into
-patch and b) it is easier to quote fragments of the patch with clients
-I tried (mutt and sylpheed). Admittendly, a different MUA software may
-change these habits, but please bear with me here. So, someone sent
-me a patch which included a context line with MODULE_AUTHOR() with
-an accented name, which the author entered in ISO-8859-1 (he was German).
-I replied, but my mail agent recoded the reply as UTF-8. The author
-agreed to my patch, and copied my reply, sent to me. Everything was
-perfectly readable at this point, but the patch rejected. Because
-I use Russian and Japanese simultaneously, all utilities run with UTF-8
-my boxes, so it took me a moment to do "LANG=C vi" and find the problem.
-
-Anyhow, long story short, this got me thinking... What is the charset
-and the encoding of the actual source? I saw quite a discussion about
-the filenames, but this is different. I am sorry if this was discussed
-previously.
-
--- Pete
+Index: linux-2.6.7/include/linux/swap.h
+===================================================================
+--- linux-2.6.7.orig/include/linux/swap.h	2004-06-16 05:18:55.000000000 +0000
++++ linux-2.6.7/include/linux/swap.h	2004-06-23 16:41:20.000000000 +0000
+@@ -148,7 +148,7 @@
+ #define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
+ 
+ /* linux/mm/oom_kill.c */
+-extern void out_of_memory(void);
++void out_of_memory(int gfp_mask);
+ 
+ /* linux/mm/memory.c */
+ extern void swapin_readahead(swp_entry_t, unsigned long, struct vm_area_struct *);
+Index: linux-2.6.7/mm/oom_kill.c
+===================================================================
+--- linux-2.6.7.orig/mm/oom_kill.c	2004-06-16 05:19:29.000000000 +0000
++++ linux-2.6.7/mm/oom_kill.c	2004-06-23 16:41:58.000000000 +0000
+@@ -220,7 +220,7 @@
+ /**
+  * out_of_memory - is the system out of memory?
+  */
+-void out_of_memory(void)
++void out_of_memory(int gfp_mask)
+ {
+ 	/*
+ 	 * oom_lock protects out_of_memory()'s static variables.
+@@ -233,7 +233,7 @@
+ 	/*
+ 	 * Enough swap space left?  Not OOM.
+ 	 */
+-	if (nr_swap_pages > 0)
++	if (!(gfp_mask & __GFP_WIRED) && nr_swap_pages > 0)
+ 		return;
+ 
+ 	spin_lock(&oom_lock);
+Index: linux-2.6.7/mm/vmscan.c
+===================================================================
+--- linux-2.6.7.orig/mm/vmscan.c	2004-06-16 05:18:58.000000000 +0000
++++ linux-2.6.7/mm/vmscan.c	2004-06-23 16:42:12.000000000 +0000
+@@ -944,7 +944,7 @@
+ 			blk_congestion_wait(WRITE, HZ/10);
+ 	}
+ 	if ((gfp_mask & __GFP_FS) && !(gfp_mask & __GFP_NORETRY))
+-		out_of_memory();
++		out_of_memory(gfp_mask);
+ out:
+ 	for (i = 0; zones[i] != 0; i++)
+ 		zones[i]->prev_priority = zones[i]->temp_priority;

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129091AbQKXO0K>; Fri, 24 Nov 2000 09:26:10 -0500
+        id <S130885AbQKXOfK>; Fri, 24 Nov 2000 09:35:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129153AbQKXO0A>; Fri, 24 Nov 2000 09:26:00 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:20232 "HELO Cantor.suse.de")
-        by vger.kernel.org with SMTP id <S129091AbQKXOZq>;
-        Fri, 24 Nov 2000 09:25:46 -0500
-Date: Fri, 24 Nov 2000 14:55:40 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Igor Yu. Zhbanov" <bsg@uniyar.ac.ru>
-Cc: linux-kernel@vger.kernel.org, andy@lysaker.kvaerner.no
-Subject: Re: Kernel Oops on locking sockets via fcntl()
-Message-ID: <20001124145540.A13064@gruyere.muc.suse.de>
-In-Reply-To: <Pine.GSO.3.96.SK.1001124163030.25896C-100000@univ.uniyar.ac.ru>
-Mime-Version: 1.0
+        id <S132397AbQKXOfB>; Fri, 24 Nov 2000 09:35:01 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50990 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S130885AbQKXOeo>; Fri, 24 Nov 2000 09:34:44 -0500
+Subject: Re: OOPS on bringing down ppp
+To: andrewm@uow.edu.au (Andrew Morton)
+Date: Fri, 24 Nov 2000 14:04:53 +0000 (GMT)
+Cc: mark.uzumati@virgin.net (Mark Ellis), linux-kernel@vger.kernel.org,
+        viro@math.psu.edu (Alexander Viro)
+In-Reply-To: <3A1E5EFC.16E7625A@uow.edu.au> from "Andrew Morton" at Nov 24, 2000 11:28:44 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.3.96.SK.1001124163030.25896C-100000@univ.uniyar.ac.ru>; from bsg@uniyar.ac.ru on Fri, Nov 24, 2000 at 04:32:26PM +0300
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13zJTD-00002K-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 24, 2000 at 04:32:26PM +0300, Igor Yu. Zhbanov wrote:
-> Hello!
+> Not my area, but I don't think exec_usermodehelper() should assume
+> that current->files is always valid.
 > 
-> One fine day accidentally I have opened an Xserver's socket placed in /tmp
-> with my favourite text editor "le". I have got a message from the kernel similar
-> to this:
+> Al, is this correct?  If so, does daemonize() also need this test?
+> If not, then how did this thread get (current->files == NULL)?
 
-
-Which kernel version are you using ? It should be already fixed in all 
-modern kernels (newer 2.2 and 2.4) 
-
-
--Andi
+exit_files() will leave it NULL yes. You may want to borrow (inherit ;)) the
+files from init_task
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

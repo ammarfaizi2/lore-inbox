@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbUKOQ2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbUKOQrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbUKOQ2R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 11:28:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbUKOQ2Q
+	id S261634AbUKOQrj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 11:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUKOQrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 11:28:16 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:43525 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261628AbUKOQ2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 11:28:12 -0500
-Date: Mon, 15 Nov 2004 17:22:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: James.Smart@Emulex.Com
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] SCSI: misc possible cleanups
-Message-ID: <20041115162232.GA19860@stusta.de>
-References: <0B1E13B586976742A7599D71A6AC733C12E6F2@xbl3.ma.emulex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0B1E13B586976742A7599D71A6AC733C12E6F2@xbl3.ma.emulex.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 15 Nov 2004 11:47:39 -0500
+Received: from ip126.globalintech.pl ([62.89.81.126]:7960 "EHLO
+	MAILSERVER.dmz.globalintech.pl") by vger.kernel.org with ESMTP
+	id S261634AbUKOQri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 11:47:38 -0500
+Message-ID: <4198DDA8.3000100@globalintech.pl>
+Date: Mon, 15 Nov 2004 17:47:36 +0100
+From: Blizbor <kernel@globalintech.pl>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 native IPsec implementation question
+References: <4198B2B6.9050803@globalintech.pl> <Pine.LNX.4.53.0411151455020.17543@yvahk01.tjqt.qr> <4198C1A4.8080707@globalintech.pl> <Pine.LNX.4.53.0411151557550.17812@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0411151557550.17812@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Nov 2004 16:47:36.0708 (UTC) FILETIME=[CFB9CC40:01C4CB32]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 15, 2004 at 08:57:08AM -0500, James.Smart@Emulex.Com wrote:
+Jan Engelhardt wrote:
 
-> Please don't back out the additions to scsi_transport.c!!!
-> 
-> These were hard-fought additions, and required by our driver, which we should call for upstream approval in the near future.
+>You "sit" on the network card chip and then think of input and output.
+>Btw, -j DROP will only drop what has not been matched up to now. So if you get
+>to -j ACCEPT IPsec traffic beforehand (I think -m ah / -m esp, did not
+>it?), they will never reach -j DROP.
+>  
+>
+No, it's not like you think.
 
-Sorry that I didn't state my intention clear enough:
+Situation is NOT EASY IF you have ONE VPN.
+Just "close" eth0 for anything, allow AH,ESP,DNS from "any" IP addres,
+then how you detect if tcp/389 is from VPN or form world ? You cant.
+To make things harder - there are eth0, eth1, eth2 and eth3, two of them
+has public IP addresses, two has private IP addresses, there is IPsec VPN
+server running on both public addresses and a lot (32) of roadwarrior VPN
+clients.
 
-I did not want to propose to simply apply this patch.
-It was intended as a "FYI: the following code is _currently_ unused".
+So, in this not easy situation firewalling is not possible.
+Believe me.
 
-> -- James S
+But, how to implement firewall using iptables command is not my issue.
+Lets assume that I just want to do "mrtg" traffic accounting....
 
-cu
-Adrian
+So, my questions are still actual.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Regards,
+Blizbor
 

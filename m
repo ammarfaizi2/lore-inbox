@@ -1,94 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbTDHRDe (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 13:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbTDHRDe (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 13:03:34 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:24193 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261608AbTDHRDd convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 13:03:33 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.66 Unable to update partition table 
-Date: Tue, 8 Apr 2003 09:12:04 -0800
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200304081012.04370.pbadari@us.ibm.com>
+	id S261665AbTDHRHp (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 13:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbTDHRHp (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 13:07:45 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:21223 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261665AbTDHRHn (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 13:07:43 -0400
+Date: Tue, 8 Apr 2003 13:19:16 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rusty Russell <rusty@rustcorp.com.au>,
+       zwane@linuxpower.ca,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hch@infradead.org
+Subject: Re: SET_MODULE_OWNER?
+Message-ID: <20030408171916.GA11773@gtf.org>
+References: <20030408035210.02D142C06E@lists.samba.org> <1049802672.8120.14.camel@dhcp22.swansea.linux.org.uk> <20030408144644.GB30142@mail.jlokier.co.uk> <20030408151226.GA30285@gtf.org> <20030408164501.GA30428@mail.jlokier.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030408164501.GA30428@mail.jlokier.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Apr 08, 2003 at 05:45:01PM +0100, Jamie Lokier wrote:
+> It is all very well to insist that SET_MODULE_OWNER() remains so you
+> can take 2.4 drivers and easily compile them for 2.2...  but why is
+> that the benchmark?  I can't take 2.4 drivers and do that, because I
+> want to support 2.0 as well, so I bite the bullet and make the
+> necessary changes for broader compatibility.
 
-I am not able to update partition table with 2.5.66.
-I get following error message when I try to create a
-new partition.
-
-WARNING: Re-reading the partition table failed with error 16: Device or resource busy.
-The kernel still uses the old table.
-The new table will be used at the next reboot.
-Syncing disks.
-
-Any ideas on why ? Is this expected ?
-
-Thanks,
-Badari
-
-[root@elm3b78 root]# df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/sda6               381139    322588     38873  90% /
-/dev/sda1                46636     43116      1112  98% /boot
-none                   1941612         0   1941612   0% /dev/shm
-/dev/sda2              9890888   8442076    946380  90% /usr
-/dev/sdb5             16476952  10891916   4748052  70% /home
-/dev/sda7               256667     80265    163150  33% /var
+You can do 2.0 compat with kcompat.  Just needs a couple more compat
+macros in kcompat tarball.  I grant you that net drivers are much more
+resilient across kernel versions, and are easier to make portable across
+the various kernel API changes -- precisely because we've managed to
+keep the core interfaces fairly stable, logic- and locking-wise.
+SET_MODULE_OWNER is just one more piece of this conscious effort.
 
 
-[root@elm3b78 root]# fdisk /dev/sdb
+> So.. back to a point.  Is 2.2 compilability (with the help of kcompat)
+> one of the goals to aim for in 2.5 drivers generally?  Or is this
+> specifically meant for the network drivers which you support?
 
-The number of cylinders for this disk is set to 2212.
-There is nothing wrong with that, but this is larger than 1024,
-and could in certain setups cause problems with:
-1) software that runs at boot time (e.g., old versions of LILO)
-2) booting and partitioning software from other OSs
-   (e.g., DOS FDISK, OS/2 FDISK)
+In general, the mainline kernel has two conflicting goals:
+* maintain source back-compat as long as it is reasonable
+* keep back-compat garbage to a minimum, eliminating it where possible
 
-Command (m for help): p
+It really comes down to a maintainer decision, unless there is an
+overriding decision to purposefully break source back-compat.
 
-Disk /dev/sdb: 255 heads, 63 sectors, 2212 cylinders
-Units = cylinders of 16065 * 512 bytes
+To answer your question specifically, SET_MODULE_OWNER eases source
+back-compat in general, but it's main user is network drivers.
 
-   Device Boot    Start       End    Blocks   Id  System
-/dev/sdb2           129      2212  16739730    5  Extended
-/dev/sdb5           129      2212  16739698+  83  Linux
+	Jeff
 
-Command (m for help): n
-Command action
-   l   logical (5 or over)
-   p   primary partition (1-4)
-Partition number (1-4): 1
-First cylinder (1-2212, default 1):
-Using default value 1
-Last cylinder or +size or +sizeM or +sizeK (1-128, default 128):
-Using default value 128
 
-Command (m for help): p
-
-Disk /dev/sdb: 255 heads, 63 sectors, 2212 cylinders
-Units = cylinders of 16065 * 512 bytes
-
-   Device Boot    Start       End    Blocks   Id  System
-/dev/sdb1             1       128   1028128+  83  Linux
-/dev/sdb2           129      2212  16739730    5  Extended
-/dev/sdb5           129      2212  16739698+  83  Linux
-
-Command (m for help): w
-The partition table has been altered!
-
-Calling ioctl() to re-read partition table.
-
-WARNING: Re-reading the partition table failed with error 16: Device or resource busy.
-The kernel still uses the old table.
-The new table will be used at the next reboot.
-Syncing disks.
 

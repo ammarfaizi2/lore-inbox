@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264767AbUEaUNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264772AbUEaUVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264767AbUEaUNo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 16:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264772AbUEaUNo
+	id S264772AbUEaUVz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 16:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264773AbUEaUVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 16:13:44 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:28230 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S264767AbUEaUNm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 16:13:42 -0400
-Date: Mon, 31 May 2004 22:16:23 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Dan Kegel <dank@kegel.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: bringing back 'make symlinks'?
-Message-ID: <20040531201623.GD8339@mars.ravnborg.org>
-Mail-Followup-To: Dan Kegel <dank@kegel.com>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <40B36A0E.5080509@kegel.com> <20040525214328.GA2675@mars.ravnborg.org> <40B41367.5070607@kegel.com> <20040530105502.GA19882@mars.ravnborg.org> <40BB7C12.3040002@kegel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40BB7C12.3040002@kegel.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 31 May 2004 16:21:55 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:10368 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S264772AbUEaUVy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 16:21:54 -0400
+Date: Mon, 31 May 2004 21:29:12 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200405312029.i4VKTCZ0000596@81-2-122-30.bradfords.org.uk>
+To: Michael Brennan <mbrennan@ezrs.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <40BB88B5.8080300@ezrs.com>
+References: <40BB88B5.8080300@ezrs.com>
+Subject: Re: why swap at all?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 31, 2004 at 11:40:18AM -0700, Dan Kegel wrote:
-> $ make ARCH=ppc prepare
->   HOSTCC  scripts/conmakehash
->   HOSTCC  scripts/kallsyms
->   CC      scripts/empty.o
-> cc1: invalid option `multiple'
-> cc1: invalid option `string'
-> cc1: warning: unknown register name: r2
-> make[1]: *** [scripts/empty.o] Error 1
+Hi,
+
+Quote from Michael Brennan <mbrennan@ezrs.com>:
+> Hi!
+> I've recently started to follow this list.
+> I read the swap discussion here, and I was wondering about what Nick 
+> Pigging said about grepping the kernel tree.
 > 
-> Whoops, bad luck.  Let's try another:
+> Nick Piggin wrote:
+>  > For example, I have 57MB swapped right now. It allows me to instantly
+>  > grep the kernel tree. If I turned swap off, each grep would probably
+>  > take 30 seconds.
+> 
+> Are the pages swapped to disk as a result of the grep run?
 
-OK - now I got the picture.
+I'm not really sure what the above was intended to demonstrate, but I assume
+that it was that having swap allowed the first grep to fill physical RAM with
+cache at the expense of swapping other processes, which were using physical
+RAM to disk.
 
-For 2.6 I'm not prepared to make a change that would allow what you need.
-I know for 2.7 we will start to take a new approach with the kernel headers,
-so I hope we do do it right there.
-For 2.6 you have to live with the ugly workaround.
+However, if 57 Mb of swap allows this, 57 Mb of extra physical RAM should also
+also allow the grep to be cached, without having to swap out anything.
 
-	Sam
+Hence my comment about it not being a magical property of swap space.
+
+John.

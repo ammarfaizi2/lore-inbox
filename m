@@ -1,61 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266223AbUBDAgP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 19:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266230AbUBDAgP
+	id S266230AbUBDAh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 19:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266237AbUBDAh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 19:36:15 -0500
-Received: from www.trustcorps.com ([213.165.226.2]:33041 "EHLO raq1.nitrex.net")
-	by vger.kernel.org with ESMTP id S266223AbUBDAgK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 19:36:10 -0500
-Message-ID: <40203DE1.3000302@hcunix.net>
-Date: Wed, 04 Feb 2004 00:33:37 +0000
-From: the grugq <grugq@hcunix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
-References: <4017E3B9.3090605@hcunix.net> <20040203222030.GB465@elf.ucw.cz>
-In-Reply-To: <20040203222030.GB465@elf.ucw.cz>
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 3 Feb 2004 19:37:27 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:3478 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S266230AbUBDAhU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 19:37:20 -0500
+Subject: Re: 2.6.1 Scheduler Latency Measurements (Preemption
+	diabled/enabled)
+From: Robert Love <rml@tech9.net>
+To: Christoph Stueckjuergen <christoph.stueckjuergen@siemens.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200402031724.17994.christoph.stueckjuergen@siemens.com>
+References: <200402031724.17994.christoph.stueckjuergen@siemens.com>
+Content-Type: text/plain
+Message-Id: <1075855055.8022.14.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
+Date: Tue, 03 Feb 2004 19:37:35 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
+On Tue, 2004-02-03 at 17:24 +0100, Christoph Stueckjuergen wrote:
 
-
-> Perhaps this should still be controlled by (chattr(1)) [its already
-> documented, just not yet implemented].
+> The results are:
+> "loaded" system, 10.000 samples
+> average scheduler latency (preemption enabled / disabled): 170 us / 232 us
+> minimum scheduler latency (preemption enabled / disabled): 49 us / 43 us
+> maximum scheduler latency (preemption enabled / disabled): 840 us / 1063 us
 > 
->        When a file with the `s' attribute set is deleted, its blocks
-> 	are zeroed and written back to the disk.
+> "unloaded" system, 10.000 samples
+> average scheduler latency (preemption enabled / disabled): 50 us / 44 us
+> minimum scheduler latency (preemption enabled / disabled): 46 us / 41 us
+> maximum scheduler latency (preemption enabled / disabled): 233 us / 215 us
 > 
-> ...at which point config option is not really neccessary.
-> 
+> Any help in interpreting the data would be highly appreciated. Especially:
+> - Why does preemption lead to a higher minimum scheduler latency in the loaded 
+> case?
+>
+> - Why does preemption worsen scheduler latency on the unloaded system?
 
-You're not the first person to mention this to me, Pádraig, brought this 
-up on the day I posted. I certainly thing the 's' options should be 
-implemented, however for a privacy patch I believe that the user 
-shouldn't have to intervene to ensure a file is securely erased. It 
-makes more sense to me, as a lazy person, that the file system should be 
-set to always remove the file content... that way the user doesn't need 
-to get involved.
+Overhead, I guess - the place where preemption ought to pay off is with
+worst-case latency, where your results do show an improvement.
 
-All that said, the user's content is something that the user could be 
-considered responsible for erasing themselves. The meta-data is the part 
-of the file which they dont' have access to, so having privacy 
-capabilities for meta-data erasure is a requirement. User data 
-erasure... I can take it or leave it. I think it should be automatic if 
-at all, but I'm not really that bothered about it.
+That said, I would of expected slightly better numbers.  Although, note
+that you are not measuring latency, you are measuring jitter.
 
+Latency is time actual minus time expected.  It thus requires some
+notion of the absolute expected time.  Without hardware support you
+generally cannot measure this.
 
-peace,
+Jitter is measuring the time between successive events subtracted by the
+expected duration, e.g. actual duration minus expected duration.  It
+requires no knowledge of the absolute time.
 
---gq
+Jitter tends to approximate latency, so that is OK, but all it really
+measures is the variance in results (the "jitter" between the
+durations).
+
+Most people mix the two up.
+
+	Robert Love
+
 

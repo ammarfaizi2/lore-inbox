@@ -1,88 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUJLPDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUJLPMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264665AbUJLPDY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 11:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUJLPBm
+	id S264639AbUJLPMS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 11:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUJLPKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 11:01:42 -0400
-Received: from zamok.crans.org ([138.231.136.6]:42112 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S265207AbUJLPAr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 11:00:47 -0400
-To: Fabio =?iso-8859-1?Q?Codec=E0?= <fabiocode@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Panic with 2.6.9-rc3-mm3 and 2.6.9-rc4-mm1
-References: <592474b04101207292d8a6983@mail.gmail.com>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Tue, 12 Oct 2004 17:00:46 +0200
-In-Reply-To: <592474b04101207292d8a6983@mail.gmail.com> (Fabio
- =?iso-8859-1?Q?Codec=E0's?=
-	message of "Tue, 12 Oct 2004 16:29:22 +0200")
-Message-ID: <871xg4j80x.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+	Tue, 12 Oct 2004 11:10:47 -0400
+Received: from roadrunner.doc.ic.ac.uk ([146.169.1.193]:6111 "EHLO
+	roadrunner.doc.ic.ac.uk") by vger.kernel.org with ESMTP
+	id S264639AbUJLPDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 11:03:38 -0400
+Message-ID: <416BF258.90204@doc.ic.ac.uk>
+Date: Tue, 12 Oct 2004 16:03:52 +0100
+From: David McBride <dwm99@doc.ic.ac.uk>
+Organization: Department of Computing, Imperial College, London
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: No atime updates of /dev nodes on local keyboard, mouse input in
+ 2.4.26
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fabio Codecà <fabiocode@gmail.com> disait dernièrement que :
+Greetings,
 
-> Hi to all, I have a problem with the two kernel in the subject...I use
-> gentoo and during an emerge operation I get the following message from
-> the kernel:
->
-> Oct 12 13:50:20 brutus Unable to handle kernel paging request at
-> virtual address 0001771c
-> Oct 12 13:50:20 brutus printing eip:
-> Oct 12 13:50:20 brutus c011c386
-> Oct 12 13:50:20 brutus *pde = 00000000
-> Oct 12 13:50:20 brutus Oops: 0002 [#1]
-> Oct 12 13:50:20 brutus Modules linked in: ohci_hcd 8139too mii
-> ohci1394 ieee1394 snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd
-> snd_page_alloc ehci_hcd uhci_hcd intel_agp agpgart usbcore
-> Oct 12 13:50:20 brutus CPU:    0
-> Oct 12 13:50:20 brutus EIP:    0060:[<c011c386>]    Not tainted VLI
-> Oct 12 13:50:20 brutus EFLAGS: 00010082   (2.6.9-rc4-mm1) 
-> Oct 12 13:50:20 brutus EIP is at profile_hit+0x26/0x30
-> Oct 12 13:50:20 brutus eax: 0001771c   ebx: ded78a40   ecx: 00000000  
-> edx: 00000000
-> Oct 12 13:50:20 brutus esi: ffffffea   edi: 00000000   ebp: dd0c7fbc  
-> esp: dd0c7f8c
-> Oct 12 13:50:20 brutus ds: 007b   es: 007b   ss: 0068
-> Oct 12 13:50:20 brutus Process regxpcom (pid: 7796,
-> threadinfo=dd0c6000 task=ded78a40)
-> Oct 12 13:50:20 brutus Stack: c0118d31 00000002 c0105fef 00000004
-> c05247a0 c0118f46 bfffe45c 00000082
-> Oct 12 13:50:20 brutus 00000000 00001e74 b7f5ae20 b7f58060 dd0c6000
-> c0105fef 00001e74 00000000
-> Oct 12 13:50:20 brutus bfffe45c b7f5ae20 b7f58060 bfffe438 0000009c
-> 0000007b 0000007b 0000009c
-> Oct 12 13:50:20 brutus Call Trace:
-> Oct 12 13:50:20 brutus [<c0118d31>] setscheduler+0xb1/0x1e0
-> Oct 12 13:50:20 brutus [<c0105fef>] syscall_call+0x7/0xb
-> Oct 12 13:50:20 brutus [<c0118f46>] sys_sched_getparam+0x56/0x90
-> Oct 12 13:50:20 brutus [<c0105fef>] syscall_call+0x7/0xb
-> Oct 12 13:50:20 brutus Code: 04 83 c4 08 c3 8b 44 24 08 8b 0d 2c 9a 52
-> c0 8b 15 28 9a 52 c0 2d 28 02 10 c0 d3 e8 4a 39 c2 0f 46 c2 8b 15 24
-> 9a 52 c0 8d 04 82 <ff> 00 c3 8d b4 26 00 00 00 00 b8 da ff ff ff c3 8d
-> 76 00 8d bc
->
->
-> I don't what can do...anyone can help me?
-> Thanks to all!
+Some software, such as Condor[1], depends on the fact that the atime of 
+the /dev/console and /dev/input/mice files is updated when keystrokes 
+are entered or a mouse is used, respectively.
 
-yep
-just do:
-cd /path/to/kernel/source
-wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/optimize-profile-path-slightly.patch
-patch -p1 -R -i optimize-profile-path-slightly.patch
-the oopsen you see should have gone away.
+However, certainly in recent kernels (I've tried stock 2.4.21 and 
+2.4.26) this doesn't appear to be the case.  As I'm running Condor (for 
+which source isn't available) and depend on these atime update semantics 
+for correct operation I'm trying to re-add this functionality.
 
-(this time, no typo 8-))
+I found via Google a patch[2] to do exactly this for 2.6; I've been 
+trying to implement my own equivilent on 2.4.  However, I'm not at all 
+familiar with the kernel internals and could use some help from someone 
+with a better understanding of the code involved.
+
+Specifically, the patch above for evdev.c and related input drivers 
+apply cleanly on 2.4.26 -- and they work; atimes are now updated when 
+mouse input occurs.
+
+However,  PS/2 keyboard support is more problematic.  Code to do what I 
+want already appears to exist in drivers/char/pc_keyb.c:
+
+static ssize_t read_aux(struct file * file, char * buffer,
+                         size_t count, loff_t *ppos)
+{
+	[...]
+
+         if (count-i) {
+                 file->f_dentry->d_inode->i_atime = CURRENT_TIME;
+                 return count-i;
+         }
+	
+	[...]
+
+However, no /dev node receives an atime update when keystrokes are 
+entered *and* when I added debugging printks to this section of code no 
+messages appeared in dmesg -- suggesting that this conditional never 
+evaluates to true.  (I suspect that this function never gets called at all.)
+
+I'm now a little lost.  Can anyone help?
+(If you reply, please explicitly CC me.)
+
+Cheers,
+Davidj
+[2] http://www.ussg.iu.edu/hypermail/linux/kernel/0406.1/1612.html
 
 -- 
-<erikm> cleartape: kernels don't do magic, they just implement mechanisms
-
-	- Erik Mouw on #kernelnewbies
-
+David McBride <dwm99@doc.ic.ac.uk>
+Department of Computing, Imperial College, London

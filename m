@@ -1,58 +1,80 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310206AbSEEL2k>; Sun, 5 May 2002 07:28:40 -0400
+	id <S310654AbSEELai>; Sun, 5 May 2002 07:30:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310654AbSEEL2j>; Sun, 5 May 2002 07:28:39 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:49118 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S310206AbSEEL2h>; Sun, 5 May 2002 07:28:37 -0400
-Date: Sun, 5 May 2002 13:26:45 +0200
-From: Erich Schubert <erich@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with VIA Apollo Pro Chipsets
-Message-ID: <20020505112645.GA20633@marvin.xmldesign.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-X-GPG: 4B3A135C 6073 C874 8488 BCDA A6A9  B761 9ED0 78EF 4B3A 135C
-X-Eric-Conspiracy: There is no conspiracy
+	id <S310666AbSEELai>; Sun, 5 May 2002 07:30:38 -0400
+Received: from edu.joroinen.fi ([195.156.135.125]:60423 "HELO edu.joroinen.fi")
+	by vger.kernel.org with SMTP id <S310654AbSEELag> convert rfc822-to-8bit;
+	Sun, 5 May 2002 07:30:36 -0400
+Date: Sun, 5 May 2002 14:30:34 +0300 (EEST)
+From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
+X-X-Sender: <pk@edu.joroinen.fi>
+To: <linux-kernel@vger.kernel.org>
+Subject: Tulip driver broken in 2.4.18
+Message-ID: <Pine.LNX.4.33.0205051421070.32094-100000@edu.joroinen.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a system using the Gigabyte GA-6VTXDR-C Motherboard which showed
-the VIA Southbridge symptoms with our 3ware Escalade RAID Controller.
-On heavy load (such as kernel compilation) i get random segmentation
-faults on different places, not reproduceable but every now and then.
 
-I noticed that the quirk_vialatency was not enabled, and modified
-quirks.c accordingly - but this did not yet solve the issues :-(
+Hello!
 
-Any idea? (except handing the system back to the manufacturer and
-asking for a working system...)
+Tulip driver included in 2.4.18 doesn't work for me. I have tulip-based
+card which is connected to 10Mbps HUB. The driver fails to set 10Mbps
+halfduplex, and because of that the link between computer and HUB doesn't
+work. HUB keeps flashing it's lights wildly (because my tulip tries to
+enable 100Mbps..), and the link-led doesn't turn on..
 
-Note for this patch: in the line above my addition, 0x3112 has now an
-according definition in include/linux/pci_ids.h, so this "Not out yet"
-could be replaced with the Chipset name:
-#define PCI_DEVICE_ID_VIA_8361          0x3112
+Tulip driver 0.9.14 (available from sourceforge) works OK and correctly
+sets 10Mbps halfduplex.
 
---- /usr/src/linux/drivers/pci/quirks.c	Mon Feb 25 20:38:03 2002
-+++ /home/erich/coding/v2.4.18/drivers/pci/quirks.c	Sun May  5 12:38:07 2002
-@@ -487,6 +487,7 @@
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8363_0,	quirk_vialatency },
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8371_1,	quirk_vialatency },
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	0x3112	/* Not out yet ? */,	quirk_vialatency },
-+	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C598_1,	quirk_vialatency },
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C576,	quirk_vsfx },
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C597_0,	quirk_viaetbf },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C597_0,	quirk_vt82c598_id },
+This is what mii-diag says when using 2.4.18:
+
+Basic registers of MII PHY #32:  2000 7848 0000 0000 01e1 0000 0000 0000.
+ Basic mode control register 0x2000: Auto-negotiation disabled, with
+ Speed fixed at 100 mbps, half-duplex.
+ Basic mode status register 0x7848 ... 7848.
+   Link status: not established.
+ Link partner information information is not exchanged when in fixed speed
+mode.   End of basic transceiver informaion.
 
 
-Gruss,
-Erich Schubert
+And after a couple of seconds it says this:
 
---
-erich@(mucl.de|debian.org)        --        GPG Key ID: 4B3A135C
-A polar bear is a rectangular bear after a coordinate transform.
-Die kürzeste Verbindung zwischen zwei Menschen ist ein Lächeln.
+
+Basic registers of MII PHY #32:  1000 7848 0000 0000 01e1 0000 0000 0000.
+ Basic mode control register 0x1000: Auto-negotiation enabled.
+ Basic mode status register 0x7848 ... 7848.
+   Link status: not established.
+   End of basic transceiver informaion.
+
+
+And then after a couple of seconds comes the 100Mbps again (the first
+mii-diag paste) and loop continues..
+
+
+Linux Tulip driver version 0.9.15-pre9 (Nov 6, 2001)
+PCI: Found IRQ 5 for device 00:09.0
+PCI: Sharing IRQ 5 with 00:04.2
+tulip0:  EEPROM default media type Autosense.
+tulip0:  Index #0 - Media 10baseT (#0) described by a 21142 Serial PHY (2) block.
+tulip0:  Index #1 - Media 10baseT-FDX (#4) described by a 21142 Serial PHY  (2) block.
+tulip0:  Index #2 - Media 100baseTx (#3) described by a 21143 SYM PHY (4) block.
+tulip0:  Index #3 - Media 100baseTx-FDX (#5) described by a 21143  SYM PHY (4) block.
+eth1: Digital DS21143 Tulip rev 65 at 0xb000, 00:C0:CA:20:3C:A5, IRQ 5.
+
+
+Any ideas?
+
+
+- Pasi Kärkkäinen
+
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.
+

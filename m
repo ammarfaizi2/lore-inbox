@@ -1,56 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268430AbUIBTl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268440AbUIBTqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268430AbUIBTl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 15:41:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUIBTl7
+	id S268440AbUIBTqY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 15:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268446AbUIBTqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 15:41:59 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:64898 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S268438AbUIBTlw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 15:41:52 -0400
-Date: Thu, 2 Sep 2004 21:41:44 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <1535878866.20040902214144@tnonline.net>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Lee Revell <rlrevell@joe-job.com>, Jamie Lokier <jamie@shareable.org>,
-       Pavel Machek <pavel@suse.cz>, David Masover <ninja@slaphack.com>,
-       Chris Wedgwood <cw@f00f.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
-References: Message from Lee Revell <rlrevell@joe-job.com>    of "Wed, 01 Sep
- 2004 18:51:12 -0400." <1094079071.1343.25.camel@krustophenia.net>
- <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
-MIME-Version: 1.0
+	Thu, 2 Sep 2004 15:46:23 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46574 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268440AbUIBTqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 15:46:07 -0400
+Date: Thu, 2 Sep 2004 21:46:00 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ncunningham@linuxmail.org, ak@muc.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch]  kill __always_inline
+Message-ID: <20040902194600.GE15358@fs.tum.de>
+References: <20040831221348.GW3466@fs.tum.de> <20040831153649.7f8a1197.akpm@osdl.org> <20040831225244.GY3466@fs.tum.de> <1093993946.8943.33.camel@laptop.cunninghams> <20040831163914.4c7c543c.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040831163914.4c7c543c.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 31, 2004 at 04:39:14PM -0700, Andrew Morton wrote:
+> Nigel Cunningham <ncunningham@linuxmail.org> wrote:
+> >
+> > Hi.
+> > 
+> > On Wed, 2004-09-01 at 08:52, Adrian Bunk wrote:
+> > > On Tue, Aug 31, 2004 at 03:36:49PM -0700, Andrew Morton wrote:
+> > > > Adrian Bunk <bunk@fs.tum.de> wrote:
+> > > > >
+> > > > > An issue that we already discussed at 2.6.8-rc2-mm2 times:
+> > > > > 
+> > > > > 2.6.9-rc1 includes __always_inline which was formerly in  -mm.
+> > > > > __always_inline doesn't make any sense:
+> > > > > 
+> > > > > __always_inline is _exactly_ the same as __inline__, __inline and inline .
+> > > > > 
+> > > > > 
+> > > > > The patch below removes __always_inline again:
+> > > > 
+> > > > But what happens if we later change `inline' so that it doesn't do
+> > > > the `always inline' thing?
+> > > > 
+> > > > An explicit usage of __always_inline is semantically different than
+> > > > boring old `inline'.
+> > 
+> > Excuse me if I'm being ignorant, but I thought always_inline was
+> > introduced because with some recent versions of gcc, inline wasn't doing
+> > the job (suspend2, which requires a working inline, was broken by it for
+> > example).
+> 
+> IIRC, the compiler was generating out-of-line versions of functions in
+> every compilation unit whcih included the header file.  When we the
+> developers just wanted `inline' to mean `inline, dammit'.
 
-  
+`inline, dammit' is
+  __attribute__((always_inline))
 
-> Lee Revell <rlrevell@joe-job.com> said:
+The original `inline' never guarantees that the function will be 
+inlined.
 
-> [...]
+Therefore, `inline' is already #define'd in the Linux kernel to always 
+be __attribute__((always_inline)).
 
->> FWIW, this is how Windows does it now.  As of XP, 'Find files' has an
->> option, enabled by default, to look inside archives.  If you tell it to
->> look for a driver in a given directory it will also look inside .cab
->> and .zip files.  It's extremely useful, I would imagine someone who uses
->> XP a lot will come to expect this feature.
+> If that broke swsusp in some manner then the relevant swsusp functions
+> should be marked always_inline, because they have some special needs.
+> 
+> > That is to say, doesn't the definition of always_inline vary
+> > with the compiler version?
+> 
+> If the compiler supports attribute((always_inline)) then the kernel build
+> system will use that.  If the compiler doesn't support
+> attribute((always_inline)) then we just emit `inline' from cpp and hope
+> that it works out.
 
-> It is trivial to implement this by looking inside the files. I.e., the way
-> mc has done this for ages.
+That's exactly how `inline' is already #define'd in the Linux kernel.
 
-  Difference is that you can't do "locate" or "find" or "Search".. You
-  would have to open the files in an archive-supporting application
-  such as mc.
+And __always_inline is currently simply #define'd to `inline' ...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

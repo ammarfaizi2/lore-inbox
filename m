@@ -1,84 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263580AbUATEW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 23:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUATEW2
+	id S264353AbUATEPw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 23:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbUATEPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 23:22:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44949 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263580AbUATEW0 (ORCPT
+	Mon, 19 Jan 2004 23:15:52 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:539 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S264353AbUATEPu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 23:22:26 -0500
-Date: Mon, 19 Jan 2004 20:22:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6][smbfs] smb_open & smb_readpage_sync errors in kernel log
-Message-Id: <20040119202243.3d0aa60a.akpm@osdl.org>
-In-Reply-To: <20040119184435.GT8664@srv-lnx2600.matchmail.com>
-References: <20040119184435.GT8664@srv-lnx2600.matchmail.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 19 Jan 2004 23:15:50 -0500
+Date: Mon, 19 Jan 2004 20:15:58 -0800
+From: Paul Jackson <pj@sgi.com>
+To: joe.korty@ccur.com
+Cc: colpatch@us.ibm.com, akpm@osdl.org, paulus@samba.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bitmap parsing/printing routines, version 4
+Message-Id: <20040119201558.5aa60752.pj@sgi.com>
+In-Reply-To: <20040120035756.GA15703@tsunami.ccur.com>
+References: <20040114150331.02220d4d.pj@sgi.com>
+	<20040115002703.GA20971@tsunami.ccur.com>
+	<20040114204009.3dc4c225.pj@sgi.com>
+	<20040115081533.63c61d7f.akpm@osdl.org>
+	<20040115181525.GA31086@tsunami.ccur.com>
+	<20040115161732.458159f5.pj@sgi.com>
+	<400873EC.2000406@us.ibm.com>
+	<20040117063618.GA14829@tsunami.ccur.com>
+	<20040117183929.GA24185@tsunami.ccur.com>
+	<400C4966.2030803@us.ibm.com>
+	<20040120035756.GA15703@tsunami.ccur.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->
-> I've been getting these error messages in my kernel forever, I think even
-> with 2.2 kernels, and it's still there in 2.6:
-> 
-> smb_open: config/SAM open failed, result=-26
-> smb_readpage_sync: config/SAM open failed, error=-26
-> 
-> It does this for several locked system files on the windows machines.
-> 
-> This happens during a find command run on the mounted share from one of my
-> scripts that compares file dates.
-> 
-> Can these printk calls be removed?
+> Unlike Andrew, I do believe one can have too many comments. 
 
-I think so.  We don't want to allow unprivileged users to spam the
-logfiles.
+How about keeping the comments somewhat separate from the code?
 
+Let the code tell its own story, for those who want to read code.  Let
+the comments explain the overall goals and strategy, and perhaps a key
+detail or two that might be confusing.
 
- fs/smbfs/file.c |    5 +----
- fs/smbfs/proc.c |    5 +----
- 2 files changed, 2 insertions(+), 8 deletions(-)
+But don't intermingle the two line by line.  They are as two different
+languages, that speak to different people, and different parts of the
+brain of the bi-lingual.
 
-diff -puN fs/smbfs/proc.c~smbfs-fix-noisiness fs/smbfs/proc.c
---- 25/fs/smbfs/proc.c~smbfs-fix-noisiness	2004-01-19 20:18:16.000000000 -0800
-+++ 25-akpm/fs/smbfs/proc.c	2004-01-19 20:18:16.000000000 -0800
-@@ -1181,11 +1181,8 @@ smb_open(struct dentry *dentry, int wish
- 		result = 0;
- 		if (!smb_is_open(inode))
- 			result = smb_proc_open(server, dentry, wish);
--		if (result) {
--			PARANOIA("%s/%s open failed, result=%d\n",
--				 DENTRY_PATH(dentry), result);
-+		if (result)
- 			goto out;
--		}
- 		/*
- 		 * A successful open means the path is still valid ...
- 		 */
-diff -puN fs/smbfs/file.c~smbfs-fix-noisiness fs/smbfs/file.c
---- 25/fs/smbfs/file.c~smbfs-fix-noisiness	2004-01-19 20:22:21.000000000 -0800
-+++ 25-akpm/fs/smbfs/file.c	2004-01-19 20:22:23.000000000 -0800
-@@ -64,11 +64,8 @@ smb_readpage_sync(struct dentry *dentry,
- 		DENTRY_PATH(dentry), count, offset, rsize);
- 
- 	result = smb_open(dentry, SMB_O_RDONLY);
--	if (result < 0) {
--		PARANOIA("%s/%s open failed, error=%d\n",
--			 DENTRY_PATH(dentry), result);
-+	if (result < 0)
- 		goto io_error;
--	}
- 
- 	do {
- 		if (count < rsize)
+Make it visually easy for each reader to filter out the 'other stuff.'
 
-_
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262771AbTFTKt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 06:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbTFTKt6
+	id S262830AbTFTKws (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 06:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbTFTKws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 06:49:58 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:50119 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262771AbTFTKt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 06:49:58 -0400
-Date: Fri, 20 Jun 2003 13:03:57 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Fruhwirth Clemens <clemens-dated-1056970281.42e9@endorphin.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Initial Vector Fix for loop.c.
-Message-ID: <20030620110357.GC28711@wohnheim.fh-wedel.de>
-References: <20030620090612.GA1322@ghanima.endorphin.org.suse.lists.linux.kernel> <p73u1al3xlw.fsf@oldwotan.suse.de> <20030620101452.GA2233@ghanima.endorphin.org> <20030620102455.GC26678@wotan.suse.de> <20030620103538.GA28711@wohnheim.fh-wedel.de> <20030620105120.GA2450@ghanima.endorphin.org>
+	Fri, 20 Jun 2003 06:52:48 -0400
+Received: from pop.gmx.net ([213.165.64.20]:62623 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262830AbTFTKwr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 06:52:47 -0400
+Message-Id: <5.2.0.9.2.20030620130623.00ceff70@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 20 Jun 2003 13:09:37 +0200
+To: Con Kolivas <kernel@kolivas.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] sleep_decay for interactivity 2.5.72 - testers 
+  needed
+Cc: Andreas Boman <aboman@midgaard.us>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306201229.55425.kernel@kolivas.org>
+References: <1056058342.917.69.camel@asgaard.midgaard.us>
+ <5.2.0.9.2.20030619171843.02299e00@pop.gmx.net>
+ <200306200250.01865.kernel@kolivas.org>
+ <1056058342.917.69.camel@asgaard.midgaard.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030620105120.GA2450@ghanima.endorphin.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 June 2003 12:51:20 +0200, Fruhwirth Clemens wrote:
-> 
-> Let's see. If there is flag based fix and we make the old behavior default
-> we will trick many new users into using the old broken IV metric. If we make
-> the new metric default the user can't mount his old images. 
+At 12:29 PM 6/20/2003 +1000, Con Kolivas wrote:
+>On Fri, 20 Jun 2003 07:32, Andreas Boman wrote:
+> >
+> > Basicly, for normal usage this kernel is acting *very* well here.
+>
+>Great! Thanks for doing this testing. I've attached a patch with the updated
+>figures and cc'ed lkml for others to test.
 
-Unless he starts thinking and reads up how it works in 2.6.
+Thud is still much more effective at starvation than stock (zero decay 
+during run phase), and a parallel kernel build still goes to 
+max-interactive virtually instantly.
 
-> As there is no autodetection for default behavior, there will be no way to
-> avoid the pain. Well, almost. We could allocate a new major for a different
-> metric, and create  /dev/loop-ng*. That'd be feasible, but actually just a
-> pain transfer .. from the user to the developer :)
+         -Mike 
 
-I don't see a problem with that, assuming there are more users than
-developers. :)
-
-Jörn
-
--- 
-Do not stop an army on its way home.
--- Sun Tzu

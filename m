@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVBHKNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVBHKXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbVBHKNN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 05:13:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbVBHKNN
+	id S261505AbVBHKXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 05:23:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbVBHKXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 05:13:13 -0500
-Received: from smtp.polymtl.ca ([132.207.4.11]:9168 "EHLO smtp.polymtl.ca")
-	by vger.kernel.org with ESMTP id S261505AbVBHKNB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 05:13:01 -0500
-Message-ID: <1107857501.4208905d3f019@www.imp.polymtl.ca>
-Date: Tue,  8 Feb 2005 11:11:41 +0100
-From: Guillaume Thouvenin <guillaume.thouvenin@polymtl.ca>
-To: Jay Lan <jlan@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@sgi.com>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       guillaume.thouvenin@bull.net
-Subject: Re: move-accounting-function-calls-out-of-critical-vm-code-paths.patch
-References: <20050110184617.3ca8d414.akpm@osdl.org> <Pine.LNX.4.58.0502031319440.25268@schroedinger.engr.sgi.com> <20050203140904.7c67a144.akpm@osdl.org> <Pine.LNX.4.58.0502031436460.26183@schroedinger.engr.sgi.com> <20050203150551.4d88f210.akpm@osdl.org> <42077724.1060606@sgi.com>
-In-Reply-To: <42077724.1060606@sgi.com>
+	Tue, 8 Feb 2005 05:23:24 -0500
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:18048 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261505AbVBHKXT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 05:23:19 -0500
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [BUG report] UML linux-2.6 latest BK doesn't compile
+Date: Tue, 8 Feb 2005 11:22:22 +0100
+User-Agent: KMail/1.7.2
+Cc: Jeff Dike <jdike@addtoit.com>, lkml <linux-kernel@vger.kernel.org>,
+       user-mode-linux-devel@lists.sourceforge.net
+References: <1107857395.15872.2.camel@imp.csi.cam.ac.uk>
+In-Reply-To: <1107857395.15872.2.camel@imp.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.3
-X-Originating-IP: 129.185.75.9
-X-Poly-FromMTA: (c4.si.polymtl.ca [132.207.4.29]) at Tue,  8 Feb 2005 10:11:41 +0000
-X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.29.0.7; VDF 6.29.0.101
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502081122.22613.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Selon Jay Lan <jlan@sgi.com>:
+On Tuesday 08 February 2005 11:09, Anton Altaparmakov wrote:
+> Hi,
+>
+> With the current linux-2.6 BK tree I get this when trying to compile
+> UML:
+>
+>   CC      init/version.o
+>   LD      init/built-in.o
+>   LD      .tmp_vmlinux1
+> arch/um/kernel/built-in.o(__ksymtab+0x2b0): In function `um_execve':
+> arch/um/kernel/exec_kern.c:59: undefined reference to `__bb_init_func'
+> collect2: ld returned 1 exit status
+>   KSYM    .tmp_kallsyms1.S
+> nm: '.tmp_vmlinux1': No such file
+> /bin/bash: line 1: 26161 Exit 1                  nm -n .tmp_vmlinux1
+>      26162 Segmentation fault      | scripts/kallsyms >.tmp_kallsyms1.S
+> make: *** [.tmp_kallsyms1.S] Error 139
+>
+> This is with SKAS mode enabled and TT disabled.  My .config is attached.
 
-> CSA is currently implemented as a loadable module. I think ELSA is the
-> same, right? The use of the enhanced accounting data collection
-> code is not in the kernel tree. That was why Andrew did not see usage of
-> the accounting patches. Should i propose to include the CSA module in
-> the kernel then, Andrew? :)
+Hmm - I do not understand at all where `__bb_init_func' comes from (not from 
+UML by sure, only from kernel headers possibly). And from preprocessing the 
+source (of the -bk4 snapshot), nothing similar comes out.
 
-In fact there is a module in ELSA but it's just to keep a trace of the processes
-hierarchy in order to do processes group management and process group
-accounting in user space.
+long um_execve(char *file, char * *argv, char * *env)
+{
+ long err;
 
-The process group management is done by a user space daemon and the process
-group accounting is done by a user space application that computes information
-provided by BSD-per process accounting and/or CSA accounting with information
-provided by the user space daemon.
+ err = execve1(file, argv, env);
+ if(!err)
+  do_longjmp((current_thread_info()->task)->thread.exec_buf, 1);
+ return(err);
+}
 
-Thus currently there is a module that relays information about forks but I'm
-working on a kobject_uevent solution to send the fork event (thanks to Andrew
-for the suggestion).
+make arch/um/kernel/exec_kern.i ARCH=um
 
-Thus, I will be interesting to see CSA module in the kernel.
+grep bb_init arch/um/kernel/exec_kern.i
+gives nothing (tested with your config, too).
 
-Regards,
-Guillaume
-
-
-
+Try adding a "#undef execve1" before the problematic line, and reporting (here 
+I don't get the failure).
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 

@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292356AbSBPLuk>; Sat, 16 Feb 2002 06:50:40 -0500
+	id <S292358AbSBPMXI>; Sat, 16 Feb 2002 07:23:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292358AbSBPLua>; Sat, 16 Feb 2002 06:50:30 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:10964 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S292356AbSBPLu0>;
-	Sat, 16 Feb 2002 06:50:26 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 16 Feb 2002 11:50:15 GMT
-Message-Id: <UTC200202161150.LAA30214.aeb@cwi.nl>
-To: Andries.Brouwer@cwi.nl, john@mwk.co.nz, linux-kernel@vger.kernel.org,
-        martin.bene@icomedias.com
-Subject: Re: AW: Need to force IDE geometry
-Cc: andre@linux-ide.org, hugo@firstlinux.net
+	id <S292359AbSBPMW7>; Sat, 16 Feb 2002 07:22:59 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14085 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292358AbSBPMWs>; Sat, 16 Feb 2002 07:22:48 -0500
+Subject: Re: Disgusted with kbuild developers
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Sat, 16 Feb 2002 12:36:29 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), esr@thyrsus.com,
+        davej@suse.de (Dave Jones),
+        arjan@pc1-camc5-0-cust78.cam.cable.ntl.com (Arjan van de Ven),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C6DE6A1.2B5717BE@mandrakesoft.com> from "Jeff Garzik" at Feb 15, 2002 11:57:05 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16c44r-000670-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From martin.bene@icomedias.com Sat Feb 16 10:13:30 2002
+> 1) CONFIG_FOO_OPTION requires CONFIG_FOO
+> 2) CONFIG_SUBSYS2 requires CONFIG_SUBSYS1
+> 
+> The reason why #2 is different, is the desired prompting and symbol
+> behavior for the end user.
 
-    Hi Andries,
+You can tell a subsystem from a module quite reliably because it has a 
+subtree of dependant questions. Now you might get it wrong, but its still
+correct to prompt for the subtree of questions again since if you've just
+forced on eepro100 for example, you do want to be asked mmio/pio and the
+like
 
-    For some reasons the c/h/s settings reported for LBA disks depend on ide =
-    device number: /hda uses 255 heads, 63 sectors while /dev/hdc and above =
-    use 16 head, 63 sectors.
+> If CONFIG_SUBSYS1="" and CONFIG_SUBSYS2="", then we gotta prompt for
+> CONFIG_SUBSYS1, but -after- CONFIG_SUBSYS2 is prompted for.
 
-    hda: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=3D9345/255/63, =
-    UDMA(33)
-    hdb: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=3D148945/16/63, =
-    UDMA(33)
-    hdc: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=3D148945/16/63, =
-    UDMA(33)
-
-    As you can see, this means you end up with different reported drive =
-    geometries for identical disks. Esp. if you want to use software raid =
-    this is a major nuisance. The usual workaround is to change =
-    head/cylinder settings when first partitioning the drive and let linux =
-    change the geometry during partition table check.
-
-    Partition check:
-     hda: hda1 hda2 < hda5 hda6 > hda3
-     hdb: [PTBL] [9345/255/63] hdb1 hdb2 < hdb5 hdb6 > hdb3
-     hdc: [PTBL] [9345/255/63] hdc1 hdc2 < hdc5 hdc6 > hdc3
-
-    While this works, it's quite unintuitive and confusing; correct =
-    behaviour would be to treat all disks identicaly regardless of device =
-    number.
-
-Yes, this is a FAQ. See
-	http://www.win.tue.nl/~aeb/linux/Large-Disk-14.html#ss14.2
-"Identical disks have different geometry?".
-
-You give as workaround bootparameters to Linux. My solution would
-probably be to set the disks to "Normal" in the BIOS.
-There is no need to tell the BIOS to do stupid tricks in order
-to avoid DOS problems since we are not running DOS.
-Moreover, with "Normal" the disk is slightly larger - for me the
-difference is 7 MB.
-
-(There is an unfortunate confusion here:
-LBA is used in two very different meanings:
-1) LBA "linear block addressing" is an access mode of disks.
-Every disk is accessed this way by Linux, unless it is really old.
-2) LBA "LBA assist" is a translation of disk geometry by the BIOS
-in order to bypass DOS deficiencies.
-Everyone wants the first, and gets it automatically.
-Nobody running Linux wants the second, but people choosing LBA
-in the BIOS setup usually think they are choosing the first.)
-
-Andries
+The graph tells you that. The only interesting case I could find is the
+negation one - some rules are  A conflicts with B which makes the UI side
+much more fun

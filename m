@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUGZG6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUGZHAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUGZG6j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 02:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbUGZG6i
+	id S264937AbUGZHAH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 03:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264946AbUGZHAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 02:58:38 -0400
-Received: from zasran.com ([198.144.206.234]:21948 "EHLO zasran.com")
-	by vger.kernel.org with ESMTP id S264936AbUGZG6h (ORCPT
+	Mon, 26 Jul 2004 03:00:07 -0400
+Received: from fw.osdl.org ([65.172.181.6]:65188 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264937AbUGZHAA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 02:58:37 -0400
-Message-ID: <4104AB98.8070506@bigfoot.com>
-Date: Sun, 25 Jul 2004 23:58:32 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040722 Debian/1.7.1-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Future devfs plans
-References: <200407261445.i6QEjAS04697@freya.yggdrasil.com> <410450CA.9080708@hispalinux.es> <pan.2004.07.26.05.35.49.669188@dungeon.inka.de>
-In-Reply-To: <pan.2004.07.26.05.35.49.669188@dungeon.inka.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 26 Jul 2004 03:00:00 -0400
+Date: Sun, 25 Jul 2004 23:57:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Keith Owens <kaos@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: dumpfs v0.01 - common RAS output API
+Message-Id: <20040725235705.57b804cc.akpm@osdl.org>
+In-Reply-To: <16734.1090513167@ocs3.ocs.com.au>
+References: <16734.1090513167@ocs3.ocs.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Jellinghaus wrote:
-> On Mon, 26 Jul 2004 00:34:51 +0000, Ramón Rey Vicente wrote:
-> 
->>With udev you can do that, and without important bugs :). And the more
->>important thing is _udev is in active development_
-> 
-> 
-> devfs has the "open /dev/somefile" to load $somedriver
-> mechanism. it is said to be racy, as far as I know.
-> 
-> udev works very differently. mostly, the idea is kernel detects hardware,
-> kernel calls hotplug, hotplug loads driver, driver registers device
-> structure in kernel, kernel calls hotplug for the new device, udev creates
-> the device in /dev.
-> 
-> with this mechanism, the kernel always has all drivers for hardware
-> currently available loaded, and udev provides the /dev devices.
-> 
-> devfs allowes you to not have the driver loaded till you try to use it.
-> so udev _cannot_ do what devfs does.
-> 
-> still I agree that the way kernel/hotplug/udev work is much better and
-> supporting the old style devfs works is not necessary. but please be
-> honest about the differences.
+Keith Owens <kaos@sgi.com> wrote:
+>
+>  * How do we get a clean API to do polling mode I/O to disk?
 
-   which means that now iPod automatically connects to firewire (and 
-looses info on random tracks, sometime some other settings), instead of 
-only connecting when I try to actually access it (the device).
+We hope to not have to.  The current plan is to use kexec: at boot time, do
+a kexec preload of a small (16MB) kernel image.  When the main kernel
+crashes or panics, jump to the kexec kernel.  The kexec kernel will hold a
+new device driver for /dev/hmem through which applications running under
+the kexec'ed kernel can access the crashed kernel's memory.
 
-   it looks like there is no user level (end user, not admin) control on 
-when the device drivers are loaded anymore - or is there?
+Write the contents of /dev/hmem to stable storage using whatever device
+drivers are in the kexeced kernel, then reboot into a real kernel again.
 
-   Is there any way to load drivers on demand (obviously it's not job of 
-udev but whose job it is?). What about unloading them - I unmount the 
-disk and i think the iPod is disconnecred but it still says connected - 
-is there any way to disconnect it (I guess similar problems arise with 
-other hotplug devices)
+That's all pretty simple to do, and the quality of the platform's crash
+dump feature will depend only upon the quality of the platform's kexec
+support.
 
-	erik
+People have bits and pieces of this already - I'd hope to see candidate
+patches within a few weeks.  The main participants are rddunlap, suparna
+and mbligh.
+

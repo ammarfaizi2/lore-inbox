@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264398AbTDOIJb (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 04:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264399AbTDOIJa (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 04:09:30 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:19467 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S264398AbTDOIJ3 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 04:09:29 -0400
-Date: Tue, 15 Apr 2003 10:21:09 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: How to configure an ethernet dev as PtP ?
-Message-Id: <20030415102109.4802ddd0.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S264393AbTDOIIG (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 04:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbTDOIIG (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 04:08:06 -0400
+Received: from ns.tasking.nl ([195.193.207.2]:57608 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id S264393AbTDOIIF (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 04:08:05 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67 Oops in usb_dump_interface after rmmod ov511
+Organization: Altium SOFTWARE B.V.
+References: <16025.44377.247003.44494@iris.hendrikweg.doorn> <16025.44377.247003.44494@iris.hendrikweg.doorn> <20030415055226.GB8859@kroah.com>
+X-Face: "A(HPX!owGRCdtOX\NKs=ac*&x%/sYJMc;M<L&"^kH9ogp5;"w#UVc0yt3K{@n#.E+=k>qd bqZYYQvB9_xdS1l+B2\z;:p71RNxrja;ir>Dj?6%GzFA!o>gOL&G}8X;icnhqP|=TU,O@JVM%5LL:X ,G&IkRk9n%h7hZFUltu%RB=ctrdfu?[vSRV%Wzcn;#o>[K0C6_'q*~^+toc))w-Qb8*,afMHVCrNG6
+X-Attribution: KB
+Reply-To: kees.bakker@altium.nl (Kees Bakker)
+From: kees.bakker@altium.nl (Kees Bakker)
+Date: 15 Apr 2003 10:18:43 +0200
+Message-ID: <si7k9w897g.fsf@koli.tasking.nl>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+NNTP-Posting-Host: 172.17.1.96
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+>>>>> Greg KH writes:
+> 
+> On Sun, Apr 13, 2003 at 08:32:57PM +0200, Kees Bakker wrote:
+>> If I do a "cat /proc/bus/usb/devices" after removing the ov511 module I get
+>> an OOPS.
+>> Here is the info from my syslog:
+> 
+> Ouch, not good.
+> 
+> Does this happen for any other USB devices?
 
-I tried to configure an ethernet device as a pointopoint link recently, just to
-find out that this does not work as one would expect via:
+Who knows. I don't have another USB device to try. Perhaps I could lend one.
 
-ifconfig eth0 192.168.1.1 pointopoint 192.168.5.1 up
+> And can you add a bug to bugzilla.kernel.org for this, so I remember to
+> make sure it's fixed?  :)
 
-I tried on kernel 2.4.21-pre6 and 2.2.19 (just to name two), both the same. It
-comes up as:
+Done. (http://bugzilla.kernel.org/show_bug.cgi?id=585)
 
-eth0      Link encap:Ethernet  HWaddr 00:04:76:F7:E9:17  
-          inet addr:192.168.1.1  Bcast:192.168.1.255  Mask:255.255.255.0
-          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+		Kees
 
-I do not understand why this does not work out just like another ptp-interface
-like isdn:
-
-isdn0     Link encap:Ethernet  HWaddr FC:FC:00:00:00:00  
-          inet addr:192.168.1.1  P-t-P:192.168.5.1  Mask:255.255.255.255
-          UP POINTOPOINT RUNNING NOARP  MTU:1500  Metric:1
-
-Is there anything I mis-understood or a good reason for not being able to make
-eth pointopoint?
-
-I have the feeling this question is pretty brain-dead, but anyway, maybe some
-kind soul can drop a few words ...
--- 
-Regards,
-Stephan

@@ -1,63 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317117AbSFWUsU>; Sun, 23 Jun 2002 16:48:20 -0400
+	id <S317140AbSFWU7k>; Sun, 23 Jun 2002 16:59:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317135AbSFWUsT>; Sun, 23 Jun 2002 16:48:19 -0400
-Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:53235 "EHLO
-	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S317117AbSFWUsS>; Sun, 23 Jun 2002 16:48:18 -0400
-Message-ID: <063501c21af7$44fe3570$1125a8c0@wednesday>
-From: "jdow" <jdow@earthlink.net>
-To: "John Alvord" <jalvo@mbay.net>
-Cc: "Rob Landley" <landley@trommello.org>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Jeff Garzik" <jgarzik@mandrakesoft.com>,
-       "Larry McVoy" <lm@bitmover.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Linus Torvalds" <torvalds@transmeta.com>,
-       "Cort Dougan" <cort@fsmlabs.com>, "Benjamin LaHaise" <bcrl@redhat.com>,
-       "Rusty Russell" <rusty@rustcorp.com.au>, "Robert Love" <rml@tech9.net>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <E17LmrQ-0002vp-00@the-village.bc.nu> <05ce01c21a31$1a2c3660$1125a8c0@wednesday> <sr2chugf2bu4pd8a6m3sc36ggemomk4o3o@4ax.com>
-Subject: Re: Linux, the microkernel (was Re: latest linus-2.5 BK broken)
-Date: Sun, 23 Jun 2002 13:48:03 -0700
+	id <S317141AbSFWU7j>; Sun, 23 Jun 2002 16:59:39 -0400
+Received: from pieck.student.uva.nl ([146.50.96.22]:19109 "EHLO
+	pieck.student.uva.nl") by vger.kernel.org with ESMTP
+	id <S317140AbSFWU7j>; Sun, 23 Jun 2002 16:59:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rudmer van Dijk <rvandijk@science.uva.nl>
+Reply-To: rvandijk@science.uva.nl
+Organization: UvA
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+Subject: Re: kbuild fixes and more
+Date: Sun, 23 Jun 2002 23:02:54 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0206231527030.6241-100000@chaos.physics.uiowa.edu>
+In-Reply-To: <Pine.LNX.4.44.0206231527030.6241-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020623205939Z317140-22020+9329@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "John Alvord" <jalvo@mbay.net>
+On Sunday 23 June 2002 22:31, Kai Germaschewski wrote:
+> On Sun, 23 Jun 2002, Rudmer van Dijk wrote:
+> > patched against 2.5.24-dj1 (one failed hunk) generates errors:
+> > # make clean
+> > <snip>
+> > make -C /aicasm clean
+> > make: Entering an unknown directory
+> > make: *** /aicasm: No such file or directory.  Stop.
+>
+> Grr, I just shouldn't do last minute changes without testing. Anyway,
+> I just put a fixed version into the same place
+> (patch-2.5.24-kg2.{gz,bz2}).
+> (It still has some rough edges which need work, but it should at least
+> get the job done)
 
->On Sat, 22 Jun 2002 14:09:30 -0700, "jdow" <jdow@earthlink.net> wrote:
+got this error while patching (against 2.5.24 tarball):
 
->>From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
->>
->>>> A microkernel design was actually made to work once, with good performance.
->>>> It was about fifteen years ago, in the amiga.  Know how they pulled it off?
->>>> Commodore used a mutant ultra-cheap 68030 that had -NO- memory management
->>>> unit.
->>>
->>> Vanilla 68000 actually. And it never worked well - the UI folks had
->>> to use a library not threads. The fs performance sucked
->>
->>Some things just cannot be passed by..... The Amiga HAS worked well and
->>DOES work well - - - FINALLY. (It took several years and a VERY serious
->>debugging effort with Bill Hawes and Bryce Nesbitt finding and quashing
->>all manner of bad or missing pointer checks and the like. They made the
->>OS itself a remarkable work of art.)
+can't find file to patch at input line 1696
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|===== BitKeeper/etc/ignore 1.21 vs 1.22 =====
+|--- 1.21/BitKeeper/etc/ignore  Mon Jun 17 23:06:10 2002
+|+++ 1.22/BitKeeper/etc/ignore  Thu Jun 20 16:11:01 2002
+--------------------------
 
->Was that the same Bill Hawes who hung around L-K quashing bugs for a
->year or so (maybe 3-4 years ago?)
+after removing this file from the patch it applies cleanly!
+make mrproper works (no more unknown directories)
+but I got this error after `make KBUILD_VERBOSE= KBUILD_MODULES=1 bzImage`:
+<snip>
+  CC     drivers/char/keyboard.o
+make[2]: *** No rule to make target `defkeymap.o', needed by `built-in.o'.  
+Stop.
+make[1]: *** [char] Error 2
+make: *** [drivers] Error 2
 
-I believe it was. That is about where I lost track of him. I hope he is
-doing well wherever he is. You folks here should have done almost anything
-to keep him around.
+so now defkeymap.c is not generated (it was removed in 2.5.24)
+manually generating it works but then this happened:
 
-{^_^}
+<snip>
+  CC     arch/i386/boot/compressed/misc.o
+make[2]: *** No rule to make target `vmlinux.scr', needed by `piggy.o'.  Stop.
+make[1]: *** [compressed/vmlinux] Error 2
+make: *** [bzImage] Error 2
 
+
+>
+> However, I don't see why you get a failed hunk it applies cleanly against
+> a bitkeeper v2.5.24 tree here. (Could you mail me the .rej file,
+> privately).
+
+I'm not using a bitkeeper tree, but the bitkeeper tree and the tarball should 
+be the same...
+
+	Rudmer	

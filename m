@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbSKTWNy>; Wed, 20 Nov 2002 17:13:54 -0500
+	id <S261693AbSKTWYY>; Wed, 20 Nov 2002 17:24:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262871AbSKTWNx>; Wed, 20 Nov 2002 17:13:53 -0500
-Received: from 216-164-48-121.c3-0.gth-ubr1.lnh-gth.md.cable.rcn.com ([216.164.48.121]:37259
-	"EHLO zalem.puupuu.org") by vger.kernel.org with ESMTP
-	id <S262821AbSKTWNu>; Wed, 20 Nov 2002 17:13:50 -0500
-Date: Wed, 20 Nov 2002 17:20:54 -0500
-From: Olivier Galibert <galibert@pobox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]: jiffies wrap in ll_rw_blk.c
-Message-ID: <20021120172054.D12712@zalem.puupuu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3DDBF413.C06DAF2E@splentec.com> <1037827173.3267.78.camel@irongate.swansea.linux.org.uk>
+	id <S261934AbSKTWYY>; Wed, 20 Nov 2002 17:24:24 -0500
+Received: from p50829436.dip.t-dialin.net ([80.130.148.54]:27662 "EHLO
+	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
+	id <S261693AbSKTWYX>; Wed, 20 Nov 2002 17:24:23 -0500
+Date: Wed, 20 Nov 2002 22:30:56 +0000
+From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+To: George France <france@handhelds.org>
+Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Subject: Re: [Patch] 2.5.48 Trivial to ../asm-alpha/suspend.h
+Message-ID: <20021120223056.A650@Marvin.DL8BCU.ampr.org>
+Reply-To: dl8bcu@dl8bcu.de
+Mail-Followup-To: George France <france@handhelds.org>,
+	linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+References: <02112016143302.13910@shadowfax.middleearth>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1037827173.3267.78.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Nov 20, 2002 at 09:19:33PM +0000
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <02112016143302.13910@shadowfax.middleearth>; from france@handhelds.org on Wed, Nov 20, 2002 at 04:14:33PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 09:19:33PM +0000, Alan Cox wrote:
-> On Wed, 2002-11-20 at 20:44, Luben Tuikov wrote:
-> > --- ll_rw_blk.c.old     Wed Nov 20 15:32:50 2002
-> > +++ ll_rw_blk.c Wed Nov 20 15:33:06 2002
-> > @@ -2092,7 +2092,7 @@
-> >                 complete(req->waiting);
-> >  
-> >         if (disk) {
-> > -               unsigned long duration = jiffies - req->start_time;
-> > +               unsigned long duration = (signed) jiffies - (signed) req->start_time;
-> >                 switch (rq_data_dir(req)) {
+On Wed, Nov 20, 2002 at 04:14:33PM -0500, George France wrote:
+> Fix compilation failure.
 > 
-> It was right before. Your patch breaks it. Think about it in unsigned
-> maths
+> Best Regards,
 > 
->               0x00000002 - 0xFFFFFFFF = 0x00000003
+> 
+> --George
+> 
+> --- linux/include/asm-alpha/suspend.h.orig      Wed Dec 31 19:00:00 1969
+> +++ linux/include/asm-alpha/suspend.h   Wed Nov 20 03:55:57 2002
+> @@ -0,0 +1,4 @@
+> +#ifdef _ASMALPHA_SUSPEND_H
 
-Signed vs. unsigned is actually irrelevant in two-complement systems
-as long as you don't compare.  Only the int/long issue has an actual
-effect.
+#ifndef I suppose?
 
-  OG.
+> +#define _ASMALPHA_SUSPEND_H
+> + 
+> +#endif
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
+Thorsten
+
+-- 
+| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
+| Mobile: ++49 170 1876134       Snail: Niemannsweg 30, 49201 Dissen, Germany |
+| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262659AbRE3J4R>; Wed, 30 May 2001 05:56:17 -0400
+	id <S262700AbRE3KGA>; Wed, 30 May 2001 06:06:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbRE3J4H>; Wed, 30 May 2001 05:56:07 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:1040 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262659AbRE3J4B>;
-	Wed, 30 May 2001 05:56:01 -0400
-Date: Wed, 30 May 2001 11:55:38 +0200
-From: Jens Axboe <axboe@kernel.org>
-To: Mark Hemment <markhe@veritas.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, riel@conectiva.com.br,
-        andrea@e-mind.com
-Subject: Re: [patch] 4GB I/O, cut three
-Message-ID: <20010530115538.B15089@suse.de>
-In-Reply-To: <20010529160704.N26871@suse.de> <Pine.LNX.4.21.0105301022410.7153-100000@alloc>
-Mime-Version: 1.0
+	id <S262695AbRE3KFu>; Wed, 30 May 2001 06:05:50 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15633 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262694AbRE3KFm>; Wed, 30 May 2001 06:05:42 -0400
+Subject: Re: [PATCH] net #6
+To: ankry@green.mif.pg.gda.pl (Andrzej Krzysztofowicz)
+Date: Wed, 30 May 2001 09:01:36 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        jgarzik@mandrakesoft.com (Jeff Garzik), Philip.Blundell@pobox.com,
+        linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <200105300044.CAA04542@green.mif.pg.gda.pl> from "Andrzej Krzysztofowicz" at May 30, 2001 02:44:03 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0105301022410.7153-100000@alloc>; from markhe@veritas.com on Wed, May 30, 2001 at 10:43:33AM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1550vA-0005Xe-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 30 2001, Mark Hemment wrote:
-> Hi Jens,
-> 
->   I ran this (well, cut-two) on a 4-way box with 4GB of memory and a
-> modified qlogic fibre channel driver with 32disks hanging off it, without
-> any problems.  The test used was SpecFS 2.0
+> The following patch removes unnecessary #ifdefs from eexpress.c
 
-Cool, could you send me the qlogic diff? It's the one-liner can_dma32
-chance I'm interested in, I'm just not sure what driver you used :-)
-I'll add that to the patch then. Basically all the PCI cards should
-work, I'm just being cautious and only enabling highmem I/O to the ones
-that have been tested.
+They are neccessary
 
->   Peformance is definitely up - but I can't give an exact number, as the
-> run with this patch was compiled with no-omit-frame-pointer for debugging
-> any probs.
+> @@ -643,9 +631,7 @@
+>  	        eexp_hw_tx_pio(dev,data,length);
+>  	}
+>  	dev_kfree_skb(buf);
+> -#ifdef CONFIG_SMP
+>  	spin_unlock_irqrestore(&lp->lock, flags);
+> -#endif
+>  	enable_irq(dev->irq);
+>  	return 0;
 
-Good
-
->   I did change the patch so that bounce-pages always come from the NORMAL
-> zone, hence the ZONE_DMA32 zone isn't needed.  I avoided the new zone, as
-> I'm not 100% sure the VM is capable of keeping the zones it already has
-> balanced - and adding another one might break the camels back.  But as the
-> test box has 4GB, it wasn't bouncing anyway.
-
-You are right, this is definitely something that needs checking. I
-really want this to work though. Rik, Andrea? Will the balancing handle
-the extra zone?
-
--- 
-Jens Axboe
+They are done this way to get good non SMP performance. Your changes would
+ruin that.
 

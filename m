@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267277AbTBIPBQ>; Sun, 9 Feb 2003 10:01:16 -0500
+	id <S267275AbTBIO6C>; Sun, 9 Feb 2003 09:58:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267278AbTBIPBQ>; Sun, 9 Feb 2003 10:01:16 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:42002 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S267277AbTBIPBP>; Sun, 9 Feb 2003 10:01:15 -0500
-Date: Sun, 9 Feb 2003 10:10:59 -0500
-From: Ben Collins <bcollins@debian.org>
-To: MaxF <maxer1@xmission.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Firewire Buslink dirve incorrectly detected as a LiteOn in 2.4.20
-Message-ID: <20030209151059.GM2522@phunnypharm.org>
-References: <3E466E84.3060907@xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E466E84.3060907@xmission.com>
-User-Agent: Mutt/1.5.3i
+	id <S267277AbTBIO6C>; Sun, 9 Feb 2003 09:58:02 -0500
+Received: from mgr1.xmission.com ([198.60.22.201]:23146 "EHLO
+	mgr1.xmission.com") by vger.kernel.org with ESMTP
+	id <S267275AbTBIO6B>; Sun, 9 Feb 2003 09:58:01 -0500
+Message-ID: <3E466E84.3060907@xmission.com>
+Date: Sun, 09 Feb 2003 08:06:44 -0700
+From: MaxF <maxer1@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030123
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Firewire Buslink dirve incorrectly detected as a LiteOn in 2.4.20
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 09, 2003 at 08:06:44AM -0700, MaxF wrote:
-> All kernels post 2.4.20-xx are detecting my firewire Buslink CD-RW
-> as:
-> 
-> Feb  9 07:54:19 maxer kernel:   Vendor: LITE-ON   Model: 
-> LTR-48125W        Rev: VS06
-> 
-> Buslink model #RW4848FE
-> 
-> I do have however a second drive that is a Lite-On, but is not firewire.
+All kernels post 2.4.20-xx are detecting my firewire Buslink CD-RW
+as:
 
-Can you give some more details, like a complete description of your
-system configuration including this other drive that appears to tbe
-confusing the scsi layer.
+Feb  9 07:54:19 maxer kernel:   Vendor: LITE-ON   Model: 
+LTR-48125W        Rev: VS06
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Buslink model #RW4848FE
+
+I do have however a second drive that is a Lite-On, but is not firewire.
+
+Any ideas?
+
+Frank
+

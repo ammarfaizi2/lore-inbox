@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVC0TJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVC0TRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVC0TJt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 14:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVC0TJd
+	id S261462AbVC0TRK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 14:17:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVC0TRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 14:09:33 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:38072 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S261459AbVC0TJL (ORCPT
+	Sun, 27 Mar 2005 14:17:10 -0500
+Received: from irc.sh.nu ([216.239.132.110]:30389 "EHLO mail.3gstech.com")
+	by vger.kernel.org with ESMTP id S261462AbVC0TQ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 14:09:11 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] typo fix in drivers/scsi/sata_svw.c
-Date: Sun, 27 Mar 2005 15:56:02 +0200
-User-Agent: KMail/1.8
-Cc: Trivial Patch Monkey <trivial@rustcorp.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Sun, 27 Mar 2005 14:16:56 -0500
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+From: Aaron Gyes <floam@sh.nu>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050327183522.GM4285@stusta.de>
+References: <1111886147.1495.3.camel@localhost>
+	 <490243b66dc7c3f592df7a7d0769dcb7@mac.com>
+	 <1111913399.6297.28.camel@laptopd505.fenrus.org>
+	 <16d78e9ea33380a1f1ad90c454fb6e1d@mac.com>
+	 <20050327180417.GD3815@gallifrey>  <20050327183522.GM4285@stusta.de>
+Content-Type: text/plain
+Date: Sun, 27 Mar 2005 11:16:54 -0800
+Message-Id: <1111951014.9831.4.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503271556.02600.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add missing brace.
+> And then the user want to upgrade the 2.0 kernel that shipped with this 
+> box although the company that made the hardware went bankrupt some years 
+> ago.
+> 
+> If the user has the source of the driver, he can port the driver or hire 
+> someone to port the driver (this "obscure piece of hardware" might also 
+> be an expensive piece of hardware).
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+So what? Sure, GPL'd drivers are easier for an end-user in that case.
+What does that have to do with law? What about what's better for the
+company that made the device? Should NVIDIA be forced to give up their
+secrets to all their competitors because some over zealous developers
+say so? Should the end-users of the current drivers be forced to lose
+out on features such as sysfs and udev compatability?
 
---- linux-2.6.11/drivers/scsi/sata_svw.c	2005-03-21 11:41:58.000000000 +0100
-+++ linux-2.6.12-rc1/drivers/scsi/sata_svw.c	2005-03-27 15:50:38.000000000 +0200
-@@ -395,7 +395,7 @@
- 
- 	/* Clear a magic bit in SCR1 according to Darwin, those help
- 	 * some funky seagate drives (though so far, those were already
--	 * set by the firmware on the machines I had access to
-+	 * set by the firmware on the machines I had access to)
- 	 */
- 	writel(readl(mmio_base + K2_SATA_SICR1_OFFSET) & ~0x00040000,
- 	       mmio_base + K2_SATA_SICR1_OFFSET);
+I love Linux, and a I love that free software has become mildly
+successful, but the zealots are hurting both.
+

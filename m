@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129164AbRCWByO>; Thu, 22 Mar 2001 20:54:14 -0500
+	id <S129259AbRCWB7E>; Thu, 22 Mar 2001 20:59:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129242AbRCWByF>; Thu, 22 Mar 2001 20:54:05 -0500
-Received: from [204.244.205.25] ([204.244.205.25]:56142 "HELO post.gateone.com")
-	by vger.kernel.org with SMTP id <S129164AbRCWBxz>;
-	Thu, 22 Mar 2001 20:53:55 -0500
-Subject: Re: [PATCH] Prevent OOM from killing init
-From: Michael Peddemors <michael@linuxmagic.com>
-To: Stephen Clouse <stephenc@theiqgroup.com>
-Cc: Guest section DW <dwguest@win.tue.nl>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20010322142831.A929@owns.warpcore.org>
-In-Reply-To: <3AB9313C.1020909@missioncriticallinux.com>
-	<Pine.LNX.4.21.0103212047590.19934-100000@imladris.rielhome.conectiva>
-	<20010322124727.A5115@win.tue.nl>  <20010322142831.A929@owns.warpcore.org>
-Content-Type: text/plain
-X-Mailer: Evolution (0.9 - Preview Release)
-Date: 22 Mar 2001 17:31:57 -0800
-Mime-Version: 1.0
-Message-Id: <20010323015358Z129164-406+3041@vger.kernel.org>
+	id <S129242AbRCWB6z>; Thu, 22 Mar 2001 20:58:55 -0500
+Received: from zcamail03.zca.compaq.com ([161.114.32.103]:18441 "HELO
+	zcamail03.zca.compaq.com") by vger.kernel.org with SMTP
+	id <S129245AbRCWB6o>; Thu, 22 Mar 2001 20:58:44 -0500
+Reply-To: <frey@cxau.zko.dec.com>
+From: "Martin Frey" <frey@scs.ch>
+To: "'Andrew Morton'" <andrewm@uow.edu.au>,
+        "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: kernel_thread vs. zombie
+Date: Thu, 22 Mar 2001 17:57:51 -0800
+Message-ID: <008901c0b33c$ab1f51a0$90600410@SCHLEPPDOWN>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3ABA92F0.CF6729C2@uow.edu.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here, Here.. killing qmail on a server who's sole task is running mail doesn't seem to make much sense either..
+>>  - When started during boot (low PID (9)) It becomes a zombie
+>>  - When started from a process that quits after sending the ioctl,
+>>    it is correctly "garbage collected".
+>>  - When started from a process that stays around, it becomes 
+>>    a zombie too
 
-> > Clearly, Linux cannot be reliable if any process can be killed
+>Take a look at kernel/kmod.c:call_usermodehelper().  Copy it.
+>
+>This will make your thread a child of keventd.  This takes
+>care of things like chrootedness, uids, cwds, signal masks,
+>reaping children, open files, and all the other crud which
+>you can accidentally inherit from your caller.
+>
+So depending on the state of the caller daemonize() will not really
+put us into the background as we want. With being created from
+keventd we inherit a state as we'd like to have in a kernel thread.
+Did I get it right?
+I will change my example and test that.
 
-> > at any moment. I am not happy at all with my recent experiences.
-> 
-> Really the whole oom_kill process seems bass-ackwards to me.  I can't in my mind
-> logically justify annihilating large-VM processes that have been running for 
-> days or weeks instead of just returning ENOMEM to a process that just started 
-> up.
-> 
-> We run Oracle on a development box here, and it's always the first to get the
-> axe (non-root process using 70-80 MB VM).  Whenever someone's testing decides to 
-> run away with memory, I usually spend the rest of the day getting intimate with
-> the backup files, since SIGKILLing random Oracle processes, as you might have
-> guessed, has a tendency to rape the entire database.
+Thanks,
 
--- 
-"Catch the Magic of Linux..."
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-LinuxAdministration - Internet Services
-NetworkServices - Programming - Security
-WizardInternet Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604)589-0037 Beautiful British Columbia, Canada
-
+Martin

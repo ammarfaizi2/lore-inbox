@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263302AbREWWVp>; Wed, 23 May 2001 18:21:45 -0400
+	id <S263294AbREWWZp>; Wed, 23 May 2001 18:25:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263294AbREWWVf>; Wed, 23 May 2001 18:21:35 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:33529 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263295AbREWWVZ>;
-	Wed, 23 May 2001 18:21:25 -0400
-Date: Wed, 23 May 2001 18:21:23 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Maciek Nowacki <maciek@Voyager.powersurfr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Busy on BLKFLSBUF w/initrd
-In-Reply-To: <20010523161149.A701@Voyager.powersurfr.com>
-Message-ID: <Pine.GSO.4.21.0105231813490.20269-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263295AbREWWZZ>; Wed, 23 May 2001 18:25:25 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:53528 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263294AbREWWZP>; Wed, 23 May 2001 18:25:15 -0400
+Date: Thu, 24 May 2001 00:24:52 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: DVD blockdevice buffers
+Message-ID: <20010524002452.B764@athlon.random>
+In-Reply-To: <20010524000933.A764@athlon.random> <Pine.GSO.4.21.0105231812210.20269-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0105231812210.20269-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, May 23, 2001 at 06:13:13PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 23, 2001 at 06:13:13PM -0400, Alexander Viro wrote:
+> Uh-oh... After you solved what?
 
+The superblock is pinned by the kernel in buffercache while you fsck a
+ro mounted ext2, so I must somehow uptodate this superblock in the
+buffercache before collecting away the pagecache containing more recent
+info from fsck. It's all done lazily, I just thought not to break the
+assumption that an idling buffercache will never become not uptodate
+under you anytime because it seems not too painful to implement compared
+to changing the fs, it puts the check in a slow path and it doesn't
+break the API with the buffercache (so I don't need to change all the fs
+to check if the superblock is still uptodate before marking it dirty).
 
-On Wed, 23 May 2001, Maciek Nowacki wrote:
-
-> > If you want to keep it until later (i.e. want to destiry it by hands)
-> > mkdir /initrd on your final root and old one will be remounted there.
-> > Again, "Trying to unmount old root ... okay" means that it already got
-> > an equivalent of BKLFLSBUF
-> 
-> Ah, okay.. I assumed this behavior had been removed. I will try this as well.
-
-change_root() in 2.4.4 gives you explicit destroy_buffers(). In 2.4.5-pre5
-it simply does BLKFLSBUF - calls ioctl_by_bdev(). And BLKFLSBUF boils
-down to destroy_buffers().
-
-I would really like to hear details re survival of the initrd contents.
-I've looked at the way rd.c "protects" the data and it seems to be
-b0rken - playing games with igrab() is not a good idea for driver...
-
+Andrea

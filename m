@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263931AbUDNH1O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 03:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263941AbUDNH1O
+	id S263943AbUDNH0V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 03:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbUDNH0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 03:27:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32231 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263931AbUDNH1K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 03:27:10 -0400
-Date: Wed, 14 Apr 2004 08:27:09 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Subject: Re: [RFC] fix sysfs symlinks
-Message-ID: <20040414072709.GC31500@parcelfarce.linux.theplanet.co.uk>
-References: <20040413124037.GA21637@in.ibm.com> <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk> <20040414064015.GA4505@in.ibm.com> <20040414070227.GA31500@parcelfarce.linux.theplanet.co.uk> <20040414071756.GB5422@in.ibm.com>
+	Wed, 14 Apr 2004 03:26:21 -0400
+Received: from mail.shareable.org ([81.29.64.88]:3488 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S263943AbUDNH0U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 03:26:20 -0400
+Date: Wed, 14 Apr 2004 08:26:15 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Andrew Morton <akpm@osdl.org>,
+       Fabian Frederick <Fabian.Frederick@skynet.be>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.5-mm4] sys_access race fix
+Message-ID: <20040414072615.GD7790@mail.shareable.org>
+References: <1081881778.5585.16.camel@bluerhyme.real3> <20040413170309.14b7a334.akpm@osdl.org> <20040414071102.GB7790@mail.shareable.org> <20040414072250.GB31500@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040414071756.GB5422@in.ibm.com>
+In-Reply-To: <20040414072250.GB31500@parcelfarce.linux.theplanet.co.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 12:47:56PM +0530, Maneesh Soni wrote:
-> On Wed, Apr 14, 2004 at 08:02:27AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > On Wed, Apr 14, 2004 at 12:10:16PM +0530, Maneesh Soni wrote:
-> > > I am not sure, if pinning the kobject for the life time of symlink (dentry)
-> > > may result in same problems like rmmod hang which we saw in case of pinning
-> > > kobject for the life time of its directory (dentry).
-> > 
-> > Erm...  If rmmod _ever_ waits for refcount on kobject to reach zero, it's
-> > already broken.  Do you have any examples of such behaviour?
-> 
-> One such example is here in this bug report related to pcmica yenta socket.
-> 	http://bugme.osdl.org/show_bug.cgi?id=1884
-> 
-> Another one is very recent in this long thread related to USB
-> 	http://thread.gmane.org/gmane.linux.usb.devel/20468
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> Huh?  What does changing a field of tast_struct have to do with behaviour
+> of some other threads?
 
-USB folks have no clue on sane lifetime rules, film at 11...
+It has a lot to do with a brain malfunction at my end, and nothing to
+do with anything else.  Enjoy the embarrassment,
+
+-- Jamie
+

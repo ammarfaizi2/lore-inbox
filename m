@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261458AbTCQJtH>; Mon, 17 Mar 2003 04:49:07 -0500
+	id <S261555AbTCQKPZ>; Mon, 17 Mar 2003 05:15:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261466AbTCQJtH>; Mon, 17 Mar 2003 04:49:07 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:22532 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP
-	id <S261458AbTCQJtG>; Mon, 17 Mar 2003 04:49:06 -0500
-Date: Mon, 17 Mar 2003 10:59:40 +0100
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: Ducrot Bruno <poup@poupinou.org>, Valdis.Kletnieks@vt.edu,
-       Bongani Hlope <bonganilinux@mweb.co.za>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5 XFree and nvidia geforce.
-Message-ID: <20030317095940.GC8814@poup.poupinou.org>
-References: <3E70086B.6080408@lemur.sytes.net> <20030313201624.GA29107@suse.de> <Pine.LNX.4.51.0303132026210.24455@dns.toxicfilms.tv> <20030313231615.07563914.bonganilinux@mweb.co.za> <200303132155.h2DLtsRU015899@turing-police.cc.vt.edu> <20030314194050.GA8814@poup.poupinou.org> <Pine.LNX.4.51.0303142148570.15008@dns.toxicfilms.tv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.51.0303142148570.15008@dns.toxicfilms.tv>
-User-Agent: Mutt/1.4i
-From: Ducrot Bruno <poup@poupinou.org>
+	id <S261559AbTCQKPZ>; Mon, 17 Mar 2003 05:15:25 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:56494 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S261555AbTCQKPY>;
+	Mon, 17 Mar 2003 05:15:24 -0500
+Date: Mon, 17 Mar 2003 11:25:51 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Osamu Tomita <tomita@cinet.co.jp>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: Complete support PC-9800 for 2.5.64-ac4 (11/11) SCSI
+In-Reply-To: <1047853600.4371.40.camel@mulgrave>
+Message-ID: <Pine.GSO.4.21.0303171119190.17453-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 09:50:49PM +0100, Maciej Soltysiak wrote:
-> > One of the main issue for me (I don't want flame please) is
-> > that it kill acpi and/or apm.
-> Hmm, just insmoding the drivers kills apm/acpi ?
+On 16 Mar 2003, James Bottomley wrote:
+> On Sun, 2003-03-16 at 14:00, Geert Uytterhoeven wrote:
+> > On 16 Mar 2003, James Bottomley wrote:
+> > > On Sun, 2003-03-16 at 12:36, Geert Uytterhoeven wrote:
+> > > > Actually, it was my suggestion to remove the dereference for PIO accesses. In
+> > > > that case SASR contains the I/O port register.
+> > > 
+> > > There's still something wrong with the implementation in this patch. 
+> > > For non PIO SASR is defined as volatile unsigned char *SASR.  Its access
+> > > has gone from being outb(n, *regs.SASR) to outb(n, regs.SASR).  What
+> > > expansion can outb have on m68k and MIPS that makes this change
+> > > idempotent?
+> > 
+> > outb() and friends are only used if CONFIG_WD33C93_PIO is set. In all other
+> > cases, it uses the old implementation, e.g. `*regs.SASR = reg_num'.
 > 
-> > BTW, XFree4.3.0 is out, and your GeForce is supported.
-> So i've heard. :)
+> Ah, OK, I see what it's doing.  Instead of having a single redefine of
+> wd33c93_outb to be either outb or readb etc, it has a whole chunk of
+> code in wd33c93.c that #ifdef's for this.
 > 
+> Perhaps, while you're cleaning this up, you'd like to move this into the
+> header?  Shouldn't it also be using readb/writeb instead of just direct
+> memory accesses?
 
-By 'killing apm/acpi', I meant that the pm callback in the source
-part of the kernel module call a function, certainly for saving/restoring
-the state of the device, in the binary part.
-But this function is not present in the binary part of the driver.
+No, readb() and friends are not defined on machines that don't have PCI. None
+of the MMIO wd33c93 drivers are PCI.
 
-Actually, that was the case with 'older' release of the driver, but
-seems to be reintroduced in the lastest one.
+However, it's fine for me to use in_8(addr) and out_8(addr,b) (cfr.
+include/asm-m68k/raw_io.h) inside #if defined(__mc68000__) ||
+defined(CONFIG_APUS).
 
-Cheers,
+On MIPS, it looks like you can use readb() and writeb(), since MIPS is less
+picky than m68k about not defining PCI access primitives on machines without
+PCI.
 
--- 
-Ducrot Bruno
-http://www.poupinou.org        Page profaissionelle
-http://toto.tu-me-saoules.com  Haume page
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

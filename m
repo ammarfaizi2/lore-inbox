@@ -1,76 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261450AbSKTQqr>; Wed, 20 Nov 2002 11:46:47 -0500
+	id <S261446AbSKTQnk>; Wed, 20 Nov 2002 11:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbSKTQqr>; Wed, 20 Nov 2002 11:46:47 -0500
-Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:40936 "EHLO
-	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S261450AbSKTQqq>; Wed, 20 Nov 2002 11:46:46 -0500
-Date: Wed, 20 Nov 2002 17:53:50 +0100
-From: Christian Guggenberger 
-	<Christian.Guggenberger@physik.uni-regensburg.de>
-To: Karsten Desler <soohrt@soohrt.org>
-Cc: u.wiederhold@gmx.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-rc1-ac4 HPT374 doesn't find connected ide drives
-Message-ID: <20021120175350.A6312@pc9391.uni-regensburg.de>
-References: <20021119105955.A23008@pc9391.uni-regensburg.de> <20021119102338.GA24510@sit0.ifup.net> <20021119113300.C23008@pc9391.uni-regensburg.de> <20021119152244.GA26989@sit0.ifup.net> <20021119180317.A2597@pc9391.uni-regensburg.de> <20021119193530.GA915@sit0.ifup.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20021119193530.GA915@sit0.ifup.net>; from soohrt@soohrt.org on Tue, Nov 19, 2002 at 20:35:30 +0100
-X-Mailer: Balsa 1.2.4
+	id <S261449AbSKTQnk>; Wed, 20 Nov 2002 11:43:40 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28503 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S261446AbSKTQnj>; Wed, 20 Nov 2002 11:43:39 -0500
+To: Werner Almesberger <wa@almesberger.net>
+Cc: suparna@in.ibm.com, Andy Pfiffer <andyp@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>,
+       "Martin J. Bligh" <Martin.Bligh@provisioning.fibertel.com.ar>,
+       Dave Hansen <haveblue@provisioning.fibertel.com.ar>
+Subject: Re: [ANNOUNCE][CFT] kexec for v2.5.48 && kexec-tools-1.7 -- Success Story!
+References: <m1vg349dn5.fsf@frodo.biederman.org>
+	<1037055149.13304.47.camel@andyp> <m1isz39rrw.fsf@frodo.biederman.org>
+	<1037148514.13280.97.camel@andyp>
+	<m1k7jb3flo.fsf_-_@frodo.biederman.org>
+	<m1el9j2zwb.fsf@frodo.biederman.org>
+	<m11y5j2r9t.fsf_-_@frodo.biederman.org>
+	<1037668241.10400.48.camel@andyp> <20021120141925.A2524@in.ibm.com>
+	<m1smxwzjlb.fsf@frodo.biederman.org>
+	<20021120120551.O17062@almesberger.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Nov 2002 09:48:29 -0700
+In-Reply-To: <20021120120551.O17062@almesberger.net>
+Message-ID: <m1k7j8yyoy.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19.11.2002   20:35 Karsten Desler wrote:
-> > okay, my brain really shrinks; with only one hdd attached, you can't create
-> an
-> > array. So here it seems to work out of the box. I just tried 2.4.20-rc-ac1,
+Werner Almesberger <wa@almesberger.net> writes:
+
+> Eric W. Biederman wrote:
+> > The needed hooks are there.  You can make certain an appropriate
+> > ->shutdown()/reboot_notifier method is present, or you can fix the driver
+> > so it can initialize the device from any random state.  
 > 
-> > which detects my drive connected to that hpt374 (hde).
-> >
-> > Maybe you can give this one a try?
+> In the case of a crash, you may not be able to use the normal
+> shutdown, but there may still be pending bus master accesses, e.g.
+> from an on-going transfer, or free buffers that will eventually
+> (i.e. there's no use in "waiting for the operation to finish") get
+> used.
 > 
-Karsten,
-
-so today I added 4 more drives to my hpt374, tried 2.5.47-ac6 and works 
-flawlessy...
-Sorry, but I can't try 2.4-ac-latest, cause of missing xfs support.
-
-There are some things you could be bitten with:
-My Distribution (Debian) only ships with device names up to /dev/hdh ...
-
-So, by default, you'll see the drives attached to ide4(hdi,j) and to 
-ide5(hdk,l) in the kernel messages, but you can't use 'em...
-
-You have to make device nodes yourself:
-
-mknod /dev/hd* b MAJOR MINOR
-
-where:
-hdi : 56 0
-hdi1: 56 1
-...
-
-hdj : 56 64
-hdj1: 56 65
-...
-
-hdk : 57 0
-hdk1: 57 1
-...
-
-hdl : 57 64
-hdl1: 57 65
-...
-
-see Documentation/devices.txt in the linux kernel sources.
-
-hope this helps for ya!
-Good Luck
-CHristian
+> Initializing the device from any state is certainly a good feature,
+> and it will cure the most visible symptoms, but problems may still
+> occur if the device decides to scribble over memory after leaving
+> the original kernel, and before the reset has occurred under the
+> new kernel. (Or did you mean to initialize before invoking kexec ?
 
 
+In this case I suspect the best route is to locate the kexec_on_panic
+buffers for kexec where we want to use them.  Then even in most
+cases a devices is scribbling on memory, unless the device was
+improperly setup, it isn't scribbling on memory necessary to get
+the new kernel going.  
 
+> I see several possible approaches for this:
+> 
+>  0) do as bootimg did, and ignore the problem :-)
+>  1) try to call the regular device shutdown. In the case of a
+>     crash, this may hang, or corrupt the system further.
+>  2) add a new callback that just silences the device, without
+>     trying to clean things up. This is probably the best
+>     long-term solution.
 
+Roughly that is ->shutdown() it was separated from the ->remove()
+case so that it could be stripped down to a minimal implementation.
 
+Eric

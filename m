@@ -1,94 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbUCDAAt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 19:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUCDAAs
+	id S261233AbUCDAIG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 19:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbUCDAIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 19:00:48 -0500
-Received: from gate.crashing.org ([63.228.1.57]:26310 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261296AbUCDAAg (ORCPT
+	Wed, 3 Mar 2004 19:08:06 -0500
+Received: from gprs40-129.eurotel.cz ([160.218.40.129]:14985 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261233AbUCDAID (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 19:00:36 -0500
-Subject: [PATCH] /proc/cpuinfo fixes for G5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1078357712.15325.35.camel@gaston>
+	Wed, 3 Mar 2004 19:08:03 -0500
+Date: Thu, 4 Mar 2004 01:07:54 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Dave Jones <davej@redhat.com>,
+       Cpufreq mailing list <cpufreq@www.linux.org.uk>,
+       kernel list <linux-kernel@vger.kernel.org>, davej@codemonkey.ork.uk,
+       paul.devriendt@amd.com
+Subject: Re: powernow-k8-acpi driver
+Message-ID: <20040304000754.GK222@elf.ucw.cz>
+References: <20040303215435.GA467@elf.ucw.cz> <20040303222712.GA16874@redhat.com> <20040303223510.GE222@elf.ucw.cz> <20040303224841.GB16874@redhat.com> <20040303225405.GF222@elf.ucw.cz> <20040303233603.GA18722@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Mar 2004 10:48:34 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040303233603.GA18722@redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Hi!
 
-This patch adds a "timbase" entry in /proc/cpuinfo like
-p/iSeries that provides the CPU timebase frequency. It
-is using by a all sort of performance analysis tools we
-are hacking in house.
+>  > >  > We could make that functionality depend on CONFIG_ACPI, and allow
+>  > >  > runtime selection only if its defined... But those two drivers are
+>  > >  > pretty different just now and acpi-dependend chunk is pretty big. (It
+>  > >  > does funny stuff like polling for AC plug removal if we are in
+>  > >  > high-power state  and battery would not handle that. Old driver simply
+>  > >  > refused to use high-power states on such machines.)
+>  > > 
+>  > > you're aware of Dominik/Bruno's work on the 'acpilib'[1] stuff in this
+>  > > area right ? We'll need that anyway for Powernow-k7 and maybe longhaul too
+>  > > and its senseless duplicating this code.
+>  > 
+>  > That [1] looks like promise of url, but I don't see that url.
+> 
+> Hmm, cpufreq mailing list archives are your best bet.
+> What I meant to add was..
 
-It also remove a useless bit about the l2 cache that was
-copied over from ppc32.
+Ahha. Unfortunately, cpufreq mailing lists are only available to list
+subscribers. Ouch.
 
-Ben.
+								Pavel
 
-===== arch/ppc64/kernel/pmac_time.c 1.1 vs edited =====
---- 1.1/arch/ppc64/kernel/pmac_time.c	Thu Feb 12 14:48:00 2004
-+++ edited/arch/ppc64/kernel/pmac_time.c	Thu Mar  4 10:21:01 2004
-@@ -39,6 +39,8 @@
- 
- extern void setup_default_decr(void);
- 
-+extern unsigned long ppc_tb_freq;
-+
- /* Apparently the RTC stores seconds since 1 Jan 1904 */
- #define RTC_OFFSET	2082844800
- 
-@@ -151,6 +153,7 @@
- 	tb_to_us = mulhwu_scale_factor(freq, 1000000);
- 	div128_by_32( 1024*1024, 0, tb_ticks_per_sec, &divres );
- 	tb_to_xs = divres.result_low;
-+	ppc_tb_freq = freq;
- 
- 	setup_default_decr();
- }
-===== arch/ppc64/kernel/pmac_setup.c 1.5 vs edited =====
---- 1.5/arch/ppc64/kernel/pmac_setup.c	Mon Mar  1 11:50:37 2004
-+++ edited/arch/ppc64/kernel/pmac_setup.c	Wed Mar  3 10:51:22 2004
-@@ -95,6 +95,7 @@
- 					PMAC_MB_INFO_MODEL, 0);
- 	unsigned int mbflags = pmac_call_feature(PMAC_FTR_GET_MB_INFO, NULL,
- 						 PMAC_MB_INFO_FLAGS, 0);
-+	extern unsigned long ppc_tb_freq;
- 
- 	if (pmac_call_feature(PMAC_FTR_GET_MB_INFO, NULL, PMAC_MB_INFO_NAME,
- 			      (long)&mbname) != 0)
-@@ -127,20 +128,11 @@
- 	seq_printf(m, "detected as\t: %d (%s)\n", mbmodel, mbname);
- 	seq_printf(m, "pmac flags\t: %08x\n", mbflags);
- 
--	/* Checks "l2cr-value" property in the registry */
--	np = find_devices("cpus");	
--	if (np == 0)
--		np = find_type_devices("cpu");	
--	if (np != 0) {
--		unsigned int *l2cr = (unsigned int *)
--			get_property(np, "l2cr-value", NULL);
--		if (l2cr != 0) {
--			seq_printf(m, "l2cr override\t: 0x%x\n", *l2cr);
--		}
--	}
--
- 	/* Indicate newworld */
- 	seq_printf(m, "pmac-generation\t: NewWorld\n");
-+
-+	/* Indicate timebase value */
-+	seq_printf(m, "timebase\t: %lu\n", ppc_tb_freq);
- }
- 
- 
-
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

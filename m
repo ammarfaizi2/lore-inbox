@@ -1,54 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318327AbSH0DO7>; Mon, 26 Aug 2002 23:14:59 -0400
+	id <S318357AbSH0DjD>; Mon, 26 Aug 2002 23:39:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318356AbSH0DO7>; Mon, 26 Aug 2002 23:14:59 -0400
-Received: from dsl-213-023-020-192.arcor-ip.net ([213.23.20.192]:9407 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318327AbSH0DO6>;
-	Mon, 26 Aug 2002 23:14:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Hank Leininger <hlein@progressive-comp.com>,
-       Hank Leininger <linux-kernel@progressive-comp.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Re: TUX2 filesystem
-Date: Tue, 27 Aug 2002 05:21:06 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <200208262006.g7QK6uH29932@marc2.theaimsgroup.com>
-In-Reply-To: <200208262006.g7QK6uH29932@marc2.theaimsgroup.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17jWuh-0002bx-00@starship>
+	id <S318358AbSH0DjD>; Mon, 26 Aug 2002 23:39:03 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:44811 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S318357AbSH0DjB>; Mon, 26 Aug 2002 23:39:01 -0400
+Date: Mon, 26 Aug 2002 20:43:12 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Cc: Aleksandar Kacanski <kacanski@yahoo.com>
+Subject: Re: Memory leak
+Message-ID: <20020827034312.GA5196@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org,
+	Aleksandar Kacanski <kacanski@yahoo.com>
+References: <20020826190106.42208.qmail@web12706.mail.yahoo.com> <Pine.LNX.3.95.1020826152100.6296B-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.95.1020826152100.6296B-100000@chaos.analogic.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 August 2002 22:06, Hank Leininger wrote:
-> On 2002-08-26, <Hell.Surfers@cwctv.net> wrote:
+On Mon, Aug 26, 2002 at 03:29:17PM -0400, Richard B. Johnson wrote:
+> On Mon, 26 Aug 2002, Aleksandar Kacanski wrote:
 > 
-> > what patent issues.???
+> > Hello,
+> > I am running 2.4.18-3 version of the kernel on smp dual
+> > processor and 1GB of RAM. My memory usage is increasing and
+> > I can't find what exactly is eating memory. Top and proc
+> > are reporting increases, but I would like to know of a
+> > better way of tracing usage of memory and possible leak in
+> > application(s).
+> > 
+> > Please reply to kacanski@yahoo.com
+> > thanks                Sasha
+> > 
+> > 
 > 
-> [ Please beat your mail{reader,vendor} into defaulting to bottom-posting ]
-> 
-> > On Mon, 26 Aug 2002 Daniel Phillips <phillips@arcor.de> wrote: 
-> > > Maybe yourself, Daniel, care to comment ?
-> 
-> > It's well down my list of priorities because of uncertainties due to
-> > the U.S. patent system.
-> >
-> > Does anybody want to know if patent chill exists, and is it hurting
-> > open source?  The answer is yes.
-> 
-> I'm guessing Daniel is referring to NetApp/WAFL issues.  NetApp's WAFL
-> filesystem (IIRC) implements something which is kinda sorta if-you-squint-
-> your-eyes philosophically similar to tux2's phase tree.  Only
-> 
-> a) It isn't *really* all that similar
-> b) Daniel has prior art going back to the 1980's
-> c) NetApp has more lawyers on staff than Daniel does
-> 
-> Daniel, did I get it vaguely right
+> Applications that use malloc() and friends, get more memory from
+> the kernel by resetting the break address. It's called "morecore()".
+> You can put a procedure, perhaps off SIGALRM, that periodically
+> checks the break address and writes it to a log. Applications
+> that end up with an ever-increasing break address have memory
+> leaks. Note that the break address is almost never set back.
+> This is not an error; malloc() assumes that if you used a lot
+> of memory once, you'll probably use it again. Check out sbrk()
+> and brk() in the man pages.
 
-That about sums it up.
+brk() isn't the only way applications get memory.  A
+commonly used method of getting process memory is to mmap()
+anonymous regions.  Some implementations of malloc() will
+use mmap() for larger allocations.  If you use realloc() a
+lot this can be particularly useful.
+
+Releasing memory that has been allocated via brk() is
+dependent on allocation order so it is seldom done.
+Realloc() and co. used poorly can produce lots of
+fragmentation exacerbating things.  Allocations done via
+mmap() tend to be independent of one another so they can
+released more readily.
+
+If an application or library is using mmap() just watching
+brk won't do much good.  Actually detecting leakage is very
+difficult especially from outside the code.  It requires
+tracking the modifications of all the pointers to allocated
+memory.
+
+The thing to keep in mind for the common case is that
+applications that leak memory will release it on exit.
+Most of the time any sizable amount of application memory is 
+in disuse it will be in sizable chunks so under memory
+pressure will be paged out until exit so will have minimal
+impact on the system.
+
+Having said all that i'll now echo Linus et al and tell you
+that you want the system to use all of your memory.  Unused
+memory is wasted memory and wasted money.  That is why
+otherwise free memory is used as cache and disused memory
+will be paged out so that it too can be used as cache to
+speed up the system as a whole.
+
+And much thanks to all the good, and heartless bastard,
+developers who have and continue to work on improving the
+paging algorithms and VM system as a whole.
 
 -- 
-Daniel
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

@@ -1,96 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293155AbSBWQjf>; Sat, 23 Feb 2002 11:39:35 -0500
+	id <S293156AbSBWRFc>; Sat, 23 Feb 2002 12:05:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293156AbSBWQj0>; Sat, 23 Feb 2002 11:39:26 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:4102 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S293155AbSBWQjV>;
-	Sat, 23 Feb 2002 11:39:21 -0500
-Date: Sat, 23 Feb 2002 17:38:57 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
-Cc: fernando@quatro.com.br, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
-Message-Id: <20020223173857.3db89749.skraw@ithnet.com>
-In-Reply-To: <20020222182024.GG13774@os.inf.tu-dresden.de>
-In-Reply-To: <20020220104129.GP13774@os.inf.tu-dresden.de>
-	<051a01c1bb01$70634580$c50016ac@spps.com.br>
-	<20020221211142.0cf0efa4.skraw@ithnet.com>
-	<20020222130246.GD13774@os.inf.tu-dresden.de>
-	<20020222141101.0cc342e1.skraw@ithnet.com>
-	<20020222182024.GG13774@os.inf.tu-dresden.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S293159AbSBWRFX>; Sat, 23 Feb 2002 12:05:23 -0500
+Received: from pop.gmx.de ([213.165.64.20]:47374 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S293156AbSBWRFQ>;
+	Sat, 23 Feb 2002 12:05:16 -0500
+Subject: Re: [RFC] [PATCH] C exceptions in kernel
+From: Dan Aloni <da-x@gmx.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020223082211.Z11156@work.bitmover.com>
+In-Reply-To: <1014412325.1074.36.camel@callisto.yi.org>
+	<20020223162100.A1952@outpost.ds9a.nl>
+	<1014480355.1844.16.camel@callisto.yi.org> 
+	<20020223082211.Z11156@work.bitmover.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 23 Feb 2002 19:00:16 +0200
+Message-Id: <1014483618.3085.37.camel@callisto.yi.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Feb 2002 19:20:24 +0100
-Adam Lackorzynski <adam@os.inf.tu-dresden.de> wrote:
-
-> On Fri Feb 22, 2002 at 18:04:29 +0100, Stephan von Krawczynski wrote:
-> > Your config is not identical to the one I sent. If you want to find
-> > out what the problem is, you must first try to produce a setup that is
-> > known good. So simply use my config, even if it contains stuff you
-> > don't need, and especially if it does not contain stuff you want.
-> > Your primary goal is: let the box boot.
+On Sat, 2002-02-23 at 18:22, Larry McVoy wrote:
+> On Sat, Feb 23, 2002 at 06:05:48PM +0200, Dan Aloni wrote:
+> > But, it CAN be used in *local* driver call branches. Writing a new
+> > driver? have a lot of local nested calls? Hate goto's? You can use
+> > exceptions.
 > 
-> Yours (+serial console) doesn't work either, so I stripped out most
-> unneeded things. I'm going to rip out all cards except net and graphics
-> to see if that helps but that has to wait till Monday...
+> Is this really anything other than syntactic sugar?  Maybe it's 
+> different in drivers, but I find myself doing the following in user 
+> space all the time
 > 
-> BTW: I just got this:
-> Using local APIC timer interrupts.
-> calibrating APIC timer ...
-> .... CPU clock speed is 937.5536 MHz.
-> ..... host bus clock speed is 133.9358 MHz.
-> cpu: 0, clocks: 1339358, slice: 446452
-> CPU0<T0:1339344,T1:892880,D:12,S:446452,C:1339358>
-> cpu: 1, clocks: 1339358, slice: 446452
-> CPU1<T0:1339344,T1:446432,D:8,S:446452,C:1339358>
-> checking TSC synchronization across CPUs: 
-> BIOS BUG: CPU#0 improperly initialized, has -6 usecs TSC skew! FIXED.
-> BIOS BUG: CPU#1 improperly initialized, has 6 usecs TSC skew! FIXED.
-> Waiting on wait_init_idle (map = 0x
+> 	#define	unless(x)	if (!(x))	/* perl/BCPL corrupted me */
 > 
+> 	function(...)
+> 	{
+> 		char	*foo = 0, *bar = 0;
+> 		int	locked = 0;
+> 		int	rc = -1;
 > 
-> Maybe this means something...
+> 		if (bad args or something) {
+> 	out:		if (foo) free(foo);
+> 			if (bar) free(bar);
+> 			if (locked) unlock();
+> 			return (rc);
+> 		}
+> 
+> 		unless (locked = get_the_lock()) goto out;
+> 		unless (foo = allocate_foo()) goto out;
+> 		unless (bar = allocate_bar()) goto out;
+> 
+> 		more code....
+> 
+> 		rc = 0;
+> 		goto out;
+> 	}
+> 
+> It seems ugly at first but it has some nice attributes:
+> 
+>     a) all the cleanup is in one place, for both the error path and
+the 
+>        non-error path.  I could put it at the bottom, I like it at the
+>        top because that's where I tend to have the list of things
+needed
+>        to be cleaned.
+> 
+>     b) all the error cases are branches, the normal path is
+straightline.
+> 
+>     c) it's as dense as I can make it.
+> 
+> So how would you do the same thing with exceptions?
 
-Aha, here is my output on 2 x 1 GHz:
+Like this:
 
-<4>Using local APIC timer interrupts.
-<4>calibrating APIC timer ...
-<4>..... CPU clock speed is 1004.5421 MHz.
-<4>..... host bus clock speed is 133.9388 MHz.
-<4>cpu: 0, clocks: 1339388, slice: 446462
-<4>CPU0<T0:1339376,T1:892912,D:2,S:446462,C:1339388>
-<4>cpu: 1, clocks: 1339388, slice: 446462
-<4>CPU1<T0:1339376,T1:446448,D:4,S:446462,C:1339388>
-<4>checking TSC synchronization across CPUs: passed.
-<4>Waiting on wait_init_idle (map = 0x2)
-<4>All processors have done init_idle
+function(...)
+{
+	char	*foo = 0, *bar = 0;
+	int	locked = 0;
+	int	rc = -1;
+ 
+	try {
+		if (bad args or something) 
+			throw;
+ 
+		locked = get_the_lock();
+		foo = allocate_foo();
+		bar = allocate_bar();
 
-And the same part for 2 x 933 MHz:
+		more code....
 
-<4>Using local APIC timer interrupts.
-<4>calibrating APIC timer ...
-<4>..... CPU clock speed is 937.5672 MHz.
-<4>..... host bus clock speed is 133.9380 MHz.
-<4>cpu: 0, clocks: 1339380, slice: 446460
-<4>CPU0<T0:1339376,T1:892912,D:4,S:446460,C:1339380>
-<4>cpu: 1, clocks: 1339380, slice: 446460
-<4>CPU1<T0:1339376,T1:446448,D:8,S:446460,C:1339380>
-<4>checking TSC synchronization across CPUs: passed.
-<4>Waiting on wait_init_idle (map = 0x2)
-<4>All processors have done init_idle
+		rc = 0;
+	}	
+	cleanup {
+		if (foo) free(foo);
+		if (bar) free(bar);
+		if (locked) unlock();
+	}  
+	return rc;
+}
 
-I would say this means the TSC skew fix is broken and shooting down your box. What do you think, Alan?
+Looks much better, IMHO.
 
-Regards,
-Stephan
-
-
+The cleanup() block will run after the try block even if an exception 
+did not occur, and will run also if the exception occured, passing the
+exception to the next catch() or cleanup() block in stack.
 

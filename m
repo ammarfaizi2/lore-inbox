@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263162AbSJHNr0>; Tue, 8 Oct 2002 09:47:26 -0400
+	id <S263219AbSJHNwG>; Tue, 8 Oct 2002 09:52:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263186AbSJHNpv>; Tue, 8 Oct 2002 09:45:51 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:49556 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263162AbSJHNn3>;
-	Tue, 8 Oct 2002 09:43:29 -0400
-Date: Tue, 8 Oct 2002 15:49:04 +0200
+	id <S263228AbSJHNvv>; Tue, 8 Oct 2002 09:51:51 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:59540 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263219AbSJHNvU>;
+	Tue, 8 Oct 2002 09:51:20 -0400
+Date: Tue, 8 Oct 2002 15:56:51 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
 To: Vojtech Pavlik <vojtech@suse.cz>
 Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [patch] Input - Use list_for_each_entry() in input.c [11/23]
-Message-ID: <20021008154904.J18546@ucw.cz>
-References: <20021008153813.A18515@ucw.cz> <20021008153926.A18546@ucw.cz> <20021008154029.B18546@ucw.cz> <20021008154132.C18546@ucw.cz> <20021008154246.D18546@ucw.cz> <20021008154415.E18546@ucw.cz> <20021008154549.F18546@ucw.cz> <20021008154631.G18546@ucw.cz> <20021008154733.H18546@ucw.cz> <20021008154824.I18546@ucw.cz>
+Subject: [patch] Input - BK Merge patch [16/23]
+Message-ID: <20021008155651.O18546@ucw.cz>
+References: <20021008154415.E18546@ucw.cz> <20021008154549.F18546@ucw.cz> <20021008154631.G18546@ucw.cz> <20021008154733.H18546@ucw.cz> <20021008154824.I18546@ucw.cz> <20021008154904.J18546@ucw.cz> <20021008155003.K18546@ucw.cz> <20021008155045.L18546@ucw.cz> <20021008155125.M18546@ucw.cz> <20021008155236.N18546@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021008154824.I18546@ucw.cz>; from vojtech@suse.cz on Tue, Oct 08, 2002 at 03:48:24PM +0200
+In-Reply-To: <20021008155236.N18546@ucw.cz>; from vojtech@suse.cz on Tue, Oct 08, 2002 at 03:52:36PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -28,206 +28,183 @@ You can import this changeset into BK by piping this whole message to:
 
 ===================================================================
 
-ChangeSet@1.573.1.40, 2002-09-25 12:23:16+02:00, vojtech@suse.cz
-  Use list_for_each_entry() in input.c.
+ChangeSet@1.573.1.50, 2002-10-07 10:34:15+02:00, vojtech@suse.cz
+  Merge suse.cz:/home/vojtech/bk/linus into suse.cz:/home/vojtech/bk/input
 
 
- input.c |   46 ++++++++++++++++++----------------------------
- 1 files changed, 18 insertions(+), 28 deletions(-)
+ keyboard/atkbd.c |    2 +-
+ mouse/psmouse.c  |   46 ++++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 39 insertions(+), 9 deletions(-)
 
 ===================================================================
 
-diff -Nru a/drivers/input/input.c b/drivers/input/input.c
---- a/drivers/input/input.c	Tue Oct  8 15:26:28 2002
-+++ b/drivers/input/input.c	Tue Oct  8 15:26:28 2002
-@@ -58,7 +58,7 @@
+diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c	Tue Oct  8 15:25:53 2002
++++ b/drivers/input/keyboard/atkbd.c	Tue Oct  8 15:25:53 2002
+@@ -17,7 +17,7 @@
+ #include <linux/init.h>
+ #include <linux/input.h>
+ #include <linux/serio.h>
+-#include <linux/tqueue.h>
++#include <linux/workqueue.h>
  
- void input_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
- {
--	struct list_head * node;
-+	struct input_handle *handle;
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
+ MODULE_DESCRIPTION("AT and PS/2 keyboard driver");
+diff -Nru a/drivers/input/mouse/psmouse.c b/drivers/input/mouse/psmouse.c
+--- a/drivers/input/mouse/psmouse.c	Tue Oct  8 15:25:53 2002
++++ b/drivers/input/mouse/psmouse.c	Tue Oct  8 15:25:53 2002
+@@ -20,8 +20,11 @@
  
- 	if (dev->pm_dev)
- 		pm_access(dev->pm_dev);
-@@ -177,11 +177,9 @@
- 	if (type != EV_SYN) 
- 		dev->sync = 0;
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
+ MODULE_DESCRIPTION("PS/2 mouse driver");
++MODULE_PARM(psmouse_noext, "1i");
+ MODULE_LICENSE("GPL");
  
--	list_for_each(node,&dev->h_list) {
--		struct input_handle *handle = to_handle(node);
-+	list_for_each_entry(handle, &dev->h_list, d_node)
- 		if (handle->open)
- 			handle->handler->event(handle, type, code, value);
++static int psmouse_noext;
++
+ #define PSMOUSE_CMD_SETSCALE11	0x00e6
+ #define PSMOUSE_CMD_SETRES	0x10e8
+ #define PSMOUSE_CMD_GETINFO	0x03e9
+@@ -32,6 +35,7 @@
+ #define PSMOUSE_CMD_SETRATE	0x10f3
+ #define PSMOUSE_CMD_ENABLE	0x00f4
+ #define PSMOUSE_CMD_RESET_DIS	0x00f6
++#define PSMOUSE_CMD_RESET_BAT	0x02ff
+ 
+ #define PSMOUSE_RET_BAT		0xaa
+ #define PSMOUSE_RET_ACK		0xfa
+@@ -220,7 +224,11 @@
+ 	psmouse->ack = 0;
+ 	psmouse->acking = 1;
+ 
+-	serio_write(psmouse->serio, byte);
++	if (serio_write(psmouse->serio, byte)) {
++		psmouse->acking = 0;
++		return -1;
++	}
++
+ 	while (!psmouse->ack && timeout--) udelay(10);
+ 
+ 	return -(psmouse->ack <= 0);
+@@ -300,6 +308,9 @@
+ 	psmouse->name = "Mouse";
+ 	psmouse->model = 0;
+ 
++	if (psmouse_noext)
++		return PSMOUSE_PS2;
++
+ /*
+  * Try Genius NetMouse magic init.
+  */
+@@ -336,8 +347,8 @@
+ 	if (param[1]) {
+ 
+ 		int i;
+-		static int logitech_4btn[] = { 12, 40, 41, 42, 43, 73, 80, -1 };
+-		static int logitech_wheel[] = { 75, 76, 80, 81, 83, 88, -1 };
++		static int logitech_4btn[] = { 12, 40, 41, 42, 43, 52, 73, 80, -1 };
++		static int logitech_wheel[] = { 52, 75, 76, 80, 81, 83, 88, -1 };
+ 		static int logitech_ps2pp[] = { 12, 13, 40, 41, 42, 43, 50, 51, 52, 53, 73, 75,
+ 							76, 80, 81, 83, 88, 96, 97, -1 };
+ 		psmouse->vendor = "Logitech";
+@@ -527,15 +538,24 @@
+  * Last, we enable the mouse so that we get reports from it.
+  */
+ 
+-	if (psmouse_command(psmouse, NULL, PSMOUSE_CMD_ENABLE)) {
++	if (psmouse_command(psmouse, NULL, PSMOUSE_CMD_ENABLE))
+ 		printk(KERN_WARNING "psmouse.c: Failed to enable mouse on %s\n", psmouse->serio->phys);
 -	}
+ 
  }
  
- static void input_repeat_key(unsigned long data)
-@@ -234,8 +232,8 @@
+ /*
+- * psmouse_disconnect() cleans up after we don't want talk
+- * to the mouse anymore.
++ * psmouse_cleanup() resets the mouse into power-on state.
++ */
++
++static void psmouse_cleanup(struct serio *serio)
++{
++	struct psmouse *psmouse = serio->private;
++	unsigned char param[2];
++	psmouse_command(psmouse, param, PSMOUSE_CMD_RESET_BAT);
++}
++
++/*
++ * psmouse_disconnect() closes and frees.
+  */
  
- static void input_link_handle(struct input_handle *handle)
+ static void psmouse_disconnect(struct serio *serio)
+@@ -605,8 +625,18 @@
+ static struct serio_dev psmouse_dev = {
+ 	.interrupt =	psmouse_interrupt,
+ 	.connect =	psmouse_connect,
+-	.disconnect =	psmouse_disconnect
++	.disconnect =	psmouse_disconnect,
++	.cleanup =	psmouse_cleanup,
+ };
++
++#ifndef MODULE
++static int __init psmouse_setup(char *str)
++{
++	psmouse_noext = 1;
++	return 1;
++}
++__setup("psmouse_noext", psmouse_setup);
++#endif
+ 
+ int __init psmouse_init(void)
  {
--	list_add_tail(&handle->d_node,&handle->dev->h_list);
--	list_add_tail(&handle->h_node,&handle->handler->h_list);
-+	list_add_tail(&handle->d_node, &handle->dev->h_list);
-+	list_add_tail(&handle->h_node, &handle->handler->h_list);
- }
- 
- #define MATCH_BIT(bit, max) \
-@@ -400,8 +398,8 @@
- 
- void input_register_device(struct input_dev *dev)
- {
--	struct list_head * node;
- 	struct input_handle *handle;
-+	struct input_handler *handler;
- 	struct input_device_id *id;
- 
- 	set_bit(EV_SYN, dev->evbit);
-@@ -415,12 +413,10 @@
- 	INIT_LIST_HEAD(&dev->h_list);
- 	list_add_tail(&dev->node,&input_dev_list);
- 
--	list_for_each(node,&input_handler_list) {
--		struct input_handler *handler = to_handler(node);
-+	list_for_each_entry(handler, &input_handler_list, node)
- 		if ((id = input_match_device(handler->id_table, dev)))
- 			if ((handle = handler->connect(handler, dev, id)))
- 				input_link_handle(handle);
--	}
- 
- #ifdef CONFIG_HOTPLUG
- 	input_call_hotplug("add", dev);
-@@ -443,7 +439,7 @@
- 
- 	del_timer_sync(&dev->timer);
- 
--	list_for_each_safe(node,next,&dev->h_list) {
-+	list_for_each_safe(node, next, &dev->h_list) {
- 		struct input_handle * handle = to_handle(node);
- 		list_del_init(&handle->d_node);
- 		list_del_init(&handle->h_node);
-@@ -464,7 +460,7 @@
- 
- void input_register_handler(struct input_handler *handler)
- {
--	struct list_head * node;
-+	struct input_dev *dev;
- 	struct input_handle *handle;
- 	struct input_device_id *id;
- 
-@@ -477,12 +473,10 @@
- 
- 	list_add_tail(&handler->node,&input_handler_list);
- 	
--	list_for_each(node,&input_dev_list) {
--		struct input_dev *dev = to_dev(node);
-+	list_for_each_entry(dev, &input_dev_list, node)
- 		if ((id = input_match_device(handler->id_table, dev)))
- 			if ((handle = handler->connect(handler, dev, id)))
- 				input_link_handle(handle);
--	}
- 
- #ifdef CONFIG_PROC_FS
- 	input_devices_state++;
-@@ -494,7 +488,7 @@
- {
- 	struct list_head * node, * next;
- 
--	list_for_each_safe(node,next,&handler->h_list) {
-+	list_for_each_safe(node, next, &handler->h_list) {
- 		struct input_handle * handle = to_handle_h(node);
- 		list_del_init(&handle->h_node);
- 		list_del_init(&handle->d_node);
-@@ -591,14 +585,13 @@
- 
- static int input_devices_read(char *buf, char **start, off_t pos, int count, int *eof, void *data)
- {
--	struct list_head * node;
-+	struct input_dev *dev;
-+	struct input_handle *handle;
- 
- 	off_t at = 0;
- 	int i, len, cnt = 0;
- 
--	list_for_each(node,&input_dev_list) {
--		struct input_dev * dev = to_dev(node);
--		struct list_head * hnode;
-+	list_for_each_entry(dev, &input_dev_list, node) {
- 
- 		len = sprintf(buf, "I: Bus=%04x Vendor=%04x Product=%04x Version=%04x\n",
- 			dev->id.bustype, dev->id.vendor, dev->id.product, dev->id.version);
-@@ -607,10 +600,8 @@
- 		len += sprintf(buf + len, "P: Phys=%s\n", dev->phys ? dev->phys : "");
- 		len += sprintf(buf + len, "H: Handlers=");
- 
--		list_for_each(hnode,&dev->h_list) {
--			struct input_handle * handle = to_handle(hnode);
-+		list_for_each_entry(handle, &dev->h_list, d_node)
- 			len += sprintf(buf + len, "%s ", handle->name);
--		}
- 
- 		len += sprintf(buf + len, "\n");
- 
-@@ -638,7 +629,7 @@
- 		}
- 	}
- 
--	if (node == &input_dev_list)
-+	if (&dev->node == &input_dev_list)
- 		*eof = 1;
- 
- 	return (count > cnt) ? cnt : count;
-@@ -646,14 +637,13 @@
- 
- static int input_handlers_read(char *buf, char **start, off_t pos, int count, int *eof, void *data)
- {
--	struct list_head * node;
-+	struct input_handler *handler;
- 
- 	off_t at = 0;
- 	int len = 0, cnt = 0;
- 	int i = 0;
- 
--	list_for_each(node,&input_handler_list) {
--		struct input_handler *handler = to_handler(node);
-+	list_for_each_entry(handler, &input_handler_list, node) {
- 
- 		if (handler->fops)
- 			len = sprintf(buf, "N: Number=%d Name=%s Minor=%d\n",
-@@ -674,7 +664,7 @@
- 				break;
- 		}
- 	}
--	if (node == &input_handler_list)
-+	if (&handler->node == &input_handler_list)
- 		*eof = 1;
- 
- 	return (count > cnt) ? cnt : count;
 
 ===================================================================
 
 This BitKeeper patch contains the following changesets:
-1.573.1.40
+1.573.1.50
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch18183
-M'XL(``3=HCT``[U676_:,!1]QK_"4J4*VA)LQ\X'%56W,FUHDU9UZC,RL6FR
-MT@0YAJY;?OQLA]&20>FZ:8!R27SO\3GW'D@.X'4I5;^U++YJF:3@`'XH2MUO
-ME8M2>LEW<WY5%.:\EQ9WLK?*ZDUN>UD^7VA@UB^Y3E*XE*KLM[#GKZ_HA[GL
-MMZ[>O;_^].8*@,$`7J0\OY%?I(:#`="%6O*9*,^Y3F=%[FG%\_).:NXEQ5VU
-M3JT(0L2\&0Y]Q((*!XB&58(%QIQB*1"A44#!BMCYBG:S/B8,(\0(JP(:$@R&
-M$'LL]#WL4001Z:&X1QC$I$_\/@Z.$>DC!!N8\!C#+@)OX;]E?@$2.P(XRTH]
-MGA9J+'F2CF6NU4.[`[,<ND9[B0<^PH#B$('+QT:"[A^^`$`<@;,]&H3*[#SK
-M&?=6!)[HH2:83@8QJXB(?"+$-!01PG**FUU[#LM-A?B85(A$F#B/;$W?[Y>_
-M8`PF*5<&=Y+=S(M<>+G4'E\\RQL3%%+*:(5#'`7.383\YB.RTT<1[)+HOSNI
-MU)(+6$PW$\S2?2J5A'P^GV4)G\RDP3&KL$P+I:6"22&D=9^;T6?85??N8\QT
-MN7U<KW#E,,`0@Y$[MDJM%HFNC3\V31`S"8_J>`J&.$*0@!&.7.XVL77J"3P4
-M<MD]2\<VYP2*<6Z$="P`-95#XH<6A_B1"34.%V*L>39K']80W;.ZR$"M+SQ"
-M=DYWEJ7-LCJJ)Z5#BGPKF2*Z0[/Z)5K9;&QICBB.GU>MS*8;("OU*^V4V$V'
-ME`9N;Q<::"6?RG9-/Y??]&8;._"'J0Y"5^W")G.3"H_,P3*NYT1WS\GDK=F:
-M[PVF$7-,XWHO%_8R;;;9LF6Q;?#(!K*3[1[/L3B&OK$G>HT62R+`KAD!=@"O
-M<6V`W>3,+<#]4%QH95/8KO-MEOF;;%*PA32N*^*7^"Q@S!%E6YSQ8I\YQ:$;
-F7!UJHNOI-,@^1>@\/E(DJ4QNR\7=@,632329<O`3$@/Z@:T(````
+begin 664 bkpatch18038
+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
+*_"\+$WY=-R``````
 `
 end

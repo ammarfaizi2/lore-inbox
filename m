@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279370AbRJ2XBu>; Mon, 29 Oct 2001 18:01:50 -0500
+	id <S279588AbRJ2XHk>; Mon, 29 Oct 2001 18:07:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279582AbRJ2XBk>; Mon, 29 Oct 2001 18:01:40 -0500
-Received: from mail2.home.nl ([213.51.129.226]:52631 "EHLO mail2.home.nl")
-	by vger.kernel.org with ESMTP id <S279370AbRJ2XBZ>;
-	Mon, 29 Oct 2001 18:01:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: elko <elko@home.nl>
-To: Hugh Dickins <hugh@veritas.com>, Marko Rauhamaa <marko@pacujo.nu>
-Subject: Re: Need blocking /dev/null
-Date: Tue, 30 Oct 2001 00:03:42 +0100
-X-Mailer: KMail [version 1.2]
+	id <S279589AbRJ2XHb>; Mon, 29 Oct 2001 18:07:31 -0500
+Received: from web20508.mail.yahoo.com ([216.136.226.143]:9481 "HELO
+	web20508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S279588AbRJ2XHP>; Mon, 29 Oct 2001 18:07:15 -0500
+Message-ID: <20011029230751.92486.qmail@web20508.mail.yahoo.com>
+Date: Tue, 30 Oct 2001 00:07:51 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: Ethernet NIC dual homing
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0110292144120.1085-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.21.0110292144120.1085-100000@localhost.localdomain>
-X-Owner: ElkOS
+In-Reply-To: <3BDDDF6A.B823F5C3@nortelnetworks.com>
 MIME-Version: 1.0
-Message-Id: <01103000034207.13457@ElkOS>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 October 2001 22:45, Hugh Dickins wrote:
-> On Mon, 29 Oct 2001, Marko Rauhamaa wrote:
-> > I noticed that I need a pseudodevice that opens normally but blocks
-> > all reads (and writes). The only way out would be through a signal.
-> > Neither /dev/zero nor /dev/null block, but is there some other
-> > standard device that would do the job?
-> >
-> > If there isn't, writing such a pseudodevice would be trivial. What
-> > should it be called? Any chance of including that in the kernel?
->
-> /dev/never
+> Are there issues with using MII to detect link
+> state?  I thought it was fairly reliable...
 
-sorry, the bait was too obvious: /dev/microsoft
+no, there are examples with too long lines, or
+scratched wires where the links stay up, but even arp
+doesn't work.
 
--- 
-ElkOS: 12:01am up 6 days, 9:32, 3 users, load average: 2.54, 2.40, 2.27
-bofhX: appears to be a Slow/Narrow SCSI-0 Interface problem
-
+> How are you using arp packets to detect if the link
+> is up?  Sending it out to your own MAC address?
+
+no, simply sending ARP request for a known IP address
+which will reply, so generate traffic that can be
+counted to tell wether a NIC seems working or not.
+
+I didn't try to set my own IP address though. Perhaps
+with arp_filter properly set this could be usefull...
+
+Regards,
+Willy
+
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Courrier : http://courrier.yahoo.fr

@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131076AbQKNNW0>; Tue, 14 Nov 2000 08:22:26 -0500
+	id <S131095AbQKNNX4>; Tue, 14 Nov 2000 08:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131095AbQKNNWR>; Tue, 14 Nov 2000 08:22:17 -0500
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:29702 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S131076AbQKNNWC>; Tue, 14 Nov 2000 08:22:02 -0500
+	id <S131127AbQKNNXq>; Tue, 14 Nov 2000 08:23:46 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:48396 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131095AbQKNNXe>;
+	Tue, 14 Nov 2000 08:23:34 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Nick.Holloway@pyrites.org.uk (Nick Holloway)
-Newsgroups: list.linux-kernel
-Subject: Re: Modprobe local root exploit
-Date: 14 Nov 2000 12:28:24 -0000
-Organization: Alfie's Internet Node
-Message-ID: <8urb58$k07$1@alfie.demon.co.uk>
-In-Reply-To: <14864.6812.849398.988598@ns.caldera.de> <Pine.LNX.4.21.0011131655430.22139-100000@ferret.lmh.ox.ac.uk> <14864.12007.216381.254700@ns.caldera.de>
-X-Newsreader: NN version 6.5.0 CURRENT #119
+Subject: [RFC] modutils security cleanup
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 14 Nov 2000 23:53:28 +1100
+Message-ID: <6677.974206408@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-duwe@caldera.de (Torsten Duwe) writes:
-> Chris Evans <chris@scary.beasts.org> writes:
-> > What's wrong with isalnum() ?
-> 
-> Hm, must admit that I wasn't 100% sure if that's in the kernel lib or an evil
-> gcc expands it inline to some static array lookup. Now I see that it's
-> already in the kernel. Do some of you also sometimes wonder why the kernel is
-> so big ;-) ?
+I would like a review of modutils 2.3.20 changes before issuing the new
+version.  There are two patch sets, the first is all the non-security
+patches for 2.3.20, the second is all the security changes.
 
-Someone could make it a bit smaller by patching fs/jffs/interp.c and
-arch/ppc/xmon/xmon.c to use the kernel lib, rather than their own
-versions.
+ftp://ftp.ocs.com.au/pub/patch-modutils-2.3.20-1.gz (non-security)
+ftp://ftp.ocs.com.au/pub/patch-modutils-2.3.20-2.gz (security)
 
--- 
- `O O'  | Nick.Holloway@pyrites.org.uk
-// ^ \\ | http://www.pyrites.org.uk/
+Apply against 2.3.19, in that order.
+
+I have not tested 2.3.20-1 against sparc yet, too busy.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

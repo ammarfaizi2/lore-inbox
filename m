@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbUJYP2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbUJYPdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261961AbUJYP2N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 11:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbUJYP2J
+	id S261897AbUJYPdl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 11:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbUJYPdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:28:09 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:28165 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261962AbUJYP0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 11:26:50 -0400
-Message-ID: <417D1E38.90007@techsource.com>
-Date: Mon, 25 Oct 2004 11:39:36 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: Jan Knutar <jk-lkml@sci.fi>, Stephen Wille Padnos <spadnos@sover.net>,
-       Jon Smirl <jonsmirl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <4176E08B.2050706@techsource.com> <4177DF15.8010007@techsource.com> <4177E50F.9030702@sover.net> <200410220238.13071.jk-lkml@sci.fi> <41793C94.3050909@techsource.com> <20041024104038.GA12665@hh.idb.hist.no>
-In-Reply-To: <20041024104038.GA12665@hh.idb.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Oct 2004 11:33:33 -0400
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:54499 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S261967AbUJYPaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 11:30:16 -0400
+Date: Mon, 25 Oct 2004 11:30:06 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [PATCH 8/28] VFS: Remove MNT_EXPIRE support
+In-reply-to: <20041025151621.GA1805@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       raven@themaw.net
+Message-id: <417D1BFE.6070800@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <10987153211852@sun.com> <10987153522992@sun.com>
+ <20041025150446.GB1603@infradead.org> <417D17C0.3010202@sun.com>
+ <20041025151621.GA1805@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-
-Helge Hafting wrote:
-> On Fri, Oct 22, 2004 at 01:00:04PM -0400, Timothy Miller wrote:
+Christoph Hellwig wrote:
+> On Mon, Oct 25, 2004 at 11:12:00AM -0400, Mike Waychison wrote:
 > 
+>>-----BEGIN PGP SIGNED MESSAGE-----
+>>Hash: SHA1
 >>
+>>Christoph Hellwig wrote:
 >>
->>For this graphics design, and I'm getting into premature implementation 
->>details, but I'm a geek, so I can't help myself... I think having some 
->>sort of primitive microcontroller at the front end of the design is 
->>necessary.  Two major things it would do would be to control the DMA bus 
->>mastering, and translate commands (both DMA and PIO) into the parameters 
->>required by the rendering engine.
+>>>On Mon, Oct 25, 2004 at 10:42:32AM -0400, Mike Waychison wrote:
+>>>
+>>>
+>>>>Drop support for MNT_EXPIRE (flag to umount(2)).  Nobody was using it and it
+>>>>didn't fit into the new expiry framework.
+>>>
+>>>
+>>>umm, this is a user API, you can't simply drop it.
+>>>
 >>
+>>Is anybody using it though?
 > 
 > 
-> Perhaps a cheap general purpose cpu (last year's duron or celeron)
-> could be used for this in order to save cost?  You could sell the
-> cheapest version of the card with an empty socket, because so many
-> people have such a processor lying around after the last upgrade.
+> doesn't matter much.  Maybe Sun likes deliberately breaking user ABIs in
+> Solaris, but in Linux we certainly don't.
 
+I wouldn't know, I only play with Linux ;)
 
-No.
+> 
+> 
+>>Hmm.  I'll think about it a while to figure out how to map this
+>>functionality to the new expire semantics.  Any suggestions?
+> 
+> 
+> Hey, it's you who wants the new semantics.  And you didn't even explain
+> them in detail.
+> 
 
-(1) Too expensive
-(2) Too complicated
-(3) Not good at what we need it to be good at.
+Hmm.. I think some bits of the series bounced.  Let me look.
 
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
-No... I'm working on an idea of a CPU which is optimized specifically 
-for what we need, nothing more.  AND it must fit inside the FPGA.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Tight fit.
-
+iD8DBQFBfRv+dQs4kOxk3/MRAru8AJ9EPceeBwWKUzCAKoAcqkGxcU79gACfROFU
+uLiWsbIGSl0AVX3rMf9sdeI=
+=dXgV
+-----END PGP SIGNATURE-----

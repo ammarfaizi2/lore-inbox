@@ -1,39 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131157AbRDKEV5>; Wed, 11 Apr 2001 00:21:57 -0400
+	id <S131205AbRDKEkA>; Wed, 11 Apr 2001 00:40:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131205AbRDKEVq>; Wed, 11 Apr 2001 00:21:46 -0400
-Received: from odin.sinectis.com.ar ([216.244.192.158]:51717 "EHLO
-	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
-	id <S131157AbRDKEVf> convert rfc822-to-8bit; Wed, 11 Apr 2001 00:21:35 -0400
-Date: Wed, 11 Apr 2001 01:23:54 -0300
-From: John R Lenton <john@grulic.org.ar>
-To: kernel list <linux-kernel@vger.kernel.org>
+	id <S131219AbRDKEju>; Wed, 11 Apr 2001 00:39:50 -0400
+Received: from [202.54.26.202] ([202.54.26.202]:30095 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S131205AbRDKEji>;
+	Wed, 11 Apr 2001 00:39:38 -0400
+X-Lotus-FromDomain: HSS
+From: alad@hss.hns.com
+To: Kurt Roeckx <Q@ping.be>
+cc: Miquel van Smoorenburg <miquels@cistron-office.nl>,
+        linux-kernel@vger.kernel.org
+Message-ID: <65256A2B.001839FC.00@sandesh.hss.hns.com>
+Date: Wed, 11 Apr 2001 10:01:49 +0530
 Subject: Re: Let init know user wants to shutdown
-Message-ID: <20010411012354.E4214@grulic.org.ar>
-Mail-Followup-To: kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE817@orsmsx35.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE817@orsmsx35.jf.intel.com>; from andrew.grover@intel.com on Tue, Apr 10, 2001 at 10:05:13AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 10:05:13AM -0700, Grover, Andrew wrote:
-> This is not correct, because we want the power button to be configurable.
-> The user should be able to redefine the power button's action, perhaps to
-> only sleep the system. We currently surface button events to acpid, which
-> then can do the right thing, including a shutdown -h now (which I assume
-> notifies init).
 
-Just today a friend saw my box shutdown via the powerbutton and
-wondered if he coudln't set his up to trigger a different event
-(actually two: he wanted his sister - the guilty party - zapped,
-and a webcam shot of her face to prove it)...
 
--- 
-John Lenton (john@grulic.org.ar) -- Random fortune:
-¿Como meterán los cacahuetes dentro de la cáscara?
+
+
+
+
+
+Kurt Roeckx <Q@ping.be> on 04/11/2001 06:16:52 AM
+
+To:   Miquel van Smoorenburg <miquels@cistron-office.nl>
+cc:   linux-kernel@vger.kernel.org (bcc: Amol Lad/HSS)
+
+Subject:  Re: Let init know user wants to shutdown
+
+
+
+
+On Wed, Apr 11, 2001 at 01:38:30AM +0200, Kurt Roeckx wrote:
+> On Tue, Apr 10, 2001 at 11:20:24PM +0000, Miquel van Smoorenburg wrote:
+> >
+> > the shutdown scripts
+> > include "kill -15 -1; sleep 2; kill -9 -1". The "-1" means
+> > "all processes except me". That means init will get hit with
+> > SIGTERM occasionally during shutdown, and that might cause
+> > weird things to happen.
+>
+> -1 mean everything but init.
+
+>>> well. don't fight.. here is something from kernel/signal.c
+
+asmlinkage int sys_kill(int pid, int sig){
+...
+...
+return kill_something_info(sig,&info,pid)
+}
+
+
+int
+kill_something_info(int sig, struct siginfo *info, int pid){
+...
+...
+...
+     if (pid == -1){
+          for_each_task(p){(int
+               if (p->pid >1 && p != current){
+                    err = send_sig_info(sig,info,p);
+                    ...
+                    ...
+               }
+          }
+     }
+
+Amol
+
+
+Oh, maybe you mean killall5 -TERM?
+
+Which would send a SIGTERM to all processes but the one in his
+own session.
+
+(Hey look, you wrote that manpage.)
+
+
+Kurt
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+

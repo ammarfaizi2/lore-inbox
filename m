@@ -1,63 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135634AbRDSLzN>; Thu, 19 Apr 2001 07:55:13 -0400
+	id <S135636AbRDSMEF>; Thu, 19 Apr 2001 08:04:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135635AbRDSLzD>; Thu, 19 Apr 2001 07:55:03 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:3590 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S135634AbRDSLyv>;
-	Thu, 19 Apr 2001 07:54:51 -0400
-Date: Thu, 19 Apr 2001 13:54:17 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: block devices don't work without plugging in 2.4.3
-Message-ID: <20010419135417.Q16822@suse.de>
-In-Reply-To: <20010419125140.M16822@suse.de> <200104191123.f3JBNfM17858@oboe.it.uc3m.es>
+	id <S135638AbRDSMD4>; Thu, 19 Apr 2001 08:03:56 -0400
+Received: from hitpro.hitachi.co.jp ([133.145.224.7]:35309 "EHLO
+	hitpro.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id <S135636AbRDSMDn>; Thu, 19 Apr 2001 08:03:43 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Kernel panics on raw I/O stress test
+From: Takanori Kawano <t-kawano@ebina.hitachi.co.jp>
+X-Mailer: Mew version 1.94.1 on Emacs 20.4 / Mule 4.1 (AOI)
+Reply-To: t-kawano@ebina.hitachi.co.jp
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200104191123.f3JBNfM17858@oboe.it.uc3m.es>; from ptb@it.uc3m.es on Thu, Apr 19, 2001 at 01:23:41PM +0200
+Content-Type: Text/Plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010419210153Z.t-kawano@ebina.hitachi.co.jp>
+Date: Thu, 19 Apr 2001 21:01:53 +0900 (JST)
+X-Dispatcher: imput version 990905(IM130)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 19 2001, Peter T. Breuer wrote:
-> > Besides, the above hunk was removed because it is wrong. For devices
-> > using plugging, we would re-call the request_fn while the device was
-> > already active and serving requests. Not only is this a performance hit
-> 
-> Not sure about that ...
 
-It _is_ wrong. The code was correct for devices not using plugging, they
-want request_fn to be called on each request add. However, for a
-plugging driver in a !q->plugged state it was wrong.
+When I ran raw I/O SCSI read/write test with 2.4.1 kernel 
+on our IA64 8way SMP box, kernel paniced and following 
+message was displayed.
 
-> > we don't need to take, it also gave problems on some drivers.
-> 
-> Well, I know scsi used to be treating the first element while still on
-> the queue, but presumably you are not referring to that.
+  Aiee, killing interrupt handler!
 
-Not so, IDE does this. And btw, this is still assumed the default
-behaviour unless explicitly disabled, for data protection reasons. SCSI
-always peals the request off the queue before starting processing.
+No stack trace and register dump are displayed.
 
-> So the consensus is that I should enable plugging while the plugging
-> function is still here and do nothing when it goes? I must say I don't
-> think it should really "go", since that means I have to add a no-op
-> macro to replace it, and I don't like #ifdefs. 
+Then I analyze FSB traces around the panic, and found that 
+following functions are called before panic().
 
-The moral would be that you should never do anything. You didn't enable
-plugging with blk_queue_pluggable, only disabled it by using a noop
-plug.
 
-> BTW, I don't need request merging (and therefore don't need plugging)
-> because requests eventually go out over the net. Nevertheless, I have
-> always been interested in seeing the difference it could cause. I
+   CPU0:                              CPU1:
 
-Plugging will really not hurt you. If you really don't want plugging and
-don't care for merging, then using a request_fn is the wrong approach
-anyway. In that case, you simply want to use a make_request_fn style
-request handling.
+      ・                                  ・
+      ・                                  ・
+      ・                                rw_raw_dev()
+      ・                                  ・
+      ・                                  ・
+      ・                                 brw_kiovec()
+      ・                                  ・
+      ・                                  ・
+      ・                                 free_kiovec()
+      ・                                  ・
+      ・                                  ・
+    end_kio_request()
+     __wake_up()
+     ia64_do_page_fault()
+      do_exit()
+       panic()
 
--- 
-Jens Axboe
+I suppose that free_kiobuf() is called on CPU1 before 
+end_kio_request() is called on CPU0 for the same kiobuf
+and resulted in the panic.
+In 2.4.1 source code, I think there is no assurance 
+that free_kiovec() in rw_raw_dev() is called after 
+end_kio_request() is done.
+
+I tried following two workarounds. 
+
+(1) Wait in rw_raw_dev() while io_count is positive. 
+
+--- drivers/char/raw.c        Mon Oct  2 12:35:15 2000
++++ drivers/char/raw.c.workaround       Thu Apr 19 16:54:26 2001
+@@ -333,6 +333,11 @@
+                        break;
+        }
+
++       while(atomic_read(&iobuf->io_count)) {
++         set_task_state(current, TASK_UNINTERRUPTIBLE);
++         schedule();
++       }
++
+        free_kiovec(1, &iobuf);
+
+        if (transferred) {
+
+
+
+(2) Keep buffer lock until end_kio_request() is done.
+
+--- fs/buffer.c       Tue Jan 16 05:42:32 2001
++++ fs/buffer.c.workaround      Thu Apr 19 17:22:19 2001
+@@ -1990,8 +1990,8 @@
+        mark_buffer_uptodate(bh, uptodate);
+
+        kiobuf = bh->b_private;
+-       unlock_buffer(bh);
+        end_kio_request(kiobuf, uptodate);
++       unlock_buffer(bh);
+ }
+
+
+
+Both of them worked well for our raw I/O testing,
+but I'm not sure they are right.
+
+Does anybody have comments? 
+
+regards,
+
+---
+Takanori Kawano
+Hitachi Ltd,
+Internet Systems Platform Division
+t-kawano@ebina.hitachi.co.jp
 

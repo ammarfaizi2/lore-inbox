@@ -1,47 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261864AbSIYAzp>; Tue, 24 Sep 2002 20:55:45 -0400
+	id <S261873AbSIYBQ0>; Tue, 24 Sep 2002 21:16:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261865AbSIYAzp>; Tue, 24 Sep 2002 20:55:45 -0400
-Received: from mailf.telia.com ([194.22.194.25]:26603 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S261864AbSIYAzo>;
-	Tue, 24 Sep 2002 20:55:44 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: Adam Goldstein <Whitewlf@Whitewlf.net>, linux-kernel@vger.kernel.org
-Subject: Re: Very High Load, kernel 2.4.18, apache/mysql
-Date: Wed, 25 Sep 2002 02:59:12 +0200
-User-Agent: KMail/1.4.7
-Cc: Adam Taylor <iris@servercity.com>
-References: <37EF12D6-D015-11D6-AD2E-000502C90EA3@Whitewlf.net>
-In-Reply-To: <37EF12D6-D015-11D6-AD2E-000502C90EA3@Whitewlf.net>
+	id <S261874AbSIYBQZ>; Tue, 24 Sep 2002 21:16:25 -0400
+Received: from mta02bw.bigpond.com ([139.134.6.34]:48885 "EHLO
+	mta02bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261873AbSIYBQY>; Tue, 24 Sep 2002 21:16:24 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Tim Hockin <thockin@hockin.org>, greearb@candelatech.com (Ben Greear)
+Subject: Re: alternate event logging proposal
+Date: Wed, 25 Sep 2002 11:14:53 +1000
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org (linux-kernel mailing list),
+       cgl_discussion@osdl.org (cgl_discussion mailing list),
+       evlog-developers@lists.sourceforge.net (evlog mailing list)
+References: <200209250047.g8P0lpr22153@www.hockin.org>
+In-Reply-To: <200209250047.g8P0lpr22153@www.hockin.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-Message-Id: <200209250259.12810.roger.larsson@skelleftea.mail.telia.com>
+Message-Id: <200209251114.53657.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Asking some of the things I guess others will ask later, but I won't
-look into this anymore this night.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Have you been able to determine if it is I/O bound or CPU bound?
-Or maybe using to much CPU to do I/O?
+On Wed, 25 Sep 2002 10:47, Tim Hockin wrote:
+> > > a single device_event file that a daemon reads and dispatches events (I
+> > > like this one because the daemon is already written, just poorly named
+> > > - acpid)
+> >
+> > Couldn't you just have the message sent to every process that has
+> > opened the file (and have every interested process open the file and
+> > read it in a non-blocking or blocking mode?)
+>
+> Sure, but then every process that is concerned with a single event has to
+> not only receive every event, but parse every event.  And if this is to be
+> truly generic, that could be a lot of events.
+To what level would you see this going?
+I'm currently doing some documentation work on the input subsystem, and it 
+produces events (/dev/input/eventX) for every mouse movement, every key press 
+(and release), etc. Now most of the application interested in those events 
+will get them via X (we just need to interface the input subsystem event 
+interface to the X event interface). I see this as a separate daemon or 
+daemons. 
+Basically you get eventd on every system, and inputd for each console (in a 
+multiheaded, multiuser setup).
 
-Does anyone know what virtual memory system does Mandrake uses? 
- Linus, Andreas or Riels?
- Have you tried Mandrakes support?
+> > That seems to negate the need for something like acpid, but it does
+> > not preclude it's use.
+>
+> True, and if a dev_event file were created, I'd consider doing it that way.
+> But in that case it's easier for apps to talk to eventd (nee acpid) and get
+> only the messages they want.
+I think that the eventd advantage is that it is easy to do integration with 
+non-event aware apps. Example: eventd re-writes the config file and SIGHUPs 
+the application.
 
-vmstat	over some time would be nice to get a hint on what it is doing.
-ext3		do you use the same journaling mode as on Moja?
-top		how much CPU time does the kernel processes use?
+Brad
 
-/RogerL
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Aust. Tickets booked.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+iD8DBQE9kQ4NW6pHgIdAuOMRAtEyAKC2t5lKponBvUHH14bONYfjbSWFxgCeMh1O
+9pjS0UjK627edrI8WJDBXp0=
+=V0sd
+-----END PGP SIGNATURE-----
 

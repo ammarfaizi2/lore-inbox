@@ -1,62 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbTGFT5v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 15:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbTGFT5v
+	id S263354AbTGFT51 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 15:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTGFT51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 15:57:51 -0400
-Received: from smtp014.mail.yahoo.com ([216.136.173.58]:14859 "HELO
-	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263355AbTGFT5t convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 15:57:49 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH 2.4.21-bk2] bootsect.S compile warning fix
-Date: Sun, 6 Jul 2003 21:46:50 +0200
-User-Agent: KMail/1.5.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Sun, 6 Jul 2003 15:57:27 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:15622 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263354AbTGFT5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 15:57:24 -0400
+Message-ID: <3F088277.3EB39CE2@SteelEye.com>
+Date: Sun, 06 Jul 2003 16:11:35 -0400
+From: Paul Clements <Paul.Clements@SteelEye.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200307062147.02153.fsdeveloper@yahoo.de>
+To: akpm@digeo.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCHES 2.5.74-mm2] misc. nbd cleanups/fixes
+Content-Type: multipart/mixed;
+ boundary="------------F4E9F0EA00216578467DFE16"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------F4E9F0EA00216578467DFE16
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Hi.
+Andrew,
 
-fixes "Warning: extra tokens at end of #ifdef directive"
-compiletime warning:
+here are two nbd patches to apply to 2.5.74-mm2 after two of the
+previous patches (from Lou Langholtz) are reverted:
 
-- --- arch/i386/boot/bootsect.S.orig      2001-11-09 22:58:02.000000000 +0100
-+++ arch/i386/boot/bootsect.S   2003-07-06 21:41:34.000000000 +0200
-@@ -234,7 +234,8 @@
- die:   jne     die                     # %es must be at 64kB boundary
-        xorw    %bx, %bx                # %bx is starting address within segment
- rp_read:
-- -#ifdef __BIG_KERNEL__                  # look in setup.S for bootsect_kludge
-+#ifdef __BIG_KERNEL__
-+                                       # look in setup.S for bootsect_kludge
-        bootsect_kludge = 0x220         # 0x200 + 0x20 which is the size of the
-        lcall   bootsect_kludge         # bootsector + bootsect_kludge offset
- #else
+nbd-ioctl-compat.patch  (patch 6)
+nbd-locking-fixes.patch (patch 7)
 
-- -- 
-Regards Michael Buesch
-http://www.8ung.at/tuxsoft
- 21:41:40 up  2:16,  2 users,  load average: 1.04, 1.39, 1.29
+I'm fine with leaving the first 5 patches of his in there.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE/CHy2oxoigfggmSgRAjwEAJ9G2Qa/BWuhD7DJ6DwQDK2QNKuIDACePrQh
-oT8CqgpZYXCwHQ2uECHcYrU=
-=Ic2J
------END PGP SIGNATURE-----
+The two attached patches are:
+
+1) nbd-remove_open_release.diff - remove the unneeded nbd_open and
+nbd_release functions
+
+2) nbd-block_layer_compat.diff - ensure that nbd and the block layer
+agree about device block sizes and total device sizes
+
+and should be applied in this order.
+
+Thanks,
+Paul
+--------------F4E9F0EA00216578467DFE16
+Content-Type: text/x-diff; charset=us-ascii;
+ name="nbd-remove_open_release.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nbd-remove_open_release.diff"
+
+--- linux-2.5.74-mm2/drivers/block/nbd.c.MINUS_LL	2003-07-06 11:31:51.000000000 -0400
++++ linux-2.5.74-mm2/drivers/block/nbd.c	2003-07-06 11:36:51.000000000 -0400
+@@ -77,8 +77,6 @@
+ #define dprintk(flags, fmt...) do { \
+ 	if (debugflags & (flags)) printk(KERN_DEBUG fmt); \
+ } while (0)
+-#define DBG_OPEN        0x0001
+-#define DBG_RELEASE     0x0002
+ #define DBG_IOCTL       0x0004
+ #define DBG_INIT        0x0010
+ #define DBG_EXIT        0x0020
+@@ -521,33 +519,6 @@ static void do_nbd_request(request_queue
+ 	return;
+ }
+ 
+-static int nbd_open(struct inode *inode, struct file *file)
+-{
+-	struct nbd_device *lo = inode->i_bdev->bd_disk->private_data;
+-
+-	dprintk(DBG_OPEN, "%s: nbd_open refcnt=%d\n", lo->disk->disk_name,
+-			lo->refcnt);
+-	lo->refcnt++;
+-	return 0;
+-}
+-
+-static int nbd_release(struct inode *inode, struct file *file)
+-{
+-	struct nbd_device *lo = inode->i_bdev->bd_disk->private_data;
+-
+-#ifdef PARANOIA
+-	if (lo->refcnt <= 0) {
+-		printk(KERN_ALERT "%s: nbd_release: refcount(%d) <= 0\n",
+-				lo->disk->disk_name, lo->refcnt);
+-		BUG();
+-	}
+-#endif
+-	lo->refcnt--;
+-	dprintk(DBG_RELEASE, "%s: nbd_release: refcnt=%d\n",
+-			lo->disk->disk_name, lo->refcnt);
+-	return 0;
+-}
+-
+ static int nbd_ioctl(struct inode *inode, struct file *file,
+ 		     unsigned int cmd, unsigned long arg)
+ {
+@@ -555,6 +526,8 @@ static int nbd_ioctl(struct inode *inode
+ 	int error;
+ 	struct request sreq ;
+ 
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
+ #ifdef PARANOIA
+ 	BUG_ON(lo->magic != LO_MAGIC);
+ #endif
+@@ -562,8 +535,6 @@ static int nbd_ioctl(struct inode *inode
+ 	dprintk(DBG_IOCTL, "%s: nbd_ioctl cmd=%s(0x%x) arg=%lu\n",
+ 			lo->disk->disk_name, ioctl_cmd_to_ascii(cmd), cmd, arg);
+ 
+-	if (!capable(CAP_SYS_ADMIN))
+-		return -EPERM;
+ 	switch (cmd) {
+ 	case NBD_DISCONNECT:
+ 	        printk(KERN_INFO "%s: NBD_DISCONNECT\n", lo->disk->disk_name);
+@@ -678,8 +649,6 @@ static int nbd_ioctl(struct inode *inode
+ static struct block_device_operations nbd_fops =
+ {
+ 	.owner =	THIS_MODULE,
+-	.open =		nbd_open,
+-	.release =	nbd_release,
+ 	.ioctl =	nbd_ioctl,
+ };
+ 
+
+--------------F4E9F0EA00216578467DFE16
+Content-Type: text/x-diff; charset=us-ascii;
+ name="nbd-block_layer_compat.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nbd-block_layer_compat.diff"
+
+--- linux-2.5.74-mm2/drivers/block/nbd.c.MINUS_OPEN_RELEASE	2003-07-06 11:36:51.000000000 -0400
++++ linux-2.5.74-mm2/drivers/block/nbd.c	2003-07-06 11:43:54.000000000 -0400
+@@ -591,15 +591,21 @@ static int nbd_ioctl(struct inode *inode
+ 		if ((arg & (arg-1)) || (arg < 512) || (arg > PAGE_SIZE))
+ 			return -EINVAL;
+ 		lo->blksize = arg;
+-		lo->bytesize &= ~(lo->blksize-1); 
++		lo->bytesize &= ~(lo->blksize-1);
++		inode->i_bdev->bd_inode->i_size = lo->bytesize;
++		inode->i_bdev->bd_block_size = lo->blksize;
+ 		set_capacity(lo->disk, lo->bytesize >> 9);
+ 		return 0;
+ 	case NBD_SET_SIZE:
+-		lo->bytesize = arg & ~(lo->blksize-1); 
++		lo->bytesize = arg & ~(lo->blksize-1);
++		inode->i_bdev->bd_inode->i_size = lo->bytesize;
++		inode->i_bdev->bd_block_size = lo->blksize;
+ 		set_capacity(lo->disk, lo->bytesize >> 9);
+ 		return 0;
+ 	case NBD_SET_SIZE_BLOCKS:
+ 		lo->bytesize = ((u64) arg) * lo->blksize;
++		inode->i_bdev->bd_inode->i_size = lo->bytesize;
++		inode->i_bdev->bd_block_size = lo->blksize;
+ 		set_capacity(lo->disk, lo->bytesize >> 9);
+ 		return 0;
+ 	case NBD_DO_IT:
+
+--------------F4E9F0EA00216578467DFE16--
 

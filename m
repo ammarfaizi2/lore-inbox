@@ -1,30 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265147AbUETOh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265141AbUETPSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265147AbUETOh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 10:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUETOh2
+	id S265141AbUETPSu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 11:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbUETPSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 10:37:28 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:128 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S265147AbUETOh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 10:37:27 -0400
-Date: Thu, 20 May 2004 14:44:01 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200405201344.i4KDi1PC000143@81-2-122-30.bradfords.org.uk>
-To: "Jinu M." <jinum@esntechnologies.co.in>, <linux-kernel@vger.kernel.org>
-Cc: <kernelnewbies@nl.linux.org>,
-       "Surendra I." <surendrai@esntechnologies.co.in>
-In-Reply-To: <1118873EE1755348B4812EA29C55A97222FD0D@esnmail.esntechnologies.co.in>
-References: <1118873EE1755348B4812EA29C55A97222FD0D@esnmail.esntechnologies.co.in>
-Subject: Re: protecting source code in 2.6
+	Thu, 20 May 2004 11:18:50 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:2235 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S265141AbUETPSt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 11:18:49 -0400
+Date: Thu, 20 May 2004 17:19:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: overlaping printk
+Message-ID: <20040520151939.GA3562@elte.hu>
+References: <1XBEP-Mc-49@gated-at.bofh.it> <1XBXw-13D-3@gated-at.bofh.it> <1XWpp-zy-9@gated-at.bofh.it> <m3lljnnoa0.fsf@averell.firstfloor.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3lljnnoa0.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We are not very sure of how to achieve this. 
-> Please help us address this issue.
 
-Why?  How is the Linux kernel development community supposed to benefit from
-your device driver?  Why not use hardware with free and open source drivers?
+* Andi Kleen <ak@muc.de> wrote:
 
-John.
+> One alternative way would be to use locks with timeouts for these two
+> locks (e.g. checking the TSC on x86, since the timer interrupt may not
+> be running anymore) and only break the lock when the wait time is too
+> long.
+> 
+> Of course serial lines can be quite slow so even that may not help
+> always (for unknown reasons far too many people use 9600 baud for
+> their serial line)
+
+another solution would be to break the lock only once during the
+kernel's lifetime. The system is messed up anyway if it needs multiple
+lock breaks to get an oops out to the console. We dont care about
+followup oopses - the first oops is that matters.
+
+	Ingo

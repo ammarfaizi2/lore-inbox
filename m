@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135669AbREFNAl>; Sun, 6 May 2001 09:00:41 -0400
+	id <S135678AbREFNV6>; Sun, 6 May 2001 09:21:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135671AbREFNAc>; Sun, 6 May 2001 09:00:32 -0400
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:57104 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S135669AbREFNAZ>; Sun, 6 May 2001 09:00:25 -0400
-Date: Mon, 7 May 2001 01:00:22 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S135682AbREFNVr>; Sun, 6 May 2001 09:21:47 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44805 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135678AbREFNVi>; Sun, 6 May 2001 09:21:38 -0400
+Subject: Re: O2Micro PCMCIA card support
+To: klaus@totalnet.ro (Claudiu Constantinescu)
+Date: Sun, 6 May 2001 14:25:27 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon possible fixes
-Message-ID: <20010507010022.A32198@metastasis.f00f.org>
-In-Reply-To: <20010506142346.C31269@metastasis.f00f.org> <E14wO16-00023N-00@the-village.bc.nu>
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.21.0105061304120.8055-100000@puzzlewell.totalnet.ro> from "Claudiu Constantinescu" at May 06, 2001 01:05:09 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14wO16-00023N-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, May 06, 2001 at 01:51:59PM +0100
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14wOXS-00027T-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 06, 2001 at 01:51:59PM +0100, Alan Cox wrote:
+> it seems that it probes only the ISA bus?), but the yenta module (mistakenly?)
+> detects it as an yenta socket, but tries to load two memory_cs modules instead
+> of the appropriate card drivers. The output of lspci shows:
 
-    prefetch is virtually addresses. An application would need access
-    to /dev/mem or similar. So the only folks I think it might
-    actually bite are the Xserver people.
+Correctly I think. Its a full cardbus
 
-depends, maybe it depends on what part of the northbridge it
-traverses, so it may only affect RAM and not PCI/AGP memory
+> 00:03.0 CardBus bridge: O2 Micro, Inc. 6836 (rev 62)
+> 00:03.1 CardBus bridge: O2 Micro, Inc. 6836 (rev 62)
+> 
+> 	Am I missing something or is the support for this card broken?
 
-it should be possible to write a test program that uses /dev/mem to
-test for this is someone has a buggy MB (or wants to send me one,
-I'll gladly do it -- my MBs work perfect it seems)
+The yenta stuff should be solid by now. Loading memory drivers tends to 
+indicate a timing problem is still there.
 
+> 	One more thing: Is there any planned support for AX88190 cards? The
+> vendor distributed modified version of 8390 driver is available only
+> for pcmcia-cs, but sometimes freezes the whole system.
 
-  --cw
-    
-    
-    
+The AX88190 is a very broken 8390 clone. It requires ugly hacks you dont want
+in a generic 8390 driver.

@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266806AbTBGTn4>; Fri, 7 Feb 2003 14:43:56 -0500
+	id <S266645AbTBGTx5>; Fri, 7 Feb 2003 14:53:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266852AbTBGTn4>; Fri, 7 Feb 2003 14:43:56 -0500
-Received: from packet.digeo.com ([12.110.80.53]:34953 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266806AbTBGTnE>;
-	Fri, 7 Feb 2003 14:43:04 -0500
-Date: Fri, 7 Feb 2003 11:52:37 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, mingo@elte.hu
-Subject: Re: 2.5.59-mm9
-Message-Id: <20030207115237.7f58e69e.akpm@digeo.com>
-In-Reply-To: <20030207141114.GA31151@nevyn.them.org>
-References: <20030207013921.0594df03.akpm@digeo.com>
-	<20030207030350.728b4618.akpm@digeo.com>
-	<20030207141114.GA31151@nevyn.them.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S266682AbTBGTx5>; Fri, 7 Feb 2003 14:53:57 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:29961 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266645AbTBGTxz>;
+	Fri, 7 Feb 2003 14:53:55 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302072003.h17K3t2U002303@darkstar.example.net>
+Subject: Re: [PATCH] 2.5.59 : sound/oss/vidc.c
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Fri, 7 Feb 2003 20:03:55 +0000 (GMT)
+Cc: fdavis@si.rr.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030207194314.C30927@flint.arm.linux.org.uk> from "Russell King" at Feb 07, 2003 07:43:14 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Feb 2003 19:52:37.0453 (UTC) FILETIME=[7704CFD0:01C2CEE2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Jacobowitz <dan@debian.org> wrote:
->
-> On Fri, Feb 07, 2003 at 03:03:50AM -0800, Andrew Morton wrote:
-> > Andrew Morton <akpm@digeo.com> wrote:
-> > >
-> > > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm9/
-> > 
-> > I've taken this down.
-> > 
-> > Ingo, there's something bad in the signal changes in Linus's current tree.
-> > 
-> > mozilla won't display, and is unkillable:
+> > --- linux/sound/oss/vidc.c.old	2003-01-16 21:21:38.000000000 -0500
+> > +++ linux/sound/oss/vidc.c	2003-02-07 02:59:44.000000000 -0500
+> > @@ -225,7 +225,7 @@
+> >  			newsize = 208;
+> >  		if (newsize > 4096)
+> >  			newsize = 4096;
+> > -		for (new2size = 128; new2size < newsize; new2size <<= 1);
+> > +		for (new2size = 128; new2size < newsize; new2size <<= 1)
+> >  			if (new2size - newsize > newsize - (new2size >> 1))
+> >  				new2size >>= 1;
+> >  		if (new2size > 4096) {
 > 
-> Yeah, I'm seeing hangs in rt_sigsuspend under GDB also.  Thanks for
-> saying that they show up without ptrace; I hadn't been able to
-> reproduce them without it.
+> The code is correct as it originally stood.
 > 
-> Something is causing realtime signals to drop.
+> It looks like indent has a bug and incorrectly formats this to look wrong.
+> Back in 2.2 times, the code looks  like this:
+> 
+> 		for (new2size = 128; new2size < newsize; new2size <<= 1);
+> 		if (new2size - newsize > newsize - (new2size >> 1))
+> 			new2size >>= 1;
+> 
+> and this is the intended functionality.  Please do NOT apply the patch.
 
-OK.  Looks like Linus is hot on the trail.
+I thought we were switching to negative tab indentation, anyway:
 
-BTW, some nice people have been sending in smalldevfs testing results
-(successful).  I've put that patch back up at
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104125431009832&w=2
 
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/smalldevfs.patch
+:-)
 
-for other testers.  It applies to 2.5.59 base.
-
-And it is not clear why I copied Ingo on the signal thing, when it is not he
-who is working that code.  Sorry about that.
-
+John.

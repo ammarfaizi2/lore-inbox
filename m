@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263219AbTEGOTj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 10:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263225AbTEGOTj
+	id S263225AbTEGOVv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 10:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263227AbTEGOVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 10:19:39 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:22438 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S263219AbTEGOTd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 10:19:33 -0400
-Date: Wed, 07 May 2003 08:31:45 +0000
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Lukasz Trabinski <lukasz@wsisiz.edu.pl>, linux-kernel@vger.kernel.org
-Subject: Re: Aic7xxx and Aic79xx Driver Updates
-Message-ID: <40920000.1052296305@caspian.scsiguy.com>
-In-Reply-To: <20030507032226.4AEC833266E@oceanic.wsisiz.edu.pl>
-References: <20030507032226.4AEC833266E@oceanic.wsisiz.edu.pl>
-X-Mailer: Mulberry/3.0.3 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 May 2003 10:21:51 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:62381 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263225AbTEGOVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 10:21:36 -0400
+Date: Wed, 7 May 2003 16:33:15 +0200
+From: Torsten Landschoff <torsten@debian.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+Message-ID: <20030507143315.GA6879@stargate.galaxy>
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030507135657.GC18177@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In article <2274070000.1051897888@aslan.btc.adaptec.com> you wrote:
->>> I thought it was an sr problem, but it doesn't seem to show up on
->>> anything other than adaptec controllers?  Thanks.
->>
->> I've just updated the bug.
->
-> Have You updated it on page too?
+On Wed, May 07, 2003 at 03:56:57PM +0200, Jörn Engel wrote:
+> Agreed, partially. There is the current issue of the kernel stack
+> being just 8k in size and no decent mechanism in place to detect a
+> stack overflow. And there is (arguably) the future issue of the kernel
+> stack shrinking to 4k.
 
-I can't parse that.  I added some text to the bug tracker.  This
-bug doesn't appear to be a driver issue, so no source changes were made.
+Pardon my ignorance, but why is the kernel stack shrinked to just a few
+kilobytes? With 256MB of RAM in a typical desktop system it shouldn't
+be a problem to use 256KB from that as the stack, but I am sure there
+are good reasons to shrink it. 
 
-> During running slocate/updatedb:
->
-> bash-2.05b$ uptime
-> 05:07:28  up 1 day,  8:09,  4 users,  load average: 67.07, 30.93, 12.51
->                                                     ^^^^^^^^^^^^^^^^^^^
+Just curious, thanks for any info
 
-Which doesn't really tell me much.  What processes are chewing CPU time.
-Is it system time?  What kernel version are you using and do you see this
-without even using the latest driver?
+	Torsten
 
---
-Justin
-
+PS: Joern, you don't by chance know my sister (kirsten@wh.fh-wedel.de)??
+:-))

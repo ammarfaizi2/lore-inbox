@@ -1,165 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264588AbUENXnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUEOAww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264588AbUENXnW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 19:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264585AbUENXmj
+	id S264627AbUEOAww (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 20:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUEOAsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:42:39 -0400
-Received: from mail.kroah.org ([65.200.24.183]:18405 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264588AbUENX3v convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:29:51 -0400
-Subject: Re: [PATCH] I2C update for 2.6.6
-In-Reply-To: <1084577358220@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 14 May 2004 16:29:18 -0700
-Message-Id: <10845773583910@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Fri, 14 May 2004 20:48:39 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:16570 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264627AbUEOApS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 20:45:18 -0400
+Message-ID: <40A55FB9.2090908@yahoo.com.au>
+Date: Sat, 15 May 2004 10:09:29 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: torvalds@osdl.org, hugh@veritas.com,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] truncate vs add_to_page_cache race
+References: <40A42892.5040802@yahoo.com.au>	<20040513193328.11479d3e.akpm@osdl.org>	<40A43152.4090400@yahoo.com.au>	<40A438AC.9020506@yahoo.com.au>	<40A55647.8020904@yahoo.com.au> <20040514165038.17eb142b.akpm@osdl.org>
+In-Reply-To: <20040514165038.17eb142b.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1587.15.17, 2004/05/14 14:59:26-07:00, bjorn@mork.no
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+>>I think the entire problem can be fixed by ensuring ->readpage and
+>>do_generic_mapping read see the same i_size. This would either mean
+>>passing i_size to or from ->readpage, *or* having ->readpage return
+>>the number of bytes read, for example.
+> 
+> 
+> Or not check i_size in ->readpage at all?
+> 
 
-[PATCH] I2C: "probe" module param broken for it87 in Linux 2.6.6
+It needn't check readpage if it gets the number of bytes to read
+passed to it, or gets i_size passed to it.
 
-Jean Delvare <khali@linux-fr.org> writes:
-> So I'd suggest that you simply use the standard exit sequence in the
-> it87 driver (the second one in your current patch). A patch for the 2.4
-> driver would be appreciated as well.
+With do_generic_mapping_read and ->readpage each having a different
+idea of how much of the page to process(*), bad things can happen.
+They have different ideas about how much they need to process due to
+the each one checking i_size on its own.
 
-OK.  I've attached a new version of the patch against linux-2.6.6.
-I'll send a patch against current lm_sensors CVS removing the extra
-exit command in a separate mail.
+* That is "copy to userspace" and "read" for do_generic_mapping_read
+   and ->readpages respectively.
 
-Greg KH <greg@kroah.com> writes:
-> On Wed, May 12, 2004 at 04:38:03PM +0200, Bj?rn Mork wrote:
->> +	if (!it87_find(&addr)) {
->> +		printk("it87.o: new ISA address: 0x%04x\n", addr);
->
-> That printk is wrong (no KERN_ level, or dev_printk() style use).
-> Please fix it in your next revision of this patch.
+> If fixing this is going to cost extra fastpath cycles I'd be inclined to
+> not bother, frankly.
+> 
 
-Errh, I just added it to document my sloppyness.  It was never meant
-to be in the patch I sent you.  Sorry.  Removed in the attached patch.
-The style of these drivers seem to be "just working, making no noise"
-so I assume informational printk's are unwanted.
+What I'm thinking of shouldn't cost any cycles, it would require a
+change to ->readpage API though. Preferably one where we can tell it
+how many bytes to read. I can't see how else to fix it.
 
-
- drivers/i2c/chips/it87.c |   78 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 78 insertions(+)
-
-
-diff -Nru a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
---- a/drivers/i2c/chips/it87.c	Fri May 14 16:18:36 2004
-+++ b/drivers/i2c/chips/it87.c	Fri May 14 16:18:36 2004
-@@ -49,6 +49,54 @@
- /* Insmod parameters */
- SENSORS_INSMOD_1(it87);
- 
-+#define	REG	0x2e	/* The register to read/write */
-+#define	DEV	0x07	/* Register: Logical device select */
-+#define	VAL	0x2f	/* The value to read/write */
-+#define PME	0x04	/* The device with the fan registers in it */
-+#define	DEVID	0x20	/* Register: Device ID */
-+
-+static inline void
-+superio_outb(int reg, int val)
-+{
-+	outb(reg, REG);
-+	outb(val, VAL);
-+}
-+
-+static inline int
-+superio_inb(int reg)
-+{
-+	outb(reg, REG);
-+	return inb(VAL);
-+}
-+
-+static inline void
-+superio_select(void)
-+{
-+	outb(DEV, REG);
-+	outb(PME, VAL);
-+}
-+
-+static inline void
-+superio_enter(void)
-+{
-+	outb(0x87, REG);
-+	outb(0x01, REG);
-+	outb(0x55, REG);
-+	outb(0x55, REG);
-+}
-+
-+static inline void
-+superio_exit(void)
-+{
-+	outb(0x02, REG);
-+	outb(0x02, VAL);
-+}
-+
-+/* just IT8712F for now - this should be extended to support the other
-+   chips as well */
-+#define IT8712F_DEVID 0x8712
-+#define IT87_ACT_REG  0x30
-+#define IT87_BASE_REG 0x60
- 
- /* Update battery voltage after every reading if true */
- static int update_vbat;
-@@ -158,6 +206,7 @@
- 
- 
- static int it87_attach_adapter(struct i2c_adapter *adapter);
-+static int it87_find(int *address);
- static int it87_detect(struct i2c_adapter *adapter, int address, int kind);
- static int it87_detach_client(struct i2c_client *client);
- 
-@@ -505,6 +554,30 @@
- 	return i2c_detect(adapter, &addr_data, it87_detect);
- }
- 
-+/* SuperIO detection - will change normal_isa[0] if a chip is found */
-+static int it87_find(int *address)
-+{
-+	u16 val;
-+
-+	superio_enter();
-+	val = (superio_inb(DEVID) << 8) |
-+	       superio_inb(DEVID + 1);
-+	if (val != IT8712F_DEVID) {
-+		superio_exit();
-+		return -ENODEV;
-+	}
-+
-+	superio_select();
-+	val = (superio_inb(IT87_BASE_REG) << 8) |
-+	       superio_inb(IT87_BASE_REG + 1);
-+	superio_exit();
-+	*address = val & ~(IT87_EXTENT - 1);
-+	if (*address == 0) {
-+		return -ENODEV;
-+	}
-+	return 0;
-+}
-+
- /* This function is called by i2c_detect */
- int it87_detect(struct i2c_adapter *adapter, int address, int kind)
- {
-@@ -853,6 +926,11 @@
- 
- static int __init sm_it87_init(void)
- {
-+	int addr;
-+
-+	if (!it87_find(&addr)) {
-+		normal_isa[0] = addr;
-+	}
- 	return i2c_add_driver(&it87_driver);
- }
- 
-
+If this is not acceptable for 2.6, we could use a nicer variation of
+my second patch which at least fixes the truncate problem, and its
+remaining race is *much* more improbable.

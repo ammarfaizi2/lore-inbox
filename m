@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261293AbSI3TO1>; Mon, 30 Sep 2002 15:14:27 -0400
+	id <S261153AbSI3T1K>; Mon, 30 Sep 2002 15:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261303AbSI3TO1>; Mon, 30 Sep 2002 15:14:27 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:8324 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S261293AbSI3TOX>;
-	Mon, 30 Sep 2002 15:14:23 -0400
-Date: Mon, 30 Sep 2002 14:19:38 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: keyboard/mouse driver in 2.5 broken was Re: v2.6 vs v3.0
-In-Reply-To: <p73zntzqwxz.fsf_-_@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.44.0209301417530.3692-100000@dad.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261238AbSI3T1K>; Mon, 30 Sep 2002 15:27:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28685 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261153AbSI3T1J>;
+	Mon, 30 Sep 2002 15:27:09 -0400
+Date: Mon, 30 Sep 2002 20:32:34 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [PATCH] Remove QDIO_BH
+Message-ID: <20020930203234.R18377@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Sep 2002, Andi Kleen wrote:
 
-> I have a similar problem. The 2.5 keyboard/psmouse driver does not work
-> at all with my KVM. It's a bit unusual combination in that I run an 
-> Intellimouse on it and the KVM doesn't let all Intellimouse extensions
-> through, but it is still autodetected as that. Normally (xfree86, 2.4 gpm,
-> other OS) it works fine when just setting PS/2 mouse maually. Even when I 
-> hack the kernel to force PS/2 instead of the IMPS/2 then I just get 
-> endless "psmouse: lost synchronization .." messages.
+QDIO_BH was never actually used anyway, and won't do much good now BHs
+are gone.
 
-I have some other reports on my status page showing problems with the KVM 
-and mice/keyboards.  What is the last kernel version you've seen this with?
+===== include/asm-s390/qdio.h 1.1 vs edited =====
+--- 1.1/include/asm-s390/qdio.h	Sat Jun  8 18:01:47 2002
++++ edited/include/asm-s390/qdio.h	Sun Jul 21 20:08:38 2002
+@@ -82,8 +82,6 @@
+ #define QDIO_CLEANUP_CLEAR_TIMEOUT 20000
+ #define QDIO_CLEANUP_HALT_TIMEOUT 10000
+ 
+-#define QDIO_BH AURORA_BH
+-
+ #define QDIO_IRQ_BUCKETS 256 /* heavy..., but does only use a few bytes, but
+ 			      be rather faster in cases of collisions
+ 			      (if there really is a collision, it is
+===== include/asm-s390x/qdio.h 1.1 vs edited =====
+--- 1.1/include/asm-s390x/qdio.h	Sat Jun  8 18:01:47 2002
++++ edited/include/asm-s390x/qdio.h	Sun Jul 21 20:08:45 2002
+@@ -83,8 +83,6 @@
+ #define QDIO_CLEANUP_CLEAR_TIMEOUT 20000
+ #define QDIO_CLEANUP_HALT_TIMEOUT 10000
+ 
+-#define QDIO_BH AURORA_BH
+-
+ #define QDIO_IRQ_BUCKETS 256 /* heavy..., but does only use a few bytes, but
+ 			      be rather faster in cases of collisions
+ 			      (if there really is a collision, it is
 
-
+-- 
+Revolutions do not require corporate support.

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264786AbTFESNV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 14:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264788AbTFESNV
+	id S264783AbTFESNP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 14:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264786AbTFESNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 14:13:21 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:58631 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264786AbTFESNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 14:13:19 -0400
-Subject: Re: capacity in 2.5.70-mm3
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Julien Oster <lkml@mf.frodoid.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <frodoid.frodo.87y90g8lxm.fsf@usenet.frodoid.org>
-References: <20030603181011$5b1a@gated-at.bofh.it>
-	 <20030603192010$790e@gated-at.bofh.it>
-	 <frodoid.frodo.87y90g8lxm.fsf@usenet.frodoid.org>
-Content-Type: text/plain
-Message-Id: <1054837610.590.0.camel@teapot.felipe-alfaro.com>
+	Thu, 5 Jun 2003 14:13:15 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:8366 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264783AbTFESNO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 14:13:14 -0400
+Date: Thu, 5 Jun 2003 11:26:41 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] typo in new class_device_release
+Message-Id: <20030605112641.7cb00f93.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 05 Jun 2003 20:26:50 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-05 at 19:37, Julien Oster wrote:
-> Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> writes:
-> 
-> Hello,
-> 
-> >> capacity  capacity  capacity  driver  identify  media  model  settings
-> >> Multiplay capacity files. Funny :)
-> 
-> > Can reproduce it on my laptop with 2.5.70-mm3 and my server with
-> > 2.5.70-bk8. Both have an ATAPI DVD attached to /dev/hdc.
-> 
-> Can also reproduce it on 2.4.21-rc1, on all my IDE devices: hda, hdc,
-> hdg. The first two are harddrives, the last one's an ATAPI CD writer,
-> so the device type doesn't seem to matter:
+There is a typo in the current 2.5.70 bk version of class_device_release that
+was not there in my original patch.  By confusing the class and the class_device,
+the release function oops.  cd->release is always the function itself (class_device_release),
+cls->release is the one setup for the class (net_class in my case).
 
-Seems fixed in 2.5.70-mm5... :-)
-
+diff -Nru a/drivers/base/class.c b/drivers/base/class.c
+--- a/drivers/base/class.c	Thu Jun  5 11:21:42 2003
++++ b/drivers/base/class.c	Thu Jun  5 11:21:42 2003
+@@ -191,7 +191,7 @@
+ 	pr_debug("device class '%s': release.\n",cd->class_id);
+ 
+ 	if (cls->release)
+-		cd->release(cd);
++		cls->release(cd);
+ }
+ 
+ static struct kobj_type ktype_class_device = {

@@ -1,61 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUEALo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUEAMCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUEALo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 07:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUEALo2
+	id S261685AbUEAMCs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 08:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUEAMCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 07:44:28 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:21751 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261638AbUEALo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 07:44:26 -0400
-Date: Sat, 1 May 2004 13:44:21 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Harald Arnesen <harald@skogtun.org>, len.brown@intel.com,
-       luming.yu@intel.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: 2.6.6-rc3-mm1: modular ACPI button broken
-Message-ID: <20040501114420.GF2541@fs.tum.de>
-References: <20040430014658.112a6181.akpm@osdl.org> <87ad0sshku.fsf@basilikum.skogtun.org>
+	Sat, 1 May 2004 08:02:48 -0400
+Received: from mail.renesas.com ([202.234.163.13]:20694 "EHLO
+	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S261685AbUEAMCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 08:02:46 -0400
+Date: Sat, 01 May 2004 21:02:39 +0900 (JST)
+Message-Id: <20040501.210239.730563865.takata.hirokazu@renesas.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] m32r - New architecure port to Renesas M32R processor 
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20040302.165524.774041887.takata.hirokazu@renesas.com>
+References: <20040302.165524.774041887.takata.hirokazu@renesas.com>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87ad0sshku.fsf@basilikum.skogtun.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 01, 2004 at 10:00:01AM +0200, Harald Arnesen wrote:
-> I don't see this in plain 2.6.6-rc3 or 2.6.6-rc2-mm2:
-> 
-> 
-> $ sudo make modules_install
-> INSTALL...
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map
-> 2.6.6-rc3-mm1; fi
-> WARNING: /lib/modules/2.6.6-rc3-mm1/kernel/drivers/acpi/button.ko needs
-> unknown symbol acpi_fixed_sleep_button
-> WARNING: /lib/modules/2.6.6-rc3-mm1/kernel/drivers/acpi/button.ko needs
-> unknown symbol acpi_fixed_pwr_button
-> $
->...
+Hello, 
 
-Thanks for this report.
+Here are upgrade patches of the Renesas M32R processor
+for the latest 2.4.26 kernel.
 
-This seems to be introduced by the button driver unload unload patch 
-(Bugzilla #2281) included in the ACPI BK patch.
+Patch information to the stock linux-2.4.26 kernel is placed as follows:
+- m32r architecture dependent portions (arch/m32r, include/asm-m32r)
+  http://www.linux-m32r.org/public/linux-2.4.26_m32r_20040429.arch-m32r.patch
+- architecture independent portions for the m32r
+  http://www.linux-m32r.org/public/linux-2.4.26_m32r_20040429.patch
 
-It seems two EXPORT_SYMBOL's are missing in scan.c?
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
-
+Regards,
+---
+Hirokazu Takata
+Linux/M32R Project: http//www.linux-m32r.org/

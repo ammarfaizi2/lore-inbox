@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131031AbQLYSzy>; Mon, 25 Dec 2000 13:55:54 -0500
+	id <S130820AbQLYT27>; Mon, 25 Dec 2000 14:28:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130820AbQLYSze>; Mon, 25 Dec 2000 13:55:34 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:2710 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S130682AbQLYSzc>; Mon, 25 Dec 2000 13:55:32 -0500
-Message-ID: <3A479102.C7611586@rcn.com>
-Date: Mon, 25 Dec 2000 13:25:06 -0500
-From: Marvin Stodolsky <stodolsk@rcn.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.4.0-test12 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Mares <mj@suse.cz>
-CC: linux-kernel@vger.kernel.org, Jacques.Goldberg@cern.ch,
-        Mark Spieth <mark@digivation.com.au>, Sean Walbran <sean@walbran.org>
-Subject: Re: BIOS problem, pro Microsoft, anti other OS
-In-Reply-To: <3A4769AC.F38B372C@rcn.com> <20001225170914.A15598@atrey.karlin.mff.cuni.cz>
+	id <S131115AbQLYT2s>; Mon, 25 Dec 2000 14:28:48 -0500
+Received: from attila.bofh.it ([213.92.8.2]:51667 "HELO attila.bofh.it")
+	by vger.kernel.org with SMTP id <S130820AbQLYT2f>;
+	Mon, 25 Dec 2000 14:28:35 -0500
+Date: Mon, 25 Dec 2000 19:44:06 +0100
+From: "Marco d'Itri" <md@Linux.IT>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: innd mmap bug in 2.4.0-test12
+Message-ID: <20001225194406.A1242@wonderland.linux.it>
+In-Reply-To: <20001225005303.A205@wonderland.linux.it> <Pine.LNX.4.10.10012250049400.5242-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.10.10012250049400.5242-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Dec 25, 2000 at 01:19:50AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jacques
+On Dec 25, Linus Torvalds <torvalds@transmeta.com> wrote:
 
-> Can you check what does Linux 2.4.0-test<latest> behave, please?
-Are you comfortable compiling kernels?
-If not I'll compile one for you for the test.
-Currently I'm happily under 2.4.0-test 12: 
-   lsmod:
-Module                  Size  Used by
-ppp_deflate            39164   1  (autoclean)
-bsd_comp                4148   0  (autoclean)
-ppp_async               6220   1  (autoclean)
-ppp_generic            12820   2  (autoclean) [ppp_deflate bsd_comp
-ppp_async]
-ltmodem               364948   1
-input                   3328   0
-serial                 42192   1  (autoclean) (ONLY suporting my mouse)
-isa-pnp                27528   0  (autoclean) [ltmodem serial]
-usbcore                27684   0  (unused) 
+ >Add a printk() to __remove_inode_page() that complains whenever it removes
+ >a dirty page. 
+ >
+ >Oh, in order to not see this with swap pages (which _can_ be removed when
+ >they are dirty, if all users of them are gone), add a PageClearDirty() to
+ >"remove_from_swap_cache()" so that we don't get false positives..
+ >
+ >Do you get any messages? I don't think you will, but it should be tested.
+I read you found the real cause so that may be bogus, but I have got two
+messages while booting. The first showed up while doing the fsck of a 6
+GB file systems and killed the process (fscks of smaller partitions
+completed successfully), the second occured while initializing
+/dev/random and left an unkillable dd process and a stuck boot process
+(I gathered this info with sysrq).
 
-Martin  
-   Are there any particular kernel config choices that will be
-beneficial for this problem?
+Being -test12 unstable for me, if you don't need more data I'll go back
+to -test9 until the next release.
 
-Mark
-> You probably should make the ltmodem driver check the region base
-> registers and interrupts and if they are not set, recommend the user to
-> change the OS or PNP settings in their BIOS setup.
-Can these be included in the LTmodem packages you are working up?
+ >That's probably the infinite loop in the tty task queue handling, should
+ >be fixed in test13-pre3 or so.
+Looks like I missed it, evil vger postmasters unsubscribed me again for
+no apparent reason...
 
-MarvS
+-- 
+ciao,
+Marco
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUJDMBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268058AbUJDMCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268054AbUJDMBP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 08:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268057AbUJDMBP
+	id S268058AbUJDMCl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 08:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268053AbUJDMCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 08:01:15 -0400
-Received: from dialpool1-171.dial.tijd.com ([62.112.10.171]:5762 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S268054AbUJDMBN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 08:01:13 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [2.6.9-rc3] suspend-to-disk oddities
-Date: Mon, 4 Oct 2004 13:59:06 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-References: <200410041107.12049.lkml@kcore.org> <200410041331.44453.oliver@neukum.org>
-In-Reply-To: <200410041331.44453.oliver@neukum.org>
+	Mon, 4 Oct 2004 08:02:40 -0400
+Received: from iPass.cambridge.arm.com ([193.131.176.58]:36844 "EHLO
+	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id S268058AbUJDMCQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 08:02:16 -0400
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
+References: <20040927210305.A26680@flint.arm.linux.org.uk>
+	<20041001211106.F30122@flint.arm.linux.org.uk>
+From: Catalin Marinas <catalin.marinas@arm.com>
+Date: Mon, 04 Oct 2004 13:01:52 +0100
+In-Reply-To: <20041001211106.F30122@flint.arm.linux.org.uk> (Russell King's
+ message of "Fri, 1 Oct 2004 21:11:06 +0100")
+Message-ID: <tnxllemvgi7.fsf@arm.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200410041359.07047.lkml@kcore.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 October 2004 13:31, Oliver Neukum wrote:
-> Am Montag, 4. Oktober 2004 11:07 schrieb Jan De Luyck:
-> > Just tried swsusp, works great, besides a few strange things:
-> >
-> > - The suspend routine is unable to shutdown the mysqld process:
-> >
-> > Oct  4 10:19:43 precious kernel: Stopping tasks:
-> > ================================================= Oct  4 10:19:43
-> > precious kernel:  stopping tasks failed (1 tasks remaining) Oct  4
-> > 10:19:43 precious kernel: Restarting tasks...<6> Strange, mysqld not
-> > stopped Oct  4 10:19:43 precious kernel:  done
-> >
-> > - USB subsystem is totally unworking until I reinitialise it (using
-> > /etc/init.d/hotplug restart)
->
-> Precisely how does it fail?
+Russell,
 
-This is after a successfull suspend-resume.
+Russell King <rmk+lkml@arm.linux.org.uk> writes:
+> + * This ignores the intensely annoying "mapping symbols" found
+> + * in ARM ELF files: $a, $t and $d.
+> + */
+> +static inline int is_arm_mapping_symbol(const char *str)
+> +{
+> +	return str[0] == '$' && strchr("atd", str[1]) && str[2] == '\0';
 
-It doesn't work, period. No messages in the logs, anything I plug in isn't 
-reacted to, lsusb gives nothing. It's just 'not there'.
+str[2] can be '\0' or '.', since a mapping symbol can also be
+$[atd].<any> (because binutils doesn't like to generate duplicate
+local labels).
 
-Jan
+Catalin
 
--- 
-BOFH excuse #136:
-
-Daemons loose in system.

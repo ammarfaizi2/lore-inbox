@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbTIQFph (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 01:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTIQFph
+	id S262681AbTIQGle (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 02:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbTIQGle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 01:45:37 -0400
-Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:44673
-	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S262679AbTIQFpf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 01:45:35 -0400
-Message-Id: <200309170545.h8H5jMTq011596@orion.dwf.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
-To: John Cherry <cherry@osdl.org>
-cc: Randy Dunlap <rddunlap@osdl.org>, reg@dwf.com,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       reg@orion.dwf.com
-Subject: Re: 2.6.0-test5: "No module aic7xxx found for kernel 2.6.0-test5, 
- aborting."
-In-Reply-To: Message from John Cherry <cherry@osdl.org> 
-   of "16 Sep 2003 10:46:53 PDT." <1063734412.20156.2.camel@cherrytest.pdx.osdl.net> 
+	Wed, 17 Sep 2003 02:41:34 -0400
+Received: from users.linvision.com ([62.58.92.114]:11655 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id S262681AbTIQGld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 02:41:33 -0400
+Date: Wed, 17 Sep 2003 08:41:03 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       neilb@cse.unsw.edu.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: experiences beyond 4 GB RAM with 2.4.22
+Message-ID: <20030917084102.A19276@bitwizard.nl>
+References: <20030916102113.0f00d7e9.skraw@ithnet.com> <Pine.LNX.4.44.0309161009460.1636-100000@logos.cnet> <20030916153658.3081af6c.skraw@ithnet.com> <1063722973.10037.65.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 16 Sep 2003 23:45:22 -0600
-From: reg@dwf.com
+Content-Disposition: inline
+In-Reply-To: <1063722973.10037.65.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> --=-qKbn9YnrwluGdEN58xpj
-> Content-Type: text/plain
-> Content-Transfer-Encoding: 7bit
-> 
-> Are you compiling with anything other than -j1?  There is a race in the
-> parallel build of aic7xxx.  A patch has been submitted, but is not in
-> -test5.
-> 
-> Try the attached patches and see if this helps you.
-> 
-> John
-> 
-Well, yes, I was using either -j2 or -j4 (on a single processor machine).
-[[ Somehow, the 2.6.0 compiles seem REALLY SLOW compared to the 2.4.x and
-previous compiles ]].
+On Tue, Sep 16, 2003 at 03:36:14PM +0100, Alan Cox wrote:
+> I/O is a real pain. Also in some cases it might be interesting to try
+> using the extra RAM above the 4G boundary as a giant ram disk and using
+> it as first swap device.
 
-But the patch didnt seem to solve the problem, I still see:
+4G? Above 4G? The limit should be configurable a lot earlier. 
 
-Root device is (3, 7)
-Boot sector 512 bytes.
-Setup is 2544 bytes.
-System is 1826 kB
-Kernel: arch/i386/boot/bzImage is ready
-sh arch/i386/boot/install.sh 2.6.0-test5 arch/i386/boot/bzImage System.map ""
-No module aic7xxx found for kernel 2.6.0-test5
-mkinitrd failed
-make[1]: *** [install] Error 1
-make: *** [install] Error 2
+I'd want to configure that on the machines I'm installing tomorrow. 
+4G RAM, but I'd rather not use the highmem stuff. I think the workload
+that this machine is likely to get will work very well with this setup. 
 
-when I type 'make install'.  The 'make bzImage' itself went just fine.
-This was after a 'make mrproper'.
+Why does this have the opportunity to work better than just using the 
+2 or 4G of RAM? Because after you've used the bottom 1G, that might 
+just remain there, requiring lots of IO to go through bounce buffers
+and memory remappings. By considering the top part of RAM as swap,
+you'll force the important stuff into the more easily accessable
+RAM (Compare to fastram as it was called on the Amiga!). 
 
-As suggest (by someone else) I guess I can just do the install by hand,
-but this dependence on aic7xxx is VERY strange.
-
-
-
+			Roger. 
 
 -- 
-                                        Reg.Clemens
-                                        reg@dwf.com
-
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

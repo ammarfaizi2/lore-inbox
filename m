@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbUDEPQI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 11:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbUDEPQI
+	id S262770AbUDEPQs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 11:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262829AbUDEPQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 11:16:08 -0400
-Received: from build.arklinux.oregonstate.edu ([128.193.0.51]:35488 "EHLO
-	test.arklinux.org") by vger.kernel.org with ESMTP id S262802AbUDEPQG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 11:16:06 -0400
-Date: Mon, 5 Apr 2004 08:25:43 -0700 (PDT)
-From: bero@arklinux.org
-X-X-Sender: bero@build.arklinux.oregonstate.edu
+	Mon, 5 Apr 2004 11:16:48 -0400
+Received: from [196.12.38.67] ([196.12.38.67]:29701 "HELO navgw.cmcltd.com")
+	by vger.kernel.org with SMTP id S262770AbUDEPQq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 11:16:46 -0400
+From: Norton_AntiVirus_Gateways@cmcltd.com
 To: linux-kernel@vger.kernel.org
-Subject: Catching SIGSEGV with signal() in 2.6
-Message-ID: <Pine.LNX.4.58.0404050824310.13367@build.arklinux.oregonstate.edu>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: CMC MAIL GATEWAY ALERT
+Date: Mon, 05 Apr 2004 17:32:18 +0530
+Message-Id: <M2004040517321819862@navgw.cmcltd.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-... doesn't seem to be possible anymore.
+A Virus was detected in the mail sent by you.
+The message has been rejected.
 
-See
-http://www.openoffice.org/issues/show_bug.cgi?id=27162
 
-Is this change intentional, or a bug?
+--- Scan information follows ---
 
-LLaP
-bero
+Result: Virus Detected
+Virus Name: W32.Netsky.P@mm
+File Attachment: Unknown06BE.data
+Attachment Status: deleted
 
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
+--- Original message information follows ---
 
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
+From: linux-kernel@vger.kernel.org
+To: 97@cmcltd.com
+Date: Mon, 5 Apr 2004 14:15:40 +0530
+Subject: Mail Delivery (failure 97@cmcltd.com)
+Message-Id: <M2004040514233616261@navgw.cmcltd.com>
+Received: from cmcltd.com ([172.16.34.52])
+ by navgw.cmcltd.com (NAVGW 2.5.1.6) with SMTP id M2004040514233616261
+ ; Mon, 05 Apr 2004 14:23:36 +0530

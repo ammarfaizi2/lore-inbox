@@ -1,42 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262018AbTENMdG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 08:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbTENMdG
+	id S261953AbTENMbI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 08:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbTENMbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 08:33:06 -0400
-Received: from holomorphy.com ([66.224.33.161]:13763 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262016AbTENMdE (ORCPT
+	Wed, 14 May 2003 08:31:08 -0400
+Received: from corky.net ([212.150.53.130]:25216 "EHLO marcellos.corky.net")
+	by vger.kernel.org with ESMTP id S261953AbTENMbG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 08:33:04 -0400
-Date: Wed, 14 May 2003 05:45:34 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: David Howells <dhowells@warthog.cambridge.redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] PAG support, try #2
-Message-ID: <20030514124534.GO2444@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	David Howells <dhowells@warthog.cambridge.redhat.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <20030514115653.A15202@infradead.org> <30949.1052913364@warthog.warthog>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <30949.1052913364@warthog.warthog>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 14 May 2003 08:31:06 -0400
+Date: Wed, 14 May 2003 15:43:47 +0300 (IDT)
+From: Yoav Weiss <ml-lkml@unpatched.org>
+X-X-Sender: yoavw@marcellos.corky.net
+To: Ahmed Masud <masud@googgun.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: encrypted swap [was: The disappearing sys_call_table export.]
+In-Reply-To: <Pine.LNX.4.33.0305140513460.10480-100000@marauder.googgun.com>
+Message-ID: <Pine.LNX.4.44.0305141445290.12748-100000@marcellos.corky.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 12:56:04PM +0100, David Howells wrote:
-> There won't be many PAGs. Basically one per login session would be fairly
-> typical, and possibly one per SUID program run at some later date.
+On Wed, 14 May 2003, Ahmed Masud wrote:
 
-That's very reassuring to me, thanks for clearing that up.
+> Thank you for this paper, it is a fun read. I do think however that a
+> few implementation differences should take place:
+>
+> 1. We should not enforce Rijndael as the only choice.
+
+I agree.
+
+>
+> 2. Every page should be encrypted iff it marked with some flag. This gives
+> a generic enough hook to create a swap_encrypt_policy type function to
+> determine whether it is desirable to encrypt a particular page or not.
+
+Good idea.  Of course, a policy that only encrypts the secret stuff may
+have an impact on security, but it makes sense to let the user decide on a
+policy.
+
+>
+> 2a. The above flag may also be set or cleared by the page-owner process on
+> a page-to-page basis (something a-kin to mlock()).
+
+And just like mlock(), only root will be able to call it.
+
+>
+> 3. A slightly more sophisticated timeout framework should be created with
+> the ability to enforce expiry or request expiry extensions (upto some type
+> of a system hard limit?) on a per page.
+>
+
+Why is this one needed ?
+
+> This is an aside: should do we do anything about core dumps?
+>
+
+Thats a good question.  I see three options:
+1. Dump the core plaintext.  (sucks but convenient for users).
+2. In the core, zero the pages that would be encrypted when swapped out.
+   On some policies where only things like keys are encrypted, the core
+   will be usable.  On others it won't.  (Not sure its really an option).
+3. If the core contains pages that should be encrypted, dump it encrypted
+   with some system-wide (or per-uid) key generated on the first core
+   dump.  The key will be available to the user via some /proc interface.
+   Its up to the user to be smart and take the core to another host and
+   decrypt_core(1) it there (or just decrypt_core(1) it to an encrypted
+   filesystem).  In any case, the decrypted core or the system-wide key
+   are never written to disk.
+4. Refuse to dump core of a process that has pages that should be
+   encrypted.
+
+Do you see more options ?
+Anyway, it should probably be policy controlled.
+
+> I looked at the swap stuff in mm code yesterday for the first time and it
+> seems (eeriely)  straightforward, and i know i am going to run into an
+> unseen brick wall :-).
+
+I'm not familiar with this core either and somehow got the same feeling
+when I looked into it :)
+
+>
+> I would suspect that somewhere between the io requst generated by
+> swap_readpage and swap_writepage cypto can be hooked in...  haven't yet
+> determined where/when the key generations should take place.
+
+Probably at process initialization during fork.  The key must be ready
+before the process gets its first chance to allocated pages that may be
+swapped out.
+
+>
+> Cheers,
+>
+> Ahmed Masud.
+>
+>
+
+Bye,
+	Yoav Weiss
 
 
--- wli

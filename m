@@ -1,118 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbTEAR1q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 13:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTEAR1q
+	id S261489AbTEAR0v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 13:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTEAR0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 13:27:46 -0400
-Received: from mbox1.netikka.net ([213.250.81.202]:6322 "EHLO
-	mbox1.netikka.net") by vger.kernel.org with ESMTP id S261500AbTEAR1m convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 13:27:42 -0400
-From: Thomas Backlund <tmb@iki.fi>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
-Date: Thu, 1 May 2003 20:39:58 +0300
+	Thu, 1 May 2003 13:26:51 -0400
+Received: from smtp.inet.fi ([192.89.123.192]:38342 "EHLO smtp.inet.fi")
+	by vger.kernel.org with ESMTP id S261489AbTEAR0u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 13:26:50 -0400
+From: Kimmo Sundqvist <rabbit80@mbnet.fi>
+Organization: Unorganized
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.68-mm3 and a simple mistake
+Date: Thu, 1 May 2003 20:38:45 +0300
 User-Agent: KMail/1.5.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3EB0413D.2050200@superonline.com> <200305011801.39014.tmb@iki.fi> <1051800568.21442.16.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1051800568.21442.16.camel@dhcp22.swansea.linux.org.uk>
+References: <200305011826.31389.rabbit80@mbnet.fi.suse.lists.linux.kernel> <p734r4e3ca6.fsf@oldwotan.suse.de>
+In-Reply-To: <p734r4e3ca6.fsf@oldwotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200305012039.58321.tmb@iki.fi>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200305012038.45157.rabbit80@mbnet.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Viestissä Torstai 1. Toukokuuta 2003 17:49, Alan Cox kirjoitti:
-> On Iau, 2003-05-01 at 16:01, Thomas Backlund wrote:
-> > You mean the patch that only looks at videomode, dont you...
->
-> I do
->
-> > Well maybe it's best to use it as default, to avoid this bug
-> > "out of the box"...
-> >
-> > But I will remake a patch to ovverride it so that the users who
-> > need/want the extra memory to be able to allocate it...
-> > since I like the idea of giving the user the choice...
->
-> Sounds right to me
+On Thursday 01 May 2003 18:41, Andi Kleen wrote:
 
-Yeah, so merging the two patches ends up like this:
------ cut -----
---- tmb3/Documentation/fb/vesafb.txt	2003-05-01 19:53:26.000000000 +0300
-+++ tmb3/Documentation/fb/vesafb.txt.vram	2003-05-01 20:11:08.000000000 
-+0300
-@@ -146,6 +146,11 @@
+> Kimmo Sundqvist <rabbit80@mbnet.fi> writes:
 
- mtrr	setup memory type range registers for the vesafb framebuffer.
+> > /usr/bin/make -f scripts/Makefile.clean obj=arch/i386/mach-default
+> > /usr/bin/make -f scripts/Makefile.clean obj=arch/i386/mach-generic
+> > scripts/Makefile.clean:10: arch/i386/mach-generic/Makefile: No such file
+> > or directory
+> > make[2]: *** No rule to make target `arch/i386/mach-generic/Makefile'. 
+> > Stop. make[1]: *** [_clean_arch/i386/mach-generic] Error 2
+> > make[1]: Leaving directory `/usr/src/linux-2.5.68'
+> > make: *** [stamp-kernel-configure] Error 2
 
-+vram:n  remap 'n' MiB of video RAM. If 0 or not specified, remap memory
-+        according to video mode. (2.5.66 patch/idea by Antonino Daplas
-+	reversed to give override possibility (allocate more fb memory
-+	than the kernel would) to 2.4 by tmb@iki.fi)
-+  
- 
- Have fun!
- 
---- tmb3/drivers/video/vesafb.c	2003-05-01 19:49:34.000000000 +0300
-+++ tmb3/drivers/video/vesafb.c.vram	2003-05-01 20:07:57.000000000 +0300
-@@ -94,6 +94,7 @@
+> Most likely you need to apply this patch. 
 
- static int             inverse   = 0;
- static int             mtrr      = 0;
-+static int	 vram __initdata = 0;	/* needed for vram boot option */
- static int             currcon   = 0;
+This is funny.  Patching with "patch -p0 < 2.5.68-mm3" caused all the patched 
+files to appear in /usr/src/25  They also disappeared from 
+/usr/src/linux-2.5.68
 
- static int             pmi_setpal = 0;	/* pmi for palette changes ??? */
-@@ -479,6 +480,10 @@
- 			pmi_setpal=1;
- 		else if (! strcmp(this_opt, "mtrr"))
- 			mtrr=1;
-+		/* checks for vram boot option */
-+		else if (! strncmp(this_opt, "vram:", 5))
-+			vram = simple_strtoul(this_opt+5, NULL, 0);
-+
- 		else if (!strncmp(this_opt, "font:", 5))
- 			strcpy(fb_info.fontname, this_opt+5);
- 	}
-@@ -520,7 +525,10 @@
- 	video_width         = screen_info.lfb_width;
- 	video_height        = screen_info.lfb_height;
- 	video_linelength    = screen_info.lfb_linelength;
--	video_size          = screen_info.lfb_size * 65536;
-+	video_size          = screen_info.lfb_size * screen_info.lfb_height * 
-video_bpp;
-+	/* sets video_size according to boot option */
-+        if (vram && vram * 1024 * 1024 > video_size)
-+                video_size = vram * 1024 * 1024;
- 	video_visual = (video_bpp == 8) ?
- 		FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
------ cut -----
+I did "cp -a /usr/src/25/* /usr/src/linux-2.5.68/" and there was no error at 
+first, but the compile failed with:
 
-And yes...
-This is still without a "failsafe" since I don't have an upper limit,
-but it occurred to me that maybe it isn't that easy after all...
- - I can't trust the videocard memory probe...,
- - to just calculate the video_size * 3 (for tripple buffering) is bad ;-)
- - videocards with everyhing between 256k and 256 MB of memory,
-   makes choosing the limit somewhat impossible...
- - of course there is also endless range of installed system memory...
+gcc -Wp,-MD,net/core/.netfilter.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default 
+-fomit-frame-pointer -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=netfilter -DKBUILD_MODNAME=netfilter -c -o 
+net/core/netfilter.o net/core/netfilter.c
+net/core/netfilter.c: In function `nf_reinject':
+net/core/netfilter.c:559: `i' undeclared (first use in this function)
+net/core/netfilter.c:559: (Each undeclared identifier is reported only once
+net/core/netfilter.c:559: for each function it appears in.)
+net/core/netfilter.c:559: warning: left-hand operand of comma expression has 
+no effect
+net/core/netfilter.c:559: warning: left-hand operand of comma expression has 
+no effect
+make[3]: *** [net/core/netfilter.o] Error 1
+make[2]: *** [net/core] Error 2
+make[1]: *** [net] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.68'
+make: *** [stamp-build] Error 2
 
-So, any thoughts...?
-Or should one just leave it open due to:
-" it's your system, feel free to break it..." ;-)
+Still I can't understand what is the intended way of doing this.  I will try 
+n+1 ways and stop to think now and then, but if someone has an easy way to do 
+this, I haven't seen it.
 
-Oh well,
-I'm building my testkernel now with the above patch, 
-and will be testing different vram options to "kill" my system...
-
--- 
-Thomas Backlund
-
-tmb@iki.fi
-www.iki.fi/tmb
-
+-Kimmo S.

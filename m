@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288006AbSAHMjX>; Tue, 8 Jan 2002 07:39:23 -0500
+	id <S288002AbSAHMhn>; Tue, 8 Jan 2002 07:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288005AbSAHMjP>; Tue, 8 Jan 2002 07:39:15 -0500
-Received: from [203.124.139.197] ([203.124.139.197]:5637 "EHLO
-	pcsmail.patni.com") by vger.kernel.org with ESMTP
-	id <S288001AbSAHMi7>; Tue, 8 Jan 2002 07:38:59 -0500
-Reply-To: <chandrasekhar.nagaraj@patni.com>
-From: "Chandrasekhar" <chandrasekhar.nagaraj@patni.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problem with network
-Date: Tue, 8 Jan 2002 18:23:48 +0530
-Message-ID: <NFBBJJFKOKJEMFAEIPPJCEAHCBAA.chandrasekhar.nagaraj@patni.com>
+	id <S287995AbSAHMhe>; Tue, 8 Jan 2002 07:37:34 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:60840 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S286488AbSAHMhX>;
+	Tue, 8 Jan 2002 07:37:23 -0500
+Date: Tue, 8 Jan 2002 15:34:47 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Anton Blanchard <anton@samba.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
+In-Reply-To: <20020108114355.GA25718@krispykreme>
+Message-ID: <Pine.LNX.4.33.0201081533270.7255-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Tue, 8 Jan 2002, Anton Blanchard wrote:
 
-Hi,
+> > -	char bitmap[BITMAP_SIZE];
+> > +	unsigned long bitmap[3];
+> >  	list_t queue[MAX_PRIO];
+>
+> Sorry, of course this is wrong if sizeof(unsigned long) < 64. But you
+> get the idea :)
 
+thanks, i've put the generic fix into the -E1 patch.
 
-We are facing a problem regarding the network communication.
-System: Linux Kernel 2.4.7 with rmk2 and np1 patch on Assabet board.
-Problem: After setting all the required and necessary network parameters and
-running the utlility ifconfig we get the following error message
-SIOCSIFHWADDR: Device or resource busy
-But the IP Address, Netmask and Broadcast addressess are properly set.
-After this if we run ftp we get the following error message
-ftp: NETDEV WATCHDOG: eth0 timeout
-We tried increasing the timeout period but in vain.
+> With the patch things look much better (and the kernel boots on my
+> ppc64 machine :)
 
-Pls Suggest
+hey it should not even compile, you forgot to send us the PPC definition
+of sched_find_first_zero_bit() ;-)
 
-Regards
-Chandrasekhar
-
+	Ingo
 

@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271820AbTG2XkL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 19:40:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272134AbTG2XkL
+	id S272137AbTG3AEd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 20:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272150AbTG3AEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 19:40:11 -0400
-Received: from waste.org ([209.173.204.2]:42655 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S271820AbTG2XkH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 19:40:07 -0400
-Date: Tue, 29 Jul 2003 18:40:04 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Eric Sandall <eric@sandall.us>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] automate patch names in kernel versions
-Message-ID: <20030729234003.GG6049@waste.org>
-References: <20030729204419.GE6049@waste.org> <13036.134.121.40.89.1059516902.squirrel@mail.sandall.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <13036.134.121.40.89.1059516902.squirrel@mail.sandall.us>
-User-Agent: Mutt/1.3.28i
+	Tue, 29 Jul 2003 20:04:33 -0400
+Received: from babyruth.hotpop.com ([204.57.55.14]:44772 "EHLO
+	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S272137AbTG3AEc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 20:04:32 -0400
+Message-ID: <3F270A81.5000204@hotpop.com>
+Date: Wed, 30 Jul 2003 05:30:01 +0530
+From: dacin <dacin@hotpop.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-osdl1
+References: <20030729160719.20e17f3b.shemminger@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 29, 2003 at 03:15:02PM -0700, Eric Sandall wrote:
-> 
-> Oliver Xymoron said:
-> > Perhaps times have changed enough that I can revive this idea from a
-> > few years ago:
-> >
-> > http://groups.google.com/groups?q=patchname+oxymoron&hl=en&lr=&ie=UTF-8&selm=fa.jif8l5v.1b049jd%40ifi.uio.no&rnum=1
-> >
-> > <quote year=1999>
-> > This four-line patch provides a means for listing what patches have
-> > been built into a kernel. This will help track non-standard kernel
-> > versions, such as those released by Redhat, or Alan's ac series, etc.
-> > more easily.
-> >
-> > With this patch in place, each new patch can include a file of the
-> > form "patchname.[identifier]" in the top level source directory and
-> > [identifier] will then be added to the kernel version string. For
-> > instance, Alan's ac patches could include a file named patchdesc.ac2
-> > (containing a change log, perhaps), and the resulting kernel would be
-> > identified as 2.2.0-pre6+ac2, both at boot and by uname.
-> >
-> > This may prove especially useful for tracking problems with kernels
-> > built by distribution packagers and problems reported by automated
-> > tools.
-> > </quote>
-> >
-> > The patch now appends patches as -name rather than +name to avoid
-> > issues that might exist with packaging tools and scripts.
-> <snip>
-> 
-> One problem I see right off the bat with this is that your kernel image
-> name (and label) in LILO can only be so long, and if you apply too many
-> patches (acpi+xfs+preempt+low etc.) it would become too long.  This may be
-> an extreme case, but it can happen (I usually apply apci, preempt, low,
-> sched, etc., though the ck patch does most of this for me now).
+Stephen Hemminger wrote:
 
-There's already code in the makefile that warns when it grows over 64
-characters.
+>  http://developer.osdl.org/~shemminger/patches/patch-2.6.0-test2-osdl1.bz2
+>  PLM http://www.osdl.org/cgi-bin/getpatch?id=2023
+>  
+>
+    But it's not there....
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+>Added some new patches (from -mm) that relate to large machines.
+>
+>o Support for >32 cpu's			(Bill Irwin)
+>	- had to fix perfctr to handle this
+>o 64 bit device number's		(Andries Brower)
+>
+>Older patches included:
+>o Relayfs				(Tom Zanussi)
+>o Performance Counters			(Mikael Pettersson)
+>o NUMA text replication			(Dave Hansen)
+>o Kexec 				(Eric Biederman, Andy Pfiffer)
+>o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
+>o Lockmeter				(John Hawkes)
+>o Kernel Config (ikconfig)		(Randy Dunlap)
+>o RCU statistics               		(Dipankar Sarma)
+>o Scheduler tunables            	(Robert Love)
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+
+
+
+

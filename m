@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbTK3TVo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 14:21:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbTK3TVo
+	id S264959AbTK3T14 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 14:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbTK3T14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 14:21:44 -0500
-Received: from cafe.hardrock.org ([142.179.182.80]:54912 "EHLO
-	cafe.hardrock.org") by vger.kernel.org with ESMTP id S262788AbTK3TVm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 14:21:42 -0500
-Date: Sun, 30 Nov 2003 12:21:33 -0700 (MST)
-From: James Bourne <jbourne@hardrock.org>
-To: linux-kernel@vger.kernel.org, <coreteam@netfilter.org>
-Subject: 2.4.23/others and ip_conntrack causing hangs
-Message-ID: <Pine.LNX.4.44.0311301204520.2148-100000@cafe.hardrock.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 30 Nov 2003 14:27:56 -0500
+Received: from holomorphy.com ([199.26.172.102]:41671 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264959AbTK3T1z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 14:27:55 -0500
+Date: Sun, 30 Nov 2003 11:27:51 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: James W McMechan <mcmechanjw@juno.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops with tmpfs on both 2.4.22 & 2.6.0-test11
+Message-ID: <20031130192751.GM8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	James W McMechan <mcmechanjw@juno.com>,
+	linux-kernel@vger.kernel.org
+References: <20031130.085729.-1591395.1.mcmechanjw@juno.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031130.085729.-1591395.1.mcmechanjw@juno.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I wanted to bring up an issue with ip_conntrack in 2.4.23, 2.4.22, and at
-least 2.4.21 (sorry, didn't try 2.4.20).
+On Sun, Nov 30, 2003 at 08:57:26AM -0800, James W McMechan wrote:
+> I have a test program much shorter then the Oops
+> If someone wants to work from a Oops I will send
+> one, no maintainer was listed and the last Google
+> reference is about 2 years back, and it does not
+> seem to be about this issue.
+> This Oops both 2.4.22 and 2.6.0-test11
+> It results from a ARCH=um bugreport and
+> I kept making the test program shorter
+> This seems silly but one line to Oops?
 
-The issue is that as long as there are connections being tracked, the
-ip_conntrack module will not unload.  I can understand why this might be,
-but the problem is that ip_conntrack will hang rmmod and modprobe -r until
-such time as all the connections have been closed.
+Please post the oops (run through ksymoops as-needed).
 
-I think we need something like an ip_conntrack_flush or else completely drop
-the connections when the module is unloaded (as previously done) as this
-becomes an issue for people who need to drop their ip_tables and reload the
-modules (perhaps to correct other issues) especially ip_conntrack...  
 
-The only way to reload the modules right now (yes, I know removing modules
-from a running kernel is dodgey anyway) is to completely drop the network
-interfaces which kills off the connections *anyway*.  So, dropping the
-connections shouldn't be an issue.
-
-Thanks for the consideration.
-
-Regards
-James
-
--- 
-James Bourne                  | Email:            jbourne@hardrock.org          
-Unix Systems Administrator    | WWW:           http://www.hardrock.org
-Custom Unix Programming       | Linux:  The choice of a GNU generation
-----------------------------------------------------------------------
- "All you need's an occasional kick in the philosophy." Frank Herbert  
-
+-- wli

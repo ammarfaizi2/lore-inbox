@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265946AbUHANeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265947AbUHANhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265946AbUHANeA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 09:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUHANeA
+	id S265947AbUHANhC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 09:37:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265959AbUHANhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 09:34:00 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:41924 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265946AbUHANd6 (ORCPT
+	Sun, 1 Aug 2004 09:37:02 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:32926 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265947AbUHANhA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 09:33:58 -0400
-Date: Sun, 1 Aug 2004 15:33:49 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-cc: LKML <linux-kernel@vger.kernel.org>,
-       Peter Maydell <pmaydell@chiark.greenend.org.uk>,
-       Phil Blundell <philb@gnu.org>, Andrew Morton <akpm@osdl.org>,
-       Kars de Jong <jongk@linux-m68k.org>
-Subject: Re: [PATCH] Fix up return value from dio_find() (fixing a FIXME)
-In-Reply-To: <Pine.LNX.4.60.0408011530120.2535@dragon.hygekrogen.localhost>
-Message-ID: <Pine.GSO.4.58.0408011533030.25657@waterleaf.sonytel.be>
-References: <Pine.LNX.4.60.0407312132490.2660@dragon.hygekrogen.localhost>
- <Pine.GSO.4.58.0408011519180.25657@waterleaf.sonytel.be>
- <Pine.LNX.4.60.0408011530120.2535@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Aug 2004 09:37:00 -0400
+Date: Sun, 1 Aug 2004 06:36:32 -0700
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: zwane@linuxpower.ca, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       colpatch@us.ibm.com
+Subject: Re: [PATCH][2.6] first/next_cpu returns values > NR_CPUS
+Message-Id: <20040801063632.66c49e61.pj@sgi.com>
+In-Reply-To: <20040801131004.GT2334@holomorphy.com>
+References: <Pine.LNX.4.58.0407311347270.4094@montezuma.fsmlabs.com>
+	<20040731232126.1901760b.pj@sgi.com>
+	<Pine.LNX.4.58.0408010316590.4095@montezuma.fsmlabs.com>
+	<20040801124053.GS2334@holomorphy.com>
+	<20040801060529.4bc51b98.pj@sgi.com>
+	<20040801131004.GT2334@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Aug 2004, Jesper Juhl wrote:
-> On Sun, 1 Aug 2004, Geert Uytterhoeven wrote:
-> > On Sat, 31 Jul 2004, Jesper Juhl wrote:
-> > > Here's a patch to fix up this FIXME in drivers/dio/dio.c:dio_find() :
-> > >
-> > > * Aargh: we use 0 for an error return code, but select code 0 exists!
-> > > * FIXME (trivial, use -1, but requires changes to all the drivers :-< )
-> > > */
-> > >
-> > > I've changed the return value to -1 as suggested by the comment, and then
-> > > went looking for the drivers that needed to be changed (as the comment
-> > > mentions). I only found two users of dio_find() and I've fixed those up to
-> > > not treat 0 as an error, but only values <0.
-> > > The FIXME implies (to me at least) that there are many drivers that would
-> > > need to be changed, but I could only find two - did I miss anything?
-> > > Also, I don't have the hardware to test the drivers I've changed, so I've
-> > > done compile testing only - could someone please review my changes and
-> > > confirm if they are correct?
-> >
-> > I guess most of these are already covered by Kars' patch at the URL below?
-> >
-> >     http://linux-m68k-cvs.ubb.ca/~geert/linux-m68k-2.6.x-merging/474-dio.diff
-> >
-> It certainly looks that way from reading the patch. I was unaware of this
-> patch (which looks a lot more thorough than mine).  Thank you for the
-> link.
-> His patch makes the change to dio_find() , but I don't see any changes to
-> drivers/net/hplance.c or drivers/video/hpfb.c - are the changes I made
-> there not needed? those two treat a return value of 0 from dio_find() as
-> an error as far as I can tell...
+> A strong majority return BITS_PER_LONG-aligned results in this case.
 
-These are in patches 475 and 476 next to 474 in the same dir.
+You mean, in Zwane's example, we'd see a return from any_online_cpu() of
+32 or 64, not 3 (his NR_CPUS), and not just on i386, but on a majority
+of arch's.  That's what you're saying, right?
 
-Gr{oetje,eeting}s,
+Ok ... that favors your preference, teaching the users of find_next_bit
+to be more tolerant.
 
-						Geert
+Darn.  Your min(nbits, ...) patch looks good, but more is needed.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+And could you make it:
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
++	return min(nbits, find_next_bit(srcp->bits, nbits, n+1));
+
+rather than:
+
++	return min(NR_CPUS, find_next_bit(srcp->bits, nbits, n+1));
+
+for consistency of presentation?  All the cpu and node mask macros of
+this form (#define wrapped static inline) use the inline's parameter
+names in the body of the inline, not what the define passed as those
+params, including another 'nbits' in this very line of code.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

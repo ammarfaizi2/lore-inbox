@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267593AbSLSJzO>; Thu, 19 Dec 2002 04:55:14 -0500
+	id <S267589AbSLSKE3>; Thu, 19 Dec 2002 05:04:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267594AbSLSJzO>; Thu, 19 Dec 2002 04:55:14 -0500
-Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:44814 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S267593AbSLSJzN>; Thu, 19 Dec 2002 04:55:13 -0500
-Subject: parport_serial link order bug, NetMos support
-To: linux-kernel@vger.kernel.org
-Date: Thu, 19 Dec 2002 11:03:12 +0100 (CET)
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	id <S267594AbSLSKE3>; Thu, 19 Dec 2002 05:04:29 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:16388 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S267589AbSLSKE2>; Thu, 19 Dec 2002 05:04:28 -0500
+Message-Id: <200212190951.gBJ9pCs28149@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E18OxWK-0004w8-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, "D.A.M. Revok" <marvin@synapse.net>
+Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133  Promise ctrlr, or...
+Date: Thu, 19 Dec 2002 12:40:22 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andre Hedrick <andre@linux-ide.org>, Manish Lachwani <manish@Zambeel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.10.10212180241580.8350-100000@master.linux-ide.org> <200212181635.58164.marvin@synapse.net> <1040251122.26501.0.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1040251122.26501.0.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 18 December 2002 20:38, Alan Cox wrote:
+> On Wed, 2002-12-18 at 21:35, D.A.M. Revok wrote:
+> > So.  I /think/ that somehow the Promise controller isn't being
+> > initialized properly by the Linux kernel, UNLESS the mobo's BIOS
+> > inits it first?
+>
+> In some situations yes. The BIOS does stuff including fixups we mere
+> mortals arent permitted to know about.
 
-I've been trying (for quite a long time now, starting around the
-time when 2.4.19 was released) to submit the following patches into
-the 2.4.x kernel:
+OTOH mere mortals are allowed to make full dump of PCI config ;)
 
-http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/00_parport_serial
-http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/01_netmos
-
-(generated for 2.4.20-pre9, but apply cleanly to 2.4.20-final too,
-00_parport_serial needs to be applied before 01_netmos).
-
-The first patch fixes a bug with CONFIG_PARPORT_SERIAL=y (moves the
-parport_serial driver - must be initialised after serial).  This
-bug has been fixed in 2.5.x some time ago, by moving the serial
-driver to its own directory - a change that looks too intrusive for
-2.4.x, moving parport_serial instead looks much safer.  This patch
-is quite big, but most of it is just moving parport_serial.c from
-drivers/parport/ to drivers/char/ without changing a single line.
-Now parport_serial is after serial, but before any drivers that
-need parport already initialised: lp, block (paride), net (plip).
-
-The second patch adds support for NetMos PCI I/O cards, based on
-a >1 year old 2.5.x patch by Tim Waugh.  I've been using a few
-NM9835-based cards in production use, no problems so far (in 3
-machines, one of them is my server with two permanent 115.2k PPP
-connections, which have seen quite a few gigabytes of traffic).
-
-Now that 2.4.21-pre2 is out, I'd like to ask - are there any good
-reasons why these patches are not going in?  There has been some
-discussion, but no conclusion either way (not accepted, and not
-rejected).  Are there any known problems, like some NM9835 chips
-burn and explode when run under Linux and I've just been lucky? ;)
-
-Please, I would really appreciate to see these patches in 2.4.21.
-
-Thanks,
-Marek
-
+"D.A.M. Revok" <marvin@synapse.net>, can you send lspci -vvvxxx
+outputs when you boot with BIOS enabled and BIOS disabled?
+--
+vda

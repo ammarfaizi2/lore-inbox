@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133086AbRDVAeU>; Sat, 21 Apr 2001 20:34:20 -0400
+	id <S133088AbRDVAfK>; Sat, 21 Apr 2001 20:35:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133087AbRDVAeK>; Sat, 21 Apr 2001 20:34:10 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:49426 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S133086AbRDVAd5>;
-	Sat, 21 Apr 2001 20:33:57 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200104220033.f3M0XsM162528@saturn.cs.uml.edu>
-Subject: Re: Request for comment -- a better attribution system
-To: babydr@baby-dragons.com (Mr. James W. Laferriere)
-Date: Sat, 21 Apr 2001 20:33:53 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), esr@thyrsus.com,
-        linux-kernel@vger.kernel.org (CML2),
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.32.0104211456540.4237-100000@filesrv1.baby-dragons.com> from "Mr. James W. Laferriere" at Apr 21, 2001 02:59:46 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S133089AbRDVAfC>; Sat, 21 Apr 2001 20:35:02 -0400
+Received: from sunny.pacific.net.sg ([203.120.90.127]:44232 "EHLO
+	sunny.pacific.net.sg") by vger.kernel.org with ESMTP
+	id <S133088AbRDVAev>; Sat, 21 Apr 2001 20:34:51 -0400
+Message-ID: <3AE227C4.1B333401@classical.2y.net>
+Date: Sun, 22 Apr 2001 08:37:24 +0800
+From: joker <linux@classical.2y.net>
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: zh,zh-TW,zh-CN,en
 MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: kernel compile need help
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James  W. Laferriere writes:
-> On Sat, 21 Apr 2001, Albert D. Cahalan wrote:
->> Eric S. Raymond writes:
+---------- Forwarded message ----------
+Date: Sat, 21 Apr 2001 13:02:57 +0800 (SGT)
+From: sglug@classical.2y.net
+To: slugnet@lists.lugs.org.sg
+Subject: Help Need on after compile the Kernel
 
->>> This is a proposal for an attribution metadata system in the Linux
->>> kernel sources.  The goal of the system is to make it easy for
->>> people reading any given piece of code to identify the responsible
->>> maintainer.  The motivation for this proposal is that the present
->>> system, a single top-level MAINTAINERS file, doesn't seem to be
->>> scaling well.
->>
->> It is nice to have a single file for grep. With the proposed
->> changes one would sometimes need to grep every file.
->
-> 	Find . -name "*Some-Name*" -type f -print | xargs grep 'Some-Info'
-> 	Hate answering with just one line of credible info , But .
 
-The above would grep every file. It takes 1 minute and 9.5 seconds.
-So the distributed maintainer information does not scale well at all.
+hi,
+   after completed update from 2.2.17 to 2.4.3 manually, I have a
+question
+where can I find the file name 'kernel.h-2.4.3' than can be use to link
+from 'kernel.h
+and the 'module-info-2.4.3' which can link from 'module-info-2.2.17-14'
+I am current unable to find this two on my system with the use of
+'locate'
+and 'find'
+how do I creat this two file ?, it seem I having problem start up, my
+NIC
+failure I belive
+it maybe casue by this two file.
+
+regards
+L J
+
+lrwxrwxrwx    1 root     root           15 Apr 21 10:46 kernel.h ->
+kernel.h-2.2.17-14
+-rw-r--r--    1 root     root          405 Apr 21 11:00
+kernel.h-2.2.17-14
+-rw-r--r--    1 root     root        11773 Feb  6 05:11
+module-info-2.2.17-14
+lrwxrwxrwx    1 root     root           24 Apr 21 10:55 modules-info ->
+module-info-2.2.17-14
+
+
 

@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbTIUJXu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 05:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbTIUJXu
+	id S262366AbTIUKEp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 06:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTIUKEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 05:23:50 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:20370 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261947AbTIUJXt (ORCPT
+	Sun, 21 Sep 2003 06:04:45 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:64139 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262366AbTIUKEo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 05:23:49 -0400
-Date: Fri, 1 Jan 1904 00:08:57 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
-Message-ID: <19031231230857.GA1050@suse.de>
-References: <200309131101.h8DB1WNd021570@harpo.it.uu.se> <1063476275.8702.35.camel@dhcp23.swansea.linux.org.uk> <20030913184934.GB10047@gtf.org> <20030913190131.GD10047@gtf.org> <20030915073445.GC27105@suse.de> <20030916194955.GC5987@gtf.org> <20030916195515.GC906@suse.de> <3F6C9C55.6050608@pobox.com>
+	Sun, 21 Sep 2003 06:04:44 -0400
+Date: Sun, 21 Sep 2003 12:04:36 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Rob Landley <rob@landley.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Keyboard oddness.
+Message-ID: <20030921100436.GA18409@ucw.cz>
+References: <200309201633.22414.rob@landley.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F6C9C55.6050608@pobox.com>
+In-Reply-To: <200309201633.22414.rob@landley.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 20 2003, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >On Tue, Sep 16 2003, Jeff Garzik wrote:
+On Sat, Sep 20, 2003 at 04:33:22PM -0400, Rob Landley wrote:
+> I've mentioned my keyboard repeat problems before.  I grepped through the logs 
+> and found a whole bunch of these type messages:
 > 
-> >>And we should deprecate them with a solution that aligns what with Linus
-> >>described in Dec 2001 on lkml:  a chrdev where userland write(2)s cdbs
-> >>and taskfiles, and read(2)s the results.  This is where my thinking
-> >>picked up:  if we are creating a chrdev to send "packets" and receive
-> >>responses to those packets............  <insert conclusion here>
-> >
-> >
-> >== bsg, block sg. Did you read what I wrote? :). I started implementing
-> >this and have something that barely works. You just bind a block device
-> >to a /dev/sg* char device and use read/write on that. Aka sg.
+> Aug 17 05:28:48 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0x1d0, 
+> on isa0060/serio0) pressed.
+> Aug 19 09:06:51 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0x8e, 
+> on isa0060/serio0) pressed.
+> Aug 22 04:33:36 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0xcd, 
 > 
-> sg needs some modifications -- for example it errors out instead of 
-> sleeps on queue full -- but sounds good to me.
+> (There's more, it just goes on and on...)
+> 
+> Any clues?  (Thinkpad iSeries...  1200, I think.)
 
-Definitely. bsg will be a new implementation from scratch, also dumping
-a lot of really (imo) useless "features" that clutter up the code. And
-yes, of course it should honor the typical write(2) model :)
+What kernel version? Can you test with latest?
 
 -- 
-Jens Axboe
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

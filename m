@@ -1,54 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261446AbSLMFjG>; Fri, 13 Dec 2002 00:39:06 -0500
+	id <S261495AbSLMFlL>; Fri, 13 Dec 2002 00:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbSLMFjG>; Fri, 13 Dec 2002 00:39:06 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:39595 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261446AbSLMFjF>;
-	Fri, 13 Dec 2002 00:39:05 -0500
-Date: Thu, 12 Dec 2002 21:42:39 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Rod Van Meter <Rod.VanMeter@nokia.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: massive compile failures w/ 2.5.51 on RH8.0
-In-Reply-To: <20021213002750.GB18156@suse.de>
-Message-ID: <Pine.LNX.4.33L2.0212122140500.21077-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261456AbSLMFlL>; Fri, 13 Dec 2002 00:41:11 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:65298 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261495AbSLMFlK>;
+	Fri, 13 Dec 2002 00:41:10 -0500
+Date: Thu, 12 Dec 2002 21:47:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Larry Kessler <kessler@us.ibm.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Werner Almesberger <werner@almesberger.net>,
+       James Keniston <kenistoj@us.ibm.com>
+Subject: Re: Proposal:  Alan Cox dev_printk() with advanced logging support
+Message-ID: <20021213054723.GC25099@kroah.com>
+References: <3DF93A71.15678A95@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DF93A71.15678A95@us.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Dec 2002, Dave Jones wrote:
+On Thu, Dec 12, 2002 at 05:40:01PM -0800, Larry Kessler wrote:
+> 
+> The version of dev_printk() being proposed here is essentially a
+> generalized version of these macros, with a small change to Alan's 
+> version so that driver name and bus_id are prepended to the 
+> message...
+> 
+>   #define dev_printk(sev, dev, format, arg...) \
+>       printk(sev "%s %s: " format, (dev).driver->name, (dev).bus_id, ##arg)
+>  
+> Then the logging macros in device.h can be re-written like this...
+>    #define dev_err(dev, format, arg...)           \
+>          dev_printk(KERN_ERR, (dev), format, ## arg)
+> ..and so on.  
 
-| On Thu, Dec 12, 2002 at 04:06:59PM -0800, Rod Van Meter wrote:
-|
-|  > At this point I've concluded that something in my setup is busted.
-|  > Surely this large a fraction of things don't currently fail to even
-|  > compile?
-|
-| This large a fraction of things don't currently compile.
-| And don't call me Shirley. 8-)
-|
-| Seriously, you got unlucky, and seem to be hitting just about
-| every broken driver/filesystem there is in 2.5 right now.
-| If you take a look at bugzilla.kernel.org you'll see that
-| most of the compile errors noted there are those that you've
-| highlighted.
-|
-| Things like Intermezzo don't affect a large proportion of users,
-| so remain broken for some time. The framebuffer changes in 2.5.51
-| fixed up a whole bunch of problems that had been lingering for
-| a while, but there's still a lot of drivers not converted over
-| to the new API.
-|
-| Compile-time breakage is to be expected in 2.5.x. It's a hard-hat
-| area. You may have more luck with 2.5-ac.
+I'd gladly accept a patch to add dev_printk() like this right now, if
+you want.  But make sure you get the proper spacing to work properly on
+older versions of gcc.  Your above macros are incorrect with regards to
+that :)
 
-and some of these may have patches available for them on lkml.
-I know that intermezzo does, from Peter Braam, with a small
-follow-up by me, so it's fixable if you want it.  Surely (Rod ;).
+> What is _not_ addressed by this proposal are a number of other issues raised
+> in the past, that still need addressing.  For example...
+> 
+> 1) (from Jeff Garzik) There's little or no stanardization of messages across
+>    different (but similar) devices.
+> 
+> 2) (from Jeff Garzik and Greg KH) There's little or no guidance about what device
+>    specific details are most useful for Problem Determination, Sys Administration,
+>    etc.
+> 
+>    However, consistently identifying which device, plus state info from the device
+>    struct, plus other info. like source file, function name, and line number,
+>    provided with event logging, should certainly be useful in some cases. 
+>    As the device struct continues to evolve, it will become more clear which
+>    device attributes are appropriate to log.
 
--- 
-~Randy
+I really feel strongly that these questions need to be answered properly
+before we start adding the larger event logging stuff to the main kernel
+tree.
 
+Oh yeah, patches to actually _use_ these dev_*() functions would also be
+appreciated.  It looks like only one very tiny driver subsystem has
+started to use them.  Patches from your group to change this would be
+welcome.
+
+thanks,
+
+greg k-h

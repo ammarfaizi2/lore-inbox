@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261768AbSI1VHk>; Sat, 28 Sep 2002 17:07:40 -0400
+	id <S261871AbSI1VR4>; Sat, 28 Sep 2002 17:17:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261871AbSI1VHk>; Sat, 28 Sep 2002 17:07:40 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:60316 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261768AbSI1VHi>;
-	Sat, 28 Sep 2002 17:07:38 -0400
-Message-ID: <3D961B56.2010403@colorfullife.com>
-Date: Sat, 28 Sep 2002 23:12:54 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
+	id <S262055AbSI1VR4>; Sat, 28 Sep 2002 17:17:56 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:57098 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261871AbSI1VR4>; Sat, 28 Sep 2002 17:17:56 -0400
+Date: Sat, 28 Sep 2002 22:23:08 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
 To: Andrew Morton <akpm@digeo.com>
-CC: John Levon <movement@marcelothewonderpenguin.com>,
-       Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
+Cc: Ed Tomlinson <tomlins@cam.org>, Manfred Spraul <manfred@colorfullife.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: 2.5.39 kmem_cache bug
+Message-ID: <20020928212308.GA61236@compsoc.man.ac.uk>
 References: <20020928201308.GA59189@compsoc.man.ac.uk> <3D961797.B4094994@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D961797.B4094994@digeo.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *17vP3O-000OJE-00*7SmSiTr07tQ* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> John Levon wrote:
-> 
->>kmem_cache_destroy() is falsely reporting
->>"kmem_cache_destroy: Can't free all objects" in 2.5.39. I have
->>verified my code was freeing all allocated items correctly.
->>
->>Reverting this chunk :
->>
->>-                       list_add(&slabp->list, &cachep->slabs_free);
->>+/*                     list_add(&slabp->list, &cachep->slabs_free);            */
->>+                       if (unlikely(list_empty(&cachep->slabs_partial)))
->>+                               list_add(&slabp->list, &cachep->slabs_partial);
->>+                       else
->>+                               kmem_slab_destroy(cachep, slabp);
->>
->>and the problem goes away. I haven't investigated why.
->>
-> 
-> 
-> Thanks.  That's the code which leaves one empty page available
-> for new allocations rather than freeing it immediately.
-> 
-> It's temporary.  Ed, I think we can just do
-> 
+On Sat, Sep 28, 2002 at 01:56:55PM -0700, Andrew Morton wrote:
+
 > 	if (list_empty(&cachep->slabs_free))
 > 		list_add(&slabp->list, &cachep->slabs_free);
 > 	else
 > 		kmem_slab_destroy(cachep, slabp);
-> 
-> there?
 
-Look correct.
-If you apply it, then reenable the BUG check in s_show() if a slab with 
-0 allocations is found on the partial list, too.
+This seems to work for me on a quick test.
 
---
-	Manfred
+thanks
+john
 
+-- 
+"When your name is Winner, that's it. You don't need a nickname."
+	- Loser Lane

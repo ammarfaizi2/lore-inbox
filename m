@@ -1,111 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbUDWUVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbUDWUYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbUDWUVg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 16:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUDWUVg
+	id S261340AbUDWUYG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 16:24:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUDWUYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 16:21:36 -0400
-Received: from email-out2.iomega.com ([147.178.1.83]:248 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S261340AbUDWUVd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 16:21:33 -0400
-Subject: Re: Unable to read UDF fs on a DVD
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: kronos@kronoz.cjb.net
-Cc: linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040423195004.GA1885@dreamland.darkstar.lan>
-References: <20040423162801.GA5396@dreamland.darkstar.lan><1082743002.3099. 
-	23.camel@patibmrh9><20040423195004.GA1885@dreamland.darkstar.lan>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1082751675.3163.106.camel@patibmrh9>
+	Fri, 23 Apr 2004 16:24:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61891 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261340AbUDWUYD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 16:24:03 -0400
+Date: Fri, 23 Apr 2004 13:17:56 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] blkdev.h: functions no longer inline
+Message-Id: <20040423131756.708e8c36.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Apr 2004 14:21:15 -0600
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Apr 2004 20:21:32.0100 (UTC) FILETIME=[911EB040:01
-	C42970]
-X-imss-version: 2.0
-X-imss-result: Passed
-X-imss-scores: Clean:16.79060 C:49 M:1 S:5 R:5
-X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> http://web.tiscali.it/kronoz/ucf_test.log
-> I don't see anything strange.
 
-I now agree, that disc passed fsck and mount well enough to make the ls
-failure interesting.
+// linux-266-rc2
+// These are EXPORTed SYMBOLs; 'inline' was removed from them
+// in ll_rw_blk.c on 2002-11-25.
 
-What to try next after fsck passes, I do not know, ouch, sorry.
-
-Offline I'm working to comment the fs/udf/ source.  Even me finishing
-that might not do you much good, unless we can figure out how to
-reproduce your trouble at my desk.
-
-Pat LaVarre
-
-P.S. Five postscripts:
-
-1)
-
-> even with ide-scsi, though.
-
-Whoa.  You weren't engaging in the taboo act of running ide-scsi in 2.6
-back when ls failed, were you?  (If you are, then please remove
-ide-scsi, substitute ide-cd, and confirm or deny that exercise actually
-made no difference.)
-
-2)
-
-The disc didn't actually pass the phgfsck without complaint:  The
-standard phgfsck egrep is:
-
-$ egrep -i '(info|warning|error):' http://web.tiscali.it/kronoz/ucf_test.log
-        PVD  72  Warning: Volume Set Identifier: "040420_0906",
-        PVD  72  Warning: Volume Set Identifier: "040420_0906",
-        Error: Number of AVDPs less than 2: 1, AVDP at 256
-$
-
-Non-compliance!
-
-All the same, I'm guessing these complaints do Not explain the ls
-failure, since to my newbie ear these sound like mount issues and we
-know you can mount.
-
-3)
-
-I can't now rapidly reproduce the collection of file lengths you report,
-because sparse files in UDF, even when the underlying volume is not
-sparse, as yet crash my Linux-2.6.5.
-
-3)
-
-> Btw, don't know if it's related but I was unable to run ucf_test without
-> scsi emulation: it complained about unknown image chunk size. I can't
-> read files even with ide-scsi, though.
-
-Yes phgfsck trouble like that is normal, thanks for asking.
-
-4)
-
-> > P.S. The subscriber-only archives of linux_udf@h... currently show
-> > Linux-2.6.5 issues now under discussion, including an issue people have
-> > reproduced by downloading a huge trial .exe into Windows and then
-> > copying a file of more than 2 GiB to the disc.
-> 
-> I think that this is a different issue, files on my disk are smaller.
-
-I agree your conclusion is reasonable, I do not myself yet know the
-udf.ko code well enough to firmly confirm or deny your conclusion.
-
-5)
-
-> http://web.tiscali.it/kronoz/ucf_test.log
-
-Any chance this link will still work, a year from now?  (I ask because
-I'm hoping to see a collection of observed UDF non-compliance come into
-being.)
+diffstat:=
+ include/linux/blkdev.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 
+diff -Naurp ./include/linux/blkdev.h~extern_inline ./include/linux/blkdev.h
+--- ./include/linux/blkdev.h~extern_inline	2004-04-20 15:54:29.000000000 -0700
++++ ./include/linux/blkdev.h	2004-04-23 12:01:30.000000000 -0700
+@@ -513,8 +513,8 @@ extern void blk_requeue_request(request_
+ extern void blk_plug_device(request_queue_t *);
+ extern int blk_remove_plug(request_queue_t *);
+ extern void blk_recount_segments(request_queue_t *, struct bio *);
+-extern inline int blk_phys_contig_segment(request_queue_t *q, struct bio *, struct bio *);
+-extern inline int blk_hw_contig_segment(request_queue_t *q, struct bio *, struct bio *);
++extern int blk_phys_contig_segment(request_queue_t *q, struct bio *, struct bio *);
++extern int blk_hw_contig_segment(request_queue_t *q, struct bio *, struct bio *);
+ extern int scsi_cmd_ioctl(struct gendisk *, unsigned int, unsigned long);
+ extern void blk_start_queue(request_queue_t *q);
+ extern void blk_stop_queue(request_queue_t *q);

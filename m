@@ -1,69 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318601AbSHPRKb>; Fri, 16 Aug 2002 13:10:31 -0400
+	id <S318607AbSHPRLl>; Fri, 16 Aug 2002 13:11:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318602AbSHPRKa>; Fri, 16 Aug 2002 13:10:30 -0400
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:46235 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S318601AbSHPRK1>; Fri, 16 Aug 2002 13:10:27 -0400
-Message-ID: <3D5D32D4.475C6719@wanadoo.fr>
-Date: Fri, 16 Aug 2002 19:13:56 +0200
+	id <S318608AbSHPRLl>; Fri, 16 Aug 2002 13:11:41 -0400
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:22469 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S318607AbSHPRLZ>; Fri, 16 Aug 2002 13:11:25 -0400
+Message-ID: <3D5D3310.5D4A4545@wanadoo.fr>
+Date: Fri, 16 Aug 2002 19:14:56 +0200
 From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre2 i586)
 X-Accept-Language: fr-FR, en
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
+To: Andrew Rodland <arodland@noln.com>
 CC: linux-kernel@vger.kernel.org
 Subject: Re: 2.4.20-pre2-ac3 stops responding
-References: <Pine.LNX.4.44L.0208161340000.1430-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44L.0208161036170.1430-100000@imladris.surriel.com>
+		<3D5D287C.F4AE3797@wanadoo.fr> <20020816124415.467e662e.arodland@noln.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+Andrew Rodland wrote:
 > 
-> On Fri, 16 Aug 2002, Jean-Luc Coulon wrote:
+> On Fri, 16 Aug 2002 18:29:48 +0200
+> Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr> wrote:
+> 
 > > Rik van Riel wrote:
+> > >
 > > > On Fri, 16 Aug 2002, Jean-Luc Coulon wrote:
 > > >
 > > > > 2nd while running:
 > > > > ------------------
-> > > > If I have high disk activity, the system stops responding for a while,
-> > > > it does not accepts any key action nor mouse movement. It starts running
-> > > > normally after few seconds.
-> > >
-> > > I've got a patch that might help improve this situation:
-> > >
-> > > http://surriel.com/patches/2.4/2.4.20-p2ac3-rmap14
+> > > > If I have high disk activity, the system stops responding for a
+> > > > while, it does not accepts any key action nor mouse movement. It
+> > > > starts running normally after few seconds.
+> > /dev/hda2:
+> > multcount    =  1 (on)
+> > IO_support   =  1 (32-bit)
+> > unmaskirq    =  0 (off)
+> > using_dma    =  0 (off)
+> > keepsettings =  0 (off)
+> > readonly     =  0 (off)
+> > readahead    =  8 (on)
+> > geometry     = 3649/255/63, sectors = 29302560, start = 9767520
+> > HDIO_GET_IDENTITY failed: Invalid argument
 > >
-> > I've applied the patch, it does not improve the things.
-> > The problem seems to be related with a DMA :
-> 
+> > [root@debian-f5ibh] ~ # hdparm -d1 /dev/hda2
+> >
 > > /dev/hda2:
 > > setting using_dma to 1 (on)
 > > HDIO_SET_DMA failed: Invalid argument
 > > using_dma    =  0 (off)
-> 
-> Heh indeed.  There's no way to make your system fast if the
-> CPU is tied up waiting for the disk all the time ;)
-> 
-> regards,
-> 
-> Rik
-> --
-> Bravely reimplemented by the knights who say "NIH".
-> 
-> http://www.surriel.com/         http://distro.conectiva.com/
+> >
+> how about umaskirq (hdparm -u1) ? that should help quite a bit, if it
+> works.
 
-Of course, but I've not yet found the way to setup DMA
+I can set it up, but I cannot set up the DMA
 
-At boot time, I get the messages :
+> 
+> oh, and by the way, does it matter that you're doing hdparm on a
+> partition rather than the wholedisk?
 
-Aug 16 11:34:19 f5ibh kernel: ALI15X3: simplex device: DMA disabled
-Aug 16 11:34:19 f5ibh kernel: ide0: ALI15X3 Bus-Master DMA disabled
-(BIOS)
+There is no difference
 
------
-Regards
-	Jean-Luc
+----
+regards
+	jean-Luc

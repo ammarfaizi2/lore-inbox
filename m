@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266836AbUIOBrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUIOBrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266836AbUIOBrX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 21:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUIOBrU
+	id S266663AbUIOBrk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 21:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266627AbUIOBrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 21:47:20 -0400
-Received: from holomorphy.com ([207.189.100.168]:8344 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266627AbUIOBqU (ORCPT
+	Tue, 14 Sep 2004 21:47:40 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:46041 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S266749AbUIOBrV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 21:46:20 -0400
-Date: Tue, 14 Sep 2004 18:46:10 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Love <rml@ximian.com>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-Message-ID: <20040915014610.GG9106@holomorphy.com>
-References: <4146F33C.9030504@yahoo.com.au> <20040914140905.GM4180@dualathlon.random> <41470021.1030205@yahoo.com.au> <20040914150316.GN4180@dualathlon.random> <1095185103.23385.1.camel@betsy.boston.ximian.com> <20040914185212.GY9106@holomorphy.com> <1095188569.23385.11.camel@betsy.boston.ximian.com> <20040914192104.GB9106@holomorphy.com> <1095189593.16988.72.camel@localhost.localdomain> <1095207749.2406.36.camel@krustophenia.net>
+	Tue, 14 Sep 2004 21:47:21 -0400
+Date: Tue, 14 Sep 2004 19:47:11 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Anton Blanchard <anton@samba.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>, paulus@samba.org
+Subject: Re: offtopic: how to break huge patch into smaller independent patches?
+Message-ID: <20040915014711.GA30607@schnapps.adilger.int>
+Mail-Followup-To: Chris Friesen <cfriesen@nortelnetworks.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Anton Blanchard <anton@samba.org>,
+	Linux kernel <linux-kernel@vger.kernel.org>, paulus@samba.org
+References: <41474B15.8040302@nortelnetworks.com> <20040915002023.GD5615@krispykreme> <119340000.1095209242@flay> <414799D1.7050609@nortelnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1095207749.2406.36.camel@krustophenia.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <414799D1.7050609@nortelnetworks.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-14 at 15:19, Alan Cox wrote:
->> Fix the data structure locking starting at the lowest level is how I've
->> always tackled these messes. When the low level locking is right the
->> rest just works (usually 8)).
->> 	"Lock data not code"
+On Sep 14, 2004  19:24 -0600, Chris Friesen wrote:
+> >If the changes are in fairly independant files, just vi'ing the diff is
+> >normally very effective. If they're all intertangled, then starting again
+> >from scratch is prob easier ;-)
+> 
+> Unfortunately I've got over 550 files being changed, in probably about 50 
+> conceptual areas.
 
-On Tue, Sep 14, 2004 at 08:22:29PM -0400, Lee Revell wrote:
-> Although, there is at least one case (reiser3) where we know which data
-> structures the BKL is supposed to be protecting, because the code does
-> something like reiserfs_write_lock(foo_data_structure) which gets
-> define'd away to lock_kernel().  And apparently some of the best and
-> brightest on LKML have tried and failed to fix it, and even Hans says
-> "it's HARD, the fix is reiser4".
-> So, maybe some of the current uses should be tagged as WONTFIX.
+Start with the smallest logical change(s), possibly just extracting them
+from the big diff with vi.  Assuming you have a decent diff format (-up
+is what I find the most useful) you should just be able to copy the
+original patch, delete all the hunks that are unrelated, and you are left
+with logical change.
 
-I've not heard a peep about anyone trying to fix this. It should be
-killed off along with the rest, of course, but like I said before, it's
-the messiest, dirtiest, and ugliest code that's left to go through,
-which is why it's been left for last. e.g. driver ->ioctl() methods.
+Now that you have it as a separate patch, apply it to the reference tree
+and rediff to get a reduced-size combined patch.  For some changes that
+stomp on overlapping lines of code you don't have much hope but to recreate
+them by hand, but hopefully those are in relatively few areas.
 
+Consider using a source-control tool next time ;-/.  
 
--- wli
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+

@@ -1,124 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUJRRWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266749AbUJRR3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267165AbUJRRWT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 13:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267170AbUJRRWT
+	id S266749AbUJRR3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 13:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUJRR3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 13:22:19 -0400
-Received: from fire.osdl.org ([65.172.181.4]:46521 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S267165AbUJRRWO (ORCPT
+	Mon, 18 Oct 2004 13:29:16 -0400
+Received: from cantor.suse.de ([195.135.220.2]:2720 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266749AbUJRR3N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 13:22:14 -0400
-Message-ID: <4173F9A7.2090504@osdl.org>
-Date: Mon, 18 Oct 2004 10:13:11 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc Bevand <bevand_m@epita.fr>
-CC: linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: NMI watchdog detected lockup
-References: <4172F91D.8090109@osdl.org> <ckv123$pcs$1@sea.gmane.org>
-In-Reply-To: <ckv123$pcs$1@sea.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Oct 2004 13:29:13 -0400
+Date: Mon, 18 Oct 2004 19:21:22 +0200
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andrea Arcangeli <andrea@novell.com>, Andi Kleen <ak@suse.de>,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 4level page tables for Linux
+Message-ID: <20041018172122.GD1945@verdi.suse.de>
+References: <20041012135919.GB20992@wotan.suse.de> <1097606902.10652.203.camel@localhost> <20041013184153.GO17849@dualathlon.random> <20041013213558.43b3236c.ak@suse.de> <20041013200414.GP17849@dualathlon.random> <Pine.LNX.4.58.0410180957500.9916@server.graphe.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410180957500.9916@server.graphe.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Bevand wrote:
-> On 2004-10-17, Randy.Dunlap <rddunlap@osdl.org> wrote:
-> | 
-> |  I'm seeing this often during a kernel build on AIC79xx.
-> |  I did one kernel build on SATA without seeing this.
-> |  This is on a dual-Opteron IBM Workstation A with
-> |  2 GB RAM, SATA, & SCSI.
-> |  [...]
-> |  NMI Watchdog detected LOCKUP on CPU0, registers:
-> |  [...]
+On Mon, Oct 18, 2004 at 10:02:20AM -0700, Christoph Lameter wrote:
+> On Wed, 13 Oct 2004, Andrea Arcangeli wrote:
 > 
-> You are not the first one to observe frequent watchdog timeout
-> lockup on dual Opteron systems during intense I/O operations,
-> see this thread:
+> > On Wed, Oct 13, 2004 at 09:35:58PM +0200, Andi Kleen wrote:
+> > > page mapping level 4 (?) just guessing here.
+> >
+> > make sense.
+> >
+> > > PML4 is the name AMD and Intel use in their documentation. I don't see
+> > > a particular reason to be different from them.
+> >
+> > just because we never say 'page mapping level 4', we think 'page table
+> > level 4' or 'page directory level 4'.
 > 
->   http://thread.gmane.org/gmane.linux.ide/1933
+> Would it not be best to give up hardcoding these page mapping levels into
+> the kernel? Linux should support N levels. pml4,pgd,pmd,pte needs to
+
+It already does. Currently it supports 2-3 levels, with my patch
+it supports 2-4 levels.
+
+> disappear and be replaced by
 > 
-> Note: this does *not* seem to be SATA-related.
+> pte_path[N]
+> 
+> We are duplicating code for pgd, pmd, pte and now pml again and again. The
+> code could be much simpler if this would be generalized. Various
 
-Hi,
-
-Zwane suspected NMI spikes and advised me to disable nmi_watchdog
-(nmi_watchdog=0).  After doing that, a kernel build completes
-successfully, although with many messages like these:
-
-Uhhuh. NMI received for unknown reason 21.
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
-Uhhuh. NMI received for unknown reason 31.
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
-Uhhuh. NMI received for unknown reason 31.
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
-Uhhuh. NMI received for unknown reason 31.
-Uhhuh. NMI received for unknown reason 31.
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
-Uhhuh. NMI received for unknown reason 21.
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
-Uhhuh. NMI received for unknown reason 21.
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
-Uhhuh. NMI received for unknown reason 21.
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
+For most people it is already generalized (get_user_pages).
+The only exception is the core VM and the low level architecture code.
+The later will need to deal always with the details.
 
 
-I've also seen reason == 20.
+> architectures would support different levels without some strange
+> feature like f.e. pmd's being "optimized away".
 
-This is on 2.6.9-rc4.
+Nobody came up with a nice automatic iterator so far.
 
-Andi, any ideas?
+If you look at the different functions in mm/* who handle all level 
+they all do slightly different things so it's not that easy to 
+generalize. Also it is not that many, perhaps seven in mm/* plus 
+another in the arch code.
 
-I've had several hundred of these messages, with only 1 dazed &
-confused that did not continue OK.
+> Certainly the way that pml4 is proposed to be done is less invasive but we
+> are creating something more and more difficult to maintain.
 
-Adding show_registers(regs); in the NMI handler points to
-default_idle():
+I don't see us switching to more levels any time soon ...
 
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
-CPU 0
-Modules linked in: aic79xx usbserial aic7xxx ohci1394 ieee1394
-Pid: 0, comm: swapper Not tainted 2.6.9-rc4
-RIP: 0010:[<ffffffff8010f5f0>] <ffffffff8010f5f0>{default_idle+32}
-RSP: 0018:ffffffff805e3fb8  EFLAGS: 00000246
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000018
-RDX: ffffffff8010f5d0 RSI: ffffffff80472b00 RDI: 0000010001e11b20
-RBP: 0000000000000000 R08: 00000000ffffffff R09: 0000000000000001
-R10: 0000000000000080 R11: ffffffff80562ae0 R12: 0000000000000000
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-FS:  0000002a95b2e4c0(0000) GS:ffffffff805de800(0000) 
-knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: 0000002a955a6000 CR3: 0000000000101000 CR4: 00000000000006e0
-Process swapper (pid: 0, threadinfo ffffffff805e2000, task 
-ffffffff80472b00)
-Stack: ffffffff8010f9fd 0000000000000000 ffffffff805e56e5 0000000000000000
-        ffffffff8055fbe0 0000000000000800 ffffffff805e51e0 
-0000000000000404
-        0000000000000000
-Call Trace:<ffffffff8010f9fd>{cpu_idle+29} 
-<ffffffff805e56e5>{start_kernel+421}
-        <ffffffff805e51e0>{_sinittext+480}
+Also I don't think it's that bad as you're claiming it is. It's a clear
+abstraction which has served us well so far.
 
-Code: c3 fb f3 c3 66 66 66 90 66 66 66 90 66 66 66 90 48 83 ec 38
-
--- 
-~Randy
+-Andi
 

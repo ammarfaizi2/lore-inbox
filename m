@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUKQRvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbUKQR1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbUKQRvp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 12:51:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbUKQRuZ
+	id S262470AbUKQR1O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 12:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbUKQRYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 12:50:25 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:20386 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262356AbUKQRow (ORCPT
+	Wed, 17 Nov 2004 12:24:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2733 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262415AbUKQQzb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 12:44:52 -0500
-Date: Wed, 17 Nov 2004 09:44:33 -0800
-From: Greg KH <greg@kroah.com>
-To: James.Smart@Emulex.Com
-Cc: linux-kernel@vger.kernel.org, linux-os@chaos.analogic.com,
-       jes@wildopensource.com
-Subject: Re: Potential issue with some implementations of pci_resource_start()
-Message-ID: <20041117174433.GB28285@kroah.com>
-References: <0B1E13B586976742A7599D71A6AC733C02F276@xbl3.ma.emulex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0B1E13B586976742A7599D71A6AC733C02F276@xbl3.ma.emulex.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 17 Nov 2004 11:55:31 -0500
+Date: Wed, 17 Nov 2004 08:55:25 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+cc: linux-dev@morknet.de, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@rustcorp.com.au
+Subject: Re: [PATCH] dss1_divert ISDN module compile fix for kernel 2.6.8.1
+In-Reply-To: <58cb370e0411170828365d1982@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0411170853420.2222@ppc970.osdl.org>
+References: <419B662D.5020904@morknet.de> <58cb370e0411170828365d1982@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 09:18:27AM -0500, James.Smart@Emulex.Com wrote:
+
+
+On Wed, 17 Nov 2004, Bartlomiej Zolnierkiewicz wrote:
 > 
-> Can someone please update Documentation/pci.txt so that it has correct
-> definitions for pci_resource_start() and pci_resource_end()...
+> This looks wrong, you are using many private spinlocks instead
+> of one global spinlock.
 
-Patches gladly accepted for this.  And as you now know exactly what is
-missing, you might be the best person to write such a patch :)
+Good catch, I didn't look closely enough.
 
-thanks,
+Steffen, can you make that "divert_lock" one global one, and re-test? I'd 
+do it myself, but it really does need testing, since there might be a 
+deadlock lurking there that the local lock bug hid.
 
-greg k-h
+		Linus

@@ -1,58 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135675AbRAVXj2>; Mon, 22 Jan 2001 18:39:28 -0500
+	id <S135843AbRAVXmH>; Mon, 22 Jan 2001 18:42:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135605AbRAVXjS>; Mon, 22 Jan 2001 18:39:18 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:17126 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S135827AbRAVXhj>;
-	Mon, 22 Jan 2001 18:37:39 -0500
-Date: Mon, 22 Jan 2001 15:36:38 -0800
-From: "H . J . Lu" <hjl@valinux.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        NFS maillist <nfs@lists.sourceforge.net>,
-        Michael Kriss <kriss@fnal.gov>
-Subject: Re: [NFS] [CFT] Improved RPC congestion handling for 2.4.0 (and 2.2.18)
-Message-ID: <20010122153638.B32449@valinux.com>
-In-Reply-To: <14904.54852.334762.889784@charged.uio.no> <20010122143740.A31589@valinux.com> <14956.48013.908491.509166@charged.uio.no>
+	id <S135850AbRAVXlv>; Mon, 22 Jan 2001 18:41:51 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:23377
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S135605AbRAVXkc>; Mon, 22 Jan 2001 18:40:32 -0500
+Date: Tue, 23 Jan 2001 00:40:26 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] drivers/scsi/g_NCR5380.c: check_*_region -> request_*_region (241p9)
+Message-ID: <20010123004026.M602@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14956.48013.908491.509166@charged.uio.no>; from trond.myklebust@fys.uio.no on Tue, Jan 23, 2001 at 12:00:29AM +0100
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 23, 2001 at 12:00:29AM +0100, Trond Myklebust wrote:
-> >>>>> " " == H J Lu <hjl@valinux.com> writes:
-> 
->      > I got a report which indicates it may not be a good idea,
->      > especially for UDP. Suppose you have a lousy LAN or NFS UDP
->      > server for whatever reason, some NFS/UDP packets may get lost
->      > very easily while a ping request may get through. In that case,
->      > the rpc ping may slow down the NFS client over UDP
->      > significantly.
-> 
-> Hi HJ,
-> 
-> Could you clarify this? Don't forget that we only send the ping after
-> a major timeout (usually after 3 or more resends).
-> 
-> IOW: If the ping gets through, then it'll have cost us 1 RPC request,
-> which is hardly a major contribution when talking about timescales of
-> the order of 5 seconds which is what that major timeout will have cost
-> (Don't forget that RPC timeout values increase geometrically).
-> 
+Hi.
 
-Michael Kriss <kriss@fnal.gov> is having this problem. I think this
-problem may be very specific to his network setup. I couldn't duplicate
-his problem. My guess is for his case, every ping sent is a loss of
-a potential working retry packet. He is using Solaris NFS sever with
-Linux client. I had an impression that packets from Solaris NFS server
-was dropped quite often. I don't know what happened.
+(I have not been able to find a maintainer for this code.)
+
+The following patch makes drivers/scsi/g_NCR5380.c check the
+return code of request_region instead of using check_region.
+Ditto for request_mem_region.
+
+It applies cleanly against ac10 and 241p9.
+
+Comments?
+
+
+--- linux-ac10-clean/drivers/scsi/g_NCR5380.c	Sat Jan 20 15:17:13 2001
++++ linux-ac10/drivers/scsi/g_NCR5380.c	Mon Jan 22 22:49:41 2001
+@@ -361,7 +361,7 @@
+ 	        }
+ 	    else
+ 	        for(i=0; ports[i]; i++) {
+-	            if ((!check_region(ports[i], 16)) && (inb(ports[i]) == 0xff))
++			if ((inb(ports[i]) == 0xff) && request_region(ports[i], NCR5380_region_size))
+ 	                break;
+ 		}
+ 	    if (ports[i]) {
+@@ -379,15 +379,10 @@
+ 	    } else
+ 	        continue;
+ 	}
+-
+-	request_region(overrides[current_override].NCR5380_map_name,
+-					NCR5380_region_size, "ncr5380");
+ #else
+-	if(check_mem_region(overrides[current_override].NCR5380_map_name,
+-		NCR5380_region_size))
++	if(!request_mem_region(overrides[current_override].NCR5380_map_name,
++		NCR5380_region_size, "ncr5380"))
+ 		continue;
+-	request_mem_region(overrides[current_override].NCR5380_map_name,
+-					NCR5380_region_size, "ncr5380");
+ #endif
+ 	instance = scsi_register (tpnt, sizeof(struct NCR5380_hostdata));
+ 	if(instance == NULL)
 
 -- 
-H.J. Lu (hjl@valinux.com)
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+Half this game is ninety percent mental.
+-Philadelphia Phillies manager Danny Ozark
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

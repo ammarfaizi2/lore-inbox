@@ -1,93 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262545AbUKQV1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbUKQVbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262545AbUKQV1o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 16:27:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262542AbUKQVZg
+	id S262561AbUKQVbO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 16:31:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbUKQVbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 16:25:36 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:29676 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262622AbUKQVTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 16:19:11 -0500
-Message-ID: <419BC04E.7050004@mvista.com>
-Date: Wed, 17 Nov 2004 15:19:10 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
+	Wed, 17 Nov 2004 16:31:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34991 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262544AbUKQV3y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 16:29:54 -0500
+Date: Wed, 17 Nov 2004 13:29:48 -0800
+From: Dave Olien <dmo@osdl.org>
+To: ccantwel@uci.edu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH} Network interface for IPMI
-References: <419BB646.3070805@mvista.com> <20041117125114.0c8fdf62.akpm@osdl.org>
-In-Reply-To: <20041117125114.0c8fdf62.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: DAC960 and latest kernels
+Message-ID: <20041117212948.GA2154@osdl.org>
+References: <20041117192018.GA25403@zee.ps.uci.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041117192018.GA25403@zee.ps.uci.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
 
->Corey Minyard <cminyard@mvista.com> wrote:
->  
->
->>IPMI is a manage standard that allows intelligent management controllers 
->>to monitor things about the system (temperature, fan speed, etc.).  The 
->>management controllers sit on a bus, and have addresses, and such.  
->>After seeing the ugliness required for the 32-bit ioctl compatability 
->>layers for 64-bit kernels, I have decided that the network interface for 
->>IPMI is a good thing, as the IPMI device ioctls have pointers and 
->>require ugly hacks.  None should be needed for the network interface.
->>
->>This patch adds that layer.
->>
->>-#define NPROTO		32		/* should be enough for now..	*/
->>+#define NPROTO		64		/* should be enough for now..	*/
->>    
->>
->
->Boy, that was a big bump.  Was this intentional?
->  
->
-It's the next power of 2 :).  Any value larger than 32 should work, I'll 
-just set it to 33.
+I'll look into this.  I'll see if I can reproduce any of these
+problems locally and get back to you.
 
->  
->
->>+static struct ipmi_sock *ipmi_socket_create1(struct socket *sock)
->>+{
->>+	struct ipmi_sock *i;
->>+
->>+	if (atomic_read(&ipmi_nr_socks) >= 2*files_stat.max_files)
->>+		return NULL;
->>    
->>
->
->Why this test?
->  
->
-It snuck in from the original patch writer and I missed it.  Not necessary.
+Dave
 
->  
->
->>+config IPMI_SOCKET
->>+	tristate "IPMI sockets"
->>+	depends on IPMI_HANDLER
->>+	---help---
->>+	  If you say Y here, you will include support for IPMI sockets;
->>+	  This way you don't have to use devices to access IPMI.  You
->>+	  must also enable the IPMI message handler and a low-level
->>+	  driver in the Character Drivers if you enable this.
->>+	  
->>+	  If unsure, say N.
->>    
->>
->
->Is this new kernel interface documented somewhere?
->  
->
-I thought I had done it, but it doesn't appear to be there.  I'll add 
-some and repost a patch.
-
-Thanks,
-
--Corey
+On Wed, Nov 17, 2004 at 11:20:18AM -0800, ccantwel@uci.edu wrote:
+> It seems that I have found a very serious bug relating to the DAC960
+> driver, it is present in 2.4.27 and 2.6.8.1 but I haven't tried any
+> development kernels newer than that.  This message is meant to inform
+> the people who may be able to figure out what the problem is and
+> repair the bug.  If anyone wants to respond to me or has further
+> information on this problem, please cc me directly, as I am not a
+> member of this mailing list.
+> 
+> There is a bug in latest released kernels for both 2.4 and 2.6
+> trees that seems to relate to the DAC960 driver.  I have tried
+> 2.4.27 and 2.6.8.1 and both have the following problem.  After
+> replacing and testing every piece of hardware I've determined
+> the problem is in the kernel and not the machine.  Also, going
+> back to kernel 2.4.17 makes everything work perfectly.
+> 
+> When copying a large number of files over the network using nc
+> and tar and also stress testing on the receiving side with
+> frequent du commands where the data is being written to (not
+> required for the problem but it seems to make it more likely
+> to happen) the machine randomly hangs.  Sometimes it crashes
+> completely with an Unable to handle kernel paging request at
+> virtual address, with various processes, and sometimes it just
+> completely halts and responds to nothing even though it seems
+> to sort of be running (answers on sockets but transfers no data,
+> no more communication of any kind on other open sockets, entering
+> a login name and enter on the console also hangs before the
+> password prompt.
+> 
+> Upon rebooting the filesystem that was being written to is corrupt.
+> When this file system is XFS I can still inspect it.  If it is
+> reiser the machine will often hang trying to run fsck.reiserfs.
+> 
+> In addition, after enough network tar copying I can stop the process,
+> and even if it has not hung the machine often the filesystem has
+> become corrupt.  Since this happens with both xfs and reiser and
+> there are paging problems too I believe it has to relate to the
+> dac960 driver itself.
+> 
+> I've also tried swapping DAC960 cards, and that doesn't matter,
+> they both work perfectly in 2.4.17 and the problems occur in
+> both cases in 2.4.27 and 2.6.8.1.  I'm planning to try some
+> more kernels in between to narrow down when the problem was
+> introduced but I'm not a kernel developer and that is about the
+> most I will be able to do.
+> 
+> I think the DAC960 driver isn't used very often and also without this
+> specific type of stress testing it is hard to realize the problem is
+> occuring before the filesystem is irreperably corrupt weeks down the
+> road, which is why this problem may have not been found yet.  Without
+> stress testing using tar the machine can go for weeks and act like it
+> is fine.
+> 
+> Again, if anyone has any information, please cc me when you reply as
+> I am not a member of this list.
+> 
+> Thank you
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

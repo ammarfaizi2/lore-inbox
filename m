@@ -1,121 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315438AbSGALuG>; Mon, 1 Jul 2002 07:50:06 -0400
+	id <S315483AbSGALyV>; Mon, 1 Jul 2002 07:54:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315483AbSGALuF>; Mon, 1 Jul 2002 07:50:05 -0400
-Received: from unthought.net ([212.97.129.24]:43742 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S315438AbSGALuE>;
-	Mon, 1 Jul 2002 07:50:04 -0400
-Date: Mon, 1 Jul 2002 13:52:30 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
-       linux-raid@vger.rutgers.edu,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Can't boot from /dev/md0 (RAID-1)
-Message-ID: <20020701115230.GD18580@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-	dean gaudet <dean-list-linux-kernel@arctic.org>,
-	linux-raid@vger.rutgers.edu,
-	Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0206301152150.1582-100000@twinlark.arctic.org> <200207011330.18973.roy@karlsbakk.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200207011330.18973.roy@karlsbakk.net>
-User-Agent: Mutt/1.3.28i
+	id <S315487AbSGALyU>; Mon, 1 Jul 2002 07:54:20 -0400
+Received: from [194.105.207.66] ([194.105.207.66]:14208 "EHLO
+	vider.octet.spb.ru") by vger.kernel.org with ESMTP
+	id <S315483AbSGALyT>; Mon, 1 Jul 2002 07:54:19 -0400
+Message-ID: <000801c220f5$8176fb50$15cf69c2@nick>
+From: "Nick Evgeniev" <nick@octet.spb.ru>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+References: <E17O821-0007we-00@the-village.bc.nu>
+Subject: Re: linnux 2.4.19-rc1 i845e ide not detected. dma doesn't work
+Date: Mon, 1 Jul 2002 15:49:43 +0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 01, 2002 at 01:30:18PM +0200, Roy Sigurd Karlsbakk wrote:
-> hi
-> 
-> trying this:
-> --
-> boot=/dev/md0
-> map=/boot/map
-> install=/boot/boot.b.hda
-> backup=/boot/boot.b.rs.hda
-> prompt
-> timeout=50
-> lba32
-> raid-extra-boot=/dev/hda,/dev/hdb
-> ...
-> 
-> with lilo-21.4-4 (standard with rh73) it won't accept the raid-extra-boot 
-> option
+Hi,
 
-Ok - I use it with LILO 22.2 here, it's on Debian, and it's the only box
-where I ever needed that option.
+    Why are you so assure? It's "msi 845e Max" with LAN on-board mb with
+_latest_ BIOS installed....
+Just FYI 2.4.18 was even unable to run eepro100 driver on it while intels
+e100 driver was working perfectly.
 
-My lilo.conf:
-----------8<--------
-lba32
-boot=/dev/md0
-raid-extra-boot=/dev/sda,/dev/sdb
-root=/dev/md1
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Nick Evgeniev" <nick@octet.spb.ru>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Saturday, June 29, 2002 6:32 AM
+Subject: Re: linnux 2.4.19-rc1 i845e ide not detected. dma doesn't work
 
-disk=/dev/sda
- bios=0x80
-disk=/dev/sdb
- bios=0x81
 
-install=/boot/boot-menu.b
+> Complain to your BIOS vendor
+>
+> A workaround for this BIOS flaw will be in the -ac tree in a week or so
+>
+>
 
-delay=20
-default=Linux
-
-image=/boot/vmlinuz
-  label=Linux
-  read-only
-----------8<--------
-
-The following is from a standard RedHat 7.3 system with LILO 21.4.4-14:
-
-----------8<-----8<-----
-boot=/dev/md3
-map=/boot/map
-install=/boot/boot.b
-message=/boot/message
-prompt
-timeout=40
-linear
-default=2.4.18
-image=/boot/vmlinuz-2.4.18
-  label=2.4.18
-  read-only
-  root=/dev/md2
-----------8<-----8<-----
-
-Both systems are SCSI-only though.
-
-The following is an IDE-only RedHat 7.2 with LILO 21.4.4.14
-
-----8<-----8<------------
-boot=/dev/md0
-map=/boot/map
-install=/boot/boot.b
-prompt
-timeout=50
-message=/boot/message
-linear
-default=linux
-image=/boot/vmlinuz
-  label=linux
-  read-only
-  root=/dev/md1
-----8<-----8<------------
-
-Perhaps you could change the lba32 option into linear ?  I'm really
-shooting in the mist here - LILO tends to "just work", and ignorance is
-bliss   ;)
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

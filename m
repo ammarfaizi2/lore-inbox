@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290817AbSAaBks>; Wed, 30 Jan 2002 20:40:48 -0500
+	id <S290811AbSAaBn6>; Wed, 30 Jan 2002 20:43:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290811AbSAaBkf>; Wed, 30 Jan 2002 20:40:35 -0500
-Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:33926 "EHLO
-	Bluesong.NET") by vger.kernel.org with ESMTP id <S290817AbSAaBjj>;
-	Wed, 30 Jan 2002 20:39:39 -0500
-Message-Id: <200201310144.g0V1iJs26742@Bluesong.NET>
-Content-Type: text/plain; charset=US-ASCII
-From: "Jack F. Vogel" <jfv@trane.bluesong.net>
-Reply-To: jfv@bluesong.net
-To: m.knoblauch@TeraPort.de
-Subject: Re: [PATCH]: O(1) 2.4.17-J7 Tuneable Parameters
-Date: Wed, 30 Jan 2002 17:44:18 -0800
-X-Mailer: KMail [version 1.3.1]
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        jfv@us.ibm.com
-In-Reply-To: <3C57F347.26527F73@TeraPort.de>
-In-Reply-To: <3C57F347.26527F73@TeraPort.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S290831AbSAaBnn>; Wed, 30 Jan 2002 20:43:43 -0500
+Received: from mailhost.nmt.edu ([129.138.4.52]:13586 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S290828AbSAaBnU>;
+	Wed, 30 Jan 2002 20:43:20 -0500
+Date: Wed, 30 Jan 2002 18:43:18 -0700
+From: Val Henson <val@nmt.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020130184318.K16371@boardwalk>
+In-Reply-To: <E16Vp2w-0000CA-00@starship.berlin> <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 29, 2002 at 11:48:05PM -0800
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 January 2002 05:21 am, Martin Knoblauch wrote:
-> > [PATCH]: O(1) 2.4.17-J7 Tuneable Parameters
->
->
->  How big is the actual degradation in your test? IIR, Ingo is afraid
-> that the tunables could easily screw things up, which of course is true.
-> What about adding a kernel-build option that leaves the sysctl interface
-> read-only by default and enables writing only if it is requested at
-> build time?
+On Tue, Jan 29, 2002 at 11:48:05PM -0800, Linus Torvalds wrote:
+> 
+> One thing intrigued me in this thread - which was not the discussion
+> itself, but the fact that Rik is using bitkeeper.
+> 
+> How many other people are actually using bitkeeper already for the kernel?
+> I know the ppc guys have, for a long time, but who else is? bk, unlike
+> CVS, should at least be _able_ to handle a "network of people" kind of
+> approach.
 
-Running on a machine that I dont think I can really officially give numbers..
-However, lets say that without the tuneable code you got a run of hackbench
-doing 60 groups that took 8.27 secs, when the tuneable code is in it went
-to a whopping 8.6 secs :)
+I'm one of the ppc people so I don't really count, but...
 
-The results at least on this benchmark were all in that decimal noise.
+I've used bitkeeper for the kernel for a year now.
 
-As for a build option, if the code were integrated I might see that as 
-making sense, but as this is a developmental patch the user is expected
-to know what they are doing. Only root can write anything to the parameters
-as well.
+One of the issues in the "network of people" approach is how much time
+and effort it takes to maintain a separate tree while waiting for
+changes to be merged into the main tree.  Bitkeeper really helps here.
+I've been maintaining a tree with significant differences from the
+mainline linuxppc tree, and I can pull and merge new changes without
+hand-editing a file 99% of the time.  Maintaining my own tree is now a
+minor annoyance, instead of a major pain.
 
-Cheers,
-
--- 
-Jack F. Vogel
-IBM  Linux Solutions
-jfv@us.ibm.com  (work)
-jfv@Bluesong.NET (home)
+-VAL
